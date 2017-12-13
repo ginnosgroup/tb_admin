@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.tb.dao.AdminUserDAO">
+
+    <select id="login" resultType="org.zhinanzhen.tb.dao.pojo.AdminUserDO">
+        SELECT
+            id,
+            username,
+            ap_list AS apList,
+            session_id AS sessionId,
+            gmt_login AS gmtLogin,
+            login_ip AS loginIp,
+            status
+        FROM tb_admin_user WHERE status != 'DISABLED' AND username = #{username, jdbcType=VARCHAR} AND password = #{password, jdbcType=VARCHAR};
+    </select>
+    
+    <update id="updateSessionId" parameterType="org.zhinanzhen.tb.dao.pojo.AdminUserDO">
+        UPDATE tb_admin_user 
+        SET gmt_modify = now(), gmt_login = now(), session_id = #{sessionId}
+        WHERE id = #{id};
+    </update>
+
+    <select id="getAdminUserById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.tb.dao.pojo.AdminUserDO">
+        SELECT
+            id,
+            username,
+            ap_list AS apList,
+            session_id AS sessionId,
+            gmt_login AS gmtLogin,
+            login_ip AS loginIp,
+            status
+        FROM tb_admin_user WHERE id = #{id, jdbcType=INTEGER};
+    </select>
+
+</mapper>
