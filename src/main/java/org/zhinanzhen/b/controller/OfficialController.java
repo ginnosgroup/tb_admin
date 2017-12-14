@@ -39,6 +39,7 @@ public class OfficialController extends BaseController {
 		return super.upload(file, request.getSession(), "/uploads/official_img/");
 	}
 
+	// curl -X POST -d 'name=sulei&phone=0404987526&email=leisu@zhinanzhen.org&imageUrl=/logo.jpg&regionId=10000000' "http://localhost:8080/admin/official/add"
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> addOfficial(@RequestParam(value = "name") String name,
