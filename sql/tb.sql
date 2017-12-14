@@ -161,4 +161,145 @@ CREATE TABLE `tb_admin_user` (
 
 -- ----------佣金系统相关表----------
 
+-- 移民佣金
+CREATE TABLE `b_brokerage` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `user_id` int NOT NULL COMMENT '用户编号 (对应tb_user.id)',
+  `receive_type_id` int NOT NULL COMMENT '收款方式编号(对应b_receive_type.id)',
+  `receive_date` datetime NOT NULL COMMENT '收款日期',
+  `service_id` int NOT NULL COMMENT '移民-服务项目编号 (对应b_service.id)',
+  `receivable` decimal(8,2) NOT NULL COMMENT '总计应收',
+  `received` decimal(8,2) NOT NULL COMMENT '总计已收',
+  `amount` decimal(8,2) NOT NULL COMMENT '本次收款',
+  `gst` decimal(8,2) NOT NULL COMMENT 'GST',
+  `deduct_gst` decimal(8,2) NOT NULL COMMENT 'Deduct GST',
+  `bonus` decimal(8,2) NOT NULL COMMENT '月奖金',
+  `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
+  `official_id` int NOT NULL COMMENT '文案编号 (对应b_official.id)'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+-- 留学-提前结佣
+CREATE TABLE `b_brokerage_sa` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `user_id` int NOT NULL COMMENT '用户编号 (对应tb_user.id)',
+  `receive_type_id` int NOT NULL COMMENT '收款方式编号(对应b_receive_type.id)',
+  `school_id` int NOT NULL COMMENT '学校编号 (对应b_school.id)',
+  `subject_id` int NOT NULL COMMENT '课程编号 (对应b_subject.id)',
+  `start_date` datetime NOT NULL COMMENT '开课日期',
+  `end_date` datetime NOT NULL COMMENT '结束日期',
+  `tuition_fee` decimal(8,2) NOT NULL COMMENT '学费',
+  `commission` decimal(8,2) NOT NULL COMMENT '手续费',
+  `gst` decimal(8,2) NOT NULL COMMENT 'GST',
+  `deduct_gst` decimal(8,2) NOT NULL COMMENT 'Deduct GST',
+  `bonus` decimal(8,2) NOT NULL COMMENT '月奖金',
+  `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
+  `official_id` int NOT NULL COMMENT '文案编号 (对应b_official.id)'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+-- 留学-学校待结佣
+CREATE TABLE `b_school_brokerage_sa` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `user_id` int NOT NULL COMMENT '用户编号 (对应tb_user.id)',
+  `school_id` int NOT NULL COMMENT '学校编号 (对应b_school.id)',
+  `subject_id` int NOT NULL COMMENT '课程编号 (对应b_subject.id)',
+  `student_id` int NOT NULL COMMENT '学号',
+  `start_date` datetime NOT NULL COMMENT '开课日期',
+  `end_date` datetime NOT NULL COMMENT '结束日期',
+  `tuition_fee` decimal(8,2) NOT NULL COMMENT '学费',
+  `first_term_tuition_fee` decimal(8,2) NOT NULL COMMENT '第一学期学费',
+  `commission` decimal(8,2) NOT NULL COMMENT '手续费',
+  `gst` decimal(8,2) NOT NULL COMMENT 'GST',
+  `deduct_gst` decimal(8,2) NOT NULL COMMENT 'Deduct GST',
+  `bonus` decimal(8,2) NOT NULL COMMENT '月奖金',
+  `pay_date` datetime DEFAULT NULL COMMENT '学校支付日期',
+  `invoice_code` varchar(32) DEFAULT NULL COMMENT '发票编号',
+  `pay_amount` decimal(8,2) DEFAULT NULL COMMENT '学校支付金额',
+  `subagency` varchar(32) DEFAULT NULL COMMENT '代理',
+  `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
+  `official_id` int NOT NULL COMMENT '文案编号 (对应b_official.id)'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+-- 退款
+CREATE TABLE `b_refund` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `user_id` int NOT NULL COMMENT '用户编号 (对应tb_user.id)',
+  `receive_type_id` int NOT NULL COMMENT '收款方式编号(对应b_receive_type.id)',
+  `amount` decimal(8,2) NOT NULL COMMENT '已收款金额',
+  `pre_refund_amount` decimal(8,2) NOT NULL COMMENT '申请退款金额',
+  `bank_name` varchar(32) DEFAULT NULL COMMENT '银行名称',
+  `bank_account` varchar(32) DEFAULT NULL COMMENT '银行帐号',
+  `bsb` varchar(8) DEFAULT NULL COMMENT 'Bank, State & Branch Code (Australia)',
+  `refund_date` datetime DEFAULT NULL COMMENT '实际退款时间',
+  `refund_amount` decimal(8,2) DEFAULT NULL COMMENT '已退款金额',
+  `gst` decimal(8,2) NOT NULL COMMENT 'GST',
+  `deduct_gst` decimal(8,2) NOT NULL COMMENT 'Deduct GST',
+  `refund` decimal(8,2) NOT NULL COMMENT 'Refund',
+  `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
+  `official_id` int NOT NULL COMMENT '文案编号 (对应b_official.id)'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+-- 移民-服务项目
+CREATE TABLE `b_service` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `code` varchar(4) DEFAULT NULL COMMENT '项目编码'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+-- 留学-学校
+CREATE TABLE `b_school` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `name` varchar(32) NOT NULL COMMENT '名称',
+  `country` varchar(4) NOT NULL COMMENT '国家编码'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+-- 留学-课程
+CREATE TABLE `b_subject` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `name` varchar(32) NOT NULL COMMENT '名称',
+  `school_id` int NOT NULL COMMENT '学校编号 (对应b_school.id)'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+-- 文案
+CREATE TABLE `b_official` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `name` varchar(32) NOT NULL COMMENT '名称',
+  `phone` varchar(16) NOT NULL COMMENT '电话号码',
+  `email` varchar(128) NOT NULL COMMENT '邮箱',
+  `state` varchar(8) NOT NULL COMMENT '状态 (ENABLED:激活,DISABLED:禁止)',
+  `image_url` varchar(128) DEFAULT NULL COMMENT '图片地址',
+  `region_id` int NOT NULL COMMENT '所属区域编号 (对应tb_region.id)'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+-- 收款方式
+CREATE TABLE `b_receive_type` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `name` varchar(32) NOT NULL COMMENT '名称',
+  `state` varchar(8) NOT NULL COMMENT '状态 (ENABLED:显示,DISABLED:不显示)',
+  `weight` int NOT NULL DEFAULT 1 COMMENT '排序权重'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+-- 提醒设置
+CREATE TABLE `b_remind` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `school_brokerage_sa_id` int NOT NULL COMMENT '学校待结佣编号 (对应b_school_brokerage_sa.id)'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
