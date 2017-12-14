@@ -25,7 +25,7 @@ import com.ikasoa.core.utils.StringUtil;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
-@RequestMapping("/Official")
+@RequestMapping("/official")
 public class OfficialController extends BaseController {
 
 	@Resource
