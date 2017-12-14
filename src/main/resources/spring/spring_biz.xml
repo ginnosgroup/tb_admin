@@ -18,7 +18,7 @@
 
 	<!-- 开启注解扫描DAO -->
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-		<property name="basePackage" value="org.zhinanzhen.tb.dao" />
+		<property name="basePackage" value="org.zhinanzhen.tb.dao,org.zhinanzhen.b.dao" />
 	</bean>
 
 	<!-- 定义事务管理器 -->
@@ -98,4 +98,5 @@
 	</bean>
     <!-- 开启注解扫描Service -->
 	<context:component-scan base-package="org.zhinanzhen.tb.service" />
+	<context:component-scan base-package="org.zhinanzhen.b.service" />
 </beans>
