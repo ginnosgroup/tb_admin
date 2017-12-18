@@ -14,6 +14,8 @@ public class UserDTO {
 	private Date gmtCreate;
 
 	private String name;
+	
+	private Date birthday;
 
 	private String phone;
 
