@@ -21,19 +21,19 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 	@Resource
 	private OfficialDAO OfficialDAO;
 	@Override
-	public int addOfficial(OfficialDTO OfficialDto) throws ServiceException {
-		if (OfficialDto == null) {
-			ServiceException se = new ServiceException("OfficialDto is null !");
+	public int addOfficial(OfficialDTO officialDto) throws ServiceException {
+		if (officialDto == null) {
+			ServiceException se = new ServiceException("officialDto is null !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
 		try {
-			OfficialDO OfficialDo = mapper.map(OfficialDto, OfficialDO.class);
-			if (OfficialDto.getState() != null) {
-				OfficialDo.setState(OfficialDto.getState().toString());
+			OfficialDO officialDo = mapper.map(officialDto, OfficialDO.class);
+			if (officialDo.getState() != null) {
+				officialDo.setState(officialDto.getState().toString());
 			}
-			if (OfficialDAO.addOfficial(OfficialDo) > 0) {
-				return OfficialDo.getId();
+			if (OfficialDAO.addOfficial(officialDo) > 0) {
+				return officialDo.getId();
 			} else {
 				return 0;
 			}
@@ -44,18 +44,18 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 		}
 	}
 	@Override
-	public int updateOfficial(OfficialDTO OfficialDto) throws ServiceException {
-		if (OfficialDto == null) {
-			ServiceException se = new ServiceException("OfficialDto is null !");
+	public int updateOfficial(OfficialDTO officialDto) throws ServiceException {
+		if (officialDto == null) {
+			ServiceException se = new ServiceException("officialDto is null !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
 		try {
-			OfficialDO OfficialDo = mapper.map(OfficialDto, OfficialDO.class);
-			if (OfficialDto.getState() != null) {
-				OfficialDo.setState(OfficialDto.getState().toString());
+			OfficialDO officialDo = mapper.map(officialDto, OfficialDO.class);
+			if (officialDto.getState() != null) {
+				officialDo.setState(officialDto.getState().toString());
 			}
-			return OfficialDAO.updateOfficial(OfficialDo);
+			return OfficialDAO.updateOfficial(officialDo);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
@@ -77,11 +77,11 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 		if (pageSize < 0) {
 			pageSize = DEFAULT_PAGE_SIZE;
 		}
-		List<OfficialDTO> OfficialDtoList = new ArrayList<OfficialDTO>();
-		List<OfficialDO> OfficialDoList = new ArrayList<OfficialDO>();
+		List<OfficialDTO> officialDtoList = new ArrayList<OfficialDTO>();
+		List<OfficialDO> officialDoList = new ArrayList<OfficialDO>();
 		try {
-			OfficialDoList = OfficialDAO.listOfficial(name, regionId, pageNum * pageSize, pageSize);
-			if (OfficialDoList == null) {
+			officialDoList = OfficialDAO.listOfficial(name, regionId, pageNum * pageSize, pageSize);
+			if (officialDoList == null) {
 				return null;
 			}
 		} catch (Exception e) {
@@ -89,14 +89,14 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
 			throw se;
 		}
-		for (OfficialDO OfficialDo : OfficialDoList) {
+		for (OfficialDO OfficialDo : officialDoList) {
 			OfficialDTO OfficialDto = mapper.map(OfficialDo, OfficialDTO.class);
 			if (StringUtil.isNotEmpty(OfficialDo.getState())) {
 				OfficialDto.setState(OfficialStateEnum.get(OfficialDo.getState()));
 			}
-			OfficialDtoList.add(OfficialDto);
+			officialDtoList.add(OfficialDto);
 		}
-		return OfficialDtoList;
+		return officialDtoList;
 	}
 
 	@Override
@@ -106,7 +106,7 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
-		OfficialDTO OfficialDto = null;
+		OfficialDTO officialDto = null;
 		try {
 			OfficialDO OfficialDo = OfficialDAO.getOfficialById(id);
 			if (OfficialDo == null) {
@@ -115,12 +115,12 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 //				throw se;
 				return null;
 			}
-			OfficialDto = mapper.map(OfficialDo, OfficialDTO.class);
+			officialDto = mapper.map(OfficialDo, OfficialDTO.class);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
 		}
-		return OfficialDto;
+		return officialDto;
 	}
 }
