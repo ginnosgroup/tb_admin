@@ -29,7 +29,7 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 		}
 		try {
 			OfficialDO officialDo = mapper.map(officialDto, OfficialDO.class);
-			if (officialDo.getState() != null) {
+			if (officialDo.getState() == null) {
 				officialDo.setState(officialDto.getState().toString());
 			}
 			if (OfficialDAO.addOfficial(officialDo) > 0) {
