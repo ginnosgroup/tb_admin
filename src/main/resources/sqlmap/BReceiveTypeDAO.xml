@@ -45,8 +45,7 @@
         <if test='state != null and state != ""'>
             AND state = #{state}
         </if>
-        ORDER BY weight DESC
-        LIMIT #{offset}, #{rows};
+        ORDER BY weight DESC;
     </select>
 
 </mapper>

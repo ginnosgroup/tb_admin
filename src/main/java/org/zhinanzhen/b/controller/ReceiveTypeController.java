@@ -1,5 +1,7 @@
 package org.zhinanzhen.b.controller;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -64,11 +66,15 @@ public class ReceiveTypeController extends BaseController {
 			super.setPostHeader(response);
 			ReceiveTypeDTO receiveTypeDto = new ReceiveTypeDTO();
 			receiveTypeDto.setId(id);
-			receiveTypeDto.setName(name);
+			if (StringUtils.isNotEmpty(name)) {
+				receiveTypeDto.setName(name);
+			}
 			if (StringUtils.isNotEmpty(state)) {
 				receiveTypeDto.setState(ReceiveTypeStateEnum.get(state));
 			}
-			receiveTypeDto.setWeight(Integer.parseInt(weight));
+			if (StringUtils.isNotEmpty(weight)) {
+				receiveTypeDto.setWeight(Integer.parseInt(weight));
+			}
 			if (receiveTypeService.updateReceiveType(receiveTypeDto) > 0) {
 				return new Response<ReceiveTypeDTO>(0, receiveTypeDto);
 			} else {
@@ -76,6 +82,19 @@ public class ReceiveTypeController extends BaseController {
 			}
 		} catch (ServiceException e) {
 			return new Response<ReceiveTypeDTO>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/list", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<ReceiveTypeDTO>> listReceiveType(@RequestParam(value = "state", required = false) String state,
+			HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<List<ReceiveTypeDTO>>(0,
+					receiveTypeService.listReceiveType(ReceiveTypeStateEnum.get(state)));
+		} catch (ServiceException e) {
+			return new Response<List<ReceiveTypeDTO>>(1, e.getMessage(), null);
 		}
 	}
 
