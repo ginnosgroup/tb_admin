@@ -89,12 +89,12 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
 			throw se;
 		}
-		for (OfficialDO OfficialDo : officialDoList) {
-			OfficialDTO OfficialDto = mapper.map(OfficialDo, OfficialDTO.class);
-			if (StringUtil.isNotEmpty(OfficialDo.getState())) {
-				OfficialDto.setState(OfficialStateEnum.get(OfficialDo.getState()));
+		for (OfficialDO officialDo : officialDoList) {
+			OfficialDTO officialDto = mapper.map(officialDo, OfficialDTO.class);
+			if (StringUtil.isNotEmpty(officialDo.getState())) {
+				officialDto.setState(OfficialStateEnum.get(officialDo.getState()));
 			}
-			officialDtoList.add(OfficialDto);
+			officialDtoList.add(officialDto);
 		}
 		return officialDtoList;
 	}
