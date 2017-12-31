@@ -16,5 +16,18 @@
                 #{name},
                 #{country});
     </insert>
+    
+    <select id="listSchool" resultType="org.zhinanzhen.b.dao.pojo.SchoolDO">
+        SELECT
+            id,
+            name,
+            country
+        FROM b_school
+        WHERE 1 = 1
+        <if test='name != null and name != ""'>
+            AND name = #{name}
+        </if>
+        ORDER BY gmt_create DESC;
+    </select>
 
 </mapper>
