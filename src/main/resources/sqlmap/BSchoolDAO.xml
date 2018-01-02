@@ -9,11 +9,13 @@
                 gmt_create,
                 gmt_modify,
                 name,
+                subject,
                 country)
             VALUES (
                 now(),
                 now(),
                 #{name},
+                #{subject},
                 #{country});
     </insert>
     
@@ -21,6 +23,7 @@
         SELECT
             id,
             name,
+            subject,
             country
         FROM b_school
         WHERE 1 = 1

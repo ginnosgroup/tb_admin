@@ -8,6 +8,8 @@ public class SchoolDO {
 	private int id;
 
 	private String name;
+	
+	private String subject;
 
 	private String country;
 

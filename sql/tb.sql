@@ -260,16 +260,8 @@ CREATE TABLE `b_school` (
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `name` varchar(32) NOT NULL COMMENT '名称',
+  `subject` varchar(128) NOT NULL COMMENT '课程',
   `country` varchar(4) NOT NULL COMMENT '国家编码'
-) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
-
--- 留学-课程
-CREATE TABLE `b_subject` (
-  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
-  `gmt_create` datetime NOT NULL COMMENT '创建时间',
-  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
-  `name` varchar(32) NOT NULL COMMENT '名称',
-  `school_id` int NOT NULL COMMENT '学校编号 (对应b_school.id)'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
 -- 文案
