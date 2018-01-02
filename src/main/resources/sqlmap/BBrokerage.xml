@@ -83,9 +83,9 @@
         SELECT count(*)
         FROM b_brokerage
         WHERE 1 = 1
-        <!-- <if test='keyword != null and keyword != ""'>
+        <if test='keyword != null and keyword != ""'>
             AND name LIKE '%${keyword}%'
-        </if> -->
+        </if>
         <if test='stardDate != null and stardDate != "" and endDate != null and endDate != ""'>
             <![CDATA[ AND gmt_create > #{stardDate} AND gmt_create < #{endDate} ]]>
         </if>
@@ -113,9 +113,9 @@
             official_id AS officialId
         FROM b_brokerage
         WHERE 1 = 1
-        <!-- <if test='keyword != null and keyword != ""'>
+        <if test='keyword != null and keyword != ""'>
             AND name LIKE '%${keyword}%'
-        </if> -->
+        </if>
         <if test='stardDate != null and stardDate != "" and endDate != null and endDate != ""'>
             <![CDATA[ AND gmt_create > #{stardDate} AND gmt_create < #{endDate} ]]>
         </if>

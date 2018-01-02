@@ -60,13 +60,14 @@ public class BrokerageServiceImpl extends BaseService implements BrokerageServic
 	}
 
 	@Override
-	public int countBrokerage(String stardDate, String endDate, Integer adviserId) throws ServiceException {
-		return brokerageDao.countBrokerage(stardDate, endDate, adviserId);
+	public int countBrokerage(String keyword, String stardDate, String endDate, Integer adviserId)
+			throws ServiceException {
+		return brokerageDao.countBrokerage(keyword, stardDate, endDate, adviserId);
 	}
 
 	@Override
-	public List<BrokerageDTO> listBrokerage(String stardDate, String endDate, Integer adviserId, int pageNum,
-			int pageSize) throws ServiceException {
+	public List<BrokerageDTO> listBrokerage(String keyword, String stardDate, String endDate, Integer adviserId,
+			int pageNum, int pageSize) throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
 		}
@@ -76,7 +77,8 @@ public class BrokerageServiceImpl extends BaseService implements BrokerageServic
 		List<BrokerageDTO> brokerageDtoList = new ArrayList<BrokerageDTO>();
 		List<BrokerageDO> brokerageDoList = new ArrayList<BrokerageDO>();
 		try {
-			brokerageDoList = brokerageDao.listBrokerage(stardDate, endDate, adviserId, pageNum * pageSize, pageSize);
+			brokerageDoList = brokerageDao.listBrokerage(keyword, stardDate, endDate, adviserId, pageNum * pageSize,
+					pageSize);
 			if (brokerageDoList == null) {
 				return null;
 			}
