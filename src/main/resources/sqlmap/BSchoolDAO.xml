@@ -19,6 +19,21 @@
                 #{country});
     </insert>
     
+    <update id="updateSchool" parameterType="org.zhinanzhen.b.dao.pojo.SchoolDO">
+        UPDATE b_school 
+        SET gmt_modify = now()
+        <if test='name != null and name != ""'>
+            , name = #{name}
+        </if>
+        <if test='subject != null and subject != ""'>
+            , subject = #{subject}
+        </if>
+        <if test='country != null and country != ""'>
+            , country = #{country}
+        </if>
+        WHERE id = #{id};
+    </update>
+    
     <select id="listSchool" resultType="org.zhinanzhen.b.dao.pojo.SchoolDO">
         SELECT
             id,
@@ -37,6 +52,15 @@
             AND country = #{country}
         </if>
         ORDER BY gmt_create DESC;
+    </select>
+    
+    <select id="getSchoolById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.SchoolDO">
+        SELECT
+            id,
+            name,
+            subject,
+            country
+        FROM b_school WHERE id = #{id, jdbcType=INTEGER};
     </select>
 
 </mapper>
