@@ -62,5 +62,9 @@
             country
         FROM b_school WHERE id = #{id, jdbcType=INTEGER};
     </select>
+    
+    <delete id="deleteSchoolById" parameterType="java.lang.Integer">
+		DELETE FROM b_school WHERE id = #{id, jdbcType=INTEGER}
+	</delete>
 
 </mapper>

@@ -14,5 +14,7 @@ public interface SchoolDAO {
 			@Param("country") String country);
 
 	public SchoolDO getSchoolById(int id);
+	
+	public int deleteSchoolById(int id);
 
 }
