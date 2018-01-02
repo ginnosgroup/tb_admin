@@ -19,7 +19,7 @@ import com.ikasoa.core.utils.StringUtil;
 @Service("OfficialService")
 public class OfficialServiceImpl extends BaseService implements OfficialService {
 	@Resource
-	private OfficialDAO OfficialDAO;
+	private OfficialDAO officialDao;
 	@Override
 	public int addOfficial(OfficialDTO officialDto) throws ServiceException {
 		if (officialDto == null) {
@@ -32,7 +32,7 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 			if (officialDto.getState() != null) {
 				officialDo.setState(officialDto.getState().toString());
 			}
-			if (OfficialDAO.addOfficial(officialDo) > 0) {
+			if (officialDao.addOfficial(officialDo) > 0) {
 				return officialDo.getId();
 			} else {
 				return 0;
@@ -55,7 +55,7 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 			if (officialDto.getState() != null) {
 				officialDo.setState(officialDto.getState().toString());
 			}
-			return OfficialDAO.updateOfficial(officialDo);
+			return officialDao.updateOfficial(officialDo);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
@@ -65,7 +65,7 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 
 	@Override
 	public int countOfficial(String name, Integer regionId) throws ServiceException {
-		return OfficialDAO.countOfficial(name, regionId);
+		return officialDao.countOfficial(name, regionId);
 	}
 
 	@Override
@@ -80,7 +80,7 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 		List<OfficialDTO> officialDtoList = new ArrayList<OfficialDTO>();
 		List<OfficialDO> officialDoList = new ArrayList<OfficialDO>();
 		try {
-			officialDoList = OfficialDAO.listOfficial(name, regionId, pageNum * pageSize, pageSize);
+			officialDoList = officialDao.listOfficial(name, regionId, pageNum * pageSize, pageSize);
 			if (officialDoList == null) {
 				return null;
 			}
@@ -108,7 +108,7 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 		}
 		OfficialDTO officialDto = null;
 		try {
-			OfficialDO OfficialDo = OfficialDAO.getOfficialById(id);
+			OfficialDO OfficialDo = officialDao.getOfficialById(id);
 			if (OfficialDo == null) {
 //				ServiceException se = new ServiceException("the Official is't exist .");
 //				se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
