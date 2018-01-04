@@ -39,7 +39,7 @@ public class SchoolController extends BaseController {
 			for (SchoolDTO schoolDto : schoolDtoList) {
 				if (schoolDto.getName().equals(name) && schoolDto.getSubject().equals(subject)
 						&& schoolDto.getCountry().equals(country)) {
-					return new Response<Integer>(1, "该学校课程已存在,操作失败.", 0);
+					return new Response<Integer>(2, "该学校课程已存在,操作失败.", 0);
 				}
 			}
 			SchoolDTO schoolDto = new SchoolDTO();
@@ -49,7 +49,7 @@ public class SchoolController extends BaseController {
 			if (schoolService.addSchool(schoolDto) > 0) {
 				return new Response<Integer>(0, schoolDto.getId());
 			} else {
-				return new Response<Integer>(0, "创建失败.", 0);
+				return new Response<Integer>(1, "创建失败.", 0);
 			}
 		} catch (ServiceException e) {
 			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
@@ -86,7 +86,7 @@ public class SchoolController extends BaseController {
 			if (schoolService.updateSchool(name, subject, country) > 0) {
 				return new Response<SchoolDTO>(0, schoolDto);
 			} else {
-				return new Response<SchoolDTO>(0, "修改失败.", null);
+				return new Response<SchoolDTO>(1, "修改失败.", null);
 			}
 		} catch (ServiceException e) {
 			return new Response<SchoolDTO>(e.getCode(), e.getMessage(), null);

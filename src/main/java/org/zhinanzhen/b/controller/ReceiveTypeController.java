@@ -48,7 +48,7 @@ public class ReceiveTypeController extends BaseController {
 			if (receiveTypeService.addReceiveType(receiveTypeDto) > 0) {
 				return new Response<Integer>(0, receiveTypeDto.getId());
 			} else {
-				return new Response<Integer>(0, "创建失败.", 0);
+				return new Response<Integer>(1, "创建失败.", 0);
 			}
 		} catch (ServiceException e) {
 			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
@@ -78,7 +78,7 @@ public class ReceiveTypeController extends BaseController {
 			if (receiveTypeService.updateReceiveType(receiveTypeDto) > 0) {
 				return new Response<ReceiveTypeDTO>(0, receiveTypeDto);
 			} else {
-				return new Response<ReceiveTypeDTO>(0, "修改失败.", null);
+				return new Response<ReceiveTypeDTO>(1, "修改失败.", null);
 			}
 		} catch (ServiceException e) {
 			return new Response<ReceiveTypeDTO>(e.getCode(), e.getMessage(), null);
