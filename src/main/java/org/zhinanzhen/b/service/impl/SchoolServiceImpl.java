@@ -7,17 +7,13 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.SchoolDAO;
-import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.SchoolDO;
-import org.zhinanzhen.b.service.OfficialStateEnum;
 import org.zhinanzhen.b.service.SchoolService;
-import org.zhinanzhen.b.service.pojo.OfficialDTO;
 import org.zhinanzhen.b.service.pojo.SchoolDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
 import com.ikasoa.core.thrift.ErrorCodeEnum;
-import com.ikasoa.core.utils.StringUtil;
 
 @Service("SchoolService")
 public class SchoolServiceImpl extends BaseService implements SchoolService {

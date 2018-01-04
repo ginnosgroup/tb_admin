@@ -13,16 +13,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.zhinanzhen.b.service.OfficialStateEnum;
 import org.zhinanzhen.b.service.ReceiveTypeService;
 import org.zhinanzhen.b.service.ReceiveTypeStateEnum;
-import org.zhinanzhen.b.service.pojo.OfficialDTO;
 import org.zhinanzhen.b.service.pojo.ReceiveTypeDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
-
-import com.ikasoa.core.utils.StringUtil;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
