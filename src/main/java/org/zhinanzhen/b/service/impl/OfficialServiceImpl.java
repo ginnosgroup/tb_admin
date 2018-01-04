@@ -108,14 +108,14 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 		}
 		OfficialDTO officialDto = null;
 		try {
-			OfficialDO OfficialDo = officialDao.getOfficialById(id);
-			if (OfficialDo == null) {
+			OfficialDO officialDo = officialDao.getOfficialById(id);
+			if (officialDo == null) {
 //				ServiceException se = new ServiceException("the Official is't exist .");
 //				se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 //				throw se;
 				return null;
 			}
-			officialDto = mapper.map(OfficialDo, OfficialDTO.class);
+			officialDto = mapper.map(officialDo, OfficialDTO.class);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
