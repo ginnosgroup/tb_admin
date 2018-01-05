@@ -177,7 +177,8 @@ CREATE TABLE `b_brokerage` (
   `deduct_gst` decimal(8,2) NOT NULL COMMENT 'Deduct GST',
   `bonus` decimal(8,2) NOT NULL COMMENT '月奖金',
   `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
-  `official_id` int NOT NULL COMMENT '文案编号 (对应b_official.id)'
+  `official_id` int NOT NULL COMMENT '文案编号 (对应b_official.id)',
+  `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
 -- 留学-提前结佣

@@ -34,5 +34,7 @@ public class BrokerageDTO {
 	private double adviserId;
 
 	private double officialId;
+	
+	private boolean isClose;
 
 }

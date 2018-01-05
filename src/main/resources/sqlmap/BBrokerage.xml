@@ -19,7 +19,8 @@
                 deduct_gst,
                 bonus,
                 adviser_id,
-                official_id)
+                official_id,
+                is_close)
             VALUES (
                 now(),
                 now(),
@@ -34,7 +35,8 @@
                 #{deductGst},
                 #{bonus},
                 #{adviserId},
-                #{officialId});
+                #{officialId},
+                0);
     </insert>
 
     <update id="updateBrokerage" parameterType="org.zhinanzhen.b.dao.pojo.BrokerageDO">
@@ -76,6 +78,9 @@
         <if test='officialId != null and officialId != ""'>
             , official_id = #{officialId}
         </if>
+        <if test='isClose != null and isClose != ""'>
+            , is_close = #{isClose}
+        </if>
         WHERE id = #{id};
     </update>
 
@@ -110,7 +115,8 @@
             deduct_gst AS deductGst,
             bonus,
             adviser_id AS adviserId,
-            official_id AS officialId
+            official_id AS officialId,
+            is_close AS isClose
         FROM b_brokerage
         WHERE 1 = 1
         <if test='keyword != null and keyword != ""'>
@@ -141,7 +147,8 @@
             deduct_gst AS deductGst,
             bonus,
             adviser_id AS adviserId,
-            official_id AS officialId
+            official_id AS officialId,
+            is_close AS isClose
         FROM b_brokerage WHERE id = #{id, jdbcType=INTEGER};
     </select>
 
