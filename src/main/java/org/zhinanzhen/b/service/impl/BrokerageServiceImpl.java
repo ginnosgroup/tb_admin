@@ -116,4 +116,20 @@ public class BrokerageServiceImpl extends BaseService implements BrokerageServic
 		return brokerageDto;
 	}
 
+	@Override
+	public int deleteBrokerageById(int id) throws ServiceException {
+		if (id <= 0) {
+			ServiceException se = new ServiceException("id error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			return brokerageDao.deleteBrokerageById(id);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
 }

@@ -19,5 +19,7 @@ public interface BrokerageDAO {
 			@Param("rows") int rows);
 
 	public BrokerageDO getBrokerageById(int id);
+	
+	public int deleteBrokerageById(int id);
 
 }

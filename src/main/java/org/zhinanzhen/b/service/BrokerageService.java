@@ -18,5 +18,7 @@ public interface BrokerageService {
 			int pageNum, int pageSize) throws ServiceException;
 
 	public BrokerageDTO getBrokerageById(int id) throws ServiceException;
+	
+	public int deleteBrokerageById(int id) throws ServiceException;
 
 }

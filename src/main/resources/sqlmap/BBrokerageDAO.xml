@@ -151,5 +151,9 @@
             is_close AS isClose
         FROM b_brokerage WHERE id = #{id, jdbcType=INTEGER};
     </select>
+    
+    <delete id="deleteBrokerageById" parameterType="java.lang.Integer">
+		DELETE FROM b_brokerage WHERE id = #{id, jdbcType=INTEGER}
+	</delete>
 
 </mapper>

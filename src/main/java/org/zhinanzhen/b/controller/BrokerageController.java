@@ -29,6 +29,51 @@ public class BrokerageController extends BaseController {
 	@Resource
 	BrokerageService brokerageService;
 
+	@RequestMapping(value = "/add", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<BrokerageDTO> addBrokerage(@RequestParam(value = "userId", required = false) String userId,
+			@RequestParam(value = "receiveTypeId", required = false) String receiveTypeId,
+			@RequestParam(value = "receiveDate", required = false) String receiveDate,
+			@RequestParam(value = "serviceId", required = false) String serviceId,
+			@RequestParam(value = "receivable", required = false) String receivable,
+			@RequestParam(value = "received", required = false) String received,
+			@RequestParam(value = "amount", required = false) String amount, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			BrokerageDTO brokerageDto = new BrokerageDTO();
+			if (StringUtil.isNotEmpty(userId)) {
+				brokerageDto.setUserId(Integer.parseInt(userId));
+			}
+			if (StringUtil.isNotEmpty(receiveTypeId)) {
+				brokerageDto.setReceiveTypeId(Integer.parseInt(receiveTypeId));
+			}
+			if (StringUtil.isNotEmpty(receiveDate)) {
+				brokerageDto.setReceiveDate(new Date(Long.parseLong(receiveDate)));
+			}
+			if (StringUtil.isNotEmpty(serviceId)) {
+				brokerageDto.setServiceId(Integer.parseInt(serviceId));
+			}
+			if (StringUtil.isNotEmpty(receivable)) {
+				brokerageDto.setReceivable(Double.parseDouble(receivable));
+			}
+			if (StringUtil.isNotEmpty(received)) {
+				brokerageDto.setReceived(Double.parseDouble(received));
+			}
+			double commission = brokerageDto.getAmount();
+			brokerageDto.setGst(commission / 11);
+			brokerageDto.setDeductGst(commission - brokerageDto.getGst());
+			brokerageDto.setBonus(brokerageDto.getDeductGst() * 0.1);
+			if (brokerageService.addBrokerage(brokerageDto) > 0) {
+				return new Response<BrokerageDTO>(0, brokerageDto);
+			} else {
+				return new Response<BrokerageDTO>(1, "创建失败.", null);
+			}
+		} catch (ServiceException e) {
+			return new Response<BrokerageDTO>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<BrokerageDTO> updateBrokerage(@RequestParam(value = "id") int id,
@@ -115,6 +160,43 @@ public class BrokerageController extends BaseController {
 			return new Response<BrokerageDTO>(0, brokerageService.getBrokerageById(id));
 		} catch (ServiceException e) {
 			return new Response<BrokerageDTO>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/close", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> closeBrokerage(@RequestParam(value = "id") int id, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			BrokerageDTO brokerageDto = brokerageService.getBrokerageById(id);
+			brokerageDto.setClose(true);
+			return new Response<Integer>(0, brokerageService.updateBrokerage(brokerageDto));
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), 0);
+		}
+	}
+
+	@RequestMapping(value = "/reopen", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> reopenBrokerage(@RequestParam(value = "id") int id, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			BrokerageDTO brokerageDto = brokerageService.getBrokerageById(id);
+			brokerageDto.setClose(false);
+			return new Response<Integer>(0, brokerageService.updateBrokerage(brokerageDto));
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), 0);
+		}
+	}
+
+	@RequestMapping(value = "/delete", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> deleteBrokerage(@RequestParam(value = "id") int id, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<Integer>(0, brokerageService.deleteBrokerageById(id));
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), 0);
 		}
 	}
 
