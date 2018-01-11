@@ -138,11 +138,12 @@ public class DownExcelController extends BaseController {
 			sheet.addCell(new Label(0, i, date, cellFormat));
 			sheet.addCell(new Label(1, i, userDto.getId() + "", cellFormat));
 			sheet.addCell(new Label(2, i, userDto.getName(), cellFormat));
-			sheet.addCell(new Label(3, i, userDto.getAuthNickname(), cellFormat));
-			sheet.addCell(new Label(4, i, userDto.getPhone(), cellFormat));
-			sheet.addCell(new Label(5, i, userDto.getAuthUsername(), cellFormat));
-			sheet.addCell(new Label(6, i, userDto.getEmail(), cellFormat));
-			sheet.addCell(new Label(7, i, userDto.getBalance() + "", cellFormat));
+			sheet.addCell(new Label(3, i, userDto.getBirthday() + "", cellFormat));
+			sheet.addCell(new Label(4, i, userDto.getAuthNickname(), cellFormat));
+			sheet.addCell(new Label(5, i, userDto.getPhone(), cellFormat));
+			sheet.addCell(new Label(6, i, userDto.getAuthUsername(), cellFormat));
+			sheet.addCell(new Label(7, i, userDto.getEmail(), cellFormat));
+			sheet.addCell(new Label(8, i, userDto.getBalance() + "", cellFormat));
 			if (userDto.getAdviserDto() != null) {
 				sheet.addCell(new Label(8, i, userDto.getAdviserDto().getName(), cellFormat));
 			} else {
