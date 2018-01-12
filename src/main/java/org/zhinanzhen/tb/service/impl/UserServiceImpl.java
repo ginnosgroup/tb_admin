@@ -28,13 +28,18 @@ public class UserServiceImpl extends BaseService implements UserService {
 	private AdviserService adviserService;
 
 	@Override
-	public int countUser(String name, String authNickname, String phone) throws ServiceException {
-		return userDAO.countUser(name, authNickname, phone);
+	public int countUser(String name, UserAuthTypeEnum authType, String authNickname, String phone)
+			throws ServiceException {
+		if (authType == null) {
+			return userDAO.countUser(name, null, authNickname, phone);
+		} else {
+			return userDAO.countUser(name, authType.toString(), authNickname, phone);
+		}
 	}
 
 	@Override
-	public List<UserDTO> listUser(String name, String authNickname, String phone, int pageNum, int pageSize)
-			throws ServiceException {
+	public List<UserDTO> listUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
+			int pageNum, int pageSize) throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
 		}
@@ -50,7 +55,12 @@ public class UserServiceImpl extends BaseService implements UserService {
 			System.out.println(("昵称转码失败"));
 		}
 		try {
-			userDoList = userDAO.listUser(name, authNickname, phone, pageNum * pageSize, pageSize);
+			if (authType == null) {
+				userDoList = userDAO.listUser(name, null, authNickname, phone, pageNum * pageSize, pageSize);
+			} else {
+				userDoList = userDAO.listUser(name, authType.toString(), authNickname, phone, pageNum * pageSize,
+						pageSize);
+			}
 			if (userDoList == null) {
 				return null;
 			}

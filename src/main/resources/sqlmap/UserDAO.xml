@@ -11,6 +11,9 @@
 		<if test='name != null and name != ""'>
 			AND name = #{name}
 		</if>
+		<if test='authType != null and authType != ""'>
+			AND auth_type = #{authType}
+		</if>
 		<if test='authNickname != null and authNickname != ""'>
 			AND auth_nickname = #{authNickname}
 		</if>
@@ -37,6 +40,9 @@
 		WHERE 1 = 1
 		<if test='name != null and name != ""'>
 			AND name = #{name}
+		</if>
+		<if test='authType != null and authType != ""'>
+			AND auth_type = #{authType}
 		</if>
 		<if test='authNickname != null and authNickname != ""'>
 			AND auth_nickname = #{authNickname}

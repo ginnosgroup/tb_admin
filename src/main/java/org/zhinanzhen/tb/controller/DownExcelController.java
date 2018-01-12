@@ -49,7 +49,9 @@ public class DownExcelController extends BaseController {
 				"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");// 设定输出文件头
 		response.setContentType("application/msexcel");
 		String inpath = "/UserTemplate2.xls";
-		List<UserDTO> userDtoList = userService.listUser(name, authNickname, phone, 0, 10000);
+		List<UserDTO> userDtoList = userService.listUser(name, null, authNickname, phone, 0, 10000); // TODO:
+																										// sulei
+																										// 记得把类型过滤加上
 		downUserUtil(os, inpath, userDtoList);
 	}
 
@@ -129,7 +131,8 @@ public class DownExcelController extends BaseController {
 		}
 		WritableSheet sheet = wbe.getSheet(0);
 		WritableCellFormat cellFormat = new WritableCellFormat();
-		// cellFormat.setBorder(jxl.format.Border.ALL, jxl.format.BorderLineStyle.THIN);
+		// cellFormat.setBorder(jxl.format.Border.ALL,
+		// jxl.format.BorderLineStyle.THIN);
 
 		int i = 1;
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
