@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.zhinanzhen.tb.service.OrderPayTypeEnum;
 import org.zhinanzhen.tb.service.OrderService;
 import org.zhinanzhen.tb.service.OrderStateEnum;
+import org.zhinanzhen.tb.service.UserAuthTypeEnum;
 import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.OrderDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
@@ -40,8 +41,8 @@ public class DownExcelController extends BaseController {
 	private OrderService orderService;
 
 	@RequestMapping("/user")
-	public void userExport(String name, String authNickname, String phone, HttpServletResponse response)
-			throws Exception {
+	public void userExport(String name, String authType, String authNickname, String phone,
+			HttpServletResponse response) throws Exception {
 		OutputStream os = response.getOutputStream();// 取得输出流
 		response.reset();// 清空输出流
 		String tableName = "user_information";
@@ -49,9 +50,11 @@ public class DownExcelController extends BaseController {
 				"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");// 设定输出文件头
 		response.setContentType("application/msexcel");
 		String inpath = "/UserTemplate2.xls";
-		List<UserDTO> userDtoList = userService.listUser(name, null, authNickname, phone, 0, 10000); // TODO:
-																										// sulei
-																										// 记得把类型过滤加上
+		UserAuthTypeEnum authTypeEnum = null;
+		if (StringUtil.isNotEmpty(authType)) {
+			authTypeEnum = UserAuthTypeEnum.get(authType);
+		}
+		List<UserDTO> userDtoList = userService.listUser(name, authTypeEnum, authNickname, phone, 0, 10000);
 		downUserUtil(os, inpath, userDtoList);
 	}
 
