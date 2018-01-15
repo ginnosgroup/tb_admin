@@ -1,6 +1,7 @@
 package org.zhinanzhen.tb.service.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -23,17 +24,42 @@ import com.ikasoa.core.utils.StringUtil;
 @Service("userService")
 public class UserServiceImpl extends BaseService implements UserService {
 	@Resource
-	private UserDAO userDAO;
+	private UserDAO userDao;
 	@Resource
 	private AdviserService adviserService;
+
+	@Override
+	public int addUser(String name, Date birthday, String phone, int adviserId) throws ServiceException {
+		if (StringUtil.isEmpty(name)) {
+			ServiceException se = new ServiceException("name is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		if (birthday == null) {
+			ServiceException se = new ServiceException("birthday is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		if (phone == null) {
+			ServiceException se = new ServiceException("phone is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		if (adviserId <= 0) {
+			ServiceException se = new ServiceException("id error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		return userDao.addUser(name, formatter.format(birthday), phone, adviserId);
+	}
 
 	@Override
 	public int countUser(String name, UserAuthTypeEnum authType, String authNickname, String phone)
 			throws ServiceException {
 		if (authType == null) {
-			return userDAO.countUser(name, null, authNickname, phone);
+			return userDao.countUser(name, null, authNickname, phone);
 		} else {
-			return userDAO.countUser(name, authType.toString(), authNickname, phone);
+			return userDao.countUser(name, authType.toString(), authNickname, phone);
 		}
 	}
 
@@ -56,9 +82,9 @@ public class UserServiceImpl extends BaseService implements UserService {
 		}
 		try {
 			if (authType == null) {
-				userDoList = userDAO.listUser(name, null, authNickname, phone, pageNum * pageSize, pageSize);
+				userDoList = userDao.listUser(name, null, authNickname, phone, pageNum * pageSize, pageSize);
 			} else {
-				userDoList = userDAO.listUser(name, authType.toString(), authNickname, phone, pageNum * pageSize,
+				userDoList = userDao.listUser(name, authType.toString(), authNickname, phone, pageNum * pageSize,
 						pageSize);
 			}
 			if (userDoList == null) {
@@ -99,7 +125,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 		}
 		UserDTO userDto = null;
 		try {
-			UserDO userDo = userDAO.getUserById(id);
+			UserDO userDo = userDao.getUserById(id);
 			if (userDo == null) {
 				ServiceException se = new ServiceException("the user is't exist .userId = " + id);
 				se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
@@ -142,7 +168,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
-		UserDO userDo = userDAO.getUserByThird(thirdType, thirdId);
+		UserDO userDo = userDao.getUserByThird(thirdType, thirdId);
 		UserDTO userDto = mapper.map(userDo, UserDTO.class);
 		if (userDto.getAdviserId() > 0) {
 			AdviserDTO adviserDto = adviserService.getAdviserById(userDto.getAdviserId());
@@ -180,7 +206,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 			se.setCode(ErrorCodeEnum.DATA_ERROR.code());
 			throw se;
 		}
-		return userDAO.updateAdviserById(adviserId, id);
+		return userDao.updateAdviserById(adviserId, id);
 	}
 
 	@Override
@@ -194,7 +220,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 		List<UserDO> userDoList = new ArrayList<UserDO>();
 
 		try {
-			userDoList = userDAO.listUserByRecommendOpenId(recommendOpenId);
+			userDoList = userDao.listUserByRecommendOpenId(recommendOpenId);
 			if (userDoList == null) {
 				return null;
 			}
@@ -223,4 +249,5 @@ public class UserServiceImpl extends BaseService implements UserService {
 		}
 		return userDtoList;
 	}
+
 }

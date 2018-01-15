@@ -1,5 +1,7 @@
 package org.zhinanzhen.tb.service.impl;
 
+import java.text.SimpleDateFormat;
+
 import org.dozer.DozerBeanMapper;
 import org.dozer.Mapper;
 import org.slf4j.Logger;
@@ -17,6 +19,8 @@ public abstract class BaseService {
 	protected static final Logger LOG = LoggerFactory.getLogger(BaseService.class);
 
 	protected Mapper mapper = new DozerBeanMapper();
+	
+	protected SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd"); 
 
 	/**
 	 * 默认起始页编码
