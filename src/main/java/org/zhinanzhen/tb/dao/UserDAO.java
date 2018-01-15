@@ -7,6 +7,9 @@ import org.zhinanzhen.tb.dao.pojo.UserDO;
 
 public interface UserDAO {
 
+	public int addUser(@Param("name") String name, @Param("birthday") String birthdayStr, @Param("phone") String phone,
+			@Param("adviserId") int adviserId);
+
 	public int countUser(@Param("name") String name, @Param("authType") String authType,
 			@Param("authNickname") String authNickname, @Param("phone") String phone);
 

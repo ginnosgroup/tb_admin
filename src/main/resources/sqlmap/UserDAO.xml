@@ -3,6 +3,39 @@
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.zhinanzhen.tb.dao.UserDAO">
 
+	<insert id="addUser" parameterType="org.zhinanzhen.tb.dao.pojo.UserDO">
+		insert into tb_user(
+		gmt_create,
+		gmt_modify,
+		name,
+		birthday,
+		phone,
+		email,
+		auth_type,
+		auth_openid,
+		auth_username,
+		auth_nickname,
+		auth_logo,
+		balance,
+		adviser_id,
+		region_id)
+		values (
+		now(),
+		now(),
+		#{name},
+		to_date(#{birthdayStr},'YYYY/MM/DD'),
+		#{phone},
+		"",
+		"BROKERAGE",
+		"",
+		"",
+		"",
+		"",
+		0,
+		#{adviserId},
+		0)
+	</insert>
+
 	<select id="countUser" parameterType="org.zhinanzhen.tb.dao.pojo.UserDO"
 		resultType="java.lang.Integer">
 		SELECT count(*)
