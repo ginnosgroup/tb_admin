@@ -1,5 +1,6 @@
 package org.zhinanzhen.tb.controller;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -25,6 +26,24 @@ public class UserController extends BaseController {
 
 	@Resource
 	UserService userService;
+	
+	@RequestMapping(value = "/add", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> addUser(@RequestParam(value = "authNickname") String authNickname,
+			@RequestParam(value = "birthday") String birthday, @RequestParam(value = "phone") String phone,
+			@RequestParam(value = "adviserId") String adviserId, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			int count = userService.countUser(null, null, null, phone);
+			if (count > 0) {
+				return new Response<Integer>(1, "该电话号码已被使用,添加失败.", 0);
+			}
+			return new Response<Integer>(0, userService.addUser(authNickname, new Date(Long.parseLong(birthday)), phone,
+					StringUtil.toInt(adviserId)));
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), -1);
+		}
+	}
 
 	@RequestMapping(value = "/count", method = RequestMethod.GET)
 	@ResponseBody
