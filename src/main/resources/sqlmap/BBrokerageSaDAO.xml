@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.BrokerageSaDAO">
+
+    <insert id="addBrokerageSa" parameterType="org.zhinanzhen.b.dao.pojo.BrokerageSaDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+            INTO b_brokerage_sa (
+                gmt_create,
+                gmt_modify,
+                user_id,
+                receive_type_id,
+                school_id,
+                subject_id,
+                start_date,
+                end_date,
+                tuition_fee,
+                commission,
+                gst,
+                deduct_gst,
+                bonus,
+                adviser_id,
+                official_id,
+                is_close)
+            VALUES (
+                now(),
+                now(),
+                #{userId},
+                #{receiveTypeId},
+                #{schoolId},
+                #{subjectId},
+                #{startDate},
+                #{endDate},
+                #{tuitionFee},
+                #{commission},
+                #{gst},
+                #{deductGst},
+                #{bonus},
+                #{adviserId},
+                #{officialId},
+                0);
+    </insert>
+
+    <update id="updateBrokerageSa" parameterType="org.zhinanzhen.b.dao.pojo.BrokerageSaDO">
+        UPDATE b_brokerage_sa 
+        SET gmt_modify = now()
+        <if test='userId != null and userId != ""'>
+            , user_id = #{userId}
+        </if>
+        <if test='receiveTypeId != null and receiveTypeId != ""'>
+            , receive_type_id = #{receiveTypeId}
+        </if>
+        <if test='schoolId != null and schoolId != ""'>
+            , school_id = #{schoolId}
+        </if>
+        <if test='subjectId != null and subjectId != ""'>
+            , subject_id = #{subjectId}
+        </if>
+        <if test='startDate != null and startDate != ""'>
+            , start_date = #{startDate}
+        </if>
+        <if test='endDate != null and endDate != ""'>
+            , end_date = #{endDate}
+        </if>
+        <if test='tuitionFee != null and tuitionFee != ""'>
+            , tuition_fee = #{tuitionFee}
+        </if>
+        <if test='commission != null and commission != ""'>
+            , commission = #{commission}
+        </if>
+        <if test='gst != null and gst != ""'>
+            , gst = #{gst}
+        </if>
+        <if test='deductGst != null and deductGst != ""'>
+            , deduct_gst = #{deductGst}
+        </if>
+        <if test='bonus != null and bonus != ""'>
+            , bonus = #{bonus}
+        </if>
+        <if test='adviserId != null and adviserId != ""'>
+            , adviser_id = #{adviserId}
+        </if>
+        <if test='officialId != null and officialId != ""'>
+            , official_id = #{officialId}
+        </if>
+        <if test='isClose != null and isClose != ""'>
+            , is_close = #{isClose}
+        </if>
+        WHERE id = #{id};
+    </update>
+
+    <!-- <select id="countBrokerageSa" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM b_brokerage
+        WHERE 1 = 1
+        <if test='keyword != null and keyword != ""'>
+            AND name LIKE '%${keyword}%'
+        </if>
+        <if test='stardDate != null and stardDate != "" and endDate != null and endDate != ""'>
+            <![CDATA[ AND gmt_create > #{stardDate} AND gmt_create < #{endDate} ]]>
+        </if>
+        <if test='adviserId != null and adviserId != ""'>
+            AND adviser_id = #{adviserId}
+        </if>
+        ;
+    </select>
+    
+    <select id="listBrokerageSa" resultType="org.zhinanzhen.b.dao.pojo.BrokerageSaDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            user_id AS userId,
+            receive_type_id AS receiveTypeId,
+            school_id AS schoolId,
+            subject_id AS subjectId,
+            start_date AS startDate,
+            end_date AS endDate,
+            tuition_fee AS tuitionFee,
+            commission,
+            gst,
+            deduct_gst AS deductGst,
+            bonus,
+            adviser_id AS adviserId,
+            official_id AS officialId,
+            is_close AS isClose
+        FROM b_brokerage_sa
+        WHERE 1 = 1
+        <if test='keyword != null and keyword != ""'>
+            AND name LIKE '%${keyword}%'
+        </if>
+        <if test='stardDate != null and stardDate != "" and endDate != null and endDate != ""'>
+            <![CDATA[ AND gmt_create > #{stardDate} AND gmt_create < #{endDate} ]]>
+        </if>
+        <if test='adviserId != null and adviserId != ""'>
+            AND adviser_id = #{adviserId}
+        </if>
+        ORDER BY gmt_create DESC
+        LIMIT #{offset}, #{rows};
+    </select> -->
+
+    <select id="getBrokerageSaById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.BrokerageSaDO">
+        SELECT
+             id,
+             gmt_create AS gmtCreate,
+             user_id AS userId,
+             receive_type_id AS receiveTypeId,
+             school_id AS schoolId,
+             subject_id AS subjectId,
+             start_date AS startDate,
+             end_date AS endDate,
+             tuition_fee AS tuitionFee,
+             commission,
+             gst,
+             deduct_gst AS deductGst,
+             bonus,
+             adviser_id AS adviserId,
+             official_id AS officialId,
+             is_close AS isClose
+        FROM b_brokerage_sa WHERE id = #{id, jdbcType=INTEGER};
+    </select>
+    
+    <delete id="deleteBrokerageSaById" parameterType="java.lang.Integer">
+		DELETE FROM b_brokerage_sa WHERE id = #{id, jdbcType=INTEGER}
+	</delete>
+
+</mapper>
