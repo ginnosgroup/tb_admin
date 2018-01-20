@@ -23,7 +23,7 @@
 		now(),
 		now(),
 		#{name},
-		to_date(#{birthdayStr},'YYYY/MM/DD'),
+		#{birthday},
 		#{phone},
 		"",
 		"BROKERAGE",

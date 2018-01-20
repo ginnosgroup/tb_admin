@@ -38,8 +38,8 @@ public class UserController extends BaseController {
 			if (count > 0) {
 				return new Response<Integer>(1, "该电话号码已被使用,添加失败.", 0);
 			}
-			return new Response<Integer>(0, userService.addUser(authNickname, new Date(Long.parseLong(birthday)), phone,
-					StringUtil.toInt(adviserId)));
+			return new Response<Integer>(0, userService.addUser(authNickname, new Date(Long.parseLong(birthday.trim())),
+					phone, StringUtil.toInt(adviserId)));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), -1);
 		}

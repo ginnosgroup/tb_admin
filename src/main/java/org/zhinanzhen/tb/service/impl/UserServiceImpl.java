@@ -50,7 +50,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
-		return userDao.addUser(name, formatter.format(birthday), phone, adviserId);
+		return userDao.addUser(name, birthday, phone, adviserId);
 	}
 
 	@Override
