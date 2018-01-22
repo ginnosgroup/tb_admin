@@ -11,13 +11,13 @@ public class BrokerageSaDO {
 
 	private Date gmtCreate;
 	
+	private Date handlingDate;
+	
 	private int userId;
 	
 	private int receiveTypeId;
 	
 	private int schoolId;
-	
-	private int subjectId;
 	
 	private Date startDate;
 	
