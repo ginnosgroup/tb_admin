@@ -7,7 +7,6 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.BrokerageSaDAO;
-import org.zhinanzhen.b.dao.pojo.BrokerageDO;
 import org.zhinanzhen.b.dao.pojo.BrokerageSaDO;
 import org.zhinanzhen.b.dao.pojo.BrokerageSaListDO;
 import org.zhinanzhen.b.service.BrokerageSaService;
