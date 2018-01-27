@@ -15,9 +15,15 @@ public class BrokerageSaDTO {
 
 	private int userId;
 
+	private String userName;
+
 	private int receiveTypeId;
 
 	private int schoolId;
+
+	private String schoolName;
+
+	private String schoolSubject;
 
 	private Date startDate;
 
