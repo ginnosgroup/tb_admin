@@ -7,6 +7,7 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.BrokerageSaDAO;
+import org.zhinanzhen.b.dao.pojo.BrokerageDO;
 import org.zhinanzhen.b.dao.pojo.BrokerageSaDO;
 import org.zhinanzhen.b.dao.pojo.BrokerageSaListDO;
 import org.zhinanzhen.b.service.BrokerageSaService;
@@ -30,8 +31,19 @@ public class BrokerageSaServiceImpl extends BaseService implements BrokerageSaSe
 
 	@Override
 	public int updateBrokerageSa(BrokerageSaDTO brokerageSaDto) throws ServiceException {
-		// TODO Auto-generated method stub
-		return 0;
+		if (brokerageSaDto == null) {
+			ServiceException se = new ServiceException("brokerageSaDto is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			BrokerageSaDO brokerageSaDo = mapper.map(brokerageSaDto, BrokerageSaDO.class);
+			return brokerageSaDao.updateBrokerageSa(brokerageSaDo);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
 	}
 
 	@Override
