@@ -25,8 +25,23 @@ public class BrokerageSaServiceImpl extends BaseService implements BrokerageSaSe
 
 	@Override
 	public int addBrokerageSa(BrokerageSaDTO brokerageSaDto) throws ServiceException {
-		// TODO Auto-generated method stub
-		return 0;
+		if (brokerageSaDto == null) {
+			ServiceException se = new ServiceException("brokerageSaDto is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			BrokerageSaDO brokerageSaDo = mapper.map(brokerageSaDto, BrokerageSaDO.class);
+			if (brokerageSaDao.addBrokerageSa(brokerageSaDo) > 0) {
+				return brokerageSaDo.getId();
+			} else {
+				return 0;
+			}
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
 	}
 
 	@Override
