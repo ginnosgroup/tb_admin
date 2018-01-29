@@ -10,6 +10,8 @@ public class BrokerageDO {
 	private int id;
 
 	private Date gmtCreate;
+	
+	private Date handlingDate;
 
 	private int userId;
 

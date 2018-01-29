@@ -61,8 +61,8 @@ public class BrokerageSaServiceImpl extends BaseService implements BrokerageSaSe
 	}
 
 	@Override
-	public int countBrokerageSa(String keyword, String startCreateDate, String endCreateDate, String startHandlingDate,
-			String endHandlingDate, Integer adviserId, Integer schoolId) throws ServiceException {
+	public int countBrokerageSa(String keyword, String startHandlingDate,
+			String endHandlingDate, , String startDate, String endDate, Integer adviserId, Integer schoolId) throws ServiceException {
 		return brokerageSaDao.countBrokerageSa(keyword, startCreateDate, endCreateDate, startHandlingDate,
 				endHandlingDate, adviserId, schoolId);
 	}

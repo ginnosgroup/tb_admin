@@ -32,18 +32,20 @@ public class BrokerageController extends BaseController {
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<BrokerageDTO> addBrokerage(@RequestParam(value = "userId", required = false) String userId,
-			@RequestParam(value = "receiveTypeId", required = false) String receiveTypeId,
-			@RequestParam(value = "receiveDate", required = false) String receiveDate,
-			@RequestParam(value = "serviceId", required = false) String serviceId,
-			@RequestParam(value = "receivable", required = false) String receivable,
+			@RequestParam(value = "handlingDate") String handlingDate,
+			@RequestParam(value = "receiveTypeId") String receiveTypeId,
+			@RequestParam(value = "receiveDate") String receiveDate,
+			@RequestParam(value = "serviceId") String serviceId, @RequestParam(value = "receivable") String receivable,
 			@RequestParam(value = "received", required = false) String received,
-			@RequestParam(value = "amount", required = false) String amount, HttpServletRequest request,
-			HttpServletResponse response) {
+			@RequestParam(value = "amount") String amount, HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			BrokerageDTO brokerageDto = new BrokerageDTO();
 			if (StringUtil.isNotEmpty(userId)) {
 				brokerageDto.setUserId(Integer.parseInt(userId));
+			}
+			if (StringUtil.isNotEmpty(handlingDate)) {
+				brokerageDto.setHandlingDate(new Date(Long.parseLong(handlingDate)));
 			}
 			if (StringUtil.isNotEmpty(receiveTypeId)) {
 				brokerageDto.setReceiveTypeId(Integer.parseInt(receiveTypeId));
@@ -77,6 +79,7 @@ public class BrokerageController extends BaseController {
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<BrokerageDTO> updateBrokerage(@RequestParam(value = "id") int id,
+			@RequestParam(value = "handlingDate", required = false) String handlingDate,
 			@RequestParam(value = "userId", required = false) String userId,
 			@RequestParam(value = "receiveTypeId", required = false) String receiveTypeId,
 			@RequestParam(value = "receiveDate", required = false) String receiveDate,
@@ -89,6 +92,9 @@ public class BrokerageController extends BaseController {
 			super.setPostHeader(response);
 			BrokerageDTO brokerageDto = new BrokerageDTO();
 			brokerageDto.setId(id);
+			if (StringUtil.isNotEmpty(handlingDate)) {
+				brokerageDto.setHandlingDate(new Date(Long.parseLong(handlingDate)));
+			}
 			if (StringUtil.isNotEmpty(userId)) {
 				brokerageDto.setUserId(Integer.parseInt(userId));
 			}

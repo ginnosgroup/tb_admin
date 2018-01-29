@@ -8,6 +8,7 @@
             INTO b_brokerage (
                 gmt_create,
                 gmt_modify,
+                handling_date,
                 user_id,
                 receive_type_id,
                 receive_date,
@@ -25,6 +26,7 @@
                 now(),
                 now(),
                 #{userId},
+                #{handlingDate},
                 #{receiveTypeId},
                 #{receiveDate},
                 #{serviceId},
@@ -42,6 +44,9 @@
     <update id="updateBrokerage" parameterType="org.zhinanzhen.b.dao.pojo.BrokerageDO">
         UPDATE b_brokerage 
         SET gmt_modify = now()
+        <if test='handlingDate != null and handlingDate != ""'>
+            , handling_date = #{handlingDate}
+        </if>
         <if test='userId != null and userId != ""'>
             , user_id = #{userId}
         </if>
@@ -104,6 +109,7 @@
         SELECT
             id,
             gmt_create AS gmtCreate,
+            handling_date AS handlingDate,
             user_id  AS userId,
             receive_type_id AS receiveType,
             receive_date AS receiveDate,
@@ -136,6 +142,7 @@
         SELECT
             id,
             gmt_create AS gmtCreate,
+            handling_date AS handlingDate,
             user_id  AS userId,
             receive_type_id AS receiveType,
             receive_date AS receiveDate,

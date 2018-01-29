@@ -12,14 +12,14 @@ public interface BrokerageSaDAO {
 
 	public int updateBrokerageSa(BrokerageSaDO brokerageSaDo);
 
-	public int countBrokerageSa(@Param("keyword") String keyword, @Param("startCreateDate") String startCreateDate,
-			@Param("endCreateDate") String endCreateDate, @Param("startHandlingDate") String startHandlingDate,
-			@Param("endHandlingDate") String endHandlingDate, @Param("adviserId") Integer adviserId,
+	public int countBrokerageSa(@Param("keyword") String keyword, @Param("startHandlingDate") String startHandlingDate,
+			@Param("endHandlingDate") String endHandlingDate, @Param("startDate") String startDate,
+			@Param("endDate") String endDate, @Param("adviserId") Integer adviserId,
 			@Param("schoolId") Integer schoolId);
 
 	public List<BrokerageSaListDO> listBrokerageSa(@Param("keyword") String keyword,
-			@Param("startCreateDate") String startCreateDate, @Param("endCreateDate") String endCreateDate,
 			@Param("startHandlingDate") String startHandlingDate, @Param("endHandlingDate") String endHandlingDate,
+			@Param("startDate") String startDate, @Param("endDate") String endDate,
 			@Param("adviserId") Integer adviserId, @Param("schoolId") Integer schoolId, @Param("offset") int offset,
 			@Param("rows") int rows);
 

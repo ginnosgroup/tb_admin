@@ -1,8 +1,10 @@
 package org.zhinanzhen.b.controller;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
@@ -17,6 +19,8 @@ import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 
+import com.ikasoa.core.utils.StringUtil;
+
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/brokerage_sa")
@@ -25,19 +29,108 @@ public class BrokerageSaController extends BaseController {
 	@Resource
 	BrokerageSaService brokerageSaService;
 
+	@RequestMapping(value = "/add", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<BrokerageSaDTO> addBrokerageSa(
+			@RequestParam(value = "handlingDate", required = false) String handlingDate,
+			@RequestParam(value = "userId") String userId, @RequestParam(value = "schoolId") String schoolId,
+			@RequestParam(value = "startDate") String startDate, @RequestParam(value = "endDate") String endDate,
+			@RequestParam(value = "receiveTypeId", required = false) String receiveTypeId,
+			@RequestParam(value = "tuitionFee", required = false) String tuitionFee,
+			@RequestParam(value = "commission", required = false) String commission, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			BrokerageSaDTO brokerageSaDto = new BrokerageSaDTO();
+			if (StringUtil.isNotEmpty(handlingDate)) {
+				brokerageSaDto.setHandlingDate(new Date(Long.parseLong(handlingDate)));
+			}
+			if (StringUtil.isNotEmpty(userId)) {
+				brokerageSaDto.setUserId(Integer.parseInt(userId));
+			}
+			if (StringUtil.isNotEmpty(schoolId)) {
+				brokerageSaDto.setSchoolId(StringUtil.toInt(schoolId));
+			}
+			if (StringUtil.isNotEmpty(receiveTypeId)) {
+				brokerageSaDto.setReceiveTypeId(StringUtil.toInt(receiveTypeId));
+			}
+			if (StringUtil.isNotEmpty(tuitionFee)) {
+				brokerageSaDto.setTuitionFee(Double.parseDouble(tuitionFee));
+			}
+			if (StringUtil.isNotEmpty(commission)) {
+				brokerageSaDto.setCommission(Double.parseDouble(commission));
+			}
+			brokerageSaDto.setGst(brokerageSaDto.getCommission() / 11);
+			brokerageSaDto.setDeductGst(brokerageSaDto.getCommission() - brokerageSaDto.getGst());
+			brokerageSaDto.setBonus(brokerageSaDto.getDeductGst() * 0.1);
+			if (brokerageSaService.addBrokerageSa(brokerageSaDto) > 0) {
+				return new Response<BrokerageSaDTO>(0, brokerageSaDto);
+			} else {
+				return new Response<BrokerageSaDTO>(1, "创建失败.", null);
+			}
+		} catch (ServiceException e) {
+			return new Response<BrokerageSaDTO>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/update", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<BrokerageSaDTO> updateBrokerage(@RequestParam(value = "id") int id,
+			@RequestParam(value = "handlingDate", required = false) String handlingDate,
+			@RequestParam(value = "userId") String userId, @RequestParam(value = "schoolId") String schoolId,
+			@RequestParam(value = "startDate") String startDate, @RequestParam(value = "endDate") String endDate,
+			@RequestParam(value = "receiveTypeId", required = false) String receiveTypeId,
+			@RequestParam(value = "tuitionFee", required = false) String tuitionFee,
+			@RequestParam(value = "commission", required = false) String commission, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			BrokerageSaDTO brokerageSaDto = new BrokerageSaDTO();
+			brokerageSaDto.setId(id);
+			if (StringUtil.isNotEmpty(handlingDate)) {
+				brokerageSaDto.setHandlingDate(new Date(Long.parseLong(handlingDate)));
+			}
+			if (StringUtil.isNotEmpty(userId)) {
+				brokerageSaDto.setUserId(Integer.parseInt(userId));
+			}
+			if (StringUtil.isNotEmpty(schoolId)) {
+				brokerageSaDto.setSchoolId(StringUtil.toInt(schoolId));
+			}
+			if (StringUtil.isNotEmpty(receiveTypeId)) {
+				brokerageSaDto.setReceiveTypeId(StringUtil.toInt(receiveTypeId));
+			}
+			if (StringUtil.isNotEmpty(tuitionFee)) {
+				brokerageSaDto.setTuitionFee(Double.parseDouble(tuitionFee));
+			}
+			if (StringUtil.isNotEmpty(commission)) {
+				brokerageSaDto.setCommission(Double.parseDouble(commission));
+			}
+			brokerageSaDto.setGst(brokerageSaDto.getCommission() / 11);
+			brokerageSaDto.setDeductGst(brokerageSaDto.getCommission() - brokerageSaDto.getGst());
+			brokerageSaDto.setBonus(brokerageSaDto.getDeductGst() * 0.1);
+			if (brokerageSaService.updateBrokerageSa(brokerageSaDto) > 0) {
+				return new Response<BrokerageSaDTO>(0, brokerageSaDto);
+			} else {
+				return new Response<BrokerageSaDTO>(1, "修改失败.", null);
+			}
+		} catch (ServiceException e) {
+			return new Response<BrokerageSaDTO>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
 	@RequestMapping(value = "/count", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<Integer> countBrokerage(@RequestParam(value = "keyword", required = false) String keyword,
-			@RequestParam(value = "startCreateDate", required = false) String startCreateDate,
-			@RequestParam(value = "endCreateDate", required = false) String endCreateDate,
 			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
 			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
+			@RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "schoolId", required = false) Integer schoolId, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<Integer>(0, brokerageSaService.countBrokerageSa(keyword, startCreateDate, endCreateDate,
-					startHandlingDate, endHandlingDate, adviserId, schoolId));
+			return new Response<Integer>(0, brokerageSaService.countBrokerageSa(keyword, startHandlingDate,
+					endHandlingDate, startDate, endDate, adviserId, schoolId));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -47,18 +140,18 @@ public class BrokerageSaController extends BaseController {
 	@ResponseBody
 	public Response<List<BrokerageSaDTO>> listBrokerage(
 			@RequestParam(value = "keyword", required = false) String keyword,
-			@RequestParam(value = "startCreateDate", required = false) String startCreateDate,
-			@RequestParam(value = "endCreateDate", required = false) String endCreateDate,
 			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
 			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
+			@RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "schoolId", required = false) Integer schoolId,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
 			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<List<BrokerageSaDTO>>(0, brokerageSaService.listBrokerageSa(keyword, startCreateDate,
-					endCreateDate, startHandlingDate, endHandlingDate, adviserId, schoolId, pageNum, pageSize));
+			return new Response<List<BrokerageSaDTO>>(0, brokerageSaService.listBrokerageSa(keyword, startHandlingDate,
+					endHandlingDate, startDate, endDate, adviserId, schoolId, pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<BrokerageSaDTO>>(1, e.getMessage(), null);
 		}

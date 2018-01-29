@@ -99,8 +99,8 @@
         <if test='startHandlingDate != null and startHandlingDate != "" and endHandlingDate != null and endHandlingDate != ""'>
             <![CDATA[ AND bbs.handling_date > #{startHandlingDate} AND bbs.handling_date < #{endHandlingDate} ]]>
         </if>
-        <if test='startCreateDate != null and startCreateDate != "" and endCreateDate != null and endCreateDate != ""'>
-            <![CDATA[ AND bbs.gmt_create > #{startCreateDate} AND bbs.gmt_create < #{endCreateDate} ]]>
+        <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+            <![CDATA[ AND bbs.start_date > #{startDate} AND bbs.start_date < #{endDate} ]]>
         </if>
         <if test='adviserId != null and adviserId != ""'>
             AND bbs.adviser_id = #{adviserId}
@@ -140,8 +140,8 @@
         <if test='startHandlingDate != null and startHandlingDate != "" and endHandlingDate != null and endHandlingDate != ""'>
             <![CDATA[ AND bbs.handling_date > #{startHandlingDate} AND bbs.handling_date < #{endHandlingDate} ]]>
         </if>
-        <if test='startCreateDate != null and startCreateDate != "" and endCreateDate != null and endCreateDate != ""'>
-            <![CDATA[ AND bbs.gmt_create > #{startCreateDate} AND bbs.gmt_create < #{endCreateDate} ]]>
+        <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+            <![CDATA[ AND bbs.start_date > #{startDate} AND bbs.start_date < #{endDate} ]]>
         </if>
         <if test='adviserId != null and adviserId != ""'>
             AND bbs.adviser_id = #{adviserId}

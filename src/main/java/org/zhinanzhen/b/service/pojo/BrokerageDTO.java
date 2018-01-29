@@ -6,10 +6,12 @@ import lombok.Data;
 
 @Data
 public class BrokerageDTO {
-	
+
 	private int id;
 
 	private Date gmtCreate;
+
+	private Date handlingDate;
 
 	private int userId;
 
@@ -34,7 +36,7 @@ public class BrokerageDTO {
 	private double adviserId;
 
 	private double officialId;
-	
+
 	private boolean isClose;
 
 }

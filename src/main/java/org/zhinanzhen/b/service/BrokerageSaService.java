@@ -11,12 +11,12 @@ public interface BrokerageSaService {
 
 	public int updateBrokerageSa(BrokerageSaDTO brokerageSaDto) throws ServiceException;
 
-	public int countBrokerageSa(String keyword, String startCreateDate, String endCreateDate, String startHandlingDate,
-			String endHandlingDate, Integer adviserId, Integer schoolId) throws ServiceException;
+	public int countBrokerageSa(String keyword, String startHandlingDate, String endHandlingDate, String startDate,
+			String endDate, Integer adviserId, Integer schoolId) throws ServiceException;
 
-	public List<BrokerageSaDTO> listBrokerageSa(String keyword, String startCreateDate, String endCreateDate,
-			String startHandlingDate, String endHandlingDate, Integer adviserId, Integer schoolId, int pageNum,
-			int pageSize) throws ServiceException;
+	public List<BrokerageSaDTO> listBrokerageSa(String keyword, String startHandlingDate, String endHandlingDate,
+			String startDate, String endDate, Integer adviserId, Integer schoolId, int pageNum, int pageSize)
+			throws ServiceException;
 
 	public BrokerageSaDTO getBrokerageSaById(int id) throws ServiceException;
 

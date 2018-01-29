@@ -166,6 +166,7 @@ CREATE TABLE `b_brokerage` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `handling_date` datetime NOT NULL COMMENT '办理日期',
   `user_id` int NOT NULL COMMENT '用户编号 (对应tb_user.id)',
   `receive_type_id` int NOT NULL COMMENT '收款方式编号(对应b_receive_type.id)',
   `receive_date` datetime NOT NULL COMMENT '收款日期',
