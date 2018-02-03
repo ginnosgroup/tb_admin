@@ -130,12 +130,15 @@ public class BrokerageController extends BaseController {
 	@RequestMapping(value = "/count", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<Integer> countBrokerage(@RequestParam(value = "keyword", required = false) String keyword,
+			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
+			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
 			@RequestParam(value = "stardDate", required = false) String stardDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<Integer>(0, brokerageService.countBrokerage(keyword, stardDate, endDate, adviserId));
+			return new Response<Integer>(0, brokerageService.countBrokerage(keyword, startHandlingDate, endHandlingDate,
+					stardDate, endDate, adviserId));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -144,6 +147,8 @@ public class BrokerageController extends BaseController {
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<List<BrokerageDTO>> listBrokerage(@RequestParam(value = "keyword", required = false) String keyword,
+			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
+			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
 			@RequestParam(value = "stardDate", required = false) String stardDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
@@ -151,8 +156,8 @@ public class BrokerageController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<List<BrokerageDTO>>(0,
-					brokerageService.listBrokerage(keyword, stardDate, endDate, adviserId, pageNum, pageSize));
+			return new Response<List<BrokerageDTO>>(0, brokerageService.listBrokerage(keyword, startHandlingDate,
+					endHandlingDate, stardDate, endDate, adviserId, pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<BrokerageDTO>>(1, e.getMessage(), null);
 		}

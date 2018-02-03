@@ -96,8 +96,11 @@
         <if test='keyword != null and keyword != ""'>
             AND name LIKE '%${keyword}%'
         </if>
-        <if test='stardDate != null and stardDate != "" and endDate != null and endDate != ""'>
-            <![CDATA[ AND gmt_create > #{stardDate} AND gmt_create < #{endDate} ]]>
+        <if test='startHandlingDate != null and startHandlingDate != "" and endHandlingDate != null and endHandlingDate != ""'>
+            <![CDATA[ AND bbs.handling_date > #{startHandlingDate} AND bbs.handling_date < #{endHandlingDate} ]]>
+        </if>
+        <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+            <![CDATA[ AND bbs.start_date > #{startDate} AND bbs.start_date < #{endDate} ]]>
         </if>
         <if test='adviserId != null and adviserId != ""'>
             AND adviser_id = #{adviserId}
@@ -128,8 +131,11 @@
         <if test='keyword != null and keyword != ""'>
             AND name LIKE '%${keyword}%'
         </if>
-        <if test='stardDate != null and stardDate != "" and endDate != null and endDate != ""'>
-            <![CDATA[ AND gmt_create > #{stardDate} AND gmt_create < #{endDate} ]]>
+        <if test='startHandlingDate != null and startHandlingDate != "" and endHandlingDate != null and endHandlingDate != ""'>
+            <![CDATA[ AND bbs.handling_date > #{startHandlingDate} AND bbs.handling_date < #{endHandlingDate} ]]>
+        </if>
+        <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+            <![CDATA[ AND bbs.start_date > #{startDate} AND bbs.start_date < #{endDate} ]]>
         </if>
         <if test='adviserId != null and adviserId != ""'>
             AND adviser_id = #{adviserId}
