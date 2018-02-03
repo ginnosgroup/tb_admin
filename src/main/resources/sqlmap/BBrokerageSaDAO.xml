@@ -44,7 +44,7 @@
     <update id="updateBrokerageSa" parameterType="org.zhinanzhen.b.dao.pojo.BrokerageSaDO">
         UPDATE b_brokerage_sa 
         SET gmt_modify = now()
-        <if test='handlingDate != null and handlingDate != ""'>
+        <if test='handlingDate != null'>
             , handling_date = #{handlingDate}
         </if>
         <if test='userId != null and userId != ""'>
@@ -56,10 +56,10 @@
         <if test='schoolId != null and schoolId != ""'>
             , school_id = #{schoolId}
         </if>
-        <if test='startDate != null and startDate != ""'>
+        <if test='startDate != null'>
             , start_date = #{startDate}
         </if>
-        <if test='endDate != null and endDate != ""'>
+        <if test='endDate != null'>
             , end_date = #{endDate}
         </if>
         <if test='tuitionFee != null and tuitionFee != ""'>
@@ -83,7 +83,7 @@
         <if test='officialId != null and officialId != ""'>
             , official_id = #{officialId}
         </if>
-        <if test='isClose != null and isClose != ""'>
+        <if test='isClose != null'>
             , is_close = #{isClose}
         </if>
         WHERE id = #{id};

@@ -44,7 +44,7 @@
     <update id="updateBrokerage" parameterType="org.zhinanzhen.b.dao.pojo.BrokerageDO">
         UPDATE b_brokerage 
         SET gmt_modify = now()
-        <if test='handlingDate != null and handlingDate != ""'>
+        <if test='handlingDate != null'>
             , handling_date = #{handlingDate}
         </if>
         <if test='userId != null and userId != ""'>
@@ -53,7 +53,7 @@
         <if test='receiveTypeId != null and receiveTypeId != ""'>
             , receive_type_id = #{receiveTypeId}
         </if>
-        <if test='receiveDate != null and receiveDate != ""'>
+        <if test='receiveDate != null'>
             , receive_date = #{receiveDate}
         </if>
         <if test='serviceId != null and serviceId != ""'>
@@ -83,7 +83,7 @@
         <if test='officialId != null and officialId != ""'>
             , official_id = #{officialId}
         </if>
-        <if test='isClose != null and isClose != ""'>
+        <if test='isClose != null'>
             , is_close = #{isClose}
         </if>
         WHERE id = #{id};
