@@ -25,10 +25,10 @@
             VALUES (
                 now(),
                 now(),
+                #{handlingDate,jdbcType=TIMESTAMP},
                 #{userId},
-                #{handlingDate},
                 #{receiveTypeId},
-                #{receiveDate},
+                #{receiveDate,jdbcType=TIMESTAMP},
                 #{serviceId},
                 #{receivable},
                 #{received},

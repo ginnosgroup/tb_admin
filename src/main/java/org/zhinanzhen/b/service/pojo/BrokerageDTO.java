@@ -33,9 +33,9 @@ public class BrokerageDTO {
 
 	private double bonus;
 
-	private double adviserId;
+	private int adviserId;
 
-	private double officialId;
+	private int officialId;
 
 	private boolean isClose;
 
