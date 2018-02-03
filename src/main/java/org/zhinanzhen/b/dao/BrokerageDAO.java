@@ -12,12 +12,12 @@ public interface BrokerageDAO {
 	public int updateBrokerage(BrokerageDO brokerageDo);
 
 	public int countBrokerage(@Param("keyword") String keyword, @Param("startHandlingDate") String startHandlingDate,
-			@Param("endHandlingDate") String endHandlingDate, @Param("stardDate") String stardDate,
+			@Param("endHandlingDate") String endHandlingDate, @Param("startDate") String startDate,
 			@Param("endDate") String endDate, @Param("adviserId") Integer adviserId);
 
 	public List<BrokerageDO> listBrokerage(@Param("keyword") String keyword,
 			@Param("startHandlingDate") String startHandlingDate, @Param("endHandlingDate") String endHandlingDate,
-			@Param("stardDate") String stardDate, @Param("endDate") String endDate,
+			@Param("startDate") String startDate, @Param("endDate") String endDate,
 			@Param("adviserId") Integer adviserId, @Param("offset") int offset, @Param("rows") int rows);
 
 	public BrokerageDO getBrokerageById(int id);
