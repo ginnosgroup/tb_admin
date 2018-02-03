@@ -79,8 +79,8 @@ public class BrokerageController extends BaseController {
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<BrokerageDTO> updateBrokerage(@RequestParam(value = "id") int id,
-			@RequestParam(value = "handlingDate", required = false) String handlingDate,
 			@RequestParam(value = "userId", required = false) String userId,
+			@RequestParam(value = "handlingDate", required = false) String handlingDate,
 			@RequestParam(value = "receiveTypeId", required = false) String receiveTypeId,
 			@RequestParam(value = "receiveDate", required = false) String receiveDate,
 			@RequestParam(value = "serviceId", required = false) String serviceId,
