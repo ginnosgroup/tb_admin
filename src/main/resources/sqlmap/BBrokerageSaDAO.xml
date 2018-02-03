@@ -113,7 +113,7 @@
     
     <select id="listBrokerageSa" resultType="org.zhinanzhen.b.dao.pojo.BrokerageSaListDO">
         SELECT
-            bbs.id,
+            bbs.id AS id,
             bbs.gmt_create AS gmtCreate,
             bbs.handling_date AS handlingDate;
             bbs.user_id AS userId,
@@ -131,7 +131,9 @@
             bbs.is_close AS isClose,
             bs.name AS schoolName,
             bs.subject AS schoolSubject,
-            tbu.name AS userName
+            tbu.name AS userName,
+            tbu.birthday AS birthday,
+            tbu.phone AS phone
         FROM b_brokerage_sa bbs, b_school bs, tb_user tbu
         WHERE bbs.school_id = bs.id AND bbs.user_id = tbu.id
         <if test='keyword != null and keyword != ""'>

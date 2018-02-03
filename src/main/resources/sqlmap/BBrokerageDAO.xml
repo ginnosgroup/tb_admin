@@ -108,39 +108,42 @@
         ;
     </select>
     
-    <select id="listBrokerage" resultType="org.zhinanzhen.b.dao.pojo.BrokerageDO">
+    <select id="listBrokerage" resultType="org.zhinanzhen.b.dao.pojo.BrokerageListDO">
         SELECT
-            id,
-            gmt_create AS gmtCreate,
-            handling_date AS handlingDate,
-            user_id  AS userId,
-            receive_type_id AS receiveType,
-            receive_date AS receiveDate,
-            service_id AS serviceId,
-            receivable,
-            received,
-            amount,
-            gst,
-            deduct_gst AS deductGst,
-            bonus,
-            adviser_id AS adviserId,
-            official_id AS officialId,
-            is_close AS isClose
-        FROM b_brokerage
-        WHERE 1 = 1
+            bb.id AS id,
+            bb.gmt_create AS gmtCreate,
+            bb.handling_date AS handlingDate,
+            bb.user_id AS userId,
+            bb.receive_type_id AS receiveType,
+            bb.receive_date AS receiveDate,
+            bb.service_id AS serviceId,
+            bb.receivable AS receivable,
+            bb.received AS received,
+            bb.amount AS amount,
+            bb.gst AS gst,
+            bb.deduct_gst AS deductGst,
+            bb.bonus AS bonus,
+            bb.adviser_id AS adviserId,
+            bb.official_id AS officialId,
+            bb.is_close AS isClose,
+            tbu.name AS userName,
+            tbu.birthday AS birthday,
+            tbu.phone AS phone
+        FROM b_brokerage bb, tb_user tbu
+        WHERE bb.user_id = tbu.id
         <if test='keyword != null and keyword != ""'>
-            AND name LIKE '%${keyword}%'
+            AND bb.name LIKE '%${keyword}%'
         </if>
         <if test='startHandlingDate != null and startHandlingDate != "" and endHandlingDate != null and endHandlingDate != ""'>
-            <![CDATA[ AND handling_date > #{startHandlingDate} AND handling_date < #{endHandlingDate} ]]>
+            <![CDATA[ AND bb.handling_date > #{startHandlingDate} AND bb.handling_date < #{endHandlingDate} ]]>
         </if>
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
-            <![CDATA[ AND gmt_create > #{startDate} AND gmt_create < #{endDate} ]]>
+            <![CDATA[ AND bb.gmt_create > #{startDate} AND bb.gmt_create < #{endDate} ]]>
         </if>
         <if test='adviserId != null and adviserId != ""'>
-            AND adviser_id = #{adviserId}
+            AND bb.adviser_id = #{adviserId}
         </if>
-        ORDER BY gmt_create DESC
+        ORDER BY bb.gmt_create DESC
         LIMIT #{offset}, #{rows};
     </select>
 

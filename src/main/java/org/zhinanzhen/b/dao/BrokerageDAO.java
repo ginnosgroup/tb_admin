@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
 import org.zhinanzhen.b.dao.pojo.BrokerageDO;
+import org.zhinanzhen.b.dao.pojo.BrokerageListDO;
 
 public interface BrokerageDAO {
 
@@ -15,7 +16,7 @@ public interface BrokerageDAO {
 			@Param("endHandlingDate") String endHandlingDate, @Param("startDate") String startDate,
 			@Param("endDate") String endDate, @Param("adviserId") Integer adviserId);
 
-	public List<BrokerageDO> listBrokerage(@Param("keyword") String keyword,
+	public List<BrokerageListDO> listBrokerage(@Param("keyword") String keyword,
 			@Param("startHandlingDate") String startHandlingDate, @Param("endHandlingDate") String endHandlingDate,
 			@Param("startDate") String startDate, @Param("endDate") String endDate,
 			@Param("adviserId") Integer adviserId, @Param("offset") int offset, @Param("rows") int rows);

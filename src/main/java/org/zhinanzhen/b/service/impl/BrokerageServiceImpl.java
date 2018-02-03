@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.BrokerageDAO;
 import org.zhinanzhen.b.dao.pojo.BrokerageDO;
+import org.zhinanzhen.b.dao.pojo.BrokerageListDO;
 import org.zhinanzhen.b.service.BrokerageService;
 import org.zhinanzhen.b.service.pojo.BrokerageDTO;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -74,12 +75,12 @@ public class BrokerageServiceImpl extends BaseService implements BrokerageServic
 		if (pageSize < 0) {
 			pageSize = DEFAULT_PAGE_SIZE;
 		}
-		List<BrokerageDTO> brokerageDtoList = new ArrayList<BrokerageDTO>();
-		List<BrokerageDO> brokerageDoList = new ArrayList<BrokerageDO>();
+		List<BrokerageDTO> brokerageDtoList = new ArrayList<>();
+		List<BrokerageListDO> brokerageListDoList = new ArrayList<>();
 		try {
-			brokerageDoList = brokerageDao.listBrokerage(keyword, startHandlingDate, endHandlingDate, stardDate, endDate, adviserId, pageNum * pageSize,
-					pageSize);
-			if (brokerageDoList == null) {
+			brokerageListDoList = brokerageDao.listBrokerage(keyword, startHandlingDate, endHandlingDate, stardDate,
+					endDate, adviserId, pageNum * pageSize, pageSize);
+			if (brokerageListDoList == null) {
 				return null;
 			}
 		} catch (Exception e) {
@@ -87,8 +88,8 @@ public class BrokerageServiceImpl extends BaseService implements BrokerageServic
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
 			throw se;
 		}
-		for (BrokerageDO brokerageDo : brokerageDoList) {
-			BrokerageDTO brokerageDto = mapper.map(brokerageDo, BrokerageDTO.class);
+		for (BrokerageDO brokerageListDo : brokerageListDoList) {
+			BrokerageDTO brokerageDto = mapper.map(brokerageListDo, BrokerageDTO.class);
 			brokerageDtoList.add(brokerageDto);
 		}
 		return brokerageDtoList;
