@@ -62,6 +62,9 @@ public class BrokerageController extends BaseController {
 			if (StringUtil.isNotEmpty(received)) {
 				brokerageDto.setReceived(Double.parseDouble(received));
 			}
+			if (StringUtil.isNotEmpty(amount)) {
+				brokerageDto.setAmount(Double.parseDouble(amount));
+			}
 			double commission = brokerageDto.getAmount();
 			brokerageDto.setGst(commission / 11);
 			brokerageDto.setDeductGst(commission - brokerageDto.getGst());
