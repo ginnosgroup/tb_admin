@@ -159,7 +159,7 @@
         SELECT
              id,
              gmt_create AS gmtCreate,
-             handling_date AS handlingDate;
+             handling_date AS handlingDate,
              user_id AS userId,
              receive_type_id AS receiveTypeId,
              school_id AS schoolId,
