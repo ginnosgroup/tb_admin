@@ -86,8 +86,10 @@ public class BrokerageSaController extends BaseController {
 	@ResponseBody
 	public Response<BrokerageSaDTO> updateBrokerage(@RequestParam(value = "id") int id,
 			@RequestParam(value = "handlingDate", required = false) String handlingDate,
-			@RequestParam(value = "userId") String userId, @RequestParam(value = "schoolId") String schoolId,
-			@RequestParam(value = "startDate") String startDate, @RequestParam(value = "endDate") String endDate,
+			@RequestParam(value = "userId", required = false) String userId,
+			@RequestParam(value = "schoolId", required = false) String schoolId,
+			@RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "receiveTypeId", required = false) String receiveTypeId,
 			@RequestParam(value = "tuitionFee", required = false) String tuitionFee,
 			@RequestParam(value = "commission", required = false) String commission, HttpServletRequest request,

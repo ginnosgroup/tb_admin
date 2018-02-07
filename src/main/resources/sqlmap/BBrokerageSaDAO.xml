@@ -115,7 +115,7 @@
         SELECT
             bbs.id AS id,
             bbs.gmt_create AS gmtCreate,
-            bbs.handling_date AS handlingDate;
+            bbs.handling_date AS handlingDate,
             bbs.user_id AS userId,
             bbs.receive_type_id AS receiveTypeId,
             bbs.school_id AS schoolId,
@@ -151,7 +151,7 @@
         <if test='schoolId != null and schoolId != ""'>
             AND bbs.school_id = #{schoolId}
         </if>
-        ORDER BY gmt_create DESC
+        ORDER BY bbs.gmt_create DESC
         LIMIT #{offset}, #{rows};
     </select>
 
