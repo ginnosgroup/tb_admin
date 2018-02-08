@@ -267,6 +267,15 @@ CREATE TABLE `b_school` (
   `country` varchar(4) NOT NULL COMMENT '国家编码'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
+-- Subagency
+CREATE TABLE `b_subagency` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `name` varchar(32) NOT NULL COMMENT '名称',
+  `commission_rate` decimal(8,2) NOT NULL COMMENT 'Commission Rate'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
 -- 文案
 CREATE TABLE `b_official` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
