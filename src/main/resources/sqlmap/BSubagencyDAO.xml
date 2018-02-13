@@ -14,8 +14,7 @@
                 now(),
                 now(),
                 #{name},
-                #{subject},
-                #{country});
+                #{commissionRate});
     </insert>
     
     <update id="updateSubagency" parameterType="org.zhinanzhen.b.dao.pojo.SubagencyDO">

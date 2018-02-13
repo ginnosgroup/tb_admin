@@ -9,7 +9,7 @@ public interface SchoolDAO {
 
 	public int addSchool(SchoolDO schoolDO);
 
-	public int updateSchool(@Param("name") String name, @Param("subject") String subject,
+	public int updateSchool(@Param("id") int id, @Param("name") String name, @Param("subject") String subject,
 			@Param("country") String country);
 
 	public List<SchoolDO> listSchool(@Param("name") String name, @Param("subject") String subject,

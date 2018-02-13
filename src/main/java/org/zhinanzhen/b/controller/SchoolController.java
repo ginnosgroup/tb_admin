@@ -83,7 +83,7 @@ public class SchoolController extends BaseController {
 			if (StringUtil.isNotEmpty(country)) {
 				schoolDto.setCountry(country);
 			}
-			if (schoolService.updateSchool(name, subject, country) > 0) {
+			if (schoolService.updateSchool(id, name, subject, country) > 0) {
 				return new Response<SchoolDTO>(0, schoolDto);
 			} else {
 				return new Response<SchoolDTO>(1, "修改失败.", null);

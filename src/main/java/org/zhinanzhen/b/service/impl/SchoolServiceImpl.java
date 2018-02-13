@@ -43,9 +43,9 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	}
 
 	@Override
-	public int updateSchool(String name, String subject, String country) throws ServiceException {
+	public int updateSchool(int id, String name, String subject, String country) throws ServiceException {
 		try {
-			return schoolDao.updateSchool(name, subject, country);
+			return schoolDao.updateSchool(id, name, subject, country);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());

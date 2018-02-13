@@ -60,7 +60,7 @@ public class SubagencyController extends BaseController {
 			if (StringUtil.isNotEmpty(commissionRate)) {
 				_commissionRate = Double.parseDouble(commissionRate.trim());
 			}
-			int i = subagencyService.updateSubagency(name, _commissionRate);
+			int i = subagencyService.updateSubagency(id, name, _commissionRate);
 			if (i > 0) {
 				return new Response<Integer>(0, i);
 			} else {

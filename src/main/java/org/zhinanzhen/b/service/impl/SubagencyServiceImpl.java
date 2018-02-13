@@ -43,9 +43,9 @@ public class SubagencyServiceImpl extends BaseService implements SubagencyServic
 	}
 
 	@Override
-	public int updateSubagency(String name, double commissionRate) throws ServiceException {
+	public int updateSubagency(int id, String name, double commissionRate) throws ServiceException {
 		try {
-			return subagencyDao.updateSubagency(name, commissionRate);
+			return subagencyDao.updateSubagency(id, name, commissionRate);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
