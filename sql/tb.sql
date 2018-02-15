@@ -222,7 +222,7 @@ CREATE TABLE `b_school_brokerage_sa` (
   `pay_date` datetime DEFAULT NULL COMMENT '学校支付日期',
   `invoice_code` varchar(32) DEFAULT NULL COMMENT '发票编号',
   `pay_amount` decimal(8,2) DEFAULT NULL COMMENT '学校支付金额',
-  `subagency` varchar(32) DEFAULT NULL COMMENT '代理',
+  `subagency_id` int DEFAULT NULL COMMENT '代理编号 (对应b_subagency.id)',
   `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
   `official_id` int NOT NULL COMMENT '文案编号 (对应b_official.id)',
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
