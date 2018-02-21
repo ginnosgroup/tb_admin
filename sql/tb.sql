@@ -210,7 +210,7 @@ CREATE TABLE `b_school_brokerage_sa` (
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `user_id` int NOT NULL COMMENT '用户编号 (对应tb_user.id)',
   `school_id` int NOT NULL COMMENT '学校编号 (对应b_school.id)',
-  `student_id` int NOT NULL COMMENT '学号',
+  `student_code` varchar(32) NOT NULL COMMENT '学号',
   `start_date` datetime NOT NULL COMMENT '开课日期',
   `end_date` datetime NOT NULL COMMENT '结束日期',
   `tuition_fee` decimal(8,2) NOT NULL COMMENT '学费',
