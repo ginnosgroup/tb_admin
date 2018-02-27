@@ -1,11 +1,11 @@
-package org.zhinanzhen.b.dao.pojo;
+package org.zhinanzhen.b.service.pojo;
 
 import java.util.Date;
 
 import lombok.Data;
 
 @Data
-public class SchoolBrokerageSaDO {
+public class SchoolBrokerageSaDTO {
 
 	private int id;
 
@@ -15,7 +15,17 @@ public class SchoolBrokerageSaDO {
 
 	private int userId;
 
+	private String userName;
+
+	private Date birthday;
+
+	private String phone;
+
 	private int schoolId;
+
+	private String schoolName;
+
+	private String schoolSubject;
 
 	private String studentCode;
 
@@ -42,6 +52,8 @@ public class SchoolBrokerageSaDO {
 	private double payAmount;
 
 	private int subagencyId;
+
+	private String subagencyName;
 
 	private int adviserId;
 
