@@ -31,13 +31,12 @@ public class BrokerageSaController extends BaseController {
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<BrokerageSaDTO> addBrokerageSa(
-			@RequestParam(value = "handlingDate", required = false) String handlingDate,
+	public Response<BrokerageSaDTO> addBrokerageSa(@RequestParam(value = "handlingDate") String handlingDate,
 			@RequestParam(value = "userId") String userId, @RequestParam(value = "schoolId") String schoolId,
 			@RequestParam(value = "startDate") String startDate, @RequestParam(value = "endDate") String endDate,
-			@RequestParam(value = "receiveTypeId", required = false) String receiveTypeId,
-			@RequestParam(value = "tuitionFee", required = false) String tuitionFee,
-			@RequestParam(value = "commission", required = false) String commission, HttpServletRequest request,
+			@RequestParam(value = "receiveTypeId") String receiveTypeId,
+			@RequestParam(value = "tuitionFee") String tuitionFee,
+			@RequestParam(value = "commission") String commission, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -46,7 +45,7 @@ public class BrokerageSaController extends BaseController {
 				brokerageSaDto.setHandlingDate(new Date(Long.parseLong(handlingDate)));
 			}
 			if (StringUtil.isNotEmpty(userId)) {
-				brokerageSaDto.setUserId(Integer.parseInt(userId));
+				brokerageSaDto.setUserId(StringUtil.toInt(userId));
 			}
 			if (StringUtil.isNotEmpty(schoolId)) {
 				brokerageSaDto.setSchoolId(StringUtil.toInt(schoolId));
