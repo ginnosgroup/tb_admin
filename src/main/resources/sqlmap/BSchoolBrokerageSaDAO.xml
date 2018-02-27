@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.SchoolBrokerageSaDAO">
+
+    <insert id="addSchoolBrokerageSa" parameterType="org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+            INTO b_school_brokerage_sa (
+                gmt_create,
+                gmt_modify,
+                handling_date,
+                user_id,
+                school_id,
+                student_code,
+                start_date,
+                end_date,
+                tuition_fee,
+                first_term_tuition_fee,
+                commission,
+                gst,
+                deduct_gst,
+                bonus,
+                pay_date,
+                invoice_code,
+                pay_amount,
+                subagency_id,
+                adviser_id,
+                official_id,
+                is_settle_accounts,
+                is_close)
+            VALUES (
+                now(),
+                now(),
+                #{handlingDate},
+                #{userId},
+                #{schoolId},
+                #{studentCode},
+                #{startDate},
+                #{endDate},
+                #{tuitionFee},
+                #{firstTermTuitionFee},
+                #{commission},
+                #{gst},
+                #{deductGst},
+                #{bonus},
+                #{payDate},
+                #{invoiceCode},
+                #{payAmount},
+                #{subagencyId},
+                #{adviserId},
+                #{officialId},
+                0,
+                0);
+    </insert>
+
+    <update id="updateSchoolBrokerageSa" parameterType="org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaDO">
+        UPDATE b_school_brokerage_sa 
+        SET gmt_modify = now()
+        <if test='handlingDate != null'>
+            , handling_date = #{handlingDate}
+        </if>
+        <if test='userId != null and userId != ""'>
+            , user_id = #{userId}
+        </if>
+        <if test='schoolId != null and schoolId != ""'>
+            , school_id = #{schoolId}
+        </if>
+        <if test='studentCode != null and studentCode != ""'>
+            , student_code = #{studentCode}
+        </if>
+        <if test='startDate != null'>
+            , start_date = #{startDate}
+        </if>
+        <if test='endDate != null'>
+            , end_date = #{endDate}
+        </if>
+        <if test='tuitionFee != null and tuitionFee != ""'>
+            , tuition_fee = #{tuitionFee}
+        </if>
+        <if test='firstTermTuitionFee != null and firstTermTuitionFee != ""'>
+            , first_term_tuition_fee = #{firstTermTuitionFee}
+        </if>
+        <if test='commission != null and commission != ""'>
+            , commission = #{commission}
+        </if>
+        <if test='gst != null and gst != ""'>
+            , gst = #{gst}
+        </if>
+        <if test='deductGst != null and deductGst != ""'>
+            , deduct_gst = #{deductGst}
+        </if>
+        <if test='bonus != null and bonus != ""'>
+            , bonus = #{bonus}
+        </if>
+        <if test='payDate != null and payDate != ""'>
+            , pay_date = #{payDate}
+        </if>
+        <if test='invoiceCode != null and invoiceCode != ""'>
+            , invoice_code = #{invoiceCode}
+        </if>
+        <if test='payAmount != null and payAmount != ""'>
+            , pay_amount = #{payAmount}
+        </if>
+        <if test='subagencyId != null and subagencyId != ""'>
+            , subagency_id = #{subagencyId}
+        </if>
+        <if test='adviserId != null and adviserId != ""'>
+            , adviser_id = #{adviserId}
+        </if>
+        <if test='officialId != null and officialId != ""'>
+            , official_id = #{officialId}
+        </if>
+        <if test='isClose != null'>
+            , is_close = #{isClose}
+        </if>
+        WHERE id = #{id};
+    </update>
+
+    <select id="countSchoolBrokerageSa" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM b_school_brokerage_sa bsbs, b_school bs, tb_user tbu
+        WHERE bsbs.school_id = bs.id AND bsbs.user_id = tbu.id
+        <if test='keyword != null and keyword != ""'>
+            AND tbu.name LIKE '%${keyword}%'
+        </if>
+        <if test='startHandlingDate != null and startHandlingDate != "" and endHandlingDate != null and endHandlingDate != ""'>
+            <![CDATA[ AND bsbs.handling_date > #{startHandlingDate} AND bsbs.handling_date < #{endHandlingDate} ]]>
+        </if>
+        <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+            <![CDATA[ AND bsbs.start_date > #{startDate} AND bsbs.start_date < #{endDate} ]]>
+        </if>
+        <if test='adviserId != null and adviserId != ""'>
+            AND bsbs.adviser_id = #{adviserId}
+        </if>
+        <if test='schoolId != null and schoolId != ""'>
+            AND bsbs.school_id = #{schoolId}
+        </if>
+        <if test='subagencyId != null and subagencyId != ""'>
+            AND bsbs.subagency_id = #{subagencyId}
+        </if>
+        ;
+    </select>
+    
+    <select id="listSchoolBrokerageSa" resultType="org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaListDO">
+        SELECT
+            bsbs.id AS id,
+            bsbs.gmt_create AS gmtCreate,
+            bsbs.handling_date AS handlingDate,
+            bsbs.user_id AS userId,
+            bsbs.receive_type_id AS receiveTypeId,
+            bsbs.school_id AS schoolId,
+            bsbs.start_date AS startDate,
+            bsbs.end_date AS endDate,
+            bsbs.tuition_fee AS tuitionFee,
+            bsbs.first_term_tuition_fee AS firstTermTuitionFee,
+            bsbs.commission AS commission,
+            bsbs.gst AS gst,
+            bsbs.deduct_gst AS deductGst,
+            bsbs.bonus AS bonus,
+            bsbs.pay_date AS payDate,
+            bsbs.invoice_code AS invoiceCode,
+            bsbs.pay_amount AS payAmount,
+            bsbs.subagency_id AS subagencyId.
+            bsu.name AS subagencyName,
+            bsbs.adviser_id AS adviserId,
+            bsbs.official_id AS officialId,
+            bsbs.is_settle_accounts AS isSettleAccounts,
+            bsbs.is_close AS isClose,
+            bs.name AS schoolName,
+            bs.subject AS schoolSubject,
+            tbu.name AS userName,
+            tbu.birthday AS birthday,
+            tbu.phone AS phone
+        FROM b_school_brokerage_sa bsbs, b_school bs, tb_user tbu, b_subagency bsu
+        WHERE bsbs.school_id = bs.id AND bsbs.user_id = tbu.id AND bsbs.subagency_id = bsu.id
+        <if test='keyword != null and keyword != ""'>
+            AND tbu.name LIKE '%${keyword}%'
+        </if>
+        <if test='startHandlingDate != null and startHandlingDate != "" and endHandlingDate != null and endHandlingDate != ""'>
+            <![CDATA[ AND bsbs.handling_date > #{startHandlingDate} AND bsbs.handling_date < #{endHandlingDate} ]]>
+        </if>
+        <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+            <![CDATA[ AND bsbs.start_date > #{startDate} AND bsbs.start_date < #{endDate} ]]>
+        </if>
+        <if test='adviserId != null and adviserId != ""'>
+            AND bsbs.adviser_id = #{adviserId}
+        </if>
+        <if test='schoolId != null and schoolId != ""'>
+            AND bsbs.school_id = #{schoolId}
+        </if>
+        <if test='subagencyId != null and subagencyId != ""'>
+            AND bsbs.subagency_id = #{subagencyId}
+        </if>
+        ORDER BY bsbs.gmt_create DESC
+        LIMIT #{offset}, #{rows};
+    </select>
+
+    <select id="getSchoolBrokerageSaById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            handling_date AS handlingDate,
+            user_id AS userId,
+            receive_type_id AS receiveTypeId,
+            school_id AS schoolId,
+            start_date AS startDate,
+            end_date AS endDate,
+            tuition_fee AS tuitionFee,
+            first_term_tuition_fee AS firstTermTuitionFee,
+            commission,
+            gst,
+            deduct_gst AS deductGst,
+            bonus,
+            pay_date AS payDate,
+            invoice_code AS invoiceCode,
+            pay_amount AS payAmount,
+            subagency_id AS subagencyId.
+            adviser_id AS adviserId,
+            official_id AS officialId,
+            is_settle_accounts AS isSettleAccounts,
+            is_close AS isClose
+        FROM b_school_brokerage_sa WHERE id = #{id, jdbcType=INTEGER};
+    </select>
+    
+    <delete id="deleteSchoolBrokerageSaById" parameterType="java.lang.Integer">
+		DELETE FROM b_school_brokerage_sa WHERE id = #{id, jdbcType=INTEGER}
+	</delete>
+
+</mapper>
