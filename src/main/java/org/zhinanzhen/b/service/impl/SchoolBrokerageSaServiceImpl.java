@@ -34,8 +34,8 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 
 	@Override
 	public int countSchoolBrokerageSa(String keyword, String startHandlingDate, String endHandlingDate,
-			String startDate, String endDate, Integer adviserId, Integer schoolId, Integer subagencyId)
-			throws ServiceException {
+			String startDate, String endDate, Integer adviserId, Integer schoolId, Integer subagencyId,
+			Boolean isSettleAccounts) throws ServiceException {
 		// TODO Auto-generated method stub
 		return 0;
 	}
@@ -43,7 +43,7 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 	@Override
 	public List<SchoolBrokerageSaDTO> listSchoolBrokerageSa(String keyword, String startHandlingDate,
 			String endHandlingDate, String startDate, String endDate, Integer adviserId, Integer schoolId,
-			Integer subagencyId, int pageNum, int pageSize) throws ServiceException {
+			Integer subagencyId, Boolean isSettleAccounts, int pageNum, int pageSize) throws ServiceException {
 		// TODO Auto-generated method stub
 		return null;
 	}

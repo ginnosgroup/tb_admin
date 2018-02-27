@@ -47,7 +47,7 @@ public class SchoolBrokerageSaDO {
 
 	private int officialId;
 
-	private boolean isSettleAccounts;
+	private boolean isSettleAccounts = false;
 
 	private boolean isClose;
 

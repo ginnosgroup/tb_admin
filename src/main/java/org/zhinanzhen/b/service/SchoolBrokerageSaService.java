@@ -12,12 +12,12 @@ public interface SchoolBrokerageSaService {
 	public int updateSchoolBrokerageSa(SchoolBrokerageSaDTO schoolBrokerageSaDto) throws ServiceException;
 
 	public int countSchoolBrokerageSa(String keyword, String startHandlingDate, String endHandlingDate,
-			String startDate, String endDate, Integer adviserId, Integer schoolId, Integer subagencyId)
-			throws ServiceException;
+			String startDate, String endDate, Integer adviserId, Integer schoolId, Integer subagencyId,
+			Boolean isSettleAccounts) throws ServiceException;
 
 	public List<SchoolBrokerageSaDTO> listSchoolBrokerageSa(String keyword, String startHandlingDate,
 			String endHandlingDate, String startDate, String endDate, Integer adviserId, Integer schoolId,
-			Integer subagencyId, int pageNum, int pageSize) throws ServiceException;
+			Integer subagencyId, Boolean isSettleAccounts, int pageNum, int pageSize) throws ServiceException;
 
 	public SchoolBrokerageSaDTO getSchoolBrokerageSaById(int id) throws ServiceException;
 
