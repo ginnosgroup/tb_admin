@@ -169,6 +169,18 @@ public class SchoolBrokerageSaController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/get", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<SchoolBrokerageSaDTO> getSchoolBrokerageSa(@RequestParam(value = "id") int id,
+			HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<SchoolBrokerageSaDTO>(0, schoolBrokerageSaService.getSchoolBrokerageSaById(id));
+		} catch (ServiceException e) {
+			return new Response<SchoolBrokerageSaDTO>(1, e.getMessage(), null);
+		}
+	}
+
 	@RequestMapping(value = "/delete", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<Integer> deleteSchoolBrokerageSa(@RequestParam(value = "id") int id, HttpServletResponse response) {
