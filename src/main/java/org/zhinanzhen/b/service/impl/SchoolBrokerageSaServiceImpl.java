@@ -28,6 +28,10 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 			throw se;
 		}
 		try {
+			// 会计核对closed掉的佣金记录时，编辑该条记录，如果【学校支付金额】字段值不为空，保存时，已结佣字段自动变为是。
+			if (schoolBrokerageSaDto.getPayAmount() > 0) {
+				schoolBrokerageSaDto.setSettleAccounts(true);
+			}
 			SchoolBrokerageSaDO schoolBrokerageSaDo = mapper.map(schoolBrokerageSaDto, SchoolBrokerageSaDO.class);
 			if (schoolBrokerageSaDao.addSchoolBrokerageSa(schoolBrokerageSaDo) > 0) {
 				return schoolBrokerageSaDo.getId();

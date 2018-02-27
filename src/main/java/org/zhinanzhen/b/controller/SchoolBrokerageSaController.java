@@ -30,9 +30,9 @@ public class SchoolBrokerageSaController extends BaseController {
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<SchoolBrokerageSaDTO> addBrokerageSa(@RequestParam(value = "handlingDate") String handlingDate,
-			@RequestParam(value = "userId") String userId, @RequestParam(value = "schoolId") String schoolId,
-			@RequestParam(value = "studentCode") String studentCode,
+	public Response<SchoolBrokerageSaDTO> addSchoolBrokerageSa(
+			@RequestParam(value = "handlingDate") String handlingDate, @RequestParam(value = "userId") String userId,
+			@RequestParam(value = "schoolId") String schoolId, @RequestParam(value = "studentCode") String studentCode,
 			@RequestParam(value = "startDate") String startDate, @RequestParam(value = "endDate") String endDate,
 			@RequestParam(value = "tuitionFee") String tuitionFee,
 			@RequestParam(value = "firstTermTuitionFee") String firstTermTuitionFee,
@@ -90,6 +90,79 @@ public class SchoolBrokerageSaController extends BaseController {
 				return new Response<SchoolBrokerageSaDTO>(0, schoolBrokerageSaDto);
 			} else {
 				return new Response<SchoolBrokerageSaDTO>(1, "创建失败.", null);
+			}
+		} catch (ServiceException e) {
+			return new Response<SchoolBrokerageSaDTO>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/update", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<SchoolBrokerageSaDTO> updateSchoolBrokerage(@RequestParam(value = "id") int id,
+			@RequestParam(value = "handlingDate", required = false) String handlingDate,
+			@RequestParam(value = "userId", required = false) String userId,
+			@RequestParam(value = "schoolId", required = false) String schoolId,
+			@RequestParam(value = "studentCode", required = false) String studentCode,
+			@RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = "endDate", required = false) String endDate,
+			@RequestParam(value = "tuitionFee", required = false) String tuitionFee,
+			@RequestParam(value = "firstTermTuitionFee", required = false) String firstTermTuitionFee,
+			@RequestParam(value = "commission", required = false) String commission,
+			@RequestParam(value = "payDate", required = false) String payDate,
+			@RequestParam(value = "invoiceCode", required = false) String invoiceCode,
+			@RequestParam(value = "payAmount", required = false) String payAmount,
+			@RequestParam(value = "subagencyId", required = false) String subagencyId, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			SchoolBrokerageSaDTO schoolBrokerageSaDto = new SchoolBrokerageSaDTO();
+			schoolBrokerageSaDto.setId(id);
+			if (StringUtil.isNotEmpty(handlingDate)) {
+				schoolBrokerageSaDto.setHandlingDate(new Date(Long.parseLong(handlingDate)));
+			}
+			if (StringUtil.isNotEmpty(userId)) {
+				schoolBrokerageSaDto.setUserId(StringUtil.toInt(userId));
+			}
+			if (StringUtil.isNotEmpty(schoolId)) {
+				schoolBrokerageSaDto.setSchoolId(StringUtil.toInt(schoolId));
+			}
+			if (StringUtil.isNotEmpty(studentCode)) {
+				schoolBrokerageSaDto.setStudentCode(studentCode);
+			}
+			if (StringUtil.isNotEmpty(startDate)) {
+				schoolBrokerageSaDto.setStartDate(new Date(Long.parseLong(startDate)));
+			}
+			if (StringUtil.isNotEmpty(endDate)) {
+				schoolBrokerageSaDto.setEndDate(new Date(Long.parseLong(endDate)));
+			}
+			if (StringUtil.isNotEmpty(tuitionFee)) {
+				schoolBrokerageSaDto.setTuitionFee(Double.parseDouble(tuitionFee));
+			}
+			if (StringUtil.isNotEmpty(firstTermTuitionFee)) {
+				schoolBrokerageSaDto.setFirstTermTuitionFee(Double.parseDouble(firstTermTuitionFee));
+			}
+			if (StringUtil.isNotEmpty(commission)) {
+				schoolBrokerageSaDto.setCommission(Double.parseDouble(commission));
+			}
+			if (StringUtil.isNotEmpty(payDate)) {
+				schoolBrokerageSaDto.setPayDate(new Date(Long.parseLong(payDate)));
+			}
+			if (StringUtil.isNotEmpty(invoiceCode)) {
+				schoolBrokerageSaDto.setInvoiceCode(invoiceCode);
+			}
+			if (StringUtil.isNotEmpty(payAmount)) {
+				schoolBrokerageSaDto.setPayAmount(Double.parseDouble(payAmount));
+			}
+			if (StringUtil.isNotEmpty(subagencyId)) {
+				schoolBrokerageSaDto.setSubagencyId(Integer.parseInt(subagencyId));
+			}
+			schoolBrokerageSaDto.setGst(schoolBrokerageSaDto.getCommission() / 11);
+			schoolBrokerageSaDto.setDeductGst(schoolBrokerageSaDto.getCommission() - schoolBrokerageSaDto.getGst());
+			schoolBrokerageSaDto.setBonus(schoolBrokerageSaDto.getDeductGst() * 0.1);
+			if (schoolBrokerageSaService.updateSchoolBrokerageSa(schoolBrokerageSaDto) > 0) {
+				return new Response<SchoolBrokerageSaDTO>(0, schoolBrokerageSaDto);
+			} else {
+				return new Response<SchoolBrokerageSaDTO>(1, "修改失败.", null);
 			}
 		} catch (ServiceException e) {
 			return new Response<SchoolBrokerageSaDTO>(e.getCode(), e.getMessage(), null);
