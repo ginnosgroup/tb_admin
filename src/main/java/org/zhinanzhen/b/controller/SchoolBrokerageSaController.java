@@ -169,6 +169,27 @@ public class SchoolBrokerageSaController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/count", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> countSchoolBrokerage(@RequestParam(value = "keyword", required = false) String keyword,
+			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
+			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
+			@RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = "endDate", required = false) String endDate,
+			@RequestParam(value = "adviserId", required = false) Integer adviserId,
+			@RequestParam(value = "schoolId", required = false) Integer schoolId,
+			@RequestParam(value = "subagencyId", required = false) Integer subagencyId,
+			@RequestParam(value = "isSettleAccounts", required = false) Boolean isSettleAccounts,
+			HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<Integer>(0, schoolBrokerageSaService.countSchoolBrokerageSa(keyword, startHandlingDate,
+					endHandlingDate, startDate, endDate, adviserId, schoolId, subagencyId, isSettleAccounts));
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), null);
+		}
+	}
+
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<SchoolBrokerageSaDTO> getSchoolBrokerageSa(@RequestParam(value = "id") int id,

@@ -70,8 +70,8 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 	public int countSchoolBrokerageSa(String keyword, String startHandlingDate, String endHandlingDate,
 			String startDate, String endDate, Integer adviserId, Integer schoolId, Integer subagencyId,
 			Boolean isSettleAccounts) throws ServiceException {
-		// TODO Auto-generated method stub
-		return 0;
+		return schoolBrokerageSaDao.countSchoolBrokerageSa(keyword, startHandlingDate, endHandlingDate, startDate,
+				endDate, adviserId, schoolId, subagencyId, isSettleAccounts);
 	}
 
 	@Override
