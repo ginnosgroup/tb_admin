@@ -227,6 +227,19 @@ public class SchoolBrokerageSaController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/close", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> closeSchoolBrokerageSa(@RequestParam(value = "id") int id, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			SchoolBrokerageSaDTO schoolBrokerageSaDto = schoolBrokerageSaService.getSchoolBrokerageSaById(id);
+			schoolBrokerageSaDto.setClose(true);
+			return new Response<Integer>(0, schoolBrokerageSaService.updateSchoolBrokerageSa(schoolBrokerageSaDto));
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), 0);
+		}
+	}
+
 	@RequestMapping(value = "/delete", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<Integer> deleteSchoolBrokerageSa(@RequestParam(value = "id") int id, HttpServletResponse response) {
