@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -7,6 +8,7 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.SchoolBrokerageSaDAO;
 import org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaDO;
+import org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaListDO;
 import org.zhinanzhen.b.service.SchoolBrokerageSaService;
 import org.zhinanzhen.b.service.pojo.SchoolBrokerageSaDTO;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -78,8 +80,31 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 	public List<SchoolBrokerageSaDTO> listSchoolBrokerageSa(String keyword, String startHandlingDate,
 			String endHandlingDate, String startDate, String endDate, Integer adviserId, Integer schoolId,
 			Integer subagencyId, Boolean isSettleAccounts, int pageNum, int pageSize) throws ServiceException {
-		// TODO Auto-generated method stub
-		return null;
+		if (pageNum < 0) {
+			pageNum = DEFAULT_PAGE_NUM;
+		}
+		if (pageSize < 0) {
+			pageSize = DEFAULT_PAGE_SIZE;
+		}
+		List<SchoolBrokerageSaDTO> schoolBrokerageSaDtoList = new ArrayList<>();
+		List<SchoolBrokerageSaListDO> schoolBrokerageSaListDoList = new ArrayList<>();
+		try {
+			schoolBrokerageSaListDoList = schoolBrokerageSaDao.listSchoolBrokerageSa(keyword, startHandlingDate,
+					endHandlingDate, startDate, endDate, adviserId, schoolId, subagencyId, isSettleAccounts,
+					pageNum * pageSize, pageSize);
+			if (schoolBrokerageSaListDoList == null) {
+				return null;
+			}
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+		for (SchoolBrokerageSaListDO schoolBrokerageSaListDo : schoolBrokerageSaListDoList) {
+			SchoolBrokerageSaDTO schoolBrokerageSaDto = mapper.map(schoolBrokerageSaListDo, SchoolBrokerageSaDTO.class);
+			schoolBrokerageSaDtoList.add(schoolBrokerageSaDto);
+		}
+		return schoolBrokerageSaDtoList;
 	}
 
 	@Override
