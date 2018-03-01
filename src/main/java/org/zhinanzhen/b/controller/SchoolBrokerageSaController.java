@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.controller;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -187,6 +188,30 @@ public class SchoolBrokerageSaController extends BaseController {
 					endHandlingDate, startDate, endDate, adviserId, schoolId, subagencyId, isSettleAccounts));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/list", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<SchoolBrokerageSaDTO>> listSchoolBrokerage(
+			@RequestParam(value = "keyword", required = false) String keyword,
+			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
+			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
+			@RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = "endDate", required = false) String endDate,
+			@RequestParam(value = "adviserId", required = false) Integer adviserId,
+			@RequestParam(value = "schoolId", required = false) Integer schoolId,
+			@RequestParam(value = "subagencyId", required = false) Integer subagencyId,
+			@RequestParam(value = "isSettleAccounts", required = false) Boolean isSettleAccounts,
+			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
+			HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<List<SchoolBrokerageSaDTO>>(0,
+					schoolBrokerageSaService.listSchoolBrokerageSa(keyword, startHandlingDate, endHandlingDate,
+							startDate, endDate, adviserId, schoolId, subagencyId, isSettleAccounts, pageNum, pageSize));
+		} catch (ServiceException e) {
+			return new Response<List<SchoolBrokerageSaDTO>>(1, e.getMessage(), null);
 		}
 	}
 
