@@ -240,6 +240,19 @@ public class SchoolBrokerageSaController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/reopen", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> reopenSchoolBrokerageSa(@RequestParam(value = "id") int id, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			SchoolBrokerageSaDTO schoolBrokerageSaDto = schoolBrokerageSaService.getSchoolBrokerageSaById(id);
+			schoolBrokerageSaDto.setClose(false);
+			return new Response<Integer>(0, schoolBrokerageSaService.updateSchoolBrokerageSa(schoolBrokerageSaDto));
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), 0);
+		}
+	}
+
 	@RequestMapping(value = "/delete", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<Integer> deleteSchoolBrokerageSa(@RequestParam(value = "id") int id, HttpServletResponse response) {
