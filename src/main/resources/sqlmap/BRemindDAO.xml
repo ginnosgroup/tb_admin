@@ -8,18 +8,21 @@
             INTO b_remind (
                 gmt_create,
                 gmt_modify,
-                school_brokerage_sa_id)
+                school_brokerage_sa_id,
+                remind_date)
             VALUES (
                 now(),
                 now(),
-                #{schoolBrokerageSaId});
+                #{schoolBrokerageSaId},
+                #{remindDate});
     </insert>
     
     <select id="listRemindBySchoolBrokerageSaId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.RemindDO">
         SELECT
             id,
             gmt_create,
-            school_brokerage_sa_id
+            school_brokerage_sa_id,
+            remind_date
         FROM b_remind
         WHERE school_brokerage_sa_id = #{schoolBrokerageSaId, jdbcType=INTEGER}
         ORDER BY gmt_create DESC;

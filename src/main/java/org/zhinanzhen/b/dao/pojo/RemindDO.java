@@ -14,5 +14,7 @@ public class RemindDO {
 	private Date gmtModify;
 
 	private int schoolBrokerageSaId;
+	
+	private Date remindDate;
 
 }
