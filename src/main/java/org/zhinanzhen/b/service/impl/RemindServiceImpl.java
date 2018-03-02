@@ -37,8 +37,7 @@ public class RemindServiceImpl extends BaseService implements RemindService {
 
 	@Override
 	public int deleteSchoolById(int id) {
-		// TODO Auto-generated method stub
-		return 0;
+		return remindDao.deleteSchoolById(id);
 	}
 
 }
