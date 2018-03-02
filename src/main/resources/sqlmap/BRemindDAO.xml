@@ -28,6 +28,19 @@
         ORDER BY gmt_create DESC;
     </select>
     
+    <select id="listRemindByRemindDate" parameterType="java.util.Date" resultType="org.zhinanzhen.b.dao.pojo.RemindDO">
+      <![CDATA[
+        SELECT
+            id,
+            gmt_create,
+            school_brokerage_sa_id,
+            remind_date
+        FROM b_remind
+        WHERE remind_date < #{date}
+        ORDER BY gmt_create DESC;
+      ]]>
+    </select>
+    
     <delete id="deleteRemindById" parameterType="java.lang.Integer">
 		DELETE FROM b_remind WHERE id = #{id, jdbcType=INTEGER}
 	</delete>

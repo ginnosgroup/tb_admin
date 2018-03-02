@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.service.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -24,6 +25,12 @@ public class RemindServiceImpl extends BaseService implements RemindService {
 
 	@Override
 	public List<RemindDTO> listRemindBySchoolBrokerageSaId(int schoolBrokerageSaId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<RemindDTO> listRemindByRemindDate(Date date) {
 		// TODO Auto-generated method stub
 		return null;
 	}
