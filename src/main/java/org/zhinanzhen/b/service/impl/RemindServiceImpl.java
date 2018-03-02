@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.RemindDAO;
 import org.zhinanzhen.b.service.RemindService;
 import org.zhinanzhen.b.service.pojo.RemindDTO;
+import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
 @Service("OfficialService")
@@ -18,25 +19,25 @@ public class RemindServiceImpl extends BaseService implements RemindService {
 	private RemindDAO remindDao;
 
 	@Override
-	public int addRemind(RemindDTO remindDto) {
+	public int addRemind(RemindDTO remindDto) throws ServiceException {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public List<RemindDTO> listRemindBySchoolBrokerageSaId(int schoolBrokerageSaId) {
+	public List<RemindDTO> listRemindBySchoolBrokerageSaId(int schoolBrokerageSaId) throws ServiceException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public List<RemindDTO> listRemindByRemindDate(Date date) {
+	public List<RemindDTO> listRemindByRemindDate(Date date) throws ServiceException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public int deleteSchoolById(int id) {
+	public int deleteSchoolById(int id) throws ServiceException {
 		return remindDao.deleteSchoolById(id);
 	}
 
