@@ -7,10 +7,13 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.RemindDAO;
+import org.zhinanzhen.b.dao.pojo.RemindDO;
 import org.zhinanzhen.b.service.RemindService;
 import org.zhinanzhen.b.service.pojo.RemindDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
+
+import com.ikasoa.core.thrift.ErrorCodeEnum;
 
 @Service("OfficialService")
 public class RemindServiceImpl extends BaseService implements RemindService {
@@ -20,8 +23,23 @@ public class RemindServiceImpl extends BaseService implements RemindService {
 
 	@Override
 	public int addRemind(RemindDTO remindDto) throws ServiceException {
-		// TODO Auto-generated method stub
-		return 0;
+		if (remindDto == null) {
+			ServiceException se = new ServiceException("remindDto is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			RemindDO remindDo = mapper.map(remindDto, RemindDO.class);
+			if (remindDao.addRemind(remindDo) > 0) {
+				return remindDo.getId();
+			} else {
+				return 0;
+			}
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
 	}
 
 	@Override
