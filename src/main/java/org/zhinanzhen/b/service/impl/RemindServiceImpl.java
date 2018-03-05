@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.service.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -44,14 +45,44 @@ public class RemindServiceImpl extends BaseService implements RemindService {
 
 	@Override
 	public List<RemindDTO> listRemindBySchoolBrokerageSaId(int schoolBrokerageSaId) throws ServiceException {
-		// TODO Auto-generated method stub
-		return null;
+		List<RemindDTO> remindDtoList = new ArrayList<RemindDTO>();
+		List<RemindDO> remindDoList = new ArrayList<RemindDO>();
+		try {
+			remindDoList = remindDao.listRemindBySchoolBrokerageSaId(schoolBrokerageSaId);
+			if (remindDoList == null) {
+				return null;
+			}
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+		for (RemindDO remindDo : remindDoList) {
+			RemindDTO remindDto = mapper.map(remindDo, RemindDTO.class);
+			remindDtoList.add(remindDto);
+		}
+		return remindDtoList;
 	}
 
 	@Override
 	public List<RemindDTO> listRemindByRemindDate(Date date) throws ServiceException {
-		// TODO Auto-generated method stub
-		return null;
+		List<RemindDTO> remindDtoList = new ArrayList<RemindDTO>();
+		List<RemindDO> remindDoList = new ArrayList<RemindDO>();
+		try {
+			remindDoList = remindDao.listRemindByRemindDate(date);
+			if (remindDoList == null) {
+				return null;
+			}
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+		for (RemindDO remindDo : remindDoList) {
+			RemindDTO remindDto = mapper.map(remindDo, RemindDTO.class);
+			remindDtoList.add(remindDto);
+		}
+		return remindDtoList;
 	}
 
 	@Override
