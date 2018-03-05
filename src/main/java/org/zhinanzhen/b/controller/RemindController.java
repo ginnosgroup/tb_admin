@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
@@ -18,6 +19,8 @@ import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 
+import com.ikasoa.core.utils.StringUtil;
+
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/remind")
@@ -25,6 +28,26 @@ public class RemindController extends BaseController {
 
 	@Resource
 	RemindService remindService;
+
+	@RequestMapping(value = "/add", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> addRemind(@RequestParam(value = "remindDate") String remindDate,
+			@RequestParam(value = "schoolBrokerageSaId") String schoolBrokerageSaId, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			RemindDTO remindDto = new RemindDTO();
+			remindDto.setRemindDate(new Date(Long.parseLong(remindDate)));
+			remindDto.setSchoolBrokerageSaId(StringUtil.toInt(schoolBrokerageSaId));
+			if (remindService.addRemind(remindDto) > 0) {
+				return new Response<Integer>(0, remindDto.getId());
+			} else {
+				return new Response<Integer>(1, "创建失败.", 0);
+			}
+		} catch (ServiceException e) {
+			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
+		}
+	}
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
