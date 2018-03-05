@@ -1,5 +1,8 @@
 package org.zhinanzhen.b.controller;
 
+import java.util.Date;
+import java.util.List;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 
@@ -10,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.zhinanzhen.b.service.RemindService;
+import org.zhinanzhen.b.service.pojo.RemindDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -21,6 +25,33 @@ public class RemindController extends BaseController {
 
 	@Resource
 	RemindService remindService;
+
+	@RequestMapping(value = "/list", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<RemindDTO>> listRemind(
+			@RequestParam(value = "schoolBrokerageSaId", required = false) String schoolBrokerageSaId,
+			HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<List<RemindDTO>>(0,
+					remindService.listRemindBySchoolBrokerageSaId(Integer.parseInt(schoolBrokerageSaId)));
+		} catch (ServiceException e) {
+			return new Response<List<RemindDTO>>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/listByDate", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<RemindDTO>> listRemindByDate(@RequestParam(value = "date", required = false) String date,
+			HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<List<RemindDTO>>(0,
+					remindService.listRemindByRemindDate(new Date(Long.parseLong(date))));
+		} catch (ServiceException e) {
+			return new Response<List<RemindDTO>>(1, e.getMessage(), null);
+		}
+	}
 
 	@RequestMapping(value = "/delete", method = RequestMethod.GET)
 	@ResponseBody
