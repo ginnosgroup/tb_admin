@@ -45,6 +45,60 @@
                 0);
     </insert>
     
+    <update id="updateRefund" parameterType="org.zhinanzhen.b.dao.pojo.RefundDO">
+        UPDATE b_refund 
+        SET gmt_modify = now()
+        <if test='handlingDate != null'>
+            , handling_date = #{handlingDate}
+        </if>
+        <if test='userId != null and userId != ""'>
+            , user_id = #{userId}
+        </if>
+        <if test='receiveTypeId != null and receiveTypeId != ""'>
+            , receive_type_id = #{receiveTypeId}
+        </if>
+        <if test='amount != null and amount != ""'>
+            , amount = #{amount}
+        </if>
+        <if test='preRefundAmount != null and preRefundAmount != ""'>
+            , pre_refund_amount = #{preRefundAmount}
+        </if>
+        <if test='bankName != null and bankName != ""'>
+            , bank_name = #{bankName}
+        </if>
+        <if test='bankAccount != null and bankAccount != ""'>
+            , bank_account = #{bankAccount}
+        </if>
+        <if test='bsb != null and bsb != ""'>
+            , bsb = #{bsb}
+        </if>
+        <if test='refundDate != null'>
+            , refund_date = #{refundDate}
+        </if>
+        <if test='refundAmount != null and refundAmount != ""'>
+            , refund_amount = #{refundAmount}
+        </if>
+        <if test='gst != null and gst != ""'>
+            , gst = #{gst}
+        </if>
+        <if test='deductGst != null and deductGst != ""'>
+            , deduct_gst = #{deductGst}
+        </if>
+        <if test='refund != null and refund != ""'>
+            , refund = #{refund}
+        </if>
+        <if test='adviserId != null and adviserId != ""'>
+            , adviser_id = #{adviserId}
+        </if>
+        <if test='officialId != null and officialId != ""'>
+            , official_id = #{officialId}
+        </if>
+        <if test='isClose != null'>
+            , is_close = #{isClose}
+        </if>
+        WHERE id = #{id};
+    </update>
+    
     <delete id="deleteRefund" parameterType="java.lang.Integer">
 		DELETE FROM b_refund WHERE id = #{id, jdbcType=INTEGER}
 	</delete>
