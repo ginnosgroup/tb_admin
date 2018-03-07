@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.RefundDAO">
+
+    <insert id="addRefund" parameterType="org.zhinanzhen.b.dao.pojo.RefundDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+            INTO b_refund (
+                gmt_create,
+                gmt_modify,
+                handling_date,
+                user_id,
+                receive_type_id,
+                amount,
+                pre_refund_amount,
+                bank_name,
+                bank_account,
+                bsb,
+                refund_date,
+                refund_amount,
+                gst,
+                deduct_gst,
+                refund,
+                adviser_id,
+                official_id,
+                is_close)
+            VALUES (
+                now(),
+                now(),
+                #{handlingDate},
+                #{userId},
+                #{receiveTypeId},
+                #{amount},
+                #{preRefundAmount},
+                #{bankName},
+                #{bankAccount},
+                #{bsb},
+                #{refundDate},
+                #{refundAmount},
+                #{gst},
+                #{deductGst},
+                #{refund},
+                #{adviserId},
+                #{officialId},
+                0);
+    </insert>
+    
+    <delete id="deleteRefund" parameterType="java.lang.Integer">
+		DELETE FROM b_refund WHERE id = #{id, jdbcType=INTEGER}
+	</delete>
+
+</mapper>
