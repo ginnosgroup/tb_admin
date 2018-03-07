@@ -8,6 +8,8 @@ public interface RefundDAO {
 
 	public int updateRefund(RefundDO refundDO);
 
+	public RefundDO getRefundById(int id);
+
 	public int deleteRefund(int id);
 
 }

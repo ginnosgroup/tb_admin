@@ -99,6 +99,29 @@
         WHERE id = #{id};
     </update>
     
+    <select id="getRefundById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.RefundDO">
+        SELECT
+             id,
+             gmt_create AS gmtCreate,
+             handling_date AS handlingDate,
+             user_id AS userId,
+             receive_type_id AS receiveTypeId,
+             amount,
+             pre_refund_amount AS preRefundAmount,
+             bank_name AS bankName,
+             bank_account AS bankAccount,
+             bsb,
+             refund_date AS refundDate,
+             refund_amount AS refundAmount,
+             gst,
+             deduct_gst AS deductGst,
+             refund,
+             adviser_id AS adviserId,
+             official_id AS officialId,
+             is_close AS isClose
+        FROM b_refund WHERE id = #{id, jdbcType=INTEGER};
+    </select>
+    
     <delete id="deleteRefund" parameterType="java.lang.Integer">
 		DELETE FROM b_refund WHERE id = #{id, jdbcType=INTEGER}
 	</delete>
