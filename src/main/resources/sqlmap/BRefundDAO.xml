@@ -99,6 +99,73 @@
         WHERE id = #{id};
     </update>
     
+    <select id="countRefund" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM b_refund br, b_official bo, tb_user tbu
+        WHERE br.official_id = bo.id AND br.user_id = tbu.id
+        <if test='keyword != null and keyword != ""'>
+            AND tbu.name LIKE '%${keyword}%'
+        </if>
+        <if test='startHandlingDate != null and startHandlingDate != "" and endHandlingDate != null and endHandlingDate != ""'>
+            <![CDATA[ AND br.handling_date > #{startHandlingDate} AND br.handling_date < #{endHandlingDate} ]]>
+        </if>
+        <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+            <![CDATA[ AND br.refund_date > #{startDate} AND br.refund_date < #{endDate} ]]>
+        </if>
+        <if test='adviserId != null and adviserId != ""'>
+            AND br.adviser_id = #{adviserId}
+        </if>
+        <if test='officialId != null and officialId != ""'>
+            AND br.official_id = #{officialId}
+        </if>
+        ;
+    </select>
+    
+    <select id="listRefund" resultType="org.zhinanzhen.b.dao.pojo.RefundListDO">
+        SELECT
+            br.id,
+            br.gmt_create AS gmtCreate,
+            br.handling_date AS handlingDate,
+            br.user_id AS userId,
+            br.receive_type_id AS receiveTypeId,
+            br.amount,
+            br.pre_refund_amount AS preRefundAmount,
+            br.bank_name AS bankName,
+            br.bank_account AS bankAccount,
+            br.bsb,
+            br.refund_date AS refundDate,
+            br.refund_amount AS refundAmount,
+            br.gst,
+            br.deduct_gst AS deductGst,
+            br.refund,
+            br.adviser_id AS adviserId,
+            br.official_id AS officialId,
+            br.is_close AS isClose,
+            bo.name AS officialName,
+            tbu.name AS userName,
+            tbu.birthday AS birthday,
+            tbu.phone AS phone
+        FROM b_refund br, b_official bo, tb_user tbu
+        WHERE br.official_id = bo.id AND br.user_id = tbu.id
+        <if test='keyword != null and keyword != ""'>
+            AND tbu.name LIKE '%${keyword}%'
+        </if>
+        <if test='startHandlingDate != null and startHandlingDate != "" and endHandlingDate != null and endHandlingDate != ""'>
+            <![CDATA[ AND br.handling_date > #{startHandlingDate} AND br.handling_date < #{endHandlingDate} ]]>
+        </if>
+        <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+            <![CDATA[ AND br.refund_date > #{startDate} AND br.refund_date < #{endDate} ]]>
+        </if>
+        <if test='adviserId != null and adviserId != ""'>
+            AND br.adviser_id = #{adviserId}
+        </if>
+        <if test='officialId != null and officialId != ""'>
+            AND br.official_id = #{officialId}
+        </if>
+        ORDER BY br.gmt_create DESC
+        LIMIT #{offset}, #{rows};
+    </select>
+    
     <select id="getRefundById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.RefundDO">
         SELECT
              id,
