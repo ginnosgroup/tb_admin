@@ -6,10 +6,13 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.RefundDAO;
+import org.zhinanzhen.b.dao.pojo.RefundDO;
 import org.zhinanzhen.b.service.RefundService;
 import org.zhinanzhen.b.service.pojo.RefundDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
+
+import com.ikasoa.core.thrift.ErrorCodeEnum;
 
 @Service("RefundService")
 public class RefundServiceImpl extends BaseService implements RefundService {
@@ -46,8 +49,24 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 
 	@Override
 	public RefundDTO getRefundById(int id) throws ServiceException {
-		// TODO Auto-generated method stub
-		return null;
+		if (id <= 0) {
+			ServiceException se = new ServiceException("id error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		RefundDTO refundDto = null;
+		try {
+			RefundDO refundDo = refundDao.getRefundById(id);
+			if (refundDo == null) {
+				return null;
+			}
+			refundDto = mapper.map(refundDo, RefundDTO.class);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+		return refundDto;
 	}
 
 	@Override
