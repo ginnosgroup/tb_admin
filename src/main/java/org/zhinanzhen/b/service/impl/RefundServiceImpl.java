@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -7,6 +8,7 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.RefundDAO;
 import org.zhinanzhen.b.dao.pojo.RefundDO;
+import org.zhinanzhen.b.dao.pojo.RefundListDO;
 import org.zhinanzhen.b.service.RefundService;
 import org.zhinanzhen.b.service.pojo.RefundDTO;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -61,16 +63,38 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 	@Override
 	public int countRefund(String keyword, String startHandlingDate, String endHandlingDate, String startDate,
 			String endDate, Integer adviserId, Integer officialId) throws ServiceException {
-		// TODO Auto-generated method stub
-		return 0;
+		return refundDao.countRefund(keyword, startHandlingDate, endHandlingDate, startDate, endDate, adviserId,
+				officialId);
 	}
 
 	@Override
 	public List<RefundDTO> listRefund(String keyword, String startHandlingDate, String endHandlingDate,
 			String startDate, String endDate, Integer adviserId, Integer officialId, int pageNum, int pageSize)
 			throws ServiceException {
-		// TODO Auto-generated method stub
-		return null;
+		if (pageNum < 0) {
+			pageNum = DEFAULT_PAGE_NUM;
+		}
+		if (pageSize < 0) {
+			pageSize = DEFAULT_PAGE_SIZE;
+		}
+		List<RefundDTO> refundDtoList = new ArrayList<>();
+		List<RefundListDO> refundListDoList = new ArrayList<>();
+		try {
+			refundListDoList = refundDao.listRefund(keyword, startHandlingDate, endHandlingDate, startDate, endDate,
+					adviserId, officialId, pageNum * pageSize, pageSize);
+			if (refundListDoList == null) {
+				return null;
+			}
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+		for (RefundListDO refundListDo : refundListDoList) {
+			RefundDTO refundDto = mapper.map(refundListDo, RefundDTO.class);
+			refundDtoList.add(refundDto);
+		}
+		return refundDtoList;
 	}
 
 	@Override
