@@ -8,9 +8,9 @@ import org.zhinanzhen.b.dao.pojo.RefundListDO;
 
 public interface RefundDAO {
 
-	public int addRefund(RefundDO refundDO);
+	public int addRefund(RefundDO refundDo);
 
-	public int updateRefund(RefundDO refundDO);
+	public int updateRefund(RefundDO refundDo);
 
 	public int countRefund(@Param("keyword") String keyword, @Param("startHandlingDate") String startHandlingDate,
 			@Param("endHandlingDate") String endHandlingDate, @Param("startDate") String startDate,

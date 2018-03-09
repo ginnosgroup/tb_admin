@@ -22,14 +22,40 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 
 	@Override
 	public int addRefund(RefundDTO refundDto) throws ServiceException {
-		// TODO Auto-generated method stub
-		return 0;
+		if (refundDto == null) {
+			ServiceException se = new ServiceException("refundDto is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			RefundDO refundDo = mapper.map(refundDto, RefundDO.class);
+			if (refundDao.addRefund(refundDo) > 0) {
+				return refundDo.getId();
+			} else {
+				return 0;
+			}
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
 	}
 
 	@Override
 	public int updateRefund(RefundDTO refundDto) throws ServiceException {
-		// TODO Auto-generated method stub
-		return 0;
+		if (refundDto == null) {
+			ServiceException se = new ServiceException("refundDto is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			RefundDO refundDo = mapper.map(refundDto, RefundDO.class);
+			return refundDao.updateRefund(refundDo);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
 	}
 
 	@Override
