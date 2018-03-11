@@ -1,5 +1,7 @@
 package org.zhinanzhen.b.controller;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 
@@ -22,6 +24,44 @@ public class RefundController extends BaseController {
 
 	@Resource
 	RefundService refundService;
+
+	@RequestMapping(value = "/count", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> countRefund(@RequestParam(value = "keyword", required = false) String keyword,
+			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
+			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
+			@RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = "endDate", required = false) String endDate,
+			@RequestParam(value = "adviserId", required = false) Integer adviserId,
+			@RequestParam(value = "officialId", required = false) Integer officialId, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<Integer>(0, refundService.countRefund(keyword, startHandlingDate, endHandlingDate,
+					startDate, endDate, adviserId, officialId));
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/list", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<RefundDTO>> listRefund(@RequestParam(value = "keyword", required = false) String keyword,
+			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
+			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
+			@RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = "endDate", required = false) String endDate,
+			@RequestParam(value = "adviserId", required = false) Integer adviserId,
+			@RequestParam(value = "officialId", required = false) Integer officialId,
+			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
+			HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<List<RefundDTO>>(0, refundService.listRefund(keyword, startHandlingDate,
+					endHandlingDate, startDate, endDate, adviserId, officialId, pageNum, pageSize));
+		} catch (ServiceException e) {
+			return new Response<List<RefundDTO>>(1, e.getMessage(), null);
+		}
+	}
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
 	@ResponseBody
