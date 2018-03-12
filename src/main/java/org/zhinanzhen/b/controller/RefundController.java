@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
@@ -29,64 +28,63 @@ public class RefundController extends BaseController {
 	@Resource
 	RefundService refundService;
 
-//	@RequestMapping(value = "/add", method = RequestMethod.POST)
-//	@ResponseBody
-//	public Response<RefundDTO> addRefund(@RequestParam(value = "handlingDate") String handlingDate,
-//			@RequestParam(value = "userId") String userId, @RequestParam(value = "name") String name,
-//			@RequestParam(value = "officialId") String officialId,
-//			@RequestParam(value = "receiveTypeId") String receiveTypeId, @RequestParam(value = "amount") String amount,
-//			@RequestParam(value = "bankName") String bankName, @RequestParam(value = "bankAccount") String bankAccount,
-//			@RequestParam(value = "bsb") String bsb, @RequestParam(value = "refundDate") String refundDate,
-//			@RequestParam(value = "refundAmount") String refundAmount,
-//			HttpServletResponse response) {
-//		try {
-//			super.setPostHeader(response);
-//			RefundDTO refundDto = new RefundDTO();
-//			if (StringUtil.isNotEmpty(handlingDate)) {
-//				refundDto.setHandlingDate(new Date(Long.parseLong(handlingDate)));
-//			}
-//			if (StringUtil.isNotEmpty(userId)) {
-//				refundDto.setUserId(StringUtil.toInt(userId));
-//			}
-//			if (StringUtil.isNotEmpty(name)) {
-//				refundDto.setName(name);
-//			}
-//			if (StringUtil.isNotEmpty(officialId)) {
-//				refundDto.setOfficialId(StringUtil.toInt(officialId));
-//			}
-//			if (StringUtil.isNotEmpty(receiveTypeId)) {
-//				refundDto.setReceiveTypeId(StringUtil.toInt(receiveTypeId));
-//			}
-//			if (StringUtil.isNotEmpty(amount)) {
-//				refundDto.setAmount(Double.parseDouble(amount));
-//			}
-//			if (StringUtil.isNotEmpty(bankName)) {
-//				refundDto.setBankName(bankName);
-//			}
-//			if (StringUtil.isNotEmpty(bankAccount)) {
-//				refundDto.setBankAccount(bankAccount);
-//			}
-//			if (StringUtil.isNotEmpty(bsb)) {
-//				refundDto.setBsb(bsb);
-//			}
-//			if (StringUtil.isNotEmpty(refundDate)) {
-//				refundDto.setRefundDate(new Date(Long.parseLong(refundDate)));
-//			}
-//			if (StringUtil.isNotEmpty(refundAmount)) {
-//				refundDto.setRefundAmount(Double.parseDouble(refundAmount));
-//			}
-//			refundDto.setGst(refundDto.getCommission() / 11);
-//			refundDto.setDeductGst(refundDto.getCommission() - refundDto.getGst());
-//			refundDto.setBonus(refundDto.getDeductGst() * 0.1);
-//			if (refundService.addRefund(refundDto) > 0) {
-//				return new Response<RefundDTO>(0, refundDto);
-//			} else {
-//				return new Response<RefundDTO>(1, "创建失败.", null);
-//			}
-//		} catch (ServiceException e) {
-//			return new Response<RefundDTO>(e.getCode(), e.getMessage(), null);
-//		}
-//	}
+	@RequestMapping(value = "/add", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<RefundDTO> addRefund(@RequestParam(value = "handlingDate") String handlingDate,
+			@RequestParam(value = "userId") String userId, @RequestParam(value = "name") String name,
+			@RequestParam(value = "officialId") String officialId,
+			@RequestParam(value = "receiveTypeId") String receiveTypeId, @RequestParam(value = "amount") String amount,
+			@RequestParam(value = "bankName") String bankName, @RequestParam(value = "bankAccount") String bankAccount,
+			@RequestParam(value = "bsb") String bsb, @RequestParam(value = "refundDate") String refundDate,
+			@RequestParam(value = "refundAmount") String refundAmount, HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			RefundDTO refundDto = new RefundDTO();
+			if (StringUtil.isNotEmpty(handlingDate)) {
+				refundDto.setHandlingDate(new Date(Long.parseLong(handlingDate)));
+			}
+			if (StringUtil.isNotEmpty(userId)) {
+				refundDto.setUserId(StringUtil.toInt(userId));
+			}
+			if (StringUtil.isNotEmpty(name)) {
+				refundDto.setName(name);
+			}
+			if (StringUtil.isNotEmpty(officialId)) {
+				refundDto.setOfficialId(StringUtil.toInt(officialId));
+			}
+			if (StringUtil.isNotEmpty(receiveTypeId)) {
+				refundDto.setReceiveTypeId(StringUtil.toInt(receiveTypeId));
+			}
+			if (StringUtil.isNotEmpty(amount)) {
+				refundDto.setAmount(Double.parseDouble(amount));
+			}
+			if (StringUtil.isNotEmpty(bankName)) {
+				refundDto.setBankName(bankName);
+			}
+			if (StringUtil.isNotEmpty(bankAccount)) {
+				refundDto.setBankAccount(bankAccount);
+			}
+			if (StringUtil.isNotEmpty(bsb)) {
+				refundDto.setBsb(bsb);
+			}
+			if (StringUtil.isNotEmpty(refundDate)) {
+				refundDto.setRefundDate(new Date(Long.parseLong(refundDate)));
+			}
+			if (StringUtil.isNotEmpty(refundAmount)) {
+				refundDto.setRefundAmount(Double.parseDouble(refundAmount));
+			}
+			refundDto.setGst(refundDto.getRefundAmount() / 11);
+			refundDto.setDeductGst(refundDto.getRefundAmount() - refundDto.getGst());
+			refundDto.setRefund(refundDto.getDeductGst() * 0.1);
+			if (refundService.addRefund(refundDto) > 0) {
+				return new Response<RefundDTO>(0, refundDto);
+			} else {
+				return new Response<RefundDTO>(1, "创建失败.", null);
+			}
+		} catch (ServiceException e) {
+			return new Response<RefundDTO>(e.getCode(), e.getMessage(), null);
+		}
+	}
 
 	@RequestMapping(value = "/count", method = RequestMethod.GET)
 	@ResponseBody
