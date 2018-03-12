@@ -14,6 +14,8 @@ public class RefundDO {
 	private Date handlingDate;
 
 	private int userId;
+	
+	private String name;
 
 	private int receiveTypeId;
 

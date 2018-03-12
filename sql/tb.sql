@@ -237,6 +237,7 @@ CREATE TABLE `b_refund` (
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `handling_date` datetime NOT NULL COMMENT '办理日期',
   `user_id` int NOT NULL COMMENT '用户编号 (对应tb_user.id)',
+  `name` varchar(32) NOT NULL COMMENT '项目名称',
   `receive_type_id` int NOT NULL COMMENT '收款方式编号(对应b_receive_type.id)',
   `amount` decimal(8,2) NOT NULL COMMENT '已收款金额',
   `pre_refund_amount` decimal(8,2) NOT NULL COMMENT '申请退款金额',

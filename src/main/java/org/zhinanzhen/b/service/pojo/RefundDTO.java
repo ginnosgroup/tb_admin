@@ -15,6 +15,8 @@ public class RefundDTO {
 
 	private int userId;
 	
+	private String name;
+	
 	private String userName;
 	
 	private Date birthday;

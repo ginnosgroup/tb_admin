@@ -10,6 +10,7 @@
                 gmt_modify,
                 handling_date,
                 user_id,
+                name,
                 receive_type_id,
                 amount,
                 pre_refund_amount,
@@ -29,6 +30,7 @@
                 now(),
                 #{handlingDate},
                 #{userId},
+                #{name},
                 #{receiveTypeId},
                 #{amount},
                 #{preRefundAmount},
@@ -53,6 +55,9 @@
         </if>
         <if test='userId != null and userId != ""'>
             , user_id = #{userId}
+        </if>
+        <if test='name != null and name != ""'>
+            , name = #{name}
         </if>
         <if test='receiveTypeId != null and receiveTypeId != ""'>
             , receive_type_id = #{receiveTypeId}
@@ -127,6 +132,7 @@
             br.gmt_create AS gmtCreate,
             br.handling_date AS handlingDate,
             br.user_id AS userId,
+            br.name,
             br.receive_type_id AS receiveTypeId,
             br.amount,
             br.pre_refund_amount AS preRefundAmount,
@@ -172,6 +178,7 @@
              gmt_create AS gmtCreate,
              handling_date AS handlingDate,
              user_id AS userId,
+             name,
              receive_type_id AS receiveTypeId,
              amount,
              pre_refund_amount AS preRefundAmount,

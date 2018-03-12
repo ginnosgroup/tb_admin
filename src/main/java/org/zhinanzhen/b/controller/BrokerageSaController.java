@@ -47,9 +47,6 @@ public class BrokerageSaController extends BaseController {
 			if (StringUtil.isNotEmpty(userId)) {
 				brokerageSaDto.setUserId(StringUtil.toInt(userId));
 			}
-			if (StringUtil.isNotEmpty(schoolId)) {
-				brokerageSaDto.setSchoolId(StringUtil.toInt(schoolId));
-			}
 			if (StringUtil.isNotEmpty(startDate)) {
 				brokerageSaDto.setStartDate(new Date(Long.parseLong(startDate)));
 			}
