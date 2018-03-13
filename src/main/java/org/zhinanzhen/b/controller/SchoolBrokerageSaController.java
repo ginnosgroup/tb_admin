@@ -233,8 +233,11 @@ public class SchoolBrokerageSaController extends BaseController {
 		try {
 			super.setGetHeader(response);
 			SchoolBrokerageSaDTO schoolBrokerageSaDto = schoolBrokerageSaService.getSchoolBrokerageSaById(id);
-			schoolBrokerageSaDto.setClose(true);
-			return new Response<Integer>(0, schoolBrokerageSaService.updateSchoolBrokerageSa(schoolBrokerageSaDto));
+			if (schoolBrokerageSaDto != null) {
+				return new Response<Integer>(0, schoolBrokerageSaService.updateClose(id, true));
+			} else {
+				return new Response<Integer>(2, "数据" + id + "不存在.", 0);
+			}
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), 0);
 		}
@@ -246,8 +249,11 @@ public class SchoolBrokerageSaController extends BaseController {
 		try {
 			super.setGetHeader(response);
 			SchoolBrokerageSaDTO schoolBrokerageSaDto = schoolBrokerageSaService.getSchoolBrokerageSaById(id);
-			schoolBrokerageSaDto.setClose(false);
-			return new Response<Integer>(0, schoolBrokerageSaService.updateSchoolBrokerageSa(schoolBrokerageSaDto));
+			if (schoolBrokerageSaDto != null) {
+				return new Response<Integer>(0, schoolBrokerageSaService.updateClose(id, false));
+			} else {
+				return new Response<Integer>(2, "数据" + id + "不存在.", 0);
+			}
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), 0);
 		}

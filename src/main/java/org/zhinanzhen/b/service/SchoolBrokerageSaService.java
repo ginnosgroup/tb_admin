@@ -18,6 +18,8 @@ public interface SchoolBrokerageSaService {
 	public List<SchoolBrokerageSaDTO> listSchoolBrokerageSa(String keyword, String startHandlingDate,
 			String endHandlingDate, String startDate, String endDate, Integer adviserId, Integer schoolId,
 			Integer subagencyId, Boolean isSettleAccounts, int pageNum, int pageSize) throws ServiceException;
+	
+	public int updateClose(int id, boolean isClose) throws ServiceException;
 
 	public SchoolBrokerageSaDTO getSchoolBrokerageSaById(int id) throws ServiceException;
 

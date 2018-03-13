@@ -61,10 +61,6 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 			throw se;
 		}
 		try {
-			// 会计核对closed掉的佣金记录时，编辑该条记录，如果【学校支付金额】字段值不为空，保存时，已结佣字段自动变为是。
-			if (schoolBrokerageSaDto.getPayAmount() > 0) {
-				schoolBrokerageSaDto.setSettleAccounts(true);
-			}
 			SchoolBrokerageSaDO schoolBrokerageSaDo = mapper.map(schoolBrokerageSaDto, SchoolBrokerageSaDO.class);
 			return schoolBrokerageSaDao.updateSchoolBrokerageSa(schoolBrokerageSaDo);
 		} catch (Exception e) {
@@ -123,6 +119,23 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 			schoolBrokerageSaDtoList.add(schoolBrokerageSaDto);
 		}
 		return schoolBrokerageSaDtoList;
+	}
+	
+	public int updateClose(int id, boolean isClose) throws ServiceException{
+		SchoolBrokerageSaDO schoolBrokerageSaDo = new SchoolBrokerageSaDO();
+		try {
+			schoolBrokerageSaDo.setId(id);
+			// 会计核对closed掉的佣金记录时，编辑该条记录，如果【学校支付金额】字段值不为空，保存时，已结佣字段自动变为是。
+			if (schoolBrokerageSaDao.getSchoolBrokerageSaById(id).getPayAmount() > 0) {
+				schoolBrokerageSaDo.setSettleAccounts(true);
+			}
+			schoolBrokerageSaDo.setClose(isClose);
+			return schoolBrokerageSaDao.updateSchoolBrokerageSa(schoolBrokerageSaDo);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
 	}
 
 	@Override
