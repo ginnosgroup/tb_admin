@@ -20,9 +20,9 @@
     <select id="listRemindBySchoolBrokerageSaId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.RemindDO">
         SELECT
             id,
-            gmt_create,
-            school_brokerage_sa_id,
-            remind_date
+            gmt_create AS gmtCreate,
+            school_brokerage_sa_id AS schoolBrokerageSaId,
+            remind_date AS remindDate
         FROM b_remind
         WHERE school_brokerage_sa_id = #{schoolBrokerageSaId, jdbcType=INTEGER}
         ORDER BY gmt_create DESC;
@@ -32,9 +32,9 @@
       <![CDATA[
         SELECT
             id,
-            gmt_create,
-            school_brokerage_sa_id,
-            remind_date
+            gmt_create AS gmtCreate,
+            school_brokerage_sa_id AS schoolBrokerageSaId,
+            remind_date AS remindDate
         FROM b_remind
         WHERE remind_date < #{date}
         ORDER BY gmt_create DESC;
