@@ -78,6 +78,9 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 	public int countSchoolBrokerageSa(String keyword, String startHandlingDate, String endHandlingDate,
 			String startDate, String endDate, Integer adviserId, Integer schoolId, Integer subagencyId,
 			Boolean isSettleAccounts) throws ServiceException {
+		if (isSettleAccounts == null) {
+			isSettleAccounts = false;
+		}
 		return schoolBrokerageSaDao.countSchoolBrokerageSa(keyword, startHandlingDate, endHandlingDate, startDate,
 				endDate, adviserId, schoolId, subagencyId, isSettleAccounts);
 	}
@@ -91,6 +94,9 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 		}
 		if (pageSize < 0) {
 			pageSize = DEFAULT_PAGE_SIZE;
+		}
+		if (isSettleAccounts == null) {
+			isSettleAccounts = false;
 		}
 		List<SchoolBrokerageSaDTO> schoolBrokerageSaDtoList = new ArrayList<>();
 		List<SchoolBrokerageSaListDO> schoolBrokerageSaListDoList = new ArrayList<>();

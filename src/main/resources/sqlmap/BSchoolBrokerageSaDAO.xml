@@ -150,7 +150,6 @@
             bsbs.gmt_create AS gmtCreate,
             bsbs.handling_date AS handlingDate,
             bsbs.user_id AS userId,
-            bsbs.receive_type_id AS receiveTypeId,
             bsbs.school_id AS schoolId,
             bsbs.student_code AS studentCode,
             bsbs.start_date AS startDate,
@@ -164,7 +163,7 @@
             bsbs.pay_date AS payDate,
             bsbs.invoice_code AS invoiceCode,
             bsbs.pay_amount AS payAmount,
-            bsbs.subagency_id AS subagencyId.
+            bsbs.subagency_id AS subagencyId,
             bsu.name AS subagencyName,
             bsbs.adviser_id AS adviserId,
             bsbs.official_id AS officialId,
