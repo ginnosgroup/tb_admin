@@ -201,7 +201,6 @@
             gmt_create AS gmtCreate,
             handling_date AS handlingDate,
             user_id AS userId,
-            receive_type_id AS receiveTypeId,
             school_id AS schoolId,
             student_code AS studentCode,
             start_date AS startDate,
@@ -215,7 +214,7 @@
             pay_date AS payDate,
             invoice_code AS invoiceCode,
             pay_amount AS payAmount,
-            subagency_id AS subagencyId.
+            subagency_id AS subagencyId,
             adviser_id AS adviserId,
             official_id AS officialId,
             is_settle_accounts AS isSettleAccounts,
