@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.service.pojo;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.Data;
 
@@ -32,6 +33,8 @@ public class SchoolBrokerageSaDTO {
 	private Date startDate;
 
 	private Date endDate;
+	
+	private List<Date> remindDateList;
 
 	private double tuitionFee;
 

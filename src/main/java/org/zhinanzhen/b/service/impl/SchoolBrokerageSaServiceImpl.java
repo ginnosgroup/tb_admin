@@ -1,12 +1,15 @@
 package org.zhinanzhen.b.service.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.zhinanzhen.b.dao.RemindDAO;
 import org.zhinanzhen.b.dao.SchoolBrokerageSaDAO;
+import org.zhinanzhen.b.dao.pojo.RemindDO;
 import org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaDO;
 import org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaListDO;
 import org.zhinanzhen.b.service.SchoolBrokerageSaService;
@@ -21,6 +24,9 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 
 	@Resource
 	private SchoolBrokerageSaDAO schoolBrokerageSaDao;
+
+	@Resource
+	private RemindDAO remindDao;
 
 	@Override
 	public int addSchoolBrokerageSa(SchoolBrokerageSaDTO schoolBrokerageSaDto) throws ServiceException {
@@ -102,6 +108,12 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 		}
 		for (SchoolBrokerageSaListDO schoolBrokerageSaListDo : schoolBrokerageSaListDoList) {
 			SchoolBrokerageSaDTO schoolBrokerageSaDto = mapper.map(schoolBrokerageSaListDo, SchoolBrokerageSaDTO.class);
+			List<Date> remindDateList = new ArrayList<>();
+			List<RemindDO> remindDoList = remindDao.listRemindBySchoolBrokerageSaId(schoolBrokerageSaDto.getId());
+			for (RemindDO remindDo : remindDoList) {
+				remindDateList.add(remindDo.getRemindDate());
+			}
+			schoolBrokerageSaDto.setRemindDateList(remindDateList);
 			schoolBrokerageSaDtoList.add(schoolBrokerageSaDto);
 		}
 		return schoolBrokerageSaDtoList;
