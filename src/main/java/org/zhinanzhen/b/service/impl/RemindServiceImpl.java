@@ -16,7 +16,7 @@ import org.zhinanzhen.tb.service.impl.BaseService;
 
 import com.ikasoa.core.thrift.ErrorCodeEnum;
 
-@Service("OfficialService")
+@Service("RemindService")
 public class RemindServiceImpl extends BaseService implements RemindService {
 
 	@Resource
