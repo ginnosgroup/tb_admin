@@ -32,8 +32,9 @@ public class RefundController extends BaseController {
 	@ResponseBody
 	public Response<RefundDTO> addRefund(@RequestParam(value = "handlingDate") String handlingDate,
 			@RequestParam(value = "userId") String userId, @RequestParam(value = "name") String name,
-			@RequestParam(value = "officialId") String officialId,
+			@RequestParam(value = "adviserId") String adviserId, @RequestParam(value = "officialId") String officialId,
 			@RequestParam(value = "receiveTypeId") String receiveTypeId, @RequestParam(value = "amount") String amount,
+			@RequestParam(value = "preRefundAmount") String preRefundAmount,
 			@RequestParam(value = "bankName") String bankName, @RequestParam(value = "bankAccount") String bankAccount,
 			@RequestParam(value = "bsb") String bsb, @RequestParam(value = "refundDate") String refundDate,
 			@RequestParam(value = "refundAmount") String refundAmount, HttpServletResponse response) {
@@ -49,6 +50,9 @@ public class RefundController extends BaseController {
 			if (StringUtil.isNotEmpty(name)) {
 				refundDto.setName(name);
 			}
+			if (StringUtil.isNotEmpty(adviserId)) {
+				refundDto.setAdviserId(StringUtil.toInt(adviserId));
+			}
 			if (StringUtil.isNotEmpty(officialId)) {
 				refundDto.setOfficialId(StringUtil.toInt(officialId));
 			}
@@ -57,6 +61,9 @@ public class RefundController extends BaseController {
 			}
 			if (StringUtil.isNotEmpty(amount)) {
 				refundDto.setAmount(Double.parseDouble(amount));
+			}
+			if (StringUtil.isNotEmpty(preRefundAmount)) {
+				refundDto.setPreRefundAmount(Double.parseDouble(preRefundAmount));
 			}
 			if (StringUtil.isNotEmpty(bankName)) {
 				refundDto.setBankName(bankName);
@@ -89,12 +96,19 @@ public class RefundController extends BaseController {
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<RefundDTO> updateRefund(@RequestParam(value = "id") int id,
-			@RequestParam(value = "handlingDate") String handlingDate, @RequestParam(value = "userId") String userId,
-			@RequestParam(value = "name") String name, @RequestParam(value = "officialId") String officialId,
-			@RequestParam(value = "receiveTypeId") String receiveTypeId, @RequestParam(value = "amount") String amount,
-			@RequestParam(value = "bankName") String bankName, @RequestParam(value = "bankAccount") String bankAccount,
-			@RequestParam(value = "bsb") String bsb, @RequestParam(value = "refundDate") String refundDate,
-			@RequestParam(value = "refundAmount") String refundAmount, HttpServletResponse response) {
+			@RequestParam(value = "handlingDate", required = false) String handlingDate,
+			@RequestParam(value = "userId", required = false) String userId,
+			@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "adviserId", required = false) String adviserId,
+			@RequestParam(value = "officialId", required = false) String officialId,
+			@RequestParam(value = "receiveTypeId", required = false) String receiveTypeId,
+			@RequestParam(value = "amount", required = false) String amount,
+			@RequestParam(value = "preRefundAmount", required = false) String preRefundAmount,
+			@RequestParam(value = "bankName", required = false) String bankName,
+			@RequestParam(value = "bankAccount", required = false) String bankAccount,
+			@RequestParam(value = "bsb", required = false) String bsb,
+			@RequestParam(value = "refundDate", required = false) String refundDate,
+			@RequestParam(value = "refundAmount", required = false) String refundAmount, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			RefundDTO refundDto = new RefundDTO();
@@ -108,6 +122,9 @@ public class RefundController extends BaseController {
 			if (StringUtil.isNotEmpty(name)) {
 				refundDto.setName(name);
 			}
+			if (StringUtil.isNotEmpty(adviserId)) {
+				refundDto.setAdviserId(StringUtil.toInt(adviserId));
+			}
 			if (StringUtil.isNotEmpty(officialId)) {
 				refundDto.setOfficialId(StringUtil.toInt(officialId));
 			}
@@ -116,6 +133,9 @@ public class RefundController extends BaseController {
 			}
 			if (StringUtil.isNotEmpty(amount)) {
 				refundDto.setAmount(Double.parseDouble(amount));
+			}
+			if (StringUtil.isNotEmpty(preRefundAmount)) {
+				refundDto.setPreRefundAmount(Double.parseDouble(preRefundAmount));
 			}
 			if (StringUtil.isNotEmpty(bankName)) {
 				refundDto.setBankName(bankName);
