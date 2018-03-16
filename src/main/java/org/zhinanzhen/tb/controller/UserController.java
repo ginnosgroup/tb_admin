@@ -63,6 +63,17 @@ public class UserController extends BaseController {
 			return new Response<Integer>(1, e.getMessage(), -1);
 		}
 	}
+	
+	@RequestMapping(value = "/countMonth", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> countUserByThisMonth(HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<Integer>(0, userService.countUserByThisMonth());
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), -1);
+		}
+	}
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody

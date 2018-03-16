@@ -12,6 +12,8 @@ public interface UserService {
 	public int countUser(String name, UserAuthTypeEnum authType, String authNickname, String phone)
 			throws ServiceException;
 
+	public int countUserByThisMonth() throws ServiceException;
+
 	public List<UserDTO> listUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
 			int pageNum, int pageSize) throws ServiceException;
 

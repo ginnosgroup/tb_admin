@@ -56,6 +56,10 @@
 		;
 	</select>
 
+	<select id="countUserByThisMonth" resultType="java.lang.Integer">
+		select count(*) from tb_user where DATE_FORMAT(gmt_create, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m');
+	</select>
+
 	<select id="listUser" resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
 		SELECT
 		id,

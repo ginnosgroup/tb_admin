@@ -14,6 +14,8 @@ public interface UserDAO {
 	public int countUser(@Param("name") String name, @Param("authType") String authType,
 			@Param("authNickname") String authNickname, @Param("phone") String phone);
 
+	public int countUserByThisMonth();
+
 	public List<UserDO> listUser(@Param("name") String name, @Param("authType") String authType,
 			@Param("authNickname") String authNickname, @Param("phone") String phone, @Param("offset") int offset,
 			@Param("rows") int rows);

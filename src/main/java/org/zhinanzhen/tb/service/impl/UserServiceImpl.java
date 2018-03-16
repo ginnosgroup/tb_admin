@@ -62,6 +62,11 @@ public class UserServiceImpl extends BaseService implements UserService {
 			return userDao.countUser(name, authType.toString(), authNickname, phone);
 		}
 	}
+	
+	@Override
+	public int countUserByThisMonth() throws ServiceException {
+		return userDao.countUserByThisMonth();
+	}
 
 	@Override
 	public List<UserDTO> listUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
