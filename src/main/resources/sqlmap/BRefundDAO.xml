@@ -172,8 +172,8 @@
         LIMIT #{offset}, #{rows};
     </select>
     
-    <select id="sumRefundByThisMonth" resultType="java.lang.Integer">
-		select IFNULL(sum(bonus), 0.00) from b_refund where DATE_FORMAT(gmt_create, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m') and is_close = 0;
+    <select id="sumRefundByThisMonth" resultType="java.lang.Double">
+		select IFNULL(sum(refund), 0.00) from b_refund where DATE_FORMAT(gmt_create, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m') and is_close = 0;
 	</select>
     
     <select id="getRefundById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.RefundDO">

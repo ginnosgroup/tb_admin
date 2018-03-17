@@ -21,7 +21,7 @@ public interface BrokerageDAO {
 			@Param("startDate") String startDate, @Param("endDate") String endDate,
 			@Param("adviserId") Integer adviserId, @Param("offset") int offset, @Param("rows") int rows);
 	
-	public int sumBonusByThisMonth();
+	public double sumBonusByThisMonth();
 
 	public BrokerageDO getBrokerageById(int id);
 

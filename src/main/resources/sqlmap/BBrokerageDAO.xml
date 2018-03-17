@@ -147,7 +147,7 @@
         LIMIT #{offset}, #{rows};
     </select>
     
-    <select id="sumBonusByThisMonth" resultType="java.lang.Integer">
+    <select id="sumBonusByThisMonth" resultType="java.lang.Double">
 		select IFNULL(sum(bonus), 0.00) from b_brokerage where DATE_FORMAT(gmt_create, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m') and is_close = 0;
 	</select>
 
