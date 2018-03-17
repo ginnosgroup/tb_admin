@@ -81,7 +81,7 @@ public class RemindController extends BaseController {
 	public Response<Integer> deleteRemind(@RequestParam(value = "id") int id, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<Integer>(0, remindService.deleteSchoolById(id));
+			return new Response<Integer>(0, remindService.deleteRemindById(id));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), 0);
 		}

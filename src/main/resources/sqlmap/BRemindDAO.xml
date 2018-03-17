@@ -42,7 +42,7 @@
     </select>
     
     <delete id="deleteRemindById" parameterType="java.lang.Integer">
-		DELETE FROM b_remind WHERE id = #{id, jdbcType=INTEGER}
+		DELETE FROM b_remind WHERE id = #{id, jdbcType=INTEGER};
 	</delete>
 
 </mapper>

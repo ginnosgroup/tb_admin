@@ -13,6 +13,6 @@ public interface RemindDAO {
 
 	public List<RemindDO> listRemindByRemindDate(Date date);
 
-	public int deleteSchoolById(int id);
+	public int deleteRemindById(int id);
 
 }

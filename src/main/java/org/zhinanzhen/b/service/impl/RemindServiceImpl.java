@@ -86,8 +86,8 @@ public class RemindServiceImpl extends BaseService implements RemindService {
 	}
 
 	@Override
-	public int deleteSchoolById(int id) throws ServiceException {
-		return remindDao.deleteSchoolById(id);
+	public int deleteRemindById(int id) throws ServiceException {
+		return remindDao.deleteRemindById(id);
 	}
 
 }

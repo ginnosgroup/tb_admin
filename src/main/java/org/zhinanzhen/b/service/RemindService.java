@@ -14,6 +14,6 @@ public interface RemindService {
 	
 	public List<RemindDTO> listRemindByRemindDate(Date date) throws ServiceException;
 
-	public int deleteSchoolById(int id) throws ServiceException;
+	public int deleteRemindById(int id) throws ServiceException;
 
 }
