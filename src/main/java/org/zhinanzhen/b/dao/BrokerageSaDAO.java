@@ -16,6 +16,8 @@ public interface BrokerageSaDAO {
 			@Param("endHandlingDate") String endHandlingDate, @Param("startDate") String startDate,
 			@Param("endDate") String endDate, @Param("adviserId") Integer adviserId,
 			@Param("schoolId") Integer schoolId);
+	
+	public int countBonusByThisMonth();
 
 	public List<BrokerageSaListDO> listBrokerageSa(@Param("keyword") String keyword,
 			@Param("startHandlingDate") String startHandlingDate, @Param("endHandlingDate") String endHandlingDate,

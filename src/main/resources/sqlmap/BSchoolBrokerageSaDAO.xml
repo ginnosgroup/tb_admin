@@ -144,6 +144,10 @@
         ;
     </select>
     
+    <select id="countBonusByThisMonth" resultType="java.lang.Integer">
+		select IFNULL(sum(bonus), 0.00) from b_school_brokerage_sa where DATE_FORMAT(gmt_create, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m') and is_close = 0;
+	</select>
+    
     <select id="listSchoolBrokerageSa" resultType="org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaListDO">
         SELECT
             bsbs.id AS id,

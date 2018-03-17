@@ -126,6 +126,10 @@
         ;
     </select>
     
+    <select id="countRefundByThisMonth" resultType="java.lang.Integer">
+		select IFNULL(sum(bonus), 0.00) from b_refund where DATE_FORMAT(gmt_create, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m') and is_close = 0;
+	</select>
+    
     <select id="listRefund" resultType="org.zhinanzhen.b.dao.pojo.RefundListDO">
         SELECT
             br.id,
