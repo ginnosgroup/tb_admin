@@ -108,10 +108,6 @@
         ;
     </select>
     
-    <select id="countBonusByThisMonth" resultType="java.lang.Integer">
-		select IFNULL(sum(bonus), 0.00) from b_brokerage where DATE_FORMAT(gmt_create, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m') and is_close = 0;
-	</select>
-    
     <select id="listBrokerage" resultType="org.zhinanzhen.b.dao.pojo.BrokerageListDO">
         SELECT
             bb.id AS id,
@@ -150,6 +146,10 @@
         ORDER BY bb.gmt_create DESC
         LIMIT #{offset}, #{rows};
     </select>
+    
+    <select id="sumBonusByThisMonth" resultType="java.lang.Integer">
+		select IFNULL(sum(bonus), 0.00) from b_brokerage where DATE_FORMAT(gmt_create, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m') and is_close = 0;
+	</select>
 
     <select id="getBrokerageById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.BrokerageDO">
         SELECT

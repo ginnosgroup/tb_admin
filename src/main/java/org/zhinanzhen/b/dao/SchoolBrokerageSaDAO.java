@@ -17,8 +17,6 @@ public interface SchoolBrokerageSaDAO {
 			@Param("startDate") String startDate, @Param("endDate") String endDate,
 			@Param("adviserId") Integer adviserId, @Param("schoolId") Integer schoolId,
 			@Param("subagencyId") Integer subagencyId, @Param("isSettleAccounts") Boolean isSettleAccounts);
-	
-	public int countBonusByThisMonth();
 
 	public List<SchoolBrokerageSaListDO> listSchoolBrokerageSa(@Param("keyword") String keyword,
 			@Param("startHandlingDate") String startHandlingDate, @Param("endHandlingDate") String endHandlingDate,
@@ -26,6 +24,8 @@ public interface SchoolBrokerageSaDAO {
 			@Param("adviserId") Integer adviserId, @Param("schoolId") Integer schoolId,
 			@Param("subagencyId") Integer subagencyId, @Param("isSettleAccounts") Boolean isSettleAccounts,
 			@Param("offset") int offset, @Param("rows") int rows);
+	
+	public int sumBonusByThisMonth();
 
 	public SchoolBrokerageSaDO getSchoolBrokerageSaById(int id);
 

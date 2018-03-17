@@ -15,13 +15,13 @@ public interface BrokerageDAO {
 	public int countBrokerage(@Param("keyword") String keyword, @Param("startHandlingDate") String startHandlingDate,
 			@Param("endHandlingDate") String endHandlingDate, @Param("startDate") String startDate,
 			@Param("endDate") String endDate, @Param("adviserId") Integer adviserId);
-	
-	public int countBonusByThisMonth();
 
 	public List<BrokerageListDO> listBrokerage(@Param("keyword") String keyword,
 			@Param("startHandlingDate") String startHandlingDate, @Param("endHandlingDate") String endHandlingDate,
 			@Param("startDate") String startDate, @Param("endDate") String endDate,
 			@Param("adviserId") Integer adviserId, @Param("offset") int offset, @Param("rows") int rows);
+	
+	public int sumBonusByThisMonth();
 
 	public BrokerageDO getBrokerageById(int id);
 
