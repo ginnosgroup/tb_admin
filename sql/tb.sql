@@ -152,7 +152,7 @@ CREATE TABLE `tb_admin_user` (
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `username` varchar(32) NOT NULL COMMENT '管理员账户名称',
   `password` varchar(32) NOT NULL COMMENT '登录密码 (MD5加密)',
-  `ap_list` varchar(128) DEFAULT NULL COMMENT '权限列表 (KJ:会计,GW:顾问;如果为NULL则为管理员)',
+  `ap_list` varchar(128) DEFAULT NULL COMMENT '权限列表 (KJ:会计,GW:顾问,AD:管理员,TGAD:团购管理员;如果为NULL则为超级管理员,显示所有选项)',
   `session_id` varchar(255) DEFAULT NULL COMMENT '当前session_id值',
   `gmt_login` datetime NOT NULL COMMENT '最后登录时间',
   `login_ip` varchar(50) NOT NULL COMMENT '最后登录IP',
