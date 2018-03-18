@@ -14,5 +14,7 @@ public interface RemindDAO {
 	public List<RemindDO> listRemindByRemindDate(Date date);
 
 	public int deleteRemindById(int id);
+	
+	public int deleteRemindBySchoolBrokerageSaId(int id);
 
 }

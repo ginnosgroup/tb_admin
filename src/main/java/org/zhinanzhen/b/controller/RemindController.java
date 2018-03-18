@@ -87,4 +87,16 @@ public class RemindController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/deleteRemindBySchoolBrokerageSaId", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> deleteRemindBySchoolBrokerageSaId(@RequestParam(value = "schoolBrokerageSaId") int schoolBrokerageSaId,
+			HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<Integer>(0, remindService.deleteRemindBySchoolBrokerageSaId(schoolBrokerageSaId));
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), 0);
+		}
+	}
+
 }

@@ -44,5 +44,9 @@
     <delete id="deleteRemindById" parameterType="java.lang.Integer">
 		DELETE FROM b_remind WHERE id = #{id, jdbcType=INTEGER};
 	</delete>
+	
+	<delete id="deleteRemindBySchoolBrokerageSaId" parameterType="java.lang.Integer">
+		DELETE FROM b_remind WHERE school_brokerage_sa_id = #{id, jdbcType=INTEGER};
+	</delete>
 
 </mapper>
