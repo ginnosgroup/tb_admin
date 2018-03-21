@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaDO;
 import org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaListDO;
+import org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaByDashboardListDO;
 
 public interface SchoolBrokerageSaDAO {
 
@@ -24,7 +25,10 @@ public interface SchoolBrokerageSaDAO {
 			@Param("adviserId") Integer adviserId, @Param("schoolId") Integer schoolId,
 			@Param("subagencyId") Integer subagencyId, @Param("isSettleAccounts") Boolean isSettleAccounts,
 			@Param("offset") int offset, @Param("rows") int rows);
-	
+
+	public List<SchoolBrokerageSaByDashboardListDO> SchoolBrokerageSaByDashboardListDO(@Param("offset") int offset,
+			@Param("rows") int rows);
+
 	public double sumBonusByThisMonth();
 
 	public SchoolBrokerageSaDO getSchoolBrokerageSaById(int id);
