@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.zhinanzhen.b.service.SchoolBrokerageSaService;
+import org.zhinanzhen.b.service.pojo.SchoolBrokerageSaByDashboardListDTO;
 import org.zhinanzhen.b.service.pojo.SchoolBrokerageSaDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
@@ -212,6 +213,20 @@ public class SchoolBrokerageSaController extends BaseController {
 							startDate, endDate, adviserId, schoolId, subagencyId, isSettleAccounts, pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<SchoolBrokerageSaDTO>>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/listByDashboard", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<SchoolBrokerageSaByDashboardListDTO>> listByDashboard(
+			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
+			HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<List<SchoolBrokerageSaByDashboardListDTO>>(0,
+					schoolBrokerageSaService.listSchoolBrokerageSaByDashboard(pageNum, pageSize));
+		} catch (ServiceException e) {
+			return new Response<List<SchoolBrokerageSaByDashboardListDTO>>(1, e.getMessage(), null);
 		}
 	}
 
