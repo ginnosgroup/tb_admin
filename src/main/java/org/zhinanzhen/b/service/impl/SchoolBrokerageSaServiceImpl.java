@@ -10,9 +10,11 @@ import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.RemindDAO;
 import org.zhinanzhen.b.dao.SchoolBrokerageSaDAO;
 import org.zhinanzhen.b.dao.pojo.RemindDO;
+import org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaByDashboardListDO;
 import org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaDO;
 import org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaListDO;
 import org.zhinanzhen.b.service.SchoolBrokerageSaService;
+import org.zhinanzhen.b.service.pojo.SchoolBrokerageSaByDashboardListDTO;
 import org.zhinanzhen.b.service.pojo.SchoolBrokerageSaDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
@@ -120,8 +122,45 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 		}
 		return schoolBrokerageSaDtoList;
 	}
-	
-	public int updateClose(int id, boolean isClose) throws ServiceException{
+
+	@Override
+	public List<SchoolBrokerageSaByDashboardListDTO> listSchoolBrokerageSaByDashboard(int pageNum, int pageSize)
+			throws ServiceException {
+		if (pageNum < 0) {
+			pageNum = DEFAULT_PAGE_NUM;
+		}
+		if (pageSize < 0) {
+			pageSize = DEFAULT_PAGE_SIZE;
+		}
+		List<SchoolBrokerageSaByDashboardListDTO> schoolBrokerageSaByDashboardListDtoList = new ArrayList<>();
+		List<SchoolBrokerageSaByDashboardListDO> schoolBrokerageSaByDashboardListDoList = new ArrayList<>();
+		try {
+			schoolBrokerageSaByDashboardListDoList = schoolBrokerageSaDao
+					.listSchoolBrokerageSaByDashboard(pageNum * pageSize, pageSize);
+			if (schoolBrokerageSaByDashboardListDoList == null) {
+				return null;
+			}
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+		for (SchoolBrokerageSaByDashboardListDO schoolBrokerageSaByDashboardListDo : schoolBrokerageSaByDashboardListDoList) {
+			SchoolBrokerageSaByDashboardListDTO schoolBrokerageSaByDashboardListDto = mapper
+					.map(schoolBrokerageSaByDashboardListDo, SchoolBrokerageSaByDashboardListDTO.class);
+			List<Date> remindDateList = new ArrayList<>();
+			List<RemindDO> remindDoList = remindDao
+					.listRemindBySchoolBrokerageSaId(schoolBrokerageSaByDashboardListDto.getId());
+			for (RemindDO remindDo : remindDoList) {
+				remindDateList.add(remindDo.getRemindDate());
+			}
+			schoolBrokerageSaByDashboardListDto.setRemindDateList(remindDateList);
+			schoolBrokerageSaByDashboardListDtoList.add(schoolBrokerageSaByDashboardListDto);
+		}
+		return schoolBrokerageSaByDashboardListDtoList;
+	}
+
+	public int updateClose(int id, boolean isClose) throws ServiceException {
 		SchoolBrokerageSaDO schoolBrokerageSaDo = new SchoolBrokerageSaDO();
 		try {
 			schoolBrokerageSaDo.setId(id);

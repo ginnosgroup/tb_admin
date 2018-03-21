@@ -26,7 +26,7 @@ public interface SchoolBrokerageSaDAO {
 			@Param("subagencyId") Integer subagencyId, @Param("isSettleAccounts") Boolean isSettleAccounts,
 			@Param("offset") int offset, @Param("rows") int rows);
 
-	public List<SchoolBrokerageSaByDashboardListDO> SchoolBrokerageSaByDashboardListDO(@Param("offset") int offset,
+	public List<SchoolBrokerageSaByDashboardListDO> listSchoolBrokerageSaByDashboard(@Param("offset") int offset,
 			@Param("rows") int rows);
 
 	public double sumBonusByThisMonth();

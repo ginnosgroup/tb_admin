@@ -1,4 +1,4 @@
-package org.zhinanzhen.b.dao.pojo;
+package org.zhinanzhen.b.service.pojo;
 
 import java.util.Date;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class SchoolBrokerageSaByDashboardListDO {
+public class SchoolBrokerageSaByDashboardListDTO {
 
 	private int id;
 
@@ -33,5 +33,7 @@ public class SchoolBrokerageSaByDashboardListDO {
 	private int officialId;
 
 	private String officialName;
+
+	private List<Date> remindDateList;
 
 }
