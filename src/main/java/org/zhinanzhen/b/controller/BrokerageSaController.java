@@ -36,7 +36,8 @@ public class BrokerageSaController extends BaseController {
 			@RequestParam(value = "startDate") String startDate, @RequestParam(value = "endDate") String endDate,
 			@RequestParam(value = "receiveTypeId") String receiveTypeId,
 			@RequestParam(value = "tuitionFee") String tuitionFee,
-			@RequestParam(value = "commission") String commission, HttpServletRequest request,
+			@RequestParam(value = "commission") String commission, @RequestParam(value = "adviserId") String adviserId,
+			@RequestParam(value = "officialId") String officialId, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -65,6 +66,12 @@ public class BrokerageSaController extends BaseController {
 			if (StringUtil.isNotEmpty(commission)) {
 				brokerageSaDto.setCommission(Double.parseDouble(commission));
 			}
+			if (StringUtil.isNotEmpty(adviserId)) {
+				brokerageSaDto.setAdviserId(StringUtil.toInt(adviserId));
+			}
+			if (StringUtil.isNotEmpty(officialId)) {
+				brokerageSaDto.setOfficialId(StringUtil.toInt(officialId));
+			}
 			brokerageSaDto.setGst(brokerageSaDto.getCommission() / 11);
 			brokerageSaDto.setDeductGst(brokerageSaDto.getCommission() - brokerageSaDto.getGst());
 			brokerageSaDto.setBonus(brokerageSaDto.getDeductGst() * 0.1);
@@ -88,7 +95,9 @@ public class BrokerageSaController extends BaseController {
 			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "receiveTypeId", required = false) String receiveTypeId,
 			@RequestParam(value = "tuitionFee", required = false) String tuitionFee,
-			@RequestParam(value = "commission", required = false) String commission, HttpServletRequest request,
+			@RequestParam(value = "commission", required = false) String commission,
+			@RequestParam(value = "adviserId", required = false) String adviserId,
+			@RequestParam(value = "officialId", required = false) String officialId, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -111,6 +120,12 @@ public class BrokerageSaController extends BaseController {
 			}
 			if (StringUtil.isNotEmpty(commission)) {
 				brokerageSaDto.setCommission(Double.parseDouble(commission));
+			}
+			if (StringUtil.isNotEmpty(adviserId)) {
+				brokerageSaDto.setAdviserId(StringUtil.toInt(adviserId));
+			}
+			if (StringUtil.isNotEmpty(officialId)) {
+				brokerageSaDto.setOfficialId(StringUtil.toInt(officialId));
 			}
 			brokerageSaDto.setGst(brokerageSaDto.getCommission() / 11);
 			brokerageSaDto.setDeductGst(brokerageSaDto.getCommission() - brokerageSaDto.getGst());

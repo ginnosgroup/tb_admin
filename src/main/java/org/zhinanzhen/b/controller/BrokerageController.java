@@ -37,7 +37,9 @@ public class BrokerageController extends BaseController {
 			@RequestParam(value = "receiveDate") String receiveDate,
 			@RequestParam(value = "serviceId") String serviceId, @RequestParam(value = "receivable") String receivable,
 			@RequestParam(value = "received", required = false) String received,
-			@RequestParam(value = "amount") String amount, HttpServletRequest request, HttpServletResponse response) {
+			@RequestParam(value = "amount") String amount, @RequestParam(value = "adviserId") String adviserId,
+			@RequestParam(value = "officialId") String officialId, HttpServletRequest request,
+			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			BrokerageDTO brokerageDto = new BrokerageDTO();
@@ -65,6 +67,12 @@ public class BrokerageController extends BaseController {
 			if (StringUtil.isNotEmpty(amount)) {
 				brokerageDto.setAmount(Double.parseDouble(amount));
 			}
+			if (StringUtil.isNotEmpty(adviserId)) {
+				brokerageDto.setAdviserId(StringUtil.toInt(adviserId));
+			}
+			if (StringUtil.isNotEmpty(officialId)) {
+				brokerageDto.setOfficialId(StringUtil.toInt(officialId));
+			}
 			double commission = brokerageDto.getAmount();
 			brokerageDto.setGst(commission / 11);
 			brokerageDto.setDeductGst(commission - brokerageDto.getGst());
@@ -89,7 +97,9 @@ public class BrokerageController extends BaseController {
 			@RequestParam(value = "serviceId", required = false) String serviceId,
 			@RequestParam(value = "receivable", required = false) String receivable,
 			@RequestParam(value = "received", required = false) String received,
-			@RequestParam(value = "amount", required = false) String amount, HttpServletRequest request,
+			@RequestParam(value = "amount", required = false) String amount,
+			@RequestParam(value = "adviserId", required = false) String adviserId,
+			@RequestParam(value = "officialId", required = false) String officialId, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -115,6 +125,12 @@ public class BrokerageController extends BaseController {
 			}
 			if (StringUtil.isNotEmpty(received)) {
 				brokerageDto.setReceived(Double.parseDouble(received));
+			}
+			if (StringUtil.isNotEmpty(adviserId)) {
+				brokerageDto.setAdviserId(StringUtil.toInt(adviserId));
+			}
+			if (StringUtil.isNotEmpty(officialId)) {
+				brokerageDto.setOfficialId(StringUtil.toInt(officialId));
 			}
 			double commission = brokerageDto.getAmount();
 			brokerageDto.setGst(commission / 11);

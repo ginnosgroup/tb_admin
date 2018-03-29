@@ -41,8 +41,9 @@ public class SchoolBrokerageSaController extends BaseController {
 			@RequestParam(value = "commission") String commission, @RequestParam(value = "payDate") String payDate,
 			@RequestParam(value = "invoiceCode") String invoiceCode,
 			@RequestParam(value = "payAmount") String payAmount,
-			@RequestParam(value = "subagencyId") String subagencyId, HttpServletRequest request,
-			HttpServletResponse response) {
+			@RequestParam(value = "subagencyId") String subagencyId,
+			@RequestParam(value = "adviserId") String adviserId, @RequestParam(value = "officialId") String officialId,
+			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			SchoolBrokerageSaDTO schoolBrokerageSaDto = new SchoolBrokerageSaDTO();
@@ -85,6 +86,12 @@ public class SchoolBrokerageSaController extends BaseController {
 			if (StringUtil.isNotEmpty(subagencyId)) {
 				schoolBrokerageSaDto.setSubagencyId(Integer.parseInt(subagencyId));
 			}
+			if (StringUtil.isNotEmpty(adviserId)) {
+				schoolBrokerageSaDto.setAdviserId(StringUtil.toInt(adviserId));
+			}
+			if (StringUtil.isNotEmpty(officialId)) {
+				schoolBrokerageSaDto.setOfficialId(StringUtil.toInt(officialId));
+			}
 			schoolBrokerageSaDto.setGst(schoolBrokerageSaDto.getCommission() / 11);
 			schoolBrokerageSaDto.setDeductGst(schoolBrokerageSaDto.getCommission() - schoolBrokerageSaDto.getGst());
 			schoolBrokerageSaDto.setBonus(schoolBrokerageSaDto.getDeductGst() * 0.1);
@@ -113,7 +120,9 @@ public class SchoolBrokerageSaController extends BaseController {
 			@RequestParam(value = "payDate", required = false) String payDate,
 			@RequestParam(value = "invoiceCode", required = false) String invoiceCode,
 			@RequestParam(value = "payAmount", required = false) String payAmount,
-			@RequestParam(value = "subagencyId", required = false) String subagencyId, HttpServletRequest request,
+			@RequestParam(value = "subagencyId", required = false) String subagencyId,
+			@RequestParam(value = "adviserId", required = false) String adviserId,
+			@RequestParam(value = "officialId", required = false) String officialId, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -157,6 +166,12 @@ public class SchoolBrokerageSaController extends BaseController {
 			}
 			if (StringUtil.isNotEmpty(subagencyId)) {
 				schoolBrokerageSaDto.setSubagencyId(Integer.parseInt(subagencyId));
+			}
+			if (StringUtil.isNotEmpty(adviserId)) {
+				schoolBrokerageSaDto.setAdviserId(StringUtil.toInt(adviserId));
+			}
+			if (StringUtil.isNotEmpty(officialId)) {
+				schoolBrokerageSaDto.setOfficialId(StringUtil.toInt(officialId));
 			}
 			schoolBrokerageSaDto.setGst(schoolBrokerageSaDto.getCommission() / 11);
 			schoolBrokerageSaDto.setDeductGst(schoolBrokerageSaDto.getCommission() - schoolBrokerageSaDto.getGst());
