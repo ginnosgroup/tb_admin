@@ -7,10 +7,14 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.BrokerageSaDAO;
+import org.zhinanzhen.b.dao.OfficialDAO;
 import org.zhinanzhen.b.dao.pojo.BrokerageSaDO;
 import org.zhinanzhen.b.dao.pojo.BrokerageSaListDO;
+import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.service.BrokerageSaService;
 import org.zhinanzhen.b.service.pojo.BrokerageSaDTO;
+import org.zhinanzhen.tb.dao.AdviserDAO;
+import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
@@ -21,6 +25,12 @@ public class BrokerageSaServiceImpl extends BaseService implements BrokerageSaSe
 
 	@Resource
 	private BrokerageSaDAO brokerageSaDao;
+	
+	@Resource
+	private AdviserDAO adviserDao;
+	
+	@Resource
+	private OfficialDAO officialDao;
 
 	@Override
 	public int addBrokerageSa(BrokerageSaDTO brokerageSaDto) throws ServiceException {
@@ -92,6 +102,14 @@ public class BrokerageSaServiceImpl extends BaseService implements BrokerageSaSe
 		}
 		for (BrokerageSaListDO brokerageSaListDo : brokerageSaListDoList) {
 			BrokerageSaDTO brokerageSaDto = mapper.map(brokerageSaListDo, BrokerageSaDTO.class);
+			AdviserDO adviserDo = adviserDao.getAdviserById(brokerageSaListDo.getAdviserId());
+			if(adviserDo != null) {
+				brokerageSaDto.setAdviserName(adviserDo.getName());
+			}
+			OfficialDO officialDo = officialDao.getOfficialById(brokerageSaListDo.getOfficialId());
+			if(officialDo != null) {
+				brokerageSaDto.setOfficialName(officialDo.getName());
+			}
 			brokerageSaDtoList.add(brokerageSaDto);
 		}
 		return brokerageSaDtoList;

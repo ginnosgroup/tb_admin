@@ -3,8 +3,6 @@ package org.zhinanzhen.b.service.pojo;
 import java.util.Date;
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 @Data
 public class BrokerageDTO {
@@ -43,7 +41,11 @@ public class BrokerageDTO {
 
 	private int adviserId;
 
+	private String adviserName;
+
 	private int officialId;
+	
+	private String officialName;
 
 	private boolean isClose;
 

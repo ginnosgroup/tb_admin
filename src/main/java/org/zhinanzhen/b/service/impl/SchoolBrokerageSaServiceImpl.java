@@ -9,15 +9,20 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.RemindDAO;
 import org.zhinanzhen.b.dao.SchoolBrokerageSaDAO;
+import org.zhinanzhen.b.dao.OfficialDAO;
 import org.zhinanzhen.b.dao.pojo.RemindDO;
 import org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaByDashboardListDO;
 import org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaDO;
 import org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaListDO;
+import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.service.SchoolBrokerageSaService;
 import org.zhinanzhen.b.service.pojo.SchoolBrokerageSaByDashboardListDTO;
 import org.zhinanzhen.b.service.pojo.SchoolBrokerageSaDTO;
+import org.zhinanzhen.tb.dao.AdviserDAO;
+import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
+import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 
 import com.ikasoa.core.thrift.ErrorCodeEnum;
 
@@ -29,6 +34,12 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 
 	@Resource
 	private RemindDAO remindDao;
+	
+	@Resource
+	private AdviserDAO adviserDao;
+	
+	@Resource
+	private OfficialDAO officialDao;
 
 	@Override
 	public int addSchoolBrokerageSa(SchoolBrokerageSaDTO schoolBrokerageSaDto) throws ServiceException {
@@ -118,6 +129,14 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 				remindDateList.add(remindDo.getRemindDate());
 			}
 			schoolBrokerageSaDto.setRemindDateList(remindDateList);
+			AdviserDO adviserDo = adviserDao.getAdviserById(schoolBrokerageSaListDo.getAdviserId());
+			if(adviserDo != null) {
+				schoolBrokerageSaDto.setAdviserName(adviserDo.getName());
+			}
+			OfficialDO officialDo = officialDao.getOfficialById(schoolBrokerageSaListDo.getOfficialId());
+			if(officialDo != null) {
+				schoolBrokerageSaDto.setOfficialName(officialDo.getName());
+			}
 			schoolBrokerageSaDtoList.add(schoolBrokerageSaDto);
 		}
 		return schoolBrokerageSaDtoList;
@@ -155,6 +174,14 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 				remindDateList.add(remindDo.getRemindDate());
 			}
 			schoolBrokerageSaByDashboardListDto.setRemindDateList(remindDateList);
+			AdviserDO adviserDo = adviserDao.getAdviserById(schoolBrokerageSaByDashboardListDo.getAdviserId());
+			if(adviserDo != null) {
+				schoolBrokerageSaByDashboardListDto.setAdviserName(adviserDo.getName());
+			}
+			OfficialDO officialDo = officialDao.getOfficialById(schoolBrokerageSaByDashboardListDo.getOfficialId());
+			if(officialDo != null) {
+				schoolBrokerageSaByDashboardListDto.setOfficialName(officialDo.getName());
+			}
 			schoolBrokerageSaByDashboardListDtoList.add(schoolBrokerageSaByDashboardListDto);
 		}
 		return schoolBrokerageSaByDashboardListDtoList;

@@ -46,6 +46,8 @@ public class RefundDTO {
 	private double refund;
 
 	private int adviserId;
+	
+	private String adviserName;
 
 	private int officialId;
 	

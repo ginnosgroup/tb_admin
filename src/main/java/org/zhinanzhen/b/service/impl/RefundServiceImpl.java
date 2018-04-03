@@ -11,6 +11,8 @@ import org.zhinanzhen.b.dao.pojo.RefundDO;
 import org.zhinanzhen.b.dao.pojo.RefundListDO;
 import org.zhinanzhen.b.service.RefundService;
 import org.zhinanzhen.b.service.pojo.RefundDTO;
+import org.zhinanzhen.tb.dao.AdviserDAO;
+import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
@@ -21,6 +23,9 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 
 	@Resource
 	private RefundDAO refundDao;
+	
+	@Resource
+	private AdviserDAO adviserDao;
 
 	@Override
 	public int addRefund(RefundDTO refundDto) throws ServiceException {
@@ -92,6 +97,10 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 		}
 		for (RefundListDO refundListDo : refundListDoList) {
 			RefundDTO refundDto = mapper.map(refundListDo, RefundDTO.class);
+			AdviserDO adviserDo = adviserDao.getAdviserById(refundListDo.getAdviserId());
+			if(adviserDo != null) {
+				refundDto.setAdviserName(adviserDo.getName());
+			}
 			refundDtoList.add(refundDto);
 		}
 		return refundDtoList;

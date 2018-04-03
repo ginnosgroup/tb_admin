@@ -60,7 +60,11 @@ public class SchoolBrokerageSaDTO {
 
 	private int adviserId;
 
+	private String adviserName;
+
 	private int officialId;
+	
+	private String officialName;
 
 	private boolean isSettleAccounts;
 

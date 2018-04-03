@@ -34,7 +34,7 @@ public class BrokerageSaDO {
 	private double bonus;
 	
 	private int adviserId;
-	
+
 	private int officialId;
 	
 	private boolean isClose;
