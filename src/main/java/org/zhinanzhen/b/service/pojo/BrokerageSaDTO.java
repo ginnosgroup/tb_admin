@@ -22,6 +22,8 @@ public class BrokerageSaDTO {
 	private String phone;
 
 	private int receiveTypeId;
+	
+	private String receiveTypeName;
 
 	private int schoolId;
 

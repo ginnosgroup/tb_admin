@@ -22,6 +22,8 @@ public class BrokerageDTO {
 	private String phone;
 
 	private int receiveTypeId;
+	
+	private String receiveTypeName;
 
 	private Date receiveDate;
 

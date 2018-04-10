@@ -47,5 +47,15 @@
         </if>
         ORDER BY weight DESC;
     </select>
+    
+    <select id="getReceiveTypeById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.ReceiveTypeDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            name,
+            state,
+            weight
+        FROM b_receive_type WHERE id = #{id, jdbcType=INTEGER};
+    </select>
 
 </mapper>

@@ -6,7 +6,9 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.zhinanzhen.b.dao.ReceiveTypeDAO;
 import org.zhinanzhen.b.dao.RefundDAO;
+import org.zhinanzhen.b.dao.pojo.ReceiveTypeDO;
 import org.zhinanzhen.b.dao.pojo.RefundDO;
 import org.zhinanzhen.b.dao.pojo.RefundListDO;
 import org.zhinanzhen.b.service.RefundService;
@@ -26,6 +28,9 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 	
 	@Resource
 	private AdviserDAO adviserDao;
+	
+	@Resource
+	private ReceiveTypeDAO receiveTypeDao;
 
 	@Override
 	public int addRefund(RefundDTO refundDto) throws ServiceException {
@@ -100,6 +105,10 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 			AdviserDO adviserDo = adviserDao.getAdviserById(refundListDo.getAdviserId());
 			if(adviserDo != null) {
 				refundDto.setAdviserName(adviserDo.getName());
+			}
+			ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(refundListDo.getReceiveTypeId());
+			if (receiveTypeDo != null) {
+				refundDto.setReceiveTypeName(receiveTypeDo.getName());
 			}
 			refundDtoList.add(refundDto);
 		}

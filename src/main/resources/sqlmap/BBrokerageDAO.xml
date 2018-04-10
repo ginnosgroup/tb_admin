@@ -114,7 +114,7 @@
             bb.gmt_create AS gmtCreate,
             bb.handling_date AS handlingDate,
             bb.user_id AS userId,
-            bb.receive_type_id AS receiveType,
+            bb.receive_type_id AS receiveTypeId,
             bb.receive_date AS receiveDate,
             bb.service_id AS serviceId,
             bb.receivable AS receivable,

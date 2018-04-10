@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 public class RefundDTO {
-	
+
 	private int id;
 
 	private Date gmtCreate;
@@ -14,16 +14,18 @@ public class RefundDTO {
 	private Date handlingDate;
 
 	private int userId;
-	
+
 	private String name;
-	
+
 	private String userName;
-	
+
 	private Date birthday;
-	
+
 	private String phone;
 
 	private int receiveTypeId;
+
+	private String receiveTypeName;
 
 	private double amount;
 
@@ -46,13 +48,13 @@ public class RefundDTO {
 	private double refund;
 
 	private int adviserId;
-	
+
 	private String adviserName;
 
 	private int officialId;
-	
+
 	private String officialName;
-	
+
 	private boolean isClose;
 
 }

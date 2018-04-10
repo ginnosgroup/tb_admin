@@ -13,4 +13,6 @@ public interface ReceiveTypeDAO {
 
 	public List<ReceiveTypeDO> listReceiveType(@Param("state") String state);
 
+	public ReceiveTypeDO getReceiveTypeById(int id);
+
 }
