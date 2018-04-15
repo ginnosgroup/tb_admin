@@ -1,7 +1,6 @@
 package org.zhinanzhen.b.dao.pojo;
 
 import java.util.Date;
-import java.util.List;
 
 import lombok.Data;
 
