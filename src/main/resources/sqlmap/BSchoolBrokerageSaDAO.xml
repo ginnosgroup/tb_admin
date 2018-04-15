@@ -92,7 +92,7 @@
         <if test='bonus != null and bonus != ""'>
             , bonus = #{bonus}
         </if>
-        <if test='payDate != null and payDate != ""'>
+        <if test='payDate != null'>
             , pay_date = #{payDate}
         </if>
         <if test='invoiceCode != null and invoiceCode != ""'>

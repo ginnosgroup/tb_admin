@@ -22,7 +22,6 @@ import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
-import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 
 import com.ikasoa.core.thrift.ErrorCodeEnum;
 
