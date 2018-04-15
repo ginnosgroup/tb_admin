@@ -2,7 +2,6 @@ package org.zhinanzhen.b.service;
 
 import java.util.List;
 
-import org.apache.ibatis.annotations.Param;
 import org.zhinanzhen.b.service.pojo.SchoolBrokerageSaByDashboardListDTO;
 import org.zhinanzhen.b.service.pojo.SchoolBrokerageSaDTO;
 import org.zhinanzhen.tb.service.ServiceException;
