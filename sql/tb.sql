@@ -161,6 +161,27 @@ CREATE TABLE `tb_admin_user` (
 
 -- ----------佣金系统相关表----------
 
+-- 签证类
+CREATE TABLE `b_visa` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `handling_date` datetime NOT NULL COMMENT '办理日期',
+  `user_id` int NOT NULL COMMENT '用户编号 (对应tb_user.id)',
+  `receive_type_id` int NOT NULL COMMENT '收款方式编号(对应b_receive_type.id)',
+  `receive_date` datetime NOT NULL COMMENT '收款日期',
+  `service_id` int NOT NULL COMMENT '移民-服务项目编号 (对应b_service.id)',
+  `receivable` decimal(8,2) NOT NULL COMMENT '总计应收',
+  `received` decimal(8,2) NOT NULL COMMENT '总计已收',
+  `amount` decimal(8,2) NOT NULL COMMENT '本次收款',
+  `gst` decimal(8,2) NOT NULL COMMENT 'GST',
+  `deduct_gst` decimal(8,2) NOT NULL COMMENT 'Deduct GST',
+  `bonus` decimal(8,2) NOT NULL COMMENT '月奖金',
+  `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
+  `official_id` int NOT NULL COMMENT '文案编号 (对应b_official.id)',
+  `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
 -- 移民佣金
 CREATE TABLE `b_brokerage` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
