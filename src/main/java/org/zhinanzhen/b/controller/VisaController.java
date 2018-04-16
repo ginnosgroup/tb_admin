@@ -126,6 +126,9 @@ public class VisaController extends BaseController {
 			if (StringUtil.isNotEmpty(received)) {
 				visaDto.setReceived(Double.parseDouble(received));
 			}
+			if (StringUtil.isNotEmpty(amount)) {
+				visaDto.setAmount(Double.parseDouble(amount));
+			}
 			if (StringUtil.isNotEmpty(adviserId)) {
 				visaDto.setAdviserId(StringUtil.toInt(adviserId));
 			}

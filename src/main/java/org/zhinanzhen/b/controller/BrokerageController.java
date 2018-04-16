@@ -126,6 +126,9 @@ public class BrokerageController extends BaseController {
 			if (StringUtil.isNotEmpty(received)) {
 				brokerageDto.setReceived(Double.parseDouble(received));
 			}
+			if (StringUtil.isNotEmpty(amount)) {
+				brokerageDto.setAmount(Double.parseDouble(amount));
+			}
 			if (StringUtil.isNotEmpty(adviserId)) {
 				brokerageDto.setAdviserId(StringUtil.toInt(adviserId));
 			}
