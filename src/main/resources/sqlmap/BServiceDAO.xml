@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.ServiceDAO">
+
+    <insert id="addService" parameterType="org.zhinanzhen.b.dao.pojo.ServiceDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+            INTO b_service (
+                gmt_create,
+                gmt_modify,
+                code)
+            VALUES (
+                now(),
+                now(),
+                #{code});
+    </insert>
+    
+    <update id="updateService" parameterType="org.zhinanzhen.b.dao.pojo.ServiceDO">
+        UPDATE b_service 
+        SET gmt_modify = now()
+        <if test='code != null and code != ""'>
+            , code = #{code}
+        </if>
+        WHERE id = #{id};
+    </update>
+    
+    <select id="listService" resultType="org.zhinanzhen.b.dao.pojo.ServiceDO">
+        SELECT
+            id,
+            gmt_create AS GmtCreate,
+            code
+        FROM b_service
+        ORDER BY gmt_create DESC;
+    </select>
+    
+    <select id="getServiceById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.ServiceDO">
+        SELECT
+            id,
+            gmt_create AS GmtCreate,
+            code
+        FROM b_service WHERE id = #{id, jdbcType=INTEGER};
+    </select>
+    
+    <delete id="deleteServiceById" parameterType="java.lang.Integer">
+		DELETE FROM b_service WHERE id = #{id, jdbcType=INTEGER}
+	</delete>
+
+</mapper>

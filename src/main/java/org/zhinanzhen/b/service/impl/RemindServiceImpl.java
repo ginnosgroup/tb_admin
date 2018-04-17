@@ -30,6 +30,14 @@ public class RemindServiceImpl extends BaseService implements RemindService {
 			throw se;
 		}
 		try {
+			List<RemindDO> remindDoList = remindDao.listRemindBySchoolBrokerageSaId(remindDto.getSchoolBrokerageSaId());
+			for (RemindDO remindDo : remindDoList) {
+				if (remindDo.getRemindDate().getTime() == remindDto.getRemindDate().getTime()) {
+					ServiceException se = new ServiceException("该提醒日期已存在.");
+					se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+					throw se;
+				}
+			}
 			RemindDO remindDo = mapper.map(remindDto, RemindDO.class);
 			if (remindDao.addRemind(remindDo) > 0) {
 				return remindDo.getId();

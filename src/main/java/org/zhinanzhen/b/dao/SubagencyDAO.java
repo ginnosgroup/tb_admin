@@ -7,7 +7,7 @@ import org.zhinanzhen.b.dao.pojo.SubagencyDO;
 
 public interface SubagencyDAO {
 
-	public int addSubagency(SubagencyDO subagencyDO);
+	public int addSubagency(SubagencyDO subagencyDo);
 
 	public int updateSubagency(@Param("id") int id, @Param("name") String name,
 			@Param("commissionRate") double commissionRate);
