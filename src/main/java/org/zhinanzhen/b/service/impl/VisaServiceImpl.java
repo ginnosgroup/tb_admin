@@ -9,10 +9,12 @@ import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.VisaDAO;
 import org.zhinanzhen.b.dao.OfficialDAO;
 import org.zhinanzhen.b.dao.ReceiveTypeDAO;
+import org.zhinanzhen.b.dao.ServiceDAO;
 import org.zhinanzhen.b.dao.pojo.VisaDO;
 import org.zhinanzhen.b.dao.pojo.VisaListDO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.ReceiveTypeDO;
+import org.zhinanzhen.b.dao.pojo.ServiceDO;
 import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
@@ -36,6 +38,9 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 
 	@Resource
 	private ReceiveTypeDAO receiveTypeDao;
+	
+	@Resource
+	private ServiceDAO serviceDao;
 
 	@Override
 	public int addVisa(VisaDTO visaDto) throws ServiceException {
@@ -116,6 +121,10 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(visaListDo.getReceiveTypeId());
 			if (receiveTypeDo != null) {
 				visaDto.setReceiveTypeName(receiveTypeDo.getName());
+			}
+			ServiceDO serviceDo = serviceDao.getServiceById(visaListDo.getServiceId());
+			if (serviceDo != null) {
+				visaDto.setServiceCode(serviceDo.getCode());
 			}
 			visaDtoList.add(visaDto);
 		}

@@ -9,10 +9,12 @@ import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.BrokerageDAO;
 import org.zhinanzhen.b.dao.OfficialDAO;
 import org.zhinanzhen.b.dao.ReceiveTypeDAO;
+import org.zhinanzhen.b.dao.ServiceDAO;
 import org.zhinanzhen.b.dao.pojo.BrokerageDO;
 import org.zhinanzhen.b.dao.pojo.BrokerageListDO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.ReceiveTypeDO;
+import org.zhinanzhen.b.dao.pojo.ServiceDO;
 import org.zhinanzhen.b.service.BrokerageService;
 import org.zhinanzhen.b.service.pojo.BrokerageDTO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
@@ -36,6 +38,9 @@ public class BrokerageServiceImpl extends BaseService implements BrokerageServic
 	
 	@Resource
 	private ReceiveTypeDAO receiveTypeDao;
+	
+	@Resource
+	private ServiceDAO serviceDao;
 
 	@Override
 	public int addBrokerage(BrokerageDTO brokerageDto) throws ServiceException {
@@ -116,6 +121,10 @@ public class BrokerageServiceImpl extends BaseService implements BrokerageServic
 			ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(brokerageListDo.getReceiveTypeId());
 			if (receiveTypeDo != null) {
 				brokerageDto.setReceiveTypeName(receiveTypeDo.getName());
+			}
+			ServiceDO serviceDo = serviceDao.getServiceById(brokerageListDo.getServiceId());
+			if (serviceDo != null) {
+				brokerageDto.setServiceCode(serviceDo.getCode());
 			}
 			brokerageDtoList.add(brokerageDto);
 		}

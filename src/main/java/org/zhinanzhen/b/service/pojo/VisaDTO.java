@@ -28,6 +28,8 @@ public class VisaDTO {
 	private Date receiveDate;
 
 	private int serviceId;
+	
+	private String serviceCode;
 
 	private double receivable;
 
