@@ -36,7 +36,7 @@
             name,
             commission_rate AS CommissionRate
         FROM b_subagency
-        WHERE 1 = 1
+        WHERE is_delete = 0
         <if test='keyword != null and keyword != ""'>
             AND name LIKE '%${keyword}%'
         </if>
@@ -51,9 +51,11 @@
             commission_rate AS CommissionRate
         FROM b_subagency WHERE id = #{id, jdbcType=INTEGER};
     </select>
-    
-    <delete id="deleteSubagencyById" parameterType="java.lang.Integer">
-		DELETE FROM b_subagency WHERE id = #{id, jdbcType=INTEGER}
-	</delete>
+	
+	<update id="deleteSubagencyById" parameterType="java.lang.Integer">
+        UPDATE b_subagency 
+        SET gmt_modify = now(), is_delete = 1
+        WHERE id = #{id, jdbcType=INTEGER};
+    </update>
 
 </mapper>

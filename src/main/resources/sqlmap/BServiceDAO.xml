@@ -30,6 +30,7 @@
             gmt_create AS GmtCreate,
             code
         FROM b_service
+        WHERE is_delete = 0
         ORDER BY gmt_create DESC;
     </select>
     
@@ -40,9 +41,11 @@
             code
         FROM b_service WHERE id = #{id, jdbcType=INTEGER};
     </select>
-    
-    <delete id="deleteServiceById" parameterType="java.lang.Integer">
-		DELETE FROM b_service WHERE id = #{id, jdbcType=INTEGER}
-	</delete>
+	
+	<update id="deleteServiceById" parameterType="java.lang.Integer">
+        UPDATE b_service 
+        SET gmt_modify = now(), is_delete = 1
+        WHERE id = #{id, jdbcType=INTEGER};
+    </update>
 
 </mapper>

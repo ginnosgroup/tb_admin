@@ -41,7 +41,7 @@
             subject,
             country
         FROM b_school
-        WHERE 1 = 1
+        WHERE is_delete = 0
         <if test='name != null and name != ""'>
             AND name = #{name}
         </if>
@@ -62,9 +62,11 @@
             country
         FROM b_school WHERE id = #{id, jdbcType=INTEGER};
     </select>
-    
-    <delete id="deleteSchoolById" parameterType="java.lang.Integer">
-		DELETE FROM b_school WHERE id = #{id, jdbcType=INTEGER}
-	</delete>
+	
+	<update id="deleteSchoolById" parameterType="java.lang.Integer">
+        UPDATE b_school 
+        SET gmt_modify = now(), is_delete = 1
+        WHERE id = #{id, jdbcType=INTEGER};
+    </update>
 
 </mapper>

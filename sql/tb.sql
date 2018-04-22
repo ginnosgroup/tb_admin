@@ -280,7 +280,8 @@ CREATE TABLE `b_service` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
-  `code` varchar(4) DEFAULT NULL COMMENT '项目编码'
+  `code` varchar(4) DEFAULT NULL COMMENT '项目编码',
+  `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已删除'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
 -- 留学-学校
@@ -290,7 +291,8 @@ CREATE TABLE `b_school` (
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `name` varchar(32) NOT NULL COMMENT '名称',
   `subject` varchar(128) NOT NULL COMMENT '课程',
-  `country` varchar(4) NOT NULL COMMENT '国家编码'
+  `country` varchar(4) NOT NULL COMMENT '国家编码',
+  `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已删除'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
 -- Subagency
@@ -299,7 +301,8 @@ CREATE TABLE `b_subagency` (
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `name` varchar(32) NOT NULL COMMENT '名称',
-  `commission_rate` decimal(8,2) NOT NULL COMMENT 'Commission Rate'
+  `commission_rate` decimal(8,2) NOT NULL COMMENT 'Commission Rate',
+  `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已删除'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
 -- 文案
