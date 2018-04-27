@@ -37,6 +37,7 @@ public class AdminUserController extends BaseController {
 	    loginInfo.setId(id);
 	    loginInfo.setUsername(username);
 	    loginInfo.setSessionId(sessionId);
+            loginInfo.setApList(adminUserService.getAdminUserById(id).getApList());
 	    session.removeAttribute("AdminUserLoginInfo");
 	    session.setAttribute("AdminUserLoginInfo", loginInfo);
 	    return new Response<Boolean>(0, true);
@@ -77,7 +78,7 @@ public class AdminUserController extends BaseController {
 	private int id;
 	private String username;
 	private String sessionId;
-
+        private String apList;
     }
 
 }
