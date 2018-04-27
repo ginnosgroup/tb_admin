@@ -29,7 +29,7 @@ public class UserController extends BaseController {
 	
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<Integer> addUser(@RequestParam(value = "authNickname") String authNickname,
+	public Response<Integer> addUser(@RequestParam(value = "name") String name, @RequestParam(value = "authNickname", required = false) String authNickname,
 			@RequestParam(value = "birthday") String birthday, @RequestParam(value = "phone") String phone,
 			@RequestParam(value = "adviserId") String adviserId, HttpServletResponse response) {
 		try {
@@ -38,7 +38,7 @@ public class UserController extends BaseController {
 			if (count > 0) {
 				return new Response<Integer>(1, "该电话号码已被使用,添加失败.", 0);
 			}
-			return new Response<Integer>(0, userService.addUser(authNickname, new Date(Long.parseLong(birthday.trim())),
+			return new Response<Integer>(0, userService.addUser(name, authNickname, new Date(Long.parseLong(birthday.trim())),
 					phone, StringUtil.toInt(adviserId)));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), -1);

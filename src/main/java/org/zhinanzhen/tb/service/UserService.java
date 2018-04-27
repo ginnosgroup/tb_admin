@@ -7,7 +7,7 @@ import org.zhinanzhen.tb.service.pojo.UserDTO;
 
 public interface UserService {
 
-	public int addUser(String name, Date birthday, String phone, int adviserId) throws ServiceException;
+	public int addUser(String name, String authNickname, Date birthday, String phone, int adviserId) throws ServiceException;
 
 	public int countUser(String name, UserAuthTypeEnum authType, String authNickname, String phone)
 			throws ServiceException;

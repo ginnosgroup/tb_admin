@@ -29,7 +29,7 @@
 		"BROKERAGE",
 		"",
 		"",
-		"",
+		#{authNickname},
 		"",
 		0,
 		#{adviserId},
