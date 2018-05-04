@@ -103,6 +103,7 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 			RegionDO regionDo = regionDao.getRegionById(officialDo.getRegionId());
 			if (regionDo != null) {
 				officialDto.setRegionName(regionDo.getName());
+				officialDto.setRegionDo(regionDo);
 			}
 			officialDtoList.add(officialDto);
 		}
