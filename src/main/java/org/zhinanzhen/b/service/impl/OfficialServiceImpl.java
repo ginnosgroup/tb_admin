@@ -10,6 +10,8 @@ import org.zhinanzhen.b.dao.OfficialDAO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.service.OfficialService;
 import org.zhinanzhen.b.service.OfficialStateEnum;
+import org.zhinanzhen.tb.dao.RegionDAO;
+import org.zhinanzhen.tb.dao.pojo.RegionDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 import org.zhinanzhen.b.service.pojo.OfficialDTO;
@@ -20,6 +22,9 @@ import com.ikasoa.core.utils.StringUtil;
 public class OfficialServiceImpl extends BaseService implements OfficialService {
 	@Resource
 	private OfficialDAO officialDao;
+	@Resource
+	private RegionDAO regionDao;
+
 	@Override
 	public int addOfficial(OfficialDTO officialDto) throws ServiceException {
 		if (officialDto == null) {
@@ -43,6 +48,7 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 			throw se;
 		}
 	}
+
 	@Override
 	public int updateOfficial(OfficialDTO officialDto) throws ServiceException {
 		if (officialDto == null) {
@@ -94,6 +100,10 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 			if (StringUtil.isNotEmpty(officialDo.getState())) {
 				officialDto.setState(OfficialStateEnum.get(officialDo.getState()));
 			}
+			RegionDO regionDo = regionDao.getRegionById(officialDo.getRegionId());
+			if (regionDo != null) {
+				officialDto.setRegionName(regionDo.getName());
+			}
 			officialDtoList.add(officialDto);
 		}
 		return officialDtoList;
@@ -110,9 +120,10 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 		try {
 			OfficialDO officialDo = officialDao.getOfficialById(id);
 			if (officialDo == null) {
-//				ServiceException se = new ServiceException("the Official is't exist .");
-//				se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
-//				throw se;
+				// ServiceException se = new ServiceException("the Official is't
+				// exist .");
+				// se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+				// throw se;
 				return null;
 			}
 			officialDto = mapper.map(officialDo, OfficialDTO.class);

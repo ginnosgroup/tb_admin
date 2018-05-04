@@ -25,6 +25,8 @@ public class OfficialDTO {
 	private String imageUrl;
 
 	private int regionId;
+	
+	private String regionName;
 
 	private RegionDO regionDo;
 }
