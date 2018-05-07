@@ -26,5 +26,7 @@ public class AdviserDTO {
 
 	private int regionId;
 	
+	private String regionName;
+	
 	private RegionDO regionDo;
 }

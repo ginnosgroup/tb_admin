@@ -7,7 +7,9 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.tb.dao.AdviserDAO;
+import org.zhinanzhen.tb.dao.RegionDAO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
+import org.zhinanzhen.tb.dao.pojo.RegionDO;
 import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.AdviserStateEnum;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -18,6 +20,8 @@ import com.ikasoa.core.utils.StringUtil;
 public class AdviserServiceImpl extends BaseService implements AdviserService {
 	@Resource
 	private AdviserDAO adviserDAO;
+	@Resource
+	private RegionDAO regionDao;
 	@Override
 	public int addAdviser(AdviserDTO adviserDto) throws ServiceException {
 		if (adviserDto == null) {
@@ -91,6 +95,11 @@ public class AdviserServiceImpl extends BaseService implements AdviserService {
 			AdviserDTO adviserDto = mapper.map(adviserDo, AdviserDTO.class);
 			if (StringUtil.isNotEmpty(adviserDo.getState())) {
 				adviserDto.setState(AdviserStateEnum.get(adviserDo.getState()));
+			}
+			RegionDO regionDo = regionDao.getRegionById(adviserDo.getRegionId());
+			if (regionDo != null) {
+				adviserDto.setRegionName(regionDo.getName());
+				adviserDto.setRegionDo(regionDo);
 			}
 			adviserDtoList.add(adviserDto);
 		}
