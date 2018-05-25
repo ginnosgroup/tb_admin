@@ -16,12 +16,13 @@
     String num = request.getParameter("num");
     String regionId = request.getParameter("region_id");
     String userId = request.getParameter("user_id");
+
+    String driverName = "com.mysql.jdbc.Driver";
+    // String connUrl = "jdbc:mysql://localhost:3306/tbdb?user=root&password=hello";
+    String connUrl = "jdbc:mysql://rm-p0w1d3fb180472liw.mysql.australia.rds.aliyuncs.com:3306/tbdb?user=tb2&password=Znz-2000";
     
     if(subjectId != null && subjectId != "" && num != null && regionId != null && userId != null) {
-
         try {
-            String driverName = "com.mysql.jdbc.Driver";
-            String connUrl = "jdbc:mysql://rm-p0w1d3fb180472liw.mysql.australia.rds.aliyuncs.com:3306/tbdb?user=tb2&password=Znz-2000"; 
             Class.forName(driverName).newInstance();
             Connection conn = DriverManager.getConnection(connUrl);
             Statement stmt = conn.createStatement();
@@ -33,6 +34,7 @@
             }catch(Exception e) {
                 e.printStackTrace();
             }
+            conn.close();
         }catch (Exception e) { 
             e.printStackTrace(); 
         }
@@ -58,46 +60,28 @@
                 <br />
                 顾客:
                 <select name="user_id">
-                    <option value="1000146">蘑菇</option>
-                    <option value="1000145">草莓</option>
-                    <option value="1000143">学伟</option>
-                    <option value="1000132">学鹏</option>
-                    <option value="1000152">琳姐</option>
-                    <option value="1000163">李迪</option>
-                    <option value="1000165">萌麻</option>
-                    <option value="1000156">小四</option>
-                    <option value="1000158">黄成</option>
-                    <option value="1000159">在睡觉</option>
-                    <option value="1000160">Richard</option>
-                    <option value="1000162">May</option>
-                    <option value="1000164">Brain</option>
-                    <option value="1000167">Maggie</option>
-                    <option value="1000168">冰魔</option>
-                    <option value="1000169">Icy</option>
-                    <option value="1000170">镜子世界</option>
-                    <option value="1000171">黄氏</option>
-                    <option value="1000172">呆萌</option>
-                    <option value="1000173">XM</option>
-                    <option value="1000176">Rachel</option>
-                    <option value="1000175">小心</option>
-                    <option value="1000396">Chris_Huang</option>
-                    <option value="1000179">曼女神</option>
-                    <option value="1000525">Bonny</option>
-                    <option value="1000545">Rachel</option>
-                    <option value="1000539">Ying.H</option>
-                    <option value="1000176">Rachel真是不容易啊...</option>
-                    <option value="1000393">曼蒂陶</option>
-                    <option value="1000647">川</option>
-                    <option value="1000648">翼</option>
-                    <option value="1000646">李强</option>
-                    <option value="1000649">Jesse</option>
-                    <option value="1000651">node</option>
-                    <option value="1000650">一杯浓茶</option>
-                    <option value="1000652">tara</option>
-                    <option value="1000656">一妹妈</option>
-                    <option value="1000657">超超</option>
-                    <option value="1000658">姣儿</option>
-                    <option value="1000444">ivanessa</option>
+<%
+    try {
+        Class.forName(driverName).newInstance();
+        Connection conn = DriverManager.getConnection(connUrl);
+        Statement stmt = conn.createStatement();
+        stmt.executeQuery("SET NAMES UTF8");
+        String select_sql = "SELECT * FROM tb_user WHERE auth_type = 'V'";
+        try {
+            ResultSet rs = stmt.executeQuery(select_sql);
+            while (rs.next()) {
+%>
+                    <option value="1000146"><%=rs.getString("name")%></option>
+<%
+            }
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+        conn.close();
+    }catch (Exception e) {
+        e.printStackTrace();
+    }
+%>
                 </select>
                 <br />
             </p>
