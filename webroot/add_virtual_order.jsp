@@ -71,7 +71,7 @@
             ResultSet rs = stmt.executeQuery(select_sql);
             while (rs.next()) {
 %>
-                    <option value="1000146"><%=rs.getString("name")%></option>
+                    <option value='<%=rs.getString("id")%>'><%=rs.getString("name")%></option>
 <%
             }
         }catch(Exception e) {
