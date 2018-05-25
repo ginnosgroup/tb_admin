@@ -2,7 +2,7 @@ package org.zhinanzhen.tb.service;
 
 public enum UserAuthTypeEnum {
 
-	WECHAT("微信"), FACEBOOK("facebook"), BROKERAGE("佣金系统用户");
+	WECHAT("微信"), FACEBOOK("facebook"), BROKERAGE("佣金系统用户"), V("虚拟用户");
 
 	private String value;
 

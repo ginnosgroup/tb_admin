@@ -40,7 +40,7 @@
 		resultType="java.lang.Integer">
 		SELECT count(*)
 		FROM tb_user
-		WHERE 1 = 1
+		WHERE auth_type != 'V'
 		<if test='name != null and name != ""'>
 			AND name = #{name}
 		</if>
@@ -57,7 +57,7 @@
 	</select>
 
 	<select id="countUserByThisMonth" resultType="java.lang.Integer">
-		select count(*) from tb_user where DATE_FORMAT(gmt_create, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m');
+		select count(*) from tb_user where auth_type != 'V' AND DATE_FORMAT(gmt_create, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m');
 	</select>
 
 	<select id="listUser" resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
@@ -74,7 +74,7 @@
 		balance,
 		adviser_id AS adviserId
 		FROM tb_user
-		WHERE 1 = 1
+		WHERE auth_type != 'V'
 		<if test='name != null and name != ""'>
 			AND name = #{name}
 		</if>
@@ -162,7 +162,7 @@
 		balance,
 		adviser_id AS adviserId
 		FROM tb_user
-		WHERE recommend_openid = #{recommendOpenId}
+		WHERE auth_type != 'V' AND recommend_openid = #{recommendOpenId}
 		ORDER BY gmt_create DESC
 	</select>
 </mapper>
