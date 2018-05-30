@@ -8,7 +8,9 @@ public interface VirtualUserService {
 	
 	int addVirtualUser(String name, String authNickname, String authLogo) throws ServiceException;
 	
-	List<VirtualUserDTO> listVirtualUser() throws ServiceException;
+	int countVirtualUser() throws ServiceException;
+	
+	List<VirtualUserDTO> listVirtualUser(int pageNum, int pageSize) throws ServiceException;
 	
 	int deleteById(int id) throws ServiceException;
 

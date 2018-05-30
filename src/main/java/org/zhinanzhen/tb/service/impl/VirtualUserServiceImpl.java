@@ -52,11 +52,15 @@ public class VirtualUserServiceImpl extends BaseService implements VirtualUserSe
 		}
 		return virtualUserDao.addVirtualUser(name, authNickname, authLogo);
 	}
+	
+	public int countVirtualUser() throws ServiceException {
+		return virtualUserDao.countVirtualUser();
+	}
 
 	@Override
-	public List<VirtualUserDTO> listVirtualUser() throws ServiceException {
+	public List<VirtualUserDTO> listVirtualUser(int pageNum, int pageSize) throws ServiceException {
 		List<VirtualUserDTO> virtualUserDtoList = new ArrayList<>();
-		List<VirtualUserDO> virtualUserDoList = virtualUserDao.listVirtualUser();
+		List<VirtualUserDO> virtualUserDoList = virtualUserDao.listVirtualUser(pageNum * pageSize, pageSize);
 		for (VirtualUserDO virtualUserDo : virtualUserDoList) {
 			VirtualUserDTO virtualUserDto = new VirtualUserDTO();
 			try {

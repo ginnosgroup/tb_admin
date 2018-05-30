@@ -9,7 +9,9 @@ public interface VirtualUserDAO {
 	
 	int addVirtualUser(@Param("name") String name, @Param("authNickname") String authNickname, @Param("authLogo") String authLogo);
 	
-	List<VirtualUserDO> listVirtualUser();
+	int countVirtualUser();
+	
+	List<VirtualUserDO> listVirtualUser(@Param("offset") int offset, @Param("rows") int rows);
 	
 	int deleteById(int id);
 

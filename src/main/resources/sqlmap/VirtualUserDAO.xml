@@ -35,6 +35,10 @@
 		0,
 		0)
 	</insert>
+	
+	<select id="countVirtualUser" resultType="java.lang.Integer">
+		SELECT count(*) FROM tb_user WHERE auth_type = 'V';
+	</select>
 
 	<select id="listVirtualUser" resultType="org.zhinanzhen.tb.dao.pojo.VirtualUserDO">
 		SELECT
@@ -45,7 +49,8 @@
 		auth_logo AS authLogo
 		FROM tb_user
 		WHERE auth_type = 'V'
-		ORDER BY gmt_create DESC;
+		ORDER BY gmt_create DESC
+		LIMIT #{offset}, #{rows};
 	</select>
 	
 	<delete id="deleteById">

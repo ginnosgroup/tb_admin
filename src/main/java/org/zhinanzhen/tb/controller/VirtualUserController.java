@@ -47,12 +47,24 @@ public class VirtualUserController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/list", method = RequestMethod.GET)
+	@RequestMapping(value = "/count", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<VirtualUserDTO>> listVirtualUser(HttpServletResponse response) {
+	public Response<Integer> countVirtualUser(HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<List<VirtualUserDTO>>(0, virtualUserService.listVirtualUser());
+			return new Response<Integer>(0, virtualUserService.countVirtualUser());
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), -1);
+		}
+	}
+
+	@RequestMapping(value = "/list", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<VirtualUserDTO>> listVirtualUser(@RequestParam(value = "pageNum") int pageNum,
+			@RequestParam(value = "pageSize") int pageSize, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<List<VirtualUserDTO>>(0, virtualUserService.listVirtualUser(pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<VirtualUserDTO>>(1, e.getMessage(), null);
 		}
