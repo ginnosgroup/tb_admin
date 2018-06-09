@@ -23,6 +23,8 @@ public interface UserDAO {
 	public UserDO getUserById(int id);
 
 	UserDO getUserByThird(@Param("thirdType") String thirdType, @Param("thirdId") String thirdId);
+	
+	boolean update(@Param("id") int id, @Param("name") String name, @Param("birthday") Date birthday, @Param("phone") String phone);
 
 	boolean updateAdviserById(@Param("adviserId") int adviserId, @Param("id") int id);
 

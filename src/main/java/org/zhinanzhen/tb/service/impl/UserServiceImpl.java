@@ -184,6 +184,21 @@ public class UserServiceImpl extends BaseService implements UserService {
 		}
 		return userDto;
 	}
+	
+	@Override
+	public boolean update(int id, String name, Date birthday, String phone) throws ServiceException {
+		if (id <= 0) {
+			ServiceException se = new ServiceException("id error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		if (StringUtil.isNotEmpty(phone) && userDao.countUser(null, null, null, phone) > 0) {
+			ServiceException se = new ServiceException("The phone is already existed !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		return userDao.update(id, name, birthday, phone);
+	}
 
 	@Override
 	public boolean updateAdviserId(int adviserId, int id) throws ServiceException {

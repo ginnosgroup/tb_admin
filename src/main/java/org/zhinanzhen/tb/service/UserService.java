@@ -28,6 +28,8 @@ public interface UserService {
 	 * @throws ServiceException
 	 */
 	UserDTO getUserByOpenId(String thirdType, String thirdId) throws ServiceException;
+	
+	boolean update(int id, String name, Date birthday, String phone) throws ServiceException;
 
 	/**
 	 * 用户重新绑定顾问

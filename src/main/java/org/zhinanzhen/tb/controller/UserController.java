@@ -26,10 +26,11 @@ public class UserController extends BaseController {
 
 	@Resource
 	UserService userService;
-	
+
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<Integer> addUser(@RequestParam(value = "name") String name, @RequestParam(value = "authNickname", required = false) String authNickname,
+	public Response<Integer> addUser(@RequestParam(value = "name") String name,
+			@RequestParam(value = "authNickname", required = false) String authNickname,
 			@RequestParam(value = "birthday") String birthday, @RequestParam(value = "phone") String phone,
 			@RequestParam(value = "adviserId") String adviserId, HttpServletResponse response) {
 		try {
@@ -38,8 +39,8 @@ public class UserController extends BaseController {
 			if (count > 0) {
 				return new Response<Integer>(1, "该电话号码已被使用,添加失败.", 0);
 			}
-			return new Response<Integer>(0, userService.addUser(name, authNickname, new Date(Long.parseLong(birthday.trim())),
-					phone, StringUtil.toInt(adviserId)));
+			return new Response<Integer>(0, userService.addUser(name, authNickname,
+					new Date(Long.parseLong(birthday.trim())), phone, StringUtil.toInt(adviserId)));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), -1);
 		}
@@ -63,7 +64,7 @@ public class UserController extends BaseController {
 			return new Response<Integer>(1, e.getMessage(), -1);
 		}
 	}
-	
+
 	@RequestMapping(value = "/countMonth", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<Integer> countUserByThisMonth(HttpServletResponse response) {
@@ -105,6 +106,17 @@ public class UserController extends BaseController {
 		} catch (ServiceException e) {
 			return new Response<UserDTO>(1, e.getMessage(), null);
 		}
+	}
+
+	@RequestMapping("/update")
+	@ResponseBody
+	public Response<Boolean> update(@RequestParam(value = "id") int id, @RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "birthday", required = false) String birthday, @RequestParam(value = "phone", required = false) String phone,
+			HttpServletResponse response) throws ServiceException {
+		super.setGetHeader(response);
+		return birthday == null ? new Response<Boolean>(0, userService.update(id, name, null, phone))
+				: new Response<Boolean>(0,
+						userService.update(id, name, new Date(Long.parseLong(birthday.trim())), phone));
 	}
 
 	@RequestMapping("/updateAdviser")

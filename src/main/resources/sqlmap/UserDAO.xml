@@ -139,16 +139,34 @@
 		and
 		auth_openid = #{thirdId}
 	</select>
+	
+	<update id="update">
+		UPDATE tb_user
+		SET gmt_modify = now()
+        <if test='name != null and name != ""'>
+			, name = #{name, jdbcType=VARCHAR}
+		</if>
+        <if test='birthday != null'>
+			, birthday = #{birthday}
+		</if>
+		<if test='phone != null and phone != ""'>
+			, phone = #{phone}
+		</if>
+		WHERE id = #{id};
+	</update>
+	
 	<update id="updateAdviserById">
 		UPDATE tb_user
 		SET gmt_modify = now(), adviser_id = #{adviserId}
 		WHERE id = #{id};
 	</update>
+	
 	<update id="updateBalanceById">
 		UPDATE tb_user
 		SET gmt_modify = now(), balance = #{balance}
 		WHERE id = #{id};
 	</update>
+	
 	<select id="listUserByRecommendOpenId" resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
 		SELECT
 		id,
