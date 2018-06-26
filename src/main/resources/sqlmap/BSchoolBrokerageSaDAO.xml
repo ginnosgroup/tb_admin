@@ -110,6 +110,9 @@
         <if test='officialId != null and officialId != ""'>
             , official_id = #{officialId}
         </if>
+        <if test='isSettleAccounts != null'>
+            , is_settle_accounts = #{isSettleAccounts}
+        </if>
         <if test='isClose != null'>
             , is_close = #{isClose}
         </if>
