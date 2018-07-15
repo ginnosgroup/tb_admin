@@ -46,7 +46,7 @@
             AND name = #{name}
         </if>
         <if test='subject != null and subject != ""'>
-            AND subject = #{subject}
+            AND subject LIKE '%${subject}%'
         </if>
         <if test='country != null and country != ""'>
             AND country = #{country}
