@@ -54,11 +54,32 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	}
 
 	@Override
-	public List<SchoolDTO> listSchool(String name, String subject, String country) throws ServiceException {
+	public List<SchoolDTO> list(String name, String subject, String country) throws ServiceException {
 		List<SchoolDTO> schoolDtoList = new ArrayList<SchoolDTO>();
 		List<SchoolDO> schoolDoList = new ArrayList<SchoolDO>();
 		try {
-			schoolDoList = schoolDao.listSchool(name, subject, country);
+			schoolDoList = schoolDao.list(name, subject, country);
+			if (schoolDoList == null) {
+				return null;
+			}
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+		for (SchoolDO schoolDo : schoolDoList) {
+			SchoolDTO schoolDto = mapper.map(schoolDo, SchoolDTO.class);
+			schoolDtoList.add(schoolDto);
+		}
+		return schoolDtoList;
+	}
+	
+	@Override
+	public List<SchoolDTO> listSchool(String name, String country) throws ServiceException {
+		List<SchoolDTO> schoolDtoList = new ArrayList<SchoolDTO>();
+		List<SchoolDO> schoolDoList = new ArrayList<SchoolDO>();
+		try {
+			schoolDoList = schoolDao.listSchool(name, country);
 			if (schoolDoList == null) {
 				return null;
 			}

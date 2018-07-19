@@ -12,8 +12,10 @@ public interface SchoolDAO {
 	public int updateSchool(@Param("id") int id, @Param("name") String name, @Param("subject") String subject,
 			@Param("country") String country);
 
-	public List<SchoolDO> listSchool(@Param("name") String name, @Param("subject") String subject,
+	public List<SchoolDO> list(@Param("name") String name, @Param("subject") String subject,
 			@Param("country") String country);
+	
+	public List<SchoolDO> listSchool(@Param("name") String name, @Param("country") String country);
 
 	public SchoolDO getSchoolById(int id);
 

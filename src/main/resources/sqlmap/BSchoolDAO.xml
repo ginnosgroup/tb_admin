@@ -34,7 +34,7 @@
         WHERE id = #{id};
     </update>
     
-    <select id="listSchool" resultType="org.zhinanzhen.b.dao.pojo.SchoolDO">
+    <select id="list" resultType="org.zhinanzhen.b.dao.pojo.SchoolDO">
         SELECT
             id,
             name,
@@ -51,6 +51,23 @@
         <if test='country != null and country != ""'>
             AND country = #{country}
         </if>
+        ORDER BY gmt_create DESC;
+    </select>
+    
+    <select id="listSchool" resultType="org.zhinanzhen.b.dao.pojo.SchoolDO">
+        SELECT
+            id,
+            name,
+            country
+        FROM b_school
+        WHERE is_delete = 0
+        <if test='name != null and name != ""'>
+            AND name LIKE '%${name}%'
+        </if>
+        <if test='country != null and country != ""'>
+            AND country = #{country}
+        </if>
+        GROUP BY name
         ORDER BY gmt_create DESC;
     </select>
     

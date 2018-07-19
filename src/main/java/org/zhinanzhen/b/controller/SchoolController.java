@@ -35,7 +35,7 @@ public class SchoolController extends BaseController {
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			List<SchoolDTO> schoolDtoList = schoolService.listSchool(name, subject, country);
+			List<SchoolDTO> schoolDtoList = schoolService.list(name, subject, country);
 			for (SchoolDTO schoolDto : schoolDtoList) {
 				if (schoolDto.getName().equals(name) && schoolDto.getSubject().equals(subject)
 						&& schoolDto.getCountry().equals(country)) {
@@ -65,7 +65,7 @@ public class SchoolController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			List<SchoolDTO> schoolDtoList = schoolService.listSchool(name, subject, country);
+			List<SchoolDTO> schoolDtoList = schoolService.list(name, subject, country);
 			for (SchoolDTO schoolDto : schoolDtoList) {
 				if (schoolDto.getName().equals(name) && schoolDto.getSubject().equals(subject)
 						&& schoolDto.getCountry().equals(country)) {
@@ -95,12 +95,24 @@ public class SchoolController extends BaseController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<SchoolDTO>> listSchool(@RequestParam(value = "name", required = false) String name,
+	public Response<List<SchoolDTO>> list(@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "subject", required = false) String subject,
 			@RequestParam(value = "country", required = false) String country, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<List<SchoolDTO>>(0, schoolService.listSchool(name, subject, country));
+			return new Response<List<SchoolDTO>>(0, schoolService.list(name, subject, country));
+		} catch (ServiceException e) {
+			return new Response<List<SchoolDTO>>(1, e.getMessage(), null);
+		}
+	}
+	
+	@RequestMapping(value = "/listSchool", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<SchoolDTO>> listSchool(@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "country", required = false) String country, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<List<SchoolDTO>>(0, schoolService.listSchool(name, country));
 		} catch (ServiceException e) {
 			return new Response<List<SchoolDTO>>(1, e.getMessage(), null);
 		}
