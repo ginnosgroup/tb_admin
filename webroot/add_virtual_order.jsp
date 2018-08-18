@@ -103,7 +103,9 @@
 	            </p>
 	            <input type="submit" value="提交" />
 	            <input type="reset" value="重置" />
-	        </form> 
+	        </form>
+                <br /><br />
+                <a href="/admin/add_virtual_order_new.jsp" target="_parent">切换到新版</a> 
 	    </body> 
 	</html>
 

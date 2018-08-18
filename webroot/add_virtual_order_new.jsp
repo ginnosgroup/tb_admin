@@ -3,10 +3,12 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>添加虚拟订单</title>
+        <title>虚拟订单管理</title>
         <META http-equiv=Content-Type content="text/html; charset=utf-8">
+        <link rel="stylesheet" href="https://cdn.rawgit.com/milligram/milligram/master/dist/milligram.min.css">
     </head>
-    <body>
+    <body class="container">
+        <h2>虚拟订单管理</h2>
 <%  
     request.setCharacterEncoding("UTF-8");  
     response.setCharacterEncoding("UTF-8");  
@@ -40,15 +42,17 @@
         }
         out.println("<font color='red'>执行完成.</font>");
     } else {
-        out.println("请输入虚拟订单参数......");
+        out.println("<h5>请输入虚拟订单参数......</h5>");
     }
 
 %>
         <form action="" method="post">
-            <p>
-                编号: <input type="text" name="subject_id" value="" size="6" maxlength="7" required="required" /></br>
-                数量: <input type="number" name="num" value="1" min="1" max="99" /></br>
-                区域:
+            <fieldset>
+                <label for="subjectIdField">编号</label>
+                <input type="text" name="subject_id" value="" size="6" maxlength="7" required="required" /></br>
+                <label for="numberField">数量</label> 
+                <input type="number" name="num" value="1" min="1" max="99" /></br>
+                <label for="regionIdField">区域</label> 
                 <select name="region_id"> 
                     <option value="1000011">Sydney</option>
                     <option value="1000012">Brisbane</option>
@@ -58,7 +62,7 @@
                     <option value="1000022">Hobart</option>
                 </select>
                 <br />
-                顾客:
+                <label for="userIdField">顾客</label>
                 <select name="user_id">
 <%
     try {
@@ -83,10 +87,14 @@
     }
 %>
                 </select>
+                <div class="float-right">
+                  <input class="button button-clear" type="button" onclick="javascript:window.open ('/admin/add_virtual_order.jsp','adminuser','height=480,width=480,top=0,left=0,toolbar=no,menubar=no,scrollbars=no,resizable=no,location=no,status=no');" value="顾客管理" />
+                </div>
                 <br />
-            </p>
-            <input type="submit" value="提交" />
-            <input type="reset" value="重置" />
+            </fieldset>
+            <input class="button" type="submit" value="提交" />
+            <input class="button button-outline" type="reset" value="重置" />
+            <input class="button button-outline" type="button" onclick="javascript:location.reload();" value="刷新" />
         </form> 
     </body> 
 </html>
