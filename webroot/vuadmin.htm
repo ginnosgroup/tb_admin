@@ -29,6 +29,10 @@
         		alert("图片解析出错，请重新选择！");
         		return;
         	}
+        	if(image.length > 99999) {
+        		alert("图片太大了，请重新选择一张小点的图片！");
+        		return;
+        	}
         	var id = addService.execute(JSON.stringify(user), image);
         	alert("保存完成，编号为：" + id);
         	location.reload();
@@ -42,7 +46,6 @@
             reader.onload = function(evt) {
                 document.getElementById('authLogo').src = evt.target.result;
                 image = evt.target.result;
-                console.log(image)
             }
             reader.readAsDataURL(file.files[0]);
         }
