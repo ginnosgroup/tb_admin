@@ -7,7 +7,7 @@
     <script src="http://ikasoa.com/libs/thrift/0.11.0/thrift.min.js" type="text/javascript"></script>
     <script src="http://ikasoa.com/libs/ikasoa-rpc-jsclient/1.0/ikasoa-rpc-jsclient.min.js" type="text/javascript"></script>
     <script>
-        var url = "https://tuangou.51mantuo.com:8099/vu/admin.do";
+        var url = "http://tuangou.51mantuo.com:8099/vu/admin.do";
         var name = "org.sulei.vu.service.VirtualUserService";
   
         var addService = getService(url, name, "addVirtualUser", JavaType._int, new Array(new _JavaType("org.sulei.vu.service.VirtualUserDTO", 0), JavaType.String));
@@ -66,8 +66,8 @@
     <p><input type="button" id="save" value="新增" onclick="javascript:save();"/></p>
     <hr />
     <script>
-        var vuList = listService.execute();
         document.write("<h3>用户列表</h3><table><thead><tr align='center'><th>编号</th><th>名称</th><th>昵称</th><th>头像</th><th>操作</th></tr></thead>");
+        var vuList = listService.execute();
         for(var i in vuList) {
         	document.write("<tbody><tr align='center'><td>" + vuList[i]["id"] + "</td><td>" + vuList[i]["name"] + "</td><td>" + vuList[i]["authNickname"] + "</td><td><img src='" + vuList[i]["authLogo"] + "' height='20'/></td><td><button class='button button-outline' onclick='javascript:del(\"" + vuList[i]["id"] + "\")'>删除</button></td></tr></tbody>");
         }
