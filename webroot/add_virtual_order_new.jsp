@@ -92,7 +92,7 @@
                 </div>
                 <br />
             </fieldset>
-            <input class="button" type="submit" value="提交" />
+            <input class="button button-outline" type="submit" value="提交" />
             <input class="button button-outline" type="reset" value="重置" />
             <input class="button button-outline" type="button" onclick="javascript:location.reload();" value="刷新" />
         </form> 
