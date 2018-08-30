@@ -9,12 +9,12 @@ public interface UserService {
 
 	public int addUser(String name, String authNickname, Date birthday, String phone, int adviserId) throws ServiceException;
 
-	public int countUser(String name, UserAuthTypeEnum authType, String authNickname, String phone)
+	public int countUser(String name, UserAuthTypeEnum authType, String authNickname, String phone, int adviserId)
 			throws ServiceException;
 
 	public int countUserByThisMonth() throws ServiceException;
 
-	public List<UserDTO> listUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
+	public List<UserDTO> listUser(String name, UserAuthTypeEnum authType, String authNickname, String phone, int adviserId,
 			int pageNum, int pageSize) throws ServiceException;
 
 	public UserDTO getUserById(int id) throws ServiceException;

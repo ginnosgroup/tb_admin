@@ -57,12 +57,12 @@ public class UserServiceImpl extends BaseService implements UserService {
 	}
 
 	@Override
-	public int countUser(String name, UserAuthTypeEnum authType, String authNickname, String phone)
+	public int countUser(String name, UserAuthTypeEnum authType, String authNickname, String phone, int adviserId)
 			throws ServiceException {
 		if (authType == null) {
-			return userDao.countUser(name, null, authNickname, phone);
+			return userDao.countUser(name, null, authNickname, phone, adviserId <= 0 ? null : adviserId);
 		} else {
-			return userDao.countUser(name, authType.toString(), authNickname, phone);
+			return userDao.countUser(name, authType.toString(), authNickname, phone, adviserId <= 0 ? null : adviserId);
 		}
 	}
 	
@@ -72,7 +72,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 	}
 
 	@Override
-	public List<UserDTO> listUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
+	public List<UserDTO> listUser(String name, UserAuthTypeEnum authType, String authNickname, String phone, int adviserId,
 			int pageNum, int pageSize) throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
@@ -90,9 +90,9 @@ public class UserServiceImpl extends BaseService implements UserService {
 		}
 		try {
 			if (authType == null) {
-				userDoList = userDao.listUser(name, null, authNickname, phone, pageNum * pageSize, pageSize);
+				userDoList = userDao.listUser(name, null, authNickname, phone, adviserId <= 0 ? null : adviserId, pageNum * pageSize, pageSize);
 			} else {
-				userDoList = userDao.listUser(name, authType.toString(), authNickname, phone, pageNum * pageSize,
+				userDoList = userDao.listUser(name, authType.toString(), authNickname, phone, adviserId <= 0 ? null : adviserId, pageNum * pageSize,
 						pageSize);
 			}
 			if (userDoList == null) {
@@ -192,7 +192,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
-		if (StringUtil.isNotEmpty(phone) && userDao.countUser(null, null, null, phone) > 0) {
+		if (StringUtil.isNotEmpty(phone) && userDao.countUser(null, null, null, phone, null) > 0) {
 			ServiceException se = new ServiceException("The phone is already existed !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;

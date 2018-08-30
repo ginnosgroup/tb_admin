@@ -87,6 +87,9 @@
 		<if test='phone != null and phone != ""'>
 			AND phone = #{phone}
 		</if>
+		<if test='adviserId != null and adviserId != ""'>
+			AND adviser_id = #{adviserId}
+		</if>
 		ORDER BY gmt_create DESC
 		LIMIT #{offset}, #{rows};
 	</select>

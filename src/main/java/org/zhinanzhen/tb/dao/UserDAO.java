@@ -12,12 +12,12 @@ public interface UserDAO {
 			@Param("adviserId") int adviserId);
 
 	public int countUser(@Param("name") String name, @Param("authType") String authType,
-			@Param("authNickname") String authNickname, @Param("phone") String phone);
+			@Param("authNickname") String authNickname, @Param("phone") String phone, @Param("adviserId") Integer adviserId);
 
 	public int countUserByThisMonth();
 
 	public List<UserDO> listUser(@Param("name") String name, @Param("authType") String authType,
-			@Param("authNickname") String authNickname, @Param("phone") String phone, @Param("offset") int offset,
+			@Param("authNickname") String authNickname, @Param("phone") String phone, @Param("adviserId") Integer adviserId, @Param("offset") int offset,
 			@Param("rows") int rows);
 
 	public UserDO getUserById(int id);

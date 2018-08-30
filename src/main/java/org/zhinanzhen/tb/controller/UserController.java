@@ -35,7 +35,7 @@ public class UserController extends BaseController {
 			@RequestParam(value = "adviserId") String adviserId, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			int count = userService.countUser(null, null, null, phone);
+			int count = userService.countUser(null, null, null, phone, 0);
 			if (count > 0) {
 				return new Response<Integer>(1, "该电话号码已被使用,添加失败.", 0);
 			}
@@ -51,14 +51,15 @@ public class UserController extends BaseController {
 	public Response<Integer> countUser(@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "authType", required = false) String authType,
 			@RequestParam(value = "authNickname", required = false) String authNickname,
-			@RequestParam(value = "phone", required = false) String phone, HttpServletResponse response) {
+			@RequestParam(value = "phone", required = false) String phone,
+			@RequestParam(value = "adviserId", required = false) String adviserId, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
 			UserAuthTypeEnum authTypeEnum = null;
 			if (StringUtil.isNotEmpty(authType)) {
 				authTypeEnum = UserAuthTypeEnum.get(authType);
 			}
-			int count = userService.countUser(name, authTypeEnum, authNickname, phone);
+			int count = userService.countUser(name, authTypeEnum, authNickname, phone, StringUtil.toInt(adviserId));
 			return new Response<Integer>(0, count);
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), -1);
@@ -81,15 +82,18 @@ public class UserController extends BaseController {
 	public Response<List<UserDTO>> listUser(@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "authType", required = false) String authType,
 			@RequestParam(value = "authNickname", required = false) String authNickname,
-			@RequestParam(value = "phone", required = false) String phone, @RequestParam(value = "pageNum") int pageNum,
-			@RequestParam(value = "pageSize") int pageSize, HttpServletResponse response) {
+			@RequestParam(value = "phone", required = false) String phone,
+			@RequestParam(value = "adviserId", required = false) String adviserId,
+			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
+			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
 			UserAuthTypeEnum authTypeEnum = null;
 			if (StringUtil.isNotEmpty(authType)) {
 				authTypeEnum = UserAuthTypeEnum.get(authType);
 			}
-			List<UserDTO> list = userService.listUser(name, authTypeEnum, authNickname, phone, pageNum, pageSize);
+			List<UserDTO> list = userService.listUser(name, authTypeEnum, authNickname, phone,
+					StringUtil.toInt(adviserId), pageNum, pageSize);
 			return new Response<List<UserDTO>>(0, list);
 		} catch (ServiceException e) {
 			return new Response<List<UserDTO>>(1, e.getMessage(), null);
@@ -110,9 +114,11 @@ public class UserController extends BaseController {
 
 	@RequestMapping("/update")
 	@ResponseBody
-	public Response<Boolean> update(@RequestParam(value = "id") int id, @RequestParam(value = "name", required = false) String name,
-			@RequestParam(value = "birthday", required = false) String birthday, @RequestParam(value = "phone", required = false) String phone,
-			HttpServletResponse response) throws ServiceException {
+	public Response<Boolean> update(@RequestParam(value = "id") int id,
+			@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "birthday", required = false) String birthday,
+			@RequestParam(value = "phone", required = false) String phone, HttpServletResponse response)
+			throws ServiceException {
 		super.setGetHeader(response);
 		return birthday == null ? new Response<Boolean>(0, userService.update(id, name, null, phone))
 				: new Response<Boolean>(0,
