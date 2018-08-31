@@ -70,7 +70,7 @@
         Connection conn = DriverManager.getConnection(connUrl);
         Statement stmt = conn.createStatement();
         stmt.executeQuery("SET NAMES UTF8");
-        String select_sql = "SELECT * FROM tb_user WHERE auth_type = 'V'";
+        String select_sql = "SELECT * FROM tb_user WHERE auth_type = 'V' ORDER BY id DESC";
         try {
             ResultSet rs = stmt.executeQuery(select_sql);
             while (rs.next()) {
