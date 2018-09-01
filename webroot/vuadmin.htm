@@ -17,25 +17,25 @@
         var image = "";
         
         function save() {
-        	var user = {};
-        	user["name"] = document.getElementById("name").value;
-        	user["authNickname"] = document.getElementById("authNickname").value;
-        	user["authLogo"] = document.getElementById("authLogo").value;
-        	if(user["name"] == 0 || user["authNickname"] == 0 || user["authLogo"] == 0) {
-        		alert("信息不完成！");
-        		return;
-        	}
-        	if(image == 0) {
-        		alert("图片解析出错，请重新选择！");
-        		return;
-        	}
-        	if(image.length > 99999) {
-        		alert("图片太大了，请重新选择一张小点的图片！");
-        		return;
-        	}
-        	var id = addService.execute(JSON.stringify(user), image);
-        	alert("保存完成，编号为：" + id);
-        	location.reload();
+            var user = {};
+            user["name"] = document.getElementById("name").value;
+            user["authNickname"] = document.getElementById("authNickname").value;
+            user["authLogo"] = document.getElementById("authLogo").value;
+            if(user["name"] == 0 || user["authNickname"] == 0 || user["authLogo"] == 0) {
+                alert("信息不完整！");
+                return;
+            }
+            if(image == 0) {
+                alert("头像图片解析出错，请重新选择！");
+                return;
+            }
+            if(image.length > 99999) {
+                alert("头像图片太大了，请重新选择一张小一点的图片！");
+                return;
+            }
+            var id = addService.execute(JSON.stringify(user), image);
+            alert("客户新增完成，编号为：" + id);
+            location.reload();
         }
 
         function selectImage(file){
@@ -51,27 +51,31 @@
         }
         
         function del(id) {
-        	if(confirm('请慎重！\u000d如果该虚拟用户已创建过订单，删除将会导致数据不一致！\u000d确实要删除吗?') && confirm('请确认您已经知晓该删除操作可能出现的问题！\u000d确实要删除吗?')) {
-        		deleteService.execute(id);
-            	location.reload();
+            if(confirm('请慎重！\u000d如果该虚拟用户已创建过订单，删除将会导致数据不一致！\u000d确实要删除吗?') && confirm('请确认您已经知晓该删除操作可能出现的问题！\u000d确实要删除吗?')) {
+                deleteService.execute(id);
+                location.reload();
             }
         }
     </script>
 </head>
 <body class="container">
-    <h3>新增用户</h3>
+    <h3>新增客户</h3>
     <p>名称：<input type="text" id="name"/></p>
     <p>昵称：<input type="text" id="authNickname"/></p>
     <p>头像：<input type="file" accept="image/png,image/jpg,image/jpeg" onchange="javascript:selectImage(this);" id="authLogo"/></p>
     <p><input type="button" class="button button-outline" id="save" value="新增" onclick="javascript:save();"/></p>
     <hr />
-    <script>
-        document.write("<h3>用户列表</h3><table><thead><tr align='center'><th>编号</th><th>名称</th><th>昵称</th><th>头像</th><th>操作</th></tr></thead>");
-        var vuList = listService.execute();
-        for(var i in vuList) {
-        	document.write("<tbody><tr align='center'><td>" + vuList[i]["id"] + "</td><td>" + vuList[i]["name"] + "</td><td>" + vuList[i]["authNickname"] + "</td><td><img src='" + vuList[i]["authLogo"] + "' height='20'/></td><td><button class='button button-outline' onclick='javascript:del(\"" + vuList[i]["id"] + "\")'>删除</button></td></tr></tbody>");
-        }
-        document.write("</table>");
-    </script>
+    <h3>用户列表</h3>
+    <table>
+        <thead>
+            <tr align="center"><th>编号</th><th>名称</th><th>昵称</th><th>头像</th><th>操作</th></tr>
+        </thead>
+        <script>
+            var vuList = listService.execute();
+            for(var i in vuList) {
+                 document.write("<tbody><tr align='center'><td>" + vuList[i]["id"] + "</td><td>" + vuList[i]["name"] + "</td><td>" + vuList[i]["authNickname"] + "</td><td><img src='" + vuList[i]["authLogo"] + "' height='20'/></td><td><button class='button button-outline' onclick='javascript:del(\"" + vuList[i]["id"] + "\")'>删除</button></td></tr></tbody>");
+            }
+        </script>
+    </table>
 </body>
 </html>
