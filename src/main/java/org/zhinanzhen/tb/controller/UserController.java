@@ -84,6 +84,8 @@ public class UserController extends BaseController {
 			@RequestParam(value = "authNickname", required = false) String authNickname,
 			@RequestParam(value = "phone", required = false) String phone,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
+			@RequestParam(value = "orderByField", required = false) String orderByField,
+			@RequestParam(value = "isDesc", required = false) String isDesc,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
 			HttpServletResponse response) {
 		try {
@@ -93,7 +95,8 @@ public class UserController extends BaseController {
 				authTypeEnum = UserAuthTypeEnum.get(authType);
 			}
 			List<UserDTO> list = userService.listUser(name, authTypeEnum, authNickname, phone,
-					StringUtil.toInt(adviserId), pageNum, pageSize);
+					StringUtil.toInt(adviserId), orderByField,
+					Boolean.parseBoolean(StringUtil.isEmpty(isDesc) ? "false" : isDesc), pageNum, pageSize);
 			return new Response<List<UserDTO>>(0, list);
 		} catch (ServiceException e) {
 			return new Response<List<UserDTO>>(1, e.getMessage(), null);

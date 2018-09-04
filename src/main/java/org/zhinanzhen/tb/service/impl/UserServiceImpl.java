@@ -29,15 +29,16 @@ public class UserServiceImpl extends BaseService implements UserService {
 	private AdviserService adviserService;
 
 	@Override
-	public int addUser(String name, String authNickname, Date birthday, String phone, int adviserId) throws ServiceException {
+	public int addUser(String name, String authNickname, Date birthday, String phone, int adviserId)
+			throws ServiceException {
 		if (StringUtil.isEmpty(name)) {
 			ServiceException se = new ServiceException("name is null !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
-                if (StringUtil.isEmpty(authNickname)) {
-                        authNickname = name;
-                }
+		if (StringUtil.isEmpty(authNickname)) {
+			authNickname = name;
+		}
 		if (birthday == null) {
 			ServiceException se = new ServiceException("birthday is null !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -65,24 +66,35 @@ public class UserServiceImpl extends BaseService implements UserService {
 			return userDao.countUser(name, authType.toString(), authNickname, phone, adviserId <= 0 ? null : adviserId);
 		}
 	}
-	
+
 	@Override
 	public int countUserByThisMonth() throws ServiceException {
 		return userDao.countUserByThisMonth();
 	}
 
 	@Override
-	public List<UserDTO> listUser(String name, UserAuthTypeEnum authType, String authNickname, String phone, int adviserId,
-			int pageNum, int pageSize) throws ServiceException {
+	public List<UserDTO> listUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
+			int adviserId, int pageNum, int pageSize) throws ServiceException {
+		return listUser(name, authType, authNickname, phone, adviserId, "gmt_create", true, pageNum, pageSize);
+	}
+
+	@Override
+	public List<UserDTO> listUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
+			int adviserId, String orderByField, Boolean isDesc, int pageNum, int pageSize) throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
 		}
 		if (pageSize < 0) {
 			pageSize = DEFAULT_PAGE_SIZE;
 		}
+		if (StringUtil.isNotEmpty(orderByField))
+			orderByField = orderByField.replace(";", ""); // 防注入
+		else {
+			orderByField = "gmt_create";
+			isDesc = true;
+		}
 		List<UserDTO> userDtoList = new ArrayList<UserDTO>();
 		List<UserDO> userDoList = new ArrayList<UserDO>();
-
 		try {
 			authNickname = new String(Base64Util.encodeBase64(authNickname.getBytes()));
 		} catch (Exception e) {
@@ -90,10 +102,11 @@ public class UserServiceImpl extends BaseService implements UserService {
 		}
 		try {
 			if (authType == null) {
-				userDoList = userDao.listUser(name, null, authNickname, phone, adviserId <= 0 ? null : adviserId, pageNum * pageSize, pageSize);
+				userDoList = userDao.listUser(name, null, authNickname, phone, adviserId <= 0 ? null : adviserId,
+						orderByField, isDesc, pageNum * pageSize, pageSize);
 			} else {
-				userDoList = userDao.listUser(name, authType.toString(), authNickname, phone, adviserId <= 0 ? null : adviserId, pageNum * pageSize,
-						pageSize);
+				userDoList = userDao.listUser(name, authType.toString(), authNickname, phone,
+						adviserId <= 0 ? null : adviserId, orderByField, isDesc, pageNum * pageSize, pageSize);
 			}
 			if (userDoList == null) {
 				return null;
@@ -184,7 +197,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 		}
 		return userDto;
 	}
-	
+
 	@Override
 	public boolean update(int id, String name, Date birthday, String phone) throws ServiceException {
 		if (id <= 0) {

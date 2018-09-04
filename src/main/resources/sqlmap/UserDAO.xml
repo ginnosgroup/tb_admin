@@ -3,188 +3,193 @@
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.zhinanzhen.tb.dao.UserDAO">
 
-	<insert id="addUser" parameterType="org.zhinanzhen.tb.dao.pojo.UserDO">
-		insert into tb_user(
-		gmt_create,
-		gmt_modify,
-		name,
-		birthday,
-		phone,
-		email,
-		auth_type,
-		auth_openid,
-		auth_username,
-		auth_nickname,
-		auth_logo,
-		balance,
-		adviser_id,
-		region_id)
-		values (
-		now(),
-		now(),
-		#{name},
-		#{birthday},
-		#{phone},
-		"",
-		"BROKERAGE",
-		"",
-		"",
-		#{authNickname},
-		"",
-		0,
-		#{adviserId},
-		0)
-	</insert>
+    <insert id="addUser" parameterType="org.zhinanzhen.tb.dao.pojo.UserDO">
+        insert into tb_user(
+        gmt_create,
+        gmt_modify,
+        name,
+        birthday,
+        phone,
+        email,
+        auth_type,
+        auth_openid,
+        auth_username,
+        auth_nickname,
+        auth_logo,
+        balance,
+        adviser_id,
+        region_id)
+        values (
+        now(),
+        now(),
+        #{name},
+        #{birthday},
+        #{phone},
+        "",
+        "BROKERAGE",
+        "",
+        "",
+        #{authNickname},
+        "",
+        0,
+        #{adviserId},
+        0)
+    </insert>
 
-	<select id="countUser" parameterType="org.zhinanzhen.tb.dao.pojo.UserDO"
-		resultType="java.lang.Integer">
-		SELECT count(*)
-		FROM tb_user
-		WHERE auth_type != 'V'
-		<if test='name != null and name != ""'>
-			AND name LIKE '%${name}%'
-		</if>
-		<if test='authType != null and authType != ""'>
-			AND auth_type = #{authType}
-		</if>
-		<if test='authNickname != null and authNickname != ""'>
-			AND auth_nickname = #{authNickname}
-		</if>
-		<if test='phone != null and phone != ""'>
-			AND phone = #{phone}
-		</if>
-		;
-	</select>
-
-	<select id="countUserByThisMonth" resultType="java.lang.Integer">
-		select count(*) from tb_user where auth_type != 'V' AND DATE_FORMAT(gmt_create, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m');
-	</select>
-
-	<select id="listUser" resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
-		SELECT
-		id,
-		gmt_create AS gmtCreate,
-		name,
-		birthday,
-		email,
-		auth_type AS authType,
-		auth_nickname AS authNickname,
-		auth_username AS authUsername,
-		phone,
-		balance,
-		adviser_id AS adviserId
-		FROM tb_user
-		WHERE auth_type != 'V'
-		<if test='name != null and name != ""'>
-			AND name LIKE '%${name}%'
-		</if>
-		<if test='authType != null and authType != ""'>
-			AND auth_type = #{authType}
-		</if>
-		<if test='authNickname != null and authNickname != ""'>
-			AND auth_nickname = #{authNickname}
-		</if>
-		<if test='phone != null and phone != ""'>
-			AND phone = #{phone}
-		</if>
-		<if test='adviserId != null and adviserId != ""'>
-			AND adviser_id = #{adviserId}
-		</if>
-		ORDER BY gmt_create DESC
-		LIMIT #{offset}, #{rows};
-	</select>
-
-	<select id="getUserById" parameterType="java.lang.Integer"
-		resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
-		SELECT
-		id,
-		gmt_create AS gmtCreate,
-		name,
-		birthday,
-		phone,
-		email,
-		auth_type AS authType,
-		auth_openid AS authOpenid,
-		auth_username AS
-		authUsername,
-		auth_nickname AS authNickname,
-		auth_logo AS authLogo,
-		balance,
-		adviser_id AS adviserId,
-		region_id AS regionId
-		FROM tb_user
-		WHERE id = #{id, jdbcType=INTEGER};
-	</select>
-	
-	<select id="getUserByThird" resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
-		SELECT
-		id,
-		gmt_create AS
-		gmtCreate,
-		name,
-		birthday,
-		phone,
-		email,
-		auth_type AS authType,
-		auth_openid AS
-		authOpenid,
-		auth_username AS authUsername,
-		auth_nickname AS
-		authNickname,
-		auth_logo AS authLogo,
-		balance,
-		adviser_id AS adviserId,
-		region_id AS regionId
-		from tb_user
-		where
-		auth_type =
-		#{thirdType}
-		and
-		auth_openid = #{thirdId}
-	</select>
-	
-	<update id="update">
-		UPDATE tb_user
-		SET gmt_modify = now()
+    <select id="countUser" parameterType="org.zhinanzhen.tb.dao.pojo.UserDO"
+        resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM tb_user
+        WHERE auth_type != 'V'
         <if test='name != null and name != ""'>
-			, name = #{name, jdbcType=VARCHAR}
-		</if>
+            AND name LIKE '%${name}%'
+        </if>
+        <if test='authType != null and authType != ""'>
+            AND auth_type = #{authType}
+        </if>
+        <if test='authNickname != null and authNickname != ""'>
+            AND auth_nickname = #{authNickname}
+        </if>
+        <if test='phone != null and phone != ""'>
+            AND phone = #{phone}
+        </if>
+        ;
+    </select>
+
+    <select id="countUserByThisMonth" resultType="java.lang.Integer">
+        select count(*) from tb_user where auth_type != 'V' AND DATE_FORMAT(gmt_create, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m');
+    </select>
+
+    <select id="listUser" resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
+        SELECT
+        id,
+        gmt_create AS gmtCreate,
+        name,
+        birthday,
+        email,
+        auth_type AS authType,
+        auth_nickname AS authNickname,
+        auth_username AS authUsername,
+        phone,
+        balance,
+        adviser_id AS adviserId
+        FROM tb_user
+        WHERE auth_type != 'V'
+        <if test='name != null and name != ""'>
+            AND name LIKE '%${name}%'
+        </if>
+        <if test='authType != null and authType != ""'>
+            AND auth_type = #{authType}
+        </if>
+        <if test='authNickname != null and authNickname != ""'>
+            AND auth_nickname = #{authNickname}
+        </if>
+        <if test='phone != null and phone != ""'>
+            AND phone = #{phone}
+        </if>
+        <if test='adviserId != null and adviserId != ""'>
+            AND adviser_id = #{adviserId}
+        </if>
+        <if test='orderByField != null and orderByField != ""'>
+            ORDER BY ${orderByField}
+            <if test='isDesc == true'>
+                DESC
+            </if>
+        </if>
+        LIMIT #{offset}, #{rows};
+    </select>
+
+    <select id="getUserById" parameterType="java.lang.Integer"
+        resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
+        SELECT
+        id,
+        gmt_create AS gmtCreate,
+        name,
+        birthday,
+        phone,
+        email,
+        auth_type AS authType,
+        auth_openid AS authOpenid,
+        auth_username AS
+        authUsername,
+        auth_nickname AS authNickname,
+        auth_logo AS authLogo,
+        balance,
+        adviser_id AS adviserId,
+        region_id AS regionId
+        FROM tb_user
+        WHERE id = #{id, jdbcType=INTEGER};
+    </select>
+    
+    <select id="getUserByThird" resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
+        SELECT
+        id,
+        gmt_create AS
+        gmtCreate,
+        name,
+        birthday,
+        phone,
+        email,
+        auth_type AS authType,
+        auth_openid AS
+        authOpenid,
+        auth_username AS authUsername,
+        auth_nickname AS
+        authNickname,
+        auth_logo AS authLogo,
+        balance,
+        adviser_id AS adviserId,
+        region_id AS regionId
+        from tb_user
+        where
+        auth_type =
+        #{thirdType}
+        and
+        auth_openid = #{thirdId}
+    </select>
+    
+    <update id="update">
+        UPDATE tb_user
+        SET gmt_modify = now()
+        <if test='name != null and name != ""'>
+            , name = #{name, jdbcType=VARCHAR}
+        </if>
         <if test='birthday != null'>
-			, birthday = #{birthday}
-		</if>
-		<if test='phone != null and phone != ""'>
-			, phone = #{phone}
-		</if>
-		WHERE id = #{id};
-	</update>
-	
-	<update id="updateAdviserById">
-		UPDATE tb_user
-		SET gmt_modify = now(), adviser_id = #{adviserId}
-		WHERE id = #{id};
-	</update>
-	
-	<update id="updateBalanceById">
-		UPDATE tb_user
-		SET gmt_modify = now(), balance = #{balance}
-		WHERE id = #{id};
-	</update>
-	
-	<select id="listUserByRecommendOpenId" resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
-		SELECT
-		id,
-		gmt_create AS gmtCreate,
-		name,
-		birthday,
-		email,
-		auth_type AS authType,
-		auth_nickname AS authNickname,
-		auth_username AS authUsername,
-		phone,
-		balance,
-		adviser_id AS adviserId
-		FROM tb_user
-		WHERE auth_type != 'V' AND recommend_openid = #{recommendOpenId}
-		ORDER BY gmt_create DESC
-	</select>
+            , birthday = #{birthday}
+        </if>
+        <if test='phone != null and phone != ""'>
+            , phone = #{phone}
+        </if>
+        WHERE id = #{id};
+    </update>
+    
+    <update id="updateAdviserById">
+        UPDATE tb_user
+        SET gmt_modify = now(), adviser_id = #{adviserId}
+        WHERE id = #{id};
+    </update>
+    
+    <update id="updateBalanceById">
+        UPDATE tb_user
+        SET gmt_modify = now(), balance = #{balance}
+        WHERE id = #{id};
+    </update>
+    
+    <select id="listUserByRecommendOpenId" resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
+        SELECT
+        id,
+        gmt_create AS gmtCreate,
+        name,
+        birthday,
+        email,
+        auth_type AS authType,
+        auth_nickname AS authNickname,
+        auth_username AS authUsername,
+        phone,
+        balance,
+        adviser_id AS adviserId
+        FROM tb_user
+        WHERE auth_type != 'V' AND recommend_openid = #{recommendOpenId}
+        ORDER BY gmt_create DESC
+    </select>
 </mapper>
