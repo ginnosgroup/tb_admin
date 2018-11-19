@@ -13,6 +13,10 @@ public class SubjectDO {
 
 	private String name;
 	
+	private String type;
+	
+	private int parentId;
+	
 	private String logo;
 
 	private double price;

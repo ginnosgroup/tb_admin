@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.zhinanzhen.tb.service.SubjectStateEnum;
+import org.zhinanzhen.tb.service.SubjectTypeEnum;
 
 import lombok.Data;
 
@@ -15,6 +16,10 @@ public class SubjectDTO {
 	private Date gmtCreate;
 
 	private String name;
+	
+	private SubjectTypeEnum type;
+	
+	private int parentId;
 
 	private String logo;
 

@@ -8,6 +8,8 @@
                 gmt_create,
                 gmt_modify,
                 name,
+                type,
+                parent_id,
                 logo,
                 price,
                 start_date,
@@ -23,6 +25,8 @@
                 now(),
                 now(),
                 #{name},
+                #{type},
+                0,
                 #{logo},
                 #{price},
                 #{startDate},
@@ -114,6 +118,8 @@
         SELECT
             id,
             name,
+            type,
+            parent_id,
             logo,
             start_date AS startDate,
             end_date AS endDate,
@@ -121,7 +127,7 @@
             category_id AS categoryId,
             weight
         FROM tb_subject
-        WHERE state != 'DELETE'
+        WHERE state != 'DELETE' AND type != 'CHILD'
         <if test='keyword != null and keyword != ""'>
             AND name LIKE '%${keyword}%'
         </if>
@@ -140,6 +146,8 @@
             id,
             gmt_create AS gmtCreate,
             name,
+            type,
+            parent_id,
             logo,
             price,
             start_date AS startDate,
@@ -159,6 +167,8 @@
             id,
             gmt_create AS gmtCreate,
             name,
+            type,
+            parent_id,
             logo,
             price,
             start_date AS startDate,
