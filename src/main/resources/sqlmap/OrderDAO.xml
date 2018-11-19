@@ -84,6 +84,37 @@
 		ORDER BY o.gmt_create DESC
 		LIMIT #{offset}, #{rows};
 	</select>
+	
+	<select id="listOrderBySubjectParentId" parameterType="java.lang.Integer"
+        resultType="org.zhinanzhen.tb.dao.pojo.OrderDO">
+		SELECT
+		o.id AS id,
+		o.gmt_create AS gmtCreate,
+		o.name AS name,
+		o.state AS state,
+		o.subject_id AS
+		subjectId,
+		o.num AS num,
+		o.amount AS amount,
+		o.pay_type AS payType,
+		o.pay_code AS payCode,
+		o.pay_amount AS payAmount,
+		o.pay_date AS payDate,
+		o.create_price AS
+		createPrice,
+		o.finish_price AS finishPrice,
+		o.user_id AS userId,
+		o.adviser_id AS adviserId,
+		o.region_id AS regionId,
+		o.remain_pay_amount
+		AS remainPayAmount,
+		o.remain_pay_date AS remainPayDate,
+		o.remain_pay_balance AS remainPayBalance
+		FROM tb_order o, tb_region r,
+		tb_user u, tb_subject s
+		WHERE u.id = o.user_id AND u.region_id = r.id AND s.id = o.subject_id AND s.parent_id = #{subjectParentId}
+		ORDER BY o.gmt_create DESC;
+	</select>
 
 	<select id="getOrderById" parameterType="java.lang.Integer"
 		resultType="org.zhinanzhen.tb.dao.pojo.OrderDO">

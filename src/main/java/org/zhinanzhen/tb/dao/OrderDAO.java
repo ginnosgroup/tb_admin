@@ -16,6 +16,8 @@ public interface OrderDAO {
     public List<OrderDO> listOrder(@Param("id") Integer id, @Param("name") String name,
 	    @Param("regionId") Integer regionId, @Param("state") String state, @Param("userName") String userName,
 	    @Param("userPhone") String userPhone, @Param("offset") int offset, @Param("rows") int rows);
+    
+    public List<OrderDO> listOrderBySubjectParentId(@Param("subjectParentId") int subjectParentId);
 
     public OrderDO getOrderById(int id);
 
