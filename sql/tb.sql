@@ -29,8 +29,6 @@ CREATE TABLE `tb_subject` (
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `name` varchar(32) NOT NULL COMMENT '名称',
--- `type` varchar(8) NOT NULL DEFAULT 'DEFAULT' COMMENT '类型 (DEFAULT:大团, INDIE:小团, CHILD:子团)',
--- `parent_id` int DEFAULT NULL COMMENT '父编号,仅CHILD团有效 (对应tb_subject.id)',
   `logo` varchar(128) DEFAULT NULL COMMENT 'Logo图片地址',
   `price` decimal(8,2) NOT NULL DEFAULT '0.00' COMMENT '原始价格',
   `start_date` datetime NOT NULL COMMENT '拼团开始时间',
