@@ -13,11 +13,14 @@ public interface OrderService {
 	public List<OrderDTO> listOrder(Integer id, String name, Integer regionId, OrderStateEnum state, String userName,
 			String userPhone, int pageNum, int pageSize) throws ServiceException;
 
+	public List<OrderDTO> listOrderBySubjectParentId(int subjectParentId) throws ServiceException;
+
 	public OrderDTO getOrderById(int id) throws ServiceException;
 
 	public boolean allocatingAdviser(int id, int adviserId) throws ServiceException;
-	
-	public List<OrderDTO> listOrder(int userId,String classify) throws ServiceException;
-	
-        boolean endingMoney(int orderId,double remainPayAmount,double remainPayBalance,Date remainPayDate) throws ServiceException;
+
+	public List<OrderDTO> listOrder(int userId, String classify) throws ServiceException;
+
+	boolean endingMoney(int orderId, double remainPayAmount, double remainPayBalance, Date remainPayDate)
+			throws ServiceException;
 }
