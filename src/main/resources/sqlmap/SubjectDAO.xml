@@ -119,7 +119,7 @@
             id,
             name,
             type,
-            parent_id,
+            parent_id AS parentId,
             logo,
             start_date AS startDate,
             end_date AS endDate,
@@ -127,7 +127,7 @@
             category_id AS categoryId,
             weight
         FROM tb_subject
-        WHERE state != 'DELETE' AND type != 'CHILD'
+        WHERE state != 'DELETE'
         <if test='keyword != null and keyword != ""'>
             AND name LIKE '%${keyword}%'
         </if>

@@ -218,7 +218,6 @@
 													<tr>
 														<!--<th><input @click="checked" type="checkbox"></th>-->
 														<th>课程编号</th>
-														<th>父课程编号</th>
 														<th>课程名称</th>
 														<th>课程类型</th>
 														<th>所属分类</th>
@@ -231,8 +230,8 @@
 												<tbody>
 													<tr v-for="item in subject" class="gradeX">
 														<!--<th><input type="checkbox" v-bind:checked="chec"></th>-->
-														<td>{{item.id}}</td>
-														<td>{{item.parentId | parentId}}</td>
+														<td v-if="item.parentId==0">{{item.id}}</td>
+														<td v-else>{{item.parentId}}-{{item.id}}</td>
 														<td>
 															<a @click="goDetail(item.id)" href="javascript:;" class="text-primary">{{item.name}}</a>
 														</td>
