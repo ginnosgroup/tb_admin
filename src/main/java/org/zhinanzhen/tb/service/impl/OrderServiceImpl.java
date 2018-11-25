@@ -211,13 +211,13 @@ public class OrderServiceImpl extends BaseService implements OrderService {
     }
     
     @Override
-	public List<OrderDTO> listOrderBySubjectId(int subjectParentId) throws ServiceException {
-    	if (subjectParentId <= 0) {
-    	    ServiceException se = new ServiceException("subjectParentId error ! subjectParentId = " + subjectParentId);
+	public List<OrderDTO> listOrderBySubjectId(int subjectId) throws ServiceException {
+    	if (subjectId <= 0) {
+    	    ServiceException se = new ServiceException("subjectParentId error ! subjectParentId = " + subjectId);
     	    se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
     	    throw se;
     	}
-    	List<OrderDO> orderDoList = orderDAO.listOrderBySubjectParentId(subjectParentId);
+    	List<OrderDO> orderDoList = orderDAO.listOrderBySubjectParentId(subjectId);
     	if(orderDoList == null)
     		return null;
     	return getOrderDtoList(orderDoList);

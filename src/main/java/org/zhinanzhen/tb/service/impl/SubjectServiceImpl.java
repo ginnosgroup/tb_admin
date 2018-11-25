@@ -269,7 +269,7 @@ public class SubjectServiceImpl extends BaseService implements SubjectService {
 	    List<SubjectDO> subjectList = subjectDao.listSubjectByParentId(subjectDo.getId());
     	List<OrderDO> orderDoList = new ArrayList<>();
     	subjectList.forEach(sub -> orderDao.listOrderBySubjectId(sub.getId()).forEach(o -> orderDoList.add(o)));
-    	orderDoList.stream().map(oDo -> mapper.map(oDo, OrderDTO.class)).collect(Collectors.toList());
+    	orderList = orderDoList.stream().map(oDo -> mapper.map(oDo, OrderDTO.class)).collect(Collectors.toList());
 	    subjectDto.setOrderList(orderList);
 	    
 	} catch (Exception e) {
