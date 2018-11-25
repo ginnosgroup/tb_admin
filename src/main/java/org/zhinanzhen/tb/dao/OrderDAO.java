@@ -18,6 +18,8 @@ public interface OrderDAO {
 	    @Param("userPhone") String userPhone, @Param("offset") int offset, @Param("rows") int rows);
     
     public List<OrderDO> listOrderBySubjectParentId(@Param("subjectParentId") int subjectParentId);
+    
+    public List<OrderDO> listOrderBySubjectId(@Param("subjectId") int subjectId);
 
     public OrderDO getOrderById(int id);
 

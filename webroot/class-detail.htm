@@ -306,6 +306,67 @@
 													<div class="form-control-static subject-img" v-html="subject.details"></div>
 												</div>
 											</div>
+											
+											<div class="form-group">
+												<label class="col-sm-2 control-label">订单列表</label>
+											</div>
+											<div class="form-group">
+												<div class="col-sm-10">
+													<div class="responsive-table">
+														<table class="display table table-bordered table-striped" id="example">
+															<thead>
+																<tr>
+																	<th>订单编号</th>
+																	<th>课程名称</th>
+																	<th>客户名称</th>
+																	<th>所在城市</th>
+																	<th>*电话号码</th>
+																	<th>*预付款金额</th>
+																	<th>余额抵预付款</th>
+																	<th>成团单价</th>
+																	<th>购买数量</th>
+																	<th>已支付预付款</th>
+																	<th>*尾款金额</th>
+																	<th>*待支付尾款</th>
+\																	<th>余额已抵尾款</th>
+																	<th>已支付尾款</th>
+																	<th>订单状态</th>
+																	<th>下单时间</th>
+																	<th>支付时间</th>
+																	<th>支付方式</th>
+																	<th>分配顾问</th>
+																	<th>操作</th>
+																</tr>
+															</thead>
+															<tbody>
+																<tr v-for="list in subject.orderList" class="gradeX">
+																	<td>{{list.id}}</td>
+																	<td>{{list.name}}</td>
+																	<td>{{list.userId}}</td>
+																	<td>{{list.regionId}}</td>
+																	<td></td>
+																	<td></td>
+																	<td>{{list.remainPayBalance}}</td>
+																	<td>{{list.finishPrice}}</td>
+																	<td>{{list.num}}</td>
+																	<td>{{list.payAmount}}</td>
+																	<td></td>
+																	<td></td>
+																	<td>{{list.remainPayBalance}}</td>
+																	<td>{{list.remainPayAmount}}</td>
+																	<td>{{list.state}}</td>
+																	<td>{{list.gmtCreate}}</td>
+																	<td>{{list.payDate}}</td>
+																	<td>{{list.payType}}</td>
+																	<td>{{list.adviserId}}</td>
+																	<td></td>
+																</tr>
+															</tbody>
+														</table>
+													</div>
+												</div>
+											</div>
+											
 										</form>
 									</div>
 								</div>
@@ -423,6 +484,7 @@
 							result.data.startDate = that.getTime(result.data.startDate);
 							result.data.endDate = that.getTime(result.data.endDate);
 							var temp = result.data.priceIntervalList;
+							that.orderList = result.data.orderList;
 
 							var realObj = [];
 							for(var i = 0; i < temp.length; i++) {

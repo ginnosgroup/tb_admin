@@ -211,7 +211,7 @@ public class OrderServiceImpl extends BaseService implements OrderService {
     }
     
     @Override
-	public List<OrderDTO> listOrderBySubjectParentId(int subjectParentId) throws ServiceException {
+	public List<OrderDTO> listOrderBySubjectId(int subjectParentId) throws ServiceException {
     	if (subjectParentId <= 0) {
     	    ServiceException se = new ServiceException("subjectParentId error ! subjectParentId = " + subjectParentId);
     	    se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());

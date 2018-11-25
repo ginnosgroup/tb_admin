@@ -4,19 +4,23 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.zhinanzhen.tb.dao.OrderDAO;
 import org.zhinanzhen.tb.dao.SubjectDAO;
 import org.zhinanzhen.tb.dao.SubjectPriceIntervalDAO;
+import org.zhinanzhen.tb.dao.pojo.OrderDO;
 import org.zhinanzhen.tb.dao.pojo.SubjectDO;
 import org.zhinanzhen.tb.dao.pojo.SubjectPriceIntervalDO;
 import org.zhinanzhen.tb.dao.pojo.SubjectUpdateDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.SubjectService;
 import org.zhinanzhen.tb.service.SubjectStateEnum;
+import org.zhinanzhen.tb.service.pojo.OrderDTO;
 import org.zhinanzhen.tb.service.pojo.SubjectDTO;
 import org.zhinanzhen.tb.service.pojo.SubjectPriceIntervalDTO;
 import com.ikasoa.core.thrift.ErrorCodeEnum;
@@ -26,6 +30,9 @@ public class SubjectServiceImpl extends BaseService implements SubjectService {
 
     @Resource
     private SubjectDAO subjectDao;
+    
+    @Resource
+    private OrderDAO orderDao;
 
     @Resource
     private SubjectPriceIntervalDAO subjectPriceIntervalDao;
@@ -256,8 +263,15 @@ public class SubjectServiceImpl extends BaseService implements SubjectService {
 			SubjectPriceIntervalDTO.class);
 		subjectPriceIntervalDtoList.add(subjectPriceIntervalDto);
 	    }
-
 	    subjectDto.setPriceIntervalList(subjectPriceIntervalDtoList);
+	    
+	    List<OrderDTO> orderList = new ArrayList<>();
+	    List<SubjectDO> subjectList = subjectDao.listSubjectByParentId(subjectDo.getId());
+    	List<OrderDO> orderDoList = new ArrayList<>();
+    	subjectList.forEach(sub -> orderDao.listOrderBySubjectId(sub.getId()).forEach(o -> orderDoList.add(o)));
+    	orderDoList.stream().map(oDo -> mapper.map(oDo, OrderDTO.class)).collect(Collectors.toList());
+	    subjectDto.setOrderList(orderList);
+	    
 	} catch (Exception e) {
 	    ServiceException se = new ServiceException(e);
 	    se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
@@ -275,4 +289,5 @@ public class SubjectServiceImpl extends BaseService implements SubjectService {
 	}
 	return subjectDao.deleteSubjectById(id);
     }
+
 }

@@ -140,6 +140,27 @@
         ORDER BY gmt_create DESC 
         LIMIT #{offset}, #{rows};
     </select>
+    
+    <select id="listSubjectByParentId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.tb.dao.pojo.SubjectDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            name,
+            type,
+            parent_id AS parentId,
+            logo,
+            price,
+            start_date AS startDate,
+            end_date AS endDate,
+            state,
+            category_id AS categoryId,
+            pre_amount AS preAmount,
+            codex,
+            details,
+            region_ids AS regionIds,
+            weight
+        FROM tb_subject WHERE state != 'DELETE' AND parent_id = #{id, jdbcType=INTEGER};
+    </select>
 
     <select id="getSubjectById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.tb.dao.pojo.SubjectDO">
         SELECT

@@ -115,6 +115,33 @@
 		WHERE u.id = o.user_id AND u.region_id = r.id AND s.id = o.subject_id AND s.parent_id = #{subjectParentId}
 		ORDER BY o.gmt_create DESC;
 	</select>
+	
+	<select id="listOrderBySubjectId" parameterType="java.lang.Integer"
+        resultType="org.zhinanzhen.tb.dao.pojo.OrderDO">
+		SELECT
+		id,
+		gmt_create AS gmtCreate,
+		name,
+		state,
+		subject_id AS subjectId,
+		num,
+		amount,
+		pay_type AS payType,
+		pay_code AS payCode,
+		pay_amount AS payAmount,
+		pay_date AS payDate,
+		create_price AS createPrice,
+		finish_price AS finishPrice,
+		user_id AS userId,
+		adviser_id AS adviserId,
+		region_id AS regionId,
+		remain_pay_amount AS remainPayAmount,
+		remain_pay_date AS remainPayDate,
+		remain_pay_balance AS remainPayBalance
+		FROM tb_order
+		WHERE subject_id = #{subjectId}
+		ORDER BY gmt_create DESC;
+	</select>
 
 	<select id="getOrderById" parameterType="java.lang.Integer"
 		resultType="org.zhinanzhen.tb.dao.pojo.OrderDO">

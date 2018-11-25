@@ -44,5 +44,7 @@ public class SubjectDTO {
 	private int weight;
 
 	private List<SubjectPriceIntervalDTO> priceIntervalList;
+	
+	private List<OrderDTO> orderList;
 
 }
