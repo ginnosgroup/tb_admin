@@ -147,7 +147,7 @@
             gmt_create AS gmtCreate,
             name,
             type,
-            parent_id,
+            parent_id AS parentId,
             logo,
             price,
             start_date AS startDate,

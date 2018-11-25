@@ -231,7 +231,7 @@
 													<tr v-for="item in subject" class="gradeX">
 														<!--<th><input type="checkbox" v-bind:checked="chec"></th>-->
 														<td v-if="item.parentId==0">{{item.id}}</td>
-														<td v-else>{{item.parentId}}-{{item.id}}</td>
+														<td v-else>({{item.parentId}}) {{item.id}}</td>
 														<td>
 															<a @click="goDetail(item.id)" href="javascript:;" class="text-primary">{{item.name}}</a>
 														</td>
