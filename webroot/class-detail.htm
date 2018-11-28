@@ -353,11 +353,11 @@
 																	<td>{{list.finalPayAmount}}</td>
 																	<td>{{list.finalPayAmount | minus2 list.remainPayAmount list.remainPayBalance}}</td>
 																	<td>{{list.remainPayBalance}}</td>
-																	<td>{{list.remainPayAmount | plus item.remainPayBalance}}</td>
-																	<td>{{list.state | state}}</td>
+																	<td>{{list.remainPayAmount | plus list.remainPayBalance}}</td>
+																	<td>{{list.state | state2}}</td>
 																	<td>{{list.gmtCreate}}</td>
 																	<td>{{list.payDate}}</td>
-																	<td>{{list.payType}}</td>
+																	<td>{{list.payType | payType}}</td>
 																	<td><span>{{list.adviserDo.name}}</span></td>
 																	<!-- <td></td> -->
 																</tr>
@@ -422,6 +422,28 @@
 							return "已结束";
 						} else if(str == "STOP") {
 							return "已终止";
+						}
+					},
+					state2: function(str) {
+						if(str == "NEW") {
+							return "待付款";
+						} else if(str == "WAIT") {
+							return "待成团";
+						} else if(str == "SUCCESS") {
+							return "已成团";
+						} else if(str == "END") {
+							return "未成团";
+						}
+					},
+					payType: function(str) {
+						if(str == "PAYPAL") {
+							return "PayPal";
+						} else if(str == "WECHAT") {
+							return "微信支付";
+						} else if(str == "BALANCE") {
+							return "余额";
+						} else if(str == "OTHER") {
+							return "其它支付方式";
 						}
 					},
 					region: function(id) {
