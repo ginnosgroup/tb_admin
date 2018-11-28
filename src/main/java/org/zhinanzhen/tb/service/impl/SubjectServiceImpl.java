@@ -10,13 +10,17 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.OrderDAO;
 import org.zhinanzhen.tb.dao.SubjectDAO;
 import org.zhinanzhen.tb.dao.SubjectPriceIntervalDAO;
+import org.zhinanzhen.tb.dao.UserDAO;
+import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.dao.pojo.OrderDO;
 import org.zhinanzhen.tb.dao.pojo.SubjectDO;
 import org.zhinanzhen.tb.dao.pojo.SubjectPriceIntervalDO;
 import org.zhinanzhen.tb.dao.pojo.SubjectUpdateDO;
+import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.SubjectService;
 import org.zhinanzhen.tb.service.SubjectStateEnum;
@@ -37,6 +41,12 @@ public class SubjectServiceImpl extends BaseService implements SubjectService {
 
 	@Resource
 	private SubjectPriceIntervalDAO subjectPriceIntervalDao;
+	
+	@Resource
+    private UserDAO userDao;
+	
+	@Resource
+    AdviserDAO adviserDao;
 
 	@Override
 	@Transactional
@@ -278,6 +288,12 @@ public class SubjectServiceImpl extends BaseService implements SubjectService {
 				orderList = orderDoList.stream().map(oDo -> mapper.map(oDo, OrderDTO.class))
 						.collect(Collectors.toList());
 			}
+			orderList.forEach(order -> {
+				if (order.getUserId() > 0)
+					order.setUserDo(userDao.getUserById(order.getUserId()));
+				if (order.getAdviserId() > 0)
+					order.setAdviserDo(adviserDao.getAdviserById(order.getAdviserId()));
+			});
 			subjectDto.setOrderList(orderList);
 
 		} catch (Exception e) {

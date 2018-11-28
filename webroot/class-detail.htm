@@ -320,14 +320,14 @@
 																	<th>课程名称</th>
 																	<th>客户名称</th>
 																	<th>所在城市</th>
-																	<th>*电话号码</th>
-																	<th>*预付款金额</th>
+																	<th>电话号码</th>
+																	<th>预付款金额</th>
 																	<th>余额抵预付款</th>
 																	<th>成团单价</th>
 																	<th>购买数量</th>
 																	<th>已支付预付款</th>
-																	<th>*尾款金额</th>
-																	<th>*待支付尾款</th>
+																	<th>尾款金额</th>
+																	<th>待支付尾款</th>
 \																	<th>余额已抵尾款</th>
 																	<th>已支付尾款</th>
 																	<th>订单状态</th>
@@ -335,7 +335,7 @@
 																	<th>支付时间</th>
 																	<th>支付方式</th>
 																	<th>分配顾问</th>
-																	<th>操作</th>
+																	<!-- <th>操作</th> -->
 																</tr>
 															</thead>
 															<tbody>
@@ -344,22 +344,22 @@
 																	<td>{{list.name}}</td>
 																	<td>{{list.userId}}</td>
 																	<td>{{list.regionId}}</td>
-																	<td></td>
-																	<td></td>
+																	<td>{{list.userDo.phone}}</td>
+																	<td>{{subject.preAmount}}</td>
 																	<td>{{list.remainPayBalance}}</td>
 																	<td>{{list.finishPrice}}</td>
 																	<td>{{list.num}}</td>
 																	<td>{{list.payAmount}}</td>
-																	<td></td>
-																	<td></td>
+																	<td>{{list.finalPayAmount}}</td>
+																	<td>{{list.finalPayAmount | minus2 list.remainPayAmount list.remainPayBalance}}</td>
 																	<td>{{list.remainPayBalance}}</td>
-																	<td>{{list.remainPayAmount}}</td>
-																	<td>{{list.state}}</td>
+																	<td>{{list.remainPayAmount | plus item.remainPayBalance}}</td>
+																	<td>{{list.state | state}}</td>
 																	<td>{{list.gmtCreate}}</td>
 																	<td>{{list.payDate}}</td>
 																	<td>{{list.payType}}</td>
-																	<td>{{list.adviserId}}</td>
-																	<td></td>
+																	<td><span>{{list.adviserDo.name}}</span></td>
+																	<!-- <td></td> -->
 																</tr>
 															</tbody>
 														</table>
@@ -437,6 +437,12 @@
 								return this.allSort[i].name;
 							}
 						}
+					},
+					minus2: function(num1, num2, num3) {
+						return num1 - Number(num2)-Number(num3);
+					},
+					plus: function(num1, num2) {
+						return num1 + num2;
 					}
 				},
 				methods: {
