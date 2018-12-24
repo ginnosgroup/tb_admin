@@ -13,6 +13,8 @@ public class AdminUserDO {
 	
 	private String apList;
 	
+	private int adviserId;
+	
 	private String sessionId;
 	
 	private Date gmtLogin;

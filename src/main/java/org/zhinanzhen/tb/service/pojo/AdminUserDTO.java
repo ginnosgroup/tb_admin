@@ -12,6 +12,8 @@ public class AdminUserDTO {
 	private String username;
 
 	private String apList;
+	
+	private int adviserId;
 
 	private String sessionId;
 
