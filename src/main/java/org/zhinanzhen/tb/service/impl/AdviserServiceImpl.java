@@ -35,6 +35,7 @@ public class AdviserServiceImpl extends BaseService implements AdviserService {
 				adviserDo.setState(adviserDto.getState().toString());
 			}
 			if (adviserDAO.addAdviser(adviserDo) > 0) {
+				adviserDto.setId(adviserDo.getId());
 				return adviserDo.getId();
 			} else {
 				return 0;

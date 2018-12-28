@@ -5,6 +5,8 @@ import org.zhinanzhen.tb.dao.pojo.AdminUserDO;
 
 public interface AdminUserDAO {
 
+	int add(AdminUserDO adminUserDo);
+
 	public AdminUserDO login(@Param("username") String username, @Param("password") String password);
 	
 	public boolean updateSessionId(@Param("id") int id, @Param("sessionId") String sessionId);

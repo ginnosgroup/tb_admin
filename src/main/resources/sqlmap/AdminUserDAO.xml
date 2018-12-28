@@ -3,6 +3,32 @@
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.zhinanzhen.tb.dao.AdminUserDAO">
 
+    <insert id="add" parameterType="org.zhinanzhen.tb.dao.pojo.AdminUserDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+            INTO tb_admin_user (
+                gmt_create,
+                gmt_modify,
+                username,
+                password,
+                ap_list,
+                adviser_id,
+                session_id,
+                gmt_login,
+                login_ip,
+                status)
+            VALUES (
+                now(),
+                now(),
+                #{username},
+                #{password},
+                #{apList},
+                #{adviserId},
+                null,
+                now(),
+                '127.0.0.1',
+                'ENABLED');
+    </insert>
+
     <select id="login" resultType="org.zhinanzhen.tb.dao.pojo.AdminUserDO">
         SELECT
             id,
