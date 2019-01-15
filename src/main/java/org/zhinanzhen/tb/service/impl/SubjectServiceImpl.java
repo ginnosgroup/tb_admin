@@ -127,7 +127,8 @@ public class SubjectServiceImpl extends BaseService implements SubjectService {
 				subjectDo.setEndDateTimpstamp(Timestamp.valueOf(sdf.format(subjectDo.getEndDate())));
 			}
 			int i = subjectDao.updateSubject(subjectDo);
-			if (!subjectPriceIntervalDao.deleteBySubjectId(subjectDto.getId())) {
+			if (subjectPriceIntervalDao.listSubjectPriceInterval(subjectDto.getId()).size() > 0
+					&& !subjectPriceIntervalDao.deleteBySubjectId(subjectDto.getId())) {
 				rollback();
 				ServiceException se = new ServiceException();
 				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());

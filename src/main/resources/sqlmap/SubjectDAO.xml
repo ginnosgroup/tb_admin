@@ -52,6 +52,9 @@
         <if test='name != null and name != ""'>
             , name = #{name}
         </if>
+        <if test='type != null and type != ""'>
+            , type = #{type}
+        </if>
         <if test='logo != null and logo != ""'>
             , logo = #{logo}
         </if>

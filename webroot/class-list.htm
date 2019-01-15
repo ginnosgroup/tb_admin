@@ -241,10 +241,10 @@
 														<td>{{item.startDate}}</td>
 														<td>{{item.endDate}}</td>
 														<td>
-															<button @click="changeClass(item.id,'copy')" type="button" class="btn btn-info">
+															<button @click="changeClass(item.id,'copy')" v-if="item.type!='CHILD'" type="button" class="btn btn-info">
 																复制
 															</button>
-															<button @click="changeClass(item.id,'edit')" v-if="item.state!='END' && item.state!='STOP'" type="button" class="btn btn-warning">
+															<button @click="changeClass(item.id,'edit')" v-if="item.state!='END' && item.state!='STOP' && item.type!='CHILD'" type="button" class="btn btn-warning">
 																编辑
 															</button>
 															<button v-if="item.state=='START'" @click="endId(item.id)" type="button" class="btn btn-warning" data-toggle="modal" data-target="#endClass">终止</button>
