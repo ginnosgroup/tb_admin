@@ -48,7 +48,7 @@
 %>
         <form action="" method="post">
             <fieldset>
-                <label for="subjectIdField">编号</label>
+                <label for="subjectIdField">编号(子团则为括号中的编号)</label>
                 <input type="text" name="subject_id" value="" size="6" maxlength="7" required="required" /></br>
                 <label for="numberField">数量</label> 
                 <input type="number" name="num" value="1" min="1" max="99" /></br>
