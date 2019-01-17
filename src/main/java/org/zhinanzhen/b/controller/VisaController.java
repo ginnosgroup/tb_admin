@@ -162,7 +162,7 @@ public class VisaController extends BaseController {
 			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
-			@RequestParam(value = "adviserId", required = false) Integer adviserId, HttpServletResponse response) {
+			@RequestParam(value = "adviserId", required = false) Integer adviserId, HttpServletRequest request, HttpServletResponse response) {
 		
 		// 更改当前顾问编号
 		Integer newAdviserId = getAdviserId(request);
@@ -186,7 +186,7 @@ public class VisaController extends BaseController {
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
-			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
+			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize, HttpServletRequest request,
 			HttpServletResponse response) {
 		
 		// 更改当前顾问编号
