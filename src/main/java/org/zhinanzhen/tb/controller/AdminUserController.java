@@ -35,10 +35,14 @@ public class AdminUserController extends BaseController {
 	    loginInfo.setUsername(username);
 	    loginInfo.setSessionId(sessionId);
 			AdminUserDTO adminUser = adminUserService.getAdminUserById(id);
-			String ap = adminUser.getApList();
-			loginInfo.setApList(ap);
-			if (ap != null && ap.contains("GW"))
-				loginInfo.setAdviserId(adminUser.getAdviserId());
+			if (adminUser != null) {
+				String ap = adminUser.getApList();
+				if (ap != null) {
+					loginInfo.setApList(ap);
+					if (ap.contains("GW"))
+						loginInfo.setAdviserId(adminUser.getAdviserId());
+				}
+			}
 	    session.removeAttribute("AdminUserLoginInfo");
 	    session.setAttribute("AdminUserLoginInfo", loginInfo);
 	    return new Response<Boolean>(0, true);

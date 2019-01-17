@@ -99,11 +99,14 @@ public class BaseController {
 		HttpSession session = request.getSession();
 		if (session.getAttribute("AdminUserLoginInfo") != null) {
 			AdminUserLoginInfo adminUserLoginInfo = (AdminUserLoginInfo) session.getAttribute("AdminUserLoginInfo");
-			if (adminUserLoginInfo.getApList().contains("GW"))
-				try {
-					return adminUserService.getAdminUserById(adminUserLoginInfo.getId()).getAdviserId();
-				} catch (ServiceException e) {
-				}
+			if (adminUserLoginInfo != null) {
+				String ap = adminUserLoginInfo.getApList();
+				if (ap != null && ap.contains("GW"))
+					try {
+						return adminUserService.getAdminUserById(adminUserLoginInfo.getId()).getAdviserId();
+					} catch (ServiceException e) {
+					}
+			}
 		}
 		return null;
 	}
