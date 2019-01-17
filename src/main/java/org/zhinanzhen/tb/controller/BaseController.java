@@ -114,5 +114,6 @@ public class BaseController {
 		private String username;
 		private String sessionId;
 		private String apList;
+		private Integer adviserId;
 	}
 }
