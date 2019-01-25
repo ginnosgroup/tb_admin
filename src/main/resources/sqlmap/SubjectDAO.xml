@@ -8,6 +8,8 @@
                 gmt_create,
                 gmt_modify,
                 name,
+                type,
+                parent_id,
                 logo,
                 price,
                 start_date,
@@ -23,6 +25,8 @@
                 now(),
                 now(),
                 #{name},
+                #{type},
+                0,
                 #{logo},
                 #{price},
                 #{startDate},
@@ -47,6 +51,9 @@
         SET gmt_modify = now()
         <if test='name != null and name != ""'>
             , name = #{name}
+        </if>
+        <if test='type != null and type != ""'>
+            , type = #{type}
         </if>
         <if test='logo != null and logo != ""'>
             , logo = #{logo}
@@ -114,6 +121,8 @@
         SELECT
             id,
             name,
+            type,
+            parent_id AS parentId,
             logo,
             start_date AS startDate,
             end_date AS endDate,
@@ -134,12 +143,35 @@
         ORDER BY gmt_create DESC 
         LIMIT #{offset}, #{rows};
     </select>
+    
+    <select id="listSubjectByParentId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.tb.dao.pojo.SubjectDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            name,
+            type,
+            parent_id AS parentId,
+            logo,
+            price,
+            start_date AS startDate,
+            end_date AS endDate,
+            state,
+            category_id AS categoryId,
+            pre_amount AS preAmount,
+            codex,
+            details,
+            region_ids AS regionIds,
+            weight
+        FROM tb_subject WHERE state != 'DELETE' AND parent_id = #{id, jdbcType=INTEGER};
+    </select>
 
     <select id="getSubjectById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.tb.dao.pojo.SubjectDO">
         SELECT
             id,
             gmt_create AS gmtCreate,
             name,
+            type,
+            parent_id AS parentId,
             logo,
             price,
             start_date AS startDate,
@@ -159,6 +191,8 @@
             id,
             gmt_create AS gmtCreate,
             name,
+            type,
+            parent_id,
             logo,
             price,
             start_date AS startDate,

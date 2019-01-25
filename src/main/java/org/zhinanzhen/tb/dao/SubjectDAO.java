@@ -25,6 +25,8 @@ public interface SubjectDAO {
 
 	public List<SubjectDO> listSubject(@Param("keyword") String keyword, @Param("categoryId") Integer categoryId,
 			@Param("state") String state, @Param("offset") int offset, @Param("rows") int rows);
+	
+	public List<SubjectDO> listSubjectByParentId(int id);
 
 	public SubjectDO getSubjectById(int id);
 	

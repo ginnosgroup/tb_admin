@@ -219,6 +219,7 @@
 														<!--<th><input @click="checked" type="checkbox"></th>-->
 														<th>课程编号</th>
 														<th>课程名称</th>
+														<th>课程类型</th>
 														<th>所属分类</th>
 														<th>拼团状态</th>
 														<th>拼团开始时间</th>
@@ -229,19 +230,21 @@
 												<tbody>
 													<tr v-for="item in subject" class="gradeX">
 														<!--<th><input type="checkbox" v-bind:checked="chec"></th>-->
-														<td>{{item.id}}</td>
+														<td v-if="item.parentId==0">{{item.id}}</td>
+														<td v-else>{{item.parentId}} ({{item.id}})</td>
 														<td>
 															<a @click="goDetail(item.id)" href="javascript:;" class="text-primary">{{item.name}}</a>
 														</td>
+														<td>{{item.type | type}}</td>
 														<td>{{item.categoryId | sort}}</td>
 														<td>{{item.state | state}}</td>
 														<td>{{item.startDate}}</td>
 														<td>{{item.endDate}}</td>
 														<td>
-															<button @click="changeClass(item.id,'copy')" type="button" class="btn btn-info">
+															<button @click="changeClass(item.id,'copy')" v-if="item.type!='CHILD'" type="button" class="btn btn-info">
 																复制
 															</button>
-															<button @click="changeClass(item.id,'edit')" v-if="item.state!='END' && item.state!='STOP'" type="button" class="btn btn-warning">
+															<button @click="changeClass(item.id,'edit')" v-if="item.state!='END' && item.state!='STOP' && item.type!='CHILD'" type="button" class="btn btn-warning">
 																编辑
 															</button>
 															<button v-if="item.state=='START'" @click="endId(item.id)" type="button" class="btn btn-warning" data-toggle="modal" data-target="#endClass">终止</button>
@@ -392,6 +395,15 @@
 							return "已结束";
 						} else if(str == "STOP") {
 							return "已终止";
+						}
+					},
+					type: function(str) {
+						if(str == "DEFAULT") {
+							return "大团";
+						} else if(str == "INDIE") {
+							return "小团";
+						} else if(str == "CHILD") {
+							return "子团";
 						}
 					},
 					sort: function(id) {

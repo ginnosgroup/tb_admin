@@ -44,7 +44,7 @@
 	%>
 	        <form action="" method="post">
 	            <p>
-	                编号: <input type="text" name="subject_id" value="" size="6" maxlength="7" required="required" /></br>
+	                编号(子团则为括号中的编号): <input type="text" name="subject_id" value="" size="6" maxlength="7" required="required" /></br>
 	                数量: <input type="number" name="num" value="1" min="1" max="99" /></br>
 	                区域:
 	                <select name="region_id"> 

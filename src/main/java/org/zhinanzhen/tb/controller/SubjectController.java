@@ -18,6 +18,7 @@ import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.SubjectCategoryService;
 import org.zhinanzhen.tb.service.SubjectService;
 import org.zhinanzhen.tb.service.SubjectStateEnum;
+import org.zhinanzhen.tb.service.SubjectTypeEnum;
 import org.zhinanzhen.tb.service.pojo.SubjectCategoryDTO;
 import org.zhinanzhen.tb.service.pojo.SubjectDTO;
 
@@ -67,6 +68,8 @@ public class SubjectController extends BaseController {
     public Response<Integer> addSubject(@RequestBody SubjectDTO subjectDto, HttpServletResponse response) {
 	try {
 	    super.setPostHeader(response);
+	    if (subjectDto.getType() == null)
+	    	subjectDto.setType(SubjectTypeEnum.DEFAULT);
 	    if (subjectService.addSubject(subjectDto) > 0) {
 		return new Response<Integer>(0, subjectDto.getId());
 	    } else {

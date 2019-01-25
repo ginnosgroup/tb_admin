@@ -48,7 +48,7 @@
 %>
         <form action="" method="post">
             <fieldset>
-                <label for="subjectIdField">编号</label>
+                <label for="subjectIdField">编号(子团则为括号中的编号)</label>
                 <input type="text" name="subject_id" value="" size="6" maxlength="7" required="required" /></br>
                 <label for="numberField">数量</label> 
                 <input type="number" name="num" value="1" min="1" max="99" /></br>
@@ -88,7 +88,7 @@
 %>
                 </select>
                 <div class="float-right">
-                  <input class="button button-clear" type="button" onclick="javascript:window.open('http://tuangou.51mantuo.com:8099/static/vuadmin.html','adminuser','height=480,width=480,top=0,left=0,toolbar=no,menubar=no,scrollbars=no,resizable=no,location=no,status=no');" value="顾客管理" />
+                  <input class="button button-clear" type="button" onclick="javascript:window.open('http://tuangou.51mantuo.com:8099/static/vuadmin.html','adminuser','height=640,width=640,top=0,left=0,toolbar=no,menubar=no,scrollbars=no,resizable=no,location=no,status=no');" value="顾客管理" />
                 </div>
                 <br />
             </fieldset>

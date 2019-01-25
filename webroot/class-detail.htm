@@ -191,7 +191,8 @@
 											<div class="form-group">
 												<label class="col-sm-2 control-label">课程编号</label>
 												<div class="col-sm-10">
-													<p class="form-control-static">{{subject.id}}</p>
+													<p v-if="item.parentId==0"> class="form-control-static">{{subject.id}}</p>
+													<p v-else class="form-control-static">({{subject.parentId}}) {{subject.id}}</p>
 												</div>
 											</div>
 											<div class="form-group">
@@ -305,6 +306,67 @@
 													<div class="form-control-static subject-img" v-html="subject.details"></div>
 												</div>
 											</div>
+											
+											<div class="form-group">
+												<label class="col-sm-2 control-label">订单列表</label>
+											</div>
+											<div class="form-group">
+												<div class="col-sm-10">
+													<div class="responsive-table">
+														<table class="display table table-bordered table-striped" id="example">
+															<thead>
+																<tr>
+																	<th>订单编号</th>
+																	<th>课程名称</th>
+																	<th>客户名称</th>
+																	<th>所在城市</th>
+																	<th>电话号码</th>
+																	<th>预付款金额</th>
+																	<th>余额抵预付款</th>
+																	<th>成团单价</th>
+																	<th>购买数量</th>
+																	<th>已支付预付款</th>
+																	<th>尾款金额</th>
+																	<th>待支付尾款</th>
+\																	<th>余额已抵尾款</th>
+																	<th>已支付尾款</th>
+																	<th>订单状态</th>
+																	<th>下单时间</th>
+																	<th>支付时间</th>
+																	<th>支付方式</th>
+																	<th>分配顾问</th>
+																	<!-- <th>操作</th> -->
+																</tr>
+															</thead>
+															<tbody>
+																<tr v-for="list in subject.orderList" class="gradeX">
+																	<td>{{list.id}}</td>
+																	<td>{{list.name}}</td>
+																	<td>{{list.userId}}</td>
+																	<td>{{list.regionId}}</td>
+																	<td>{{list.userDo.phone}}</td>
+																	<td>{{subject.preAmount}}</td>
+																	<td>{{list.remainPayBalance}}</td>
+																	<td>{{list.finishPrice}}</td>
+																	<td>{{list.num}}</td>
+																	<td>{{list.payAmount}}</td>
+																	<td>{{list.finalPayAmount}}</td>
+																	<td>{{list.finalPayAmount | minus2 list.remainPayAmount list.remainPayBalance}}</td>
+																	<td>{{list.remainPayBalance}}</td>
+																	<td>{{list.remainPayAmount | plus list.remainPayBalance}}</td>
+																	<td>{{list.state | state2}}</td>
+																	<td>{{list.gmtCreate}}</td>
+																	<td>{{list.payDate}}</td>
+																	<td>{{list.payType | payType}}</td>
+																	<td><span>{{list.adviserDo.name}}</span></td>
+																	<!-- <td></td> -->
+																</tr>
+															</tbody>
+														</table>
+													</div>
+												</div>
+											</div>
+											
 										</form>
 									</div>
 								</div>
@@ -362,6 +424,28 @@
 							return "已终止";
 						}
 					},
+					state2: function(str) {
+						if(str == "NEW") {
+							return "待付款";
+						} else if(str == "WAIT") {
+							return "待成团";
+						} else if(str == "SUCCESS") {
+							return "已成团";
+						} else if(str == "END") {
+							return "未成团";
+						}
+					},
+					payType: function(str) {
+						if(str == "PAYPAL") {
+							return "PayPal";
+						} else if(str == "WECHAT") {
+							return "微信支付";
+						} else if(str == "BALANCE") {
+							return "余额";
+						} else if(str == "OTHER") {
+							return "其它支付方式";
+						}
+					},
 					region: function(id) {
 						for(var i = 0; i < this.region.length; i++) {
 							if(id == this.region[i].id) {
@@ -375,6 +459,12 @@
 								return this.allSort[i].name;
 							}
 						}
+					},
+					minus2: function(num1, num2, num3) {
+						return num1 - Number(num2)-Number(num3);
+					},
+					plus: function(num1, num2) {
+						return num1 + num2;
 					}
 				},
 				methods: {
@@ -422,6 +512,7 @@
 							result.data.startDate = that.getTime(result.data.startDate);
 							result.data.endDate = that.getTime(result.data.endDate);
 							var temp = result.data.priceIntervalList;
+							that.orderList = result.data.orderList;
 
 							var realObj = [];
 							for(var i = 0; i < temp.length; i++) {

@@ -1,3 +1,8 @@
+--alter table tb_subject add `type` varchar(8) NOT NULL DEFAULT 'DEFAULT' COMMENT '类型 (DEFAULT:大团, INDIE:小团, CHILD:子团)';
+--alter table tb_subject add `parent_id` int DEFAULT 0 COMMENT '父编号,仅CHILD团有效 (对应tb_subject.id)';
+
+-- ----------团购----------
+
 CREATE DATABASE tbdb;
 
 
@@ -29,6 +34,8 @@ CREATE TABLE `tb_subject` (
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `name` varchar(32) NOT NULL COMMENT '名称',
+`type` varchar(8) NOT NULL DEFAULT 'DEFAULT' COMMENT '类型 (DEFAULT:大团, INDIE:小团, CHILD:子团)',
+`parent_id` int DEFAULT 0 COMMENT '父编号,仅CHILD团有效 (对应tb_subject.id)',
   `logo` varchar(128) DEFAULT NULL COMMENT 'Logo图片地址',
   `price` decimal(8,2) NOT NULL DEFAULT '0.00' COMMENT '原始价格',
   `start_date` datetime NOT NULL COMMENT '拼团开始时间',
@@ -153,6 +160,7 @@ CREATE TABLE `tb_admin_user` (
   `username` varchar(32) NOT NULL COMMENT '管理员账户名称',
   `password` varchar(32) NOT NULL COMMENT '登录密码 (MD5加密)',
   `ap_list` varchar(128) DEFAULT NULL COMMENT '权限列表 (KJ:会计,GW:顾问,AD:管理员,TGAD:团购管理员;如果为NULL则为超级管理员,显示所有选项)',
+`adviser_id` int DEFAULT NULL COMMENT '所属顾问编号 (对应tb_adviser.id)',
   `session_id` varchar(255) DEFAULT NULL COMMENT '当前session_id值',
   `gmt_login` datetime NOT NULL COMMENT '最后登录时间',
   `login_ip` varchar(50) NOT NULL COMMENT '最后登录IP',

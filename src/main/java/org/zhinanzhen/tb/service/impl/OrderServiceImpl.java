@@ -189,55 +189,74 @@ public class OrderServiceImpl extends BaseService implements OrderService {
     @Override
     public List<OrderDTO> listOrder(int userId, String classify) throws ServiceException {
 	if (userId <= 0) {
-	    ServiceException se = new ServiceException("userId error !userId = " + userId);
+	    ServiceException se = new ServiceException("userId error ! userId = " + userId);
 	    se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 	    throw se;
 	}
 	if (StringUtil.isEmpty(classify) || ListOrderEnum.get(classify) == null) {
-	    ServiceException se = new ServiceException("classify error !classify = " + classify);
+	    ServiceException se = new ServiceException("classify error ! classify = " + classify);
 	    se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 	    throw se;
 	}
 	List<OrderDO> orderDoList = null;
-	List<OrderDTO> orderDtoList = new ArrayList<OrderDTO>();
 	if (ListOrderEnum.USER.toString().equals(classify)) {
 	    orderDoList = orderDAO.listOrderByUserId(userId);
 	}
 	if (ListOrderEnum.RECOMMEND.toString().equals(classify)) {
 	    orderDoList = orderDAO.listOrderByIntroducerId(userId);
 	}
-	for (OrderDO orderDo : orderDoList) {
-	    OrderDTO orderDto = mapper.map(orderDo, OrderDTO.class);
-	    if (orderDto.getUserId() > 0) {
-		UserDO userDo = userDAO.getUserById(orderDto.getUserId());
-		orderDto.setUserDo(userDo);
-	    }
-	    if (orderDto.getIntroducerUserId() > 0) {
-		UserDO introducer = userDAO.getUserById(orderDto.getIntroducerUserId());
-		orderDto.setIntroducerDo(introducer);
-	    }
-	    if (orderDto.getSubjectId() > 0) {
-		SubjectDTO subjectDto = subjectService.getSubjectById(orderDto.getSubjectId());
-		orderDto.setSubjectDto(subjectDto);
-	    }
-	    if (orderDto.getRegionId() > 0) {
-		RegionDO regionDo = regionDAO.getRegionById(orderDto.getRegionId());
-		orderDto.setRegionDo(regionDo);
-	    }
-	    if (orderDto.getAdviserId() > 0) {
-		AdviserDO adviserDo = adviserDAO.getAdviserById(orderDto.getAdviserId());
-		orderDto.setAdviserDo(adviserDo);
-	    }
-	    double finalPayAmount = 0;
-	    if (orderDto.getFinishPrice() > 0 && OrderStateEnum.SUCCESS.toString().equals(orderDto.getState())) {
-		finalPayAmount = new BigDecimal(orderDto.getFinishPrice() - orderDto.getSubjectDto().getPreAmount())
-			.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-	    }
-	    orderDto.setFinalPayAmount(finalPayAmount);
-	    orderDtoList.add(orderDto);
-	}
-	return orderDtoList;
+	if(orderDoList == null)
+		return null;
+	return getOrderDtoList(orderDoList);
     }
+    
+    @Override
+	public List<OrderDTO> listOrderBySubjectId(int subjectId) throws ServiceException {
+    	if (subjectId <= 0) {
+    	    ServiceException se = new ServiceException("subjectParentId error ! subjectParentId = " + subjectId);
+    	    se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+    	    throw se;
+    	}
+    	List<OrderDO> orderDoList = orderDAO.listOrderBySubjectParentId(subjectId);
+    	if(orderDoList == null)
+    		return null;
+    	return getOrderDtoList(orderDoList);
+	}
+    
+	private List<OrderDTO> getOrderDtoList(List<OrderDO> orderDoList) throws ServiceException {
+		List<OrderDTO> orderDtoList = new ArrayList<OrderDTO>();
+		for (OrderDO orderDo : orderDoList) {
+			OrderDTO orderDto = mapper.map(orderDo, OrderDTO.class);
+			if (orderDto.getUserId() > 0) {
+				UserDO userDo = userDAO.getUserById(orderDto.getUserId());
+				orderDto.setUserDo(userDo);
+			}
+			if (orderDto.getIntroducerUserId() > 0) {
+				UserDO introducer = userDAO.getUserById(orderDto.getIntroducerUserId());
+				orderDto.setIntroducerDo(introducer);
+			}
+			if (orderDto.getSubjectId() > 0) {
+				SubjectDTO subjectDto = subjectService.getSubjectById(orderDto.getSubjectId());
+				orderDto.setSubjectDto(subjectDto);
+			}
+			if (orderDto.getRegionId() > 0) {
+				RegionDO regionDo = regionDAO.getRegionById(orderDto.getRegionId());
+				orderDto.setRegionDo(regionDo);
+			}
+			if (orderDto.getAdviserId() > 0) {
+				AdviserDO adviserDo = adviserDAO.getAdviserById(orderDto.getAdviserId());
+				orderDto.setAdviserDo(adviserDo);
+			}
+			double finalPayAmount = 0;
+			if (orderDto.getFinishPrice() > 0 && OrderStateEnum.SUCCESS.toString().equals(orderDto.getState())) {
+				finalPayAmount = new BigDecimal(orderDto.getFinishPrice() - orderDto.getSubjectDto().getPreAmount())
+						.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+			}
+			orderDto.setFinalPayAmount(finalPayAmount);
+			orderDtoList.add(orderDto);
+		}
+		return orderDtoList;
+	}
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -331,4 +350,5 @@ public class OrderServiceImpl extends BaseService implements OrderService {
 	}
 	return true;
     }
+    
 }
