@@ -4,7 +4,7 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 
 /**
- * DES加密工具类
+ * MD5加密工具类
  * 
  * @author <a href="mailto:leisu@zhinanzhen.org">sulei</a>
  * @version 0.1

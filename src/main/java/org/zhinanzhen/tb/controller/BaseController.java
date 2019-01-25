@@ -3,6 +3,8 @@ package org.zhinanzhen.tb.controller;
 import java.io.File;
 import java.io.IOException;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
@@ -11,10 +13,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.zhinanzhen.tb.service.AdminUserService;
+import org.zhinanzhen.tb.service.ServiceException;
+
+import lombok.Data;
 
 public class BaseController {
 
     private static final Logger LOG = LoggerFactory.getLogger(BaseController.class);
+
+	@Resource
+	protected AdminUserService adminUserService;
 
     @ExceptionHandler(Exception.class)
     @ResponseBody
@@ -84,4 +93,30 @@ public class BaseController {
 	    return new Response<String>(3, "文件为空.", null);
 	}
     }
+    
+	// 获取当前顾问编号
+    protected Integer getAdviserId(HttpServletRequest request) {
+		HttpSession session = request.getSession();
+		if (session.getAttribute("AdminUserLoginInfo") != null) {
+			AdminUserLoginInfo adminUserLoginInfo = (AdminUserLoginInfo) session.getAttribute("AdminUserLoginInfo");
+			if (adminUserLoginInfo != null) {
+				String ap = adminUserLoginInfo.getApList();
+				if (ap != null && ap.contains("GW"))
+					try {
+						return adminUserService.getAdminUserById(adminUserLoginInfo.getId()).getAdviserId();
+					} catch (ServiceException e) {
+					}
+			}
+		}
+		return null;
+	}
+    
+	@Data
+	protected class AdminUserLoginInfo {
+		private int id;
+		private String username;
+		private String sessionId;
+		private String apList;
+		private Integer adviserId;
+	}
 }

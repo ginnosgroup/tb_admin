@@ -40,6 +40,12 @@ public class VisaController extends BaseController {
 			@RequestParam(value = "amount") String amount, @RequestParam(value = "adviserId") String adviserId,
 			@RequestParam(value = "officialId") String officialId, HttpServletRequest request,
 			HttpServletResponse response) {
+		
+		// 更改当前顾问编号
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId + "";
+		
 		try {
 			super.setPostHeader(response);
 			VisaDTO visaDto = new VisaDTO();
@@ -156,7 +162,13 @@ public class VisaController extends BaseController {
 			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
-			@RequestParam(value = "adviserId", required = false) Integer adviserId, HttpServletResponse response) {
+			@RequestParam(value = "adviserId", required = false) Integer adviserId, HttpServletRequest request, HttpServletResponse response) {
+		
+		// 更改当前顾问编号
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId;
+		
 		try {
 			super.setGetHeader(response);
 			return new Response<Integer>(0,
@@ -174,8 +186,14 @@ public class VisaController extends BaseController {
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
-			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
+			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize, HttpServletRequest request,
 			HttpServletResponse response) {
+		
+		// 更改当前顾问编号
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId;
+		
 		try {
 			super.setGetHeader(response);
 			return new Response<List<VisaDTO>>(0, visaService.listVisa(keyword, startHandlingDate, endHandlingDate,

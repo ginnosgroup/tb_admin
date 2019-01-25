@@ -1,6 +1,5 @@
 package org.zhinanzhen.tb.controller;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -11,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.zhinanzhen.tb.service.AdminUserService;
 import org.zhinanzhen.tb.service.ServiceException;
+import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
 
 import lombok.Data;
 
@@ -20,8 +19,6 @@ import lombok.Data;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/admin_user")
 public class AdminUserController extends BaseController {
-    @Resource
-    AdminUserService adminUserService;
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     @ResponseBody
@@ -37,7 +34,15 @@ public class AdminUserController extends BaseController {
 	    loginInfo.setId(id);
 	    loginInfo.setUsername(username);
 	    loginInfo.setSessionId(sessionId);
-            loginInfo.setApList(adminUserService.getAdminUserById(id).getApList());
+			AdminUserDTO adminUser = adminUserService.getAdminUserById(id);
+			if (adminUser != null) {
+				String ap = adminUser.getApList();
+				if (ap != null) {
+					loginInfo.setApList(ap);
+					if (ap.contains("GW"))
+						loginInfo.setAdviserId(adminUser.getAdviserId());
+				}
+			}
 	    session.removeAttribute("AdminUserLoginInfo");
 	    session.setAttribute("AdminUserLoginInfo", loginInfo);
 	    return new Response<Boolean>(0, true);
@@ -71,14 +76,6 @@ public class AdminUserController extends BaseController {
 	    return new Response<AdminUserLoginInfo>(1, "未登录", null);
 	}
 	return new Response<AdminUserLoginInfo>(0, loginInfo);
-    }
-
-    @Data
-    private class AdminUserLoginInfo {
-	private int id;
-	private String username;
-	private String sessionId;
-        private String apList;
     }
 
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -17,7 +18,9 @@ import org.zhinanzhen.b.service.BrokerageService;
 import org.zhinanzhen.b.service.pojo.BrokerageDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
+import org.zhinanzhen.tb.service.AdminUserService;
 import org.zhinanzhen.tb.service.ServiceException;
+import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
 
 import com.ikasoa.core.utils.StringUtil;
 
@@ -40,6 +43,12 @@ public class BrokerageController extends BaseController {
 			@RequestParam(value = "amount") String amount, @RequestParam(value = "adviserId") String adviserId,
 			@RequestParam(value = "officialId") String officialId, HttpServletRequest request,
 			HttpServletResponse response) {
+		
+		// 更改当前顾问编号
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId + "";
+		
 		try {
 			super.setPostHeader(response);
 			BrokerageDTO brokerageDto = new BrokerageDTO();
@@ -156,7 +165,14 @@ public class BrokerageController extends BaseController {
 			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
-			@RequestParam(value = "adviserId", required = false) Integer adviserId, HttpServletResponse response) {
+			@RequestParam(value = "adviserId", required = false) Integer adviserId, HttpServletRequest request,
+			HttpServletResponse response) {
+		
+		// 更改当前顾问编号
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId;
+		
 		try {
 			super.setGetHeader(response);
 			return new Response<Integer>(0, brokerageService.countBrokerage(keyword, startHandlingDate, endHandlingDate,
@@ -175,7 +191,13 @@ public class BrokerageController extends BaseController {
 			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
-			HttpServletResponse response) {
+			HttpServletRequest request, HttpServletResponse response) {
+		
+		// 更改当前顾问编号
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId;
+		
 		try {
 			super.setGetHeader(response);
 			return new Response<List<BrokerageDTO>>(0, brokerageService.listBrokerage(keyword, startHandlingDate,

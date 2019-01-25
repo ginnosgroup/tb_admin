@@ -11,7 +11,11 @@ public class AdminUserDO {
 	
 	private String username;
 	
+	private String password;
+	
 	private String apList;
+	
+	private int adviserId;
 	
 	private String sessionId;
 	

@@ -44,6 +44,12 @@ public class SchoolBrokerageSaController extends BaseController {
 			@RequestParam(value = "subagencyId") String subagencyId,
 			@RequestParam(value = "adviserId") String adviserId, @RequestParam(value = "officialId") String officialId,
 			HttpServletRequest request, HttpServletResponse response) {
+		
+		// 更改当前顾问编号
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId + "";
+		
 		try {
 			super.setPostHeader(response);
 			SchoolBrokerageSaDTO schoolBrokerageSaDto = new SchoolBrokerageSaDTO();
@@ -197,7 +203,13 @@ public class SchoolBrokerageSaController extends BaseController {
 			@RequestParam(value = "schoolId", required = false) Integer schoolId,
 			@RequestParam(value = "subagencyId", required = false) Integer subagencyId,
 			@RequestParam(value = "isSettleAccounts", required = false) Boolean isSettleAccounts,
-			HttpServletResponse response) {
+			HttpServletRequest request, HttpServletResponse response) {
+		
+		// 更改当前顾问编号
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId;
+		
 		try {
 			super.setGetHeader(response);
 			return new Response<Integer>(0, schoolBrokerageSaService.countSchoolBrokerageSa(keyword, startHandlingDate,
@@ -220,7 +232,13 @@ public class SchoolBrokerageSaController extends BaseController {
 			@RequestParam(value = "subagencyId", required = false) Integer subagencyId,
 			@RequestParam(value = "isSettleAccounts", required = false) Boolean isSettleAccounts,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
-			HttpServletResponse response) {
+			HttpServletRequest request, HttpServletResponse response) {
+		
+		// 更改当前顾问编号
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId;
+				
 		try {
 			super.setGetHeader(response);
 			return new Response<List<SchoolBrokerageSaDTO>>(0,

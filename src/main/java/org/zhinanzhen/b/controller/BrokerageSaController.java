@@ -39,6 +39,12 @@ public class BrokerageSaController extends BaseController {
 			@RequestParam(value = "commission") String commission, @RequestParam(value = "adviserId") String adviserId,
 			@RequestParam(value = "officialId") String officialId, HttpServletRequest request,
 			HttpServletResponse response) {
+		
+		// 更改当前顾问编号
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId + "";
+
 		try {
 			super.setPostHeader(response);
 			BrokerageSaDTO brokerageSaDto = new BrokerageSaDTO();
@@ -148,7 +154,14 @@ public class BrokerageSaController extends BaseController {
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
-			@RequestParam(value = "schoolId", required = false) Integer schoolId, HttpServletResponse response) {
+			@RequestParam(value = "schoolId", required = false) Integer schoolId, HttpServletRequest request,
+			HttpServletResponse response) {
+		
+		// 更改当前顾问编号
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId;
+
 		try {
 			super.setGetHeader(response);
 			return new Response<Integer>(0, brokerageSaService.countBrokerageSa(keyword, startHandlingDate,
@@ -169,7 +182,13 @@ public class BrokerageSaController extends BaseController {
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "schoolId", required = false) Integer schoolId,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
-			HttpServletResponse response) {
+			HttpServletRequest request, HttpServletResponse response) {
+
+		// 更改当前顾问编号
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId;
+
 		try {
 			super.setGetHeader(response);
 			return new Response<List<BrokerageSaDTO>>(0, brokerageSaService.listBrokerageSa(keyword, startHandlingDate,
