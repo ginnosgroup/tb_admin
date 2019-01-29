@@ -64,6 +64,8 @@ public class AdminUserController extends BaseController {
             return new Response<Boolean>(0, true);
         if (adminUserService.updateSessionId(loginInfo.getId(), null))
             session.removeAttribute("AdminUserLoginInfo");
+        else
+            return new Response<Boolean>(1, false);
         return new Response<Boolean>(0, true);
     }
 
