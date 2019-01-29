@@ -53,14 +53,18 @@ public class AdminUserController extends BaseController {
 
     @RequestMapping(value = "/out", method = RequestMethod.GET)
     @ResponseBody
-    public Response<Boolean> outLogin(HttpServletRequest request, HttpServletResponse response) {
-	HttpSession session = request.getSession();
-	super.setGetHeader(response);
-	if (session == null) {
-	    return new Response<Boolean>(0, true);
-	}
-	session.removeAttribute("AdminUserLoginInfo");
-	return new Response<Boolean>(0, true);
+    public Response<Boolean> outLogin(HttpServletRequest request, HttpServletResponse response)
+            throws ServiceException {
+        HttpSession session = request.getSession();
+        super.setGetHeader(response);
+        if (session == null)
+            return new Response<Boolean>(0, true);
+        AdminUserLoginInfo loginInfo = (AdminUserLoginInfo) session.getAttribute("AdminUserLoginInfo");
+        if (loginInfo == null)
+            return new Response<Boolean>(0, true);
+        if (adminUserService.updateSessionId(loginInfo.getId(), null))
+            session.removeAttribute("AdminUserLoginInfo");
+        return new Response<Boolean>(0, true);
     }
 
     @RequestMapping(value = "/isLogin", method = RequestMethod.GET)
