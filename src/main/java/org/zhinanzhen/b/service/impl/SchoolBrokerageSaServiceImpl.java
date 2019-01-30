@@ -74,6 +74,13 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 		}
 		try {
 			SchoolBrokerageSaDO schoolBrokerageSaDo = mapper.map(schoolBrokerageSaDto, SchoolBrokerageSaDO.class);
+			if (schoolBrokerageSaDo.getId() > 0) {
+				if (schoolBrokerageSaDao.getSchoolBrokerageSaById(schoolBrokerageSaDo.getId()).isClose()) {
+					ServiceException se = new ServiceException("This case is close ! You can't update it .");
+					se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+					throw se;
+				}
+			}
 			return schoolBrokerageSaDao.updateSchoolBrokerageSa(schoolBrokerageSaDo);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
