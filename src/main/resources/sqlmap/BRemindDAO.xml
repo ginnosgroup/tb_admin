@@ -9,11 +9,15 @@
                 gmt_create,
                 gmt_modify,
                 school_brokerage_sa_id,
+                visa_id,
+                brokerage_sa_id,
                 remind_date)
             VALUES (
                 now(),
                 now(),
                 #{schoolBrokerageSaId},
+                #{visaId},
+                #{brokerageSaId},
                 #{remindDate});
     </insert>
     
@@ -28,12 +32,36 @@
         ORDER BY gmt_create DESC;
     </select>
     
+    <select id="listRemindByVisaId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.RemindDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            visa_id AS visaId,
+            remind_date AS remindDate
+        FROM b_remind
+        WHERE visa_id = #{visaId, jdbcType=INTEGER}
+        ORDER BY gmt_create DESC;
+    </select>
+    
+    <select id="listRemindByBrokerageSaId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.RemindDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            brokerage_sa_id AS brokerageSaId,
+            remind_date AS remindDate
+        FROM b_remind
+        WHERE brokerage_sa_id = #{brokerageSaId, jdbcType=INTEGER}
+        ORDER BY gmt_create DESC;
+    </select>
+    
     <select id="listRemindByRemindDate" parameterType="java.util.Date" resultType="org.zhinanzhen.b.dao.pojo.RemindDO">
       <![CDATA[
         SELECT
             id,
             gmt_create AS gmtCreate,
             school_brokerage_sa_id AS schoolBrokerageSaId,
+            visa_id AS visaId,
+            brokerage_sa_id AS brokerageSaId,
             remind_date AS remindDate
         FROM b_remind
         WHERE remind_date < #{date}
@@ -47,6 +75,14 @@
 	
 	<delete id="deleteRemindBySchoolBrokerageSaId" parameterType="java.lang.Integer">
 		DELETE FROM b_remind WHERE school_brokerage_sa_id = #{id, jdbcType=INTEGER};
+	</delete>
+	
+	<delete id="deleteRemindByVisaId" parameterType="java.lang.Integer">
+		DELETE FROM b_remind WHERE visa_id = #{id, jdbcType=INTEGER};
+	</delete>
+	
+	<delete id="deleteRemindByBrokerageSaId" parameterType="java.lang.Integer">
+		DELETE FROM b_remind WHERE brokerage_sa_id = #{id, jdbcType=INTEGER};
 	</delete>
 
 </mapper>
