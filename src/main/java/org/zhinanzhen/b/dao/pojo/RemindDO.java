@@ -15,6 +15,10 @@ public class RemindDO {
 
 	private int schoolBrokerageSaId;
 	
+	private int visaId;
+	
+	private int brokerageSaId;
+	
 	private Date remindDate;
 
 }
