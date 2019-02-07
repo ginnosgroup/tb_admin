@@ -341,7 +341,9 @@ CREATE TABLE `b_remind` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
-  `school_brokerage_sa_id` int NOT NULL COMMENT '学校待结佣编号 (对应b_school_brokerage_sa.id)',
+  `school_brokerage_sa_id` int DEFAULT NULL COMMENT '学校待结佣编号 (对应b_school_brokerage_sa.id)',
+`visa_id` int DEFAULT NULL COMMENT '签证类编号 (对应b_visa.id)',
+`brokerage_sa_id` int DEFAULT NULL COMMENT '提前结佣编号 (对应b_brokerage_sa.id)',
   `remind_date` datetime NOT NULL COMMENT '提醒日期'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
