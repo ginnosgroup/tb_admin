@@ -75,7 +75,7 @@ public class VisaRemindController extends BaseController {
 
 	@RequestMapping(value = "/deleteRemindByVisaId", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<Integer> deleteRemindBySchoolBrokerageSaId(@RequestParam(value = "visaId") int visaId,
+	public Response<Integer> deleteRemindByVisaId(@RequestParam(value = "visaId") int visaId,
 			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
