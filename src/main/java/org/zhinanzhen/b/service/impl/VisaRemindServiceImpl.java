@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.RemindDAO;
 import org.zhinanzhen.b.dao.pojo.RemindDO;
 import org.zhinanzhen.b.service.VisaRemindService;
@@ -15,6 +16,7 @@ import org.zhinanzhen.tb.service.impl.BaseService;
 
 import com.ikasoa.core.thrift.ErrorCodeEnum;
 
+@Service("VisaRemindService")
 public class VisaRemindServiceImpl extends BaseService implements VisaRemindService {
 
 	@Resource
@@ -84,16 +86,9 @@ public class VisaRemindServiceImpl extends BaseService implements VisaRemindServ
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
 			throw se;
 		}
-		for (RemindDO remindDo : remindDoList) {
-			VisaRemindDTO visaRemindDto = mapper.map(remindDo, VisaRemindDTO.class);
-			visaRemindDtoList.add(visaRemindDto);
-		}
+		remindDoList.stream().filter(remindDo -> remindDo.getVisaId() > 0)
+				.forEach(remindDo -> visaRemindDtoList.add(mapper.map(remindDo, VisaRemindDTO.class)));
 		return visaRemindDtoList;
-	}
-
-	@Override
-	public int deleteRemindById(int id) throws ServiceException {
-		return remindDao.deleteRemindById(id);
 	}
 
 	@Override

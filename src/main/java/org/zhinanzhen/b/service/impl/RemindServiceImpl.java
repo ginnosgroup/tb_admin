@@ -86,10 +86,8 @@ public class RemindServiceImpl extends BaseService implements RemindService {
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
 			throw se;
 		}
-		for (RemindDO remindDo : remindDoList) {
-			RemindDTO remindDto = mapper.map(remindDo, RemindDTO.class);
-			remindDtoList.add(remindDto);
-		}
+		remindDoList.stream().filter(remindDo -> remindDo.getSchoolBrokerageSaId() > 0)
+				.forEach(remindDo -> remindDtoList.add(mapper.map(remindDo, RemindDTO.class)));
 		return remindDtoList;
 	}
 

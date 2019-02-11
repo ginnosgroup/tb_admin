@@ -25,6 +25,7 @@
         SELECT
             id,
             gmt_create AS gmtCreate,
+            gmt_modify AS gmtModify,
             school_brokerage_sa_id AS schoolBrokerageSaId,
             remind_date AS remindDate
         FROM b_remind
@@ -36,6 +37,7 @@
         SELECT
             id,
             gmt_create AS gmtCreate,
+            gmt_modify AS gmtModify,
             visa_id AS visaId,
             remind_date AS remindDate
         FROM b_remind
@@ -47,6 +49,7 @@
         SELECT
             id,
             gmt_create AS gmtCreate,
+            gmt_modify AS gmtModify,
             brokerage_sa_id AS brokerageSaId,
             remind_date AS remindDate
         FROM b_remind
@@ -59,6 +62,7 @@
         SELECT
             id,
             gmt_create AS gmtCreate,
+            gmt_modify AS gmtModify,
             school_brokerage_sa_id AS schoolBrokerageSaId,
             visa_id AS visaId,
             brokerage_sa_id AS brokerageSaId,
