@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.service.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -9,11 +10,13 @@ import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.VisaDAO;
 import org.zhinanzhen.b.dao.OfficialDAO;
 import org.zhinanzhen.b.dao.ReceiveTypeDAO;
+import org.zhinanzhen.b.dao.RemindDAO;
 import org.zhinanzhen.b.dao.ServiceDAO;
 import org.zhinanzhen.b.dao.pojo.VisaDO;
 import org.zhinanzhen.b.dao.pojo.VisaListDO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.ReceiveTypeDO;
+import org.zhinanzhen.b.dao.pojo.RemindDO;
 import org.zhinanzhen.b.dao.pojo.ServiceDO;
 import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
@@ -41,6 +44,9 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 	
 	@Resource
 	private ServiceDAO serviceDao;
+	
+	@Resource
+	private RemindDAO remindDao;
 
 	@Override
 	public int addVisa(VisaDTO visaDto) throws ServiceException {
@@ -126,6 +132,12 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			if (serviceDo != null) {
 				visaDto.setServiceCode(serviceDo.getCode());
 			}
+			List<Date> remindDateList = new ArrayList<>();
+			List<RemindDO> remindDoList = remindDao.listRemindByVisaId(visaDto.getId());
+			for (RemindDO remindDo : remindDoList) {
+				remindDateList.add(remindDo.getRemindDate());
+			}
+			visaDto.setRemindDateList(remindDateList);
 			visaDtoList.add(visaDto);
 		}
 		return visaDtoList;

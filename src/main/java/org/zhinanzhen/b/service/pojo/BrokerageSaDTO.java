@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.service.pojo;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.Data;
 
@@ -54,5 +55,7 @@ public class BrokerageSaDTO {
 	private String officialName;
 
 	private boolean isClose;
+	
+	private List<Date> remindDateList;
 
 }

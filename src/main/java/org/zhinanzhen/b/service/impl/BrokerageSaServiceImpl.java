@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.service.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -9,10 +10,12 @@ import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.BrokerageSaDAO;
 import org.zhinanzhen.b.dao.OfficialDAO;
 import org.zhinanzhen.b.dao.ReceiveTypeDAO;
+import org.zhinanzhen.b.dao.RemindDAO;
 import org.zhinanzhen.b.dao.pojo.BrokerageSaDO;
 import org.zhinanzhen.b.dao.pojo.BrokerageSaListDO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.ReceiveTypeDO;
+import org.zhinanzhen.b.dao.pojo.RemindDO;
 import org.zhinanzhen.b.service.BrokerageSaService;
 import org.zhinanzhen.b.service.pojo.BrokerageSaDTO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
@@ -36,6 +39,9 @@ public class BrokerageSaServiceImpl extends BaseService implements BrokerageSaSe
 	
 	@Resource
 	private ReceiveTypeDAO receiveTypeDao;
+	
+	@Resource
+	private RemindDAO remindDao;
 
 	@Override
 	public int addBrokerageSa(BrokerageSaDTO brokerageSaDto) throws ServiceException {
@@ -119,6 +125,12 @@ public class BrokerageSaServiceImpl extends BaseService implements BrokerageSaSe
 			if (receiveTypeDo != null) {
 				brokerageSaDto.setReceiveTypeName(receiveTypeDo.getName());
 			}
+			List<Date> remindDateList = new ArrayList<>();
+			List<RemindDO> remindDoList = remindDao.listRemindByBrokerageSaId(brokerageSaDto.getId());
+			for (RemindDO remindDo : remindDoList) {
+				remindDateList.add(remindDo.getRemindDate());
+			}
+			brokerageSaDto.setRemindDateList(remindDateList);
 			brokerageSaDtoList.add(brokerageSaDto);
 		}
 		return brokerageSaDtoList;
