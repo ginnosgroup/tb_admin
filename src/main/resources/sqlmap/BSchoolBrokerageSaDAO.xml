@@ -198,7 +198,7 @@
         LIMIT #{offset}, #{rows};
     </select>
     
-    <select id="listSchoolBrokerageSaByDashboard" resultType="org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaListDO">
+    <select id="listSchoolBrokerageSaByDashboard" resultType="org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaByDashboardListDO">
         SELECT
             bsbs.id AS id,
             bsbs.gmt_create AS gmtCreate,
