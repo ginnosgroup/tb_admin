@@ -214,7 +214,7 @@
             bo.id AS officialId,
             bo.name AS officialName
         FROM b_school_brokerage_sa bsbs, b_school bs, tb_user tbu, tb_adviser tba, b_official bo
-        WHERE bsbs.school_id = bs.id AND bsbs.user_id = tbu.id AND bsbs.adviser_id = tba.id AND bsbs.official_id = bo.id AND bsbs.is_close = 1 AND bsbs.invoice_code is null
+        WHERE bsbs.school_id = bs.id AND bsbs.user_id = tbu.id AND bsbs.adviser_id = tba.id AND bsbs.official_id = bo.id AND bsbs.is_close = 0 AND bsbs.invoice_code is null
         ORDER BY bsbs.gmt_create DESC
         LIMIT #{offset}, #{rows};
     </select>
