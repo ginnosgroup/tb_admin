@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 public class VisaRemindDTO {
-	
+
 	private int id;
 
 	private Date gmtCreate;
@@ -14,7 +14,9 @@ public class VisaRemindDTO {
 	private Date gmtModify;
 
 	private int visaId;
-	
+
 	private Date remindDate;
+
+	private VisaDTO visa;
 
 }

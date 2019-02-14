@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.zhinanzhen.b.service.VisaRemindService;
+import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.b.service.pojo.VisaRemindDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
@@ -28,6 +29,9 @@ public class VisaRemindController extends BaseController {
 
 	@Resource
 	VisaRemindService visaRemindService;
+
+	@Resource
+	VisaService visaService;
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
@@ -54,7 +58,15 @@ public class VisaRemindController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<List<VisaRemindDTO>>(0, visaRemindService.listRemindByVisaId(Integer.parseInt(visaId)));
+			List<VisaRemindDTO> visaRemindList = visaRemindService.listRemindByVisaId(Integer.parseInt(visaId));
+			visaRemindList.forEach(vr -> {
+				try {
+					vr.setVisa(visaService.getVisaById(vr.getVisaId()));
+				} catch (ServiceException e) {
+					vr.setVisa(null);
+				}
+			});
+			return new Response<List<VisaRemindDTO>>(0, visaRemindList);
 		} catch (ServiceException e) {
 			return new Response<List<VisaRemindDTO>>(1, e.getMessage(), null);
 		}
@@ -66,8 +78,16 @@ public class VisaRemindController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<List<VisaRemindDTO>>(0,
-					visaRemindService.listRemindByRemindDate(new Date(Long.parseLong(date))));
+			List<VisaRemindDTO> visaRemindList = visaRemindService
+					.listRemindByRemindDate(new Date(Long.parseLong(date)));
+			visaRemindList.forEach(vr -> {
+				try {
+					vr.setVisa(visaService.getVisaById(vr.getVisaId()));
+				} catch (ServiceException e) {
+					vr.setVisa(null);
+				}
+			});
+			return new Response<List<VisaRemindDTO>>(0, visaRemindList);
 		} catch (ServiceException e) {
 			return new Response<List<VisaRemindDTO>>(1, e.getMessage(), null);
 		}

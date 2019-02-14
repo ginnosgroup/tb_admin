@@ -17,4 +17,6 @@ public class BrokerageSaRemindDTO {
 
 	private Date remindDate;
 
+	private BrokerageSaDTO brokerageSa;
+
 }

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.zhinanzhen.b.service.BrokerageSaRemindService;
+import org.zhinanzhen.b.service.BrokerageSaService;
 import org.zhinanzhen.b.service.pojo.BrokerageSaRemindDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
@@ -28,6 +29,9 @@ public class BrokerageSaRemindController extends BaseController {
 
 	@Resource
 	BrokerageSaRemindService brokerageSaRemindService;
+
+	@Resource
+	BrokerageSaService brokerageSaService;
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
@@ -56,8 +60,16 @@ public class BrokerageSaRemindController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<List<BrokerageSaRemindDTO>>(0,
-					brokerageSaRemindService.listRemindByBrokerageSaId(Integer.parseInt(brokerageSaId)));
+			List<BrokerageSaRemindDTO> BrokerageSaRemindList = brokerageSaRemindService
+					.listRemindByBrokerageSaId(Integer.parseInt(brokerageSaId));
+			BrokerageSaRemindList.forEach(bsr -> {
+				try {
+					bsr.setBrokerageSa(brokerageSaService.getBrokerageSaById(bsr.getBrokerageSaId()));
+				} catch (ServiceException e) {
+					bsr.setBrokerageSa(null);
+				}
+			});
+			return new Response<List<BrokerageSaRemindDTO>>(0, BrokerageSaRemindList);
 		} catch (ServiceException e) {
 			return new Response<List<BrokerageSaRemindDTO>>(1, e.getMessage(), null);
 		}
@@ -69,8 +81,16 @@ public class BrokerageSaRemindController extends BaseController {
 			@RequestParam(value = "date", required = false) String date, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<List<BrokerageSaRemindDTO>>(0,
-					brokerageSaRemindService.listRemindByRemindDate(new Date(Long.parseLong(date))));
+			List<BrokerageSaRemindDTO> BrokerageSaRemindList = brokerageSaRemindService
+					.listRemindByRemindDate(new Date(Long.parseLong(date)));
+			BrokerageSaRemindList.forEach(bsr -> {
+				try {
+					bsr.setBrokerageSa(brokerageSaService.getBrokerageSaById(bsr.getBrokerageSaId()));
+				} catch (ServiceException e) {
+					bsr.setBrokerageSa(null);
+				}
+			});
+			return new Response<List<BrokerageSaRemindDTO>>(0, BrokerageSaRemindList);
 		} catch (ServiceException e) {
 			return new Response<List<BrokerageSaRemindDTO>>(1, e.getMessage(), null);
 		}
