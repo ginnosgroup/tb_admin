@@ -19,7 +19,9 @@ import org.zhinanzhen.b.dao.pojo.RemindDO;
 import org.zhinanzhen.b.service.BrokerageSaService;
 import org.zhinanzhen.b.service.pojo.BrokerageSaDTO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
+import org.zhinanzhen.tb.dao.UserDAO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
+import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
@@ -30,18 +32,21 @@ public class BrokerageSaServiceImpl extends BaseService implements BrokerageSaSe
 
 	@Resource
 	private BrokerageSaDAO brokerageSaDao;
-	
+
 	@Resource
 	private AdviserDAO adviserDao;
-	
+
 	@Resource
 	private OfficialDAO officialDao;
-	
+
 	@Resource
 	private ReceiveTypeDAO receiveTypeDao;
-	
+
 	@Resource
 	private RemindDAO remindDao;
+
+	@Resource
+	private UserDAO userDao;
 
 	@Override
 	public int addBrokerageSa(BrokerageSaDTO brokerageSaDto) throws ServiceException {
@@ -114,11 +119,11 @@ public class BrokerageSaServiceImpl extends BaseService implements BrokerageSaSe
 		for (BrokerageSaListDO brokerageSaListDo : brokerageSaListDoList) {
 			BrokerageSaDTO brokerageSaDto = mapper.map(brokerageSaListDo, BrokerageSaDTO.class);
 			AdviserDO adviserDo = adviserDao.getAdviserById(brokerageSaListDo.getAdviserId());
-			if(adviserDo != null) {
+			if (adviserDo != null) {
 				brokerageSaDto.setAdviserName(adviserDo.getName());
 			}
 			OfficialDO officialDo = officialDao.getOfficialById(brokerageSaListDo.getOfficialId());
-			if(officialDo != null) {
+			if (officialDo != null) {
 				brokerageSaDto.setOfficialName(officialDo.getName());
 			}
 			ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(brokerageSaListDo.getReceiveTypeId());
@@ -150,6 +155,12 @@ public class BrokerageSaServiceImpl extends BaseService implements BrokerageSaSe
 				return null;
 			}
 			brokerageSaDto = mapper.map(brokerageSaDo, BrokerageSaDTO.class);
+			if (brokerageSaDto.getUserId() > 0) {
+				UserDO userDo = userDao.getUserById(brokerageSaDto.getUserId());
+				brokerageSaDto.setUserName(userDo.getName());
+				brokerageSaDto.setPhone(userDo.getPhone());
+				brokerageSaDto.setBirthday(userDo.getBirthday());
+			}
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());

@@ -21,7 +21,9 @@ import org.zhinanzhen.b.dao.pojo.ServiceDO;
 import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
+import org.zhinanzhen.tb.dao.UserDAO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
+import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
@@ -41,12 +43,15 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 
 	@Resource
 	private ReceiveTypeDAO receiveTypeDao;
-	
+
 	@Resource
 	private ServiceDAO serviceDao;
-	
+
 	@Resource
 	private RemindDAO remindDao;
+
+	@Resource
+	private UserDAO userDao;
 
 	@Override
 	public int addVisa(VisaDTO visaDto) throws ServiceException {
@@ -157,6 +162,12 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 				return null;
 			}
 			visaDto = mapper.map(visaDo, VisaDTO.class);
+			if (visaDto.getUserId() > 0) {
+				UserDO userDo = userDao.getUserById(visaDto.getUserId());
+				visaDto.setUserName(userDo.getName());
+				visaDto.setPhone(userDo.getPhone());
+				visaDto.setBirthday(userDo.getBirthday());
+			}
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
