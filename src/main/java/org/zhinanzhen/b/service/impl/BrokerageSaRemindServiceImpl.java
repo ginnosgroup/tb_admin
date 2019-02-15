@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.service.impl;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -77,7 +78,10 @@ public class BrokerageSaRemindServiceImpl extends BaseService implements Brokera
 		List<BrokerageSaRemindDTO> brokerageSaRemindDtoList = new ArrayList<BrokerageSaRemindDTO>();
 		List<RemindDO> remindDoList = new ArrayList<RemindDO>();
 		try {
-			remindDoList = remindDao.listRemindByRemindDate(date);
+			Calendar c = Calendar.getInstance();
+			c.setTime(date);
+			c.add(Calendar.DAY_OF_MONTH, 1);// 包含当天
+			remindDoList = remindDao.listRemindByRemindDate(c.getTime());
 			if (remindDoList == null) {
 				return null;
 			}
