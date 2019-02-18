@@ -8,8 +8,10 @@ public interface AdminUserDAO {
 	int add(AdminUserDO adminUserDo);
 
 	public AdminUserDO login(@Param("username") String username, @Param("password") String password);
-	
+
 	public boolean updateSessionId(@Param("id") int id, @Param("sessionId") String sessionId);
+
+	public boolean updatePassword(@Param("username") String username, @Param("password") String password);
 
 	public AdminUserDO getAdminUserById(int id);
 

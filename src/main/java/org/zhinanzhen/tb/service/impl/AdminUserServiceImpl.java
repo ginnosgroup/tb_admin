@@ -18,7 +18,7 @@ public class AdminUserServiceImpl extends BaseService implements AdminUserServic
 
 	@Resource
 	private AdminUserDAO adminUserDAO;
-	
+
 	@Override
 	public int add(String username, String password, String apList, int adviserId) throws ServiceException {
 		if (StringUtil.isEmpty(password)) {
@@ -76,7 +76,6 @@ public class AdminUserServiceImpl extends BaseService implements AdminUserServic
 		return adminUserDAO.updateSessionId(id, sessionId);
 	}
 
-	
 	@Override
 	public AdminUserDTO getAdminUserById(int id) throws ServiceException {
 		if (id <= 0) {
@@ -100,5 +99,26 @@ public class AdminUserServiceImpl extends BaseService implements AdminUserServic
 		}
 		return adminUserDto;
 	}
-        
+
+	@Override
+	public boolean updatePassword(String username, String newPassword) throws ServiceException {
+		if (StringUtil.isEmpty(username)) {
+			ServiceException se = new ServiceException("username is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		if (StringUtil.isEmpty(newPassword)) {
+			ServiceException se = new ServiceException("newPassword is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			return adminUserDAO.updatePassword(username, MD5Util.getMD5(newPassword));
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
 }
