@@ -109,6 +109,6 @@ public class AdminUserController extends BaseController {
 			else
 				return new Response<String>(1, "重置密码失败", null);
 		}
-		return new Response<String>(1, "需要管理员权限", null);
+		return new Response<String>(1, "需要超级管理员权限", null);
 	}
 }
