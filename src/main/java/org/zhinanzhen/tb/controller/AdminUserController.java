@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
+
+import com.ikasoa.core.utils.StringUtil;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -92,5 +95,20 @@ public class AdminUserController extends BaseController {
 			return new Response<Boolean>(1, "用户名或密码错误", false);
 		else
 			return new Response<Boolean>(0, "", adminUserService.updatePassword(username, newPassword));
+	}
+	
+	@RequestMapping(value = "/resetPassword", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<String> resetPassword(@RequestParam(value = "username") String username, HttpServletRequest request,
+			HttpServletResponse response) throws ServiceException {
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo != null && StringUtil.isEmpty(adminUserLoginInfo.getApList())) {
+			String newPassword = RandomStringUtils.randomAlphanumeric(4);
+			if (adminUserService.updatePassword(username, newPassword))
+				return new Response<String>(0, "", newPassword);
+			else
+				return new Response<String>(1, "重置密码失败", null);
+		}
+		return new Response<String>(1, "需要管理员权限", null);
 	}
 }

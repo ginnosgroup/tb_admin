@@ -94,19 +94,25 @@ public class BaseController {
 	}
     }
     
-	// 获取当前顾问编号
-    protected Integer getAdviserId(HttpServletRequest request) {
+	// 获取当前用户
+	protected AdminUserLoginInfo getAdminUserLoginInfo(HttpServletRequest request) {
 		HttpSession session = request.getSession();
 		if (session.getAttribute("AdminUserLoginInfo") != null) {
 			AdminUserLoginInfo adminUserLoginInfo = (AdminUserLoginInfo) session.getAttribute("AdminUserLoginInfo");
 			if (adminUserLoginInfo != null) {
-				String ap = adminUserLoginInfo.getApList();
-				if (ap != null && ap.contains("GW"))
-					try {
-						return adminUserService.getAdminUserById(adminUserLoginInfo.getId()).getAdviserId();
-					} catch (ServiceException e) {
-					}
+				return adminUserLoginInfo;
 			}
+		}
+		return null;
+	}
+    
+	// 获取当前顾问编号
+	protected Integer getAdviserId(HttpServletRequest request) {
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo != null) {
+			String ap = adminUserLoginInfo.getApList();
+			if (ap != null && ap.contains("GW"))
+				return adminUserLoginInfo.getAdviserId();
 		}
 		return null;
 	}
