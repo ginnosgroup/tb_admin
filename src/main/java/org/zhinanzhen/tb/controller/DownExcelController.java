@@ -7,14 +7,19 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.zhinanzhen.b.service.VisaService;
+import org.zhinanzhen.b.service.pojo.VisaDTO;
 import org.zhinanzhen.tb.service.OrderPayTypeEnum;
 import org.zhinanzhen.tb.service.OrderService;
 import org.zhinanzhen.tb.service.OrderStateEnum;
+import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserAuthTypeEnum;
 import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.OrderDTO;
@@ -39,6 +44,9 @@ public class DownExcelController extends BaseController {
 	private UserService userService;
 	@Resource
 	private OrderService orderService;
+
+	@Resource
+	VisaService visaService;
 
 	@RequestMapping("/user")
 	public void userExport(String name, String authType, String authNickname, String phone,
@@ -106,6 +114,84 @@ public class DownExcelController extends BaseController {
 			orderDtoList2.add(orderDto);
 		}
 		downOrderUtil(os, inpath, orderDtoList2);
+	}
+
+	@RequestMapping("/visa")
+	public void visaExport(@RequestParam(value = "keyword", required = false) String keyword,
+			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
+			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
+			@RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = "endDate", required = false) String endDate,
+			@RequestParam(value = "adviserId", required = false) Integer adviserId, HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
+
+		// 更改当前顾问编号
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId;
+
+		response.reset();// 清空输出流
+		String tableName = "visa_information";
+		response.setHeader("Content-disposition",
+				"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
+		response.setContentType("application/msexcel");
+
+		try {
+			super.setGetHeader(response);
+			List<VisaDTO> visaDtoList = visaService.listVisa(keyword, startHandlingDate, endHandlingDate, startDate,
+					endDate, adviserId, 0, 9999);
+
+			OutputStream os = response.getOutputStream();
+			jxl.Workbook wb;
+			InputStream is;
+			try {
+				is = this.getClass().getResourceAsStream("/VisaTemplate.xls");
+			} catch (Exception e) {
+				throw new Exception("模版不存在");
+			}
+			try {
+				wb = Workbook.getWorkbook(is);
+			} catch (Exception e) {
+				throw new Exception("模版格式不支持");
+			}
+			WorkbookSettings settings = new WorkbookSettings();
+			settings.setWriteAccess(null);
+			jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
+
+			if (wbe == null) {
+				System.out.println("wbe is null !os=" + os + ",wb" + wb);
+			} else {
+				System.out.println("wbe not null !os=" + os + ",wb" + wb);
+			}
+			WritableSheet sheet = wbe.getSheet(0);
+			WritableCellFormat cellFormat = new WritableCellFormat();
+
+			int i = 1;
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			for (VisaDTO visaDto : visaDtoList) {
+				sheet.addCell(new Label(0, i, visaDto.getId() + "", cellFormat));
+				sheet.addCell(new Label(1, i, sdf.format(visaDto.getHandlingDate()), cellFormat));
+				sheet.addCell(new Label(2, i, visaDto.getUserName(), cellFormat));
+				sheet.addCell(new Label(3, i, visaDto.getBirthday() + "", cellFormat));
+				sheet.addCell(new Label(4, i, visaDto.getPhone(), cellFormat));
+				sheet.addCell(new Label(5, i, sdf.format(visaDto.getReceiveDate()), cellFormat));
+				sheet.addCell(new Label(6, i, visaDto.getReceiveTypeName(), cellFormat));
+				sheet.addCell(new Label(7, i, visaDto.getServiceCode(), cellFormat));
+				sheet.addCell(new Label(8, i, visaDto.getReceivable() + "", cellFormat));
+				sheet.addCell(new Label(9, i, visaDto.getReceived() + "", cellFormat));
+				sheet.addCell(new Label(10, i, visaDto.getAmount() + "", cellFormat));
+				sheet.addCell(new Label(11, i, visaDto.getGst() + "", cellFormat));
+				sheet.addCell(new Label(12, i, visaDto.getDeductGst() + "", cellFormat));
+				sheet.addCell(new Label(13, i, visaDto.getBonus() + "", cellFormat));
+				sheet.addCell(new Label(14, i, visaDto.getAdviserName(), cellFormat));
+				i++;
+			}
+			wbe.write();
+			wbe.close();
+		} catch (ServiceException e) {
+			return;
+		}
+
 	}
 
 	public void downUserUtil(OutputStream os, String inpath, List<UserDTO> userDtoList) throws Exception {
