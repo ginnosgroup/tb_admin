@@ -15,8 +15,12 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.zhinanzhen.b.service.BrokerageSaService;
+import org.zhinanzhen.b.service.RefundService;
+import org.zhinanzhen.b.service.SchoolBrokerageSaService;
 import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.b.service.pojo.BrokerageSaDTO;
+import org.zhinanzhen.b.service.pojo.RefundDTO;
+import org.zhinanzhen.b.service.pojo.SchoolBrokerageSaDTO;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
 import org.zhinanzhen.tb.service.OrderPayTypeEnum;
 import org.zhinanzhen.tb.service.OrderService;
@@ -52,6 +56,12 @@ public class DownExcelController extends BaseController {
 
 	@Resource
 	BrokerageSaService brokerageSaService;
+
+	@Resource
+	SchoolBrokerageSaService schoolBrokerageSaService;
+
+	@Resource
+	RefundService refundService;
 
 	@RequestMapping("/user")
 	public void userExport(String name, String authType, String authNickname, String phone,
@@ -269,6 +279,159 @@ public class DownExcelController extends BaseController {
 				sheet.addCell(new Label(13, i, brokerageSaDto.getDeductGst() + "", cellFormat));
 				sheet.addCell(new Label(14, i, brokerageSaDto.getBonus() + "", cellFormat));
 				sheet.addCell(new Label(15, i, brokerageSaDto.getAdviserName(), cellFormat));
+				i++;
+			}
+			wbe.write();
+			wbe.close();
+		} catch (ServiceException e) {
+			return;
+		}
+
+	}
+
+	@RequestMapping("/school_brokerage_sa")
+	public void schoolBrokerageSaExport(@RequestParam(value = "keyword", required = false) String keyword,
+			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
+			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
+			@RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = "endDate", required = false) String endDate,
+			@RequestParam(value = "adviserId", required = false) Integer adviserId,
+			@RequestParam(value = "schoolId", required = false) Integer schoolId,
+			@RequestParam(value = "subagencyId", required = false) Integer subagencyId,
+			@RequestParam(value = "isSettleAccounts", required = false) Boolean isSettleAccounts,
+			HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		// 更改当前顾问编号
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId;
+
+		response.reset();// 清空输出流
+		String tableName = "school_brokerage_sa_information";
+		response.setHeader("Content-disposition",
+				"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
+		response.setContentType("application/msexcel");
+
+		try {
+			super.setGetHeader(response);
+			List<SchoolBrokerageSaDTO> schoolBrokerageSaDtoList = schoolBrokerageSaService.listSchoolBrokerageSa(
+					keyword, startHandlingDate, endHandlingDate, startDate, endDate, newAdviserId, schoolId,
+					subagencyId, isSettleAccounts, 0, 9999);
+
+			OutputStream os = response.getOutputStream();
+			jxl.Workbook wb;
+			InputStream is;
+			try {
+				is = this.getClass().getResourceAsStream("/SchoolBrokerageSaTemplate.xls");
+			} catch (Exception e) {
+				throw new Exception("模版不存在");
+			}
+			try {
+				wb = Workbook.getWorkbook(is);
+			} catch (Exception e) {
+				throw new Exception("模版格式不支持");
+			}
+			WorkbookSettings settings = new WorkbookSettings();
+			settings.setWriteAccess(null);
+			jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
+
+			if (wbe == null) {
+				System.out.println("wbe is null !os=" + os + ",wb" + wb);
+			} else {
+				System.out.println("wbe not null !os=" + os + ",wb" + wb);
+			}
+			WritableSheet sheet = wbe.getSheet(0);
+			WritableCellFormat cellFormat = new WritableCellFormat();
+
+			int i = 1;
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			for (SchoolBrokerageSaDTO schoolBrokerageSaDto : schoolBrokerageSaDtoList) {
+				sheet.addCell(new Label(0, i, schoolBrokerageSaDto.getId() + "", cellFormat));
+				sheet.addCell(new Label(1, i, sdf.format(schoolBrokerageSaDto.getHandlingDate()), cellFormat));
+				sheet.addCell(new Label(2, i, schoolBrokerageSaDto.getUserName(), cellFormat));
+				sheet.addCell(new Label(3, i, schoolBrokerageSaDto.getBirthday() + "", cellFormat));
+				sheet.addCell(new Label(4, i, schoolBrokerageSaDto.getPhone(), cellFormat));
+				sheet.addCell(new Label(5, i, schoolBrokerageSaDto.getSchoolName(), cellFormat));
+				sheet.addCell(new Label(6, i, schoolBrokerageSaDto.getStudentCode(), cellFormat));
+				sheet.addCell(new Label(7, i, schoolBrokerageSaDto.getSchoolSubject(), cellFormat));
+				sheet.addCell(new Label(8, i, sdf.format(schoolBrokerageSaDto.getStartDate()), cellFormat));
+				sheet.addCell(new Label(9, i, sdf.format(schoolBrokerageSaDto.getEndDate()), cellFormat));
+				sheet.addCell(new Label(10, i, schoolBrokerageSaDto.getTuitionFee() + "", cellFormat));
+				sheet.addCell(new Label(11, i, schoolBrokerageSaDto.getFirstTermTuitionFee() + "", cellFormat));
+				sheet.addCell(new Label(12, i, schoolBrokerageSaDto.getCommission() + "", cellFormat));
+				sheet.addCell(new Label(13, i, schoolBrokerageSaDto.getSubagencyName(), cellFormat));
+				sheet.addCell(new Label(14, i, schoolBrokerageSaDto.getAdviserName(), cellFormat));
+				i++;
+			}
+			wbe.write();
+			wbe.close();
+		} catch (ServiceException e) {
+			return;
+		}
+
+	}
+
+	@RequestMapping("/refund")
+	public void refund(@RequestParam(value = "keyword", required = false) String keyword,
+			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
+			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
+			@RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = "endDate", required = false) String endDate,
+			@RequestParam(value = "adviserId", required = false) Integer adviserId,
+			@RequestParam(value = "officialId", required = false) Integer officialId, HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
+
+		// 更改当前顾问编号
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId;
+
+		response.reset();// 清空输出流
+		String tableName = "refund_information";
+		response.setHeader("Content-disposition",
+				"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
+		response.setContentType("application/msexcel");
+
+		try {
+			super.setGetHeader(response);
+			List<RefundDTO> refundDtoList = refundService.listRefund(keyword, startHandlingDate, endHandlingDate,
+					startDate, endDate, newAdviserId, officialId, 0, 9999);
+
+			OutputStream os = response.getOutputStream();
+			jxl.Workbook wb;
+			InputStream is;
+			try {
+				is = this.getClass().getResourceAsStream("/RefundTemplate.xls");
+			} catch (Exception e) {
+				throw new Exception("模版不存在");
+			}
+			try {
+				wb = Workbook.getWorkbook(is);
+			} catch (Exception e) {
+				throw new Exception("模版格式不支持");
+			}
+			WorkbookSettings settings = new WorkbookSettings();
+			settings.setWriteAccess(null);
+			jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
+
+			if (wbe == null) {
+				System.out.println("wbe is null !os=" + os + ",wb" + wb);
+			} else {
+				System.out.println("wbe not null !os=" + os + ",wb" + wb);
+			}
+			WritableSheet sheet = wbe.getSheet(0);
+			WritableCellFormat cellFormat = new WritableCellFormat();
+
+			int i = 1;
+			for (RefundDTO refundDto : refundDtoList) {
+				sheet.addCell(new Label(0, i, refundDto.getId() + "", cellFormat));
+				sheet.addCell(new Label(1, i, refundDto.getUserName(), cellFormat));
+				sheet.addCell(new Label(2, i, refundDto.getName(), cellFormat));
+				sheet.addCell(new Label(3, i, refundDto.getAmount() + "", cellFormat));
+				sheet.addCell(new Label(4, i, refundDto.getBankName(), cellFormat));
+				sheet.addCell(new Label(5, i, refundDto.getBankAccount(), cellFormat));
+				sheet.addCell(new Label(6, i, refundDto.getBsb(), cellFormat));
+				sheet.addCell(new Label(7, i, refundDto.getAdviserName(), cellFormat));
 				i++;
 			}
 			wbe.write();
