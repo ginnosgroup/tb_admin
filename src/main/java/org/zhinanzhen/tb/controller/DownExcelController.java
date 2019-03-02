@@ -15,9 +15,11 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.zhinanzhen.b.service.BrokerageSaService;
+import org.zhinanzhen.b.service.BrokerageService;
 import org.zhinanzhen.b.service.RefundService;
 import org.zhinanzhen.b.service.SchoolBrokerageSaService;
 import org.zhinanzhen.b.service.VisaService;
+import org.zhinanzhen.b.service.pojo.BrokerageDTO;
 import org.zhinanzhen.b.service.pojo.BrokerageSaDTO;
 import org.zhinanzhen.b.service.pojo.RefundDTO;
 import org.zhinanzhen.b.service.pojo.SchoolBrokerageSaDTO;
@@ -53,6 +55,9 @@ public class DownExcelController extends BaseController {
 
 	@Resource
 	VisaService visaService;
+
+	@Resource
+	BrokerageService brokerageService;
 
 	@Resource
 	BrokerageSaService brokerageSaService;
@@ -199,6 +204,80 @@ public class DownExcelController extends BaseController {
 				sheet.addCell(new Label(12, i, visaDto.getDeductGst() + "", cellFormat));
 				sheet.addCell(new Label(13, i, visaDto.getBonus() + "", cellFormat));
 				sheet.addCell(new Label(14, i, visaDto.getAdviserName(), cellFormat));
+				i++;
+			}
+			wbe.write();
+			wbe.close();
+		} catch (ServiceException e) {
+			return;
+		}
+
+	}
+
+	@RequestMapping("/brokerage")
+	public void brokerageExport(@RequestParam(value = "keyword", required = false) String keyword,
+			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
+			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
+			@RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = "endDate", required = false) String endDate,
+			@RequestParam(value = "adviserId", required = false) Integer adviserId, HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
+
+		// 更改当前顾问编号
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId;
+
+		response.reset();// 清空输出流
+		String tableName = "brokerage_information";
+		response.setHeader("Content-disposition",
+				"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
+		response.setContentType("application/msexcel");
+
+		try {
+			super.setGetHeader(response);
+			List<BrokerageDTO> brokerageDtoList = brokerageService.listBrokerage(keyword, startHandlingDate,
+					endHandlingDate, startDate, endDate, adviserId, 0, 9999);
+
+			OutputStream os = response.getOutputStream();
+			jxl.Workbook wb;
+			InputStream is;
+			try {
+				is = this.getClass().getResourceAsStream("/BrokerageTemplate.xls");
+			} catch (Exception e) {
+				throw new Exception("模版不存在");
+			}
+			try {
+				wb = Workbook.getWorkbook(is);
+			} catch (Exception e) {
+				throw new Exception("模版格式不支持");
+			}
+			WorkbookSettings settings = new WorkbookSettings();
+			settings.setWriteAccess(null);
+			jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
+
+			if (wbe == null) {
+				System.out.println("wbe is null !os=" + os + ",wb" + wb);
+			} else {
+				System.out.println("wbe not null !os=" + os + ",wb" + wb);
+			}
+			WritableSheet sheet = wbe.getSheet(0);
+			WritableCellFormat cellFormat = new WritableCellFormat();
+
+			int i = 1;
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			for (BrokerageDTO brokerageDto : brokerageDtoList) {
+				sheet.addCell(new Label(0, i, brokerageDto.getId() + "", cellFormat));
+				sheet.addCell(new Label(1, i, sdf.format(brokerageDto.getHandlingDate()), cellFormat));
+				sheet.addCell(new Label(2, i, brokerageDto.getUserName(), cellFormat));
+				sheet.addCell(new Label(3, i, brokerageDto.getBirthday() + "", cellFormat));
+				sheet.addCell(new Label(4, i, brokerageDto.getPhone() + "", cellFormat));
+				sheet.addCell(new Label(5, i, brokerageDto.getServiceCode(), cellFormat));
+				sheet.addCell(new Label(6, i, brokerageDto.getAmount() + "", cellFormat));
+				sheet.addCell(new Label(7, i, brokerageDto.getGst() + "", cellFormat));
+				sheet.addCell(new Label(8, i, brokerageDto.getDeductGst() + "", cellFormat));
+				sheet.addCell(new Label(9, i, brokerageDto.getBonus() + "", cellFormat));
+				sheet.addCell(new Label(10, i, brokerageDto.getAdviserName(), cellFormat));
 				i++;
 			}
 			wbe.write();
