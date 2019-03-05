@@ -9,5 +9,9 @@
 		<result column="remind_date" property="remindDate" jdbcType="TIMESTAMP" />
 		<result column="remind_contents" property="remindContents" jdbcType="VARCHAR" />
 	</resultMap>
-	
+	<insert id="insert" parameterType="org.zhinanzhen.tb.dao.pojo.ConsultationDO">
+		insert into tb_consultation (id, gmt_create, gmt_modify, user_id, contents, remind_date, remind_contents)
+		values (#{id,jdbcType=INTEGER}, now(), now(), #{userId,jdbcType=INTEGER},
+		  #{contents,jdbcType=VARCHAR}, #{remindDate,jdbcType=TIMESTAMP}, #{remindContents,jdbcType=VARCHAR})
+	</insert>
 </mapper>
