@@ -5,8 +5,6 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.zhinanzhen.tb.dao.pojo.PayLogDO;
 
-
-
 public interface PayLogDAO {
     
     int deleteByPrimaryKey(Integer id);
