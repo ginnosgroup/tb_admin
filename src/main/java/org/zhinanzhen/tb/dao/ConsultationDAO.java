@@ -7,7 +7,7 @@ import org.zhinanzhen.tb.dao.pojo.ConsultationDO;
 
 public interface ConsultationDAO {
 
-	public int addConsultation(ConsultationDO consultationDO);
+	public int addConsultation(ConsultationDO consultationDo);
 
 	public List<ConsultationDO> listConsultationByUserId(Integer userId);
 
