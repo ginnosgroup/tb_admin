@@ -6,6 +6,17 @@
 		values (now(), now(), #{userId,jdbcType=INTEGER},
 		  #{contents,jdbcType=VARCHAR}, #{remindDate,jdbcType=TIMESTAMP}, #{remindContents,jdbcType=VARCHAR})
 	</insert>
+	<update id="updateConsultation" parameterType="org.zhinanzhen.tb.dao.pojo.ConsultationDO">
+        UPDATE tb_consultation 
+        SET gmt_modify = now()
+        <if test='remindDate != null'>
+            , remind_date = #{remindDate}
+        </if>
+        <if test='remindContents != null and remindContents != ""'>
+            , remind_contents = #{remindContents}
+        </if>
+        WHERE id = #{id};
+    </update>
 	<select id="listConsultationByUserId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.tb.dao.pojo.ConsultationDO">
         SELECT
             id,

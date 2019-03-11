@@ -9,6 +9,7 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.tb.dao.ConsultationDAO;
+import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.dao.pojo.ConsultationDO;
 import org.zhinanzhen.tb.service.ConsultationService;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -45,6 +46,23 @@ public class ConsultationServiceImpl extends BaseService implements Consultation
 			} else {
 				return 0;
 			}
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
+	public int updateConsultation(ConsultationDTO consultationDto) throws ServiceException {
+		if (consultationDto == null) {
+			ServiceException se = new ServiceException("consultationDto is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			ConsultationDO consultationDo = mapper.map(consultationDto, ConsultationDO.class);
+			return consultationDao.updateConsultation(consultationDo);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());

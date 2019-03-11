@@ -110,7 +110,7 @@ public class AdviserController extends BaseController {
 	    if (adviserService.updateAdviser(adviserDto) > 0) {
 		return new Response<AdviserDTO>(0, adviserDto);
 	    } else {
-		return new Response<AdviserDTO>(0, "创建失败.", null);
+		return new Response<AdviserDTO>(0, "修改失败.", null);
 	    }
 	} catch (ServiceException e) {
 	    return new Response<AdviserDTO>(e.getCode(), e.getMessage(), null);
