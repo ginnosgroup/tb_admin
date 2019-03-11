@@ -14,11 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.zhinanzhen.b.service.pojo.RemindDTO;
-import org.zhinanzhen.tb.service.AdviserStateEnum;
 import org.zhinanzhen.tb.service.ConsultationService;
 import org.zhinanzhen.tb.service.ServiceException;
-import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.ConsultationDTO;
 
 import com.ikasoa.core.utils.StringUtil;
