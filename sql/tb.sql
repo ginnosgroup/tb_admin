@@ -349,7 +349,7 @@ CREATE TABLE `b_remind` (
 
 -- ----------V2.1相关表----------
 
--- 客户咨询日志
+-- 客户咨询表
 CREATE TABLE `tb_consultation` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
