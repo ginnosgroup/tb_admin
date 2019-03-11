@@ -7,7 +7,7 @@ import org.zhinanzhen.b.dao.pojo.RemindDO;
 
 public interface RemindDAO {
 
-	public int addRemind(RemindDO remindD);
+	public int addRemind(RemindDO remindDo);
 
 	public List<RemindDO> listRemindBySchoolBrokerageSaId(int schoolBrokerageSaId);
 	

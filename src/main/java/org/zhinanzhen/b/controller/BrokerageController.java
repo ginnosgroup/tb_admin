@@ -6,7 +6,6 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -18,9 +17,7 @@ import org.zhinanzhen.b.service.BrokerageService;
 import org.zhinanzhen.b.service.pojo.BrokerageDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
-import org.zhinanzhen.tb.service.AdminUserService;
 import org.zhinanzhen.tb.service.ServiceException;
-import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
 
 import com.ikasoa.core.utils.StringUtil;
 
