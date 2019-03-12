@@ -29,8 +29,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 	private AdviserService adviserService;
 
 	@Override
-	public int addUser(String name, String authNickname, Date birthday, String phone, int adviserId)
-			throws ServiceException {
+	public int addUser(String name, String authNickname, Date birthday, String phone, String visaCode,
+			Date visaExpirationDate, String source, int adviserId) throws ServiceException {
 		if (StringUtil.isEmpty(name)) {
 			ServiceException se = new ServiceException("name is null !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -54,7 +54,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
-		return userDao.addUser(name, authNickname, birthday, phone, adviserId);
+		return userDao.addUser(name, authNickname, birthday, phone, visaCode, visaExpirationDate, source, adviserId);
 	}
 
 	@Override

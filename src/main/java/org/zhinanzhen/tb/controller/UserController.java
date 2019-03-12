@@ -32,15 +32,19 @@ public class UserController extends BaseController {
 	public Response<Integer> addUser(@RequestParam(value = "name") String name,
 			@RequestParam(value = "authNickname", required = false) String authNickname,
 			@RequestParam(value = "birthday") String birthday, @RequestParam(value = "phone") String phone,
-			@RequestParam(value = "adviserId") String adviserId, HttpServletResponse response) {
+			@RequestParam(value = "visaCode") String visaCode,
+			@RequestParam(value = "visaExpirationDate") String visaExpirationDate,
+			@RequestParam(value = "source") String source, @RequestParam(value = "adviserId") String adviserId,
+			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
 			int count = userService.countUser(null, null, null, phone, 0);
 			if (count > 0) {
 				return new Response<Integer>(1, "该电话号码已被使用,添加失败.", 0);
 			}
-			return new Response<Integer>(0, userService.addUser(name, authNickname,
-					new Date(Long.parseLong(birthday.trim())), phone, StringUtil.toInt(adviserId)));
+			return new Response<Integer>(0,
+					userService.addUser(name, authNickname, new Date(Long.parseLong(birthday.trim())), phone, visaCode,
+							new Date(Long.parseLong(visaExpirationDate)), source, StringUtil.toInt(adviserId)));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), -1);
 		}
