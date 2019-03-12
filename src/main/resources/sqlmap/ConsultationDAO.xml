@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="org.zhinanzhen.tb.dao.ConsultationDAO">
-	<insert id="addConsultation" parameterType="org.zhinanzhen.tb.dao.pojo.ConsultationDO" useGeneratedKeys="true" keyProperty="id">
-		insert into tb_consultation (gmt_create, gmt_modify, user_id, contents, remind_date, remind_contents)
-		values (now(), now(), #{userId,jdbcType=INTEGER},
-		  #{contents,jdbcType=VARCHAR}, #{remindDate,jdbcType=TIMESTAMP}, #{remindContents,jdbcType=VARCHAR})
-	</insert>
-	<update id="updateConsultation" parameterType="org.zhinanzhen.tb.dao.pojo.ConsultationDO">
+    <insert id="addConsultation" parameterType="org.zhinanzhen.tb.dao.pojo.ConsultationDO" useGeneratedKeys="true" keyProperty="id">
+        insert into tb_consultation (gmt_create, gmt_modify, user_id, contents, remind_date, remind_contents)
+        values (now(), now(), #{userId,jdbcType=INTEGER},
+          #{contents,jdbcType=VARCHAR}, #{remindDate,jdbcType=TIMESTAMP}, #{remindContents,jdbcType=VARCHAR})
+    </insert>
+    <update id="updateConsultation" parameterType="org.zhinanzhen.tb.dao.pojo.ConsultationDO">
         UPDATE tb_consultation 
         SET gmt_modify = now()
         <if test='remindDate != null'>
@@ -17,7 +17,7 @@
         </if>
         WHERE id = #{id};
     </update>
-	<select id="listConsultationByUserId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.tb.dao.pojo.ConsultationDO">
+    <select id="listConsultationByUserId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.tb.dao.pojo.ConsultationDO">
         SELECT
             id,
             gmt_create AS gmtCreate,

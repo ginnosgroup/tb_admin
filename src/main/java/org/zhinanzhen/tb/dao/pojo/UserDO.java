@@ -18,6 +18,12 @@ public class UserDO {
 	private String phone;
 
 	private String email;
+	
+	private String visaCode;
+	
+	private Date visaExpirationDate;
+	
+	private String source;
 
 	private String authType;
 
