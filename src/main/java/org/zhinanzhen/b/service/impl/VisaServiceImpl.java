@@ -93,13 +93,13 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 
 	@Override
 	public int countVisa(String keyword, String startHandlingDate, String endHandlingDate, String stardDate,
-			String endDate, Integer adviserId) throws ServiceException {
-		return visaDao.countVisa(keyword, startHandlingDate, endHandlingDate, stardDate, endDate, adviserId);
+			String endDate, Integer adviserId, Integer userId) throws ServiceException {
+		return visaDao.countVisa(keyword, startHandlingDate, endHandlingDate, stardDate, endDate, adviserId, userId);
 	}
 
 	@Override
 	public List<VisaDTO> listVisa(String keyword, String startHandlingDate, String endHandlingDate, String stardDate,
-			String endDate, Integer adviserId, int pageNum, int pageSize) throws ServiceException {
+			String endDate, Integer adviserId, Integer userId, int pageNum, int pageSize) throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
 		}
@@ -110,7 +110,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 		List<VisaListDO> visaListDoList = new ArrayList<>();
 		try {
 			visaListDoList = visaDao.listVisa(keyword, startHandlingDate, endHandlingDate, stardDate, endDate,
-					adviserId, pageNum * pageSize, pageSize);
+					adviserId, userId, pageNum * pageSize, pageSize);
 			if (visaListDoList == null) {
 				return null;
 			}

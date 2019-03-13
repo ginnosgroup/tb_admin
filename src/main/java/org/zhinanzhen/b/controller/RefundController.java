@@ -40,12 +40,12 @@ public class RefundController extends BaseController {
 			@RequestParam(value = "bsb") String bsb, @RequestParam(value = "refundDate") String refundDate,
 			@RequestParam(value = "refundAmount") String refundAmount, HttpServletRequest request,
 			HttpServletResponse response) {
-		
+
 		// 更改当前顾问编号
 		Integer newAdviserId = getAdviserId(request);
 		if (newAdviserId != null)
 			adviserId = newAdviserId + "";
-		
+
 		try {
 			super.setPostHeader(response);
 			RefundDTO refundDto = new RefundDTO();
@@ -181,18 +181,19 @@ public class RefundController extends BaseController {
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
-			@RequestParam(value = "officialId", required = false) Integer officialId, HttpServletRequest request,
+			@RequestParam(value = "officialId", required = false) Integer officialId,
+			@RequestParam(value = "userId", required = false) Integer userId, HttpServletRequest request,
 			HttpServletResponse response) {
-		
+
 		// 更改当前顾问编号
 		Integer newAdviserId = getAdviserId(request);
 		if (newAdviserId != null)
 			adviserId = newAdviserId;
-		
+
 		try {
 			super.setGetHeader(response);
 			return new Response<Integer>(0, refundService.countRefund(keyword, startHandlingDate, endHandlingDate,
-					startDate, endDate, adviserId, officialId));
+					startDate, endDate, adviserId, officialId, userId));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -207,18 +208,19 @@ public class RefundController extends BaseController {
 			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "officialId", required = false) Integer officialId,
+			@RequestParam(value = "userId", required = false) Integer userId,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
 			HttpServletRequest request, HttpServletResponse response) {
-		
+
 		// 更改当前顾问编号
 		Integer newAdviserId = getAdviserId(request);
 		if (newAdviserId != null)
 			adviserId = newAdviserId;
-		
+
 		try {
 			super.setGetHeader(response);
 			return new Response<List<RefundDTO>>(0, refundService.listRefund(keyword, startHandlingDate,
-					endHandlingDate, startDate, endDate, adviserId, officialId, pageNum, pageSize));
+					endHandlingDate, startDate, endDate, adviserId, officialId, userId, pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<RefundDTO>>(1, e.getMessage(), null);
 		}

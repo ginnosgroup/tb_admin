@@ -123,6 +123,9 @@
         <if test='officialId != null and officialId != ""'>
             AND br.official_id = #{officialId}
         </if>
+        <if test='userId != null and userId != ""'>
+            AND br.user_id = #{userId}
+        </if>
         ;
     </select>
     
@@ -167,6 +170,9 @@
         </if>
         <if test='officialId != null and officialId != ""'>
             AND br.official_id = #{officialId}
+        </if>
+        <if test='userId != null and userId != ""'>
+            AND br.user_id = #{userId}
         </if>
         ORDER BY br.gmt_create DESC
         LIMIT #{offset}, #{rows};

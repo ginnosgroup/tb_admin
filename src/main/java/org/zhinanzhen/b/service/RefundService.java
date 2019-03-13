@@ -12,11 +12,11 @@ public interface RefundService {
 	public int updateRefund(RefundDTO refundDto) throws ServiceException;
 
 	public int countRefund(String keyword, String startHandlingDate, String endHandlingDate, String startDate,
-			String endDate, Integer adviserId, Integer officialId) throws ServiceException;
+			String endDate, Integer adviserId, Integer officialId, Integer userId) throws ServiceException;
 
 	public List<RefundDTO> listRefund(String keyword, String startHandlingDate, String endHandlingDate,
-			String startDate, String endDate, Integer adviserId, Integer officialId, int pageNum, int pageSize)
-			throws ServiceException;
+			String startDate, String endDate, Integer adviserId, Integer officialId, Integer userId, int pageNum,
+			int pageSize) throws ServiceException;
 
 	public RefundDTO getRefundById(int id) throws ServiceException;
 

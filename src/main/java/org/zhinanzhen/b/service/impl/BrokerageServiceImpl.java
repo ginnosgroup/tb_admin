@@ -29,16 +29,16 @@ public class BrokerageServiceImpl extends BaseService implements BrokerageServic
 
 	@Resource
 	private BrokerageDAO brokerageDao;
-	
+
 	@Resource
 	private AdviserDAO adviserDao;
-	
+
 	@Resource
 	private OfficialDAO officialDao;
-	
+
 	@Resource
 	private ReceiveTypeDAO receiveTypeDao;
-	
+
 	@Resource
 	private ServiceDAO serviceDao;
 
@@ -82,13 +82,15 @@ public class BrokerageServiceImpl extends BaseService implements BrokerageServic
 
 	@Override
 	public int countBrokerage(String keyword, String startHandlingDate, String endHandlingDate, String stardDate,
-			String endDate, Integer adviserId) throws ServiceException {
-		return brokerageDao.countBrokerage(keyword, startHandlingDate, endHandlingDate, stardDate, endDate, adviserId);
+			String endDate, Integer adviserId, Integer userId) throws ServiceException {
+		return brokerageDao.countBrokerage(keyword, startHandlingDate, endHandlingDate, stardDate, endDate, adviserId,
+				userId);
 	}
 
 	@Override
 	public List<BrokerageDTO> listBrokerage(String keyword, String startHandlingDate, String endHandlingDate,
-			String stardDate, String endDate, Integer adviserId, int pageNum, int pageSize) throws ServiceException {
+			String stardDate, String endDate, Integer adviserId, Integer userId, int pageNum, int pageSize)
+			throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
 		}
@@ -99,7 +101,7 @@ public class BrokerageServiceImpl extends BaseService implements BrokerageServic
 		List<BrokerageListDO> brokerageListDoList = new ArrayList<>();
 		try {
 			brokerageListDoList = brokerageDao.listBrokerage(keyword, startHandlingDate, endHandlingDate, stardDate,
-					endDate, adviserId, pageNum * pageSize, pageSize);
+					endDate, adviserId, userId, pageNum * pageSize, pageSize);
 			if (brokerageListDoList == null) {
 				return null;
 			}
@@ -111,11 +113,11 @@ public class BrokerageServiceImpl extends BaseService implements BrokerageServic
 		for (BrokerageDO brokerageListDo : brokerageListDoList) {
 			BrokerageDTO brokerageDto = mapper.map(brokerageListDo, BrokerageDTO.class);
 			AdviserDO adviserDo = adviserDao.getAdviserById(brokerageListDo.getAdviserId());
-			if(adviserDo != null) {
+			if (adviserDo != null) {
 				brokerageDto.setAdviserName(adviserDo.getName());
 			}
 			OfficialDO officialDo = officialDao.getOfficialById(brokerageListDo.getOfficialId());
-			if(officialDo != null) {
+			if (officialDo != null) {
 				brokerageDto.setOfficialName(officialDo.getName());
 			}
 			ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(brokerageListDo.getReceiveTypeId());

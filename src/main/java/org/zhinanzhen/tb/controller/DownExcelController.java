@@ -159,7 +159,7 @@ public class DownExcelController extends BaseController {
 		try {
 			super.setGetHeader(response);
 			List<VisaDTO> visaDtoList = visaService.listVisa(keyword, startHandlingDate, endHandlingDate, startDate,
-					endDate, adviserId, 0, 9999);
+					endDate, adviserId, null, 0, 9999);
 
 			OutputStream os = response.getOutputStream();
 			jxl.Workbook wb;
@@ -237,7 +237,7 @@ public class DownExcelController extends BaseController {
 		try {
 			super.setGetHeader(response);
 			List<BrokerageDTO> brokerageDtoList = brokerageService.listBrokerage(keyword, startHandlingDate,
-					endHandlingDate, startDate, endDate, adviserId, 0, 9999);
+					endHandlingDate, startDate, endDate, adviserId, null, 0, 9999);
 
 			OutputStream os = response.getOutputStream();
 			jxl.Workbook wb;
@@ -312,7 +312,7 @@ public class DownExcelController extends BaseController {
 		try {
 			super.setGetHeader(response);
 			List<BrokerageSaDTO> brokerageSaDtoList = brokerageSaService.listBrokerageSa(keyword, startHandlingDate,
-					endHandlingDate, startDate, endDate, adviserId, schoolId, 0, 9999);
+					endHandlingDate, startDate, endDate, adviserId, schoolId, null, 0, 9999);
 
 			OutputStream os = response.getOutputStream();
 			jxl.Workbook wb;
@@ -395,7 +395,7 @@ public class DownExcelController extends BaseController {
 			super.setGetHeader(response);
 			List<SchoolBrokerageSaDTO> schoolBrokerageSaDtoList = schoolBrokerageSaService.listSchoolBrokerageSa(
 					keyword, startHandlingDate, endHandlingDate, startDate, endDate, newAdviserId, schoolId,
-					subagencyId, isSettleAccounts, 0, 9999);
+					subagencyId, null, isSettleAccounts, 0, 9999);
 
 			OutputStream os = response.getOutputStream();
 			jxl.Workbook wb;
@@ -474,7 +474,7 @@ public class DownExcelController extends BaseController {
 		try {
 			super.setGetHeader(response);
 			List<RefundDTO> refundDtoList = refundService.listRefund(keyword, startHandlingDate, endHandlingDate,
-					startDate, endDate, newAdviserId, officialId, 0, 9999);
+					startDate, endDate, newAdviserId, officialId, null, 0, 9999);
 
 			OutputStream os = response.getOutputStream();
 			jxl.Workbook wb;

@@ -17,14 +17,15 @@ public interface SchoolBrokerageSaDAO {
 			@Param("startHandlingDate") String startHandlingDate, @Param("endHandlingDate") String endHandlingDate,
 			@Param("startDate") String startDate, @Param("endDate") String endDate,
 			@Param("adviserId") Integer adviserId, @Param("schoolId") Integer schoolId,
-			@Param("subagencyId") Integer subagencyId, @Param("isSettleAccounts") Boolean isSettleAccounts);
+			@Param("subagencyId") Integer subagencyId, @Param("userId") Integer userId,
+			@Param("isSettleAccounts") Boolean isSettleAccounts);
 
 	public List<SchoolBrokerageSaListDO> listSchoolBrokerageSa(@Param("keyword") String keyword,
 			@Param("startHandlingDate") String startHandlingDate, @Param("endHandlingDate") String endHandlingDate,
 			@Param("startDate") String startDate, @Param("endDate") String endDate,
 			@Param("adviserId") Integer adviserId, @Param("schoolId") Integer schoolId,
-			@Param("subagencyId") Integer subagencyId, @Param("isSettleAccounts") Boolean isSettleAccounts,
-			@Param("offset") int offset, @Param("rows") int rows);
+			@Param("subagencyId") Integer subagencyId, @Param("userId") Integer userId,
+			@Param("isSettleAccounts") Boolean isSettleAccounts, @Param("offset") int offset, @Param("rows") int rows);
 
 	public List<SchoolBrokerageSaByDashboardListDO> listSchoolBrokerageSaByDashboard(@Param("offset") int offset,
 			@Param("rows") int rows);

@@ -108,6 +108,9 @@
         <if test='schoolId != null and schoolId != ""'>
             AND bbs.school_id = #{schoolId}
         </if>
+        <if test='userId != null and userId != ""'>
+            AND bbs.user_id = #{userId}
+        </if>
         ;
     </select>
     
@@ -150,6 +153,9 @@
         </if>
         <if test='schoolId != null and schoolId != ""'>
             AND bbs.school_id = #{schoolId}
+        </if>
+        <if test='userId != null and userId != ""'>
+            AND bbs.user_id = #{userId}
         </if>
         ORDER BY bbs.gmt_create DESC
         LIMIT #{offset}, #{rows};

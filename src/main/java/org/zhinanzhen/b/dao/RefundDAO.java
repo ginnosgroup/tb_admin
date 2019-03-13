@@ -15,14 +15,14 @@ public interface RefundDAO {
 	public int countRefund(@Param("keyword") String keyword, @Param("startHandlingDate") String startHandlingDate,
 			@Param("endHandlingDate") String endHandlingDate, @Param("startDate") String startDate,
 			@Param("endDate") String endDate, @Param("adviserId") Integer adviserId,
-			@Param("officialId") Integer officialId);
+			@Param("officialId") Integer officialId, @Param("userId") Integer userId);
 
 	public List<RefundListDO> listRefund(@Param("keyword") String keyword,
 			@Param("startHandlingDate") String startHandlingDate, @Param("endHandlingDate") String endHandlingDate,
 			@Param("startDate") String startDate, @Param("endDate") String endDate,
-			@Param("adviserId") Integer adviserId, @Param("officialId") Integer officialId, @Param("offset") int offset,
-			@Param("rows") int rows);
-	
+			@Param("adviserId") Integer adviserId, @Param("officialId") Integer officialId,
+			@Param("userId") Integer userId, @Param("offset") int offset, @Param("rows") int rows);
+
 	public double sumRefundByThisMonth();
 
 	public RefundDO getRefundById(int id);

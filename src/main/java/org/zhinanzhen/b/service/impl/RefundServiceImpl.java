@@ -25,10 +25,10 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 
 	@Resource
 	private RefundDAO refundDao;
-	
+
 	@Resource
 	private AdviserDAO adviserDao;
-	
+
 	@Resource
 	private ReceiveTypeDAO receiveTypeDao;
 
@@ -72,15 +72,15 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 
 	@Override
 	public int countRefund(String keyword, String startHandlingDate, String endHandlingDate, String startDate,
-			String endDate, Integer adviserId, Integer officialId) throws ServiceException {
+			String endDate, Integer adviserId, Integer officialId, Integer userId) throws ServiceException {
 		return refundDao.countRefund(keyword, startHandlingDate, endHandlingDate, startDate, endDate, adviserId,
-				officialId);
+				officialId, userId);
 	}
 
 	@Override
 	public List<RefundDTO> listRefund(String keyword, String startHandlingDate, String endHandlingDate,
-			String startDate, String endDate, Integer adviserId, Integer officialId, int pageNum, int pageSize)
-			throws ServiceException {
+			String startDate, String endDate, Integer adviserId, Integer officialId, Integer userId, int pageNum,
+			int pageSize) throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
 		}
@@ -91,7 +91,7 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 		List<RefundListDO> refundListDoList = new ArrayList<>();
 		try {
 			refundListDoList = refundDao.listRefund(keyword, startHandlingDate, endHandlingDate, startDate, endDate,
-					adviserId, officialId, pageNum * pageSize, pageSize);
+					adviserId, officialId, userId, pageNum * pageSize, pageSize);
 			if (refundListDoList == null) {
 				return null;
 			}
@@ -103,7 +103,7 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 		for (RefundListDO refundListDo : refundListDoList) {
 			RefundDTO refundDto = mapper.map(refundListDo, RefundDTO.class);
 			AdviserDO adviserDo = adviserDao.getAdviserById(refundListDo.getAdviserId());
-			if(adviserDo != null) {
+			if (adviserDo != null) {
 				refundDto.setAdviserName(adviserDo.getName());
 			}
 			ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(refundListDo.getReceiveTypeId());
