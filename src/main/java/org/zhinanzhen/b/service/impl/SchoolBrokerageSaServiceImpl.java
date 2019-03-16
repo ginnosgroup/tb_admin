@@ -33,10 +33,10 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 
 	@Resource
 	private RemindDAO remindDao;
-	
+
 	@Resource
 	private AdviserDAO adviserDao;
-	
+
 	@Resource
 	private OfficialDAO officialDao;
 
@@ -91,19 +91,20 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 
 	@Override
 	public int countSchoolBrokerageSa(String keyword, String startHandlingDate, String endHandlingDate,
-			String startDate, String endDate, Integer adviserId, Integer schoolId, Integer subagencyId,
+			String startDate, String endDate, Integer adviserId, Integer schoolId, Integer subagencyId, Integer userId,
 			Boolean isSettleAccounts) throws ServiceException {
 		if (isSettleAccounts == null) {
 			isSettleAccounts = false;
 		}
 		return schoolBrokerageSaDao.countSchoolBrokerageSa(keyword, startHandlingDate, endHandlingDate, startDate,
-				endDate, adviserId, schoolId, subagencyId, isSettleAccounts);
+				endDate, adviserId, schoolId, subagencyId, userId, isSettleAccounts);
 	}
 
 	@Override
 	public List<SchoolBrokerageSaDTO> listSchoolBrokerageSa(String keyword, String startHandlingDate,
 			String endHandlingDate, String startDate, String endDate, Integer adviserId, Integer schoolId,
-			Integer subagencyId, Boolean isSettleAccounts, int pageNum, int pageSize) throws ServiceException {
+			Integer subagencyId, Integer userId, Boolean isSettleAccounts, int pageNum, int pageSize)
+			throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
 		}
@@ -117,7 +118,7 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 		List<SchoolBrokerageSaListDO> schoolBrokerageSaListDoList = new ArrayList<>();
 		try {
 			schoolBrokerageSaListDoList = schoolBrokerageSaDao.listSchoolBrokerageSa(keyword, startHandlingDate,
-					endHandlingDate, startDate, endDate, adviserId, schoolId, subagencyId, isSettleAccounts,
+					endHandlingDate, startDate, endDate, adviserId, schoolId, subagencyId, userId, isSettleAccounts,
 					pageNum * pageSize, pageSize);
 			if (schoolBrokerageSaListDoList == null) {
 				return null;
@@ -136,11 +137,11 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 			}
 			schoolBrokerageSaDto.setRemindDateList(remindDateList);
 			AdviserDO adviserDo = adviserDao.getAdviserById(schoolBrokerageSaListDo.getAdviserId());
-			if(adviserDo != null) {
+			if (adviserDo != null) {
 				schoolBrokerageSaDto.setAdviserName(adviserDo.getName());
 			}
 			OfficialDO officialDo = officialDao.getOfficialById(schoolBrokerageSaListDo.getOfficialId());
-			if(officialDo != null) {
+			if (officialDo != null) {
 				schoolBrokerageSaDto.setOfficialName(officialDo.getName());
 			}
 			schoolBrokerageSaDtoList.add(schoolBrokerageSaDto);
@@ -181,11 +182,11 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 			}
 			schoolBrokerageSaByDashboardListDto.setRemindDateList(remindDateList);
 			AdviserDO adviserDo = adviserDao.getAdviserById(schoolBrokerageSaByDashboardListDo.getAdviserId());
-			if(adviserDo != null) {
+			if (adviserDo != null) {
 				schoolBrokerageSaByDashboardListDto.setAdviserName(adviserDo.getName());
 			}
 			OfficialDO officialDo = officialDao.getOfficialById(schoolBrokerageSaByDashboardListDo.getOfficialId());
-			if(officialDo != null) {
+			if (officialDo != null) {
 				schoolBrokerageSaByDashboardListDto.setOfficialName(officialDo.getName());
 			}
 			schoolBrokerageSaByDashboardListDtoList.add(schoolBrokerageSaByDashboardListDto);

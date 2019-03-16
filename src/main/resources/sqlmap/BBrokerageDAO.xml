@@ -105,6 +105,9 @@
         <if test='adviserId != null and adviserId != ""'>
             AND adviser_id = #{adviserId}
         </if>
+        <if test='userId != null and userId != ""'>
+            AND user_id = #{userId}
+        </if>
         ;
     </select>
     
@@ -142,6 +145,9 @@
         </if>
         <if test='adviserId != null and adviserId != ""'>
             AND bb.adviser_id = #{adviserId}
+        </if>
+        <if test='userId != null and userId != ""'>
+            AND bb.user_id = #{userId}
         </if>
         ORDER BY bb.gmt_create DESC
         LIMIT #{offset}, #{rows};

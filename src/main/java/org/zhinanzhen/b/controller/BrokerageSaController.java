@@ -39,7 +39,7 @@ public class BrokerageSaController extends BaseController {
 			@RequestParam(value = "commission") String commission, @RequestParam(value = "adviserId") String adviserId,
 			@RequestParam(value = "officialId") String officialId, HttpServletRequest request,
 			HttpServletResponse response) {
-		
+
 		// 更改当前顾问编号
 		Integer newAdviserId = getAdviserId(request);
 		if (newAdviserId != null)
@@ -154,9 +154,10 @@ public class BrokerageSaController extends BaseController {
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
-			@RequestParam(value = "schoolId", required = false) Integer schoolId, HttpServletRequest request,
+			@RequestParam(value = "schoolId", required = false) Integer schoolId,
+			@RequestParam(value = "userId", required = false) Integer userId, HttpServletRequest request,
 			HttpServletResponse response) {
-		
+
 		// 更改当前顾问编号
 		Integer newAdviserId = getAdviserId(request);
 		if (newAdviserId != null)
@@ -165,7 +166,7 @@ public class BrokerageSaController extends BaseController {
 		try {
 			super.setGetHeader(response);
 			return new Response<Integer>(0, brokerageSaService.countBrokerageSa(keyword, startHandlingDate,
-					endHandlingDate, startDate, endDate, adviserId, schoolId));
+					endHandlingDate, startDate, endDate, adviserId, schoolId, userId));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -181,6 +182,7 @@ public class BrokerageSaController extends BaseController {
 			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "schoolId", required = false) Integer schoolId,
+			@RequestParam(value = "userId", required = false) Integer userId,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
 			HttpServletRequest request, HttpServletResponse response) {
 
@@ -192,7 +194,7 @@ public class BrokerageSaController extends BaseController {
 		try {
 			super.setGetHeader(response);
 			return new Response<List<BrokerageSaDTO>>(0, brokerageSaService.listBrokerageSa(keyword, startHandlingDate,
-					endHandlingDate, startDate, endDate, adviserId, schoolId, pageNum, pageSize));
+					endHandlingDate, startDate, endDate, adviserId, schoolId, userId, pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<BrokerageSaDTO>>(1, e.getMessage(), null);
 		}
