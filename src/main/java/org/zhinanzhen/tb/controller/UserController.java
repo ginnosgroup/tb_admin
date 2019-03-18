@@ -32,6 +32,7 @@ public class UserController extends BaseController {
 	public Response<Integer> addUser(@RequestParam(value = "name") String name,
 			@RequestParam(value = "authNickname", required = false) String authNickname,
 			@RequestParam(value = "birthday") String birthday, @RequestParam(value = "phone") String phone,
+			@RequestParam(value = "firstControllerContents", required = false) String firstControllerContents,
 			@RequestParam(value = "visaCode") String visaCode,
 			@RequestParam(value = "visaExpirationDate") String visaExpirationDate,
 			@RequestParam(value = "source") String source, @RequestParam(value = "adviserId") String adviserId,
@@ -43,8 +44,9 @@ public class UserController extends BaseController {
 				return new Response<Integer>(1, "该电话号码已被使用,添加失败.", 0);
 			}
 			return new Response<Integer>(0,
-					userService.addUser(name, authNickname, new Date(Long.parseLong(birthday.trim())), phone, visaCode,
-							new Date(Long.parseLong(visaExpirationDate)), source, StringUtil.toInt(adviserId)));
+					userService.addUser(name, authNickname, new Date(Long.parseLong(birthday.trim())), phone,
+							firstControllerContents, visaCode, new Date(Long.parseLong(visaExpirationDate)), source,
+							StringUtil.toInt(adviserId)));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), -1);
 		}
@@ -124,12 +126,14 @@ public class UserController extends BaseController {
 	public Response<Boolean> update(@RequestParam(value = "id") int id,
 			@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "birthday", required = false) String birthday,
-			@RequestParam(value = "phone", required = false) String phone, HttpServletResponse response)
-			throws ServiceException {
+			@RequestParam(value = "phone", required = false) String phone,
+			@RequestParam(value = "firstControllerContents", required = false) String firstControllerContents,
+			HttpServletResponse response) throws ServiceException {
 		super.setGetHeader(response);
-		return birthday == null ? new Response<Boolean>(0, userService.update(id, name, null, phone))
-				: new Response<Boolean>(0,
-						userService.update(id, name, new Date(Long.parseLong(birthday.trim())), phone));
+		return birthday == null
+				? new Response<Boolean>(0, userService.update(id, name, null, phone, firstControllerContents))
+				: new Response<Boolean>(0, userService.update(id, name, new Date(Long.parseLong(birthday.trim())),
+						phone, firstControllerContents));
 	}
 
 	@RequestMapping("/updateAdviser")

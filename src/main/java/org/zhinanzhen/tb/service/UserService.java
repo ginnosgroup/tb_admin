@@ -7,8 +7,8 @@ import org.zhinanzhen.tb.service.pojo.UserDTO;
 
 public interface UserService {
 
-	public int addUser(String name, String authNickname, Date birthday, String phone, String visaCode,
-			Date visaExpirationDate, String source, int adviserId) throws ServiceException;
+	public int addUser(String name, String authNickname, Date birthday, String phone, String firstControllerContents,
+			String visaCode, Date visaExpirationDate, String source, int adviserId) throws ServiceException;
 
 	public int countUser(String name, UserAuthTypeEnum authType, String authNickname, String phone, int adviserId)
 			throws ServiceException;
@@ -33,7 +33,8 @@ public interface UserService {
 	 */
 	UserDTO getUserByOpenId(String thirdType, String thirdId) throws ServiceException;
 
-	boolean update(int id, String name, Date birthday, String phone) throws ServiceException;
+	boolean update(int id, String name, Date birthday, String phone, String firstControllerContents)
+			throws ServiceException;
 
 	/**
 	 * 用户重新绑定顾问
