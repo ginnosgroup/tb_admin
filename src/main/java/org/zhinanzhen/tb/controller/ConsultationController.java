@@ -39,7 +39,7 @@ public class ConsultationController extends BaseController {
 			super.setPostHeader(response);
 			ConsultationDTO consultationDto = new ConsultationDTO();
 			consultationDto.setUserId(StringUtil.toInt(userId));
-			consultationDto.setContents(remindContents);
+			consultationDto.setContents(contents);
 			if (StringUtils.isNotEmpty(remindDate))
 				consultationDto.setRemindDate(new Date(Long.parseLong(remindDate)));
 			if (StringUtils.isNotEmpty(remindContents))
