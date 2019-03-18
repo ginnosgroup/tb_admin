@@ -11,6 +11,7 @@
         birthday,
         phone,
         email,
+        first_controller_contents,
         visa_code,
         visa_expiration_date,
         source,
@@ -29,6 +30,7 @@
         #{birthday},
         #{phone},
         "",
+        #{firstControllerContents},
         #{visaCode},
         #{visaExpirationDate},
         #{source},
@@ -73,6 +75,7 @@
         name,
         birthday,
         email,
+        first_controller_contents AS firstControllerContents,
         visa_code AS visaCode,
         visa_expiration_date AS visaExpirationDate,
         source,
@@ -117,6 +120,7 @@
         birthday,
         phone,
         email,
+        first_controller_contents AS firstControllerContents,
         visa_code AS visaCode,
         visa_expiration_date AS visaExpirationDate,
         source,
@@ -142,6 +146,7 @@
         birthday,
         phone,
         email,
+        first_controller_contents AS firstControllerContents,
         visa_code AS visaCode,
         visa_expiration_date AS visaExpirationDate,
         source,
@@ -175,6 +180,9 @@
         <if test='phone != null and phone != ""'>
             , phone = #{phone}
         </if>
+        <if test='firstControllerContents != null and firstControllerContents != ""'>
+            , first_controller_contents = #{firstControllerContents}
+        </if>
         WHERE id = #{id};
     </update>
     
@@ -197,6 +205,7 @@
         name,
         birthday,
         email,
+        first_controller_contents AS firstControllerContents,
         visa_code AS visaCode,
         visa_expiration_date AS visaExpirationDate,
         source,
