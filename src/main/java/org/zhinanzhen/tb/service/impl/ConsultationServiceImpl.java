@@ -31,15 +31,6 @@ public class ConsultationServiceImpl extends BaseService implements Consultation
 			throw se;
 		}
 		try {
-			List<ConsultationDO> consultationDoList = consultationDao
-					.listConsultationByUserId(consultationDto.getUserId());
-			for (ConsultationDO consultationDo : consultationDoList) {
-				if (consultationDo.getRemindDate().getTime() == consultationDto.getRemindDate().getTime()) {
-					ServiceException se = new ServiceException("该提醒日期已存在.");
-					se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
-					throw se;
-				}
-			}
 			ConsultationDO consultationDo = mapper.map(consultationDto, ConsultationDO.class);
 			if (consultationDao.addConsultation(consultationDo) > 0) {
 				return consultationDo.getId();
