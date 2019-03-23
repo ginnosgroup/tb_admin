@@ -51,6 +51,14 @@ public class BrokerageController extends BaseController {
 			BrokerageDTO brokerageDto = new BrokerageDTO();
 			if (StringUtil.isNotEmpty(userId)) {
 				brokerageDto.setUserId(Integer.parseInt(userId));
+				List<BrokerageDTO> brokerageList = brokerageService.listBrokerage(null, null, null, null, null, null,
+						Integer.parseInt(userId), 0, 1);
+				if (brokerageList.size() > 0) {
+					BrokerageDTO nowBrokerageDto = brokerageList.get(0);
+					return new Response<BrokerageDTO>(1, "客户" + nowBrokerageDto.getUserName() + "(ID:"
+							+ nowBrokerageDto.getUserId() + ")已存在!顾问是" + nowBrokerageDto.getAdviserName() + ",请联系管理员.",
+							null);
+				}
 			}
 			if (StringUtil.isNotEmpty(handlingDate)) {
 				brokerageDto.setHandlingDate(new Date(Long.parseLong(handlingDate)));
