@@ -31,13 +31,13 @@ public class SchoolController extends BaseController {
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> addSchool(@RequestParam(value = "name") String name,
-			@RequestParam(value = "subject") String subject, @RequestParam(value = "country") String country,
-			HttpServletRequest request, HttpServletResponse response) {
+			@RequestParam(value = "subject", required = false) String subject,
+			@RequestParam(value = "country") String country, HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			List<SchoolDTO> schoolDtoList = schoolService.list(name, subject, country);
 			for (SchoolDTO schoolDto : schoolDtoList) {
-				if (schoolDto.getName().equals(name) && schoolDto.getSubject().equals(subject)
+				if (schoolDto.getName().equals(name) && (subject == null || subject.equals(schoolDto.getSubject()))
 						&& schoolDto.getCountry().equals(country)) {
 					return new Response<Integer>(2, "该学校课程已存在,操作失败.", 0);
 				}
@@ -67,7 +67,7 @@ public class SchoolController extends BaseController {
 			super.setPostHeader(response);
 			List<SchoolDTO> schoolDtoList = schoolService.list(name, subject, country);
 			for (SchoolDTO schoolDto : schoolDtoList) {
-				if (schoolDto.getName().equals(name) && schoolDto.getSubject().equals(subject)
+				if (schoolDto.getName().equals(name) && (subject == null || subject.equals(schoolDto.getSubject()))
 						&& schoolDto.getCountry().equals(country)) {
 					return new Response<SchoolDTO>(1, "该学校课程已存在,操作失败.", schoolDto);
 				}
@@ -105,7 +105,7 @@ public class SchoolController extends BaseController {
 			return new Response<List<SchoolDTO>>(1, e.getMessage(), null);
 		}
 	}
-	
+
 	@RequestMapping(value = "/listSchool", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<List<SchoolDTO>> listSchool(@RequestParam(value = "name", required = false) String name,
