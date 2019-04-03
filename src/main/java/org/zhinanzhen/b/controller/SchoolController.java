@@ -102,10 +102,10 @@ public class SchoolController extends BaseController {
 			super.setPostHeader(response);
 			List<SchoolDTO> schoolDtoList = schoolService.list(oldName);
 			if (schoolDtoList == null || schoolDtoList.size() == 0)
-				return new Response<Boolean>(0, "没有找到名称为'" + oldName + "'的记录!", false);
+				return new Response<Boolean>(1, "没有找到名称为'" + oldName + "'的记录!", false);
 			for (SchoolDTO schoolDto : schoolDtoList)
 				schoolService.updateSchool(schoolDto.getId(), newName, null, null);
-			return new Response<Boolean>(1, true);
+			return new Response<Boolean>(0, true);
 		} catch (ServiceException e) {
 			return new Response<Boolean>(e.getCode(), e.getMessage(), null);
 		}
