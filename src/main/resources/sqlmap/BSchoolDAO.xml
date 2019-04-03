@@ -54,6 +54,19 @@
         ORDER BY gmt_create DESC;
     </select>
     
+    <select id="list2" resultType="org.zhinanzhen.b.dao.pojo.SchoolDO">
+        SELECT
+            id,
+            name,
+            subject,
+            country
+        FROM b_school
+        WHERE is_delete = 0
+        <if test='name != null and name != ""'>
+            AND name = #{name};
+        </if>
+    </select>
+    
     <select id="listSchool" resultType="org.zhinanzhen.b.dao.pojo.SchoolDO">
         SELECT
             id,

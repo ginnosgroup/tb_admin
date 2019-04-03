@@ -100,7 +100,9 @@ public class SchoolController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			List<SchoolDTO> schoolDtoList = schoolService.list(oldName, null, null);
+			List<SchoolDTO> schoolDtoList = schoolService.list(oldName);
+			if (schoolDtoList == null || schoolDtoList.size() == 0)
+				return new Response<Boolean>(0, "没有找到名称为'" + oldName + "'的记录!", false);
 			for (SchoolDTO schoolDto : schoolDtoList)
 				schoolService.updateSchool(schoolDto.getId(), newName, null, null);
 			return new Response<Boolean>(1, true);

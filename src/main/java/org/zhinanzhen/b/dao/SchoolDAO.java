@@ -15,6 +15,8 @@ public interface SchoolDAO {
 	public List<SchoolDO> list(@Param("name") String name, @Param("subject") String subject,
 			@Param("country") String country);
 	
+	public List<SchoolDO> list2(@Param("name") String name);
+	
 	public List<SchoolDO> listSchool(@Param("name") String name, @Param("country") String country);
 
 	public SchoolDO getSchoolById(int id);
