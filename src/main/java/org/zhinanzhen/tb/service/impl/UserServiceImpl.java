@@ -200,8 +200,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 	}
 
 	@Override
-	public boolean update(int id, String name, Date birthday, String phone, String firstControllerContents)
-			throws ServiceException {
+	public boolean update(int id, String name, Date birthday, String phone, String firstControllerContents,
+			String visaCode, String visaExpirationDate, String source) throws ServiceException {
 		if (id <= 0) {
 			ServiceException se = new ServiceException("id error !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -215,7 +215,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 				throw se;
 			}
 		}
-		return userDao.update(id, name, birthday, phone, firstControllerContents);
+		return userDao.update(id, name, birthday, phone, firstControllerContents, visaCode, visaExpirationDate,
+				source);
 	}
 
 	@Override

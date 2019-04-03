@@ -14,6 +14,7 @@ import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
 import com.ikasoa.core.thrift.ErrorCodeEnum;
+import com.ikasoa.core.utils.StringUtil;
 
 @Service("SchoolService")
 public class SchoolServiceImpl extends BaseService implements SchoolService {
@@ -73,7 +74,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		}
 		return schoolDtoList;
 	}
-	
+
 	@Override
 	public List<SchoolDTO> listSchool(String name, String country) throws ServiceException {
 		List<SchoolDTO> schoolDtoList = new ArrayList<SchoolDTO>();
@@ -126,6 +127,22 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		}
 		try {
 			return schoolDao.deleteSchoolById(id);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
+	public int deleteSchoolByName(String name) throws ServiceException {
+		if (StringUtil.isEmpty(name)) {
+			ServiceException se = new ServiceException("name error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			return schoolDao.deleteSchoolByName(name);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());

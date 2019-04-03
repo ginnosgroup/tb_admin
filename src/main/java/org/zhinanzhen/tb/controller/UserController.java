@@ -135,12 +135,16 @@ public class UserController extends BaseController {
 			@RequestParam(value = "birthday", required = false) String birthday,
 			@RequestParam(value = "phone", required = false) String phone,
 			@RequestParam(value = "firstControllerContents", required = false) String firstControllerContents,
-			HttpServletResponse response) throws ServiceException {
+			@RequestParam(value = "visaCode") String visaCode,
+			@RequestParam(value = "visaExpirationDate") String visaExpirationDate,
+			@RequestParam(value = "source") String source, HttpServletResponse response) throws ServiceException {
 		super.setGetHeader(response);
 		return birthday == null
-				? new Response<Boolean>(0, userService.update(id, name, null, phone, firstControllerContents))
+				? new Response<Boolean>(0,
+						userService.update(id, name, null, phone, firstControllerContents, visaCode, visaExpirationDate,
+								source))
 				: new Response<Boolean>(0, userService.update(id, name, new Date(Long.parseLong(birthday.trim())),
-						phone, firstControllerContents));
+						phone, firstControllerContents, visaCode, visaExpirationDate, source));
 	}
 
 	@RequestMapping("/updateAdviser")

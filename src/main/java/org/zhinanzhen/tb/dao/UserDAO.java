@@ -30,7 +30,9 @@ public interface UserDAO {
 	UserDO getUserByThird(@Param("thirdType") String thirdType, @Param("thirdId") String thirdId);
 
 	boolean update(@Param("id") int id, @Param("name") String name, @Param("birthday") Date birthday,
-			@Param("phone") String phone, @Param("firstControllerContents") String firstControllerContents);
+			@Param("phone") String phone, @Param("firstControllerContents") String firstControllerContents,
+			@Param("visaCode") String visaCode, @Param("visaExpirationDate") String visaExpirationDate,
+			@Param("source") String source);
 
 	boolean updateAdviserById(@Param("adviserId") int adviserId, @Param("id") int id);
 

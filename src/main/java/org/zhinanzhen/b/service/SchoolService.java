@@ -10,7 +10,7 @@ public interface SchoolService {
 	public int addSchool(SchoolDTO schoolDto) throws ServiceException;
 
 	public int updateSchool(int id, String name, String subject, String country) throws ServiceException;
-	
+
 	public List<SchoolDTO> list(String name, String subject, String country) throws ServiceException;
 
 	public List<SchoolDTO> listSchool(String name, String country) throws ServiceException;
@@ -18,5 +18,7 @@ public interface SchoolService {
 	public SchoolDTO getSchoolById(int id) throws ServiceException;
 
 	public int deleteSchoolById(int id) throws ServiceException;
+
+	public int deleteSchoolByName(String name) throws ServiceException;
 
 }

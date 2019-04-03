@@ -85,5 +85,11 @@
         SET gmt_modify = now(), is_delete = 1
         WHERE id = #{id, jdbcType=INTEGER};
     </update>
+    
+    <update id="deleteSchoolByName" parameterType="java.lang.String">
+        UPDATE b_school 
+        SET gmt_modify = now(), is_delete = 1
+        WHERE name = #{name};
+    </update>
 
 </mapper>

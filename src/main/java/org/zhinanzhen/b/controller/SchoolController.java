@@ -93,6 +93,22 @@ public class SchoolController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/updateName", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Boolean> updateSchoolName(@RequestParam(value = "oldName", required = false) String oldName,
+			@RequestParam(value = "newName", required = false) String newName, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			List<SchoolDTO> schoolDtoList = schoolService.list(oldName, null, null);
+			for (SchoolDTO schoolDto : schoolDtoList)
+				schoolService.updateSchool(schoolDto.getId(), newName, null, null);
+			return new Response<Boolean>(1, true);
+		} catch (ServiceException e) {
+			return new Response<Boolean>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<List<SchoolDTO>> list(@RequestParam(value = "name", required = false) String name,
@@ -135,6 +151,18 @@ public class SchoolController extends BaseController {
 		try {
 			super.setGetHeader(response);
 			return new Response<Integer>(0, schoolService.deleteSchoolById(id));
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), 0);
+		}
+	}
+
+	@RequestMapping(value = "/deleteByName", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> deleteSchoolByName(@RequestParam(value = "name") String name,
+			HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<Integer>(0, schoolService.deleteSchoolByName(name));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), 0);
 		}

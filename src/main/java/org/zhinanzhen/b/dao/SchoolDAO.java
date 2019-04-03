@@ -20,5 +20,7 @@ public interface SchoolDAO {
 	public SchoolDO getSchoolById(int id);
 
 	public int deleteSchoolById(int id);
+	
+	public int deleteSchoolByName(@Param("name") String name);
 
 }

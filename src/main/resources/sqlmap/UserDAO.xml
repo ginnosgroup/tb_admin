@@ -183,6 +183,15 @@
         <if test='firstControllerContents != null and firstControllerContents != ""'>
             , first_controller_contents = #{firstControllerContents}
         </if>
+        <if test='visaCode != null and visaCode != ""'>
+            , visa_code = #{visaCode}
+        </if>
+        <if test='visaExpirationDate != null and visaExpirationDate != ""'>
+            , visa_expiration_date = #{visaExpirationDate}
+        </if>
+        <if test='source != null and source != ""'>
+            , source = #{source}
+        </if>
         WHERE id = #{id};
     </update>
     
