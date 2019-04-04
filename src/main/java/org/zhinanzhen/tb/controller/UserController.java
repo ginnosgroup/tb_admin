@@ -135,9 +135,10 @@ public class UserController extends BaseController {
 			@RequestParam(value = "birthday", required = false) String birthday,
 			@RequestParam(value = "phone", required = false) String phone,
 			@RequestParam(value = "firstControllerContents", required = false) String firstControllerContents,
-			@RequestParam(value = "visaCode") String visaCode,
+			@RequestParam(value = "visaCode", required = false) String visaCode,
 			@RequestParam(value = "visaExpirationDate", required = false) String visaExpirationDate,
-			@RequestParam(value = "source") String source, HttpServletResponse response) throws ServiceException {
+			@RequestParam(value = "source", required = false) String source, HttpServletResponse response)
+			throws ServiceException {
 		super.setGetHeader(response);
 		Date _birthday = null;
 		if (birthday != null)

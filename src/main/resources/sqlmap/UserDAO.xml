@@ -186,7 +186,7 @@
         <if test='visaCode != null and visaCode != ""'>
             , visa_code = #{visaCode}
         </if>
-        <if test='visaExpirationDate != null and visaExpirationDate != ""'>
+        <if test='visaExpirationDate != null'>
             , visa_expiration_date = #{visaExpirationDate}
         </if>
         <if test='source != null and source != ""'>
