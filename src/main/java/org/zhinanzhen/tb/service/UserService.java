@@ -34,7 +34,7 @@ public interface UserService {
 	UserDTO getUserByOpenId(String thirdType, String thirdId) throws ServiceException;
 
 	boolean update(int id, String name, Date birthday, String phone, String firstControllerContents, String visaCode,
-			String visaExpirationDate, String source) throws ServiceException;
+			Date visaExpirationDate, String source) throws ServiceException;
 
 	/**
 	 * 用户重新绑定顾问

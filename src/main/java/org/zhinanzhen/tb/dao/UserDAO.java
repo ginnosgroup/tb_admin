@@ -31,7 +31,7 @@ public interface UserDAO {
 
 	boolean update(@Param("id") int id, @Param("name") String name, @Param("birthday") Date birthday,
 			@Param("phone") String phone, @Param("firstControllerContents") String firstControllerContents,
-			@Param("visaCode") String visaCode, @Param("visaExpirationDate") String visaExpirationDate,
+			@Param("visaCode") String visaCode, @Param("visaExpirationDate") Date visaExpirationDate,
 			@Param("source") String source);
 
 	boolean updateAdviserById(@Param("adviserId") int adviserId, @Param("id") int id);

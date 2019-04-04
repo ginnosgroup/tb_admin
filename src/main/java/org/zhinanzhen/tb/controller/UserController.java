@@ -139,12 +139,14 @@ public class UserController extends BaseController {
 			@RequestParam(value = "visaExpirationDate", required = false) String visaExpirationDate,
 			@RequestParam(value = "source") String source, HttpServletResponse response) throws ServiceException {
 		super.setGetHeader(response);
-		return birthday == null
-				? new Response<Boolean>(0,
-						userService.update(id, name, null, phone, firstControllerContents, visaCode, visaExpirationDate,
-								source))
-				: new Response<Boolean>(0, userService.update(id, name, new Date(Long.parseLong(birthday.trim())),
-						phone, firstControllerContents, visaCode, visaExpirationDate, source));
+		Date _birthday = null;
+		if (birthday != null)
+			_birthday = new Date(Long.parseLong(birthday.trim()));
+		Date _visaExpirationDate = null;
+		if (visaExpirationDate != null)
+			_visaExpirationDate = new Date(Long.parseLong(visaExpirationDate.trim()));
+		return new Response<Boolean>(0, userService.update(id, name, _birthday, phone, firstControllerContents,
+				visaCode, _visaExpirationDate, source));
 	}
 
 	@RequestMapping("/updateAdviser")
