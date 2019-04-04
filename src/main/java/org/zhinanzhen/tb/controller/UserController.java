@@ -35,7 +35,7 @@ public class UserController extends BaseController {
 			@RequestParam(value = "birthday") String birthday, @RequestParam(value = "phone") String phone,
 			@RequestParam(value = "firstControllerContents", required = false) String firstControllerContents,
 			@RequestParam(value = "visaCode") String visaCode,
-			@RequestParam(value = "visaExpirationDate") String visaExpirationDate,
+			@RequestParam(value = "visaExpirationDate", required = false) String visaExpirationDate,
 			@RequestParam(value = "source") String source, @RequestParam(value = "adviserId") String adviserId,
 			HttpServletResponse response) {
 		try {
@@ -136,7 +136,7 @@ public class UserController extends BaseController {
 			@RequestParam(value = "phone", required = false) String phone,
 			@RequestParam(value = "firstControllerContents", required = false) String firstControllerContents,
 			@RequestParam(value = "visaCode") String visaCode,
-			@RequestParam(value = "visaExpirationDate") String visaExpirationDate,
+			@RequestParam(value = "visaExpirationDate", required = false) String visaExpirationDate,
 			@RequestParam(value = "source") String source, HttpServletResponse response) throws ServiceException {
 		super.setGetHeader(response);
 		return birthday == null
