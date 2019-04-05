@@ -23,7 +23,7 @@ public interface RefundDAO {
 			@Param("adviserId") Integer adviserId, @Param("officialId") Integer officialId,
 			@Param("userId") Integer userId, @Param("offset") int offset, @Param("rows") int rows);
 
-	public double sumRefundByThisMonth();
+	public double sumRefundByThisMonth(@Param("adviserId") Integer adviserId);
 
 	public RefundDO getRefundById(int id);
 

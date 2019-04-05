@@ -18,7 +18,7 @@ public interface UserDAO {
 			@Param("authNickname") String authNickname, @Param("phone") String phone,
 			@Param("adviserId") Integer adviserId);
 
-	public int countUserByThisMonth();
+	public int countUserByThisMonth(@Param("adviserId") Integer adviserId);
 
 	public List<UserDO> listUser(@Param("name") String name, @Param("authType") String authType,
 			@Param("authNickname") String authNickname, @Param("phone") String phone,

@@ -59,7 +59,14 @@ public class UserController extends BaseController {
 			@RequestParam(value = "authType", required = false) String authType,
 			@RequestParam(value = "authNickname", required = false) String authNickname,
 			@RequestParam(value = "phone", required = false) String phone,
-			@RequestParam(value = "adviserId", required = false) String adviserId, HttpServletResponse response) {
+			@RequestParam(value = "adviserId", required = false) String adviserId, HttpServletRequest request,
+			HttpServletResponse response) {
+
+		// 更改当前顾问编号
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId + "";
+
 		try {
 			super.setGetHeader(response);
 			UserAuthTypeEnum authTypeEnum = null;
@@ -75,10 +82,10 @@ public class UserController extends BaseController {
 
 	@RequestMapping(value = "/countMonth", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<Integer> countUserByThisMonth(HttpServletResponse response) {
+	public Response<Integer> countUserByThisMonth(HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<Integer>(0, userService.countUserByThisMonth());
+			return new Response<Integer>(0, userService.countUserByThisMonth(getAdviserId(request)));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), -1);
 		}

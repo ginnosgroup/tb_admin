@@ -4,6 +4,6 @@ import org.zhinanzhen.tb.service.ServiceException;
 
 public interface DashboardService {
 
-	double getThisMonthExpectAmount() throws ServiceException;
+	double getThisMonthExpectAmount(Integer adviserId) throws ServiceException;
 
 }

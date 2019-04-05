@@ -69,8 +69,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 	}
 
 	@Override
-	public int countUserByThisMonth() throws ServiceException {
-		return userDao.countUserByThisMonth();
+	public int countUserByThisMonth(Integer adviserId) throws ServiceException {
+		return userDao.countUserByThisMonth(adviserId);
 	}
 
 	@Override

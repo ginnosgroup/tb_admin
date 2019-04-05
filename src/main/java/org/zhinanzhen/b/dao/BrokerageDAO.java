@@ -22,7 +22,7 @@ public interface BrokerageDAO {
 			@Param("adviserId") Integer adviserId, @Param("userId") Integer userId, @Param("offset") int offset,
 			@Param("rows") int rows);
 
-	public double sumBonusByThisMonth();
+	public double sumBonusByThisMonth(@Param("adviserId") Integer adviserId);
 
 	public BrokerageDO getBrokerageById(int id);
 

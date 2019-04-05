@@ -27,9 +27,9 @@ public class DashboardServiceImpl extends BaseService implements DashboardServic
 	private RefundDAO refundDao;
 
 	@Override
-	public double getThisMonthExpectAmount() throws ServiceException {
-		return brokerageDao.sumBonusByThisMonth() + brokerageSaDao.sumBonusByThisMonth()
-				+ schoolBrokerageSaDao.sumBonusByThisMonth() - refundDao.sumRefundByThisMonth();
+	public double getThisMonthExpectAmount(Integer adviserId) throws ServiceException {
+		return brokerageDao.sumBonusByThisMonth(adviserId) + brokerageSaDao.sumBonusByThisMonth(adviserId)
+				+ schoolBrokerageSaDao.sumBonusByThisMonth(adviserId) - refundDao.sumRefundByThisMonth(adviserId);
 	}
 
 }

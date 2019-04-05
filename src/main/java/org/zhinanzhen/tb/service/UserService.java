@@ -13,7 +13,7 @@ public interface UserService {
 	public int countUser(String name, UserAuthTypeEnum authType, String authNickname, String phone, int adviserId)
 			throws ServiceException;
 
-	public int countUserByThisMonth() throws ServiceException;
+	public int countUserByThisMonth(Integer adviserId) throws ServiceException;
 
 	public List<UserDTO> listUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
 			int adviserId, int pageNum, int pageSize) throws ServiceException;

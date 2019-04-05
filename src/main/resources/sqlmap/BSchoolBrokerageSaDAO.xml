@@ -241,7 +241,11 @@
 		select
 		IFNULL(sum(bonus), 0.00) from b_school_brokerage_sa where
 		DATE_FORMAT(gmt_create, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m') and
-		is_close = 0;
+		is_close = 0
+		<if test='adviserId != null'>
+            AND bb.adviser_id = #{adviserId}
+        </if>
+		;
 	</select>
 
 	<select id="getSchoolBrokerageSaById" parameterType="java.lang.Integer"

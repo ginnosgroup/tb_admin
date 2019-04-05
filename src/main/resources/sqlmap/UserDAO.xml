@@ -65,7 +65,11 @@
     </select>
 
     <select id="countUserByThisMonth" resultType="java.lang.Integer">
-        select count(*) from tb_user where auth_type != 'V' AND DATE_FORMAT(gmt_create, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m');
+        select count(*) from tb_user where auth_type != 'V' AND DATE_FORMAT(gmt_create, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
+        <if test='adviserId != null'>
+            AND adviser_id = #{adviserId}
+        </if>
+        ;
     </select>
 
     <select id="listUser" resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
