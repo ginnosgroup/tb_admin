@@ -9,8 +9,9 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.tb.dao.ConsultationDAO;
-import org.zhinanzhen.tb.dao.pojo.AdviserDO;
+import org.zhinanzhen.tb.dao.UserDAO;
 import org.zhinanzhen.tb.dao.pojo.ConsultationDO;
+import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.ConsultationService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.ConsultationDTO;
@@ -22,6 +23,9 @@ public class ConsultationServiceImpl extends BaseService implements Consultation
 
 	@Resource
 	private ConsultationDAO consultationDao;
+
+	@Resource
+	private UserDAO userDao;
 
 	@Override
 	public int addConsultation(ConsultationDTO consultationDto) throws ServiceException {
@@ -97,8 +101,15 @@ public class ConsultationServiceImpl extends BaseService implements Consultation
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
 			throw se;
 		}
-		consultationDoList.stream().filter(consultationDo -> consultationDo.getUserId() > 0)
-				.forEach(consultationDo -> consultationDtoList.add(mapper.map(consultationDo, ConsultationDTO.class)));
+		consultationDoList.stream().filter(consultationDo -> consultationDo.getUserId() > 0).forEach(consultationDo -> {
+			ConsultationDTO consultationDto = mapper.map(consultationDo, ConsultationDTO.class);
+			if (consultationDto.getUserId() != null) {
+				UserDO userDo = userDao.getUserById(consultationDto.getUserId());
+				if (userDo != null)
+					consultationDto.setUserName(userDo.getName());
+			}
+			consultationDtoList.add(consultationDto);
+		});
 		return consultationDtoList;
 	}
 

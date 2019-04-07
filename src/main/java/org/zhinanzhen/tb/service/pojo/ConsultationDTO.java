@@ -12,6 +12,8 @@ public class ConsultationDTO {
 	private Date gmtCreate;
 
 	private Integer userId;
+	
+	private String userName;
 
 	private String contents;
 
