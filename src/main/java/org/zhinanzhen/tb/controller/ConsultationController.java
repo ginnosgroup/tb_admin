@@ -96,11 +96,19 @@ public class ConsultationController extends BaseController {
 	@RequestMapping(value = "/listByDate", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<List<ConsultationDTO>> listConsultationByDate(
-			@RequestParam(value = "date", required = false) String date, HttpServletResponse response) {
+			@RequestParam(value = "date", required = false) String date,
+			@RequestParam(value = "adviserId", required = false) String adviserId, HttpServletRequest request,
+			HttpServletResponse response) {
+		// 更改当前顾问编号
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId + "";
 		try {
 			super.setGetHeader(response);
 			return new Response<List<ConsultationDTO>>(0,
-					consultationService.listRemindByRemindDate(new Date(Long.parseLong(date))));
+					consultationService.listRemindByRemindDate(
+							StringUtil.isEmpty(date) ? new Date() : new Date(Long.parseLong(date)),
+							StringUtil.toInt(adviserId)));
 		} catch (ServiceException e) {
 			return new Response<List<ConsultationDTO>>(1, e.getMessage(), null);
 		}

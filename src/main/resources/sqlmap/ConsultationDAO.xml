@@ -31,18 +31,19 @@
         ORDER BY gmt_create DESC;
     </select>
     <select id="listConsultationByRemindDate" parameterType="java.util.Date" resultType="org.zhinanzhen.tb.dao.pojo.ConsultationDO">
-      <![CDATA[
         SELECT
-            id,
-            gmt_create AS gmtCreate,
-            gmt_modify AS gmtModify,
-            user_id AS userId,
-            contents,
-            remind_date AS remindDate,
-            remind_contents AS remindContents
-        FROM tb_consultation
-        WHERE remind_date < #{date}
-        ORDER BY gmt_create DESC;
-      ]]>
+            c.id,
+            c.gmt_create AS gmtCreate,
+            c.gmt_modify AS gmtModify,
+            c.user_id AS userId,
+            c.contents,
+            c.remind_date AS remindDate,
+            c.remind_contents AS remindContents
+        FROM tb_consultation c, tb_user u
+        WHERE c.user_id = u.id AND <![CDATA[ c.remind_date < #{date} ]]>
+        <if test='adviserId != null'>
+            AND u.adviser_id = #{adviserId}
+        </if>
+        ORDER BY c.gmt_create DESC;
     </select>
 </mapper>

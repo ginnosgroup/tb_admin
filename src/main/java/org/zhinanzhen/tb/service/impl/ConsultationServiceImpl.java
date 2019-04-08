@@ -86,14 +86,15 @@ public class ConsultationServiceImpl extends BaseService implements Consultation
 	}
 
 	@Override
-	public List<ConsultationDTO> listRemindByRemindDate(Date date) throws ServiceException {
+	public List<ConsultationDTO> listRemindByRemindDate(Date date, int adviserId) throws ServiceException {
 		List<ConsultationDTO> consultationDtoList = new ArrayList<ConsultationDTO>();
 		List<ConsultationDO> consultationDoList = new ArrayList<ConsultationDO>();
 		try {
 			Calendar c = Calendar.getInstance();
 			c.setTime(date);
 			c.add(Calendar.DAY_OF_MONTH, 1);// 包含当天
-			consultationDoList = consultationDao.listConsultationByRemindDate(c.getTime());
+			consultationDoList = consultationDao.listConsultationByRemindDate(c.getTime(),
+					adviserId > 0 ? adviserId : null);
 			if (consultationDoList == null)
 				return null;
 		} catch (Exception e) {

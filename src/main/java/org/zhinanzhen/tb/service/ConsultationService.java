@@ -13,6 +13,6 @@ public interface ConsultationService {
 
 	public List<ConsultationDTO> listConsultationByUserId(int userId) throws ServiceException;
 
-	public List<ConsultationDTO> listRemindByRemindDate(Date date) throws ServiceException;
+	public List<ConsultationDTO> listRemindByRemindDate(Date date, int adviserId) throws ServiceException;
 
 }
