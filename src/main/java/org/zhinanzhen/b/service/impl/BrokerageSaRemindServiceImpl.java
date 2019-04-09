@@ -31,7 +31,8 @@ public class BrokerageSaRemindServiceImpl extends BaseService implements Brokera
 			throw se;
 		}
 		try {
-			List<RemindDO> remindDoList = remindDao.listRemindByBrokerageSaId(brokerageSaRemindDto.getBrokerageSaId());
+			List<RemindDO> remindDoList = remindDao.listRemindByBrokerageSaId(brokerageSaRemindDto.getBrokerageSaId(),
+					null);
 			for (RemindDO remindDo : remindDoList) {
 				if (remindDo.getRemindDate().getTime() == brokerageSaRemindDto.getRemindDate().getTime()) {
 					ServiceException se = new ServiceException("该提醒日期已存在.");
@@ -53,11 +54,12 @@ public class BrokerageSaRemindServiceImpl extends BaseService implements Brokera
 	}
 
 	@Override
-	public List<BrokerageSaRemindDTO> listRemindByBrokerageSaId(int brokerageSaId) throws ServiceException {
+	public List<BrokerageSaRemindDTO> listRemindByBrokerageSaId(int brokerageSaId, int adviserId)
+			throws ServiceException {
 		List<BrokerageSaRemindDTO> brokerageSaRemindDtoList = new ArrayList<BrokerageSaRemindDTO>();
 		List<RemindDO> remindDoList = new ArrayList<RemindDO>();
 		try {
-			remindDoList = remindDao.listRemindByBrokerageSaId(brokerageSaId);
+			remindDoList = remindDao.listRemindByBrokerageSaId(brokerageSaId, adviserId > 0 ? adviserId : null);
 			if (remindDoList == null) {
 				return null;
 			}
@@ -74,14 +76,14 @@ public class BrokerageSaRemindServiceImpl extends BaseService implements Brokera
 	}
 
 	@Override
-	public List<BrokerageSaRemindDTO> listRemindByRemindDate(Date date) throws ServiceException {
+	public List<BrokerageSaRemindDTO> listRemindByRemindDate(Date date, int adviserId) throws ServiceException {
 		List<BrokerageSaRemindDTO> brokerageSaRemindDtoList = new ArrayList<BrokerageSaRemindDTO>();
 		List<RemindDO> remindDoList = new ArrayList<RemindDO>();
 		try {
 			Calendar c = Calendar.getInstance();
 			c.setTime(date);
 			c.add(Calendar.DAY_OF_MONTH, 1);// 包含当天
-			remindDoList = remindDao.listRemindByRemindDate(c.getTime());
+			remindDoList = remindDao.listRemindByRemindDate(c.getTime(), adviserId > 0 ? adviserId : null);
 			if (remindDoList == null) {
 				return null;
 			}

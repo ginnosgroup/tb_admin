@@ -21,8 +21,8 @@ public interface SchoolBrokerageSaService {
 			Integer subagencyId, Integer userId, Boolean isSettleAccounts, int pageNum, int pageSize)
 			throws ServiceException;
 
-	public List<SchoolBrokerageSaByDashboardListDTO> listSchoolBrokerageSaByDashboard(int pageNum, int pageSize)
-			throws ServiceException;
+	public List<SchoolBrokerageSaByDashboardListDTO> listSchoolBrokerageSaByDashboard(int adviserId, int pageNum,
+			int pageSize) throws ServiceException;
 
 	public int updateClose(int id, boolean isClose) throws ServiceException;
 

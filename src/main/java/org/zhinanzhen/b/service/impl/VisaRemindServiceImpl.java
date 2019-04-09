@@ -31,7 +31,7 @@ public class VisaRemindServiceImpl extends BaseService implements VisaRemindServ
 			throw se;
 		}
 		try {
-			List<RemindDO> remindDoList = remindDao.listRemindByVisaId(visaRemindDto.getVisaId());
+			List<RemindDO> remindDoList = remindDao.listRemindByVisaId(visaRemindDto.getVisaId(), null);
 			for (RemindDO remindDo : remindDoList) {
 				if (remindDo.getRemindDate().getTime() == visaRemindDto.getRemindDate().getTime()) {
 					ServiceException se = new ServiceException("该提醒日期已存在.");
@@ -53,11 +53,11 @@ public class VisaRemindServiceImpl extends BaseService implements VisaRemindServ
 	}
 
 	@Override
-	public List<VisaRemindDTO> listRemindByVisaId(int visaId) throws ServiceException {
+	public List<VisaRemindDTO> listRemindByVisaId(int visaId, int adviserId) throws ServiceException {
 		List<VisaRemindDTO> visaRemindDtoList = new ArrayList<VisaRemindDTO>();
 		List<RemindDO> remindDoList = new ArrayList<RemindDO>();
 		try {
-			remindDoList = remindDao.listRemindByVisaId(visaId);
+			remindDoList = remindDao.listRemindByVisaId(visaId, adviserId > 0 ? adviserId : null);
 			if (remindDoList == null) {
 				return null;
 			}
@@ -74,14 +74,14 @@ public class VisaRemindServiceImpl extends BaseService implements VisaRemindServ
 	}
 
 	@Override
-	public List<VisaRemindDTO> listRemindByRemindDate(Date date) throws ServiceException {
+	public List<VisaRemindDTO> listRemindByRemindDate(Date date, int adviserId) throws ServiceException {
 		List<VisaRemindDTO> visaRemindDtoList = new ArrayList<VisaRemindDTO>();
 		List<RemindDO> remindDoList = new ArrayList<RemindDO>();
 		try {
 			Calendar c = Calendar.getInstance();
 			c.setTime(date);
 			c.add(Calendar.DAY_OF_MONTH, 1);// 包含当天
-			remindDoList = remindDao.listRemindByRemindDate(c.getTime());
+			remindDoList = remindDao.listRemindByRemindDate(c.getTime(), adviserId > 0 ? adviserId : null);
 			if (remindDoList == null) {
 				return null;
 			}

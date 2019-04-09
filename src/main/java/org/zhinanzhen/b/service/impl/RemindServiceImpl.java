@@ -31,7 +31,8 @@ public class RemindServiceImpl extends BaseService implements RemindService {
 			throw se;
 		}
 		try {
-			List<RemindDO> remindDoList = remindDao.listRemindBySchoolBrokerageSaId(remindDto.getSchoolBrokerageSaId());
+			List<RemindDO> remindDoList = remindDao.listRemindBySchoolBrokerageSaId(remindDto.getSchoolBrokerageSaId(),
+					null);
 			for (RemindDO remindDo : remindDoList) {
 				if (remindDo.getRemindDate().getTime() == remindDto.getRemindDate().getTime()) {
 					ServiceException se = new ServiceException("该提醒日期已存在.");
@@ -53,11 +54,13 @@ public class RemindServiceImpl extends BaseService implements RemindService {
 	}
 
 	@Override
-	public List<RemindDTO> listRemindBySchoolBrokerageSaId(int schoolBrokerageSaId) throws ServiceException {
+	public List<RemindDTO> listRemindBySchoolBrokerageSaId(int schoolBrokerageSaId, int adviserId)
+			throws ServiceException {
 		List<RemindDTO> remindDtoList = new ArrayList<RemindDTO>();
 		List<RemindDO> remindDoList = new ArrayList<RemindDO>();
 		try {
-			remindDoList = remindDao.listRemindBySchoolBrokerageSaId(schoolBrokerageSaId);
+			remindDoList = remindDao.listRemindBySchoolBrokerageSaId(schoolBrokerageSaId,
+					adviserId > 0 ? adviserId : null);
 			if (remindDoList == null) {
 				return null;
 			}
@@ -74,14 +77,14 @@ public class RemindServiceImpl extends BaseService implements RemindService {
 	}
 
 	@Override
-	public List<RemindDTO> listRemindByRemindDate(Date date) throws ServiceException {
+	public List<RemindDTO> listRemindByRemindDate(Date date, int adviserId) throws ServiceException {
 		List<RemindDTO> remindDtoList = new ArrayList<RemindDTO>();
 		List<RemindDO> remindDoList = new ArrayList<RemindDO>();
 		try {
 			Calendar c = Calendar.getInstance();
 			c.setTime(date);
 			c.add(Calendar.DAY_OF_MONTH, 1);// 包含当天
-			remindDoList = remindDao.listRemindByRemindDate(c.getTime());
+			remindDoList = remindDao.listRemindByRemindDate(c.getTime(), adviserId > 0 ? adviserId : null);
 			if (remindDoList == null) {
 				return null;
 			}

@@ -131,7 +131,8 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 		for (SchoolBrokerageSaListDO schoolBrokerageSaListDo : schoolBrokerageSaListDoList) {
 			SchoolBrokerageSaDTO schoolBrokerageSaDto = mapper.map(schoolBrokerageSaListDo, SchoolBrokerageSaDTO.class);
 			List<Date> remindDateList = new ArrayList<>();
-			List<RemindDO> remindDoList = remindDao.listRemindBySchoolBrokerageSaId(schoolBrokerageSaDto.getId());
+			List<RemindDO> remindDoList = remindDao.listRemindBySchoolBrokerageSaId(schoolBrokerageSaDto.getId(),
+					adviserId);
 			for (RemindDO remindDo : remindDoList) {
 				remindDateList.add(remindDo.getRemindDate());
 			}
@@ -150,8 +151,8 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 	}
 
 	@Override
-	public List<SchoolBrokerageSaByDashboardListDTO> listSchoolBrokerageSaByDashboard(int pageNum, int pageSize)
-			throws ServiceException {
+	public List<SchoolBrokerageSaByDashboardListDTO> listSchoolBrokerageSaByDashboard(int adviserId, int pageNum,
+			int pageSize) throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
 		}
@@ -175,8 +176,8 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 			SchoolBrokerageSaByDashboardListDTO schoolBrokerageSaByDashboardListDto = mapper
 					.map(schoolBrokerageSaByDashboardListDo, SchoolBrokerageSaByDashboardListDTO.class);
 			List<Date> remindDateList = new ArrayList<>();
-			List<RemindDO> remindDoList = remindDao
-					.listRemindBySchoolBrokerageSaId(schoolBrokerageSaByDashboardListDto.getId());
+			List<RemindDO> remindDoList = remindDao.listRemindBySchoolBrokerageSaId(
+					schoolBrokerageSaByDashboardListDto.getId(), adviserId > 0 ? adviserId : null);
 			for (RemindDO remindDo : remindDoList) {
 				remindDateList.add(remindDo.getRemindDate());
 			}

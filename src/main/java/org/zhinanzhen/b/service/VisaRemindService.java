@@ -10,9 +10,9 @@ public interface VisaRemindService {
 
 	public int addRemind(VisaRemindDTO visaRemindDto) throws ServiceException;
 
-	public List<VisaRemindDTO> listRemindByVisaId(int visaId) throws ServiceException;
+	public List<VisaRemindDTO> listRemindByVisaId(int visaId, int adviserId) throws ServiceException;
 
-	public List<VisaRemindDTO> listRemindByRemindDate(Date date) throws ServiceException;
+	public List<VisaRemindDTO> listRemindByRemindDate(Date date, int adviserId) throws ServiceException;
 
 	public int deleteRemindByVisaId(int id) throws ServiceException;
 

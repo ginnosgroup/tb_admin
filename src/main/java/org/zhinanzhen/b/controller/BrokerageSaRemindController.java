@@ -57,11 +57,18 @@ public class BrokerageSaRemindController extends BaseController {
 	@ResponseBody
 	public Response<List<BrokerageSaRemindDTO>> listRemind(
 			@RequestParam(value = "brokerageSaId", required = false) String brokerageSaId,
+			@RequestParam(value = "adviserId", required = false) String adviserId, HttpServletRequest request,
 			HttpServletResponse response) {
+		// 更改当前顾问编号
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId + "";
+		else
+			adviserId = "0";
 		try {
 			super.setGetHeader(response);
 			List<BrokerageSaRemindDTO> BrokerageSaRemindList = brokerageSaRemindService
-					.listRemindByBrokerageSaId(Integer.parseInt(brokerageSaId));
+					.listRemindByBrokerageSaId(Integer.parseInt(brokerageSaId), Integer.parseInt(adviserId));
 			BrokerageSaRemindList.forEach(bsr -> {
 				try {
 					bsr.setBrokerageSa(brokerageSaService.getBrokerageSaById(bsr.getBrokerageSaId()));
@@ -78,11 +85,19 @@ public class BrokerageSaRemindController extends BaseController {
 	@RequestMapping(value = "/listByDate", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<List<BrokerageSaRemindDTO>> listRemindByDate(
-			@RequestParam(value = "date", required = false) String date, HttpServletResponse response) {
+			@RequestParam(value = "date", required = false) String date,
+			@RequestParam(value = "adviserId", required = false) String adviserId, HttpServletRequest request,
+			HttpServletResponse response) {
+		// 更改当前顾问编号
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId + "";
+		else
+			adviserId = "0";
 		try {
 			super.setGetHeader(response);
 			List<BrokerageSaRemindDTO> BrokerageSaRemindList = brokerageSaRemindService
-					.listRemindByRemindDate(new Date(Long.parseLong(date)));
+					.listRemindByRemindDate(new Date(Long.parseLong(date)), StringUtil.toInt(adviserId));
 			BrokerageSaRemindList.forEach(bsr -> {
 				try {
 					bsr.setBrokerageSa(brokerageSaService.getBrokerageSaById(bsr.getBrokerageSaId()));

@@ -3,26 +3,29 @@ package org.zhinanzhen.b.dao;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
 import org.zhinanzhen.b.dao.pojo.RemindDO;
 
 public interface RemindDAO {
 
 	public int addRemind(RemindDO remindDo);
 
-	public List<RemindDO> listRemindBySchoolBrokerageSaId(int schoolBrokerageSaId);
-	
-	public List<RemindDO> listRemindByVisaId(int visaId);
-	
-	public List<RemindDO> listRemindByBrokerageSaId(int brokerageSaId);
+	public List<RemindDO> listRemindBySchoolBrokerageSaId(@Param("schoolBrokerageSaId") int schoolBrokerageSaId,
+			@Param("adviserId") Integer adviserId);
 
-	public List<RemindDO> listRemindByRemindDate(Date date);
+	public List<RemindDO> listRemindByVisaId(@Param("visaId") int visaId, @Param("adviserId") Integer adviserId);
+
+	public List<RemindDO> listRemindByBrokerageSaId(@Param("brokerageSaId") int brokerageSaId,
+			@Param("adviserId") Integer adviserId);
+
+	public List<RemindDO> listRemindByRemindDate(@Param("date") Date date, @Param("adviserId") Integer adviserId);
 
 	public int deleteRemindById(int id);
-	
+
 	public int deleteRemindBySchoolBrokerageSaId(int id);
-	
+
 	public int deleteRemindByVisaId(int id);
-	
+
 	public int deleteRemindByBrokerageSaId(int id);
 
 }

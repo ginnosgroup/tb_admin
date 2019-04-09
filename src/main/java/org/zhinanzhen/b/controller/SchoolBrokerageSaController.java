@@ -255,12 +255,19 @@ public class SchoolBrokerageSaController extends BaseController {
 	@RequestMapping(value = "/listByDashboard", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<List<SchoolBrokerageSaByDashboardListDTO>> listByDashboard(
+			@RequestParam(value = "adviserId", required = false) String adviserId,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
-			HttpServletResponse response) {
+			HttpServletRequest request, HttpServletResponse response) {
+		// 更改当前顾问编号
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId + "";
+		else
+			adviserId = "0";
 		try {
 			super.setGetHeader(response);
-			return new Response<List<SchoolBrokerageSaByDashboardListDTO>>(0,
-					schoolBrokerageSaService.listSchoolBrokerageSaByDashboard(pageNum, pageSize));
+			return new Response<List<SchoolBrokerageSaByDashboardListDTO>>(0, schoolBrokerageSaService
+					.listSchoolBrokerageSaByDashboard(StringUtil.toInt(adviserId), pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<SchoolBrokerageSaByDashboardListDTO>>(1, e.getMessage(), null);
 		}

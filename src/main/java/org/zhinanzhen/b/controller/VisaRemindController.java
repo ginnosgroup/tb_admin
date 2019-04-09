@@ -54,11 +54,19 @@ public class VisaRemindController extends BaseController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<VisaRemindDTO>> listRemind(@RequestParam(value = "visaId", required = false) String visaId,
+	public Response<List<VisaRemindDTO>> listRemind(@RequestParam(value = "visaId") String visaId,
+			@RequestParam(value = "adviserId", required = false) String adviserId, HttpServletRequest request,
 			HttpServletResponse response) {
+		// 更改当前顾问编号
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId + "";
+		else
+			adviserId = "0";
 		try {
 			super.setGetHeader(response);
-			List<VisaRemindDTO> visaRemindList = visaRemindService.listRemindByVisaId(Integer.parseInt(visaId));
+			List<VisaRemindDTO> visaRemindList = visaRemindService.listRemindByVisaId(Integer.parseInt(visaId),
+					StringUtil.toInt(adviserId));
 			visaRemindList.forEach(vr -> {
 				try {
 					vr.setVisa(visaService.getVisaById(vr.getVisaId()));
@@ -75,11 +83,18 @@ public class VisaRemindController extends BaseController {
 	@RequestMapping(value = "/listByDate", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<List<VisaRemindDTO>> listRemindByDate(@RequestParam(value = "date", required = false) String date,
+			@RequestParam(value = "adviserId", required = false) String adviserId, HttpServletRequest request,
 			HttpServletResponse response) {
+		// 更改当前顾问编号
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId + "";
+		else
+			adviserId = "0";
 		try {
 			super.setGetHeader(response);
 			List<VisaRemindDTO> visaRemindList = visaRemindService
-					.listRemindByRemindDate(new Date(Long.parseLong(date)));
+					.listRemindByRemindDate(new Date(Long.parseLong(date)), StringUtil.toInt(adviserId));
 			visaRemindList.forEach(vr -> {
 				try {
 					vr.setVisa(visaService.getVisaById(vr.getVisaId()));

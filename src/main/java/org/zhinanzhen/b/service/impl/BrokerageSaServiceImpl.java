@@ -131,7 +131,7 @@ public class BrokerageSaServiceImpl extends BaseService implements BrokerageSaSe
 				brokerageSaDto.setReceiveTypeName(receiveTypeDo.getName());
 			}
 			List<Date> remindDateList = new ArrayList<>();
-			List<RemindDO> remindDoList = remindDao.listRemindByBrokerageSaId(brokerageSaDto.getId());
+			List<RemindDO> remindDoList = remindDao.listRemindByBrokerageSaId(brokerageSaDto.getId(), adviserId);
 			for (RemindDO remindDo : remindDoList) {
 				remindDateList.add(remindDo.getRemindDate());
 			}

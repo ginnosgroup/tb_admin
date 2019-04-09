@@ -51,13 +51,20 @@ public class RemindController extends BaseController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<RemindDTO>> listRemind(
-			@RequestParam(value = "schoolBrokerageSaId", required = false) String schoolBrokerageSaId,
+	public Response<List<RemindDTO>> listRemind(@RequestParam(value = "schoolBrokerageSaId") String schoolBrokerageSaId,
+			@RequestParam(value = "adviserId", required = false) String adviserId, HttpServletRequest request,
 			HttpServletResponse response) {
+		// 更改当前顾问编号
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId + "";
 		try {
 			super.setGetHeader(response);
-			return new Response<List<RemindDTO>>(0,
-					remindService.listRemindBySchoolBrokerageSaId(Integer.parseInt(schoolBrokerageSaId)));
+			return StringUtil.isEmpty(adviserId)
+					? new Response<List<RemindDTO>>(0,
+							remindService.listRemindBySchoolBrokerageSaId(Integer.parseInt(schoolBrokerageSaId), 0))
+					: new Response<List<RemindDTO>>(0, remindService.listRemindBySchoolBrokerageSaId(
+							Integer.parseInt(schoolBrokerageSaId), StringUtil.toInt(adviserId)));
 		} catch (ServiceException e) {
 			return new Response<List<RemindDTO>>(1, e.getMessage(), null);
 		}
@@ -66,11 +73,19 @@ public class RemindController extends BaseController {
 	@RequestMapping(value = "/listByDate", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<List<RemindDTO>> listRemindByDate(@RequestParam(value = "date", required = false) String date,
+			@RequestParam(value = "adviserId", required = false) String adviserId, HttpServletRequest request,
 			HttpServletResponse response) {
+		// 更改当前顾问编号
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId + "";
 		try {
 			super.setGetHeader(response);
-			return new Response<List<RemindDTO>>(0,
-					remindService.listRemindByRemindDate(new Date(Long.parseLong(date))));
+			return StringUtil.isEmpty(adviserId)
+					? new Response<List<RemindDTO>>(0,
+							remindService.listRemindByRemindDate(new Date(Long.parseLong(date)), 0))
+					: new Response<List<RemindDTO>>(0, remindService
+							.listRemindByRemindDate(new Date(Long.parseLong(date)), StringUtil.toInt(adviserId)));
 		} catch (ServiceException e) {
 			return new Response<List<RemindDTO>>(1, e.getMessage(), null);
 		}
@@ -89,8 +104,8 @@ public class RemindController extends BaseController {
 
 	@RequestMapping(value = "/deleteRemindBySchoolBrokerageSaId", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<Integer> deleteRemindBySchoolBrokerageSaId(@RequestParam(value = "schoolBrokerageSaId") int schoolBrokerageSaId,
-			HttpServletResponse response) {
+	public Response<Integer> deleteRemindBySchoolBrokerageSaId(
+			@RequestParam(value = "schoolBrokerageSaId") int schoolBrokerageSaId, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
 			return new Response<Integer>(0, remindService.deleteRemindBySchoolBrokerageSaId(schoolBrokerageSaId));
