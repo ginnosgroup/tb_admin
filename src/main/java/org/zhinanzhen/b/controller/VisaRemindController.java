@@ -61,12 +61,10 @@ public class VisaRemindController extends BaseController {
 		Integer newAdviserId = getAdviserId(request);
 		if (newAdviserId != null)
 			adviserId = newAdviserId + "";
-		else
-			adviserId = "0";
 		try {
 			super.setGetHeader(response);
 			List<VisaRemindDTO> visaRemindList = visaRemindService.listRemindByVisaId(Integer.parseInt(visaId),
-					StringUtil.toInt(adviserId));
+					StringUtil.isNotEmpty(adviserId) ? StringUtil.toInt(adviserId) : 0);
 			visaRemindList.forEach(vr -> {
 				try {
 					vr.setVisa(visaService.getVisaById(vr.getVisaId()));
@@ -89,12 +87,10 @@ public class VisaRemindController extends BaseController {
 		Integer newAdviserId = getAdviserId(request);
 		if (newAdviserId != null)
 			adviserId = newAdviserId + "";
-		else
-			adviserId = "0";
 		try {
 			super.setGetHeader(response);
-			List<VisaRemindDTO> visaRemindList = visaRemindService
-					.listRemindByRemindDate(new Date(Long.parseLong(date)), StringUtil.toInt(adviserId));
+			List<VisaRemindDTO> visaRemindList = visaRemindService.listRemindByRemindDate(
+					new Date(Long.parseLong(date)), StringUtil.isNotEmpty(adviserId) ? StringUtil.toInt(adviserId) : 0);
 			visaRemindList.forEach(vr -> {
 				try {
 					vr.setVisa(visaService.getVisaById(vr.getVisaId()));

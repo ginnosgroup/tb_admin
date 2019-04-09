@@ -9,7 +9,9 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.RemindDAO;
+import org.zhinanzhen.b.dao.VisaDAO;
 import org.zhinanzhen.b.dao.pojo.RemindDO;
+import org.zhinanzhen.b.dao.pojo.VisaDO;
 import org.zhinanzhen.b.service.VisaRemindService;
 import org.zhinanzhen.b.service.pojo.VisaRemindDTO;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -22,6 +24,9 @@ public class VisaRemindServiceImpl extends BaseService implements VisaRemindServ
 
 	@Resource
 	private RemindDAO remindDao;
+
+	@Resource
+	private VisaDAO visaDao;
 
 	@Override
 	public int addRemind(VisaRemindDTO visaRemindDto) throws ServiceException {
@@ -68,6 +73,7 @@ public class VisaRemindServiceImpl extends BaseService implements VisaRemindServ
 		}
 		for (RemindDO remindDo : remindDoList) {
 			VisaRemindDTO visaRemindDto = mapper.map(remindDo, VisaRemindDTO.class);
+
 			visaRemindDtoList.add(visaRemindDto);
 		}
 		return visaRemindDtoList;
@@ -81,7 +87,7 @@ public class VisaRemindServiceImpl extends BaseService implements VisaRemindServ
 			Calendar c = Calendar.getInstance();
 			c.setTime(date);
 			c.add(Calendar.DAY_OF_MONTH, 1);// 包含当天
-			remindDoList = remindDao.listRemindByRemindDate(c.getTime(), adviserId > 0 ? adviserId : null);
+			remindDoList = remindDao.listRemindByRemindDate(c.getTime());
 			if (remindDoList == null) {
 				return null;
 			}
@@ -90,8 +96,12 @@ public class VisaRemindServiceImpl extends BaseService implements VisaRemindServ
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
 			throw se;
 		}
-		remindDoList.stream().filter(remindDo -> remindDo.getVisaId() > 0)
-				.forEach(remindDo -> visaRemindDtoList.add(mapper.map(remindDo, VisaRemindDTO.class)));
+		remindDoList.stream().filter(remindDo -> remindDo.getVisaId() > 0).forEach(remindDo -> {
+			VisaRemindDTO visaRemindDto = mapper.map(remindDo, VisaRemindDTO.class);
+			VisaDO visaDo = visaDao.getVisaById(visaRemindDto.getVisaId());
+			if (visaDo != null && visaDo.getAdviserId() == adviserId)
+				visaRemindDtoList.add(visaRemindDto);
+		});
 		return visaRemindDtoList;
 	}
 

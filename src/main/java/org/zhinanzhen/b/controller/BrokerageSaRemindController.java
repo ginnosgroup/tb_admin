@@ -63,12 +63,11 @@ public class BrokerageSaRemindController extends BaseController {
 		Integer newAdviserId = getAdviserId(request);
 		if (newAdviserId != null)
 			adviserId = newAdviserId + "";
-		else
-			adviserId = "0";
 		try {
 			super.setGetHeader(response);
-			List<BrokerageSaRemindDTO> BrokerageSaRemindList = brokerageSaRemindService
-					.listRemindByBrokerageSaId(Integer.parseInt(brokerageSaId), Integer.parseInt(adviserId));
+			List<BrokerageSaRemindDTO> BrokerageSaRemindList = brokerageSaRemindService.listRemindByBrokerageSaId(
+					Integer.parseInt(brokerageSaId),
+					StringUtil.isNotEmpty(adviserId) ? StringUtil.toInt(adviserId) : 0);
 			BrokerageSaRemindList.forEach(bsr -> {
 				try {
 					bsr.setBrokerageSa(brokerageSaService.getBrokerageSaById(bsr.getBrokerageSaId()));
@@ -92,12 +91,10 @@ public class BrokerageSaRemindController extends BaseController {
 		Integer newAdviserId = getAdviserId(request);
 		if (newAdviserId != null)
 			adviserId = newAdviserId + "";
-		else
-			adviserId = "0";
 		try {
 			super.setGetHeader(response);
-			List<BrokerageSaRemindDTO> BrokerageSaRemindList = brokerageSaRemindService
-					.listRemindByRemindDate(new Date(Long.parseLong(date)), StringUtil.toInt(adviserId));
+			List<BrokerageSaRemindDTO> BrokerageSaRemindList = brokerageSaRemindService.listRemindByRemindDate(
+					new Date(Long.parseLong(date)), StringUtil.isNotEmpty(adviserId) ? StringUtil.toInt(adviserId) : 0);
 			BrokerageSaRemindList.forEach(bsr -> {
 				try {
 					bsr.setBrokerageSa(brokerageSaService.getBrokerageSaById(bsr.getBrokerageSaId()));

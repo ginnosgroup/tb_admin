@@ -262,12 +262,11 @@ public class SchoolBrokerageSaController extends BaseController {
 		Integer newAdviserId = getAdviserId(request);
 		if (newAdviserId != null)
 			adviserId = newAdviserId + "";
-		else
-			adviserId = "0";
 		try {
 			super.setGetHeader(response);
-			return new Response<List<SchoolBrokerageSaByDashboardListDTO>>(0, schoolBrokerageSaService
-					.listSchoolBrokerageSaByDashboard(StringUtil.toInt(adviserId), pageNum, pageSize));
+			return new Response<List<SchoolBrokerageSaByDashboardListDTO>>(0,
+					schoolBrokerageSaService.listSchoolBrokerageSaByDashboard(
+							StringUtil.isNotEmpty(adviserId) ? StringUtil.toInt(adviserId) : 0, pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<SchoolBrokerageSaByDashboardListDTO>>(1, e.getMessage(), null);
 		}

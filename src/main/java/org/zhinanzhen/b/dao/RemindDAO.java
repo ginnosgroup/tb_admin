@@ -18,7 +18,7 @@ public interface RemindDAO {
 	public List<RemindDO> listRemindByBrokerageSaId(@Param("brokerageSaId") int brokerageSaId,
 			@Param("adviserId") Integer adviserId);
 
-	public List<RemindDO> listRemindByRemindDate(@Param("date") Date date, @Param("adviserId") Integer adviserId);
+	public List<RemindDO> listRemindByRemindDate(Date date);
 
 	public int deleteRemindById(int id);
 

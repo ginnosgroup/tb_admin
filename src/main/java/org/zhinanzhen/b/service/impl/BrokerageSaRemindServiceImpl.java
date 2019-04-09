@@ -8,8 +8,11 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.zhinanzhen.b.dao.BrokerageSaDAO;
 import org.zhinanzhen.b.dao.RemindDAO;
+import org.zhinanzhen.b.dao.pojo.BrokerageSaDO;
 import org.zhinanzhen.b.dao.pojo.RemindDO;
+import org.zhinanzhen.b.dao.pojo.VisaDO;
 import org.zhinanzhen.b.service.BrokerageSaRemindService;
 import org.zhinanzhen.b.service.pojo.BrokerageSaRemindDTO;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -22,6 +25,9 @@ public class BrokerageSaRemindServiceImpl extends BaseService implements Brokera
 
 	@Resource
 	private RemindDAO remindDao;
+
+	@Resource
+	private BrokerageSaDAO brokerageSaDao;
 
 	@Override
 	public int addRemind(BrokerageSaRemindDTO brokerageSaRemindDto) throws ServiceException {
@@ -83,7 +89,7 @@ public class BrokerageSaRemindServiceImpl extends BaseService implements Brokera
 			Calendar c = Calendar.getInstance();
 			c.setTime(date);
 			c.add(Calendar.DAY_OF_MONTH, 1);// 包含当天
-			remindDoList = remindDao.listRemindByRemindDate(c.getTime(), adviserId > 0 ? adviserId : null);
+			remindDoList = remindDao.listRemindByRemindDate(c.getTime());
 			if (remindDoList == null) {
 				return null;
 			}
@@ -92,8 +98,12 @@ public class BrokerageSaRemindServiceImpl extends BaseService implements Brokera
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
 			throw se;
 		}
-		remindDoList.stream().filter(remindDo -> remindDo.getBrokerageSaId() > 0)
-				.forEach(remindDo -> brokerageSaRemindDtoList.add(mapper.map(remindDo, BrokerageSaRemindDTO.class)));
+		remindDoList.stream().filter(remindDo -> remindDo.getBrokerageSaId() > 0).forEach(remindDo -> {
+			BrokerageSaRemindDTO brokerageSaRemindDto = mapper.map(remindDo, BrokerageSaRemindDTO.class);
+			BrokerageSaDO brokerageSaDo = brokerageSaDao.getBrokerageSaById(brokerageSaRemindDto.getBrokerageSaId());
+			if (brokerageSaDo != null && brokerageSaDo.getAdviserId() == adviserId)
+				brokerageSaRemindDtoList.add(brokerageSaRemindDto);
+		});
 		return brokerageSaRemindDtoList;
 	}
 

@@ -9,7 +9,9 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.RemindDAO;
+import org.zhinanzhen.b.dao.SchoolBrokerageSaDAO;
 import org.zhinanzhen.b.dao.pojo.RemindDO;
+import org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaDO;
 import org.zhinanzhen.b.service.RemindService;
 import org.zhinanzhen.b.service.pojo.RemindDTO;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -22,6 +24,9 @@ public class RemindServiceImpl extends BaseService implements RemindService {
 
 	@Resource
 	private RemindDAO remindDao;
+
+	@Resource
+	private SchoolBrokerageSaDAO schoolBrokerageSaDao;
 
 	@Override
 	public int addRemind(RemindDTO remindDto) throws ServiceException {
@@ -84,7 +89,7 @@ public class RemindServiceImpl extends BaseService implements RemindService {
 			Calendar c = Calendar.getInstance();
 			c.setTime(date);
 			c.add(Calendar.DAY_OF_MONTH, 1);// 包含当天
-			remindDoList = remindDao.listRemindByRemindDate(c.getTime(), adviserId > 0 ? adviserId : null);
+			remindDoList = remindDao.listRemindByRemindDate(c.getTime());
 			if (remindDoList == null) {
 				return null;
 			}
@@ -93,8 +98,13 @@ public class RemindServiceImpl extends BaseService implements RemindService {
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
 			throw se;
 		}
-		remindDoList.stream().filter(remindDo -> remindDo.getSchoolBrokerageSaId() > 0)
-				.forEach(remindDo -> remindDtoList.add(mapper.map(remindDo, RemindDTO.class)));
+		remindDoList.stream().filter(remindDo -> remindDo.getSchoolBrokerageSaId() > 0).forEach(remindDo -> {
+			RemindDTO remindDto = mapper.map(remindDo, RemindDTO.class);
+			SchoolBrokerageSaDO schoolBrokerageSaDo = schoolBrokerageSaDao
+					.getSchoolBrokerageSaById(remindDto.getSchoolBrokerageSaId());
+			if (schoolBrokerageSaDo != null && schoolBrokerageSaDo.getAdviserId() == adviserId)
+				remindDtoList.add(remindDto);
+		});
 		return remindDtoList;
 	}
 
