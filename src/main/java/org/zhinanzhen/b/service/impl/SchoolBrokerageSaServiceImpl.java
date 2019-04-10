@@ -16,6 +16,7 @@ import org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaDO;
 import org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaListDO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.service.SchoolBrokerageSaService;
+import org.zhinanzhen.b.service.pojo.DashboardRemindDTO;
 import org.zhinanzhen.b.service.pojo.SchoolBrokerageSaByDashboardListDTO;
 import org.zhinanzhen.b.service.pojo.SchoolBrokerageSaDTO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
@@ -175,13 +176,13 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 		for (SchoolBrokerageSaByDashboardListDO schoolBrokerageSaByDashboardListDo : schoolBrokerageSaByDashboardListDoList) {
 			SchoolBrokerageSaByDashboardListDTO schoolBrokerageSaByDashboardListDto = mapper
 					.map(schoolBrokerageSaByDashboardListDo, SchoolBrokerageSaByDashboardListDTO.class);
-			List<Date> remindDateList = new ArrayList<>();
+			List<DashboardRemindDTO> remindList = new ArrayList<>();
 			List<RemindDO> remindDoList = remindDao.listRemindBySchoolBrokerageSaId(
 					schoolBrokerageSaByDashboardListDto.getId(), adviserId > 0 ? adviserId : null);
 			for (RemindDO remindDo : remindDoList) {
-				remindDateList.add(remindDo.getRemindDate());
+				remindList.add(new DashboardRemindDTO(remindDo.getId(), remindDo.getRemindDate()));
 			}
-			schoolBrokerageSaByDashboardListDto.setRemindDateList(remindDateList);
+			schoolBrokerageSaByDashboardListDto.setRemindList(remindList);
 			AdviserDO adviserDo = adviserDao.getAdviserById(schoolBrokerageSaByDashboardListDo.getAdviserId());
 			if (adviserDo != null) {
 				schoolBrokerageSaByDashboardListDto.setAdviserName(adviserDo.getName());
@@ -190,7 +191,7 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 			if (officialDo != null) {
 				schoolBrokerageSaByDashboardListDto.setOfficialName(officialDo.getName());
 			}
-			if (schoolBrokerageSaByDashboardListDto.getRemindDateList().size() > 0)
+			if (schoolBrokerageSaByDashboardListDto.getRemindList().size() > 0)
 				schoolBrokerageSaByDashboardListDtoList.add(schoolBrokerageSaByDashboardListDto);
 		}
 		return schoolBrokerageSaByDashboardListDtoList;

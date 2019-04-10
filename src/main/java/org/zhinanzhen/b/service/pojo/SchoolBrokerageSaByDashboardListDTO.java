@@ -34,6 +34,6 @@ public class SchoolBrokerageSaByDashboardListDTO {
 
 	private String officialName;
 
-	private List<Date> remindDateList;
+	private List<DashboardRemindDTO> remindList;
 
 }
