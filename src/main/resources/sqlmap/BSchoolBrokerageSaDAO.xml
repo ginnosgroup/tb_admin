@@ -233,6 +233,9 @@
 		WHERE bsbs.school_id = bs.id AND bsbs.user_id = tbu.id AND bsbs.adviser_id
 		= tba.id AND bsbs.official_id = bo.id AND bsbs.is_close = 0 AND
 		bsbs.invoice_code is null
+		<if test='adviserId != null'>
+			AND bsbs.adviser_id = #{adviserId}
+		</if>
 		ORDER BY bsbs.gmt_create DESC
 		LIMIT #{offset}, #{rows};
 	</select>

@@ -163,7 +163,7 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 		List<SchoolBrokerageSaByDashboardListDO> schoolBrokerageSaByDashboardListDoList = new ArrayList<>();
 		try {
 			schoolBrokerageSaByDashboardListDoList = schoolBrokerageSaDao
-					.listSchoolBrokerageSaByDashboard(pageNum * pageSize, pageSize);
+					.listSchoolBrokerageSaByDashboard(adviserId > 0 ? adviserId : null, pageNum * pageSize, pageSize);
 			if (schoolBrokerageSaByDashboardListDoList == null) {
 				return null;
 			}
