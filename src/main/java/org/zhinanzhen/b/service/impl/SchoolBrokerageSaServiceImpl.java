@@ -190,7 +190,8 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 			if (officialDo != null) {
 				schoolBrokerageSaByDashboardListDto.setOfficialName(officialDo.getName());
 			}
-			schoolBrokerageSaByDashboardListDtoList.add(schoolBrokerageSaByDashboardListDto);
+			if (schoolBrokerageSaByDashboardListDto.getRemindDateList().size() > 0)
+				schoolBrokerageSaByDashboardListDtoList.add(schoolBrokerageSaByDashboardListDto);
 		}
 		return schoolBrokerageSaByDashboardListDtoList;
 	}
