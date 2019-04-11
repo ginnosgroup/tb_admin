@@ -20,7 +20,9 @@ public class UserDTO {
 	private String phone;
 
 	private String email;
-	
+
+	private String wechatUsername;
+
 	private String firstControllerContents;
 
 	private String visaCode;

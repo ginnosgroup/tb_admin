@@ -18,6 +18,8 @@ public class UserDO {
 	private String phone;
 
 	private String email;
+	
+	private String wechatUsername;
 
 	private String firstControllerContents;
 

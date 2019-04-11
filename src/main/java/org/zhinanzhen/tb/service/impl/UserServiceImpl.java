@@ -29,8 +29,9 @@ public class UserServiceImpl extends BaseService implements UserService {
 	private AdviserService adviserService;
 
 	@Override
-	public int addUser(String name, String authNickname, Date birthday, String phone, String firstControllerContents,
-			String visaCode, Date visaExpirationDate, String source, int adviserId) throws ServiceException {
+	public int addUser(String name, String authNickname, Date birthday, String phone, String wechatUsername,
+			String firstControllerContents, String visaCode, Date visaExpirationDate, String source, int adviserId)
+			throws ServiceException {
 		if (StringUtil.isEmpty(name)) {
 			ServiceException se = new ServiceException("name is null !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -54,7 +55,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
-		return userDao.addUser(name, authNickname, birthday, phone, firstControllerContents, visaCode,
+		return userDao.addUser(name, authNickname, birthday, phone, wechatUsername, firstControllerContents, visaCode,
 				visaExpirationDate, source, adviserId);
 	}
 
@@ -200,7 +201,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 	}
 
 	@Override
-	public boolean update(int id, String name, Date birthday, String phone, String firstControllerContents,
+	public boolean update(int id, String name, Date birthday, String phone, String wechatUsername, String firstControllerContents,
 			String visaCode, Date visaExpirationDate, String source) throws ServiceException {
 		if (id <= 0) {
 			ServiceException se = new ServiceException("id error !");
@@ -215,8 +216,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 				throw se;
 			}
 		}
-		return userDao.update(id, name, birthday, phone, firstControllerContents, visaCode, visaExpirationDate,
-				source);
+		return userDao.update(id, name, birthday, phone, wechatUsername, firstControllerContents, visaCode, visaExpirationDate, source);
 	}
 
 	@Override

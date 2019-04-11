@@ -112,6 +112,7 @@ CREATE TABLE `tb_user` (
   `birthday` datetime NOT NULL COMMENT '生日',
   `phone` varchar(16) NOT NULL COMMENT '电话号码',
   `email` varchar(128) NOT NULL COMMENT '邮箱',
+`wechat_username` varchar(64) DEFAULT NULL COMMENT '微信帐号',
   `first_controller_contents` varchar(255) DEFAULT NULL COMMENT '初次咨询记录',
   `visa_code` varchar(8) DEFAULT NULL COMMENT '签证编号',
   `visa_expiration_date` datetime DEFAULT NULL COMMENT '签证到期日期',

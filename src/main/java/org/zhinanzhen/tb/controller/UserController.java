@@ -33,6 +33,7 @@ public class UserController extends BaseController {
 	public Response<Integer> addUser(@RequestParam(value = "name") String name,
 			@RequestParam(value = "authNickname", required = false) String authNickname,
 			@RequestParam(value = "birthday") String birthday, @RequestParam(value = "phone") String phone,
+			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
 			@RequestParam(value = "firstControllerContents", required = false) String firstControllerContents,
 			@RequestParam(value = "visaCode") String visaCode,
 			@RequestParam(value = "visaExpirationDate", required = false) String visaExpirationDate,
@@ -46,8 +47,8 @@ public class UserController extends BaseController {
 			}
 			return new Response<Integer>(0,
 					userService.addUser(name, authNickname, new Date(Long.parseLong(birthday.trim())), phone,
-							firstControllerContents, visaCode, new Date(Long.parseLong(visaExpirationDate)), source,
-							StringUtil.toInt(adviserId)));
+							wechatUsername, firstControllerContents, visaCode,
+							new Date(Long.parseLong(visaExpirationDate)), source, StringUtil.toInt(adviserId)));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), -1);
 		}
@@ -141,6 +142,7 @@ public class UserController extends BaseController {
 			@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "birthday", required = false) String birthday,
 			@RequestParam(value = "phone", required = false) String phone,
+			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
 			@RequestParam(value = "firstControllerContents", required = false) String firstControllerContents,
 			@RequestParam(value = "visaCode", required = false) String visaCode,
 			@RequestParam(value = "visaExpirationDate", required = false) String visaExpirationDate,
@@ -153,8 +155,8 @@ public class UserController extends BaseController {
 		Date _visaExpirationDate = null;
 		if (visaExpirationDate != null)
 			_visaExpirationDate = new Date(Long.parseLong(visaExpirationDate.trim()));
-		return new Response<Boolean>(0, userService.update(id, name, _birthday, phone, firstControllerContents,
-				visaCode, _visaExpirationDate, source));
+		return new Response<Boolean>(0, userService.update(id, name, _birthday, phone, wechatUsername,
+				firstControllerContents, visaCode, _visaExpirationDate, source));
 	}
 
 	@RequestMapping("/updateAdviser")
