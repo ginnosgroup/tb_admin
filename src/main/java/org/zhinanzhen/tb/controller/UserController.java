@@ -140,6 +140,7 @@ public class UserController extends BaseController {
 	@ResponseBody
 	public Response<Boolean> update(@RequestParam(value = "id") int id,
 			@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "authNickname", required = false) String authNickname,
 			@RequestParam(value = "birthday", required = false) String birthday,
 			@RequestParam(value = "phone", required = false) String phone,
 			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
@@ -155,7 +156,7 @@ public class UserController extends BaseController {
 		Date _visaExpirationDate = null;
 		if (visaExpirationDate != null)
 			_visaExpirationDate = new Date(Long.parseLong(visaExpirationDate.trim()));
-		return new Response<Boolean>(0, userService.update(id, name, _birthday, phone, wechatUsername,
+		return new Response<Boolean>(0, userService.update(id, name, authNickname, _birthday, phone, wechatUsername,
 				firstControllerContents, visaCode, _visaExpirationDate, source));
 	}
 

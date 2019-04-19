@@ -183,6 +183,9 @@
         <if test='name != null and name != ""'>
             , name = #{name, jdbcType=VARCHAR}
         </if>
+        <if test='authNickname != null and authNickname != ""'>
+            , auth_nickname = #{authNickname, jdbcType=VARCHAR}
+        </if>
         <if test='birthday != null'>
             , birthday = #{birthday}
         </if>
