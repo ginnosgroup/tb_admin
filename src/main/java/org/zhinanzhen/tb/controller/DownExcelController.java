@@ -24,12 +24,14 @@ import org.zhinanzhen.b.service.pojo.BrokerageSaDTO;
 import org.zhinanzhen.b.service.pojo.RefundDTO;
 import org.zhinanzhen.b.service.pojo.SchoolBrokerageSaDTO;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
+import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.OrderPayTypeEnum;
 import org.zhinanzhen.tb.service.OrderService;
 import org.zhinanzhen.tb.service.OrderStateEnum;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserAuthTypeEnum;
 import org.zhinanzhen.tb.service.UserService;
+import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.OrderDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.utils.ConfigService;
@@ -38,8 +40,12 @@ import com.ikasoa.core.utils.StringUtil;
 
 import jxl.Workbook;
 import jxl.WorkbookSettings;
+import jxl.biff.FontRecord;
+import jxl.format.Colour;
+import jxl.format.UnderlineStyle;
 import jxl.write.Label;
 import jxl.write.WritableCellFormat;
+import jxl.write.WritableFont;
 import jxl.write.WritableSheet;
 
 @Controller
@@ -67,6 +73,9 @@ public class DownExcelController extends BaseController {
 
 	@Resource
 	RefundService refundService;
+
+	@Resource
+	AdviserService adviserService;
 
 	@RequestMapping("/user")
 	public void userExport(String name, String authType, String authNickname, String phone,
@@ -511,6 +520,115 @@ public class DownExcelController extends BaseController {
 				sheet.addCell(new Label(5, i, refundDto.getBankAccount(), cellFormat));
 				sheet.addCell(new Label(6, i, refundDto.getBsb(), cellFormat));
 				sheet.addCell(new Label(7, i, refundDto.getAdviserName(), cellFormat));
+				i++;
+			}
+			wbe.write();
+			wbe.close();
+		} catch (ServiceException e) {
+			return;
+		}
+
+	}
+
+	@RequestMapping("/merge")
+	public void mergeExport(@RequestParam(value = "keyword", required = false) String keyword,
+			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
+			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
+			@RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = "endDate", required = false) String endDate,
+			@RequestParam(value = "adviserId") Integer adviserId,
+			@RequestParam(value = "schoolId", required = false) Integer schoolId,
+			@RequestParam(value = "subagencyId", required = false) Integer subagencyId,
+			@RequestParam(value = "officialId", required = false) Integer officialId,
+			@RequestParam(value = "isSettleAccounts", required = false) Boolean isSettleAccounts,
+			HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		// 更改当前顾问编号
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId;
+
+		response.reset();// 清空输出流
+		String tableName = "visa_information";
+		response.setHeader("Content-disposition",
+				"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
+		response.setContentType("application/msexcel");
+
+		try {
+			super.setGetHeader(response);
+
+			AdviserDTO adviserDto = adviserService.getAdviserById(adviserId);
+
+			// 签证类
+			List<VisaDTO> visaDtoList = visaService.listVisa(keyword, startHandlingDate, endHandlingDate, startDate,
+					endDate, adviserId, null, 0, 15);
+
+			// ?
+			List<BrokerageDTO> brokerageDtoList = brokerageService.listBrokerage(keyword, startHandlingDate,
+					endHandlingDate, startDate, endDate, adviserId, null, 0, 15);
+
+			// 提前扣除学校佣金的学生表
+			List<BrokerageSaDTO> brokerageSaDtoList = brokerageSaService.listBrokerageSa(keyword, startHandlingDate,
+					endHandlingDate, startDate, endDate, adviserId, schoolId, null, 0, 10);
+
+			// 需问学校追要佣金的学生表
+			List<SchoolBrokerageSaDTO> schoolBrokerageSaDtoList = schoolBrokerageSaService.listSchoolBrokerageSa(
+					keyword, startHandlingDate, endHandlingDate, startDate, endDate, newAdviserId, schoolId,
+					subagencyId, null, isSettleAccounts, 0, 10);
+
+			// 申请退款
+			List<RefundDTO> refundDtoList = refundService.listRefund(keyword, startHandlingDate, endHandlingDate,
+					startDate, endDate, newAdviserId, officialId, null, 0, 10);
+
+			OutputStream os = response.getOutputStream();
+			jxl.Workbook wb;
+			InputStream is;
+			try {
+				is = this.getClass().getResourceAsStream("/MergeTemplate.xls");
+			} catch (Exception e) {
+				throw new Exception("模版不存在");
+			}
+			try {
+				wb = Workbook.getWorkbook(is);
+			} catch (Exception e) {
+				throw new Exception("模版格式不支持");
+			}
+			WorkbookSettings settings = new WorkbookSettings();
+			settings.setWriteAccess(null);
+			jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
+
+			if (wbe == null) {
+				System.out.println("wbe is null !os=" + os + ",wb" + wb);
+			} else {
+				System.out.println("wbe not null !os=" + os + ",wb" + wb);
+			}
+			WritableSheet sheet = wbe.getSheet(0);
+			WritableCellFormat cellFormat = new WritableCellFormat();
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+			if (adviserDto != null) {
+				WritableCellFormat _cellFormat = new WritableCellFormat();
+				_cellFormat.setFont(new WritableFont(WritableFont.ARIAL, 14, WritableFont.BOLD, false,
+						UnderlineStyle.NO_UNDERLINE, Colour.BLACK));
+				sheet.addCell(new Label(4, 0, "顾问名：" + adviserDto.getName(), _cellFormat));
+			}
+
+			int i = 4;
+			for (VisaDTO visaDto : visaDtoList) {
+				sheet.addCell(new Label(0, i, sdf.format(visaDto.getHandlingDate()), cellFormat));
+				sheet.addCell(new Label(1, i, visaDto.getUserName(), cellFormat));
+				sheet.addCell(new Label(2, i, visaDto.getBirthday() + "", cellFormat));
+				sheet.addCell(new Label(3, i, visaDto.getPhone(), cellFormat));
+				sheet.addCell(new Label(4, i, sdf.format(visaDto.getReceiveDate()), cellFormat));
+				sheet.addCell(new Label(5, i, visaDto.getReceiveTypeName(), cellFormat));
+				sheet.addCell(new Label(6, i, visaDto.getServiceCode(), cellFormat));
+				sheet.addCell(new Label(7, i, visaDto.getReceivable() + "", cellFormat));
+				sheet.addCell(new Label(8, i, visaDto.getReceived() + "", cellFormat));
+				sheet.addCell(new Label(9, i, visaDto.getAmount() + "", cellFormat));
+				sheet.addCell(new Label(10, i, visaDto.getGst() + "", cellFormat));
+				sheet.addCell(new Label(11, i, visaDto.getDeductGst() + "", cellFormat));
+				sheet.addCell(new Label(12, i, visaDto.getBonus() + "", cellFormat));
+				sheet.addCell(new Label(13, i, visaDto.getAdviserName(), cellFormat));
 				i++;
 			}
 			wbe.write();
