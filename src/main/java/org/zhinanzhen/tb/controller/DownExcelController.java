@@ -604,6 +604,7 @@ public class DownExcelController extends BaseController {
 			}
 			WritableSheet sheet = wbe.getSheet(0);
 			WritableCellFormat cellFormat = new WritableCellFormat();
+			cellFormat.setBorder(jxl.format.Border.ALL, jxl.format.BorderLineStyle.THIN);
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 			if (adviserDto != null) {
@@ -631,6 +632,59 @@ public class DownExcelController extends BaseController {
 				sheet.addCell(new Label(13, i, visaDto.getAdviserName(), cellFormat));
 				i++;
 			}
+
+			i = 23;
+			for (BrokerageSaDTO brokerageSaDto : brokerageSaDtoList) {
+				sheet.addCell(new Label(0, i, sdf.format(brokerageSaDto.getHandlingDate()), cellFormat));
+				sheet.addCell(new Label(1, i, brokerageSaDto.getUserName(), cellFormat));
+				sheet.addCell(new Label(2, i, brokerageSaDto.getBirthday() + "", cellFormat));
+				sheet.addCell(new Label(3, i, brokerageSaDto.getPhone(), cellFormat));
+				sheet.addCell(new Label(4, i, brokerageSaDto.getSchoolName(), cellFormat));
+				sheet.addCell(new Label(5, i, brokerageSaDto.getSchoolSubject(), cellFormat));
+				sheet.addCell(new Label(6, i, sdf.format(brokerageSaDto.getStartDate()), cellFormat));
+				sheet.addCell(new Label(7, i, sdf.format(brokerageSaDto.getEndDate()), cellFormat));
+				sheet.addCell(new Label(8, i, brokerageSaDto.getReceiveTypeName(), cellFormat));
+				sheet.addCell(new Label(9, i, brokerageSaDto.getTuitionFee() + "", cellFormat));
+				sheet.addCell(new Label(10, i, brokerageSaDto.getCommission() + "", cellFormat));
+				sheet.addCell(new Label(11, i, brokerageSaDto.getGst() + "", cellFormat));
+				sheet.addCell(new Label(12, i, brokerageSaDto.getDeductGst() + "", cellFormat));
+				sheet.addCell(new Label(13, i, brokerageSaDto.getBonus() + "", cellFormat));
+				sheet.addCell(new Label(14, i, brokerageSaDto.getAdviserName(), cellFormat));
+				i++;
+			}
+
+			i = 43;
+			for (SchoolBrokerageSaDTO schoolBrokerageSaDto : schoolBrokerageSaDtoList) {
+				sheet.addCell(new Label(0, i, sdf.format(schoolBrokerageSaDto.getHandlingDate()), cellFormat));
+				sheet.addCell(new Label(1, i, schoolBrokerageSaDto.getUserName(), cellFormat));
+				sheet.addCell(new Label(2, i, schoolBrokerageSaDto.getBirthday() + "", cellFormat));
+				sheet.addCell(new Label(3, i, schoolBrokerageSaDto.getPhone(), cellFormat));
+				sheet.addCell(new Label(4, i, schoolBrokerageSaDto.getSchoolName(), cellFormat));
+				sheet.addCell(new Label(5, i, schoolBrokerageSaDto.getStudentCode(), cellFormat));
+				sheet.addCell(new Label(6, i, schoolBrokerageSaDto.getSchoolSubject(), cellFormat));
+				sheet.addCell(new Label(7, i, sdf.format(schoolBrokerageSaDto.getStartDate()), cellFormat));
+				sheet.addCell(new Label(8, i, sdf.format(schoolBrokerageSaDto.getEndDate()), cellFormat));
+				sheet.addCell(new Label(9, i, schoolBrokerageSaDto.getTuitionFee() + "", cellFormat));
+				sheet.addCell(new Label(10, i, schoolBrokerageSaDto.getFirstTermTuitionFee() + "", cellFormat));
+				sheet.addCell(new Label(11, i, schoolBrokerageSaDto.getCommission() + "", cellFormat));
+				sheet.addCell(new Label(12, i, schoolBrokerageSaDto.getSubagencyName(), cellFormat));
+				sheet.addCell(new Label(13, i, schoolBrokerageSaDto.getAdviserName(), cellFormat));
+				i++;
+			}
+
+			i = 73;
+			for (RefundDTO refundDto : refundDtoList) {
+				sheet.addCell(new Label(0, i, refundDto.getId() + "", cellFormat));
+				sheet.addCell(new Label(1, i, refundDto.getUserName(), cellFormat));
+				sheet.addCell(new Label(2, i, refundDto.getName(), cellFormat));
+				sheet.addCell(new Label(3, i, refundDto.getAmount() + "", cellFormat));
+				sheet.addCell(new Label(4, i, refundDto.getBankName(), cellFormat));
+				sheet.addCell(new Label(5, i, refundDto.getBankAccount(), cellFormat));
+				sheet.addCell(new Label(6, i, refundDto.getBsb(), cellFormat));
+				sheet.addCell(new Label(7, i, refundDto.getAdviserName(), cellFormat));
+				i++;
+			}
+
 			wbe.write();
 			wbe.close();
 		} catch (ServiceException e) {
