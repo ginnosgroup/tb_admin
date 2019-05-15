@@ -12,7 +12,6 @@ import org.zhinanzhen.b.dao.BrokerageSaDAO;
 import org.zhinanzhen.b.dao.RemindDAO;
 import org.zhinanzhen.b.dao.pojo.BrokerageSaDO;
 import org.zhinanzhen.b.dao.pojo.RemindDO;
-import org.zhinanzhen.b.dao.pojo.VisaDO;
 import org.zhinanzhen.b.service.BrokerageSaRemindService;
 import org.zhinanzhen.b.service.pojo.BrokerageSaRemindDTO;
 import org.zhinanzhen.tb.service.ServiceException;

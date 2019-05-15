@@ -17,7 +17,7 @@ import com.ikasoa.core.utils.StringUtil;
 public class AdminUserServiceImpl extends BaseService implements AdminUserService {
 
 	@Resource
-	private AdminUserDAO adminUserDAO;
+	private AdminUserDAO adminUserDao;
 
 	@Override
 	public int add(String username, String password, String apList, int adviserId) throws ServiceException {
@@ -32,7 +32,7 @@ public class AdminUserServiceImpl extends BaseService implements AdminUserServic
 			adminUserDo.setPassword(MD5Util.getMD5(password));
 			adminUserDo.setApList(apList);
 			adminUserDo.setAdviserId(adviserId);
-			return adminUserDAO.add(adminUserDo);
+			return adminUserDao.add(adminUserDo);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
@@ -54,7 +54,7 @@ public class AdminUserServiceImpl extends BaseService implements AdminUserServic
 		}
 		AdminUserDO adminUserDo = null;
 		try {
-			adminUserDo = adminUserDAO.login(username, MD5Util.getMD5(password));
+			adminUserDo = adminUserDao.login(username, MD5Util.getMD5(password));
 			if (adminUserDo == null) {
 				return 0;
 			}
@@ -73,7 +73,7 @@ public class AdminUserServiceImpl extends BaseService implements AdminUserServic
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
-		return adminUserDAO.updateSessionId(id, sessionId);
+		return adminUserDao.updateSessionId(id, sessionId);
 	}
 
 	@Override
@@ -85,7 +85,7 @@ public class AdminUserServiceImpl extends BaseService implements AdminUserServic
 		}
 		AdminUserDTO adminUserDto = null;
 		try {
-			AdminUserDO adminUserDo = adminUserDAO.getAdminUserById(id);
+			AdminUserDO adminUserDo = adminUserDao.getAdminUserById(id);
 			if (adminUserDo == null) {
 				ServiceException se = new ServiceException("the administrator is't exist .");
 				se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
@@ -113,7 +113,7 @@ public class AdminUserServiceImpl extends BaseService implements AdminUserServic
 			throw se;
 		}
 		try {
-			return adminUserDAO.updatePassword(username, MD5Util.getMD5(newPassword));
+			return adminUserDao.updatePassword(username, MD5Util.getMD5(newPassword));
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());

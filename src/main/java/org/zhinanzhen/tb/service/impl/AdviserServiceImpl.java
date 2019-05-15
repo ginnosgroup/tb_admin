@@ -19,7 +19,7 @@ import com.ikasoa.core.utils.StringUtil;
 @Service("adviserService")
 public class AdviserServiceImpl extends BaseService implements AdviserService {
 	@Resource
-	private AdviserDAO adviserDAO;
+	private AdviserDAO adviserDao;
 	@Resource
 	private RegionDAO regionDao;
 	@Override
@@ -34,7 +34,7 @@ public class AdviserServiceImpl extends BaseService implements AdviserService {
 			if (adviserDto.getState() != null) {
 				adviserDo.setState(adviserDto.getState().toString());
 			}
-			if (adviserDAO.addAdviser(adviserDo) > 0) {
+			if (adviserDao.addAdviser(adviserDo) > 0) {
 				adviserDto.setId(adviserDo.getId());
 				return adviserDo.getId();
 			} else {
@@ -58,7 +58,7 @@ public class AdviserServiceImpl extends BaseService implements AdviserService {
 			if (adviserDto.getState() != null) {
 				adviserDo.setState(adviserDto.getState().toString());
 			}
-			return adviserDAO.updateAdviser(adviserDo);
+			return adviserDao.updateAdviser(adviserDo);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
@@ -68,7 +68,7 @@ public class AdviserServiceImpl extends BaseService implements AdviserService {
 
 	@Override
 	public int countAdviser(String name, Integer regionId) throws ServiceException {
-		return adviserDAO.countAdviser(name, regionId);
+		return adviserDao.countAdviser(name, regionId);
 	}
 
 	@Override
@@ -83,7 +83,7 @@ public class AdviserServiceImpl extends BaseService implements AdviserService {
 		List<AdviserDTO> adviserDtoList = new ArrayList<AdviserDTO>();
 		List<AdviserDO> adviserDoList = new ArrayList<AdviserDO>();
 		try {
-			adviserDoList = adviserDAO.listAdviser(name, regionId, pageNum * pageSize, pageSize);
+			adviserDoList = adviserDao.listAdviser(name, regionId, pageNum * pageSize, pageSize);
 			if (adviserDoList == null) {
 				return null;
 			}
@@ -116,7 +116,7 @@ public class AdviserServiceImpl extends BaseService implements AdviserService {
 		}
 		AdviserDTO adviserDto = null;
 		try {
-			AdviserDO adviserDo = adviserDAO.getAdviserById(id);
+			AdviserDO adviserDo = adviserDao.getAdviserById(id);
 			if (adviserDo == null) {
 //				ServiceException se = new ServiceException("the adviser is't exist .");
 //				se.setCode(ErrorCodeEnum.OTHER_ERROR.code());

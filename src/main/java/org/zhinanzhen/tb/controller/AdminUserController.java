@@ -102,7 +102,8 @@ public class AdminUserController extends BaseController {
 	public Response<String> resetPassword(@RequestParam(value = "username") String username, HttpServletRequest request,
 			HttpServletResponse response) throws ServiceException {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-		if (adminUserLoginInfo != null && StringUtil.isEmpty(adminUserLoginInfo.getApList())) {
+		if (adminUserLoginInfo != null && (StringUtil.isEmpty(adminUserLoginInfo.getApList())
+				|| "AD".equalsIgnoreCase(adminUserLoginInfo.getApList()))) {
 			String newPassword = RandomStringUtils.randomAlphanumeric(4);
 			if (adminUserService.updatePassword(username, newPassword))
 				return new Response<String>(0, "", newPassword);
