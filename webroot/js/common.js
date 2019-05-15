@@ -12,6 +12,7 @@ var url3="/";
 // var url3 = "http://10.1.2.24:8080/tb/";
 var tb = {
 	out: function() {
+		$.ajaxSettings.async = false;
 		$.get(url + "admin_user/out", function(result) {
 			console.log(result)
 			if(result.code == 0 && result.data == true) {

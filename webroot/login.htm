@@ -53,19 +53,46 @@
 						var that = this;
 						if(!tb.checkEmpty(that.userName, "用户名不能为空")) return;
 						if(!tb.checkEmpty(that.passWord, "密码不能为空")) return;
+						$.ajaxSettings.async = false;
 						$.post(url + "admin_user/login", {
 							username: that.userName,
 							password: that.passWord,
 						}, function(result) {
-							console.log(result)
-							if(result.code == 0 && result.data == true) {
+							//console.log(result)
+							sessionStorage.removeItem("admin");
+							sessionStorage.removeItem("ap_list");
+							if(result.code == 0 && result.data == true) {								
 								var goUrl = sessionStorage.getItem("goUrl");
 								sessionStorage.removeItem("goUrl");
 								sessionStorage.setItem("admin", that.userName);
+								$.get(url + "admin_user/isLogin", function(res) {
+									//console.log(res)
+									sessionStorage.setItem("ap_list", res.data.apList);
+									sessionStorage.setItem("adviser_id", res.data.adviserId);
+									
+								});								
+								alert('欢迎！您已成功登录！');
 								if(goUrl) {
 									window.location.href = goUrl;
 								} else {
-									window.location.href = "class-list.htm";
+									switch(sessionStorage.getItem("ap_list"))
+									{
+											case 'KJ':
+											window.location.href = "main.html";
+											break;
+											case 'GW':
+											window.location.href = "main.html";
+											break;
+											case 'AD':
+											window.location.href = "main.html";
+											break;
+											case 'TGAD':
+											window.location.href = "class-list.htm";
+											break;
+											default :
+											window.location.href = "main.html";
+											break;
+									}
 								}
 							} else {
 								that.eror = "输入有误，请重新输入用户名和密码";
