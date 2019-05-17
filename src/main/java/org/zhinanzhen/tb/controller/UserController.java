@@ -136,7 +136,7 @@ public class UserController extends BaseController {
 		}
 	}
 
-	@RequestMapping("/update")
+	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Boolean> update(@RequestParam(value = "id") int id,
 			@RequestParam(value = "name", required = false) String name,
@@ -160,11 +160,11 @@ public class UserController extends BaseController {
 				firstControllerContents, visaCode, _visaExpirationDate, source));
 	}
 
-	@RequestMapping("/updateAdviser")
+	@RequestMapping(value = "/updateAdviser", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Boolean> updateAdviserId(int id, int adviserId, HttpServletResponse response)
 			throws ServiceException {
-		super.setGetHeader(response);
+		super.setPostHeader(response);
 		return new Response<Boolean>(0, userService.updateAdviserId(adviserId, id));
 	}
 
