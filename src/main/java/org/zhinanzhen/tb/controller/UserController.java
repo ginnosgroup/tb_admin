@@ -149,7 +149,7 @@ public class UserController extends BaseController {
 			@RequestParam(value = "visaExpirationDate", required = false) String visaExpirationDate,
 			@RequestParam(value = "source", required = false) String source, HttpServletResponse response)
 			throws ServiceException {
-		super.setGetHeader(response);
+		super.setPostHeader(response);
 		Date _birthday = null;
 		if (birthday != null)
 			_birthday = new Date(Long.parseLong(birthday.trim()));
