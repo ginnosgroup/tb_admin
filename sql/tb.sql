@@ -352,6 +352,24 @@ CREATE TABLE `b_remind` (
   `remind_date` datetime NOT NULL COMMENT '提醒日期'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
+-- 来源渠道
+CREATE TABLE `b_source` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `name` varchar(32) DEFAULT NULL COMMENT '渠道名称',
+  `source_region_id` int DEFAULT 0 COMMENT '所属来源渠道区域编号'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+-- 来源渠道区域
+CREATE TABLE `b_source_region` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `name` varchar(32) DEFAULT NULL COMMENT '区域名称',
+  `parent_id` int DEFAULT 0 COMMENT '父区域编号'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
 -- ----------V2.1相关表----------
 
 -- 客户咨询表

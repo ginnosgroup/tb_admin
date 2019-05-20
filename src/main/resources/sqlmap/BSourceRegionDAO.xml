@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.SourceRegionDAO">
+
+    <insert id="addSourceRegion" parameterType="org.zhinanzhen.b.dao.pojo.SourceRegionDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+            INTO b_source_region (
+                gmt_create,
+                gmt_modify,
+                name,
+                parent_id)
+            VALUES (
+                now(),
+                now(),
+                #{name},
+                #{parentId});
+    </insert>
+    
+    <update id="updateSourceRegion" parameterType="org.zhinanzhen.b.dao.pojo.SourceRegionDO">
+        UPDATE b_source_region 
+        SET gmt_modify = now()
+        <if test='name != null'>
+            , name = #{name}
+        </if>
+        <if test='parentId != null and parentId != ""'>
+            , parent_id = #{parentId}
+        </if>
+        WHERE id = #{id};
+    </update>
+    
+    <select id="listSourceRegion" resultType="org.zhinanzhen.b.dao.pojo.SourceRegionDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            name,
+            parent_id
+        FROM b_source_region
+        WHERE 1 = 1
+        <if test='parentId != null and parentId != ""'>
+            AND parent_id = #{parentId}
+        </if>
+        ORDER BY gmt_create DESC;
+    </select>
+    
+    <delete id="deleteSourceRegion" parameterType="java.lang.Integer">
+		DELETE FROM b_source_region WHERE id = #{id, jdbcType=INTEGER}
+	</delete>
+
+</mapper>
