@@ -237,6 +237,7 @@
 												<thead>
 													<tr>
 														<!--<th><input @click="checked" type="checkbox"></th>-->
+														<th><span style="color:red;">创建日期</span></th>
 														<th>办理日期</th>
 														<th>客户姓名</th>
 														<th>生日</th>
@@ -267,6 +268,7 @@
 												</thead>
 												<tbody>
 													<tr v-for="item in subject" class="gradeX">
+														<td v-html="item.gmtCreate"></td>
 														<td v-html="item.handlingDate"></td>
 														<td v-html="item.userName"></td>
 														<td v-html="item.birthday"></td>
@@ -518,6 +520,7 @@
 							//console.log(result)
 							that.pageNum = 0;
 							for(var i = 0; i < result.data.length; i++) {
+									result.data[i].gmtCreate = that.getTime(result.data[i].gmtCreate);
 									result.data[i].handlingDate = that.getTime(result.data[i].handlingDate);
 									result.data[i].birthday = that.getTime(result.data[i].birthday);
 									result.data[i].startDate = that.getTime(result.data[i].startDate);
@@ -648,6 +651,7 @@
 							//console.log(result)
 							that.pageNum = 0;
 							for(var i = 0; i < result.data.length; i++) {
+								result.data[i].gmtCreate = that.getTime(result.data[i].gmtCreate);
 								result.data[i].handlingDate = that.getTime(result.data[i].handlingDate);
 								result.data[i].birthday = that.getTime(result.data[i].birthday);
 								result.data[i].startDate = that.getTime(result.data[i].startDate);
@@ -712,6 +716,7 @@
 								console.log(result)
 								that.pageNum = 0;
 								for(var i = 0; i < result.data.length; i++) {
+										result.data[i].gmtCreate = that.getTime(result.data[i].gmtCreate);
 										result.data[i].handlingDate = that.getTime(result.data[i].handlingDate);
 										result.data[i].birthday = that.getTime(result.data[i].birthday);
 										result.data[i].startDate = that.getTime(result.data[i].startDate);
@@ -757,6 +762,7 @@
 							}, function(result) {
 								console.log(result)
 								for(var i = 0; i < result.data.length; i++) {
+										result.data[i].gmtCreate = that.getTime(result.data[i].gmtCreate);
 										result.data[i].handlingDate = that.getTime(result.data[i].handlingDate);
 										result.data[i].birthday = that.getTime(result.data[i].birthday);
 										result.data[i].startDate = that.getTime(result.data[i].startDate);
@@ -804,6 +810,7 @@
 							}, function(result) {
 								console.log(result)
 								for(var i = 0; i < result.data.length; i++) {
+										result.data[i].gmtCreate = that.getTime(result.data[i].gmtCreate);
 										result.data[i].handlingDate = that.getTime(result.data[i].handlingDate);
 										result.data[i].birthday = that.getTime(result.data[i].birthday);
 										result.data[i].startDate = that.getTime(result.data[i].startDate);
@@ -851,6 +858,7 @@
 								console.log(result)
 								that.pageNum = that.allPage - 1;
 								for(var i = 0; i < result.data.length; i++) {
+										result.data[i].gmtCreate = that.getTime(result.data[i].gmtCreate);
 										result.data[i].handlingDate = that.getTime(result.data[i].handlingDate);
 										result.data[i].birthday = that.getTime(result.data[i].birthday);
 										result.data[i].startDate = that.getTime(result.data[i].startDate);
