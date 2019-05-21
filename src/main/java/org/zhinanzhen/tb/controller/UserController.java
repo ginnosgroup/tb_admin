@@ -67,6 +67,8 @@ public class UserController extends BaseController {
 		Integer newAdviserId = getAdviserId(request);
 		if (newAdviserId != null)
 			adviserId = newAdviserId + "";
+		if (StringUtil.isBlank(adviserId))
+			return new Response<Integer>(1, "No permission !", -1);
 
 		try {
 			super.setGetHeader(response);
@@ -108,6 +110,8 @@ public class UserController extends BaseController {
 		Integer newAdviserId = getAdviserId(request);
 		if (newAdviserId != null)
 			adviserId = newAdviserId + "";
+		if (StringUtil.isBlank(adviserId))
+			return new Response<List<UserDTO>>(1, "No permission !", null);
 
 		try {
 			super.setGetHeader(response);
