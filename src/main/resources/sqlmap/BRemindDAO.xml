@@ -33,7 +33,7 @@
         <if test='adviserId != null'>
             AND sbs.adviser_id = #{adviserId}
         </if>
-        ORDER BY r.gmt_create DESC;
+        ORDER BY r.remind_date DESC;
     </select>
     
     <select id="listRemindByVisaId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.RemindDO">
@@ -48,7 +48,7 @@
         <if test='adviserId != null'>
             AND v.adviser_id = #{adviserId}
         </if>
-        ORDER BY r.gmt_create DESC;
+        ORDER BY r.remind_date DESC;
     </select>
     
     <select id="listRemindByBrokerageSaId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.RemindDO">
@@ -63,7 +63,7 @@
         <if test='adviserId != null'>
             AND bs.adviser_id = #{adviserId}
         </if>
-        ORDER BY r.gmt_create DESC;
+        ORDER BY r.remind_date DESC;
     </select>
     
     <select id="listRemindByRemindDate" parameterType="java.util.Date" resultType="org.zhinanzhen.b.dao.pojo.RemindDO">
@@ -78,7 +78,7 @@
             remind_date AS remindDate
         FROM b_remind
         WHERE remind_date < #{date}
-        ORDER BY gmt_create DESC;
+        ORDER BY remind_date DESC;
       ]]>
     </select>
     
