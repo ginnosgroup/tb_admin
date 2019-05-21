@@ -63,6 +63,9 @@
         <if test='phone != null and phone != ""'>
             AND phone = #{phone}
         </if>
+        <if test='adviserId != null'>
+            AND adviser_id = #{adviserId}
+        </if>
         ;
     </select>
 
