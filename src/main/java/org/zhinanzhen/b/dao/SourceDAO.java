@@ -7,9 +7,9 @@ import org.zhinanzhen.b.dao.pojo.SourceDO;
 
 public interface SourceDAO {
 	
-	int addSource(SourceDO sourceDO);
+	int addSource(SourceDO sourceDo);
 
-	int updateSource(SourceDO sourceDO);
+	int updateSource(SourceDO sourceDo);
 
 	List<SourceDO> listSource(@Param("sourceRegionId") Integer sourceRegionId);
 

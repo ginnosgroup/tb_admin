@@ -7,9 +7,9 @@ import org.zhinanzhen.b.dao.pojo.SourceRegionDO;
 
 public interface SourceRegionDAO {
 
-	int addSourceRegion(SourceRegionDO sourceRegionDO);
+	int addSourceRegion(SourceRegionDO sourceRegionDo);
 
-	int updateSourceRegion(SourceRegionDO sourceRegionDO);
+	int updateSourceRegion(SourceRegionDO sourceRegionDo);
 
 	List<SourceRegionDO> listSourceRegion(@Param("parentId") Integer parentId);
 
