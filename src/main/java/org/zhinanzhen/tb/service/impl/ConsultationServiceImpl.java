@@ -108,6 +108,8 @@ public class ConsultationServiceImpl extends BaseService implements Consultation
 				UserDO userDo = userDao.getUserById(consultationDto.getUserId());
 				if (userDo != null)
 					consultationDto.setUserName(userDo.getName());
+				if (consultationDto.getRemindDate().getTime() <= 0)
+					consultationDto.setRemindDate(null);
 			}
 			consultationDtoList.add(consultationDto);
 		});
