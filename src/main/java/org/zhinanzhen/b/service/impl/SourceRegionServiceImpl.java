@@ -9,10 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.SourceDAO;
 import org.zhinanzhen.b.dao.SourceRegionDAO;
-import org.zhinanzhen.b.dao.pojo.SourceDO;
 import org.zhinanzhen.b.dao.pojo.SourceRegionDO;
 import org.zhinanzhen.b.service.SourceRegionService;
-import org.zhinanzhen.b.service.pojo.SourceDTO;
 import org.zhinanzhen.b.service.pojo.SourceRegionDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
@@ -71,7 +69,7 @@ public class SourceRegionServiceImpl extends BaseService implements SourceRegion
 	}
 
 	@Override
-	public List<SourceRegionDTO> listSourceRegion(int parentId) throws ServiceException {
+	public List<SourceRegionDTO> listSourceRegion(Integer parentId) throws ServiceException {
 		List<SourceRegionDTO> sourceRegionDtoList = new ArrayList<SourceRegionDTO>();
 		List<SourceRegionDO> sourceRegionDoList = new ArrayList<SourceRegionDO>();
 		try {

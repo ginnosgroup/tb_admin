@@ -64,7 +64,7 @@ public class SourceServiceImpl extends BaseService implements SourceService {
 	}
 
 	@Override
-	public List<SourceDTO> listSource(int sourceRegionId) throws ServiceException {
+	public List<SourceDTO> listSource(Integer sourceRegionId) throws ServiceException {
 		List<SourceDTO> sourceDtoList = new ArrayList<SourceDTO>();
 		List<SourceDO> sourceDoList = new ArrayList<SourceDO>();
 		try {

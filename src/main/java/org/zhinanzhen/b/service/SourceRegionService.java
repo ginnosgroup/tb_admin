@@ -11,7 +11,7 @@ public interface SourceRegionService {
 
 	int updateSourceRegion(SourceRegionDTO sourceRegionDto) throws ServiceException;
 
-	List<SourceRegionDTO> listSourceRegion(int parentId) throws ServiceException;
+	List<SourceRegionDTO> listSourceRegion(Integer parentId) throws ServiceException;
 
 	int deleteSourceRegion(int id) throws ServiceException;
 
