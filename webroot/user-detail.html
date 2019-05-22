@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 	<head>
@@ -1050,6 +1050,8 @@
 					   	function(data){
 					   			if (data.code == 0)
 					   			{
+					   					//更换顾问
+					   					$.post('user/updateAdviser', { id: sa_id, adviserId: jqSelect[1].value},function(data){});
 					   					v.add = false;		
 					   					$('#alert').addClass('alert-success').show().delay(1500).fadeOut();
 					   					v.table_remove();
@@ -1113,8 +1115,7 @@
 			    obj_source.append("<option value='学校内(附近)推广活动'>学校内(附近)推广活动</option>");
 			    obj_source.append("<option value='抖音'>抖音</option>");
 			    obj_source.append("<option value='小红书'>小红书</option>");
-			    obj_source.append("<option value='掌上澳洲'>掌上澳洲</option>");
-			    obj_source.append("<option value='访客上门'>访客上门</option>");
+			    obj_source.append("<option value='掌上澳洲'>掌上澳洲</option>");			    
 			    obj_source.append("<option value='其他'>其他</option>");
 			    obj_source.val(str_source);
 			});
