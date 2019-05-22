@@ -377,20 +377,21 @@
                      <thead>
                         <tr>
                            <th>Id</th>
-                           <th>姓名</th>
+                           <th>姓名</th>                           
                            <th>时间</th>
-                           <th>内容</th>                           
-                           <th>&nbsp;</th>
-                           <th>&nbsp;</th>
+                           <th>咨询内容</th>                           
+                           <th>提醒时间</th>
+                           <th>提醒内容</th>
                         </tr>
                      </thead>
                      <tbody>
                         <tr v-for="item in datalist4">
                            <td v-html="item.id"></td>
                            <td v-html="item.userName"></td>
+                           <td v-html="item.gmtCreate"></td>
+                           <td v-html="item.contents"></td>
                            <td v-html="item.remindDate"></td>
                            <td v-html="item.remindContents"></td>
-                           <td>&nbsp;</td>
                         </tr>                        
                      </tbody>
                   </table>
@@ -526,6 +527,7 @@
 							for(var i = 0; i < result.data.length; i++) {									
 									result.data[i].id = result.data[i].id;
 									result.data[i].userName = '<a href="javascript:;" onclick="show_detail('+result.data[i].userId+');">'+result.data[i].userName+'</a>';//需调用name字段
+									result.data[i].gmtCreate = that.getTime(result.data[i].gmtCreate);
 									result.data[i].remindDate = that.getTime(result.data[i].remindDate);
 							};
 							that.datalist4 = result.data;
