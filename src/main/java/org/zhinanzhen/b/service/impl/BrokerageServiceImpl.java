@@ -52,6 +52,7 @@ public class BrokerageServiceImpl extends BaseService implements BrokerageServic
 		try {
 			BrokerageDO brokerageDo = mapper.map(brokerageDto, BrokerageDO.class);
 			if (brokerageDao.addBrokerage(brokerageDo) > 0) {
+				brokerageDto.setId(brokerageDo.getId());
 				return brokerageDo.getId();
 			} else {
 				return 0;

@@ -58,6 +58,7 @@ public class BrokerageSaServiceImpl extends BaseService implements BrokerageSaSe
 		try {
 			BrokerageSaDO brokerageSaDo = mapper.map(brokerageSaDto, BrokerageSaDO.class);
 			if (brokerageSaDao.addBrokerageSa(brokerageSaDo) > 0) {
+				brokerageSaDto.setId(brokerageSaDo.getId());
 				return brokerageSaDo.getId();
 			} else {
 				return 0;

@@ -32,6 +32,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		try {
 			SchoolDO schoolDo = mapper.map(schoolDto, SchoolDO.class);
 			if (schoolDao.addSchool(schoolDo) > 0) {
+				schoolDto.setId(schoolDo.getId());
 				return schoolDo.getId();
 			} else {
 				return 0;

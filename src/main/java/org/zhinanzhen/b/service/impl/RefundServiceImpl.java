@@ -42,6 +42,7 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 		try {
 			RefundDO refundDo = mapper.map(refundDto, RefundDO.class);
 			if (refundDao.addRefund(refundDo) > 0) {
+				refundDto.setId(refundDo.getId());
 				return refundDo.getId();
 			} else {
 				return 0;

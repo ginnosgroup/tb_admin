@@ -60,7 +60,7 @@ public class SourceController extends BaseController {
 			super.setPostHeader(response);
 			SourceRegionDTO sourceRegionDto = new SourceRegionDTO();
 			sourceRegionDto.setName(name);
-			sourceRegionDto.setParentId(sourceRegionId);
+			sourceRegionDto.setParentId(sourceRegionId == null ? 0 : sourceRegionId);
 			if (sourceRegionService.addSourceRegion(sourceRegionDto) > 0) {
 				return new Response<Integer>(0, sourceRegionDto.getId());
 			} else {

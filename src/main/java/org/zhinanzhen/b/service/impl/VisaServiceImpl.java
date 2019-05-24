@@ -63,6 +63,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 		try {
 			VisaDO visaDo = mapper.map(visaDto, VisaDO.class);
 			if (visaDao.addVisa(visaDo) > 0) {
+				visaDto.setId(visaDo.getId());
 				return visaDo.getId();
 			} else {
 				return 0;

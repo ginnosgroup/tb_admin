@@ -47,6 +47,7 @@ public class RemindServiceImpl extends BaseService implements RemindService {
 			}
 			RemindDO remindDo = mapper.map(remindDto, RemindDO.class);
 			if (remindDao.addRemind(remindDo) > 0) {
+				remindDto.setId(remindDo.getId());
 				return remindDo.getId();
 			} else {
 				return 0;

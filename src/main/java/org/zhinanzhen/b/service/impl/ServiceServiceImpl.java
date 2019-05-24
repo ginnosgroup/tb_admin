@@ -31,6 +31,7 @@ public class ServiceServiceImpl extends BaseService implements ServiceService {
 		try {
 			ServiceDO serviceDo = mapper.map(serviceDto, ServiceDO.class);
 			if (serviceDao.addService(serviceDo) > 0) {
+				serviceDto.setId(serviceDo.getId());
 				return serviceDo.getId();
 			} else {
 				return 0;

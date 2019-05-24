@@ -36,6 +36,7 @@ public class ReceiveTypeServiceImpl extends BaseService implements ReceiveTypeSe
 				receiveTypeDo.setState(receiveTypeDto.getState().toString());
 			}
 			if (ReceiveTypeDAO.addReceiveType(receiveTypeDo) > 0) {
+				receiveTypeDto.setId(receiveTypeDo.getId());
 				return receiveTypeDo.getId();
 			} else {
 				return 0;

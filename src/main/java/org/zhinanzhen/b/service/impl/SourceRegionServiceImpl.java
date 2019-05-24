@@ -36,6 +36,7 @@ public class SourceRegionServiceImpl extends BaseService implements SourceRegion
 		try {
 			SourceRegionDO sourceRegionDo = mapper.map(sourceRegionDto, SourceRegionDO.class);
 			if (sourceRegionDao.addSourceRegion(sourceRegionDo) > 0) {
+				sourceRegionDto.setId(sourceRegionDo.getId());
 				return sourceRegionDo.getId();
 			} else {
 				return 0;

@@ -38,6 +38,7 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 				officialDo.setState(officialDto.getState().toString());
 			}
 			if (officialDao.addOfficial(officialDo) > 0) {
+				officialDto.setId(officialDo.getId());
 				return officialDo.getId();
 			} else {
 				return 0;

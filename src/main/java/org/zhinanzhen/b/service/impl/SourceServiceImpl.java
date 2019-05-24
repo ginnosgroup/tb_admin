@@ -31,6 +31,7 @@ public class SourceServiceImpl extends BaseService implements SourceService {
 		try {
 			SourceDO sourceDo = mapper.map(sourceDto, SourceDO.class);
 			if (sourceDao.addSource(sourceDo) > 0) {
+				sourceDto.setId(sourceDo.getId());
 				return sourceDo.getId();
 			} else {
 				return 0;

@@ -54,6 +54,7 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 			}
 			SchoolBrokerageSaDO schoolBrokerageSaDo = mapper.map(schoolBrokerageSaDto, SchoolBrokerageSaDO.class);
 			if (schoolBrokerageSaDao.addSchoolBrokerageSa(schoolBrokerageSaDo) > 0) {
+				schoolBrokerageSaDto.setId(schoolBrokerageSaDo.getId());
 				return schoolBrokerageSaDo.getId();
 			} else {
 				return 0;

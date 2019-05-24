@@ -31,6 +31,7 @@ public class SubagencyServiceImpl extends BaseService implements SubagencyServic
 		try {
 			SubagencyDO subagencyDo = mapper.map(subagencyDto, SubagencyDO.class);
 			if (subagencyDao.addSubagency(subagencyDo) > 0) {
+				subagencyDto.setId(subagencyDo.getId());
 				return subagencyDo.getId();
 			} else {
 				return 0;

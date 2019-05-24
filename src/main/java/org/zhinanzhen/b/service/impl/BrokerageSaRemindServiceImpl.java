@@ -47,6 +47,7 @@ public class BrokerageSaRemindServiceImpl extends BaseService implements Brokera
 			}
 			RemindDO remindDo = mapper.map(brokerageSaRemindDto, RemindDO.class);
 			if (remindDao.addRemind(remindDo) > 0) {
+				brokerageSaRemindDto.setId(remindDo.getId());
 				return remindDo.getId();
 			} else {
 				return 0;

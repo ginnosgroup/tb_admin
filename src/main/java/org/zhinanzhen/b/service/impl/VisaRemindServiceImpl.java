@@ -46,6 +46,7 @@ public class VisaRemindServiceImpl extends BaseService implements VisaRemindServ
 			}
 			RemindDO remindDo = mapper.map(visaRemindDto, RemindDO.class);
 			if (remindDao.addRemind(remindDo) > 0) {
+				visaRemindDto.setId(remindDo.getId());
 				return remindDo.getId();
 			} else {
 				return 0;
