@@ -815,7 +815,7 @@
           var jqSelect = $('select',$("#example"));
           
           var check_result = 0;
-          if (jqInputs[0].value != '' && jqInputs[1].value != '' && jqInputs[2].value != '')
+          if (jqInputs[1].value != '' && jqInputs[2].value != '' && jqInputs[3].value != '')
           {
           		check_result = true;
           }else
@@ -829,9 +829,12 @@
               var sa_id = $("#id").val();
               if (sa_id != '0') str_url = "adviser/update";
               var passwd = '';
-              if (jqInputs[3] != undefined) passwd = jqInputs[3].value;
+              if (jqInputs[4] != undefined) passwd = jqInputs[4].value;
               
-              $.post(str_url, { id: sa_id, name: jqInputs[0].value, phone: jqInputs[1].value, email: jqInputs[2].value, password: passwd, imageUrl: jqText[0].value, regionId: jqSelect[0].value},
+              //console.log(jqInputs);
+              //return false;
+              
+              $.post(str_url, { id: sa_id, name: jqInputs[1].value, phone: jqInputs[2].value, email: jqInputs[3].value, password: passwd, imageUrl: jqText[0].value, regionId: jqSelect[0].value},
 					   	function(data){
 					   			if (data.code == 0)
 					   			{
