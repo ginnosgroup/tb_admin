@@ -405,8 +405,7 @@
 														<td><a v-if="item.id" class="edit" href="javascript:;" @click="table_modify($index)"><span class="label label-success">Edit</span></a>
 																<a v-else class="edit" href="javascript:;"><span class="label label-primary">Save</span></a>
 														</td>
-														<td>
-																
+														<td>																
 																<div v-if="item.id" class="switch has-switch">																
 																<div v-if="item.state != 'DISABLED'" class="switch-on switch-animate"><input type="checkbox" checked="" data-toggle="switch"><span class="switch-left" @click="delete_confirm($index,item.id)">ON</span><label>&nbsp;</label><span class="switch-right" @click="open_confirm($index,item.id)">OFF</span></div>
 																<div v-if="item.state == 'DISABLED'" class="switch-off switch-animate"><input type="checkbox" checked="" data-toggle="switch"><span class="switch-left" @click="delete_confirm($index,item.id)">ON</span><label>&nbsp;</label><span class="switch-right" @click="open_confirm($index,item.id)">OFF</span></div>
@@ -814,6 +813,7 @@
           var jqText = $('textarea',$("#example"));
           var jqSelect = $('select',$("#example"));
           
+          
           var check_result = 0;
           if (jqInputs[1].value != '' && jqInputs[2].value != '' && jqInputs[3].value != '')
           {
@@ -829,12 +829,24 @@
               var sa_id = $("#id").val();
               if (sa_id != '0') str_url = "adviser/update";
               var passwd = '';
-              if (jqInputs[4] != undefined) passwd = jqInputs[4].value;
+              var str_name = '';
+              var str_phone = '';
+              var str_email='';
+              if (jqInputs[0].value == 'on')
+              {
+              		if (jqInputs[4] != undefined) passwd = jqInputs[4].value;
+              		str_name = jqInputs[1].value;         		
+              		str_phone = jqInputs[2].value;
+              		str_email = jqInputs[3].value;
+              }else
+              {
+              		if (jqInputs[3] != undefined) passwd = jqInputs[3].value;
+              		str_name = jqInputs[0].value;         		
+              		str_phone = jqInputs[1].value;
+              		str_email = jqInputs[2].value;
+              }
               
-              //console.log(jqInputs);
-              //return false;
-              
-              $.post(str_url, { id: sa_id, name: jqInputs[1].value, phone: jqInputs[2].value, email: jqInputs[3].value, password: passwd, imageUrl: jqText[0].value, regionId: jqSelect[0].value},
+              $.post(str_url, { id: sa_id, name: str_name, phone: str_phone, email: str_email, password: passwd, imageUrl: jqText[0].value, regionId: jqSelect[0].value},
 					   	function(data){
 					   			if (data.code == 0)
 					   			{
