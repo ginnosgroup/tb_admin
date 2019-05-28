@@ -8,6 +8,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.zhinanzhen.b.service.AbleStateEnum;
 import org.zhinanzhen.tb.dao.ConsultationDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
 import org.zhinanzhen.tb.dao.pojo.ConsultationDO;
@@ -17,6 +18,7 @@ import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.ConsultationDTO;
 
 import com.ikasoa.core.thrift.ErrorCodeEnum;
+import com.ikasoa.core.utils.StringUtil;
 
 @Service("ConsultationService")
 public class ConsultationServiceImpl extends BaseService implements ConsultationService {
@@ -36,6 +38,8 @@ public class ConsultationServiceImpl extends BaseService implements Consultation
 		}
 		try {
 			ConsultationDO consultationDo = mapper.map(consultationDto, ConsultationDO.class);
+			if (consultationDto.getState() != null)
+				consultationDo.setState(consultationDto.getState().toString());
 			if (consultationDao.addConsultation(consultationDo) > 0) {
 				return consultationDo.getId();
 			} else {
@@ -57,6 +61,8 @@ public class ConsultationServiceImpl extends BaseService implements Consultation
 		}
 		try {
 			ConsultationDO consultationDo = mapper.map(consultationDto, ConsultationDO.class);
+			if (consultationDto.getState() != null)
+				consultationDo.setState(consultationDto.getState().toString());
 			return consultationDao.updateConsultation(consultationDo);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
@@ -80,6 +86,8 @@ public class ConsultationServiceImpl extends BaseService implements Consultation
 		}
 		for (ConsultationDO consultationDo : consultationDoList) {
 			ConsultationDTO consultationDto = mapper.map(consultationDo, ConsultationDTO.class);
+			if (StringUtil.isNotEmpty(consultationDo.getState()))
+				consultationDto.setState(AbleStateEnum.get(consultationDo.getState()));
 			consultationDtoList.add(consultationDto);
 		}
 		return consultationDtoList;
@@ -111,6 +119,8 @@ public class ConsultationServiceImpl extends BaseService implements Consultation
 				if (consultationDto.getRemindDate().getTime() <= 0)
 					consultationDto.setRemindDate(null);
 			}
+			if (StringUtil.isNotEmpty(consultationDo.getState()))
+				consultationDto.setState(AbleStateEnum.get(consultationDo.getState()));
 			consultationDtoList.add(consultationDto);
 		});
 		return consultationDtoList;

@@ -11,6 +11,6 @@ public interface ReceiveTypeService {
 
 	public int updateReceiveType(ReceiveTypeDTO receiveTypeDto) throws ServiceException;
 
-	public List<ReceiveTypeDTO> listReceiveType(ReceiveTypeStateEnum state) throws ServiceException;
+	public List<ReceiveTypeDTO> listReceiveType(AbleStateEnum state) throws ServiceException;
 
 }

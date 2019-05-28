@@ -112,7 +112,7 @@ CREATE TABLE `tb_user` (
   `birthday` datetime NOT NULL COMMENT '生日',
   `phone` varchar(16) NOT NULL COMMENT '电话号码',
   `email` varchar(128) NOT NULL COMMENT '邮箱',
-`wechat_username` varchar(64) DEFAULT NULL COMMENT '微信帐号',
+  `wechat_username` varchar(64) DEFAULT NULL COMMENT '微信帐号',
   `first_controller_contents` varchar(255) DEFAULT NULL COMMENT '初次咨询记录',
   `visa_code` varchar(8) DEFAULT NULL COMMENT '签证编号',
   `visa_expiration_date` datetime DEFAULT NULL COMMENT '签证到期日期',
@@ -379,6 +379,7 @@ CREATE TABLE `tb_consultation` (
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `user_id` int NOT NULL COMMENT '所属顾客编号 (对应tb_user.id)',
   `contents` varchar(255) NOT NULL COMMENT '咨询内容',
+`state` varchar(8) NOT NULL COMMENT '状态 (ENABLED:显示,DISABLED:不显示)',
   `remind_date` datetime DEFAULT NULL COMMENT '提醒日期',
   `remind_contents` varchar(255) DEFAULT NULL COMMENT '提醒内容'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;

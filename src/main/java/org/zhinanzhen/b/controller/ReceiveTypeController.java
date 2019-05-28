@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.zhinanzhen.b.service.ReceiveTypeService;
-import org.zhinanzhen.b.service.ReceiveTypeStateEnum;
+import org.zhinanzhen.b.service.AbleStateEnum;
 import org.zhinanzhen.b.service.pojo.ReceiveTypeDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
@@ -38,7 +38,7 @@ public class ReceiveTypeController extends BaseController {
 			ReceiveTypeDTO receiveTypeDto = new ReceiveTypeDTO();
 			receiveTypeDto.setName(name);
 			if (StringUtils.isNotEmpty(state)) {
-				receiveTypeDto.setState(ReceiveTypeStateEnum.get(state));
+				receiveTypeDto.setState(AbleStateEnum.get(state));
 			}
 			receiveTypeDto.setWeight(Integer.parseInt(weight));
 			if (receiveTypeService.addReceiveType(receiveTypeDto) > 0) {
@@ -66,7 +66,7 @@ public class ReceiveTypeController extends BaseController {
 				receiveTypeDto.setName(name);
 			}
 			if (StringUtils.isNotEmpty(state)) {
-				receiveTypeDto.setState(ReceiveTypeStateEnum.get(state));
+				receiveTypeDto.setState(AbleStateEnum.get(state));
 			}
 			if (StringUtils.isNotEmpty(weight)) {
 				receiveTypeDto.setWeight(Integer.parseInt(weight));
@@ -88,7 +88,7 @@ public class ReceiveTypeController extends BaseController {
 		try {
 			super.setGetHeader(response);
 			return new Response<List<ReceiveTypeDTO>>(0,
-					receiveTypeService.listReceiveType(ReceiveTypeStateEnum.get(state)));
+					receiveTypeService.listReceiveType(AbleStateEnum.get(state)));
 		} catch (ServiceException e) {
 			return new Response<List<ReceiveTypeDTO>>(1, e.getMessage(), null);
 		}

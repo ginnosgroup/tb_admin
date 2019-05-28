@@ -1,6 +1,9 @@
 package org.zhinanzhen.tb.service.pojo;
 
 import java.util.Date;
+
+import org.zhinanzhen.b.service.AbleStateEnum;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
@@ -18,6 +21,8 @@ public class ConsultationDTO {
 	private String userName;
 
 	private String contents;
+	
+	private AbleStateEnum state;
 
 	@JsonInclude(Include.NON_NULL)
 	private Date remindDate;

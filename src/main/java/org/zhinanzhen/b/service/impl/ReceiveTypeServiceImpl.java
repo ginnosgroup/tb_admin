@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.ReceiveTypeDAO;
 import org.zhinanzhen.b.dao.pojo.ReceiveTypeDO;
 import org.zhinanzhen.b.service.ReceiveTypeService;
-import org.zhinanzhen.b.service.ReceiveTypeStateEnum;
+import org.zhinanzhen.b.service.AbleStateEnum;
 import org.zhinanzhen.b.service.pojo.ReceiveTypeDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
@@ -69,7 +69,7 @@ public class ReceiveTypeServiceImpl extends BaseService implements ReceiveTypeSe
 	}
 
 	@Override
-	public List<ReceiveTypeDTO> listReceiveType(ReceiveTypeStateEnum state) throws ServiceException {
+	public List<ReceiveTypeDTO> listReceiveType(AbleStateEnum state) throws ServiceException {
 
 		List<ReceiveTypeDTO> receiveTypeDtoList = new ArrayList<ReceiveTypeDTO>();
 		List<ReceiveTypeDO> receiveTypeDoList = new ArrayList<ReceiveTypeDO>();
@@ -90,7 +90,7 @@ public class ReceiveTypeServiceImpl extends BaseService implements ReceiveTypeSe
 		for (ReceiveTypeDO receiveTypeDo : receiveTypeDoList) {
 			ReceiveTypeDTO receiveTypeDto = mapper.map(receiveTypeDo, ReceiveTypeDTO.class);
 			if (StringUtil.isNotEmpty(receiveTypeDo.getState())) {
-				receiveTypeDto.setState(ReceiveTypeStateEnum.get(receiveTypeDo.getState()));
+				receiveTypeDto.setState(AbleStateEnum.get(receiveTypeDo.getState()));
 			}
 			receiveTypeDtoList.add(receiveTypeDto);
 		}

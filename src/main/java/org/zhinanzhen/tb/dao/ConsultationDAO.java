@@ -11,6 +11,8 @@ public interface ConsultationDAO {
 	public int addConsultation(ConsultationDO consultationDo);
 
 	public int updateConsultation(ConsultationDO consultationDo);
+	
+	public List<ConsultationDO> listConsultation(); //　返回所有，包括不显示的
 
 	public List<ConsultationDO> listConsultationByUserId(Integer userId);
 

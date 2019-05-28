@@ -1,6 +1,6 @@
 package org.zhinanzhen.b.service.pojo;
 
-import org.zhinanzhen.b.service.ReceiveTypeStateEnum;
+import org.zhinanzhen.b.service.AbleStateEnum;
 
 import lombok.Data;
 
@@ -11,7 +11,7 @@ public class ReceiveTypeDTO {
 
 	private String name;
 
-	private ReceiveTypeStateEnum state;
+	private AbleStateEnum state;
 
 	private int weight;
 	

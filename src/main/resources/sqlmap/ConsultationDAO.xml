@@ -2,13 +2,16 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="org.zhinanzhen.tb.dao.ConsultationDAO">
     <insert id="addConsultation" parameterType="org.zhinanzhen.tb.dao.pojo.ConsultationDO" useGeneratedKeys="true" keyProperty="id">
-        insert into tb_consultation (gmt_create, gmt_modify, user_id, contents, remind_date, remind_contents)
+        insert into tb_consultation (gmt_create, gmt_modify, user_id, contents, state, remind_date, remind_contents)
         values (now(), now(), #{userId,jdbcType=INTEGER},
-          #{contents,jdbcType=VARCHAR}, #{remindDate,jdbcType=TIMESTAMP}, #{remindContents,jdbcType=VARCHAR})
+          #{contents,jdbcType=VARCHAR}, #{state,jdbcType=VARCHAR}, #{remindDate,jdbcType=TIMESTAMP}, #{remindContents,jdbcType=VARCHAR})
     </insert>
     <update id="updateConsultation" parameterType="org.zhinanzhen.tb.dao.pojo.ConsultationDO">
         UPDATE tb_consultation 
         SET gmt_modify = now()
+        <if test='state != null and state != ""'>
+            , state = #{state}
+        </if>
         <if test='remindDate != null'>
             , remind_date = #{remindDate}
         </if>
@@ -17,6 +20,19 @@
         </if>
         WHERE id = #{id};
     </update>
+    <select id="listConsultation" resultType="org.zhinanzhen.tb.dao.pojo.ConsultationDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            gmt_modify AS gmtModify,
+            user_id AS userId,
+            contents,
+            state,
+            remind_date AS remindDate,
+            remind_contents AS remindContents
+        FROM tb_consultation
+        ORDER BY gmt_create DESC;
+    </select>
     <select id="listConsultationByUserId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.tb.dao.pojo.ConsultationDO">
         SELECT
             id,
@@ -24,10 +40,11 @@
             gmt_modify AS gmtModify,
             user_id AS userId,
             contents,
+            state,
             remind_date AS remindDate,
             remind_contents AS remindContents
         FROM tb_consultation
-        WHERE user_id = #{userId, jdbcType=INTEGER}
+        WHERE state = 'ENABLED' AND user_id = #{userId, jdbcType=INTEGER}
         ORDER BY gmt_create DESC;
     </select>
     <select id="listConsultationByRemindDate" parameterType="java.util.Date" resultType="org.zhinanzhen.tb.dao.pojo.ConsultationDO">
@@ -37,10 +54,11 @@
             c.gmt_modify AS gmtModify,
             c.user_id AS userId,
             c.contents,
+            c.state,
             c.remind_date AS remindDate,
             c.remind_contents AS remindContents
         FROM tb_consultation c, tb_user u
-        WHERE c.user_id = u.id AND <![CDATA[ c.remind_date < #{date} ]]>
+        WHERE state = 'ENABLED' AND c.user_id = u.id AND <![CDATA[ c.remind_date < #{date} ]]>
         <if test='adviserId != null'>
             AND u.adviser_id = #{adviserId}
         </if>

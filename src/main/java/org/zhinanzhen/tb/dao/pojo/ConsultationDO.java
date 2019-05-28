@@ -14,6 +14,8 @@ public class ConsultationDO {
 	private Integer userId;
 
 	private String contents;
+	
+	private String state;
 
 	private Date remindDate;
 

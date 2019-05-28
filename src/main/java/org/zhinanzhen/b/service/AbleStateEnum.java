@@ -1,17 +1,17 @@
 package org.zhinanzhen.b.service;
 
-public enum ReceiveTypeStateEnum {
+public enum AbleStateEnum {
 
 	ENABLED("显示"), DISABLED("不显示");
 
 	private String value;
 
-	private ReceiveTypeStateEnum(String value) {
+	private AbleStateEnum(String value) {
 		this.value = value;
 	}
 
-	public static ReceiveTypeStateEnum get(String name) {
-		for (ReceiveTypeStateEnum e : ReceiveTypeStateEnum.values()) {
+	public static AbleStateEnum get(String name) {
+		for (AbleStateEnum e : AbleStateEnum.values()) {
 			if (e.toString().equals(name)) {
 				return e;
 			}
