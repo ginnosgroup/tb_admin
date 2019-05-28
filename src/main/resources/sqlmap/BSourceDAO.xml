@@ -34,7 +34,7 @@
             id,
             gmt_create AS gmtCreate,
             name,
-            source_region_id
+            source_region_id AS sourceRegionId
         FROM b_source
         WHERE 1 = 1
         <if test='sourceRegionId != null'>

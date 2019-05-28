@@ -177,6 +177,11 @@
 										退款表
 									</a>
 								</li>
+								<li>
+									<a href="table-export.html">
+										导出数据
+									</a>
+								</li>
 							</ul>
 						</li>						
 					</ul>
@@ -607,7 +612,7 @@
 				  {
 				  		$("#id").val(this.current_row.id);	  		
 				  		regionId = this.current_row.regionId;				  			  		
-				  }				   	    			    
+				  }
 			    //绑定区域列表
 			    var obj_regionId = $("#t4");	
 			    $.ajax({
@@ -616,10 +621,16 @@
 	          dataType: 'json'
 	        }).done(function(response) {
 	        	//author:bischina
-	        	response = response.data;
-	        	for (var item in response)
+	        	var region_data = response.data;
+	        	console.log(region_data);
+	        	for (var item in region_data)
 	        	{
-	        			obj_regionId.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+	        			obj_regionId.append("<option value='"+region_data[item].id+"'>"+region_data[item].name+"</option>");
+	        			var region_sub = region_data[item].regionList;
+	        			for (var itemsub in region_sub)
+	        			{
+	        					obj_regionId.append("<option value='"+region_sub[itemsub].id+"'>---"+region_sub[itemsub].name+"</option>");
+	        			}
 	        	}
 	        	obj_regionId.val(regionId);   
 	        });
