@@ -22,7 +22,7 @@ public class ConsultationDTO {
 
 	private String contents;
 	
-	private AbleStateEnum state;
+	private AbleStateEnum state = AbleStateEnum.ENABLED;
 
 	@JsonInclude(Include.NON_NULL)
 	private Date remindDate;
