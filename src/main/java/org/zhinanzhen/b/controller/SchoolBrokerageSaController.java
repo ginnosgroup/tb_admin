@@ -43,7 +43,8 @@ public class SchoolBrokerageSaController extends BaseController {
 			@RequestParam(value = "payAmount") String payAmount,
 			@RequestParam(value = "subagencyId") String subagencyId,
 			@RequestParam(value = "adviserId") String adviserId, @RequestParam(value = "officialId") String officialId,
-			HttpServletRequest request, HttpServletResponse response) {
+			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
+			HttpServletResponse response) {
 
 		// 更改当前顾问编号
 		Integer newAdviserId = getAdviserId(request);
@@ -98,6 +99,8 @@ public class SchoolBrokerageSaController extends BaseController {
 			if (StringUtil.isNotEmpty(officialId)) {
 				schoolBrokerageSaDto.setOfficialId(StringUtil.toInt(officialId));
 			}
+			if (StringUtil.isNotEmpty(remarks))
+				schoolBrokerageSaDto.setRemarks(remarks);
 			schoolBrokerageSaDto.setGst(schoolBrokerageSaDto.getCommission() / 11);
 			schoolBrokerageSaDto.setDeductGst(schoolBrokerageSaDto.getCommission() - schoolBrokerageSaDto.getGst());
 			schoolBrokerageSaDto.setBonus(schoolBrokerageSaDto.getDeductGst() * 0.1);
@@ -128,7 +131,8 @@ public class SchoolBrokerageSaController extends BaseController {
 			@RequestParam(value = "payAmount", required = false) String payAmount,
 			@RequestParam(value = "subagencyId", required = false) String subagencyId,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
-			@RequestParam(value = "officialId", required = false) String officialId, HttpServletRequest request,
+			@RequestParam(value = "officialId", required = false) String officialId,
+			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -179,6 +183,8 @@ public class SchoolBrokerageSaController extends BaseController {
 			if (StringUtil.isNotEmpty(officialId)) {
 				schoolBrokerageSaDto.setOfficialId(StringUtil.toInt(officialId));
 			}
+			if (StringUtil.isNotEmpty(remarks))
+				schoolBrokerageSaDto.setRemarks(remarks);
 			schoolBrokerageSaDto.setGst(schoolBrokerageSaDto.getCommission() / 11);
 			schoolBrokerageSaDto.setDeductGst(schoolBrokerageSaDto.getCommission() - schoolBrokerageSaDto.getGst());
 			schoolBrokerageSaDto.setBonus(schoolBrokerageSaDto.getDeductGst() * 0.1);

@@ -289,6 +289,7 @@ CREATE TABLE `b_refund` (
   `refund` decimal(8,2) NOT NULL COMMENT 'Refund',
   `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
   `official_id` int NOT NULL COMMENT '文案编号 (对应b_official.id)',
+`remarks` varchar(255) DEFAULT NULL COMMENT '备注',
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 

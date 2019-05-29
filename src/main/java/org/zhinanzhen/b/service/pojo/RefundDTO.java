@@ -54,6 +54,8 @@ public class RefundDTO {
 	private int officialId;
 
 	private String officialName;
+	
+	private String remarks;
 
 	private boolean isClose;
 

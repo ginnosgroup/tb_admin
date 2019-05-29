@@ -38,7 +38,8 @@ public class RefundController extends BaseController {
 			@RequestParam(value = "preRefundAmount") String preRefundAmount,
 			@RequestParam(value = "bankName") String bankName, @RequestParam(value = "bankAccount") String bankAccount,
 			@RequestParam(value = "bsb") String bsb, @RequestParam(value = "refundDate") String refundDate,
-			@RequestParam(value = "refundAmount") String refundAmount, HttpServletRequest request,
+			@RequestParam(value = "refundAmount") String refundAmount,
+			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
 			HttpServletResponse response) {
 
 		// 更改当前顾问编号
@@ -88,6 +89,8 @@ public class RefundController extends BaseController {
 			if (StringUtil.isNotEmpty(refundAmount)) {
 				refundDto.setRefundAmount(Double.parseDouble(refundAmount));
 			}
+			if (StringUtil.isNotEmpty(remarks))
+				refundDto.setRemarks(remarks);
 			refundDto.setGst(refundDto.getRefundAmount() / 11);
 			refundDto.setDeductGst(refundDto.getRefundAmount() - refundDto.getGst());
 			refundDto.setRefund(refundDto.getDeductGst() * 0.1);
@@ -116,7 +119,8 @@ public class RefundController extends BaseController {
 			@RequestParam(value = "bankAccount", required = false) String bankAccount,
 			@RequestParam(value = "bsb", required = false) String bsb,
 			@RequestParam(value = "refundDate", required = false) String refundDate,
-			@RequestParam(value = "refundAmount", required = false) String refundAmount, HttpServletResponse response) {
+			@RequestParam(value = "refundAmount", required = false) String refundAmount,
+			@RequestParam(value = "remarks", required = false) String remarks, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			RefundDTO refundDto = new RefundDTO();
@@ -160,6 +164,8 @@ public class RefundController extends BaseController {
 			if (StringUtil.isNotEmpty(refundAmount)) {
 				refundDto.setRefundAmount(Double.parseDouble(refundAmount));
 			}
+			if (StringUtil.isNotEmpty(remarks))
+				refundDto.setRemarks(remarks);
 			refundDto.setGst(refundDto.getRefundAmount() / 11);
 			refundDto.setDeductGst(refundDto.getRefundAmount() - refundDto.getGst());
 			refundDto.setRefund(refundDto.getDeductGst() * 0.1);

@@ -24,6 +24,7 @@
                 refund,
                 adviser_id,
                 official_id,
+                remarks,
                 is_close)
             VALUES (
                 now(),
@@ -44,6 +45,7 @@
                 #{refund},
                 #{adviserId},
                 #{officialId},
+                #{remarks},
                 0);
     </insert>
     
@@ -98,6 +100,9 @@
         <if test='officialId != null and officialId != ""'>
             , official_id = #{officialId}
         </if>
+        <if test='remarks != null and remarks != ""'>
+            , remarks = #{remarks}
+        </if>
         <if test='isClose != null'>
             , is_close = #{isClose}
         </if>
@@ -149,6 +154,7 @@
             br.refund,
             br.adviser_id AS adviserId,
             br.official_id AS officialId,
+            br.remarks,
             br.is_close AS isClose,
             bo.name AS officialName,
             tbu.name AS userName,
@@ -206,6 +212,7 @@
              refund,
              adviser_id AS adviserId,
              official_id AS officialId,
+             remarks,
              is_close AS isClose
         FROM b_refund WHERE id = #{id, jdbcType=INTEGER};
     </select>

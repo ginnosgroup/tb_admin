@@ -38,7 +38,8 @@ public class BrokerageController extends BaseController {
 			@RequestParam(value = "serviceId") String serviceId, @RequestParam(value = "receivable") String receivable,
 			@RequestParam(value = "received", required = false) String received,
 			@RequestParam(value = "amount") String amount, @RequestParam(value = "adviserId") String adviserId,
-			@RequestParam(value = "officialId") String officialId, HttpServletRequest request,
+			@RequestParam(value = "officialId") String officialId,
+			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
 			HttpServletResponse response) {
 
 		// 更改当前顾问编号
@@ -87,6 +88,8 @@ public class BrokerageController extends BaseController {
 			if (StringUtil.isNotEmpty(officialId)) {
 				brokerageDto.setOfficialId(StringUtil.toInt(officialId));
 			}
+			if (StringUtil.isNotEmpty(remarks))
+				brokerageDto.setRemarks(remarks);
 			double commission = brokerageDto.getAmount();
 			brokerageDto.setGst(commission / 11);
 			brokerageDto.setDeductGst(commission - brokerageDto.getGst());
@@ -113,7 +116,8 @@ public class BrokerageController extends BaseController {
 			@RequestParam(value = "received", required = false) String received,
 			@RequestParam(value = "amount", required = false) String amount,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
-			@RequestParam(value = "officialId", required = false) String officialId, HttpServletRequest request,
+			@RequestParam(value = "officialId", required = false) String officialId,
+			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -149,6 +153,8 @@ public class BrokerageController extends BaseController {
 			if (StringUtil.isNotEmpty(officialId)) {
 				brokerageDto.setOfficialId(StringUtil.toInt(officialId));
 			}
+			if (StringUtil.isNotEmpty(remarks))
+				brokerageDto.setRemarks(remarks);
 			double commission = brokerageDto.getAmount();
 			brokerageDto.setGst(commission / 11);
 			brokerageDto.setDeductGst(commission - brokerageDto.getGst());
