@@ -116,7 +116,7 @@ public class ConsultationServiceImpl extends BaseService implements Consultation
 				UserDO userDo = userDao.getUserById(consultationDto.getUserId());
 				if (userDo != null)
 					consultationDto.setUserName(userDo.getName());
-				if (consultationDto.getRemindDate().getTime() <= 0)
+				if (consultationDto.getRemindDate().getTime() <= 14400000)
 					consultationDto.setRemindDate(null);
 			}
 			if (StringUtil.isNotEmpty(consultationDo.getState()))

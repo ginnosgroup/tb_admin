@@ -40,7 +40,7 @@
         <if test='sourceRegionId != null'>
             AND source_region_id = #{sourceRegionId}
         </if>
-        ORDER BY gmt_create DESC;
+        ORDER BY id ASC;
     </select>
     
     <delete id="deleteSource" parameterType="java.lang.Integer">
