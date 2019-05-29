@@ -648,7 +648,9 @@
 					}, function(result) {
 						console.log(result);
 						if(result.code == '0') {
-							$("#get_month_expect_amount").html(result.data);
+							var amount = result.data;
+							var str_amount = amount.toFixed(2);
+							$("#get_month_expect_amount").html(str_amount);
 						};
 					});      		
       }
