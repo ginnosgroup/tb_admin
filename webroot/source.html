@@ -6,7 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="renderer" content="webkit">
 		<link rel="shortcut icon" href="img/favicon.ico">
-		<title>学校管理</title>
+		<title>渠道来源管理</title>
 		<link href="css/bootstrap.min.css" rel="stylesheet">
 		<link href="css/bootstrap-reset.css" rel="stylesheet">
 		<link href="assets/font-awesome/css/font-awesome.css" rel="stylesheet">
@@ -24,7 +24,7 @@
 		<![endif]-->
 	</head>
 
-	<body id="school" v-cloak>
+	<body id="source" v-cloak>
 		<section id="container">
 			<header class="header white-bg">
 				<div class="sidebar-toggle-box">
@@ -150,7 +150,7 @@
               </a>
             </li>
             <li v-if="ap_list!='KJ'" class="sub-menu">
-							<a href="javascript:;">
+							<a href="javascript:;" class="active">
 								<i class="fa fa-book">
                 </i>
 								<span>
@@ -158,7 +158,7 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li>
+								<li class="active">
 									<a href="source.html">
 										渠道列表
 									</a>
@@ -215,7 +215,7 @@
 						<div class="col-lg-12">
 							<section class="panel">
 								<header class="panel-heading">
-									学校管理
+									渠道来源管理
 								</header>
 								<div class="panel-body">
 									<div class="adv-table editable-table">
@@ -240,7 +240,6 @@
                     </div>
 										<div class="responsive-table margin-top">
 											<input type="hidden" name="id" id="id" value="0" />
-											<input type="hidden" name="school_name" id="school_name" value="" />
 											<div id="FlatTree3" class="tree tree-plus-minus tree-solid-line tree-unselectable">
 		                    <div class="tree-folder" style="display:none;">
 		                      <div class="tree-folder-header">
@@ -297,41 +296,24 @@
 					</div>
 				</div>
 			</div>
-		</div>
-		<div class="modal fade" id="close_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<h4 class="modal-title" id="close_title">关闭</h4>
-					</div>
-					<div class="modal-body">
-						确认<span id="close_title1">关闭</span>吗？
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-						<button onclick="closeId()" type="button" class="btn btn-primary">确认</button>
-					</div>
-				</div>
-			</div>
-		</div>
+		</div>		
 		<div class="modal fade" id="add_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 			<div class="modal-dialog" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<h4 class="modal-title" id="myModalLabel">添加</h4>
+						<h4 class="modal-title" id="myModalLabel_1">添加</h4>
 					</div>
 					<div class="modal-body">
 							<form class="form-horizontal" autocomplete="off">
 							<div class="form-group">
-								<label class="col-sm-3 control-label">选择国家</label>
+								<label class="col-sm-3 control-label">选择分类</label>
 								<div class="col-sm-8">
 									<select class="form-control" style="width:150px;" id="t0"></select>
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-3 control-label">学校名称</label>
+								<label class="col-sm-3 control-label">来源名称</label>
 								<div class="col-sm-8">
 									<input type="text" id="t1" class="form-control" placeholder="">
 								</div>
@@ -340,35 +322,11 @@
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-						<button onclick="schoolUpdate()" type="button" class="btn btn-primary">确认</button>
+						<button onclick="sourceUpdate()" type="button" class="btn btn-primary">确认</button>
 					</div>
 				</div>
 			</div>
-		</div>
-		<div class="modal fade" id="subject_edit_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<h4 class="modal-title" id="myModalLabel">修改课程</h4>
-					</div>
-					<div class="modal-body">
-							<form class="form-horizontal" autocomplete="off">							
-							<div class="form-group">
-								<label class="col-sm-3 control-label">课程名称</label>
-								<div class="col-sm-8">
-									<input type="text" id="subject_name" class="form-control" placeholder="">
-								</div>
-							</div>							
-							</form>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-						<button onclick="subjectUpdate()" type="button" class="btn btn-primary">确认</button>
-					</div>
-				</div>
-			</div>
-		</div>
+		</div>		
 		<div class="modal fade" id="subject_delete_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 			<div class="modal-dialog" role="document">
 				<div class="modal-content">
@@ -399,10 +357,10 @@
 		<script src="js/vue.js"></script>
 		<script src="js/common.js?verson=1"></script>
 		<script>
-			tb.isLogin("school.html");
+			tb.isLogin("source.html");
 			$("td,th").addClass("text-center");
 			var v = new Vue({
-				el: '#school',
+				el: '#source',
 				data: {
 					admin: sessionStorage.getItem("admin"),
 					ap_list: sessionStorage.getItem("ap_list"),
@@ -419,10 +377,11 @@
 				},
 				methods: {					
 			    add_school: function (id){
-			    			$("#school_name").val('');
+			    			$("#id").val('0');
 			    			$('#t1').val('');
+			    			$("#myModalLabel_1").html('添加'); 
 			      		$('#add_id').modal('show');
-			      		bind_country('t0','');
+			      		bind_type('t0','');
 			    }
 				}					
 			});
@@ -442,37 +401,6 @@
           	  		if ("additionalParameters" in options && "children" in options.additionalParameters)
           	  		{
           	  				this._data = options.additionalParameters.children;//点击父节点，加载子节点
-          	  		}else
-          	  		{
-          	  				options.additionalParameters.children = [];
-          	  				this._data = '';
-          	  				var str_country = options.father;
-          	  				var school_name = options.additionalParameters.id;
-          	  				var remoteUrl = '/admin/school/list?name='+school_name+'&country='+str_country;
-						      		$.get(remoteUrl, {
-													pageNum: 0,
-													pageSize: 10000
-												}, function(result) {
-													var str_subject = '';
-													var str_subject_name = '';
-													for(var i = 0; i < result.data.length; i++) {
-														if (result.data[i].subject != '')
-														{
-																str_subject_name = result.data[i].subject;
-																str_subject_name= str_subject_name.replace(/\s+/g,"#");
-																str_subject += '{name:\''+result.data[i].subject+'   <a href=javascript:subjectEdit("'+str_subject_name+'",'+result.data[i].id+')>修改</a> <a href=javascript:subjectDel("'+str_subject_name+'",'+result.data[i].id+')>删除<a/>'+'\',type:\'item\',additionalParameters:{id:\''+result.data[i].id+'\'}},';
-														}
-													}
-													if (str_subject != '')
-													{
-															var d = new Array();
-															options.additionalParameters.children = eval('['+str_subject+']');														
-															//d = eval(str_subject);															
-															console.log(options.additionalParameters.children)											
-															this._data = options.additionalParameters.children;
-															callback({ data: this._data })
-													}
-											});																				
           	  		}
           	  }
               callback({data: this._data});
@@ -485,162 +413,68 @@
       {
       		var d = new Array(); 
       		$.ajaxSettings.async = false; 
-      		$.get(url + "school/list", {
+      		$.get(url + "source/listSourceRegion", {
 							pageNum: 0,
 							pageSize: 10000
-						}, function(result) {
-							for(var i = 0; i < result.data.length; i++) {								
-								if (result.data[i].country)
-								{
-										result.data[i].countryName = countryName(result.data[i].country);
-										if(v.country_data.indexOf(result.data[i].country)==-1)
-										{
-											 v.country_data.push(result.data[i].country);
-										}						
-								}
-							}
-							v.data_list = result.data;
-							var str_children = '';
-							var str_countryname = '';
-							var str_school = '';							
-							for(var i = 0; i < v.country_data.length; i++) {
-								var school_data = new Array();
+						}, function(result) {							
+							v.region_list = result.data;
+							var str_children = '';											
+							for(var i = 0; i < v.region_list.length; i++) {
 								d[i] = [];								
-								str_countryname = countryName(v.country_data[i]);
-								d[i] = {name: str_countryname+' <div class="tree-actions"></div>',type: 'folder',additionalParameters: {id: v.country_data[i]}};
+								d[i] = {name: v.region_list[i].name+' <div class="tree-actions"></div>',type: 'folder',additionalParameters: {id: v.region_list[i].id}};
 								d[i]['additionalParameters']['children'] = new Array();
-								for(var j = 0; j < v.data_list.length; j++) {									
-									if (v.data_list[j].country == v.country_data[i])
-									{
-											if(school_data.indexOf(v.data_list[j].name)==-1)
-											{
-												 school_data.push(v.data_list[j].name);
-												 str_school = v.data_list[j].name;
-												 str_school= str_school.replace(/\s+/g,"#");
-												 str_children += '{name:\'<span id=s'+v.data_list[j].id+'>'+v.data_list[j].name+'</span>   <a href=javascript:schoolEdit("'+v.data_list[j].country+'","'+str_school+'",'+v.data_list[j].id+')>修改</a> <a href=javascript:schoolDel("'+v.data_list[j].country+'","'+str_school+'",'+v.data_list[j].id+')>删除<a/>\',type:\'folder\',father:\''+v.data_list[j].country+'\',additionalParameters:{id:\''+v.data_list[j].name+'\'}},';
-											}
+								$.get(url + "source/list", {
+									sourceRegionId: v.region_list[i].id
+								}, function(result) {
+									v.data_list = result.data;
+									for(var j = 0; j < v.data_list.length; j++) {									
+											str_children += '{name:\'<span id=s'+v.data_list[j].id+'>'+v.data_list[j].name+'</span>   <a href=javascript:sourceEdit("'+v.data_list[j].name+'",'+v.data_list[j].sourceRegionId+','+v.data_list[j].id+')>修改</a> <a href=javascript:sourceDel("'+v.data_list[j].id+'")>删除<a/>\',type:\'item\',additionalParameters:{id:\''+v.data_list[j].id+'\'}},';
 									}
-								}
+								});						
 								d[i]['additionalParameters']['children'] = eval('['+str_children+']');
 								str_children = '';
-								//d[i]['additionalParameters']['children'] = eval('[{name:\'xxx\',type:\'item\'},{name:\'yyy\',type:\'item\'}]');
 							}
 							console.log(d)
 					});
 		      return d; 
-      } 
-      
-      function bind_country(byid,country)
-      {
-      		//绑定国家列表
-			    var obj_country = $("#"+byid);				    
-			    obj_country.empty();
-			    var str_selected1 = '';
-			    var str_selected2 = '';
-			    var str_selected3 = '';
-			    var str_selected4 = '';
-			    var str_selected5 = '';
-			    if (country == 'AUS') str_selected1 = ' SELECTED';
-			    if (country == 'USA') str_selected2 = ' SELECTED';
-			    if (country == 'GBR') str_selected3 = ' SELECTED';
-			    if (country == 'CAN') str_selected4 = ' SELECTED';
-			    if (country == 'NZL') str_selected5 = ' SELECTED';			    
-	        obj_country.append("<option value='AUS'"+str_selected1+">澳大利亚</option>");
-	        obj_country.append("<option value='USA'"+str_selected2+">美国</option>");
-	        obj_country.append("<option value='GBR'"+str_selected3+">英国</option>");
-	        obj_country.append("<option value='CAN'"+str_selected4+">加拿大</option>");
-	        obj_country.append("<option value='NZL'"+str_selected5+">新西兰</option>");
       }
       
-      function schoolEdit(country,name,id)
+      function bind_type(byid,current_id)
       {
-      		bind_country('t0',country);
-      		name = name.split('#').join(' ');
+      		//绑定分类
+			    var obj_type = $("#"+byid);				    
+			    obj_type.empty();
+			    $.get(url + "source/listSourceRegion", {
+							pageNum: 0,
+							pageSize: 10000
+						}, function(result) {
+							for(var i = 0; i < result.data.length; i++) {
+								var str_selected = '';
+								if (result.data[i].id == current_id) str_selected = ' SELECTED';
+								obj_type.append("<option value='"+result.data[i].id+"'"+str_selected+">"+result.data[i].name+"</option>");
+							}
+					});								    	        
+      }        
+      
+      function sourceEdit(name,current_id,id)
+      {
       		$("#t1").val(name);
-      		$("#school_name").val(name);
       		$("#id").val(id);
+      		$("#myModalLabel_1").html('修改'); 
+      		bind_type('t0',current_id);    		
       		$('#add_id').modal('show');
       }
       
-      function schoolDel(country,name,id)
-      {
-      		v.dId = id;
-      		v.country = country;
-      		v.school_name = name;
-      		$('#delete_id').modal('show');
-      }
-      
-      function subjectEdit(subject,id)
-      {
-      		subject = subject.split('#').join(' ');
-      		$("#subject_name").val(subject);
-      		$("#id").val(id);
-      		$('#subject_edit_id').modal('show');
-      }
-      
-      function subjectDel(subject,id)
+      function sourceDel(id)
       {
       		v.dId = id;      		
-      		$('#subject_delete_id').modal('show');
-      }
-      
-      function subjectUpdate()
-			{          
-          var check_result = 0;
-          var subject_name = $("#subject_name").val();
-          if (subject_name != '')
-          {
-          		check_result = true;
-          }else
-          {
-          		alert('所有选项必须填写！');
-          }
-          
-          if (check_result)
-          {              
-              var str_url = "school/update";
-              var sa_id = $("#id").val();
-              
-              $.post(str_url, { id: sa_id, subject: subject_name},
-					   	function(data){
-					   			if (data.code == 0)
-					   			{
-					   					$('#subject_edit_id').modal('hide');
-					   					$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
-					   					setTimeout(function(){window.location.reload();},1500);		
-					   			}else
-					   			{
-					   					$('#alert_error').addClass('alert-danger').show().delay(1500).fadeOut();
-					   					$("#error_info").html(data.message);
-					   			}
-					   	});
-			  	}                
-      }
-      
-      function subject_deleteId()
-      {      		
-      		$.get("school/delete", {
-						id: v.dId
-					}, function(result) {
-						console.log(result);
-						if(result.data == true) {
-							$('#subject_delete_id').modal('hide');
-							$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
-							setTimeout(function(){window.location.reload();},1500);			
-						};
-					});
-      }
+      		$('#delete_id').modal('show');
+      }           
       
       function deleteId()
       {      		
-      		goto_schoolDel(v.country,v.school_name,v.dId);
-      }
-      
-      function goto_schoolDel(country,school_name,id)
-      {
-      		school_name = school_name.split('#').join(' ');
-      		$.get("school/deleteByName", {
-						name: school_name
+      		$.get("source/delete", {
+						id: v.dId
 					}, function(result) {
 						console.log(result);
 						if(result.data == true) {
@@ -649,14 +483,13 @@
 							setTimeout(function(){window.location.reload();},1500);			
 						};
 					});
-      }
+      }            
       
-      function schoolUpdate()
+      function sourceUpdate()
 			{          
           var check_result = 0;
           var t0 = $("#t0").val();
           var t1 = $("#t1").val();
-          var school_name = $("#school_name").val();
           if (t0 != '' && t1.value != '')
           {
           		check_result = true;
@@ -668,39 +501,22 @@
           
           if (check_result)
           {              
-              var str_url = "school/add";
-              var sa_id = $("#id").val();
+              var str_url = "source/add";
+              var sa_id = $("#id").val();              
               if (sa_id != '0')
               {
-              		if (t1 != school_name)
-              		{
-              				str_url = "school/updateName";
-              				$.post(str_url, { id: sa_id, oldName: school_name, newName: t1},
-									   	function(data){
-									   			if (data.code == 0)
-									   			{
-									   					$('#add_id').modal('hide');
-									   					$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
-									   					$('#s'+sa_id).html('<span id=s'+sa_id+'>'+t1+'</span>');
-									   			}else
-									   			{
-									   					$('#alert_error').addClass('alert-danger').show().delay(1500).fadeOut();
-									   					$("#error_info").html(data.message);
-									   			}
-									   	});
-              		}else
-              		{
-              				$('#add_id').modal('hide');
-              		}
+              		//修改操作
+              		alert('提示：暂时无法修改。');
               }else
               {              
-		              $.post(str_url, { id: sa_id, name: t1, subject: '', country: t0},
+		              $.post(str_url, { id: sa_id, name: t1,sourceRegionId: t0},
 							   	function(data){
 							   			if (data.code == 0)
 							   			{
 							   					$('#add_id').modal('hide');
 							   					$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
-							   					$('#s'+sa_id).html('<span id=s'+sa_id+'>'+t1+'</span>');
+							   					//刷新当前页
+							   					window.location.reload();
 							   			}else
 							   			{
 							   					$('#alert_error').addClass('alert-danger').show().delay(1500).fadeOut();
@@ -709,31 +525,7 @@
 							   	});
 					  	}
 			  	}                
-      }              
-      
-      function countryName(code)
-      {
-      		var countryName = '';
-      		switch(code)
-					{
-							case 'AUS':
-									countryName = '澳大利亚';
-							break;
-							case 'USA':
-									countryName = '美国';
-							break;
-							case 'GBR':
-									countryName = '英国';
-							break;
-							case 'CAN':
-									countryName = '加拿大';
-							break;
-							case 'NZL':
-									countryName = '新西兰';
-							break;
-					}
-					return countryName;
-      }
+      }            
 			
 	    jQuery(document).ready(function() {	    	
 	    	$('#FlatTree3').tree({

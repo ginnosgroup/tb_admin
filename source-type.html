@@ -6,7 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="renderer" content="webkit">
 		<link rel="shortcut icon" href="img/favicon.ico">
-		<title>Subagency管理</title>
+		<title>来源分类管理</title>
 		<link href="css/bootstrap.min.css" rel="stylesheet">
 		<link href="css/bootstrap-reset.css" rel="stylesheet">
 		<link href="assets/font-awesome/css/font-awesome.css" rel="stylesheet">
@@ -23,7 +23,7 @@
 		<![endif]-->
 	</head>
 
-	<body id="service" v-cloak>
+	<body id="source-type" v-cloak>
 		<section id="container">
 			<header class="header white-bg">
 				<div class="sidebar-toggle-box">
@@ -130,7 +130,7 @@
               </a>
             </li>
             <li>
-              <a href="service.html" class="active">
+              <a href="service.html">
                 <i class="fa fa-book">
                 </i>
                 <span>
@@ -138,8 +138,8 @@
                 </span>
               </a>
             </li>
-          	</dli>
-          	<li v-if="ap_list!='KJ'">
+            </dli>
+            <li v-if="ap_list!='KJ'">
               <a href="users.html">
                 <i class="fa fa-book">
                 </i>
@@ -149,7 +149,7 @@
               </a>
             </li>
             <li v-if="ap_list!='KJ'" class="sub-menu">
-							<a href="javascript:;">
+							<a href="javascript:;" class="active">
 								<i class="fa fa-book">
                 </i>
 								<span>
@@ -162,7 +162,7 @@
 										渠道列表
 									</a>
 								</li>
-								<li>
+								<li class="active">
 									<a href="source-type.html">
 										来源分类
 									</a>
@@ -214,7 +214,7 @@
 						<div class="col-lg-12">
 							<section class="panel">
 								<header class="panel-heading">
-									服务项目管理
+									渠道来源分类
 								</header>
 								<div class="panel-body">
 									<div class="adv-table editable-table">
@@ -238,7 +238,8 @@
 													<tr>
 														<!--<th><input @click="checked" type="checkbox"></th>-->
 														<th>ID</th>
-														<th>服务项目代码</th>
+														<th>分类名称</th>
+														<th>父类ID</th>
 														<th>Edit</th>
 														<th>Delete</th>
 													</tr>
@@ -246,7 +247,8 @@
 												<tbody>
 													<tr v-for="item in subject" class="gradeX">
 														<td v-html="item.oid"></td>
-														<td v-html="item.code"></td>
+														<td v-html="item.name"></td>
+														<td v-html="item.parentId"></td>
 														<td><a v-if="item.id" class="edit" href="javascript:;" @click="table_modify($index)"><span class="label label-success">Edit</span></a>
 																<a v-else class="edit" href="javascript:;"><span class="label label-primary">Save</span></a>
 														</td>
@@ -346,24 +348,18 @@
 		<script src="js/vue.js"></script>
 		<script src="js/common.js?verson=1"></script>
 		<script>
-			tb.isLogin("service.html");
+			tb.isLogin("source-type.html");
 			$("td,th").addClass("text-center");
 			var v = new Vue({
-				el: '#service',
+				el: '#source-type',
 				data: {
 					admin: sessionStorage.getItem("admin"),
 					ap_list: sessionStorage.getItem("ap_list"),
-					allSort: [],
 					subject: [],
 					count: 0,
 					dId: '',
 					eId: '',
-					name: '',
-					sort: '',
-					state: '',
-					pageNum: 0,
-					pageSize: 100000,
-					allPage: 0,
+					name: '',					
 					add: false,
 					current_index: '',
 					current_row: '',
@@ -371,39 +367,16 @@
 					close: false
 				},
 				created: function() {
-					this.getDatalist();
-					this.getSort();
+					this.getDatalist();					
 				},
-				methods: {
-					getSort: function() {
-						var that = this;
-						$.get(url + "service/list", {
-							state: "",
-							pageNum: 0,
-							pageSize: 1000000
-						}, function(result) {
-							console.log(result)
-							that.allSort = result.data;
-						});
-					},
+				methods: {					
 					getDatalist: function() {
-						var that = this;
-						$.get(url + "service/count", {
-							keyword: that.name							
+						var that = this;						
+						$.get(url + "source/listSourceRegion", {							
 						}, function(result) {
 							console.log(result)
-							that.count = result.data;
-							that.allPage = Math.ceil(result.data / that.pageSize);
-							console.log(that.allPage)
-						});
-						$.get(url + "service/list", {
-							pageNum: 0,
-							pageSize: that.pageSize
-						}, function(result) {
-							//console.log(result)
-							that.pageNum = 0;
 							for(var i = 0; i < result.data.length; i++) {
-									result.data[i].oid = result.data[i].id;									
+									result.data[i].oid = result.data[i].id;
 							};
 							that.subject = result.data;
 							//console.log(that.subject);
@@ -426,80 +399,7 @@
 							obj = '0' + obj;
 						};
 						return obj;
-					},
-					firstPage: function() {
-						var that = this;
-						if(that.pageNum > 0) {
-							$.get(url + "service/list", {
-								keyword: that.name,
-								state: that.state,
-								pageNum: 0,
-								pageSize: that.pageSize
-							}, function(result) {
-								console.log(result)
-								that.pageNum = 0;
-								for(var i = 0; i < result.data.length; i++) {
-										result.data[i].oid = result.data[i].id;										
-								};
-								that.subject = result.data;
-							});
-						}
-					},
-					prevPage: function() {
-						var that = this;
-						if(that.pageNum > 0) {
-							that.pageNum--;
-							$.get(url + "service/list", {
-								keyword: that.name,
-								pageNum: that.pageNum,
-								pageSize: that.pageSize
-							}, function(result) {
-								console.log(result)
-								for(var i = 0; i < result.data.length; i++) {
-										result.data[i].oid = result.data[i].id;
-								};
-								that.subject = result.data;
-							});
-						}
-					},
-					nextPage: function() {
-						var that = this;
-						if(that.pageNum < that.allPage - 1) {
-							that.pageNum++;
-							$.get(url + "service/list", {
-								keyword: that.name,
-								categoryId: that.sort,
-								state: that.state,
-								pageNum: that.pageNum,
-								pageSize: that.pageSize
-							}, function(result) {
-								console.log(result)
-								for(var i = 0; i < result.data.length; i++) {
-										result.data[i].oid = result.data[i].id;							
-								};
-								that.subject = result.data;
-							});
-						}
-					},
-					lastPage: function() {
-						var that = this;
-						if(that.pageNum < that.allPage - 1) {
-							$.get(url + "service/list", {
-								keyword: that.name,
-								categoryId: that.sort,
-								state: that.state,
-								pageNum: that.allPage - 1,
-								pageSize: that.pageSize
-							}, function(result) {
-								console.log(result)
-								that.pageNum = that.allPage - 1;
-								for(var i = 0; i < result.data.length; i++) {
-										result.data[i].oid = result.data[i].id;
-								};
-								that.subject = result.data;
-							});
-						}
-					},
+					},					
 					table_insert() {
 						if (!this.add)
 						{
@@ -511,7 +411,8 @@
 								}											
 								this.subject.splice(0,0, {
 									id:'',									
-									code: '<input type="text" class="form-control small" style="width:150px;" maxlength="8" id="t0" value="">',
+									name: '<input type="text" class="form-control small" style="width:200px;" id="t0" value="">',
+									parentId: '<input type="text" class="form-control small" style="width:150px;" id="t1" value="0">',
 									});
 								this.add = true;
 						}
@@ -532,7 +433,8 @@
 						if (this.subject[index].imageUrl == null) this.subject[index].imageUrl = '';
 						this.subject.splice(index,1, {
 							oid: parseInt(this.subject[index].id),
-							code: '<input type="text" class="form-control small" style="width:150px;" maxlength="8" id="t0" value="'+this.subject[index].code+'">',
+							name: '<input type="text" class="form-control small" style="width:150px;" id="t0" value="'+this.subject[index].name+'">',
+							parentId: '<input type="text" class="form-control small" style="width:250px;" id="t1" value="'+this.subject[index].parentId+'">',
 						});						
 						if (this.add)
 						{
@@ -576,7 +478,7 @@
           var jqInputs = $('input',$("#example"));
           
           var check_result = 0;
-          if (jqInputs[0].value != '')
+          if (jqInputs[0].value != '' && jqInputs[1].value != '')
           {
           		check_result = true;
           }else
@@ -586,20 +488,24 @@
           
           if (check_result)
           {              
-              var str_url = "service/add";
+              var str_url = "source/addSourceRegion";
               var sa_id = $("#id").val();
-              if (sa_id != '0') str_url = "service/update";
+              if (sa_id != '0')
+              {
+              		str_url = "source/updateSourceRegion";
+              		alert('提示：暂不可修改！');
+              		return;
+              }
               
-              $.post(str_url, { id: sa_id, code: jqInputs[0].value},
+              $.post(str_url, { id: sa_id, name: jqInputs[0].value, sourceRegionId: jqInputs[1].value},
 					   	function(data){
 					   			if (data.code == 0)
 					   			{
-					   					v.add = false;					   					
+					   					v.add = false;
 					   					$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
 					   					v.table_remove();
 					   					//重新载入数据源
 					   					v.getDatalist();
-					   					v.getSort();
 					   			}
 					   			//console.log(data);
 					   	});
@@ -618,7 +524,7 @@
 			
 			function deleteId()
       {
-					$.get("service/delete", {
+					$.get("source/deleteSourceRegion", {
 						id: v.dId
 					}, function(result) {
 						console.log(result);
@@ -642,7 +548,7 @@
 			    var   hour=now.getHours();
 			    var   minute=now.getMinutes();     
 			    var   second=now.getSeconds();
-			    return fixZero(date,2)+"/"+fixZero(month,2)+"/"+year;
+			    return fixZero(date,2)+"/"+fixZero(month,2)+"/"+year; 
 			}  
 			
 			function fixZero(num,length)
