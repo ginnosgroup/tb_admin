@@ -554,7 +554,13 @@
 									result.data[i].id = result.data[i].id;
 									result.data[i].userName = '<a href="javascript:;" onclick="show_detail('+result.data[i].userId+');">'+result.data[i].userName+'</a>';//需调用name字段
 									result.data[i].gmtCreate = that.getTime(result.data[i].gmtCreate);
-									result.data[i].remindDate = that.getTime(result.data[i].remindDate);
+									if (typeof(result.data[i].remindDate) != "undefined")
+									{
+											result.data[i].remindDate = that.getTime(result.data[i].remindDate);											
+									}else
+									{
+											result.data[i].remindDate = '';
+									}
 							};
 							that.datalist4 = result.data;
 						});
