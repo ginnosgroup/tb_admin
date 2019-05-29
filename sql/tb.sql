@@ -192,6 +192,7 @@ CREATE TABLE `b_visa` (
   `bonus` decimal(8,2) NOT NULL COMMENT '月奖金',
   `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
   `official_id` int NOT NULL COMMENT '文案编号 (对应b_official.id)',
+`remarks` varchar(255) DEFAULT NULL COMMENT '备注',
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
@@ -213,6 +214,7 @@ CREATE TABLE `b_brokerage` (
   `bonus` decimal(8,2) NOT NULL COMMENT '月奖金',
   `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
   `official_id` int NOT NULL COMMENT '文案编号 (对应b_official.id)',
+`remarks` varchar(255) DEFAULT NULL COMMENT '备注',
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
@@ -234,6 +236,7 @@ CREATE TABLE `b_brokerage_sa` (
   `bonus` decimal(8,2) NOT NULL COMMENT '月奖金',
   `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
   `official_id` int NOT NULL COMMENT '文案编号 (对应b_official.id)',
+`remarks` varchar(255) DEFAULT NULL COMMENT '备注',
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
@@ -260,6 +263,7 @@ CREATE TABLE `b_school_brokerage_sa` (
   `subagency_id` int DEFAULT NULL COMMENT '代理编号 (对应b_subagency.id)',
   `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
   `official_id` int NOT NULL COMMENT '文案编号 (对应b_official.id)',
+`remarks` varchar(255) DEFAULT NULL COMMENT '备注',
   `is_settle_accounts` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已结佣',
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;

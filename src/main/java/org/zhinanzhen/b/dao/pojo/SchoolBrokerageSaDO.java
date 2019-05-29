@@ -46,6 +46,8 @@ public class SchoolBrokerageSaDO {
 	private int adviserId;
 
 	private int officialId;
+	
+	private String remarks;
 
 	private boolean isSettleAccounts = false;
 

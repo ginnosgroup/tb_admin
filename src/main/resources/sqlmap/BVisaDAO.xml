@@ -21,6 +21,7 @@
                 bonus,
                 adviser_id,
                 official_id,
+                remarks,
                 is_close)
             VALUES (
                 now(),
@@ -38,6 +39,7 @@
                 #{bonus},
                 #{adviserId},
                 #{officialId},
+                #{remarks},
                 0);
     </insert>
 
@@ -82,6 +84,9 @@
         </if>
         <if test='officialId != null and officialId != ""'>
             , official_id = #{officialId}
+        </if>
+        <if test='remarks != null and remarks != ""'>
+            , remarks = #{remarks}
         </if>
         <if test='isClose != null'>
             , is_close = #{isClose}
@@ -128,6 +133,7 @@
             bv.bonus AS bonus,
             bv.adviser_id AS adviserId,
             bv.official_id AS officialId,
+            bv.remarks AS remarks,
             bv.is_close AS isClose,
             tbu.name AS userName,
             tbu.birthday AS birthday,
@@ -174,6 +180,7 @@
             bonus,
             adviser_id AS adviserId,
             official_id AS officialId,
+            remarks,
             is_close AS isClose
         FROM b_visa WHERE id = #{id, jdbcType=INTEGER};
     </select>

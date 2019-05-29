@@ -37,6 +37,8 @@ public class BrokerageDO {
 
 	private int officialId;
 	
+	private String remarks;
+	
 	private boolean isClose;
 
 }

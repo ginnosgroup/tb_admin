@@ -27,6 +27,7 @@
 		subagency_id,
 		adviser_id,
 		official_id,
+		remarks,
 		is_settle_accounts,
 		is_close)
 		VALUES (
@@ -50,6 +51,7 @@
 		#{subagencyId},
 		#{adviserId},
 		#{officialId},
+		#{remarks},
 		0,
 		0);
 	</insert>
@@ -111,6 +113,9 @@
 		<if test='officialId != null and officialId != ""'>
 			, official_id = #{officialId}
 		</if>
+		<if test='remarks != null and remarks != ""'>
+            , remarks = #{remarks}
+        </if>
 		<if test='isSettleAccounts != null'>
 			, is_settle_accounts = #{isSettleAccounts}
 		</if>
@@ -174,6 +179,7 @@
 		bsu.name AS subagencyName,
 		bsbs.adviser_id AS adviserId,
 		bsbs.official_id AS officialId,
+		bsbs.remarks AS remarks,
 		bsbs.is_settle_accounts AS isSettleAccounts,
 		bsbs.is_close AS isClose,
 		bs.name AS schoolName,
@@ -274,6 +280,7 @@
 		subagency_id AS subagencyId,
 		adviser_id AS adviserId,
 		official_id AS officialId,
+		remarks,
 		is_settle_accounts AS isSettleAccounts,
 		is_close AS isClose
 		FROM b_school_brokerage_sa WHERE id = #{id, jdbcType=INTEGER};

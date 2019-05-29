@@ -65,6 +65,8 @@ public class SchoolBrokerageSaDTO {
 	private int officialId;
 	
 	private String officialName;
+	
+	private String remarks;
 
 	private boolean isSettleAccounts;
 

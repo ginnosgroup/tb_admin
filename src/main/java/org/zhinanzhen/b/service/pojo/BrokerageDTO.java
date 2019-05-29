@@ -50,6 +50,8 @@ public class BrokerageDTO {
 	private int officialId;
 	
 	private String officialName;
+	
+	private String remarks;
 
 	private boolean isClose;
 
