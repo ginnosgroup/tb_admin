@@ -1,0 +1,570 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="renderer" content="webkit">
+		<link rel="shortcut icon" href="img/favicon.ico">
+		<title>来源分类管理</title>
+		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<link href="css/bootstrap-reset.css" rel="stylesheet">
+		<link href="assets/font-awesome/css/font-awesome.css" rel="stylesheet">
+		<link href="assets/advanced-datatable/media/css/demo_table.css" rel="stylesheet">
+		<link rel="stylesheet" type="text/css" href="assets/bootstrap-datepicker/css/datepicker.css"><!-- BOOTSTRAP DATEPICKER PLUGIN CSS -->
+		<link rel="stylesheet" type="text/css" href="assets/bootstrap-timepicker/compiled/timepicker.css"><!-- BOOTSTRAP TIMEPICKER PLUGIN CSS -->		
+		<link rel="stylesheet" type="text/css" href="css/jquery.autocompleter.css">
+		<link href="css/style.css" rel="stylesheet">
+		<link href="css/style-responsive.css" rel="stylesheet">
+		<link href="css/index.css" rel="stylesheet">
+		<!--[if lt IE 9]>
+			<script src="js/html5shiv.js"></script>
+			<script src="js/respond.min.js"></script>
+		<![endif]-->
+	</head>
+
+	<body id="source-type" v-cloak>
+		<section id="container">
+			<header class="header white-bg">
+				<div class="sidebar-toggle-box">
+					<div data-placement="right" class="fa fa-bars tooltips">
+					</div>
+				</div>
+				<a href="main.html" class="logo">
+					佣金系统
+					<span v-if="ap_list==='KJ'">
+           	 会计
+          </span>
+          <span v-if="ap_list==='GW'">
+           	 顾问
+          </span>
+          <span v-if="ap_list!='KJ' && ap_list!='GW'">
+           	 超级管理员
+          </span>
+				</a>
+				<div class="top-nav ">
+					<ul class="nav pull-right top-menu">
+						<li class="dropdown">
+							<a data-toggle="dropdown" class="dropdown-toggle" href="#">
+								<span class="username">
+                  {{admin}}
+                </span>
+								<b class="caret">
+                </b>
+							</a>
+							<ul class="dropdown-menu extended logout">
+								<li class="log-arrow-up">
+								</li>
+								<li>
+									<a href="password.html">
+										<i class="fa fa-key">
+                    </i> 修改密码
+									</a>
+								</li>
+								<li><a href="javascript:tb.out();">
+										<i class="fa fa-user">
+                    </i> Log Out
+									</a>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</header>
+			<aside>
+				<div id="sidebar" class="nav-collapse">
+					<ul class="sidebar-menu" id="nav-accordion">
+						<li >
+              <a href="main.html">
+                <i class="fa fa-dashboard">
+                </i>
+                <span>
+                  Dashboard
+                </span>
+              </a>
+            </li>
+            <dli v-if="ap_list!=='KJ' && ap_list!=='GW'">            
+            <li>
+              <a href="adviser.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  顾问管理
+                </span>
+              </a>
+            </li>
+            <li>
+              <a href="official.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  文案管理
+                </span>
+              </a>
+            </li>
+            <li>
+              <a href="school.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  学校管理
+                </span>
+              </a>
+            </li>
+            <li>
+              <a href="receive-type.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  收款方式管理
+                </span>
+              </a>
+            </li>
+            <li>
+              <a href="subagency.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  Subagency管理
+                </span>
+              </a>
+            </li>
+            <li>
+              <a href="service.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  服务项目管理
+                </span>
+              </a>
+            </li>
+            </dli>
+            <li v-if="ap_list!='KJ'">
+              <a href="users.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  客户管理
+                </span>
+              </a>
+            </li>
+            <li v-if="ap_list!='KJ'" class="sub-menu">
+							<a href="javascript:;" class="active">
+								<i class="fa fa-book">
+                </i>
+								<span>
+                 	 渠道管理
+                </span>
+							</a>
+							<ul class="sub">
+								<li>
+									<a href="source.html">
+										渠道列表
+									</a>
+								</li>
+								<li class="active">
+									<a href="source-type.html">
+										来源分类
+									</a>
+								</li>								
+							</ul>
+						</li>
+						<li class="sub-menu">
+							<a href="javascript:;">
+								<i class="fa fa-book">
+                </i>
+								<span>
+                 	 佣金表
+                </span>
+							</a>
+							<ul class="sub">
+								<li>
+									<a href="visa.html">
+										签证类
+									</a>
+								</li>
+								<li>
+									<a href="table-1.html">
+										提前扣佣学生表
+									</a>
+								</li>
+								<li>
+									<a href="table-2.html">
+										待追佣学生表
+									</a>
+								</li>
+								<li>
+									<a href="table-3.html">
+										退款表
+									</a>
+								</li>
+								<li>
+									<a href="table-export.html">
+										导出数据
+									</a>
+								</li>
+							</ul>
+						</li>						
+					</ul>
+				</div>
+			</aside>
+			<section id="main-content" class="content">
+				<section class="wrapper site-min-height">
+					<div class="row">
+						<div class="col-lg-12">
+							<section class="panel">
+								<header class="panel-heading">
+									渠道来源分类
+								</header>
+								<div class="panel-body">
+									<div class="adv-table editable-table">
+										<div class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+									      <button data-dismiss="alert" class="close close-sm" type="button">
+									      <i class="fa fa-times"></i>
+									      </button>
+									      <strong>Success!</strong> You  just achieved success.
+									  </div>
+										<div class="clearfix">
+                       <div class="btn-group">
+                          <button id="editable-sample_new" class="btn btn-success green" @click="table_insert">
+                          Add New <i class="fa fa-plus"></i>
+                          </button>
+                       </div>
+                    </div>
+										<div class="responsive-table margin-top">
+											<input type="hidden" name="id" id="id" value="0" />
+											<table class="display table table-bordered table-striped" id="example">
+												<thead>
+													<tr>
+														<!--<th><input @click="checked" type="checkbox"></th>-->
+														<th>ID</th>
+														<th>分类名称</th>
+														<th>父类ID</th>
+														<th>Edit</th>
+														<th>Delete</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr v-for="item in subject" class="gradeX">
+														<td v-html="item.oid"></td>
+														<td v-html="item.name"></td>
+														<td v-html="item.parentId"></td>
+														<td><a v-if="item.id" class="edit" href="javascript:;" @click="table_modify($index)"><span class="label label-success">Edit</span></a>
+																<a v-else class="edit" href="javascript:;"><span class="label label-primary">Save</span></a>
+														</td>
+														<td><a v-if="item.id" class="delete" href="#" @click="delete_confirm($index,item.id)"><span class="label label-danger">Delete</span></a>
+																<a v-else class="cancel" href="javascript:;"><span class="label label-info">Cancel</span></a>
+														</td>														
+													</tr>
+												</tbody>
+											</table>
+										</div>
+										<div class="row-fluid" style="display:none;">
+											<div class="span6">
+												<div class="dataTables_info" id="hidden-table-info_info">共{{count}}条</div>
+											</div>
+											<div class="span6">
+												<div class="dataTables_paginate paging_bootstrap pagination">
+													<ul>
+														<li :class="[pageNum==0?'disabled':'']">
+															<a @click="firstPage" href="javascript:;">首页</a>
+														</li>
+														<li :class="[pageNum==0?'disabled':'']">
+															<a @click="prevPage" href="javascript:;">← Pre</a>
+														</li>
+														<li class="nowPage">
+															第{{pageNum+1}}页
+														</li>
+														<li :class="[pageNum==allPage-1?'disabled':'']">
+															<a @click="nextPage" href="javascript:;">Next → </a>
+														</li>
+														<li :class="[pageNum==allPage-1?'disabled':'']">
+															<a @click="lastPage" href="javascript:;">末页</a>
+														</li>
+													</ul>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</section>
+						</div>
+					</div>
+				</section>
+			</section>
+			<footer class="site-footer">
+				<div class="text-center">
+					2018 &copy; 佣金系统 by <span style="color:#2a8ba7;">GIG</span>.
+					<a href="#" class="go-top">
+						<i class="fa fa-angle-up">
+            </i>
+					</a>
+				</div>
+			</footer>
+		</section>
+		<div class="modal fade" id="delete_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">删除</h4>
+					</div>
+					<div class="modal-body">
+						确认删除吗？
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+						<button onclick="deleteId()" type="button" class="btn btn-primary">确认</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="modal fade" id="close_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="close_title">关闭</h4>
+					</div>
+					<div class="modal-body">
+						确认<span id="close_title1">关闭</span>吗？
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+						<button onclick="closeId()" type="button" class="btn btn-primary">确认</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="js/jquery-1.8.3.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		<script src="js/jquery.dcjqaccordion.2.7.js"></script>
+		<script src="js/jquery.scrollTo.min.js"></script>
+		<script src="js/jquery.nicescroll.js"></script>
+		<script src="assets/bootstrap-datepicker/js/bootstrap-datepicker.js"></script><!-- BOOTSTRAP DATEPICKER JS  -->
+    <script src="assets/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js"></script><!-- BOOTSTRAP DATETIMEPICKER JS  -->
+    <script src="js/jquery.autocompleter.js"></script>
+		<script src="js/common-scripts.js"></script>
+		<script src="js/vue.js"></script>
+		<script src="js/common.js?verson=1"></script>
+		<script>
+			tb.isLogin("source-type.html");
+			$("td,th").addClass("text-center");
+			var v = new Vue({
+				el: '#source-type',
+				data: {
+					admin: sessionStorage.getItem("admin"),
+					ap_list: sessionStorage.getItem("ap_list"),
+					subject: [],
+					count: 0,
+					dId: '',
+					eId: '',
+					name: '',					
+					add: false,
+					current_index: '',
+					current_row: '',
+					index: 0,
+					close: false
+				},
+				created: function() {
+					this.getDatalist();					
+				},
+				methods: {					
+					getDatalist: function() {
+						var that = this;						
+						$.get(url + "source/listSourceRegion", {							
+						}, function(result) {
+							console.log(result)
+							for(var i = 0; i < result.data.length; i++) {
+									result.data[i].oid = result.data[i].id;
+							};
+							that.subject = result.data;
+							//console.log(that.subject);
+						});
+					},
+					getTime: function(d) {
+						var date1 = new Date(d);
+						var y = date1.getFullYear();
+						var m = this.addZero(date1.getMonth() + 1);
+						var d = this.addZero(date1.getDate());
+						var h = this.addZero(date1.getHours());
+						var m2 = this.addZero(date1.getMinutes());
+						var s = this.addZero(date1.getSeconds());
+						//var date2 = y + "-" + m + "-" + d;
+						var date2 = d+"/"+m+"/"+y;
+						return date2;
+					},
+					addZero: function(obj) {
+						if(obj < 10) {
+							obj = '0' + obj;
+						};
+						return obj;
+					},					
+					table_insert() {
+						if (!this.add)
+						{
+								if (this.current_index != null)
+								{
+										this.subject[this.current_index] = this.current_row;
+										this.current_index = '';
+										this.current_row = '';
+								}											
+								this.subject.splice(0,0, {
+									id:'',									
+									name: '<input type="text" class="form-control small" style="width:200px;" id="t0" value="">',
+									parentId: '<input type="text" class="form-control small" style="width:150px;" id="t1" value="0">',
+									});
+								this.add = true;
+						}
+					},
+					table_modify: function (index) {						
+						if (this.current_index != null)
+						{
+								if (this.add)
+								{
+										this.subject[this.current_index-1] = this.current_row;
+								}else
+								{
+										this.subject[this.current_index] = this.current_row;
+								}
+						}
+						this.current_index = index;
+						this.current_row = this.subject[index];
+						if (this.subject[index].imageUrl == null) this.subject[index].imageUrl = '';
+						this.subject.splice(index,1, {
+							oid: parseInt(this.subject[index].id),
+							name: '<input type="text" class="form-control small" style="width:150px;" id="t0" value="'+this.subject[index].name+'">',
+							parentId: '<input type="text" class="form-control small" style="width:250px;" id="t1" value="'+this.subject[index].parentId+'">',
+						});						
+						if (this.add)
+						{
+								this.subject.splice(0, 1);
+								this.add = false;
+								this.current_index = index-1;								
+						}
+						//alert(this.current_row.id);																			
+					},
+					table_remove: function (index) {
+             this.subject.splice(index, 1);  
+          },
+          delete_confirm: function (index,id) {
+          	$('#delete_id').modal('show');
+          	this.dId = id;
+          	this.index = index;
+          }
+				}		
+			});
+			
+			$('#example a.edit').live('click', function (e) {
+				e.preventDefault();
+				table_addsave();
+			});
+			
+			$('#example a.cancel').live('click', function (e) {
+				e.preventDefault();
+				if (!parseInt($("#id").val()))
+				{
+						v.subject.splice(0, 1);
+						v.add = false;
+				}else
+				{
+						v.subject.splice(v.current_index, 0);
+						v.subject.splice(v.current_index,1, v.current_row);
+				}
+			});
+			
+			function table_addsave()
+			{
+          var jqInputs = $('input',$("#example"));
+          
+          var check_result = 0;
+          if (jqInputs[0].value != '' && jqInputs[1].value != '')
+          {
+          		check_result = true;
+          }else
+          {
+          		alert('所有选项必须填写！');
+          }
+          
+          if (check_result)
+          {              
+              var str_url = "source/addSourceRegion";
+              var sa_id = $("#id").val();
+              if (sa_id != '0')
+              {
+              		str_url = "source/updateSourceRegion";
+              		alert('提示：暂不可修改！');
+              		return;
+              }
+              
+              $.post(str_url, { id: sa_id, name: jqInputs[0].value, sourceRegionId: jqInputs[1].value},
+					   	function(data){
+					   			if (data.code == 0)
+					   			{
+					   					v.add = false;
+					   					$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
+					   					v.table_remove();
+					   					//重新载入数据源
+					   					v.getDatalist();
+					   			}
+					   			//console.log(data);
+					   	});
+			  	}                
+      }
+			
+			v.$watch('subject', function(obj) {
+					$('.default-date-picker').datepicker({   				
+				        format: 'dd/mm/yyyy'
+				  });
+				 	if (this.current_row.id)
+				  {
+				  		$("#id").val(this.current_row.id);		  			  		
+				  }			    
+			});
+			
+			function deleteId()
+      {
+					$.get("source/deleteSourceRegion", {
+						id: v.dId
+					}, function(result) {
+						console.log(result);
+						if(result.data == true) {
+							$('#delete_id').modal('hide');
+							$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
+							v.table_remove();
+	   					//重新载入数据源
+	   					v.getDatalist();
+	   					v.getSort();
+						};
+					});      		
+      }      
+			
+			function  formatDate(now)
+			{
+			    var   now= new Date(now);     
+			    var   year=now.getFullYear();     
+			    var   month=now.getMonth()+1;     
+			    var   date=now.getDate();     
+			    var   hour=now.getHours();
+			    var   minute=now.getMinutes();     
+			    var   second=now.getSeconds();
+			    return fixZero(date,2)+"/"+fixZero(month,2)+"/"+year; 
+			}  
+			
+			function fixZero(num,length)
+			{     
+			    var str=""+num;
+			    var len=str.length;     var s="";
+			    for(var i=length;i-->len;)
+			    {         
+			        s+="0";
+			    }
+			    return s+str;
+			}
+			
+	    jQuery(document).ready(function() {
+	    });
+		</script>
+	</body>
+
+</html>

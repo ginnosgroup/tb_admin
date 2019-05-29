@@ -1,0 +1,749 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="renderer" content="webkit">
+		<link rel="shortcut icon" href="img/favicon.ico">
+		<title>学校管理</title>
+		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<link href="css/bootstrap-reset.css" rel="stylesheet">
+		<link href="assets/font-awesome/css/font-awesome.css" rel="stylesheet">
+		<link href="assets/advanced-datatable/media/css/demo_table.css" rel="stylesheet">
+		<link rel="stylesheet" type="text/css" href="assets/bootstrap-datepicker/css/datepicker.css"><!-- BOOTSTRAP DATEPICKER PLUGIN CSS -->
+		<link rel="stylesheet" type="text/css" href="assets/bootstrap-timepicker/compiled/timepicker.css"><!-- BOOTSTRAP TIMEPICKER PLUGIN CSS -->	
+		<link rel="stylesheet" type="text/css" href="assets/fuelux/css/tree-style.css"><!-- TREE STYLE CSS -->	
+		<link rel="stylesheet" type="text/css" href="css/jquery.autocompleter.css">
+		<link href="css/style.css" rel="stylesheet">
+		<link href="css/style-responsive.css" rel="stylesheet">
+		<link href="css/index.css" rel="stylesheet">
+		<!--[if lt IE 9]>
+			<script src="js/html5shiv.js"></script>
+			<script src="js/respond.min.js"></script>
+		<![endif]-->
+	</head>
+
+	<body id="school" v-cloak>
+		<section id="container">
+			<header class="header white-bg">
+				<div class="sidebar-toggle-box">
+					<div data-placement="right" class="fa fa-bars tooltips">
+					</div>
+				</div>
+				<a href="main.html" class="logo">
+					佣金系统
+					<span v-if="ap_list==='KJ'">
+           	 会计
+          </span>
+          <span v-if="ap_list==='GW'">
+           	 顾问
+          </span>
+          <span v-if="ap_list!='KJ' && ap_list!='GW'">
+           	 超级管理员
+          </span>
+				</a>
+				<div class="top-nav ">
+					<ul class="nav pull-right top-menu">
+						<li class="dropdown">
+							<a data-toggle="dropdown" class="dropdown-toggle" href="#">
+								<span class="username">
+                  {{admin}}
+                </span>
+								<b class="caret">
+                </b>
+							</a>
+							<ul class="dropdown-menu extended logout">
+								<li class="log-arrow-up">
+								</li>
+								<li>
+									<a href="password.html">
+										<i class="fa fa-key">
+                    </i> 修改密码
+									</a>
+								</li>
+								<li><a href="javascript:tb.out();">
+										<i class="fa fa-user">
+                    </i> Log Out
+									</a>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</header>
+			<aside>
+				<div id="sidebar" class="nav-collapse">
+					<ul class="sidebar-menu" id="nav-accordion">
+						<li >
+              <a href="main.html">
+                <i class="fa fa-dashboard">
+                </i>
+                <span>
+                  Dashboard
+                </span>
+              </a>
+            </li>
+            <dli v-if="ap_list!=='KJ' && ap_list!=='GW'">            
+            <li>
+              <a href="adviser.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  顾问管理
+                </span>
+              </a>
+            </li>
+            <li>
+              <a href="official.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  文案管理
+                </span>
+              </a>
+            </li>
+            <li>
+              <a href="school.html" class="active">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  学校管理
+                </span>
+              </a>
+            </li>
+            <li>
+              <a href="receive-type.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  收款方式管理
+                </span>
+              </a>
+            </li>
+            <li>
+              <a href="subagency.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  Subagency管理
+                </span>
+              </a>
+            </li>
+            <li>
+              <a href="service.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  服务项目管理
+                </span>
+              </a>
+            </li>
+            </dli>
+            <li v-if="ap_list!='KJ'">
+              <a href="users.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  客户管理
+                </span>
+              </a>
+            </li>
+            <li v-if="ap_list!='KJ'" class="sub-menu">
+							<a href="javascript:;">
+								<i class="fa fa-book">
+                </i>
+								<span>
+                 	 渠道管理
+                </span>
+							</a>
+							<ul class="sub">
+								<li>
+									<a href="source.html">
+										渠道列表
+									</a>
+								</li>
+								<li>
+									<a href="source-type.html">
+										来源分类
+									</a>
+								</li>								
+							</ul>
+						</li>
+						<li class="sub-menu">
+							<a href="javascript:;">
+								<i class="fa fa-book">
+                </i>
+								<span>
+                 	 佣金表
+                </span>
+							</a>
+							<ul class="sub">
+								<li>
+									<a href="visa.html">
+										签证类
+									</a>
+								</li>
+								<li>
+									<a href="table-1.html">
+										提前扣佣学生表
+									</a>
+								</li>
+								<li>
+									<a href="table-2.html">
+										待追佣学生表
+									</a>
+								</li>
+								<li>
+									<a href="table-3.html">
+										退款表
+									</a>
+								</li>
+								<li>
+									<a href="table-export.html">
+										导出数据
+									</a>
+								</li>
+							</ul>
+						</li>						
+					</ul>
+				</div>
+			</aside>
+			<section id="main-content" class="content">
+				<section class="wrapper site-min-height">
+					<div class="row">
+						<div class="col-lg-12">
+							<section class="panel">
+								<header class="panel-heading">
+									学校管理
+								</header>
+								<div class="panel-body">
+									<div class="adv-table editable-table">
+										<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+                      <button data-dismiss="alert" class="close close-sm" type="button">
+                      <i class="fa fa-times"></i>
+                      </button>
+                      <strong id="error_info"></strong>
+                   </div>
+										<div class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+									      <button data-dismiss="alert" class="close close-sm" type="button">
+									      <i class="fa fa-times"></i>
+									      </button>
+									      <strong>Success!</strong> You  just achieved success.
+									  </div>
+										<div class="clearfix">
+                       <div class="btn-group">
+                          <button id="editable-sample_new" class="btn btn-success green" @click="add_school">
+                          Add New <i class="fa fa-plus"></i>
+                          </button>
+                       </div>                       
+                    </div>
+										<div class="responsive-table margin-top">
+											<input type="hidden" name="id" id="id" value="0" />
+											<input type="hidden" name="school_name" id="school_name" value="" />
+											<div id="FlatTree3" class="tree tree-plus-minus tree-solid-line tree-unselectable">
+		                    <div class="tree-folder" style="display:none;">
+		                      <div class="tree-folder-header">
+		                        <i class="fa fa-folder">
+		                        </i>
+		                        <div class="tree-folder-name">
+		                        </div>
+		                      </div>
+		                      <div class="tree-folder-content">
+		                      </div>
+		                      <div class="tree-loader" style="display:none">
+		                      </div>
+		                    </div>
+		                    <div class="tree-item" style="display:none;">
+		                      <i class="tree-dot">
+		                      </i>
+		                      <div class="tree-item-name">
+		                      </div>
+		                    </div>
+		                  </div>
+
+										</div>
+										
+									</div>
+								</div>
+							</section>
+						</div>
+					</div>
+				</section>
+			</section>
+			<footer class="site-footer">
+				<div class="text-center">
+					2018 &copy; 佣金系统 by <span style="color:#2a8ba7;">GIG</span>.
+					<a href="#" class="go-top">
+						<i class="fa fa-angle-up">
+            </i>
+					</a>
+				</div>
+			</footer>
+		</section>
+		<div class="modal fade" id="delete_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">删除</h4>
+					</div>
+					<div class="modal-body">
+						确认删除吗？
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+						<button onclick="deleteId()" type="button" class="btn btn-primary">确认</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="modal fade" id="close_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="close_title">关闭</h4>
+					</div>
+					<div class="modal-body">
+						确认<span id="close_title1">关闭</span>吗？
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+						<button onclick="closeId()" type="button" class="btn btn-primary">确认</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="modal fade" id="add_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">添加</h4>
+					</div>
+					<div class="modal-body">
+							<form class="form-horizontal" autocomplete="off">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">选择国家</label>
+								<div class="col-sm-8">
+									<select class="form-control" style="width:150px;" id="t0"></select>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">学校名称</label>
+								<div class="col-sm-8">
+									<input type="text" id="t1" class="form-control" placeholder="">
+								</div>
+							</div>							
+							</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+						<button onclick="schoolUpdate()" type="button" class="btn btn-primary">确认</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="modal fade" id="subject_edit_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">修改课程</h4>
+					</div>
+					<div class="modal-body">
+							<form class="form-horizontal" autocomplete="off">							
+							<div class="form-group">
+								<label class="col-sm-3 control-label">课程名称</label>
+								<div class="col-sm-8">
+									<input type="text" id="subject_name" class="form-control" placeholder="">
+								</div>
+							</div>							
+							</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+						<button onclick="subjectUpdate()" type="button" class="btn btn-primary">确认</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="modal fade" id="subject_delete_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">删除</h4>
+					</div>
+					<div class="modal-body">
+						确认删除吗？
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+						<button onclick="subject_deleteId()" type="button" class="btn btn-primary">确认</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="js/jquery-1.8.3.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		<script src="js/jquery.dcjqaccordion.2.7.js"></script>
+		<script src="js/jquery.scrollTo.min.js"></script>
+		<script src="js/jquery.nicescroll.js"></script>
+		<script src="assets/bootstrap-datepicker/js/bootstrap-datepicker.js"></script><!-- BOOTSTRAP DATEPICKER JS  -->
+    <script src="assets/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js"></script><!-- BOOTSTRAP DATETIMEPICKER JS  -->
+    <script src="assets/fuelux/js/tree.min1.js"></script><!-- TREE JS  -->
+    <script src="js/jquery.autocompleter.js"></script>
+		<script src="js/common-scripts.js"></script>
+		<script src="js/vue.js"></script>
+		<script src="js/common.js?verson=1"></script>
+		<script>
+			tb.isLogin("school.html");
+			$("td,th").addClass("text-center");
+			var v = new Vue({
+				el: '#school',
+				data: {
+					admin: sessionStorage.getItem("admin"),
+					ap_list: sessionStorage.getItem("ap_list"),
+					data_list: [],
+					tree_data: [],
+					tree_first_node: false,
+					country_data: [],
+					school_name: '',
+					country: '',
+					dId: 0,
+				},
+				created: function() {
+					
+				},
+				methods: {					
+			    add_school: function (id){
+			    			$("#school_name").val('');
+			    			$('#t1').val('');
+			      		$('#add_id').modal('show');
+			      		bind_country('t0','');
+			    }
+				}					
+			});
+			
+			v.$watch('subject', function(obj) {			    
+			});		
+			
+			var DataSourceTree = function () {
+          this._data = get_treedata();               
+      };
+      DataSourceTree.prototype = {
+          data: function (options, callback) {
+          	  console.log(options)
+          	  //this._data = [{name:'xxx',type:'item'},{name:'yyy',type:'item'}];  
+          	  if ("type" in options && options.type == "folder")
+          	  {
+          	  		if ("additionalParameters" in options && "children" in options.additionalParameters)
+          	  		{
+          	  				this._data = options.additionalParameters.children;//点击父节点，加载子节点
+          	  		}else
+          	  		{
+          	  				options.additionalParameters.children = [];
+          	  				this._data = '';
+          	  				var str_country = options.father;
+          	  				var school_name = options.additionalParameters.id;
+          	  				var remoteUrl = '/admin/school/list?name='+school_name+'&country='+str_country;
+						      		$.get(remoteUrl, {
+													pageNum: 0,
+													pageSize: 10000
+												}, function(result) {
+													var str_subject = '';
+													var str_subject_name = '';
+													for(var i = 0; i < result.data.length; i++) {
+														if (result.data[i].subject != '')
+														{
+																str_subject_name = result.data[i].subject;
+																str_subject_name= str_subject_name.replace(/\s+/g,"#");
+																str_subject += '{name:\''+result.data[i].subject+'   <a href=javascript:subjectEdit("'+str_subject_name+'",'+result.data[i].id+')>修改</a> <a href=javascript:subjectDel("'+str_subject_name+'",'+result.data[i].id+')>删除<a/>'+'\',type:\'item\',additionalParameters:{id:\''+result.data[i].id+'\'}},';
+														}
+													}
+													if (str_subject != '')
+													{
+															var d = new Array();
+															options.additionalParameters.children = eval('['+str_subject+']');														
+															//d = eval(str_subject);															
+															console.log(options.additionalParameters.children)											
+															this._data = options.additionalParameters.children;
+															callback({ data: this._data })
+													}
+											});																				
+          	  		}
+          	  }
+              callback({data: this._data});
+          }
+      };            			
+      
+      var remoteDataSource = new DataSourceTree();         
+      
+      function get_treedata()
+      {
+      		var d = new Array(); 
+      		$.ajaxSettings.async = false; 
+      		$.get(url + "school/list", {
+							pageNum: 0,
+							pageSize: 10000
+						}, function(result) {
+							for(var i = 0; i < result.data.length; i++) {								
+								if (result.data[i].country)
+								{
+										result.data[i].countryName = countryName(result.data[i].country);
+										if(v.country_data.indexOf(result.data[i].country)==-1)
+										{
+											 v.country_data.push(result.data[i].country);
+										}						
+								}
+							}
+							v.data_list = result.data;
+							var str_children = '';
+							var str_countryname = '';
+							var str_school = '';							
+							for(var i = 0; i < v.country_data.length; i++) {
+								var school_data = new Array();
+								d[i] = [];								
+								str_countryname = countryName(v.country_data[i]);
+								d[i] = {name: str_countryname+' <div class="tree-actions"></div>',type: 'folder',additionalParameters: {id: v.country_data[i]}};
+								d[i]['additionalParameters']['children'] = new Array();
+								for(var j = 0; j < v.data_list.length; j++) {									
+									if (v.data_list[j].country == v.country_data[i])
+									{
+											if(school_data.indexOf(v.data_list[j].name)==-1)
+											{
+												 school_data.push(v.data_list[j].name);
+												 str_school = v.data_list[j].name;
+												 str_school= str_school.replace(/\s+/g,"#");
+												 str_children += '{name:\'<span id=s'+v.data_list[j].id+'>'+v.data_list[j].name+'</span>   <a href=javascript:schoolEdit("'+v.data_list[j].country+'","'+str_school+'",'+v.data_list[j].id+')>修改</a> <a href=javascript:schoolDel("'+v.data_list[j].country+'","'+str_school+'",'+v.data_list[j].id+')>删除<a/>\',type:\'folder\',father:\''+v.data_list[j].country+'\',additionalParameters:{id:\''+v.data_list[j].name+'\'}},';
+											}
+									}
+								}
+								d[i]['additionalParameters']['children'] = eval('['+str_children+']');
+								str_children = '';
+								//d[i]['additionalParameters']['children'] = eval('[{name:\'xxx\',type:\'item\'},{name:\'yyy\',type:\'item\'}]');
+							}
+							console.log(d)
+					});
+		      return d; 
+      } 
+      
+      function bind_country(byid,country)
+      {
+      		//绑定国家列表
+			    var obj_country = $("#"+byid);				    
+			    obj_country.empty();
+			    var str_selected1 = '';
+			    var str_selected2 = '';
+			    var str_selected3 = '';
+			    var str_selected4 = '';
+			    var str_selected5 = '';
+			    if (country == 'AUS') str_selected1 = ' SELECTED';
+			    if (country == 'USA') str_selected2 = ' SELECTED';
+			    if (country == 'GBR') str_selected3 = ' SELECTED';
+			    if (country == 'CAN') str_selected4 = ' SELECTED';
+			    if (country == 'NZL') str_selected5 = ' SELECTED';			    
+	        obj_country.append("<option value='AUS'"+str_selected1+">澳大利亚</option>");
+	        obj_country.append("<option value='USA'"+str_selected2+">美国</option>");
+	        obj_country.append("<option value='GBR'"+str_selected3+">英国</option>");
+	        obj_country.append("<option value='CAN'"+str_selected4+">加拿大</option>");
+	        obj_country.append("<option value='NZL'"+str_selected5+">新西兰</option>");
+      }
+      
+      function schoolEdit(country,name,id)
+      {
+      		bind_country('t0',country);
+      		name = name.split('#').join(' ');
+      		$("#t1").val(name);
+      		$("#school_name").val(name);
+      		$("#id").val(id);
+      		$('#add_id').modal('show');
+      }
+      
+      function schoolDel(country,name,id)
+      {
+      		v.dId = id;
+      		v.country = country;
+      		v.school_name = name;
+      		$('#delete_id').modal('show');
+      }
+      
+      function subjectEdit(subject,id)
+      {
+      		subject = subject.split('#').join(' ');
+      		$("#subject_name").val(subject);
+      		$("#id").val(id);
+      		$('#subject_edit_id').modal('show');
+      }
+      
+      function subjectDel(subject,id)
+      {
+      		v.dId = id;      		
+      		$('#subject_delete_id').modal('show');
+      }
+      
+      function subjectUpdate()
+			{          
+          var check_result = 0;
+          var subject_name = $("#subject_name").val();
+          if (subject_name != '')
+          {
+          		check_result = true;
+          }else
+          {
+          		alert('所有选项必须填写！');
+          }
+          
+          if (check_result)
+          {              
+              var str_url = "school/update";
+              var sa_id = $("#id").val();
+              
+              $.post(str_url, { id: sa_id, subject: subject_name},
+					   	function(data){
+					   			if (data.code == 0)
+					   			{
+					   					$('#subject_edit_id').modal('hide');
+					   					$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
+					   					setTimeout(function(){window.location.reload();},1500);		
+					   			}else
+					   			{
+					   					$('#alert_error').addClass('alert-danger').show().delay(1500).fadeOut();
+					   					$("#error_info").html(data.message);
+					   			}
+					   	});
+			  	}                
+      }
+      
+      function subject_deleteId()
+      {      		
+      		$.get("school/delete", {
+						id: v.dId
+					}, function(result) {
+						console.log(result);
+						if(result.data == true) {
+							$('#subject_delete_id').modal('hide');
+							$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
+							setTimeout(function(){window.location.reload();},1500);			
+						};
+					});
+      }
+      
+      function deleteId()
+      {      		
+      		goto_schoolDel(v.country,v.school_name,v.dId);
+      }
+      
+      function goto_schoolDel(country,school_name,id)
+      {
+      		school_name = school_name.split('#').join(' ');
+      		$.get("school/deleteByName", {
+						name: school_name
+					}, function(result) {
+						console.log(result);
+						if(result.data == true) {
+							$('#delete_id').modal('hide');
+							$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
+							setTimeout(function(){window.location.reload();},1500);			
+						};
+					});
+      }
+      
+      function schoolUpdate()
+			{          
+          var check_result = 0;
+          var t0 = $("#t0").val();
+          var t1 = $("#t1").val();
+          var school_name = $("#school_name").val();
+          if (t0 != '' && t1.value != '')
+          {
+          		check_result = true;
+          }else
+          {
+          		$('#alert_error').addClass('alert-danger').show().delay(1500).fadeOut();
+					    $("#error_info").html('所有选项必须填写！');
+          }
+          
+          if (check_result)
+          {              
+              var str_url = "school/add";
+              var sa_id = $("#id").val();
+              if (sa_id != '0')
+              {
+              		if (t1 != school_name)
+              		{
+              				str_url = "school/updateName";
+              				$.post(str_url, { id: sa_id, oldName: school_name, newName: t1},
+									   	function(data){
+									   			if (data.code == 0)
+									   			{
+									   					$('#add_id').modal('hide');
+									   					$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
+									   					$('#s'+sa_id).html('<span id=s'+sa_id+'>'+t1+'</span>');
+									   			}else
+									   			{
+									   					$('#alert_error').addClass('alert-danger').show().delay(1500).fadeOut();
+									   					$("#error_info").html(data.message);
+									   			}
+									   	});
+              		}else
+              		{
+              				$('#add_id').modal('hide');
+              		}
+              }else
+              {              
+		              $.post(str_url, { id: sa_id, name: t1, subject: '', country: t0},
+							   	function(data){
+							   			if (data.code == 0)
+							   			{
+							   					$('#add_id').modal('hide');
+							   					$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
+							   					$('#s'+sa_id).html('<span id=s'+sa_id+'>'+t1+'</span>');
+							   			}else
+							   			{
+							   					$('#alert_error').addClass('alert-danger').show().delay(1500).fadeOut();
+							   					$("#error_info").html(data.message);
+							   			}
+							   	});
+					  	}
+			  	}                
+      }              
+      
+      function countryName(code)
+      {
+      		var countryName = '';
+      		switch(code)
+					{
+							case 'AUS':
+									countryName = '澳大利亚';
+							break;
+							case 'USA':
+									countryName = '美国';
+							break;
+							case 'GBR':
+									countryName = '英国';
+							break;
+							case 'CAN':
+									countryName = '加拿大';
+							break;
+							case 'NZL':
+									countryName = '新西兰';
+							break;
+					}
+					return countryName;
+      }
+			
+	    jQuery(document).ready(function() {	    	
+	    	$('#FlatTree3').tree({
+            dataSource: remoteDataSource,
+            loadingHTML: '<img src="img/input-spinner.gif"/>',
+            cacheItems: false,
+            selectable: false,
+        });         
+	    });
+		</script>
+	</body>
+
+</html>
