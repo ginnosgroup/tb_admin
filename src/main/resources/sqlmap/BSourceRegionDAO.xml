@@ -40,7 +40,7 @@
         <if test='parentId != null'>
             AND parent_id = #{parentId}
         </if>
-        ORDER BY gmt_create DESC;
+        ORDER BY id ASC;
     </select>
     
     <delete id="deleteSourceRegion" parameterType="java.lang.Integer">
