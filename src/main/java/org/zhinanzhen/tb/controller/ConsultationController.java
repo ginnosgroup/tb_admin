@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.zhinanzhen.b.service.AbleStateEnum;
 import org.zhinanzhen.tb.service.ConsultationService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.ConsultationDTO;
@@ -32,6 +33,7 @@ public class ConsultationController extends BaseController {
 	@ResponseBody
 	public Response<Integer> addConsultation(@RequestParam(value = "userId") String userId,
 			@RequestParam(value = "contents") String contents,
+			@RequestParam(value = "state", required = false) String state,
 			@RequestParam(value = "remindDate", required = false) String remindDate,
 			@RequestParam(value = "remindContents", required = false) String remindContents, HttpServletRequest request,
 			HttpServletResponse response) {
@@ -40,6 +42,8 @@ public class ConsultationController extends BaseController {
 			ConsultationDTO consultationDto = new ConsultationDTO();
 			consultationDto.setUserId(StringUtil.toInt(userId));
 			consultationDto.setContents(contents);
+			if (StringUtils.isNotEmpty(state))
+				consultationDto.setState(AbleStateEnum.get(state));
 			if (StringUtils.isNotEmpty(remindDate))
 				consultationDto.setRemindDate(new Date(Long.parseLong(remindDate)));
 			if (StringUtils.isNotEmpty(remindContents))
@@ -57,6 +61,7 @@ public class ConsultationController extends BaseController {
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<ConsultationDTO> updateConsultation(@RequestParam(value = "id") int id,
+			@RequestParam(value = "state", required = false) String state,
 			@RequestParam(value = "remindDate", required = false) String remindDate,
 			@RequestParam(value = "remindContents", required = false) String remindContents, HttpServletRequest request,
 			HttpServletResponse response) {
@@ -64,6 +69,8 @@ public class ConsultationController extends BaseController {
 			super.setPostHeader(response);
 			ConsultationDTO consultationDto = new ConsultationDTO();
 			consultationDto.setId(id);
+			if (StringUtils.isNotEmpty(state))
+				consultationDto.setState(AbleStateEnum.get(state));
 			if (StringUtil.isNotEmpty(remindDate)) {
 				consultationDto.setRemindDate(new Date(Long.parseLong(remindDate)));
 			}
