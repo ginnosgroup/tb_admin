@@ -1004,6 +1004,7 @@
 								paydate_isreadonly = ' default-date-picker';
 						}
 						//this.subject[index].remindDateList = this.subject[index].remindDateList.replace(/<br>/g,"\n");
+						if (this.subject[index].remarks == null) this.subject[index].remarks = '';
 						this.subject.splice(index,1, { 
 							handlingDate:'<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:120px;" id="t0" data-date-format="dd-mm-yyyy" value="'+this.subject[index].handlingDate+'">',
 							userName: '<div class="field"><input type="text" class="form-control small" style="width:150px;" id="t1" placeholder="请输入查询" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,\'\')" value="'+this.subject[index].userName+'"></div>',
