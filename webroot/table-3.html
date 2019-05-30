@@ -271,6 +271,7 @@
 														<th>Refund</th>
 														<th>顾问</th>
 														<th>文案</th>
+														<th>备注</th>
 														<th>Edit</th>
 														<th>Delete</th>
 														<th>Close file</th>
@@ -294,6 +295,7 @@
 														<td v-html="item.refund"></td>
 														<td v-html="item.adviserName"></td>
 														<td v-html="item.officialName"></td>
+														<td v-html="item.remarks"></td>
 														<td>
 																<dli v-if="!item.close || ap_list!=='GW'">
 																<a v-if="item.id" class="edit" href="javascript:;" @click="table_modify($index)"><span class="label label-success">Edit</span></a>
@@ -715,9 +717,10 @@
 									bankAccount: '<input type="text" class="form-control small" style="width:120px;" id="t6" value="">',
 									bsb: '<input type="text" class="form-control small" style="width:120px;" id="t7" value="">',
 									refundDate: '<input type="text" autocomplete="off" class="form-control small '+refunddate_isreadonly+'" style="width:120px;" id="t8" data-date-format="dd-mm-yyyy" value="">',
-									refundAmount: '<input type="text" class="form-control small" style="width:120px;" id="t9" value=""'+refundamount_isreadonly+'>',									
+									refundAmount: '<input type="text" class="form-control small" style="width:120px;" id="t9" value=""'+refundamount_isreadonly+'>',
 									adviserName: '<select class="form-control" style="width:150px;" id="t10"></select>',
 									officialName: '<select class="form-control" style="width:150px;" id="t11"></select>',
+									remarks: '<textarea id="t12" class="form-control" style="width:150px;"></textarea>'
 									});
 								this.add = true;
 						}
@@ -745,6 +748,7 @@
 						{
 								refunddate_isreadonly = 'default-date-picker';
 						}
+						if (this.subject[index].remarks == null) this.subject[index].remarks = '';
 						this.subject.splice(index,1, { 
 							handlingDate:'<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:120px;" id="t0" data-date-format="dd-mm-yyyy" value="'+this.subject[index].handlingDate+'">',
 							userName: '<div class="field"><input type="text" class="form-control small" style="width:150px;" id="t1" placeholder="请输入查询" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,\'\')" value="'+this.subject[index].userName+'"></div>',
@@ -761,6 +765,7 @@
 							refund: '<label id="t15" style="width:50px;">'+this.subject[index].refund+'</label>',
 							adviserName: '<select class="form-control" style="width:150px;" id="t10"></select>',
 							officialName: '<select class="form-control" style="width:150px;" id="t11"></select>',
+							remarks: '<textarea id="t12" class="form-control" style="width:150px;">'+this.subject[index].remarks+'</textarea>',
 							btnsave: '<a class="edit" href="javascript:;"><span class="label label-primary">Save</span></a>',
 							btncancel: '<a class="cancel" href="javascript:;"><span class="label label-info">Cancel</span></a>'
 						});						
@@ -820,6 +825,7 @@
 			{
           var jqInputs = $('input',$("#example"));
           var jqSelect = $('select',$("#example"));
+          var jqTextarea = $('textarea',$("#example"));
           
           var check_result = 0;
           if (jqInputs[0].value != '' && jqInputs[1].value != '' && jqInputs[2].value != '' && jqInputs[3].value != '' && jqInputs[4].value != '' && jqInputs[5].value != '' && jqInputs[7].value != '')
@@ -848,7 +854,7 @@
               var sa_id = $("#id").val();
               if (sa_id != '0') str_url = "refund/update";
               
-              $.post(str_url, { id: sa_id, receiveTypeId:1, handlingDate: d0, userId: $('#userid').val(),name: jqInputs[2].value, amount: jqInputs[3].value, preRefundAmount: jqInputs[4].value, bankName: jqInputs[5].value, bankAccount: jqInputs[6].value, bsb: jqInputs[7].value, refundDate: d8, refundAmount: jqInputs[9].value, adviserId: jqSelect[0].value, officialId: jqSelect[1].value},
+              $.post(str_url, { id: sa_id, receiveTypeId:1, handlingDate: d0, userId: $('#userid').val(),name: jqInputs[2].value, amount: jqInputs[3].value, preRefundAmount: jqInputs[4].value, bankName: jqInputs[5].value, bankAccount: jqInputs[6].value, bsb: jqInputs[7].value, refundDate: d8, refundAmount: jqInputs[9].value, adviserId: jqSelect[0].value, officialId: jqSelect[1].value,remarks: jqTextarea[0].value},
 					   	function(data){
 					   			if (data.code == 0)
 					   			{
@@ -918,9 +924,10 @@
 	        }).done(function(response) {
 	        	//author:bischina
 	        	response = response.data;
+	        	if (this.ap_list == 'AD' || this.ap_list == null) isAdmin = true;
 	        	for (var item in response)
 	        	{
-	        			if (response[item].id == current_adviserId || current_user == 'admin')
+	        			if (response[item].id == current_adviserId || isAdmin)
 	        			{
 	        					obj_adviserId.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
 	        			}

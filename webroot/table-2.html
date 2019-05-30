@@ -287,6 +287,7 @@
 														<th>已结佣</th>
 														<th>顾问</th>
 														<th>文案</th>
+														<th>备注</th>
 														<th>Edit</th>
 														<th>Delete</th>
 														<th>Close file</th>
@@ -321,6 +322,7 @@
 														<td v-html="item.settleAccounts"></td>
 														<td v-html="item.adviserName"></td>
 														<td v-html="item.officialName"></td>
+														<td v-html="item.remarks"></td>
 														<td>
 																<dli v-if="!item.close || ap_list!=='GW'">
 																<a v-if="item.id" class="edit" href="javascript:;" @click="table_modify($index)"><span class="label label-success">Edit</span></a>
@@ -970,6 +972,7 @@
 									settleAccounts: '<label id="t22" style="width:50px;"></label>',
 									adviserName: '<select class="form-control" style="width:150px;" id="t20"></select>',
 									officialName: '<select class="form-control" style="width:150px;" id="t21"></select>',
+									remarks: '<textarea id="t16" class="form-control" style="width:150px;"></textarea>'
 									});
 								this.add = true;
 						}
@@ -1001,6 +1004,7 @@
 								paydate_isreadonly = ' default-date-picker';
 						}
 						//this.subject[index].remindDateList = this.subject[index].remindDateList.replace(/<br>/g,"\n");
+						if (this.subject[index].remarks == null) this.subject[index].remarks = '';
 						this.subject.splice(index,1, { 
 							handlingDate:'<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:120px;" id="t0" data-date-format="dd-mm-yyyy" value="'+this.subject[index].handlingDate+'">',
 							userName: '<div class="field"><input type="text" class="form-control small" style="width:150px;" id="t1" placeholder="请输入查询" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,\'\')" value="'+this.subject[index].userName+'"></div>',
@@ -1026,8 +1030,9 @@
 							settleAccounts: '<label id="t22" style="width:50px;"></label>',
 							adviserName: '<select class="form-control" style="width:150px;" id="t20"></select>',
 							officialName: '<select class="form-control" style="width:150px;" id="t21"></select>',
+							remarks: '<textarea id="t16" class="form-control" style="width:150px;">'+this.subject[index].remarks+'</textarea>',
 							btnsave: '<a class="edit" href="javascript:;"><span class="label label-primary">Save</span></a>',
-							btncancel: '<a class="cancel" href="javascript:;"><span class="label label-info">Cancel</span></a>'
+							btncancel: '<a class="cancel" href="javascript:;"><span class="label label-info">Cancel</span></a>',
 						});						
 						if (this.add)
 						{
@@ -1090,6 +1095,7 @@
 			{
           var jqInputs = $('input',$("#example"));
           var jqSelect = $('select',$("#example"));
+          var jqTextarea = $('textarea',$("#example"));
           
           var check_result = 0;
           if (jqInputs[0].value != '' && jqInputs[1].value != '' && jqInputs[2].value != '' && jqInputs[3].value != '' && jqInputs[5].value != '' && jqInputs[6].value != '')
@@ -1126,7 +1132,7 @@
               var sa_id = $("#id").val();
               if (sa_id != '0') str_url = "school_brokerage_sa/update";
               
-              $.post(str_url, { id: sa_id, handlingDate: d0, userId: $('#userid').val(), schoolId: $('#schoolid').val(),studentCode: jqInputs[2].value, startDate: d5, endDate: d6, tuitionFee: jqInputs[5].value, firstTermTuitionFee: jqInputs[6].value, commission: jqInputs[7].value, payDate: d10, invoiceCode: jqInputs[9].value, payAmount: jqInputs[10].value, subagencyId: jqSelect[2].value, adviserId: jqSelect[3].value, officialId: jqSelect[4].value},
+              $.post(str_url, { id: sa_id, handlingDate: d0, userId: $('#userid').val(), schoolId: $('#schoolid').val(),studentCode: jqInputs[2].value, startDate: d5, endDate: d6, tuitionFee: jqInputs[5].value, firstTermTuitionFee: jqInputs[6].value, commission: jqInputs[7].value, payDate: d10, invoiceCode: jqInputs[9].value, payAmount: jqInputs[10].value, subagencyId: jqSelect[2].value, adviserId: jqSelect[3].value, officialId: jqSelect[4].value,remarks: jqTextarea[0].value},
 					   	function(data){
 					   			if (data.code == 0)
 					   			{
@@ -1261,9 +1267,10 @@
 	        }).done(function(response) {
 	        	//author:bischina
 	        	response = response.data;
+	        	if (this.ap_list == 'AD' || this.ap_list == null) isAdmin = true;
 	        	for (var item in response)
 	        	{
-	        			if (response[item].id == current_adviserId || current_user == 'admin')
+	        			if (response[item].id == current_adviserId || isAdmin)
 	        			{
 	        					obj_adviserId.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
 	        			}
