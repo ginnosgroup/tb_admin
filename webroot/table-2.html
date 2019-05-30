@@ -287,6 +287,7 @@
 														<th>已结佣</th>
 														<th>顾问</th>
 														<th>文案</th>
+														<th>备注</th>
 														<th>Edit</th>
 														<th>Delete</th>
 														<th>Close file</th>
@@ -321,6 +322,7 @@
 														<td v-html="item.settleAccounts"></td>
 														<td v-html="item.adviserName"></td>
 														<td v-html="item.officialName"></td>
+														<td v-html="item.remarks"></td>
 														<td>
 																<dli v-if="!item.close || ap_list!=='GW'">
 																<a v-if="item.id" class="edit" href="javascript:;" @click="table_modify($index)"><span class="label label-success">Edit</span></a>
@@ -970,6 +972,7 @@
 									settleAccounts: '<label id="t22" style="width:50px;"></label>',
 									adviserName: '<select class="form-control" style="width:150px;" id="t20"></select>',
 									officialName: '<select class="form-control" style="width:150px;" id="t21"></select>',
+									remarks: '<textarea id="t16" class="form-control" style="width:150px;"></textarea>'
 									});
 								this.add = true;
 						}
@@ -1026,8 +1029,9 @@
 							settleAccounts: '<label id="t22" style="width:50px;"></label>',
 							adviserName: '<select class="form-control" style="width:150px;" id="t20"></select>',
 							officialName: '<select class="form-control" style="width:150px;" id="t21"></select>',
+							remarks: '<textarea id="t16" class="form-control" style="width:150px;">'+this.subject[index].remarks+'</textarea>',
 							btnsave: '<a class="edit" href="javascript:;"><span class="label label-primary">Save</span></a>',
-							btncancel: '<a class="cancel" href="javascript:;"><span class="label label-info">Cancel</span></a>'
+							btncancel: '<a class="cancel" href="javascript:;"><span class="label label-info">Cancel</span></a>',
 						});						
 						if (this.add)
 						{
@@ -1090,6 +1094,7 @@
 			{
           var jqInputs = $('input',$("#example"));
           var jqSelect = $('select',$("#example"));
+          var jqTextarea = $('textarea',$("#example"));
           
           var check_result = 0;
           if (jqInputs[0].value != '' && jqInputs[1].value != '' && jqInputs[2].value != '' && jqInputs[3].value != '' && jqInputs[5].value != '' && jqInputs[6].value != '')
@@ -1126,7 +1131,7 @@
               var sa_id = $("#id").val();
               if (sa_id != '0') str_url = "school_brokerage_sa/update";
               
-              $.post(str_url, { id: sa_id, handlingDate: d0, userId: $('#userid').val(), schoolId: $('#schoolid').val(),studentCode: jqInputs[2].value, startDate: d5, endDate: d6, tuitionFee: jqInputs[5].value, firstTermTuitionFee: jqInputs[6].value, commission: jqInputs[7].value, payDate: d10, invoiceCode: jqInputs[9].value, payAmount: jqInputs[10].value, subagencyId: jqSelect[2].value, adviserId: jqSelect[3].value, officialId: jqSelect[4].value},
+              $.post(str_url, { id: sa_id, handlingDate: d0, userId: $('#userid').val(), schoolId: $('#schoolid').val(),studentCode: jqInputs[2].value, startDate: d5, endDate: d6, tuitionFee: jqInputs[5].value, firstTermTuitionFee: jqInputs[6].value, commission: jqInputs[7].value, payDate: d10, invoiceCode: jqInputs[9].value, payAmount: jqInputs[10].value, subagencyId: jqSelect[2].value, adviserId: jqSelect[3].value, officialId: jqSelect[4].value,remarks: jqTextarea[0].value},
 					   	function(data){
 					   			if (data.code == 0)
 					   			{

@@ -250,7 +250,7 @@
 										<div class="margin-top">
 											<input type="hidden" name="id" id="id" value="0" />
 											<input type="hidden" name="userid" id="userid" value="0" />
-											<table class="display table table-bordered table-striped" id="example" style="width:2000px;height:150px;">
+											<table class="display table table-bordered table-striped" id="example" style="width:2150px;height:150px;">
 												<thead>
 													<tr>
 														<!--<th><input @click="checked" type="checkbox"></th>-->
@@ -271,6 +271,7 @@
 														<th>月奖</th>
 														<th>顾问</th>
 														<th>文案</th>
+														<th>备注</th>
 														<th>Edit</th>
 														<th>Delete</th>
 														<th>Close file</th>
@@ -298,6 +299,7 @@
 														<td v-html="item.bonus"></td>
 														<td v-html="item.adviserName"></td>
 														<td v-html="item.officialName"></td>
+														<td v-html="item.remarks"></td>
 														<td>
 																<dli v-if="!item.close || ap_list!=='GW'">
 																<a v-if="item.id" class="edit" href="javascript:;" @click="table_modify($index)"><span class="label label-success">Edit</span></a>
@@ -827,6 +829,7 @@
 									bonus: '<label id="t12"></label>',
 									adviserName: '<select class="form-control" style="width:150px;" id="t13"></select>',
 									officialName: '<select class="form-control" style="width:150px;" id="t14"></select>',
+									remarks: '<textarea id="t15" class="form-control" style="width:150px;"></textarea>'
 								});
 								this.add = true;
 						}				
@@ -862,6 +865,7 @@
 								bonus: '<label id="t12">'+this.subject[index].bonus+'</label>',
 								adviserName: '<select class="form-control" style="width:150px;" id="t13"></select>',
 								officialName: '<select class="form-control" style="width:150px;" id="t14"></select>',
+								remarks: '<textarea id="t15" class="form-control" style="width:150px;">'+this.subject[index].remarks+'</textarea>',
 								btnsave: '<a class="edit" href="javascript:;"><span class="label label-primary">Save</span></a>',
 								btncancel: '<a class="cancel" href="javascript:;"><span class="label label-info">Cancel</span></a>'
 						});						
@@ -926,6 +930,7 @@
 			{
           var jqInputs = $('input',$("#example"));
           var jqSelect = $('select',$("#example"));
+          var jqTextarea = $('textarea',$("#example"));
           
           var check_result = 0;
           if (jqInputs[0].value != '' && jqInputs[1].value != '' && jqInputs[2].value != '' && jqInputs[3].value != '' && jqInputs[4].value != '' && jqInputs[5].value != '')
@@ -950,7 +955,7 @@
               var sa_id = $("#id").val();
               if (sa_id != '0') str_url = "visa/update";
               
-              $.post(str_url, { id: sa_id, handlingDate: d0, userId: $('#userid').val(), receiveDate: d2, receiveTypeId: jqSelect[0].value, serviceId: jqSelect[1].value, receivable: jqInputs[3].value, received: jqInputs[4].value, amount: jqInputs[5].value, adviserId: jqSelect[2].value, officialId: jqSelect[3].value},
+              $.post(str_url, { id: sa_id, handlingDate: d0, userId: $('#userid').val(), receiveDate: d2, receiveTypeId: jqSelect[0].value, serviceId: jqSelect[1].value, receivable: jqInputs[3].value, received: jqInputs[4].value, amount: jqInputs[5].value, adviserId: jqSelect[2].value, officialId: jqSelect[3].value,remarks: jqTextarea[0].value},
 					   	function(data){
 					   			if (data.code == 0)
 					   			{
