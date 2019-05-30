@@ -70,6 +70,28 @@ public class ConsultationServiceImpl extends BaseService implements Consultation
 			throw se;
 		}
 	}
+	
+	@Override
+	public List<ConsultationDTO> listConsultation() throws ServiceException {
+		List<ConsultationDTO> consultationDtoList = new ArrayList<ConsultationDTO>();
+		List<ConsultationDO> consultationDoList = new ArrayList<ConsultationDO>();
+		try {
+			consultationDoList = consultationDao.listConsultation();
+			if (consultationDoList == null)
+				return null;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+		for (ConsultationDO consultationDo : consultationDoList) {
+			ConsultationDTO consultationDto = mapper.map(consultationDo, ConsultationDTO.class);
+			if (StringUtil.isNotEmpty(consultationDo.getState()))
+				consultationDto.setState(AbleStateEnum.get(consultationDo.getState()));
+			consultationDtoList.add(consultationDto);
+		}
+		return consultationDtoList;
+	}
 
 	@Override
 	public List<ConsultationDTO> listConsultationByUserId(int userId) throws ServiceException {

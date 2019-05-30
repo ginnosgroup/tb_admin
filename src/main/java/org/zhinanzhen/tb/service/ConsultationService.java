@@ -10,6 +10,8 @@ public interface ConsultationService {
 	public int addConsultation(ConsultationDTO consultationDto) throws ServiceException;
 
 	public int updateConsultation(ConsultationDTO consultationDto) throws ServiceException;
+	
+	public List<ConsultationDTO> listConsultation() throws ServiceException;
 
 	public List<ConsultationDTO> listConsultationByUserId(int userId) throws ServiceException;
 

@@ -89,8 +89,33 @@ public class ConsultationController extends BaseController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<ConsultationDTO>> listConsultation(
-			@RequestParam(value = "userId", required = false) String userId, HttpServletResponse response) {
+	public Response<List<ConsultationDTO>> listConsultation(HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<List<ConsultationDTO>>(0, consultationService.listConsultation());
+		} catch (ServiceException e) {
+			return new Response<List<ConsultationDTO>>(1, e.getMessage(), null);
+		}
+	}
+
+	@Deprecated
+	@RequestMapping(value = "/list", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<ConsultationDTO>> listConsultation(@RequestParam(value = "userId") String userId,
+			HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<List<ConsultationDTO>>(0,
+					consultationService.listConsultationByUserId(Integer.parseInt(userId)));
+		} catch (ServiceException e) {
+			return new Response<List<ConsultationDTO>>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/listByUserId", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<ConsultationDTO>> listConsultationByUserId(@RequestParam(value = "userId") String userId,
+			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
 			return new Response<List<ConsultationDTO>>(0,
