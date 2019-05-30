@@ -1065,9 +1065,10 @@
 	        }).done(function(response) {
 	        	//author:bischina
 	        	response = response.data;
+	        	if (this.ap_list == 'AD' || this.ap_list == null) isAdmin = true;
 	        	for (var item in response)
 	        	{
-	        			if (response[item].id == current_adviserId || current_user == 'admin')
+	        			if (response[item].id == current_adviserId || isAdmin)
 	        			{
 	        					obj_adviserId.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
 	        			}
