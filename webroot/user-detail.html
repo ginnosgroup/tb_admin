@@ -793,7 +793,7 @@
           },
 					getConsultation: function() {
 						var that = this;						
-						$.get(url + "controller/list?userId="+that.userid, {							
+						$.get(url + "consultation/list?userId="+that.userid, {							
 						}, function(result) {
 							//console.log(result)
 							that.pageNum = 0;
@@ -1183,7 +1183,7 @@
 	    		
       		if (str_contents != '')
       		{      				    		
-			    		$.post('controller/add', { userId: v.userid, contents: str_contents, remindDate: remind_d,remindContents: str_remindContents},
+			    		$.post('consultation/add', { userId: v.userid, contents: str_contents, remindDate: remind_d,remindContents: str_remindContents},
 					   	function(data){
 					   		$('#consultation_id').modal('hide');
 					   		$('#alert1').addClass('alert-success').show().delay(1500).fadeOut();
@@ -1204,7 +1204,7 @@
 	    		
       		if (setdate != ''  && str_remindContents != '')
       		{      				    		
-			    		$.post('controller/update', { id: v.dId,userId: v.userid, remindDate: remind_d,remindContents: str_remindContents},
+			    		$.post('consultation/update', { id: v.dId,userId: v.userid, remindDate: remind_d,remindContents: str_remindContents},
 					   	function(data){
 					   		$('#consultation_remind_id').modal('hide');
 					   		$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
@@ -1238,28 +1238,28 @@
 					}); 
       	  if (d1)
       		{
-      			$.post('controller/add', { userId: v.userid, contents: cont, remindDate: d1,remindContents: cont},
+      			$.post('consultation/add', { userId: v.userid, contents: cont, remindDate: d1,remindContents: cont},
 					   	function(data){					   		
 					   		//$('#alert1').addClass('alert-success').show().delay(1500).fadeOut();					   		
 					   	});
       		}
       		if (d3)
       		{
-      			$.post('controller/add', { userId: v.userid, contents: cont, remindDate: d3,remindContents: cont},
+      			$.post('consultation/add', { userId: v.userid, contents: cont, remindDate: d3,remindContents: cont},
 					   	function(data){					   		
 					   		//$('#alert1').addClass('alert-success').show().delay(1500).fadeOut();					   		
 					   	});
       		}
       		if (d10)
       		{
-      			$.post('controller/add', { userId: v.userid, contents: cont, remindDate: d10,remindContents: cont},
+      			$.post('consultation/add', { userId: v.userid, contents: cont, remindDate: d10,remindContents: cont},
 					   	function(data){					   		
 					   		//$('#alert1').addClass('alert-success').show().delay(1500).fadeOut();
 					   	});
       		}
       		if (d17)
       		{
-      			$.post('controller/add', { userId: v.userid, contents: cont, remindDate: d17,remindContents: cont},
+      			$.post('consultation/add', { userId: v.userid, contents: cont, remindDate: d17,remindContents: cont},
 					   	function(data){					   		
 					   		$('#alert1').addClass('alert-success').show().delay(1500).fadeOut();
 					   	});

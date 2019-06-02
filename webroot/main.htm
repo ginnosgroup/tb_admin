@@ -547,7 +547,7 @@
   					var str_date = myDate.getFullYear()+'-'+(myDate.getMonth()+1)+'-'+myDate.getDate();
   					var date = new Date(str_date);
 			    	var current_tp = date.getTime();		
-						$.get(url + "controller/listByDate?date="+current_tp, {							
+						$.get(url + "consultation/listByDate?date="+current_tp, {							
 						}, function(result) {
 							console.log(result)
 							for(var i = 0; i < result.data.length; i++) {									
