@@ -77,7 +77,7 @@
             brokerage_sa_id AS brokerageSaId,
             remind_date AS remindDate
         FROM b_remind
-        WHERE remind_date < #{date}
+        WHERE remind_date > #{date}
         ORDER BY remind_date DESC;
       ]]>
     </select>
