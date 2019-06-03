@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 	<head>
@@ -313,7 +313,7 @@
                            <td v-html="item.schoolName"></td>
                            <td v-html="item.remindDateList"></td>
                            <td><button type="button" class="btn btn-info btn-sm" onclick="window.location.href='table-2.html'">录入佣金表</button></td>
-                           <td><button type="button" class="btn btn-default btn-sm" @click="close_confirm($index,item.id,1)">不在就读</button></td>
+                           <td><button type="button" style="display:none;" class="btn btn-default btn-sm" @click="close_confirm($index,item.id,1)">不在就读</button></td>
                         </tr>
                         
                      </tbody>
@@ -349,7 +349,7 @@
                            <td v-html="item.phone"></td>
                            <td v-html="item.handlingDate"></td>
                            <td v-html="item.remindDate"></td>
-                           <td><button type="button" class="btn btn-default btn-sm" @click="close_confirm1($index,item.id,1)">关闭提醒</button></td>
+                           <td><button type="button" style="display:none;" class="btn btn-default btn-sm" @click="close_confirm1($index,item.id,1)">关闭提醒</button></td>
                         </tr>                        
                      </tbody>
                   </table>
@@ -383,7 +383,7 @@
                            <td v-html="item.handlingDate"></td>
                            <td v-html="item.remindDate"></td>
                            <td><button type="button" class="btn btn-info btn-sm" onclick="window.location.href='table-1.html'">录入佣金表</button></td>
-                           <td><button type="button" class="btn btn-default btn-sm" @click="close_confirm1($index,item.id,1)">关闭提醒</button></td>
+                           <td><button type="button" style="display:none;" class="btn btn-default btn-sm" @click="close_confirm1($index,item.id,1)">关闭提醒</button></td>
                         </tr>                        
                      </tbody>
                   </table>
