@@ -89,7 +89,10 @@ public class RemindServiceImpl extends BaseService implements RemindService {
 		try {
 			Calendar c = Calendar.getInstance();
 			c.setTime(date);
-			c.add(Calendar.DAY_OF_MONTH, 1);// 包含当天
+			c.set(Calendar.HOUR_OF_DAY,23);
+	        c.set(Calendar.MINUTE,59);
+	        c.set(Calendar.SECOND,59);
+//			c.add(Calendar.DAY_OF_MONTH, 1);// 包含当天
 			remindDoList = remindDao.listRemindByRemindDate(c.getTime());
 			if (remindDoList == null) {
 				return null;
