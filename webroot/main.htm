@@ -408,6 +408,7 @@
                            <th>咨询内容</th>                           
                            <th>提醒时间</th>
                            <th>提醒内容</th>
+                           <th>操作</th>
                         </tr>
                      </thead>
                      <tbody>
@@ -418,6 +419,7 @@
                            <td v-html="item.contents"></td>
                            <td v-html="item.remindDate"></td>
                            <td v-html="item.remindContents"></td>
+                           <td><button type="button" class="btn btn-default btn-sm" @click="close_confirm2($index,item.id,item.userId,1)">不在提醒</button></td>
                         </tr>                        
                      </tbody>
                   </table>
@@ -609,13 +611,15 @@
 							};
 						});
           },
-          close_confirm2: function (index,id,close) {
-          	var str_url = 'remind/delete';
-          	$.get(str_url, {
-							id: id
+          close_confirm2: function (index,id,userId,close) {
+          	var str_url = 'consultation/update';
+          	$.post(str_url, {
+							id: id,
+							userId: userId,
+							state: 'DISABLED'
 						}, function(result) {
-							console.log(result);
-							if(result.data == true) {								
+							//console.log(result);
+							if(result.data.id) {								
 		   					//重新载入数据源
 		   					location.reload();
 							};

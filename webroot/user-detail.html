@@ -793,7 +793,7 @@
           },
 					getConsultation: function() {
 						var that = this;						
-						$.get(url + "consultation/list?userId="+that.userid, {							
+						$.get(url + "consultation/listByUserId?userId="+that.userid, {							
 						}, function(result) {
 							//console.log(result)
 							that.pageNum = 0;
