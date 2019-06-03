@@ -33,7 +33,7 @@
         FROM tb_consultation
         ORDER BY gmt_create DESC;
     </select>
-    <select id="listConsultationByUserId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.tb.dao.pojo.ConsultationDO">
+    <select id="listConsultationByUserId" resultType="org.zhinanzhen.tb.dao.pojo.ConsultationDO">
         SELECT
             id,
             gmt_create AS gmtCreate,
@@ -44,7 +44,10 @@
             remind_date AS remindDate,
             remind_contents AS remindContents
         FROM tb_consultation
-        WHERE state = 'ENABLED' AND user_id = #{userId, jdbcType=INTEGER}
+        WHERE user_id = #{userId, jdbcType=INTEGER}
+        <if test='state != null and state != ""'>
+			AND state = #{state}
+		</if>
         ORDER BY gmt_create DESC;
     </select>
     <select id="listConsultationByRemindDate" parameterType="java.util.Date" resultType="org.zhinanzhen.tb.dao.pojo.ConsultationDO">

@@ -70,7 +70,7 @@ public class ConsultationServiceImpl extends BaseService implements Consultation
 			throw se;
 		}
 	}
-	
+
 	@Override
 	public List<ConsultationDTO> listConsultation() throws ServiceException {
 		List<ConsultationDTO> consultationDtoList = new ArrayList<ConsultationDTO>();
@@ -94,11 +94,12 @@ public class ConsultationServiceImpl extends BaseService implements Consultation
 	}
 
 	@Override
-	public List<ConsultationDTO> listConsultationByUserId(int userId) throws ServiceException {
+	public List<ConsultationDTO> listConsultationByUserId(int userId, AbleStateEnum state) throws ServiceException {
 		List<ConsultationDTO> consultationDtoList = new ArrayList<ConsultationDTO>();
 		List<ConsultationDO> consultationDoList = new ArrayList<ConsultationDO>();
 		try {
-			consultationDoList = consultationDao.listConsultationByUserId(userId);
+			consultationDoList = consultationDao.listConsultationByUserId(userId,
+					state == null ? null : state.toString());
 			if (consultationDoList == null)
 				return null;
 		} catch (Exception e) {

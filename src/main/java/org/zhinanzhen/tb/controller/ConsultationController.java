@@ -101,11 +101,11 @@ public class ConsultationController extends BaseController {
 	@RequestMapping(value = "/listByUserId", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<List<ConsultationDTO>> listConsultationByUserId(@RequestParam(value = "userId") String userId,
-			HttpServletResponse response) {
+			@RequestParam(value = "state", required = false) String state, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
 			return new Response<List<ConsultationDTO>>(0,
-					consultationService.listConsultationByUserId(Integer.parseInt(userId)));
+					consultationService.listConsultationByUserId(Integer.parseInt(userId), AbleStateEnum.get(state)));
 		} catch (ServiceException e) {
 			return new Response<List<ConsultationDTO>>(1, e.getMessage(), null);
 		}
