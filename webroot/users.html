@@ -1058,29 +1058,39 @@
 	        	obj_adviserId.val(adviserId);   
 	        });
 	        //绑定客户来源
-			    var obj_source = $("#t12");
-			    obj_source.append("<option value='指南针公众号文章'>指南针公众号文章</option>");
-			    obj_source.append("<option value='今日悉尼'>今日悉尼</option>");
-			    obj_source.append("<option value='滴答网'>滴答网</option>");
-			    obj_source.append("<option value='微博'>微博</option>");
-			    obj_source.append("<option value='朋友介绍'>朋友介绍</option>");
-			    obj_source.append("<option value='谷歌搜索'>谷歌搜索</option>");
-			    obj_source.append("<option value='指南针网站'>指南针网站</option>");
-			    obj_source.append("<option value='Youtube'>Youtube</option>");
-			    obj_source.append("<option value='喜马拉雅'>喜马拉雅</option>");
-			    obj_source.append("<option value='知乎'>知乎</option>");
-			    obj_source.append("<option value='麦考瑞学联'>麦考瑞学联</option>");
-			    obj_source.append("<option value='映客'>映客</option>");
-			    obj_source.append("<option value='商科补习'>商科补习</option>");
-			    obj_source.append("<option value='IT匠人'>IT匠人</option>");
-			    obj_source.append("<option value='指南针小程序'>指南针小程序</option>");
-			    obj_source.append("<option value='微信群'>微信群</option>");
-			    obj_source.append("<option value='学校内(附近)推广活动'>学校内(附近)推广活动</option>");
-			    obj_source.append("<option value='抖音'>抖音</option>");
-			    obj_source.append("<option value='小红书'>小红书</option>");
-			    obj_source.append("<option value='掌上澳洲'>掌上澳洲</option>");
-			    obj_source.append("<option value='其他'>其他</option>");
-			    obj_source.val(str_source);  
+	        var obj_source = $("#t12");
+			    $.ajax({
+	          url: 'source/listSourceRegion',
+	          type: 'GET',
+	          dataType: 'json',
+	          async: false
+	        }).done(function(response) {
+	        	//author:bischina
+	        	obj_source.append("<option>请选择</option>");
+	        	var source_region = response.data;
+	        	for (var item in source_region)
+	        	{	  
+	        			var region_name = source_region[item].name;
+	        			var region_id = source_region[item].id;
+	        			obj_source.append("<optgroup  label='"+region_name+"'>");
+	        			$.ajax({
+				          url: 'source/list?sourceRegionId='+region_id,
+				          type: 'GET',
+				          dataType: 'json',
+				          async: false
+				        }).done(function(response1) {
+				        	response1 = response1.data;				        	
+				        	for (var item1 in response1)
+				        	{
+				        			obj_source.append("<option value='"+response1[item1].name+"'>"+response1[item1].name+"</option>");
+				        	}				        	
+				        });
+				        obj_source.append("</optgroup>");        			
+	        				        			
+	        	}
+	        	obj_source.val(str_source);   
+	        });
+	        
 			});
 			
 			function deleteId()
