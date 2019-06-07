@@ -95,7 +95,7 @@ public class RemindController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/updateStateById", method = RequestMethod.GET)
+	@RequestMapping(value = "/updateStateById", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> updateStateById(@RequestParam(value = "id") int id,
 			@RequestParam(value = "state", required = false) String state, HttpServletResponse response) {

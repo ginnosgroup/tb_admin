@@ -106,7 +106,7 @@ public class VisaRemindController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/updateStateByVisaId", method = RequestMethod.GET)
+	@RequestMapping(value = "/updateStateByVisaId", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> updateStateByVisaId(@RequestParam(value = "visaId") int visaId,
 			@RequestParam(value = "state", required = false) String state, HttpServletResponse response) {

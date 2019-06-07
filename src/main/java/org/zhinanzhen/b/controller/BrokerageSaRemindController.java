@@ -110,7 +110,7 @@ public class BrokerageSaRemindController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/updateStateByBrokerageSaId", method = RequestMethod.GET)
+	@RequestMapping(value = "/updateStateByBrokerageSaId", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> updateStateByBrokerageSaId(@RequestParam(value = "brokerageSaId") int brokerageSaId,
 			@RequestParam(value = "state", required = false) String state, HttpServletResponse response) {
