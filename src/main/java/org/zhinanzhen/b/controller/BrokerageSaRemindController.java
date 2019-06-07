@@ -110,19 +110,6 @@ public class BrokerageSaRemindController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/updateStateByBrokerageSaId", method = RequestMethod.POST)
-	@ResponseBody
-	public Response<Integer> updateStateByBrokerageSaId(@RequestParam(value = "brokerageSaId") int brokerageSaId,
-			@RequestParam(value = "state", required = false) String state, HttpServletResponse response) {
-		try {
-			super.setGetHeader(response);
-			return new Response<Integer>(0,
-					brokerageSaRemindService.updateStateByBrokerageSaId(brokerageSaId, AbleStateEnum.get(state)));
-		} catch (ServiceException e) {
-			return new Response<Integer>(1, e.getMessage(), 0);
-		}
-	}
-
 	@RequestMapping(value = "/deleteRemindByBrokerageSaId", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<Integer> deleteRemindByBrokerageSaId(@RequestParam(value = "brokerageSaId") int brokerageSaId,

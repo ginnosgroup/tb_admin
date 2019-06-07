@@ -108,12 +108,6 @@ public class VisaRemindServiceImpl extends BaseService implements VisaRemindServ
 		});
 		return visaRemindDtoList;
 	}
-	
-	@Override
-	public int updateStateByVisaId(int id, AbleStateEnum state) throws ServiceException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
 
 	@Override
 	public int deleteRemindByVisaId(int id) throws ServiceException {

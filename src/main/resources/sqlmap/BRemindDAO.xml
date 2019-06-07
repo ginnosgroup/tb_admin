@@ -98,31 +98,13 @@
       ]]>
     </select>
     
-    <update id="updateStateBySchoolBrokerageSaId" parameterType="org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaDO">
+    <update id="updateStateById" parameterType="org.zhinanzhen.b.dao.pojo.RemindDO">
 		UPDATE b_remind
 		SET gmt_modify = now()
 		<if test='state != null and state != ""'>
-            AND state = #{state}
+            ,state = #{state}
         </if>
-		WHERE school_brokerage_sa_id = #{id};
-	</update>
-	
-	<update id="updateStateByVisaId" parameterType="org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaDO">
-		UPDATE b_remind
-		SET gmt_modify = now()
-		<if test='state != null and state != ""'>
-            AND state = #{state}
-        </if>
-		WHERE visa_id = #{id};
-	</update>
-	
-	<update id="updateStateByBrokerageSaId" parameterType="org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaDO">
-		UPDATE b_remind
-		SET gmt_modify = now()
-		<if test='state != null and state != ""'>
-            AND state = #{state}
-        </if>
-		WHERE brokerage_sa_id = #{id};
+		WHERE id = #{id};
 	</update>
     
     <delete id="deleteRemindById" parameterType="java.lang.Integer">

@@ -101,7 +101,7 @@ public class RemindController extends BaseController {
 			@RequestParam(value = "state", required = false) String state, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<Integer>(0, remindService.updateStateByVisaId(id, AbleStateEnum.get(state)));
+			return new Response<Integer>(0, remindService.updateStateById(id, AbleStateEnum.get(state)));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), 0);
 		}
