@@ -15,6 +15,8 @@ public interface VisaRemindService {
 
 	public List<VisaRemindDTO> listRemindByRemindDate(Date date, int adviserId) throws ServiceException;
 
+	public int updateStateByVisaId(int id, AbleStateEnum state) throws ServiceException;
+
 	public int deleteRemindByVisaId(int id) throws ServiceException;
 
 }

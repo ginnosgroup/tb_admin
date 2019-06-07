@@ -21,6 +21,13 @@ public interface RemindDAO {
 
 	public List<RemindDO> listRemindByRemindDate(Date date);
 
+	public List<RemindDO> updateStateBySchoolBrokerageSaId(@Param("id") int id, @Param("state") String state);
+
+	public List<RemindDO> updateStateByVisaId(@Param("id") int id, @Param("state") String state);
+
+	public List<RemindDO> updateStateByBrokerageSaId(@Param("id") int id, @Param("state") String state);
+
+	@Deprecated
 	public int deleteRemindById(int id);
 
 	public int deleteRemindBySchoolBrokerageSaId(int id);

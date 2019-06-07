@@ -95,6 +95,18 @@ public class RemindController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/updateStateById", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> updateStateById(@RequestParam(value = "id") int id,
+			@RequestParam(value = "state", required = false) String state, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<Integer>(0, remindService.updateStateByVisaId(id, AbleStateEnum.get(state)));
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), 0);
+		}
+	}
+
 	@RequestMapping(value = "/delete", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<Integer> deleteRemind(@RequestParam(value = "id") int id, HttpServletResponse response) {

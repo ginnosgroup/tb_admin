@@ -110,6 +110,12 @@ public class BrokerageSaRemindServiceImpl extends BaseService implements Brokera
 	}
 
 	@Override
+	public int updateStateByBrokerageSaId(int id, AbleStateEnum state) throws ServiceException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
 	public int deleteRemindByBrokerageSaId(int id) throws ServiceException {
 		return remindDao.deleteRemindByBrokerageSaId(id);
 	}

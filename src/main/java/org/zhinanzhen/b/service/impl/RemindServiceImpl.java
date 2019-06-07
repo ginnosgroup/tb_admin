@@ -114,6 +114,12 @@ public class RemindServiceImpl extends BaseService implements RemindService {
 	}
 
 	@Override
+	public int updateStateByVisaId(int id, AbleStateEnum state) throws ServiceException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
 	public int deleteRemindById(int id) throws ServiceException {
 		return remindDao.deleteRemindById(id);
 	}

@@ -16,6 +16,8 @@ public class BrokerageSaRemindDTO {
 	private int brokerageSaId;
 
 	private Date remindDate;
+	
+	private String state;
 
 	private BrokerageSaDTO brokerageSa;
 

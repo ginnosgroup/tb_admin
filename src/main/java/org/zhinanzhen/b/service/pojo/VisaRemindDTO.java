@@ -16,6 +16,8 @@ public class VisaRemindDTO {
 	private int visaId;
 
 	private Date remindDate;
+	
+	private String state;
 
 	private VisaDTO visa;
 

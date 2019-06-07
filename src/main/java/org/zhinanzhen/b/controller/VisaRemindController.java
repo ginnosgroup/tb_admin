@@ -63,11 +63,10 @@ public class VisaRemindController extends BaseController {
 		Integer newAdviserId = getAdviserId(request);
 		if (newAdviserId != null)
 			adviserId = newAdviserId + "";
-		AbleStateEnum _state = AbleStateEnum.get(state);
 		try {
 			super.setGetHeader(response);
 			List<VisaRemindDTO> visaRemindList = visaRemindService.listRemindByVisaId(Integer.parseInt(visaId),
-					StringUtil.isNotEmpty(adviserId) ? StringUtil.toInt(adviserId) : 0, _state);
+					StringUtil.isNotEmpty(adviserId) ? StringUtil.toInt(adviserId) : 0, AbleStateEnum.get(state));
 			visaRemindList.forEach(vr -> {
 				try {
 					vr.setVisa(visaService.getVisaById(vr.getVisaId()));
@@ -104,6 +103,18 @@ public class VisaRemindController extends BaseController {
 			return new Response<List<VisaRemindDTO>>(0, visaRemindList);
 		} catch (ServiceException e) {
 			return new Response<List<VisaRemindDTO>>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/updateStateByVisaId", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> updateStateByVisaId(@RequestParam(value = "visaId") int visaId,
+			@RequestParam(value = "state", required = false) String state, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<Integer>(0, visaRemindService.updateStateByVisaId(visaId, AbleStateEnum.get(state)));
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), 0);
 		}
 	}
 

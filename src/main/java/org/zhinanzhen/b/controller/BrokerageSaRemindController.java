@@ -65,12 +65,11 @@ public class BrokerageSaRemindController extends BaseController {
 		Integer newAdviserId = getAdviserId(request);
 		if (newAdviserId != null)
 			adviserId = newAdviserId + "";
-		AbleStateEnum _state = AbleStateEnum.get(state);
 		try {
 			super.setGetHeader(response);
 			List<BrokerageSaRemindDTO> BrokerageSaRemindList = brokerageSaRemindService.listRemindByBrokerageSaId(
 					Integer.parseInt(brokerageSaId), StringUtil.isNotEmpty(adviserId) ? StringUtil.toInt(adviserId) : 0,
-					_state);
+					AbleStateEnum.get(state));
 			BrokerageSaRemindList.forEach(bsr -> {
 				try {
 					bsr.setBrokerageSa(brokerageSaService.getBrokerageSaById(bsr.getBrokerageSaId()));
@@ -108,6 +107,19 @@ public class BrokerageSaRemindController extends BaseController {
 			return new Response<List<BrokerageSaRemindDTO>>(0, BrokerageSaRemindList);
 		} catch (ServiceException e) {
 			return new Response<List<BrokerageSaRemindDTO>>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/updateStateByBrokerageSaId", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> updateStateByBrokerageSaId(@RequestParam(value = "brokerageSaId") int brokerageSaId,
+			@RequestParam(value = "state", required = false) String state, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<Integer>(0,
+					brokerageSaRemindService.updateStateByBrokerageSaId(brokerageSaId, AbleStateEnum.get(state)));
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), 0);
 		}
 	}
 

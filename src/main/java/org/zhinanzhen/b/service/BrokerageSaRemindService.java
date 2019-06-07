@@ -15,6 +15,8 @@ public interface BrokerageSaRemindService {
 
 	public List<BrokerageSaRemindDTO> listRemindByRemindDate(Date date, int adviserId) throws ServiceException;
 
+	public int updateStateByBrokerageSaId(int id, AbleStateEnum state) throws ServiceException;
+
 	public int deleteRemindByBrokerageSaId(int id) throws ServiceException;
 
 }

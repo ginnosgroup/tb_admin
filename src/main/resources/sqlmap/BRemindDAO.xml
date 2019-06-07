@@ -36,7 +36,7 @@
         <if test='adviserId != null'>
             AND sbs.adviser_id = #{adviserId}
         </if>
-        <if test='state != null and userId != ""'>
+        <if test='state != null and state != ""'>
             AND r.state = #{state}
         </if>
         ORDER BY r.remind_date DESC;
@@ -55,7 +55,7 @@
         <if test='adviserId != null'>
             AND v.adviser_id = #{adviserId}
         </if>
-        <if test='state != null and userId != ""'>
+        <if test='state != null and state != ""'>
             AND r.state = #{state}
         </if>
         ORDER BY r.remind_date DESC;
@@ -74,7 +74,7 @@
         <if test='adviserId != null'>
             AND bs.adviser_id = #{adviserId}
         </if>
-        <if test='state != null and userId != ""'>
+        <if test='state != null and state != ""'>
             AND r.state = #{state}
         </if>
         ORDER BY r.remind_date DESC;
@@ -97,6 +97,33 @@
         ORDER BY remind_date DESC;
       ]]>
     </select>
+    
+    <update id="updateStateBySchoolBrokerageSaId" parameterType="org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaDO">
+		UPDATE b_remind
+		SET gmt_modify = now()
+		<if test='state != null and state != ""'>
+            AND state = #{state}
+        </if>
+		WHERE school_brokerage_sa_id = #{id};
+	</update>
+	
+	<update id="updateStateByVisaId" parameterType="org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaDO">
+		UPDATE b_remind
+		SET gmt_modify = now()
+		<if test='state != null and state != ""'>
+            AND state = #{state}
+        </if>
+		WHERE visa_id = #{id};
+	</update>
+	
+	<update id="updateStateByBrokerageSaId" parameterType="org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaDO">
+		UPDATE b_remind
+		SET gmt_modify = now()
+		<if test='state != null and state != ""'>
+            AND state = #{state}
+        </if>
+		WHERE brokerage_sa_id = #{id};
+	</update>
     
     <delete id="deleteRemindById" parameterType="java.lang.Integer">
 		DELETE FROM b_remind WHERE id = #{id, jdbcType=INTEGER};

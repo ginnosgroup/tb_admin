@@ -15,6 +15,8 @@ public class RemindDTO {
 
 	private int schoolBrokerageSaId;
 	
+	private String state;
+	
 	private Date remindDate;
 
 }
