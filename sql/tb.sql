@@ -263,7 +263,7 @@ CREATE TABLE `b_school_brokerage_sa` (
   `subagency_id` int DEFAULT NULL COMMENT '代理编号 (对应b_subagency.id)',
   `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
   `official_id` int NOT NULL COMMENT '文案编号 (对应b_official.id)',
-`remarks` varchar(255) DEFAULT NULL COMMENT '备注',
+  `remarks` varchar(255) DEFAULT NULL COMMENT '备注',
   `is_settle_accounts` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已结佣',
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
@@ -289,7 +289,7 @@ CREATE TABLE `b_refund` (
   `refund` decimal(8,2) NOT NULL COMMENT 'Refund',
   `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
   `official_id` int NOT NULL COMMENT '文案编号 (对应b_official.id)',
-`remarks` varchar(255) DEFAULT NULL COMMENT '备注',
+  `remarks` varchar(255) DEFAULT NULL COMMENT '备注',
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
@@ -354,7 +354,8 @@ CREATE TABLE `b_remind` (
   `school_brokerage_sa_id` int DEFAULT NULL COMMENT '学校待结佣编号 (对应b_school_brokerage_sa.id)',
   `visa_id` int DEFAULT NULL COMMENT '签证类编号 (对应b_visa.id)',
   `brokerage_sa_id` int DEFAULT NULL COMMENT '提前结佣编号 (对应b_brokerage_sa.id)',
-  `remind_date` datetime NOT NULL COMMENT '提醒日期'
+  `remind_date` datetime NOT NULL COMMENT '提醒日期',
+`state` varchar(8) NOT NULL COMMENT '状态 (ENABLED:显示,DISABLED:不显示)'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
 -- 来源渠道
@@ -384,7 +385,7 @@ CREATE TABLE `tb_consultation` (
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `user_id` int NOT NULL COMMENT '所属顾客编号 (对应tb_user.id)',
   `contents` varchar(255) NOT NULL COMMENT '咨询内容',
-`state` varchar(8) NOT NULL COMMENT '状态 (ENABLED:显示,DISABLED:不显示)',
+  `state` varchar(8) NOT NULL COMMENT '状态 (ENABLED:显示,DISABLED:不显示)',
   `remind_date` datetime DEFAULT NULL COMMENT '提醒日期',
   `remind_contents` varchar(255) DEFAULT NULL COMMENT '提醒内容'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;

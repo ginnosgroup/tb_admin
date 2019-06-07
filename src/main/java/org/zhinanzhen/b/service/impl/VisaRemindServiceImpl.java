@@ -12,6 +12,7 @@ import org.zhinanzhen.b.dao.RemindDAO;
 import org.zhinanzhen.b.dao.VisaDAO;
 import org.zhinanzhen.b.dao.pojo.RemindDO;
 import org.zhinanzhen.b.dao.pojo.VisaDO;
+import org.zhinanzhen.b.service.AbleStateEnum;
 import org.zhinanzhen.b.service.VisaRemindService;
 import org.zhinanzhen.b.service.pojo.VisaRemindDTO;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -36,7 +37,7 @@ public class VisaRemindServiceImpl extends BaseService implements VisaRemindServ
 			throw se;
 		}
 		try {
-			List<RemindDO> remindDoList = remindDao.listRemindByVisaId(visaRemindDto.getVisaId(), null);
+			List<RemindDO> remindDoList = remindDao.listRemindByVisaId(visaRemindDto.getVisaId(), null, null);
 			for (RemindDO remindDo : remindDoList) {
 				if (remindDo.getRemindDate().getTime() == visaRemindDto.getRemindDate().getTime()) {
 					ServiceException se = new ServiceException("该提醒日期已存在.");
@@ -59,11 +60,13 @@ public class VisaRemindServiceImpl extends BaseService implements VisaRemindServ
 	}
 
 	@Override
-	public List<VisaRemindDTO> listRemindByVisaId(int visaId, int adviserId) throws ServiceException {
+	public List<VisaRemindDTO> listRemindByVisaId(int visaId, int adviserId, AbleStateEnum state)
+			throws ServiceException {
 		List<VisaRemindDTO> visaRemindDtoList = new ArrayList<VisaRemindDTO>();
 		List<RemindDO> remindDoList = new ArrayList<RemindDO>();
 		try {
-			remindDoList = remindDao.listRemindByVisaId(visaId, adviserId > 0 ? adviserId : null);
+			remindDoList = remindDao.listRemindByVisaId(visaId, adviserId > 0 ? adviserId : null,
+					state != null ? state.toString() : null);
 			if (remindDoList == null) {
 				return null;
 			}

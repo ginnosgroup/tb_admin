@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.zhinanzhen.b.service.AbleStateEnum;
 import org.zhinanzhen.b.service.RemindService;
 import org.zhinanzhen.b.service.pojo.RemindDTO;
 import org.zhinanzhen.tb.controller.BaseController;
@@ -52,19 +53,22 @@ public class RemindController extends BaseController {
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<List<RemindDTO>> listRemind(@RequestParam(value = "schoolBrokerageSaId") String schoolBrokerageSaId,
-			@RequestParam(value = "adviserId", required = false) String adviserId, HttpServletRequest request,
+			@RequestParam(value = "adviserId", required = false) String adviserId,
+			@RequestParam(value = "state", required = false) String state, HttpServletRequest request,
 			HttpServletResponse response) {
 		// 更改当前顾问编号
 		Integer newAdviserId = getAdviserId(request);
 		if (newAdviserId != null)
 			adviserId = newAdviserId + "";
+		AbleStateEnum _state = AbleStateEnum.get(state);
 		try {
 			super.setGetHeader(response);
 			return StringUtil.isEmpty(adviserId)
 					? new Response<List<RemindDTO>>(0,
-							remindService.listRemindBySchoolBrokerageSaId(Integer.parseInt(schoolBrokerageSaId), 0))
+							remindService.listRemindBySchoolBrokerageSaId(Integer.parseInt(schoolBrokerageSaId), 0,
+									_state))
 					: new Response<List<RemindDTO>>(0, remindService.listRemindBySchoolBrokerageSaId(
-							Integer.parseInt(schoolBrokerageSaId), StringUtil.toInt(adviserId)));
+							Integer.parseInt(schoolBrokerageSaId), StringUtil.toInt(adviserId), _state));
 		} catch (ServiceException e) {
 			return new Response<List<RemindDTO>>(1, e.getMessage(), null);
 		}

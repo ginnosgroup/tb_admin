@@ -18,6 +18,7 @@ import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.ReceiveTypeDO;
 import org.zhinanzhen.b.dao.pojo.RemindDO;
 import org.zhinanzhen.b.dao.pojo.ServiceDO;
+import org.zhinanzhen.b.service.AbleStateEnum;
 import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
@@ -139,7 +140,8 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 				visaDto.setServiceCode(serviceDo.getCode());
 			}
 			List<Date> remindDateList = new ArrayList<>();
-			List<RemindDO> remindDoList = remindDao.listRemindByVisaId(visaDto.getId(), adviserId);
+			List<RemindDO> remindDoList = remindDao.listRemindByVisaId(visaDto.getId(), adviserId,
+					AbleStateEnum.ENABLED.toString());
 			for (RemindDO remindDo : remindDoList) {
 				remindDateList.add(remindDo.getRemindDate());
 			}

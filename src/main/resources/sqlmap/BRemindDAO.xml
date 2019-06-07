@@ -11,57 +11,71 @@
                 school_brokerage_sa_id,
                 visa_id,
                 brokerage_sa_id,
-                remind_date)
+                remind_date,
+                state)
             VALUES (
                 now(),
                 now(),
                 #{schoolBrokerageSaId},
                 #{visaId},
                 #{brokerageSaId},
-                #{remindDate});
+                #{remindDate},
+                "ENABLED");
     </insert>
     
-    <select id="listRemindBySchoolBrokerageSaId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.RemindDO">
+    <select id="listRemindBySchoolBrokerageSaId" resultType="org.zhinanzhen.b.dao.pojo.RemindDO">
         SELECT
             r.id,
             r.gmt_create AS gmtCreate,
             r.gmt_modify AS gmtModify,
             r.school_brokerage_sa_id AS schoolBrokerageSaId,
-            r.remind_date AS remindDate
+            r.remind_date AS remindDate,
+            r.state
         FROM b_remind r, b_school_brokerage_sa sbs
         WHERE r.school_brokerage_sa_id = sbs.id AND r.school_brokerage_sa_id = #{schoolBrokerageSaId, jdbcType=INTEGER}
         <if test='adviserId != null'>
             AND sbs.adviser_id = #{adviserId}
         </if>
+        <if test='state != null and userId != ""'>
+            AND r.state = #{state}
+        </if>
         ORDER BY r.remind_date DESC;
     </select>
     
-    <select id="listRemindByVisaId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.RemindDO">
+    <select id="listRemindByVisaId" resultType="org.zhinanzhen.b.dao.pojo.RemindDO">
         SELECT
             r.id,
             r.gmt_create AS gmtCreate,
             r.gmt_modify AS gmtModify,
             r.school_brokerage_sa_id AS schoolBrokerageSaId,
-            r.remind_date AS remindDate
+            r.remind_date AS remindDate,
+            r.state
         FROM b_remind r, b_visa v
         WHERE r.visa_id = v.id AND r.visa_id = #{visaId, jdbcType=INTEGER}
         <if test='adviserId != null'>
             AND v.adviser_id = #{adviserId}
         </if>
+        <if test='state != null and userId != ""'>
+            AND r.state = #{state}
+        </if>
         ORDER BY r.remind_date DESC;
     </select>
     
-    <select id="listRemindByBrokerageSaId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.RemindDO">
+    <select id="listRemindByBrokerageSaId" resultType="org.zhinanzhen.b.dao.pojo.RemindDO">
         SELECT
             r.id,
             r.gmt_create AS gmtCreate,
             r.gmt_modify AS gmtModify,
             r.school_brokerage_sa_id AS schoolBrokerageSaId,
-            r.remind_date AS remindDate
+            r.remind_date AS remindDate,
+            r.state
         FROM b_remind r, b_brokerage_sa bs
         WHERE r.brokerage_sa_id = bs.id AND r.brokerage_sa_id = #{brokerageSaId, jdbcType=INTEGER}
         <if test='adviserId != null'>
             AND bs.adviser_id = #{adviserId}
+        </if>
+        <if test='state != null and userId != ""'>
+            AND r.state = #{state}
         </if>
         ORDER BY r.remind_date DESC;
     </select>
@@ -75,9 +89,11 @@
             school_brokerage_sa_id AS schoolBrokerageSaId,
             visa_id AS visaId,
             brokerage_sa_id AS brokerageSaId,
-            remind_date AS remindDate
+            remind_date AS remindDate,
+            state
         FROM b_remind
         WHERE remind_date < #{date}
+            AND state = "ENABLED"
         ORDER BY remind_date DESC;
       ]]>
     </select>

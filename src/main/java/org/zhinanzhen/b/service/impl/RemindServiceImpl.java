@@ -12,6 +12,7 @@ import org.zhinanzhen.b.dao.RemindDAO;
 import org.zhinanzhen.b.dao.SchoolBrokerageSaDAO;
 import org.zhinanzhen.b.dao.pojo.RemindDO;
 import org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaDO;
+import org.zhinanzhen.b.service.AbleStateEnum;
 import org.zhinanzhen.b.service.RemindService;
 import org.zhinanzhen.b.service.pojo.RemindDTO;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -37,7 +38,7 @@ public class RemindServiceImpl extends BaseService implements RemindService {
 		}
 		try {
 			List<RemindDO> remindDoList = remindDao.listRemindBySchoolBrokerageSaId(remindDto.getSchoolBrokerageSaId(),
-					null);
+					null, null);
 			for (RemindDO remindDo : remindDoList) {
 				if (remindDo.getRemindDate().getTime() == remindDto.getRemindDate().getTime()) {
 					ServiceException se = new ServiceException("该提醒日期已存在.");
@@ -60,13 +61,13 @@ public class RemindServiceImpl extends BaseService implements RemindService {
 	}
 
 	@Override
-	public List<RemindDTO> listRemindBySchoolBrokerageSaId(int schoolBrokerageSaId, int adviserId)
+	public List<RemindDTO> listRemindBySchoolBrokerageSaId(int schoolBrokerageSaId, int adviserId, AbleStateEnum state)
 			throws ServiceException {
 		List<RemindDTO> remindDtoList = new ArrayList<RemindDTO>();
 		List<RemindDO> remindDoList = new ArrayList<RemindDO>();
 		try {
 			remindDoList = remindDao.listRemindBySchoolBrokerageSaId(schoolBrokerageSaId,
-					adviserId > 0 ? adviserId : null);
+					adviserId > 0 ? adviserId : null, state != null ? state.toString() : null);
 			if (remindDoList == null) {
 				return null;
 			}
@@ -89,10 +90,10 @@ public class RemindServiceImpl extends BaseService implements RemindService {
 		try {
 			Calendar c = Calendar.getInstance();
 			c.setTime(date);
-			c.set(Calendar.HOUR_OF_DAY,23);
-	        c.set(Calendar.MINUTE,59);
-	        c.set(Calendar.SECOND,59);
-//			c.add(Calendar.DAY_OF_MONTH, 1);// 包含当天
+			c.set(Calendar.HOUR_OF_DAY, 23);
+			c.set(Calendar.MINUTE, 59);
+			c.set(Calendar.SECOND, 59);
+			// c.add(Calendar.DAY_OF_MONTH, 1);// 包含当天
 			remindDoList = remindDao.listRemindByRemindDate(c.getTime());
 			if (remindDoList == null) {
 				return null;

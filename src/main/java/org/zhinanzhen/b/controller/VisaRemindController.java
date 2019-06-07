@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.zhinanzhen.b.service.AbleStateEnum;
 import org.zhinanzhen.b.service.VisaRemindService;
 import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.b.service.pojo.VisaRemindDTO;
@@ -55,16 +56,18 @@ public class VisaRemindController extends BaseController {
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<List<VisaRemindDTO>> listRemind(@RequestParam(value = "visaId") String visaId,
-			@RequestParam(value = "adviserId", required = false) String adviserId, HttpServletRequest request,
+			@RequestParam(value = "adviserId", required = false) String adviserId,
+			@RequestParam(value = "state", required = false) String state, HttpServletRequest request,
 			HttpServletResponse response) {
 		// 更改当前顾问编号
 		Integer newAdviserId = getAdviserId(request);
 		if (newAdviserId != null)
 			adviserId = newAdviserId + "";
+		AbleStateEnum _state = AbleStateEnum.get(state);
 		try {
 			super.setGetHeader(response);
 			List<VisaRemindDTO> visaRemindList = visaRemindService.listRemindByVisaId(Integer.parseInt(visaId),
-					StringUtil.isNotEmpty(adviserId) ? StringUtil.toInt(adviserId) : 0);
+					StringUtil.isNotEmpty(adviserId) ? StringUtil.toInt(adviserId) : 0, _state);
 			visaRemindList.forEach(vr -> {
 				try {
 					vr.setVisa(visaService.getVisaById(vr.getVisaId()));

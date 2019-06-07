@@ -11,12 +11,13 @@ public interface RemindDAO {
 	public int addRemind(RemindDO remindDo);
 
 	public List<RemindDO> listRemindBySchoolBrokerageSaId(@Param("schoolBrokerageSaId") int schoolBrokerageSaId,
-			@Param("adviserId") Integer adviserId);
+			@Param("adviserId") Integer adviserId, @Param("state") String state);
 
-	public List<RemindDO> listRemindByVisaId(@Param("visaId") int visaId, @Param("adviserId") Integer adviserId);
+	public List<RemindDO> listRemindByVisaId(@Param("visaId") int visaId, @Param("adviserId") Integer adviserId,
+			@Param("state") String state);
 
 	public List<RemindDO> listRemindByBrokerageSaId(@Param("brokerageSaId") int brokerageSaId,
-			@Param("adviserId") Integer adviserId);
+			@Param("adviserId") Integer adviserId, @Param("state") String state);
 
 	public List<RemindDO> listRemindByRemindDate(Date date);
 

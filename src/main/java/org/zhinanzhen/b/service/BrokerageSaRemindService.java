@@ -10,7 +10,8 @@ public interface BrokerageSaRemindService {
 
 	public int addRemind(BrokerageSaRemindDTO brokerageSaRemindDTO) throws ServiceException;
 
-	public List<BrokerageSaRemindDTO> listRemindByBrokerageSaId(int visaId, int adviserId) throws ServiceException;
+	public List<BrokerageSaRemindDTO> listRemindByBrokerageSaId(int visaId, int adviserId, AbleStateEnum state)
+			throws ServiceException;
 
 	public List<BrokerageSaRemindDTO> listRemindByRemindDate(Date date, int adviserId) throws ServiceException;
 

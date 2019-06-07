@@ -20,5 +20,7 @@ public class RemindDO {
 	private int brokerageSaId;
 	
 	private Date remindDate;
+	
+	private String state;
 
 }

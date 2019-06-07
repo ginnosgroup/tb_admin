@@ -15,6 +15,7 @@ import org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaByDashboardListDO;
 import org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaDO;
 import org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaListDO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
+import org.zhinanzhen.b.service.AbleStateEnum;
 import org.zhinanzhen.b.service.SchoolBrokerageSaService;
 import org.zhinanzhen.b.service.pojo.SchoolBrokerageSaByDashboardListDTO;
 import org.zhinanzhen.b.service.pojo.SchoolBrokerageSaDTO;
@@ -133,7 +134,7 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 			SchoolBrokerageSaDTO schoolBrokerageSaDto = mapper.map(schoolBrokerageSaListDo, SchoolBrokerageSaDTO.class);
 			List<Date> remindDateList = new ArrayList<>();
 			List<RemindDO> remindDoList = remindDao.listRemindBySchoolBrokerageSaId(schoolBrokerageSaDto.getId(),
-					adviserId);
+					adviserId, AbleStateEnum.ENABLED.toString());
 			for (RemindDO remindDo : remindDoList) {
 				remindDateList.add(remindDo.getRemindDate());
 			}
@@ -178,7 +179,8 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 					.map(schoolBrokerageSaByDashboardListDo, SchoolBrokerageSaByDashboardListDTO.class);
 			List<Date> remindDateList = new ArrayList<>();
 			List<RemindDO> remindDoList = remindDao.listRemindBySchoolBrokerageSaId(
-					schoolBrokerageSaByDashboardListDto.getId(), adviserId > 0 ? adviserId : null);
+					schoolBrokerageSaByDashboardListDto.getId(), adviserId > 0 ? adviserId : null,
+					AbleStateEnum.ENABLED.toString());
 			for (RemindDO remindDo : remindDoList) {
 				remindDateList.add(remindDo.getRemindDate());
 			}

@@ -12,6 +12,7 @@ import org.zhinanzhen.b.dao.BrokerageSaDAO;
 import org.zhinanzhen.b.dao.RemindDAO;
 import org.zhinanzhen.b.dao.pojo.BrokerageSaDO;
 import org.zhinanzhen.b.dao.pojo.RemindDO;
+import org.zhinanzhen.b.service.AbleStateEnum;
 import org.zhinanzhen.b.service.BrokerageSaRemindService;
 import org.zhinanzhen.b.service.pojo.BrokerageSaRemindDTO;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -37,7 +38,7 @@ public class BrokerageSaRemindServiceImpl extends BaseService implements Brokera
 		}
 		try {
 			List<RemindDO> remindDoList = remindDao.listRemindByBrokerageSaId(brokerageSaRemindDto.getBrokerageSaId(),
-					null);
+					null, null);
 			for (RemindDO remindDo : remindDoList) {
 				if (remindDo.getRemindDate().getTime() == brokerageSaRemindDto.getRemindDate().getTime()) {
 					ServiceException se = new ServiceException("该提醒日期已存在.");
@@ -60,12 +61,13 @@ public class BrokerageSaRemindServiceImpl extends BaseService implements Brokera
 	}
 
 	@Override
-	public List<BrokerageSaRemindDTO> listRemindByBrokerageSaId(int brokerageSaId, int adviserId)
+	public List<BrokerageSaRemindDTO> listRemindByBrokerageSaId(int brokerageSaId, int adviserId, AbleStateEnum state)
 			throws ServiceException {
 		List<BrokerageSaRemindDTO> brokerageSaRemindDtoList = new ArrayList<BrokerageSaRemindDTO>();
 		List<RemindDO> remindDoList = new ArrayList<RemindDO>();
 		try {
-			remindDoList = remindDao.listRemindByBrokerageSaId(brokerageSaId, adviserId > 0 ? adviserId : null);
+			remindDoList = remindDao.listRemindByBrokerageSaId(brokerageSaId, adviserId > 0 ? adviserId : null,
+					state != null ? state.toString() : null);
 			if (remindDoList == null) {
 				return null;
 			}

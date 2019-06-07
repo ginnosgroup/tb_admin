@@ -16,6 +16,7 @@ import org.zhinanzhen.b.dao.pojo.BrokerageSaListDO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.ReceiveTypeDO;
 import org.zhinanzhen.b.dao.pojo.RemindDO;
+import org.zhinanzhen.b.service.AbleStateEnum;
 import org.zhinanzhen.b.service.BrokerageSaService;
 import org.zhinanzhen.b.service.pojo.BrokerageSaDTO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
@@ -132,7 +133,8 @@ public class BrokerageSaServiceImpl extends BaseService implements BrokerageSaSe
 				brokerageSaDto.setReceiveTypeName(receiveTypeDo.getName());
 			}
 			List<Date> remindDateList = new ArrayList<>();
-			List<RemindDO> remindDoList = remindDao.listRemindByBrokerageSaId(brokerageSaDto.getId(), adviserId);
+			List<RemindDO> remindDoList = remindDao.listRemindByBrokerageSaId(brokerageSaDto.getId(), adviserId,
+					AbleStateEnum.ENABLED.toString());
 			for (RemindDO remindDo : remindDoList) {
 				remindDateList.add(remindDo.getRemindDate());
 			}
