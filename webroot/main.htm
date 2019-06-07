@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 	<head>
@@ -509,7 +509,7 @@
   					var str_date = myDate.getFullYear()+'-'+(myDate.getMonth()+1)+'-'+myDate.getDate();
   					var date = new Date(str_date);
 			    	var current_tp = date.getTime();
-			    	current_tp = 2000000000000;//临时使用		
+			    	//current_tp = 2000000000000;//临时使用		
 						$.get(url + "visaRemind/listByDate?date="+current_tp, {							
 						}, function(result) {
 							console.log(result)
@@ -530,7 +530,7 @@
   					var str_date = myDate.getFullYear()+'-'+(myDate.getMonth()+1)+'-'+myDate.getDate();
   					var date = new Date(str_date);
 			    	var current_tp = date.getTime();
-			    	current_tp = 2000000000000;//临时使用		
+			    	//current_tp = 2000000000000;//临时使用		
 						$.get(url + "brokerageSaRemind/listByDate?date="+current_tp, {							
 						}, function(result) {
 							console.log(result)
@@ -551,7 +551,7 @@
   					var str_date = myDate.getFullYear()+'-'+(myDate.getMonth()+1)+'-'+myDate.getDate();
   					var date = new Date(str_date);
 			    	var current_tp = date.getTime();
-			    	current_tp = 2000000000000;//临时使用		
+			    	//current_tp = 2000000000000;//临时使用		
 						$.get(url + "consultation/listByDate?date="+current_tp, {							
 						}, function(result) {
 							console.log(result)
