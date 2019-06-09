@@ -98,7 +98,7 @@ public class RemindController extends BaseController {
 	@RequestMapping(value = "/updateStateById", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> updateStateById(@RequestParam(value = "id") int id,
-			@RequestParam(value = "state", required = false) String state, HttpServletResponse response) {
+			@RequestParam(value = "state") String state, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
 			return new Response<Integer>(0, remindService.updateStateById(id, AbleStateEnum.get(state)));
