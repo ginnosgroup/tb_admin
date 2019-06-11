@@ -349,7 +349,7 @@
                            <td v-html="item.phone"></td>
                            <td v-html="item.handlingDate"></td>
                            <td v-html="item.remindDate"></td>
-                           <td><button type="button" style="display:none;" class="btn btn-default btn-sm" @click="close_confirm1($index,item.id,1)">关闭提醒</button></td>
+                           <td><button type="button" style="display:;" class="btn btn-default btn-sm" @click="close_confirm1($index,item.id,1)">关闭提醒</button></td>
                         </tr>                        
                      </tbody>
                   </table>
@@ -383,7 +383,7 @@
                            <td v-html="item.handlingDate"></td>
                            <td v-html="item.remindDate"></td>
                            <td><button type="button" class="btn btn-info btn-sm" onclick="window.location.href='table-1.html'">录入佣金表</button></td>
-                           <td><button type="button" style="display:none;" class="btn btn-default btn-sm" @click="close_confirm1($index,item.id,1)">关闭提醒</button></td>
+                           <td><button type="button" style="display:;" class="btn btn-default btn-sm" @click="close_confirm1($index,item.id,1)">关闭提醒</button></td>
                         </tr>                        
                      </tbody>
                   </table>
@@ -588,13 +588,13 @@
 						return obj;
 					},
 					close_confirm: function (index,id,close) {
-						if(confirm("确认删除该学生所有后续确认就读提醒？"))
+						if(confirm("确认关闭该学生所有后续确认就读提醒？"))
 						{
-		          	var str_url = 'school_brokerage_sa/close';
-		          	$.get(str_url, {
-									id: id
+		          	var str_url = 'remind/updateStateById';
+		          	$.post(str_url, {
+									id: id,
+									state: 'DISABLED'
 								}, function(result) {
-									console.log(result);
 									if(result.data == true) {								
 				   					//重新载入数据源
 				   					location.reload();
@@ -603,11 +603,12 @@
 						}
           },
           close_confirm1: function (index,id,close) {
-          	var str_url = 'remind/delete';
-          	$.get(str_url, {
-							id: id
+          	var str_url = 'remind/updateStateById';
+          	$.post(str_url, {
+							id: id,
+							state: 'DISABLED'
 						}, function(result) {
-							console.log(result);
+							//console.log(result);
 							if(result.data == true) {								
 		   					//重新载入数据源
 		   					location.reload();
