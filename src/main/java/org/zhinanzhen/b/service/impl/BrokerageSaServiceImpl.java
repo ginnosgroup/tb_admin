@@ -96,8 +96,8 @@ public class BrokerageSaServiceImpl extends BaseService implements BrokerageSaSe
 	}
 
 	@Override
-	public List<BrokerageSaDTO> listBrokerageSa(String keyword, String startCreateDate, String endCreateDate,
-			String startHandlingDate, String endHandlingDate, Integer adviserId, Integer schoolId, Integer userId,
+	public List<BrokerageSaDTO> listBrokerageSa(String keyword, String startHandlingDate, String endHandlingDate,
+			String startCreateDate, String endCreateDate, Integer adviserId, Integer schoolId, Integer userId,
 			int pageNum, int pageSize) throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
