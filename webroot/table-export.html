@@ -279,7 +279,7 @@
 				},
 				created: function() {					
 					$('.default-date-picker').datepicker({   				
-				        format: 'dd/mm/yyyy',
+				        format: 'yyyy-mm-dd',
 				        endDate: new Date()
 				  });				
 				},
@@ -323,7 +323,7 @@
 						{
 								down_url += "&endDate=";
 						}						
-						//console.log(down_url);
+						console.log(down_url);
 						var a = document.createElement('a');
 						a.download = 'table_all_data.xls';
 						a.href = down_url;
