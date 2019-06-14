@@ -108,8 +108,8 @@ public class BrokerageSaServiceImpl extends BaseService implements BrokerageSaSe
 		List<BrokerageSaDTO> brokerageSaDtoList = new ArrayList<>();
 		List<BrokerageSaListDO> brokerageSaListDoList = new ArrayList<>();
 		try {
-			brokerageSaListDoList = brokerageSaDao.listBrokerageSa(keyword, startCreateDate,
-					theDateTo23_59_59(endCreateDate), startHandlingDate, theDateTo23_59_59(endHandlingDate), adviserId,
+			brokerageSaListDoList = brokerageSaDao.listBrokerageSa(keyword, startHandlingDate,
+					theDateTo23_59_59(endHandlingDate), startCreateDate, theDateTo23_59_59(endCreateDate), adviserId,
 					schoolId, userId, pageNum * pageSize, pageSize);
 			if (brokerageSaListDoList == null) {
 				return null;

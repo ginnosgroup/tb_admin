@@ -40,7 +40,6 @@ import com.ikasoa.core.utils.StringUtil;
 
 import jxl.Workbook;
 import jxl.WorkbookSettings;
-import jxl.biff.FontRecord;
 import jxl.format.Colour;
 import jxl.format.UnderlineStyle;
 import jxl.write.Label;
