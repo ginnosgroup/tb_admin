@@ -1049,7 +1049,7 @@
 	        	//author:bischina
 	        	response = response.data;
 	        	var isAdmin = false;
-	        	if (this.ap_list == 'AD' || this.ap_list == null) isAdmin = true;
+	        	if (v.ap_list == 'AD' || v.ap_list == 'null') isAdmin = true;
 	        	for (var item in response)
 	        	{
 	        			if (response[item].id == current_adviserId || isAdmin)
@@ -1057,7 +1057,7 @@
 	        					obj_adviserId.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
 	        			}
 	        	}
-	        	obj_adviserId.val(adviserId);   
+	        	obj_adviserId.val(current_adviserId);   
 	        });
 	        //绑定文案列表
 			    var obj_officialId = $("#t15");	
