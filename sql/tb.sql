@@ -214,7 +214,7 @@ CREATE TABLE `b_brokerage` (
   `bonus` decimal(8,2) NOT NULL COMMENT '月奖金',
   `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
   `official_id` int NOT NULL COMMENT '文案编号 (对应b_official.id)',
-`remarks` varchar(255) DEFAULT NULL COMMENT '备注',
+  `remarks` varchar(255) DEFAULT NULL COMMENT '备注',
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
@@ -236,7 +236,7 @@ CREATE TABLE `b_brokerage_sa` (
   `bonus` decimal(8,2) NOT NULL COMMENT '月奖金',
   `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
   `official_id` int NOT NULL COMMENT '文案编号 (对应b_official.id)',
-`remarks` varchar(255) DEFAULT NULL COMMENT '备注',
+  `remarks` varchar(255) DEFAULT NULL COMMENT '备注',
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
@@ -355,7 +355,7 @@ CREATE TABLE `b_remind` (
   `visa_id` int DEFAULT NULL COMMENT '签证类编号 (对应b_visa.id)',
   `brokerage_sa_id` int DEFAULT NULL COMMENT '提前结佣编号 (对应b_brokerage_sa.id)',
   `remind_date` datetime NOT NULL COMMENT '提醒日期',
-`state` varchar(8) NOT NULL COMMENT '状态 (ENABLED:显示,DISABLED:不显示)'
+  `state` varchar(8) NOT NULL COMMENT '状态 (ENABLED:显示,DISABLED:不显示)'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
 -- 来源渠道

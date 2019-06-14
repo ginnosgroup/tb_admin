@@ -549,7 +549,7 @@ public class DownExcelController extends BaseController {
 			adviserId = newAdviserId;
 
 		response.reset();// 清空输出流
-		String tableName = "visa_information";
+		String tableName = "merge_information";
 		response.setHeader("Content-disposition",
 				"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
 		response.setContentType("application/msexcel");
@@ -564,8 +564,8 @@ public class DownExcelController extends BaseController {
 					endDate, adviserId, null, 0, 15);
 
 			// ?
-			List<BrokerageDTO> brokerageDtoList = brokerageService.listBrokerage(keyword, startHandlingDate,
-					endHandlingDate, startDate, endDate, adviserId, null, 0, 15);
+//			List<BrokerageDTO> brokerageDtoList = brokerageService.listBrokerage(keyword, startHandlingDate,
+//					endHandlingDate, startDate, endDate, adviserId, null, 0, 15);
 
 			// 提前扣除学校佣金的学生表
 			List<BrokerageSaDTO> brokerageSaDtoList = brokerageSaService.listBrokerageSa(keyword, startHandlingDate,
@@ -573,12 +573,12 @@ public class DownExcelController extends BaseController {
 
 			// 需问学校追要佣金的学生表
 			List<SchoolBrokerageSaDTO> schoolBrokerageSaDtoList = schoolBrokerageSaService.listSchoolBrokerageSa(
-					keyword, startHandlingDate, endHandlingDate, startDate, endDate, newAdviserId, schoolId,
+					keyword, startHandlingDate, endHandlingDate, startDate, endDate, adviserId, schoolId,
 					subagencyId, null, isSettleAccounts, 0, 10);
 
 			// 申请退款
 			List<RefundDTO> refundDtoList = refundService.listRefund(keyword, startHandlingDate, endHandlingDate,
-					startDate, endDate, newAdviserId, officialId, null, 0, 10);
+					startDate, endDate, adviserId, officialId, null, 0, 10);
 
 			OutputStream os = response.getOutputStream();
 			jxl.Workbook wb;
