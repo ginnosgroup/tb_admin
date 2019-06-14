@@ -91,8 +91,8 @@ public class BrokerageSaServiceImpl extends BaseService implements BrokerageSaSe
 	@Override
 	public int countBrokerageSa(String keyword, String startHandlingDate, String endHandlingDate, String startDate,
 			String endDate, Integer adviserId, Integer schoolId, Integer userId) throws ServiceException {
-		return brokerageSaDao.countBrokerageSa(keyword, startHandlingDate, endHandlingDate, startDate, endDate,
-				adviserId, schoolId, userId);
+		return brokerageSaDao.countBrokerageSa(keyword, startHandlingDate, theDateTo23_59_59(endHandlingDate),
+				startDate, theDateTo23_59_59(endDate), adviserId, schoolId, userId);
 	}
 
 	@Override
@@ -108,8 +108,9 @@ public class BrokerageSaServiceImpl extends BaseService implements BrokerageSaSe
 		List<BrokerageSaDTO> brokerageSaDtoList = new ArrayList<>();
 		List<BrokerageSaListDO> brokerageSaListDoList = new ArrayList<>();
 		try {
-			brokerageSaListDoList = brokerageSaDao.listBrokerageSa(keyword, startCreateDate, endCreateDate,
-					startHandlingDate, endHandlingDate, adviserId, schoolId, userId, pageNum * pageSize, pageSize);
+			brokerageSaListDoList = brokerageSaDao.listBrokerageSa(keyword, startCreateDate,
+					theDateTo23_59_59(endCreateDate), startHandlingDate, theDateTo23_59_59(endHandlingDate), adviserId,
+					schoolId, userId, pageNum * pageSize, pageSize);
 			if (brokerageSaListDoList == null) {
 				return null;
 			}

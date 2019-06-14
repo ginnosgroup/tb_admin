@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
+import com.ikasoa.core.utils.StringUtil;
+
 /**
  * 基础服务
  * 
@@ -19,8 +21,8 @@ public abstract class BaseService {
 	protected static final Logger LOG = LoggerFactory.getLogger(BaseService.class);
 
 	protected Mapper mapper = new DozerBeanMapper();
-	
-	protected SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd"); 
+
+	protected SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
 
 	/**
 	 * 默认起始页编码
@@ -37,6 +39,10 @@ public abstract class BaseService {
 	 */
 	protected void rollback() {
 		TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+	}
+
+	protected String theDateTo23_59_59(String date) {
+		return StringUtil.isNotEmpty(date) ? date.split(" ")[0] + " 23:59:59" : date;
 	}
 
 }

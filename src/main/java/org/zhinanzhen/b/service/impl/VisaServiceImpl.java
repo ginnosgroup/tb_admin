@@ -96,7 +96,8 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 	@Override
 	public int countVisa(String keyword, String startHandlingDate, String endHandlingDate, String stardDate,
 			String endDate, Integer adviserId, Integer userId) throws ServiceException {
-		return visaDao.countVisa(keyword, startHandlingDate, endHandlingDate, stardDate, endDate, adviserId, userId);
+		return visaDao.countVisa(keyword, startHandlingDate, theDateTo23_59_59(endHandlingDate), stardDate,
+				theDateTo23_59_59(endDate), adviserId, userId);
 	}
 
 	@Override
@@ -111,8 +112,8 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 		List<VisaDTO> visaDtoList = new ArrayList<>();
 		List<VisaListDO> visaListDoList = new ArrayList<>();
 		try {
-			visaListDoList = visaDao.listVisa(keyword, startHandlingDate, endHandlingDate, stardDate, endDate,
-					adviserId, userId, pageNum * pageSize, pageSize);
+			visaListDoList = visaDao.listVisa(keyword, startHandlingDate, theDateTo23_59_59(endHandlingDate), stardDate,
+					theDateTo23_59_59(endDate), adviserId, userId, pageNum * pageSize, pageSize);
 			if (visaListDoList == null) {
 				return null;
 			}

@@ -95,11 +95,11 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 	public int countSchoolBrokerageSa(String keyword, String startHandlingDate, String endHandlingDate,
 			String startDate, String endDate, Integer adviserId, Integer schoolId, Integer subagencyId, Integer userId,
 			Boolean isSettleAccounts) throws ServiceException {
-		if (isSettleAccounts == null) {
+		if (isSettleAccounts == null)
 			isSettleAccounts = false;
-		}
-		return schoolBrokerageSaDao.countSchoolBrokerageSa(keyword, startHandlingDate, endHandlingDate, startDate,
-				endDate, adviserId, schoolId, subagencyId, userId, isSettleAccounts);
+		return schoolBrokerageSaDao.countSchoolBrokerageSa(keyword, startHandlingDate,
+				theDateTo23_59_59(endHandlingDate), startDate, theDateTo23_59_59(endDate), adviserId, schoolId,
+				subagencyId, userId, isSettleAccounts);
 	}
 
 	@Override
@@ -120,8 +120,8 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 		List<SchoolBrokerageSaListDO> schoolBrokerageSaListDoList = new ArrayList<>();
 		try {
 			schoolBrokerageSaListDoList = schoolBrokerageSaDao.listSchoolBrokerageSa(keyword, startHandlingDate,
-					endHandlingDate, startDate, endDate, adviserId, schoolId, subagencyId, userId, isSettleAccounts,
-					pageNum * pageSize, pageSize);
+					theDateTo23_59_59(endHandlingDate), startDate, theDateTo23_59_59(endDate), adviserId, schoolId,
+					subagencyId, userId, isSettleAccounts, pageNum * pageSize, pageSize);
 			if (schoolBrokerageSaListDoList == null) {
 				return null;
 			}
