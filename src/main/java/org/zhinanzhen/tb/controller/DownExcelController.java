@@ -634,6 +634,7 @@ public class DownExcelController extends BaseController {
 				sheet.addCell(new Label(12, i, visaDto.getBonus() + "", cellFormat));
 				visaBonusSum += visaDto.getBonus();
 				sheet.addCell(new Label(13, i, visaDto.getAdviserName(), cellFormat));
+				sheet.addCell(new Label(14, i, visaDto.getRemarks(), cellFormat));
 				i++;
 			}
 			sheet.addCell(new Label(9, 20, visaAmountSum + "", cellFormat));
@@ -658,6 +659,7 @@ public class DownExcelController extends BaseController {
 				sheet.addCell(new Label(12, i, brokerageSaDto.getDeductGst() + "", cellFormat));
 				sheet.addCell(new Label(13, i, brokerageSaDto.getBonus() + "", cellFormat));
 				sheet.addCell(new Label(14, i, brokerageSaDto.getAdviserName(), cellFormat));
+				sheet.addCell(new Label(15, i, brokerageSaDto.getRemarks(), cellFormat));
 				i++;
 			}
 			sheet.addCell(new Label(10, 41, brokerageSaCommissionSum + "", cellFormat));
@@ -680,6 +682,7 @@ public class DownExcelController extends BaseController {
 				schoolBrokerageSaCommissionSum += schoolBrokerageSaDto.getCommission();
 				sheet.addCell(new Label(12, i, schoolBrokerageSaDto.getSubagencyName(), cellFormat));
 				sheet.addCell(new Label(13, i, schoolBrokerageSaDto.getAdviserName(), cellFormat));
+				sheet.addCell(new Label(14, i, schoolBrokerageSaDto.getRemarks(), cellFormat));
 				i++;
 			}
 			sheet.addCell(new Label(11, 55, schoolBrokerageSaCommissionSum + "", cellFormat));
@@ -696,6 +699,7 @@ public class DownExcelController extends BaseController {
 				sheet.addCell(new Label(5, i, refundDto.getBankAccount(), cellFormat));
 				sheet.addCell(new Label(6, i, refundDto.getBsb(), cellFormat));
 				sheet.addCell(new Label(7, i, refundDto.getAdviserName(), cellFormat));
+				sheet.addCell(new Label(7, i, refundDto.getRemarks(), cellFormat));
 				i++;
 			}
 			sheet.addCell(new Label(3, 84, refundAmountSum + "", cellFormat));
