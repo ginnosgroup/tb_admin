@@ -673,6 +673,7 @@ public class DownExcelController extends BaseController {
 				sheet.addCell(new Label(13, i, schoolBrokerageSaDto.getAdviserName(), cellFormat));
 				sheet.addCell(new Label(14, i, schoolBrokerageSaDto.getRemarks(), cellFormat));
 				i++;
+			}
 
 			i = 73;
 			for (RefundDTO refundDto : refundDtoList) {
