@@ -632,7 +632,7 @@ public class DownExcelController extends BaseController {
 				i++;
 			}
 
-			i = 23;
+			i = 24;
 			for (BrokerageSaDTO brokerageSaDto : brokerageSaDtoList) {
 				sheet.addCell(new Label(0, i, sdf.format(brokerageSaDto.getHandlingDate()), cellFormat));
 				sheet.addCell(new Label(1, i, brokerageSaDto.getUserName(), cellFormat));
@@ -652,7 +652,7 @@ public class DownExcelController extends BaseController {
 				i++;
 			}
 
-			i = 43;
+			i = 45;
 			for (SchoolBrokerageSaDTO schoolBrokerageSaDto : schoolBrokerageSaDtoList) {
 				sheet.addCell(new Label(0, i, sdf.format(schoolBrokerageSaDto.getHandlingDate()), cellFormat));
 				sheet.addCell(new Label(1, i, schoolBrokerageSaDto.getUserName(), cellFormat));
