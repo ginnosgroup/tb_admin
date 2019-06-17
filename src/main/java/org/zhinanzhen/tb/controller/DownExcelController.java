@@ -636,8 +636,8 @@ public class DownExcelController extends BaseController {
 				sheet.addCell(new Label(13, i, visaDto.getAdviserName(), cellFormat));
 				i++;
 			}
-			sheet.addCell(new Label(9, i + 1, visaAmountSum + "", cellFormat));
-			sheet.addCell(new Label(12, i + 1, visaBonusSum + "", cellFormat));
+			sheet.addCell(new Label(9, 20, visaAmountSum + "", cellFormat));
+			sheet.addCell(new Label(12, 20, visaBonusSum + "", cellFormat));
 
 			i = 24;
 			double brokerageSaCommissionSum = 0.00;
@@ -660,7 +660,7 @@ public class DownExcelController extends BaseController {
 				sheet.addCell(new Label(14, i, brokerageSaDto.getAdviserName(), cellFormat));
 				i++;
 			}
-			sheet.addCell(new Label(10, i + 1, brokerageSaCommissionSum + "", cellFormat));
+			sheet.addCell(new Label(10, 41, brokerageSaCommissionSum + "", cellFormat));
 
 			i = 45;
 			double schoolBrokerageSaCommissionSum = 0.00;
@@ -682,7 +682,7 @@ public class DownExcelController extends BaseController {
 				sheet.addCell(new Label(13, i, schoolBrokerageSaDto.getAdviserName(), cellFormat));
 				i++;
 			}
-			sheet.addCell(new Label(11, i + 1, schoolBrokerageSaCommissionSum + "", cellFormat));
+			sheet.addCell(new Label(11, 55, schoolBrokerageSaCommissionSum + "", cellFormat));
 
 			i = 73;
 			double refundAmountSum = 0.00;
@@ -698,7 +698,7 @@ public class DownExcelController extends BaseController {
 				sheet.addCell(new Label(7, i, refundDto.getAdviserName(), cellFormat));
 				i++;
 			}
-			sheet.addCell(new Label(3, i + 1, refundAmountSum + "", cellFormat));
+			sheet.addCell(new Label(3, 84, refundAmountSum + "", cellFormat));
 
 			wbe.write();
 			wbe.close();
