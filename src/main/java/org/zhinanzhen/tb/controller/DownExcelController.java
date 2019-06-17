@@ -563,8 +563,9 @@ public class DownExcelController extends BaseController {
 					endDate, adviserId, null, 0, 15);
 
 			// ?
-//			List<BrokerageDTO> brokerageDtoList = brokerageService.listBrokerage(keyword, startHandlingDate,
-//					endHandlingDate, startDate, endDate, adviserId, null, 0, 15);
+			// List<BrokerageDTO> brokerageDtoList =
+			// brokerageService.listBrokerage(keyword, startHandlingDate,
+			// endHandlingDate, startDate, endDate, adviserId, null, 0, 15);
 
 			// 提前扣除学校佣金的学生表
 			List<BrokerageSaDTO> brokerageSaDtoList = brokerageSaService.listBrokerageSa(keyword, startHandlingDate,
@@ -572,8 +573,8 @@ public class DownExcelController extends BaseController {
 
 			// 需问学校追要佣金的学生表
 			List<SchoolBrokerageSaDTO> schoolBrokerageSaDtoList = schoolBrokerageSaService.listSchoolBrokerageSa(
-					keyword, startHandlingDate, endHandlingDate, startDate, endDate, adviserId, schoolId,
-					subagencyId, null, isSettleAccounts, 0, 10);
+					keyword, startHandlingDate, endHandlingDate, startDate, endDate, adviserId, schoolId, subagencyId,
+					null, isSettleAccounts, 0, 10);
 
 			// 申请退款
 			List<RefundDTO> refundDtoList = refundService.listRefund(keyword, startHandlingDate, endHandlingDate,
@@ -614,6 +615,8 @@ public class DownExcelController extends BaseController {
 			}
 
 			int i = 4;
+			double visaAmountSum = 0.00;
+			double visaBonusSum = 0.00;
 			for (VisaDTO visaDto : visaDtoList) {
 				sheet.addCell(new Label(0, i, sdf.format(visaDto.getHandlingDate()), cellFormat));
 				sheet.addCell(new Label(1, i, visaDto.getUserName(), cellFormat));
@@ -625,14 +628,19 @@ public class DownExcelController extends BaseController {
 				sheet.addCell(new Label(7, i, visaDto.getReceivable() + "", cellFormat));
 				sheet.addCell(new Label(8, i, visaDto.getReceived() + "", cellFormat));
 				sheet.addCell(new Label(9, i, visaDto.getAmount() + "", cellFormat));
+				visaAmountSum += visaDto.getAmount();
 				sheet.addCell(new Label(10, i, visaDto.getGst() + "", cellFormat));
 				sheet.addCell(new Label(11, i, visaDto.getDeductGst() + "", cellFormat));
 				sheet.addCell(new Label(12, i, visaDto.getBonus() + "", cellFormat));
+				visaBonusSum += visaDto.getBonus();
 				sheet.addCell(new Label(13, i, visaDto.getAdviserName(), cellFormat));
 				i++;
 			}
+			sheet.addCell(new Label(9, i + 1, visaAmountSum + "", cellFormat));
+			sheet.addCell(new Label(12, i + 1, visaBonusSum + "", cellFormat));
 
 			i = 24;
+			double brokerageSaCommissionSum = 0.00;
 			for (BrokerageSaDTO brokerageSaDto : brokerageSaDtoList) {
 				sheet.addCell(new Label(0, i, sdf.format(brokerageSaDto.getHandlingDate()), cellFormat));
 				sheet.addCell(new Label(1, i, brokerageSaDto.getUserName(), cellFormat));
@@ -645,14 +653,17 @@ public class DownExcelController extends BaseController {
 				sheet.addCell(new Label(8, i, brokerageSaDto.getReceiveTypeName(), cellFormat));
 				sheet.addCell(new Label(9, i, brokerageSaDto.getTuitionFee() + "", cellFormat));
 				sheet.addCell(new Label(10, i, brokerageSaDto.getCommission() + "", cellFormat));
+				brokerageSaCommissionSum += brokerageSaDto.getCommission();
 				sheet.addCell(new Label(11, i, brokerageSaDto.getGst() + "", cellFormat));
 				sheet.addCell(new Label(12, i, brokerageSaDto.getDeductGst() + "", cellFormat));
 				sheet.addCell(new Label(13, i, brokerageSaDto.getBonus() + "", cellFormat));
 				sheet.addCell(new Label(14, i, brokerageSaDto.getAdviserName(), cellFormat));
 				i++;
 			}
+			sheet.addCell(new Label(10, i + 1, brokerageSaCommissionSum + "", cellFormat));
 
 			i = 45;
+			double schoolBrokerageSaCommissionSum = 0.00;
 			for (SchoolBrokerageSaDTO schoolBrokerageSaDto : schoolBrokerageSaDtoList) {
 				sheet.addCell(new Label(0, i, sdf.format(schoolBrokerageSaDto.getHandlingDate()), cellFormat));
 				sheet.addCell(new Label(1, i, schoolBrokerageSaDto.getUserName(), cellFormat));
@@ -666,23 +677,28 @@ public class DownExcelController extends BaseController {
 				sheet.addCell(new Label(9, i, schoolBrokerageSaDto.getTuitionFee() + "", cellFormat));
 				sheet.addCell(new Label(10, i, schoolBrokerageSaDto.getFirstTermTuitionFee() + "", cellFormat));
 				sheet.addCell(new Label(11, i, schoolBrokerageSaDto.getCommission() + "", cellFormat));
+				schoolBrokerageSaCommissionSum += schoolBrokerageSaDto.getCommission();
 				sheet.addCell(new Label(12, i, schoolBrokerageSaDto.getSubagencyName(), cellFormat));
 				sheet.addCell(new Label(13, i, schoolBrokerageSaDto.getAdviserName(), cellFormat));
 				i++;
 			}
+			sheet.addCell(new Label(11, i + 1, schoolBrokerageSaCommissionSum + "", cellFormat));
 
 			i = 73;
+			double refundAmountSum = 0.00;
 			for (RefundDTO refundDto : refundDtoList) {
 				sheet.addCell(new Label(0, i, refundDto.getId() + "", cellFormat));
 				sheet.addCell(new Label(1, i, refundDto.getUserName(), cellFormat));
 				sheet.addCell(new Label(2, i, refundDto.getName(), cellFormat));
 				sheet.addCell(new Label(3, i, refundDto.getAmount() + "", cellFormat));
+				refundAmountSum += refundDto.getAmount();
 				sheet.addCell(new Label(4, i, refundDto.getBankName(), cellFormat));
 				sheet.addCell(new Label(5, i, refundDto.getBankAccount(), cellFormat));
 				sheet.addCell(new Label(6, i, refundDto.getBsb(), cellFormat));
 				sheet.addCell(new Label(7, i, refundDto.getAdviserName(), cellFormat));
 				i++;
 			}
+			sheet.addCell(new Label(3, i + 1, refundAmountSum + "", cellFormat));
 
 			wbe.write();
 			wbe.close();
