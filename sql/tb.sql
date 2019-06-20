@@ -389,3 +389,25 @@ CREATE TABLE `tb_consultation` (
   `remind_date` datetime DEFAULT NULL COMMENT '提醒日期',
   `remind_contents` varchar(255) DEFAULT NULL COMMENT '提醒内容'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+-- ----------V2.2相关表----------
+
+-- 知识库
+CREATE TABLE `b_knowledge` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `title` varchar(32) DEFAULT NULL COMMENT '知识库名称',
+  `content` varchar(2000) DEFAULT NULL COMMENT '知识库内容',
+  `knowledge_menu_id` int DEFAULT 0 COMMENT '所属菜单编号'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+-- 知识库菜单
+CREATE TABLE `b_knowledge_menu` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `name` varchar(32) DEFAULT NULL COMMENT '菜单名称',
+  `parent_id` int DEFAULT 0 COMMENT '父菜单编号'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
