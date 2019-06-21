@@ -398,7 +398,7 @@ CREATE TABLE `b_knowledge` (
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `title` varchar(32) DEFAULT NULL COMMENT '知识库名称',
-  `content` varchar(2000) DEFAULT NULL COMMENT '知识库内容',
+  `content` varchar(5000) DEFAULT NULL COMMENT '知识库内容',
   `knowledge_menu_id` int DEFAULT 0 COMMENT '所属菜单编号'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
