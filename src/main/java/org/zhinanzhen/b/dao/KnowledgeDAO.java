@@ -3,6 +3,7 @@ package org.zhinanzhen.b.dao;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
+import org.zhinanzhen.b.dao.pojo.KnowledgeDO;
 
 public interface KnowledgeDAO {
 
@@ -10,7 +11,7 @@ public interface KnowledgeDAO {
 
 	int updateKnowledge(KnowledgeDO knowledgeDo);
 
-	List<SourceDO> listKnowledge(@Param("knowledgeMenuId") Integer knowledgeMenuId);
+	List<KnowledgeDO> listKnowledge(@Param("knowledgeMenuId") Integer knowledgeMenuId);
 
 	int deleteKnowledge(int id);
 
