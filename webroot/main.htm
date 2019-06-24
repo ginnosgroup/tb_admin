@@ -313,7 +313,7 @@
                            <td v-html="item.schoolName"></td>
                            <td v-html="item.remindDateList"></td>
                            <td><button type="button" class="btn btn-info btn-sm" onclick="window.location.href='table-2.html'">录入佣金表</button></td>
-                           <td><button type="button" style="display:none;" class="btn btn-default btn-sm" @click="close_confirm($index,item.id,1)">不在就读</button></td>
+                           <td><button type="button" style="display:;" class="btn btn-default btn-sm" @click="close_confirm($index,item.id,1)">关闭提醒</button></td>
                         </tr>
                         
                      </tbody>
@@ -419,7 +419,7 @@
                            <td v-html="item.contents"></td>
                            <td v-html="item.remindDate"></td>
                            <td v-html="item.remindContents"></td>
-                           <td><button type="button" class="btn btn-default btn-sm" @click="close_confirm2($index,item.id,item.userId,1)">不在提醒</button></td>
+                           <td><button type="button" class="btn btn-default btn-sm" @click="close_confirm2($index,item.id,item.userId,1)">关闭提醒</button></td>
                         </tr>                        
                      </tbody>
                   </table>
@@ -438,6 +438,23 @@
 				</div>
 			</footer>
 		</section>
+		<div class="modal fade" id="close_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="close_title">关闭</h4>
+					</div>
+					<div class="modal-body">
+						确认<span id="close_title1">关闭提醒</span>吗？
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+						<button onclick="closeId()" type="button" class="btn btn-primary">确认</button>
+					</div>
+				</div>
+			</div>
+		</div>
 		<script src="js/jquery-1.8.3.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
 		<script src="js/jquery.dcjqaccordion.2.7.js"></script>
@@ -462,7 +479,9 @@
 					subject: [],
 					subject1: [],	
 					subject2: [],
-					datalist4: [],	
+					datalist4: [],
+					dId: '',
+					index: 0,
 					showTime: 2000,
 					eror: ''
 				},created: function() {
@@ -497,6 +516,7 @@
 													}
 											}
 											result.data[i].remindDateList = str_remindDateList;
+											result.data[i].userName = '<a href="javascript:;" onclick="show_detail('+result.data[i].userId+');">'+result.data[i].userName+'</a>';//需调用name字段
 									}							
 							};
 							that.subject = result.data;
@@ -515,7 +535,8 @@
 							console.log(result)
 							for(var i = 0; i < result.data.length; i++) {
 									result.data[i].id = result.data[i].id;
-									result.data[i].userName = result.data[i].visa.userName;
+									//result.data[i].userName = result.data[i].visa.userName;
+									result.data[i].userName = '<a href="javascript:;" onclick="show_detail('+result.data[i].visa.id+');">'+result.data[i].visa.userName+'</a>';
 									result.data[i].phone = result.data[i].visa.phone;
 									result.data[i].handlingDate = that.getTime(result.data[i].visa.handlingDate);							
 									result.data[i].remindDate = that.getTime(result.data[i].remindDate);
@@ -603,31 +624,37 @@
 						}
           },
           close_confirm1: function (index,id,close) {
-          	var str_url = 'remind/updateStateById';
-          	$.post(str_url, {
-							id: id,
-							state: 'DISABLED'
-						}, function(result) {
-							//console.log(result);
-							if(result.data == true) {								
-		   					//重新载入数据源
-		   					location.reload();
-							};
-						});
+          	if(confirm("确认关闭提醒？"))
+						{
+		          	var str_url = 'remind/updateStateById';
+		          	$.post(str_url, {
+									id: id,
+									state: 'DISABLED'
+								}, function(result) {
+									//console.log(result);
+									if(result.data == true) {								
+				   					//重新载入数据源
+				   					location.reload();
+									};
+								});
+						}
           },
           close_confirm2: function (index,id,userId,close) {
-          	var str_url = 'consultation/update';
-          	$.post(str_url, {
-							id: id,
-							userId: userId,
-							state: 'DISABLED'
-						}, function(result) {
-							//console.log(result);
-							if(result.data.id) {								
-		   					//重新载入数据源
-		   					location.reload();
-							};
-						});
+          	if(confirm("确认关闭提醒？"))
+						{
+		          	var str_url = 'consultation/update';
+		          	$.post(str_url, {
+									id: id,
+									userId: userId,
+									state: 'DISABLED'
+								}, function(result) {
+									//console.log(result);
+									if(result.data.id) {								
+				   					//重新载入数据源
+				   					location.reload();
+									};
+								});
+						}
           }
 				}
 			});
