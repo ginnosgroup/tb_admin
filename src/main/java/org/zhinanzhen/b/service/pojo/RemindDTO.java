@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 public class RemindDTO {
-	
+
 	private int id;
 
 	private Date gmtCreate;
@@ -14,9 +14,11 @@ public class RemindDTO {
 	private Date gmtModify;
 
 	private int schoolBrokerageSaId;
-	
-	private String state;
-	
+
 	private Date remindDate;
+
+	private String state;
+
+	private SchoolBrokerageSaDTO schoolBrokerageSa;
 
 }
