@@ -22,7 +22,9 @@ import org.zhinanzhen.b.service.SchoolBrokerageSaService;
 import org.zhinanzhen.b.service.pojo.SchoolBrokerageSaByDashboardListDTO;
 import org.zhinanzhen.b.service.pojo.SchoolBrokerageSaDTO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
+import org.zhinanzhen.tb.dao.UserDAO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
+import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
@@ -45,6 +47,9 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 
 	@Resource
 	private SchoolDAO schoolDao;
+
+	@Resource
+	private UserDAO userDao;
 
 	@Override
 	public int addSchoolBrokerageSa(SchoolBrokerageSaDTO schoolBrokerageSaDto) throws ServiceException {
@@ -243,6 +248,11 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 			SchoolDO schoolDo = schoolDao.getSchoolById(schoolBrokerageSaDo.getSchoolId());
 			if (schoolDo != null)
 				schoolBrokerageSaDto.setSchoolName(schoolDo.getName());
+			UserDO userDo = userDao.getUserById(schoolBrokerageSaDo.getUserId());
+			if (userDo != null) {
+				schoolBrokerageSaDto.setUserName(userDo.getName());
+				schoolBrokerageSaDto.setPhone(userDo.getPhone());
+			}
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
