@@ -9,11 +9,13 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.RemindDAO;
 import org.zhinanzhen.b.dao.SchoolBrokerageSaDAO;
+import org.zhinanzhen.b.dao.SchoolDAO;
 import org.zhinanzhen.b.dao.OfficialDAO;
 import org.zhinanzhen.b.dao.pojo.RemindDO;
 import org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaByDashboardListDO;
 import org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaDO;
 import org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaListDO;
+import org.zhinanzhen.b.dao.pojo.SchoolDO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.service.AbleStateEnum;
 import org.zhinanzhen.b.service.SchoolBrokerageSaService;
@@ -40,6 +42,9 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 
 	@Resource
 	private OfficialDAO officialDao;
+
+	@Resource
+	private SchoolDAO schoolDao;
 
 	@Override
 	public int addSchoolBrokerageSa(SchoolBrokerageSaDTO schoolBrokerageSaDto) throws ServiceException {
@@ -226,10 +231,18 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 		SchoolBrokerageSaDTO schoolBrokerageSaDto = null;
 		try {
 			SchoolBrokerageSaDO schoolBrokerageSaDo = schoolBrokerageSaDao.getSchoolBrokerageSaById(id);
-			if (schoolBrokerageSaDo == null) {
+			if (schoolBrokerageSaDo == null)
 				return null;
-			}
 			schoolBrokerageSaDto = mapper.map(schoolBrokerageSaDo, SchoolBrokerageSaDTO.class);
+			AdviserDO adviserDo = adviserDao.getAdviserById(schoolBrokerageSaDo.getAdviserId());
+			if (adviserDo != null)
+				schoolBrokerageSaDto.setAdviserName(adviserDo.getName());
+			OfficialDO officialDo = officialDao.getOfficialById(schoolBrokerageSaDo.getOfficialId());
+			if (officialDo != null)
+				schoolBrokerageSaDto.setOfficialName(officialDo.getName());
+			SchoolDO schoolDo = schoolDao.getSchoolById(schoolBrokerageSaDo.getSchoolId());
+			if (schoolDo != null)
+				schoolBrokerageSaDto.setSchoolName(schoolDo.getName());
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
