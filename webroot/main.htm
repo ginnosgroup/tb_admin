@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 	<head>
@@ -311,7 +311,7 @@
                            <td v-html="item.userName"></td>
                            <td v-html="item.phone"></td>
                            <td v-html="item.schoolName"></td>
-                           <td v-html="item.remindDateList"></td>
+                           <td v-html="item.remindDate"></td>
                            <td><button type="button" class="btn btn-info btn-sm" onclick="window.location.href='table-2.html'">录入佣金表</button></td>
                            <td><button type="button" style="display:;" class="btn btn-default btn-sm" @click="close_confirm($index,item.id,1)">关闭提醒</button></td>
                         </tr>
@@ -491,33 +491,23 @@
 					this.getDatalist4();
 				},methods: {								
 					getDatalist: function() {
-						var that = this;										
-						$.get(url + "school_brokerage_sa/listByDashboard?", {
-							pageNum: 0,
-							pageSize: 10					
+						var that = this;																
+						var myDate = new Date();
+  					var str_date = myDate.getFullYear()+'-'+(myDate.getMonth()+1)+'-'+myDate.getDate();
+  					//str_date = '2019-06-27';
+  					var date = new Date(str_date);
+			    	var current_tp = date.getTime();
+			    	//$.get(url + "school_brokerage_sa/listByDashboard?", {
+						$.get(url + "remind/listByDate?date="+current_tp, {										
 						}, function(result) {
 							console.log(result)
 							that.pageNum = 0;
 							for(var i = 0; i < result.data.length; i++) {
 									//result.data[i].id = result.data[i].id;
-									if (result.data[i].remindDateList)
-									{
-											var str_remindDateList = '';
-											var str = result.data[i].remindDateList;
-											var arr = result.data[i].remindDateList;								
-											for(var t =0;t<arr.length;t++)
-											{
-													if (str_remindDateList =='')
-													{
-															str_remindDateList = that.getTime(arr[t]);
-													}else
-													{
-															str_remindDateList += '<br>'+that.getTime(arr[t]);
-													}
-											}
-											result.data[i].remindDateList = str_remindDateList;
-											result.data[i].userName = '<a href="javascript:;" onclick="show_detail('+result.data[i].userId+');">'+result.data[i].userName+'</a>';//需调用name字段
-									}							
+									result.data[i].phone = result.data[i].schoolBrokerageSa.phone;
+									result.data[i].schoolName = result.data[i].schoolBrokerageSa.schoolName;
+									result.data[i].remindDate = that.getTime(result.data[i].remindDate);
+									result.data[i].userName = '<a href="javascript:;" onclick="show_detail('+result.data[i].schoolBrokerageSa.userId+');">'+result.data[i].schoolBrokerageSa.userName+'</a>';//需调用name字段
 							};
 							that.subject = result.data;
 							//console.log(that.subject);
