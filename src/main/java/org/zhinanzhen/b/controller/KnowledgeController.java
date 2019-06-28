@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.zhinanzhen.b.service.KnowledgeMenuService;
 import org.zhinanzhen.b.service.KnowledgeService;
+import org.zhinanzhen.b.service.pojo.KnowledgeDTO;
 import org.zhinanzhen.b.service.pojo.KnowledgeMenuDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
@@ -24,11 +25,33 @@ import org.zhinanzhen.tb.service.ServiceException;
 @RequestMapping("/knowledge")
 public class KnowledgeController extends BaseController {
 
-//	@Resource
+	// @Resource
 	KnowledgeService knowledgeService;
 
 	@Resource
 	KnowledgeMenuService knowledgeMenuService;
+
+	@RequestMapping(value = "/add", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> add(@RequestParam(value = "title") String title,
+			@RequestParam(value = "content") String content,
+			@RequestParam(value = "knowledgeMenuId", required = false) Integer knowledgeMenuId,
+			HttpServletRequest request, HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			KnowledgeDTO knowledgeDto = new KnowledgeDTO();
+			knowledgeDto.setTitle(title);
+			knowledgeDto.setContent(content);
+			knowledgeDto.setKnowledgeMenuId(knowledgeMenuId);
+			if (knowledgeService.addKnowledge(knowledgeDto) > 0) {
+				return new Response<Integer>(0, knowledgeDto.getId());
+			} else {
+				return new Response<Integer>(1, "创建失败.", 0);
+			}
+		} catch (ServiceException e) {
+			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
+		}
+	}
 
 	@RequestMapping(value = "/addMenu", method = RequestMethod.POST)
 	@ResponseBody
@@ -50,6 +73,19 @@ public class KnowledgeController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/list", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<KnowledgeDTO>> list(
+			@RequestParam(value = "knowledgeMenuId", required = false) Integer knowledgeMenuId,
+			HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<List<KnowledgeDTO>>(0, knowledgeService.listKnowledge(knowledgeMenuId));
+		} catch (ServiceException e) {
+			return new Response<List<KnowledgeDTO>>(1, e.getMessage(), null);
+		}
+	}
+
 	@RequestMapping(value = "/listMenu", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<List<KnowledgeMenuDTO>> listMenu(
@@ -60,6 +96,17 @@ public class KnowledgeController extends BaseController {
 			return new Response<List<KnowledgeMenuDTO>>(0, knowledgeMenuService.listKnowledgeMenu(knowledgeMenuId));
 		} catch (ServiceException e) {
 			return new Response<List<KnowledgeMenuDTO>>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/delete", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> delete(@RequestParam(value = "id") int id, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<Integer>(0, knowledgeService.deleteKnowledge(id));
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), 0);
 		}
 	}
 
