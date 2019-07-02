@@ -11,7 +11,7 @@ public interface KnowledgeService {
 
 	int updateKnowledge(KnowledgeDTO knowledgeDto) throws ServiceException;
 
-	List<KnowledgeDTO> listKnowledge(Integer knowledgeMenuId) throws ServiceException;
+	List<KnowledgeDTO> listKnowledge(Integer knowledgeMenuId, String keyword) throws ServiceException;
 
 	int deleteKnowledge(int id) throws ServiceException;
 

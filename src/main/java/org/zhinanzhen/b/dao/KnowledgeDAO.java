@@ -11,7 +11,8 @@ public interface KnowledgeDAO {
 
 	int updateKnowledge(KnowledgeDO knowledgeDo);
 
-	List<KnowledgeDO> listKnowledge(@Param("knowledgeMenuId") Integer knowledgeMenuId);
+	List<KnowledgeDO> listKnowledge(@Param("knowledgeMenuId") Integer knowledgeMenuId,
+			@Param("keyword") String keyword);
 
 	int deleteKnowledge(int id);
 

@@ -138,10 +138,10 @@ public class KnowledgeController extends BaseController {
 	@ResponseBody
 	public Response<List<KnowledgeDTO>> list(
 			@RequestParam(value = "knowledgeMenuId", required = false) Integer knowledgeMenuId,
-			HttpServletResponse response) {
+			@RequestParam(value = "keyword", required = false) String keyword, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<List<KnowledgeDTO>>(0, knowledgeService.listKnowledge(knowledgeMenuId));
+			return new Response<List<KnowledgeDTO>>(0, knowledgeService.listKnowledge(knowledgeMenuId, keyword));
 		} catch (ServiceException e) {
 			return new Response<List<KnowledgeDTO>>(1, e.getMessage(), null);
 		}

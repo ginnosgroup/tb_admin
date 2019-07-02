@@ -65,11 +65,11 @@ public class KnowledgeServiceImpl extends BaseService implements KnowledgeServic
 	}
 
 	@Override
-	public List<KnowledgeDTO> listKnowledge(Integer knowledgeMenuId) throws ServiceException {
+	public List<KnowledgeDTO> listKnowledge(Integer knowledgeMenuId, String keyword) throws ServiceException {
 		List<KnowledgeDTO> knowledgeDtoList = new ArrayList<>();
 		List<KnowledgeDO> knowledgeDoList = new ArrayList<>();
 		try {
-			knowledgeDoList = knowledgeDao.listKnowledge(knowledgeMenuId);
+			knowledgeDoList = knowledgeDao.listKnowledge(knowledgeMenuId, keyword);
 			if (knowledgeDoList == null)
 				return null;
 		} catch (Exception e) {
