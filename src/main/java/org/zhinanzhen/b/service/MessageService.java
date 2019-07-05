@@ -13,12 +13,14 @@ public interface MessageService {
 
 	int addMessage(MessageDTO messageDto) throws ServiceException;
 
-	public List<MessageTopicDTO> listMessageTopic(Integer userId) throws ServiceException;
+	int zan(Integer userId, Integer messageId) throws ServiceException;
 
-	public List<MessageListDTO> listMessage(Integer topicId) throws ServiceException;
+	List<MessageTopicDTO> listMessageTopic(Integer userId) throws ServiceException;
 
-	public int deleteMessageTopic(int id) throws ServiceException;
+	List<MessageListDTO> listMessage(Integer topicId) throws ServiceException;
 
-	public int deleteMessage(int id) throws ServiceException;
+	int deleteMessageTopic(int id) throws ServiceException;
+
+	int deleteMessage(int id) throws ServiceException;
 
 }

@@ -11,6 +11,7 @@ import org.zhinanzhen.b.dao.MessageTopicDAO;
 import org.zhinanzhen.b.dao.MessageZanDAO;
 import org.zhinanzhen.b.dao.pojo.MessageDO;
 import org.zhinanzhen.b.dao.pojo.MessageTopicDO;
+import org.zhinanzhen.b.dao.pojo.MessageZanDO;
 import org.zhinanzhen.b.service.MessageService;
 import org.zhinanzhen.b.service.pojo.MessageDTO;
 import org.zhinanzhen.b.service.pojo.MessageListDTO;
@@ -74,6 +75,24 @@ public class MessageServiceImpl extends BaseService implements MessageService {
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
 		}
+	}
+
+	@Override
+	public int zan(Integer userId, Integer messageId) throws ServiceException {
+		if (userId <= 0) {
+			ServiceException se = new ServiceException("userId error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		if (messageId <= 0) {
+			ServiceException se = new ServiceException("messageId error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		MessageZanDO messageZanDo = new MessageZanDO();
+		messageZanDo.setUserId(userId);
+		messageZanDo.setMessageId(messageId);
+		return messageZanDao.addMessageZan(messageZanDo);
 	}
 
 	@Override
