@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.MessageDAO">
+
+    <insert id="addMessage" parameterType="org.zhinanzhen.b.dao.pojo.MessageDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+            INTO b_message (
+                gmt_create,
+                gmt_modify,
+                user_id,
+                topic_id,
+                content,
+                parent_id)
+            VALUES (
+                now(),
+                now(),
+                #{userId},
+                #{topicId},
+                #{content},
+                #{parentId});
+    </insert>
+    
+    <select id="listMessage" resultType="org.zhinanzhen.b.dao.pojo.MessageDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            user_id AS userId
+            topic_id AS topicId,
+            content,
+            parent_id
+        FROM b_message
+        WHERE topic_id = #{topicId}
+        ORDER BY gmt_create ASC;
+    </select>
+    
+    <delete id="deleteMessage" parameterType="java.lang.Integer">
+		DELETE FROM b_message WHERE id = #{id, jdbcType=INTEGER}
+	</delete>
+
+</mapper>
