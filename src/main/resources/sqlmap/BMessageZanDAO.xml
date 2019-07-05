@@ -29,5 +29,9 @@
         </if>
         ;
     </select>
+    
+    <delete id="deleteMessageZanByMessageId" parameterType="java.lang.Integer">
+		DELETE FROM b_message_zan WHERE message_id = #{id, jdbcType=INTEGER}
+	</delete>
 
 </mapper>

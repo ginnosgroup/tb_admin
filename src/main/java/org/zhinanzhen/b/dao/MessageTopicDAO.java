@@ -8,8 +8,8 @@ public interface MessageTopicDAO {
 
 	int addMessageTopic(MessageTopicDO messageTopicDo);
 
-	public List<MessageTopicDO> listMessageTopic(int userId);
+	List<MessageTopicDO> listMessageTopic(int userId);
 
-	public int deleteMessageTopic(int id);
+	int deleteMessageTopic(int id);
 
 }
