@@ -89,6 +89,11 @@ public class MessageServiceImpl extends BaseService implements MessageService {
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
+		if (messageZanDao.countMessageZan(userId, messageId) > 0) {
+			ServiceException se = new ServiceException("You can't Zan !");
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
 		MessageZanDO messageZanDo = new MessageZanDO();
 		messageZanDo.setUserId(userId);
 		messageZanDo.setMessageId(messageId);

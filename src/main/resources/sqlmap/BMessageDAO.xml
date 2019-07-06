@@ -25,10 +25,10 @@
         SELECT
             id,
             gmt_create AS gmtCreate,
-            user_id AS userId
+            user_id AS userId,
             topic_id AS topicId,
             content,
-            parent_id
+            parent_id AS parentId
         FROM b_message
         WHERE topic_id = #{topicId}
         ORDER BY gmt_create ASC;
