@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 	<head>
@@ -209,6 +209,23 @@
 										导出数据
 									</a>
 								</li>
+							</ul>
+						</li>
+						<li class="sub-menu">
+							<a href="javascript:;">
+								<i class="fa fa-book">
+                </i>
+								<span>
+                 	 知识库
+                </span>
+							</a>
+							<ul class="sub">
+								<li v-if="ap_list!='KJ' && ap_list!='GW'">
+									<a href="knowledge-menu.html">
+										菜单管理
+									</a>
+								</li>
+								{{{m_list}}}							
 							</ul>
 						</li>						
 					</ul>
@@ -475,7 +492,8 @@
 				el: '#dashboard',
 				data: {
 					admin: sessionStorage.getItem("admin"),
-					ap_list: sessionStorage.getItem("ap_list"),	
+					ap_list: sessionStorage.getItem("ap_list"),
+					m_list: localStorage.getItem("str_html"),
 					subject: [],
 					subject1: [],	
 					subject2: [],
@@ -489,7 +507,31 @@
 					this.getDatalist1();
 					this.getDatalist2();
 					this.getDatalist4();
-				},methods: {								
+				},methods: {
+			    getMenulist: function() {
+						var that = this;
+						$.get(url + "knowledge/listMenu", {
+							knowledgeMenuId: 0						
+						}, function(result) {
+							var str_html = '';																					
+							v.menu_list = result.data;
+							for(var i = 0; i < v.menu_list.length; i++) {
+									str_html += '<li class="sub-menu"><a href="javascript:;">'+ v.menu_list[i].name +'</a>';									
+									$.get(url + "knowledge/listMenu", {
+										knowledgeMenuId: v.menu_list[i].id
+									}, function(result) {
+										v.data_list = result.data;
+										str_html += '<ul class="sub">';
+										for(var j = 0; j < v.data_list.length; j++) {
+												str_html += '<li><a href="javascript:show_knowledge_detail('+v.data_list[j].id+')">'+v.data_list[j].name+'</a></li>';
+										}
+										str_html += '</ul>';							
+									});
+							}
+							localStorage.setItem("str_html", str_html);
+							console.log(localStorage.getItem("str_html"))
+						});
+					},								
 					getDatalist: function() {
 						var that = this;																
 						var myDate = new Date();
@@ -685,6 +727,12 @@
       {
       		sessionStorage.setItem("userId", id);
 					window.location.href = "user-detail.html"; 
+      }
+      
+      function show_knowledge_detail(id)
+      {
+      		sessionStorage.setItem("id", id);
+					window.location.href = "knowledge.html"; 
       }
     	    	
 		</script>
