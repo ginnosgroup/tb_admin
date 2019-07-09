@@ -206,21 +206,22 @@
 							</ul>
 						</li>
 						<li class="sub-menu">
-							<a href="javascript:;" class="active">
+							<a href="javascript:;">
 								<i class="fa fa-book">
                 </i>
 								<span>
                  	 知识库
                 </span>
 							</a>
-							<ul class="sub" id="knowledge-menu">
-								<li  class="active">
+							<ul class="sub">
+								<li v-if="ap_list!='KJ' && ap_list!='GW'">
 									<a href="knowledge-menu.html">
 										菜单管理
 									</a>
-								</li>								
+								</li>
+								{{{m_list}}}							
 							</ul>
-						</li>						
+						</li>				
 					</ul>
 				</div>
 			</aside>
@@ -409,6 +410,7 @@
 					admin: sessionStorage.getItem("admin"),
 					ap_list: sessionStorage.getItem("ap_list"),
 					menu_id: sessionStorage.getItem("id"),
+					m_list: localStorage.getItem("str_html"),
 					allSort: [],
 					subject: [],
 					count: 0,
@@ -669,10 +671,10 @@
 			  	}                
       }
       
-      function show_detail(id)
+      function show_knowledge_detail(id)
       {
-      		sessionStorage.setItem("kid", id);
-					window.location.href = "knowledge-detail.html"; 
+      		sessionStorage.setItem("id", id);
+					window.location.href = "knowledge.html"; 
       }
 			
 			function deleteId()
