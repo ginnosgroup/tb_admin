@@ -411,3 +411,32 @@ CREATE TABLE `b_knowledge_menu` (
   `parent_id` int DEFAULT 0 COMMENT '父菜单编号'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
+-- 留言主题
+CREATE TABLE `b_message_topic` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `user_id` int NOT NULL COMMENT '所属顾客编号 (对应tb_user.id)',
+  `title` varchar(32) NOT NULL COMMENT '留言名称',
+  `content` varchar(255) NOT NULL COMMENT '留言内容'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+-- 留言回复信息
+CREATE TABLE `b_message` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `user_id` int NOT NULL COMMENT '所属顾客编号 (对应tb_user.id)',
+  `topic_id` int NOT NULL COMMENT '所属主题编号 (对应b_topic.id)',
+  `content` varchar(255) NOT NULL COMMENT '回复内容',
+  `parent_id` int DEFAULT 0 COMMENT '父编号'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+-- 赞
+CREATE TABLE `b_message_zan` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `user_id` int NOT NULL COMMENT '所属顾客编号 (对应tb_user.id)',
+  `message_id` int NOT NULL COMMENT '所属信息编号 (对应b_message.id)'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
