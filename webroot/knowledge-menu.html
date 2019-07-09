@@ -6,7 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="renderer" content="webkit">
 		<link rel="shortcut icon" href="img/favicon.ico">
-		<title>渠道来源管理</title>
+		<title>知识库菜单管理</title>
 		<link href="css/bootstrap.min.css" rel="stylesheet">
 		<link href="css/bootstrap-reset.css" rel="stylesheet">
 		<link href="assets/font-awesome/css/font-awesome.css" rel="stylesheet">
@@ -150,7 +150,7 @@
               </a>
             </li>
             <li v-if="ap_list!='KJ'" class="sub-menu">
-							<a href="javascript:;" class="active">
+							<a href="javascript:;">
 								<i class="fa fa-book">
                 </i>
 								<span>
@@ -158,7 +158,7 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li class="active">
+								<li>
 									<a href="source.html">
 										渠道列表
 									</a>
@@ -205,24 +205,24 @@
 									</a>
 								</li>
 							</ul>
-						</li>
+						</li>						
 						<li class="sub-menu">
-							<a href="javascript:;">
+							<a href="javascript:;" class="active">
 								<i class="fa fa-book">
                 </i>
 								<span>
                  	 知识库
                 </span>
 							</a>
-							<ul class="sub">
-								<li v-if="ap_list!='KJ' && ap_list!='GW'">
+							<ul class="sub" id="knowledge-menu">
+								<li class="active">
 									<a href="knowledge-menu.html">
 										菜单管理
 									</a>
 								</li>
-								{{{m_list}}}							
+								{{{m_list}}}								
 							</ul>
-						</li>
+						</li>						
 					</ul>
 				</div>
 			</aside>
@@ -232,7 +232,7 @@
 						<div class="col-lg-12">
 							<section class="panel">
 								<header class="panel-heading">
-									渠道来源管理
+									知识库菜单管理
 								</header>
 								<div class="panel-body">
 									<div class="adv-table editable-table">
@@ -250,7 +250,7 @@
 									  </div>
 										<div class="clearfix">
                        <div class="btn-group">
-                          <button id="editable-sample_new" class="btn btn-success green" @click="add_school">
+                          <button id="editable-sample_new" class="btn btn-success green" @click="add_menu">
                           Add New <i class="fa fa-plus"></i>
                           </button>
                        </div>                       
@@ -324,13 +324,13 @@
 					<div class="modal-body">
 							<form class="form-horizontal" autocomplete="off">
 							<div class="form-group">
-								<label class="col-sm-3 control-label">选择分类</label>
+								<label class="col-sm-3 control-label">选择菜单</label>
 								<div class="col-sm-8">
 									<select class="form-control" style="width:150px;" id="t0"></select>
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-3 control-label">来源名称</label>
+								<label class="col-sm-3 control-label">菜单名称</label>
 								<div class="col-sm-8">
 									<input type="text" id="t1" class="form-control" placeholder="">
 								</div>
@@ -339,7 +339,7 @@
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-						<button onclick="sourceUpdate()" type="button" class="btn btn-primary">确认</button>
+						<button onclick="menuUpdate()" type="button" class="btn btn-primary">确认</button>
 					</div>
 				</div>
 			</div>
@@ -391,21 +391,48 @@
 					dId: 0,
 				},
 				created: function() {
-					
+					this.getMenulist();
 				},
 				methods: {					
-			    add_school: function (id){
+			    add_menu: function (id){
 			    			$("#id").val('0');
 			    			$('#t1').val('');
 			    			$("#myModalLabel_1").html('添加'); 
 			      		$('#add_id').modal('show');
 			      		bind_type('t0','');
-			    }
+			    },
+			    getMenulist: function() {
+						var that = this;
+						$.get(url + "knowledge/listMenu", {
+							knowledgeMenuId: 0						
+						}, function(result) {
+							var str_html = '';																					
+							v.menu_list = result.data;
+							for(var i = 0; i < v.menu_list.length; i++) {
+									str_html += '<li class="sub-menu"><a href="javascript:;">'+ v.menu_list[i].name +'</a>';									
+									$.get(url + "knowledge/listMenu", {
+										knowledgeMenuId: v.menu_list[i].id
+									}, function(result) {
+										v.data_list = result.data;
+										str_html += '<ul class="sub">';
+										for(var j = 0; j < v.data_list.length; j++) {
+												str_html += '<li><a href="javascript:show_knowledge_detail('+v.data_list[j].id+')">'+v.data_list[j].name+'</a></li>';
+										}
+										str_html += '</ul>';							
+									});
+							}
+							localStorage.setItem("str_html", str_html);
+							console.log(localStorage.getItem("str_html"))
+						});
+					}
 				}					
 			});
 			
-			v.$watch('subject', function(obj) {			    
-			});		
+			function show_knowledge_detail(id)
+      {
+      		sessionStorage.setItem("id", id);
+					window.location.href = "knowledge.html"; 
+      }							
 			
 			var DataSourceTree = function () {
           this._data = get_treedata();               
@@ -431,22 +458,21 @@
       {
       		var d = new Array(); 
       		$.ajaxSettings.async = false; 
-      		$.get(url + "source/listSourceRegion", {
-							pageNum: 0,
-							pageSize: 10000
+      		$.get(url + "knowledge/listMenu", {
+							knowledgeMenuId: 0
 						}, function(result) {							
-							v.region_list = result.data;
+							v.menu_list = result.data;
 							var str_children = '';											
-							for(var i = 0; i < v.region_list.length; i++) {
+							for(var i = 0; i < v.menu_list.length; i++) {
 								d[i] = [];								
-								d[i] = {name: v.region_list[i].name+' <div class="tree-actions"></div>',type: 'folder',additionalParameters: {id: v.region_list[i].id}};
+								d[i] = {name: v.menu_list[i].name+'   <a href=javascript:menuEdit("'+v.menu_list[i].name+'",0,'+v.menu_list[i].id+')>修改</a> <a href=javascript:menuDel("'+v.menu_list[i].id+'")>删除<a/> <div class="tree-actions"></div>',type: 'folder',additionalParameters: {id: v.menu_list[i].id}};
 								d[i]['additionalParameters']['children'] = new Array();
-								$.get(url + "source/list", {
-									sourceRegionId: v.region_list[i].id
+								$.get(url + "knowledge/listMenu", {
+									knowledgeMenuId: v.menu_list[i].id
 								}, function(result) {
 									v.data_list = result.data;
 									for(var j = 0; j < v.data_list.length; j++) {									
-											str_children += '{name:\'<span id=s'+v.data_list[j].id+'>'+v.data_list[j].name+'</span>   <a href=javascript:sourceEdit("'+v.data_list[j].name+'",'+v.data_list[j].sourceRegionId+','+v.data_list[j].id+')>修改</a> <a href=javascript:sourceDel("'+v.data_list[j].id+'")>删除<a/>\',type:\'item\',additionalParameters:{id:\''+v.data_list[j].id+'\'}},';
+											str_children += '{name:\'<span id=s'+v.data_list[j].id+'>'+v.data_list[j].name+'</span>   <a href=javascript:menuEdit("'+v.data_list[j].name+'",'+v.menu_list[i].id+','+v.data_list[j].id+')>修改</a> <a href=javascript:menuDel("'+v.data_list[j].id+'")>删除<a/>\',type:\'item\',additionalParameters:{id:\''+v.data_list[j].id+'\'}},';
 									}
 								});						
 								d[i]['additionalParameters']['children'] = eval('['+str_children+']');
@@ -462,10 +488,10 @@
       		//绑定分类
 			    var obj_type = $("#"+byid);				    
 			    obj_type.empty();
-			    $.get(url + "source/listSourceRegion", {
-							pageNum: 0,
-							pageSize: 10000
+			    $.get(url + "knowledge/listMenu", {
+			    		knowledgeMenuId: 0							
 						}, function(result) {
+							obj_type.append("<option value='0'>请选择一级菜单</option>");
 							for(var i = 0; i < result.data.length; i++) {
 								var str_selected = '';
 								if (result.data[i].id == current_id) str_selected = ' SELECTED';
@@ -474,7 +500,7 @@
 					});								    	        
       }        
       
-      function sourceEdit(name,current_id,id)
+      function menuEdit(name,current_id,id)
       {
       		$("#t1").val(name);
       		$("#id").val(id);
@@ -483,7 +509,7 @@
       		$('#add_id').modal('show');
       }
       
-      function sourceDel(id)
+      function menuDel(id)
       {
       		v.dId = id;      		
       		$('#delete_id').modal('show');
@@ -491,7 +517,7 @@
       
       function deleteId()
       {      		
-      		$.get("source/delete", {
+      		$.get("knowledge/deleteMenu", {
 						id: v.dId
 					}, function(result) {
 						console.log(result);
@@ -503,53 +529,45 @@
 					});
       }            
       
-      function sourceUpdate()
+      function menuUpdate()
 			{          
           var check_result = 0;
           var t0 = $("#t0").val();
           var t1 = $("#t1").val();
-          if (t0 != '' && t1.value != '')
+          if (t1.value != '')
           {
           		check_result = true;
           }else
           {
           		$('#alert_error').addClass('alert-danger').show().delay(1500).fadeOut();
-					    $("#error_info").html('所有选项必须填写！');
-          }
+					    $("#error_info").html('菜单名称必须填写！');
+          }          
           
           if (check_result)
-          {              
-              var str_url = "source/add";
+          {
+              var str_url = "knowledge/addMenu";
               var sa_id = $("#id").val();              
               if (sa_id != '0')
               {
               		//修改操作
-              		alert('提示：暂时无法修改。');
-              }else
-              {              
-		              $.post(str_url, { id: sa_id, name: t1,sourceRegionId: t0},
-							   	function(data){
-							   			if (data.code == 0)
-							   			{
-							   					$('#add_id').modal('hide');
-							   					$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
-							   					//刷新当前页
-							   					window.location.reload();
-							   			}else
-							   			{
-							   					$('#alert_error').addClass('alert-danger').show().delay(1500).fadeOut();
-							   					$("#error_info").html(data.message);
-							   			}
-							   	});
-					  	}
+              		str_url = "knowledge/updateMenu";
+              }
+              $.post(str_url, { id: sa_id, name: t1,knowledgeMenuId: t0},
+					   	function(data){
+					   			if (data.code == 0)
+					   			{
+					   					$('#add_id').modal('hide');
+					   					$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
+					   					//刷新当前页
+					   					window.location.reload();
+					   			}else
+					   			{
+					   					$('#alert_error').addClass('alert-danger').show().delay(1500).fadeOut();
+					   					$("#error_info").html(data.message);
+					   			}
+					   	});
 			  	}                
-      }
-      
-      function show_knowledge_detail(id)
-      {
-      		sessionStorage.setItem("id", id);
-					window.location.href = "knowledge.html"; 
-      }           
+      }            
 			
 	    jQuery(document).ready(function() {	    	
 	    	$('#FlatTree3').tree({
@@ -557,7 +575,8 @@
             loadingHTML: '<img src="img/input-spinner.gif"/>',
             cacheItems: false,
             selectable: false,
-        });         
+        });
+                 
 	    });
 		</script>
 	</body>

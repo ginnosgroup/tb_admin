@@ -204,7 +204,24 @@
 									</a>
 								</li>
 							</ul>
-						</li>						
+						</li>
+						<li class="sub-menu">
+							<a href="javascript:;">
+								<i class="fa fa-book">
+                </i>
+								<span>
+                 	 知识库
+                </span>
+							</a>
+							<ul class="sub">
+								<li v-if="ap_list!='KJ' && ap_list!='GW'">
+									<a href="knowledge-menu.html">
+										菜单管理
+									</a>
+								</li>
+								{{{m_list}}}							
+							</ul>
+						</li>
 					</ul>
 				</div>
 			</aside>
@@ -353,6 +370,7 @@
 				data: {
 					admin: sessionStorage.getItem("admin"),
 					ap_list: sessionStorage.getItem("ap_list"),
+					m_list: localStorage.getItem("str_html"),
 					allSort: [],
 					subject: [],
 					count: 0,
@@ -632,6 +650,12 @@
 						};
 					});      		
       }      
+      
+      function show_knowledge_detail(id)
+      {
+      		sessionStorage.setItem("id", id);
+					window.location.href = "knowledge.html"; 
+      }
 			
 			function  formatDate(now)
 			{
