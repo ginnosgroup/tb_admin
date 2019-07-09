@@ -600,24 +600,7 @@
           }
 				}		
 			});
-			
-			$('#example a.edit').live('click', function (e) {
-				e.preventDefault();
-				table_addsave();
-			});
-			
-			$('#example a.cancel').live('click', function (e) {
-				e.preventDefault();
-				if (!parseInt($("#id").val()))
-				{
-						v.subject.splice(0, 1);
-						v.add = false;
-				}else
-				{
-						v.subject.splice(v.current_index, 0);
-						v.subject.splice(v.current_index,1, v.current_row);
-				}
-			});
+												
 						
 			
 			v.$watch('subject', function(obj) {
