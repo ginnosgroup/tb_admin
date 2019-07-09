@@ -120,7 +120,8 @@ public class KnowledgeMenuServiceImpl extends BaseService implements KnowledgeMe
 			throw se;
 		}
 		try {
-			knowledgeDao.listKnowledge(id, null).forEach(knowledge -> knowledgeDao.deleteKnowledge(knowledge.getId()));
+			knowledgeDao.listKnowledge(id, null, 0, 9999)
+					.forEach(knowledge -> knowledgeDao.deleteKnowledge(knowledge.getId()));
 			return knowledgeMenuDao.deleteKnowledgeMenu(id);
 		} catch (Exception e) {
 			rollback();

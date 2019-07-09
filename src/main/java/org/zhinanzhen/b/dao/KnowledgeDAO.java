@@ -11,8 +11,10 @@ public interface KnowledgeDAO {
 
 	int updateKnowledge(KnowledgeDO knowledgeDo);
 
-	List<KnowledgeDO> listKnowledge(@Param("knowledgeMenuId") Integer knowledgeMenuId,
-			@Param("keyword") String keyword);
+	public int countKnowledge(@Param("knowledgeMenuId") Integer knowledgeMenuId, @Param("keyword") String keyword);
+
+	List<KnowledgeDO> listKnowledge(@Param("knowledgeMenuId") Integer knowledgeMenuId, @Param("keyword") String keyword,
+			@Param("offset") int offset, @Param("rows") int rows);
 
 	KnowledgeDO getKnowledge(@Param("id") int id);
 

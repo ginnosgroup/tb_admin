@@ -134,14 +134,30 @@ public class KnowledgeController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/count", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> count(@RequestParam(value = "knowledgeMenuId", required = false) Integer knowledgeMenuId,
+			@RequestParam(value = "keyword", required = false) String keyword, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<Integer>(0, knowledgeService.countKnowledge(knowledgeMenuId, keyword));
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), null);
+		}
+	}
+
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<List<KnowledgeDTO>> list(
 			@RequestParam(value = "knowledgeMenuId", required = false) Integer knowledgeMenuId,
-			@RequestParam(value = "keyword", required = false) String keyword, HttpServletResponse response) {
+			@RequestParam(value = "keyword", required = false) String keyword,
+			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
+			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<List<KnowledgeDTO>>(0, knowledgeService.listKnowledge(knowledgeMenuId, keyword));
+			return new Response<List<KnowledgeDTO>>(0,
+					knowledgeService.listKnowledge(knowledgeMenuId, keyword, pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<KnowledgeDTO>>(1, e.getMessage(), null);
 		}
