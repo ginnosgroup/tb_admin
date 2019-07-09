@@ -671,6 +671,12 @@
 			  	}                
       }
       
+      function show_detail(id)
+      {
+      		sessionStorage.setItem("kid", id);
+					window.location.href = "knowledge-detail.html"; 
+      }
+      
       function show_knowledge_detail(id)
       {
       		sessionStorage.setItem("id", id);
