@@ -17,4 +17,6 @@ public class KnowledgeDTO {
 
 	private int knowledgeMenuId;
 
+	private String knowledgeMenuName;
+
 }

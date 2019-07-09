@@ -57,7 +57,7 @@ public class KnowledgeMenuServiceImpl extends BaseService implements KnowledgeMe
 		}
 		try {
 			KnowledgeMenuDO knowledgeMenuDo = mapper.map(knowledgeMenuDto, KnowledgeMenuDO.class);
-			if (knowledgeMenuDao.updateSourceRegion(knowledgeMenuDo) > 0) {
+			if (knowledgeMenuDao.updateKnowledgeMenu(knowledgeMenuDo) > 0) {
 				return knowledgeMenuDo.getId();
 			} else {
 				return 0;
@@ -87,6 +87,28 @@ public class KnowledgeMenuServiceImpl extends BaseService implements KnowledgeMe
 			knowledgeMenuDtoList.add(knowledgeMenuDto);
 		}
 		return knowledgeMenuDtoList;
+	}
+
+	@Override
+	public KnowledgeMenuDTO getKnowledgeMenu(Integer id) throws ServiceException {
+		if (id == null) {
+			ServiceException se = new ServiceException("id is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			KnowledgeMenuDO knowledgeMenuDo = knowledgeMenuDao.getKnowledgeMenu(id);
+			if (knowledgeMenuDo == null) {
+				ServiceException se = new ServiceException("No data !");
+				se.setCode(ErrorCodeEnum.DATA_ERROR.code());
+				throw se;
+			}
+			return mapper.map(knowledgeMenuDo, KnowledgeMenuDTO.class);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
 	}
 
 	@Override

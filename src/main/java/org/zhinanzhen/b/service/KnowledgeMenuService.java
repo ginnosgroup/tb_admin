@@ -13,6 +13,8 @@ public interface KnowledgeMenuService {
 
 	List<KnowledgeMenuDTO> listKnowledgeMenu(Integer parentId) throws ServiceException;
 
+	KnowledgeMenuDTO getKnowledgeMenu(Integer id) throws ServiceException;
+
 	int deleteKnowledgeMenu(int id) throws ServiceException;
 
 }

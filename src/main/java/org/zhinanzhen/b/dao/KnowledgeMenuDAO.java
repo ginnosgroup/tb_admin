@@ -9,9 +9,11 @@ public interface KnowledgeMenuDAO {
 
 	public int addKnowledgeMenu(KnowledgeMenuDO knowledgeMenuDo);
 
-	int updateSourceRegion(KnowledgeMenuDO knowledgeMenuDo);
+	int updateKnowledgeMenu(KnowledgeMenuDO knowledgeMenuDo);
 
 	List<KnowledgeMenuDO> listKnowledgeMenu(@Param("parentId") Integer parentId);
+
+	KnowledgeMenuDO getKnowledgeMenu(@Param("id") int id);
 
 	int deleteKnowledgeMenu(int id);
 }

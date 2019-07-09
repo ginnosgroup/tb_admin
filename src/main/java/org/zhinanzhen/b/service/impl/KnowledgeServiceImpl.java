@@ -7,7 +7,9 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.KnowledgeDAO;
+import org.zhinanzhen.b.dao.KnowledgeMenuDAO;
 import org.zhinanzhen.b.dao.pojo.KnowledgeDO;
+import org.zhinanzhen.b.dao.pojo.KnowledgeMenuDO;
 import org.zhinanzhen.b.service.KnowledgeService;
 import org.zhinanzhen.b.service.pojo.KnowledgeDTO;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -20,6 +22,9 @@ public class KnowledgeServiceImpl extends BaseService implements KnowledgeServic
 
 	@Resource
 	private KnowledgeDAO knowledgeDao;
+
+	@Resource
+	private KnowledgeMenuDAO knowledgeMenuDao;
 
 	@Override
 	public int addKnowledge(KnowledgeDTO knowledgeDto) throws ServiceException {
@@ -79,6 +84,9 @@ public class KnowledgeServiceImpl extends BaseService implements KnowledgeServic
 		}
 		for (KnowledgeDO knowledgeDo : knowledgeDoList) {
 			KnowledgeDTO knowledgeDto = mapper.map(knowledgeDo, KnowledgeDTO.class);
+			KnowledgeMenuDO knowledgeMenuDo = knowledgeMenuDao.getKnowledgeMenu(knowledgeDto.getKnowledgeMenuId());
+			if (knowledgeMenuDo != null)
+				knowledgeDto.setKnowledgeMenuName(knowledgeMenuDo.getName());
 			knowledgeDtoList.add(knowledgeDto);
 		}
 		return knowledgeDtoList;

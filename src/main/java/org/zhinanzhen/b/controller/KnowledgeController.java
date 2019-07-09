@@ -160,6 +160,18 @@ public class KnowledgeController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/getMenu", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<KnowledgeMenuDTO> getMenu(@RequestParam(value = "id") Integer id,
+			HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<KnowledgeMenuDTO>(0, knowledgeMenuService.getKnowledgeMenu(id));
+		} catch (ServiceException e) {
+			return new Response<KnowledgeMenuDTO>(1, e.getMessage(), null);
+		}
+	}
+
 	@RequestMapping(value = "/delete", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<Integer> delete(@RequestParam(value = "id") int id, HttpServletResponse response) {
