@@ -52,6 +52,18 @@
         ORDER BY id ASC;
     </select>
     
+    <select id="getKnowledge" resultType="org.zhinanzhen.b.dao.pojo.KnowledgeDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            title,
+            content,
+            knowledge_menu_id AS knowledgeMenuId
+        FROM b_knowledge
+        WHERE id = #{id}
+        ;
+    </select>
+    
     <delete id="deleteKnowledge" parameterType="java.lang.Integer">
 		DELETE FROM b_knowledge WHERE id = #{id, jdbcType=INTEGER}
 	</delete>

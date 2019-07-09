@@ -160,10 +160,20 @@ public class KnowledgeController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/get", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<KnowledgeDTO> get(@RequestParam(value = "id") Integer id, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<KnowledgeDTO>(0, knowledgeService.getKnowledge(id));
+		} catch (ServiceException e) {
+			return new Response<KnowledgeDTO>(1, e.getMessage(), null);
+		}
+	}
+
 	@RequestMapping(value = "/getMenu", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<KnowledgeMenuDTO> getMenu(@RequestParam(value = "id") Integer id,
-			HttpServletResponse response) {
+	public Response<KnowledgeMenuDTO> getMenu(@RequestParam(value = "id") Integer id, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
 			return new Response<KnowledgeMenuDTO>(0, knowledgeMenuService.getKnowledgeMenu(id));

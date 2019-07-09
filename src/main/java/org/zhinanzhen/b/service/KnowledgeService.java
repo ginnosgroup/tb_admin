@@ -13,6 +13,8 @@ public interface KnowledgeService {
 
 	List<KnowledgeDTO> listKnowledge(Integer knowledgeMenuId, String keyword) throws ServiceException;
 
+	KnowledgeDTO getKnowledge(Integer id) throws ServiceException;
+
 	int deleteKnowledge(int id) throws ServiceException;
 
 }

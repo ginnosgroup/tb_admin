@@ -93,6 +93,32 @@ public class KnowledgeServiceImpl extends BaseService implements KnowledgeServic
 	}
 
 	@Override
+	public KnowledgeDTO getKnowledge(Integer id) throws ServiceException {
+		if (id == null) {
+			ServiceException se = new ServiceException("id is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			KnowledgeDO knowledgeDo = knowledgeDao.getKnowledge(id);
+			if (knowledgeDo == null) {
+				ServiceException se = new ServiceException("No data !");
+				se.setCode(ErrorCodeEnum.DATA_ERROR.code());
+				throw se;
+			}
+			KnowledgeDTO knowledgeDto = mapper.map(knowledgeDo, KnowledgeDTO.class);
+			KnowledgeMenuDO knowledgeMenuDo = knowledgeMenuDao.getKnowledgeMenu(knowledgeDto.getKnowledgeMenuId());
+			if (knowledgeMenuDo != null)
+				knowledgeDto.setKnowledgeMenuName(knowledgeMenuDo.getName());
+			return knowledgeDto;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
 	public int deleteKnowledge(int id) throws ServiceException {
 		if (id <= 0) {
 			ServiceException se = new ServiceException("id error !");
