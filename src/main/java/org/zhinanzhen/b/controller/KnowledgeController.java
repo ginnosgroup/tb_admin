@@ -41,7 +41,7 @@ public class KnowledgeController extends BaseController {
 			HttpServletResponse response) throws IllegalStateException, IOException {
 		super.setPostHeader(response);
 		Response<String> resp = upload(file, request.getSession(), "/uploads/knowledge_img/");
-		return new UploadImageResponse(resp.getCode(), resp.getData());
+		return new UploadImageResponse(resp.getCode(), "https://yongjinbiao.zhinanzhen.org/statics/" + resp.getData());
 	}
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
