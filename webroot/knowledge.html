@@ -23,7 +23,7 @@
 		<![endif]-->
 	</head>
 
-	<body id="official" v-cloak>
+	<body id="knowledge" v-cloak>
 		<section id="container">
 			<header class="header white-bg">
 				<div class="sidebar-toggle-box">
@@ -206,7 +206,7 @@
 							</ul>
 						</li>
 						<li class="sub-menu">
-							<a href="javascript:;">
+							<a href="javascript:;" class="active">
 								<i class="fa fa-book">
                 </i>
 								<span>
@@ -402,10 +402,10 @@
 		<script src="js/vue.js"></script>
 		<script src="js/common.js?verson=1"></script>
 		<script>
-			tb.isLogin("official.html");
+			tb.isLogin("knowledge.html");
 			$("td,th").addClass("text-center");
 			var v = new Vue({
-				el: '#official',
+				el: '#knowledge',
 				data: {
 					admin: sessionStorage.getItem("admin"),
 					ap_list: sessionStorage.getItem("ap_list"),
@@ -705,8 +705,7 @@
 			}
 			
 			var E = window.wangEditor;
-      var editor = new E('#editor');	
-      editor.customConfig.uploadFileName = 'file' 
+      var editor = new E('#editor');	        
 			editor.customConfig.uploadImgServer = 'knowledge/upload_img';
 			editor.customConfig.uploadFileName = 'file';
       editor.create();      
