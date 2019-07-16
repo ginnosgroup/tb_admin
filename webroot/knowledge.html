@@ -247,7 +247,7 @@
 									      </button>
 									      <strong>Success!</strong> You  just achieved success.
 									  </div>
-										<div class="clearfix">
+										<div class="clearfix" v-if="ap_list!='KJ' && ap_list!='GW'">
                        <div class="btn-group">
                           <button id="editable-sample_new" class="btn btn-success green" @click="add_knowledge">
                           Add New <i class="fa fa-plus"></i>
@@ -264,8 +264,8 @@
 														<th>知识库标题</th>														
 														<th>所属菜单</th>
 														<th>发布时间</th>
-														<th>Edit</th>
-														<th>Delete</th>
+														<th v-if="ap_list!='KJ' && ap_list!='GW'">Edit</th>
+														<th v-if="ap_list!='KJ' && ap_list!='GW'">Delete</th>
 													</tr>
 												</thead>
 												<tbody>
@@ -274,9 +274,9 @@
 														<td v-html="item.link_title"></td>
 														<td v-html="item.knowledgeMenuName"></td>														
 														<td v-html="item.gmtCreate"></td>
-														<td><a v-if="item.id" class="edit" href="javascript:;" @click="edit_knowledge(item.oid,item.title)"><span class="label label-success">Edit</span></a>
+														<td v-if="ap_list!='KJ' && ap_list!='GW'"><a v-if="item.id" class="edit" href="javascript:;" @click="edit_knowledge(item.oid,item.title)"><span class="label label-success">Edit</span></a>
 														</td>
-														<td><a v-if="item.id" class="delete" href="#" @click="delete_confirm($index,item.id)"><span class="label label-danger">Delete</span></a>
+														<td v-if="ap_list!='KJ' && ap_list!='GW'"><a v-if="item.id" class="delete" href="#" @click="delete_confirm($index,item.id)"><span class="label label-danger">Delete</span></a>
 														</td>														
 													</tr>
 												</tbody>

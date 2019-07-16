@@ -291,7 +291,13 @@
 				},
 				methods: {					
 				}		
-			});						      
+			});
+			
+			function show_knowledge_detail(id)
+      {
+      		sessionStorage.setItem("id", id);
+					window.location.href = "knowledge.html"; 
+      }					      
 			
 			function  formatDate(now)
 			{
