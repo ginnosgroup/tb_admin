@@ -23,7 +23,7 @@
 		<![endif]-->
 	</head>
 
-	<body id="official" v-cloak>
+	<body id="knowledge" v-cloak>
 		<section id="container">
 			<header class="header white-bg">
 				<div class="sidebar-toggle-box">
@@ -94,7 +94,7 @@
               </a>
             </li>
             <li>
-              <a href="official.html" class="active">
+              <a href="official.html">
                 <i class="fa fa-book">
                 </i>
                 <span>
@@ -206,7 +206,7 @@
 							</ul>
 						</li>
 						<li class="sub-menu">
-							<a href="javascript:;">
+							<a href="javascript:;" class="active">
 								<i class="fa fa-book">
                 </i>
 								<span>
@@ -247,7 +247,7 @@
 									      </button>
 									      <strong>Success!</strong> You  just achieved success.
 									  </div>
-										<div class="clearfix">
+										<div class="clearfix" v-if="ap_list!='KJ' && ap_list!='GW'">
                        <div class="btn-group">
                           <button id="editable-sample_new" class="btn btn-success green" @click="add_knowledge">
                           Add New <i class="fa fa-plus"></i>
@@ -264,8 +264,8 @@
 														<th>知识库标题</th>														
 														<th>所属菜单</th>
 														<th>发布时间</th>
-														<th>Edit</th>
-														<th>Delete</th>
+														<th v-if="ap_list!='KJ' && ap_list!='GW'">Edit</th>
+														<th v-if="ap_list!='KJ' && ap_list!='GW'">Delete</th>
 													</tr>
 												</thead>
 												<tbody>
@@ -274,9 +274,9 @@
 														<td v-html="item.link_title"></td>
 														<td v-html="item.knowledgeMenuName"></td>														
 														<td v-html="item.gmtCreate"></td>
-														<td><a v-if="item.id" class="edit" href="javascript:;" @click="edit_knowledge(item.oid,item.title)"><span class="label label-success">Edit</span></a>
+														<td v-if="ap_list!='KJ' && ap_list!='GW'"><a v-if="item.id" class="edit" href="javascript:;" @click="edit_knowledge(item.oid,item.title)"><span class="label label-success">Edit</span></a>
 														</td>
-														<td><a v-if="item.id" class="delete" href="#" @click="delete_confirm($index,item.id)"><span class="label label-danger">Delete</span></a>
+														<td v-if="ap_list!='KJ' && ap_list!='GW'"><a v-if="item.id" class="delete" href="#" @click="delete_confirm($index,item.id)"><span class="label label-danger">Delete</span></a>
 														</td>														
 													</tr>
 												</tbody>
@@ -402,15 +402,16 @@
 		<script src="js/vue.js"></script>
 		<script src="js/common.js?verson=1"></script>
 		<script>
-			tb.isLogin("official.html");
+			tb.isLogin("knowledge.html");
 			$("td,th").addClass("text-center");
 			var v = new Vue({
-				el: '#official',
+				el: '#knowledge',
 				data: {
 					admin: sessionStorage.getItem("admin"),
 					ap_list: sessionStorage.getItem("ap_list"),
 					menu_id: sessionStorage.getItem("id"),
-					m_list: localStorage.getItem("str_html"),
+					menu_id_parent: sessionStorage.getItem("menu_parentid"),
+					m_list: '',
 					allSort: [],
 					subject: [],
 					count: 0,
@@ -432,8 +433,39 @@
 				created: function() {
 					this.getDatalist();
 					this.getSort();
+					this.getMenulist();				
 				},
 				methods: {
+					getMenulist: function() {
+						var that = this;
+						$.ajaxSettings.async = false; 
+						$.get(url + "knowledge/listMenu", {
+							knowledgeMenuId: 0						
+						}, function(result) {
+							var str_html = '';																					
+							var menu_list = result.data;
+							for(var i = 0; i < menu_list.length; i++) {
+									str_html += '<li class="sub-menu"><a href="javascript:;"';
+									if (that.menu_id_parent == menu_list[i].id) str_html += ' class="active"';
+									str_html += '>'+ menu_list[i].name +'</a>';									
+									$.get(url + "knowledge/listMenu", {
+										knowledgeMenuId: menu_list[i].id
+									}, function(result) {
+										var data_list = result.data;
+										str_html += '<ul class="sub">';
+										for(var j = 0; j < data_list.length; j++) {
+												str_html += '<li';
+												if (that.menu_id == data_list[j].id) str_html += ' class="active"';
+												str_html += '><a href="javascript:show_knowledge_detail('+data_list[j].id+','+menu_list[i].id+')">'+data_list[j].name+'</a></li>';
+										}
+										str_html += '</ul>';														
+									});
+							}
+							localStorage.removeItem('str_html');
+							localStorage.setItem("str_html", str_html);
+							that.m_list = localStorage.getItem("str_html");
+						});
+					},				
 					getSort: function() {
 						var that = this;
 						$.get(url + "knowledge/list", {
@@ -556,7 +588,7 @@
 					lastPage: function() {
 						var that = this;
 						if(that.pageNum < that.allPage - 1) {
-							$.get(url + "official/list", {
+							$.get(url + "knowledge/list", {
 								knowledgeMenuId: that.menu_id,
 								keyword: that.name,
 								categoryId: that.sort,
@@ -660,9 +692,10 @@
 					window.location.href = "knowledge-detail.html"; 
       }
       
-      function show_knowledge_detail(id)
+      function show_knowledge_detail(id,parentId)
       {
       		sessionStorage.setItem("id", id);
+      		sessionStorage.setItem("menu_parentid", parentId);
 					window.location.href = "knowledge.html"; 
       }
 			
@@ -705,8 +738,7 @@
 			}
 			
 			var E = window.wangEditor;
-      var editor = new E('#editor');	
-      editor.customConfig.uploadFileName = 'file' 
+      var editor = new E('#editor');	        
 			editor.customConfig.uploadImgServer = 'knowledge/upload_img';
 			editor.customConfig.uploadFileName = 'file';
       editor.create();      

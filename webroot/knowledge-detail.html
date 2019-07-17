@@ -214,11 +214,12 @@
                 </span>
 							</a>
 							<ul class="sub" id="knowledge-menu">
-								<li  class="active">
+								<li v-if="ap_list!='KJ' && ap_list!='GW'">
 									<a href="knowledge-menu.html">
 										菜单管理
 									</a>
-								</li>								
+								</li>
+								{{{m_list}}}
 							</ul>
 						</li>						
 					</ul>
@@ -233,8 +234,7 @@
 									知识库内容
 								</header>
 								<div class="panel-body">
-									<div class="adv-table editable-table" id="content">																				
-										xxxxxxxxxxxxxxxx
+									<div class="adv-table editable-table" id="content">										
 									</div>
 								</div>
 							</section>
@@ -272,7 +272,8 @@
 				data: {
 					admin: sessionStorage.getItem("admin"),
 					ap_list: sessionStorage.getItem("ap_list"),
-					id: sessionStorage.getItem("kid"),					
+					id: sessionStorage.getItem("kid"),
+					m_list: localStorage.getItem("str_html"),
 					dId: '',
 					eId: ''					
 				},
@@ -289,7 +290,14 @@
 				},
 				methods: {					
 				}		
-			});						      
+			});
+			
+			function show_knowledge_detail(id,parentId)
+      {
+      		sessionStorage.setItem("id", id);
+      		sessionStorage.setItem("menu_parentid", parentId);
+					window.location.href = "knowledge.html"; 
+      }					      
 			
 			function  formatDate(now)
 			{

@@ -692,11 +692,12 @@
 					});      		
       }
       
-      function show_knowledge_detail(id)
+      function show_knowledge_detail(id,parentId)
       {
       		sessionStorage.setItem("id", id);
+      		sessionStorage.setItem("menu_parentid", parentId);
 					window.location.href = "knowledge.html"; 
-      }    
+      } 
 			
 			function  formatDate(now)
 			{
