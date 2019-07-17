@@ -11,12 +11,10 @@ public class MessageDTO {
 
 	private Date gmtCreate;
 
-	private int userId;
+	private int adminUserId;
 
-	private int topicId;
+	private int knowledgeId;
 
 	private String content;
-
-	private int parentId;
 
 }

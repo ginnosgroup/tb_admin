@@ -8,12 +8,12 @@
             INTO b_message_zan (
                 gmt_create,
                 gmt_modify,
-                user_id,
+                admin_user_id,
                 message_id)
             VALUES (
                 now(),
                 now(),
-                #{userId},
+                #{adminUserId},
                 #{messageId});
     </insert>
     
@@ -21,8 +21,8 @@
         SELECT count(*)
         FROM b_message_zan
         WHERE 1 = 1
-        <if test='userId != null'>
-            AND user_id = #{userId}
+        <if test='adminUserId != null'>
+            AND admin_user_id = #{adminUserId}
         </if>
         <if test='messageId != null'>
             AND message_id = #{messageId}

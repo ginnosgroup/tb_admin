@@ -7,7 +7,7 @@ public class MessageZanDO {
 
 	private int id;
 
-	private int userId;
+	private int adminUserId;
 
 	private int messageId;
 

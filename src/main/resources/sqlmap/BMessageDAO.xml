@@ -8,29 +8,27 @@
             INTO b_message (
                 gmt_create,
                 gmt_modify,
-                user_id,
-                topic_id,
-                content,
-                parent_id)
+                admin_user_id,
+                knowledge_id,
+                content)
             VALUES (
                 now(),
                 now(),
-                #{userId},
-                #{topicId},
-                #{content},
-                #{parentId});
+                #{adminUserId},
+                #{knowledgeId},
+                #{content});
     </insert>
     
     <select id="listMessage" resultType="org.zhinanzhen.b.dao.pojo.MessageDO">
         SELECT
             id,
             gmt_create AS gmtCreate,
-            user_id AS userId,
-            topic_id AS topicId,
+            admin_user_id AS adminUserId,
+            knowledge_id AS knowledgeId,
             content,
             parent_id AS parentId
         FROM b_message
-        WHERE topic_id = #{topicId}
+        WHERE knowledge_id = #{knowledgeId}
         ORDER BY gmt_create ASC;
     </select>
     
