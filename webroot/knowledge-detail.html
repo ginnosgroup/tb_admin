@@ -234,8 +234,7 @@
 									知识库内容
 								</header>
 								<div class="panel-body">
-									<div class="adv-table editable-table" id="content">																				
-										xxxxxxxxxxxxxxxx
+									<div class="adv-table editable-table" id="content">										
 									</div>
 								</div>
 							</section>
@@ -293,9 +292,10 @@
 				}		
 			});
 			
-			function show_knowledge_detail(id)
+			function show_knowledge_detail(id,parentId)
       {
       		sessionStorage.setItem("id", id);
+      		sessionStorage.setItem("menu_parentid", parentId);
 					window.location.href = "knowledge.html"; 
       }					      
 			

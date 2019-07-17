@@ -421,6 +421,7 @@
 										str_html += '</ul>';							
 									});
 							}
+							localStorage.removeItem('str_html');
 							localStorage.setItem("str_html", str_html);
 							console.log(localStorage.getItem("str_html"))
 						});
@@ -428,9 +429,10 @@
 				}					
 			});
 			
-			function show_knowledge_detail(id)
+			function show_knowledge_detail(id,parentId)
       {
       		sessionStorage.setItem("id", id);
+      		sessionStorage.setItem("menu_parentid", parentId);
 					window.location.href = "knowledge.html"; 
       }							
 			

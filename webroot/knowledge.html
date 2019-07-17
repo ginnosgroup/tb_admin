@@ -94,7 +94,7 @@
               </a>
             </li>
             <li>
-              <a href="official.html" class="active">
+              <a href="official.html">
                 <i class="fa fa-book">
                 </i>
                 <span>
@@ -410,7 +410,8 @@
 					admin: sessionStorage.getItem("admin"),
 					ap_list: sessionStorage.getItem("ap_list"),
 					menu_id: sessionStorage.getItem("id"),
-					m_list: localStorage.getItem("str_html"),
+					menu_id_parent: sessionStorage.getItem("menu_parentid"),
+					m_list: '',
 					allSort: [],
 					subject: [],
 					count: 0,
@@ -432,8 +433,39 @@
 				created: function() {
 					this.getDatalist();
 					this.getSort();
+					this.getMenulist();				
 				},
 				methods: {
+					getMenulist: function() {
+						var that = this;
+						$.ajaxSettings.async = false; 
+						$.get(url + "knowledge/listMenu", {
+							knowledgeMenuId: 0						
+						}, function(result) {
+							var str_html = '';																					
+							var menu_list = result.data;
+							for(var i = 0; i < menu_list.length; i++) {
+									str_html += '<li class="sub-menu"><a href="javascript:;"';
+									if (that.menu_id_parent == menu_list[i].id) str_html += ' class="active"';
+									str_html += '>'+ menu_list[i].name +'</a>';									
+									$.get(url + "knowledge/listMenu", {
+										knowledgeMenuId: menu_list[i].id
+									}, function(result) {
+										var data_list = result.data;
+										str_html += '<ul class="sub">';
+										for(var j = 0; j < data_list.length; j++) {
+												str_html += '<li';
+												if (that.menu_id == data_list[j].id) str_html += ' class="active"';
+												str_html += '><a href="javascript:show_knowledge_detail('+data_list[j].id+','+menu_list[i].id+')">'+data_list[j].name+'</a></li>';
+										}
+										str_html += '</ul>';														
+									});
+							}
+							localStorage.removeItem('str_html');
+							localStorage.setItem("str_html", str_html);
+							that.m_list = localStorage.getItem("str_html");
+						});
+					},				
 					getSort: function() {
 						var that = this;
 						$.get(url + "knowledge/list", {
@@ -660,9 +692,10 @@
 					window.location.href = "knowledge-detail.html"; 
       }
       
-      function show_knowledge_detail(id)
+      function show_knowledge_detail(id,parentId)
       {
       		sessionStorage.setItem("id", id);
+      		sessionStorage.setItem("menu_parentid", parentId);
 					window.location.href = "knowledge.html"; 
       }
 			
