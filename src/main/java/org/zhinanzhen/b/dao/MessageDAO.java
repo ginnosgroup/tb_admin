@@ -9,7 +9,7 @@ public interface MessageDAO {
 
 	int addMessage(MessageDO messageDo);
 
-	public List<MessageDO> listMessage(@Param("topicId") Integer topicId);
+	public List<MessageDO> listMessage(@Param("knowledgeId") Integer knowledgeId);
 
 	public int deleteMessage(int id);
 
