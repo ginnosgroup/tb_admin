@@ -13,6 +13,8 @@ import org.zhinanzhen.b.dao.pojo.MessageZanDO;
 import org.zhinanzhen.b.service.MessageService;
 import org.zhinanzhen.b.service.pojo.MessageDTO;
 import org.zhinanzhen.b.service.pojo.MessageListDTO;
+import org.zhinanzhen.tb.dao.AdminUserDAO;
+import org.zhinanzhen.tb.dao.pojo.AdminUserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
@@ -26,6 +28,9 @@ public class MessageServiceImpl extends BaseService implements MessageService {
 
 	@Resource
 	private MessageZanDAO messageZanDao;
+
+	@Resource
+	private AdminUserDAO adminUserDao;
 
 	@Override
 	public int addMessage(MessageDTO messageDto) throws ServiceException {
@@ -87,6 +92,9 @@ public class MessageServiceImpl extends BaseService implements MessageService {
 		}
 		for (MessageDO messageDo : messageDoList) {
 			MessageListDTO messageListDto = mapper.map(messageDo, MessageListDTO.class);
+			AdminUserDO adminUserDo = adminUserDao.getAdminUserById(messageDo.getAdminUserId());
+			if (adminUserDo != null)
+				messageListDto.setAdminUserName(adminUserDo.getUsername());
 			messageListDto.setZan(messageZanDao.countMessageZan(messageDo.getAdminUserId(), messageDo.getId()));
 			messageListDtoList.add(messageListDto);
 		}

@@ -7,6 +7,10 @@ public class MessageListDTO extends MessageDTO {
 
 	@Getter
 	@Setter
+	private String adminUserName;
+
+	@Getter
+	@Setter
 	private int zan;
 
 }
