@@ -228,13 +228,44 @@
 			<section id="main-content" class="content">
 				<section class="wrapper site-min-height">
 					<div class="row">
-						<div class="col-lg-12">
+						<div class="col-lg-9">
 							<section class="panel">
 								<header class="panel-heading" id="title">
 									知识库内容
 								</header>
 								<div class="panel-body">
 									<div class="adv-table editable-table" id="content">										
+									</div>
+								</div>
+							</section>
+						</div>
+						<div class="col-lg-3">
+							<section class="panel">
+								<header class="panel-heading" id="title">
+									交流
+								</header>
+								<div class="panel-body">
+									<div class="adv-table editable-table">
+											<div class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+										      <button data-dismiss="alert" class="close close-sm" type="button">
+										      <i class="fa fa-times"></i>
+										      </button>
+										      <strong>Success!</strong> You  just achieved success.
+										  </div>
+											<div><textarea name="message_content" id="message_content" class="form-control" style="height:100px;" placeholder="请输入内容"></textarea></div>
+											<div style="padding-top:10px;text-align:right;"><button onclick="btnSubmit()" type="button" class="btn btn-primary">提交</button></div>
+											<div id="message_list" style="margin-top:10px;">
+													<div v-for="item in datalist" class="message_item">													
+															<div style="width:230px;padding-bottom:10px;">
+																	<div><span style="font-weight:bold;" v-html="item.adminUserName"></span></div>
+																	<div style="padding-top:10px;" v-html="item.content"></div>
+																	<div style="padding-top:10px;">
+																			<div style="display: inline-block;" v-html="item.gmtCreate"></div>
+																			<div style="display: inline-block;padding-left:10px;"><a href="javascript:btnZan({{item.id}});">顶</a>&nbsp;<span id="zan_{{item.id}}" v-html="item.zan"></span>&nbsp;&nbsp;<a href="javascript:btnReply({{item.id}},'{{item.adminUserName}}','{{item.content}}');">回复</a></div>
+																	</div>
+															</div>
+													</div>
+											</div>
 									</div>
 								</div>
 							</section>
@@ -271,9 +302,11 @@
 				el: '#official',
 				data: {
 					admin: sessionStorage.getItem("admin"),
+					admin_id: sessionStorage.getItem("admin_id"),
 					ap_list: sessionStorage.getItem("ap_list"),
 					id: sessionStorage.getItem("kid"),
 					m_list: localStorage.getItem("str_html"),
+					datalist: [],
 					dId: '',
 					eId: ''					
 				},
@@ -287,8 +320,38 @@
 						$('#title').html('[ID:'+result.data.id+'] '+title);
 						$('#content').html(cont);
 					});
+					this.getMessagelist();
 				},
-				methods: {					
+				methods: {
+					getMessagelist: function() {
+						var that = this;
+						$.get(url + "message/list", {
+							knowledgeId: that.id							
+						}, function(result) {
+							for(var i = 0; i < result.data.length; i++) {
+								result.data[i].gmtCreate = that.getTime(result.data[i].gmtCreate);
+							}
+							that.datalist = result.data;
+						});
+					},
+					getTime: function(d) {
+						var date1 = new Date(d);
+						var y = date1.getFullYear();
+						var m = this.addZero(date1.getMonth() + 1);
+						var d = this.addZero(date1.getDate());
+						var h = this.addZero(date1.getHours());
+						var m2 = this.addZero(date1.getMinutes());
+						var s = this.addZero(date1.getSeconds());
+						//var date2 = y + "-" + m + "-" + d;
+						var date2 = d+"/"+m+"/"+y+" "+h+":"+m2+":"+s;
+						return date2;
+					},
+					addZero: function(obj) {
+						if(obj < 10) {
+							obj = '0' + obj;
+						};
+						return obj;
+					}			
 				}		
 			});
 			
@@ -297,7 +360,56 @@
       		sessionStorage.setItem("id", id);
       		sessionStorage.setItem("menu_parentid", parentId);
 					window.location.href = "knowledge.html"; 
-      }					      
+      }
+      
+      function btnSubmit()
+			{
+					var that = this;
+			    var kid = v.id;
+			    var cont = $('#message_content').val();
+			    if (cont != '')
+			    {
+			    		var str_url = 'message/add';
+			    		$.post(str_url, { knowledgeId: kid, adminUserId: v.admin_id,content: cont},
+					   	function(data){
+					   		if (!data.code)
+					   		{
+					   				$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
+					   				location.reload();					   		
+					   		}else
+					   		{
+					   				that.error = data.message;
+					   		}
+					   	});
+			    }
+			}
+			
+			function btnReply(id,username,cont)
+			{
+					var that = this;
+			    var kid = v.id;
+			    $('#message_content').val('回复：'+username+' ['+cont+']');			    
+			}
+			
+			function btnZan(id)
+			{
+					var that = this;
+			    if (id)
+			    {
+			    		var str_url = 'message/zan';
+			    		$.post(str_url, { messageId: id, adminUserId: v.admin_id},
+					   	function(data){
+					   		if (!data.code)
+					   		{
+					   				$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
+					   				$('#zan_'+id).html($('#zan_'+id).val()+1);	   		
+					   		}else
+					   		{
+					   				alert(data.message);
+					   		}
+					   	});
+			    }
+			}
 			
 			function  formatDate(now)
 			{
