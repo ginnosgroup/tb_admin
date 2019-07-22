@@ -403,6 +403,7 @@
 			    },
 			    getMenulist: function() {
 						var that = this;
+						$.ajaxSettings.async = false; 
 						$.get(url + "knowledge/listMenu", {
 							knowledgeMenuId: 0						
 						}, function(result) {
