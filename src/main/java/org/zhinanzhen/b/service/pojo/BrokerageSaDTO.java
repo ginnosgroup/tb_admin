@@ -37,6 +37,8 @@ public class BrokerageSaDTO {
 	private Date endDate;
 
 	private double tuitionFee;
+	
+	private double discount;
 
 	private double commission;
 

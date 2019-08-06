@@ -15,6 +15,7 @@
                 start_date,
                 end_date,
                 tuition_fee,
+                discount,
                 commission,
                 gst,
                 deduct_gst,
@@ -33,6 +34,7 @@
                 #{startDate},
                 #{endDate},
                 #{tuitionFee},
+                #{discount},
                 #{commission},
                 #{gst},
                 #{deductGst},
@@ -66,6 +68,9 @@
         </if>
         <if test='tuitionFee != null and tuitionFee != ""'>
             , tuition_fee = #{tuitionFee}
+        </if>
+        <if test='discount != null'>
+            , discount = #{discount}
         </if>
         <if test='commission != null and commission != ""'>
             , commission = #{commission}
@@ -130,6 +135,7 @@
             bbs.start_date AS startDate,
             bbs.end_date AS endDate,
             bbs.tuition_fee AS tuitionFee,
+            bbs.discount AS discount,
             bbs.commission AS commission,
             bbs.gst AS gst,
             bbs.deduct_gst AS deductGst,
@@ -186,6 +192,7 @@
              start_date AS startDate,
              end_date AS endDate,
              tuition_fee AS tuitionFee,
+             discount,
              commission,
              gst,
              deduct_gst AS deductGst,

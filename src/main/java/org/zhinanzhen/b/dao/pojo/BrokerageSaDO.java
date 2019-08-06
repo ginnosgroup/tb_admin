@@ -25,6 +25,8 @@ public class BrokerageSaDO {
 	
 	private double tuitionFee;
 	
+	private double discount;
+	
 	private double commission;
 	
 	private double gst;
