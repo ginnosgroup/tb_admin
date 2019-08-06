@@ -104,7 +104,7 @@
               </a>
             </li>
             <li>
-              <a href="school.html" class="active">
+              <a href="school.html">
                 <i class="fa fa-book">
                 </i>
                 <span>
@@ -403,20 +403,21 @@
 			    },
 			    getMenulist: function() {
 						var that = this;
+						$.ajaxSettings.async = false; 
 						$.get(url + "knowledge/listMenu", {
 							knowledgeMenuId: 0						
 						}, function(result) {
 							var str_html = '';																					
-							v.menu_list = result.data;
-							for(var i = 0; i < v.menu_list.length; i++) {
-									str_html += '<li class="sub-menu"><a href="javascript:;">'+ v.menu_list[i].name +'</a>';									
+							var menu_list = result.data;
+							for(var i = 0; i < menu_list.length; i++) {
+									str_html += '<li class="sub-menu"><a href="javascript:;">'+ menu_list[i].name +'</a>';									
 									$.get(url + "knowledge/listMenu", {
-										knowledgeMenuId: v.menu_list[i].id
+										knowledgeMenuId: menu_list[i].id
 									}, function(result) {
-										v.data_list = result.data;
+										var data_list = result.data;
 										str_html += '<ul class="sub">';
-										for(var j = 0; j < v.data_list.length; j++) {
-												str_html += '<li><a href="javascript:show_knowledge_detail('+v.data_list[j].id+')">'+v.data_list[j].name+'</a></li>';
+										for(var j = 0; j < data_list.length; j++) {
+												str_html += '<li><a href="javascript:show_knowledge_detail('+data_list[j].id+')">'+data_list[j].name+'</a></li>';
 										}
 										str_html += '</ul>';							
 									});

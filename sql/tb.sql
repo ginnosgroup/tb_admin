@@ -230,6 +230,7 @@ CREATE TABLE `b_brokerage_sa` (
   `start_date` datetime NOT NULL COMMENT '开课日期',
   `end_date` datetime NOT NULL COMMENT '结束日期',
   `tuition_fee` decimal(8,2) NOT NULL COMMENT '学费',
+`discount` decimal(8,2) NOT NULL DEFAULT 0 COMMENT '折扣',
   `commission` decimal(8,2) NOT NULL COMMENT '手续费',
   `gst` decimal(8,2) NOT NULL COMMENT 'GST',
   `deduct_gst` decimal(8,2) NOT NULL COMMENT 'Deduct GST',
