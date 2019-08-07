@@ -36,6 +36,7 @@ public class BrokerageSaController extends BaseController {
 			@RequestParam(value = "startDate") String startDate, @RequestParam(value = "endDate") String endDate,
 			@RequestParam(value = "receiveTypeId") String receiveTypeId,
 			@RequestParam(value = "tuitionFee") String tuitionFee,
+			@RequestParam(value = "discount", required = false) String discount,
 			@RequestParam(value = "commission") String commission, @RequestParam(value = "adviserId") String adviserId,
 			@RequestParam(value = "officialId") String officialId,
 			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
@@ -69,6 +70,9 @@ public class BrokerageSaController extends BaseController {
 			}
 			if (StringUtil.isNotEmpty(tuitionFee)) {
 				brokerageSaDto.setTuitionFee(Double.parseDouble(tuitionFee));
+			}
+			if (StringUtil.isNotEmpty(discount)) {
+				brokerageSaDto.setDiscount(Double.parseDouble(discount));
 			}
 			if (StringUtil.isNotEmpty(commission)) {
 				brokerageSaDto.setCommission(Double.parseDouble(commission));
@@ -104,6 +108,7 @@ public class BrokerageSaController extends BaseController {
 			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "receiveTypeId", required = false) String receiveTypeId,
 			@RequestParam(value = "tuitionFee", required = false) String tuitionFee,
+			@RequestParam(value = "discount", required = false) String discount,
 			@RequestParam(value = "commission", required = false) String commission,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
 			@RequestParam(value = "officialId", required = false) String officialId,
@@ -127,6 +132,9 @@ public class BrokerageSaController extends BaseController {
 			}
 			if (StringUtil.isNotEmpty(tuitionFee)) {
 				brokerageSaDto.setTuitionFee(Double.parseDouble(tuitionFee));
+			}
+			if (StringUtil.isNotEmpty(discount)) {
+				brokerageSaDto.setDiscount(Double.parseDouble(discount));
 			}
 			if (StringUtil.isNotEmpty(commission)) {
 				brokerageSaDto.setCommission(Double.parseDouble(commission));
