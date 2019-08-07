@@ -26,6 +26,8 @@ public class SchoolBrokerageSaDO {
 	private double tuitionFee;
 
 	private double firstTermTuitionFee;
+	
+	private double discount;
 
 	private double commission;
 

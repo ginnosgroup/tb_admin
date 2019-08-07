@@ -38,6 +38,7 @@ public class SchoolBrokerageSaController extends BaseController {
 			@RequestParam(value = "startDate") String startDate, @RequestParam(value = "endDate") String endDate,
 			@RequestParam(value = "tuitionFee") String tuitionFee,
 			@RequestParam(value = "firstTermTuitionFee") String firstTermTuitionFee,
+			@RequestParam(value = "discount", required = false) String discount,
 			@RequestParam(value = "commission") String commission, @RequestParam(value = "payDate") String payDate,
 			@RequestParam(value = "invoiceCode") String invoiceCode,
 			@RequestParam(value = "payAmount") String payAmount,
@@ -77,6 +78,9 @@ public class SchoolBrokerageSaController extends BaseController {
 			}
 			if (StringUtil.isNotEmpty(firstTermTuitionFee)) {
 				schoolBrokerageSaDto.setFirstTermTuitionFee(Double.parseDouble(firstTermTuitionFee));
+			}
+			if (StringUtil.isNotEmpty(discount)) {
+				schoolBrokerageSaDto.setDiscount(Double.parseDouble(discount));
 			}
 			if (StringUtil.isNotEmpty(commission)) {
 				schoolBrokerageSaDto.setCommission(Double.parseDouble(commission));
@@ -125,6 +129,7 @@ public class SchoolBrokerageSaController extends BaseController {
 			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "tuitionFee", required = false) String tuitionFee,
 			@RequestParam(value = "firstTermTuitionFee", required = false) String firstTermTuitionFee,
+			@RequestParam(value = "discount", required = false) String discount,
 			@RequestParam(value = "commission", required = false) String commission,
 			@RequestParam(value = "payDate", required = false) String payDate,
 			@RequestParam(value = "invoiceCode", required = false) String invoiceCode,
@@ -161,6 +166,9 @@ public class SchoolBrokerageSaController extends BaseController {
 			}
 			if (StringUtil.isNotEmpty(firstTermTuitionFee)) {
 				schoolBrokerageSaDto.setFirstTermTuitionFee(Double.parseDouble(firstTermTuitionFee));
+			}
+			if (StringUtil.isNotEmpty(discount)) {
+				schoolBrokerageSaDto.setDiscount(Double.parseDouble(discount));
 			}
 			if (StringUtil.isNotEmpty(commission)) {
 				schoolBrokerageSaDto.setCommission(Double.parseDouble(commission));

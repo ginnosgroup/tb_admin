@@ -17,6 +17,7 @@
 		end_date,
 		tuition_fee,
 		first_term_tuition_fee,
+		discount,
 		commission,
 		gst,
 		deduct_gst,
@@ -41,6 +42,7 @@
 		#{endDate},
 		#{tuitionFee},
 		#{firstTermTuitionFee},
+		#{discount},
 		#{commission},
 		#{gst},
 		#{deductGst},
@@ -82,6 +84,9 @@
 		</if>
 		<if test='firstTermTuitionFee != null and firstTermTuitionFee != ""'>
 			, first_term_tuition_fee = #{firstTermTuitionFee}
+		</if>
+		<if test='discount != null'>
+			, discount = #{discount}
 		</if>
 		<if test='commission != null and commission != ""'>
 			, commission = #{commission}
@@ -168,6 +173,7 @@
 		bsbs.end_date AS endDate,
 		bsbs.tuition_fee AS tuitionFee,
 		bsbs.first_term_tuition_fee AS firstTermTuitionFee,
+		bsbs.discount AS discount,
 		bsbs.commission AS commission,
 		bsbs.gst AS gst,
 		bsbs.deduct_gst AS deductGst,
@@ -270,6 +276,7 @@
 		end_date AS endDate,
 		tuition_fee AS tuitionFee,
 		first_term_tuition_fee AS firstTermTuitionFee,
+		discount,
 		commission,
 		gst,
 		deduct_gst AS deductGst,
