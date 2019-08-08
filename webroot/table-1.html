@@ -269,6 +269,7 @@
 														<th>设置提醒</th>
 														<th>收款方式</th>			
 														<th><span style="color:#FF6C60;">Tuition Fee</span></th>
+														<th><span style="color:#FF6C60;">Discount</span></th>
 														<th><span style="color:#FF6C60;">Commission</span></th>
 														<th>GST</th>
 														<th>Deduct GST</th>
@@ -298,6 +299,7 @@
 														</td>
 														<td v-html="item.receiveTypeName"></td>
 														<td v-html="item.tuitionFee"></td>
+														<td v-html="item.discount"></td>
 														<td v-html="item.commission"></td>
 														<td v-html="item.gst"></td>
 														<td v-html="item.deductGst"></td>
@@ -873,6 +875,7 @@
 									remindDateList: '<label id="t20" style="width:150px;"></label>',
 									receiveTypeName: '<select class="form-control" style="width:150px;" id="t8"></select>',
 									tuitionFee: '<input type="text" class="form-control small" style="width:120px;" id="t9" value="">',
+									discount: '<input type="text" class="form-control small" style="width:120px;" id="t21" value="">',
 									commission: '<input type="text" class="form-control small" style="width:120px;" id="t10" value="">',
 									gst: '<label id="t11"></label>',
 									deductGst: '<label id="t12"></label>',
@@ -913,6 +916,7 @@
 							remindDateList: '<div>'+this.subject[index].remindDateList+'</div><label id="t20" style="width:150px;"><a href="javascript:remindSet(dId);">设置</a></label>',
 							receiveTypeName: '<select class="form-control" style="width:150px;" id="t8"></select>',
 							tuitionFee: '<input type="text" class="form-control small" style="width:120px;" id="t9" value="'+this.subject[index].tuitionFee+'">',
+							discount: '<input type="text" class="form-control small" style="width:120px;" id="t21" value="'+this.subject[index].discount+'">',
 							commission: '<input type="text" class="form-control small" style="width:120px;" id="t10" value="'+this.subject[index].commission+'">',
 							gst: '<label id="t11">'+this.subject[index].gst+'</label>',
 							deductGst: '<label id="t12">'+this.subject[index].deductGst+'</label>',
@@ -1226,7 +1230,7 @@
               sa_id = $("#id").val();
               if (sa_id != '0') str_url = "brokerage_sa/update";
               
-              $.post(str_url, { id: sa_id, handlingDate: d1, userId: $('#userid').val(), schoolId: $('#schoolid').val(), startDate: d4, endDate: d5, receiveTypeId: jqSelect[2].value, tuitionFee: jqInputs[4].value, commission: jqInputs[5].value, adviserId: jqSelect[3].value, officialId: jqSelect[4].value,remarks: jqTextarea[0].value},
+              $.post(str_url, { id: sa_id, handlingDate: d1, userId: $('#userid').val(), schoolId: $('#schoolid').val(), startDate: d4, endDate: d5, receiveTypeId: jqSelect[2].value, tuitionFee: jqInputs[4].value, discount: jqInputs[5].value,commission: jqInputs[6].value, adviserId: jqSelect[3].value, officialId: jqSelect[4].value,remarks: jqTextarea[0].value},
 					   	function(data){
 					   			if (data.code == 0)
 					   			{
