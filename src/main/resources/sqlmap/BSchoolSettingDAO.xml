@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.SchoolSettingDAO">
+
+    <insert id="add" parameterType="org.zhinanzhen.b.dao.pojo.SchoolSettingDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+            INTO b_school_setting (
+                gmt_create,
+                gmt_modify,
+                school_name,
+                type,
+                start_date,
+                end_date,
+                parameters)
+            VALUES (
+                now(),
+                now(),
+                #{schoolName},
+                #{type},
+                #{startDate},
+                #{endDate},
+                #{parameters});
+    </insert>
+    
+    <update id="update" parameterType="org.zhinanzhen.b.dao.pojo.SchoolSettingDO">
+        UPDATE b_school_setting 
+        SET gmt_modify = now()
+        <if test='type != null and type != ""'>
+            , type = #{type}
+        </if>
+        <if test='startDate != null'>
+            , start_date = #{startDate}
+        </if>
+        <if test='endDate != null'>
+            , end_date = #{endDate}
+        </if>
+        <if test='parameters != null and parameters != ""'>
+            , parameters = #{parameters}
+        </if>
+        WHERE id = #{id};
+    </update>
+    
+    <select id="list" resultType="org.zhinanzhen.b.dao.pojo.SchoolSettingDO">
+        SELECT
+            id,
+            school_name AS schoolName,
+            type,
+            start_date AS startDate,
+            end_date AS endDate,
+            parameters
+        FROM b_school_setting
+        WHERE 1=1
+        <if test='name != null and name != ""'>
+            AND name LIKE '%${name}%'
+        </if>
+        <if test='subject != null and subject != ""'>
+            AND subject LIKE '%${subject}%'
+        </if>
+        <if test='country != null and country != ""'>
+            AND country = #{country}
+        </if>
+        ORDER BY gmt_create DESC;
+    </select>
+
+</mapper>

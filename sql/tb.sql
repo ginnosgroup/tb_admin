@@ -431,3 +431,25 @@ CREATE TABLE `b_message_zan` (
   `admin_user_id` int NOT NULL COMMENT '所属管理员编号 (对应tb_admin_user.id)',
   `message_id` int NOT NULL COMMENT '所属信息编号 (对应b_message.id)'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+-- ----------佣金卡片----------
+
+CREATE TABLE `b_school_setting` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `school_name` varchar(32) NOT NULL COMMENT '学校名称 (对应b_school.name)',
+  `type` int COMMENT '设置类型 (0:未选,1:固定比例-无额外补贴,2:固定比例-每人补贴,3:固定比例-一次性补贴,4:变动比例,5:固定底价-无额外补贴,6:固定底价-每人补贴,7:固定底价-一次性补贴)',
+  `start_date` datetime NOT NULL COMMENT '合同开始时间',
+  `end_date` datetime NOT NULL COMMENT '合同结束时间',
+  `parameters` varchar(255) COMMENT '参数'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+CREATE TABLE `b_subject_setting` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `school_setting_id` int NOT NULL COMMENT '学校设置编号 (对应b_school_setting.id)',
+  `subject` varchar(128) NOT NULL COMMENT '课程',
+  `price` decimal(8,2) NOT NULL DEFAULT '0.00' COMMENT '价格'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
