@@ -15,4 +15,6 @@ public interface SchoolSettingDAO {
 
 	public List<SchoolSettingDO> list();
 
+	public SchoolSettingDO get(@Param("name") String name);
+
 }

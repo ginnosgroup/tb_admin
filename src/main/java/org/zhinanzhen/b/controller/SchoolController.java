@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.zhinanzhen.b.service.SchoolService;
 import org.zhinanzhen.b.service.pojo.SchoolDTO;
+import org.zhinanzhen.b.service.pojo.SchoolSettingDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -133,6 +134,17 @@ public class SchoolController extends BaseController {
 			return new Response<List<SchoolDTO>>(0, schoolService.listSchool(name, country));
 		} catch (ServiceException e) {
 			return new Response<List<SchoolDTO>>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/listSchoolSetting", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<SchoolSettingDTO>> listSchoolSetting(HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<List<SchoolSettingDTO>>(0, schoolService.listSchoolSetting());
+		} catch (ServiceException e) {
+			return new Response<List<SchoolSettingDTO>>(1, e.getMessage(), null);
 		}
 	}
 

@@ -1,15 +1,19 @@
 package org.zhinanzhen.b.service.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.SchoolDAO;
+import org.zhinanzhen.b.dao.SchoolSettingDAO;
 import org.zhinanzhen.b.dao.pojo.SchoolDO;
+import org.zhinanzhen.b.dao.pojo.SchoolSettingDO;
 import org.zhinanzhen.b.service.SchoolService;
 import org.zhinanzhen.b.service.pojo.SchoolDTO;
+import org.zhinanzhen.b.service.pojo.SchoolSettingDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
@@ -21,6 +25,9 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 
 	@Resource
 	private SchoolDAO schoolDao;
+
+	@Resource
+	private SchoolSettingDAO schoolSettingDao;
 
 	@Override
 	public int addSchool(SchoolDTO schoolDto) throws ServiceException {
@@ -54,7 +61,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 			throw se;
 		}
 	}
-	
+
 	@Override
 	public List<SchoolDTO> list(String name) throws ServiceException {
 		List<SchoolDTO> schoolDtoList = new ArrayList<SchoolDTO>();
@@ -114,6 +121,32 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 			schoolDtoList.add(schoolDto);
 		}
 		return schoolDtoList;
+	}
+
+	@Override
+	public int updateSchoolSetting(int id, int type, Date startDate, Date endDate, String parameters)
+			throws ServiceException {
+		return schoolSettingDao.update(id, type, startDate, endDate, parameters);
+	}
+
+	@Override
+	public List<SchoolSettingDTO> listSchoolSetting() throws ServiceException {
+		List<SchoolSettingDTO> schoolSettingDtoList = new ArrayList<SchoolSettingDTO>();
+		List<SchoolDO> schoolDoList = schoolDao.listSchool(null, null);
+		if (schoolDoList == null)
+			return null;
+		schoolDoList.forEach(schoolDo -> {
+			String name = schoolDo.getName();
+			SchoolSettingDO schoolSettingDo = schoolSettingDao.get(name);
+			if (schoolSettingDo != null)
+				schoolSettingDtoList.add(mapper.map(schoolSettingDo, SchoolSettingDTO.class));
+			else {
+				SchoolSettingDTO schoolSettingDto = new SchoolSettingDTO();
+				schoolSettingDto.setSchoolName(name);
+				schoolSettingDtoList.add(schoolSettingDto);
+			}
+		});
+		return schoolSettingDtoList;
 	}
 
 	@Override
