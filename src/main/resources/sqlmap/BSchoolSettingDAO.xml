@@ -50,16 +50,6 @@
             end_date AS endDate,
             parameters
         FROM b_school_setting
-        WHERE 1=1
-        <if test='name != null and name != ""'>
-            AND name LIKE '%${name}%'
-        </if>
-        <if test='subject != null and subject != ""'>
-            AND subject LIKE '%${subject}%'
-        </if>
-        <if test='country != null and country != ""'>
-            AND country = #{country}
-        </if>
         ORDER BY gmt_create DESC;
     </select>
 
