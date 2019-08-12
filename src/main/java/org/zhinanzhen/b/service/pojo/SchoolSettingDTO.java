@@ -19,6 +19,8 @@ public class SchoolSettingDTO {
 
 	private String parameters;
 
+	private double amount = 0.00;
+
 	private int count = 0;
 
 }
