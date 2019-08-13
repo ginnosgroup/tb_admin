@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.controller;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -139,12 +140,33 @@ public class SchoolController extends BaseController {
 
 	@RequestMapping(value = "/listSchoolSetting", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<SchoolSettingDTO>> listSchoolSetting(HttpServletResponse response) {
+	public Response<List<SchoolSettingDTO>> listSchoolSetting(HttpServletRequest request,
+			HttpServletResponse response) {
+		if (!super.isAdminUser(request))
+			return new Response<List<SchoolSettingDTO>>(1, "仅限管理员使用.", null);
+		super.setGetHeader(response);
 		try {
-			super.setGetHeader(response);
 			return new Response<List<SchoolSettingDTO>>(0, schoolService.listSchoolSetting());
 		} catch (ServiceException e) {
 			return new Response<List<SchoolSettingDTO>>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/updateSchoolSetting1", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Boolean> updateSchoolSetting1(@RequestParam(value = "id") String id,
+			@RequestParam(value = "startDate") String startDate, @RequestParam(value = "endDate") String endDate,
+			@RequestParam(value = "proportion") String proportion, HttpServletRequest request,
+			HttpServletResponse response) {
+		if (!super.isAdminUser(request))
+			return new Response<Boolean>(1, "仅限管理员使用.", false);
+		super.setPostHeader(response);
+		try {
+			schoolService.updateSchoolSetting(StringUtil.toInt(id), 1, new Date(Long.parseLong(startDate)),
+					new Date(Long.parseLong(endDate)), proportion);
+			return new Response<Boolean>(0, true);
+		} catch (ServiceException e) {
+			return new Response<Boolean>(e.getCode(), e.getMessage(), null);
 		}
 	}
 

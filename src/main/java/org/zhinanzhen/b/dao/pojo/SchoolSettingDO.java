@@ -6,17 +6,17 @@ import lombok.Data;
 
 @Data
 public class SchoolSettingDO {
-	
+
 	private int id;
-	
+
 	private String schoolName;
-	
-	private int type;
-	
-	private Date startDate;
-	
-	private Date endDate;
-	
+
+	private int type = 0;
+
+	private Date startDate = new Date();
+
+	private Date endDate = new Date();
+
 	private String parameters;
 
 }

@@ -141,8 +141,10 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 			if (schoolSettingDo != null)
 				schoolSettingDtoList.add(mapper.map(schoolSettingDo, SchoolSettingDTO.class));
 			else {
-				SchoolSettingDTO schoolSettingDto = new SchoolSettingDTO();
-				schoolSettingDto.setSchoolName(name);
+				schoolSettingDo = new SchoolSettingDO();
+				schoolSettingDo.setSchoolName(name);
+				schoolSettingDao.add(schoolSettingDo);
+				SchoolSettingDTO schoolSettingDto = mapper.map(schoolSettingDo, SchoolSettingDTO.class);
 				schoolSettingDtoList.add(schoolSettingDto);
 			}
 		});
