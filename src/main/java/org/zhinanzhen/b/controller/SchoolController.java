@@ -152,6 +152,21 @@ public class SchoolController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/updateSchoolSetting0", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Boolean> updateSchoolSetting0(@RequestParam(value = "id") String id, HttpServletRequest request,
+			HttpServletResponse response) {
+		if (!super.isAdminUser(request))
+			return new Response<Boolean>(1, "仅限管理员使用.", false);
+		super.setPostHeader(response);
+		try {
+			schoolService.updateSchoolSetting(StringUtil.toInt(id), 0, new Date(), new Date(), null);
+			return new Response<Boolean>(0, true);
+		} catch (ServiceException e) {
+			return new Response<Boolean>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
 	@RequestMapping(value = "/updateSchoolSetting1", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Boolean> updateSchoolSetting1(@RequestParam(value = "id") String id,

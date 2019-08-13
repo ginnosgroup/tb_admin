@@ -25,19 +25,11 @@
     
     <update id="update" parameterType="org.zhinanzhen.b.dao.pojo.SchoolSettingDO">
         UPDATE b_school_setting 
-        SET gmt_modify = now()
-        <if test='type != null and type != ""'>
-            , type = #{type}
-        </if>
-        <if test='startDate != null'>
-            , start_date = #{startDate}
-        </if>
-        <if test='endDate != null'>
-            , end_date = #{endDate}
-        </if>
-        <if test='parameters != null and parameters != ""'>
-            , parameters = #{parameters}
-        </if>
+        SET gmt_modify = now(),
+            type = #{type},
+            start_date = #{startDate},
+            end_date = #{endDate},
+            parameters = #{parameters}
         WHERE id = #{id};
     </update>
     
