@@ -23,7 +23,11 @@ public interface BrokerageSaDAO {
 			@Param("adviserId") Integer adviserId, @Param("schoolId") Integer schoolId, @Param("userId") Integer userId,
 			@Param("offset") int offset, @Param("rows") int rows);
 
-	public double sumBonusByThisMonth(@Param("adviserId") Integer adviserId);
+	public Double sumBonusByThisMonth(@Param("adviserId") Integer adviserId);
+	
+	public int countBrokerageSaBySchoolName(@Param("schoolName") String schoolName);
+	
+	public Double sumTuitionFeeBySchoolName(@Param("schoolName") String schoolName);
 
 	public BrokerageSaDO getBrokerageSaById(int id);
 

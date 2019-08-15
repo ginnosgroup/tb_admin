@@ -30,7 +30,7 @@ public interface SchoolBrokerageSaDAO {
 	public List<SchoolBrokerageSaByDashboardListDO> listSchoolBrokerageSaByDashboard(
 			@Param("adviserId") Integer adviserId, @Param("offset") int offset, @Param("rows") int rows);
 
-	public double sumBonusByThisMonth(@Param("adviserId") Integer adviserId);
+	public Double sumBonusByThisMonth(@Param("adviserId") Integer adviserId);
 
 	public SchoolBrokerageSaDO getSchoolBrokerageSaById(int id);
 

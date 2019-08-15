@@ -180,6 +180,18 @@
         </if>
 		;
 	</select>
+	
+	<select id="countBrokerageSaBySchoolName" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM b_brokerage_sa bbs, b_school bs
+        WHERE bbs.school_id = bs.id AND bs.name = #{schoolName};
+    </select>
+    
+    <select id="sumTuitionFeeBySchoolName" resultType="java.lang.Double">
+        SELECT sum(bbs.tuition_fee)
+        FROM b_brokerage_sa bbs, b_school bs
+        WHERE bbs.school_id = bs.id AND bs.name = #{schoolName};
+    </select>
 
     <select id="getBrokerageSaById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.BrokerageSaDO">
         SELECT

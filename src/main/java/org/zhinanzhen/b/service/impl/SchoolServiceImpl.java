@@ -7,6 +7,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.zhinanzhen.b.dao.BrokerageSaDAO;
 import org.zhinanzhen.b.dao.SchoolDAO;
 import org.zhinanzhen.b.dao.SchoolSettingDAO;
 import org.zhinanzhen.b.dao.pojo.SchoolDO;
@@ -28,6 +29,9 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 
 	@Resource
 	private SchoolSettingDAO schoolSettingDao;
+
+	@Resource
+	private BrokerageSaDAO brokerageSaDao;
 
 	@Override
 	public int addSchool(SchoolDTO schoolDto) throws ServiceException {
@@ -138,15 +142,21 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		schoolDoList.forEach(schoolDo -> {
 			String name = schoolDo.getName();
 			SchoolSettingDO schoolSettingDo = schoolSettingDao.get(name);
+			SchoolSettingDTO schoolSettingDto = null;
 			if (schoolSettingDo != null)
-				schoolSettingDtoList.add(mapper.map(schoolSettingDo, SchoolSettingDTO.class));
+				schoolSettingDto = mapper.map(schoolSettingDo, SchoolSettingDTO.class);
 			else {
 				schoolSettingDo = new SchoolSettingDO();
 				schoolSettingDo.setSchoolName(name);
 				schoolSettingDao.add(schoolSettingDo);
-				SchoolSettingDTO schoolSettingDto = mapper.map(schoolSettingDo, SchoolSettingDTO.class);
-				schoolSettingDtoList.add(schoolSettingDto);
+				schoolSettingDto = mapper.map(schoolSettingDo, SchoolSettingDTO.class);
 			}
+			if (name != null) {
+				schoolSettingDto.setCount(brokerageSaDao.countBrokerageSaBySchoolName(name));
+				if (brokerageSaDao.sumTuitionFeeBySchoolName(name) != null)
+					schoolSettingDto.setAmount(brokerageSaDao.sumTuitionFeeBySchoolName(name));
+			}
+			schoolSettingDtoList.add(schoolSettingDto);
 		});
 		return schoolSettingDtoList;
 	}
