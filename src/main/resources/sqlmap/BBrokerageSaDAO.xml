@@ -173,6 +173,37 @@
         LIMIT #{offset}, #{rows};
     </select>
     
+    <select id="listBrokerageSa2" resultType="org.zhinanzhen.b.dao.pojo.BrokerageSaDO">
+        SELECT
+            bbs.id AS id,
+            bbs.gmt_create AS gmtCreate,
+            bbs.handling_date AS handlingDate,
+            bbs.user_id AS userId,
+            bbs.receive_type_id AS receiveTypeId,
+            bbs.school_id AS schoolId,
+            bbs.start_date AS startDate,
+            bbs.end_date AS endDate,
+            bbs.tuition_fee AS tuitionFee,
+            bbs.discount AS discount,
+            bbs.commission AS commission,
+            bbs.gst AS gst,
+            bbs.deduct_gst AS deductGst,
+            bbs.bonus AS bonus,
+            bbs.adviser_id AS adviserId,
+            bbs.official_id AS officialId,
+            bbs.remarks AS remarks,
+            bbs.is_close AS isClose
+        FROM b_brokerage_sa bbs, b_school bs, tb_user tbu
+        WHERE bbs.school_id = bs.id AND bbs.user_id = tbu.id
+        <if test='startHandlingDate != null and endHandlingDate != null'>
+            <![CDATA[ AND bbs.handling_date > #{startHandlingDate} AND bbs.handling_date < #{endHandlingDate} ]]>
+        </if>
+        <if test='schoolName != null and schoolName != ""'>
+            AND bs.name = #{schoolName}
+        </if>
+        ORDER BY bbs.gmt_create DESC;
+    </select>
+    
     <select id="sumBonusByThisMonth" resultType="java.lang.Double">
 		select IFNULL(sum(bonus), 0.00) from b_brokerage_sa where DATE_FORMAT(gmt_create, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m') and is_close = 0
 		<if test='adviserId != null'>

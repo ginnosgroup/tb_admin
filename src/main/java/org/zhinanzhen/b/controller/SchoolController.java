@@ -142,8 +142,8 @@ public class SchoolController extends BaseController {
 	@ResponseBody
 	public Response<List<SchoolSettingDTO>> listSchoolSetting(HttpServletRequest request,
 			HttpServletResponse response) {
-		if (!super.isAdminUser(request))
-			return new Response<List<SchoolSettingDTO>>(1, "仅限管理员使用.", null);
+//		if (!super.isAdminUser(request))
+//			return new Response<List<SchoolSettingDTO>>(1, "仅限管理员使用.", null);
 		super.setGetHeader(response);
 		try {
 			return new Response<List<SchoolSettingDTO>>(0, schoolService.listSchoolSetting());
@@ -156,8 +156,8 @@ public class SchoolController extends BaseController {
 	@ResponseBody
 	public Response<Boolean> updateSchoolSetting0(@RequestParam(value = "id") String id, HttpServletRequest request,
 			HttpServletResponse response) {
-		if (!super.isAdminUser(request))
-			return new Response<Boolean>(1, "仅限管理员使用.", false);
+//		if (!super.isAdminUser(request))
+//			return new Response<Boolean>(1, "仅限管理员使用.", false);
 		super.setPostHeader(response);
 		try {
 			schoolService.updateSchoolSetting(StringUtil.toInt(id), 0, new Date(), new Date(), null);
@@ -173,8 +173,8 @@ public class SchoolController extends BaseController {
 			@RequestParam(value = "startDate") String startDate, @RequestParam(value = "endDate") String endDate,
 			@RequestParam(value = "proportion") String proportion, HttpServletRequest request,
 			HttpServletResponse response) {
-		if (!super.isAdminUser(request))
-			return new Response<Boolean>(1, "仅限管理员使用.", false);
+//		if (!super.isAdminUser(request))
+//			return new Response<Boolean>(1, "仅限管理员使用.", false);
 		super.setPostHeader(response);
 		try {
 			schoolService.updateSchoolSetting(StringUtil.toInt(id), 1, new Date(Long.parseLong(startDate)),

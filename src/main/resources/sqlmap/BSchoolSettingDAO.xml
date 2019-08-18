@@ -45,6 +45,17 @@
         ORDER BY gmt_create DESC;
     </select>
     
+    <select id="getById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.SchoolSettingDO">
+        SELECT
+            id,
+            school_name AS schoolName,
+            type,
+            start_date AS startDate,
+            end_date AS endDate,
+            parameters
+        FROM b_school_setting WHERE id = #{id};
+    </select>
+    
     <select id="get" parameterType="java.lang.String" resultType="org.zhinanzhen.b.dao.pojo.SchoolSettingDO">
         SELECT
             id,

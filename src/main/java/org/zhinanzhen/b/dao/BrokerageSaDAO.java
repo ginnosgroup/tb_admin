@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.dao;
 
 import java.util.List;
+import java.util.Date;
 
 import org.apache.ibatis.annotations.Param;
 import org.zhinanzhen.b.dao.pojo.BrokerageSaDO;
@@ -23,10 +24,13 @@ public interface BrokerageSaDAO {
 			@Param("adviserId") Integer adviserId, @Param("schoolId") Integer schoolId, @Param("userId") Integer userId,
 			@Param("offset") int offset, @Param("rows") int rows);
 
+	public List<BrokerageSaDO> listBrokerageSa2(@Param("startHandlingDate") Date startHandlingDate,
+			@Param("endHandlingDate") Date endHandlingDate, @Param("schoolName") String schoolName);
+
 	public Double sumBonusByThisMonth(@Param("adviserId") Integer adviserId);
-	
+
 	public int countBrokerageSaBySchoolName(@Param("schoolName") String schoolName);
-	
+
 	public Double sumTuitionFeeBySchoolName(@Param("schoolName") String schoolName);
 
 	public BrokerageSaDO getBrokerageSaById(int id);

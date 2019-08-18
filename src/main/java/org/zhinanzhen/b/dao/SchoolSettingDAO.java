@@ -14,6 +14,8 @@ public interface SchoolSettingDAO {
 			@Param("endDate") Date endDate, @Param("parameters") String parameters);
 
 	public List<SchoolSettingDO> list();
+	
+	public SchoolSettingDO getById(@Param("id") int id);
 
 	public SchoolSettingDO get(@Param("name") String name);
 

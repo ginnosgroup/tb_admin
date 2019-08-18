@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.BrokerageSaDAO;
 import org.zhinanzhen.b.dao.SchoolDAO;
 import org.zhinanzhen.b.dao.SchoolSettingDAO;
+import org.zhinanzhen.b.dao.pojo.BrokerageSaDO;
 import org.zhinanzhen.b.dao.pojo.SchoolDO;
 import org.zhinanzhen.b.dao.pojo.SchoolSettingDO;
 import org.zhinanzhen.b.service.SchoolService;
@@ -130,6 +131,13 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	@Override
 	public int updateSchoolSetting(int id, int type, Date startDate, Date endDate, String parameters)
 			throws ServiceException {
+		SchoolSettingDO schoolSettingDo = schoolSettingDao.getById(id);
+		if (schoolSettingDo == null)
+			return -1;
+		if (type == 1)
+			schoolSetting1(schoolSettingDo.getSchoolName(), startDate, endDate, Double.parseDouble(parameters));
+		else if (type == 2)
+			schoolSetting2(schoolSettingDo.getSchoolName(), startDate, endDate);
 		return schoolSettingDao.update(id, type, startDate, endDate, parameters);
 	}
 
@@ -213,6 +221,19 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
 		}
+	}
+
+	private void schoolSetting1(String schoolName, Date startDate, Date endDate, double proportion) {
+		List<BrokerageSaDO> list = brokerageSaDao.listBrokerageSa2(startDate, endDate, schoolName);
+		list.forEach(bs -> {
+			double fee = bs.getTuitionFee();
+			bs.setCommission(fee * (proportion * 0.01));
+			brokerageSaDao.updateBrokerageSa(bs);
+		});
+	}
+
+	private void schoolSetting2(String schoolName, Date startDate, Date endDate) {
+
 	}
 
 }
