@@ -227,7 +227,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		List<BrokerageSaDO> list = brokerageSaDao.listBrokerageSa2(startDate, endDate, schoolName);
 		list.forEach(bs -> {
 			double fee = bs.getTuitionFee();
-			bs.setCommission(fee * (proportion * 0.01));
+			bs.setCommission(fee * (1 - proportion * 0.01));
 			brokerageSaDao.updateBrokerageSa(bs);
 		});
 	}
