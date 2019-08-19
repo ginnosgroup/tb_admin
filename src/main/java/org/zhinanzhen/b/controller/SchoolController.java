@@ -142,8 +142,8 @@ public class SchoolController extends BaseController {
 	@ResponseBody
 	public Response<List<SchoolSettingDTO>> listSchoolSetting(HttpServletRequest request,
 			HttpServletResponse response) {
-//		if (!super.isAdminUser(request))
-//			return new Response<List<SchoolSettingDTO>>(1, "仅限管理员使用.", null);
+		if (!super.isAdminUser(request))
+			return new Response<List<SchoolSettingDTO>>(1, "仅限管理员使用.", null);
 		super.setGetHeader(response);
 		try {
 			return new Response<List<SchoolSettingDTO>>(0, schoolService.listSchoolSetting());
@@ -156,8 +156,8 @@ public class SchoolController extends BaseController {
 	@ResponseBody
 	public Response<Boolean> updateSchoolSetting0(@RequestParam(value = "id") String id, HttpServletRequest request,
 			HttpServletResponse response) {
-//		if (!super.isAdminUser(request))
-//			return new Response<Boolean>(1, "仅限管理员使用.", false);
+		if (!super.isAdminUser(request))
+			return new Response<Boolean>(1, "仅限管理员使用.", false);
 		super.setPostHeader(response);
 		try {
 			schoolService.updateSchoolSetting(StringUtil.toInt(id), 0, new Date(), new Date(), null);
@@ -173,12 +173,51 @@ public class SchoolController extends BaseController {
 			@RequestParam(value = "startDate") String startDate, @RequestParam(value = "endDate") String endDate,
 			@RequestParam(value = "proportion") String proportion, HttpServletRequest request,
 			HttpServletResponse response) {
-//		if (!super.isAdminUser(request))
-//			return new Response<Boolean>(1, "仅限管理员使用.", false);
+		if (!super.isAdminUser(request))
+			return new Response<Boolean>(1, "仅限管理员使用.", false);
 		super.setPostHeader(response);
 		try {
 			schoolService.updateSchoolSetting(StringUtil.toInt(id), 1, new Date(Long.parseLong(startDate)),
 					new Date(Long.parseLong(endDate)), proportion);
+			return new Response<Boolean>(0, true);
+		} catch (ServiceException e) {
+			return new Response<Boolean>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/updateSchoolSetting2", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Boolean> updateSchoolSetting2(@RequestParam(value = "id") String id,
+			@RequestParam(value = "startDate") String startDate, @RequestParam(value = "endDate") String endDate,
+			@RequestParam(value = "proportion") String proportion,
+			@RequestParam(value = "fee1", required = false) String fee1,
+			@RequestParam(value = "number1_1", required = false) String number1_1,
+			@RequestParam(value = "number1_2", required = false) String number1_2,
+			@RequestParam(value = "fee2", required = false) String fee2,
+			@RequestParam(value = "number2_1", required = false) String number2_1,
+			@RequestParam(value = "number2_2", required = false) String number2_2,
+			@RequestParam(value = "fee3", required = false) String fee3,
+			@RequestParam(value = "number3_1", required = false) String number3_1,
+			@RequestParam(value = "number3_2", required = false) String number3_2,
+			@RequestParam(value = "fee4", required = false) String fee4,
+			@RequestParam(value = "number4_1", required = false) String number4_1,
+			@RequestParam(value = "number4_2", required = false) String number4_2, HttpServletRequest request,
+			HttpServletResponse response) {
+		if (!super.isAdminUser(request))
+			return new Response<Boolean>(1, "仅限管理员使用.", false);
+		super.setPostHeader(response);
+		String parameters = proportion;
+		if (StringUtil.isNotEmpty(fee1) && StringUtil.isNotEmpty(number1_1) && StringUtil.isNotEmpty(number1_2))
+			parameters = parameters + "|" + fee1 + "/" + number1_1 + "," + number1_2;
+		if (StringUtil.isNotEmpty(fee2) && StringUtil.isNotEmpty(number2_1) && StringUtil.isNotEmpty(number2_2))
+			parameters = parameters + "|" + fee2 + "/" + number2_1 + "," + number2_2;
+		if (StringUtil.isNotEmpty(fee3) && StringUtil.isNotEmpty(number3_1) && StringUtil.isNotEmpty(number3_2))
+			parameters = parameters + "|" + fee3 + "/" + number3_1 + "," + number3_2;
+		if (StringUtil.isNotEmpty(fee4) && StringUtil.isNotEmpty(number4_1) && StringUtil.isNotEmpty(number4_2))
+			parameters = parameters + "|" + fee4 + "/" + number4_1 + "," + number4_2;
+		try {
+			schoolService.updateSchoolSetting(StringUtil.toInt(id), 2, new Date(Long.parseLong(startDate)),
+					new Date(Long.parseLong(endDate)), parameters);
 			return new Response<Boolean>(0, true);
 		} catch (ServiceException e) {
 			return new Response<Boolean>(e.getCode(), e.getMessage(), null);

@@ -131,13 +131,16 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	@Override
 	public int updateSchoolSetting(int id, int type, Date startDate, Date endDate, String parameters)
 			throws ServiceException {
+		if (StringUtil.isEmpty(parameters))
+			return -1;
 		SchoolSettingDO schoolSettingDo = schoolSettingDao.getById(id);
 		if (schoolSettingDo == null)
 			return -1;
 		if (type == 1)
-			schoolSetting1(schoolSettingDo.getSchoolName(), startDate, endDate, Double.parseDouble(parameters));
-		else if (type == 2)
+			schoolSetting1(schoolSettingDo.getSchoolName(), startDate, endDate, Double.parseDouble(parameters.trim()));
+		else if (type == 2) {
 			schoolSetting2(schoolSettingDo.getSchoolName(), startDate, endDate);
+		}
 		return schoolSettingDao.update(id, type, startDate, endDate, parameters);
 	}
 
