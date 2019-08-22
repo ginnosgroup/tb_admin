@@ -208,13 +208,13 @@ public class SchoolController extends BaseController {
 		super.setPostHeader(response);
 		String parameters = proportion;
 		if (StringUtil.isNotEmpty(fee1) && StringUtil.isNotEmpty(number1_1) && StringUtil.isNotEmpty(number1_2))
-			parameters = parameters + "|" + fee1 + "/" + number1_1 + "," + number1_2;
+			parameters = parameters + "|" + fee1 + "/" + number1_1 + "/" + number1_2;
 		if (StringUtil.isNotEmpty(fee2) && StringUtil.isNotEmpty(number2_1) && StringUtil.isNotEmpty(number2_2))
-			parameters = parameters + "|" + fee2 + "/" + number2_1 + "," + number2_2;
+			parameters = parameters + "|" + fee2 + "/" + number2_1 + "/" + number2_2;
 		if (StringUtil.isNotEmpty(fee3) && StringUtil.isNotEmpty(number3_1) && StringUtil.isNotEmpty(number3_2))
-			parameters = parameters + "|" + fee3 + "/" + number3_1 + "," + number3_2;
+			parameters = parameters + "|" + fee3 + "/" + number3_1 + "/" + number3_2;
 		if (StringUtil.isNotEmpty(fee4) && StringUtil.isNotEmpty(number4_1) && StringUtil.isNotEmpty(number4_2))
-			parameters = parameters + "|" + fee4 + "/" + number4_1 + "," + number4_2;
+			parameters = parameters + "|" + fee4 + "/" + number4_1 + "/" + number4_2;
 		try {
 			schoolService.updateSchoolSetting(StringUtil.toInt(id), 2, new Date(Long.parseLong(startDate)),
 					new Date(Long.parseLong(endDate)), parameters);
