@@ -167,6 +167,7 @@ public class SchoolController extends BaseController {
 		}
 	}
 
+	// 固定比例-无额外补贴
 	@RequestMapping(value = "/updateSchoolSetting1", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Boolean> updateSchoolSetting1(@RequestParam(value = "id") String id,
@@ -185,6 +186,7 @@ public class SchoolController extends BaseController {
 		}
 	}
 
+	// 固定比例-每人补贴
 	@RequestMapping(value = "/updateSchoolSetting2", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Boolean> updateSchoolSetting2(@RequestParam(value = "id") String id,
@@ -224,6 +226,7 @@ public class SchoolController extends BaseController {
 		}
 	}
 
+	// 固定比例-固定一次性补贴
 	@RequestMapping(value = "/updateSchoolSetting3", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Boolean> updateSchoolSetting3(@RequestParam(value = "id") String id,
@@ -240,6 +243,41 @@ public class SchoolController extends BaseController {
 			parameters = parameters + "|" + fee + "/" + number;
 		try {
 			schoolService.updateSchoolSetting(StringUtil.toInt(id), 3, new Date(Long.parseLong(startDate)),
+					new Date(Long.parseLong(endDate)), parameters);
+			return new Response<Boolean>(0, true);
+		} catch (ServiceException e) {
+			return new Response<Boolean>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
+	// 变动比例
+	@RequestMapping(value = "/updateSchoolSetting4", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Boolean> updateSchoolSetting4(@RequestParam(value = "id") String id,
+			@RequestParam(value = "startDate") String startDate, @RequestParam(value = "endDate") String endDate,
+			@RequestParam(value = "proportion1", required = false) String proportion1,
+			@RequestParam(value = "number1", required = false) String number1,
+			@RequestParam(value = "proportion2", required = false) String proportion2,
+			@RequestParam(value = "number2", required = false) String number2,
+			@RequestParam(value = "proportion3", required = false) String proportion3,
+			@RequestParam(value = "number3", required = false) String number3,
+			@RequestParam(value = "proportion4", required = false) String proportion4,
+			@RequestParam(value = "number4", required = false) String number4, HttpServletRequest request,
+			HttpServletResponse response) {
+		if (!super.isAdminUser(request))
+			return new Response<Boolean>(1, "仅限管理员使用.", false);
+		super.setPostHeader(response);
+		String parameters = "";
+		if (StringUtil.isNotEmpty(proportion1) && StringUtil.isNotEmpty(number1))
+			parameters = parameters + "|" + proportion1 + "/" + number1;
+		if (StringUtil.isNotEmpty(proportion2) && StringUtil.isNotEmpty(number2))
+			parameters = parameters + "|" + proportion2 + "/" + number2;
+		if (StringUtil.isNotEmpty(proportion3) && StringUtil.isNotEmpty(number3))
+			parameters = parameters + "|" + proportion3 + "/" + number3;
+		if (StringUtil.isNotEmpty(proportion4) && StringUtil.isNotEmpty(number4))
+			parameters = parameters + "|" + proportion4 + "/" + number4;
+		try {
+			schoolService.updateSchoolSetting(StringUtil.toInt(id), 4, new Date(Long.parseLong(startDate)),
 					new Date(Long.parseLong(endDate)), parameters);
 			return new Response<Boolean>(0, true);
 		} catch (ServiceException e) {

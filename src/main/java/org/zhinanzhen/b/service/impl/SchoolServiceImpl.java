@@ -137,11 +137,13 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		if (schoolSettingDo == null)
 			return -1;
 		if (type == 1)
-			schoolSetting1(schoolSettingDo.getSchoolName(), startDate, endDate, Double.parseDouble(parameters.trim()));
+			schoolSetting1(schoolSettingDo.getSchoolName(), startDate, endDate, parameters);
 		else if (type == 2)
 			schoolSetting2(schoolSettingDo.getSchoolName(), startDate, endDate, parameters);
 		else if (type == 3)
 			schoolSetting3(schoolSettingDo.getSchoolName(), startDate, endDate, parameters);
+		else if (type == 4)
+			schoolSetting4(schoolSettingDo.getSchoolName(), startDate, endDate, parameters);
 		return schoolSettingDao.update(id, type, startDate, endDate, parameters);
 	}
 
@@ -227,11 +229,11 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		}
 	}
 
-	private void schoolSetting1(String schoolName, Date startDate, Date endDate, double proportion) {
+	private void schoolSetting1(String schoolName, Date startDate, Date endDate, String parameters) {
 		List<BrokerageSaDO> list = brokerageSaDao.listBrokerageSa2(startDate, endDate, schoolName);
 		list.forEach(bs -> {
 			double fee = bs.getTuitionFee();
-			bs.setCommission(fee * (1 - proportion * 0.01));
+			bs.setCommission(fee * (1 - Double.parseDouble(parameters.trim()) * 0.01));
 			brokerageSaDao.updateBrokerageSa(bs);
 		});
 	}
@@ -241,7 +243,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 			return;
 		String[] _parameters = parameters.split("[|]");
 		if (_parameters.length == 1) {
-			schoolSetting1(schoolName, startDate, endDate, Double.parseDouble(_parameters[0].trim()));
+			schoolSetting1(schoolName, startDate, endDate, _parameters[0]);
 			return;
 		}
 		double proportion = Double.parseDouble(_parameters[0].trim());
@@ -273,7 +275,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 			return;
 		String[] _parameters = parameters.split("[|]");
 		if (_parameters.length == 1) {
-			schoolSetting1(schoolName, startDate, endDate, Double.parseDouble(_parameters[0].trim()));
+			schoolSetting1(schoolName, startDate, endDate, _parameters[0]);
 			return;
 		}
 		double proportion = Double.parseDouble(_parameters[0].trim());
@@ -288,6 +290,31 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 					list.forEach(bs -> {
 						double fee = bs.getTuitionFee();
 						bs.setCommission(fee * (1 - proportion * 0.01) + _fee);
+						brokerageSaDao.updateBrokerageSa(bs);
+					});
+					break;
+				}
+			}
+		}
+	}
+
+	private void schoolSetting4(String schoolName, Date startDate, Date endDate, String parameters) {
+		if (StringUtil.isEmpty(parameters))
+			return;
+		String[] _parameters = parameters.split("[|]");
+		if (_parameters.length == 1)
+			return;
+		List<BrokerageSaDO> list = brokerageSaDao.listBrokerageSa2(startDate, endDate, schoolName);
+
+		for (int i = 1; i < _parameters.length; i++) {
+			String[] _parameter = _parameters[i].split("/");
+			if (_parameter.length == 2) {
+				int number = Integer.parseInt(_parameter[1].trim());
+				if (list.size() >= number) {
+					double proportion = Double.parseDouble(_parameter[0].trim());
+					list.forEach(bs -> {
+						double fee = bs.getTuitionFee();
+						bs.setCommission(fee * (1 - proportion * 0.01));
 						brokerageSaDao.updateBrokerageSa(bs);
 					});
 					break;
