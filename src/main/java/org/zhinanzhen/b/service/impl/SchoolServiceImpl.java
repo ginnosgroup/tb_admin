@@ -305,7 +305,6 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		if (_parameters.length == 1)
 			return;
 		List<BrokerageSaDO> list = brokerageSaDao.listBrokerageSa2(startDate, endDate, schoolName);
-
 		for (int i = 1; i < _parameters.length; i++) {
 			String[] _parameter = _parameters[i].split("/");
 			if (_parameter.length == 2) {
