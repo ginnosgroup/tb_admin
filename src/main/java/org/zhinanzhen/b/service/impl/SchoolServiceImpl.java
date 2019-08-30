@@ -10,12 +10,15 @@ import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.BrokerageSaDAO;
 import org.zhinanzhen.b.dao.SchoolDAO;
 import org.zhinanzhen.b.dao.SchoolSettingDAO;
+import org.zhinanzhen.b.dao.SubjectSettingDAO;
 import org.zhinanzhen.b.dao.pojo.BrokerageSaDO;
 import org.zhinanzhen.b.dao.pojo.SchoolDO;
 import org.zhinanzhen.b.dao.pojo.SchoolSettingDO;
+import org.zhinanzhen.b.dao.pojo.SubjectSettingDO;
 import org.zhinanzhen.b.service.SchoolService;
 import org.zhinanzhen.b.service.pojo.SchoolDTO;
 import org.zhinanzhen.b.service.pojo.SchoolSettingDTO;
+import org.zhinanzhen.b.service.pojo.SubjectSettingDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
@@ -30,6 +33,9 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 
 	@Resource
 	private SchoolSettingDAO schoolSettingDao;
+
+	@Resource
+	private SubjectSettingDAO subjectSettingDao;
 
 	@Resource
 	private BrokerageSaDAO brokerageSaDao;
@@ -157,14 +163,12 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 			String name = schoolDo.getName();
 			SchoolSettingDO schoolSettingDo = schoolSettingDao.get(name);
 			SchoolSettingDTO schoolSettingDto = null;
-			if (schoolSettingDo != null)
-				schoolSettingDto = mapper.map(schoolSettingDo, SchoolSettingDTO.class);
-			else {
+			if (schoolSettingDo == null) {
 				schoolSettingDo = new SchoolSettingDO();
 				schoolSettingDo.setSchoolName(name);
 				schoolSettingDao.add(schoolSettingDo);
-				schoolSettingDto = mapper.map(schoolSettingDo, SchoolSettingDTO.class);
 			}
+			schoolSettingDto = mapper.map(schoolSettingDo, SchoolSettingDTO.class);
 			if (name != null) {
 				schoolSettingDto.setCount(brokerageSaDao.countBrokerageSaBySchoolName(name));
 				if (brokerageSaDao.sumTuitionFeeBySchoolName(name) != null)
@@ -173,6 +177,26 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 			schoolSettingDtoList.add(schoolSettingDto);
 		});
 		return schoolSettingDtoList;
+	}
+
+	@Override
+	public List<SubjectSettingDTO> listSubjectSetting() throws ServiceException {
+		List<SubjectSettingDTO> subjectSettingDtoList = new ArrayList<SubjectSettingDTO>();
+		List<SchoolDO> schoolDoList = schoolDao.listSchool(null, null);
+		if (schoolDoList == null)
+			return null;
+		schoolDoList.forEach(schoolDo -> {
+			String name = schoolDo.getName();
+			SubjectSettingDO subjectSettingDo = subjectSettingDao.get(name);
+			if (subjectSettingDo == null) {
+				subjectSettingDo = new SubjectSettingDO();
+				subjectSettingDo.setSubject(name);
+				subjectSettingDao.add(subjectSettingDo);
+			}
+			subjectSettingDtoList.add(mapper.map(subjectSettingDo, SubjectSettingDTO.class));
+		});
+		return subjectSettingDtoList;
+
 	}
 
 	@Override

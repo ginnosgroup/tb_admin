@@ -13,4 +13,6 @@ public interface SubjectSettingDAO {
 
 	public List<SubjectSettingDO> list(@Param("schoolSettingId") int schoolSettingId);
 
+	public SubjectSettingDO get(@Param("name") String name);
+
 }

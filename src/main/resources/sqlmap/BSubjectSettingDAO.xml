@@ -37,5 +37,13 @@
         WHERE school_setting_id = #{schoolSettingId}
         ORDER BY gmt_create DESC;
     </select>
+    
+    <select id="get" parameterType="java.lang.String" resultType="org.zhinanzhen.b.dao.pojo.SubjectSettingDO">
+        SELECT
+            id,
+            subject,
+            price
+        FROM b_subject_setting WHERE subject = #{name, jdbcType=VARCHAR};
+    </select>
 
 </mapper>
