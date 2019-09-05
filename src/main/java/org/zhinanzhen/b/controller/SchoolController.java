@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.zhinanzhen.b.service.SchoolService;
 import org.zhinanzhen.b.service.pojo.SchoolDTO;
 import org.zhinanzhen.b.service.pojo.SchoolSettingDTO;
+import org.zhinanzhen.b.service.pojo.SubjectSettingDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -282,6 +283,20 @@ public class SchoolController extends BaseController {
 			return new Response<Boolean>(0, true);
 		} catch (ServiceException e) {
 			return new Response<Boolean>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/listSubjectSetting", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<SubjectSettingDTO>> listSubjectSetting(HttpServletRequest request,
+			HttpServletResponse response) {
+		// if (!super.isAdminUser(request))
+		// return new Response<List<SubjectSettingDTO>>(1, "仅限管理员使用.", null);
+		super.setGetHeader(response);
+		try {
+			return new Response<List<SubjectSettingDTO>>(0, schoolService.listSubjectSetting());
+		} catch (ServiceException e) {
+			return new Response<List<SubjectSettingDTO>>(1, e.getMessage(), null);
 		}
 	}
 
