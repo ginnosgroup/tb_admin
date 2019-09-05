@@ -288,13 +288,14 @@ public class SchoolController extends BaseController {
 
 	@RequestMapping(value = "/listSubjectSetting", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<SubjectSettingDTO>> listSubjectSetting(HttpServletRequest request,
+	public Response<List<SubjectSettingDTO>> listSubjectSetting(
+			@RequestParam(value = "schoolSettingId") String schoolSettingId, HttpServletRequest request,
 			HttpServletResponse response) {
 		// if (!super.isAdminUser(request))
 		// return new Response<List<SubjectSettingDTO>>(1, "仅限管理员使用.", null);
 		super.setGetHeader(response);
 		try {
-			return new Response<List<SubjectSettingDTO>>(0, schoolService.listSubjectSetting());
+			return new Response<List<SubjectSettingDTO>>(0, schoolService.listSubjectSetting(StringUtil.toInt(schoolSettingId)));
 		} catch (ServiceException e) {
 			return new Response<List<SubjectSettingDTO>>(1, e.getMessage(), null);
 		}

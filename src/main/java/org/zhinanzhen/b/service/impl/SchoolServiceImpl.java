@@ -180,21 +180,26 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	}
 
 	@Override
-	public List<SubjectSettingDTO> listSubjectSetting() throws ServiceException {
+	public List<SubjectSettingDTO> listSubjectSetting(int schoolSettingId) throws ServiceException {
 		List<SubjectSettingDTO> subjectSettingDtoList = new ArrayList<SubjectSettingDTO>();
 		List<SchoolDO> schoolDoList = schoolDao.listSchool(null, null);
 		if (schoolDoList == null)
 			return null;
 		schoolDoList.forEach(schoolDo -> {
 			String name = schoolDo.getName();
-			SubjectSettingDO subjectSettingDo = subjectSettingDao.get(name);
+			SubjectSettingDO subjectSettingDo = subjectSettingDao.get(schoolSettingId, name);
 			if (subjectSettingDo == null) {
 				subjectSettingDo = new SubjectSettingDO();
+				subjectSettingDo.setSchoolSettingId(schoolSettingId);
 				subjectSettingDo.setSubject(name);
 				subjectSettingDao.add(subjectSettingDo);
 			}
-			subjectSettingDtoList.add(mapper.map(subjectSettingDo, SubjectSettingDTO.class));
 		});
+		List<SubjectSettingDO> subjectSettingDoList = subjectSettingDao.list(schoolSettingId);
+		if (subjectSettingDoList == null)
+			return null;
+		subjectSettingDoList.forEach(
+				subjectSettingDo -> subjectSettingDtoList.add(mapper.map(subjectSettingDo, SubjectSettingDTO.class)));
 		return subjectSettingDtoList;
 
 	}

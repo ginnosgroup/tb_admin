@@ -24,8 +24,8 @@ public interface SchoolService {
 			throws ServiceException;
 
 	public List<SchoolSettingDTO> listSchoolSetting() throws ServiceException;
-	
-	public List<SubjectSettingDTO> listSubjectSetting() throws ServiceException;
+
+	public List<SubjectSettingDTO> listSubjectSetting(int schoolSettingId) throws ServiceException;
 
 	public SchoolDTO getSchoolById(int id) throws ServiceException;
 

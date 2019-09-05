@@ -31,6 +31,7 @@
     <select id="list" resultType="org.zhinanzhen.b.dao.pojo.SubjectSettingDO">
         SELECT
             id,
+            school_setting_id AS schoolSettingId,
             subject,
             price
         FROM b_subject_setting
@@ -38,12 +39,13 @@
         ORDER BY gmt_create DESC;
     </select>
     
-    <select id="get" parameterType="java.lang.String" resultType="org.zhinanzhen.b.dao.pojo.SubjectSettingDO">
+    <select id="get" resultType="org.zhinanzhen.b.dao.pojo.SubjectSettingDO">
         SELECT
             id,
+            school_setting_id AS schoolSettingId,
             subject,
             price
-        FROM b_subject_setting WHERE subject = #{name, jdbcType=VARCHAR};
+        FROM b_subject_setting WHERE school_setting_id = #{schoolSettingId} AND subject = #{name, jdbcType=VARCHAR};
     </select>
 
 </mapper>
