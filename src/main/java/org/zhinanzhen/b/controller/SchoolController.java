@@ -291,8 +291,8 @@ public class SchoolController extends BaseController {
 	public Response<List<SubjectSettingDTO>> listSubjectSetting(
 			@RequestParam(value = "schoolSettingId") String schoolSettingId, HttpServletRequest request,
 			HttpServletResponse response) {
-		// if (!super.isAdminUser(request))
-		// return new Response<List<SubjectSettingDTO>>(1, "仅限管理员使用.", null);
+		if (!super.isAdminUser(request))
+			return new Response<List<SubjectSettingDTO>>(1, "仅限管理员使用.", null);
 		super.setGetHeader(response);
 		try {
 			return new Response<List<SubjectSettingDTO>>(0, schoolService.listSubjectSetting(StringUtil.toInt(schoolSettingId)));
