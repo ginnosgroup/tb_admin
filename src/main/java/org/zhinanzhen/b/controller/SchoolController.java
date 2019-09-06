@@ -295,9 +295,25 @@ public class SchoolController extends BaseController {
 			return new Response<List<SubjectSettingDTO>>(1, "仅限管理员使用.", null);
 		super.setGetHeader(response);
 		try {
-			return new Response<List<SubjectSettingDTO>>(0, schoolService.listSubjectSetting(StringUtil.toInt(schoolSettingId)));
+			return new Response<List<SubjectSettingDTO>>(0,
+					schoolService.listSubjectSetting(StringUtil.toInt(schoolSettingId)));
 		} catch (ServiceException e) {
 			return new Response<List<SubjectSettingDTO>>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/updateSubjectSetting", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Boolean> updateSubjectSetting(@RequestParam(value = "subjectSettingId") String subjectSettingId,
+			@RequestParam(value = "price") String price, HttpServletRequest request, HttpServletResponse response) {
+		if (!super.isAdminUser(request))
+			return new Response<Boolean>(1, "仅限管理员使用.", false);
+		super.setPostHeader(response);
+		try {
+			return new Response<Boolean>(0, schoolService.updateSubjectSetting(StringUtil.toInt(subjectSettingId),
+					Double.parseDouble(price)) > -1);
+		} catch (ServiceException e) {
+			return new Response<Boolean>(e.getCode(), e.getMessage(), null);
 		}
 	}
 

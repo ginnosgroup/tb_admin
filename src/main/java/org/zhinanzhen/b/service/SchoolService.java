@@ -27,6 +27,8 @@ public interface SchoolService {
 
 	public List<SubjectSettingDTO> listSubjectSetting(int schoolSettingId) throws ServiceException;
 
+	public int updateSubjectSetting(int subjectSettingId, double price) throws ServiceException;
+
 	public SchoolDTO getSchoolById(int id) throws ServiceException;
 
 	public int deleteSchoolById(int id) throws ServiceException;

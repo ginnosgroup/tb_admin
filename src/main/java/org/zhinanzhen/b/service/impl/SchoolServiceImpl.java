@@ -201,7 +201,13 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		subjectSettingDoList.forEach(
 				subjectSettingDo -> subjectSettingDtoList.add(mapper.map(subjectSettingDo, SubjectSettingDTO.class)));
 		return subjectSettingDtoList;
+	}
 
+	@Override
+	public int updateSubjectSetting(int subjectSettingId, double price) throws ServiceException {
+		if (subjectSettingId <= 0 || price <= 0)
+			return -1;
+		return subjectSettingDao.update(subjectSettingId, price);
 	}
 
 	@Override
