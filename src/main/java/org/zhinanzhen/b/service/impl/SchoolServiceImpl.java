@@ -362,6 +362,12 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	private void schoolSetting5(SchoolSettingDO schoolSetting, Date startDate, Date endDate, String parameters) {
 		if (StringUtil.isEmpty(parameters))
 			return;
+		if (schoolSetting == null)
+			return;
+		try {
+			listSubjectSetting(schoolSetting.getId()); // 初始化subjectSetting
+		} catch (ServiceException e) {
+		}
 		String[] _parameters = parameters.split("[|]");
 		if (_parameters.length == 1)
 			return;
@@ -379,7 +385,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 							bs.setCommission(
 									subjectSettingDo.getPrice() > _fee ? subjectSettingDo.getPrice() - _fee : 0.00);
 						else
-							bs.setCommission(bs.getTuitionFee() > _fee ? bs.getTuitionFee() - _fee : 0.00);
+							bs.setCommission(bs.getTuitionFee() > _fee ? bs.getTuitionFee() - _fee : 0.00); // 正常情况下是不会执行到这里的
 						brokerageSaDao.updateBrokerageSa(bs);
 					});
 					break;
