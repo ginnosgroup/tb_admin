@@ -286,6 +286,41 @@ public class SchoolController extends BaseController {
 		}
 	}
 
+	// 固定底价-每人补贴
+	@RequestMapping(value = "/updateSchoolSetting5", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Boolean> updateSchoolSetting5(@RequestParam(value = "id") String id,
+			@RequestParam(value = "startDate") String startDate, @RequestParam(value = "endDate") String endDate,
+			@RequestParam(value = "fee1", required = false) String fee1,
+			@RequestParam(value = "number1", required = false) String number1,
+			@RequestParam(value = "fee2", required = false) String fee2,
+			@RequestParam(value = "number2", required = false) String number2,
+			@RequestParam(value = "fee3", required = false) String fee3,
+			@RequestParam(value = "number3", required = false) String number3,
+			@RequestParam(value = "fee4", required = false) String fee4,
+			@RequestParam(value = "number4", required = false) String number4, HttpServletRequest request,
+			HttpServletResponse response) {
+		if (!super.isAdminUser(request))
+			return new Response<Boolean>(1, "仅限管理员使用.", false);
+		super.setPostHeader(response);
+		String parameters = "";
+		if (StringUtil.isNotEmpty(fee1) && StringUtil.isNotEmpty(number1))
+			parameters = parameters + "|" + fee1 + "/" + number1;
+		if (StringUtil.isNotEmpty(fee2) && StringUtil.isNotEmpty(number2))
+			parameters = parameters + "|" + fee2 + "/" + number2;
+		if (StringUtil.isNotEmpty(fee3) && StringUtil.isNotEmpty(number3))
+			parameters = parameters + "|" + fee3 + "/" + number3;
+		if (StringUtil.isNotEmpty(fee4) && StringUtil.isNotEmpty(number4))
+			parameters = parameters + "|" + fee4 + "/" + number4;
+		try {
+			schoolService.updateSchoolSetting(StringUtil.toInt(id), 5, new Date(Long.parseLong(startDate)),
+					new Date(Long.parseLong(endDate)), parameters);
+			return new Response<Boolean>(0, true);
+		} catch (ServiceException e) {
+			return new Response<Boolean>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
 	@RequestMapping(value = "/listSubjectSetting", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<List<SubjectSettingDTO>> listSubjectSetting(

@@ -150,6 +150,8 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 			schoolSetting3(schoolSettingDo.getSchoolName(), startDate, endDate, parameters);
 		else if (type == 4)
 			schoolSetting4(schoolSettingDo.getSchoolName(), startDate, endDate, parameters);
+		else if (type == 5)
+			schoolSetting5(schoolSettingDo, startDate, endDate, parameters);
 		return schoolSettingDao.update(id, type, startDate, endDate, parameters);
 	}
 
@@ -349,6 +351,35 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 					list.forEach(bs -> {
 						double fee = bs.getTuitionFee();
 						bs.setCommission(fee * (1 - proportion * 0.01));
+						brokerageSaDao.updateBrokerageSa(bs);
+					});
+					break;
+				}
+			}
+		}
+	}
+
+	private void schoolSetting5(SchoolSettingDO schoolSetting, Date startDate, Date endDate, String parameters) {
+		if (StringUtil.isEmpty(parameters))
+			return;
+		String[] _parameters = parameters.split("[|]");
+		if (_parameters.length == 1)
+			return;
+		List<BrokerageSaDO> list = brokerageSaDao.listBrokerageSa2(startDate, endDate, schoolSetting.getSchoolName());
+		for (int i = 1; i < _parameters.length; i++) {
+			String[] _parameter = _parameters[i].split("/");
+			if (_parameter.length == 2) {
+				int number = Integer.parseInt(_parameter[1].trim());
+				if (list.size() >= number) {
+					double _fee = Double.parseDouble(_parameter[0].trim());
+					list.forEach(bs -> {
+						SubjectSettingDO subjectSettingDo = subjectSettingDao.get(schoolSetting.getId(),
+								schoolSetting.getSchoolName());
+						if (subjectSettingDo != null)
+							bs.setCommission(
+									subjectSettingDo.getPrice() > _fee ? subjectSettingDo.getPrice() - _fee : 0.00);
+						else
+							bs.setCommission(bs.getTuitionFee() > _fee ? bs.getTuitionFee() - _fee : 0.00);
 						brokerageSaDao.updateBrokerageSa(bs);
 					});
 					break;
