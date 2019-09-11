@@ -137,7 +137,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	@Override
 	public int updateSchoolSetting(int id, int type, Date startDate, Date endDate, String parameters)
 			throws ServiceException {
-		if (StringUtil.isEmpty(parameters))
+		if (StringUtil.isEmpty(parameters) && type != 7)
 			return -1;
 		SchoolSettingDO schoolSettingDo = schoolSettingDao.getById(id);
 		if (schoolSettingDo == null)
@@ -152,6 +152,10 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 			schoolSetting4(schoolSettingDo.getSchoolName(), startDate, endDate, parameters);
 		else if (type == 5)
 			schoolSetting5(schoolSettingDo, startDate, endDate, parameters);
+		else if (type == 6)
+			schoolSetting6(schoolSettingDo, startDate, endDate, parameters);
+		else if (type == 7)
+			schoolSetting7(schoolSettingDo, startDate, endDate);
 		return schoolSettingDao.update(id, type, startDate, endDate, parameters);
 	}
 
@@ -392,6 +396,54 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 				}
 			}
 		}
+	}
+
+	private void schoolSetting6(SchoolSettingDO schoolSetting, Date startDate, Date endDate, String parameters) {
+		if (StringUtil.isEmpty(parameters))
+			return;
+		if (schoolSetting == null)
+			return;
+		try {
+			listSubjectSetting(schoolSetting.getId()); // 初始化subjectSetting
+		} catch (ServiceException e) {
+		}
+		List<BrokerageSaDO> list = brokerageSaDao.listBrokerageSa2(startDate, endDate, schoolSetting.getSchoolName());
+		String[] _parameter = parameters.split("/");
+		if (_parameter.length == 2) {
+			int number = Integer.parseInt(_parameter[1].trim());
+			if (list.size() >= number) {
+				double _fee = Double.parseDouble(_parameter[0].trim());
+				list.forEach(bs -> {
+					SubjectSettingDO subjectSettingDo = subjectSettingDao.get(schoolSetting.getId(),
+							schoolSetting.getSchoolName());
+					if (subjectSettingDo != null)
+						bs.setCommission(
+								subjectSettingDo.getPrice() > _fee ? subjectSettingDo.getPrice() - _fee : 0.00);
+					else
+						bs.setCommission(bs.getTuitionFee() > _fee ? bs.getTuitionFee() - _fee : 0.00); // 正常情况下是不会执行到这里的
+					brokerageSaDao.updateBrokerageSa(bs);
+				});
+			}
+		}
+	}
+
+	private void schoolSetting7(SchoolSettingDO schoolSetting, Date startDate, Date endDate) {
+		if (schoolSetting == null)
+			return;
+		try {
+			listSubjectSetting(schoolSetting.getId()); // 初始化subjectSetting
+		} catch (ServiceException e) {
+		}
+		List<BrokerageSaDO> list = brokerageSaDao.listBrokerageSa2(startDate, endDate, schoolSetting.getSchoolName());
+		list.forEach(bs -> {
+			SubjectSettingDO subjectSettingDo = subjectSettingDao.get(schoolSetting.getId(),
+					schoolSetting.getSchoolName());
+			if (subjectSettingDo != null)
+				bs.setCommission(subjectSettingDo.getPrice());
+			else
+				bs.setCommission(bs.getTuitionFee()); // 正常情况下是不会执行到这里的
+			brokerageSaDao.updateBrokerageSa(bs);
+		});
 	}
 
 }
