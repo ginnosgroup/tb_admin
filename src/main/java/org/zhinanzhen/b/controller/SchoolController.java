@@ -390,8 +390,8 @@ public class SchoolController extends BaseController {
 	@ResponseBody
 	public Response<Boolean> updateSubjectSettings(@RequestParam(value = "parameters") String parameters,
 			HttpServletRequest request, HttpServletResponse response) {
-		// if (!super.isAdminUser(request))
-		// return new Response<Boolean>(1, "仅限管理员使用.", false);
+		if (!super.isAdminUser(request))
+			return new Response<Boolean>(1, "仅限管理员使用.", false);
 		super.setPostHeader(response);
 		if (StringUtil.isEmpty(parameters))
 			return new Response<Boolean>(1, "参数错误.", false);
