@@ -386,6 +386,33 @@ public class SchoolController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/updateSubjectSettings", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Boolean> updateSubjectSettings(@RequestParam(value = "parameters") String parameters,
+			HttpServletRequest request, HttpServletResponse response) {
+		// if (!super.isAdminUser(request))
+		// return new Response<Boolean>(1, "仅限管理员使用.", false);
+		super.setPostHeader(response);
+		if (StringUtil.isEmpty(parameters))
+			return new Response<Boolean>(1, "参数错误.", false);
+		boolean b = true;
+		String[] _parameters = parameters.split("[|]");
+		for (String parameter : _parameters) {
+			if (StringUtil.isNotEmpty(parameter)) {
+				String[] _parameter = parameter.split(":");
+				if (_parameter.length == 2)
+					try {
+						if (schoolService.updateSubjectSetting(StringUtil.toInt(_parameter[0]),
+								Double.parseDouble(_parameter[1])) <= -1)
+							b = false;
+					} catch (ServiceException e) {
+						return new Response<Boolean>(e.getCode(), e.getMessage(), null);
+					}
+			}
+		}
+		return new Response<Boolean>(b ? 0 : 1, b);
+	}
+
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<SchoolDTO> getSchool(@RequestParam(value = "id") int id, HttpServletResponse response) {
