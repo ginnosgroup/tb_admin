@@ -404,7 +404,7 @@ public class SchoolController extends BaseController {
 				if (_parameter.length == 2)
 					try {
 						if (schoolService.updateSubjectSetting(StringUtil.toInt(_parameter[0]),
-								Double.parseDouble(_parameter[1])) == -886) {
+								Double.parseDouble(_parameter[1])) <= -1) {
 							b = false;
 							msg += _parameter[0] + ":" + _parameter[1] + ";";
 						}
