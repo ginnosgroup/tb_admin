@@ -396,6 +396,7 @@ public class SchoolController extends BaseController {
 		if (StringUtil.isEmpty(parameters))
 			return new Response<Boolean>(1, "参数错误.", false);
 		boolean b = true;
+		String msg = "";
 		String[] _parameters = parameters.split("[|]");
 		for (String parameter : _parameters) {
 			if (StringUtil.isNotEmpty(parameter)) {
@@ -403,14 +404,16 @@ public class SchoolController extends BaseController {
 				if (_parameter.length == 2)
 					try {
 						if (schoolService.updateSubjectSetting(StringUtil.toInt(_parameter[0]),
-								Double.parseDouble(_parameter[1])) <= -1)
+								Double.parseDouble(_parameter[1])) <= -1) {
 							b = false;
+							msg += _parameter + ";";
+						}
 					} catch (ServiceException e) {
 						return new Response<Boolean>(e.getCode(), e.getMessage(), null);
 					}
 			}
 		}
-		return new Response<Boolean>(b ? 0 : 1, b);
+		return new Response<Boolean>(b ? 0 : 1, msg, b);
 	}
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
