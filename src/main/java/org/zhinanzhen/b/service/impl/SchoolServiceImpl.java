@@ -212,7 +212,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	@Override
 	public int updateSubjectSetting(int subjectSettingId, double price) throws ServiceException {
 		if (subjectSettingId <= 0 || price <= 0)
-			return -1;
+			return -886;
 		return subjectSettingDao.update(subjectSettingId, price);
 	}
 
