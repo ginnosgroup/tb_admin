@@ -16,6 +16,7 @@ import org.zhinanzhen.b.dao.pojo.SchoolDO;
 import org.zhinanzhen.b.dao.pojo.SchoolSettingDO;
 import org.zhinanzhen.b.dao.pojo.SubjectSettingDO;
 import org.zhinanzhen.b.service.SchoolService;
+import org.zhinanzhen.b.service.pojo.BrokerageSaDTO;
 import org.zhinanzhen.b.service.pojo.SchoolDTO;
 import org.zhinanzhen.b.service.pojo.SchoolSettingDTO;
 import org.zhinanzhen.b.service.pojo.SubjectSettingDTO;
@@ -157,6 +158,37 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		else if (type == 7)
 			schoolSetting7(schoolSettingDo, startDate, endDate);
 		return schoolSettingDao.update(id, type, startDate, endDate, parameters);
+	}
+
+	@Override
+	public int updateSchoolSetting(BrokerageSaDTO brokerageSaDto) throws ServiceException {
+		if (brokerageSaDto == null)
+			return -1;
+		SchoolSettingDO schoolSettingDo = schoolSettingDao.get(brokerageSaDto.getSchoolName());
+		if (schoolSettingDo == null)
+			return -2;
+		Date startDate = schoolSettingDo.getStartDate();
+		Date endDate = schoolSettingDo.getEndDate();
+		int type = schoolSettingDo.getType();
+		String parameters = schoolSettingDo.getParameters();
+		// 如果不在设置的时间内就不操作
+		if (brokerageSaDto.getHandlingDate().before(endDate) || brokerageSaDto.getHandlingDate().after(startDate))
+			return -3;
+		if (type == 1)
+			schoolSetting1(schoolSettingDo.getSchoolName(), startDate, endDate, parameters);
+		else if (type == 2)
+			schoolSetting2(schoolSettingDo.getSchoolName(), startDate, endDate, parameters);
+		else if (type == 3)
+			schoolSetting3(schoolSettingDo.getSchoolName(), startDate, endDate, parameters);
+		else if (type == 4)
+			schoolSetting4(schoolSettingDo.getSchoolName(), startDate, endDate, parameters);
+		else if (type == 5)
+			schoolSetting5(schoolSettingDo, startDate, endDate, parameters);
+		else if (type == 6)
+			schoolSetting6(schoolSettingDo, startDate, endDate, parameters);
+		else if (type == 7)
+			schoolSetting7(schoolSettingDo, startDate, endDate);
+		return 1;
 	}
 
 	@Override

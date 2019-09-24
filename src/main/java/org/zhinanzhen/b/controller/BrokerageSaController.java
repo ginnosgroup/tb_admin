@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.zhinanzhen.b.service.BrokerageSaService;
+import org.zhinanzhen.b.service.SchoolService;
 import org.zhinanzhen.b.service.pojo.BrokerageSaDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
@@ -28,6 +29,9 @@ public class BrokerageSaController extends BaseController {
 
 	@Resource
 	BrokerageSaService brokerageSaService;
+
+	@Resource
+	SchoolService schoolService;
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
@@ -89,6 +93,7 @@ public class BrokerageSaController extends BaseController {
 			brokerageSaDto.setDeductGst(brokerageSaDto.getCommission() - brokerageSaDto.getGst());
 			brokerageSaDto.setBonus(brokerageSaDto.getDeductGst() * 0.1);
 			if (brokerageSaService.addBrokerageSa(brokerageSaDto) > 0) {
+				schoolService.updateSchoolSetting(brokerageSaDto); // 根据设置修改佣金值
 				return new Response<BrokerageSaDTO>(0, brokerageSaDto);
 			} else {
 				return new Response<BrokerageSaDTO>(1, "创建失败.", null);
@@ -151,9 +156,29 @@ public class BrokerageSaController extends BaseController {
 			brokerageSaDto.setDeductGst(brokerageSaDto.getCommission() - brokerageSaDto.getGst());
 			brokerageSaDto.setBonus(brokerageSaDto.getDeductGst() * 0.1);
 			if (brokerageSaService.updateBrokerageSa(brokerageSaDto) > 0) {
+				schoolService.updateSchoolSetting(brokerageSaDto); // 根据设置修改佣金值
 				return new Response<BrokerageSaDTO>(0, brokerageSaDto);
 			} else {
 				return new Response<BrokerageSaDTO>(1, "修改失败.", null);
+			}
+		} catch (ServiceException e) {
+			return new Response<BrokerageSaDTO>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/updateCommission", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<BrokerageSaDTO> updateBrokerageCommission(@RequestParam(value = "brokerageSaId") int brokerageSaId,
+			HttpServletRequest request, HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+
+			BrokerageSaDTO brokerageSaDto = brokerageSaService.getBrokerageSaById(brokerageSaId);
+			int i = schoolService.updateSchoolSetting(brokerageSaDto);
+			if (i > 0) {
+				return new Response<BrokerageSaDTO>(0, brokerageSaDto);
+			} else {
+				return new Response<BrokerageSaDTO>(1, "修改失败. (" + i + ")", null);
 			}
 		} catch (ServiceException e) {
 			return new Response<BrokerageSaDTO>(e.getCode(), e.getMessage(), null);
