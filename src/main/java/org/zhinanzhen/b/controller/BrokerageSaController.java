@@ -172,7 +172,6 @@ public class BrokerageSaController extends BaseController {
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-
 			BrokerageSaDTO brokerageSaDto = brokerageSaService.getBrokerageSaById(brokerageSaId);
 			int i = schoolService.updateSchoolSetting(brokerageSaDto);
 			if (i > 0) {

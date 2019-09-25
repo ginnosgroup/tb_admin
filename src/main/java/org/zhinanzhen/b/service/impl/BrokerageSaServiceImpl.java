@@ -11,11 +11,13 @@ import org.zhinanzhen.b.dao.BrokerageSaDAO;
 import org.zhinanzhen.b.dao.OfficialDAO;
 import org.zhinanzhen.b.dao.ReceiveTypeDAO;
 import org.zhinanzhen.b.dao.RemindDAO;
+import org.zhinanzhen.b.dao.SchoolDAO;
 import org.zhinanzhen.b.dao.pojo.BrokerageSaDO;
 import org.zhinanzhen.b.dao.pojo.BrokerageSaListDO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.ReceiveTypeDO;
 import org.zhinanzhen.b.dao.pojo.RemindDO;
+import org.zhinanzhen.b.dao.pojo.SchoolDO;
 import org.zhinanzhen.b.service.AbleStateEnum;
 import org.zhinanzhen.b.service.BrokerageSaService;
 import org.zhinanzhen.b.service.pojo.BrokerageSaDTO;
@@ -33,6 +35,9 @@ public class BrokerageSaServiceImpl extends BaseService implements BrokerageSaSe
 
 	@Resource
 	private BrokerageSaDAO brokerageSaDao;
+
+	@Resource
+	private SchoolDAO schoolDao;
 
 	@Resource
 	private AdviserDAO adviserDao;
@@ -161,9 +166,16 @@ public class BrokerageSaServiceImpl extends BaseService implements BrokerageSaSe
 			brokerageSaDto = mapper.map(brokerageSaDo, BrokerageSaDTO.class);
 			if (brokerageSaDto.getUserId() > 0) {
 				UserDO userDo = userDao.getUserById(brokerageSaDto.getUserId());
-				brokerageSaDto.setUserName(userDo.getName());
-				brokerageSaDto.setPhone(userDo.getPhone());
-				brokerageSaDto.setBirthday(userDo.getBirthday());
+				if (userDo != null) {
+					brokerageSaDto.setUserName(userDo.getName());
+					brokerageSaDto.setPhone(userDo.getPhone());
+					brokerageSaDto.setBirthday(userDo.getBirthday());
+				}
+			}
+			if (brokerageSaDto.getSchoolId() > 0) {
+				SchoolDO schoolDo = schoolDao.getSchoolById(brokerageSaDto.getSchoolId());
+				if (schoolDo != null)
+					brokerageSaDto.setSchoolName(schoolDo.getName());
 			}
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);

@@ -164,6 +164,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	public int updateSchoolSetting(BrokerageSaDTO brokerageSaDto) throws ServiceException {
 		if (brokerageSaDto == null)
 			return -1;
+		listSchoolSetting(); // 初始化
 		SchoolSettingDO schoolSettingDo = schoolSettingDao.get(brokerageSaDto.getSchoolName());
 		if (schoolSettingDo == null)
 			return -2;
@@ -172,7 +173,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		int type = schoolSettingDo.getType();
 		String parameters = schoolSettingDo.getParameters();
 		// 如果不在设置的时间内就不操作
-		if (brokerageSaDto.getHandlingDate().before(endDate) || brokerageSaDto.getHandlingDate().after(startDate))
+		if (brokerageSaDto.getHandlingDate().before(startDate) || brokerageSaDto.getHandlingDate().after(endDate))
 			return -3;
 		if (type == 1)
 			schoolSetting1(schoolSettingDo.getSchoolName(), startDate, endDate, parameters);
