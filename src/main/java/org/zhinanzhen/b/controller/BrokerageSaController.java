@@ -168,11 +168,11 @@ public class BrokerageSaController extends BaseController {
 
 	@RequestMapping(value = "/updateCommission", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<BrokerageSaDTO> updateBrokerageCommission(@RequestParam(value = "brokerageSaId") int brokerageSaId,
+	public Response<BrokerageSaDTO> updateBrokerageCommission(@RequestParam(value = "id") int id,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			BrokerageSaDTO brokerageSaDto = brokerageSaService.getBrokerageSaById(brokerageSaId);
+			BrokerageSaDTO brokerageSaDto = brokerageSaService.getBrokerageSaById(id);
 			int i = schoolService.updateSchoolSetting(brokerageSaDto);
 			if (i > 0) {
 				return new Response<BrokerageSaDTO>(0, brokerageSaDto);
