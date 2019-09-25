@@ -93,7 +93,6 @@ public class BrokerageSaController extends BaseController {
 			brokerageSaDto.setDeductGst(brokerageSaDto.getCommission() - brokerageSaDto.getGst());
 			brokerageSaDto.setBonus(brokerageSaDto.getDeductGst() * 0.1);
 			if (brokerageSaService.addBrokerageSa(brokerageSaDto) > 0) {
-				schoolService.updateSchoolSetting(brokerageSaDto); // 根据设置修改佣金值
 				return new Response<BrokerageSaDTO>(0, brokerageSaDto);
 			} else {
 				return new Response<BrokerageSaDTO>(1, "创建失败.", null);
@@ -156,7 +155,6 @@ public class BrokerageSaController extends BaseController {
 			brokerageSaDto.setDeductGst(brokerageSaDto.getCommission() - brokerageSaDto.getGst());
 			brokerageSaDto.setBonus(brokerageSaDto.getDeductGst() * 0.1);
 			if (brokerageSaService.updateBrokerageSa(brokerageSaDto) > 0) {
-				schoolService.updateSchoolSetting(brokerageSaDto); // 根据设置修改佣金值
 				return new Response<BrokerageSaDTO>(0, brokerageSaDto);
 			} else {
 				return new Response<BrokerageSaDTO>(1, "修改失败.", null);
