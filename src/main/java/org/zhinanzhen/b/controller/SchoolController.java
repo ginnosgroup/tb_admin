@@ -160,7 +160,7 @@ public class SchoolController extends BaseController {
 		super.setGetHeader(response);
 		try {
 			for (SchoolSettingDTO schoolSettingDto : schoolService.listSchoolSetting())
-				if (schoolName.equals(schoolSettingDto.getSchoolName()))
+				if (schoolSettingDto.getType() > 0 && schoolName.equals(schoolSettingDto.getSchoolName()))
 					return new Response<Boolean>(0, "", true);
 			return new Response<Boolean>(0, "", false);
 		} catch (ServiceException e) {
