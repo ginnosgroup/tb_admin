@@ -174,8 +174,14 @@ public class BrokerageSaController extends BaseController {
 			int i = schoolService.updateSchoolSetting(brokerageSaDto);
 			if (i > 0) {
 				return new Response<BrokerageSaDTO>(0, brokerageSaDto);
+			} else if (i == -1) {
+				return new Response<BrokerageSaDTO>(1, "修改失败. (佣金记录不存在)", null);
+			} else if (i == -2) {
+				return new Response<BrokerageSaDTO>(2, "修改失败. (学校佣金设置不存在或不正确)", null);
+			} else if (i == -3) {
+				return new Response<BrokerageSaDTO>(3, "修改失败. (佣金办理时间不在设置合同时间范围内)", null);
 			} else {
-				return new Response<BrokerageSaDTO>(1, "修改失败. (" + i + ")", null);
+				return new Response<BrokerageSaDTO>(4, "修改失败.", null);
 			}
 		} catch (ServiceException e) {
 			return new Response<BrokerageSaDTO>(e.getCode(), e.getMessage(), null);
