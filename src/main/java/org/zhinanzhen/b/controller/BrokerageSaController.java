@@ -173,7 +173,7 @@ public class BrokerageSaController extends BaseController {
 			BrokerageSaDTO brokerageSaDto = brokerageSaService.getBrokerageSaById(id);
 			int i = schoolService.updateSchoolSetting(brokerageSaDto);
 			if (i > 0) {
-				return new Response<BrokerageSaDTO>(0, brokerageSaDto);
+				return new Response<BrokerageSaDTO>(0, "修改成功.", brokerageSaDto);
 			} else if (i == -1) {
 				return new Response<BrokerageSaDTO>(1, "修改失败. (佣金记录不存在)", null);
 			} else if (i == -2) {
