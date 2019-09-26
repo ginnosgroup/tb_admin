@@ -153,6 +153,21 @@ public class SchoolController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/hasSchoolSetting", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Boolean> hasSchoolSetting(@RequestParam(value = "schoolName") String schoolName,
+			HttpServletRequest request, HttpServletResponse response) {
+		super.setGetHeader(response);
+		try {
+			for (SchoolSettingDTO schoolSettingDto : schoolService.listSchoolSetting())
+				if (schoolName.equals(schoolSettingDto.getSchoolName()))
+					return new Response<Boolean>(0, "", true);
+			return new Response<Boolean>(0, "", false);
+		} catch (ServiceException e) {
+			return new Response<Boolean>(1, e.getMessage(), null);
+		}
+	}
+
 	@RequestMapping(value = "/updateSchoolSetting0", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Boolean> updateSchoolSetting0(@RequestParam(value = "id") String id, HttpServletRequest request,
