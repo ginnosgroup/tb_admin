@@ -880,7 +880,7 @@
 									userName: '<div class="field"><input type="text" class="form-control small" style="width:150px;" id="t1" placeholder="请输入查询" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,\'\')" value=""></div>',
 									birthday: '<p id="t2" style="width:120px;"></p>',
 									phone: '<p id="t3" style="width:120px;"></p>',
-									schoolName: '<select class="form-control" style="width:150px;" id="t4" onchange="if (this.value!=\'\'){ajax_subject();}else{set_empty();}"></select>',
+									schoolName: '<select class="form-control" style="width:150px;" id="t4" onchange="if (this.value!=\'\'){check_setting(this.value);ajax_subject();}else{set_empty();}"></select>',
 									schoolSubject: '<select class="form-control" style="width:150px;" id="t5" onchange="set_schoolid(this.value)"></select>',
 									startDate: '<input type="text" autocomplete="off" class="form-control small default-date-picker1" style="width:120px;" id="t6" data-date-format="dd-mm-yyyy" value="">',
 									endDate: '<input type="text" autocomplete="off" class="form-control small default-date-picker1" style="width:120px;" id="t7" data-date-format="dd-mm-yyyy" value="">',
@@ -921,7 +921,7 @@
 							userName: '<div class="field"><input type="text" class="form-control small" style="width:150px;" id="t1" placeholder="请输入查询" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,\'\')" value="'+this.subject[index].userName+'"></div>',
 							birthday: '<p id="t2" style="width:120px;">'+this.subject[index].birthday+'</p>',
 							phone: '<p id="t3" style="width:120px;">'+this.subject[index].phone+'</p>',
-							schoolName: '<select class="form-control" style="width:150px;" id="t4" onchange="if (this.value!=\'\'){ajax_subject();}else{set_empty();}"></select>',
+							schoolName: '<select class="form-control" style="width:150px;" id="t4" onchange="if (this.value!=\'\'){check_setting(this.value);ajax_subject();}else{set_empty();}"></select>',
 							schoolSubject: '<select class="form-control" style="width:150px;" id="t5" onchange="set_schoolid(this.value)"></select>',
 							startDate: '<input type="text" autocomplete="off" class="form-control small default-date-picker1" style="width:120px;" id="t6" data-date-format="dd-mm-yyyy" value="'+this.subject[index].startDate+'">',
 							endDate: '<input type="text" autocomplete="off" class="form-control small default-date-picker1" style="width:120px;" id="t7" data-date-format="dd-mm-yyyy" value="'+this.subject[index].endDate+'">',
@@ -1112,6 +1112,21 @@
 	        	obj_officialId.val(officialId);	        	
 	        });	        
 			});
+			
+			function check_setting(school_name)
+			{
+					$.ajax({
+	          url: 'school/hasSchoolSetting?schoolName='+school_name,
+	          type: 'GET',
+	          dataType: 'json'
+	        }).done(function(response) {
+	        	result = response.data;
+	        	if (!result)
+	        	{
+	        			alert('选择的学校未设置佣金卡片，请联系管理员设置。');
+	        	}
+	        });
+			}
 			
 			function ajax_subject()
 			{
