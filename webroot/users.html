@@ -284,11 +284,11 @@
 													<tr>
 														<!--<th><input @click="checked" type="checkbox"></th>-->
 														<th>ID</th>
-														<th>姓名(拼音)&nbsp;<a @click="getOrder1" href="javascript:;">排序</a></th>
-														<th>初次咨询记录</th>
 														<th>昵称</th>
+														<th>姓名(拼音)&nbsp;<span style="color:red;">*</span>&nbsp;<a @click="getOrder1" href="javascript:;">排序</a></th>
+														<th>初次咨询记录</th>														
 														<th>生日&nbsp;<a @click="getOrder2" href="javascript:;">排序</a></th>
-														<th>手机号码&nbsp;<a @click="getOrder3" href="javascript:;">排序</a></th>
+														<th>手机号码&nbsp;<span style="color:red;">*</span>&nbsp;<a @click="getOrder3" href="javascript:;">排序</a></th>
 														<th>所持签证类别号</th>
 														<th>签证到期日期</th>
 														<th>微信号</th>											
@@ -301,9 +301,9 @@
 												<tbody>
 													<tr v-for="item in subject" class="gradeX">
 														<td v-html="item.oid"></td>
-														<td v-html="item.name"></td>
-														<td v-html="item.firstControllerContents"></td>
 														<td v-html="item.authNickname"></td>
+														<td v-html="item.name"></td>
+														<td v-html="item.firstControllerContents"></td>														
 														<td v-html="item.birthday"></td>
 														<td v-html="item.phone"></td>
 														<td v-html="item.visaCode"></td>													
@@ -996,12 +996,14 @@
           var jqTextarea = $('textarea',$("#example"));
           
           var check_result = 0;
-          if (jqInputs[0].value != '' && jqInputs[3].value != '')
+          if (jqInputs[1].value != '' && jqInputs[4].value != '')
           {
           		check_result = true;
           }else
-          {
-          		alert('客户姓名和手机号必须填写！');
+          {          		
+          		$('#alert_error').addClass('alert-danger').show().delay(1500).fadeOut();
+          		$("#error_info").html('姓名(拼音)和手机号必须填写！');
+          		return false;
           }
           
           if (check_result)
@@ -1035,7 +1037,7 @@
               var sa_id = $("#id").val();
               if (sa_id != '0') str_url = "user/update";
               
-              $.post(str_url, { id: sa_id, name: jqInputs[0].value, firstControllerContents: jqTextarea[0].value, authNickname: jqInputs[1].value, birthday: d2, phone: jqInputs[3].value, visaCode: jqInputs[4].value, visaExpirationDate: d5, wechatUsername: jqInputs[6].value, source: jqSelect[0].value, adviserId: jqSelect[1].value},
+              $.post(str_url, { id: sa_id, name: jqInputs[1].value, firstControllerContents: jqTextarea[0].value, authNickname: jqInputs[0].value, birthday: d2, phone: jqInputs[3].value, visaCode: jqInputs[4].value, visaExpirationDate: d5, wechatUsername: jqInputs[6].value, source: jqSelect[0].value, adviserId: jqSelect[1].value},
 					   	function(data){
 					   			if (data.code == 0)
 					   			{
