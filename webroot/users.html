@@ -900,16 +900,16 @@
 								}											
 								this.subject.splice(0,0, {
 									id:'',									
-									name: '<input type="text" class="form-control small" style="width:150px;" id="t0" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,\'\')" value="">',
-									firstControllerContents: '<textarea id="t13" class="form-control" style="width:150px;"></textarea>',
-									authNickname: '<input type="text" class="form-control small" style="width:150px;" id="t1" value="">',
-									birthday: '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:120px;" id="t2" data-date-format="dd-mm-yyyy" value="">',
-									phone: '<input type="text" class="form-control small" style="width:150px;" id="t3" value="">',
-									visaCode: '<input type="text" class="form-control small" style="width:150px;" id="t10" value="">',
-									visaExpirationDate: '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:120px;" id="t11" data-date-format="dd-mm-yyyy" value="">',
-									wechatUsername: '<input type="text" class="form-control small" style="width:150px;" id="t13" value="">',
-									source: '<select class="form-control" style="width:150px;" id="t12"></select>',
-									adviserName: '<select class="form-control" style="width:150px;" id="t4"></select>',
+									name: '<input type="text" class="form-control small" style="" id="t0" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,\'\')" value="">',
+									firstControllerContents: '<textarea id="t13" class="form-control" style="width:200px;"></textarea>',
+									authNickname: '<input type="text" class="form-control small" style="" id="t1" value="">',
+									birthday: '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:80px;" id="t2" data-date-format="dd-mm-yyyy" value="">',
+									phone: '<input type="text" class="form-control small" style="" id="t3" value="">',
+									visaCode: '<input type="text" class="form-control small" style="" id="t10" value="">',
+									visaExpirationDate: '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:80px;" id="t11" data-date-format="dd-mm-yyyy" value="">',
+									wechatUsername: '<input type="text" class="form-control small" style="" id="t13" value="">',
+									source: '<select class="form-control" style="" id="t12"></select>',
+									adviserName: '<select class="form-control" style="" id="t4"></select>',
 									});									
 								this.add = true;
 						}
@@ -937,16 +937,16 @@
 						if (this.subject[index].source == null) this.subject[index].source = '';
 						this.subject.splice(index,1, {
 							oid: parseInt(this.subject[index].id),
-							name: '<input type="text" class="form-control small" style="width:150px;" id="t0" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,\'\')" value="'+this.subject[index].name+'">',
-							firstControllerContents: '<textarea id="t13" class="form-control" style="width:150px;">'+this.subject[index].firstControllerContents+'</textarea>',							
-							authNickname: '<input type="text" class="form-control small" style="width:150px;" id="t1" value="'+this.subject[index].authNickname+'">',
-							birthday: '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:120px;" id="t2" data-date-format="dd-mm-yyyy" value="'+this.subject[index].birthday+'">',
-							phone: '<input type="text" class="form-control small" style="width:150px;" id="t3" value="'+this.subject[index].phone+'">',
-							visaCode: '<input type="text" class="form-control small" style="width:150px;" id="t10" value="'+this.subject[index].visaCode+'">',
-							visaExpirationDate: '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:120px;" id="t11" data-date-format="dd-mm-yyyy" value="'+this.subject[index].visaExpirationDate+'">',
-							wechatUsername: '<input type="text" class="form-control small" style="width:150px;" id="t13" value="'+this.subject[index].wechatUsername+'">',
-							source: '<select class="form-control" style="width:150px;" id="t12"></select>',
-							adviserName: '<select class="form-control" style="width:150px;" id="t4"></select>',							
+							name: '<input type="text" class="form-control small" style="" id="t0" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,\'\')" value="'+this.subject[index].name+'">',
+							firstControllerContents: '<textarea id="t13" class="form-control" style="width:200px;">'+this.subject[index].firstControllerContents+'</textarea>',							
+							authNickname: '<input type="text" class="form-control small" style="" id="t1" value="'+this.subject[index].authNickname+'">',
+							birthday: '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:80px;" id="t2" data-date-format="dd-mm-yyyy" value="'+this.subject[index].birthday+'">',
+							phone: '<input type="text" class="form-control small" style="" id="t3" value="'+this.subject[index].phone+'">',
+							visaCode: '<input type="text" class="form-control small" style="" id="t10" value="'+this.subject[index].visaCode+'">',
+							visaExpirationDate: '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:80px;" id="t11" data-date-format="dd-mm-yyyy" value="'+this.subject[index].visaExpirationDate+'">',
+							wechatUsername: '<input type="text" class="form-control small" style="" id="t13" value="'+this.subject[index].wechatUsername+'">',
+							source: '<select class="form-control" style="" id="t12"></select>',
+							adviserName: '<select class="form-control" style="" id="t4"></select>',							
 						});						
 						if (this.add)
 						{
@@ -996,7 +996,7 @@
           var jqTextarea = $('textarea',$("#example"));
           
           var check_result = 0;
-          if (jqInputs[1].value != '' && jqInputs[4].value != '')
+          if (jqInputs[1].value != '' && jqInputs[3].value != '')
           {
           		check_result = true;
           }else
