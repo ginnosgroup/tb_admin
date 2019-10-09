@@ -98,9 +98,8 @@ public class SchoolController extends BaseController {
 
 	@RequestMapping(value = "/updateName", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<Boolean> updateSchoolName(@RequestParam(value = "oldName", required = false) String oldName,
-			@RequestParam(value = "newName", required = false) String newName, HttpServletRequest request,
-			HttpServletResponse response) {
+	public Response<Boolean> updateSchoolName(@RequestParam(value = "oldName") String oldName,
+			@RequestParam(value = "newName") String newName, HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			List<SchoolDTO> schoolDtoList = schoolService.list(oldName);
