@@ -90,7 +90,7 @@ public class DownExcelController extends BaseController {
 		if (StringUtil.isNotEmpty(authType)) {
 			authTypeEnum = UserAuthTypeEnum.get(authType);
 		}
-		List<UserDTO> userDtoList = userService.listUser(name, authTypeEnum, authNickname, phone, 0, 0, 10000);
+		List<UserDTO> userDtoList = userService.listUser(name, authTypeEnum, authNickname, phone, null, 0, 0, 10000);
 		downUserUtil(os, inpath, userDtoList);
 	}
 
@@ -842,8 +842,5 @@ public class DownExcelController extends BaseController {
 		wbe.write();
 		wbe.close();
 	}
-
-	private double dot2(double d) {
-		return new BigDecimal(d).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-	}
+	
 }

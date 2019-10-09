@@ -41,7 +41,7 @@ public class UserController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			int count = userService.countUser(null, null, null, phone, 0);
+			int count = userService.countUser(null, null, null, phone, null, 0);
 			if (count > 0) {
 				return new Response<Integer>(1, "该电话号码已被使用,添加失败.", 0);
 			}
@@ -60,6 +60,7 @@ public class UserController extends BaseController {
 			@RequestParam(value = "authType", required = false) String authType,
 			@RequestParam(value = "authNickname", required = false) String authNickname,
 			@RequestParam(value = "phone", required = false) String phone,
+			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
 			@RequestParam(value = "adviserId", required = false) String adviserId, HttpServletRequest request,
 			HttpServletResponse response) {
 
@@ -76,7 +77,8 @@ public class UserController extends BaseController {
 			if (StringUtil.isNotEmpty(authType)) {
 				authTypeEnum = UserAuthTypeEnum.get(authType);
 			}
-			int count = userService.countUser(name, authTypeEnum, authNickname, phone, StringUtil.toInt(adviserId));
+			int count = userService.countUser(name, authTypeEnum, authNickname, phone, wechatUsername,
+					StringUtil.toInt(adviserId));
 			return new Response<Integer>(0, count);
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), -1);
@@ -100,6 +102,7 @@ public class UserController extends BaseController {
 			@RequestParam(value = "authType", required = false) String authType,
 			@RequestParam(value = "authNickname", required = false) String authNickname,
 			@RequestParam(value = "phone", required = false) String phone,
+			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
 			@RequestParam(value = "orderByField", required = false) String orderByField,
 			@RequestParam(value = "isDesc", required = false) String isDesc,
@@ -119,7 +122,7 @@ public class UserController extends BaseController {
 			if (StringUtil.isNotEmpty(authType)) {
 				authTypeEnum = UserAuthTypeEnum.get(authType);
 			}
-			List<UserDTO> list = userService.listUser(name, authTypeEnum, authNickname, phone,
+			List<UserDTO> list = userService.listUser(name, authTypeEnum, authNickname, phone, wechatUsername,
 					StringUtil.toInt(adviserId), orderByField,
 					Boolean.parseBoolean(StringUtil.isEmpty(isDesc) ? "false" : isDesc), pageNum, pageSize);
 			return new Response<List<UserDTO>>(0, list);
