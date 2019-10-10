@@ -504,7 +504,8 @@
 						$.get(url + "user/count", {
 							name: that.name,
 							phone: that.phone,
-							adviserId: that.adviserId
+							adviserId: that.adviserId,
+							wechatUsername: that.wechatUsername
 						}, function(result) {
 							console.log(result)
 							that.count = result.data;
