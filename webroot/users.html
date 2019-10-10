@@ -285,10 +285,10 @@
 														<!--<th><input @click="checked" type="checkbox"></th>-->
 														<th>ID</th>
 														<th>昵称</th>
-														<th>姓名(拼音)&nbsp;<span style="color:red;">*</span>&nbsp;<a @click="getOrder1" href="javascript:;">排序</a></th>
+														<th>姓名(拼音)&nbsp;<a @click="getOrder1" href="javascript:;">排序</a></th>
 														<th>初次咨询记录</th>														
 														<th>生日&nbsp;<a @click="getOrder2" href="javascript:;">排序</a></th>
-														<th>手机号码&nbsp;<span style="color:red;">*</span>&nbsp;<a @click="getOrder3" href="javascript:;">排序</a></th>
+														<th>手机号码&nbsp;<a @click="getOrder3" href="javascript:;">排序</a></th>
 														<th>所持签证类别号</th>
 														<th>签证到期日期</th>
 														<th>微信号</th>											
@@ -504,7 +504,8 @@
 						$.get(url + "user/count", {
 							name: that.name,
 							phone: that.phone,
-							adviserId: that.adviserId
+							adviserId: that.adviserId,
+							wechatUsername: that.wechatUsername
 						}, function(result) {
 							console.log(result)
 							that.count = result.data;
@@ -901,7 +902,7 @@
 								this.subject.splice(0,0, {
 									id:'',									
 									name: '<input type="text" class="form-control small" style="" id="t0" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,\'\')" value="">',
-									firstControllerContents: '<textarea id="t13" class="form-control" style="width:200px;"></textarea>',
+									firstControllerContents: '<textarea id="t13" class="form-control" style=""></textarea>',
 									authNickname: '<input type="text" class="form-control small" style="" id="t1" value="">',
 									birthday: '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:80px;" id="t2" data-date-format="dd-mm-yyyy" value="">',
 									phone: '<input type="text" class="form-control small" style="" id="t3" value="">',
@@ -938,7 +939,7 @@
 						this.subject.splice(index,1, {
 							oid: parseInt(this.subject[index].id),
 							name: '<input type="text" class="form-control small" style="" id="t0" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,\'\')" value="'+this.subject[index].name+'">',
-							firstControllerContents: '<textarea id="t13" class="form-control" style="width:200px;">'+this.subject[index].firstControllerContents+'</textarea>',							
+							firstControllerContents: '<textarea id="t13" class="form-control" style="">'+this.subject[index].firstControllerContents+'</textarea>',							
 							authNickname: '<input type="text" class="form-control small" style="" id="t1" value="'+this.subject[index].authNickname+'">',
 							birthday: '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:80px;" id="t2" data-date-format="dd-mm-yyyy" value="'+this.subject[index].birthday+'">',
 							phone: '<input type="text" class="form-control small" style="" id="t3" value="'+this.subject[index].phone+'">',
@@ -996,7 +997,7 @@
           var jqTextarea = $('textarea',$("#example"));
           
           var check_result = 0;
-          if (jqInputs[1].value != '' && jqInputs[3].value != '')
+          /*if (jqInputs[1].value != '' && jqInputs[3].value != '')
           {
           		check_result = true;
           }else
@@ -1004,7 +1005,7 @@
           		$('#alert_error').addClass('alert-danger').show().delay(1500).fadeOut();
           		$("#error_info").html('姓名(拼音)和手机号必须填写！');
           		return false;
-          }
+          }*/
           
           if (check_result)
           {
