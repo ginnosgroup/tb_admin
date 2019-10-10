@@ -3,6 +3,7 @@ package org.zhinanzhen.b.service;
 import java.util.Date;
 import java.util.List;
 
+import org.zhinanzhen.b.service.pojo.SchoolBrokerageSaDTO;
 import org.zhinanzhen.b.service.pojo.BrokerageSaDTO;
 import org.zhinanzhen.b.service.pojo.SchoolDTO;
 import org.zhinanzhen.b.service.pojo.SchoolSettingDTO;
@@ -25,6 +26,8 @@ public interface SchoolService {
 			throws ServiceException;
 
 	public int updateSchoolSetting(BrokerageSaDTO brokerageSaDto) throws ServiceException;
+
+	public int updateSchoolSetting(SchoolBrokerageSaDTO schoolBrokerageSaDto) throws ServiceException;
 
 	public List<SchoolSettingDTO> listSchoolSetting() throws ServiceException;
 
