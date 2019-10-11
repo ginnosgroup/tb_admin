@@ -357,6 +357,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		list.forEach(bs -> {
 			double fee = bs.getTuitionFee();
 			bs.setCommission(fee * (1 - Double.parseDouble(parameters.trim()) * 0.01));
+			updateGST(bs);
 			brokerageSaDao.updateBrokerageSa(bs);
 		});
 	}
@@ -367,6 +368,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		list.forEach(sbs -> {
 			double fee = sbs.getTuitionFee();
 			sbs.setCommission(fee * (1 - Double.parseDouble(parameters.trim()) * 0.01));
+			updateGST(sbs);
 			schoolBrokerageSaDao.updateSchoolBrokerageSa(sbs);
 		});
 	}
@@ -395,6 +397,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 						// System.out.print(bs.getId() + " : " + fee + " * ( 1 -
 						// " + proportion + " * 0.01 ) + " + _fee + " = " +
 						// bs.getCommission());
+						updateGST(bs);
 						brokerageSaDao.updateBrokerageSa(bs);
 					});
 					break;
@@ -424,6 +427,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 					list.forEach(sbs -> {
 						double fee = sbs.getTuitionFee();
 						sbs.setCommission(fee * (1 - proportion * 0.01) + _fee);
+						updateGST(sbs);
 						schoolBrokerageSaDao.updateSchoolBrokerageSa(sbs);
 					});
 					break;
@@ -452,6 +456,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 					list.forEach(bs -> {
 						double fee = bs.getTuitionFee();
 						bs.setCommission(fee * (1 - proportion * 0.01) + _fee);
+						updateGST(bs);
 						brokerageSaDao.updateBrokerageSa(bs);
 					});
 					break;
@@ -480,6 +485,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 					list.forEach(sbs -> {
 						double fee = sbs.getTuitionFee();
 						sbs.setCommission(fee * (1 - proportion * 0.01) + _fee);
+						updateGST(sbs);
 						schoolBrokerageSaDao.updateSchoolBrokerageSa(sbs);
 					});
 					break;
@@ -504,6 +510,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 					list.forEach(bs -> {
 						double fee = bs.getTuitionFee();
 						bs.setCommission(fee * (1 - proportion * 0.01));
+						updateGST(bs);
 						brokerageSaDao.updateBrokerageSa(bs);
 					});
 					break;
@@ -529,6 +536,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 					list.forEach(sbs -> {
 						double fee = sbs.getTuitionFee();
 						sbs.setCommission(fee * (1 - proportion * 0.01));
+						updateGST(sbs);
 						schoolBrokerageSaDao.updateSchoolBrokerageSa(sbs);
 					});
 					break;
@@ -564,6 +572,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 									subjectSettingDo.getPrice() > _fee ? subjectSettingDo.getPrice() - _fee : 0.00);
 						else
 							bs.setCommission(bs.getTuitionFee() > _fee ? bs.getTuitionFee() - _fee : 0.00); // 正常情况下是不会执行到这里的
+						updateGST(bs);
 						brokerageSaDao.updateBrokerageSa(bs);
 					});
 					break;
@@ -600,6 +609,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 									subjectSettingDo.getPrice() > _fee ? subjectSettingDo.getPrice() - _fee : 0.00);
 						else
 							sbs.setCommission(sbs.getTuitionFee() > _fee ? sbs.getTuitionFee() - _fee : 0.00); // 正常情况下是不会执行到这里的
+						updateGST(sbs);
 						schoolBrokerageSaDao.updateSchoolBrokerageSa(sbs);
 					});
 					break;
@@ -631,6 +641,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 								subjectSettingDo.getPrice() > _fee ? subjectSettingDo.getPrice() - _fee : 0.00);
 					else
 						bs.setCommission(bs.getTuitionFee() > _fee ? bs.getTuitionFee() - _fee : 0.00); // 正常情况下是不会执行到这里的
+					updateGST(bs);
 					brokerageSaDao.updateBrokerageSa(bs);
 				});
 			}
@@ -661,6 +672,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 								subjectSettingDo.getPrice() > _fee ? subjectSettingDo.getPrice() - _fee : 0.00);
 					else
 						sbs.setCommission(sbs.getTuitionFee() > _fee ? sbs.getTuitionFee() - _fee : 0.00); // 正常情况下是不会执行到这里的
+					updateGST(sbs);
 					schoolBrokerageSaDao.updateSchoolBrokerageSa(sbs);
 				});
 			}
@@ -682,6 +694,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 				bs.setCommission(subjectSettingDo.getPrice());
 			else
 				bs.setCommission(bs.getTuitionFee()); // 正常情况下是不会执行到这里的
+			updateGST(bs);
 			brokerageSaDao.updateBrokerageSa(bs);
 		});
 	}
@@ -702,8 +715,21 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 				sbs.setCommission(subjectSettingDo.getPrice());
 			else
 				sbs.setCommission(sbs.getTuitionFee()); // 正常情况下是不会执行到这里的
+			updateGST(sbs);
 			schoolBrokerageSaDao.updateSchoolBrokerageSa(sbs);
 		});
+	}
+
+	private void updateGST(BrokerageSaDO bs) {
+		bs.setGst(bs.getCommission() / 11);
+		bs.setDeductGst(bs.getCommission() - bs.getGst());
+		bs.setBonus(bs.getDeductGst() * 0.1);
+	}
+
+	private void updateGST(SchoolBrokerageSaListDO sbs) {
+		sbs.setGst(sbs.getCommission() / 11);
+		sbs.setDeductGst(sbs.getCommission() - sbs.getGst());
+		sbs.setBonus(sbs.getDeductGst() * 0.1);
 	}
 
 }
