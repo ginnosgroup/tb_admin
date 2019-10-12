@@ -247,12 +247,18 @@
 								</header>
 								<div class="panel-body responsive-table">
 									<div class="adv-table editable-table">
-										<div class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+										<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
 									      <button data-dismiss="alert" class="close close-sm" type="button">
 									      <i class="fa fa-times"></i>
 									      </button>
 									      <strong>Success!</strong> You  just achieved success.
 									  </div>
+									  <div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+                      <button data-dismiss="alert" class="close close-sm" type="button">
+                      <i class="fa fa-times"></i>
+                      </button>
+                      <strong id="error_info"></strong>
+                   </div>
 										<div class="clearfix">
                        <div class="btn-group">
                           <button id="editable-sample_new" class="btn btn-success green" @click="table_insert">
@@ -1142,6 +1148,7 @@
           		alert('所有选项必须填写！');
           }
           
+          $.ajaxSettings.async = false; 
           if (check_result)
           {
           		var arr_d = jqInputs[0].value.split("/");
@@ -1172,7 +1179,6 @@
 					   	function(data){
 					   			if (data.code == 0)
 					   			{
-					   					v.add = false;
 					   					//设置提醒
 					   					/*if (jqTextarea[0].value != '')
 					   					{					   							
@@ -1187,7 +1193,19 @@
 													   	});						    
 											    }
 					   					}*/
-					   					$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
+					   					if (data.data.id) sa_id = data.data.id;					   					
+					   					//重新计算佣金
+					   					$.post('school_brokerage_sa/updateCommission', { id: sa_id},
+					   					function(data){
+					   						if (data.code != 0)
+					   						{
+					   								$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+						          			$("#error_info").html(data.message);
+							        			return false;
+					   						}
+					   					});
+					   					v.add = false;
+					   					$('#alert_success').addClass('alert-success').show().delay(1500).fadeOut();
 					   					v.table_remove();
 					   					//重新载入数据源
 					   					v.getDatalist();
@@ -1344,7 +1362,9 @@
 	        	result = response.data;
 	        	if (!result)
 	        	{
-	        			alert('选择的学校未设置佣金卡片，请联系管理员设置。');
+	        			$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+          			$("#error_info").html('选择的学校未设置佣金卡片，请联系管理员设置。');
+	        			return false;
 	        	}
 	        });
 			}
@@ -1435,7 +1455,7 @@
 						console.log(result);
 						if(result.data == true) {
 							$('#delete_id').modal('hide');
-							$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
+							$('#alert_success').addClass('alert-success').show().delay(1500).fadeOut();
 							v.table_remove();
 	   					//重新载入数据源
 	   					v.getDatalist();
@@ -1460,7 +1480,7 @@
 						console.log(result);
 						if(result.data == true) {
 							$('#close_id').modal('hide');
-							$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
+							$('#alert_success').addClass('alert-success').show().delay(1500).fadeOut();
 							v.table_remove();
 	   					//重新载入数据源
 	   					v.getDatalist();
@@ -1481,7 +1501,7 @@
 			    		$.post('remind/add', { schoolBrokerageSaId: v.dId, remindDate: remind_d},
 					   	function(data){
 					   		$('#remind_id').modal('hide');
-					   		$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
+					   		$('#alert_success').addClass('alert-success').show().delay(1500).fadeOut();
 					   		v.table_remove();
 					   		//重新载入数据源
 		   					v.getDatalist();
