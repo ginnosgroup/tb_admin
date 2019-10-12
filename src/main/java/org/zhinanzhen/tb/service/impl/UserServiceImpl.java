@@ -213,7 +213,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
-		if (StringUtil.isNotEmpty(phone) && userDao.countUser(null, null, null, phone, null, null) > 0) {
+		if (StringUtil.isNotEmpty(phone)
+				&& userDao.countUser(null, null, null, phone, null, null) > 0) {
 			List<UserDO> userList = userDao.listUser(null, null, null, phone, null, null, null, null, 0, 1);
 			if (userList.size() > 0 && userList.get(0).getId() != id) { // 排除当前id
 				ServiceException se = new ServiceException("The phone is already existed !");
