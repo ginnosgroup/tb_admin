@@ -1174,6 +1174,7 @@
               var str_url = "school_brokerage_sa/add";
               var sa_id = $("#id").val();
               if (sa_id != '0') str_url = "school_brokerage_sa/update";
+              $("#id").val('0');
               
               $.post(str_url, { id: sa_id, handlingDate: d0, userId: $('#userid').val(), schoolId: $('#schoolid').val(),studentCode: jqInputs[2].value, startDate: d5, endDate: d6, tuitionFee: jqInputs[5].value, firstTermTuitionFee: jqInputs[6].value, discount: jqInputs[7].value, commission: jqInputs[8].value, payDate: d10, invoiceCode: jqInputs[10].value, payAmount: jqInputs[11].value, subagencyId: jqSelect[2].value, adviserId: jqSelect[3].value, officialId: jqSelect[4].value,remarks: jqTextarea[0].value},
 					   	function(data){

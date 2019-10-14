@@ -985,6 +985,7 @@
               var str_url = "visa/add";
               var sa_id = $("#id").val();
               if (sa_id != '0') str_url = "visa/update";
+              $("#id").val('0');
               
               $.post(str_url, { id: sa_id, handlingDate: d0, userId: $('#userid').val(), receiveDate: d2, receiveTypeId: jqSelect[0].value, serviceId: jqSelect[1].value, receivable: jqInputs[3].value, received: jqInputs[4].value, amount: jqInputs[5].value, adviserId: jqSelect[2].value, officialId: jqSelect[3].value,remarks: jqTextarea[0].value},
 					   	function(data){

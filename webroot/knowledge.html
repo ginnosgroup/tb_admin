@@ -676,11 +676,9 @@
           {
               var str_url = "knowledge/add";
               var sa_id = $("#id").val();              
-              if (sa_id != '0')
-              {
-              		//修改操作
-              		str_url = "knowledge/update";
-              }
+              if (sa_id != '0') str_url = "knowledge/update";              
+              $("#id").val('0');
+              
               $.post(str_url, { id: sa_id, title: t1,content: t2,knowledgeMenuId: v.menu_id},
 					   	function(data){
 					   			if (data.code == 0)

@@ -883,6 +883,7 @@
               var str_url = "refund/add";
               var sa_id = $("#id").val();
               if (sa_id != '0') str_url = "refund/update";
+              $("#id").val('0');
               
               $.post(str_url, { id: sa_id, receiveTypeId:1, handlingDate: d0, userId: $('#userid').val(),name: jqInputs[2].value, amount: jqInputs[3].value, preRefundAmount: jqInputs[4].value, bankName: jqInputs[5].value, bankAccount: jqInputs[6].value, bsb: jqInputs[7].value, refundDate: d8, refundAmount: jqInputs[9].value, adviserId: jqSelect[0].value, officialId: jqSelect[1].value,remarks: jqTextarea[0].value},
 					   	function(data){

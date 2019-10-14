@@ -1038,6 +1038,7 @@
               var str_url = "user/add";
               var sa_id = $("#id").val();
               if (sa_id != '0') str_url = "user/update";
+              $("#id").val('0');
               
               $.post(str_url, { id: sa_id, name: jqInputs[1].value, firstControllerContents: jqTextarea[0].value, authNickname: jqInputs[0].value, birthday: d2, phone: jqInputs[3].value, visaCode: jqInputs[4].value, visaExpirationDate: d5, wechatUsername: jqInputs[6].value, source: jqSelect[0].value, adviserId: jqSelect[1].value},
 					   	function(data){
