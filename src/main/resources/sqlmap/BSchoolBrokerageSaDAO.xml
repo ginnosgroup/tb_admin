@@ -223,6 +223,52 @@
 		ORDER BY bsbs.gmt_create DESC
 		LIMIT #{offset}, #{rows};
 	</select>
+	
+	<select id="listSchoolBrokerageSa2" resultType="org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaListDO">
+		SELECT
+		bsbs.id AS id,
+		bsbs.gmt_create AS gmtCreate,
+		bsbs.handling_date AS handlingDate,
+		bsbs.user_id AS userId,
+		bsbs.school_id AS schoolId,
+		bsbs.student_code AS studentCode,
+		bsbs.start_date AS startDate,
+		bsbs.end_date AS endDate,
+		bsbs.tuition_fee AS tuitionFee,
+		bsbs.first_term_tuition_fee AS firstTermTuitionFee,
+		bsbs.discount AS discount,
+		bsbs.commission AS commission,
+		bsbs.gst AS gst,
+		bsbs.deduct_gst AS deductGst,
+		bsbs.bonus AS bonus,
+		bsbs.pay_date AS payDate,
+		bsbs.invoice_code AS invoiceCode,
+		bsbs.pay_amount AS payAmount,
+		bsbs.subagency_id AS subagencyId,
+		bsu.name AS subagencyName,
+		bsbs.adviser_id AS adviserId,
+		bsbs.official_id AS officialId,
+		bsbs.remarks AS remarks,
+		bsbs.is_settle_accounts AS isSettleAccounts,
+		bsbs.is_close AS isClose,
+		bs.name AS schoolName,
+		bs.subject AS schoolSubject,
+		tbu.name AS userName,
+		tbu.birthday AS birthday,
+		tbu.phone AS phone
+		FROM b_school_brokerage_sa bsbs, b_school bs, tb_user tbu, b_subagency bsu
+		WHERE bsbs.school_id = bs.id AND bsbs.user_id = tbu.id AND
+		bsbs.subagency_id = bsu.id
+		<if
+			test='startHandlingDate != null and startHandlingDate != "" and endHandlingDate != null and endHandlingDate != ""'>
+            <![CDATA[ AND bsbs.handling_date > #{startHandlingDate} AND bsbs.handling_date < #{endHandlingDate} ]]>
+		</if>
+		<if test='schoolName != null and schoolName != ""'>
+			AND bs.name = #{schoolName}
+		</if>
+		ORDER BY bsbs.gmt_create DESC
+		LIMIT #{offset}, #{rows};
+	</select>
 
 	<select id="listSchoolBrokerageSaByDashboard"
 		resultType="org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaByDashboardListDO">
