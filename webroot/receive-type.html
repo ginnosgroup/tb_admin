@@ -673,6 +673,7 @@
               var str_url = "receiveType/add";
               var sa_id = $("#id").val();
               if (sa_id != '0') str_url = "receiveType/update";
+              $("#id").val('0');
               
               $.post(str_url, { id: sa_id, name: jqInputs[0].value, state: jqSelect[0].value, weight: jqInputs[1].value},
 					   	function(data){

@@ -637,6 +637,7 @@
               var str_url = "official/add";
               var sa_id = $("#id").val();
               if (sa_id != '0') str_url = "official/update";
+              $("#id").val('0');
               
               $.post(str_url, { id: sa_id, name: jqInputs[0].value, phone: jqInputs[1].value, email: jqInputs[2].value, imageUrl: jqText[0].value, regionId: jqSelect[0].value},
 					   	function(data){

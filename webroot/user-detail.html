@@ -1062,14 +1062,14 @@
           var jqSelect = $('select',$("#example"));
           var jqTextarea = $('textarea',$("#example"));
           
-          var check_result = 0;
-          if (jqInputs[0].value != '' && jqInputs[3].value != '')
+          var check_result = 1;
+          /*if (jqInputs[0].value != '' && jqInputs[3].value != '')
           {
           		check_result = true;
           }else
           {
           		alert('客户姓名和手机号码必须填写！');
-          }
+          }*/
           
           if (check_result)
           {
@@ -1101,6 +1101,7 @@
               var str_url = "user/add";
               var sa_id = $("#id").val();
               if (sa_id != '0') str_url = "user/update";
+              $("#id").val('0');
               
               $.post(str_url, { id: sa_id, name: jqInputs[0].value, firstControllerContents: jqTextarea[0].value, authNickname: jqInputs[1].value, birthday: d2, phone: jqInputs[3].value, visaCode: jqInputs[4].value, visaExpirationDate: d5, wechatUsername: jqInputs[6].value, source: jqSelect[0].value, adviserId: jqSelect[1].value},
 					   	function(data){

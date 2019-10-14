@@ -526,6 +526,7 @@
               		alert('提示：暂不可修改！');
               		return;
               }
+              $("#id").val('0');
               
               $.post(str_url, { id: sa_id, name: jqInputs[0].value, sourceRegionId: jqInputs[1].value},
 					   	function(data){
