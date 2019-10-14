@@ -260,7 +260,7 @@
 		WHERE bsbs.school_id = bs.id AND bsbs.user_id = tbu.id AND
 		bsbs.subagency_id = bsu.id
 		<if
-			test='startHandlingDate != null and startHandlingDate != "" and endHandlingDate != null and endHandlingDate != ""'>
+			test='startHandlingDate != null and endHandlingDate != null'>
             <![CDATA[ AND bsbs.handling_date > #{startHandlingDate} AND bsbs.handling_date < #{endHandlingDate} ]]>
 		</if>
 		<if test='schoolName != null and schoolName != ""'>

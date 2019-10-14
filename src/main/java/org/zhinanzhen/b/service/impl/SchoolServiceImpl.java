@@ -13,7 +13,6 @@ import org.zhinanzhen.b.dao.SchoolDAO;
 import org.zhinanzhen.b.dao.SchoolSettingDAO;
 import org.zhinanzhen.b.dao.SubjectSettingDAO;
 import org.zhinanzhen.b.dao.pojo.BrokerageSaDO;
-import org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaDO;
 import org.zhinanzhen.b.dao.pojo.SchoolBrokerageSaListDO;
 import org.zhinanzhen.b.dao.pojo.SchoolDO;
 import org.zhinanzhen.b.dao.pojo.SchoolSettingDO;
