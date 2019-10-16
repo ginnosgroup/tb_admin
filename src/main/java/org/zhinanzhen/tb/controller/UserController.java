@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserAuthTypeEnum;
 import org.zhinanzhen.tb.service.UserService;
+import org.zhinanzhen.tb.service.pojo.TagDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 
 import com.ikasoa.core.utils.StringUtil;
@@ -204,4 +205,36 @@ public class UserController extends BaseController {
 		List<UserDTO> list = userService.listUserByRecommendOpenId(AuthOpenId);
 		return new Response<Integer>(0, list.size());
 	}
+
+	@RequestMapping(value = "/addTag", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> addTag(@RequestParam(value = "userId") String userId,
+			@RequestParam(value = "tag") String tag, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<Integer>(0, userService.addTag(Integer.parseInt(userId), tag));
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), -1);
+		}
+	}
+
+	@RequestMapping(value = "/listTag", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<TagDTO>> listTag() throws ServiceException {
+		return new Response<List<TagDTO>>(0, userService.listTag());
+	}
+
+	@RequestMapping(value = "/listTagByUserId", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<TagDTO>> listTagByUserId(@RequestParam(value = "userId") String userId)
+			throws ServiceException {
+		return new Response<List<TagDTO>>(0, userService.listTagByUserId(Integer.parseInt(userId)));
+	}
+
+	@RequestMapping(value = "/deleteTagById", method = RequestMethod.DELETE)
+	@ResponseBody
+	public Response<Integer> deleteTagById(@RequestParam(value = "tagId") String tagId) throws ServiceException {
+		return new Response<Integer>(0, userService.deleteTagById(Integer.parseInt(tagId)));
+	}
+
 }

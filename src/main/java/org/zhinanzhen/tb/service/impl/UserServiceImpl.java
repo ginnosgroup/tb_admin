@@ -7,6 +7,9 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.zhinanzhen.b.dao.TagDAO;
+import org.zhinanzhen.b.dao.pojo.TagDO;
+import org.zhinanzhen.b.service.pojo.BrokerageSaDTO;
 import org.zhinanzhen.tb.dao.UserDAO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.AdviserService;
@@ -16,6 +19,7 @@ import org.zhinanzhen.tb.service.UserAuthTypeEnum;
 import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
+import org.zhinanzhen.tb.service.pojo.TagDTO;
 import org.zhinanzhen.tb.utils.Base64Util;
 
 import com.ikasoa.core.thrift.ErrorCodeEnum;
@@ -27,6 +31,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 	private UserDAO userDao;
 	@Resource
 	private AdviserService adviserService;
+	@Resource
+	private TagDAO tagDao;
 
 	@Override
 	public int addUser(String name, String authNickname, Date birthday, String phone, String wechatUsername,
@@ -213,8 +219,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
-		if (StringUtil.isNotEmpty(phone)
-				&& userDao.countUser(null, null, null, phone, null, null) > 0) {
+		if (StringUtil.isNotEmpty(phone) && userDao.countUser(null, null, null, phone, null, null) > 0) {
 			List<UserDO> userList = userDao.listUser(null, null, null, phone, null, null, null, null, 0, 1);
 			if (userList.size() > 0 && userList.get(0).getId() != id) { // 排除当前id
 				ServiceException se = new ServiceException("The phone is already existed !");
@@ -297,6 +302,36 @@ public class UserServiceImpl extends BaseService implements UserService {
 			userDtoList.add(userDto);
 		}
 		return userDtoList;
+	}
+
+	@Override
+	public int addTag(int userId, String tag) throws ServiceException {
+		return tagDao.addTag(new TagDO(userId, tag));
+	}
+
+	@Override
+	public List<TagDTO> listTag() throws ServiceException {
+		List<TagDTO> tagDtoList = new ArrayList<TagDTO>();
+		List<TagDO> tagDoList = tagDao.listTag();
+		tagDoList.forEach(tagDo -> {
+			tagDtoList.add(mapper.map(tagDo, TagDTO.class));
+		});
+		return tagDtoList;
+	}
+
+	@Override
+	public List<TagDTO> listTagByUserId(int userId) throws ServiceException {
+		List<TagDTO> tagDtoList = new ArrayList<TagDTO>();
+		List<TagDO> tagDoList = tagDao.listTagByUserId(userId);
+		tagDoList.forEach(tagDo -> {
+			tagDtoList.add(mapper.map(tagDo, TagDTO.class));
+		});
+		return tagDtoList;
+	}
+
+	@Override
+	public int deleteTagById(int id) throws ServiceException {
+		return tagDao.deleteTagById(id);
 	}
 
 }

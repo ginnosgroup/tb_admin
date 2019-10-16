@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.zhinanzhen.tb.service.pojo.UserDTO;
+import org.zhinanzhen.tb.service.pojo.TagDTO;
 
 public interface UserService {
 
@@ -56,5 +57,13 @@ public interface UserService {
 	 *            推荐人openId
 	 */
 	public List<UserDTO> listUserByRecommendOpenId(String recommendOpenId) throws ServiceException;
+
+	public int addTag(int userId, String tag) throws ServiceException;
+
+	public List<TagDTO> listTag() throws ServiceException;
+
+	public List<TagDTO> listTagByUserId(int userId) throws ServiceException;
+
+	public int deleteTagById(int id) throws ServiceException;
 
 }
