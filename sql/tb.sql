@@ -460,7 +460,7 @@ CREATE TABLE `b_user_tag` (
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `user_id` int NOT NULL COMMENT '客户编号',
-  `tag_id` datetime NOT NULL COMMENT '标签编号'
+  `tag_id` int NOT NULL COMMENT '标签编号'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
 -- 标签

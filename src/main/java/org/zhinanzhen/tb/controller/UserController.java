@@ -206,16 +206,30 @@ public class UserController extends BaseController {
 		return new Response<Integer>(0, list.size());
 	}
 
+	@RequestMapping(value = "/newTag", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> newTag(@RequestParam(value = "name") String name, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<Integer>(0, userService.newTag(name));
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), -1);
+		}
+	}
+
 	@RequestMapping(value = "/addTag", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> addTag(@RequestParam(value = "userId") String userId,
-			@RequestParam(value = "tag") String tag, HttpServletResponse response) {
+			@RequestParam(value = "tagId") String tagId, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
 			Integer _userId = Integer.parseInt(userId);
 			if (userService.getUserById(_userId) == null)
 				return new Response<Integer>(1, "用户不存在!", -1);
-			return new Response<Integer>(0, userService.addTag(_userId, tag));
+			Integer _tagId = Integer.parseInt(tagId);
+			if (userService.getTag(_tagId) == null)
+				return new Response<Integer>(1, "TAG不存在!", -1);
+			return new Response<Integer>(0, userService.addTag(_userId, _tagId));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), -1);
 		}
@@ -234,7 +248,7 @@ public class UserController extends BaseController {
 		return new Response<List<TagDTO>>(0, userService.listTagByUserId(Integer.parseInt(userId)));
 	}
 
-	@RequestMapping(value = "/deleteTagById", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/deleteTagById", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<Integer> deleteTagById(@RequestParam(value = "tagId") String tagId) throws ServiceException {
 		return new Response<Integer>(0, userService.deleteTagById(Integer.parseInt(tagId)));

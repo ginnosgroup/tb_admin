@@ -3,10 +3,12 @@ package org.zhinanzhen.b.dao.pojo;
 import lombok.Data;
 
 @Data
-public class TagDO {
+public class UserTagDO {
 
 	private int id;
 
-	private String name;
+	private int userId;
+
+	private int tagId;
 
 }

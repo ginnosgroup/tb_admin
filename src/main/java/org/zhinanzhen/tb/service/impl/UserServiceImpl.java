@@ -7,8 +7,10 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.TagDAO;
 import org.zhinanzhen.b.dao.pojo.TagDO;
+import org.zhinanzhen.b.dao.pojo.UserTagDO;
 import org.zhinanzhen.b.service.pojo.BrokerageSaDTO;
 import org.zhinanzhen.tb.dao.UserDAO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
@@ -305,8 +307,18 @@ public class UserServiceImpl extends BaseService implements UserService {
 	}
 
 	@Override
-	public int addTag(int userId, String tag) throws ServiceException {
-		return tagDao.addTag(new TagDO(userId, tag));
+	public int newTag(String name) throws ServiceException {
+		TagDO tagDo = new TagDO();
+		tagDo.setName(name);
+		return tagDao.addTag(tagDo);
+	}
+
+	@Override
+	public int addTag(int userId, int tagId) throws ServiceException {
+		UserTagDO userTagDo = new UserTagDO();
+		userTagDo.setUserId(userId);
+		userTagDo.setTagId(tagId);
+		return tagDao.addUserTag(userTagDo);
 	}
 
 	@Override
@@ -330,7 +342,14 @@ public class UserServiceImpl extends BaseService implements UserService {
 	}
 
 	@Override
+	public TagDTO getTag(int tagId) throws ServiceException {
+		return mapper.map(tagDao.getTagById(tagId), TagDTO.class);
+	}
+
+	@Override
+	@Transactional
 	public int deleteTagById(int id) throws ServiceException {
+		tagDao.deleteUserTagByTagId(id);
 		return tagDao.deleteTagById(id);
 	}
 

@@ -58,11 +58,15 @@ public interface UserService {
 	 */
 	public List<UserDTO> listUserByRecommendOpenId(String recommendOpenId) throws ServiceException;
 
-	public int addTag(int userId, String tag) throws ServiceException;
+	public int newTag(String name) throws ServiceException;
+
+	public int addTag(int userId, int tagId) throws ServiceException;
 
 	public List<TagDTO> listTag() throws ServiceException;
 
 	public List<TagDTO> listTagByUserId(int userId) throws ServiceException;
+
+	public TagDTO getTag(int tagId) throws ServiceException;
 
 	public int deleteTagById(int id) throws ServiceException;
 

@@ -1,11 +1,12 @@
 package org.zhinanzhen.tb.service.pojo;
 
-import org.zhinanzhen.b.dao.pojo.TagDO;
+import lombok.Data;
 
-public class TagDTO extends TagDO {
+@Data
+public class TagDTO {
 
-	public TagDTO(int id, String name) {
-		super(id, name);
-	}
+	private int id;
+
+	private String name;
 
 }
