@@ -250,8 +250,8 @@ public class UserController extends BaseController {
 
 	@RequestMapping(value = "/deleteTagById", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<Integer> deleteTagById(@RequestParam(value = "tagId") String tagId) throws ServiceException {
-		return new Response<Integer>(0, userService.deleteTagById(Integer.parseInt(tagId)));
+	public Response<Integer> deleteTagById(@RequestParam(value = "id") String id) throws ServiceException {
+		return new Response<Integer>(0, userService.deleteTagById(Integer.parseInt(id)));
 	}
 
 }
