@@ -212,7 +212,10 @@ public class UserController extends BaseController {
 			@RequestParam(value = "tag") String tag, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<Integer>(0, userService.addTag(Integer.parseInt(userId), tag));
+			Integer _userId = Integer.parseInt(userId);
+			if (userService.getUserById(_userId) == null)
+				return new Response<Integer>(1, "用户不存在!", -1);
+			return new Response<Integer>(0, userService.addTag(_userId, tag));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), -1);
 		}
