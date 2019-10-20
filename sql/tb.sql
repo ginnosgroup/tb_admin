@@ -110,7 +110,7 @@ CREATE TABLE `tb_user` (
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `name` varchar(32) NOT NULL COMMENT '名称',
   `birthday` datetime NOT NULL COMMENT '生日',
-  `phone` varchar(16) NOT NULL COMMENT '电话号码',
+  `phone` varchar(16) DEFAULT NULL COMMENT '电话号码',
   `email` varchar(128) NOT NULL COMMENT '邮箱',
   `wechat_username` varchar(64) DEFAULT NULL COMMENT '微信帐号',
   `first_controller_contents` varchar(255) DEFAULT NULL COMMENT '初次咨询记录',
