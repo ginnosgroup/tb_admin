@@ -33,7 +33,8 @@ public class UserController extends BaseController {
 	@ResponseBody
 	public Response<Integer> addUser(@RequestParam(value = "name") String name,
 			@RequestParam(value = "authNickname", required = false) String authNickname,
-			@RequestParam(value = "birthday") String birthday, @RequestParam(value = "phone") String phone,
+			@RequestParam(value = "birthday") String birthday,
+			@RequestParam(value = "phone", required = false) String phone,
 			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
 			@RequestParam(value = "firstControllerContents", required = false) String firstControllerContents,
 			@RequestParam(value = "visaCode") String visaCode,
@@ -42,10 +43,8 @@ public class UserController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			int count = userService.countUser(null, null, null, phone, null, 0);
-			if (count > 0) {
+			if (phone != null && userService.countUser(null, null, null, phone, null, 0) > 0)
 				return new Response<Integer>(1, "该电话号码已被使用,添加失败.", 0);
-			}
 			return new Response<Integer>(0,
 					userService.addUser(name, authNickname, new Date(Long.parseLong(birthday.trim())), phone,
 							wechatUsername, firstControllerContents, visaCode,
