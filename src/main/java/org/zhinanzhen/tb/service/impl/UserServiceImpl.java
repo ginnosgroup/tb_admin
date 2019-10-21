@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.TagDAO;
 import org.zhinanzhen.b.dao.pojo.TagDO;
 import org.zhinanzhen.b.dao.pojo.UserTagDO;
-import org.zhinanzhen.b.service.pojo.BrokerageSaDTO;
 import org.zhinanzhen.tb.dao.UserDAO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.AdviserService;
@@ -146,6 +145,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 			} catch (Exception e) {
 				System.out.println(("昵称转码失败 userId = " + userDto.getId()));
 			}
+			userDto.setTagList(listTagByUserId(userDto.getId()));
 			userDtoList.add(userDto);
 		}
 		return userDtoList;
@@ -176,6 +176,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 						userDto.getRecommendOpenid());
 				userDto.setRecommendUserDto(recommendUserDto);
 			}
+			userDto.setTagList(listTagByUserId(userDto.getId()));
 			System.out.println("old:" + userDto.getAuthNickname());
 			try {
 				userDto.setAuthNickname(new String(Base64Util.decodeBase64(userDto.getAuthNickname()), "utf-8"));
@@ -209,6 +210,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 			AdviserDTO adviserDto = adviserService.getAdviserById(userDto.getAdviserId());
 			userDto.setAdviserDto(adviserDto);
 		}
+		userDto.setTagList(listTagByUserId(userDto.getId()));
 		return userDto;
 	}
 
@@ -301,6 +303,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 			} catch (Exception e) {
 				System.out.println(("昵称转码失败 userId = " + userDto.getId()));
 			}
+			userDto.setTagList(listTagByUserId(userDto.getId()));
 			userDtoList.add(userDto);
 		}
 		return userDtoList;

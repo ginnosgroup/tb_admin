@@ -1,6 +1,7 @@
 package org.zhinanzhen.tb.service.pojo;
 
 import java.util.Date;
+import java.util.List;
 
 import org.zhinanzhen.tb.service.UserAuthTypeEnum;
 
@@ -52,4 +53,6 @@ public class UserDTO {
 	private AdviserDTO adviserDto;
 
 	private UserDTO recommendUserDto;
+	
+	private List<TagDTO> tagList;
 }
