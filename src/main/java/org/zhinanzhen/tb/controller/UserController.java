@@ -43,8 +43,10 @@ public class UserController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			if (phone != null && userService.countUser(null, null, null, phone, null, 0) > 0)
+			if (phone != null && !"".equals(phone) && userService.countUser(null, null, null, phone, null, 0) > 0)
 				return new Response<Integer>(1, "该电话号码已被使用,添加失败.", 0);
+			if(phone == null)
+				phone = "";
 			return new Response<Integer>(0,
 					userService.addUser(name, authNickname, new Date(Long.parseLong(birthday.trim())), phone,
 							wechatUsername, firstControllerContents, visaCode,
