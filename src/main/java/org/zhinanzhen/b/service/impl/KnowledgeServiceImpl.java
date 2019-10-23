@@ -75,8 +75,8 @@ public class KnowledgeServiceImpl extends BaseService implements KnowledgeServic
 	}
 
 	@Override
-	public List<KnowledgeDTO> listKnowledge(Integer knowledgeMenuId, String keyword, int pageNum, int pageSize)
-			throws ServiceException {
+	public List<KnowledgeDTO> listKnowledge(Integer knowledgeMenuId, String keyword, String password, int pageNum,
+			int pageSize) throws ServiceException {
 		List<KnowledgeDTO> knowledgeDtoList = new ArrayList<>();
 		List<KnowledgeDO> knowledgeDoList = new ArrayList<>();
 		try {
@@ -93,13 +93,18 @@ public class KnowledgeServiceImpl extends BaseService implements KnowledgeServic
 			KnowledgeMenuDO knowledgeMenuDo = knowledgeMenuDao.getKnowledgeMenu(knowledgeDto.getKnowledgeMenuId());
 			if (knowledgeMenuDo != null)
 				knowledgeDto.setKnowledgeMenuName(knowledgeMenuDo.getName());
+			if (knowledgeDto.getPassword() != null) {
+				if (!knowledgeDto.getPassword().equals(password))
+					knowledgeDto.setContent(null);
+				knowledgeDto.setPassword(null);
+			}
 			knowledgeDtoList.add(knowledgeDto);
 		}
 		return knowledgeDtoList;
 	}
 
 	@Override
-	public KnowledgeDTO getKnowledge(Integer id) throws ServiceException {
+	public KnowledgeDTO getKnowledge(Integer id, String password) throws ServiceException {
 		if (id == null) {
 			ServiceException se = new ServiceException("id is null !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -110,6 +115,11 @@ public class KnowledgeServiceImpl extends BaseService implements KnowledgeServic
 			if (knowledgeDo == null) {
 				ServiceException se = new ServiceException("No data !");
 				se.setCode(ErrorCodeEnum.DATA_ERROR.code());
+				throw se;
+			}
+			if (knowledgeDo.getPassword() != null && !knowledgeDo.getPassword().equals(password)) {
+				ServiceException se = new ServiceException("Password error !");
+				se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 				throw se;
 			}
 			KnowledgeDTO knowledgeDto = mapper.map(knowledgeDo, KnowledgeDTO.class);

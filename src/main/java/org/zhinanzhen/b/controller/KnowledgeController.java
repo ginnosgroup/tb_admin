@@ -153,12 +153,13 @@ public class KnowledgeController extends BaseController {
 	public Response<List<KnowledgeDTO>> list(
 			@RequestParam(value = "knowledgeMenuId", required = false) Integer knowledgeMenuId,
 			@RequestParam(value = "keyword", required = false) String keyword,
+			@RequestParam(value = "password", required = false) String password,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
 			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
 			return new Response<List<KnowledgeDTO>>(0,
-					knowledgeService.listKnowledge(knowledgeMenuId, keyword, pageNum, pageSize));
+					knowledgeService.listKnowledge(knowledgeMenuId, keyword, password, pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<KnowledgeDTO>>(1, e.getMessage(), null);
 		}
@@ -179,10 +180,11 @@ public class KnowledgeController extends BaseController {
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<KnowledgeDTO> get(@RequestParam(value = "id") Integer id, HttpServletResponse response) {
+	public Response<KnowledgeDTO> get(@RequestParam(value = "id") Integer id,
+			@RequestParam(value = "password", required = false) String password, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<KnowledgeDTO>(0, knowledgeService.getKnowledge(id));
+			return new Response<KnowledgeDTO>(0, knowledgeService.getKnowledge(id, password));
 		} catch (ServiceException e) {
 			return new Response<KnowledgeDTO>(1, e.getMessage(), null);
 		}

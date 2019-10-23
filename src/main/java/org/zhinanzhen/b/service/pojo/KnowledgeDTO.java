@@ -14,6 +14,8 @@ public class KnowledgeDTO {
 	private String title;
 
 	private String content;
+	
+	private String password;
 
 	private int knowledgeMenuId;
 

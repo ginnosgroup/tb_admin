@@ -13,10 +13,10 @@ public interface KnowledgeService {
 
 	int countKnowledge(Integer knowledgeMenuId, String keyword) throws ServiceException;
 
-	List<KnowledgeDTO> listKnowledge(Integer knowledgeMenuId, String keyword, int pageNum, int pageSize)
-			throws ServiceException;
+	List<KnowledgeDTO> listKnowledge(Integer knowledgeMenuId, String keyword, String password, int pageNum,
+			int pageSize) throws ServiceException;
 
-	KnowledgeDTO getKnowledge(Integer id) throws ServiceException;
+	KnowledgeDTO getKnowledge(Integer id, String password) throws ServiceException;
 
 	int deleteKnowledge(int id) throws ServiceException;
 
