@@ -45,7 +45,7 @@ public class UserController extends BaseController {
 			super.setGetHeader(response);
 			if (phone != null && !"".equals(phone) && userService.countUser(null, null, null, phone, null, 0) > 0)
 				return new Response<Integer>(1, "该电话号码已被使用,添加失败.", 0);
-			if(phone == null)
+			if (phone == null)
 				phone = "";
 			return new Response<Integer>(0,
 					userService.addUser(name, authNickname, new Date(Long.parseLong(birthday.trim())), phone,
@@ -230,6 +230,9 @@ public class UserController extends BaseController {
 			Integer _tagId = Integer.parseInt(tagId);
 			if (userService.getTag(_tagId) == null)
 				return new Response<Integer>(1, "TAG不存在!", -1);
+			for (TagDTO tag : userService.listTagByUserId(_userId))
+				if (tag.getId() == _tagId)
+					return new Response<Integer>(1, "该TAG已添加过!", -1);
 			return new Response<Integer>(0, userService.addTag(_userId, _tagId));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), -1);
