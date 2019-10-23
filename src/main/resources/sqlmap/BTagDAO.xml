@@ -60,5 +60,9 @@
 	<delete id="deleteUserTagByTagId" parameterType="java.lang.Integer">
 		DELETE FROM b_user_tag WHERE tag_id = #{tagId, jdbcType=INTEGER}
 	</delete>
+	
+	<delete id="deleteUserTagByUserId" parameterType="java.lang.Integer">
+		DELETE FROM b_user_tag WHERE user_id = #{userId, jdbcType=INTEGER}
+	</delete>
 
 </mapper>

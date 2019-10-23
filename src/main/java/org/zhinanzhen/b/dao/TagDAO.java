@@ -19,7 +19,9 @@ public interface TagDAO {
 	public TagDO getTagById(@Param("id") Integer id);
 
 	public int deleteTagById(@Param("id") Integer id);
-	
+
 	public int deleteUserTagByTagId(@Param("tagId") Integer tagId);
+
+	public int deleteUserTagByUserId(@Param("userId") Integer userId);
 
 }
