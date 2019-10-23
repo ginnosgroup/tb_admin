@@ -10,12 +10,14 @@
                 gmt_modify,
                 title,
                 content,
+                password,
                 knowledge_menu_id)
             VALUES (
                 now(),
                 now(),
                 #{title},
                 #{content},
+                #{password},
                 #{knowledgeMenuId});
     </insert>
     
@@ -27,6 +29,9 @@
         </if>
         <if test='content != null'>
             , content = #{content}
+        </if>
+        <if test='password != null'>
+            , password = #{password}
         </if>
         <if test='knowledgeMenuId != null'>
             , knowledge_menu_id = #{knowledgeMenuId}
@@ -53,6 +58,7 @@
             gmt_create AS gmtCreate,
             title,
             content,
+            password,
             knowledge_menu_id AS knowledgeMenuId
         FROM b_knowledge
         WHERE 1 = 1
@@ -72,6 +78,7 @@
             gmt_create AS gmtCreate,
             title,
             content,
+            password,
             knowledge_menu_id AS knowledgeMenuId
         FROM b_knowledge
         WHERE id = #{id}
