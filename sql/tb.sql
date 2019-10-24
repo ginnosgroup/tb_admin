@@ -401,7 +401,7 @@ CREATE TABLE `b_knowledge` (
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `title` varchar(32) DEFAULT NULL COMMENT '知识库名称',
   `content` text DEFAULT NULL COMMENT '知识库内容',
-`password` text DEFAULT NULL COMMENT '知识库密码',
+`password` varchar(8) DEFAULT NULL COMMENT '知识库密码',
   `knowledge_menu_id` int DEFAULT 0 COMMENT '所属菜单编号'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
