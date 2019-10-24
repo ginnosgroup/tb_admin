@@ -361,4 +361,9 @@ public class UserServiceImpl extends BaseService implements UserService {
 		return tagDao.deleteUserTagByUserId(userId);
 	}
 
+	@Override
+	public int deleteUserTagByTagIdAndUserId(int tagId, int userId) throws ServiceException {
+		return tagDao.deleteUserTagByTagIdAndUserId(tagId, userId);
+	}
+
 }

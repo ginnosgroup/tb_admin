@@ -72,4 +72,6 @@ public interface UserService {
 
 	public int deleteUserTagByUserId(int userId) throws ServiceException;
 
+	public int deleteUserTagByTagIdAndUserId(int tagId, int userId) throws ServiceException;
+
 }
