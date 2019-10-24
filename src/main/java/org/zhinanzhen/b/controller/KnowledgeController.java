@@ -48,6 +48,7 @@ public class KnowledgeController extends BaseController {
 	@ResponseBody
 	public Response<Integer> add(@RequestParam(value = "title") String title,
 			@RequestParam(value = "content") String content,
+			@RequestParam(value = "password", required = false) String password,
 			@RequestParam(value = "knowledgeMenuId", required = false) Integer knowledgeMenuId,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
@@ -55,6 +56,7 @@ public class KnowledgeController extends BaseController {
 			KnowledgeDTO knowledgeDto = new KnowledgeDTO();
 			knowledgeDto.setTitle(title);
 			knowledgeDto.setContent(content);
+			knowledgeDto.setPassword(password);
 			knowledgeDto.setKnowledgeMenuId(knowledgeMenuId);
 			if (knowledgeService.addKnowledge(knowledgeDto) > 0)
 				return new Response<Integer>(0, knowledgeDto.getId());
@@ -89,6 +91,7 @@ public class KnowledgeController extends BaseController {
 	public Response<KnowledgeDTO> update(@RequestParam(value = "id") int id,
 			@RequestParam(value = "title", required = false) String title,
 			@RequestParam(value = "content", required = false) String content,
+			@RequestParam(value = "password", required = false) String password,
 			@RequestParam(value = "knowledgeMenuId", required = false) String knowledgeMenuId,
 			HttpServletResponse response) {
 		try {
@@ -99,6 +102,8 @@ public class KnowledgeController extends BaseController {
 				knowledgeDto.setTitle(title);
 			if (StringUtil.isNotEmpty(content))
 				knowledgeDto.setContent(content);
+			if (password != null)
+				knowledgeDto.setPassword(password);
 			if (StringUtil.isNotEmpty(knowledgeMenuId))
 				knowledgeDto.setKnowledgeMenuId(Integer.parseInt(knowledgeMenuId));
 			if (knowledgeService.updateKnowledge(knowledgeDto) > 0) {
