@@ -151,15 +151,27 @@
               </a>
             </li>
           	</dli>
-          	<li v-if="ap_list!='KJ'">
-              <a href="users.html" class="active">
-                <i class="fa fa-book">
+          	<li v-if="ap_list!='KJ'" class="sub-menu">
+							<a href="javascript:;" class="active">
+								<i class="fa fa-book">
                 </i>
-                <span>
-                  客户管理
+								<span>
+                 	 客户管理
                 </span>
-              </a>
-            </li>
+							</a>
+							<ul class="sub">
+								<li class="active">
+									<a href="users.html">
+										客户管理
+									</a>
+								</li>
+								<li>
+									<a href="user-tags.html">
+										标签管理
+									</a>
+								</li>								
+							</ul>
+						</li>          	
             <li v-if="ap_list!='KJ'" class="sub-menu">
 							<a href="javascript:;">
 								<i class="fa fa-book">
@@ -293,6 +305,7 @@
 														<th>签证到期日期</th>
 														<th>微信号</th>											
 														<th>客户来源</th>														
+														<th>客户标签</th>
 														<th>所属顾问</th>														
 														<th>Edit</th>
 														<th>Delete</th>
@@ -310,6 +323,7 @@
 														<td v-html="item.visaExpirationDate"></td>
 														<td v-html="item.wechatUsername"></td>
 														<td v-html="item.source"></td>
+														<td v-html="item.str_tagListName"></td>
 														<td v-html="item.adviserName"></td>
 														<td><a v-if="item.id" class="edit" href="javascript:;" @click="table_modify($index)"><span class="label label-success">Edit</span></a>
 																<a v-else class="edit" href="javascript:;"><span class="label label-primary">Save</span></a>
@@ -398,6 +412,39 @@
 				</div>
 			</div>
 		</div>
+		<div class="modal fade" id="add_tag" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="tag_title">选择</h4>
+					</div>
+					<div class="modal-body">
+							<form class="form-horizontal" autocomplete="off">
+							<input type="hidden" id="tag_list" name="tag_list" value="" />
+							<table class="display table table-bordered table-striped" id="example6">
+							<thead>
+								<tr>
+									<th>选择</th>
+									<th>标签名称</th>									
+								</tr>
+							</thead>
+							<tbody>
+							<tr v-for="item in subject1" class="gradeX">
+								<td v-html="item.chk"></td>
+								<td v-html="item.name"></td>
+							</tr>
+							</tbody>
+							</table>						
+							</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+						<button onclick="tagUpdate()" type="button" class="btn btn-primary">确认</button>
+					</div>
+				</div>
+			</div>
+		</div>		
 		<script src="js/jquery-1.8.3.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
 		<script src="js/jquery.dcjqaccordion.2.7.js"></script>
@@ -421,6 +468,8 @@
 					m_list: localStorage.getItem("str_html"),
 					allSort: [],
 					subject: [],
+					subject1: [],
+					tagList: '',
 					count: 0,
 					dId: '',
 					eId: '',
@@ -494,6 +543,24 @@
 									{
 											result.data[i].adviserName = '';
 									}
+									//读取标签
+									result.data[i].str_tagList = '';
+									result.data[i].str_tagListName = '';
+									var str = '';
+									var str_name = '';
+									for(var t = 0; t < result.data[i].tagList.length; t++) {
+											if (str == '')
+											{
+													str = result.data[i].tagList[t].id;
+													str_name = '['+result.data[i].tagList[t].name+']';
+											}else
+											{
+													str += ','+result.data[i].tagList[t].id;
+													str_name += '<br/>['+result.data[i].tagList[t].name+']';
+											}
+									}
+									result.data[i].str_tagList = str;
+									result.data[i].str_tagListName = str_name + '<a href="javascript:v.dId='+result.data[i].id+';tagSet(\''+str+'\')">设置</a>';
 							};
 							that.subject = result.data;
 							//console.log(that.subject);
@@ -547,6 +614,20 @@
 									{
 											result.data[i].adviserName = '';
 									}
+									//读取标签
+									result.data[i].str_tagList = '';
+									var str = '';
+									for(var t = 0; t < result.data[i].tagList.length; t++) {
+											if (str == '')
+											{
+													str = result.data[i].tagList[t].id;
+											}else
+											{
+													str += ','+result.data[i].tagList[t].id;
+											}
+									}
+									result.data[i].str_tagList = str;
+									result.data[i].str_tagListName = str_name + '<a href="javascript:v.dId='+result.data[i].id+';tagSet(\''+str+'\')">设置</a>';
 							};
 							that.subject = result.data;
 							//console.log(that.subject);
@@ -599,6 +680,20 @@
 									{
 											result.data[i].adviserName = '';
 									}
+									//读取标签
+									result.data[i].str_tagList = '';
+									var str = '';
+									for(var t = 0; t < result.data[i].tagList.length; t++) {
+											if (str == '')
+											{
+													str = result.data[i].tagList[t].id;
+											}else
+											{
+													str += ','+result.data[i].tagList[t].id;
+											}
+									}
+									result.data[i].str_tagList = str;
+									result.data[i].str_tagListName = str_name + '<a href="javascript:v.dId='+result.data[i].id+';tagSet(\''+str+'\')">设置</a>';
 							};
 							that.subject = result.data;
 							//console.log(that.subject);
@@ -651,6 +746,20 @@
 									{
 											result.data[i].adviserName = '';
 									}
+									//读取标签
+									result.data[i].str_tagList = '';
+									var str = '';
+									for(var t = 0; t < result.data[i].tagList.length; t++) {
+											if (str == '')
+											{
+													str = result.data[i].tagList[t].id;
+											}else
+											{
+													str += ','+result.data[i].tagList[t].id;
+											}
+									}
+									result.data[i].str_tagList = str;
+									result.data[i].str_tagListName = str_name + '<a href="javascript:v.dId='+result.data[i].id+';tagSet(\''+str+'\')">设置</a>';
 							};
 							that.subject = result.data;
 							//console.log(that.subject);
@@ -703,6 +812,20 @@
 									{
 											result.data[i].adviserName = '';
 									}
+									//读取标签
+									result.data[i].str_tagList = '';
+									var str = '';
+									for(var t = 0; t < result.data[i].tagList.length; t++) {
+											if (str == '')
+											{
+													str = result.data[i].tagList[t].id;
+											}else
+											{
+													str += ','+result.data[i].tagList[t].id;
+											}
+									}
+									result.data[i].str_tagList = str;
+									result.data[i].str_tagListName = str_name + '<a href="javascript:v.dId='+result.data[i].id+';tagSet(\''+str+'\')">设置</a>';									
 							};
 							that.subject = result.data;
 							//console.log(that.subject);
@@ -762,6 +885,20 @@
 										{
 												result.data[i].adviserName = '';
 										}
+										//读取标签
+										result.data[i].str_tagList = '';
+										var str = '';
+										for(var t = 0; t < result.data[i].tagList.length; t++) {
+												if (str == '')
+												{
+														str = result.data[i].tagList[t].id;
+												}else
+												{
+														str += ','+result.data[i].tagList[t].id;
+												}
+										}
+										result.data[i].str_tagList = str;
+										result.data[i].str_tagListName = str_name + '<a href="javascript:v.dId='+result.data[i].id+';tagSet(\''+str+'\')">设置</a>';
 								};
 								that.subject = result.data;
 							});
@@ -802,6 +939,20 @@
 										{
 												result.data[i].adviserName = '';
 										}
+										//读取标签
+										result.data[i].str_tagList = '';
+										var str = '';
+										for(var t = 0; t < result.data[i].tagList.length; t++) {
+												if (str == '')
+												{
+														str = result.data[i].tagList[t].id;
+												}else
+												{
+														str += ','+result.data[i].tagList[t].id;
+												}
+										}
+										result.data[i].str_tagList = str;
+										result.data[i].str_tagListName = str_name + '<a href="javascript:v.dId='+result.data[i].id+';tagSet(\''+str+'\')">设置</a>';
 								};
 								that.subject = result.data;
 							});
@@ -844,6 +995,20 @@
 										{
 												result.data[i].adviserName = '';
 										}
+										//读取标签
+										result.data[i].str_tagList = '';
+										var str = '';
+										for(var t = 0; t < result.data[i].tagList.length; t++) {
+												if (str == '')
+												{
+														str = result.data[i].tagList[t].id;
+												}else
+												{
+														str += ','+result.data[i].tagList[t].id;
+												}
+										}
+										result.data[i].str_tagList = str;
+										result.data[i].str_tagListName = str_name + '<a href="javascript:v.dId='+result.data[i].id+';tagSet(\''+str+'\')">设置</a>';
 								};
 								that.subject = result.data;
 							});
@@ -886,6 +1051,20 @@
 										{
 												result.data[i].adviserName = '';
 										}
+										//读取标签
+										result.data[i].str_tagList = '';
+										var str = '';
+										for(var t = 0; t < result.data[i].tagList.length; t++) {
+												if (str == '')
+												{
+														str = result.data[i].tagList[t].id;
+												}else
+												{
+														str += ','+result.data[i].tagList[t].id;
+												}
+										}
+										result.data[i].str_tagList = str;
+										result.data[i].str_tagListName = str_name + '<a href="javascript:v.dId='+result.data[i].id+';tagSet(\''+str+'\')">设置</a>';
 								};
 								that.subject = result.data;
 							});
@@ -899,7 +1078,8 @@
 										this.subject[this.current_index] = this.current_row;
 										this.current_index = '';
 										this.current_row = '';
-								}											
+								}
+								dId = 0;																			
 								this.subject.splice(0,0, {
 									id:'',									
 									name: '<input type="text" class="form-control small" style="" id="t0" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,\'\')" value="">',
@@ -911,6 +1091,7 @@
 									visaExpirationDate: '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:80px;" id="t11" data-date-format="dd-mm-yyyy" value="">',
 									wechatUsername: '<input type="text" class="form-control small" style="" id="t13" value="">',
 									source: '<select class="form-control" style="" id="t12"></select>',
+									str_tagListName: '',
 									adviserName: '<select class="form-control" style="" id="t4"></select>',
 									});									
 								this.add = true;
@@ -929,6 +1110,8 @@
 						}
 						this.current_index = index;
 						this.current_row = this.subject[index];
+						v.dId = this.subject[index].id;
+						tagList = this.subject[index].str_tagList;
 						this.subject[index].name = delHtmlTag(this.subject[index].name);
 						this.subject[index].authNickname = delHtmlTag(this.subject[index].authNickname);
 						if (this.subject[index].imageUrl == null) this.subject[index].imageUrl = '';
@@ -948,6 +1131,7 @@
 							visaExpirationDate: '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:80px;" id="t11" data-date-format="dd-mm-yyyy" value="'+this.subject[index].visaExpirationDate+'">',
 							wechatUsername: '<input type="text" class="form-control small" style="" id="t13" value="'+this.subject[index].wechatUsername+'">',
 							source: '<select class="form-control" style="" id="t12"></select>',
+							str_tagListName: '<a href="javascript:tagSet(\''+tagList+'\')">设置</a>',
 							adviserName: '<select class="form-control" style="" id="t4"></select>',							
 						});						
 						if (this.add)
@@ -969,7 +1153,30 @@
           show_detail: function (id){
           	sessionStorage.setItem("userId", id);
 						window.location.href = "user-detail.html";     
-			    }
+			    },
+			    tag_set: function (tagList){		      		
+		      		var that = this;
+		      		//读取客户的标签列表
+		      		var arr = Array();
+		      		$('#tag_list').val(tagList);
+		      		arr = tagList.split(",");
+							$.get(url + "user/listTag", {						
+							}, function(result) {								
+								for(var i = 0; i < result.data.length; i++) {
+										result.data[i].oid = result.data[i].id;										
+										var a = arr.indexOf(result.data[i].id.toString());
+										if (a != -1)
+										{
+												str_checked = ' checked="true" ';
+										}else
+										{
+												str_checked = '';
+										}
+										result.data[i].chk = '<input type="checkbox" name="chk"'+str_checked+' value="'+result.data[i].id+'" />';
+								}
+								that.subject1 = result.data;						
+							});      		
+		      }
 				}		
 			});
 			
@@ -996,6 +1203,7 @@
           var jqInputs = $('input',$("#example"));
           var jqSelect = $('select',$("#example"));
           var jqTextarea = $('textarea',$("#example"));
+          //$.ajaxSettings.async = false;
           
           var check_result = 1;
           /*if (jqInputs[1].value != '' && jqInputs[3].value != '')
@@ -1006,7 +1214,7 @@
           		$('#alert_error').addClass('alert-danger').show().delay(1500).fadeOut();
           		$("#error_info").html('姓名(拼音)和手机号必须填写！');
           		return false;
-          }*/
+          }*/          
           
           if (check_result)
           {
@@ -1045,7 +1253,7 @@
 					   			if (data.code == 0)
 					   			{
 					   					//更换顾问
-					   					$.post('user/updateAdviser', { id: sa_id, adviserId: jqSelect[1].value},function(data){});
+					   					$.post('user/updateAdviser', { id: sa_id, adviserId: jqSelect[1].value},function(data){});					   					
 					   					v.add = false;		
 					   					$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
 					   					v.table_remove();
@@ -1068,6 +1276,7 @@
 				  });
 				  var adviserId = 0;
 				  var str_source = '';
+				  var str_taglist = '';
 				 	if (this.current_row.id)
 				  {
 				  		$("#id").val(this.current_row.id);	  		
@@ -1125,7 +1334,7 @@
 	        				        			
 	        	}
 	        	obj_source.val(str_source);   
-	        });
+	        });	        
 	        
 			});
 			
@@ -1158,6 +1367,48 @@
       		sessionStorage.setItem("menu_parentid", parentId);
 					window.location.href = "knowledge.html"; 
       }
+      
+      function tagSet(tagList)
+      {
+      		v.tag_set(tagList);
+      		$('#add_tag').modal('show');
+      } 
+      
+      function tagUpdate()
+      {
+      		var tag_list = $('#tag_list').val();//当前的标签 
+      		var tagold_array = new Array();
+      		if (tag_list != '')
+      		{
+      				tagold_array = tag_list.split(",");
+      		}   		
+      		var tagnew_array = new Array();  
+					$('input[name="chk"]:checked').each(function(){  
+					    tagnew_array.push($(this).val());
+					});
+					//待添加的tag_id
+					//var add_array = new Array();
+					for(var i = 0; i < tagnew_array.length; i++) {
+						var result = tagold_array.indexOf(tagnew_array[i].toString());
+						if (result == -1) 
+						{
+								$.post('user/addTag', { userId: v.dId, tagId: tagnew_array[i]},function(data){});								
+								//add_array.push(tagnew_array[i]);
+						}
+					}		
+					//待删除的tag_id
+					//var del_array = new Array();
+					for(var i = 0; i < tagold_array.length; i++) {
+						var result = tagnew_array.indexOf(tagold_array[i].toString());
+						if (result == -1)
+						{
+								$.get("user/deleteUserTagByTagIdAndUserId", {tagId: tagold_array[i],userId: v.dId}, function(result){});
+								//del_array.push(tagold_array[i]);
+						}
+					}
+					$('#add_tag').modal('hide');
+					window.location.href = "users.html"; 
+      }         
       
       function delHtmlTag(str)
 			{
