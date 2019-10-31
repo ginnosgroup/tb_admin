@@ -94,7 +94,7 @@
               </a>
             </li>
             <li>
-              <a href="official.html" class="active">
+              <a href="official.html">
                 <i class="fa fa-book">
                 </i>
                 <span>
@@ -151,15 +151,27 @@
               </a>
             </li>
           	</dli>
-          	<li v-if="ap_list!='KJ'">
-              <a href="users.html">
-                <i class="fa fa-book">
+          	<li v-if="ap_list!='KJ'" class="sub-menu">
+							<a href="javascript:;">
+								<i class="fa fa-book">
                 </i>
-                <span>
-                  客户管理
+								<span>
+                 	 客户管理
                 </span>
-              </a>
-            </li>
+							</a>
+							<ul class="sub">
+								<li>
+									<a href="users.html">
+										客户管理
+									</a>
+								</li>
+								<li>
+									<a href="user-tags.html">
+										标签管理
+									</a>
+								</li>								
+							</ul>
+						</li>
             <li v-if="ap_list!='KJ'" class="sub-menu">
 							<a href="javascript:;">
 								<i class="fa fa-book">

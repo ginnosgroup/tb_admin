@@ -6,7 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="renderer" content="webkit">
 		<link rel="shortcut icon" href="img/favicon.ico">
-		<title>收款方式管理</title>
+		<title>客户标签管理</title>
 		<link href="css/bootstrap.min.css" rel="stylesheet">
 		<link href="css/bootstrap-reset.css" rel="stylesheet">
 		<link href="assets/font-awesome/css/font-awesome.css" rel="stylesheet">
@@ -23,7 +23,7 @@
 		<![endif]-->
 	</head>
 
-	<body id="receive-type" v-cloak>
+	<body id="user-tags" v-cloak>
 		<section id="container">
 			<header class="header white-bg">
 				<div class="sidebar-toggle-box">
@@ -124,7 +124,7 @@
 							</ul>
 						</li>
             <li>
-              <a href="receive-type.html" class="active">
+              <a href="receive-type.html">
                 <i class="fa fa-book">
                 </i>
                 <span>
@@ -152,7 +152,7 @@
             </li>
             </dli>
             <li v-if="ap_list!='KJ'" class="sub-menu">
-							<a href="javascript:;">
+							<a href="javascript:;" class="active">
 								<i class="fa fa-book">
                 </i>
 								<span>
@@ -165,7 +165,7 @@
 										客户管理
 									</a>
 								</li>
-								<li>
+								<li class="active">
 									<a href="user-tags.html">
 										标签管理
 									</a>
@@ -255,7 +255,7 @@
 						<div class="col-lg-12">
 							<section class="panel">
 								<header class="panel-heading">
-									收款方式管理
+									客户标签管理
 								</header>
 								<div class="panel-body">
 									<div class="adv-table editable-table">
@@ -265,6 +265,12 @@
 									      </button>
 									      <strong>Success!</strong> You  just achieved success.
 									  </div>
+									  <div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+                      <button data-dismiss="alert" class="close close-sm" type="button">
+                      <i class="fa fa-times"></i>
+                      </button>
+                      <strong id="error_info"></strong>
+                   </div>
 										<div class="clearfix">
                        <div class="btn-group">
                           <button id="editable-sample_new" class="btn btn-success green" @click="table_insert">
@@ -279,20 +285,16 @@
 													<tr>
 														<!--<th><input @click="checked" type="checkbox"></th>-->
 														<th>ID</th>
-														<th>收款方式名称</th>
-														<th>状态</th>
-														<th>排序</th>
-														<th>Edit</th>
+														<th>标签名称</th>														
+														<th>Oper</th>
 														<th>Delete</th>
 													</tr>
 												</thead>
 												<tbody>
 													<tr v-for="item in subject" class="gradeX">
 														<td v-html="item.oid"></td>
-														<td v-html="item.name"></td>
-														<td v-html="item.stateName"></td>
-														<td v-html="item.weight"></td>
-														<td><a v-if="item.id" class="edit" href="javascript:;" @click="table_modify($index)"><span class="label label-success">Edit</span></a>
+														<td v-html="item.name"></td>														
+														<td><a v-if="item.id" class="edit" style="display:none;" href="javascript:;" @click="table_modify($index)"><span class="label label-success">Edit</span></a>
 																<a v-else class="edit" href="javascript:;"><span class="label label-primary">Save</span></a>
 														</td>
 														<td><a v-if="item.id" class="delete" href="#" @click="delete_confirm($index,item.id)"><span class="label label-danger">Delete</span></a>
@@ -391,10 +393,10 @@
 		<script src="js/vue.js"></script>
 		<script src="js/common.js?verson=1"></script>
 		<script>
-			tb.isLogin("receive-type.html");
+			tb.isLogin("user-tags.html");
 			$("td,th").addClass("text-center");
 			var v = new Vue({
-				el: '#receive-type',
+				el: '#user-tags',
 				data: {
 					admin: sessionStorage.getItem("admin"),
 					ap_list: sessionStorage.getItem("ap_list"),
@@ -418,47 +420,15 @@
 				},
 				created: function() {
 					this.getDatalist();
-					this.getSort();
 				},
-				methods: {
-					getSort: function() {
-						var that = this;
-						$.get(url + "school/list", {
-							state: "",
-							pageNum: 0,
-							pageSize: 1000000
-						}, function(result) {
-							console.log(result)
-							that.allSort = result.data;
-						});
-					},
+				methods: {					
 					getDatalist: function() {
-						var that = this;
-						$.get(url + "receiveType/count", {
-							keyword: that.name							
+						var that = this;						
+						$.get(url + "user/listTag", {							
 						}, function(result) {
-							console.log(result)
-							that.count = result.data;
-							that.allPage = Math.ceil(result.data / that.pageSize);
-							console.log(that.allPage)
-						});
-						$.get(url + "receiveType/list", {
-							pageNum: 0,
-							pageSize: that.pageSize
-						}, function(result) {
-							//console.log(result)
-							that.pageNum = 0;
+							//console.log(result)							
 							for(var i = 0; i < result.data.length; i++) {
-									result.data[i].oid = result.data[i].id;
-									switch(result.data[i].state)
-									{
-											case 'ENABLED':
-													result.data[i].stateName = '是';
-											break;
-											case 'DISABLED':
-													result.data[i].stateName = '否';
-											break;
-									}
+									result.data[i].oid = result.data[i].id;									
 							};
 							that.subject = result.data;
 							//console.log(that.subject);
@@ -481,116 +451,7 @@
 							obj = '0' + obj;
 						};
 						return obj;
-					},
-					firstPage: function() {
-						var that = this;
-						if(that.pageNum > 0) {
-							$.get(url + "school/list", {
-								keyword: that.name,
-								state: that.state,
-								pageNum: 0,
-								pageSize: that.pageSize
-							}, function(result) {
-								console.log(result)
-								that.pageNum = 0;
-								for(var i = 0; i < result.data.length; i++) {
-										result.data[i].oid = result.data[i].id;
-										switch(result.data[i].state)
-										{
-												case 'ENABLED':
-														result.data[i].stateName = '是';
-												break;
-												case 'DISABLED':
-														result.data[i].stateName = '否';
-												break;
-										}
-								};
-								that.subject = result.data;
-							});
-						}
-					},
-					prevPage: function() {
-						var that = this;
-						if(that.pageNum > 0) {
-							that.pageNum--;
-							$.get(url + "school/list", {
-								keyword: that.name,
-								pageNum: that.pageNum,
-								pageSize: that.pageSize
-							}, function(result) {
-								console.log(result)
-								for(var i = 0; i < result.data.length; i++) {
-										result.data[i].oid = result.data[i].id;
-										switch(result.data[i].state)
-										{
-												case 'ENABLED':
-														result.data[i].stateName = '是';
-												break;
-												case 'DISABLED':
-														result.data[i].stateName = '否';
-												break;
-										}
-								};
-								that.subject = result.data;
-							});
-						}
-					},
-					nextPage: function() {
-						var that = this;
-						if(that.pageNum < that.allPage - 1) {
-							that.pageNum++;
-							$.get(url + "school/list", {
-								keyword: that.name,
-								categoryId: that.sort,
-								state: that.state,
-								pageNum: that.pageNum,
-								pageSize: that.pageSize
-							}, function(result) {
-								console.log(result)
-								for(var i = 0; i < result.data.length; i++) {
-										result.data[i].oid = result.data[i].id;
-										switch(result.data[i].state)
-										{
-												case 'ENABLED':
-														result.data[i].stateName = '是';
-												break;
-												case 'DISABLED':
-														result.data[i].stateName = '否';
-												break;
-										}							
-								};
-								that.subject = result.data;
-							});
-						}
-					},
-					lastPage: function() {
-						var that = this;
-						if(that.pageNum < that.allPage - 1) {
-							$.get(url + "school/list", {
-								keyword: that.name,
-								categoryId: that.sort,
-								state: that.state,
-								pageNum: that.allPage - 1,
-								pageSize: that.pageSize
-							}, function(result) {
-								console.log(result)
-								that.pageNum = that.allPage - 1;
-								for(var i = 0; i < result.data.length; i++) {
-										result.data[i].oid = result.data[i].id;
-										switch(result.data[i].state)
-										{
-												case 'ENABLED':
-														result.data[i].stateName = '是';
-												break;
-												case 'DISABLED':
-														result.data[i].stateName = '否';
-												break;
-										}
-								};
-								that.subject = result.data;
-							});
-						}
-					},
+					},					
 					table_insert() {
 						if (!this.add)
 						{
@@ -602,9 +463,7 @@
 								}											
 								this.subject.splice(0,0, {
 									id:'',									
-									name: '<input type="text" class="form-control small" style="width:200px;" id="t0" value="">',									
-									stateName: '<select class="form-control" style="width:150px;" id="t1"></select>',
-									weight: '<input type="text" class="form-control small" style="width:100px;" id="t2" value="">',
+									name: '<input type="text" class="form-control small" style="" id="t0" value="">',									
 									});
 								this.add = true;
 						}
@@ -621,13 +480,10 @@
 								}
 						}
 						this.current_index = index;
-						this.current_row = this.subject[index];
-						if (this.subject[index].imageUrl == null) this.subject[index].imageUrl = '';
+						this.current_row = this.subject[index];						
 						this.subject.splice(index,1, {
 							oid: parseInt(this.subject[index].id),
-							name: '<input type="text" class="form-control small" style="width:200px;" id="t0" value="'+this.subject[index].name+'">',							
-							stateName: '<select class="form-control" style="width:150px;" id="t1"></select>',
-							weight: '<input type="text" class="form-control small" style="width:100px;" id="t2" value="'+this.subject[index].weight+'">',									
+							name: '<input type="text" class="form-control small" style="width:200px;" id="t0" value="'+this.subject[index].name+'">',												
 						});						
 						if (this.add)
 						{
@@ -672,22 +528,24 @@
           var jqSelect = $('select',$("#example"));
           
           var check_result = 0;
-          if (jqInputs[0].value != '' && jqInputs[1].value != '')
+          if (jqInputs[0].value != '')
           {
           		check_result = true;
           }else
           {
-          		alert('所有选项必须填写！');
+          		$('#alert_error').addClass('alert-danger').show().delay(1500).fadeOut();
+          		$("#error_info").html('标签名称必须填写！');
+          		return false;
           }
           
           if (check_result)
           {              
-              var str_url = "receiveType/add";
+              var str_url = "user/newTag";
               var sa_id = $("#id").val();
-              if (sa_id != '0') str_url = "receiveType/update";
+              if (sa_id != '0') str_url = "user/updateTag";
               $("#id").val('0');
               
-              $.post(str_url, { id: sa_id, name: jqInputs[0].value, state: jqSelect[0].value, weight: jqInputs[1].value},
+              $.post(str_url, { id: sa_id, name: jqInputs[0].value},
 					   	function(data){
 					   			if (data.code == 0)
 					   			{
@@ -713,17 +571,12 @@
 				  {
 				  		$("#id").val(this.current_row.id);	  		
 				  		str_state = this.current_row.state;				  			  		
-				  }				   	    			    
-			    //绑定国家列表
-			    var obj_state = $("#t1");				    
-	        obj_state.append("<option value='ENABLED'>是</option>");
-	        obj_state.append("<option value='DISABLED'>否</option>");
-	        obj_state.val(str_state);
+				  }			    
 			});
 			
 			function deleteId()
       {
-					$.get("receiveType/delete", {
+					$.get("user/deleteTagById", {
 						id: v.dId
 					}, function(result) {
 						console.log(result);
