@@ -355,7 +355,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		List<BrokerageSaDO> list = brokerageSaDao.listBrokerageSa2(startDate, endDate, schoolName);
 		list.forEach(bs -> {
 			double fee = bs.getTuitionFee();
-			bs.setCommission(fee * (1 - Double.parseDouble(parameters.trim()) * 0.01));
+			bs.setCommission(fee * (Double.parseDouble(parameters.trim()) * 0.01));
 			updateGST(bs);
 			brokerageSaDao.updateBrokerageSa(bs);
 		});
@@ -366,7 +366,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 				schoolName);
 		list.forEach(sbs -> {
 			double fee = sbs.getTuitionFee();
-			sbs.setCommission(fee * (1 - Double.parseDouble(parameters.trim()) * 0.01));
+			sbs.setCommission(fee * (Double.parseDouble(parameters.trim()) * 0.01));
 			updateGST(sbs);
 			schoolBrokerageSaDao.updateSchoolBrokerageSa(sbs);
 		});
@@ -392,7 +392,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 					double _fee = Double.parseDouble(_parameter[0]);
 					list.forEach(bs -> {
 						double fee = bs.getTuitionFee();
-						bs.setCommission(fee * (1 - proportion * 0.01) + _fee);
+						bs.setCommission(fee * (proportion * 0.01) + _fee);
 						// System.out.print(bs.getId() + " : " + fee + " * ( 1 -
 						// " + proportion + " * 0.01 ) + " + _fee + " = " +
 						// bs.getCommission());
@@ -425,7 +425,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 					double _fee = Double.parseDouble(_parameter[0]);
 					list.forEach(sbs -> {
 						double fee = sbs.getTuitionFee();
-						sbs.setCommission(fee * (1 - proportion * 0.01) + _fee);
+						sbs.setCommission(fee * (proportion * 0.01) + _fee);
 						updateGST(sbs);
 						schoolBrokerageSaDao.updateSchoolBrokerageSa(sbs);
 					});
@@ -454,7 +454,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 					double _fee = Double.parseDouble(_parameter[0]);
 					list.forEach(bs -> {
 						double fee = bs.getTuitionFee();
-						bs.setCommission(fee * (1 - proportion * 0.01) + _fee);
+						bs.setCommission(fee * (proportion * 0.01) + _fee);
 						updateGST(bs);
 						brokerageSaDao.updateBrokerageSa(bs);
 					});
@@ -483,7 +483,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 					double _fee = Double.parseDouble(_parameter[0]);
 					list.forEach(sbs -> {
 						double fee = sbs.getTuitionFee();
-						sbs.setCommission(fee * (1 - proportion * 0.01) + _fee);
+						sbs.setCommission(fee * (proportion * 0.01) + _fee);
 						updateGST(sbs);
 						schoolBrokerageSaDao.updateSchoolBrokerageSa(sbs);
 					});
@@ -508,7 +508,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 					double proportion = Double.parseDouble(_parameter[0].trim());
 					list.forEach(bs -> {
 						double fee = bs.getTuitionFee();
-						bs.setCommission(fee * (1 - proportion * 0.01));
+						bs.setCommission(fee * (proportion * 0.01));
 						updateGST(bs);
 						brokerageSaDao.updateBrokerageSa(bs);
 					});
@@ -534,7 +534,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 					double proportion = Double.parseDouble(_parameter[0].trim());
 					list.forEach(sbs -> {
 						double fee = sbs.getTuitionFee();
-						sbs.setCommission(fee * (1 - proportion * 0.01));
+						sbs.setCommission(fee * (proportion * 0.01));
 						updateGST(sbs);
 						schoolBrokerageSaDao.updateSchoolBrokerageSa(sbs);
 					});
