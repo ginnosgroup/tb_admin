@@ -616,14 +616,18 @@
 									}
 									//读取标签
 									result.data[i].str_tagList = '';
+									result.data[i].str_tagListName = '';
 									var str = '';
+									var str_name = '';
 									for(var t = 0; t < result.data[i].tagList.length; t++) {
 											if (str == '')
 											{
 													str = result.data[i].tagList[t].id;
+													str_name = '['+result.data[i].tagList[t].name+']';
 											}else
 											{
 													str += ','+result.data[i].tagList[t].id;
+													str_name += '<br/>['+result.data[i].tagList[t].name+']';
 											}
 									}
 									result.data[i].str_tagList = str;
@@ -682,18 +686,22 @@
 									}
 									//读取标签
 									result.data[i].str_tagList = '';
+									result.data[i].str_tagListName = '';
 									var str = '';
+									var str_name = '';
 									for(var t = 0; t < result.data[i].tagList.length; t++) {
 											if (str == '')
 											{
 													str = result.data[i].tagList[t].id;
+													str_name = '['+result.data[i].tagList[t].name+']';
 											}else
 											{
 													str += ','+result.data[i].tagList[t].id;
+													str_name += '<br/>['+result.data[i].tagList[t].name+']';
 											}
 									}
 									result.data[i].str_tagList = str;
-									result.data[i].str_tagListName = str_name + '<a href="javascript:v.dId='+result.data[i].id+';tagSet(\''+str+'\')">设置</a>';
+									result.data[i].str_tagListName = str_name + '<a href="javascript:v.dId='+result.data[i].id+';tagSet(\''+str+'\')">设置</a>';;
 							};
 							that.subject = result.data;
 							//console.log(that.subject);
@@ -748,14 +756,18 @@
 									}
 									//读取标签
 									result.data[i].str_tagList = '';
+									result.data[i].str_tagListName = '';
 									var str = '';
+									var str_name = '';
 									for(var t = 0; t < result.data[i].tagList.length; t++) {
 											if (str == '')
 											{
 													str = result.data[i].tagList[t].id;
+													str_name = '['+result.data[i].tagList[t].name+']';
 											}else
 											{
 													str += ','+result.data[i].tagList[t].id;
+													str_name += '<br/>['+result.data[i].tagList[t].name+']';
 											}
 									}
 									result.data[i].str_tagList = str;
@@ -814,14 +826,18 @@
 									}
 									//读取标签
 									result.data[i].str_tagList = '';
+									result.data[i].str_tagListName = '';
 									var str = '';
+									var str_name = '';
 									for(var t = 0; t < result.data[i].tagList.length; t++) {
 											if (str == '')
 											{
 													str = result.data[i].tagList[t].id;
+													str_name = '['+result.data[i].tagList[t].name+']';
 											}else
 											{
 													str += ','+result.data[i].tagList[t].id;
+													str_name += '<br/>['+result.data[i].tagList[t].name+']';
 											}
 									}
 									result.data[i].str_tagList = str;
@@ -887,14 +903,18 @@
 										}
 										//读取标签
 										result.data[i].str_tagList = '';
+										result.data[i].str_tagListName = '';
 										var str = '';
+										var str_name = '';
 										for(var t = 0; t < result.data[i].tagList.length; t++) {
 												if (str == '')
 												{
 														str = result.data[i].tagList[t].id;
+														str_name = '['+result.data[i].tagList[t].name+']';
 												}else
 												{
 														str += ','+result.data[i].tagList[t].id;
+														str_name += '<br/>['+result.data[i].tagList[t].name+']';
 												}
 										}
 										result.data[i].str_tagList = str;
@@ -941,14 +961,18 @@
 										}
 										//读取标签
 										result.data[i].str_tagList = '';
+										result.data[i].str_tagListName = '';
 										var str = '';
+										var str_name = '';
 										for(var t = 0; t < result.data[i].tagList.length; t++) {
 												if (str == '')
 												{
 														str = result.data[i].tagList[t].id;
+														str_name = '['+result.data[i].tagList[t].name+']';
 												}else
 												{
 														str += ','+result.data[i].tagList[t].id;
+														str_name += '<br/>['+result.data[i].tagList[t].name+']';
 												}
 										}
 										result.data[i].str_tagList = str;
@@ -997,14 +1021,18 @@
 										}
 										//读取标签
 										result.data[i].str_tagList = '';
+										result.data[i].str_tagListName = '';
 										var str = '';
+										var str_name = '';
 										for(var t = 0; t < result.data[i].tagList.length; t++) {
 												if (str == '')
 												{
 														str = result.data[i].tagList[t].id;
+														str_name = '['+result.data[i].tagList[t].name+']';
 												}else
 												{
 														str += ','+result.data[i].tagList[t].id;
+														str_name += '<br/>['+result.data[i].tagList[t].name+']';
 												}
 										}
 										result.data[i].str_tagList = str;
@@ -1053,14 +1081,18 @@
 										}
 										//读取标签
 										result.data[i].str_tagList = '';
+										result.data[i].str_tagListName = '';
 										var str = '';
+										var str_name = '';
 										for(var t = 0; t < result.data[i].tagList.length; t++) {
 												if (str == '')
 												{
 														str = result.data[i].tagList[t].id;
+														str_name = '['+result.data[i].tagList[t].name+']';
 												}else
 												{
 														str += ','+result.data[i].tagList[t].id;
+														str_name += '<br/>['+result.data[i].tagList[t].name+']';
 												}
 										}
 										result.data[i].str_tagList = str;
