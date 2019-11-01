@@ -306,7 +306,37 @@
 					</a>
 				</div>
 			</footer>
-		</section>		
+		</section>
+		<div class="modal fade" id="password_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">访问需要密码</h4>
+					</div>
+					<div class="modal-body">
+							<form class="form-horizontal">
+							<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+                <button data-dismiss="alert" class="close close-sm" type="button">
+                <i class="fa fa-times"></i>
+                </button>
+                <strong id="error_info"></strong>
+              </div>			
+							<div class="form-group">
+								<label class="col-sm-3 control-label">请输入密码</label>
+								<div class="col-sm-8">
+									<input type="password" autocomplete="off" style="width:150px;display:Inline;" id="t1" class="form-control" placeholder="">
+								</div>
+							</div>							
+							</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal" onclick="window.location.href='knowledge.html'">取消</button>
+						<button onclick="passwdVerify()" type="button" class="btn btn-primary">确认</button>
+					</div>
+				</div>
+			</div>
+		</div>
 		<script src="js/jquery-1.8.3.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
 		<script src="js/jquery.dcjqaccordion.2.7.js"></script>
@@ -338,11 +368,18 @@
 					$.get(url + "knowledge/get", {
 						id: this.id,									
 					}, function(result) {
-						var title = result.data.title;
-						var id = result.data.id;
-						var cont = result.data.content;
-						$('#title').html('[ID:'+result.data.id+'] '+title);
-						$('#content').html(cont);
+						if (result.code)
+						{
+								//弹出密码框
+								$('#password_id').modal('show');								
+						}else
+						{
+								var title = result.data.title;
+								var id = result.data.id;
+								var cont = result.data.content;
+								$('#title').html('[ID:'+result.data.id+'] '+title);
+								$('#content').html(cont);
+						}
 					});
 					this.getMessagelist();
 				},
@@ -385,6 +422,42 @@
       		sessionStorage.setItem("menu_parentid", parentId);
 					window.location.href = "knowledge.html"; 
       }
+      
+      function passwdVerify()
+			{
+					var that = this;
+			    var kid = v.id;
+			    var passwd = $('#t1').val();	    
+			    if (kid && passwd)
+			    {
+			    		$.get(url + "knowledge/get", {
+								id: kid,
+								password: passwd						
+							}, function(result) {
+								if (result.code)
+								{
+										//密码错误
+										$('#alert_error').addClass('alert-danger').show().delay(1500).fadeOut();
+			          		$("#error_info").html('密码不正确！拒绝访问。');
+			          		return false;						
+								}else
+								{
+										$('#password_id').modal('hide');	
+										var title = result.data.title;
+										var id = result.data.id;
+										var cont = result.data.content;
+										$('#title').html('[ID:'+result.data.id+'] '+title);
+										$('#content').html(cont);
+								}
+							});
+			    }else
+			    {
+			    		//密码错误
+							$('#alert_error').addClass('alert-danger').show().delay(1500).fadeOut();
+          		$("#error_info").html('ID不存在或密码为空！');
+          		return false;
+			    }
+			}
       
       function btnSubmit()
 			{
