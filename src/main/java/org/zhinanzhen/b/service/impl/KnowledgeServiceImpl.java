@@ -95,7 +95,7 @@ public class KnowledgeServiceImpl extends BaseService implements KnowledgeServic
 			KnowledgeMenuDO knowledgeMenuDo = knowledgeMenuDao.getKnowledgeMenu(knowledgeDto.getKnowledgeMenuId());
 			if (knowledgeMenuDo != null)
 				knowledgeDto.setKnowledgeMenuName(knowledgeMenuDo.getName());
-			if (knowledgeDto.getPassword() != null) {
+			if (knowledgeDto.getPassword() != null && !knowledgeDto.getPassword().equals("")) {
 				if (!knowledgeDto.getPassword().equals(password) && !pwd.equals(password))
 					knowledgeDto.setContent(null);
 				knowledgeDto.setPassword(null);
@@ -119,8 +119,8 @@ public class KnowledgeServiceImpl extends BaseService implements KnowledgeServic
 				se.setCode(ErrorCodeEnum.DATA_ERROR.code());
 				throw se;
 			}
-			if (knowledgeDo.getPassword() != null
-					&& (!knowledgeDo.getPassword().equals(password) && !pwd.equals(password))) {
+			if (knowledgeDo.getPassword() != null && !knowledgeDo.getPassword().equals("")
+					&& !knowledgeDo.getPassword().equals(password) && !pwd.equals(password)) {
 				ServiceException se = new ServiceException("Password error !");
 				se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 				throw se;
