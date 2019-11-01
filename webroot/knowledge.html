@@ -373,8 +373,13 @@
 							<div class="form-group">
 								<label class="col-sm-3 control-label">设定密码(最长8位)</label>
 								<div class="col-sm-8">
-									<input type="text" id="t3" class="form-control" maxlength="8" placeholder="">
-								</div>
+									<input type="text" id="t3" class="form-control" maxlength="8" style="width:200px;" placeholder="">
+									<div class="checkbox">
+                     <label>
+                     <input type="checkbox" id="t4" value="1"> 清除密码
+                     </label>
+                  </div>
+								</div>								
 							</div>							
 							</form>
 					</div>
@@ -683,6 +688,7 @@
           var t1 = $("#t1").val();
           var t2 = editor.txt.html();
           var t3 = $("#t3").val();
+          var t4 = $("#t4").val();
           
           if (t1 != '' && t2 != '<p><br></p>')
           {
@@ -703,6 +709,7 @@
               json['content'] = t2;
               json['knowledgeMenuId'] = v.menu_id;
               if (t3 != '') json['password'] = t3;
+              if (t4) json['password'] = '';
               if (sa_id != '0') str_url = "knowledge/update";              
               $("#id").val('0');
               
