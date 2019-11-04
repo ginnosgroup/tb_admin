@@ -314,6 +314,42 @@
                 </div>
               </section>
             </div>
+          </div>
+          <div class="row">
+          	<div class="col-lg-12">
+          		<section class="panel">
+                  <header class="panel-heading">
+                     <span class="label" style="color:#58c9f3;font-size:20px;">回访提醒</span>
+                     <span class="tools pull-right">
+                     <script>current_date();</script>
+                     </span>
+                  </header>
+                  <table class="table">
+                     <thead>
+                        <tr>
+                           <th>Id</th>
+                           <th>姓名</th>                           
+                           <th>时间</th>
+                           <th>咨询内容</th>                           
+                           <th>提醒时间</th>
+                           <th>提醒内容</th>
+                           <th>操作</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr v-for="item in datalist4">
+                           <td v-html="item.id"></td>
+                           <td v-html="item.userName"></td>
+                           <td v-html="item.gmtCreate"></td>
+                           <td v-html="item.contents"></td>
+                           <td v-html="item.remindDate"></td>
+                           <td v-html="item.remindContents"></td>
+                           <td><button type="button" class="btn btn-default btn-sm" @click="close_confirm2($index,item.id,item.userId,1)">关闭提醒</button></td>
+                        </tr>                        
+                     </tbody>
+                  </table>
+               </section>
+          	</div>          	
           </div>        
           <div class="row">
           	<div class="col-lg-6">
@@ -431,42 +467,7 @@
                </section>
           	</div>
           </div>
-          <div class="row">
-          	<div class="col-lg-12">
-          		<section class="panel">
-                  <header class="panel-heading">
-                     <span class="label" style="color:#58c9f3;font-size:20px;">回访提醒</span>
-                     <span class="tools pull-right">
-                     <script>current_date();</script>
-                     </span>
-                  </header>
-                  <table class="table">
-                     <thead>
-                        <tr>
-                           <th>Id</th>
-                           <th>姓名</th>                           
-                           <th>时间</th>
-                           <th>咨询内容</th>                           
-                           <th>提醒时间</th>
-                           <th>提醒内容</th>
-                           <th>操作</th>
-                        </tr>
-                     </thead>
-                     <tbody>
-                        <tr v-for="item in datalist4">
-                           <td v-html="item.id"></td>
-                           <td v-html="item.userName"></td>
-                           <td v-html="item.gmtCreate"></td>
-                           <td v-html="item.contents"></td>
-                           <td v-html="item.remindDate"></td>
-                           <td v-html="item.remindContents"></td>
-                           <td><button type="button" class="btn btn-default btn-sm" @click="close_confirm2($index,item.id,item.userId,1)">关闭提醒</button></td>
-                        </tr>                        
-                     </tbody>
-                  </table>
-               </section>
-          	</div>          	
-          </div>
+          
 				</section>
 			</section>
 			<footer class="site-footer">
