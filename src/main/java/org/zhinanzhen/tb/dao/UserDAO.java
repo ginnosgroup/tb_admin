@@ -24,8 +24,8 @@ public interface UserDAO {
 	public List<UserDO> listUser(@Param("name") String name, @Param("authType") String authType,
 			@Param("authNickname") String authNickname, @Param("phone") String phone,
 			@Param("wechatUsername") String wechatUsername, @Param("adviserId") Integer adviserId,
-			@Param("orderByField") String orderByField, @Param("isDesc") Boolean isDesc, @Param("offset") int offset,
-			@Param("rows") int rows);
+			@Param("tagId") Integer tagId, @Param("orderByField") String orderByField, @Param("isDesc") Boolean isDesc,
+			@Param("offset") int offset, @Param("rows") int rows);
 
 	public UserDO getUserById(int id);
 

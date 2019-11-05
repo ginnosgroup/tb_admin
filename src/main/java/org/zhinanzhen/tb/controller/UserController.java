@@ -108,15 +108,15 @@ public class UserController extends BaseController {
 			@RequestParam(value = "adviserId", required = false) String adviserId,
 			@RequestParam(value = "orderByField", required = false) String orderByField,
 			@RequestParam(value = "isDesc", required = false) String isDesc,
-			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
-			HttpServletRequest request, HttpServletResponse response) {
+			@RequestParam(value = "tagId", required = false) String tagId, @RequestParam(value = "pageNum") int pageNum,
+			@RequestParam(value = "pageSize") int pageSize, HttpServletRequest request, HttpServletResponse response) {
 
 		// 更改当前顾问编号
 		Integer newAdviserId = getAdviserId(request);
 		if (newAdviserId != null)
 			adviserId = newAdviserId + "";
-		if (StringUtil.isBlank(adviserId) && !isAdminUser(request))
-			return new Response<List<UserDTO>>(1, "No permission !", null);
+//		if (StringUtil.isBlank(adviserId) && !isAdminUser(request))
+//			return new Response<List<UserDTO>>(1, "No permission !", null);
 
 		try {
 			super.setGetHeader(response);
@@ -125,7 +125,7 @@ public class UserController extends BaseController {
 				authTypeEnum = UserAuthTypeEnum.get(authType);
 			}
 			List<UserDTO> list = userService.listUser(name, authTypeEnum, authNickname, phone, wechatUsername,
-					StringUtil.toInt(adviserId), orderByField,
+					StringUtil.toInt(adviserId), StringUtil.toInt(tagId), orderByField,
 					Boolean.parseBoolean(StringUtil.isEmpty(isDesc) ? "false" : isDesc), pageNum, pageSize);
 			return new Response<List<UserDTO>>(0, list);
 		} catch (ServiceException e) {

@@ -21,8 +21,8 @@ public interface UserService {
 			String wechatUsername, int adviserId, int pageNum, int pageSize) throws ServiceException;
 
 	public List<UserDTO> listUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
-			String wechatUsername, int adviserId, String orderByField, Boolean isDesc, int pageNum, int pageSize)
-			throws ServiceException;
+			String wechatUsername, int adviserId, Integer tagId, String orderByField, Boolean isDesc, int pageNum,
+			int pageSize) throws ServiceException;
 
 	public UserDTO getUserById(int id) throws ServiceException;
 

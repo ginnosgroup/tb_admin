@@ -86,14 +86,14 @@ public class UserServiceImpl extends BaseService implements UserService {
 	@Override
 	public List<UserDTO> listUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
 			String wechatUsername, int adviserId, int pageNum, int pageSize) throws ServiceException {
-		return listUser(name, authType, authNickname, phone, wechatUsername, adviserId, "gmt_create", true, pageNum,
-				pageSize);
+		return listUser(name, authType, authNickname, phone, wechatUsername, adviserId, null, "gmt_create", true,
+				pageNum, pageSize);
 	}
 
 	@Override
 	public List<UserDTO> listUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
-			String wechatUsername, int adviserId, String orderByField, Boolean isDesc, int pageNum, int pageSize)
-			throws ServiceException {
+			String wechatUsername, int adviserId, Integer tagId, String orderByField, Boolean isDesc, int pageNum,
+			int pageSize) throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
 		}
@@ -116,10 +116,10 @@ public class UserServiceImpl extends BaseService implements UserService {
 		try {
 			if (authType == null) {
 				userDoList = userDao.listUser(name, null, authNickname, phone, wechatUsername,
-						adviserId <= 0 ? null : adviserId, orderByField, isDesc, pageNum * pageSize, pageSize);
+						adviserId <= 0 ? null : adviserId, tagId, orderByField, isDesc, pageNum * pageSize, pageSize);
 			} else {
 				userDoList = userDao.listUser(name, authType.toString(), authNickname, phone, wechatUsername,
-						adviserId <= 0 ? null : adviserId, orderByField, isDesc, pageNum * pageSize, pageSize);
+						adviserId <= 0 ? null : adviserId, tagId, orderByField, isDesc, pageNum * pageSize, pageSize);
 			}
 			if (userDoList == null) {
 				return null;
@@ -224,7 +224,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 			throw se;
 		}
 		if (StringUtil.isNotEmpty(phone) && userDao.countUser(null, null, null, phone, null, null) > 0) {
-			List<UserDO> userList = userDao.listUser(null, null, null, phone, null, null, null, null, 0, 1);
+			List<UserDO> userList = userDao.listUser(null, null, null, phone, null, null, null, null, null, 0, 1);
 			if (userList.size() > 0 && userList.get(0).getId() != id) { // 排除当前id
 				ServiceException se = new ServiceException("The phone is already existed !");
 				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());

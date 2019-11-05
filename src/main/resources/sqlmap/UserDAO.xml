@@ -82,44 +82,48 @@
 
     <select id="listUser" resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
         SELECT
-        id,
-        gmt_create AS gmtCreate,
-        name,
-        birthday,
-        email,
-        wechat_username AS wechatUsername,
-        first_controller_contents AS firstControllerContents,
-        visa_code AS visaCode,
-        visa_expiration_date AS visaExpirationDate,
-        source,
-        auth_type AS authType,
-        auth_nickname AS authNickname,
-        auth_username AS authUsername,
-        phone,
-        balance,
-        adviser_id AS adviserId
-        FROM tb_user
-        WHERE auth_type != 'V'
+        u.id AS id,
+        u.gmt_create AS gmtCreate,
+        u.name AS name,
+        u.birthday AS birthday,
+        u.email AS email,
+        u.wechat_username AS wechatUsername,
+        u.first_controller_contents AS firstControllerContents,
+        u.visa_code AS visaCode,
+        u.visa_expiration_date AS visaExpirationDate,
+        u.source AS source,
+        u.auth_type AS authType,
+        u.auth_nickname AS authNickname,
+        u.auth_username AS authUsername,
+        u.phone AS phone,
+        u.balance AS balance,
+        u.adviser_id AS adviserId
+        FROM tb_user u LEFT JOIN b_user_tag ut ON u.id = ut.user_id
+        WHERE u.auth_type != 'V'
         <if test='name != null and name != ""'>
-            AND name LIKE '%${name}%'
+            AND u.name LIKE '%${name}%'
         </if>
         <if test='authType != null and authType != ""'>
-            AND auth_type = #{authType}
+            AND u.auth_type = #{authType}
         </if>
         <if test='authNickname != null and authNickname != ""'>
-            AND auth_nickname = #{authNickname}
+            AND u.auth_nickname = #{authNickname}
         </if>
         <if test='phone != null and phone != ""'>
-            AND phone = #{phone}
+            AND u.phone = #{phone}
         </if>
         <if test='wechatUsername != null and wechatUsername != ""'>
-            AND wechat_username = #{wechatUsername}
+            AND u.wechat_username = #{wechatUsername}
         </if>
         <if test='adviserId != null and adviserId != ""'>
-            AND adviser_id = #{adviserId}
+            AND u.adviser_id = #{adviserId}
         </if>
+        <if test='tagId != null and tagId != ""'>
+            AND ut.tag_id = #{tagId}
+        </if>
+        GROUP BY u.id
         <if test='orderByField != null and orderByField != ""'>
-            ORDER BY ${orderByField}
+            ORDER BY u.${orderByField}
             <if test='isDesc == true'>
                 DESC
             </if>
