@@ -273,7 +273,7 @@
                    </div>
 										<div class="clearfix">
                        <div class="btn-group">
-                          <button id="editable-sample_new" class="btn btn-success green" @click="table_insert">
+                          <button id="editable-sample_new" class="btn btn-success green" onclick="addNew();">
                           Add New <i class="fa fa-plus"></i>
                           </button>
                        </div>
@@ -515,6 +515,140 @@
 					<div class="modal-footer">
 						<button type="button" class="btn btn-default" data-dismiss="modal" onclick="ajax_subject();">取消</button>
 						<button onclick="schoolSubjectSave()" type="button" class="btn btn-primary">确认</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="modal fade" id="add_schoolsubject1_id" style="z-index:9999999;background-color: rgba(192,192,192,0.2);" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">添加课程</h4>
+					</div>
+					<div class="modal-body">
+							<form class="form-horizontal">
+							<div class="form-group">
+								<label class="col-sm-2 control-label">课程名程<span style="color:red;">*</span></label>
+								<div class="col-sm-8">
+									<input type="text" id="schoolsubject_name1" class="form-control" placeholder="" />
+								</div>
+							</div>
+							</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal" onclick="ajax_subject1();">取消</button>
+						<button onclick="schoolSubjectSave1()" type="button" class="btn btn-primary">确认</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="modal fade" id="addnew_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" role="document" style="width:700px;">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">添加</h4>
+					</div>
+					<div class="modal-body">
+							<form class="form-inline" style="">
+							<div class="form-group" style="width:100%;height:40px;">
+								<label class="control-label">办理日期</label>
+								<input type="text" autocomplete="off" id="a0" class="form-control default-date-picker" style="width:150px;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
+							</div>
+							<div class="form-group" style="width:100%;height:40px;">
+								<label class="control-label">客户姓名</label>
+								<input type="text" class="form-control small" style="width:150px;ime-mode:disabled;" id="a1" placeholder="请输入查询" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,'');" value="">
+								<label class="control-label">出生日期</label>
+								<input type="text" autocomplete="off" id="a2" class="form-control" style="width:120px;" readonly="readonly">
+								<label class="control-label">电话号码</label>
+								<input type="text" autocomplete="off" id="a3" class="form-control" style="width:120px;" readonly="readonly">
+							</div>
+							<div class="form-group" style="height:40px;">
+								<label class="control-label">就读学校</label>
+								<select class="form-control" style="width:150px;" id="a4" onchange="if (this.value!=''){check_setting(this.value);ajax_subject1();}else{set_empty1();}"></select>
+							</div>
+							<div class="form-group" style="height:40px;">
+								<label class="control-label">选读课程</label>
+								<select class="form-control" style="width:150px;" id="a5" onchange="set_schoolid1(this.value)"></select>
+							</div>
+							<div class="form-group" style="height:40px;">
+								<label class="control-label">StudentId</label>
+								<input type="text" class="form-control small" style="width:150px;ime-mode:disabled;" id="a6" placeholder="" value="">
+							</div>
+							<div class="form-group" style="display:block;line-height:30px;">
+							<div class="form-group" style="height:40px;">
+								<label class="control-label">开课日期</label>
+								<input type="text" autocomplete="off" id="a7" class="form-control default-date-picker1" style="width:150px;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
+							</div>
+							<div class="form-group" style="height:40px;">
+								<label class="control-label">结束日期</label>
+								<input type="text" autocomplete="off" id="a8" class="form-control default-date-picker1" style="width:150px;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
+							</div>							
+							</div>
+							<div class="form-group">
+								<label class="control-label" style="color:red;">Tuition Fee</label>
+								<input type="text" class="form-control small" style="width:130px;" id="a9" value="">
+							</div>							
+							<div class="form-group">
+								<label class="control-label" style="color:red;">First Term Tuition Fee</label>
+								<input type="text" class="form-control small" style="width:120px;" id="a10" value="">
+							</div>
+							<div class="form-group" style="margin-left:10px;">
+								<label class="control-label" style="color:red;">Discount</label>
+								<input type="text" class="form-control small" style="width:120px;" id="a11" value="0">
+							</div>
+							<div class="form-group" style="display:block;line-height:40px;">
+								<label class="control-label" style="color:red;">Commission</label>
+								<input type="text" class="form-control small" style="width:120px;" id="a12" value="0">
+							</div>
+							<div class="form-group" style="display:block;line-height:40px;">
+							<div class="form-group" style="margin-left:53px;">
+								<label class="control-label">GST</label>
+								<input type="text" autocomplete="off" id="a13" class="form-control" style="width:100px;" readonly="readonly">
+							</div>
+							<div class="form-group" style="margin-left:30px;">
+								<label class="control-label">Deduct GST</label>
+								<input type="text" autocomplete="off" id="a14" class="form-control" style="width:120px;" readonly="readonly">
+							</div>
+							<div class="form-group" style="margin-left:25px;">
+								<label class="control-label">月奖</label>
+								<input type="text" autocomplete="off" id="a15" class="form-control" style="width:120px;" readonly="readonly">
+							</div>
+							</div>
+							<div class="form-group" style="line-height:40px;">
+								<label class="control-label">学校支付日期</label>
+								<input type="text" autocomplete="off" id="a16" class="form-control default-date-picker1" style="width:120px;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
+							</div>
+							<div class="form-group" style="line-height:40px;">
+								<label class="control-label">INVOICE NO.</label>
+								<input type="text" autocomplete="off" id="a17" class="form-control" style="width:120px;" placeholder="" value="">
+							</div>
+							<div class="form-group" style="line-height:40px;">
+								<label class="control-label">学校支付金额</label>
+								<input type="text" autocomplete="off" id="a18" class="form-control" style="width:120px;" placeholder="" value="">
+							</div>
+							<div class="form-group" style="width:100%;line-height:40px;">
+								<label class="control-label">Subagency</label>
+								<select class="form-control" style="width:150px;" id="a19"></select>
+							</div>							
+							<div class="form-group" style="margin-left:28px;line-height:40px;">
+								<label class="control-label">顾问</label>
+								<select class="form-control" style="width:150px;" id="a20"></select>
+							</div>
+							<div class="form-group">
+								<label class="control-label">文案</label>
+								<select class="form-control" style="width:150px;" id="a21"></select>
+							</div>
+							<div class="form-group" style="width:100%;margin-top:5px;margin-left:28px;line-height:40px;">
+								<label class="control-label">备注</label>
+								<textarea id="a23" class="form-control" style="width:90%"></textarea>
+							</div>
+							</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+						<button onclick="table_addsave1()" type="button" class="btn btn-primary">确认</button>
 					</div>
 				</div>
 			</div>
@@ -1023,7 +1157,7 @@
 									settleAccounts: '<label id="t22" style="width:50px;"></label>',
 									adviserName: '<select class="form-control" style="width:150px;" id="t20"></select>',
 									officialName: '<select class="form-control" style="width:150px;" id="t21"></select>',
-									remarks: '<textarea id="t16" class="form-control" style="width:150px;"></textarea>'
+									remarks: '<textarea id="t23" class="form-control" style="width:150px;"></textarea>'
 									});
 								this.add = true;
 						}
@@ -1084,7 +1218,7 @@
 							settleAccounts: '<label id="t22" style="width:50px;"></label>',
 							adviserName: '<select class="form-control" style="width:150px;" id="t20"></select>',
 							officialName: '<select class="form-control" style="width:150px;" id="t21"></select>',
-							remarks: '<textarea id="t16" class="form-control" style="width:150px;">'+this.subject[index].remarks+'</textarea>',
+							remarks: '<textarea id="t23" class="form-control" style="width:150px;">'+this.subject[index].remarks+'</textarea>',
 							btnsave: '<a class="edit" href="javascript:;"><span class="label label-primary">Save</span></a>',
 							btncancel: '<a class="cancel" href="javascript:;"><span class="label label-info">Cancel</span></a>',
 						});						
@@ -1144,6 +1278,11 @@
 						v.subject.splice(v.current_index,1, v.current_row);
 				}
 			});
+			
+			function addNew()
+			{
+					$('#addnew_id').modal('show');
+			}
 			
 			function table_addsave()
 			{
@@ -1227,7 +1366,83 @@
 					   			//console.log(data);
 					   	});
 			  	}                
-      }            
+      }
+      
+      function table_addsave1()
+			{
+          var jqInputs = $('input',$("#addnew_id"));
+          var jqSelect = $('select',$("#addnew_id"));
+          var jqTextarea = $('textarea',$("#addnew_id"));
+          
+          var check_result = 0;
+          if (jqInputs[0].value != '' && jqInputs[1].value != '' && jqInputs[4].value != '' && jqInputs[5].value != '' && jqInputs[6].value != '' && jqInputs[7].value != '' && jqInputs[8].value != '' && jqInputs[9].value != '' && jqInputs[10].value != '')
+          {
+          		check_result = true;
+          }else
+          {
+          		$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+        			$("#error_info").html('所有选项必须填写！(备注可选填。)');
+        			return false;
+          }
+          
+          $.ajaxSettings.async = false; 
+          if (check_result)
+          {
+          		var arr_d = jqInputs[0].value.split("/");
+          		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+              var date = new Date(str_d);
+              var d0 = date.getTime();
+              arr_d = jqInputs[5].value.split("/");
+          		str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+              date = new Date(str_d);
+              var d5 = date.getTime();
+              arr_d = jqInputs[6].value.split("/");
+          		str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+              date = new Date(str_d);
+              var d6 = date.getTime();
+              var d14 = '';
+              if (jqInputs[14].value != '')
+              {
+              		arr_d = jqInputs[14].value.split("/");
+          				str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+		              date = new Date(str_d);
+		              d14 = date.getTime();
+            	}
+              var str_url = "school_brokerage_sa/add";
+              var sa_id = $("#id").val();
+              if (sa_id != '0') str_url = "school_brokerage_sa/update";
+              $("#id").val('0');
+              
+              $.post(str_url, { id: sa_id, handlingDate: d0, userId: $('#userid').val(), schoolId: $('#schoolid').val(),studentCode: jqInputs[2].value, startDate: d5, endDate: d6, tuitionFee: jqInputs[7].value, firstTermTuitionFee: jqInputs[8].value, discount: jqInputs[9].value, commission: jqInputs[10].value, payDate: d14, invoiceCode: jqInputs[15].value, payAmount: jqInputs[16].value, subagencyId: jqSelect[2].value, adviserId: jqSelect[3].value, officialId: jqSelect[4].value,remarks: jqTextarea[0].value},
+					   	function(data){
+					   			if (data.code == 0)
+					   			{					   					
+					   					if (data.data.id) sa_id = data.data.id;					   					
+					   					//重新计算佣金
+					   					$.post('school_brokerage_sa/updateCommission', { id: sa_id},
+					   					function(data){
+					   						if (data.code != 0)
+					   						{
+					   								$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+						          			$("#error_info").html(data.message);
+							        			return false;
+					   						}
+					   					});
+					   					$('#alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+					   					$('#addnew_id').modal('hide');
+					   					//重新载入数据源
+					   					v.getDatalist();
+					   					v.getSort();
+					   			}else
+					   			{
+					   					$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+			          			$("#error_info").html(data.message);
+				        			return false;
+					   			}
+					   			//console.log(data);
+					   	});
+			  	}                
+      }
 			
 			v.$watch('subject', function(obj) {
 					$('.default-date-picker').datepicker({   				
@@ -1283,6 +1498,27 @@
 			    		$("#t3").html(object.phone);
 			    	},
 			    	minLength: 1						    	
+			    });
+			    var user1 = $("#a1");
+				  user1.autocompleter({
+			    	highlightMatches: true,
+			    	limit: 10,
+			    	cache: false,
+			    	customValue: 'name',
+			    	customLabel: 'name',
+			    	source: 'user/list?authNickname=&phone=&pageNum=0',
+			    	combine: function(params) {
+			    		return {
+				        name: params.query,
+				        pageSize: params.limit
+				      };
+			    	},
+			    	callback: function(value, index, object) {
+			    		$('#userid').val(object.id);
+			    		$("#a2").val(formatDate(object.birthday));
+			    		$("#a3").val(object.phone);
+			    	},
+			    	minLength: 1						    	
 			    });   	    
 			    //绑定学校信息
 			    var school_name = $("#t4");
@@ -1299,8 +1535,23 @@
 	        	}	
 	        	school_name.val(schoolName);
 	        });
+	        var school_name1 = $("#a4");
+			    school_name1.append("<option value=''>请选择学校</option>");
+			    $.ajax({
+	          url: 'school/listSchool?name=',
+	          type: 'GET',
+	          dataType: 'json'
+	        }).done(function(response) {
+	        	response = response.data;	        	    	
+	        	for (var item in response)
+	        	{
+	        			school_name1.append("<option value='"+response[item].name+"'>"+response[item].name+"</option>");
+	        	}	
+	        	school_name1.val(schoolName);
+	        });
 	        //绑定课程信息
 	        ajax_subject();
+	        ajax_subject1();
 			    //计算相关金额
 	        $("#t12").keyup(function(){
 	        	var fee = $("#t12").val();
@@ -1310,6 +1561,15 @@
 	        	$("#t14").html('<span>'+deduct_gst+'</span>');
 	        	var bonus = (deduct_gst*0.1).toFixed(2);
 	        	$("#t15").html('<span>'+bonus+'</span>');	        	
+					});
+					$("#a12").keyup(function(){
+	        	var fee = $("#a12").val();
+	        	var gst = (fee/11).toFixed(2);
+	        	$("#a13").val(gst);
+	        	var deduct_gst = (fee-gst).toFixed(2);
+	        	$("#a14").val(deduct_gst);
+	        	var bonus = (deduct_gst*0.1).toFixed(2);
+	        	$("#a15").val(bonus);	        	
 					});
 					//绑定Subagency列表
 			    var obj_subagencyId = $("#t19");	
@@ -1325,6 +1585,20 @@
 	        			obj_subagencyId.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
 	        	}
 	        	obj_subagencyId.val(subagencyId);   
+	        });
+	        var obj_subagencyId1 = $("#a19");	
+			    $.ajax({
+	          url: 'subagency/list',
+	          type: 'GET',
+	          dataType: 'json'
+	        }).done(function(response) {
+	        	//author:bischina
+	        	response = response.data;
+	        	for (var item in response)
+	        	{
+	        			obj_subagencyId1.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+	        	}
+	        	obj_subagencyId1.val(subagencyId);   
 	        });	        
 			    //绑定顾问列表
 			    var current_user = this.admin;
@@ -1348,6 +1622,25 @@
 	        	}
 	        	obj_adviserId.val(current_adviserId);   
 	        });
+	        var obj_adviserId1 = $("#a20");	
+			    $.ajax({
+	          url: 'adviser/list?pageNum=0&pageSize=100000',
+	          type: 'GET',
+	          dataType: 'json'
+	        }).done(function(response) {
+	        	//author:bischina
+	        	response = response.data;
+	        	var isAdmin = false;
+	        	if (v.ap_list == 'AD' || v.ap_list == 'null') isAdmin = true;
+	        	for (var item in response)
+	        	{
+	        			if (response[item].id == current_adviserId || isAdmin)
+	        			{
+	        					obj_adviserId1.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+	        			}
+	        	}
+	        	obj_adviserId1.val(current_adviserId);   
+	        });
 	        //绑定文案列表
 			    var obj_officialId = $("#t21");	
 			    $.ajax({
@@ -1362,6 +1655,20 @@
 	        			obj_officialId.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
 	        	}
 	        	obj_officialId.val(officialId);	        	
+	        });
+	        var obj_officialId1 = $("#a21");	
+			    $.ajax({
+	          url: 'official/list?pageNum=0&pageSize=10',
+	          type: 'GET',
+	          dataType: 'json'
+	        }).done(function(response) {
+	        	//author:bischina
+	        	response = response.data;
+	        	for (var item in response)
+	        	{
+	        			obj_officialId1.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+	        	}
+	        	obj_officialId1.val(officialId);	        	
 	        });
 			});
 			
@@ -1419,12 +1726,57 @@
       	}
 			}
 			
+			function ajax_subject1()
+			{
+				var school_subject1 = $("#a5");
+				var school_name = $("#a4").find("option:selected").text();				
+				if (school_name != '请选择学校' || $("#school_name").val() != '')
+				{
+						schoolid = $("#schoolid").val();
+						schoolSubject = $("#school_subject").val();
+						if (school_name == '请选择学校') school_name = $("#school_name").val();
+						v.school_name = school_name;						
+						school_subject1.find("option:selected").text("");
+						school_subject1.empty();
+						school_subject1.append("<option value=''>请选择</option>");
+				    $.ajax({
+		          url: 'school/list?name='+school_name,
+		          type: 'GET',
+		          dataType: 'json'
+		        }).done(function(response) {
+		        	response = response.data;
+		        	for (var item in response)
+		        	{
+		        			if (!response[item].subject == '')
+		        			{
+				        			school_subject1.append("<option value='"+response[item].id+"'>"+response[item].subject+"</option>");		
+				        			v.country = response[item].country;
+		        			}
+		        	}
+		        	school_subject1.append("<option value='-1'>我要添加</option>");
+		        	if(schoolSubject != '') school_subject1.val(schoolid);		        	
+		        });
+      	}else
+      	{
+      			school_subject1.find("option:selected").text("");
+						school_subject1.empty();
+      	}
+			}
+			
 			function set_empty()
 			{
 				var school_subject = $("#t5");
 				school_subject.find("option:selected").text("");
 				school_subject.empty();
 				school_subject.append("<option value=''>请选择</option>");
+			}
+			
+			function set_empty1()
+			{
+				var school_subject1 = $("#a5");
+				school_subject1.find("option:selected").text("");
+				school_subject1.empty();
+				school_subject1.append("<option value=''>请选择</option>");
 			}
 			
 			function set_schoolid(id)
@@ -1441,6 +1793,20 @@
 				}
 			}
 			
+			function set_schoolid1(id)
+			{
+				if(id > 0)
+				{
+					$("#schoolid").val(id);
+				}else if(id == '')
+				{
+					$("#schoolid").val(0);
+				}else if(id == -1)
+				{
+					$('#add_schoolsubject1_id').modal('show');
+				}
+			}
+			
 			function schoolSubjectSave()
 			{
 				var school_subject = $("#schoolsubject_name").val();
@@ -1454,6 +1820,25 @@
 				   					//添加成功
 				   					$('#add_schoolsubject_id').modal('hide');
 				   					ajax_subject();
+				   			}
+				   			//console.log(data);
+				   	});
+		  	}
+			}
+			
+			function schoolSubjectSave1()
+			{
+				var school_subject = $("#schoolsubject_name1").val();
+				if (school_subject != '')
+				{
+						var str_url = "school/add";
+						$.post(str_url, { id: 0, name: v.school_name, subject: school_subject, country: v.country},
+				   	function(data){
+				   			if (data.code == 0)
+				   			{
+				   					//添加成功
+				   					$('#add_schoolsubject1_id').modal('hide');
+				   					ajax_subject1();
 				   			}
 				   			//console.log(data);
 				   	});
