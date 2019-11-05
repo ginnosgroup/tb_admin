@@ -115,8 +115,8 @@ public class UserController extends BaseController {
 		Integer newAdviserId = getAdviserId(request);
 		if (newAdviserId != null)
 			adviserId = newAdviserId + "";
-//		if (StringUtil.isBlank(adviserId) && !isAdminUser(request))
-//			return new Response<List<UserDTO>>(1, "No permission !", null);
+		if (StringUtil.isBlank(adviserId) && !isAdminUser(request))
+			return new Response<List<UserDTO>>(1, "No permission !", null);
 
 		try {
 			super.setGetHeader(response);
