@@ -284,7 +284,9 @@
 												<input v-model.trim="phone" type="text" class="form-control" placeholder="输入手机号码">
 												<input v-model.trim="adviserId" type="text" class="form-control" placeholder="输入顾问编号">
 												<input v-model.trim="wechatUsername" type="text" class="form-control" placeholder="输入客户微信号">
-												<input v-model.trim="tagId" type="text" class="form-control" placeholder="输入标签ID">
+												<select v-model.trim="tagId" id="tagId" class="form-control">
+												<option value="" selected="true">请选择标签</option>
+												</select>
 											</div>
 											<div class="form-group">
 												<button @click="getUser" type="button" class="btn btn-info">查询</button>
@@ -1389,7 +1391,23 @@
 	        	}
 	        	obj_adviserId.val(adviserId);   
 	        });
-	        //绑定客户来源
+	        //绑定tagId
+	        var obj_tagid= $("#tagId");
+			    $.ajax({
+	          url: 'user/listTag',
+	          type: 'GET',
+	          dataType: 'json',
+	          async: false
+	        }).done(function(response) {
+	        	var arr_tag = response.data;
+	        	for (var item in arr_tag)
+	        	{
+	        			var tag_name = arr_tag[item].name;
+	        			var tag_id = arr_tag[item].id;
+	        			obj_tagid.append("<option value='"+tag_id+"'>"+tag_name+"</option>");
+	        	}
+	        });	
+	        //绑定客户来源	        
 	        var obj_source = $("#t12");
 			    $.ajax({
 	          url: 'source/listSourceRegion',
