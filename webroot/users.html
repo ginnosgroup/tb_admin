@@ -284,6 +284,9 @@
 												<input v-model.trim="phone" type="text" class="form-control" placeholder="输入手机号码">
 												<input v-model.trim="adviserId" type="text" class="form-control" placeholder="输入顾问编号">
 												<input v-model.trim="wechatUsername" type="text" class="form-control" placeholder="输入客户微信号">
+												<select v-model.trim="tagId" id="tagId" class="form-control">
+												<option value="" selected="true">请选择标签</option>
+												</select>
 											</div>
 											<div class="form-group">
 												<button @click="getUser" type="button" class="btn btn-info">查询</button>
@@ -306,7 +309,8 @@
 														<th>微信号</th>											
 														<th>客户来源</th>														
 														<th>客户标签</th>
-														<th>所属顾问</th>														
+														<th>所属顾问</th>
+														<th>咨询提醒</th>														
 														<th>Edit</th>
 														<th>Delete</th>
 													</tr>
@@ -325,6 +329,7 @@
 														<td v-html="item.source"></td>
 														<td v-html="item.str_tagListName"></td>
 														<td v-html="item.adviserName"></td>
+														<td v-html="item.consultation"></td>
 														<td><a v-if="item.id" class="edit" href="javascript:;" @click="table_modify($index)"><span class="label label-success">Edit</span></a>
 																<a v-else class="edit" href="javascript:;"><span class="label label-primary">Save</span></a>
 														</td>
@@ -444,6 +449,42 @@
 					</div>
 				</div>
 			</div>
+		</div>
+		<div class="modal fade" id="consultation_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">添加记录</h4>
+					</div>
+					<div class="modal-body">
+							<form class="form-horizontal" autocomplete="off">							
+							<div class="form-group">
+								<label class="col-sm-3 control-label">咨询内容<span style="color:red;">*</span></label>
+								<div class="col-sm-8">
+									<textarea id="t0" class="form-control" style="height:100px;"></textarea>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">下次提醒日期</label>
+								<div class="col-sm-8">
+									<input type="text" id="t1" class="form-control default-date-picker1" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">提醒内容</label>
+								<div class="col-sm-8">
+									<textarea id="t2a" class="form-control" style="height:100px;"></textarea>
+								</div>
+							</div>
+							</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+						<button onclick="consultationAddSave()" type="button" class="btn btn-primary">确认</button>
+					</div>
+				</div>
+			</div>
 		</div>		
 		<script src="js/jquery-1.8.3.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
@@ -543,6 +584,7 @@
 									{
 											result.data[i].adviserName = '';
 									}
+									result.data[i].consultation = '<a href="javascript:;" onclick="add_consultation(\''+result.data[i].id+'\')"><span class="label label-success">添加提醒</span></a>';									
 									//读取标签
 									result.data[i].str_tagList = '';
 									result.data[i].str_tagListName = '';
@@ -572,7 +614,8 @@
 							name: that.name,
 							phone: that.phone,
 							adviserId: that.adviserId,
-							wechatUsername: that.wechatUsername
+							wechatUsername: that.wechatUsername,
+							tagId: that.tagId
 						}, function(result) {
 							console.log(result)
 							that.count = result.data;
@@ -584,6 +627,7 @@
 							phone: that.phone,
 							adviserId: that.adviserId,
 							wechatUsername: that.wechatUsername,
+							tagId: that.tagId,
 							pageNum: 0,
 							pageSize: that.pageSize
 						}, function(result) {
@@ -614,6 +658,7 @@
 									{
 											result.data[i].adviserName = '';
 									}
+									result.data[i].consultation = '<a href="javascript:;" onclick="add_consultation(\''+result.data[i].id+'\')"><span class="label label-success">添加提醒</span></a>';
 									//读取标签
 									result.data[i].str_tagList = '';
 									result.data[i].str_tagListName = '';
@@ -684,6 +729,7 @@
 									{
 											result.data[i].adviserName = '';
 									}
+									result.data[i].consultation = '<a href="javascript:;" onclick="add_consultation(\''+result.data[i].id+'\')"><span class="label label-success">添加提醒</span></a>';
 									//读取标签
 									result.data[i].str_tagList = '';
 									result.data[i].str_tagListName = '';
@@ -754,6 +800,7 @@
 									{
 											result.data[i].adviserName = '';
 									}
+									result.data[i].consultation = '<a href="javascript:;" onclick="add_consultation(\''+result.data[i].id+'\')"><span class="label label-success">添加提醒</span></a>';
 									//读取标签
 									result.data[i].str_tagList = '';
 									result.data[i].str_tagListName = '';
@@ -824,6 +871,7 @@
 									{
 											result.data[i].adviserName = '';
 									}
+									result.data[i].consultation = '<a href="javascript:;" onclick="add_consultation(\''+result.data[i].id+'\')"><span class="label label-success">添加提醒</span></a>';
 									//读取标签
 									result.data[i].str_tagList = '';
 									result.data[i].str_tagListName = '';
@@ -901,6 +949,7 @@
 										{
 												result.data[i].adviserName = '';
 										}
+										result.data[i].consultation = '<a href="javascript:;" onclick="add_consultation(\''+result.data[i].id+'\')"><span class="label label-success">添加提醒</span></a>';
 										//读取标签
 										result.data[i].str_tagList = '';
 										result.data[i].str_tagListName = '';
@@ -959,6 +1008,7 @@
 										{
 												result.data[i].adviserName = '';
 										}
+										result.data[i].consultation = '<a href="javascript:;" onclick="add_consultation(\''+result.data[i].id+'\')"><span class="label label-success">添加提醒</span></a>';
 										//读取标签
 										result.data[i].str_tagList = '';
 										result.data[i].str_tagListName = '';
@@ -1019,6 +1069,7 @@
 										{
 												result.data[i].adviserName = '';
 										}
+										result.data[i].consultation = '<a href="javascript:;" onclick="add_consultation(\''+result.data[i].id+'\')"><span class="label label-success">添加提醒</span></a>';
 										//读取标签
 										result.data[i].str_tagList = '';
 										result.data[i].str_tagListName = '';
@@ -1079,6 +1130,7 @@
 										{
 												result.data[i].adviserName = '';
 										}
+										result.data[i].consultation = '<a href="javascript:;" onclick="add_consultation(\''+result.data[i].id+'\')"><span class="label label-success">添加提醒</span></a>';
 										//读取标签
 										result.data[i].str_tagList = '';
 										result.data[i].str_tagListName = '';
@@ -1125,6 +1177,7 @@
 									source: '<select class="form-control" style="" id="t12"></select>',
 									str_tagListName: '',
 									adviserName: '<select class="form-control" style="" id="t4"></select>',
+									consultation: '',
 									});									
 								this.add = true;
 						}
@@ -1164,7 +1217,8 @@
 							wechatUsername: '<input type="text" class="form-control small" style="" id="t13" value="'+this.subject[index].wechatUsername+'">',
 							source: '<select class="form-control" style="" id="t12"></select>',
 							str_tagListName: '<a href="javascript:tagSet(\''+tagList+'\')">设置</a>',
-							adviserName: '<select class="form-control" style="" id="t4"></select>',							
+							adviserName: '<select class="form-control" style="" id="t4"></select>',
+							consultation: '',							
 						});						
 						if (this.add)
 						{
@@ -1306,6 +1360,9 @@
 					$('.default-date-picker').datepicker({   				
 				        format: 'dd/mm/yyyy'
 				  });
+				  $('.default-date-picker1').datepicker({   				
+				        format: 'dd/mm/yyyy'			        
+				  });	
 				  var adviserId = 0;
 				  var str_source = '';
 				  var str_taglist = '';
@@ -1334,7 +1391,23 @@
 	        	}
 	        	obj_adviserId.val(adviserId);   
 	        });
-	        //绑定客户来源
+	        //绑定tagId
+	        var obj_tagid= $("#tagId");
+			    $.ajax({
+	          url: 'user/listTag',
+	          type: 'GET',
+	          dataType: 'json',
+	          async: false
+	        }).done(function(response) {
+	        	var arr_tag = response.data;
+	        	for (var item in arr_tag)
+	        	{
+	        			var tag_name = arr_tag[item].name;
+	        			var tag_id = arr_tag[item].id;
+	        			obj_tagid.append("<option value='"+tag_id+"'>"+tag_name+"</option>");
+	        	}
+	        });	
+	        //绑定客户来源	        
 	        var obj_source = $("#t12");
 			    $.ajax({
 	          url: 'source/listSourceRegion',
@@ -1398,6 +1471,39 @@
       		sessionStorage.setItem("id", id);
       		sessionStorage.setItem("menu_parentid", parentId);
 					window.location.href = "knowledge.html"; 
+      }
+      
+      function add_consultation(id)
+      {
+      		$('#t0').val('');
+					$('#t1').val('');
+					$('#t2a').val('');
+      		$('#consultation_id').modal('show');			      		
+      		v.userid = id;
+      }
+      
+      function consultationAddSave()
+      {
+      		var str_contents = $("#t0").val();      		
+      		var setdate = $("#t1").val();
+      		var remind_d = 0;
+      		if (setdate != '')
+      		{ 		
+		      		var arr_d = setdate.split("/");
+		      		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];     				
+		      		var date = new Date(str_d);
+			    		remind_d = date.getTime();
+	    		}
+	    		var str_remindContents = $("#t2a").val();
+	    		
+      		if (str_contents != '')
+      		{      				    		
+			    		$.post('consultation/add', { userId: v.userid, contents: str_contents, remindDate: remind_d,remindContents: str_remindContents},
+					   	function(data){
+					   		$('#consultation_id').modal('hide');
+					   		$('.alert').addClass('alert-success').show().delay(1500).fadeOut();				   		
+					   	});
+			  	}
       }
       
       function tagSet(tagList)
