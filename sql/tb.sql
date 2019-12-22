@@ -192,7 +192,7 @@ CREATE TABLE `b_visa` (
   `bonus` decimal(8,2) NOT NULL COMMENT '月奖金',
   `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
   `official_id` int NOT NULL COMMENT '文案编号 (对应b_official.id)',
-`remarks` varchar(255) DEFAULT NULL COMMENT '备注',
+  `remarks` varchar(255) DEFAULT NULL COMMENT '备注',
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
@@ -401,7 +401,7 @@ CREATE TABLE `b_knowledge` (
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `title` varchar(32) DEFAULT NULL COMMENT '知识库名称',
   `content` text DEFAULT NULL COMMENT '知识库内容',
-`password` varchar(8) DEFAULT NULL COMMENT '知识库密码',
+  `password` varchar(8) DEFAULT NULL COMMENT '知识库密码',
   `knowledge_menu_id` int DEFAULT 0 COMMENT '所属菜单编号'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
