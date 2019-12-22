@@ -295,12 +295,28 @@ CREATE TABLE `b_refund` (
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
--- 移民-服务项目
+-- 服务项目
 CREATE TABLE `b_service` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+`type` varchar(4) DEFAULT NULL COMMENT '服务类型(VISA:签证服务,OVST:留学服务)',
   `code` varchar(8) DEFAULT NULL COMMENT '项目编码',
+`is_pay` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已支付',
+`receive_type_id` int NOT NULL COMMENT '收款方式编号(对应b_receive_type.id)',
+`receive_date` datetime NOT NULL COMMENT '收款日期',
+`receivable` decimal(8,2) NOT NULL COMMENT '总计应收',
+`discount` decimal(8,2) NOT NULL DEFAULT 0 COMMENT '折扣',
+`received` decimal(8,2) NOT NULL COMMENT '总计已收',
+`payment_times` int NOT NULL DEFAULT 1 COMMENT '付款次数',
+`amount` decimal(8,2) NOT NULL COMMENT '本次收款',
+`gst` decimal(8,2) NOT NULL COMMENT 'GST',
+`deduct_gst` decimal(8,2) NOT NULL COMMENT 'Deduct GST',
+`bonus` decimal(8,2) NOT NULL COMMENT '月奖金',
+`mara_id` int DEFAULT NULL COMMENT '所属MARA编号 (对应b_mara.id,留学服务MARA为空)',
+`adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
+`official_id` int NOT NULL COMMENT '文案编号 (对应b_official.id)',
+`remarks` varchar(255) DEFAULT NULL COMMENT '备注',
   `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已删除'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
@@ -337,6 +353,20 @@ CREATE TABLE `b_official` (
   `image_url` varchar(128) DEFAULT NULL COMMENT '图片地址',
   `region_id` int NOT NULL COMMENT '所属区域编号 (对应tb_region.id)'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+-- MARA
+CREATE TABLE `b_mara` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `name` varchar(32) NOT NULL COMMENT '名称',
+  `phone` varchar(16) NOT NULL COMMENT '电话号码',
+  `email` varchar(128) NOT NULL COMMENT '邮箱',
+  `state` varchar(8) NOT NULL COMMENT '状态 (ENABLED:激活,DISABLED:禁止)',
+  `image_url` varchar(128) DEFAULT NULL COMMENT '图片地址',
+  `region_id` int NOT NULL COMMENT '所属区域编号 (对应tb_region.id)'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+ALTER TABLE `b_mara` ADD INDEX index_name (`state`);
 
 -- 收款方式
 CREATE TABLE `b_receive_type` (
