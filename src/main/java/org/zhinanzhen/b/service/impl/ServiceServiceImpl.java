@@ -55,6 +55,12 @@ public class ServiceServiceImpl extends BaseService implements ServiceService {
 	}
 
 	@Override
+	public int updateService(ServiceDTO serviceDto) throws ServiceException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
 	public List<ServiceDTO> listService() throws ServiceException {
 		List<ServiceDTO> serviceDtoList = new ArrayList<ServiceDTO>();
 		List<ServiceDO> serviceDoList = new ArrayList<ServiceDO>();
