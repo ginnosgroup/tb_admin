@@ -5,7 +5,7 @@
 
     <insert id="addMara" parameterType="org.zhinanzhen.b.dao.pojo.MaraDO" useGeneratedKeys="true" keyProperty="id">
         INSERT
-            INTO tb_mara (
+            INTO b_mara (
                 gmt_create,
                 gmt_modify,
                 name,
@@ -26,7 +26,7 @@
     </insert>
 
     <update id="updateMara" parameterType="org.zhinanzhen.b.dao.pojo.MaraDO">
-        UPDATE tb_mara 
+        UPDATE b_mara 
         SET gmt_modify = now()
         <if test='name != null and name != ""'>
             , name = #{name}
@@ -51,7 +51,7 @@
 
     <select id="countMara" resultType="java.lang.Integer">
         SELECT count(*)
-        FROM tb_mara
+        FROM b_mara
         WHERE 1 = 1
         <if test='name != null and name != ""'>
             AND name = #{name}
@@ -71,7 +71,7 @@
             state,
             image_url AS imageUrl,
             region_id AS regionId
-        FROM tb_mara
+        FROM b_mara
         WHERE 1 = 1
         <if test='name != null and name != ""'>
             AND name = #{name}
@@ -93,7 +93,7 @@
             state,
             image_url AS imageUrl,
             region_id AS regionId
-        FROM tb_mara WHERE id = #{id, jdbcType=INTEGER};
+        FROM b_mara WHERE id = #{id, jdbcType=INTEGER};
     </select>
 
 </mapper>
