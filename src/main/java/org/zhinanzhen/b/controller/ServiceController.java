@@ -98,7 +98,10 @@ public class ServiceController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			int i = serviceService.updateService(id, code);
+			ServiceDTO serviceDto = new ServiceDTO();
+			serviceDto.setId(id);
+			serviceDto.setCode(code);
+			int i = serviceService.updateService(serviceDto);
 			if (i > 0) {
 				return new Response<Integer>(0, i);
 			} else {
