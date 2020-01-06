@@ -21,6 +21,7 @@
                 gst,
                 deduct_gst,
                 bonus,
+                user_id,
                 mara_id,
                 adviser_id,
                 official_id,
@@ -41,6 +42,7 @@
                 #{gst},
                 #{deductGst},
                 #{bonus},
+                #{userId},
                 #{maraId},
                 #{adviserId},
                 #{officialId},
@@ -89,6 +91,9 @@
         <if test='bonus != null'>
             , bonus = #{bonus}
         </if>
+        <if test='userId != null'>
+            , user_id = #{userId}
+        </if>
         <if test='maraId != null'>
             , mara_id = #{maraId}
         </if>
@@ -121,6 +126,7 @@
             gst,
             deduct_gst AS deductGst,
             bonus,
+            user_id AS userId,
             mara_id AS maraId,
             adviser_id AS adviserId,
             official_id AS officialId,
@@ -147,6 +153,7 @@
             gst,
             deduct_gst AS deductGst,
             bonus,
+            user_id AS userId,
             mara_id AS maraId,
             adviser_id AS adviserId,
             official_id AS officialId,

@@ -43,6 +43,7 @@ public class ServiceController extends BaseController {
 			@RequestParam(value = "gst", required = false) String gst,
 			@RequestParam(value = "deductGst", required = false) String deductGst,
 			@RequestParam(value = "bonus", required = false) String bonus,
+			@RequestParam(value = "userId") String userId,
 			@RequestParam(value = "maraId", required = false) String maraId,
 			@RequestParam(value = "adviserId") String adviserId, @RequestParam(value = "officialId") String officialId,
 			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
@@ -78,6 +79,8 @@ public class ServiceController extends BaseController {
 				serviceDto.setDeductGst(Double.parseDouble(deductGst));
 			if (StringUtil.isNotEmpty(bonus))
 				serviceDto.setBonus(Double.parseDouble(bonus));
+			if (StringUtil.isNotEmpty(userId))
+				serviceDto.setUserId(StringUtil.toInt(userId));
 			if (StringUtil.isNotEmpty(maraId))
 				serviceDto.setMaraId(StringUtil.toInt(maraId));
 			if (StringUtil.isNotEmpty(adviserId))
@@ -112,6 +115,7 @@ public class ServiceController extends BaseController {
 			@RequestParam(value = "gst", required = false) String gst,
 			@RequestParam(value = "deductGst", required = false) String deductGst,
 			@RequestParam(value = "bonus", required = false) String bonus,
+			@RequestParam(value = "userId", required = false) String userId,
 			@RequestParam(value = "maraId", required = false) String maraId,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
 			@RequestParam(value = "officialId", required = false) String officialId,
@@ -149,6 +153,8 @@ public class ServiceController extends BaseController {
 				serviceDto.setDeductGst(Double.parseDouble(deductGst));
 			if (StringUtil.isNotEmpty(bonus))
 				serviceDto.setBonus(Double.parseDouble(bonus));
+			if (StringUtil.isNotEmpty(userId))
+				serviceDto.setUserId(StringUtil.toInt(userId));
 			if (StringUtil.isNotEmpty(maraId))
 				serviceDto.setMaraId(StringUtil.toInt(maraId));
 			if (StringUtil.isNotEmpty(adviserId))
