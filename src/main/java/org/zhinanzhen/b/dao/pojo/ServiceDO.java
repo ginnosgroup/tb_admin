@@ -35,6 +35,8 @@ public class ServiceDO {
 	
 	private double bonus;
 	
+	private int userId;
+	
 	private int maraId;
 	
 	private int adviserId;

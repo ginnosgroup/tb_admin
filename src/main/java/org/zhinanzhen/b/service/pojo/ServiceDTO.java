@@ -34,6 +34,8 @@ public class ServiceDTO {
 	private double deductGst;
 
 	private double bonus;
+	
+	private int userId;
 
 	private int maraId;
 
