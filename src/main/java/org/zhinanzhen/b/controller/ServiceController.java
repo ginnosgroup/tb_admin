@@ -33,15 +33,20 @@ public class ServiceController extends BaseController {
 	@ResponseBody
 	public Response<Integer> addService(@RequestParam(value = "type") String type,
 			@RequestParam(value = "code") String code, @RequestParam(value = "isPay") String isPay,
-			@RequestParam(value = "receiveTypeId") String receiveTypeId,
-			@RequestParam(value = "receiveDate") String receiveDate,
-			@RequestParam(value = "receivable") String receivable, @RequestParam(value = "discount") String discount,
-			@RequestParam(value = "received") String received,
-			@RequestParam(value = "paymentTimes") String paymentTimes, @RequestParam(value = "amount") String amount,
-			@RequestParam(value = "gst") String gst, @RequestParam(value = "deductGst") String deductGst,
-			@RequestParam(value = "bonus") String bonus, @RequestParam(value = "maraId") String maraId,
+			@RequestParam(value = "receiveTypeId", required = false) String receiveTypeId,
+			@RequestParam(value = "receiveDate", required = false) String receiveDate,
+			@RequestParam(value = "receivable", required = false) String receivable,
+			@RequestParam(value = "discount", required = false) String discount,
+			@RequestParam(value = "received", required = false) String received,
+			@RequestParam(value = "paymentTimes", required = false) String paymentTimes,
+			@RequestParam(value = "amount", required = false) String amount,
+			@RequestParam(value = "gst", required = false) String gst,
+			@RequestParam(value = "deductGst", required = false) String deductGst,
+			@RequestParam(value = "bonus", required = false) String bonus,
+			@RequestParam(value = "maraId", required = false) String maraId,
 			@RequestParam(value = "adviserId") String adviserId, @RequestParam(value = "officialId") String officialId,
-			@RequestParam(value = "remarks") String remarks, HttpServletRequest request, HttpServletResponse response) {
+			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
+			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			ServiceDTO serviceDto = new ServiceDTO();
@@ -94,11 +99,65 @@ public class ServiceController extends BaseController {
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> updateService(@RequestParam(value = "id") int id,
-			@RequestParam(value = "code", required = false) String code, HttpServletRequest request,
+			@RequestParam(value = "type", required = false) String type,
+			@RequestParam(value = "code", required = false) String code,
+			@RequestParam(value = "isPay", required = false) String isPay,
+			@RequestParam(value = "receiveTypeId", required = false) String receiveTypeId,
+			@RequestParam(value = "receiveDate", required = false) String receiveDate,
+			@RequestParam(value = "receivable", required = false) String receivable,
+			@RequestParam(value = "discount", required = false) String discount,
+			@RequestParam(value = "received", required = false) String received,
+			@RequestParam(value = "paymentTimes", required = false) String paymentTimes,
+			@RequestParam(value = "amount", required = false) String amount,
+			@RequestParam(value = "gst", required = false) String gst,
+			@RequestParam(value = "deductGst", required = false) String deductGst,
+			@RequestParam(value = "bonus", required = false) String bonus,
+			@RequestParam(value = "maraId", required = false) String maraId,
+			@RequestParam(value = "adviserId", required = false) String adviserId,
+			@RequestParam(value = "officialId", required = false) String officialId,
+			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			int i = serviceService.updateService(id, code);
+			ServiceDTO serviceDto = new ServiceDTO();
+			serviceDto.setId(id);
+			if (StringUtil.isNotEmpty(type))
+				serviceDto.setType(type);
+			if (StringUtil.isNotEmpty(code))
+				serviceDto.setCode(code);
+			if (isPay != null && "true".equalsIgnoreCase(isPay))
+				serviceDto.setPay(true);
+			else
+				serviceDto.setPay(false);
+			if (StringUtil.isNotEmpty(receiveTypeId))
+				serviceDto.setReceiveTypeId(StringUtil.toInt(receiveTypeId));
+			if (StringUtil.isNotEmpty(receiveDate))
+				serviceDto.setReceiveDate(new Date(Long.parseLong(receiveDate)));
+			if (StringUtil.isNotEmpty(receivable))
+				serviceDto.setReceivable(Double.parseDouble(receivable));
+			if (StringUtil.isNotEmpty(discount))
+				serviceDto.setAmount(Double.parseDouble(discount));
+			if (StringUtil.isNotEmpty(received))
+				serviceDto.setReceived(Double.parseDouble(received));
+			if (StringUtil.isNotEmpty(paymentTimes))
+				serviceDto.setPaymentTimes(StringUtil.toInt(paymentTimes));
+			if (StringUtil.isNotEmpty(amount))
+				serviceDto.setAmount(Double.parseDouble(amount));
+			if (StringUtil.isNotEmpty(gst))
+				serviceDto.setGst(Double.parseDouble(gst));
+			if (StringUtil.isNotEmpty(deductGst))
+				serviceDto.setDeductGst(Double.parseDouble(deductGst));
+			if (StringUtil.isNotEmpty(bonus))
+				serviceDto.setBonus(Double.parseDouble(bonus));
+			if (StringUtil.isNotEmpty(maraId))
+				serviceDto.setMaraId(StringUtil.toInt(maraId));
+			if (StringUtil.isNotEmpty(adviserId))
+				serviceDto.setAdviserId(StringUtil.toInt(adviserId));
+			if (StringUtil.isNotEmpty(officialId))
+				serviceDto.setOfficialId(StringUtil.toInt(officialId));
+			if (StringUtil.isNotEmpty(remarks))
+				serviceDto.setRemarks(remarks);
+			int i = serviceService.updateService(serviceDto);
 			if (i > 0) {
 				return new Response<Integer>(0, i);
 			} else {
