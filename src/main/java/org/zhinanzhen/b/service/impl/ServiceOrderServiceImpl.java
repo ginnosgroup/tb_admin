@@ -66,20 +66,61 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
 	@Override
 	public List<ServiceOrderDTO> listServiceOrder() throws ServiceException {
-		// TODO Auto-generated method stub
-		return null;
+		List<ServiceOrderDTO> serviceOrderDtoList = new ArrayList<ServiceOrderDTO>();
+		List<ServiceOrderDO> serviceOrderDoList = new ArrayList<ServiceOrderDO>();
+		try {
+			serviceOrderDoList = serviceOrderDao.listServiceOrder();
+			if (serviceOrderDoList == null) {
+				return null;
+			}
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+		for (ServiceOrderDO serviceOrderDo : serviceOrderDoList) {
+			ServiceOrderDTO serviceOrderDto = mapper.map(serviceOrderDo, ServiceOrderDTO.class);
+			serviceOrderDtoList.add(serviceOrderDto);
+		}
+		return serviceOrderDtoList;
 	}
 
 	@Override
 	public ServiceOrderDTO getServiceOrderById(int id) throws ServiceException {
-		// TODO Auto-generated method stub
-		return null;
+		if (id <= 0) {
+			ServiceException se = new ServiceException("id error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		ServiceOrderDTO serviceOrderDto = null;
+		try {
+			ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(id);
+			if (serviceOrderDo == null) {
+				return null;
+			}
+			serviceOrderDto = mapper.map(serviceOrderDo, ServiceOrderDTO.class);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+		return serviceOrderDto;
 	}
 
 	@Override
 	public int deleteServiceOrderById(int id) throws ServiceException {
-		// TODO Auto-generated method stub
-		return 0;
+		if (id <= 0) {
+			ServiceException se = new ServiceException("id error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			return serviceOrderDao.deleteServiceOrderById(id);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
 	}
 
 }
