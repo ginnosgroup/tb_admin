@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.zhinanzhen.b.service.ServiceService;
-import org.zhinanzhen.b.service.pojo.ServiceDTO;
+import org.zhinanzhen.b.service.ServiceOrderService;
+import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -23,16 +23,16 @@ import com.ikasoa.core.utils.StringUtil;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
-@RequestMapping("/service")
-public class ServiceController extends BaseController {
+@RequestMapping("/serviceOrder")
+public class ServiceOrderController extends BaseController {
 
 	@Resource
-	ServiceService serviceService;
+	ServiceOrderService serviceOrderService;
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<Integer> addService(@RequestParam(value = "type") String type,
-			@RequestParam(value = "code") String code, @RequestParam(value = "isPay") String isPay,
+	public Response<Integer> addServiceOrder(@RequestParam(value = "type") String type,
+			@RequestParam(value = "isPay") String isPay,
 			@RequestParam(value = "receiveTypeId", required = false) String receiveTypeId,
 			@RequestParam(value = "receiveDate", required = false) String receiveDate,
 			@RequestParam(value = "receivable", required = false) String receivable,
@@ -50,47 +50,45 @@ public class ServiceController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			ServiceDTO serviceDto = new ServiceDTO();
+			ServiceOrderDTO serviceOrderDto = new ServiceOrderDTO();
 			if (StringUtil.isNotEmpty(type))
-				serviceDto.setType(type);
-			if (StringUtil.isNotEmpty(code))
-				serviceDto.setCode(code);
+				serviceOrderDto.setType(type);
 			if (isPay != null && "true".equalsIgnoreCase(isPay))
-				serviceDto.setPay(true);
+				serviceOrderDto.setPay(true);
 			else
-				serviceDto.setPay(false);
+				serviceOrderDto.setPay(false);
 			if (StringUtil.isNotEmpty(receiveTypeId))
-				serviceDto.setReceiveTypeId(StringUtil.toInt(receiveTypeId));
+				serviceOrderDto.setReceiveTypeId(StringUtil.toInt(receiveTypeId));
 			if (StringUtil.isNotEmpty(receiveDate))
-				serviceDto.setReceiveDate(new Date(Long.parseLong(receiveDate)));
+				serviceOrderDto.setReceiveDate(new Date(Long.parseLong(receiveDate)));
 			if (StringUtil.isNotEmpty(receivable))
-				serviceDto.setReceivable(Double.parseDouble(receivable));
+				serviceOrderDto.setReceivable(Double.parseDouble(receivable));
 			if (StringUtil.isNotEmpty(discount))
-				serviceDto.setAmount(Double.parseDouble(discount));
+				serviceOrderDto.setAmount(Double.parseDouble(discount));
 			if (StringUtil.isNotEmpty(received))
-				serviceDto.setReceived(Double.parseDouble(received));
+				serviceOrderDto.setReceived(Double.parseDouble(received));
 			if (StringUtil.isNotEmpty(paymentTimes))
-				serviceDto.setPaymentTimes(StringUtil.toInt(paymentTimes));
+				serviceOrderDto.setPaymentTimes(StringUtil.toInt(paymentTimes));
 			if (StringUtil.isNotEmpty(amount))
-				serviceDto.setAmount(Double.parseDouble(amount));
+				serviceOrderDto.setAmount(Double.parseDouble(amount));
 			if (StringUtil.isNotEmpty(gst))
-				serviceDto.setGst(Double.parseDouble(gst));
+				serviceOrderDto.setGst(Double.parseDouble(gst));
 			if (StringUtil.isNotEmpty(deductGst))
-				serviceDto.setDeductGst(Double.parseDouble(deductGst));
+				serviceOrderDto.setDeductGst(Double.parseDouble(deductGst));
 			if (StringUtil.isNotEmpty(bonus))
-				serviceDto.setBonus(Double.parseDouble(bonus));
+				serviceOrderDto.setBonus(Double.parseDouble(bonus));
 			if (StringUtil.isNotEmpty(userId))
-				serviceDto.setUserId(StringUtil.toInt(userId));
+				serviceOrderDto.setUserId(StringUtil.toInt(userId));
 			if (StringUtil.isNotEmpty(maraId))
-				serviceDto.setMaraId(StringUtil.toInt(maraId));
+				serviceOrderDto.setMaraId(StringUtil.toInt(maraId));
 			if (StringUtil.isNotEmpty(adviserId))
-				serviceDto.setAdviserId(StringUtil.toInt(adviserId));
+				serviceOrderDto.setAdviserId(StringUtil.toInt(adviserId));
 			if (StringUtil.isNotEmpty(officialId))
-				serviceDto.setOfficialId(StringUtil.toInt(officialId));
+				serviceOrderDto.setOfficialId(StringUtil.toInt(officialId));
 			if (StringUtil.isNotEmpty(remarks))
-				serviceDto.setRemarks(remarks);
-			if (serviceService.addService(serviceDto) > 0) {
-				return new Response<Integer>(0, serviceDto.getId());
+				serviceOrderDto.setRemarks(remarks);
+			if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
+				return new Response<Integer>(0, serviceOrderDto.getId());
 			} else {
 				return new Response<Integer>(1, "创建失败.", 0);
 			}
@@ -101,9 +99,8 @@ public class ServiceController extends BaseController {
 
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<Integer> updateService(@RequestParam(value = "id") int id,
+	public Response<Integer> updateServiceOrder(@RequestParam(value = "id") int id,
 			@RequestParam(value = "type", required = false) String type,
-			@RequestParam(value = "code", required = false) String code,
 			@RequestParam(value = "isPay", required = false) String isPay,
 			@RequestParam(value = "receiveTypeId", required = false) String receiveTypeId,
 			@RequestParam(value = "receiveDate", required = false) String receiveDate,
@@ -123,47 +120,45 @@ public class ServiceController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			ServiceDTO serviceDto = new ServiceDTO();
-			serviceDto.setId(id);
+			ServiceOrderDTO serviceOrderDto = new ServiceOrderDTO();
+			serviceOrderDto.setId(id);
 			if (StringUtil.isNotEmpty(type))
-				serviceDto.setType(type);
-			if (StringUtil.isNotEmpty(code))
-				serviceDto.setCode(code);
+				serviceOrderDto.setType(type);
 			if (isPay != null && "true".equalsIgnoreCase(isPay))
-				serviceDto.setPay(true);
+				serviceOrderDto.setPay(true);
 			else
-				serviceDto.setPay(false);
+				serviceOrderDto.setPay(false);
 			if (StringUtil.isNotEmpty(receiveTypeId))
-				serviceDto.setReceiveTypeId(StringUtil.toInt(receiveTypeId));
+				serviceOrderDto.setReceiveTypeId(StringUtil.toInt(receiveTypeId));
 			if (StringUtil.isNotEmpty(receiveDate))
-				serviceDto.setReceiveDate(new Date(Long.parseLong(receiveDate)));
+				serviceOrderDto.setReceiveDate(new Date(Long.parseLong(receiveDate)));
 			if (StringUtil.isNotEmpty(receivable))
-				serviceDto.setReceivable(Double.parseDouble(receivable));
+				serviceOrderDto.setReceivable(Double.parseDouble(receivable));
 			if (StringUtil.isNotEmpty(discount))
-				serviceDto.setAmount(Double.parseDouble(discount));
+				serviceOrderDto.setAmount(Double.parseDouble(discount));
 			if (StringUtil.isNotEmpty(received))
-				serviceDto.setReceived(Double.parseDouble(received));
+				serviceOrderDto.setReceived(Double.parseDouble(received));
 			if (StringUtil.isNotEmpty(paymentTimes))
-				serviceDto.setPaymentTimes(StringUtil.toInt(paymentTimes));
+				serviceOrderDto.setPaymentTimes(StringUtil.toInt(paymentTimes));
 			if (StringUtil.isNotEmpty(amount))
-				serviceDto.setAmount(Double.parseDouble(amount));
+				serviceOrderDto.setAmount(Double.parseDouble(amount));
 			if (StringUtil.isNotEmpty(gst))
-				serviceDto.setGst(Double.parseDouble(gst));
+				serviceOrderDto.setGst(Double.parseDouble(gst));
 			if (StringUtil.isNotEmpty(deductGst))
-				serviceDto.setDeductGst(Double.parseDouble(deductGst));
+				serviceOrderDto.setDeductGst(Double.parseDouble(deductGst));
 			if (StringUtil.isNotEmpty(bonus))
-				serviceDto.setBonus(Double.parseDouble(bonus));
+				serviceOrderDto.setBonus(Double.parseDouble(bonus));
 			if (StringUtil.isNotEmpty(userId))
-				serviceDto.setUserId(StringUtil.toInt(userId));
+				serviceOrderDto.setUserId(StringUtil.toInt(userId));
 			if (StringUtil.isNotEmpty(maraId))
-				serviceDto.setMaraId(StringUtil.toInt(maraId));
+				serviceOrderDto.setMaraId(StringUtil.toInt(maraId));
 			if (StringUtil.isNotEmpty(adviserId))
-				serviceDto.setAdviserId(StringUtil.toInt(adviserId));
+				serviceOrderDto.setAdviserId(StringUtil.toInt(adviserId));
 			if (StringUtil.isNotEmpty(officialId))
-				serviceDto.setOfficialId(StringUtil.toInt(officialId));
+				serviceOrderDto.setOfficialId(StringUtil.toInt(officialId));
 			if (StringUtil.isNotEmpty(remarks))
-				serviceDto.setRemarks(remarks);
-			int i = serviceService.updateService(serviceDto);
+				serviceOrderDto.setRemarks(remarks);
+			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
 			if (i > 0) {
 				return new Response<Integer>(0, i);
 			} else {
@@ -176,32 +171,32 @@ public class ServiceController extends BaseController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<ServiceDTO>> listService(HttpServletResponse response) {
+	public Response<List<ServiceOrderDTO>> listService(HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<List<ServiceDTO>>(0, serviceService.listService());
+			return new Response<List<ServiceOrderDTO>>(0, serviceOrderService.listServiceOrder());
 		} catch (ServiceException e) {
-			return new Response<List<ServiceDTO>>(1, e.getMessage(), null);
+			return new Response<List<ServiceOrderDTO>>(1, e.getMessage(), null);
 		}
 	}
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<ServiceDTO> getService(@RequestParam(value = "id") int id, HttpServletResponse response) {
+	public Response<ServiceOrderDTO> getServiceOrder(@RequestParam(value = "id") int id, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<ServiceDTO>(0, serviceService.getServiceById(id));
+			return new Response<ServiceOrderDTO>(0, serviceOrderService.getServiceOrderById(id));
 		} catch (ServiceException e) {
-			return new Response<ServiceDTO>(1, e.getMessage(), null);
+			return new Response<ServiceOrderDTO>(1, e.getMessage(), null);
 		}
 	}
 
 	@RequestMapping(value = "/delete", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<Integer> deleteService(@RequestParam(value = "id") int id, HttpServletResponse response) {
+	public Response<Integer> deleteServiceOrder(@RequestParam(value = "id") int id, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<Integer>(0, serviceService.deleteServiceById(id));
+			return new Response<Integer>(0, serviceOrderService.deleteServiceOrderById(id));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), 0);
 		}

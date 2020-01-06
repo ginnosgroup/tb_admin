@@ -300,23 +300,32 @@ CREATE TABLE `b_service` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
-`type` varchar(4) DEFAULT NULL COMMENT '服务类型(VISA:签证服务,OVST:留学服务)',
   `code` varchar(8) DEFAULT NULL COMMENT '项目编码',
-`is_pay` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已支付',
-`receive_type_id` int DEFAULT NULL COMMENT '收款方式编号(对应b_receive_type.id)',
-`receive_date` datetime DEFAULT NULL COMMENT '收款日期',
-`receivable` decimal(8,2) DEFAULT NULL COMMENT '总计应收',
-`discount` decimal(8,2) NOT NULL DEFAULT 0 COMMENT '折扣',
-`received` decimal(8,2) DEFAULT NULL COMMENT '总计已收',
-`payment_times` int NOT NULL DEFAULT 1 COMMENT '付款次数',
-`amount` decimal(8,2) DEFAULT NULL COMMENT '本次收款',
-`gst` decimal(8,2) DEFAULT NULL COMMENT 'GST',
-`deduct_gst` decimal(8,2) DEFAULT NULL COMMENT 'Deduct GST',
-`bonus` decimal(8,2) DEFAULT NULL COMMENT '月奖金',
-`mara_id` int DEFAULT NULL COMMENT '所属MARA编号 (对应b_mara.id,留学服务MARA为空)',
-`adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
-`official_id` int NOT NULL COMMENT '文案编号 (对应b_official.id)',
-`remarks` varchar(255) DEFAULT NULL COMMENT '备注',
+  `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已删除'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+-- 服务订单
+CREATE TABLE `b_service_order` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `type` varchar(4) DEFAULT NULL COMMENT '服务类型(VISA:签证服务,OVST:留学服务)',
+  `is_pay` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已支付',
+  `receive_type_id` int DEFAULT NULL COMMENT '收款方式编号(对应b_receive_type.id)',
+  `receive_date` datetime DEFAULT NULL COMMENT '收款日期',
+  `receivable` decimal(8,2) DEFAULT NULL COMMENT '总计应收',
+  `discount` decimal(8,2) NOT NULL DEFAULT 0 COMMENT '折扣',
+  `received` decimal(8,2) DEFAULT NULL COMMENT '总计已收',
+  `payment_times` int NOT NULL DEFAULT 1 COMMENT '付款次数',
+  `amount` decimal(8,2) DEFAULT NULL COMMENT '本次收款',
+  `gst` decimal(8,2) DEFAULT NULL COMMENT 'GST',
+  `deduct_gst` decimal(8,2) DEFAULT NULL COMMENT 'Deduct GST',
+  `bonus` decimal(8,2) DEFAULT NULL COMMENT '月奖金',
+  `user_id` int NOT NULL COMMENT '所属顾客编号 (对应tb_user.id)',
+  `mara_id` int DEFAULT NULL COMMENT '所属MARA编号 (对应b_mara.id,留学服务MARA为空)',
+  `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
+  `official_id` int NOT NULL COMMENT '文案编号 (对应b_official.id)',
+  `remarks` varchar(255) DEFAULT NULL COMMENT '备注',
   `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已删除'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 

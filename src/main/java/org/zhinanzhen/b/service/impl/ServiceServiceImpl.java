@@ -44,19 +44,9 @@ public class ServiceServiceImpl extends BaseService implements ServiceService {
 	}
 
 	@Override
-	public int updateService(ServiceDTO serviceDto) throws ServiceException {
-		if (serviceDto == null) {
-			ServiceException se = new ServiceException("serviceDto is null !");
-			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
-			throw se;
-		}
-		if (serviceDto.getId() <= 0) {
-			ServiceException se = new ServiceException("id is null !");
-			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
-			throw se;
-		}
+	public int updateService(int id, String code) throws ServiceException {
 		try {
-			return serviceDao.updateService(mapper.map(serviceDto, ServiceDO.class));
+			return serviceDao.updateService(id, code);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
