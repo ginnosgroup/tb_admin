@@ -8,8 +8,8 @@ import org.zhinanzhen.tb.service.ServiceException;
 public interface ServiceService {
 
 	public int addService(ServiceDTO serviceDto) throws ServiceException;
-	
-	public int updateService(ServiceDTO serviceDto) throws ServiceException;
+
+	public int updateService(int id, String code) throws ServiceException;
 
 	public List<ServiceDTO> listService() throws ServiceException;
 

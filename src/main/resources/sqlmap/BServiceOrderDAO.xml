@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.ServiceOrderDAO">
+
+    <insert id="addServiceOrder" parameterType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+            INTO b_service_order (
+                gmt_create,
+                gmt_modify,
+                type,
+                is_pay,
+                receive_type_id,
+                receive_date,
+                receivable,
+                discount,
+                received,
+                payment_times,
+                amount,
+                gst,
+                deduct_gst,
+                bonus,
+                user_id,
+                mara_id,
+                adviser_id,
+                official_id,
+                remarks,
+                is_delete)
+            VALUES (
+                now(),
+                now(),
+                #{type},
+                #{isPay},
+                #{receiveTypeId},
+                #{receiveDate},
+                #{receivable},
+                #{discount},
+                #{received},
+                #{paymentTimes},
+                #{amount},
+                #{gst},
+                #{deductGst},
+                #{bonus},
+                #{userId},
+                #{maraId},
+                #{adviserId},
+                #{officialId},
+                #{remarks},
+                0);
+    </insert>
+    
+    <update id="updateServiceOrder" parameterType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
+        UPDATE b_service_order 
+        SET gmt_modify = now()
+        <if test='type != null and type != ""'>
+            , type = #{type}
+        </if>
+        <if test='isPay != null'>
+            , is_pay = #{isPay}
+        </if>
+        <if test='receiveTypeId != null and receiveTypeId != ""'>
+            , receive_type_id = #{receiveTypeId}
+        </if>
+        <if test='receiveDate != null'>
+            , receive_date = #{receiveDate}
+        </if>
+        <if test='receivable != null and receivable != ""'>
+            , receivable = #{receivable}
+        </if>
+        <if test='discount != null and discount != ""'>
+            , discount = #{discount}
+        </if>
+        <if test='received != null and received != ""'>
+            , received = #{received}
+        </if>
+        <if test='paymentTimes != null'>
+            , payment_times = #{paymentTimes}
+        </if>
+        <if test='amount != null'>
+            , amount = #{amount}
+        </if>
+        <if test='gst != null'>
+            , gst = #{gst}
+        </if>
+        <if test='deductGst != null'>
+            , deduct_gst = #{deductGst}
+        </if>
+        <if test='bonus != null'>
+            , bonus = #{bonus}
+        </if>
+        <if test='userId != null'>
+            , user_id = #{userId}
+        </if>
+        <if test='maraId != null'>
+            , mara_id = #{maraId}
+        </if>
+        <if test='adviserId != null'>
+            , adviser_id = #{adviserId}
+        </if>
+        <if test='officialId != null'>
+            , official_id = #{officialId}
+        </if>
+        <if test='remarks != null'>
+            , remarks = #{remarks}
+        </if>
+        WHERE id = #{id};
+    </update>
+    
+    <select id="listServiceOrder" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
+        SELECT
+            id,
+            gmt_create AS GmtCreate,
+            type,
+            code,
+            is_pay AS isPay,
+            receive_type_id AS receiveTypeId,
+            receive_date AS receiveDate,
+            receivable,
+            discount,
+            received,
+            payment_times AS paymentTimes,
+            amount,
+            gst,
+            deduct_gst AS deductGst,
+            bonus,
+            user_id AS userId,
+            mara_id AS maraId,
+            adviser_id AS adviserId,
+            official_id AS officialId,
+            remarks
+        FROM b_service_order
+        WHERE is_delete = 0
+        ORDER BY gmt_create DESC;
+    </select>
+    
+    <select id="getServiceOrderById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
+        SELECT
+            id,
+            gmt_create AS GmtCreate,
+            type,
+            is_pay AS isPay,
+            receive_type_id AS receiveTypeId,
+            receive_date AS receiveDate,
+            receivable,
+            discount,
+            received,
+            payment_times AS paymentTimes,
+            amount,
+            gst,
+            deduct_gst AS deductGst,
+            bonus,
+            user_id AS userId,
+            mara_id AS maraId,
+            adviser_id AS adviserId,
+            official_id AS officialId,
+            remarks
+        FROM b_service_order WHERE id = #{id, jdbcType=INTEGER};
+    </select>
+	
+	<update id="deleteServiceOrderById" parameterType="java.lang.Integer">
+        UPDATE b_service_order
+        SET gmt_modify = now(), is_delete = 1
+        WHERE id = #{id, jdbcType=INTEGER};
+    </update>
+
+</mapper>
