@@ -65,7 +65,14 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	}
 
 	@Override
-	public List<ServiceOrderDTO> listServiceOrder() throws ServiceException {
+	public int countServiceOrder(String type, String state, int userId, int maraId, int adviserId, int officialId)
+			throws ServiceException {
+		return 0;
+	}
+
+	@Override
+	public List<ServiceOrderDTO> listServiceOrder(String type, String state, int userId, int maraId, int adviserId,
+			int officialId, int pageNum, int pageSize) throws ServiceException {
 		List<ServiceOrderDTO> serviceOrderDtoList = new ArrayList<ServiceOrderDTO>();
 		List<ServiceOrderDO> serviceOrderDoList = new ArrayList<ServiceOrderDO>();
 		try {

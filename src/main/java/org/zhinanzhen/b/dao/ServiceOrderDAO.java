@@ -9,6 +9,8 @@ public interface ServiceOrderDAO {
 	public int addServiceOrder(ServiceOrderDO serviceOrderDo);
 
 	public int updateServiceOrder(ServiceOrderDO serviceOrderDo);
+	
+	public int countServiceOrder();
 
 	public List<ServiceOrderDO> listServiceOrder();
 

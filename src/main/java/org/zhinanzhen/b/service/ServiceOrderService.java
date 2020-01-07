@@ -11,7 +11,11 @@ public interface ServiceOrderService {
 
 	public int updateServiceOrder(ServiceOrderDTO serviceOrderDto) throws ServiceException;
 
-	public List<ServiceOrderDTO> listServiceOrder() throws ServiceException;
+	public int countServiceOrder(String type, String state, int userId, int maraId, int adviserId, int officialId)
+			throws ServiceException;
+
+	public List<ServiceOrderDTO> listServiceOrder(String type, String state, int userId, int maraId, int adviserId,
+			int officialId, int pageNum, int pageSize) throws ServiceException;
 
 	public ServiceOrderDTO getServiceOrderById(int id) throws ServiceException;
 

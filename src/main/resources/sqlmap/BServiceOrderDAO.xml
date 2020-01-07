@@ -106,6 +106,13 @@
         WHERE id = #{id};
     </update>
     
+    <select id="countServiceOrder" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
+        SELECT count(*)
+        FROM b_service_order
+        WHERE is_delete = 0
+        ORDER BY gmt_create DESC;
+    </select>
+    
     <select id="listServiceOrder" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
         SELECT
             id,

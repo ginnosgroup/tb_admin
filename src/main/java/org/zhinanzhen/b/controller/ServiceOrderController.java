@@ -169,12 +169,39 @@ public class ServiceOrderController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/list", method = RequestMethod.GET)
+	@RequestMapping(value = "/count", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<ServiceOrderDTO>> listService(HttpServletResponse response) {
+	public Response<Integer> countService(@RequestParam(value = "type", required = false) String type,
+			@RequestParam(value = "state", required = false) String state,
+			@RequestParam(value = "userId", required = false) String userId,
+			@RequestParam(value = "maraId", required = false) String maraId,
+			@RequestParam(value = "adviserId", required = false) String adviserId,
+			@RequestParam(value = "officialId", required = false) String officialId, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<List<ServiceOrderDTO>>(0, serviceOrderService.listServiceOrder());
+			return new Response<Integer>(0, serviceOrderService.countServiceOrder(type, state, StringUtil.toInt(userId),
+					StringUtil.toInt(maraId), StringUtil.toInt(adviserId), StringUtil.toInt(officialId)));
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/list", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<ServiceOrderDTO>> listService(@RequestParam(value = "type", required = false) String type,
+			@RequestParam(value = "state", required = false) String state,
+			@RequestParam(value = "userId", required = false) String userId,
+			@RequestParam(value = "maraId", required = false) String maraId,
+			@RequestParam(value = "adviserId", required = false) String adviserId,
+			@RequestParam(value = "officialId", required = false) String officialId,
+			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
+			HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<List<ServiceOrderDTO>>(0,
+					serviceOrderService.listServiceOrder(type, state, StringUtil.toInt(userId),
+							StringUtil.toInt(maraId), StringUtil.toInt(adviserId), StringUtil.toInt(officialId),
+							pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<ServiceOrderDTO>>(1, e.getMessage(), null);
 		}
