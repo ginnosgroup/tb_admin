@@ -15,7 +15,7 @@ import org.zhinanzhen.tb.service.impl.BaseService;
 
 import com.ikasoa.core.thrift.ErrorCodeEnum;
 
-@Service("ServiceService")
+@Service("ServiceOrderService")
 public class ServiceOrderServiceImpl extends BaseService implements ServiceOrderService {
 
 	@Resource
