@@ -111,7 +111,6 @@
             id,
             gmt_create AS GmtCreate,
             type,
-            code,
             is_pay AS isPay,
             receive_type_id AS receiveTypeId,
             receive_date AS receiveDate,

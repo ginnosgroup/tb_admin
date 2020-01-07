@@ -35,7 +35,7 @@ public class MaraServiceImpl extends BaseService implements MaraService {
 			throw se;
 		}
 		try {
-			MaraDO maraDo = mapper.map(maraDao, MaraDO.class);
+			MaraDO maraDo = mapper.map(maraDto, MaraDO.class);
 			if (maraDto.getState() != null) {
 				maraDo.setState(maraDto.getState().toString());
 			}
