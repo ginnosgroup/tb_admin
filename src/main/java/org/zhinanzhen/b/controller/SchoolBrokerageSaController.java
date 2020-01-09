@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.zhinanzhen.b.service.SchoolBrokerageSaService;
 import org.zhinanzhen.b.service.SchoolService;
-import org.zhinanzhen.b.service.pojo.BrokerageSaDTO;
 import org.zhinanzhen.b.service.pojo.SchoolBrokerageSaByDashboardListDTO;
 import org.zhinanzhen.b.service.pojo.SchoolBrokerageSaDTO;
 import org.zhinanzhen.tb.controller.BaseController;

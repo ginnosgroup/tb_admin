@@ -2,6 +2,7 @@ package org.zhinanzhen.b.dao;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
 
 public interface ServiceOrderDAO {
@@ -10,7 +11,13 @@ public interface ServiceOrderDAO {
 
 	public int updateServiceOrder(ServiceOrderDO serviceOrderDo);
 
-	public List<ServiceOrderDO> listServiceOrder();
+	public int countServiceOrder(@Param("type") String type, @Param("state") String state,
+			@Param("userId") Integer userId, @Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
+			@Param("officialId") Integer officialId);
+
+	public List<ServiceOrderDO> listServiceOrder(@Param("type") String type, @Param("state") String state,
+			@Param("userId") Integer userId, @Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
+			@Param("officialId") Integer officialId, @Param("offset") int offset, @Param("rows") int rows);
 
 	public ServiceOrderDO getServiceOrderById(int id);
 
