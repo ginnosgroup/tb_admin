@@ -67,7 +67,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	@Override
 	public int countServiceOrder(String type, String state, int userId, int maraId, int adviserId, int officialId)
 			throws ServiceException {
-		return serviceOrderDao.countServiceOrder(type, state, userId, maraId, adviserId, officialId);
+		return serviceOrderDao.countServiceOrder(type, state, userId > 0 ? userId : null, maraId > 0 ? maraId : null,
+				adviserId > 0 ? adviserId : null, officialId > 0 ? officialId : null);
 	}
 
 	@Override
@@ -80,7 +81,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		if (pageSize < 0)
 			pageSize = DEFAULT_PAGE_SIZE;
 		try {
-			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, state, userId, maraId, adviserId, officialId,
+			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, state, userId > 0 ? userId : null,
+					maraId > 0 ? maraId : null, adviserId > 0 ? adviserId : null, officialId > 0 ? officialId : null,
 					pageNum * pageSize, pageSize);
 			if (serviceOrderDoList == null) {
 				return null;

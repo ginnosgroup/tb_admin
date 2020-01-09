@@ -106,7 +106,7 @@
         WHERE id = #{id};
     </update>
     
-    <select id="countServiceOrder" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
+    <select id="countServiceOrder" resultType="java.lang.Integer">
         SELECT count(*)
         FROM b_service_order
         WHERE is_delete = 0
@@ -125,7 +125,7 @@
 		<if test='officialId != null'>
 			AND official_id = #{officialId}
 		</if>
-        ORDER BY gmt_create DESC;
+        ;
     </select>
     
     <select id="listServiceOrder" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
