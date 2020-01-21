@@ -49,7 +49,7 @@ public class KnowledgeController extends BaseController {
 	public UploadFileResponse upload(@RequestParam MultipartFile file, HttpServletRequest request,
 			HttpServletResponse response) throws IllegalStateException, IOException {
 		super.setPostHeader(response);
-		Response<String> resp = upload(file, request.getSession(), "/uploads/knowledge_files/");
+		Response<String> resp = upload2(file, request.getSession(), "/uploads/knowledge_files/");
 		return new UploadFileResponse(resp.getCode(), "https://yongjinbiao.zhinanzhen.org/statics/" + resp.getData());
 	}
 

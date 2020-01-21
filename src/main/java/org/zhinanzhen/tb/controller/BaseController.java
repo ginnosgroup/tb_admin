@@ -96,7 +96,6 @@ public class BaseController {
 	public static Response<String> upload2(MultipartFile file, HttpSession session, String dir)
 			throws IllegalStateException, IOException {
 		if (file != null) {
-			String path = "/root/tmp/";// 文件路径
 			String fileName = file.getOriginalFilename();// 文件原名称
 			LOG.info("上传的文件原名称:" + fileName);
 			String realPath = "/data" + dir;
@@ -107,7 +106,7 @@ public class BaseController {
 			// 自定义的文件名称
 			String newFileName = String.valueOf(System.currentTimeMillis()) + "_" + fileName.toLowerCase();
 			// 设置存放文件的路径
-			path = realPath + newFileName;
+			String path = realPath + newFileName;
 			LOG.info("存放文件的路径:" + path);
 			// 转存文件到指定的路径
 			file.transferTo(new File(path));
