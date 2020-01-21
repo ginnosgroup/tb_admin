@@ -93,6 +93,30 @@ public class BaseController {
 		}
 	}
 
+	public static Response<String> upload2(MultipartFile file, HttpSession session, String dir)
+			throws IllegalStateException, IOException {
+		if (file != null) {
+			String path = "/root/tmp/";// 文件路径
+			String fileName = file.getOriginalFilename();// 文件原名称
+			LOG.info("上传的文件原名称:" + fileName);
+			String realPath = "/data" + dir;
+			// 创建目录
+			File folder = new File(realPath);
+			if (!folder.isDirectory())
+				folder.mkdirs();
+			// 自定义的文件名称
+			String newFileName = String.valueOf(System.currentTimeMillis()) + "_" + fileName.toLowerCase();
+			// 设置存放文件的路径
+			path = realPath + newFileName;
+			LOG.info("存放文件的路径:" + path);
+			// 转存文件到指定的路径
+			file.transferTo(new File(path));
+			return new Response<String>(0, "", dir + newFileName);
+		} else {
+			return new Response<String>(3, "文件为空.", null);
+		}
+	}
+
 	// 获取当前用户
 	protected AdminUserLoginInfo getAdminUserLoginInfo(HttpServletRequest request) {
 		HttpSession session = request.getSession();
