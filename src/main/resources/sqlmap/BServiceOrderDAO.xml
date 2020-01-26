@@ -9,6 +9,7 @@
                 gmt_create,
                 gmt_modify,
                 type,
+                state,
                 is_pay,
                 receive_type_id,
                 receive_date,
@@ -30,6 +31,7 @@
                 now(),
                 now(),
                 #{type},
+                #{state},
                 #{isPay},
                 #{receiveTypeId},
                 #{receiveDate},
@@ -113,6 +115,9 @@
         <if test='type != null and type != ""'>
 			AND type = #{type}
 		</if>
+		<if test='state != null and state != ""'>
+			AND state = #{state}
+		</if>
 		<if test='userId != null'>
 			AND user_id = #{userId}
 		</if>
@@ -133,6 +138,7 @@
             id,
             gmt_create AS GmtCreate,
             type,
+            state,
             is_pay AS isPay,
             receive_type_id AS receiveTypeId,
             receive_date AS receiveDate,
@@ -154,6 +160,9 @@
         <if test='type != null and type != ""'>
 			AND type = #{type}
 		</if>
+		<if test='state != null and state != ""'>
+			AND state = #{state}
+		</if>
 		<if test='userId != null'>
 			AND user_id = #{userId}
 		</if>
@@ -174,6 +183,7 @@
             id,
             gmt_create AS GmtCreate,
             type,
+            state,
             is_pay AS isPay,
             receive_type_id AS receiveTypeId,
             receive_date AS receiveDate,

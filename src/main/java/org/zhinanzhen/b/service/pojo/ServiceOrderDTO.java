@@ -10,6 +10,8 @@ public class ServiceOrderDTO {
 	private int id;
 
 	private String type;
+	
+	private String state;
 
 	private boolean isPay;
 

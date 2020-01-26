@@ -310,6 +310,7 @@ CREATE TABLE `b_service_order` (
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `type` varchar(4) DEFAULT NULL COMMENT '服务类型(VISA:签证服务,OVST:留学服务)',
+`state` varchar(8) NOT NULL COMMENT '状态 (WAIT:待提交审核,REVIEW:审核中,APPLY:服务申请中,COMPLETE:服务申请完成,FINISH:完成-支付成功,CLOSE:关闭)',
   `is_pay` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已支付',
   `receive_type_id` int DEFAULT NULL COMMENT '收款方式编号(对应b_receive_type.id)',
   `receive_date` datetime DEFAULT NULL COMMENT '收款日期',

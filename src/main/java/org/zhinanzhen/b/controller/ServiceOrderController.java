@@ -53,6 +53,7 @@ public class ServiceOrderController extends BaseController {
 			ServiceOrderDTO serviceOrderDto = new ServiceOrderDTO();
 			if (StringUtil.isNotEmpty(type))
 				serviceOrderDto.setType(type);
+			serviceOrderDto.setState("WAIT");
 			if (isPay != null && "true".equalsIgnoreCase(isPay))
 				serviceOrderDto.setPay(true);
 			else
