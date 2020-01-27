@@ -175,7 +175,8 @@
 		<if test='officialId != null'>
 			AND official_id = #{officialId}
 		</if>
-        ORDER BY gmt_create DESC;
+        ORDER BY gmt_create DESC
+        LIMIT #{offset}, #{rows};
     </select>
     
     <select id="getServiceOrderById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
