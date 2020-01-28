@@ -20,5 +20,9 @@ public interface ServiceOrderService {
 	public ServiceOrderDTO getServiceOrderById(int id) throws ServiceException;
 
 	public int deleteServiceOrderById(int id) throws ServiceException;
+	
+	public ServiceOrderDTO Approval(int id) throws ServiceException;
+	
+	public ServiceOrderDTO Refuse(int id) throws ServiceException;
 
 }

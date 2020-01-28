@@ -7,9 +7,12 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.ServiceOrderDAO;
+import org.zhinanzhen.b.dao.ServiceOrderReviewDAO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
+import org.zhinanzhen.b.dao.pojo.ServiceOrderReviewDO;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
+import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
@@ -20,6 +23,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
 	@Resource
 	private ServiceOrderDAO serviceOrderDao;
+
+	@Resource
+	private ServiceOrderReviewDAO serviceOrderReviewDao;
 
 	@Override
 	public int addServiceOrder(ServiceOrderDTO serviceOrderDto) throws ServiceException {
@@ -94,6 +100,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		}
 		for (ServiceOrderDO serviceOrderDo : serviceOrderDoList) {
 			ServiceOrderDTO serviceOrderDto = mapper.map(serviceOrderDo, ServiceOrderDTO.class);
+			// 查询审核记录
+			addReviews(serviceOrderDto);
 			serviceOrderDtoList.add(serviceOrderDto);
 		}
 		return serviceOrderDtoList;
@@ -113,6 +121,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				return null;
 			}
 			serviceOrderDto = mapper.map(serviceOrderDo, ServiceOrderDTO.class);
+			// 查询审核记录
+			addReviews(serviceOrderDto);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
@@ -135,6 +145,27 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
 		}
+	}
+
+	@Override
+	public ServiceOrderDTO Approval(int id) throws ServiceException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ServiceOrderDTO Refuse(int id) throws ServiceException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	private void addReviews(ServiceOrderDTO serviceOrderDto) {
+		List<ServiceOrderReviewDO> serviceOrderReviewDoList = serviceOrderReviewDao
+				.listServiceOrderReview(serviceOrderDto.getId(), null, null, null);
+		List<ServiceOrderReviewDTO> serviceOrderReviewDtoList = new ArrayList<ServiceOrderReviewDTO>();
+		serviceOrderReviewDoList
+				.forEach(review -> serviceOrderReviewDtoList.add(mapper.map(review, ServiceOrderReviewDTO.class)));
+		serviceOrderDto.setReviews(serviceOrderReviewDtoList);
 	}
 
 }

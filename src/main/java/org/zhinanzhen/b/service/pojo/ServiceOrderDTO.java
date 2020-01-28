@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.service.pojo;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.Data;
 
@@ -10,7 +11,7 @@ public class ServiceOrderDTO {
 	private int id;
 
 	private String type;
-	
+
 	private String state;
 
 	private boolean isPay;
@@ -44,5 +45,7 @@ public class ServiceOrderDTO {
 	private int officialId;
 
 	private String remarks;
+
+	private List<ServiceOrderReviewDTO> reviews;
 
 }
