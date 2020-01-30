@@ -268,6 +268,12 @@ public class ServiceOrderController extends BaseController {
 				} else if ("MA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					return new Response<ServiceOrderDTO>(0,
 							serviceOrderService.approval(id, adminUserLoginInfo.getId(), null, state, null, null));
+				} else if ("WA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+					return new Response<ServiceOrderDTO>(0,
+							serviceOrderService.approval(id, adminUserLoginInfo.getId(), null, null, state, null));
+				} else if ("KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+					return new Response<ServiceOrderDTO>(0,
+							serviceOrderService.approval(id, adminUserLoginInfo.getId(), null, null, null, state));
 				} else
 					return new Response<ServiceOrderDTO>(1, "无权限!", null);
 			else
@@ -293,6 +299,12 @@ public class ServiceOrderController extends BaseController {
 				} else if ("MA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					return new Response<ServiceOrderDTO>(0,
 							serviceOrderService.refuse(id, adminUserLoginInfo.getId(), null, state, null, null));
+				} else if ("WA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+					return new Response<ServiceOrderDTO>(0,
+							serviceOrderService.refuse(id, adminUserLoginInfo.getId(), null, null, state, null));
+				} else if ("KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+					return new Response<ServiceOrderDTO>(0,
+							serviceOrderService.refuse(id, adminUserLoginInfo.getId(), null, null, null, state));
 				} else
 					return new Response<ServiceOrderDTO>(1, "无权限!", null);
 			else
