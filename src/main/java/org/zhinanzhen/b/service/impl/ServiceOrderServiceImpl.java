@@ -148,15 +148,15 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	}
 
 	@Override
-	public ServiceOrderDTO approval(int id, String adviserState, String maraState, String officialState, String kjState)
-			throws ServiceException {
-		return review(id, adviserState, maraState, officialState, kjState, "APPROVAL");
+	public ServiceOrderDTO approval(int id, int adminUserId, String adviserState, String maraState,
+			String officialState, String kjState) throws ServiceException {
+		return review(id, adminUserId, adviserState, maraState, officialState, kjState, "APPROVAL");
 	}
 
 	@Override
-	public ServiceOrderDTO refuse(int id, String adviserState, String maraState, String officialState, String kjState)
-			throws ServiceException {
-		return review(id, adviserState, maraState, officialState, kjState, "REFUSE");
+	public ServiceOrderDTO refuse(int id, int adminUserId, String adviserState, String maraState, String officialState,
+			String kjState) throws ServiceException {
+		return review(id, adminUserId, adviserState, maraState, officialState, kjState, "REFUSE");
 	}
 
 	private void putReviews(ServiceOrderDTO serviceOrderDto) {
@@ -170,11 +170,12 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			serviceOrderDto.setReview(serviceOrderReviewDtoList.get(0));
 	}
 
-	private ServiceOrderDTO review(int id, String adviserState, String maraState, String officialState, String kjState,
-			String type) throws ServiceException {
+	private ServiceOrderDTO review(int id, int adminUserId, String adviserState, String maraState, String officialState,
+			String kjState, String type) throws ServiceException {
 		ServiceOrderReviewDO serviceOrderReviewDo = new ServiceOrderReviewDO();
 		serviceOrderReviewDo.setServiceOrderId(id);
 		serviceOrderReviewDo.setType(type);
+		serviceOrderReviewDo.setAdminUserId(adminUserId);
 		if (adviserState != null)
 			serviceOrderReviewDo.setAdviserState(adviserState);
 		if (maraState != null)

@@ -66,6 +66,10 @@ public class ServiceOrderController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+					&& !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+				return new Response<Integer>(1, "仅顾问和超级管理员能创建服务订单.", 0);
 			ServiceOrderDTO serviceOrderDto = new ServiceOrderDTO();
 			if (StringUtil.isNotEmpty(type))
 				serviceOrderDto.setType(type);
@@ -105,12 +109,12 @@ public class ServiceOrderController extends BaseController {
 			if (StringUtil.isNotEmpty(remarks))
 				serviceOrderDto.setRemarks(remarks);
 			if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
-				serviceOrderService.approval(serviceOrderDto.getId(), ReviewAdviserStateEnum.WAIT.toString(), null,
-						null, null);
+				if (adminUserLoginInfo != null)
+					serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
+							ReviewAdviserStateEnum.WAIT.toString(), null, null, null);
 				return new Response<Integer>(0, serviceOrderDto.getId());
-			} else {
+			} else
 				return new Response<Integer>(1, "创建失败.", 0);
-			}
 		} catch (ServiceException e) {
 			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
 		}
@@ -251,11 +255,23 @@ public class ServiceOrderController extends BaseController {
 	@RequestMapping(value = "/approval", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<ServiceOrderDTO> approval(@RequestParam(value = "id") int id,
-			@RequestParam(value = "state") String state, HttpServletResponse response) {
+			@RequestParam(value = "state") String state, HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			// TODO:sulei
-			return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id, state, null, null, null));
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo != null)
+				if (StringUtil.isEmpty(adminUserLoginInfo.getApList())
+						|| "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+					return new Response<ServiceOrderDTO>(0,
+							serviceOrderService.approval(id, adminUserLoginInfo.getId(), state, null, null, null));
+				} else if ("MA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+					return new Response<ServiceOrderDTO>(0,
+							serviceOrderService.approval(id, adminUserLoginInfo.getId(), null, state, null, null));
+				} else
+					return new Response<ServiceOrderDTO>(1, "无权限!", null);
+			else
+				return new Response<ServiceOrderDTO>(1, "请登录!", null);
 		} catch (ServiceException e) {
 			return new Response<ServiceOrderDTO>(1, e.getMessage(), null);
 		}
@@ -264,11 +280,23 @@ public class ServiceOrderController extends BaseController {
 	@RequestMapping(value = "/refuse", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<ServiceOrderDTO> refuse(@RequestParam(value = "id") int id,
-			@RequestParam(value = "state") String state, HttpServletResponse response) {
+			@RequestParam(value = "state") String state, HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			// TODO:sulei
-			return new Response<ServiceOrderDTO>(0, serviceOrderService.refuse(id, state, null, null, null));
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo != null)
+				if (StringUtil.isEmpty(adminUserLoginInfo.getApList())
+						|| "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+					return new Response<ServiceOrderDTO>(0,
+							serviceOrderService.refuse(id, adminUserLoginInfo.getId(), state, null, null, null));
+				} else if ("MA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+					return new Response<ServiceOrderDTO>(0,
+							serviceOrderService.refuse(id, adminUserLoginInfo.getId(), null, state, null, null));
+				} else
+					return new Response<ServiceOrderDTO>(1, "无权限!", null);
+			else
+				return new Response<ServiceOrderDTO>(1, "请登录!", null);
 		} catch (ServiceException e) {
 			return new Response<ServiceOrderDTO>(1, e.getMessage(), null);
 		}
