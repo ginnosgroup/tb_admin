@@ -230,4 +230,30 @@ public class ServiceOrderController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/approval", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<ServiceOrderDTO> approval(@RequestParam(value = "id") int id,
+			@RequestParam(value = "state") String state, HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			// TODO:sulei
+			return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id, state));
+		} catch (ServiceException e) {
+			return new Response<ServiceOrderDTO>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/refuse", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<ServiceOrderDTO> refuse(@RequestParam(value = "id") int id,
+			@RequestParam(value = "state") String state, HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			// TODO:sulei
+			return new Response<ServiceOrderDTO>(0, serviceOrderService.refuse(id, state));
+		} catch (ServiceException e) {
+			return new Response<ServiceOrderDTO>(1, e.getMessage(), null);
+		}
+	}
+
 }

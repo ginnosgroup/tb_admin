@@ -148,15 +148,13 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	}
 
 	@Override
-	public ServiceOrderDTO Approval(int id) throws ServiceException {
-		// TODO Auto-generated method stub
-		return null;
+	public ServiceOrderDTO approval(int id, String state) throws ServiceException {
+		return review(id, state, "APPROVAL");
 	}
 
 	@Override
-	public ServiceOrderDTO Refuse(int id) throws ServiceException {
-		// TODO Auto-generated method stub
-		return null;
+	public ServiceOrderDTO refuse(int id, String state) throws ServiceException {
+		return review(id, state, "REFUSE");
 	}
 
 	private void addReviews(ServiceOrderDTO serviceOrderDto) {
@@ -166,6 +164,15 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		serviceOrderReviewDoList
 				.forEach(review -> serviceOrderReviewDtoList.add(mapper.map(review, ServiceOrderReviewDTO.class)));
 		serviceOrderDto.setReviews(serviceOrderReviewDtoList);
+	}
+
+	private ServiceOrderDTO review(int id, String state, String type) throws ServiceException {
+		ServiceOrderReviewDO serviceOrderReviewDo = new ServiceOrderReviewDO();
+		serviceOrderReviewDo.setServiceOrderId(id);
+		serviceOrderReviewDo.setType(type);
+		serviceOrderReviewDo.setState(state);
+		serviceOrderReviewDao.addServiceOrderReview(serviceOrderReviewDo);
+		return getServiceOrderById(id);
 	}
 
 }
