@@ -31,18 +31,42 @@ public class ServiceOrderController extends BaseController {
 
 	public enum ReviewAdviserStateEnum {
 		WAIT, REVIEW, APPLY, COMPLETE, PAID, CLOSE;
+		public static ReviewAdviserStateEnum get(String name) {
+			for (ReviewAdviserStateEnum e : ReviewAdviserStateEnum.values())
+				if (e.toString().equals(name))
+					return e;
+			return null;
+		}
 	}
 
 	public enum ReviewMaraStateEnum {
 		WAIT, FINISH;
+		public static ReviewMaraStateEnum get(String name) {
+			for (ReviewMaraStateEnum e : ReviewMaraStateEnum.values())
+				if (e.toString().equals(name))
+					return e;
+			return null;
+		}
 	}
 
 	public enum ReviewOfficialStateEnum {
 		REVIEW, FINISH, APPLY, COMPLETE, PAID;
+		public static ReviewOfficialStateEnum get(String name) {
+			for (ReviewOfficialStateEnum e : ReviewOfficialStateEnum.values())
+				if (e.toString().equals(name))
+					return e;
+			return null;
+		}
 	}
 
 	public enum ReviewKjStateEnum {
 		WAIT, FINISH, COMPLETE;
+		public static ReviewKjStateEnum get(String name) {
+			for (ReviewKjStateEnum e : ReviewKjStateEnum.values())
+				if (e.toString().equals(name))
+					return e;
+			return null;
+		}
 	}
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
@@ -263,17 +287,29 @@ public class ServiceOrderController extends BaseController {
 			if (adminUserLoginInfo != null)
 				if (StringUtil.isEmpty(adminUserLoginInfo.getApList())
 						|| "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
-					return new Response<ServiceOrderDTO>(0,
-							serviceOrderService.approval(id, adminUserLoginInfo.getId(), state, null, null, null));
+					if (ReviewAdviserStateEnum.get(state) != null)
+						return new Response<ServiceOrderDTO>(0,
+								serviceOrderService.approval(id, adminUserLoginInfo.getId(), state, null, null, null));
+					else
+						return new Response<ServiceOrderDTO>(1, "state错误!", null);
 				} else if ("MA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
-					return new Response<ServiceOrderDTO>(0,
-							serviceOrderService.approval(id, adminUserLoginInfo.getId(), null, state, null, null));
+					if (ReviewMaraStateEnum.get(state) != null)
+						return new Response<ServiceOrderDTO>(0,
+								serviceOrderService.approval(id, adminUserLoginInfo.getId(), null, state, null, null));
+					else
+						return new Response<ServiceOrderDTO>(1, "state错误!", null);
 				} else if ("WA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
-					return new Response<ServiceOrderDTO>(0,
-							serviceOrderService.approval(id, adminUserLoginInfo.getId(), null, null, state, null));
+					if (ReviewOfficialStateEnum.get(state) != null)
+						return new Response<ServiceOrderDTO>(0,
+								serviceOrderService.approval(id, adminUserLoginInfo.getId(), null, null, state, null));
+					else
+						return new Response<ServiceOrderDTO>(1, "state错误!", null);
 				} else if ("KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
-					return new Response<ServiceOrderDTO>(0,
-							serviceOrderService.approval(id, adminUserLoginInfo.getId(), null, null, null, state));
+					if (ReviewKjStateEnum.get(state) != null)
+						return new Response<ServiceOrderDTO>(0,
+								serviceOrderService.approval(id, adminUserLoginInfo.getId(), null, null, null, state));
+					else
+						return new Response<ServiceOrderDTO>(1, "state错误!", null);
 				} else
 					return new Response<ServiceOrderDTO>(1, "无权限!", null);
 			else
@@ -294,17 +330,29 @@ public class ServiceOrderController extends BaseController {
 			if (adminUserLoginInfo != null)
 				if (StringUtil.isEmpty(adminUserLoginInfo.getApList())
 						|| "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
-					return new Response<ServiceOrderDTO>(0,
-							serviceOrderService.refuse(id, adminUserLoginInfo.getId(), state, null, null, null));
+					if (ReviewAdviserStateEnum.get(state) != null)
+						return new Response<ServiceOrderDTO>(0,
+								serviceOrderService.refuse(id, adminUserLoginInfo.getId(), state, null, null, null));
+					else
+						return new Response<ServiceOrderDTO>(1, "state错误!", null);
 				} else if ("MA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
-					return new Response<ServiceOrderDTO>(0,
-							serviceOrderService.refuse(id, adminUserLoginInfo.getId(), null, state, null, null));
+					if (ReviewMaraStateEnum.get(state) != null)
+						return new Response<ServiceOrderDTO>(0,
+								serviceOrderService.refuse(id, adminUserLoginInfo.getId(), null, state, null, null));
+					else
+						return new Response<ServiceOrderDTO>(1, "state错误!", null);
 				} else if ("WA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
-					return new Response<ServiceOrderDTO>(0,
-							serviceOrderService.refuse(id, adminUserLoginInfo.getId(), null, null, state, null));
+					if (ReviewOfficialStateEnum.get(state) != null)
+						return new Response<ServiceOrderDTO>(0,
+								serviceOrderService.refuse(id, adminUserLoginInfo.getId(), null, null, state, null));
+					else
+						return new Response<ServiceOrderDTO>(1, "state错误!", null);
 				} else if ("KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
-					return new Response<ServiceOrderDTO>(0,
-							serviceOrderService.refuse(id, adminUserLoginInfo.getId(), null, null, null, state));
+					if (ReviewKjStateEnum.get(state) != null)
+						return new Response<ServiceOrderDTO>(0,
+								serviceOrderService.refuse(id, adminUserLoginInfo.getId(), null, null, null, state));
+					else
+						return new Response<ServiceOrderDTO>(1, "state错误!", null);
 				} else
 					return new Response<ServiceOrderDTO>(1, "无权限!", null);
 			else
