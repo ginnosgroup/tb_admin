@@ -38,7 +38,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			ServiceOrderDO serviceOrderDo = mapper.map(serviceOrderDto, ServiceOrderDO.class);
 			if (serviceOrderDao.addServiceOrder(serviceOrderDo) > 0) {
 				serviceOrderDto.setId(serviceOrderDo.getId());
-				return serviceOrderDo.getId();
+				return serviceOrderDto.getId();
 			} else {
 				return 0;
 			}
@@ -101,7 +101,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		for (ServiceOrderDO serviceOrderDo : serviceOrderDoList) {
 			ServiceOrderDTO serviceOrderDto = mapper.map(serviceOrderDo, ServiceOrderDTO.class);
 			// 查询审核记录
-			addReviews(serviceOrderDto);
+			putReviews(serviceOrderDto);
 			serviceOrderDtoList.add(serviceOrderDto);
 		}
 		return serviceOrderDtoList;
@@ -122,7 +122,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			}
 			serviceOrderDto = mapper.map(serviceOrderDo, ServiceOrderDTO.class);
 			// 查询审核记录
-			addReviews(serviceOrderDto);
+			putReviews(serviceOrderDto);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
@@ -148,29 +148,41 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	}
 
 	@Override
-	public ServiceOrderDTO approval(int id, String state) throws ServiceException {
-		return review(id, state, "APPROVAL");
+	public ServiceOrderDTO approval(int id, String adviserState, String maraState, String officialState, String kjState)
+			throws ServiceException {
+		return review(id, adviserState, maraState, officialState, kjState, "APPROVAL");
 	}
 
 	@Override
-	public ServiceOrderDTO refuse(int id, String state) throws ServiceException {
-		return review(id, state, "REFUSE");
+	public ServiceOrderDTO refuse(int id, String adviserState, String maraState, String officialState, String kjState)
+			throws ServiceException {
+		return review(id, adviserState, maraState, officialState, kjState, "REFUSE");
 	}
 
-	private void addReviews(ServiceOrderDTO serviceOrderDto) {
+	private void putReviews(ServiceOrderDTO serviceOrderDto) {
 		List<ServiceOrderReviewDO> serviceOrderReviewDoList = serviceOrderReviewDao
 				.listServiceOrderReview(serviceOrderDto.getId(), null, null, null);
 		List<ServiceOrderReviewDTO> serviceOrderReviewDtoList = new ArrayList<ServiceOrderReviewDTO>();
 		serviceOrderReviewDoList
 				.forEach(review -> serviceOrderReviewDtoList.add(mapper.map(review, ServiceOrderReviewDTO.class)));
 		serviceOrderDto.setReviews(serviceOrderReviewDtoList);
+		if (serviceOrderReviewDtoList != null && serviceOrderReviewDtoList.size() > 0)
+			serviceOrderDto.setReview(serviceOrderReviewDtoList.get(0));
 	}
 
-	private ServiceOrderDTO review(int id, String state, String type) throws ServiceException {
+	private ServiceOrderDTO review(int id, String adviserState, String maraState, String officialState, String kjState,
+			String type) throws ServiceException {
 		ServiceOrderReviewDO serviceOrderReviewDo = new ServiceOrderReviewDO();
 		serviceOrderReviewDo.setServiceOrderId(id);
 		serviceOrderReviewDo.setType(type);
-		serviceOrderReviewDo.setState(state);
+		if (adviserState != null)
+			serviceOrderReviewDo.setAdviserState(adviserState);
+		if (maraState != null)
+			serviceOrderReviewDo.setMaraState(maraState);
+		if (officialState != null)
+			serviceOrderReviewDo.setOfficialState(officialState);
+		if (kjState != null)
+			serviceOrderReviewDo.setKjState(kjState);
 		serviceOrderReviewDao.addServiceOrderReview(serviceOrderReviewDo);
 		return getServiceOrderById(id);
 	}

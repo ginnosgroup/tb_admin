@@ -46,6 +46,8 @@ public class ServiceOrderDTO {
 
 	private String remarks;
 
+	private ServiceOrderReviewDTO review;
+
 	private List<ServiceOrderReviewDTO> reviews;
 
 }

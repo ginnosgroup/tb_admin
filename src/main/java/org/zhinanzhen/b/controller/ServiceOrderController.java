@@ -29,6 +29,22 @@ public class ServiceOrderController extends BaseController {
 	@Resource
 	ServiceOrderService serviceOrderService;
 
+	public enum ReviewAdviserStateEnum {
+		WAIT, REVIEW, APPLY, COMPLETE, PAID, CLOSE;
+	}
+
+	public enum ReviewMaraStateEnum {
+		WAIT, FINISH;
+	}
+
+	public enum ReviewOfficialStateEnum {
+		REVIEW, FINISH, APPLY, COMPLETE, PAID;
+	}
+
+	public enum ReviewKjStateEnum {
+		WAIT, FINISH, COMPLETE;
+	}
+
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> addServiceOrder(@RequestParam(value = "type") String type,
@@ -53,7 +69,7 @@ public class ServiceOrderController extends BaseController {
 			ServiceOrderDTO serviceOrderDto = new ServiceOrderDTO();
 			if (StringUtil.isNotEmpty(type))
 				serviceOrderDto.setType(type);
-			serviceOrderDto.setState("WAIT");
+			serviceOrderDto.setState(ReviewAdviserStateEnum.WAIT.toString());
 			if (isPay != null && "true".equalsIgnoreCase(isPay))
 				serviceOrderDto.setPay(true);
 			else
@@ -89,6 +105,8 @@ public class ServiceOrderController extends BaseController {
 			if (StringUtil.isNotEmpty(remarks))
 				serviceOrderDto.setRemarks(remarks);
 			if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
+				serviceOrderService.approval(serviceOrderDto.getId(), ReviewAdviserStateEnum.WAIT.toString(), null,
+						null, null);
 				return new Response<Integer>(0, serviceOrderDto.getId());
 			} else {
 				return new Response<Integer>(1, "创建失败.", 0);
@@ -237,7 +255,7 @@ public class ServiceOrderController extends BaseController {
 		try {
 			super.setPostHeader(response);
 			// TODO:sulei
-			return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id, state));
+			return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id, state, null, null, null));
 		} catch (ServiceException e) {
 			return new Response<ServiceOrderDTO>(1, e.getMessage(), null);
 		}
@@ -250,7 +268,7 @@ public class ServiceOrderController extends BaseController {
 		try {
 			super.setPostHeader(response);
 			// TODO:sulei
-			return new Response<ServiceOrderDTO>(0, serviceOrderService.refuse(id, state));
+			return new Response<ServiceOrderDTO>(0, serviceOrderService.refuse(id, state, null, null, null));
 		} catch (ServiceException e) {
 			return new Response<ServiceOrderDTO>(1, e.getMessage(), null);
 		}

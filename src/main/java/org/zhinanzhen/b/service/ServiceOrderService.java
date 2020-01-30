@@ -21,8 +21,10 @@ public interface ServiceOrderService {
 
 	public int deleteServiceOrderById(int id) throws ServiceException;
 
-	public ServiceOrderDTO approval(int id, String state) throws ServiceException;
+	public ServiceOrderDTO approval(int id, String adviserState, String maraState, String officialState, String kjState)
+			throws ServiceException;
 
-	public ServiceOrderDTO refuse(int id, String state) throws ServiceException;
+	public ServiceOrderDTO refuse(int id, String adviserState, String maraState, String officialState, String kjState)
+			throws ServiceException;
 
 }
