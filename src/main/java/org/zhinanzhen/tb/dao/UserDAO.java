@@ -8,12 +8,7 @@ import org.zhinanzhen.tb.dao.pojo.UserDO;
 
 public interface UserDAO {
 
-	public int addUser(@Param("name") String name, @Param("authNickname") String authNickname,
-			@Param("birthday") Date birthday, @Param("phone") String phone,
-			@Param("wechatUsername") String wechatUsername,
-			@Param("firstControllerContents") String firstControllerContents, @Param("visaCode") String visaCode,
-			@Param("visaExpirationDate") Date visaExpirationDate, @Param("source") String source,
-			@Param("adviserId") int adviserId);
+	public int addUser(UserDO userDo);
 
 	public int countUser(@Param("name") String name, @Param("authType") String authType,
 			@Param("authNickname") String authNickname, @Param("phone") String phone,

@@ -62,8 +62,18 @@ public class UserServiceImpl extends BaseService implements UserService {
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
-		return userDao.addUser(name, authNickname, birthday, phone, wechatUsername, firstControllerContents, visaCode,
-				visaExpirationDate, source, adviserId);
+		UserDO userDo = new UserDO();
+		userDo.setName(name);
+		userDo.setAuthNickname(authNickname);
+		userDo.setBirthday(birthday);
+		userDo.setPhone(phone);
+		userDo.setWechatUsername(wechatUsername);
+		userDo.setFirstControllerContents(firstControllerContents);
+		userDo.setVisaCode(visaCode);
+		userDo.setVisaExpirationDate(visaExpirationDate);
+		userDo.setSource(source);
+		userDo.setAdviserId(adviserId);
+		return userDao.addUser(userDo) > 0 ? userDo.getId() : 0;
 	}
 
 	@Override
