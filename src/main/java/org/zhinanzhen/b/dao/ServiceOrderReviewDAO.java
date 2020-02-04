@@ -10,6 +10,8 @@ public interface ServiceOrderReviewDAO {
 	public int addServiceOrderReview(ServiceOrderReviewDO serviceOrderReviewDo);
 
 	public List<ServiceOrderReviewDO> listServiceOrderReview(@Param("serviceOrderId") Integer serviceOrderId,
-			@Param("state") String state, @Param("type") String type, @Param("adminUserId") Integer adminUserId);
+			@Param("adviserState") String adviserState, @Param("maraState") String maraState,
+			@Param("officialState") String officialState, @Param("kjState") String kjState, @Param("type") String type,
+			@Param("adminUserId") Integer adminUserId);
 
 }

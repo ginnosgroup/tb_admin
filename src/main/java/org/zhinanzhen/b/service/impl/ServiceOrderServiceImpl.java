@@ -161,13 +161,17 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
 	private void putReviews(ServiceOrderDTO serviceOrderDto) {
 		List<ServiceOrderReviewDO> serviceOrderReviewDoList = serviceOrderReviewDao
-				.listServiceOrderReview(serviceOrderDto.getId(), null, null, null);
+				.listServiceOrderReview(serviceOrderDto.getId(), null, null, null, null, null, null);
 		List<ServiceOrderReviewDTO> serviceOrderReviewDtoList = new ArrayList<ServiceOrderReviewDTO>();
 		serviceOrderReviewDoList
 				.forEach(review -> serviceOrderReviewDtoList.add(mapper.map(review, ServiceOrderReviewDTO.class)));
 		serviceOrderDto.setReviews(serviceOrderReviewDtoList);
 		if (serviceOrderReviewDtoList != null && serviceOrderReviewDtoList.size() > 0)
 			serviceOrderDto.setReview(serviceOrderReviewDtoList.get(0));
+		if (serviceOrderDto.getReview() != null) {
+			serviceOrderDto.setState(serviceOrderDto.getReview().getAdviserState());
+			serviceOrderDao.updateServiceOrder(mapper.map(serviceOrderDto, ServiceOrderDO.class));
+		}
 	}
 
 	private ServiceOrderDTO review(int id, int adminUserId, String adviserState, String maraState, String officialState,

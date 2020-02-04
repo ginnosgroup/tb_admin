@@ -298,7 +298,7 @@ public class ServiceOrderController extends BaseController {
 						return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id,
 								adminUserLoginInfo.getId(), state.toUpperCase(), null, null, null));
 					else
-						return new Response<ServiceOrderDTO>(1, "state错误!", null);
+						return new Response<ServiceOrderDTO>(1, "state错误!(" + state + ")", null);
 				} else if ("MA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (!"VISA".equalsIgnoreCase(serviceOrderDto.getType()))
 						return new Response<ServiceOrderDTO>(1, "Mara审核仅限签证服务订单!", null);
@@ -306,19 +306,19 @@ public class ServiceOrderController extends BaseController {
 						return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id,
 								adminUserLoginInfo.getId(), null, state.toUpperCase(), null, null));
 					else
-						return new Response<ServiceOrderDTO>(1, "state错误!", null);
+						return new Response<ServiceOrderDTO>(1, "state错误!(" + state + ")", null);
 				} else if ("WA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewOfficialStateEnum.get(state) != null)
 						return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id,
 								adminUserLoginInfo.getId(), null, null, state.toUpperCase(), null));
 					else
-						return new Response<ServiceOrderDTO>(1, "state错误!", null);
+						return new Response<ServiceOrderDTO>(1, "state错误!(" + state + ")", null);
 				} else if ("KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewKjStateEnum.get(state) != null)
 						return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id,
 								adminUserLoginInfo.getId(), null, null, null, state.toUpperCase()));
 					else
-						return new Response<ServiceOrderDTO>(1, "state错误!", null);
+						return new Response<ServiceOrderDTO>(1, "state错误!(" + state + ")", null);
 				} else
 					return new Response<ServiceOrderDTO>(1, "该用户无审核权限!", null);
 			else
@@ -350,7 +350,7 @@ public class ServiceOrderController extends BaseController {
 						return new Response<ServiceOrderDTO>(0, serviceOrderService.refuse(id,
 								adminUserLoginInfo.getId(), state.toUpperCase(), null, null, null));
 					else
-						return new Response<ServiceOrderDTO>(1, "state错误!", null);
+						return new Response<ServiceOrderDTO>(1, "state错误!(" + state + ")", null);
 				} else if ("MA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (!"VISA".equalsIgnoreCase(serviceOrderDto.getType()))
 						return new Response<ServiceOrderDTO>(1, "Mara审核仅限签证服务订单!", null);
@@ -358,19 +358,19 @@ public class ServiceOrderController extends BaseController {
 						return new Response<ServiceOrderDTO>(0, serviceOrderService.refuse(id,
 								adminUserLoginInfo.getId(), null, state.toUpperCase(), null, null));
 					else
-						return new Response<ServiceOrderDTO>(1, "state错误!", null);
+						return new Response<ServiceOrderDTO>(1, "state错误!(" + state + ")", null);
 				} else if ("WA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewOfficialStateEnum.get(state) != null)
 						return new Response<ServiceOrderDTO>(0, serviceOrderService.refuse(id,
 								adminUserLoginInfo.getId(), null, null, state.toUpperCase(), null));
 					else
-						return new Response<ServiceOrderDTO>(1, "state错误!", null);
+						return new Response<ServiceOrderDTO>(1, "state错误!(" + state + ")", null);
 				} else if ("KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewKjStateEnum.get(state) != null)
 						return new Response<ServiceOrderDTO>(0, serviceOrderService.refuse(id,
 								adminUserLoginInfo.getId(), null, null, null, state.toUpperCase()));
 					else
-						return new Response<ServiceOrderDTO>(1, "state错误!", null);
+						return new Response<ServiceOrderDTO>(1, "state错误!(" + state + ")", null);
 				} else
 					return new Response<ServiceOrderDTO>(1, "该用户无审核权限!", null);
 			else

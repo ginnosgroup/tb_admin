@@ -9,7 +9,13 @@ public class ServiceOrderReviewDTO {
 
 	private int serviceOrderId;
 
-	private String state;
+	private String adviserState;
+	
+	private String maraState;
+	
+	private String officialState;
+	
+	private String kjState;
 
 	private String type;
 
