@@ -3,7 +3,7 @@
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.zhinanzhen.tb.dao.UserDAO">
 
-    <insert id="addUser" parameterType="org.zhinanzhen.tb.dao.pojo.UserDO">
+    <insert id="addUser" parameterType="org.zhinanzhen.tb.dao.pojo.UserDO" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
         insert into tb_user(
         gmt_create,
         gmt_modify,
