@@ -282,36 +282,45 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "state") String state, HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			// TODO:sulei
+			// 获取服务订单
+			ServiceOrderDTO serviceOrderDto = null;
+			try {
+				serviceOrderDto = serviceOrderService.getServiceOrderById(id);
+			} catch (ServiceException e) {
+				return new Response<ServiceOrderDTO>(1, e.getMessage(), null);
+			}
+			// 审核
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			if (adminUserLoginInfo != null)
 				if (StringUtil.isEmpty(adminUserLoginInfo.getApList())
 						|| "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewAdviserStateEnum.get(state) != null)
-						return new Response<ServiceOrderDTO>(0,
-								serviceOrderService.approval(id, adminUserLoginInfo.getId(), state, null, null, null));
+						return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id,
+								adminUserLoginInfo.getId(), state.toUpperCase(), null, null, null));
 					else
 						return new Response<ServiceOrderDTO>(1, "state错误!", null);
 				} else if ("MA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+					if (!"VISA".equalsIgnoreCase(serviceOrderDto.getType()))
+						return new Response<ServiceOrderDTO>(1, "Mara审核仅限签证服务订单!", null);
 					if (ReviewMaraStateEnum.get(state) != null)
-						return new Response<ServiceOrderDTO>(0,
-								serviceOrderService.approval(id, adminUserLoginInfo.getId(), null, state, null, null));
+						return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id,
+								adminUserLoginInfo.getId(), null, state.toUpperCase(), null, null));
 					else
 						return new Response<ServiceOrderDTO>(1, "state错误!", null);
 				} else if ("WA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewOfficialStateEnum.get(state) != null)
-						return new Response<ServiceOrderDTO>(0,
-								serviceOrderService.approval(id, adminUserLoginInfo.getId(), null, null, state, null));
+						return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id,
+								adminUserLoginInfo.getId(), null, null, state.toUpperCase(), null));
 					else
 						return new Response<ServiceOrderDTO>(1, "state错误!", null);
 				} else if ("KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewKjStateEnum.get(state) != null)
-						return new Response<ServiceOrderDTO>(0,
-								serviceOrderService.approval(id, adminUserLoginInfo.getId(), null, null, null, state));
+						return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id,
+								adminUserLoginInfo.getId(), null, null, null, state.toUpperCase()));
 					else
 						return new Response<ServiceOrderDTO>(1, "state错误!", null);
 				} else
-					return new Response<ServiceOrderDTO>(1, "无权限!", null);
+					return new Response<ServiceOrderDTO>(1, "该用户无审核权限!", null);
 			else
 				return new Response<ServiceOrderDTO>(1, "请登录!", null);
 		} catch (ServiceException e) {
@@ -325,36 +334,45 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "state") String state, HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			// TODO:sulei
+			// 获取服务订单
+			ServiceOrderDTO serviceOrderDto = null;
+			try {
+				serviceOrderDto = serviceOrderService.getServiceOrderById(id);
+			} catch (ServiceException e) {
+				return new Response<ServiceOrderDTO>(1, e.getMessage(), null);
+			}
+			// 审核
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			if (adminUserLoginInfo != null)
 				if (StringUtil.isEmpty(adminUserLoginInfo.getApList())
 						|| "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewAdviserStateEnum.get(state) != null)
-						return new Response<ServiceOrderDTO>(0,
-								serviceOrderService.refuse(id, adminUserLoginInfo.getId(), state, null, null, null));
+						return new Response<ServiceOrderDTO>(0, serviceOrderService.refuse(id,
+								adminUserLoginInfo.getId(), state.toUpperCase(), null, null, null));
 					else
 						return new Response<ServiceOrderDTO>(1, "state错误!", null);
 				} else if ("MA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+					if (!"VISA".equalsIgnoreCase(serviceOrderDto.getType()))
+						return new Response<ServiceOrderDTO>(1, "Mara审核仅限签证服务订单!", null);
 					if (ReviewMaraStateEnum.get(state) != null)
-						return new Response<ServiceOrderDTO>(0,
-								serviceOrderService.refuse(id, adminUserLoginInfo.getId(), null, state, null, null));
+						return new Response<ServiceOrderDTO>(0, serviceOrderService.refuse(id,
+								adminUserLoginInfo.getId(), null, state.toUpperCase(), null, null));
 					else
 						return new Response<ServiceOrderDTO>(1, "state错误!", null);
 				} else if ("WA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewOfficialStateEnum.get(state) != null)
-						return new Response<ServiceOrderDTO>(0,
-								serviceOrderService.refuse(id, adminUserLoginInfo.getId(), null, null, state, null));
+						return new Response<ServiceOrderDTO>(0, serviceOrderService.refuse(id,
+								adminUserLoginInfo.getId(), null, null, state.toUpperCase(), null));
 					else
 						return new Response<ServiceOrderDTO>(1, "state错误!", null);
 				} else if ("KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewKjStateEnum.get(state) != null)
-						return new Response<ServiceOrderDTO>(0,
-								serviceOrderService.refuse(id, adminUserLoginInfo.getId(), null, null, null, state));
+						return new Response<ServiceOrderDTO>(0, serviceOrderService.refuse(id,
+								adminUserLoginInfo.getId(), null, null, null, state.toUpperCase()));
 					else
 						return new Response<ServiceOrderDTO>(1, "state错误!", null);
 				} else
-					return new Response<ServiceOrderDTO>(1, "无权限!", null);
+					return new Response<ServiceOrderDTO>(1, "该用户无审核权限!", null);
 			else
 				return new Response<ServiceOrderDTO>(1, "请登录!", null);
 		} catch (ServiceException e) {
