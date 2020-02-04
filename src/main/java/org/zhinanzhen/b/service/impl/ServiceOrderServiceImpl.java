@@ -7,9 +7,12 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.ServiceOrderDAO;
+import org.zhinanzhen.b.dao.ServiceOrderReviewDAO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
+import org.zhinanzhen.b.dao.pojo.ServiceOrderReviewDO;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
+import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
@@ -20,6 +23,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
 	@Resource
 	private ServiceOrderDAO serviceOrderDao;
+
+	@Resource
+	private ServiceOrderReviewDAO serviceOrderReviewDao;
 
 	@Override
 	public int addServiceOrder(ServiceOrderDTO serviceOrderDto) throws ServiceException {
@@ -32,7 +38,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			ServiceOrderDO serviceOrderDo = mapper.map(serviceOrderDto, ServiceOrderDO.class);
 			if (serviceOrderDao.addServiceOrder(serviceOrderDo) > 0) {
 				serviceOrderDto.setId(serviceOrderDo.getId());
-				return serviceOrderDo.getId();
+				return serviceOrderDto.getId();
 			} else {
 				return 0;
 			}
@@ -94,6 +100,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		}
 		for (ServiceOrderDO serviceOrderDo : serviceOrderDoList) {
 			ServiceOrderDTO serviceOrderDto = mapper.map(serviceOrderDo, ServiceOrderDTO.class);
+			// 查询审核记录
+			putReviews(serviceOrderDto);
 			serviceOrderDtoList.add(serviceOrderDto);
 		}
 		return serviceOrderDtoList;
@@ -113,6 +121,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				return null;
 			}
 			serviceOrderDto = mapper.map(serviceOrderDo, ServiceOrderDTO.class);
+			// 查询审核记录
+			putReviews(serviceOrderDto);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
@@ -135,6 +145,51 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
 		}
+	}
+
+	@Override
+	public ServiceOrderDTO approval(int id, int adminUserId, String adviserState, String maraState,
+			String officialState, String kjState) throws ServiceException {
+		return review(id, adminUserId, adviserState, maraState, officialState, kjState, "APPROVAL");
+	}
+
+	@Override
+	public ServiceOrderDTO refuse(int id, int adminUserId, String adviserState, String maraState, String officialState,
+			String kjState) throws ServiceException {
+		return review(id, adminUserId, adviserState, maraState, officialState, kjState, "REFUSE");
+	}
+
+	private void putReviews(ServiceOrderDTO serviceOrderDto) {
+		List<ServiceOrderReviewDO> serviceOrderReviewDoList = serviceOrderReviewDao
+				.listServiceOrderReview(serviceOrderDto.getId(), null, null, null, null, null, null);
+		List<ServiceOrderReviewDTO> serviceOrderReviewDtoList = new ArrayList<ServiceOrderReviewDTO>();
+		serviceOrderReviewDoList
+				.forEach(review -> serviceOrderReviewDtoList.add(mapper.map(review, ServiceOrderReviewDTO.class)));
+		serviceOrderDto.setReviews(serviceOrderReviewDtoList);
+		if (serviceOrderReviewDtoList != null && serviceOrderReviewDtoList.size() > 0)
+			serviceOrderDto.setReview(serviceOrderReviewDtoList.get(0));
+		if (serviceOrderDto.getReview() != null) {
+			serviceOrderDto.setState(serviceOrderDto.getReview().getAdviserState());
+			serviceOrderDao.updateServiceOrder(mapper.map(serviceOrderDto, ServiceOrderDO.class));
+		}
+	}
+
+	private ServiceOrderDTO review(int id, int adminUserId, String adviserState, String maraState, String officialState,
+			String kjState, String type) throws ServiceException {
+		ServiceOrderReviewDO serviceOrderReviewDo = new ServiceOrderReviewDO();
+		serviceOrderReviewDo.setServiceOrderId(id);
+		serviceOrderReviewDo.setType(type);
+		serviceOrderReviewDo.setAdminUserId(adminUserId);
+		if (adviserState != null)
+			serviceOrderReviewDo.setAdviserState(adviserState);
+		if (maraState != null)
+			serviceOrderReviewDo.setMaraState(maraState);
+		if (officialState != null)
+			serviceOrderReviewDo.setOfficialState(officialState);
+		if (kjState != null)
+			serviceOrderReviewDo.setKjState(kjState);
+		serviceOrderReviewDao.addServiceOrderReview(serviceOrderReviewDo);
+		return getServiceOrderById(id);
 	}
 
 }
