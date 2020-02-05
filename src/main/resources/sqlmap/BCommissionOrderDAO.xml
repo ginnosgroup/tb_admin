@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.CommissionOrderDAO">
+
+    <insert id="addCommissionOrder" parameterType="org.zhinanzhen.b.dao.pojo.CommissionOrderDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+            INTO b_commission_order (
+                gmt_create,
+                gmt_modify,
+                installment,
+                start_date,
+                end_date,
+                tuition_fee,
+                per_term_tuition_fee,
+                remarks,
+                is_close)
+            VALUES (
+                now(),
+                now(),
+                #{installment},
+                #{userId},
+                #{receiveTypeId},
+                #{startDate,jdbcType=TIMESTAMP},
+                #{endDate,jdbcType=TIMESTAMP},
+                #{tuitionFee},
+                #{perTermTuitionFee},
+                #{remarks},
+                0);
+    </insert>
+
+</mapper>

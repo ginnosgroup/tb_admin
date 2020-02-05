@@ -9,6 +9,7 @@
                 gmt_create,
                 gmt_modify,
                 service_order_id,
+                commission_order_id,
                 adviser_state,
                 mara_state,
                 official_state,
@@ -19,6 +20,7 @@
                 now(),
                 now(),
                 #{serviceOrderId},
+                #{commissionOrderId},
                 #{state},
                 #{type},
                 #{adminUserId});
@@ -30,6 +32,7 @@
             gmt_create AS gmtCreate,
             gmt_modify AS gmtModify,
             service_order_id AS serviceOrderId,
+            commission_order_id AS commissionOrderId,
             adviser_state AS adviserState,
             mara_state AS maraState,
             official_state AS officialState,
