@@ -11,6 +11,8 @@ public class ServiceOrderDTO {
 	private int id;
 
 	private String type;
+	
+	private int serviceId;
 
 	private String state;
 

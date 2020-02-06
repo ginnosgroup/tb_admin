@@ -11,6 +11,8 @@ public class ServiceOrderDO {
 	
 	private String type;
 	
+	private int serviceId;
+	
 	private String state;
 	
 	private boolean isPay;

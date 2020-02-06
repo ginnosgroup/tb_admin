@@ -13,13 +13,16 @@
                 receive_type_id,
                 receive_date,
                 service_id,
+                service_order_id,
                 receivable,
                 received,
                 amount,
+                discount,
                 gst,
                 deduct_gst,
                 bonus,
                 adviser_id,
+                mara_id,
                 official_id,
                 remarks,
                 is_close)
@@ -31,13 +34,16 @@
                 #{receiveTypeId},
                 #{receiveDate,jdbcType=TIMESTAMP},
                 #{serviceId},
+                #{serviceOrderId},
                 #{receivable},
                 #{received},
                 #{amount},
+                #{discount},
                 #{gst},
                 #{deductGst},
                 #{bonus},
                 #{adviserId},
+                #{maraId},
                 #{officialId},
                 #{remarks},
                 0);
@@ -61,6 +67,9 @@
         <if test='serviceId != null and serviceId != ""'>
             , service_id = #{serviceId}
         </if>
+        <if test='serviceOrderId != null and serviceOrderId != ""'>
+            , service_order_id = #{serviceOrderId}
+        </if>
         <if test='receivable != null and receivable != ""'>
             , receivable = #{receivable}
         </if>
@@ -81,6 +90,9 @@
         </if>
         <if test='adviserId != null and adviserId != ""'>
             , adviser_id = #{adviserId}
+        </if>
+        <if test='maraId != null and maraId != ""'>
+            , mara_id = #{maraId}
         </if>
         <if test='officialId != null and officialId != ""'>
             , official_id = #{officialId}
@@ -125,13 +137,16 @@
             bv.receive_type_id AS receiveTypeId,
             bv.receive_date AS receiveDate,
             bv.service_id AS serviceId,
+            bv.service_order_id AS serviceOrderId,
             bv.receivable AS receivable,
             bv.received AS received,
             bv.amount AS amount,
+            bv.discount AS discount,
             bv.gst AS gst,
             bv.deduct_gst AS deductGst,
             bv.bonus AS bonus,
             bv.adviser_id AS adviserId,
+            bv.mara_id AS maraId,
             bv.official_id AS officialId,
             bv.remarks AS remarks,
             bv.is_close AS isClose,
@@ -172,13 +187,16 @@
             receive_type_id AS receiveType,
             receive_date AS receiveDate,
             service_id AS serviceId,
+            service_order_id AS serviceOrderId,
             receivable,
             received,
             amount,
+            discount,
             gst,
             deduct_gst AS deductGst,
             bonus,
             adviser_id AS adviserId,
+            mara_id AS maraId,
             official_id AS officialId,
             remarks,
             is_close AS isClose
