@@ -8,6 +8,8 @@ public class ServiceOrderReviewDTO {
 	private int id;
 
 	private int serviceOrderId;
+	
+	private int commissionOrderId;
 
 	private String adviserState;
 	
