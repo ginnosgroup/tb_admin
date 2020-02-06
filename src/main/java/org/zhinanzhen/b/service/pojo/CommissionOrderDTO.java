@@ -1,11 +1,11 @@
-package org.zhinanzhen.b.dao.pojo;
+package org.zhinanzhen.b.service.pojo;
 
 import java.util.Date;
 
 import lombok.Data;
 
 @Data
-public class CommissionOrderDO {
+public class CommissionOrderDTO {
 
 	private int id;
 

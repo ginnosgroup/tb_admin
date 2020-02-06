@@ -8,6 +8,7 @@
             INTO b_commission_order (
                 gmt_create,
                 gmt_modify,
+                service_order_id
                 installment,
                 start_date,
                 end_date,
@@ -18,9 +19,8 @@
             VALUES (
                 now(),
                 now(),
+                #{serviceOrderId},
                 #{installment},
-                #{userId},
-                #{receiveTypeId},
                 #{startDate,jdbcType=TIMESTAMP},
                 #{endDate,jdbcType=TIMESTAMP},
                 #{tuitionFee},

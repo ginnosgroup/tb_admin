@@ -352,6 +352,7 @@ CREATE TABLE `b_commission_order` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `service_order_id` int NOT NULL COMMENT '服务订单编号 (对应b_service_order.id)',
   `installment` int NOT NULL COMMENT '分期付款次数',
   `start_date` datetime NOT NULL COMMENT '开课日期',
   `end_date` datetime NOT NULL COMMENT '结束日期',
