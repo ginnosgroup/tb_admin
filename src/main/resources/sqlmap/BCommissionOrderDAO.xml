@@ -8,7 +8,7 @@
             INTO b_commission_order (
                 gmt_create,
                 gmt_modify,
-                service_order_id
+                service_order_id,
                 installment,
                 start_date,
                 end_date,

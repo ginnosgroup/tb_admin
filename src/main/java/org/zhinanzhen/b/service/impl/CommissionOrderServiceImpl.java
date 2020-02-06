@@ -1,10 +1,15 @@
 package org.zhinanzhen.b.service.impl;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.CommissionOrderDAO;
+import org.zhinanzhen.b.dao.ServiceOrderReviewDAO;
 import org.zhinanzhen.b.dao.pojo.CommissionOrderDO;
+import org.zhinanzhen.b.dao.pojo.ServiceOrderReviewDO;
 import org.zhinanzhen.b.service.CommissionOrderService;
 import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -18,7 +23,11 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 	@Resource
 	private CommissionOrderDAO commissionOrderDao;
 
+	@Resource
+	private ServiceOrderReviewDAO serviceOrderReviewDao;
+
 	@Override
+	@Transactional
 	public int addCommissionOrder(CommissionOrderDTO commissionOrderDto) throws ServiceException {
 		if (commissionOrderDto == null) {
 			ServiceException se = new ServiceException("commissionOrderDto is null !");
@@ -27,12 +36,21 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 		}
 		try {
 			CommissionOrderDO commissionOrderDo = mapper.map(commissionOrderDto, CommissionOrderDO.class);
+			List<ServiceOrderReviewDO> serviceOrderReviews = serviceOrderReviewDao
+					.listServiceOrderReview(commissionOrderDo.getServiceOrderId(), null, null, null, null, "OVST");
+			if (serviceOrderReviews == null || serviceOrderReviews.size() == 0) {
+				ServiceException se = new ServiceException("服务订单需要审核后才能创建佣金订单!");
+				se.setCode(ErrorCodeEnum.DATA_ERROR.code());
+				throw se;
+			}
 			if (commissionOrderDao.addCommissionOrder(commissionOrderDo) > 0) {
 				commissionOrderDto.setId(commissionOrderDo.getId());
+				ServiceOrderReviewDO serviceOrderReviewDo = serviceOrderReviews.get(0);
+				serviceOrderReviewDo.setCommissionOrderId(commissionOrderDo.getId());
+				serviceOrderReviewDao.addServiceOrderReview(serviceOrderReviewDo);
 				return commissionOrderDo.getId();
-			} else {
+			} else
 				return 0;
-			}
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());

@@ -56,9 +56,6 @@
         <if test='type != null and type != ""'>
 			AND type = #{type}
 		</if>
-		<if test='adminUserId != null'>
-			AND admin_user_id = #{adminUserId}
-		</if>
         ORDER BY gmt_create DESC;
     </select>
     

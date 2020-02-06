@@ -218,7 +218,7 @@ public class ServiceOrderController extends BaseController {
 
 	@RequestMapping(value = "/count", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<Integer> countService(@RequestParam(value = "type", required = false) String type,
+	public Response<Integer> countServiceOrder(@RequestParam(value = "type", required = false) String type,
 			@RequestParam(value = "state", required = false) String state,
 			@RequestParam(value = "userId", required = false) String userId,
 			@RequestParam(value = "maraId", required = false) String maraId,
@@ -235,7 +235,7 @@ public class ServiceOrderController extends BaseController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<ServiceOrderDTO>> listService(@RequestParam(value = "type", required = false) String type,
+	public Response<List<ServiceOrderDTO>> listServiceOrder(@RequestParam(value = "type", required = false) String type,
 			@RequestParam(value = "state", required = false) String state,
 			@RequestParam(value = "userId", required = false) String userId,
 			@RequestParam(value = "maraId", required = false) String maraId,
