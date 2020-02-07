@@ -193,7 +193,7 @@ CREATE TABLE `b_visa` (
   `deduct_gst` decimal(8,2) NOT NULL COMMENT 'Deduct GST',
   `bonus` decimal(8,2) NOT NULL COMMENT '月奖金',
   `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
-`mara_id` int DEFAULT NULL COMMENT '所属MARA编号 (对应b_mara.id)',
+`mara_id` int NOT NULL COMMENT '所属MARA编号 (对应b_mara.id)',
   `official_id` int NOT NULL COMMENT '文案编号 (对应b_official.id)',
   `remarks` varchar(255) DEFAULT NULL COMMENT '备注',
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
