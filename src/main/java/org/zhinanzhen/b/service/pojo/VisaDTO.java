@@ -23,13 +23,15 @@ public class VisaDTO {
 	private String phone;
 
 	private int receiveTypeId;
-	
+
 	private String receiveTypeName;
 
 	private Date receiveDate;
 
 	private int serviceId;
-	
+
+	private int serviceOrderId;
+
 	private String serviceCode;
 
 	private double receivable;
@@ -37,6 +39,8 @@ public class VisaDTO {
 	private double received;
 
 	private double amount;
+
+	private double discount;
 
 	private double gst;
 
@@ -46,16 +50,18 @@ public class VisaDTO {
 
 	private int adviserId;
 
+	private int maraId;
+
 	private String adviserName;
 
 	private int officialId;
-	
+
 	private String officialName;
-	
+
 	private String remarks;
 
 	private boolean isClose;
-	
+
 	private List<Date> remindDateList;
 
 }

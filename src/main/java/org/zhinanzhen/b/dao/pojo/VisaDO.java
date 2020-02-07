@@ -20,12 +20,16 @@ public class VisaDO {
 	private Date receiveDate;
 
 	private int serviceId;
+	
+	private int serviceOrderId;
 
 	private double receivable;
 
 	private double received;
 
 	private double amount;
+	
+	private double discount;
 
 	private double gst;
 
@@ -34,6 +38,8 @@ public class VisaDO {
 	private double bonus;
 
 	private int adviserId;
+	
+	private int maraId;
 
 	private int officialId;
 	

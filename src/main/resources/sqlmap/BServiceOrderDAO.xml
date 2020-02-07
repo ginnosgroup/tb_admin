@@ -9,6 +9,7 @@
                 gmt_create,
                 gmt_modify,
                 type,
+                service_id,
                 state,
                 is_pay,
                 receive_type_id,
@@ -31,6 +32,7 @@
                 now(),
                 now(),
                 #{type},
+                #{serviceId},
                 #{state},
                 #{isPay},
                 #{receiveTypeId},
@@ -56,6 +58,9 @@
         SET gmt_modify = now()
         <if test='type != null and type != ""'>
             , type = #{type}
+        </if>
+        <if test='serviceId != null and serviceId != ""'>
+            , service_id = #{serviceId}
         </if>
         <if test='isPay != null'>
             , is_pay = #{isPay}
@@ -138,6 +143,7 @@
             id,
             gmt_create AS GmtCreate,
             type,
+            service_id AS serviceId,
             state,
             is_pay AS isPay,
             receive_type_id AS receiveTypeId,
@@ -184,6 +190,7 @@
             id,
             gmt_create AS GmtCreate,
             type,
+            service_id AS serviceId,
             state,
             is_pay AS isPay,
             receive_type_id AS receiveTypeId,
