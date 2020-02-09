@@ -303,6 +303,7 @@ CREATE TABLE `b_service` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+`type` varchar(4) NOT NULL DEFAULT 'VISA' COMMENT '服务类型(VISA:签证服务,OVST:留学服务)',
   `code` varchar(8) DEFAULT NULL COMMENT '项目编码',
   `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已删除'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;

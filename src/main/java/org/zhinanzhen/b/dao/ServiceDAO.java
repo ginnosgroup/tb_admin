@@ -9,9 +9,9 @@ public interface ServiceDAO {
 
 	public int addService(ServiceDO serviceDo);
 
-	public int updateService(@Param("id") int id, @Param("code") String code);
+	public int updateService(@Param("id") int id, @Param("type") String type, @Param("code") String code);
 
-	public List<ServiceDO> listService();
+	public List<ServiceDO> listService(@Param("type") String type);
 
 	public ServiceDO getServiceById(int id);
 
