@@ -44,9 +44,9 @@ public class ServiceServiceImpl extends BaseService implements ServiceService {
 	}
 
 	@Override
-	public int updateService(int id, String code) throws ServiceException {
+	public int updateService(int id, String type, String code) throws ServiceException {
 		try {
-			return serviceDao.updateService(id, code);
+			return serviceDao.updateService(id, type, code);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
@@ -55,11 +55,11 @@ public class ServiceServiceImpl extends BaseService implements ServiceService {
 	}
 
 	@Override
-	public List<ServiceDTO> listService() throws ServiceException {
+	public List<ServiceDTO> listService(String type) throws ServiceException {
 		List<ServiceDTO> serviceDtoList = new ArrayList<ServiceDTO>();
 		List<ServiceDO> serviceDoList = new ArrayList<ServiceDO>();
 		try {
-			serviceDoList = serviceDao.listService();
+			serviceDoList = serviceDao.listService(type);
 			if (serviceDoList == null) {
 				return null;
 			}
