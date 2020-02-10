@@ -35,9 +35,12 @@ public class VisaController extends BaseController {
 			@RequestParam(value = "handlingDate") String handlingDate,
 			@RequestParam(value = "receiveTypeId") String receiveTypeId,
 			@RequestParam(value = "receiveDate") String receiveDate,
-			@RequestParam(value = "serviceId") String serviceId, @RequestParam(value = "receivable") String receivable,
+			@RequestParam(value = "serviceId") String serviceId,
+			@RequestParam(value = "serviceOrderId") String serviceOrderId,
+			@RequestParam(value = "receivable") String receivable,
 			@RequestParam(value = "received", required = false) String received,
-			@RequestParam(value = "amount") String amount, @RequestParam(value = "adviserId") String adviserId,
+			@RequestParam(value = "amount") String amount, @RequestParam(value = "discount") String discount,
+			@RequestParam(value = "adviserId") String adviserId, @RequestParam(value = "maraId") String maraId,
 			@RequestParam(value = "officialId") String officialId,
 			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
 			HttpServletResponse response) {
@@ -65,6 +68,8 @@ public class VisaController extends BaseController {
 			if (StringUtil.isNotEmpty(serviceId)) {
 				visaDto.setServiceId(Integer.parseInt(serviceId));
 			}
+			if (StringUtil.isNotEmpty(serviceOrderId))
+				visaDto.setServiceOrderId(Integer.parseInt(serviceOrderId));
 			if (StringUtil.isNotEmpty(receivable)) {
 				visaDto.setReceivable(Double.parseDouble(receivable));
 			}
@@ -74,9 +79,13 @@ public class VisaController extends BaseController {
 			if (StringUtil.isNotEmpty(amount)) {
 				visaDto.setAmount(Double.parseDouble(amount));
 			}
+			if (StringUtil.isNotEmpty(discount))
+				visaDto.setDiscount(Double.parseDouble(discount));
 			if (StringUtil.isNotEmpty(adviserId)) {
 				visaDto.setAdviserId(StringUtil.toInt(adviserId));
 			}
+			if (StringUtil.isNotEmpty(maraId))
+				visaDto.setMaraId(StringUtil.toInt(maraId));
 			if (StringUtil.isNotEmpty(officialId)) {
 				visaDto.setOfficialId(StringUtil.toInt(officialId));
 			}
@@ -104,10 +113,13 @@ public class VisaController extends BaseController {
 			@RequestParam(value = "receiveTypeId", required = false) String receiveTypeId,
 			@RequestParam(value = "receiveDate", required = false) String receiveDate,
 			@RequestParam(value = "serviceId", required = false) String serviceId,
+			@RequestParam(value = "serviceOrderId", required = false) String serviceOrderId,
 			@RequestParam(value = "receivable", required = false) String receivable,
 			@RequestParam(value = "received", required = false) String received,
 			@RequestParam(value = "amount", required = false) String amount,
+			@RequestParam(value = "discount", required = false) String discount,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
+			@RequestParam(value = "maraId", required = false) String maraId,
 			@RequestParam(value = "officialId", required = false) String officialId,
 			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
 			HttpServletResponse response) {
@@ -130,6 +142,8 @@ public class VisaController extends BaseController {
 			if (StringUtil.isNotEmpty(serviceId)) {
 				visaDto.setServiceId(Integer.parseInt(serviceId));
 			}
+			if (StringUtil.isNotEmpty(serviceOrderId))
+				visaDto.setServiceOrderId(Integer.parseInt(serviceOrderId));
 			if (StringUtil.isNotEmpty(receivable)) {
 				visaDto.setReceivable(Double.parseDouble(receivable));
 			}
@@ -139,9 +153,13 @@ public class VisaController extends BaseController {
 			if (StringUtil.isNotEmpty(amount)) {
 				visaDto.setAmount(Double.parseDouble(amount));
 			}
+			if (StringUtil.isNotEmpty(discount))
+				visaDto.setDiscount(Double.parseDouble(discount));
 			if (StringUtil.isNotEmpty(adviserId)) {
 				visaDto.setAdviserId(StringUtil.toInt(adviserId));
 			}
+			if (StringUtil.isNotEmpty(maraId))
+				visaDto.setMaraId(StringUtil.toInt(maraId));
 			if (StringUtil.isNotEmpty(officialId)) {
 				visaDto.setOfficialId(StringUtil.toInt(officialId));
 			}
