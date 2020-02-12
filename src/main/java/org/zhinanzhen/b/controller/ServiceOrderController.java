@@ -85,7 +85,8 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "bonus", required = false) String bonus,
 			@RequestParam(value = "userId") String userId,
 			@RequestParam(value = "maraId", required = false) String maraId,
-			@RequestParam(value = "adviserId") String adviserId, @RequestParam(value = "officialId") String officialId,
+			@RequestParam(value = "adviserId", required = false) String adviserId,
+			@RequestParam(value = "officialId", required = false) String officialId,
 			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
