@@ -6,4 +6,6 @@ public interface CommissionOrderDAO {
 
 	public int addCommissionOrder(CommissionOrderDO commissionOrderDo);
 
+	public int updateCommissionOrder(CommissionOrderDO commissionOrderDo);
+
 }

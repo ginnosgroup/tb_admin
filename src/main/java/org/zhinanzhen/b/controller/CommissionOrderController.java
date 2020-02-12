@@ -62,4 +62,41 @@ public class CommissionOrderController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/update", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<CommissionOrderDTO> update(@RequestParam(value = "id") int id,
+			@RequestParam(value = "serviceOrderId", required = false) String serviceOrderId,
+			@RequestParam(value = "installment", required = false) String installment,
+			@RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = "endDate", required = false) String endDate,
+			@RequestParam(value = "tuitionFee", required = false) String tuitionFee,
+			@RequestParam(value = "perTermTuitionFee", required = false) String perTermTuitionFee,
+			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			CommissionOrderDTO commissionOrderDto = new CommissionOrderDTO();
+			commissionOrderDto.setId(id);
+			if (StringUtil.isNotEmpty(serviceOrderId))
+				commissionOrderDto.setServiceOrderId(Integer.parseInt(serviceOrderId));
+			if (StringUtil.isNotEmpty(installment))
+				commissionOrderDto.setInstallment(Integer.parseInt(installment));
+			if (StringUtil.isNotEmpty(startDate))
+				commissionOrderDto.setStartDate(new Date(Long.parseLong(startDate)));
+			if (StringUtil.isNotEmpty(endDate))
+				commissionOrderDto.setEndDate(new Date(Long.parseLong(endDate)));
+			if (StringUtil.isNotEmpty(tuitionFee))
+				commissionOrderDto.setTuitionFee(Double.parseDouble(tuitionFee));
+			if (StringUtil.isNotEmpty(perTermTuitionFee))
+				commissionOrderDto.setPerTermTuitionFee(Double.parseDouble(perTermTuitionFee));
+			if (StringUtil.isNotEmpty(remarks))
+				commissionOrderDto.setRemarks(remarks);
+			return commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0
+					? new Response<CommissionOrderDTO>(0, commissionOrderDto)
+					: new Response<CommissionOrderDTO>(1, "修改失败.", null);
+		} catch (ServiceException e) {
+			return new Response<CommissionOrderDTO>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
 }

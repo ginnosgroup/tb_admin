@@ -28,5 +28,35 @@
                 #{remarks},
                 0);
     </insert>
+    
+    <update id="updateCommissionOrder" parameterType="org.zhinanzhen.b.dao.pojo.CommissionOrderDO">
+        UPDATE b_commission_order 
+        SET gmt_modify = now()
+        <if test='serviceOrderId != null'>
+            , service_order_id = #{serviceOrderId}
+        </if>
+        <if test='installment != null and installment != ""'>
+            , installment = #{installment}
+        </if>
+        <if test='startDate != null'>
+            , start_date = #{startDate}
+        </if>
+        <if test='endDate != null'>
+            , end_date = #{endDate}
+        </if>
+        <if test='tuitionFee != null and tuitionFee != ""'>
+            , tuition_fee = #{tuitionFee}
+        </if>
+        <if test='perTermTuitionFee != null and perTermTuitionFee != ""'>
+            , per_term_tuition_fee = #{perTermTuitionFee}
+        </if>
+        <if test='remarks != null and remarks != ""'>
+            , remarks = #{remarks}
+        </if>
+        <if test='isClose != null'>
+            , is_close = #{isClose}
+        </if>
+        WHERE id = #{id};
+    </update>
 
 </mapper>

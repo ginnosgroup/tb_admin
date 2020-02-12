@@ -58,4 +58,21 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 		}
 	}
 
+	@Override
+	public int updateCommissionOrder(CommissionOrderDTO commissionOrderDto) throws ServiceException {
+		if (commissionOrderDto == null) {
+			ServiceException se = new ServiceException("commissionOrderDto is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			CommissionOrderDO commissionOrderDo = mapper.map(commissionOrderDto, CommissionOrderDO.class);
+			return commissionOrderDao.updateCommissionOrder(commissionOrderDo);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
 }
