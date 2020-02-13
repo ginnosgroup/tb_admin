@@ -62,6 +62,7 @@ public class CommissionOrderController extends BaseController {
 		}
 	}
 
+	// 顾问不能修改,财务能修改
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<CommissionOrderDTO> update(@RequestParam(value = "id") int id,
@@ -96,6 +97,17 @@ public class CommissionOrderController extends BaseController {
 					: new Response<CommissionOrderDTO>(1, "修改失败.", null);
 		} catch (ServiceException e) {
 			return new Response<CommissionOrderDTO>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/get", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<CommissionOrderDTO> get(@RequestParam(value = "id") int id, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<CommissionOrderDTO>(0, commissionOrderService.getCommissionOrderById(id));
+		} catch (ServiceException e) {
+			return new Response<CommissionOrderDTO>(1, e.getMessage(), null);
 		}
 	}
 
