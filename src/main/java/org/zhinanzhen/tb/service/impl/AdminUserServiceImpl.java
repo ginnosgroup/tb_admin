@@ -99,6 +99,30 @@ public class AdminUserServiceImpl extends BaseService implements AdminUserServic
 		}
 		return adminUserDto;
 	}
+	
+	@Override
+	public AdminUserDTO getAdminUserByUsername(String username) throws ServiceException {
+		if (StringUtil.isEmpty(username)) {
+			ServiceException se = new ServiceException("username error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		AdminUserDTO adminUserDto = null;
+		try {
+			AdminUserDO adminUserDo = adminUserDao.getAdminUserByUsername(username);
+			if (adminUserDo == null) {
+				ServiceException se = new ServiceException("the administrator is't exist .");
+				se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+				throw se;
+			}
+			adminUserDto = mapper.map(adminUserDo, AdminUserDTO.class);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+		return adminUserDto;
+	}
 
 	@Override
 	public boolean updatePassword(String username, String newPassword) throws ServiceException {

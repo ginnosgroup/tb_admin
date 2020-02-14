@@ -57,7 +57,8 @@ public class MaraController extends BaseController {
 					return new Response<Integer>(1, "该邮箱已被使用,添加失败.", 0);
 				}
 			}
-
+			if (adminUserService.getAdminUserByUsername(email) != null)
+				return new Response<Integer>(1, "该邮箱已被管理员使用,添加失败.", 0);
 			MaraDTO maraDto = new MaraDTO();
 			maraDto.setName(name);
 			maraDto.setPhone(phone);

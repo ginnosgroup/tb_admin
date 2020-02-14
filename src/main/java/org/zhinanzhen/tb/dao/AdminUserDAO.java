@@ -14,5 +14,7 @@ public interface AdminUserDAO {
 	public boolean updatePassword(@Param("username") String username, @Param("password") String password);
 
 	public AdminUserDO getAdminUserById(int id);
+	
+	AdminUserDO getAdminUserByUsername(String username);
 
 }

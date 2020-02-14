@@ -39,7 +39,9 @@ public class OfficialController extends BaseController {
 		return super.upload(file, request.getSession(), "/uploads/official_img/");
 	}
 
-	// curl -X POST -d 'name=sulei&phone=0404987526&email=leisu@zhinanzhen.org&imageUrl=/logo.jpg&regionId=10000000' "http://localhost:8080/admin/official/add"
+	// curl -X POST -d
+	// 'name=sulei&phone=0404987526&email=leisu@zhinanzhen.org&imageUrl=/logo.jpg&regionId=10000000'
+	// "http://localhost:8080/admin/official/add"
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> addOfficial(@RequestParam(value = "name") String name,
@@ -58,6 +60,8 @@ public class OfficialController extends BaseController {
 					return new Response<Integer>(1, "该邮箱已被使用,添加失败.", 0);
 				}
 			}
+			if (adminUserService.getAdminUserByUsername(email) != null)
+				return new Response<Integer>(1, "该邮箱已被管理员使用,添加失败.", 0);
 			OfficialDTO officialDto = new OfficialDTO();
 			officialDto.setName(name);
 			officialDto.setPhone(phone);
