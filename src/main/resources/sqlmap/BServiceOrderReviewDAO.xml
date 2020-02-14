@@ -21,7 +21,10 @@
                 now(),
                 #{serviceOrderId},
                 #{commissionOrderId},
-                #{state},
+                #{adviserState},
+                #{maraState},
+                #{officialState},
+                #{kjState},
                 #{type},
                 #{adminUserId});
     </insert>
