@@ -44,6 +44,7 @@ public class OfficialController extends BaseController {
 	@ResponseBody
 	public Response<Integer> addOfficial(@RequestParam(value = "name") String name,
 			@RequestParam(value = "phone") String phone, @RequestParam(value = "email") String email,
+			@RequestParam(value = "password", required = false) String password,
 			@RequestParam(value = "imageUrl") String imageUrl, @RequestParam(value = "regionId") Integer regionId,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
@@ -64,6 +65,9 @@ public class OfficialController extends BaseController {
 			officialDto.setImageUrl(imageUrl);
 			officialDto.setRegionId(regionId);
 			if (officialService.addOfficial(officialDto) > 0) {
+				if (password == null)
+					password = email; // 如果没有传入密码,则密码和email相同
+				adminUserService.add(email, password, "WA", officialDto.getId());
 				return new Response<Integer>(0, officialDto.getId());
 			} else {
 				return new Response<Integer>(0, "创建失败.", 0);
