@@ -5,6 +5,10 @@ import org.zhinanzhen.tb.service.ServiceException;
 
 public interface CommissionOrderService {
 
-	public int addCommissionOrder(CommissionOrderDTO commissionOrderDto) throws ServiceException;
+	int addCommissionOrder(CommissionOrderDTO commissionOrderDto) throws ServiceException;
+	
+	int updateCommissionOrder(CommissionOrderDTO commissionOrderDto) throws ServiceException;
+	
+	CommissionOrderDTO getCommissionOrderById(int id) throws ServiceException;
 
 }
