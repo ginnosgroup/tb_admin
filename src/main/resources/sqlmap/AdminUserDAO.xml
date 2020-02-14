@@ -66,5 +66,18 @@
             status
         FROM tb_admin_user WHERE id = #{id, jdbcType=INTEGER};
     </select>
+    
+    <select id="getAdminUserByUsername" parameterType="java.lang.String" resultType="org.zhinanzhen.tb.dao.pojo.AdminUserDO">
+        SELECT
+            id,
+            username,
+            ap_list AS apList,
+            adviser_id AS adviserId,
+            session_id AS sessionId,
+            gmt_login AS gmtLogin,
+            login_ip AS loginIp,
+            status
+        FROM tb_admin_user WHERE username = #{username};
+    </select>
 
 </mapper>
