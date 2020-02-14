@@ -112,7 +112,7 @@ public class ServiceOrderController extends BaseController {
 			if (StringUtil.isNotEmpty(receivable))
 				serviceOrderDto.setReceivable(Double.parseDouble(receivable));
 			if (StringUtil.isNotEmpty(discount))
-				serviceOrderDto.setAmount(Double.parseDouble(discount));
+				serviceOrderDto.setDiscount(Double.parseDouble(discount));
 			if (StringUtil.isNotEmpty(received))
 				serviceOrderDto.setReceived(Double.parseDouble(received));
 			if (StringUtil.isNotEmpty(paymentTimes))
