@@ -256,13 +256,22 @@
                   顾问管理
                 </span>
               </a>
-            </li>
+            </li>            
             <li>
               <a href="official.html">
                 <i class="fa fa-book">
                 </i>
                 <span>
                   文案管理
+                </span>
+              </a>
+            </li>
+            <li>
+              <a href="mara.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  MARA管理
                 </span>
               </a>
             </li>
@@ -429,6 +438,12 @@
 									      </button>
 									      <strong>Success!</strong> You  just achieved success.
 									  </div>
+									  <div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+                      <button data-dismiss="alert" class="close close-sm" type="button">
+                      <i class="fa fa-times"></i>
+                      </button>
+                      <strong id="error_info"></strong>
+                   	</div>
 										<div class="clearfix">
                        <div class="btn-group">
                           <button id="editable-sample_new" class="btn btn-success green" @click="table_insert">
@@ -922,6 +937,10 @@
 					   					this.add = false;
 					   					v.getDatalist();
 					   					v.getSort();
+					   			}else
+					   			{
+					   					$('#alert_error').addClass('alert-danger').show().delay(1500).fadeOut();
+					   					$("#error_info").html(data.message);
 					   			}
 					   			//console.log(data);
 					   	});
