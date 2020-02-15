@@ -314,6 +314,7 @@ CREATE TABLE `b_service_order` (
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `type` varchar(4) DEFAULT NULL COMMENT '服务类型(VISA:签证服务,OVST:留学服务)',
 `service_id` int NOT NULL COMMENT '服务项目编号 (对应b_service.id)',
+`school_id` int DEFAULT NULL COMMENT '学校编号 (对应b_school.id,留学服务专用字段)',
 `state` varchar(8) NOT NULL COMMENT '状态 (WAIT:待提交审核,REVIEW:审核中,APPLY:服务申请中,COMPLETE:服务申请完成,PAID:完成-支付成功,CLOSE:关闭)',
 `is_settle` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否提前扣佣 (留学服务专用字段)',
 `is_deposit_user` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否为保证金用户 (留学服务专用字段)',
