@@ -6,8 +6,6 @@ import lombok.Data;
 public class ServiceDO {
 
 	private int id;
-	
-	private String type;
 
 	private String code;
 

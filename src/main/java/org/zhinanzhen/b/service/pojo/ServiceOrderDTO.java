@@ -11,10 +11,16 @@ public class ServiceOrderDTO {
 	private int id;
 
 	private String type;
-	
+
 	private int serviceId;
 
 	private String state;
+
+	private boolean isSettle;
+
+	private boolean isDepositUser;
+
+	private int subagencyId;
 
 	private boolean isPay;
 

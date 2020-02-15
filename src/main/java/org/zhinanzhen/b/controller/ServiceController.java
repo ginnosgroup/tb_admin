@@ -28,14 +28,11 @@ public class ServiceController extends BaseController {
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<Integer> addService(@RequestParam(value = "type") String type,
-			@RequestParam(value = "code") String code, HttpServletRequest request, HttpServletResponse response) {
+	public Response<Integer> addService(@RequestParam(value = "code") String code, HttpServletRequest request,
+			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			if (!"VISA".equals(type) && !"OVST".equals(type))
-				return new Response<Integer>(1, "服务类型错误!", 0);
 			ServiceDTO serviceDto = new ServiceDTO();
-			serviceDto.setType(type);
 			serviceDto.setCode(code);
 			if (serviceService.addService(serviceDto) > 0) {
 				return new Response<Integer>(0, serviceDto.getId());
@@ -50,14 +47,11 @@ public class ServiceController extends BaseController {
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> updateService(@RequestParam(value = "id") int id,
-			@RequestParam(value = "type", required = false) String type,
 			@RequestParam(value = "code", required = false) String code, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			if (type != null && (!"VISA".equals(type) && !"OVST".equals(type)))
-				return new Response<Integer>(1, "服务类型错误!", 0);
-			int i = serviceService.updateService(id, type, code);
+			int i = serviceService.updateService(id, code);
 			if (i > 0) {
 				return new Response<Integer>(0, i);
 			} else {
@@ -70,11 +64,10 @@ public class ServiceController extends BaseController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<ServiceDTO>> listService(@RequestParam(value = "type", required = false) String type,
-			HttpServletResponse response) {
+	public Response<List<ServiceDTO>> listService(HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<List<ServiceDTO>>(0, serviceService.listService(type));
+			return new Response<List<ServiceDTO>>(0, serviceService.listService());
 		} catch (ServiceException e) {
 			return new Response<List<ServiceDTO>>(1, e.getMessage(), null);
 		}
