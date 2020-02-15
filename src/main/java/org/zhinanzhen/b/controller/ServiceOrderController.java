@@ -72,7 +72,11 @@ public class ServiceOrderController extends BaseController {
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> addServiceOrder(@RequestParam(value = "type") String type,
-			@RequestParam(value = "serviceId") String serviceId, @RequestParam(value = "isPay") String isPay,
+			@RequestParam(value = "serviceId") String serviceId,
+			@RequestParam(value = "isSettle", required = false) String isSettle,
+			@RequestParam(value = "isDepositUser", required = false) String isDepositUser,
+			@RequestParam(value = "subagencyId", required = false) String subagencyId,
+			@RequestParam(value = "isPay") String isPay,
 			@RequestParam(value = "receiveTypeId", required = false) String receiveTypeId,
 			@RequestParam(value = "receiveDate", required = false) String receiveDate,
 			@RequestParam(value = "receivable", required = false) String receivable,
@@ -101,10 +105,11 @@ public class ServiceOrderController extends BaseController {
 			if (StringUtil.isNotEmpty(serviceId))
 				serviceOrderDto.setServiceId(StringUtil.toInt(serviceId));
 			serviceOrderDto.setState(ReviewAdviserStateEnum.WAIT.toString());
-			if (isPay != null && "true".equalsIgnoreCase(isPay))
-				serviceOrderDto.setPay(true);
-			else
-				serviceOrderDto.setPay(false);
+			serviceOrderDto.setSettle(isSettle != null && "true".equalsIgnoreCase(isSettle));
+			serviceOrderDto.setDepositUser(isDepositUser != null && "true".equalsIgnoreCase(isDepositUser));
+			if (StringUtil.isNotEmpty(subagencyId))
+				serviceOrderDto.setSubagencyId(StringUtil.toInt(subagencyId));
+			serviceOrderDto.setPay(isPay != null && "true".equalsIgnoreCase(isPay));
 			if (StringUtil.isNotEmpty(receiveTypeId))
 				serviceOrderDto.setReceiveTypeId(StringUtil.toInt(receiveTypeId));
 			if (StringUtil.isNotEmpty(receiveDate))
@@ -152,6 +157,9 @@ public class ServiceOrderController extends BaseController {
 	public Response<Integer> updateServiceOrder(@RequestParam(value = "id") int id,
 			@RequestParam(value = "type", required = false) String type,
 			@RequestParam(value = "serviceId", required = false) String serviceId,
+			@RequestParam(value = "isSettle", required = false) String isSettle,
+			@RequestParam(value = "isDepositUser", required = false) String isDepositUser,
+			@RequestParam(value = "subagencyId", required = false) String subagencyId,
 			@RequestParam(value = "isPay", required = false) String isPay,
 			@RequestParam(value = "receiveTypeId", required = false) String receiveTypeId,
 			@RequestParam(value = "receiveDate", required = false) String receiveDate,
@@ -177,6 +185,10 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setType(type);
 			if (StringUtil.isNotEmpty(serviceId))
 				serviceOrderDto.setServiceId(StringUtil.toInt(serviceId));
+			serviceOrderDto.setSettle(isSettle != null && "true".equalsIgnoreCase(isSettle));
+			serviceOrderDto.setDepositUser(isDepositUser != null && "true".equalsIgnoreCase(isDepositUser));
+			if (StringUtil.isNotEmpty(subagencyId))
+				serviceOrderDto.setSubagencyId(StringUtil.toInt(subagencyId));
 			serviceOrderDto.setPay(isPay != null && "true".equalsIgnoreCase(isPay));
 			if (StringUtil.isNotEmpty(receiveTypeId))
 				serviceOrderDto.setReceiveTypeId(StringUtil.toInt(receiveTypeId));

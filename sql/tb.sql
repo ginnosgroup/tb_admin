@@ -303,7 +303,6 @@ CREATE TABLE `b_service` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
-`type` varchar(4) NOT NULL DEFAULT 'VISA' COMMENT '服务类型(VISA:签证服务,OVST:留学服务)',
   `code` varchar(8) DEFAULT NULL COMMENT '项目编码',
   `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已删除'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
@@ -316,6 +315,9 @@ CREATE TABLE `b_service_order` (
   `type` varchar(4) DEFAULT NULL COMMENT '服务类型(VISA:签证服务,OVST:留学服务)',
 `service_id` int NOT NULL COMMENT '服务项目编号 (对应b_service.id)',
 `state` varchar(8) NOT NULL COMMENT '状态 (WAIT:待提交审核,REVIEW:审核中,APPLY:服务申请中,COMPLETE:服务申请完成,PAID:完成-支付成功,CLOSE:关闭)',
+`is_settle` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否提前扣佣 (留学服务专用字段)',
+`is_deposit_user` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否为保证金用户 (留学服务专用字段)',
+`subagency_id` int DEFAULT NULL COMMENT '代理编号 (对应b_subagency.id,留学服务专用字段)',
   `is_pay` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已支付(签证服务非支付不用创建佣金订单)',
   `receive_type_id` int DEFAULT NULL COMMENT '收款方式编号(对应b_receive_type.id)',
   `receive_date` datetime DEFAULT NULL COMMENT '收款日期',
@@ -341,10 +343,10 @@ CREATE TABLE `b_service_order_review` (
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `service_order_id` int NOT NULL COMMENT '服务订单编号 (对应b_service_order.id)',
 `commission_order_id` int DEFAULT NULL COMMENT '佣金订单编号 (对应b_commission_order.id)',
-  `adviser_state` varchar(8) NOT NULL COMMENT '顾问状态 (WAIT:待提交审核,REVIEW:审核中,APPLY:服务申请中,COMPLETE:服务申请完成,PAID:完成-支付成功,CLOSE:关闭)',
-  `mara_state` varchar(8) NOT NULL COMMENT 'MARA状态 (WAIT:待审核,FINISH:已审核)',
-  `official_state` varchar(8) NOT NULL COMMENT '文案状态 (REVIEW:资料审核中,FINISH:资料审核完毕,APPLY:服务申请中,COMPLETE:服务申请完成,PAID:完成-支付成功)',
-  `kj_state` varchar(8) NOT NULL COMMENT '财务状态 (WAIT:佣金待审核,FINISH:佣金已审核,COMPLETE:结算完成)',
+  `adviser_state` varchar(8) DEFAULT NULL COMMENT '顾问状态 (WAIT:待提交审核,REVIEW:审核中,APPLY:服务申请中,COMPLETE:服务申请完成,PAID:完成-支付成功,CLOSE:关闭)',
+  `mara_state` varchar(8) DEFAULT NULL COMMENT 'MARA状态 (WAIT:待审核,FINISH:已审核)',
+  `official_state` varchar(8) DEFAULT NULL COMMENT '文案状态 (REVIEW:资料审核中,FINISH:资料审核完毕,APPLY:服务申请中,COMPLETE:服务申请完成,PAID:完成-支付成功)',
+  `kj_state` varchar(8) DEFAULT NULL COMMENT '财务状态 (WAIT:佣金待审核,FINISH:佣金已审核,COMPLETE:结算完成)',
   `type` varchar(8) NOT NULL COMMENT '类型 (APPROVAL:通过,REFUSE:驳回)',
   `admin_user_id` int NOT NULL COMMENT '管理员编号 (对应tb_admin_user.id)'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;

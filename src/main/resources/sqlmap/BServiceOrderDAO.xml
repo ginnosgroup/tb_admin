@@ -11,6 +11,9 @@
                 type,
                 service_id,
                 state,
+                is_settle,
+                is_deposit_user,
+                subagency_id,
                 is_pay,
                 receive_type_id,
                 receive_date,
@@ -34,6 +37,9 @@
                 #{type},
                 #{serviceId},
                 #{state},
+                #{isSettle},
+                #{isDepositUser},
+                #{subagencyId},
                 #{isPay},
                 #{receiveTypeId},
                 #{receiveDate},
@@ -61,6 +67,15 @@
         </if>
         <if test='serviceId != null and serviceId != ""'>
             , service_id = #{serviceId}
+        </if>
+        <if test='isSettle != null'>
+            , is_settle = #{isSettle}
+        </if>
+        <if test='isDepositUser != null'>
+            , is_deposit_user = #{isDepositUser}
+        </if>
+        <if test='subagencyId != null != null and subagencyId != ""'>
+            , subagency_id = #{subagencyId}
         </if>
         <if test='isPay != null'>
             , is_pay = #{isPay}
@@ -145,6 +160,9 @@
             type,
             service_id AS serviceId,
             state,
+            is_settle AS isSettle,
+            is_deposit_user AS isDepositUser,
+            subagency_id AS subagencyId,
             is_pay AS isPay,
             receive_type_id AS receiveTypeId,
             receive_date AS receiveDate,
@@ -192,6 +210,9 @@
             type,
             service_id AS serviceId,
             state,
+            is_settle AS isSettle,
+            is_deposit_user AS isDepositUser,
+            subagency_id AS subagencyId,
             is_pay AS isPay,
             receive_type_id AS receiveTypeId,
             receive_date AS receiveDate,

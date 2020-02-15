@@ -8,7 +8,6 @@
             INTO b_service (
                 gmt_create,
                 gmt_modify,
-                type,
                 code)
             VALUES (
                 now(),
@@ -20,26 +19,19 @@
     <update id="updateService" parameterType="org.zhinanzhen.b.dao.pojo.ServiceDO">
         UPDATE b_service 
         SET gmt_modify = now()
-        <if test='type != null and type != ""'>
-            , type = #{type}
-        </if>
         <if test='code != null and code != ""'>
             , code = #{code}
         </if>
         WHERE id = #{id};
     </update>
     
-    <select id="listService" resultType="org.zhinanzhen.b.dao.pojo.ServiceDO">
+    <select id="listService">
         SELECT
             id,
             gmt_create AS GmtCreate,
-            type,
             code
         FROM b_service
         WHERE is_delete = 0
-        <if test='type != null and type != ""'>
-            AND type = #{type}
-        </if>
         ORDER BY gmt_create DESC;
     </select>
     
@@ -47,7 +39,6 @@
         SELECT
             id,
             gmt_create AS GmtCreate,
-            type,
             code
         FROM b_service WHERE id = #{id, jdbcType=INTEGER};
     </select>
