@@ -10,6 +10,7 @@
                 gmt_modify,
                 type,
                 service_id,
+                school_id,
                 state,
                 is_settle,
                 is_deposit_user,
@@ -36,6 +37,7 @@
                 now(),
                 #{type},
                 #{serviceId},
+                #{schoolId},
                 #{state},
                 #{isSettle},
                 #{isDepositUser},
@@ -67,6 +69,9 @@
         </if>
         <if test='serviceId != null and serviceId != ""'>
             , service_id = #{serviceId}
+        </if>
+        <if test='schoolId != null and schoolId != ""'>
+            , school_id = #{schoolId}
         </if>
         <if test='isSettle != null'>
             , is_settle = #{isSettle}
@@ -159,6 +164,7 @@
             gmt_create AS GmtCreate,
             type,
             service_id AS serviceId,
+            school_id AS schoolId,
             state,
             is_settle AS isSettle,
             is_deposit_user AS isDepositUser,
@@ -209,6 +215,7 @@
             gmt_create AS GmtCreate,
             type,
             service_id AS serviceId,
+            school_id AS schoolId,
             state,
             is_settle AS isSettle,
             is_deposit_user AS isDepositUser,

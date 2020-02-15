@@ -13,6 +13,8 @@ public class ServiceOrderDTO {
 	private String type;
 
 	private int serviceId;
+	
+	private int schoolId;
 
 	private String state;
 

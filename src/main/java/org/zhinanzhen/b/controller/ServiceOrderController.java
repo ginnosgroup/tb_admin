@@ -73,6 +73,7 @@ public class ServiceOrderController extends BaseController {
 	@ResponseBody
 	public Response<Integer> addServiceOrder(@RequestParam(value = "type") String type,
 			@RequestParam(value = "serviceId") String serviceId,
+			@RequestParam(value = "schoolId", required = false) String schoolId,
 			@RequestParam(value = "isSettle", required = false) String isSettle,
 			@RequestParam(value = "isDepositUser", required = false) String isDepositUser,
 			@RequestParam(value = "subagencyId", required = false) String subagencyId,
@@ -104,6 +105,8 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setType(type);
 			if (StringUtil.isNotEmpty(serviceId))
 				serviceOrderDto.setServiceId(StringUtil.toInt(serviceId));
+			if (StringUtil.isNotEmpty(schoolId))
+				serviceOrderDto.setSchoolId(StringUtil.toInt(schoolId));
 			serviceOrderDto.setState(ReviewAdviserStateEnum.WAIT.toString());
 			serviceOrderDto.setSettle(isSettle != null && "true".equalsIgnoreCase(isSettle));
 			serviceOrderDto.setDepositUser(isDepositUser != null && "true".equalsIgnoreCase(isDepositUser));
@@ -157,6 +160,7 @@ public class ServiceOrderController extends BaseController {
 	public Response<Integer> updateServiceOrder(@RequestParam(value = "id") int id,
 			@RequestParam(value = "type", required = false) String type,
 			@RequestParam(value = "serviceId", required = false) String serviceId,
+			@RequestParam(value = "schoolId", required = false) String schoolId,
 			@RequestParam(value = "isSettle", required = false) String isSettle,
 			@RequestParam(value = "isDepositUser", required = false) String isDepositUser,
 			@RequestParam(value = "subagencyId", required = false) String subagencyId,
@@ -185,6 +189,8 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setType(type);
 			if (StringUtil.isNotEmpty(serviceId))
 				serviceOrderDto.setServiceId(StringUtil.toInt(serviceId));
+			if (StringUtil.isNotEmpty(schoolId))
+				serviceOrderDto.setSchoolId(StringUtil.toInt(schoolId));
 			serviceOrderDto.setSettle(isSettle != null && "true".equalsIgnoreCase(isSettle));
 			serviceOrderDto.setDepositUser(isDepositUser != null && "true".equalsIgnoreCase(isDepositUser));
 			if (StringUtil.isNotEmpty(subagencyId))
