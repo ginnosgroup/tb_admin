@@ -297,6 +297,19 @@ public class ServiceOrderController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/finish", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> finish(@RequestParam(value = "id") int id, HttpServletRequest request,
+			HttpServletResponse response) {
+		super.setPostHeader(response);
+		try {
+			return serviceOrderService.getServiceOrderById(id) != null
+					? new Response<Integer>(0, serviceOrderService.finish(id)) : null;
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), -1);
+		}
+	}
+
 	@RequestMapping(value = "/approval", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<ServiceOrderDTO> approval(@RequestParam(value = "id") int id,

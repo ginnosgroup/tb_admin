@@ -6,15 +6,30 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.zhinanzhen.b.dao.MaraDAO;
+import org.zhinanzhen.b.dao.OfficialDAO;
+import org.zhinanzhen.b.dao.ServiceDAO;
 import org.zhinanzhen.b.dao.ServiceOrderDAO;
 import org.zhinanzhen.b.dao.ServiceOrderReviewDAO;
+import org.zhinanzhen.b.dao.pojo.MaraDO;
+import org.zhinanzhen.b.dao.pojo.OfficialDO;
+import org.zhinanzhen.b.dao.pojo.ServiceDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderReviewDO;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
+import org.zhinanzhen.tb.dao.AdviserDAO;
+import org.zhinanzhen.tb.dao.UserDAO;
+import org.zhinanzhen.tb.dao.pojo.AdviserDO;
+import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
+import org.zhinanzhen.tb.service.pojo.AdviserDTO;
+import org.zhinanzhen.tb.service.pojo.UserDTO;
+import org.zhinanzhen.b.service.pojo.MaraDTO;
+import org.zhinanzhen.b.service.pojo.OfficialDTO;
+import org.zhinanzhen.b.service.pojo.ServiceDTO;
 
 import com.ikasoa.core.thrift.ErrorCodeEnum;
 
@@ -26,6 +41,21 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
 	@Resource
 	private ServiceOrderReviewDAO serviceOrderReviewDao;
+
+	@Resource
+	private ServiceDAO serviceDao;
+
+	@Resource
+	private UserDAO userDao;
+
+	@Resource
+	private MaraDAO maraDao;
+
+	@Resource
+	private AdviserDAO adviserDao;
+
+	@Resource
+	private OfficialDAO officialDao;
 
 	@Override
 	public int addServiceOrder(ServiceOrderDTO serviceOrderDto) throws ServiceException {
@@ -90,9 +120,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, state, userId > 0 ? userId : null,
 					maraId > 0 ? maraId : null, adviserId > 0 ? adviserId : null, officialId > 0 ? officialId : null,
 					pageNum * pageSize, pageSize);
-			if (serviceOrderDoList == null) {
+			if (serviceOrderDoList == null)
 				return null;
-			}
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
@@ -100,6 +129,22 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		}
 		for (ServiceOrderDO serviceOrderDo : serviceOrderDoList) {
 			ServiceOrderDTO serviceOrderDto = mapper.map(serviceOrderDo, ServiceOrderDTO.class);
+			// 查询用户
+			UserDO userDo = userDao.getUserById(serviceOrderDto.getUserId());
+			if (userDo != null)
+				serviceOrderDto.setUser(mapper.map(userDo, UserDTO.class));
+			// 查询Mara
+			MaraDO maraDo = maraDao.getMaraById(serviceOrderDto.getMaraId());
+			if (maraDo != null)
+				serviceOrderDto.setMara(mapper.map(maraDo, MaraDTO.class));
+			// 查询顾问
+			AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderDto.getAdviserId());
+			if (adviserDo != null)
+				serviceOrderDto.setAdviser(mapper.map(adviserDo, AdviserDTO.class));
+			// 查询文案
+			OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDto.getOfficialId());
+			if (officialDo != null)
+				serviceOrderDto.setOfficial(mapper.map(officialDo, OfficialDTO.class));
 			// 查询审核记录
 			putReviews(serviceOrderDto);
 			serviceOrderDtoList.add(serviceOrderDto);
@@ -121,6 +166,26 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				return null;
 			}
 			serviceOrderDto = mapper.map(serviceOrderDo, ServiceOrderDTO.class);
+			// 查询服务
+			ServiceDO serviceDo = serviceDao.getServiceById(serviceOrderDto.getServiceId());
+			if (serviceDo != null)
+				serviceOrderDto.setService(mapper.map(serviceDo, ServiceDTO.class));
+			// 查询用户
+			UserDO userDo = userDao.getUserById(serviceOrderDto.getUserId());
+			if (userDo != null)
+				serviceOrderDto.setUser(mapper.map(userDo, UserDTO.class));
+			// 查询Mara
+			MaraDO maraDo = maraDao.getMaraById(serviceOrderDto.getMaraId());
+			if (maraDo != null)
+				serviceOrderDto.setMara(mapper.map(maraDo, MaraDTO.class));
+			// 查询顾问
+			AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderDto.getAdviserId());
+			if (adviserDo != null)
+				serviceOrderDto.setAdviser(mapper.map(adviserDo, AdviserDTO.class));
+			// 查询文案
+			OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDto.getOfficialId());
+			if (officialDo != null)
+				serviceOrderDto.setOfficial(mapper.map(officialDo, OfficialDTO.class));
 			// 查询审核记录
 			putReviews(serviceOrderDto);
 		} catch (Exception e) {
@@ -145,6 +210,11 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
 		}
+	}
+
+	@Override
+	public int finish(int id) throws ServiceException {
+		return serviceOrderDao.finishServiceOrder(id);
 	}
 
 	@Override

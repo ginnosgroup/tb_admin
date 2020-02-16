@@ -3,6 +3,9 @@ package org.zhinanzhen.b.service.pojo;
 import java.util.Date;
 import java.util.List;
 
+import org.zhinanzhen.tb.service.pojo.AdviserDTO;
+import org.zhinanzhen.tb.service.pojo.UserDTO;
+
 import lombok.Data;
 
 @Data
@@ -10,10 +13,16 @@ public class ServiceOrderDTO {
 
 	private int id;
 
+	private Date gmtCreate;
+
+	private Date finishDate;
+
 	private String type;
 
 	private int serviceId;
-	
+
+	private ServiceDTO service;
+
 	private int schoolId;
 
 	private String state;
@@ -48,11 +57,19 @@ public class ServiceOrderDTO {
 
 	private int userId;
 
+	private UserDTO user;
+
 	private int maraId;
+
+	private MaraDTO mara;
 
 	private int adviserId;
 
+	private AdviserDTO adviser;
+
 	private int officialId;
+
+	private OfficialDTO official;
 
 	private String remarks;
 
