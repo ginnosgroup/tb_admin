@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
+import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -411,6 +412,19 @@ public class ServiceOrderController extends BaseController {
 				return new Response<ServiceOrderDTO>(1, "请登录!", null);
 		} catch (ServiceException e) {
 			return new Response<ServiceOrderDTO>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/reviews", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<ServiceOrderReviewDTO>> reviews(@RequestParam(value = "serviceOrderId") String serviceOrderId,
+			HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<List<ServiceOrderReviewDTO>>(0,
+					serviceOrderService.reviews(StringUtil.toInt(serviceOrderId)));
+		} catch (ServiceException e) {
+			return new Response<List<ServiceOrderReviewDTO>>(1, e.getMessage(), null);
 		}
 	}
 

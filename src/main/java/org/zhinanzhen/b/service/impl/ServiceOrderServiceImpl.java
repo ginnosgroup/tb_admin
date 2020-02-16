@@ -267,6 +267,16 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			String kjState) throws ServiceException {
 		return review(id, adminUserId, adviserState, maraState, officialState, kjState, "REFUSE");
 	}
+	
+	@Override
+	public List<ServiceOrderReviewDTO> reviews(int serviceOrderId) throws ServiceException {
+		List<ServiceOrderReviewDTO> serviceOrderReviewDtoList = new ArrayList<>();
+		List<ServiceOrderReviewDO> serviceOrderReviewDoList = serviceOrderReviewDao
+				.listServiceOrderReview(serviceOrderId, null, null, null, null, null);
+		serviceOrderReviewDoList.forEach(serviceOrderReviewDo -> serviceOrderReviewDtoList
+				.add(mapper.map(serviceOrderReviewDo, ServiceOrderReviewDTO.class)));
+		return serviceOrderReviewDtoList;
+	}
 
 	private void putReviews(ServiceOrderDTO serviceOrderDto) {
 		List<ServiceOrderReviewDO> serviceOrderReviewDoList = serviceOrderReviewDao

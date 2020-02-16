@@ -3,6 +3,7 @@ package org.zhinanzhen.b.service;
 import java.util.List;
 
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
+import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 
 public interface ServiceOrderService {
@@ -20,6 +21,8 @@ public interface ServiceOrderService {
 	ServiceOrderDTO getServiceOrderById(int id) throws ServiceException;
 
 	int deleteServiceOrderById(int id) throws ServiceException;
+	
+	int finish(int id) throws ServiceException;
 
 	ServiceOrderDTO approval(int id, int adminUserId, String adviserState, String maraState,
 			String officialState, String kjState) throws ServiceException;
@@ -27,6 +30,5 @@ public interface ServiceOrderService {
 	ServiceOrderDTO refuse(int id, int adminUserId, String adviserState, String maraState, String officialState,
 			String kjState) throws ServiceException;
 	
-	
-	int finish(int id) throws ServiceException;
+	List<ServiceOrderReviewDTO> reviews(int serviceOrderId) throws ServiceException;
 }
