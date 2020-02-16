@@ -7,24 +7,26 @@ import org.zhinanzhen.tb.service.ServiceException;
 
 public interface ServiceOrderService {
 
-	public int addServiceOrder(ServiceOrderDTO serviceOrderDto) throws ServiceException;
+	int addServiceOrder(ServiceOrderDTO serviceOrderDto) throws ServiceException;
 
-	public int updateServiceOrder(ServiceOrderDTO serviceOrderDto) throws ServiceException;
+	int updateServiceOrder(ServiceOrderDTO serviceOrderDto) throws ServiceException;
 
-	public int countServiceOrder(String type, String state, int userId, int maraId, int adviserId, int officialId)
+	int countServiceOrder(String type, String state, int userId, int maraId, int adviserId, int officialId)
 			throws ServiceException;
 
-	public List<ServiceOrderDTO> listServiceOrder(String type, String state, int userId, int maraId, int adviserId,
+	List<ServiceOrderDTO> listServiceOrder(String type, String state, int userId, int maraId, int adviserId,
 			int officialId, int pageNum, int pageSize) throws ServiceException;
 
-	public ServiceOrderDTO getServiceOrderById(int id) throws ServiceException;
+	ServiceOrderDTO getServiceOrderById(int id) throws ServiceException;
 
-	public int deleteServiceOrderById(int id) throws ServiceException;
+	int deleteServiceOrderById(int id) throws ServiceException;
 
-	public ServiceOrderDTO approval(int id, int adminUserId, String adviserState, String maraState,
+	ServiceOrderDTO approval(int id, int adminUserId, String adviserState, String maraState,
 			String officialState, String kjState) throws ServiceException;
 
-	public ServiceOrderDTO refuse(int id, int adminUserId, String adviserState, String maraState, String officialState,
+	ServiceOrderDTO refuse(int id, int adminUserId, String adviserState, String maraState, String officialState,
 			String kjState) throws ServiceException;
-
+	
+	
+	int finish(int id) throws ServiceException;
 }

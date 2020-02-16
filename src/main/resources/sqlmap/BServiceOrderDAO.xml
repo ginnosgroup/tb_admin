@@ -8,6 +8,7 @@
             INTO b_service_order (
                 gmt_create,
                 gmt_modify,
+                finish_date,
                 type,
                 service_id,
                 school_id,
@@ -35,6 +36,7 @@
             VALUES (
                 now(),
                 now(),
+                NULL,
                 #{type},
                 #{serviceId},
                 #{schoolId},
@@ -162,6 +164,7 @@
         SELECT
             id,
             gmt_create AS GmtCreate,
+            finish_date AS finishDate,
             type,
             service_id AS serviceId,
             school_id AS schoolId,
@@ -213,6 +216,7 @@
         SELECT
             id,
             gmt_create AS GmtCreate,
+            finish_date AS finishDate,
             type,
             service_id AS serviceId,
             school_id AS schoolId,
@@ -242,6 +246,12 @@
 	<update id="deleteServiceOrderById" parameterType="java.lang.Integer">
         UPDATE b_service_order
         SET gmt_modify = now(), is_delete = 1
+        WHERE id = #{id, jdbcType=INTEGER};
+    </update>
+    
+    <update id="finishServiceOrder" parameterType="java.lang.Integer">
+        UPDATE b_service_order
+        SET gmt_modify = now(), finish_date = now()
         WHERE id = #{id, jdbcType=INTEGER};
     </update>
 
