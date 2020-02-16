@@ -41,6 +41,8 @@ public class ServiceOrderDTO {
 
 	private int receiveTypeId;
 
+	private ReceiveTypeDTO receiveType;
+
 	private Date receiveDate;
 
 	private double receivable;

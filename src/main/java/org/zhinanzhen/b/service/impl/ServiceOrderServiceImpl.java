@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.MaraDAO;
 import org.zhinanzhen.b.dao.OfficialDAO;
+import org.zhinanzhen.b.dao.ReceiveTypeDAO;
 import org.zhinanzhen.b.dao.SchoolDAO;
 import org.zhinanzhen.b.dao.ServiceDAO;
 import org.zhinanzhen.b.dao.ServiceOrderDAO;
@@ -15,6 +16,7 @@ import org.zhinanzhen.b.dao.ServiceOrderReviewDAO;
 import org.zhinanzhen.b.dao.SubagencyDAO;
 import org.zhinanzhen.b.dao.pojo.MaraDO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
+import org.zhinanzhen.b.dao.pojo.ReceiveTypeDO;
 import org.zhinanzhen.b.dao.pojo.SchoolDO;
 import org.zhinanzhen.b.dao.pojo.ServiceDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
@@ -36,6 +38,7 @@ import org.zhinanzhen.b.service.pojo.OfficialDTO;
 import org.zhinanzhen.b.service.pojo.SchoolDTO;
 import org.zhinanzhen.b.service.pojo.ServiceDTO;
 import org.zhinanzhen.b.service.pojo.SubagencyDTO;
+import org.zhinanzhen.b.service.pojo.ReceiveTypeDTO;
 
 import com.ikasoa.core.thrift.ErrorCodeEnum;
 
@@ -56,6 +59,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
 	@Resource
 	private ServiceDAO serviceDao;
+
+	@Resource
+	private ReceiveTypeDAO receiveTypeDao;
 
 	@Resource
 	private UserDAO userDao;
@@ -157,6 +163,10 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			ServiceDO serviceDo = serviceDao.getServiceById(serviceOrderDto.getServiceId());
 			if (serviceDo != null)
 				serviceOrderDto.setService(mapper.map(serviceDo, ServiceDTO.class));
+			// 查询收款方式
+			ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(serviceOrderDto.getReceiveTypeId());
+			if (receiveTypeDo != null)
+				serviceOrderDto.setReceiveType(mapper.map(receiveTypeDo, ReceiveTypeDTO.class));
 			// 查询用户
 			UserDO userDo = userDao.getUserById(serviceOrderDto.getUserId());
 			if (userDo != null)
@@ -209,6 +219,10 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			ServiceDO serviceDo = serviceDao.getServiceById(serviceOrderDto.getServiceId());
 			if (serviceDo != null)
 				serviceOrderDto.setService(mapper.map(serviceDo, ServiceDTO.class));
+			// 查询收款方式
+			ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(serviceOrderDto.getReceiveTypeId());
+			if (receiveTypeDo != null)
+				serviceOrderDto.setReceiveType(mapper.map(receiveTypeDo, ReceiveTypeDTO.class));
 			// 查询用户
 			UserDO userDo = userDao.getUserById(serviceOrderDto.getUserId());
 			if (userDo != null)
@@ -267,7 +281,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			String kjState) throws ServiceException {
 		return review(id, adminUserId, adviserState, maraState, officialState, kjState, "REFUSE");
 	}
-	
+
 	@Override
 	public List<ServiceOrderReviewDTO> reviews(int serviceOrderId) throws ServiceException {
 		List<ServiceOrderReviewDTO> serviceOrderReviewDtoList = new ArrayList<>();
