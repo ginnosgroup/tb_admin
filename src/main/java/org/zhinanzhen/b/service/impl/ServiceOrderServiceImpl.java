@@ -8,14 +8,18 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.MaraDAO;
 import org.zhinanzhen.b.dao.OfficialDAO;
+import org.zhinanzhen.b.dao.SchoolDAO;
 import org.zhinanzhen.b.dao.ServiceDAO;
 import org.zhinanzhen.b.dao.ServiceOrderDAO;
 import org.zhinanzhen.b.dao.ServiceOrderReviewDAO;
+import org.zhinanzhen.b.dao.SubagencyDAO;
 import org.zhinanzhen.b.dao.pojo.MaraDO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
+import org.zhinanzhen.b.dao.pojo.SchoolDO;
 import org.zhinanzhen.b.dao.pojo.ServiceDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderReviewDO;
+import org.zhinanzhen.b.dao.pojo.SubagencyDO;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
@@ -29,7 +33,9 @@ import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.b.service.pojo.MaraDTO;
 import org.zhinanzhen.b.service.pojo.OfficialDTO;
+import org.zhinanzhen.b.service.pojo.SchoolDTO;
 import org.zhinanzhen.b.service.pojo.ServiceDTO;
+import org.zhinanzhen.b.service.pojo.SubagencyDTO;
 
 import com.ikasoa.core.thrift.ErrorCodeEnum;
 
@@ -41,6 +47,12 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
 	@Resource
 	private ServiceOrderReviewDAO serviceOrderReviewDao;
+
+	@Resource
+	private SchoolDAO schoolDao;
+
+	@Resource
+	private SubagencyDAO subagencyDao;
 
 	@Resource
 	private ServiceDAO serviceDao;
@@ -129,6 +141,22 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		}
 		for (ServiceOrderDO serviceOrderDo : serviceOrderDoList) {
 			ServiceOrderDTO serviceOrderDto = mapper.map(serviceOrderDo, ServiceOrderDTO.class);
+			// 查询学校课程
+			if (serviceOrderDto.getSchoolId() > 0) {
+				SchoolDO schoolDo = schoolDao.getSchoolById(serviceOrderDto.getSchoolId());
+				if (schoolDo != null)
+					serviceOrderDto.setSchool(mapper.map(schoolDo, SchoolDTO.class));
+			}
+			// 查询Subagency
+			if (serviceOrderDto.getSubagencyId() > 0) {
+				SubagencyDO subagencyDo = subagencyDao.getSubagencyById(serviceOrderDto.getSubagencyId());
+				if (subagencyDo != null)
+					serviceOrderDto.setSubagency(mapper.map(subagencyDo, SubagencyDTO.class));
+			}
+			// 查询服务
+			ServiceDO serviceDo = serviceDao.getServiceById(serviceOrderDto.getServiceId());
+			if (serviceDo != null)
+				serviceOrderDto.setService(mapper.map(serviceDo, ServiceDTO.class));
 			// 查询用户
 			UserDO userDo = userDao.getUserById(serviceOrderDto.getUserId());
 			if (userDo != null)
@@ -162,10 +190,21 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		ServiceOrderDTO serviceOrderDto = null;
 		try {
 			ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(id);
-			if (serviceOrderDo == null) {
+			if (serviceOrderDo == null)
 				return null;
-			}
 			serviceOrderDto = mapper.map(serviceOrderDo, ServiceOrderDTO.class);
+			// 查询学校课程
+			if (serviceOrderDto.getSchoolId() > 0) {
+				SchoolDO schoolDo = schoolDao.getSchoolById(serviceOrderDto.getSchoolId());
+				if (schoolDo != null)
+					serviceOrderDto.setSchool(mapper.map(schoolDo, SchoolDTO.class));
+			}
+			// 查询Subagency
+			if (serviceOrderDto.getSubagencyId() > 0) {
+				SubagencyDO subagencyDo = subagencyDao.getSubagencyById(serviceOrderDto.getSubagencyId());
+				if (subagencyDo != null)
+					serviceOrderDto.setSubagency(mapper.map(subagencyDo, SubagencyDTO.class));
+			}
 			// 查询服务
 			ServiceDO serviceDo = serviceDao.getServiceById(serviceOrderDto.getServiceId());
 			if (serviceDo != null)
