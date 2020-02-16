@@ -25,6 +25,8 @@ public class ServiceOrderDTO {
 
 	private int schoolId;
 
+	private SchoolDTO school;
+
 	private String state;
 
 	private boolean isSettle;
@@ -32,6 +34,8 @@ public class ServiceOrderDTO {
 	private boolean isDepositUser;
 
 	private int subagencyId;
+
+	private SubagencyDTO subagency;
 
 	private boolean isPay;
 
