@@ -130,15 +130,33 @@ public class BaseController {
 
 	// 获取当前顾问编号
 	protected Integer getAdviserId(HttpServletRequest request) {
-		return getUserId("GW", request);
-	}
-
-	protected Integer getUserId(String _ap, HttpServletRequest request) {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo != null) {
 			String ap = adminUserLoginInfo.getApList();
-			if (ap != null && ap.contains(_ap))
+			if (ap != null && ap.contains("GW"))
 				return adminUserLoginInfo.getAdviserId();
+		}
+		return null;
+	}
+
+	// 获取当前Mara编号
+	protected Integer getMaraId(HttpServletRequest request) {
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo != null) {
+			String ap = adminUserLoginInfo.getApList();
+			if (ap != null && ap.contains("MA"))
+				return adminUserLoginInfo.getMaraId();
+		}
+		return null;
+	}
+
+	// 获取当前Official编号
+	protected Integer getOfficialId(HttpServletRequest request) {
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo != null) {
+			String ap = adminUserLoginInfo.getApList();
+			if (ap != null && ap.contains("WA"))
+				return adminUserLoginInfo.getOfficialId();
 		}
 		return null;
 	}
@@ -160,5 +178,7 @@ public class BaseController {
 		private String sessionId;
 		private String apList;
 		private Integer adviserId;
+		private Integer maraId;
+		private Integer officialId;
 	}
 }

@@ -270,13 +270,13 @@ public class ServiceOrderController extends BaseController {
 			Integer newAdviserId = getAdviserId(request);
 			if (newAdviserId != null)
 				adviserId = newAdviserId + "";
-			Integer newMaraId = getUserId("MA", request);
+			Integer newMaraId = getMaraId(request);
 			if (newMaraId != null)
 				maraId = newMaraId + "";
-			Integer newOfficialId = getUserId("WA", request);
+			Integer newOfficialId = getOfficialId(request);
 			if (newOfficialId != null)
 				officialId = newOfficialId + "";
-			
+
 			return new Response<List<ServiceOrderDTO>>(0,
 					serviceOrderService.listServiceOrder(type, state, StringUtil.toInt(userId),
 							StringUtil.toInt(maraId), StringUtil.toInt(adviserId), StringUtil.toInt(officialId),

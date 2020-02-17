@@ -42,6 +42,10 @@ public class AdminUserController extends BaseController {
 					loginInfo.setApList(ap);
 					if (ap.contains("GW"))
 						loginInfo.setAdviserId(adminUser.getAdviserId());
+					if (ap.contains("MA"))
+						loginInfo.setMaraId(adminUser.getMaraId());
+					if (ap.contains("WA"))
+						loginInfo.setOfficialId(adminUser.getOfficialId());
 				}
 			}
 			session.removeAttribute("AdminUserLoginInfo");
@@ -96,7 +100,7 @@ public class AdminUserController extends BaseController {
 		else
 			return new Response<Boolean>(0, "", adminUserService.updatePassword(username, newPassword));
 	}
-	
+
 	@RequestMapping(value = "/resetPassword", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<String> resetPassword(@RequestParam(value = "username") String username, HttpServletRequest request,
