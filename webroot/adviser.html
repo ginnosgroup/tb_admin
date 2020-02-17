@@ -202,7 +202,13 @@
           <span v-if="ap_list==='GW'">
            	 顾问
           </span>
-          <span v-if="ap_list!='KJ' && ap_list!='GW'">
+          <span v-if="ap_list==='WA'">
+           	 文案
+          </span>
+          <span v-if="ap_list==='MA'">
+           	 Mara
+          </span>
+          <span v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
            	 超级管理员
           </span>
 				</a>
@@ -247,7 +253,7 @@
                 </span>
               </a>
             </li>
-            <dli v-if="ap_list!=='KJ' && ap_list!=='GW'">            
+            <dli v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">            
             <li>
               <a href="adviser.html" class="active">
                 <i class="fa fa-book">
@@ -324,7 +330,7 @@
               </a>
             </li>
           	</dli>
-          	<li v-if="ap_list!='KJ'" class="sub-menu">
+          	<li v-if="ap_list!=='KJ' && ap_list!=='MA'" class="sub-menu">
 							<a href="javascript:;">
 								<i class="fa fa-book">
                 </i>
@@ -338,14 +344,23 @@
 										客户管理
 									</a>
 								</li>
-								<li>
+								<li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
 									<a href="user-tags.html">
 										标签管理
 									</a>
 								</li>								
 							</ul>
 						</li>
-            <li v-if="ap_list!='KJ'" class="sub-menu">
+						<li v-if="ap_list!=='KJ'" class="sub-menu">
+							<a href="serviceorder-list.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  服务订单管理
+                </span>
+              </a>
+						</li>
+            <li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'" class="sub-menu">
 							<a href="javascript:;">
 								<i class="fa fa-book">
                 </i>
@@ -366,7 +381,7 @@
 								</li>								
 							</ul>
 						</li>
-						<li class="sub-menu">
+						<li v-if="ap_list!=='MA'" class="sub-menu">
 							<a href="javascript:;">
 								<i class="fa fa-book">
                 </i>
@@ -395,7 +410,7 @@
 										退款表
 									</a>
 								</li>
-								<li>
+								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
 									<a href="table-export.html">
 										导出数据
 									</a>
@@ -411,7 +426,7 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li v-if="ap_list!='KJ' && ap_list!='GW'">
+								<li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
 									<a href="knowledge-menu.html">
 										菜单管理
 									</a>
@@ -722,6 +737,7 @@
 								that.pageNum = 0;
 								for(var i = 0; i < result.data.length; i++) {
 										result.data[i].oid = result.data[i].id;
+										result.data[i].password = '<label id="t5" style="width:150px;"><a href="javascript:;" onclick="passwdSet(\''+result.data[i].email+'\')">重置密码</a></label>';
 								};
 								that.subject = result.data;
 							});
