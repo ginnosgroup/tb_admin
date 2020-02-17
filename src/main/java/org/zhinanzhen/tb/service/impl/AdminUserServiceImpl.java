@@ -20,7 +20,8 @@ public class AdminUserServiceImpl extends BaseService implements AdminUserServic
 	private AdminUserDAO adminUserDao;
 
 	@Override
-	public int add(String username, String password, String apList, int adviserId, int maraId, int officialId) throws ServiceException {
+	public int add(String username, String password, String apList, Integer adviserId, Integer maraId,
+			Integer officialId) throws ServiceException {
 		if (StringUtil.isEmpty(password)) {
 			ServiceException se = new ServiceException("password is null !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -31,11 +32,11 @@ public class AdminUserServiceImpl extends BaseService implements AdminUserServic
 			adminUserDo.setUsername(username);
 			adminUserDo.setPassword(MD5Util.getMD5(password));
 			adminUserDo.setApList(apList);
-			if (adviserId > 0)
+			if (adviserId != null)
 				adminUserDo.setAdviserId(adviserId);
-			if (maraId > 0)
+			if (maraId != null)
 				adminUserDo.setMaraId(maraId);
-			if (officialId > 0)
+			if (officialId != null)
 				adminUserDo.setOfficialId(officialId);
 			return adminUserDao.add(adminUserDo);
 		} catch (Exception e) {
@@ -104,7 +105,7 @@ public class AdminUserServiceImpl extends BaseService implements AdminUserServic
 		}
 		return adminUserDto;
 	}
-	
+
 	@Override
 	public AdminUserDTO getAdminUserByUsername(String username) throws ServiceException {
 		if (StringUtil.isEmpty(username)) {
@@ -115,11 +116,8 @@ public class AdminUserServiceImpl extends BaseService implements AdminUserServic
 		AdminUserDTO adminUserDto = null;
 		try {
 			AdminUserDO adminUserDo = adminUserDao.getAdminUserByUsername(username);
-			if (adminUserDo == null) {
-				ServiceException se = new ServiceException("the administrator is't exist .");
-				se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
-				throw se;
-			}
+			if (adminUserDo == null)
+				return null;
 			adminUserDto = mapper.map(adminUserDo, AdminUserDTO.class);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);

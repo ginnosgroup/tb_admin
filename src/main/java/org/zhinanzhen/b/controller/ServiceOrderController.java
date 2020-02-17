@@ -41,7 +41,7 @@ public class ServiceOrderController extends BaseController {
 	}
 
 	public enum ReviewMaraStateEnum {
-		WAIT, FINISH;
+		WAIT, REVIEW, FINISH;
 		public static ReviewMaraStateEnum get(String name) {
 			for (ReviewMaraStateEnum e : ReviewMaraStateEnum.values())
 				if (e.toString().equals(name))
@@ -51,7 +51,7 @@ public class ServiceOrderController extends BaseController {
 	}
 
 	public enum ReviewOfficialStateEnum {
-		REVIEW, FINISH, APPLY, COMPLETE, PAID;
+		REVIEW, FINISH, APPLY, COMPLETE, PAID, CLOSE;
 		public static ReviewOfficialStateEnum get(String name) {
 			for (ReviewOfficialStateEnum e : ReviewOfficialStateEnum.values())
 				if (e.toString().equals(name))
@@ -351,28 +351,61 @@ public class ServiceOrderController extends BaseController {
 				if (StringUtil.isEmpty(adminUserLoginInfo.getApList())
 						|| "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewAdviserStateEnum.get(state) != null)
-						return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id,
-								adminUserLoginInfo.getId(), state.toUpperCase(), null, null, null));
+						if (ReviewAdviserStateEnum.PAID.toString().equals(state.toUpperCase())) { // 顾问支付同时修改文案状态
+							serviceOrderService.finish(id);
+							return new Response<ServiceOrderDTO>(0,
+									serviceOrderService.approval(id, adminUserLoginInfo.getId(), state.toUpperCase(),
+											null, ReviewOfficialStateEnum.PAID.toString(), null));
+						} else if (ReviewAdviserStateEnum.COMPLETE.toString().equals(state.toUpperCase())) { // 顾问完成同时修改文案和会计状态
+							serviceOrderService.finish(id);
+							return new Response<ServiceOrderDTO>(0,
+									serviceOrderService.approval(id, adminUserLoginInfo.getId(), state.toUpperCase(),
+											null, ReviewOfficialStateEnum.COMPLETE.toString(),
+											ReviewKjStateEnum.COMPLETE.toString()));
+						} else
+							return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id,
+									adminUserLoginInfo.getId(), state.toUpperCase(), null, null, null));
 					else
 						return new Response<ServiceOrderDTO>(1, "state错误!(" + state + ")", null);
 				} else if ("MA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (!"VISA".equalsIgnoreCase(serviceOrderDto.getType()))
 						return new Response<ServiceOrderDTO>(1, "Mara审核仅限签证服务订单!", null);
-					if (ReviewMaraStateEnum.get(state) != null)
+					if (ReviewMaraStateEnum.get(state) != null
+							&& !ReviewMaraStateEnum.REVIEW.toString().equals(state.toUpperCase())) // mara调用approval方法不能驳回
 						return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id,
 								adminUserLoginInfo.getId(), null, state.toUpperCase(), null, null));
 					else
 						return new Response<ServiceOrderDTO>(1, "state错误!(" + state + ")", null);
 				} else if ("WA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
-					if (ReviewOfficialStateEnum.get(state) != null)
-						return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id,
-								adminUserLoginInfo.getId(), null, null, state.toUpperCase(), null));
+					if (ReviewOfficialStateEnum.get(state) != null
+							&& !ReviewOfficialStateEnum.CLOSE.toString().equals(state.toUpperCase())) // 文案调用approval方法不能关闭
+						if (ReviewOfficialStateEnum.PAID.toString().equals(state.toUpperCase())) { // 文案支付同时修改顾问状态
+							serviceOrderService.finish(id);
+							return new Response<ServiceOrderDTO>(0,
+									serviceOrderService.approval(id, adminUserLoginInfo.getId(),
+											ReviewAdviserStateEnum.PAID.toString(), null, state.toUpperCase(), null));
+						} else if (ReviewOfficialStateEnum.COMPLETE.toString().equals(state.toUpperCase())) { // 文案完成同时修改顾问和会计状态
+							serviceOrderService.finish(id);
+							return new Response<ServiceOrderDTO>(0,
+									serviceOrderService.approval(id, adminUserLoginInfo.getId(),
+											ReviewAdviserStateEnum.COMPLETE.toString(), null, state.toUpperCase(),
+											ReviewKjStateEnum.COMPLETE.toString()));
+						} else
+							return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id,
+									adminUserLoginInfo.getId(), null, null, state.toUpperCase(), null));
 					else
 						return new Response<ServiceOrderDTO>(1, "state错误!(" + state + ")", null);
 				} else if ("KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewKjStateEnum.get(state) != null)
-						return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id,
-								adminUserLoginInfo.getId(), null, null, null, state.toUpperCase()));
+						if (ReviewKjStateEnum.COMPLETE.toString().equals(state.toUpperCase())) { // 会计完成同时修改顾问和文案状态
+							serviceOrderService.finish(id);
+							return new Response<ServiceOrderDTO>(0,
+									serviceOrderService.approval(id, adminUserLoginInfo.getId(),
+											ReviewAdviserStateEnum.COMPLETE.toString(), null,
+											ReviewOfficialStateEnum.COMPLETE.toString(), state.toUpperCase()));
+						} else
+							return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id,
+									adminUserLoginInfo.getId(), null, null, null, state.toUpperCase()));
 					else
 						return new Response<ServiceOrderDTO>(1, "state错误!(" + state + ")", null);
 				} else
@@ -403,22 +436,37 @@ public class ServiceOrderController extends BaseController {
 				if (StringUtil.isEmpty(adminUserLoginInfo.getApList())
 						|| "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewAdviserStateEnum.get(state) != null)
-						return new Response<ServiceOrderDTO>(0, serviceOrderService.refuse(id,
-								adminUserLoginInfo.getId(), state.toUpperCase(), null, null, null));
+						if (ReviewOfficialStateEnum.REVIEW.toString().equals(state.toUpperCase())) // 顾问驳回同时修改mara状态
+							return new Response<ServiceOrderDTO>(0,
+									serviceOrderService.refuse(id, adminUserLoginInfo.getId(), state.toUpperCase(),
+											ReviewMaraStateEnum.REVIEW.toString(), null, null));
+						else
+							return new Response<ServiceOrderDTO>(0, serviceOrderService.refuse(id,
+									adminUserLoginInfo.getId(), state.toUpperCase(), null, null, null));
 					else
 						return new Response<ServiceOrderDTO>(1, "state错误!(" + state + ")", null);
 				} else if ("MA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (!"VISA".equalsIgnoreCase(serviceOrderDto.getType()))
 						return new Response<ServiceOrderDTO>(1, "Mara审核仅限签证服务订单!", null);
-					if (ReviewMaraStateEnum.get(state) != null)
-						return new Response<ServiceOrderDTO>(0, serviceOrderService.refuse(id,
-								adminUserLoginInfo.getId(), null, state.toUpperCase(), null, null));
-					else
+					if (ReviewMaraStateEnum.get(state) != null) {
+						if (ReviewMaraStateEnum.REVIEW.toString().equals(state.toUpperCase())) // mara驳回同时修改顾问状态
+							return new Response<ServiceOrderDTO>(0,
+									serviceOrderService.refuse(id, adminUserLoginInfo.getId(),
+											ReviewAdviserStateEnum.REVIEW.toString(), state.toUpperCase(), null, null));
+						else
+							return new Response<ServiceOrderDTO>(0, serviceOrderService.refuse(id,
+									adminUserLoginInfo.getId(), null, state.toUpperCase(), null, null));
+					} else
 						return new Response<ServiceOrderDTO>(1, "state错误!(" + state + ")", null);
 				} else if ("WA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewOfficialStateEnum.get(state) != null)
-						return new Response<ServiceOrderDTO>(0, serviceOrderService.refuse(id,
-								adminUserLoginInfo.getId(), null, null, state.toUpperCase(), null));
+						if (ReviewOfficialStateEnum.CLOSE.toString().equals(state.toUpperCase())) // 文案关闭同时修改顾问状态
+							return new Response<ServiceOrderDTO>(0,
+									serviceOrderService.refuse(id, adminUserLoginInfo.getId(),
+											ReviewAdviserStateEnum.CLOSE.toString(), null, state.toUpperCase(), null));
+						else
+							return new Response<ServiceOrderDTO>(0, serviceOrderService.refuse(id,
+									adminUserLoginInfo.getId(), null, null, state.toUpperCase(), null));
 					else
 						return new Response<ServiceOrderDTO>(1, "state错误!(" + state + ")", null);
 				} else if ("KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
