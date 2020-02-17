@@ -245,9 +245,20 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "userId", required = false) String userId,
 			@RequestParam(value = "maraId", required = false) String maraId,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
-			@RequestParam(value = "officialId", required = false) String officialId, HttpServletResponse response) {
+			@RequestParam(value = "officialId", required = false) String officialId, HttpServletRequest request,
+			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
+			Integer newAdviserId = getAdviserId(request);
+			if (newAdviserId != null)
+				adviserId = newAdviserId + "";
+			Integer newMaraId = getMaraId(request);
+			if (newMaraId != null)
+				maraId = newMaraId + "";
+			Integer newOfficialId = getOfficialId(request);
+			if (newOfficialId != null)
+				officialId = newOfficialId + "";
+
 			return new Response<Integer>(0, serviceOrderService.countServiceOrder(type, state, StringUtil.toInt(userId),
 					StringUtil.toInt(maraId), StringUtil.toInt(adviserId), StringUtil.toInt(officialId)));
 		} catch (ServiceException e) {
