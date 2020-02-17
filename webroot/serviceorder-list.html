@@ -1078,7 +1078,7 @@
 									result.data[i].currentState = str_state;
 							};
 							that.subject = result.data;
-							console.log(that.subject);
+							//console.log(that.subject);
 						});
 					},
 					getSearch: function() {
@@ -1108,9 +1108,35 @@
 							//console.log(result)
 							that.pageNum = 0;
 							for(var i = 0; i < result.data.length; i++) {
+									var str_state = '';
+									result.data[i].strRefuse = '';
 									result.data[i].oid = result.data[i].id;
-									result.data[i].serviceName = return_servicename(result.data[i].type)+'-';
-									//result.data[i].strState = state_wa(result.data[i].state);
+									result.data[i].gmtCreate = that.getTime(result.data[i].gmtCreate);
+									result.data[i].finishDate = result.data[i].finishDate ? that.getTime(result.data[i].finishDate):'';
+									result.data[i].userName = result.data[i].user.name;
+									if (result.data[i].user.birthday) result.data[i].birthday = that.getTime(result.data[i].user.birthday);
+									result.data[i].phone = result.data[i].user.phone;
+									result.data[i].adviserName = result.data[i].adviser.name;
+									result.data[i].officialName = result.data[i].official.name;									
+									if (result.data[i].review.adviserState != null) str_state = result.data[i].review.adviserState;
+									if (result.data[i].review.officialState != null) str_state = result.data[i].review.officialState;
+									if (result.data[i].type == 'VISA')
+									{
+											result.data[i].maraName = result.data[i].mara.name;
+											if (result.data[i].review.maraState != null) str_state = result.data[i].review.maraState;
+											result.data[i].serviceName = return_servicename(result.data[i].type)+'-'+result.data[i].service.code;
+											//如果maraState='FINISH'，表示整个流程结束。
+											if (result.data[i].review.officialState == null && result.data[i].review.maraState == 'FINISH') str_state = 'MA_FINISH';
+											result.data[i].strState = visastate_wa(str_state);
+									}else
+									{
+											//如果maraState='FINISH'，表示整个流程结束。
+											if (result.data[i].review.officialState == 'COMPLETE') str_state = 'COE_COMPLETE';
+											var str_school = result.data[i].school.name;
+											result.data[i].serviceName = return_servicename(result.data[i].type)+'-'+str_school;
+											result.data[i].strState = visastate_wa(str_state);
+									}
+									result.data[i].currentState = str_state;
 							};
 							that.subject = result.data;
 							//console.log(that.subject);
@@ -1146,7 +1172,35 @@
 								console.log(result)
 								that.pageNum = 0;
 								for(var i = 0; i < result.data.length; i++) {
-										result.data[i].oid = result.data[i].id;										
+										var str_state = '';
+										result.data[i].strRefuse = '';
+										result.data[i].oid = result.data[i].id;
+										result.data[i].gmtCreate = that.getTime(result.data[i].gmtCreate);
+										result.data[i].finishDate = result.data[i].finishDate ? that.getTime(result.data[i].finishDate):'';
+										result.data[i].userName = result.data[i].user.name;
+										if (result.data[i].user.birthday) result.data[i].birthday = that.getTime(result.data[i].user.birthday);
+										result.data[i].phone = result.data[i].user.phone;
+										result.data[i].adviserName = result.data[i].adviser.name;
+										result.data[i].officialName = result.data[i].official.name;									
+										if (result.data[i].review.adviserState != null) str_state = result.data[i].review.adviserState;
+										if (result.data[i].review.officialState != null) str_state = result.data[i].review.officialState;
+										if (result.data[i].type == 'VISA')
+										{
+												result.data[i].maraName = result.data[i].mara.name;
+												if (result.data[i].review.maraState != null) str_state = result.data[i].review.maraState;
+												result.data[i].serviceName = return_servicename(result.data[i].type)+'-'+result.data[i].service.code;
+												//如果maraState='FINISH'，表示整个流程结束。
+												if (result.data[i].review.officialState == null && result.data[i].review.maraState == 'FINISH') str_state = 'MA_FINISH';
+												result.data[i].strState = visastate_wa(str_state);
+										}else
+										{
+												//如果maraState='FINISH'，表示整个流程结束。
+												if (result.data[i].review.officialState == 'COMPLETE') str_state = 'COE_COMPLETE';
+												var str_school = result.data[i].school.name;
+												result.data[i].serviceName = return_servicename(result.data[i].type)+'-'+str_school;
+												result.data[i].strState = visastate_wa(str_state);
+										}
+										result.data[i].currentState = str_state;
 								};
 								that.subject = result.data;
 							});
@@ -1163,7 +1217,35 @@
 							}, function(result) {
 								console.log(result)
 								for(var i = 0; i < result.data.length; i++) {
+										var str_state = '';
+										result.data[i].strRefuse = '';
 										result.data[i].oid = result.data[i].id;
+										result.data[i].gmtCreate = that.getTime(result.data[i].gmtCreate);
+										result.data[i].finishDate = result.data[i].finishDate ? that.getTime(result.data[i].finishDate):'';
+										result.data[i].userName = result.data[i].user.name;
+										if (result.data[i].user.birthday) result.data[i].birthday = that.getTime(result.data[i].user.birthday);
+										result.data[i].phone = result.data[i].user.phone;
+										result.data[i].adviserName = result.data[i].adviser.name;
+										result.data[i].officialName = result.data[i].official.name;									
+										if (result.data[i].review.adviserState != null) str_state = result.data[i].review.adviserState;
+										if (result.data[i].review.officialState != null) str_state = result.data[i].review.officialState;
+										if (result.data[i].type == 'VISA')
+										{
+												result.data[i].maraName = result.data[i].mara.name;
+												if (result.data[i].review.maraState != null) str_state = result.data[i].review.maraState;
+												result.data[i].serviceName = return_servicename(result.data[i].type)+'-'+result.data[i].service.code;
+												//如果maraState='FINISH'，表示整个流程结束。
+												if (result.data[i].review.officialState == null && result.data[i].review.maraState == 'FINISH') str_state = 'MA_FINISH';
+												result.data[i].strState = visastate_wa(str_state);
+										}else
+										{
+												//如果maraState='FINISH'，表示整个流程结束。
+												if (result.data[i].review.officialState == 'COMPLETE') str_state = 'COE_COMPLETE';
+												var str_school = result.data[i].school.name;
+												result.data[i].serviceName = return_servicename(result.data[i].type)+'-'+str_school;
+												result.data[i].strState = visastate_wa(str_state);
+										}
+										result.data[i].currentState = str_state;
 								};
 								that.subject = result.data;
 							});
@@ -1182,7 +1264,35 @@
 							}, function(result) {
 								console.log(result)
 								for(var i = 0; i < result.data.length; i++) {
-										result.data[i].oid = result.data[i].id;							
+										var str_state = '';
+										result.data[i].strRefuse = '';
+										result.data[i].oid = result.data[i].id;
+										result.data[i].gmtCreate = that.getTime(result.data[i].gmtCreate);
+										result.data[i].finishDate = result.data[i].finishDate ? that.getTime(result.data[i].finishDate):'';
+										result.data[i].userName = result.data[i].user.name;
+										if (result.data[i].user.birthday) result.data[i].birthday = that.getTime(result.data[i].user.birthday);
+										result.data[i].phone = result.data[i].user.phone;
+										result.data[i].adviserName = result.data[i].adviser.name;
+										result.data[i].officialName = result.data[i].official.name;									
+										if (result.data[i].review.adviserState != null) str_state = result.data[i].review.adviserState;
+										if (result.data[i].review.officialState != null) str_state = result.data[i].review.officialState;
+										if (result.data[i].type == 'VISA')
+										{
+												result.data[i].maraName = result.data[i].mara.name;
+												if (result.data[i].review.maraState != null) str_state = result.data[i].review.maraState;
+												result.data[i].serviceName = return_servicename(result.data[i].type)+'-'+result.data[i].service.code;
+												//如果maraState='FINISH'，表示整个流程结束。
+												if (result.data[i].review.officialState == null && result.data[i].review.maraState == 'FINISH') str_state = 'MA_FINISH';
+												result.data[i].strState = visastate_wa(str_state);
+										}else
+										{
+												//如果maraState='FINISH'，表示整个流程结束。
+												if (result.data[i].review.officialState == 'COMPLETE') str_state = 'COE_COMPLETE';
+												var str_school = result.data[i].school.name;
+												result.data[i].serviceName = return_servicename(result.data[i].type)+'-'+str_school;
+												result.data[i].strState = visastate_wa(str_state);
+										}
+										result.data[i].currentState = str_state;
 								};
 								that.subject = result.data;
 							});
@@ -1201,7 +1311,35 @@
 								console.log(result)
 								that.pageNum = that.allPage - 1;
 								for(var i = 0; i < result.data.length; i++) {
+										var str_state = '';
+										result.data[i].strRefuse = '';
 										result.data[i].oid = result.data[i].id;
+										result.data[i].gmtCreate = that.getTime(result.data[i].gmtCreate);
+										result.data[i].finishDate = result.data[i].finishDate ? that.getTime(result.data[i].finishDate):'';
+										result.data[i].userName = result.data[i].user.name;
+										if (result.data[i].user.birthday) result.data[i].birthday = that.getTime(result.data[i].user.birthday);
+										result.data[i].phone = result.data[i].user.phone;
+										result.data[i].adviserName = result.data[i].adviser.name;
+										result.data[i].officialName = result.data[i].official.name;									
+										if (result.data[i].review.adviserState != null) str_state = result.data[i].review.adviserState;
+										if (result.data[i].review.officialState != null) str_state = result.data[i].review.officialState;
+										if (result.data[i].type == 'VISA')
+										{
+												result.data[i].maraName = result.data[i].mara.name;
+												if (result.data[i].review.maraState != null) str_state = result.data[i].review.maraState;
+												result.data[i].serviceName = return_servicename(result.data[i].type)+'-'+result.data[i].service.code;
+												//如果maraState='FINISH'，表示整个流程结束。
+												if (result.data[i].review.officialState == null && result.data[i].review.maraState == 'FINISH') str_state = 'MA_FINISH';
+												result.data[i].strState = visastate_wa(str_state);
+										}else
+										{
+												//如果maraState='FINISH'，表示整个流程结束。
+												if (result.data[i].review.officialState == 'COMPLETE') str_state = 'COE_COMPLETE';
+												var str_school = result.data[i].school.name;
+												result.data[i].serviceName = return_servicename(result.data[i].type)+'-'+str_school;
+												result.data[i].strState = visastate_wa(str_state);
+										}
+										result.data[i].currentState = str_state;
 								};
 								that.subject = result.data;
 							});
