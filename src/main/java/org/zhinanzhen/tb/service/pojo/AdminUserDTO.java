@@ -14,6 +14,10 @@ public class AdminUserDTO {
 	private String apList;
 	
 	private int adviserId;
+	
+	private int maraId;
+	
+	private int officialId;
 
 	private String sessionId;
 
