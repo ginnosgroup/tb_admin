@@ -68,7 +68,7 @@ public class MaraController extends BaseController {
 			if (maraService.addMara(maraDto) > 0) {
 				if (password == null)
 					password = email; // 如果没有传入密码,则密码和email相同
-				adminUserService.add(email, password, "MA", 0, maraDto.getId(), 0);
+				adminUserService.add(email, password, "MA", null, maraDto.getId(), null);
 				return new Response<Integer>(0, maraDto.getId());
 			} else {
 				return new Response<Integer>(0, "创建失败.", 0);

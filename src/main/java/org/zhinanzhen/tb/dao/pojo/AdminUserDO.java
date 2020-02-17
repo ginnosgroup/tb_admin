@@ -15,11 +15,11 @@ public class AdminUserDO {
 
 	private String apList;
 
-	private int adviserId;
+	private Integer adviserId;
 
-	private int maraId;
+	private Integer maraId;
 
-	private int officialId;
+	private Integer officialId;
 
 	private String sessionId;
 
