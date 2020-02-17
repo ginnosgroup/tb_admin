@@ -264,9 +264,19 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "adviserId", required = false) String adviserId,
 			@RequestParam(value = "officialId", required = false) String officialId,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
-			HttpServletResponse response) {
+			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
+			Integer newAdviserId = getAdviserId(request);
+			if (newAdviserId != null)
+				adviserId = newAdviserId + "";
+			Integer newMaraId = getUserId("MA", request);
+			if (newMaraId != null)
+				maraId = newMaraId + "";
+			Integer newOfficialId = getUserId("WA", request);
+			if (newOfficialId != null)
+				officialId = newOfficialId + "";
+			
 			return new Response<List<ServiceOrderDTO>>(0,
 					serviceOrderService.listServiceOrder(type, state, StringUtil.toInt(userId),
 							StringUtil.toInt(maraId), StringUtil.toInt(adviserId), StringUtil.toInt(officialId),

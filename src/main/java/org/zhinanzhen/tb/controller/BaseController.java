@@ -130,10 +130,14 @@ public class BaseController {
 
 	// 获取当前顾问编号
 	protected Integer getAdviserId(HttpServletRequest request) {
+		return getUserId("GW", request);
+	}
+
+	protected Integer getUserId(String _ap, HttpServletRequest request) {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo != null) {
 			String ap = adminUserLoginInfo.getApList();
-			if (ap != null && ap.contains("GW"))
+			if (ap != null && ap.contains(_ap))
 				return adminUserLoginInfo.getAdviserId();
 		}
 		return null;
