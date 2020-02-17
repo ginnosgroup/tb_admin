@@ -4,7 +4,7 @@ import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
 
 public interface AdminUserService {
 
-	int add(String username, String password, String apList, int adviserId) throws ServiceException;
+	int add(String username, String password, String apList, int adviserId, int maraId, int officialId) throws ServiceException;
 
 	public int login(String username, String password) throws ServiceException;
 
