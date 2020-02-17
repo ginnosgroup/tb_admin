@@ -1071,7 +1071,8 @@
 									{
 											//如果maraState='FINISH'，表示整个流程结束。
 											if (result.data[i].review.officialState == 'COMPLETE') str_state = 'COE_COMPLETE';
-											result.data[i].serviceName = return_servicename(result.data[i].type)+'-';
+											var str_school = result.data[i].school.name;
+											result.data[i].serviceName = return_servicename(result.data[i].type)+'-'+str_school;
 											result.data[i].strState = visastate_wa(str_state);
 									}
 									result.data[i].currentState = str_state;
