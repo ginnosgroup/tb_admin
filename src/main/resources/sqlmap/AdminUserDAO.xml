@@ -59,6 +59,12 @@
         SET gmt_modify = now(), gmt_login = now(), password = #{password, jdbcType=VARCHAR}
         WHERE username = #{username, jdbcType=VARCHAR};
     </update>
+    
+    <update id="updateOfficialId" parameterType="org.zhinanzhen.tb.dao.pojo.AdminUserDO">
+        UPDATE tb_admin_user 
+        SET gmt_modify = now(), official_id = #{officialId}
+        WHERE id = #{id};
+    </update>
 
     <select id="getAdminUserById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.tb.dao.pojo.AdminUserDO">
         SELECT

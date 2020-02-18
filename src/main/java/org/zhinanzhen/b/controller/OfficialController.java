@@ -19,6 +19,7 @@ import org.zhinanzhen.b.service.OfficialStateEnum;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
+import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
 import org.zhinanzhen.b.service.pojo.OfficialDTO;
 
 import com.ikasoa.core.utils.StringUtil;
@@ -157,6 +158,28 @@ public class OfficialController extends BaseController {
 			return new Response<OfficialDTO>(0, officialService.getOfficialById(id));
 		} catch (ServiceException e) {
 			return new Response<OfficialDTO>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/syncAdminUser", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> syncAdminUser(HttpServletRequest request, HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			int num = 0;
+			List<OfficialDTO> officialDtoList = officialService.listOfficial(null, null, 0, 1000);
+			for (OfficialDTO officialDto : officialDtoList) {
+				AdminUserDTO adminUser = adminUserService.getAdminUserByUsername(officialDto.getEmail());
+				if (adminUser == null) {
+					adminUserService.add(officialDto.getEmail(), officialDto.getEmail(), "WA", null, null,
+							officialDto.getId());
+					num++;
+				} else
+					adminUserService.updateOfficialId(adminUser.getId(), officialDto.getId());
+			}
+			return new Response<Integer>(0, num);
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), null);
 		}
 	}
 

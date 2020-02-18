@@ -17,4 +17,6 @@ public interface AdminUserService {
 
 	public boolean updatePassword(String username, String newPassword) throws ServiceException;
 
+	boolean updateOfficialId(int id, int officialId) throws ServiceException;
+
 }

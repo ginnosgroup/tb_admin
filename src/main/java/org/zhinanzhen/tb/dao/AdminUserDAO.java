@@ -12,9 +12,11 @@ public interface AdminUserDAO {
 	public boolean updateSessionId(@Param("id") int id, @Param("sessionId") String sessionId);
 
 	public boolean updatePassword(@Param("username") String username, @Param("password") String password);
+	
+	boolean updateOfficialId(@Param("id") int id, @Param("officialId") int officialId);
 
 	public AdminUserDO getAdminUserById(int id);
 	
 	AdminUserDO getAdminUserByUsername(String username);
-
+	
 }
