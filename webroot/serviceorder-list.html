@@ -1831,7 +1831,7 @@
 			        	if (response.pay) str_ispay = '是';
 			        	$('#showdetail1_id #c10').html(str_ispay);
 			        	$('#showdetail1_id #c11').html(v.getTime(response.receiveDate));
-			        	$('#showdetail1_id #c12').html(response.receiveType.name);
+			        	if (response.depositUser) $('#showdetail1_id #c12').html(response.receiveType.name);
 			        	$('#showdetail1_id #c13').html(response.receivable);
 			        	$('#showdetail1_id #c14').html(response.discount);
 			        	$('#showdetail1_id #c15').html(response.received);
