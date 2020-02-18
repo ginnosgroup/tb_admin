@@ -161,7 +161,7 @@ public class OfficialController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/syncAdminUser", method = RequestMethod.POST)
+	@RequestMapping(value = "/syncAdminUser", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<Integer> syncAdminUser(HttpServletRequest request, HttpServletResponse response) {
 		try {
