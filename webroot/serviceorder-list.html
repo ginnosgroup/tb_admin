@@ -1389,6 +1389,9 @@
 						break;
 						case 'PAID':
 									str_html = '<label style="color:red;">COE支付成功</label>';
+						break;
+						case 'CLOSE':
+									str_html = '<label style="color:red;">已关闭</label>';
 						break;						
 					}
 					return str_html;
@@ -1859,7 +1862,7 @@
       function flowstep(va,par)
       {
       		var str_url = "serviceOrder/approval";
-      		if (par == '0') str_url = "serviceOrder/refuse";
+      		if (par == '0' || va == 'CLOSE') str_url = "serviceOrder/refuse";
       		
           var json = {};
           json['id'] = $("#service_id").val();
