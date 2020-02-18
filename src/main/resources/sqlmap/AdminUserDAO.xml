@@ -89,5 +89,11 @@
             status
         FROM tb_admin_user WHERE username = #{username};
     </select>
+    
+    <update id="updateOfficialId" parameterType="org.zhinanzhen.tb.dao.pojo.AdminUserDO">
+        UPDATE tb_admin_user 
+        SET gmt_modify = now(), official_id = #{officialId}
+        WHERE id = #{id};
+    </update>
 
 </mapper>
