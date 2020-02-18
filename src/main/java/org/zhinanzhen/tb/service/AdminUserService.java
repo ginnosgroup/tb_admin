@@ -16,7 +16,7 @@ public interface AdminUserService {
 	public AdminUserDTO getAdminUserByUsername(String username) throws ServiceException;
 
 	public boolean updatePassword(String username, String newPassword) throws ServiceException;
-	
-	boolean updateOfficialId(int id, Integer officialId) throws ServiceException;
+
+	boolean updateOfficialId(int id, int officialId) throws ServiceException;
 
 }

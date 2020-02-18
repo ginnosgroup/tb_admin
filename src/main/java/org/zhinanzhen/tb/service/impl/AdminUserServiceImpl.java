@@ -148,4 +148,9 @@ public class AdminUserServiceImpl extends BaseService implements AdminUserServic
 		}
 	}
 
+	@Override
+	public boolean updateOfficialId(int id, int officialId) throws ServiceException {
+		return adminUserDao.updateOfficialId(id, officialId);
+	}
+
 }
