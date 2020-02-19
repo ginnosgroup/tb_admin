@@ -119,15 +119,31 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	}
 
 	@Override
-	public int countServiceOrder(String type, String state, int userId, int maraId, int adviserId, int officialId)
-			throws ServiceException {
-		return serviceOrderDao.countServiceOrder(type, state, userId > 0 ? userId : null, maraId > 0 ? maraId : null,
-				adviserId > 0 ? adviserId : null, officialId > 0 ? officialId : null);
+	public int updateServiceOrderRviewState(int id, String reviewState) throws ServiceException {
+		if (id <= 0) {
+			ServiceException se = new ServiceException("id is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			return serviceOrderDao.updateReviewState(id, reviewState);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
 	}
 
 	@Override
-	public List<ServiceOrderDTO> listServiceOrder(String type, String state, int userId, int maraId, int adviserId,
-			int officialId, int pageNum, int pageSize) throws ServiceException {
+	public int countServiceOrder(String type, String state, String reviewState, int userId, int maraId, int adviserId,
+			int officialId) throws ServiceException {
+		return serviceOrderDao.countServiceOrder(type, state, reviewState, userId > 0 ? userId : null,
+				maraId > 0 ? maraId : null, adviserId > 0 ? adviserId : null, officialId > 0 ? officialId : null);
+	}
+
+	@Override
+	public List<ServiceOrderDTO> listServiceOrder(String type, String state, String reviewState, int userId, int maraId,
+			int adviserId, int officialId, int pageNum, int pageSize) throws ServiceException {
 		List<ServiceOrderDTO> serviceOrderDtoList = new ArrayList<ServiceOrderDTO>();
 		List<ServiceOrderDO> serviceOrderDoList = new ArrayList<ServiceOrderDO>();
 		if (pageNum < 0)
@@ -135,7 +151,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		if (pageSize < 0)
 			pageSize = DEFAULT_PAGE_SIZE;
 		try {
-			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, state, userId > 0 ? userId : null,
+			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, state, reviewState, userId > 0 ? userId : null,
 					maraId > 0 ? maraId : null, adviserId > 0 ? adviserId : null, officialId > 0 ? officialId : null,
 					pageNum * pageSize, pageSize);
 			if (serviceOrderDoList == null)
