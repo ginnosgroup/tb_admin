@@ -135,6 +135,12 @@
         WHERE id = #{id};
     </update>
     
+    <update id="updateReviewState">
+        UPDATE b_service_order 
+        SET gmt_modify = now(), review_state = #{reviewState}
+        WHERE id = #{id};
+    </update>
+    
     <select id="countServiceOrder" resultType="java.lang.Integer">
         SELECT count(*)
         FROM b_service_order
@@ -144,6 +150,9 @@
 		</if>
 		<if test='state != null and state != ""'>
 			AND state = #{state}
+		</if>
+		<if test='reviewState != null and reviewState != ""'>
+			AND review_state = #{reviewState}
 		</if>
 		<if test='userId != null'>
 			AND user_id = #{userId}
@@ -195,6 +204,9 @@
 		</if>
 		<if test='state != null and state != ""'>
 			AND state = #{state}
+		</if>
+		<if test='reviewState != null and reviewState != ""'>
+			AND review_state = #{reviewState}
 		</if>
 		<if test='userId != null'>
 			AND user_id = #{userId}

@@ -12,23 +12,25 @@ public interface ServiceOrderService {
 
 	int updateServiceOrder(ServiceOrderDTO serviceOrderDto) throws ServiceException;
 
-	int countServiceOrder(String type, String state, int userId, int maraId, int adviserId, int officialId)
-			throws ServiceException;
+	int updateServiceOrderRviewState(int id, String reviewState) throws ServiceException;
 
-	List<ServiceOrderDTO> listServiceOrder(String type, String state, int userId, int maraId, int adviserId,
-			int officialId, int pageNum, int pageSize) throws ServiceException;
+	int countServiceOrder(String type, String state, String reviewState, int userId, int maraId, int adviserId,
+			int officialId) throws ServiceException;
+
+	List<ServiceOrderDTO> listServiceOrder(String type, String state, String reviewState, int userId, int maraId,
+			int adviserId, int officialId, int pageNum, int pageSize) throws ServiceException;
 
 	ServiceOrderDTO getServiceOrderById(int id) throws ServiceException;
 
 	int deleteServiceOrderById(int id) throws ServiceException;
-	
+
 	int finish(int id) throws ServiceException;
 
-	ServiceOrderDTO approval(int id, int adminUserId, String adviserState, String maraState,
-			String officialState, String kjState) throws ServiceException;
+	ServiceOrderDTO approval(int id, int adminUserId, String adviserState, String maraState, String officialState,
+			String kjState) throws ServiceException;
 
 	ServiceOrderDTO refuse(int id, int adminUserId, String adviserState, String maraState, String officialState,
 			String kjState) throws ServiceException;
-	
+
 	List<ServiceOrderReviewDTO> reviews(int serviceOrderId) throws ServiceException;
 }

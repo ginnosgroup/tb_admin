@@ -11,13 +11,16 @@ public interface ServiceOrderDAO {
 
 	int updateServiceOrder(ServiceOrderDO serviceOrderDo);
 
-	int countServiceOrder(@Param("type") String type, @Param("state") String state, @Param("userId") Integer userId,
-			@Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
-			@Param("officialId") Integer officialId);
+	int updateReviewState(@Param("id") Integer id, @Param("reviewState") String reviewState);
+
+	int countServiceOrder(@Param("type") String type, @Param("state") String state,
+			@Param("reviewState") String reviewState, @Param("userId") Integer userId, @Param("maraId") Integer maraId,
+			@Param("adviserId") Integer adviserId, @Param("officialId") Integer officialId);
 
 	List<ServiceOrderDO> listServiceOrder(@Param("type") String type, @Param("state") String state,
-			@Param("userId") Integer userId, @Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
-			@Param("officialId") Integer officialId, @Param("offset") int offset, @Param("rows") int rows);
+			@Param("reviewState") String reviewState, @Param("userId") Integer userId, @Param("maraId") Integer maraId,
+			@Param("adviserId") Integer adviserId, @Param("officialId") Integer officialId, @Param("offset") int offset,
+			@Param("rows") int rows);
 
 	ServiceOrderDO getServiceOrderById(int id);
 
