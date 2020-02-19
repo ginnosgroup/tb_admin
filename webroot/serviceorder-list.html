@@ -540,7 +540,7 @@
 										$<label id="b16" style="width:65px;"></label>
 									</div>
 									<div class="form-group" style="">
-										<label class="control-label"><strong>月奖：</strong></label>
+										<label class="control-label"><strong>预收业绩</strong></label>
 										$<label id="b17" style="width:50px;"></label>
 									</div>
 							</div>
@@ -614,7 +614,7 @@
 							<form class="form-inline" style="">																				
 							<div class="form-group" style="width:100%;height:40px;">
 								<label class="control-label" style="width:80px;">客户姓名<span style="color:red;">*</span></label>								
-								<label id="b1a"><input type="text" class="form-control small" style="width:150px;" id="b100" placeholder="请输入查询" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,\'\')" value=""></label>
+								<label id="b1a"><input type="text" class="form-control small" style="width:150px;" id="b100" placeholder="请输入查询" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,'')" value=""></label>
 								<label id="b1"></label>
 							</div>
 							<div class="form-group" style="width:100%;height:40px;">
@@ -668,19 +668,19 @@
 							<div class="form-group" style="display:block;line-height:40px;">
 									<div class="form-group">
 										<label class="control-label" style="width:80px;">本次收款</label>
-										$<input type="text" autocomplete="off" id="b14" class="form-control" style="width:100px;">
+										$<input type="text" autocomplete="off" id="b14" class="form-control" style="width:80px;">
 									</div>
 									<div class="form-group" style="margin-left:10px;">
 										<label class="control-label">GST</label>
-										$<input type="text" autocomplete="off" id="b15" class="form-control" style="width:50px;">
+										$<input type="text" autocomplete="off" id="b15" class="form-control" readonly="true" style="width:80px;">
 									</div>
 									<div class="form-group" style="margin-left:10px;">
 										<label class="control-label">Deduct GST</label>
-										$<input type="text" autocomplete="off" id="b16" class="form-control" style="width:100px;">
+										$<input type="text" autocomplete="off" id="b16" class="form-control" readonly="true" style="width:80px;">
 									</div>
 									<div class="form-group" style="margin-left:10px;">
-										<label class="control-label">月奖</label>
-										$<input type="text" autocomplete="off" id="b17" class="form-control" style="width:50px;">
+										<label class="control-label">预收业绩</label>
+										$<input type="text" autocomplete="off" id="b17" class="form-control" disabled="true" style="width:80px;">
 									</div>
 							</div>
 							</div>
@@ -2198,6 +2198,14 @@
 	        			receive_type3.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
 	        	}	        	 	    
 	        });
+	        //计算GST相关金额
+			    $("#addservice_id #b14").keyup(function(){
+			    	var fee = $("#addservice_id #b14").val();
+			    	var gst = (fee/11).toFixed(2);
+			    	$("#addservice_id #b15").val(gst);
+			    	var deduct_gst = (fee-gst).toFixed(2);
+			    	$("#addservice_id #b16").val(deduct_gst);	        	
+					});
 			});						  
       
       function show_knowledge_detail(id,parentId)
