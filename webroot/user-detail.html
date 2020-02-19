@@ -39,7 +39,7 @@
 		</style>
 	</head>
 
-	<body id="user-detail" v-cloak>
+	<body id="user-detail" v-cloak>		
 		<section id="container">
 			<header class="header white-bg">
 				<div class="sidebar-toggle-box">
@@ -420,12 +420,12 @@
 		                    </div>
 												<label class="col-sm-2 control-label text-primary big-font" style="width:100px;">业务记录</label>
 												<div class="btn-group">
-                          <button id="editable-sample_new" class="btn btn-info" onclick="add_service(v.userid,v.user_name);">
+                          <button id="editable-sample_new" class="btn btn-info" onclick="add_service1(v.userid,v.user_name);">
                           签证服务 <i class="fa"></i>
                           </button>
                        </div>
                        <div class="btn-group">
-                          <button id="editable-sample_new" class="btn btn-info" onclick="add_service1(v.userid,v.user_name);">
+                          <button id="editable-sample_new" class="btn btn-info" onclick="add_service2(v.userid,v.user_name);">
                           留学服务 <i class="fa"></i>
                           </button>
                        </div>
@@ -436,216 +436,86 @@
 	                          签证类 <i class="fa" style="color:yellow;">{{count1}}</i>
 	                          </button>
 	                          <button id="editable-no2" class="btn btn-success green" @click="show_panel(2);">
-	                          提前扣佣类 <i class="fa" style="color:yellow;">{{count2}}</i>
-	                          </button>
-	                          <button id="editable-no3" class="btn btn-success green" @click="show_panel(3);">
-	                          待追佣类 <i class="fa" style="color:yellow;">{{count3}}</i>
-	                          </button>
-	                          <button id="editable-no4" class="btn btn-success green" @click="show_panel(4);">
-	                          退款类 <i class="fa" style="color:yellow;">{{count4}}</i>
-	                          </button>
+	                          留学类 <i class="fa" style="color:yellow;">{{count2}}</i>
+	                          </button>	                          
 	                       </div>
 	                    </div>
 	                    <div class="margin-top" id="p1">
-											<table class="display table table-bordered table-striped" id="example1" style="width:2000px;height:150px;">
+											<table class="display table table-bordered table-striped" id="example1" style="height:150px;">
 												<thead>
 													<tr>
-														<!--<th><input @click="checked" type="checkbox"></th>-->
-														<th>办理日期</th>
-														<th>客户姓名</th>
-														<th>生日</th>
-														<th>电话</th>
-														<th>收款日期</th>
-														<th>收款方式</th>
-														<th>设置提醒</th>
+														<th>服务ID</th>
+														<th>签约日期</th>
+														<th>办理完成日期</th>
+														<th>所属顾问</th>
+														<th>MARA</th>
+														<th>文案</th>
 														<th>服务项目</th>
-														<th><span style="color:#FF6C60;">总计应收</span></th>
-														<th><span style="color:#FF6C60;">总计已收</span></th>
-														<th>本次收款</th>
-														<th>GST</th>
-														<th>Deduct GST</th>
-														<th>月奖</th>
-														<th>顾问</th>
-														<th>文案</th>														
+														<th>状态</th>
+														<th>操作</th>
+														<th>备注</th>
 													</tr>
 												</thead>
 												<tbody>
 													<tr v-for="item in datalist1" class="gradeX">
-														<td v-html="item.handlingDate"></td>
-														<td v-html="item.userName"></td>
-														<td v-html="item.birthday"></td>
-														<td v-html="item.phone"></td>
-														<td v-html="item.receiveDate"></td>
-														<td v-html="item.receiveTypeName"></td>
-														<td width="150">
-															<div v-html="item.remindDateList"></div>
-														</td>
-														<td v-html="item.serviceName"></td>
-														<td v-html="item.receivable"></td>
-														<td v-html="item.received"></td>
-														<td v-html="item.amount"></td>
-														<td v-html="item.gst"></td>
-														<td v-html="item.deductGst"></td>
-														<td v-html="item.bonus"></td>
+														<td v-html="item.oid"></td>
+														<td v-html="item.gmtCreate"></td>
+														<td v-html="item.finishDate"></td>														
 														<td v-html="item.adviserName"></td>
-														<td v-html="item.officialName"></td>														
+														<td v-html="item.maraName"></td>
+														<td v-html="item.officialName"></td>
+														<td v-html="item.serviceName"></td>
+														<td v-html="item.strState"></td>
+														<td>																
+																<a href="javascript:open_detail({{item.oid}},'{{item.type}}','{{item.currentState}}');">查看</a>																
+														</td>
+														<td v-html="item.remarks"></td>
 													</tr>
 												</tbody>
 											</table>
 											</div>
 											<div class="margin-top" id="p2" style="display:none;">
-											<table class="display table table-bordered table-striped" id="example2" style="width:2000px;">
+											<table class="display table table-bordered table-striped" id="example2" style="">
 												<thead>
 													<tr>
-														<!--<th><input @click="checked" type="checkbox"></th>-->
-														<th>办理日期</th>
+														<th>服务ID</th>
+														<th>签约日期</th>
+														<th>办理完成日期</th>
+														<th>客户ID</th>
 														<th>客户姓名</th>
 														<th>生日</th>
-														<th>电话</th>
-														<th>学校</th>
-														<th>课程</th>
-														<th>开课日期</th>
-														<th>结束日期</th>
-														<th>设置提醒</th>
-														<th>收款方式</th>			
-														<th><span style="color:#FF6C60;">Tuition Fee</span></th>
-														<th><span style="color:#FF6C60;">Commission</span></th>
-														<th>GST</th>
-														<th>Deduct GST</th>
-														<th>月奖</th>
-														<th>顾问</th>
-														<th>文案</th>														
+														<th>手机号码</th>
+														<th>所属顾问</th>
+														<th>MARA</th>
+														<th>文案</th>
+														<th>服务项目</th>
+														<th>状态</th>
+														<th>操作</th>
+														<th>备注</th>
 													</tr>
 												</thead>
 												<tbody>
 													<tr v-for="item in datalist2" class="gradeX">
-														<td v-html="item.handlingDate"></td>
+														<td v-html="item.oid"></td>
+														<td v-html="item.gmtCreate"></td>
+														<td v-html="item.finishDate"></td>
+														<td v-html="item.userId"></td>
 														<td v-html="item.userName"></td>
 														<td v-html="item.birthday"></td>
 														<td v-html="item.phone"></td>
-														<td v-html="item.schoolName"></td>
-														<td v-html="item.schoolSubject"></td>
-														<td v-html="item.startDate"></td>
-														<td v-html="item.endDate"></td>
-														<td width="150">
-															<div v-html="item.remindDateList"></div>
+														<td v-html="item.adviserName"></td>
+														<td v-html="item.maraName"></td>
+														<td v-html="item.officialName"></td>
+														<td v-html="item.serviceName"></td>
+														<td v-html="item.strState"></td>
+														<td>																
+																<a href="javascript:open_detail({{item.oid}},'{{item.type}}','{{item.currentState}}');">查看</a>																
 														</td>
-														<td v-html="item.receiveTypeName"></td>
-														<td v-html="item.tuitionFee"></td>
-														<td v-html="item.commission"></td>
-														<td v-html="item.gst"></td>
-														<td v-html="item.deductGst"></td>
-														<td v-html="item.bonus"></td>
-														<td v-html="item.adviserName"></td>
-														<td v-html="item.officialName"></td>														
+														<td v-html="item.remarks"></td>
 													</tr>
 												</tbody>
 											</table>
-											</div>
-											<div class="margin-top" id="p3" style="display:none;">
-											<table class="display table table-bordered table-striped" id="example3" style="width:2500px;">
-												<thead>
-													<tr>
-														<!--<th><input @click="checked" type="checkbox"></th>-->
-														<th>办理日期</th>
-														<th>客户姓名</th>
-														<th>生日</th>
-														<th>电话</th>
-														<th>学校</th>
-														<th>课程</th>
-														<th>StudentId</th>
-														<th>开课日期</th>
-														<th>结束日期</th>
-														<th>设置提醒</th>			
-														<th><span style="color:#FF6C60;">Tuition Fee</span></th>
-														<th><span style="color:#FF6C60;">First Term Tuition Fee</span></th>
-														<th><span style="color:#FF6C60;">Commission</span></th>
-														<th>GST</th>
-														<th>Deduct GST</th>
-														<th>月奖</th>
-														<th>学校支付日期</th>
-														<th>INVOICE NO.</th>
-														<th>学校支付金额</th>
-														<th>Subagency</th>
-														<th>已结佣</th>
-														<th>顾问</th>
-														<th>文案</th>														
-													</tr>
-												</thead>
-												<tbody>
-													<tr v-for="item in datalist3" class="gradeX">
-														<td v-html="item.handlingDate"></td>
-														<td v-html="item.userName"></td>
-														<td v-html="item.birthday"></td>
-														<td v-html="item.phone"></td>
-														<td v-html="item.schoolName"></td>
-														<td v-html="item.schoolSubject"></td>
-														<td v-html="item.studentCode"></td>
-														<td v-html="item.startDate"></td>
-														<td v-html="item.startDate"></td>
-														<td width="150">
-															<div v-html="item.remindDateList"></div>
-														</td>
-														<td v-html="item.tuitionFee"></td>
-														<td v-html="item.firstTermTuitionFee"></td>
-														<td v-html="item.commission"></td>
-														<td v-html="item.gst"></td>
-														<td v-html="item.deductGst"></td>
-														<td v-html="item.bonus"></td>
-														<td v-html="item.payDate"></td>
-														<td v-html="item.invoiceCode"></td>
-														<td v-html="item.payAmount"></td>
-														<td v-html="item.subagencyName"></td>
-														<td v-html="item.settleAccounts"></td>
-														<td v-html="item.adviserName"></td>
-														<td v-html="item.officialName"></td>														
-													</tr>
-												</tbody>
-											</table>
-											</div>
-											<div class="margin-top" id="p4" style="display:none;">
-											<table class="display table table-bordered table-striped" id="example4" style="width:2000px;">
-												<thead>
-													<tr>
-														<!--<th><input @click="checked" type="checkbox"></th>-->
-														<th>申请退款日期</th>
-														<th>客户姓名</th>
-														<th>项目</th>
-														<th>已收款</th>
-														<th>申请退款金额</th>
-														<th>Bank Name</th>
-														<th>Bank Account</th>
-														<th>BSB</th>
-														<th><span style="color:#FF6C60;">实际退款日期</span></th>			
-														<th><span style="color:#FF6C60;">已退款金额</span></th>
-														<th>GST</th>
-														<th>Deduct GST</th>
-														<th>Refund</th>
-														<th>顾问</th>
-														<th>文案</th>														
-													</tr>
-												</thead>
-												<tbody>
-													<tr v-for="item in datalist4" class="gradeX">
-														<td v-html="item.handlingDate"></td>
-														<td v-html="item.userName"></td>
-														<td v-html="item.name"></td>
-														<td v-html="item.amount"></td>
-														<td v-html="item.preRefundAmount"></td>
-														<td v-html="item.bankName"></td>
-														<td v-html="item.bankAccount"></td>
-														<td v-html="item.bsb"></td>
-														<td v-html="item.refundDate"></td>
-														<td v-html="item.refundAmount"></td>
-														<td v-html="item.gst"></td>
-														<td v-html="item.deductGst"></td>
-														<td v-html="item.refund"></td>
-														<td v-html="item.adviserName"></td>
-														<td v-html="item.officialName"></td>														
-													</tr>
-												</tbody>
-											</table>
-											</div>
+											</div>											
 										  
 											</div>
 									</div>
@@ -748,211 +618,8 @@
 					</div>
 				</div>
 			</div>
-		</div>
-		<div class="modal fade" id="addservice_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-			<div class="modal-dialog" role="document" style="width:700px;">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<h4 class="modal-title" id="myModalLabel">新增签证服务</h4>
-					</div>
-					<div class="modal-body">
-							<form class="form-inline" style="">
-							<input type="hidden" name="user_id" id="user_id" value="0" />													
-							<div class="form-group" style="width:100%;height:40px;">
-								<label class="control-label" style="width:80px;">客户姓名<span style="color:red;">*</span></label>
-								<label id="b1"></label>
-								<label id="b1a"><input type="text" class="form-control small" style="width:150px;" id="b100" placeholder="请输入查询" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,\'\')" value=""></label>								
-							</div>
-							<div class="form-group" style="width:100%;height:40px;">
-								<label class="control-label" style="width:80px;">顾问<span style="color:red;">*</span></label>
-								<select class="form-control" style="width:150px;" id="b2"></select>
-								<label class="control-label">Mara<span style="color:red;">*</span></label>
-								<select class="form-control" style="width:150px;" id="b3"></select>
-								<label class="control-label">文案</label>
-								<select class="form-control" style="width:150px;" id="b4"></select>
-							</div>
-							<div class="form-group" style="width:100%;height:40px;">
-								<label class="control-label" style="width:80px;">服务项目<span style="color:red;">*</span></label>
-								<select class="form-control" style="width:150px;" id="b5" onchange="ajax_service(this.value)">
-								<option value="VISA">签证</option>
-								<option value="OVST">留学</option>
-								</select>
-								<select class="form-control" style="width:150px;margin-left:42px;" id="b6"></select>								
-							</div>
-							<div class="form-group" style="width:100%;height:40px;">
-								<label class="control-label" style="width:80px;">是否已支付<span style="color:red;">*</span></label>
-								<input type="radio" name="b7" id="b7a" value="1" /><label for="b7a">是</label>
-								<input type="radio" name="b7" id="b7b" value="0" checked="true" style="margin-left:20px;" /><label for="b7b">否</label>
-							</div>
-							<div id="show_paid" style="width:100%;display:none;">
-							<div class="form-group" style="width:100%;">								
-									<label class="control-label" style="width:80px;">收款日期</label>
-									<input type="text" autocomplete="off" id="b8" class="form-control default-date-picker" style="width:200px;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
-									<label class="control-label">收款方式</label>
-									<select class="form-control" style="width:150px;" id="b9"></select>									
-							</div>
-							<div class="form-group" style="display:block;line-height:40px;">
-									<div class="form-group">
-										<label class="control-label" style="width:80px;">总计应收</label>
-										$<input type="text" autocomplete="off" id="b10" class="form-control" style="width:100px;">
-									</div>
-									<div class="form-group" style="margin-left:10px;">
-										<label class="control-label">折扣</label>
-										$<input type="text" autocomplete="off" id="b11" class="form-control" style="width:100px;">
-									</div>
-									<div class="form-group" style="margin-left:10px;">
-										<label class="control-label">总计收款</label>
-										$<input type="text" autocomplete="off" id="b12" class="form-control" style="width:100px;">
-									</div>
-									<div class="form-group" style="margin-left:10px;">
-										<label class="control-label">付款次数</label>
-										<select class="form-control" style="width:70px;" id="b13">
-										<option value="1"  selected="selected">1</option>
-										<option value="2">2</option>
-										</select>
-									</div>
-							</div>
-							<div class="form-group" style="display:block;line-height:40px;">
-									<div class="form-group">
-										<label class="control-label" style="width:80px;">本次收款</label>
-										$<input type="text" autocomplete="off" id="b14" class="form-control" style="width:100px;">
-									</div>
-									<div class="form-group" style="margin-left:10px;">
-										<label class="control-label">GST</label>
-										$<input type="text" autocomplete="off" id="b15" class="form-control" style="width:50px;">
-									</div>
-									<div class="form-group" style="margin-left:10px;">
-										<label class="control-label">Deduct GST</label>
-										$<input type="text" autocomplete="off" id="b16" class="form-control" style="width:100px;">
-									</div>
-									<div class="form-group" style="margin-left:10px;">
-										<label class="control-label">月奖</label>
-										$<input type="text" autocomplete="off" id="b17" class="form-control" style="width:50px;">
-									</div>
-							</div>
-							</div>
-							<div class="form-group" style="width:100%;line-height:40px;">
-								<label class="control-label">备注</label>
-								<textarea id="b8" class="form-control" style="width:98%"></textarea>
-							</div>
-							</form>
-					</div>
-					<div class="modal-footer" style="text-align: center;">
-						<button onclick="alert('待实现');" id="upload_receipt" type="button" class="btn btn-danger">上传收款凭证</button>
-						<button onclick="addServiceSave()" type="button" class="btn btn-primary">提交</button>
-						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="modal fade" id="addservice1_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-			<div class="modal-dialog" role="document" style="width:700px;">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<h4 class="modal-title" id="myModalLabel">新增留学服务</h4>
-					</div>
-					<div class="modal-body">
-							<form class="form-inline" style="">
-							<input type="hidden" name="user_id1" id="user_id1" value="0" />
-							<input type="hidden" name="schoolid" id="schoolid" value="0" />
-							<input type="hidden" name="school_name" id="school_name" value="" />
-							<input type="hidden" name="school_subject" id="school_subject" value="" />																				
-							<div class="form-group" style="width:100%;height:40px;">
-								<label class="control-label" style="width:80px;">客户姓名<span style="color:red;">*</span></label>
-								<label id="c1"></label>
-								<label id="c1a"><input type="text" class="form-control small" style="width:150px;" id="c100" placeholder="请输入查询" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,'')" value=""></label>
-							</div>
-							<div class="form-group" style="width:100%;height:40px;">
-								<label class="control-label" style="width:80px;">服务项目<span style="color:red;">*</span></label>
-								<select class="form-control" style="width:150px;" id="c2" onchange="$('#addservice1_id').modal('hide');add_service(v.user_id,v.user_name);">
-								<option value="OVST" selected="selected">留学</option>
-								<option value="VISA">签证</option>
-								</select>
-								<label class="control-label">学校<span style="color:red;">*</span></label>
-								<select class="form-control" style="width:150px;" id="c3" onchange="if (this.value!=''){ajax_subject();}else{set_empty();}"></select>
-								<label class="control-label">课程<span style="color:red;">*</span></label>
-								<select class="form-control" style="width:150px;" id="c4" onchange="set_schoolid(this.value)"></select>					
-							</div>
-							<div class="form-group" style="width:100%;height:40px;">
-								<label class="control-label" style="width:80px;">提前扣佣<span style="color:red;display:none;">*</span></label>
-								<input type="radio" name="c5" id="c5a" value="1" /><label for="c5a">是</label>
-								<input type="radio" name="c5" id="c5b" value="0" checked="true" style="margin-left:20px;" /><label for="c5b">否</label>
-								<input type="checkbox" name="c6" id="c6" value="true" style="margin-left:75px;"><label for="c6">保证金客户</label>
-								<label class="control-label" style="width:80px;margin-left:60px;">Subagency<span style="color:red;">*</span></label>
-								<select class="form-control" style="width:150px;" id="c7"></select>	
-							</div>
-							<div class="form-group" style="width:100%;height:40px;">
-								<label class="control-label" style="width:80px;">顾问<span style="color:red;">*</span></label>
-								<select class="form-control" style="width:150px;" id="c8"></select>								
-								<label class="control-label">文案<span style="color:red;">*</span></label>
-								<select class="form-control" style="width:150px;" id="c9"></select>
-							</div>
-							<div id="show_deposit_user" style="width:100%;display:none;">
-							<div class="form-group" style="width:100%;height:40px;">
-								<label class="control-label" style="width:80px;">保证金是否已支付<span style="color:red;">*</span></label>
-								<input type="radio" name="c10" id="c10a" value="true" checked="true" /><label for="c10a">是</label>
-								<input type="radio" name="c10" id="c10b" value="false" style="margin-left:20px;" /><label for="c10b">否</label>
-							</div>
-							<div class="form-group" style="width:100%;">								
-									<label class="control-label" style="width:80px;">收款日期</label>
-									<input type="text" autocomplete="off" id="c11" class="form-control default-date-picker" style="width:200px;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
-									<label class="control-label">收款方式</label>
-									<select class="form-control" style="width:150px;" id="c12"></select>									
-							</div>
-							<div class="form-group" style="display:block;line-height:40px;">
-									<div class="form-group">
-										<label class="control-label" style="width:80px;">总计应收</label>
-										$<input type="text" autocomplete="off" id="c13" class="form-control" style="width:100px;">
-									</div>
-									<div class="form-group" style="margin-left:10px;">
-										<label class="control-label">折扣</label>
-										$<input type="text" autocomplete="off" id="c14" class="form-control" style="width:100px;">
-									</div>
-									<div class="form-group" style="margin-left:10px;">
-										<label class="control-label">总计收款</label>
-										$<input type="text" autocomplete="off" id="c15" class="form-control" style="width:100px;">
-									</div>									
-							</div>							
-							</div>
-							<div class="form-group" style="width:100%;line-height:40px;">
-								<label class="control-label">备注</label>
-								<textarea id="b8" class="form-control" style="width:98%"></textarea>
-							</div>
-							</form>
-					</div>
-					<div class="modal-footer" style="text-align: center;">
-						<button onclick="addService1Save()" type="button" class="btn btn-primary">提交</button>
-						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="modal fade" id="add_schoolsubject_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="z-index:999999;">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content" style="background:#efefef;">
-					<div class="modal-header" style="background:#72d0eb;">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<h4 class="modal-title" id="myModalLabel">添加课程</h4>
-					</div>
-					<div class="modal-body" style="background:#efefef;">
-							<form class="form-horizontal">
-							<div class="form-group">
-								<label class="col-sm-2 control-label">课程名程<span style="color:red;">*</span></label>
-								<div class="col-sm-8">
-									<input type="text" id="schoolsubject_name" class="form-control" placeholder="" />
-								</div>
-							</div>
-							</form>
-					</div>
-					<div class="modal-footer" style="background:#efefef;">
-						<button type="button" class="btn btn-default" data-dismiss="modal" onclick="ajax_subject();">取消</button>
-						<button onclick="schoolSubjectSave()" type="button" class="btn btn-primary">确认</button>
-					</div>
-				</div>
-			</div>
-		</div>
+		</div>		
+		<div id="load-user-page"></div>		
 		<script src="js/jquery-1.8.3.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
 		<script src="js/jquery.dcjqaccordion.2.7.js"></script>
@@ -963,7 +630,9 @@
 		<script src="js/common-scripts.js"></script>
 		<script src="js/vue.js"></script>
 		<script src="js/common.js?verson=1"></script>
+		<script src="js/znz_common.js"></script>
 		<script>
+			$("#load-user-page").load("user-common.html");
 			tb.isLogin("user-detail.html");
 			$("td,th").addClass("text-center");
 			var v = new Vue({
@@ -976,14 +645,12 @@
 					m_list: localStorage.getItem("str_html"),
 					subject: [],
 					consultation: {},
+					addnewservice1_bind: 0,
+					addnewservice2_bind: 0,
 					datalist1: [],
-					datalist2: [],
-					datalist3: [],
-					datalist4: [],
+					datalist2: [],					
 					count1: 0,
 					count2: 0,
-					count3: 0,
-					count4: 0,
 					pageNum: 0,
 					pageSize: 10000,
 					allPage: 0,
@@ -999,9 +666,7 @@
 					this.getUser();		
 					this.getConsultation();
 					this.getDatalist1();
-					this.getDatalist2();
-					this.getDatalist3();
-					this.getDatalist4();
+					this.getDatalist2();					
 				},methods: {					
 					getUser: function() {
 						var that = this;
@@ -1104,15 +769,17 @@
 					},
 					getDatalist1: function() {
 						var that = this;
-						$.get(url + "visa/count", {
-							userId: that.userid
+						$.get(url + "serviceOrder/count", {
+							type: 'VISA',
+							userId: that.userid,
 						}, function(result) {
 							console.log(result)
 							that.count1 = result.data;
 							that.allPage = Math.ceil(result.data / that.pageSize);
 							console.log(that.allPage)
 						});
-						$.get(url + "visa/list", {
+						$.get(url + "serviceOrder/list", {
+							type: 'VISA',
 							userId: that.userid,
 							pageNum: 0,
 							pageSize: that.pageSize
@@ -1120,43 +787,49 @@
 							//console.log(result)
 							that.pageNum = 0;
 							for(var i = 0; i < result.data.length; i++) {
-								result.data[i].handlingDate = that.getTime(result.data[i].handlingDate);
-								result.data[i].birthday = that.getTime(result.data[i].birthday);
-								result.data[i].receiveDate = that.getTime(result.data[i].receiveDate);
-								result.data[i].serviceName = result.data[i].serviceCode;
-								if (result.data[i].remindDateList)
-								{
-										var str_remindDateList = '';
-										var str = result.data[i].remindDateList;
-										var arr = result.data[i].remindDateList;								
-										for(var t =0;t<arr.length;t++)
-										{
-												if (str_remindDateList =='')
-												{
-														str_remindDateList = that.getTime(arr[t]);
-												}else
-												{
-														str_remindDateList += '<br>'+that.getTime(arr[t]);
-												}
-										}
-										result.data[i].remindDateList = str_remindDateList;
-								}
+									var str_state = '';
+									result.data[i].strRefuse = '';
+									result.data[i].oid = result.data[i].id;
+									result.data[i].gmtCreate = that.getTime(result.data[i].gmtCreate);
+									result.data[i].finishDate = result.data[i].finishDate ? that.getTime(result.data[i].finishDate):'';									
+									result.data[i].adviserName = result.data[i].adviser.name;
+									result.data[i].officialName = result.data[i].official.name;									
+									if (result.data[i].review.adviserState != null) str_state = result.data[i].review.adviserState;
+									if (result.data[i].review.officialState != null) str_state = result.data[i].review.officialState;
+									if (result.data[i].type == 'VISA')
+									{
+											result.data[i].maraName = result.data[i].mara.name;
+											if (result.data[i].review.maraState != null) str_state = result.data[i].review.maraState;
+											result.data[i].serviceName = return_servicename(result.data[i].type)+'-'+result.data[i].service.code;
+											//如果maraState='FINISH'，表示整个流程结束。
+											if (result.data[i].review.officialState == null && result.data[i].review.maraState == 'FINISH') str_state = 'MA_FINISH';
+											result.data[i].strState = visastate_wa(str_state);
+									}else
+									{
+											//如果maraState='FINISH'，表示整个流程结束。
+											if (result.data[i].review.officialState == 'COMPLETE') str_state = 'COE_COMPLETE';
+											var str_school = result.data[i].school.name;
+											result.data[i].serviceName = return_servicename(result.data[i].type)+'-'+str_school;
+											result.data[i].strState = visastate_wa(str_state);
+									}
+									result.data[i].currentState = str_state;
 							};
 							that.datalist1 = result.data;
-							//console.log(that.subject);
 						});
 					},
 					getDatalist2: function() {
 						var that = this;
-						$.get(url + "brokerage_sa/count", {
-							userId: that.userid						
+						$.get(url + "serviceOrder/count", {
+							type: 'OVST',
+							userId: that.userid,
 						}, function(result) {
 							console.log(result)
 							that.count2 = result.data;
 							that.allPage = Math.ceil(result.data / that.pageSize);
 							console.log(that.allPage)
 						});
-						$.get(url + "brokerage_sa/list", {
+						$.get(url + "serviceOrder/list", {
+							type: 'OVST',
 							userId: that.userid,
 							pageNum: 0,
 							pageSize: that.pageSize
@@ -1164,113 +837,34 @@
 							//console.log(result)
 							that.pageNum = 0;
 							for(var i = 0; i < result.data.length; i++) {
-								result.data[i].handlingDate = that.getTime(result.data[i].handlingDate);
-								result.data[i].birthday = that.getTime(result.data[i].birthday);
-								result.data[i].startDate = that.getTime(result.data[i].startDate);
-								result.data[i].endDate = that.getTime(result.data[i].endDate);
-								if (result.data[i].remindDateList)
-								{
-										var str_remindDateList = '';
-										var str = result.data[i].remindDateList;
-										var arr = result.data[i].remindDateList;								
-										for(var t =0;t<arr.length;t++)
-										{
-												if (str_remindDateList =='')
-												{
-														str_remindDateList = that.getTime(arr[t]);
-												}else
-												{
-														str_remindDateList += '<br>'+that.getTime(arr[t]);
-												}
-										}
-										result.data[i].remindDateList = str_remindDateList;
-								}
-								//result.data[i].btnsave = '<a class="edit" href="javascript:;"><span class="label label-success">Edit</span></a>';
-								//result.data[i].btncancel = '<a class="delete" href="javascript:;"><span class="label label-danger">Delete</span></a>';
-								//result.data[i].btnclose = '<a class="warning" href="javascript:;"><span class="label label-warning">Close</span></a>';
+									var str_state = '';
+									result.data[i].strRefuse = '';
+									result.data[i].oid = result.data[i].id;
+									result.data[i].gmtCreate = that.getTime(result.data[i].gmtCreate);
+									result.data[i].finishDate = result.data[i].finishDate ? that.getTime(result.data[i].finishDate):'';									
+									result.data[i].adviserName = result.data[i].adviser.name;
+									result.data[i].officialName = result.data[i].official.name;									
+									if (result.data[i].review.adviserState != null) str_state = result.data[i].review.adviserState;
+									if (result.data[i].review.officialState != null) str_state = result.data[i].review.officialState;
+									if (result.data[i].type == 'VISA')
+									{
+											result.data[i].maraName = result.data[i].mara.name;
+											if (result.data[i].review.maraState != null) str_state = result.data[i].review.maraState;
+											result.data[i].serviceName = return_servicename(result.data[i].type)+'-'+result.data[i].service.code;
+											//如果maraState='FINISH'，表示整个流程结束。
+											if (result.data[i].review.officialState == null && result.data[i].review.maraState == 'FINISH') str_state = 'MA_FINISH';
+											result.data[i].strState = visastate_wa(str_state);
+									}else
+									{
+											//如果maraState='FINISH'，表示整个流程结束。
+											if (result.data[i].review.officialState == 'COMPLETE') str_state = 'COE_COMPLETE';
+											var str_school = result.data[i].school.name;
+											result.data[i].serviceName = return_servicename(result.data[i].type)+'-'+str_school;
+											result.data[i].strState = visastate_wa(str_state);
+									}
+									result.data[i].currentState = str_state;
 							};
 							that.datalist2 = result.data;
-							//console.log(that.subject);
-						});
-					},
-					getDatalist3: function() {
-						var that = this;
-						$.get(url + "school_brokerage_sa/count", {
-							userId: that.userid
-						}, function(result) {
-							console.log(result)
-							that.count3 = result.data;
-							that.allPage = Math.ceil(result.data / that.pageSize);
-							console.log(that.allPage)
-						});
-						$.get(url + "school_brokerage_sa/list", {
-							userId: that.userid,
-							pageNum: 0,
-							pageSize: that.pageSize
-						}, function(result) {
-							//console.log(result)
-							that.pageNum = 0;
-							for(var i = 0; i < result.data.length; i++) {
-								result.data[i].handlingDate = that.getTime(result.data[i].handlingDate);
-								result.data[i].birthday = that.getTime(result.data[i].birthday);
-								result.data[i].startDate = that.getTime(result.data[i].startDate);
-								result.data[i].endDate = that.getTime(result.data[i].endDate);
-								if (result.data[i].payDate != null) result.data[i].payDate = that.getTime(result.data[i].payDate);								
-								if (result.data[i].settleAccounts)
-								{
-										result.data[i].settleAccounts = '是';
-								}else
-								{
-										result.data[i].settleAccounts = '否';
-								}
-								if (result.data[i].remindDateList)
-								{
-										var str_remindDateList = '';
-										var str = result.data[i].remindDateList;
-										var arr = result.data[i].remindDateList;								
-										for(var t =0;t<arr.length;t++)
-										{
-												if (str_remindDateList =='')
-												{
-														str_remindDateList = that.getTime(arr[t]);
-												}else
-												{
-														str_remindDateList += '<br>'+that.getTime(arr[t]);
-												}
-										}
-										result.data[i].remindDateList = str_remindDateList;
-								}								
-							};
-							that.datalist3 = result.data;
-							//console.log(that.subject);
-						});
-					},
-					getDatalist4: function() {
-						var that = this;
-						$.get(url + "refund/count", {
-							userId: that.userid	
-						}, function(result) {
-							console.log(result)
-							that.count4 = result.data;
-							that.allPage = Math.ceil(result.data / that.pageSize);
-							console.log(that.allPage)
-						});
-						$.get(url + "refund/list", {
-							userId: that.userid,
-							pageNum: 0,
-							pageSize: that.pageSize
-						}, function(result) {
-							//console.log(result)
-							that.pageNum = 0;
-							for(var i = 0; i < result.data.length; i++) {
-								result.data[i].handlingDate = that.getTime(result.data[i].handlingDate);
-								result.data[i].birthday = that.getTime(result.data[i].birthday);
-								result.data[i].startDate = that.getTime(result.data[i].startDate);
-								result.data[i].endDate = that.getTime(result.data[i].endDate);
-								result.data[i].refundDate = that.getTime(result.data[i].refundDate);							
-							};
-							that.datalist4 = result.data;
-							//console.log(that.subject);
 						});
 					},
 					add_consultation: function (id){
@@ -1378,160 +972,7 @@
 					   			//console.log(data);
 					   	});
 			  	}                
-      }
-      
-      function addServiceSave()
-      {
-      		var jqInputs = $('input',$("#addservice_id"));
-          var jqSelect = $('select',$("#addservice_id"));
-          var jqTextarea = $('textarea',$("#addservice_id"));         	
-          
-          var check_result = 0;
-          if (jqSelect[0].value != '0' && jqSelect[1].value != '0' && jqSelect[2].value != '0' && jqSelect[4].value != '0')
-          {
-          		check_result = true;
-          }else
-          {
-          		$('#alert_error').css('marginLeft','30%');
-          		$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
-			        $("#error_info").html('提示：红色字段必须填写或选择！');
-          		return false;
-          }
-          
-          if (check_result)
-          {            	            	            	                             
-             	var str_url = "serviceOrder/add";
-             	var json = {};
-             	json['adviserId'] = jqSelect[0].value;
-             	json['maraId'] = jqSelect[1].value;
-             	json['officialId'] = jqSelect[2].value;
-             	json['type'] = jqSelect[3].value;
-             	json['serviceId'] = jqSelect[4].value;
-             	json['paid'] = $("input[name='b7']:checked").val();
-             	json['userId'] = $("#user_id").val();
-             	json['remarks'] = jqTextarea[0].value;
-             	json['isPay'] = false;
-             	if (json['paid'] == 1)
-             	{
-             			var d1 = 0;          		
-		          		if (jqInputs[3].value != '')
-		          		{
-				          		var arr_d = jqInputs[3].value.split("/");
-				          		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
-				              var date = new Date(str_d);
-				              d1 = date.getTime();
-		            	}
-		            	json['receiveDate'] = d1;
-		            	json['receiveTypeId'] = jqSelect[5].value;
-		            	json['receivable'] = jqInputs[4].value;
-		            	json['discount'] = jqInputs[5].value;
-		            	json['received'] = jqInputs[6].value;
-		            	json['paymentTimes'] = jqSelect[6].value;
-		            	json['amount'] = jqInputs[7].value;
-		            	json['gst'] = jqInputs[8].value;
-		            	json['deductGst'] = jqInputs[9].value;
-		            	json['bonus'] = jqInputs[10].value;
-		            	json['isPay'] = true;
-             	}
-             	
-             	$.post(str_url, json,
-					   	function(data){
-					   			if (data.code == 0)
-					   			{
-					   					$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
-					   					$('#addservice_id').modal('hide');
-					   					setTimeout(function(){window.location.href = "serviceorder-list.html";}, 2000);
-					   			}else
-					   			{
-					   					$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
-			          			$("#error_info").html(data.message);
-				        			return false;
-					   			}
-					   	});
-             		            
-	        }
-      }
-      
-      function addService1Save()
-      {
-      		var jqInputs = $('input',$("#addservice1_id"));
-          var jqSelect = $('select',$("#addservice1_id"));
-          var jqTextarea = $('textarea',$("#addservice1_id")); 
-          
-          var check_result = 0;
-          if (jqSelect[0].value != '0' && jqSelect[1].value != '0' && jqSelect[2].value != '0' && jqSelect[3].value != '0' && jqSelect[4].value != '0' && jqSelect[5].value != '0' && jqInputs[0].value != '0')
-          {
-          		check_result = true;
-          }else
-          {
-          		$('#alert_error').css('marginLeft','30%');
-          		$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
-			        $("#error_info").html('提示：红色字段必须填写或选择！');
-          		return false;
-          }
-          
-          if (check_result)
-          {            	            	            	                             
-             	var str_url = "serviceOrder/add";
-             	var json = {};
-             	             	
-             	json['type'] = jqSelect[0].value;
-             	json['schoolId'] = jqSelect[2].value;
-             	json['isSettle'] = false;
-             	if ($("input[name='c5']:checked").val() == 1) json['isSettle'] = true;
-             	if ($('#c6').is(':checked'))
-             	{
-             			json['isDepositUser'] = $("input[name='c6']:checked").val();
-             	}else
-             	{
-             			json['isDepositUser'] = false;
-             	}
-             	json['subagencyId'] = jqSelect[3].value;
-             	json['adviserId'] = jqSelect[4].value;
-             	json['officialId'] = jqSelect[5].value;             	
-             	json['userId'] = $("#user_id1").val();
-             	json['remarks'] = jqTextarea[0].value;
-             	json['isPay'] = false;             	
-             	if (json['isDepositUser'])
-             	{
-             			json['isPay'] = $("input[name='c10']:checked").val();
-             			var d1 = 0;          		
-		          		if (jqInputs[10].value != '')
-		          		{
-				          		var arr_d = jqInputs[10].value.split("/");
-				          		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
-				              var date = new Date(str_d);
-				              d1 = date.getTime();
-		            	}
-		            	json['receiveDate'] = d1;
-		            	json['receiveTypeId'] = jqSelect[6].value;
-		            	json['receivable'] = jqInputs[11].value;
-		            	json['discount'] = jqInputs[12].value;
-		            	json['received'] = jqInputs[13].value;		            			            	
-             	}
-             	//预设空值
-             	json['serviceId'] = 0;
-             	json['maraId'] = 0;
-             	//console.log(json);
-             	
-             	$.post(str_url, json,
-					   	function(data){
-					   			if (data.code == 0)
-					   			{
-					   					$('#alert_success').css('marginLeft','30%');
-					   					$('#alert_success').addClass('alert-success').show().delay(1500).fadeOut();
-					   					$('#addservice_id').modal('hide');
-					   					setTimeout(function(){window.location.href = "serviceorder-list.html";}, 2000);					   					
-					   			}else
-					   			{
-					   					$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
-			          			$("#error_info").html(data.message);
-				        			return false;
-					   			}
-					   	});
-             		            
-	        }
-      }
+      }            
 			
 			v.$watch('subject', function(obj) {
 					$('.default-date-picker').datepicker({   				
@@ -1555,7 +996,6 @@
 	          type: 'GET',
 	          dataType: 'json'
 	        }).done(function(response) {
-	        	//author:bischina
 	        	var str_selected = '';
 	        	response = response.data;
 	        	for (var item in response)
@@ -1572,7 +1012,6 @@
 	          dataType: 'json',
 	          async: false
 	        }).done(function(response) {
-	        	//author:bischina
 	        	obj_source.append("<option>请选择</option>");
 	        	var source_region = response.data;
 	        	for (var item in source_region)
@@ -1596,37 +1035,7 @@
 	        				        			
 	        	}
 	        	obj_source.val(str_source);   
-	        });
-	        //绑定学校信息
-			    var school_name = $("#c3");
-			    school_name.append("<option value=''>请选择学校</option>");
-			    $.ajax({
-	          url: 'school/listSchool?name=',
-	          type: 'GET',
-	          dataType: 'json'
-	        }).done(function(response) {
-	        	response = response.data;	        	    	
-	        	for (var item in response)
-	        	{
-	        			school_name.append("<option value='"+response[item].name+"'>"+response[item].name+"</option>");
-	        	}	
-	        	school_name.val('');
-	        });
-	        //绑定Subagency列表
-			    var obj_subagencyId = $("#c7");	
-			    $.ajax({
-	          url: 'subagency/list',
-	          type: 'GET',
-	          dataType: 'json'
-	        }).done(function(response) {
-	        	//author:bischina
-	        	response = response.data;
-	        	for (var item in response)
-	        	{
-	        			obj_subagencyId.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
-	        	}
-	        	obj_subagencyId.val('');   
-	        });
+	        });	        
 			    //绑定顾问列表			    
 	        var obj_adviserId1 = $("#a7");
 	        obj_adviserId1.append("<option value='0'>请选择</option>");
@@ -1655,140 +1064,7 @@
 	        			}
 	        	}
 	        	obj_adviserId1.val(adviserId);   
-	        });
-	        var obj_adviserId2 = $("#b2");
-	        obj_adviserId2.append("<option value='0'>请选择</option>");
-			    $.ajax({
-	          url: 'adviser/list?pageNum=0&pageSize=100000',
-	          type: 'GET',
-	          dataType: 'json'
-	        }).done(function(response) {
-	        	//author:bischina
-	        	var str_selected = '';
-	        	response = response.data;
-	        	for (var item in response)
-	        	{
-	        			if (adviserId == null)
-	        			{
-	        					obj_adviserId2.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
-	        			}else
-	        			{
-	        					if (adviserId == response[item].id)
-	        					{
-	        							obj_adviserId2.append("<option value='"+response[item].id+"' selected='true'>"+response[item].name+"</option>");
-	        					}else
-	        					{
-	        							obj_adviserId2.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
-	        					}
-	        			}
-	        	}
-	        	obj_adviserId2.val(adviserId);   
-	        });
-	        //绑定Mara列表			    
-	        var obj_mara2 = $("#b3");
-	        obj_mara2.append("<option value='0'>请选择</option>");
-			    $.ajax({
-	          url: 'mara/list?pageNum=0&pageSize=10',
-	          type: 'GET',
-	          dataType: 'json'
-	        }).done(function(response) {
-	        	//author:bischina
-	        	response = response.data;
-	        	for (var item in response)
-	        	{
-	        			obj_mara2.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
-	        	}
-	        	obj_mara2.val(0);	        	
-	        });
-	        //绑定文案列表			    
-	        var obj_officialId2 = $("#b4");
-	        obj_officialId2.append("<option value='0'>请选择</option>");
-			    $.ajax({
-	          url: 'official/list?pageNum=0&pageSize=10',
-	          type: 'GET',
-	          dataType: 'json'
-	        }).done(function(response) {
-	        	//author:bischina
-	        	response = response.data;
-	        	for (var item in response)
-	        	{
-	        			obj_officialId2.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
-	        	}
-	        	obj_officialId2.val(0);	        	
-	        });
-	        //绑定顾问列表
-	        var obj_adviserId3 = $("#c8");
-	        obj_adviserId3.append("<option value='0'>请选择</option>");
-			    $.ajax({
-	          url: 'adviser/list?pageNum=0&pageSize=100000',
-	          type: 'GET',
-	          dataType: 'json'
-	        }).done(function(response) {
-	        	//author:bischina
-	        	var str_selected = '';
-	        	response = response.data;
-	        	for (var item in response)
-	        	{
-	        			if (adviserId == null)
-	        			{
-	        					obj_adviserId3.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
-	        			}else
-	        			{
-	        					if (adviserId == response[item].id)
-	        					{
-	        							obj_adviserId3.append("<option value='"+response[item].id+"' selected='true'>"+response[item].name+"</option>");
-	        					}else
-	        					{
-	        							obj_adviserId3.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
-	        					}
-	        			}
-	        	}
-	        	obj_adviserId3.val(adviserId);   
 	        });	        
-	        //绑定文案列表			    
-	        var obj_officialId3 = $("#c9");
-	        obj_officialId3.append("<option value='0'>请选择</option>");
-			    $.ajax({
-	          url: 'official/list?pageNum=0&pageSize=10',
-	          type: 'GET',
-	          dataType: 'json'
-	        }).done(function(response) {
-	        	//author:bischina
-	        	response = response.data;
-	        	for (var item in response)
-	        	{
-	        			obj_officialId3.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
-	        	}
-	        	obj_officialId3.val(0);	        	
-	        });
-	        //绑定收款方式
-	        var receive_type1 = $("#b9");	
-			    $.ajax({
-	          url: 'receiveType/list?state=ENABLED',
-	          type: 'GET',
-	          dataType: 'json'
-	        }).done(function(response) {
-	        	//author:bischina
-	        	response = response.data;
-	        	for (var item in response)
-	        	{
-	        			receive_type1.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
-	        	}	        	 	    
-	        });
-	        //绑定收款方式
-	        var receive_type3 = $("#c12");	
-			    $.ajax({
-	          url: 'receiveType/list?state=ENABLED',
-	          type: 'GET',
-	          dataType: 'json'
-	        }).done(function(response) {
-	        	//author:bischina
-	        	response = response.data;
-	        	for (var item in response)
-	        	{
-	        			receive_type3.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
-	        	}	        	 	    
-	        });
 			});
 			
 			v.$watch('consultation', function(obj) {
@@ -1912,199 +1188,7 @@
       		//重新载入数据源
       		v.getConsultation();
       		$('#consultation_1377_id').modal('hide');
-      }
-      
-      function add_service(id,name)
-      {
-      		$("#user_id").val('0');       		
-      		if (id != '')
-      		{ 	
-      				$("#user_id").val(id);
-      				$('#b1').show();
-      				$('#b1').html(name);
-      				$('#b1a').hide();      				
-      				v.user_id = id;
-      				v.user_name = name;
-      		}else
-      		{
-      				$("#b100").val('');
-      				$('#b1').hide();
-      				$('#b1').html('');
-      				$('#b1a').show();
-      		}
-      		$('#show_paid').hide();
-      		$('#upload_receipt').hide();
-      		$("#b5 option:first").prop('selected', 'selected');
-      		$("#b7b").attr('checked','checked');
-      		$("#b8").val('');
-      		$("#b9 option:first").prop('selected', 'selected'); 
-      		$("#b10").val('');
-      		$("#b11").val('');
-      		$("#b12").val('');
-      		$("#b13 option:first").prop('selected', 'selected'); 
-      		$("#b14").val('');
-      		$("#b15").val('');
-      		$("#b16").val('');
-      		$("#b17").val('');      		
-      		$('#addservice_id').modal('show');      		
-      		ajax_service('VISA');
-      }
-      
-      $('#addservice_id :radio').live('click', function (e) {
-      		if ($(this).val() == '1')
-      		{
-      				$('#show_paid').show();      				
-      				$('#upload_receipt').show();
-      		}else
-      		{
-      				$('#show_paid').hide();
-      				$('#upload_receipt').hide();
-      		}				
-			});
-			
-			function ajax_service(va)
-			{
-					if (va == 'VISA')
-					{
-							//签证服务
-							var service_code = $("#b6");
-							service_code.find("option:selected").text("");
-							service_code.empty();
-							service_code.append("<option value=''>请选择</option>");
-							$.ajax({
-			          url: 'service/list',
-			          type: 'GET',
-			          dataType: 'json'
-			        }).done(function(response) {
-			        	response = response.data;
-			        	for (var item in response)
-			        	{
-			        			if (!response[item].code == '')
-			        			{
-					        			service_code.append("<option value='"+response[item].id+"'>"+response[item].code+"</option>");		
-			        			}
-			        	}	        	     	
-			        });
-	      	}else if (va == 'OVST')
-	      	{
-	      			//留学服务
-	      			$('#addservice_id').modal('hide'); 
-	      			add_service1(v.user_id,v.user_name);
-	      	}
-			}
-			
-			function add_service1(id,name)
-      {
-      		//留学服务
-      		$("#user_id1").val('0');
-      		if (id != '')
-      		{ 	
-      				$("#user_id1").val(id);
-      				$('#c1').show();
-      				$('#c1').html(name);
-      				$('#c1a').hide();      				
-      				v.user_id = id;
-      				v.user_name = name;
-      		}else
-      		{
-      				$("#c100").val('');
-      				$('#c1').hide();
-      				$('#c1').html('');
-      				$('#c1a').show();
-      		}
-      		var school_subject = $("#c4");
-      		school_subject.append("<option value=''>请选择</option>");    		
-      		$("#c2 option:first").prop('selected', 'selected');      		
-      		$('#addservice1_id').modal('show');      		
-      }
-      
-      $('#addservice1_id :checkbox').live('click', function (e) {
-      		if($('#c6').is(':checked'))
-      		{
-      				$('#show_deposit_user').show();      				
-      		}else
-      		{
-      				$('#show_deposit_user').hide();
-      		}				
-			});
-      
-      function ajax_subject()
-			{
-				var school_subject = $("#c4");
-				var school_name = $("#c3").find("option:selected").text();				
-				if (school_name != '请选择学校' || $("#school_name").val() != '')
-				{
-						schoolid = $("#schoolid").val();
-						schoolSubject = $("#school_subject").val();
-						if (school_name == '请选择学校') school_name = $("#school_name").val();
-						v.school_name = school_name;						
-						school_subject.find("option:selected").text("");
-						school_subject.empty();
-						school_subject.append("<option value=''>请选择</option>");
-				    $.ajax({
-		          url: 'school/list?name='+school_name,
-		          type: 'GET',
-		          dataType: 'json'
-		        }).done(function(response) {
-		        	response = response.data;
-		        	for (var item in response)
-		        	{
-		        			if (!response[item].subject == '')
-		        			{
-				        			school_subject.append("<option value='"+response[item].id+"'>"+response[item].subject+"</option>");		
-				        			v.country = response[item].country;
-		        			}
-		        	}
-		        	school_subject.append("<option value='-1'>我要添加</option>");
-		        	if(schoolSubject != '') school_subject.val(schoolid);		        	
-		        });
-      	}else
-      	{
-      			school_subject.find("option:selected").text("");
-						school_subject.empty();
-      	}
-			}
-			
-			function set_empty()
-			{
-				var school_subject = $("#c4");
-				school_subject.find("option:selected").text("");
-				school_subject.empty();
-				school_subject.append("<option value=''>请选择</option>");
-			}
-			
-			function set_schoolid(id)
-			{
-				if(id > 0)
-				{
-					$("#schoolid").val(id);
-				}else if(id == '')
-				{
-					$("#schoolid").val(0);
-				}else if(id == -1)
-				{
-					$('#add_schoolsubject_id').modal('show');
-				}
-			}
-			
-			function schoolSubjectSave()
-			{
-				var school_subject = $("#schoolsubject_name").val();
-				if (school_subject != '')
-				{
-						var str_url = "school/add";
-						$.post(str_url, { id: 0, name: v.school_name, subject: school_subject, country: v.country},
-				   	function(data){
-				   			if (data.code == 0)
-				   			{
-				   					//添加成功
-				   					$('#add_schoolsubject_id').modal('hide');
-				   					ajax_subject();
-				   			}
-				   			//console.log(data);
-				   	});
-		  	}
-			}
+      }						
       
       function show_knowledge_detail(id,parentId)
       {

@@ -499,8 +499,8 @@
 							<div class="form-group" style="width:100%;height:40px;">
 								<label class="control-label" style="width:80px;"><strong>是否已支付：</strong></label>
 								<label id="b7"></label>
-							</div>							
-							<div id="show_paid" style="width:100%;display:none;">
+							</div>
+							<div v-if="ap_list==='GW' || ap_list==='null'" id="show_paid" style="width:100%;display:none;">
 							<hr/>
 							<div class="form-group" style="width:100%;">								
 									<label class="control-label" style="width:80px;"><strong>收款日期：</strong></label>
@@ -557,7 +557,7 @@
 									<hr/>
 									<div class="form-group" style="width:100%;line-height:40px;">
 										<label class="control-label"><strong>状态：</strong></label>
-										<select class="form-control" style="width:150px;" id="b19" onchange="if(this.value=='CLOSE'){$('#upload_certificate').show();}else{$('#upload_certificate').hide();}">
+										<select class="form-control" style="width:150px;" id="b19" onchange="if(this.value=='CLOSE'){$('#upload_certificate').show();$('#close_remarks').show();}else{$('#upload_certificate').hide();$('#close_remarks').hide();}">
 										<option value="WAIT">未审核</option>
 										<option value="REVIEW">资料审核中</option>
 										<option value="FINISH">资料已审核</option>
@@ -565,6 +565,10 @@
 										<option value="COMPLETE">申请成功</option>
 										<option value="CLOSE">已关闭</option>
 										</select>
+									</div>
+									<div id="close_remarks" class="form-group" style="display:none;width:100%;line-height:40px;">
+										<label class="control-label"><strong>备注：<span style="color:red;">(此功能接口待实现)</span></strong></label>
+										<textarea id="b101" class="form-control" style="width:98%"></textarea>							
 									</div>
 							</div>							
 							</form>
@@ -866,7 +870,7 @@
 							<hr/>
 							<div class="form-group" style="width:100%;line-height:40px;">
 									<label class="control-label"><strong>备注：</strong></label>
-									<label id="c16"></label>
+									<label id="c16"></label>									
 							</div>
 							<div id="show_reqcommission" style="width:100%;margin-bottom:10px;display:none;">
 									<hr/>
@@ -938,7 +942,7 @@
 									<hr/>
 									<div class="form-group" style="width:100%;line-height:40px;">
 										<label class="control-label"><strong>状态：</strong></label>
-										<select class="form-control" id="c200" onchange="if(this.value=='PAID'){$('#upload_certificate1').show();}else{$('#upload_certificate1').hide();}">
+										<select class="form-control" id="c200" onchange="if(this.value=='PAID'){$('#upload_certificate1').show();}else{$('#upload_certificate1').hide();}if(this.value=='CLOSE'){$('#close_remarks1').show();}else{$('#close_remarks1').hide();}">
 										<option value="WAIT">未审核</option>
 										<option value="REVIEW">资料审核中</option>
 										<option value="FINISH">资料已审核</option>
@@ -947,6 +951,10 @@
 										<option value="PAID">COE支付成功</option>
 										<option value="CLOSE">已关闭</option>
 										</select>
+									</div>
+									<div id="close_remarks1" class="form-group" style="display:none;width:100%;line-height:40px;">
+										<label class="control-label"><strong>备注：<span style="color:red;">(此功能接口待实现)</span></strong></label>
+										<textarea id="b101" class="form-control" style="width:98%"></textarea>							
 									</div>
 							</div>
 							</form>
@@ -1871,7 +1879,7 @@
 			   	function(data){
 			   			if (data.code == 0)
 			   			{
-			   					if (va == 'PAID' || va == 'COMPLETE')
+			   					if (va == 'PAID' || va == 'COMPLETE' || va == 'CLOSE')
 			   					{
 					   					$.ajax({
 							          url: 'serviceOrder/finish?id='+json['id'],
