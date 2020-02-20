@@ -329,6 +329,7 @@ CREATE TABLE `b_service_order` (
   `received` decimal(8,2) DEFAULT NULL COMMENT '总计已收',
   `payment_times` int NOT NULL DEFAULT 1 COMMENT '付款次数',
   `amount` decimal(8,2) DEFAULT NULL COMMENT '本次收款',
+`expect_amount` decimal(8,2) DEFAULT NULL COMMENT '预收业绩',
   `gst` decimal(8,2) DEFAULT NULL COMMENT 'GST',
   `deduct_gst` decimal(8,2) DEFAULT NULL COMMENT 'Deduct GST',
   `bonus` decimal(8,2) DEFAULT NULL COMMENT '月奖金',
@@ -337,6 +338,7 @@ CREATE TABLE `b_service_order` (
   `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
   `official_id` int NOT NULL COMMENT '文案编号 (对应b_official.id)',
   `remarks` varchar(255) DEFAULT NULL COMMENT '备注',
+  `closed_reason` varchar(255) DEFAULT NULL COMMENT '关闭原因',
   `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已删除'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 

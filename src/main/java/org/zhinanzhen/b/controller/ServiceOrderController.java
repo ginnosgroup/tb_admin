@@ -1,5 +1,7 @@
 package org.zhinanzhen.b.controller;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -96,6 +98,7 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "received", required = false) String received,
 			@RequestParam(value = "paymentTimes", required = false) String paymentTimes,
 			@RequestParam(value = "amount", required = false) String amount,
+			@RequestParam(value = "expectAmount", required = false) String expectAmount,
 			@RequestParam(value = "gst", required = false) String gst,
 			@RequestParam(value = "deductGst", required = false) String deductGst,
 			@RequestParam(value = "bonus", required = false) String bonus,
@@ -103,7 +106,8 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "maraId", required = false) String maraId,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
 			@RequestParam(value = "officialId", required = false) String officialId,
-			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
+			@RequestParam(value = "remarks", required = false) String remarks,
+			@RequestParam(value = "closedReason", required = false) String closedReason, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -138,6 +142,8 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setPaymentTimes(StringUtil.toInt(paymentTimes));
 			if (StringUtil.isNotEmpty(amount))
 				serviceOrderDto.setAmount(Double.parseDouble(amount));
+			if (StringUtil.isNotEmpty(expectAmount))
+				serviceOrderDto.setExpectAmount(Double.parseDouble(expectAmount));
 			if (StringUtil.isNotEmpty(gst))
 				serviceOrderDto.setGst(Double.parseDouble(gst));
 			if (StringUtil.isNotEmpty(deductGst))
@@ -154,6 +160,8 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setOfficialId(StringUtil.toInt(officialId));
 			if (StringUtil.isNotEmpty(remarks))
 				serviceOrderDto.setRemarks(remarks);
+			if (StringUtil.isNotEmpty(closedReason))
+				serviceOrderDto.setClosedReason(closedReason);
 			if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
 				if (adminUserLoginInfo != null)
 					serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
@@ -183,6 +191,7 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "received", required = false) String received,
 			@RequestParam(value = "paymentTimes", required = false) String paymentTimes,
 			@RequestParam(value = "amount", required = false) String amount,
+			@RequestParam(value = "expectAmount", required = false) String expectAmount,
 			@RequestParam(value = "gst", required = false) String gst,
 			@RequestParam(value = "deductGst", required = false) String deductGst,
 			@RequestParam(value = "bonus", required = false) String bonus,
@@ -190,7 +199,8 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "maraId", required = false) String maraId,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
 			@RequestParam(value = "officialId", required = false) String officialId,
-			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
+			@RequestParam(value = "remarks", required = false) String remarks,
+			@RequestParam(value = "closedReason", required = false) String closedReason, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -221,6 +231,8 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setPaymentTimes(StringUtil.toInt(paymentTimes));
 			if (StringUtil.isNotEmpty(amount))
 				serviceOrderDto.setAmount(Double.parseDouble(amount));
+			if (StringUtil.isNotEmpty(expectAmount))
+				serviceOrderDto.setExpectAmount(Double.parseDouble(expectAmount));
 			if (StringUtil.isNotEmpty(gst))
 				serviceOrderDto.setGst(Double.parseDouble(gst));
 			if (StringUtil.isNotEmpty(deductGst))
@@ -237,6 +249,8 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setOfficialId(StringUtil.toInt(officialId));
 			if (StringUtil.isNotEmpty(remarks))
 				serviceOrderDto.setRemarks(remarks);
+			if (StringUtil.isNotEmpty(closedReason))
+				serviceOrderDto.setClosedReason(closedReason);
 			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
 			if (i > 0) {
 				return new Response<Integer>(0, i);
@@ -259,6 +273,9 @@ public class ServiceOrderController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
+			List<String> stateList = null;
+			if (state != null)
+				stateList = new ArrayList<>(Arrays.asList(state.split(",")));
 			String reviewState = null;
 			Integer newAdviserId = getAdviserId(request);
 			if (newAdviserId != null)
@@ -273,7 +290,7 @@ public class ServiceOrderController extends BaseController {
 				officialId = newOfficialId + "";
 
 			return new Response<Integer>(0,
-					serviceOrderService.countServiceOrder(type, state, reviewState, StringUtil.toInt(userId),
+					serviceOrderService.countServiceOrder(type, stateList, reviewState, StringUtil.toInt(userId),
 							StringUtil.toInt(maraId), StringUtil.toInt(adviserId), StringUtil.toInt(officialId)));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
@@ -292,6 +309,9 @@ public class ServiceOrderController extends BaseController {
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
+			List<String> stateList = null;
+			if (state != null)
+				stateList = new ArrayList<>(Arrays.asList(state.split(",")));
 			String reviewState = null;
 			Integer newAdviserId = getAdviserId(request);
 			if (newAdviserId != null)
@@ -306,7 +326,7 @@ public class ServiceOrderController extends BaseController {
 				officialId = newOfficialId + "";
 
 			return new Response<List<ServiceOrderDTO>>(0,
-					serviceOrderService.listServiceOrder(type, state, reviewState, StringUtil.toInt(userId),
+					serviceOrderService.listServiceOrder(type, stateList, reviewState, StringUtil.toInt(userId),
 							StringUtil.toInt(maraId), StringUtil.toInt(adviserId), StringUtil.toInt(officialId),
 							pageNum, pageSize));
 		} catch (ServiceException e) {
