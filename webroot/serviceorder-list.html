@@ -499,8 +499,8 @@
 							<div class="form-group" style="width:100%;height:40px;">
 								<label class="control-label" style="width:80px;"><strong>是否已支付：</strong></label>
 								<label id="b7"></label>
-							</div>							
-							<div id="show_paid" style="width:100%;display:none;">
+							</div>
+							<div v-if="ap_list==='GW' || ap_list==='null'" id="show_paid" style="width:100%;display:none;">
 							<hr/>
 							<div class="form-group" style="width:100%;">								
 									<label class="control-label" style="width:80px;"><strong>收款日期：</strong></label>
@@ -540,7 +540,7 @@
 										$<label id="b16" style="width:65px;"></label>
 									</div>
 									<div class="form-group" style="">
-										<label class="control-label"><strong>月奖：</strong></label>
+										<label class="control-label"><strong>预收业绩</strong></label>
 										$<label id="b17" style="width:50px;"></label>
 									</div>
 							</div>
@@ -557,7 +557,7 @@
 									<hr/>
 									<div class="form-group" style="width:100%;line-height:40px;">
 										<label class="control-label"><strong>状态：</strong></label>
-										<select class="form-control" style="width:150px;" id="b19" onchange="if(this.value=='CLOSE'){$('#upload_certificate').show();}else{$('#upload_certificate').hide();}">
+										<select class="form-control" style="width:150px;" id="b19" onchange="if(this.value=='CLOSE'){$('#upload_certificate').show();$('#close_remarks').show();}else{$('#upload_certificate').hide();$('#close_remarks').hide();}">
 										<option value="WAIT">未审核</option>
 										<option value="REVIEW">资料审核中</option>
 										<option value="FINISH">资料已审核</option>
@@ -565,6 +565,10 @@
 										<option value="COMPLETE">申请成功</option>
 										<option value="CLOSE">已关闭</option>
 										</select>
+									</div>
+									<div id="close_remarks" class="form-group" style="display:none;width:100%;line-height:40px;">
+										<label class="control-label"><strong>备注：<span style="color:red;">(此功能接口待实现)</span></strong></label>
+										<textarea id="b101" class="form-control" style="width:98%"></textarea>							
 									</div>
 							</div>							
 							</form>
@@ -610,7 +614,7 @@
 							<form class="form-inline" style="">																				
 							<div class="form-group" style="width:100%;height:40px;">
 								<label class="control-label" style="width:80px;">客户姓名<span style="color:red;">*</span></label>								
-								<label id="b1a"><input type="text" class="form-control small" style="width:150px;" id="b100" placeholder="请输入查询" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,\'\')" value=""></label>
+								<label id="b1a"><input type="text" class="form-control small" style="width:150px;" id="b100" placeholder="请输入查询" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,'')" value=""></label>
 								<label id="b1"></label>
 							</div>
 							<div class="form-group" style="width:100%;height:40px;">
@@ -664,19 +668,19 @@
 							<div class="form-group" style="display:block;line-height:40px;">
 									<div class="form-group">
 										<label class="control-label" style="width:80px;">本次收款</label>
-										$<input type="text" autocomplete="off" id="b14" class="form-control" style="width:100px;">
+										$<input type="text" autocomplete="off" id="b14" class="form-control" style="width:80px;">
 									</div>
 									<div class="form-group" style="margin-left:10px;">
 										<label class="control-label">GST</label>
-										$<input type="text" autocomplete="off" id="b15" class="form-control" style="width:50px;">
+										$<input type="text" autocomplete="off" id="b15" class="form-control" readonly="true" style="width:80px;">
 									</div>
 									<div class="form-group" style="margin-left:10px;">
 										<label class="control-label">Deduct GST</label>
-										$<input type="text" autocomplete="off" id="b16" class="form-control" style="width:100px;">
+										$<input type="text" autocomplete="off" id="b16" class="form-control" readonly="true" style="width:80px;">
 									</div>
 									<div class="form-group" style="margin-left:10px;">
-										<label class="control-label">月奖</label>
-										$<input type="text" autocomplete="off" id="b17" class="form-control" style="width:50px;">
+										<label class="control-label">预收业绩</label>
+										$<input type="text" autocomplete="off" id="b17" class="form-control" disabled="true" style="width:80px;">
 									</div>
 							</div>
 							</div>
@@ -866,7 +870,7 @@
 							<hr/>
 							<div class="form-group" style="width:100%;line-height:40px;">
 									<label class="control-label"><strong>备注：</strong></label>
-									<label id="c16"></label>
+									<label id="c16"></label>									
 							</div>
 							<div id="show_reqcommission" style="width:100%;margin-bottom:10px;display:none;">
 									<hr/>
@@ -938,7 +942,7 @@
 									<hr/>
 									<div class="form-group" style="width:100%;line-height:40px;">
 										<label class="control-label"><strong>状态：</strong></label>
-										<select class="form-control" id="c200" onchange="if(this.value=='PAID'){$('#upload_certificate1').show();}else{$('#upload_certificate1').hide();}">
+										<select class="form-control" id="c200" onchange="if(this.value=='PAID'){$('#upload_certificate1').show();}else{$('#upload_certificate1').hide();}if(this.value=='CLOSE'){$('#close_remarks1').show();}else{$('#close_remarks1').hide();}">
 										<option value="WAIT">未审核</option>
 										<option value="REVIEW">资料审核中</option>
 										<option value="FINISH">资料已审核</option>
@@ -947,6 +951,10 @@
 										<option value="PAID">COE支付成功</option>
 										<option value="CLOSE">已关闭</option>
 										</select>
+									</div>
+									<div id="close_remarks1" class="form-group" style="display:none;width:100%;line-height:40px;">
+										<label class="control-label"><strong>备注：<span style="color:red;">(此功能接口待实现)</span></strong></label>
+										<textarea id="b101" class="form-control" style="width:98%"></textarea>							
 									</div>
 							</div>
 							</form>
@@ -1389,6 +1397,9 @@
 						break;
 						case 'PAID':
 									str_html = '<label style="color:red;">COE支付成功</label>';
+						break;
+						case 'CLOSE':
+									str_html = '<label style="color:red;">已关闭</label>';
 						break;						
 					}
 					return str_html;
@@ -1831,7 +1842,7 @@
 			        	if (response.pay) str_ispay = '是';
 			        	$('#showdetail1_id #c10').html(str_ispay);
 			        	$('#showdetail1_id #c11').html(v.getTime(response.receiveDate));
-			        	$('#showdetail1_id #c12').html(response.receiveType.name);
+			        	if (response.depositUser) $('#showdetail1_id #c12').html(response.receiveType.name);
 			        	$('#showdetail1_id #c13').html(response.receivable);
 			        	$('#showdetail1_id #c14').html(response.discount);
 			        	$('#showdetail1_id #c15').html(response.received);
@@ -1859,7 +1870,7 @@
       function flowstep(va,par)
       {
       		var str_url = "serviceOrder/approval";
-      		if (par == '0') str_url = "serviceOrder/refuse";
+      		if (par == '0' || va == 'CLOSE') str_url = "serviceOrder/refuse";
       		
           var json = {};
           json['id'] = $("#service_id").val();
@@ -1868,7 +1879,7 @@
 			   	function(data){
 			   			if (data.code == 0)
 			   			{
-			   					if (va == 'PAID' || va == 'COMPLETE')
+			   					if (va == 'PAID' || va == 'COMPLETE' || va == 'CLOSE')
 			   					{
 					   					$.ajax({
 							          url: 'serviceOrder/finish?id='+json['id'],
@@ -2187,6 +2198,14 @@
 	        			receive_type3.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
 	        	}	        	 	    
 	        });
+	        //计算GST相关金额
+			    $("#addservice_id #b14").keyup(function(){
+			    	var fee = $("#addservice_id #b14").val();
+			    	var gst = (fee/11).toFixed(2);
+			    	$("#addservice_id #b15").val(gst);
+			    	var deduct_gst = (fee-gst).toFixed(2);
+			    	$("#addservice_id #b16").val(deduct_gst);	        	
+					});
 			});						  
       
       function show_knowledge_detail(id,parentId)
