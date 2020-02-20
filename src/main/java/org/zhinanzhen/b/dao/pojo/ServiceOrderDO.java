@@ -48,6 +48,8 @@ public class ServiceOrderDO {
 	private int paymentTimes;
 
 	private double amount;
+	
+	private double expectAmount;
 
 	private double gst;
 
@@ -64,5 +66,7 @@ public class ServiceOrderDO {
 	private int officialId;
 
 	private String remarks;
+	
+	private String closedReason;
 
 }

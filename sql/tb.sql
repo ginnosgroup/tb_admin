@@ -316,7 +316,7 @@ CREATE TABLE `b_service_order` (
   `type` varchar(4) DEFAULT NULL COMMENT '服务类型(VISA:签证服务,OVST:留学服务)',
 `service_id` int NOT NULL COMMENT '服务项目编号 (对应b_service.id)',
 `school_id` int DEFAULT NULL COMMENT '学校编号 (对应b_school.id,留学服务专用字段)',
-`state` varchar(8) NOT NULL COMMENT '状态 (WAIT:待提交审核,REVIEW:审核中,APPLY:服务申请中,COMPLETE:服务申请完成,PAID:完成-支付成功,CLOSE:关闭)',
+`state` varchar(8) NOT NULL COMMENT '状态 (PENDING:待提交审核,REVIEW:审核中,APPLY:服务申请中,COMPLETE:服务申请完成,PAID:完成-支付成功,CLOSE:关闭)',
 `review_state` varchar(8) DEFAULT NULL COMMENT '审批状态 (OFFICIAL:文案审批通过,MARA:Mara审批通过,KJ:财务审批通过)',
 `is_settle` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否提前扣佣 (留学服务专用字段)',
 `is_deposit_user` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否为保证金用户 (留学服务专用字段)',
@@ -329,6 +329,7 @@ CREATE TABLE `b_service_order` (
   `received` decimal(8,2) DEFAULT NULL COMMENT '总计已收',
   `payment_times` int NOT NULL DEFAULT 1 COMMENT '付款次数',
   `amount` decimal(8,2) DEFAULT NULL COMMENT '本次收款',
+`expect_amount` decimal(8,2) DEFAULT NULL COMMENT '预收业绩',
   `gst` decimal(8,2) DEFAULT NULL COMMENT 'GST',
   `deduct_gst` decimal(8,2) DEFAULT NULL COMMENT 'Deduct GST',
   `bonus` decimal(8,2) DEFAULT NULL COMMENT '月奖金',
@@ -337,6 +338,7 @@ CREATE TABLE `b_service_order` (
   `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
   `official_id` int NOT NULL COMMENT '文案编号 (对应b_official.id)',
   `remarks` varchar(255) DEFAULT NULL COMMENT '备注',
+  `closed_reason` varchar(255) DEFAULT NULL COMMENT '关闭原因',
   `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已删除'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
@@ -346,7 +348,7 @@ CREATE TABLE `b_service_order_review` (
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `service_order_id` int NOT NULL COMMENT '服务订单编号 (对应b_service_order.id)',
 `commission_order_id` int DEFAULT NULL COMMENT '佣金订单编号 (对应b_commission_order.id)',
-  `adviser_state` varchar(8) DEFAULT NULL COMMENT '顾问状态 (WAIT:待提交审核,REVIEW:审核中,APPLY:服务申请中,COMPLETE:服务申请完成,PAID:完成-支付成功,CLOSE:关闭)',
+  `adviser_state` varchar(8) DEFAULT NULL COMMENT '顾问状态 (PENDING:待提交审核,REVIEW:审核中,APPLY:服务申请中,COMPLETE:服务申请完成,PAID:完成-支付成功,CLOSE:关闭)',
   `mara_state` varchar(8) DEFAULT NULL COMMENT 'MARA状态 (WAIT:待审核,FINISH:已审核)',
   `official_state` varchar(8) DEFAULT NULL COMMENT '文案状态 (REVIEW:资料审核中,FINISH:资料审核完毕,APPLY:服务申请中,COMPLETE:服务申请完成,PAID:完成-支付成功)',
   `kj_state` varchar(8) DEFAULT NULL COMMENT '财务状态 (WAIT:佣金待审核,FINISH:佣金已审核,COMPLETE:结算完成)',

@@ -24,6 +24,7 @@
                 received,
                 payment_times,
                 amount,
+                expect_amount,
                 gst,
                 deduct_gst,
                 bonus,
@@ -32,6 +33,7 @@
                 adviser_id,
                 official_id,
                 remarks,
+                closed_reason,
                 is_delete)
             VALUES (
                 now(),
@@ -52,6 +54,7 @@
                 #{received},
                 #{paymentTimes},
                 #{amount},
+                #{expectAmount},
                 #{gst},
                 #{deductGst},
                 #{bonus},
@@ -60,6 +63,7 @@
                 #{adviserId},
                 #{officialId},
                 #{remarks},
+                #{closedReason},
                 0);
     </insert>
     
@@ -132,6 +136,9 @@
         <if test='remarks != null'>
             , remarks = #{remarks}
         </if>
+        <if test='closedReason != null'>
+            , closed_reason = #{closedReason}
+        </if>
         WHERE id = #{id};
     </update>
     
@@ -148,8 +155,14 @@
         <if test='type != null and type != ""'>
 			AND type = #{type}
 		</if>
-		<if test='state != null and state != ""'>
-			AND state = #{state}
+		<if test='excludeState != null and excludeState != ""'>
+			AND state != #{excludeState}
+		</if>
+		<if test='stateList != null'>
+			AND state IN
+			<foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">
+				#{stateList}
+			</foreach>
 		</if>
 		<if test='reviewState != null and reviewState != ""'>
 			AND review_state = #{reviewState}
@@ -189,6 +202,7 @@
             received,
             payment_times AS paymentTimes,
             amount,
+            expect_amount AS expectAmount,
             gst,
             deduct_gst AS deductGst,
             bonus,
@@ -196,14 +210,21 @@
             mara_id AS maraId,
             adviser_id AS adviserId,
             official_id AS officialId,
-            remarks
+            remarks,
+            closed_reason AS closedReason
         FROM b_service_order
         WHERE is_delete = 0
         <if test='type != null and type != ""'>
 			AND type = #{type}
 		</if>
-		<if test='state != null and state != ""'>
-			AND state = #{state}
+		<if test='excludeState != null and excludeState != ""'>
+			AND state != #{excludeState}
+		</if>
+		<if test='stateList != null'>
+			AND state IN
+			<foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">
+				#{stateList}
+			</foreach>
 		</if>
 		<if test='reviewState != null and reviewState != ""'>
 			AND review_state = #{reviewState}
@@ -244,6 +265,7 @@
             received,
             payment_times AS paymentTimes,
             amount,
+            expect_amount AS expectAmount,
             gst,
             deduct_gst AS deductGst,
             bonus,
@@ -251,7 +273,8 @@
             mara_id AS maraId,
             adviser_id AS adviserId,
             official_id AS officialId,
-            remarks
+            remarks,
+            closed_reason AS closedReason
         FROM b_service_order WHERE id = #{id, jdbcType=INTEGER};
     </select>
 	
