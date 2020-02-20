@@ -540,7 +540,7 @@
 								<input type="text" autocomplete="off" id="a2" class="form-control" style="width:200px;" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,'');" placeholder="请输入客户姓名的拼音" >
 							</div>
 							<div class="form-group" style="width:100%;height:40px;">
-								<label class="control-label">手机号码</label>
+								<label class="control-label" style="color:red;">手机号码</label>
 								<input type="text" autocomplete="off" id="a3" class="form-control" style="width:200px;" placeholder="请输入手机号码" >
 							</div>
 							<div class="form-group" style="width:100%;height:40px;">
@@ -1470,7 +1470,7 @@
           var jqTextarea = $('textarea',$("#addnew_id"));
           
           var check_result = 0;
-          if (jqInputs[0].value != '' && jqInputs[1].value != '' && jqSelect[1].value != '0')
+          if (jqInputs[0].value != '' && jqInputs[1].value != '' && jqInputs[2].value != '' && jqSelect[1].value != '0')
           {
           		check_result = true;
           }else

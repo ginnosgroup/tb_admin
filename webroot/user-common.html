@@ -1,9 +1,10 @@
+<meta charset="utf-8"/>
 <div class="modal fade" id="addnewservice1_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 		<div class="modal-dialog" role="document" style="width:700px;">
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title" id="myModalLabel">ĞÂÔöÇ©Ö¤·şÎñ</h4>
+					<h4 class="modal-title" id="myModalLabel">æ–°å¢ç­¾è¯æœåŠ¡</h4>
 				</div>
 				<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
 		      <button data-dismiss="alert" class="close close-sm" type="button">
@@ -21,53 +22,53 @@
 						<form class="form-inline" style="">
 						<input type="hidden" name="user_id" id="user_id" value="0" />													
 						<div class="form-group" style="width:100%;height:40px;">
-							<label class="control-label" style="width:80px;">¿Í»§ĞÕÃû<span style="color:red;">*</span></label>
+							<label class="control-label" style="width:80px;">å®¢æˆ·å§“å<span style="color:red;">*</span></label>
 							<label id="b1"></label>
-							<label id="b1a"><input type="text" class="form-control small" style="width:150px;" id="b100" placeholder="ÇëÊäÈë²éÑ¯" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,'')" value=""></label>								
+							<label id="b1a"><input type="text" class="form-control small" style="width:150px;" id="b100" placeholder="è¯·è¾“å…¥æŸ¥è¯¢" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,'')" value=""></label>								
 						</div>
 						<div class="form-group" style="width:100%;height:40px;">
-							<label class="control-label" style="width:80px;">¹ËÎÊ<span style="color:red;">*</span></label>
+							<label class="control-label" style="width:80px;">é¡¾é—®<span style="color:red;">*</span></label>
 							<select class="form-control" style="width:150px;" id="b2"></select>
 							<label class="control-label">Mara<span style="color:red;">*</span></label>
 							<select class="form-control" style="width:150px;" id="b3"></select>
-							<label class="control-label">ÎÄ°¸</label>
+							<label class="control-label">æ–‡æ¡ˆ</label>
 							<select class="form-control" style="width:150px;" id="b4"></select>
 						</div>
 						<div class="form-group" style="width:100%;height:40px;">
-							<label class="control-label" style="width:80px;">·şÎñÏîÄ¿<span style="color:red;">*</span></label>
+							<label class="control-label" style="width:80px;">æœåŠ¡é¡¹ç›®<span style="color:red;">*</span></label>
 							<select class="form-control" style="width:150px;" id="b5" onchange="ajax_service(this.value)">
-							<option value="VISA">Ç©Ö¤</option>
-							<option value="OVST">ÁôÑ§</option>
+							<option value="VISA">ç­¾è¯</option>
+							<option value="OVST">ç•™å­¦</option>
 							</select>
 							<select class="form-control" style="width:150px;margin-left:42px;" id="b6"></select>								
 						</div>
 						<div class="form-group" style="width:100%;height:40px;">
-							<label class="control-label" style="width:80px;">ÊÇ·ñÒÑÖ§¸¶<span style="color:red;">*</span></label>
-							<input type="radio" name="b7" id="b7a" value="1" /><label for="b7a">ÊÇ</label>
-							<input type="radio" name="b7" id="b7b" value="0" checked="true" style="margin-left:20px;" /><label for="b7b">·ñ</label>
+							<label class="control-label" style="width:80px;">æ˜¯å¦å·²æ”¯ä»˜<span style="color:red;">*</span></label>
+							<input type="radio" name="b7" id="b7a" value="1" /><label for="b7a">æ˜¯</label>
+							<input type="radio" name="b7" id="b7b" value="0" checked="true" style="margin-left:20px;" /><label for="b7b">å¦</label>
 						</div>
 						<div id="show_paid" style="width:100%;display:none;">
 						<div class="form-group" style="width:100%;">								
-								<label class="control-label" style="width:80px;">ÊÕ¿îÈÕÆÚ</label>
-								<input type="text" autocomplete="off" id="b8" class="form-control default-date-picker" style="width:200px;" placeholder="ÇëÑ¡ÔñÈÕÆÚ" data-date-format="yyyy-mm-dd">
-								<label class="control-label">ÊÕ¿î·½Ê½</label>
+								<label class="control-label" style="width:80px;">æ”¶æ¬¾æ—¥æœŸ</label>
+								<input type="text" autocomplete="off" id="b8" class="form-control default-date-picker" style="width:200px;" placeholder="è¯·é€‰æ‹©æ—¥æœŸ" data-date-format="yyyy-mm-dd">
+								<label class="control-label">æ”¶æ¬¾æ–¹å¼</label>
 								<select class="form-control" style="width:150px;" id="b9"></select>									
 						</div>
 						<div class="form-group" style="display:block;line-height:40px;">
 								<div class="form-group">
-									<label class="control-label" style="width:80px;">×Ü¼ÆÓ¦ÊÕ</label>
+									<label class="control-label" style="width:80px;">æ€»è®¡åº”æ”¶</label>
 									$<input type="text" autocomplete="off" id="b10" class="form-control" style="width:100px;">
 								</div>
 								<div class="form-group" style="margin-left:10px;">
-									<label class="control-label">ÕÛ¿Û</label>
+									<label class="control-label">æŠ˜æ‰£</label>
 									$<input type="text" autocomplete="off" id="b11" class="form-control" style="width:100px;">
 								</div>
 								<div class="form-group" style="margin-left:10px;">
-									<label class="control-label">×Ü¼ÆÊÕ¿î</label>
+									<label class="control-label">æ€»è®¡æ”¶æ¬¾</label>
 									$<input type="text" autocomplete="off" id="b12" class="form-control" style="width:100px;">
 								</div>
 								<div class="form-group" style="margin-left:10px;">
-									<label class="control-label">¸¶¿î´ÎÊı</label>
+									<label class="control-label">ä»˜æ¬¾æ¬¡æ•°</label>
 									<select class="form-control" style="width:70px;" id="b13">
 									<option value="1"  selected="selected">1</option>
 									<option value="2">2</option>
@@ -76,7 +77,7 @@
 						</div>
 						<div class="form-group" style="display:block;line-height:40px;">
 								<div class="form-group">
-									<label class="control-label" style="width:80px;">±¾´ÎÊÕ¿î</label>
+									<label class="control-label" style="width:80px;">æœ¬æ¬¡æ”¶æ¬¾</label>
 									$<input type="text" autocomplete="off" id="b14" class="form-control" style="width:80px;">
 								</div>
 								<div class="form-group" style="margin-left:10px;">
@@ -88,21 +89,21 @@
 									$<input type="text" autocomplete="off" id="b16" class="form-control" readonly="true" style="width:80px;">
 								</div>
 								<div class="form-group" style="margin-left:10px;">
-									<label class="control-label">Ô¤ÊÕÒµ¼¨</label>
+									<label class="control-label">é¢„æ”¶ä¸šç»©</label>
 									$<input type="text" autocomplete="off" id="b17" class="form-control" disabled="true" style="width:80px;">
 								</div>
 						</div>
 						</div>
 						<div class="form-group" style="width:100%;line-height:40px;">
-							<label class="control-label">±¸×¢</label>
+							<label class="control-label">å¤‡æ³¨</label>
 							<textarea id="b8" class="form-control" style="width:98%"></textarea>
 						</div>
 						</form>
 				</div>
 				<div class="modal-footer" style="text-align: center;">
-					<button onclick="alert('´ıÊµÏÖ');" id="upload_receipt" type="button" class="btn btn-danger">ÉÏ´«ÊÕ¿îÆ¾Ö¤</button>
-					<button onclick="addnewService1Save()" type="button" class="btn btn-primary">Ìá½»</button>
-					<button type="button" class="btn btn-default" data-dismiss="modal">È¡Ïû</button>
+					<button onclick="alert('å¾…å®ç°');" id="upload_receipt" type="button" class="btn btn-danger">ä¸Šä¼ æ”¶æ¬¾å‡­è¯</button>
+					<button onclick="addnewService1Save()" type="button" class="btn btn-primary">æäº¤</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">å–æ¶ˆ</button>
 				</div>
 			</div>
 		</div>
@@ -112,7 +113,7 @@
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title" id="myModalLabel">ĞÂÔöÁôÑ§·şÎñ</h4>
+					<h4 class="modal-title" id="myModalLabel">æ–°å¢ç•™å­¦æœåŠ¡</h4>
 				</div>
 				<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
 		      <button data-dismiss="alert" class="close close-sm" type="button">
@@ -133,71 +134,71 @@
 						<input type="hidden" name="school_name" id="school_name" value="" />
 						<input type="hidden" name="school_subject" id="school_subject" value="" />																				
 						<div class="form-group" style="width:100%;height:40px;">
-							<label class="control-label" style="width:80px;">¿Í»§ĞÕÃû<span style="color:red;">*</span></label>
+							<label class="control-label" style="width:80px;">å®¢æˆ·å§“å<span style="color:red;">*</span></label>
 							<label id="c1"></label>
-							<label id="c1a"><input type="text" class="form-control small" style="width:150px;" id="c100" placeholder="ÇëÊäÈë²éÑ¯" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,'')" value=""></label>
+							<label id="c1a"><input type="text" class="form-control small" style="width:150px;" id="c100" placeholder="è¯·è¾“å…¥æŸ¥è¯¢" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,'')" value=""></label>
 						</div>
 						<div class="form-group" style="width:100%;height:40px;">
-							<label class="control-label" style="width:80px;">·şÎñÏîÄ¿<span style="color:red;">*</span></label>
+							<label class="control-label" style="width:80px;">æœåŠ¡é¡¹ç›®<span style="color:red;">*</span></label>
 							<select class="form-control" style="width:150px;" id="c2" onchange="$('#addnewservice2_id').modal('hide');add_service1(v.user_id,v.user_name);">
-							<option value="OVST" selected="selected">ÁôÑ§</option>
-							<option value="VISA">Ç©Ö¤</option>
+							<option value="OVST" selected="selected">ç•™å­¦</option>
+							<option value="VISA">ç­¾è¯</option>
 							</select>
-							<label class="control-label">Ñ§Ğ£<span style="color:red;">*</span></label>
+							<label class="control-label">å­¦æ ¡<span style="color:red;">*</span></label>
 							<select class="form-control" style="width:150px;" id="c3" onchange="if (this.value!=''){addnewservice2_ajax_subject();}else{addnewservice2_set_empty();}"></select>
-							<label class="control-label">¿Î³Ì<span style="color:red;">*</span></label>
+							<label class="control-label">è¯¾ç¨‹<span style="color:red;">*</span></label>
 							<select class="form-control" style="width:150px;" id="c4" onchange="addnewservice2_set_schoolid(this.value)"></select>					
 						</div>
 						<div class="form-group" style="width:100%;height:40px;">
-							<label class="control-label" style="width:80px;">ÌáÇ°¿ÛÓ¶<span style="color:red;display:none;">*</span></label>
-							<input type="radio" name="c5" id="c5a" value="1" /><label for="c5a">ÊÇ</label>
-							<input type="radio" name="c5" id="c5b" value="0" checked="true" style="margin-left:20px;" /><label for="c5b">·ñ</label>
-							<input type="checkbox" name="c6" id="c6" value="1" style="margin-left:75px;"><label id="labc6" for="c6">±£Ö¤½ğ¿Í»§</label>
+							<label class="control-label" style="width:80px;">æå‰æ‰£ä½£<span style="color:red;display:none;">*</span></label>
+							<input type="radio" name="c5" id="c5a" value="1" /><label for="c5a">æ˜¯</label>
+							<input type="radio" name="c5" id="c5b" value="0" checked="true" style="margin-left:20px;" /><label for="c5b">å¦</label>
+							<input type="checkbox" name="c6" id="c6" value="1" style="margin-left:75px;"><label id="labc6" for="c6">ä¿è¯é‡‘å®¢æˆ·</label>
 							<label class="control-label" style="width:80px;margin-left:60px;">Subagency<span style="color:red;">*</span></label>
 							<select class="form-control" style="width:150px;" id="c7"></select>	
 						</div>
 						<div class="form-group" style="width:100%;height:40px;">
-							<label class="control-label" style="width:80px;">¹ËÎÊ<span style="color:red;">*</span></label>
+							<label class="control-label" style="width:80px;">é¡¾é—®<span style="color:red;">*</span></label>
 							<select class="form-control" style="width:150px;" id="c8"></select>								
-							<label class="control-label">ÎÄ°¸<span style="color:red;">*</span></label>
+							<label class="control-label">æ–‡æ¡ˆ<span style="color:red;">*</span></label>
 							<select class="form-control" style="width:150px;" id="c9"></select>
 						</div>
 						<div id="show_deposit_user" style="width:100%;display:none;">
 						<div class="form-group" style="width:100%;height:40px;">
-							<label class="control-label" style="width:80px;">±£Ö¤½ğÊÇ·ñÒÑÖ§¸¶<span style="color:red;">*</span></label>
-							<input type="radio" name="c10" id="c10a" value="true" checked="true" /><label for="c10a">ÊÇ</label>
-							<input type="radio" name="c10" id="c10b" value="false" style="margin-left:20px;" /><label for="c10b">·ñ</label>
+							<label class="control-label" style="width:80px;">ä¿è¯é‡‘æ˜¯å¦å·²æ”¯ä»˜<span style="color:red;">*</span></label>
+							<input type="radio" name="c10" id="c10a" value="true" checked="true" /><label for="c10a">æ˜¯</label>
+							<input type="radio" name="c10" id="c10b" value="false" style="margin-left:20px;" /><label for="c10b">å¦</label>
 						</div>
 						<div class="form-group" style="width:100%;">								
-								<label class="control-label" style="width:80px;">ÊÕ¿îÈÕÆÚ</label>
-								<input type="text" autocomplete="off" id="c11" class="form-control default-date-picker" style="width:200px;" placeholder="ÇëÑ¡ÔñÈÕÆÚ" data-date-format="yyyy-mm-dd">
-								<label class="control-label">ÊÕ¿î·½Ê½</label>
+								<label class="control-label" style="width:80px;">æ”¶æ¬¾æ—¥æœŸ</label>
+								<input type="text" autocomplete="off" id="c11" class="form-control default-date-picker" style="width:200px;" placeholder="è¯·é€‰æ‹©æ—¥æœŸ" data-date-format="yyyy-mm-dd">
+								<label class="control-label">æ”¶æ¬¾æ–¹å¼</label>
 								<select class="form-control" style="width:150px;" id="c12"></select>									
 						</div>
 						<div class="form-group" style="display:block;line-height:40px;">
 								<div class="form-group">
-									<label class="control-label" style="width:80px;">×Ü¼ÆÓ¦ÊÕ</label>
+									<label class="control-label" style="width:80px;">æ€»è®¡åº”æ”¶</label>
 									$<input type="text" autocomplete="off" id="c13" class="form-control" style="width:100px;">
 								</div>
 								<div class="form-group" style="margin-left:10px;">
-									<label class="control-label">ÕÛ¿Û</label>
+									<label class="control-label">æŠ˜æ‰£</label>
 									$<input type="text" autocomplete="off" id="c14" class="form-control" style="width:100px;">
 								</div>
 								<div class="form-group" style="margin-left:10px;">
-									<label class="control-label">×Ü¼ÆÊÕ¿î</label>
+									<label class="control-label">æ€»è®¡æ”¶æ¬¾</label>
 									$<input type="text" autocomplete="off" id="c15" class="form-control" style="width:100px;">
 								</div>									
 						</div>							
 						</div>
 						<div class="form-group" style="width:100%;line-height:40px;">
-							<label class="control-label">±¸×¢</label>
+							<label class="control-label">å¤‡æ³¨</label>
 							<textarea id="b8" class="form-control" style="width:98%"></textarea>
 						</div>
 						</form>
 				</div>
 				<div class="modal-footer" style="text-align: center;">
-					<button onclick="addnewService2Save()" type="button" class="btn btn-primary">Ìá½»</button>
-					<button type="button" class="btn btn-default" data-dismiss="modal">È¡Ïû</button>
+					<button onclick="addnewService2Save()" type="button" class="btn btn-primary">æäº¤</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">å–æ¶ˆ</button>
 				</div>
 			</div>
 		</div>
@@ -207,12 +208,12 @@
 				<div class="modal-content" style="background:#efefef;">
 					<div class="modal-header" style="background:#72d0eb;">
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<h4 class="modal-title" id="myModalLabel">Ìí¼Ó¿Î³Ì</h4>
+						<h4 class="modal-title" id="myModalLabel">æ·»åŠ è¯¾ç¨‹</h4>
 					</div>
 					<div class="modal-body" style="background:#efefef;">
 							<form class="form-horizontal">
 							<div class="form-group">
-								<label class="col-sm-2 control-label">¿Î³ÌÃû³Ì<span style="color:red;">*</span></label>
+								<label class="col-sm-2 control-label">è¯¾ç¨‹åç¨‹<span style="color:red;">*</span></label>
 								<div class="col-sm-8">
 									<input type="text" id="schoolsubject_name" class="form-control" placeholder="" />
 								</div>
@@ -220,8 +221,8 @@
 							</form>
 					</div>
 					<div class="modal-footer" style="background:#efefef;">
-						<button type="button" class="btn btn-default" data-dismiss="modal" onclick="addnewservice2_ajax_subject();">È¡Ïû</button>
-						<button onclick="addnewservice2_schoolSubjectSave()" type="button" class="btn btn-primary">È·ÈÏ</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal" onclick="addnewservice2_ajax_subject();">å–æ¶ˆ</button>
+						<button onclick="addnewservice2_schoolSubjectSave()" type="button" class="btn btn-primary">ç¡®è®¤</button>
 					</div>
 				</div>
 			</div>
@@ -259,14 +260,14 @@ function add_service1(id,name)
 		$("#addnewservice1_id #b15").val('');
 		$("#addnewservice1_id #b16").val('');
 		$("#addnewservice1_id #b17").val('');
-		v.addnewservice1_bind = 1;//Ç©Ö¤±íµ¥£º°ó¶¨ÏÂÀ­¿òÑ¡Ïî
+		v.addnewservice1_bind = 1;//ç­¾è¯è¡¨å•ï¼šç»‘å®šä¸‹æ‹‰æ¡†é€‰é¡¹
 		$('#addnewservice1_id').modal('show');      		
 		ajax_service('VISA');
 }
 
 function add_service2(id,name)
 {
-		//ÁôÑ§·şÎñ
+		//ç•™å­¦æœåŠ¡
 		$("#addnewservice2_id #user_id").val('0');
 		if (id != '')
 		{ 	
@@ -285,9 +286,9 @@ function add_service2(id,name)
 		}
 		$("#addnewservice2_id #labc6");
 		var school_subject = $("#addnewservice2_id #c4");
-		school_subject.append("<option value=''>ÇëÑ¡Ôñ</option>");    		
+		school_subject.append("<option value=''>è¯·é€‰æ‹©</option>");    		
 		$("#addnewservice2_id #c2 option:first").prop('selected', 'selected');
-		v.addnewservice2_bind = 1;//ÁôÑ§±íµ¥£º°ó¶¨ÏÂÀ­¿òÑ¡Ïî    		
+		v.addnewservice2_bind = 1;//ç•™å­¦è¡¨å•ï¼šç»‘å®šä¸‹æ‹‰æ¡†é€‰é¡¹    		
 		$('#addnewservice2_id').modal('show');      		
 }
 
@@ -331,11 +332,11 @@ function ajax_service(va)
 {
 		if (va == 'VISA')
 		{
-				//Ç©Ö¤·şÎñ
+				//ç­¾è¯æœåŠ¡
 				var service_code = $("#addnewservice1_id #b6");
 				service_code.find("option:selected").text("");
 				service_code.empty();
-				service_code.append("<option value=''>ÇëÑ¡Ôñ</option>");
+				service_code.append("<option value=''>è¯·é€‰æ‹©</option>");
 				$.ajax({
           url: 'service/list',
           type: 'GET',
@@ -352,7 +353,7 @@ function ajax_service(va)
         });
   	}else if (va == 'OVST')
   	{
-  			//ÁôÑ§·şÎñ
+  			//ç•™å­¦æœåŠ¡
   			$('#addnewservice1_id').modal('hide'); 
   			add_service2(v.user_id,v.user_name);
   	}
@@ -362,15 +363,15 @@ function addnewservice2_ajax_subject()
 {
 	var school_subject = $("#addnewservice2_id #c4");
 	var school_name = $("#addnewservice2_id #c3").find("option:selected").text();			
-	if (school_name != 'ÇëÑ¡ÔñÑ§Ğ£' || $("#addnewservice2_id #school_name").val() != '')
+	if (school_name != 'è¯·é€‰æ‹©å­¦æ ¡' || $("#addnewservice2_id #school_name").val() != '')
 	{
 			schoolid = $("#addnewservice2_id #schoolid").val();
 			schoolSubject = $("#addnewservice2_id #school_subject").val();
-			if (school_name == 'ÇëÑ¡ÔñÑ§Ğ£') school_name = $("#addnewservice2_id #school_name").val();
+			if (school_name == 'è¯·é€‰æ‹©å­¦æ ¡') school_name = $("#addnewservice2_id #school_name").val();
 			v.school_name = school_name;						
 			school_subject.find("option:selected").text("");
 			school_subject.empty();
-			school_subject.append("<option value=''>ÇëÑ¡Ôñ</option>");
+			school_subject.append("<option value=''>è¯·é€‰æ‹©</option>");
 	    $.ajax({
         url: 'school/list?name='+school_name,
         type: 'GET',
@@ -385,7 +386,7 @@ function addnewservice2_ajax_subject()
 	        			v.country = response[item].country;
       			}
       	}
-      	school_subject.append("<option value='-1'>ÎÒÒªÌí¼Ó</option>");
+      	school_subject.append("<option value='-1'>æˆ‘è¦æ·»åŠ </option>");
       	if(schoolSubject != '') school_subject.val(schoolid);		        	
       });
 	}else
@@ -400,7 +401,7 @@ function addnewservice2_set_empty()
 	var school_subject = $("#addnewservice2_id #c4");
 	school_subject.find("option:selected").text("");
 	school_subject.empty();
-	school_subject.append("<option value=''>ÇëÑ¡Ôñ</option>");
+	school_subject.append("<option value=''>è¯·é€‰æ‹©</option>");
 }
 
 function addnewservice2_set_schoolid(id)
@@ -427,7 +428,7 @@ function addnewservice2_schoolSubjectSave()
 	   	function(data){
 	   			if (data.code == 0)
 	   			{
-	   					//Ìí¼Ó³É¹¦
+	   					//æ·»åŠ æˆåŠŸ
 	   					$('#addnewservice2_add_schoolsubject_id').modal('hide');
 	   					addnewservice2_ajax_subject();
 	   			}
@@ -450,7 +451,7 @@ function addnewService1Save()
     {
     		$('#addnewservice1_id #alert_error').css('marginLeft','30%');
     		$('#addnewservice1_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
-        $("#addnewservice1_id #error_info").html('ÌáÊ¾£ººìÉ«×Ö¶Î±ØĞëÌîĞ´»òÑ¡Ôñ£¡');
+        $("#addnewservice1_id #error_info").html('æç¤ºï¼šçº¢è‰²å­—æ®µå¿…é¡»å¡«å†™æˆ–é€‰æ‹©ï¼');
     		return false;
     }
     
@@ -521,7 +522,7 @@ function addnewService2Save()
     {
     		$('#addnewservice2_id #alert_error').css('marginLeft','30%');
     		$('#addnewservice2_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
-        $("#addnewservice2_id #error_info").html('ÌáÊ¾£ººìÉ«×Ö¶Î±ØĞëÌîĞ´»òÑ¡Ôñ£¡');
+        $("#addnewservice2_id #error_info").html('æç¤ºï¼šçº¢è‰²å­—æ®µå¿…é¡»å¡«å†™æˆ–é€‰æ‹©ï¼');
     		return false;
     }
     
@@ -564,7 +565,7 @@ function addnewService2Save()
           	json['discount'] = jqInputs[12].value;
           	json['received'] = jqInputs[13].value;		            			            	
        	}
-       	//Ô¤Éè¿ÕÖµ
+       	//é¢„è®¾ç©ºå€¼
        	json['serviceId'] = 0;
        	json['maraId'] = 0;
        	//console.log(json);
@@ -595,7 +596,7 @@ v.$watch('addnewservice1_bind', function(obj) {
 	  $('.default-date-picker1').datepicker({   				
 	        format: 'dd/mm/yyyy'			        
 	  });
-	  //²éÑ¯¿Í»§
+	  //æŸ¥è¯¢å®¢æˆ·
 	  var user = $("#addnewservice1_id #b100");
 	  user.autocompleter({
     	highlightMatches: true,
@@ -615,10 +616,10 @@ v.$watch('addnewservice1_bind', function(obj) {
     	},
     	minLength: 1						    	
     });    
-	  //°ó¶¨¹ËÎÊ
+	  //ç»‘å®šé¡¾é—®
 	  var obj_adviserId = $("#addnewservice1_id #b2");
 	  //obj_adviserId.empty();
-    obj_adviserId.append("<option value='0'>ÇëÑ¡Ôñ</option>");
+    obj_adviserId.append("<option value='0'>è¯·é€‰æ‹©</option>");
     $.ajax({
       url: 'adviser/list?pageNum=0&pageSize=100000',
       type: 'GET',
@@ -637,10 +638,10 @@ v.$watch('addnewservice1_bind', function(obj) {
     	}
     	obj_adviserId.val(v.adviser_id);   
     });
-    //°ó¶¨MaraÁĞ±í			    
+    //ç»‘å®šMaraåˆ—è¡¨			    
     var obj_mara = $("#addnewservice1_id #b3");
     //obj_mara.empty();
-    obj_mara.append("<option value='0'>ÇëÑ¡Ôñ</option>");
+    obj_mara.append("<option value='0'>è¯·é€‰æ‹©</option>");
     $.ajax({
       url: 'mara/list?pageNum=0&pageSize=10',
       type: 'GET',
@@ -653,10 +654,10 @@ v.$watch('addnewservice1_bind', function(obj) {
     	}
     	obj_mara.val(0);	        	
     });
-    //°ó¶¨ÎÄ°¸ÁĞ±í			    
+    //ç»‘å®šæ–‡æ¡ˆåˆ—è¡¨			    
     var obj_officialId = $("#addnewservice1_id #b4");
     //obj_officialId.empty();
-    obj_officialId.append("<option value='0'>ÇëÑ¡Ôñ</option>");
+    obj_officialId.append("<option value='0'>è¯·é€‰æ‹©</option>");
     $.ajax({
       url: 'official/list?pageNum=0&pageSize=10',
       type: 'GET',
@@ -669,7 +670,7 @@ v.$watch('addnewservice1_bind', function(obj) {
     	}
     	obj_officialId.val(0);	        	
     });
-    //°ó¶¨ÊÕ¿î·½Ê½
+    //ç»‘å®šæ”¶æ¬¾æ–¹å¼
     var receive_type = $("#addnewservice1_id #b9");    
     $.ajax({
       url: 'receiveType/list?state=ENABLED',
@@ -682,7 +683,7 @@ v.$watch('addnewservice1_bind', function(obj) {
     			receive_type.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
     	}	        	 	    
     });
-    //¼ÆËãGSTÏà¹Ø½ğ¶î
+    //è®¡ç®—GSTç›¸å…³é‡‘é¢
     $("#addnewservice1_id #b14").keyup(function(){
     	var fee = $("#addnewservice1_id #b14").val();
     	var gst = (fee/11).toFixed(2);
@@ -699,7 +700,7 @@ v.$watch('addnewservice2_bind', function(obj) {
 	  $('.default-date-picker1').datepicker({   				
 	        format: 'dd/mm/yyyy'			        
 	  });
-	  //²éÑ¯¿Í»§
+	  //æŸ¥è¯¢å®¢æˆ·
 	  var user = $("#addnewservice2_id #c100");
 	  user.autocompleter({
     	highlightMatches: true,
@@ -719,9 +720,9 @@ v.$watch('addnewservice2_bind', function(obj) {
     	},
     	minLength: 1						    	
     });
-	  //°ó¶¨Ñ§Ğ£ĞÅÏ¢
+	  //ç»‘å®šå­¦æ ¡ä¿¡æ¯
     var school_name = $("#addnewservice2_id #c3");
-    school_name.append("<option value=''>ÇëÑ¡ÔñÑ§Ğ£</option>");
+    school_name.append("<option value=''>è¯·é€‰æ‹©å­¦æ ¡</option>");
     $.ajax({
       url: 'school/listSchool?name=',
       type: 'GET',
@@ -734,7 +735,7 @@ v.$watch('addnewservice2_bind', function(obj) {
     	}	
     	school_name.val('');
     });
-    //°ó¶¨SubagencyÁĞ±í
+    //ç»‘å®šSubagencyåˆ—è¡¨
     var obj_subagencyId = $("#addnewservice2_id #c7");	
     $.ajax({
       url: 'subagency/list',
@@ -748,9 +749,9 @@ v.$watch('addnewservice2_bind', function(obj) {
     	}
     	obj_subagencyId.val('');   
     });
-	  //°ó¶¨¹ËÎÊ
+	  //ç»‘å®šé¡¾é—®
 	  var obj_adviserId = $("#addnewservice2_id #c8");
-    obj_adviserId.append("<option value='0'>ÇëÑ¡Ôñ</option>");
+    obj_adviserId.append("<option value='0'>è¯·é€‰æ‹©</option>");
     $.ajax({
       url: 'adviser/list?pageNum=0&pageSize=100000',
       type: 'GET',
@@ -769,9 +770,9 @@ v.$watch('addnewservice2_bind', function(obj) {
     	}
     	obj_adviserId.val(v.adviser_id);   
     });    
-    //°ó¶¨ÎÄ°¸ÁĞ±í			    
+    //ç»‘å®šæ–‡æ¡ˆåˆ—è¡¨			    
     var obj_officialId = $("#addnewservice2_id #c9");
-    obj_officialId.append("<option value='0'>ÇëÑ¡Ôñ</option>");
+    obj_officialId.append("<option value='0'>è¯·é€‰æ‹©</option>");
     $.ajax({
       url: 'official/list?pageNum=0&pageSize=10',
       type: 'GET',
@@ -784,7 +785,7 @@ v.$watch('addnewservice2_bind', function(obj) {
     	}
     	obj_officialId.val(0);	        	
     });
-    //°ó¶¨ÊÕ¿î·½Ê½
+    //ç»‘å®šæ”¶æ¬¾æ–¹å¼
     var receive_type = $("#addnewservice2_id #c12");
     $.ajax({
       url: 'receiveType/list?state=ENABLED',
