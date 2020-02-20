@@ -33,7 +33,7 @@ public class ServiceOrderController extends BaseController {
 	ServiceOrderService serviceOrderService;
 
 	public enum ReviewAdviserStateEnum {
-		WAIT, REVIEW, APPLY, COMPLETE, PAID, CLOSE;
+		PENDING, REVIEW, APPLY, COMPLETE, PAID, CLOSE;
 		public static ReviewAdviserStateEnum get(String name) {
 			for (ReviewAdviserStateEnum e : ReviewAdviserStateEnum.values())
 				if (e.toString().equals(name))
@@ -122,7 +122,7 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setServiceId(StringUtil.toInt(serviceId));
 			if (StringUtil.isNotEmpty(schoolId))
 				serviceOrderDto.setSchoolId(StringUtil.toInt(schoolId));
-			serviceOrderDto.setState(ReviewAdviserStateEnum.WAIT.toString());
+			serviceOrderDto.setState(ReviewAdviserStateEnum.PENDING.toString());
 			serviceOrderDto.setSettle(isSettle != null && "true".equalsIgnoreCase(isSettle));
 			serviceOrderDto.setDepositUser(isDepositUser != null && "true".equalsIgnoreCase(isDepositUser));
 			if (StringUtil.isNotEmpty(subagencyId))
@@ -165,7 +165,7 @@ public class ServiceOrderController extends BaseController {
 			if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
 				if (adminUserLoginInfo != null)
 					serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
-							ReviewAdviserStateEnum.WAIT.toString(), null, null, null);
+							ReviewAdviserStateEnum.PENDING.toString(), null, null, null);
 				return new Response<Integer>(0, serviceOrderDto.getId());
 			} else
 				return new Response<Integer>(1, "创建失败.", 0);
@@ -273,6 +273,7 @@ public class ServiceOrderController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
+			String excludeState = null;
 			List<String> stateList = null;
 			if (state != null)
 				stateList = new ArrayList<>(Arrays.asList(state.split(",")));
@@ -283,15 +284,19 @@ public class ServiceOrderController extends BaseController {
 			Integer newMaraId = getMaraId(request);
 			if (newMaraId != null) {
 				maraId = newMaraId + "";
+				excludeState = ReviewAdviserStateEnum.PENDING.toString();
 				reviewState = ServiceOrderReviewStateEnum.OFFICIAL.toString();
 			}
 			Integer newOfficialId = getOfficialId(request);
-			if (newOfficialId != null)
+			if (newOfficialId != null) {
 				officialId = newOfficialId + "";
+				excludeState = ReviewAdviserStateEnum.PENDING.toString();
+			}
 
 			return new Response<Integer>(0,
-					serviceOrderService.countServiceOrder(type, stateList, reviewState, StringUtil.toInt(userId),
-							StringUtil.toInt(maraId), StringUtil.toInt(adviserId), StringUtil.toInt(officialId)));
+					serviceOrderService.countServiceOrder(type, excludeState, stateList, reviewState,
+							StringUtil.toInt(userId), StringUtil.toInt(maraId), StringUtil.toInt(adviserId),
+							StringUtil.toInt(officialId)));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -309,6 +314,7 @@ public class ServiceOrderController extends BaseController {
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
+			String excludeState = null;
 			List<String> stateList = null;
 			if (state != null)
 				stateList = new ArrayList<>(Arrays.asList(state.split(",")));
@@ -319,16 +325,19 @@ public class ServiceOrderController extends BaseController {
 			Integer newMaraId = getMaraId(request);
 			if (newMaraId != null) {
 				maraId = newMaraId + "";
+				excludeState = ReviewAdviserStateEnum.PENDING.toString();
 				reviewState = ServiceOrderReviewStateEnum.OFFICIAL.toString(); // mara用户只显示文案审核通过的数据
 			}
 			Integer newOfficialId = getOfficialId(request);
-			if (newOfficialId != null)
+			if (newOfficialId != null) {
 				officialId = newOfficialId + "";
+				excludeState = ReviewAdviserStateEnum.PENDING.toString();
+			}
 
 			return new Response<List<ServiceOrderDTO>>(0,
-					serviceOrderService.listServiceOrder(type, stateList, reviewState, StringUtil.toInt(userId),
-							StringUtil.toInt(maraId), StringUtil.toInt(adviserId), StringUtil.toInt(officialId),
-							pageNum, pageSize));
+					serviceOrderService.listServiceOrder(type, excludeState, stateList, reviewState,
+							StringUtil.toInt(userId), StringUtil.toInt(maraId), StringUtil.toInt(adviserId),
+							StringUtil.toInt(officialId), pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<ServiceOrderDTO>>(1, e.getMessage(), null);
 		}

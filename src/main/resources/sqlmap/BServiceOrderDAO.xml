@@ -155,6 +155,9 @@
         <if test='type != null and type != ""'>
 			AND type = #{type}
 		</if>
+		<if test='excludeState != null and excludeState != ""'>
+			AND state != #{excludeState}
+		</if>
 		<if test='stateList != null'>
 			AND state IN
 			<foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">
@@ -213,6 +216,9 @@
         WHERE is_delete = 0
         <if test='type != null and type != ""'>
 			AND type = #{type}
+		</if>
+		<if test='excludeState != null and excludeState != ""'>
+			AND state != #{excludeState}
 		</if>
 		<if test='stateList != null'>
 			AND state IN
