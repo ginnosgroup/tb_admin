@@ -112,6 +112,9 @@
         <if test='amount != null'>
             , amount = #{amount}
         </if>
+        <if test='expectAmount != null'>
+            , expect_amount = #{expectAmount}
+        </if>
         <if test='gst != null'>
             , gst = #{gst}
         </if>
