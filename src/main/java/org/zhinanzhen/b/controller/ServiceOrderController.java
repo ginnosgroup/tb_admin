@@ -542,7 +542,7 @@ public class ServiceOrderController extends BaseController {
 							return new Response<ServiceOrderDTO>(0,
 									serviceOrderService.refuse(id, adminUserLoginInfo.getId(),
 											ReviewAdviserStateEnum.REVIEW.toString(), state.toUpperCase(),
-											ReviewOfficialStateEnum.WAIT.toString(), null));
+											ReviewOfficialStateEnum.REVIEW.toString(), null));
 						else
 							return new Response<ServiceOrderDTO>(0, serviceOrderService.refuse(id,
 									adminUserLoginInfo.getId(), null, state.toUpperCase(), null, null));
