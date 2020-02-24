@@ -400,9 +400,8 @@ public class ServiceOrderController extends BaseController {
 						|| "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewAdviserStateEnum.get(state) != null)
 						if (ReviewAdviserStateEnum.REVIEW.toString().equals(state.toUpperCase())) // 顾问审核同时修改文案状态
-							return new Response<ServiceOrderDTO>(0,
-									serviceOrderService.approval(id, adminUserLoginInfo.getId(), state.toUpperCase(),
-											null, ReviewOfficialStateEnum.REVIEW.toString(), null));
+							return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id,
+									adminUserLoginInfo.getId(), state.toUpperCase(), null, null, null));
 						else if (ReviewAdviserStateEnum.PAID.toString().equals(state.toUpperCase())) { // 顾问支付同时修改文案状态
 							serviceOrderService.finish(id);
 							return new Response<ServiceOrderDTO>(0,
