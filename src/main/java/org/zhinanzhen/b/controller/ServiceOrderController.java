@@ -73,7 +73,7 @@ public class ServiceOrderController extends BaseController {
 	}
 
 	public enum ServiceOrderReviewStateEnum {
-		OFFICIAL, MARA, KJ;
+		ADVISER, OFFICIAL, MARA, KJ;
 		public static ServiceOrderReviewStateEnum get(String name) {
 			for (ServiceOrderReviewStateEnum e : ServiceOrderReviewStateEnum.values())
 				if (e.toString().equals(name))
@@ -285,7 +285,7 @@ public class ServiceOrderController extends BaseController {
 			if (newMaraId != null) {
 				maraId = newMaraId + "";
 				excludeState = ReviewAdviserStateEnum.PENDING.toString();
-				reviewState = ServiceOrderReviewStateEnum.OFFICIAL.toString();
+				reviewState = ServiceOrderReviewStateEnum.ADVISER.toString();
 			}
 			Integer newOfficialId = getOfficialId(request);
 			if (newOfficialId != null) {
@@ -326,7 +326,7 @@ public class ServiceOrderController extends BaseController {
 			if (newMaraId != null) {
 				maraId = newMaraId + "";
 				excludeState = ReviewAdviserStateEnum.PENDING.toString();
-				reviewState = ServiceOrderReviewStateEnum.OFFICIAL.toString(); // mara用户只显示文案审核通过的数据
+				reviewState = ServiceOrderReviewStateEnum.ADVISER.toString();
 			}
 			Integer newOfficialId = getOfficialId(request);
 			if (newOfficialId != null) {
@@ -441,11 +441,13 @@ public class ServiceOrderController extends BaseController {
 						if (ReviewOfficialStateEnum.FINISH.toString().equals(state.toUpperCase())) // 文案审核通过同时修改状态
 							serviceOrderService.updateServiceOrderRviewState(id,
 									ServiceOrderReviewStateEnum.OFFICIAL.toString());
-						if (ReviewOfficialStateEnum.WAIT.toString().equals(state.toUpperCase())) // 文案提交mara审核
+						if (ReviewOfficialStateEnum.WAIT.toString().equals(state.toUpperCase())) { // 文案提交mara审核
+							serviceOrderService.updateServiceOrderRviewState(id,
+									ServiceOrderReviewStateEnum.ADVISER.toString());
 							return new Response<ServiceOrderDTO>(0,
 									serviceOrderService.approval(id, adminUserLoginInfo.getId(), null,
 											ReviewMaraStateEnum.WAIT.toString(), state.toUpperCase(), null));
-						else if (ReviewOfficialStateEnum.APPLY.toString().equals(state.toUpperCase())) { // 文案申请同时修改顾问状态
+						} else if (ReviewOfficialStateEnum.APPLY.toString().equals(state.toUpperCase())) { // 文案申请同时修改顾问状态
 							serviceOrderService.finish(id);
 							return new Response<ServiceOrderDTO>(0,
 									serviceOrderService.approval(id, adminUserLoginInfo.getId(),
