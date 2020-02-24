@@ -58,7 +58,7 @@ public class KnowledgeController extends BaseController {
 	public Response<Integer> add(@RequestParam(value = "title") String title,
 			@RequestParam(value = "content") String content,
 			@RequestParam(value = "password", required = false) String password,
-			@RequestParam(value = "knowledgeMenuId", required = false) Integer knowledgeMenuId,
+			@RequestParam(value = "knowledgeMenuId") Integer knowledgeMenuId,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);

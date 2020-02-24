@@ -401,7 +401,7 @@ public class ServiceOrderController extends BaseController {
 					if (ReviewAdviserStateEnum.get(state) != null)
 						if (ReviewAdviserStateEnum.REVIEW.toString().equals(state.toUpperCase())) // 顾问审核同时修改文案状态
 							return new Response<ServiceOrderDTO>(0,
-									serviceOrderService.refuse(id, adminUserLoginInfo.getId(), state.toUpperCase(),
+									serviceOrderService.approval(id, adminUserLoginInfo.getId(), state.toUpperCase(),
 											null, ReviewOfficialStateEnum.REVIEW.toString(), null));
 						else if (ReviewAdviserStateEnum.PAID.toString().equals(state.toUpperCase())) { // 顾问支付同时修改文案状态
 							serviceOrderService.finish(id);

@@ -187,7 +187,7 @@
     <select id="sumRefundByThisMonth" resultType="java.lang.Double">
 		select IFNULL(sum(refund), 0.00) from b_refund where DATE_FORMAT(gmt_create, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m') and is_close = 0
 		<if test='adviserId != null'>
-            AND bb.adviser_id = #{adviserId}
+            AND adviser_id = #{adviserId}
         </if>
 		;
 	</select>
