@@ -399,7 +399,7 @@ public class ServiceOrderController extends BaseController {
 				if (StringUtil.isEmpty(adminUserLoginInfo.getApList())
 						|| "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewAdviserStateEnum.get(state) != null)
-						if (ReviewAdviserStateEnum.REVIEW.toString().equals(state.toUpperCase())) // 顾问审核同时修改文案状态
+						if (ReviewAdviserStateEnum.REVIEW.toString().equals(state.toUpperCase())) // 顾问审核
 							return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id,
 									adminUserLoginInfo.getId(), state.toUpperCase(), null, null, null));
 						else if (ReviewAdviserStateEnum.PAID.toString().equals(state.toUpperCase())) { // 顾问支付同时修改文案状态
@@ -422,7 +422,7 @@ public class ServiceOrderController extends BaseController {
 					if (!"VISA".equalsIgnoreCase(serviceOrderDto.getType()))
 						return new Response<ServiceOrderDTO>(1, "Mara审核仅限签证服务订单!", null);
 					if (ReviewMaraStateEnum.get(state) != null
-							&& ReviewMaraStateEnum.FINISH.toString().equals(state.toUpperCase())){ // Mara审核通过同时修改状态
+							&& ReviewMaraStateEnum.FINISH.toString().equals(state.toUpperCase())) { // Mara审核通过同时修改状态
 						serviceOrderService.updateServiceOrderRviewState(id,
 								ServiceOrderReviewStateEnum.MARA.toString());
 						return new Response<ServiceOrderDTO>(0,
@@ -553,7 +553,12 @@ public class ServiceOrderController extends BaseController {
 							return new Response<ServiceOrderDTO>(0,
 									serviceOrderService.refuse(id, adminUserLoginInfo.getId(),
 											ReviewAdviserStateEnum.CLOSE.toString(), null, state.toUpperCase(), null));
-						} else
+						} else if (ReviewOfficialStateEnum.PENDING.toString().equals(state.toUpperCase())) // 文案驳回同时修改顾问状态
+							return new Response<ServiceOrderDTO>(0,
+									serviceOrderService.refuse(id, adminUserLoginInfo.getId(),
+											ReviewAdviserStateEnum.PENDING.toString(), null, state.toUpperCase(),
+											null));
+						else
 							return new Response<ServiceOrderDTO>(0, serviceOrderService.refuse(id,
 									adminUserLoginInfo.getId(), null, null, state.toUpperCase(), null));
 					else
