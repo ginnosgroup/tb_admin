@@ -66,9 +66,12 @@
 								sessionStorage.removeItem("goUrl");
 								sessionStorage.setItem("admin", that.userName);
 								$.get(url + "admin_user/isLogin", function(res) {
+									//console.log(res)
 									sessionStorage.setItem("admin_id", res.data.id);
 									sessionStorage.setItem("ap_list", res.data.apList);
-									sessionStorage.setItem("adviser_id", res.data.adviserId);									
+									sessionStorage.setItem("adviser_id", res.data.adviserId);	
+									sessionStorage.setItem("official_id", res.data.officialId);
+									sessionStorage.setItem("mara_id", res.data.maraId);
 								});								
 								alert('欢迎！您已成功登录！');
 								if(goUrl) {

@@ -1,10 +1,10 @@
-<meta charset="utf-8"/>
+﻿<meta charset="utf-8"/>
 <div class="modal fade" id="addnewservice1_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 		<div class="modal-dialog" role="document" style="width:700px;">
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title" id="myModalLabel">新增签证服务</h4>
+					<h4 class="modal-title" id="addnewservice1_id_title">新增签证服务</h4>
 				</div>
 				<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
 		      <button data-dismiss="alert" class="close close-sm" type="button">
@@ -22,9 +22,9 @@
 						<form class="form-inline" style="">
 						<input type="hidden" name="user_id" id="user_id" value="0" />													
 						<div class="form-group" style="width:100%;height:40px;">
-							<label class="control-label" style="width:80px;">客户姓名<span style="color:red;">*</span></label>
+							<label class="control-label" style="width:80px;">客户姓名<span style="color:red;">*</span></label>							
+							<label id="b1a"><input type="text" class="form-control small" style="width:150px;" id="b100" placeholder="请输入查询" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,'')" value=""></label>
 							<label id="b1"></label>
-							<label id="b1a"><input type="text" class="form-control small" style="width:150px;" id="b100" placeholder="请输入查询" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,'')" value=""></label>								
 						</div>
 						<div class="form-group" style="width:100%;height:40px;">
 							<label class="control-label" style="width:80px;">顾问<span style="color:red;">*</span></label>
@@ -36,7 +36,7 @@
 						</div>
 						<div class="form-group" style="width:100%;height:40px;">
 							<label class="control-label" style="width:80px;">服务项目<span style="color:red;">*</span></label>
-							<select class="form-control" style="width:150px;" id="b5" onchange="ajax_service(this.value)">
+							<select class="form-control" style="width:150px;" id="b5" onchange="$('#addnewservice1_id').modal('hide');add_service2(0,v.user_id,v.user_name);">
 							<option value="VISA">签证</option>
 							<option value="OVST">留学</option>
 							</select>
@@ -90,19 +90,20 @@
 								</div>
 								<div class="form-group" style="margin-left:10px;">
 									<label class="control-label">预收业绩</label>
-									$<input type="text" autocomplete="off" id="b17" class="form-control" disabled="true" style="width:80px;">
+									$<input type="text" autocomplete="off" id="b17" class="form-control" style="width:80px;">
 								</div>
 						</div>
 						</div>
 						<div class="form-group" style="width:100%;line-height:40px;">
 							<label class="control-label">备注</label>
-							<textarea id="b8" class="form-control" style="width:98%"></textarea>
+							<textarea id="b18" class="form-control" style="width:98%"></textarea>
 						</div>
 						</form>
 				</div>
 				<div class="modal-footer" style="text-align: center;">
 					<button onclick="alert('待实现');" id="upload_receipt" type="button" class="btn btn-danger">上传收款凭证</button>
-					<button onclick="addnewService1Save()" type="button" class="btn btn-primary">提交</button>
+					<button onclick="addnewService1Save()" type="button" class="btn btn-primary"><span id="btn_id">提交</span></button>
+					<button onclick="flowstep('REVIEW',1)" id="btnReview" style="display:none;" type="button" class="btn btn-primary">提交审核</button>
 					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
 				</div>
 			</div>
@@ -113,7 +114,7 @@
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title" id="myModalLabel">新增留学服务</h4>
+					<h4 class="modal-title" id="addnewservice2_id_title">新增留学服务</h4>
 				</div>
 				<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
 		      <button data-dismiss="alert" class="close close-sm" type="button">
@@ -134,13 +135,13 @@
 						<input type="hidden" name="school_name" id="school_name" value="" />
 						<input type="hidden" name="school_subject" id="school_subject" value="" />																				
 						<div class="form-group" style="width:100%;height:40px;">
-							<label class="control-label" style="width:80px;">客户姓名<span style="color:red;">*</span></label>
-							<label id="c1"></label>
+							<label class="control-label" style="width:80px;">客户姓名<span style="color:red;">*</span></label>							
 							<label id="c1a"><input type="text" class="form-control small" style="width:150px;" id="c100" placeholder="请输入查询" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,'')" value=""></label>
+							<label id="c1"></label>
 						</div>
 						<div class="form-group" style="width:100%;height:40px;">
 							<label class="control-label" style="width:80px;">服务项目<span style="color:red;">*</span></label>
-							<select class="form-control" style="width:150px;" id="c2" onchange="$('#addnewservice2_id').modal('hide');add_service1(v.user_id,v.user_name);">
+							<select class="form-control" style="width:150px;" id="c2" onchange="$('#addnewservice2_id').modal('hide');add_service1(0,v.user_id,v.user_name);">
 							<option value="OVST" selected="selected">留学</option>
 							<option value="VISA">签证</option>
 							</select>
@@ -192,12 +193,13 @@
 						</div>
 						<div class="form-group" style="width:100%;line-height:40px;">
 							<label class="control-label">备注</label>
-							<textarea id="b8" class="form-control" style="width:98%"></textarea>
+							<textarea id="c16" class="form-control" style="width:98%"></textarea>
 						</div>
 						</form>
 				</div>
 				<div class="modal-footer" style="text-align: center;">
-					<button onclick="addnewService2Save()" type="button" class="btn btn-primary">提交</button>
+					<button onclick="addnewService2Save()"type="button" class="btn btn-primary"><span id="btn_id">提交</span></button>
+					<button onclick="flowstep('REVIEW',1)" id="btnReview" style="display:none;" type="button" class="btn btn-primary">提交审核</button>
 					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
 				</div>
 			</div>
@@ -228,68 +230,167 @@
 			</div>
 		</div>
 <script>
-function add_service1(id,name)
+function add_service1(orderId,userId,name)
 {
-		$("#addnewservice1_id #user_id").val('0');
-		if (id != '')
-		{ 	
-				$("#addnewservice1_id #user_id").val(id);
-				$('#addnewservice1_id #b1').show();
-				$('#addnewservice1_id #b1').html(name);
-				$('#addnewservice1_id #b1a').hide();      				
-				v.user_id = id;
-				v.user_name = name;
+		//签证服务
+		if (orderId == 0)
+		{
+				//添加
+				$("#addnewservice1_id #user_id").val('0');
+				if (userId != 0)
+				{ 	
+						$("#addnewservice1_id #user_id").val(userId);
+						$('#addnewservice1_id #b1').show();
+						$('#addnewservice1_id #b1').html(name);
+						$('#addnewservice1_id #b1a').hide();      				
+						v.user_id = userId;
+						v.user_name = name;
+				}else
+				{
+						$("#addnewservice1_id #b100").val('');
+						$('#addnewservice1_id #b1').hide();
+						$('#addnewservice1_id #b1').html('');
+						$('#addnewservice1_id #b1a').show();
+				}
+				$('#addnewservice1_id #show_paid').hide();
+				$('#addnewservice1_id #upload_receipt').hide();		
+				$("#addnewservice1_id #b5 option:first").prop('selected', 'selected');
+				$("#addnewservice1_id #b7b").attr('checked','checked');
+				$("#addnewservice1_id #b8").val('');
+				$("#addnewservice1_id #b9 option:first").prop('selected', 'selected'); 
+				$("#addnewservice1_id #b10").val('');
+				$("#addnewservice1_id #b11").val('');
+				$("#addnewservice1_id #b12").val('');
+				$("#addnewservice1_id #b13 option:first").prop('selected', 'selected'); 
+				$("#addnewservice1_id #b14").val('');
+				$("#addnewservice1_id #b15").val('');
+				$("#addnewservice1_id #b16").val('');
+				$("#addnewservice1_id #b17").val('');
+				ajax_service('VISA');
 		}else
 		{
-				$("#addnewservice1_id #b100").val('');
-				$('#addnewservice1_id #b1').hide();
-				$('#addnewservice1_id #b1').html('');
-				$('#addnewservice1_id #b1a').show();
+				//修改
+				$.ajax({
+	          url: 'serviceOrder/get?id='+orderId,
+	          type: 'GET',	          
+	          dataType: 'json'
+	        }).done(function(response) {
+	        	response = response.data;			        	
+	        	v.orderId = orderId;	        	
+	        	$('#addnewservice1_id #addnewservice1_id_title').html('修改签证服务');
+	        	$('#addnewservice1_id #user_id').val(response.userId);
+			      $('#addnewservice1_id #b100').val(response.user.name);
+			      $("#addnewservice1_id #b3").val(response.maraId);
+			      $("#addnewservice1_id #b4").val(response.officialId);
+			      $("#addnewservice1_id #b5 option[value='OVST']").remove();
+			      ajax_service('VISA');
+			      $("#addnewservice1_id #b6").val(response.serviceId);	
+			      var setPay = 1;
+	        	if (response.pay)
+	        	{
+	        			setPay = 0;
+	        			$('#addnewservice1_id #show_paid').show();      				
+  							$('#addnewservice1_id #upload_receipt').show();
+	        	}else
+	        	{
+	        			$('#addnewservice1_id #show_paid').hide();
+  							$('#addnewservice1_id #upload_receipt').hide();
+	        	}
+	        	$('#addnewservice1_id :radio:eq('+setPay+')').prop("checked",'checked');
+	        	if (response.receiveDate) $("#addnewservice1_id #b8").val(v.getTime(response.receiveDate));
+	        	$("#addnewservice1_id #b9").val(response.receiveTypeId);
+	        	if (response.receivable) $("#addnewservice1_id #b10").val(response.receivable);
+	        	if (response.discount) $("#addnewservice1_id #b11").val(response.discount);
+	        	if (response.received) $("#addnewservice1_id #b12").val(response.received);
+	        	if (response.paymentTimes) $("#addnewservice1_id #b13").val(response.paymentTimes);
+	        	if (response.amount) $("#addnewservice1_id #b14").val(response.amount);
+	        	if (response.gst) $("#addnewservice1_id #b15").val(response.gst);
+	        	if (response.deductGst) $("#addnewservice1_id #b16").val(response.deductGst);
+	        	if (response.expectAmount) $("#addnewservice1_id #b17").val(response.expectAmount);
+	        	if (response.remarks) $("#addnewservice1_id #b18").val(response.remarks);
+	        	$('#addnewservice1_id #btn_id').html('修改');
+	        	$('#addnewservice1_id #btnReview').show();
+	      });
 		}
-		$('#addnewservice1_id #show_paid').hide();
-		$('#addnewservice1_id #upload_receipt').hide();		
-		$("#addnewservice1_id #b5 option:first").prop('selected', 'selected');
-		$("#addnewservice1_id #b7b").attr('checked','checked');
-		$("#addnewservice1_id #b8").val('');
-		$("#addnewservice1_id #b9 option:first").prop('selected', 'selected'); 
-		$("#addnewservice1_id #b10").val('');
-		$("#addnewservice1_id #b11").val('');
-		$("#addnewservice1_id #b12").val('');
-		$("#addnewservice1_id #b13 option:first").prop('selected', 'selected'); 
-		$("#addnewservice1_id #b14").val('');
-		$("#addnewservice1_id #b15").val('');
-		$("#addnewservice1_id #b16").val('');
-		$("#addnewservice1_id #b17").val('');
 		v.addnewservice1_bind = 1;//签证表单：绑定下拉框选项
-		$('#addnewservice1_id').modal('show');      		
-		ajax_service('VISA');
+		$('#addnewservice1_id').modal('show');		
 }
 
-function add_service2(id,name)
+function add_service2(orderId,userId,name)
 {
 		//留学服务
-		$("#addnewservice2_id #user_id").val('0');
-		if (id != '')
-		{ 	
-				$("#addnewservice2_id #user_id").val(id);
-				$('#addnewservice2_id #c1').show();
-				$('#addnewservice2_id #c1').html(name);
-				$('#addnewservice2_id #c1a').hide();      				
-				v.user_id = id;
-				v.user_name = name;
+		if (orderId == 0)
+		{
+				//添加
+				$("#addnewservice2_id #user_id").val('0');
+				if (userId != '')
+				{ 	
+						$("#addnewservice2_id #user_id").val(userId);
+						$('#addnewservice2_id #c1').show();
+						$('#addnewservice2_id #c1').html(name);
+						$('#addnewservice2_id #c1a').hide();      				
+						v.user_id = userId;
+						v.user_name = name;
+				}else
+				{
+						$("#addnewservice2_id #c100").val('');
+						$('#addnewservice2_id #c1').hide();
+						$('#addnewservice2_id #c1').html('');
+						$('#addnewservice2_id #c1a').show();
+				}
+				$("#addnewservice2_id #labc6");
+				var school_subject = $("#addnewservice2_id #c4");
+				school_subject.append("<option value=''>请选择</option>");    		
+				$("#addnewservice2_id #c2 option:first").prop('selected', 'selected');				
 		}else
 		{
-				$("#addnewservice2_id #c100").val('');
-				$('#addnewservice2_id #c1').hide();
-				$('#addnewservice2_id #c1').html('');
-				$('#addnewservice2_id #c1a').show();
+				//修改
+				$.ajax({
+	          url: 'serviceOrder/get?id='+orderId,
+	          type: 'GET',
+	          dataType: 'json'
+	        }).done(function(response) {
+	        	response = response.data;
+	        	v.orderId = orderId;
+	        	$('#addnewservice2_id #addnewservice2_id_title').html('修改留学服务');
+	        	$('#addnewservice2_id #user_id').val(response.userId);
+		      	$('#addnewservice2_id #c100').val(response.user.name);
+		      	$("#addnewservice2_id #c2 option[value='VISA']").remove();
+		      	$("#addnewservice2_id #c3").val(response.school.name);
+		      	$("#addnewservice2_id #c4").val(response.schoolId);
+		      	var school_subject = $("#addnewservice2_id #c4");
+						school_subject.append("<option value=''>请选择</option>"); 
+		      	$("#addnewservice2_id #c7").val(response.subagencyId);
+		      	$("#addnewservice2_id #c8").val(response.adviserId);
+		      	$("#addnewservice2_id #c9").val(response.officialId);
+		      	$("#addnewservice2_id #schoolid").val(response.schoolId);
+		      	$("#addnewservice2_id #school_name").val(response.school.name);
+		      	$("#addnewservice2_id #school_subject").val(response.school.subject);
+		      	var is_settle = 1;
+		      	if (response.settle) is_settle = 0;
+		      	$('#addnewservice2_id :radio:eq('+is_settle+')').prop("checked",'checked');
+		      	$('#addnewservice2_id #show_deposit_user').hide();
+		      	if (response.depositUser)
+		      	{		      			
+		      			$('#addnewservice2_id  :checkbox').prop("checked",'checked');
+		      			$('#addnewservice2_id #show_deposit_user').show();
+		      	}
+		      	var is_pay = 1;
+		      	if (response.pay) is_pay = 0;
+		      	$('#addnewservice2_id :radio[name=c10]:eq('+is_pay+')').prop("checked",'checked');			        	
+		      	if (response.receiveDate) $("#addnewservice2_id #c11").val(v.getTime(response.receiveDate));
+		      	$("#addnewservice2_id #c12").val(response.receiveTypeId);
+		      	if (response.receivable) $("#addnewservice2_id #c13").val(response.receivable);
+		      	if (response.discount) $("#addnewservice2_id #c14").val(response.discount);
+		      	if (response.received) $("#addnewservice2_id #c15").val(response.received);
+		      	if (response.remarks) $("#addnewservice2_id #c16").val(response.remarks);
+		      	addnewservice2_ajax_subject();
+		      	$('#addnewservice2_id #btn_id').html('修改');
+	        	$('#addnewservice2_id #btnReview').show();
+	       });				
 		}
-		$("#addnewservice2_id #labc6");
-		var school_subject = $("#addnewservice2_id #c4");
-		school_subject.append("<option value=''>请选择</option>");    		
-		$("#addnewservice2_id #c2 option:first").prop('selected', 'selected');
-		v.addnewservice2_bind = 1;//留学表单：绑定下拉框选项    		
-		$('#addnewservice2_id').modal('show');      		
+		v.addnewservice2_bind = 1;//留学表单：绑定下拉框选项		
+		$('#addnewservice2_id').modal('show');   		
 }
 
 $('#addnewservice1_id :radio').live('click', function (e) {
@@ -340,6 +441,7 @@ function ajax_service(va)
 				$.ajax({
           url: 'service/list',
           type: 'GET',
+          async: false,
           dataType: 'json'
         }).done(function(response) {
         	response = response.data;
@@ -457,49 +559,64 @@ function addnewService1Save()
     
     if (check_result)
     {            	            	            	                             
-       	var str_url = "serviceOrder/add";
-       	var json = {};
+       	var str_url = "serviceOrder/add";    		  		
+       	var json = {};       	
+       	if (v.orderId != 0)
+       	{
+       			str_url = "serviceOrder/update";
+       			json['id'] = v.orderId;
+       	}
+       	
        	json['adviserId'] = jqSelect[0].value;
        	json['maraId'] = jqSelect[1].value;
        	json['officialId'] = jqSelect[2].value;
        	json['type'] = jqSelect[3].value;
        	json['serviceId'] = jqSelect[4].value;
        	json['paid'] = $("input[name='b7']:checked").val();
-       	json['userId'] = $("#user_id").val();
+       	json['userId'] = $("#addnewservice1_id #user_id").val();
        	json['remarks'] = jqTextarea[0].value;
        	json['isPay'] = false;
        	if (json['paid'] == 1)
        	{
        			var d1 = 0;          		
-        		if (jqInputs[3].value != '')
+        		if (jqInputs[4].value != '')
         		{
-	          		var arr_d = jqInputs[3].value.split("/");
+	          		var arr_d = jqInputs[4].value.split("/");
 	          		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
 	              var date = new Date(str_d);
 	              d1 = date.getTime();
           	}
           	json['receiveDate'] = d1;
           	json['receiveTypeId'] = jqSelect[5].value;
-          	json['receivable'] = jqInputs[4].value;
-          	json['discount'] = jqInputs[5].value;
-          	json['received'] = jqInputs[6].value;
+          	json['receivable'] = jqInputs[5].value;
+          	json['discount'] = jqInputs[6].value;
+          	json['received'] = jqInputs[7].value;
           	json['paymentTimes'] = jqSelect[6].value;
-          	json['amount'] = jqInputs[7].value;
-          	json['gst'] = jqInputs[8].value;
-          	json['deductGst'] = jqInputs[9].value;
-          	json['bonus'] = jqInputs[10].value;
+          	json['amount'] = jqInputs[8].value;
+          	json['gst'] = jqInputs[9].value;
+          	json['deductGst'] = jqInputs[10].value;
+          	json['expectAmount'] = jqInputs[11].value;
           	json['isPay'] = true;
-       	}
+       	}       	
        	
        	$.post(str_url, json,
 		   	function(data){
 		   			if (data.code == 0)
 		   			{
+		   					$('#addnewservice1_id #alert_success').css('marginTop','30%');
+		   					$('#addnewservice1_id #alert_success').css('marginLeft','30%');
 		   					$('#addnewservice1_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
-		   					//$('#addnewservice1_id').modal('hide');
-		   					setTimeout(function(){window.location.href = "serviceorder-list.html";}, 2000);
+		   					if (v.orderId == 0)
+		   					{
+		   							setTimeout(function(){window.location.href = "serviceorder-list.html";}, 2000);
+		   					}else
+		   					{
+		   							setTimeout(function(){$('#addnewservice1_id').modal('hide')}, 2000);
+		   					}
 		   			}else
 		   			{
+		   					$('#addnewservice1_id #alert_error').css('marginTop','30%');
+		   					$('#addnewservice1_id #alert_error').css('marginLeft','30%');
 		   					$('#addnewservice1_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
           			$("#error_info").html(data.message);
 	        			return false;
@@ -528,29 +645,34 @@ function addnewService2Save()
     
     if (check_result)
     {            	            	            	                             
-       	var str_url = "serviceOrder/add";
+       	var str_url = "serviceOrder/add";    		  		
        	var json = {};
+       	if (v.orderId != 0)
+       	{
+       			str_url = "serviceOrder/update";
+       			json['id'] = v.orderId;
+       	}
        	             	
        	json['type'] = jqSelect[0].value;
        	json['schoolId'] = jqSelect[2].value;
        	json['isSettle'] = false;
        	if ($("input[name='c5']:checked").val() == 1) json['isSettle'] = true;
-       	if ($('#c6').is(':checked'))
+       	if ($('#addnewservice2_id #c6').is(':checked'))
        	{
-       			json['isDepositUser'] = $("input[name='c6']:checked").val();
+       			json['isDepositUser'] = true;
        	}else
        	{
        			json['isDepositUser'] = false;
-       	}
+       	}         	
        	json['subagencyId'] = jqSelect[3].value;
        	json['adviserId'] = jqSelect[4].value;
        	json['officialId'] = jqSelect[5].value;             	
-       	json['userId'] = $("#user_id1").val();
+       	json['userId'] = $("#addnewservice2_id #user_id").val();
        	json['remarks'] = jqTextarea[0].value;
        	json['isPay'] = false;             	
        	if (json['isDepositUser'])
        	{
-       			json['isPay'] = $("input[name='c10']:checked").val();
+       			json['isPay'] = $("#addnewservice2_id input[name='c10']:checked").val();
        			var d1 = 0;          		
         		if (jqInputs[10].value != '')
         		{
@@ -574,14 +696,23 @@ function addnewService2Save()
 		   	function(data){
 		   			if (data.code == 0)
 		   			{
-		   					$('#alert_success').css('marginLeft','30%');
-		   					$('#alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+		   					$('#addnewservice2_id #alert_success').css('marginTop','30%');
+		   					$('#addnewservice2_id #alert_success').css('marginLeft','30%');
+		   					$('#addnewservice2_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
 		   					$('#addservice_id').modal('hide');
-		   					setTimeout(function(){window.location.href = "serviceorder-list.html";}, 2000);					   					
+		   					if (v.orderId == 0)
+		   					{
+		   							setTimeout(function(){window.location.href = "serviceorder-list.html";}, 2000);
+		   					}else
+		   					{
+		   							setTimeout(function(){$('#addnewservice2_id').modal('hide')}, 2000);
+		   					}
 		   			}else
 		   			{
-		   					$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
-          			$("#error_info").html(data.message);
+		   					$('#addnewservice2_id #alert_error').css('marginTop','30%');
+		   					$('#addnewservice2_id #alert_error').css('marginLeft','30%');
+		   					$('#addnewservice2_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+          			$("#addnewservice2_id #error_info").html(data.message);
 	        			return false;
 		   			}
 		   	});
@@ -623,6 +754,7 @@ v.$watch('addnewservice1_bind', function(obj) {
     $.ajax({
       url: 'adviser/list?pageNum=0&pageSize=100000',
       type: 'GET',
+      async: false,
       dataType: 'json'
     }).done(function(response) {
     	response = response.data;
@@ -645,6 +777,7 @@ v.$watch('addnewservice1_bind', function(obj) {
     $.ajax({
       url: 'mara/list?pageNum=0&pageSize=10',
       type: 'GET',
+      async: false,
       dataType: 'json'
     }).done(function(response) {
     	response = response.data;
@@ -661,6 +794,7 @@ v.$watch('addnewservice1_bind', function(obj) {
     $.ajax({
       url: 'official/list?pageNum=0&pageSize=10',
       type: 'GET',
+      async: false,
       dataType: 'json'
     }).done(function(response) {
     	response = response.data;
@@ -675,6 +809,7 @@ v.$watch('addnewservice1_bind', function(obj) {
     $.ajax({
       url: 'receiveType/list?state=ENABLED',
       type: 'GET',
+      async: false,
       dataType: 'json'
     }).done(function(response) {
     	response = response.data;
@@ -689,7 +824,8 @@ v.$watch('addnewservice1_bind', function(obj) {
     	var gst = (fee/11).toFixed(2);
     	$("#addnewservice1_id #b15").val(gst);
     	var deduct_gst = (fee-gst).toFixed(2);
-    	$("#addnewservice1_id #b16").val(deduct_gst);	        	
+    	$("#addnewservice1_id #b16").val(deduct_gst);	
+    	$("#addnewservice1_id #b17").val(fee);	        	
 		});
 });
 
@@ -726,6 +862,7 @@ v.$watch('addnewservice2_bind', function(obj) {
     $.ajax({
       url: 'school/listSchool?name=',
       type: 'GET',
+      async: false,
       dataType: 'json'
     }).done(function(response) {
     	response = response.data;	        	    	
@@ -740,6 +877,7 @@ v.$watch('addnewservice2_bind', function(obj) {
     $.ajax({
       url: 'subagency/list',
       type: 'GET',
+      async: false,
       dataType: 'json'
     }).done(function(response) {
     	response = response.data;
@@ -755,6 +893,7 @@ v.$watch('addnewservice2_bind', function(obj) {
     $.ajax({
       url: 'adviser/list?pageNum=0&pageSize=100000',
       type: 'GET',
+      async: false,
       dataType: 'json'
     }).done(function(response) {
     	response = response.data;
@@ -776,6 +915,7 @@ v.$watch('addnewservice2_bind', function(obj) {
     $.ajax({
       url: 'official/list?pageNum=0&pageSize=10',
       type: 'GET',
+      async: false,
       dataType: 'json'
     }).done(function(response) {
     	response = response.data;
@@ -790,6 +930,7 @@ v.$watch('addnewservice2_bind', function(obj) {
     $.ajax({
       url: 'receiveType/list?state=ENABLED',
       type: 'GET',
+      async: false,
       dataType: 'json'
     }).done(function(response) {
     	response = response.data;

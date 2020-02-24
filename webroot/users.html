@@ -302,12 +302,12 @@
                           </button>
                        </div>
                        <div class="btn-group">
-                          <button id="editable-sample_new" class="btn btn-info" onclick="add_service1('','');">
+                          <button id="editable-sample_new" class="btn btn-info" onclick="add_service1(0,0,'');">
                           签证服务 <i class="fa"></i>
                           </button>
                        </div>
                        <div class="btn-group">
-                          <button id="editable-sample_new" class="btn btn-info" onclick="add_service2('','');">
+                          <button id="editable-sample_new" class="btn btn-info" onclick="add_service2(0,0,'');">
                           留学服务 <i class="fa"></i>
                           </button>
                        </div>
@@ -586,7 +586,7 @@
 		<script src="js/vue.js"></script>
 		<script src="js/common.js?verson=1"></script>
 		<script>
-			$("#load-user-common-page").load("user-common.html");
+			$("#load-user-common-page").load("user-common.html?random="+Math.random());
 			tb.isLogin("users.html");
 			$("td,th").addClass("text-center");
 			var v = new Vue({
@@ -598,6 +598,7 @@
 					m_list: localStorage.getItem("str_html"),
 					addnewservice1_bind: 0,
 					addnewservice2_bind: 0,
+					orderId : 0,
 					allSort: [],
 					subject: [],
 					subject1: [],
@@ -651,54 +652,8 @@
 							pageSize: that.pageSize
 						}, function(result) {
 							//console.log(result)
-							that.pageNum = 0;
-							for(var i = 0; i < result.data.length; i++) {
-									result.data[i].oid = result.data[i].id;
-									result.data[i].service = '<a href="javascript:;" onclick="add_service1(\''+result.data[i].id+'\',\''+result.data[i].name+'\')"><span class="label label-primary">签证</span></a>&nbsp;<a href="javascript:;" onclick="add_service2(\''+result.data[i].id+'\',\''+result.data[i].name+'\')"><span class="label label-primary">留学</span></a>';
-									result.data[i].name = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].name+'</a>';									
-									result.data[i].authNickname = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].authNickname+'</a>';
-									if (result.data[i].birthday)
-									{
-											result.data[i].birthday = that.getTime(result.data[i].birthday);
-									}else
-									{
-											result.data[i].birthday = '';
-									}
-									if (result.data[i].visaExpirationDate)
-									{
-											result.data[i].visaExpirationDate = that.getTime(result.data[i].visaExpirationDate);
-									}else
-									{
-											result.data[i].visaExpirationDate = '';
-									}
-									if (result.data[i].adviserDto)
-									{
-											result.data[i].adviserName = result.data[i].adviserDto.name;
-									}else
-									{
-											result.data[i].adviserName = '';
-									}
-									result.data[i].consultation = '<a href="javascript:;" onclick="add_consultation(\''+result.data[i].id+'\')"><span class="label label-success">添加提醒</span></a>';									
-									//读取标签
-									result.data[i].str_tagList = '';
-									result.data[i].str_tagListName = '';
-									var str = '';
-									var str_name = '';
-									for(var t = 0; t < result.data[i].tagList.length; t++) {
-											if (str == '')
-											{
-													str = result.data[i].tagList[t].id;
-													str_name = '['+result.data[i].tagList[t].name+']';
-											}else
-											{
-													str += ','+result.data[i].tagList[t].id;
-													str_name += '<br/>['+result.data[i].tagList[t].name+']';
-											}
-									}
-									result.data[i].str_tagList = str;
-									result.data[i].str_tagListName = str_name + '<a href="javascript:v.dId='+result.data[i].id+';tagSet(\''+str+'\')">设置</a>';
-							};
-							that.subject = result.data;
+							that.pageNum = 0;							
+							that.subject = return_result(result);
 							//console.log(that.subject);
 						});
 					},
@@ -727,53 +682,7 @@
 						}, function(result) {
 							//console.log(result)
 							that.pageNum = 0;
-							for(var i = 0; i < result.data.length; i++) {
-									result.data[i].oid = result.data[i].id;
-									result.data[i].service = '<a href="javascript:;" onclick="add_service1(\''+result.data[i].id+'\',\''+result.data[i].name+'\')"><span class="label label-primary">签证</span></a>&nbsp;<a href="javascript:;" onclick="add_service2(\''+result.data[i].id+'\',\''+result.data[i].name+'\')"><span class="label label-primary">留学</span></a>';
-									result.data[i].name = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].name+'</a>';									
-									result.data[i].authNickname = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].authNickname+'</a>';
-									if (result.data[i].birthday)
-									{
-											result.data[i].birthday = that.getTime(result.data[i].birthday);
-									}else
-									{
-											result.data[i].birthday = '';
-									}
-									if (result.data[i].visaExpirationDate)
-									{
-											result.data[i].visaExpirationDate = that.getTime(result.data[i].visaExpirationDate);
-									}else
-									{
-											result.data[i].visaExpirationDate = '';
-									}
-									if (result.data[i].adviserDto)
-									{
-											result.data[i].adviserName = result.data[i].adviserDto.name;
-									}else
-									{
-											result.data[i].adviserName = '';
-									}
-									result.data[i].consultation = '<a href="javascript:;" onclick="add_consultation(\''+result.data[i].id+'\')"><span class="label label-success">添加提醒</span></a>';									
-									//读取标签
-									result.data[i].str_tagList = '';
-									result.data[i].str_tagListName = '';
-									var str = '';
-									var str_name = '';
-									for(var t = 0; t < result.data[i].tagList.length; t++) {
-											if (str == '')
-											{
-													str = result.data[i].tagList[t].id;
-													str_name = '['+result.data[i].tagList[t].name+']';
-											}else
-											{
-													str += ','+result.data[i].tagList[t].id;
-													str_name += '<br/>['+result.data[i].tagList[t].name+']';
-											}
-									}
-									result.data[i].str_tagList = str;
-									result.data[i].str_tagListName = str_name + '<a href="javascript:v.dId='+result.data[i].id+';tagSet(\''+str+'\')">设置</a>';
-							};
-							that.subject = result.data;
+							that.subject = return_result(result);
 							//console.log(that.subject);
 						});
 					},
@@ -799,53 +708,7 @@
 						}, function(result) {
 							//console.log(result)
 							that.pageNum = 0;
-							for(var i = 0; i < result.data.length; i++) {
-									result.data[i].oid = result.data[i].id;
-									result.data[i].service = '<a href="javascript:;" onclick="add_service1(\''+result.data[i].id+'\',\''+result.data[i].name+'\')"><span class="label label-primary">签证</span></a>&nbsp;<a href="javascript:;" onclick="add_service2(\''+result.data[i].id+'\',\''+result.data[i].name+'\')"><span class="label label-primary">留学</span></a>';
-									result.data[i].name = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].name+'</a>';	
-									result.data[i].authNickname = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].authNickname+'</a>';
-									if (result.data[i].birthday)
-									{
-											result.data[i].birthday = that.getTime(result.data[i].birthday);
-									}else
-									{
-											result.data[i].birthday = '';
-									}
-									if (result.data[i].visaExpirationDate)
-									{
-											result.data[i].visaExpirationDate = that.getTime(result.data[i].visaExpirationDate);
-									}else
-									{
-											result.data[i].visaExpirationDate = '';
-									}
-									if (result.data[i].adviserDto)
-									{
-											result.data[i].adviserName = result.data[i].adviserDto.name;
-									}else
-									{
-											result.data[i].adviserName = '';
-									}
-									result.data[i].consultation = '<a href="javascript:;" onclick="add_consultation(\''+result.data[i].id+'\')"><span class="label label-success">添加提醒</span></a>';									
-									//读取标签
-									result.data[i].str_tagList = '';
-									result.data[i].str_tagListName = '';
-									var str = '';
-									var str_name = '';
-									for(var t = 0; t < result.data[i].tagList.length; t++) {
-											if (str == '')
-											{
-													str = result.data[i].tagList[t].id;
-													str_name = '['+result.data[i].tagList[t].name+']';
-											}else
-											{
-													str += ','+result.data[i].tagList[t].id;
-													str_name += '<br/>['+result.data[i].tagList[t].name+']';
-											}
-									}
-									result.data[i].str_tagList = str;
-									result.data[i].str_tagListName = str_name + '<a href="javascript:v.dId='+result.data[i].id+';tagSet(\''+str+'\')">设置</a>';;
-							};
-							that.subject = result.data;
+							that.subject = return_result(result);
 							//console.log(that.subject);
 						});
 					},
@@ -871,53 +734,7 @@
 						}, function(result) {
 							//console.log(result)
 							that.pageNum = 0;
-							for(var i = 0; i < result.data.length; i++) {
-									result.data[i].oid = result.data[i].id;
-									result.data[i].service = '<a href="javascript:;" onclick="add_service1(\''+result.data[i].id+'\',\''+result.data[i].name+'\')"><span class="label label-primary">签证</span></a>&nbsp;<a href="javascript:;" onclick="add_service2(\''+result.data[i].id+'\',\''+result.data[i].name+'\')"><span class="label label-primary">留学</span></a>';
-									result.data[i].name = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].name+'</a>';
-									result.data[i].authNickname = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].authNickname+'</a>';
-									if (result.data[i].birthday)
-									{
-											result.data[i].birthday = that.getTime(result.data[i].birthday);
-									}else
-									{
-											result.data[i].birthday = '';
-									}
-									if (result.data[i].visaExpirationDate)
-									{
-											result.data[i].visaExpirationDate = that.getTime(result.data[i].visaExpirationDate);
-									}else
-									{
-											result.data[i].visaExpirationDate = '';
-									}
-									if (result.data[i].adviserDto)
-									{
-											result.data[i].adviserName = result.data[i].adviserDto.name;
-									}else
-									{
-											result.data[i].adviserName = '';
-									}
-									result.data[i].consultation = '<a href="javascript:;" onclick="add_consultation(\''+result.data[i].id+'\')"><span class="label label-success">添加提醒</span></a>';									
-									//读取标签
-									result.data[i].str_tagList = '';
-									result.data[i].str_tagListName = '';
-									var str = '';
-									var str_name = '';
-									for(var t = 0; t < result.data[i].tagList.length; t++) {
-											if (str == '')
-											{
-													str = result.data[i].tagList[t].id;
-													str_name = '['+result.data[i].tagList[t].name+']';
-											}else
-											{
-													str += ','+result.data[i].tagList[t].id;
-													str_name += '<br/>['+result.data[i].tagList[t].name+']';
-											}
-									}
-									result.data[i].str_tagList = str;
-									result.data[i].str_tagListName = str_name + '<a href="javascript:v.dId='+result.data[i].id+';tagSet(\''+str+'\')">设置</a>';
-							};
-							that.subject = result.data;
+							that.subject = return_result(result);
 							//console.log(that.subject);
 						});
 					},
@@ -941,55 +758,8 @@
 							pageNum: 0,
 							pageSize: that.pageSize
 						}, function(result) {
-							//console.log(result)
 							that.pageNum = 0;
-							for(var i = 0; i < result.data.length; i++) {
-									result.data[i].oid = result.data[i].id;
-									result.data[i].service = '<a href="javascript:;" onclick="add_service1(\''+result.data[i].id+'\',\''+result.data[i].name+'\')"><span class="label label-primary">签证</span></a>&nbsp;<a href="javascript:;" onclick="add_service2(\''+result.data[i].id+'\',\''+result.data[i].name+'\')"><span class="label label-primary">留学</span></a>';
-									result.data[i].name = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].name+'</a>';
-									result.data[i].authNickname = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].authNickname+'</a>';
-									if (result.data[i].birthday)
-									{
-											result.data[i].birthday = that.getTime(result.data[i].birthday);
-									}else
-									{
-											result.data[i].birthday = '';
-									}
-									if (result.data[i].visaExpirationDate)
-									{
-											result.data[i].visaExpirationDate = that.getTime(result.data[i].visaExpirationDate);
-									}else
-									{
-											result.data[i].visaExpirationDate = '';
-									}
-									if (result.data[i].adviserDto)
-									{
-											result.data[i].adviserName = result.data[i].adviserDto.name;
-									}else
-									{
-											result.data[i].adviserName = '';
-									}
-									result.data[i].consultation = '<a href="javascript:;" onclick="add_consultation(\''+result.data[i].id+'\')"><span class="label label-success">添加提醒</span></a>';									
-									//读取标签
-									result.data[i].str_tagList = '';
-									result.data[i].str_tagListName = '';
-									var str = '';
-									var str_name = '';
-									for(var t = 0; t < result.data[i].tagList.length; t++) {
-											if (str == '')
-											{
-													str = result.data[i].tagList[t].id;
-													str_name = '['+result.data[i].tagList[t].name+']';
-											}else
-											{
-													str += ','+result.data[i].tagList[t].id;
-													str_name += '<br/>['+result.data[i].tagList[t].name+']';
-											}
-									}
-									result.data[i].str_tagList = str;
-									result.data[i].str_tagListName = str_name + '<a href="javascript:v.dId='+result.data[i].id+';tagSet(\''+str+'\')">设置</a>';									
-							};
-							that.subject = result.data;
+							that.subject = return_result(result);
 							//console.log(that.subject);
 						});
 					},
@@ -1020,55 +790,8 @@
 								pageNum: 0,
 								pageSize: that.pageSize
 							}, function(result) {
-								console.log(result)
 								that.pageNum = 0;
-								for(var i = 0; i < result.data.length; i++) {
-										result.data[i].oid = result.data[i].id;
-										result.data[i].service = '<a href="javascript:;" onclick="add_service1(\''+result.data[i].id+'\',\''+result.data[i].name+'\')"><span class="label label-primary">签证</span></a>&nbsp;<a href="javascript:;" onclick="add_service2(\''+result.data[i].id+'\',\''+result.data[i].name+'\')"><span class="label label-primary">留学</span></a>';
-										result.data[i].name = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].name+'</a>';
-										result.data[i].authNickname = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].authNickname+'</a>';
-										if (result.data[i].birthday)
-										{
-												result.data[i].birthday = that.getTime(result.data[i].birthday);
-										}else
-										{
-												result.data[i].birthday = '';
-										}
-										if (result.data[i].visaExpirationDate)
-										{
-												result.data[i].visaExpirationDate = that.getTime(result.data[i].visaExpirationDate);
-										}else
-										{
-												result.data[i].visaExpirationDate = '';
-										}
-										if (result.data[i].adviserDto)
-										{
-												result.data[i].adviserName = result.data[i].adviserDto.name;
-										}else
-										{
-												result.data[i].adviserName = '';
-										}
-										result.data[i].consultation = '<a href="javascript:;" onclick="add_consultation(\''+result.data[i].id+'\')"><span class="label label-success">添加提醒</span></a>';										
-										//读取标签
-										result.data[i].str_tagList = '';
-										result.data[i].str_tagListName = '';
-										var str = '';
-										var str_name = '';
-										for(var t = 0; t < result.data[i].tagList.length; t++) {
-												if (str == '')
-												{
-														str = result.data[i].tagList[t].id;
-														str_name = '['+result.data[i].tagList[t].name+']';
-												}else
-												{
-														str += ','+result.data[i].tagList[t].id;
-														str_name += '<br/>['+result.data[i].tagList[t].name+']';
-												}
-										}
-										result.data[i].str_tagList = str;
-										result.data[i].str_tagListName = str_name + '<a href="javascript:v.dId='+result.data[i].id+';tagSet(\''+str+'\')">设置</a>';
-								};
-								that.subject = result.data;
+								that.subject = return_result(result);
 							});
 						}
 					},
@@ -1081,54 +804,7 @@
 								pageNum: that.pageNum,
 								pageSize: that.pageSize
 							}, function(result) {
-								console.log(result)
-								for(var i = 0; i < result.data.length; i++) {
-										result.data[i].oid = result.data[i].id;
-										result.data[i].service = '<a href="javascript:;" onclick="add_service1(\''+result.data[i].id+'\',\''+result.data[i].name+'\')"><span class="label label-primary">签证</span></a>&nbsp;<a href="javascript:;" onclick="add_service2(\''+result.data[i].id+'\',\''+result.data[i].name+'\')"><span class="label label-primary">留学</span></a>';
-										result.data[i].name = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].name+'</a>';
-										result.data[i].authNickname = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].authNickname+'</a>';
-										if (result.data[i].birthday)
-										{
-												result.data[i].birthday = that.getTime(result.data[i].birthday);
-										}else
-										{
-												result.data[i].birthday = '';
-										}
-										if (result.data[i].visaExpirationDate)
-										{
-												result.data[i].visaExpirationDate = that.getTime(result.data[i].visaExpirationDate);
-										}else
-										{
-												result.data[i].visaExpirationDate = '';
-										}
-										if (result.data[i].adviserDto)
-										{
-												result.data[i].adviserName = result.data[i].adviserDto.name;
-										}else
-										{
-												result.data[i].adviserName = '';
-										}
-										result.data[i].consultation = '<a href="javascript:;" onclick="add_consultation(\''+result.data[i].id+'\')"><span class="label label-success">添加提醒</span></a>';										
-										//读取标签
-										result.data[i].str_tagList = '';
-										result.data[i].str_tagListName = '';
-										var str = '';
-										var str_name = '';
-										for(var t = 0; t < result.data[i].tagList.length; t++) {
-												if (str == '')
-												{
-														str = result.data[i].tagList[t].id;
-														str_name = '['+result.data[i].tagList[t].name+']';
-												}else
-												{
-														str += ','+result.data[i].tagList[t].id;
-														str_name += '<br/>['+result.data[i].tagList[t].name+']';
-												}
-										}
-										result.data[i].str_tagList = str;
-										result.data[i].str_tagListName = str_name + '<a href="javascript:v.dId='+result.data[i].id+';tagSet(\''+str+'\')">设置</a>';
-								};
-								that.subject = result.data;
+								that.subject = return_result(result);
 							});
 						}
 					},
@@ -1143,54 +819,7 @@
 								pageNum: that.pageNum,
 								pageSize: that.pageSize
 							}, function(result) {
-								console.log(result)
-								for(var i = 0; i < result.data.length; i++) {
-										result.data[i].oid = result.data[i].id;
-										result.data[i].service = '<a href="javascript:;" onclick="add_service1(\''+result.data[i].id+'\',\''+result.data[i].name+'\')"><span class="label label-primary">签证</span></a>&nbsp;<a href="javascript:;" onclick="add_service2(\''+result.data[i].id+'\',\''+result.data[i].name+'\')"><span class="label label-primary">留学</span></a>';
-										result.data[i].name = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].name+'</a>';
-										result.data[i].authNickname = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].authNickname+'</a>';
-										if (result.data[i].birthday)
-										{
-												result.data[i].birthday = that.getTime(result.data[i].birthday);
-										}else
-										{
-												result.data[i].birthday = '';
-										}
-										if (result.data[i].visaExpirationDate)
-										{
-												result.data[i].visaExpirationDate = that.getTime(result.data[i].visaExpirationDate);
-										}else
-										{
-												result.data[i].visaExpirationDate = '';
-										}
-										if (result.data[i].adviserDto)
-										{
-												result.data[i].adviserName = result.data[i].adviserDto.name;
-										}else
-										{
-												result.data[i].adviserName = '';
-										}
-										result.data[i].consultation = '<a href="javascript:;" onclick="add_consultation(\''+result.data[i].id+'\')"><span class="label label-success">添加提醒</span></a>';										
-										//读取标签
-										result.data[i].str_tagList = '';
-										result.data[i].str_tagListName = '';
-										var str = '';
-										var str_name = '';
-										for(var t = 0; t < result.data[i].tagList.length; t++) {
-												if (str == '')
-												{
-														str = result.data[i].tagList[t].id;
-														str_name = '['+result.data[i].tagList[t].name+']';
-												}else
-												{
-														str += ','+result.data[i].tagList[t].id;
-														str_name += '<br/>['+result.data[i].tagList[t].name+']';
-												}
-										}
-										result.data[i].str_tagList = str;
-										result.data[i].str_tagListName = str_name + '<a href="javascript:v.dId='+result.data[i].id+';tagSet(\''+str+'\')">设置</a>';
-								};
-								that.subject = result.data;
+								that.subject = return_result(result);
 							});
 						}
 					},
@@ -1204,55 +833,7 @@
 								pageNum: that.allPage - 1,
 								pageSize: that.pageSize
 							}, function(result) {
-								console.log(result)
-								that.pageNum = that.allPage - 1;
-								for(var i = 0; i < result.data.length; i++) {
-										result.data[i].oid = result.data[i].id;
-										result.data[i].service = '<a href="javascript:;" onclick="add_service1(\''+result.data[i].id+'\',\''+result.data[i].name+'\')"><span class="label label-primary">签证</span></a>&nbsp;<a href="javascript:;" onclick="add_service2(\''+result.data[i].id+'\',\''+result.data[i].name+'\')"><span class="label label-primary">留学</span></a>';
-										result.data[i].name = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].name+'</a>';
-										result.data[i].authNickname = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].authNickname+'</a>';
-										if (result.data[i].birthday)
-										{
-												result.data[i].birthday = that.getTime(result.data[i].birthday);
-										}else
-										{
-												result.data[i].birthday = '';
-										}
-										if (result.data[i].visaExpirationDate)
-										{
-												result.data[i].visaExpirationDate = that.getTime(result.data[i].visaExpirationDate);
-										}else
-										{
-												result.data[i].visaExpirationDate = '';
-										}
-										if (result.data[i].adviserDto)
-										{
-												result.data[i].adviserName = result.data[i].adviserDto.name;
-										}else
-										{
-												result.data[i].adviserName = '';
-										}
-										result.data[i].consultation = '<a href="javascript:;" onclick="add_consultation(\''+result.data[i].id+'\')"><span class="label label-success">添加提醒</span></a>';										
-										//读取标签
-										result.data[i].str_tagList = '';
-										result.data[i].str_tagListName = '';
-										var str = '';
-										var str_name = '';
-										for(var t = 0; t < result.data[i].tagList.length; t++) {
-												if (str == '')
-												{
-														str = result.data[i].tagList[t].id;
-														str_name = '['+result.data[i].tagList[t].name+']';
-												}else
-												{
-														str += ','+result.data[i].tagList[t].id;
-														str_name += '<br/>['+result.data[i].tagList[t].name+']';
-												}
-										}
-										result.data[i].str_tagList = str;
-										result.data[i].str_tagListName = str_name + '<a href="javascript:v.dId='+result.data[i].id+';tagSet(\''+str+'\')">设置</a>';
-								};
-								that.subject = result.data;
+								that.subject = return_result(result);
 							});
 						}
 					},
@@ -1366,7 +947,7 @@
 							});      		
 		      }
 				}		
-			});
+			});						
 			
 			$('#example a.edit').live('click', function (e) {
 				e.preventDefault();
@@ -1384,7 +965,58 @@
 						v.subject.splice(v.current_index, 0);
 						v.subject.splice(v.current_index,1, v.current_row);
 				}
-			});						
+			});
+			
+			function return_result(result)
+			{
+					for(var i = 0; i < result.data.length; i++) {
+							result.data[i].oid = result.data[i].id;
+							result.data[i].service = '<a href="javascript:;" onclick="add_service1(0,\''+result.data[i].id+'\',\''+result.data[i].name+'\')"><span class="label label-primary">签证</span></a>&nbsp;<a href="javascript:;" onclick="add_service2(0,\''+result.data[i].id+'\',\''+result.data[i].name+'\')"><span class="label label-primary">留学</span></a>';
+							result.data[i].name = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].name+'</a>';									
+							result.data[i].authNickname = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].authNickname+'</a>';
+							if (result.data[i].birthday)
+							{
+									result.data[i].birthday = v.getTime(result.data[i].birthday);
+							}else
+							{
+									result.data[i].birthday = '';
+							}
+							if (result.data[i].visaExpirationDate)
+							{
+									result.data[i].visaExpirationDate = v.getTime(result.data[i].visaExpirationDate);
+							}else
+							{
+									result.data[i].visaExpirationDate = '';
+							}
+							if (result.data[i].adviserDto)
+							{
+									result.data[i].adviserName = result.data[i].adviserDto.name;
+							}else
+							{
+									result.data[i].adviserName = '';
+							}
+							result.data[i].consultation = '<a href="javascript:;" onclick="add_consultation(\''+result.data[i].id+'\')"><span class="label label-success">添加提醒</span></a>';									
+							//读取标签
+							result.data[i].str_tagList = '';
+							result.data[i].str_tagListName = '';
+							var str = '';
+							var str_name = '';
+							for(var t = 0; t < result.data[i].tagList.length; t++) {
+									if (str == '')
+									{
+											str = result.data[i].tagList[t].id;
+											str_name = '['+result.data[i].tagList[t].name+']';
+									}else
+									{
+											str += ','+result.data[i].tagList[t].id;
+											str_name += '<br/>['+result.data[i].tagList[t].name+']';
+									}
+							}
+							result.data[i].str_tagList = str;
+							result.data[i].str_tagListName = str_name + '<a href="javascript:v.dId='+result.data[i].id+';tagSet(\''+str+'\')">设置</a>';
+					};
+					return result.data;
+			}				
 			
 			function addNew()
 			{
@@ -1517,7 +1149,7 @@
 					   					}else
 					   					{
 					   							//弹出新增服务					   							
-					   							add_service1(data.data,str_name);
+					   							add_service1(0,data.data,str_name);
 					   					}
 					   			}else
 					   			{

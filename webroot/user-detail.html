@@ -619,7 +619,8 @@
 				</div>
 			</div>
 		</div>		
-		<div id="load-user-page"></div>		
+		<div id="load-user-page"></div>
+		<div id="load-user-view-page"></div>
 		<script src="js/jquery-1.8.3.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
 		<script src="js/jquery.dcjqaccordion.2.7.js"></script>
@@ -630,9 +631,9 @@
 		<script src="js/common-scripts.js"></script>
 		<script src="js/vue.js"></script>
 		<script src="js/common.js?verson=1"></script>
-		<script src="js/znz_common.js"></script>
 		<script>
-			$("#load-user-page").load("user-common.html");
+			$("#load-user-page").load("user-common.html?random="+Math.random());
+			$("#load-user-view-page").load("user-common-view.html?random="+Math.random());
 			tb.isLogin("user-detail.html");
 			$("td,th").addClass("text-center");
 			var v = new Vue({
@@ -785,36 +786,8 @@
 							pageSize: that.pageSize
 						}, function(result) {
 							//console.log(result)
-							that.pageNum = 0;
-							for(var i = 0; i < result.data.length; i++) {
-									var str_state = '';
-									result.data[i].strRefuse = '';
-									result.data[i].oid = result.data[i].id;
-									result.data[i].gmtCreate = that.getTime(result.data[i].gmtCreate);
-									result.data[i].finishDate = result.data[i].finishDate ? that.getTime(result.data[i].finishDate):'';									
-									result.data[i].adviserName = result.data[i].adviser.name;
-									result.data[i].officialName = result.data[i].official.name;									
-									if (result.data[i].review.adviserState != null) str_state = result.data[i].review.adviserState;
-									if (result.data[i].review.officialState != null) str_state = result.data[i].review.officialState;
-									if (result.data[i].type == 'VISA')
-									{
-											result.data[i].maraName = result.data[i].mara.name;
-											if (result.data[i].review.maraState != null) str_state = result.data[i].review.maraState;
-											result.data[i].serviceName = return_servicename(result.data[i].type)+'-'+result.data[i].service.code;
-											//如果maraState='FINISH'，表示整个流程结束。
-											if (result.data[i].review.officialState == null && result.data[i].review.maraState == 'FINISH') str_state = 'MA_FINISH';
-											result.data[i].strState = visastate_wa(str_state);
-									}else
-									{
-											//如果maraState='FINISH'，表示整个流程结束。
-											if (result.data[i].review.officialState == 'COMPLETE') str_state = 'COE_COMPLETE';
-											var str_school = result.data[i].school.name;
-											result.data[i].serviceName = return_servicename(result.data[i].type)+'-'+str_school;
-											result.data[i].strState = visastate_wa(str_state);
-									}
-									result.data[i].currentState = str_state;
-							};
-							that.datalist1 = result.data;
+							that.pageNum = 0;							
+							that.datalist1 = return_result(result);
 						});
 					},
 					getDatalist2: function() {
@@ -835,36 +808,8 @@
 							pageSize: that.pageSize
 						}, function(result) {
 							//console.log(result)
-							that.pageNum = 0;
-							for(var i = 0; i < result.data.length; i++) {
-									var str_state = '';
-									result.data[i].strRefuse = '';
-									result.data[i].oid = result.data[i].id;
-									result.data[i].gmtCreate = that.getTime(result.data[i].gmtCreate);
-									result.data[i].finishDate = result.data[i].finishDate ? that.getTime(result.data[i].finishDate):'';									
-									result.data[i].adviserName = result.data[i].adviser.name;
-									result.data[i].officialName = result.data[i].official.name;									
-									if (result.data[i].review.adviserState != null) str_state = result.data[i].review.adviserState;
-									if (result.data[i].review.officialState != null) str_state = result.data[i].review.officialState;
-									if (result.data[i].type == 'VISA')
-									{
-											result.data[i].maraName = result.data[i].mara.name;
-											if (result.data[i].review.maraState != null) str_state = result.data[i].review.maraState;
-											result.data[i].serviceName = return_servicename(result.data[i].type)+'-'+result.data[i].service.code;
-											//如果maraState='FINISH'，表示整个流程结束。
-											if (result.data[i].review.officialState == null && result.data[i].review.maraState == 'FINISH') str_state = 'MA_FINISH';
-											result.data[i].strState = visastate_wa(str_state);
-									}else
-									{
-											//如果maraState='FINISH'，表示整个流程结束。
-											if (result.data[i].review.officialState == 'COMPLETE') str_state = 'COE_COMPLETE';
-											var str_school = result.data[i].school.name;
-											result.data[i].serviceName = return_servicename(result.data[i].type)+'-'+str_school;
-											result.data[i].strState = visastate_wa(str_state);
-									}
-									result.data[i].currentState = str_state;
-							};
-							that.datalist2 = result.data;
+							that.pageNum = 0;							
+							that.datalist2 = return_result(result);
 						});
 					},
 					add_consultation: function (id){
@@ -909,6 +854,133 @@
 					}
 				}
 			});
+			
+			function return_result(result)
+			{
+				for(var i = 0; i < result.data.length; i++) {
+						var str_state = '';
+						var str_refusestate = '';
+						result.data[i].strRefuse = '';
+						result.data[i].oid = result.data[i].id;
+						result.data[i].gmtCreate = v.getTime(result.data[i].gmtCreate);
+						result.data[i].finishDate = result.data[i].finishDate ? v.getTime(result.data[i].finishDate):'';
+						result.data[i].userName = result.data[i].user.name;
+						if (result.data[i].user.birthday) result.data[i].birthday = v.getTime(result.data[i].user.birthday);
+						result.data[i].phone = result.data[i].user.phone;
+						result.data[i].adviserName = result.data[i].adviser.name;
+						result.data[i].officialName = result.data[i].official.name;									
+						if (result.data[i].review.adviserState != null) str_state = result.data[i].review.adviserState;
+						if (result.data[i].review.officialState == 'REVIEW')
+						{
+								if (result.data[i].review.maraState == 'FINISH')
+								{
+										str_state = 'FINISH';//Mara已审核
+								}else
+								{
+										str_state = 'WA_REVIEW';//文案审核中...
+								}
+						}else if (result.data[i].review.officialState != null)
+						{
+								str_state = result.data[i].review.officialState;
+						}
+						
+						if (result.data[i].type == 'VISA')
+						{
+								result.data[i].maraName = result.data[i].mara.name;								
+								if (result.data[i].review.maraState == 'WAIT' && result.data[i].review.officialState == 'WAIT')
+								{
+										switch(v.ap_list)
+										{												
+												case 'GW':
+														str_state = 'WA_REVIEW';//文案审核中..
+												break;
+												case 'WA':
+														str_state = 'WA_MA_WAIT';//已提交Mara审核
+												break;
+												case 'MA':
+														str_state = 'MA_WAIT';//待审核
+												break;
+										}										
+								}
+								
+								result.data[i].serviceName = return_servicename(result.data[i].type)+'-'+result.data[i].service.code;															
+						}else
+						{
+															
+								//如果maraState='FINISH'，表示整个流程结束。
+								if (result.data[i].review.officialState == 'COMPLETE') str_state = 'COE_COMPLETE';
+								var str_school = result.data[i].school.name;
+								result.data[i].serviceName = return_servicename(result.data[i].type)+'-'+str_school;
+						}
+						result.data[i].strState = return_state(str_state)+str_refusestate;
+						result.data[i].currentState = str_state;
+				};
+				return result.data;
+			}
+			
+			function return_servicename(va)
+			{
+         switch(va)
+         {
+         		case 'VISA':
+         					return '签证';
+         		break;
+         		case 'OVST':
+         					return '留学';
+         		break;
+         }
+      }
+			
+			function return_state(va)
+			{
+					var str_html = '';
+					switch(va)
+					{
+						case 'PENDING':
+									str_html = '待提交审核';
+						break;
+						case 'REVIEW':
+									
+									str_html = '<label style="">资料待审核</label>';							
+						break;
+						case 'WA_MA_WAIT':
+									
+									str_html = '<label style="color:red;">已提交Mara审核</label>';							
+						break;
+						case 'MA_WAIT':
+									
+									str_html = '<label style="">待审核</label>';							
+						break;
+						case 'WA_REVIEW':
+									
+									str_html = '<label style="">资料审核中</label>';							
+						break;
+						case 'FINISH':
+									str_html = '<label style="color:blue;">资料审核完成</label>';
+						break;						
+						case 'APPLY':
+									str_html = '<label style="color:blue;">服务申请中</label>';
+						break;
+						case 'COMPLETE':
+									str_html = '<label style="color:red;">申请成功</label>';
+						break;
+						case 'COE_COMPLETE':
+									str_html = '<label style="color:red;">申请成功</label><br/>COE待支付';
+						break;
+						case 'PAID':
+									str_html = '<label style="color:red;">COE支付成功</label>';
+						break;
+						case 'CLOSE':
+									str_html = '<label style="color:red;">已关闭</label>';
+						break;						
+					}
+					return str_html;
+      }
+      
+      function open_detail(id,type,state)
+      {
+      		show_addnewservice_id(id,type);  		
+      }          
 			
 			function table_addsave()
 			{
