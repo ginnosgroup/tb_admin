@@ -496,7 +496,9 @@ public class ServiceOrderController extends BaseController {
 	@RequestMapping(value = "/refuse", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<ServiceOrderDTO> refuse(@RequestParam(value = "id") int id,
-			@RequestParam(value = "state") String state, HttpServletRequest request, HttpServletResponse response) {
+			@RequestParam(value = "state") String state,
+			@RequestParam(value = "closedReason", required = false) String closedReason, HttpServletRequest request,
+			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			if (ReviewAdviserStateEnum.COMPLETE.toString().equalsIgnoreCase(state)
@@ -526,6 +528,11 @@ public class ServiceOrderController extends BaseController {
 											ReviewMaraStateEnum.REVIEW.toString(), null, null));
 						else if (ReviewOfficialStateEnum.CLOSE.toString().equals(state.toUpperCase())) { // 顾问关闭同时修改文案状态
 							serviceOrderService.finish(id);
+							// 更新关闭原因
+							if (StringUtil.isNotEmpty(closedReason)) {
+								serviceOrderDto.setClosedReason(closedReason);
+								serviceOrderService.updateServiceOrder(serviceOrderDto);
+							}
 							return new Response<ServiceOrderDTO>(0,
 									serviceOrderService.refuse(id, adminUserLoginInfo.getId(), state.toUpperCase(),
 											null, ReviewOfficialStateEnum.CLOSE.toString(), null));
@@ -552,6 +559,11 @@ public class ServiceOrderController extends BaseController {
 					if (ReviewOfficialStateEnum.get(state) != null)
 						if (ReviewOfficialStateEnum.CLOSE.toString().equals(state.toUpperCase())) { // 文案关闭同时修改顾问状态
 							serviceOrderService.finish(id);
+							// 更新关闭原因
+							if (StringUtil.isNotEmpty(closedReason)) {
+								serviceOrderDto.setClosedReason(closedReason);
+								serviceOrderService.updateServiceOrder(serviceOrderDto);
+							}
 							return new Response<ServiceOrderDTO>(0,
 									serviceOrderService.refuse(id, adminUserLoginInfo.getId(),
 											ReviewAdviserStateEnum.CLOSE.toString(), null, state.toUpperCase(), null));
