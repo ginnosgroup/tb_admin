@@ -79,6 +79,9 @@
         <if test='schoolId != null and schoolId != ""'>
             , school_id = #{schoolId}
         </if>
+        <if test='state != null and state != ""'>
+            , state = #{state}
+        </if>
         <if test='isSettle != null'>
             , is_settle = #{isSettle}
         </if>
