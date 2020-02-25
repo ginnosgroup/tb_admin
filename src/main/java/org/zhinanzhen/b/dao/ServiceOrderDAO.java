@@ -14,12 +14,12 @@ public interface ServiceOrderDAO {
 	int updateReviewState(@Param("id") Integer id, @Param("reviewState") String reviewState);
 
 	int countServiceOrder(@Param("type") String type, @Param("excludeState") String excludeState,
-			@Param("stateList") List<String> stateList, @Param("reviewState") String reviewState,
+			@Param("stateList") List<String> stateList, @Param("reviewStateList") List<String> reviewStateList,
 			@Param("userId") Integer userId, @Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
 			@Param("officialId") Integer officialId);
 
 	List<ServiceOrderDO> listServiceOrder(@Param("type") String type, @Param("excludeState") String excludeState,
-			@Param("stateList") List<String> stateList, @Param("reviewState") String reviewState,
+			@Param("stateList") List<String> stateList, @Param("reviewStateList") List<String> reviewStateList,
 			@Param("userId") Integer userId, @Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
 			@Param("officialId") Integer officialId, @Param("offset") int offset, @Param("rows") int rows);
 

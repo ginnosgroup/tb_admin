@@ -14,11 +14,12 @@ public interface ServiceOrderService {
 
 	int updateServiceOrderRviewState(int id, String reviewState) throws ServiceException;
 
-	int countServiceOrder(String type, String excludeState, List<String> stateList, String reviewState, int userId,
-			int maraId, int adviserId, int officialId) throws ServiceException;
+	int countServiceOrder(String type, String excludeState, List<String> stateList, List<String> reviewStateList,
+			int userId, int maraId, int adviserId, int officialId) throws ServiceException;
 
-	List<ServiceOrderDTO> listServiceOrder(String type, String excludeState, List<String> stateList, String reviewState,
-			int userId, int maraId, int adviserId, int officialId, int pageNum, int pageSize) throws ServiceException;
+	List<ServiceOrderDTO> listServiceOrder(String type, String excludeState, List<String> stateList,
+			List<String> reviewStateList, int userId, int maraId, int adviserId, int officialId, int pageNum,
+			int pageSize) throws ServiceException;
 
 	ServiceOrderDTO getServiceOrderById(int id) throws ServiceException;
 
