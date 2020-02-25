@@ -170,8 +170,11 @@
 				#{stateList}
 			</foreach>
 		</if>
-		<if test='reviewState != null and reviewState != ""'>
-			AND review_state = #{reviewState}
+		<if test='reviewStateList != null'>
+			AND review_state IN
+			<foreach collection="reviewStateList" item="reviewStateList" index="index" open="(" close=")" separator=",">
+				#{reviewStateList}
+			</foreach>
 		</if>
 		<if test='userId != null'>
 			AND user_id = #{userId}
@@ -232,8 +235,11 @@
 				#{stateList}
 			</foreach>
 		</if>
-		<if test='reviewState != null and reviewState != ""'>
-			AND review_state = #{reviewState}
+		<if test='reviewStateList != null'>
+			AND review_state IN
+			<foreach collection="reviewStateList" item="reviewStateList" index="index" open="(" close=")" separator=",">
+				#{reviewStateList}
+			</foreach>
 		</if>
 		<if test='userId != null'>
 			AND user_id = #{userId}

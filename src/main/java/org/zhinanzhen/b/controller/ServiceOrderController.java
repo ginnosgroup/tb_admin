@@ -277,7 +277,7 @@ public class ServiceOrderController extends BaseController {
 			List<String> stateList = null;
 			if (state != null)
 				stateList = new ArrayList<>(Arrays.asList(state.split(",")));
-			String reviewState = null;
+			List<String> reviewStateList = null;
 			Integer newAdviserId = getAdviserId(request);
 			if (newAdviserId != null)
 				adviserId = newAdviserId + "";
@@ -285,7 +285,10 @@ public class ServiceOrderController extends BaseController {
 			if (newMaraId != null) {
 				maraId = newMaraId + "";
 				excludeState = ReviewAdviserStateEnum.PENDING.toString();
-				reviewState = ServiceOrderReviewStateEnum.ADVISER.toString();
+				reviewStateList = new ArrayList<>();
+				reviewStateList.add(ServiceOrderReviewStateEnum.ADVISER.toString());
+				reviewStateList.add(ServiceOrderReviewStateEnum.MARA.toString());
+				reviewStateList.add(ServiceOrderReviewStateEnum.OFFICIAL.toString());
 			}
 			Integer newOfficialId = getOfficialId(request);
 			if (newOfficialId != null) {
@@ -294,7 +297,7 @@ public class ServiceOrderController extends BaseController {
 			}
 
 			return new Response<Integer>(0,
-					serviceOrderService.countServiceOrder(type, excludeState, stateList, reviewState,
+					serviceOrderService.countServiceOrder(type, excludeState, stateList, reviewStateList,
 							StringUtil.toInt(userId), StringUtil.toInt(maraId), StringUtil.toInt(adviserId),
 							StringUtil.toInt(officialId)));
 		} catch (ServiceException e) {
@@ -318,7 +321,7 @@ public class ServiceOrderController extends BaseController {
 			List<String> stateList = null;
 			if (state != null)
 				stateList = new ArrayList<>(Arrays.asList(state.split(",")));
-			String reviewState = null;
+			List<String> reviewStateList = null;
 			Integer newAdviserId = getAdviserId(request);
 			if (newAdviserId != null)
 				adviserId = newAdviserId + "";
@@ -326,7 +329,10 @@ public class ServiceOrderController extends BaseController {
 			if (newMaraId != null) {
 				maraId = newMaraId + "";
 				excludeState = ReviewAdviserStateEnum.PENDING.toString();
-				reviewState = ServiceOrderReviewStateEnum.ADVISER.toString();
+				reviewStateList = new ArrayList<>();
+				reviewStateList.add(ServiceOrderReviewStateEnum.ADVISER.toString());
+				reviewStateList.add(ServiceOrderReviewStateEnum.MARA.toString());
+				reviewStateList.add(ServiceOrderReviewStateEnum.OFFICIAL.toString());
 			}
 			Integer newOfficialId = getOfficialId(request);
 			if (newOfficialId != null) {
@@ -335,7 +341,7 @@ public class ServiceOrderController extends BaseController {
 			}
 
 			return new Response<List<ServiceOrderDTO>>(0,
-					serviceOrderService.listServiceOrder(type, excludeState, stateList, reviewState,
+					serviceOrderService.listServiceOrder(type, excludeState, stateList, reviewStateList,
 							StringUtil.toInt(userId), StringUtil.toInt(maraId), StringUtil.toInt(adviserId),
 							StringUtil.toInt(officialId), pageNum, pageSize));
 		} catch (ServiceException e) {
@@ -545,12 +551,13 @@ public class ServiceOrderController extends BaseController {
 					if (!"VISA".equalsIgnoreCase(serviceOrderDto.getType()))
 						return new Response<ServiceOrderDTO>(1, "Mara审核仅限签证服务订单!", null);
 					if (ReviewMaraStateEnum.get(state) != null) {
-						if (ReviewMaraStateEnum.REVIEW.toString().equals(state.toUpperCase())) // mara驳回同时修改顾问状态
+						if (ReviewMaraStateEnum.REVIEW.toString().equals(state.toUpperCase())) { // mara驳回同时修改顾问状态
+							serviceOrderService.updateServiceOrderRviewState(id, null);
 							return new Response<ServiceOrderDTO>(0,
 									serviceOrderService.refuse(id, adminUserLoginInfo.getId(),
 											ReviewAdviserStateEnum.REVIEW.toString(), state.toUpperCase(),
 											ReviewOfficialStateEnum.REVIEW.toString(), null));
-						else
+						} else
 							return new Response<ServiceOrderDTO>(0, serviceOrderService.refuse(id,
 									adminUserLoginInfo.getId(), null, state.toUpperCase(), null, null));
 					} else
