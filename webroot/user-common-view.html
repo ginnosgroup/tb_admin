@@ -368,8 +368,8 @@ function show_addnewservice_id(orderId,type)
         			$('#show_addnewservice1_id #show_paid').show();			        	
         	}
         	$('#show_addnewservice1_id #b7').html(str_ispay);
-        	$('#show_addnewservice1_id #b8').html(v.getTime(response.receiveDate));
-        	$('#show_addnewservice1_id #b9').html(response.receiveType.name);
+        	$('#show_addnewservice1_id #b8').html(v.getTime(response.receiveDate));        	
+        	if (response.receiveId) $('#show_addnewservice1_id #b9').html(response.receiveType.name);
         	$('#show_addnewservice1_id #b10').html(response.receivable);
         	$('#show_addnewservice1_id #b11').html(response.discount);
         	$('#show_addnewservice1_id #b12').html(response.received);
