@@ -302,6 +302,14 @@
                           </button>
                        </div>
                     </div>
+                    <form class="form-inline" style="margin-top:10px;">
+											<div class="form-group">
+												<input v-model.trim="name" type="text" class="form-control" placeholder="输入文案名称">												
+											</div>
+											<div class="form-group">
+												<button @click="getUser" type="button" class="btn btn-info">查询</button>
+											</div>
+										</form>
 										<div class="responsive-table margin-top">
 											<input type="hidden" name="id" id="id" value="0" />
 											<table class="display table table-bordered table-striped" id="example">
@@ -500,24 +508,13 @@
 				},
 				created: function() {
 					this.getDatalist();
-					this.getSort();
 				},
 				methods: {
-					getSort: function() {
-						var that = this;
-						$.get(url + "official/list", {
-							state: "",
-							pageNum: 0,
-							pageSize: 1000000
-						}, function(result) {
-							console.log(result)
-							that.allSort = result.data;
-						});
-					},
-					getDatalist: function() {
+					getUser: function() {
 						var that = this;
 						$.get(url + "official/count", {
-							keyword: that.name							
+							name: that.name,							
+							adviserId: that.adviserId
 						}, function(result) {
 							console.log(result)
 							that.count = result.data;
@@ -525,16 +522,32 @@
 							console.log(that.allPage)
 						});
 						$.get(url + "official/list", {
+							name: that.name,
+							adviserId: that.adviserId,							
 							pageNum: 0,
 							pageSize: that.pageSize
 						}, function(result) {
 							//console.log(result)
 							that.pageNum = 0;
-							for(var i = 0; i < result.data.length; i++) {
-									result.data[i].oid = result.data[i].id;
-									result.data[i].password = '<label id="t5" style="width:150px;"><a href="javascript:;" onclick="passwdSet(\''+result.data[i].email+'\')">重置密码</a></label>';
-							};
-							that.subject = result.data;
+							that.subject = return_result(result);
+							//console.log(that.subject);
+						});
+					},
+					getDatalist: function() {
+						var that = this;
+						$.get(url + "official/count", {
+							keyword: that.name							
+						}, function(result) {							
+							that.count = result.data;
+							that.allPage = Math.ceil(result.data / that.pageSize);
+						});
+						$.get(url + "official/list", {
+							pageNum: 0,
+							pageSize: that.pageSize
+						}, function(result) {
+							//console.log(result)
+							that.pageNum = 0;
+							that.subject = return_result(result);
 							//console.log(that.subject);
 						});
 					},
@@ -565,13 +578,8 @@
 								pageNum: 0,
 								pageSize: that.pageSize
 							}, function(result) {
-								console.log(result)
 								that.pageNum = 0;
-								for(var i = 0; i < result.data.length; i++) {
-										result.data[i].oid = result.data[i].id;
-										result.data[i].password = '<label id="t5" style="width:150px;"><a href="javascript:;" onclick="passwdSet(\''+result.data[i].email+'\')">重置密码</a></label>';
-								};
-								that.subject = result.data;
+								that.subject = return_result(result);
 							});
 						}
 					},
@@ -583,13 +591,8 @@
 								keyword: that.name,
 								pageNum: that.pageNum,
 								pageSize: that.pageSize
-							}, function(result) {
-								console.log(result)
-								for(var i = 0; i < result.data.length; i++) {
-										result.data[i].oid = result.data[i].id;
-										result.data[i].password = '<label id="t5" style="width:150px;"><a href="javascript:;" onclick="passwdSet(\''+result.data[i].email+'\')">重置密码</a></label>';
-								};
-								that.subject = result.data;
+							}, function(result) {								
+								that.subject = return_result(result);
 							});
 						}
 					},
@@ -604,12 +607,7 @@
 								pageNum: that.pageNum,
 								pageSize: that.pageSize
 							}, function(result) {
-								console.log(result)
-								for(var i = 0; i < result.data.length; i++) {
-										result.data[i].oid = result.data[i].id;	
-										result.data[i].password = '<label id="t5" style="width:150px;"><a href="javascript:;" onclick="passwdSet(\''+result.data[i].email+'\')">重置密码</a></label>';								
-								};
-								that.subject = result.data;
+								that.subject = return_result(result);
 							});
 						}
 					},
@@ -623,13 +621,8 @@
 								pageNum: that.allPage - 1,
 								pageSize: that.pageSize
 							}, function(result) {
-								console.log(result)
 								that.pageNum = that.allPage - 1;
-								for(var i = 0; i < result.data.length; i++) {
-										result.data[i].oid = result.data[i].id;
-										result.data[i].password = '<label id="t5" style="width:150px;"><a href="javascript:;" onclick="passwdSet(\''+result.data[i].email+'\')">重置密码</a></label>';
-								};
-								that.subject = result.data;
+								that.subject = return_result(result);
 							});
 						}
 					},
@@ -725,6 +718,15 @@
 						v.subject.splice(v.current_index,1, v.current_row);
 				}
 			});
+			
+			function return_result(result)
+			{
+				for(var i = 0; i < result.data.length; i++) {
+						result.data[i].oid = result.data[i].id;
+						result.data[i].password = '<label id="t5" style="width:150px;"><a href="javascript:;" onclick="passwdSet(\''+result.data[i].email+'\')">重置密码</a></label>';
+				};
+				return result.data;
+			}
 			
 			function table_addsave()
 			{
