@@ -89,17 +89,18 @@
 									<hr/>
 									<div class="form-group" style="width:100%;line-height:40px;">
 										<label class="control-label"><strong>状态：</strong></label>
-										<select class="form-control" style="width:150px;" id="b19" onchange="if(this.value=='CLOSE'){$('#upload_certificate').show();$('#close_remarks').show();}else{$('#upload_certificate').hide();$('#close_remarks').hide();}">
-										<option value="PENDING">未审核</option>
-										<option value="REVIEW">资料审核中</option>
-										<option value="FINISH">资料已审核</option>
-										<option value="APPLY">已提交申请</option>
-										<option value="COMPLETE">申请成功</option>
-										<option value="CLOSE">已关闭</option>
+										<select class="form-control" style="width:180px;" id="b19" onchange="changeVisaState(this.value);">
+										<option v-if="flowstate_wa!=='WAIT' && flowstate_wa!=='COMPLETE'" value="">请选择</option>
+										<option v-if="flowstate_gw==='REVIEW'" value="REVIEW">资料审核中</option>
+										<option v-if="flowstate_wa==='REVIEW' && flowstate_ma===null" value="WAIT">提交Mara审核</option>
+										<option v-if="flowstate_wa==='WAIT'" value="">Mara审核中</option>
+										<option v-if="flowstate_ma==='FINISH'" value="APPLY">已提交申请</option>
+										<option v-if="flowstate_wa==='APPLY' || flowstate_wa==='COMPLETE'" value="COMPLETE">申请成功</option>
+										<option v-if="flowstate_gw==='REVIEW'" value="CLOSE">已关闭</option>
 										</select>
 									</div>
 									<div id="close_remarks" class="form-group" style="display:none;width:100%;line-height:40px;">
-										<label class="control-label"><strong>备注：<span style="color:red;">(此功能接口待实现)</span></strong></label>
+										<label class="control-label"><strong>备注：</strong></label>
 										<textarea id="b101" class="form-control" style="width:98%"></textarea>							
 									</div>
 							</div>							
@@ -112,22 +113,14 @@
 									</dle>
 							</dle>
 							<dle v-if="ap_list==='WA'">
-									<dle v-if="flowstate_gw==='REVIEW'">
-											<button onclick="flowstep($('#b19').val(),1);" type="button" class="btn btn-primary">提交</button>											
-									</dle>
-									<dle v-if="flowstate_wa==='REVIEW'">
-											<dle v-if="flowstate_ma!=='FINISH'">
-											<button onclick="flowstep('WAIT',1)" type="button" class="btn btn-default">提交Mara审核</button>
-											<button onclick="flowstep('PENDING',0)" type="button" class="btn btn-default">驳回</button>
-											</dle>
-									</dle>
-									<dle v-if="flowstate_ma==='WAIT' || flowstate_wa==='WAIT'">
-											<button onclick="flowstep('REVIEW',1)" type="button" class="btn btn-default">撤回</button>
-									</dle>
-									<dle v-if="flowstate_ma==='FINISH' || flowstate_wa==='APPLY' || flowstate_wa==='COMPLETE'">
 									<button onclick="alert('待实现');" id="upload_certificate" type="button" class="btn btn-danger" style="display:none;">上传签证凭证</button>
-									<button onclick="flowstep($('#b19').val(),1);" type="button" class="btn btn-primary">提交</button>
-									</dle>
+									<button v-if="flowstate_wa!=='WAIT' && flowstate_wa!='COMPLETE'" onclick="checkform('VISA');" type="button" class="btn btn-primary">提交</button>							
+									<dle v-if="flowstate_gw==='REVIEW'">
+											<button v-if="flowstate_wa===null" onclick="flowstep('PENDING',0)" id="btnRefuse" type="button" class="btn btn-default">驳回</button>
+									</dle>									
+									<dle v-if="flowstate_ma==='WAIT' || flowstate_wa==='WAIT'">
+											<button onclick="flowstep('REVIEW',1)" id="btnCancel"  type="button" class="btn btn-default">撤回</button>
+									</dle>									
 							</dle>
 							<dle v-if="ap_list==='MA'">
 									<dle v-if="flowstate_ma==='WAIT' || flowstate_wa==='WAIT'">
@@ -277,19 +270,19 @@
 									<hr/>
 									<div class="form-group" style="width:100%;line-height:40px;">
 										<label class="control-label"><strong>状态：</strong></label>
-										<select class="form-control" id="c200" onchange="if(this.value=='PAID'){$('#upload_certificate1').show();}else{$('#upload_certificate1').hide();}if(this.value=='CLOSE'){$('#close_remarks1').show();}else{$('#close_remarks1').hide();}">
-										<option value="PENDING">未审核</option>
-										<option value="REVIEW">资料审核中</option>
-										<option value="FINISH">资料已审核</option>
-										<option value="APPLY">已提交申请</option>
-										<option value="COMPLETE">申请成功等待COE支付</option>
-										<option value="PAID">COE支付成功</option>
-										<option value="CLOSE">已关闭</option>
+										<select class="form-control" id="c200" onchange="changeOvstState(this.value);">											
+										<option v-if="flowstate_wa!=='PAID'" value="">请选择</option>
+										<option v-if="flowstate_gw==='REVIEW'" value="REVIEW">资料审核中</option>
+										<option v-if="flowstate_wa==='REVIEW'" value="FINISH">资料已审核</option>
+										<option v-if="flowstate_wa==='FINISH'" value="APPLY">已提交申请</option>
+										<option v-if="flowstate_wa==='APPLY'" value="COMPLETE">申请成功等待COE支付</option>
+										<option v-if="flowstate_wa==='COMPLETE' || flowstate_wa==='PAID'" value="PAID">COE支付成功</option>
+										<option v-if="flowstate_gw==='REVIEW'" value="CLOSE">已关闭</option>
 										</select>
 									</div>
-									<div id="close_remarks1" class="form-group" style="display:none;width:100%;line-height:40px;">
-										<label class="control-label"><strong>备注：<span style="color:red;">(此功能接口待实现)</span></strong></label>
-										<textarea id="b101" class="form-control" style="width:98%"></textarea>							
+									<div id="close_remarks" class="form-group" style="display:none;width:100%;line-height:40px;">
+										<label class="control-label"><strong>备注：</strong></label>
+										<textarea id="c101" class="form-control" style="width:98%"></textarea>							
 									</div>
 							</div>
 							</form>
@@ -304,17 +297,11 @@
 									</dle>
 							</dle>
 							<dle v-if="ap_list==='WA'">									
-									<dle v-if="flowstate_gw==='REVIEW' && flowstate_wa===null">											
-											<button onclick="flowstep($('#c200').val(),1);" type="button" class="btn btn-primary">提交</button>											
-									</dle>
-									<dle v-if="flowstate_wa==='REVIEW'">
-											<button onclick="flowstep('FINISH',1)" type="button" class="btn btn-primary">通过</button>
-											<button onclick="flowstep('PENDING',0)" type="button" class="btn btn-default">驳回</button>
-									</dle>
-									<dle v-if="flowstate_wa==='FINISH' || flowstate_wa==='APPLY' || flowstate_wa==='COMPLETE' || flowstate_wa==='PAID'">
-									<button onclick="alert('待实现');" id="upload_certificate1" type="button" class="btn btn-danger" style="display:none;">上传收款凭证</button>
-									<button onclick="flowstep($('#c200').val(),1);" type="button" class="btn btn-primary">提交</button>
-									</dle>
+									<button onclick="alert('待实现');" id="upload_certificate" type="button" class="btn btn-danger" style="display:none;">上传收款凭证</button>
+									<button v-if="flowstate_wa!='PAID'" onclick="checkform('OVST');" type="button" class="btn btn-primary">提交</button>							
+									<dle v-if="flowstate_gw==='REVIEW'">
+											<button v-if="flowstate_wa===null" onclick="flowstep('PENDING',0)" id="btnRefuse" type="button" class="btn btn-default">驳回</button>
+									</dle>									
 							</dle>							
 							<button onclick="" type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
 					</div>
@@ -411,7 +398,8 @@ function show_addnewservice_id(orderId,type)
 									break;
 							}										
 					}
-					if (str_state == 'WA_REVIEW' ||  str_state == 'WA_MA_WAIT' ||  str_state == 'MA_WAIT') $("#b19").val('REVIEW');
+					if (str_state == 'WA_REVIEW') $("#b19").val('REVIEW');
+					if (str_state == 'WA_MA_WAIT' ||  str_state == 'MA_WAIT') $("#b19").val('WAIT');
 					if (str_state == 'APPLY' || str_state == 'COMPLETE' || str_state == 'CLOSE') $("#b19").val(str_state);
     	}else
     	{
@@ -451,5 +439,91 @@ function show_addnewservice_id(orderId,type)
 					$('#show_addnewservice2_id').modal('show');
     	}
     });      				      		
+}
+
+function checkform(type)
+{
+		if (type == 'VISA')
+		{
+				if ($('#show_addnewservice1_id #b19').val() == '')
+				{
+						$('#alert_error').css('marginLeft','30%');		
+						$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+			      $("#error_info").html('请选择需要修改的状态！');
+						return false;
+				}else
+				{
+						flowstep($('#show_addnewservice1_id #b19').val(),1);
+				}
+		}else
+		{
+				if ($('#show_addnewservice2_id #c200').val() == '')
+				{
+						$('#alert_error').css('marginLeft','30%');		
+						$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+			      $("#error_info").html('请选择需要修改的状态！');
+						return false;
+				}else
+				{
+						flowstep($('#show_addnewservice2_id #c200').val(),1);
+				}
+		}
+}
+
+function changeVisaState(va)
+{
+		$('#show_addnewservice1_id #upload_certificate').hide();
+		$('#show_addnewservice1_id #close_remarks').hide();
+		$('#show_addnewservice1_id #btnRefuse').hide();
+		$('#show_addnewservice1_id #btnCancel').hide();		
+		switch(va)
+		{
+				/*case 'PENDING':
+					$('#show_addnewservice1_id #btnRefuse').show();				
+				break;
+				case 'WAIT':
+					$('#show_addnewservice1_id #btnCancel').show();					
+				break;
+				case 'FINISH':
+					$('#show_addnewservice1_id #upload_certificate').show();
+				break;*/
+				case 'APPLY':
+					$('#show_addnewservice1_id #upload_certificate').show();
+				break;
+				case 'COMPLETE':
+					$('#show_addnewservice1_id #upload_certificate').show();
+				break;
+				case 'CLOSE':
+					$('#show_addnewservice1_id #close_remarks').show();
+				break;
+				case '':
+					$('#show_addnewservice1_id #btnRefuse').show();
+				break;			
+		}
+}
+
+function changeOvstState(va,state)
+{
+		$('#show_addnewservice2_id #upload_certificate').hide();
+		$('#show_addnewservice2_id #close_remarks').hide();
+		$('#show_addnewservice2_id #btnRefuse').hide();
+		switch(va)
+		{				
+				case 'APPLY':
+					$('#show_addnewservice2_id #upload_certificate').show();
+				break;
+				case 'COMPLETE':
+					$('#show_addnewservice2_id #upload_certificate').show();
+				break;
+				case 'PAID':
+					$('#show_addnewservice2_id #upload_certificate').show();
+				break;
+				case 'CLOSE':
+					$('#show_addnewservice2_id #close_remarks').show();
+				break;
+				case '':
+					$('#show_addnewservice2_id #btnRefuse').show();
+				break;				
+		}
 }
 </script>

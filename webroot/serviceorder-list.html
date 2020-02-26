@@ -285,13 +285,11 @@
 									<div class="adv-table editable-table">
 										<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
 									      <button data-dismiss="alert" class="close close-sm" type="button">
-									      <i class="fa fa-times"></i>
 									      </button>
 									      <strong>Success!</strong> You  just achieved success.
 									  </div>
 									  <div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
-                      <button data-dismiss="alert" class="close close-sm" type="button">
-                      <i class="fa fa-times"></i>
+                      <button data-dismiss="alert" class="close close-sm" type="button">                      
                       </button>
                       <strong id="error_info"></strong>
                     </div>
@@ -384,23 +382,11 @@
 																		</d1>
 																</dle>	
 																<dle v-if="ap_list==='WA'">
-																		<d1 v-if="item.type==='VISA'">																	
-																				<d1 v-if="item.review.officialState==='REVIEW'">																				
-																						<d2 v-if="item.review.maraState!=='FINISH'">
-																						<a href="javascript:show_confirmbox({{item.oid}},'WAIT',1)">提交Mara</a>
-																						<a href="javascript:show_confirmbox({{item.oid}},'PENDING',0)">驳回</a>
-																						</d2>
-																				</d1>
+																		<d1 v-if="item.type==='VISA'">																				
 																				<d1 v-if="item.currentState==='WA_MA_WAIT'">
 																				<a href="javascript:show_confirmbox({{item.oid}},'REVIEW',1)" style="color:#ACA9A9;">撤回</a>
 																				</d1>
-																		</d1>
-																		<d1 v-if="item.type==='OVST'">																	
-																				<d1 v-if="item.review.officialState==='REVIEW'">																				
-																						<a href="javascript:show_confirmbox({{item.oid}},'FINISH',1)">通过</a>
-																						<a href="javascript:show_confirmbox({{item.oid}},'PENDING',0)">驳回</a>
-																				</d1>																				
-																		</d1>
+																		</d1>																		
 																</dle>
 																<dle v-if="ap_list==='MA'">																		
 																		<d1 v-if="item.review.officialState==='WAIT' && item.review.maraState==='WAIT'">
@@ -721,6 +707,7 @@
 								var str_school = result.data[i].school.name;
 								result.data[i].serviceName = return_servicename(result.data[i].type)+'-'+str_school;
 						}
+						if (result.data[i].state == 'CLOSE') str_refusestate = result.data[i].closedReason;
 						result.data[i].strState = return_state(str_state)+str_refusestate;
 						result.data[i].currentState = str_state;
 				};
@@ -810,8 +797,15 @@
       		if (par == '0' || va == 'CLOSE') str_url = "serviceOrder/refuse";
       		
           var json = {};
+          var closedReason = '';
+          if (va == 'CLOSE')
+          {
+          		if ($('#show_addnewservice1_id #b101').val() != '') closedReason = $('#show_addnewservice1_id #b101').val();
+          		if ($('#show_addnewservice2_id #c101').val() != '') closedReason = $('#show_addnewservice1_id #c101').val();
+          }
           json['id'] = v.orderId;
           json['state'] = va;
+          json['closedReason'] = closedReason;
           $.post(str_url, json,
 			   	function(data){
 			   			if (data.code == 0)
@@ -831,12 +825,13 @@
 			   					setTimeout(function(){window.location.href = "serviceorder-list.html";}, 2000);				   					
 			   			}else
 			   			{
+			   					$('#alert_error').css('marginLeft','30%');
 			   					$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
 	          			$("#error_info").html(data.message);
 		        			return false;
 			   			}
 			   	});
-      }
+      }            
       
       function show_confirmbox(id,va,par)
       {
