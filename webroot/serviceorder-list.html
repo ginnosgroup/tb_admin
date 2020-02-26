@@ -708,6 +708,8 @@
 								result.data[i].serviceName = return_servicename(result.data[i].type)+'-'+str_school;
 						}
 						if (result.data[i].state == 'CLOSE') str_refusestate = result.data[i].closedReason;
+						if (result.data[i].review.officialState == 'PENDING' && result.data[i].review.type == 'REFUSE') str_refusestate = '<br/><span style="color:#003333">文案已驳回</span>';
+						if (result.data[i].review.officialState == 'REVIEW' && result.data[i].review.type == 'REFUSE') str_refusestate = '<br/><span style="color:#003333">Mara已驳回</span>';
 						result.data[i].strState = return_state(str_state)+str_refusestate;
 						result.data[i].currentState = str_state;
 				};
