@@ -49,6 +49,7 @@ public class CommissionOrderController extends BaseController {
 			CommissionOrderDTO commissionOrderDto = new CommissionOrderDTO();
 			if (serviceOrderService.getServiceOrderById(StringUtil.toInt(serviceOrderId)) == null)
 				return new Response<CommissionOrderDTO>(1, "服务订单(ID:" + serviceOrderId + ")不存在!", null);
+			commissionOrderDto.setServiceOrderId(StringUtil.toInt(serviceOrderId));
 			commissionOrderDto.setInstallment(StringUtil.toInt(installment));
 			commissionOrderDto.setStartDate(new Date(Long.parseLong(startDate)));
 			commissionOrderDto.setEndDate(new Date(Long.parseLong(endDate)));
@@ -120,7 +121,7 @@ public class CommissionOrderController extends BaseController {
 
 		try {
 			super.setGetHeader(response);
-			return new Response<Integer>(0, commissionOrderService.countCommissionOrder(newAdviserId, name, phone,
+			return new Response<Integer>(0, commissionOrderService.countCommissionOrder(adviserId, name, phone,
 					wechatUsername, schoolId, isSettle, state));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
@@ -146,8 +147,8 @@ public class CommissionOrderController extends BaseController {
 
 		try {
 			super.setGetHeader(response);
-			return new Response<List<CommissionOrderListDTO>>(0, commissionOrderService.listCommissionOrder(
-					newAdviserId, name, phone, wechatUsername, schoolId, isSettle, state, pageNum, pageSize));
+			return new Response<List<CommissionOrderListDTO>>(0, commissionOrderService.listCommissionOrder(adviserId,
+					name, phone, wechatUsername, schoolId, isSettle, state, pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<CommissionOrderListDTO>>(1, e.getMessage(), null);
 		}

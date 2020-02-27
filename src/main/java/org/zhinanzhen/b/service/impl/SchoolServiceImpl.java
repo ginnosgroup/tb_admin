@@ -244,7 +244,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	public List<SchoolSettingDTO> listSchoolSetting() throws ServiceException {
 		List<SchoolSettingDTO> schoolSettingDtoList = new ArrayList<SchoolSettingDTO>();
 		List<SchoolDO> schoolDoList = schoolDao.listSchool(null, null);
-		if (schoolDoList == null)
+		if (schoolDoList == null || schoolDoList.size() == 0)
 			return null;
 		schoolDoList.forEach(schoolDo -> {
 			String name = schoolDo.getName();

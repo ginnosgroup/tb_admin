@@ -26,5 +26,9 @@ public class CommissionOrderDTO {
 	private String remarks;
 
 	private boolean isClose;
+	
+	private Integer userId;
+	
+	private Integer schoolId;
 
 }
