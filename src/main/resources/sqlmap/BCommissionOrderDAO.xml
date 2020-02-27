@@ -56,6 +56,75 @@
         WHERE id = #{id};
     </update>
     
+    <select id="countCommissionOrder" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM b_commission_order co, b_service_order so, tb_user u
+        WHERE co.service_order_id = so.id AND so.user_id = u.id
+        <if test='adviserId != null and adviserId != ""'>
+            AND so.adviser_id = #{adviserId}
+        </if>
+        <if test='name != null and name != ""'>
+            AND u.name LIKE '%${name}%'
+        </if>
+        <if test='phone != null and phone != ""'>
+            AND u.phone = #{phone}
+        </if>
+        <if test='wechatUsername != null and wechatUsername != ""'>
+            AND u.wechat_username = #{wechatUsername}
+        </if>
+        <if test='schoolId != null and schoolId != ""'>
+            AND so.school_id = #{schoolId}
+        </if>
+        <if test='isSettle != null'>
+            AND so.is_settle = #{isSettle}
+        </if>
+        <if test='state != null and state != ""'>
+            AND so.state = #{state}
+        </if>
+        ;
+    </select>
+    
+    <select id="listCommissionOrder" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderListDO">
+        SELECT
+            co.id,
+            co.gmt_create AS gmtCreate,
+            co.service_order_id AS serviceOrderId,
+            co.installment,
+            co.start_date AS startDate,
+            co.end_date AS endDate,
+            co.tuition_fee AS tuitionFee,
+            co.per_term_tuition_fee AS perTermTuitionFee,
+            co.remarks,
+            co.is_close AS isClose,
+            so.user_id AS userId,
+            so.school_id AS schoolId
+        FROM b_commission_order co, b_service_order so, tb_user u
+        WHERE co.service_order_id = so.id AND so.user_id = u.id
+        <if test='adviserId != null and adviserId != ""'>
+            AND so.adviser_id = #{adviserId}
+        </if>
+        <if test='name != null and name != ""'>
+            AND u.name LIKE '%${name}%'
+        </if>
+        <if test='phone != null and phone != ""'>
+            AND u.phone = #{phone}
+        </if>
+        <if test='wechatUsername != null and wechatUsername != ""'>
+            AND u.wechat_username = #{wechatUsername}
+        </if>
+        <if test='schoolId != null and schoolId != ""'>
+            AND so.school_id = #{schoolId}
+        </if>
+        <if test='isSettle != null'>
+            AND so.is_settle = #{isSettle}
+        </if>
+        <if test='state != null and state != ""'>
+            AND so.state = #{state}
+        </if>
+        ORDER BY co.gmt_create DESC
+        LIMIT #{offset}, #{rows};
+    </select>
+    
     <select id="getCommissionOrderById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderDO">
         SELECT
             id,

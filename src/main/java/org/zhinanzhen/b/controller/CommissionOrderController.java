@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.controller;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.zhinanzhen.b.service.CommissionOrderService;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
+import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -47,6 +49,7 @@ public class CommissionOrderController extends BaseController {
 			CommissionOrderDTO commissionOrderDto = new CommissionOrderDTO();
 			if (serviceOrderService.getServiceOrderById(StringUtil.toInt(serviceOrderId)) == null)
 				return new Response<CommissionOrderDTO>(1, "服务订单(ID:" + serviceOrderId + ")不存在!", null);
+			commissionOrderDto.setServiceOrderId(StringUtil.toInt(serviceOrderId));
 			commissionOrderDto.setInstallment(StringUtil.toInt(installment));
 			commissionOrderDto.setStartDate(new Date(Long.parseLong(startDate)));
 			commissionOrderDto.setEndDate(new Date(Long.parseLong(endDate)));
@@ -97,6 +100,57 @@ public class CommissionOrderController extends BaseController {
 					: new Response<CommissionOrderDTO>(1, "修改失败.", null);
 		} catch (ServiceException e) {
 			return new Response<CommissionOrderDTO>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/count", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> count(@RequestParam(value = "adviserId", required = false) Integer adviserId,
+			@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "phone", required = false) String phone,
+			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
+			@RequestParam(value = "schoolId", required = false) Integer schoolId,
+			@RequestParam(value = "isSettle", required = false) Boolean isSettle,
+			@RequestParam(value = "state", required = false) String state, HttpServletRequest request,
+			HttpServletResponse response) {
+
+		// 更改当前顾问编号
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId;
+
+		try {
+			super.setGetHeader(response);
+			return new Response<Integer>(0, commissionOrderService.countCommissionOrder(adviserId, name, phone,
+					wechatUsername, schoolId, isSettle, state));
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/list", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<CommissionOrderListDTO>> list(
+			@RequestParam(value = "adviserId", required = false) Integer adviserId,
+			@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "phone", required = false) String phone,
+			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
+			@RequestParam(value = "schoolId", required = false) Integer schoolId,
+			@RequestParam(value = "isSettle", required = false) Boolean isSettle,
+			@RequestParam(value = "state", required = false) String state, @RequestParam(value = "pageNum") int pageNum,
+			@RequestParam(value = "pageSize") int pageSize, HttpServletRequest request, HttpServletResponse response) {
+
+		// 更改当前顾问编号
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId;
+
+		try {
+			super.setGetHeader(response);
+			return new Response<List<CommissionOrderListDTO>>(0, commissionOrderService.listCommissionOrder(adviserId,
+					name, phone, wechatUsername, schoolId, isSettle, state, pageNum, pageSize));
+		} catch (ServiceException e) {
+			return new Response<List<CommissionOrderListDTO>>(1, e.getMessage(), null);
 		}
 	}
 

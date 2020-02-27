@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -7,11 +8,19 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.CommissionOrderDAO;
+import org.zhinanzhen.b.dao.SchoolDAO;
 import org.zhinanzhen.b.dao.ServiceOrderReviewDAO;
 import org.zhinanzhen.b.dao.pojo.CommissionOrderDO;
+import org.zhinanzhen.b.dao.pojo.CommissionOrderListDO;
+import org.zhinanzhen.b.dao.pojo.SchoolDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderReviewDO;
 import org.zhinanzhen.b.service.CommissionOrderService;
 import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
+import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
+import org.zhinanzhen.b.service.pojo.SchoolDTO;
+import org.zhinanzhen.tb.service.pojo.UserDTO;
+import org.zhinanzhen.tb.dao.UserDAO;
+import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
@@ -19,6 +28,12 @@ import com.ikasoa.core.thrift.ErrorCodeEnum;
 
 @Service("CommissionOrderService")
 public class CommissionOrderServiceImpl extends BaseService implements CommissionOrderService {
+
+	@Resource
+	private UserDAO userDao;
+
+	@Resource
+	private SchoolDAO schoolDao;
 
 	@Resource
 	private CommissionOrderDAO commissionOrderDao;
@@ -56,6 +71,53 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
 		}
+	}
+
+	@Override
+	public int countCommissionOrder(Integer adviserId, String name, String phone, String wechatUsername,
+			Integer schoolId, Boolean isSettle, String state) throws ServiceException {
+		return commissionOrderDao.countCommissionOrder(adviserId, name, phone, wechatUsername, schoolId, isSettle,
+				state);
+	}
+
+	@Override
+	public List<CommissionOrderListDTO> listCommissionOrder(Integer adviserId, String name, String phone,
+			String wechatUsername, Integer schoolId, Boolean isSettle, String state, int pageNum, int pageSize)
+			throws ServiceException {
+		if (pageNum < 0) {
+			pageNum = DEFAULT_PAGE_NUM;
+		}
+		if (pageSize < 0) {
+			pageSize = DEFAULT_PAGE_SIZE;
+		}
+		List<CommissionOrderListDTO> commissionOrderListDtoList = new ArrayList<>();
+		List<CommissionOrderListDO> commissionOrderListDoList = new ArrayList<>();
+		try {
+			commissionOrderListDoList = commissionOrderDao.listCommissionOrder(adviserId, name, phone, wechatUsername,
+					schoolId, isSettle, state, pageNum * pageSize, pageSize);
+			if (commissionOrderListDoList == null)
+				return null;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+		for (CommissionOrderListDO commissionOrderListDo : commissionOrderListDoList) {
+			CommissionOrderListDTO commissionOrderListDto = mapper.map(commissionOrderListDo,
+					CommissionOrderListDTO.class);
+			if (commissionOrderListDo.getUserId() != null && commissionOrderListDo.getUserId() > 0) {
+				UserDO userDo = userDao.getUserById(commissionOrderListDo.getUserId());
+				if (userDo != null)
+					commissionOrderListDto.setUser(mapper.map(userDo, UserDTO.class));
+			}
+			if (commissionOrderListDo.getSchoolId() != null && commissionOrderListDo.getSchoolId() > 0) {
+				SchoolDO schoolDo = schoolDao.getSchoolById(commissionOrderListDo.getSchoolId());
+				if (schoolDo != null)
+					commissionOrderListDto.setSchool(mapper.map(schoolDo, SchoolDTO.class));
+			}
+			commissionOrderListDtoList.add(commissionOrderListDto);
+		}
+		return commissionOrderListDtoList;
 	}
 
 	@Override
