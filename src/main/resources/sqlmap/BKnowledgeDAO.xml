@@ -11,14 +11,16 @@
                 title,
                 content,
                 password,
-                knowledge_menu_id)
+                knowledge_menu_id,
+                admin_user_id)
             VALUES (
                 now(),
                 now(),
                 #{title},
                 #{content},
                 #{password},
-                #{knowledgeMenuId});
+                #{knowledgeMenuId},
+                #{adminUserId});
     </insert>
     
     <update id="updateKnowledge" parameterType="org.zhinanzhen.b.dao.pojo.KnowledgeDO">
@@ -59,7 +61,8 @@
             title,
             content,
             password,
-            knowledge_menu_id AS knowledgeMenuId
+            knowledge_menu_id AS knowledgeMenuId,
+            admin_user_id AS adminUserId
         FROM b_knowledge
         WHERE 1 = 1
         <if test='knowledgeMenuId != null'>
@@ -79,7 +82,8 @@
             title,
             content,
             password,
-            knowledge_menu_id AS knowledgeMenuId
+            knowledge_menu_id AS knowledgeMenuId,
+            admin_user_id AS adminUserId
         FROM b_knowledge
         WHERE id = #{id}
         ;

@@ -58,8 +58,8 @@ public class KnowledgeController extends BaseController {
 	public Response<Integer> add(@RequestParam(value = "title") String title,
 			@RequestParam(value = "content") String content,
 			@RequestParam(value = "password", required = false) String password,
-			@RequestParam(value = "knowledgeMenuId") Integer knowledgeMenuId,
-			HttpServletRequest request, HttpServletResponse response) {
+			@RequestParam(value = "knowledgeMenuId") Integer knowledgeMenuId, HttpServletRequest request,
+			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			KnowledgeDTO knowledgeDto = new KnowledgeDTO();
@@ -67,6 +67,11 @@ public class KnowledgeController extends BaseController {
 			knowledgeDto.setContent(content);
 			knowledgeDto.setPassword(password);
 			knowledgeDto.setKnowledgeMenuId(knowledgeMenuId);
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo != null)
+				knowledgeDto.setAdminUserId(adminUserLoginInfo.getId());
+			else
+				return new Response<Integer>(1, "请先登录后再创建知识库.", 0);
 			if (knowledgeService.addKnowledge(knowledgeDto) > 0)
 				return new Response<Integer>(0, knowledgeDto.getId());
 			else

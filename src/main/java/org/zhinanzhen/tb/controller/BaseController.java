@@ -121,9 +121,8 @@ public class BaseController {
 		HttpSession session = request.getSession();
 		if (session.getAttribute("AdminUserLoginInfo") != null) {
 			AdminUserLoginInfo adminUserLoginInfo = (AdminUserLoginInfo) session.getAttribute("AdminUserLoginInfo");
-			if (adminUserLoginInfo != null) {
+			if (adminUserLoginInfo != null)
 				return adminUserLoginInfo;
-			}
 		}
 		return null;
 	}

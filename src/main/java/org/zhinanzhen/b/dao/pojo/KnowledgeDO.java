@@ -18,5 +18,7 @@ public class KnowledgeDO {
 	private String password;
 
 	private int knowledgeMenuId;
+	
+	private int adminUserId;
 
 }
