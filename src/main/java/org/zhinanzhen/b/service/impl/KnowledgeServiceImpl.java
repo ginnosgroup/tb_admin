@@ -107,6 +107,7 @@ public class KnowledgeServiceImpl extends BaseService implements KnowledgeServic
 					knowledgeDto.setContent(null);
 				knowledgeDto.setPassword(null);
 			}
+			knowledgeDto.setContent(""); // 清空content以提高查询速度
 			knowledgeDtoList.add(knowledgeDto);
 		}
 		return knowledgeDtoList;
