@@ -282,8 +282,7 @@
 									知识库内容
 								</header>
 								<div class="panel-body">
-									<div class="adv-table editable-table" id="content">										
-									</div>
+									<div class="adv-table editable-table" id="content"></div>
 								</div>
 							</section>
 						</div>
@@ -400,7 +399,7 @@
 								var id = result.data.id;
 								var cont = result.data.content;
 								$('#title').html('[ID:'+result.data.id+'] '+title);
-								$('#content').html(cont);
+								$('#content').html(cont+'<div style="text-align:center;"><button onclick="window.history.go(-1);" type="button" class="btn btn-primary">返回上一页</button></div>');
 						}
 					});
 					this.getMessagelist();
@@ -468,7 +467,7 @@
 										var id = result.data.id;
 										var cont = result.data.content;
 										$('#title').html('[ID:'+result.data.id+'] '+title);
-										$('#content').html(cont);
+										$('#content').html(cont+'<div style="text-align:center;"><button onclick="window.history.go(-1);" type="button" class="btn btn-primary">返回上一页</button></div>');
 								}
 							});
 			    }else
