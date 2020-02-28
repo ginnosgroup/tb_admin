@@ -11,6 +11,7 @@
 							<form class="form-inline" style="">
 							<input type="hidden" name="user_id" id="user_id" value="0" />
 							<input type="hidden" name="service_id" id="service_id" value="0" />
+							<input type="hidden" name="flist" id="flist" value="" />
 							<div class="form-group" style="width:100%;height:40px;">
 								<label class="control-label" style="width:80px;"><strong>客户姓名：</strong></label>								
 								<label id="b1"></label>
@@ -96,7 +97,7 @@
 										<option v-if="flowstate_wa==='WAIT'" value="">Mara审核中</option>
 										<option v-if="flowstate_ma==='FINISH'" value="APPLY">已提交申请</option>
 										<option v-if="flowstate_wa==='APPLY' || flowstate_wa==='COMPLETE'" value="COMPLETE">申请成功</option>
-										<option v-if="flowstate_gw==='REVIEW' && flowstate_wa===null" value="CLOSE">已关闭</option>
+										<option value="CLOSE">关闭申请</option>
 										</select>
 									</div>
 									<div id="close_remarks" class="form-group" style="display:none;width:100%;line-height:40px;">
@@ -277,7 +278,7 @@
 										<option v-if="flowstate_wa==='FINISH'" value="APPLY">已提交申请</option>
 										<option v-if="flowstate_wa==='APPLY'" value="COMPLETE">申请成功等待COE支付</option>
 										<option v-if="flowstate_wa==='COMPLETE' || flowstate_wa==='PAID'" value="PAID">COE支付成功</option>
-										<option v-if="flowstate_gw==='REVIEW'" value="CLOSE">已关闭</option>
+										<option value="CLOSE">关闭申请</option>
 										</select>
 									</div>
 									<div id="close_remarks" class="form-group" style="display:none;width:100%;line-height:40px;">
@@ -297,7 +298,7 @@
 									</dle>
 							</dle>
 							<dle v-if="ap_list==='WA'">									
-									<button onclick="alert('待实现');" id="upload_certificate" type="button" class="btn btn-danger" style="display:none;">上传收款凭证</button>
+									<button onclick="alert('待实现');" id="upload_certificate" type="button" class="btn btn-danger" style="display:none;">上传凭证</button>
 									<button v-if="flowstate_wa!='PAID'" onclick="checkform('OVST');" type="button" class="btn btn-primary">提交</button>							
 									<dle v-if="flowstate_gw==='REVIEW'">
 											<button v-if="flowstate_wa===null" onclick="flowstep('PENDING',0)" id="btnRefuse" type="button" class="btn btn-default">驳回</button>
@@ -337,7 +338,8 @@ function show_addnewservice_id(orderId,type)
       type: 'GET',
       dataType: 'json'
     }).done(function(response) {			        	
-    	response = response.data; 
+    	response = response.data;
+    	v.orderType = type;
     	if (type == 'VISA')
     	{
     			$('#show_addnewservice1_id').modal('show');

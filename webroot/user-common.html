@@ -20,7 +20,8 @@
 	      </div>
 				<div class="modal-body">
 						<form class="form-inline" style="">
-						<input type="hidden" name="user_id" id="user_id" value="0" />													
+						<input type="hidden" name="user_id" id="user_id" value="0" />	
+						<input type="hidden" name="flist" id="flist" value="" />													
 						<div class="form-group" style="width:100%;height:40px;">
 							<label class="control-label" style="width:80px;">客户姓名<span style="color:red;">*</span></label>							
 							<label id="b1a"><input type="text" class="form-control small" style="width:150px;" id="b100" placeholder="请输入查询" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,'')" value=""></label>
@@ -308,7 +309,7 @@ function add_service1(orderId,userId,name)
 	        	if (response.deductGst) $("#addnewservice1_id #b16").val(response.deductGst);
 	        	if (response.expectAmount) $("#addnewservice1_id #b17").val(response.expectAmount);
 	        	if (response.remarks) $("#addnewservice1_id #b18").val(response.remarks);
-	        	$('#addnewservice1_id #btn_id').html('修改');
+	        	$('#addnewservice1_id #btn_id').html('保存修改');
 	        	$('#addnewservice1_id #btnReview').show();
 	      });
 		}
@@ -385,7 +386,7 @@ function add_service2(orderId,userId,name)
 		      	if (response.received) $("#addnewservice2_id #c15").val(response.received);
 		      	if (response.remarks) $("#addnewservice2_id #c16").val(response.remarks);
 		      	addnewservice2_ajax_subject();
-		      	$('#addnewservice2_id #btn_id').html('修改');
+		      	$('#addnewservice2_id #btn_id').html('保存修改');
 	        	$('#addnewservice2_id #btnReview').show();
 	       });				
 		}
@@ -543,15 +544,16 @@ function addnewService1Save()
 {
 		var jqInputs = $('input',$("#addnewservice1_id"));
     var jqSelect = $('select',$("#addnewservice1_id"));
-    var jqTextarea = $('textarea',$("#addnewservice1_id"));         	
+    var jqTextarea = $('textarea',$("#addnewservice1_id"));
     
-    var check_result = 0;
-    if (jqSelect[0].value != '0' && jqSelect[1].value != '0' && jqSelect[2].value != '0' && jqSelect[4].value != '0')
+    var check_result = 0;    
+    if (jqSelect[0].value != '0' && jqSelect[1].value != '0' && jqSelect[2].value != '0' && jqSelect[4].value != '')
     {
     		check_result = true;
-    }else
+    }else    		
     {
     		$('#addnewservice1_id #alert_error').css('marginLeft','30%');
+    		$('#addnewservice1_id #alert_error').css('marginTop','20%');
     		$('#addnewservice1_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
         $("#addnewservice1_id #error_info").html('提示：红色字段必须填写或选择！');
     		return false;
@@ -572,32 +574,43 @@ function addnewService1Save()
        	json['officialId'] = jqSelect[2].value;
        	json['type'] = jqSelect[3].value;
        	json['serviceId'] = jqSelect[4].value;
-       	json['paid'] = $("input[name='b7']:checked").val();
+       	json['paid'] = $("#addnewservice1_id input[name='b7']:checked").val();
        	json['userId'] = $("#addnewservice1_id #user_id").val();
        	json['remarks'] = jqTextarea[0].value;
-       	json['isPay'] = false;
+       	json['isPay'] = false;       	
        	if (json['paid'] == 1)
        	{
-       			var d1 = 0;          		
-        		if (jqInputs[4].value != '')
-        		{
-	          		var arr_d = jqInputs[4].value.split("/");
-	          		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
-	              var date = new Date(str_d);
-	              d1 = date.getTime();
+       			//校验是否上传了凭金
+       			if (jqInputs[1].value != '')
+       			{
+		       			var d1 = 0;          		
+		        		if (jqInputs[5].value != '')
+		        		{
+			          		var arr_d = jqInputs[5].value.split("/");
+			          		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+			              var date = new Date(str_d);
+			              d1 = date.getTime();
+		          	}
+		          	json['receiveDate'] = d1;
+		          	json['receiveTypeId'] = jqSelect[5].value;
+		          	json['receivable'] = jqInputs[6].value;
+		          	json['discount'] = jqInputs[7].value;
+		          	json['received'] = jqInputs[8].value;
+		          	json['paymentTimes'] = jqSelect[6].value;
+		          	json['amount'] = jqInputs[9].value;
+		          	json['gst'] = jqInputs[10].value;
+		          	json['deductGst'] = jqInputs[11].value;
+		          	json['expectAmount'] = jqInputs[12].value;
+		          	json['isPay'] = true;
+          	}else
+          	{
+          			$('#addnewservice1_id #alert_error').css('marginTop','30%');
+          			$('#addnewservice1_id #alert_error').css('marginLeft','30%');
+		   					$('#addnewservice1_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+          			$("#addnewservice1_id #error_info").html('签证凭证没有上传，请上传之后再提交。');
+        				return false;
           	}
-          	json['receiveDate'] = d1;
-          	json['receiveTypeId'] = jqSelect[5].value;
-          	json['receivable'] = jqInputs[5].value;
-          	json['discount'] = jqInputs[6].value;
-          	json['received'] = jqInputs[7].value;
-          	json['paymentTimes'] = jqSelect[6].value;
-          	json['amount'] = jqInputs[8].value;
-          	json['gst'] = jqInputs[9].value;
-          	json['deductGst'] = jqInputs[10].value;
-          	json['expectAmount'] = jqInputs[11].value;
-          	json['isPay'] = true;
-       	}       	
+       	}
        	
        	$.post(str_url, json,
 		   	function(data){
@@ -618,7 +631,7 @@ function addnewService1Save()
 		   					$('#addnewservice1_id #alert_error').css('marginTop','30%');
 		   					$('#addnewservice1_id #alert_error').css('marginLeft','30%');
 		   					$('#addnewservice1_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
-          			$("#error_info").html(data.message);
+          			$("#addnewservice1_id #error_info").html(data.message);
 	        			return false;
 		   			}
 		   	});       		            
@@ -768,7 +781,7 @@ v.$watch('addnewservice1_bind', function(obj) {
     					if (v.adviser_id == response[item].id) obj_adviserId.append("<option value='"+response[item].id+"' selected='true'>"+response[item].name+"</option>");    					
     			}
     	}
-    	obj_adviserId.val(v.adviser_id);   
+    	obj_adviserId.val(v.adviser_id);
     });
     //绑定Mara列表			    
     var obj_mara = $("#addnewservice1_id #b3");

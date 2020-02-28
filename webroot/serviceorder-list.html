@@ -297,19 +297,31 @@
 									  	<input v-model.trim="userId" type="hidden" name="userId" id="userId" value="0" />
 											<div class="form-group">
 													<label>客户姓名</label>
-													<input type="text" name="user_name" id="user_name" class="form-control" style="width:150px;">												
+													<input type="text" name="user_name" id="user_name" class="form-control" style="width:150px;">	
+													<!--											
 													<label>手机号码</label>
 													<input v-model.trim="phone" type="text" class="form-control" style="width:130px;" placeholder="请输入手机号码">
 													<label>客户微信号</label>
 													<input v-model.trim="wechatUsername" type="text" class="form-control" style="width:130px;" placeholder="输入客户微信号">
+													-->
+													<dle v-if="ap_list!=='KJ' && ap_list!=='GW'">
 													<label>顾问</label>
 													<select v-model.trim="adviserId" id="adviserId" class="form-control" style="width:130px;">
 													</select>
+													</dle>
+													<dle v-if="ap_list!=='KJ' && ap_list!=='WA'">
 													<label>文案</label>											
 													<select v-model.trim="officialId" id="officialId" class="form-control" style="width:130px;">
-													</select>												
+													</select>
+													</dle>
+													<dle v-if="ap_list!=='KJ' && ap_list!=='MA'">
+													<label>Mara</label>											
+													<select v-model.trim="maraId" id="maraId" class="form-control" style="width:130px;">
+													<option value="" selected="true">请选择</option>
+													</select>
+													</dle>											
 											</div>
-											<div class="form-group" style="margin-top:10px;">
+											<div class="form-group">
 													<label>服务项目</label>											
 													<select v-model.trim="type" id="type" class="form-control" style="width:130px;">
 													<option value="" selected="true">请选择</option>
@@ -319,19 +331,16 @@
 													<label>状态</label>											
 													<select v-model.trim="state" id="state" class="form-control" style="width:130px;">
 													<option value="" selected="true">全部</option>
-													<option value="WAIT">待提交审核</option>
+													<option value="PENDING">待提交审核</option>
 													<option value="REVIEW">审核中</option>
+													<option value="FINISH">审核完毕</option>
 													<option value="APPLY">服务申请中</option>
-													<option value="COMPLETE">申请成功</option>
-													<option value="FINISH">支付成功</option>
-													<option value="CLOSE">已关闭</option>
-													</select>
-													<label>Mara</label>											
-													<select v-model.trim="maraId" id="maraId" class="form-control" style="width:130px;">
-													<option value="" selected="true">请选择</option>
-													</select>
+													<option value="COMPLETE">申请成功</option>													
+													<option value="PAID">COE支付成功</option>
+													<option value="CLOSE">已关闭申请</option>
+													</select>													
 											</div>
-											<div class="form-group" style="margin-top:10px;">
+											<div class="form-group">
 												<button @click="getSearch" type="button" class="btn btn-info">查询</button>
 												<button @click="getExport" type="button" class="btn btn-primary">导出</button>
 											</div>
@@ -489,7 +498,8 @@
 					mara_id: sessionStorage.getItem("mara_id"),
 					addnewservice1_bind: 0,
 					addnewservice2_bind: 0,
-					orderId: 0,					
+					orderId: 0,
+					orderType: '',
 					subject: [],
 					count: 0,
 					dId: '',
@@ -506,8 +516,6 @@
 					pageSize: 20,
 					allPage: 0,
 					add: false,
-					current_index: '',
-					current_row: '',
 					index: 0,
 					close: false
 				},
@@ -535,33 +543,23 @@
 					},
 					getSearch: function() {
 						var that = this;
-						console.log(that)
-						$.get(url + "serviceOrder/count", {
-							userId: that.userId,							
-							adviserId: that.adviser_id,							
-							officialId: that.official_id,
-							maraId: that.mara_id,
-							type: that.type,
-							state: that.state							
-						}, function(result) {
+						var json = {};
+						if (that.userId != '0') json['userId'] = that.userId;
+						if (that.adviserId != '0') json['adviserId'] = that.adviserId;
+						if (that.officialId != '0') json['officialId'] = that.officialId;
+						if (that.maraId != '0') json['maraId'] = that.maraId;
+						if (that.type != '') json['type'] = that.type;
+						if (that.state != '') json['state'] = that.state;
+						$.get(url + "serviceOrder/count", json, function(result) {
 							that.count = result.data;
 							that.allPage = Math.ceil(result.data / that.pageSize);
 						});
-						$.get(url + "serviceOrder/list", {
-							userId: that.userId,							
-							adviserId: that.adviser_id,							
-							officialId: that.official_id,
-							maraId: that.mara_id,
-							type: that.type,
-							state: that.state,							
-							pageNum: 0,
-							pageSize: that.pageSize
-						}, function(result) {
-							//console.log(result)
+						json['pageNum'] = 0;
+						json['pageSize'] = that.pageSize;
+						$.get(url + "serviceOrder/list", json, function(result) {
 							that.pageNum = 0;
 							result.data = return_result(result);
 							that.subject = result.data;
-							//console.log(that.subject);
 						});
 					},
 					getTime: function(d) {
@@ -805,6 +803,18 @@
           		if ($('#show_addnewservice1_id #b101').val() != '') closedReason = $('#show_addnewservice1_id #b101').val();
           		if ($('#show_addnewservice2_id #c101').val() != '') closedReason = $('#show_addnewservice1_id #c101').val();
           }
+          if (v.orderType == 'VISA' && va == 'COMPLETE')
+          {
+          		var flist = $('#show_addnewservice1_id #flist').val();
+          		if (flist == '')
+          		{
+          				$('#alert_error').css('marginLeft','30%');
+			   					$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+	          			$("#error_info").html('签证凭证没有上传，请上传之后再提交。');
+          				return false;
+          		}
+          }
+         
           json['id'] = v.orderId;
           json['state'] = va;
           json['closedReason'] = closedReason;
@@ -856,9 +866,9 @@
 				  var adviserId = 0;
 				  var officialId = 0;
 				  var maraId = 0;				  
-				  if (typeof v.adviser_id != "undefined") adviserId = v.adviser_id;		  
-				  if (typeof v.official_id != "undefined") officialId = v.official_id;
-				  if (typeof v.mara_id != "undefined") maraId = v.mara_id;
+				  if (typeof v.adviserId != "undefined") adviserId = v.adviserId;		  
+				  if (typeof v.officialId != "undefined") officialId = v.officialId;
+				  if (typeof v.maraId != "undefined") maraId = v.maraId;
 				 	
 				  //查询客户
 				  var user = $("#user_name");
@@ -888,15 +898,16 @@
 			    $.ajax({
 	          url: 'adviser/list?pageNum=0&pageSize=100000',
 	          type: 'GET',
+	          async: false,
 	          dataType: 'json'
 	        }).done(function(response) {
 	        	//author:bischina
 	        	response = response.data;
 	        	for (var item in response)
 	        	{
-	        			obj_adviserId.append("<option value='"+response[item].id+"' selected='selected'>"+response[item].name+"</option>");
+	        			obj_adviserId.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
 	        	}
-	        	obj_adviserId.val(adviserId);   
+	        	obj_adviserId.val(adviserId);	
 	        });
 				  //绑定文案列表			    
 	        var obj_officialId = $("#officialId");
@@ -905,6 +916,7 @@
 			    $.ajax({
 	          url: 'official/list?pageNum=0&pageSize=10',
 	          type: 'GET',
+	          async: false,
 	          dataType: 'json'
 	        }).done(function(response) {
 	        	response = response.data;
@@ -921,6 +933,7 @@
 			    $.ajax({
 	          url: 'mara/list?pageNum=0&pageSize=10',
 	          type: 'GET',
+	          async: false,
 	          dataType: 'json'
 	        }).done(function(response) {
 	        	//author:bischina
