@@ -12,6 +12,8 @@ import org.zhinanzhen.b.dao.pojo.KnowledgeDO;
 import org.zhinanzhen.b.dao.pojo.KnowledgeMenuDO;
 import org.zhinanzhen.b.service.KnowledgeService;
 import org.zhinanzhen.b.service.pojo.KnowledgeDTO;
+import org.zhinanzhen.tb.dao.AdminUserDAO;
+import org.zhinanzhen.tb.dao.pojo.AdminUserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
@@ -25,6 +27,9 @@ public class KnowledgeServiceImpl extends BaseService implements KnowledgeServic
 
 	@Resource
 	private KnowledgeMenuDAO knowledgeMenuDao;
+	
+	@Resource
+	private AdminUserDAO adminUserDao;
 
 	private final static String pwd = "J0RVZ4G1";
 
@@ -40,9 +45,8 @@ public class KnowledgeServiceImpl extends BaseService implements KnowledgeServic
 			if (knowledgeDao.addKnowledge(knowledgeDo) > 0) {
 				knowledgeDto.setId(knowledgeDo.getId());
 				return knowledgeDo.getId();
-			} else {
+			} else
 				return 0;
-			}
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
@@ -95,6 +99,9 @@ public class KnowledgeServiceImpl extends BaseService implements KnowledgeServic
 			KnowledgeMenuDO knowledgeMenuDo = knowledgeMenuDao.getKnowledgeMenu(knowledgeDto.getKnowledgeMenuId());
 			if (knowledgeMenuDo != null)
 				knowledgeDto.setKnowledgeMenuName(knowledgeMenuDo.getName());
+			AdminUserDO adminUserDo = adminUserDao.getAdminUserById(knowledgeDto.getAdminUserId());
+			if (adminUserDo != null)
+				knowledgeDto.setAdminUserName(adminUserDo.getUsername());
 			if (knowledgeDto.getPassword() != null && !knowledgeDto.getPassword().equals("")) {
 				if (!knowledgeDto.getPassword().equals(password) && !pwd.equals(password))
 					knowledgeDto.setContent(null);

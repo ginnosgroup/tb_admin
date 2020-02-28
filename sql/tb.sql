@@ -483,7 +483,8 @@ CREATE TABLE `b_knowledge` (
   `title` varchar(32) DEFAULT NULL COMMENT '知识库名称',
   `content` text DEFAULT NULL COMMENT '知识库内容',
   `password` varchar(8) DEFAULT NULL COMMENT '知识库密码',
-  `knowledge_menu_id` int DEFAULT 0 COMMENT '所属菜单编号'
+  `knowledge_menu_id` int DEFAULT 0 COMMENT '所属菜单编号',
+  `admin_user_id` int NOT NULL COMMENT '创建者编号 (对应tb_admin_user.id)'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
 -- 知识库菜单

@@ -20,5 +20,9 @@ public class KnowledgeDTO {
 	private int knowledgeMenuId;
 
 	private String knowledgeMenuName;
+	
+	private int adminUserId;
+	
+	private String adminUserName;
 
 }
