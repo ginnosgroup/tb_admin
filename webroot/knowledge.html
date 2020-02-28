@@ -295,13 +295,13 @@
 									      </button>
 									      <strong>Success!</strong> You  just achieved success.
 									  </div>
-										<div class="clearfix" v-if="ap_list!='KJ' && ap_list!='GW'">
+										<div class="clearfix">
                        <div class="btn-group">
                           <button id="editable-sample_new" class="btn btn-success green" @click="add_knowledge">
                           Add New <i class="fa fa-plus"></i>
                           </button>
                        </div>
-                    </div>
+                    </div>                    
 										<div class="responsive-table margin-top">
 											<input type="hidden" name="id" id="id" value="0" />
 											<table class="display table table-bordered table-striped" id="example">
@@ -311,9 +311,10 @@
 														<th>ID</th>
 														<th>知识库标题</th>														
 														<th>所属菜单</th>
+														<th>发布人</th>
 														<th>发布时间</th>
-														<th v-if="ap_list!='KJ' && ap_list!='GW'">Edit</th>
-														<th v-if="ap_list!='KJ' && ap_list!='GW'">Delete</th>
+														<th>Edit</th>
+														<th v-if="ap_list!='KJ' && ap_list!='GW' && ap_list!='WA' && ap_list!='MA'">Delete</th>
 													</tr>
 												</thead>
 												<tbody>
@@ -321,10 +322,14 @@
 														<td v-html="item.oid"></td>
 														<td v-html="item.link_title"></td>
 														<td v-html="item.knowledgeMenuName"></td>														
+														<td v-html="item.adminUserName"></td>
 														<td v-html="item.gmtCreate"></td>
-														<td v-if="ap_list!='KJ' && ap_list!='GW'"><a v-if="item.id" class="edit" href="javascript:;" @click="edit_knowledge(item.oid,item.title)"><span class="label label-success">Edit</span></a>
+														<td>
+															<dle v-if="admin_id==item.adminUserId">
+															<a v-if="item.id" class="edit" href="javascript:;" @click="edit_knowledge(item.oid,item.title)"><span class="label label-success">Edit</span></a>
+															</dle>
 														</td>
-														<td v-if="ap_list!='KJ' && ap_list!='GW'"><a v-if="item.id" class="delete" href="#" @click="delete_confirm($index,item.id)"><span class="label label-danger">Delete</span></a>
+														<td v-if="ap_list!='KJ' && ap_list!='GW' && ap_list!='WA' && ap_list!='MA'"><a v-if="item.id" class="delete" href="#" @click="delete_confirm($index,item.id)"><span class="label label-danger">Delete</span></a>
 														</td>														
 													</tr>
 												</tbody>
@@ -410,7 +415,7 @@
 									<input type="text" id="t3" class="form-control" maxlength="8" style="width:200px;" placeholder="">									
 									<div class="checkbox">
                      <label>
-                     <input type="checkbox" id="t4" value="1"> 清除密码
+                     <input type="checkbox" name="t4" id="t4" value="1"> 清除密码
                      </label>
                   </div>
 								</div>								
@@ -477,6 +482,7 @@
 				el: '#knowledge',
 				data: {
 					admin: sessionStorage.getItem("admin"),
+					admin_id: sessionStorage.getItem("admin_id"),
 					ap_list: sessionStorage.getItem("ap_list"),
 					menu_id: sessionStorage.getItem("id"),
 					menu_id_parent: sessionStorage.getItem("menu_parentid"),
@@ -501,7 +507,6 @@
 				},
 				created: function() {
 					this.getDatalist();
-					this.getSort();
 					this.getMenulist();				
 				},
 				methods: {
@@ -534,17 +539,6 @@
 							localStorage.setItem("str_html", str_html);
 							that.m_list = localStorage.getItem("str_html");
 						});
-					},				
-					getSort: function() {
-						var that = this;
-						$.get(url + "knowledge/list", {
-							state: "",
-							pageNum: 0,
-							pageSize: 1000000
-						}, function(result) {
-							console.log(result)
-							that.allSort = result.data;
-						});
 					},
 					getDatalist: function() {
 						var that = this;
@@ -552,10 +546,8 @@
 							knowledgeMenuId: that.menu_id,
 							keyword: that.name							
 						}, function(result) {
-							console.log(result)
 							that.count = result.data;
 							that.allPage = Math.ceil(result.data / that.pageSize);
-							console.log(that.allPage)
 						});
 						$.get(url + "knowledge/list", {
 							knowledgeMenuId: that.menu_id,
@@ -563,14 +555,8 @@
 							pageSize: that.pageSize
 						}, function(result) {
 							//console.log(result)
-							that.pageNum = 0;
-							for(var i = 0; i < result.data.length; i++) {
-									result.data[i].oid = result.data[i].id;
-									result.data[i].link_title = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].title+'</a>';
-									result.data[i].gmtCreate = that.getTime(result.data[i].gmtCreate);
-							};
-							that.subject = result.data;
-							//console.log(that.subject);
+							that.pageNum = 0;							
+							that.subject = return_result(result);
 						});
 					},
 					getTime: function(d) {
@@ -601,14 +587,8 @@
 								pageNum: 0,
 								pageSize: that.pageSize
 							}, function(result) {
-								console.log(result)
 								that.pageNum = 0;
-								for(var i = 0; i < result.data.length; i++) {
-										result.data[i].oid = result.data[i].id;
-										result.data[i].link_title = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].title+'</a>';
-										result.data[i].gmtCreate = that.getTime(result.data[i].gmtCreate);
-								};
-								that.subject = result.data;
+								that.subject = return_result(result);
 							});
 						}
 					},
@@ -622,13 +602,7 @@
 								pageNum: that.pageNum,
 								pageSize: that.pageSize
 							}, function(result) {
-								console.log(result)
-								for(var i = 0; i < result.data.length; i++) {
-										result.data[i].oid = result.data[i].id;
-										result.data[i].link_title = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].title+'</a>';
-										result.data[i].gmtCreate = that.getTime(result.data[i].gmtCreate);
-								};
-								that.subject = result.data;
+								that.subject = return_result(result);
 							});
 						}
 					},
@@ -644,13 +618,7 @@
 								pageNum: that.pageNum,
 								pageSize: that.pageSize
 							}, function(result) {
-								console.log(result)
-								for(var i = 0; i < result.data.length; i++) {
-										result.data[i].oid = result.data[i].id;
-										result.data[i].link_title = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].title+'</a>';
-										result.data[i].gmtCreate = that.getTime(result.data[i].gmtCreate);							
-								};
-								that.subject = result.data;
+								that.subject = return_result(result);
 							});
 						}
 					},
@@ -665,14 +633,8 @@
 								pageNum: that.allPage - 1,
 								pageSize: that.pageSize
 							}, function(result) {
-								console.log(result)
 								that.pageNum = that.allPage - 1;
-								for(var i = 0; i < result.data.length; i++) {
-										result.data[i].oid = result.data[i].id;
-										result.data[i].link_title = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].title+'</a>';
-										result.data[i].gmtCreate = that.getTime(result.data[i].gmtCreate);
-								};
-								that.subject = result.data;
+								that.subject = return_result(result);
 							});
 						}
 					},
@@ -723,7 +685,7 @@
           var t1 = $("#t1").val();
           var t2 = editor.txt.html();
           var t3 = $("#t3").val();
-          var t4 = $("#t4").val();
+          var t4 = $("input[name='t4']:checked").val();
           
           if (t1 != '' && t2 != '<p><br></p>')
           {
@@ -764,6 +726,16 @@
 					   	});
 			  	}                
       }
+      
+      function return_result(result)
+      {
+      		for(var i = 0; i < result.data.length; i++) {
+							result.data[i].oid = result.data[i].id;
+							result.data[i].link_title = '<a href="knowledge-detail.html?id='+result.data[i].id+'">'+result.data[i].title+'</a>';
+							result.data[i].gmtCreate = v.getTime(result.data[i].gmtCreate);
+					};
+					return result.data;
+      }           	
       
       function show_detail(id)
       {

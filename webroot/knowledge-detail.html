@@ -339,7 +339,6 @@
 						<h4 class="modal-title" id="myModalLabel">访问需要密码</h4>
 					</div>
 					<div class="modal-body">
-							<form class="form-horizontal">
 							<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
                 <button data-dismiss="alert" class="close close-sm" type="button">
                 <i class="fa fa-times"></i>
@@ -351,8 +350,7 @@
 								<div class="col-sm-8">
 									<input type="password" autocomplete="off" style="width:150px;display:Inline;" id="t1" class="form-control" placeholder="">
 								</div>
-							</div>							
-							</form>
+							</div>
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-default" data-dismiss="modal" onclick="window.location.href='knowledge.html'">取消</button>
@@ -374,15 +372,15 @@
 		<script src="js/vue.js"></script>
 		<script src="js/common.js?verson=1"></script>
 		<script>
-			tb.isLogin("official.html");
+			tb.isLogin("knowledge-detail.html?id="+getRequestId());
 			$("td,th").addClass("text-center");
 			var v = new Vue({
 				el: '#official',
 				data: {
 					admin: sessionStorage.getItem("admin"),
 					admin_id: sessionStorage.getItem("admin_id"),
-					ap_list: sessionStorage.getItem("ap_list"),
-					id: sessionStorage.getItem("kid"),
+					ap_list: sessionStorage.getItem("ap_list"),					
+					kid : getRequestId(),
 					m_list: localStorage.getItem("str_html"),
 					datalist: [],
 					dId: '',
@@ -390,7 +388,7 @@
 				},
 				created: function() {
 					$.get(url + "knowledge/get", {
-						id: this.id,									
+						id: this.kid,									
 					}, function(result) {
 						if (result.code)
 						{
@@ -449,9 +447,8 @@
       
       function passwdVerify()
 			{
-					var that = this;
-			    var kid = v.id;
-			    var passwd = $('#t1').val();	    
+			    var kid = v.kid;
+			    var passwd = $('#t1').val();
 			    if (kid && passwd)
 			    {
 			    		$.get(url + "knowledge/get", {
@@ -530,6 +527,26 @@
 					   		}
 					   	});
 			    }
+			}
+			
+			function getRequestId()
+			{
+					var id = 0;
+			    var url = decodeURI(location.search);
+			    var theRequest = new Object();
+			    if (url.indexOf('?') != -1) {
+			        url = url.substr(1);
+			    }
+			    if (url) {
+			        var strs = url.split('&');
+			        for (var i = 0; i < strs.length; i++) {
+			            var srtArry = strs[i].split('=');
+			            var y = srtArry.shift();
+			            theRequest[y] = unescape(srtArry.join('='));
+			        }
+			    }
+			    id = theRequest['id'];
+			    return id;
 			}
 			
 			function  formatDate(now)
