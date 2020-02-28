@@ -408,7 +408,7 @@
 					getMessagelist: function() {
 						var that = this;
 						$.get(url + "message/list", {
-							knowledgeId: that.id							
+							knowledgeId: that.kid							
 						}, function(result) {
 							for(var i = 0; i < result.data.length; i++) {
 								result.data[i].gmtCreate = that.getTime(result.data[i].gmtCreate);
@@ -482,7 +482,7 @@
       function btnSubmit()
 			{
 					var that = this;
-			    var kid = v.id;
+			    var kid = v.kid;
 			    var cont = $('#message_content').val();
 			    if (cont != '')
 			    {
@@ -504,7 +504,7 @@
 			function btnReply(id,username,cont)
 			{
 					var that = this;
-			    var kid = v.id;
+			    var kid = v.kid;
 			    $('#message_content').val('回复：'+username+' ['+cont+']');			    
 			}
 			
