@@ -74,16 +74,16 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 	}
 
 	@Override
-	public int countCommissionOrder(Integer adviserId, String name, String phone, String wechatUsername,
-			Integer schoolId, Boolean isSettle, String state) throws ServiceException {
-		return commissionOrderDao.countCommissionOrder(adviserId, name, phone, wechatUsername, schoolId, isSettle,
-				state);
+	public int countCommissionOrder(Integer maraId, Integer adviserId, Integer officialId, String name, String phone,
+			String wechatUsername, Integer schoolId, Boolean isSettle, String state) throws ServiceException {
+		return commissionOrderDao.countCommissionOrder(maraId, adviserId, officialId, name, phone, wechatUsername,
+				schoolId, isSettle, state);
 	}
 
 	@Override
-	public List<CommissionOrderListDTO> listCommissionOrder(Integer adviserId, String name, String phone,
-			String wechatUsername, Integer schoolId, Boolean isSettle, String state, int pageNum, int pageSize)
-			throws ServiceException {
+	public List<CommissionOrderListDTO> listCommissionOrder(Integer maraId, Integer adviserId, Integer officialId,
+			String name, String phone, String wechatUsername, Integer schoolId, Boolean isSettle, String state,
+			int pageNum, int pageSize) throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
 		}
@@ -93,8 +93,8 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 		List<CommissionOrderListDTO> commissionOrderListDtoList = new ArrayList<>();
 		List<CommissionOrderListDO> commissionOrderListDoList = new ArrayList<>();
 		try {
-			commissionOrderListDoList = commissionOrderDao.listCommissionOrder(adviserId, name, phone, wechatUsername,
-					schoolId, isSettle, state, pageNum * pageSize, pageSize);
+			commissionOrderListDoList = commissionOrderDao.listCommissionOrder(maraId, adviserId, officialId, name,
+					phone, wechatUsername, schoolId, isSettle, state, pageNum * pageSize, pageSize);
 			if (commissionOrderListDoList == null)
 				return null;
 		} catch (Exception e) {

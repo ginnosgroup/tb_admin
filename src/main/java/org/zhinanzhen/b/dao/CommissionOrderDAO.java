@@ -10,12 +10,14 @@ public interface CommissionOrderDAO {
 
 	int addCommissionOrder(CommissionOrderDO commissionOrderDo);
 
-	public int countCommissionOrder(@Param("adviserId") Integer adviserId, @Param("name") String name,
-			@Param("phone") String phone, @Param("wechatUsername") String wechatUsername,
-			@Param("schoolId") Integer schoolId, @Param("isSettle") Boolean isSettle, @Param("state") String state);
+	public int countCommissionOrder(@Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
+			@Param("officialId") Integer officialId, @Param("name") String name, @Param("phone") String phone,
+			@Param("wechatUsername") String wechatUsername, @Param("schoolId") Integer schoolId,
+			@Param("isSettle") Boolean isSettle, @Param("state") String state);
 
-	public List<CommissionOrderListDO> listCommissionOrder(@Param("adviserId") Integer adviserId,
-			@Param("name") String name, @Param("phone") String phone, @Param("wechatUsername") String wechatUsername,
+	public List<CommissionOrderListDO> listCommissionOrder(@Param("maraId") Integer maraId,
+			@Param("adviserId") Integer adviserId, @Param("officialId") Integer officialId, @Param("name") String name,
+			@Param("phone") String phone, @Param("wechatUsername") String wechatUsername,
 			@Param("schoolId") Integer schoolId, @Param("isSettle") Boolean isSettle, @Param("state") String state,
 			@Param("offset") int offset, @Param("rows") int rows);
 

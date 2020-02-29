@@ -12,12 +12,12 @@ public interface CommissionOrderService {
 
 	int updateCommissionOrder(CommissionOrderDTO commissionOrderDto) throws ServiceException;
 
-	public int countCommissionOrder(Integer adviserId, String name, String phone, String wechatUsername,
-			Integer schoolId, Boolean isSettle, String state) throws ServiceException;
+	public int countCommissionOrder(Integer maraId, Integer adviserId, Integer officialId, String name, String phone,
+			String wechatUsername, Integer schoolId, Boolean isSettle, String state) throws ServiceException;
 
-	public List<CommissionOrderListDTO> listCommissionOrder(Integer adviserId, String name, String phone,
-			String wechatUsername, Integer schoolId, Boolean isSettle, String state, int pageNum, int pageSize)
-			throws ServiceException;
+	public List<CommissionOrderListDTO> listCommissionOrder(Integer maraId, Integer adviserId, Integer officialId,
+			String name, String phone, String wechatUsername, Integer schoolId, Boolean isSettle, String state,
+			int pageNum, int pageSize) throws ServiceException;
 
 	CommissionOrderDTO getCommissionOrderById(int id) throws ServiceException;
 

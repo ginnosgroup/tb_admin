@@ -60,8 +60,14 @@
         SELECT count(*)
         FROM b_commission_order co, b_service_order so, tb_user u
         WHERE co.service_order_id = so.id AND so.user_id = u.id
+        <if test='maraId != null and maraId != ""'>
+            AND so.mara_id = #{maraId}
+        </if>
         <if test='adviserId != null and adviserId != ""'>
             AND so.adviser_id = #{adviserId}
+        </if>
+        <if test='officialId != null and officialId != ""'>
+            AND so.official_id = #{officialId}
         </if>
         <if test='name != null and name != ""'>
             AND u.name LIKE '%${name}%'
@@ -100,8 +106,14 @@
             so.school_id AS schoolId
         FROM b_commission_order co, b_service_order so, tb_user u
         WHERE co.service_order_id = so.id AND so.user_id = u.id
+        <if test='maraId != null and maraId != ""'>
+            AND so.mara_id = #{maraId}
+        </if>
         <if test='adviserId != null and adviserId != ""'>
             AND so.adviser_id = #{adviserId}
+        </if>
+        <if test='officialId != null and officialId != ""'>
+            AND so.official_id = #{officialId}
         </if>
         <if test='name != null and name != ""'>
             AND u.name LIKE '%${name}%'

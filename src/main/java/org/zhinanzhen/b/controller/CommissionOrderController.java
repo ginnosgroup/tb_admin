@@ -105,7 +105,9 @@ public class CommissionOrderController extends BaseController {
 
 	@RequestMapping(value = "/count", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<Integer> count(@RequestParam(value = "adviserId", required = false) Integer adviserId,
+	public Response<Integer> count(@RequestParam(value = "maraId", required = false) Integer maraId,
+			@RequestParam(value = "adviserId", required = false) Integer adviserId,
+			@RequestParam(value = "officialId", required = false) Integer officialId,
 			@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "phone", required = false) String phone,
 			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
@@ -114,14 +116,20 @@ public class CommissionOrderController extends BaseController {
 			@RequestParam(value = "state", required = false) String state, HttpServletRequest request,
 			HttpServletResponse response) {
 
-		// 更改当前顾问编号
+		Integer newMaraId = getMaraId(request);
+		if (newMaraId != null)
+			maraId = newMaraId;
 		Integer newAdviserId = getAdviserId(request);
 		if (newAdviserId != null)
 			adviserId = newAdviserId;
+		Integer newOfficialId = getOfficialId(request);
+		if (newOfficialId != null)
+			officialId = newOfficialId;
 
 		try {
 			super.setGetHeader(response);
-			return new Response<Integer>(0, commissionOrderService.countCommissionOrder(adviserId, name, phone,
+			return new Response<Integer>(0, commissionOrderService.countCommissionOrder(maraId,
+					adviserId, officialId, name, phone,
 					wechatUsername, schoolId, isSettle, state));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
@@ -130,8 +138,9 @@ public class CommissionOrderController extends BaseController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<CommissionOrderListDTO>> list(
+	public Response<List<CommissionOrderListDTO>> list(@RequestParam(value = "maraId", required = false) Integer maraId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
+			@RequestParam(value = "officialId", required = false) Integer officialId,
 			@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "phone", required = false) String phone,
 			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
@@ -140,15 +149,20 @@ public class CommissionOrderController extends BaseController {
 			@RequestParam(value = "state", required = false) String state, @RequestParam(value = "pageNum") int pageNum,
 			@RequestParam(value = "pageSize") int pageSize, HttpServletRequest request, HttpServletResponse response) {
 
-		// 更改当前顾问编号
+		Integer newMaraId = getMaraId(request);
+		if (newMaraId != null)
+			maraId = newMaraId;
 		Integer newAdviserId = getAdviserId(request);
 		if (newAdviserId != null)
 			adviserId = newAdviserId;
+		Integer newOfficialId = getOfficialId(request);
+		if (newOfficialId != null)
+			officialId = newOfficialId;
 
 		try {
 			super.setGetHeader(response);
-			return new Response<List<CommissionOrderListDTO>>(0, commissionOrderService.listCommissionOrder(adviserId,
-					name, phone, wechatUsername, schoolId, isSettle, state, pageNum, pageSize));
+			return new Response<List<CommissionOrderListDTO>>(0, commissionOrderService.listCommissionOrder(maraId,
+					adviserId, officialId, name, phone, wechatUsername, schoolId, isSettle, state, pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<CommissionOrderListDTO>>(1, e.getMessage(), null);
 		}
