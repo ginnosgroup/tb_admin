@@ -7,6 +7,14 @@ public class CommissionOrderListDO extends CommissionOrderDO {
 
 	@Getter
 	@Setter
+	private Double amount;
+
+	@Getter
+	@Setter
+	private Double expectAmount;
+
+	@Getter
+	@Setter
 	private Integer userId;
 
 	@Getter

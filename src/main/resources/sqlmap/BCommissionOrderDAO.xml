@@ -102,6 +102,8 @@
             co.per_term_tuition_fee AS perTermTuitionFee,
             co.remarks,
             co.is_close AS isClose,
+            so.amount,
+            so.expect_amount AS expectAmount,
             so.user_id AS userId,
             so.school_id AS schoolId
         FROM b_commission_order co, b_service_order so, tb_user u
