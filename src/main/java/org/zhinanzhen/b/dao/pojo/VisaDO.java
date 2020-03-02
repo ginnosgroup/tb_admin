@@ -14,6 +14,8 @@ public class VisaDO {
 	private Date handlingDate;
 
 	private int userId;
+	
+	private String state;
 
 	private int receiveTypeId;
 
