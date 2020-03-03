@@ -15,8 +15,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.zhinanzhen.b.service.CommissionOrderService;
 import org.zhinanzhen.b.service.ServiceOrderService;
+import org.zhinanzhen.b.service.SubagencyService;
 import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
+import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
+import org.zhinanzhen.b.service.pojo.SubagencyDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -34,6 +37,9 @@ public class CommissionOrderController extends BaseController {
 	@Resource
 	CommissionOrderService commissionOrderService;
 
+	@Resource
+	SubagencyService subagencyService;
+
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<CommissionOrderDTO> add(@RequestParam(value = "serviceOrderId") String serviceOrderId,
@@ -47,7 +53,8 @@ public class CommissionOrderController extends BaseController {
 		try {
 			super.setPostHeader(response);
 			CommissionOrderDTO commissionOrderDto = new CommissionOrderDTO();
-			if (serviceOrderService.getServiceOrderById(StringUtil.toInt(serviceOrderId)) == null)
+			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(StringUtil.toInt(serviceOrderId));
+			if (serviceOrderDto == null)
 				return new Response<CommissionOrderDTO>(1, "服务订单(ID:" + serviceOrderId + ")不存在!", null);
 			commissionOrderDto.setServiceOrderId(StringUtil.toInt(serviceOrderId));
 			commissionOrderDto.setInstallment(StringUtil.toInt(installment));
@@ -57,6 +64,15 @@ public class CommissionOrderController extends BaseController {
 			commissionOrderDto.setPerTermTuitionFee(Double.parseDouble(perTermTuitionFee));
 			if (StringUtil.isNotEmpty(remarks))
 				commissionOrderDto.setRemarks(remarks);
+			if (serviceOrderDto.getSubagencyId() <= 0)
+				return new Response<CommissionOrderDTO>(1, "SubagencyId(" + serviceOrderDto.getSubagencyId() + ")不存在!",
+						null);
+			SubagencyDTO subagencyDto = subagencyService.getSubagencyById(serviceOrderDto.getSubagencyId());
+			// commissionOrderDto.setGst(commissionOrderDto.getc.getCommission()
+			// / 11);
+			// commissionOrderDto.setDeductGst(brokerageSaDto.getCommission() -
+			// brokerageSaDto.getGst());
+			// commissionOrderDto.setBonus(brokerageSaDto.getDeductGst() * 0.1);
 			return commissionOrderService.addCommissionOrder(commissionOrderDto) > 0
 					? new Response<CommissionOrderDTO>(0, commissionOrderDto)
 					: new Response<CommissionOrderDTO>(1, "创建失败.", null);
@@ -128,9 +144,8 @@ public class CommissionOrderController extends BaseController {
 
 		try {
 			super.setGetHeader(response);
-			return new Response<Integer>(0, commissionOrderService.countCommissionOrder(maraId,
-					adviserId, officialId, name, phone,
-					wechatUsername, schoolId, isSettle, state));
+			return new Response<Integer>(0, commissionOrderService.countCommissionOrder(maraId, adviserId, officialId,
+					name, phone, wechatUsername, schoolId, isSettle, state));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}

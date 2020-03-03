@@ -8,23 +8,63 @@
             INTO b_commission_order (
                 gmt_create,
                 gmt_modify,
+                code,
                 service_order_id,
+                state,
+                is_settle,
+                is_deposit_user,
+                school_id,
+                student_code,
+                user_id,
+                adviser_id,
+                official_id,
+                is_studying,
+                installment_num,
                 installment,
                 start_date,
                 end_date,
                 tuition_fee,
                 per_term_tuition_fee,
+                receive_type_id,
+                receive_date,
+                per_amount,
+                amount,
+                expect_amount,
+                discount,
+                gst,
+                deduct_gst,
+                bonus,
                 remarks,
                 is_close)
             VALUES (
                 now(),
                 now(),
+                #{code},
                 #{serviceOrderId},
+                #{state},
+                #{isSettle},
+                #{isDepositUser},
+                #{schoolId},
+                #{studentCode},
+                #{userId},
+                #{adviserId},
+                #{officialId},
+                #{isStudying},
+                #{installmentNum},
                 #{installment},
                 #{startDate,jdbcType=TIMESTAMP},
                 #{endDate,jdbcType=TIMESTAMP},
                 #{tuitionFee},
                 #{perTermTuitionFee},
+                #{receiveTypeId},
+                #{receiveDate},
+                #{perAmount},
+                #{amount},
+                #{expectAmount},
+                #{discount},
+                #{gst},
+                #{deductGst},
+                #{bonus},
                 #{remarks},
                 0);
     </insert>
@@ -59,7 +99,7 @@
     <select id="countCommissionOrder" resultType="java.lang.Integer">
         SELECT count(*)
         FROM b_commission_order co, b_service_order so, tb_user u
-        WHERE co.service_order_id = so.id AND so.user_id = u.id
+        WHERE co.service_order_id = so.id AND co.user_id = u.id
         <if test='maraId != null and maraId != ""'>
             AND so.mara_id = #{maraId}
         </if>
@@ -92,30 +132,46 @@
     
     <select id="listCommissionOrder" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderListDO">
         SELECT
-            co.id,
             co.gmt_create AS gmtCreate,
+            co.code,
             co.service_order_id AS serviceOrderId,
+            co.state,
+            co.is_settle AS isSettle,
+            co.is_deposit_user AS isDepositUser,
+            co.school_id AS schoolId,
+            co.student_code AS studentCode,
+            co.user_id AS userId,
+            co.adviser_id AS adviserId,
+            co.official_id AS officialId,
+            co.is_studying AS isStudying,
+            co.installment_num AS installmentNum,
             co.installment,
             co.start_date AS startDate,
             co.end_date AS endDate,
             co.tuition_fee AS tuitionFee,
             co.per_term_tuition_fee AS perTermTuitionFee,
+            co.receive_type_id AS receiveTypeId,
+            co.receive_date AS receiveDate,
+            co.per_amount AS perAmount,
+            co.amount,
+            co.expect_amount AS expectAmount,
+            co.discount,
+            co.gst,
+            co.deduct_gst AS deductGst,
+            co.bonus,
             co.remarks,
             co.is_close AS isClose,
-            so.amount,
-            so.expect_amount AS expectAmount,
-            so.user_id AS userId,
-            so.school_id AS schoolId
+            so.subagency_id AS subagencyId
         FROM b_commission_order co, b_service_order so, tb_user u
-        WHERE co.service_order_id = so.id AND so.user_id = u.id
+        WHERE co.service_order_id = so.id AND co.user_id = u.id
         <if test='maraId != null and maraId != ""'>
             AND so.mara_id = #{maraId}
         </if>
         <if test='adviserId != null and adviserId != ""'>
-            AND so.adviser_id = #{adviserId}
+            AND co.adviser_id = #{adviserId}
         </if>
         <if test='officialId != null and officialId != ""'>
-            AND so.official_id = #{officialId}
+            AND co.official_id = #{officialId}
         </if>
         <if test='name != null and name != ""'>
             AND u.name LIKE '%${name}%'
@@ -127,28 +183,83 @@
             AND u.wechat_username = #{wechatUsername}
         </if>
         <if test='schoolId != null and schoolId != ""'>
-            AND so.school_id = #{schoolId}
+            AND co.school_id = #{schoolId}
         </if>
         <if test='isSettle != null'>
-            AND so.is_settle = #{isSettle}
+            AND co.is_settle = #{isSettle}
         </if>
         <if test='state != null and state != ""'>
-            AND so.state = #{state}
+            AND co.state = #{state}
         </if>
         ORDER BY co.gmt_create DESC
         LIMIT #{offset}, #{rows};
+    </select>
+    
+    <select id="listCommissionOrderByCode" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            code,
+            service_order_id AS serviceOrderId,
+            state,
+            is_settle AS isSettle,
+            is_deposit_user AS isDepositUser,
+            school_id AS schoolId,
+            student_code AS studentCode,
+            user_id AS userId,
+            adviser_id AS adviserId,
+            official_id AS officialId,
+            is_studying AS isStudying,
+            installment_num AS installmentNum,
+            installment,
+            start_date AS startDate,
+            end_date AS endDate,
+            tuition_fee AS tuitionFee,
+            per_term_tuition_fee AS perTermTuitionFee,
+            receive_type_id AS receiveTypeId,
+            receive_date AS receiveDate,
+            per_amount AS perAmount,
+            amount,
+            expect_amount AS expectAmount,
+            discount,
+            gst,
+            deduct_gst AS deductGst,
+            bonus,
+            remarks,
+            is_close AS isClose
+        FROM b_commission_order WHERE code = #{code};
     </select>
     
     <select id="getCommissionOrderById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderDO">
         SELECT
             id,
             gmt_create AS gmtCreate,
+            code,
             service_order_id AS serviceOrderId,
+            state,
+            is_settle AS isSettle,
+            is_deposit_user AS isDepositUser,
+            school_id AS schoolId,
+            student_code AS studentCode,
+            user_id AS userId,
+            adviser_id AS adviserId,
+            official_id AS officialId,
+            is_studying AS isStudying,
+            installment_num AS installmentNum,
             installment,
             start_date AS startDate,
             end_date AS endDate,
             tuition_fee AS tuitionFee,
             per_term_tuition_fee AS perTermTuitionFee,
+            receive_type_id AS receiveTypeId,
+            receive_date AS receiveDate,
+            per_amount AS perAmount,
+            amount,
+            expect_amount AS expectAmount,
+            discount,
+            gst,
+            deduct_gst AS deductGst,
+            bonus,
             remarks,
             is_close AS isClose
         FROM b_commission_order WHERE id = #{id, jdbcType=INTEGER};

@@ -10,8 +10,30 @@ public class CommissionOrderDO {
 	private int id;
 
 	private Date gmtCreate;
-	
+
+	private String code;
+
 	private int serviceOrderId;
+
+	private String state;
+
+	private boolean isSettle;
+
+	private boolean isDepositUser;
+
+	private int schoolId;
+
+	private String studentCode;
+
+	private int userId;
+
+	private int adviserId;
+
+	private int officialId;
+
+	private boolean isStudying;
+
+	private int installmentNum;
 
 	private int installment;
 
@@ -22,6 +44,24 @@ public class CommissionOrderDO {
 	private double tuitionFee;
 
 	private double perTermTuitionFee;
+
+	private int receiveTypeId;
+
+	private Date receiveDate;
+
+	private double perAmount;
+
+	private double amount;
+
+	private double expectAmount;
+
+	private double discount;
+
+	private double gst;
+
+	private double deductGst;
+
+	private double bonus;
 
 	private String remarks;
 
