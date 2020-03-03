@@ -222,7 +222,7 @@ CREATE TABLE `b_brokerage` (
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
--- 留学-提前结佣
+-- 留学-提前结佣 (OLD)
 CREATE TABLE `b_brokerage_sa` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
@@ -245,7 +245,7 @@ CREATE TABLE `b_brokerage_sa` (
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
--- 留学-学校待结佣
+-- 留学-学校待结佣 (OLD)
 CREATE TABLE `b_school_brokerage_sa` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',

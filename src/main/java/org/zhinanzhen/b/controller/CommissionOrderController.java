@@ -42,8 +42,16 @@ public class CommissionOrderController extends BaseController {
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<CommissionOrderDTO> add(@RequestParam(value = "serviceOrderId") String serviceOrderId,
-			@RequestParam(value = "installment") String installment,
+	public Response<CommissionOrderDTO> add(@RequestParam(value = "code") String code,
+			@RequestParam(value = "serviceOrderId") Integer serviceOrderId,
+			@RequestParam(value = "isSettle") Boolean isSettle,
+			@RequestParam(value = "isDepositUser") Boolean isDepositUser,
+			@RequestParam(value = "schoolId") Integer schoolId, @RequestParam(value = "studentCode") String studentCode,
+			@RequestParam(value = "userId") Integer userId, @RequestParam(value = "adviserId") Integer adviserId,
+			@RequestParam(value = "officialId") Integer officialId,
+			@RequestParam(value = "isStudying") Boolean isStudying,
+			@RequestParam(value = "installmentNum") Integer installmentNum,
+			@RequestParam(value = "installment") Integer installment,
 			@RequestParam(value = "startDate") String startDate, @RequestParam(value = "endDate") String endDate,
 			@RequestParam(value = "tuitionFee") String tuitionFee,
 			@RequestParam(value = "perTermTuitionFee") String perTermTuitionFee,
@@ -53,11 +61,21 @@ public class CommissionOrderController extends BaseController {
 		try {
 			super.setPostHeader(response);
 			CommissionOrderDTO commissionOrderDto = new CommissionOrderDTO();
-			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(StringUtil.toInt(serviceOrderId));
+			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(serviceOrderId);
 			if (serviceOrderDto == null)
 				return new Response<CommissionOrderDTO>(1, "服务订单(ID:" + serviceOrderId + ")不存在!", null);
-			commissionOrderDto.setServiceOrderId(StringUtil.toInt(serviceOrderId));
-			commissionOrderDto.setInstallment(StringUtil.toInt(installment));
+			commissionOrderDto.setCode(code);
+			commissionOrderDto.setServiceOrderId(serviceOrderId);
+			commissionOrderDto.setSettle(isSettle);
+			commissionOrderDto.setDepositUser(isDepositUser);
+			commissionOrderDto.setSchoolId(schoolId);
+			commissionOrderDto.setStudentCode(studentCode);
+			commissionOrderDto.setUserId(userId);
+			commissionOrderDto.setAdviserId(adviserId);
+			commissionOrderDto.setOfficialId(officialId);
+			commissionOrderDto.setStudying(isStudying);
+			commissionOrderDto.setInstallmentNum(installmentNum);
+			commissionOrderDto.setInstallment(installment);
 			commissionOrderDto.setStartDate(new Date(Long.parseLong(startDate)));
 			commissionOrderDto.setEndDate(new Date(Long.parseLong(endDate)));
 			commissionOrderDto.setTuitionFee(Double.parseDouble(tuitionFee));
