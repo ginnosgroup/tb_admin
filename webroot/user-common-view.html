@@ -7,6 +7,18 @@
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 						<h4 class="modal-title" id="myModalLabel">服务详情页</h4>
 					</div>
+					<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+			      <button data-dismiss="alert" class="close close-sm" type="button">
+			      <i class="fa fa-times"></i>
+			      </button>
+			      <strong>Success!</strong> You  just achieved success.
+			  	</div>
+			  	<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+		        <button data-dismiss="alert" class="close close-sm" type="button">
+		        <i class="fa fa-times"></i>
+		        </button>
+		        <strong id="error_info"></strong>
+		      </div>
 					<div class="modal-body">
 							<form class="form-inline" style="">
 							<input type="hidden" name="user_id" id="user_id" value="0" />
@@ -142,6 +154,18 @@
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 						<h4 class="modal-title" id="myModalLabel">服务详情页</h4>
 					</div>
+					<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+			      <button data-dismiss="alert" class="close close-sm" type="button">
+			      <i class="fa fa-times"></i>
+			      </button>
+			      <strong>Success!</strong> You  just achieved success.
+			  	</div>
+			  	<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+		        <button data-dismiss="alert" class="close close-sm" type="button">
+		        <i class="fa fa-times"></i>
+		        </button>
+		        <strong id="error_info"></strong>
+		      </div>
 					<div class="modal-body">
 							<form class="form-inline" style="">																											
 							<div class="form-group" style="width:100%;height:40px;">
@@ -200,68 +224,69 @@
 							<div class="form-group" style="width:100%;line-height:40px;">
 									<label class="control-label"><strong>备注：</strong></label>
 									<label id="c16"></label>									
-							</div>
-							<div id="show_reqcommission" style="width:100%;margin-bottom:10px;display:none;">
+							</div>							
+							<div id="show_reqcommission" v-if="flowstate_wa==='PAID'" style="width:100%;margin-bottom:10px;display:;">
 									<hr/>
 									<div class="form-group" style="width:100%;line-height:40px;">
-											<label class="control-label"><strong>佣金信息</strong></label><label style="color:red;">(此表单暂时无法填写，因佣金接口在调整)</label>																	
+											<label class="control-label"><strong>佣金信息</strong></label>
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;">StudentID<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c20" class="form-control" style="width:200px;" placeholder="请输入学生ID">							
+											<input type="text" autocomplete="off" id="c20" class="form-control" style="width:200px;font-weight:normal;" placeholder="请输入学生ID">							
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;">Installment：<span style="color:red;">*</span></label>
-											<select class="form-control" style="width:70px;" id="c21">
+											<select class="form-control" style="width:70px;font-weight:normal;" id="c21" onchange="setInstallment(this.value)">
 											<option value="1">1</option>
 											<option value="2">2</option>
+											<option value="3">3</option>
 											</select>
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;">开课日期</label>
-											<input type="text" autocomplete="off" id="c22" class="form-control default-date-picker" style="width:150px;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
+											<input type="text" autocomplete="off" id="c22" class="form-control default-date-picker" style="width:150px;font-weight:normal;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
 											<label class="control-label" style="margin-left:40px;">结束日期</label>
-											<input type="text" autocomplete="off" id="c23" class="form-control default-date-picker" style="width:150px;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">								
+											<input type="text" autocomplete="off" id="c23" class="form-control default-date-picker" style="width:150px;font-weight:normal;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">								
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
-											<label class="control-label" style="width:150px;">Installment 1<br/>Due Date<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c24" class="form-control" style="width:200px;" placeholder="请选择日期">							
-									</div>
+											<label class="control-label" style="width:150px;">Installment <span id="installment_date">1</span><br/>Due Date<span style="color:red;">*</span></label>
+											<input type="text" autocomplete="off" id="c24" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
+									</div>									
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;">学费总金额<br/>Tuition Fee<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c25" class="form-control" style="width:200px;" placeholder="">							
+											<input type="text" autocomplete="off" id="c25" class="form-control" style="width:200px;font-weight:normal;" placeholder="">							
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;">每学期学费金额<br/>Per Term Tuition Fee<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c26" class="form-control" style="width:200px;" placeholder="">							
+											<input type="text" autocomplete="off" id="c26" class="form-control" style="width:200px;font-weight:normal;" placeholder="">							
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;">本次收款日期<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c27" class="form-control default-date-picker" style="width:200px;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
+											<input type="text" autocomplete="off" id="c27" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
 											<label class="control-label">收款方式<span style="color:red;">*</span></label>
-											<select class="form-control" style="width:150px;" id="c28"></select>									
+											<select class="form-control" style="width:150px;font-weight:normal;" id="c28"></select>									
 									</div>
 									<div class="form-group" style="display:block;margin-top:10px;">
 											<div class="form-group">
 												<label class="control-label" style="width:150px;">本次应收学费<span style="color:red;">*</span></label>
-												$<input type="text" autocomplete="off" id="c29" class="form-control" style="width:100px;">
+												$<input type="text" autocomplete="off" id="c29" class="form-control" style="width:100px;font-weight:normal;">
 											</div>
 											<div class="form-group" style="margin-left:10px;">
 												<label class="control-label">折扣</label>
-												$<input type="text" autocomplete="off" id="c30" class="form-control" style="width:100px;">
+												$<input type="text" autocomplete="off" id="c30" value="0" class="form-control" style="width:100px;font-weight:normal;">
 											</div>
 											<div class="form-group" style="margin-left:10px;">
 												<label class="control-label">本次收款</label>
-												$<input type="text" autocomplete="off" id="c31" class="form-control" style="width:100px;">
+												$<input type="text" autocomplete="off" id="c31" class="form-control" style="width:100px;font-weight:normal;">
 											</div>
 											<div class="form-group" style="margin-top:10px;margin-left:150px;">
 												<label class="control-label">预收业绩</label>
-												$<input type="text" autocomplete="off" disabled="disabled" id="c32" class="form-control" style="width:100px;">
+												$<input type="text" autocomplete="off" disabled="disabled" id="c32" class="form-control" style="width:100px;font-weight:normal;">
 											</div>									
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">
 											<label class="control-label">备注</label>
-											<textarea id="c33" class="form-control" style="width:98%"></textarea>
+											<textarea id="c33" class="form-control" style="width:98%;font-weight:normal;"></textarea>
 									</div>
 							</div>
 							<div>
@@ -294,7 +319,7 @@
 									<button onclick="flowstep('PENDING',1)" type="button" class="btn btn-default">撤回</button>
 									</dle>
 									<dle v-if="flowstate_wa==='PAID'">
-									<button onclick="alert('此功能->待实现');" type="button" class="btn btn-primary">申请佣金</button>
+									<button onclick="reqCommissionOvst()" type="button" class="btn btn-primary">申请佣金</button>
 									</dle>
 							</dle>
 							<dle v-if="ap_list==='WA'">									
@@ -324,6 +349,7 @@ var v_sub = new Vue({
 					flowstate_gw: '',
 					flowstate_wa: '',
 					flowstate_ma: '',
+					order_detail: [],					
 				},
 				created: function() {					
 				}
@@ -342,6 +368,7 @@ function show_addnewservice_id(orderId,type)
     	v.orderType = type;
     	if (type == 'VISA')
     	{
+    			v_sub.order_detail = response;//存储数据到本地
     			$('#show_addnewservice1_id').modal('show');
     			//签证	
         	$('#show_addnewservice1_id #b1').html(response.user.name);
@@ -358,7 +385,7 @@ function show_addnewservice_id(orderId,type)
         	}
         	$('#show_addnewservice1_id #b7').html(str_ispay);
         	$('#show_addnewservice1_id #b8').html(v.getTime(response.receiveDate));        	
-        	if (response.receiveId) $('#show_addnewservice1_id #b9').html(response.receiveType.name);
+        	if (response.receiveTypeId) $('#show_addnewservice1_id #b9').html(response.receiveType.name);
         	$('#show_addnewservice1_id #b10').html(response.receivable);
         	$('#show_addnewservice1_id #b11').html(response.discount);
         	$('#show_addnewservice1_id #b12').html(response.received);
@@ -438,6 +465,7 @@ function show_addnewservice_id(orderId,type)
         	if (v_sub.flowstate_gw == 'REVIEW') $("#c200").val('PENDING');
         	if (v_sub.flowstate_wa == 'REVIEW') $("#c200").val('REVIEW');
         	if (v_sub.flowstate_wa == 'FINISH' || v_sub.flowstate_wa == 'APPLY' || v_sub.flowstate_wa == 'COMPLETE' || v_sub.flowstate_wa == 'PAID' || v_sub.flowstate_wa == 'CLOSE') $("#c200").val(v_sub.flowstate_wa);
+        	v.addnewservice2_bind = 1;
 					$('#show_addnewservice2_id').modal('show');
     	}
     });      				      		
@@ -454,7 +482,7 @@ function checkform(type)
 			      $("#error_info").html('请选择需要修改的状态！');
 						return false;
 				}else
-				{
+				{						
 						flowstep($('#show_addnewservice1_id #b19').val(),1);
 				}
 		}else
@@ -479,16 +507,7 @@ function changeVisaState(va)
 		$('#show_addnewservice1_id #btnRefuse').hide();
 		$('#show_addnewservice1_id #btnCancel').hide();		
 		switch(va)
-		{
-				/*case 'PENDING':
-					$('#show_addnewservice1_id #btnRefuse').show();				
-				break;
-				case 'WAIT':
-					$('#show_addnewservice1_id #btnCancel').show();					
-				break;
-				case 'FINISH':
-					$('#show_addnewservice1_id #upload_certificate').show();
-				break;*/
+		{				
 				case 'APPLY':
 					$('#show_addnewservice1_id #upload_certificate').show();
 				break;
@@ -527,5 +546,166 @@ function changeOvstState(va,state)
 					$('#show_addnewservice2_id #btnRefuse').show();
 				break;				
 		}
+}
+
+v.$watch('addnewservice2_bind', function(obj) {
+		$('.default-date-picker').datepicker({   				
+	        format: 'dd/mm/yyyy'
+	  });
+	  $('.default-date-picker1').datepicker({   				
+	        format: 'dd/mm/yyyy'			        
+	  });
+	  //绑定收款方式
+    var receive_type = $("#show_addnewservice2_id #c28");
+    receive_type.append("<option value='0'>请选择</option>");
+    $.ajax({
+      url: 'receiveType/list?state=ENABLED',
+      type: 'GET',
+      async: false,
+      dataType: 'json'
+    }).done(function(response) {
+    	response = response.data;    
+    	for (var item in response)
+    	{
+    			receive_type.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+    	}        	 	    
+    });
+    //相关金额
+    $("#show_addnewservice2_id #c31").keyup(function(){
+    	var fee = $("#show_addnewservice2_id #c31").val();    		
+    	$("#show_addnewservice2_id #c32").val(fee);	        	
+		});
+});
+
+function reqCommissionVisa()
+{
+		var order = v_sub.order_detail;
+		if (order.pay == true)
+		{
+				var str_url = "visa/add";
+		   	var json = {};
+		   	   	
+		   	json['userId'] = order.userId;
+		   	json['handlingDate'] = new Date().getTime();
+		   	json['receiveTypeId'] = order.receiveTypeId;
+		   	json['receiveDate'] = order.receiveDate;
+		   	json['serviceId'] = order.serviceId;   	
+		   	json['serviceOrderId'] = v.orderId;
+		   	json['receivable'] = order.receivable;
+		   	json['received'] = order.received;
+		   	json['amount'] = order.amount;
+		   	json['discount'] = order.discount;
+		   	json['adviserId'] = order.adviserId;
+		   	json['maraId'] = order.maraId;
+		   	json['officialId'] = order.officialId;
+		   	json['remarks'] = order.remarks;   	
+		   	//console.log(json);
+		   	
+		   	$.post(str_url, json,
+		   	function(data){
+		   			if (data.code == 1)
+		   			{
+		   					$('#show_addnewservice1_id #alert_error').css('marginTop','50%');
+		   					$('#show_addnewservice1_id #alert_error').css('marginLeft','30%');
+		   					$('#show_addnewservice1_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+		      			$("#show_addnewservice1_id #error_info").html(data.message);
+		      			return false;
+		   			}
+		   	});
+  	}
+}
+
+function setInstallment(va)
+{
+		$("#show_addnewservice2_id #installment_date").html(va);
+}
+
+function reqCommissionOvst()
+{
+		var jqInputs = $('input',$("#show_addnewservice2_id"));
+    var jqSelect = $('select',$("#show_addnewservice2_id"));
+    var jqTextarea = $('textarea',$("#show_addnewservice2_id"));
+    
+    var check_result = false;
+    if (jqInputs[0].value != '' && jqInputs[3].value != '' && jqInputs[4].value != '' && jqInputs[5].value != '' && jqInputs[6].value != '' && jqInputs[7].value != '' && jqInputs[8].value != '' && jqInputs[9].value != '' && jqSelect[1].value != '0')
+    {
+    		check_result = true;
+    }
+    if (!check_result)
+    {
+    		$('#show_addnewservice2_id #alert_error').css('marginTop','50%');
+    		$('#show_addnewservice2_id #alert_error').css('marginLeft','30%');
+    		$('#show_addnewservice2_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+        $("#show_addnewservice2_id #error_info").html('提示：所有红色字段必须填写或选择！');
+    		return false;
+    }else
+    {         	            	            	                             
+       	var str_url = "commissionOrder/add";    		  		
+       	var json = {};
+       	       	
+       	json['serviceOrderId'] = v.orderId;
+       	json['StudentId'] = jqInputs[0].value;
+       	json['installment'] = jqSelect[0].value;
+       	var d = 0;        		
+    		if (jqInputs[1].value != '')
+    		{
+        		var arr_d = jqInputs[1].value.split("/");
+        		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+            var date = new Date(str_d);
+            d = date.getTime();
+      	}
+       	json['startDate'] = d;
+       	if (jqInputs[2].value != '')
+    		{
+        		var arr_d = jqInputs[2].value.split("/");
+        		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+            var date = new Date(str_d);
+            d = date.getTime();
+      	}
+       	json['endDate'] = d;
+       	if (jqInputs[3].value != '')
+    		{
+        		var arr_d = jqInputs[3].value.split("/");
+        		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+            var date = new Date(str_d);
+            d = date.getTime();
+      	}
+       	json['installmentDate'] = d;//installment Date       	
+       	json['tuitionFee'] = jqInputs[4].value;
+       	json['perTermTuitionFee'] = jqInputs[5].value;
+       	if (jqInputs[6].value != '')
+    		{
+        		var arr_d = jqInputs[6].value.split("/");
+        		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+            var date = new Date(str_d);
+            d = date.getTime();
+      	}
+       	json['receiveDate'] = d;
+       	json['receiveTypeId'] = jqSelect[1].value;
+       	json['receivable'] = jqInputs[7].value;//本次应收学费
+       	json['discount'] = jqInputs[8].value;
+       	json['amount'] = jqInputs[9].value;
+       	json['expectAmount'] = jqInputs[10].value;
+       	json['remarks'] = jqTextarea[0].value;
+       	//console.log(json);
+       	
+       	$.post(str_url, json,
+		   	function(data){
+		   			if (data.code == 0)
+		   			{
+		   					$('#show_addnewservice2_id #alert_success').css('marginTop','50%');
+		   					$('#show_addnewservice2_id #alert_success').css('marginLeft','30%');
+		   					$('#show_addnewservice2_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+		   					setTimeout(function(){window.location.href = "mycommission.html?type=ovst";}, 2000);
+		   			}else
+		   			{
+		   					$('#show_addnewservice2_id #alert_error').css('marginTop','50%');
+		   					$('#show_addnewservice2_id #alert_error').css('marginLeft','30%');
+		   					$('#show_addnewservice2_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+          			$("#show_addnewservice2_id #error_info").html(data.message);
+	        			return false;
+		   			}
+		   	});
+    }
 }
 </script>

@@ -6,7 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="renderer" content="webkit">
 		<link rel="shortcut icon" href="img/favicon.ico">
-		<title>文案管理</title>
+		<title>我的佣金报表</title>
 		<link href="css/bootstrap.min.css" rel="stylesheet">
 		<link href="css/bootstrap-reset.css" rel="stylesheet">
 		<link href="assets/font-awesome/css/font-awesome.css" rel="stylesheet">
@@ -23,7 +23,7 @@
 		<![endif]-->
 	</head>
 
-	<body id="official" v-cloak>
+	<body id="mycommission-ovst" v-cloak>
 		<section id="container">
 			<header class="header white-bg">
 				<div class="sidebar-toggle-box">
@@ -100,7 +100,7 @@
               </a>
             </li>
             <li>
-              <a href="official.html" class="active">
+              <a href="official.html">
                 <i class="fa fa-book">
                 </i>
                 <span>
@@ -218,7 +218,7 @@
 							</ul>
 						</li>
 						<li v-if="ap_list!=='WA' && ap_list!=='MA'" class="sub-menu">
-							<a href="javascript:;">
+							<a href="javascript:;" class="active">
 								<i class="fa fa-book">
                 </i>
 								<span>
@@ -226,10 +226,10 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li>
+								<li class="active">
 									<a href="mycommission.html">
 										我的佣金报表
-									</a>
+									</a>									
 								</li>								
 								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
 									<a href="table-export.html">
@@ -264,74 +264,110 @@
 						<div class="col-lg-12">
 							<section class="panel">
 								<header class="panel-heading">
-									文案管理
+									我的佣金报表
 								</header>
 								<div class="panel-body">
 									<div class="adv-table editable-table">
-										<div class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+										<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
 									      <button data-dismiss="alert" class="close close-sm" type="button">
-									      <i class="fa fa-times"></i>
 									      </button>
 									      <strong>Success!</strong> You  just achieved success.
 									  </div>
 									  <div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
-                      <button data-dismiss="alert" class="close close-sm" type="button">
-                      <i class="fa fa-times"></i>
+                      <button data-dismiss="alert" class="close close-sm" type="button">                      
                       </button>
                       <strong id="error_info"></strong>
-                   	</div>
-										<div class="clearfix">
-                       <div class="btn-group">
-                          <button id="editable-sample_new" class="btn btn-success green" @click="table_insert">
-                          Add New <i class="fa fa-plus"></i>
-                          </button>
-                       </div>
                     </div>
-                    <form class="form-inline" style="margin-top:10px;">
+									  <form class="form-inline" style="margin-top:10px;">
+									  	<input v-model.trim="userId" type="hidden" name="userId" id="userId" value="0" />
 											<div class="form-group">
-												<input v-model.trim="name" type="text" class="form-control" placeholder="输入文案名称">												
+													<label>客户姓名</label>
+													<input type="text" name="user_name" id="user_name" class="form-control" style="width:150px;">													
 											</div>
 											<div class="form-group">
-												<button @click="getUser" type="button" class="btn btn-info">查询</button>
+													<label>服务项目</label>											
+													<select id="type" class="form-control" style="width:130px;" onchange="gotoUrl(this.value);">
+													<option value="OVST" selected="true">留学</option>
+													<option value="VISA">签证</option>													
+													</select>
+													<label>状态</label>											
+													<select v-model.trim="state" id="state" class="form-control" style="width:130px;">
+													<option value="" selected="true">全部</option>
+													<option value="WAIT">佣金待审核</option>
+													<option value="FINISH">佣金已审核</option>
+													<option value="COMPLETE">佣金结算完成</option>													
+													<option value="CLOSE">已关闭</option>
+													</select>													
+											</div>
+											<div class="form-group">
+												<button @click="getSearch" type="button" class="btn btn-info">查询</button>
+												<button @click="getExport" type="button" class="btn btn-primary">导出</button>
 											</div>
 										</form>
 										<div class="responsive-table margin-top">
 											<input type="hidden" name="id" id="id" value="0" />
-											<table class="display table table-bordered table-striped" id="example">
+											<table class="display table table-bordered table-striped" id="list_ovst">
 												<thead>
 													<tr>
-														<!--<th><input @click="checked" type="checkbox"></th>-->
-														<th>ID</th>
-														<th>文案名称</th>
-														<th>电话号码</th>
-														<th>电子邮箱</th>
-														<th>登录密码</th>
-														<th>二维码</th>
-														<th>所属区域</th>														
-														<th>Edit</th>
-														<th>Delete</th>
+														<th>订单ID</th>
+														<th>创建日期</th>
+														<th>签约日期</th>
+														<th>客户支付日期</th>
+														<th>客户姓名</th>
+														<th>StudentID</th>
+														<th>服务项目</th>
+														<th>是否提前扣佣</th>
+														<th>学校</th>
+														<th>课程</th>
+														<th>Installment Due Date</th>
+														<th>收款方式</th>
+														<th>学费总金额Tuition Fee</th>
+														<th>每学期学费金额Per Term Tuition Fee</th>
+														<th>总计应收</th>
+														<th><span style="color:#FF6C60;">总计已收</span></th>											
+														<th>本次收款</th>
+														<th>预收业绩(<span style="color:#FF6C60;">Commission含GST</span>)</th>														
+														<th>月奖</th>
+														<th>佣金支付时间</th>
+														<th>顾问</th>
+														<th>状态</th>
+														<th>操作</th>
+														<th>备注</th>
 													</tr>
 												</thead>
 												<tbody>
 													<tr v-for="item in subject" class="gradeX">
 														<td v-html="item.oid"></td>
-														<td v-html="item.name"></td>
-														<td v-html="item.phone"></td>
-														<td v-html="item.email"></td>
-														<td v-html="item.password"></td>
-														<td v-html="item.imageUrl"></td>
-														<td v-html="item.regionName"></td>														
-														<td><a v-if="item.id" class="edit" href="javascript:;" @click="table_modify($index)"><span class="label label-success">Edit</span></a>
-																<a v-else class="edit" href="javascript:;"><span class="label label-primary">Save</span></a>
+														<td v-html="item.gmtCreate"></td>
+														<td v-html="item.finishDate"></td>
+														<td></td>
+														<td v-html="item.userName"></td>
+														<td></td>
+														<td v-html="item.serviceName"></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td v-html="item.payDate"></td>
+														<td v-html="item.adviserName"></td>
+														<td v-html="item.strState"></td>
+														<td>
+														
 														</td>
-														<td><a v-if="item.id" class="delete" href="#" @click="delete_confirm($index,item.id)"><span class="label label-danger">Delete</span></a>
-																<a v-else class="cancel" href="javascript:;"><span class="label label-info">Cancel</span></a>
-														</td>														
+														<td v-html="item.remarks"></td>
 													</tr>
 												</tbody>
 											</table>
 										</div>
-										<div class="row-fluid">
+										<div class="row-fluid" style="display:;">
 											<div class="span6">
 												<div class="dataTables_info" id="hidden-table-info_info">共{{count}}条</div>
 											</div>
@@ -374,86 +410,25 @@
 				</div>
 			</footer>
 		</section>
-		<div class="modal fade" id="delete_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal fade" id="showconfirmbox_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="z-index:9999;">
 			<div class="modal-dialog" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<h4 class="modal-title" id="myModalLabel">删除</h4>
+						<h4 class="modal-title" id="myModalLabel">操作提示</h4>
 					</div>
 					<div class="modal-body">
-						确认删除吗？
+						您确认执行此操作吗？
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-						<button onclick="deleteId()" type="button" class="btn btn-primary">确认</button>
+						<button onclick="update_state();" type="button" class="btn btn-primary">确认</button>
 					</div>
 				</div>
 			</div>
-		</div>
-		<div class="modal fade" id="close_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<h4 class="modal-title" id="close_title">关闭</h4>
-					</div>
-					<div class="modal-body">
-						确认<span id="close_title1">关闭</span>吗？
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-						<button onclick="closeId()" type="button" class="btn btn-primary">确认</button>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="modal fade" id="passwd_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<h4 class="modal-title" id="myModalLabel">重置密码</h4>
-					</div>
-					<div class="modal-body">
-							<form class="form-horizontal">
-							<div class="form-group">
-								<label class="col-sm-4 control-label">新的随机密码</label>
-								<div class="col-sm-8">
-									<label id="resetPasswd" style="color:red;"></label>
-								</div>
-							</div>
-							</form>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="modal fade" id="passwd_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<h4 class="modal-title" id="myModalLabel">重置密码</h4>
-					</div>
-					<div class="modal-body">
-							<form class="form-horizontal">
-							<div class="form-group">
-								<label class="col-sm-4 control-label">新的随机密码</label>
-								<div class="col-sm-8">
-									<label id="resetPasswd" style="color:red;"></label>
-								</div>
-							</div>
-							</form>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-					</div>
-				</div>
-			</div>
-		</div>
+		</div>		
+		<div id="load-user-common-page"></div>
+		<div id="load-user-common-view-page"></div>
 		<script src="js/jquery-1.8.3.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
 		<script src="js/jquery.dcjqaccordion.2.7.js"></script>
@@ -465,16 +440,24 @@
 		<script src="js/common-scripts.js"></script>
 		<script src="js/vue.js"></script>
 		<script src="js/common.js?verson=1"></script>
-		<script>			
-			tb.isLogin("official.html");
+		<script>
+			//$("#load-user-common-page").load("user-common.html?random="+Math.random());
+			tb.isLogin("mycommission-ovst.html");
 			$("td,th").addClass("text-center");
 			var v = new Vue({
-				el: '#official',
+				el: '#mycommission-ovst',
 				data: {
 					admin: sessionStorage.getItem("admin"),
 					ap_list: sessionStorage.getItem("ap_list"),
 					m_list: localStorage.getItem("str_html"),
-					allSort: [],
+					adviser_id: sessionStorage.getItem("adviser_id"),
+					official_id: sessionStorage.getItem("official_id"),
+					mara_id: sessionStorage.getItem("mara_id"),
+					kj_id: sessionStorage.getItem("kj_id"),
+					addnewservice1_bind: 0,
+					addnewservice2_bind: 0,					
+					orderId: 0,
+					orderType: '',
 					subject: [],
 					count: 0,
 					dId: '',
@@ -482,58 +465,57 @@
 					name: '',
 					sort: '',
 					state: '',
+					flowstate_gw: '',
+					flowstate_wa: '',
+					flowstate_ma: '',
+					set_state: '',
+					set_type: 1,
 					pageNum: 0,
-					pageSize: 10,
+					pageSize: 20,
 					allPage: 0,
 					add: false,
-					current_index: '',
-					current_row: '',
 					index: 0,
 					close: false
 				},
 				created: function() {
 					this.getDatalist();
 				},
-				methods: {
-					getUser: function() {
+				methods: {					
+					getDatalist: function() {
 						var that = this;
-						$.get(url + "official/count", {
-							name: that.name,							
-							adviserId: that.adviserId
+						$.get(url + "commissionOrder/count", {
+							keyword: that.name,							
 						}, function(result) {
-							console.log(result)
 							that.count = result.data;
 							that.allPage = Math.ceil(result.data / that.pageSize);
-							console.log(that.allPage)
 						});
-						$.get(url + "official/list", {
-							name: that.name,
-							adviserId: that.adviserId,							
+						$.get(url + "commissionOrder/list", {
 							pageNum: 0,
-							pageSize: that.pageSize
-						}, function(result) {
-							//console.log(result)
+							pageSize: that.pageSize,
+						}, function(result) {							
 							that.pageNum = 0;
-							that.subject = return_result(result);
+							result.data = return_result(result);
+							that.subject = result.data;
 							//console.log(that.subject);
 						});
 					},
-					getDatalist: function() {
+					getSearch: function() {
 						var that = this;
-						$.get(url + "official/count", {
-							keyword: that.name							
-						}, function(result) {							
+						var json = {};
+						if (that.userId != '0') json['userId'] = that.userId;
+						if (that.adviserId != '0') json['adviserId'] = that.adviserId;						
+						if (that.type != '') json['type'] = that.type;
+						if (that.state != '') json['state'] = that.state;
+						$.get(url + "commissionOrder/count", json, function(result) {
 							that.count = result.data;
 							that.allPage = Math.ceil(result.data / that.pageSize);
 						});
-						$.get(url + "official/list", {
-							pageNum: 0,
-							pageSize: that.pageSize
-						}, function(result) {
-							//console.log(result)
+						json['pageNum'] = 0;
+						json['pageSize'] = that.pageSize;
+						$.get(url + "commissionOrder/list", json, function(result) {
 							that.pageNum = 0;
-							that.subject = return_result(result);
-							//console.log(that.subject);
+							result.data = return_result(result);
+							that.subject = result.data;
 						});
 					},
 					getTime: function(d) {
@@ -557,14 +539,16 @@
 					firstPage: function() {
 						var that = this;
 						if(that.pageNum > 0) {
-							$.get(url + "official/list", {
+							$.get(url + "commissionOrder/list", {
 								keyword: that.name,
 								state: that.state,
 								pageNum: 0,
 								pageSize: that.pageSize
 							}, function(result) {
+								console.log(result)
 								that.pageNum = 0;
-								that.subject = return_result(result);
+								result.data = return_result(result);
+								that.subject = result.data;
 							});
 						}
 					},
@@ -572,12 +556,14 @@
 						var that = this;
 						if(that.pageNum > 0) {
 							that.pageNum--;
-							$.get(url + "official/list", {
+							$.get(url + "commissionOrder/list", {
 								keyword: that.name,
 								pageNum: that.pageNum,
 								pageSize: that.pageSize
-							}, function(result) {								
-								that.subject = return_result(result);
+							}, function(result) {
+								console.log(result)
+								result.data = return_result(result);
+								that.subject = result.data;
 							});
 						}
 					},
@@ -585,250 +571,120 @@
 						var that = this;
 						if(that.pageNum < that.allPage - 1) {
 							that.pageNum++;
-							$.get(url + "official/list", {
+							$.get(url + "commissionOrder/list", {
 								keyword: that.name,
 								categoryId: that.sort,
 								state: that.state,
 								pageNum: that.pageNum,
 								pageSize: that.pageSize
 							}, function(result) {
-								that.subject = return_result(result);
+								console.log(result)
+								result.data = return_result(result);
+								that.subject = result.data;
 							});
 						}
 					},
 					lastPage: function() {
 						var that = this;
 						if(that.pageNum < that.allPage - 1) {
-							$.get(url + "official/list", {
+							$.get(url + "commissionOrder/list", {
 								keyword: that.name,
 								categoryId: that.sort,
 								state: that.state,
 								pageNum: that.allPage - 1,
 								pageSize: that.pageSize
 							}, function(result) {
+								console.log(result)
 								that.pageNum = that.allPage - 1;
-								that.subject = return_result(result);
+								result.data = return_result(result);
+								that.subject = result.data;
 							});
 						}
-					},
-					table_insert() {
-						if (!this.add)
-						{
-								if (this.current_index != null)
-								{
-										this.subject[this.current_index] = this.current_row;
-										this.current_index = '';
-										this.current_row = '';
-								}											
-								this.subject.splice(0,0, {
-									id:'',									
-									name: '<input type="text" class="form-control small" style="width:150px;" id="t0" value="">',
-									phone: '<input type="text" class="form-control small" style="width:150px;" id="t1" value="">',
-									email: '<input type="text" class="form-control small" style="width:200px;" id="t2" value="">',
-									password: '<input type="password" autocomplete="off" class="form-control small" style="width:150px;" id="t5" value="">',
-									imageUrl: '<textarea type="text" class="form-control small" style="width:200px;" id="t3"></textarea>',
-									regionName: '<select class="form-control" style="width:150px;" id="t4"></select>',
-									});
-								this.add = true;
-						}
-					},
-					table_modify: function (index) {						
-						if (this.current_index != null)
-						{
-								if (this.add)
-								{
-										this.subject[this.current_index-1] = this.current_row;
-								}else
-								{
-										this.subject[this.current_index] = this.current_row;
-								}
-						}
-						this.current_index = index;
-						this.current_row = this.subject[index];
-						if (this.subject[index].imageUrl == null) this.subject[index].imageUrl = '';
-						this.subject.splice(index,1, {
-							oid: parseInt(this.subject[index].id),
-							name: '<input type="text" class="form-control small" style="width:150px;" id="t0" value="'+this.subject[index].name+'">',
-							phone: '<input type="text" class="form-control small" style="width:150px;" id="t1" value="'+this.subject[index].phone+'">',
-							email: '<input type="text" class="form-control small" style="width:200px;" id="t2" value="'+this.subject[index].email+'">',
-							imageUrl: '<textarea type="text" class="form-control small" style="width:200px;" id="t3">'+this.subject[index].imageUrl+'</textarea>',
-							regionName: '<select class="form-control" style="width:150px;" id="t4"></select>',							
-						});						
-						if (this.add)
-						{
-								this.subject.splice(0, 1);
-								this.add = false;
-								this.current_index = index-1;								
-						}
-						//alert(this.current_row.id);																			
-					},
-					table_remove: function (index) {
-             this.subject.splice(index, 1);  
-          },
-          delete_confirm: function (index,id) {
-          	$('#delete_id').modal('show');
-          	this.dId = id;
-          	this.index = index;
-          },
-          passwdSet: function (username){
-          			$.post('admin_user/resetPassword', { username: username},
-						   	function(data){
-						   		if (data.code == 0)
-						   		{
-						   				$('#resetPasswd').html(data.data);
-						   		}else
-						   		{
-						   				$('#resetPasswd').html(data.message);
-						   		}
-						   	});
-			      		$('#passwd_id').modal('show');
-			    }
+					}          
 				}		
-			});
-			
-			$('#example a.edit').live('click', function (e) {
-				e.preventDefault();
-				table_addsave();
-			});
-			
-			$('#example a.cancel').live('click', function (e) {
-				e.preventDefault();
-				if (!parseInt($("#id").val()))
-				{
-						v.subject.splice(0, 1);
-						v.add = false;
-				}else
-				{
-						v.subject.splice(v.current_index, 0);
-						v.subject.splice(v.current_index,1, v.current_row);
-				}
 			});
 			
 			function return_result(result)
 			{
 				for(var i = 0; i < result.data.length; i++) {
+						var str_state = '';
+						result.data[i].state = 'WAIT';//测试用
 						result.data[i].oid = result.data[i].id;
-						result.data[i].password = '<label id="t5" style="width:150px;"><a href="javascript:;" onclick="passwdSet(\''+result.data[i].email+'\')">重置密码</a></label>';
+						result.data[i].gmtCreate = v.getTime(result.data[i].gmtCreate);
+						result.data[i].finishDate = result.data[i].finishDate ? v.getTime(result.data[i].finishDate):'';
+						result.data[i].serviceName = '留学-';
+						result.data[i].strState = return_state(result.data[i].state);
+						result.data[i].currentState = result.data[i].state;
 				};
 				return result.data;
-			}
-			
-			function table_addsave()
+			}						
+      
+      function return_state(va)
 			{
-          var jqInputs = $('input',$("#example"));
-          var jqText = $('textarea',$("#example"));
-          var jqSelect = $('select',$("#example"));
-          
-          var check_result = 0;
-          if (jqInputs[0].value != '' && jqInputs[1].value != '' && jqInputs[2].value != '')
-          {
-          		check_result = true;
-          }else
-          {
-          		alert('所有选项必须填写！');
-          }
-          
-          if (check_result)
-          {              
-              var str_url = "official/add";
-              var sa_id = $("#id").val();
-              if (sa_id != '0') str_url = "official/update";
-              $("#id").val('0');
-              
-              var passwd = '';
-              var str_name = '';
-              var str_phone = '';
-              var str_email='';
-              
-              if (jqInputs[3] != undefined) passwd = jqInputs[3].value;
-              
-              $.post(str_url, { id: sa_id, name: jqInputs[0].value, phone: jqInputs[1].value, email: jqInputs[2].value, password: passwd, imageUrl: jqText[0].value, regionId: jqSelect[0].value},
-					   	function(data){
-					   			if (data.code == 0)
-					   			{
-					   					v.add = false;
-					   					$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
-					   					v.table_remove();
-					   					//重新载入数据源
-					   					v.getDatalist();
-					   					v.getSort();
-					   			}
-					   			//console.log(data);
-					   	});
-			  	}                
-      }
+					var str_html = '';
+					switch(va)
+					{
+						case 'WAIT':
+									str_html = '佣金审核中';
+						break;
+						case 'FINISH':
+									
+									str_html = '<label style="color:blue;">佣金已审核</label>';							
+						break;						
+						case 'COMPLETE':
+									str_html = '<label style="color:red;">佣金结算完成</label>';
+						break;						
+						case 'CLOSE':
+									str_html = '<label style="color:red;">已关闭</label>';
+						break;											
+					}
+					return str_html;
+      }                    
 			
 			v.$watch('subject', function(obj) {
 					$('.default-date-picker').datepicker({   				
 				        format: 'dd/mm/yyyy'
-				  });
-				  var regionId = 0;
-				 	if (this.current_row.id)
-				  {
-				  		$("#id").val(this.current_row.id);	  		
-				  		regionId = this.current_row.regionId;				  			  		
-				  }
-			    //绑定区域列表
-			    var obj_regionId = $("#t4");	
-			    $.ajax({
-	          url: 'region/list_all',
-	          type: 'GET',
-	          dataType: 'json'
-	        }).done(function(response) {
-	        	//author:bischina
-	        	var region_data = response.data;
-	        	console.log(region_data);
-	        	for (var item in region_data)
-	        	{
-	        			obj_regionId.append("<option value='"+region_data[item].id+"'>"+region_data[item].name+"</option>");
-	        			var region_sub = region_data[item].regionList;
-	        			for (var itemsub in region_sub)
-	        			{
-	        					obj_regionId.append("<option value='"+region_sub[itemsub].id+"'>---"+region_sub[itemsub].name+"</option>");
-	        			}
-	        	}
-	        	obj_regionId.val(regionId);   
-	        });
+				  });				 	
+				  //查询客户
+				  var user = $("#user_name");
+				  user.autocompleter({
+			    	highlightMatches: true,
+			    	limit: 10,
+			    	cache: false,
+			    	customValue: 'name',
+			    	customLabel: 'name',
+			    	source: 'user/list?authNickname=&phone=&pageNum=0',
+			    	combine: function(params) {
+			    		return {
+				        name: params.query,
+				        pageSize: params.limit
+				      };
+			    	},
+			    	callback: function(value, index, object) {
+			    		$('#userId').val(object.id);
+			    		v.userId = object.id;  		
+			    	},
+			    	minLength: 1						    	
+			    });			    
 			});
 			
-			function deleteId()
-      {
-					$.get("official/delete", {
-						id: v.dId
-					}, function(result) {
-						console.log(result);
-						if(result.data == true) {
-							$('#delete_id').modal('hide');
-							$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
-							v.table_remove();
-	   					//重新载入数据源
-	   					v.getDatalist();
-	   					v.getSort();
-						};
-					});      		
-      }
-      
-      function passwdSet(username)
-      {
-      		$.post('admin_user/resetPassword', { username: username},
-			   	function(data){
-			   		if (data.code == 0)
-			   		{
-			   				$('#resetPasswd').html(data.data);
-			   		}else
-			   		{
-			   				$('#resetPasswd').html(data.message);
-			   		}
-			   	});
-      		$('#passwd_id').modal('show');
-      }
+			function gotoUrl(va)
+			{
+					if (va == 'VISA')
+					{
+							window.location.href = "mycommission.html";
+					}else
+					{
+							window.location.href = "mycommission-ovst.html";
+					}
+			}
       
       function show_knowledge_detail(id,parentId)
       {
       		sessionStorage.setItem("id", id);
       		sessionStorage.setItem("menu_parentid", parentId);
 					window.location.href = "knowledge.html"; 
-      } 
+      }
 			
 			function  formatDate(now)
 			{
@@ -839,7 +695,7 @@
 			    var   hour=now.getHours();
 			    var   minute=now.getMinutes();     
 			    var   second=now.getSeconds();
-			    return fixZero(date,2)+"/"+fixZero(month,2)+"/"+year; 
+			    return fixZero(date,2)+"/"+fixZero(month,2)+"/"+year;
 			}  
 			
 			function fixZero(num,length)

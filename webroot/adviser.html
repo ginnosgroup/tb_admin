@@ -381,7 +381,7 @@
 								</li>								
 							</ul>
 						</li>
-						<li v-if="ap_list!=='MA'" class="sub-menu">
+						<li v-if="ap_list!=='WA' && ap_list!=='MA'" class="sub-menu">
 							<a href="javascript:;">
 								<i class="fa fa-book">
                 </i>
@@ -391,25 +391,10 @@
 							</a>
 							<ul class="sub">
 								<li>
-									<a href="visa.html">
-										签证类
+									<a href="mycommission.html">
+										我的佣金报表
 									</a>
-								</li>
-								<li>
-									<a href="table-1.html">
-										提前扣佣学生表
-									</a>
-								</li>
-								<li>
-									<a href="table-2.html">
-										待追佣学生表
-									</a>
-								</li>
-								<li>
-									<a href="table-3.html">
-										退款表
-									</a>
-								</li>
+								</li>								
 								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
 									<a href="table-export.html">
 										导出数据
