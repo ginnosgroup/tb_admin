@@ -36,6 +36,8 @@ public class CommissionOrderDO {
 	private int installmentNum;
 
 	private int installment;
+	
+	private Date installmentDueDate;
 
 	private Date startDate;
 

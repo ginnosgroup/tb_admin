@@ -52,6 +52,9 @@ public class CommissionOrderController extends BaseController {
 			@RequestParam(value = "isStudying") Boolean isStudying,
 			@RequestParam(value = "installmentNum") Integer installmentNum,
 			@RequestParam(value = "installment") Integer installment,
+			@RequestParam(value = "installmentDueDate1") String installmentDueDate1,
+			@RequestParam(value = "installmentDueDate2", required = false) String installmentDueDate2,
+			@RequestParam(value = "installmentDueDate3", required = false) String installmentDueDate3,
 			@RequestParam(value = "startDate") String startDate, @RequestParam(value = "endDate") String endDate,
 			@RequestParam(value = "tuitionFee") String tuitionFee,
 			@RequestParam(value = "perTermTuitionFee") String perTermTuitionFee,
@@ -76,6 +79,7 @@ public class CommissionOrderController extends BaseController {
 			commissionOrderDto.setStudying(isStudying);
 			commissionOrderDto.setInstallmentNum(installmentNum);
 			commissionOrderDto.setInstallment(installment);
+//			commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate1)));
 			commissionOrderDto.setStartDate(new Date(Long.parseLong(startDate)));
 			commissionOrderDto.setEndDate(new Date(Long.parseLong(endDate)));
 			commissionOrderDto.setTuitionFee(Double.parseDouble(tuitionFee));
