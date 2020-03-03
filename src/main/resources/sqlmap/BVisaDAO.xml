@@ -10,6 +10,7 @@
                 gmt_modify,
                 handling_date,
                 user_id,
+                state,
                 receive_type_id,
                 receive_date,
                 service_id,
@@ -31,6 +32,7 @@
                 now(),
                 #{handlingDate,jdbcType=TIMESTAMP},
                 #{userId},
+                #{state},
                 #{receiveTypeId},
                 #{receiveDate,jdbcType=TIMESTAMP},
                 #{serviceId},
@@ -57,6 +59,9 @@
         </if>
         <if test='userId != null and userId != ""'>
             , user_id = #{userId}
+        </if>
+        <if test='state != null and state != ""'>
+            , state = #{state}
         </if>
         <if test='receiveTypeId != null and receiveTypeId != ""'>
             , receive_type_id = #{receiveTypeId}
@@ -134,6 +139,7 @@
             bv.gmt_create AS gmtCreate,
             bv.handling_date AS handlingDate,
             bv.user_id AS userId,
+            bv.state AS state,
             bv.receive_type_id AS receiveTypeId,
             bv.receive_date AS receiveDate,
             bv.service_id AS serviceId,
@@ -183,7 +189,8 @@
             id,
             gmt_create AS gmtCreate,
             handling_date AS handlingDate,
-            user_id  AS userId,
+            user_id AS userId,
+            state,
             receive_type_id AS receiveType,
             receive_date AS receiveDate,
             service_id AS serviceId,

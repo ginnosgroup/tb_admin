@@ -12,14 +12,17 @@ import org.zhinanzhen.b.dao.OfficialDAO;
 import org.zhinanzhen.b.dao.ReceiveTypeDAO;
 import org.zhinanzhen.b.dao.RemindDAO;
 import org.zhinanzhen.b.dao.ServiceDAO;
+import org.zhinanzhen.b.dao.ServiceOrderReviewDAO;
 import org.zhinanzhen.b.dao.pojo.VisaDO;
 import org.zhinanzhen.b.dao.pojo.VisaListDO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.ReceiveTypeDO;
 import org.zhinanzhen.b.dao.pojo.RemindDO;
 import org.zhinanzhen.b.dao.pojo.ServiceDO;
+import org.zhinanzhen.b.dao.pojo.ServiceOrderReviewDO;
 import org.zhinanzhen.b.service.AbleStateEnum;
 import org.zhinanzhen.b.service.VisaService;
+import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
@@ -29,6 +32,7 @@ import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
 import com.ikasoa.core.thrift.ErrorCodeEnum;
+import com.ikasoa.core.utils.StringUtil;
 
 @Service("VisaService")
 public class VisaServiceImpl extends BaseService implements VisaService {
@@ -54,6 +58,19 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 	@Resource
 	private UserDAO userDao;
 
+	@Resource
+	private ServiceOrderReviewDAO serviceOrderReviewDao;
+
+	public enum VisaStateEnum {
+		WAIT, FINISH, COMPLETE;
+		public static VisaStateEnum get(String name) {
+			for (VisaStateEnum e : VisaStateEnum.values())
+				if (e.toString().equals(name))
+					return e;
+			return null;
+		}
+	}
+
 	@Override
 	public int addVisa(VisaDTO visaDto) throws ServiceException {
 		if (visaDto == null) {
@@ -62,6 +79,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			throw se;
 		}
 		try {
+			visaDto.setState(VisaStateEnum.WAIT.toString());
 			VisaDO visaDo = mapper.map(visaDto, VisaDO.class);
 			if (visaDao.addVisa(visaDo) > 0) {
 				visaDto.setId(visaDo.getId());
@@ -84,6 +102,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			throw se;
 		}
 		try {
+			putReviews(visaDto);
 			VisaDO visaDo = mapper.map(visaDto, VisaDO.class);
 			return visaDao.updateVisa(visaDo);
 		} catch (Exception e) {
@@ -124,6 +143,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 		}
 		for (VisaDO visaListDo : visaListDoList) {
 			VisaDTO visaDto = mapper.map(visaListDo, VisaDTO.class);
+			putReviews(visaDto);
 			AdviserDO adviserDo = adviserDao.getAdviserById(visaListDo.getAdviserId());
 			if (adviserDo != null) {
 				visaDto.setAdviserName(adviserDo.getName());
@@ -166,6 +186,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 				return null;
 			}
 			visaDto = mapper.map(visaDo, VisaDTO.class);
+			putReviews(visaDto);
 			if (visaDto.getUserId() > 0) {
 				UserDO userDo = userDao.getUserById(visaDto.getUserId());
 				visaDto.setUserName(userDo.getName());
@@ -194,6 +215,21 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
 		}
+	}
+
+	private void putReviews(VisaDTO visaDto) throws ServiceException {
+		List<ServiceOrderReviewDO> serviceOrderReviewDoList = serviceOrderReviewDao
+				.listServiceOrderReview(visaDto.getServiceOrderId(), null, null, null, null, null);
+		List<ServiceOrderReviewDTO> serviceOrderReviewDtoList = new ArrayList<ServiceOrderReviewDTO>();
+		serviceOrderReviewDoList
+				.forEach(review -> serviceOrderReviewDtoList.add(mapper.map(review, ServiceOrderReviewDTO.class)));
+		if (serviceOrderReviewDtoList != null && serviceOrderReviewDtoList.size() > 0)
+			for (ServiceOrderReviewDTO serviceOrderReviewDto : serviceOrderReviewDtoList)
+				if (serviceOrderReviewDto != null && StringUtil.isNotEmpty(serviceOrderReviewDto.getKjState())) {
+					visaDto.setState(serviceOrderReviewDto.getKjState());
+					updateVisa(visaDto);
+					break;
+				}
 	}
 
 }

@@ -15,6 +15,8 @@ public class VisaDTO {
 	private Date handlingDate;
 
 	private int userId;
+	
+	private String state;
 
 	private String userName;
 

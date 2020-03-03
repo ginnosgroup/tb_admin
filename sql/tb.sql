@@ -181,6 +181,7 @@ CREATE TABLE `b_visa` (
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `handling_date` datetime NOT NULL COMMENT '办理日期',
   `user_id` int NOT NULL COMMENT '用户编号 (对应tb_user.id)',
+`state` varchar(8) NOT NULL COMMENT '状态',
   `receive_type_id` int NOT NULL COMMENT '收款方式编号(对应b_receive_type.id)',
   `receive_date` datetime NOT NULL COMMENT '收款日期',
   `service_id` int NOT NULL COMMENT '移民-服务项目编号 (对应b_service.id)',
