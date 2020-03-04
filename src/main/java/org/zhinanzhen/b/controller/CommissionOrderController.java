@@ -3,6 +3,7 @@ package org.zhinanzhen.b.controller;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -43,8 +44,7 @@ public class CommissionOrderController extends BaseController {
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<List<CommissionOrderDTO>> add(@RequestParam(value = "code") String code,
-			@RequestParam(value = "serviceOrderId") Integer serviceOrderId,
+	public Response<List<CommissionOrderDTO>> add(@RequestParam(value = "serviceOrderId") Integer serviceOrderId,
 			@RequestParam(value = "isSettle") Boolean isSettle,
 			@RequestParam(value = "isDepositUser") Boolean isDepositUser,
 			@RequestParam(value = "schoolId") Integer schoolId, @RequestParam(value = "studentCode") String studentCode,
@@ -75,7 +75,7 @@ public class CommissionOrderController extends BaseController {
 			if (serviceOrderDto.getSubagencyId() <= 0)
 				return new Response<List<CommissionOrderDTO>>(1,
 						"SubagencyId(" + serviceOrderDto.getSubagencyId() + ")不存在!", null);
-			commissionOrderDto.setCode(code);
+			commissionOrderDto.setCode(UUID.randomUUID().toString());
 			commissionOrderDto.setServiceOrderId(serviceOrderId);
 			commissionOrderDto.setSettle(isSettle);
 			commissionOrderDto.setDepositUser(isDepositUser);
