@@ -58,7 +58,7 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 		try {
 			CommissionOrderDO commissionOrderDo = mapper.map(commissionOrderDto, CommissionOrderDO.class);
 			List<ServiceOrderReviewDO> serviceOrderReviews = serviceOrderReviewDao
-					.listServiceOrderReview(commissionOrderDo.getServiceOrderId(), null, null, null, null, "OVST");
+					.listServiceOrderReview(commissionOrderDo.getServiceOrderId(), null, null, null, null, null);
 			if (serviceOrderReviews == null || serviceOrderReviews.size() == 0) {
 				ServiceException se = new ServiceException("服务订单需要审核后才能创建佣金订单!");
 				se.setCode(ErrorCodeEnum.DATA_ERROR.code());
