@@ -10,14 +10,17 @@ import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.CommissionOrderDAO;
 import org.zhinanzhen.b.dao.SchoolDAO;
 import org.zhinanzhen.b.dao.ServiceOrderReviewDAO;
+import org.zhinanzhen.b.dao.SubagencyDAO;
 import org.zhinanzhen.b.dao.pojo.CommissionOrderDO;
 import org.zhinanzhen.b.dao.pojo.CommissionOrderListDO;
 import org.zhinanzhen.b.dao.pojo.SchoolDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderReviewDO;
+import org.zhinanzhen.b.dao.pojo.SubagencyDO;
 import org.zhinanzhen.b.service.CommissionOrderService;
 import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.b.service.pojo.SchoolDTO;
+import org.zhinanzhen.b.service.pojo.SubagencyDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.dao.UserDAO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
@@ -40,6 +43,9 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 
 	@Resource
 	private ServiceOrderReviewDAO serviceOrderReviewDao;
+	
+	@Resource
+	private SubagencyDAO subagencyDao;
 
 	@Override
 	@Transactional
@@ -105,15 +111,20 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 		for (CommissionOrderListDO commissionOrderListDo : commissionOrderListDoList) {
 			CommissionOrderListDTO commissionOrderListDto = mapper.map(commissionOrderListDo,
 					CommissionOrderListDTO.class);
-			if (commissionOrderListDo.getUserId() != null && commissionOrderListDo.getUserId() > 0) {
+			if (commissionOrderListDo.getUserId() > 0) {
 				UserDO userDo = userDao.getUserById(commissionOrderListDo.getUserId());
 				if (userDo != null)
 					commissionOrderListDto.setUser(mapper.map(userDo, UserDTO.class));
 			}
-			if (commissionOrderListDo.getSchoolId() != null && commissionOrderListDo.getSchoolId() > 0) {
+			if (commissionOrderListDo.getSchoolId() > 0) {
 				SchoolDO schoolDo = schoolDao.getSchoolById(commissionOrderListDo.getSchoolId());
 				if (schoolDo != null)
 					commissionOrderListDto.setSchool(mapper.map(schoolDo, SchoolDTO.class));
+			}
+			if (commissionOrderListDo.getSubagencyId() > 0) {
+				SubagencyDO subagencyDo = subagencyDao.getSubagencyById(commissionOrderListDo.getSubagencyId());
+				if (subagencyDo != null)
+					commissionOrderListDto.setSubagency(mapper.map(subagencyDo, SubagencyDTO.class));
 			}
 			commissionOrderListDtoList.add(commissionOrderListDto);
 		}

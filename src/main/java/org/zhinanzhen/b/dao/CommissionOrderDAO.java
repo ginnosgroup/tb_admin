@@ -21,6 +21,8 @@ public interface CommissionOrderDAO {
 			@Param("schoolId") Integer schoolId, @Param("isSettle") Boolean isSettle, @Param("state") String state,
 			@Param("offset") int offset, @Param("rows") int rows);
 
+	public List<CommissionOrderDO> listCommissionOrderByCode(String code);
+
 	int updateCommissionOrder(CommissionOrderDO commissionOrderDo);
 
 	CommissionOrderDO getCommissionOrderById(int id);

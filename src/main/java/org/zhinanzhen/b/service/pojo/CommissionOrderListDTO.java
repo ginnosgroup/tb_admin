@@ -6,14 +6,14 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class CommissionOrderListDTO extends CommissionOrderDTO {
-
+	
 	@Getter
 	@Setter
-	private Double amount;
-
+	private int subagencyId;
+	
 	@Getter
 	@Setter
-	private Double expectAmount;
+	private SubagencyDTO subagency;
 
 	@Getter
 	@Setter
