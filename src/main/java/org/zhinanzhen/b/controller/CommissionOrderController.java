@@ -102,7 +102,7 @@ public class CommissionOrderController extends BaseController {
 			if (subagencyDto == null)
 				return new Response<List<CommissionOrderDTO>>(1,
 						"Subagency(" + serviceOrderDto.getSubagencyId() + ")不存在!", null);
-			Double commission = commissionOrderDto.getAmount() * 1;
+			Double commission = commissionOrderDto.getAmount() * subagencyDto.getCommissionRate();
 			// GST
 			commissionOrderDto.setGst(commission / 11);
 			// Deduct GST
