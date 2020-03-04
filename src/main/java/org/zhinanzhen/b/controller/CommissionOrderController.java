@@ -93,6 +93,7 @@ public class CommissionOrderController extends BaseController {
 			commissionOrderDto.setReceiveTypeId(receiveTypeId);
 			commissionOrderDto.setReceiveDate(new Date(Long.parseLong(receiveDate)));
 			commissionOrderDto.setPerAmount(Double.parseDouble(perAmount));
+			commissionOrderDto.setAmount(Double.parseDouble(amount));
 			commissionOrderDto.setDiscount(Double.parseDouble(discount));
 			if (StringUtil.isNotEmpty(remarks))
 				commissionOrderDto.setRemarks(remarks);
