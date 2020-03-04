@@ -375,7 +375,7 @@ CREATE TABLE `b_commission_order` (
 `is_studying` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否就读',
 `installment_num` int NOT NULL COMMENT '本次分期付款次数',
   `installment` int NOT NULL COMMENT '分期付款次数',
-  `installment_due_date` int NOT NULL COMMENT '分期付款截止日期',
+  `installment_due_date` datetime NOT NULL COMMENT '分期付款截止日期',
   `start_date` datetime NOT NULL COMMENT '开课日期',
   `end_date` datetime NOT NULL COMMENT '结束日期',
   `tuition_fee` decimal(8,2) NOT NULL COMMENT '总学费',

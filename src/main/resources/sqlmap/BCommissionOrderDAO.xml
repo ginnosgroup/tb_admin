@@ -42,7 +42,7 @@
                 now(),
                 #{code},
                 #{serviceOrderId},
-                #{state},
+                'WAIT',
                 #{isSettle},
                 #{isDepositUser},
                 #{schoolId},
