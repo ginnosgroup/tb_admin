@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.controller;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -42,7 +43,7 @@ public class CommissionOrderController extends BaseController {
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<CommissionOrderDTO> add(@RequestParam(value = "code") String code,
+	public Response<List<CommissionOrderDTO>> add(@RequestParam(value = "code") String code,
 			@RequestParam(value = "serviceOrderId") Integer serviceOrderId,
 			@RequestParam(value = "isSettle") Boolean isSettle,
 			@RequestParam(value = "isDepositUser") Boolean isDepositUser,
@@ -50,7 +51,6 @@ public class CommissionOrderController extends BaseController {
 			@RequestParam(value = "userId") Integer userId, @RequestParam(value = "adviserId") Integer adviserId,
 			@RequestParam(value = "officialId") Integer officialId,
 			@RequestParam(value = "isStudying") Boolean isStudying,
-			@RequestParam(value = "installmentNum") Integer installmentNum,
 			@RequestParam(value = "installment") Integer installment,
 			@RequestParam(value = "installmentDueDate1") String installmentDueDate1,
 			@RequestParam(value = "installmentDueDate2", required = false) String installmentDueDate2,
@@ -58,15 +58,23 @@ public class CommissionOrderController extends BaseController {
 			@RequestParam(value = "startDate") String startDate, @RequestParam(value = "endDate") String endDate,
 			@RequestParam(value = "tuitionFee") String tuitionFee,
 			@RequestParam(value = "perTermTuitionFee") String perTermTuitionFee,
+			@RequestParam(value = "receiveTypeId") Integer receiveTypeId,
+			@RequestParam(value = "receiveDate") String receiveDate,
+			@RequestParam(value = "perAmount") String perAmount, @RequestParam(value = "amount") String amount,
+			@RequestParam(value = "discount") String discount,
 			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
 			HttpServletResponse response) {
 
 		try {
 			super.setPostHeader(response);
+			List<CommissionOrderDTO> commissionOrderDtoList = new ArrayList<>();
 			CommissionOrderDTO commissionOrderDto = new CommissionOrderDTO();
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(serviceOrderId);
 			if (serviceOrderDto == null)
-				return new Response<CommissionOrderDTO>(1, "服务订单(ID:" + serviceOrderId + ")不存在!", null);
+				return new Response<List<CommissionOrderDTO>>(1, "服务订单(ID:" + serviceOrderId + ")不存在!", null);
+			if (serviceOrderDto.getSubagencyId() <= 0)
+				return new Response<List<CommissionOrderDTO>>(1,
+						"SubagencyId(" + serviceOrderDto.getSubagencyId() + ")不存在!", null);
 			commissionOrderDto.setCode(code);
 			commissionOrderDto.setServiceOrderId(serviceOrderId);
 			commissionOrderDto.setSettle(isSettle);
@@ -77,29 +85,48 @@ public class CommissionOrderController extends BaseController {
 			commissionOrderDto.setAdviserId(adviserId);
 			commissionOrderDto.setOfficialId(officialId);
 			commissionOrderDto.setStudying(isStudying);
-			commissionOrderDto.setInstallmentNum(installmentNum);
 			commissionOrderDto.setInstallment(installment);
-//			commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate1)));
 			commissionOrderDto.setStartDate(new Date(Long.parseLong(startDate)));
 			commissionOrderDto.setEndDate(new Date(Long.parseLong(endDate)));
 			commissionOrderDto.setTuitionFee(Double.parseDouble(tuitionFee));
 			commissionOrderDto.setPerTermTuitionFee(Double.parseDouble(perTermTuitionFee));
+			commissionOrderDto.setReceiveTypeId(receiveTypeId);
+			commissionOrderDto.setReceiveDate(new Date(Long.parseLong(receiveDate)));
+			commissionOrderDto.setPerAmount(Double.parseDouble(perAmount));
+			commissionOrderDto.setDiscount(Double.parseDouble(discount));
 			if (StringUtil.isNotEmpty(remarks))
 				commissionOrderDto.setRemarks(remarks);
-			if (serviceOrderDto.getSubagencyId() <= 0)
-				return new Response<CommissionOrderDTO>(1, "SubagencyId(" + serviceOrderDto.getSubagencyId() + ")不存在!",
-						null);
+			// 佣金
 			SubagencyDTO subagencyDto = subagencyService.getSubagencyById(serviceOrderDto.getSubagencyId());
-			// commissionOrderDto.setGst(commissionOrderDto.getc.getCommission()
-			// / 11);
-			// commissionOrderDto.setDeductGst(brokerageSaDto.getCommission() -
-			// brokerageSaDto.getGst());
-			// commissionOrderDto.setBonus(brokerageSaDto.getDeductGst() * 0.1);
-			return commissionOrderService.addCommissionOrder(commissionOrderDto) > 0
-					? new Response<CommissionOrderDTO>(0, commissionOrderDto)
-					: new Response<CommissionOrderDTO>(1, "创建失败.", null);
+			if (subagencyDto == null)
+				return new Response<List<CommissionOrderDTO>>(1,
+						"Subagency(" + serviceOrderDto.getSubagencyId() + ")不存在!", null);
+			Double commission = commissionOrderDto.getAmount() * subagencyDto.getCommissionRate();
+			// GST
+			commissionOrderDto.setGst(commission / 11);
+			// Deduct GST
+			commissionOrderDto.setDeductGst(commission - commissionOrderDto.getGst());
+			// Bonus
+			commissionOrderDto.setBonus(commissionOrderDto.getDeductGst() * 0.1);
+			// 预收业绩
+			commissionOrderDto.setExpectAmount(commission * 1.1);
+
+			for (int installmentNum = 1; installmentNum <= installment; installmentNum++) {
+				commissionOrderDto.setInstallmentNum(installmentNum);
+				if (installmentNum == 1 && installmentDueDate1 != null)
+					commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate1)));
+				else if (installmentNum == 2 && installmentDueDate2 != null)
+					commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate2)));
+				else if (installmentNum == 3 && installmentDueDate3 != null)
+					commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate3)));
+				else
+					break;
+				if (commissionOrderService.addCommissionOrder(commissionOrderDto) > 0)
+					commissionOrderDtoList.add(commissionOrderDto);
+			}
+			return new Response<List<CommissionOrderDTO>>(0, commissionOrderDtoList);
 		} catch (ServiceException e) {
-			return new Response<CommissionOrderDTO>(e.getCode(), e.getMessage(), null);
+			return new Response<List<CommissionOrderDTO>>(e.getCode(), e.getMessage(), null);
 		}
 	}
 
