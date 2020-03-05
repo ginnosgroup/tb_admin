@@ -134,6 +134,7 @@
     
     <select id="listCommissionOrder" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderListDO">
         SELECT
+            co.id,
             co.gmt_create AS gmtCreate,
             co.code,
             co.service_order_id AS serviceOrderId,
