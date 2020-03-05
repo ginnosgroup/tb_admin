@@ -8,11 +8,13 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.CommissionOrderDAO;
+import org.zhinanzhen.b.dao.ReceiveTypeDAO;
 import org.zhinanzhen.b.dao.SchoolDAO;
 import org.zhinanzhen.b.dao.ServiceOrderReviewDAO;
 import org.zhinanzhen.b.dao.SubagencyDAO;
 import org.zhinanzhen.b.dao.pojo.CommissionOrderDO;
 import org.zhinanzhen.b.dao.pojo.CommissionOrderListDO;
+import org.zhinanzhen.b.dao.pojo.ReceiveTypeDO;
 import org.zhinanzhen.b.dao.pojo.SchoolDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderReviewDO;
 import org.zhinanzhen.b.dao.pojo.SubagencyDO;
@@ -21,8 +23,12 @@ import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.b.service.pojo.SchoolDTO;
 import org.zhinanzhen.b.service.pojo.SubagencyDTO;
+import org.zhinanzhen.b.service.pojo.ReceiveTypeDTO;
+import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
+import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
+import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
@@ -43,9 +49,15 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 
 	@Resource
 	private ServiceOrderReviewDAO serviceOrderReviewDao;
-	
+
 	@Resource
 	private SubagencyDAO subagencyDao;
+
+	@Resource
+	private AdviserDAO adviserDao;
+
+	@Resource
+	private ReceiveTypeDAO receiveTypeDao;
 
 	@Override
 	@Transactional
@@ -125,6 +137,17 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 				SubagencyDO subagencyDo = subagencyDao.getSubagencyById(commissionOrderListDo.getSubagencyId());
 				if (subagencyDo != null)
 					commissionOrderListDto.setSubagency(mapper.map(subagencyDo, SubagencyDTO.class));
+			}
+			if (commissionOrderListDo.getAdviserId() > 0) {
+				AdviserDO adviserDo = adviserDao.getAdviserById(commissionOrderListDo.getAdviserId());
+				if (adviserDo != null)
+					commissionOrderListDto.setAdviser(mapper.map(adviserDo, AdviserDTO.class));
+			}
+			if (commissionOrderListDo.getReceiveTypeId() > 0) {
+				ReceiveTypeDO receiveTypeDo = receiveTypeDao
+						.getReceiveTypeById(commissionOrderListDo.getReceiveTypeId());
+				if (receiveTypeDo != null)
+					commissionOrderListDto.setReceiveType(mapper.map(receiveTypeDo, ReceiveTypeDTO.class));
 			}
 			commissionOrderListDtoList.add(commissionOrderListDto);
 		}
