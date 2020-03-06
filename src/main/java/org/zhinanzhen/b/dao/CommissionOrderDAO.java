@@ -25,6 +25,6 @@ public interface CommissionOrderDAO {
 
 	int updateCommissionOrder(CommissionOrderDO commissionOrderDo);
 
-	CommissionOrderDO getCommissionOrderById(int id);
+	CommissionOrderListDO getCommissionOrderById(int id);
 
 }

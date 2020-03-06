@@ -126,54 +126,8 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
 			throw se;
 		}
-		for (CommissionOrderListDO commissionOrderListDo : commissionOrderListDoList) {
-			CommissionOrderListDTO commissionOrderListDto = mapper.map(commissionOrderListDo,
-					CommissionOrderListDTO.class);
-			if (commissionOrderListDo.getUserId() > 0) {
-				UserDO userDo = userDao.getUserById(commissionOrderListDo.getUserId());
-				if (userDo != null)
-					commissionOrderListDto.setUser(mapper.map(userDo, UserDTO.class));
-			}
-			if (commissionOrderListDo.getSchoolId() > 0) {
-				SchoolDO schoolDo = schoolDao.getSchoolById(commissionOrderListDo.getSchoolId());
-				if (schoolDo != null)
-					commissionOrderListDto.setSchool(mapper.map(schoolDo, SchoolDTO.class));
-			}
-			if (commissionOrderListDo.getSubagencyId() > 0) {
-				SubagencyDO subagencyDo = subagencyDao.getSubagencyById(commissionOrderListDo.getSubagencyId());
-				if (subagencyDo != null)
-					commissionOrderListDto.setSubagency(mapper.map(subagencyDo, SubagencyDTO.class));
-			}
-			if (commissionOrderListDo.getAdviserId() > 0) {
-				AdviserDO adviserDo = adviserDao.getAdviserById(commissionOrderListDo.getAdviserId());
-				if (adviserDo != null)
-					commissionOrderListDto.setAdviser(mapper.map(adviserDo, AdviserDTO.class));
-			}
-			if (commissionOrderListDo.getReceiveTypeId() > 0) {
-				ReceiveTypeDO receiveTypeDo = receiveTypeDao
-						.getReceiveTypeById(commissionOrderListDo.getReceiveTypeId());
-				if (receiveTypeDo != null)
-					commissionOrderListDto.setReceiveType(mapper.map(receiveTypeDo, ReceiveTypeDTO.class));
-			}
-			if (commissionOrderListDo.getServiceId() > 0) {
-				ServiceDO serviceDo = serviceDao.getServiceById(commissionOrderListDo.getServiceId());
-				if (serviceDo != null)
-					commissionOrderListDto.setService(mapper.map(serviceDo, ServiceDTO.class));
-			}
-			double totalPerAmount = 0.00;
-			double totalAmount = 0.00;
-			List<CommissionOrderDO> list = commissionOrderDao
-					.listCommissionOrderByCode(commissionOrderListDo.getCode());
-			if (list != null) {
-				for (CommissionOrderDO commissionOrderDo : list) {
-					totalPerAmount += commissionOrderDo.getPerAmount();
-					totalAmount += commissionOrderDo.getAmount();
-				}
-				commissionOrderListDto.setTotalPerAmount(totalPerAmount);
-				commissionOrderListDto.setTotalAmount(totalAmount);
-			}
-			commissionOrderListDtoList.add(commissionOrderListDto);
-		}
+		commissionOrderListDoList.forEach(commissionOrderListDo -> commissionOrderListDtoList
+				.add(buildCommissionOrderListDto(commissionOrderListDo)));
 		return commissionOrderListDtoList;
 	}
 
@@ -195,24 +149,70 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 	}
 
 	@Override
-	public CommissionOrderDTO getCommissionOrderById(int id) throws ServiceException {
+	public CommissionOrderListDTO getCommissionOrderById(int id) throws ServiceException {
 		if (id <= 0) {
 			ServiceException se = new ServiceException("id error !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
-		CommissionOrderDTO commissionOrderDto = null;
+		CommissionOrderListDTO commissionOrderListDto = null;
 		try {
-			CommissionOrderDO commissionOrderDo = commissionOrderDao.getCommissionOrderById(id);
-			if (commissionOrderDo == null)
+			CommissionOrderListDO commissionOrderListDo = commissionOrderDao.getCommissionOrderById(id);
+			if (commissionOrderListDo == null)
 				return null;
-			commissionOrderDto = mapper.map(commissionOrderDo, CommissionOrderDTO.class);
+			commissionOrderListDto = buildCommissionOrderListDto(commissionOrderListDo);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
 		}
-		return commissionOrderDto;
+		return commissionOrderListDto;
+	}
+
+	private CommissionOrderListDTO buildCommissionOrderListDto(CommissionOrderListDO commissionOrderListDo) {
+		CommissionOrderListDTO commissionOrderListDto = mapper.map(commissionOrderListDo, CommissionOrderListDTO.class);
+		if (commissionOrderListDo.getUserId() > 0) {
+			UserDO userDo = userDao.getUserById(commissionOrderListDo.getUserId());
+			if (userDo != null)
+				commissionOrderListDto.setUser(mapper.map(userDo, UserDTO.class));
+		}
+		if (commissionOrderListDo.getSchoolId() > 0) {
+			SchoolDO schoolDo = schoolDao.getSchoolById(commissionOrderListDo.getSchoolId());
+			if (schoolDo != null)
+				commissionOrderListDto.setSchool(mapper.map(schoolDo, SchoolDTO.class));
+		}
+		if (commissionOrderListDo.getSubagencyId() > 0) {
+			SubagencyDO subagencyDo = subagencyDao.getSubagencyById(commissionOrderListDo.getSubagencyId());
+			if (subagencyDo != null)
+				commissionOrderListDto.setSubagency(mapper.map(subagencyDo, SubagencyDTO.class));
+		}
+		if (commissionOrderListDo.getAdviserId() > 0) {
+			AdviserDO adviserDo = adviserDao.getAdviserById(commissionOrderListDo.getAdviserId());
+			if (adviserDo != null)
+				commissionOrderListDto.setAdviser(mapper.map(adviserDo, AdviserDTO.class));
+		}
+		if (commissionOrderListDo.getReceiveTypeId() > 0) {
+			ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(commissionOrderListDo.getReceiveTypeId());
+			if (receiveTypeDo != null)
+				commissionOrderListDto.setReceiveType(mapper.map(receiveTypeDo, ReceiveTypeDTO.class));
+		}
+		if (commissionOrderListDo.getServiceId() > 0) {
+			ServiceDO serviceDo = serviceDao.getServiceById(commissionOrderListDo.getServiceId());
+			if (serviceDo != null)
+				commissionOrderListDto.setService(mapper.map(serviceDo, ServiceDTO.class));
+		}
+		double totalPerAmount = 0.00;
+		double totalAmount = 0.00;
+		List<CommissionOrderDO> list = commissionOrderDao.listCommissionOrderByCode(commissionOrderListDo.getCode());
+		if (list != null) {
+			for (CommissionOrderDO commissionOrderDo : list) {
+				totalPerAmount += commissionOrderDo.getPerAmount();
+				totalAmount += commissionOrderDo.getAmount();
+			}
+			commissionOrderListDto.setTotalPerAmount(totalPerAmount);
+			commissionOrderListDto.setTotalAmount(totalAmount);
+		}
+		return commissionOrderListDto;
 	}
 
 }
