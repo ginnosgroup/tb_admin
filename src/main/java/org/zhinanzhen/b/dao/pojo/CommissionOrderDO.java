@@ -64,6 +64,8 @@ public class CommissionOrderDO {
 	private double deductGst;
 
 	private double bonus;
+	
+	private Date bonusDate;
 
 	private String remarks;
 

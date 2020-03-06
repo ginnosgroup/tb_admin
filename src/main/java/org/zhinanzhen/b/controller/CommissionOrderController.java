@@ -62,6 +62,7 @@ public class CommissionOrderController extends BaseController {
 			@RequestParam(value = "receiveDate") String receiveDate,
 			@RequestParam(value = "perAmount") String perAmount, @RequestParam(value = "amount") String amount,
 			@RequestParam(value = "discount") String discount,
+			@RequestParam(value = "bonusDate", required = false) String bonusDate,
 			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
 			HttpServletResponse response) {
 
@@ -95,6 +96,8 @@ public class CommissionOrderController extends BaseController {
 			commissionOrderDto.setPerAmount(Double.parseDouble(perAmount));
 			commissionOrderDto.setAmount(Double.parseDouble(amount));
 			commissionOrderDto.setDiscount(Double.parseDouble(discount));
+			if (StringUtil.isNotEmpty(bonusDate))
+				commissionOrderDto.setBonusDate(new Date(Long.parseLong(bonusDate)));
 			if (StringUtil.isNotEmpty(remarks))
 				commissionOrderDto.setRemarks(remarks);
 			// 佣金

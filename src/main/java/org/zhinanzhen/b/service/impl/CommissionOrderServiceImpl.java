@@ -149,6 +149,18 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 				if (receiveTypeDo != null)
 					commissionOrderListDto.setReceiveType(mapper.map(receiveTypeDo, ReceiveTypeDTO.class));
 			}
+			double totalPerAmount = 0.00;
+			double totalAmount = 0.00;
+			List<CommissionOrderDO> list = commissionOrderDao
+					.listCommissionOrderByCode(commissionOrderListDo.getCode());
+			if (list != null) {
+				for (CommissionOrderDO commissionOrderDo : list) {
+					totalPerAmount += commissionOrderDo.getPerAmount();
+					totalAmount += commissionOrderDo.getAmount();
+				}
+				commissionOrderListDto.setTotalPerAmount(totalPerAmount);
+				commissionOrderListDto.setTotalAmount(totalAmount);
+			}
 			commissionOrderListDtoList.add(commissionOrderListDto);
 		}
 		return commissionOrderListDtoList;
