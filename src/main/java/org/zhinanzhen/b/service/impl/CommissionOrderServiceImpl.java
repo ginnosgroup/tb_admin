@@ -73,15 +73,13 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
-		if (commissionOrderDto.getServiceOrderId() <= 0) {
-			List<CommissionOrderDO> commissionOrderList = commissionOrderDao
-					.listCommissionOrderByServiceOrderId(commissionOrderDto.getServiceOrderId());
-			if (commissionOrderList != null && commissionOrderList.size() > 0) {
-				ServiceException se = new ServiceException(
-						"该服务订单已经创建过佣金订单!(ServiceOrderId:" + commissionOrderDto.getServiceOrderId() + ")");
-				se.setCode(ErrorCodeEnum.DATA_ERROR.code());
-				throw se;
-			}
+		List<CommissionOrderDO> commissionOrderList = commissionOrderDao
+				.listCommissionOrderByServiceOrderId(commissionOrderDto.getServiceOrderId());
+		if (commissionOrderList != null && commissionOrderList.size() > 0) {
+			ServiceException se = new ServiceException(
+					"该服务订单已经创建过佣金订单!(ServiceOrderId:" + commissionOrderDto.getServiceOrderId() + ")");
+			se.setCode(ErrorCodeEnum.DATA_ERROR.code());
+			throw se;
 		}
 		try {
 			CommissionOrderDO commissionOrderDo = mapper.map(commissionOrderDto, CommissionOrderDO.class);
