@@ -40,6 +40,14 @@ public class CommissionOrderListDTO extends CommissionOrderDTO {
 
 	@Getter
 	@Setter
+	private int serviceId;
+
+	@Getter
+	@Setter
+	private ServiceDTO service;
+
+	@Getter
+	@Setter
 	private double totalPerAmount;
 
 	@Getter

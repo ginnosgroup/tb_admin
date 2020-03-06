@@ -22,9 +22,11 @@ public interface CommissionOrderDAO {
 			@Param("offset") int offset, @Param("rows") int rows);
 
 	public List<CommissionOrderDO> listCommissionOrderByCode(String code);
+	
+	public List<CommissionOrderDO> listCommissionOrderByServiceOrderId(Integer serviceOrderId);
 
 	int updateCommissionOrder(CommissionOrderDO commissionOrderDo);
 
-	CommissionOrderDO getCommissionOrderById(int id);
+	CommissionOrderListDO getCommissionOrderById(int id);
 
 }

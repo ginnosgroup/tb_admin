@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class CommissionOrderListDO extends CommissionOrderDO {
-	
+
 	@Getter
 	@Setter
 	private int serviceOrderId;
@@ -18,5 +18,9 @@ public class CommissionOrderListDO extends CommissionOrderDO {
 	@Getter
 	@Setter
 	private int subagencyId;
+
+	@Getter
+	@Setter
+	private int serviceId;
 
 }
