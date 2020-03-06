@@ -63,7 +63,7 @@ public class ServiceOrderController extends BaseController {
 	}
 
 	public enum ReviewKjStateEnum {
-		PENDING, WAIT, REVIEW, FINISH, COMPLETE;
+		PENDING, WAIT, REVIEW, FINISH, COMPLETE, CLOSE;
 		public static ReviewKjStateEnum get(String name) {
 			for (ReviewKjStateEnum e : ReviewKjStateEnum.values())
 				if (e.toString().equals(name))

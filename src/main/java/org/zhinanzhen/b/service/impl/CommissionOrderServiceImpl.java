@@ -10,12 +10,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.CommissionOrderDAO;
 import org.zhinanzhen.b.dao.ReceiveTypeDAO;
 import org.zhinanzhen.b.dao.SchoolDAO;
+import org.zhinanzhen.b.dao.ServiceDAO;
 import org.zhinanzhen.b.dao.ServiceOrderReviewDAO;
 import org.zhinanzhen.b.dao.SubagencyDAO;
 import org.zhinanzhen.b.dao.pojo.CommissionOrderDO;
 import org.zhinanzhen.b.dao.pojo.CommissionOrderListDO;
 import org.zhinanzhen.b.dao.pojo.ReceiveTypeDO;
 import org.zhinanzhen.b.dao.pojo.SchoolDO;
+import org.zhinanzhen.b.dao.pojo.ServiceDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderReviewDO;
 import org.zhinanzhen.b.dao.pojo.SubagencyDO;
 import org.zhinanzhen.b.service.CommissionOrderService;
@@ -24,6 +26,7 @@ import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.b.service.pojo.SchoolDTO;
 import org.zhinanzhen.b.service.pojo.SubagencyDTO;
 import org.zhinanzhen.b.service.pojo.ReceiveTypeDTO;
+import org.zhinanzhen.b.service.pojo.ServiceDTO;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
@@ -58,6 +61,9 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 
 	@Resource
 	private ReceiveTypeDAO receiveTypeDao;
+
+	@Resource
+	private ServiceDAO serviceDao;
 
 	@Override
 	@Transactional
@@ -148,6 +154,11 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 						.getReceiveTypeById(commissionOrderListDo.getReceiveTypeId());
 				if (receiveTypeDo != null)
 					commissionOrderListDto.setReceiveType(mapper.map(receiveTypeDo, ReceiveTypeDTO.class));
+			}
+			if (commissionOrderListDo.getServiceId() > 0) {
+				ServiceDO serviceDo = serviceDao.getServiceById(commissionOrderListDo.getServiceId());
+				if (serviceDo != null)
+					commissionOrderListDto.setService(mapper.map(serviceDo, ServiceDTO.class));
 			}
 			double totalPerAmount = 0.00;
 			double totalAmount = 0.00;

@@ -170,7 +170,8 @@
             co.is_close AS isClose,
             so.id AS serviceOrderId,
             so.gmt_create AS signingDate,
-            so.subagency_id AS subagencyId
+            so.subagency_id AS subagencyId,
+            so.service_id AS serviceId
         FROM b_commission_order co, b_service_order so, tb_user u
         WHERE co.service_order_id = so.id AND co.user_id = u.id
         <if test='maraId != null and maraId != ""'>
