@@ -334,6 +334,7 @@ CREATE TABLE `b_service_order` (
   `gst` decimal(8,2) DEFAULT NULL COMMENT 'GST',
   `deduct_gst` decimal(8,2) DEFAULT NULL COMMENT 'Deduct GST',
   `bonus` decimal(8,2) DEFAULT NULL COMMENT '月奖金',
+`bonus_date` datetime DEFAULT NULL COMMENT '月奖金支付时间',
   `user_id` int NOT NULL COMMENT '所属顾客编号 (对应tb_user.id)',
   `mara_id` int DEFAULT NULL COMMENT '所属MARA编号 (对应b_mara.id,留学服务MARA为空)',
   `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',

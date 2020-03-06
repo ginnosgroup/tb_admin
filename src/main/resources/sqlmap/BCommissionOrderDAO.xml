@@ -35,6 +35,7 @@
                 gst,
                 deduct_gst,
                 bonus,
+                bonus_date,
                 remarks,
                 is_close)
             VALUES (
@@ -42,7 +43,7 @@
                 now(),
                 #{code},
                 #{serviceOrderId},
-                'WAIT',
+                'PENDING',
                 #{isSettle},
                 #{isDepositUser},
                 #{schoolId},
@@ -67,6 +68,7 @@
                 #{gst},
                 #{deductGst},
                 #{bonus},
+                #{bonusDate},
                 #{remarks},
                 0);
     </insert>
@@ -163,8 +165,11 @@
             co.gst,
             co.deduct_gst AS deductGst,
             co.bonus,
+            co.bonus_date AS bonusDate,
             co.remarks,
             co.is_close AS isClose,
+            so.id AS serviceOrderId,
+            so.gmt_create AS signingDate,
             so.subagency_id AS subagencyId
         FROM b_commission_order co, b_service_order so, tb_user u
         WHERE co.service_order_id = so.id AND co.user_id = u.id
@@ -229,6 +234,7 @@
             gst,
             deduct_gst AS deductGst,
             bonus,
+            bonus_date AS bonusDate,
             remarks,
             is_close AS isClose
         FROM b_commission_order WHERE code = #{code};
@@ -264,6 +270,7 @@
             gst,
             deduct_gst AS deductGst,
             bonus,
+            bonus_date AS bonusDate,
             remarks,
             is_close AS isClose
         FROM b_commission_order WHERE id = #{id, jdbcType=INTEGER};

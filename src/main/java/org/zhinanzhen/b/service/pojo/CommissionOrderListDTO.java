@@ -1,5 +1,7 @@
 package org.zhinanzhen.b.service.pojo;
 
+import java.util.Date;
+
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 
@@ -7,6 +9,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class CommissionOrderListDTO extends CommissionOrderDTO {
+
+	@Getter
+	@Setter
+	private Date signingDate;
 
 	@Getter
 	@Setter
@@ -31,5 +37,13 @@ public class CommissionOrderListDTO extends CommissionOrderDTO {
 	@Getter
 	@Setter
 	private ReceiveTypeDTO receiveType;
+
+	@Getter
+	@Setter
+	private double totalPerAmount;
+
+	@Getter
+	@Setter
+	private double totalAmount;
 
 }
