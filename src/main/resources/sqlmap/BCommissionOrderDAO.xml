@@ -201,7 +201,7 @@
         <if test='state != null and state != ""'>
             AND co.state = #{state}
         </if>
-        ORDER BY co.gmt_create DESC
+        ORDER BY co.gmt_create, co.installment_num ASC
         LIMIT #{offset}, #{rows};
     </select>
     
