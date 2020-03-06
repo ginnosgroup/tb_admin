@@ -138,8 +138,15 @@ public class CommissionOrderController extends BaseController {
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<CommissionOrderDTO> update(@RequestParam(value = "id") int id,
-			@RequestParam(value = "serviceOrderId", required = false) String serviceOrderId,
-			@RequestParam(value = "installment", required = false) String installment,
+			@RequestParam(value = "state", required = false) String state,
+			@RequestParam(value = "isSettle", required = false) Boolean isSettle,
+			@RequestParam(value = "isDepositUser", required = false) Boolean isDepositUser,
+			@RequestParam(value = "schoolId", required = false) Integer schoolId,
+			@RequestParam(value = "studentCode", required = false) String studentCode,
+			@RequestParam(value = "adviserId", required = false) Integer adviserId,
+			@RequestParam(value = "officialId", required = false) Integer officialId,
+			@RequestParam(value = "isStudying", required = false) Boolean isStudying,
+			@RequestParam(value = "installmentDueDate", required = false) String installmentDueDate,
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "tuitionFee", required = false) String tuitionFee,
@@ -150,13 +157,27 @@ public class CommissionOrderController extends BaseController {
 			super.setPostHeader(response);
 			CommissionOrderDTO commissionOrderDto = new CommissionOrderDTO();
 			commissionOrderDto.setId(id);
-			if (StringUtil.isNotEmpty(serviceOrderId))
-				commissionOrderDto.setServiceOrderId(Integer.parseInt(serviceOrderId));
-			if (StringUtil.isNotEmpty(installment))
-				commissionOrderDto.setInstallment(Integer.parseInt(installment));
-			if (StringUtil.isNotEmpty(startDate))
+			if (StringUtil.isNotEmpty(state))
+				commissionOrderDto.setState(state);
+			if (isSettle != null)
+				commissionOrderDto.setSettle(isSettle);
+			if (isDepositUser != null)
+				commissionOrderDto.setDepositUser(isDepositUser);
+			if (schoolId != null)
+				commissionOrderDto.setSchoolId(schoolId);
+			if (StringUtil.isNotEmpty(studentCode))
+				commissionOrderDto.setStudentCode(studentCode);
+			if (adviserId != null)
+				commissionOrderDto.setAdviserId(adviserId);
+			if (officialId != null)
+				commissionOrderDto.setOfficialId(officialId);
+			if (isStudying != null)
+				commissionOrderDto.setStudying(isStudying);
+			if (installmentDueDate != null)
+				commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate)));
+			if (startDate != null)
 				commissionOrderDto.setStartDate(new Date(Long.parseLong(startDate)));
-			if (StringUtil.isNotEmpty(endDate))
+			if (endDate != null)
 				commissionOrderDto.setEndDate(new Date(Long.parseLong(endDate)));
 			if (StringUtil.isNotEmpty(tuitionFee))
 				commissionOrderDto.setTuitionFee(Double.parseDouble(tuitionFee));

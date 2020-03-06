@@ -76,11 +76,32 @@
     <update id="updateCommissionOrder" parameterType="org.zhinanzhen.b.dao.pojo.CommissionOrderDO">
         UPDATE b_commission_order 
         SET gmt_modify = now()
-        <if test='serviceOrderId != null'>
-            , service_order_id = #{serviceOrderId}
+        <if test='state != null and state != ""'>
+            , state = #{state}
         </if>
-        <if test='installment != null and installment != ""'>
-            , installment = #{installment}
+        <if test='isSettle != null'>
+            , is_settle = #{isSettle}
+        </if>
+        <if test='isDepositUser != null'>
+            , is_deposit_user = #{isDepositUser}
+        </if>
+        <if test='schoolId != null'>
+            , school_id = #{schoolId}
+        </if>
+        <if test='studentCode != null and studentCode != ""'>
+            , student_code = #{studentCode}
+        </if>
+        <if test='adviserId != null'>
+            , adviser_id = #{adviserId}
+        </if>
+        <if test='officialId != null'>
+            , official_id = #{officialId}
+        </if>
+        <if test='isStudying != null'>
+            , is_studying = #{isStudying}
+        </if>
+        <if test='installmentDueDate != null'>
+            , installment_due_date = #{installmentDueDate}
         </if>
         <if test='startDate != null'>
             , start_date = #{startDate}
