@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.zhinanzhen.b.controller.ServiceOrderController.ReviewKjStateEnum;
 import org.zhinanzhen.b.service.CommissionOrderService;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.SubagencyService;
@@ -180,6 +181,29 @@ public class CommissionOrderController extends BaseController {
 				commissionOrderDto.setTuitionFee(Double.parseDouble(tuitionFee));
 			if (StringUtil.isNotEmpty(perTermTuitionFee))
 				commissionOrderDto.setPerTermTuitionFee(Double.parseDouble(perTermTuitionFee));
+			if (StringUtil.isNotEmpty(remarks))
+				commissionOrderDto.setRemarks(remarks);
+			return commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0
+					? new Response<CommissionOrderDTO>(0, commissionOrderDto)
+					: new Response<CommissionOrderDTO>(1, "修改失败.", null);
+		} catch (ServiceException e) {
+			return new Response<CommissionOrderDTO>(e.getCode(), e.getMessage(), null);
+		}
+	}
+	
+	@RequestMapping(value = "/close", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<CommissionOrderDTO> close(@RequestParam(value = "id") int id,
+			@RequestParam(value = "isStudying", required = false) Boolean isStudying,
+			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			CommissionOrderDTO commissionOrderDto = new CommissionOrderDTO();
+			commissionOrderDto.setId(id);
+			commissionOrderDto.setState(ReviewKjStateEnum.CLOSE.toString());
+			if (isStudying != null)
+				commissionOrderDto.setStudying(isStudying);
 			if (StringUtil.isNotEmpty(remarks))
 				commissionOrderDto.setRemarks(remarks);
 			return commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0
