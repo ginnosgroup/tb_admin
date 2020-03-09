@@ -27,7 +27,7 @@ public class KnowledgeServiceImpl extends BaseService implements KnowledgeServic
 
 	@Resource
 	private KnowledgeMenuDAO knowledgeMenuDao;
-	
+
 	@Resource
 	private AdminUserDAO adminUserDao;
 
@@ -144,8 +144,10 @@ public class KnowledgeServiceImpl extends BaseService implements KnowledgeServic
 				knowledgeDto.setKnowledgeMenuName(knowledgeMenuDo.getName());
 			if (knowledgeMenuDo != null && knowledgeMenuDo.getParentId() > 0) {
 				KnowledgeMenuDO knowledgeMenuDo2 = knowledgeMenuDao.getKnowledgeMenu(knowledgeMenuDo.getParentId());
-				if (knowledgeMenuDo2 != null)
+				if (knowledgeMenuDo2 != null) {
+					knowledgeDto.setKnowledgeMenuId2(knowledgeMenuDo2.getId());
 					knowledgeDto.setKnowledgeMenuName2(knowledgeMenuDo2.getName());
+				}
 			}
 			return knowledgeDto;
 		} catch (Exception e) {

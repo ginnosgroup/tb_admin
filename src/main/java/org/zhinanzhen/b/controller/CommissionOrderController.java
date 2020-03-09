@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.controller;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -62,7 +63,6 @@ public class CommissionOrderController extends BaseController {
 			@RequestParam(value = "receiveTypeId") Integer receiveTypeId,
 			@RequestParam(value = "receiveDate") String receiveDate,
 			@RequestParam(value = "perAmount") String perAmount, @RequestParam(value = "amount") String amount,
-			@RequestParam(value = "discount") String discount,
 			@RequestParam(value = "bonusDate", required = false) String bonusDate,
 			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
 			HttpServletResponse response) {
@@ -70,13 +70,13 @@ public class CommissionOrderController extends BaseController {
 		try {
 			super.setPostHeader(response);
 			List<CommissionOrderDTO> commissionOrderDtoList = new ArrayList<>();
-			CommissionOrderDTO commissionOrderDto = new CommissionOrderDTO();
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(serviceOrderId);
 			if (serviceOrderDto == null)
 				return new Response<List<CommissionOrderDTO>>(1, "服务订单(ID:" + serviceOrderId + ")不存在!", null);
 			if (serviceOrderDto.getSubagencyId() <= 0)
 				return new Response<List<CommissionOrderDTO>>(1,
 						"SubagencyId(" + serviceOrderDto.getSubagencyId() + ")不存在!", null);
+			CommissionOrderDTO commissionOrderDto = new CommissionOrderDTO();
 			commissionOrderDto.setCode(UUID.randomUUID().toString());
 			commissionOrderDto.setServiceOrderId(serviceOrderId);
 			commissionOrderDto.setSettle(isSettle);
@@ -96,7 +96,10 @@ public class CommissionOrderController extends BaseController {
 			commissionOrderDto.setReceiveDate(new Date(Long.parseLong(receiveDate)));
 			commissionOrderDto.setPerAmount(Double.parseDouble(perAmount));
 			commissionOrderDto.setAmount(Double.parseDouble(amount));
-			commissionOrderDto.setDiscount(Double.parseDouble(discount));
+			if (commissionOrderDto.getPerAmount() < commissionOrderDto.getAmount())
+				return new Response<List<CommissionOrderDTO>>(1, "本次应收款(" + commissionOrderDto.getPerAmount()
+						+ ")不能小于本次已收款(" + commissionOrderDto.getAmount() + ")!", null);
+			commissionOrderDto.setDiscount(commissionOrderDto.getPerAmount() - commissionOrderDto.getAmount());
 			if (StringUtil.isNotEmpty(bonusDate))
 				commissionOrderDto.setBonusDate(new Date(Long.parseLong(bonusDate)));
 			if (StringUtil.isNotEmpty(remarks))
@@ -108,13 +111,17 @@ public class CommissionOrderController extends BaseController {
 						"Subagency(" + serviceOrderDto.getSubagencyId() + ")不存在!", null);
 			Double commission = commissionOrderDto.getAmount() * subagencyDto.getCommissionRate();
 			// GST
-			commissionOrderDto.setGst(commission / 11);
+			commissionOrderDto
+					.setGst(new BigDecimal(commission / 11).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			// Deduct GST
-			commissionOrderDto.setDeductGst(commission - commissionOrderDto.getGst());
+			commissionOrderDto.setDeductGst(new BigDecimal(commission - commissionOrderDto.getGst())
+					.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			// Bonus
-			commissionOrderDto.setBonus(commissionOrderDto.getDeductGst() * 0.1);
+			commissionOrderDto.setBonus(new BigDecimal(commissionOrderDto.getDeductGst() * 0.1)
+					.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			// 预收业绩
-			commissionOrderDto.setExpectAmount(commission * 1.1);
+			commissionOrderDto.setExpectAmount(
+					new BigDecimal(commission * 1.1).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 
 			for (int installmentNum = 1; installmentNum <= installment; installmentNum++) {
 				commissionOrderDto.setInstallmentNum(installmentNum);
@@ -151,10 +158,25 @@ public class CommissionOrderController extends BaseController {
 			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "tuitionFee", required = false) String tuitionFee,
 			@RequestParam(value = "perTermTuitionFee", required = false) String perTermTuitionFee,
+			@RequestParam(value = "receiveTypeId", required = false) Integer receiveTypeId,
+			@RequestParam(value = "receiveDate", required = false) String receiveDate,
+			@RequestParam(value = "perAmount", required = false) String perAmount,
+			@RequestParam(value = "amount", required = false) String amount,
 			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
+			CommissionOrderListDTO commissionOrderListDto = commissionOrderService.getCommissionOrderById(id);
+			if (commissionOrderListDto == null)
+				return new Response<CommissionOrderDTO>(1, "留学佣金订单订单(ID:" + id + ")不存在!", null);
+			ServiceOrderDTO serviceOrderDto = serviceOrderService
+					.getServiceOrderById(commissionOrderListDto.getServiceOrderId());
+			if (serviceOrderDto == null)
+				return new Response<CommissionOrderDTO>(1,
+						"服务订单(ID:" + commissionOrderListDto.getServiceOrderId() + ")不存在!", null);
+			if (serviceOrderDto.getSubagencyId() <= 0)
+				return new Response<CommissionOrderDTO>(1, "SubagencyId(" + serviceOrderDto.getSubagencyId() + ")不存在!",
+						null);
 			CommissionOrderDTO commissionOrderDto = new CommissionOrderDTO();
 			commissionOrderDto.setId(id);
 			if (isSettle != null)
@@ -181,8 +203,41 @@ public class CommissionOrderController extends BaseController {
 				commissionOrderDto.setTuitionFee(Double.parseDouble(tuitionFee));
 			if (StringUtil.isNotEmpty(perTermTuitionFee))
 				commissionOrderDto.setPerTermTuitionFee(Double.parseDouble(perTermTuitionFee));
+			if (receiveTypeId != null)
+				commissionOrderDto.setReceiveTypeId(receiveTypeId);
+			if (StringUtil.isNotEmpty(receiveDate))
+				commissionOrderDto.setReceiveDate(new Date(Long.parseLong(receiveDate)));
+			if (StringUtil.isNotEmpty(perAmount))
+				commissionOrderDto.setPerAmount(Double.parseDouble(perAmount));
+			if (StringUtil.isNotEmpty(amount))
+				commissionOrderDto.setAmount(Double.parseDouble(amount));
+			double _perAmount = commissionOrderListDto.getPerAmount();
+			if (commissionOrderDto.getPerAmount() > 0)
+				_perAmount = commissionOrderDto.getPerAmount();
+			if (_perAmount < commissionOrderDto.getAmount())
+				return new Response<CommissionOrderDTO>(1,
+						"本次应收款(" + _perAmount + ")不能小于本次已收款(" + commissionOrderDto.getAmount() + ")!", null);
+			commissionOrderDto.setDiscount(_perAmount - commissionOrderDto.getAmount());
 			if (StringUtil.isNotEmpty(remarks))
 				commissionOrderDto.setRemarks(remarks);
+			// 佣金
+			SubagencyDTO subagencyDto = subagencyService.getSubagencyById(serviceOrderDto.getSubagencyId());
+			if (subagencyDto == null)
+				return new Response<CommissionOrderDTO>(1, "Subagency(" + serviceOrderDto.getSubagencyId() + ")不存在!",
+						null);
+			Double commission = commissionOrderDto.getAmount() * subagencyDto.getCommissionRate();
+			// GST
+			commissionOrderDto
+					.setGst(new BigDecimal(commission / 11).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			// Deduct GST
+			commissionOrderDto.setDeductGst(new BigDecimal(commission - commissionOrderDto.getGst())
+					.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			// Bonus
+			commissionOrderDto.setBonus(new BigDecimal(commissionOrderDto.getDeductGst() * 0.1)
+					.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			// 预收业绩
+			commissionOrderDto.setExpectAmount(
+					new BigDecimal(commission * 1.1).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			return commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0
 					? new Response<CommissionOrderDTO>(0, commissionOrderDto)
 					: new Response<CommissionOrderDTO>(1, "修改失败.", null);
@@ -190,7 +245,7 @@ public class CommissionOrderController extends BaseController {
 			return new Response<CommissionOrderDTO>(e.getCode(), e.getMessage(), null);
 		}
 	}
-	
+
 	@RequestMapping(value = "/close", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<CommissionOrderDTO> close(@RequestParam(value = "id") int id,
