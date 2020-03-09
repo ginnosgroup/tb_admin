@@ -115,6 +115,33 @@
         <if test='perTermTuitionFee != null and perTermTuitionFee != ""'>
             , per_term_tuition_fee = #{perTermTuitionFee}
         </if>
+        <if test='receiveTypeId != null and receiveTypeId > 0'>
+            , receive_type_id = #{receiveTypeId}
+        </if>
+        <if test='receiveDate != null'>
+            , receive_date = #{receiveDate}
+        </if>
+        <if test='perAmount != null and perAmount != ""'>
+            , per_amount = #{perAmount}
+        </if>
+        <if test='amount != null and amount != ""'>
+            , amount = #{amount}
+        </if>
+        <if test='expectAmount != null and expectAmount != ""'>
+            , expect_amount = #{expectAmount}
+        </if>
+        <if test='discount != null and discount != ""'>
+            , discount = #{discount}
+        </if>
+        <if test='gst != null and gst != ""'>
+            , gst = #{gst}
+        </if>
+        <if test='deductGst != null and deductGst != ""'>
+            , deduct_gst = #{deductGst}
+        </if>
+        <if test='bonus != null and bonus != ""'>
+            , bonus = #{bonus}
+        </if>
         <if test='remarks != null and remarks != ""'>
             , remarks = #{remarks}
         </if>
