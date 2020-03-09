@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.controller;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -110,13 +111,17 @@ public class CommissionOrderController extends BaseController {
 						"Subagency(" + serviceOrderDto.getSubagencyId() + ")不存在!", null);
 			Double commission = commissionOrderDto.getAmount() * subagencyDto.getCommissionRate();
 			// GST
-			commissionOrderDto.setGst(commission / 11);
+			commissionOrderDto
+					.setGst(new BigDecimal(commission / 11).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			// Deduct GST
-			commissionOrderDto.setDeductGst(commission - commissionOrderDto.getGst());
+			commissionOrderDto.setDeductGst(new BigDecimal(commission - commissionOrderDto.getGst())
+					.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			// Bonus
-			commissionOrderDto.setBonus(commissionOrderDto.getDeductGst() * 0.1);
+			commissionOrderDto.setBonus(new BigDecimal(commissionOrderDto.getDeductGst() * 0.1)
+					.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			// 预收业绩
-			commissionOrderDto.setExpectAmount(commission * 1.1);
+			commissionOrderDto.setExpectAmount(
+					new BigDecimal(commission * 1.1).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 
 			for (int installmentNum = 1; installmentNum <= installment; installmentNum++) {
 				commissionOrderDto.setInstallmentNum(installmentNum);
@@ -206,10 +211,13 @@ public class CommissionOrderController extends BaseController {
 				commissionOrderDto.setPerAmount(Double.parseDouble(perAmount));
 			if (StringUtil.isNotEmpty(amount))
 				commissionOrderDto.setAmount(Double.parseDouble(amount));
-			if (commissionOrderDto.getPerAmount() < commissionOrderDto.getAmount())
-				return new Response<CommissionOrderDTO>(1, "本次应收款(" + commissionOrderDto.getPerAmount() + ")不能小于本次已收款("
-						+ commissionOrderDto.getAmount() + ")!", null);
-			commissionOrderDto.setDiscount(commissionOrderDto.getPerAmount() - commissionOrderDto.getAmount());
+			double _perAmount = commissionOrderListDto.getPerAmount();
+			if (commissionOrderDto.getPerAmount() > 0)
+				_perAmount = commissionOrderDto.getPerAmount();
+			if (_perAmount < commissionOrderDto.getAmount())
+				return new Response<CommissionOrderDTO>(1,
+						"本次应收款(" + _perAmount + ")不能小于本次已收款(" + commissionOrderDto.getAmount() + ")!", null);
+			commissionOrderDto.setDiscount(_perAmount - commissionOrderDto.getAmount());
 			if (StringUtil.isNotEmpty(remarks))
 				commissionOrderDto.setRemarks(remarks);
 			// 佣金
@@ -219,13 +227,17 @@ public class CommissionOrderController extends BaseController {
 						null);
 			Double commission = commissionOrderDto.getAmount() * subagencyDto.getCommissionRate();
 			// GST
-			commissionOrderDto.setGst(commission / 11);
+			commissionOrderDto
+					.setGst(new BigDecimal(commission / 11).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			// Deduct GST
-			commissionOrderDto.setDeductGst(commission - commissionOrderDto.getGst());
+			commissionOrderDto.setDeductGst(new BigDecimal(commission - commissionOrderDto.getGst())
+					.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			// Bonus
-			commissionOrderDto.setBonus(commissionOrderDto.getDeductGst() * 0.1);
+			commissionOrderDto.setBonus(new BigDecimal(commissionOrderDto.getDeductGst() * 0.1)
+					.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			// 预收业绩
-			commissionOrderDto.setExpectAmount(commission * 1.1);
+			commissionOrderDto.setExpectAmount(
+					new BigDecimal(commission * 1.1).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			return commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0
 					? new Response<CommissionOrderDTO>(0, commissionOrderDto)
 					: new Response<CommissionOrderDTO>(1, "修改失败.", null);
