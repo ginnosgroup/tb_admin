@@ -99,6 +99,11 @@ public class KnowledgeServiceImpl extends BaseService implements KnowledgeServic
 			KnowledgeMenuDO knowledgeMenuDo = knowledgeMenuDao.getKnowledgeMenu(knowledgeDto.getKnowledgeMenuId());
 			if (knowledgeMenuDo != null)
 				knowledgeDto.setKnowledgeMenuName(knowledgeMenuDo.getName());
+			if (knowledgeMenuDo != null && knowledgeMenuDo.getParentId() > 0) {
+				KnowledgeMenuDO knowledgeMenuDo2 = knowledgeMenuDao.getKnowledgeMenu(knowledgeMenuDo.getParentId());
+				if (knowledgeMenuDo2 != null)
+					knowledgeDto.setKnowledgeMenuName2(knowledgeMenuDo2.getName());
+			}
 			AdminUserDO adminUserDo = adminUserDao.getAdminUserById(knowledgeDto.getAdminUserId());
 			if (adminUserDo != null)
 				knowledgeDto.setAdminUserName(adminUserDo.getUsername());
@@ -137,6 +142,11 @@ public class KnowledgeServiceImpl extends BaseService implements KnowledgeServic
 			KnowledgeMenuDO knowledgeMenuDo = knowledgeMenuDao.getKnowledgeMenu(knowledgeDto.getKnowledgeMenuId());
 			if (knowledgeMenuDo != null)
 				knowledgeDto.setKnowledgeMenuName(knowledgeMenuDo.getName());
+			if (knowledgeMenuDo != null && knowledgeMenuDo.getParentId() > 0) {
+				KnowledgeMenuDO knowledgeMenuDo2 = knowledgeMenuDao.getKnowledgeMenu(knowledgeMenuDo.getParentId());
+				if (knowledgeMenuDo2 != null)
+					knowledgeDto.setKnowledgeMenuName2(knowledgeMenuDo2.getName());
+			}
 			return knowledgeDto;
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);

@@ -138,7 +138,6 @@ public class CommissionOrderController extends BaseController {
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<CommissionOrderDTO> update(@RequestParam(value = "id") int id,
-			@RequestParam(value = "state", required = false) String state,
 			@RequestParam(value = "isSettle", required = false) Boolean isSettle,
 			@RequestParam(value = "isDepositUser", required = false) Boolean isDepositUser,
 			@RequestParam(value = "schoolId", required = false) Integer schoolId,
@@ -157,8 +156,6 @@ public class CommissionOrderController extends BaseController {
 			super.setPostHeader(response);
 			CommissionOrderDTO commissionOrderDto = new CommissionOrderDTO();
 			commissionOrderDto.setId(id);
-			if (StringUtil.isNotEmpty(state))
-				commissionOrderDto.setState(state);
 			if (isSettle != null)
 				commissionOrderDto.setSettle(isSettle);
 			if (isDepositUser != null)
