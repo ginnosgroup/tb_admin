@@ -14,15 +14,17 @@ public class KnowledgeDTO {
 	private String title;
 
 	private String content;
-	
+
 	private String password;
 
 	private int knowledgeMenuId;
 
 	private String knowledgeMenuName;
-	
+
+	private String knowledgeMenuName2;
+
 	private int adminUserId;
-	
+
 	private String adminUserName;
 
 }

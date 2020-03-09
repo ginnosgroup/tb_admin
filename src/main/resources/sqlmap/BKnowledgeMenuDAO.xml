@@ -34,7 +34,7 @@
             id,
             gmt_create AS gmtCreate,
             name,
-            parent_id
+            parent_id AS parentId
         FROM b_knowledge_menu
         WHERE 1 = 1
         <if test='parentId != null'>
@@ -48,7 +48,7 @@
             id,
             gmt_create AS gmtCreate,
             name,
-            parent_id
+            parent_id AS parentId
         FROM b_knowledge_menu
         WHERE id = #{id}
         ;
