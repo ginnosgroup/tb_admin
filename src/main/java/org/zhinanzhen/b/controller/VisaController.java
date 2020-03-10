@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.controller;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -99,6 +100,8 @@ public class VisaController extends BaseController {
 			visaDto.setGst(commission / 11);
 			visaDto.setDeductGst(commission - visaDto.getGst());
 			visaDto.setBonus(visaDto.getDeductGst() * 0.1);
+			visaDto.setExpectAmount(
+					new BigDecimal(commission * 1.1).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			if (visaService.addVisa(visaDto) > 0) {
 				return new Response<VisaDTO>(0, visaDto);
 			} else {
@@ -181,6 +184,8 @@ public class VisaController extends BaseController {
 			visaDto.setGst(commission / 11);
 			visaDto.setDeductGst(commission - visaDto.getGst());
 			visaDto.setBonus(visaDto.getDeductGst() * 0.1);
+			visaDto.setExpectAmount(
+					new BigDecimal(commission * 1.1).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			if (visaService.updateVisa(visaDto) > 0) {
 				return new Response<VisaDTO>(0, visaDto);
 			} else {
