@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.controller;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -39,7 +40,7 @@ public class VisaController extends BaseController {
 			@RequestParam(value = "serviceOrderId") String serviceOrderId,
 			@RequestParam(value = "receivable") String receivable,
 			@RequestParam(value = "received", required = false) String received,
-			@RequestParam(value = "amount") String amount, @RequestParam(value = "discount") String discount,
+			@RequestParam(value = "perAmount") String perAmount, @RequestParam(value = "amount") String amount,
 			@RequestParam(value = "adviserId") String adviserId, @RequestParam(value = "maraId") String maraId,
 			@RequestParam(value = "officialId") String officialId,
 			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
@@ -76,11 +77,15 @@ public class VisaController extends BaseController {
 			if (StringUtil.isNotEmpty(received)) {
 				visaDto.setReceived(Double.parseDouble(received));
 			}
+			if (StringUtil.isNotEmpty(perAmount))
+				visaDto.setPerAmount(Double.parseDouble(perAmount));
 			if (StringUtil.isNotEmpty(amount)) {
 				visaDto.setAmount(Double.parseDouble(amount));
 			}
-			if (StringUtil.isNotEmpty(discount))
-				visaDto.setDiscount(Double.parseDouble(discount));
+			if (visaDto.getPerAmount() < visaDto.getAmount())
+				return new Response<VisaDTO>(1,
+						"本次应收款(" + visaDto.getPerAmount() + ")不能小于本次已收款(" + visaDto.getAmount() + ")!", null);
+			visaDto.setDiscount(visaDto.getPerAmount() - visaDto.getAmount());
 			if (StringUtil.isNotEmpty(adviserId)) {
 				visaDto.setAdviserId(StringUtil.toInt(adviserId));
 			}
@@ -95,6 +100,8 @@ public class VisaController extends BaseController {
 			visaDto.setGst(commission / 11);
 			visaDto.setDeductGst(commission - visaDto.getGst());
 			visaDto.setBonus(visaDto.getDeductGst() * 0.1);
+			visaDto.setExpectAmount(
+					new BigDecimal(commission * 1.1).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			if (visaService.addVisa(visaDto) > 0) {
 				return new Response<VisaDTO>(0, visaDto);
 			} else {
@@ -116,8 +123,8 @@ public class VisaController extends BaseController {
 			@RequestParam(value = "serviceOrderId", required = false) String serviceOrderId,
 			@RequestParam(value = "receivable", required = false) String receivable,
 			@RequestParam(value = "received", required = false) String received,
+			@RequestParam(value = "perAmount", required = false) String perAmount,
 			@RequestParam(value = "amount", required = false) String amount,
-			@RequestParam(value = "discount", required = false) String discount,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
 			@RequestParam(value = "maraId", required = false) String maraId,
 			@RequestParam(value = "officialId", required = false) String officialId,
@@ -125,6 +132,7 @@ public class VisaController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
+			VisaDTO _visaDto = visaService.getVisaById(id);
 			VisaDTO visaDto = new VisaDTO();
 			visaDto.setId(id);
 			if (StringUtil.isNotEmpty(handlingDate)) {
@@ -150,11 +158,18 @@ public class VisaController extends BaseController {
 			if (StringUtil.isNotEmpty(received)) {
 				visaDto.setReceived(Double.parseDouble(received));
 			}
+			if (StringUtil.isNotEmpty(perAmount))
+				visaDto.setPerAmount(Double.parseDouble(perAmount));
 			if (StringUtil.isNotEmpty(amount)) {
 				visaDto.setAmount(Double.parseDouble(amount));
 			}
-			if (StringUtil.isNotEmpty(discount))
-				visaDto.setDiscount(Double.parseDouble(discount));
+			double _perAmount = _visaDto.getPerAmount();
+			if (visaDto.getPerAmount() > 0)
+				_perAmount = visaDto.getPerAmount();
+			if (_perAmount < visaDto.getAmount())
+				return new Response<VisaDTO>(1, "本次应收款(" + _perAmount + ")不能小于本次已收款(" + visaDto.getAmount() + ")!",
+						null);
+			visaDto.setDiscount(_perAmount - visaDto.getAmount());
 			if (StringUtil.isNotEmpty(adviserId)) {
 				visaDto.setAdviserId(StringUtil.toInt(adviserId));
 			}
@@ -169,6 +184,8 @@ public class VisaController extends BaseController {
 			visaDto.setGst(commission / 11);
 			visaDto.setDeductGst(commission - visaDto.getGst());
 			visaDto.setBonus(visaDto.getDeductGst() * 0.1);
+			visaDto.setExpectAmount(
+					new BigDecimal(commission * 1.1).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			if (visaService.updateVisa(visaDto) > 0) {
 				return new Response<VisaDTO>(0, visaDto);
 			} else {

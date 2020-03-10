@@ -17,7 +17,9 @@
                 service_order_id,
                 receivable,
                 received,
+                per_amount,
                 amount,
+                expect_amount,
                 discount,
                 gst,
                 deduct_gst,
@@ -39,7 +41,9 @@
                 #{serviceOrderId},
                 #{receivable},
                 #{received},
+                #{perAmount},
                 #{amount},
+                #{expectAmount},
                 #{discount},
                 #{gst},
                 #{deductGst},
@@ -81,8 +85,14 @@
         <if test='received != null and received != ""'>
             , received = #{received}
         </if>
+        <if test='perAmount != null and perAmount != ""'>
+            , per_amount = #{perAmount}
+        </if>
         <if test='amount != null and amount != ""'>
             , amount = #{amount}
+        </if>
+        <if test='expectAmount != null and expectAmount != ""'>
+            , expect_amount = #{expectAmount}
         </if>
         <if test='gst != null and gst != ""'>
             , gst = #{gst}
@@ -146,7 +156,9 @@
             bv.service_order_id AS serviceOrderId,
             bv.receivable AS receivable,
             bv.received AS received,
+            bv.per_amount AS perAmount,
             bv.amount AS amount,
+            bv.expect_amount AS expectAmount,
             bv.discount AS discount,
             bv.gst AS gst,
             bv.deduct_gst AS deductGst,
@@ -197,7 +209,9 @@
             service_order_id AS serviceOrderId,
             receivable,
             received,
+            per_amount AS perAmount,
             amount,
+            expect_amount AS expectAmount
             discount,
             gst,
             deduct_gst AS deductGst,
