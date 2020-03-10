@@ -43,6 +43,8 @@ public class VisaDTO {
 	private double perAmount;
 
 	private double amount;
+	
+	private double expectAmount;
 
 	private double discount;
 

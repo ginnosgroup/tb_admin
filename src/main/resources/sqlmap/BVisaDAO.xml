@@ -19,6 +19,7 @@
                 received,
                 per_amount,
                 amount,
+                expect_amount,
                 discount,
                 gst,
                 deduct_gst,
@@ -42,6 +43,7 @@
                 #{received},
                 #{perAmount},
                 #{amount},
+                #{expectAmount},
                 #{discount},
                 #{gst},
                 #{deductGst},
@@ -88,6 +90,9 @@
         </if>
         <if test='amount != null and amount != ""'>
             , amount = #{amount}
+        </if>
+        <if test='expectAmount != null and expectAmount != ""'>
+            , expect_amount = #{expectAmount}
         </if>
         <if test='gst != null and gst != ""'>
             , gst = #{gst}
@@ -153,6 +158,7 @@
             bv.received AS received,
             bv.per_amount AS perAmount,
             bv.amount AS amount,
+            bv.expect_amount AS expectAmount,
             bv.discount AS discount,
             bv.gst AS gst,
             bv.deduct_gst AS deductGst,
@@ -205,6 +211,7 @@
             received,
             per_amount AS perAmount,
             amount,
+            expect_amount AS expectAmount
             discount,
             gst,
             deduct_gst AS deductGst,
