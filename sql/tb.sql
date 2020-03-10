@@ -188,6 +188,7 @@ CREATE TABLE `b_visa` (
 `service_order_id` int NOT NULL COMMENT '服务订单编号 (对应b_service_order.id)',
   `receivable` decimal(8,2) NOT NULL COMMENT '总计应收',
   `received` decimal(8,2) NOT NULL COMMENT '总计已收',
+`per_amount` decimal(8,2) NOT NULL COMMENT '本次应收款',
   `amount` decimal(8,2) NOT NULL COMMENT '本次收款',
 `discount` decimal(8,2) NOT NULL DEFAULT 0 COMMENT '折扣',
   `gst` decimal(8,2) NOT NULL COMMENT 'GST',

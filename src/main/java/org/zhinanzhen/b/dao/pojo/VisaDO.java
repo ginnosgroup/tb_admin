@@ -28,6 +28,8 @@ public class VisaDO {
 	private double receivable;
 
 	private double received;
+	
+	private double perAmount;
 
 	private double amount;
 	
