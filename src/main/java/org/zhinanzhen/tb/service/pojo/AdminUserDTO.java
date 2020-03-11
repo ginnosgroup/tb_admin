@@ -18,6 +18,8 @@ public class AdminUserDTO {
 	private int maraId;
 	
 	private int officialId;
+	
+	private int kjId;
 
 	private String sessionId;
 
