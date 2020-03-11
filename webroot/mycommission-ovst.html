@@ -117,6 +117,15 @@
                 </span>
               </a>
             </li>
+            <li>
+              <a href="accounting.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  会计管理
+                </span>
+              </a>
+            </li>
             <li class="sub-menu">
 							<a href="javascript:;">
 								<i class="fa fa-book">
@@ -293,7 +302,9 @@
 													<label>状态</label>											
 													<select v-model.trim="state" id="state" class="form-control" style="width:130px;">
 													<option value="" selected="true">全部</option>
-													<option value="WAIT">佣金待审核</option>
+													<option value="PENDING">佣金待确认</option>
+													<option value="REVIEW">佣金审核中</option>
+													<option value="WAIT">佣金被驳回</option>
 													<option value="FINISH">佣金已审核</option>
 													<option value="COMPLETE">佣金结算完成</option>													
 													<option value="CLOSE">已关闭</option>
@@ -306,7 +317,7 @@
 										</form>
 										<div class="responsive-table margin-top">
 											<input type="hidden" name="id" id="id" value="0" />
-											<table class="display table table-bordered table-striped" id="list_ovst">
+											<table class="display table table-bordered table-striped" id="list_ovst" style="width:2500px;">
 												<thead>
 													<tr>
 														<th>订单ID</th>
@@ -328,7 +339,8 @@
 														<th>本次收款</th>
 														<th>预收业绩(<span style="color:#FF6C60;">Commission含GST</span>)</th>														
 														<th>月奖</th>
-														<th>佣金支付时间</th>
+														<th>是否对账完成</th>
+														<th>月奖支付时间</th>
 														<th>顾问</th>
 														<th>状态</th>
 														<th>操作</th>
@@ -337,30 +349,36 @@
 												</thead>
 												<tbody>
 													<tr v-for="item in subject" class="gradeX">
-														<td v-html="item.oid"></td>
+														<td v-html="item.strOid"></td>
 														<td v-html="item.gmtCreate"></td>
 														<td v-html="item.finishDate"></td>
-														<td></td>
+														<td v-html="item.receiveDate"></td>
 														<td v-html="item.userName"></td>
-														<td></td>
+														<td v-html="item.studentCode"></td>
 														<td v-html="item.serviceName"></td>
+														<td v-html="item.strSettle"></td>
+														<td v-html="item.schoolName"></td>
+														<td v-html="item.schoolSubject"></td>
+														<td v-html="item.installmentDueDate"></td>
+														<td v-html="item.receiveType.name"></td>
+														<td v-html="item.tuitionFee"></td>
+														<td v-html="item.perAmount"></td>
 														<td></td>
 														<td></td>
-														<td></td>
-														<td></td>
-														<td></td>
-														<td></td>
-														<td></td>
-														<td></td>
-														<td></td>
-														<td></td>
-														<td></td>
+														<td v-html="item.amount"></td>
+														<td v-html="item.expectAmount"></td>
+														<td v-html="item.bonus"></td>
 														<td></td>
 														<td v-html="item.payDate"></td>
-														<td v-html="item.adviserName"></td>
+														<td v-html="item.adviser.name"></td>
 														<td v-html="item.strState"></td>
 														<td>
-														
+														<a href="javascript:open_detail({{item.serviceOrderId}},{{item.oid}});">查看</a>
+														<dle v-if="ap_list==='GW'">
+																<d1 v-if="item.currentState==='PENDING'">
+																		<a href="javascript:reqCommissionOvst({{item.serviceOrderId}},{{item.oid}})"><span style="color:blue;">申请佣金</span></a>
+																</d1>
+														</dle>
 														</td>
 														<td v-html="item.remarks"></td>
 													</tr>
@@ -427,8 +445,8 @@
 				</div>
 			</div>
 		</div>		
-		<div id="load-user-common-page"></div>
-		<div id="load-user-common-view-page"></div>
+		<div id="load-mycommission-ovst-page"></div>
+		<div id="load-mycommission-ovst-view-page"></div>
 		<script src="js/jquery-1.8.3.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
 		<script src="js/jquery.dcjqaccordion.2.7.js"></script>
@@ -441,7 +459,8 @@
 		<script src="js/vue.js"></script>
 		<script src="js/common.js?verson=1"></script>
 		<script>
-			//$("#load-user-common-page").load("user-common.html?random="+Math.random());
+			$("#load-mycommission-ovst-page").load("mycommission-ovst-common.html?random="+Math.random());
+			$("#load-mycommission-ovst-view-page").load("mycommission-ovst-common-view.html?random="+Math.random());
 			tb.isLogin("mycommission-ovst.html");
 			$("td,th").addClass("text-center");
 			var v = new Vue({
@@ -453,29 +472,16 @@
 					adviser_id: sessionStorage.getItem("adviser_id"),
 					official_id: sessionStorage.getItem("official_id"),
 					mara_id: sessionStorage.getItem("mara_id"),
-					kj_id: sessionStorage.getItem("kj_id"),
-					addnewservice1_bind: 0,
-					addnewservice2_bind: 0,					
+					kj_id: sessionStorage.getItem("kj_id"),										
 					orderId: 0,
-					orderType: '',
+					order_detail: [],
 					subject: [],
-					count: 0,
-					dId: '',
-					eId: '',
-					name: '',
-					sort: '',
-					state: '',
-					flowstate_gw: '',
-					flowstate_wa: '',
-					flowstate_ma: '',
-					set_state: '',
-					set_type: 1,
+					count: 0,					
+					name: '',					
+					state: '',					
 					pageNum: 0,
 					pageSize: 20,
-					allPage: 0,
-					add: false,
-					index: 0,
-					close: false
+					allPage: 0					
 				},
 				created: function() {
 					this.getDatalist();
@@ -608,11 +614,24 @@
 			{
 				for(var i = 0; i < result.data.length; i++) {
 						var str_state = '';
-						result.data[i].state = 'WAIT';//测试用
+						//result.data[i].state = 'WAIT';//测试用
 						result.data[i].oid = result.data[i].id;
+						result.data[i].strOid = '<a href="javascript:open_detail('+result.data[i].serviceOrderId+','+result.data[i].id+');" title="查看详细">'+result.data[i].id+'</a>-'+result.data[i].installmentNum;
 						result.data[i].gmtCreate = v.getTime(result.data[i].gmtCreate);
 						result.data[i].finishDate = result.data[i].finishDate ? v.getTime(result.data[i].finishDate):'';
-						result.data[i].serviceName = '留学-';
+						result.data[i].receiveDate = result.data[i].receiveDate ? v.getTime(result.data[i].receiveDate):'';
+						result.data[i].userName = result.data[i].user.name;
+						result.data[i].serviceName = '留学';
+						if (result.data[i].settle)
+						{
+								result.data[i].strSettle = '是';
+						}else
+						{
+								result.data[i].strSettle = '否';
+						}
+						result.data[i].schoolName = result.data[i].school.name;
+						result.data[i].schoolSubject = result.data[i].school.subject;
+						result.data[i].installmentDueDate = result.data[i].installmentDueDate ? v.getTime(result.data[i].installmentDueDate):'';
 						result.data[i].strState = return_state(result.data[i].state);
 						result.data[i].currentState = result.data[i].state;
 				};
@@ -625,10 +644,15 @@
 					switch(va)
 					{
 						case 'WAIT':
+									str_html = '佣金待确认';
+						break;						
+						case '':
 									str_html = '佣金审核中';
 						break;
-						case 'FINISH':
-									
+						case '':
+									str_html = '佣金被驳回';
+						break;
+						case 'FINISH':									
 									str_html = '<label style="color:blue;">佣金已审核</label>';							
 						break;						
 						case 'COMPLETE':
@@ -678,6 +702,16 @@
 							window.location.href = "mycommission-ovst.html";
 					}
 			}
+			
+			function open_detail(serviceId,orderId)
+      {
+      		show_commission_detail(serviceId,orderId);
+      }
+      
+      function reqCommissionOvst(serviceId,orderId)
+      {
+      		edit_commission_detail(serviceId,orderId);
+      }
       
       function show_knowledge_detail(id,parentId)
       {
