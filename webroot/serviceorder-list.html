@@ -117,6 +117,15 @@
                 </span>
               </a>
             </li>
+            <li>
+              <a href="accounting.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  会计管理
+                </span>
+              </a>
+            </li>
             <li class="sub-menu">
 							<a href="javascript:;">
 								<i class="fa fa-book">
@@ -799,7 +808,7 @@
           				return false;
           		}
           }
-          //如果Mara审核通过且已客户支付,就创建佣金订单
+          //如果Mara审核通过且已支付,就创建佣金订单
           if (v.orderType == 'VISA' && v.ap_list == 'MA' && va == 'FINISH') reqCommissionVisa();
          
           json['id'] = v.orderId;
