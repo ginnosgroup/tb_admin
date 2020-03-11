@@ -62,16 +62,6 @@ public class ServiceOrderController extends BaseController {
 		}
 	}
 
-	public enum ReviewKjStateEnum {
-		PENDING, WAIT, REVIEW, FINISH, COMPLETE, CLOSE;
-		public static ReviewKjStateEnum get(String name) {
-			for (ReviewKjStateEnum e : ReviewKjStateEnum.values())
-				if (e.toString().equals(name))
-					return e;
-			return null;
-		}
-	}
-
 	public enum ServiceOrderReviewStateEnum {
 		ADVISER, OFFICIAL, MARA, KJ;
 		public static ServiceOrderReviewStateEnum get(String name) {
@@ -417,8 +407,7 @@ public class ServiceOrderController extends BaseController {
 							serviceOrderService.finish(id);
 							return new Response<ServiceOrderDTO>(0,
 									serviceOrderService.approval(id, adminUserLoginInfo.getId(), state.toUpperCase(),
-											null, ReviewOfficialStateEnum.COMPLETE.toString(),
-											ReviewKjStateEnum.COMPLETE.toString()));
+											null, ReviewOfficialStateEnum.COMPLETE.toString(), null));
 						} else
 							return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id,
 									adminUserLoginInfo.getId(), state.toUpperCase(), null, null, null));
@@ -468,26 +457,10 @@ public class ServiceOrderController extends BaseController {
 							return new Response<ServiceOrderDTO>(0,
 									serviceOrderService.approval(id, adminUserLoginInfo.getId(),
 											ReviewAdviserStateEnum.COMPLETE.toString(), null, state.toUpperCase(),
-											ReviewKjStateEnum.COMPLETE.toString()));
+											null));
 						} else
 							return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id,
 									adminUserLoginInfo.getId(), null, null, state.toUpperCase(), null));
-					} else
-						return new Response<ServiceOrderDTO>(1, "state错误!(" + state + ")", null);
-				} else if ("KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
-					if (ReviewKjStateEnum.get(state) != null) {
-						if (ReviewKjStateEnum.FINISH.toString().equals(state.toUpperCase())) // 文案审核通过同时修改状态
-							serviceOrderService.updateServiceOrderRviewState(id,
-									ServiceOrderReviewStateEnum.KJ.toString());
-						if (ReviewKjStateEnum.COMPLETE.toString().equals(state.toUpperCase())) { // 会计完成同时修改顾问和文案状态
-							serviceOrderService.finish(id);
-							return new Response<ServiceOrderDTO>(0,
-									serviceOrderService.approval(id, adminUserLoginInfo.getId(),
-											ReviewAdviserStateEnum.COMPLETE.toString(), null,
-											ReviewOfficialStateEnum.COMPLETE.toString(), state.toUpperCase()));
-						} else
-							return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id,
-									adminUserLoginInfo.getId(), null, null, null, state.toUpperCase()));
 					} else
 						return new Response<ServiceOrderDTO>(1, "state错误!(" + state + ")", null);
 				} else
@@ -582,12 +555,6 @@ public class ServiceOrderController extends BaseController {
 						else
 							return new Response<ServiceOrderDTO>(0, serviceOrderService.refuse(id,
 									adminUserLoginInfo.getId(), null, null, state.toUpperCase(), null));
-					else
-						return new Response<ServiceOrderDTO>(1, "state错误!(" + state + ")", null);
-				} else if ("KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
-					if (ReviewKjStateEnum.get(state) != null)
-						return new Response<ServiceOrderDTO>(0, serviceOrderService.refuse(id,
-								adminUserLoginInfo.getId(), null, null, null, state.toUpperCase()));
 					else
 						return new Response<ServiceOrderDTO>(1, "state错误!(" + state + ")", null);
 				} else

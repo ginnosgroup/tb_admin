@@ -166,6 +166,9 @@ CREATE TABLE `tb_admin_user` (
   `password` varchar(32) NOT NULL COMMENT '登录密码 (MD5加密)',
   `ap_list` varchar(128) DEFAULT NULL COMMENT '权限列表 (KJ:会计,GW:顾问,MA:Mara,WA:文案,AD:管理员,TGAD:团购管理员;如果为NULL则为超级管理员,显示所有选项)',
   `adviser_id` int DEFAULT NULL COMMENT '所属顾问编号 (对应tb_adviser.id)',
+`mara_id` int DEFAULT NULL COMMENT '所属Mara编号 (对应b_mara.id)',
+`official_id` int DEFAULT NULL COMMENT '所属文案编号 (对应b_official.id)',
+`kj_id` int DEFAULT NULL COMMENT '所属会计编号 (对应b_kj.id)',
   `session_id` varchar(255) DEFAULT NULL COMMENT '当前session_id值',
   `gmt_login` datetime NOT NULL COMMENT '最后登录时间',
   `login_ip` varchar(50) NOT NULL COMMENT '最后登录IP',
@@ -443,6 +446,20 @@ CREATE TABLE `b_mara` (
   `region_id` int NOT NULL COMMENT '所属区域编号 (对应tb_region.id)'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 ALTER TABLE `b_mara` ADD INDEX index_name (`state`);
+
+-- 会计(财务)
+CREATE TABLE `b_kj` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `name` varchar(32) NOT NULL COMMENT '名称',
+  `phone` varchar(16) NOT NULL COMMENT '电话号码',
+  `email` varchar(128) NOT NULL COMMENT '邮箱',
+  `state` varchar(8) NOT NULL COMMENT '状态 (ENABLED:激活,DISABLED:禁止)',
+  `image_url` varchar(128) DEFAULT NULL COMMENT '图片地址',
+  `region_id` int NOT NULL COMMENT '所属区域编号 (对应tb_region.id)'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+ALTER TABLE `b_kj` ADD INDEX index_name (`state`);
 
 -- 收款方式
 CREATE TABLE `b_receive_type` (

@@ -46,6 +46,8 @@ public class AdminUserController extends BaseController {
 						loginInfo.setMaraId(adminUser.getMaraId());
 					if (ap.contains("WA"))
 						loginInfo.setOfficialId(adminUser.getOfficialId());
+					if (ap.contains("KJ"))
+						loginInfo.setKjId(adminUser.getKjId());
 				}
 			}
 			session.removeAttribute("AdminUserLoginInfo");

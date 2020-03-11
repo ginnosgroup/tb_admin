@@ -160,6 +160,17 @@ public class BaseController {
 		return null;
 	}
 
+	// 获取当前KJ编号
+	protected Integer getKjId(HttpServletRequest request) {
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo != null) {
+			String ap = adminUserLoginInfo.getApList();
+			if (ap != null && ap.contains("KJ"))
+				return adminUserLoginInfo.getKjId();
+		}
+		return null;
+	}
+
 	// 获取用户是不是管理员
 	protected Boolean isAdminUser(HttpServletRequest request) {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
@@ -179,5 +190,6 @@ public class BaseController {
 		private Integer adviserId;
 		private Integer maraId;
 		private Integer officialId;
+		private Integer kjId;
 	}
 }

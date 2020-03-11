@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.zhinanzhen.b.controller.ServiceOrderController.ReviewKjStateEnum;
 import org.zhinanzhen.b.service.CommissionOrderService;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.SubagencyService;
@@ -43,6 +42,16 @@ public class CommissionOrderController extends BaseController {
 
 	@Resource
 	SubagencyService subagencyService;
+
+	public enum ReviewKjStateEnum {
+		PENDING, WAIT, REVIEW, FINISH, COMPLETE, CLOSE;
+		public static ReviewKjStateEnum get(String name) {
+			for (ReviewKjStateEnum e : ReviewKjStateEnum.values())
+				if (e.toString().equals(name))
+					return e;
+			return null;
+		}
+	}
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
@@ -339,6 +348,81 @@ public class CommissionOrderController extends BaseController {
 		try {
 			super.setGetHeader(response);
 			return new Response<CommissionOrderListDTO>(0, commissionOrderService.getCommissionOrderById(id));
+		} catch (ServiceException e) {
+			return new Response<CommissionOrderListDTO>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/approval", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<CommissionOrderListDTO> approval(@RequestParam(value = "id") int id,
+			@RequestParam(value = "state") String state, HttpServletRequest request, HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			if (ReviewKjStateEnum.CLOSE.toString().equalsIgnoreCase(state))
+				return new Response<CommissionOrderListDTO>(1, "关闭操作请调用'refuse'接口.", null);
+			// 审核
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo != null)
+				if (StringUtil.isEmpty(adminUserLoginInfo.getApList())
+						|| "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+					if (ReviewKjStateEnum.get(state) != null) {
+						CommissionOrderListDTO commissionOrderListDto = commissionOrderService
+								.getCommissionOrderById(id);
+						if (commissionOrderListDto == null)
+							return new Response<CommissionOrderListDTO>(1, "佣金订单不存在!", null);
+						serviceOrderService.approval(id, adminUserLoginInfo.getId(), null, null, null,
+								state.toUpperCase());
+						commissionOrderListDto.setState(state);
+						if (commissionOrderService.updateCommissionOrder(commissionOrderListDto) > 0)
+							return new Response<CommissionOrderListDTO>(0, commissionOrderListDto);
+						else
+							return new Response<CommissionOrderListDTO>(1, "修改操作异常!", null);
+					} else
+						return new Response<CommissionOrderListDTO>(1, "state错误!(" + state + ")", null);
+				} else
+					return new Response<CommissionOrderListDTO>(1, "该用户无审核权限!", null);
+			else
+				return new Response<CommissionOrderListDTO>(1, "请登录!", null);
+		} catch (ServiceException e) {
+			return new Response<CommissionOrderListDTO>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/refuse", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<CommissionOrderListDTO> refuse(@RequestParam(value = "id") int id,
+			@RequestParam(value = "state") String state,
+			@RequestParam(value = "closedReason", required = false) String closedReason, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			if (ReviewKjStateEnum.COMPLETE.toString().equalsIgnoreCase(state)
+					|| ReviewKjStateEnum.FINISH.toString().equalsIgnoreCase(state))
+				return new Response<CommissionOrderListDTO>(1, "完成操作请调用'approval'接口.", null);
+			// 审核
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo != null)
+				if (StringUtil.isEmpty(adminUserLoginInfo.getApList())
+						|| "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+					if (ReviewKjStateEnum.get(state) != null) {
+						CommissionOrderListDTO commissionOrderListDto = commissionOrderService
+								.getCommissionOrderById(id);
+						if (commissionOrderListDto == null)
+							return new Response<CommissionOrderListDTO>(1, "佣金订单不存在!", null);
+						serviceOrderService.refuse(id, adminUserLoginInfo.getId(), null, null, null,
+								state.toUpperCase());
+						commissionOrderListDto.setState(state);
+						if (commissionOrderService.updateCommissionOrder(commissionOrderListDto) > 0)
+							return new Response<CommissionOrderListDTO>(0, commissionOrderListDto);
+						else
+							return new Response<CommissionOrderListDTO>(1, "修改操作异常!", null);
+					} else
+						return new Response<CommissionOrderListDTO>(1, "state错误!(" + state + ")", null);
+				} else
+					return new Response<CommissionOrderListDTO>(1, "该用户无审核权限!", null);
+			else
+				return new Response<CommissionOrderListDTO>(1, "请登录!", null);
 		} catch (ServiceException e) {
 			return new Response<CommissionOrderListDTO>(1, e.getMessage(), null);
 		}

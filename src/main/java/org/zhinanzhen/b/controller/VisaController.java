@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
 import org.zhinanzhen.tb.controller.BaseController;
@@ -28,7 +29,20 @@ import com.ikasoa.core.utils.StringUtil;
 public class VisaController extends BaseController {
 
 	@Resource
+	ServiceOrderService serviceOrderService;
+
+	@Resource
 	VisaService visaService;
+	
+	public enum ReviewKjStateEnum {
+		PENDING, WAIT, REVIEW, FINISH, COMPLETE, CLOSE;
+		public static ReviewKjStateEnum get(String name) {
+			for (ReviewKjStateEnum e : ReviewKjStateEnum.values())
+				if (e.toString().equals(name))
+					return e;
+			return null;
+		}
+	}
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
@@ -292,6 +306,78 @@ public class VisaController extends BaseController {
 			return new Response<Integer>(0, visaService.deleteVisaById(id));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), 0);
+		}
+	}
+
+	@RequestMapping(value = "/approval", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<VisaDTO> approval(@RequestParam(value = "id") int id, @RequestParam(value = "state") String state,
+			HttpServletRequest request, HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			if (ReviewKjStateEnum.CLOSE.toString().equalsIgnoreCase(state))
+				return new Response<VisaDTO>(1, "关闭操作请调用'refuse'接口.", null);
+			// 审核
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo != null)
+				if (StringUtil.isEmpty(adminUserLoginInfo.getApList())
+						|| "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+					if (ReviewKjStateEnum.get(state) != null) {
+						VisaDTO visaDto = visaService.getVisaById(id);
+						if (visaDto == null)
+							return new Response<VisaDTO>(1, "佣金订单不存在!", null);
+						serviceOrderService.approval(id, adminUserLoginInfo.getId(), null, null, null,
+								state.toUpperCase());
+						visaDto.setState(state);
+						if (visaService.updateVisa(visaDto) > 0)
+							return new Response<VisaDTO>(0, visaDto);
+						else
+							return new Response<VisaDTO>(1, "修改操作异常!", null);
+					} else
+						return new Response<VisaDTO>(1, "state错误!(" + state + ")", null);
+				} else
+					return new Response<VisaDTO>(1, "该用户无审核权限!", null);
+			else
+				return new Response<VisaDTO>(1, "请登录!", null);
+		} catch (ServiceException e) {
+			return new Response<VisaDTO>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/refuse", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<VisaDTO> refuse(@RequestParam(value = "id") int id, @RequestParam(value = "state") String state,
+			@RequestParam(value = "closedReason", required = false) String closedReason, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			if (ReviewKjStateEnum.COMPLETE.toString().equalsIgnoreCase(state)
+					|| ReviewKjStateEnum.FINISH.toString().equalsIgnoreCase(state))
+				return new Response<VisaDTO>(1, "完成操作请调用'approval'接口.", null);
+			// 审核
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo != null)
+				if (StringUtil.isEmpty(adminUserLoginInfo.getApList())
+						|| "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+					if (ReviewKjStateEnum.get(state) != null) {
+						VisaDTO visaDto = visaService.getVisaById(id);
+						if (visaDto == null)
+							return new Response<VisaDTO>(1, "佣金订单不存在!", null);
+						serviceOrderService.refuse(id, adminUserLoginInfo.getId(), null, null, null,
+								state.toUpperCase());
+						visaDto.setState(state);
+						if (visaService.updateVisa(visaDto) > 0)
+							return new Response<VisaDTO>(0, visaDto);
+						else
+							return new Response<VisaDTO>(1, "修改操作异常!", null);
+					} else
+						return new Response<VisaDTO>(1, "state错误!(" + state + ")", null);
+				} else
+					return new Response<VisaDTO>(1, "该用户无审核权限!", null);
+			else
+				return new Response<VisaDTO>(1, "请登录!", null);
+		} catch (ServiceException e) {
+			return new Response<VisaDTO>(1, e.getMessage(), null);
 		}
 	}
 
