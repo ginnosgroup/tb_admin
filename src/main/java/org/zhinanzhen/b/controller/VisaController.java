@@ -33,7 +33,7 @@ public class VisaController extends BaseController {
 
 	@Resource
 	VisaService visaService;
-	
+
 	public enum ReviewKjStateEnum {
 		PENDING, WAIT, REVIEW, FINISH, COMPLETE, CLOSE;
 		public static ReviewKjStateEnum get(String name) {
@@ -67,6 +67,10 @@ public class VisaController extends BaseController {
 
 		try {
 			super.setPostHeader(response);
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+					&& !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+				return new Response<VisaDTO>(1, "仅顾问和超级管理员能创建佣金订单.", null);
 			VisaDTO visaDto = new VisaDTO();
 			if (StringUtil.isNotEmpty(userId)) {
 				visaDto.setUserId(Integer.parseInt(userId));
@@ -319,7 +323,10 @@ public class VisaController extends BaseController {
 				return new Response<VisaDTO>(1, "关闭操作请调用'refuse'接口.", null);
 			// 审核
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			if (adminUserLoginInfo != null)
+			if (adminUserLoginInfo != null) {
+				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+					return new Response<VisaDTO>(1, "仅限会计审核佣金订单.", null);
 				if (StringUtil.isEmpty(adminUserLoginInfo.getApList())
 						|| "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewKjStateEnum.get(state) != null) {
@@ -337,7 +344,7 @@ public class VisaController extends BaseController {
 						return new Response<VisaDTO>(1, "state错误!(" + state + ")", null);
 				} else
 					return new Response<VisaDTO>(1, "该用户无审核权限!", null);
-			else
+			} else
 				return new Response<VisaDTO>(1, "请登录!", null);
 		} catch (ServiceException e) {
 			return new Response<VisaDTO>(1, e.getMessage(), null);
@@ -356,7 +363,10 @@ public class VisaController extends BaseController {
 				return new Response<VisaDTO>(1, "完成操作请调用'approval'接口.", null);
 			// 审核
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			if (adminUserLoginInfo != null)
+			if (adminUserLoginInfo != null) {
+				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+					return new Response<VisaDTO>(1, "仅限会计审核佣金订单.", null);
 				if (StringUtil.isEmpty(adminUserLoginInfo.getApList())
 						|| "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewKjStateEnum.get(state) != null) {
@@ -374,7 +384,7 @@ public class VisaController extends BaseController {
 						return new Response<VisaDTO>(1, "state错误!(" + state + ")", null);
 				} else
 					return new Response<VisaDTO>(1, "该用户无审核权限!", null);
-			else
+			} else
 				return new Response<VisaDTO>(1, "请登录!", null);
 		} catch (ServiceException e) {
 			return new Response<VisaDTO>(1, e.getMessage(), null);
