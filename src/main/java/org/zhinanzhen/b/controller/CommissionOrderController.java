@@ -399,9 +399,7 @@ public class CommissionOrderController extends BaseController {
 	@RequestMapping(value = "/refuse", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<CommissionOrderListDTO> refuse(@RequestParam(value = "id") int id,
-			@RequestParam(value = "state") String state,
-			@RequestParam(value = "closedReason", required = false) String closedReason, HttpServletRequest request,
-			HttpServletResponse response) {
+			@RequestParam(value = "state") String state, HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			if (ReviewKjStateEnum.COMPLETE.toString().equalsIgnoreCase(state)
