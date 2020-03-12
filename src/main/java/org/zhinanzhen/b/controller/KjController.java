@@ -1,0 +1,150 @@
+package org.zhinanzhen.b.controller;
+
+import java.io.IOException;
+import java.util.List;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.zhinanzhen.b.service.KjService;
+import org.zhinanzhen.b.service.KjStateEnum;
+import org.zhinanzhen.tb.controller.BaseController;
+import org.zhinanzhen.tb.controller.Response;
+import org.zhinanzhen.tb.service.ServiceException;
+import org.zhinanzhen.b.service.pojo.KjDTO;
+
+import com.ikasoa.core.utils.StringUtil;
+
+@Controller
+@CrossOrigin(origins = "*", maxAge = 3600)
+@RequestMapping("/kj")
+public class KjController extends BaseController {
+
+	@Resource
+	KjService kjService;
+
+	@RequestMapping(value = "/upload_img", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<String> uploadLogo(@RequestParam MultipartFile file, HttpServletRequest request,
+			HttpServletResponse response) throws IllegalStateException, IOException {
+		super.setPostHeader(response);
+		return super.upload(file, request.getSession(), "/uploads/kj_img/");
+	}
+
+	@RequestMapping(value = "/add", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> addKj(@RequestParam(value = "name") String name,
+			@RequestParam(value = "phone") String phone, @RequestParam(value = "email") String email,
+			@RequestParam(value = "password", required = false) String password,
+			@RequestParam(value = "imageUrl") String imageUrl, @RequestParam(value = "regionId") Integer regionId,
+			HttpServletRequest request, HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			List<KjDTO> kjDtoList = kjService.listKj(null, null, 0, 1000);
+			for (KjDTO kjDto : kjDtoList) {
+				if (kjDto.getPhone().equals(phone))
+					return new Response<Integer>(1, "该电话号已被使用,添加失败.", 0);
+				if (kjDto.getEmail().equals(email))
+					return new Response<Integer>(1, "该邮箱已被使用,添加失败.", 0);
+			}
+			if (adminUserService.getAdminUserByUsername(email) != null)
+				return new Response<Integer>(1, "该邮箱已被管理员使用,添加失败.", 0);
+			KjDTO kjDto = new KjDTO();
+			kjDto.setName(name);
+			kjDto.setPhone(phone);
+			kjDto.setEmail(email);
+			kjDto.setImageUrl(imageUrl);
+			kjDto.setRegionId(regionId);
+			if (kjService.addKj(kjDto) > 0) {
+				if (password == null)
+					password = email; // 如果没有传入密码,则密码和email相同
+				adminUserService.add(email, password, "KJ", null, null, kjDto.getId());
+				return new Response<Integer>(0, kjDto.getId());
+			} else
+				return new Response<Integer>(0, "创建失败.", 0);
+		} catch (ServiceException e) {
+			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
+		}
+	}
+
+	@RequestMapping(value = "/update", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<KjDTO> updateKj(@RequestParam(value = "id") int id,
+			@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "phone", required = false) String phone,
+			@RequestParam(value = "email", required = false) String email,
+			@RequestParam(value = "state", required = false) String state,
+			@RequestParam(value = "imageUrl", required = false) String imageUrl,
+			@RequestParam(value = "regionId", required = false) Integer regionId, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			KjDTO kjDto = new KjDTO();
+			kjDto.setId(id);
+			if (StringUtil.isNotEmpty(name))
+				kjDto.setName(name);
+			if (StringUtil.isNotEmpty(phone))
+				kjDto.setPhone(phone);
+			if (StringUtil.isNotEmpty(email))
+				kjDto.setEmail(email);
+			if (StringUtil.isNotEmpty(state))
+				kjDto.setState(KjStateEnum.get(state));
+			if (StringUtil.isNotEmpty(imageUrl))
+				kjDto.setImageUrl(imageUrl);
+			if (regionId != null && regionId > 0)
+				kjDto.setRegionId(regionId);
+			if (kjService.updateKj(kjDto) > 0)
+				return new Response<KjDTO>(0, kjDto);
+			else
+				return new Response<KjDTO>(0, "修改失败.", null);
+		} catch (ServiceException e) {
+			return new Response<KjDTO>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/count", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> countKj(@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "regionId", required = false) Integer regionId, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<Integer>(0, kjService.countKj(name, regionId));
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/list", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<KjDTO>> listKj(@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "regionId", required = false) Integer regionId,
+			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
+			HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<List<KjDTO>>(0, kjService.listKj(name, regionId, pageNum, pageSize));
+		} catch (ServiceException e) {
+			return new Response<List<KjDTO>>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/get", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<KjDTO> getKj(@RequestParam(value = "id") int id, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<KjDTO>(0, kjService.getKjById(id));
+		} catch (ServiceException e) {
+			return new Response<KjDTO>(1, e.getMessage(), null);
+		}
+	}
+
+}
