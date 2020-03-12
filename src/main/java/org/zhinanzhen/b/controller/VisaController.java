@@ -356,8 +356,7 @@ public class VisaController extends BaseController {
 	@RequestMapping(value = "/refuse", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<VisaDTO> refuse(@RequestParam(value = "id") int id, @RequestParam(value = "state") String state,
-			@RequestParam(value = "closedReason", required = false) String closedReason, HttpServletRequest request,
-			HttpServletResponse response) {
+			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			if (ReviewKjStateEnum.COMPLETE.toString().equalsIgnoreCase(state)
