@@ -1,8 +1,10 @@
 package org.zhinanzhen.b.controller;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -33,7 +35,7 @@ public class VisaController extends BaseController {
 
 	@Resource
 	VisaService visaService;
-	
+
 	public enum ReviewKjStateEnum {
 		PENDING, WAIT, REVIEW, FINISH, COMPLETE, CLOSE;
 		public static ReviewKjStateEnum get(String name) {
@@ -46,12 +48,13 @@ public class VisaController extends BaseController {
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<VisaDTO> addVisa(@RequestParam(value = "userId", required = false) String userId,
+	public Response<List<VisaDTO>> addVisa(@RequestParam(value = "userId", required = false) String userId,
 			@RequestParam(value = "handlingDate") String handlingDate,
 			@RequestParam(value = "receiveTypeId") String receiveTypeId,
 			@RequestParam(value = "receiveDate") String receiveDate,
 			@RequestParam(value = "serviceId") String serviceId,
 			@RequestParam(value = "serviceOrderId") String serviceOrderId,
+			@RequestParam(value = "installment") Integer installment,
 			@RequestParam(value = "receivable") String receivable,
 			@RequestParam(value = "received", required = false) String received,
 			@RequestParam(value = "perAmount") String perAmount, @RequestParam(value = "amount") String amount,
@@ -67,37 +70,38 @@ public class VisaController extends BaseController {
 
 		try {
 			super.setPostHeader(response);
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+					&& !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+				return new Response<List<VisaDTO>>(1, "仅顾问和超级管理员能创建佣金订单.", null);
+			List<VisaDTO> visaDtoList = new ArrayList<>();
 			VisaDTO visaDto = new VisaDTO();
-			if (StringUtil.isNotEmpty(userId)) {
+			visaDto.setState(ReviewKjStateEnum.PENDING.toString());
+			if (StringUtil.isNotEmpty(userId))
 				visaDto.setUserId(Integer.parseInt(userId));
-			}
-			if (StringUtil.isNotEmpty(handlingDate)) {
+			visaDto.setCode(UUID.randomUUID().toString());
+			if (StringUtil.isNotEmpty(handlingDate))
 				visaDto.setHandlingDate(new Date(Long.parseLong(handlingDate)));
-			}
-			if (StringUtil.isNotEmpty(receiveTypeId)) {
+			if (StringUtil.isNotEmpty(receiveTypeId))
 				visaDto.setReceiveTypeId(Integer.parseInt(receiveTypeId));
-			}
-			if (StringUtil.isNotEmpty(receiveDate)) {
+			if (StringUtil.isNotEmpty(receiveDate))
 				visaDto.setReceiveDate(new Date(Long.parseLong(receiveDate)));
-			}
-			if (StringUtil.isNotEmpty(serviceId)) {
+			if (StringUtil.isNotEmpty(serviceId))
 				visaDto.setServiceId(Integer.parseInt(serviceId));
-			}
 			if (StringUtil.isNotEmpty(serviceOrderId))
 				visaDto.setServiceOrderId(Integer.parseInt(serviceOrderId));
-			if (StringUtil.isNotEmpty(receivable)) {
+			if (installment != null)
+				visaDto.setInstallment(installment);
+			if (StringUtil.isNotEmpty(receivable))
 				visaDto.setReceivable(Double.parseDouble(receivable));
-			}
-			if (StringUtil.isNotEmpty(received)) {
+			if (StringUtil.isNotEmpty(received))
 				visaDto.setReceived(Double.parseDouble(received));
-			}
 			if (StringUtil.isNotEmpty(perAmount))
 				visaDto.setPerAmount(Double.parseDouble(perAmount));
-			if (StringUtil.isNotEmpty(amount)) {
+			if (StringUtil.isNotEmpty(amount))
 				visaDto.setAmount(Double.parseDouble(amount));
-			}
 			if (visaDto.getPerAmount() < visaDto.getAmount())
-				return new Response<VisaDTO>(1,
+				return new Response<List<VisaDTO>>(1,
 						"本次应收款(" + visaDto.getPerAmount() + ")不能小于本次已收款(" + visaDto.getAmount() + ")!", null);
 			visaDto.setDiscount(visaDto.getPerAmount() - visaDto.getAmount());
 			if (StringUtil.isNotEmpty(adviserId)) {
@@ -116,13 +120,15 @@ public class VisaController extends BaseController {
 			visaDto.setBonus(visaDto.getDeductGst() * 0.1);
 			visaDto.setExpectAmount(
 					new BigDecimal(commission * 1.1).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-			if (visaService.addVisa(visaDto) > 0) {
-				return new Response<VisaDTO>(0, visaDto);
-			} else {
-				return new Response<VisaDTO>(1, "创建失败.", null);
+
+			for (int installmentNum = 1; installmentNum <= installment; installmentNum++) {
+				visaDto.setInstallmentNum(installmentNum);
+				if (visaService.addVisa(visaDto) > 0)
+					visaDtoList.add(visaDto);
 			}
+			return new Response<List<VisaDTO>>(0, visaDtoList);
 		} catch (ServiceException e) {
-			return new Response<VisaDTO>(e.getCode(), e.getMessage(), null);
+			return new Response<List<VisaDTO>>(e.getCode(), e.getMessage(), null);
 		}
 	}
 
@@ -319,7 +325,10 @@ public class VisaController extends BaseController {
 				return new Response<VisaDTO>(1, "关闭操作请调用'refuse'接口.", null);
 			// 审核
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			if (adminUserLoginInfo != null)
+			if (adminUserLoginInfo != null) {
+				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+					return new Response<VisaDTO>(1, "仅限会计审核佣金订单.", null);
 				if (StringUtil.isEmpty(adminUserLoginInfo.getApList())
 						|| "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewKjStateEnum.get(state) != null) {
@@ -337,7 +346,7 @@ public class VisaController extends BaseController {
 						return new Response<VisaDTO>(1, "state错误!(" + state + ")", null);
 				} else
 					return new Response<VisaDTO>(1, "该用户无审核权限!", null);
-			else
+			} else
 				return new Response<VisaDTO>(1, "请登录!", null);
 		} catch (ServiceException e) {
 			return new Response<VisaDTO>(1, e.getMessage(), null);
@@ -356,7 +365,10 @@ public class VisaController extends BaseController {
 				return new Response<VisaDTO>(1, "完成操作请调用'approval'接口.", null);
 			// 审核
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			if (adminUserLoginInfo != null)
+			if (adminUserLoginInfo != null) {
+				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+					return new Response<VisaDTO>(1, "仅限会计审核佣金订单.", null);
 				if (StringUtil.isEmpty(adminUserLoginInfo.getApList())
 						|| "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewKjStateEnum.get(state) != null) {
@@ -374,7 +386,7 @@ public class VisaController extends BaseController {
 						return new Response<VisaDTO>(1, "state错误!(" + state + ")", null);
 				} else
 					return new Response<VisaDTO>(1, "该用户无审核权限!", null);
-			else
+			} else
 				return new Response<VisaDTO>(1, "请登录!", null);
 		} catch (ServiceException e) {
 			return new Response<VisaDTO>(1, e.getMessage(), null);

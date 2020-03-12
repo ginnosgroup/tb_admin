@@ -61,16 +61,6 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 	@Resource
 	private ServiceOrderReviewDAO serviceOrderReviewDao;
 
-	public enum VisaStateEnum {
-		WAIT, FINISH, COMPLETE;
-		public static VisaStateEnum get(String name) {
-			for (VisaStateEnum e : VisaStateEnum.values())
-				if (e.toString().equals(name))
-					return e;
-			return null;
-		}
-	}
-
 	@Override
 	public int addVisa(VisaDTO visaDto) throws ServiceException {
 		if (visaDto == null) {
@@ -79,7 +69,6 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			throw se;
 		}
 		try {
-			visaDto.setState(VisaStateEnum.WAIT.toString());
 			VisaDO visaDo = mapper.map(visaDto, VisaDO.class);
 			if (visaDao.addVisa(visaDo) > 0) {
 				visaDto.setId(visaDo.getId());

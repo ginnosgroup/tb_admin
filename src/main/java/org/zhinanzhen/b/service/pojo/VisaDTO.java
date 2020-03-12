@@ -11,11 +11,13 @@ public class VisaDTO {
 	private int id;
 
 	private Date gmtCreate;
+	
+	private String code;
 
 	private Date handlingDate;
 
 	private int userId;
-	
+
 	private String state;
 
 	private String userName;
@@ -36,14 +38,18 @@ public class VisaDTO {
 
 	private String serviceCode;
 
+	private int installmentNum;
+
+	private int installment;
+
 	private double receivable;
 
 	private double received;
-	
+
 	private double perAmount;
 
 	private double amount;
-	
+
 	private double expectAmount;
 
 	private double discount;

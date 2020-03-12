@@ -8,6 +8,7 @@
             INTO b_visa (
                 gmt_create,
                 gmt_modify,
+                code,
                 handling_date,
                 user_id,
                 state,
@@ -15,6 +16,8 @@
                 receive_date,
                 service_id,
                 service_order_id,
+                installment_num,
+                installment,
                 receivable,
                 received,
                 per_amount,
@@ -32,6 +35,7 @@
             VALUES (
                 now(),
                 now(),
+                #{code},
                 #{handlingDate,jdbcType=TIMESTAMP},
                 #{userId},
                 #{state},
@@ -39,6 +43,8 @@
                 #{receiveDate,jdbcType=TIMESTAMP},
                 #{serviceId},
                 #{serviceOrderId},
+                #{installmentNum},
+                #{installment},
                 #{receivable},
                 #{received},
                 #{perAmount},
@@ -147,6 +153,7 @@
         SELECT
             bv.id AS id,
             bv.gmt_create AS gmtCreate,
+            bv.code AS code,
             bv.handling_date AS handlingDate,
             bv.user_id AS userId,
             bv.state AS state,
@@ -154,6 +161,8 @@
             bv.receive_date AS receiveDate,
             bv.service_id AS serviceId,
             bv.service_order_id AS serviceOrderId,
+            bv.installment_num AS installmentNum,
+            bv.installment,
             bv.receivable AS receivable,
             bv.received AS received,
             bv.per_amount AS perAmount,
@@ -188,7 +197,7 @@
         <if test='userId != null and userId != ""'>
             AND bv.user_id = #{userId}
         </if>
-        ORDER BY bv.gmt_create DESC
+        ORDER BY bv.gmt_create, bv.installment_num DESC
         LIMIT #{offset}, #{rows};
     </select>
     
@@ -200,6 +209,7 @@
         SELECT
             id,
             gmt_create AS gmtCreate,
+            code,
             handling_date AS handlingDate,
             user_id AS userId,
             state,
@@ -207,6 +217,7 @@
             receive_date AS receiveDate,
             service_id AS serviceId,
             service_order_id AS serviceOrderId,
+            installment,
             receivable,
             received,
             per_amount AS perAmount,
