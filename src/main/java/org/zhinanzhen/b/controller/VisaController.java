@@ -76,10 +76,10 @@ public class VisaController extends BaseController {
 
 		try {
 			super.setPostHeader(response);
-//			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-//			if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
-//					&& !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
-//				return new Response<List<VisaDTO>>(1, "仅顾问和超级管理员能创建佣金订单.", null);
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+					&& !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+				return new Response<List<VisaDTO>>(1, "仅顾问和超级管理员能创建佣金订单.", null);
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(serviceOrderId);
 			if (serviceOrderDto == null)
 				return new Response<List<VisaDTO>>(1, "服务订单(ID:" + serviceOrderId + ")不存在!", null);
@@ -251,10 +251,20 @@ public class VisaController extends BaseController {
 		if (newAdviserId != null)
 			adviserId = newAdviserId;
 
+		// 会计角色过滤状态
+		List<String> stateList = null;
+		if (getKjId(request) != null) {
+			stateList = new ArrayList<>();
+			stateList.add(ReviewKjStateEnum.REVIEW.toString());
+			stateList.add(ReviewKjStateEnum.FINISH.toString());
+			stateList.add(ReviewKjStateEnum.COMPLETE.toString());
+			stateList.add(ReviewKjStateEnum.CLOSE.toString());
+		}
+
 		try {
 			super.setGetHeader(response);
 			return new Response<Integer>(0, visaService.countVisa(keyword, startHandlingDate, endHandlingDate,
-					startDate, endDate, adviserId, userId));
+					stateList, startDate, endDate, adviserId, userId));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -277,10 +287,20 @@ public class VisaController extends BaseController {
 		if (newAdviserId != null)
 			adviserId = newAdviserId;
 
+		// 会计角色过滤状态
+		List<String> stateList = null;
+		if (getKjId(request) != null) {
+			stateList = new ArrayList<>();
+			stateList.add(ReviewKjStateEnum.REVIEW.toString());
+			stateList.add(ReviewKjStateEnum.FINISH.toString());
+			stateList.add(ReviewKjStateEnum.COMPLETE.toString());
+			stateList.add(ReviewKjStateEnum.CLOSE.toString());
+		}
+
 		try {
 			super.setGetHeader(response);
 			return new Response<List<VisaDTO>>(0, visaService.listVisa(keyword, startHandlingDate, endHandlingDate,
-					startDate, endDate, adviserId, userId, pageNum, pageSize));
+					stateList, startDate, endDate, adviserId, userId, pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<VisaDTO>>(1, e.getMessage(), null);
 		}
