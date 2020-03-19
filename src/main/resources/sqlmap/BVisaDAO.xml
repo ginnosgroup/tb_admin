@@ -222,7 +222,7 @@
             received,
             per_amount AS perAmount,
             amount,
-            expect_amount AS expectAmount
+            expect_amount AS expectAmount,
             discount,
             gst,
             deduct_gst AS deductGst,
