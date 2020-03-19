@@ -17,10 +17,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.zhinanzhen.b.service.ServiceOrderService;
-import org.zhinanzhen.b.service.SubagencyService;
 import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
-import org.zhinanzhen.b.service.pojo.SubagencyDTO;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
@@ -38,9 +36,6 @@ public class VisaController extends BaseController {
 
 	@Resource
 	VisaService visaService;
-
-	@Resource
-	SubagencyService subagencyService;
 
 	public enum ReviewKjStateEnum {
 		PENDING, WAIT, REVIEW, FINISH, COMPLETE, CLOSE;
@@ -123,10 +118,7 @@ public class VisaController extends BaseController {
 			}
 			if (StringUtil.isNotEmpty(remarks))
 				visaDto.setRemarks(remarks);
-			SubagencyDTO subagencyDto = subagencyService.getSubagencyById(serviceOrderDto.getSubagencyId());
-			if (subagencyDto == null)
-				return new Response<List<VisaDTO>>(1, "Subagency(" + serviceOrderDto.getSubagencyId() + ")不存在!", null);
-			double commission = visaDto.getAmount() * subagencyDto.getCommissionRate();
+			double commission = visaDto.getAmount();
 			visaDto.setGst(commission / 11);
 			visaDto.setDeductGst(commission - visaDto.getGst());
 			visaDto.setBonus(visaDto.getDeductGst() * 0.1);
@@ -166,9 +158,6 @@ public class VisaController extends BaseController {
 			super.setPostHeader(response);
 			VisaDTO _visaDto = visaService.getVisaById(id);
 			VisaDTO visaDto = new VisaDTO();
-			if (serviceOrderId == null)
-				serviceOrderId = _visaDto.getServiceOrderId();
-			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(serviceOrderId);
 			visaDto.setId(id);
 			if (StringUtil.isNotEmpty(handlingDate)) {
 				visaDto.setHandlingDate(new Date(Long.parseLong(handlingDate)));
@@ -215,10 +204,7 @@ public class VisaController extends BaseController {
 			}
 			if (StringUtil.isNotEmpty(remarks))
 				visaDto.setRemarks(remarks);
-			SubagencyDTO subagencyDto = subagencyService.getSubagencyById(serviceOrderDto.getSubagencyId());
-			if (subagencyDto == null)
-				return new Response<VisaDTO>(1, "Subagency(" + serviceOrderDto.getSubagencyId() + ")不存在!", null);
-			double commission = visaDto.getAmount() * subagencyDto.getCommissionRate();
+			double commission = visaDto.getAmount();
 			visaDto.setGst(commission / 11);
 			visaDto.setDeductGst(commission - visaDto.getGst());
 			visaDto.setBonus(visaDto.getDeductGst() * 0.1);
