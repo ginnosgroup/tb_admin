@@ -46,6 +46,8 @@ public class ServiceOrderDO {
 	private double received;
 
 	private int paymentTimes;
+	
+	private double perAmount;
 
 	private double amount;
 	
