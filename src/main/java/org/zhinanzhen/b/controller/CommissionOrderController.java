@@ -305,10 +305,22 @@ public class CommissionOrderController extends BaseController {
 		if (newOfficialId != null)
 			officialId = newOfficialId;
 
+		// 会计角色过滤状态
+		List<String> stateList = new ArrayList<>();
+		if (state == null && getKjId(request) != null) {
+			stateList.add(ReviewKjStateEnum.REVIEW.toString());
+			stateList.add(ReviewKjStateEnum.FINISH.toString());
+			stateList.add(ReviewKjStateEnum.COMPLETE.toString());
+			stateList.add(ReviewKjStateEnum.CLOSE.toString());
+		} else if (state == null)
+			stateList = null;
+		else
+			stateList.add(state);
+
 		try {
 			super.setGetHeader(response);
 			return new Response<Integer>(0, commissionOrderService.countCommissionOrder(maraId, adviserId, officialId,
-					name, phone, wechatUsername, schoolId, isSettle, state));
+					name, phone, wechatUsername, schoolId, isSettle, stateList));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -337,10 +349,23 @@ public class CommissionOrderController extends BaseController {
 		if (newOfficialId != null)
 			officialId = newOfficialId;
 
+		// 会计角色过滤状态
+		List<String> stateList = new ArrayList<>();
+		if (state == null && getKjId(request) != null) {
+			stateList.add(ReviewKjStateEnum.REVIEW.toString());
+			stateList.add(ReviewKjStateEnum.FINISH.toString());
+			stateList.add(ReviewKjStateEnum.COMPLETE.toString());
+			stateList.add(ReviewKjStateEnum.CLOSE.toString());
+		} else if (state == null)
+			stateList = null;
+		else
+			stateList.add(state);
+
 		try {
 			super.setGetHeader(response);
-			return new Response<List<CommissionOrderListDTO>>(0, commissionOrderService.listCommissionOrder(maraId,
-					adviserId, officialId, name, phone, wechatUsername, schoolId, isSettle, state, pageNum, pageSize));
+			return new Response<List<CommissionOrderListDTO>>(0,
+					commissionOrderService.listCommissionOrder(maraId, adviserId, officialId, name, phone,
+							wechatUsername, schoolId, isSettle, stateList, pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<CommissionOrderListDTO>>(1, e.getMessage(), null);
 		}
