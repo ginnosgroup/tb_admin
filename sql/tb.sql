@@ -337,6 +337,7 @@ CREATE TABLE `b_service_order` (
   `discount` decimal(8,2) NOT NULL DEFAULT 0 COMMENT '折扣',
   `received` decimal(8,2) DEFAULT NULL COMMENT '总计已收',
   `payment_times` int NOT NULL DEFAULT 1 COMMENT '付款次数',
+`per_amount` decimal(8,2) NOT NULL COMMENT '本次应收款',
   `amount` decimal(8,2) DEFAULT NULL COMMENT '本次收款',
 `expect_amount` decimal(8,2) DEFAULT NULL COMMENT '预收业绩',
   `gst` decimal(8,2) DEFAULT NULL COMMENT 'GST',

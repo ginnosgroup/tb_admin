@@ -23,6 +23,7 @@
                 discount,
                 received,
                 payment_times,
+                per_amount,
                 amount,
                 expect_amount,
                 gst,
@@ -53,6 +54,7 @@
                 #{discount},
                 #{received},
                 #{paymentTimes},
+                #{perAmount},
                 #{amount},
                 #{expectAmount},
                 #{gst},
@@ -111,6 +113,9 @@
         </if>
         <if test='paymentTimes != null'>
             , payment_times = #{paymentTimes}
+        </if>
+        <if test='perAmount != null'>
+            , per_amount = #{perAmount}
         </if>
         <if test='amount != null'>
             , amount = #{amount}
@@ -210,6 +215,7 @@
             discount,
             received,
             payment_times AS paymentTimes,
+            per_amount AS perAmount,
             amount,
             expect_amount AS expectAmount,
             gst,
@@ -276,6 +282,7 @@
             discount,
             received,
             payment_times AS paymentTimes,
+            per_amount AS perAmount,
             amount,
             expect_amount AS expectAmount,
             gst,

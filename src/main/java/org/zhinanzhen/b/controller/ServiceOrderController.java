@@ -87,6 +87,7 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "discount", required = false) String discount,
 			@RequestParam(value = "received", required = false) String received,
 			@RequestParam(value = "paymentTimes", required = false) String paymentTimes,
+			@RequestParam(value = "perAmount", required = false) String perAmount,
 			@RequestParam(value = "amount", required = false) String amount,
 			@RequestParam(value = "expectAmount", required = false) String expectAmount,
 			@RequestParam(value = "gst", required = false) String gst,
@@ -130,6 +131,8 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setReceived(Double.parseDouble(received));
 			if (StringUtil.isNotEmpty(paymentTimes))
 				serviceOrderDto.setPaymentTimes(StringUtil.toInt(paymentTimes));
+			if (StringUtil.isNotEmpty(perAmount))
+				serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
 			if (StringUtil.isNotEmpty(amount))
 				serviceOrderDto.setAmount(Double.parseDouble(amount));
 			if (StringUtil.isNotEmpty(expectAmount))
@@ -180,6 +183,7 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "discount", required = false) String discount,
 			@RequestParam(value = "received", required = false) String received,
 			@RequestParam(value = "paymentTimes", required = false) String paymentTimes,
+			@RequestParam(value = "perAmount", required = false) String perAmount,
 			@RequestParam(value = "amount", required = false) String amount,
 			@RequestParam(value = "expectAmount", required = false) String expectAmount,
 			@RequestParam(value = "gst", required = false) String gst,
@@ -219,6 +223,8 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setReceived(Double.parseDouble(received));
 			if (StringUtil.isNotEmpty(paymentTimes))
 				serviceOrderDto.setPaymentTimes(StringUtil.toInt(paymentTimes));
+			if (StringUtil.isNotEmpty(perAmount))
+				serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
 			if (StringUtil.isNotEmpty(amount))
 				serviceOrderDto.setAmount(Double.parseDouble(amount));
 			if (StringUtil.isNotEmpty(expectAmount))
