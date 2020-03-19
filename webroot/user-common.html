@@ -58,15 +58,11 @@
 						<div class="form-group" style="display:block;line-height:40px;">
 								<div class="form-group">
 									<label class="control-label" style="width:80px;">总计应收</label>
-									$<input type="text" autocomplete="off" onkeyup="computeVisaDiscount()" id="b10" class="form-control" style="width:100px;">
-								</div>
-								<div class="form-group" style="margin-left:10px;">
-									<label class="control-label">折扣</label>
-									$<input type="text" autocomplete="off" disabled="disabled" id="b11" class="form-control" style="width:100px;">
-								</div>
+									$<input type="text" autocomplete="off" id="b10" class="form-control" style="width:100px;">
+								</div>								
 								<div class="form-group" style="margin-left:10px;">
 									<label class="control-label">总计收款</label>
-									$<input type="text" autocomplete="off" onkeyup="computeVisaDiscount()" id="b12" class="form-control" style="width:100px;">
+									$<input type="text" autocomplete="off" id="b12" class="form-control" style="width:100px;">
 								</div>
 								<div class="form-group" style="margin-left:10px;">
 									<label class="control-label">付款次数</label>
@@ -78,8 +74,16 @@
 						</div>
 						<div class="form-group" style="display:block;line-height:40px;">
 								<div class="form-group">
-									<label class="control-label" style="width:80px;">本次收款</label>
-									$<input type="text" autocomplete="off" id="b14" class="form-control" style="width:80px;">
+									<label class="control-label" style="width:80px;">本次应收</label>
+									$<input type="text" autocomplete="off" id="b14a" onkeyup="computeVisaDiscount()" class="form-control" style="width:80px;">
+								</div>
+								<div class="form-group" style="margin-left:10px;">
+									<label class="control-label">折扣</label>
+									$<input type="text" autocomplete="off" disabled="disabled" id="b11" class="form-control" style="width:80px;">
+								</div>
+								<div class="form-group">
+									<label class="control-label">本次收款</label>
+									$<input type="text" autocomplete="off" id="b14" onkeyup="computeVisaDiscount()" class="form-control" style="width:80px;">
 								</div>
 								<div class="form-group" style="margin-left:10px;">
 									<label class="control-label">GST</label>
@@ -264,6 +268,7 @@ function add_service1(orderId,userId,name)
 				$("#addnewservice1_id #b12").val('');
 				$("#addnewservice1_id #b13 option:first").prop('selected', 'selected'); 
 				$("#addnewservice1_id #b14").val('');
+				$("#addnewservice1_id #b14a").val('');
 				$("#addnewservice1_id #b15").val('');
 				$("#addnewservice1_id #b16").val('');
 				$("#addnewservice1_id #b17").val('');
@@ -304,6 +309,7 @@ function add_service1(orderId,userId,name)
 	        	if (response.discount) $("#addnewservice1_id #b11").val(response.discount);
 	        	if (response.received) $("#addnewservice1_id #b12").val(response.received);
 	        	if (response.paymentTimes) $("#addnewservice1_id #b13").val(response.paymentTimes);
+	        	//if (response.perAmount) $("#addnewservice1_id #b14a").val(response.perAmount);
 	        	if (response.amount) $("#addnewservice1_id #b14").val(response.amount);
 	        	if (response.gst) $("#addnewservice1_id #b15").val(response.gst);
 	        	if (response.deductGst) $("#addnewservice1_id #b16").val(response.deductGst);
@@ -595,13 +601,14 @@ function addnewService1Save()
 		          	json['receiveDate'] = d1;
 		          	json['receiveTypeId'] = jqSelect[5].value;
 		          	json['receivable'] = jqInputs[6].value;
-		          	json['discount'] = jqInputs[7].value;
-		          	json['received'] = jqInputs[8].value;
+		          	json['discount'] = jqInputs[9].value;
+		          	json['received'] = jqInputs[7].value;
+		          	json['perAmount'] = jqInputs[8].value;
 		          	json['paymentTimes'] = jqSelect[6].value;
-		          	json['amount'] = jqInputs[9].value;
-		          	json['gst'] = jqInputs[10].value;
-		          	json['deductGst'] = jqInputs[11].value;
-		          	json['expectAmount'] = jqInputs[12].value;
+		          	json['amount'] = jqInputs[10].value;
+		          	json['gst'] = jqInputs[11].value;
+		          	json['deductGst'] = jqInputs[12].value;
+		          	json['expectAmount'] = jqInputs[13].value;
 		          	json['isPay'] = true;
           	}else
           	{
@@ -611,22 +618,25 @@ function addnewService1Save()
           			$("#addnewservice1_id #error_info").html('收款凭证没有上传，请上传之后再提交。');
         				return false;
           	}
-       	}
+       	}       	
        	
        	$.post(str_url, json,
-		   	function(data){
+		   	function(data){		   			
 		   			if (data.code == 0)
 		   			{
 		   					$('#addnewservice1_id #alert_success').css('marginTop','30%');
 		   					$('#addnewservice1_id #alert_success').css('marginLeft','30%');
 		   					$('#addnewservice1_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
-		   					/*if (v.orderId == 0)
+		   					if (v.orderId == 0)
 		   					{
-		   							setTimeout(function(){window.location.href = "serviceorder-list.html";}, 2000);
+		   							//创建佣金订单
+		   							json['orderId'] = data.data;	   							
+		   							reqCommissionVisa1(json);
+		   							//setTimeout(function(){window.location.href = "serviceorder-list.html";}, 2000);
 		   					}else
 		   					{
 		   							setTimeout(function(){$('#addnewservice1_id').modal('hide')}, 2000);
-		   					}*/
+		   					}
 		   			}else
 		   			{
 		   					$('#addnewservice1_id #alert_error').css('marginTop','30%');
@@ -732,6 +742,48 @@ function addnewService2Save()
 		   	});
        		            
     }
+}
+
+function reqCommissionVisa1(order_json)
+{		
+		var order = order_json;
+		if (order.isPay == true)
+		{
+				var str_url = "visa/add";
+		   	var json = {};
+		   	
+		   	json['userId'] = order.userId;
+		   	json['handlingDate'] = new Date().getTime();
+		   	json['receiveTypeId'] = order.receiveTypeId;
+		   	json['receiveDate'] = order.receiveDate;
+		   	json['serviceId'] = order.serviceId;   	
+		   	json['serviceOrderId'] = order.orderId;
+		   	json['installment'] = order.paymentTimes;
+		   	json['receivable'] = order.receivable;
+		   	json['received'] = order.received;
+		   	json['perAmount'] = order.perAmount;
+		   	json['amount'] = order.amount;
+		   	//json['discount'] = order.discount;
+		   	json['adviserId'] = order.adviserId;
+		   	json['maraId'] = order.maraId;
+		   	json['officialId'] = order.officialId;
+		   	json['remarks'] = order.remarks;		   	
+		   	
+		   	$.post(str_url, json,
+		   	function(data){		   			
+		   			if (data.code == 0)
+		   			{
+		   					setTimeout(function(){window.location.href = "serviceorder-list.html";}, 2000);
+		   			}else
+		   			{
+		   					$('#addnewservice1_id #alert_error').css('marginTop','50%');
+		   					$('#addnewservice1_id #alert_error').css('marginLeft','30%');
+		   					$('#addnewservice1_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+		      			$("#addnewservice1_id #error_info").html(data.message);
+		      			return false;
+		   			}
+		   	});
+  	}
 }
 
 v.$watch('addnewservice1_bind', function(obj) {
@@ -845,11 +897,11 @@ v.$watch('addnewservice1_bind', function(obj) {
 
 function computeVisaDiscount()
 {
-		var b10 = $("#addnewservice1_id #b10").val();
-		var b12 = $("#addnewservice1_id #b12").val();
-		if (parseInt(b10) && parseInt(b12))
+		var b14a = $("#addnewservice1_id #b14a").val();
+		var b14 = $("#addnewservice1_id #b14").val();
+		if (parseInt(b14a) && parseInt(b14))
 		{				
-				var discount = parseInt(b10) - parseInt(b12);
+				var discount = parseInt(b14a) - parseInt(b14);
 				$("#addnewservice1_id #b11").val(discount);
 		}
 }

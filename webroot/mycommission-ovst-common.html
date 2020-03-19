@@ -94,7 +94,7 @@
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;">StudentID<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c20" class="form-control" style="width:200px;font-weight:normal;" placeholder="请输入学生ID">							
+											<input type="text" autocomplete="off" id="c20" class="form-control" style="width:200px;font-weight:normal;" readonly="readonly" placeholder="请输入学生ID">							
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;">Installment：<span style="color:red;">*</span></label>
@@ -112,11 +112,11 @@
 									</div>																											
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;">学费总金额<br/>Tuition Fee<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c25" class="form-control" style="width:200px;font-weight:normal;" placeholder="">							
+											<input type="text" autocomplete="off" id="c25" class="form-control" style="width:200px;font-weight:normal;" readonly="readonly" placeholder="">							
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;">每学期学费金额<br/>Per Term Tuition Fee<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c26" class="form-control" style="width:200px;font-weight:normal;" placeholder="">							
+											<input type="text" autocomplete="off" id="c26" class="form-control" style="width:200px;font-weight:normal;" readonly="readonly" placeholder="">							
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;">本次收款日期<span style="color:red;">*</span></label>
@@ -151,7 +151,7 @@
 					</div>
 					<div class="modal-footer" style="text-align: center;">
 							<dle v-if="ap_list==='GW'">									
-									<dle v-if="state==='PENDING'">
+									<dle v-if="state==='PENDING' || state==='WAIT'">
 									<button onclick="requestCommissionSave()" id="btn_request" type="button" class="btn btn-primary">申请佣金</button>
 									<button onclick="alert('等待接口实现');" id="btn_receipt" style="display:none;" type="button" class="btn btn-danger">上传收款凭证</button>
 									<button onclick="requestCommissionClose();" id="btn_close" type="button" style="display:none;" class="btn btn-primary">关闭订单</button>
@@ -320,8 +320,13 @@ function requestCommissionSave()
     {            	            	            	                             
        	var str_url = "commissionOrder/update";
        	var json = {};       	
-       	json['id'] = v_sub2.orderId;
+       	json['id'] = v_sub2.orderId;       	
+       	json['schoolId'] = v_sub2.order_detail.schoolId;
+       	json['studentCode'] = $(f+'#c20').val();
+       	json['adviserId'] = v_sub2.order_detail.adviserId;
+       	json['officialId'] = v_sub2.order_detail.officialId;
        	json['isStudying'] = true;
+       	//console.log(json);       	
        	var d = 0;
        	if ($(f+'#c22').val())
        	{
@@ -358,6 +363,7 @@ function requestCommissionSave()
        	json['installmentDueDate'] =  d;
        	json['tuitionFee'] =  $(f+'#c25').val();
        	json['perTermTuitionFee'] =  $(f+'#c26').val();
+       	json['receiveTypeId'] =  $(f+'#c28').val();
        	if ($(f+'#c27').val())
        	{
        			var arr_d = $(f+'#c27').val().split("/");
@@ -369,8 +375,7 @@ function requestCommissionSave()
        			d = 0;
        	}
        	json['receiveDate'] =  d;
-       	json['perAmount'] =  $(f+'#c29').val();
-       	json['discount'] =  $(f+'#c30').val();
+       	json['perAmount'] =  $(f+'#c29').val();       	
        	json['amount'] =  $(f+'#c31').val();
        	json['remarks'] =  $(f+'#c33').val();       	       	
        	
@@ -378,10 +383,12 @@ function requestCommissionSave()
 		   	function(data){
 		   			if (data.code == 0)
 		   			{
-		   					$('#ovst_id #alert_success').css('marginTop','30%');
+		   					//提交财务审核
+		   					flowstep('REVIEW',1);
+		   					/*$('#ovst_id #alert_success').css('marginTop','30%');
 		   					$('#ovst_id #alert_success').css('marginLeft','30%');
 		   					$('#ovst_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
-		   					setTimeout(function(){window.location.href = "mycommission-ovst.html";}, 2000);
+		   					setTimeout(function(){window.location.href = "mycommission-ovst.html";}, 2000);*/
 		   			}else
 		   			{
 		   					$('#ovst_id #alert_error').css('marginTop','30%');

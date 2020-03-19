@@ -57,11 +57,7 @@
 									<div class="form-group">
 										<label class="control-label" style="width:80px;"><strong>总计应收：</strong></label>
 										$<label id="b10" style="width:80px;"></label>
-									</div>
-									<div class="form-group" style="margin-left:10px;">
-										<label class="control-label"><strong>折扣：</strong></label>
-										$<label id="b11" style="width:80px;"></label>
-									</div>
+									</div>									
 									<div class="form-group" style="margin-left:10px;">
 										<label class="control-label"><strong>总计收款：</strong></label>
 										$<label id="b12" style="width:80px;"></label>
@@ -72,6 +68,14 @@
 									</div>
 							</div>
 							<div class="form-group" style="display:block;line-height:40px;">
+									<div class="form-group" style="margin-left:10px;">
+										<label class="control-label"><strong>本次应收：</strong></label>
+										$<label id="b14a" style="width:80px;"></label>
+									</div>
+									<div class="form-group" style="margin-left:10px;">
+										<label class="control-label"><strong>折扣：</strong></label>
+										$<label id="b11" style="width:80px;"></label>
+									</div>
 									<div class="form-group">
 										<label class="control-label" style="width:80px;"><strong>本次收款：</strong></label>
 										$<label id="b14" style="width:80px;"></label>
@@ -399,6 +403,7 @@ function show_addnewservice_id(orderId,type)
         	$('#show_addnewservice1_id #b12').html(response.received);
         	$('#show_addnewservice1_id #b13').html(response.paymentTimes);
         	$('#show_addnewservice1_id #b14').html(response.amount);
+        	//$('#show_addnewservice1_id #b14a').html(response.perAmount);
         	$('#show_addnewservice1_id #b15').html(response.gst);
         	$('#show_addnewservice1_id #b16').html(response.deductGst);
         	$('#show_addnewservice1_id #b17').html(response.expectAmount);
@@ -586,7 +591,7 @@ v.$watch('addnewservice2_bind', function(obj) {
 });
 
 function reqCommissionVisa()
-{
+{		
 		var order = v_sub.order_detail;
 		if (order.pay == true)
 		{
@@ -599,19 +604,19 @@ function reqCommissionVisa()
 		   	json['receiveDate'] = order.receiveDate;
 		   	json['serviceId'] = order.serviceId;   	
 		   	json['serviceOrderId'] = v.orderId;
+		   	json['installment'] = order.paymentTimes;
 		   	json['receivable'] = order.receivable;
 		   	json['received'] = order.received;
-		   	json['perAmount'] = order.amount;//暂时传本次收款
+		   	json['perAmount'] = order.amount;//暂时传本次收款，应传perAmount
 		   	json['amount'] = order.amount;
-		   	json['discount'] = order.discount;
+		   	//json['discount'] = order.discount;
 		   	json['adviserId'] = order.adviserId;
 		   	json['maraId'] = order.maraId;
 		   	json['officialId'] = order.officialId;
-		   	json['remarks'] = order.remarks;   	
-		   	//console.log(json);
+		   	json['remarks'] = order.remarks;		   	
 		   	
 		   	$.post(str_url, json,
-		   	function(data){
+		   	function(data){		   			
 		   			if (data.code == 1)
 		   			{
 		   					$('#show_addnewservice1_id #alert_error').css('marginTop','50%');

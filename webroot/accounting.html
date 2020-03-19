@@ -235,11 +235,16 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li>
+								<li v-if="ap_list==='GW'" class="active">
 									<a href="mycommission.html">
 										我的佣金报表
-									</a>
-								</li>								
+									</a>									
+								</li>
+								<li v-if="ap_list==='KJ'" class="active">
+									<a href="mycommission-accounting.html">
+										我的佣金报表
+									</a>									
+								</li>						
 								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
 									<a href="table-export.html">
 										导出数据
@@ -701,10 +706,10 @@
 			{
           var jqInputs = $('input',$("#example"));
           var jqText = $('textarea',$("#example"));
-          var jqSelect = $('select',$("#example"));
+          var jqSelect = $('select',$("#example"));          
           
           var check_result = 0;
-          if (jqInputs[0].value != '' && jqInputs[1].value != '' && jqInputs[2].value != '' && jqInputs[3].value != '')
+          if (jqInputs[0].value != '' && jqInputs[1].value != '' && jqInputs[2].value != '')
           {
           		check_result = true;
           }else
@@ -715,7 +720,7 @@
           if (check_result)
           {              
               var str_url = "kj/add";
-              var sa_id = $("#id").val();
+              var sa_id = $("#id").val();           
               if (sa_id != '0') str_url = "kj/update";
               $("#id").val('0');
               
