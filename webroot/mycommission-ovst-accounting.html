@@ -386,9 +386,8 @@
 														<td v-html="item.strState"></td>
 														<td>
 														<a href="javascript:open_detail({{item.serviceOrderId}},{{item.oid}});">查看</a>
-														<dle v-if="ap_list==='GW'">
-																<d1 v-if="item.currentState==='PENDING' || item.currentState==='WAIT'">
-																		<a href="javascript:reqCommissionOvst({{item.serviceOrderId}},{{item.oid}})"><span style="color:blue;">申请佣金</span></a>
+														<dle v-if="ap_list==='KJ'">
+																<d1 v-if="item.currentState==='REVIEW'">
 																</d1>
 														</dle>
 														</td>
@@ -457,8 +456,7 @@
 				</div>
 			</div>
 		</div>		
-		<div id="load-mycommission-ovst-page"></div>
-		<div id="load-mycommission-ovst-view-page"></div>
+		<div id="load-mycommission-ovst-accounting-view-page"></div>
 		<script src="js/jquery-1.8.3.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
 		<script src="js/jquery.dcjqaccordion.2.7.js"></script>
@@ -471,7 +469,7 @@
 		<script src="js/vue.js"></script>
 		<script src="js/common.js?verson=1"></script>
 		<script>
-			$("#load-mycommission-ovst-view-page").load("mycommission-ovst-common-view.html?random="+Math.random());
+			$("#load-mycommission-ovst-accounting-view-page").load("mycommission-ovst-accounting-common-view.html?random="+Math.random());
 			tb.isLogin("mycommission-ovst.html");
 			$("td,th").addClass("text-center");
 			var v = new Vue({
@@ -769,12 +767,7 @@
 			function open_detail(serviceId,orderId)
       {
       		show_commission_detail(serviceId,orderId);
-      }
-      
-      function reqCommissionOvst(serviceId,orderId)
-      {
-      		edit_commission_detail(serviceId,orderId);
-      }
+      }            
       
       function show_knowledge_detail(id,parentId)
       {
