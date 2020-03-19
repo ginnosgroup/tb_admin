@@ -137,6 +137,12 @@
         <if test='startHandlingDate != null and startHandlingDate != "" and endHandlingDate != null and endHandlingDate != ""'>
             <![CDATA[ AND handling_date > #{startHandlingDate} AND handling_date < #{endHandlingDate} ]]>
         </if>
+        <if test='stateList != null'>
+			AND state IN
+			<foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">
+				#{stateList}
+			</foreach>
+		</if>
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
             <![CDATA[ AND gmt_create > #{startDate} AND gmt_create < #{endDate} ]]>
         </if>
@@ -188,6 +194,12 @@
         <if test='startHandlingDate != null and startHandlingDate != "" and endHandlingDate != null and endHandlingDate != ""'>
             <![CDATA[ AND bv.handling_date > #{startHandlingDate} AND bv.handling_date < #{endHandlingDate} ]]>
         </if>
+        <if test='stateList != null'>
+			AND state IN
+			<foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">
+				#{stateList}
+			</foreach>
+		</if>
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
             <![CDATA[ AND bv.gmt_create > #{startDate} AND bv.gmt_create < #{endDate} ]]>
         </if>
@@ -222,7 +234,7 @@
             received,
             per_amount AS perAmount,
             amount,
-            expect_amount AS expectAmount
+            expect_amount AS expectAmount,
             discount,
             gst,
             deduct_gst AS deductGst,

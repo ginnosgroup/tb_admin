@@ -13,14 +13,15 @@ public interface VisaDAO {
 	public int updateVisa(VisaDO visaDo);
 
 	public int countVisa(@Param("keyword") String keyword, @Param("startHandlingDate") String startHandlingDate,
-			@Param("endHandlingDate") String endHandlingDate, @Param("startDate") String startDate,
-			@Param("endDate") String endDate, @Param("adviserId") Integer adviserId, @Param("userId") Integer userId);
+			@Param("endHandlingDate") String endHandlingDate, @Param("stateList") List<String> stateList,
+			@Param("startDate") String startDate, @Param("endDate") String endDate,
+			@Param("adviserId") Integer adviserId, @Param("userId") Integer userId);
 
 	public List<VisaListDO> listVisa(@Param("keyword") String keyword,
 			@Param("startHandlingDate") String startHandlingDate, @Param("endHandlingDate") String endHandlingDate,
-			@Param("startDate") String startDate, @Param("endDate") String endDate,
-			@Param("adviserId") Integer adviserId, @Param("userId") Integer userId, @Param("offset") int offset,
-			@Param("rows") int rows);
+			@Param("stateList") List<String> stateList, @Param("startDate") String startDate,
+			@Param("endDate") String endDate, @Param("adviserId") Integer adviserId, @Param("userId") Integer userId,
+			@Param("offset") int offset, @Param("rows") int rows);
 
 	public double sumBonusByThisMonth();
 

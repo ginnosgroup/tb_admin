@@ -78,7 +78,7 @@ public class SubagencyServiceImpl extends BaseService implements SubagencyServic
 	@Override
 	public SubagencyDTO getSubagencyById(int id) throws ServiceException {
 		if (id <= 0) {
-			ServiceException se = new ServiceException("id error !");
+			ServiceException se = new ServiceException("subagency id error !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}

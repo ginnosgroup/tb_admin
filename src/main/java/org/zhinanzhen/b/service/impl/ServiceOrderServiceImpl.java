@@ -211,7 +211,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	@Override
 	public ServiceOrderDTO getServiceOrderById(int id) throws ServiceException {
 		if (id <= 0) {
-			ServiceException se = new ServiceException("id error !");
+			ServiceException se = new ServiceException("service order id error !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}

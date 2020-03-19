@@ -156,10 +156,10 @@
             AND so.mara_id = #{maraId}
         </if>
         <if test='adviserId != null and adviserId != ""'>
-            AND so.adviser_id = #{adviserId}
+            AND co.adviser_id = #{adviserId}
         </if>
         <if test='officialId != null and officialId != ""'>
-            AND so.official_id = #{officialId}
+            AND co.official_id = #{officialId}
         </if>
         <if test='name != null and name != ""'>
             AND u.name LIKE '%${name}%'
@@ -171,14 +171,17 @@
             AND u.wechat_username = #{wechatUsername}
         </if>
         <if test='schoolId != null and schoolId != ""'>
-            AND so.school_id = #{schoolId}
+            AND co.school_id = #{schoolId}
         </if>
         <if test='isSettle != null'>
-            AND so.is_settle = #{isSettle}
+            AND co.is_settle = #{isSettle}
         </if>
-        <if test='state != null and state != ""'>
-            AND so.state = #{state}
-        </if>
+        <if test='stateList != null'>
+			AND co.state IN
+			<foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">
+				#{stateList}
+			</foreach>
+		</if>
         ;
     </select>
     
@@ -246,9 +249,12 @@
         <if test='isSettle != null'>
             AND co.is_settle = #{isSettle}
         </if>
-        <if test='state != null and state != ""'>
-            AND co.state = #{state}
-        </if>
+        <if test='stateList != null'>
+			AND co.state IN
+			<foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">
+				#{stateList}
+			</foreach>
+		</if>
         ORDER BY co.gmt_create, co.installment_num ASC
         LIMIT #{offset}, #{rows};
     </select>

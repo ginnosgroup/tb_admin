@@ -74,14 +74,6 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
-//		List<CommissionOrderDO> commissionOrderList = commissionOrderDao
-//				.listCommissionOrderByServiceOrderId(commissionOrderDto.getServiceOrderId());
-//		if (commissionOrderList != null && commissionOrderList.size() > 0) {
-//			ServiceException se = new ServiceException(
-//					"该服务订单已经创建过佣金订单!(ServiceOrderId:" + commissionOrderDto.getServiceOrderId() + ")");
-//			se.setCode(ErrorCodeEnum.DATA_ERROR.code());
-//			throw se;
-//		}
 		try {
 			CommissionOrderDO commissionOrderDo = mapper.map(commissionOrderDto, CommissionOrderDO.class);
 			List<ServiceOrderReviewDO> serviceOrderReviews = serviceOrderReviewDao
@@ -108,15 +100,15 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 
 	@Override
 	public int countCommissionOrder(Integer maraId, Integer adviserId, Integer officialId, String name, String phone,
-			String wechatUsername, Integer schoolId, Boolean isSettle, String state) throws ServiceException {
+			String wechatUsername, Integer schoolId, Boolean isSettle, List<String> stateList) throws ServiceException {
 		return commissionOrderDao.countCommissionOrder(maraId, adviserId, officialId, name, phone, wechatUsername,
-				schoolId, isSettle, state);
+				schoolId, isSettle, stateList);
 	}
 
 	@Override
 	public List<CommissionOrderListDTO> listCommissionOrder(Integer maraId, Integer adviserId, Integer officialId,
-			String name, String phone, String wechatUsername, Integer schoolId, Boolean isSettle, String state,
-			int pageNum, int pageSize) throws ServiceException {
+			String name, String phone, String wechatUsername, Integer schoolId, Boolean isSettle,
+			List<String> stateList, int pageNum, int pageSize) throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
 		}
@@ -127,7 +119,7 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 		List<CommissionOrderListDO> commissionOrderListDoList = new ArrayList<>();
 		try {
 			commissionOrderListDoList = commissionOrderDao.listCommissionOrder(maraId, adviserId, officialId, name,
-					phone, wechatUsername, schoolId, isSettle, state, pageNum * pageSize, pageSize);
+					phone, wechatUsername, schoolId, isSettle, stateList, pageNum * pageSize, pageSize);
 			if (commissionOrderListDoList == null)
 				return null;
 		} catch (Exception e) {
