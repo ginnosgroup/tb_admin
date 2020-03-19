@@ -17,7 +17,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.zhinanzhen.b.service.ServiceOrderService;
+import org.zhinanzhen.b.service.SubagencyService;
 import org.zhinanzhen.b.service.VisaService;
+import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
+import org.zhinanzhen.b.service.pojo.SubagencyDTO;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
@@ -36,6 +39,9 @@ public class VisaController extends BaseController {
 	@Resource
 	VisaService visaService;
 
+	@Resource
+	SubagencyService subagencyService;
+
 	public enum ReviewKjStateEnum {
 		PENDING, WAIT, REVIEW, FINISH, COMPLETE, CLOSE;
 		public static ReviewKjStateEnum get(String name) {
@@ -53,7 +59,7 @@ public class VisaController extends BaseController {
 			@RequestParam(value = "receiveTypeId") String receiveTypeId,
 			@RequestParam(value = "receiveDate") String receiveDate,
 			@RequestParam(value = "serviceId") String serviceId,
-			@RequestParam(value = "serviceOrderId") String serviceOrderId,
+			@RequestParam(value = "serviceOrderId") Integer serviceOrderId,
 			@RequestParam(value = "installment") Integer installment,
 			@RequestParam(value = "receivable") String receivable,
 			@RequestParam(value = "received", required = false) String received,
@@ -74,6 +80,9 @@ public class VisaController extends BaseController {
 			if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
 					&& !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 				return new Response<List<VisaDTO>>(1, "仅顾问和超级管理员能创建佣金订单.", null);
+			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(serviceOrderId);
+			if (serviceOrderDto == null)
+				return new Response<List<VisaDTO>>(1, "服务订单(ID:" + serviceOrderId + ")不存在!", null);
 			List<VisaDTO> visaDtoList = new ArrayList<>();
 			VisaDTO visaDto = new VisaDTO();
 			visaDto.setState(ReviewKjStateEnum.PENDING.toString());
@@ -88,8 +97,8 @@ public class VisaController extends BaseController {
 				visaDto.setReceiveDate(new Date(Long.parseLong(receiveDate)));
 			if (StringUtil.isNotEmpty(serviceId))
 				visaDto.setServiceId(Integer.parseInt(serviceId));
-			if (StringUtil.isNotEmpty(serviceOrderId))
-				visaDto.setServiceOrderId(Integer.parseInt(serviceOrderId));
+			if (serviceOrderId > 0)
+				visaDto.setServiceOrderId(serviceOrderId);
 			if (installment != null)
 				visaDto.setInstallment(installment);
 			if (StringUtil.isNotEmpty(receivable))
@@ -114,7 +123,10 @@ public class VisaController extends BaseController {
 			}
 			if (StringUtil.isNotEmpty(remarks))
 				visaDto.setRemarks(remarks);
-			double commission = visaDto.getAmount();
+			SubagencyDTO subagencyDto = subagencyService.getSubagencyById(serviceOrderDto.getSubagencyId());
+			if (subagencyDto == null)
+				return new Response<List<VisaDTO>>(1, "Subagency(" + serviceOrderDto.getSubagencyId() + ")不存在!", null);
+			double commission = visaDto.getAmount() * subagencyDto.getCommissionRate();
 			visaDto.setGst(commission / 11);
 			visaDto.setDeductGst(commission - visaDto.getGst());
 			visaDto.setBonus(visaDto.getDeductGst() * 0.1);
@@ -140,7 +152,7 @@ public class VisaController extends BaseController {
 			@RequestParam(value = "receiveTypeId", required = false) String receiveTypeId,
 			@RequestParam(value = "receiveDate", required = false) String receiveDate,
 			@RequestParam(value = "serviceId", required = false) String serviceId,
-			@RequestParam(value = "serviceOrderId", required = false) String serviceOrderId,
+			@RequestParam(value = "serviceOrderId", required = false) Integer serviceOrderId,
 			@RequestParam(value = "receivable", required = false) String receivable,
 			@RequestParam(value = "received", required = false) String received,
 			@RequestParam(value = "perAmount", required = false) String perAmount,
@@ -154,6 +166,9 @@ public class VisaController extends BaseController {
 			super.setPostHeader(response);
 			VisaDTO _visaDto = visaService.getVisaById(id);
 			VisaDTO visaDto = new VisaDTO();
+			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(serviceOrderId);
+			if (serviceOrderDto == null)
+				return new Response<VisaDTO>(1, "服务订单(ID:" + serviceOrderId + ")不存在!", null);
 			visaDto.setId(id);
 			if (StringUtil.isNotEmpty(handlingDate)) {
 				visaDto.setHandlingDate(new Date(Long.parseLong(handlingDate)));
@@ -170,8 +185,8 @@ public class VisaController extends BaseController {
 			if (StringUtil.isNotEmpty(serviceId)) {
 				visaDto.setServiceId(Integer.parseInt(serviceId));
 			}
-			if (StringUtil.isNotEmpty(serviceOrderId))
-				visaDto.setServiceOrderId(Integer.parseInt(serviceOrderId));
+			if (serviceOrderId > 0)
+				visaDto.setServiceOrderId(serviceOrderId);
 			if (StringUtil.isNotEmpty(receivable)) {
 				visaDto.setReceivable(Double.parseDouble(receivable));
 			}
@@ -200,12 +215,16 @@ public class VisaController extends BaseController {
 			}
 			if (StringUtil.isNotEmpty(remarks))
 				visaDto.setRemarks(remarks);
-			double commission = visaDto.getAmount();
+			SubagencyDTO subagencyDto = subagencyService.getSubagencyById(serviceOrderDto.getSubagencyId());
+			if (subagencyDto == null)
+				return new Response<VisaDTO>(1, "Subagency(" + serviceOrderDto.getSubagencyId() + ")不存在!", null);
+			double commission = visaDto.getAmount() * subagencyDto.getCommissionRate();
 			visaDto.setGst(commission / 11);
 			visaDto.setDeductGst(commission - visaDto.getGst());
 			visaDto.setBonus(visaDto.getDeductGst() * 0.1);
 			visaDto.setExpectAmount(
 					new BigDecimal(commission * 1.1).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			visaDto.setState(ReviewKjStateEnum.REVIEW.toString()); // 修改后重新审核
 			if (visaService.updateVisa(visaDto) > 0) {
 				return new Response<VisaDTO>(0, visaDto);
 			} else {
