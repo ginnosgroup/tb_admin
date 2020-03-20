@@ -104,8 +104,8 @@
 					<div class="modal-footer" style="text-align: center;">
 							<dle v-if="ap_list==='GW'">									
 									<dle v-if="state==='PENDING' || state==='WAIT'">
-									<button onclick="requestCommissionVisaSave()" id="btn_request" type="button" class="btn btn-primary">申请佣金</button>
-									<button onclick="alert('等待接口实现');" id="btn_receipt" style="display:none;" type="button" class="btn btn-danger">上传收款凭证</button>
+									<button onclick="alert('等待接口实现');" id="btn_receipt" style="display:;" type="button" class="btn btn-danger">上传收款凭证</button>
+									<button onclick="requestCommissionVisaSave()" id="btn_request" type="button" class="btn btn-primary">申请佣金</button>									
 									</dle>
 							</dle>													
 							<button onclick="" type="button" class="btn btn-default" data-dismiss="modal">取消</button>
@@ -238,12 +238,11 @@ function requestCommissionVisaSave()
 		   	function(data){
 		   			if (data.code == 0)
 		   			{
-		   					//提交财务审核
-		   					flowstep('REVIEW',1);
-		   					/*$('#visa_id #alert_success').css('marginTop','30%');
+		   					//提交财务审核		   					
+		   					$('#visa_id #alert_success').css('marginTop','30%');
 		   					$('#visa_id #alert_success').css('marginLeft','30%');
 		   					$('#visa_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
-		   					setTimeout(function(){window.location.href = "mycommission-ovst.html";}, 2000);*/
+		   					setTimeout(function(){window.location.href = "mycommission.html";}, 2000);
 		   			}else
 		   			{
 		   					$('#visa_id #alert_error').css('marginTop','30%');

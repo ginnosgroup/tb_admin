@@ -590,45 +590,6 @@ v.$watch('addnewservice2_bind', function(obj) {
 		});
 });
 
-function reqCommissionVisa()
-{		
-		var order = v_sub.order_detail;
-		if (order.pay == true)
-		{
-				var str_url = "visa/add";
-		   	var json = {};
-		   	   	
-		   	json['userId'] = order.userId;
-		   	json['handlingDate'] = new Date().getTime();
-		   	json['receiveTypeId'] = order.receiveTypeId;
-		   	json['receiveDate'] = order.receiveDate;
-		   	json['serviceId'] = order.serviceId;   	
-		   	json['serviceOrderId'] = v.orderId;
-		   	json['installment'] = order.paymentTimes;
-		   	json['receivable'] = order.receivable;
-		   	json['received'] = order.received;
-		   	json['perAmount'] = order.amount;//暂时传本次收款，应传perAmount
-		   	json['amount'] = order.amount;
-		   	//json['discount'] = order.discount;
-		   	json['adviserId'] = order.adviserId;
-		   	json['maraId'] = order.maraId;
-		   	json['officialId'] = order.officialId;
-		   	json['remarks'] = order.remarks;		   	
-		   	
-		   	$.post(str_url, json,
-		   	function(data){		   			
-		   			if (data.code == 1)
-		   			{
-		   					$('#show_addnewservice1_id #alert_error').css('marginTop','50%');
-		   					$('#show_addnewservice1_id #alert_error').css('marginLeft','30%');
-		   					$('#show_addnewservice1_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
-		      			$("#show_addnewservice1_id #error_info").html(data.message);
-		      			return false;
-		   			}
-		   	});
-  	}
-}
-
 function setInstallment(va)
 {
 		switch(parseInt(va))
