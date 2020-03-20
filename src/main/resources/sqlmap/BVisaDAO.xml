@@ -209,7 +209,7 @@
         <if test='userId != null and userId != ""'>
             AND bv.user_id = #{userId}
         </if>
-        ORDER BY bv.gmt_create, bv.installment_num DESC
+        ORDER BY bv.gmt_create, bv.installment_num ASC
         LIMIT #{offset}, #{rows};
     </select>
     
