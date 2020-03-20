@@ -208,7 +208,7 @@ CREATE TABLE `b_visa` (
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
--- 移民佣金
+-- 移民佣金 (OLD)
 CREATE TABLE `b_brokerage` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
@@ -373,7 +373,8 @@ CREATE TABLE `b_commission_order` (
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
 `code` varchar(64) DEFAULT NULL COMMENT '分组编码',
   `service_order_id` int NOT NULL COMMENT '服务订单编号 (对应b_service_order.id)',
-`state` varchar(8) NOT NULL COMMENT '状态',
+`state` varchar(8) NOT NULL COMMENT '状态(PENDING, WAIT, REVIEW, FINISH, COMPLETE, CLOSE)',
+`commission_state` varchar(8) NOT NULL COMMENT '佣金状态(DJY:待结佣, YJY:已结佣, DZY:待追佣, YZY:已追佣)',
 `is_settle` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否提前扣佣',
 `is_deposit_user` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否为保证金用户',
 `school_id` int NOT NULL COMMENT '学校编号 (对应b_school.id)',

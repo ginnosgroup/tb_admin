@@ -13,13 +13,15 @@ public interface CommissionOrderDAO {
 	public int countCommissionOrder(@Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
 			@Param("officialId") Integer officialId, @Param("name") String name, @Param("phone") String phone,
 			@Param("wechatUsername") String wechatUsername, @Param("schoolId") Integer schoolId,
-			@Param("isSettle") Boolean isSettle, @Param("stateList") List<String> stateList);
+			@Param("isSettle") Boolean isSettle, @Param("stateList") List<String> stateList,
+			@Param("commissionStateList") List<String> commissionStateList);
 
 	public List<CommissionOrderListDO> listCommissionOrder(@Param("maraId") Integer maraId,
 			@Param("adviserId") Integer adviserId, @Param("officialId") Integer officialId, @Param("name") String name,
 			@Param("phone") String phone, @Param("wechatUsername") String wechatUsername,
 			@Param("schoolId") Integer schoolId, @Param("isSettle") Boolean isSettle,
-			@Param("stateList") List<String> stateList, @Param("offset") int offset, @Param("rows") int rows);
+			@Param("stateList") List<String> stateList, @Param("commissionStateList") List<String> commissionStateList,
+			@Param("offset") int offset, @Param("rows") int rows);
 
 	public List<CommissionOrderDO> listCommissionOrderByCode(String code);
 
