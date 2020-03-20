@@ -183,6 +183,11 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 				visaDto.setPhone(userDo.getPhone());
 				visaDto.setBirthday(userDo.getBirthday());
 			}
+			if (visaDto.getReceiveTypeId() > 0) {
+				ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(visaDto.getReceiveTypeId());
+				if (receiveTypeDo != null)
+					visaDto.setReceiveTypeName(receiveTypeDo.getName());
+			}
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
