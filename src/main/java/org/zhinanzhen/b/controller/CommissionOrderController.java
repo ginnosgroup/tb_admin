@@ -204,8 +204,10 @@ public class CommissionOrderController extends BaseController {
 						null);
 			CommissionOrderDTO commissionOrderDto = new CommissionOrderDTO();
 			commissionOrderDto.setId(id);
-			if (adminUserLoginInfo != null && "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) // 只有会计能修改佣金状态
-				commissionOrderDto.setCommissionState(CommissionStateEnum.get(commissionState).toString());
+			if (adminUserLoginInfo != null && "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& commissionState != null) // 只有会计能修改佣金状态
+				commissionOrderDto
+						.setCommissionState(CommissionStateEnum.get(commissionState.toUpperCase()).toString());
 			if (isSettle != null)
 				commissionOrderDto.setSettle(isSettle);
 			if (isDepositUser != null)
