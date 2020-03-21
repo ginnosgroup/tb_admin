@@ -16,6 +16,8 @@ public class CommissionOrderDTO {
 	private int serviceOrderId;
 
 	private String state;
+	
+	private String commissionState;
 
 	private boolean isSettle;
 

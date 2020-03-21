@@ -53,6 +53,16 @@ public class CommissionOrderController extends BaseController {
 		}
 	}
 
+	public enum CommissionStateEnum {
+		DJY, YJY, DZY, YZY;
+		public static CommissionStateEnum get(String name) {
+			for (CommissionStateEnum e : CommissionStateEnum.values())
+				if (e.toString().equals(name))
+					return e;
+			return null;
+		}
+	}
+
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<List<CommissionOrderDTO>> add(@RequestParam(value = "serviceOrderId") Integer serviceOrderId,
@@ -292,8 +302,9 @@ public class CommissionOrderController extends BaseController {
 			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
 			@RequestParam(value = "schoolId", required = false) Integer schoolId,
 			@RequestParam(value = "isSettle", required = false) Boolean isSettle,
-			@RequestParam(value = "state", required = false) String state, HttpServletRequest request,
-			HttpServletResponse response) {
+			@RequestParam(value = "state", required = false) String state,
+			@RequestParam(value = "commissionState", required = false) String commissionState,
+			HttpServletRequest request, HttpServletResponse response) {
 
 		Integer newMaraId = getMaraId(request);
 		if (newMaraId != null)
@@ -317,10 +328,16 @@ public class CommissionOrderController extends BaseController {
 		else
 			stateList.add(state);
 
+		List<String> commissionStateList = null;
+		if (StringUtil.isNotEmpty(commissionState)) {
+			commissionStateList = new ArrayList<>();
+			commissionStateList.add(commissionState);
+		}
+
 		try {
 			super.setGetHeader(response);
 			return new Response<Integer>(0, commissionOrderService.countCommissionOrder(maraId, adviserId, officialId,
-					name, phone, wechatUsername, schoolId, isSettle, stateList));
+					name, phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -336,8 +353,10 @@ public class CommissionOrderController extends BaseController {
 			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
 			@RequestParam(value = "schoolId", required = false) Integer schoolId,
 			@RequestParam(value = "isSettle", required = false) Boolean isSettle,
-			@RequestParam(value = "state", required = false) String state, @RequestParam(value = "pageNum") int pageNum,
-			@RequestParam(value = "pageSize") int pageSize, HttpServletRequest request, HttpServletResponse response) {
+			@RequestParam(value = "state", required = false) String state,
+			@RequestParam(value = "commissionState", required = false) String commissionState,
+			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
+			HttpServletRequest request, HttpServletResponse response) {
 
 		Integer newMaraId = getMaraId(request);
 		if (newMaraId != null)
@@ -361,11 +380,17 @@ public class CommissionOrderController extends BaseController {
 		else
 			stateList.add(state);
 
+		List<String> commissionStateList = null;
+		if (StringUtil.isNotEmpty(commissionState)) {
+			commissionStateList = new ArrayList<>();
+			commissionStateList.add(commissionState);
+		}
+
 		try {
 			super.setGetHeader(response);
 			return new Response<List<CommissionOrderListDTO>>(0,
 					commissionOrderService.listCommissionOrder(maraId, adviserId, officialId, name, phone,
-							wechatUsername, schoolId, isSettle, stateList, pageNum, pageSize));
+							wechatUsername, schoolId, isSettle, stateList, commissionStateList, pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<CommissionOrderListDTO>>(1, e.getMessage(), null);
 		}

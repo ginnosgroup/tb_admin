@@ -11,6 +11,7 @@
                 code,
                 service_order_id,
                 state,
+                commission_state,
                 is_settle,
                 is_deposit_user,
                 school_id,
@@ -44,6 +45,7 @@
                 #{code},
                 #{serviceOrderId},
                 'PENDING',
+                'DJY',
                 #{isSettle},
                 #{isDepositUser},
                 #{schoolId},
@@ -182,6 +184,12 @@
 				#{stateList}
 			</foreach>
 		</if>
+		<if test='commissionStateList != null'>
+			AND co.commission_state IN
+			<foreach collection="commissionStateList" item="commissionStateList" index="index" open="(" close=")" separator=",">
+				#{commissionStateList}
+			</foreach>
+		</if>
         ;
     </select>
     
@@ -255,6 +263,12 @@
 				#{stateList}
 			</foreach>
 		</if>
+		<if test='commissionStateList != null'>
+			AND co.commission_state IN
+			<foreach collection="commissionStateList" item="commissionStateList" index="index" open="(" close=")" separator=",">
+				#{commissionStateList}
+			</foreach>
+		</if>
         ORDER BY co.gmt_create, co.installment_num ASC
         LIMIT #{offset}, #{rows};
     </select>
@@ -266,6 +280,7 @@
             code,
             service_order_id AS serviceOrderId,
             state,
+            commission_state AS commissionState,
             is_settle AS isSettle,
             is_deposit_user AS isDepositUser,
             school_id AS schoolId,
@@ -302,6 +317,7 @@
             code,
             service_order_id AS serviceOrderId,
             state,
+            commission_state AS commissionState,
             is_settle AS isSettle,
             is_deposit_user AS isDepositUser,
             school_id AS schoolId,
@@ -338,6 +354,7 @@
             co.code,
             co.service_order_id AS serviceOrderId,
             co.state,
+            co.commission_state AS commissionState,
             co.is_settle AS isSettle,
             co.is_deposit_user AS isDepositUser,
             co.school_id AS schoolId,
