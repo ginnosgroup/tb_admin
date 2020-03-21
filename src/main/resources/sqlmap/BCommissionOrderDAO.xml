@@ -81,6 +81,9 @@
         <if test='state != null and state != ""'>
             , state = #{state}
         </if>
+        <if test='commissionState != null and commissionState != ""'>
+            , commission_state = #{commissionState}
+        </if>
         <if test='isSettle != null'>
             , is_settle = #{isSettle}
         </if>

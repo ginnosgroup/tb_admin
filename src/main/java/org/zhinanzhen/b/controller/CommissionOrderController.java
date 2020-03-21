@@ -169,6 +169,7 @@ public class CommissionOrderController extends BaseController {
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<CommissionOrderDTO> update(@RequestParam(value = "id") int id,
+			@RequestParam(value = "commissionState", required = false) String commissionState,
 			@RequestParam(value = "isSettle", required = false) Boolean isSettle,
 			@RequestParam(value = "isDepositUser", required = false) Boolean isDepositUser,
 			@RequestParam(value = "schoolId", required = false) Integer schoolId,
@@ -189,6 +190,7 @@ public class CommissionOrderController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			CommissionOrderListDTO commissionOrderListDto = commissionOrderService.getCommissionOrderById(id);
 			if (commissionOrderListDto == null)
 				return new Response<CommissionOrderDTO>(1, "留学佣金订单订单(ID:" + id + ")不存在!", null);
@@ -202,6 +204,8 @@ public class CommissionOrderController extends BaseController {
 						null);
 			CommissionOrderDTO commissionOrderDto = new CommissionOrderDTO();
 			commissionOrderDto.setId(id);
+			if (adminUserLoginInfo != null && "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) // 只有会计能修改佣金状态
+				commissionOrderDto.setCommissionState(CommissionStateEnum.get(commissionState).toString());
 			if (isSettle != null)
 				commissionOrderDto.setSettle(isSettle);
 			if (isDepositUser != null)
