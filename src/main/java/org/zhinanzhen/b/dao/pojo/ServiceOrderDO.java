@@ -47,7 +47,9 @@ public class ServiceOrderDO {
 
 	private int installment;
 	
-	private String paymentVoucherImageUrl;
+	private String paymentVoucherImageUrl1;
+	
+	private String paymentVoucherImageUrl2;
 	
 	private double perAmount;
 
