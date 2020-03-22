@@ -51,12 +51,16 @@ public class ServiceOrderDTO {
 
 	private double received;
 
-	private int paymentTimes;
-	
+	private int installment;
+
+	private String paymentVoucherImageUrl1;
+
+	private String paymentVoucherImageUrl2;
+
 	private double perAmount;
 
 	private double amount;
-	
+
 	private double expectAmount;
 
 	private double gst;
@@ -82,7 +86,7 @@ public class ServiceOrderDTO {
 	private OfficialDTO official;
 
 	private String remarks;
-	
+
 	private String closedReason;
 
 	private ServiceOrderReviewDTO review;

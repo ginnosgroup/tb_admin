@@ -22,7 +22,9 @@
                 receivable,
                 discount,
                 received,
-                payment_times,
+                installment,
+                payment_voucher_image_url_1,
+                payment_voucher_image_url_2,
                 per_amount,
                 amount,
                 expect_amount,
@@ -53,7 +55,9 @@
                 #{receivable},
                 #{discount},
                 #{received},
-                #{paymentTimes},
+                #{installment},
+                #{paymentVoucherImageUrl1},
+                #{paymentVoucherImageUrl2},
                 #{perAmount},
                 #{amount},
                 #{expectAmount},
@@ -111,8 +115,14 @@
         <if test='received != null and received != ""'>
             , received = #{received}
         </if>
-        <if test='paymentTimes != null'>
-            , payment_times = #{paymentTimes}
+        <if test='installment != null'>
+            , installment = #{installment}
+        </if>
+        <if test='paymentVoucherImageUrl1 != null'>
+            , payment_voucher_image_url_1 = #{paymentVoucherImageUrl1}
+        </if>
+        <if test='paymentVoucherImageUrl2 != null'>
+            , payment_voucher_image_url_2 = #{paymentVoucherImageUrl2}
         </if>
         <if test='perAmount != null'>
             , per_amount = #{perAmount}
@@ -214,7 +224,9 @@
             receivable,
             discount,
             received,
-            payment_times AS paymentTimes,
+            installment,
+            payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+            payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
             per_amount AS perAmount,
             amount,
             expect_amount AS expectAmount,
@@ -281,7 +293,9 @@
             receivable,
             discount,
             received,
-            payment_times AS paymentTimes,
+            installment,
+            payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+            payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
             per_amount AS perAmount,
             amount,
             expect_amount AS expectAmount,

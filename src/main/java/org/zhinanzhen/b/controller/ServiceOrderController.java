@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
@@ -72,6 +74,14 @@ public class ServiceOrderController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/upload_img", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<String> uploadImage(@RequestParam MultipartFile file, HttpServletRequest request,
+			HttpServletResponse response) throws IllegalStateException, IOException {
+		super.setPostHeader(response);
+		return super.upload(file, request.getSession(), "/uploads/payment_voucher_image_url/");
+	}
+
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> addServiceOrder(@RequestParam(value = "type") String type,
@@ -86,7 +96,9 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "receivable", required = false) String receivable,
 			@RequestParam(value = "discount", required = false) String discount,
 			@RequestParam(value = "received", required = false) String received,
-			@RequestParam(value = "paymentTimes", required = false) String paymentTimes,
+			@RequestParam(value = "installment", required = false) Integer installment,
+			@RequestParam(value = "paymentVoucherImageUrl1") String paymentVoucherImageUrl1,
+			@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
 			@RequestParam(value = "perAmount", required = false) String perAmount,
 			@RequestParam(value = "amount", required = false) String amount,
 			@RequestParam(value = "expectAmount", required = false) String expectAmount,
@@ -129,8 +141,12 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setDiscount(Double.parseDouble(discount));
 			if (StringUtil.isNotEmpty(received))
 				serviceOrderDto.setReceived(Double.parseDouble(received));
-			if (StringUtil.isNotEmpty(paymentTimes))
-				serviceOrderDto.setPaymentTimes(StringUtil.toInt(paymentTimes));
+			if (installment > 0)
+				serviceOrderDto.setInstallment(installment);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
+				serviceOrderDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
+				serviceOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
 			if (StringUtil.isNotEmpty(perAmount))
 				serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
 			if (StringUtil.isNotEmpty(amount))
@@ -182,7 +198,9 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "receivable", required = false) String receivable,
 			@RequestParam(value = "discount", required = false) String discount,
 			@RequestParam(value = "received", required = false) String received,
-			@RequestParam(value = "paymentTimes", required = false) String paymentTimes,
+			@RequestParam(value = "installment", required = false) Integer installment,
+			@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
+			@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
 			@RequestParam(value = "perAmount", required = false) String perAmount,
 			@RequestParam(value = "amount", required = false) String amount,
 			@RequestParam(value = "expectAmount", required = false) String expectAmount,
@@ -221,8 +239,12 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setDiscount(Double.parseDouble(discount));
 			if (StringUtil.isNotEmpty(received))
 				serviceOrderDto.setReceived(Double.parseDouble(received));
-			if (StringUtil.isNotEmpty(paymentTimes))
-				serviceOrderDto.setPaymentTimes(StringUtil.toInt(paymentTimes));
+			if (installment > 0)
+				serviceOrderDto.setInstallment(installment);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
+				serviceOrderDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
+				serviceOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
 			if (StringUtil.isNotEmpty(perAmount))
 				serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
 			if (StringUtil.isNotEmpty(amount))
