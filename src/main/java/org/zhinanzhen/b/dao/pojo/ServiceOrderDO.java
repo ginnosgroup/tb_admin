@@ -45,7 +45,9 @@ public class ServiceOrderDO {
 
 	private double received;
 
-	private int paymentTimes;
+	private int installment;
+	
+	private String paymentVoucherImageUrl;
 	
 	private double perAmount;
 

@@ -22,7 +22,8 @@
                 receivable,
                 discount,
                 received,
-                payment_times,
+                installment,
+                payment_voucher_image_url,
                 per_amount,
                 amount,
                 expect_amount,
@@ -53,7 +54,8 @@
                 #{receivable},
                 #{discount},
                 #{received},
-                #{paymentTimes},
+                #{installment},
+                #{paymentVoucherImageUrl},
                 #{perAmount},
                 #{amount},
                 #{expectAmount},
@@ -111,8 +113,11 @@
         <if test='received != null and received != ""'>
             , received = #{received}
         </if>
-        <if test='paymentTimes != null'>
-            , payment_times = #{paymentTimes}
+        <if test='installment != null'>
+            , installment = #{installment}
+        </if>
+        <if test='paymentVoucherImageUrl != null'>
+            , payment_voucher_image_url = #{paymentVoucherImageUrl}
         </if>
         <if test='perAmount != null'>
             , per_amount = #{perAmount}
@@ -214,7 +219,8 @@
             receivable,
             discount,
             received,
-            payment_times AS paymentTimes,
+            installment,
+            payment_voucher_image_url AS paymentVoucherImageUrl,
             per_amount AS perAmount,
             amount,
             expect_amount AS expectAmount,
@@ -281,7 +287,8 @@
             receivable,
             discount,
             received,
-            payment_times AS paymentTimes,
+            installment,
+            payment_voucher_image_url AS paymentVoucherImageUrl,
             per_amount AS perAmount,
             amount,
             expect_amount AS expectAmount,

@@ -86,7 +86,8 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "receivable", required = false) String receivable,
 			@RequestParam(value = "discount", required = false) String discount,
 			@RequestParam(value = "received", required = false) String received,
-			@RequestParam(value = "paymentTimes", required = false) String paymentTimes,
+			@RequestParam(value = "installment", required = false) Integer installment,
+			@RequestParam(value = "paymentVoucherImageUrl") String paymentVoucherImageUrl,
 			@RequestParam(value = "perAmount", required = false) String perAmount,
 			@RequestParam(value = "amount", required = false) String amount,
 			@RequestParam(value = "expectAmount", required = false) String expectAmount,
@@ -129,8 +130,10 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setDiscount(Double.parseDouble(discount));
 			if (StringUtil.isNotEmpty(received))
 				serviceOrderDto.setReceived(Double.parseDouble(received));
-			if (StringUtil.isNotEmpty(paymentTimes))
-				serviceOrderDto.setPaymentTimes(StringUtil.toInt(paymentTimes));
+			if (installment > 0)
+				serviceOrderDto.setInstallment(installment);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl))
+				serviceOrderDto.setPaymentVoucherImageUrl(paymentVoucherImageUrl);
 			if (StringUtil.isNotEmpty(perAmount))
 				serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
 			if (StringUtil.isNotEmpty(amount))
@@ -182,7 +185,8 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "receivable", required = false) String receivable,
 			@RequestParam(value = "discount", required = false) String discount,
 			@RequestParam(value = "received", required = false) String received,
-			@RequestParam(value = "paymentTimes", required = false) String paymentTimes,
+			@RequestParam(value = "installment", required = false) Integer installment,
+			@RequestParam(value = "paymentVoucherImageUrl", required = false) String paymentVoucherImageUrl,
 			@RequestParam(value = "perAmount", required = false) String perAmount,
 			@RequestParam(value = "amount", required = false) String amount,
 			@RequestParam(value = "expectAmount", required = false) String expectAmount,
@@ -221,8 +225,10 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setDiscount(Double.parseDouble(discount));
 			if (StringUtil.isNotEmpty(received))
 				serviceOrderDto.setReceived(Double.parseDouble(received));
-			if (StringUtil.isNotEmpty(paymentTimes))
-				serviceOrderDto.setPaymentTimes(StringUtil.toInt(paymentTimes));
+			if (installment > 0)
+				serviceOrderDto.setInstallment(installment);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl))
+				serviceOrderDto.setPaymentVoucherImageUrl(paymentVoucherImageUrl);
 			if (StringUtil.isNotEmpty(perAmount))
 				serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
 			if (StringUtil.isNotEmpty(amount))
