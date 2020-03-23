@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.controller;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.CommissionOrderService;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.SubagencyService;
@@ -61,6 +63,14 @@ public class CommissionOrderController extends BaseController {
 					return e;
 			return null;
 		}
+	}
+
+	@RequestMapping(value = "/upload_img", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<String> uploadImage(@RequestParam MultipartFile file, HttpServletRequest request,
+			HttpServletResponse response) throws IllegalStateException, IOException {
+		super.setPostHeader(response);
+		return super.upload(file, request.getSession(), "/uploads/payment_voucher_image_url/");
 	}
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
