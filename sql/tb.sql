@@ -390,6 +390,8 @@ CREATE TABLE `b_commission_order` (
 `installment_num` int NOT NULL COMMENT '本次分期付款次数',
   `installment` int NOT NULL COMMENT '分期付款次数',
   `installment_due_date` datetime NOT NULL COMMENT '分期付款截止日期',
+`payment_voucher_image_url_1` varchar(128) NOT NULL COMMENT '支付凭证图片地址1',
+`payment_voucher_image_url_2` varchar(128) DEFAULT NULL COMMENT '支付凭证图片地址2',
   `start_date` datetime NOT NULL COMMENT '开课日期',
   `end_date` datetime NOT NULL COMMENT '结束日期',
   `tuition_fee` decimal(8,2) NOT NULL COMMENT '总学费',

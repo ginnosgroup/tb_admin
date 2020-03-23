@@ -23,6 +23,8 @@
                 installment_num,
                 installment,
                 installment_due_date,
+                payment_voucher_image_url_1,
+                payment_voucher_image_url_2,
                 start_date,
                 end_date,
                 tuition_fee,
@@ -57,6 +59,8 @@
                 #{installmentNum},
                 #{installment},
                 #{installmentDueDate},
+                #{paymentVoucherImageUrl1},
+                #{paymentVoucherImageUrl2},
                 #{startDate,jdbcType=TIMESTAMP},
                 #{endDate,jdbcType=TIMESTAMP},
                 #{tuitionFee},
@@ -107,6 +111,12 @@
         </if>
         <if test='installmentDueDate != null'>
             , installment_due_date = #{installmentDueDate}
+        </if>
+        <if test='paymentVoucherImageUrl1 != null'>
+            , payment_voucher_image_url_1 = #{paymentVoucherImageUrl1}
+        </if>
+        <if test='paymentVoucherImageUrl2 != null'>
+            , payment_voucher_image_url_2 = #{paymentVoucherImageUrl2}
         </if>
         <if test='startDate != null'>
             , start_date = #{startDate}
@@ -214,6 +224,8 @@
             co.installment_num AS installmentNum,
             co.installment,
             co.installment_due_date AS installmentDueDate,
+            co.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+            co.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
             co.start_date AS startDate,
             co.end_date AS endDate,
             co.tuition_fee AS tuitionFee,
@@ -294,6 +306,9 @@
             is_studying AS isStudying,
             installment_num AS installmentNum,
             installment,
+            installment_due_date AS installmentDueDate,
+            payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+            payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
             start_date AS startDate,
             end_date AS endDate,
             tuition_fee AS tuitionFee,
@@ -331,6 +346,9 @@
             is_studying AS isStudying,
             installment_num AS installmentNum,
             installment,
+            installment_due_date AS installmentDueDate,
+            payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+            payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
             start_date AS startDate,
             end_date AS endDate,
             tuition_fee AS tuitionFee,
@@ -369,6 +387,8 @@
             co.installment_num AS installmentNum,
             co.installment,
             co.installment_due_date AS installmentDueDate,
+            co.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+            co.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
             co.start_date AS startDate,
             co.end_date AS endDate,
             co.tuition_fee AS tuitionFee,
