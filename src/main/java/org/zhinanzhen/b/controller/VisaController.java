@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.controller;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
@@ -47,6 +49,14 @@ public class VisaController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/upload_img", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<String> uploadImage(@RequestParam MultipartFile file, HttpServletRequest request,
+			HttpServletResponse response) throws IllegalStateException, IOException {
+		super.setPostHeader(response);
+		return super.upload(file, request.getSession(), "/uploads/payment_voucher_image_url/");
+	}
+
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<List<VisaDTO>> addVisa(@RequestParam(value = "userId", required = false) String userId,
@@ -56,6 +66,8 @@ public class VisaController extends BaseController {
 			@RequestParam(value = "serviceId") String serviceId,
 			@RequestParam(value = "serviceOrderId") Integer serviceOrderId,
 			@RequestParam(value = "installment") Integer installment,
+			@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
+			@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
 			@RequestParam(value = "receivable") String receivable,
 			@RequestParam(value = "received", required = false) String received,
 			@RequestParam(value = "perAmount") String perAmount, @RequestParam(value = "amount") String amount,
@@ -96,6 +108,12 @@ public class VisaController extends BaseController {
 				visaDto.setServiceOrderId(serviceOrderId);
 			if (installment != null)
 				visaDto.setInstallment(installment);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
+				visaDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
+			else
+				visaDto.setPaymentVoucherImageUrl1(serviceOrderDto.getPaymentVoucherImageUrl1());
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
+				visaDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
 			if (StringUtil.isNotEmpty(receivable))
 				visaDto.setReceivable(Double.parseDouble(receivable));
 			if (StringUtil.isNotEmpty(received))
@@ -129,6 +147,10 @@ public class VisaController extends BaseController {
 				visaDto.setInstallmentNum(installmentNum);
 				if (visaService.addVisa(visaDto) > 0)
 					visaDtoList.add(visaDto);
+				if (installmentNum > 1) { // 只给第一个添加支付凭证
+					visaDto.setPaymentVoucherImageUrl1(null);
+					visaDto.setPaymentVoucherImageUrl2(null);
+				}
 			}
 			return new Response<List<VisaDTO>>(0, visaDtoList);
 		} catch (ServiceException e) {
@@ -145,6 +167,8 @@ public class VisaController extends BaseController {
 			@RequestParam(value = "receiveDate", required = false) String receiveDate,
 			@RequestParam(value = "serviceId", required = false) String serviceId,
 			@RequestParam(value = "serviceOrderId", required = false) Integer serviceOrderId,
+			@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
+			@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
 			@RequestParam(value = "receivable", required = false) String receivable,
 			@RequestParam(value = "received", required = false) String received,
 			@RequestParam(value = "perAmount", required = false) String perAmount,
@@ -179,6 +203,10 @@ public class VisaController extends BaseController {
 			if (StringUtil.isNotEmpty(receivable)) {
 				visaDto.setReceivable(Double.parseDouble(receivable));
 			}
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
+				visaDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
+				visaDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
 			if (StringUtil.isNotEmpty(received)) {
 				visaDto.setReceived(Double.parseDouble(received));
 			}

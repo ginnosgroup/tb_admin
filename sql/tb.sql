@@ -192,6 +192,8 @@ CREATE TABLE `b_visa` (
 `service_order_id` int NOT NULL COMMENT '服务订单编号 (对应b_service_order.id)',
 `installment_num` int NOT NULL COMMENT '本次分期付款次数',
 `installment` int NOT NULL COMMENT '付款次数',
+`payment_voucher_image_url_1` varchar(128) NOT NULL COMMENT '支付凭证图片地址1',
+`payment_voucher_image_url_2` varchar(128) DEFAULT NULL COMMENT '支付凭证图片地址2',
   `receivable` decimal(8,2) NOT NULL COMMENT '总计应收',
   `received` decimal(8,2) NOT NULL COMMENT '总计已收',
 `per_amount` decimal(8,2) NOT NULL COMMENT '本次应收款',
