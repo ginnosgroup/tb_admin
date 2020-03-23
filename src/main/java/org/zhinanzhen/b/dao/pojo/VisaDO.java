@@ -10,7 +10,7 @@ public class VisaDO {
 	private int id;
 
 	private Date gmtCreate;
-	
+
 	private String code;
 
 	private Date handlingDate;
@@ -30,6 +30,10 @@ public class VisaDO {
 	private int installmentNum;
 
 	private int installment;
+
+	private String paymentVoucherImageUrl1;
+
+	private String paymentVoucherImageUrl2;
 
 	private double receivable;
 

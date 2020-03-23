@@ -16,7 +16,7 @@ public class CommissionOrderDO {
 	private int serviceOrderId;
 
 	private String state;
-	
+
 	private String commissionState;
 
 	private boolean isSettle;
@@ -38,8 +38,12 @@ public class CommissionOrderDO {
 	private int installmentNum;
 
 	private int installment;
-	
+
 	private Date installmentDueDate;
+
+	private String paymentVoucherImageUrl1;
+
+	private String paymentVoucherImageUrl2;
 
 	private Date startDate;
 
@@ -66,7 +70,7 @@ public class CommissionOrderDO {
 	private double deductGst;
 
 	private double bonus;
-	
+
 	private Date bonusDate;
 
 	private String remarks;

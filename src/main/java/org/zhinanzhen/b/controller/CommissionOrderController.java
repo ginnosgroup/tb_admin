@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.controller;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.CommissionOrderService;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.SubagencyService;
@@ -63,6 +65,14 @@ public class CommissionOrderController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/upload_img", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<String> uploadImage(@RequestParam MultipartFile file, HttpServletRequest request,
+			HttpServletResponse response) throws IllegalStateException, IOException {
+		super.setPostHeader(response);
+		return super.upload(file, request.getSession(), "/uploads/payment_voucher_image_url/");
+	}
+
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<List<CommissionOrderDTO>> add(@RequestParam(value = "serviceOrderId") Integer serviceOrderId,
@@ -76,6 +86,8 @@ public class CommissionOrderController extends BaseController {
 			@RequestParam(value = "installmentDueDate1") String installmentDueDate1,
 			@RequestParam(value = "installmentDueDate2", required = false) String installmentDueDate2,
 			@RequestParam(value = "installmentDueDate3", required = false) String installmentDueDate3,
+			@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
+			@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
 			@RequestParam(value = "startDate") String startDate, @RequestParam(value = "endDate") String endDate,
 			@RequestParam(value = "tuitionFee") String tuitionFee,
 			@RequestParam(value = "perTermTuitionFee") String perTermTuitionFee,
@@ -111,6 +123,12 @@ public class CommissionOrderController extends BaseController {
 			commissionOrderDto.setOfficialId(officialId);
 			commissionOrderDto.setStudying(isStudying);
 			commissionOrderDto.setInstallment(installment);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
+				commissionOrderDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
+			else
+				commissionOrderDto.setPaymentVoucherImageUrl1(serviceOrderDto.getPaymentVoucherImageUrl1());
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
+				commissionOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
 			commissionOrderDto.setStartDate(new Date(Long.parseLong(startDate)));
 			commissionOrderDto.setEndDate(new Date(Long.parseLong(endDate)));
 			commissionOrderDto.setTuitionFee(Double.parseDouble(tuitionFee));
@@ -178,6 +196,8 @@ public class CommissionOrderController extends BaseController {
 			@RequestParam(value = "officialId", required = false) Integer officialId,
 			@RequestParam(value = "isStudying", required = false) Boolean isStudying,
 			@RequestParam(value = "installmentDueDate", required = false) String installmentDueDate,
+			@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
+			@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "tuitionFee", required = false) String tuitionFee,
@@ -224,6 +244,10 @@ public class CommissionOrderController extends BaseController {
 				commissionOrderDto.setStudying(isStudying);
 			if (installmentDueDate != null)
 				commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate)));
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
+				commissionOrderDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
+				commissionOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
 			if (startDate != null)
 				commissionOrderDto.setStartDate(new Date(Long.parseLong(startDate)));
 			if (endDate != null)

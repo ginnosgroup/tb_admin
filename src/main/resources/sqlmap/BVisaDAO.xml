@@ -18,6 +18,8 @@
                 service_order_id,
                 installment_num,
                 installment,
+                payment_voucher_image_url_1,
+                payment_voucher_image_url_2,
                 receivable,
                 received,
                 per_amount,
@@ -45,6 +47,8 @@
                 #{serviceOrderId},
                 #{installmentNum},
                 #{installment},
+                #{paymentVoucherImageUrl1},
+                #{paymentVoucherImageUrl2},
                 #{receivable},
                 #{received},
                 #{perAmount},
@@ -84,6 +88,12 @@
         </if>
         <if test='serviceOrderId != null and serviceOrderId != ""'>
             , service_order_id = #{serviceOrderId}
+        </if>
+        <if test='paymentVoucherImageUrl1 != null'>
+            , payment_voucher_image_url_1 = #{paymentVoucherImageUrl1}
+        </if>
+        <if test='paymentVoucherImageUrl2 != null'>
+            , payment_voucher_image_url_2 = #{paymentVoucherImageUrl2}
         </if>
         <if test='receivable != null and receivable != ""'>
             , receivable = #{receivable}
@@ -169,6 +179,8 @@
             bv.service_order_id AS serviceOrderId,
             bv.installment_num AS installmentNum,
             bv.installment,
+            bv.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+            bv.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
             bv.receivable AS receivable,
             bv.received AS received,
             bv.per_amount AS perAmount,
@@ -231,6 +243,8 @@
             service_order_id AS serviceOrderId,
             installment_num AS installmentNum,
             installment,
+            payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+            payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
             receivable,
             received,
             per_amount AS perAmount,
