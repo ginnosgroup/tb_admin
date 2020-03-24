@@ -104,7 +104,7 @@ public class VisaController extends BaseController {
 				visaDto.setReceiveDate(new Date(Long.parseLong(receiveDate)));
 			if (StringUtil.isNotEmpty(serviceId))
 				visaDto.setServiceId(Integer.parseInt(serviceId));
-			if (serviceOrderId > 0)
+			if (serviceOrderId != null && serviceOrderId > 0)
 				visaDto.setServiceOrderId(serviceOrderId);
 			if (installment != null)
 				visaDto.setInstallment(installment);
@@ -160,7 +160,7 @@ public class VisaController extends BaseController {
 
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<VisaDTO> updateVisa(@RequestParam(value = "id") int id,
+	public Response<VisaDTO> update(@RequestParam(value = "id") int id,
 			@RequestParam(value = "userId", required = false) String userId,
 			@RequestParam(value = "handlingDate", required = false) String handlingDate,
 			@RequestParam(value = "receiveTypeId", required = false) String receiveTypeId,
@@ -198,7 +198,7 @@ public class VisaController extends BaseController {
 			if (StringUtil.isNotEmpty(serviceId)) {
 				visaDto.setServiceId(Integer.parseInt(serviceId));
 			}
-			if (serviceOrderId > 0)
+			if (serviceOrderId != null && serviceOrderId > 0)
 				visaDto.setServiceOrderId(serviceOrderId);
 			if (StringUtil.isNotEmpty(receivable)) {
 				visaDto.setReceivable(Double.parseDouble(receivable));
@@ -239,6 +239,37 @@ public class VisaController extends BaseController {
 			visaDto.setExpectAmount(
 					new BigDecimal(commission * 1.1).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			visaDto.setState(ReviewKjStateEnum.REVIEW.toString()); // 修改后重新审核
+			if (visaService.updateVisa(visaDto) > 0) {
+				return new Response<VisaDTO>(0, visaDto);
+			} else {
+				return new Response<VisaDTO>(1, "修改失败.", null);
+			}
+		} catch (ServiceException e) {
+			return new Response<VisaDTO>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/updatePaymentVoucherImageUrl", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<VisaDTO> updatePaymentVoucherImageUrl(@RequestParam(value = "id") int id,
+			@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
+			@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
+			HttpServletRequest request, HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo != null)
+				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+						&& !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+					return new Response<VisaDTO>(1, "仅限文案修改支付凭证.", null);
+			if (visaService.getVisaById(id) == null)
+				return new Response<VisaDTO>(1, "签证佣金订单不存在.", null);
+			VisaDTO visaDto = new VisaDTO();
+			visaDto.setId(id);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
+				visaDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
+				visaDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
 			if (visaService.updateVisa(visaDto) > 0) {
 				return new Response<VisaDTO>(0, visaDto);
 			} else {
