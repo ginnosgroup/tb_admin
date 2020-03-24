@@ -104,7 +104,10 @@
 					<div class="modal-footer" style="text-align: center;">
 							<dle v-if="ap_list==='GW'">									
 									<dle v-if="state==='PENDING' || state==='WAIT'">
-									<button onclick="alert('等待接口实现');" id="btn_receipt" style="display:;" type="button" class="btn btn-danger">上传收款凭证</button>
+									<input type="file" id="f1" style="display:none">
+									<input type="hidden" id="flist" value="" />
+									<div id="show_pic" style="display:none;padding-bottom:10px;"></div>
+									<button onclick="upload_receipt_pic('f1')" id="btn_receipt" type="button" class="btn btn-danger">上传收款凭证</button>									
 									<button onclick="requestCommissionVisaSave()" id="btn_request" type="button" class="btn btn-primary">申请佣金</button>									
 									</dle>
 							</dle>													
@@ -192,7 +195,7 @@ function requestCommissionVisaSave()
 		var f = '#visa_id ';    
     
     var check_result = 0;    
-    if ($(f+'#b8').val() != '' && $(f+'#b14a').val() != '' && $(f+'#b14').val() != '')
+    if ($(f+'#b8').val() != '' && $(f+'#b10').val() != '' && $(f+'#b12').val() != '' && $(f+'#b14a').val() != '' && $(f+'#b14').val() != '')
     {
     		check_result = true;
     }else    		
@@ -200,7 +203,7 @@ function requestCommissionVisaSave()
     		$('#visa_id #alert_error').css('marginLeft','30%');
     		$('#visa_id #alert_error').css('marginTop','50%');
     		$('#visa_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
-        $("#visa_id #error_info").html('提示：红色字段必须填写或选择！');
+        $("#visa_id #error_info").html('提示：收款日期/总计应收/总计收款/本次应收/本次收款必须填写或选择！');
     		return false;
     }   
         
@@ -232,7 +235,26 @@ function requestCommissionVisaSave()
        	json['received'] =  $(f+'#b12').val();       	
        	json['perAmount'] =  $(f+'#b14a').val();       	
        	json['amount'] =  $(f+'#b14').val();
-       	json['remarks'] =  $(f+'#b18').val();       	   	       	
+       	json['remarks'] =  $(f+'#b18').val();
+       	//校验是否上传了凭证
+       	var flist = $("#visa_id #flist").val();
+       	if (flist != '')
+       	{
+       			//对凭证进行处理
+   					var arr = flist.split(',');
+   					if (arr.length)
+   					{
+   							json['paymentVoucherImageUrl1'] = arr[0];
+   							if (arr.length == 2) json['paymentVoucherImageUrl2'] = arr[1];
+   					}
+       	}else
+       	{
+       			$('#visa_id #alert_error').css('marginTop','30%');
+   					$('#visa_id #alert_error').css('marginLeft','30%');
+   					$('#visa_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+      			$("#visa_id #error_info").html('收款凭证必须上传！');
+      			return false;
+       	}
        	
        	$.post(str_url, json,
 		   	function(data){
@@ -297,5 +319,48 @@ function page_init()
     	$("#visa_id #b16").val(deduct_gst);	
     	$("#visa_id #b17").val(fee);	        	
 		});
-}	  
+}
+
+function upload_receipt_pic(fname)
+{
+		document.getElementById(fname).click(); 
+}
+
+$('#visa_id #f1').live('change', function (e) {
+		var formData = new FormData();					
+		formData.append("file",$("#f1")[0].files[0]);
+		
+		$.ajax({
+        url:'visa/upload_img',
+        dataType:'json',
+        type:'POST',
+        async: false,
+        data: formData,
+        processData : false, //使数据不做处理
+        contentType : false,
+        success: function(data){			        		
+            if (data.code == '0') {
+            		var flist = $("#visa_id #flist").val();
+            		if (flist)
+            		{
+            				$("#visa_id #flist").val(flist+','+data.data);
+            		}else
+            		{
+            				$("#visa_id #flist").val(data.data);
+            		}
+		        		$("#visa_id #show_pic").append('<a href="'+data.data+'" target="_blank">查看凭证</a>&nbsp;');
+		        		$("#visa_id #show_pic").show();
+            }else
+            {
+            		$('#visa_id #alert_error').css('marginTop','60%');
+          			$('#visa_id #alert_error').css('marginLeft','60%');
+		   					$('#visa_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+          			$("#visa_id #error_info").html('收款凭证上传失败！');
+            }	
+        },
+        error:function(response){
+            console.log(response);
+        }
+    });
+});  
 </script>

@@ -130,7 +130,10 @@
 									</dle>
 							</dle>
 							<dle v-if="ap_list==='WA'">
-									<button onclick="alert('待实现');" id="upload_certificate" type="button" class="btn btn-danger" style="display:none;">上传签证凭证</button>
+									<input type="file" id="f1a" style="display:none">
+									<input type="hidden" id="flist" value="" />
+									<div id="show_pic" style="display:none;padding-bottom:10px;"></div>
+									<button onclick="upload_receipt_pic('f1a')" id="upload_certificate" type="button" class="btn btn-danger" style="display:none;">上传签证凭证</button>									
 									<button v-if="flowstate_wa!=='WAIT' && flowstate_wa!='COMPLETE'" onclick="checkform('VISA');" type="button" class="btn btn-primary">提交</button>							
 									<dle v-if="flowstate_gw==='REVIEW'">
 											<button v-if="flowstate_wa===null" onclick="flowstep('PENDING',0)" id="btnRefuse" type="button" class="btn btn-default">驳回</button>
@@ -315,7 +318,7 @@
 										<option v-if="flowstate_wa==='FINISH'" value="APPLY">已提交申请</option>
 										<option v-if="flowstate_wa==='APPLY'" value="COMPLETE">申请成功等待COE支付</option>
 										<option v-if="flowstate_wa==='COMPLETE' || flowstate_wa==='PAID'" value="PAID">COE支付成功</option>
-										<option value="CLOSE">关闭申请</option>
+										<option v-if="flowstate_wa!='PAID' && flowstate_wa==='COMPLETE'" value="CLOSE">关闭申请</option>
 										</select>
 									</div>
 									<div id="close_remarks" class="form-group" style="display:none;width:100%;line-height:40px;">
@@ -331,11 +334,18 @@
 									<button onclick="flowstep('PENDING',1)" type="button" class="btn btn-default">撤回</button>
 									</dle>
 									<dle v-if="flowstate_wa==='PAID'">
+									<input type="file" id="f1c" style="display:none">
+									<input type="hidden" id="flist1" value="" />
+									<div id="show_pic" style="display:none;padding-bottom:10px;"></div>
+									<button onclick="upload_receipt_pic('f1c')" id="upload_certificate" type="button" class="btn btn-danger" style="display:;">上传收款凭证</button>
 									<button onclick="reqCommissionOvst()" type="button" class="btn btn-primary">申请佣金</button>
 									</dle>
 							</dle>
-							<dle v-if="ap_list==='WA'">									
-									<button onclick="alert('待实现');" id="upload_certificate" type="button" class="btn btn-danger" style="display:none;">上传凭证</button>
+							<dle v-if="ap_list==='WA'">
+									<input type="file" id="f1b" style="display:none">
+									<input type="hidden" id="flist" value="" />
+									<div id="show_pic" style="display:none;padding-bottom:10px;"></div>
+									<button onclick="upload_receipt_pic('f1b')" id="upload_certificate" type="button" class="btn btn-danger" style="display:none;">上传收款凭证</button>
 									<button v-if="flowstate_wa!='PAID'" onclick="checkform('OVST');" type="button" class="btn btn-primary">提交</button>							
 									<dle v-if="flowstate_gw==='REVIEW'">
 											<button v-if="flowstate_wa===null" onclick="flowstep('PENDING',0)" id="btnRefuse" type="button" class="btn btn-default">驳回</button>
@@ -729,6 +739,25 @@ function reqCommissionOvst()
        	//json['expectAmount'] = jqInputs[12].value;
        	json['remarks'] = jqTextarea[0].value;
        	//console.log(json);
+       	//校验是否上传了凭证
+       	var flist = $("#show_addnewservice2_id #flist1").val();
+       	if (flist != '')
+   			{
+   					//对凭证进行处理
+   					var arr = flist.split(',');
+   					if (arr.length)
+   					{
+   							json['paymentVoucherImageUrl1'] = arr[0];
+   							if (arr.length == 2) json['paymentVoucherImageUrl2'] = arr[1];
+   					}
+   			}else
+   			{
+   					$('#show_addnewservice2_id #alert_error').css('marginTop','30%');
+      			$('#show_addnewservice2_id #alert_error').css('marginLeft','30%');
+   					$('#show_addnewservice2_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+      			$("#show_addnewservice2_id #error_info").html('收款凭证没有上传，请上传之后再提交。');
+    				return false;
+   			}
        	
        	$.post(str_url, json,
 		   	function(data){
@@ -760,4 +789,118 @@ function computeDiscount()
 				$("#show_addnewservice2_id #c30").val(discount);
 		}
 }
+
+$('#show_addnewservice1_id #f1a').live('change', function (e) {
+		var formData = new FormData();					
+		formData.append("file",$("#f1a")[0].files[0]);
+		
+		$.ajax({
+        url:'serviceOrder/upload_img',
+        dataType:'json',
+        type:'POST',
+        async: false,
+        data: formData,
+        processData : false, //使数据不做处理
+        contentType : false,
+        success: function(data){			        		
+            if (data.code == '0') {
+            		var flist = $("#show_addnewservice1_id #flist").val();
+            		if (flist)
+            		{
+            				$("#show_addnewservice1_id #flist").val(flist+','+data.data);
+            		}else
+            		{
+            				$("#show_addnewservice1_id #flist").val(data.data);
+            		}
+		        		$("#show_addnewservice1_id #show_pic").append('<a href="'+data.data+'" target="_blank">查看凭证</a>&nbsp;');
+		        		$("#show_addnewservice1_id #show_pic").show();
+            }else
+            {
+            		$('#show_addnewservice1_id #alert_error').css('marginTop','60%');
+          			$('#show_addnewservice1_id #alert_error').css('marginLeft','60%');
+		   					$('#show_addnewservice1_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+          			$("#show_addnewservice1_id #error_info").html('签证凭证上传失败！');
+            }	
+        },
+        error:function(response){
+            console.log(response);
+        }
+    });
+});
+
+$('#show_addnewservice2_id #f1b').live('change', function (e) {
+		var formData = new FormData();					
+		formData.append("file",$("#f1b")[0].files[0]);
+		
+		$.ajax({
+        url:'serviceOrder/upload_img',
+        dataType:'json',
+        type:'POST',
+        async: false,
+        data: formData,
+        processData : false, //使数据不做处理
+        contentType : false,
+        success: function(data){			        		
+            if (data.code == '0') {
+            		var flist = $("#show_addnewservice2_id #flist").val();
+            		if (flist)
+            		{
+            				$("#show_addnewservice2_id #flist").val(flist+','+data.data);
+            		}else
+            		{
+            				$("#show_addnewservice2_id #flist").val(data.data);
+            		}
+		        		$("#show_addnewservice2_id #show_pic").append('<a href="'+data.data+'" target="_blank">查看凭证</a>&nbsp;');
+		        		$("#show_addnewservice2_id #show_pic").show();
+            }else
+            {
+            		$('#show_addnewservice2_id #alert_error').css('marginTop','60%');
+          			$('#show_addnewservice2_id #alert_error').css('marginLeft','60%');
+		   					$('#show_addnewservice2_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+          			$("#show_addnewservice2_id #error_info").html('收款凭证上传失败！');
+            }	
+        },
+        error:function(response){
+            console.log(response);
+        }
+    });
+});
+
+$('#show_addnewservice2_id #f1c').live('change', function (e) {
+		var formData = new FormData();					
+		formData.append("file",$("#f1c")[0].files[0]);
+		
+		$.ajax({
+        url:'serviceOrder/upload_img',
+        dataType:'json',
+        type:'POST',
+        async: false,
+        data: formData,
+        processData : false, //使数据不做处理
+        contentType : false,
+        success: function(data){			        		
+            if (data.code == '0') {
+            		var flist = $("#show_addnewservice2_id #flist1").val();
+            		if (flist)
+            		{
+            				$("#show_addnewservice2_id #flist1").val(flist+','+data.data);
+            		}else
+            		{
+            				$("#show_addnewservice2_id #flist1").val(data.data);
+            		}
+		        		$("#show_addnewservice2_id #show_pic").append('<a href="'+data.data+'" target="_blank">查看凭证</a>&nbsp;');
+		        		$("#show_addnewservice2_id #show_pic").show();
+            }else
+            {
+            		$('#show_addnewservice2_id #alert_error').css('marginTop','60%');
+          			$('#show_addnewservice2_id #alert_error').css('marginLeft','60%');
+		   					$('#show_addnewservice2_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+          			$("#show_addnewservice2_id #error_info").html('收款凭证上传失败！');
+            }	
+        },
+        error:function(response){
+            console.log(response);
+        }
+    });
+});
 </script>

@@ -106,7 +106,10 @@
 						</form>
 				</div>
 				<div class="modal-footer" style="text-align: center;">
-					<button onclick="alert('接口待实现');" id="upload_receipt" type="button" class="btn btn-danger">上传收款凭证</button>
+					<input type="file" id="f1" style="display:none">
+					<input type="hidden" id="flist" value="" />
+					<div id="show_pic" style="display:none;padding-bottom:10px;"></div>
+					<button onclick="upload_receipt_pic('f1')" id="upload_receipt" type="button" class="btn btn-danger">上传收款凭证</button>
 					<button onclick="addnewService1Save()" type="button" class="btn btn-primary"><span id="btn_id">提交</span></button>
 					<button onclick="flowstep('REVIEW',1)" id="btnReview" style="display:none;" type="button" class="btn btn-primary">提交审核</button>
 					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
@@ -202,7 +205,7 @@
 						</div>
 						</form>
 				</div>
-				<div class="modal-footer" style="text-align: center;">
+				<div class="modal-footer" style="text-align: center;">					
 					<button onclick="addnewService2Save()"type="button" class="btn btn-primary"><span id="btn_id">提交</span></button>
 					<button onclick="flowstep('REVIEW',1)" id="btnReview" style="display:none;" type="button" class="btn btn-primary">提交审核</button>
 					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
@@ -405,12 +408,14 @@ function add_service2(orderId,userId,name)
 $('#addnewservice1_id :radio').live('click', function (e) {
 		if ($(this).val() == '1')
 		{
-				$('#addnewservice1_id #show_paid').show();      				
+				$('#addnewservice1_id #show_paid').show();		
 				$('#addnewservice1_id #upload_receipt').show();
+				$('#addnewservice1_id #show_pic').show();
 		}else
 		{
 				$('#addnewservice1_id #show_paid').hide();
 				$('#addnewservice1_id #upload_receipt').hide();
+				$('#addnewservice1_id #show_pic').hide();
 		}				
 });
 
@@ -617,9 +622,16 @@ function addnewService1Save()
        	if (json['paid'] == 1)
        	{
        			//校验是否上传了凭证
-       			jqInputs[1].value = 'YES';//上传接口待实现
-       			if (jqInputs[1].value != '')
+       			var flist = $("#addnewservice1_id #flist").val();       			
+       			if (flist != '')
        			{
+       					//对凭证进行处理
+       					var arr = flist.split(',');
+       					if (arr.length)
+       					{
+       							json['paymentVoucherImageUrl1'] = arr[0];
+       							if (arr.length == 2) json['paymentVoucherImageUrl2'] = arr[1];
+       					}
 		       			var d1 = 0;          		
 		        		if (jqInputs[5].value != '')
 		        		{
@@ -983,6 +995,49 @@ function computeOvstDiscount()
 				$("#addnewservice2_id #c14").val(discount);
 		}
 }
+
+function upload_receipt_pic(fname)
+{
+		document.getElementById(fname).click(); 
+}
+
+$('#addnewservice1_id #f1').live('change', function (e) {
+		var formData = new FormData();					
+		formData.append("file",$("#f1")[0].files[0]);
+		
+		$.ajax({
+        url:'serviceOrder/upload_img',
+        dataType:'json',
+        type:'POST',
+        async: false,
+        data: formData,
+        processData : false, //使数据不做处理
+        contentType : false,
+        success: function(data){			        		
+            if (data.code == '0') {
+            		var flist = $("#addnewservice1_id #flist").val();
+            		if (flist)
+            		{
+            				$("#addnewservice1_id #flist").val(flist+','+data.data);
+            		}else
+            		{
+            				$("#addnewservice1_id #flist").val(data.data);
+            		}
+		        		$("#addnewservice1_id #show_pic").append('<a href="'+data.data+'" target="_blank">查看凭证</a>&nbsp;');
+		        		$("#addnewservice1_id #show_pic").show();
+            }else
+            {
+            		$('#addnewservice1_id #alert_error').css('marginTop','60%');
+          			$('#addnewservice1_id #alert_error').css('marginLeft','60%');
+		   					$('#addnewservice1_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+          			$("#addnewservice1_id #error_info").html('收款凭证上传失败！');
+            }	
+        },
+        error:function(response){
+            console.log(response);
+        }
+    });
+});
 
 v.$watch('addnewservice2_bind', function(obj) {
 		$('.default-date-picker').datepicker({   				
