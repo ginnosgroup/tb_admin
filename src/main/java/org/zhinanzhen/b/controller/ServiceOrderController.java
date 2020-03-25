@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
+import org.zhinanzhen.b.service.pojo.VisaDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -269,6 +270,36 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setRemarks(remarks);
 			if (StringUtil.isNotEmpty(closedReason))
 				serviceOrderDto.setClosedReason(closedReason);
+			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
+			if (i > 0) {
+				return new Response<Integer>(0, i);
+			} else {
+				return new Response<Integer>(1, "修改失败.", 0);
+			}
+		} catch (ServiceException e) {
+			return new Response<Integer>(e.getCode(), e.getMessage(), null);
+		}
+	}
+	
+	@RequestMapping(value = "/updatePaymentVoucherImageUrl", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> updatePaymentVoucherImageUrl(@RequestParam(value = "id") int id,
+			@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
+			@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
+			HttpServletRequest request, HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo != null)
+				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+						&& !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+					return new Response<Integer>(1, "仅限文案修改支付凭证.", null);
+			ServiceOrderDTO serviceOrderDto = new ServiceOrderDTO();
+			serviceOrderDto.setId(id);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
+				serviceOrderDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
+				serviceOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
 			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
 			if (i > 0) {
 				return new Response<Integer>(0, i);
