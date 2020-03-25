@@ -24,7 +24,7 @@ public class ServiceOrderDO {
 	private int schoolId;
 
 	private String state;
-	
+
 	private String reviewState;
 
 	private boolean isSettle;
@@ -46,15 +46,17 @@ public class ServiceOrderDO {
 	private double received;
 
 	private int installment;
-	
+
 	private String paymentVoucherImageUrl1;
-	
+
 	private String paymentVoucherImageUrl2;
-	
+
+	private String visaVoucherImageUrl;
+
 	private double perAmount;
 
 	private double amount;
-	
+
 	private double expectAmount;
 
 	private double gst;
@@ -72,7 +74,7 @@ public class ServiceOrderDO {
 	private int officialId;
 
 	private String remarks;
-	
+
 	private String closedReason;
 
 }

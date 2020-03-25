@@ -249,37 +249,6 @@ public class VisaController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/updatePaymentVoucherImageUrl", method = RequestMethod.POST)
-	@ResponseBody
-	public Response<VisaDTO> updatePaymentVoucherImageUrl(@RequestParam(value = "id") int id,
-			@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
-			@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
-			HttpServletRequest request, HttpServletResponse response) {
-		try {
-			super.setPostHeader(response);
-			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			if (adminUserLoginInfo != null)
-				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
-						&& !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())))
-					return new Response<VisaDTO>(1, "仅限文案修改支付凭证.", null);
-			if (visaService.getVisaById(id) == null)
-				return new Response<VisaDTO>(1, "签证佣金订单不存在.", null);
-			VisaDTO visaDto = new VisaDTO();
-			visaDto.setId(id);
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
-				visaDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
-				visaDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
-			if (visaService.updateVisa(visaDto) > 0) {
-				return new Response<VisaDTO>(0, visaDto);
-			} else {
-				return new Response<VisaDTO>(1, "修改失败.", null);
-			}
-		} catch (ServiceException e) {
-			return new Response<VisaDTO>(e.getCode(), e.getMessage(), null);
-		}
-	}
-
 	@RequestMapping(value = "/count", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<Integer> countVisa(@RequestParam(value = "keyword", required = false) String keyword,
