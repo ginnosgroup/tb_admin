@@ -292,36 +292,6 @@ public class CommissionOrderController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/updatePaymentVoucherImageUrl", method = RequestMethod.POST)
-	@ResponseBody
-	public Response<CommissionOrderDTO> updatePaymentVoucherImageUrl(@RequestParam(value = "id") int id,
-			@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
-			@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
-			HttpServletRequest request, HttpServletResponse response) {
-		try {
-			super.setPostHeader(response);
-			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			if (adminUserLoginInfo != null)
-				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
-						&& !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())))
-					return new Response<CommissionOrderDTO>(1, "仅限文案修改支付凭证.", null);
-			CommissionOrderListDTO commissionOrderListDto = commissionOrderService.getCommissionOrderById(id);
-			if (commissionOrderListDto == null)
-				return new Response<CommissionOrderDTO>(1, "留学佣金订单订单(ID:" + id + ")不存在!", null);
-			CommissionOrderDTO commissionOrderDto = new CommissionOrderDTO();
-			commissionOrderDto.setId(id);
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
-				commissionOrderDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
-				commissionOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
-			return commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0
-					? new Response<CommissionOrderDTO>(0, commissionOrderDto)
-					: new Response<CommissionOrderDTO>(1, "修改失败.", null);
-		} catch (ServiceException e) {
-			return new Response<CommissionOrderDTO>(e.getCode(), e.getMessage(), null);
-		}
-	}
-
 	@RequestMapping(value = "/close", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<CommissionOrderDTO> close(@RequestParam(value = "id") int id,

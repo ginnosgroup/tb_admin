@@ -20,7 +20,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
-import org.zhinanzhen.b.service.pojo.VisaDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -81,6 +80,14 @@ public class ServiceOrderController extends BaseController {
 			HttpServletResponse response) throws IllegalStateException, IOException {
 		super.setPostHeader(response);
 		return super.upload(file, request.getSession(), "/uploads/payment_voucher_image_url/");
+	}
+
+	@RequestMapping(value = "/upload_visa_voucher_img", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<String> uploadVisaVoucherImage(@RequestParam MultipartFile file, HttpServletRequest request,
+			HttpServletResponse response) throws IllegalStateException, IOException {
+		super.setPostHeader(response);
+		return super.upload(file, request.getSession(), "/uploads/visa_voucher_image_url/");
 	}
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
@@ -280,12 +287,11 @@ public class ServiceOrderController extends BaseController {
 			return new Response<Integer>(e.getCode(), e.getMessage(), null);
 		}
 	}
-	
-	@RequestMapping(value = "/updatePaymentVoucherImageUrl", method = RequestMethod.POST)
+
+	@RequestMapping(value = "/updateVisaVoucherImageUrl", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<Integer> updatePaymentVoucherImageUrl(@RequestParam(value = "id") int id,
-			@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
-			@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
+	public Response<Integer> updateVisaVoucherImageUrl(@RequestParam(value = "id") int id,
+			@RequestParam(value = "visaVoucherImageUrl", required = false) String visaVoucherImageUrl,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -293,13 +299,11 @@ public class ServiceOrderController extends BaseController {
 			if (adminUserLoginInfo != null)
 				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
 						&& !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())))
-					return new Response<Integer>(1, "仅限文案修改支付凭证.", null);
+					return new Response<Integer>(1, "仅限文案修改签证凭证.", null);
 			ServiceOrderDTO serviceOrderDto = new ServiceOrderDTO();
 			serviceOrderDto.setId(id);
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
-				serviceOrderDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
-				serviceOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
+			if (StringUtil.isNotEmpty(visaVoucherImageUrl))
+				serviceOrderDto.setVisaVoucherImageUrl(visaVoucherImageUrl);
 			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
 			if (i > 0) {
 				return new Response<Integer>(0, i);

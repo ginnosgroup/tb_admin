@@ -57,6 +57,8 @@ public class ServiceOrderDTO {
 
 	private String paymentVoucherImageUrl2;
 
+	private String visaVoucherImageUrl;
+
 	private double perAmount;
 
 	private double amount;

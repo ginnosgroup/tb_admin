@@ -25,6 +25,7 @@
                 installment,
                 payment_voucher_image_url_1,
                 payment_voucher_image_url_2,
+                visa_voucher_image_url,
                 per_amount,
                 amount,
                 expect_amount,
@@ -58,6 +59,7 @@
                 #{installment},
                 #{paymentVoucherImageUrl1},
                 #{paymentVoucherImageUrl2},
+                #{visaVoucherImageUrl},
                 #{perAmount},
                 #{amount},
                 #{expectAmount},
@@ -123,6 +125,9 @@
         </if>
         <if test='paymentVoucherImageUrl2 != null'>
             , payment_voucher_image_url_2 = #{paymentVoucherImageUrl2}
+        </if>
+        <if test='visaVoucherImageUrl != null'>
+            , visa_voucher_image_url = #{visaVoucherImageUrl}
         </if>
         <if test='perAmount != null'>
             , per_amount = #{perAmount}
@@ -227,6 +232,7 @@
             installment,
             payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
             payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            visa_voucher_image_url AS visaVoucherImageUrl,
             per_amount AS perAmount,
             amount,
             expect_amount AS expectAmount,
@@ -296,6 +302,7 @@
             installment,
             payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
             payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            visa_voucher_image_url AS visaVoucherImageUrl,
             per_amount AS perAmount,
             amount,
             expect_amount AS expectAmount,
