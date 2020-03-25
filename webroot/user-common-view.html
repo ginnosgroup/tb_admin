@@ -232,7 +232,7 @@
 									<label class="control-label"><strong>备注：</strong></label>
 									<label id="c16"></label>									
 							</div>							
-							<div id="show_reqcommission" v-if="flowstate_wa==='PAID' || flowstate_wa === 'COMPLETE'" style="width:100%;margin-bottom:10px;display:;">
+							<div id="show_reqcommission" v-if="(flowstate_wa==='PAID' || flowstate_wa === 'COMPLETE') && ap_list === 'GW'" style="width:100%;margin-bottom:10px;display:;">
 									<hr/>
 									<div class="form-group" style="width:100%;line-height:40px;">
 											<label class="control-label"><strong>佣金信息</strong></label>
