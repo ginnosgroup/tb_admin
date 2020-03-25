@@ -141,7 +141,7 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setDiscount(Double.parseDouble(discount));
 			if (StringUtil.isNotEmpty(received))
 				serviceOrderDto.setReceived(Double.parseDouble(received));
-			if (installment > 0)
+			if (installment != null && installment > 0)
 				serviceOrderDto.setInstallment(installment);
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
 				serviceOrderDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
@@ -239,7 +239,7 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setDiscount(Double.parseDouble(discount));
 			if (StringUtil.isNotEmpty(received))
 				serviceOrderDto.setReceived(Double.parseDouble(received));
-			if (installment > 0)
+			if (installment != null && installment > 0)
 				serviceOrderDto.setInstallment(installment);
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
 				serviceOrderDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
