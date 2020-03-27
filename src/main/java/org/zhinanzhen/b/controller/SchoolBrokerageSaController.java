@@ -210,29 +210,29 @@ public class SchoolBrokerageSaController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/updateCommission", method = RequestMethod.POST)
-	@ResponseBody
-	public Response<SchoolBrokerageSaDTO> updateBrokerageCommission(@RequestParam(value = "id") int id,
-			HttpServletRequest request, HttpServletResponse response) {
-		try {
-			super.setPostHeader(response);
-			SchoolBrokerageSaDTO schoolBrokerageSaDto = schoolBrokerageSaService.getSchoolBrokerageSaById(id);
-			int i = schoolService.updateSchoolSetting(schoolBrokerageSaDto);
-			if (i > 0) {
-				return new Response<SchoolBrokerageSaDTO>(0, "修改成功.", schoolBrokerageSaDto);
-			} else if (i == -1) {
-				return new Response<SchoolBrokerageSaDTO>(1, "修改失败. (佣金记录不存在)", null);
-			} else if (i == -2) {
-				return new Response<SchoolBrokerageSaDTO>(2, "修改失败. (学校佣金设置不存在或不正确)", null);
-			} else if (i == -3) {
-				return new Response<SchoolBrokerageSaDTO>(3, "修改失败. (佣金办理时间不在设置合同时间范围内)", null);
-			} else {
-				return new Response<SchoolBrokerageSaDTO>(4, "修改失败.", null);
-			}
-		} catch (ServiceException e) {
-			return new Response<SchoolBrokerageSaDTO>(e.getCode(), e.getMessage(), null);
-		}
-	}
+//	@RequestMapping(value = "/updateCommission", method = RequestMethod.POST)
+//	@ResponseBody
+//	public Response<SchoolBrokerageSaDTO> updateBrokerageCommission(@RequestParam(value = "id") int id,
+//			HttpServletRequest request, HttpServletResponse response) {
+//		try {
+//			super.setPostHeader(response);
+//			SchoolBrokerageSaDTO schoolBrokerageSaDto = schoolBrokerageSaService.getSchoolBrokerageSaById(id);
+//			int i = schoolService.updateSchoolSetting(schoolBrokerageSaDto);
+//			if (i > 0) {
+//				return new Response<SchoolBrokerageSaDTO>(0, "修改成功.", schoolBrokerageSaDto);
+//			} else if (i == -1) {
+//				return new Response<SchoolBrokerageSaDTO>(1, "修改失败. (佣金记录不存在)", null);
+//			} else if (i == -2) {
+//				return new Response<SchoolBrokerageSaDTO>(2, "修改失败. (学校佣金设置不存在或不正确)", null);
+//			} else if (i == -3) {
+//				return new Response<SchoolBrokerageSaDTO>(3, "修改失败. (佣金办理时间不在设置合同时间范围内)", null);
+//			} else {
+//				return new Response<SchoolBrokerageSaDTO>(4, "修改失败.", null);
+//			}
+//		} catch (ServiceException e) {
+//			return new Response<SchoolBrokerageSaDTO>(e.getCode(), e.getMessage(), null);
+//		}
+//	}
 
 	@RequestMapping(value = "/count", method = RequestMethod.GET)
 	@ResponseBody

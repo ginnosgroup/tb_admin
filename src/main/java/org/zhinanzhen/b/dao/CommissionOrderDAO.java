@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.dao;
 
+import java.util.Date;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
@@ -16,6 +17,8 @@ public interface CommissionOrderDAO {
 			@Param("isSettle") Boolean isSettle, @Param("stateList") List<String> stateList,
 			@Param("commissionStateList") List<String> commissionStateList);
 
+	int countCommissionOrderBySchoolName(@Param("schoolName") String schoolName);
+
 	public List<CommissionOrderListDO> listCommissionOrder(@Param("maraId") Integer maraId,
 			@Param("adviserId") Integer adviserId, @Param("officialId") Integer officialId, @Param("name") String name,
 			@Param("phone") String phone, @Param("wechatUsername") String wechatUsername,
@@ -27,8 +30,13 @@ public interface CommissionOrderDAO {
 
 	public List<CommissionOrderDO> listCommissionOrderByServiceOrderId(Integer serviceOrderId);
 
+	List<CommissionOrderDO> listCommissionOrderBySchool(@Param("startDate") Date startDate,
+			@Param("endDate") Date endDate, @Param("schoolName") String schoolName);
+
 	int updateCommissionOrder(CommissionOrderDO commissionOrderDo);
 
 	CommissionOrderListDO getCommissionOrderById(int id);
+
+	Double sumTuitionFeeBySchoolName(@Param("schoolName") String schoolName);
 
 }
