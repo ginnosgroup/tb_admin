@@ -48,6 +48,8 @@ public class CommissionOrderDO {
 	private Date startDate;
 
 	private Date endDate;
+	
+	private double commission;
 
 	private double tuitionFee;
 

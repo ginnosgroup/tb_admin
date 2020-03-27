@@ -395,6 +395,7 @@ CREATE TABLE `b_commission_order` (
 `payment_voucher_image_url_2` varchar(128) DEFAULT NULL COMMENT '支付凭证图片地址2',
   `start_date` datetime NOT NULL COMMENT '开课日期',
   `end_date` datetime NOT NULL COMMENT '结束日期',
+`commission` decimal(8,2) NOT NULL COMMENT '佣金',
   `tuition_fee` decimal(8,2) NOT NULL COMMENT '总学费',
   `per_term_tuition_fee` decimal(8,2) NOT NULL COMMENT '每学期学费',
 `receive_type_id` int NOT NULL COMMENT '收款方式编号(对应b_receive_type.id)',

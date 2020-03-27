@@ -164,29 +164,29 @@ public class BrokerageSaController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/updateCommission", method = RequestMethod.POST)
-	@ResponseBody
-	public Response<BrokerageSaDTO> updateBrokerageCommission(@RequestParam(value = "id") int id,
-			HttpServletRequest request, HttpServletResponse response) {
-		try {
-			super.setPostHeader(response);
-			BrokerageSaDTO brokerageSaDto = brokerageSaService.getBrokerageSaById(id);
-			int i = schoolService.updateSchoolSetting(brokerageSaDto);
-			if (i > 0) {
-				return new Response<BrokerageSaDTO>(0, "修改成功.", brokerageSaDto);
-			} else if (i == -1) {
-				return new Response<BrokerageSaDTO>(1, "修改失败. (佣金记录不存在)", null);
-			} else if (i == -2) {
-				return new Response<BrokerageSaDTO>(2, "修改失败. (学校佣金设置不存在或不正确)", null);
-			} else if (i == -3) {
-				return new Response<BrokerageSaDTO>(3, "修改失败. (佣金办理时间不在设置合同时间范围内)", null);
-			} else {
-				return new Response<BrokerageSaDTO>(4, "修改失败.", null);
-			}
-		} catch (ServiceException e) {
-			return new Response<BrokerageSaDTO>(e.getCode(), e.getMessage(), null);
-		}
-	}
+//	@RequestMapping(value = "/updateCommission", method = RequestMethod.POST)
+//	@ResponseBody
+//	public Response<BrokerageSaDTO> updateBrokerageCommission(@RequestParam(value = "id") int id,
+//			HttpServletRequest request, HttpServletResponse response) {
+//		try {
+//			super.setPostHeader(response);
+//			BrokerageSaDTO brokerageSaDto = brokerageSaService.getBrokerageSaById(id);
+//			int i = schoolService.updateSchoolSetting(brokerageSaDto);
+//			if (i > 0) {
+//				return new Response<BrokerageSaDTO>(0, "修改成功.", brokerageSaDto);
+//			} else if (i == -1) {
+//				return new Response<BrokerageSaDTO>(1, "修改失败. (佣金记录不存在)", null);
+//			} else if (i == -2) {
+//				return new Response<BrokerageSaDTO>(2, "修改失败. (学校佣金设置不存在或不正确)", null);
+//			} else if (i == -3) {
+//				return new Response<BrokerageSaDTO>(3, "修改失败. (佣金办理时间不在设置合同时间范围内)", null);
+//			} else {
+//				return new Response<BrokerageSaDTO>(4, "修改失败.", null);
+//			}
+//		} catch (ServiceException e) {
+//			return new Response<BrokerageSaDTO>(e.getCode(), e.getMessage(), null);
+//		}
+//	}
 
 	@RequestMapping(value = "/count", method = RequestMethod.GET)
 	@ResponseBody

@@ -144,6 +144,7 @@ public class CommissionOrderController extends BaseController {
 				return new Response<List<CommissionOrderDTO>>(1,
 						"Subagency(" + serviceOrderDto.getSubagencyId() + ")不存在!", null);
 			Double commission = commissionOrderDto.getAmount() * subagencyDto.getCommissionRate();
+			commissionOrderDto.setCommission(commission);
 			// GST
 			commissionOrderDto
 					.setGst(new BigDecimal(commission / 11).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
@@ -272,6 +273,7 @@ public class CommissionOrderController extends BaseController {
 				return new Response<CommissionOrderDTO>(1, "Subagency(" + serviceOrderDto.getSubagencyId() + ")不存在!",
 						null);
 			Double commission = commissionOrderDto.getAmount() * subagencyDto.getCommissionRate();
+			commissionOrderDto.setCommission(commission);
 			// GST
 			commissionOrderDto
 					.setGst(new BigDecimal(commission / 11).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
@@ -287,6 +289,30 @@ public class CommissionOrderController extends BaseController {
 			return commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0
 					? new Response<CommissionOrderDTO>(0, commissionOrderDto)
 					: new Response<CommissionOrderDTO>(1, "修改失败.", null);
+		} catch (ServiceException e) {
+			return new Response<CommissionOrderDTO>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/updateCommission", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<CommissionOrderDTO> updateCommission(@RequestParam(value = "id") int id, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			CommissionOrderDTO commissionOrderDto = commissionOrderService.getCommissionOrderById(id);
+			int i = commissionOrderService.updateCommissionOrder(commissionOrderDto);
+			if (i > 0) {
+				return new Response<CommissionOrderDTO>(0, "修改成功.", commissionOrderDto);
+			} else if (i == -1) {
+				return new Response<CommissionOrderDTO>(1, "修改失败. (佣金记录不存在)", null);
+			} else if (i == -2) {
+				return new Response<CommissionOrderDTO>(2, "修改失败. (学校佣金设置不存在或不正确)", null);
+			} else if (i == -3) {
+				return new Response<CommissionOrderDTO>(3, "修改失败. (佣金办理时间不在设置合同时间范围内)", null);
+			} else {
+				return new Response<CommissionOrderDTO>(4, "修改失败.", null);
+			}
 		} catch (ServiceException e) {
 			return new Response<CommissionOrderDTO>(e.getCode(), e.getMessage(), null);
 		}

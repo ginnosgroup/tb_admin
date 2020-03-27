@@ -27,6 +27,7 @@
                 payment_voucher_image_url_2,
                 start_date,
                 end_date,
+                commission,
                 tuition_fee,
                 per_term_tuition_fee,
                 receive_type_id,
@@ -63,6 +64,7 @@
                 #{paymentVoucherImageUrl2},
                 #{startDate,jdbcType=TIMESTAMP},
                 #{endDate,jdbcType=TIMESTAMP},
+                #{commission},
                 #{tuitionFee},
                 #{perTermTuitionFee},
                 #{receiveTypeId},
@@ -123,6 +125,9 @@
         </if>
         <if test='endDate != null'>
             , end_date = #{endDate}
+        </if>
+        <if test='commission != null and commission != ""'>
+            , commission = #{commission}
         </if>
         <if test='tuitionFee != null and tuitionFee != ""'>
             , tuition_fee = #{tuitionFee}
@@ -206,6 +211,12 @@
         ;
     </select>
     
+    <select id="countCommissionOrderBySchoolName" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM b_commission_order bco, b_school bs
+        WHERE bco.school_id = bs.id AND bs.name = #{schoolName};
+    </select>
+    
     <select id="listCommissionOrder" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderListDO">
         SELECT
             co.id,
@@ -228,6 +239,7 @@
             co.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
             co.start_date AS startDate,
             co.end_date AS endDate,
+            co.commission,
             co.tuition_fee AS tuitionFee,
             co.per_term_tuition_fee AS perTermTuitionFee,
             co.receive_type_id AS receiveTypeId,
@@ -311,6 +323,7 @@
             payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
             start_date AS startDate,
             end_date AS endDate,
+            commission,
             tuition_fee AS tuitionFee,
             per_term_tuition_fee AS perTermTuitionFee,
             receive_type_id AS receiveTypeId,
@@ -351,6 +364,7 @@
             payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
             start_date AS startDate,
             end_date AS endDate,
+            commission,
             tuition_fee AS tuitionFee,
             per_term_tuition_fee AS perTermTuitionFee,
             receive_type_id AS receiveTypeId,
@@ -366,6 +380,55 @@
             remarks,
             is_close AS isClose
         FROM b_commission_order WHERE service_order_id = #{serviceOrderId};
+    </select>
+    
+    <select id="listCommissionOrderBySchool" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderDO">
+        SELECT
+            bco.id,
+            bco.gmt_create AS gmtCreate,
+            bco.code,
+            bco.service_order_id AS serviceOrderId,
+            bco.state,
+            bco.commission_state AS commissionState,
+            bco.is_settle AS isSettle,
+            bco.is_deposit_user AS isDepositUser,
+            bco.school_id AS schoolId,
+            bco.student_code AS studentCode,
+            bco.user_id AS userId,
+            bco.adviser_id AS adviserId,
+            bco.official_id AS officialId,
+            bco.is_studying AS isStudying,
+            bco.installment_num AS installmentNum,
+            bco.installment,
+            bco.installment_due_date AS installmentDueDate,
+            bco.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+            bco.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            bco.start_date AS startDate,
+            bco.end_date AS endDate,
+            bco.commission,
+            bco.tuition_fee AS tuitionFee,
+            bco.per_term_tuition_fee AS perTermTuitionFee,
+            bco.receive_type_id AS receiveTypeId,
+            bco.receive_date AS receiveDate,
+            bco.per_amount AS perAmount,
+            bco.amount,
+            bco.expect_amount AS expectAmount,
+            bco.discount,
+            bco.gst,
+            bco.deduct_gst AS deductGst,
+            bco.bonus,
+            bco.bonus_date AS bonusDate,
+            bco.remarks,
+            bco.is_close AS isClose
+        FROM b_commission_order bco, b_school bs, tb_user tbu
+        WHERE bco.school_id = bs.id AND bbs.user_id = tbu.id
+        <if test='startDate != null and endDate != null'>
+            <![CDATA[ AND bco.gmt_create > #{startDate} AND bco.gmt_create < #{endDate} ]]>
+        </if>
+        <if test='schoolName != null and schoolName != ""'>
+            AND bs.name = #{schoolName}
+        </if>
+        ORDER BY bco.gmt_create DESC;
     </select>
     
     <select id="getCommissionOrderById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderListDO">
@@ -391,6 +454,7 @@
             co.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
             co.start_date AS startDate,
             co.end_date AS endDate,
+            co.commission,
             co.tuition_fee AS tuitionFee,
             co.per_term_tuition_fee AS perTermTuitionFee,
             co.receive_type_id AS receiveTypeId,
@@ -411,6 +475,12 @@
             so.service_id AS serviceId
         FROM b_commission_order co, b_service_order so, tb_user u
         WHERE co.service_order_id = so.id AND co.user_id = u.id and co.id = #{id, jdbcType=INTEGER};
+    </select>
+    
+    <select id="sumTuitionFeeBySchoolName" resultType="java.lang.Double">
+        SELECT sum(bco.tuition_fee)
+        FROM b_commission_order bco, b_school bs
+        WHERE bco.school_id = bs.id AND bs.name = #{schoolName};
     </select>
 
 </mapper>
