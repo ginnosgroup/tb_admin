@@ -495,6 +495,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		co.setGst(co.getCommission() / 11);
 		co.setDeductGst(co.getCommission() - co.getGst());
 		co.setBonus(co.getDeductGst() * 0.1);
+		co.setExpectAmount(co.getCommission() * 1.1);
 	}
 
 }

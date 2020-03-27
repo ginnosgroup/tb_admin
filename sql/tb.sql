@@ -339,7 +339,7 @@ CREATE TABLE `b_service_order` (
   `discount` decimal(8,2) NOT NULL DEFAULT 0 COMMENT '折扣',
   `received` decimal(8,2) DEFAULT NULL COMMENT '总计已收',
   `installment` int NOT NULL DEFAULT 1 COMMENT '付款次数',
-`payment_voucher_image_url_1` varchar(128) NOT NULL COMMENT '支付凭证图片地址1',
+`payment_voucher_image_url_1` varchar(128) DEFAULT NULL COMMENT '支付凭证图片地址1',
 `payment_voucher_image_url_2` varchar(128) DEFAULT NULL COMMENT '支付凭证图片地址2',
 `visa_voucher_image_url` varchar(128) DEFAULT NULL COMMENT '签证凭证图片地址',
 `per_amount` decimal(8,2) NOT NULL COMMENT '本次应收款',
