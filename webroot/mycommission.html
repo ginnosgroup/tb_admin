@@ -235,11 +235,16 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li class="active">
+								<li v-if="ap_list==='GW'" class="active">
 									<a href="mycommission.html">
 										我的佣金报表
 									</a>									
-								</li>								
+								</li>
+								<li v-if="ap_list==='KJ'" class="active">
+									<a href="mycommission-accounting.html">
+										我的佣金报表
+									</a>									
+								</li>
 								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
 									<a href="table-export.html">
 										导出数据
@@ -302,7 +307,9 @@
 													<label>状态</label>											
 													<select v-model.trim="state" id="state" class="form-control" style="width:130px;">
 													<option value="" selected="true">全部</option>
-													<option value="WAIT">佣金待审核</option>
+													<option value="PENDING">佣金待确认</option>
+													<option value="REVIEW">佣金审核中</option>
+													<option value="WAIT">佣金被驳回</option>
 													<option value="FINISH">佣金已审核</option>
 													<option value="COMPLETE">佣金结算完成</option>													
 													<option value="CLOSE">已关闭</option>
@@ -319,13 +326,13 @@
 												<thead>
 													<tr>
 														<th>订单ID</th>
-														<th>创建日期</th>
+														<th>佣金订单创建日期</th>
 														<th>客户支付日期</th>
 														<th>客户姓名</th>
 														<th>收款方式</th>
 														<th>服务项目</th>
 														<th><span style="color:#FF6C60;">总计应收</span></th>
-														<th><span style="color:#FF6C60;">总计已收</span></th>
+														<th><span style="color:#FF6C60;">总计收款</span></th>
 														<th>本次收款</th>
 														<th>预收业绩(<span style="color:#FF6C60;">Commission含GST</span>)</th>														
 														<th>月奖</th>
@@ -338,9 +345,9 @@
 												</thead>
 												<tbody>
 													<tr v-for="item in subject" class="gradeX">
-														<td v-html="item.oid"></td>
+														<td v-html="item.strOid"></td>
 														<td v-html="item.gmtCreate"></td>
-														<td v-html="item.finishDate"></td>
+														<td v-html="item.receiveDate"></td>
 														<td v-html="item.userName"></td>
 														<td v-html="item.receiveTypeName"></td>
 														<td v-html="item.serviceName"></td>
@@ -352,12 +359,33 @@
 														<td v-html="item.payDate"></td>
 														<td v-html="item.adviserName"></td>
 														<td v-html="item.strState"></td>
-														<td>																
+														<td>
+																<a href="javascript:open_detail({{item.serviceOrderId}},{{item.oid}});">查看</a>
 																<dle v-if="ap_list==='GW'">
-																		<d1 v-if="item.currentState==='WAIT'"></d1>																		
+																		<d1 v-if="item.currentState==='PENDING' || item.currentState==='WAIT'">
+																				<a href="javascript:reqCommissionVisa({{item.serviceOrderId}},{{item.oid}})"><span style="color:blue;">申请佣金</span></a>
+																		</d1>
 																</dle>
 														</td>
 														<td v-html="item.remarks"></td>
+													</tr>
+													<tr class="gradeX">
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>													
+														<td style="background:#F4A460">合计：</td>
+														<td style="background:#F4A460">{{total_expectamount}}</td>
+														<td style="background:#F4A460">{{total_bonus}}</td>														
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
 													</tr>
 												</tbody>
 											</table>
@@ -422,8 +450,8 @@
 				</div>
 			</div>
 		</div>		
-		<div id="load-user-common-page"></div>
-		<div id="load-user-common-view-page"></div>
+		<div id="load-mycommission-visa-page"></div>
+		<div id="load-mycommission-visa-view-page"></div>
 		<script src="js/jquery-1.8.3.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
 		<script src="js/jquery.dcjqaccordion.2.7.js"></script>
@@ -436,7 +464,8 @@
 		<script src="js/vue.js"></script>
 		<script src="js/common.js?verson=1"></script>
 		<script>
-			//$("#load-user-common-page").load("user-common.html?random="+Math.random());
+			$("#load-mycommission-visa-page").load("mycommission-common.html?random="+Math.random());
+			$("#load-mycommission-visa-view-page").load("mycommission-common-view.html?random="+Math.random());
 			tb.isLogin("mycommission.html");
 			$("td,th").addClass("text-center");
 			var v = new Vue({
@@ -449,28 +478,17 @@
 					official_id: sessionStorage.getItem("official_id"),
 					mara_id: sessionStorage.getItem("mara_id"),
 					kj_id: sessionStorage.getItem("kj_id"),
-					addnewservice1_bind: 0,
-					addnewservice2_bind: 0,					
 					orderId: 0,
-					orderType: '',
+					total_expectamount: 0.00,
+					total_bonus: 0.00,
+					order_detail: [],
 					subject: [],
-					count: 0,
-					dId: '',
-					eId: '',
+					count: 0,				
 					name: '',
-					sort: '',
-					state: '',
-					flowstate_gw: '',
-					flowstate_wa: '',
-					flowstate_ma: '',
-					set_state: '',
-					set_type: 1,
+					state: '',					
 					pageNum: 0,
 					pageSize: 20,
-					allPage: 0,
-					add: false,
-					index: 0,
-					close: false
+					allPage: 0
 				},
 				created: function() {
 					this.getDatalist();
@@ -525,6 +543,18 @@
 						var date2 = d+"/"+m+"/"+y;
 						return date2;
 					},
+					getTime1: function(d) {
+						var date1 = new Date(d);
+						var y = date1.getFullYear();
+						var m = this.addZero(date1.getMonth() + 1);
+						var d = this.addZero(date1.getDate());
+						var h = this.addZero(date1.getHours());
+						var m2 = this.addZero(date1.getMinutes());
+						var s = this.addZero(date1.getSeconds());
+						//var date2 = y + "-" + m + "-" + d;
+						var date2 = d+"/"+m+"/"+y+' '+h+':'+m2+':'+s;
+						return date2;
+					},
 					addZero: function(obj) {
 						if(obj < 10) {
 							obj = '0' + obj;
@@ -567,13 +597,11 @@
 						if(that.pageNum < that.allPage - 1) {
 							that.pageNum++;
 							$.get(url + "visa/list", {
-								keyword: that.name,
-								categoryId: that.sort,
+								keyword: that.name,								
 								state: that.state,
 								pageNum: that.pageNum,
 								pageSize: that.pageSize
 							}, function(result) {
-								console.log(result)
 								result.data = return_result(result);
 								that.subject = result.data;
 							});
@@ -584,7 +612,6 @@
 						if(that.pageNum < that.allPage - 1) {
 							$.get(url + "visa/list", {
 								keyword: that.name,
-								categoryId: that.sort,
 								state: that.state,
 								pageNum: that.allPage - 1,
 								pageSize: that.pageSize
@@ -601,13 +628,16 @@
 			
 			function return_result(result)
 			{
+				v.total_expectamount = 0;
+				v.total_bonus = 0;
 				for(var i = 0; i < result.data.length; i++) {
-						var str_state = '';
-						result.data[i].state = 'WAIT';//测试用
 						result.data[i].oid = result.data[i].id;
-						result.data[i].gmtCreate = v.getTime(result.data[i].gmtCreate);
-						result.data[i].finishDate = result.data[i].finishDate ? v.getTime(result.data[i].finishDate):'';
+						result.data[i].strOid = '<a href="javascript:open_detail('+result.data[i].serviceOrderId+','+result.data[i].id+');" title="查看详细">'+result.data[i].id+'</a>-'+result.data[i].installmentNum;						
+						result.data[i].gmtCreate = v.getTime1(result.data[i].gmtCreate);
+						result.data[i].receiveDate = result.data[i].receiveDate ? v.getTime(result.data[i].receiveDate):'';
 						result.data[i].serviceName = '签证-'+result.data[i].serviceCode;
+						v.total_expectamount += result.data[i].expectAmount;
+						v.total_bonus += result.data[i].bonus;
 						result.data[i].strState = return_state(result.data[i].state);
 						result.data[i].currentState = result.data[i].state;
 				};
@@ -619,11 +649,16 @@
 					var str_html = '';
 					switch(va)
 					{
-						case 'WAIT':
+						case 'PENDING':
+									str_html = '佣金待确认';
+						break;						
+						case 'REVIEW':
 									str_html = '佣金审核中';
 						break;
-						case 'FINISH':
-									
+						case 'WAIT':
+									str_html = '<label style="">佣金被驳回</label>';
+						break;
+						case 'FINISH':									
 									str_html = '<label style="color:blue;">佣金已审核</label>';							
 						break;						
 						case 'COMPLETE':
@@ -673,6 +708,16 @@
 							window.location.href = "mycommission-ovst.html";
 					}
 			}
+			
+			function open_detail(serviceId,orderId)
+      {
+      		show_commission_detail(serviceId,orderId);
+      }
+      
+      function reqCommissionVisa(serviceId,orderId)
+      {
+      		edit_commission_detail(serviceId,orderId);
+      }            
       
       function show_knowledge_detail(id,parentId)
       {

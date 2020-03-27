@@ -58,15 +58,11 @@
 						<div class="form-group" style="display:block;line-height:40px;">
 								<div class="form-group">
 									<label class="control-label" style="width:80px;">总计应收</label>
-									$<input type="text" autocomplete="off" onkeyup="computeVisaDiscount()" id="b10" class="form-control" style="width:100px;">
-								</div>
-								<div class="form-group" style="margin-left:10px;">
-									<label class="control-label">折扣</label>
-									$<input type="text" autocomplete="off" disabled="disabled" id="b11" class="form-control" style="width:100px;">
-								</div>
+									$<input type="text" autocomplete="off" id="b10" class="form-control" style="width:100px;">
+								</div>								
 								<div class="form-group" style="margin-left:10px;">
 									<label class="control-label">总计收款</label>
-									$<input type="text" autocomplete="off" onkeyup="computeVisaDiscount()" id="b12" class="form-control" style="width:100px;">
+									$<input type="text" autocomplete="off" id="b12" class="form-control" style="width:100px;">
 								</div>
 								<div class="form-group" style="margin-left:10px;">
 									<label class="control-label">付款次数</label>
@@ -78,8 +74,16 @@
 						</div>
 						<div class="form-group" style="display:block;line-height:40px;">
 								<div class="form-group">
-									<label class="control-label" style="width:80px;">本次收款</label>
-									$<input type="text" autocomplete="off" id="b14" class="form-control" style="width:80px;">
+									<label class="control-label" style="width:80px;">本次应收</label>
+									$<input type="text" autocomplete="off" id="b14a" onkeyup="computeVisaDiscount()" class="form-control" style="width:80px;">
+								</div>
+								<div class="form-group" style="margin-left:10px;">
+									<label class="control-label">折扣</label>
+									$<input type="text" autocomplete="off" disabled="disabled" id="b11" class="form-control" style="width:80px;">
+								</div>
+								<div class="form-group">
+									<label class="control-label">本次收款</label>
+									$<input type="text" autocomplete="off" id="b14" onkeyup="computeVisaDiscount()" class="form-control" style="width:80px;">
 								</div>
 								<div class="form-group" style="margin-left:10px;">
 									<label class="control-label">GST</label>
@@ -102,7 +106,10 @@
 						</form>
 				</div>
 				<div class="modal-footer" style="text-align: center;">
-					<button onclick="alert('接口待实现');" id="upload_receipt" type="button" class="btn btn-danger">上传收款凭证</button>
+					<input type="file" id="f1" style="display:none">
+					<input type="hidden" id="flist" value="" />
+					<div id="show_pic" style="display:none;padding-bottom:10px;"></div>
+					<button onclick="upload_receipt_pic('f1')" id="upload_receipt" type="button" class="btn btn-danger">上传收款凭证</button>
 					<button onclick="addnewService1Save()" type="button" class="btn btn-primary"><span id="btn_id">提交</span></button>
 					<button onclick="flowstep('REVIEW',1)" id="btnReview" style="display:none;" type="button" class="btn btn-primary">提交审核</button>
 					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
@@ -198,7 +205,7 @@
 						</div>
 						</form>
 				</div>
-				<div class="modal-footer" style="text-align: center;">
+				<div class="modal-footer" style="text-align: center;">					
 					<button onclick="addnewService2Save()"type="button" class="btn btn-primary"><span id="btn_id">提交</span></button>
 					<button onclick="flowstep('REVIEW',1)" id="btnReview" style="display:none;" type="button" class="btn btn-primary">提交审核</button>
 					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
@@ -264,6 +271,7 @@ function add_service1(orderId,userId,name)
 				$("#addnewservice1_id #b12").val('');
 				$("#addnewservice1_id #b13 option:first").prop('selected', 'selected'); 
 				$("#addnewservice1_id #b14").val('');
+				$("#addnewservice1_id #b14a").val('');
 				$("#addnewservice1_id #b15").val('');
 				$("#addnewservice1_id #b16").val('');
 				$("#addnewservice1_id #b17").val('');
@@ -277,7 +285,9 @@ function add_service1(orderId,userId,name)
 	          dataType: 'json'
 	        }).done(function(response) {
 	        	response = response.data;			        	
+	        	v_sub.order_detail = response;
 	        	v.orderId = orderId;	        	
+	        	v.orderType = 'VISA';	        	
 	        	$('#addnewservice1_id #addnewservice1_id_title').html('修改签证服务');
 	        	$('#addnewservice1_id #user_id').val(response.userId);
 			      $('#addnewservice1_id #b100').val(response.user.name);
@@ -304,6 +314,7 @@ function add_service1(orderId,userId,name)
 	        	if (response.discount) $("#addnewservice1_id #b11").val(response.discount);
 	        	if (response.received) $("#addnewservice1_id #b12").val(response.received);
 	        	if (response.paymentTimes) $("#addnewservice1_id #b13").val(response.paymentTimes);
+	        	if (response.perAmount) $("#addnewservice1_id #b14a").val(response.perAmount);
 	        	if (response.amount) $("#addnewservice1_id #b14").val(response.amount);
 	        	if (response.gst) $("#addnewservice1_id #b15").val(response.gst);
 	        	if (response.deductGst) $("#addnewservice1_id #b16").val(response.deductGst);
@@ -397,12 +408,14 @@ function add_service2(orderId,userId,name)
 $('#addnewservice1_id :radio').live('click', function (e) {
 		if ($(this).val() == '1')
 		{
-				$('#addnewservice1_id #show_paid').show();      				
+				$('#addnewservice1_id #show_paid').show();		
 				$('#addnewservice1_id #upload_receipt').show();
+				$('#addnewservice1_id #show_pic').show();
 		}else
 		{
 				$('#addnewservice1_id #show_paid').hide();
 				$('#addnewservice1_id #upload_receipt').hide();
+				$('#addnewservice1_id #show_pic').hide();
 		}				
 });
 
@@ -549,7 +562,35 @@ function addnewService1Save()
     var check_result = 0;    
     if (jqSelect[0].value != '0' && jqSelect[1].value != '0' && jqSelect[2].value != '0' && jqSelect[4].value != '')
     {
-    		check_result = true;
+    		//如果付款次数为1次，本次应收/本次收款，需要一致    		
+    		var ispaid = $("#addnewservice1_id input[name='b7']:checked").val();
+    		if (ispaid == '1')
+    		{
+    				if (jqInputs[5].value != '' && jqInputs[6].value != '' && jqInputs[7].value != '' && jqInputs[8].value != '' && jqInputs[10].value != '')
+    				{
+		    				if (jqSelect[6].value == '1' && jqInputs[8].value != jqInputs[10].value)
+		    				{
+		    						$('#addnewservice1_id #alert_error').css('marginLeft','30%');
+						    		$('#addnewservice1_id #alert_error').css('marginTop','20%');
+						    		$('#addnewservice1_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+						        $("#addnewservice1_id #error_info").html('提示：1次付款时，本次应收与本次收款需一致！');
+						    		return false;
+		    				}else
+		    				{
+		    						check_result = true;
+		    				}
+    				}else
+    				{
+    						$('#addnewservice1_id #alert_error').css('marginLeft','30%');
+				    		$('#addnewservice1_id #alert_error').css('marginTop','20%');
+				    		$('#addnewservice1_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+				        $("#addnewservice1_id #error_info").html('提示：收款日期/总计应收/总计收/本次应收/本次收款必须填写或选择！');
+				        return false;
+    				}	
+    		}else
+    		{
+    				check_result = true;
+    		}
     }else    		
     {
     		$('#addnewservice1_id #alert_error').css('marginLeft','30%');
@@ -581,9 +622,16 @@ function addnewService1Save()
        	if (json['paid'] == 1)
        	{
        			//校验是否上传了凭证
-       			jqInputs[1].value = 'YES';//上传接口待实现
-       			if (jqInputs[1].value != '')
+       			var flist = $("#addnewservice1_id #flist").val();       			
+       			if (flist != '')
        			{
+       					//对凭证进行处理
+       					var arr = flist.split(',');
+       					if (arr.length)
+       					{
+       							json['paymentVoucherImageUrl1'] = arr[0];
+       							if (arr.length == 2) json['paymentVoucherImageUrl2'] = arr[1];
+       					}
 		       			var d1 = 0;          		
 		        		if (jqInputs[5].value != '')
 		        		{
@@ -595,13 +643,14 @@ function addnewService1Save()
 		          	json['receiveDate'] = d1;
 		          	json['receiveTypeId'] = jqSelect[5].value;
 		          	json['receivable'] = jqInputs[6].value;
-		          	json['discount'] = jqInputs[7].value;
-		          	json['received'] = jqInputs[8].value;
+		          	json['discount'] = jqInputs[9].value;
+		          	json['received'] = jqInputs[7].value;
+		          	json['perAmount'] = jqInputs[8].value;
 		          	json['paymentTimes'] = jqSelect[6].value;
-		          	json['amount'] = jqInputs[9].value;
-		          	json['gst'] = jqInputs[10].value;
-		          	json['deductGst'] = jqInputs[11].value;
-		          	json['expectAmount'] = jqInputs[12].value;
+		          	json['amount'] = jqInputs[10].value;
+		          	json['gst'] = jqInputs[11].value;
+		          	json['deductGst'] = jqInputs[12].value;
+		          	json['expectAmount'] = jqInputs[13].value;
 		          	json['isPay'] = true;
           	}else
           	{
@@ -611,22 +660,23 @@ function addnewService1Save()
           			$("#addnewservice1_id #error_info").html('收款凭证没有上传，请上传之后再提交。');
         				return false;
           	}
-       	}
+       	}       	
        	
        	$.post(str_url, json,
-		   	function(data){
+		   	function(data){		   			
 		   			if (data.code == 0)
 		   			{
 		   					$('#addnewservice1_id #alert_success').css('marginTop','30%');
 		   					$('#addnewservice1_id #alert_success').css('marginLeft','30%');
 		   					$('#addnewservice1_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
-		   					/*if (v.orderId == 0)
+		   					if (v.orderId == 0)
 		   					{
+		   							//json['orderId'] = data.data;		   							
 		   							setTimeout(function(){window.location.href = "serviceorder-list.html";}, 2000);
 		   					}else
 		   					{
 		   							setTimeout(function(){$('#addnewservice1_id').modal('hide')}, 2000);
-		   					}*/
+		   					}
 		   			}else
 		   			{
 		   					$('#addnewservice1_id #alert_error').css('marginTop','30%');
@@ -732,6 +782,87 @@ function addnewService2Save()
 		   	});
        		            
     }
+}
+
+function reqCommissionVisa()
+{
+		var order = v_sub.order_detail;		
+		if (order.pay == true)
+		{
+				var str_url = "visa/add";
+		   	var json = {};
+		   	   	
+		   	json['userId'] = order.userId;
+		   	json['handlingDate'] = new Date().getTime();
+		   	json['receiveTypeId'] = order.receiveTypeId;
+		   	json['receiveDate'] = order.receiveDate;
+		   	json['serviceId'] = order.serviceId;   	
+		   	json['serviceOrderId'] = v.orderId;
+		   	json['installment'] = order.paymentTimes;
+		   	json['receivable'] = order.receivable;
+		   	json['received'] = order.received;
+		   	json['perAmount'] = order.perAmount;
+		   	json['amount'] = order.amount;
+		   	//json['discount'] = order.discount;
+		   	json['adviserId'] = order.adviserId;
+		   	json['maraId'] = order.maraId;
+		   	json['officialId'] = order.officialId;
+		   	json['remarks'] = order.remarks;		   	
+		   	
+		   	$.post(str_url, json,
+		   	function(data){		   			
+		   			if (data.code == 1)
+		   			{
+		   					$('#addnewservice1_id #alert_error').css('marginTop','50%');
+		   					$('#addnewservice1_id #alert_error').css('marginLeft','30%');
+		   					$('#addnewservice1_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+		      			$("#addnewservice1_id #error_info").html(data.message);
+		      			return false;
+		   			}
+		   	});
+  	}
+}
+
+function reqCommissionVisa1(order_json)
+{		
+		var order = order_json;
+		if (order.isPay == true)
+		{
+				var str_url = "visa/add";
+		   	var json = {};
+		   	
+		   	json['userId'] = order.userId;
+		   	json['handlingDate'] = new Date().getTime();
+		   	json['receiveTypeId'] = order.receiveTypeId;
+		   	json['receiveDate'] = order.receiveDate;
+		   	json['serviceId'] = order.serviceId;   	
+		   	json['serviceOrderId'] = order.orderId;
+		   	json['installment'] = order.paymentTimes;
+		   	json['receivable'] = order.receivable;
+		   	json['received'] = order.received;
+		   	json['perAmount'] = order.perAmount;
+		   	json['amount'] = order.amount;
+		   	//json['discount'] = order.discount;
+		   	json['adviserId'] = order.adviserId;
+		   	json['maraId'] = order.maraId;
+		   	json['officialId'] = order.officialId;
+		   	json['remarks'] = order.remarks;		   	
+		   	
+		   	$.post(str_url, json,
+		   	function(data){		   			
+		   			if (data.code == 0)
+		   			{
+		   					setTimeout(function(){window.location.href = "serviceorder-list.html";}, 2000);
+		   			}else
+		   			{
+		   					$('#addnewservice1_id #alert_error').css('marginTop','50%');
+		   					$('#addnewservice1_id #alert_error').css('marginLeft','30%');
+		   					$('#addnewservice1_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+		      			$("#addnewservice1_id #error_info").html(data.message);
+		      			return false;
+		   			}
+		   	});
+  	}
 }
 
 v.$watch('addnewservice1_bind', function(obj) {
@@ -845,11 +976,11 @@ v.$watch('addnewservice1_bind', function(obj) {
 
 function computeVisaDiscount()
 {
-		var b10 = $("#addnewservice1_id #b10").val();
-		var b12 = $("#addnewservice1_id #b12").val();
-		if (parseInt(b10) && parseInt(b12))
+		var b14a = $("#addnewservice1_id #b14a").val();
+		var b14 = $("#addnewservice1_id #b14").val();
+		if (parseInt(b14a) && parseInt(b14))
 		{				
-				var discount = parseInt(b10) - parseInt(b12);
+				var discount = parseInt(b14a) - parseInt(b14);
 				$("#addnewservice1_id #b11").val(discount);
 		}
 }
@@ -864,6 +995,49 @@ function computeOvstDiscount()
 				$("#addnewservice2_id #c14").val(discount);
 		}
 }
+
+function upload_receipt_pic(fname)
+{
+		document.getElementById(fname).click(); 
+}
+
+$('#addnewservice1_id #f1').live('change', function (e) {
+		var formData = new FormData();					
+		formData.append("file",$("#f1")[0].files[0]);
+		
+		$.ajax({
+        url:'serviceOrder/upload_img',
+        dataType:'json',
+        type:'POST',
+        async: false,
+        data: formData,
+        processData : false, //使数据不做处理
+        contentType : false,
+        success: function(data){			        		
+            if (data.code == '0') {
+            		var flist = $("#addnewservice1_id #flist").val();
+            		if (flist)
+            		{
+            				$("#addnewservice1_id #flist").val(flist+','+data.data);
+            		}else
+            		{
+            				$("#addnewservice1_id #flist").val(data.data);
+            		}
+		        		$("#addnewservice1_id #show_pic").append('<a href="'+data.data+'" target="_blank">查看凭证</a>&nbsp;');
+		        		$("#addnewservice1_id #show_pic").show();
+            }else
+            {
+            		$('#addnewservice1_id #alert_error').css('marginTop','60%');
+          			$('#addnewservice1_id #alert_error').css('marginLeft','60%');
+		   					$('#addnewservice1_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+          			$("#addnewservice1_id #error_info").html('收款凭证上传失败！');
+            }	
+        },
+        error:function(response){
+            console.log(response);
+        }
+    });
+});
 
 v.$watch('addnewservice2_bind', function(obj) {
 		$('.default-date-picker').datepicker({   				

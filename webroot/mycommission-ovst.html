@@ -234,12 +234,17 @@
                  	 佣金表
                 </span>
 							</a>
-							<ul class="sub">
-								<li class="active">
+							<ul class="sub">								
+								<li v-if="ap_list==='GW'" class="active">
 									<a href="mycommission.html">
 										我的佣金报表
 									</a>									
-								</li>								
+								</li>
+								<li v-if="ap_list==='KJ'" class="active">
+									<a href="mycommission-accounting.html">
+										我的佣金报表
+									</a>									
+								</li>
 								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
 									<a href="table-export.html">
 										导出数据
@@ -363,24 +368,51 @@
 														<td v-html="item.receiveType.name"></td>
 														<td v-html="item.tuitionFee"></td>
 														<td v-html="item.perAmount"></td>
-														<td></td>
-														<td></td>
+														<td v-html="item.totalPerAmount"></td>
+														<td v-html="item.totalAmount"></td>
 														<td v-html="item.amount"></td>
 														<td v-html="item.expectAmount"></td>
 														<td v-html="item.bonus"></td>
-														<td></td>
-														<td v-html="item.payDate"></td>
+														<td v-html="item.strSchoolPaid"></td>
+														<td v-html="item.bonusDate"></td>
 														<td v-html="item.adviser.name"></td>
 														<td v-html="item.strState"></td>
 														<td>
 														<a href="javascript:open_detail({{item.serviceOrderId}},{{item.oid}});">查看</a>
 														<dle v-if="ap_list==='GW'">
-																<d1 v-if="item.currentState==='PENDING'">
+																<d1 v-if="item.currentState==='PENDING' || item.currentState==='WAIT'">
 																		<a href="javascript:reqCommissionOvst({{item.serviceOrderId}},{{item.oid}})"><span style="color:blue;">申请佣金</span></a>
 																</d1>
 														</dle>
 														</td>
 														<td v-html="item.remarks"></td>
+													</tr>
+													<tr class="gradeX">
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td bgcolor="#F4A460">合计：</td>
+														<td bgcolor="#F4A460">{{total_expectamount}}</td>
+														<td bgcolor="#F4A460">{{total_bonus}}</td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
 													</tr>
 												</tbody>
 											</table>
@@ -474,6 +506,8 @@
 					mara_id: sessionStorage.getItem("mara_id"),
 					kj_id: sessionStorage.getItem("kj_id"),										
 					orderId: 0,
+					total_expectamount: 0.00,
+					total_bonus: 0.00,
 					order_detail: [],
 					subject: [],
 					count: 0,					
@@ -612,14 +646,16 @@
 			
 			function return_result(result)
 			{
+				v.total_expectamount = 0;
+				v.total_bonus = 0;
 				for(var i = 0; i < result.data.length; i++) {
 						var str_state = '';
-						//result.data[i].state = 'WAIT';//测试用
 						result.data[i].oid = result.data[i].id;
 						result.data[i].strOid = '<a href="javascript:open_detail('+result.data[i].serviceOrderId+','+result.data[i].id+');" title="查看详细">'+result.data[i].id+'</a>-'+result.data[i].installmentNum;
 						result.data[i].gmtCreate = v.getTime(result.data[i].gmtCreate);
 						result.data[i].finishDate = result.data[i].finishDate ? v.getTime(result.data[i].finishDate):'';
 						result.data[i].receiveDate = result.data[i].receiveDate ? v.getTime(result.data[i].receiveDate):'';
+						result.data[i].bonusDate = result.data[i].bonusDate ? v.getTime(result.data[i].bonusDate):'';
 						result.data[i].userName = result.data[i].user.name;
 						result.data[i].serviceName = '留学';
 						if (result.data[i].settle)
@@ -632,6 +668,8 @@
 						result.data[i].schoolName = result.data[i].school.name;
 						result.data[i].schoolSubject = result.data[i].school.subject;
 						result.data[i].installmentDueDate = result.data[i].installmentDueDate ? v.getTime(result.data[i].installmentDueDate):'';
+						v.total_expectamount += result.data[i].expectAmount;
+						v.total_bonus += result.data[i].bonus;
 						result.data[i].strState = return_state(result.data[i].state);
 						result.data[i].currentState = result.data[i].state;
 				};
@@ -643,14 +681,14 @@
 					var str_html = '';
 					switch(va)
 					{
-						case 'WAIT':
+						case 'PENDING':
 									str_html = '佣金待确认';
 						break;						
-						case '':
+						case 'REVIEW':
 									str_html = '佣金审核中';
 						break;
-						case '':
-									str_html = '佣金被驳回';
+						case 'WAIT':
+									str_html = '<label style="">佣金被驳回</label>';
 						break;
 						case 'FINISH':									
 									str_html = '<label style="color:blue;">佣金已审核</label>';							
@@ -711,6 +749,33 @@
       function reqCommissionOvst(serviceId,orderId)
       {
       		edit_commission_detail(serviceId,orderId);
+      }
+      
+      function flowstep(va,par)
+      {
+      		var str_url = "commissionOrder/approval";
+      		if (par == '0' || va == 'WAIT') str_url = "commissionOrder/refuse";
+      		
+          var json = {};
+          var closedReason = '';
+                   
+          json['id'] = v.orderId;
+          json['state'] = va;
+          $.post(str_url, json,
+			   	function(data){
+			   			if (data.code == 0)
+			   			{
+			   					$('#ovst_id #alert_success').css('marginLeft','30%');
+			   					$('#ovst_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+			   					setTimeout(function(){window.location.href = "mycommission-ovst.html";}, 2000);				   					
+			   			}else
+			   			{
+			   					$('#ovst_id #alert_error').css('marginLeft','30%');
+			   					$('#ovst_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+	          			$("#ovst_id #error_info").html(data.message);
+		        			return false;
+			   			}
+			   	});
       }
       
       function show_knowledge_detail(id,parentId)

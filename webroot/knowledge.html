@@ -235,10 +235,15 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li>
+								<li v-if="ap_list==='GW'" class="active">
 									<a href="mycommission.html">
 										我的佣金报表
-									</a>
+									</a>									
+								</li>
+								<li v-if="ap_list==='KJ'" class="active">
+									<a href="mycommission-accounting.html">
+										我的佣金报表
+									</a>									
 								</li>								
 								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
 									<a href="table-export.html">

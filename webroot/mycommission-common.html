@@ -1,0 +1,366 @@
+﻿<meta charset="utf-8"/>
+<div id="app_sub2">
+<div class="modal fade" id="visa_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" role="document" style="width:700px;">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">佣金详情页</h4>
+					</div>
+					<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+			      <button data-dismiss="alert" class="close close-sm" type="button">
+			      <i class="fa fa-times"></i>
+			      </button>
+			      <strong>Success!</strong> You  just achieved success.
+			  	</div>
+			  	<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+		        <button data-dismiss="alert" class="close close-sm" type="button">
+		        <i class="fa fa-times"></i>
+		        </button>
+		        <strong id="error_info"></strong>
+		      </div>
+					<div class="modal-body">
+							<form class="form-inline" style="">																											
+							<div class="form-group" style="width:100%;height:40px;">
+								<label class="control-label" style="width:80px;"><strong>服务订单Id：</strong></label>								
+								<label id="b0"></label>
+							</div>
+							<div class="form-group" style="width:100%;height:40px;">
+								<label class="control-label" style="width:80px;"><strong>客户姓名：</strong></label>								
+								<label id="b1"></label>
+							</div>
+							<div class="form-group" style="width:100%;height:40px;">
+								<label class="control-label" style="width:80px;"><strong>顾问：</strong></label>
+								<label id="b2" style="width:100px;"></label>
+								<label class="control-label"><strong>Mara：</label>
+								<label id="b3" style="width:100px;"></label>
+								<label class="control-label"><strong>文案：</label>
+								<label id="b4" style="width:100px;"></label>
+							</div>
+							<div class="form-group" style="width:100%;height:40px;">
+								<label class="control-label" style="width:80px;"><strong>服务项目：</strong></label>
+								<label id="b5">签证</label> - 
+								<label id="b6"></label>						
+							</div>
+							<div class="form-group" style="width:100%;height:40px;">
+								<label class="control-label" style="width:80px;"><strong>是否已支付：</strong></label>
+								<label id="b7"></label>
+							</div>
+							<hr/>
+							<div id="show_paid" style="width:100%;">
+							<div class="form-group" style="width:100%;">								
+									<label class="control-label" style="width:80px;"><strong>收款日期</strong></label>
+									<input type="text" autocomplete="off" id="b8" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
+									<label class="control-label"><strong>收款方式</strong></label>
+									<select class="form-control" style="width:150px;font-weight:normal;" id="b9"></select>									
+							</div>
+							<div class="form-group" style="display:block;line-height:40px;">
+									<div class="form-group">
+										<label class="control-label" style="width:80px;"><strong>总计应收</strong></label>
+										$<input type="text" autocomplete="off" id="b10" class="form-control" style="width:100px;font-weight:normal;">
+									</div>								
+									<div class="form-group" style="margin-left:10px;">
+										<label class="control-label"><strong>总计收款</strong></label>
+										$<input type="text" autocomplete="off" id="b12" class="form-control" style="width:100px;font-weight:normal;">
+									</div>
+									<div class="form-group" style="margin-left:10px;">
+										<label class="control-label"><strong>付款次数</strong></label>
+										<label id="b13" style="font-weight:normal;"></label>
+									</div>
+							</div>
+							<div class="form-group" style="display:block;line-height:40px;">
+									<div class="form-group">
+										<label class="control-label" style="width:80px;"><strong>本次应收</strong></label>
+										$<input type="text" autocomplete="off" id="b14a" onkeyup="computeDiscount()" class="form-control" style="width:80px;font-weight:normal;">
+									</div>
+									<div class="form-group" style="margin-left:10px;">
+										<label class="control-label"><strong>折扣</strong></label>
+										$<input type="text" autocomplete="off" disabled="disabled" id="b11" class="form-control" style="width:80px;font-weight:normal;">
+									</div>
+									<div class="form-group">
+										<label class="control-label"><strong>本次收款</strong></label>
+										$<input type="text" autocomplete="off" id="b14" onkeyup="computeDiscount()" class="form-control" style="width:80px;font-weight:normal;">
+									</div>
+									<div class="form-group" style="margin-left:10px;">
+										<label class="control-label"><strong>GST</strong></label>
+										$<input type="text" autocomplete="off" id="b15" class="form-control" readonly="true" style="width:80px;font-weight:normal;">
+									</div>
+									<div class="form-group" style="margin-left:10px;">
+										<label class="control-label"><strong>Deduct GST</strong></label>
+										$<input type="text" autocomplete="off" id="b16" class="form-control" readonly="true" style="width:80px;font-weight:normal;">
+									</div>
+									<div class="form-group" style="margin-left:10px;">
+										<label class="control-label"><strong>预收业绩</strong></label>
+										$<input type="text" autocomplete="off" readonly="readonly" id="b17" class="form-control" style="width:80px;font-weight:normal;">
+									</div>
+							</div>
+							</div>
+							<div class="form-group" style="width:100%;line-height:40px;">
+								<label class="control-label"><strong>备注</strong></label>
+								<textarea id="b18" class="form-control" style="width:98%;font-weight:normal;"></textarea>
+							</div>						
+							</form>
+					</div>
+					<div class="modal-footer" style="text-align: center;">
+							<dle v-if="ap_list==='GW'">									
+									<dle v-if="state==='PENDING' || state==='WAIT'">
+									<input type="file" id="f1" style="display:none">
+									<input type="hidden" id="flist" value="" />
+									<div id="show_pic" style="display:none;padding-bottom:10px;"></div>
+									<button onclick="upload_receipt_pic('f1')" id="btn_receipt" type="button" class="btn btn-danger">上传收款凭证</button>									
+									<button onclick="requestCommissionVisaSave()" id="btn_request" type="button" class="btn btn-primary">申请佣金</button>									
+									</dle>
+							</dle>													
+							<button onclick="" type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+					</div>
+				</div>
+			</div>
+</div>
+</div>
+<script>
+var v_sub2 = new Vue({
+				el: '#app_sub2',
+				data: {
+					admin: sessionStorage.getItem("admin"),
+					ap_list: sessionStorage.getItem("ap_list"),
+					m_list: localStorage.getItem("str_html"),
+					adviser_id: sessionStorage.getItem("adviser_id"),
+					official_id: sessionStorage.getItem("official_id"),
+					serviceId: 0,
+					orderId: 0,
+					state: '',
+					order_detail: [],					
+				},
+				created: function() {
+					//初始化
+					page_init();
+				}
+});
+
+function edit_commission_detail(serviceId,orderId)
+{
+		v_sub2.serviceId = serviceId;
+		v_sub2.orderId = orderId;		
+		//佣金详细页
+		$.ajax({
+      url: 'serviceOrder/get?id='+serviceId,
+      type: 'GET',
+      dataType: 'json'
+    }).done(function(response) {			        	
+    	response = response.data;
+    	if (response.id)    	
+    	{
+    			$('#visa_id').modal('show');
+		    	$('#visa_id #b0').html(response.id);
+		    	$('#visa_id #b1').html(response.user.name);
+		    	$('#visa_id #b2').html(response.adviser.name);
+		    	$('#visa_id #b3').html(response.mara.name);
+		    	$('#visa_id #b4').html(response.official.name);
+		    	$('#visa_id #b6').html(response.service.code);
+		    	$('#visa_id #b7').html('是');
+        	$('#visa_id #show_paid').show();	        	
+    	}   	
+    	//查询佣金订单信息
+    	$.ajax({
+	      url: 'visa/get?id='+orderId,
+	      type: 'GET',
+	      async: false,
+	      dataType: 'json'
+	    }).done(function(response) {			        	
+	    	response = response.data;
+	    	v_sub2.order_detail = response;
+	    	v_sub2.state = response.state;   	
+	    	if (response.id)	    	
+	    	{	    			
+	    			if (response.receiveDate) $("#visa_id #b8").val(v.getTime(response.receiveDate));
+	        	$("#visa_id #b9").val(response.receiveTypeId);
+	        	if (response.receivable) $("#visa_id #b10").val(response.receivable);
+	        	if (response.discount) $("#visa_id #b11").val(response.discount);
+	        	if (response.received) $("#visa_id #b12").val(response.received);
+	        	$('#visa_id #b13').html(response.installmentNum+'/'+response.installment);
+	        	if (response.perAmount) $("#visa_id #b14a").val(response.perAmount);
+	        	if (response.amount) $("#visa_id #b14").val(response.amount);
+	        	if (response.gst) $("#visa_id #b15").val(response.gst);
+	        	if (response.deductGst) $("#visa_id #b16").val(response.deductGst);
+	        	if (response.expectAmount) $("#visa_id #b17").val(response.expectAmount);
+	        	if (response.remarks) $("#visa_id #b18").val(response.remarks);
+	    	}
+    	});
+    	
+    });
+}
+
+function requestCommissionVisaSave()
+{
+		var f = '#visa_id ';    
+    
+    var check_result = 0;    
+    if ($(f+'#b8').val() != '' && $(f+'#b10').val() != '' && $(f+'#b12').val() != '' && $(f+'#b14a').val() != '' && $(f+'#b14').val() != '')
+    {
+    		check_result = true;
+    }else    		
+    {
+    		$('#visa_id #alert_error').css('marginLeft','30%');
+    		$('#visa_id #alert_error').css('marginTop','50%');
+    		$('#visa_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+        $("#visa_id #error_info").html('提示：收款日期/总计应收/总计收款/本次应收/本次收款必须填写或选择！');
+    		return false;
+    }   
+        
+    if (check_result)
+    {            	            	            	                             
+       	var str_url = "visa/update";
+       	var json = {};       	
+       	json['id'] = v_sub2.orderId;
+       	json['userId'] = v_sub2.order_detail.userId;      	
+       	json['adviserId'] = v_sub2.order_detail.adviserId;
+       	json['officialId'] = v_sub2.order_detail.officialId;
+       	json['handlingDate'] = 0;//办理时间应该去掉
+       	json['receiveTypeId'] =  $(f+'#b9').val();       	      	
+       	var d = 0;
+       	if ($(f+'#b8').val())
+       	{
+       			var arr_d = $(f+'#b8').val().split("/");
+        		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+            var date = new Date(str_d);
+            d = date.getTime();
+       	}else
+       	{
+       			d = 0;
+       	}
+       	json['receiveDate'] =  d;       	
+       	json['serviceId'] =  v_sub2.order_detail.serviceId;
+       	json['serviceOrderId'] =  v_sub2.order_detail.serviceOrderId;
+       	json['receivable'] =  $(f+'#b10').val();
+       	json['received'] =  $(f+'#b12').val();       	
+       	json['perAmount'] =  $(f+'#b14a').val();       	
+       	json['amount'] =  $(f+'#b14').val();
+       	json['remarks'] =  $(f+'#b18').val();
+       	//校验是否上传了凭证
+       	var flist = $("#visa_id #flist").val();
+       	if (flist != '')
+       	{
+       			//对凭证进行处理
+   					var arr = flist.split(',');
+   					if (arr.length)
+   					{
+   							json['paymentVoucherImageUrl1'] = arr[0];
+   							if (arr.length == 2) json['paymentVoucherImageUrl2'] = arr[1];
+   					}
+       	}else
+       	{
+       			$('#visa_id #alert_error').css('marginTop','30%');
+   					$('#visa_id #alert_error').css('marginLeft','30%');
+   					$('#visa_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+      			$("#visa_id #error_info").html('收款凭证必须上传！');
+      			return false;
+       	}
+       	
+       	$.post(str_url, json,
+		   	function(data){
+		   			if (data.code == 0)
+		   			{
+		   					//提交财务审核		   					
+		   					$('#visa_id #alert_success').css('marginTop','30%');
+		   					$('#visa_id #alert_success').css('marginLeft','30%');
+		   					$('#visa_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+		   					setTimeout(function(){window.location.href = "mycommission.html";}, 2000);
+		   			}else
+		   			{
+		   					$('#visa_id #alert_error').css('marginTop','30%');
+		   					$('#visa_id #alert_error').css('marginLeft','30%');
+		   					$('#visa_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+          			$("#visa_id #error_info").html(data.message);
+	        			return false;
+		   			}
+		   	});       		            
+    }
+}
+
+function computeDiscount()
+{
+		var perAmount = $("#visa_id #b14a").val();
+		var amount = $("#visa_id #b14").val();
+		if (parseInt(perAmount) && parseInt(amount))
+		{				
+				var discount = parseInt(perAmount) - parseInt(amount);
+				$("#visa_id #b11").val(discount);
+		}
+}
+
+function page_init()
+{
+		$('.default-date-picker').datepicker({   				
+	        format: 'dd/mm/yyyy'
+	  });
+	  $('.default-date-picker1').datepicker({   				
+	        format: 'dd/mm/yyyy'			        
+	  });
+	  //收款方式
+	  var receive_type = $("#visa_id #b9");
+    $.ajax({
+      url: 'receiveType/list?state=ENABLED',
+      type: 'GET',
+      async: false,
+      dataType: 'json'
+    }).done(function(response) {
+    	response = response.data;
+    	for (var item in response)
+    	{
+    			receive_type.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+    	}  		 	    
+    });
+    //计算GST相关金额
+    $("#visa_id #b14").keyup(function(){
+    	var fee = $("#visa_id #b14").val();
+    	var gst = (fee/11).toFixed(2);
+    	$("#visa_id #b15").val(gst);
+    	var deduct_gst = (fee-gst).toFixed(2);
+    	$("#visa_id #b16").val(deduct_gst);	
+    	$("#visa_id #b17").val(fee);	        	
+		});
+}
+
+function upload_receipt_pic(fname)
+{
+		document.getElementById(fname).click(); 
+}
+
+$('#visa_id #f1').live('change', function (e) {
+		var formData = new FormData();					
+		formData.append("file",$("#f1")[0].files[0]);
+		
+		$.ajax({
+        url:'visa/upload_img',
+        dataType:'json',
+        type:'POST',
+        async: false,
+        data: formData,
+        processData : false, //使数据不做处理
+        contentType : false,
+        success: function(data){			        		
+            if (data.code == '0') {
+            		var flist = $("#visa_id #flist").val();
+            		if (flist)
+            		{
+            				$("#visa_id #flist").val(flist+','+data.data);
+            		}else
+            		{
+            				$("#visa_id #flist").val(data.data);
+            		}
+		        		$("#visa_id #show_pic").append('<a href="'+data.data+'" target="_blank">查看凭证</a>&nbsp;');
+		        		$("#visa_id #show_pic").show();
+            }else
+            {
+            		$('#visa_id #alert_error').css('marginTop','60%');
+          			$('#visa_id #alert_error').css('marginLeft','60%');
+		   					$('#visa_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+          			$("#visa_id #error_info").html('收款凭证上传失败！');
+            }	
+        },
+        error:function(response){
+            console.log(response);
+        }
+    });
+});  
+</script>

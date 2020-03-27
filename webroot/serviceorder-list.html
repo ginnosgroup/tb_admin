@@ -235,11 +235,16 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li>
+								<li v-if="ap_list==='GW'" class="active">
 									<a href="mycommission.html">
 										我的佣金报表
-									</a>
-								</li>								
+									</a>									
+								</li>
+								<li v-if="ap_list==='KJ'" class="active">
+									<a href="mycommission-accounting.html">
+										我的佣金报表
+									</a>									
+								</li>
 								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
 									<a href="table-export.html">
 										导出数据
@@ -807,9 +812,9 @@
 	          			$("#error_info").html('签证凭证没有上传，请上传之后再提交。');
           				return false;
           		}
-          }
-          //如果Mara审核通过且已支付,就创建佣金订单
-          if (v.orderType == 'VISA' && v.ap_list == 'MA' && va == 'FINISH') reqCommissionVisa();
+          }          
+          //如果GW提交审核,就创建佣金订单
+          if (v.orderType == 'VISA' && v.ap_list == 'GW' && va == 'REVIEW') reqCommissionVisa();
          
           json['id'] = v.orderId;
           json['state'] = va;
