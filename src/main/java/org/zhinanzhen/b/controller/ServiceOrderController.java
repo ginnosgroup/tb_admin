@@ -105,7 +105,7 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "discount", required = false) String discount,
 			@RequestParam(value = "received", required = false) String received,
 			@RequestParam(value = "installment", required = false) Integer installment,
-			@RequestParam(value = "paymentVoucherImageUrl1") String paymentVoucherImageUrl1,
+			@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
 			@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
 			@RequestParam(value = "perAmount", required = false) String perAmount,
 			@RequestParam(value = "amount", required = false) String amount,
@@ -153,6 +153,8 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setInstallment(installment);
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
 				serviceOrderDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
+			else if (serviceOrderDto.isPay())
+				return new Response<Integer>(1, "必须上传支付凭证!", 0);
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
 				serviceOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
 			if (StringUtil.isNotEmpty(perAmount))
@@ -251,6 +253,8 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setInstallment(installment);
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
 				serviceOrderDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
+			else if (serviceOrderDto.isPay())
+				return new Response<Integer>(1, "必须上传支付凭证!", 0);
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
 				serviceOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
 			if (StringUtil.isNotEmpty(perAmount))
