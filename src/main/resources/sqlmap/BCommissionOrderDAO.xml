@@ -25,6 +25,9 @@
                 installment_due_date,
                 payment_voucher_image_url_1,
                 payment_voucher_image_url_2,
+                school_payment_amount,
+                school_payment_date,
+                invoice_number,
                 start_date,
                 end_date,
                 commission,
@@ -62,6 +65,9 @@
                 #{installmentDueDate},
                 #{paymentVoucherImageUrl1},
                 #{paymentVoucherImageUrl2},
+                NULL,
+                NULL,
+                NULL,
                 #{startDate,jdbcType=TIMESTAMP},
                 #{endDate,jdbcType=TIMESTAMP},
                 #{commission},
@@ -119,6 +125,15 @@
         </if>
         <if test='paymentVoucherImageUrl2 != null'>
             , payment_voucher_image_url_2 = #{paymentVoucherImageUrl2}
+        </if>
+        <if test='schoolPaymentAmount != null and schoolPaymentAmount != ""'>
+            , school_payment_amount = #{schoolPaymentAmount}
+        </if>
+        <if test='schoolPaymentDate != null'>
+            , school_payment_date = #{schoolPaymentDate}
+        </if>
+        <if test='invoiceNumber != null'>
+            , invoice_number = #{invoiceNumber}
         </if>
         <if test='startDate != null'>
             , start_date = #{startDate}
@@ -237,6 +252,9 @@
             co.installment_due_date AS installmentDueDate,
             co.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
             co.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            co.school_payment_amount AS schoolPaymentAmount,
+            co.school_payment_date AS schoolPaymentDate,
+            co.invoice_number AS invoiceNumber,
             co.start_date AS startDate,
             co.end_date AS endDate,
             co.commission,
@@ -321,6 +339,9 @@
             installment_due_date AS installmentDueDate,
             payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
             payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            school_payment_amount AS schoolPaymentAmount,
+            school_payment_date AS schoolPaymentDate,
+            invoice_number AS invoiceNumber,
             start_date AS startDate,
             end_date AS endDate,
             commission,
@@ -362,6 +383,9 @@
             installment_due_date AS installmentDueDate,
             payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
             payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            school_payment_amount AS schoolPaymentAmount,
+            school_payment_date AS schoolPaymentDate,
+            invoice_number AS invoiceNumber,
             start_date AS startDate,
             end_date AS endDate,
             commission,
@@ -403,6 +427,9 @@
             bco.installment_due_date AS installmentDueDate,
             bco.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
             bco.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            bco.school_payment_amount AS schoolPaymentAmount,
+            bco.school_payment_date AS schoolPaymentDate,
+            bco.invoice_number AS invoiceNumber,
             bco.start_date AS startDate,
             bco.end_date AS endDate,
             bco.commission,
@@ -452,6 +479,9 @@
             co.installment_due_date AS installmentDueDate,
             co.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
             co.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            co.school_payment_amount AS schoolPaymentAmount,
+            co.school_payment_date AS schoolPaymentDate,
+            co.invoice_number AS invoiceNumber,
             co.start_date AS startDate,
             co.end_date AS endDate,
             co.commission,

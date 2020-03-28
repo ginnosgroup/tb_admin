@@ -45,10 +45,16 @@ public class CommissionOrderDO {
 
 	private String paymentVoucherImageUrl2;
 
+	private double schoolPaymentAmount;
+
+	private Date schoolPaymentDate;
+
+	private String invoiceNumber;
+
 	private Date startDate;
 
 	private Date endDate;
-	
+
 	private double commission;
 
 	private double tuitionFee;
