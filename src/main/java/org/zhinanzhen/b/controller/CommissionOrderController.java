@@ -303,6 +303,11 @@ public class CommissionOrderController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo != null)
+				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+					return new Response<CommissionOrderDTO>(1, "仅限会计修改.", null);
 			CommissionOrderDTO commissionOrderDto = commissionOrderService.getCommissionOrderById(id);
 			if (commissionOrderDto == null)
 				return new Response<CommissionOrderDTO>(1, "留学佣金订单订单(ID:" + id + ")不存在!", null);
