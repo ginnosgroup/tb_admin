@@ -20,6 +20,7 @@
                 installment,
                 payment_voucher_image_url_1,
                 payment_voucher_image_url_2,
+                visa_voucher_image_url,
                 receivable,
                 received,
                 per_amount,
@@ -49,6 +50,7 @@
                 #{installment},
                 #{paymentVoucherImageUrl1},
                 #{paymentVoucherImageUrl2},
+                #{visaVoucherImageUrl},
                 #{receivable},
                 #{received},
                 #{perAmount},
@@ -94,6 +96,9 @@
         </if>
         <if test='paymentVoucherImageUrl2 != null'>
             , payment_voucher_image_url_2 = #{paymentVoucherImageUrl2}
+        </if>
+        <if test='visaVoucherImageUrl != null'>
+            , visa_voucher_image_url = #{visaVoucherImageUrl}
         </if>
         <if test='receivable != null and receivable != ""'>
             , receivable = #{receivable}
@@ -181,6 +186,7 @@
             bv.installment,
             bv.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
             bv.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            bv.visa_voucher_image_url AS visaVoucherImageUrl,
             bv.receivable AS receivable,
             bv.received AS received,
             bv.per_amount AS perAmount,
@@ -245,6 +251,7 @@
             installment,
             payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
             payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            visa_voucher_image_url AS visaVoucherImageUrl,
             receivable,
             received,
             per_amount AS perAmount,

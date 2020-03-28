@@ -46,6 +46,8 @@ public class VisaDTO {
 
 	private String paymentVoucherImageUrl2;
 
+	private String visaVoucherImageUrl;
+
 	private double receivable;
 
 	private double received;

@@ -68,6 +68,7 @@ public class VisaController extends BaseController {
 			@RequestParam(value = "installment") Integer installment,
 			@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
 			@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
+			@RequestParam(value = "visaVoucherImageUrl", required = false) String visaVoucherImageUrl,
 			@RequestParam(value = "receivable") String receivable,
 			@RequestParam(value = "received", required = false) String received,
 			@RequestParam(value = "perAmount") String perAmount, @RequestParam(value = "amount") String amount,
@@ -114,6 +115,12 @@ public class VisaController extends BaseController {
 				visaDto.setPaymentVoucherImageUrl1(serviceOrderDto.getPaymentVoucherImageUrl1());
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
 				visaDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
+			else
+				visaDto.setPaymentVoucherImageUrl2(serviceOrderDto.getPaymentVoucherImageUrl2());
+			if (StringUtil.isNotEmpty(visaVoucherImageUrl))
+				visaDto.setVisaVoucherImageUrl(visaVoucherImageUrl);
+			else
+				visaDto.setVisaVoucherImageUrl(serviceOrderDto.getVisaVoucherImageUrl());
 			if (StringUtil.isNotEmpty(receivable))
 				visaDto.setReceivable(Double.parseDouble(receivable));
 			if (StringUtil.isNotEmpty(received))
@@ -169,6 +176,7 @@ public class VisaController extends BaseController {
 			@RequestParam(value = "serviceOrderId", required = false) Integer serviceOrderId,
 			@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
 			@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
+			@RequestParam(value = "visaVoucherImageUrl", required = false) String visaVoucherImageUrl,
 			@RequestParam(value = "receivable", required = false) String receivable,
 			@RequestParam(value = "received", required = false) String received,
 			@RequestParam(value = "perAmount", required = false) String perAmount,
@@ -207,6 +215,8 @@ public class VisaController extends BaseController {
 				visaDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
 				visaDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
+			if (StringUtil.isNotEmpty(visaVoucherImageUrl))
+				visaDto.setVisaVoucherImageUrl(visaVoucherImageUrl);
 			if (StringUtil.isNotEmpty(received)) {
 				visaDto.setReceived(Double.parseDouble(received));
 			}
