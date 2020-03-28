@@ -19,13 +19,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.CommissionOrderService;
-import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.SubagencyService;
 import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.SubagencyDTO;
-import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 
@@ -34,36 +32,13 @@ import com.ikasoa.core.utils.StringUtil;
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/commissionOrder")
-public class CommissionOrderController extends BaseController {
-
-	@Resource
-	ServiceOrderService serviceOrderService;
+public class CommissionOrderController extends BaseCommissionOrderController {
 
 	@Resource
 	CommissionOrderService commissionOrderService;
 
 	@Resource
 	SubagencyService subagencyService;
-
-	public enum ReviewKjStateEnum {
-		PENDING, WAIT, REVIEW, FINISH, COMPLETE, CLOSE;
-		public static ReviewKjStateEnum get(String name) {
-			for (ReviewKjStateEnum e : ReviewKjStateEnum.values())
-				if (e.toString().equals(name))
-					return e;
-			return null;
-		}
-	}
-
-	public enum CommissionStateEnum {
-		DJY, YJY, DZY, YZY;
-		public static CommissionStateEnum get(String name) {
-			for (CommissionStateEnum e : CommissionStateEnum.values())
-				if (e.toString().equals(name))
-					return e;
-			return null;
-		}
-	}
 
 	@RequestMapping(value = "/upload_img", method = RequestMethod.POST)
 	@ResponseBody
@@ -317,6 +292,7 @@ public class CommissionOrderController extends BaseController {
 				commissionOrderDto.setSchoolPaymentDate(new Date(Long.parseLong(schoolPaymentDate)));
 			if (StringUtil.isNotEmpty(invoiceNumber))
 				commissionOrderDto.setInvoiceNumber(invoiceNumber);
+			commissionOrderDto.setCommissionState(CommissionStateEnum.YZY.toString());
 			return commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0
 					? new Response<CommissionOrderDTO>(0, commissionOrderDto)
 					: new Response<CommissionOrderDTO>(1, "修改失败.", null);
