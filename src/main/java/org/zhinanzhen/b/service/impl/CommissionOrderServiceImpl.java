@@ -7,7 +7,7 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.zhinanzhen.b.controller.CommissionOrderController.ReviewKjStateEnum;
+import org.zhinanzhen.b.controller.BaseCommissionOrderController.ReviewKjStateEnum;
 import org.zhinanzhen.b.dao.CommissionOrderDAO;
 import org.zhinanzhen.b.dao.ReceiveTypeDAO;
 import org.zhinanzhen.b.dao.SchoolDAO;
