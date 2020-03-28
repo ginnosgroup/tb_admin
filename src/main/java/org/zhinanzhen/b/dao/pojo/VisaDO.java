@@ -18,6 +18,8 @@ public class VisaDO {
 	private int userId;
 
 	private String state;
+	
+	private String commissionState;
 
 	private int receiveTypeId;
 

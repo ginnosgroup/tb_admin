@@ -20,6 +20,8 @@ public class VisaDTO {
 
 	private String state;
 
+	private String commissionState;
+
 	private String userName;
 
 	private Date birthday;

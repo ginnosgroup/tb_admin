@@ -18,11 +18,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
-import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 
@@ -31,23 +29,10 @@ import com.ikasoa.core.utils.StringUtil;
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/visa")
-public class VisaController extends BaseController {
-
-	@Resource
-	ServiceOrderService serviceOrderService;
+public class VisaController extends BaseCommissionOrderController {
 
 	@Resource
 	VisaService visaService;
-
-	public enum ReviewKjStateEnum {
-		PENDING, WAIT, REVIEW, FINISH, COMPLETE, CLOSE;
-		public static ReviewKjStateEnum get(String name) {
-			for (ReviewKjStateEnum e : ReviewKjStateEnum.values())
-				if (e.toString().equals(name))
-					return e;
-			return null;
-		}
-	}
 
 	@RequestMapping(value = "/upload_img", method = RequestMethod.POST)
 	@ResponseBody
@@ -169,6 +154,7 @@ public class VisaController extends BaseController {
 	@ResponseBody
 	public Response<VisaDTO> update(@RequestParam(value = "id") int id,
 			@RequestParam(value = "userId", required = false) String userId,
+			@RequestParam(value = "commissionState", required = false) String commissionState,
 			@RequestParam(value = "handlingDate", required = false) String handlingDate,
 			@RequestParam(value = "receiveTypeId", required = false) String receiveTypeId,
 			@RequestParam(value = "receiveDate", required = false) String receiveDate,
@@ -188,9 +174,13 @@ public class VisaController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			VisaDTO _visaDto = visaService.getVisaById(id);
 			VisaDTO visaDto = new VisaDTO();
 			visaDto.setId(id);
+			if (adminUserLoginInfo != null && "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& commissionState != null) // 只有会计能修改佣金状态
+				visaDto.setCommissionState(CommissionStateEnum.get(commissionState.toUpperCase()).toString());
 			if (StringUtil.isNotEmpty(handlingDate)) {
 				visaDto.setHandlingDate(new Date(Long.parseLong(handlingDate)));
 			}

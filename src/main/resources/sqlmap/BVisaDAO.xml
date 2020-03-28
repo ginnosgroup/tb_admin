@@ -12,6 +12,7 @@
                 handling_date,
                 user_id,
                 state,
+                commission_state,
                 receive_type_id,
                 receive_date,
                 service_id,
@@ -42,6 +43,7 @@
                 #{handlingDate,jdbcType=TIMESTAMP},
                 #{userId},
                 #{state},
+                'DJY',
                 #{receiveTypeId},
                 #{receiveDate,jdbcType=TIMESTAMP},
                 #{serviceId},
@@ -78,6 +80,9 @@
         </if>
         <if test='state != null and state != ""'>
             , state = #{state}
+        </if>
+        <if test='commissionState != null and commissionState != ""'>
+            , commission_state = #{commissionState}
         </if>
         <if test='receiveTypeId != null and receiveTypeId != ""'>
             , receive_type_id = #{receiveTypeId}
@@ -178,6 +183,7 @@
             bv.handling_date AS handlingDate,
             bv.user_id AS userId,
             bv.state AS state,
+            bv.commission_state AS commissionState,
             bv.receive_type_id AS receiveTypeId,
             bv.receive_date AS receiveDate,
             bv.service_id AS serviceId,
@@ -243,6 +249,7 @@
             handling_date AS handlingDate,
             user_id AS userId,
             state,
+            commission_state AS commissionState,
             receive_type_id AS receiveTypeId,
             receive_date AS receiveDate,
             service_id AS serviceId,
