@@ -294,6 +294,32 @@ public class CommissionOrderController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/kjUpdate", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<CommissionOrderDTO> kjUpdate(@RequestParam(value = "id") int id,
+			@RequestParam(value = "schoolPaymentAmount", required = false) String schoolPaymentAmount,
+			@RequestParam(value = "schoolPaymentDate", required = false) String schoolPaymentDate,
+			@RequestParam(value = "invoiceNumber", required = false) String invoiceNumber, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			CommissionOrderDTO commissionOrderDto = commissionOrderService.getCommissionOrderById(id);
+			if (commissionOrderDto == null)
+				return new Response<CommissionOrderDTO>(1, "留学佣金订单订单(ID:" + id + ")不存在!", null);
+			if (StringUtil.isNotEmpty(schoolPaymentAmount))
+				commissionOrderDto.setSchoolPaymentAmount(Double.parseDouble(schoolPaymentAmount));
+			if (schoolPaymentDate != null)
+				commissionOrderDto.setSchoolPaymentDate(new Date(Long.parseLong(schoolPaymentDate)));
+			if (StringUtil.isNotEmpty(invoiceNumber))
+				commissionOrderDto.setInvoiceNumber(invoiceNumber);
+			return commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0
+					? new Response<CommissionOrderDTO>(0, commissionOrderDto)
+					: new Response<CommissionOrderDTO>(1, "修改失败.", null);
+		} catch (ServiceException e) {
+			return new Response<CommissionOrderDTO>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
 	@RequestMapping(value = "/updateCommission", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<CommissionOrderDTO> updateCommission(@RequestParam(value = "id") int id, HttpServletRequest request,
