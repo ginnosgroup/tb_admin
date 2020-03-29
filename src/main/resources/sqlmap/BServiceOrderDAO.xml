@@ -81,10 +81,10 @@
         <if test='type != null and type != ""'>
             , type = #{type}
         </if>
-        <if test='serviceId != null and serviceId != ""'>
+        <if test='serviceId != null and schoolId > 0'>
             , service_id = #{serviceId}
         </if>
-        <if test='schoolId != null and schoolId != ""'>
+        <if test='schoolId != null and schoolId > 0'>
             , school_id = #{schoolId}
         </if>
         <if test='state != null and state != ""'>
@@ -96,13 +96,13 @@
         <if test='isDepositUser != null'>
             , is_deposit_user = #{isDepositUser}
         </if>
-        <if test='subagencyId != null != null and subagencyId != ""'>
+        <if test='subagencyId != null and subagencyId > 0'>
             , subagency_id = #{subagencyId}
         </if>
         <if test='isPay != null'>
             , is_pay = #{isPay}
         </if>
-        <if test='receiveTypeId != null and receiveTypeId != ""'>
+        <if test='receiveTypeId != null and receiveTypeId > 0'>
             , receive_type_id = #{receiveTypeId}
         </if>
         <if test='receiveDate != null'>
@@ -117,7 +117,7 @@
         <if test='received != null and received != ""'>
             , received = #{received}
         </if>
-        <if test='installment != null'>
+        <if test='installment != null and installment > 0'>
             , installment = #{installment}
         </if>
         <if test='paymentVoucherImageUrl1 != null'>
@@ -147,16 +147,16 @@
         <if test='bonus != null'>
             , bonus = #{bonus}
         </if>
-        <if test='userId != null'>
+        <if test='userId != null and userId > 0'>
             , user_id = #{userId}
         </if>
-        <if test='maraId != null'>
+        <if test='maraId != null and maraId > 0'>
             , mara_id = #{maraId}
         </if>
-        <if test='adviserId != null'>
+        <if test='adviserId != null and adviserId > 0'>
             , adviser_id = #{adviserId}
         </if>
-        <if test='officialId != null'>
+        <if test='officialId != null and officialId > 0'>
             , official_id = #{officialId}
         </if>
         <if test='remarks != null'>
