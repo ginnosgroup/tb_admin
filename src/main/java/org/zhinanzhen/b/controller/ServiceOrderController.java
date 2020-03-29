@@ -153,8 +153,8 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setInstallment(installment);
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
 				serviceOrderDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
-			else if (serviceOrderDto.isPay())
-				return new Response<Integer>(1, "必须上传支付凭证!", 0);
+//			else if (serviceOrderDto.isPay())
+//				return new Response<Integer>(1, "必须上传支付凭证!", 0);
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
 				serviceOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
 			if (StringUtil.isNotEmpty(perAmount))
@@ -253,8 +253,8 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setInstallment(installment);
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
 				serviceOrderDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
-			else if (serviceOrderDto.isPay())
-				return new Response<Integer>(1, "必须上传支付凭证!", 0);
+//			else if (serviceOrderDto.isPay())
+//				return new Response<Integer>(1, "必须上传支付凭证!", 0);
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
 				serviceOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
 			if (StringUtil.isNotEmpty(perAmount))
