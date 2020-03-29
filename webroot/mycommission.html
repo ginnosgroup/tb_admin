@@ -240,9 +240,29 @@
 										我的佣金报表
 									</a>									
 								</li>
-								<li v-if="ap_list==='KJ'" class="active">
-									<a href="mycommission-accounting.html">
-										我的佣金报表
+								<li v-if="ap_list==='KJ'" id="commission_state_DJY">
+									<a href="mycommission-accounting.html?commission_state=DJY">
+										待结佣订单
+									</a>									
+								</li>
+								<li v-if="ap_list==='KJ'" id="commission_state_YJY">
+									<a href="mycommission-accounting.html?commission_state=YJY">
+										已结佣订单
+									</a>									
+								</li>
+								<li v-if="ap_list==='KJ'" id="commission_state_DZY">
+									<a href="mycommission-accounting.html?commission_state=DZY">
+										待追佣订单
+									</a>									
+								</li>	
+								<li v-if="ap_list==='KJ'" id="commission_state_YZY">
+									<a href="mycommission-accounting.html?commission_state=YZY">
+										已追佣订单
+									</a>									
+								</li>
+								<li v-if="ap_list==='KJ'" id="commission_state_TQKY">
+									<a href="mycommission-accounting.html?commission_state=TQKY">
+										提前扣佣订单
 									</a>									
 								</li>
 								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
@@ -632,7 +652,8 @@
 				v.total_bonus = 0;
 				for(var i = 0; i < result.data.length; i++) {
 						result.data[i].oid = result.data[i].id;
-						result.data[i].strOid = '<a href="javascript:open_detail('+result.data[i].serviceOrderId+','+result.data[i].id+');" title="查看详细">'+result.data[i].id+'</a>-'+result.data[i].installmentNum;						
+						result.data[i].strOid = '<a href="javascript:open_detail('+result.data[i].serviceOrderId+','+result.data[i].id+');" title="查看详细">'+result.data[i].id+'</a>';
+						if (result.data[i].installment > 1) result.data[i].strOid += '-' + result.data[i].installmentNum;
 						result.data[i].gmtCreate = v.getTime1(result.data[i].gmtCreate);
 						result.data[i].receiveDate = result.data[i].receiveDate ? v.getTime(result.data[i].receiveDate):'';
 						result.data[i].serviceName = '签证-'+result.data[i].serviceCode;

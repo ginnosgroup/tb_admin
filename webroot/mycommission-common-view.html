@@ -95,6 +95,14 @@
 									</div>
 							</div>
 							</div>
+							<div id="show_paymentpic" class="form-group" style="display:;width:100%;line-height:40px;">
+								<label class="control-label"><strong>收款凭证：</strong></label>
+								<label id="paymentpic_url"></label>
+							</div>
+							<div id="show_visapic" class="form-group" style="display:;width:100%;line-height:40px;">
+								<label class="control-label"><strong>签证凭证：</strong></label>
+								<label id="visapic_url"></label>
+							</div>
 							<hr/>
 							<div class="form-group" style="width:100%;line-height:40px;">
 								<label class="control-label"><strong>备注：</strong></label>
@@ -105,11 +113,10 @@
 					<div class="modal-footer" style="text-align: center;">
 							<dle v-if="ap_list==='GW'">									
 									<dle v-if="state==='PENDING'">
-									<!--<button onclick="alert('待实现');" id="upload_certificate" type="button" class="btn btn-danger" style="">查看收款凭证</button>-->
 									<button onclick="$('#show_visa_id').modal('hide');reqCommissionVisa(v_sub.serviceId,v_sub.orderId);" type="button" class="btn btn-primary">申请佣金</button>
 									</dle>
 							</dle>													
-							<button onclick="" type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+							<button onclick="" type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
 					</div>
 				</div>
 			</div>
@@ -180,6 +187,26 @@ function show_commission_detail(serviceId,orderId)
 	        	$('#show_visa_id #b16').html(response.deductGst);
 	        	$('#show_visa_id #b17').html(response.expectAmount);
 	        	$('#show_visa_id #b18').html(response.remarks);
+	        	//生成收款凭证列表
+						var str_flist = '';
+						$("#show_visa_id #paymentpic_url").empty();
+						if (response.paymentVoucherImageUrl1)
+						{
+								str_flist = response.paymentVoucherImageUrl1;
+								$("#show_visa_id #paymentpic_url").append('<a href="/statics'+response.paymentVoucherImageUrl1+'" target="_blank">查看凭证1</a>&nbsp;');
+						}
+						if (response.paymentVoucherImageUrl2)
+						{
+								str_flist += ','+response.paymentVoucherImageUrl2;
+								$("#show_visa_id #paymentpic_url").append('<a href="/statics'+response.paymentVoucherImageUrl2+'" target="_blank">查看凭证2</a>&nbsp;');
+						}
+						//生成签证凭证
+						if (response.visaVoucherImageUrl)
+						{
+								str_flist = response.visaVoucherImageUrl;
+								$("#show_visa_id #visapic_url").append('<a href="/statics'+response.visaVoucherImageUrl+'" target="_blank">查看凭证</a>&nbsp;');
+						}
+						$('#show_visa_id #show_visapic').show();					
 	    	}
     	});
     	

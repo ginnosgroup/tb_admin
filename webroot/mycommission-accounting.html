@@ -23,7 +23,7 @@
 		<![endif]-->
 	</head>
 
-	<body id="mycommission" v-cloak>
+	<body id="mycommission-accounting" v-cloak>
 		<section id="container">
 			<header class="header white-bg">
 				<div class="sidebar-toggle-box">
@@ -240,11 +240,31 @@
 										我的佣金报表
 									</a>									
 								</li>
-								<li v-if="ap_list==='KJ'" class="active">
-									<a href="mycommission-accounting.html">
-										我的佣金报表
+								<li v-if="ap_list==='KJ'" id="commission_state_DJY">
+									<a href="mycommission-accounting.html?commission_state=DJY">
+										待结佣订单
 									</a>									
-								</li>								
+								</li>
+								<li v-if="ap_list==='KJ'" id="commission_state_YJY">
+									<a href="mycommission-accounting.html?commission_state=YJY">
+										已结佣订单
+									</a>									
+								</li>
+								<li v-if="ap_list==='KJ'" id="commission_state_DZY">
+									<a href="mycommission-accounting.html?commission_state=DZY">
+										待追佣订单
+									</a>									
+								</li>	
+								<li v-if="ap_list==='KJ'" id="commission_state_YZY">
+									<a href="mycommission-accounting.html?commission_state=YZY">
+										已追佣订单
+									</a>									
+								</li>
+								<li v-if="ap_list==='KJ'" id="commission_state_TQKY">
+									<a href="mycommission-accounting.html?commission_state=TQKY">
+										提前扣佣订单
+									</a>									
+								</li>
 								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
 									<a href="table-export.html">
 										导出数据
@@ -281,7 +301,7 @@
 									我的佣金报表
 								</header>
 								<div class="panel-body">
-									<div class="adv-table editable-table">
+									<div class="adv-table editable-table" id="my_table">
 										<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
 									      <button data-dismiss="alert" class="close close-sm" type="button">
 									      </button>
@@ -359,6 +379,16 @@
 														<td v-html="item.strState"></td>
 														<td>																
 																<a href="javascript:open_detail({{item.serviceOrderId}},{{item.oid}});">查看</a>
+																<dli v-if="ap_list==='KJ' && commission_state ==='DJY'">
+																		<dli v-if="item.id">
+																				<a href="javascript:;" @click="table_modify($index)"><span style="color:blue;">编辑</span></a>
+																				<a href="javascript:show_confirmbox({{item.oid}},'WAIT',0);"><span style="color:blue;">驳回</span></a>
+																		</dli>
+																		<dli v-else>
+																				<a class="save" href="javascript:;"><span style="color:blue;">保存并审批通过</span></a>
+																				<a class="cancel" href="javascript:;">取消</a>
+																		</dli>
+																</dli>
 														</td>
 														<td v-html="item.remarks"></td>
 													</tr>
@@ -416,7 +446,7 @@
 						<h4 class="modal-title" id="myModalLabel">操作提示</h4>
 					</div>
 					<div class="modal-body">
-						您确认执行此操作吗？
+						<strong>请注意，此操作不可逆。</strong>您确认执行此操作吗？
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
@@ -425,8 +455,7 @@
 				</div>
 			</div>
 		</div>		
-		<div id="load-user-common-page"></div>
-		<div id="load-user-common-view-page"></div>
+		<div id="load-mycommission-visa-view-page"></div>
 		<script src="js/jquery-1.8.3.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
 		<script src="js/jquery.dcjqaccordion.2.7.js"></script>
@@ -439,11 +468,11 @@
 		<script src="js/vue.js"></script>
 		<script src="js/common.js?verson=1"></script>
 		<script>
-			//$("#load-user-common-page").load("user-common.html?random="+Math.random());
-			tb.isLogin("mycommission.html");
+			$("#load-mycommission-visa-view-page").load("mycommission-common-view.html?random="+Math.random());
+			tb.isLogin("mycommission-accounting.html");
 			$("td,th").addClass("text-center");
 			var v = new Vue({
-				el: '#mycommission',
+				el: '#mycommission-accounting',
 				data: {
 					admin: sessionStorage.getItem("admin"),
 					ap_list: sessionStorage.getItem("ap_list"),
@@ -451,16 +480,22 @@
 					adviser_id: sessionStorage.getItem("adviser_id"),
 					official_id: sessionStorage.getItem("official_id"),
 					mara_id: sessionStorage.getItem("mara_id"),
-					kj_id: sessionStorage.getItem("kj_id"),					
-					orderId: 0,					
+					kj_id: sessionStorage.getItem("kj_id"),
+					commission_state : getRequest('commission_state'),
+					orderId: 0,
 					order_detail: [],
+					set_state: '',
+					set_type: 1,
 					subject: [],
 					count: 0,				
 					name: '',
 					state: '',					
 					pageNum: 0,
 					pageSize: 20,
-					allPage: 0					
+					allPage: 0,
+					current_index: '',
+					current_row: '',
+					index: 0			
 				},
 				created: function() {
 					this.getDatalist();
@@ -595,17 +630,100 @@
 								that.subject = result.data;
 							});
 						}
-					}          
+					},
+					table_modify: function (index) {						
+						if (this.current_index != null)
+						{
+								this.subject[this.current_index] = this.current_row;
+						}
+						this.current_index = index;
+						this.current_row = this.subject[index];						
+						this.subject.splice(index,1, {
+							oid: parseInt(this.subject[index].id),
+							gmtCreate: this.subject[index].gmtCreate,
+							receiveDate: this.subject[index].receiveDate,
+							userName: this.subject[index].userName,
+							receiveTypeName: this.subject[index].receiveTypeName,
+							serviceName: this.subject[index].serviceName,
+							receivable: this.subject[index].receivable,
+							received: this.subject[index].received,
+							amount: this.subject[index].amount,
+							expectAmount: this.subject[index].expectAmount,
+							bonus: '<input type="text" class="form-control small" style="width:120px;" id="t1" value="'+this.subject[index].bonus+'">',
+							payDate: '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:120px;" id="t2" data-date-format="dd-mm-yyyy" value="'+this.subject[index].payDate+'">',
+							adviserName: this.subject[index].adviserName,
+							strState: this.subject[index].strState,
+						});															
+					},					
+					table_remove: function (index) {
+             this.subject.splice(index, 1);  
+          }
 				}		
 			});
+			
+			$('#list_visa a.save').live('click', function (e) {
+				e.preventDefault();
+				table_addsave();
+			});
+			
+			$('#list_visa a.cancel').live('click', function (e) {
+				e.preventDefault();
+				v.subject.splice(v.current_index, 0);
+				v.subject.splice(v.current_index,1, v.current_row);
+			});
+			
+			function table_addsave()
+			{
+					var f = '#list_visa ';
+					var check_result = 0;
+					
+					if ($(f+'#t1').val() != '' && $(f+'#t2').val() != '')
+					{
+							check_result = true;
+					}else
+					{
+							$('#my_table #alert_error').css('marginLeft','40%');
+			    		$('#my_table #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+			        $("#my_table #error_info").html('提示：所有字段必须填写或选择！');
+			    		return false;
+					}
+					if (check_result)
+    			{
+    					$('#my_table #alert_error').css('marginLeft','40%');
+			    		$('#my_table #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+			        $("#my_table #error_info").html('API接口还没有实现，等待中...');
+			    		return false;
+			    		var str_url = "";
+       				var json = {};
+       				$.post(str_url, json,
+					   	function(data){
+					   			if (data.code == 0)
+					   			{
+					   					$('#my_table #alert_success').css('marginLeft','40%');
+					   					$('#my_table #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+					   					v.table_remove();
+					   					//重新载入数据源
+					   					v.getDatalist();
+					   			}else
+					   			{
+					   					$('#my_table #alert_error').css('marginLeft','40%');
+					   					$('#my_table #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+			          			$("#my_table #error_info").html(data.message);
+				        			return false;
+					   			}
+					   	});
+    			}
+			}
 			
 			function return_result(result)
 			{
 				for(var i = 0; i < result.data.length; i++) {
-						result.data[i].strOid = '<a href="javascript:open_detail('+result.data[i].serviceOrderId+','+result.data[i].id+');" title="查看详细">'+result.data[i].id+'</a>-'+result.data[i].installmentNum;						
+						result.data[i].oid = result.data[i].id;
+						if (result.data[i].installment > 1) result.data[i].strOid += '-' + result.data[i].installmentNum;
 						result.data[i].gmtCreate = v.getTime1(result.data[i].gmtCreate);
 						result.data[i].receiveDate = result.data[i].receiveDate ? v.getTime(result.data[i].receiveDate):'';
-						result.data[i].serviceName = '签证-'+result.data[i].serviceCode;	
+						result.data[i].serviceName = '签证-'+result.data[i].serviceCode;
+						result.data[i].payDate = '';//字段未添加，待修正
 						result.data[i].strState = return_state(result.data[i].state);
 						result.data[i].currentState = result.data[i].state;
 				};
@@ -619,13 +737,22 @@
 					{									
 						case 'REVIEW':
 									str_html = '待结佣';
-						break;											
+						break;
+						case 'WAIT':
+									str_html = '<label style="color:blue;">已驳回</label>';
+						break;
+						case 'FINISH':									
+									str_html = '<label style="color:blue;">已审核</label>';							
+						break;									
 						case 'COMPLETE':
 									str_html = '<label style="color:red;">已结佣</label>';
-						break;																	
+						break;
+						case 'CLOSE':
+									str_html = '<label style="color:red;">已关闭</label>';
+						break;
 					}
 					return str_html;
-      }        
+      }                   
 			
 			v.$watch('subject', function(obj) {
 					$('.default-date-picker').datepicker({   				
@@ -658,11 +785,82 @@
 			{
 					if (va == 'VISA')
 					{
-							window.location.href = "mycommission-accounting.html";
+							window.location.href = "mycommission-accounting.html?commission_state="+v.commission_state;
 					}else
 					{
-							window.location.href = "mycommission-ovst-accounting.html";
+							window.location.href = "mycommission-ovst-accounting.html?commission_state="+v.commission_state;
 					}
+			}
+			
+			function open_detail(serviceId,orderId)
+      {
+      		show_commission_detail(serviceId,orderId);
+      }
+      
+      function reqCommissionVisa(serviceId,orderId)
+      {
+      		edit_commission_detail(serviceId,orderId);
+      }
+      
+      function show_confirmbox(id,va,par)
+      {
+      		v.orderId = id;
+      		v.set_state = va;
+      		v.set_type = par;      		
+      		$('#showconfirmbox_id').modal('show');
+      }
+      
+      function update_state()
+      {      		
+      		flowstep(v.set_state,v.set_type);
+      		$('#showconfirmbox_id').modal('hide');
+      }
+      
+      function flowstep(va,par)
+      {
+      		var str_url = "visa/approval";
+      		if (par == '0' || va == 'CLOSE') str_url = "visa/refuse";
+      		
+      		var json = {};
+      		json['id'] = v.orderId;
+          json['state'] = va;          
+          $.post(str_url, json,
+			   	function(data){
+			   			if (data.code == 0)
+			   			{			   					
+			   					$('#my_table #alert_success').css('marginLeft','40%');
+			   					$('#my_table #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+			   					//重新载入数据源
+					   			v.getDatalist();
+			   			}else
+			   			{
+			   					$('#my_table #alert_error').css('marginLeft','40%');
+			   					$('#my_table #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+	          			$("#my_table #error_info").html(data.message);
+		        			return false;
+			   			}
+			   	});      		
+      }
+			
+			function getRequest(par)
+			{
+					var str_value = '';
+			    var url = decodeURI(location.search);
+			    var theRequest = new Object();
+			    if (url.indexOf('?') != -1) {
+			        url = url.substr(1);
+			    }
+			    if (url) {
+			        var strs = url.split('&');
+			        for (var i = 0; i < strs.length; i++) {
+			            var srtArry = strs[i].split('=');
+			            var y = srtArry.shift();
+			            theRequest[y] = unescape(srtArry.join('='));
+			        }
+			    }
+			    str_value = theRequest[par];
+			    $("#commission_state_"+str_value).addClass("active");
+			    return str_value;
 			}
       
       function show_knowledge_detail(id,parentId)

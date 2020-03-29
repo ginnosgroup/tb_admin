@@ -98,20 +98,21 @@
 							<div class="form-group" style="width:100%;line-height:40px;">
 								<label class="control-label"><strong>备注</strong></label>
 								<textarea id="b18" class="form-control" style="width:98%;font-weight:normal;"></textarea>
-							</div>						
+							</div>												
 							</form>
-					</div>
+					</div>					
 					<div class="modal-footer" style="text-align: center;">
-							<dle v-if="ap_list==='GW'">									
+							<input type="file" id="f1" style="display:none">
+							<input type="hidden" id="flist" value="" />
+							<div id="show_paymentvisa_pic" style="display:none;padding-bottom:10px;"></div>
+							<dle id="btn-footer" v-if="ap_list==='GW'">									
 									<dle v-if="state==='PENDING' || state==='WAIT'">
-									<input type="file" id="f1" style="display:none">
-									<input type="hidden" id="flist" value="" />
 									<div id="show_pic" style="display:none;padding-bottom:10px;"></div>
 									<button onclick="upload_receipt_pic('f1')" id="btn_receipt" type="button" class="btn btn-danger">上传收款凭证</button>									
 									<button onclick="requestCommissionVisaSave()" id="btn_request" type="button" class="btn btn-primary">申请佣金</button>									
 									</dle>
 							</dle>													
-							<button onclick="" type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+							<button onclick="" type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
 					</div>
 				</div>
 			</div>
@@ -184,6 +185,26 @@ function edit_commission_detail(serviceId,orderId)
 	        	if (response.deductGst) $("#visa_id #b16").val(response.deductGst);
 	        	if (response.expectAmount) $("#visa_id #b17").val(response.expectAmount);
 	        	if (response.remarks) $("#visa_id #b18").val(response.remarks);
+	        	//生成收款凭证    	
+	        	var str_flist = '';
+	        	$("#visa_id #show_paymentvisa_pic").empty();
+	        	if (response.paymentVoucherImageUrl1)
+						{
+								str_flist = response.paymentVoucherImageUrl1;
+								$("#visa_id #show_paymentvisa_pic").append('<a href="/statics'+response.paymentVoucherImageUrl1+'" target="_blank">查看收款凭证1</a>&nbsp;');
+						}
+						if (response.paymentVoucherImageUrl2)
+						{
+								str_flist += ','+response.paymentVoucherImageUrl2;
+								$("#visa_id #show_paymentvisa_pic").append('<a href="/statics'+response.paymentVoucherImageUrl2+'" target="_blank">查看收款凭证2</a>&nbsp;');
+						}						
+						$('#visa_id #show_paymentvisa_pic').show();
+						if (str_flist != '') $('#visa_id #flist').val(str_flist);
+						//生成签证凭证
+						if (response.visaVoucherImageUrl)
+						{
+								$("#visa_id #show_paymentvisa_pic").append('<a href="/statics'+response.visaVoucherImageUrl+'" target="_blank">查看签证凭证</a>&nbsp;');
+						}
 	    	}
     	});
     	
@@ -348,7 +369,7 @@ $('#visa_id #f1').live('change', function (e) {
             		{
             				$("#visa_id #flist").val(data.data);
             		}
-		        		$("#visa_id #show_pic").append('<a href="'+data.data+'" target="_blank">查看凭证</a>&nbsp;');
+		        		$("#visa_id #show_pic").append('<a href="'+data.data+'" target="_blank"><span style="color:green;">收款凭证</span></a>&nbsp;');
 		        		$("#visa_id #show_pic").show();
             }else
             {

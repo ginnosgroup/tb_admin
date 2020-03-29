@@ -150,10 +150,14 @@
 							</form>
 					</div>
 					<div class="modal-footer" style="text-align: center;">
+							<div id="show_payment_pic" style="display:none;padding-bottom:10px;"></div>
 							<dle v-if="ap_list==='GW'">									
 									<dle v-if="state==='PENDING' || state==='WAIT'">
-									<button onclick="requestCommissionSave()" id="btn_request" type="button" class="btn btn-primary">申请佣金</button>
-									<button onclick="alert('等待接口实现');" id="btn_receipt" style="display:none;" type="button" class="btn btn-danger">上传收款凭证</button>
+									<input type="file" id="f1c" style="display:none">
+									<input type="hidden" id="flist1" value="" />									
+									<div id="show_pic" style="display:none;padding-bottom:10px;"></div>
+									<button onclick="upload_receipt_pic('f1c')" id="upload_certificate" type="button" class="btn btn-danger" style="display:;">上传收款凭证</button>
+									<button onclick="requestCommissionSave()" id="btn_request" type="button" class="btn btn-primary">申请佣金</button>									
 									<button onclick="requestCommissionClose();" id="btn_close" type="button" style="display:none;" class="btn btn-primary">关闭订单</button>
 									</dle>
 							</dle>													
@@ -185,6 +189,20 @@ var v_sub2 = new Vue({
 
 function edit_commission_detail(serviceId,orderId)
 {
+		$('#ovst_id #c20').attr("disabled",false);
+  	$('#ovst_id #c22').attr("disabled",false);
+  	$('#ovst_id #c23').attr("disabled",false);
+		$('#ovst_id #c24').attr("disabled",false);
+		$('#ovst_id #c25').attr("disabled",false);
+  	$('#ovst_id #c26').attr("disabled",false);
+  	$('#ovst_id #c27').attr("disabled",false);
+  	$('#ovst_id #c28').attr("disabled",false);
+  	$('#ovst_id #c29').attr("disabled",false);
+  	$('#ovst_id #c30').attr("disabled",false);
+  	$('#ovst_id #c31').attr("disabled",false);
+  	$('#ovst_id #btn_request').show();
+  	$('#ovst_id #upload_certificate').show();
+  	$('#ovst_id #btn_close').hide();
 		v_sub2.serviceId = serviceId;
 		v_sub2.orderId = orderId;		
 		//佣金详细页
@@ -257,6 +275,25 @@ function edit_commission_detail(serviceId,orderId)
 			    	$('#ovst_id #c31').val(response.amount);
 			    	$('#ovst_id #c32').val(response.expectAmount);
 			    	$('#ovst_id #c33').val(response.remarks);
+			    	
+			    	//生成收款凭证    	
+	        	var str_flist = '';
+	        	$("#ovst_id #show_payment_pic").empty();
+	        	if (response.paymentVoucherImageUrl1)
+						{
+								str_flist = response.paymentVoucherImageUrl1;
+								$("#ovst_id #show_payment_pic").append('<a href="/statics'+response.paymentVoucherImageUrl1+'" target="_blank">查看收款凭证1</a>&nbsp;');
+						}
+						if (response.paymentVoucherImageUrl2)
+						{
+								str_flist += ','+response.paymentVoucherImageUrl2;
+								$("#ovst_id #show_payment_pic").append('<a href="/statics'+response.paymentVoucherImageUrl2+'" target="_blank">查看收款凭证2</a>&nbsp;');
+						}												
+						if (str_flist != '')
+						{
+								$('#ovst_id #flist1').val(str_flist);
+								$('#ovst_id #show_payment_pic').show();
+						}
 	    	}
     	});
     	
@@ -278,7 +315,8 @@ $('#ovst_id :radio').live('click', function (e) {
 	    	$('#ovst_id #c30').attr("disabled",false);
 	    	$('#ovst_id #c31').attr("disabled",false);
 	    	$('#ovst_id #btn_request').show();
-	    	$('#ovst_id #btn_receipt').hide();
+	    	$("#ovst_id #show_pic").show();
+	    	$('#ovst_id #upload_certificate').show();	
 	    	$('#ovst_id #btn_close').hide();
 		}else
 		{				
@@ -294,9 +332,53 @@ $('#ovst_id :radio').live('click', function (e) {
 	    	$('#ovst_id #c30').attr("disabled",true);
 	    	$('#ovst_id #c31').attr("disabled",true);
 	    	$('#ovst_id #btn_request').hide();
-	    	$('#ovst_id #btn_receipt').show();
+	    	$("#ovst_id #show_pic").hide();
+	    	$('#ovst_id #upload_certificate').hide();
 	    	$('#ovst_id #btn_close').show();
 		}				
+});
+
+function upload_receipt_pic(fname)
+{
+		document.getElementById(fname).click(); 
+}
+
+$('#ovst_id #f1c').live('change', function (e) {
+		var formData = new FormData();					
+		formData.append("file",$("#f1c")[0].files[0]);
+		
+		$.ajax({
+        url:'serviceOrder/upload_img',
+        dataType:'json',
+        type:'POST',
+        async: false,
+        data: formData,
+        processData : false, //使数据不做处理
+        contentType : false,
+        success: function(data){			        		
+            if (data.code == '0') {
+            		var flist = $("#ovst_id #flist1").val();
+            		if (flist)
+            		{
+            				$("#ovst_id #flist1").val(flist+','+data.data);
+            		}else
+            		{
+            				$("#ovst_id #flist1").val(data.data);
+            		}
+		        		$("#ovst_id #show_pic").append('<a href="/statics'+data.data+'" target="_blank">查看凭证</a>&nbsp;');
+		        		$("#ovst_id #show_pic").show();
+            }else
+            {
+            		$('#ovst_id #alert_error').css('marginTop','60%');
+          			$('#ovst_id #alert_error').css('marginLeft','60%');
+		   					$('#ovst_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+          			$("#ovst_id #error_info").html('收款凭证上传失败！');
+            }	
+        },
+        error:function(response){
+            console.log(response);
+        }
+    });
 });
 
 function requestCommissionSave()
@@ -377,18 +459,36 @@ function requestCommissionSave()
        	json['receiveDate'] =  d;
        	json['perAmount'] =  $(f+'#c29').val();       	
        	json['amount'] =  $(f+'#c31').val();
-       	json['remarks'] =  $(f+'#c33').val();       	       	
+       	json['remarks'] =  $(f+'#c33').val();
+       	//校验是否上传了凭证
+       	var flist = $("#ovst_id #flist1").val();
+       	if (flist != '')
+   			{
+   					//对凭证进行处理
+   					var arr = flist.split(',');
+   					if (arr.length)
+   					{
+   							json['paymentVoucherImageUrl1'] = arr[0];
+   							if (arr.length == 2) json['paymentVoucherImageUrl2'] = arr[1];
+   					}
+   			}else
+   			{
+   					$('#ovst_id #alert_error').css('marginTop','50%');
+      			$('#ovst_id #alert_error').css('marginLeft','30%');
+   					$('#ovst_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+      			$("#ovst_id #error_info").html('收款凭证没有上传，请上传之后再提交。');
+    				return false;
+   			}     	       	
        	
        	$.post(str_url, json,
 		   	function(data){
 		   			if (data.code == 0)
 		   			{
 		   					//提交财务审核
-		   					flowstep('REVIEW',1);
-		   					/*$('#ovst_id #alert_success').css('marginTop','30%');
+		   					$('#ovst_id #alert_success').css('marginTop','30%');
 		   					$('#ovst_id #alert_success').css('marginLeft','30%');
 		   					$('#ovst_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
-		   					setTimeout(function(){window.location.href = "mycommission-ovst.html";}, 2000);*/
+		   					setTimeout(function(){window.location.href = "mycommission-ovst.html";}, 2000);
 		   			}else
 		   			{
 		   					$('#ovst_id #alert_error').css('marginTop','30%');

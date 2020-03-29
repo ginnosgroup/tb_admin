@@ -240,9 +240,29 @@
 										我的佣金报表
 									</a>									
 								</li>
-								<li v-if="ap_list==='KJ'" class="active">
-									<a href="mycommission-accounting.html">
-										我的佣金报表
+								<li v-if="ap_list==='KJ'" id="commission_state_DJY">
+									<a href="mycommission-accounting.html?commission_state=DJY">
+										待结佣订单
+									</a>									
+								</li>
+								<li v-if="ap_list==='KJ'" id="commission_state_YJY">
+									<a href="mycommission-accounting.html?commission_state=YJY">
+										已结佣订单
+									</a>									
+								</li>
+								<li v-if="ap_list==='KJ'" id="commission_state_DZY">
+									<a href="mycommission-accounting.html?commission_state=DZY">
+										待追佣订单
+									</a>									
+								</li>	
+								<li v-if="ap_list==='KJ'" id="commission_state_YZY">
+									<a href="mycommission-accounting.html?commission_state=YZY">
+										已追佣订单
+									</a>									
+								</li>
+								<li v-if="ap_list==='KJ'" id="commission_state_TQKY">
+									<a href="mycommission-accounting.html?commission_state=TQKY">
+										提前扣佣订单
 									</a>									
 								</li>
 								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
@@ -343,8 +363,7 @@
 														<th><span style="color:#FF6C60;">总计已收</span></th>											
 														<th>本次收款</th>
 														<th>预收业绩(<span style="color:#FF6C60;">Commission含GST</span>)</th>														
-														<th>月奖</th>
-														<th>是否对账完成</th>
+														<th>月奖</th>														
 														<th>月奖支付时间</th>
 														<th>顾问</th>
 														<th>状态</th>
@@ -372,8 +391,7 @@
 														<td v-html="item.totalAmount"></td>
 														<td v-html="item.amount"></td>
 														<td v-html="item.expectAmount"></td>
-														<td v-html="item.bonus"></td>
-														<td v-html="item.strSchoolPaid"></td>
+														<td v-html="item.bonus"></td>														
 														<td v-html="item.bonusDate"></td>
 														<td v-html="item.adviser.name"></td>
 														<td v-html="item.strState"></td>
@@ -407,7 +425,6 @@
 														<td bgcolor="#F4A460">合计：</td>
 														<td bgcolor="#F4A460">{{total_expectamount}}</td>
 														<td bgcolor="#F4A460">{{total_bonus}}</td>
-														<td></td>
 														<td></td>
 														<td></td>
 														<td></td>

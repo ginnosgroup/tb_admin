@@ -240,11 +240,31 @@
 										我的佣金报表
 									</a>									
 								</li>
-								<li v-if="ap_list==='KJ'" class="active">
-									<a href="mycommission-accounting.html">
-										我的佣金报表
+								<li v-if="ap_list==='KJ'" id="commission_state_DJY">
+									<a href="mycommission-accounting.html?commission_state=DJY">
+										待结佣订单
 									</a>									
-								</li>							
+								</li>
+								<li v-if="ap_list==='KJ'" id="commission_state_YJY">
+									<a href="mycommission-accounting.html?commission_state=YJY">
+										已结佣订单
+									</a>									
+								</li>
+								<li v-if="ap_list==='KJ'" id="commission_state_DZY">
+									<a href="mycommission-accounting.html?commission_state=DZY">
+										待追佣订单
+									</a>									
+								</li>	
+								<li v-if="ap_list==='KJ'" id="commission_state_YZY">
+									<a href="mycommission-accounting.html?commission_state=YZY">
+										已追佣订单
+									</a>									
+								</li>
+								<li v-if="ap_list==='KJ'" id="commission_state_TQKY">
+									<a href="mycommission-accounting.html?commission_state=TQKY">
+										提前扣佣订单
+									</a>									
+								</li>
 								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
 									<a href="table-export.html">
 										导出数据
