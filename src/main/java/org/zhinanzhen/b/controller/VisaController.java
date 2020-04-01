@@ -266,7 +266,7 @@ public class VisaController extends BaseCommissionOrderController {
 				return new Response<VisaDTO>(1, "签证佣金订单订单(ID:" + id + ")不存在!", null);
 			if (bonusDate != null)
 				visaDto.setBonusDate(new Date(Long.parseLong(bonusDate)));
-			visaDto.setCommissionState(CommissionStateEnum.YZY.toString());
+			visaDto.setCommissionState(CommissionStateEnum.YJY.toString());
 			return visaService.updateVisa(visaDto) > 0 ? new Response<VisaDTO>(0, visaDto)
 					: new Response<VisaDTO>(1, "修改失败.", null);
 		} catch (ServiceException e) {
