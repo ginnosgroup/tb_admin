@@ -25,6 +25,7 @@
                 installment_due_date,
                 payment_voucher_image_url_1,
                 payment_voucher_image_url_2,
+                payment_voucher_image_url_3,
                 school_payment_amount,
                 school_payment_date,
                 invoice_number,
@@ -65,6 +66,7 @@
                 #{installmentDueDate},
                 #{paymentVoucherImageUrl1},
                 #{paymentVoucherImageUrl2},
+                #{paymentVoucherImageUrl3},
                 NULL,
                 NULL,
                 NULL,
@@ -125,6 +127,9 @@
         </if>
         <if test='paymentVoucherImageUrl2 != null'>
             , payment_voucher_image_url_2 = #{paymentVoucherImageUrl2}
+        </if>
+        <if test='paymentVoucherImageUrl3 != null'>
+            , payment_voucher_image_url_3 = #{paymentVoucherImageUrl3}
         </if>
         <if test='schoolPaymentAmount != null and schoolPaymentAmount != ""'>
             , school_payment_amount = #{schoolPaymentAmount}
@@ -252,6 +257,7 @@
             co.installment_due_date AS installmentDueDate,
             co.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
             co.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            co.payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
             co.school_payment_amount AS schoolPaymentAmount,
             co.school_payment_date AS schoolPaymentDate,
             co.invoice_number AS invoiceNumber,
@@ -339,6 +345,7 @@
             installment_due_date AS installmentDueDate,
             payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
             payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
             school_payment_amount AS schoolPaymentAmount,
             school_payment_date AS schoolPaymentDate,
             invoice_number AS invoiceNumber,
@@ -383,6 +390,7 @@
             installment_due_date AS installmentDueDate,
             payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
             payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
             school_payment_amount AS schoolPaymentAmount,
             school_payment_date AS schoolPaymentDate,
             invoice_number AS invoiceNumber,
@@ -427,6 +435,7 @@
             bco.installment_due_date AS installmentDueDate,
             bco.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
             bco.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            bco.payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
             bco.school_payment_amount AS schoolPaymentAmount,
             bco.school_payment_date AS schoolPaymentDate,
             bco.invoice_number AS invoiceNumber,
@@ -479,6 +488,7 @@
             co.installment_due_date AS installmentDueDate,
             co.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
             co.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            co.payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
             co.school_payment_amount AS schoolPaymentAmount,
             co.school_payment_date AS schoolPaymentDate,
             co.invoice_number AS invoiceNumber,

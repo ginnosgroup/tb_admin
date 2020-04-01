@@ -310,6 +310,33 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		}
 	}
 
+	@RequestMapping(value = "/updatePaymentVoucherImageUrl", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> updatePaymentVoucherImageUrl(@RequestParam(value = "id") int id,
+			@RequestParam(value = "paymentVoucherImageUrl", required = false) String paymentVoucherImageUrl,
+			HttpServletRequest request, HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo != null)
+				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+						&& !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+					return new Response<Integer>(1, "仅限文案修改收款凭证.", null);
+			CommissionOrderDTO commissionOrderDto = new CommissionOrderDTO();
+			commissionOrderDto.setId(id);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl))
+				commissionOrderDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl);
+			int i = commissionOrderService.updateCommissionOrder(commissionOrderDto);
+			if (i > 0) {
+				return new Response<Integer>(0, i);
+			} else {
+				return new Response<Integer>(1, "修改失败.", 0);
+			}
+		} catch (ServiceException e) {
+			return new Response<Integer>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
 	@RequestMapping(value = "/updateCommission", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<CommissionOrderDTO> updateCommission(@RequestParam(value = "id") int id, HttpServletRequest request,
