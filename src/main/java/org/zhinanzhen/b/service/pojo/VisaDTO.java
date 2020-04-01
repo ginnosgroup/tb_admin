@@ -68,6 +68,8 @@ public class VisaDTO {
 
 	private double bonus;
 
+	private Date bonusDate;
+
 	private int adviserId;
 
 	private int maraId;

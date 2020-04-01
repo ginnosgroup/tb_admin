@@ -18,7 +18,7 @@ public class VisaDO {
 	private int userId;
 
 	private String state;
-	
+
 	private String commissionState;
 
 	private int receiveTypeId;
@@ -36,7 +36,7 @@ public class VisaDO {
 	private String paymentVoucherImageUrl1;
 
 	private String paymentVoucherImageUrl2;
-	
+
 	private String visaVoucherImageUrl;
 
 	private double receivable;
@@ -56,6 +56,8 @@ public class VisaDO {
 	private double deductGst;
 
 	private double bonus;
+
+	private Date bonusDate;
 
 	private int adviserId;
 

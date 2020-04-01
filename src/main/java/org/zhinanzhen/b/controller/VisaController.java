@@ -249,6 +249,31 @@ public class VisaController extends BaseCommissionOrderController {
 		}
 	}
 
+	@RequestMapping(value = "/kjUpdate", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<VisaDTO> kjUpdate(@RequestParam(value = "id") int id,
+			@RequestParam(value = "bonusDate", required = false) String bonusDate, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo != null)
+				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+					return new Response<VisaDTO>(1, "仅限会计修改.", null);
+			VisaDTO visaDto = visaService.getVisaById(id);
+			if (visaDto == null)
+				return new Response<VisaDTO>(1, "签证佣金订单订单(ID:" + id + ")不存在!", null);
+			if (bonusDate != null)
+				visaDto.setBonusDate(new Date(Long.parseLong(bonusDate)));
+			visaDto.setCommissionState(CommissionStateEnum.YZY.toString());
+			return visaService.updateVisa(visaDto) > 0 ? new Response<VisaDTO>(0, visaDto)
+					: new Response<VisaDTO>(1, "修改失败.", null);
+		} catch (ServiceException e) {
+			return new Response<VisaDTO>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
 	@RequestMapping(value = "/count", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<Integer> countVisa(@RequestParam(value = "keyword", required = false) String keyword,

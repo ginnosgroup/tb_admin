@@ -31,6 +31,7 @@
                 gst,
                 deduct_gst,
                 bonus,
+                bonus_date,
                 adviser_id,
                 mara_id,
                 official_id,
@@ -62,6 +63,7 @@
                 #{gst},
                 #{deductGst},
                 #{bonus},
+                #{bonusDate},
                 #{adviserId},
                 #{maraId},
                 #{officialId},
@@ -128,6 +130,9 @@
         </if>
         <if test='bonus != null and bonus != ""'>
             , bonus = #{bonus}
+        </if>
+        <if test='bonusDate != null'>
+            , bonus_date = #{bonusDate}
         </if>
         <if test='adviserId != null and adviserId != ""'>
             , adviser_id = #{adviserId}
@@ -202,6 +207,7 @@
             bv.gst AS gst,
             bv.deduct_gst AS deductGst,
             bv.bonus AS bonus,
+            bv.bonus_date AS bonusDate,
             bv.adviser_id AS adviserId,
             bv.mara_id AS maraId,
             bv.official_id AS officialId,
@@ -268,6 +274,7 @@
             gst,
             deduct_gst AS deductGst,
             bonus,
+            bonus_date AS bonusDate,
             adviser_id AS adviserId,
             mara_id AS maraId,
             official_id AS officialId,
