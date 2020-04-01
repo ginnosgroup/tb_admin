@@ -457,7 +457,7 @@
             bco.remarks,
             bco.is_close AS isClose
         FROM b_commission_order bco, b_school bs, tb_user tbu
-        WHERE bco.school_id = bs.id AND bbs.user_id = tbu.id
+        WHERE bco.school_id = bs.id AND bco.user_id = tbu.id
         <if test='startDate != null and endDate != null'>
             <![CDATA[ AND bco.gmt_create > #{startDate} AND bco.gmt_create < #{endDate} ]]>
         </if>
