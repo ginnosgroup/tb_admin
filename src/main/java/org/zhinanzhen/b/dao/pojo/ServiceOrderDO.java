@@ -52,6 +52,8 @@ public class ServiceOrderDO {
 	private String paymentVoucherImageUrl1;
 
 	private String paymentVoucherImageUrl2;
+	
+	private String paymentVoucherImageUrl3;
 
 	private String visaVoucherImageUrl;
 

@@ -153,8 +153,8 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setInstallment(installment);
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
 				serviceOrderDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
-//			else if (serviceOrderDto.isPay())
-//				return new Response<Integer>(1, "必须上传支付凭证!", 0);
+			// else if (serviceOrderDto.isPay())
+			// return new Response<Integer>(1, "必须上传支付凭证!", 0);
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
 				serviceOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
 			if (StringUtil.isNotEmpty(perAmount))
@@ -253,8 +253,8 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setInstallment(installment);
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
 				serviceOrderDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
-//			else if (serviceOrderDto.isPay())
-//				return new Response<Integer>(1, "必须上传支付凭证!", 0);
+			// else if (serviceOrderDto.isPay())
+			// return new Response<Integer>(1, "必须上传支付凭证!", 0);
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
 				serviceOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
 			if (StringUtil.isNotEmpty(perAmount))
@@ -292,9 +292,10 @@ public class ServiceOrderController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/updateVisaVoucherImageUrl", method = RequestMethod.POST)
+	@RequestMapping(value = "/updateVoucherImageUrl", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<Integer> updateVisaVoucherImageUrl(@RequestParam(value = "id") int id,
+	public Response<Integer> updateVoucherImageUrl(@RequestParam(value = "id") int id,
+			@RequestParam(value = "paymentVoucherImageUrl", required = false) String paymentVoucherImageUrl,
 			@RequestParam(value = "visaVoucherImageUrl", required = false) String visaVoucherImageUrl,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
@@ -303,9 +304,11 @@ public class ServiceOrderController extends BaseController {
 			if (adminUserLoginInfo != null)
 				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
 						&& !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())))
-					return new Response<Integer>(1, "仅限文案修改签证凭证.", null);
+					return new Response<Integer>(1, "仅限文案修改.", null);
 			ServiceOrderDTO serviceOrderDto = new ServiceOrderDTO();
 			serviceOrderDto.setId(id);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl))
+				serviceOrderDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl);
 			if (StringUtil.isNotEmpty(visaVoucherImageUrl))
 				serviceOrderDto.setVisaVoucherImageUrl(visaVoucherImageUrl);
 			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
