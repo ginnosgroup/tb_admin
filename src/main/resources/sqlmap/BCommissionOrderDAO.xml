@@ -51,7 +51,7 @@
                 now(),
                 #{code},
                 #{serviceOrderId},
-                'PENDING',
+                #{state},
                 'DJY',
                 #{isSettle},
                 #{isDepositUser},
