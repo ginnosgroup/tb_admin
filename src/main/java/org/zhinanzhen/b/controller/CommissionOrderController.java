@@ -212,9 +212,12 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			if (StringUtil.isNotEmpty(state))
 				commissionOrderDto.setState(state);
 			if (adminUserLoginInfo != null && "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())
-					&& commissionState != null) // 只有会计能修改佣金状态
+					&& commissionState != null) { // 只有会计能修改佣金状态
 				commissionOrderDto
 						.setCommissionState(CommissionStateEnum.get(commissionState.toUpperCase()).toString());
+				if (CommissionStateEnum.YJY.toString().equalsIgnoreCase(commissionState))
+					state = ReviewKjStateEnum.COMPLETE.toString(); // 如果会计修改状态为已结佣，那么佣金订单状态需改成COMPLETE
+			}
 			if (isSettle != null)
 				commissionOrderDto.setSettle(isSettle);
 			if (isDepositUser != null)
