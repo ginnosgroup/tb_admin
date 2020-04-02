@@ -878,16 +878,38 @@ $('#show_addnewservice2_id #f1b').live('change', function (e) {
         contentType : false,
         success: function(data){			        		
             if (data.code == '0') {
-            		var flist = $("#show_addnewservice2_id #flist").val();
+            		/*var flist = $("#show_addnewservice2_id #flist").val();
             		if (flist)
             		{
             				$("#show_addnewservice2_id #flist").val(flist+','+data.data);
             		}else
             		{
             				$("#show_addnewservice2_id #flist").val(data.data);
-            		}
+            		}*/
+            		var pic_url = data.data;
+            		$("#show_addnewservice2_id #flist").val(pic_url); 
 		        		$("#show_addnewservice2_id #show_pic").append('<a href="/statics'+data.data+'" target="_blank">查看凭证</a>&nbsp;');
 		        		$("#show_addnewservice2_id #show_pic").show();
+		        		//文案更新收款凭证
+            		/*var json = {};
+            		json['visaVoucherImageUrl'] = pic_url;
+            		var str_url = 'serviceOrder/updatePaymentVoucherImageUrl?id='+v.orderId;
+            		$.post(str_url, json,
+		   					function(data1){
+		   							if (data1.code = '0')
+		   							{
+				   							$('#show_addnewservice2_id #alert_success').css('marginTop','50%');
+						   					$('#show_addnewservice2_id #alert_success').css('marginLeft','30%');						   					
+						   					$("#show_addnewservice2_id #success_info").html('COE收款凭证更新成功！');
+						   					$('#show_addnewservice1_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+				   					}else
+				   					{
+				   							$('#show_addnewservice2_id #alert_error').css('marginTop','60%');
+					          			$('#show_addnewservice2_id #alert_error').css('marginLeft','60%');
+							   					$('#show_addnewservice2_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+					          			$("#show_addnewservice2_id #error_info").html(data1.message);
+				   					}
+		   					});*/		        		
             }else
             {
             		$('#show_addnewservice2_id #alert_error').css('marginTop','60%');

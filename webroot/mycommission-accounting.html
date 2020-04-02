@@ -637,7 +637,8 @@
 								this.subject[this.current_index] = this.current_row;
 						}
 						this.current_index = index;
-						this.current_row = this.subject[index];						
+						this.current_row = this.subject[index];
+						v.orderId = this.subject[index].id;	
 						this.subject.splice(index,1, {
 							oid: parseInt(this.subject[index].id),
 							gmtCreate: this.subject[index].gmtCreate,
@@ -693,8 +694,11 @@
 			    		$('#my_table #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
 			        $("#my_table #error_info").html('API接口还没有实现，等待中...');
 			    		return false;
-			    		var str_url = "";
+			    		var str_url = "visa/kjUpdate";
        				var json = {};
+       				json['id'] = v.orderId;
+       				json['bonus'] = t1;
+       				json['bonusDate'] = t2;
        				$.post(str_url, json,
 					   	function(data){
 					   			if (data.code == 0)

@@ -308,6 +308,11 @@
 									      </button>
 									      <strong>Success!</strong> You  just achieved success.
 									  </div>
+									  <div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+                      <button data-dismiss="alert" class="close close-sm" type="button">                      
+                      </button>
+                      <strong id="error_info"></strong>
+                    </div>
 										<div class="clearfix">                       
                     </div>
 										<div class="responsive-table margin-top">
@@ -989,7 +994,7 @@
           str_html += '<option';
           if (type == 4) str_html += ' SELECTED="true"';
           str_html += ' value="4">变动比例</option>';
-          str_html += '<option';
+          /*str_html += '<option';
           if (type == 7) str_html += ' SELECTED="true"';
           str_html += ' value="7">固定底价（无额外补贴）</option>';
           str_html += '<option';
@@ -997,7 +1002,7 @@
           str_html += ' value="5">固定底价+每人补贴</option>';
           str_html += '<option';
           if (type == 6) str_html += ' SELECTED="true"';
-          str_html += ' value="6">固定底价+固定一次性补贴</option>';
+          str_html += ' value="6">固定底价+固定一次性补贴</option>';*/
         	str_html += '</select>';
         	return str_html;
 			}
@@ -1235,9 +1240,14 @@
 					   			{
 					   					$('#type1_id').modal('hide');
 					   					v.add = false;
-					   					$('.alert').addClass('alert-success').show().delay(1500).fadeOut();					   					
+					   					$('.alert').addClass('alert-success').show().delay(1500).fadeOut();			   					
 					   					//重新载入数据源
 					   					v.getDatalist();
+					   			}else
+					   			{
+					   					$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+			          			$("#error_info").html(data.message);
+				        			return false;
 					   			}
 					   			//console.log(data);
 					   	});     

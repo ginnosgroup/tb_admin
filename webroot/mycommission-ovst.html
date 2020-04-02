@@ -346,8 +346,7 @@
 												<thead>
 													<tr>
 														<th>订单ID</th>
-														<th>创建日期</th>
-														<th>签约日期</th>
+														<th>创建日期</th>														
 														<th>客户支付日期</th>
 														<th>客户姓名</th>
 														<th>StudentID</th>
@@ -375,7 +374,6 @@
 													<tr v-for="item in subject" class="gradeX">
 														<td v-html="item.strOid"></td>
 														<td v-html="item.gmtCreate"></td>
-														<td v-html="item.finishDate"></td>
 														<td v-html="item.receiveDate"></td>
 														<td v-html="item.userName"></td>
 														<td v-html="item.studentCode"></td>
@@ -406,7 +404,6 @@
 														<td v-html="item.remarks"></td>
 													</tr>
 													<tr class="gradeX">
-														<td></td>
 														<td></td>
 														<td></td>
 														<td></td>
@@ -670,7 +667,7 @@
 						result.data[i].oid = result.data[i].id;
 						result.data[i].strOid = '<a href="javascript:open_detail('+result.data[i].serviceOrderId+','+result.data[i].id+');" title="查看详细">'+result.data[i].id+'</a>-'+result.data[i].installmentNum;
 						result.data[i].gmtCreate = v.getTime(result.data[i].gmtCreate);
-						result.data[i].finishDate = result.data[i].finishDate ? v.getTime(result.data[i].finishDate):'';
+						//result.data[i].finishDate = result.data[i].finishDate ? v.getTime(result.data[i].finishDate):'';
 						result.data[i].receiveDate = result.data[i].receiveDate ? v.getTime(result.data[i].receiveDate):'';
 						result.data[i].bonusDate = result.data[i].bonusDate ? v.getTime(result.data[i].bonusDate):'';
 						result.data[i].userName = result.data[i].user.name;
