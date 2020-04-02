@@ -33,6 +33,8 @@ public class ServiceOrderDTO {
 
 	private boolean isDepositUser;
 
+	private boolean isSubmitted;
+
 	private int subagencyId;
 
 	private SubagencyDTO subagency;

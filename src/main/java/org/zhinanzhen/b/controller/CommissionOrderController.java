@@ -159,6 +159,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				if (commissionOrderService.addCommissionOrder(commissionOrderDto) > 0)
 					commissionOrderDtoList.add(commissionOrderDto);
 			}
+			serviceOrderDto.setSubmitted(true);
+			serviceOrderService.updateServiceOrder(serviceOrderDto); // 同时更改服务订单状态
 			return new Response<List<CommissionOrderDTO>>(0, commissionOrderDtoList);
 		} catch (ServiceException e) {
 			return new Response<List<CommissionOrderDTO>>(e.getCode(), e.getMessage(), null);

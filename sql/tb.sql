@@ -334,6 +334,7 @@ CREATE TABLE `b_service_order` (
 `review_state` varchar(8) DEFAULT NULL COMMENT '审批状态 (OFFICIAL:文案审批通过,MARA:Mara审批通过,KJ:财务审批通过)',
 `is_settle` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否提前扣佣 (留学服务专用字段)',
 `is_deposit_user` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否为保证金用户 (留学服务专用字段)',
+`is_submitted` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已提交 (是否已创建佣金订单)',
 `subagency_id` int DEFAULT NULL COMMENT '代理编号 (对应b_subagency.id,留学服务专用字段)',
   `is_pay` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已支付(签证服务非支付不用创建佣金订单)',
   `receive_type_id` int DEFAULT NULL COMMENT '收款方式编号(对应b_receive_type.id)',
