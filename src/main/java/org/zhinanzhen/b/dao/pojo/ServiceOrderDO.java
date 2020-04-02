@@ -30,6 +30,8 @@ public class ServiceOrderDO {
 	private boolean isSettle;
 
 	private boolean isDepositUser;
+	
+	private boolean isSubmitted;
 
 	private int subagencyId;
 

@@ -15,6 +15,7 @@
                 state,
                 is_settle,
                 is_deposit_user,
+                is_submitted,
                 subagency_id,
                 is_pay,
                 receive_type_id,
@@ -49,6 +50,7 @@
                 #{state},
                 #{isSettle},
                 #{isDepositUser},
+                #{isSubmitted},
                 #{subagencyId},
                 #{isPay},
                 #{receiveTypeId},
@@ -95,6 +97,9 @@
         </if>
         <if test='isDepositUser != null'>
             , is_deposit_user = #{isDepositUser}
+        </if>
+        <if test='isSubmitted != null'>
+            , is_submitted = #{isSubmitted}
         </if>
         <if test='subagencyId != null and subagencyId > 0'>
             , subagency_id = #{subagencyId}
@@ -222,6 +227,7 @@
             state,
             is_settle AS isSettle,
             is_deposit_user AS isDepositUser,
+            is_submitted AS isSubmitted,
             subagency_id AS subagencyId,
             is_pay AS isPay,
             receive_type_id AS receiveTypeId,
@@ -292,6 +298,7 @@
             state,
             is_settle AS isSettle,
             is_deposit_user AS isDepositUser,
+            is_submitted AS isSubmitted,
             subagency_id AS subagencyId,
             is_pay AS isPay,
             receive_type_id AS receiveTypeId,

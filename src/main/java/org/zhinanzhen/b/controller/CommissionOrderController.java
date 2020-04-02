@@ -51,7 +51,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<List<CommissionOrderDTO>> add(@RequestParam(value = "serviceOrderId") Integer serviceOrderId,
-			@RequestParam(value = "isSettle") Boolean isSettle,
+			@RequestParam(value = "state") String state, @RequestParam(value = "isSettle") Boolean isSettle,
 			@RequestParam(value = "isDepositUser") Boolean isDepositUser,
 			@RequestParam(value = "schoolId") Integer schoolId, @RequestParam(value = "studentCode") String studentCode,
 			@RequestParam(value = "userId") Integer userId, @RequestParam(value = "adviserId") Integer adviserId,
@@ -89,6 +89,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			CommissionOrderDTO commissionOrderDto = new CommissionOrderDTO();
 			commissionOrderDto.setCode(UUID.randomUUID().toString());
 			commissionOrderDto.setServiceOrderId(serviceOrderId);
+			if (StringUtil.isNotEmpty(state))
+				commissionOrderDto.setState(state);
+			else
+				commissionOrderDto.setState(ReviewKjStateEnum.PENDING.toString());
 			commissionOrderDto.setSettle(isSettle);
 			commissionOrderDto.setDepositUser(isDepositUser);
 			commissionOrderDto.setSchoolId(schoolId);
@@ -155,6 +159,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				if (commissionOrderService.addCommissionOrder(commissionOrderDto) > 0)
 					commissionOrderDtoList.add(commissionOrderDto);
 			}
+			serviceOrderDto.setSubmitted(true);
+			serviceOrderService.updateServiceOrder(serviceOrderDto); // 同时更改服务订单状态
 			return new Response<List<CommissionOrderDTO>>(0, commissionOrderDtoList);
 		} catch (ServiceException e) {
 			return new Response<List<CommissionOrderDTO>>(e.getCode(), e.getMessage(), null);
