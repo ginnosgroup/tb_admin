@@ -171,6 +171,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<CommissionOrderDTO> update(@RequestParam(value = "id") int id,
+			@RequestParam(value = "state", required = false) String state,
 			@RequestParam(value = "commissionState", required = false) String commissionState,
 			@RequestParam(value = "isSettle", required = false) Boolean isSettle,
 			@RequestParam(value = "isDepositUser", required = false) Boolean isDepositUser,
@@ -208,6 +209,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 						null);
 			CommissionOrderDTO commissionOrderDto = new CommissionOrderDTO();
 			commissionOrderDto.setId(id);
+			if (StringUtil.isNotEmpty(state))
+				commissionOrderDto.setState(state);
 			if (adminUserLoginInfo != null && "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& commissionState != null) // 只有会计能修改佣金状态
 				commissionOrderDto
