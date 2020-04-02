@@ -44,8 +44,6 @@ public class CommissionOrderDO {
 	private String paymentVoucherImageUrl1;
 
 	private String paymentVoucherImageUrl2;
-	
-	private String paymentVoucherImageUrl3;
 
 	private double schoolPaymentAmount;
 
