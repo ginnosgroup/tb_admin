@@ -241,9 +241,29 @@
 										我的佣金报表
 									</a>									
 								</li>
-								<li v-if="ap_list==='KJ'" class="active">
-									<a href="mycommission-accounting.html">
-										我的佣金报表
+								<li v-if="ap_list==='KJ'" id="commission_state_DJY">
+									<a href="mycommission-accounting.html?commission_state=DJY">
+										待结佣订单
+									</a>									
+								</li>
+								<li v-if="ap_list==='KJ'" id="commission_state_YJY">
+									<a href="mycommission-accounting.html?commission_state=YJY">
+										已结佣订单
+									</a>									
+								</li>
+								<li v-if="ap_list==='KJ'" id="commission_state_DZY">
+									<a href="mycommission-accounting.html?commission_state=DZY">
+										待追佣订单
+									</a>									
+								</li>	
+								<li v-if="ap_list==='KJ'" id="commission_state_YZY">
+									<a href="mycommission-accounting.html?commission_state=YZY">
+										已追佣订单
+									</a>									
+								</li>
+								<li v-if="ap_list==='KJ'" id="commission_state_TQKY">
+									<a href="mycommission-accounting.html?commission_state=TQKY">
+										提前扣佣订单
 									</a>									
 								</li>
 								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
@@ -521,10 +541,10 @@
 													var str_subject = '';
 													var str_subject_name = '';
 													for(var i = 0; i < result.data.length; i++) {
-														if (result.data[i].subject != '')
+														if (result.data[i].subject != '' && result.data[i].subject != null)
 														{
 																str_subject_name = result.data[i].subject;
-																str_subject_name= str_subject_name.replace(/\s+/g,"#");
+																if (str_subject_name != null) str_subject_name= str_subject_name.replace(/\s+/g,"#");
 																str_subject += '{name:\''+result.data[i].subject+'   <a href=javascript:subjectEdit("'+str_subject_name+'",'+result.data[i].id+')>修改</a> <a href=javascript:subjectDel("'+str_subject_name+'",'+result.data[i].id+')>删除<a/>'+'\',type:\'item\',additionalParameters:{id:\''+result.data[i].id+'\'}},';
 														}
 													}
@@ -665,35 +685,43 @@
           {              
               var str_url = "school/update";
               var sa_id = $("#id").val();
-              
-              $.post(str_url, { id: sa_id, subject: subject_name},
-					   	function(data){
-					   			if (data.code == 0)
-					   			{
-					   					$('#subject_edit_id').modal('hide');
-					   					$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
-					   					setTimeout(function(){window.location.reload();},1500);		
-					   			}else
-					   			{
-					   					$('#alert_error').addClass('alert-danger').show().delay(1500).fadeOut();
-					   					$("#error_info").html(data.message);
-					   			}
-					   	});
+              if (sa_id)
+              {              
+		              $.post(str_url, { id: sa_id, subject: subject_name},
+							   	function(data){
+							   			if (data.code == 0)
+							   			{
+							   					$('#subject_edit_id').modal('hide');
+							   					$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
+							   					setTimeout(function(){window.location.reload();},1500);		
+							   			}else
+							   			{
+							   					$('#alert_error').addClass('alert-danger').show().delay(1500).fadeOut();
+							   					$("#error_info").html(data.message);
+							   			}
+							   	});
+					  	}else
+					  	{
+					  			$('#alert_error').addClass('alert-danger').show().delay(1500).fadeOut();
+							   	$("#error_info").html('提示：学校ID为空！');
+					  	}
 			  	}                
       }
       
       function subject_deleteId()
-      {      		
-      		$.get("school/delete", {
-						id: v.dId
-					}, function(result) {
-						console.log(result);
-						if(result.data == true) {
-							$('#subject_delete_id').modal('hide');
-							$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
-							setTimeout(function(){window.location.reload();},1500);			
-						};
-					});
+      {
+      		if (v.dId)
+      		{
+		      		$.get("school/delete", {
+								id: v.dId
+							}, function(result) {						
+								if(result.data == true) {
+									$('#subject_delete_id').modal('hide');
+									$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
+									setTimeout(function(){window.location.reload();},1500);			
+								};
+							});
+					}
       }
       
       function deleteId()

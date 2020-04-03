@@ -240,9 +240,29 @@
 										我的佣金报表
 									</a>									
 								</li>
-								<li v-if="ap_list==='KJ'" class="active">
-									<a href="mycommission-accounting.html">
-										我的佣金报表
+								<li v-if="ap_list==='KJ'" id="commission_state_DJY">
+									<a href="mycommission-accounting.html?commission_state=DJY">
+										待结佣订单
+									</a>									
+								</li>
+								<li v-if="ap_list==='KJ'" id="commission_state_YJY">
+									<a href="mycommission-accounting.html?commission_state=YJY">
+										已结佣订单
+									</a>									
+								</li>
+								<li v-if="ap_list==='KJ'" id="commission_state_DZY">
+									<a href="mycommission-accounting.html?commission_state=DZY">
+										待追佣订单
+									</a>									
+								</li>	
+								<li v-if="ap_list==='KJ'" id="commission_state_YZY">
+									<a href="mycommission-accounting.html?commission_state=YZY">
+										已追佣订单
+									</a>									
+								</li>
+								<li v-if="ap_list==='KJ'" id="commission_state_TQKY">
+									<a href="mycommission-accounting.html?commission_state=TQKY">
+										提前扣佣订单
 									</a>									
 								</li>
 								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
@@ -383,23 +403,23 @@
 																<a href="javascript:open_detail({{item.oid}},'{{item.type}}','{{item.currentState}}');">查看</a>																
 																<dle v-if="ap_list==='GW'">
 																		<d1 v-if="item.currentState==='PENDING'">
-																		<a href="javascript:show_confirmbox({{item.oid}},'REVIEW',1)">提交审核</a>
+																		<a href="javascript:show_confirmbox('{{item.type}}',{{item.oid}},'REVIEW',1)">提交审核</a>
 																		</d1>
 																		<d1 v-if="item.currentState==='REVIEW'">
-																		<a href="javascript:show_confirmbox({{item.oid}},'PENDING',1)" style="color:#ACA9A9;">撤回</a>
+																		<a href="javascript:show_confirmbox('{{item.type}}',{{item.oid}},'PENDING',1)" style="color:#ACA9A9;">撤回</a>
 																		</d1>
 																</dle>	
 																<dle v-if="ap_list==='WA'">
 																		<d1 v-if="item.type==='VISA'">																				
 																				<d1 v-if="item.currentState==='WA_MA_WAIT'">
-																				<a href="javascript:show_confirmbox({{item.oid}},'REVIEW',1)" style="color:#ACA9A9;">撤回</a>
+																				<a href="javascript:show_confirmbox('{{item.type}}',{{item.oid}},'REVIEW',1)" style="color:#ACA9A9;">撤回</a>
 																				</d1>
 																		</d1>																		
 																</dle>
 																<dle v-if="ap_list==='MA'">																		
 																		<d1 v-if="item.review.officialState==='WAIT' && item.review.maraState==='WAIT'">
-																		<a href="javascript:show_confirmbox({{item.oid}},'FINISH',1)">通过</a>
-																		<a href="javascript:show_confirmbox({{item.oid}},'REVIEW',0)">驳回</a>
+																		<a href="javascript:show_confirmbox('{{item.type}}',{{item.oid}},'FINISH',1)">通过</a>
+																		<a href="javascript:show_confirmbox('{{item.type}}',{{item.oid}},'REVIEW',0)">驳回</a>
 																		</d1>																		
 																</dle>
 														</td>
@@ -812,10 +832,21 @@
 	          			$("#error_info").html('签证凭证没有上传，请上传之后再提交。');
           				return false;
           		}
-          }          
-          //如果GW提交审核,就创建佣金订单
+          }
+          if (v.orderType == 'OVST' && va == 'PAID')
+          {
+          		var flist = $('#show_addnewservice2_id #flist').val();
+          		if (flist == '')
+          		{
+          				$('#alert_error').css('marginLeft','30%');
+			   					$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+	          			$("#error_info").html('收款凭证没有上传，请上传之后再提交。');
+          				return false;
+          		}
+          }
+          //如果GW提交审核,就创建佣金订单                         
           if (v.orderType == 'VISA' && v.ap_list == 'GW' && va == 'REVIEW') reqCommissionVisa();
-         
+                   
           json['id'] = v.orderId;
           json['state'] = va;
           json['closedReason'] = closedReason;
@@ -846,11 +877,23 @@
 			   	});
       }            
       
-      function show_confirmbox(id,va,par)
+      function show_confirmbox(type,id,va,par)
       {
       		v.orderId = id;
+      		v.orderType = type;
       		v.set_state = va;
       		v.set_type = par;
+      		if (v.orderId)
+					{
+							$.ajax({
+			          url: 'serviceOrder/get?id='+v.orderId,
+			          type: 'GET',	          
+			          dataType: 'json'
+			        }).done(function(response) {
+			        	response = response.data;			        	
+			        	v_sub.order_detail = response;
+			        });
+					}
       		$('#showconfirmbox_id').modal('show');
       }
       

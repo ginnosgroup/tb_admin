@@ -240,9 +240,29 @@
 										我的佣金报表
 									</a>									
 								</li>
-								<li v-if="ap_list==='KJ'" class="active">
-									<a href="mycommission-accounting.html">
-										我的佣金报表
+								<li v-if="ap_list==='KJ'" id="commission_state_DJY">
+									<a href="mycommission-accounting.html?commission_state=DJY">
+										待结佣订单
+									</a>									
+								</li>
+								<li v-if="ap_list==='KJ'" id="commission_state_YJY">
+									<a href="mycommission-accounting.html?commission_state=YJY">
+										已结佣订单
+									</a>									
+								</li>
+								<li v-if="ap_list==='KJ'" id="commission_state_DZY">
+									<a href="mycommission-accounting.html?commission_state=DZY">
+										待追佣订单
+									</a>									
+								</li>	
+								<li v-if="ap_list==='KJ'" id="commission_state_YZY">
+									<a href="mycommission-accounting.html?commission_state=YZY">
+										已追佣订单
+									</a>									
+								</li>
+								<li v-if="ap_list==='KJ'" id="commission_state_TQKY">
+									<a href="mycommission-accounting.html?commission_state=TQKY">
+										提前扣佣订单
 									</a>									
 								</li>
 								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
@@ -326,8 +346,7 @@
 												<thead>
 													<tr>
 														<th>订单ID</th>
-														<th>创建日期</th>
-														<th>签约日期</th>
+														<th>创建日期</th>														
 														<th>客户支付日期</th>
 														<th>客户姓名</th>
 														<th>StudentID</th>
@@ -343,8 +362,7 @@
 														<th><span style="color:#FF6C60;">总计已收</span></th>											
 														<th>本次收款</th>
 														<th>预收业绩(<span style="color:#FF6C60;">Commission含GST</span>)</th>														
-														<th>月奖</th>
-														<th>是否对账完成</th>
+														<th>月奖</th>														
 														<th>月奖支付时间</th>
 														<th>顾问</th>
 														<th>状态</th>
@@ -356,7 +374,6 @@
 													<tr v-for="item in subject" class="gradeX">
 														<td v-html="item.strOid"></td>
 														<td v-html="item.gmtCreate"></td>
-														<td v-html="item.finishDate"></td>
 														<td v-html="item.receiveDate"></td>
 														<td v-html="item.userName"></td>
 														<td v-html="item.studentCode"></td>
@@ -372,8 +389,7 @@
 														<td v-html="item.totalAmount"></td>
 														<td v-html="item.amount"></td>
 														<td v-html="item.expectAmount"></td>
-														<td v-html="item.bonus"></td>
-														<td v-html="item.strSchoolPaid"></td>
+														<td v-html="item.bonus"></td>														
 														<td v-html="item.bonusDate"></td>
 														<td v-html="item.adviser.name"></td>
 														<td v-html="item.strState"></td>
@@ -403,11 +419,9 @@
 														<td></td>
 														<td></td>
 														<td></td>
-														<td></td>
 														<td bgcolor="#F4A460">合计：</td>
 														<td bgcolor="#F4A460">{{total_expectamount}}</td>
 														<td bgcolor="#F4A460">{{total_bonus}}</td>
-														<td></td>
 														<td></td>
 														<td></td>
 														<td></td>
@@ -570,6 +584,18 @@
 						var date2 = d+"/"+m+"/"+y;
 						return date2;
 					},
+					getTime1: function(d) {
+						var date1 = new Date(d);
+						var y = date1.getFullYear();
+						var m = this.addZero(date1.getMonth() + 1);
+						var d = this.addZero(date1.getDate());
+						var h = this.addZero(date1.getHours());
+						var m2 = this.addZero(date1.getMinutes());
+						var s = this.addZero(date1.getSeconds());
+						//var date2 = y + "-" + m + "-" + d;
+						var date2 = d+"/"+m+"/"+y+" "+h+":"+m2+":"+s;
+						return date2;
+					},
 					addZero: function(obj) {
 						if(obj < 10) {
 							obj = '0' + obj;
@@ -652,8 +678,8 @@
 						var str_state = '';
 						result.data[i].oid = result.data[i].id;
 						result.data[i].strOid = '<a href="javascript:open_detail('+result.data[i].serviceOrderId+','+result.data[i].id+');" title="查看详细">'+result.data[i].id+'</a>-'+result.data[i].installmentNum;
-						result.data[i].gmtCreate = v.getTime(result.data[i].gmtCreate);
-						result.data[i].finishDate = result.data[i].finishDate ? v.getTime(result.data[i].finishDate):'';
+						result.data[i].gmtCreate = v.getTime1(result.data[i].gmtCreate);
+						//result.data[i].finishDate = result.data[i].finishDate ? v.getTime(result.data[i].finishDate):'';
 						result.data[i].receiveDate = result.data[i].receiveDate ? v.getTime(result.data[i].receiveDate):'';
 						result.data[i].bonusDate = result.data[i].bonusDate ? v.getTime(result.data[i].bonusDate):'';
 						result.data[i].userName = result.data[i].user.name;

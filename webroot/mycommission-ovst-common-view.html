@@ -141,6 +141,10 @@
 												$<label id="c32"></label>
 											</div>									
 									</div>
+									<div id="show_paymentpic" class="form-group" style="display:;width:100%;line-height:40px;">
+											<label class="control-label"><strong>收款凭证：</strong></label>
+											<label id="paymentpic_url"></label>
+									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">
 											<label class="control-label" style="font-weight:bold;">备注：</label>
 											<label id="c33"></label>
@@ -154,7 +158,7 @@
 									<button onclick="$('#show_ovst_id').modal('hide');reqCommissionOvst(v_sub.serviceId,v_sub.orderId);" type="button" class="btn btn-primary">申请佣金</button>
 									</dle>
 							</dle>													
-							<button onclick="" type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+							<button onclick="" type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
 					</div>
 				</div>
 			</div>
@@ -254,6 +258,20 @@ function show_commission_detail(serviceId,orderId)
 			    	$('#show_ovst_id #c31').html(response.amount);
 			    	$('#show_ovst_id #c32').html(response.expectAmount);
 			    	$('#show_ovst_id #c33').html(response.remarks);
+			    	
+			    	//生成收款凭证列表
+						var str_flist = '';
+						$("#show_ovst_id #paymentpic_url").empty();
+						if (response.paymentVoucherImageUrl1)
+						{
+								str_flist = response.paymentVoucherImageUrl1;
+								$("#show_ovst_id #paymentpic_url").append('<a href="/statics'+response.paymentVoucherImageUrl1+'" target="_blank">查看凭证1</a>&nbsp;');
+						}
+						if (response.paymentVoucherImageUrl2)
+						{
+								str_flist += ','+response.paymentVoucherImageUrl2;
+								$("#show_ovst_id #paymentpic_url").append('<a href="/statics'+response.paymentVoucherImageUrl2+'" target="_blank">查看凭证2</a>&nbsp;');
+						}
 	    	}
     	});
     	

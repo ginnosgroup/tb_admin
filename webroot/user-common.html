@@ -20,8 +20,8 @@
 	      </div>
 				<div class="modal-body">
 						<form class="form-inline" style="">
-						<input type="hidden" name="user_id" id="user_id" value="0" />	
-						<input type="hidden" name="flist" id="flist" value="" />													
+						<input type="hidden" name="user_id" id="user_id" value="0" />
+						<input type="hidden" name="flist" id="flist" value="" />																	
 						<div class="form-group" style="width:100%;height:40px;">
 							<label class="control-label" style="width:80px;">客户姓名<span style="color:red;">*</span></label>							
 							<label id="b1a"><input type="text" class="form-control small" style="width:150px;" id="b100" placeholder="请输入查询" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,'')" value=""></label>
@@ -107,7 +107,7 @@
 				</div>
 				<div class="modal-footer" style="text-align: center;">
 					<input type="file" id="f1" style="display:none">
-					<input type="hidden" id="flist" value="" />
+					<div id="show_currentpic" style="display:none;padding-bottom:10px;"></div>
 					<div id="show_pic" style="display:none;padding-bottom:10px;"></div>
 					<button onclick="upload_receipt_pic('f1')" id="upload_receipt" type="button" class="btn btn-danger">上传收款凭证</button>
 					<button onclick="addnewService1Save()" type="button" class="btn btn-primary"><span id="btn_id">提交</span></button>
@@ -178,6 +178,7 @@
 							<input type="radio" name="c10" id="c10a" value="true" checked="true" /><label for="c10a">是</label>
 							<input type="radio" name="c10" id="c10b" value="false" style="margin-left:20px;" /><label for="c10b">否</label>
 						</div>
+						<div id="show_deposit_user_payment" style="width:100%;display:none;">
 						<div class="form-group" style="width:100%;">								
 								<label class="control-label" style="width:80px;">收款日期</label>
 								<input type="text" autocomplete="off" id="c11" class="form-control default-date-picker" style="width:200px;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
@@ -197,6 +198,7 @@
 									<label class="control-label">总计收款</label>
 									$<input type="text" autocomplete="off" onkeyup="computeOvstDiscount()" id="c15" class="form-control" style="width:100px;">
 								</div>									
+						</div>
 						</div>							
 						</div>
 						<div class="form-group" style="width:100%;line-height:40px;">
@@ -205,7 +207,12 @@
 						</div>
 						</form>
 				</div>
-				<div class="modal-footer" style="text-align: center;">					
+				<div class="modal-footer" style="text-align: center;">
+					<input type="file" id="f1d" style="display:none">
+					<input type="hidden" name="flist" id="flist" value="" />
+					<div id="show_currentpic" style="display:none;padding-bottom:10px;"></div>
+					<div id="show_pic" style="display:none;padding-bottom:10px;"></div>
+					<button onclick="upload_receipt_pic('f1d')" id="upload_receipt" style="display:none;" type="button" class="btn btn-danger">上传收款凭证</button>
 					<button onclick="addnewService2Save()"type="button" class="btn btn-primary"><span id="btn_id">提交</span></button>
 					<button onclick="flowstep('REVIEW',1)" id="btnReview" style="display:none;" type="button" class="btn btn-primary">提交审核</button>
 					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
@@ -261,7 +268,7 @@ function add_service1(orderId,userId,name)
 						$('#addnewservice1_id #b1a').show();
 				}
 				$('#addnewservice1_id #show_paid').hide();
-				$('#addnewservice1_id #upload_receipt').hide();		
+				$('#addnewservice1_id #upload_receipt').hide();
 				$("#addnewservice1_id #b5 option:first").prop('selected', 'selected');
 				$("#addnewservice1_id #b7b").attr('checked','checked');
 				$("#addnewservice1_id #b8").val('');
@@ -302,6 +309,21 @@ function add_service1(orderId,userId,name)
 	        			setPay = 0;
 	        			$('#addnewservice1_id #show_paid').show();      				
   							$('#addnewservice1_id #upload_receipt').show();
+  							//生成收款凭证列表
+  							var str_flist = '';
+  							$("#addnewservice1_id #show_currentpic").empty();
+  							if (response.paymentVoucherImageUrl1)
+  							{
+  									str_flist = response.paymentVoucherImageUrl1;
+  									$("#addnewservice1_id #show_currentpic").append('<a href="/statics'+response.paymentVoucherImageUrl1+'" target="_blank">查看当前凭证</a>&nbsp;');
+  							}
+  							if (response.paymentVoucherImageUrl2)
+  							{
+  									str_flist += ','+response.paymentVoucherImageUrl2;
+  									$("#addnewservice1_id #show_currentpic").append('<a href="/statics'+response.paymentVoucherImageUrl2+'" target="_blank">查看当前凭证</a>&nbsp;');
+  							}
+  							if (str_flist != '') $('#addnewservice1_id #flist').val(str_flist);
+  							$('#addnewservice1_id #show_currentpic').show(); 
 	        	}else
 	        	{
 	        			$('#addnewservice1_id #show_paid').hide();
@@ -313,13 +335,13 @@ function add_service1(orderId,userId,name)
 	        	if (response.receivable) $("#addnewservice1_id #b10").val(response.receivable);
 	        	if (response.discount) $("#addnewservice1_id #b11").val(response.discount);
 	        	if (response.received) $("#addnewservice1_id #b12").val(response.received);
-	        	if (response.paymentTimes) $("#addnewservice1_id #b13").val(response.paymentTimes);
+	        	if (response.installment) $("#addnewservice1_id #b13").val(response.installment);
 	        	if (response.perAmount) $("#addnewservice1_id #b14a").val(response.perAmount);
 	        	if (response.amount) $("#addnewservice1_id #b14").val(response.amount);
 	        	if (response.gst) $("#addnewservice1_id #b15").val(response.gst);
 	        	if (response.deductGst) $("#addnewservice1_id #b16").val(response.deductGst);
 	        	if (response.expectAmount) $("#addnewservice1_id #b17").val(response.expectAmount);
-	        	if (response.remarks) $("#addnewservice1_id #b18").val(response.remarks);
+	        	if (response.remarks) $("#addnewservice1_id #b18").val(response.remarks);	        		        	
 	        	$('#addnewservice1_id #btn_id').html('保存修改');
 	        	$('#addnewservice1_id #btnReview').show();
 	      });
@@ -330,6 +352,10 @@ function add_service1(orderId,userId,name)
 
 function add_service2(orderId,userId,name)
 {
+		$("#addnewservice2_id #c11").val('');
+		$("#addnewservice2_id #c13").val('');
+		$("#addnewservice2_id #c14").val('');
+		$("#addnewservice2_id #c15").val('');
 		//留学服务
 		if (orderId == 0)
 		{
@@ -386,9 +412,16 @@ function add_service2(orderId,userId,name)
 		      	{		      			
 		      			$('#addnewservice2_id  :checkbox').prop("checked",'checked');
 		      			$('#addnewservice2_id #show_deposit_user').show();
+		      	}else
+		      	{
+		      			$('#addnewservice2_id  :checkbox').prop("checked",false);
 		      	}
 		      	var is_pay = 1;
-		      	if (response.pay) is_pay = 0;
+		      	if (response.pay)
+		      	{
+		      			is_pay = 0;
+		      			$('#addnewservice2_id #show_deposit_user_payment').show();
+		      	}
 		      	$('#addnewservice2_id :radio[name=c10]:eq('+is_pay+')').prop("checked",'checked');			        	
 		      	if (response.receiveDate) $("#addnewservice2_id #c11").val(v.getTime(response.receiveDate));
 		      	$("#addnewservice2_id #c12").val(response.receiveTypeId);
@@ -422,10 +455,26 @@ $('#addnewservice1_id :radio').live('click', function (e) {
 $('#addnewservice2_id :checkbox').live('click', function (e) {
 		if($('#addnewservice2_id #c6').is(':checked'))
 		{
+				$('#addnewservice2_id #upload_receipt').show();
 				$('#addnewservice2_id #show_deposit_user').show();      				
 		}else
 		{
 				$('#addnewservice2_id #show_deposit_user').hide();
+				$('#addnewservice2_id #upload_receipt').hide();
+		}				
+});
+
+$("#addnewservice2_id :input[name=c10]").live('click', function (e) {
+		if ($(this).val() == 'true')
+		{				
+				$('#addnewservice2_id #show_deposit_user_payment').show();
+				$('#addnewservice2_id #upload_receipt').show();
+				$('#addnewservice2_id #show_pic').show();
+		}else
+		{
+				$('#addnewservice2_id #show_deposit_user_payment').hide();
+				$('#addnewservice2_id #upload_receipt').hide();
+				$('#addnewservice2_id #show_pic').hide();
 		}				
 });
 
@@ -499,7 +548,7 @@ function addnewservice2_ajax_subject()
       			if (!response[item].subject == '')
       			{
 	        			school_subject.append("<option value='"+response[item].id+"'>"+response[item].subject+"</option>");		
-	        			v.country = response[item].country;
+	        			v.country = response[item].country;	        			
       			}
       	}
       	school_subject.append("<option value='-1'>我要添加</option>");
@@ -539,6 +588,7 @@ function addnewservice2_schoolSubjectSave()
 	var school_subject = $("#addnewservice2_add_schoolsubject_id #schoolsubject_name").val();
 	if (school_subject != '')
 	{
+			//if (v.country == '') v.country = 'AUS';
 			var str_url = "school/add";
 			$.post(str_url, { id: 0, name: v.school_name, subject: school_subject, country: v.country},
 	   	function(data){
@@ -646,7 +696,7 @@ function addnewService1Save()
 		          	json['discount'] = jqInputs[9].value;
 		          	json['received'] = jqInputs[7].value;
 		          	json['perAmount'] = jqInputs[8].value;
-		          	json['paymentTimes'] = jqSelect[6].value;
+		          	json['installment'] = jqSelect[6].value;
 		          	json['amount'] = jqInputs[10].value;
 		          	json['gst'] = jqInputs[11].value;
 		          	json['deductGst'] = jqInputs[12].value;
@@ -693,7 +743,7 @@ function addnewService2Save()
 {
 		var jqInputs = $('input',$("#addnewservice2_id"));
     var jqSelect = $('select',$("#addnewservice2_id"));
-    var jqTextarea = $('textarea',$("#addnewservice2_id"));
+    var jqTextarea = $('textarea',$("#addnewservice2_id"));    
     
     var check_result = 0;
     if (jqSelect[0].value != '0' && jqSelect[1].value != '0' && jqSelect[2].value != '0' && jqSelect[3].value != '0' && jqSelect[4].value != '0' && jqSelect[5].value != '0' && jqInputs[0].value != '0')
@@ -708,7 +758,7 @@ function addnewService2Save()
     }
     
     if (check_result)
-    {            	            	            	                             
+    {    		      	            	            	                             
        	var str_url = "serviceOrder/add";    		  		
        	var json = {};
        	if (v.orderId != 0)
@@ -723,7 +773,7 @@ function addnewService2Save()
        	if ($("input[name='c5']:checked").val() == 1) json['isSettle'] = true;
        	if ($('#addnewservice2_id #c6').is(':checked'))
        	{
-       			json['isDepositUser'] = true;
+       			json['isDepositUser'] = true;       			
        	}else
        	{
        			json['isDepositUser'] = false;
@@ -737,6 +787,14 @@ function addnewService2Save()
        	if (json['isDepositUser'])
        	{
        			json['isPay'] = $("#addnewservice2_id input[name='c10']:checked").val();
+       			if (json['isPay'] && jqInputs[15].value == '')
+       			{
+       					$('#addnewservice2_id #alert_error').css('marginTop','30%');
+		   					$('#addnewservice2_id #alert_error').css('marginLeft','30%');
+		   					$('#addnewservice2_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+          			$("#addnewservice2_id #error_info").html('请上传支付保证金的凭证。');
+	        			return false;
+       			}
        			var d1 = 0;          		
         		if (jqInputs[10].value != '')
         		{
@@ -786,7 +844,7 @@ function addnewService2Save()
 
 function reqCommissionVisa()
 {
-		var order = v_sub.order_detail;		
+		var order = v_sub.order_detail;
 		if (order.pay == true)
 		{
 				var str_url = "visa/add";
@@ -798,7 +856,7 @@ function reqCommissionVisa()
 		   	json['receiveDate'] = order.receiveDate;
 		   	json['serviceId'] = order.serviceId;   	
 		   	json['serviceOrderId'] = v.orderId;
-		   	json['installment'] = order.paymentTimes;
+		   	json['installment'] = order.installment;
 		   	json['receivable'] = order.receivable;
 		   	json['received'] = order.received;
 		   	json['perAmount'] = order.perAmount;
@@ -825,7 +883,7 @@ function reqCommissionVisa()
 
 function reqCommissionVisa1(order_json)
 {		
-		var order = order_json;
+		var order = order_json;		
 		if (order.isPay == true)
 		{
 				var str_url = "visa/add";
@@ -1023,7 +1081,7 @@ $('#addnewservice1_id #f1').live('change', function (e) {
             		{
             				$("#addnewservice1_id #flist").val(data.data);
             		}
-		        		$("#addnewservice1_id #show_pic").append('<a href="'+data.data+'" target="_blank">查看凭证</a>&nbsp;');
+		        		$("#addnewservice1_id #show_pic").append('<a href="/statics'+data.data+'" target="_blank">查看凭证</a>&nbsp;');
 		        		$("#addnewservice1_id #show_pic").show();
             }else
             {
@@ -1031,6 +1089,44 @@ $('#addnewservice1_id #f1').live('change', function (e) {
           			$('#addnewservice1_id #alert_error').css('marginLeft','60%');
 		   					$('#addnewservice1_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
           			$("#addnewservice1_id #error_info").html('收款凭证上传失败！');
+            }	
+        },
+        error:function(response){
+            console.log(response);
+        }
+    });
+});
+
+$('#addnewservice2_id #f1d').live('change', function (e) {
+		var formData = new FormData();					
+		formData.append("file",$("#f1d")[0].files[0]);
+		
+		$.ajax({
+        url:'serviceOrder/upload_img',
+        dataType:'json',
+        type:'POST',
+        async: false,
+        data: formData,
+        processData : false, //使数据不做处理
+        contentType : false,
+        success: function(data){			        		
+            if (data.code == '0') {
+            		var flist = $("#addnewservice2_id #flist").val();
+            		if (flist)
+            		{
+            				$("#addnewservice2_id #flist").val(flist+','+data.data);
+            		}else
+            		{
+            				$("#addnewservice2_id #flist").val(data.data);
+            		}
+		        		$("#addnewservice2_id #show_pic").append('<a href="/statics/'+data.data+'" target="_blank">查看凭证</a>&nbsp;');
+		        		$("#addnewservice2_id #show_pic").show();
+            }else
+            {
+            		$('#addnewservice2_id #alert_error').css('marginTop','60%');
+          			$('#addnewservice2_id #alert_error').css('marginLeft','60%');
+		   					$('#addnewservice2_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+          			$("#addnewservice2_id #error_info").html('收款凭证上传失败！');
             }	
         },
         error:function(response){
