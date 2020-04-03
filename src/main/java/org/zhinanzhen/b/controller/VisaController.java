@@ -252,6 +252,7 @@ public class VisaController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/kjUpdate", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<VisaDTO> kjUpdate(@RequestParam(value = "id") int id,
+			@RequestParam(value = "bonus", required = false) String bonus,
 			@RequestParam(value = "bonusDate", required = false) String bonusDate, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
@@ -264,6 +265,8 @@ public class VisaController extends BaseCommissionOrderController {
 			VisaDTO visaDto = visaService.getVisaById(id);
 			if (visaDto == null)
 				return new Response<VisaDTO>(1, "签证佣金订单订单(ID:" + id + ")不存在!", null);
+			if (bonus != null)
+				visaDto.setBonus(Double.parseDouble(bonus));
 			if (bonusDate != null)
 				visaDto.setBonusDate(new Date(Long.parseLong(bonusDate)));
 			visaDto.setCommissionState(CommissionStateEnum.YJY.toString());
