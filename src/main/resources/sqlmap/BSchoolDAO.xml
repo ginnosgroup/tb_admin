@@ -31,7 +31,7 @@
         <if test='country != null and country != ""'>
             , country = #{country}
         </if>
-        WHERE id = #{id};
+        WHERE is_delete = 0 AND id = #{id};
     </update>
     
     <select id="list" resultType="org.zhinanzhen.b.dao.pojo.SchoolDO">
