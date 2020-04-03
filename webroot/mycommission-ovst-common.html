@@ -151,10 +151,10 @@
 					</div>
 					<div class="modal-footer" style="text-align: center;">
 							<div id="show_payment_pic" style="display:none;padding-bottom:10px;"></div>
-							<dle v-if="ap_list==='GW'">									
-									<dle v-if="state==='PENDING' || state==='WAIT'">
 									<input type="file" id="f1c" style="display:none">
-									<input type="hidden" id="flist1" value="" />									
+									<input type="hidden" id="flist1" value="" />	
+							<dle v-if="ap_list==='GW'">									
+									<dle v-if="state==='PENDING' || state==='WAIT'">																	
 									<div id="show_pic" style="display:none;padding-bottom:10px;"></div>
 									<button onclick="upload_receipt_pic('f1c')" id="upload_certificate" type="button" class="btn btn-danger" style="display:;">上传收款凭证</button>
 									<button onclick="requestCommissionSave()" id="btn_request" type="button" class="btn btn-primary">申请佣金</button>									
@@ -288,7 +288,7 @@ function edit_commission_detail(serviceId,orderId)
 						{
 								str_flist += ','+response.paymentVoucherImageUrl2;
 								$("#ovst_id #show_payment_pic").append('<a href="/statics'+response.paymentVoucherImageUrl2+'" target="_blank">查看收款凭证2</a>&nbsp;');
-						}												
+						}						
 						if (str_flist != '')
 						{
 								$('#ovst_id #flist1').val(str_flist);
@@ -482,6 +482,7 @@ function requestCommissionSave()
        	
        	$.post(str_url, json,
 		   	function(data){
+		   			//console.log(data);
 		   			if (data.code == 0)
 		   			{
 		   					//提交财务审核

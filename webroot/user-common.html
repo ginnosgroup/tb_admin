@@ -548,7 +548,7 @@ function addnewservice2_ajax_subject()
       			if (!response[item].subject == '')
       			{
 	        			school_subject.append("<option value='"+response[item].id+"'>"+response[item].subject+"</option>");		
-	        			v.country = response[item].country;
+	        			v.country = response[item].country;	        			
       			}
       	}
       	school_subject.append("<option value='-1'>我要添加</option>");
@@ -588,6 +588,7 @@ function addnewservice2_schoolSubjectSave()
 	var school_subject = $("#addnewservice2_add_schoolsubject_id #schoolsubject_name").val();
 	if (school_subject != '')
 	{
+			//if (v.country == '') v.country = 'AUS';
 			var str_url = "school/add";
 			$.post(str_url, { id: 0, name: v.school_name, subject: school_subject, country: v.country},
 	   	function(data){
