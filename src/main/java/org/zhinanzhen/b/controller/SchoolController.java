@@ -102,10 +102,22 @@ public class SchoolController extends BaseController {
 			@RequestParam(value = "newName") String newName, HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			List<SchoolDTO> schoolDtoList = schoolService.list(oldName);
-			if (schoolDtoList == null || schoolDtoList.size() == 0)
+			List<SchoolDTO> oldSchoolDtoList = schoolService.list(oldName);
+			if (oldSchoolDtoList == null || oldSchoolDtoList.size() == 0)
 				return new Response<Boolean>(1, "没有找到名称为'" + oldName + "'的记录!", false);
-			for (SchoolDTO schoolDto : schoolDtoList)
+			for (SchoolDTO oldSchoolDto : oldSchoolDtoList) {
+				String name = newName;
+				String subject = oldSchoolDto.getSubject();
+				String country = oldSchoolDto.getCountry();
+				List<SchoolDTO> schoolDtoList = schoolService.list(name, subject, country);
+				for (SchoolDTO schoolDto : schoolDtoList)
+					if (schoolDto.getName().equals(name) && (subject == null || subject.equals(schoolDto.getSubject()))
+							&& schoolDto.getCountry().equals(country))
+						return new Response<Boolean>(1,
+								"不能将名称修改为'" + newName + "'! 因为'" + newName + "-" + schoolDto.getSubject() + "'已经存在.",
+								false);
+			}
+			for (SchoolDTO schoolDto : oldSchoolDtoList)
 				schoolService.updateSchool(schoolDto.getId(), newName, null, null);
 			return new Response<Boolean>(0, true);
 		} catch (ServiceException e) {
