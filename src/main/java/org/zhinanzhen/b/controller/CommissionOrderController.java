@@ -296,7 +296,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	public Response<CommissionOrderDTO> kjUpdate(@RequestParam(value = "id") int id,
 			@RequestParam(value = "schoolPaymentAmount", required = false) String schoolPaymentAmount,
 			@RequestParam(value = "schoolPaymentDate", required = false) String schoolPaymentDate,
-			@RequestParam(value = "invoiceNumber", required = false) String invoiceNumber, HttpServletRequest request,
+			@RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
+			@RequestParam(value = "bonus", required = false) String bonus,
+			@RequestParam(value = "bonusDate", required = false) String bonusDate, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -314,6 +316,11 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				commissionOrderDto.setSchoolPaymentDate(new Date(Long.parseLong(schoolPaymentDate)));
 			if (StringUtil.isNotEmpty(invoiceNumber))
 				commissionOrderDto.setInvoiceNumber(invoiceNumber);
+			if (bonus != null)
+				commissionOrderDto.setBonus(Double.parseDouble(bonus));
+			if (bonusDate != null)
+				commissionOrderDto.setBonusDate(new Date(Long.parseLong(bonusDate)));
+			commissionOrderDto.setState(ReviewKjStateEnum.REVIEW.toString());
 			commissionOrderDto.setCommissionState(CommissionStateEnum.YZY.toString());
 			return commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0
 					? new Response<CommissionOrderDTO>(0, commissionOrderDto)
