@@ -239,6 +239,7 @@
             co.code,
             co.service_order_id AS serviceOrderId,
             co.state,
+            co.commission_state AS commissionState,
             co.is_settle AS isSettle,
             co.is_deposit_user AS isDepositUser,
             co.school_id AS schoolId,
