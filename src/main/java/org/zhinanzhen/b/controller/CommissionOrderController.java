@@ -3,6 +3,7 @@ package org.zhinanzhen.b.controller;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -458,10 +459,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			stateList.add(state);
 
 		List<String> commissionStateList = null;
-		if (StringUtil.isNotEmpty(commissionState)) {
-			commissionStateList = new ArrayList<>();
-			commissionStateList.add(commissionState);
-		}
+		if (StringUtil.isNotEmpty(commissionState))
+			commissionStateList = Arrays.asList(commissionState.split(","));
 
 		try {
 			super.setGetHeader(response);
