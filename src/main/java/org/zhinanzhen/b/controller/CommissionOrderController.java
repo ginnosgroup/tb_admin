@@ -210,8 +210,6 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 						null);
 			CommissionOrderDTO commissionOrderDto = new CommissionOrderDTO();
 			commissionOrderDto.setId(id);
-			if (StringUtil.isNotEmpty(state))
-				commissionOrderDto.setState(state);
 			if (adminUserLoginInfo != null && "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& commissionState != null) { // 只有会计能修改佣金状态
 				commissionOrderDto
@@ -219,6 +217,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				if (CommissionStateEnum.YJY.toString().equalsIgnoreCase(commissionState))
 					state = ReviewKjStateEnum.COMPLETE.toString(); // 如果会计修改状态为已结佣，那么佣金订单状态需改成COMPLETE
 			}
+			if (StringUtil.isNotEmpty(state))
+				commissionOrderDto.setState(state);
 			if (isSettle != null)
 				commissionOrderDto.setSettle(isSettle);
 			if (isDepositUser != null)
@@ -296,7 +296,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	public Response<CommissionOrderDTO> kjUpdate(@RequestParam(value = "id") int id,
 			@RequestParam(value = "schoolPaymentAmount", required = false) String schoolPaymentAmount,
 			@RequestParam(value = "schoolPaymentDate", required = false) String schoolPaymentDate,
-			@RequestParam(value = "invoiceNumber", required = false) String invoiceNumber, HttpServletRequest request,
+			@RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
+			@RequestParam(value = "bonus", required = false) String bonus,
+			@RequestParam(value = "bonusDate", required = false) String bonusDate, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -314,7 +316,15 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				commissionOrderDto.setSchoolPaymentDate(new Date(Long.parseLong(schoolPaymentDate)));
 			if (StringUtil.isNotEmpty(invoiceNumber))
 				commissionOrderDto.setInvoiceNumber(invoiceNumber);
-			commissionOrderDto.setCommissionState(CommissionStateEnum.YZY.toString());
+			if (bonus != null)
+				commissionOrderDto.setBonus(Double.parseDouble(bonus));
+			if (bonusDate != null)
+				commissionOrderDto.setBonusDate(new Date(Long.parseLong(bonusDate)));
+			commissionOrderDto.setState(ReviewKjStateEnum.REVIEW.toString());
+			if (bonus != null && bonusDate != null)
+				commissionOrderDto.setCommissionState(CommissionStateEnum.YJY.toString());
+			else
+				commissionOrderDto.setCommissionState(CommissionStateEnum.YZY.toString());
 			return commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0
 					? new Response<CommissionOrderDTO>(0, commissionOrderDto)
 					: new Response<CommissionOrderDTO>(1, "修改失败.", null);
