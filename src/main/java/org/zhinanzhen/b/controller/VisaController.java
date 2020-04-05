@@ -153,6 +153,7 @@ public class VisaController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<VisaDTO> update(@RequestParam(value = "id") int id,
+			@RequestParam(value = "state", required = false) String state,
 			@RequestParam(value = "userId", required = false) String userId,
 			@RequestParam(value = "commissionState", required = false) String commissionState,
 			@RequestParam(value = "handlingDate", required = false) String handlingDate,
@@ -181,6 +182,8 @@ public class VisaController extends BaseCommissionOrderController {
 			if (adminUserLoginInfo != null && "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& commissionState != null) // 只有会计能修改佣金状态
 				visaDto.setCommissionState(CommissionStateEnum.get(commissionState.toUpperCase()).toString());
+			if (StringUtil.isNotEmpty(state))
+				visaDto.setState(state);
 			if (StringUtil.isNotEmpty(handlingDate)) {
 				visaDto.setHandlingDate(new Date(Long.parseLong(handlingDate)));
 			}
