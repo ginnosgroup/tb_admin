@@ -374,7 +374,7 @@
 														<td v-html="item.amount"></td>
 														<td v-html="item.expectAmount"></td>
 														<td v-html="item.bonus"></td>
-														<td v-html="item.payDate"></td>
+														<td v-html="item.bonusDate"></td>
 														<td v-html="item.adviserName"></td>
 														<td v-html="item.strState"></td>
 														<td>																
@@ -689,16 +689,22 @@
 			    		return false;
 					}
 					if (check_result)
-    			{
-    					$('#my_table #alert_error').css('marginLeft','40%');
-			    		$('#my_table #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
-			        $("#my_table #error_info").html('API接口还没有实现，等待中...');
-			    		return false;
+    			{    					
 			    		var str_url = "visa/kjUpdate";
        				var json = {};
        				json['id'] = v.orderId;
-       				json['bonus'] = t1;
-       				json['bonusDate'] = t2;
+       				json['bonus'] = $(f+'#t1').val();
+       				var t2 = $(f+'#t2').val();
+       				if (t2 != '')
+	        		{
+		          		var arr_d = t2.split("/");
+		          		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+		              var date = new Date(str_d);
+		              json['bonusDate'] = date.getTime();
+	          	}else
+	          	{
+       						json['bonusDate'] = 0;      				
+       				}
        				$.post(str_url, json,
 					   	function(data){
 					   			if (data.code == 0)
@@ -726,6 +732,7 @@
 						if (result.data[i].installment > 1) result.data[i].strOid += '-' + result.data[i].installmentNum;
 						result.data[i].gmtCreate = v.getTime1(result.data[i].gmtCreate);
 						result.data[i].receiveDate = result.data[i].receiveDate ? v.getTime(result.data[i].receiveDate):'';
+						result.data[i].bonusDate = result.data[i].bonusDate ? v.getTime(result.data[i].bonusDate):'';
 						result.data[i].serviceName = '签证-'+result.data[i].serviceCode;
 						result.data[i].payDate = '';//字段未添加，待修正
 						result.data[i].strState = return_state(result.data[i].state);
