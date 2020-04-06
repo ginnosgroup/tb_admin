@@ -320,11 +320,13 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				commissionOrderDto.setBonus(Double.parseDouble(bonus));
 			if (bonusDate != null)
 				commissionOrderDto.setBonusDate(new Date(Long.parseLong(bonusDate)));
-			commissionOrderDto.setState(ReviewKjStateEnum.REVIEW.toString());
-			if (bonus != null && bonusDate != null)
+			if (bonus != null && bonusDate != null) {
+				commissionOrderDto.setState(ReviewKjStateEnum.COMPLETE.toString());
 				commissionOrderDto.setCommissionState(CommissionStateEnum.YJY.toString());
-			else
+			} else {
+				commissionOrderDto.setState(ReviewKjStateEnum.REVIEW.toString());
 				commissionOrderDto.setCommissionState(CommissionStateEnum.YZY.toString());
+			}
 			return commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0
 					? new Response<CommissionOrderDTO>(0, commissionOrderDto)
 					: new Response<CommissionOrderDTO>(1, "修改失败.", null);

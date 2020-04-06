@@ -272,7 +272,7 @@ public class VisaController extends BaseCommissionOrderController {
 				visaDto.setBonus(Double.parseDouble(bonus));
 			if (bonusDate != null)
 				visaDto.setBonusDate(new Date(Long.parseLong(bonusDate)));
-			visaDto.setState(ReviewKjStateEnum.REVIEW.toString());
+			visaDto.setState(ReviewKjStateEnum.COMPLETE.toString());
 			visaDto.setCommissionState(CommissionStateEnum.YJY.toString());
 			return visaService.updateVisa(visaDto) > 0 ? new Response<VisaDTO>(0, visaDto)
 					: new Response<VisaDTO>(1, "修改失败.", null);
