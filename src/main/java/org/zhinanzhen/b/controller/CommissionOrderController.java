@@ -52,7 +52,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<List<CommissionOrderDTO>> add(@RequestParam(value = "serviceOrderId") Integer serviceOrderId,
-			@RequestParam(value = "state") String state, @RequestParam(value = "isSettle") Boolean isSettle,
+			@RequestParam(value = "state", required = false) String state, @RequestParam(value = "isSettle") Boolean isSettle,
 			@RequestParam(value = "isDepositUser") Boolean isDepositUser,
 			@RequestParam(value = "schoolId") Integer schoolId, @RequestParam(value = "studentCode") String studentCode,
 			@RequestParam(value = "userId") Integer userId, @RequestParam(value = "adviserId") Integer adviserId,
