@@ -419,10 +419,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			stateList.add(state);
 
 		List<String> commissionStateList = null;
-		if (StringUtil.isNotEmpty(commissionState)) {
-			commissionStateList = new ArrayList<>();
-			commissionStateList.add(commissionState);
-		}
+		if (StringUtil.isNotEmpty(commissionState))
+			commissionStateList = Arrays.asList(commissionState.split(","));
 
 		try {
 			super.setGetHeader(response);
