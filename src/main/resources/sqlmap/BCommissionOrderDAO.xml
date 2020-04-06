@@ -212,17 +212,17 @@
             AND co.is_settle = #{isSettle}
         </if>
         <if test='stateList != null'>
-			AND co.state IN
-			<foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">
-				#{stateList}
-			</foreach>
-		</if>
-		<if test='commissionStateList != null'>
-			AND co.commission_state IN
-			<foreach collection="commissionStateList" item="commissionStateList" index="index" open="(" close=")" separator=",">
-				#{commissionStateList}
-			</foreach>
-		</if>
+            AND co.state IN
+            <foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">
+                #{stateList}
+            </foreach>
+        </if>
+        <if test='commissionStateList != null'>
+            AND co.commission_state IN
+            <foreach collection="commissionStateList" item="commissionStateList" index="index" open="(" close=")" separator=",">
+                #{commissionStateList}
+            </foreach>
+        </if>
         ;
     </select>
     
@@ -304,18 +304,18 @@
             AND co.is_settle = #{isSettle}
         </if>
         <if test='stateList != null'>
-			AND co.state IN
-			<foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">
-				#{stateList}
-			</foreach>
-		</if>
-		<if test='commissionStateList != null'>
-			AND co.commission_state IN
-			<foreach collection="commissionStateList" item="commissionStateList" index="index" open="(" close=")" separator=",">
-				#{commissionStateList}
-			</foreach>
-		</if>
-        ORDER BY co.gmt_create, co.installment_num ASC
+            AND co.state IN
+            <foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">
+                #{stateList}
+            </foreach>
+        </if>
+        <if test='commissionStateList != null'>
+            AND co.commission_state IN
+            <foreach collection="commissionStateList" item="commissionStateList" index="index" open="(" close=")" separator=",">
+                #{commissionStateList}
+            </foreach>
+        </if>
+        ORDER BY co.gmt_create DESC, co.installment_num ASC
         LIMIT #{offset}, #{rows};
     </select>
     
