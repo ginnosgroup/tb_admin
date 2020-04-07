@@ -224,6 +224,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			}
 			if (StringUtil.isNotEmpty(state))
 				commissionOrderDto.setState(state);
+			else
+				commissionOrderDto.setState(ReviewKjStateEnum.REVIEW.toString()); // 修改后重新审核
 			if (isSettle != null)
 				commissionOrderDto.setSettle(isSettle);
 			if (isDepositUser != null)
@@ -288,7 +290,6 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			// 预收业绩
 			commissionOrderDto.setExpectAmount(
 					new BigDecimal(commission * 1.1).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-			commissionOrderDto.setState(ReviewKjStateEnum.REVIEW.toString()); // 修改后重新审核
 			return commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0
 					? new Response<CommissionOrderDTO>(0, commissionOrderDto)
 					: new Response<CommissionOrderDTO>(1, "修改失败.", null);
