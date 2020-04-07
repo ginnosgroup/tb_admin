@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.CommissionOrderService;
+import org.zhinanzhen.b.service.SchoolService;
 import org.zhinanzhen.b.service.SubagencyService;
 import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
@@ -41,6 +42,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	@Resource
 	SubagencyService subagencyService;
 
+	@Resource
+	SchoolService schoolService;
+
 	@RequestMapping(value = "/upload_img", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<String> uploadImage(@RequestParam MultipartFile file, HttpServletRequest request,
@@ -52,7 +56,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<List<CommissionOrderDTO>> add(@RequestParam(value = "serviceOrderId") Integer serviceOrderId,
-			@RequestParam(value = "state", required = false) String state, @RequestParam(value = "isSettle") Boolean isSettle,
+			@RequestParam(value = "state", required = false) String state,
+			@RequestParam(value = "isSettle") Boolean isSettle,
 			@RequestParam(value = "isDepositUser") Boolean isDepositUser,
 			@RequestParam(value = "schoolId") Integer schoolId, @RequestParam(value = "studentCode") String studentCode,
 			@RequestParam(value = "userId") Integer userId, @RequestParam(value = "adviserId") Integer adviserId,
@@ -320,7 +325,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				commissionOrderDto.setBonus(Double.parseDouble(bonus));
 			if (bonusDate != null)
 				commissionOrderDto.setBonusDate(new Date(Long.parseLong(bonusDate)));
-			if (bonus != null && bonusDate != null) {
+			if (bonus != null || bonusDate != null) {
 				commissionOrderDto.setState(ReviewKjStateEnum.COMPLETE.toString());
 				commissionOrderDto.setCommissionState(CommissionStateEnum.YJY.toString());
 			} else {
@@ -341,19 +346,18 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			CommissionOrderDTO commissionOrderDto = commissionOrderService.getCommissionOrderById(id);
-			int i = commissionOrderService.updateCommissionOrder(commissionOrderDto);
-			if (i > 0) {
-				return new Response<CommissionOrderDTO>(0, "修改成功.", commissionOrderDto);
-			} else if (i == -1) {
+			CommissionOrderListDTO commissionOrderListDto = commissionOrderService.getCommissionOrderById(id);
+			int i = schoolService.updateSchoolSetting(commissionOrderListDto); // 根据学校设置更新佣金值
+			if (i > 0)
+				return new Response<CommissionOrderDTO>(0, "修改成功.", commissionOrderListDto);
+			else if (i == -1)
 				return new Response<CommissionOrderDTO>(1, "修改失败. (佣金记录不存在)", null);
-			} else if (i == -2) {
+			else if (i == -2)
 				return new Response<CommissionOrderDTO>(2, "修改失败. (学校佣金设置不存在或不正确)", null);
-			} else if (i == -3) {
+			else if (i == -3)
 				return new Response<CommissionOrderDTO>(3, "修改失败. (佣金办理时间不在设置合同时间范围内)", null);
-			} else {
+			else
 				return new Response<CommissionOrderDTO>(4, "修改失败.", null);
-			}
 		} catch (ServiceException e) {
 			return new Response<CommissionOrderDTO>(e.getCode(), e.getMessage(), null);
 		}

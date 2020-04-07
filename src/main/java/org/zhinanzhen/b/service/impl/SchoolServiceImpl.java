@@ -10,10 +10,12 @@ import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.CommissionOrderDAO;
 import org.zhinanzhen.b.dao.SchoolDAO;
 import org.zhinanzhen.b.dao.SchoolSettingDAO;
+import org.zhinanzhen.b.dao.SubagencyDAO;
 import org.zhinanzhen.b.dao.SubjectSettingDAO;
-import org.zhinanzhen.b.dao.pojo.CommissionOrderDO;
+import org.zhinanzhen.b.dao.pojo.CommissionOrderListDO;
 import org.zhinanzhen.b.dao.pojo.SchoolDO;
 import org.zhinanzhen.b.dao.pojo.SchoolSettingDO;
+import org.zhinanzhen.b.dao.pojo.SubagencyDO;
 import org.zhinanzhen.b.dao.pojo.SubjectSettingDO;
 import org.zhinanzhen.b.service.SchoolService;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
@@ -40,6 +42,9 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 
 	@Resource
 	private CommissionOrderDAO commissionOrderDao;
+
+	@Resource
+	private SubagencyDAO subagencyDao;
 
 	@Override
 	public int addSchool(SchoolDTO schoolDto) throws ServiceException {
@@ -306,7 +311,8 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	}
 
 	private void schoolSetting1(String schoolName, Date startDate, Date endDate, String parameters) {
-		List<CommissionOrderDO> list = commissionOrderDao.listCommissionOrderBySchool(startDate, endDate, schoolName);
+		List<CommissionOrderListDO> list = commissionOrderDao.listCommissionOrderBySchool(startDate, endDate,
+				schoolName);
 		list.forEach(co -> {
 			double fee = co.getTuitionFee();
 			co.setCommission(fee * (Double.parseDouble(parameters.trim()) * 0.01));
@@ -324,7 +330,8 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 			return;
 		}
 		double proportion = Double.parseDouble(_parameters[0].trim());
-		List<CommissionOrderDO> list = commissionOrderDao.listCommissionOrderBySchool(startDate, endDate, schoolName);
+		List<CommissionOrderListDO> list = commissionOrderDao.listCommissionOrderBySchool(startDate, endDate,
+				schoolName);
 
 		for (int i = 1; i < _parameters.length; i++) {
 			String[] _parameter = _parameters[i].split("/");
@@ -357,7 +364,8 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 			return;
 		}
 		double proportion = Double.parseDouble(_parameters[0].trim());
-		List<CommissionOrderDO> list = commissionOrderDao.listCommissionOrderBySchool(startDate, endDate, schoolName);
+		List<CommissionOrderListDO> list = commissionOrderDao.listCommissionOrderBySchool(startDate, endDate,
+				schoolName);
 
 		for (int i = 1; i < _parameters.length; i++) {
 			String[] _parameter = _parameters[i].split("/");
@@ -383,7 +391,8 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		String[] _parameters = parameters.split("[|]");
 		if (_parameters.length == 1)
 			return;
-		List<CommissionOrderDO> list = commissionOrderDao.listCommissionOrderBySchool(startDate, endDate, schoolName);
+		List<CommissionOrderListDO> list = commissionOrderDao.listCommissionOrderBySchool(startDate, endDate,
+				schoolName);
 		for (int i = 1; i < _parameters.length; i++) {
 			String[] _parameter = _parameters[i].split("/");
 			if (_parameter.length == 2) {
@@ -414,7 +423,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		String[] _parameters = parameters.split("[|]");
 		if (_parameters.length == 1)
 			return;
-		List<CommissionOrderDO> list = commissionOrderDao.listCommissionOrderBySchool(startDate, endDate,
+		List<CommissionOrderListDO> list = commissionOrderDao.listCommissionOrderBySchool(startDate, endDate,
 				schoolSetting.getSchoolName());
 		for (int i = 1; i < _parameters.length; i++) {
 			String[] _parameter = _parameters[i].split("/");
@@ -448,7 +457,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 			listSubjectSetting(schoolSetting.getId()); // 初始化subjectSetting
 		} catch (ServiceException e) {
 		}
-		List<CommissionOrderDO> list = commissionOrderDao.listCommissionOrderBySchool(startDate, endDate,
+		List<CommissionOrderListDO> list = commissionOrderDao.listCommissionOrderBySchool(startDate, endDate,
 				schoolSetting.getSchoolName());
 		String[] _parameter = parameters.split("/");
 		if (_parameter.length == 2) {
@@ -477,7 +486,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 			listSubjectSetting(schoolSetting.getId()); // 初始化subjectSetting
 		} catch (ServiceException e) {
 		}
-		List<CommissionOrderDO> list = commissionOrderDao.listCommissionOrderBySchool(startDate, endDate,
+		List<CommissionOrderListDO> list = commissionOrderDao.listCommissionOrderBySchool(startDate, endDate,
 				schoolSetting.getSchoolName());
 		list.forEach(co -> {
 			SubjectSettingDO subjectSettingDo = subjectSettingDao.get(schoolSetting.getId(),
@@ -491,7 +500,10 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		});
 	}
 
-	private void updateGST(CommissionOrderDO co) {
+	private void updateGST(CommissionOrderListDO co) {
+		SubagencyDO subagencyDo = subagencyDao.getSubagencyById(co.getSubagencyId());
+		if (subagencyDo != null)
+			co.setCommission(co.getCommission() * subagencyDo.getCommissionRate());
 		co.setGst(co.getCommission() / 11);
 		co.setDeductGst(co.getCommission() - co.getGst());
 		co.setBonus(co.getDeductGst() * 0.1);

@@ -177,6 +177,9 @@
         <if test='bonus != null and bonus != ""'>
             , bonus = #{bonus}
         </if>
+        <if test='bonusDate != null'>
+            , bonus_date = #{bonusDate}
+        </if>
         <if test='remarks != null and remarks != ""'>
             , remarks = #{remarks}
         </if>
@@ -407,56 +410,60 @@
         FROM b_commission_order WHERE service_order_id = #{serviceOrderId};
     </select>
     
-    <select id="listCommissionOrderBySchool" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderDO">
+    <select id="listCommissionOrderBySchool" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderListDO">
         SELECT
-            bco.id,
-            bco.gmt_create AS gmtCreate,
-            bco.code,
-            bco.service_order_id AS serviceOrderId,
-            bco.state,
-            bco.commission_state AS commissionState,
-            bco.is_settle AS isSettle,
-            bco.is_deposit_user AS isDepositUser,
-            bco.school_id AS schoolId,
-            bco.student_code AS studentCode,
-            bco.user_id AS userId,
-            bco.adviser_id AS adviserId,
-            bco.official_id AS officialId,
-            bco.is_studying AS isStudying,
-            bco.installment_num AS installmentNum,
-            bco.installment,
-            bco.installment_due_date AS installmentDueDate,
-            bco.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
-            bco.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
-            bco.school_payment_amount AS schoolPaymentAmount,
-            bco.school_payment_date AS schoolPaymentDate,
-            bco.invoice_number AS invoiceNumber,
-            bco.start_date AS startDate,
-            bco.end_date AS endDate,
-            bco.commission,
-            bco.tuition_fee AS tuitionFee,
-            bco.per_term_tuition_fee AS perTermTuitionFee,
-            bco.receive_type_id AS receiveTypeId,
-            bco.receive_date AS receiveDate,
-            bco.per_amount AS perAmount,
-            bco.amount,
-            bco.expect_amount AS expectAmount,
-            bco.discount,
-            bco.gst,
-            bco.deduct_gst AS deductGst,
-            bco.bonus,
-            bco.bonus_date AS bonusDate,
-            bco.remarks,
-            bco.is_close AS isClose
-        FROM b_commission_order bco, b_school bs, tb_user tbu
-        WHERE bco.school_id = bs.id AND bco.user_id = tbu.id
+            co.id,
+            co.gmt_create AS gmtCreate,
+            co.code,
+            co.service_order_id AS serviceOrderId,
+            co.state,
+            co.commission_state AS commissionState,
+            co.is_settle AS isSettle,
+            co.is_deposit_user AS isDepositUser,
+            co.school_id AS schoolId,
+            co.student_code AS studentCode,
+            co.user_id AS userId,
+            co.adviser_id AS adviserId,
+            co.official_id AS officialId,
+            co.is_studying AS isStudying,
+            co.installment_num AS installmentNum,
+            co.installment,
+            co.installment_due_date AS installmentDueDate,
+            co.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+            co.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            co.school_payment_amount AS schoolPaymentAmount,
+            co.school_payment_date AS schoolPaymentDate,
+            co.invoice_number AS invoiceNumber,
+            co.start_date AS startDate,
+            co.end_date AS endDate,
+            co.commission,
+            co.tuition_fee AS tuitionFee,
+            co.per_term_tuition_fee AS perTermTuitionFee,
+            co.receive_type_id AS receiveTypeId,
+            co.receive_date AS receiveDate,
+            co.per_amount AS perAmount,
+            co.amount,
+            co.expect_amount AS expectAmount,
+            co.discount,
+            co.gst,
+            co.deduct_gst AS deductGst,
+            co.bonus,
+            co.bonus_date AS bonusDate,
+            co.remarks,
+            co.is_close AS isClose,
+            so.id AS serviceOrderId,
+            so.gmt_create AS signingDate,
+            so.subagency_id AS subagencyId,
+            so.service_id AS serviceId
+        FROM b_commission_order co, b_service_order so, b_school bs, tb_user tbu
+        WHERE co.service_order_id = so.id AND co.school_id = bs.id AND co.user_id = tbu.id
         <if test='startDate != null and endDate != null'>
-            <![CDATA[ AND bco.gmt_create > #{startDate} AND bco.gmt_create < #{endDate} ]]>
+            <![CDATA[ AND co.gmt_create > #{startDate} AND co.gmt_create < #{endDate} ]]>
         </if>
         <if test='schoolName != null and schoolName != ""'>
             AND bs.name = #{schoolName}
         </if>
-        ORDER BY bco.gmt_create DESC;
+        ORDER BY co.gmt_create DESC;
     </select>
     
     <select id="getCommissionOrderById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderListDO">

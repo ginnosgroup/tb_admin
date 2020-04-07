@@ -30,7 +30,7 @@ public interface CommissionOrderDAO {
 
 	public List<CommissionOrderDO> listCommissionOrderByServiceOrderId(Integer serviceOrderId);
 
-	List<CommissionOrderDO> listCommissionOrderBySchool(@Param("startDate") Date startDate,
+	List<CommissionOrderListDO> listCommissionOrderBySchool(@Param("startDate") Date startDate,
 			@Param("endDate") Date endDate, @Param("schoolName") String schoolName);
 
 	int updateCommissionOrder(CommissionOrderDO commissionOrderDo);
