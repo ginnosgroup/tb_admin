@@ -363,7 +363,7 @@
 												</thead>
 												<tbody>
 													<tr v-for="item in subject" class="gradeX">
-														<td v-html="item.oid"></td>
+														<td v-html="item.strHref"></td>
 														<td v-html="item.gmtCreate"></td>
 														<td v-html="item.receiveDate"></td>
 														<td v-html="item.userName"></td>
@@ -374,11 +374,11 @@
 														<td v-html="item.amount"></td>
 														<td v-html="item.expectAmount"></td>
 														<td v-html="item.bonus"></td>
-														<td v-html="item.payDate"></td>
+														<td v-html="item.bonusDate"></td>
 														<td v-html="item.adviserName"></td>
 														<td v-html="item.strState"></td>
 														<td>																
-																<a href="javascript:open_detail({{item.serviceOrderId}},{{item.oid}});">查看</a>
+																<a v-if="item.id" href="javascript:open_detail({{item.serviceOrderId}},{{item.oid}});">查看</a>
 																<dli v-if="ap_list==='KJ' && commission_state ==='DJY'">
 																		<dli v-if="item.id">
 																				<a href="javascript:;" @click="table_modify($index)"><span style="color:blue;">编辑</span></a>
@@ -504,7 +504,8 @@
 					getDatalist: function() {
 						var that = this;
 						$.get(url + "visa/count", {
-							keyword: that.name,							
+							keyword: that.name,
+							commissionState: that.commission_state							
 						}, function(result) {
 							that.count = result.data;
 							that.allPage = Math.ceil(result.data / that.pageSize);
@@ -512,6 +513,7 @@
 						$.get(url + "visa/list", {
 							pageNum: 0,
 							pageSize: that.pageSize,
+							commissionState: that.commission_state
 						}, function(result) {							
 							that.pageNum = 0;
 							result.data = return_result(result);
@@ -532,6 +534,7 @@
 						});
 						json['pageNum'] = 0;
 						json['pageSize'] = that.pageSize;
+						json['commissionState'] = that.commission_state;
 						$.get(url + "visa/list", json, function(result) {
 							that.pageNum = 0;
 							result.data = return_result(result);
@@ -575,7 +578,8 @@
 								keyword: that.name,
 								state: that.state,
 								pageNum: 0,
-								pageSize: that.pageSize
+								pageSize: that.pageSize,
+								commissionState: that.commission_state
 							}, function(result) {
 								console.log(result)
 								that.pageNum = 0;
@@ -591,7 +595,8 @@
 							$.get(url + "visa/list", {
 								keyword: that.name,
 								pageNum: that.pageNum,
-								pageSize: that.pageSize
+								pageSize: that.pageSize,
+								commissionState: that.commission_state
 							}, function(result) {
 								console.log(result)
 								result.data = return_result(result);
@@ -607,7 +612,8 @@
 								keyword: that.name,
 								state: that.state,
 								pageNum: that.pageNum,
-								pageSize: that.pageSize
+								pageSize: that.pageSize,
+								commissionState: that.commission_state
 							}, function(result) {
 								console.log(result)
 								result.data = return_result(result);
@@ -622,7 +628,8 @@
 								keyword: that.name,
 								state: that.state,
 								pageNum: that.allPage - 1,
-								pageSize: that.pageSize
+								pageSize: that.pageSize,
+								commissionState: that.commission_state
 							}, function(result) {
 								console.log(result)
 								that.pageNum = that.allPage - 1;
@@ -651,7 +658,7 @@
 							amount: this.subject[index].amount,
 							expectAmount: this.subject[index].expectAmount,
 							bonus: '<input type="text" class="form-control small" style="width:120px;" id="t1" value="'+this.subject[index].bonus+'">',
-							payDate: '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:120px;" id="t2" data-date-format="dd-mm-yyyy" value="'+this.subject[index].payDate+'">',
+							bonusDate: '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:120px;" id="t2" data-date-format="dd-mm-yyyy" value="'+this.subject[index].bonusDate+'">',
 							adviserName: this.subject[index].adviserName,
 							strState: this.subject[index].strState,
 						});															
@@ -689,16 +696,22 @@
 			    		return false;
 					}
 					if (check_result)
-    			{
-    					$('#my_table #alert_error').css('marginLeft','40%');
-			    		$('#my_table #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
-			        $("#my_table #error_info").html('API接口还没有实现，等待中...');
-			    		return false;
+    			{    					
 			    		var str_url = "visa/kjUpdate";
        				var json = {};
        				json['id'] = v.orderId;
-       				json['bonus'] = t1;
-       				json['bonusDate'] = t2;
+       				json['bonus'] = $(f+'#t1').val();
+       				var t2 = $(f+'#t2').val();
+       				if (t2 != '')
+	        		{
+		          		var arr_d = t2.split("/");
+		          		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+		              var date = new Date(str_d);
+		              json['bonusDate'] = date.getTime();
+	          	}else
+	          	{
+       						json['bonusDate'] = 0;      				
+       				}
        				$.post(str_url, json,
 					   	function(data){
 					   			if (data.code == 0)
@@ -723,9 +736,12 @@
 			{
 				for(var i = 0; i < result.data.length; i++) {
 						result.data[i].oid = result.data[i].id;
-						if (result.data[i].installment > 1) result.data[i].strOid += '-' + result.data[i].installmentNum;
+						result.data[i].strOid = '';
+						if (result.data[i].installment > 1) result.data[i].strOid = '-' + result.data[i].installmentNum;
+						result.data[i].strHref = '<a href="javascript:open_detail('+result.data[i].serviceOrderId+','+result.data[i].id+');" title="查看详细">'+result.data[i].id+result.data[i].strOid+'</a>';
 						result.data[i].gmtCreate = v.getTime1(result.data[i].gmtCreate);
 						result.data[i].receiveDate = result.data[i].receiveDate ? v.getTime(result.data[i].receiveDate):'';
+						result.data[i].bonusDate = result.data[i].bonusDate ? v.getTime(result.data[i].bonusDate):'';
 						result.data[i].serviceName = '签证-'+result.data[i].serviceCode;
 						result.data[i].payDate = '';//字段未添加，待修正
 						result.data[i].strState = return_state(result.data[i].state);
@@ -792,7 +808,9 @@
 							window.location.href = "mycommission-accounting.html?commission_state="+v.commission_state;
 					}else
 					{
-							window.location.href = "mycommission-ovst-accounting.html?commission_state="+v.commission_state;
+							var str_list= '';
+							if (v.commission_state == 'DJY') str_list = '&list=DJY,DZY,YZY';
+							window.location.href = "mycommission-ovst-accounting.html?commission_state="+v.commission_state+str_list;
 					}
 			}
 			
