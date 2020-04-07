@@ -224,6 +224,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			}
 			if (StringUtil.isNotEmpty(state))
 				commissionOrderDto.setState(state);
+			else
+				commissionOrderDto.setState(ReviewKjStateEnum.REVIEW.toString()); // 修改后重新审核
 			if (isSettle != null)
 				commissionOrderDto.setSettle(isSettle);
 			if (isDepositUser != null)

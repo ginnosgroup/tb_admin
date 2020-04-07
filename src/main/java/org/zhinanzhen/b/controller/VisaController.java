@@ -184,6 +184,8 @@ public class VisaController extends BaseCommissionOrderController {
 				visaDto.setCommissionState(CommissionStateEnum.get(commissionState.toUpperCase()).toString());
 			if (StringUtil.isNotEmpty(state))
 				visaDto.setState(state);
+			else
+				visaDto.setState(ReviewKjStateEnum.REVIEW.toString()); // 修改后重新审核
 			if (StringUtil.isNotEmpty(handlingDate)) {
 				visaDto.setHandlingDate(new Date(Long.parseLong(handlingDate)));
 			}
@@ -241,7 +243,6 @@ public class VisaController extends BaseCommissionOrderController {
 			visaDto.setBonus(visaDto.getDeductGst() * 0.1);
 			visaDto.setExpectAmount(
 					new BigDecimal(commission * 1.1).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-			visaDto.setState(ReviewKjStateEnum.REVIEW.toString()); // 修改后重新审核
 			if (visaService.updateVisa(visaDto) > 0) {
 				return new Response<VisaDTO>(0, visaDto);
 			} else {
