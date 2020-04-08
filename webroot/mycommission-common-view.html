@@ -90,7 +90,7 @@
 										$<label id="b16" style="width:65px;"></label>
 									</div>
 									<div class="form-group" style="">
-										<label class="control-label"><strong>预收业绩</strong></label>
+										<label class="control-label"><strong>预收业绩(<span style="color:#FF6C60;">Commission含GST</span>)：</strong></label>
 										$<label id="b17" style="width:50px;"></label>
 									</div>
 							</div>
@@ -113,7 +113,7 @@
 					<div class="modal-footer" style="text-align: center;">
 							<dle v-if="ap_list==='GW'">									
 									<dle v-if="state==='PENDING'">
-									<button onclick="$('#show_visa_id').modal('hide');reqCommissionVisa(v_sub.serviceId,v_sub.orderId);" type="button" class="btn btn-primary">申请佣金</button>
+									<button onclick="$('#show_visa_id').modal('hide');reqCommissionVisa(v_sub.serviceId,v_sub.orderId);" type="button" class="btn btn-primary">申请月奖</button>
 									</dle>
 							</dle>													
 							<button onclick="" type="button" class="btn btn-default" data-dismiss="modal">关闭</button>

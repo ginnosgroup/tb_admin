@@ -138,7 +138,7 @@
 												$<input type="text" autocomplete="off" id="c31" class="form-control" onkeyup="computeDiscount2()" style="width:100px;font-weight:normal;">
 											</div>
 											<div class="form-group" style="margin-top:10px;margin-left:150px;">
-												<label class="control-label">预收业绩</label>
+												<label class="control-label">预收业绩(<span style="color:#FF6C60;">Commission含GST</span>)</label>
 												$<input type="text" autocomplete="off" disabled="disabled" id="c32" class="form-control" style="width:100px;font-weight:normal;">
 											</div>									
 									</div>
@@ -157,7 +157,7 @@
 									<dle v-if="state==='PENDING' || state==='WAIT'">																	
 									<div id="show_pic" style="display:none;padding-bottom:10px;"></div>
 									<button onclick="upload_receipt_pic('f1c')" id="upload_certificate" type="button" class="btn btn-danger" style="display:;">上传收款凭证</button>
-									<button onclick="requestCommissionSave()" id="btn_request" type="button" class="btn btn-primary">申请佣金</button>									
+									<button onclick="requestCommissionSave()" id="btn_request" type="button" class="btn btn-primary">申请月奖</button>									
 									<button onclick="requestCommissionClose();" id="btn_close" type="button" style="display:none;" class="btn btn-primary">关闭订单</button>
 									</dle>
 							</dle>													

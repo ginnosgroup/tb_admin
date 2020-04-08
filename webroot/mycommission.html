@@ -356,7 +356,7 @@
 														<th>本次收款</th>
 														<th>预收业绩(<span style="color:#FF6C60;">Commission含GST</span>)</th>														
 														<th>月奖</th>
-														<th>佣金支付时间</th>
+														<th>月奖支付时间</th>
 														<th>顾问</th>
 														<th>状态</th>
 														<th>操作</th>
@@ -383,7 +383,7 @@
 																<a href="javascript:open_detail({{item.serviceOrderId}},{{item.oid}});">查看</a>
 																<dle v-if="ap_list==='GW'">
 																		<d1 v-if="item.currentState==='PENDING' || item.currentState==='WAIT'">
-																				<a href="javascript:reqCommissionVisa({{item.serviceOrderId}},{{item.oid}})"><span style="color:blue;">申请佣金</span></a>
+																				<a href="javascript:reqCommissionVisa({{item.serviceOrderId}},{{item.oid}})"><span style="color:blue;">申请月奖</span></a>
 																		</d1>
 																</dle>
 														</td>
