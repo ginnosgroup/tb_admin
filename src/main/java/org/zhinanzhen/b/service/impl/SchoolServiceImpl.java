@@ -542,9 +542,20 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		SubagencyDO subagencyDo = subagencyDao.getSubagencyById(co.getSubagencyId());
 		if (subagencyDo != null)
 			co.setExpectAmount(co.getCommission() * subagencyDo.getCommissionRate() * 1.1);
+		else
+			co.setExpectAmount(co.getCommission() * 1.1);
+		if (subagencyDo != null)
+			LOG.info(co.getId() + "预收业绩=学校设置计算金额[" + co.getCommission() + "]*subagencyRate["
+					+ subagencyDo.getCommissionRate() + "]*1.1=" + co.getExpectAmount());
+		else
+			LOG.info(co.getId() + "预收业绩=学校设置计算金额[" + co.getCommission() + "]*1.1=" + co.getExpectAmount());
 		co.setGst(co.getExpectAmount() / 11);
+		LOG.info(co.getId() + "GST=预收业绩[" + co.getExpectAmount() + "]/11=" + co.getExpectAmount());
 		co.setDeductGst(co.getExpectAmount() - co.getGst());
+		LOG.info(co.getId() + "DeductGST=预收业绩[" + co.getExpectAmount() + "]-GST[" + co.getGst() + "]="
+				+ co.getDeductGst());
 		co.setBonus(co.getDeductGst() * 0.1);
+		LOG.info(co.getId() + "月奖=DeductGST[" + co.getDeductGst() + "]*1.1=" + co.getBonus());
 	}
 
 }
