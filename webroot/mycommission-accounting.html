@@ -304,6 +304,9 @@
 													<input type="text" name="user_name" id="user_name" class="form-control" style="width:150px;">													
 											</div>
 											<div class="form-group">
+													<label>顾问</label>
+													<select v-model.trim="adviserId" id="adviserId" class="form-control" style="width:130px;">
+													</select>
 													<label>服务项目</label>											
 													<select id="type" class="form-control" style="width:130px;" onchange="gotoUrl(this.value);">
 													<option value="VISA" selected="true">签证</option>
@@ -510,7 +513,11 @@
 						var that = this;
 						var json = {};
 						if (that.userId != '0') json['userId'] = that.userId;
-						if (that.adviserId != '0') json['adviserId'] = that.adviserId;						
+						if (that.adviserId != '0')
+						{
+								json['adviserId'] = that.adviserId;
+								v.adviser_id = that.adviserId;
+						}
 						if (that.type != '') json['type'] = that.type;
 						if (that.state != '') json['state'] = that.state;
 						$.get(url + "visa/count", json, function(result) {
@@ -783,7 +790,25 @@
 			    		v.userId = object.id;  		
 			    	},
 			    	minLength: 1						    	
-			    });			    
+			    });
+			    //绑定顾问
+				  var obj_adviserId = $("#adviserId");
+				  $("#adviserId").empty();
+	        obj_adviserId.append("<option value='0'>全部</option>");
+			    $.ajax({
+	          url: 'adviser/list?pageNum=0&pageSize=100000',
+	          type: 'GET',
+	          async: false,
+	          dataType: 'json'
+	        }).done(function(response) {
+	        	//author:bischina
+	        	response = response.data;
+	        	for (var item in response)
+	        	{
+	        			obj_adviserId.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+	        	}
+	        	obj_adviserId.val(v.adviser_id);	
+	        });			    
 			});
 			
 			function gotoUrl(va)
