@@ -7,6 +7,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.zhinanzhen.b.controller.BaseCommissionOrderController.ReviewKjStateEnum;
 import org.zhinanzhen.b.dao.CommissionOrderDAO;
 import org.zhinanzhen.b.dao.SchoolDAO;
 import org.zhinanzhen.b.dao.SchoolSettingDAO;
@@ -314,9 +315,9 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		List<CommissionOrderListDO> list = commissionOrderDao.listCommissionOrderBySchool(startDate, endDate,
 				schoolName);
 		list.forEach(co -> {
-			double fee = co.getSchoolPaymentAmount();
+			double fee = co.getAmount();
 			co.setCommission(fee * (Double.parseDouble(parameters.trim()) * 0.01));
-			LOG.info(co.getId() + "学校设置计算=学校支付金额[" + fee + "]*设置参数[" + parameters + "]*0.01=" + co.getCommission());
+			LOG.info(co.getId() + "学校设置计算=本次收款金额[" + fee + "]*设置参数[" + parameters + "]*0.01=" + co.getCommission());
 			updateGST(co);
 			commissionOrderDao.updateCommissionOrder(co);
 		});
@@ -342,12 +343,12 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 				if (list.size() >= min && list.size() <= max) {
 					double _fee = Double.parseDouble(_parameter[0]);
 					list.forEach(co -> {
-						double fee = co.getSchoolPaymentAmount();
+						double fee = co.getAmount();
 						co.setCommission(fee * (proportion * 0.01) + _fee);
 						// System.out.print(bs.getId() + " : " + fee + " * ( 1 -
 						// " + proportion + " * 0.01 ) + " + _fee + " = " +
 						// bs.getCommission());
-						LOG.info(co.getId() + "学校设置计算=学校支付金额[" + fee + "]*(设置比例[" + proportion + "]*0.01)+设置金额[" + _fee
+						LOG.info(co.getId() + "学校设置计算=本次收款金额[" + fee + "]*(设置比例[" + proportion + "]*0.01)+设置金额[" + _fee
 								+ "]=" + co.getCommission());
 						updateGST(co);
 						commissionOrderDao.updateCommissionOrder(co);
@@ -377,9 +378,9 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 				if (list.size() >= number) {
 					double _fee = Double.parseDouble(_parameter[0]);
 					list.forEach(co -> {
-						double fee = co.getSchoolPaymentAmount();
+						double fee = co.getAmount();
 						co.setCommission(fee * (proportion * 0.01) + _fee);
-						LOG.info(co.getId() + "学校设置计算=学校支付金额[" + fee + "]*(设置比例[" + proportion + "]*0.01)+设置金额[" + _fee
+						LOG.info(co.getId() + "学校设置计算=本次收款金额[" + fee + "]*(设置比例[" + proportion + "]*0.01)+设置金额[" + _fee
 								+ "]=" + co.getCommission());
 						updateGST(co);
 						commissionOrderDao.updateCommissionOrder(co);
@@ -405,9 +406,9 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 				if (list.size() >= number) {
 					double proportion = Double.parseDouble(_parameter[0].trim());
 					list.forEach(co -> {
-						double fee = co.getSchoolPaymentAmount();
+						double fee = co.getAmount();
 						co.setCommission(fee * (proportion * 0.01));
-						LOG.info(co.getId() + "学校设置计算=学校支付金额[" + fee + "]*(设置比例[" + proportion + "]*0.01)="
+						LOG.info(co.getId() + "学校设置计算=本次收款金额[" + fee + "]*(设置比例[" + proportion + "]*0.01)="
 								+ co.getCommission());
 						updateGST(co);
 						commissionOrderDao.updateCommissionOrder(co);
@@ -445,8 +446,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 							co.setCommission(
 									subjectSettingDo.getPrice() > _fee ? subjectSettingDo.getPrice() - _fee : 0.00);
 						else
-							co.setCommission(
-									co.getSchoolPaymentAmount() > _fee ? co.getSchoolPaymentAmount() - _fee : 0.00); // 正常情况下是不会执行到这里的
+							co.setCommission(co.getAmount() > _fee ? co.getAmount() - _fee : 0.00); // 正常情况下是不会执行到这里的
 						// 打印日志
 						if (subjectSettingDo != null)
 							if (subjectSettingDo.getPrice() > _fee)
@@ -454,9 +454,9 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 										+ "]=" + co.getCommission());
 							else
 								LOG.info(co.getId() + "学校设置计算=0.00=" + co.getCommission());
-						else if (co.getSchoolPaymentAmount() > _fee)
-							LOG.info(co.getId() + "学校设置计算=学校支付金额[" + co.getSchoolPaymentAmount() + "]-参数金额[" + _fee
-									+ "]=" + co.getCommission());
+						else if (co.getAmount() > _fee)
+							LOG.info(co.getId() + "学校设置计算=本次收款金额[" + co.getAmount() + "]-参数金额[" + _fee + "]="
+									+ co.getCommission());
 						else
 							LOG.info(co.getId() + "学校设置计算=0.00=" + co.getCommission());
 						updateGST(co);
@@ -491,8 +491,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 						co.setCommission(
 								subjectSettingDo.getPrice() > _fee ? subjectSettingDo.getPrice() - _fee : 0.00);
 					else
-						co.setCommission(
-								co.getSchoolPaymentAmount() > _fee ? co.getSchoolPaymentAmount() - _fee : 0.00); // 正常情况下是不会执行到这里的
+						co.setCommission(co.getAmount() > _fee ? co.getAmount() - _fee : 0.00); // 正常情况下是不会执行到这里的
 					// 打印日志
 					if (subjectSettingDo != null)
 						if (subjectSettingDo.getPrice() > _fee)
@@ -500,8 +499,8 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 									+ co.getCommission());
 						else
 							LOG.info(co.getId() + "学校设置计算=0.00=" + co.getCommission());
-					else if (co.getSchoolPaymentAmount() > _fee)
-						LOG.info(co.getId() + "学校设置计算=学校支付金额[" + co.getSchoolPaymentAmount() + "]-参数金额[" + _fee + "]="
+					else if (co.getAmount() > _fee)
+						LOG.info(co.getId() + "学校设置计算=本次收款金额[" + co.getAmount() + "]-参数金额[" + _fee + "]="
 								+ co.getCommission());
 					else
 						LOG.info(co.getId() + "学校设置计算=0.00=" + co.getCommission());
@@ -527,12 +526,12 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 			if (subjectSettingDo != null)
 				co.setCommission(subjectSettingDo.getPrice());
 			else
-				co.setCommission(co.getSchoolPaymentAmount()); // 正常情况下是不会执行到这里的
+				co.setCommission(co.getAmount()); // 正常情况下是不会执行到这里的
 			// 打印日志
 			if (subjectSettingDo != null)
 				LOG.info(co.getId() + "学校设置计算=学校设置金额[" + subjectSettingDo.getPrice() + "]=" + co.getCommission());
 			else
-				LOG.info(co.getId() + "学校设置计算=学校支付金额[" + co.getSchoolPaymentAmount() + "]=" + co.getCommission());
+				LOG.info(co.getId() + "学校设置计算=本次收款金额[" + co.getAmount() + "]=" + co.getCommission());
 			updateGST(co);
 			commissionOrderDao.updateCommissionOrder(co);
 		});
@@ -554,8 +553,10 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		co.setDeductGst(co.getExpectAmount() - co.getGst());
 		LOG.info(co.getId() + "DeductGST=预收业绩[" + co.getExpectAmount() + "]-GST[" + co.getGst() + "]="
 				+ co.getDeductGst());
-		co.setBonus(co.getDeductGst() * 0.1);
-		LOG.info(co.getId() + "月奖=DeductGST[" + co.getDeductGst() + "]*1.1=" + co.getBonus());
+		if (!ReviewKjStateEnum.COMPLETE.toString().equalsIgnoreCase(co.getState())) {
+			co.setBonus(co.getDeductGst() * 0.1);
+			LOG.info(co.getId() + "月奖=DeductGST[" + co.getDeductGst() + "]*1.1=" + co.getBonus());
+		}
 	}
 
 }
