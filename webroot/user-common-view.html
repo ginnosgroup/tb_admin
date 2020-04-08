@@ -292,7 +292,7 @@
 									<div class="form-group" style="display:block;margin-top:10px;">
 											<div class="form-group">
 												<label class="control-label" style="width:150px;">本次应收学费<span style="color:red;">*</span></label>
-												$<input type="text" autocomplete="off" id="c29" class="form-control" onkeyup="computeDiscount()" style="width:100px;font-weight:normal;">
+												$<input type="text" autocomplete="off" id="c29" class="form-control" onkeyup="computeDiscount(this.value)" style="width:100px;font-weight:normal;">
 											</div>
 											<div class="form-group" style="margin-left:10px;">
 												<label class="control-label">折扣</label>
@@ -300,11 +300,11 @@
 											</div>
 											<div class="form-group" style="margin-left:10px;">
 												<label class="control-label">本次收款</label>
-												$<input type="text" autocomplete="off" id="c31" class="form-control" onkeyup="computeDiscount()" style="width:100px;font-weight:normal;">
+												$<input type="text" autocomplete="off" id="c31" class="form-control" onkeyup="computeDiscount(this.value)" style="width:100px;font-weight:normal;">
 											</div>
 											<div class="form-group" style="margin-top:10px;margin-left:150px;">
 												<label class="control-label">预收业绩</label>
-												$<input type="text" autocomplete="off" disabled="disabled" id="c32" class="form-control" style="width:100px;font-weight:normal;">
+												$<input type="text" autocomplete="off" disabled="disabled" id="c32" class="form-control" style="width:100px;font-weight:normal;">&nbsp;(“预收业绩”仅供参考，具体以会计结算为准。)
 											</div>									
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">
@@ -624,12 +624,7 @@ v.$watch('addnewservice2_bind', function(obj) {
     	{
     			receive_type.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
     	}        	 	    
-    });
-    //相关金额
-    $("#show_addnewservice2_id #c31").keyup(function(){
-    	var fee = $("#show_addnewservice2_id #c31").val();    		
-    	$("#show_addnewservice2_id #c32").val(fee);	        	
-		});
+    });    
 });
 
 function setInstallment(va)
@@ -811,7 +806,7 @@ function reqCommissionOvst()
     }
 }
 
-function computeDiscount()
+function computeDiscount(v)
 {
 		var perAmount = $("#show_addnewservice2_id #c29").val();
 		var amount = $("#show_addnewservice2_id #c31").val();
@@ -819,6 +814,12 @@ function computeDiscount()
 		{				
 				var discount = parseInt(perAmount) - parseInt(amount);
 				$("#show_addnewservice2_id #c30").val(discount);
+		}
+		//计算预收佣金
+		if (parseInt(amount))
+		{
+				var expect_amount = (parseInt(amount)*1.1).toFixed(2);
+				$("#show_addnewservice2_id #c32").val(expect_amount);
 		}
 }
 
