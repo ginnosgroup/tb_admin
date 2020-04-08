@@ -7,7 +7,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
-import org.zhinanzhen.b.controller.BaseCommissionOrderController.ReviewKjStateEnum;
+import org.zhinanzhen.b.controller.BaseCommissionOrderController.CommissionStateEnum;
 import org.zhinanzhen.b.dao.CommissionOrderDAO;
 import org.zhinanzhen.b.dao.SchoolDAO;
 import org.zhinanzhen.b.dao.SchoolSettingDAO;
@@ -553,7 +553,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		co.setDeductGst(co.getExpectAmount() - co.getGst());
 		LOG.info(co.getId() + "DeductGST=预收业绩[" + co.getExpectAmount() + "]-GST[" + co.getGst() + "]="
 				+ co.getDeductGst());
-		if (!ReviewKjStateEnum.COMPLETE.toString().equalsIgnoreCase(co.getState())) {
+		if (!CommissionStateEnum.YJY.toString().equalsIgnoreCase(co.getCommissionState())) {
 			co.setBonus(co.getDeductGst() * 0.1);
 			LOG.info(co.getId() + "月奖=DeductGST[" + co.getDeductGst() + "]*1.1=" + co.getBonus());
 		}
