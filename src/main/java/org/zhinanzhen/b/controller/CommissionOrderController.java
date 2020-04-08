@@ -133,24 +133,24 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			if (StringUtil.isNotEmpty(remarks))
 				commissionOrderDto.setRemarks(remarks);
 
-//			SubagencyDTO subagencyDto = subagencyService.getSubagencyById(serviceOrderDto.getSubagencyId());
-//			if (subagencyDto == null)
-//				return new Response<List<CommissionOrderDTO>>(1,
-//						"Subagency(" + serviceOrderDto.getSubagencyId() + ")不存在!", null);
-//			// 佣金
-//			commissionOrderDto.setCommission(commissionOrderDto.getAmount());
-//			// 预收业绩
-//			Double expectAmount = commissionOrderDto.getAmount() * subagencyDto.getCommissionRate()  * 1.1;
-//			commissionOrderDto.setExpectAmount(expectAmount);
-//			// GST
-//			commissionOrderDto
-//					.setGst(new BigDecimal(expectAmount / 11).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-//			// Deduct GST
-//			commissionOrderDto.setDeductGst(new BigDecimal(expectAmount - commissionOrderDto.getGst())
-//					.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-//			// Bonus
-//			commissionOrderDto.setBonus(new BigDecimal(commissionOrderDto.getDeductGst() * 0.1)
-//					.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			SubagencyDTO subagencyDto = subagencyService.getSubagencyById(serviceOrderDto.getSubagencyId());
+			if (subagencyDto == null)
+				return new Response<List<CommissionOrderDTO>>(1,
+						"Subagency(" + serviceOrderDto.getSubagencyId() + ")不存在!", null);
+			// 佣金
+			commissionOrderDto.setCommission(commissionOrderDto.getAmount());
+			// 预收业绩
+			Double expectAmount = commissionOrderDto.getAmount() * subagencyDto.getCommissionRate() * 1.1;
+			commissionOrderDto.setExpectAmount(expectAmount);
+			// GST
+			commissionOrderDto
+					.setGst(new BigDecimal(expectAmount / 11).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			// Deduct GST
+			commissionOrderDto.setDeductGst(new BigDecimal(expectAmount - commissionOrderDto.getGst())
+					.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			// Bonus
+			commissionOrderDto.setBonus(new BigDecimal(commissionOrderDto.getDeductGst() * 0.1)
+					.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 
 			for (int installmentNum = 1; installmentNum <= installment; installmentNum++) {
 				commissionOrderDto.setInstallmentNum(installmentNum);
@@ -271,26 +271,26 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			commissionOrderDto.setDiscount(_perAmount - commissionOrderDto.getAmount());
 			if (StringUtil.isNotEmpty(remarks))
 				commissionOrderDto.setRemarks(remarks);
-			
-//			SubagencyDTO subagencyDto = subagencyService.getSubagencyById(serviceOrderDto.getSubagencyId());
-//			if (subagencyDto == null)
-//				return new Response<CommissionOrderDTO>(1, "Subagency(" + serviceOrderDto.getSubagencyId() + ")不存在!",
-//						null);
-//			// 佣金
-//			commissionOrderDto.setCommission(commissionOrderDto.getAmount());
-//			// 预收业绩
-//			Double expectAmount = commissionOrderDto.getAmount() * subagencyDto.getCommissionRate() * 1.1;
-//			commissionOrderDto.setExpectAmount(expectAmount);
-//			// GST
-//			commissionOrderDto
-//					.setGst(new BigDecimal(expectAmount / 11).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-//			// Deduct GST
-//			commissionOrderDto.setDeductGst(new BigDecimal(expectAmount - commissionOrderDto.getGst())
-//					.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-//			// Bonus
-//			commissionOrderDto.setBonus(new BigDecimal(commissionOrderDto.getDeductGst() * 0.1)
-//					.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-			
+
+			SubagencyDTO subagencyDto = subagencyService.getSubagencyById(serviceOrderDto.getSubagencyId());
+			if (subagencyDto == null)
+				return new Response<CommissionOrderDTO>(1, "Subagency(" + serviceOrderDto.getSubagencyId() + ")不存在!",
+						null);
+			// 佣金
+			commissionOrderDto.setCommission(commissionOrderDto.getAmount());
+			// 预收业绩
+			Double expectAmount = commissionOrderDto.getAmount() * subagencyDto.getCommissionRate() * 1.1;
+			commissionOrderDto.setExpectAmount(expectAmount);
+			// GST
+			commissionOrderDto
+					.setGst(new BigDecimal(expectAmount / 11).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			// Deduct GST
+			commissionOrderDto.setDeductGst(new BigDecimal(expectAmount - commissionOrderDto.getGst())
+					.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			// Bonus
+			commissionOrderDto.setBonus(new BigDecimal(commissionOrderDto.getDeductGst() * 0.1)
+					.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+
 			return commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0
 					? new Response<CommissionOrderDTO>(0, commissionOrderDto)
 					: new Response<CommissionOrderDTO>(1, "修改失败.", null);
