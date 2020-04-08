@@ -140,7 +140,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 //			// 佣金
 //			commissionOrderDto.setCommission(commissionOrderDto.getAmount());
 //			// 预收业绩
-//			Double expectAmount = commissionOrderDto.getAmount() * subagencyDto.getCommissionRate()  * 1.1;
+//			Double expectAmount = commissionOrderDto.getAmount() * subagencyDto.getCommissionRate() * 1.1;
 //			commissionOrderDto.setExpectAmount(expectAmount);
 //			// GST
 //			commissionOrderDto
@@ -152,6 +152,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 //			commissionOrderDto.setBonus(new BigDecimal(commissionOrderDto.getDeductGst() * 0.1)
 //					.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 
+			String msg = "";
 			for (int installmentNum = 1; installmentNum <= installment; installmentNum++) {
 				commissionOrderDto.setInstallmentNum(installmentNum);
 				if (installmentNum == 1 && installmentDueDate1 != null)
@@ -162,12 +163,25 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate3)));
 				else
 					break;
-				if (commissionOrderService.addCommissionOrder(commissionOrderDto) > 0)
+				int id = commissionOrderService.addCommissionOrder(commissionOrderDto);
+				if (id > 0) {
 					commissionOrderDtoList.add(commissionOrderDto);
+					CommissionOrderListDTO commissionOrderListDto = commissionOrderService.getCommissionOrderById(id);
+					int i = schoolService.updateSchoolSetting(commissionOrderListDto); // 根据学校设置更新佣金值
+					if (i > 0) {
+					} else if (i == -1)
+						msg += id + "计算失败. (佣金记录不存在);";
+					else if (i == -2)
+						msg += id + "计算失败. (学校佣金设置不存在或不正确);";
+					else if (i == -3)
+						msg += id + "计算失败. (佣金办理时间不在设置合同时间范围内);";
+					else
+						msg += id + "计算失败. ;";
+				}
 			}
 			serviceOrderDto.setSubmitted(true);
 			serviceOrderService.updateServiceOrder(serviceOrderDto); // 同时更改服务订单状态
-			return new Response<List<CommissionOrderDTO>>(0, commissionOrderDtoList);
+			return new Response<List<CommissionOrderDTO>>(0, msg, commissionOrderDtoList);
 		} catch (ServiceException e) {
 			return new Response<List<CommissionOrderDTO>>(e.getCode(), e.getMessage(), null);
 		}
@@ -271,7 +285,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			commissionOrderDto.setDiscount(_perAmount - commissionOrderDto.getAmount());
 			if (StringUtil.isNotEmpty(remarks))
 				commissionOrderDto.setRemarks(remarks);
-			
+
 //			SubagencyDTO subagencyDto = subagencyService.getSubagencyById(serviceOrderDto.getSubagencyId());
 //			if (subagencyDto == null)
 //				return new Response<CommissionOrderDTO>(1, "Subagency(" + serviceOrderDto.getSubagencyId() + ")不存在!",
@@ -287,13 +301,25 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 //			// Deduct GST
 //			commissionOrderDto.setDeductGst(new BigDecimal(expectAmount - commissionOrderDto.getGst())
 //					.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-//			// Bonus
+			// Bonus
 //			commissionOrderDto.setBonus(new BigDecimal(commissionOrderDto.getDeductGst() * 0.1)
 //					.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-			
-			return commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0
-					? new Response<CommissionOrderDTO>(0, commissionOrderDto)
-					: new Response<CommissionOrderDTO>(1, "修改失败.", null);
+
+			String msg = "";
+			if (commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0) {
+				int i = schoolService.updateSchoolSetting(commissionOrderListDto); // 根据学校设置更新佣金值
+				if (i > 0) {
+				} else if (i == -1)
+					msg += id + "计算失败. (佣金记录不存在);";
+				else if (i == -2)
+					msg += id + "计算失败. (学校佣金设置不存在或不正确);";
+				else if (i == -3)
+					msg += id + "计算失败. (佣金办理时间不在设置合同时间范围内);";
+				else
+					msg += id + "计算失败. ;";
+				return new Response<CommissionOrderDTO>(0, msg, commissionOrderDto);
+			} else
+				return new Response<CommissionOrderDTO>(1, "修改失败.", null);
 		} catch (ServiceException e) {
 			return new Response<CommissionOrderDTO>(e.getCode(), e.getMessage(), null);
 		}
@@ -352,15 +378,15 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			CommissionOrderListDTO commissionOrderListDto = commissionOrderService.getCommissionOrderById(id);
 			int i = schoolService.updateSchoolSetting(commissionOrderListDto); // 根据学校设置更新佣金值
 			if (i > 0)
-				return new Response<CommissionOrderDTO>(0, "修改成功.", commissionOrderListDto);
+				return new Response<CommissionOrderDTO>(0, "计算成功.", commissionOrderListDto);
 			else if (i == -1)
-				return new Response<CommissionOrderDTO>(1, "修改失败. (佣金记录不存在)", null);
+				return new Response<CommissionOrderDTO>(1, "计算失败. (佣金记录不存在)", null);
 			else if (i == -2)
-				return new Response<CommissionOrderDTO>(2, "修改失败. (学校佣金设置不存在或不正确)", null);
+				return new Response<CommissionOrderDTO>(2, "计算失败. (学校佣金设置不存在或不正确)", null);
 			else if (i == -3)
-				return new Response<CommissionOrderDTO>(3, "修改失败. (佣金办理时间不在设置合同时间范围内)", null);
+				return new Response<CommissionOrderDTO>(3, "计算失败. (佣金办理时间不在设置合同时间范围内)", null);
 			else
-				return new Response<CommissionOrderDTO>(4, "修改失败.", null);
+				return new Response<CommissionOrderDTO>(4, "计算失败.", null);
 		} catch (ServiceException e) {
 			return new Response<CommissionOrderDTO>(e.getCode(), e.getMessage(), null);
 		}
