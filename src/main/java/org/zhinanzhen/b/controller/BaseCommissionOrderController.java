@@ -21,7 +21,7 @@ public class BaseCommissionOrderController extends BaseController {
 	}
 
 	public enum CommissionStateEnum {
-		DJY, YJY, DZY, YZY, TQKY;
+		DJY, YJY, DZY, YZY;
 		public static CommissionStateEnum get(String name) {
 			for (CommissionStateEnum e : CommissionStateEnum.values())
 				if (e.toString().equals(name))
