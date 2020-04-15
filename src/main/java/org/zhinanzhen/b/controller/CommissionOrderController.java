@@ -236,8 +236,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			if (serviceOrderDto.getSubagencyId() <= 0)
 				return new Response<CommissionOrderDTO>(1, "SubagencyId(" + serviceOrderDto.getSubagencyId() + ")不存在!",
 						null);
-			CommissionOrderDTO commissionOrderDto = new CommissionOrderDTO();
-			commissionOrderDto.setId(id);
+			CommissionOrderDTO commissionOrderDto = commissionOrderService.getCommissionOrderById(id);
+			if (commissionOrderDto == null)
+				return new Response<CommissionOrderDTO>(1, "佣金订单不存在,修改失败.", null);
 			if (adminUserLoginInfo != null && "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& commissionState != null) { // 只有会计能修改佣金状态
 				commissionOrderDto
@@ -415,8 +416,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			CommissionOrderDTO commissionOrderDto = new CommissionOrderDTO();
-			commissionOrderDto.setId(id);
+			CommissionOrderDTO commissionOrderDto = commissionOrderService.getCommissionOrderById(id);
+			if (commissionOrderDto == null)
+				return new Response<CommissionOrderDTO>(1, "佣金订单不存在,修改失败.", null);
 			commissionOrderDto.setState(ReviewKjStateEnum.CLOSE.toString());
 			if (isStudying != null)
 				commissionOrderDto.setStudying(isStudying);
