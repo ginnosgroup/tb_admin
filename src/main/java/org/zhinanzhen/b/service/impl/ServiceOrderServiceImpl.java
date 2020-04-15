@@ -320,8 +320,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		if (serviceOrderReviewDtoList != null && serviceOrderReviewDtoList.size() > 0)
 			serviceOrderDto.setReview(serviceOrderReviewDtoList.get(0));
 		if (serviceOrderDto.getReview() != null && serviceOrderDto.getReview().getAdviserState() != null) {
-			serviceOrderDto.setState(serviceOrderDto.getReview().getAdviserState());
-			serviceOrderDao.updateServiceOrder(mapper.map(serviceOrderDto, ServiceOrderDO.class));
+			ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(serviceOrderDto.getId());
+			serviceOrderDo.setState(serviceOrderDto.getReview().getAdviserState());
+			serviceOrderDao.updateServiceOrder(serviceOrderDo);
 		}
 	}
 
