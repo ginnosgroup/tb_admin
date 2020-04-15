@@ -235,6 +235,12 @@
         WHERE bco.school_id = bs.id AND bs.name = #{schoolName};
     </select>
     
+    <select id="countCommissionOrderByServiceOrderIdAndExcludeCode" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM b_commission_order
+        WHERE service_order_id #{serviceOrderId} AND code is not #{code};
+    </select>
+    
     <select id="listCommissionOrder" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderListDO">
         SELECT
             co.id,

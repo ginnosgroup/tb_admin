@@ -19,6 +19,9 @@ public interface CommissionOrderDAO {
 
 	int countCommissionOrderBySchoolName(@Param("schoolName") String schoolName);
 
+	int countCommissionOrderByServiceOrderIdAndExcludeCode(@Param("serviceOrderId") Integer serviceOrderId,
+			@Param("code") String code);
+
 	public List<CommissionOrderListDO> listCommissionOrder(@Param("maraId") Integer maraId,
 			@Param("adviserId") Integer adviserId, @Param("officialId") Integer officialId, @Param("name") String name,
 			@Param("phone") String phone, @Param("wechatUsername") String wechatUsername,

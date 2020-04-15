@@ -160,13 +160,14 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			// commissionOrderDto.setBonus(new
 			// BigDecimal(commissionOrderDto.getDeductGst() * 0.1)
 			// .setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-
+			
 			String msg = "";
 			for (int installmentNum = 1; installmentNum <= installment; installmentNum++) {
 				commissionOrderDto.setInstallmentNum(installmentNum);
-				if (installmentNum == 1 && installmentDueDate1 != null)
+				if (installmentNum == 1 && installmentDueDate1 != null) {
 					commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate1)));
-				else if (installmentNum == 2 && installmentDueDate2 != null)
+					commissionOrderDto.setState(ReviewKjStateEnum.REVIEW.toString()); // 第一笔单子直接进入财务审核状态
+				} else if (installmentNum == 2 && installmentDueDate2 != null)
 					commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate2)));
 				else if (installmentNum == 3 && installmentDueDate3 != null)
 					commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate3)));
