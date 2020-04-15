@@ -221,9 +221,6 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			if (serviceOrderDo == null)
 				return null;
 			serviceOrderDto = mapper.map(serviceOrderDo, ServiceOrderDTO.class);
-			serviceOrderDto.setSettle(serviceOrderDo.isSettle());
-			serviceOrderDto.setDepositUser(serviceOrderDo.isDepositUser());
-			serviceOrderDto.setPay(serviceOrderDo.isPay());
 			// 查询学校课程
 			if (serviceOrderDto.getSchoolId() > 0) {
 				SchoolDO schoolDo = schoolDao.getSchoolById(serviceOrderDto.getSchoolId());
