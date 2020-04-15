@@ -226,8 +226,9 @@ public class ServiceOrderController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			ServiceOrderDTO serviceOrderDto = new ServiceOrderDTO();
-			serviceOrderDto.setId(id);
+			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
+			if (serviceOrderDto == null)
+				return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
 			if (StringUtil.isNotEmpty(type))
 				serviceOrderDto.setType(type);
 			if (StringUtil.isNotEmpty(serviceId))
@@ -308,8 +309,9 @@ public class ServiceOrderController extends BaseController {
 				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
 						&& !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 					return new Response<Integer>(1, "仅限文案修改.", null);
-			ServiceOrderDTO serviceOrderDto = new ServiceOrderDTO();
-			serviceOrderDto.setId(id);
+			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
+			if (serviceOrderDto == null)
+				return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl))
 				serviceOrderDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl);
 			if (StringUtil.isNotEmpty(visaVoucherImageUrl))
