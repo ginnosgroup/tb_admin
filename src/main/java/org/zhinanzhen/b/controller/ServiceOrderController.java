@@ -134,12 +134,11 @@ public class ServiceOrderController extends BaseController {
 			if (StringUtil.isNotEmpty(schoolId))
 				serviceOrderDto.setSchoolId(StringUtil.toInt(schoolId));
 			serviceOrderDto.setState(ReviewAdviserStateEnum.PENDING.toString());
-			if (isSettle != null)
-				serviceOrderDto.setSettle("true".equalsIgnoreCase(isSettle));
+			serviceOrderDto.setSettle(isSettle != null && "true".equalsIgnoreCase(isSettle));
 			serviceOrderDto.setDepositUser(isDepositUser != null && "true".equalsIgnoreCase(isDepositUser));
 			if (StringUtil.isNotEmpty(subagencyId))
 				serviceOrderDto.setSubagencyId(StringUtil.toInt(subagencyId));
-			serviceOrderDto.setPay(isPay != null && "true".equalsIgnoreCase(isPay));
+			serviceOrderDto.setPay("true".equalsIgnoreCase(isPay));
 			if (StringUtil.isNotEmpty(receiveTypeId))
 				serviceOrderDto.setReceiveTypeId(StringUtil.toInt(receiveTypeId));
 			if (StringUtil.isNotEmpty(receiveDate))
@@ -235,11 +234,14 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setServiceId(StringUtil.toInt(serviceId));
 			if (StringUtil.isNotEmpty(schoolId))
 				serviceOrderDto.setSchoolId(StringUtil.toInt(schoolId));
-			serviceOrderDto.setSettle(isSettle != null && "true".equalsIgnoreCase(isSettle));
-			serviceOrderDto.setDepositUser(isDepositUser != null && "true".equalsIgnoreCase(isDepositUser));
+			if (isSettle != null)
+				serviceOrderDto.setSettle("true".equalsIgnoreCase(isSettle));
+			if (isDepositUser != null)
+				serviceOrderDto.setDepositUser("true".equalsIgnoreCase(isDepositUser));
 			if (StringUtil.isNotEmpty(subagencyId))
 				serviceOrderDto.setSubagencyId(StringUtil.toInt(subagencyId));
-			serviceOrderDto.setPay(isPay != null && "true".equalsIgnoreCase(isPay));
+			if (isPay != null)
+				serviceOrderDto.setPay("true".equalsIgnoreCase(isPay));
 			if (StringUtil.isNotEmpty(receiveTypeId))
 				serviceOrderDto.setReceiveTypeId(StringUtil.toInt(receiveTypeId));
 			if (StringUtil.isNotEmpty(receiveDate))
