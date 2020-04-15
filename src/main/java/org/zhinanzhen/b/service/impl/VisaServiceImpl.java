@@ -68,6 +68,11 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
+		if (visaDao.countVisaByServiceOrderIdAndExcludeCode(visaDto.getServiceOrderId(), visaDto.getCode()) > 0) {
+			ServiceException se = new ServiceException("已创建过佣金订单,不能重复创建!");
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
 		try {
 			VisaDO visaDo = mapper.map(visaDto, VisaDO.class);
 			if (visaDao.addVisa(visaDo) > 0) {

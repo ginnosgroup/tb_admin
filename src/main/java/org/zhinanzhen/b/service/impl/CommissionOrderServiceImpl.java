@@ -85,7 +85,7 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			}
 			if (commissionOrderDao.countCommissionOrderByServiceOrderIdAndExcludeCode(
 					commissionOrderDo.getServiceOrderId(), commissionOrderDo.getCode()) > 0) {
-				ServiceException se = new ServiceException("已创建过佣金订单!");
+				ServiceException se = new ServiceException("已创建过佣金订单,不能重复创建!");
 				se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 				throw se;
 			}
