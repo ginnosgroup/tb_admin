@@ -83,6 +83,12 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 				se.setCode(ErrorCodeEnum.DATA_ERROR.code());
 				throw se;
 			}
+			if (commissionOrderDao.countCommissionOrderByServiceOrderIdAndExcludeCode(
+					commissionOrderDo.getServiceOrderId(), commissionOrderDo.getCode()) > 0) {
+				ServiceException se = new ServiceException("已创建过佣金订单!");
+				se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+				throw se;
+			}
 			if (commissionOrderDao.addCommissionOrder(commissionOrderDo) > 0) {
 				commissionOrderDto.setId(commissionOrderDo.getId());
 				ServiceOrderReviewDO serviceOrderReviewDo = serviceOrderReviews.get(0);
