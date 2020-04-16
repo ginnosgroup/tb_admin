@@ -101,7 +101,7 @@
 							<hr/>
 							<div class="form-group" style="width:100%;line-height:40px;">
 								<label class="control-label"><strong>备注：</strong></label>
-								<label id="b18"></label>
+								<label id="b18" style="word-break:break-all;"></label>
 							</div>
 							<div>
 									<div style="text-align: center;">流程进度条...待实现...</div>
@@ -238,7 +238,7 @@
 							<hr/>
 							<div class="form-group" style="width:100%;line-height:40px;">
 									<label class="control-label"><strong>备注：</strong></label>
-									<label id="c16"></label>									
+									<label id="c16" style="word-break:break-all;"></label>									
 							</div>							
 							<div id="show_reqcommission" v-if="flowstate_wa==='PAID' && ap_list === 'GW' && !submitted" style="width:100%;margin-bottom:10px;display:;">
 									<hr/>
@@ -768,6 +768,8 @@ function reqCommissionOvst()
        	//json['expectAmount'] = jqInputs[12].value;
        	json['remarks'] = jqTextarea[0].value;
        	//console.log(json);
+       	//console.log(jqInputs);
+       	//return false;
        	//校验是否上传了凭证
        	var flist = $("#show_addnewservice2_id #flist1").val();
        	if (flist != '')
