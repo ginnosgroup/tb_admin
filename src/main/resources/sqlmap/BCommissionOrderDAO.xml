@@ -156,25 +156,25 @@
         <if test='receiveDate != null'>
             , receive_date = #{receiveDate}
         </if>
-        <if test='perAmount != null and perAmount != ""'>
+        <if test='perAmount != null and perAmount > 0'>
             , per_amount = #{perAmount}
         </if>
-        <if test='amount != null and amount != ""'>
+        <if test='amount != null and amount > 0'>
             , amount = #{amount}
         </if>
-        <if test='expectAmount != null and expectAmount != ""'>
+        <if test='expectAmount != null and expectAmount > 0'>
             , expect_amount = #{expectAmount}
         </if>
-        <if test='discount != null and discount != ""'>
+        <if test='discount != null and discount > 0'>
             , discount = #{discount}
         </if>
-        <if test='gst != null and gst != ""'>
+        <if test='gst != null and gst > 0'>
             , gst = #{gst}
         </if>
-        <if test='deductGst != null and deductGst != ""'>
+        <if test='deductGst != null and deductGst > 0'>
             , deduct_gst = #{deductGst}
         </if>
-        <if test='bonus != null and bonus != ""'>
+        <if test='bonus != null and bonus > 0'>
             , bonus = #{bonus}
         </if>
         <if test='bonusDate != null'>
@@ -190,13 +190,13 @@
         SELECT count(*)
         FROM b_commission_order co, b_service_order so, tb_user u
         WHERE co.service_order_id = so.id AND co.user_id = u.id
-        <if test='maraId != null and maraId != ""'>
+        <if test='maraId != null and maraId > 0'>
             AND so.mara_id = #{maraId}
         </if>
-        <if test='adviserId != null and adviserId != ""'>
+        <if test='adviserId != null and adviserId > 0'>
             AND co.adviser_id = #{adviserId}
         </if>
-        <if test='officialId != null and officialId != ""'>
+        <if test='officialId != null and officialId > 0'>
             AND co.official_id = #{officialId}
         </if>
         <if test='name != null and name != ""'>
@@ -208,7 +208,7 @@
         <if test='wechatUsername != null and wechatUsername != ""'>
             AND u.wechat_username = #{wechatUsername}
         </if>
-        <if test='schoolId != null and schoolId != ""'>
+        <if test='schoolId != null and schoolId > 0'>
             AND co.school_id = #{schoolId}
         </if>
         <if test='isSettle != null'>
@@ -288,13 +288,13 @@
             so.service_id AS serviceId
         FROM b_commission_order co, b_service_order so, tb_user u
         WHERE co.service_order_id = so.id AND co.user_id = u.id
-        <if test='maraId != null and maraId != ""'>
+        <if test='maraId != null and maraId > 0'>
             AND so.mara_id = #{maraId}
         </if>
-        <if test='adviserId != null and adviserId != ""'>
+        <if test='adviserId != null and adviserId > 0'>
             AND co.adviser_id = #{adviserId}
         </if>
-        <if test='officialId != null and officialId != ""'>
+        <if test='officialId != null and officialId > 0'>
             AND co.official_id = #{officialId}
         </if>
         <if test='name != null and name != ""'>
@@ -306,7 +306,7 @@
         <if test='wechatUsername != null and wechatUsername != ""'>
             AND u.wechat_username = #{wechatUsername}
         </if>
-        <if test='schoolId != null and schoolId != ""'>
+        <if test='schoolId != null and schoolId > 0'>
             AND co.school_id = #{schoolId}
         </if>
         <if test='isSettle != null'>
