@@ -51,7 +51,7 @@
                 #{code},
                 #{serviceOrderId},
                 #{state},
-                'DJY',
+                #{commissionState},
                 #{isSettle},
                 #{isDepositUser},
                 #{schoolId},
