@@ -458,27 +458,32 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		Integer newOfficialId = getOfficialId(request);
 		if (newOfficialId != null)
 			officialId = newOfficialId;
+		
+		List<String> commissionStateList = null;
+		if (StringUtil.isNotEmpty(commissionState))
+			commissionStateList = Arrays.asList(commissionState.split(","));
 
 		// 会计角色过滤状态
+		Boolean isYzyAndYjy = false;
 		List<String> stateList = new ArrayList<>();
 		if (state == null && getKjId(request) != null) {
 			stateList.add(ReviewKjStateEnum.REVIEW.toString());
 			stateList.add(ReviewKjStateEnum.FINISH.toString());
 			stateList.add(ReviewKjStateEnum.COMPLETE.toString());
 			stateList.add(ReviewKjStateEnum.CLOSE.toString());
+			if (CommissionStateEnum.YZY.toString().equalsIgnoreCase(commissionState)) {
+				commissionStateList = null;
+				isYzyAndYjy = true;
+			}
 		} else if (state == null)
 			stateList = null;
 		else
 			stateList.add(state);
 
-		List<String> commissionStateList = null;
-		if (StringUtil.isNotEmpty(commissionState))
-			commissionStateList = Arrays.asList(commissionState.split(","));
-
 		try {
 			super.setGetHeader(response);
 			return new Response<Integer>(0, commissionOrderService.countCommissionOrder(maraId, adviserId, officialId,
-					name, phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList));
+					name, phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList, isYzyAndYjy));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -508,28 +513,34 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		Integer newOfficialId = getOfficialId(request);
 		if (newOfficialId != null)
 			officialId = newOfficialId;
+		
+		List<String> commissionStateList = null;
+		if (StringUtil.isNotEmpty(commissionState))
+			commissionStateList = Arrays.asList(commissionState.split(","));
 
 		// 会计角色过滤状态
+		Boolean isYzyAndYjy = false;
 		List<String> stateList = new ArrayList<>();
 		if (state == null && getKjId(request) != null) {
 			stateList.add(ReviewKjStateEnum.REVIEW.toString());
 			stateList.add(ReviewKjStateEnum.FINISH.toString());
 			stateList.add(ReviewKjStateEnum.COMPLETE.toString());
 			stateList.add(ReviewKjStateEnum.CLOSE.toString());
+			if (CommissionStateEnum.YZY.toString().equalsIgnoreCase(commissionState)) {
+				commissionStateList = null;
+				isYzyAndYjy = true;
+			}
 		} else if (state == null)
 			stateList = null;
 		else
 			stateList.add(state);
 
-		List<String> commissionStateList = null;
-		if (StringUtil.isNotEmpty(commissionState))
-			commissionStateList = Arrays.asList(commissionState.split(","));
-
 		try {
 			super.setGetHeader(response);
 			return new Response<List<CommissionOrderListDTO>>(0,
 					commissionOrderService.listCommissionOrder(maraId, adviserId, officialId, name, phone,
-							wechatUsername, schoolId, isSettle, stateList, commissionStateList, pageNum, pageSize));
+							wechatUsername, schoolId, isSettle, stateList, commissionStateList, isYzyAndYjy, pageNum,
+							pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<CommissionOrderListDTO>>(1, e.getMessage(), null);
 		}
