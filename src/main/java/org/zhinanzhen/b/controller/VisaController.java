@@ -3,6 +3,7 @@ package org.zhinanzhen.b.controller;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -289,6 +290,7 @@ public class VisaController extends BaseCommissionOrderController {
 	public Response<Integer> countVisa(@RequestParam(value = "keyword", required = false) String keyword,
 			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
 			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
+			@RequestParam(value = "commissionState", required = false) String commissionState,
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
@@ -310,10 +312,14 @@ public class VisaController extends BaseCommissionOrderController {
 			stateList.add(ReviewKjStateEnum.CLOSE.toString());
 		}
 
+		List<String> commissionStateList = null;
+		if (StringUtil.isNotEmpty(commissionState))
+			commissionStateList = Arrays.asList(commissionState.split(","));
+
 		try {
 			super.setGetHeader(response);
 			return new Response<Integer>(0, visaService.countVisa(keyword, startHandlingDate, endHandlingDate,
-					stateList, startDate, endDate, adviserId, userId));
+					stateList, commissionStateList, startDate, endDate, adviserId, userId));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -324,6 +330,7 @@ public class VisaController extends BaseCommissionOrderController {
 	public Response<List<VisaDTO>> listVisa(@RequestParam(value = "keyword", required = false) String keyword,
 			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
 			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
+			@RequestParam(value = "commissionState", required = false) String commissionState,
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
@@ -346,10 +353,14 @@ public class VisaController extends BaseCommissionOrderController {
 			stateList.add(ReviewKjStateEnum.CLOSE.toString());
 		}
 
+		List<String> commissionStateList = null;
+		if (StringUtil.isNotEmpty(commissionState))
+			commissionStateList = Arrays.asList(commissionState.split(","));
+
 		try {
 			super.setGetHeader(response);
 			return new Response<List<VisaDTO>>(0, visaService.listVisa(keyword, startHandlingDate, endHandlingDate,
-					stateList, startDate, endDate, adviserId, userId, pageNum, pageSize));
+					stateList, commissionStateList, startDate, endDate, adviserId, userId, pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<VisaDTO>>(1, e.getMessage(), null);
 		}

@@ -168,6 +168,12 @@
 				#{stateList}
 			</foreach>
 		</if>
+		<if test='commissionList != null'>
+			AND commission_state IN
+			<foreach collection="commissionList" item="commissionList" index="index" open="(" close=")" separator=",">
+				#{commissionList}
+			</foreach>
+		</if>
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
             <![CDATA[ AND gmt_create > #{startDate} AND gmt_create < #{endDate} ]]>
         </if>
@@ -234,6 +240,12 @@
 			AND state IN
 			<foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">
 				#{stateList}
+			</foreach>
+		</if>
+		<if test='commissionList != null'>
+			AND commission_state IN
+			<foreach collection="commissionList" item="commissionList" index="index" open="(" close=")" separator=",">
+				#{commissionList}
 			</foreach>
 		</if>
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
