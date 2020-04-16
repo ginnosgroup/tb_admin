@@ -427,6 +427,7 @@ function show_addnewservice_id(orderId,type)
         	$('#show_addnewservice1_id #b15').html(response.gst);
         	$('#show_addnewservice1_id #b16').html(response.deductGst);
         	$('#show_addnewservice1_id #b17').html(response.expectAmount);
+        	if (response.remarks) response.remarks = url_replace(response.remarks);
         	$('#show_addnewservice1_id #b18').html(response.remarks);
         	//签证凭证
         	if (response.visaVoucherImageUrl)
@@ -503,6 +504,7 @@ function show_addnewservice_id(orderId,type)
         	$('#show_addnewservice2_id #c13').html(response.receivable);
         	$('#show_addnewservice2_id #c14').html(response.discount);
         	$('#show_addnewservice2_id #c15').html(response.received);
+        	if (response.remarks) response.remarks = url_replace(response.remarks);
         	$('#show_addnewservice2_id #c16').html(response.remarks);
         	//CEO付款凭证
         	if (response.paymentVoucherImageUrl3)
@@ -745,7 +747,7 @@ function reqCommissionOvst()
       	{
       			d = 0;
       	}
-       	json['installmentDueDate3'] = d;//installment Date1
+       	json['installmentDueDate3'] = d;//installment Date3
        	json['tuitionFee'] = jqInputs[6].value;
        	json['perTermTuitionFee'] = jqInputs[7].value;
        	if (jqInputs[8].value != '')

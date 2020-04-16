@@ -186,6 +186,7 @@ function show_commission_detail(serviceId,orderId)
 	        	$('#show_visa_id #b15').html(response.gst);
 	        	$('#show_visa_id #b16').html(response.deductGst);
 	        	$('#show_visa_id #b17').html(response.expectAmount);
+	        	if (response.remarks) response.remarks = url_replace(response.remarks);
 	        	$('#show_visa_id #b18').html(response.remarks);
 	        	//生成收款凭证列表
 						var str_flist = '';

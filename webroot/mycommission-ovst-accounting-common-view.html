@@ -248,6 +248,7 @@ function show_commission_detail(serviceId,orderId)
 			    	$('#show_ovst_id #c30').html(response.discount);
 			    	$('#show_ovst_id #c31').html(response.amount);
 			    	$('#show_ovst_id #c32').html(response.expectAmount);
+			    	if (response.remarks) response.remarks = url_replace(response.remarks);
 			    	$('#show_ovst_id #c33').html(response.remarks);
 	    	}
     	});
