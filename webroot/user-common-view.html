@@ -854,7 +854,7 @@ $('#show_addnewservice1_id #f1a').live('change', function (e) {
             		//更新签证凭证
             		var json = {};
             		json['visaVoucherImageUrl'] = pic_url;
-            		var str_url = 'serviceOrder/updateVisaVoucherImageUrl?id='+v.orderId;
+            		var str_url = 'serviceOrder/updateVoucherImageUrl?id='+v.orderId;
             		$.post(str_url, json,
 		   					function(data1){
 		   							if (data1.code = '0')
