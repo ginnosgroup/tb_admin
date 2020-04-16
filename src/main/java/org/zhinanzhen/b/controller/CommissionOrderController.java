@@ -97,8 +97,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			commissionOrderDto.setServiceOrderId(serviceOrderId);
 			if (StringUtil.isNotEmpty(state))
 				commissionOrderDto.setState(state);
-			else
-				commissionOrderDto.setState(ReviewKjStateEnum.PENDING.toString());
+//			else
+//				commissionOrderDto.setState(ReviewKjStateEnum.PENDING.toString());
 			if (isSettle)
 				commissionOrderDto.setCommissionState(CommissionStateEnum.DJY.toString());
 			else
