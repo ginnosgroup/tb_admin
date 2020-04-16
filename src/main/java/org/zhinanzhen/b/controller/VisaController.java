@@ -137,16 +137,14 @@ public class VisaController extends BaseCommissionOrderController {
 
 			for (int installmentNum = 1; installmentNum <= installment; installmentNum++) {
 				visaDto.setInstallmentNum(installmentNum);
-				if (installmentNum == 1)
-					visaDto.setState(ReviewKjStateEnum.REVIEW.toString()); // 第一笔单子直接进入财务审核状态
-				else
-					visaDto.setState(ReviewKjStateEnum.PENDING.toString()); // 第一笔单子直接进入财务审核状态
-				if (visaService.addVisa(visaDto) > 0)
-					visaDtoList.add(visaDto);
 				if (installmentNum > 1) { // 只给第一个添加支付凭证
 					visaDto.setPaymentVoucherImageUrl1(null);
 					visaDto.setPaymentVoucherImageUrl2(null);
-				}
+					visaDto.setState(ReviewKjStateEnum.PENDING.toString()); // 第一笔单子直接进入财务审核状态
+				} else
+					visaDto.setState(ReviewKjStateEnum.REVIEW.toString()); // 第一笔单子直接进入财务审核状态
+				if (visaService.addVisa(visaDto) > 0)
+					visaDtoList.add(visaDto);
 			}
 			return new Response<List<VisaDTO>>(0, visaDtoList);
 		} catch (ServiceException e) {

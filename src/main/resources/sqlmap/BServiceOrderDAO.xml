@@ -139,13 +139,13 @@
         <if test='visaVoucherImageUrl != null'>
             , visa_voucher_image_url = #{visaVoucherImageUrl}
         </if>
-        <if test='perAmount != null'>
+        <if test='perAmount > 0'>
             , per_amount = #{perAmount}
         </if>
-        <if test='amount != null'>
+        <if test='amount > 0'>
             , amount = #{amount}
         </if>
-        <if test='expectAmount != null'>
+        <if test='expectAmount > 0'>
             , expect_amount = #{expectAmount}
         </if>
         <if test='gst != null'>
