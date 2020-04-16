@@ -738,7 +738,7 @@
 						result.data[i].payDate = '';//字段未添加，待修正
 						result.data[i].strState = return_state(result.data[i].state);
 						result.data[i].currentState = result.data[i].state;
-						result.data[i].remarks = url_replace(result.data[i].remarks);
+						if (result.data[i].remarks) result.data[i].remarks = url_replace(result.data[i].remarks);
 				};
 				return result.data;
 			}						
