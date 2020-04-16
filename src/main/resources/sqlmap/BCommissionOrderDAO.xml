@@ -226,6 +226,9 @@
                 #{commissionStateList}
             </foreach>
         </if>
+        <if test='isYzyAndYjy != null'>
+            AND co.commission_state = 'YZY' OR (co.commission_state = 'YJY' AND co.is_settle = false)
+        </if>
         ;
     </select>
     
@@ -323,6 +326,9 @@
             <foreach collection="commissionStateList" item="commissionStateList" index="index" open="(" close=")" separator=",">
                 #{commissionStateList}
             </foreach>
+        </if>
+        <if test='isYzyAndYjy != null'>
+            AND co.commission_state = 'YZY' OR (co.commission_state = 'YJY' AND co.is_settle = false)
         </if>
         ORDER BY co.gmt_create DESC, co.installment_num ASC
         LIMIT #{offset}, #{rows};

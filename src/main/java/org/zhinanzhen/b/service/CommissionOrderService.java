@@ -14,11 +14,11 @@ public interface CommissionOrderService {
 
 	public int countCommissionOrder(Integer maraId, Integer adviserId, Integer officialId, String name, String phone,
 			String wechatUsername, Integer schoolId, Boolean isSettle, List<String> stateList,
-			List<String> commissionStateList) throws ServiceException;
+			List<String> commissionStateList, Boolean isYzyAndYjy) throws ServiceException;
 
 	public List<CommissionOrderListDTO> listCommissionOrder(Integer maraId, Integer adviserId, Integer officialId,
 			String name, String phone, String wechatUsername, Integer schoolId, Boolean isSettle,
-			List<String> stateList, List<String> commissionStateList, int pageNum, int pageSize)
+			List<String> stateList, List<String> commissionStateList, Boolean isYzyAndYjy, int pageNum, int pageSize)
 			throws ServiceException;
 
 	CommissionOrderListDTO getCommissionOrderById(int id) throws ServiceException;

@@ -107,15 +107,15 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 	@Override
 	public int countCommissionOrder(Integer maraId, Integer adviserId, Integer officialId, String name, String phone,
 			String wechatUsername, Integer schoolId, Boolean isSettle, List<String> stateList,
-			List<String> commissionStateList) throws ServiceException {
+			List<String> commissionStateList, Boolean isYzyAndYjy) throws ServiceException {
 		return commissionOrderDao.countCommissionOrder(maraId, adviserId, officialId, name, phone, wechatUsername,
-				schoolId, isSettle, stateList, commissionStateList);
+				schoolId, isSettle, stateList, commissionStateList, isYzyAndYjy);
 	}
 
 	@Override
 	public List<CommissionOrderListDTO> listCommissionOrder(Integer maraId, Integer adviserId, Integer officialId,
 			String name, String phone, String wechatUsername, Integer schoolId, Boolean isSettle,
-			List<String> stateList, List<String> commissionStateList, int pageNum, int pageSize)
+			List<String> stateList, List<String> commissionStateList, Boolean isYzyAndYjy, int pageNum, int pageSize)
 			throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
@@ -127,8 +127,8 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 		List<CommissionOrderListDO> commissionOrderListDoList = new ArrayList<>();
 		try {
 			commissionOrderListDoList = commissionOrderDao.listCommissionOrder(maraId, adviserId, officialId, name,
-					phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList, pageNum * pageSize,
-					pageSize);
+					phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList, isYzyAndYjy,
+					pageNum * pageSize, pageSize);
 			if (commissionOrderListDoList == null)
 				return null;
 		} catch (Exception e) {
