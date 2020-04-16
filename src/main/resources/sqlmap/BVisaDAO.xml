@@ -168,10 +168,10 @@
 				#{stateList}
 			</foreach>
 		</if>
-		<if test='commissionList != null'>
+		<if test='commissionStateList != null'>
 			AND commission_state IN
-			<foreach collection="commissionList" item="commissionList" index="index" open="(" close=")" separator=",">
-				#{commissionList}
+			<foreach collection="commissionStateList" item="commissionStateList" index="index" open="(" close=")" separator=",">
+				#{commissionStateList}
 			</foreach>
 		</if>
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
@@ -242,10 +242,10 @@
 				#{stateList}
 			</foreach>
 		</if>
-		<if test='commissionList != null'>
+		<if test='commissionStateList != null'>
 			AND commission_state IN
-			<foreach collection="commissionList" item="commissionList" index="index" open="(" close=")" separator=",">
-				#{commissionList}
+			<foreach collection="commissionStateList" item="commissionStateList" index="index" open="(" close=")" separator=",">
+				#{commissionStateList}
 			</foreach>
 		</if>
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
