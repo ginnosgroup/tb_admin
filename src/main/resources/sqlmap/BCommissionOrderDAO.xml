@@ -238,7 +238,7 @@
     <select id="countCommissionOrderByServiceOrderIdAndExcludeCode" resultType="java.lang.Integer">
         SELECT count(*)
         FROM b_commission_order
-        WHERE service_order_id #{serviceOrderId} AND code is not #{code};
+        WHERE service_order_id = #{serviceOrderId} AND code != #{code};
     </select>
     
     <select id="listCommissionOrder" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderListDO">

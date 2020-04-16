@@ -183,7 +183,7 @@
     <select id="countVisaByServiceOrderIdAndExcludeCode" resultType="java.lang.Integer">
         SELECT count(*)
         FROM b_visa
-        WHERE service_order_id #{serviceOrderId} AND code is not #{code};
+        WHERE service_order_id = #{serviceOrderId} AND code != #{code};
     </select>
     
     <select id="listVisa" resultType="org.zhinanzhen.b.dao.pojo.VisaListDO">
