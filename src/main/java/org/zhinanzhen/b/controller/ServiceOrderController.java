@@ -23,6 +23,7 @@ import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
+import org.zhinanzhen.tb.service.UserService;
 
 import com.ikasoa.core.utils.StringUtil;
 
@@ -33,6 +34,9 @@ public class ServiceOrderController extends BaseController {
 
 	@Resource
 	ServiceOrderService serviceOrderService;
+	
+	@Resource
+	UserService userService;
 
 	public enum ReviewAdviserStateEnum {
 		PENDING, REVIEW, APPLY, COMPLETE, PAID, CLOSE;
@@ -170,7 +174,10 @@ public class ServiceOrderController extends BaseController {
 			if (StringUtil.isNotEmpty(bonus))
 				serviceOrderDto.setBonus(Double.parseDouble(bonus));
 			if (StringUtil.isNotEmpty(userId))
-				serviceOrderDto.setUserId(StringUtil.toInt(userId));
+				if (userService.getUserById(StringUtil.toInt(userId)) == null)
+					return new Response<Integer>(1, "用户编号错误(" + userId + ")，创建失败.", 0);
+				else
+					serviceOrderDto.setUserId(StringUtil.toInt(userId));
 			if (StringUtil.isNotEmpty(maraId))
 				serviceOrderDto.setMaraId(StringUtil.toInt(maraId));
 			if (StringUtil.isNotEmpty(adviserId))
