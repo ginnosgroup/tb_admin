@@ -173,12 +173,11 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setDeductGst(Double.parseDouble(deductGst));
 			if (StringUtil.isNotEmpty(bonus))
 				serviceOrderDto.setBonus(Double.parseDouble(bonus));
-			if (StringUtil.isNotEmpty(userId)) {
+			if (StringUtil.isNotEmpty(userId))
 				if (userService.getUserById(StringUtil.toInt(userId)) == null)
 					return new Response<Integer>(1, "用户编号错误(" + userId + ")，创建失败.", 0);
 				else
 					serviceOrderDto.setUserId(StringUtil.toInt(userId));
-			}
 			if (StringUtil.isNotEmpty(maraId))
 				serviceOrderDto.setMaraId(StringUtil.toInt(maraId));
 			if (StringUtil.isNotEmpty(adviserId))
