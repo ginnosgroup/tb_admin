@@ -602,7 +602,7 @@
 								json['commissionState'] = that.commission_list;
 						}else
 						{
-								json['isSettle'] = true;
+								if (that.isSettle == '') json['isSettle'] = true;
 						}						
 						$.get(url + "commissionOrder/count", json, function(result) {
 							that.count = result.data;
@@ -830,7 +830,7 @@
 						{
 								result.data[i].schoolPaid = true;
 								result.data[i].strSchoolPaid = '是';
-						}
+						}						
 						result.data[i].schoolPaymentAmount = result.data[i].schoolPaymentAmount ? result.data[i].schoolPaymentAmount:'';
 						result.data[i].schoolPaymentDate = result.data[i].schoolPaymentDate ? v.getTime(result.data[i].schoolPaymentDate):'';
 						result.data[i].subagencyName = result.data[i].subagency.name;
@@ -840,6 +840,8 @@
 						if (result.data[i].settle)
 						{
 								result.data[i].strSettle = '是';
+								result.data[i].schoolPaid = true;
+								result.data[i].strSchoolPaid = '是';
 						}else
 						{
 								result.data[i].strSettle = '否';
