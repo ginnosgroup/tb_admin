@@ -239,7 +239,8 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 		if (list != null) {
 			for (CommissionOrderDO commissionOrderDo : list) {
 				totalPerAmount += commissionOrderDo.getPerAmount();
-				totalAmount += commissionOrderDo.getAmount();
+				if (commissionOrderDo.getBonus() > 0)
+					totalAmount += commissionOrderDo.getAmount();
 			}
 			commissionOrderListDto.setTotalPerAmount(totalPerAmount);
 			commissionOrderListDto.setTotalAmount(totalAmount);
