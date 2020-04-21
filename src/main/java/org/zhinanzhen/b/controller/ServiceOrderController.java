@@ -135,6 +135,8 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setType(type);
 			if (StringUtil.isNotEmpty(serviceId))
 				serviceOrderDto.setServiceId(StringUtil.toInt(serviceId));
+			if ("OVST".equalsIgnoreCase(type) && (StringUtil.isEmpty(schoolId) || "0".equals(schoolId.trim())))
+				return new Response<Integer>(1, "创建留学服务订单必须选择一个学校.", 0);
 			if (StringUtil.isNotEmpty(schoolId))
 				serviceOrderDto.setSchoolId(StringUtil.toInt(schoolId));
 			serviceOrderDto.setState(ReviewAdviserStateEnum.PENDING.toString());
