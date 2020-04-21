@@ -335,6 +335,34 @@ public class ServiceOrderController extends BaseController {
 			return new Response<Integer>(e.getCode(), e.getMessage(), null);
 		}
 	}
+	
+	@RequestMapping(value = "/updateRemarks", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> updateRemarks(@RequestParam(value = "id") int id,
+			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo != null)
+				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+						&& !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+					return new Response<Integer>(1, "仅限文案修改.", null);
+			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
+			if (serviceOrderDto == null)
+				return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
+			if (StringUtil.isNotEmpty(remarks))
+				serviceOrderDto.setRemarks(remarks);
+			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
+			if (i > 0) {
+				return new Response<Integer>(0, i);
+			} else {
+				return new Response<Integer>(1, "修改失败.", 0);
+			}
+		} catch (ServiceException e) {
+			return new Response<Integer>(e.getCode(), e.getMessage(), null);
+		}
+	}
 
 	@RequestMapping(value = "/count", method = RequestMethod.GET)
 	@ResponseBody
