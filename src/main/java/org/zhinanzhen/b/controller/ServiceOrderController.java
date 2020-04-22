@@ -554,12 +554,14 @@ public class ServiceOrderController extends BaseController {
 						if (ReviewOfficialStateEnum.WAIT.toString().equals(state.toUpperCase())) { // 文案提交mara审核
 							serviceOrderService.updateServiceOrderRviewState(id,
 									ServiceOrderReviewStateEnum.ADVISER.toString());
-							waUpdate(serviceOrderDto, subagencyId, remarks);
+							waUpdateSubagency(serviceOrderDto, subagencyId);
+							waUpdateRemarks(serviceOrderDto, remarks);
 							return new Response<ServiceOrderDTO>(0,
 									serviceOrderService.approval(id, adminUserLoginInfo.getId(), null,
 											ReviewMaraStateEnum.WAIT.toString(), state.toUpperCase(), null));
 						} else if (ReviewOfficialStateEnum.APPLY.toString().equals(state.toUpperCase())) { // 文案申请同时修改顾问状态
 							serviceOrderService.finish(id);
+							waUpdateRemarks(serviceOrderDto, remarks);
 							return new Response<ServiceOrderDTO>(0,
 									serviceOrderService.approval(id, adminUserLoginInfo.getId(),
 											ReviewAdviserStateEnum.APPLY.toString(), null, state.toUpperCase(), null));
@@ -570,12 +572,14 @@ public class ServiceOrderController extends BaseController {
 											ReviewAdviserStateEnum.PAID.toString(), null, state.toUpperCase(), null));
 						} else if (ReviewOfficialStateEnum.COMPLETE.toString().equals(state.toUpperCase())) { // 文案完成同时修改顾问和会计状态
 							serviceOrderService.finish(id);
+							waUpdateRemarks(serviceOrderDto, remarks);
 							return new Response<ServiceOrderDTO>(0,
 									serviceOrderService.approval(id, adminUserLoginInfo.getId(),
 											ReviewAdviserStateEnum.COMPLETE.toString(), null, state.toUpperCase(),
 											null));
 						} else {
-							waUpdate(serviceOrderDto, subagencyId, remarks);
+							waUpdateSubagency(serviceOrderDto, subagencyId);
+							waUpdateRemarks(serviceOrderDto, remarks);
 							return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id,
 									adminUserLoginInfo.getId(), null, null, state.toUpperCase(), null));
 						}
@@ -590,14 +594,20 @@ public class ServiceOrderController extends BaseController {
 		}
 	}
 
-	private void waUpdate(ServiceOrderDTO serviceOrderDto, String subagencyId, String remarks) throws ServiceException {
-		if (StringUtil.isNotEmpty(subagencyId))
+	private void waUpdateSubagency(ServiceOrderDTO serviceOrderDto, String subagencyId) throws ServiceException {
+		if (StringUtil.isNotEmpty(subagencyId)) {
 			serviceOrderDto.setSubagencyId(StringUtil.toInt(subagencyId));
-		if (StringUtil.isNotEmpty(remarks))
-			serviceOrderDto.setRemarks(remarks);
-		if (StringUtil.isNotEmpty(subagencyId) || StringUtil.isNotEmpty(subagencyId))
 			if (serviceOrderService.updateServiceOrder(serviceOrderDto) <= 0)
-				LOG.error("文案修改失败! (subagencyId:" + subagencyId + ",remarks:" + remarks + ")");
+				LOG.error("文案修改失败! (subagencyId:" + subagencyId + ")");
+		}
+	}
+
+	private void waUpdateRemarks(ServiceOrderDTO serviceOrderDto, String remarks) throws ServiceException {
+		if (StringUtil.isNotEmpty(remarks)) {
+			serviceOrderDto.setRemarks(remarks);
+			if (serviceOrderService.updateServiceOrder(serviceOrderDto) <= 0)
+				LOG.error("文案修改失败! (remarks:" + remarks + ")");
+		}
 	}
 
 	@RequestMapping(value = "/refuse", method = RequestMethod.POST)
