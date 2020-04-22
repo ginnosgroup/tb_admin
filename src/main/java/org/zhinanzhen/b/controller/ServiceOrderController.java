@@ -10,6 +10,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,9 +34,11 @@ import com.ikasoa.core.utils.StringUtil;
 @RequestMapping("/serviceOrder")
 public class ServiceOrderController extends BaseController {
 
+	private static final Logger LOG = LoggerFactory.getLogger(ServiceOrderController.class);
+
 	@Resource
 	ServiceOrderService serviceOrderService;
-	
+
 	@Resource
 	UserService userService;
 
@@ -335,7 +339,7 @@ public class ServiceOrderController extends BaseController {
 			return new Response<Integer>(e.getCode(), e.getMessage(), null);
 		}
 	}
-	
+
 	@RequestMapping(value = "/updateRemarks", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> updateRemarks(@RequestParam(value = "id") int id,
@@ -354,11 +358,7 @@ public class ServiceOrderController extends BaseController {
 			if (StringUtil.isNotEmpty(remarks))
 				serviceOrderDto.setRemarks(remarks);
 			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
-			if (i > 0) {
-				return new Response<Integer>(0, i);
-			} else {
-				return new Response<Integer>(1, "修改失败.", 0);
-			}
+			return i > 0 ? new Response<Integer>(0, i) : new Response<Integer>(1, "修改失败.", 0);
 		} catch (ServiceException e) {
 			return new Response<Integer>(e.getCode(), e.getMessage(), null);
 		}
@@ -489,7 +489,10 @@ public class ServiceOrderController extends BaseController {
 	@RequestMapping(value = "/approval", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<ServiceOrderDTO> approval(@RequestParam(value = "id") int id,
-			@RequestParam(value = "state") String state, HttpServletRequest request, HttpServletResponse response) {
+			@RequestParam(value = "state") String state,
+			@RequestParam(value = "subagencyId", required = false) String subagencyId,
+			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
+			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			if (ReviewAdviserStateEnum.CLOSE.toString().equalsIgnoreCase(state))
@@ -551,6 +554,7 @@ public class ServiceOrderController extends BaseController {
 						if (ReviewOfficialStateEnum.WAIT.toString().equals(state.toUpperCase())) { // 文案提交mara审核
 							serviceOrderService.updateServiceOrderRviewState(id,
 									ServiceOrderReviewStateEnum.ADVISER.toString());
+							waUpdate(serviceOrderDto, subagencyId, remarks);
 							return new Response<ServiceOrderDTO>(0,
 									serviceOrderService.approval(id, adminUserLoginInfo.getId(), null,
 											ReviewMaraStateEnum.WAIT.toString(), state.toUpperCase(), null));
@@ -570,9 +574,11 @@ public class ServiceOrderController extends BaseController {
 									serviceOrderService.approval(id, adminUserLoginInfo.getId(),
 											ReviewAdviserStateEnum.COMPLETE.toString(), null, state.toUpperCase(),
 											null));
-						} else
+						} else {
+							waUpdate(serviceOrderDto, subagencyId, remarks);
 							return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id,
 									adminUserLoginInfo.getId(), null, null, state.toUpperCase(), null));
+						}
 					} else
 						return new Response<ServiceOrderDTO>(1, "state错误!(" + state + ")", null);
 				} else
@@ -582,6 +588,16 @@ public class ServiceOrderController extends BaseController {
 		} catch (ServiceException e) {
 			return new Response<ServiceOrderDTO>(1, e.getMessage(), null);
 		}
+	}
+
+	private void waUpdate(ServiceOrderDTO serviceOrderDto, String subagencyId, String remarks) throws ServiceException {
+		if (StringUtil.isNotEmpty(subagencyId))
+			serviceOrderDto.setSubagencyId(StringUtil.toInt(subagencyId));
+		if (StringUtil.isNotEmpty(remarks))
+			serviceOrderDto.setRemarks(remarks);
+		if (StringUtil.isNotEmpty(subagencyId) || StringUtil.isNotEmpty(subagencyId))
+			if (serviceOrderService.updateServiceOrder(serviceOrderDto) <= 0)
+				LOG.error("文案修改失败! (subagencyId:" + subagencyId + ",remarks:" + remarks + ")");
 	}
 
 	@RequestMapping(value = "/refuse", method = RequestMethod.POST)
