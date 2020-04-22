@@ -807,6 +807,7 @@
           {
           		if ($('#show_addnewservice1_id #b101').val() != '') closedReason = $('#show_addnewservice1_id #b101').val();
           		if ($('#show_addnewservice2_id #c101').val() != '') closedReason = $('#show_addnewservice1_id #c101').val();
+          		json['closedReason'] = closedReason;
           }
           if (v.orderType == 'VISA' && va == 'COMPLETE')
           {
@@ -832,10 +833,15 @@
           }
           //如果GW提交审核,就创建佣金订单                         
           if (v.orderType == 'VISA' && v.ap_list == 'GW' && va == 'REVIEW') reqCommissionVisa();
+          //文案更新
+          if (v.orderType == 'OVST' && v.ap_list == 'WA')
+          {
+          		if (va != 'APPLY' && va != 'PAID' && va !='COMPLETE') json['subagencyId'] = $('#show_addnewservice2_id #c7a').val();
+          		if (va != 'APPLY' && va != 'PAID') json['remarks'] = $('#show_addnewservice2_id #c16a').val();
+          }
                    
           json['id'] = v.orderId;
-          json['state'] = va;
-          json['closedReason'] = closedReason;
+          json['state'] = va;          
           $.post(str_url, json,
 			   	function(data){
 			   			if (data.code == 0)
