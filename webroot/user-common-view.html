@@ -196,7 +196,8 @@
 								<label id="c5" style="width:50px;"></label>
 								<label><strong>保证金客户：</strong></label>
 								<label id="c6" style="width:50px;"></label>
-								<label class="control-label" style="width:80px;margin-left:60px;"><strong>Subagency：</strong></label>
+								<label class="control-label" style="width:80px;margin-left:60px;"><strong>Subagency：</strong></label>								
+								<select class="form-control" style="width:150px;" id="c7a"></select>	
 								<label id="c7"></label>
 							</div>
 							<div class="form-group" style="width:100%;height:40px;">
@@ -238,6 +239,7 @@
 							<hr/>
 							<div class="form-group" style="width:100%;line-height:40px;">
 									<label class="control-label"><strong>备注：</strong></label>
+									<textarea id="c16a" class="form-control" style="width:98%"></textarea>
 									<label id="c16" style="word-break:break-all;"></label>									
 							</div>							
 							<div id="show_reqcommission" v-if="flowstate_wa==='PAID' && ap_list === 'GW' && !submitted" style="width:100%;margin-bottom:10px;display:;">
@@ -345,7 +347,7 @@
 									<input type="file" id="f1c" style="display:none">
 									<input type="hidden" id="flist1" value="" />
 									<div id="show_pic" style="display:none;padding-bottom:10px;"></div>
-									<button onclick="upload_receipt_pic('f1c')" id="upload_certificate" type="button" class="btn btn-danger" style="display:;">上传收款凭证</button>
+									<button onclick="upload_receipt_pic('f1c')" id="upload_certificate" type="button" class="btn btn-danger" style="display:;">上传COE凭证</button>
 									<button onclick="reqCommissionOvst()" type="button" class="btn btn-primary">申请月奖</button>
 									</dle>
 									<button v-if="submitted" onclick="window.location.href='mycommission.html'" type="button" class="btn btn-primary">月奖已申请，请至佣金表查看</button>
@@ -380,8 +382,9 @@ var v_sub = new Vue({
 					flowstate_gw: '',
 					flowstate_wa: '',
 					flowstate_ma: '',
-					submitted: 0,
-					order_detail: [],					
+					submitted: 0,					
+					order_detail: [],
+					subagency_id: 0
 				},
 				created: function() {					
 				}
@@ -496,6 +499,7 @@ function show_addnewservice_id(orderId,type)
         	}
         	$('#show_addnewservice2_id #c6').html(str_isdeposituser);
         	$('#show_addnewservice2_id #c7').html(response.subagency.name);
+        	v_sub.subagency_id = response.subagencyId;
         	var str_ispay = '否';
         	if (response.pay) str_ispay = '是';
         	$('#show_addnewservice2_id #c10').html(str_ispay);
@@ -504,8 +508,9 @@ function show_addnewservice_id(orderId,type)
         	$('#show_addnewservice2_id #c13').html(response.receivable);
         	$('#show_addnewservice2_id #c14').html(response.discount);
         	$('#show_addnewservice2_id #c15').html(response.received);
-        	if (response.remarks) response.remarks = url_replace(response.remarks);
+        	if (response.remarks) response.remarks = url_replace(response.remarks);        	
         	$('#show_addnewservice2_id #c16').html(response.remarks);
+        	$('#show_addnewservice2_id #c16a').val(response.remarks);
         	//CEO付款凭证
         	if (response.paymentVoucherImageUrl3)
         	{
@@ -513,12 +518,31 @@ function show_addnewservice_id(orderId,type)
         			$('#show_addnewservice2_id #show_paymentpic').show();
         	}else
         	{
-        			$('#show_addnewservice1_id #paymentpic_url').html('');
-        			$('#show_addnewservice1_id #show_paymentpic').hide();
+        			$('#show_addnewservice2_id #paymentpic_url').html('');
+        			$('#show_addnewservice2_id #show_paymentpic').hide();
         	}
         	
         	v_sub.flowstate_gw = response.review.adviserState;
         	v_sub.flowstate_wa = response.review.officialState;
+        	if (v_sub.ap_list === 'WA' && v_sub.flowstate_wa!='PAID')
+        	{
+        			$('#show_addnewservice2_id #c16').hide();
+        			$('#show_addnewservice2_id #c16a').show();
+        	}else
+        	{
+        			$('#show_addnewservice2_id #c16').show();
+        			$('#show_addnewservice2_id #c16a').hide();
+        	}
+        	if (v_sub.ap_list === 'WA' && v_sub.flowstate_wa!='APPLY' && v_sub.flowstate_wa!='PAID' && v_sub.flowstate_wa!='COMPLETE') 
+        	{
+        			$('#show_addnewservice2_id #c7a').val(v_sub.subagency_id);
+        			$('#show_addnewservice2_id #c7').hide();
+        			$('#show_addnewservice2_id #c7a').show();
+        	}else
+        	{
+        			$('#show_addnewservice2_id #c7').show();
+        			$('#show_addnewservice2_id #c7a').hide();
+        	}
         	//文案操作状态
         	var str_state = '';
         	if (v_sub.flowstate_gw == 'REVIEW') $("#c200").val('PENDING');
@@ -626,7 +650,22 @@ v.$watch('addnewservice2_bind', function(obj) {
     	{
     			receive_type.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
     	}        	 	    
-    });    
+    });
+    //绑定Subagency列表
+    var obj_subagencyId = $("#show_addnewservice2_id #c7a");	
+    $.ajax({
+      url: 'subagency/list',
+      type: 'GET',
+      async: false,
+      dataType: 'json'
+    }).done(function(response) {
+    	response = response.data;
+    	for (var item in response)
+    	{
+    			obj_subagencyId.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+    	}
+    	obj_subagencyId.val(v_sub.subagency_id);   
+    });  
 });
 
 function setInstallment(va)
@@ -652,14 +691,14 @@ function reqCommissionOvst()
 {
 		var jqInputs = $('input',$("#show_addnewservice2_id"));
     var jqSelect = $('select',$("#show_addnewservice2_id"));
-    var jqTextarea = $('textarea',$("#show_addnewservice2_id"));
+    var jqTextarea = $('textarea',$("#show_addnewservice2_id"));        
     
     var check_result = false;
-    if (jqInputs[0].value != '' && jqInputs[3].value != '' && jqInputs[6].value != '' && jqInputs[7].value != '' && jqInputs[8].value != '' && jqInputs[9].value != '' && jqInputs[10].value != '' && jqInputs[11].value != '' && jqSelect[1].value != '0')
+    if (jqInputs[0].value != '' && jqInputs[3].value != '' && jqInputs[6].value != '' && jqInputs[7].value != '' && jqInputs[8].value != '' && jqInputs[9].value != '' && jqInputs[10].value != '' && jqInputs[11].value != '' && jqSelect[2].value != '0')
     {
-    		if (parseInt(jqSelect[0].value) > 1)
+    		if (parseInt(jqSelect[1].value) > 1)
     		{
-		    		switch(parseInt(jqSelect[0].value))
+		    		switch(parseInt(jqSelect[1].value))
 		    		{
 		    				case 2:
 		    					if (jqInputs[4].value != '') check_result = true;
@@ -694,7 +733,7 @@ function reqCommissionOvst()
        	json['adviserId'] = v_sub.order_detail.adviserId;
        	json['officialId'] = v_sub.order_detail.officialId;
        	json['isStudying'] = true;
-       	json['installment'] = jqSelect[0].value;
+       	json['installment'] = jqSelect[1].value;
        	var d = 0;        		
     		if (jqInputs[1].value != '')
     		{
@@ -761,14 +800,13 @@ function reqCommissionOvst()
       			d = 0;
       	}
        	json['receiveDate'] = d;
-       	json['receiveTypeId'] = jqSelect[1].value;
+       	json['receiveTypeId'] = jqSelect[2].value;
        	json['perAmount'] = jqInputs[9].value;//本次应收学费
        	json['discount'] = jqInputs[10].value;
        	json['amount'] = jqInputs[11].value;
        	//json['expectAmount'] = jqInputs[12].value;
-       	json['remarks'] = jqTextarea[0].value;
+       	json['remarks'] = jqTextarea[1].value;
        	//console.log(json);
-       	//console.log(jqInputs);
        	//return false;
        	//校验是否上传了凭证
        	var flist = $("#show_addnewservice2_id #flist1").val();
