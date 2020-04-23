@@ -649,6 +649,8 @@
 						result.data[i].currentState = result.data[i].state;
 						if (result.data[i].remarks) result.data[i].remarks = url_replace(result.data[i].remarks);
 				};
+				v.total_expectamount = v.total_expectamount.toFixed(2);
+				v.total_bonus = v.total_bonus.toFixed(2);
 				return result.data;
 			}						
       
