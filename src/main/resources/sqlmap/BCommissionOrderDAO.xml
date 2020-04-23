@@ -478,6 +478,53 @@
         ORDER BY co.gmt_create DESC;
     </select>
     
+    <select id="listThisMonthCommissionOrderAtDashboard" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            code,
+            service_order_id AS serviceOrderId,
+            state,
+            commission_state AS commissionState,
+            is_settle AS isSettle,
+            is_deposit_user AS isDepositUser,
+            school_id AS schoolId,
+            student_code AS studentCode,
+            user_id AS userId,
+            adviser_id AS adviserId,
+            official_id AS officialId,
+            is_studying AS isStudying,
+            installment_num AS installmentNum,
+            installment,
+            installment_due_date AS installmentDueDate,
+            payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+            payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            school_payment_amount AS schoolPaymentAmount,
+            school_payment_date AS schoolPaymentDate,
+            invoice_number AS invoiceNumber,
+            start_date AS startDate,
+            end_date AS endDate,
+            commission,
+            tuition_fee AS tuitionFee,
+            per_term_tuition_fee AS perTermTuitionFee,
+            receive_type_id AS receiveTypeId,
+            receive_date AS receiveDate,
+            per_amount AS perAmount,
+            amount,
+            expect_amount AS expectAmount,
+            discount,
+            gst,
+            deduct_gst AS deductGst,
+            bonus,
+            bonus_date AS bonusDate,
+            remarks
+        FROM b_commission_order
+        WHERE DATE_FORMAT(installment_due_date, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
+        AND bonus != 0.00
+        ORDER BY installment_due_date
+        LIMIT 10;
+    </select>
+    
     <select id="getCommissionOrderById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderListDO">
         SELECT
             co.id,
