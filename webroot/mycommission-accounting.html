@@ -520,13 +520,13 @@
 						}
 						if (that.type != '') json['type'] = that.type;
 						if (that.state != '') json['state'] = that.state;
+						json['commissionState'] = that.commission_state;
 						$.get(url + "visa/count", json, function(result) {
 							that.count = result.data;
 							that.allPage = Math.ceil(result.data / that.pageSize);
 						});
 						json['pageNum'] = 0;
-						json['pageSize'] = that.pageSize;
-						json['commissionState'] = that.commission_state;
+						json['pageSize'] = that.pageSize;						
 						$.get(url + "visa/list", json, function(result) {
 							that.pageNum = 0;
 							result.data = return_result(result);
