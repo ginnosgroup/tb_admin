@@ -70,10 +70,10 @@ public class VisaController extends BaseCommissionOrderController {
 
 		try {
 			super.setPostHeader(response);
-			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
-					&& !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
-				return new Response<List<VisaDTO>>(1, "仅顾问和超级管理员能创建佣金订单.", null);
+//			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+//			if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+//					&& !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+//				return new Response<List<VisaDTO>>(1, "仅顾问和超级管理员能创建佣金订单.", null);
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(serviceOrderId);
 			if (serviceOrderDto == null)
 				return new Response<List<VisaDTO>>(1, "服务订单(ID:" + serviceOrderId + ")不存在!", null);
@@ -139,7 +139,6 @@ public class VisaController extends BaseCommissionOrderController {
 			double _perAmount = 0.00;
 			for (int installmentNum = 1; installmentNum <= installment; installmentNum++) {
 				visaDto.setInstallmentNum(installmentNum);
-				visaDto.getReceivable();
 				_perAmount += visaDto.getPerAmount();
 				if (installmentNum > 1) { // 只给第一个添加支付凭证
 					visaDto.setPaymentVoucherImageUrl1(null);
