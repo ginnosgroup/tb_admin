@@ -21,6 +21,9 @@ public interface CommissionOrderService {
 			List<String> stateList, List<String> commissionStateList, Boolean isYzyAndYjy, int pageNum, int pageSize)
 			throws ServiceException;
 
+	List<CommissionOrderListDTO> listThisMonthCommissionOrder(Integer adviserId, Integer officialId)
+			throws ServiceException;
+
 	CommissionOrderListDTO getCommissionOrderById(int id) throws ServiceException;
 
 }

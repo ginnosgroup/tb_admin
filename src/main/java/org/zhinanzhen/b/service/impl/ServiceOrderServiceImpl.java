@@ -40,7 +40,7 @@ import org.zhinanzhen.b.service.pojo.ServiceDTO;
 import org.zhinanzhen.b.service.pojo.SubagencyDTO;
 import org.zhinanzhen.b.service.pojo.ReceiveTypeDTO;
 
-import com.ikasoa.core.thrift.ErrorCodeEnum;
+import com.ikasoa.core.ErrorCodeEnum;
 
 @Service("ServiceOrderService")
 public class ServiceOrderServiceImpl extends BaseService implements ServiceOrderService {

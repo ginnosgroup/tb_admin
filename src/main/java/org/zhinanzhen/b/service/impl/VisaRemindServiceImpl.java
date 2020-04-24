@@ -18,7 +18,7 @@ import org.zhinanzhen.b.service.pojo.VisaRemindDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
-import com.ikasoa.core.thrift.ErrorCodeEnum;
+import com.ikasoa.core.ErrorCodeEnum;
 
 @Service("VisaRemindService")
 public class VisaRemindServiceImpl extends BaseService implements VisaRemindService {

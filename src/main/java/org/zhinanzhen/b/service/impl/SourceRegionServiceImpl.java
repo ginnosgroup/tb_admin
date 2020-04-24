@@ -15,7 +15,7 @@ import org.zhinanzhen.b.service.pojo.SourceRegionDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
-import com.ikasoa.core.thrift.ErrorCodeEnum;
+import com.ikasoa.core.ErrorCodeEnum;
 
 @Service("SourceRegionService")
 public class SourceRegionServiceImpl extends BaseService implements SourceRegionService {

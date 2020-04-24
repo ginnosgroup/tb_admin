@@ -18,7 +18,7 @@ import org.zhinanzhen.tb.dao.pojo.AdminUserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
-import com.ikasoa.core.thrift.ErrorCodeEnum;
+import com.ikasoa.core.ErrorCodeEnum;
 
 @Service("MessageService")
 public class MessageServiceImpl extends BaseService implements MessageService {

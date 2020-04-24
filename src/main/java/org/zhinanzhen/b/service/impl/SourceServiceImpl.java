@@ -13,7 +13,7 @@ import org.zhinanzhen.b.service.SourceService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
-import com.ikasoa.core.thrift.ErrorCodeEnum;
+import com.ikasoa.core.ErrorCodeEnum;
 
 @Service("SourceService")
 public class SourceServiceImpl extends BaseService implements SourceService {

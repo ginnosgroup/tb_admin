@@ -14,7 +14,7 @@ import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.AdviserStateEnum;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
-import com.ikasoa.core.thrift.ErrorCodeEnum;
+import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.StringUtil;
 @Service("adviserService")
 public class AdviserServiceImpl extends BaseService implements AdviserService {

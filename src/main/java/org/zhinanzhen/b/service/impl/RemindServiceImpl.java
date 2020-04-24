@@ -18,7 +18,7 @@ import org.zhinanzhen.b.service.pojo.RemindDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
-import com.ikasoa.core.thrift.ErrorCodeEnum;
+import com.ikasoa.core.ErrorCodeEnum;
 
 @Service("RemindService")
 public class RemindServiceImpl extends BaseService implements RemindService {

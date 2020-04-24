@@ -11,8 +11,9 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.zhinanzhen.b.service.CommissionOrderService;
 import org.zhinanzhen.b.service.DashboardService;
-import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
+import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -24,6 +25,9 @@ public class DashboardController extends BaseController {
 
 	@Resource
 	DashboardService dashboardService;
+
+	@Resource
+	CommissionOrderService commissionOrderService;
 
 	@RequestMapping(value = "/getMonthExpectAmount", method = RequestMethod.GET)
 	@ResponseBody
@@ -37,12 +41,15 @@ public class DashboardController extends BaseController {
 
 	@RequestMapping(value = "/listThisMonthCommissionOrder", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<CommissionOrderDTO>> listThisMonthCommissionOrder(HttpServletRequest request,
+	public Response<List<CommissionOrderListDTO>> listThisMonthCommissionOrder(HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
-			return new Response<List<CommissionOrderDTO>>(0, dashboardService.listThisMonthCommissionOrder());
+			if (getAdminUserLoginInfo(request) == null)
+				return new Response<List<CommissionOrderListDTO>>(1, "请先登录!", null);
+			return new Response<List<CommissionOrderListDTO>>(0,
+					commissionOrderService.listThisMonthCommissionOrder(getAdviserId(request), getOfficialId(request)));
 		} catch (ServiceException e) {
-			return new Response<List<CommissionOrderDTO>>(e.getCode(), e.getMessage(), null);
+			return new Response<List<CommissionOrderListDTO>>(e.getCode(), e.getMessage(), null);
 		}
 	}
 

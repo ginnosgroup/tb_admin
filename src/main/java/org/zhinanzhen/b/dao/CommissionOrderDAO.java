@@ -35,8 +35,9 @@ public interface CommissionOrderDAO {
 
 	List<CommissionOrderListDO> listCommissionOrderBySchool(@Param("startDate") Date startDate,
 			@Param("endDate") Date endDate, @Param("schoolName") String schoolName);
-	
-	public List<CommissionOrderDO> listThisMonthCommissionOrderAtDashboard();
+
+	public List<CommissionOrderListDO> listThisMonthCommissionOrderAtDashboard(@Param("adviserId") Integer adviserId,
+			@Param("officialId") Integer officialId);
 
 	int updateCommissionOrder(CommissionOrderDO commissionOrderDo);
 

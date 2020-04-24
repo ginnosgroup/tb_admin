@@ -13,7 +13,7 @@ import org.zhinanzhen.b.service.pojo.SubagencyDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
-import com.ikasoa.core.thrift.ErrorCodeEnum;
+import com.ikasoa.core.ErrorCodeEnum;
 
 @Service("SubagencyService")
 public class SubagencyServiceImpl extends BaseService implements SubagencyService {

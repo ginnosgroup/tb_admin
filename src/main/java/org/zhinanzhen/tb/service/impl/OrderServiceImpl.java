@@ -28,7 +28,7 @@ import org.zhinanzhen.tb.service.SubjectService;
 import org.zhinanzhen.tb.service.pojo.OrderDTO;
 import org.zhinanzhen.tb.service.pojo.SubjectDTO;
 
-import com.ikasoa.core.thrift.ErrorCodeEnum;
+import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.StringUtil;
 
 @Service("orderService")

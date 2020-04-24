@@ -37,7 +37,7 @@ import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
-import com.ikasoa.core.thrift.ErrorCodeEnum;
+import com.ikasoa.core.ErrorCodeEnum;
 
 @Service("CommissionOrderService")
 public class CommissionOrderServiceImpl extends BaseService implements CommissionOrderService {
@@ -178,6 +178,25 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
 		}
+	}
+
+	@Override
+	public List<CommissionOrderListDTO> listThisMonthCommissionOrder(Integer adviserId, Integer officialId)
+			throws ServiceException {
+		List<CommissionOrderListDTO> commissionOrderListDtoList = new ArrayList<>();
+		List<CommissionOrderListDO> commissionOrderListDoList = new ArrayList<>();
+		try {
+			commissionOrderListDoList = commissionOrderDao.listThisMonthCommissionOrderAtDashboard(adviserId,
+					officialId);
+			if (commissionOrderListDoList == null)
+				return null;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+		commissionOrderListDoList.forEach(commissionOrderListDo -> buildCommissionOrderListDto(commissionOrderListDo));
+		return commissionOrderListDtoList;
 	}
 
 	@Override

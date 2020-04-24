@@ -12,7 +12,7 @@ import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.SubjectCategoryService;
 import org.zhinanzhen.tb.service.SubjectCategoryStateEnum;
 import org.zhinanzhen.tb.service.pojo.SubjectCategoryDTO;
-import com.ikasoa.core.thrift.ErrorCodeEnum;
+import com.ikasoa.core.ErrorCodeEnum;
 
 @Service("subjectCategoryService")
 public class SubjectCategoryServiceImpl extends BaseService implements SubjectCategoryService {

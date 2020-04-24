@@ -26,7 +26,7 @@ import org.zhinanzhen.tb.service.SubjectTypeEnum;
 import org.zhinanzhen.tb.service.pojo.OrderDTO;
 import org.zhinanzhen.tb.service.pojo.SubjectDTO;
 import org.zhinanzhen.tb.service.pojo.SubjectPriceIntervalDTO;
-import com.ikasoa.core.thrift.ErrorCodeEnum;
+import com.ikasoa.core.ErrorCodeEnum;
 
 @Service("subjectService")
 public class SubjectServiceImpl extends BaseService implements SubjectService {

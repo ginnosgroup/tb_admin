@@ -15,7 +15,7 @@ import org.zhinanzhen.tb.service.VirtualUserService;
 import org.zhinanzhen.tb.service.pojo.VirtualUserDTO;
 import org.zhinanzhen.tb.utils.Base64Util;
 
-import com.ikasoa.core.thrift.ErrorCodeEnum;
+import com.ikasoa.core.ErrorCodeEnum;
 
 @Service("virtualUserService")
 public class VirtualUserServiceImpl extends BaseService implements VirtualUserService {
