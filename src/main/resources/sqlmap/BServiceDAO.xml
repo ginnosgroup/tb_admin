@@ -8,17 +8,21 @@
             INTO b_service (
                 gmt_create,
                 gmt_modify,
+                name,
                 code)
             VALUES (
                 now(),
                 now(),
-                #{type},
+                #{name},
                 #{code});
     </insert>
     
     <update id="updateService" parameterType="org.zhinanzhen.b.dao.pojo.ServiceDO">
         UPDATE b_service 
         SET gmt_modify = now()
+        <if test='name != null and name != ""'>
+            , name = #{name}
+        </if>
         <if test='code != null and code != ""'>
             , code = #{code}
         </if>
@@ -29,6 +33,7 @@
         SELECT
             id,
             gmt_create AS GmtCreate,
+            name,
             code
         FROM b_service
         WHERE is_delete = 0
@@ -39,6 +44,7 @@
         SELECT
             id,
             gmt_create AS GmtCreate,
+            name,
             code
         FROM b_service WHERE id = #{id, jdbcType=INTEGER};
     </select>

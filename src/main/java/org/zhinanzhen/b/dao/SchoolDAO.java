@@ -7,7 +7,7 @@ import org.zhinanzhen.b.dao.pojo.SchoolDO;
 
 public interface SchoolDAO {
 
-	public int addSchool(SchoolDO schoolDO);
+	public int addSchool(SchoolDO schoolDo);
 
 	public int updateSchool(@Param("id") int id, @Param("name") String name, @Param("subject") String subject,
 			@Param("country") String country);

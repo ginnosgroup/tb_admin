@@ -22,6 +22,12 @@ public class ServiceOrderDTO {
 	private int serviceId;
 
 	private ServiceDTO service;
+	
+	private int parentId;
+	
+	private int servicePackageId;
+	
+	private String servicePackageType;
 
 	private int schoolId;
 

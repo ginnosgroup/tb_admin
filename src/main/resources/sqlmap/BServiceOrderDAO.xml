@@ -11,6 +11,8 @@
                 finish_date,
                 type,
                 service_id,
+                parent_id,
+                service_package_id,
                 school_id,
                 state,
                 is_settle,
@@ -47,6 +49,8 @@
                 NULL,
                 #{type},
                 #{serviceId},
+                #{parentId},
+                #{servicePackageId},
                 #{schoolId},
                 #{state},
                 #{isSettle},
@@ -87,6 +91,12 @@
         </if>
         <if test='serviceId != null and schoolId > 0'>
             , service_id = #{serviceId}
+        </if>
+        <if test='parentId != null and parentId > 0'>
+            , parent_id = #{parentId}
+        </if>
+        <if test='servicePackageId != null and servicePackageId > 0'>
+            , service_package_id = #{servicePackageId}
         </if>
         <if test='schoolId != null and schoolId > 0'>
             , school_id = #{schoolId}
@@ -228,6 +238,8 @@
             finish_date AS finishDate,
             type,
             service_id AS serviceId,
+            parent_id AS parentId,
+            service_package_id AS servicePackageId,
             school_id AS schoolId,
             state,
             is_settle AS isSettle,
@@ -300,6 +312,8 @@
             finish_date AS finishDate,
             type,
             service_id AS serviceId,
+            parent_id AS parentId,
+            service_package_id AS servicePackageId,
             school_id AS schoolId,
             state,
             is_settle AS isSettle,

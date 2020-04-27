@@ -13,11 +13,13 @@ import org.zhinanzhen.b.dao.SchoolDAO;
 import org.zhinanzhen.b.dao.ServiceDAO;
 import org.zhinanzhen.b.dao.ServiceOrderDAO;
 import org.zhinanzhen.b.dao.ServiceOrderReviewDAO;
+import org.zhinanzhen.b.dao.ServicePackageDAO;
 import org.zhinanzhen.b.dao.SubagencyDAO;
 import org.zhinanzhen.b.dao.pojo.MaraDO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.ReceiveTypeDO;
 import org.zhinanzhen.b.dao.pojo.SchoolDO;
+import org.zhinanzhen.b.dao.pojo.SchoolPackageDO;
 import org.zhinanzhen.b.dao.pojo.ServiceDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderReviewDO;
@@ -74,6 +76,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
 	@Resource
 	private OfficialDAO officialDao;
+
+	@Resource
+	private ServicePackageDAO servicePackageDao;
 
 	@Override
 	public int addServiceOrder(ServiceOrderDTO serviceOrderDto) throws ServiceException {
@@ -181,6 +186,12 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			ServiceDO serviceDo = serviceDao.getServiceById(serviceOrderDto.getServiceId());
 			if (serviceDo != null)
 				serviceOrderDto.setService(mapper.map(serviceDo, ServiceDTO.class));
+			// 查询服务包类型
+			if (serviceOrderDto.getServicePackageId() > 0) {
+				SchoolPackageDO schoolPackageDo = servicePackageDao.getById(serviceOrderDto.getServicePackageId());
+				if (schoolPackageDo != null)
+					serviceOrderDto.setServicePackageType(schoolPackageDo.getType());
+			}
 			// 查询收款方式
 			ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(serviceOrderDto.getReceiveTypeId());
 			if (receiveTypeDo != null)

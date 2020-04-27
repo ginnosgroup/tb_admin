@@ -103,6 +103,7 @@ public class ServiceOrderController extends BaseController {
 	public Response<Integer> addServiceOrder(@RequestParam(value = "type") String type,
 			@RequestParam(value = "serviceId") String serviceId,
 			@RequestParam(value = "schoolId", required = false) String schoolId,
+			@RequestParam(value = "servicePackageIds", required = false) String servicePackageIds,
 			@RequestParam(value = "isSettle", required = false) String isSettle,
 			@RequestParam(value = "isDepositUser", required = false) String isDepositUser,
 			@RequestParam(value = "subagencyId", required = false) String subagencyId,
@@ -198,6 +199,13 @@ public class ServiceOrderController extends BaseController {
 				if (adminUserLoginInfo != null)
 					serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
 							ReviewAdviserStateEnum.PENDING.toString(), null, null, null);
+				//　创建子服务订单
+				if (StringUtil.isNotEmpty(servicePackageIds)) {
+					List<String> servicePackageIdList = Arrays.asList(servicePackageIds.split(","));
+					serviceOrderDto.setParentId(serviceOrderDto.getId());
+					serviceOrderDto.setId(0);
+					// TODO:sulei
+				}
 				return new Response<Integer>(0, serviceOrderDto.getId());
 			} else
 				return new Response<Integer>(1, "创建失败.", 0);

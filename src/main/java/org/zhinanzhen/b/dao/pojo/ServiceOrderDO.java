@@ -20,6 +20,10 @@ public class ServiceOrderDO {
 	private int serviceId;
 
 	private ServiceDTO service;
+	
+	private int parentId;
+	
+	private int servicePackageId;
 
 	private int schoolId;
 

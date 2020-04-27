@@ -28,11 +28,13 @@ public class ServiceController extends BaseController {
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<Integer> addService(@RequestParam(value = "code") String code, HttpServletRequest request,
+	public Response<Integer> addService(@RequestParam(value = "code") String code,
+			@RequestParam(value = "name", required = false) String name, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			ServiceDTO serviceDto = new ServiceDTO();
+			serviceDto.setName(name);
 			serviceDto.setCode(code);
 			if (serviceService.addService(serviceDto) > 0) {
 				return new Response<Integer>(0, serviceDto.getId());
@@ -47,11 +49,12 @@ public class ServiceController extends BaseController {
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> updateService(@RequestParam(value = "id") int id,
+			@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "code", required = false) String code, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			int i = serviceService.updateService(id, code);
+			int i = serviceService.updateService(id, name, code);
 			if (i > 0) {
 				return new Response<Integer>(0, i);
 			} else {
