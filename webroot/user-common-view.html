@@ -578,6 +578,14 @@ function checkform(type)
 						return false;
 				}else
 				{
+						//确认框
+						if (v_sub.ap_list === 'WA' && v_sub.flowstate_wa!='APPLY' && v_sub.flowstate_wa!='PAID' && v_sub.flowstate_wa!='COMPLETE')
+						{
+								if (!confirm('重要提醒：请确认subagency 是否正确？'))
+								{
+										return false;
+								}
+						}					
 						flowstep($('#show_addnewservice2_id #c200').val(),1);
 				}
 		}
