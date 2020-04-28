@@ -367,6 +367,23 @@
 				</div>
 			</div>
 </div>
+<div class="modal fade" id="confirm_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="top:55%;">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content"  style="background:#F5F5DC;">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="myModalLabel">确认</h4>
+			</div>
+			<div class="modal-body">
+				重要提醒：请确认subagency 是否正确？
+			</div>
+			<div class="modal-footer">				
+				<button onclick="$('#confirm_id').modal('hide');flowstep($('#show_addnewservice2_id #c200').val(),1);" type="button" class="btn btn-primary">确认</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+			</div>
+		</div>
+	</div>
+</div>
 
 </div>
 <script>
@@ -560,9 +577,10 @@ function checkform(type)
 		{
 				if ($('#show_addnewservice1_id #b19').val() == '')
 				{
-						$('#alert_error').css('marginLeft','30%');		
-						$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
-			      $("#error_info").html('请选择需要修改的状态！');
+						$('#show_addnewservice1_id #alert_error').css('marginLeft','30%');
+						$('#show_addnewservice1_id #alert_error').css('marginTop','30%');	
+						$('#show_addnewservice1_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+			      $("#show_addnewservice1_id #error_info").html('请选择需要修改的状态！');
 						return false;
 				}else
 				{						
@@ -572,19 +590,18 @@ function checkform(type)
 		{
 				if ($('#show_addnewservice2_id #c200').val() == '')
 				{
-						$('#alert_error').css('marginLeft','30%');		
-						$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
-			      $("#error_info").html('请选择需要修改的状态！');
+						$('#show_addnewservice2_id #alert_error').css('marginLeft','30%');		
+						$('#show_addnewservice2_id #alert_error').css('marginTop','30%');
+						$('#show_addnewservice2_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+			      $("#show_addnewservice2_id #error_info").html('请选择需要修改的状态！');
 						return false;
 				}else
 				{
 						//确认框
 						if (v_sub.ap_list === 'WA' && v_sub.flowstate_wa!='APPLY' && v_sub.flowstate_wa!='PAID' && v_sub.flowstate_wa!='COMPLETE')
-						{
-								if (!confirm('重要提醒：请确认subagency 是否正确？'))
-								{
-										return false;
-								}
+						{								
+								$('#confirm_id').modal('show');
+								return false;
 						}					
 						flowstep($('#show_addnewservice2_id #c200').val(),1);
 				}
