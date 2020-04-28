@@ -2,16 +2,14 @@ package org.zhinanzhen.b.dao;
 
 import java.util.List;
 
-import org.apache.ibatis.annotations.Param;
-import org.zhinanzhen.b.dao.pojo.SchoolPackageDO;
+import org.zhinanzhen.b.dao.pojo.ServicePackageDO;
 
 public interface ServicePackageDAO {
 
-	public int add(SchoolPackageDO schoolPackageDo);
+	public int add(ServicePackageDO servicePackageDO);
 
-	public List<SchoolPackageDO> list(@Param("type") String type, @Param("subject") Integer serviceId,
-			@Param("num") Integer num);
+	public List<ServicePackageDO> listAll();
 
-	public SchoolPackageDO getById(int id);
+	public ServicePackageDO getById(int id);
 
 }

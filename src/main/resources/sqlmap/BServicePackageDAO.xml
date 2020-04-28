@@ -19,7 +19,7 @@
                 #{num});
     </insert>
     
-    <select id="list" resultType="org.zhinanzhen.b.dao.pojo.ServicePackageDO">
+    <select id="listAll" resultType="org.zhinanzhen.b.dao.pojo.ServicePackageDO">
         SELECT
             id,
             gmt_create AS GmtCreate,

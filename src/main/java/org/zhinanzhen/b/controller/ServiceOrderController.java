@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.ServiceOrderService;
+import org.zhinanzhen.b.service.ServicePackageService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
 import org.zhinanzhen.tb.controller.BaseController;
@@ -41,6 +42,9 @@ public class ServiceOrderController extends BaseController {
 
 	@Resource
 	UserService userService;
+	
+	@Resource
+	ServicePackageService servicePackageService;
 
 	public enum ReviewAdviserStateEnum {
 		PENDING, REVIEW, APPLY, COMPLETE, PAID, CLOSE;
@@ -196,6 +200,7 @@ public class ServiceOrderController extends BaseController {
 			if (StringUtil.isNotEmpty(closedReason))
 				serviceOrderDto.setClosedReason(closedReason);
 			if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
+				String errMsg = "";
 				if (adminUserLoginInfo != null)
 					serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
 							ReviewAdviserStateEnum.PENDING.toString(), null, null, null);
@@ -204,9 +209,19 @@ public class ServiceOrderController extends BaseController {
 					List<String> servicePackageIdList = Arrays.asList(servicePackageIds.split(","));
 					serviceOrderDto.setParentId(serviceOrderDto.getId());
 					serviceOrderDto.setId(0);
-					// TODO:sulei
+					for (String servicePackageId : servicePackageIdList) {
+						int id = StringUtil.toInt(servicePackageId);
+						// TODO:sulei 查询服务包并set到dto里
+						if (servicePackageService.getById(id) == null) {
+							errMsg += "服务包不存在(" + id + "),请检查参数. ";
+							continue;
+						}
+						serviceOrderDto.setServicePackageId(id);
+						if (serviceOrderService.addServiceOrder(serviceOrderDto) <= 0)
+							errMsg += "子服务订单创建失败(" + serviceOrderDto + "). ";
+					}
 				}
-				return new Response<Integer>(0, serviceOrderDto.getId());
+				return new Response<Integer>(0, errMsg, serviceOrderDto.getId());
 			} else
 				return new Response<Integer>(1, "创建失败.", 0);
 		} catch (ServiceException e) {

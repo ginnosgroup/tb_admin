@@ -19,14 +19,15 @@ import org.zhinanzhen.b.dao.pojo.MaraDO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.ReceiveTypeDO;
 import org.zhinanzhen.b.dao.pojo.SchoolDO;
-import org.zhinanzhen.b.dao.pojo.SchoolPackageDO;
 import org.zhinanzhen.b.dao.pojo.ServiceDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderReviewDO;
+import org.zhinanzhen.b.dao.pojo.ServicePackageDO;
 import org.zhinanzhen.b.dao.pojo.SubagencyDO;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
+import org.zhinanzhen.b.service.pojo.ServicePackageDTO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
@@ -188,9 +189,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				serviceOrderDto.setService(mapper.map(serviceDo, ServiceDTO.class));
 			// 查询服务包类型
 			if (serviceOrderDto.getServicePackageId() > 0) {
-				SchoolPackageDO schoolPackageDo = servicePackageDao.getById(serviceOrderDto.getServicePackageId());
-				if (schoolPackageDo != null)
-					serviceOrderDto.setServicePackageType(schoolPackageDo.getType());
+				ServicePackageDO servicePackageDo = servicePackageDao.getById(serviceOrderDto.getServicePackageId());
+				if (servicePackageDo != null)
+					serviceOrderDto.setServicePackage(mapper.map(servicePackageDo, ServicePackageDTO.class));
 			}
 			// 查询收款方式
 			ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(serviceOrderDto.getReceiveTypeId());
@@ -248,6 +249,12 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			ServiceDO serviceDo = serviceDao.getServiceById(serviceOrderDto.getServiceId());
 			if (serviceDo != null)
 				serviceOrderDto.setService(mapper.map(serviceDo, ServiceDTO.class));
+			// 查询服务包类型
+			if (serviceOrderDto.getServicePackageId() > 0) {
+				ServicePackageDO servicePackageDo = servicePackageDao.getById(serviceOrderDto.getServicePackageId());
+				if (servicePackageDo != null)
+					serviceOrderDto.setServicePackage(mapper.map(servicePackageDo, ServicePackageDTO.class));
+			}
 			// 查询收款方式
 			ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(serviceOrderDto.getReceiveTypeId());
 			if (receiveTypeDo != null)

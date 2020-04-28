@@ -22,12 +22,12 @@ public class ServiceOrderDTO {
 	private int serviceId;
 
 	private ServiceDTO service;
-	
+
 	private int parentId;
-	
+
 	private int servicePackageId;
-	
-	private String servicePackageType;
+
+	private ServicePackageDTO servicePackage;
 
 	private int schoolId;
 
@@ -64,7 +64,7 @@ public class ServiceOrderDTO {
 	private String paymentVoucherImageUrl1;
 
 	private String paymentVoucherImageUrl2;
-	
+
 	private String paymentVoucherImageUrl3;
 
 	private String visaVoucherImageUrl;

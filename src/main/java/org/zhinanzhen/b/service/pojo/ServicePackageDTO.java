@@ -1,9 +1,9 @@
-package org.zhinanzhen.b.dao.pojo;
+package org.zhinanzhen.b.service.pojo;
 
 import lombok.Data;
 
 @Data
-public class ServicePackageDO {
+public class ServicePackageDTO {
 
 	private int id;
 
