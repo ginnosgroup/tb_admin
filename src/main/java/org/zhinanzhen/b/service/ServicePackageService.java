@@ -7,8 +7,12 @@ import org.zhinanzhen.tb.service.ServiceException;
 
 public interface ServicePackageService {
 
-	public ServicePackageDTO getById(int id) throws ServiceException;
+	int add(ServicePackageDTO servicePackageDto) throws ServiceException;
 
-	public List<ServicePackageDTO> list() throws ServiceException;
+	List<ServicePackageDTO> list(Integer serviceId) throws ServiceException;
+
+	ServicePackageDTO getById(int id) throws ServiceException;
+
+	int delete(int id) throws ServiceException;
 
 }

@@ -22,11 +22,33 @@ public class ServicePackageServiceImpl extends BaseService implements ServicePac
 	private ServicePackageDAO servicePackageDao;
 
 	@Override
-	public List<ServicePackageDTO> list() throws ServiceException {
+	public int add(ServicePackageDTO servicePackageDto) throws ServiceException {
+		if (servicePackageDto == null) {
+			ServiceException se = new ServiceException("servicePackageDto is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			ServicePackageDO servicePackageDo = mapper.map(servicePackageDto, ServicePackageDO.class);
+			if (servicePackageDao.add(servicePackageDo) > 0) {
+				servicePackageDto.setId(servicePackageDo.getId());
+				return servicePackageDo.getId();
+			} else {
+				return 0;
+			}
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
+	public List<ServicePackageDTO> list(Integer serviceId) throws ServiceException {
 		List<ServicePackageDTO> servicePackageDtoList = new ArrayList<>();
 		List<ServicePackageDO> servicePackageDoList = new ArrayList<>();
 		try {
-			servicePackageDoList = servicePackageDao.listAll();
+			servicePackageDoList = servicePackageDao.list(serviceId);
 			if (servicePackageDoList == null)
 				return null;
 		} catch (Exception e) {
@@ -58,6 +80,22 @@ public class ServicePackageServiceImpl extends BaseService implements ServicePac
 			throw se;
 		}
 		return servicePackageDto;
+	}
+
+	@Override
+	public int delete(int id) throws ServiceException {
+		if (id <= 0) {
+			ServiceException se = new ServiceException("id error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			return servicePackageDao.delete(id);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
 	}
 
 }

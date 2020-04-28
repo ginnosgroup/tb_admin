@@ -19,7 +19,7 @@
                 #{num});
     </insert>
     
-    <select id="listAll" resultType="org.zhinanzhen.b.dao.pojo.ServicePackageDO">
+    <select id="list" resultType="org.zhinanzhen.b.dao.pojo.ServicePackageDO">
         SELECT
             id,
             gmt_create AS GmtCreate,
@@ -27,6 +27,10 @@
             service_id AS serviceId,
             num
         FROM b_service_package
+        WHERE 1 = 1
+        <if test='serviceId != null'>
+            AND service_id = #{serviceId}
+        </if>
         ORDER BY num ASC;
     </select>
     
@@ -39,5 +43,9 @@
             num
         FROM b_service_package WHERE id = #{id, jdbcType=INTEGER};
     </select>
+    
+    <delete id="delete" parameterType="java.lang.Integer">
+		DELETE FROM b_service_package WHERE id = #{id, jdbcType=INTEGER}
+	</delete>
 
 </mapper>
