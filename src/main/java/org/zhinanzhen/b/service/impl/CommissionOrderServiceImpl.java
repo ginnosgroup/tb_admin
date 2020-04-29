@@ -195,7 +195,8 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
 			throw se;
 		}
-		commissionOrderListDoList.forEach(commissionOrderListDo -> buildCommissionOrderListDto(commissionOrderListDo));
+		commissionOrderListDoList.forEach(commissionOrderListDo -> commissionOrderListDtoList
+				.add(buildCommissionOrderListDto(commissionOrderListDo)));
 		return commissionOrderListDtoList;
 	}
 
