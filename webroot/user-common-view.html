@@ -103,7 +103,7 @@
 								<label class="control-label"><strong>备注：</strong></label>
 								<label id="b18" style="word-break:break-all;"></label>
 							</div>
-							<div>
+							<div style="display:none;">
 									<div style="text-align: center;">流程进度条...待实现...</div>
 							</div>
 							<div v-if="ap_list==='WA'">
@@ -239,7 +239,7 @@
 							<hr/>
 							<div class="form-group" style="width:100%;line-height:40px;">
 									<label class="control-label"><strong>备注：</strong></label>
-									<textarea id="c16a" class="form-control" style="width:98%"></textarea>
+									<textarea id="c16a" class="form-control" style="width:98%;display:none;"></textarea>
 									<label id="c16" style="word-break:break-all;"></label>									
 							</div>							
 							<div id="show_reqcommission" v-if="flowstate_wa==='PAID' && ap_list === 'GW' && !submitted" style="width:100%;margin-bottom:10px;display:;">
@@ -314,7 +314,7 @@
 											<textarea id="c33" class="form-control" style="width:98%;font-weight:normal;"></textarea>
 									</div>
 							</div>
-							<div>
+							<div style="display:none;">
 									<div style="text-align: center;">流程进度条...待实现...</div>
 							</div>
 							<div v-if="ap_list==='WA'">
@@ -527,7 +527,7 @@ function show_addnewservice_id(orderId,type)
         	$('#show_addnewservice2_id #c15').html(response.received);
         	if (response.remarks) response.remarks = url_replace(response.remarks);        	
         	$('#show_addnewservice2_id #c16').html(response.remarks);
-        	$('#show_addnewservice2_id #c16a').val(response.remarks);
+        	//$('#show_addnewservice2_id #c16a').val(response.remarks);
         	//CEO付款凭证
         	if (response.paymentVoucherImageUrl3)
         	{
@@ -541,7 +541,7 @@ function show_addnewservice_id(orderId,type)
         	
         	v_sub.flowstate_gw = response.review.adviserState;
         	v_sub.flowstate_wa = response.review.officialState;
-        	if (v_sub.ap_list === 'WA' && v_sub.flowstate_wa!='PAID')
+        	/*if (v_sub.ap_list === 'WA' && v_sub.flowstate_wa!='PAID')
         	{
         			$('#show_addnewservice2_id #c16').hide();
         			$('#show_addnewservice2_id #c16a').show();
@@ -549,7 +549,7 @@ function show_addnewservice_id(orderId,type)
         	{
         			$('#show_addnewservice2_id #c16').show();
         			$('#show_addnewservice2_id #c16a').hide();
-        	}
+        	}*/
         	if (v_sub.ap_list === 'WA' && v_sub.flowstate_wa!='APPLY' && v_sub.flowstate_wa!='PAID' && v_sub.flowstate_wa!='COMPLETE') 
         	{
         			$('#show_addnewservice2_id #c7a').val(v_sub.subagency_id);
