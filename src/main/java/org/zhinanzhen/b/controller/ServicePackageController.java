@@ -30,12 +30,24 @@ public class ServicePackageController extends BaseController {
 	@Resource
 	ServicePackageService servicePackageService;
 
+	public enum TypeEnum {
+		CA, EOI, SA, VA;
+		public static TypeEnum get(String name) {
+			for (TypeEnum e : TypeEnum.values())
+				if (e.toString().equals(name))
+					return e;
+			return null;
+		}
+	}
+
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> add(@RequestParam(value = "type") String type,
 			@RequestParam(value = "serviceId") int serviceId, @RequestParam(value = "num") int num,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
+			if (TypeEnum.get(type) == null)
+				return new Response<Integer>(1, "服务包类型错误(" + type + ")!", 0);
 			super.setPostHeader(response);
 			if (serviceService.getServiceById(serviceId) == null)
 				return new Response<Integer>(1, "服务项目不存在(" + serviceId + ")!", 0);
