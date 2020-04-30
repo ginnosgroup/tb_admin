@@ -105,6 +105,9 @@ public class ServiceOrderController extends BaseController {
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> addServiceOrder(@RequestParam(value = "type") String type,
+			@RequestParam(value = "peopleNumber", required = false) Integer peopleNumber,
+			@RequestParam(value = "peopleType", required = false) String peopleType,
+			@RequestParam(value = "peopleRemarks", required = false) String peopleRemarks,
 			@RequestParam(value = "serviceId") String serviceId,
 			@RequestParam(value = "schoolId", required = false) String schoolId,
 			@RequestParam(value = "servicePackageIds", required = false) String servicePackageIds,
@@ -142,6 +145,10 @@ public class ServiceOrderController extends BaseController {
 			ServiceOrderDTO serviceOrderDto = new ServiceOrderDTO();
 			if (StringUtil.isNotEmpty(type))
 				serviceOrderDto.setType(type);
+			serviceOrderDto.setPeopleNumber(peopleNumber != null && peopleNumber > 0 ? peopleNumber : 1);
+			serviceOrderDto.setPeopleType(StringUtil.isNotEmpty(peopleType) ? peopleType : "1A");
+			if (StringUtil.isNotEmpty(peopleRemarks))
+				serviceOrderDto.setPeopleRemarks(peopleRemarks);
 			if (StringUtil.isNotEmpty(serviceId))
 				serviceOrderDto.setServiceId(StringUtil.toInt(serviceId));
 			if ("OVST".equalsIgnoreCase(type) && (StringUtil.isEmpty(schoolId) || "0".equals(schoolId.trim())))
@@ -233,6 +240,9 @@ public class ServiceOrderController extends BaseController {
 	@ResponseBody
 	public Response<Integer> updateServiceOrder(@RequestParam(value = "id") int id,
 			@RequestParam(value = "type", required = false) String type,
+			@RequestParam(value = "peopleNumber", required = false) Integer peopleNumber,
+			@RequestParam(value = "peopleType", required = false) String peopleType,
+			@RequestParam(value = "peopleRemarks", required = false) String peopleRemarks,
 			@RequestParam(value = "serviceId", required = false) String serviceId,
 			@RequestParam(value = "schoolId", required = false) String schoolId,
 			@RequestParam(value = "isSettle", required = false) String isSettle,
@@ -267,6 +277,12 @@ public class ServiceOrderController extends BaseController {
 				return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
 			if (StringUtil.isNotEmpty(type))
 				serviceOrderDto.setType(type);
+			if (peopleNumber != null && peopleNumber > 0)
+				serviceOrderDto.setPeopleNumber(peopleNumber);
+			if (StringUtil.isNotEmpty(peopleType))
+				serviceOrderDto.setPeopleType(peopleType);
+			if (StringUtil.isNotEmpty(peopleRemarks))
+				serviceOrderDto.setPeopleRemarks(peopleRemarks);
 			if (StringUtil.isNotEmpty(serviceId))
 				serviceOrderDto.setServiceId(StringUtil.toInt(serviceId));
 			if (StringUtil.isNotEmpty(schoolId))

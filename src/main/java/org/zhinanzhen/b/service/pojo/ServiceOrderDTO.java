@@ -19,6 +19,12 @@ public class ServiceOrderDTO {
 
 	private String type;
 
+	private int peopleNumber;
+
+	private String peopleType;
+
+	private String peopleRemarks;
+
 	private int serviceId;
 
 	private ServiceDTO service;

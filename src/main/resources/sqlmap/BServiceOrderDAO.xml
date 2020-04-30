@@ -10,6 +10,9 @@
                 gmt_modify,
                 finish_date,
                 type,
+                people_number,
+                people_type,
+                people_remarks,
                 service_id,
                 parent_id,
                 service_package_id,
@@ -48,6 +51,9 @@
                 now(),
                 NULL,
                 #{type},
+                #{peopleNumber},
+                #{peopleType},
+                #{peopleRemarks},
                 #{serviceId},
                 #{parentId},
                 #{servicePackageId},
@@ -88,6 +94,15 @@
         SET gmt_modify = now()
         <if test='type != null and type != ""'>
             , type = #{type}
+        </if>
+        <if test='peopleNumber != null and peopleNumber != ""'>
+            , people_number = #{peopleNumber}
+        </if>
+        <if test='peopleType != null and peopleType != ""'>
+            , people_type = #{peopleType}
+        </if>
+        <if test='peopleRemarks != null and peopleRemarks != ""'>
+            , people_remarks = #{peopleRemarks}
         </if>
         <if test='serviceId != null and schoolId > 0'>
             , service_id = #{serviceId}
@@ -237,6 +252,9 @@
             gmt_create AS GmtCreate,
             finish_date AS finishDate,
             type,
+            people_number AS peopleNumber,
+            people_type AS peopleType,
+            people_remarks AS peopleRemarks,
             service_id AS serviceId,
             parent_id AS parentId,
             service_package_id AS servicePackageId,
@@ -311,6 +329,9 @@
             gmt_create AS GmtCreate,
             finish_date AS finishDate,
             type,
+            people_number AS peopleNumber,
+            people_type AS peopleType,
+            people_remarks AS peopleRemarks,
             service_id AS serviceId,
             parent_id AS parentId,
             service_package_id AS servicePackageId,

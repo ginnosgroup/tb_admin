@@ -317,12 +317,12 @@ CREATE TABLE `b_service` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
-`name` varchar(32) DEFAULT NULL COMMENT '项目名称',
+  `name` varchar(32) DEFAULT NULL COMMENT '项目名称',
   `code` varchar(8) DEFAULT NULL COMMENT '项目编码',
   `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已删除'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
--- 服务包*
+-- 服务包
 CREATE TABLE `b_service_package` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
@@ -339,9 +339,12 @@ CREATE TABLE `b_service_order` (
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `finish_date` datetime DEFAULT NULL COMMENT '办理完成时间',
   `type` varchar(4) DEFAULT NULL COMMENT '服务类型(VISA:签证服务,OVST:留学服务)',
+`people_number` int NOT NULL DEFAULT 1 COMMENT '人数',
+`people_type` varchar(4) NOT NULL DEFAULT '1A' COMMENT '人类型(1A:单人,1B:单人提配偶,2A:带配偶,XA:带孩子,XB:带配偶孩子,XC:其它)',
+`people_remarks` text DEFAULT NULL COMMENT '人备注',
   `service_id` int NOT NULL COMMENT '服务项目编号 (对应b_service.id)',
-`parent_id` int DEFAULT NULL COMMENT '父服务订单编号 (对应b_service_order.id)',
-`service_package_id` int DEFAULT NULL COMMENT '服务包编号 (对应b_service_package.id,仅子订单才有)',
+  `parent_id` int DEFAULT NULL COMMENT '父服务订单编号 (对应b_service_order.id)',
+  `service_package_id` int DEFAULT NULL COMMENT '服务包编号 (对应b_service_package.id,仅子订单才有)',
   `school_id` int DEFAULT NULL COMMENT '学校编号 (对应b_school.id,留学服务专用字段)',
   `state` varchar(8) NOT NULL COMMENT '状态 (PENDING:待提交审核,REVIEW:审核中,APPLY:服务申请中,COMPLETE:服务申请完成,PAID:完成-支付成功,CLOSE:关闭)',
   `review_state` varchar(8) DEFAULT NULL COMMENT '审批状态 (OFFICIAL:文案审批通过,MARA:Mara审批通过,KJ:财务审批通过)',
