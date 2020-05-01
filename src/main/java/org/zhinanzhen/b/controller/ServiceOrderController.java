@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -109,7 +110,8 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "peopleType", required = false) String peopleType,
 			@RequestParam(value = "peopleRemarks", required = false) String peopleRemarks,
 			@RequestParam(value = "serviceId") String serviceId,
-			@RequestParam(value = "schoolId", required = false) String schoolId,
+			@RequestParam(value = "schoolId", required = false) Integer schoolId,
+			@RequestParam(value = "schoolId2", required = false) Integer schoolId2,
 			@RequestParam(value = "servicePackageIds", required = false) String servicePackageIds,
 			@RequestParam(value = "isSettle", required = false) String isSettle,
 			@RequestParam(value = "isDepositUser", required = false) String isDepositUser,
@@ -143,6 +145,7 @@ public class ServiceOrderController extends BaseController {
 					&& !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 				return new Response<Integer>(1, "仅顾问和超级管理员能创建服务订单.", 0);
 			ServiceOrderDTO serviceOrderDto = new ServiceOrderDTO();
+			serviceOrderDto.setCode(UUID.randomUUID().toString());
 			if (StringUtil.isNotEmpty(type))
 				serviceOrderDto.setType(type);
 			serviceOrderDto.setPeopleNumber(peopleNumber != null && peopleNumber > 0 ? peopleNumber : 1);
@@ -151,10 +154,10 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setPeopleRemarks(peopleRemarks);
 			if (StringUtil.isNotEmpty(serviceId))
 				serviceOrderDto.setServiceId(StringUtil.toInt(serviceId));
-			if ("OVST".equalsIgnoreCase(type) && (StringUtil.isEmpty(schoolId) || "0".equals(schoolId.trim())))
+			if ("OVST".equalsIgnoreCase(type) && (schoolId != null && schoolId > 0))
 				return new Response<Integer>(1, "创建留学服务订单必须选择一个学校.", 0);
-			if (StringUtil.isNotEmpty(schoolId))
-				serviceOrderDto.setSchoolId(StringUtil.toInt(schoolId));
+			if (schoolId != null && schoolId > 0)
+				serviceOrderDto.setSchoolId(schoolId);
 			serviceOrderDto.setState(ReviewAdviserStateEnum.PENDING.toString());
 			serviceOrderDto.setSettle(isSettle != null && "true".equalsIgnoreCase(isSettle));
 			serviceOrderDto.setDepositUser(isDepositUser != null && "true".equalsIgnoreCase(isDepositUser));
@@ -207,28 +210,35 @@ public class ServiceOrderController extends BaseController {
 			if (StringUtil.isNotEmpty(closedReason))
 				serviceOrderDto.setClosedReason(closedReason);
 			if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
-				String errMsg = "";
+				String msg = "";
 				if (adminUserLoginInfo != null)
 					serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
 							ReviewAdviserStateEnum.PENDING.toString(), null, null, null);
-				//　创建子服务订单
-				if (StringUtil.isNotEmpty(servicePackageIds)) {
+				// 创建子服务订单
+				if (StringUtil.isNotEmpty(servicePackageIds) && "VISA".equalsIgnoreCase(type)) { // 签证类型才有子服务订单
 					List<String> servicePackageIdList = Arrays.asList(servicePackageIds.split(","));
 					serviceOrderDto.setParentId(serviceOrderDto.getId());
 					serviceOrderDto.setId(0);
 					for (String servicePackageId : servicePackageIdList) {
 						int id = StringUtil.toInt(servicePackageId);
-						// TODO:sulei 查询服务包并set到dto里
 						if (servicePackageService.getById(id) == null) {
-							errMsg += "服务包不存在(" + id + "),请检查参数. ";
+							msg += "服务包不存在(" + id + "),请检查参数. ";
 							continue;
 						}
 						serviceOrderDto.setServicePackageId(id);
 						if (serviceOrderService.addServiceOrder(serviceOrderDto) <= 0)
-							errMsg += "子服务订单创建失败(" + serviceOrderDto + "). ";
+							msg += "子服务订单创建失败(" + serviceOrderDto + "). ";
 					}
 				}
-				return new Response<Integer>(0, errMsg, serviceOrderDto.getId());
+				if (schoolId2 != null && schoolId2 > 0 && "OVST".equalsIgnoreCase(type)) {
+					serviceOrderDto.setId(0);
+					serviceOrderDto.setSchoolId(schoolId2);
+					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0)
+						msg += "创建第二学校服务订单成功(第二服务订单编号:" + serviceOrderDto.getId() + "). ";
+					else
+						msg += "创建第二学校服务订单失败(第二学校编号:" + schoolId2 + "). ";
+				}
+				return new Response<Integer>(0, msg, serviceOrderDto.getId());
 			} else
 				return new Response<Integer>(1, "创建失败.", 0);
 		} catch (ServiceException e) {

@@ -12,6 +12,8 @@ public class ServiceOrderDO {
 	private int id;
 
 	private Date gmtCreate;
+	
+	private String code;
 
 	private Date finishDate;
 

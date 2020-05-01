@@ -337,6 +337,7 @@ CREATE TABLE `b_service_order` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+`code` varchar(64) DEFAULT NULL COMMENT '分组编码',
   `finish_date` datetime DEFAULT NULL COMMENT '办理完成时间',
   `type` varchar(4) DEFAULT NULL COMMENT '服务类型(VISA:签证服务,OVST:留学服务)',
 `people_number` int NOT NULL DEFAULT 1 COMMENT '人数',

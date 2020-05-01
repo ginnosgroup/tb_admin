@@ -8,6 +8,7 @@
             INTO b_service_order (
                 gmt_create,
                 gmt_modify,
+                code,
                 finish_date,
                 type,
                 people_number,
@@ -49,6 +50,7 @@
             VALUES (
                 now(),
                 now(),
+                #{code},
                 NULL,
                 #{type},
                 #{peopleNumber},
@@ -250,6 +252,7 @@
         SELECT
             id,
             gmt_create AS GmtCreate,
+            code,
             finish_date AS finishDate,
             type,
             people_number AS peopleNumber,
@@ -327,6 +330,7 @@
         SELECT
             id,
             gmt_create AS GmtCreate,
+            code,
             finish_date AS finishDate,
             type,
             people_number AS peopleNumber,

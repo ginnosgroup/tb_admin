@@ -189,7 +189,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 						msg += id + "计算失败. (佣金办理时间不在设置合同时间范围内);";
 					else
 						msg += id + "计算失败. ;";
-				}
+				} else
+					msg += "佣金订单创建失败. (" + commissionOrderDto.toString() + ");";
 			}
 			serviceOrderDto.setSubmitted(true);
 			serviceOrderService.updateServiceOrder(serviceOrderDto); // 同时更改服务订单状态

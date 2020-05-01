@@ -121,7 +121,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 		try {
 			authNickname = new String(Base64Util.encodeBase64(authNickname.getBytes()));
 		} catch (Exception e) {
-			System.out.println(("昵称转码失败"));
+//			System.out.println(("昵称转码失败"));
 		}
 		try {
 			if (authType == null) {
@@ -153,7 +153,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 			try {
 				userDto.setAuthNickname(new String(Base64Util.decodeBase64(userDto.getAuthNickname()), "utf-8"));
 			} catch (Exception e) {
-				System.out.println(("昵称转码失败 userId = " + userDto.getId()));
+//				System.out.println(("昵称转码失败 userId = " + userDto.getId()));
 			}
 			userDto.setTagList(listTagByUserId(userDto.getId()));
 			userDtoList.add(userDto);
@@ -191,7 +191,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 			try {
 				userDto.setAuthNickname(new String(Base64Util.decodeBase64(userDto.getAuthNickname()), "utf-8"));
 			} catch (Exception e) {
-				System.out.println(("昵称转码失败 userId = " + userDto.getId()));
+//				System.out.println(("昵称转码失败 userId = " + userDto.getId()));
 			}
 			System.out.println("new:" + userDto.getAuthNickname());
 		} catch (Exception e) {
@@ -311,7 +311,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 			try {
 				userDto.setAuthNickname(new String(Base64Util.decodeBase64(userDto.getAuthNickname()), "utf-8"));
 			} catch (Exception e) {
-				System.out.println(("昵称转码失败 userId = " + userDto.getId()));
+//				System.out.println(("昵称转码失败 userId = " + userDto.getId()));
 			}
 			userDto.setTagList(listTagByUserId(userDto.getId()));
 			userDtoList.add(userDto);
