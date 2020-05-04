@@ -14,7 +14,7 @@ public class ServiceOrderDTO {
 	private int id;
 
 	private Date gmtCreate;
-	
+
 	private String code;
 
 	private Date finishDate;
@@ -100,6 +100,10 @@ public class ServiceOrderDTO {
 	private int adviserId;
 
 	private AdviserDTO adviser;
+
+	private int adviserId2;
+
+	private AdviserDTO adviser2;
 
 	private int officialId;
 

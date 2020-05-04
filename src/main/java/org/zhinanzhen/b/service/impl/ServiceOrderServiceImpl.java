@@ -209,6 +209,10 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderDto.getAdviserId());
 			if (adviserDo != null)
 				serviceOrderDto.setAdviser(mapper.map(adviserDo, AdviserDTO.class));
+			// 查询顾问2
+			AdviserDO adviserDo2 = adviserDao.getAdviserById(serviceOrderDto.getAdviserId2());
+			if (adviserDo2 != null)
+				serviceOrderDto.setAdviser2(mapper.map(adviserDo2, AdviserDTO.class));
 			// 查询文案
 			OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDto.getOfficialId());
 			if (officialDo != null)
@@ -271,6 +275,10 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderDto.getAdviserId());
 			if (adviserDo != null)
 				serviceOrderDto.setAdviser(mapper.map(adviserDo, AdviserDTO.class));
+			// 查询顾问2
+			AdviserDO adviserDo2 = adviserDao.getAdviserById(serviceOrderDto.getAdviserId2());
+			if (adviserDo2 != null)
+				serviceOrderDto.setAdviser2(mapper.map(adviserDo2, AdviserDTO.class));
 			// 查询文案
 			OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDto.getOfficialId());
 			if (officialDo != null)

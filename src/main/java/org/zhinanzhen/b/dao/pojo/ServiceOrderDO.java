@@ -86,6 +86,8 @@ public class ServiceOrderDO {
 	private int maraId;
 
 	private int adviserId;
+	
+	private int adviserId2;
 
 	private int officialId;
 

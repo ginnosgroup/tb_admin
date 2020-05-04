@@ -43,6 +43,7 @@
                 user_id,
                 mara_id,
                 adviser_id,
+                adviser_id_2,
                 official_id,
                 remarks,
                 closed_reason,
@@ -85,6 +86,7 @@
                 #{userId},
                 #{maraId},
                 #{adviserId},
+                #{adviserId2},
                 #{officialId},
                 #{remarks},
                 #{closedReason},
@@ -193,6 +195,9 @@
         <if test='adviserId != null and adviserId > 0'>
             , adviser_id = #{adviserId}
         </if>
+        <if test='adviserId2 != null and adviserId2 > 0'>
+            , adviser_id_2 = #{adviserId2}
+        </if>
         <if test='officialId != null and officialId > 0'>
             , official_id = #{officialId}
         </if>
@@ -233,16 +238,19 @@
 				#{reviewStateList}
 			</foreach>
 		</if>
-		<if test='userId != null'>
+		<if test='userId != null and userId > 0'>
 			AND user_id = #{userId}
 		</if>
-		<if test='maraId != null'>
+		<if test='maraId != null and maraId > 0'>
 			AND mara_id = #{maraId}
 		</if>
-		<if test='adviserId != null'>
+		<if test='adviserId != null and adviserId > 0'>
 			AND adviser_id = #{adviserId}
 		</if>
-		<if test='officialId != null'>
+		<if test='adviserId2 != null and adviserId2 > 0'>
+            AND adviser_id_2 = #{adviserId2}
+        </if>
+		<if test='officialId != null and officialId > 0'>
 			AND official_id = #{officialId}
 		</if>
         ;
@@ -310,16 +318,19 @@
 				#{reviewStateList}
 			</foreach>
 		</if>
-		<if test='userId != null'>
+		<if test='userId != null and userId > 0'>
 			AND user_id = #{userId}
 		</if>
-		<if test='maraId != null'>
+		<if test='maraId != null and maraId > 0'>
 			AND mara_id = #{maraId}
 		</if>
-		<if test='adviserId != null'>
+		<if test='adviserId != null and adviserId > 0'>
 			AND adviser_id = #{adviserId}
 		</if>
-		<if test='officialId != null'>
+		<if test='adviserId2 != null and adviserId2 > 0'>
+            AND adviser_id_2 = #{adviserId2}
+        </if>
+		<if test='officialId != null and officialId > 0'>
 			AND official_id = #{officialId}
 		</if>
         ORDER BY gmt_create DESC
@@ -365,6 +376,7 @@
             user_id AS userId,
             mara_id AS maraId,
             adviser_id AS adviserId,
+            adviser_id_2 AS adviserId2
             official_id AS officialId,
             remarks,
             closed_reason AS closedReason
