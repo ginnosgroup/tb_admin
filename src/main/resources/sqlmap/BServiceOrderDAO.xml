@@ -245,11 +245,8 @@
 			AND mara_id = #{maraId}
 		</if>
 		<if test='adviserId != null and adviserId > 0'>
-			AND adviser_id = #{adviserId}
+			AND (adviser_id = #{adviserId} OR adviser_id_2 = #{adviserId})
 		</if>
-		<if test='adviserId2 != null and adviserId2 > 0'>
-            AND adviser_id_2 = #{adviserId2}
-        </if>
 		<if test='officialId != null and officialId > 0'>
 			AND official_id = #{officialId}
 		</if>
@@ -295,6 +292,7 @@
             user_id AS userId,
             mara_id AS maraId,
             adviser_id AS adviserId,
+            adviser_id_2 AS adviserId2,
             official_id AS officialId,
             remarks,
             closed_reason AS closedReason
@@ -325,11 +323,8 @@
 			AND mara_id = #{maraId}
 		</if>
 		<if test='adviserId != null and adviserId > 0'>
-			AND adviser_id = #{adviserId}
+			AND (adviser_id = #{adviserId} OR adviser_id_2 = #{adviserId})
 		</if>
-		<if test='adviserId2 != null and adviserId2 > 0'>
-            AND adviser_id_2 = #{adviserId2}
-        </if>
 		<if test='officialId != null and officialId > 0'>
 			AND official_id = #{officialId}
 		</if>
@@ -376,7 +371,7 @@
             user_id AS userId,
             mara_id AS maraId,
             adviser_id AS adviserId,
-            adviser_id_2 AS adviserId2
+            adviser_id_2 AS adviserId2,
             official_id AS officialId,
             remarks,
             closed_reason AS closedReason
