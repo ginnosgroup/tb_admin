@@ -154,7 +154,7 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setPeopleRemarks(peopleRemarks);
 			if (StringUtil.isNotEmpty(serviceId))
 				serviceOrderDto.setServiceId(StringUtil.toInt(serviceId));
-			if ("OVST".equalsIgnoreCase(type) && (schoolId != null && schoolId > 0))
+			if ("OVST".equalsIgnoreCase(type) && (schoolId == null || schoolId <= 0))
 				return new Response<Integer>(1, "创建留学服务订单必须选择一个学校.", 0);
 			if (schoolId != null && schoolId > 0)
 				serviceOrderDto.setSchoolId(schoolId);
