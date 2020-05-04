@@ -40,7 +40,7 @@ public class VisaController extends BaseCommissionOrderController {
 	public Response<String> uploadImage(@RequestParam MultipartFile file, HttpServletRequest request,
 			HttpServletResponse response) throws IllegalStateException, IOException {
 		super.setPostHeader(response);
-		return super.upload(file, request.getSession(), "/uploads/payment_voucher_image_url/");
+		return super.upload2(file, request.getSession(), "/uploads/payment_voucher_image_url/");
 	}
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
@@ -144,14 +144,12 @@ public class VisaController extends BaseCommissionOrderController {
 					visaDto.setPaymentVoucherImageUrl1(null);
 					visaDto.setPaymentVoucherImageUrl2(null);
 					visaDto.setState(ReviewKjStateEnum.PENDING.toString()); // 第一笔单子直接进入财务审核状态
+					visaDto.setPerAmount(
+							visaDto.getReceivable() > _perAmount ? visaDto.getReceivable() - _perAmount : 0.00); // 第二笔单子修改本次应收款
 				} else
 					visaDto.setState(ReviewKjStateEnum.REVIEW.toString()); // 第一笔单子直接进入财务审核状态
-				if (visaService.addVisa(visaDto) > 0) {
+				if (visaService.addVisa(visaDto) > 0)
 					visaDtoList.add(visaDto);
-					visaDto.setPerAmount(
-							visaDto.getReceivable() > _perAmount ? visaDto.getReceivable() - _perAmount : 0.00);
-				}
-					
 			}
 			return new Response<List<VisaDTO>>(0, visaDtoList);
 		} catch (ServiceException e) {
