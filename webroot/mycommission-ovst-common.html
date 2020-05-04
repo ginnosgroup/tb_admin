@@ -39,7 +39,11 @@
 							</div>
 							<div class="form-group" style="width:100%;height:40px;">
 								<label class="control-label" style="width:80px;"><strong>提前扣佣：</strong></label>
-								<label id="c5" style="width:50px;"></label>
+								<select class="form-control" style="width:100px;" id="c5a">
+								<option value="0">否</option>
+								<option value="1">是</option>
+								</select>	
+								<label id="c5" style="width:50px;display:none;"></label>
 								<label><strong>保证金客户：</strong></label>
 								<label id="c6" style="width:50px;"></label>
 								<label class="control-label" style="width:80px;margin-left:60px;"><strong>Subagency：</strong></label>
@@ -222,9 +226,11 @@ function edit_commission_detail(serviceId,orderId)
 		    	$('#ovst_id #c9').html(response.official.name);
 		    	$('#ovst_id #c3').html(response.school.name);
 		    	$('#ovst_id #c4').html(response.school.subject);
+		    	var obj_issettle = $("#ovst_id #c5a");
+		    	obj_issettle.val(response.settle);
 		    	var str_issettle = '否';
-		    	if (response.settle) str_issettle = '是';
-		    	$('#ovst_id #c5').html(str_issettle);
+		    	if (response.settle) str_issettle = '是';		    	
+		    	$('#ovst_id #c5').html(str_issettle);		    			    	
 		    	var str_isdeposituser = '否';
 		    	if (response.depositUser)
 		    	{
@@ -408,7 +414,8 @@ function requestCommissionSave()
        	json['adviserId'] = v_sub2.order_detail.adviserId;
        	json['officialId'] = v_sub2.order_detail.officialId;
        	json['isStudying'] = true;
-       	//console.log(json);       	
+       	json['isSettle'] = false;
+       	if ($(f+'#c5a').val() == '1') json['isSettle'] = true;       	    	
        	var d = 0;
        	if ($(f+'#c22').val())
        	{
