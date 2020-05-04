@@ -347,7 +347,7 @@
 									<input type="file" id="f1c" style="display:none">
 									<input type="hidden" id="flist1" value="" />
 									<div id="show_pic" style="display:none;padding-bottom:10px;"></div>
-									<button onclick="upload_receipt_pic('f1c')" id="upload_certificate" type="button" class="btn btn-danger" style="display:;">上传COE凭证</button>
+									<button onclick="upload_receipt_pic('f1c')" id="upload_certificate" type="button" class="btn btn-danger" style="display:;">上传收款凭证</button>
 									<button onclick="reqCommissionOvst()" type="button" class="btn btn-primary">申请月奖</button>
 									</dle>
 									<button v-if="submitted" onclick="window.location.href='mycommission.html'" type="button" class="btn btn-primary">月奖已申请，请至佣金表查看</button>
@@ -356,7 +356,7 @@
 									<input type="file" id="f1b" style="display:none">
 									<input type="hidden" id="flist" value="" />
 									<div id="show_pic" style="display:none;padding-bottom:10px;"></div>
-									<button onclick="upload_receipt_pic('f1b')" id="upload_certificate" type="button" class="btn btn-danger" style="display:none;">上传收款凭证</button>
+									<button onclick="upload_receipt_pic('f1b')" id="upload_certificate" type="button" class="btn btn-danger" style="display:none;">上传COE凭证</button>
 									<button v-if="flowstate_wa!='PAID'" onclick="checkform('OVST');" type="button" class="btn btn-primary">提交</button>							
 									<dle v-if="flowstate_gw==='REVIEW'">
 											<button v-if="flowstate_wa===null" onclick="flowstep('PENDING',0)" id="btnRefuse" type="button" class="btn btn-default">驳回</button>
