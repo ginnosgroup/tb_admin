@@ -148,6 +148,7 @@ public class VisaController extends BaseCommissionOrderController {
 							visaDto.getReceivable() > _perAmount ? visaDto.getReceivable() - _perAmount : 0.00); // 第二笔单子修改本次应收款
 				} else
 					visaDto.setState(ReviewKjStateEnum.REVIEW.toString()); // 第一笔单子直接进入财务审核状态
+System.out.println("visaDto ======== " + installmentNum + ":" + _perAmount + "," + visaDto.getReceivable() + "," + visaDto.getPerAmount());
 				if (visaService.addVisa(visaDto) > 0)
 					visaDtoList.add(visaDto);
 			}
