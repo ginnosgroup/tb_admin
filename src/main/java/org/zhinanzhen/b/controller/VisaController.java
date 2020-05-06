@@ -139,7 +139,6 @@ public class VisaController extends BaseCommissionOrderController {
 			double _perAmount = 0.00;
 			for (int installmentNum = 1; installmentNum <= installment; installmentNum++) {
 				visaDto.setInstallmentNum(installmentNum);
-				_perAmount += visaDto.getPerAmount();
 				if (installmentNum > 1) { // 只给第一个添加支付凭证
 					visaDto.setPaymentVoucherImageUrl1(null);
 					visaDto.setPaymentVoucherImageUrl2(null);
@@ -151,6 +150,7 @@ public class VisaController extends BaseCommissionOrderController {
 System.out.println("visaDto ======== " + installmentNum + ":" + _perAmount + "," + visaDto.getReceivable() + "," + visaDto.getPerAmount());
 				if (visaService.addVisa(visaDto) > 0)
 					visaDtoList.add(visaDto);
+				_perAmount += visaDto.getPerAmount();
 			}
 			return new Response<List<VisaDTO>>(0, visaDtoList);
 		} catch (ServiceException e) {
