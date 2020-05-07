@@ -71,6 +71,7 @@
         SELECT
             id,
             name,
+            subject,
             country
         FROM b_school
         WHERE is_delete = 0
