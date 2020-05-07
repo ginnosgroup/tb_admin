@@ -229,7 +229,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	@Override
 	public List<SubjectSettingDTO> listSubjectSetting(int schoolSettingId) throws ServiceException {
 		List<SubjectSettingDTO> subjectSettingDtoList = new ArrayList<SubjectSettingDTO>();
-		List<SchoolDO> schoolDoList = schoolDao.listSchool(null, null);
+		List<SchoolDO> schoolDoList = schoolDao.list2(null);
 		if (schoolDoList == null)
 			return null;
 		schoolDoList.forEach(schoolDo -> {
