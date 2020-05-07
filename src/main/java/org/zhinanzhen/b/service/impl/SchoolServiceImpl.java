@@ -234,7 +234,9 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 			return null;
 		schoolDoList.forEach(schoolDo -> {
 			String name = schoolDo.getSubject();
-			if (name != null) {
+			SchoolSettingDO schoolSettingDo = schoolSettingDao.get(name);
+			if (StringUtil.isNotEmpty(name) && schoolSettingDo != null
+					&& StringUtil.equals(schoolDo.getName(), schoolSettingDo.getSchoolName())) {
 				SubjectSettingDO subjectSettingDo = subjectSettingDao.get(schoolSettingId, name);
 				if (subjectSettingDo == null) {
 					subjectSettingDo = new SubjectSettingDO();
