@@ -165,15 +165,27 @@
                 </span>
               </a>
             </li>
-            <li>
-              <a href="service.html" class="active">
-                <i class="fa fa-book">
+            <li class="sub-menu">
+            	<a href="javascript:;" class="active">
+								<i class="fa fa-book">
                 </i>
-                <span>
-                  服务项目管理
+								<span>
+                 	 服务管理
                 </span>
-              </a>
-            </li>
+							</a>
+							<ul class="sub">
+								<li class="active">
+									<a href="service.html">
+										服务项目管理
+									</a>
+								</li>
+								<li>
+									<a href="service-package.html">
+										服务包管理
+									</a>
+								</li>								
+							</ul>              
+            </li>            
           	</dli>
           	<li v-if="ap_list!=='KJ' && ap_list!=='WA' && ap_list!=='MA'" class="sub-menu">
 							<a href="javascript:;">
@@ -584,7 +596,7 @@
 								}											
 								this.subject.splice(0,0, {
 									id:'',
-									name: '<input type="text" class="form-control small" style="width:150px;" maxlength="8" id="t1" value="">',
+									name: '<input type="text" class="form-control small" style="width:150px;" id="t1" value="">',
 									code: '<input type="text" class="form-control small" style="width:150px;" maxlength="8" id="t0" value="">',
 									});
 								this.add = true;
