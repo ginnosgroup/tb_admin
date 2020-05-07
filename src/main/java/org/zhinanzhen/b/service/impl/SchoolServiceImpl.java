@@ -233,7 +233,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		if (schoolDoList == null)
 			return null;
 		schoolDoList.forEach(schoolDo -> {
-			String name = schoolDo.getName();
+			String name = schoolDo.getSubject();
 			SubjectSettingDO subjectSettingDo = subjectSettingDao.get(schoolSettingId, name);
 			if (subjectSettingDo == null) {
 				subjectSettingDo = new SubjectSettingDO();
@@ -523,15 +523,14 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		list.forEach(co -> {
 			SubjectSettingDO subjectSettingDo = subjectSettingDao.get(schoolSetting.getId(),
 					schoolSetting.getSchoolName());
-			if (subjectSettingDo != null)
+			if (subjectSettingDo != null) {
 				co.setCommission(subjectSettingDo.getPrice());
-			else
+				System.out.println(
+						co.getId() + "学校设置计算=学校设置金额[" + subjectSettingDo.getPrice() + "]=" + co.getCommission());
+			} else {
 				co.setCommission(co.getAmount()); // 正常情况下是不会执行到这里的
-			// 打印日志
-			if (subjectSettingDo != null)
-				System.out.println(co.getId() + "学校设置计算=学校设置金额[" + subjectSettingDo.getPrice() + "]=" + co.getCommission());
-			else
 				System.out.println(co.getId() + "学校设置计算=本次收款金额[" + co.getAmount() + "]=" + co.getCommission());
+			}
 			updateGST(co);
 			commissionOrderDao.updateCommissionOrder(co);
 		});
@@ -539,15 +538,14 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 
 	private void updateGST(CommissionOrderListDO co) {
 		SubagencyDO subagencyDo = subagencyDao.getSubagencyById(co.getSubagencyId());
-		if (subagencyDo != null)
+		if (subagencyDo != null) {
 			co.setExpectAmount(co.getCommission() * subagencyDo.getCommissionRate() * 1.1);
-		else
-			co.setExpectAmount(co.getCommission() * 1.1);
-		if (subagencyDo != null)
 			System.out.println(co.getId() + "预收业绩=学校设置计算金额[" + co.getCommission() + "]*subagencyRate["
 					+ subagencyDo.getCommissionRate() + "]*1.1=" + co.getExpectAmount());
-		else
+		} else {
+			co.setExpectAmount(co.getCommission() * 1.1);
 			System.out.println(co.getId() + "预收业绩=学校设置计算金额[" + co.getCommission() + "]*1.1=" + co.getExpectAmount());
+		}
 		co.setGst(co.getExpectAmount() / 11);
 		System.out.println(co.getId() + "GST=预收业绩[" + co.getExpectAmount() + "]/11=" + co.getExpectAmount());
 		co.setDeductGst(co.getExpectAmount() - co.getGst());
@@ -555,7 +553,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 				+ co.getDeductGst());
 		if (!CommissionStateEnum.YJY.toString().equalsIgnoreCase(co.getCommissionState())) {
 			co.setBonus(co.getDeductGst() * 0.1);
-			System.out.println(co.getId() + "月奖=DeductGST[" + co.getDeductGst() + "]*1.1=" + co.getBonus());
+			System.out.println(co.getId() + "月奖=DeductGST[" + co.getDeductGst() + "]*0.1=" + co.getBonus());
 		}
 	}
 
