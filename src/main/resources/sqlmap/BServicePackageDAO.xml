@@ -19,6 +19,21 @@
                 #{num});
     </insert>
     
+    <update id="update" parameterType="org.zhinanzhen.b.dao.pojo.ServicePackageDO">
+        UPDATE b_service_package 
+        SET gmt_modify = now()
+        <if test='type != null and type != ""'>
+            , type = #{type}
+        </if>
+        <if test='serviceId != null and serviceId > 0'>
+            , service_id = #{serviceId}
+        </if>
+        <if test='num != null and num > 0'>
+            , num = #{num}
+        </if>
+        WHERE id = #{id};
+    </update>
+    
     <select id="list" resultType="org.zhinanzhen.b.dao.pojo.ServicePackageListDO">
         SELECT
             sp.id,

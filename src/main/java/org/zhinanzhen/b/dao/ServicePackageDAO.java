@@ -10,6 +10,9 @@ public interface ServicePackageDAO {
 
 	public int add(ServicePackageDO servicePackageDO);
 
+	int update(@Param("id") int id, @Param("type") String type, @Param("serviceId") Integer serviceId,
+			@Param("num") Integer num);
+
 	public List<ServicePackageListDO> list(@Param("serviceId") Integer serviceId);
 
 	public ServicePackageDO getById(int id);
