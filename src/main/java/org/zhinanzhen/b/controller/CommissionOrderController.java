@@ -170,9 +170,13 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				} else if (installmentNum == 2 && installmentDueDate2 != null) {
 					commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate2)));
 					commissionOrderDto.setState(ReviewKjStateEnum.PENDING.toString());
+					commissionOrderDto.setPaymentVoucherImageUrl1(null);
+					commissionOrderDto.setPaymentVoucherImageUrl2(null);
 				} else if (installmentNum == 3 && installmentDueDate3 != null) {
 					commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate3)));
 					commissionOrderDto.setState(ReviewKjStateEnum.PENDING.toString());
+					commissionOrderDto.setPaymentVoucherImageUrl1(null);
+					commissionOrderDto.setPaymentVoucherImageUrl2(null);
 				} else
 					break;
 				int id = commissionOrderService.addCommissionOrder(commissionOrderDto);
