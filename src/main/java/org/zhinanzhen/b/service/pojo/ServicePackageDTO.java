@@ -11,6 +11,8 @@ public class ServicePackageDTO {
 
 	private int serviceId;
 
+	private String serviceName;
+
 	private int num;
 
 }

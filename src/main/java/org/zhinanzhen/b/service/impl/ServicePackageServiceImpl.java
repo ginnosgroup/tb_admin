@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.ServicePackageDAO;
 import org.zhinanzhen.b.dao.pojo.ServicePackageDO;
+import org.zhinanzhen.b.dao.pojo.ServicePackageListDO;
 import org.zhinanzhen.b.service.ServicePackageService;
 import org.zhinanzhen.b.service.pojo.ServicePackageDTO;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -46,18 +47,18 @@ public class ServicePackageServiceImpl extends BaseService implements ServicePac
 	@Override
 	public List<ServicePackageDTO> list(Integer serviceId) throws ServiceException {
 		List<ServicePackageDTO> servicePackageDtoList = new ArrayList<>();
-		List<ServicePackageDO> servicePackageDoList = new ArrayList<>();
+		List<ServicePackageListDO> servicePackageListDoList = new ArrayList<>();
 		try {
-			servicePackageDoList = servicePackageDao.list(serviceId);
-			if (servicePackageDoList == null)
+			servicePackageListDoList = servicePackageDao.list(serviceId);
+			if (servicePackageListDoList == null)
 				return null;
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
 			throw se;
 		}
-		for (ServicePackageDO servicePackageDo : servicePackageDoList)
-			servicePackageDtoList.add(mapper.map(servicePackageDo, ServicePackageDTO.class));
+		for (ServicePackageListDO servicePackageListDo : servicePackageListDoList)
+			servicePackageDtoList.add(mapper.map(servicePackageListDo, ServicePackageDTO.class));
 		return servicePackageDtoList;
 	}
 
