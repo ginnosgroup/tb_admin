@@ -38,6 +38,7 @@ import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
 import com.ikasoa.core.ErrorCodeEnum;
+import com.ikasoa.core.utils.StringUtil;
 
 @Service("CommissionOrderService")
 public class CommissionOrderServiceImpl extends BaseService implements CommissionOrderService {
@@ -260,6 +261,8 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			for (CommissionOrderDO commissionOrderDo : list) {
 				totalPerAmount += commissionOrderDo.getPerAmount();
 //				if (commissionOrderDo.getBonus() > 0)
+				if (!StringUtil.andIsBlank(commissionOrderDo.getPaymentVoucherImageUrl1(),
+						commissionOrderDo.getPaymentVoucherImageUrl2()))
 					totalAmount += commissionOrderDo.getAmount();
 			}
 			commissionOrderListDto.setTotalPerAmount(totalPerAmount);
