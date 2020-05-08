@@ -85,5 +85,9 @@ public class VisaDTO {
 	private boolean isClose;
 
 	private List<Date> remindDateList;
+	
+	private double totalPerAmount;
+
+	private double totalAmount;
 
 }

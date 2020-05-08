@@ -254,10 +254,10 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			if (serviceDo != null)
 				commissionOrderListDto.setService(mapper.map(serviceDo, ServiceDTO.class));
 		}
-		double totalPerAmount = 0.00;
-		double totalAmount = 0.00;
 		List<CommissionOrderDO> list = commissionOrderDao.listCommissionOrderByCode(commissionOrderListDo.getCode());
 		if (list != null) {
+			double totalPerAmount = 0.00;
+			double totalAmount = 0.00;
 			for (CommissionOrderDO commissionOrderDo : list) {
 				totalPerAmount += commissionOrderDo.getPerAmount();
 //				if (commissionOrderDo.getBonus() > 0)

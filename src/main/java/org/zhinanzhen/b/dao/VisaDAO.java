@@ -27,6 +27,8 @@ public interface VisaDAO {
 			@Param("adviserId") Integer adviserId, @Param("userId") Integer userId, @Param("offset") int offset,
 			@Param("rows") int rows);
 
+	List<VisaDO> listVisaByCode(@Param("code") String code);
+
 	public double sumBonusByThisMonth();
 
 	public VisaDO getVisaById(int id);
