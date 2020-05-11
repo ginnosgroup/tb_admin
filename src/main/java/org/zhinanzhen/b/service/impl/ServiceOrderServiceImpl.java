@@ -11,6 +11,7 @@ import org.zhinanzhen.b.dao.OfficialDAO;
 import org.zhinanzhen.b.dao.ReceiveTypeDAO;
 import org.zhinanzhen.b.dao.SchoolDAO;
 import org.zhinanzhen.b.dao.ServiceDAO;
+import org.zhinanzhen.b.dao.ServiceOrderCommentDAO;
 import org.zhinanzhen.b.dao.ServiceOrderDAO;
 import org.zhinanzhen.b.dao.ServiceOrderReviewDAO;
 import org.zhinanzhen.b.dao.ServicePackageDAO;
@@ -20,6 +21,7 @@ import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.ReceiveTypeDO;
 import org.zhinanzhen.b.dao.pojo.SchoolDO;
 import org.zhinanzhen.b.dao.pojo.ServiceDO;
+import org.zhinanzhen.b.dao.pojo.ServiceOrderCommentDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderReviewDO;
 import org.zhinanzhen.b.dao.pojo.ServicePackageDO;
@@ -28,8 +30,10 @@ import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
 import org.zhinanzhen.b.service.pojo.ServicePackageDTO;
+import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
+import org.zhinanzhen.tb.dao.pojo.AdminUserDO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -40,6 +44,7 @@ import org.zhinanzhen.b.service.pojo.MaraDTO;
 import org.zhinanzhen.b.service.pojo.OfficialDTO;
 import org.zhinanzhen.b.service.pojo.SchoolDTO;
 import org.zhinanzhen.b.service.pojo.ServiceDTO;
+import org.zhinanzhen.b.service.pojo.ServiceOrderCommentDTO;
 import org.zhinanzhen.b.service.pojo.SubagencyDTO;
 import org.zhinanzhen.b.service.pojo.ReceiveTypeDTO;
 
@@ -80,6 +85,12 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
 	@Resource
 	private ServicePackageDAO servicePackageDao;
+
+	@Resource
+	private ServiceOrderCommentDAO serviceOrderCommentDao;
+
+	@Resource
+	private AdminUserDAO adminUserDao;
 
 	@Override
 	public int addServiceOrder(ServiceOrderDTO serviceOrderDto) throws ServiceException {
@@ -372,6 +383,69 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			serviceOrderReviewDo.setKjState(kjState);
 		serviceOrderReviewDao.addServiceOrderReview(serviceOrderReviewDo);
 		return getServiceOrderById(id);
+	}
+
+	@Override
+	public int addComment(ServiceOrderCommentDTO serviceOrderCommentDto) throws ServiceException {
+		if (serviceOrderCommentDto == null) {
+			ServiceException se = new ServiceException("serviceOrderCommentDto is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			ServiceOrderCommentDO serviceOrderCommentDo = mapper.map(serviceOrderCommentDto,
+					ServiceOrderCommentDO.class);
+			if (serviceOrderCommentDao.add(serviceOrderCommentDo) > 0) {
+				serviceOrderCommentDto.setId(serviceOrderCommentDo.getId());
+				return serviceOrderCommentDo.getId();
+			} else {
+				return 0;
+			}
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
+	public List<ServiceOrderCommentDTO> listComment(int id) throws ServiceException {
+		List<ServiceOrderCommentDTO> serviceOrderCommentDtoList = new ArrayList<>();
+		List<ServiceOrderCommentDO> serviceOrderCommentDoList = new ArrayList<>();
+		try {
+			serviceOrderCommentDoList = serviceOrderCommentDao.list(id);
+			if (serviceOrderCommentDoList == null)
+				return null;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+		for (ServiceOrderCommentDO serviceOrderCommentDo : serviceOrderCommentDoList) {
+			ServiceOrderCommentDTO serviceOrderCommentDto = mapper.map(serviceOrderCommentDo,
+					ServiceOrderCommentDTO.class);
+			AdminUserDO adminUserDo = adminUserDao.getAdminUserById(serviceOrderCommentDo.getAdminUserId());
+			if (adminUserDo != null)
+				serviceOrderCommentDto.setAdminUserName(adminUserDo.getUsername());
+			serviceOrderCommentDtoList.add(serviceOrderCommentDto);
+		}
+		return serviceOrderCommentDtoList;
+	}
+
+	@Override
+	public int deleteComment(int id) throws ServiceException {
+		if (id <= 0) {
+			ServiceException se = new ServiceException("id error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			return serviceOrderCommentDao.delete(id);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
 	}
 
 }

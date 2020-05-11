@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.ServicePackageService;
+import org.zhinanzhen.b.service.pojo.ServiceOrderCommentDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
 import org.zhinanzhen.tb.controller.BaseController;
@@ -43,7 +44,7 @@ public class ServiceOrderController extends BaseController {
 
 	@Resource
 	UserService userService;
-	
+
 	@Resource
 	ServicePackageService servicePackageService;
 
@@ -763,6 +764,51 @@ public class ServiceOrderController extends BaseController {
 					serviceOrderService.reviews(StringUtil.toInt(serviceOrderId)));
 		} catch (ServiceException e) {
 			return new Response<List<ServiceOrderReviewDTO>>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/addComment", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> addComment(@RequestParam(value = "adminUserId", required = false) Integer adminUserId,
+			@RequestParam(value = "serviceOrderId") Integer serviceOrderId,
+			@RequestParam(value = "content") String content, HttpServletRequest request, HttpServletResponse response) {
+		try {
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			super.setPostHeader(response);
+			ServiceOrderCommentDTO serviceOrderCommentDto = new ServiceOrderCommentDTO();
+			serviceOrderCommentDto
+					.setAdminUserId(adminUserLoginInfo != null ? adminUserLoginInfo.getId() : adminUserId);
+			serviceOrderCommentDto.setServiceOrderId(serviceOrderId);
+			serviceOrderCommentDto.setContent(content);
+			if (serviceOrderService.addComment(serviceOrderCommentDto) > 0)
+				return new Response<Integer>(0, serviceOrderCommentDto.getId());
+			else
+				return new Response<Integer>(1, "创建失败.", 0);
+		} catch (ServiceException e) {
+			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
+		}
+	}
+
+	@RequestMapping(value = "/listComment", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<ServiceOrderCommentDTO>> listComment(
+			@RequestParam(value = "serviceOrderId") Integer serviceOrderId, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<List<ServiceOrderCommentDTO>>(0, serviceOrderService.listComment(serviceOrderId));
+		} catch (ServiceException e) {
+			return new Response<List<ServiceOrderCommentDTO>>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/deleteComment", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> deleteComment(@RequestParam(value = "id") int id, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<Integer>(0, serviceOrderService.deleteComment(id));
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), 0);
 		}
 	}
 

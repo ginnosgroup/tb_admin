@@ -394,6 +394,16 @@ CREATE TABLE `b_service_order_review` (
   `admin_user_id` int NOT NULL COMMENT '管理员编号 (对应tb_admin_user.id)'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
+-- 服务订单评论
+CREATE TABLE `b_service_order_comment` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `admin_user_id` int NOT NULL COMMENT '所属管理员编号 (对应tb_admin_user.id)',
+  `service_order_id` int NOT NULL COMMENT '服务订单编号 (对应b_service_order.id)',
+  `content` text NOT NULL COMMENT '内容'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
 -- 佣金订单(留学)
 CREATE TABLE `b_commission_order` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
