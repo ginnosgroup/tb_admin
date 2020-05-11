@@ -6,10 +6,13 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.zhinanzhen.b.dao.ServiceDAO;
 import org.zhinanzhen.b.dao.ServicePackageDAO;
+import org.zhinanzhen.b.dao.pojo.ServiceDO;
 import org.zhinanzhen.b.dao.pojo.ServicePackageDO;
 import org.zhinanzhen.b.dao.pojo.ServicePackageListDO;
 import org.zhinanzhen.b.service.ServicePackageService;
+import org.zhinanzhen.b.service.pojo.ServiceDTO;
 import org.zhinanzhen.b.service.pojo.ServicePackageDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
@@ -18,6 +21,9 @@ import com.ikasoa.core.ErrorCodeEnum;
 
 @Service("ServicePackageService")
 public class ServicePackageServiceImpl extends BaseService implements ServicePackageService {
+	
+	@Resource
+	private ServiceDAO serviceDao;
 
 	@Resource
 	private ServicePackageDAO servicePackageDao;
@@ -57,8 +63,13 @@ public class ServicePackageServiceImpl extends BaseService implements ServicePac
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
 			throw se;
 		}
-		for (ServicePackageListDO servicePackageListDo : servicePackageListDoList)
-			servicePackageDtoList.add(mapper.map(servicePackageListDo, ServicePackageDTO.class));
+		for (ServicePackageListDO servicePackageListDo : servicePackageListDoList) {
+			ServicePackageDTO servicePackageDto = mapper.map(servicePackageListDo, ServicePackageDTO.class);
+			ServiceDO serviceDo = serviceDao.getServiceById(servicePackageDto.getServiceId());
+			if (serviceDo != null)
+				servicePackageDto.setServiceCode(serviceDo.getCode());
+			servicePackageDtoList.add(servicePackageDto);
+		}
 		return servicePackageDtoList;
 	}
 

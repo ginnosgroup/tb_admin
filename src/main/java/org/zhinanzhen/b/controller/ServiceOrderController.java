@@ -216,7 +216,7 @@ public class ServiceOrderController extends BaseController {
 					serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
 							ReviewAdviserStateEnum.PENDING.toString(), null, null, null);
 				// 创建子服务订单
-				if (StringUtil.isNotEmpty(servicePackageIds) && "VISA".equalsIgnoreCase(type)) { // 签证类型才有子服务订单
+				if (StringUtil.isNotEmpty(servicePackageIds)) {
 					List<String> servicePackageIdList = Arrays.asList(servicePackageIds.split(","));
 					serviceOrderDto.setParentId(serviceOrderDto.getId());
 					serviceOrderDto.setId(0);

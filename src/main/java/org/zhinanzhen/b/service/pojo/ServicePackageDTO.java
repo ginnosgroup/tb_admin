@@ -10,6 +10,8 @@ public class ServicePackageDTO {
 	private String type;
 
 	private int serviceId;
+	
+	private String serviceCode;
 
 	private String serviceName;
 
