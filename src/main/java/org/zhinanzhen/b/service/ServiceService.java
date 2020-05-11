@@ -11,7 +11,7 @@ public interface ServiceService {
 
 	public int updateService(int id, String name, String code) throws ServiceException;
 
-	public List<ServiceDTO> listService() throws ServiceException;
+	public List<ServiceDTO> listService(String name) throws ServiceException;
 
 	public ServiceDTO getServiceById(int id) throws ServiceException;
 

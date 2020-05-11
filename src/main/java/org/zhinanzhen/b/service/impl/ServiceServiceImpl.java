@@ -55,11 +55,11 @@ public class ServiceServiceImpl extends BaseService implements ServiceService {
 	}
 
 	@Override
-	public List<ServiceDTO> listService() throws ServiceException {
+	public List<ServiceDTO> listService(String name) throws ServiceException {
 		List<ServiceDTO> serviceDtoList = new ArrayList<ServiceDTO>();
 		List<ServiceDO> serviceDoList = new ArrayList<ServiceDO>();
 		try {
-			serviceDoList = serviceDao.listService();
+			serviceDoList = serviceDao.listService(name);
 			if (serviceDoList == null)
 				return null;
 		} catch (Exception e) {

@@ -11,7 +11,7 @@ public interface ServiceDAO {
 
 	public int updateService(@Param("id") int id, @Param("name") String name, @Param("code") String code);
 
-	public List<ServiceDO> listService();
+	public List<ServiceDO> listService(@Param("name") String name);
 
 	public ServiceDO getServiceById(int id);
 

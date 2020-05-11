@@ -67,10 +67,11 @@ public class ServiceController extends BaseController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<ServiceDTO>> listService(HttpServletResponse response) {
+	public Response<List<ServiceDTO>> listService(@RequestParam(value = "name", required = false) String name,
+			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<List<ServiceDTO>>(0, serviceService.listService());
+			return new Response<List<ServiceDTO>>(0, serviceService.listService(name));
 		} catch (ServiceException e) {
 			return new Response<List<ServiceDTO>>(1, e.getMessage(), null);
 		}
