@@ -791,6 +791,18 @@ public class ServiceOrderController extends BaseController {
 			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
 		}
 	}
+	
+	@RequestMapping(value = "/countComment", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> countComment(@RequestParam(value = "serviceOrderId") Integer serviceOrderId,
+			HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<Integer>(0, serviceOrderService.listComment(serviceOrderId).size());
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), null);
+		}
+	}
 
 	@RequestMapping(value = "/listComment", method = RequestMethod.GET)
 	@ResponseBody
