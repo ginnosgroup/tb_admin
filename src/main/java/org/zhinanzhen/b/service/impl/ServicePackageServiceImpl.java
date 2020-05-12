@@ -12,7 +12,6 @@ import org.zhinanzhen.b.dao.pojo.ServiceDO;
 import org.zhinanzhen.b.dao.pojo.ServicePackageDO;
 import org.zhinanzhen.b.dao.pojo.ServicePackageListDO;
 import org.zhinanzhen.b.service.ServicePackageService;
-import org.zhinanzhen.b.service.pojo.ServiceDTO;
 import org.zhinanzhen.b.service.pojo.ServicePackageDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;

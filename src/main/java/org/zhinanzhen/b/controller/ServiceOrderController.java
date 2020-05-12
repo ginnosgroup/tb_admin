@@ -227,7 +227,10 @@ public class ServiceOrderController extends BaseController {
 							continue;
 						}
 						serviceOrderDto.setServicePackageId(id);
-						if (serviceOrderService.addServiceOrder(serviceOrderDto) <= 0)
+						if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null)
+							serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
+									ReviewAdviserStateEnum.PENDING.toString(), null, null, null);
+						else
 							msg += "子服务订单创建失败(" + serviceOrderDto + "). ";
 					}
 				}
