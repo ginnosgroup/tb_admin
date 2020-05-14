@@ -23,6 +23,8 @@ public interface ServiceOrderDAO {
 			@Param("userId") Integer userId, @Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
 			@Param("officialId") Integer officialId, @Param("offset") int offset, @Param("rows") int rows);
 
+	List<Integer> listServicePackageIdByParentId(@Param("parentId") Integer parentId);
+
 	ServiceOrderDO getServiceOrderById(int id);
 
 	int deleteServiceOrderById(int id);

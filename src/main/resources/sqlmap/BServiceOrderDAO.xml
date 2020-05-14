@@ -332,6 +332,17 @@
         LIMIT #{offset}, #{rows};
     </select>
     
+    <select id="listServicePackageIdByParentId" resultType="java.lang.Integer">
+        SELECT
+            service_package_id AS servicePackageId
+        FROM b_service_order
+        WHERE is_delete = 0
+		<if test='parentId != null and parentId > 0'>
+			AND parent_id = #{parentId}
+		</if>
+        ORDER BY gmt_create DESC;
+    </select>
+    
     <select id="getServiceOrderById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
         SELECT
             id,

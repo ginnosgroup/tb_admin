@@ -117,4 +117,6 @@ public class ServiceOrderDTO {
 
 	private List<ServiceOrderReviewDTO> reviews;
 
+	private List<Integer> childrenServicePackageIds;
+
 }
