@@ -13,6 +13,7 @@ import org.zhinanzhen.b.dao.ReceiveTypeDAO;
 import org.zhinanzhen.b.dao.RemindDAO;
 import org.zhinanzhen.b.dao.ServiceDAO;
 import org.zhinanzhen.b.dao.ServiceOrderReviewDAO;
+import org.zhinanzhen.b.dao.VisaCommentDAO;
 import org.zhinanzhen.b.dao.pojo.VisaDO;
 import org.zhinanzhen.b.dao.pojo.VisaListDO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
@@ -20,12 +21,16 @@ import org.zhinanzhen.b.dao.pojo.ReceiveTypeDO;
 import org.zhinanzhen.b.dao.pojo.RemindDO;
 import org.zhinanzhen.b.dao.pojo.ServiceDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderReviewDO;
+import org.zhinanzhen.b.dao.pojo.VisaCommentDO;
 import org.zhinanzhen.b.service.AbleStateEnum;
 import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
+import org.zhinanzhen.b.service.pojo.VisaCommentDTO;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
+import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
+import org.zhinanzhen.tb.dao.pojo.AdminUserDO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -60,6 +65,12 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 
 	@Resource
 	private ServiceOrderReviewDAO serviceOrderReviewDao;
+
+	@Resource
+	private VisaCommentDAO visaCommentDao;
+
+	@Resource
+	private AdminUserDAO adminUserDao;
 
 	@Override
 	public int addVisa(VisaDTO visaDto) throws ServiceException {
@@ -170,8 +181,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 				double totalAmount = 0.00;
 				for (VisaDO visaDo : list) {
 					totalPerAmount += visaDo.getPerAmount();
-					if (!StringUtil.andIsBlank(visaDo.getPaymentVoucherImageUrl1(),
-							visaDo.getPaymentVoucherImageUrl2()))
+					if (visaDo.getPaymentVoucherImageUrl1() != null || visaDo.getPaymentVoucherImageUrl2() != null)
 						totalAmount += visaDo.getAmount();
 				}
 				visaDto.setTotalPerAmount(totalPerAmount);
@@ -245,6 +255,67 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 					updateVisa(visaDto);
 					break;
 				}
+	}
+
+	@Override
+	public int addComment(VisaCommentDTO visaCommentDto) throws ServiceException {
+		if (visaCommentDto == null) {
+			ServiceException se = new ServiceException("visaCommentDto is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			VisaCommentDO visaCommentDo = mapper.map(visaCommentDto, VisaCommentDO.class);
+			if (visaCommentDao.add(visaCommentDo) > 0) {
+				visaCommentDto.setId(visaCommentDo.getId());
+				return visaCommentDo.getId();
+			} else {
+				return 0;
+			}
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
+	public List<VisaCommentDTO> listComment(int id) throws ServiceException {
+		List<VisaCommentDTO> visaCommentDtoList = new ArrayList<>();
+		List<VisaCommentDO> visaCommentDoList = new ArrayList<>();
+		try {
+			visaCommentDoList = visaCommentDao.list(id);
+			if (visaCommentDoList == null)
+				return null;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+		for (VisaCommentDO visaCommentDo : visaCommentDoList) {
+			VisaCommentDTO visaCommentDto = mapper.map(visaCommentDo, VisaCommentDTO.class);
+			AdminUserDO adminUserDo = adminUserDao.getAdminUserById(visaCommentDo.getAdminUserId());
+			if (adminUserDo != null)
+				visaCommentDto.setAdminUserName(adminUserDo.getUsername());
+			visaCommentDtoList.add(visaCommentDto);
+		}
+		return visaCommentDtoList;
+	}
+
+	@Override
+	public int deleteComment(int id) throws ServiceException {
+		if (id <= 0) {
+			ServiceException se = new ServiceException("id error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			return visaCommentDao.delete(id);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
 	}
 
 }

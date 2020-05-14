@@ -2,6 +2,7 @@ package org.zhinanzhen.b.service;
 
 import java.util.List;
 
+import org.zhinanzhen.b.service.pojo.VisaCommentDTO;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 
@@ -22,5 +23,11 @@ public interface VisaService {
 	public VisaDTO getVisaById(int id) throws ServiceException;
 
 	public int deleteVisaById(int id) throws ServiceException;
+
+	int addComment(VisaCommentDTO visaCommentDto) throws ServiceException;
+
+	List<VisaCommentDTO> listComment(int id) throws ServiceException;
+
+	int deleteComment(int id) throws ServiceException;
 
 }

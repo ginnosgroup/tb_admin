@@ -7,7 +7,7 @@ import org.zhinanzhen.b.dao.pojo.ServiceOrderCommentDO;
 
 public interface ServiceOrderCommentDAO {
 
-	int add(ServiceOrderCommentDO serviceOrderMessageDo);
+	int add(ServiceOrderCommentDO serviceOrderCommentDo);
 
 	public List<ServiceOrderCommentDO> list(@Param("serviceOrderId") Integer serviceOrderId);
 

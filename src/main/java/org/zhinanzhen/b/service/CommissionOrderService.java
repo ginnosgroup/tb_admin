@@ -2,6 +2,7 @@ package org.zhinanzhen.b.service;
 
 import java.util.List;
 
+import org.zhinanzhen.b.service.pojo.CommissionOrderCommentDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -25,5 +26,11 @@ public interface CommissionOrderService {
 			throws ServiceException;
 
 	CommissionOrderListDTO getCommissionOrderById(int id) throws ServiceException;
+	
+	int addComment(CommissionOrderCommentDTO commissionOrderCommentDto) throws ServiceException;
+
+	List<CommissionOrderCommentDTO> listComment(int id) throws ServiceException;
+
+	int deleteComment(int id) throws ServiceException;
 
 }

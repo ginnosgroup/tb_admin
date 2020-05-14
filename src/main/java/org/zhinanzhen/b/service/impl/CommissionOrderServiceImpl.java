@@ -8,12 +8,14 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.controller.BaseCommissionOrderController.ReviewKjStateEnum;
+import org.zhinanzhen.b.dao.CommissionOrderCommentDAO;
 import org.zhinanzhen.b.dao.CommissionOrderDAO;
 import org.zhinanzhen.b.dao.ReceiveTypeDAO;
 import org.zhinanzhen.b.dao.SchoolDAO;
 import org.zhinanzhen.b.dao.ServiceDAO;
 import org.zhinanzhen.b.dao.ServiceOrderReviewDAO;
 import org.zhinanzhen.b.dao.SubagencyDAO;
+import org.zhinanzhen.b.dao.pojo.CommissionOrderCommentDO;
 import org.zhinanzhen.b.dao.pojo.CommissionOrderDO;
 import org.zhinanzhen.b.dao.pojo.CommissionOrderListDO;
 import org.zhinanzhen.b.dao.pojo.ReceiveTypeDO;
@@ -22,6 +24,7 @@ import org.zhinanzhen.b.dao.pojo.ServiceDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderReviewDO;
 import org.zhinanzhen.b.dao.pojo.SubagencyDO;
 import org.zhinanzhen.b.service.CommissionOrderService;
+import org.zhinanzhen.b.service.pojo.CommissionOrderCommentDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.b.service.pojo.SchoolDTO;
@@ -30,15 +33,16 @@ import org.zhinanzhen.b.service.pojo.ReceiveTypeDTO;
 import org.zhinanzhen.b.service.pojo.ServiceDTO;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
+import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
+import org.zhinanzhen.tb.dao.pojo.AdminUserDO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
 import com.ikasoa.core.ErrorCodeEnum;
-import com.ikasoa.core.utils.StringUtil;
 
 @Service("CommissionOrderService")
 public class CommissionOrderServiceImpl extends BaseService implements CommissionOrderService {
@@ -66,6 +70,12 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 
 	@Resource
 	private ServiceDAO serviceDao;
+
+	@Resource
+	private CommissionOrderCommentDAO commissionOrderCommentDao;
+
+	@Resource
+	private AdminUserDAO adminUserDao;
 
 	@Override
 	@Transactional
@@ -260,7 +270,7 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			double totalAmount = 0.00;
 			for (CommissionOrderDO commissionOrderDo : list) {
 				totalPerAmount += commissionOrderDo.getPerAmount();
-//				if (commissionOrderDo.getBonus() > 0)
+				// if (commissionOrderDo.getBonus() > 0)
 				if (commissionOrderDo.getPaymentVoucherImageUrl1() != null
 						|| commissionOrderDo.getPaymentVoucherImageUrl2() != null)
 					totalAmount += commissionOrderDo.getAmount();
@@ -269,6 +279,69 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			commissionOrderListDto.setTotalAmount(totalAmount);
 		}
 		return commissionOrderListDto;
+	}
+
+	@Override
+	public int addComment(CommissionOrderCommentDTO commissionOrderCommentDto) throws ServiceException {
+		if (commissionOrderCommentDto == null) {
+			ServiceException se = new ServiceException("commissionOrderCommentDto is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			CommissionOrderCommentDO commissionOrderCommentDo = mapper.map(commissionOrderCommentDto,
+					CommissionOrderCommentDO.class);
+			if (commissionOrderCommentDao.add(commissionOrderCommentDo) > 0) {
+				commissionOrderCommentDto.setId(commissionOrderCommentDo.getId());
+				return commissionOrderCommentDo.getId();
+			} else {
+				return 0;
+			}
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
+	public List<CommissionOrderCommentDTO> listComment(int id) throws ServiceException {
+		List<CommissionOrderCommentDTO> commissionOrderCommentDtoList = new ArrayList<>();
+		List<CommissionOrderCommentDO> commissionOrderCommentDoList = new ArrayList<>();
+		try {
+			commissionOrderCommentDoList = commissionOrderCommentDao.list(id);
+			if (commissionOrderCommentDoList == null)
+				return null;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+		for (CommissionOrderCommentDO commissionOrderCommentDo : commissionOrderCommentDoList) {
+			CommissionOrderCommentDTO commissionOrderCommentDto = mapper.map(commissionOrderCommentDo,
+					CommissionOrderCommentDTO.class);
+			AdminUserDO adminUserDo = adminUserDao.getAdminUserById(commissionOrderCommentDo.getAdminUserId());
+			if (adminUserDo != null)
+				commissionOrderCommentDto.setAdminUserName(adminUserDo.getUsername());
+			commissionOrderCommentDtoList.add(commissionOrderCommentDto);
+		}
+		return commissionOrderCommentDtoList;
+	}
+
+	@Override
+	public int deleteComment(int id) throws ServiceException {
+		if (id <= 0) {
+			ServiceException se = new ServiceException("id error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			return commissionOrderCommentDao.delete(id);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
 	}
 
 }

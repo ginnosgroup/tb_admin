@@ -213,6 +213,16 @@ CREATE TABLE `b_visa` (
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
+-- 签证佣金订单评论
+CREATE TABLE `b_visa_comment` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `admin_user_id` int NOT NULL COMMENT '所属管理员编号 (对应tb_admin_user.id)',
+  `visa_id` int NOT NULL COMMENT '签证佣金订单编号 (对应b_visa.id)',
+  `content` text NOT NULL COMMENT '内容'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
 -- 移民佣金 (OLD)
 CREATE TABLE `b_brokerage` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
@@ -447,6 +457,16 @@ CREATE TABLE `b_commission_order` (
   `bonus_date` datetime DEFAULT NULL COMMENT '月奖金支付时间',
   `remarks` text DEFAULT NULL COMMENT '备注',
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+-- (留学)佣金订单评论
+CREATE TABLE `b_commission_order_comment` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `admin_user_id` int NOT NULL COMMENT '所属管理员编号 (对应tb_admin_user.id)',
+  `commission_order_id` int NOT NULL COMMENT '佣金订单编号 (对应b_commission_order.id)',
+  `content` text NOT NULL COMMENT '内容'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
 -- 留学-学校
