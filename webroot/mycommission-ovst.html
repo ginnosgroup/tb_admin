@@ -505,7 +505,8 @@
 					adviser_id: sessionStorage.getItem("adviser_id"),
 					official_id: sessionStorage.getItem("official_id"),
 					mara_id: sessionStorage.getItem("mara_id"),
-					kj_id: sessionStorage.getItem("kj_id"),										
+					kj_id: sessionStorage.getItem("kj_id"),
+					arr_ids : getRequestId(),
 					orderId: 0,
 					total_expectamount: 0.00,
 					total_bonus: 0.00,
@@ -824,6 +825,24 @@
 					return str;
 			}
 			
+			function getRequestId()
+			{
+			    var url = decodeURI(location.search);
+			    var theRequest = new Object();
+			    if (url.indexOf('?') != -1) {
+			        url = url.substr(1);
+			    }
+			    if (url) {
+			        var strs = url.split('&');
+			        for (var i = 0; i < strs.length; i++) {
+			            var srtArry = strs[i].split('=');
+			            var y = srtArry.shift();
+			            theRequest[y] = unescape(srtArry.join('='));
+			        }
+			    }			    
+			    return theRequest;
+			}
+			
 			function  formatDate(now)
 			{
 			    var   now= new Date(now);     
@@ -848,6 +867,13 @@
 			}
 			
 	    jQuery(document).ready(function() {
+	    		if (v.arr_ids)
+	    		{
+	    				if (v.arr_ids['service_id'] && v.arr_ids['order_id'])
+	    				{
+	    						//open_detail(v.arr_ids['service_id'],v.arr_ids['order_id']);
+	    				}	    				
+	    		}
 	    });
 		</script>
 	</body>

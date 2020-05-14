@@ -184,6 +184,14 @@ var v_sub = new Vue({
 				}
 });
 
+if (v.arr_ids)
+{
+		if (v.arr_ids['service_id'] && v.arr_ids['order_id'])
+		{
+				open_detail(v.arr_ids['service_id'],v.arr_ids['order_id']);
+		}	    				
+}
+
 function show_commission_detail(serviceId,orderId)
 {
 		v_sub.serviceId = serviceId
