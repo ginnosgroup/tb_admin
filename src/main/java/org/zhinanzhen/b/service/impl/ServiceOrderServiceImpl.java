@@ -231,8 +231,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			if (officialDo != null)
 				serviceOrderDto.setOfficial(mapper.map(officialDo, OfficialDTO.class));
 			// 查询子服务包
-			serviceOrderDto.setChildrenServicePackageIds(
-					serviceOrderDao.listServicePackageIdByParentId(serviceOrderDto.getId()));
+			if (serviceOrderDto.getParentId() <= 0)
+				serviceOrderDto.setChildrenServicePackageIds(
+						serviceOrderDao.listServicePackageIdByParentId(serviceOrderDto.getId()));
 			// 查询审核记录
 			putReviews(serviceOrderDto);
 			serviceOrderDtoList.add(serviceOrderDto);
@@ -301,6 +302,10 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDto.getOfficialId());
 			if (officialDo != null)
 				serviceOrderDto.setOfficial(mapper.map(officialDo, OfficialDTO.class));
+			// 查询子服务包
+			if (serviceOrderDto.getParentId() <= 0)
+				serviceOrderDto.setChildrenServicePackageIds(
+						serviceOrderDao.listServicePackageIdByParentId(serviceOrderDto.getId()));
 			// 查询审核记录
 			putReviews(serviceOrderDto);
 		} catch (Exception e) {
