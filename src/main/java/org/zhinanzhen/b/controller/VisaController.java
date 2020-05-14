@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
+import org.zhinanzhen.b.service.pojo.VisaCommentDTO;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -70,10 +71,12 @@ public class VisaController extends BaseCommissionOrderController {
 
 		try {
 			super.setPostHeader(response);
-//			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-//			if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
-//					&& !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
-//				return new Response<List<VisaDTO>>(1, "仅顾问和超级管理员能创建佣金订单.", null);
+			// AdminUserLoginInfo adminUserLoginInfo =
+			// getAdminUserLoginInfo(request);
+			// if (adminUserLoginInfo == null ||
+			// (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+			// && !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+			// return new Response<List<VisaDTO>>(1, "仅顾问和超级管理员能创建佣金订单.", null);
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(serviceOrderId);
 			if (serviceOrderDto == null)
 				return new Response<List<VisaDTO>>(1, "服务订单(ID:" + serviceOrderId + ")不存在!", null);
@@ -494,6 +497,62 @@ public class VisaController extends BaseCommissionOrderController {
 				return new Response<VisaDTO>(1, "请登录!", null);
 		} catch (ServiceException e) {
 			return new Response<VisaDTO>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/addComment", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> addComment(@RequestParam(value = "adminUserId", required = false) Integer adminUserId,
+			@RequestParam(value = "visaId") Integer visaId, @RequestParam(value = "content") String content,
+			HttpServletRequest request, HttpServletResponse response) {
+		try {
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			super.setPostHeader(response);
+			VisaCommentDTO visaCommentDto = new VisaCommentDTO();
+			visaCommentDto.setAdminUserId(adminUserLoginInfo != null ? adminUserLoginInfo.getId() : adminUserId);
+			visaCommentDto.setVisaId(visaId);
+			visaCommentDto.setContent(content);
+			if (visaService.addComment(visaCommentDto) > 0)
+				return new Response<Integer>(0, visaCommentDto.getId());
+			else
+				return new Response<Integer>(1, "创建失败.", 0);
+		} catch (ServiceException e) {
+			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
+		}
+	}
+
+	@RequestMapping(value = "/countComment", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> countComment(@RequestParam(value = "visaId") Integer visaId,
+			HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<Integer>(0, visaService.listComment(visaId).size());
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/listComment", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<VisaCommentDTO>> listComment(@RequestParam(value = "visaId") Integer visaId,
+			HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<List<VisaCommentDTO>>(0, visaService.listComment(visaId));
+		} catch (ServiceException e) {
+			return new Response<List<VisaCommentDTO>>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/deleteComment", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> deleteComment(@RequestParam(value = "id") int id, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<Integer>(0, visaService.deleteComment(id));
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), 0);
 		}
 	}
 

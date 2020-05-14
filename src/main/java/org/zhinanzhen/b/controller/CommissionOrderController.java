@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.CommissionOrderService;
 import org.zhinanzhen.b.service.SchoolService;
 import org.zhinanzhen.b.service.SubagencyService;
+import org.zhinanzhen.b.service.pojo.CommissionOrderCommentDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
@@ -97,8 +98,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			commissionOrderDto.setServiceOrderId(serviceOrderId);
 			if (StringUtil.isNotEmpty(state))
 				commissionOrderDto.setState(state);
-//			else
-//				commissionOrderDto.setState(ReviewKjStateEnum.PENDING.toString());
+			// else
+			// commissionOrderDto.setState(ReviewKjStateEnum.PENDING.toString());
 			if (isSettle)
 				commissionOrderDto.setCommissionState(CommissionStateEnum.DJY.toString());
 			else
@@ -160,7 +161,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			// commissionOrderDto.setBonus(new
 			// BigDecimal(commissionOrderDto.getDeductGst() * 0.1)
 			// .setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-			
+
 			String msg = "";
 			for (int installmentNum = 1; installmentNum <= installment; installmentNum++) {
 				commissionOrderDto.setInstallmentNum(installmentNum);
@@ -463,7 +464,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		Integer newOfficialId = getOfficialId(request);
 		if (newOfficialId != null)
 			officialId = newOfficialId;
-		
+
 		List<String> commissionStateList = null;
 		if (StringUtil.isNotEmpty(commissionState))
 			commissionStateList = Arrays.asList(commissionState.split(","));
@@ -518,7 +519,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		Integer newOfficialId = getOfficialId(request);
 		if (newOfficialId != null)
 			officialId = newOfficialId;
-		
+
 		List<String> commissionStateList = null;
 		if (StringUtil.isNotEmpty(commissionState))
 			commissionStateList = Arrays.asList(commissionState.split(","));
@@ -638,6 +639,64 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				return new Response<CommissionOrderListDTO>(1, "请登录!", null);
 		} catch (ServiceException e) {
 			return new Response<CommissionOrderListDTO>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/addComment", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> addComment(@RequestParam(value = "adminUserId", required = false) Integer adminUserId,
+			@RequestParam(value = "commissionOrderId") Integer commissionOrderId,
+			@RequestParam(value = "content") String content, HttpServletRequest request, HttpServletResponse response) {
+		try {
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			super.setPostHeader(response);
+			CommissionOrderCommentDTO commissionOrderCommentDto = new CommissionOrderCommentDTO();
+			commissionOrderCommentDto
+					.setAdminUserId(adminUserLoginInfo != null ? adminUserLoginInfo.getId() : adminUserId);
+			commissionOrderCommentDto.setCommissionOrderId(commissionOrderId);
+			commissionOrderCommentDto.setContent(content);
+			if (commissionOrderService.addComment(commissionOrderCommentDto) > 0)
+				return new Response<Integer>(0, commissionOrderCommentDto.getId());
+			else
+				return new Response<Integer>(1, "创建失败.", 0);
+		} catch (ServiceException e) {
+			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
+		}
+	}
+
+	@RequestMapping(value = "/countComment", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> countComment(@RequestParam(value = "commissionOrderId") Integer commissionOrderId,
+			HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<Integer>(0, commissionOrderService.listComment(commissionOrderId).size());
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/listComment", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<CommissionOrderCommentDTO>> listComment(
+			@RequestParam(value = "commissionOrderId") Integer commissionOrderId, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<List<CommissionOrderCommentDTO>>(0,
+					commissionOrderService.listComment(commissionOrderId));
+		} catch (ServiceException e) {
+			return new Response<List<CommissionOrderCommentDTO>>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/deleteComment", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> deleteComment(@RequestParam(value = "id") int id, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<Integer>(0, commissionOrderService.deleteComment(id));
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), 0);
 		}
 	}
 
