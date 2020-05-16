@@ -12,6 +12,13 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
 	</properties>
+	
+	<repositories>
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
+		</repository>
+	</repositories>
 
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>
@@ -213,9 +220,9 @@
 			<version>1.0.6</version>
 		</dependency>
 		<dependency>
-			<groupId>com.ikasoa</groupId>
-			<artifactId>ikasoa-core</artifactId>
-			<version>0.6.2</version>
+			<groupId>com.github.venwyhk</groupId>
+			<artifactId>ikaweb</artifactId>
+			<version>0.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.dozer</groupId>
