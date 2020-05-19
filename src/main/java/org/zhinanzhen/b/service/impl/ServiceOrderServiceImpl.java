@@ -378,7 +378,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 									+ "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:" + date);
 				}
 				if ("REVIEW".equals(kjState)) {
-					AdminUserDO adminUserDo = adminUserDao.getAdminUserById(adminUserId);
+					AdminUserDO adminUserDo = adminUserDao.getAdminUserById(adminUserId); // TODO:sulei
+																							// 这样查询是不对的,要换成直接查询会计帐号
 					if (adminUserDo != null) {
 						KjDO kjDo = kjDao.getKjById(adminUserDo.getKjId());
 						if (kjDo != null)

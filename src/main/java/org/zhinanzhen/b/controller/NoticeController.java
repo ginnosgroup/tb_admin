@@ -1,7 +1,5 @@
 package org.zhinanzhen.b.controller;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -21,15 +19,12 @@ import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
-import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
-
-import com.ikasoa.web.utils.SimpleSendEmailTool;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -61,6 +56,15 @@ public class NoticeController extends BaseController {
 			List<ServiceOrderDTO> allServiceOrderList = serviceOrderService.listServiceOrder(null, null, null, null, 0,
 					0, 0, 0, 0, 1000);
 			for (ServiceOrderDTO serviceOrder : allServiceOrderList) {
+				int days = getDateDays(serviceOrder.getGmtModify(), new Date());
+				AdviserDTO adviserDto1 = adviserService.getAdviserById(serviceOrder.getAdviserId());
+				AdviserDTO adviserDto2 = adviserService.getAdviserById(serviceOrder.getAdviserId2());
+				if (days > 2 && "REVIEW".equalsIgnoreCase(serviceOrder.getState())) {
+					SendEmailUtil.send(adviserDto1.getEmail(), title, "亲爱的" + adviserDto1.getName() + ":<br/>您的服务订单"
+							+ serviceOrder.getId() + " 超过48小时未提交审核，请及时处理，如已操作请忽略。");
+					SendEmailUtil.send(adviserDto2.getEmail(), title, "亲爱的" + adviserDto2.getName() + ":<br/>您的服务订单"
+							+ serviceOrder.getId() + " 超过48小时未提交审核，请及时处理，如已操作请忽略。");
+				}
 			}
 
 			List<VisaDTO> allVisaList = visaService.listVisa(null, null, null, null, null, null, null, 0, 0, 0, 1000);

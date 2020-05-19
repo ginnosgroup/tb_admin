@@ -256,7 +256,8 @@
     <select id="listServiceOrder" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
         SELECT
             id,
-            gmt_create AS GmtCreate,
+            gmt_create AS gmtCreate,
+            gmt_modify AS gmtModify,
             code,
             finish_date AS finishDate,
             type,
@@ -346,7 +347,8 @@
     <select id="getServiceOrderById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
         SELECT
             id,
-            gmt_create AS GmtCreate,
+            gmt_create AS gmtCreate,
+            gmt_modify AS gmtModify,
             code,
             finish_date AS finishDate,
             type,

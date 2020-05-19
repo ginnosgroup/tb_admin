@@ -15,6 +15,8 @@ public class ServiceOrderDTO {
 
 	private Date gmtCreate;
 
+	private Date gmtModify;
+
 	private String code;
 
 	private Date finishDate;

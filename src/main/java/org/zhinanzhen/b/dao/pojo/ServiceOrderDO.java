@@ -12,25 +12,27 @@ public class ServiceOrderDO {
 	private int id;
 
 	private Date gmtCreate;
-	
+
+	private Date gmtModify;
+
 	private String code;
 
 	private Date finishDate;
 
 	private String type;
-	
+
 	private int peopleNumber;
-	
+
 	private String peopleType;
-	
+
 	private String peopleRemarks;
 
 	private int serviceId;
 
 	private ServiceDTO service;
-	
+
 	private int parentId;
-	
+
 	private int servicePackageId;
 
 	private int schoolId;
@@ -42,7 +44,7 @@ public class ServiceOrderDO {
 	private boolean isSettle;
 
 	private boolean isDepositUser;
-	
+
 	private boolean isSubmitted;
 
 	private int subagencyId;
@@ -64,7 +66,7 @@ public class ServiceOrderDO {
 	private String paymentVoucherImageUrl1;
 
 	private String paymentVoucherImageUrl2;
-	
+
 	private String paymentVoucherImageUrl3;
 
 	private String visaVoucherImageUrl;
@@ -86,7 +88,7 @@ public class ServiceOrderDO {
 	private int maraId;
 
 	private int adviserId;
-	
+
 	private int adviserId2;
 
 	private int officialId;
