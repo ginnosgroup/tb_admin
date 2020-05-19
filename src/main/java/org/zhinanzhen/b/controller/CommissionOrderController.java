@@ -85,7 +85,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
 					&& !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
-				return new Response<List<CommissionOrderDTO>>(1, "仅顾问和超级管理员能创建佣金订单.", null);
+				return new Response<List<CommissionOrderDTO>>(1, "仅限顾问和超级管理员能创建佣金订单.", null);
 			List<CommissionOrderDTO> commissionOrderDtoList = new ArrayList<>();
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(serviceOrderId);
 			if (serviceOrderDto == null)

@@ -352,7 +352,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			String officialState, String kjState) throws ServiceException {
 		ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(adminUserId);
 		if (serviceOrderDo != null) {
-			String title = "您有一条新的服务订单任务请及时处理";
+			String title = "提醒邮件";
 			String type = "";
 			if ("VISA".equalsIgnoreCase(serviceOrderDo.getType()))
 				type = "签证";
