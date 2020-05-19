@@ -43,6 +43,7 @@ import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
+import org.zhinanzhen.tb.utils.SendEmailUtil;
 import org.zhinanzhen.b.service.pojo.MaraDTO;
 import org.zhinanzhen.b.service.pojo.OfficialDTO;
 import org.zhinanzhen.b.service.pojo.SchoolDTO;
@@ -56,9 +57,6 @@ import com.ikasoa.web.utils.SimpleSendEmailTool;
 
 @Service("ServiceOrderService")
 public class ServiceOrderServiceImpl extends BaseService implements ServiceOrderService {
-
-	private SimpleSendEmailTool simpleSendEmailTool = new SimpleSendEmailTool("notice@zhinanzhen.org", "Znz@2020",
-			SimpleSendEmailTool.SmtpServerEnum.EXMAIL_QQ);
 
 	@Resource
 	private ServiceOrderDAO serviceOrderDao;
@@ -89,7 +87,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
 	@Resource
 	private OfficialDAO officialDao;
-	
+
 	@Resource
 	private KjDAO kjDao;
 
@@ -369,13 +367,13 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				if ("REVIEW".equals(maraState)) {
 					MaraDO maraDo = maraDao.getMaraById(serviceOrderDo.getMaraId());
 					if (maraDo != null)
-						simpleSendEmailTool.send(maraDo.getEmail(), title,
+						SendEmailUtil.send(maraDo.getEmail(), title,
 								"亲爱的" + maraDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:" + type
 										+ "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:"
 										+ date);
 				}
 				if ("REVIEW".equals(officialState)) {
-					simpleSendEmailTool.send(officialDo.getEmail(), title,
+					SendEmailUtil.send(officialDo.getEmail(), title,
 							"亲爱的" + officialDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:" + type
 									+ "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:" + date);
 				}
@@ -384,7 +382,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 					if (adminUserDo != null) {
 						KjDO kjDo = kjDao.getKjById(adminUserDo.getKjId());
 						if (kjDo != null)
-							simpleSendEmailTool.send(kjDo.getEmail(), title,
+							SendEmailUtil.send(kjDo.getEmail(), title,
 									"亲爱的" + kjDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:" + type
 											+ "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:"
 											+ date);
