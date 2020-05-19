@@ -1,11 +1,13 @@
 package org.zhinanzhen.b.service.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.zhinanzhen.b.dao.KjDAO;
 import org.zhinanzhen.b.dao.MaraDAO;
 import org.zhinanzhen.b.dao.OfficialDAO;
 import org.zhinanzhen.b.dao.ReceiveTypeDAO;
@@ -16,6 +18,7 @@ import org.zhinanzhen.b.dao.ServiceOrderDAO;
 import org.zhinanzhen.b.dao.ServiceOrderReviewDAO;
 import org.zhinanzhen.b.dao.ServicePackageDAO;
 import org.zhinanzhen.b.dao.SubagencyDAO;
+import org.zhinanzhen.b.dao.pojo.KjDO;
 import org.zhinanzhen.b.dao.pojo.MaraDO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.ReceiveTypeDO;
@@ -49,9 +52,13 @@ import org.zhinanzhen.b.service.pojo.SubagencyDTO;
 import org.zhinanzhen.b.service.pojo.ReceiveTypeDTO;
 
 import com.ikasoa.core.ErrorCodeEnum;
+import com.ikasoa.web.utils.SimpleSendEmailTool;
 
 @Service("ServiceOrderService")
 public class ServiceOrderServiceImpl extends BaseService implements ServiceOrderService {
+
+	private SimpleSendEmailTool simpleSendEmailTool = new SimpleSendEmailTool("notice@zhinanzhen.org", "Znz@2020",
+			SimpleSendEmailTool.SmtpServerEnum.EXMAIL_QQ);
 
 	@Resource
 	private ServiceOrderDAO serviceOrderDao;
@@ -82,6 +89,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
 	@Resource
 	private OfficialDAO officialDao;
+	
+	@Resource
+	private KjDAO kjDao;
 
 	@Resource
 	private ServicePackageDAO servicePackageDao;
@@ -340,6 +350,45 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	@Override
 	public ServiceOrderDTO approval(int id, int adminUserId, String adviserState, String maraState,
 			String officialState, String kjState) throws ServiceException {
+		ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(adminUserId);
+		if (serviceOrderDo != null) {
+			String title = "您有一条新的服务订单任务请及时处理";
+			String type = "";
+			if ("VISA".equalsIgnoreCase(serviceOrderDo.getType()))
+				type = "签证";
+			else if ("OVST".equalsIgnoreCase(serviceOrderDo.getType()))
+				type = "留学";
+			else if ("SIV".equalsIgnoreCase(serviceOrderDo.getType()))
+				type = "独立技术移民";
+			else if ("MT".equalsIgnoreCase(serviceOrderDo.getType()))
+				type = "曼拓";
+			AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderDo.getAdviserId());
+			Date date = serviceOrderDo.getGmtCreate();
+			if ("REVIEW".equals(maraState)) {
+				MaraDO maraDo = maraDao.getMaraById(serviceOrderDo.getMaraId());
+				if (maraDo != null)
+					simpleSendEmailTool.send(maraDo.getEmail(), title,
+							"亲爱的" + maraDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:" + type
+									+ "/顾问:" + adviserDo.getName() + "/创建时间:" + date);
+			}
+			if ("REVIEW".equals(officialState)) {
+				OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
+				if (officialDo != null)
+					simpleSendEmailTool.send(officialDo.getEmail(), title,
+							"亲爱的" + officialDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:" + type
+									+ "/顾问:" + adviserDo.getName() + "/创建时间:" + date);
+			}
+			if ("REVIEW".equals(kjState)) {
+				AdminUserDO adminUserDo = adminUserDao.getAdminUserById(adminUserId);
+				if (adminUserDo != null) {
+					KjDO kjDo = kjDao.getKjById(adminUserDo.getKjId());
+					if (kjDo != null)
+						simpleSendEmailTool.send(kjDo.getEmail(), title,
+								"亲爱的" + kjDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:" + type
+										+ "/顾问:" + adviserDo.getName() + "/创建时间:" + date);
+				}
+			}
+		}
 		return review(id, adminUserId, adviserState, maraState, officialState, kjState, "APPROVAL");
 	}
 
