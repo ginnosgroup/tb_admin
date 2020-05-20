@@ -53,7 +53,6 @@ import org.zhinanzhen.b.service.pojo.SubagencyDTO;
 import org.zhinanzhen.b.service.pojo.ReceiveTypeDTO;
 
 import com.ikasoa.core.ErrorCodeEnum;
-import com.ikasoa.web.utils.SimpleSendEmailTool;
 
 @Service("ServiceOrderService")
 public class ServiceOrderServiceImpl extends BaseService implements ServiceOrderService {
@@ -378,16 +377,16 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 									+ "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:" + date);
 				}
 				if ("REVIEW".equals(kjState)) {
-					AdminUserDO adminUserDo = adminUserDao.getAdminUserById(adminUserId); // TODO:sulei
-																							// 这样查询是不对的,要换成直接查询会计帐号
-					if (adminUserDo != null) {
-						KjDO kjDo = kjDao.getKjById(adminUserDo.getKjId());
-						if (kjDo != null)
-							SendEmailUtil.send(kjDo.getEmail(), title,
-									"亲爱的" + kjDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:" + type
-											+ "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:"
-											+ date);
-					}
+					List<AdminUserDO> adminUserDoList = adminUserDao.listAdminUserByAp("KJ");
+					for (AdminUserDO adminUserDo : adminUserDoList)
+						if (adminUserDo != null) {
+							KjDO kjDo = kjDao.getKjById(adminUserDo.getKjId());
+							if (kjDo != null)
+								SendEmailUtil.send(kjDo.getEmail(), title,
+										"亲爱的" + kjDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:"
+												+ type + "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName()
+												+ "/创建时间:" + date);
+						}
 				}
 			}
 		}

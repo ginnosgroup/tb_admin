@@ -100,5 +100,22 @@
             status
         FROM tb_admin_user WHERE username = #{username};
     </select>
+    
+    <select id="listAdminUserByAp"  parameterType="java.lang.String" resultType="org.zhinanzhen.tb.dao.pojo.AdminUserDO">
+        SELECT
+            id,
+            username,
+            ap_list AS apList,
+            adviser_id AS adviserId,
+            mara_id AS maraId,
+            official_id AS officialId,
+            kj_id AS kjId,
+            session_id AS sessionId,
+            gmt_login AS gmtLogin,
+            login_ip AS loginIp,
+            status
+        FROM tb_admin_user
+        WHERE ap_list LIKE '%${ap}%';
+    </select>
 
 </mapper>

@@ -1,5 +1,7 @@
 package org.zhinanzhen.tb.dao;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 import org.zhinanzhen.tb.dao.pojo.AdminUserDO;
 
@@ -16,6 +18,8 @@ public interface AdminUserDAO {
 	boolean updateOfficialId(@Param("id") int id, @Param("officialId") int officialId);
 
 	public AdminUserDO getAdminUserById(int id);
+	
+	List<AdminUserDO> listAdminUserByAp(String ap);
 	
 	AdminUserDO getAdminUserByUsername(String username);
 	
