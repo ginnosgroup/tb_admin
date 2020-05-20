@@ -134,8 +134,7 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "bonus", required = false) String bonus,
 			@RequestParam(value = "userId") String userId,
 			@RequestParam(value = "maraId", required = false) String maraId,
-			@RequestParam(value = "adviserId", required = false) String adviserId,
-			@RequestParam(value = "officialId", required = false) String officialId,
+			@RequestParam(value = "adviserId") String adviserId, @RequestParam(value = "officialId") String officialId,
 			@RequestParam(value = "remarks", required = false) String remarks,
 			@RequestParam(value = "closedReason", required = false) String closedReason, HttpServletRequest request,
 			HttpServletResponse response) {
@@ -145,6 +144,8 @@ public class ServiceOrderController extends BaseController {
 			if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
 					&& !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 				return new Response<Integer>(1, "仅限顾问和超级管理员能创建服务订单.", 0);
+			if (maraId == null && ("VISA".equalsIgnoreCase(type) || "SIV".equalsIgnoreCase(type)))
+				return new Response<Integer>(1, "签证类必须选择Mara.", 0);
 			ServiceOrderDTO serviceOrderDto = new ServiceOrderDTO();
 			serviceOrderDto.setCode(UUID.randomUUID().toString());
 			if (StringUtil.isNotEmpty(type))
@@ -791,7 +792,7 @@ public class ServiceOrderController extends BaseController {
 			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
 		}
 	}
-	
+
 	@RequestMapping(value = "/countComment", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<Integer> countComment(@RequestParam(value = "serviceOrderId") Integer serviceOrderId,
