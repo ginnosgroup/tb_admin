@@ -229,7 +229,7 @@ public class ServiceOrderController extends BaseController {
 						}
 						serviceOrderDto.setServicePackageId(id);
 						ServicePackageDTO servicePackageDto = servicePackageService.getById(id);
-						if(servicePackageDto == null)
+						if (servicePackageDto == null)
 							return new Response<Integer>(1, "服务包不存在.", 0);
 						if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null)
 							serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
@@ -360,12 +360,9 @@ public class ServiceOrderController extends BaseController {
 						.getById(serviceOrderDto.getServicePackageId());
 				if (servicePackageDto == null)
 					return new Response<Integer>(1, "服务包不存在:" + serviceOrderDto.getServicePackageId(), 0);
-				if (serviceOrderDto.getOfficialId() <= 0 && ("VISA".equalsIgnoreCase(serviceOrderDto.getType())
-						|| "SIV".equalsIgnoreCase(serviceOrderDto.getType())))
+				if (serviceOrderDto.getOfficialId() <= 0 && "SIV".equalsIgnoreCase(serviceOrderDto.getType()))
 					return new Response<Integer>(1, "必须选择文案.", 0);
-				if (serviceOrderDto.getMaraId() <= 0
-						&& ("VISA".equalsIgnoreCase(serviceOrderDto.getType())
-								|| "SIV".equalsIgnoreCase(serviceOrderDto.getType()))
+				if (serviceOrderDto.getMaraId() <= 0 && "SIV".equalsIgnoreCase(serviceOrderDto.getType())
 						&& !"EOI".equalsIgnoreCase(servicePackageDto.getType()))
 					return new Response<Integer>(1, "必须选择Mara.", 0);
 			}
@@ -809,7 +806,7 @@ public class ServiceOrderController extends BaseController {
 			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
 		}
 	}
-	
+
 	@RequestMapping(value = "/countComment", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<Integer> countComment(@RequestParam(value = "serviceOrderId") Integer serviceOrderId,
