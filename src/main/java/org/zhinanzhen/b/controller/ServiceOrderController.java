@@ -360,9 +360,13 @@ public class ServiceOrderController extends BaseController {
 						.getById(serviceOrderDto.getServicePackageId());
 				if (servicePackageDto == null)
 					return new Response<Integer>(1, "服务包不存在:" + serviceOrderDto.getServicePackageId(), 0);
-				if (serviceOrderDto.getOfficialId() <= 0 && "SIV".equalsIgnoreCase(serviceOrderDto.getType()))
+				// if (serviceOrderDto.getOfficialId() <= 0 &&
+				// "SIV".equalsIgnoreCase(serviceOrderDto.getType()))
+				if (StringUtil.isEmpty(officialId) && "SIV".equalsIgnoreCase(serviceOrderDto.getType()))
 					return new Response<Integer>(1, "必须选择文案.", 0);
-				if (serviceOrderDto.getMaraId() <= 0 && "SIV".equalsIgnoreCase(serviceOrderDto.getType())
+				// if (serviceOrderDto.getMaraId() <= 0 &&
+				// "SIV".equalsIgnoreCase(serviceOrderDto.getType())
+				if (StringUtil.isEmpty(maraId) && "SIV".equalsIgnoreCase(serviceOrderDto.getType())
 						&& !"EOI".equalsIgnoreCase(servicePackageDto.getType()))
 					return new Response<Integer>(1, "必须选择Mara.", 0);
 			}
@@ -469,7 +473,7 @@ public class ServiceOrderController extends BaseController {
 			return new Response<Integer>(0,
 					serviceOrderService.countServiceOrder(type, excludeState, stateList, reviewStateList,
 							StringUtil.toInt(userId), StringUtil.toInt(maraId), StringUtil.toInt(adviserId),
-							StringUtil.toInt(officialId)));
+							StringUtil.toInt(officialId), 0));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -513,7 +517,7 @@ public class ServiceOrderController extends BaseController {
 			return new Response<List<ServiceOrderDTO>>(0,
 					serviceOrderService.listServiceOrder(type, excludeState, stateList, reviewStateList,
 							StringUtil.toInt(userId), StringUtil.toInt(maraId), StringUtil.toInt(adviserId),
-							StringUtil.toInt(officialId), pageNum, pageSize));
+							StringUtil.toInt(officialId), 0, pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<ServiceOrderDTO>>(1, e.getMessage(), null);
 		}
@@ -578,10 +582,16 @@ public class ServiceOrderController extends BaseController {
 				if (StringUtil.isEmpty(adminUserLoginInfo.getApList())
 						|| "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewAdviserStateEnum.get(state) != null)
-						if (ReviewAdviserStateEnum.REVIEW.toString().equals(state.toUpperCase())) // 顾问审核
+						if (ReviewAdviserStateEnum.REVIEW.toString().equals(state.toUpperCase())) { // 顾问审核
+							// 如果有子订单,就一起提交审核
+							List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(null, null,
+									null, null, 0, 0, 0, 0, serviceOrderDto.getParentId(), 0, 10);
+							for (ServiceOrderDTO so : serviceOrderList)
+								serviceOrderService.approval(so.getId(), adminUserLoginInfo.getId(),
+										state.toUpperCase(), null, null, null);
 							return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id,
 									adminUserLoginInfo.getId(), state.toUpperCase(), null, null, null));
-						else if (ReviewAdviserStateEnum.PAID.toString().equals(state.toUpperCase())) { // 顾问支付同时修改文案状态
+						} else if (ReviewAdviserStateEnum.PAID.toString().equals(state.toUpperCase())) { // 顾问支付同时修改文案状态
 							serviceOrderService.finish(id);
 							return new Response<ServiceOrderDTO>(0,
 									serviceOrderService.approval(id, adminUserLoginInfo.getId(), state.toUpperCase(),

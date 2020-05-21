@@ -250,6 +250,9 @@
 		<if test='officialId != null and officialId > 0'>
 			AND official_id = #{officialId}
 		</if>
+		<if test='parentId != null and parentId > 0'>
+			AND parent_id = #{parentId}
+		</if>
         ;
     </select>
     
@@ -328,6 +331,9 @@
 		</if>
 		<if test='officialId != null and officialId > 0'>
 			AND official_id = #{officialId}
+		</if>
+		<if test='parentId != null and parentId > 0'>
+			AND parent_id = #{parentId}
 		</if>
         ORDER BY gmt_create DESC
         LIMIT #{offset}, #{rows};
