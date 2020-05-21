@@ -136,7 +136,7 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "userId") String userId,
 			@RequestParam(value = "maraId", required = false) String maraId,
 			@RequestParam(value = "adviserId") String adviserId,
-			@RequestParam(value = "officialId") String officialId,
+			@RequestParam(value = "officialId", required = false) String officialId,
 			@RequestParam(value = "remarks", required = false) String remarks,
 			@RequestParam(value = "closedReason", required = false) String closedReason, HttpServletRequest request,
 			HttpServletResponse response) {
@@ -231,11 +231,6 @@ public class ServiceOrderController extends BaseController {
 						ServicePackageDTO servicePackageDto = servicePackageService.getById(id);
 						if(servicePackageDto == null)
 							return new Response<Integer>(1, "服务包不存在.", 0);
-//						if (serviceOrderDto.getMaraId() <= 0
-//								&& ("VISA".equalsIgnoreCase(serviceOrderDto.getType())
-//										|| "SIV".equalsIgnoreCase(serviceOrderDto.getType()))
-//								&& !"EOI".equalsIgnoreCase(servicePackageDto.getType()))
-//							return new Response<Integer>(1, "必须选择Mara.", 0);
 						if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null)
 							serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
 									ReviewAdviserStateEnum.PENDING.toString(), null, null, null);
@@ -360,6 +355,20 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setRemarks(remarks);
 			if (StringUtil.isNotEmpty(closedReason))
 				serviceOrderDto.setClosedReason(closedReason);
+			if (serviceOrderDto.getServicePackageId() > 0) {
+				ServicePackageDTO servicePackageDto = servicePackageService
+						.getById(serviceOrderDto.getServicePackageId());
+				if (servicePackageDto == null)
+					return new Response<Integer>(1, "服务包不存在:" + serviceOrderDto.getServicePackageId(), 0);
+				if (serviceOrderDto.getOfficialId() <= 0 && ("VISA".equalsIgnoreCase(serviceOrderDto.getType())
+						|| "SIV".equalsIgnoreCase(serviceOrderDto.getType())))
+					return new Response<Integer>(1, "必须选择文案.", 0);
+				if (serviceOrderDto.getMaraId() <= 0
+						&& ("VISA".equalsIgnoreCase(serviceOrderDto.getType())
+								|| "SIV".equalsIgnoreCase(serviceOrderDto.getType()))
+						&& !"EOI".equalsIgnoreCase(servicePackageDto.getType()))
+					return new Response<Integer>(1, "必须选择Mara.", 0);
+			}
 			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
 			if (i > 0) {
 				return new Response<Integer>(0, i);
