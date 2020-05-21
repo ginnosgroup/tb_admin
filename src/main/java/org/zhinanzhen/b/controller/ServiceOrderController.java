@@ -231,11 +231,11 @@ public class ServiceOrderController extends BaseController {
 						ServicePackageDTO servicePackageDto = servicePackageService.getById(id);
 						if(servicePackageDto == null)
 							return new Response<Integer>(1, "服务包不存在.", 0);
-						if (serviceOrderDto.getMaraId() <= 0
-								&& ("VISA".equalsIgnoreCase(serviceOrderDto.getType())
-										|| "SIV".equalsIgnoreCase(serviceOrderDto.getType()))
-								&& !"EOI".equalsIgnoreCase(servicePackageDto.getType()))
-							return new Response<Integer>(1, "必须选择Mara.", 0);
+//						if (serviceOrderDto.getMaraId() <= 0
+//								&& ("VISA".equalsIgnoreCase(serviceOrderDto.getType())
+//										|| "SIV".equalsIgnoreCase(serviceOrderDto.getType()))
+//								&& !"EOI".equalsIgnoreCase(servicePackageDto.getType()))
+//							return new Response<Integer>(1, "必须选择Mara.", 0);
 						if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null)
 							serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
 									ReviewAdviserStateEnum.PENDING.toString(), null, null, null);
