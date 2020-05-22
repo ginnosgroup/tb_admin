@@ -584,18 +584,21 @@ public class ServiceOrderController extends BaseController {
 					if (ReviewAdviserStateEnum.get(state) != null)
 						if (ReviewAdviserStateEnum.REVIEW.toString().equals(state.toUpperCase())) { // 顾问审核
 							// 如果有子订单,就一起提交审核
-							List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(null, null,
-									null, null, 0, 0, 0, 0, serviceOrderDto.getParentId(), 0, 10);
-							for (ServiceOrderDTO so : serviceOrderList) {
-								if (so.getServicePackage() == null)
-									return new Response<ServiceOrderDTO>(1, "子订单没有服务包.", so);
-								if (so.getOfficialId() <= 0 && "SIV".equalsIgnoreCase(so.getType()))
-									return new Response<ServiceOrderDTO>(1, "子订单必须选择文案.", so);
-								if (so.getMaraId() <= 0 && "SIV".equalsIgnoreCase(so.getType())
-										&& !"EOI".equalsIgnoreCase(so.getServicePackage().getType()))
-									return new Response<ServiceOrderDTO>(1, "子订单必须选择Mara.", so);
-								serviceOrderService.approval(so.getId(), adminUserLoginInfo.getId(),
-										state.toUpperCase(), null, null, null);
+							if (serviceOrderDto.getParentId() > 0
+									&& "SIV".equalsIgnoreCase(serviceOrderDto.getType())) {
+								List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(null,
+										null, null, null, 0, 0, 0, 0, serviceOrderDto.getParentId(), 0, 10);
+								for (ServiceOrderDTO so : serviceOrderList) {
+									if (so.getServicePackage() == null)
+										return new Response<ServiceOrderDTO>(1, "子订单没有服务包.", so);
+									if (so.getOfficialId() <= 0 && "SIV".equalsIgnoreCase(so.getType()))
+										return new Response<ServiceOrderDTO>(1, "子订单必须选择文案.", so);
+									if (so.getMaraId() <= 0 && "SIV".equalsIgnoreCase(so.getType())
+											&& !"EOI".equalsIgnoreCase(so.getServicePackage().getType()))
+										return new Response<ServiceOrderDTO>(1, "子订单必须选择Mara.", so);
+									serviceOrderService.approval(so.getId(), adminUserLoginInfo.getId(),
+											state.toUpperCase(), null, null, null);
+								}
 							}
 							return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id,
 									adminUserLoginInfo.getId(), state.toUpperCase(), null, null, null));
