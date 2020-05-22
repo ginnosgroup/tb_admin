@@ -584,10 +584,10 @@ public class ServiceOrderController extends BaseController {
 					if (ReviewAdviserStateEnum.get(state) != null)
 						if (ReviewAdviserStateEnum.REVIEW.toString().equals(state.toUpperCase())) { // 顾问审核
 							// 如果有子订单,就一起提交审核
-							if (serviceOrderDto.getParentId() > 0
+							if (serviceOrderDto.getParentId() == 0
 									&& "SIV".equalsIgnoreCase(serviceOrderDto.getType())) {
 								List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(null,
-										null, null, null, 0, 0, 0, 0, serviceOrderDto.getParentId(), 0, 10);
+										null, null, null, 0, 0, 0, 0, serviceOrderDto.getId(), 0, 10);
 								for (ServiceOrderDTO so : serviceOrderList) {
 									if (so.getServicePackage() == null)
 										return new Response<ServiceOrderDTO>(1, "子订单没有服务包.", so);
