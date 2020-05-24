@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.TagDAO">
+
+    <insert id="addTag" parameterType="org.zhinanzhen.b.dao.pojo.TagDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+            INTO b_tag (
+                gmt_create,
+                gmt_modify,
+                name)
+            VALUES (
+                now(),
+                now(),
+                #{name});
+    </insert>
+    
+    <insert id="addUserTag" parameterType="org.zhinanzhen.b.dao.pojo.UserTagDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+            INTO b_user_tag (
+                gmt_create,
+                gmt_modify,
+                user_id,
+                tag_id)
+            VALUES (
+                now(),
+                now(),
+                #{userId},
+                #{tagId});
+    </insert>
+    
+    <select id="listTag" resultType="org.zhinanzhen.b.dao.pojo.TagDO">
+        SELECT
+            id,
+            name
+        FROM b_tag
+        ORDER BY gmt_create DESC;
+    </select>
+    
+    <select id="listTagByUserId" resultType="org.zhinanzhen.b.dao.pojo.TagDO">
+        SELECT
+            t.id AS id,
+            t.name AS name
+        FROM b_tag t, b_user_tag ut, tb_user u
+        WHERE t.id = ut.tag_id AND ut.user_id = u.id AND u.id = #{userId, jdbcType=INTEGER}
+        ORDER BY t.gmt_create DESC;
+    </select>
+    
+    <select id="getTagById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.TagDO">
+        SELECT
+            id,
+            name
+        FROM b_tag WHERE id = #{id, jdbcType=INTEGER};
+    </select>
+    
+    <delete id="deleteTagById" parameterType="java.lang.Integer">
+		DELETE FROM b_tag WHERE id = #{id, jdbcType=INTEGER}
+	</delete>
+	
+	<delete id="deleteUserTagByTagId" parameterType="java.lang.Integer">
+		DELETE FROM b_user_tag WHERE tag_id = #{tagId, jdbcType=INTEGER}
+	</delete>
+	
+	<delete id="deleteUserTagByUserId" parameterType="java.lang.Integer">
+		DELETE FROM b_user_tag WHERE user_id = #{userId, jdbcType=INTEGER}
+	</delete>
+	
+	<delete id="deleteUserTagByTagIdAndUserId" parameterType="java.lang.Integer">
+		DELETE FROM b_user_tag WHERE tag_id = #{tagId, jdbcType=INTEGER} AND user_id = #{userId, jdbcType=INTEGER}
+	</delete>
+
+</mapper>

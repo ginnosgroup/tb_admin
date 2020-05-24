@@ -1,0 +1,291 @@
+﻿<meta charset="utf-8"/>
+<div id="app_sub">
+<div class="modal fade" id="show_ovst_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" role="document" style="width:700px;">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">佣金详情页</h4>
+					</div>
+					<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+			      <button data-dismiss="alert" class="close close-sm" type="button">
+			      <i class="fa fa-times"></i>
+			      </button>
+			      <strong>Success!</strong> You  just achieved success.
+			  	</div>
+			  	<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+		        <button data-dismiss="alert" class="close close-sm" type="button">
+		        <i class="fa fa-times"></i>
+		        </button>
+		        <strong id="error_info"></strong>
+		      </div>
+					<div class="modal-body">
+							<form class="form-inline" style="">																											
+							<div class="form-group" style="width:100%;height:40px;">
+								<label class="control-label" style="width:80px;"><strong>服务订单Id：</strong></label>								
+								<label id="c0"></label>
+							</div>
+							<div class="form-group" style="width:100%;height:40px;">
+								<label class="control-label" style="width:80px;"><strong>客户姓名：</strong></label>								
+								<label id="c1"></label>
+							</div>
+							<div class="form-group" style="width:100%;height:40px;">
+								<label class="control-label" style="width:80px;"><strong>服务项目：</strong></label>
+								<label id="c2" style="width:100px;">留学</strong></label>
+								<label class="control-label"><strong>学校：</strong></label>
+								<label id="c3" style="width:150px;"></label>
+								<label class="control-label"><strong>课程：</strong></label>
+								<label id="c4"></label>			
+							</div>
+							<div class="form-group" style="width:100%;height:40px;">
+								<label class="control-label" style="width:80px;"><strong>提前扣佣：</strong></label>
+								<label id="c5" style="width:50px;"></label>
+								<label><strong>保证金客户：</strong></label>
+								<label id="c6" style="width:50px;"></label>
+								<label class="control-label" style="width:80px;margin-left:60px;"><strong>Subagency：</strong></label>
+								<label id="c7"></label>
+							</div>
+							<div class="form-group" style="width:100%;height:40px;">
+								<label class="control-label" style="width:80px;"><strong>顾问：</strong></label>
+								<label id="c8" style="width:100px;"></label>
+								<label class="control-label"><strong>文案：</strong></label>
+								<label id="c9" style="width:100px;"></label>
+							</div>
+							<div id="show_deposit_user" style="width:100%;display:none;">
+							<div class="form-group" style="width:100%;height:40px;">
+								<label class="control-label" style="width:120px;"><strong>保证金是否已支付：</strong></label>
+								<label id="c10" style="width:100px;"></label>
+							</div>
+							<div class="form-group" style="width:100%;">								
+									<label class="control-label" style="width:80px;"><strong>收款日期：</strong></label>
+									<label id="c11" style="width:100px;"></label>
+									<label class="control-label"><strong>收款方式：</strong></label>
+									<label id="c12"></label>
+							</div>
+							<div class="form-group" style="display:block;line-height:40px;">
+									<div class="form-group">
+										<label class="control-label" style="width:80px;"><strong>总计应收：</strong></label>
+										$<label id="c13" style="width:100px;"></label>
+									</div>
+									<div class="form-group" style="margin-left:10px;">
+										<label class="control-label"><strong>折扣：</strong></label>
+										$<label id="c14" style="width:100px;"></label>
+									</div>
+									<div class="form-group" style="margin-left:10px;">
+										<label class="control-label"><strong>总计收款：</strong></label>
+										$<label id="c15"></label>
+									</div>									
+							</div>							
+							</div>
+							<hr/>
+							<div class="form-group" style="width:100%;line-height:40px;">
+									<label class="control-label"><strong>备注：</strong></label>
+									<label id="c16" style="word-break:break-all;"></label>									
+							</div>							
+							<div id="show_reqcommission" style="width:100%;margin-bottom:10px;display:;">
+									<hr/>
+									<div class="form-group" style="width:100%;line-height:40px;">
+											<label class="control-label"><strong>佣金信息</strong></label>
+									</div>
+									<div class="form-group" style="width:100%;margin-top:10px;">								
+											<label class="control-label" style="width:150px;font-weight:bold;">是否就读：</label>
+											<label id="c40"></label>
+									</div>
+									<div class="form-group" style="width:100%;margin-top:10px;">								
+											<label class="control-label" style="width:150px;font-weight:bold;">StudentID：</label>
+											<label id="c20"></label>
+									</div>
+									<div class="form-group" style="width:100%;margin-top:10px;">								
+											<label class="control-label" style="width:150px;font-weight:bold;">Installment：</label>
+											<label id="c21"></label>/<label id="c21a"></label>
+									</div>
+									<div class="form-group" style="width:100%;margin-top:10px;">								
+											<label class="control-label" style="width:150px;font-weight:bold;">开课日期：</label>
+											<label id="c22"></label>
+											<label class="control-label" style="margin-left:40px;font-weight:bold;">结束日期：</label>
+											<label id="c23"></label>
+									</div>
+									<div class="form-group" style="width:100%;margin-top:10px;">								
+											<label class="control-label" style="width:150px;font-weight:bold;">Installment <span id="c24a"></span> Due Date：</label>
+											<label id="c24"></label>
+									</div>														
+									<div class="form-group" style="width:100%;margin-top:10px;">								
+											<label class="control-label" style="width:150px;font-weight:bold;">学费总金额<br/>Tuition Fee：</label>
+											<label id="c25"></label>
+									</div>
+									<div class="form-group" style="width:100%;margin-top:10px;">								
+											<label class="control-label" style="width:150px;font-weight:bold;">每学期学费金额<br/>Per Term Tuition Fee：</label>
+											<label id="c26"></label>					
+									</div>
+									<div class="form-group" style="width:100%;margin-top:10px;">								
+											<label class="control-label" style="width:150px;font-weight:bold;">本次收款日期：</label>
+											<label id="c27"></label>
+											<label class="control-label" style="margin-left:50px;font-weight:bold;">收款方式：</label>
+											<label id="c28"></label>								
+									</div>
+									<div class="form-group" style="display:block;margin-top:10px;">
+											<div class="form-group">
+												<label class="control-label" style="width:150px;font-weight:bold;">本次应收学费：</label>
+												$<label id="c29"></label>
+											</div>
+											<div class="form-group" style="margin-left:10px;">
+												<label class="control-label" style="font-weight:bold;">折扣：</label>
+												$<label id="c30"></label>
+											</div>
+											<div class="form-group" style="margin-left:10px;">
+												<label class="control-label" style="font-weight:bold;">本次收款：</label>
+												$<label id="c31"></label>
+											</div>
+																				
+									</div>
+									<div class="form-group" style="width:100%;margin-top:10px;">								
+												<label class="control-label" style="width:150px;font-weight:bold;">预收业绩<br/>(<span style="color:#FF6C60;">Commission含GST</span>)：</label>
+												$<label id="c32"></label>					
+									</div>
+									<div id="show_paymentpic" class="form-group" style="display:;width:100%;line-height:40px;">
+											<label class="control-label"><strong>收款凭证：</strong></label>
+											<label id="paymentpic_url"></label>
+									</div>
+									<div class="form-group" style="width:100%;margin-top:10px;">
+											<label class="control-label" style="font-weight:bold;">备注：</label>
+											<label id="c33" style="word-break:break-all;"></label>
+									</div>
+							</div>														
+							</form>
+					</div>
+					<div class="modal-footer" style="text-align: center;">
+							<dle v-if="ap_list==='GW'">									
+									<dle v-if="state==='PENDING'">
+									<button onclick="$('#show_ovst_id').modal('hide');reqCommissionOvst(v_sub.serviceId,v_sub.orderId);" type="button" class="btn btn-primary">申请月奖</button>
+									</dle>
+							</dle>													
+							<button onclick="" type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					</div>
+				</div>
+			</div>
+</div>
+</div>
+
+<script>
+var v_sub = new Vue({
+				el: '#app_sub',
+				data: {
+					admin: sessionStorage.getItem("admin"),
+					ap_list: sessionStorage.getItem("ap_list"),
+					m_list: localStorage.getItem("str_html"),
+					adviser_id: sessionStorage.getItem("adviser_id"),
+					official_id: sessionStorage.getItem("official_id"),
+					serviceId: 0,
+					orderId: 0,
+					state: '',
+					order_detail: [],					
+				},
+				created: function() {					
+				}
+});
+
+if (v.arr_ids)
+{
+		if (v.arr_ids['service_id'] && v.arr_ids['order_id'])
+		{
+				open_detail(v.arr_ids['service_id'],v.arr_ids['order_id']);
+		}	    				
+}
+
+function show_commission_detail(serviceId,orderId)
+{
+		v_sub.serviceId = serviceId
+		v_sub.orderId = orderId;		
+		//佣金详细页
+		$.ajax({
+      url: 'serviceOrder/get?id='+serviceId,
+      type: 'GET',
+      dataType: 'json'
+    }).done(function(response) {			        	
+    	response = response.data;
+    	if (response.id)
+    	{
+		    	$('#show_ovst_id').modal('show');
+		    	$('#show_ovst_id #c0').html(response.id);
+		    	$('#show_ovst_id #c1').html(response.user.name);
+		    	$('#show_ovst_id #c8').html(response.adviser.name);
+		    	$('#show_ovst_id #c9').html(response.official.name);
+		    	$('#show_ovst_id #c3').html(response.school.name);
+		    	$('#show_ovst_id #c4').html(response.school.subject);
+		    	var str_issettle = '否';
+		    	if (response.settle) str_issettle = '是';
+		    	$('#show_ovst_id #c5').html(str_issettle);
+		    	var str_isdeposituser = '否';
+		    	if (response.depositUser)
+		    	{
+		    			str_isdeposituser = '是';
+		    			$('#show_ovst_id #show_deposit_user').show();	
+		    	}
+		    	$('#show_ovst_id #c6').html(str_isdeposituser);
+		    	$('#show_ovst_id #c7').html(response.subagency.name);
+		    	var str_ispay = '否';
+		    	if (response.pay) str_ispay = '是';
+		    	$('#show_ovst_id #c10').html(str_ispay);
+		    	$('#show_ovst_id #c11').html(v.getTime(response.receiveDate));
+		    	if (response.depositUser) $('#show_ovst_id #c12').html(response.receiveType.name);
+		    	$('#show_ovst_id #c13').html(response.receivable);
+		    	$('#show_ovst_id #c14').html(response.discount);
+		    	$('#show_ovst_id #c15').html(response.received);
+		    	if (response.remarks) response.remarks = url_replace(response.remarks);
+		    	$('#show_ovst_id #c16').html(response.remarks);
+    	}  	
+    	//查询佣金订单信息
+    	$.ajax({
+	      url: 'commissionOrder/get?id='+orderId,
+	      type: 'GET',
+	      dataType: 'json'
+	    }).done(function(response) {			        	
+	    	response = response.data;
+	    	v_sub.order_detail = response;
+	    	v_sub.state = response.state;
+	    	if (response.id)
+	    	{	    			
+			    	if (response.studying)
+			    	{
+			    			$('#show_ovst_id #c40').html('是');
+			    	}else
+			    	{
+			    			$('#show_ovst_id #c40').html('否');
+			    	}
+			    	$('#show_ovst_id #c20').html(response.studentCode);
+			    	$('#show_ovst_id #c21').html(response.installmentNum);
+			    	$('#show_ovst_id #c21a').html(response.installment);		    	
+			    	$('#show_ovst_id #c22').html(v.getTime(response.startDate));
+			    	$('#show_ovst_id #c23').html(v.getTime(response.endDate));
+			    	$('#show_ovst_id #c24a').html(response.installmentNum);
+			    	if (response.installmentDueDate != null) $('#show_ovst_id #c24').html(v.getTime(response.installmentDueDate));
+			    	$('#show_ovst_id #c25').html('$'+response.tuitionFee);
+			    	$('#show_ovst_id #c26').html('$'+response.perTermTuitionFee);
+			    	$('#show_ovst_id #c27').html(v.getTime(response.receiveDate));
+			    	$('#show_ovst_id #c28').html(response.receiveType.name);
+			    	$('#show_ovst_id #c29').html(response.perAmount);
+			    	$('#show_ovst_id #c30').html(response.discount);
+			    	$('#show_ovst_id #c31').html(response.amount);
+			    	$('#show_ovst_id #c32').html(response.expectAmount);
+			    	if (response.remarks) response.remarks = url_replace(response.remarks);
+			    	$('#show_ovst_id #c33').html(response.remarks);
+			    	
+			    	//生成收款凭证列表
+						var str_flist = '';
+						$("#show_ovst_id #paymentpic_url").empty();
+						if (response.paymentVoucherImageUrl1)
+						{
+								str_flist = response.paymentVoucherImageUrl1;
+								$("#show_ovst_id #paymentpic_url").append('<a href="/statics'+response.paymentVoucherImageUrl1+'" target="_blank">查看凭证1</a>&nbsp;');
+						}
+						if (response.paymentVoucherImageUrl2)
+						{
+								str_flist += ','+response.paymentVoucherImageUrl2;
+								$("#show_ovst_id #paymentpic_url").append('<a href="/statics'+response.paymentVoucherImageUrl2+'" target="_blank">查看凭证2</a>&nbsp;');
+						}
+	    	}
+    	});
+    	
+    });
+}
+</script>

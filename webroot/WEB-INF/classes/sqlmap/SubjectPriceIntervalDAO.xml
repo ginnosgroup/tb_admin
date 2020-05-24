@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.tb.dao.SubjectPriceIntervalDAO">
+
+    <insert id="addSubjectPriceInterval" parameterType="org.zhinanzhen.tb.dao.pojo.SubjectPriceIntervalDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+            INTO tb_subject_price_interval (
+                gmt_create,
+                gmt_modify,
+                subject_id,
+                start_num,
+                end_num,
+                region_ids)
+            VALUES (
+                now(),
+                now(),
+                #{subjectId},
+                #{startNum},
+                #{endNum},
+                #{regionIds});
+    </insert>
+
+    <select id="listSubjectPriceInterval" resultType="org.zhinanzhen.tb.dao.pojo.SubjectPriceIntervalDO">
+        SELECT
+            id,
+            subject_id AS subjectId,
+            start_num AS startNum,
+            end_num AS endNum,
+            region_ids AS regionIds
+        FROM tb_subject_price_interval
+        WHERE subject_id = #{subjectId}
+        ORDER BY start_num ASC;
+    </select>
+    
+    <delete id="deleteBySubjectId">
+        DELETE FROM tb_subject_price_interval WHERE subject_id = #{subjectId, jdbcType=INTEGER};
+    </delete>
+
+</mapper>

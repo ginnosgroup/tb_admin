@@ -1,0 +1,127 @@
+[v-cloak] {
+  display: none !important;
+}
+
+.content .margin-top {
+  margin-top: 20px;
+}
+
+.responsive-table {
+  overflow-x: auto;
+}
+
+.content .change {
+  display: inline;
+}
+
+.modal .arrow {
+  margin-top: 10px;
+  display: inline-block;
+  margin-bottom: 0;
+  font-weight: 400;
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+  background-image: none;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.428571429;
+  border-radius: 4px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  background-color: #58c9f3;
+  border-color: #58c9f3;
+  color: #FFFFFF;
+}
+
+.content .buttons {
+  padding-top: 20px;
+  border-top: 1px solid #eff2f7;
+}
+
+.modal .border {
+  height: 200px;
+  overflow: auto;
+  border-radius: 5px;
+  text-align: center;
+  border: 1px solid #CCCCCC;
+}
+
+.modal .center {
+  text-align: center;
+}
+
+.content .algin input {
+  text-align: center;
+}
+
+.content .state>li {
+  padding: 10px 0;
+  border-bottom: 1px solid #2a8ba7;
+}
+
+.content .city {
+  margin-top: 10px;
+}
+
+.content .city>li {
+  padding: 5px 0;
+  border-top: 1px dashed #ccc;
+}
+
+.sort .align-right {
+  text-align: right;
+}
+
+.sort .title {
+  font-size: 16px;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.sort .border li {
+  cursor: pointer;
+  font-size: 14px;
+  padding: 5px 0;
+}
+
+.sort .border .active {
+  color: #fff;
+  background-color: #CCCCCC;
+}
+
+.sort .buttons {
+  margin-top: 142px;
+}
+
+.login-wrap .eror {
+  margin-bottom: 10px;
+}
+
+table.display thead th {
+  cursor: default;
+}
+
+.content .nowPage {
+  padding: 6px 10px;
+  border: none !important;
+}
+.adviser-img{
+  max-width: 150px;
+  max-height: 150px;
+}
+.content .imgtxt{
+  margin-top: 10px;
+}
+.content .big-font{
+  font-size: 16px;
+  font-weight: bold;
+}
+/*.content .border-top{
+  border-bottom: 1px solid #eff2f7;
+}*/

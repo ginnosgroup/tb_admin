@@ -1,0 +1,481 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="renderer" content="webkit">
+		<link rel="shortcut icon" href="img/favicon.ico">
+		<title>导出佣金表数据</title>
+		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<link href="css/bootstrap-reset.css" rel="stylesheet">
+		<link href="assets/font-awesome/css/font-awesome.css" rel="stylesheet">
+		<link href="assets/advanced-datatable/media/css/demo_table.css" rel="stylesheet">
+		<link rel="stylesheet" type="text/css" href="assets/bootstrap-datepicker/css/datepicker.css"><!-- BOOTSTRAP DATEPICKER PLUGIN CSS -->
+		<link rel="stylesheet" type="text/css" href="assets/bootstrap-timepicker/compiled/timepicker.css"><!-- BOOTSTRAP TIMEPICKER PLUGIN CSS -->		
+		<link rel="stylesheet" type="text/css" href="css/jquery.autocompleter.css">
+		<link href="css/style.css" rel="stylesheet">
+		<link href="css/style-responsive.css" rel="stylesheet">
+		<link href="css/index.css" rel="stylesheet">
+		<!--[if lt IE 9]>
+			<script src="js/html5shiv.js"></script>
+			<script src="js/respond.min.js"></script>
+		<![endif]-->
+	</head>
+
+	<body id="table-export" v-cloak>
+		<section id="container">
+			<header class="header white-bg">
+				<div class="sidebar-toggle-box">
+					<div data-placement="right" class="fa fa-bars tooltips">
+					</div>
+				</div>
+				<a href="main.html" class="logo">
+					佣金系统
+					<span v-if="ap_list==='KJ'">
+           	 会计
+          </span>
+          <span v-if="ap_list==='GW'">
+           	 顾问
+          </span>
+          <span v-if="ap_list==='WA'">
+           	 文案
+          </span>
+          <span v-if="ap_list==='MA'">
+           	 Mara
+          </span>
+          <span v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+           	 超级管理员
+          </span>
+				</a>
+				<div class="top-nav ">
+					<ul class="nav pull-right top-menu">
+						<li class="dropdown">
+							<a data-toggle="dropdown" class="dropdown-toggle" href="#">
+								<span class="username">
+                  {{admin}}
+                </span>
+								<b class="caret">
+                </b>
+							</a>
+							<ul class="dropdown-menu extended logout">
+								<li class="log-arrow-up">
+								</li>
+								<li>
+									<a href="password.html">
+										<i class="fa fa-key">
+                    </i> 修改密码
+									</a>
+								</li>
+								<li><a href="javascript:tb.out();">
+										<i class="fa fa-user">
+                    </i> Log Out
+									</a>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</header>
+			<aside>
+				<div id="sidebar" class="nav-collapse">
+					<ul class="sidebar-menu" id="nav-accordion">
+						<li >
+              <a href="main.html">
+                <i class="fa fa-dashboard">
+                </i>
+                <span>
+                  Dashboard
+                </span>
+              </a>
+            </li>
+            <dli v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">            
+            <li>
+              <a href="adviser.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  顾问管理
+                </span>
+              </a>
+            </li>
+            <li>
+              <a href="official.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  文案管理
+                </span>
+              </a>
+            </li>
+            <li>
+              <a href="mara.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  MARA管理
+                </span>
+              </a>
+            </li>
+            <li>
+              <a href="accounting.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  会计管理
+                </span>
+              </a>
+            </li>
+            <li class="sub-menu">
+							<a href="javascript:;">
+								<i class="fa fa-book">
+                </i>
+								<span>
+                 	 学校管理
+                </span>
+							</a>
+							<ul class="sub">
+								<li>
+									<a href="school.html">
+										学校管理
+									</a>
+								</li>
+								<li>
+									<a href="school-setting.html">
+										佣金设置
+									</a>
+								</li>								
+							</ul>
+						</li>
+            <li>
+              <a href="receive-type.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  收款方式管理
+                </span>
+              </a>
+            </li>
+            <li>
+              <a href="subagency.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  Subagency管理
+                </span>
+              </a>
+            </li>
+            <li>
+              <a href="service.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  服务项目管理
+                </span>
+              </a>
+            </li>
+          	</dli>
+          	<li v-if="ap_list!=='KJ' && ap_list!=='WA' && ap_list!=='MA'" class="sub-menu">
+							<a href="javascript:;">
+								<i class="fa fa-book">
+                </i>
+								<span>
+                 	 客户管理
+                </span>
+							</a>
+							<ul class="sub">
+								<li>
+									<a href="users.html">
+										客户管理
+									</a>
+								</li>
+								<li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+									<a href="user-tags.html">
+										标签管理
+									</a>
+								</li>								
+							</ul>
+						</li>
+						<li v-if="ap_list!=='KJ'" class="sub-menu">
+							<a href="serviceorder-list.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  服务订单管理
+                </span>
+              </a>
+						</li>
+            <li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'" class="sub-menu">
+							<a href="javascript:;">
+								<i class="fa fa-book">
+                </i>
+								<span>
+                 	 渠道管理
+                </span>
+							</a>
+							<ul class="sub">
+								<li>
+									<a href="source.html">
+										渠道列表
+									</a>
+								</li>
+								<li>
+									<a href="source-type.html">
+										来源分类
+									</a>
+								</li>								
+							</ul>
+						</li>
+						<li v-if="ap_list!=='WA' && ap_list!=='MA'" class="sub-menu">
+							<a href="javascript:;">
+								<i class="fa fa-book">
+                </i>
+								<span>
+                 	 佣金表
+                </span>
+							</a>
+							<ul class="sub">
+								<li v-if="ap_list==='GW'" class="active">
+									<a href="mycommission.html">
+										我的佣金报表
+									</a>									
+								</li>
+								<li v-if="ap_list==='KJ'" id="commission_state_DJY">
+									<a href="mycommission-accounting.html?commission_state=DJY">
+										待结佣订单
+									</a>									
+								</li>
+								<li v-if="ap_list==='KJ'" id="commission_state_YJY">
+									<a href="mycommission-accounting.html?commission_state=YJY">
+										已结佣订单
+									</a>									
+								</li>								
+								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+									<a href="table-export.html">
+										导出数据
+									</a>
+								</li>
+							</ul>
+						</li>
+						<li class="sub-menu">
+							<a href="javascript:;">
+								<i class="fa fa-book">
+                </i>
+								<span>
+                 	 知识库
+                </span>
+							</a>
+							<ul class="sub">
+								<li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+									<a href="knowledge-menu.html">
+										菜单管理
+									</a>
+								</li>
+								{{{m_list}}}							
+							</ul>
+						</li>						
+					</ul>
+				</div>
+			</aside>
+			<section id="main-content" class="content">
+				<section class="wrapper site-min-height">
+					<div class="row">
+						<div class="col-lg-12">
+							<section class="panel">
+								<header class="panel-heading">
+									导出佣金表数据
+								</header>
+								<div class="panel-body responsive-table" style="height:150px;">
+									<div class="adv-table editable-table">
+										<div class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+									      <button data-dismiss="alert" class="close close-sm" type="button">
+									      <i class="fa fa-times"></i>
+									      </button>
+									      <strong>Success!</strong> You  just achieved success.
+									  </div>										
+                    <form class="form-inline" style="margin-top:10px;">
+											<div class="form-group">
+												<select v-if="ap_list!='KJ' && ap_list!='GW'" v-model.trim="adviserId" id="adviserId" name="adviserId" class="form-control">
+												<option value="" selected="selected">请选择顾问</option>
+												</select>								
+												<input v-model.trim="startHandlingDate" type="text" autocomplete="off" class="form-control default-date-picker" style="width:120px;" placeholder="办理时间(开始)">
+												<input v-model.trim="endHandlingDate" type="text"  autocomplete="off" class="form-control default-date-picker" style="width:120px;" placeholder="办理时间(结束)">
+												<input v-model.trim="startDate" type="text" autocomplete="off" class="form-control default-date-picker" style="width:150px;" placeholder="创建时间(开始)">
+												<input v-model.trim="endDate" type="text" autocomplete="off" class="form-control default-date-picker" style="width:150px;" placeholder="创建时间(结束)">
+											</div>											
+											<div class="form-group">
+												<button @click="exportData" type="button" class="btn btn-info">导出</button>
+											</div>
+										</form>				
+										
+									</div>
+								</div>
+							</section>
+						</div>
+					</div>
+				</section>
+			</section>
+			<footer class="site-footer">
+				<div class="text-center">
+					2018 &copy; 佣金系统 by <span style="color:#2a8ba7;">GIG</span>.
+					<a href="#" class="go-top">
+						<i class="fa fa-angle-up">
+            </i>
+					</a>
+				</div>
+			</footer>
+		</section>		
+		<script src="js/jquery-1.8.3.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		<script src="js/jquery.dcjqaccordion.2.7.js"></script>
+		<script src="js/jquery.scrollTo.min.js"></script>
+		<script src="js/jquery.nicescroll.js"></script>
+		<script src="assets/bootstrap-datepicker/js/bootstrap-datepicker-new.js"></script><!-- BOOTSTRAP DATEPICKER JS  -->
+    <script src="assets/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js"></script><!-- BOOTSTRAP DATETIMEPICKER JS  -->
+		<script src="js/common-scripts.js"></script>
+		<script src="js/vue.js"></script>
+		<script src="js/common.js?verson=1"></script>
+		<script>
+			tb.isLogin("table-export.html");
+			$("td,th").addClass("text-center");
+			var v = new Vue({
+				el: '#table-export',
+				data: {
+					admin: sessionStorage.getItem("admin"),
+					ap_list: sessionStorage.getItem("ap_list"),
+					adviser_id: sessionStorage.getItem("adviser_id"),
+					m_list: localStorage.getItem("str_html"),
+					subject: []					
+				},
+				created: function() {					
+					$('.default-date-picker').datepicker({   				
+				        format: 'yyyy-mm-dd',
+				        endDate: new Date()
+				  });				
+				},
+				methods: {					
+					exportData: function() {
+						var that = this;
+						//console.log(that);						
+						var down_url = url + "down/merge?";						
+						if (typeof(that.adviserId) != "undefined")
+						{
+								down_url += "adviserId="+that.adviserId;
+						}else
+						{
+								down_url += "adviserId="+that.adviser_id;
+						}						
+						if (typeof(that.startHandlingDate) != "undefined")
+						{
+								down_url += "&startHandlingDate="+that.startHandlingDate;
+						}else
+						{
+								down_url += "&startHandlingDate=";
+						}
+						if (typeof(that.endHandlingDate) != "undefined")
+						{
+								down_url += "&endHandlingDate="+that.endHandlingDate;
+						}else
+						{
+								down_url += "&endHandlingDate=";
+						}
+						if (typeof(that.startDate) != "undefined")
+						{
+								down_url += "&startDate="+that.startDate;
+						}else
+						{
+								down_url += "&startDate=";
+						}
+						if (typeof(that.endDate) != "undefined")
+						{
+								down_url += "&endDate="+that.endDate;
+						}else
+						{
+								down_url += "&endDate=";
+						}						
+						console.log(down_url);
+						var a = document.createElement('a');
+						a.download = 'table_all_data.xls';
+						a.href = down_url;
+						$("body").append(a);
+						a.click();
+						$(a).remove();
+					},
+					getTime: function(d) {
+						var date1 = new Date(d);
+						var y = date1.getFullYear();
+						var m = this.addZero(date1.getMonth() + 1);
+						var d = this.addZero(date1.getDate());
+						var h = this.addZero(date1.getHours());
+						var m2 = this.addZero(date1.getMinutes());
+						var s = this.addZero(date1.getSeconds());
+						//var date2 = y + "-" + m + "-" + d;
+						var date2 = d+"/"+m+"/"+y;
+						return date2;
+					},
+					addZero: function(obj) {
+						if(obj < 10) {
+							obj = '0' + obj;
+						};
+						return obj;
+					}          
+				}		
+			});
+			
+			v.$watch('subject', function(obj) {
+					
+			});
+			
+			function show_knowledge_detail(id,parentId)
+      {
+      		sessionStorage.setItem("id", id);
+      		sessionStorage.setItem("menu_parentid", parentId);
+					window.location.href = "knowledge.html"; 
+      }						
+			
+			function  formatDate(now)
+			{
+			    var   now= new Date(now);     
+			    var   year=now.getFullYear();     
+			    var   month=now.getMonth()+1;     
+			    var   date=now.getDate();     
+			    var   hour=now.getHours();
+			    var   minute=now.getMinutes();     
+			    var   second=now.getSeconds();
+			    return fixZero(date,2)+"/"+fixZero(month,2)+"/"+year; 
+			}  
+			
+			function fixZero(num,length)
+			{     
+			    var str=""+num;
+			    var len=str.length;     var s="";
+			    for(var i=length;i-->len;)
+			    {         
+			        s+="0";
+			    }
+			    return s+str;
+			}
+			
+	    jQuery(document).ready(function() {
+	    		if (v.adviser_id == 'null')
+	    		{
+			    		//绑定顾问列表			    
+					    var obj_adviserId = $("#adviserId");	
+					    $.ajax({
+			          url: 'adviser/list?pageNum=0&pageSize=100000',
+			          type: 'GET',
+			          dataType: 'json'
+			        }).done(function(response) {
+			        	//author:bischina
+			        	response = response.data;
+			        	for (var item in response)
+			        	{
+			        			obj_adviserId.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+			        	} 
+			        });
+	      	}    		
+	    });
+		</script>
+	</body>
+
+</html>
