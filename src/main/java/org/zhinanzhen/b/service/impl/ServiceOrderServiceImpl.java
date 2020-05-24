@@ -44,6 +44,7 @@ import org.zhinanzhen.tb.service.impl.BaseService;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
+import org.zhinanzhen.b.service.pojo.ChildrenServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.MaraDTO;
 import org.zhinanzhen.b.service.pojo.OfficialDTO;
 import org.zhinanzhen.b.service.pojo.SchoolDTO;
@@ -237,10 +238,16 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDto.getOfficialId());
 			if (officialDo != null)
 				serviceOrderDto.setOfficial(mapper.map(officialDo, OfficialDTO.class));
-			// 查询子服务包
-			if (serviceOrderDto.getParentId() <= 0)
-				serviceOrderDto.setChildrenServicePackageIds(
-						serviceOrderDao.listServicePackageIdByParentId(serviceOrderDto.getId()));
+			// 查询子服务
+			if (serviceOrderDto.getParentId() <= 0) {
+				List<ChildrenServiceOrderDTO> childrenServiceOrderList = new ArrayList<>();
+				List<ServiceOrderDO> list = serviceOrderDao.listByParentId(serviceOrderDto.getId());
+				list.forEach(serviceOrder -> {
+					childrenServiceOrderList.add(mapper.map(serviceOrder, ChildrenServiceOrderDTO.class));
+				});
+				serviceOrderDto.setChildrenServiceOrders(childrenServiceOrderList);
+			}
+				
 			// 查询审核记录
 			putReviews(serviceOrderDto);
 			serviceOrderDtoList.add(serviceOrderDto);
@@ -309,10 +316,15 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDto.getOfficialId());
 			if (officialDo != null)
 				serviceOrderDto.setOfficial(mapper.map(officialDo, OfficialDTO.class));
-			// 查询子服务包
-			if (serviceOrderDto.getParentId() <= 0)
-				serviceOrderDto.setChildrenServicePackageIds(
-						serviceOrderDao.listServicePackageIdByParentId(serviceOrderDto.getId()));
+			// 查询子服务
+			if (serviceOrderDto.getParentId() <= 0) {
+				List<ChildrenServiceOrderDTO> childrenServiceOrderList = new ArrayList<>();
+				List<ServiceOrderDO> list = serviceOrderDao.listByParentId(serviceOrderDto.getId());
+				list.forEach(serviceOrder -> {
+					childrenServiceOrderList.add(mapper.map(serviceOrder, ChildrenServiceOrderDTO.class));
+				});
+				serviceOrderDto.setChildrenServiceOrders(childrenServiceOrderList);
+			}
 			// 查询审核记录
 			putReviews(serviceOrderDto);
 		} catch (Exception e) {

@@ -24,7 +24,7 @@ public interface ServiceOrderDAO {
 			@Param("officialId") Integer officialId, @Param("parentId") Integer parentId, @Param("offset") int offset,
 			@Param("rows") int rows);
 
-	List<Integer> listServicePackageIdByParentId(@Param("parentId") Integer parentId);
+	List<ServiceOrderDO> listByParentId(@Param("parentId") Integer parentId);
 
 	ServiceOrderDO getServiceOrderById(int id);
 
