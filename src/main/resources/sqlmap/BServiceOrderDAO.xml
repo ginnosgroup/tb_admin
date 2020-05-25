@@ -335,7 +335,7 @@
 		<if test='parentId != null and parentId > 0'>
 			AND parent_id = #{parentId}
 		</if>
-        ORDER BY gmt_create DESC
+        ORDER BY id DESC
         LIMIT #{offset}, #{rows};
     </select>
     
