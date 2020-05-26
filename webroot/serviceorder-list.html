@@ -385,26 +385,26 @@
 														<td v-html="item.serviceName"></td>
 														<td v-html="item.strState"></td>
 														<td>																
-																<a href="javascript:open_detail({{item.oid}},'{{item.type}}','{{item.currentState}}');">查看</a>																
+																<a href="javascript:open_detail({{item.id}},'{{item.type}}','{{item.currentState}}');">查看</a>																
 																<dle v-if="ap_list==='GW'">
 																		<d1 v-if="item.currentState==='PENDING'">
-																		<a href="javascript:show_confirmbox('{{item.type}}',{{item.oid}},'REVIEW',1)">提交审核</a>
+																		<a href="javascript:show_confirmbox('{{item.type}}',{{item.id}},'REVIEW',1)">提交审核</a>
 																		</d1>
 																		<d1 v-if="item.currentState==='REVIEW'">
-																		<a href="javascript:show_confirmbox('{{item.type}}',{{item.oid}},'PENDING',1)" style="color:#ACA9A9;">撤回</a>
+																		<a href="javascript:show_confirmbox('{{item.type}}',{{item.id}},'PENDING',1)" style="color:#ACA9A9;">撤回</a>
 																		</d1>
 																</dle>	
 																<dle v-if="ap_list==='WA'">
 																		<d1 v-if="item.type==='VISA'">																				
 																				<d1 v-if="item.currentState==='WA_MA_WAIT'">
-																				<a href="javascript:show_confirmbox('{{item.type}}',{{item.oid}},'REVIEW',1)" style="color:#ACA9A9;">撤回</a>
+																				<a href="javascript:show_confirmbox('{{item.type}}',{{item.id}},'REVIEW',1)" style="color:#ACA9A9;">撤回</a>
 																				</d1>
 																		</d1>																		
 																</dle>
 																<dle v-if="ap_list==='MA'">																		
 																		<d1 v-if="item.review.officialState==='WAIT' && item.review.maraState==='WAIT'">
-																		<a href="javascript:show_confirmbox('{{item.type}}',{{item.oid}},'FINISH',1)">通过</a>
-																		<a href="javascript:show_confirmbox('{{item.type}}',{{item.oid}},'REVIEW',0)">驳回</a>
+																		<a href="javascript:show_confirmbox('{{item.type}}',{{item.id}},'FINISH',1)">通过</a>
+																		<a href="javascript:show_confirmbox('{{item.type}}',{{item.id}},'REVIEW',0)">驳回</a>
 																		</d1>																		
 																</dle>
 														</td>
@@ -483,6 +483,7 @@
 		<script src="assets/bootstrap-datepicker/js/bootstrap-datepicker.js"></script><!-- BOOTSTRAP DATEPICKER JS  -->
     <script src="assets/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js"></script><!-- BOOTSTRAP DATETIMEPICKER JS  -->
     <script src="js/jquery.autocompleter.js"></script>
+		<script src="js/clipboard.min.js"></script>
 		<script src="js/common-scripts.js"></script>
 		<script src="js/vue.js"></script>
 		<script src="js/common.js?verson=1"></script>
@@ -657,15 +658,25 @@
 				for(var i = 0; i < result.data.length; i++) {
 						var str_state = '';
 						var str_refusestate = '';
-						result.data[i].strRefuse = '';
-						result.data[i].oid = result.data[i].id;
+						var customer_text = '';
+						switch(result.data[i].type)
+						{
+								case 'VISA':
+										customer_text = 'V'+result.data[i].id+'<br/><a onclick="copyText()" class="copybtn" data-clipboard-action="copy" data-clipboard-text="V'+result.data[i].id+'">复制</a><div id="copy_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">已复制！请告知客户转账时务必在备注填写该订单号码。</div>';
+								break;
+								case 'OVST':
+										customer_text = result.data[i].id;
+								break;
+						}
+						result.data[i].oid = customer_text;
+						result.data[i].strRefuse = '';						
 						result.data[i].gmtCreate = v.getTime(result.data[i].gmtCreate);
 						result.data[i].finishDate = result.data[i].finishDate ? v.getTime(result.data[i].finishDate):'';
 						result.data[i].userName = result.data[i].user.name;
 						if (result.data[i].user.birthday) result.data[i].birthday = v.getTime(result.data[i].user.birthday);
 						result.data[i].phone = result.data[i].user.phone;
 						result.data[i].adviserName = result.data[i].adviser.name;
-						result.data[i].officialName = result.data[i].official.name;									
+						result.data[i].officialName = (result.data[i].officialId ? result.data[i].official.name : '');
 						if (result.data[i].review.adviserState != null) str_state = result.data[i].review.adviserState;
 						if (result.data[i].review.officialState == 'REVIEW')
 						{
@@ -706,7 +717,7 @@
 															
 								//如果maraState='FINISH'，表示整个流程结束。
 								if (result.data[i].review.officialState == 'COMPLETE') str_state = 'COE_COMPLETE';
-								var str_school = result.data[i].school.name;
+								var str_school = (result.data[i].schoolId ? result.data[i].school.name : '');
 								result.data[i].serviceName = return_servicename(result.data[i].type)+'-'+str_school;
 						}
 						if (result.data[i].state == 'CLOSE') str_refusestate = result.data[i].closedReason;
@@ -717,6 +728,19 @@
 						if (result.data[i].remarks) result.data[i].remarks = url_replace(result.data[i].remarks);
 				};
 				return result.data;
+			}
+			
+			function copyText()
+			{
+					var clipboard = new ClipboardJS('.copybtn');
+					clipboard.on('success',function(e)
+					{
+							e.clearSelection();
+							$('#copy_success').addClass('alert-success').show().delay(1500).fadeOut();
+					});
+					clipboard.on('error',function(e)
+					{							
+					});
 			}				
 			
 			function return_servicename(va)
@@ -809,6 +833,17 @@
           		if ($('#show_addnewservice2_id #c101').val() != '') closedReason = $('#show_addnewservice1_id #c101').val();
           		json['closedReason'] = closedReason;
           }
+          if (v.orderType == 'VISA' && va == 'REVIEW')
+          {
+          		var flist = $('#addnewservice1_id #flist').val();
+          		if (flist == '')
+          		{
+          				$('#alert_error').css('marginLeft','30%');
+			   					$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+	          			$("#error_info").html('收款凭证没有上传，请上传之后再提交。');
+          				return false;
+          		}
+          }          
           if (v.orderType == 'VISA' && va == 'COMPLETE')
           {
           		var flist = $('#show_addnewservice1_id #flist').val();

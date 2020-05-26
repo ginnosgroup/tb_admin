@@ -109,7 +109,7 @@
 					<input type="file" id="f1" style="display:none">
 					<div id="show_currentpic" style="display:none;padding-bottom:10px;"></div>
 					<div id="show_pic" style="display:none;padding-bottom:10px;"></div>
-					<button onclick="upload_receipt_pic('f1')" id="upload_receipt" type="button" class="btn btn-danger">上传收款凭证</button>
+					<button onclick="upload_receipt_pic('f1')" id="upload_receipt" style="display:none;" type="button" class="btn btn-danger">上传收款凭证</button>
 					<button onclick="addnewService1Save()" type="button" class="btn btn-primary"><span id="btn_id">提交</span></button>
 					<button onclick="flowstep('REVIEW',1)" id="btnReview" style="display:none;" type="button" class="btn btn-primary">提交审核</button>
 					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
@@ -441,9 +441,12 @@ function add_service2(orderId,userId,name)
 $('#addnewservice1_id :radio').live('click', function (e) {
 		if ($(this).val() == '1')
 		{
-				$('#addnewservice1_id #show_paid').show();		
-				$('#addnewservice1_id #upload_receipt').show();
-				$('#addnewservice1_id #show_pic').show();
+				$('#addnewservice1_id #show_paid').show();
+				if (v.orderId != 0)
+				{		
+						$('#addnewservice1_id #upload_receipt').show();
+						$('#addnewservice1_id #show_pic').show();
+				}
 		}else
 		{
 				$('#addnewservice1_id #show_paid').hide();
@@ -673,7 +676,8 @@ function addnewService1Save()
        	{
        			//校验是否上传了凭证
        			var flist = $("#addnewservice1_id #flist").val();       			
-       			if (flist != '')
+       			//if (flist != '')
+       			if (json['adviserId'] != '')
        			{
        					//对凭证进行处理
        					var arr = flist.split(',');

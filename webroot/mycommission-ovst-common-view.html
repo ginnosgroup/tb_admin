@@ -153,6 +153,7 @@
 							</div>														
 							</form>
 					</div>
+					<div id="load-comment-2" style="display:;"></div>
 					<div class="modal-footer" style="text-align: center;">
 							<dle v-if="ap_list==='GW'">									
 									<dle v-if="state==='PENDING'">
@@ -206,6 +207,7 @@ function show_commission_detail(serviceId,orderId)
     	if (response.id)
     	{
 		    	$('#show_ovst_id').modal('show');
+		    	$("#load-comment-2").load("mycommission-ovst-common-view-comment.html?random="+Math.random());
 		    	$('#show_ovst_id #c0').html(response.id);
 		    	$('#show_ovst_id #c1').html(response.user.name);
 		    	$('#show_ovst_id #c8').html(response.adviser.name);
