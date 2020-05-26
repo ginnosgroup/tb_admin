@@ -360,6 +360,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	public ServiceOrderDTO approval(int id, int adminUserId, String adviserState, String maraState,
 			String officialState, String kjState) throws ServiceException {
 		ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(adminUserId);
+System.out.println("1===== id:" + id + ",adminUserId:" + adminUserId + ",adviserState:" + adviserState + ",maraState:" + maraState + ",officialState:" + officialState + ",kjState:" + kjState);
 		if (serviceOrderDo != null) {
 			String title = "提醒邮件";
 			String type = "";
@@ -374,9 +375,12 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderDo.getAdviserId());
 			OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
 			Date date = serviceOrderDo.getGmtCreate();
+System.out.println("2===== adviserDo: " + adviserDo + ",officialDo:" + officialDo);
 			if (adviserDo != null && officialDo != null) {
 				if ("REVIEW".equals(maraState)) {
+System.out.println("3===== maraState: " + maraState);
 					MaraDO maraDo = maraDao.getMaraById(serviceOrderDo.getMaraId());
+System.out.println("4===== maraDo: " + maraDo);
 					if (maraDo != null)
 						SendEmailUtil.send(maraDo.getEmail(), title,
 								"亲爱的" + maraDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:" + type
