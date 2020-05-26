@@ -465,6 +465,7 @@
 		<script src="assets/bootstrap-datepicker/js/bootstrap-datepicker.js"></script><!-- BOOTSTRAP DATEPICKER JS  -->
     <script src="assets/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js"></script><!-- BOOTSTRAP DATETIMEPICKER JS  -->
     <script src="js/jquery.autocompleter.js"></script>
+    <script src="js/clipboard.min.js"></script>
 		<script src="js/common-scripts.js"></script>
 		<script src="js/vue.js"></script>
 		<script src="js/common.js?verson=1"></script>
@@ -636,8 +637,9 @@
 				v.total_expectamount = 0;
 				v.total_bonus = 0;
 				for(var i = 0; i < result.data.length; i++) {
+						var customer_text = 'CV'+result.data[i].id;
 						result.data[i].oid = result.data[i].id;
-						result.data[i].strOid = '<a href="javascript:open_detail('+result.data[i].serviceOrderId+','+result.data[i].id+');" title="查看详细">'+result.data[i].id+'</a>';
+						result.data[i].strOid = '<a href="javascript:open_detail('+result.data[i].serviceOrderId+','+result.data[i].id+');" title="查看详细">'+result.data[i].id+'</a><br/><a onclick="copyText()" class="copybtn" data-clipboard-action="copy" data-clipboard-text="'+customer_text+'">复制</a><div id="copy_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">已复制！请告知客户转账时务必在备注填写该订单号码。</div>';
 						if (result.data[i].installment > 1) result.data[i].strOid += '-' + result.data[i].installmentNum;
 						result.data[i].gmtCreate = v.getTime1(result.data[i].gmtCreate);
 						result.data[i].receiveDate = result.data[i].receiveDate ? v.getTime(result.data[i].receiveDate):'';
@@ -652,7 +654,20 @@
 				v.total_expectamount = v.total_expectamount.toFixed(2);
 				v.total_bonus = v.total_bonus.toFixed(2);
 				return result.data;
-			}						
+			}
+			
+			function copyText()
+			{
+					var clipboard = new ClipboardJS('.copybtn');
+					clipboard.on('success',function(e)
+					{
+							e.clearSelection();
+							$('#copy_success').addClass('alert-success').show().delay(1500).fadeOut();
+					});
+					clipboard.on('error',function(e)
+					{							
+					});
+			}					
       
       function return_state(va)
 			{
