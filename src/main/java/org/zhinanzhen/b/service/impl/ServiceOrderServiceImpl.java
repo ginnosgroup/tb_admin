@@ -377,7 +377,7 @@ System.out.println("1===== id:" + id + ",adminUserId:" + adminUserId + ",adviser
 			Date date = serviceOrderDo.getGmtCreate();
 System.out.println("2===== adviserDo: " + adviserDo + ",officialDo:" + officialDo);
 			if (adviserDo != null && officialDo != null) {
-				if ("REVIEW".equals(maraState)) {
+				if ("REVIEW".equals(maraState) || "WAIT".equals(maraState)) {
 System.out.println("3===== maraState: " + maraState);
 					MaraDO maraDo = maraDao.getMaraById(serviceOrderDo.getMaraId());
 System.out.println("4===== maraDo: " + maraDo);
