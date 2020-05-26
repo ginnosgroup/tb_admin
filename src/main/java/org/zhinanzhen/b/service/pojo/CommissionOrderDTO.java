@@ -83,7 +83,7 @@ public class CommissionOrderDTO {
 
 	private Date bonusDate;
 
-	private double invoiceNo;
+	private String invoiceNo;
 
 	private Date zyDate;
 

@@ -138,7 +138,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			if (StringUtil.isNotEmpty(bonusDate))
 				commissionOrderDto.setBonusDate(new Date(Long.parseLong(bonusDate)));
 			if (StringUtil.isNotEmpty(invoiceNo))
-				commissionOrderDto.setInvoiceNo(Double.parseDouble(invoiceNo));
+				commissionOrderDto.setInvoiceNo(invoiceNo);
 			if (StringUtil.isNotEmpty(zyDate))
 				commissionOrderDto.setZyDate(new Date(Long.parseLong(zyDate)));
 			if (StringUtil.isNotEmpty(remarks))
@@ -311,7 +311,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 						"本次应收款(" + _perAmount + ")不能小于本次已收款(" + commissionOrderDto.getAmount() + ")!", null);
 			commissionOrderDto.setDiscount(_perAmount - commissionOrderDto.getAmount());
 			if (StringUtil.isNotEmpty(invoiceNo))
-				commissionOrderDto.setInvoiceNo(Double.parseDouble(invoiceNo));
+				commissionOrderDto.setInvoiceNo(invoiceNo);
 			if (StringUtil.isNotEmpty(zyDate))
 				commissionOrderDto.setZyDate(new Date(Long.parseLong(zyDate)));
 			if (StringUtil.isNotEmpty(remarks))
