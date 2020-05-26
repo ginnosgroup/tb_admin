@@ -379,13 +379,13 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				if ("REVIEW".equals(maraState) || "WAIT".equals(maraState)) {
 					MaraDO maraDo = maraDao.getMaraById(serviceOrderDo.getMaraId());
 					if (maraDo != null)
-						MailUtil.sendMail("7311930@qq.com", maraDo.getEmail(), "亲爱的" + maraDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:" + type
-								+ "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:"
-								+ date);
-//						SendEmailUtil.send(maraDo.getEmail(), title,
-//								"亲爱的" + maraDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:" + type
-//										+ "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:"
-//										+ date);
+//						MailUtil.sendMail(maraDo.getEmail(), maraDo.getEmail(), "亲爱的" + maraDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:" + type
+//								+ "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:"
+//								+ date);
+						SendEmailUtil.send(maraDo.getEmail(), title,
+								"亲爱的" + maraDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:" + type
+										+ "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:"
+										+ date);
 				}
 				if ("REVIEW".equals(officialState)) {
 					SendEmailUtil.send(officialDo.getEmail(), title,
