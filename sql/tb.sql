@@ -455,6 +455,8 @@ CREATE TABLE `b_commission_order` (
   `deduct_gst` decimal(8,2) NOT NULL COMMENT 'Deduct GST',
   `bonus` decimal(8,2) NOT NULL COMMENT '月奖金',
   `bonus_date` datetime DEFAULT NULL COMMENT '月奖金支付时间',
+  `invoice_no` decimal(8,2) DEFAULT NULL COMMENT 'Invoice NO',
+  `zy_date` datetime DEFAULT NULL COMMENT '追佣时间',
   `remarks` text DEFAULT NULL COMMENT '备注',
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;

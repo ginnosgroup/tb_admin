@@ -77,6 +77,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "receiveDate") String receiveDate,
 			@RequestParam(value = "perAmount") String perAmount, @RequestParam(value = "amount") String amount,
 			@RequestParam(value = "bonusDate", required = false) String bonusDate,
+			@RequestParam(value = "invoiceNo", required = false) String invoiceNo,
+			@RequestParam(value = "zyDate", required = false) String zyDate,
 			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
 			HttpServletResponse response) {
 
@@ -135,6 +137,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			commissionOrderDto.setDiscount(commissionOrderDto.getPerAmount() - commissionOrderDto.getAmount());
 			if (StringUtil.isNotEmpty(bonusDate))
 				commissionOrderDto.setBonusDate(new Date(Long.parseLong(bonusDate)));
+			if (StringUtil.isNotEmpty(invoiceNo))
+				commissionOrderDto.setInvoiceNo(Double.parseDouble(invoiceNo));
+			if (StringUtil.isNotEmpty(zyDate))
+				commissionOrderDto.setZyDate(new Date(Long.parseLong(zyDate)));
 			if (StringUtil.isNotEmpty(remarks))
 				commissionOrderDto.setRemarks(remarks);
 
@@ -229,6 +235,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "receiveDate", required = false) String receiveDate,
 			@RequestParam(value = "perAmount", required = false) String perAmount,
 			@RequestParam(value = "amount", required = false) String amount,
+			@RequestParam(value = "invoiceNo", required = false) String invoiceNo,
+			@RequestParam(value = "zyDate", required = false) String zyDate,
 			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
@@ -302,6 +310,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				return new Response<CommissionOrderDTO>(1,
 						"本次应收款(" + _perAmount + ")不能小于本次已收款(" + commissionOrderDto.getAmount() + ")!", null);
 			commissionOrderDto.setDiscount(_perAmount - commissionOrderDto.getAmount());
+			if (StringUtil.isNotEmpty(invoiceNo))
+				commissionOrderDto.setInvoiceNo(Double.parseDouble(invoiceNo));
+			if (StringUtil.isNotEmpty(zyDate))
+				commissionOrderDto.setZyDate(new Date(Long.parseLong(zyDate)));
 			if (StringUtil.isNotEmpty(remarks))
 				commissionOrderDto.setRemarks(remarks);
 
