@@ -252,7 +252,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			for (ServiceOrderReviewDTO serviceOrderReviewDto : serviceOrderReviewDtoList)
 				if (serviceOrderReviewDto != null && StringUtil.isNotEmpty(serviceOrderReviewDto.getKjState())) {
 					visaDto.setState(serviceOrderReviewDto.getKjState());
-					updateVisa(visaDto);
+					visaDao.updateVisa(mapper.map(visaDto, VisaDO.class));
 					break;
 				}
 	}
