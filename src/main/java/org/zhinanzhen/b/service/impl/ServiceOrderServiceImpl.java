@@ -43,6 +43,7 @@ import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
+import org.zhinanzhen.tb.utils.MailUtil;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
 import org.zhinanzhen.b.service.pojo.ChildrenServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.MaraDTO;
@@ -360,7 +361,6 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	public ServiceOrderDTO approval(int id, int adminUserId, String adviserState, String maraState,
 			String officialState, String kjState) throws ServiceException {
 		ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(id);
-System.out.println("1===== id:" + id + ",adminUserId:" + adminUserId + ",adviserState:" + adviserState + ",maraState:" + maraState + ",officialState:" + officialState + ",kjState:" + kjState);
 		if (serviceOrderDo != null) {
 			String title = "提醒邮件";
 			String type = "";
@@ -375,17 +375,17 @@ System.out.println("1===== id:" + id + ",adminUserId:" + adminUserId + ",adviser
 			AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderDo.getAdviserId());
 			OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
 			Date date = serviceOrderDo.getGmtCreate();
-System.out.println("2===== adviserDo: " + adviserDo + ",officialDo:" + officialDo);
 			if (adviserDo != null && officialDo != null) {
 				if ("REVIEW".equals(maraState) || "WAIT".equals(maraState)) {
-System.out.println("3===== maraState: " + maraState);
 					MaraDO maraDo = maraDao.getMaraById(serviceOrderDo.getMaraId());
-System.out.println("4===== maraDo: " + maraDo);
 					if (maraDo != null)
-						SendEmailUtil.send(maraDo.getEmail(), title,
-								"亲爱的" + maraDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:" + type
-										+ "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:"
-										+ date);
+						MailUtil.sendMail(maraDo.getEmail(), maraDo.getEmail(), "亲爱的" + maraDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:" + type
+								+ "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:"
+								+ date);
+//						SendEmailUtil.send(maraDo.getEmail(), title,
+//								"亲爱的" + maraDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:" + type
+//										+ "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:"
+//										+ date);
 				}
 				if ("REVIEW".equals(officialState)) {
 					SendEmailUtil.send(officialDo.getEmail(), title,
