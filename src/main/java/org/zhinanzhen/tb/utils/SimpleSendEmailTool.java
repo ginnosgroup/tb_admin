@@ -28,6 +28,7 @@ public class SimpleSendEmailTool {
 		prop.setProperty("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
 		prop.setProperty("mail.smtp.socketFactory.port", smtpServer.getPort());
 		prop.setProperty("mail.smtp.port", smtpServer.getPort());
+		prop.setProperty("mail.smtp.starttls.enable","true");
 
 		Session session = Session.getInstance(prop);
 		session.setDebug(true);
