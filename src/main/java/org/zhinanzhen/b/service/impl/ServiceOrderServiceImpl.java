@@ -359,7 +359,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	@Override
 	public ServiceOrderDTO approval(int id, int adminUserId, String adviserState, String maraState,
 			String officialState, String kjState) throws ServiceException {
-		ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(adminUserId);
+		ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(id);
 System.out.println("1===== id:" + id + ",adminUserId:" + adminUserId + ",adviserState:" + adviserState + ",maraState:" + maraState + ",officialState:" + officialState + ",kjState:" + kjState);
 		if (serviceOrderDo != null) {
 			String title = "提醒邮件";
