@@ -43,7 +43,6 @@
                 deduct_gst,
                 bonus,
                 bonus_date,
-                invoice_no,
                 zy_date,
                 remarks,
                 is_close)
@@ -85,7 +84,6 @@
                 #{deductGst},
                 #{bonus},
                 #{bonusDate},
-                #{invoiceNo},
                 #{zyDate},
                 #{remarks},
                 0);
@@ -183,9 +181,6 @@
         </if>
         <if test='bonusDate != null'>
             , bonus_date = #{bonusDate}
-        </if>
-        <if test='invoiceNo != null and invoiceNo > 0'>
-            , invoice_no = #{invoiceNo}
         </if>
         <if test='zyDate != null'>
             , zy_date = #{zyDate}
@@ -293,7 +288,6 @@
             co.deduct_gst AS deductGst,
             co.bonus,
             co.bonus_date AS bonusDate,
-            co.invoice_no AS invoiceNo,
             co.zy_date AS zyDate,
             co.remarks,
             co.is_close AS isClose,
@@ -385,7 +379,6 @@
             deduct_gst AS deductGst,
             bonus,
             bonus_date AS bonusDate,
-            invoice_no AS invoiceNo,
             zy_date AS zyDate,
             remarks,
             is_close AS isClose
@@ -431,7 +424,6 @@
             deduct_gst AS deductGst,
             bonus,
             bonus_date AS bonusDate,
-            invoice_no AS invoiceNo,
             zy_date AS zyDate,
             remarks,
             is_close AS isClose
@@ -477,7 +469,6 @@
             co.deduct_gst AS deductGst,
             co.bonus,
             co.bonus_date AS bonusDate,
-            co.invoice_no AS invoiceNo,
             co.zy_date AS zyDate,
             co.remarks,
             co.is_close AS isClose,
@@ -535,7 +526,6 @@
             co.deduct_gst AS deductGst,
             co.bonus,
             co.bonus_date AS bonusDate,
-            co.invoice_no AS invoiceNo,
             co.zy_date AS zyDate,
             co.remarks,
             co.is_close AS isClose,
@@ -596,7 +586,6 @@
             co.deduct_gst AS deductGst,
             co.bonus,
             co.bonus_date AS bonusDate,
-            co.invoice_no AS invoiceNo,
             co.zy_date AS zyDate,
             co.remarks,
             co.is_close AS isClose,

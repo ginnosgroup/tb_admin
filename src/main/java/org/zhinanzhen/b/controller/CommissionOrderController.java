@@ -77,7 +77,6 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "receiveDate") String receiveDate,
 			@RequestParam(value = "perAmount") String perAmount, @RequestParam(value = "amount") String amount,
 			@RequestParam(value = "bonusDate", required = false) String bonusDate,
-			@RequestParam(value = "invoiceNo", required = false) String invoiceNo,
 			@RequestParam(value = "zyDate", required = false) String zyDate,
 			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
 			HttpServletResponse response) {
@@ -137,8 +136,6 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			commissionOrderDto.setDiscount(commissionOrderDto.getPerAmount() - commissionOrderDto.getAmount());
 			if (StringUtil.isNotEmpty(bonusDate))
 				commissionOrderDto.setBonusDate(new Date(Long.parseLong(bonusDate)));
-			if (StringUtil.isNotEmpty(invoiceNo))
-				commissionOrderDto.setInvoiceNo(invoiceNo);
 			if (StringUtil.isNotEmpty(zyDate))
 				commissionOrderDto.setZyDate(new Date(Long.parseLong(zyDate)));
 			if (StringUtil.isNotEmpty(remarks))
@@ -235,7 +232,6 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "receiveDate", required = false) String receiveDate,
 			@RequestParam(value = "perAmount", required = false) String perAmount,
 			@RequestParam(value = "amount", required = false) String amount,
-			@RequestParam(value = "invoiceNo", required = false) String invoiceNo,
 			@RequestParam(value = "zyDate", required = false) String zyDate,
 			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
 			HttpServletResponse response) {
@@ -310,8 +306,6 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				return new Response<CommissionOrderDTO>(1,
 						"本次应收款(" + _perAmount + ")不能小于本次已收款(" + commissionOrderDto.getAmount() + ")!", null);
 			commissionOrderDto.setDiscount(_perAmount - commissionOrderDto.getAmount());
-			if (StringUtil.isNotEmpty(invoiceNo))
-				commissionOrderDto.setInvoiceNo(invoiceNo);
 			if (StringUtil.isNotEmpty(zyDate))
 				commissionOrderDto.setZyDate(new Date(Long.parseLong(zyDate)));
 			if (StringUtil.isNotEmpty(remarks))
@@ -368,6 +362,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "schoolPaymentAmount", required = false) String schoolPaymentAmount,
 			@RequestParam(value = "schoolPaymentDate", required = false) String schoolPaymentDate,
 			@RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
+			@RequestParam(value = "zyDate", required = false) String zyDate,
 			@RequestParam(value = "bonus", required = false) String bonus,
 			@RequestParam(value = "bonusDate", required = false) String bonusDate, HttpServletRequest request,
 			HttpServletResponse response) {
@@ -387,6 +382,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				commissionOrderDto.setSchoolPaymentDate(new Date(Long.parseLong(schoolPaymentDate)));
 			if (StringUtil.isNotEmpty(invoiceNumber))
 				commissionOrderDto.setInvoiceNumber(invoiceNumber);
+			if (StringUtil.isNotEmpty(zyDate))
+				commissionOrderDto.setZyDate(new Date(Long.parseLong(zyDate)));
 			if (bonus != null)
 				commissionOrderDto.setBonus(Double.parseDouble(bonus));
 			if (bonusDate != null)

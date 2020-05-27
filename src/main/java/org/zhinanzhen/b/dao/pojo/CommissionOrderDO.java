@@ -81,8 +81,6 @@ public class CommissionOrderDO {
 
 	private Date bonusDate;
 	
-	private String invoiceNo;
-	
 	private Date zyDate;
 
 	private String remarks;
