@@ -667,7 +667,7 @@
 						var str_state = '';
 						var customer_text = 'CS'+result.data[i].id;
 						result.data[i].oid = result.data[i].id;
-						result.data[i].strOid = '<a href="javascript:open_detail('+result.data[i].serviceOrderId+','+result.data[i].id+');" title="查看详细">CS'+result.data[i].id+'</a>-'+result.data[i].installmentNum+'<br/><a onclick="copyText('+result.data[i].id+')" class="copybtn" data-clipboard-action="copy" data-clipboard-text="'+customer_text+'">复制</a><div id="copy_success'+result.data[i].id+'" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">已复制！请告知客户转账时务必在备注填写该订单号码。</div>';
+						result.data[i].strOid = '<a href="javascript:open_detail('+result.data[i].serviceOrderId+','+result.data[i].id+');" title="查看详细">CS'+result.data[i].id+'</a>-'+result.data[i].installmentNum+'<br/><a onclick="copyText()" class="copybtn" data-clipboard-action="copy" data-clipboard-text="'+customer_text+'">复制</a><div id="copy_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">已复制！请告知客户转账时务必在备注填写该订单号码。</div>';
 						result.data[i].gmtCreate = v.getTime1(result.data[i].gmtCreate);
 						//result.data[i].finishDate = result.data[i].finishDate ? v.getTime(result.data[i].finishDate):'';
 						result.data[i].receiveDate = result.data[i].receiveDate ? v.getTime(result.data[i].receiveDate):'';
@@ -709,7 +709,7 @@
 					clipboard.on('success',function(e)
 					{
 							e.clearSelection();
-							$('#copy_success'+oid).addClass('alert-success').show().delay(1500).fadeOut();
+							$('#copy_success').addClass('alert-success').show().delay(1500).fadeOut();
 					});
 					clipboard.on('error',function(e)
 					{							
