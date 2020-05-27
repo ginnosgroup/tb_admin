@@ -662,10 +662,14 @@
 						switch(result.data[i].type)
 						{
 								case 'VISA':
-										customer_text = 'V'+result.data[i].id+'<br/><a onclick="copyText()" class="copybtn" data-clipboard-action="copy" data-clipboard-text="V'+result.data[i].id+'">复制</a><div id="copy_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">已复制！请告知客户转账时务必在备注填写该订单号码。</div>';
+										customer_text = 'V'+result.data[i].id+'<br/><a onclick="copyText('+result.data[i].id+')" class="copybtn" data-clipboard-action="copy" data-clipboard-text="V'+result.data[i].id+'">复制</a><div id="copy_success'+result.data[i].id+'" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">已复制！请告知客户转账时务必在备注填写该订单号码。</div>';
 								break;
 								case 'OVST':
 										customer_text = result.data[i].id;
+										if (result.data[i].settle)
+										{
+												customer_text = 'S'+result.data[i].id+'<br/><a onclick="copyText('+result.data[i].id+')" class="copybtn" data-clipboard-action="copy" data-clipboard-text="S'+result.data[i].id+'">复制</a><div id="copy_success'+result.data[i].id+'" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">已复制！请告知客户转账时务必在备注填写该订单号码。</div>';
+										}
 								break;
 						}
 						result.data[i].oid = customer_text;
@@ -730,13 +734,13 @@
 				return result.data;
 			}
 			
-			function copyText()
+			function copyText(oid)
 			{
 					var clipboard = new ClipboardJS('.copybtn');
 					clipboard.on('success',function(e)
 					{
 							e.clearSelection();
-							$('#copy_success').addClass('alert-success').show().delay(1500).fadeOut();
+							$('#copy_success'+oid).addClass('alert-success').show().delay(1500).fadeOut();
 					});
 					clipboard.on('error',function(e)
 					{							
