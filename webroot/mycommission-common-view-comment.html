@@ -46,11 +46,11 @@ var v_sub_comment = new Vue({
 				methods: {
 					getMessagelist: function() {
 						var that = this;
-						$.get(url + "visa/countComment", {serviceOrderId:v.orderId}, function(result) {
+						$.get(url + "visa/countComment", {visaId:v.orderId}, function(result) {
 							that.comment_count = result.data;				
 						});
 						$.get(url + "visa/listComment", {
-							serviceOrderId: v.orderId							
+							visaId: v.orderId							
 						}, function(result) {
 							for(var i = 0; i < result.data.length; i++) {
 								result.data[i].gmtCreate = that.getTime(result.data[i].gmtCreate);
@@ -87,7 +87,7 @@ function btnSubmit()
     if (cont != '')
     {
     		var str_url = 'visa/addComment';
-    		$.post(str_url, { serviceOrderId: id, adminUserId: v.admin_id,content: cont},
+    		$.post(str_url, { visaId: id, adminUserId: v.admin_id,content: cont},
 		   	function(data){
 		   		if (!data.code)
 		   		{
