@@ -307,6 +307,7 @@
 													<tr>
 														<!--<th><input @click="checked" type="checkbox"></th>-->
 														<th>ID</th>
+														<th>地区</th>
 														<th>Subagency名称</th>
 														<th>commissionRate</th>
 														<th>Edit</th>
@@ -316,6 +317,7 @@
 												<tbody>
 													<tr v-for="item in subject" class="gradeX">
 														<td v-html="item.oid"></td>
+														<td v-html="item.countryName"></td>
 														<td v-html="item.name"></td>
 														<td v-html="item.commissionRate"></td>
 														<td><a v-if="item.id" class="edit" href="javascript:;" @click="table_modify($index)"><span class="label label-success">Edit</span></a>
@@ -444,20 +446,8 @@
 				},
 				created: function() {
 					this.getDatalist();
-					this.getSort();
 				},
-				methods: {
-					getSort: function() {
-						var that = this;
-						$.get(url + "subagency/list", {
-							state: "",
-							pageNum: 0,
-							pageSize: 1000000
-						}, function(result) {
-							console.log(result)
-							that.allSort = result.data;
-						});
-					},
+				methods: {					
 					getDatalist: function() {
 						var that = this;
 						$.get(url + "subagency/count", {
@@ -473,11 +463,8 @@
 							pageSize: that.pageSize
 						}, function(result) {
 							//console.log(result)
-							that.pageNum = 0;
-							for(var i = 0; i < result.data.length; i++) {
-									result.data[i].oid = result.data[i].id;									
-							};
-							that.subject = result.data;
+							that.pageNum = 0;							
+							that.subject = return_result(result);
 							//console.log(that.subject);
 						});
 					},
@@ -508,12 +495,8 @@
 								pageNum: 0,
 								pageSize: that.pageSize
 							}, function(result) {
-								console.log(result)
 								that.pageNum = 0;
-								for(var i = 0; i < result.data.length; i++) {
-										result.data[i].oid = result.data[i].id;										
-								};
-								that.subject = result.data;
+								that.subject = return_result(result);
 							});
 						}
 					},
@@ -526,11 +509,7 @@
 								pageNum: that.pageNum,
 								pageSize: that.pageSize
 							}, function(result) {
-								console.log(result)
-								for(var i = 0; i < result.data.length; i++) {
-										result.data[i].oid = result.data[i].id;
-								};
-								that.subject = result.data;
+								that.subject = return_result(result);
 							});
 						}
 					},
@@ -545,11 +524,7 @@
 								pageNum: that.pageNum,
 								pageSize: that.pageSize
 							}, function(result) {
-								console.log(result)
-								for(var i = 0; i < result.data.length; i++) {
-										result.data[i].oid = result.data[i].id;							
-								};
-								that.subject = result.data;
+								that.subject = return_result(result);
 							});
 						}
 					},
@@ -563,12 +538,8 @@
 								pageNum: that.allPage - 1,
 								pageSize: that.pageSize
 							}, function(result) {
-								console.log(result)
 								that.pageNum = that.allPage - 1;
-								for(var i = 0; i < result.data.length; i++) {
-										result.data[i].oid = result.data[i].id;
-								};
-								that.subject = result.data;
+								that.subject = return_result(result);
 							});
 						}
 					},
@@ -585,6 +556,7 @@
 								this.subject.splice(0,0, {
 									id:'',									
 									name: '<input type="text" class="form-control small" style="width:150px;" id="t0" value="">',
+									countryName: '<select class="form-control" style="width:150px;" id="t2"></select>',
 									commissionRate: '<input type="text" class="form-control small" style="width:250px;" id="t1" value="">',
 									});
 								this.add = true;
@@ -607,6 +579,7 @@
 						this.subject.splice(index,1, {
 							oid: parseInt(this.subject[index].id),
 							name: '<input type="text" class="form-control small" style="width:150px;" id="t0" value="'+this.subject[index].name+'">',
+							countryName: '<select class="form-control" style="width:150px;" id="t2"></select>',
 							commissionRate: '<input type="text" class="form-control small" style="width:250px;" id="t1" value="'+this.subject[index].commissionRate+'">',
 						});						
 						if (this.add)
@@ -627,6 +600,30 @@
           }
 				}		
 			});
+			
+			function return_result(result)
+			{
+				for(var i = 0; i < result.data.length; i++) {
+						result.data[i].oid = result.data[i].id;
+						result.data[i].countryName = return_country(result.data[i].country);
+				};
+				return result.data;
+			}
+			
+			function return_country(en)
+			{
+				var str = '';
+				switch(en)
+				{
+						case 'AU':
+								str = '澳大利亚';
+						break;
+						case 'CN':
+								str = '中国';
+						break;
+				}
+				return str;
+			}
 			
 			$('#example a.edit').live('click', function (e) {
 				e.preventDefault();
@@ -649,6 +646,7 @@
 			function table_addsave()
 			{
           var jqInputs = $('input',$("#example"));
+          var jqSelect = $('select',$("#example"));
           
           var check_result = 0;
           if (jqInputs[0].value != '' && jqInputs[1].value != '')
@@ -666,7 +664,7 @@
               if (sa_id != '0') str_url = "subagency/update";
               $("#id").val('0');
               
-              $.post(str_url, { id: sa_id, name: jqInputs[0].value, commissionRate: jqInputs[1].value},
+              $.post(str_url, { id: sa_id, name: jqInputs[0].value, commissionRate: jqInputs[1].value, country: jqSelect[0].value},
 					   	function(data){
 					   			if (data.code == 0)
 					   			{
@@ -686,10 +684,17 @@
 					$('.default-date-picker').datepicker({   				
 				        format: 'dd/mm/yyyy'
 				  });
+				  var country = '';
 				 	if (this.current_row.id)
 				  {
-				  		$("#id").val(this.current_row.id);		  			  		
-				  }			    
+				  		$("#id").val(this.current_row.id);
+				  		country = this.current_row.country;			  		
+				  }
+				  
+				  var obj_country = $("#t2");
+				  obj_country.append("<option value='AU'>澳大利亚</option>");			    
+				  obj_country.append("<option value='CN'>中国</option>");
+				  obj_country.val(country);
 			});
 			
 			function deleteId()
