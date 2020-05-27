@@ -9,7 +9,7 @@ public interface SubagencyDAO {
 
 	public int addSubagency(SubagencyDO subagencyDo);
 
-	public int updateSubagency(@Param("id") int id, @Param("name") String name,
+	public int updateSubagency(@Param("id") int id, @Param("name") String name, @Param("country") String country,
 			@Param("commissionRate") double commissionRate);
 
 	public List<SubagencyDO> listSubagency(@Param("keyword") String keyword);

@@ -9,7 +9,7 @@ public interface SubagencyService {
 
 	public int addSubagency(SubagencyDTO subagencyDto) throws ServiceException;
 
-	public int updateSubagency(int id, String name, double commissionRate) throws ServiceException;
+	public int updateSubagency(int id, String name, String country, double commissionRate) throws ServiceException;
 
 	public List<SubagencyDTO> listSubagency(String keyword) throws ServiceException;
 

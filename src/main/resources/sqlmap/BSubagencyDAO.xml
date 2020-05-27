@@ -9,11 +9,13 @@
                 gmt_create,
                 gmt_modify,
                 name,
+                country,
                 commission_rate)
             VALUES (
                 now(),
                 now(),
                 #{name},
+                #{country},
                 #{commissionRate});
     </insert>
     
@@ -22,6 +24,9 @@
         SET gmt_modify = now()
         <if test='name != null and name != ""'>
             , name = #{name}
+        </if>
+        <if test='country != null and country != ""'>
+            , country = #{country}
         </if>
         <if test='commissionRate != null and commissionRate != ""'>
             , commission_rate = #{commissionRate}
@@ -34,6 +39,7 @@
             id,
             gmt_create AS GmtCreate,
             name,
+            country,
             commission_rate AS CommissionRate
         FROM b_subagency
         WHERE is_delete = 0
@@ -48,6 +54,7 @@
             id,
             gmt_create AS GmtCreate,
             name,
+            country,
             commission_rate AS CommissionRate
         FROM b_subagency WHERE id = #{id, jdbcType=INTEGER};
     </select>
