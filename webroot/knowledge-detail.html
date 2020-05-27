@@ -375,7 +375,7 @@
 		<script src="js/vue.js"></script>
 		<script src="js/common.js?verson=1"></script>
 		<script>
-			tb.isLogin("knowledge-detail.html?id="+getRequestId());
+			//tb.isLogin("knowledge-detail.html?id="+getRequestId());
 			$("td,th").addClass("text-center");
 			var v = new Vue({
 				el: '#official',
@@ -390,6 +390,7 @@
 					eId: ''					
 				},
 				created: function() {
+					this.getLogin();
 					$.get(url + "knowledge/get", {
 						id: this.kid,									
 					}, function(result) {
@@ -409,6 +410,29 @@
 					this.getMessagelist();
 				},
 				methods: {
+					getLogin: function() {
+						var that = this;
+						$.get(url + "admin_user/isLogin", function(res) {
+								if(res.code == 1) {
+									var u = "knowledge-detail.html?id="+getRequestId();
+									sessionStorage.setItem("goUrl", u);
+									window.location.href = "login.htm";
+								}else
+								{
+									sessionStorage.setItem("admin", res.data.username);
+									sessionStorage.setItem("admin_id", res.data.id);
+									sessionStorage.setItem("ap_list", res.data.apList);
+									sessionStorage.setItem("adviser_id", res.data.adviserId);	
+									sessionStorage.setItem("official_id", res.data.officialId);
+									sessionStorage.setItem("mara_id", res.data.maraId);
+									sessionStorage.setItem("kj_id", res.data.kjId);
+									that.admin =  res.data.username;
+									that.admin_id =  res.data.id;
+									that.ap_list =  res.data.apList;
+												
+								}
+						});
+					},
 					getMessagelist: function() {
 						var that = this;
 						$.get(url + "message/list", {
