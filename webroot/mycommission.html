@@ -327,6 +327,7 @@
 										</form>
 										<div class="responsive-table margin-top">
 											<input type="hidden" name="id" id="id" value="0" />
+											<div id="copy_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">已复制！请告知客户转账时务必在备注填写该订单号码。</div>
 											<table class="display table table-bordered table-striped" id="list_visa" style="width:1700px;">
 												<thead>
 													<tr>
@@ -640,7 +641,7 @@
 						var customer_text = 'CV'+result.data[i].id;
 						result.data[i].oid = result.data[i].id;
 						result.data[i].strOid = '<a href="javascript:open_detail('+result.data[i].serviceOrderId+','+result.data[i].id+');" title="查看详细">CV'+result.data[i].id+'</a>';
-						if (result.data[i].installment > 1) result.data[i].strOid += '-' + result.data[i].installmentNum+'<br/><a onclick="copyText()" class="copybtn" data-clipboard-action="copy" data-clipboard-text="'+customer_text+'">复制</a><div id="copy_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">已复制！请告知客户转账时务必在备注填写该订单号码。</div>';
+						if (result.data[i].installment > 1) result.data[i].strOid += '-' + result.data[i].installmentNum+'<br/><a onclick="copyText()" class="copybtn" data-clipboard-action="copy" data-clipboard-text="'+customer_text+'">复制</a>';
 						result.data[i].gmtCreate = v.getTime1(result.data[i].gmtCreate);
 						result.data[i].receiveDate = result.data[i].receiveDate ? v.getTime(result.data[i].receiveDate):'';
 						result.data[i].bonusDate = result.data[i].bonusDate ? v.getTime(result.data[i].bonusDate):'';
