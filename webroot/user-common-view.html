@@ -571,8 +571,13 @@ function show_addnewservice_id(orderId,type)
         	if (v_sub.flowstate_wa == 'FINISH' || v_sub.flowstate_wa == 'APPLY' || v_sub.flowstate_wa == 'COMPLETE' || v_sub.flowstate_wa == 'PAID' || v_sub.flowstate_wa == 'CLOSE') $("#c200").val(v_sub.flowstate_wa);
         	v.addnewservice2_bind = 1;
 					$('#show_addnewservice2_id').modal('show');
-					$("#load-comment-1").html('');
-					$("#load-comment-2").load("user-common-view-comment.html?random="+Math.random());
+					if (v_sub.flowstate_wa==='PAID' && !v_sub.submitted)
+					{
+					}else
+					{
+							$("#load-comment-1").html('');
+							$("#load-comment-2").load("user-common-view-comment.html?random="+Math.random());
+					}
     	}
     });      				      		
 }
