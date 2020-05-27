@@ -374,6 +374,7 @@
 														<th>学校支付金额</th>
 														<th>学校支付时间</th>
 														<th>Invoice NO.</th>
+														<th>追佣时间</th>
 														<th>Subagency</th>
 														<th v-if="ap_list==='KJ' && commission_state ==='DJY'">是否对账完成</th>
 														<th>月奖</th>														
@@ -408,6 +409,7 @@
 														<th v-html="item.schoolPaymentAmount"></th>
 														<td v-html="item.schoolPaymentDate"></td>														
 														<td v-html="item.invoiceNumber"></td>
+														<td v-html="item.zyDate"></td>
 														<td v-html="item.subagencyName"></td>
 														<td v-if="ap_list==='KJ' && commission_state ==='DJY'" v-html="item.strSchoolPaid"></td>
 														<td v-html="item.bonus"></td>														
@@ -799,6 +801,7 @@
 							schoolPaymentAmount: '<input type="text" class="form-control small" style="width:120px;" id="d1" value="'+this.subject[index].schoolPaymentAmount+'">',
 							schoolPaymentDate: '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:120px;" id="d2" data-date-format="dd-mm-yyyy" value="'+this.subject[index].schoolPaymentDate+'">',
 							invoiceNumber: '<input type="text" class="form-control small" style="width:120px;" id="d3" value="'+this.subject[index].invoiceNumber+'">',
+							zyDate: '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:120px;" id="d4" data-date-format="dd-mm-yyyy" value="'+this.subject[index].zyDate+'">',
 							subagencyName: this.subject[index].subagencyName,
 							bonus: this.subject[index].bonus,
 							bonusDate: this.subject[index].bonusDate,
@@ -835,6 +838,7 @@
 						result.data[i].schoolPaymentDate = result.data[i].schoolPaymentDate ? v.getTime(result.data[i].schoolPaymentDate):'';
 						result.data[i].subagencyName = result.data[i].subagency.name;
 						result.data[i].bonusDate = result.data[i].bonusDate ? v.getTime(result.data[i].bonusDate):'';
+						result.data[i].zyDate = result.data[i].zyDate ? v.getTime(result.data[i].zyDate):'';
 						result.data[i].userName = result.data[i].user.name;
 						result.data[i].serviceName = '留学';
 						if (result.data[i].settle)
@@ -952,7 +956,8 @@
 					var f = '#list_ovst ';
 					var check_result = 0;
 					
-					if ($(f+'#d1').val() != '' && $(f+'#d2').val() != '' && $(f+'#d3').val() != '')
+					//if ($(f+'#d1').val() != '' && $(f+'#d2').val() != '' && $(f+'#d3').val() != '')
+					if (f != '')
 					{
 							check_result = true;
 					}else
@@ -968,8 +973,9 @@
        				var json = {};
        				json['id'] = v.orderId;
        				json['schoolPaymentAmount'] = $(f+'#d1').val();
+       				var d2 = 0;
        				if ($(f+'#d2').val())
-       				{
+       				{       						
        						var str_d2 = $(f+'#d2').val();
        						var arr_d = str_d2.split("/");
 		          		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
@@ -978,6 +984,16 @@
        				}
        				json['schoolPaymentDate'] = d2;
        				json['invoiceNumber'] = $(f+'#d3').val();
+       				var d4 = 0;
+       				if ($(f+'#d4').val())
+       				{
+       						var str_d4 = $(f+'#d4').val();
+       						var arr_d = str_d4.split("/");
+		          		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+		              var date = new Date(str_d);
+		              d4= date.getTime();
+       				}
+       				json['zyDate'] = d4;
        				$.post(str_url, json,
 					   	function(data){
 					   			if (data.code == 0)
