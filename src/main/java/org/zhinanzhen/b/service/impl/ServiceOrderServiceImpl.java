@@ -362,12 +362,6 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			String officialState, String kjState) throws ServiceException {
 		ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(id);
 		if (serviceOrderDo != null) {
-			if (serviceOrderDo.getPaymentVoucherImageUrl1() == null
-					&& serviceOrderDo.getPaymentVoucherImageUrl2() == null) {
-				ServiceException se = new ServiceException("支付凭证不能为空!");
-				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
-				throw se;
-			}
 			String title = "提醒邮件";
 			String type = "";
 			if ("VISA".equalsIgnoreCase(serviceOrderDo.getType()))
