@@ -561,7 +561,7 @@
 					var that = this;
 			    if(confirm('提醒：请确认是否执行删除操作？'))
 			    {
-			    		$.get("message/deleteComment", {
+			    		$.get("message/delete", {
 								id: id
 							}, function(result) {
 								console.log(result);
