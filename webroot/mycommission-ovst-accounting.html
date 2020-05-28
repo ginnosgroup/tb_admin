@@ -836,7 +836,7 @@
 						}						
 						result.data[i].schoolPaymentAmount = result.data[i].schoolPaymentAmount ? result.data[i].schoolPaymentAmount:'';
 						result.data[i].schoolPaymentDate = result.data[i].schoolPaymentDate ? v.getTime(result.data[i].schoolPaymentDate):'';
-						result.data[i].subagencyName = result.data[i].subagency.name;
+						result.data[i].subagencyName = (result.data[i].subagencyId ? result.data[i].subagency.name :'');
 						result.data[i].bonusDate = result.data[i].bonusDate ? v.getTime(result.data[i].bonusDate):'';
 						result.data[i].zyDate = result.data[i].zyDate ? v.getTime(result.data[i].zyDate):'';
 						result.data[i].userName = result.data[i].user.name;
