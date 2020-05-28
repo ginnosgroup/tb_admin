@@ -232,6 +232,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "receiveDate", required = false) String receiveDate,
 			@RequestParam(value = "perAmount", required = false) String perAmount,
 			@RequestParam(value = "amount", required = false) String amount,
+			@RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
 			@RequestParam(value = "zyDate", required = false) String zyDate,
 			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
 			HttpServletResponse response) {
@@ -306,6 +307,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				return new Response<CommissionOrderDTO>(1,
 						"本次应收款(" + _perAmount + ")不能小于本次已收款(" + commissionOrderDto.getAmount() + ")!", null);
 			commissionOrderDto.setDiscount(_perAmount - commissionOrderDto.getAmount());
+			if (StringUtil.isNotEmpty(invoiceNumber))
+				commissionOrderDto.setInvoiceNumber(invoiceNumber);
 			if (StringUtil.isNotEmpty(zyDate))
 				commissionOrderDto.setZyDate(new Date(Long.parseLong(zyDate)));
 			if (StringUtil.isNotEmpty(remarks))
