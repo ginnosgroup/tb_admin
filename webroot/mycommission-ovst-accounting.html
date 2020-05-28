@@ -970,6 +970,7 @@
 					if (check_result)
     			{    					
 			    		var str_url = "commissionOrder/kjUpdate";
+			    		if ($(f+'#d1').val() == '' || $(f+'#d2').val() == '') str_url = "commissionOrder/update";
        				var json = {};
        				json['id'] = v.orderId;
        				json['schoolPaymentAmount'] = $(f+'#d1').val();
