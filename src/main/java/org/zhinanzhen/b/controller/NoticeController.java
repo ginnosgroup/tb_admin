@@ -70,7 +70,7 @@ public class NoticeController extends BaseController {
 								+ serviceOrder.getId() + " 超过48小时未提交审核，请及时处理，如已操作请忽略。");
 					}
 				} catch (Exception e) {
-					log.error("提醒邮件发送失败:" + e.getMessage());
+					log.error("提醒邮件发送异常:" + e.getMessage());
 					continue;
 				}
 			}
@@ -91,7 +91,7 @@ public class NoticeController extends BaseController {
 										+ "天到期，请尽快联系客户，如已重新申请签证为保证下次提醒请更新签证时间。<br/>客户ID:" + visa.getUserId() + "/签证日期:"
 										+ visaExpirationDate);
 				} catch (Exception e) {
-					log.error("提醒邮件发送失败:" + e.getMessage());
+					log.error("提醒邮件发送异常:" + e.getMessage());
 					continue;
 				}
 			}
@@ -113,7 +113,7 @@ public class NoticeController extends BaseController {
 										+ commissionOrderListDto.getServiceOrderId() + "，installment date 距今还有" + days
 										+ "天，请尽快联系学生是否以及提交学费，如已提交请尽快提交月奖申请。");
 				} catch (Exception e) {
-					log.error("提醒邮件发送失败:" + e.getMessage());
+					log.error("提醒邮件发送异常:" + e.getMessage());
 					continue;
 				}
 			}
