@@ -487,7 +487,7 @@ CREATE TABLE `b_subagency` (
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `name` varchar(32) NOT NULL COMMENT '名称',
-`country` varchar(4) NOT NULL DEFAULT 'AU' COMMENT '国家 (CN:中国,AU:澳大利亚)',
+`country` varchar(4) NOT NULL DEFAULT 'AUS' COMMENT '国家 (CN:中国,AUS:澳大利亚)',
   `commission_rate` decimal(8,2) NOT NULL COMMENT 'Commission Rate',
   `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已删除'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
