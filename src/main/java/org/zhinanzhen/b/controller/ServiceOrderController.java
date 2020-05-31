@@ -31,6 +31,7 @@ import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserService;
 
+import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.StringUtil;
 
 @Controller
@@ -575,6 +576,18 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto = serviceOrderService.getServiceOrderById(id);
 			} catch (ServiceException e) {
 				return new Response<ServiceOrderDTO>(1, e.getMessage(), null);
+			}
+			if (serviceOrderDto == null) {
+				ServiceException se = new ServiceException("服务订单不存在:" + id);
+				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+				throw se;
+			}
+			if (!"OVST".equals(serviceOrderDto.getType()) && serviceOrderDto.isPay()
+					&& serviceOrderDto.getPaymentVoucherImageUrl1() == null
+					&& serviceOrderDto.getPaymentVoucherImageUrl2() == null) {
+				ServiceException se = new ServiceException("支付凭证不能为空!");
+				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+				throw se;
 			}
 			// 审核
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);

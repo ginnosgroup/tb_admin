@@ -43,6 +43,7 @@ import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
+import org.zhinanzhen.tb.utils.MailUtil;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
 import org.zhinanzhen.b.service.pojo.ChildrenServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.MaraDTO;
@@ -243,7 +244,14 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				List<ChildrenServiceOrderDTO> childrenServiceOrderList = new ArrayList<>();
 				List<ServiceOrderDO> list = serviceOrderDao.listByParentId(serviceOrderDto.getId());
 				list.forEach(serviceOrder -> {
-					childrenServiceOrderList.add(mapper.map(serviceOrder, ChildrenServiceOrderDTO.class));
+					ChildrenServiceOrderDTO childrenServiceOrderDto = mapper.map(serviceOrder,
+							ChildrenServiceOrderDTO.class);
+					ServicePackageDO servicePackageDo = servicePackageDao
+							.getById(childrenServiceOrderDto.getServicePackageId()); // TODO:
+																						// 又偷懒了，性能比较差哦：）
+					if (servicePackageDo != null)
+						childrenServiceOrderDto.setServicePackageType(servicePackageDo.getType());
+					childrenServiceOrderList.add(childrenServiceOrderDto);
 				});
 				serviceOrderDto.setChildrenServiceOrders(childrenServiceOrderList);
 			}
@@ -321,7 +329,13 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				List<ChildrenServiceOrderDTO> childrenServiceOrderList = new ArrayList<>();
 				List<ServiceOrderDO> list = serviceOrderDao.listByParentId(serviceOrderDto.getId());
 				list.forEach(serviceOrder -> {
-					childrenServiceOrderList.add(mapper.map(serviceOrder, ChildrenServiceOrderDTO.class));
+					ChildrenServiceOrderDTO childrenServiceOrderDto = mapper.map(serviceOrder,
+							ChildrenServiceOrderDTO.class);
+					ServicePackageDO servicePackageDo = servicePackageDao
+							.getById(childrenServiceOrderDto.getServicePackageId());
+					if (servicePackageDo != null)
+						childrenServiceOrderDto.setServicePackageType(servicePackageDo.getType());
+					childrenServiceOrderList.add(childrenServiceOrderDto);
 				});
 				serviceOrderDto.setChildrenServiceOrders(childrenServiceOrderList);
 			}
@@ -359,8 +373,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	@Override
 	public ServiceOrderDTO approval(int id, int adminUserId, String adviserState, String maraState,
 			String officialState, String kjState) throws ServiceException {
-		ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(adminUserId);
-System.out.println("1===== id:" + id + ",adminUserId:" + adminUserId + ",adviserState:" + adviserState + ",maraState:" + maraState + ",officialState:" + officialState + ",kjState:" + kjState);
+		ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(id);
 		if (serviceOrderDo != null) {
 			String title = "提醒邮件";
 			String type = "";
@@ -375,21 +388,26 @@ System.out.println("1===== id:" + id + ",adminUserId:" + adminUserId + ",adviser
 			AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderDo.getAdviserId());
 			OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
 			Date date = serviceOrderDo.getGmtCreate();
-System.out.println("2===== adviserDo: " + adviserDo + ",officialDo:" + officialDo);
 			if (adviserDo != null && officialDo != null) {
-				if ("REVIEW".equals(maraState)) {
-System.out.println("3===== maraState: " + maraState);
+				if ("REVIEW".equals(maraState) || "WAIT".equals(maraState)) {
 					MaraDO maraDo = maraDao.getMaraById(serviceOrderDo.getMaraId());
-System.out.println("4===== maraDo: " + maraDo);
 					if (maraDo != null)
+//						MailUtil.sendMail(maraDo.getEmail(), maraDo.getEmail(), "亲爱的" + maraDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:" + type
+//								+ "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:"
+//								+ date);
 						SendEmailUtil.send(maraDo.getEmail(), title,
 								"亲爱的" + maraDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:" + type
 										+ "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:"
 										+ date);
 				}
-				if ("REVIEW".equals(officialState)) {
+				if ("REVIEW".equals(adviserState)) { // 给文案发邮件提醒，这时adviserState为REVIEW,officialState为NULL
 					SendEmailUtil.send(officialDo.getEmail(), title,
 							"亲爱的" + officialDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:" + type
+									+ "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:" + date);
+				}
+				if ("REVIEW".equals(officialState)) { // 告诉顾问文案已经开始审核了
+					SendEmailUtil.send(adviserDo.getEmail(), title,
+							"亲爱的" + adviserDo.getName() + ":<br/>您有一条服务订单已正在处理中。<br/>订单号:" + id + "/服务类型:" + type
 									+ "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:" + date);
 				}
 				if ("REVIEW".equals(kjState)) {

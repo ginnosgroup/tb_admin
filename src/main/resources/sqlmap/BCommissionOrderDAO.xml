@@ -43,6 +43,7 @@
                 deduct_gst,
                 bonus,
                 bonus_date,
+                zy_date,
                 remarks,
                 is_close)
             VALUES (
@@ -83,6 +84,7 @@
                 #{deductGst},
                 #{bonus},
                 #{bonusDate},
+                #{zyDate},
                 #{remarks},
                 0);
     </insert>
@@ -179,6 +181,9 @@
         </if>
         <if test='bonusDate != null'>
             , bonus_date = #{bonusDate}
+        </if>
+        <if test='zyDate != null'>
+            , zy_date = #{zyDate}
         </if>
         <if test='remarks != null and remarks != ""'>
             , remarks = #{remarks}
@@ -283,6 +288,7 @@
             co.deduct_gst AS deductGst,
             co.bonus,
             co.bonus_date AS bonusDate,
+            co.zy_date AS zyDate,
             co.remarks,
             co.is_close AS isClose,
             so.id AS serviceOrderId,
@@ -373,6 +379,7 @@
             deduct_gst AS deductGst,
             bonus,
             bonus_date AS bonusDate,
+            zy_date AS zyDate,
             remarks,
             is_close AS isClose
         FROM b_commission_order WHERE code = #{code};
@@ -417,6 +424,7 @@
             deduct_gst AS deductGst,
             bonus,
             bonus_date AS bonusDate,
+            zy_date AS zyDate,
             remarks,
             is_close AS isClose
         FROM b_commission_order WHERE service_order_id = #{serviceOrderId};
@@ -461,6 +469,7 @@
             co.deduct_gst AS deductGst,
             co.bonus,
             co.bonus_date AS bonusDate,
+            co.zy_date AS zyDate,
             co.remarks,
             co.is_close AS isClose,
             so.id AS serviceOrderId,
@@ -517,6 +526,7 @@
             co.deduct_gst AS deductGst,
             co.bonus,
             co.bonus_date AS bonusDate,
+            co.zy_date AS zyDate,
             co.remarks,
             co.is_close AS isClose,
             so.id AS serviceOrderId,
@@ -576,6 +586,7 @@
             co.deduct_gst AS deductGst,
             co.bonus,
             co.bonus_date AS bonusDate,
+            co.zy_date AS zyDate,
             co.remarks,
             co.is_close AS isClose,
             so.id AS serviceOrderId,

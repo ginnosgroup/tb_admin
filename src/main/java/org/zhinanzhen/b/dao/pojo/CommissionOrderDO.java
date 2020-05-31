@@ -80,6 +80,8 @@ public class CommissionOrderDO {
 	private double bonus;
 
 	private Date bonusDate;
+	
+	private Date zyDate;
 
 	private String remarks;
 

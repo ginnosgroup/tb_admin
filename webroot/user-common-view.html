@@ -103,6 +103,7 @@
 								<label class="control-label"><strong>备注：</strong></label>
 								<label id="b18" style="word-break:break-all;"></label>
 							</div>
+							<div id="load-comment-1" style="display:;"></div>
 							<div style="display:none;">
 									<div style="text-align: center;">流程进度条...待实现...</div>
 							</div>
@@ -314,6 +315,7 @@
 											<textarea id="c33" class="form-control" style="width:98%;font-weight:normal;"></textarea>
 									</div>
 							</div>
+							<div id="load-comment-2" style="display:;"></div>
 							<div style="display:none;">
 									<div style="text-align: center;">流程进度条...待实现...</div>
 							</div>
@@ -422,6 +424,8 @@ function show_addnewservice_id(orderId,type)
     	if (type == 'VISA')
     	{    			
     			$('#show_addnewservice1_id').modal('show');
+    			$("#load-comment-2").html('');
+    			$("#load-comment-1").load("user-common-view-comment.html?random="+Math.random());
     			//签证	
         	$('#show_addnewservice1_id #b1').html(response.user.name);
         	$('#show_addnewservice1_id #b2').html(response.adviser.name);
@@ -567,6 +571,13 @@ function show_addnewservice_id(orderId,type)
         	if (v_sub.flowstate_wa == 'FINISH' || v_sub.flowstate_wa == 'APPLY' || v_sub.flowstate_wa == 'COMPLETE' || v_sub.flowstate_wa == 'PAID' || v_sub.flowstate_wa == 'CLOSE') $("#c200").val(v_sub.flowstate_wa);
         	v.addnewservice2_bind = 1;
 					$('#show_addnewservice2_id').modal('show');
+					if (v_sub.flowstate_wa==='PAID' && !v_sub.submitted)
+					{
+					}else
+					{
+							$("#load-comment-1").html('');
+							$("#load-comment-2").load("user-common-view-comment.html?random="+Math.random());
+					}
     	}
     });      				      		
 }

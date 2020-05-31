@@ -8,6 +8,8 @@ public class SubagencyDTO {
 	private int id;
 
 	private String name;
+	
+	private String country;
 
 	private double commissionRate;
 

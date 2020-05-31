@@ -109,7 +109,7 @@
 					<input type="file" id="f1" style="display:none">
 					<div id="show_currentpic" style="display:none;padding-bottom:10px;"></div>
 					<div id="show_pic" style="display:none;padding-bottom:10px;"></div>
-					<button onclick="upload_receipt_pic('f1')" id="upload_receipt" type="button" class="btn btn-danger">上传收款凭证</button>
+					<button onclick="upload_receipt_pic('f1')" id="upload_receipt" style="display:none;" type="button" class="btn btn-danger">上传收款凭证</button>
 					<button onclick="addnewService1Save()" type="button" class="btn btn-primary"><span id="btn_id">提交</span></button>
 					<button onclick="flowstep('REVIEW',1)" id="btnReview" style="display:none;" type="button" class="btn btn-primary">提交审核</button>
 					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
@@ -343,7 +343,7 @@ function add_service1(orderId,userId,name)
 	        	if (response.expectAmount) $("#addnewservice1_id #b17").val(response.expectAmount);
 	        	if (response.remarks) $("#addnewservice1_id #b18").val(response.remarks);	        		        	
 	        	$('#addnewservice1_id #btn_id').html('保存修改');
-	        	$('#addnewservice1_id #btnReview').show();
+	        	//$('#addnewservice1_id #btnReview').show();
 	      });
 		}
 		v.addnewservice1_bind = 1;//签证表单：绑定下拉框选项
@@ -431,7 +431,7 @@ function add_service2(orderId,userId,name)
 		      	if (response.remarks) $("#addnewservice2_id #c16").val(response.remarks);
 		      	addnewservice2_ajax_subject();
 		      	$('#addnewservice2_id #btn_id').html('保存修改');
-	        	$('#addnewservice2_id #btnReview').show();
+	        	//$('#addnewservice2_id #btnReview').show();
 	       });				
 		}
 		v.addnewservice2_bind = 1;//留学表单：绑定下拉框选项		
@@ -441,9 +441,12 @@ function add_service2(orderId,userId,name)
 $('#addnewservice1_id :radio').live('click', function (e) {
 		if ($(this).val() == '1')
 		{
-				$('#addnewservice1_id #show_paid').show();		
-				$('#addnewservice1_id #upload_receipt').show();
-				$('#addnewservice1_id #show_pic').show();
+				$('#addnewservice1_id #show_paid').show();
+				if (v.orderId != 0)
+				{		
+						$('#addnewservice1_id #upload_receipt').show();
+						$('#addnewservice1_id #show_pic').show();
+				}
 		}else
 		{
 				$('#addnewservice1_id #show_paid').hide();
@@ -457,8 +460,10 @@ $('#addnewservice2_id :checkbox').live('click', function (e) {
 		{
 				$('#addnewservice2_id #upload_receipt').show();
 				$('#addnewservice2_id #show_deposit_user').show();      				
+				$('#addnewservice2_id #show_deposit_user_payment').show(); 
 		}else
 		{
+				$('#addnewservice2_id #show_deposit_user_payment').hide(); 
 				$('#addnewservice2_id #show_deposit_user').hide();
 				$('#addnewservice2_id #upload_receipt').hide();
 		}				
@@ -673,7 +678,8 @@ function addnewService1Save()
        	{
        			//校验是否上传了凭证
        			var flist = $("#addnewservice1_id #flist").val();       			
-       			if (flist != '')
+       			//if (flist != '')
+       			if (json['adviserId'] != '')
        			{
        					//对凭证进行处理
        					var arr = flist.split(',');

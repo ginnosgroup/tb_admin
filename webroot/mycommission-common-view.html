@@ -107,9 +107,10 @@
 							<div class="form-group" style="width:100%;line-height:40px;">
 								<label class="control-label"><strong>备注：</strong></label>
 								<label id="b18" style="word-break:break-all;"></label>
-							</div>														
+							</div>
+							<div id="load-comment-1" style="display:;"></div>
 							</form>
-					</div>
+					</div>					
 					<div class="modal-footer" style="text-align: center;">
 							<dle v-if="ap_list==='GW'">									
 									<dle v-if="state==='PENDING'">
@@ -155,6 +156,7 @@ function show_commission_detail(serviceId,orderId)
     	if (response.id)
     	{
 		    	$('#show_visa_id').modal('show');
+		    	$("#load-comment-1").load("mycommission-common-view-comment.html?random="+Math.random());
 		    	$('#show_visa_id #b0').html(response.id);
 		    	$('#show_visa_id #b1').html(response.user.name);
 		    	$('#show_visa_id #b2').html(response.adviser.name);

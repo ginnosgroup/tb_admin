@@ -83,6 +83,8 @@ public class CommissionOrderDTO {
 
 	private Date bonusDate;
 
+	private Date zyDate;
+
 	private String remarks;
 
 	private boolean isClose;

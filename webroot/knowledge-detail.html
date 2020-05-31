@@ -312,7 +312,7 @@
 																	<div style="padding-top:10px;" v-html="item.content"></div>
 																	<div style="padding-top:10px;">
 																			<div style="display: inline-block;" v-html="item.gmtCreate"></div>
-																			<div style="display: inline-block;padding-left:10px;"><a href="javascript:btnZan({{item.id}});">顶</a>&nbsp;<span id="zan_{{item.id}}" v-html="item.zan"></span>&nbsp;&nbsp;<a href="javascript:btnReply({{item.id}},'{{item.adminUserName}}','{{item.content}}');">回复</a></div>
+																			<div style="display: inline-block;padding-left:10px;"><a href="javascript:btnZan({{item.id}});">顶</a>&nbsp;<span id="zan_{{item.id}}" v-html="item.zan"></span>&nbsp;&nbsp;<a href="javascript:btnReply({{item.id}},'{{item.adminUserName}}','{{item.content}}');">回复</a>&nbsp;&nbsp;<a href="javascript:btnDel({{item.id}});">删除</a></div>
 																	</div>
 															</div>
 													</div>
@@ -375,7 +375,7 @@
 		<script src="js/vue.js"></script>
 		<script src="js/common.js?verson=1"></script>
 		<script>
-			//tb.isLogin("knowledge-detail.html?id="+getRequestId());			
+			//tb.isLogin("knowledge-detail.html?id="+getRequestId());
 			$("td,th").addClass("text-center");
 			var v = new Vue({
 				el: '#official',
@@ -409,7 +409,7 @@
 					});
 					this.getMessagelist();
 				},
-				methods: {					
+				methods: {
 					getLogin: function() {
 						var that = this;
 						$.get(url + "admin_user/isLogin", function(res) {
@@ -553,6 +553,23 @@
 					   				alert(data.message);
 					   		}
 					   	});
+			    }
+			}
+			
+			function btnDel(id)
+			{
+					var that = this;
+			    if(confirm('提醒：请确认是否执行删除操作？'))
+			    {
+			    		$.get("message/delete", {
+								id: id
+							}, function(result) {
+								console.log(result);
+								if(result.data == true) {
+									$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
+									v.getMessagelist();
+								};
+							});
 			    }
 			}
 			

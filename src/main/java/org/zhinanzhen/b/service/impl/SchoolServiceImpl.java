@@ -549,11 +549,16 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 			co.setExpectAmount(co.getCommission() * 1.1);
 			System.out.println(co.getId() + "预收业绩=学校设置计算金额[" + co.getCommission() + "]*1.1=" + co.getExpectAmount());
 		}
-		co.setGst(co.getExpectAmount() / 11);
-		System.out.println(co.getId() + "GST=预收业绩[" + co.getExpectAmount() + "]/11=" + co.getExpectAmount());
-		co.setDeductGst(co.getExpectAmount() - co.getGst());
-		System.out.println(co.getId() + "DeductGST=预收业绩[" + co.getExpectAmount() + "]-GST[" + co.getGst() + "]="
-				+ co.getDeductGst());
+		if ("AU".equals(subagencyDo.getCountry())) {
+			co.setGst(co.getExpectAmount() / 11);
+			System.out.println(co.getId() + "GST=预收业绩[" + co.getExpectAmount() + "]/11=" + co.getExpectAmount());
+			co.setDeductGst(co.getExpectAmount() - co.getGst());
+			System.out.println(co.getId() + "(澳洲)DeductGST=预收业绩[" + co.getExpectAmount() + "]-GST[" + co.getGst() + "]="
+					+ co.getDeductGst());
+		} else {
+			co.setDeductGst(co.getExpectAmount());
+			System.out.println(co.getId() + "(非澳洲)DeductGST=预收业绩[" + co.getExpectAmount() + "]=" + co.getDeductGst());
+		}
 		if (!CommissionStateEnum.YJY.toString().equalsIgnoreCase(co.getCommissionState())) {
 			co.setBonus(co.getDeductGst() * 0.1);
 			System.out.println(co.getId() + "月奖=DeductGST[" + co.getDeductGst() + "]*0.1=" + co.getBonus());
