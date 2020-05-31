@@ -343,7 +343,7 @@ function add_service1(orderId,userId,name)
 	        	if (response.expectAmount) $("#addnewservice1_id #b17").val(response.expectAmount);
 	        	if (response.remarks) $("#addnewservice1_id #b18").val(response.remarks);	        		        	
 	        	$('#addnewservice1_id #btn_id').html('保存修改');
-	        	$('#addnewservice1_id #btnReview').show();
+	        	//$('#addnewservice1_id #btnReview').show();
 	      });
 		}
 		v.addnewservice1_bind = 1;//签证表单：绑定下拉框选项
@@ -431,7 +431,7 @@ function add_service2(orderId,userId,name)
 		      	if (response.remarks) $("#addnewservice2_id #c16").val(response.remarks);
 		      	addnewservice2_ajax_subject();
 		      	$('#addnewservice2_id #btn_id').html('保存修改');
-	        	$('#addnewservice2_id #btnReview').show();
+	        	//$('#addnewservice2_id #btnReview').show();
 	       });				
 		}
 		v.addnewservice2_bind = 1;//留学表单：绑定下拉框选项		
@@ -460,8 +460,10 @@ $('#addnewservice2_id :checkbox').live('click', function (e) {
 		{
 				$('#addnewservice2_id #upload_receipt').show();
 				$('#addnewservice2_id #show_deposit_user').show();      				
+				$('#addnewservice2_id #show_deposit_user_payment').show(); 
 		}else
 		{
+				$('#addnewservice2_id #show_deposit_user_payment').hide(); 
 				$('#addnewservice2_id #show_deposit_user').hide();
 				$('#addnewservice2_id #upload_receipt').hide();
 		}				
