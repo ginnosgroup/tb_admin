@@ -475,7 +475,7 @@ CREATE TABLE `b_school` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
-  `name` varchar(32) NOT NULL COMMENT '名称',
+  `name` varchar(128) NOT NULL COMMENT '名称',
   `subject` varchar(128) NOT NULL COMMENT '课程',
   `country` varchar(4) NOT NULL COMMENT '国家编码',
   `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已删除'
@@ -635,7 +635,7 @@ CREATE TABLE `b_school_setting` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
-  `school_name` varchar(32) NOT NULL COMMENT '学校名称 (对应b_school.name)',
+  `school_id` int NOT NULL COMMENT '学校专业编号 (对应b_school.id)',
   `type` int COMMENT '设置类型 (0:未选,1:固定比例-无额外补贴,2:固定比例-每人补贴,3:固定比例-一次性补贴,4:变动比例,5:固定底价-无额外补贴,6:固定底价-每人补贴,7:固定底价-一次性补贴)',
   `start_date` datetime NOT NULL COMMENT '合同开始时间',
   `end_date` datetime NOT NULL COMMENT '合同结束时间',
