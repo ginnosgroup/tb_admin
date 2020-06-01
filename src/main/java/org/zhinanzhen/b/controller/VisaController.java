@@ -136,8 +136,7 @@ public class VisaController extends BaseCommissionOrderController {
 			visaDto.setGst(commission / 11);
 			visaDto.setDeductGst(commission - visaDto.getGst());
 			visaDto.setBonus(visaDto.getDeductGst() * 0.1);
-			visaDto.setExpectAmount(
-					new BigDecimal(commission * 1.1).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			visaDto.setExpectAmount(commission);
 
 			double _perAmount = 0.00;
 			for (int installmentNum = 1; installmentNum <= installment; installmentNum++) {
@@ -253,8 +252,7 @@ public class VisaController extends BaseCommissionOrderController {
 			visaDto.setGst(commission / 11);
 			visaDto.setDeductGst(commission - visaDto.getGst());
 			visaDto.setBonus(visaDto.getDeductGst() * 0.1);
-			visaDto.setExpectAmount(
-					new BigDecimal(commission * 1.1).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			visaDto.setExpectAmount(commission);
 			if (visaService.updateVisa(visaDto) > 0) {
 				return new Response<VisaDTO>(0, visaDto);
 			} else {
