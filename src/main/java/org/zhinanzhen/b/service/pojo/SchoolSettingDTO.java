@@ -9,7 +9,11 @@ public class SchoolSettingDTO {
 
 	private int id;
 
+	private int schoolId;
+
 	private String schoolName;
+
+	private String schoolSubject;
 
 	private int type = 0;
 

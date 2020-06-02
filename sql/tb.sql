@@ -642,6 +642,7 @@ CREATE TABLE `b_school_setting` (
   `parameters` varchar(255) COMMENT '参数'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
+-- (OLD)
 CREATE TABLE `b_subject_setting` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',

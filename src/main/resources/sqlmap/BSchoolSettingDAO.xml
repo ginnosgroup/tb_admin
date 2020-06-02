@@ -8,7 +8,7 @@
             INTO b_school_setting (
                 gmt_create,
                 gmt_modify,
-                school_name,
+                school_id,
                 type,
                 start_date,
                 end_date,
@@ -16,7 +16,7 @@
             VALUES (
                 now(),
                 now(),
-                #{schoolName},
+                #{schoolId},
                 #{type},
                 #{startDate},
                 #{endDate},
@@ -35,36 +35,45 @@
     
     <select id="list" resultType="org.zhinanzhen.b.dao.pojo.SchoolSettingDO">
         SELECT
-            id,
-            school_name AS schoolName,
-            type,
-            start_date AS startDate,
-            end_date AS endDate,
-            parameters
-        FROM b_school_setting
+            ss.id,
+            ss.school_id AS schoolId,
+            s.name AS schoolName,
+            s.subject AS schoolSubject,
+            ss.type,
+            ss.start_date AS startDate,
+            ss.end_date AS endDate,
+            ss.parameters
+        FROM b_school_setting ss, b_school s
+        WHERE ss.school_id = s.id
         ORDER BY gmt_create DESC;
     </select>
     
     <select id="getById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.SchoolSettingDO">
         SELECT
-            id,
-            school_name AS schoolName,
-            type,
-            start_date AS startDate,
-            end_date AS endDate,
-            parameters
-        FROM b_school_setting WHERE id = #{id};
+            ss.id,
+            ss.school_id AS schoolId,
+            s.name AS schoolName,
+            s.subject AS schoolSubject,
+            ss.type,
+            ss.start_date AS startDate,
+            ss.end_date AS endDate,
+            ss.parameters
+        FROM b_school_setting ss, b_school s
+        WHERE ss.school_id = s.id AND id = #{id};
     </select>
     
-    <select id="get" parameterType="java.lang.String" resultType="org.zhinanzhen.b.dao.pojo.SchoolSettingDO">
+    <select id="getBySchoolId" parameterType="java.lang.String" resultType="org.zhinanzhen.b.dao.pojo.SchoolSettingDO">
         SELECT
-            id,
-            school_name AS schoolName,
-            type,
-            start_date AS startDate,
-            end_date AS endDate,
-            parameters
-        FROM b_school_setting WHERE school_name = #{name, jdbcType=VARCHAR};
+            ss.id,
+            ss.school_id AS schoolId,
+            s.name AS schoolName,
+            s.subject AS schoolSubject,
+            ss.type,
+            ss.start_date AS startDate,
+            ss.end_date AS endDate,
+            ss.parameters
+        FROM b_school_setting ss, b_school s
+        WHERE ss.school_id = s.id AND school_id = #{schoolId};
     </select>
 
 </mapper>

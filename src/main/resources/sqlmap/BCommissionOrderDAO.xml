@@ -237,10 +237,10 @@
         ;
     </select>
     
-    <select id="countCommissionOrderBySchoolName" resultType="java.lang.Integer">
+    <select id="countCommissionOrderBySchoolId" resultType="java.lang.Integer">
         SELECT count(*)
-        FROM b_commission_order bco, b_school bs
-        WHERE bco.school_id = bs.id AND bs.name = #{schoolName};
+        FROM b_commission_order
+        WHERE school_id = #{schoolId};
     </select>
     
     <select id="countCommissionOrderByServiceOrderIdAndExcludeCode" resultType="java.lang.Integer">
@@ -597,10 +597,10 @@
         WHERE co.service_order_id = so.id AND co.user_id = u.id and co.id = #{id, jdbcType=INTEGER};
     </select>
     
-    <select id="sumTuitionFeeBySchoolName" resultType="java.lang.Double">
-        SELECT sum(bco.tuition_fee)
-        FROM b_commission_order bco, b_school bs
-        WHERE bco.school_id = bs.id AND bs.name = #{schoolName};
+    <select id="sumTuitionFeeBySchoolId" resultType="java.lang.Double">
+        SELECT sum(tuition_fee)
+        FROM b_commission_order
+        WHERE school_id = #{schoolId};
     </select>
 
 </mapper>

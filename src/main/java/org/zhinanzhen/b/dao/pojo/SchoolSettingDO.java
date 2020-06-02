@@ -8,8 +8,12 @@ import lombok.Data;
 public class SchoolSettingDO {
 
 	private int id;
+	
+	private int schoolId;
 
 	private String schoolName;
+	
+	private String schoolSubject;
 
 	private int type = 0;
 

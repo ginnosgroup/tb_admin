@@ -162,7 +162,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		else if (type == 6)
 			schoolSetting6(schoolSettingDo, startDate, endDate, parameters);
 		else if (type == 7)
-			schoolSetting7(schoolSettingDo, startDate, endDate);
+			schoolSetting7(schoolSettingDo, startDate, endDate, parameters);
 
 		return schoolSettingDao.update(id, type, startDate, endDate, parameters);
 	}
@@ -172,7 +172,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		if (commissionOrderListDto == null || commissionOrderListDto.getSchool() == null)
 			return -1;
 		listSchoolSetting(); // 初始化
-		SchoolSettingDO schoolSettingDo = schoolSettingDao.get(commissionOrderListDto.getSchool().getName());
+		SchoolSettingDO schoolSettingDo = schoolSettingDao.getBySchoolId(commissionOrderListDto.getSchool().getId());
 		if (schoolSettingDo == null)
 			return -2;
 		Date startDate = schoolSettingDo.getStartDate();
@@ -196,7 +196,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		else if (type == 6)
 			schoolSetting6(schoolSettingDo, startDate, endDate, parameters);
 		else if (type == 7)
-			schoolSetting7(schoolSettingDo, startDate, endDate);
+			schoolSetting7(schoolSettingDo, startDate, endDate, parameters);
 		return 1;
 	}
 
@@ -207,19 +207,19 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		if (schoolDoList == null || schoolDoList.size() == 0)
 			return null;
 		schoolDoList.forEach(schoolDo -> {
-			String name = schoolDo.getName();
-			SchoolSettingDO schoolSettingDo = schoolSettingDao.get(name);
+			int id = schoolDo.getId();
+			SchoolSettingDO schoolSettingDo = schoolSettingDao.getBySchoolId(id);
 			SchoolSettingDTO schoolSettingDto = null;
 			if (schoolSettingDo == null) {
 				schoolSettingDo = new SchoolSettingDO();
-				schoolSettingDo.setSchoolName(name);
+				schoolSettingDo.setSchoolId(id);
 				schoolSettingDao.add(schoolSettingDo);
 			}
 			schoolSettingDto = mapper.map(schoolSettingDo, SchoolSettingDTO.class);
-			if (name != null) {
-				schoolSettingDto.setCount(commissionOrderDao.countCommissionOrderBySchoolName(name));
-				if (commissionOrderDao.sumTuitionFeeBySchoolName(name) != null)
-					schoolSettingDto.setAmount(commissionOrderDao.sumTuitionFeeBySchoolName(name));
+			if (id > 0) {
+				schoolSettingDto.setCount(commissionOrderDao.countCommissionOrderBySchoolId(id));
+				if (commissionOrderDao.sumTuitionFeeBySchoolId(id) != null)
+					schoolSettingDto.setAmount(commissionOrderDao.sumTuitionFeeBySchoolId(id));
 			}
 			schoolSettingDtoList.add(schoolSettingDto);
 		});
@@ -227,20 +227,20 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	}
 
 	@Override
+	@Deprecated
 	public List<SubjectSettingDTO> listSubjectSetting(int schoolSettingId) throws ServiceException {
 		List<SubjectSettingDTO> subjectSettingDtoList = new ArrayList<SubjectSettingDTO>();
 		List<SchoolDO> schoolDoList = schoolDao.list2(null);
 		if (schoolDoList == null)
 			return null;
 		schoolDoList.forEach(schoolDo -> {
-			String name = schoolDo.getSubject();
-			SchoolSettingDO schoolSettingDo = schoolSettingDao.get(schoolDo.getName());
-			if (StringUtil.isNotEmpty(name) && schoolSettingId == schoolSettingDo.getId()) {
-				SubjectSettingDO subjectSettingDo = subjectSettingDao.get(schoolSettingId, name);
+			int id = schoolDo.getId();
+			SchoolSettingDO schoolSettingDo = schoolSettingDao.getBySchoolId(id);
+			if (id > 0 && schoolSettingId == schoolSettingDo.getId()) {
+				SubjectSettingDO subjectSettingDo = subjectSettingDao.get(schoolSettingId, schoolDo.getName());
 				if (subjectSettingDo == null) {
 					subjectSettingDo = new SubjectSettingDO();
 					subjectSettingDo.setSchoolSettingId(schoolSettingId);
-					subjectSettingDo.setSubject(name);
 					subjectSettingDao.add(subjectSettingDo);
 				}
 			}
@@ -362,6 +362,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		}
 	}
 
+	@Deprecated
 	private void schoolSetting3(String schoolName, Date startDate, Date endDate, String parameters) {
 		if (StringUtil.isEmpty(parameters))
 			return;
@@ -422,6 +423,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		}
 	}
 
+	@Deprecated
 	private void schoolSetting5(SchoolSettingDO schoolSetting, Date startDate, Date endDate, String parameters) {
 		if (StringUtil.isEmpty(parameters))
 			return;
@@ -471,6 +473,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		}
 	}
 
+	@Deprecated
 	private void schoolSetting6(SchoolSettingDO schoolSetting, Date startDate, Date endDate, String parameters) {
 		if (StringUtil.isEmpty(parameters))
 			return;
@@ -514,22 +517,26 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		}
 	}
 
-	private void schoolSetting7(SchoolSettingDO schoolSetting, Date startDate, Date endDate) {
+	private void schoolSetting7(SchoolSettingDO schoolSetting, Date startDate, Date endDate, String parameters) {
 		if (schoolSetting == null)
 			return;
-		try {
-			listSubjectSetting(schoolSetting.getId()); // 初始化subjectSetting
-		} catch (ServiceException e) {
-		}
+//		try {
+//			listSubjectSetting(schoolSetting.getId()); // 初始化subjectSetting
+//		} catch (ServiceException e) {
+//		}
 		List<CommissionOrderListDO> list = commissionOrderDao.listCommissionOrderBySchool(startDate, endDate,
 				schoolSetting.getSchoolName());
 		list.forEach(co -> {
-			SubjectSettingDO subjectSettingDo = subjectSettingDao.get(schoolSetting.getId(),
-					schoolSetting.getSchoolName());
-			if (subjectSettingDo != null) {
-				co.setCommission(subjectSettingDo.getPrice());
-				System.out.println(
-						co.getId() + "学校设置计算=学校设置金额[" + subjectSettingDo.getPrice() + "]=" + co.getCommission());
+//			SubjectSettingDO subjectSettingDo = subjectSettingDao.get(schoolSetting.getId(),
+//					schoolSetting.getSchoolName());
+//			if (subjectSettingDo != null) {
+//				co.setCommission(subjectSettingDo.getPrice());
+//				System.out.println(
+//						co.getId() + "学校设置计算=学校设置金额[" + subjectSettingDo.getPrice() + "]=" + co.getCommission());
+			if (parameters != null) {
+				co.setCommission(Double.parseDouble(parameters.trim()));
+				System.out.println(co.getId() + "学校设置计算=学校设置金额[" + Double.parseDouble(parameters.trim()) + "]="
+						+ co.getCommission());
 			} else {
 				co.setCommission(co.getAmount()); // 正常情况下是不会执行到这里的
 				System.out.println(co.getId() + "学校设置计算=本次收款金额[" + co.getAmount() + "]=" + co.getCommission());

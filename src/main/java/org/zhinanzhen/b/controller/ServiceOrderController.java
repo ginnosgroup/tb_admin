@@ -229,6 +229,7 @@ public class ServiceOrderController extends BaseController {
 							continue;
 						}
 						serviceOrderDto.setServicePackageId(id);
+						serviceOrderDto.setType("VISA"); // 独立技术移民子订单为VISA
 						ServicePackageDTO servicePackageDto = servicePackageService.getById(id);
 						if (servicePackageDto == null)
 							return new Response<Integer>(1, "服务包不存在.", 0);
@@ -363,11 +364,13 @@ public class ServiceOrderController extends BaseController {
 					return new Response<Integer>(1, "服务包不存在:" + serviceOrderDto.getServicePackageId(), 0);
 				// if (serviceOrderDto.getOfficialId() <= 0 &&
 				// "SIV".equalsIgnoreCase(serviceOrderDto.getType()))
-				if (StringUtil.isEmpty(officialId) && "SIV".equalsIgnoreCase(serviceOrderDto.getType()))
+				if (StringUtil.isEmpty(officialId)
+						&& ("SIV".equalsIgnoreCase(serviceOrderDto.getType()) || serviceOrderDto.getParentId() > 0))
 					return new Response<Integer>(1, "必须选择文案.", 0);
 				// if (serviceOrderDto.getMaraId() <= 0 &&
 				// "SIV".equalsIgnoreCase(serviceOrderDto.getType())
-				if (StringUtil.isEmpty(maraId) && "SIV".equalsIgnoreCase(serviceOrderDto.getType())
+				if (StringUtil.isEmpty(maraId)
+						&& ("SIV".equalsIgnoreCase(serviceOrderDto.getType()) || serviceOrderDto.getParentId() > 0)
 						&& !"EOI".equalsIgnoreCase(servicePackageDto.getType()))
 					return new Response<Integer>(1, "必须选择Mara.", 0);
 			}
@@ -604,9 +607,9 @@ public class ServiceOrderController extends BaseController {
 								for (ServiceOrderDTO so : serviceOrderList) {
 									if (so.getServicePackage() == null)
 										return new Response<ServiceOrderDTO>(1, "子订单没有服务包.", so);
-									if (so.getOfficialId() <= 0 && "SIV".equalsIgnoreCase(so.getType()))
+									if (so.getOfficialId() <= 0)
 										return new Response<ServiceOrderDTO>(1, "子订单必须选择文案.", so);
-									if (so.getMaraId() <= 0 && "SIV".equalsIgnoreCase(so.getType())
+									if (so.getMaraId() <= 0
 											&& !"EOI".equalsIgnoreCase(so.getServicePackage().getType()))
 										return new Response<ServiceOrderDTO>(1, "子订单必须选择Mara.", so);
 									serviceOrderService.approval(so.getId(), adminUserLoginInfo.getId(),
