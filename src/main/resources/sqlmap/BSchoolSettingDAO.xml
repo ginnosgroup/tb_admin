@@ -62,7 +62,7 @@
         WHERE ss.school_id = s.id AND id = #{id};
     </select>
     
-    <select id="getBySchoolId" parameterType="java.lang.String" resultType="org.zhinanzhen.b.dao.pojo.SchoolSettingDO">
+    <select id="getBySchoolId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.SchoolSettingDO">
         SELECT
             ss.id,
             ss.school_id AS schoolId,
