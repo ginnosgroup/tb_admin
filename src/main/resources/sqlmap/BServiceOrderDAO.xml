@@ -108,7 +108,7 @@
         <if test='peopleRemarks != null and peopleRemarks != ""'>
             , people_remarks = #{peopleRemarks}
         </if>
-        <if test='serviceId != null and schoolId > 0'>
+        <if test='serviceId != null and serviceId > 0'>
             , service_id = #{serviceId}
         </if>
         <if test='parentId != null and parentId > 0'>
