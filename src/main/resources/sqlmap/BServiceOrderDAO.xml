@@ -35,7 +35,11 @@
                 payment_voucher_image_url_3,
                 payment_voucher_image_url_4,
                 payment_voucher_image_url_5,
-                coe_payment_voucher_image_url,
+                coe_payment_voucher_image_url_1,
+                coe_payment_voucher_image_url_2,
+                coe_payment_voucher_image_url_3,
+                coe_payment_voucher_image_url_4,
+                coe_payment_voucher_image_url_5,
                 visa_voucher_image_url,
                 per_amount,
                 amount,
@@ -81,7 +85,11 @@
                 #{paymentVoucherImageUrl3},
                 #{paymentVoucherImageUrl4},
                 #{paymentVoucherImageUrl5},
-                #{coePaymentVoucherImageUrl},
+                #{coePaymentVoucherImageUrl1},
+                #{coePaymentVoucherImageUrl2},
+                #{coePaymentVoucherImageUrl3},
+                #{coePaymentVoucherImageUrl4},
+                #{coePaymentVoucherImageUrl5},
                 #{visaVoucherImageUrl},
                 #{perAmount},
                 #{amount},
@@ -177,8 +185,20 @@
         <if test='paymentVoucherImageUrl5 != null'>
             , payment_voucher_image_url_5 = #{paymentVoucherImageUrl5}
         </if>
-        <if test='coePaymentVoucherImageUrl != null'>
-            , coe_payment_voucher_image_url = #{coePaymentVoucherImageUrl}
+        <if test='coePaymentVoucherImageUrl1 != null'>
+            , coe_payment_voucher_image_url_1 = #{coePaymentVoucherImageUrl1}
+        </if>
+        <if test='coePaymentVoucherImageUrl2 != null'>
+            , coe_payment_voucher_image_url_2 = #{coePaymentVoucherImageUrl2}
+        </if>
+        <if test='coePaymentVoucherImageUrl3 != null'>
+            , coe_payment_voucher_image_url_3 = #{coePaymentVoucherImageUrl3}
+        </if>
+        <if test='coePaymentVoucherImageUrl4 != null'>
+            , coe_payment_voucher_image_url_4 = #{coePaymentVoucherImageUrl4}
+        </if>
+        <if test='coePaymentVoucherImageUrl5 != null'>
+            , coe_payment_voucher_image_url_5 = #{coePaymentVoucherImageUrl5}
         </if>
         <if test='visaVoucherImageUrl != null'>
             , visa_voucher_image_url = #{visaVoucherImageUrl}
@@ -303,7 +323,11 @@
             payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
             payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
             payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
-            coe_payment_voucher_image_url AS coePaymentVoucherImageUrl,
+            coe_payment_voucher_image_url_1 AS coePaymentVoucherImageUrl1,
+            coe_payment_voucher_image_url_2 AS coePaymentVoucherImageUrl2,
+            coe_payment_voucher_image_url_3 AS coePaymentVoucherImageUrl3,
+            coe_payment_voucher_image_url_4 AS coePaymentVoucherImageUrl4,
+            coe_payment_voucher_image_url_5 AS coePaymentVoucherImageUrl5,
             visa_voucher_image_url AS visaVoucherImageUrl,
             per_amount AS perAmount,
             amount,
@@ -403,7 +427,11 @@
             payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
             payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
             payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
-            coe_payment_voucher_image_url AS coePaymentVoucherImageUrl,
+            coe_payment_voucher_image_url_1 AS coePaymentVoucherImageUrl1,
+            coe_payment_voucher_image_url_2 AS coePaymentVoucherImageUrl2,
+            coe_payment_voucher_image_url_3 AS coePaymentVoucherImageUrl3,
+            coe_payment_voucher_image_url_4 AS coePaymentVoucherImageUrl4,
+            coe_payment_voucher_image_url_5 AS coePaymentVoucherImageUrl5,
             visa_voucher_image_url AS visaVoucherImageUrl,
             per_amount AS perAmount,
             amount,

@@ -397,7 +397,11 @@ public class ServiceOrderController extends BaseController {
 	@RequestMapping(value = "/updateVoucherImageUrl", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> updateVoucherImageUrl(@RequestParam(value = "id") int id,
-			@RequestParam(value = "paymentVoucherImageUrl", required = false) String paymentVoucherImageUrl,
+			@RequestParam(value = "coePaymentVoucherImageUrl1", required = false) String coePaymentVoucherImageUrl1,
+			@RequestParam(value = "coePaymentVoucherImageUrl2", required = false) String coePaymentVoucherImageUrl2,
+			@RequestParam(value = "coePaymentVoucherImageUrl3", required = false) String coePaymentVoucherImageUrl3,
+			@RequestParam(value = "coePaymentVoucherImageUrl4", required = false) String coePaymentVoucherImageUrl4,
+			@RequestParam(value = "coePaymentVoucherImageUrl5", required = false) String coePaymentVoucherImageUrl5,
 			@RequestParam(value = "visaVoucherImageUrl", required = false) String visaVoucherImageUrl,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
@@ -410,8 +414,16 @@ public class ServiceOrderController extends BaseController {
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
 			if (serviceOrderDto == null)
 				return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl))
-				serviceOrderDto.setCoePaymentVoucherImageUrl(paymentVoucherImageUrl);
+			if (StringUtil.isNotEmpty(coePaymentVoucherImageUrl1))
+				serviceOrderDto.setCoePaymentVoucherImageUrl1(coePaymentVoucherImageUrl1);
+			if (StringUtil.isNotEmpty(coePaymentVoucherImageUrl2))
+				serviceOrderDto.setCoePaymentVoucherImageUrl1(coePaymentVoucherImageUrl2);
+			if (StringUtil.isNotEmpty(coePaymentVoucherImageUrl3))
+				serviceOrderDto.setCoePaymentVoucherImageUrl1(coePaymentVoucherImageUrl3);
+			if (StringUtil.isNotEmpty(coePaymentVoucherImageUrl4))
+				serviceOrderDto.setCoePaymentVoucherImageUrl1(coePaymentVoucherImageUrl4);
+			if (StringUtil.isNotEmpty(coePaymentVoucherImageUrl5))
+				serviceOrderDto.setCoePaymentVoucherImageUrl1(coePaymentVoucherImageUrl5);
 			if (StringUtil.isNotEmpty(visaVoucherImageUrl))
 				serviceOrderDto.setVisaVoucherImageUrl(visaVoucherImageUrl);
 			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
