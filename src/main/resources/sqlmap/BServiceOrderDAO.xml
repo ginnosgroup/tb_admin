@@ -33,6 +33,9 @@
                 payment_voucher_image_url_1,
                 payment_voucher_image_url_2,
                 payment_voucher_image_url_3,
+                payment_voucher_image_url_4,
+                payment_voucher_image_url_5,
+                coe_payment_voucher_image_url,
                 visa_voucher_image_url,
                 per_amount,
                 amount,
@@ -76,6 +79,9 @@
                 #{paymentVoucherImageUrl1},
                 #{paymentVoucherImageUrl2},
                 #{paymentVoucherImageUrl3},
+                #{paymentVoucherImageUrl4},
+                #{paymentVoucherImageUrl5},
+                #{coePaymentVoucherImageUrl},
                 #{visaVoucherImageUrl},
                 #{perAmount},
                 #{amount},
@@ -164,6 +170,15 @@
         </if>
         <if test='paymentVoucherImageUrl3 != null'>
             , payment_voucher_image_url_3 = #{paymentVoucherImageUrl3}
+        </if>
+        <if test='paymentVoucherImageUrl4 != null'>
+            , payment_voucher_image_url_4 = #{paymentVoucherImageUrl4}
+        </if>
+        <if test='paymentVoucherImageUrl5 != null'>
+            , payment_voucher_image_url_5 = #{paymentVoucherImageUrl5}
+        </if>
+        <if test='coePaymentVoucherImageUrl != null'>
+            , coe_payment_voucher_image_url = #{coePaymentVoucherImageUrl}
         </if>
         <if test='visaVoucherImageUrl != null'>
             , visa_voucher_image_url = #{visaVoucherImageUrl}
@@ -286,6 +301,9 @@
             payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
             payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
             payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+            payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+            payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+            coe_payment_voucher_image_url AS coePaymentVoucherImageUrl,
             visa_voucher_image_url AS visaVoucherImageUrl,
             per_amount AS perAmount,
             amount,
@@ -383,6 +401,9 @@
             payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
             payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
             payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+            payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+            payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+            coe_payment_voucher_image_url AS coePaymentVoucherImageUrl,
             visa_voucher_image_url AS visaVoucherImageUrl,
             per_amount AS perAmount,
             amount,

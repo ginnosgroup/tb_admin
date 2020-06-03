@@ -46,6 +46,12 @@ public class CommissionOrderDTO {
 	private String paymentVoucherImageUrl1;
 
 	private String paymentVoucherImageUrl2;
+	
+	private String paymentVoucherImageUrl3;
+	
+	private String paymentVoucherImageUrl4;
+	
+	private String paymentVoucherImageUrl5;
 
 	private double schoolPaymentAmount;
 

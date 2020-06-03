@@ -68,8 +68,13 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "installmentDueDate1") String installmentDueDate1,
 			@RequestParam(value = "installmentDueDate2", required = false) String installmentDueDate2,
 			@RequestParam(value = "installmentDueDate3", required = false) String installmentDueDate3,
+			@RequestParam(value = "installmentDueDate4", required = false) String installmentDueDate4,
+			@RequestParam(value = "installmentDueDate5", required = false) String installmentDueDate5,
 			@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
 			@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
+			@RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
+			@RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
+			@RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
 			@RequestParam(value = "startDate") String startDate, @RequestParam(value = "endDate") String endDate,
 			@RequestParam(value = "tuitionFee") String tuitionFee,
 			@RequestParam(value = "perTermTuitionFee") String perTermTuitionFee,
@@ -122,6 +127,18 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				commissionOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
 			else
 				commissionOrderDto.setPaymentVoucherImageUrl2(serviceOrderDto.getPaymentVoucherImageUrl2());
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl3))
+				commissionOrderDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
+			else
+				commissionOrderDto.setPaymentVoucherImageUrl3(serviceOrderDto.getPaymentVoucherImageUrl3());
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl4))
+				commissionOrderDto.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
+			else
+				commissionOrderDto.setPaymentVoucherImageUrl4(serviceOrderDto.getPaymentVoucherImageUrl4());
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl5))
+				commissionOrderDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
+			else
+				commissionOrderDto.setPaymentVoucherImageUrl5(serviceOrderDto.getPaymentVoucherImageUrl5());
 			commissionOrderDto.setStartDate(new Date(Long.parseLong(startDate)));
 			commissionOrderDto.setEndDate(new Date(Long.parseLong(endDate)));
 			commissionOrderDto.setTuitionFee(Double.parseDouble(tuitionFee));
@@ -176,11 +193,30 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					commissionOrderDto.setState(ReviewKjStateEnum.PENDING.toString());
 					commissionOrderDto.setPaymentVoucherImageUrl1(null);
 					commissionOrderDto.setPaymentVoucherImageUrl2(null);
+					commissionOrderDto.setPaymentVoucherImageUrl3(null);
+					commissionOrderDto.setPaymentVoucherImageUrl4(null);
+					commissionOrderDto.setPaymentVoucherImageUrl5(null);
 				} else if (installmentNum == 3 && installmentDueDate3 != null) {
 					commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate3)));
 					commissionOrderDto.setState(ReviewKjStateEnum.PENDING.toString());
 					commissionOrderDto.setPaymentVoucherImageUrl1(null);
 					commissionOrderDto.setPaymentVoucherImageUrl2(null);
+					commissionOrderDto.setPaymentVoucherImageUrl3(null);
+					commissionOrderDto.setPaymentVoucherImageUrl4(null);
+					commissionOrderDto.setPaymentVoucherImageUrl5(null);
+				} else if (installmentNum == 4 && installmentDueDate4 != null) {
+					commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate4)));
+					commissionOrderDto.setState(ReviewKjStateEnum.PENDING.toString());
+					commissionOrderDto.setPaymentVoucherImageUrl1(null);
+					commissionOrderDto.setPaymentVoucherImageUrl2(null);
+				} else if (installmentNum == 5 && installmentDueDate5 != null) {
+					commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate5)));
+					commissionOrderDto.setState(ReviewKjStateEnum.PENDING.toString());
+					commissionOrderDto.setPaymentVoucherImageUrl1(null);
+					commissionOrderDto.setPaymentVoucherImageUrl2(null);
+					commissionOrderDto.setPaymentVoucherImageUrl3(null);
+					commissionOrderDto.setPaymentVoucherImageUrl4(null);
+					commissionOrderDto.setPaymentVoucherImageUrl5(null);
 				} else
 					break;
 				int id = commissionOrderService.addCommissionOrder(commissionOrderDto);
@@ -224,6 +260,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "installmentDueDate", required = false) String installmentDueDate,
 			@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
 			@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
+			@RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
+			@RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
+			@RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "tuitionFee", required = false) String tuitionFee,
@@ -284,6 +323,12 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				commissionOrderDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
 				commissionOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl3))
+				commissionOrderDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl4))
+				commissionOrderDto.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl5))
+				commissionOrderDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
 			if (startDate != null)
 				commissionOrderDto.setStartDate(new Date(Long.parseLong(startDate)));
 			if (endDate != null)

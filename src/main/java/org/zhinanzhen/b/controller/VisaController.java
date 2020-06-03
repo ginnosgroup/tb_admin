@@ -144,7 +144,7 @@ public class VisaController extends BaseCommissionOrderController {
 				if (installmentNum > 1) { // 只给第一个添加支付凭证
 					visaDto.setPaymentVoucherImageUrl1(null);
 					visaDto.setPaymentVoucherImageUrl2(null);
-					visaDto.setState(ReviewKjStateEnum.PENDING.toString()); // 第一笔单子直接进入财务审核状态
+					visaDto.setState(ReviewKjStateEnum.PENDING.toString());
 					visaDto.setPerAmount(
 							visaDto.getReceivable() > _perAmount ? visaDto.getReceivable() - _perAmount : 0.00); // 第二笔单子修改本次应收款
 					visaDto.setAmount(visaDto.getPerAmount());

@@ -45,6 +45,12 @@ public class CommissionOrderDO {
 
 	private String paymentVoucherImageUrl2;
 
+	private String paymentVoucherImageUrl3;
+
+	private String paymentVoucherImageUrl4;
+
+	private String paymentVoucherImageUrl5;
+
 	private double schoolPaymentAmount;
 
 	private Date schoolPaymentDate;
@@ -80,7 +86,7 @@ public class CommissionOrderDO {
 	private double bonus;
 
 	private Date bonusDate;
-	
+
 	private Date zyDate;
 
 	private String remarks;

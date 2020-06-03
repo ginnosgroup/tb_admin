@@ -277,6 +277,9 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "installment", required = false) Integer installment,
 			@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
 			@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
+			@RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
+			@RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
+			@RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
 			@RequestParam(value = "perAmount", required = false) String perAmount,
 			@RequestParam(value = "amount", required = false) String amount,
 			@RequestParam(value = "expectAmount", required = false) String expectAmount,
@@ -333,6 +336,12 @@ public class ServiceOrderController extends BaseController {
 			// return new Response<Integer>(1, "必须上传支付凭证!", 0);
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
 				serviceOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl3))
+				serviceOrderDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl4))
+				serviceOrderDto.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl5))
+				serviceOrderDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
 			if (StringUtil.isNotEmpty(perAmount))
 				serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
 			if (StringUtil.isNotEmpty(amount))
@@ -402,7 +411,7 @@ public class ServiceOrderController extends BaseController {
 			if (serviceOrderDto == null)
 				return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl))
-				serviceOrderDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl);
+				serviceOrderDto.setCoePaymentVoucherImageUrl(paymentVoucherImageUrl);
 			if (StringUtil.isNotEmpty(visaVoucherImageUrl))
 				serviceOrderDto.setVisaVoucherImageUrl(visaVoucherImageUrl);
 			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
