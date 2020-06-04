@@ -731,7 +731,8 @@ function addnewService1Save()
 		   							setTimeout(function(){window.location.href = "serviceorder-list.html";}, 2000);
 		   					}else
 		   					{
-		   							setTimeout(function(){$('#addnewservice1_id').modal('hide')}, 2000);
+		   							v.getDatalist();
+		   							setTimeout(function(){$('#addnewservice1_id').modal('hide')}, 2000);		   							
 		   					}
 		   			}else
 		   			{
@@ -1177,8 +1178,7 @@ v.$watch('addnewservice2_bind', function(obj) {
       async: false,
       dataType: 'json'
     }).done(function(response) {
-    	response = response.data;    	
-    	response = jsonSort(response,'name');//排序
+    	response = response.data;	        	    	
     	for (var item in response)
     	{
     			school_name.append("<option value='"+response[item].name+"'>"+response[item].name+"</option>");
@@ -1253,22 +1253,4 @@ v.$watch('addnewservice2_bind', function(obj) {
     	}	        	 	    
     });
 });
-
-function jsonSort(json,key)
-{
-    for(var j=1,jl=json.length;j < jl;j++)
-    {
-        var temp = json[j],
-            val  = temp[key],
-            i    = j-1;
-        while(i >=0 && json[i][key]>val){
-            json[i+1] = json[i];
-            i = i-1;   
-        }
-        json[i+1] = temp;
-       
-    }
-    return json;
-
-}
 </script>
