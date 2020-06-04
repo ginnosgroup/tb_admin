@@ -373,7 +373,7 @@
 														<td><a v-if="item.id" class="edit" href="javascript:;" @click="table_modify($index)"><span class="label label-success">Edit</span></a>
 																<a v-else class="edit" href="javascript:;"><span class="label label-primary">Save</span></a>
 														</td>
-														<td><a v-if="item.id" class="delete" href="#" @click="delete_confirm($index,item.id)"><span class="label label-danger">Delete</span></a>
+														<td><a v-if="item.id" style="display:none;" class="delete" href="#" @click="delete_confirm($index,item.id)"><span class="label label-danger">Delete</span></a>
 																<a v-else class="cancel" href="javascript:;"><span class="label label-info">Cancel</span></a>
 														</td>														
 													</tr>
