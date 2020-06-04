@@ -14,7 +14,7 @@ public class SendEmailUtil {
 		mail = "7311930@qq.com"; // 测试
 //		mail += ",maggie@zhinanzhen.org";
 		try {
-			log.debug("发送邮件:" + mail + " | " + title);
+			log.info("发送邮件:" + mail + " | " + title + "|" + text);
 			simpleSendEmailTool.send(mail, title, text);
 		} catch (Exception e) {
 			log.error(e.getMessage());
