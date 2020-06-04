@@ -12,6 +12,7 @@ public class SendEmailUtil {
 
 	public static void send(String mail, String title, String text) {
 		mail = "7311930@qq.com"; // 测试
+//		mail += ",maggie@zhinanzhen.org";
 		try {
 			log.debug("发送邮件:" + mail + " | " + title);
 			simpleSendEmailTool.send(mail, title, text);
