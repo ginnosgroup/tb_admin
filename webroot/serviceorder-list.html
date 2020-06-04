@@ -331,6 +331,7 @@
 													<option value="" selected="true">请选择</option>
 													<option value="VISA">签证</option>
 													<option value="OVST">留学</option>
+													<option value="SIV">独立技术移民</option>
 													</select>
 													<label>状态</label>											
 													<select v-model.trim="state" id="state" class="form-control" style="width:130px;">
@@ -388,12 +389,16 @@
 														<td>																
 																<a href="javascript:open_detail({{item.id}},'{{item.type}}','{{item.currentState}}');">查看</a>																
 																<dle v-if="ap_list==='GW'">
-																		<d1 v-if="item.currentState==='PENDING'">
-																		<a href="javascript:show_confirmbox('{{item.type}}',{{item.id}},'REVIEW',1)">提交审核</a>
-																		</d1>
-																		<d1 v-if="item.currentState==='REVIEW'">
-																		<a href="javascript:show_confirmbox('{{item.type}}',{{item.id}},'PENDING',1)" style="color:#ACA9A9;">撤回</a>
-																		</d1>
+																		<d2 v-if="!item.parentId">																				
+																				<d1 v-if="item.currentState==='PENDING'">
+																				<a href="javascript:show_confirmbox('{{item.type}}',{{item.id}},'REVIEW',1)">提交审核</a>
+																				</d1>
+																		</d2>
+																		<d2 v-if="item.parentId">
+																				<d1 v-if="item.currentState==='REVIEW'">
+																				<a href="javascript:show_confirmbox('{{item.type}}',{{item.id}},'PENDING',1)" style="color:#ACA9A9;">撤回</a>
+																				</d1>
+																		</d2>
 																</dle>	
 																<dle v-if="ap_list==='WA'">
 																		<d1 v-if="item.type==='VISA'">																				
@@ -504,8 +509,10 @@
 					mara_id: sessionStorage.getItem("mara_id"),
 					addnewservice1_bind: 0,
 					addnewservice2_bind: 0,
+					addnewservice3_bind: 0,					
 					orderId: 0,
 					orderType: '',
+					servicepackage_type: '',
 					subject: [],
 					count: 0,
 					dId: '',
@@ -655,7 +662,7 @@
 			});
 			
 			function return_result(result)
-			{
+			{				
 				for(var i = 0; i < result.data.length; i++) {
 						var str_state = '';
 						var str_refusestate = '';
@@ -663,7 +670,13 @@
 						switch(result.data[i].type)
 						{
 								case 'VISA':
-										customer_text = 'V'+result.data[i].id+'<br/><a onclick="copyText()" class="copybtn" data-clipboard-action="copy" data-clipboard-text="V'+result.data[i].id+'">复制</a>';
+										if (result.data[i].parentId)
+										{
+												customer_text = 'V'+result.data[i].id+'-'+result.data[i].servicePackage.num+'<br/><a onclick="copyText()" class="copybtn" data-clipboard-action="copy" data-clipboard-text="V'+result.data[i].id+'">复制</a>';
+										}else
+										{
+												customer_text = 'V'+result.data[i].id+'<br/><a onclick="copyText()" class="copybtn" data-clipboard-action="copy" data-clipboard-text="V'+result.data[i].id+'">复制</a>';
+										}
 								break;
 								case 'OVST':
 										customer_text = result.data[i].id;
@@ -671,6 +684,9 @@
 										{
 												customer_text = 'S'+result.data[i].id+'<br/><a onclick="copyText()" class="copybtn" data-clipboard-action="copy" data-clipboard-text="S'+result.data[i].id+'">复制</a>';
 										}
+								break;
+								case 'SIV':
+										customer_text = result.data[i].id;
 								break;
 						}
 						result.data[i].oid = customer_text;
@@ -699,7 +715,7 @@
 						
 						if (result.data[i].type == 'VISA')
 						{
-								result.data[i].maraName = result.data[i].mara.name;								
+								result.data[i].maraName = (result.data[i].maraId ? result.data[i].mara.name:'');							
 								if (result.data[i].review.maraState == 'WAIT' && result.data[i].review.officialState == 'WAIT')
 								{
 										switch(v.ap_list)
@@ -715,21 +731,39 @@
 												break;
 										}										
 								}
-								
-								result.data[i].serviceName = return_servicename(result.data[i].type)+'-'+result.data[i].service.code;															
-						}else
+								if (result.data[i].parentId)
+								{
+										result.data[i].serviceName = return_servicename('SIV');
+										var service_packagename = return_packagetype(result.data[i].servicePackage.type);
+										result.data[i].serviceName += '-'+service_packagename;										
+								}else
+								{
+										result.data[i].serviceName = return_servicename(result.data[i].type)+'-'+result.data[i].service.code;
+								}													
+						}else if (result.data[i].type == 'OVST')
 						{
-															
 								//如果maraState='FINISH'，表示整个流程结束。
 								if (result.data[i].review.officialState == 'COMPLETE') str_state = 'COE_COMPLETE';
 								var str_school = (result.data[i].schoolId ? result.data[i].school.name : '');
 								result.data[i].serviceName = return_servicename(result.data[i].type)+'-'+str_school;
+						}else if (result.data[i].type == 'SIV')
+						{
+								//独立技术移民
+								result.data[i].serviceName = return_servicename(result.data[i].type);							
 						}
-						if (result.data[i].state == 'CLOSE') str_refusestate = result.data[i].closedReason;
+						if (result.data[i].state == 'CLOSE') str_refusestate = (result.data[i].closedReason != null ? result.data[i].closedReason:'');
 						if (result.data[i].review.officialState == 'PENDING' && result.data[i].review.type == 'REFUSE') str_refusestate = '<br/><span style="color:#003333">文案已驳回</span>';
 						if (result.data[i].review.officialState == 'REVIEW' && result.data[i].review.type == 'REFUSE') str_refusestate = '<br/><span style="color:#003333">Mara已驳回</span>';
-						result.data[i].strState = return_state(str_state)+str_refusestate;
-						result.data[i].currentState = str_state;						
+						if (result.data[i].type == 'SIV')
+						{
+								if (result.data[i].review.adviserState != 'PENDING') currentState = '';
+								result.data[i].currentState = str_state;
+						}else
+						{
+								var servicePackage = (result.data[i].servicePackageId ? result.data[i].servicePackage.type:'');
+								result.data[i].strState = return_state(str_state,servicePackage)+str_refusestate;
+								result.data[i].currentState = str_state;								
+						}						
 						if (result.data[i].remarks) result.data[i].remarks = url_replace(result.data[i].remarks);
 				};
 				return result.data;
@@ -758,10 +792,34 @@
          		case 'OVST':
          					return '留学';
          		break;
+         		case 'SIV':
+         					return '独立技术移民';
+         		break;
          }
       }
       
-      function return_state(va)
+      function return_packagetype(v)
+			{
+				var str = '';
+				switch(v)
+				{
+						case 'CA':
+								str = '职业评估';
+						break;
+						case 'EOI':
+								str = 'EOI';
+						break;
+						case 'SA':
+								str = '学校申请';
+						break;
+						case 'VA':
+								str = '签证申请';
+						break;
+				}
+				return str;
+			}
+      
+      function return_state(va,type)
 			{
 					var str_html = '';
 					switch(va)
@@ -775,7 +833,7 @@
 						break;
 						case 'WA_MA_WAIT':
 									
-									str_html = '<label style="color:red;">已提交Mara审核</label>';							
+									str_html = '<label style="color:#CCCCFF;">已提交Mara审核</label>';							
 						break;
 						case 'MA_WAIT':
 									
@@ -783,7 +841,7 @@
 						break;
 						case 'WA_REVIEW':
 									
-									str_html = '<label style="">资料审核中</label>';							
+									str_html = '<label style="color:#99CCCC;">资料审核中</label>';							
 						break;
 						case 'FINISH':
 									str_html = '<label style="color:blue;">资料审核完成</label>';
@@ -792,7 +850,23 @@
 									str_html = '<label style="color:blue;">服务申请中</label>';
 						break;
 						case 'COMPLETE':
-									str_html = '<label style="color:red;">申请成功</label>';
+									var str_text = '';
+									switch(type)
+									{
+											case '':
+													str_text = '申请成功';
+											break;
+											case 'VA':
+													str_text = '申请成功';
+											break;
+											case 'CA':
+													str_text = '评估完成';
+											break;
+											case 'EOI':
+													str_text = 'EOI完成';
+											break;
+									}									
+									str_html = '<label style="color:red;">'+str_text+'</label>';
 						break;
 						case 'COE_COMPLETE':
 									str_html = '<label style="color:red;">申请成功</label><br/>COE待支付';
@@ -814,9 +888,12 @@
       				if (type == 'VISA')
       				{      				      				
       						add_service1(id,0,'');
-      				}else
+      				}else if (type == 'OVST')      				
       				{
       						add_service2(id,0,'');
+      				}else if (type == 'SIV')      				
+      				{
+      						add_service3(id,0,'');
       				}
       		}else
       		{
@@ -861,7 +938,7 @@
           		}
           }
           //如果GW提交审核,就创建佣金订单                         
-          if (v.orderType == 'VISA' && v.ap_list == 'GW' && va == 'REVIEW') reqCommissionVisa();
+          if (v.orderType == 'VISA' && v.ap_list == 'GW' && va == 'REVIEW') reqCommissionVisa();          
           //文案更新
           if (v.orderType == 'OVST' && v.ap_list == 'WA')
           {
@@ -875,6 +952,7 @@
 			   	function(data){
 			   			if (data.code == 0)
 			   			{
+			   					if (v.orderType == 'SIV' && v.ap_list == 'GW' && va == 'REVIEW') reqCommissionVisa();//创建SIV佣金订单
 			   					if (va == 'PAID' || va == 'COMPLETE' || va == 'CLOSE')
 			   					{
 					   					$.ajax({
