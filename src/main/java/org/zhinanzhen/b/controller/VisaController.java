@@ -155,6 +155,8 @@ public class VisaController extends BaseCommissionOrderController {
 					visaDtoList.add(visaDto);
 				_perAmount += visaDto.getPerAmount();
 			}
+			serviceOrderDto.setSubmitted(true);
+			serviceOrderService.updateServiceOrder(serviceOrderDto);
 			return new Response<List<VisaDTO>>(0, visaDtoList);
 		} catch (ServiceException e) {
 			return new Response<List<VisaDTO>>(e.getCode(), e.getMessage(), null);
