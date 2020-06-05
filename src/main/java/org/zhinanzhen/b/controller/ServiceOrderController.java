@@ -244,6 +244,7 @@ public class ServiceOrderController extends BaseController {
 						if (servicePackageDto == null)
 							return new Response<Integer>(1, "服务包不存在.", 0);
 						serviceOrderDto.setType("VISA"); // 独立技术移民子订单为VISA
+						serviceOrderDto.setPay(false); // 独立技术移民子订单都未支付
 						if (StringUtil.isNotEmpty(maraId))
 							serviceOrderDto.setMaraId(StringUtil.toInt(maraId)); // 独立技术移民子订单需要mara
 						if (StringUtil.isNotEmpty(officialId))
