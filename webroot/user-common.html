@@ -277,10 +277,10 @@
 						<div class="form-group" style="width:100%;height:40px;">
 							<label class="control-label" style="width:80px;">顾问<span style="color:red;">*</span></label>
 							<select class="form-control" style="width:150px;" id="b2"></select>
-							<label class="control-label" style="display:none;" id="b3text">Mara<span style="color:red;">*</span></label>
-							<select class="form-control" style="display:none;width:150px;" id="b3"></select>
-							<label class="control-label" style="display:none;" id="b4text">文案<span style="color:red;">*</span></label>
-							<select class="form-control" style="display:none;width:150px;" id="b4"></select>
+							<label class="control-label" style="display:;" id="b3text">Mara<span style="color:red;">*</span></label>
+							<select class="form-control" style="display:;width:150px;" id="b3"></select>
+							<label class="control-label" style="display:;" id="b4text">文案<span style="color:red;">*</span></label>
+							<select class="form-control" style="display:;width:150px;" id="b4"></select>
 						</div>
 						<div class="form-group" style="width:100%;height:40px;">
 							<label class="control-label" style="width:80px;">服务项目<span style="color:red;">*</span></label>
@@ -957,7 +957,7 @@ function ajax_service(va)
 				service_code.empty();
 				service_code.append("<option value=''>请选择</option>");
 				$.ajax({
-          url: 'service/list?name=独立技术移民',
+          url: 'service/list?name=SIV',
           type: 'GET',
           async: false,
           dataType: 'json'
@@ -1262,7 +1262,8 @@ function addnewService1Save()
 		   							setTimeout(function(){window.location.href = "serviceorder-list.html";}, 2000);
 		   					}else
 		   					{
-		   							setTimeout(function(){$('#addnewservice1_id').modal('hide')}, 2000);
+		   							v.getDatalist();
+		   							setTimeout(function(){$('#addnewservice1_id').modal('hide')}, 2000);		   							
 		   					}
 		   			}else
 		   			{
@@ -1416,6 +1417,8 @@ function addnewService3Save()
 		    		}
     		}else
     		{
+    				maraId = $(f+'#b3').val();
+    				officialId = $(f+'#b4').val();
     				isCheck = 1;
     		}
     		if (isCheck)
@@ -1600,6 +1603,7 @@ function addnewService3Save()
 		   							setTimeout(function(){window.location.href = "serviceorder-list.html";}, 2000);
 		   					}else
 		   					{
+		   							v.getDatalist();
 		   							setTimeout(function(){$('#addnewservice3_id').modal('hide')}, 2000);
 		   					}
 		   			}else
@@ -1679,7 +1683,8 @@ function Service3VisaSave()
 
 function reqCommissionVisa()
 {
-		var order = v_sub.order_detail;
+		var result_data = {};
+		var order = v_sub.order_detail;		
 		if (order.pay == true)
 		{
 				var str_url = "visa/add";
@@ -1700,20 +1705,24 @@ function reqCommissionVisa()
 		   	json['adviserId'] = order.adviserId;
 		   	json['maraId'] = order.maraId;
 		   	json['officialId'] = order.officialId;
-		   	json['remarks'] = order.remarks;		   	
+		   	json['remarks'] = order.remarks;
 		   	
 		   	$.post(str_url, json,
-		   	function(data){		   			
-		   			if (data.code == 1)
+		   	function(data){   				
+		   			if (data.code != 0)
 		   			{
-		   					$('#addnewservice1_id #alert_error').css('marginTop','50%');
-		   					$('#addnewservice1_id #alert_error').css('marginLeft','30%');
-		   					$('#addnewservice1_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
-		      			$("#addnewservice1_id #error_info").html(data.message);
-		      			return false;
+		   					$('#alert_error').css('marginLeft','30%');
+		   					$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+	        			$("#error_info").html(data.message);
+	        			return false;		   					
+		   			}else
+		   			{
+		   					$('#alert_success').css('marginLeft','30%');
+		   					$('#alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+		   					v.getDatalist();
 		   			}
 		   	});
-  	}
+  	}  	
 }
 
 function reqCommissionVisa1(order_json)

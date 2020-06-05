@@ -389,12 +389,17 @@
 														<td>																
 																<a href="javascript:open_detail({{item.id}},'{{item.type}}','{{item.currentState}}');">查看</a>																
 																<dle v-if="ap_list==='GW'">
-																		<d2 v-if="!item.parentId">																				
+																		<d2 v-if="item.type==='SIV' && !item.parentId">																				
+																				<d1 v-if="!item.submitted && item.pay">
+																				<a href="javascript:show_confirmbox('{{item.type}}',{{item.id}},'REVIEW',1)"><span style="font-weight:bold;color:#99CC66;">提交佣金表</span></a>
+																				</d1>
+																		</d2>
+																		<d2 v-if="item.type==='VISA'">
 																				<d1 v-if="item.currentState==='PENDING'">
 																				<a href="javascript:show_confirmbox('{{item.type}}',{{item.id}},'REVIEW',1)">提交审核</a>
 																				</d1>
 																		</d2>
-																		<d2 v-if="item.parentId">
+																		<d2 v-if="item.type==='VISA'">
 																				<d1 v-if="item.currentState==='REVIEW'">
 																				<a href="javascript:show_confirmbox('{{item.type}}',{{item.id}},'PENDING',1)" style="color:#ACA9A9;">撤回</a>
 																				</d1>
@@ -513,6 +518,7 @@
 					orderId: 0,
 					orderType: '',
 					servicepackage_type: '',
+					result_data: '',
 					subject: [],
 					count: 0,
 					dId: '',
@@ -749,15 +755,21 @@
 						}else if (result.data[i].type == 'SIV')
 						{
 								//独立技术移民
-								result.data[i].serviceName = return_servicename(result.data[i].type);							
+								result.data[i].serviceName = '<span style="font-weight:bold;color:#0066CC;">'+return_servicename(result.data[i].type)+'</span>';							
 						}
 						if (result.data[i].state == 'CLOSE') str_refusestate = (result.data[i].closedReason != null ? result.data[i].closedReason:'');
 						if (result.data[i].review.officialState == 'PENDING' && result.data[i].review.type == 'REFUSE') str_refusestate = '<br/><span style="color:#003333">文案已驳回</span>';
 						if (result.data[i].review.officialState == 'REVIEW' && result.data[i].review.type == 'REFUSE') str_refusestate = '<br/><span style="color:#003333">Mara已驳回</span>';
 						if (result.data[i].type == 'SIV')
 						{
-								if (result.data[i].review.adviserState != 'PENDING') currentState = '';
-								result.data[i].currentState = str_state;
+								if (result.data[i].submitted)
+								{
+										result.data[i].currentState = 'REVIEW';
+										result.data[i].strState = '<span style="color:#FF9966;">已提交佣金表</span>';
+								}else
+								{
+										result.data[i].currentState = str_state;
+								}
 						}else
 						{
 								var servicePackage = (result.data[i].servicePackageId ? result.data[i].servicePackage.type:'');
@@ -936,9 +948,7 @@
 	          			$("#error_info").html('收款凭证没有上传，请上传之后再提交。');
           				return false;
           		}
-          }
-          //如果GW提交审核,就创建佣金订单                         
-          if (v.orderType == 'VISA' && v.ap_list == 'GW' && va == 'REVIEW') reqCommissionVisa();          
+          }                    
           //文案更新
           if (v.orderType == 'OVST' && v.ap_list == 'WA')
           {
@@ -951,8 +961,8 @@
           $.post(str_url, json,
 			   	function(data){
 			   			if (data.code == 0)
-			   			{
-			   					if (v.orderType == 'SIV' && v.ap_list == 'GW' && va == 'REVIEW') reqCommissionVisa();//创建SIV佣金订单
+			   			{			   					                        
+          				if (v.orderType == 'VISA' && v.ap_list == 'GW' && va == 'REVIEW') reqCommissionVisa();//如果GW提交审核,就创建佣金订单 		
 			   					if (va == 'PAID' || va == 'COMPLETE' || va == 'CLOSE')
 			   					{
 					   					$.ajax({
@@ -998,8 +1008,15 @@
       
       function update_state()
       {      		
-      		flowstep(v.set_state,v.set_type);
-      		$('#showconfirmbox_id').modal('hide');
+      		if (v_sub.order_detail.type=='SIV' && v.ap_list == 'GW' && !v_sub.order_detail.parentId && !v_sub.order_detail.submitted)
+      		{
+      				reqCommissionVisa();//创建SIV佣金订单
+      				$('#showconfirmbox_id').modal('hide');      				
+      		}else
+      		{
+		      		flowstep(v.set_state,v.set_type);
+		      		$('#showconfirmbox_id').modal('hide');		      			      		
+      		}      		
       }            
 			
 			v.$watch('subject', function(obj) {
