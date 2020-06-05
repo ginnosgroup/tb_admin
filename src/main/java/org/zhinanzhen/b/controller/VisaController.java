@@ -157,6 +157,14 @@ public class VisaController extends BaseCommissionOrderController {
 			}
 			serviceOrderDto.setSubmitted(true);
 			serviceOrderService.updateServiceOrder(serviceOrderDto);
+			if (serviceOrderDto.getParentId() > 0) {
+				ServiceOrderDTO _serviceOrderDto = serviceOrderService
+						.getServiceOrderById(serviceOrderDto.getParentId());
+				if (_serviceOrderDto != null && !_serviceOrderDto.isSubmitted()) {
+					_serviceOrderDto.setSubmitted(true);
+					serviceOrderService.updateServiceOrder(_serviceOrderDto);
+				}
+			}
 			return new Response<List<VisaDTO>>(0, visaDtoList);
 		} catch (ServiceException e) {
 			return new Response<List<VisaDTO>>(e.getCode(), e.getMessage(), null);
