@@ -211,11 +211,13 @@ public class ServiceOrderController extends BaseController {
 					return new Response<Integer>(1, "用户编号错误(" + userId + ")，创建失败.", 0);
 				else
 					serviceOrderDto.setUserId(StringUtil.toInt(userId));
-			if (StringUtil.isNotEmpty(maraId))
+			if (StringUtil.isNotEmpty(maraId) && !"SIV".equalsIgnoreCase(serviceOrderDto.getType())
+					&& !"MT".equalsIgnoreCase(serviceOrderDto.getType())) // SIV主订单和MT主订单不需要mara
 				serviceOrderDto.setMaraId(StringUtil.toInt(maraId));
 			if (StringUtil.isNotEmpty(adviserId))
 				serviceOrderDto.setAdviserId(StringUtil.toInt(adviserId));
-			if (StringUtil.isNotEmpty(officialId))
+			if (StringUtil.isNotEmpty(officialId) && !"SIV".equalsIgnoreCase(serviceOrderDto.getType())
+					&& !"MT".equalsIgnoreCase(serviceOrderDto.getType())) // SIV主订单和MT主订单不需要文案
 				serviceOrderDto.setOfficialId(StringUtil.toInt(officialId));
 			if (StringUtil.isNotEmpty(remarks))
 				serviceOrderDto.setRemarks(remarks);
@@ -225,7 +227,7 @@ public class ServiceOrderController extends BaseController {
 				String msg = "";
 				if (adminUserLoginInfo != null)
 					serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
-							ReviewAdviserStateEnum.PENDING.toString(), null, null, null);
+							serviceOrderDto.getState(), null, null, null);
 				// 创建子服务订单
 				if (StringUtil.isNotEmpty(servicePackageIds)) {
 					List<String> servicePackageIdList = Arrays.asList(servicePackageIds.split(","));
@@ -238,10 +240,14 @@ public class ServiceOrderController extends BaseController {
 							continue;
 						}
 						serviceOrderDto.setServicePackageId(id);
-						serviceOrderDto.setType("VISA"); // 独立技术移民子订单为VISA
 						ServicePackageDTO servicePackageDto = servicePackageService.getById(id);
 						if (servicePackageDto == null)
 							return new Response<Integer>(1, "服务包不存在.", 0);
+						serviceOrderDto.setType("VISA"); // 独立技术移民子订单为VISA
+						if (StringUtil.isNotEmpty(maraId))
+							serviceOrderDto.setMaraId(StringUtil.toInt(maraId)); // 独立技术移民子订单需要mara
+						if (StringUtil.isNotEmpty(officialId))
+							serviceOrderDto.setOfficialId(StringUtil.toInt(officialId)); // 独立技术移民子订单需要文案
 						if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null)
 							serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
 									ReviewAdviserStateEnum.PENDING.toString(), null, null, null);
@@ -629,22 +635,29 @@ public class ServiceOrderController extends BaseController {
 						|| "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewAdviserStateEnum.get(state) != null)
 						if (ReviewAdviserStateEnum.REVIEW.toString().equals(state.toUpperCase())) { // 顾问审核
-							// 如果有子订单,就一起提交审核
-							if (serviceOrderDto.getParentId() == 0
-									&& "SIV".equalsIgnoreCase(serviceOrderDto.getType())) {
-								List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(null,
-										null, null, null, 0, 0, 0, 0, serviceOrderDto.getId(), 0, 10);
-								for (ServiceOrderDTO so : serviceOrderList) {
-									if (so.getServicePackage() == null)
-										return new Response<ServiceOrderDTO>(1, "子订单没有服务包.", so);
-									if (so.getOfficialId() <= 0)
-										return new Response<ServiceOrderDTO>(1, "子订单必须选择文案.", so);
-									if (so.getMaraId() <= 0
-											&& !"EOI".equalsIgnoreCase(so.getServicePackage().getType()))
-										return new Response<ServiceOrderDTO>(1, "子订单必须选择Mara.", so);
-									serviceOrderService.approval(so.getId(), adminUserLoginInfo.getId(),
-											state.toUpperCase(), null, null, null);
-								}
+							if (serviceOrderDto.getParentId() == 0 && ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
+									|| "MT".equalsIgnoreCase(serviceOrderDto.getType()))) {
+								return new Response<ServiceOrderDTO>(1, "该订单不支持审核.", serviceOrderDto);
+								// List<ServiceOrderDTO> serviceOrderList =
+								// serviceOrderService.listServiceOrder(null,
+								// null, null, null, 0, 0, 0, 0,
+								// serviceOrderDto.getId(), 0, 10);
+								// for (ServiceOrderDTO so : serviceOrderList) {
+								// if (so.getServicePackage() == null)
+								// return new Response<ServiceOrderDTO>(1,
+								// "子订单没有服务包.", so);
+								// if (so.getOfficialId() <= 0)
+								// return new Response<ServiceOrderDTO>(1,
+								// "子订单必须选择文案.", so);
+								// if (so.getMaraId() <= 0
+								// &&
+								// !"EOI".equalsIgnoreCase(so.getServicePackage().getType()))
+								// return new Response<ServiceOrderDTO>(1,
+								// "子订单必须选择Mara.", so);
+								// serviceOrderService.approval(so.getId(),
+								// adminUserLoginInfo.getId(),
+								// state.toUpperCase(), null, null, null);
+								// }
 							}
 							return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id,
 									adminUserLoginInfo.getId(), state.toUpperCase(), null, null, null));
