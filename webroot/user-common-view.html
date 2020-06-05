@@ -903,10 +903,10 @@ function return_types(result)
 		for(var i = 0; i < result.length; i++) {
 				if (str == '')//此处应该调用Name，待接口调整后修改
 				{
-						str = result[i].servicePackageId;
+						str = return_type(result[i].servicePackageType);
 				}else
 				{
-						str += ','+result[i].servicePackageId;
+						str += ','+return_type(result[i].servicePackageType);
 				}
 		}
 		return str;
