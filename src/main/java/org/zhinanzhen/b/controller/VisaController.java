@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.VisaCommentDTO;
@@ -35,6 +36,9 @@ public class VisaController extends BaseCommissionOrderController {
 
 	@Resource
 	VisaService visaService;
+
+	@Resource
+	ServiceOrderService serviceOrderService;
 
 	@RequestMapping(value = "/upload_img", method = RequestMethod.POST)
 	@ResponseBody
@@ -216,6 +220,7 @@ public class VisaController extends BaseCommissionOrderController {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			VisaDTO _visaDto = visaService.getVisaById(id);
+			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(_visaDto.getServiceOrderId());
 			VisaDTO visaDto = new VisaDTO();
 			visaDto.setId(id);
 			if (adminUserLoginInfo != null && "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())
@@ -233,9 +238,11 @@ public class VisaController extends BaseCommissionOrderController {
 			}
 			if (StringUtil.isNotEmpty(receiveTypeId)) {
 				visaDto.setReceiveTypeId(Integer.parseInt(receiveTypeId));
+				serviceOrderDto.setReceiveTypeId(Integer.parseInt(receiveTypeId));
 			}
 			if (StringUtil.isNotEmpty(receiveDate)) {
 				visaDto.setReceiveDate(new Date(Long.parseLong(receiveDate)));
+				serviceOrderDto.setReceiveDate(new Date(Long.parseLong(receiveDate)));
 			}
 			if (StringUtil.isNotEmpty(serviceId)) {
 				visaDto.setServiceId(Integer.parseInt(serviceId));
@@ -245,25 +252,38 @@ public class VisaController extends BaseCommissionOrderController {
 			if (StringUtil.isNotEmpty(receivable)) {
 				visaDto.setReceivable(Double.parseDouble(receivable));
 			}
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1)) {
 				visaDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
+				serviceOrderDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
+			}
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2)) {
 				visaDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl3))
+				serviceOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
+			}
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl3)) {
 				visaDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl4))
+				serviceOrderDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
+			}
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl4)) {
 				visaDto.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl5))
+				serviceOrderDto.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
+			}
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl5)) {
 				visaDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
+				serviceOrderDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
+			}
 			if (StringUtil.isNotEmpty(visaVoucherImageUrl))
 				visaDto.setVisaVoucherImageUrl(visaVoucherImageUrl);
 			if (StringUtil.isNotEmpty(received)) {
 				visaDto.setReceived(Double.parseDouble(received));
 			}
-			if (StringUtil.isNotEmpty(perAmount))
+			if (StringUtil.isNotEmpty(perAmount)) {
 				visaDto.setPerAmount(Double.parseDouble(perAmount));
+				serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
+			}
 			if (StringUtil.isNotEmpty(amount)) {
 				visaDto.setAmount(Double.parseDouble(amount));
+				serviceOrderDto.setAmount(Double.parseDouble(amount));
 			}
 			double _perAmount = _visaDto.getPerAmount();
 			if (visaDto.getPerAmount() > 0)
@@ -288,6 +308,7 @@ public class VisaController extends BaseCommissionOrderController {
 			visaDto.setBonus(visaDto.getDeductGst() * 0.1);
 			visaDto.setExpectAmount(commission);
 			if (visaService.updateVisa(visaDto) > 0) {
+				serviceOrderService.updateServiceOrder(serviceOrderDto); // 同步修改服务订单
 				return new Response<VisaDTO>(0, visaDto);
 			} else {
 				return new Response<VisaDTO>(1, "修改失败.", null);

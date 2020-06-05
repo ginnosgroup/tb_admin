@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.CommissionOrderService;
 import org.zhinanzhen.b.service.SchoolService;
+import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.SubagencyService;
 import org.zhinanzhen.b.service.pojo.CommissionOrderCommentDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
@@ -45,6 +46,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 	@Resource
 	SchoolService schoolService;
+
+	@Resource
+	ServiceOrderService serviceOrderService;
 
 	@RequestMapping(value = "/upload_img", method = RequestMethod.POST)
 	@ResponseBody
@@ -319,16 +323,26 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				commissionOrderDto.setStudying(isStudying);
 			if (installmentDueDate != null)
 				commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate)));
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1)) {
 				commissionOrderDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
+				serviceOrderDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
+			}
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2)) {
 				commissionOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl3))
+				serviceOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
+			}
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl3)) {
 				commissionOrderDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl4))
+				serviceOrderDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
+			}
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl4)) {
 				commissionOrderDto.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl5))
+				serviceOrderDto.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
+			}
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl5)) {
 				commissionOrderDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
+				serviceOrderDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
+			}
 			if (startDate != null)
 				commissionOrderDto.setStartDate(new Date(Long.parseLong(startDate)));
 			if (endDate != null)
@@ -337,14 +351,22 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				commissionOrderDto.setTuitionFee(Double.parseDouble(tuitionFee));
 			if (StringUtil.isNotEmpty(perTermTuitionFee))
 				commissionOrderDto.setPerTermTuitionFee(Double.parseDouble(perTermTuitionFee));
-			if (receiveTypeId != null)
+			if (receiveTypeId != null) {
 				commissionOrderDto.setReceiveTypeId(receiveTypeId);
-			if (StringUtil.isNotEmpty(receiveDate))
+				serviceOrderDto.setReceiveTypeId(receiveTypeId);
+			}
+			if (StringUtil.isNotEmpty(receiveDate)) {
 				commissionOrderDto.setReceiveDate(new Date(Long.parseLong(receiveDate)));
-			if (StringUtil.isNotEmpty(perAmount))
+				serviceOrderDto.setReceiveDate(new Date(Long.parseLong(receiveDate)));
+			}
+			if (StringUtil.isNotEmpty(perAmount)) {
 				commissionOrderDto.setPerAmount(Double.parseDouble(perAmount));
-			if (StringUtil.isNotEmpty(amount))
+				serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
+			}
+			if (StringUtil.isNotEmpty(amount)) {
 				commissionOrderDto.setAmount(Double.parseDouble(amount));
+				serviceOrderDto.setAmount(Double.parseDouble(amount));
+			}
 			double _perAmount = commissionOrderListDto.getPerAmount();
 			if (commissionOrderDto.getPerAmount() > 0)
 				_perAmount = commissionOrderDto.getPerAmount();
@@ -386,6 +408,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 			String msg = "";
 			if (commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0) {
+				serviceOrderService.updateServiceOrder(serviceOrderDto); // 同步修改服务订单
 				int i = schoolService.updateSchoolSetting(commissionOrderListDto); // 根据学校设置更新佣金值
 				if (i > 0) {
 				} else if (i == -1)
