@@ -48,6 +48,12 @@ public class VisaDTO {
 
 	private String paymentVoucherImageUrl2;
 
+	private String paymentVoucherImageUrl3;
+
+	private String paymentVoucherImageUrl4;
+
+	private String paymentVoucherImageUrl5;
+
 	private String visaVoucherImageUrl;
 
 	private double receivable;
@@ -85,7 +91,7 @@ public class VisaDTO {
 	private boolean isClose;
 
 	private List<Date> remindDateList;
-	
+
 	private double totalPerAmount;
 
 	private double totalAmount;

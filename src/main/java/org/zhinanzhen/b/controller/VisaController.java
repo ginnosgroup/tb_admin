@@ -55,6 +55,9 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "installment") Integer installment,
 			@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
 			@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
+			@RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
+			@RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
+			@RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
 			@RequestParam(value = "visaVoucherImageUrl", required = false) String visaVoucherImageUrl,
 			@RequestParam(value = "receivable") String receivable,
 			@RequestParam(value = "received", required = false) String received,
@@ -106,6 +109,18 @@ public class VisaController extends BaseCommissionOrderController {
 				visaDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
 			else
 				visaDto.setPaymentVoucherImageUrl2(serviceOrderDto.getPaymentVoucherImageUrl2());
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl3))
+				visaDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
+			else
+				visaDto.setPaymentVoucherImageUrl3(serviceOrderDto.getPaymentVoucherImageUrl3());
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl4))
+				visaDto.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
+			else
+				visaDto.setPaymentVoucherImageUrl4(serviceOrderDto.getPaymentVoucherImageUrl4());
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl5))
+				visaDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
+			else
+				visaDto.setPaymentVoucherImageUrl5(serviceOrderDto.getPaymentVoucherImageUrl5());
 			if (StringUtil.isNotEmpty(visaVoucherImageUrl))
 				visaDto.setVisaVoucherImageUrl(visaVoucherImageUrl);
 			else
@@ -184,6 +199,9 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "serviceOrderId", required = false) Integer serviceOrderId,
 			@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
 			@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
+			@RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
+			@RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
+			@RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
 			@RequestParam(value = "visaVoucherImageUrl", required = false) String visaVoucherImageUrl,
 			@RequestParam(value = "receivable", required = false) String receivable,
 			@RequestParam(value = "received", required = false) String received,
@@ -231,6 +249,12 @@ public class VisaController extends BaseCommissionOrderController {
 				visaDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
 				visaDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl3))
+				visaDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl4))
+				visaDto.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl5))
+				visaDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
 			if (StringUtil.isNotEmpty(visaVoucherImageUrl))
 				visaDto.setVisaVoucherImageUrl(visaVoucherImageUrl);
 			if (StringUtil.isNotEmpty(received)) {
