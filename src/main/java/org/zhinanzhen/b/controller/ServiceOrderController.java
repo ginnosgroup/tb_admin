@@ -490,7 +490,7 @@ public class ServiceOrderController extends BaseController {
 			super.setGetHeader(response);
 			String excludeState = null;
 			List<String> stateList = null;
-			if (state != null)
+			if (state != null && !"".equals(state))
 				stateList = new ArrayList<>(Arrays.asList(state.split(",")));
 			List<String> reviewStateList = null;
 			Integer newAdviserId = getAdviserId(request);
@@ -534,7 +534,7 @@ public class ServiceOrderController extends BaseController {
 			super.setGetHeader(response);
 			String excludeState = null;
 			List<String> stateList = null;
-			if (state != null)
+			if (state != null && !"".equals(state))
 				stateList = new ArrayList<>(Arrays.asList(state.split(",")));
 			List<String> reviewStateList = null;
 			Integer newAdviserId = getAdviserId(request);
