@@ -288,13 +288,28 @@ function edit_commission_detail(serviceId,orderId)
 	        	if (response.paymentVoucherImageUrl1)
 						{
 								str_flist = response.paymentVoucherImageUrl1;
-								$("#ovst_id #show_payment_pic").append('<a href="/statics'+response.paymentVoucherImageUrl1+'" target="_blank">查看收款凭证1</a>&nbsp;');
+								$("#ovst_id #show_payment_pic").append('<a href="/statics'+response.paymentVoucherImageUrl1+'" target="_blank">凭证1</a>&nbsp;');
 						}
 						if (response.paymentVoucherImageUrl2)
 						{
 								str_flist += ','+response.paymentVoucherImageUrl2;
-								$("#ovst_id #show_payment_pic").append('<a href="/statics'+response.paymentVoucherImageUrl2+'" target="_blank">查看收款凭证2</a>&nbsp;');
-						}						
+								$("#ovst_id #show_payment_pic").append('<a href="/statics'+response.paymentVoucherImageUrl2+'" target="_blank">凭证2</a>&nbsp;');
+						}
+						if (response.paymentVoucherImageUrl3)
+						{
+								str_flist += ','+response.paymentVoucherImageUrl3;
+								$("#ovst_id #show_payment_pic").append('<a href="/statics'+response.paymentVoucherImageUrl3+'" target="_blank">凭证3</a>&nbsp;');
+						}
+						if (response.paymentVoucherImageUrl4)
+						{
+								str_flist += ','+response.paymentVoucherImageUrl4;
+								$("#ovst_id #show_payment_pic").append('<a href="/statics'+response.paymentVoucherImageUrl4+'" target="_blank">凭证4</a>&nbsp;');
+						}
+						if (response.paymentVoucherImageUrl5)
+						{
+								str_flist += ','+response.paymentVoucherImageUrl5;
+								$("#ovst_id #show_payment_pic").append('<a href="/statics'+response.paymentVoucherImageUrl5+'" target="_blank">凭证5</a>&nbsp;');
+						}
 						if (str_flist != '')
 						{
 								$('#ovst_id #flist1').val(str_flist);

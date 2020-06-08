@@ -394,12 +394,12 @@
 																				<a href="javascript:show_confirmbox('{{item.type}}',{{item.id}},'REVIEW',1)"><span style="font-weight:bold;color:#99CC66;">提交佣金表</span></a>
 																				</d1>
 																		</d2>
-																		<d2 v-if="item.type==='VISA'">
+																		<d2 v-if="item.type!=='SIV'">
 																				<d1 v-if="item.currentState==='PENDING'">
 																				<a href="javascript:show_confirmbox('{{item.type}}',{{item.id}},'REVIEW',1)">提交审核</a>
 																				</d1>
 																		</d2>
-																		<d2 v-if="item.type==='VISA'">
+																		<d2 v-if="item.type!=='SIV'">
 																				<d1 v-if="item.currentState==='REVIEW'">
 																				<a href="javascript:show_confirmbox('{{item.type}}',{{item.id}},'PENDING',1)" style="color:#ACA9A9;">撤回</a>
 																				</d1>

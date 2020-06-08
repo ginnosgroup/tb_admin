@@ -357,8 +357,8 @@
 														<td v-html="item.userName"></td>
 														<td v-html="item.receiveTypeName"></td>
 														<td v-html="item.serviceName"></td>
-														<td v-html="item.receivable"></td>
-														<td v-html="item.received"></td>
+														<td v-html="item.totalPerAmount"></td>
+														<td v-html="item.totalAmount"></td>
 														<td v-html="item.amount"></td>
 														<td v-html="item.expectAmount"></td>
 														<td v-html="item.bonus"></td>
@@ -734,7 +734,14 @@
 						result.data[i].gmtCreate = v.getTime1(result.data[i].gmtCreate);
 						result.data[i].receiveDate = result.data[i].receiveDate ? v.getTime(result.data[i].receiveDate):'';
 						result.data[i].bonusDate = result.data[i].bonusDate ? v.getTime(result.data[i].bonusDate):'';
-						result.data[i].serviceName = '签证-'+result.data[i].serviceCode;
+						if (result.data[i].serviceOrder.type == 'SIV')
+						{
+								var childrenService = return_childrenService(result.data[i].serviceOrder.childrenServiceOrders);
+								result.data[i].serviceName = '<span style="font-weight:bold;color:#0066CC;">独立技术移民</span><br/>'+childrenService;								
+						}else
+						{
+								result.data[i].serviceName = '签证-'+result.data[i].serviceCode;
+						}
 						result.data[i].payDate = '';//字段未添加，待修正
 						result.data[i].strState = return_state(result.data[i].state);
 						result.data[i].currentState = result.data[i].state;
@@ -765,7 +772,71 @@
 						break;
 					}
 					return str_html;
-      }                   
+      }
+      
+      function return_childrenService(arr)
+      {
+      		var str = '';
+      		for(var i=0;i < arr.length;i++)
+      		{
+      				if (str == '')
+      				{
+      						str = return_packagetype(arr[i].servicePackageType);
+      				}else
+      				{
+      						str += '/'+return_packagetype(arr[i].servicePackageType);
+      				}
+      		}
+      		return str;
+      }
+      
+      function return_packagetype(v)
+			{
+				var str = '';
+				switch(v)
+				{
+						case 'CA':
+								str = '职业评估';
+						break;
+						case 'EOI':
+								str = 'EOI';
+						break;
+						case 'SA':
+								str = '学校申请';
+						break;
+						case 'VA':
+								str = '签证申请';
+						break;
+				}
+				return str;
+			}
+			
+			function return_attribute(peopleType,peopleNumber)
+			{
+					var str = '';
+					switch(peopleType)
+					{
+							case '1A':
+									str = '单人';
+							break;
+							case '1B':
+									str = '单人 - 提配偶';
+							break;
+							case '2A':
+									str = '多人('+peopleNumber+'人) - 带配偶';
+							break;
+							case 'XB':
+									str = '多人('+peopleNumber+'人) - 带配偶孩子';
+							break;
+							case 'XA':
+									str = '多人('+peopleNumber+'人) - 带孩子';
+							break;
+							case 'XC':
+									str = '多人('+peopleNumber+'人) - 其它';
+							break;
+					}
+					return str;
+			}                   
 			
 			v.$watch('subject', function(obj) {
 					$('.default-date-picker').datepicker({   				

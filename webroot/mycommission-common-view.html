@@ -32,10 +32,10 @@
 							<div class="form-group" style="width:100%;height:40px;">
 								<label class="control-label" style="width:80px;"><strong>顾问：</strong></label>
 								<label id="b2" style="width:100px;"></label>
-								<label class="control-label"><strong>Mara：</label>
-								<label id="b3" style="width:100px;"></label>
-								<label class="control-label"><strong>文案：</label>
-								<label id="b4" style="width:100px;"></label>
+								<label class="control-label" style="display:none;" id="b3text"><strong>Mara：</label>
+								<label id="b3" style="display:none;width:100px;"></label>
+								<label class="control-label" style="display:none;" id="b4text"><strong>文案：</label>
+								<label id="b4" style="display:none;width:100px;"></label>
 							</div>
 							<div class="form-group" style="width:100%;height:40px;">
 								<label class="control-label" style="width:80px;"><strong>服务项目：</strong></label>
@@ -45,6 +45,10 @@
 							<div class="form-group" style="width:100%;height:40px;">
 								<label class="control-label" style="width:80px;"><strong>是否已支付：</strong></label>
 								<label id="b7"></label>
+							</div>
+							<div class="form-group" style="display:none;width:100%;height:40px;" id="b7text">
+								<label class="control-label" style="width:80px;"><strong>属性：</strong></label>
+								<label id="b6c"></label>								
 							</div>
 							<div id="show_paid" style="width:100%;">
 							<hr/>
@@ -160,9 +164,30 @@ function show_commission_detail(serviceId,orderId)
 		    	$('#show_visa_id #b0').html(response.id);
 		    	$('#show_visa_id #b1').html(response.user.name);
 		    	$('#show_visa_id #b2').html(response.adviser.name);
-		    	$('#show_visa_id #b3').html(response.mara.name);
-		    	$('#show_visa_id #b4').html(response.official.name);
-		    	$('#show_visa_id #b6').html(response.service.code);
+		    	if (response.type == 'SIV')
+		    	{
+		    			$("#show_visa_id #b3text").hide();
+			    		$("#show_visa_id #b3").hide();
+			    		$("#show_visa_id #b4text").hide();
+			    		$("#show_visa_id #b4").hide();	
+			    		$("#show_visa_id #b5").html('独立技术移民');				    		
+			    		var str_package = return_childrenService(response.childrenServiceOrders);
+			    		$('#show_visa_id #b6').html(response.service.code+' - '+str_package);
+			    		//属性处理
+        			if (response.peopleType) $('#show_visa_id #b6c').html(return_attribute(response.peopleType,response.peopleNumber));
+			    		$("#show_visa_id #b7text").show();
+		    	}else
+		    	{
+		    			$("#show_visa_id #b3text").show();
+			    		$("#show_visa_id #b3").show();
+			    		$("#show_visa_id #b4text").show();
+			    		$("#show_visa_id #b4").show();
+				    	if (response.maraId) $('#show_visa_id #b3').html(response.mara.name);
+				    	if (response.officialId) $('#show_visa_id #b4').html(response.official.name);
+				    	$("#show_visa_id #b5").html('签证');	
+				    	$('#show_visa_id #b6').html(response.service.code);
+				    	$("#show_visa_id #b7text").hide();
+		    	}
         	$('#show_visa_id #b7').html('是'); 
         	$('#show_visa_id #show_paid').show();
     	}  	
@@ -179,9 +204,9 @@ function show_commission_detail(serviceId,orderId)
 	    	{	    			
 				    $('#show_visa_id #b8').html(v.getTime(response.receiveDate));        	
 	        	if (response.receiveTypeId) $('#show_visa_id #b9').html(response.receiveTypeName);
-	        	$('#show_visa_id #b10').html(response.receivable);
+	        	$('#show_visa_id #b10').html(response.totalPerAmount);
 	        	$('#show_visa_id #b11').html(response.discount);
-	        	$('#show_visa_id #b12').html(response.received);
+	        	$('#show_visa_id #b12').html(response.totalAmount);
 	        	$('#show_visa_id #b13').html(response.installmentNum+'/'+response.installment);
 	        	$('#show_visa_id #b14').html(response.amount);
 	        	$('#show_visa_id #b14a').html(response.perAmount);
@@ -196,18 +221,34 @@ function show_commission_detail(serviceId,orderId)
 						if (response.paymentVoucherImageUrl1)
 						{
 								str_flist = response.paymentVoucherImageUrl1;
-								$("#show_visa_id #paymentpic_url").append('<a href="/statics'+response.paymentVoucherImageUrl1+'" target="_blank">查看凭证1</a>&nbsp;');
+								$("#show_visa_id #paymentpic_url").append('<a href="/statics'+response.paymentVoucherImageUrl1+'" target="_blank">凭证1</a>&nbsp;');
 						}
 						if (response.paymentVoucherImageUrl2)
 						{
 								str_flist += ','+response.paymentVoucherImageUrl2;
-								$("#show_visa_id #paymentpic_url").append('<a href="/statics'+response.paymentVoucherImageUrl2+'" target="_blank">查看凭证2</a>&nbsp;');
+								$("#show_visa_id #paymentpic_url").append('<a href="/statics'+response.paymentVoucherImageUrl2+'" target="_blank">凭证2</a>&nbsp;');
+						}
+						if (response.paymentVoucherImageUrl3)
+						{
+								str_flist += ','+response.paymentVoucherImageUrl3;
+								$("#show_visa_id #paymentpic_url").append('<a href="/statics'+response.paymentVoucherImageUrl3+'" target="_blank">凭证3</a>&nbsp;');
+						}
+						if (response.paymentVoucherImageUrl4)
+						{
+								str_flist += ','+response.paymentVoucherImageUrl4;
+								$("#show_visa_id #paymentpic_url").append('<a href="/statics'+response.paymentVoucherImageUrl4+'" target="_blank">凭证4</a>&nbsp;');
+						}
+						if (response.paymentVoucherImageUrl5)
+						{
+								str_flist += ','+response.paymentVoucherImageUrl5;
+								$("#show_visa_id #paymentpic_url").append('<a href="/statics'+response.paymentVoucherImageUrl5+'" target="_blank">凭证5</a>&nbsp;');
 						}
 						//生成签证凭证
+						$("#show_visa_id #visapic_url").empty();
 						if (response.visaVoucherImageUrl)
 						{
 								str_flist = response.visaVoucherImageUrl;
-								$("#show_visa_id #visapic_url").append('<a href="/statics'+response.visaVoucherImageUrl+'" target="_blank">查看凭证</a>&nbsp;');
+								$("#show_visa_id #visapic_url").append('<a href="/statics'+response.visaVoucherImageUrl+'" target="_blank">查看</a>&nbsp;');
 						}
 						$('#show_visa_id #show_visapic').show();					
 	    	}
