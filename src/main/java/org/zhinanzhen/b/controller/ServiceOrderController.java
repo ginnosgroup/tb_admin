@@ -433,13 +433,13 @@ public class ServiceOrderController extends BaseController {
 			if (StringUtil.isNotEmpty(coePaymentVoucherImageUrl1))
 				serviceOrderDto.setCoePaymentVoucherImageUrl1(coePaymentVoucherImageUrl1);
 			if (StringUtil.isNotEmpty(coePaymentVoucherImageUrl2))
-				serviceOrderDto.setCoePaymentVoucherImageUrl1(coePaymentVoucherImageUrl2);
+				serviceOrderDto.setCoePaymentVoucherImageUrl2(coePaymentVoucherImageUrl2);
 			if (StringUtil.isNotEmpty(coePaymentVoucherImageUrl3))
-				serviceOrderDto.setCoePaymentVoucherImageUrl1(coePaymentVoucherImageUrl3);
+				serviceOrderDto.setCoePaymentVoucherImageUrl3(coePaymentVoucherImageUrl3);
 			if (StringUtil.isNotEmpty(coePaymentVoucherImageUrl4))
-				serviceOrderDto.setCoePaymentVoucherImageUrl1(coePaymentVoucherImageUrl4);
+				serviceOrderDto.setCoePaymentVoucherImageUrl4(coePaymentVoucherImageUrl4);
 			if (StringUtil.isNotEmpty(coePaymentVoucherImageUrl5))
-				serviceOrderDto.setCoePaymentVoucherImageUrl1(coePaymentVoucherImageUrl5);
+				serviceOrderDto.setCoePaymentVoucherImageUrl5(coePaymentVoucherImageUrl5);
 			if (StringUtil.isNotEmpty(visaVoucherImageUrl))
 				serviceOrderDto.setVisaVoucherImageUrl(visaVoucherImageUrl);
 			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
