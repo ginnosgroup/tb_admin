@@ -90,6 +90,11 @@ public class VisaController extends BaseCommissionOrderController {
 			List<VisaDTO> visaDtoList = new ArrayList<>();
 			VisaDTO visaDto = new VisaDTO();
 			double _receivable = 0.00;
+			if (StringUtil.isNotEmpty(receivable))
+				_receivable = Double.parseDouble(receivable);
+			double _received = 0.00;
+			if (StringUtil.isNotEmpty(received))
+				_received = Double.parseDouble(received);
 			visaDto.setState(ReviewKjStateEnum.PENDING.toString());
 			if (StringUtil.isNotEmpty(userId))
 				visaDto.setUserId(Integer.parseInt(userId));
@@ -130,8 +135,6 @@ public class VisaController extends BaseCommissionOrderController {
 				visaDto.setVisaVoucherImageUrl(visaVoucherImageUrl);
 			else
 				visaDto.setVisaVoucherImageUrl(serviceOrderDto.getVisaVoucherImageUrl());
-			if (StringUtil.isNotEmpty(receivable))
-				_receivable = Double.parseDouble(receivable);
 //				visaDto.setReceivable(Double.parseDouble(receivable));
 //			if (StringUtil.isNotEmpty(received))
 //				visaDto.setReceived(Double.parseDouble(received));
@@ -160,20 +163,28 @@ public class VisaController extends BaseCommissionOrderController {
 			visaDto.setExpectAmount(commission);
 
 			double _perAmount = 0.00;
+			double _amount = 0.00;
 			for (int installmentNum = 1; installmentNum <= installment; installmentNum++) {
 				visaDto.setInstallmentNum(installmentNum);
 				if (installmentNum > 1) { // 只给第一个添加支付凭证
 					visaDto.setPaymentVoucherImageUrl1(null);
 					visaDto.setPaymentVoucherImageUrl2(null);
+					visaDto.setPaymentVoucherImageUrl3(null);
+					visaDto.setPaymentVoucherImageUrl4(null);
+					visaDto.setPaymentVoucherImageUrl5(null);
 					visaDto.setState(ReviewKjStateEnum.PENDING.toString());
 					visaDto.setPerAmount(_receivable > _perAmount ? _receivable - _perAmount : 0.00); // 第二笔单子修改本次应收款
-					visaDto.setAmount(visaDto.getPerAmount());
+//					if (_received > 0.00)
+//						visaDto.setAmount(_received > _amount ? _received - _amount : 0.00);
+//					else
+						visaDto.setAmount(visaDto.getPerAmount());
 					visaDto.setDiscount(0.00);
 				} else
 					visaDto.setState(ReviewKjStateEnum.REVIEW.toString()); // 第一笔单子直接进入财务审核状态
 				if (visaService.addVisa(visaDto) > 0)
 					visaDtoList.add(visaDto);
 				_perAmount += visaDto.getPerAmount();
+				_amount += visaDto.getAmount();
 			}
 			serviceOrderDto.setSubmitted(true);
 			serviceOrderService.updateServiceOrder(serviceOrderDto);
