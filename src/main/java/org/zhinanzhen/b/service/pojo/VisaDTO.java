@@ -56,9 +56,9 @@ public class VisaDTO {
 
 	private String visaVoucherImageUrl;
 
-	private double receivable;
+	private double receivable; // TODO: 准备废弃
 
-	private double received;
+	private double received; // TODO: 准备废弃
 
 	private double perAmount;
 

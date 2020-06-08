@@ -213,6 +213,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					commissionOrderDto.setState(ReviewKjStateEnum.PENDING.toString());
 					commissionOrderDto.setPaymentVoucherImageUrl1(null);
 					commissionOrderDto.setPaymentVoucherImageUrl2(null);
+					commissionOrderDto.setPaymentVoucherImageUrl3(null);
+					commissionOrderDto.setPaymentVoucherImageUrl4(null);
+					commissionOrderDto.setPaymentVoucherImageUrl5(null);
 				} else if (installmentNum == 5 && installmentDueDate5 != null) {
 					commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate5)));
 					commissionOrderDto.setState(ReviewKjStateEnum.PENDING.toString());
@@ -361,11 +364,11 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			}
 			if (StringUtil.isNotEmpty(perAmount)) {
 				commissionOrderDto.setPerAmount(Double.parseDouble(perAmount));
-				serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
+					serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
 			}
 			if (StringUtil.isNotEmpty(amount)) {
 				commissionOrderDto.setAmount(Double.parseDouble(amount));
-				serviceOrderDto.setAmount(Double.parseDouble(amount));
+					serviceOrderDto.setAmount(Double.parseDouble(amount));
 			}
 			double _perAmount = commissionOrderListDto.getPerAmount();
 			if (commissionOrderDto.getPerAmount() > 0)
@@ -408,6 +411,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 			String msg = "";
 			if (commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0) {
+				CommissionOrderListDTO commissionOrderListDTO = commissionOrderService
+						.getCommissionOrderById(commissionOrderDto.getId());
+				serviceOrderDto.setReceivable(commissionOrderListDTO.getTotalPerAmount());
+				serviceOrderDto.setReceived(commissionOrderListDTO.getTotalAmount());
 				serviceOrderService.updateServiceOrder(serviceOrderDto); // 同步修改服务订单
 				int i = schoolService.updateSchoolSetting(commissionOrderListDto); // 根据学校设置更新佣金值
 				if (i > 0) {

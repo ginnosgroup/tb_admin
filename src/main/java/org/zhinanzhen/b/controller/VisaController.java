@@ -89,6 +89,7 @@ public class VisaController extends BaseCommissionOrderController {
 				return new Response<List<VisaDTO>>(1, "服务订单(ID:" + serviceOrderId + ")不存在!", null);
 			List<VisaDTO> visaDtoList = new ArrayList<>();
 			VisaDTO visaDto = new VisaDTO();
+			double _receivable = 0.00;
 			visaDto.setState(ReviewKjStateEnum.PENDING.toString());
 			if (StringUtil.isNotEmpty(userId))
 				visaDto.setUserId(Integer.parseInt(userId));
@@ -130,9 +131,10 @@ public class VisaController extends BaseCommissionOrderController {
 			else
 				visaDto.setVisaVoucherImageUrl(serviceOrderDto.getVisaVoucherImageUrl());
 			if (StringUtil.isNotEmpty(receivable))
-				visaDto.setReceivable(Double.parseDouble(receivable));
-			if (StringUtil.isNotEmpty(received))
-				visaDto.setReceived(Double.parseDouble(received));
+				_receivable = Double.parseDouble(receivable);
+//				visaDto.setReceivable(Double.parseDouble(receivable));
+//			if (StringUtil.isNotEmpty(received))
+//				visaDto.setReceived(Double.parseDouble(received));
 			if (StringUtil.isNotEmpty(perAmount))
 				visaDto.setPerAmount(Double.parseDouble(perAmount));
 			if (StringUtil.isNotEmpty(amount))
@@ -164,8 +166,7 @@ public class VisaController extends BaseCommissionOrderController {
 					visaDto.setPaymentVoucherImageUrl1(null);
 					visaDto.setPaymentVoucherImageUrl2(null);
 					visaDto.setState(ReviewKjStateEnum.PENDING.toString());
-					visaDto.setPerAmount(
-							visaDto.getReceivable() > _perAmount ? visaDto.getReceivable() - _perAmount : 0.00); // 第二笔单子修改本次应收款
+					visaDto.setPerAmount(_receivable > _perAmount ? _receivable - _perAmount : 0.00); // 第二笔单子修改本次应收款
 					visaDto.setAmount(visaDto.getPerAmount());
 					visaDto.setDiscount(0.00);
 				} else
@@ -249,9 +250,10 @@ public class VisaController extends BaseCommissionOrderController {
 			}
 			if (serviceOrderId != null && serviceOrderId > 0)
 				visaDto.setServiceOrderId(serviceOrderId);
-			if (StringUtil.isNotEmpty(receivable)) {
-				visaDto.setReceivable(Double.parseDouble(receivable));
-			}
+//			if (StringUtil.isNotEmpty(receivable)) { // TODO: 准备废弃receivable
+//				visaDto.setReceivable(Double.parseDouble(receivable));
+//				serviceOrderDto.setReceivable(Double.parseDouble(receivable));
+//			}
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1)) {
 				visaDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
 				serviceOrderDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
@@ -274,16 +276,17 @@ public class VisaController extends BaseCommissionOrderController {
 			}
 			if (StringUtil.isNotEmpty(visaVoucherImageUrl))
 				visaDto.setVisaVoucherImageUrl(visaVoucherImageUrl);
-			if (StringUtil.isNotEmpty(received)) {
-				visaDto.setReceived(Double.parseDouble(received));
-			}
+//			if (StringUtil.isNotEmpty(received)) { // TODO: 准备废弃received
+//				visaDto.setReceived(Double.parseDouble(received));
+//				serviceOrderDto.setReceived(Double.parseDouble(received));
+//			}
 			if (StringUtil.isNotEmpty(perAmount)) {
 				visaDto.setPerAmount(Double.parseDouble(perAmount));
-				serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
+					serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
 			}
 			if (StringUtil.isNotEmpty(amount)) {
 				visaDto.setAmount(Double.parseDouble(amount));
-				serviceOrderDto.setAmount(Double.parseDouble(amount));
+					serviceOrderDto.setAmount(Double.parseDouble(amount));
 			}
 			double _perAmount = _visaDto.getPerAmount();
 			if (visaDto.getPerAmount() > 0)
@@ -308,6 +311,9 @@ public class VisaController extends BaseCommissionOrderController {
 			visaDto.setBonus(visaDto.getDeductGst() * 0.1);
 			visaDto.setExpectAmount(commission);
 			if (visaService.updateVisa(visaDto) > 0) {
+				VisaDTO _visaDTO = visaService.getVisaById(visaDto.getId());
+				serviceOrderDto.setReceivable(_visaDTO.getTotalPerAmount());
+				serviceOrderDto.setReceived(_visaDTO.getTotalAmount());
 				serviceOrderService.updateServiceOrder(serviceOrderDto); // 同步修改服务订单
 				return new Response<VisaDTO>(0, visaDto);
 			} else {
