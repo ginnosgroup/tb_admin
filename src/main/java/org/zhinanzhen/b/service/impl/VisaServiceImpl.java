@@ -141,9 +141,8 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			visaListDoList = visaDao.listVisa(keyword, startHandlingDate, theDateTo23_59_59(endHandlingDate), stateList,
 					commissionStateList, stardDate, theDateTo23_59_59(endDate), adviserId, userId, pageNum * pageSize,
 					pageSize);
-			if (visaListDoList == null) {
+			if (visaListDoList == null)
 				return null;
-			}
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());

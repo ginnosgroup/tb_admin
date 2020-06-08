@@ -37,6 +37,8 @@ public class VisaDTO {
 	private int serviceId;
 
 	private int serviceOrderId;
+	
+	private ServiceOrderDTO serviceOrder;
 
 	private String serviceCode;
 

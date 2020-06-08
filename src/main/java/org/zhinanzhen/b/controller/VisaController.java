@@ -438,8 +438,19 @@ public class VisaController extends BaseCommissionOrderController {
 
 		try {
 			super.setGetHeader(response);
-			return new Response<List<VisaDTO>>(0, visaService.listVisa(keyword, startHandlingDate, endHandlingDate,
-					stateList, commissionStateList, startDate, endDate, adviserId, userId, pageNum, pageSize));
+			List<VisaDTO> list = visaService.listVisa(keyword, startHandlingDate, endHandlingDate, stateList,
+					commissionStateList, startDate, endDate, adviserId, userId, pageNum, pageSize);
+			list.forEach(v -> {
+				if (v.getServiceOrderId() > 0)
+					try {
+						ServiceOrderDTO serviceOrderDto = serviceOrderService
+								.getServiceOrderById(v.getServiceOrderId());
+						if (serviceOrderDto != null)
+							v.setServiceOrder(serviceOrderDto);
+					} catch (ServiceException e) {
+					}
+			});
+			return new Response<List<VisaDTO>>(0, list);
 		} catch (ServiceException e) {
 			return new Response<List<VisaDTO>>(1, e.getMessage(), null);
 		}
