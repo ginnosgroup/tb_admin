@@ -274,6 +274,8 @@
 											<option value="1">1</option>
 											<option value="2">2</option>
 											<option value="3">3</option>
+											<option value="4">4</option>
+											<option value="5">5</option>											
 											</select>
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
@@ -284,15 +286,43 @@
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;">Installment 1<br/>Due Date<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c24" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
+											<input type="text" autocomplete="off" id="c24a1" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
 									</div>
 									<div id="installment_date2" class="form-group" style="width:100%;margin-top:10px;display:none;">								
 											<label class="control-label" style="width:150px;">Installment 2<br/>Due Date<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c24a" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
+											<input type="text" autocomplete="off" id="c24a2" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
 									</div>
 									<div id="installment_date3" class="form-group" style="width:100%;margin-top:10px;display:none;">								
 											<label class="control-label" style="width:150px;">Installment 3<br/>Due Date<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c24b" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
+											<input type="text" autocomplete="off" id="c24a3" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
+									</div>
+									<div id="installment_date4" class="form-group" style="width:100%;margin-top:10px;display:none;">								
+											<label class="control-label" style="width:150px;">Installment 4<br/>Due Date<span style="color:red;">*</span></label>
+											<input type="text" autocomplete="off" id="c24a4" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
+									</div>
+									<div id="installment_date5" class="form-group" style="width:100%;margin-top:10px;display:none;">								
+											<label class="control-label" style="width:150px;">Installment 5<br/>Due Date<span style="color:red;">*</span></label>
+											<input type="text" autocomplete="off" id="c24a5" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
+									</div>
+									<div id="installment_date6" class="form-group" style="width:100%;margin-top:10px;display:none;">								
+											<label class="control-label" style="width:150px;">Installment 6<br/>Due Date<span style="color:red;">*</span></label>
+											<input type="text" autocomplete="off" id="c24a6" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
+									</div>
+									<div id="installment_date7" class="form-group" style="width:100%;margin-top:10px;display:none;">								
+											<label class="control-label" style="width:150px;">Installment 7<br/>Due Date<span style="color:red;">*</span></label>
+											<input type="text" autocomplete="off" id="c24a7" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
+									</div>
+									<div id="installment_date8" class="form-group" style="width:100%;margin-top:10px;display:none;">								
+											<label class="control-label" style="width:150px;">Installment 8<br/>Due Date<span style="color:red;">*</span></label>
+											<input type="text" autocomplete="off" id="c24a8" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
+									</div>
+									<div id="installment_date9" class="form-group" style="width:100%;margin-top:10px;display:none;">								
+											<label class="control-label" style="width:150px;">Installment 9<br/>Due Date<span style="color:red;">*</span></label>
+											<input type="text" autocomplete="off" id="c24a9" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
+									</div>
+									<div id="installment_date10" class="form-group" style="width:100%;margin-top:10px;display:none;">								
+											<label class="control-label" style="width:150px;">Installment 10<br/>Due Date<span style="color:red;">*</span></label>
+											<input type="text" autocomplete="off" id="c24a10" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
 									</div>																		
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;">学费总金额<br/>Tuition Fee<span style="color:red;">*</span></label>
@@ -552,7 +582,7 @@ var v_sub = new Vue({
 
 function show_addnewservice_id(orderId,type)
 {
-		v.orderId = orderId;
+		v.orderId = orderId;		
 		//服务详细页
 		$.ajax({
       url: 'serviceOrder/get?id='+orderId,
@@ -561,6 +591,7 @@ function show_addnewservice_id(orderId,type)
     }).done(function(response) {			        	
     	response = response.data;
     	v.orderType = type;
+    	v_sub.orderId = orderId;
     	v_sub.orderType = type;    	
     	v_sub.order_detail = response;//存储数据到本地
     	$('#show_addnewservice1_id #upload_certificate').hide();
@@ -1097,82 +1128,101 @@ v.$watch('addnewservice2_bind', function(obj) {
 
 function setInstallment(va)
 {
-		switch(parseInt(va))
+		for(var i=1;i<=10;i++)
 		{
-				case 1:
-						$("#show_addnewservice2_id #installment_date2").hide();
-						$("#show_addnewservice2_id #installment_date3").hide();
-				break;
-				case 2:
-						$("#show_addnewservice2_id #installment_date2").show();
-						$("#show_addnewservice2_id #installment_date3").hide();
-				break;
-				case 3:
-						$("#show_addnewservice2_id #installment_date2").show();
-						$("#show_addnewservice2_id #installment_date3").show();
-				break;
+				$("#show_addnewservice2_id #installment_date"+i).hide();
 		}
+		for(var i=1;i<=10;i++)
+		{
+				if (i <= va)
+				{
+						$("#show_addnewservice2_id #installment_date"+i).show();
+				}
+		}		
 }
 
 function reqCommissionOvst()
-{
-		var jqInputs = $('input',$("#show_addnewservice2_id"));
-    var jqSelect = $('select',$("#show_addnewservice2_id"));
-    var jqTextarea = $('textarea',$("#show_addnewservice2_id"));        
+{		
+		var f = '#show_addnewservice2_id ';
+		var strList = '';
+		var json = {};
     
     var check_result = false;
-    if (jqInputs[0].value != '' && jqInputs[3].value != '' && jqInputs[6].value != '' && jqInputs[7].value != '' && jqInputs[8].value != '' && jqInputs[9].value != '' && jqInputs[10].value != '' && jqInputs[11].value != '' && jqSelect[2].value != '0')
+    if ($(f+'#c20').val() != '' && $(f+'#c24a1').val() != '' && $(f+'#c25').val() != '' && $(f+'#c26').val() != '' && $(f+'#c27').val() != '' && $(f+'#c28').val() != '0' && $(f+'#c29').val() != '' && $(f+'#c31').val() != '')
     {
-    		if (parseInt(jqSelect[1].value) > 1)
+    		if (parseInt($(f+'#c21').val()) > 1)
     		{
-		    		switch(parseInt(jqSelect[1].value))
-		    		{
-		    				case 2:
-		    					if (jqInputs[4].value != '') check_result = true;
-		    				break;
-		    				case 3:
-		    					if (jqInputs[4].value != '' && jqInputs[5].value != '') check_result = true;
-		    				break;
-		    		}
+    				var va = parseInt($(f+'#c21').val());  				
+    				for(var i=2;i<=10;i++)
+						{
+								if (i <= va)
+								{
+										var v = $(f+'#c24a'+i).val();									
+										if (v == '')
+										{
+												if (strList == '')
+												{
+														strList = i;
+												}else
+												{
+														strList += ','+i;
+												}
+										}else
+										{
+												if (v != '')
+								    		{
+								        		var arr_d = v.split("/");
+								        		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+								            var date = new Date(str_d);
+								            d = date.getTime();
+								      	}else
+								      	{
+								      			d = 0;
+								      	}
+								       	json['installmentDueDate'+i] = d;//installment Date i
+										}
+								}
+						}						
+		    		if (strList == '') check_result = true;
     		}else
     		{   		
     				check_result = true;
     		}
     }
+     
     if (!check_result)
     {
-    		$('#show_addnewservice2_id #alert_error').css('marginTop','50%');
+    		$('#show_addnewservice2_id #alert_error').css('marginTop','70%');
     		$('#show_addnewservice2_id #alert_error').css('marginLeft','30%');
     		$('#show_addnewservice2_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
         $("#show_addnewservice2_id #error_info").html('提示：所有红色字段必须填写或选择！');
     		return false;
     }else
     {         	            	            	                             
-       	var str_url = "commissionOrder/add";    		  		
-       	var json = {};
-       	       	
-       	json['serviceOrderId'] = v.orderId;
+       	var str_url = "commissionOrder/add";
+       	       	    	       	
+       	json['serviceOrderId'] = v_sub.orderId;
        	json['isSettle'] = v_sub.order_detail.settle;
        	json['isDepositUser'] = v_sub.order_detail.depositUser;
        	json['schoolId'] = v_sub.order_detail.schoolId;
-       	json['studentCode'] = jqInputs[0].value;
+       	json['studentCode'] = $(f+'#c20').val();
        	json['userId'] = v_sub.order_detail.userId;
        	json['adviserId'] = v_sub.order_detail.adviserId;
        	json['officialId'] = v_sub.order_detail.officialId;
        	json['isStudying'] = true;
-       	json['installment'] = jqSelect[1].value;
+       	json['installment'] = $(f+'#c21').val();
        	var d = 0;        		
-    		if (jqInputs[1].value != '')
+    		if ($(f+'#c22').val() != '')
     		{
-        		var arr_d = jqInputs[1].value.split("/");
+        		var arr_d = $(f+'#c22').val().split("/");
         		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
             var date = new Date(str_d);
             d = date.getTime();
       	}
        	json['startDate'] = d;
-       	if (jqInputs[2].value != '')
+       	if ($(f+'#c23').val() != '')
     		{
-        		var arr_d = jqInputs[2].value.split("/");
+        		var arr_d = $(f+'#c23').val().split("/");
         		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
             var date = new Date(str_d);
             d = date.getTime();
@@ -1181,9 +1231,9 @@ function reqCommissionOvst()
       			d = 0;
       	}
        	json['endDate'] = d;
-       	if (jqInputs[3].value != '')
+       	if ($(f+'#c24a1').val() != '')
     		{
-        		var arr_d = jqInputs[3].value.split("/");
+        		var arr_d = $(f+'#c24a1').val().split("/");
         		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
             var date = new Date(str_d);
             d = date.getTime();
@@ -1191,34 +1241,12 @@ function reqCommissionOvst()
       	{
       			d = 0;
       	}
-       	json['installmentDueDate1'] = d;//installment Date1
-       	if (jqInputs[4].value != '')
+       	json['installmentDueDate1'] = d;//installment Date1       	
+       	json['tuitionFee'] = $(f+'#c25').val();
+       	json['perTermTuitionFee'] = $(f+'#c26').val();
+       	if ($(f+'#c27').val() != '')
     		{
-        		var arr_d = jqInputs[4].value.split("/");
-        		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
-            var date = new Date(str_d);
-            d = date.getTime();
-      	}else
-      	{
-      			d = 0;
-      	}
-       	json['installmentDueDate2'] = d;//installment Date2
-       	if (jqInputs[5].value != '')
-    		{
-        		var arr_d = jqInputs[5].value.split("/");
-        		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
-            var date = new Date(str_d);
-            d = date.getTime();
-      	}else
-      	{
-      			d = 0;
-      	}
-       	json['installmentDueDate3'] = d;//installment Date3
-       	json['tuitionFee'] = jqInputs[6].value;
-       	json['perTermTuitionFee'] = jqInputs[7].value;
-       	if (jqInputs[8].value != '')
-    		{
-        		var arr_d = jqInputs[8].value.split("/");
+        		var arr_d = $(f+'#c27').val().split("/");
         		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
             var date = new Date(str_d);
             d = date.getTime();
@@ -1227,12 +1255,12 @@ function reqCommissionOvst()
       			d = 0;
       	}
        	json['receiveDate'] = d;
-       	json['receiveTypeId'] = jqSelect[2].value;
-       	json['perAmount'] = jqInputs[9].value;//本次应收学费
-       	json['discount'] = jqInputs[10].value;
-       	json['amount'] = jqInputs[11].value;
+       	json['receiveTypeId'] = $(f+'#c28').val();
+       	json['perAmount'] = $(f+'#c29').val();//本次应收学费
+       	json['discount'] = $(f+'#c30').val();
+       	json['amount'] = $(f+'#c31').val();
        	//json['expectAmount'] = jqInputs[12].value;
-       	json['remarks'] = jqTextarea[1].value;
+       	json['remarks'] = $(f+'#c33').val();
        	//console.log(json);
        	//return false;
        	//校验是否上传了凭证
@@ -1248,18 +1276,18 @@ function reqCommissionOvst()
    					}
    			}else
    			{
-   					$('#show_addnewservice2_id #alert_error').css('marginTop','50%');
+   					$('#show_addnewservice2_id #alert_error').css('marginTop','70%');
       			$('#show_addnewservice2_id #alert_error').css('marginLeft','30%');
    					$('#show_addnewservice2_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
       			$("#show_addnewservice2_id #error_info").html('收款凭证没有上传，请上传之后再提交。');
     				return false;
-   			}
+   			}   		   			
        	
        	$.post(str_url, json,
 		   	function(data){
 		   			if (parseInt(data.code) == 0)
 		   			{
-		   					$('#show_addnewservice2_id #alert_success').css('marginTop','50%');
+		   					$('#show_addnewservice2_id #alert_success').css('marginTop','70%');
 		   					$('#show_addnewservice2_id #alert_success').css('marginLeft','30%');
 		   					$('#show_addnewservice2_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
 		   					setTimeout(function(){window.location.href = "mycommission-ovst.html";}, 2000);
