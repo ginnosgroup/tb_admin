@@ -1,4 +1,7 @@
 ﻿<meta charset="utf-8"/>
+<meta http-equiv="Pragma" content="no-cache" />   
+<meta http-equiv="Cache-Control" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
 <div class="modal fade" id="addnewservice1_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 		<div class="modal-dialog" role="document" style="width:700px;">
 			<div class="modal-content">
@@ -1968,6 +1971,11 @@ v.$watch('addnewservice1_bind', function(obj) {
     	var deduct_gst = (fee-gst).toFixed(2);
     	$("#addnewservice1_id #b16").val(deduct_gst);	
     	$("#addnewservice1_id #b17").val(fee);	        	
+		});
+		//填充总计应收
+		$("#addnewservice1_id #b12").keyup(function(){
+    	var v = $("#addnewservice1_id #b12").val();    	
+    	$("#addnewservice1_id #b10").val(v);    	        	
 		});
 });
 
