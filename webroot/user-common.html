@@ -1045,7 +1045,7 @@ function ajax_service(va)
 				service_code.empty();
 				service_code.append("<option value=''>请选择</option>");
 				$.ajax({
-          url: 'service/list',
+          url: 'service/list?name=签证',
           type: 'GET',
           async: false,
           dataType: 'json'
