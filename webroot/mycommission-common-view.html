@@ -149,7 +149,8 @@ var v_sub = new Vue({
 function show_commission_detail(serviceId,orderId)
 {
 		v_sub.serviceId = serviceId
-		v_sub.orderId = orderId;		
+		v_sub.orderId = orderId;
+		v.orderId = orderId;		
 		//佣金详细页
 		$.ajax({
       url: 'serviceOrder/get?id='+serviceId,
