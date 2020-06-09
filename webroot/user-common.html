@@ -1977,6 +1977,11 @@ v.$watch('addnewservice1_bind', function(obj) {
     	var v = $("#addnewservice1_id #b12").val();    	
     	$("#addnewservice1_id #b10").val(v);    	        	
 		});
+		//填充总计收款
+		$("#addnewservice1_id #b10").keyup(function(){
+    	var v = $("#addnewservice1_id #b10").val();    	
+    	$("#addnewservice1_id #b12").val(v);    	        	
+		});
 });
 
 v.$watch('addnewservice3_bind', function(obj) {
