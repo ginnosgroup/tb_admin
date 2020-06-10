@@ -1,4 +1,7 @@
 ﻿<meta charset="utf-8"/>
+<meta http-equiv="Pragma" content="no-cache" />   
+<meta http-equiv="Cache-Control" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
 <div id="app_sub">
 <div class="modal fade" id="show_visa_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 			<div class="modal-dialog" role="document" style="width:700px;">
@@ -148,9 +151,9 @@ var v_sub = new Vue({
 
 function show_commission_detail(serviceId,orderId)
 {
-		v_sub.serviceId = serviceId
+		v_sub.serviceId = serviceId;
 		v_sub.orderId = orderId;
-		v.orderId = orderId;
+		v.orderId = orderId;		
 		//佣金详细页
 		$.ajax({
       url: 'serviceOrder/get?id='+serviceId,

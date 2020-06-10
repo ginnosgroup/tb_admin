@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -25,7 +26,7 @@
 		<![endif]-->
 	</head>
 
-	<body id="mycommission-accounting" v-cloak>
+	<body id="mycommission-ovst-accounting" v-cloak>
 		<section id="container">
 			<header class="header white-bg">
 				<div class="sidebar-toggle-box">
@@ -236,22 +237,37 @@
                  	 佣金表
                 </span>
 							</a>
-							<ul class="sub">
+							<ul class="sub">								
 								<li v-if="ap_list==='GW'" class="active">
 									<a href="mycommission.html">
 										我的佣金报表
 									</a>									
 								</li>
 								<li v-if="ap_list==='KJ'" id="commission_state_DJY">
-									<a href="mycommission-accounting.html?commission_state=DJY">
+									<a href="mycommission-ovst-accounting.html?commission_state=DJY&list=DJY,DZY,YZY">
 										待结佣订单
 									</a>									
 								</li>
 								<li v-if="ap_list==='KJ'" id="commission_state_YJY">
-									<a href="mycommission-accounting.html?commission_state=YJY">
+									<a href="mycommission-ovst-accounting.html?commission_state=YJY&list=YJY">
 										已结佣订单
 									</a>									
-								</li>								
+								</li>
+								<li v-if="ap_list==='KJ'" id="commission_state_DZY">
+									<a href="mycommission-ovst-accounting.html?commission_state=DZY&list=DZY">
+										待追佣订单
+									</a>									
+								</li>	
+								<li v-if="ap_list==='KJ'" id="commission_state_YZY">
+									<a href="mycommission-ovst-accounting.html?commission_state=YZY&list=YZY">
+										已追佣订单
+									</a>									
+								</li>
+								<li v-if="ap_list==='KJ'" id="commission_state_TQKY">
+									<a href="mycommission-ovst-accounting.html?commission_state=TQKY&list=TQKY">
+										提前扣佣订单
+									</a>									
+								</li>
 								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
 									<a href="table-export.html">
 										导出数据
@@ -305,23 +321,29 @@
 													<label>客户姓名</label>
 													<input type="text" name="user_name" id="user_name" class="form-control" style="width:150px;">													
 											</div>
-											<div class="form-group">
+											<div class="form-group">													
 													<label>顾问</label>
 													<select v-model.trim="adviserId" id="adviserId" class="form-control" style="width:130px;">
-													</select>
+													</select>													
 													<label>服务项目</label>											
 													<select id="type" class="form-control" style="width:130px;" onchange="gotoUrl(this.value);">
-													<option value="VISA" selected="true">签证</option>
-													<option value="OVST">留学</option>
+													<option value="OVST" selected="true">留学</option>
+													<option value="VISA">签证</option>													
+													</select>
+													<label>学校</label>
+													<select v-model.trim="schoolId" id="schoolId" class="form-control" style="width:130px;">
+													</select>
+													<label>提前扣佣</label>
+													<select v-model.trim="isSettle" id="isSettle" class="form-control" style="width:130px;">
 													</select>
 													<label>状态</label>											
 													<select v-model.trim="state" id="state" class="form-control" style="width:130px;">
 													<option value="" selected="true">全部</option>
-													<option value="WAIT">佣金待审核</option>
+													<option value="PENDING">佣金待审核</option>
 													<option value="FINISH">佣金已审核</option>
 													<option value="COMPLETE">佣金结算完成</option>													
 													<option value="CLOSE">已关闭</option>
-													</select>													
+													</select>
 											</div>
 											<div class="form-group">
 												<button @click="getSearch" type="button" class="btn btn-info">查询</button>
@@ -330,20 +352,35 @@
 										</form>
 										<div class="responsive-table margin-top">
 											<input type="hidden" name="id" id="id" value="0" />
-											<table class="display table table-bordered table-striped" id="list_visa" style="width:1700px;">
+											<table class="display table table-bordered table-striped" id="list_ovst" style="width:2500px;">
 												<thead>
 													<tr>
 														<th>订单ID</th>
-														<th>佣金订单创建日期</th>
+														<th>创建日期</th>														
 														<th>客户支付日期</th>
 														<th>客户姓名</th>
-														<th>收款方式</th>
+														<th>StudentID</th>
 														<th>服务项目</th>
-														<th><span style="color:#FF6C60;">总计应收</span></th>
-														<th><span style="color:#FF6C60;">总计收款</span></th>
+														<th>是否提前扣佣</th>
+														<th>学校</th>
+														<th>课程</th>
+														<th>Installment Due Date</th>
+														<th>收款方式</th>
+														<th>学费总金额Tuition Fee</th>
+														<th>每学期学费金额Per Term Tuition Fee</th>
+														<th>总计应收</th>
+														<th><span style="color:#FF6C60;">总计已收</span></th>											
 														<th>本次收款</th>
-														<th>预收业绩(<span style="color:#FF6C60;">Commission含GST</span>)</th>														
-														<th>月奖</th>
+														<th>预收业绩(<span style="color:#FF6C60;">Commission含GST</span>)</th>
+														<th>GST</th>
+														<th>Deduct GST</th>
+														<th>学校支付金额</th>
+														<th>学校支付时间</th>
+														<th>Invoice NO.</th>
+														<th>追佣时间</th>
+														<th>Subagency</th>
+														<th v-if="ap_list==='KJ' && commission_state ==='DJY'">是否对账完成</th>
+														<th>月奖</th>														
 														<th>月奖支付时间</th>
 														<th>顾问</th>
 														<th>状态</th>
@@ -353,25 +390,42 @@
 												</thead>
 												<tbody>
 													<tr v-for="item in subject" class="gradeX">
-														<td v-html="item.strHref"></td>
+														<td v-html="item.strOid"></td>
 														<td v-html="item.gmtCreate"></td>
 														<td v-html="item.receiveDate"></td>
 														<td v-html="item.userName"></td>
-														<td v-html="item.receiveTypeName"></td>
+														<td v-html="item.studentCode"></td>
 														<td v-html="item.serviceName"></td>
+														<td v-html="item.strSettle"></td>
+														<td v-html="item.schoolName"></td>
+														<td v-html="item.schoolSubject"></td>
+														<td v-html="item.installmentDueDate"></td>
+														<td v-html="item.receiveTypeName"></td>
+														<td v-html="item.tuitionFee"></td>
+														<td v-html="item.perAmount"></td>
 														<td v-html="item.totalPerAmount"></td>
 														<td v-html="item.totalAmount"></td>
 														<td v-html="item.amount"></td>
 														<td v-html="item.expectAmount"></td>
-														<td v-html="item.bonus"></td>
+														<td v-html="item.gst"></td>
+														<td v-html="item.deductGst"></td>
+														<th v-html="item.schoolPaymentAmount"></th>
+														<td v-html="item.schoolPaymentDate"></td>														
+														<td v-html="item.invoiceNumber"></td>
+														<td v-html="item.zyDate"></td>
+														<td v-html="item.subagencyName"></td>
+														<td v-if="ap_list==='KJ' && commission_state ==='DJY'" v-html="item.strSchoolPaid"></td>
+														<td v-html="item.bonus"></td>														
 														<td v-html="item.bonusDate"></td>
-														<td v-html="item.adviserName"></td>
+														<td v-html="item.adviser.name"></td>
 														<td v-html="item.strState"></td>
-														<td>																
-																<a v-if="item.id" href="javascript:open_detail({{item.serviceOrderId}},{{item.oid}});">查看</a>
+														<td>
+																<a href="javascript:open_detail({{item.serviceOrderId}},{{item.oid}});">查看</a>
 																<dli v-if="ap_list==='KJ' && commission_state ==='DJY'">
 																		<dli v-if="item.id">
+																				<dli v-if="item.schoolPaid">
 																				<a href="javascript:;" @click="table_modify($index)"><span style="color:blue;">编辑</span></a>
+																				</dli>
 																				<a href="javascript:show_confirmbox({{item.oid}},'WAIT',0);"><span style="color:blue;">驳回</span></a>
 																		</dli>
 																		<dli v-else>
@@ -379,9 +433,18 @@
 																				<a class="cancel" href="javascript:;">取消</a>
 																		</dli>
 																</dli>
+																<dli v-if="ap_list==='KJ' && commission_state ==='DZY'">
+																		<dli v-if="item.id">
+																				<a href="javascript:;" @click="table_modify1($index)"><span style="color:blue;">编辑</span></a>
+																		</dli>
+																		<dli v-else>
+																				<a class="save1" href="javascript:;"><span style="color:blue;">保存</span></a>
+																				<a class="cancel" href="javascript:;">取消</a>
+																		</dli>
+																</dli>
 														</td>
 														<td v-html="item.remarks" style="width:100px;word-break:break-all;"></td>
-													</tr>
+													</tr>													
 												</tbody>
 											</table>
 										</div>
@@ -445,7 +508,7 @@
 				</div>
 			</div>
 		</div>		
-		<div id="load-mycommission-visa-view-page"></div>
+		<div id="load-mycommission-ovst-accounting-view-page"></div>
 		<script src="js/jquery-1.8.3.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
 		<script src="js/jquery.dcjqaccordion.2.7.js"></script>
@@ -458,11 +521,11 @@
 		<script src="js/vue.js"></script>
 		<script src="js/common.js?verson=1"></script>
 		<script>
-			$("#load-mycommission-visa-view-page").load("mycommission-common-view.html?random="+Math.random());
-			tb.isLogin("mycommission-accounting.html");
+			$("#load-mycommission-ovst-accounting-view-page").load("mycommission-ovst-common-view.html?random="+Math.random());
+			tb.isLogin("mycommission-ovst-accounting.html");
 			$("td,th").addClass("text-center");
 			var v = new Vue({
-				el: '#mycommission-accounting',
+				el: '#mycommission-ovst-accounting',
 				data: {
 					admin: sessionStorage.getItem("admin"),
 					ap_list: sessionStorage.getItem("ap_list"),
@@ -471,21 +534,24 @@
 					official_id: sessionStorage.getItem("official_id"),
 					mara_id: sessionStorage.getItem("mara_id"),
 					kj_id: sessionStorage.getItem("kj_id"),
-					commission_state : getRequest('commission_state'),
+					commission_state: getRequest('commission_state'),
+					commission_list: getRequest('list'),
 					orderId: 0,
-					order_detail: [],
 					set_state: '',
 					set_type: 1,
+					order_detail: [],
 					subject: [],
-					count: 0,				
+					count: 0,					
 					name: '',
+					schoolId: 0,
+					isSettle: '',
 					state: '',					
 					pageNum: 0,
 					pageSize: 20,
 					allPage: 0,
 					current_index: '',
 					current_row: '',
-					index: 0			
+					index: 0					
 				},
 				created: function() {
 					this.getDatalist();
@@ -493,18 +559,22 @@
 				methods: {					
 					getDatalist: function() {
 						var that = this;
-						$.get(url + "visa/count", {
-							keyword: that.name,
-							commissionState: that.commission_state							
-						}, function(result) {
+						var json = {};
+						json['keyword'] = that.name;
+						if (that.commission_list != 'TQKY')
+						{
+								json['commissionState'] = that.commission_list;
+						}else
+						{
+								json['isSettle'] = true;
+						}
+						$.get(url + "commissionOrder/count", json, function(result) {
 							that.count = result.data;
 							that.allPage = Math.ceil(result.data / that.pageSize);
 						});
-						$.get(url + "visa/list", {
-							pageNum: 0,
-							pageSize: that.pageSize,
-							commissionState: that.commission_state
-						}, function(result) {							
+						json['pageNum'] = 0;
+						json['pageSize'] = that.pageSize;
+						$.get(url + "commissionOrder/list", json, function(result) {							
 							that.pageNum = 0;
 							result.data = return_result(result);
 							that.subject = result.data;
@@ -520,16 +590,32 @@
 								json['adviserId'] = that.adviserId;
 								v.adviser_id = that.adviserId;
 						}
+						if (that.schoolId != '0')
+						{
+								json['schoolId'] = that.schoolId;
+								v.schoolId = that.schoolId;
+						}
+						if (that.isSettle != '')
+						{
+								json['isSettle'] = that.isSettle;
+								v.isSettle = that.isSettle;
+						}
 						if (that.type != '') json['type'] = that.type;
 						if (that.state != '') json['state'] = that.state;
-						json['commissionState'] = that.commission_state;
-						$.get(url + "visa/count", json, function(result) {
+						if (that.commission_list != 'TQKY')
+						{
+								json['commissionState'] = that.commission_list;
+						}else
+						{
+								if (that.isSettle == '') json['isSettle'] = true;
+						}						
+						$.get(url + "commissionOrder/count", json, function(result) {
 							that.count = result.data;
 							that.allPage = Math.ceil(result.data / that.pageSize);
 						});
 						json['pageNum'] = 0;
-						json['pageSize'] = that.pageSize;						
-						$.get(url + "visa/list", json, function(result) {
+						json['pageSize'] = that.pageSize;
+						$.get(url + "commissionOrder/list", json, function(result) {
 							that.pageNum = 0;
 							result.data = return_result(result);
 							that.subject = result.data;
@@ -547,18 +633,6 @@
 						var date2 = d+"/"+m+"/"+y;
 						return date2;
 					},
-					getTime1: function(d) {
-						var date1 = new Date(d);
-						var y = date1.getFullYear();
-						var m = this.addZero(date1.getMonth() + 1);
-						var d = this.addZero(date1.getDate());
-						var h = this.addZero(date1.getHours());
-						var m2 = this.addZero(date1.getMinutes());
-						var s = this.addZero(date1.getSeconds());
-						//var date2 = y + "-" + m + "-" + d;
-						var date2 = d+"/"+m+"/"+y+' '+h+':'+m2+':'+s;
-						return date2;
-					},
 					addZero: function(obj) {
 						if(obj < 10) {
 							obj = '0' + obj;
@@ -567,14 +641,20 @@
 					},
 					firstPage: function() {
 						var that = this;
+						var json = {};
+						json['keyword'] = that.name;
+						json['state'] = that.state;
+						if (that.commission_list != 'TQKY')
+						{
+								json['commissionState'] = that.commission_list;
+						}else
+						{
+								json['isSettle'] = true;
+						}
+						json['pageNum'] = 0;
+						json['pageSize'] = that.pageSize;
 						if(that.pageNum > 0) {
-							$.get(url + "visa/list", {
-								keyword: that.name,
-								state: that.state,
-								pageNum: 0,
-								pageSize: that.pageSize,
-								commissionState: that.commission_state
-							}, function(result) {
+							$.get(url + "commissionOrder/list", json, function(result) {
 								console.log(result)
 								that.pageNum = 0;
 								result.data = return_result(result);
@@ -586,12 +666,19 @@
 						var that = this;
 						if(that.pageNum > 0) {
 							that.pageNum--;
-							$.get(url + "visa/list", {
-								keyword: that.name,
-								pageNum: that.pageNum,
-								pageSize: that.pageSize,
-								commissionState: that.commission_state
-							}, function(result) {
+							var json = {};
+							json['keyword'] = that.name;
+							json['state'] = that.state;
+							if (that.commission_list != 'TQKY')
+							{
+									json['commissionState'] = that.commission_list;
+							}else
+							{
+									json['isSettle'] = true;
+							}
+							json['pageNum'] = that.pageNum;
+							json['pageSize'] = that.pageSize;
+							$.get(url + "commissionOrder/list", json, function(result) {
 								console.log(result)
 								result.data = return_result(result);
 								that.subject = result.data;
@@ -602,13 +689,19 @@
 						var that = this;
 						if(that.pageNum < that.allPage - 1) {
 							that.pageNum++;
-							$.get(url + "visa/list", {
-								keyword: that.name,
-								state: that.state,
-								pageNum: that.pageNum,
-								pageSize: that.pageSize,
-								commissionState: that.commission_state
-							}, function(result) {
+							var json = {};
+							json['keyword'] = that.name;
+							json['state'] = that.state;
+							if (that.commission_list != 'TQKY')
+							{
+									json['commissionState'] = that.commission_list;
+							}else
+							{
+									json['isSettle'] = true;
+							}
+							json['pageNum'] = that.pageNum;
+							json['pageSize'] = that.pageSize;
+							$.get(url + "commissionOrder/list", json, function(result) {
 								console.log(result)
 								result.data = return_result(result);
 								that.subject = result.data;
@@ -618,13 +711,19 @@
 					lastPage: function() {
 						var that = this;
 						if(that.pageNum < that.allPage - 1) {
-							$.get(url + "visa/list", {
-								keyword: that.name,
-								state: that.state,
-								pageNum: that.allPage - 1,
-								pageSize: that.pageSize,
-								commissionState: that.commission_state
-							}, function(result) {
+							var json = {};
+							json['keyword'] = that.name;
+							json['state'] = that.state;
+							if (that.commission_list != 'TQKY')
+							{
+									json['commissionState'] = that.commission_list;
+							}else
+							{
+									json['isSettle'] = true;
+							}
+							json['pageNum'] = that.allPage - 1;
+							json['pageSize'] = that.pageSize;
+							$.get(url + "commissionOrder/list", json, function(result) {
 								console.log(result)
 								that.pageNum = that.allPage - 1;
 								result.data = return_result(result);
@@ -632,43 +731,168 @@
 							});
 						}
 					},
-					table_modify: function (index) {						
+					table_modify: function (index) {
+						v.orderId = this.subject[index].id;						
 						if (this.current_index != null)
 						{
 								this.subject[this.current_index] = this.current_row;
 						}
 						this.current_index = index;
-						this.current_row = this.subject[index];
-						v.orderId = this.subject[index].id;	
+						this.current_row = this.subject[index];						
 						this.subject.splice(index,1, {
-							oid: parseInt(this.subject[index].id),
+							strOid: this.subject[index].id+'-'+this.subject[index].installmentNum,
 							gmtCreate: this.subject[index].gmtCreate,
+							//finishDate: this.subject[index].finishDate,
 							receiveDate: this.subject[index].receiveDate,
 							userName: this.subject[index].userName,
-							receiveTypeName: this.subject[index].receiveTypeName,
+							studentCode: this.subject[index].studentCode,							
 							serviceName: this.subject[index].serviceName,
-							receivable: this.subject[index].receivable,
-							received: this.subject[index].received,
+							strSettle: this.subject[index].strSettle,
+							schoolName: this.subject[index].schoolName,
+							schoolSubject: this.subject[index].schoolSubject,
+							installmentDueDate: this.subject[index].installmentDueDate,
+							receiveTypeName: this.subject[index].receiveTypeName,
+							tuitionFee: this.subject[index].tuitionFee,
+							perAmount: this.subject[index].perAmount,
+							totalPerAmount: this.subject[index].totalPerAmount,
+							totalAmount: this.subject[index].totalAmount,
 							amount: this.subject[index].amount,
 							expectAmount: this.subject[index].expectAmount,
+							gst: this.subject[index].gst,
+							deductGst: this.subject[index].deductGst,
+							schoolPaymentAmount: this.subject[index].schoolPaymentAmount,
+							schoolPaymentDate: this.subject[index].schoolPaymentDate,
+							invoiceNumber: this.subject[index].invoiceNumber,
+							subagencyName: this.subject[index].subagencyName,
+							strSchoolPaid: this.subject[index].strSchoolPaid,
 							bonus: '<input type="text" class="form-control small" style="width:120px;" id="t1" value="'+this.subject[index].bonus+'">',
 							bonusDate: '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:120px;" id="t2" data-date-format="dd-mm-yyyy" value="'+this.subject[index].bonusDate+'">',
 							adviserName: this.subject[index].adviserName,
 							strState: this.subject[index].strState,
 						});															
 					},					
+					table_modify1: function (index) {
+						v.orderId = this.subject[index].id;										
+						if (this.current_index != null)
+						{
+								this.subject[this.current_index] = this.current_row;
+						}
+						this.current_index = index;
+						this.current_row = this.subject[index];
+						if (this.subject[index].invoiceNumber == null) this.subject[index].invoiceNumber = '';				
+						this.subject.splice(index,1, {
+							strOid: this.subject[index].id+'-'+this.subject[index].installmentNum,
+							gmtCreate: this.subject[index].gmtCreate,
+							//finishDate: this.subject[index].finishDate,
+							receiveDate: this.subject[index].receiveDate,
+							userName: this.subject[index].userName,
+							studentCode: this.subject[index].studentCode,							
+							serviceName: this.subject[index].serviceName,
+							strSettle: this.subject[index].strSettle,
+							schoolName: this.subject[index].schoolName,
+							schoolSubject: this.subject[index].schoolSubject,
+							installmentDueDate: this.subject[index].installmentDueDate,
+							receiveTypeName: this.subject[index].receiveTypeName,
+							tuitionFee: this.subject[index].tuitionFee,
+							perAmount: this.subject[index].perAmount,
+							totalPerAmount: this.subject[index].totalPerAmount,
+							totalAmount: this.subject[index].totalAmount,
+							amount: this.subject[index].amount,
+							expectAmount: this.subject[index].expectAmount,
+							gst: this.subject[index].gst,
+							deductGst: this.subject[index].deductGst,
+							schoolPaymentAmount: '<input type="text" class="form-control small" style="width:120px;" id="d1" value="'+this.subject[index].schoolPaymentAmount+'">',
+							schoolPaymentDate: '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:120px;" id="d2" data-date-format="dd-mm-yyyy" value="'+this.subject[index].schoolPaymentDate+'">',
+							invoiceNumber: '<input type="text" class="form-control small" style="width:120px;" id="d3" value="'+this.subject[index].invoiceNumber+'">',
+							zyDate: '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:120px;" id="d4" data-date-format="dd-mm-yyyy" value="'+this.subject[index].zyDate+'">',
+							subagencyName: this.subject[index].subagencyName,
+							bonus: this.subject[index].bonus,
+							bonusDate: this.subject[index].bonusDate,
+							adviserName: this.subject[index].adviserName,
+							strState: this.subject[index].strState,
+						});															
+					},			
 					table_remove: function (index) {
              this.subject.splice(index, 1);  
           }
 				}		
 			});
 			
-			$('#list_visa a.save').live('click', function (e) {
+			function return_result(result)
+			{
+				v.total_expectamount = 0;
+				v.total_bonus = 0;
+				for(var i = 0; i < result.data.length; i++) {
+						var str_state = '';
+						result.data[i].oid = result.data[i].id;
+						result.data[i].strOid = '<a href="javascript:open_detail('+result.data[i].serviceOrderId+','+result.data[i].id+');" title="查看详细">'+result.data[i].id+'</a>-'+result.data[i].installmentNum;
+						result.data[i].gmtCreate = v.getTime(result.data[i].gmtCreate);
+						//result.data[i].finishDate = result.data[i].finishDate ? v.getTime(result.data[i].finishDate):'';
+						result.data[i].receiveDate = result.data[i].receiveDate ? v.getTime(result.data[i].receiveDate):'';
+						//是否已对账
+						result.data[i].schoolPaid = false;
+						result.data[i].strSchoolPaid = '否';
+						if (result.data[i].schoolPaymentAmount && result.data[i].schoolPaymentDate)
+						{
+								result.data[i].schoolPaid = true;
+								result.data[i].strSchoolPaid = '是';
+						}						
+						result.data[i].schoolPaymentAmount = result.data[i].schoolPaymentAmount ? result.data[i].schoolPaymentAmount:'';
+						result.data[i].schoolPaymentDate = result.data[i].schoolPaymentDate ? v.getTime(result.data[i].schoolPaymentDate):'';
+						result.data[i].subagencyName = (result.data[i].subagencyId ? result.data[i].subagency.name :'');
+						result.data[i].bonusDate = result.data[i].bonusDate ? v.getTime(result.data[i].bonusDate):'';
+						result.data[i].zyDate = result.data[i].zyDate ? v.getTime(result.data[i].zyDate):'';
+						result.data[i].userName = result.data[i].user.name;
+						result.data[i].serviceName = '留学';
+						if (result.data[i].settle)
+						{
+								result.data[i].strSettle = '是';
+								result.data[i].schoolPaid = true;
+								result.data[i].strSchoolPaid = '是';
+						}else
+						{
+								result.data[i].strSettle = '否';
+						}
+						result.data[i].schoolName = result.data[i].school.name;
+						result.data[i].schoolSubject = result.data[i].school.subject;
+						result.data[i].installmentDueDate = result.data[i].installmentDueDate ? v.getTime(result.data[i].installmentDueDate):'';
+						result.data[i].receiveTypeName = result.data[i].receiveType.name;
+						v.total_expectamount += result.data[i].expectAmount;
+						v.total_bonus += result.data[i].bonus;						
+						result.data[i].adviserName = result.data[i].adviser.name;
+						result.data[i].strState = return_state(result.data[i].state);
+						result.data[i].currentState = result.data[i].state;
+						if (result.data[i].remarks) result.data[i].remarks = url_replace(result.data[i].remarks);
+				};
+				return result.data;
+			}						
+      
+      function return_state(va)
+			{
+					var str_html = '';
+					switch(va)
+					{									
+						case 'REVIEW':
+									str_html = '待结佣';
+						break;											
+						case 'COMPLETE':
+									str_html = '<label style="color:red;">已结佣</label>';
+						break;																	
+					}
+					return str_html;
+      }
+      
+      $('#list_ovst a.save').live('click', function (e) {
 				e.preventDefault();
 				table_addsave();
 			});
 			
-			$('#list_visa a.cancel').live('click', function (e) {
+			$('#list_ovst a.save1').live('click', function (e) {
+				e.preventDefault();
+				table_addsave1();
+			});
+			
+			$('#list_ovst a.cancel').live('click', function (e) {
 				e.preventDefault();
 				v.subject.splice(v.current_index, 0);
 				v.subject.splice(v.current_index,1, v.current_row);
@@ -676,7 +900,7 @@
 			
 			function table_addsave()
 			{
-					var f = '#list_visa ';
+					var f = '#list_ovst ';
 					var check_result = 0;
 					
 					if ($(f+'#t1').val() != '' && $(f+'#t2').val() != '')
@@ -690,8 +914,12 @@
 			    		return false;
 					}
 					if (check_result)
-    			{    					
-			    		var str_url = "visa/kjUpdate";
+    			{
+    					/*$('#my_table #alert_error').css('marginLeft','40%');
+			    		$('#my_table #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+			        $("#my_table #error_info").html('API接口还没有实现，等待中...');
+			    		return false;*/
+			    		var str_url = "commissionOrder/kjUpdate";
        				var json = {};
        				json['id'] = v.orderId;
        				json['bonus'] = $(f+'#t1').val();
@@ -726,119 +954,69 @@
     			}
 			}
 			
-			function return_result(result)
+			function table_addsave1()
 			{
-				for(var i = 0; i < result.data.length; i++) {
-						result.data[i].oid = result.data[i].id;
-						result.data[i].strOid = '';
-						if (result.data[i].installment > 1) result.data[i].strOid = '-' + result.data[i].installmentNum;
-						result.data[i].strHref = '<a href="javascript:open_detail('+result.data[i].serviceOrderId+','+result.data[i].id+');" title="查看详细">'+result.data[i].id+result.data[i].strOid+'</a>';
-						result.data[i].gmtCreate = v.getTime1(result.data[i].gmtCreate);
-						result.data[i].receiveDate = result.data[i].receiveDate ? v.getTime(result.data[i].receiveDate):'';
-						result.data[i].bonusDate = result.data[i].bonusDate ? v.getTime(result.data[i].bonusDate):'';
-						if (result.data[i].serviceOrder.type == 'SIV')
-						{
-								var childrenService = return_childrenService(result.data[i].serviceOrder.childrenServiceOrders);
-								result.data[i].serviceName = '<span style="font-weight:bold;color:#0066CC;">独立技术移民</span><br/>'+childrenService;								
-						}else
-						{
-								result.data[i].serviceName = '签证-'+result.data[i].serviceCode;
-						}
-						result.data[i].payDate = '';//字段未添加，待修正
-						result.data[i].strState = return_state(result.data[i].state);
-						result.data[i].currentState = result.data[i].state;
-						if (result.data[i].remarks) result.data[i].remarks = url_replace(result.data[i].remarks);
-				};
-				return result.data;
-			}						
-      
-      function return_state(va)
-			{
-					var str_html = '';
-					switch(va)
-					{									
-						case 'REVIEW':
-									str_html = '待结佣';
-						break;
-						case 'WAIT':
-									str_html = '<label style="color:blue;">已驳回</label>';
-						break;
-						case 'FINISH':									
-									str_html = '<label style="color:blue;">已审核</label>';							
-						break;									
-						case 'COMPLETE':
-									str_html = '<label style="color:red;">已结佣</label>';
-						break;
-						case 'CLOSE':
-									str_html = '<label style="color:red;">已关闭</label>';
-						break;
-					}
-					return str_html;
-      }
-      
-      function return_childrenService(arr)
-      {
-      		var str = '';
-      		for(var i=0;i < arr.length;i++)
-      		{
-      				if (str == '')
-      				{
-      						str = return_packagetype(arr[i].servicePackageType);
-      				}else
-      				{
-      						str += '/'+return_packagetype(arr[i].servicePackageType);
-      				}
-      		}
-      		return str;
-      }
-      
-      function return_packagetype(v)
-			{
-				var str = '';
-				switch(v)
-				{
-						case 'CA':
-								str = '职业评估';
-						break;
-						case 'EOI':
-								str = 'EOI';
-						break;
-						case 'SA':
-								str = '学校申请';
-						break;
-						case 'VA':
-								str = '签证申请';
-						break;
-				}
-				return str;
-			}
-			
-			function return_attribute(peopleType,peopleNumber)
-			{
-					var str = '';
-					switch(peopleType)
+					var f = '#list_ovst ';
+					var check_result = 0;
+					
+					//if ($(f+'#d1').val() != '' && $(f+'#d2').val() != '' && $(f+'#d3').val() != '')
+					if (f != '')
 					{
-							case '1A':
-									str = '单人';
-							break;
-							case '1B':
-									str = '单人 - 提配偶';
-							break;
-							case '2A':
-									str = '多人('+peopleNumber+'人) - 带配偶';
-							break;
-							case 'XB':
-									str = '多人('+peopleNumber+'人) - 带配偶孩子';
-							break;
-							case 'XA':
-									str = '多人('+peopleNumber+'人) - 带孩子';
-							break;
-							case 'XC':
-									str = '多人('+peopleNumber+'人) - 其它';
-							break;
+							check_result = true;
+					}else
+					{
+							$('#my_table #alert_error').css('marginLeft','40%');
+			    		$('#my_table #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+			        $("#my_table #error_info").html('提示：所有字段必须填写或选择！');
+			    		return false;
 					}
-					return str;
-			}                   
+					if (check_result)
+    			{    					
+			    		var str_url = "commissionOrder/kjUpdate";
+			    		if ($(f+'#d1').val() == '' || $(f+'#d2').val() == '') str_url = "commissionOrder/update";
+       				var json = {};
+       				json['id'] = v.orderId;
+       				json['schoolPaymentAmount'] = $(f+'#d1').val();
+       				var d2 = 0;
+       				if ($(f+'#d2').val())
+       				{       						
+       						var str_d2 = $(f+'#d2').val();
+       						var arr_d = str_d2.split("/");
+		          		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+		              var date = new Date(str_d);
+		              d2 = date.getTime();
+       				}
+       				json['schoolPaymentDate'] = d2;
+       				json['invoiceNumber'] = $(f+'#d3').val();
+       				var d4 = 0;
+       				if ($(f+'#d4').val())
+       				{
+       						var str_d4 = $(f+'#d4').val();
+       						var arr_d = str_d4.split("/");
+		          		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+		              var date = new Date(str_d);
+		              d4= date.getTime();
+       				}
+       				json['zyDate'] = d4;
+       				$.post(str_url, json,
+					   	function(data){
+					   			if (data.code == 0)
+					   			{
+					   					$('#my_table #alert_success').css('marginLeft','40%');
+					   					$('#my_table #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+					   					v.table_remove();
+					   					//重新载入数据源
+					   					v.getDatalist();
+					   			}else
+					   			{
+					   					$('#my_table #alert_error').css('marginLeft','40%');
+					   					$('#my_table #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+			          			$("#my_table #error_info").html(data.message);
+				        			return false;
+					   			}
+					   	});
+    			}
+			}
 			
 			v.$watch('subject', function(obj) {
 					$('.default-date-picker').datepicker({   				
@@ -882,7 +1060,31 @@
 	        			obj_adviserId.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
 	        	}
 	        	obj_adviserId.val(v.adviser_id);	
-	        });			    
+	        });
+	        //绑定学校信息
+			    var school_name = $("#schoolId");
+			    $("#schoolId").empty();
+			    school_name.append("<option value='0'>全部</option>");
+			    $.ajax({
+			      url: 'school/listSchool?name=',
+			      type: 'GET',
+			      async: false,
+			      dataType: 'json'
+			    }).done(function(response) {
+			    	response = response.data;	        	    	
+			    	for (var item in response)
+			    	{
+			    			school_name.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+			    	}	
+			    	school_name.val(v.schoolId);
+			    });
+			    //绑定提前扣佣下拉
+			   	var obj_isSettle = $("#isSettle");
+			   	$("#isSettle").empty();
+			   	obj_isSettle.append("<option value=''>全部</option>");
+			   	obj_isSettle.append("<option value='true'>是</option>");
+			   	obj_isSettle.append("<option value='false'>否</option>");
+			   	obj_isSettle.val(v.isSettle);			   	
 			});
 			
 			function gotoUrl(va)
@@ -892,20 +1094,13 @@
 							window.location.href = "mycommission-accounting.html?commission_state="+v.commission_state;
 					}else
 					{
-							var str_list= '';
-							if (v.commission_state == 'DJY') str_list = '&list=DJY,DZY,YZY';
-							window.location.href = "mycommission-ovst-accounting.html?commission_state="+v.commission_state+str_list;
+							window.location.href = "mycommission-ovst-accounting.html?commission_state="+v.commission_state;
 					}
 			}
 			
 			function open_detail(serviceId,orderId)
       {
       		show_commission_detail(serviceId,orderId);
-      }
-      
-      function reqCommissionVisa(serviceId,orderId)
-      {
-      		edit_commission_detail(serviceId,orderId);
       }
       
       function show_confirmbox(id,va,par)
@@ -924,8 +1119,8 @@
       
       function flowstep(va,par)
       {
-      		var str_url = "visa/approval";
-      		if (par == '0' || va == 'CLOSE') str_url = "visa/refuse";
+      		var str_url = "commissionOrder/approval";
+      		if (par == '0' || va == 'CLOSE') str_url = "commissionOrder/refuse";
       		
       		var json = {};
       		json['id'] = v.orderId;
@@ -947,8 +1142,8 @@
 			   			}
 			   	});      		
       }
-			
-			function getRequest(par)
+      
+      function getRequest(par)
 			{
 					var str_value = '';
 			    var url = decodeURI(location.search);
@@ -989,7 +1184,7 @@
 					    }
 					});
 					return str;
-			}			
+			}
 			
 			function  formatDate(now)
 			{

@@ -5,6 +5,9 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="renderer" content="webkit">
+		<meta http-equiv="Pragma" content="no-cache" />   
+		<meta http-equiv="Cache-Control" content="no-cache" />
+		<meta http-equiv="Expires" content="0" />
 		<link rel="shortcut icon" href="img/favicon.ico">
 		<title>服务订单管理</title>
 		<link href="css/bootstrap.min.css" rel="stylesheet">
@@ -394,12 +397,12 @@
 																				<a href="javascript:show_confirmbox('{{item.type}}',{{item.id}},'REVIEW',1)"><span style="font-weight:bold;color:#99CC66;">提交佣金表</span></a>
 																				</d1>
 																		</d2>
-																		<d2 v-if="item.type==='VISA'">
+																		<d2 v-if="item.type!=='SIV'">
 																				<d1 v-if="item.currentState==='PENDING'">
 																				<a href="javascript:show_confirmbox('{{item.type}}',{{item.id}},'REVIEW',1)">提交审核</a>
 																				</d1>
 																		</d2>
-																		<d2 v-if="item.type==='VISA'">
+																		<d2 v-if="item.type!=='SIV'">
 																				<d1 v-if="item.currentState==='REVIEW'">
 																				<a href="javascript:show_confirmbox('{{item.type}}',{{item.id}},'PENDING',1)" style="color:#ACA9A9;">撤回</a>
 																				</d1>
@@ -1074,7 +1077,7 @@
 	        $("#officialId").empty();
 	        obj_officialId.append("<option value='0'>请选择</option>");
 			    $.ajax({
-	          url: 'official/list?pageNum=0&pageSize=10',
+	          url: 'official/list?pageNum=0&pageSize=100000',
 	          type: 'GET',
 	          async: false,
 	          dataType: 'json'
@@ -1091,7 +1094,7 @@
 	        $("#maraId").empty();
 	        obj_mara.append("<option value='0'>请选择</option>");
 			    $.ajax({
-	          url: 'mara/list?pageNum=0&pageSize=10',
+	          url: 'mara/list?pageNum=0&pageSize=100000',
 	          type: 'GET',
 	          async: false,
 	          dataType: 'json'

@@ -33,9 +33,11 @@
 								<label class="control-label" style="width:80px;"><strong>服务项目：</strong></label>
 								<label id="c2" style="width:100px;">留学</strong></label>
 								<label class="control-label"><strong>学校：</strong></label>
-								<label id="c3" style="width:150px;"></label>
+								<label id="c3" style="width:150px;"></label>								
+							</div>
+							<div class="form-group" style="width:100%;height:40px;">
 								<label class="control-label"><strong>课程：</strong></label>
-								<label id="c4"></label>			
+								<label id="c4"></label>
 							</div>
 							<div class="form-group" style="width:100%;height:40px;">
 								<label class="control-label" style="width:80px;"><strong>提前扣佣：</strong></label>
@@ -76,6 +78,14 @@
 										$<label id="c15"></label>
 									</div>									
 							</div>							
+							</div>
+							<div id="show_depositpaymentpic" class="form-group" style="display:;width:100%;line-height:40px;">
+								<label class="control-label"><strong>保证金收款凭证：</strong></label>
+								<label id="depositpaymentpic_url"></label>
+							</div>
+							<div id="show_coepaymentpic" class="form-group" style="display:;width:100%;line-height:40px;">
+								<label class="control-label"><strong>COE收款凭证：</strong></label>
+								<label id="coepaymentpic_url"></label>
 							</div>
 							<hr/>
 							<div class="form-group" style="width:100%;line-height:40px;">
@@ -226,7 +236,56 @@ function show_commission_detail(serviceId,orderId)
 		    	$('#show_ovst_id #c6').html(str_isdeposituser);
 		    	$('#show_ovst_id #c7').html(response.subagency.name);
 		    	var str_ispay = '否';
-		    	if (response.pay) str_ispay = '是';
+		    	if (response.pay)
+		    	{
+		    			str_ispay = '是';
+		    			$("#show_ovst_id #depositpaymentpic_url").empty();
+        			//收款凭证
+        			$('#show_ovst_id #show_depositpaymentpic').show();		        			
+        			if (response.paymentVoucherImageUrl1)
+							{
+									$("#show_ovst_id #depositpaymentpic_url").append('<a href="/statics'+response.paymentVoucherImageUrl1+'" target="_blank">凭证1</a>&nbsp;');
+							}
+							if (response.paymentVoucherImageUrl2)
+							{
+									$("#show_ovst_id #depositpaymentpic_url").append('<a href="/statics'+response.paymentVoucherImageUrl2+'" target="_blank">凭证2</a>&nbsp;');
+							}
+							if (response.paymentVoucherImageUrl3)
+							{
+									$("#show_ovst_id #depositpaymentpic_url").append('<a href="/statics'+response.paymentVoucherImageUrl3+'" target="_blank">凭证3</a>&nbsp;');
+							}
+							if (response.paymentVoucherImageUrl4)
+							{
+									$("#show_ovst_id #depositpaymentpic_url").append('<a href="/statics'+response.paymentVoucherImageUrl4+'" target="_blank">凭证4</a>&nbsp;');
+							}
+							if (response.paymentVoucherImageUrl5)
+							{
+									$("#show_ovst_id #depositpaymentpic_url").append('<a href="/statics'+response.paymentVoucherImageUrl5+'" target="_blank">凭证5</a>&nbsp;');
+							}
+		    	}
+		    	//CEO付款凭证
+        	$('#show_ovst_id #show_coepaymentpic').show();
+        	$("#show_ovst_id #coepaymentpic_url").empty();
+        	if (response.coePaymentVoucherImageUrl1)
+        	{
+        			$('#show_ovst_id #coepaymentpic_url').append('<a href="/statics'+response.coePaymentVoucherImageUrl1+'" target="_blank">凭证1</a>&nbsp;');
+        	}
+        	if (response.coePaymentVoucherImageUrl2)
+        	{
+        			$('#show_ovst_id #coepaymentpic_url').append('<a href="/statics'+response.coePaymentVoucherImageUrl2+'" target="_blank">凭证2</a>');
+        	}
+        	if (response.coePaymentVoucherImageUrl3)
+        	{
+        			$('#show_ovst_id #coepaymentpic_url').append('<a href="/statics'+response.coePaymentVoucherImageUrl3+'" target="_blank">凭证3</a>');
+        	}
+        	if (response.coePaymentVoucherImageUrl4)
+        	{
+        			$('#show_ovst_id #coepaymentpic_url').append('<a href="/statics'+response.coePaymentVoucherImageUrl4+'" target="_blank">凭证4</a>');
+        	}
+        	if (response.coePaymentVoucherImageUrl5)
+        	{
+        			$('#show_ovst_id #coepaymentpic_url').append('<a href="/statics'+response.coePaymentVoucherImageUrl5+'" target="_blank">凭证5</a>');
+        	}
 		    	$('#show_ovst_id #c10').html(str_ispay);
 		    	$('#show_ovst_id #c11').html(v.getTime(response.receiveDate));
 		    	if (response.depositUser) $('#show_ovst_id #c12').html(response.receiveType.name);
@@ -278,12 +337,12 @@ function show_commission_detail(serviceId,orderId)
 						if (response.paymentVoucherImageUrl1)
 						{
 								str_flist = response.paymentVoucherImageUrl1;
-								$("#show_ovst_id #paymentpic_url").append('<a href="/statics'+response.paymentVoucherImageUrl1+'" target="_blank">查看凭证1</a>&nbsp;');
+								$("#show_ovst_id #paymentpic_url").append('<a href="/statics'+response.paymentVoucherImageUrl1+'" target="_blank">凭证1</a>&nbsp;');
 						}
 						if (response.paymentVoucherImageUrl2)
 						{
 								str_flist += ','+response.paymentVoucherImageUrl2;
-								$("#show_ovst_id #paymentpic_url").append('<a href="/statics'+response.paymentVoucherImageUrl2+'" target="_blank">查看凭证2</a>&nbsp;');
+								$("#show_ovst_id #paymentpic_url").append('<a href="/statics'+response.paymentVoucherImageUrl2+'" target="_blank">凭证2</a>&nbsp;');
 						}
 	    	}
     	});

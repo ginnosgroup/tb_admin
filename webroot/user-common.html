@@ -1,4 +1,7 @@
 ﻿<meta charset="utf-8"/>
+<meta http-equiv="Pragma" content="no-cache" />   
+<meta http-equiv="Cache-Control" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
 <div class="modal fade" id="addnewservice1_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 		<div class="modal-dialog" role="document" style="width:700px;">
 			<div class="modal-content">
@@ -505,12 +508,27 @@ function add_service1(orderId,userId,name)
 		  							if (response.paymentVoucherImageUrl1)
 		  							{
 		  									str_flist = response.paymentVoucherImageUrl1;
-		  									$("#addnewservice1_id #show_currentpic").append('<a href="/statics'+response.paymentVoucherImageUrl1+'" target="_blank">查看当前凭证</a>&nbsp;');
+		  									$("#addnewservice1_id #show_currentpic").append('<a href="/statics'+response.paymentVoucherImageUrl1+'" target="_blank">查看凭证1</a>&nbsp;');
 		  							}
 		  							if (response.paymentVoucherImageUrl2)
 		  							{
 		  									str_flist += ','+response.paymentVoucherImageUrl2;
-		  									$("#addnewservice1_id #show_currentpic").append('<a href="/statics'+response.paymentVoucherImageUrl2+'" target="_blank">查看当前凭证</a>&nbsp;');
+		  									$("#addnewservice1_id #show_currentpic").append('<a href="/statics'+response.paymentVoucherImageUrl2+'" target="_blank">查看凭证2</a>&nbsp;');
+		  							}
+		  							if (response.paymentVoucherImageUrl3)
+		  							{
+		  									str_flist += ','+response.paymentVoucherImageUrl3;
+		  									$("#addnewservice1_id #show_currentpic").append('<a href="/statics'+response.paymentVoucherImageUrl3+'" target="_blank">查看凭证3</a>&nbsp;');
+		  							}
+		  							if (response.paymentVoucherImageUrl4)
+		  							{
+		  									str_flist += ','+response.paymentVoucherImageUrl4;
+		  									$("#addnewservice1_id #show_currentpic").append('<a href="/statics'+response.paymentVoucherImageUrl3+'" target="_blank">查看凭证4</a>&nbsp;');
+		  							}
+		  							if (response.paymentVoucherImageUrl5)
+		  							{
+		  									str_flist += ','+response.paymentVoucherImageUrl5;
+		  									$("#addnewservice1_id #show_currentpic").append('<a href="/statics'+response.paymentVoucherImageUrl3+'" target="_blank">查看凭证5</a>&nbsp;');
 		  							}
 		  							if (str_flist != '') $('#addnewservice1_id #flist').val(str_flist);
 		  							$('#addnewservice1_id #show_currentpic').show(); 
@@ -533,7 +551,26 @@ function add_service1(orderId,userId,name)
 			        	if (response.expectAmount) $("#addnewservice1_id #b17").val(response.expectAmount);
 			        	if (response.remarks) $("#addnewservice1_id #b18").val(response.remarks);
 			        	$("#addnewservice1_id #btnSubmit").attr("onclick","addnewService1Save();");
-	        	}	        		        		        		        	
+	        	}
+	        	if (response.submitted)//已提交佣金，不允许修改收款数据
+	        	{
+	        			$("#addnewservice1_id #b8").attr("disabled",true);
+	        			$("#addnewservice1_id #b9").attr("disabled",true);
+	        			$("#addnewservice1_id #b10").attr("disabled",true);
+	        			$("#addnewservice1_id #b12").attr("disabled",true);
+	        			$("#addnewservice1_id #b13").attr("disabled",true);
+	        			$("#addnewservice1_id #b14").attr("disabled",true);
+	        			$("#addnewservice1_id #b14a").attr("disabled",true);	        			
+	        	}else
+	        	{
+	        			$("#addnewservice1_id #b8").attr("disabled",false);
+	        			$("#addnewservice1_id #b9").attr("disabled",false);
+	        			$("#addnewservice1_id #b10").attr("disabled",false);
+	        			$("#addnewservice1_id #b12").attr("disabled",false);
+	        			$("#addnewservice1_id #b13").attr("disabled",false);
+	        			$("#addnewservice1_id #b14").attr("disabled",false);
+	        			$("#addnewservice1_id #b14a").attr("disabled",false);
+	        	}        		        		        		        	
 	        	$('#addnewservice1_id #btn_id').html('保存修改');
 	        	//$('#addnewservice1_id #btnReview').show();
 	      });
@@ -583,6 +620,7 @@ function add_service2(orderId,userId,name)
 	        	response = response.data;
 	        	v.orderId = orderId;
 	        	$('#addnewservice2_id #addnewservice2_id_title').html('修改留学服务');
+	        	$('#addnewservice2_id #upload_receipt').hide();
 	        	$('#addnewservice2_id #user_id').val(response.userId);
 		      	$('#addnewservice2_id #c100').val(response.user.name);
 		      	$("#addnewservice2_id #c2 option[value='VISA']").remove();
@@ -613,6 +651,37 @@ function add_service2(orderId,userId,name)
 		      	{
 		      			is_pay = 0;
 		      			$('#addnewservice2_id #show_deposit_user_payment').show();
+		      			$('#addnewservice2_id #upload_receipt').show();
+		      			//生成收款凭证列表		      			
+  							var str_flist = '';
+  							$("#addnewservice2_id #show_currentpic").empty();
+  							if (response.paymentVoucherImageUrl1)
+  							{
+  									str_flist = response.paymentVoucherImageUrl1;
+  									$("#addnewservice2_id #show_currentpic").append('<a href="/statics'+response.paymentVoucherImageUrl1+'" target="_blank">查看当前凭证1</a>&nbsp;');
+  							}
+  							if (response.paymentVoucherImageUrl2)
+  							{
+  									str_flist += ','+response.paymentVoucherImageUrl2;
+  									$("#addnewservice2_id #show_currentpic").append('<a href="/statics'+response.paymentVoucherImageUrl2+'" target="_blank">查看当前凭证2</a>&nbsp;');
+  							}
+  							if (response.paymentVoucherImageUrl3)
+  							{
+  									str_flist += ','+response.paymentVoucherImageUrl3;
+  									$("#addnewservice2_id #show_currentpic").append('<a href="/statics'+response.paymentVoucherImageUrl3+'" target="_blank">查看当前凭证3</a>&nbsp;');
+  							}
+  							if (response.paymentVoucherImageUrl4)
+  							{
+  									str_flist += ','+response.paymentVoucherImageUrl4;
+  									$("#addnewservice2_id #show_currentpic").append('<a href="/statics'+response.paymentVoucherImageUrl3+'" target="_blank">查看当前凭证4</a>&nbsp;');
+  							}
+  							if (response.paymentVoucherImageUrl5)
+  							{
+  									str_flist += ','+response.paymentVoucherImageUrl5;
+  									$("#addnewservice2_id #show_currentpic").append('<a href="/statics'+response.paymentVoucherImageUrl3+'" target="_blank">查看当前凭证5</a>&nbsp;');
+  							}
+  							if (str_flist != '') $('#addnewservice2_id #flist').val(str_flist);
+  							$('#addnewservice2_id #show_currentpic').show(); 
 		      	}
 		      	$('#addnewservice2_id :radio[name=c10]:eq('+is_pay+')').prop("checked",'checked');			        	
 		      	if (response.receiveDate) $("#addnewservice2_id #c11").val(v.getTime(response.receiveDate));
@@ -957,7 +1026,7 @@ function ajax_service(va)
 				service_code.empty();
 				service_code.append("<option value=''>请选择</option>");
 				$.ajax({
-          url: 'service/list?name=SIV',
+          url: 'service/list?name=独立技术移民',
           type: 'GET',
           async: false,
           dataType: 'json'
@@ -979,7 +1048,7 @@ function ajax_service(va)
 				service_code.empty();
 				service_code.append("<option value=''>请选择</option>");
 				$.ajax({
-          url: 'service/list',
+          url: 'service/list?name=签证',
           type: 'GET',
           async: false,
           dataType: 'json'
@@ -1031,6 +1100,7 @@ function loadServicePackage(service_id,packids)
 				    			service_package.append("<input type='checkbox' name='b6b[]' id='b6b"+i+"' value='"+response[item].id+"'"+strChecked+" disabled='disabled' style='margin-left:10px;'><label for='b6b"+i+"'>"+return_type(response[item].type)+"</label>");
 		    			}else
 		    			{
+		    					strChecked = ' checked="checked"';
 		    					service_package.append("<input type='checkbox' name='b6b[]' id='b6b"+i+"' value='"+response[item].id+"'"+strChecked+" style='margin-left:10px;'><label for='b6b"+i+"'>"+return_type(response[item].type)+"</label>");
 		    			}
 		    			i++; 			
@@ -1143,7 +1213,7 @@ function addnewService1Save()
 {
 		var jqInputs = $('input',$("#addnewservice1_id"));
     var jqSelect = $('select',$("#addnewservice1_id"));
-    var jqTextarea = $('textarea',$("#addnewservice1_id"));
+    var jqTextarea = $('textarea',$("#addnewservice1_id"));    
     
     var check_result = 0;    
     if (jqSelect[0].value != '0' && jqSelect[1].value != '0' && jqSelect[2].value != '0' && jqSelect[4].value != '')
@@ -1170,7 +1240,7 @@ function addnewService1Save()
     						$('#addnewservice1_id #alert_error').css('marginLeft','30%');
 				    		$('#addnewservice1_id #alert_error').css('marginTop','20%');
 				    		$('#addnewservice1_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
-				        $("#addnewservice1_id #error_info").html('提示：收款日期/总计应收/总计收/本次应收/本次收款必须填写或选择！');
+				        $("#addnewservice1_id #error_info").html('提示：收款日期/总计应收/总计收款/本次应收/本次收款必须填写或选择！');
 				        return false;
     				}	
     		}else
@@ -1214,10 +1284,14 @@ function addnewService1Save()
        			{
        					//对凭证进行处理
        					var arr = flist.split(',');
-       					if (arr.length)
+       					if (arr.length && arr.length <= 5)
        					{
-       							json['paymentVoucherImageUrl1'] = arr[0];
-       							if (arr.length == 2) json['paymentVoucherImageUrl2'] = arr[1];
+       							var t = 1;
+       							for(var i=0;i<arr.length;i++)
+       							{
+	       								json['paymentVoucherImageUrl'+t] = arr[i];
+	       								t++;
+       							}       							
        					}
 		       			var d1 = 0;          		
 		        		if (jqInputs[5].value != '')
@@ -1247,7 +1321,9 @@ function addnewService1Save()
           			$("#addnewservice1_id #error_info").html('收款凭证没有上传，请上传之后再提交。');
         				return false;
           	}
-       	}       	
+       	}
+       	//console.log(json);       	
+       	//return false;
        	
        	$.post(str_url, json,
 		   	function(data){		   			
@@ -1333,6 +1409,23 @@ function addnewService2Save()
           			$("#addnewservice2_id #error_info").html('请上传支付保证金的凭证。');
 	        			return false;
        			}
+       			
+       			//上传收款凭证
+       			var flist = $("#addnewservice2_id #flist").val();
+       			if (json['isPay'] && flist != '')
+       			{
+       					//对凭证进行处理
+       					var arr = flist.split(',');
+       					if (arr.length && arr.length <= 5)
+       					{
+       							var t = 1;
+       							for(var i=0;i<arr.length;i++)
+       							{
+	       								json['paymentVoucherImageUrl'+t] = arr[i];
+	       								t++;
+       							}       							
+       					}
+       			} 
        			var d1 = 0;          		
         		if (jqInputs[10].value != '')
         		{
@@ -1351,6 +1444,7 @@ function addnewService2Save()
        	json['serviceId'] = 0;
        	json['maraId'] = 0;
        	//console.log(json);
+       	//return false;
        	
        	$.post(str_url, json,
 		   	function(data){
@@ -1553,10 +1647,14 @@ function addnewService3Save()
        			{
        					//对凭证进行处理
        					var arr = flist.split(',');
-       					if (arr.length)
+       					if (arr.length && arr.length <= 5)
        					{
-       							json['paymentVoucherImageUrl1'] = arr[0];
-       							if (arr.length == 2) json['paymentVoucherImageUrl2'] = arr[1];
+       							var t = 1;
+       							for(var i=0;i<arr.length;i++)
+       							{
+	       								json['paymentVoucherImageUrl'+t] = arr[i];
+	       								t++;
+       							}       							
        					}
 		       			var d1 = 0;          		
 		        		if ($(f+'#b8').val() != '')
@@ -1620,7 +1718,7 @@ function addnewService3Save()
 
 function Service3VisaSave()
 {		 
-    var f = '#addnewservice1_id ';   
+    var f = '#addnewservice1_id ';      
     
     var check_result = 0;
     var maraId = 0;
@@ -1873,6 +1971,16 @@ v.$watch('addnewservice1_bind', function(obj) {
     	var deduct_gst = (fee-gst).toFixed(2);
     	$("#addnewservice1_id #b16").val(deduct_gst);	
     	$("#addnewservice1_id #b17").val(fee);	        	
+		});
+		//填充总计应收
+		$("#addnewservice1_id #b12").keyup(function(){
+    	var v = $("#addnewservice1_id #b12").val();    	
+    	$("#addnewservice1_id #b10").val(v);    	        	
+		});
+		//填充总计收款
+		$("#addnewservice1_id #b10").keyup(function(){
+    	var v = $("#addnewservice1_id #b10").val();    	
+    	$("#addnewservice1_id #b12").val(v);    	        	
 		});
 });
 
@@ -2265,7 +2373,6 @@ function chooseService(v)
 				break;
 		}
 }
-
 function jsonSort(json,key)
 {
     for(var j=1,jl=json.length;j < jl;j++)
