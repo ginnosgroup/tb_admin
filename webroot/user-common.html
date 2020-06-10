@@ -552,7 +552,7 @@ function add_service1(orderId,userId,name)
 			        	if (response.remarks) $("#addnewservice1_id #b18").val(response.remarks);
 			        	$("#addnewservice1_id #btnSubmit").attr("onclick","addnewService1Save();");
 	        	}
-	        	if (response.submitted)//已提交佣金，不允许修改收款数据
+	        	if (response.submitted || response.hasCommissionOrder)//已提交佣金，不允许修改收款数据
 	        	{
 	        			$("#addnewservice1_id #b8").attr("disabled",true);
 	        			$("#addnewservice1_id #b9").attr("disabled",true);
@@ -2373,6 +2373,7 @@ function chooseService(v)
 				break;
 		}
 }
+
 function jsonSort(json,key)
 {
     for(var j=1,jl=json.length;j < jl;j++)
