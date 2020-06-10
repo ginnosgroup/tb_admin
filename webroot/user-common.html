@@ -2091,6 +2091,16 @@ v.$watch('addnewservice3_bind', function(obj) {
     	$("#addnewservice3_id #b16").val(deduct_gst);	
     	$("#addnewservice3_id #b17").val(fee);	        	
 		});
+		//填充总计应收
+		$("#addnewservice3_id #b12").keyup(function(){
+    	var v = $("#addnewservice3_id #b12").val();    	
+    	$("#addnewservice3_id #b10").val(v);    	        	
+		});
+		//填充总计收款
+		$("#addnewservice3_id #b10").keyup(function(){
+    	var v = $("#addnewservice3_id #b10").val();    	
+    	$("#addnewservice3_id #b12").val(v);    	        	
+		});
 });
 
 function computeVisaDiscount()
