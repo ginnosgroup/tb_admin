@@ -1077,7 +1077,7 @@
 	        $("#officialId").empty();
 	        obj_officialId.append("<option value='0'>请选择</option>");
 			    $.ajax({
-	          url: 'official/list?pageNum=0&pageSize=10',
+	          url: 'official/list?pageNum=0&pageSize=100000',
 	          type: 'GET',
 	          async: false,
 	          dataType: 'json'
@@ -1094,7 +1094,7 @@
 	        $("#maraId").empty();
 	        obj_mara.append("<option value='0'>请选择</option>");
 			    $.ajax({
-	          url: 'mara/list?pageNum=0&pageSize=10',
+	          url: 'mara/list?pageNum=0&pageSize=100000',
 	          type: 'GET',
 	          async: false,
 	          dataType: 'json'
