@@ -17,7 +17,7 @@ public interface CommissionOrderDAO {
 			@Param("isSettle") Boolean isSettle, @Param("stateList") List<String> stateList,
 			@Param("commissionStateList") List<String> commissionStateList, @Param("isYzyAndYjy") Boolean isYzyAndYjy);
 
-	int countCommissionOrderBySchoolName(@Param("schoolName") String schoolName);
+	int countCommissionOrderBySchoolId(@Param("schoolId") Integer schoolId);
 
 	int countCommissionOrderByServiceOrderIdAndExcludeCode(@Param("serviceOrderId") Integer serviceOrderId,
 			@Param("code") String code);
@@ -43,6 +43,6 @@ public interface CommissionOrderDAO {
 
 	CommissionOrderListDO getCommissionOrderById(int id);
 
-	Double sumTuitionFeeBySchoolName(@Param("schoolName") String schoolName);
+	Double sumTuitionFeeBySchoolId(@Param("schoolId") Integer schoolId);
 
 }

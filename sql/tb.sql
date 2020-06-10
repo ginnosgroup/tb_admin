@@ -195,6 +195,9 @@ CREATE TABLE `b_visa` (
   `installment` int NOT NULL COMMENT '付款次数',
   `payment_voucher_image_url_1` varchar(128) DEFAULT NULL COMMENT '支付凭证图片地址1',
   `payment_voucher_image_url_2` varchar(128) DEFAULT NULL COMMENT '支付凭证图片地址2',
+`payment_voucher_image_url_3` varchar(128) DEFAULT NULL COMMENT '支付凭证图片地址3',
+`payment_voucher_image_url_4` varchar(128) DEFAULT NULL COMMENT '支付凭证图片地址4',
+`payment_voucher_image_url_5` varchar(128) DEFAULT NULL COMMENT '支付凭证图片地址5',
   `visa_voucher_image_url` varchar(128) DEFAULT NULL COMMENT '签证凭证图片地址',
   `receivable` decimal(8,2) NOT NULL COMMENT '总计应收',
   `received` decimal(8,2) NOT NULL COMMENT '总计已收',
@@ -374,6 +377,13 @@ CREATE TABLE `b_service_order` (
   `payment_voucher_image_url_1` varchar(128) DEFAULT NULL COMMENT '支付凭证图片地址1',
   `payment_voucher_image_url_2` varchar(128) DEFAULT NULL COMMENT '支付凭证图片地址2',
   `payment_voucher_image_url_3` varchar(128) DEFAULT NULL COMMENT '支付凭证图片地址3',
+`payment_voucher_image_url_4` varchar(128) DEFAULT NULL COMMENT '支付凭证图片地址4 (留学服务专用字段)',
+`payment_voucher_image_url_5` varchar(128) DEFAULT NULL COMMENT '支付凭证图片地址5 (留学服务专用字段)',
+`coe_payment_voucher_image_url_1` varchar(128) DEFAULT NULL COMMENT 'EOE支付凭证图片地址1',
+`coe_payment_voucher_image_url_2` varchar(128) DEFAULT NULL COMMENT 'EOE支付凭证图片地址2',
+`coe_payment_voucher_image_url_3` varchar(128) DEFAULT NULL COMMENT 'EOE支付凭证图片地址3',
+`coe_payment_voucher_image_url_4` varchar(128) DEFAULT NULL COMMENT 'EOE支付凭证图片地址4',
+`coe_payment_voucher_image_url_5` varchar(128) DEFAULT NULL COMMENT 'EOE支付凭证图片地址5',
   `visa_voucher_image_url` varchar(128) DEFAULT NULL COMMENT '签证凭证图片地址',
   `per_amount` decimal(8,2) NOT NULL COMMENT '本次应收款',
   `amount` decimal(8,2) DEFAULT NULL COMMENT '本次收款',
@@ -385,7 +395,7 @@ CREATE TABLE `b_service_order` (
   `mara_id` int DEFAULT NULL COMMENT '所属MARA编号 (对应b_mara.id,曼拓和留学服务MARA为空)',
   `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
   `adviser_id_2` int DEFAULT NULL COMMENT '第二顾问编号 (对应tb_adviser.id,曼拓专用字段)',
-  `official_id` int NOT NULL COMMENT '文案编号 (对应b_official.id,曼拓文案为空)',
+  `official_id` int DEFAULT NULL COMMENT '文案编号 (对应b_official.id,曼拓文案为空)',
   `remarks` text DEFAULT NULL COMMENT '备注',
   `closed_reason` varchar(255) DEFAULT NULL COMMENT '关闭原因',
   `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已删除'
@@ -437,6 +447,9 @@ CREATE TABLE `b_commission_order` (
   `installment_due_date` datetime NOT NULL COMMENT '分期付款截止日期',
   `payment_voucher_image_url_1` varchar(128) DEFAULT NULL COMMENT '支付凭证图片地址1',
   `payment_voucher_image_url_2` varchar(128) DEFAULT NULL COMMENT '支付凭证图片地址2',
+`payment_voucher_image_url_3` varchar(128) DEFAULT NULL COMMENT '支付凭证图片地址3',
+`payment_voucher_image_url_4` varchar(128) DEFAULT NULL COMMENT '支付凭证图片地址4',
+`payment_voucher_image_url_5` varchar(128) DEFAULT NULL COMMENT '支付凭证图片地址5',
   `school_payment_amount` decimal(8,2) DEFAULT NULL COMMENT '学校支付金额',
   `school_payment_date` datetime DEFAULT NULL COMMENT '学校支付时间',
   `invoice_number` varchar(64) DEFAULT NULL COMMENT 'InvoiceNo.',
@@ -635,13 +648,14 @@ CREATE TABLE `b_school_setting` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
-  `school_id` int NOT NULL COMMENT '学校专业编号 (对应b_school.id)',
+`school_id` int NOT NULL COMMENT '学校专业编号 (对应b_school.id)',
   `type` int COMMENT '设置类型 (0:未选,1:固定比例-无额外补贴,2:固定比例-每人补贴,3:固定比例-一次性补贴,4:变动比例,5:固定底价-无额外补贴,6:固定底价-每人补贴,7:固定底价-一次性补贴)',
   `start_date` datetime NOT NULL COMMENT '合同开始时间',
   `end_date` datetime NOT NULL COMMENT '合同结束时间',
   `parameters` varchar(255) COMMENT '参数'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
+-- (OLD)
 CREATE TABLE `b_subject_setting` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',

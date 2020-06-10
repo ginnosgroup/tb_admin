@@ -128,6 +128,9 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "installment", required = false) Integer installment,
 			@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
 			@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
+			@RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
+			@RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
+			@RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
 			@RequestParam(value = "perAmount", required = false) String perAmount,
 			@RequestParam(value = "amount", required = false) String amount,
 			@RequestParam(value = "expectAmount", required = false) String expectAmount,
@@ -185,6 +188,12 @@ public class ServiceOrderController extends BaseController {
 			// return new Response<Integer>(1, "必须上传支付凭证!", 0);
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
 				serviceOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl3))
+				serviceOrderDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl4))
+				serviceOrderDto.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl5))
+				serviceOrderDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
 			if (StringUtil.isNotEmpty(perAmount))
 				serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
 			if (StringUtil.isNotEmpty(amount))
@@ -202,11 +211,13 @@ public class ServiceOrderController extends BaseController {
 					return new Response<Integer>(1, "用户编号错误(" + userId + ")，创建失败.", 0);
 				else
 					serviceOrderDto.setUserId(StringUtil.toInt(userId));
-			if (StringUtil.isNotEmpty(maraId))
+			if (StringUtil.isNotEmpty(maraId) && !"SIV".equalsIgnoreCase(serviceOrderDto.getType())
+					&& !"MT".equalsIgnoreCase(serviceOrderDto.getType())) // SIV主订单和MT主订单不需要mara
 				serviceOrderDto.setMaraId(StringUtil.toInt(maraId));
 			if (StringUtil.isNotEmpty(adviserId))
 				serviceOrderDto.setAdviserId(StringUtil.toInt(adviserId));
-			if (StringUtil.isNotEmpty(officialId))
+			if (StringUtil.isNotEmpty(officialId) && !"SIV".equalsIgnoreCase(serviceOrderDto.getType())
+					&& !"MT".equalsIgnoreCase(serviceOrderDto.getType())) // SIV主订单和MT主订单不需要文案
 				serviceOrderDto.setOfficialId(StringUtil.toInt(officialId));
 			if (StringUtil.isNotEmpty(remarks))
 				serviceOrderDto.setRemarks(remarks);
@@ -216,7 +227,7 @@ public class ServiceOrderController extends BaseController {
 				String msg = "";
 				if (adminUserLoginInfo != null)
 					serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
-							ReviewAdviserStateEnum.PENDING.toString(), null, null, null);
+							serviceOrderDto.getState(), null, null, null);
 				// 创建子服务订单
 				if (StringUtil.isNotEmpty(servicePackageIds)) {
 					List<String> servicePackageIdList = Arrays.asList(servicePackageIds.split(","));
@@ -232,6 +243,12 @@ public class ServiceOrderController extends BaseController {
 						ServicePackageDTO servicePackageDto = servicePackageService.getById(id);
 						if (servicePackageDto == null)
 							return new Response<Integer>(1, "服务包不存在.", 0);
+						serviceOrderDto.setType("VISA"); // 独立技术移民子订单为VISA
+						serviceOrderDto.setPay(false); // 独立技术移民子订单都未支付
+						if (StringUtil.isNotEmpty(maraId))
+							serviceOrderDto.setMaraId(StringUtil.toInt(maraId)); // 独立技术移民子订单需要mara
+						if (StringUtil.isNotEmpty(officialId))
+							serviceOrderDto.setOfficialId(StringUtil.toInt(officialId)); // 独立技术移民子订单需要文案
 						if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null)
 							serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
 									ReviewAdviserStateEnum.PENDING.toString(), null, null, null);
@@ -276,6 +293,9 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "installment", required = false) Integer installment,
 			@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
 			@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
+			@RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
+			@RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
+			@RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
 			@RequestParam(value = "perAmount", required = false) String perAmount,
 			@RequestParam(value = "amount", required = false) String amount,
 			@RequestParam(value = "expectAmount", required = false) String expectAmount,
@@ -332,6 +352,12 @@ public class ServiceOrderController extends BaseController {
 			// return new Response<Integer>(1, "必须上传支付凭证!", 0);
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
 				serviceOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl3))
+				serviceOrderDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl4))
+				serviceOrderDto.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl5))
+				serviceOrderDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
 			if (StringUtil.isNotEmpty(perAmount))
 				serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
 			if (StringUtil.isNotEmpty(amount))
@@ -363,11 +389,13 @@ public class ServiceOrderController extends BaseController {
 					return new Response<Integer>(1, "服务包不存在:" + serviceOrderDto.getServicePackageId(), 0);
 				// if (serviceOrderDto.getOfficialId() <= 0 &&
 				// "SIV".equalsIgnoreCase(serviceOrderDto.getType()))
-				if (StringUtil.isEmpty(officialId) && "SIV".equalsIgnoreCase(serviceOrderDto.getType()))
+				if (StringUtil.isEmpty(officialId)
+						&& ("SIV".equalsIgnoreCase(serviceOrderDto.getType()) || serviceOrderDto.getParentId() > 0))
 					return new Response<Integer>(1, "必须选择文案.", 0);
 				// if (serviceOrderDto.getMaraId() <= 0 &&
 				// "SIV".equalsIgnoreCase(serviceOrderDto.getType())
-				if (StringUtil.isEmpty(maraId) && "SIV".equalsIgnoreCase(serviceOrderDto.getType())
+				if (StringUtil.isEmpty(maraId)
+						&& ("SIV".equalsIgnoreCase(serviceOrderDto.getType()) || serviceOrderDto.getParentId() > 0)
 						&& !"EOI".equalsIgnoreCase(servicePackageDto.getType()))
 					return new Response<Integer>(1, "必须选择Mara.", 0);
 			}
@@ -385,7 +413,11 @@ public class ServiceOrderController extends BaseController {
 	@RequestMapping(value = "/updateVoucherImageUrl", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> updateVoucherImageUrl(@RequestParam(value = "id") int id,
-			@RequestParam(value = "paymentVoucherImageUrl", required = false) String paymentVoucherImageUrl,
+			@RequestParam(value = "coePaymentVoucherImageUrl1", required = false) String coePaymentVoucherImageUrl1,
+			@RequestParam(value = "coePaymentVoucherImageUrl2", required = false) String coePaymentVoucherImageUrl2,
+			@RequestParam(value = "coePaymentVoucherImageUrl3", required = false) String coePaymentVoucherImageUrl3,
+			@RequestParam(value = "coePaymentVoucherImageUrl4", required = false) String coePaymentVoucherImageUrl4,
+			@RequestParam(value = "coePaymentVoucherImageUrl5", required = false) String coePaymentVoucherImageUrl5,
 			@RequestParam(value = "visaVoucherImageUrl", required = false) String visaVoucherImageUrl,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
@@ -398,8 +430,16 @@ public class ServiceOrderController extends BaseController {
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
 			if (serviceOrderDto == null)
 				return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl))
-				serviceOrderDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl);
+			if (StringUtil.isNotEmpty(coePaymentVoucherImageUrl1))
+				serviceOrderDto.setCoePaymentVoucherImageUrl1(coePaymentVoucherImageUrl1);
+			if (StringUtil.isNotEmpty(coePaymentVoucherImageUrl2))
+				serviceOrderDto.setCoePaymentVoucherImageUrl2(coePaymentVoucherImageUrl2);
+			if (StringUtil.isNotEmpty(coePaymentVoucherImageUrl3))
+				serviceOrderDto.setCoePaymentVoucherImageUrl3(coePaymentVoucherImageUrl3);
+			if (StringUtil.isNotEmpty(coePaymentVoucherImageUrl4))
+				serviceOrderDto.setCoePaymentVoucherImageUrl4(coePaymentVoucherImageUrl4);
+			if (StringUtil.isNotEmpty(coePaymentVoucherImageUrl5))
+				serviceOrderDto.setCoePaymentVoucherImageUrl5(coePaymentVoucherImageUrl5);
 			if (StringUtil.isNotEmpty(visaVoucherImageUrl))
 				serviceOrderDto.setVisaVoucherImageUrl(visaVoucherImageUrl);
 			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
@@ -450,7 +490,7 @@ public class ServiceOrderController extends BaseController {
 			super.setGetHeader(response);
 			String excludeState = null;
 			List<String> stateList = null;
-			if (state != null)
+			if (state != null && !"".equals(state))
 				stateList = new ArrayList<>(Arrays.asList(state.split(",")));
 			List<String> reviewStateList = null;
 			Integer newAdviserId = getAdviserId(request);
@@ -494,7 +534,7 @@ public class ServiceOrderController extends BaseController {
 			super.setGetHeader(response);
 			String excludeState = null;
 			List<String> stateList = null;
-			if (state != null)
+			if (state != null && !"".equals(state))
 				stateList = new ArrayList<>(Arrays.asList(state.split(",")));
 			List<String> reviewStateList = null;
 			Integer newAdviserId = getAdviserId(request);
@@ -596,22 +636,22 @@ public class ServiceOrderController extends BaseController {
 						|| "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewAdviserStateEnum.get(state) != null)
 						if (ReviewAdviserStateEnum.REVIEW.toString().equals(state.toUpperCase())) { // 顾问审核
-							// 如果有子订单,就一起提交审核
-							if (serviceOrderDto.getParentId() == 0
-									&& "SIV".equalsIgnoreCase(serviceOrderDto.getType())) {
-								List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(null,
-										null, null, null, 0, 0, 0, 0, serviceOrderDto.getId(), 0, 10);
-								for (ServiceOrderDTO so : serviceOrderList) {
-									if (so.getServicePackage() == null)
-										return new Response<ServiceOrderDTO>(1, "子订单没有服务包.", so);
-									if (so.getOfficialId() <= 0 && "SIV".equalsIgnoreCase(so.getType()))
-										return new Response<ServiceOrderDTO>(1, "子订单必须选择文案.", so);
-									if (so.getMaraId() <= 0 && "SIV".equalsIgnoreCase(so.getType())
-											&& !"EOI".equalsIgnoreCase(so.getServicePackage().getType()))
-										return new Response<ServiceOrderDTO>(1, "子订单必须选择Mara.", so);
-									serviceOrderService.approval(so.getId(), adminUserLoginInfo.getId(),
-											state.toUpperCase(), null, null, null);
-								}
+							if (serviceOrderDto.getParentId() == 0 && ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
+									|| "MT".equalsIgnoreCase(serviceOrderDto.getType()))) {
+								return new Response<ServiceOrderDTO>(1, "该订单不支持审核.", serviceOrderDto);
+//								List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(null,
+//										null, null, null, 0, 0, 0, 0, serviceOrderDto.getId(), 0, 10);
+//								for (ServiceOrderDTO so : serviceOrderList) {
+//									if (so.getServicePackage() == null)
+//										return new Response<ServiceOrderDTO>(1, "子订单没有服务包.", so);
+//									if (so.getOfficialId() <= 0)
+//										return new Response<ServiceOrderDTO>(1, "子订单必须选择文案.", so);
+//									if (so.getMaraId() <= 0
+//											&& !"EOI".equalsIgnoreCase(so.getServicePackage().getType()))
+//										return new Response<ServiceOrderDTO>(1, "子订单必须选择Mara.", so);
+//									serviceOrderService.approval(so.getId(), adminUserLoginInfo.getId(),
+//											state.toUpperCase(), null, null, null);
+//								}
 							}
 							return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id,
 									adminUserLoginInfo.getId(), state.toUpperCase(), null, null, null));

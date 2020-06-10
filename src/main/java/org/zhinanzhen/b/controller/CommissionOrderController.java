@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.CommissionOrderService;
 import org.zhinanzhen.b.service.SchoolService;
+import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.SubagencyService;
 import org.zhinanzhen.b.service.pojo.CommissionOrderCommentDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
@@ -46,6 +47,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	@Resource
 	SchoolService schoolService;
 
+	@Resource
+	ServiceOrderService serviceOrderService;
+
 	@RequestMapping(value = "/upload_img", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<String> uploadImage(@RequestParam MultipartFile file, HttpServletRequest request,
@@ -68,8 +72,13 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "installmentDueDate1") String installmentDueDate1,
 			@RequestParam(value = "installmentDueDate2", required = false) String installmentDueDate2,
 			@RequestParam(value = "installmentDueDate3", required = false) String installmentDueDate3,
+			@RequestParam(value = "installmentDueDate4", required = false) String installmentDueDate4,
+			@RequestParam(value = "installmentDueDate5", required = false) String installmentDueDate5,
 			@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
 			@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
+			@RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
+			@RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
+			@RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
 			@RequestParam(value = "startDate") String startDate, @RequestParam(value = "endDate") String endDate,
 			@RequestParam(value = "tuitionFee") String tuitionFee,
 			@RequestParam(value = "perTermTuitionFee") String perTermTuitionFee,
@@ -122,6 +131,18 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				commissionOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
 			else
 				commissionOrderDto.setPaymentVoucherImageUrl2(serviceOrderDto.getPaymentVoucherImageUrl2());
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl3))
+				commissionOrderDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
+			else
+				commissionOrderDto.setPaymentVoucherImageUrl3(serviceOrderDto.getPaymentVoucherImageUrl3());
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl4))
+				commissionOrderDto.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
+			else
+				commissionOrderDto.setPaymentVoucherImageUrl4(serviceOrderDto.getPaymentVoucherImageUrl4());
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl5))
+				commissionOrderDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
+			else
+				commissionOrderDto.setPaymentVoucherImageUrl5(serviceOrderDto.getPaymentVoucherImageUrl5());
 			commissionOrderDto.setStartDate(new Date(Long.parseLong(startDate)));
 			commissionOrderDto.setEndDate(new Date(Long.parseLong(endDate)));
 			commissionOrderDto.setTuitionFee(Double.parseDouble(tuitionFee));
@@ -176,11 +197,33 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					commissionOrderDto.setState(ReviewKjStateEnum.PENDING.toString());
 					commissionOrderDto.setPaymentVoucherImageUrl1(null);
 					commissionOrderDto.setPaymentVoucherImageUrl2(null);
+					commissionOrderDto.setPaymentVoucherImageUrl3(null);
+					commissionOrderDto.setPaymentVoucherImageUrl4(null);
+					commissionOrderDto.setPaymentVoucherImageUrl5(null);
 				} else if (installmentNum == 3 && installmentDueDate3 != null) {
 					commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate3)));
 					commissionOrderDto.setState(ReviewKjStateEnum.PENDING.toString());
 					commissionOrderDto.setPaymentVoucherImageUrl1(null);
 					commissionOrderDto.setPaymentVoucherImageUrl2(null);
+					commissionOrderDto.setPaymentVoucherImageUrl3(null);
+					commissionOrderDto.setPaymentVoucherImageUrl4(null);
+					commissionOrderDto.setPaymentVoucherImageUrl5(null);
+				} else if (installmentNum == 4 && installmentDueDate4 != null) {
+					commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate4)));
+					commissionOrderDto.setState(ReviewKjStateEnum.PENDING.toString());
+					commissionOrderDto.setPaymentVoucherImageUrl1(null);
+					commissionOrderDto.setPaymentVoucherImageUrl2(null);
+					commissionOrderDto.setPaymentVoucherImageUrl3(null);
+					commissionOrderDto.setPaymentVoucherImageUrl4(null);
+					commissionOrderDto.setPaymentVoucherImageUrl5(null);
+				} else if (installmentNum == 5 && installmentDueDate5 != null) {
+					commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate5)));
+					commissionOrderDto.setState(ReviewKjStateEnum.PENDING.toString());
+					commissionOrderDto.setPaymentVoucherImageUrl1(null);
+					commissionOrderDto.setPaymentVoucherImageUrl2(null);
+					commissionOrderDto.setPaymentVoucherImageUrl3(null);
+					commissionOrderDto.setPaymentVoucherImageUrl4(null);
+					commissionOrderDto.setPaymentVoucherImageUrl5(null);
 				} else
 					break;
 				int id = commissionOrderService.addCommissionOrder(commissionOrderDto);
@@ -224,6 +267,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "installmentDueDate", required = false) String installmentDueDate,
 			@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
 			@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
+			@RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
+			@RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
+			@RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "tuitionFee", required = false) String tuitionFee,
@@ -280,10 +326,26 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				commissionOrderDto.setStudying(isStudying);
 			if (installmentDueDate != null)
 				commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate)));
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1)) {
 				commissionOrderDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
+				serviceOrderDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
+			}
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2)) {
 				commissionOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
+				serviceOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
+			}
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl3)) {
+				commissionOrderDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
+				serviceOrderDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
+			}
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl4)) {
+				commissionOrderDto.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
+				serviceOrderDto.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
+			}
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl5)) {
+				commissionOrderDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
+				serviceOrderDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
+			}
 			if (startDate != null)
 				commissionOrderDto.setStartDate(new Date(Long.parseLong(startDate)));
 			if (endDate != null)
@@ -292,14 +354,22 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				commissionOrderDto.setTuitionFee(Double.parseDouble(tuitionFee));
 			if (StringUtil.isNotEmpty(perTermTuitionFee))
 				commissionOrderDto.setPerTermTuitionFee(Double.parseDouble(perTermTuitionFee));
-			if (receiveTypeId != null)
+			if (receiveTypeId != null) {
 				commissionOrderDto.setReceiveTypeId(receiveTypeId);
-			if (StringUtil.isNotEmpty(receiveDate))
+				serviceOrderDto.setReceiveTypeId(receiveTypeId);
+			}
+			if (StringUtil.isNotEmpty(receiveDate)) {
 				commissionOrderDto.setReceiveDate(new Date(Long.parseLong(receiveDate)));
-			if (StringUtil.isNotEmpty(perAmount))
+				serviceOrderDto.setReceiveDate(new Date(Long.parseLong(receiveDate)));
+			}
+			if (StringUtil.isNotEmpty(perAmount)) {
 				commissionOrderDto.setPerAmount(Double.parseDouble(perAmount));
-			if (StringUtil.isNotEmpty(amount))
+					serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
+			}
+			if (StringUtil.isNotEmpty(amount)) {
 				commissionOrderDto.setAmount(Double.parseDouble(amount));
+					serviceOrderDto.setAmount(Double.parseDouble(amount));
+			}
 			double _perAmount = commissionOrderListDto.getPerAmount();
 			if (commissionOrderDto.getPerAmount() > 0)
 				_perAmount = commissionOrderDto.getPerAmount();
@@ -341,6 +411,11 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 			String msg = "";
 			if (commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0) {
+				CommissionOrderListDTO commissionOrderListDTO = commissionOrderService
+						.getCommissionOrderById(commissionOrderDto.getId());
+				serviceOrderDto.setReceivable(commissionOrderListDTO.getTotalPerAmount());
+				serviceOrderDto.setReceived(commissionOrderListDTO.getTotalAmount());
+				serviceOrderService.updateServiceOrder(serviceOrderDto); // 同步修改服务订单
 				int i = schoolService.updateSchoolSetting(commissionOrderListDto); // 根据学校设置更新佣金值
 				if (i > 0) {
 				} else if (i == -1)

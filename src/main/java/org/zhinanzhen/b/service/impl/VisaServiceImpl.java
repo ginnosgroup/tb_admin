@@ -141,9 +141,8 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			visaListDoList = visaDao.listVisa(keyword, startHandlingDate, theDateTo23_59_59(endHandlingDate), stateList,
 					commissionStateList, stardDate, theDateTo23_59_59(endDate), adviserId, userId, pageNum * pageSize,
 					pageSize);
-			if (visaListDoList == null) {
+			if (visaListDoList == null)
 				return null;
-			}
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
@@ -217,6 +216,18 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 				ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(visaDto.getReceiveTypeId());
 				if (receiveTypeDo != null)
 					visaDto.setReceiveTypeName(receiveTypeDo.getName());
+			}
+			List<VisaDO> list = visaDao.listVisaByCode(visaDto.getCode());
+			if (list != null) {
+				double totalPerAmount = 0.00;
+				double totalAmount = 0.00;
+				for (VisaDO _visaDo : list) {
+					totalPerAmount += _visaDo.getPerAmount();
+					if (_visaDo.getPaymentVoucherImageUrl1() != null || _visaDo.getPaymentVoucherImageUrl2() != null)
+						totalAmount += _visaDo.getAmount();
+				}
+				visaDto.setTotalPerAmount(totalPerAmount);
+				visaDto.setTotalAmount(totalAmount);
 			}
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);

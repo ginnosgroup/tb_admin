@@ -37,6 +37,8 @@ public class VisaDTO {
 	private int serviceId;
 
 	private int serviceOrderId;
+	
+	private ServiceOrderDTO serviceOrder;
 
 	private String serviceCode;
 
@@ -48,11 +50,17 @@ public class VisaDTO {
 
 	private String paymentVoucherImageUrl2;
 
+	private String paymentVoucherImageUrl3;
+
+	private String paymentVoucherImageUrl4;
+
+	private String paymentVoucherImageUrl5;
+
 	private String visaVoucherImageUrl;
 
-	private double receivable;
+	private double receivable; // TODO: 准备废弃
 
-	private double received;
+	private double received; // TODO: 准备废弃
 
 	private double perAmount;
 
@@ -85,7 +93,7 @@ public class VisaDTO {
 	private boolean isClose;
 
 	private List<Date> remindDateList;
-	
+
 	private double totalPerAmount;
 
 	private double totalAmount;
