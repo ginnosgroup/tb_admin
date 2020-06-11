@@ -171,7 +171,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	public int updateSchoolSetting(CommissionOrderListDTO commissionOrderListDto) throws ServiceException {
 		if (commissionOrderListDto == null || commissionOrderListDto.getSchool() == null)
 			return -1;
-		listSchoolSetting(); // 初始化
+		listSchoolSetting(null); // 初始化
 		SchoolSettingDO schoolSettingDo = schoolSettingDao.getBySchoolId(commissionOrderListDto.getSchool().getId());
 		if (schoolSettingDo == null)
 			return -2;
@@ -201,9 +201,10 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	}
 
 	@Override
-	public List<SchoolSettingDTO> listSchoolSetting() throws ServiceException {
+	public List<SchoolSettingDTO> listSchoolSetting(String schoolName) throws ServiceException {
 		List<SchoolSettingDTO> schoolSettingDtoList = new ArrayList<SchoolSettingDTO>();
-		List<SchoolDO> schoolDoList = schoolDao.listSchool(null, null);
+		List<SchoolDO> schoolDoList = schoolDao.list2(schoolName);
+//		List<SchoolDO> schoolDoList = schoolDao.listSchool(null, null);
 		if (schoolDoList == null || schoolDoList.size() == 0)
 			return null;
 		schoolDoList.forEach(schoolDo -> {

@@ -26,7 +26,7 @@ public interface SchoolService {
 
 	public int updateSchoolSetting(CommissionOrderListDTO commissionOrderListDto) throws ServiceException;
 
-	public List<SchoolSettingDTO> listSchoolSetting() throws ServiceException;
+	public List<SchoolSettingDTO> listSchoolSetting(String schoolName) throws ServiceException;
 
 	public List<SubjectSettingDTO> listSubjectSetting(int schoolSettingId) throws ServiceException;
 

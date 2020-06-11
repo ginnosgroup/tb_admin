@@ -7,6 +7,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.zhinanzhen.b.dao.CommissionOrderDAO;
 import org.zhinanzhen.b.dao.KjDAO;
 import org.zhinanzhen.b.dao.MaraDAO;
 import org.zhinanzhen.b.dao.OfficialDAO;
@@ -18,6 +19,7 @@ import org.zhinanzhen.b.dao.ServiceOrderDAO;
 import org.zhinanzhen.b.dao.ServiceOrderReviewDAO;
 import org.zhinanzhen.b.dao.ServicePackageDAO;
 import org.zhinanzhen.b.dao.SubagencyDAO;
+import org.zhinanzhen.b.dao.VisaDAO;
 import org.zhinanzhen.b.dao.pojo.KjDO;
 import org.zhinanzhen.b.dao.pojo.MaraDO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
@@ -97,6 +99,12 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
 	@Resource
 	private ServiceOrderCommentDAO serviceOrderCommentDao;
+	
+	@Resource
+	private CommissionOrderDAO commissionOrderDao;
+	
+	@Resource
+	private VisaDAO visaDao;
 
 	@Resource
 	private AdminUserDAO adminUserDao;
@@ -324,6 +332,13 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDto.getOfficialId());
 			if (officialDo != null)
 				serviceOrderDto.setOfficial(mapper.map(officialDo, OfficialDTO.class));
+			// 是否有创建过佣金订单
+			if ("OVST".equalsIgnoreCase(serviceOrderDto.getType()))
+				serviceOrderDto.setHasCommissionOrder(commissionOrderDao
+						.countCommissionOrderByServiceOrderIdAndExcludeCode(serviceOrderDto.getId(), null) > 0);
+			else
+				serviceOrderDto.setHasCommissionOrder(
+						visaDao.countVisaByServiceOrderIdAndExcludeCode(serviceOrderDto.getId(), null) > 0);
 			// 查询子服务
 			if (serviceOrderDto.getParentId() <= 0) {
 				List<ChildrenServiceOrderDTO> childrenServiceOrderList = new ArrayList<>();

@@ -129,6 +129,8 @@ public class ServiceOrderDTO {
 
 	private String closedReason;
 
+	private boolean hasCommissionOrder = false;
+
 	private ServiceOrderReviewDTO review;
 
 	private List<ServiceOrderReviewDTO> reviews;
