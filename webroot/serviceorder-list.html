@@ -200,7 +200,26 @@
 							</ul>
 						</li>
 						<li v-if="ap_list!=='KJ'" class="sub-menu">
-							<a href="serviceorder-list.html"  class="active">
+							<a v-if="ap_list==='WA'" href="javascript:;"  class="active">
+								<i class="fa fa-book">
+                </i>
+								<span>
+                 	 服务订单管理
+                </span>
+							</a>
+							<ul v-if="ap_list==='WA'" class="sub">
+								<li id="servicestateREVIEW">
+									<a href="serviceorder-list.html?state=REVIEW">
+										未审核
+									</a>
+								</li>
+								<li id="servicestate">
+									<a href="serviceorder-list.html?state=">
+										所有订单
+									</a>
+								</li>								
+							</ul>
+							<a v-if="ap_list!=='WA'" href="serviceorder-list.html"  class="active">
                 <i class="fa fa-book">
                 </i>
                 <span>
@@ -515,6 +534,7 @@
 					adviser_id: sessionStorage.getItem("adviser_id"),
 					official_id: sessionStorage.getItem("official_id"),
 					mara_id: sessionStorage.getItem("mara_id"),
+					service_state : getRequest('state'),
 					addnewservice1_bind: 0,
 					addnewservice2_bind: 0,
 					addnewservice3_bind: 0,					
@@ -547,8 +567,10 @@
 				methods: {					
 					getDatalist: function() {
 						var that = this;
+						if (that.state == '') that.state = that.service_state;
 						$.get(url + "serviceOrder/count", {
-							keyword: that.name,							
+							keyword: that.name,
+							state: that.state							
 						}, function(result) {
 							that.count = result.data;
 							that.allPage = Math.ceil(result.data / that.pageSize);
@@ -556,6 +578,7 @@
 						$.get(url + "serviceOrder/list", {
 							pageNum: 0,
 							pageSize: that.pageSize,
+							state: that.state
 						}, function(result) {							
 							that.pageNum = 0;
 							result.data = return_result(result);
@@ -604,6 +627,7 @@
 					},
 					firstPage: function() {
 						var that = this;
+						if (that.state == '') that.state = that.service_state;
 						if(that.pageNum > 0) {
 							$.get(url + "serviceOrder/list", {
 								keyword: that.name,
@@ -620,6 +644,7 @@
 					},
 					prevPage: function() {
 						var that = this;
+						if (that.state == '') that.state = that.service_state;
 						if(that.pageNum > 0) {
 							that.pageNum--;
 							$.get(url + "serviceOrder/list", {
@@ -635,6 +660,7 @@
 					},
 					nextPage: function() {
 						var that = this;
+						if (that.state == '') that.state = that.service_state;
 						if(that.pageNum < that.allPage - 1) {
 							that.pageNum++;
 							$.get(url + "serviceOrder/list", {
@@ -652,6 +678,7 @@
 					},
 					lastPage: function() {
 						var that = this;
+						if (that.state == '') that.state = that.service_state;
 						if(that.pageNum < that.allPage - 1) {
 							$.get(url + "serviceOrder/list", {
 								keyword: that.name,
@@ -1077,7 +1104,7 @@
 	        $("#officialId").empty();
 	        obj_officialId.append("<option value='0'>请选择</option>");
 			    $.ajax({
-	          url: 'official/list?pageNum=0&pageSize=100000',
+	          url: 'official/list?pageNum=0&pageSize=10',
 	          type: 'GET',
 	          async: false,
 	          dataType: 'json'
@@ -1094,7 +1121,7 @@
 	        $("#maraId").empty();
 	        obj_mara.append("<option value='0'>请选择</option>");
 			    $.ajax({
-	          url: 'mara/list?pageNum=0&pageSize=100000',
+	          url: 'mara/list?pageNum=0&pageSize=10',
 	          type: 'GET',
 	          async: false,
 	          dataType: 'json'
@@ -1107,7 +1134,28 @@
 	        	}
 	        	obj_mara.val(maraId);	        	
 	        });	        
-			});	
+			});
+			
+			function getRequest(par)
+			{
+					var str_value = '';
+			    var url = decodeURI(location.search);
+			    var theRequest = new Object();
+			    if (url.indexOf('?') != -1) {
+			        url = url.substr(1);
+			    }
+			    if (url) {
+			        var strs = url.split('&');
+			        for (var i = 0; i < strs.length; i++) {
+			            var srtArry = strs[i].split('=');
+			            var y = srtArry.shift();
+			            theRequest[y] = unescape(srtArry.join('='));
+			        }
+			    }
+			    str_value = theRequest[par];
+			    $("#servicestate"+str_value).addClass("active");
+			    return str_value;
+			}	
       
       function show_knowledge_detail(id,parentId)
       {
