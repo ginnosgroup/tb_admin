@@ -562,6 +562,7 @@
 					close: false
 				},
 				created: function() {
+					if (typeof(this.service_state) == "undefined") $("#servicestate").addClass("active");
 					this.getDatalist();
 				},
 				methods: {					
