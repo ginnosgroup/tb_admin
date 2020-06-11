@@ -152,13 +152,13 @@ public class SchoolController extends BaseController {
 
 	@RequestMapping(value = "/listSchoolSetting", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<SchoolSettingDTO>> listSchoolSetting(HttpServletRequest request,
-			HttpServletResponse response) {
+	public Response<List<SchoolSettingDTO>> listSchoolSetting(@RequestParam(value = "schoolName") String schoolName,
+			HttpServletRequest request, HttpServletResponse response) {
 		if (!super.isAdminUser(request))
 			return new Response<List<SchoolSettingDTO>>(1, "仅限管理员使用.", null);
 		super.setGetHeader(response);
 		try {
-			return new Response<List<SchoolSettingDTO>>(0, schoolService.listSchoolSetting());
+			return new Response<List<SchoolSettingDTO>>(0, schoolService.listSchoolSetting(schoolName));
 		} catch (ServiceException e) {
 			return new Response<List<SchoolSettingDTO>>(1, e.getMessage(), null);
 		}
@@ -170,7 +170,7 @@ public class SchoolController extends BaseController {
 			HttpServletRequest request, HttpServletResponse response) {
 		super.setGetHeader(response);
 		try {
-			for (SchoolSettingDTO schoolSettingDto : schoolService.listSchoolSetting())
+			for (SchoolSettingDTO schoolSettingDto : schoolService.listSchoolSetting(null))
 				if (schoolSettingDto.getType() > 0 && schoolName.equals(schoolSettingDto.getSchoolName()))
 					return new Response<Boolean>(0, "", true);
 			return new Response<Boolean>(0, "", false);
