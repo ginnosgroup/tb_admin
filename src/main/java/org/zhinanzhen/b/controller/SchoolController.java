@@ -152,7 +152,7 @@ public class SchoolController extends BaseController {
 
 	@RequestMapping(value = "/listSchoolSetting", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<SchoolSettingDTO>> listSchoolSetting(@RequestParam(value = "schoolName") String schoolName,
+	public Response<List<SchoolSettingDTO>> listSchoolSetting(@RequestParam(value = "schoolName", required = false) String schoolName,
 			HttpServletRequest request, HttpServletResponse response) {
 		if (!super.isAdminUser(request))
 			return new Response<List<SchoolSettingDTO>>(1, "仅限管理员使用.", null);
