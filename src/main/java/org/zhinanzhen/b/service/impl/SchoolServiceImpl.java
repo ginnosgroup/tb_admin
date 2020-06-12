@@ -202,34 +202,13 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 
 	@Override
 	public List<SchoolSettingDTO> listSchoolSetting(String schoolName) throws ServiceException {
-		List<SchoolSettingDTO> schoolSettingDtoList = new ArrayList<SchoolSettingDTO>();
 		List<SchoolDO> schoolDoList = null;
-		if (StringUtil.isEmpty(schoolName))
+		if (StringUtil.isEmpty(schoolName)) {
+			buildSchoolSettingList(schoolDao.list2(null));
 			schoolDoList = schoolDao.listSchool(null, null); // 一级列表合并学校
-		else {
-			listSchoolSetting(null);
+		} else
 			schoolDoList = schoolDao.list2(schoolName); // 二级列表查询专业课程
-		}
-		if (schoolDoList == null || schoolDoList.size() == 0)
-			return null;
-		schoolDoList.forEach(schoolDo -> {
-			int id = schoolDo.getId();
-			SchoolSettingDO schoolSettingDo = schoolSettingDao.getBySchoolId(id);
-			SchoolSettingDTO schoolSettingDto = null;
-			if (schoolSettingDo == null) {
-				schoolSettingDo = new SchoolSettingDO();
-				schoolSettingDo.setSchoolId(id);
-				schoolSettingDao.add(schoolSettingDo);
-			}
-			schoolSettingDto = mapper.map(schoolSettingDo, SchoolSettingDTO.class);
-			if (id > 0) {
-				schoolSettingDto.setCount(commissionOrderDao.countCommissionOrderBySchoolId(id));
-				if (commissionOrderDao.sumTuitionFeeBySchoolId(id) != null)
-					schoolSettingDto.setAmount(commissionOrderDao.sumTuitionFeeBySchoolId(id));
-			}
-			schoolSettingDtoList.add(schoolSettingDto);
-		});
-		return schoolSettingDtoList;
+		return buildSchoolSettingList(schoolDoList);
 	}
 
 	@Override
@@ -318,6 +297,30 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
 		}
+	}
+	
+	private List<SchoolSettingDTO> buildSchoolSettingList(List<SchoolDO> schoolDoList) {
+		List<SchoolSettingDTO> schoolSettingDtoList = new ArrayList<SchoolSettingDTO>();
+		if (schoolDoList == null || schoolDoList.size() == 0)
+			return null;
+		schoolDoList.forEach(schoolDo -> {
+			int id = schoolDo.getId();
+			SchoolSettingDO schoolSettingDo = schoolSettingDao.getBySchoolId(id);
+			SchoolSettingDTO schoolSettingDto = null;
+			if (schoolSettingDo == null) {
+				schoolSettingDo = new SchoolSettingDO();
+				schoolSettingDo.setSchoolId(id);
+				schoolSettingDao.add(schoolSettingDo);
+			}
+			schoolSettingDto = mapper.map(schoolSettingDo, SchoolSettingDTO.class);
+			if (id > 0) {
+				schoolSettingDto.setCount(commissionOrderDao.countCommissionOrderBySchoolId(id));
+				if (commissionOrderDao.sumTuitionFeeBySchoolId(id) != null)
+					schoolSettingDto.setAmount(commissionOrderDao.sumTuitionFeeBySchoolId(id));
+			}
+			schoolSettingDtoList.add(schoolSettingDto);
+		});
+		return schoolSettingDtoList;
 	}
 
 	private void schoolSetting1(String schoolName, Date startDate, Date endDate, String parameters) {
