@@ -481,6 +481,7 @@ public class ServiceOrderController extends BaseController {
 	@ResponseBody
 	public Response<Integer> countServiceOrder(@RequestParam(value = "type", required = false) String type,
 			@RequestParam(value = "state", required = false) String state,
+			@RequestParam(value = "reviewState", required = false) String reviewState,
 			@RequestParam(value = "userId", required = false) String userId,
 			@RequestParam(value = "maraId", required = false) String maraId,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
@@ -493,6 +494,8 @@ public class ServiceOrderController extends BaseController {
 			if (state != null && !"".equals(state))
 				stateList = new ArrayList<>(Arrays.asList(state.split(",")));
 			List<String> reviewStateList = null;
+			if (reviewState != null && !"".equals(reviewState))
+				reviewStateList = new ArrayList<>(Arrays.asList(reviewState.split(",")));
 			Integer newAdviserId = getAdviserId(request);
 			if (newAdviserId != null)
 				adviserId = newAdviserId + "";
