@@ -206,8 +206,10 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		List<SchoolDO> schoolDoList = null;
 		if (StringUtil.isEmpty(schoolName))
 			schoolDoList = schoolDao.listSchool(null, null); // 一级列表合并学校
-		else
+		else {
+			listSchoolSetting(null);
 			schoolDoList = schoolDao.list2(schoolName); // 二级列表查询专业课程
+		}
 		if (schoolDoList == null || schoolDoList.size() == 0)
 			return null;
 		schoolDoList.forEach(schoolDo -> {
