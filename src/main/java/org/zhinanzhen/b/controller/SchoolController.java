@@ -132,7 +132,10 @@ public class SchoolController extends BaseController {
 			@RequestParam(value = "country", required = false) String country, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<List<SchoolDTO>>(0, schoolService.list(name, subject, country));
+			if (subject == null && country == null)
+				return new Response<List<SchoolDTO>>(0, schoolService.list(name));
+			else
+				return new Response<List<SchoolDTO>>(0, schoolService.list(name, subject, country));
 		} catch (ServiceException e) {
 			return new Response<List<SchoolDTO>>(1, e.getMessage(), null);
 		}
