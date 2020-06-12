@@ -8,11 +8,11 @@ import lombok.extern.slf4j.Slf4j;
 public class SendEmailUtil {
 
 	private static SimpleSendEmailTool simpleSendEmailTool = new SimpleSendEmailTool("notice@zhinanzhen.org",
-			"Znz@2020#IT", SimpleSendEmailTool.SmtpServerEnum.EXMAIL_QQ);
+			"EpibqJ2R6CFwvqiU", SimpleSendEmailTool.SmtpServerEnum.EXMAIL_QQ);
 
 	public static void send(String mail, String title, String text) {
-		mail = "7311930@qq.com"; // 测试
-//		mail += ",maggie@zhinanzhen.org";
+//		mail = "7311930@qq.com"; // 测试
+		mail += ",maggie@zhinanzhen.org";
 		try {
 			log.info("发送邮件:" + mail + " | " + title + "|" + text);
 			simpleSendEmailTool.send(mail, title, text);
