@@ -307,9 +307,7 @@
 													<tr>
 														<!--<th><input @click="checked" type="checkbox"></th>-->
 														<th>ID</th>
-														<th>学校</th>
-														<th>选择佣金卡片类型</th>
-														<th>当前参数</th>
+														<th>学校</th>														
 														<th>周期内业务总额</th>
 														<th>周期内业务总量</th>
 													</tr>
@@ -317,10 +315,7 @@
 												<tbody>
 													<tr v-for="item in subject" class="gradeX">
 														<td v-html="item.oid"></td>
-														<td v-html="item.schoolName1" width="400"></td>
-														<td v-html="item.str_type">														
-														</td>
-														<td v-html="item.str_parameters" style="color:#008000;"></td>
+														<td v-html="item.schoolName1" width="700"></td>
 														<td v-html="item.amount"></td>
 														<td v-html="item.count"></td>
 													</tr>
@@ -1085,7 +1080,7 @@
 												break;
 												case 7:													
 														result.data[i].str_init = result.data[i].startDate+'#'+result.data[i].endDate+'#'+result.data[i].parameters;
-														result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'，成本为固定价，请设置课程价目表。<a href="javascript:v.schoolid = '+result.data[i].id+';v.school_name = \''+result.data[i].schoolName+'\';loadschoolsubject_7();">课程列表</a>';
+														result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'，成本为固定价。';
 												break;
 												case 5:
 														result.data[i].str_init = result.data[i].startDate+'#'+result.data[i].endDate+'#'+result.data[i].parameters;
@@ -1130,7 +1125,7 @@
 												break;
 										}									
 										result.data[i].str_type = sltype(result.data[i].type,result.data[i].id,result.data[i].str_init,result.data[i].schoolName);
-										str_html += '<div style="line-height:40px;border-bottom: 1px solid #ddd;"><div style="display:inline-block;width:200px;">'+result.data[i].schoolSubject+'</div><div style="display:inline-block;margin-left:10px;">'+result.data[i].str_type+'</div></div>';
+										str_html += '<div style="line-height:40px;border-bottom: 1px solid #ddd;"><div style="display:inline-block;width:200px;">'+result.data[i].schoolSubject+'</div><div style="display:inline-block;margin-left:10px;">'+result.data[i].str_type+'</div><div style="display:block;margin-left:10px;">'+result.data[i].str_parameters +'</div></div>';
 								}
 						};
 						$('#courseList_'+id).html(str_html);				
