@@ -540,6 +540,12 @@
 								<div class="col-sm-8">
 									<input type="text" autocomplete="off" style="width:150px;display:Inline;" id="t7a1" class="form-control default-date-picker1" placeholder="请选择日期" data-date-format="yyyy-mm-dd"> to <input type="text" autocomplete="off" style="width:150px;display:Inline;" id="t7a2" class="form-control default-date-picker1" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
 								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">底价</label>
+								<div class="col-sm-8">
+									<input type="text" autocomplete="off" style="width:150px;display:Inline;" id="t7a3" class="form-control" placeholder="">
+								</div>
 							</div>							
 							</form>
 					</div>
@@ -874,7 +880,7 @@
 													}
 											break;
 											case 7:													
-													result.data[i].str_init = result.data[i].startDate+'#'+result.data[i].endDate;
+													result.data[i].str_init = result.data[i].startDate+'#'+result.data[i].endDate+'#'+result.data[i].parameters;
 													result.data[i].str_parameters = '合同周期从'+that.getTime(result.data[i].startDate)+'到'+that.getTime(result.data[i].endDate)+'，成本为固定价，请设置课程价目表。<a href="javascript:v.schoolid = '+result.data[i].id+';v.school_name = \''+result.data[i].schoolName+'\';loadschoolsubject_7();">课程列表</a>';
 											break;
 											case 5:
@@ -1078,7 +1084,7 @@
 														}
 												break;
 												case 7:													
-														result.data[i].str_init = result.data[i].startDate+'#'+result.data[i].endDate;
+														result.data[i].str_init = result.data[i].startDate+'#'+result.data[i].endDate+'#'+result.data[i].parameters;
 														result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'，成本为固定价，请设置课程价目表。<a href="javascript:v.schoolid = '+result.data[i].id+';v.school_name = \''+result.data[i].schoolName+'\';loadschoolsubject_7();">课程列表</a>';
 												break;
 												case 5:
@@ -1306,6 +1312,7 @@
 											arr = str_init.split("#");
 											$('#t7a1').val(formatDate(parseInt(arr[0])));
 											$('#t7a2').val(formatDate(parseInt(arr[1])));
+											$('#t7a3').val(arr[2]);
 									}								
 									v.schoolid = id;
 							break;
@@ -1644,7 +1651,7 @@
               a2 = date.getTime();
         	}
         	var check_result = 0;
-          if (jqInputs[0].value != '' && jqInputs[1].value != '')
+          if (jqInputs[0].value != '' && jqInputs[1].value != '' && jqInputs[2].value != '')
           {
           		check_result = true;
           }else
@@ -1657,7 +1664,7 @@
           		var str_url = "school/updateSchoolSetting7";
               var sa_id = v.dId;
               
-              $.post(str_url, { id: sa_id, startDate: a1, endDate: a2},
+              $.post(str_url, { id: sa_id, startDate: a1, endDate: a2, fee: jqInputs[2].value},
 					   	function(data){
 					   			if (data.code == 0)
 					   			{
