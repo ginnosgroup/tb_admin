@@ -59,7 +59,7 @@
             ss.end_date AS endDate,
             ss.parameters
         FROM b_school_setting ss, b_school s
-        WHERE ss.school_id = s.id AND id = #{id};
+        WHERE ss.school_id = s.id AND ss.id = #{id};
     </select>
     
     <select id="getBySchoolId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.SchoolSettingDO">
@@ -73,7 +73,7 @@
             ss.end_date AS endDate,
             ss.parameters
         FROM b_school_setting ss, b_school s
-        WHERE ss.school_id = s.id AND school_id = #{schoolId};
+        WHERE ss.school_id = s.id AND s.id = #{schoolId};
     </select>
 
 </mapper>
