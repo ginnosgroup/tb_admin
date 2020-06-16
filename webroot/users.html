@@ -325,7 +325,7 @@
 											<div class="form-group">
 												<input v-model.trim="name" type="text" class="form-control" placeholder="输入姓名">
 												<input v-model.trim="phone" type="text" class="form-control" placeholder="输入手机号码">
-												<input v-model.trim="adviserId" type="text" class="form-control" placeholder="输入顾问编号">
+												<select v-model.trim="adviserId" id="adviserId" class="form-control" style="width:130px;"></select>
 												<input v-model.trim="wechatUsername" type="text" class="form-control" placeholder="输入客户微信号">
 												<select v-model.trim="tagId" id="tagId" class="form-control">
 												<option value="" selected="true">请选择标签</option>
@@ -378,7 +378,7 @@
 														<td><a v-if="item.id" class="edit" href="javascript:;" @click="table_modify($index)"><span class="label label-success">Edit</span></a>
 																<a v-else class="edit" href="javascript:;"><span class="label label-primary">Save</span></a>
 														</td>
-														<td><a v-if="item.id" style="display:none;" class="delete" href="#" @click="delete_confirm($index,item.id)"><span class="label label-danger">Delete</span></a>
+														<td><a v-if="item.id" class="delete" href="#" @click="delete_confirm($index,item.id)"><span class="label label-danger">Delete</span></a>
 																<a v-else class="cancel" href="javascript:;"><span class="label label-info">Cancel</span></a>
 														</td>														
 													</tr>
@@ -1232,7 +1232,30 @@
 	        			}
 	        	}
 	        	obj_adviserId1.val(adviserId);   
-	        });	        
+	        });
+	        //绑定顾问列表
+	        var obj_adviserId2 = $("#adviserId");
+	        obj_adviserId2.append("<option value='0'>请选择顾问</option>");
+			    $.ajax({
+	          url: 'adviser/list?pageNum=0&pageSize=100000',
+	          type: 'GET',
+	          dataType: 'json'
+	        }).done(function(response) {
+	        	//author:bischina
+	        	var str_selected = '';
+	        	response = response.data;
+	        	for (var item in response)
+	        	{
+	        			if (adviserId == 'null')
+	        			{
+	        					obj_adviserId2.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+	        			}else
+	        			{
+	        					if (adviserId == response[item].id) obj_adviserId2.append("<option value='"+response[item].id+"' selected='true'>"+response[item].name+"</option>");	        					
+	        			}
+	        	}
+	        	obj_adviserId2.val(adviserId);   
+	        });	               
 	        //绑定tagId
 	        var obj_tagid= $("#tagId");
 			    $.ajax({
