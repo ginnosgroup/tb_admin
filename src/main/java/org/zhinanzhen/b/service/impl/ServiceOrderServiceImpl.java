@@ -99,10 +99,10 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
 	@Resource
 	private ServiceOrderCommentDAO serviceOrderCommentDao;
-	
+
 	@Resource
 	private CommissionOrderDAO commissionOrderDao;
-	
+
 	@Resource
 	private VisaDAO visaDao;
 
@@ -170,16 +170,17 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
 	@Override
 	public int countServiceOrder(String type, String excludeState, List<String> stateList, List<String> reviewStateList,
-			int userId, int maraId, int adviserId, int officialId, int parentId) throws ServiceException {
+			int userId, int maraId, int adviserId, int officialId, int parentId, boolean isNotApproved)
+			throws ServiceException {
 		return serviceOrderDao.countServiceOrder(type, excludeState, stateList, reviewStateList,
 				userId > 0 ? userId : null, maraId > 0 ? maraId : null, adviserId > 0 ? adviserId : null,
-				officialId > 0 ? officialId : null, parentId);
+				officialId > 0 ? officialId : null, parentId, isNotApproved);
 	}
 
 	@Override
 	public List<ServiceOrderDTO> listServiceOrder(String type, String excludeState, List<String> stateList,
 			List<String> reviewStateList, int userId, int maraId, int adviserId, int officialId, int parentId,
-			int pageNum, int pageSize) throws ServiceException {
+			boolean isNotApproved, int pageNum, int pageSize) throws ServiceException {
 		List<ServiceOrderDTO> serviceOrderDtoList = new ArrayList<ServiceOrderDTO>();
 		List<ServiceOrderDO> serviceOrderDoList = new ArrayList<ServiceOrderDO>();
 		if (pageNum < 0)
@@ -189,7 +190,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		try {
 			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, excludeState, stateList, reviewStateList,
 					userId > 0 ? userId : null, maraId > 0 ? maraId : null, adviserId > 0 ? adviserId : null,
-					officialId > 0 ? officialId : null, parentId, pageNum * pageSize, pageSize);
+					officialId > 0 ? officialId : null, parentId, isNotApproved, pageNum * pageSize, pageSize);
 			if (serviceOrderDoList == null)
 				return null;
 		} catch (Exception e) {
@@ -263,7 +264,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				});
 				serviceOrderDto.setChildrenServiceOrders(childrenServiceOrderList);
 			}
-				
+
 			// 查询审核记录
 			putReviews(serviceOrderDto);
 			serviceOrderDtoList.add(serviceOrderDto);
@@ -407,9 +408,13 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				if ("REVIEW".equals(maraState) || "WAIT".equals(maraState)) {
 					MaraDO maraDo = maraDao.getMaraById(serviceOrderDo.getMaraId());
 					if (maraDo != null)
-//						MailUtil.sendMail(maraDo.getEmail(), maraDo.getEmail(), "亲爱的" + maraDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:" + type
-//								+ "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:"
-//								+ date);
+						// MailUtil.sendMail(maraDo.getEmail(),
+						// maraDo.getEmail(), "亲爱的" + maraDo.getName() +
+						// ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:" +
+						// type
+						// + "/顾问:" + adviserDo.getName() + "/文案:" +
+						// officialDo.getName() + "/创建时间:"
+						// + date);
 						SendEmailUtil.send(maraDo.getEmail(), title,
 								"亲爱的" + maraDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:" + type
 										+ "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:"

@@ -253,131 +253,137 @@
     
     <select id="countServiceOrder" resultType="java.lang.Integer">
         SELECT count(*)
-        FROM b_service_order
-        WHERE is_delete = 0
+        FROM b_service_order so
+        WHERE so.is_delete = 0
         <if test='type != null and type != ""'>
-			AND type = #{type}
+			AND so.type = #{type}
 		</if>
 		<if test='excludeState != null and excludeState != ""'>
-			AND state != #{excludeState}
+			AND so.state != #{excludeState}
 		</if>
 		<if test='stateList != null'>
-			AND state IN
+			AND so.state IN
 			<foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">
 				#{stateList}
 			</foreach>
 		</if>
 		<if test='reviewStateList != null'>
-			AND review_state IN
+			AND so.review_state IN
 			<foreach collection="reviewStateList" item="reviewStateList" index="index" open="(" close=")" separator=",">
 				#{reviewStateList}
 			</foreach>
 		</if>
 		<if test='userId != null and userId > 0'>
-			AND user_id = #{userId}
+			AND so.user_id = #{userId}
 		</if>
 		<if test='maraId != null and maraId > 0'>
-			AND mara_id = #{maraId}
+			AND so.mara_id = #{maraId}
 		</if>
 		<if test='adviserId != null and adviserId > 0'>
-			AND (adviser_id = #{adviserId} OR adviser_id_2 = #{adviserId})
+			AND (so.adviser_id = #{adviserId} OR so.adviser_id_2 = #{adviserId})
 		</if>
 		<if test='officialId != null and officialId > 0'>
-			AND official_id = #{officialId}
+			AND so.official_id = #{officialId}
 		</if>
 		<if test='parentId != null and parentId > 0'>
-			AND parent_id = #{parentId}
+			AND so.parent_id = #{parentId}
+		</if>
+		<if test='isNotApproved == true'>
+			<![CDATA[ AND (SELECT COUNT(id) FROM b_service_order_review WHERE service_order_id = so.id AND official_state IS NOT NULL) <= 0 ]]>
 		</if>
         ;
     </select>
     
     <select id="listServiceOrder" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
         SELECT
-            id,
-            gmt_create AS gmtCreate,
-            gmt_modify AS gmtModify,
-            code,
-            finish_date AS finishDate,
-            type,
-            people_number AS peopleNumber,
-            people_type AS peopleType,
-            people_remarks AS peopleRemarks,
-            service_id AS serviceId,
-            parent_id AS parentId,
-            service_package_id AS servicePackageId,
-            school_id AS schoolId,
-            state,
-            is_settle AS isSettle,
-            is_deposit_user AS isDepositUser,
-            is_submitted AS isSubmitted,
-            subagency_id AS subagencyId,
-            is_pay AS isPay,
-            receive_type_id AS receiveTypeId,
-            receive_date AS receiveDate,
-            receivable,
-            discount,
-            received,
-            installment,
-            payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
-            payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
-            payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
-            payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
-            payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
-            coe_payment_voucher_image_url_1 AS coePaymentVoucherImageUrl1,
-            coe_payment_voucher_image_url_2 AS coePaymentVoucherImageUrl2,
-            coe_payment_voucher_image_url_3 AS coePaymentVoucherImageUrl3,
-            coe_payment_voucher_image_url_4 AS coePaymentVoucherImageUrl4,
-            coe_payment_voucher_image_url_5 AS coePaymentVoucherImageUrl5,
-            visa_voucher_image_url AS visaVoucherImageUrl,
-            per_amount AS perAmount,
-            amount,
-            expect_amount AS expectAmount,
-            gst,
-            deduct_gst AS deductGst,
-            bonus,
-            user_id AS userId,
-            mara_id AS maraId,
-            adviser_id AS adviserId,
-            adviser_id_2 AS adviserId2,
-            official_id AS officialId,
-            remarks,
-            closed_reason AS closedReason
-        FROM b_service_order
-        WHERE is_delete = 0
+            so.id AS id,
+            so.gmt_create AS gmtCreate,
+            so.gmt_modify AS gmtModify,
+            so.code AS code,
+            so.finish_date AS finishDate,
+            so.type AS type,
+            so.people_number AS peopleNumber,
+            so.people_type AS peopleType,
+            so.people_remarks AS peopleRemarks,
+            so.service_id AS serviceId,
+            so.parent_id AS parentId,
+            so.service_package_id AS servicePackageId,
+            so.school_id AS schoolId,
+            so.state AS state,
+            so.is_settle AS isSettle,
+            so.is_deposit_user AS isDepositUser,
+            so.is_submitted AS isSubmitted,
+            so.subagency_id AS subagencyId,
+            so.is_pay AS isPay,
+            so.receive_type_id AS receiveTypeId,
+            so.receive_date AS receiveDate,
+            so.receivable AS receivable,
+            so.discount AS discount,
+            so.received AS received,
+            so.installment AS installment,
+            so.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+            so.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            so.payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+            so.payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+            so.payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+            so.coe_payment_voucher_image_url_1 AS coePaymentVoucherImageUrl1,
+            so.coe_payment_voucher_image_url_2 AS coePaymentVoucherImageUrl2,
+            so.coe_payment_voucher_image_url_3 AS coePaymentVoucherImageUrl3,
+            so.coe_payment_voucher_image_url_4 AS coePaymentVoucherImageUrl4,
+            so.coe_payment_voucher_image_url_5 AS coePaymentVoucherImageUrl5,
+            so.visa_voucher_image_url AS visaVoucherImageUrl,
+            so.per_amount AS perAmount,
+            so.amount AS amount,
+            so.expect_amount AS expectAmount,
+            so.gst AS gst,
+            so.deduct_gst AS deductGst,
+            so.bonus AS bonus,
+            so.user_id AS userId,
+            so.mara_id AS maraId,
+            so.adviser_id AS adviserId,
+            so.adviser_id_2 AS adviserId2,
+            so.official_id AS officialId,
+            so.remarks AS remarks,
+            so.closed_reason AS closedReason
+        FROM b_service_order so
+        WHERE so.is_delete = 0
         <if test='type != null and type != ""'>
-			AND type = #{type}
+			AND so.type = #{type}
 		</if>
 		<if test='excludeState != null and excludeState != ""'>
-			AND state != #{excludeState}
+			AND so.state != #{excludeState}
 		</if>
 		<if test='stateList != null'>
-			AND state IN
+			AND so.state IN
 			<foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">
 				#{stateList}
 			</foreach>
 		</if>
 		<if test='reviewStateList != null'>
-			AND review_state IN
+			AND so.review_state IN
 			<foreach collection="reviewStateList" item="reviewStateList" index="index" open="(" close=")" separator=",">
 				#{reviewStateList}
 			</foreach>
 		</if>
 		<if test='userId != null and userId > 0'>
-			AND user_id = #{userId}
+			AND so.user_id = #{userId}
 		</if>
 		<if test='maraId != null and maraId > 0'>
-			AND mara_id = #{maraId}
+			AND so.mara_id = #{maraId}
 		</if>
 		<if test='adviserId != null and adviserId > 0'>
-			AND (adviser_id = #{adviserId} OR adviser_id_2 = #{adviserId})
+			AND (so.adviser_id = #{adviserId} OR so.adviser_id_2 = #{adviserId})
 		</if>
 		<if test='officialId != null and officialId > 0'>
-			AND official_id = #{officialId}
+			AND so.official_id = #{officialId}
 		</if>
 		<if test='parentId != null and parentId > 0'>
-			AND parent_id = #{parentId}
+			AND so.parent_id = #{parentId}
 		</if>
-        ORDER BY id DESC
+		<if test='isNotApproved == true'>
+			<![CDATA[ AND (SELECT COUNT(id) FROM b_service_order_review WHERE service_order_id = so.id AND official_state IS NOT NULL) <= 0 ]]>
+		</if>
+        ORDER BY so.id DESC
         LIMIT #{offset}, #{rows};
     </select>
     

@@ -16,11 +16,12 @@ public interface ServiceOrderService {
 	int updateServiceOrderRviewState(int id, String reviewState) throws ServiceException;
 
 	int countServiceOrder(String type, String excludeState, List<String> stateList, List<String> reviewStateList,
-			int userId, int maraId, int adviserId, int officialId, int parentId) throws ServiceException;
+			int userId, int maraId, int adviserId, int officialId, int parentId, boolean isNotApproved)
+			throws ServiceException;
 
 	List<ServiceOrderDTO> listServiceOrder(String type, String excludeState, List<String> stateList,
 			List<String> reviewStateList, int userId, int maraId, int adviserId, int officialId, int parentId,
-			int pageNum, int pageSize) throws ServiceException;
+			boolean isNotApproved, int pageNum, int pageSize) throws ServiceException;
 
 	ServiceOrderDTO getServiceOrderById(int id) throws ServiceException;
 
