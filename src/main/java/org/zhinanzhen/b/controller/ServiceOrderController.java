@@ -485,7 +485,8 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "userId", required = false) String userId,
 			@RequestParam(value = "maraId", required = false) String maraId,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
-			@RequestParam(value = "officialId", required = false) String officialId, HttpServletRequest request,
+			@RequestParam(value = "officialId", required = false) String officialId,
+			@RequestParam(value = "isNotApproved", required = false) Boolean isNotApproved, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
@@ -517,7 +518,7 @@ public class ServiceOrderController extends BaseController {
 			return new Response<Integer>(0,
 					serviceOrderService.countServiceOrder(type, excludeState, stateList, reviewStateList,
 							StringUtil.toInt(userId), StringUtil.toInt(maraId), StringUtil.toInt(adviserId),
-							StringUtil.toInt(officialId), 0));
+							StringUtil.toInt(officialId), 0, isNotApproved != null ? isNotApproved : false));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -532,6 +533,7 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "maraId", required = false) String maraId,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
 			@RequestParam(value = "officialId", required = false) String officialId,
+			@RequestParam(value = "isNotApproved", required = false) Boolean isNotApproved,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
@@ -564,7 +566,8 @@ public class ServiceOrderController extends BaseController {
 			return new Response<List<ServiceOrderDTO>>(0,
 					serviceOrderService.listServiceOrder(type, excludeState, stateList, reviewStateList,
 							StringUtil.toInt(userId), StringUtil.toInt(maraId), StringUtil.toInt(adviserId),
-							StringUtil.toInt(officialId), 0, pageNum, pageSize));
+							StringUtil.toInt(officialId), 0, isNotApproved != null ? isNotApproved : false, pageNum,
+							pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<ServiceOrderDTO>>(1, e.getMessage(), null);
 		}
@@ -645,19 +648,26 @@ public class ServiceOrderController extends BaseController {
 							if (serviceOrderDto.getParentId() == 0 && ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
 									|| "MT".equalsIgnoreCase(serviceOrderDto.getType()))) {
 								return new Response<ServiceOrderDTO>(1, "该订单不支持审核.", serviceOrderDto);
-//								List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(null,
-//										null, null, null, 0, 0, 0, 0, serviceOrderDto.getId(), 0, 10);
-//								for (ServiceOrderDTO so : serviceOrderList) {
-//									if (so.getServicePackage() == null)
-//										return new Response<ServiceOrderDTO>(1, "子订单没有服务包.", so);
-//									if (so.getOfficialId() <= 0)
-//										return new Response<ServiceOrderDTO>(1, "子订单必须选择文案.", so);
-//									if (so.getMaraId() <= 0
-//											&& !"EOI".equalsIgnoreCase(so.getServicePackage().getType()))
-//										return new Response<ServiceOrderDTO>(1, "子订单必须选择Mara.", so);
-//									serviceOrderService.approval(so.getId(), adminUserLoginInfo.getId(),
-//											state.toUpperCase(), null, null, null);
-//								}
+								// List<ServiceOrderDTO> serviceOrderList =
+								// serviceOrderService.listServiceOrder(null,
+								// null, null, null, 0, 0, 0, 0,
+								// serviceOrderDto.getId(), 0, 10);
+								// for (ServiceOrderDTO so : serviceOrderList) {
+								// if (so.getServicePackage() == null)
+								// return new Response<ServiceOrderDTO>(1,
+								// "子订单没有服务包.", so);
+								// if (so.getOfficialId() <= 0)
+								// return new Response<ServiceOrderDTO>(1,
+								// "子订单必须选择文案.", so);
+								// if (so.getMaraId() <= 0
+								// &&
+								// !"EOI".equalsIgnoreCase(so.getServicePackage().getType()))
+								// return new Response<ServiceOrderDTO>(1,
+								// "子订单必须选择Mara.", so);
+								// serviceOrderService.approval(so.getId(),
+								// adminUserLoginInfo.getId(),
+								// state.toUpperCase(), null, null, null);
+								// }
 							}
 							return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id,
 									adminUserLoginInfo.getId(), state.toUpperCase(), null, null, null));
