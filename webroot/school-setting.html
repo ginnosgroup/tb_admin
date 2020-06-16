@@ -307,15 +307,20 @@
 													<tr>
 														<!--<th><input @click="checked" type="checkbox"></th>-->
 														<th>ID</th>
-														<th>学校</th>														
+														<th>学校</th>
+														<th>选择佣金卡片类型</th>
+														<th>当前参数</th>														
 														<th>周期内业务总额</th>
 														<th>周期内业务总量</th>
 													</tr>
 												</thead>
 												<tbody>
-													<tr v-for="item in subject" class="gradeX">
+													<tr v-for="item in subject" class="gradeX" id="list_{{item.id}}">
 														<td v-html="item.oid"></td>
-														<td v-html="item.schoolName1" width="700"></td>
+														<td v-html="item.schoolName1" style="width:400px;"></td>
+														<td v-html="item.str_type">														
+														</td>
+														<td v-html="item.str_parameters" style="color:#008000;"></td>
 														<td v-html="item.amount"></td>
 														<td v-html="item.count"></td>
 													</tr>
@@ -766,6 +771,7 @@
 					schoolid: 0,
 					school_name: '',
 					currentId: 0,
+					currentSubId: '',
 					opened: 0,
 					name: '',
 					sort: '',
@@ -796,7 +802,7 @@
 									result.data[i].oid = result.data[i].id;
 									result.data[i].str_init = '';
 									result.data[i].str_parameters = '';
-									result.data[i].schoolName1 = '<div onclick="loadCourses('+result.data[i].id+',\''+result.data[i].schoolName+'\')"><div style="display:inline-block;">'+result.data[i].schoolName+'</div><div style="display:inline-block;margin-left:10px;" id="s_'+result.data[i].id+'">+</div></div><div style="display:none;" id="courseList_'+result.data[i].id+'"></div>';
+									result.data[i].schoolName1 = '<div onclick="loadCourses('+result.data[i].id+',\''+result.data[i].schoolName+'\')"><div style="display:inline-block;">'+result.data[i].schoolName+'</div><div style="display:inline-block;margin-left:10px;" id="s_'+result.data[i].id+'">+</div></div>';
 									switch(result.data[i].type)
 									{
 											case 1:
@@ -920,7 +926,9 @@
 													}
 											break;
 									}									
-									result.data[i].str_type = sltype(result.data[i].type,result.data[i].id,result.data[i].str_init,result.data[i].schoolName);
+									//result.data[i].str_type = sltype(result.data[i].type,result.data[i].id,result.data[i].str_init,result.data[i].schoolName);
+									result.data[i].str_type = '';
+									result.data[i].str_parameters = '';
 							};
 							that.subject = result.data;
 							//console.log(that.subject);
@@ -966,26 +974,23 @@
 			function loadCourses(id,name)
 			{
 					if (v.currentId)
-					{
-							$('#courseList_'+v.currentId).hide();		
+					{							
+							var arr = v.currentSubId.split(',');
+							for(var i=0;i < arr.length;i++)
+							{
+									$("#sub_"+arr[i]).remove();
+							}						
 							$('#s_'+v.currentId).html('+');	
 							v.opened = 0;
 					}
 					if (!v.opened)
 					{
 							$('#s_'+id).html('-');
-							$('#courseList_'+id).show();
 							v.opened = 1;
 							//ajax请求课程
 							ajaxGetCourses(id,name);
-					}else
-					{
-							$('#s_'+id).html('+');
-							$('#courseList_'+id).hide();
-							v.opened = 0;
 					}
-					v.currentId = id;
-					//$('#type6a_id').modal('hide');
+					v.currentId = id;					
 			}
 			
 			function ajaxGetCourses(id,name)
@@ -1125,10 +1130,16 @@
 												break;
 										}									
 										result.data[i].str_type = sltype(result.data[i].type,result.data[i].id,result.data[i].str_init,result.data[i].schoolName);
-										str_html += '<div style="line-height:40px;border-bottom: 1px solid #ddd;"><div style="display:inline-block;width:200px;">'+result.data[i].schoolSubject+'</div><div style="display:inline-block;margin-left:10px;">'+result.data[i].str_type+'</div><div style="display:block;margin-left:10px;">'+result.data[i].str_parameters +'</div></div>';
+										if (v.currentSubId == '')
+										{
+												v.currentSubId = result.data[i].id;
+										}else
+										{
+												v.currentSubId += ','+result.data[i].id;
+										}
+										$("#list_"+id).after('<tr id="sub_'+result.data[i].id+'"><td></td><td align="center" style="color:#000;">'+result.data[i].schoolSubject+'</td><td>'+result.data[i].str_type+'</td><td style="color:#008000;">'+result.data[i].str_parameters +'</td><td></td><td></td></tr>');
 								}
 						};
-						$('#courseList_'+id).html(str_html);				
 					});
 			}						
 			
