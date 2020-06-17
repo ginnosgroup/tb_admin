@@ -105,6 +105,8 @@ public class SchoolController extends BaseController {
 			List<SchoolDTO> oldSchoolDtoList = schoolService.list(oldName);
 			if (oldSchoolDtoList == null || oldSchoolDtoList.size() == 0)
 				return new Response<Boolean>(1, "没有找到名称为'" + oldName + "'的记录!", false);
+			if (oldSchoolDtoList.size() > 10)
+				return new Response<Boolean>(1, "异常!", false);
 			for (SchoolDTO oldSchoolDto : oldSchoolDtoList) {
 				String name = newName;
 				String subject = oldSchoolDto.getSubject();
@@ -118,7 +120,8 @@ public class SchoolController extends BaseController {
 								false);
 			}
 			for (SchoolDTO schoolDto : oldSchoolDtoList)
-				schoolService.updateSchool(schoolDto.getId(), newName, null, null);
+				if (schoolDto.getId() > 0)
+					schoolService.updateSchool(schoolDto.getId(), newName, null, null);
 			return new Response<Boolean>(0, true);
 		} catch (ServiceException e) {
 			return new Response<Boolean>(e.getCode(), e.getMessage(), null);
