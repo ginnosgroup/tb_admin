@@ -546,6 +546,7 @@
 					name: '',
 					sort: '',
 					state: '',
+					isNotApproved: false,
 					flowstate_gw: '',
 					flowstate_wa: '',
 					flowstate_ma: '',
@@ -566,8 +567,10 @@
 					getDatalist: function() {
 						var that = this;
 						if (that.state == '') that.state = that.service_state;
+						if (that.service_state != '') that.isNotApproved = true;
 						$.get(url + "serviceOrder/count", {
 							keyword: that.name,
+							isNotApproved: that.isNotApproved,
 							state: that.state							
 						}, function(result) {
 							that.count = result.data;
@@ -576,6 +579,7 @@
 						$.get(url + "serviceOrder/list", {
 							pageNum: 0,
 							pageSize: that.pageSize,
+							isNotApproved: that.isNotApproved,
 							state: that.state
 						}, function(result) {							
 							that.pageNum = 0;
@@ -626,9 +630,11 @@
 					firstPage: function() {
 						var that = this;
 						if (that.state == '') that.state = that.service_state;
+						if (that.service_state != '') that.isNotApproved = true;
 						if(that.pageNum > 0) {
 							$.get(url + "serviceOrder/list", {
 								keyword: that.name,
+								isNotApproved: that.isNotApproved,
 								state: that.state,
 								pageNum: 0,
 								pageSize: that.pageSize
@@ -643,10 +649,12 @@
 					prevPage: function() {
 						var that = this;
 						if (that.state == '') that.state = that.service_state;
+						if (that.service_state != '') that.isNotApproved = true;
 						if(that.pageNum > 0) {
 							that.pageNum--;
 							$.get(url + "serviceOrder/list", {
 								keyword: that.name,
+								isNotApproved: that.isNotApproved,
 								pageNum: that.pageNum,
 								pageSize: that.pageSize
 							}, function(result) {
@@ -659,10 +667,12 @@
 					nextPage: function() {
 						var that = this;
 						if (that.state == '') that.state = that.service_state;
+						if (that.service_state != '') that.isNotApproved = true;
 						if(that.pageNum < that.allPage - 1) {
 							that.pageNum++;
 							$.get(url + "serviceOrder/list", {
 								keyword: that.name,
+								isNotApproved: that.isNotApproved,
 								categoryId: that.sort,
 								state: that.state,
 								pageNum: that.pageNum,
@@ -677,9 +687,11 @@
 					lastPage: function() {
 						var that = this;
 						if (that.state == '') that.state = that.service_state;
+						if (that.service_state != '') that.isNotApproved = true;
 						if(that.pageNum < that.allPage - 1) {
 							$.get(url + "serviceOrder/list", {
 								keyword: that.name,
+								isNotApproved: that.isNotApproved,
 								categoryId: that.sort,
 								state: that.state,
 								pageNum: that.allPage - 1,
@@ -1003,7 +1015,7 @@
 					      	}
 			   					$('#alert_success').css('marginLeft','30%');
 			   					$('#alert_success').addClass('alert-success').show().delay(1500).fadeOut();
-			   					setTimeout(function(){window.location.href = "serviceorder-list.html";}, 2000);				   					
+			   					setTimeout(function(){window.location.href = "serviceorder-list.html?state=";}, 2000);				   					
 			   			}else
 			   			{
 			   					$('#alert_error').css('marginLeft','30%');
