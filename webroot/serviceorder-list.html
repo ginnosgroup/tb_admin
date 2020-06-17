@@ -814,7 +814,7 @@
 						{
 								var servicePackage = (result.data[i].servicePackageId ? result.data[i].servicePackage.type:'');
 								result.data[i].strState = return_state(str_state,servicePackage)+str_refusestate;
-								if (result.data[i].type == 'OVST' && result.data[i].submitted) result.data[i].strState = result.data[i].strState+'<br/><span style="color:#003333">月奖已申请</span>';													
+								if (result.data[i].type == 'OVST' && result.data[i].submitted) result.data[i].strState = result.data[i].strState+'<br/><span style="color:#6495ED;">月奖已申请</span>';													
 								result.data[i].currentState = str_state;								
 						}						
 						if (result.data[i].remarks) result.data[i].remarks = url_replace(result.data[i].remarks);
