@@ -102,11 +102,13 @@ public class SchoolController extends BaseController {
 			@RequestParam(value = "newName") String newName, HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
+			if (oldName == null || "".equals(oldName))
+				return new Response<Boolean>(1, "异常1!", false);
 			List<SchoolDTO> oldSchoolDtoList = schoolService.list(oldName);
 			if (oldSchoolDtoList == null || oldSchoolDtoList.size() == 0)
 				return new Response<Boolean>(1, "没有找到名称为'" + oldName + "'的记录!", false);
 			if (oldSchoolDtoList.size() > 10)
-				return new Response<Boolean>(1, "异常!", false);
+				return new Response<Boolean>(1, "异常2!", false);
 			for (SchoolDTO oldSchoolDto : oldSchoolDtoList) {
 				String name = newName;
 				String subject = oldSchoolDto.getSubject();
