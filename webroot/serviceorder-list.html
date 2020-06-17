@@ -567,7 +567,7 @@
 					getDatalist: function() {
 						var that = this;
 						if (that.state == '') that.state = that.service_state;
-						if (that.service_state != '') that.isNotApproved = true;
+						if (that.service_state == 'REVIEW') that.isNotApproved = true;
 						$.get(url + "serviceOrder/count", {
 							keyword: that.name,
 							isNotApproved: that.isNotApproved,
@@ -630,7 +630,7 @@
 					firstPage: function() {
 						var that = this;
 						if (that.state == '') that.state = that.service_state;
-						if (that.service_state != '') that.isNotApproved = true;
+						if (that.service_state == 'REVIEW') that.isNotApproved = true;
 						if(that.pageNum > 0) {
 							$.get(url + "serviceOrder/list", {
 								keyword: that.name,
@@ -649,7 +649,7 @@
 					prevPage: function() {
 						var that = this;
 						if (that.state == '') that.state = that.service_state;
-						if (that.service_state != '') that.isNotApproved = true;
+						if (that.service_state == 'REVIEW') that.isNotApproved = true;
 						if(that.pageNum > 0) {
 							that.pageNum--;
 							$.get(url + "serviceOrder/list", {
@@ -667,7 +667,7 @@
 					nextPage: function() {
 						var that = this;
 						if (that.state == '') that.state = that.service_state;
-						if (that.service_state != '') that.isNotApproved = true;
+						if (that.service_state == 'REVIEW') that.isNotApproved = true;
 						if(that.pageNum < that.allPage - 1) {
 							that.pageNum++;
 							$.get(url + "serviceOrder/list", {
@@ -687,7 +687,7 @@
 					lastPage: function() {
 						var that = this;
 						if (that.state == '') that.state = that.service_state;
-						if (that.service_state != '') that.isNotApproved = true;
+						if (that.service_state == 'REVIEW') that.isNotApproved = true;
 						if(that.pageNum < that.allPage - 1) {
 							$.get(url + "serviceOrder/list", {
 								keyword: that.name,
