@@ -84,6 +84,11 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	public List<SchoolDTO> list(String name) throws ServiceException {
 		List<SchoolDTO> schoolDtoList = new ArrayList<SchoolDTO>();
 		List<SchoolDO> schoolDoList = new ArrayList<SchoolDO>();
+		if (name == null || "".equals(name)) {
+			ServiceException se = new ServiceException("name is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
 		try {
 			schoolDoList = schoolDao.list2(name);
 			if (schoolDoList == null)
@@ -543,8 +548,8 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 //				System.out.println(
 //						co.getId() + "学校设置计算=学校设置金额[" + subjectSettingDo.getPrice() + "]=" + co.getCommission());
 			if (parameters != null) {
-				co.setCommission(Double.parseDouble(parameters.trim()));
-				System.out.println(co.getId() + "学校设置计算=学校设置金额[" + Double.parseDouble(parameters.trim()) + "]="
+				co.setCommission(co.getAmount() - Double.parseDouble(parameters.trim()));
+				System.out.println(co.getId() + "学校设置计算=本次收款金额[\" + co.getAmount() + \"]-学校设置金额[" + Double.parseDouble(parameters.trim()) + "]="
 						+ co.getCommission());
 			} else {
 				co.setCommission(co.getAmount()); // 正常情况下是不会执行到这里的

@@ -74,6 +74,11 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "installmentDueDate3", required = false) String installmentDueDate3,
 			@RequestParam(value = "installmentDueDate4", required = false) String installmentDueDate4,
 			@RequestParam(value = "installmentDueDate5", required = false) String installmentDueDate5,
+			@RequestParam(value = "installmentDueDate6", required = false) String installmentDueDate6,
+			@RequestParam(value = "installmentDueDate7", required = false) String installmentDueDate7,
+			@RequestParam(value = "installmentDueDate8", required = false) String installmentDueDate8,
+			@RequestParam(value = "installmentDueDate9", required = false) String installmentDueDate9,
+			@RequestParam(value = "installmentDueDate10", required = false) String installmentDueDate10,
 			@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
 			@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
 			@RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
@@ -192,40 +197,34 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				if (installmentNum == 1 && installmentDueDate1 != null) {
 					commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate1)));
 					commissionOrderDto.setState(ReviewKjStateEnum.REVIEW.toString()); // 第一笔单子直接进入财务审核状态
-				} else if (installmentNum == 2 && installmentDueDate2 != null) {
-					commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate2)));
+				} else {
+					if (installmentNum == 2 && installmentDueDate2 != null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate2)));
+					} else if (installmentNum == 3 && installmentDueDate3 != null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate3)));
+					} else if (installmentNum == 4 && installmentDueDate4 != null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate4)));
+					} else if (installmentNum == 5 && installmentDueDate5 != null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate5)));
+					} else if (installmentNum == 6 && installmentDueDate6 != null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate6)));
+					} else if (installmentNum == 7 && installmentDueDate7 != null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate7)));
+					} else if (installmentNum == 8 && installmentDueDate8 != null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate8)));
+					} else if (installmentNum == 9 && installmentDueDate9 != null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate9)));
+					} else if (installmentNum == 10 && installmentDueDate10 != null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate10)));
+					} else
+						break;
 					commissionOrderDto.setState(ReviewKjStateEnum.PENDING.toString());
 					commissionOrderDto.setPaymentVoucherImageUrl1(null);
 					commissionOrderDto.setPaymentVoucherImageUrl2(null);
 					commissionOrderDto.setPaymentVoucherImageUrl3(null);
 					commissionOrderDto.setPaymentVoucherImageUrl4(null);
 					commissionOrderDto.setPaymentVoucherImageUrl5(null);
-				} else if (installmentNum == 3 && installmentDueDate3 != null) {
-					commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate3)));
-					commissionOrderDto.setState(ReviewKjStateEnum.PENDING.toString());
-					commissionOrderDto.setPaymentVoucherImageUrl1(null);
-					commissionOrderDto.setPaymentVoucherImageUrl2(null);
-					commissionOrderDto.setPaymentVoucherImageUrl3(null);
-					commissionOrderDto.setPaymentVoucherImageUrl4(null);
-					commissionOrderDto.setPaymentVoucherImageUrl5(null);
-				} else if (installmentNum == 4 && installmentDueDate4 != null) {
-					commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate4)));
-					commissionOrderDto.setState(ReviewKjStateEnum.PENDING.toString());
-					commissionOrderDto.setPaymentVoucherImageUrl1(null);
-					commissionOrderDto.setPaymentVoucherImageUrl2(null);
-					commissionOrderDto.setPaymentVoucherImageUrl3(null);
-					commissionOrderDto.setPaymentVoucherImageUrl4(null);
-					commissionOrderDto.setPaymentVoucherImageUrl5(null);
-				} else if (installmentNum == 5 && installmentDueDate5 != null) {
-					commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate5)));
-					commissionOrderDto.setState(ReviewKjStateEnum.PENDING.toString());
-					commissionOrderDto.setPaymentVoucherImageUrl1(null);
-					commissionOrderDto.setPaymentVoucherImageUrl2(null);
-					commissionOrderDto.setPaymentVoucherImageUrl3(null);
-					commissionOrderDto.setPaymentVoucherImageUrl4(null);
-					commissionOrderDto.setPaymentVoucherImageUrl5(null);
-				} else
-					break;
+				}
 				int id = commissionOrderService.addCommissionOrder(commissionOrderDto);
 				if (id > 0) {
 					commissionOrderDtoList.add(commissionOrderDto);

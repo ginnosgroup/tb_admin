@@ -61,7 +61,7 @@ public class BaseController {
 		if (file != null) {
 			String path = "/root/tmp/";// 文件路径
 			String type = "JPG";// 文件类型
-			String fileName = file.getOriginalFilename();// 文件原名称
+			String fileName = file.getOriginalFilename().replace(" ", "_").replace("%20", "_");// 文件原名称
 			LOG.info("上传的文件原名称:" + fileName);
 			// 判断文件类型
 			type = fileName.indexOf(".") != -1 ? fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length())
@@ -96,7 +96,7 @@ public class BaseController {
 	public static Response<String> upload2(MultipartFile file, HttpSession session, String dir)
 			throws IllegalStateException, IOException {
 		if (file != null) {
-			String fileName = file.getOriginalFilename();// 文件原名称
+			String fileName = file.getOriginalFilename().replace(" ", "_").replace("%20", "_");// 文件原名称
 			LOG.info("上传的文件原名称:" + fileName);
 			String realPath = "/data" + dir;
 			// 创建目录
