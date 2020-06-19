@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.controller;
 
+import java.net.URLDecoder;
 import java.util.Date;
 import java.util.List;
 
@@ -138,9 +139,9 @@ public class SchoolController extends BaseController {
 		try {
 			super.setGetHeader(response);
 			if (subject == null && country == null)
-				return new Response<List<SchoolDTO>>(0, schoolService.list(name));
+				return new Response<List<SchoolDTO>>(0, schoolService.list(URLDecoder.decode(name)));
 			else
-				return new Response<List<SchoolDTO>>(0, schoolService.list(name, subject, country));
+				return new Response<List<SchoolDTO>>(0, schoolService.list(URLDecoder.decode(name), URLDecoder.decode(subject), country));
 		} catch (ServiceException e) {
 			return new Response<List<SchoolDTO>>(1, e.getMessage(), null);
 		}
@@ -166,7 +167,7 @@ public class SchoolController extends BaseController {
 			return new Response<List<SchoolSettingDTO>>(1, "仅限管理员使用.", null);
 		super.setGetHeader(response);
 		try {
-			return new Response<List<SchoolSettingDTO>>(0, schoolService.listSchoolSetting(schoolName));
+			return new Response<List<SchoolSettingDTO>>(0, schoolService.listSchoolSetting(URLDecoder.decode(schoolName)));
 		} catch (ServiceException e) {
 			return new Response<List<SchoolSettingDTO>>(1, e.getMessage(), null);
 		}
@@ -179,7 +180,7 @@ public class SchoolController extends BaseController {
 		super.setGetHeader(response);
 		try {
 			for (SchoolSettingDTO schoolSettingDto : schoolService.listSchoolSetting(null))
-				if (schoolSettingDto.getType() > 0 && schoolName.equals(schoolSettingDto.getSchoolName()))
+				if (schoolSettingDto.getType() > 0 && URLDecoder.decode(schoolName).equals(schoolSettingDto.getSchoolName()))
 					return new Response<Boolean>(0, "", true);
 			return new Response<Boolean>(0, "", false);
 		} catch (ServiceException e) {
@@ -478,7 +479,7 @@ public class SchoolController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<Integer>(0, schoolService.deleteSchoolByName(name));
+			return new Response<Integer>(0, schoolService.deleteSchoolByName(URLDecoder.decode(name)));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), 0);
 		}
