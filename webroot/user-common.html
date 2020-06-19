@@ -1144,7 +1144,7 @@ function addnewservice2_ajax_subject()
 			school_subject.empty();
 			school_subject.append("<option value=''>请选择</option>");
 	    $.ajax({
-        url: 'school/list?name='+school_name,
+        url: 'school/list?name='+encodeURIComponent(school_name),
         type: 'GET',
         dataType: 'json'
       }).done(function(response) {
