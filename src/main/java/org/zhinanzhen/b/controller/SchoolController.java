@@ -157,8 +157,9 @@ public class SchoolController extends BaseController {
 			@RequestParam(value = "country", required = false) String country, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<List<SchoolDTO>>(0, schoolService.listSchool(name, country));
-		} catch (ServiceException e) {
+			return new Response<List<SchoolDTO>>(0,
+					schoolService.listSchool(name != null ? URLDecoder.decode(name, "UTF-8") : null, country));
+		} catch (ServiceException | UnsupportedEncodingException e) {
 			return new Response<List<SchoolDTO>>(1, e.getMessage(), null);
 		}
 	}
