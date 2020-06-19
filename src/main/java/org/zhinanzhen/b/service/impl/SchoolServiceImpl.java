@@ -84,11 +84,11 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	public List<SchoolDTO> list(String name) throws ServiceException {
 		List<SchoolDTO> schoolDtoList = new ArrayList<SchoolDTO>();
 		List<SchoolDO> schoolDoList = new ArrayList<SchoolDO>();
-//		if (name == null || "".equals(name)) {
-//			ServiceException se = new ServiceException("name is null !");
-//			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
-//			throw se;
-//		}
+		if (name == null || "".equals(name)) {
+			ServiceException se = new ServiceException("name is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
 		try {
 			schoolDoList = schoolDao.list2(name);
 			if (schoolDoList == null)
