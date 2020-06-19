@@ -696,6 +696,11 @@
 						result.data[i].schoolName = result.data[i].school.name;
 						result.data[i].schoolSubject = result.data[i].school.subject;
 						result.data[i].installmentDueDate = result.data[i].installmentDueDate ? v.getTime(result.data[i].installmentDueDate):'';
+						if (result.data[i].state == 'PENDING')
+						{
+								result.data[i].expectAmount = 0.00;
+								result.data[i].bonus = 0.00;
+						}
 						v.total_expectamount += result.data[i].expectAmount;
 						v.total_bonus += result.data[i].bonus;
 						result.data[i].strState = return_state(result.data[i].state);
