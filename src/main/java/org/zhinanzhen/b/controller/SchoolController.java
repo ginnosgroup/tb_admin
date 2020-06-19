@@ -140,9 +140,12 @@ public class SchoolController extends BaseController {
 		try {
 			super.setGetHeader(response);
 			if (subject == null && country == null)
-				return new Response<List<SchoolDTO>>(0, schoolService.list(URLDecoder.decode(name, "UTF-8")));
+				return new Response<List<SchoolDTO>>(0,
+						schoolService.list(name != null ? URLDecoder.decode(name, "UTF-8") : null));
 			else
-				return new Response<List<SchoolDTO>>(0, schoolService.list(URLDecoder.decode(name, "UTF-8"), URLDecoder.decode(subject), country));
+				return new Response<List<SchoolDTO>>(0,
+						schoolService.list(name != null ? URLDecoder.decode(name, "UTF-8") : null,
+								URLDecoder.decode(subject, "UTF-8"), country));
 		} catch (ServiceException | UnsupportedEncodingException e) {
 			return new Response<List<SchoolDTO>>(1, e.getMessage(), null);
 		}
@@ -168,7 +171,8 @@ public class SchoolController extends BaseController {
 			return new Response<List<SchoolSettingDTO>>(1, "仅限管理员使用.", null);
 		super.setGetHeader(response);
 		try {
-			return new Response<List<SchoolSettingDTO>>(0, schoolService.listSchoolSetting(URLDecoder.decode(schoolName, "UTF-8")));
+			return new Response<List<SchoolSettingDTO>>(0, schoolService
+					.listSchoolSetting(schoolName != null ? URLDecoder.decode(schoolName, "UTF-8") : null));
 		} catch (ServiceException | UnsupportedEncodingException e) {
 			return new Response<List<SchoolSettingDTO>>(1, e.getMessage(), null);
 		}
@@ -181,7 +185,8 @@ public class SchoolController extends BaseController {
 		super.setGetHeader(response);
 		try {
 			for (SchoolSettingDTO schoolSettingDto : schoolService.listSchoolSetting(null))
-				if (schoolSettingDto.getType() > 0 && URLDecoder.decode(schoolName, "UTF-8").equals(schoolSettingDto.getSchoolName()))
+				if (schoolSettingDto.getType() > 0 && (schoolName != null
+						&& URLDecoder.decode(schoolName, "UTF-8").equals(schoolSettingDto.getSchoolName())))
 					return new Response<Boolean>(0, "", true);
 			return new Response<Boolean>(0, "", false);
 		} catch (ServiceException | UnsupportedEncodingException e) {
@@ -480,7 +485,8 @@ public class SchoolController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<Integer>(0, schoolService.deleteSchoolByName(URLDecoder.decode(name, "UTF-8")));
+			return new Response<Integer>(0,
+					schoolService.deleteSchoolByName(name != null ? URLDecoder.decode(name, "UTF-8") : null));
 		} catch (ServiceException | UnsupportedEncodingException e) {
 			return new Response<Integer>(1, e.getMessage(), 0);
 		}
