@@ -653,7 +653,11 @@
 						{
 								result.data[i].serviceName = '签证-'+result.data[i].serviceCode;
 						}
-						if (result.data[i].state == 'PENDING') result.data[i].expectAmount = 0.00;
+						if (result.data[i].state == 'PENDING')
+						{
+								result.data[i].expectAmount = 0.00;
+								result.data[i].bonus = 0.00;
+						}
 						v.total_expectamount += result.data[i].expectAmount;
 						v.total_bonus += result.data[i].bonus;
 						result.data[i].strState = return_state(result.data[i].state);

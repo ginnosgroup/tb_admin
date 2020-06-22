@@ -861,21 +861,21 @@
 															arr = result.data[i].parameters.split("|");
 															result.data[i].str_parameters = '合同周期从'+that.getTime(result.data[i].startDate)+'到'+that.getTime(result.data[i].endDate)+'。';
 															var arr1 = arr[1].split("/");
-															var str_txt = '成本比例为'+arr1[1]+'%（总人数达到'+arr1[0]+'人）';															
+															var str_txt = '成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';															
 															if (arr[2] != null)
 															{
 																	arr1 = arr[2].split("/");
-																	str_txt += '或成本比例为'+arr1[1]+'%（总人数达到'+arr1[0]+'人）';
+																	str_txt += '或成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';
 															}
 															if (arr[3] != null)
 															{
 																	arr1 = arr[3].split("/");
-																	str_txt += '或成本比例为'+arr1[1]+'%（总人数达到'+arr1[0]+'人）';
+																	str_txt += '或成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';
 															}
 															if (arr[4] != null)
 															{
 																	arr1 = arr[4].split("/");
-																	str_txt += '或成本比例为'+arr1[1]+'%（总人数达到'+arr1[0]+'人）';
+																	str_txt += '或成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';
 															}
 															result.data[i].str_parameters += str_txt;
 													}
@@ -926,9 +926,9 @@
 													}
 											break;
 									}									
-									//result.data[i].str_type = sltype(result.data[i].type,result.data[i].id,result.data[i].str_init,result.data[i].schoolName);
-									result.data[i].str_type = '';
-									result.data[i].str_parameters = '';
+									result.data[i].str_type = sltype(result.data[i].type,result.data[i].id,result.data[i].str_init,result.data[i].schoolName);
+									//result.data[i].str_type = '';
+									//result.data[i].str_parameters = '';
 							};
 							that.subject = result.data;
 							//console.log(that.subject);
@@ -1051,7 +1051,7 @@
 																var arr1 = arr[1].split("/");
 																if (arr1[1] != null)
 																{
-																		var str_txt = '总人数超过'+arr1[1]+'人一次性补贴$'+arr1[0];
+																		var str_txt = '总人数超过'+arr1[0]+'人一次性补贴$'+arr1[1];
 																		result.data[i].str_parameters += str_txt;
 																}																										
 														}
@@ -1064,21 +1064,21 @@
 																arr = result.data[i].parameters.split("|");
 																result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'。';
 																var arr1 = arr[1].split("/");
-																var str_txt = '成本比例为'+arr1[1]+'%（总人数达到'+arr1[0]+'人）';															
+																var str_txt = '成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';															
 																if (arr[2] != null)
 																{
 																		arr1 = arr[2].split("/");
-																		str_txt += '或成本比例为'+arr1[1]+'%（总人数达到'+arr1[0]+'人）';
+																		str_txt += '或成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';
 																}
 																if (arr[3] != null)
 																{
 																		arr1 = arr[3].split("/");
-																		str_txt += '或成本比例为'+arr1[1]+'%（总人数达到'+arr1[0]+'人）';
+																		str_txt += '或成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';
 																}
 																if (arr[4] != null)
 																{
 																		arr1 = arr[4].split("/");
-																		str_txt += '或成本比例为'+arr1[1]+'%（总人数达到'+arr1[0]+'人）';
+																		str_txt += '或成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';
 																}
 																result.data[i].str_parameters += str_txt;
 														}
@@ -1619,7 +1619,7 @@
           		var str_url = "school/updateSchoolSetting4";
               var sa_id = v.dId;
               
-              $.post(str_url, { id: sa_id, startDate: a1, endDate: a2, proportion1: b1, number1: b2, proportion2: c1, number2: c2, proportion3: d1, number3: d2, proportion4: e1, number4: e2},
+              $.post(str_url, { id: sa_id, startDate: a1, endDate: a2, number1: b1, proportion1: b2, number2: c1, proportion2: c2, number3: d1, proportion3: d2, number4: e1, proportion4: e2},
 					   	function(data){
 					   			if (data.code == 0)
 					   			{
