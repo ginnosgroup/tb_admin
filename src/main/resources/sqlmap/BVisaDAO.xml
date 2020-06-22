@@ -38,6 +38,8 @@
                 adviser_id,
                 mara_id,
                 official_id,
+                bank_check,
+                is_checked,
                 remarks,
                 is_close)
             VALUES (
@@ -73,6 +75,8 @@
                 #{adviserId},
                 #{maraId},
                 #{officialId},
+                NULL,
+                0,
                 #{remarks},
                 0);
     </insert>
@@ -157,6 +161,12 @@
         </if>
         <if test='officialId != null and officialId != ""'>
             , official_id = #{officialId}
+        </if>
+        <if test='bankCheck != null and bankCheck != ""'>
+            , bank_check = #{bankCheck}
+        </if>
+        <if test='isChecked != null'>
+            , is_checked = #{isChecked}
         </if>
         <if test='remarks != null and remarks != ""'>
             , remarks = #{remarks}
@@ -245,6 +255,8 @@
             bv.adviser_id AS adviserId,
             bv.mara_id AS maraId,
             bv.official_id AS officialId,
+            bv.bank_check AS bankCheck,
+            bv.is_checked AS isChecked,
             bv.remarks AS remarks,
             bv.is_close AS isClose,
             tbu.name AS userName,
@@ -317,6 +329,8 @@
             adviser_id AS adviserId,
             mara_id AS maraId,
             official_id AS officialId,
+            bank_check AS bankCheck,
+            is_checked AS isChecked,
             remarks,
             is_close AS isClose
         FROM b_visa
@@ -361,6 +375,8 @@
             adviser_id AS adviserId,
             mara_id AS maraId,
             official_id AS officialId,
+            bank_check AS bankCheck,
+            is_checked AS isChecked,
             remarks,
             is_close AS isClose
         FROM b_visa WHERE id = #{id, jdbcType=INTEGER};

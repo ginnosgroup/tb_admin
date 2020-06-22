@@ -146,5 +146,17 @@ public class KjController extends BaseController {
 			return new Response<KjDTO>(1, e.getMessage(), null);
 		}
 	}
+	
+	@RequestMapping(value = "/check", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> check(@RequestParam(value = "text") String text, HttpServletResponse response) {
+//		try {
+//			super.setGetHeader(response);
+//			
+//		} catch (ServiceException e) {
+//			return new Response<Integer>(1, e.getMessage(), 0);
+//		}
+		return null;
+	}
 
 }

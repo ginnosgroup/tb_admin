@@ -70,6 +70,10 @@ public class VisaDO {
 	private int maraId;
 
 	private int officialId;
+	
+	private String bankCheck;
+	
+	private boolean isChecked;
 
 	private String remarks;
 

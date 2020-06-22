@@ -37,7 +37,7 @@ public class VisaDTO {
 	private int serviceId;
 
 	private int serviceOrderId;
-	
+
 	private ServiceOrderDTO serviceOrder;
 
 	private String serviceCode;
@@ -87,6 +87,10 @@ public class VisaDTO {
 	private int officialId;
 
 	private String officialName;
+
+	private String bankCheck;
+
+	private boolean isChecked;
 
 	private String remarks;
 

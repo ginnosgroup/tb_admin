@@ -89,6 +89,10 @@ public class CommissionOrderDO {
 
 	private Date zyDate;
 
+	private String bankCheck;
+
+	private boolean isChecked;
+
 	private String remarks;
 
 	private boolean isClose;
