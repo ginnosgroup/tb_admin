@@ -1,6 +1,8 @@
 package org.zhinanzhen.b.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -26,6 +28,9 @@ import org.zhinanzhen.b.service.pojo.KjDTO;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
 
 import com.ikasoa.core.utils.StringUtil;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -159,8 +164,8 @@ public class KjController extends BaseController {
 
 	@RequestMapping(value = "/check", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<Integer> check(@RequestParam(value = "text") String text, HttpServletResponse response) {
-		int i = 0;
+	public Response<List<CheckOrderDTO>> check(@RequestParam(value = "text") String text, HttpServletResponse response) {
+		List<CheckOrderDTO> checkOrderList = new ArrayList<>();
 		String[] array1 = text.split("\n");
 		for (String s : array1) {
 			try {
@@ -176,8 +181,9 @@ public class KjController extends BaseController {
 							visaDto.setBankCheck(_id);
 							visaDto.setChecked(true);
 							visaService.updateVisa(visaDto);
-							i++;
-						}
+							checkOrderList.add(new CheckOrderDTO(visaDto.getId(), visaDto.getGmtCreate(), _id, true));
+						} else
+							checkOrderList.add(new CheckOrderDTO(visaDto.getId(), visaDto.getGmtCreate(), _id, false));
 					} else { // CommissionOrder
 						int id = Integer.parseInt(_id.trim());
 						double amount = Double.parseDouble(_amount.trim());
@@ -187,14 +193,31 @@ public class KjController extends BaseController {
 							commissionOrderListDto.setBankCheck(_id);
 							commissionOrderListDto.setChecked(true);
 							commissionOrderService.updateCommissionOrder(commissionOrderListDto);
-							i++;
-						}
+							checkOrderList.add(new CheckOrderDTO(commissionOrderListDto.getId(),
+									commissionOrderListDto.getGmtCreate(), _id, true));
+						} else
+							checkOrderList.add(new CheckOrderDTO(commissionOrderListDto.getId(),
+									commissionOrderListDto.getGmtCreate(), _id, false));
 					}
 				}
 			} catch (Exception e) {
 			}
 		}
-		return new Response<Integer>(0, i);
+		return new Response<>(0, checkOrderList);
+	}
+	
+	@AllArgsConstructor
+	@Data
+	class CheckOrderDTO {
+		
+		private int id;
+		
+		private Date gmtCreate;
+		
+		private String orderId;
+		
+		private boolean isChedked;
+		
 	}
 
 }
