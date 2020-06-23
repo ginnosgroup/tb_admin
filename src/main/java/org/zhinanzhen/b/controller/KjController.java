@@ -205,19 +205,19 @@ public class KjController extends BaseController {
 		}
 		return new Response<>(0, checkOrderList);
 	}
-	
+
 	@AllArgsConstructor
 	@Data
 	class CheckOrderDTO {
-		
+
 		private int id;
-		
+
 		private Date gmtCreate;
-		
-		private String orderId;
-		
+
+		private String bankContent;
+
 		private boolean isChedked;
-		
+
 	}
 
 }
