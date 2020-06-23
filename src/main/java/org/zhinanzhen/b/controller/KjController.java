@@ -14,12 +14,16 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.zhinanzhen.b.service.CommissionOrderService;
 import org.zhinanzhen.b.service.KjService;
 import org.zhinanzhen.b.service.KjStateEnum;
+import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
+import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.b.service.pojo.KjDTO;
+import org.zhinanzhen.b.service.pojo.VisaDTO;
 
 import com.ikasoa.core.utils.StringUtil;
 
@@ -30,6 +34,12 @@ public class KjController extends BaseController {
 
 	@Resource
 	KjService kjService;
+	
+	@Resource
+	VisaService visaService;
+	
+	@Resource
+	CommissionOrderService commissionOrderService;
 
 	@RequestMapping(value = "/upload_img", method = RequestMethod.POST)
 	@ResponseBody
@@ -146,26 +156,45 @@ public class KjController extends BaseController {
 			return new Response<KjDTO>(1, e.getMessage(), null);
 		}
 	}
-	
+
 	@RequestMapping(value = "/check", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> check(@RequestParam(value = "text") String text, HttpServletResponse response) {
+		int i = 0;
 		String[] array1 = text.split("\n");
-		for (String s1 : array1) {
-			System.out.println("=====s1:" + s1);
-			String[] array2 = s1.split("[,]");
-			for (String s2 : array2) {
-				System.out.println("==========s2:" + s2);
+		for (String s : array1) {
+			try {
+				String[] array2 = s.split("[,]");
+				if (array2.length >= 2) {
+					String _id = array2[0];
+					String _amount = array2[1];
+					if (_id.charAt(1) == 'V') { // VisaOrder
+						int id = Integer.parseInt(_id.substring(1, _id.length()).trim());
+						double amount = Double.parseDouble(_amount.trim());
+						VisaDTO visaDto = visaService.getVisaById(id);
+						if (visaDto.getAmount() == amount) {
+							visaDto.setBankCheck(_id);
+							visaDto.setChecked(true);
+							visaService.updateVisa(visaDto);
+							i++;
+						}
+					} else { // CommissionOrder
+						int id = Integer.parseInt(_id.trim());
+						double amount = Double.parseDouble(_amount.trim());
+						CommissionOrderListDTO commissionOrderListDto = commissionOrderService
+								.getCommissionOrderById(id);
+						if (commissionOrderListDto.getAmount() == amount) {
+							commissionOrderListDto.setBankCheck(_id);
+							commissionOrderListDto.setChecked(true);
+							commissionOrderService.updateCommissionOrder(commissionOrderListDto);
+							i++;
+						}
+					}
+				}
+			} catch (Exception e) {
 			}
 		}
-			
-//		try {
-//			super.setGetHeader(response);
-//			
-//		} catch (ServiceException e) {
-//			return new Response<Integer>(1, e.getMessage(), 0);
-//		}
-		return null;
+		return new Response<Integer>(0, i);
 	}
 
 }
