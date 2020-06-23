@@ -41,6 +41,10 @@
 								<label id="b6"></label>
 								<label style="display:inline;" id="b6a"></label>						
 							</div>
+							<div class="form-group" style="width:100%;height:40px;" id="b7text">
+								<label class="control-label" style="width:80px;"><strong>属性：</strong></label>
+								<label id="b6c"></label>								
+							</div>
 							<div id="is_payment" class="form-group" style="width:100%;height:40px;">
 								<label class="control-label" style="width:80px;"><strong>是否已支付：</strong></label>
 								<label id="b7"></label>
@@ -299,7 +303,7 @@
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;">Installment 1<br/>Due Date<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c24a1" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
+											<input type="text" autocomplete="off" id="c24a1" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">&nbsp;&nbsp;<button onclick="init_date()" type="button" class="btn btn-primary">点击生成Due日期</button>
 									</div>
 									<div id="installment_date2" class="form-group" style="width:100%;margin-top:10px;display:none;">								
 											<label class="control-label" style="width:150px;">Installment 2<br/>Due Date<span style="color:red;">*</span></label>
@@ -643,6 +647,9 @@ function show_addnewservice_id(orderId,type)
 		        			$("#show_addnewservice1_id #b6a").show();
 		        			$("#show_addnewservice1_id #b6a").html('<span style="padding-left:10px;">-【'+return_type(response.servicePackage.type)+'】</span>');
 				      }
+				      //属性处理
+        			if (response.peopleType) $('#show_addnewservice1_id #b6c').html(return_attribute(response.peopleType,response.peopleNumber)); 
+				      $("#show_addnewservice1_id #b7text").show();
 				      $('#show_addnewservice1_id #is_payment').hide();  				      
 				      $('#show_addnewservice1_id #show_paid').hide();      				
 	  					$('#show_addnewservice1_id #upload_receipt').hide();
@@ -653,6 +660,8 @@ function show_addnewservice_id(orderId,type)
 		        	$('#show_addnewservice1_id #b4').html(response.official.name);
 		        	$('#show_addnewservice1_id #b5').html('签证');
 		        	$('#show_addnewservice1_id #b6').html(response.service.code);
+		        	$('#show_addnewservice1_id #b6c').html('');
+		        	$("#show_addnewservice1_id #b7text").hide();
 		        	var str_ispay = '否';
 		        	$('#show_addnewservice1_id #show_paid').hide();
 		        	if (response.pay)
@@ -1410,6 +1419,43 @@ function computeDiscount(v)
 		{
 				var expect_amount = (parseInt(amount)*1.1).toFixed(2);
 				$("#show_addnewservice2_id #c32").val(expect_amount);
+		}
+}
+
+function init_date()
+{
+		if ($("#show_addnewservice2_id #c21").val() != '')
+		{
+				var installment = parseInt($("#show_addnewservice2_id #c21").val());
+				if (installment > 1)
+				{
+						var current_date = '';
+						var days = 0;
+						var installment1 = $("#show_addnewservice2_id #c24a1").val();
+						var arr_d = installment1.split("/");
+		    		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+		        var d = new Date(str_d);
+						for(var i=2;i <= installment;i++)
+						{
+								current_date = $("#show_addnewservice2_id #c24a"+i).val();
+								if (current_date == '')
+								{
+										days = 28*(i-1);
+										d = new Date(str_d);
+										d = d.valueOf();
+						        d = d + days * 24 * 60 * 60 * 1000;
+						        d = new Date(d);
+						        d = d.getTime();
+						        var d1 = new Date(d);
+						        var day = d1.getDate();
+						        if (day <= 9 ) day = '0'+day;
+						        var month = d1.getMonth()+1;
+						        if (month <= 9) month = '0'+month;
+						        var str_date = day+'/'+month+'/'+d1.getFullYear();
+										$("#show_addnewservice2_id #c24a"+i).val(str_date);
+								}
+						}
+				}
 		}
 }
 
