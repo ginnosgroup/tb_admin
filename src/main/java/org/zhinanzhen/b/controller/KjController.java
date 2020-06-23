@@ -150,6 +150,15 @@ public class KjController extends BaseController {
 	@RequestMapping(value = "/check", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> check(@RequestParam(value = "text") String text, HttpServletResponse response) {
+		String[] array1 = text.split("\n");
+		for (String s1 : array1) {
+			System.out.println("=====s1:" + s1);
+			String[] array2 = s1.split("[,]");
+			for (String s2 : array2) {
+				System.out.println("==========s2:" + s2);
+			}
+		}
+			
 //		try {
 //			super.setGetHeader(response);
 //			
