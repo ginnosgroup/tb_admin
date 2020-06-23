@@ -40,7 +40,7 @@
 						</div>
 						<div class="form-group" style="width:100%;height:40px;">
 							<label class="control-label" style="width:80px;">服务项目<span style="color:red;">*</span></label>
-							<select class="form-control" style="width:150px;" id="b5" onchange="$('#addnewservice1_id').modal('hide');add_service2(0,v.user_id,v.user_name);">
+							<select class="form-control" style="width:150px;" id="b5" onchange="$('#addnewservice1_id').modal('hide');if (this.value == 'OVST'){add_service2(0,v.user_id,v.user_name);}else{add_service3(0,v.user_id,v.user_name);}">
 							<option value="VISA">签证</option>
 							<option value="OVST">留学</option>
 							<option value="SIV">独立技术移民</option>
@@ -154,9 +154,10 @@
 						</div>
 						<div class="form-group" style="width:100%;height:40px;">
 							<label class="control-label" style="width:80px;">服务项目<span style="color:red;">*</span></label>
-							<select class="form-control" style="width:150px;" id="c2" onchange="$('#addnewservice2_id').modal('hide');add_service1(0,v.user_id,v.user_name);">
+							<select class="form-control" style="width:150px;" id="c2" onchange="$('#addnewservice2_id').modal('hide');if (this.value=='VISA'){add_service1(0,v.user_id,v.user_name);}else{add_service3(0,v.user_id,v.user_name);}">
 							<option value="OVST" selected="selected">留学</option>
 							<option value="VISA">签证</option>
+							<option value="SIV">独立技术移民</option>
 							</select>
 							<label class="control-label">学校<span style="color:red;">*</span></label>
 							<select class="form-control" style="width:150px;" id="c3" onchange="if (this.value!=''){addnewservice2_ajax_subject();}else{addnewservice2_set_empty();}"></select>
