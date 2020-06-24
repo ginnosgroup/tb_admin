@@ -5,6 +5,9 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="renderer" content="webkit">
+		<meta http-equiv="Pragma" content="no-cache" />   
+		<meta http-equiv="Cache-Control" content="no-cache" />
+		<meta http-equiv="Expires" content="0" />
 		<link rel="shortcut icon" href="img/favicon.ico">
 		<title>我的佣金报表</title>
 		<link href="css/bootstrap.min.css" rel="stylesheet">
@@ -640,7 +643,7 @@
 						var that = this;
 						var json = {};
 						json['keyword'] = that.name;
-						json['state'] = that.state;
+						if (that.state != '') json['state'] = that.state;
 						if (that.commission_list != 'TQKY')
 						{
 								json['commissionState'] = that.commission_list;
@@ -665,7 +668,7 @@
 							that.pageNum--;
 							var json = {};
 							json['keyword'] = that.name;
-							json['state'] = that.state;
+							if (that.state != '') json['state'] = that.state;
 							if (that.commission_list != 'TQKY')
 							{
 									json['commissionState'] = that.commission_list;
@@ -688,7 +691,7 @@
 							that.pageNum++;
 							var json = {};
 							json['keyword'] = that.name;
-							json['state'] = that.state;
+							if (that.state != '') json['state'] = that.state;
 							if (that.commission_list != 'TQKY')
 							{
 									json['commissionState'] = that.commission_list;
@@ -710,7 +713,7 @@
 						if(that.pageNum < that.allPage - 1) {
 							var json = {};
 							json['keyword'] = that.name;
-							json['state'] = that.state;
+							if (that.state != '') json['state'] = that.state;
 							if (that.commission_list != 'TQKY')
 							{
 									json['commissionState'] = that.commission_list;
