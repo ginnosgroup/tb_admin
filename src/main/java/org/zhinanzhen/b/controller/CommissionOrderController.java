@@ -628,9 +628,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				commissionStateList = null;
 				isYzyAndYjy = true;
 			}
-		} else if (state == null)
-			stateList = null;
-		else
+		} else
 			stateList.add(state);
 
 		try {
