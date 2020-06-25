@@ -227,6 +227,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				}
 				int id = commissionOrderService.addCommissionOrder(commissionOrderDto);
 				if (id > 0) {
+					serviceOrderDto.setSubmitted(true);
+					serviceOrderService.updateServiceOrder(serviceOrderDto); // 同时更改服务订单状态
 					commissionOrderDtoList.add(commissionOrderDto);
 					CommissionOrderListDTO commissionOrderListDto = commissionOrderService.getCommissionOrderById(id);
 					int i = schoolService.updateSchoolSetting(commissionOrderListDto); // 根据学校设置更新佣金值
@@ -242,8 +244,6 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				} else
 					msg += "佣金订单创建失败. (" + commissionOrderDto.toString() + ");";
 			}
-			serviceOrderDto.setSubmitted(true);
-			serviceOrderService.updateServiceOrder(serviceOrderDto); // 同时更改服务订单状态
 			return new Response<List<CommissionOrderDTO>>(0, msg, commissionOrderDtoList);
 		} catch (ServiceException e) {
 			return new Response<List<CommissionOrderDTO>>(e.getCode(), e.getMessage(), null);
