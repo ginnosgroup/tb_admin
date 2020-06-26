@@ -55,6 +55,8 @@ public class VisaDO {
 
 	private double expectAmount;
 
+	private double sureExpectAmount;
+
 	private double discount;
 
 	private double gst;

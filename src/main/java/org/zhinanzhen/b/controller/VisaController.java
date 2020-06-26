@@ -223,6 +223,7 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "received", required = false) String received,
 			@RequestParam(value = "perAmount", required = false) String perAmount,
 			@RequestParam(value = "amount", required = false) String amount,
+			@RequestParam(value = "amount", required = false) Double sureExpectAmount,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
 			@RequestParam(value = "maraId", required = false) String maraId,
 			@RequestParam(value = "officialId", required = false) String officialId,
@@ -301,6 +302,8 @@ public class VisaController extends BaseCommissionOrderController {
 				visaDto.setAmount(Double.parseDouble(amount));
 					serviceOrderDto.setAmount(Double.parseDouble(amount));
 			}
+			if (sureExpectAmount != null)
+				visaDto.setSureExpectAmount(sureExpectAmount);
 			double _perAmount = _visaDto.getPerAmount();
 			if (visaDto.getPerAmount() > 0)
 				_perAmount = visaDto.getPerAmount();

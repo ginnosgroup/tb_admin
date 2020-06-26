@@ -171,7 +171,7 @@ public class KjController extends BaseController {
 			try {
 				String[] array2 = s.split("[,]");
 				if (array2.length >= 2) {
-					String _id = array2[0];
+					String _id = array2[0].split("-")[0];
 					String _amount = array2[1];
 					if (_id.charAt(1) == 'V') { // VisaOrder
 						int id = Integer.parseInt(_id.substring(1, _id.length()).trim());

@@ -30,6 +30,7 @@
                 per_amount,
                 amount,
                 expect_amount,
+                sure_expect_amount,
                 discount,
                 gst,
                 deduct_gst,
@@ -67,6 +68,7 @@
                 #{perAmount},
                 #{amount},
                 #{expectAmount},
+                #{sureExpectAmount},
                 #{discount},
                 #{gst},
                 #{deductGst},
@@ -140,6 +142,9 @@
         </if>
         <if test='expectAmount != null and expectAmount != ""'>
             , expect_amount = #{expectAmount}
+        </if>
+        <if test='sureExpectAmount != null and sureExpectAmount != ""'>
+            , sure_expect_amount = #{sureExpectAmount}
         </if>
         <if test='gst != null and gst != ""'>
             , gst = #{gst}
@@ -247,6 +252,7 @@
             bv.per_amount AS perAmount,
             bv.amount AS amount,
             bv.expect_amount AS expectAmount,
+            bv.sure_expect_amount AS sureExpectAmount,
             bv.discount AS discount,
             bv.gst AS gst,
             bv.deduct_gst AS deductGst,
@@ -321,6 +327,7 @@
             per_amount AS perAmount,
             amount,
             expect_amount AS expectAmount,
+            sure_expect_amount AS sureExpectAmount,
             discount,
             gst,
             deduct_gst AS deductGst,
@@ -367,6 +374,7 @@
             per_amount AS perAmount,
             amount,
             expect_amount AS expectAmount,
+            sure_expect_amount AS sureExpectAmount,
             discount,
             gst,
             deduct_gst AS deductGst,
