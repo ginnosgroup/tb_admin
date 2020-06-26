@@ -223,7 +223,7 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "received", required = false) String received,
 			@RequestParam(value = "perAmount", required = false) String perAmount,
 			@RequestParam(value = "amount", required = false) String amount,
-			@RequestParam(value = "amount", required = false) Double sureExpectAmount,
+			@RequestParam(value = "sureExpectAmount", required = false) Double sureExpectAmount,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
 			@RequestParam(value = "maraId", required = false) String maraId,
 			@RequestParam(value = "officialId", required = false) String officialId,
