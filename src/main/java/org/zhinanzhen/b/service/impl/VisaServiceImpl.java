@@ -180,7 +180,10 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 				double totalAmount = 0.00;
 				for (VisaDO visaDo : list) {
 					totalPerAmount += visaDo.getPerAmount();
-					if (visaDo.getPaymentVoucherImageUrl1() != null || visaDo.getPaymentVoucherImageUrl2() != null)
+					if (visaDo.getPaymentVoucherImageUrl1() != null || visaDo.getPaymentVoucherImageUrl2() != null
+							|| visaDo.getPaymentVoucherImageUrl3() != null
+							|| visaDo.getPaymentVoucherImageUrl4() != null
+							|| visaDo.getPaymentVoucherImageUrl5() != null)
 						totalAmount += visaDo.getAmount();
 				}
 				visaDto.setTotalPerAmount(totalPerAmount);
