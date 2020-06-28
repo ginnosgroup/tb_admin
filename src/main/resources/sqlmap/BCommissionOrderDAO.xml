@@ -41,6 +41,7 @@
                 per_amount,
                 amount,
                 expect_amount,
+                sure_expect_amount,
                 discount,
                 gst,
                 deduct_gst,
@@ -85,6 +86,7 @@
                 #{perAmount},
                 #{amount},
                 #{expectAmount},
+                #{sureExpectAmount},
                 #{discount},
                 #{gst},
                 #{deductGst},
@@ -181,6 +183,9 @@
         </if>
         <if test='expectAmount != null and expectAmount > 0'>
             , expect_amount = #{expectAmount}
+        </if>
+        <if test='sureExpectAmount != null and sureExpectAmount != ""'>
+            , sure_expect_amount = #{sureExpectAmount}
         </if>
         <if test='discount != null and discount > 0'>
             , discount = #{discount}
@@ -305,6 +310,7 @@
             co.per_amount AS perAmount,
             co.amount,
             co.expect_amount AS expectAmount,
+            co.sure_expect_amount AS sureExpectAmount,
             co.discount,
             co.gst,
             co.deduct_gst AS deductGst,
@@ -399,6 +405,7 @@
             per_amount AS perAmount,
             amount,
             expect_amount AS expectAmount,
+            sure_expect_amount AS sureExpectAmount,
             discount,
             gst,
             deduct_gst AS deductGst,
@@ -447,6 +454,7 @@
             per_amount AS perAmount,
             amount,
             expect_amount AS expectAmount,
+            sure_expect_amount AS sureExpectAmount,
             discount,
             gst,
             deduct_gst AS deductGst,
@@ -495,6 +503,7 @@
             co.per_amount AS perAmount,
             co.amount,
             co.expect_amount AS expectAmount,
+            co.sure_expect_amount AS sureExpectAmount,
             co.discount,
             co.gst,
             co.deduct_gst AS deductGst,
@@ -555,6 +564,7 @@
             co.per_amount AS perAmount,
             co.amount,
             co.expect_amount AS expectAmount,
+            co.sure_expect_amount AS sureExpectAmount,
             co.discount,
             co.gst,
             co.deduct_gst AS deductGst,
@@ -618,6 +628,7 @@
             co.per_amount AS perAmount,
             co.amount,
             co.expect_amount AS expectAmount,
+            co.sure_expect_amount AS sureExpectAmount,
             co.discount,
             co.gst,
             co.deduct_gst AS deductGst,

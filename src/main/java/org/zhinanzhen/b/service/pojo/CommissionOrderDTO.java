@@ -78,6 +78,8 @@ public class CommissionOrderDTO {
 	private double amount;
 
 	private double expectAmount;
+	
+	private double sureExpectAmount = 0.00;
 
 	private double discount;
 
