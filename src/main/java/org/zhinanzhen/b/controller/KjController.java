@@ -175,10 +175,13 @@ System.out.println("#arraySize="+array1.length);
 				if (array2.length >= 2) {
 					String _id = array2[0].split("-")[0];
 					String _amount = array2[1];
+System.out.println("##_id="+_id);
+System.out.println("##_amount="+_amount);
+System.out.println("##_id.charAt(1)="+_id.charAt(1));
 					if (_id.charAt(1) == 'V') { // VisaOrder
 						int id = Integer.parseInt(_id.substring(1, _id.length()).trim());
 						double amount = Double.parseDouble(_amount.trim());
-System.out.println("V#id="+id + "#amount" + amount);
+System.out.println("###Vid="+id + "#amount" + amount);
 						VisaDTO visaDto = visaService.getVisaById(id);
 						if (visaDto.getAmount() == amount) {
 							visaDto.setBankCheck(_id);
@@ -190,7 +193,7 @@ System.out.println("V#id="+id + "#amount" + amount);
 					} else { // CommissionOrder
 						int id = Integer.parseInt(_id.trim());
 						double amount = Double.parseDouble(_amount.trim());
-System.out.println("#id="+id + "#amount" + amount);
+System.out.println("###id="+id + "#amount" + amount);
 						CommissionOrderListDTO commissionOrderListDto = commissionOrderService
 								.getCommissionOrderById(id);
 						if (commissionOrderListDto.getAmount() == amount) {
