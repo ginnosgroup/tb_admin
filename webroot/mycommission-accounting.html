@@ -865,6 +865,7 @@
 						{
 								result.data[i].serviceName = '签证-'+result.data[i].serviceCode;
 						}
+						if (result.data[i].sureExpectAmount == '0') result.data[i].sureExpectAmount = result.data[i].expectAmount;
 						var str_checked = '';
 						if (result.data[i].bankCheck)
 						{
