@@ -377,7 +377,7 @@
 														<th><span style="color:#FF6C60;">总计已收</span></th>											
 														<th>本次收款</th>
 														<th>预收业绩(<span style="color:#FF6C60;">Commission含GST</span>)</th>
-														<th>确认预收业绩</th>
+														<th v-if="ap_list==='KJ' && commission_state ==='TQKY'">确认预收业绩</th>
 														<th>GST</th>
 														<th>Deduct GST</th>
 														<th>学校支付金额</th>
@@ -414,7 +414,7 @@
 														<td v-html="item.totalAmount"></td>
 														<td v-html="item.amount"></td>
 														<td v-html="item.expectAmount"></td>
-														<td @dblclick="table_edit($index,'sureExpectAmount','t1')"><span v-html="item.sureExpectAmount"></span></td>
+														<td v-if="ap_list==='KJ' && commission_state ==='TQKY'" @dblclick="table_edit($index,'sureExpectAmount','t1')"><span v-html="item.sureExpectAmount"></span></td>
 														<td v-html="item.gst"></td>
 														<td v-html="item.deductGst"></td>
 														<th v-html="item.schoolPaymentAmount"></th>
