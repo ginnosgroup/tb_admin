@@ -672,7 +672,6 @@
 							bonusDate: '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:120px;" id="t2" data-date-format="dd-mm-yyyy" value="'+this.subject[index].bonusDate+'">',
 							adviserName: this.subject[index].adviserName,
 							strState: this.subject[index].strState,
-							remarks: url_replace(this.subject[index].remarks),
 							type: 1,
 						});															
 					},					
@@ -722,7 +721,6 @@
 						json['bonusDate'] = this.subject[index].bonusDate;
 						json['adviserName'] = this.subject[index].adviserName;
 						json['strState'] = this.subject[index].strState;
-						json['remarks'] = url_replace(this.subject[index].remarks);
 						json['type'] = 0;
 						this.subject.splice(index,1, json);															
 					},					
