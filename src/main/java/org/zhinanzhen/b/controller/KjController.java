@@ -165,8 +165,10 @@ public class KjController extends BaseController {
 	@RequestMapping(value = "/check", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<List<CheckOrderDTO>> check(@RequestParam(value = "text") String text, HttpServletResponse response) {
+System.out.println("#text="+text);
 		List<CheckOrderDTO> checkOrderList = new ArrayList<>();
 		String[] array1 = text.split("\n");
+System.out.println("#arraySize="+array1.length);
 		for (String s : array1) {
 			try {
 				String[] array2 = s.split("[,]");
