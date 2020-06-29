@@ -236,7 +236,8 @@ public class VisaController extends BaseCommissionOrderController {
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			VisaDTO _visaDto = visaService.getVisaById(id);
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(_visaDto.getServiceOrderId());
-			VisaDTO visaDto = visaService.getVisaById(id);
+			VisaDTO visaDto = new VisaDTO();
+			visaDto.setId(id);
 			if (adminUserLoginInfo != null && "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& commissionState != null) // 只有会计能修改佣金状态
 				visaDto.setCommissionState(CommissionStateEnum.get(commissionState.toUpperCase()).toString());
@@ -320,7 +321,14 @@ public class VisaController extends BaseCommissionOrderController {
 			}
 			if (StringUtil.isNotEmpty(bankCheck))
 				visaDto.setBankCheck(bankCheck);
-			visaDto.setChecked(isChecked != null && "true".equalsIgnoreCase(isChecked));
+System.out.println("==========isChecked1:"+isChecked);
+System.out.println("==========isChecked2:"+visaDto.isChecked());
+			if (StringUtil.isNotEmpty(isChecked))
+				visaDto.setChecked("true".equalsIgnoreCase(isChecked));
+			else
+				visaDto.setChecked(_visaDto.isChecked());
+System.out.println("==========isChecked3:"+visaDto.isChecked());
+System.out.println("==========isChecked4:"+_visaDto.isChecked());
 			if (StringUtil.isNotEmpty(remarks))
 				visaDto.setRemarks(remarks);
 			double commission = visaDto.getAmount();
