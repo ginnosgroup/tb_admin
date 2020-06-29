@@ -231,6 +231,28 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 		}
 		return commissionOrderListDto;
 	}
+	
+	@Override
+	public CommissionOrderListDTO getFirstCommissionOrderByServiceOrderId(int serviceOrderId) throws ServiceException {
+		if (serviceOrderId <= 0) {
+			ServiceException se = new ServiceException("serviceOrderId error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		CommissionOrderListDTO commissionOrderListDto = null;
+		try {
+			CommissionOrderListDO commissionOrderListDo = commissionOrderDao
+					.getFirstCommissionOrderByServiceOrderId(serviceOrderId);
+			if (commissionOrderListDo == null)
+				return null;
+			commissionOrderListDto = buildCommissionOrderListDto(commissionOrderListDo);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+		return commissionOrderListDto;
+	}
 
 	private CommissionOrderListDTO buildCommissionOrderListDto(CommissionOrderListDO commissionOrderListDo) {
 		CommissionOrderListDTO commissionOrderListDto = mapper.map(commissionOrderListDo, CommissionOrderListDTO.class);

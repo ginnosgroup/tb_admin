@@ -239,6 +239,51 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 		}
 		return visaDto;
 	}
+	
+	@Override
+	public VisaDTO getFirstVisaByServiceOrderId(int serviceOrderId) throws ServiceException {
+		if (serviceOrderId <= 0) {
+			ServiceException se = new ServiceException("serviceOrderId error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		VisaDTO visaDto = null;
+		try {
+			VisaDO visaDo = visaDao.getFirstVisaByServiceOrderId(serviceOrderId);
+			if (visaDo == null)
+				return null;
+			visaDto = mapper.map(visaDo, VisaDTO.class);
+			putReviews(visaDto);
+			if (visaDto.getUserId() > 0) {
+				UserDO userDo = userDao.getUserById(visaDto.getUserId());
+				visaDto.setUserName(userDo.getName());
+				visaDto.setPhone(userDo.getPhone());
+				visaDto.setBirthday(userDo.getBirthday());
+			}
+			if (visaDto.getReceiveTypeId() > 0) {
+				ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(visaDto.getReceiveTypeId());
+				if (receiveTypeDo != null)
+					visaDto.setReceiveTypeName(receiveTypeDo.getName());
+			}
+			List<VisaDO> list = visaDao.listVisaByCode(visaDto.getCode());
+			if (list != null) {
+				double totalPerAmount = 0.00;
+				double totalAmount = 0.00;
+				for (VisaDO _visaDo : list) {
+					totalPerAmount += _visaDo.getPerAmount();
+					if (_visaDo.getPaymentVoucherImageUrl1() != null || _visaDo.getPaymentVoucherImageUrl2() != null)
+						totalAmount += _visaDo.getAmount();
+				}
+				visaDto.setTotalPerAmount(totalPerAmount);
+				visaDto.setTotalAmount(totalAmount);
+			}
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+		return visaDto;
+	}
 
 	@Override
 	public int deleteVisaById(int id) throws ServiceException {

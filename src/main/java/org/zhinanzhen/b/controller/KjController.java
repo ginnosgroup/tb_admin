@@ -19,12 +19,14 @@ import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.CommissionOrderService;
 import org.zhinanzhen.b.service.KjService;
 import org.zhinanzhen.b.service.KjStateEnum;
+import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.b.service.pojo.KjDTO;
+import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
 
 import com.ikasoa.core.utils.StringUtil;
@@ -39,6 +41,9 @@ public class KjController extends BaseController {
 
 	@Resource
 	KjService kjService;
+	
+	@Resource
+	ServiceOrderService serviceOrderService;
 	
 	@Resource
 	VisaService visaService;
@@ -165,46 +170,76 @@ public class KjController extends BaseController {
 	@RequestMapping(value = "/check", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<List<CheckOrderDTO>> check(@RequestParam(value = "text") String text, HttpServletResponse response) {
-System.out.println("#text="+text);
 		List<CheckOrderDTO> checkOrderList = new ArrayList<>();
 		String[] array1 = text.split("\n");
-System.out.println("#arraySize="+array1.length);
 		for (String s : array1) {
 			try {
 				String[] array2 = s.split("[,]");
 				if (array2.length >= 2) {
 					String _id = array2[0].split("-")[0];
 					String _amount = array2[1];
-System.out.println("##_id="+_id);
-System.out.println("##_amount="+_amount);
-System.out.println("##_id.charAt(0)="+_id.charAt(0));
-					if (_id.charAt(0) == 'V') { // VisaOrder
+					if (_id.charAt(0) == 'V') { // 签证服务订单
 						int id = Integer.parseInt(_id.substring(1, _id.length()).trim());
 						double amount = Double.parseDouble(_amount.trim());
-System.out.println("###Vid="+id + "#amount" + amount);
-						VisaDTO visaDto = visaService.getVisaById(id);
-						if (visaDto.getAmount() == amount) {
-							visaDto.setBankCheck(_id);
-							visaDto.setChecked(true);
-							visaService.updateVisa(visaDto);
-							checkOrderList.add(new CheckOrderDTO(visaDto.getId(), visaDto.getGmtCreate(), _id, true));
-						} else
-							checkOrderList.add(new CheckOrderDTO(visaDto.getId(), visaDto.getGmtCreate(), _id, false));
-					} else { // CommissionOrder
+						ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
+						if (serviceOrderDto != null) {
+							VisaDTO visaDto = visaService.getFirstVisaByServiceOrderId(serviceOrderDto.getId());
+							if (visaDto.getAmount() == amount) {
+								visaDto.setBankCheck(_id);
+								visaDto.setChecked(true);
+								visaService.updateVisa(visaDto);
+								checkOrderList
+										.add(new CheckOrderDTO(visaDto.getId(), visaDto.getGmtCreate(), _id, true));
+							} else
+								checkOrderList
+										.add(new CheckOrderDTO(visaDto.getId(), visaDto.getGmtCreate(), _id, false));
+						}
+					} else if (_id.charAt(0) == 'C') { // 佣金订单
+						if (_id.charAt(1) == 'V') { // 签证佣金订单
+							int id = Integer.parseInt(_id.substring(2, _id.length()).trim());
+							double amount = Double.parseDouble(_amount.trim());
+							VisaDTO visaDto = visaService.getVisaById(id);
+							if (visaDto.getAmount() == amount) {
+								visaDto.setBankCheck(_id);
+								visaDto.setChecked(true);
+								visaService.updateVisa(visaDto);
+								checkOrderList
+										.add(new CheckOrderDTO(visaDto.getId(), visaDto.getGmtCreate(), _id, true));
+							} else
+								checkOrderList
+										.add(new CheckOrderDTO(visaDto.getId(), visaDto.getGmtCreate(), _id, false));
+						} else if (_id.charAt(1) == 'S') { // 留学佣金订单
+							int id = Integer.parseInt(_id.substring(2, _id.length()).trim());
+							double amount = Double.parseDouble(_amount.trim());
+							CommissionOrderListDTO commissionOrderListDto = commissionOrderService
+									.getCommissionOrderById(id);
+							if (commissionOrderListDto.getAmount() == amount) {
+								commissionOrderListDto.setBankCheck(_id);
+								commissionOrderListDto.setChecked(true);
+								commissionOrderService.updateCommissionOrder(commissionOrderListDto);
+								checkOrderList.add(new CheckOrderDTO(commissionOrderListDto.getId(),
+										commissionOrderListDto.getGmtCreate(), _id, true));
+							} else
+								checkOrderList.add(new CheckOrderDTO(commissionOrderListDto.getId(),
+										commissionOrderListDto.getGmtCreate(), _id, false));
+						}
+					} else { // 留学服务订单
 						int id = Integer.parseInt(_id.trim());
 						double amount = Double.parseDouble(_amount.trim());
-System.out.println("###id="+id + "#amount" + amount);
-						CommissionOrderListDTO commissionOrderListDto = commissionOrderService
-								.getCommissionOrderById(id);
-						if (commissionOrderListDto.getAmount() == amount) {
-							commissionOrderListDto.setBankCheck(_id);
-							commissionOrderListDto.setChecked(true);
-							commissionOrderService.updateCommissionOrder(commissionOrderListDto);
-							checkOrderList.add(new CheckOrderDTO(commissionOrderListDto.getId(),
-									commissionOrderListDto.getGmtCreate(), _id, true));
-						} else
-							checkOrderList.add(new CheckOrderDTO(commissionOrderListDto.getId(),
-									commissionOrderListDto.getGmtCreate(), _id, false));
+						ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
+						if (serviceOrderDto != null) {
+							CommissionOrderListDTO commissionOrderListDto = commissionOrderService
+									.getFirstCommissionOrderByServiceOrderId(serviceOrderDto.getId());
+							if (commissionOrderListDto.getAmount() == amount) {
+								commissionOrderListDto.setBankCheck(_id);
+								commissionOrderListDto.setChecked(true);
+								commissionOrderService.updateCommissionOrder(commissionOrderListDto);
+								checkOrderList.add(new CheckOrderDTO(commissionOrderListDto.getId(),
+										commissionOrderListDto.getGmtCreate(), _id, true));
+							} else
+								checkOrderList.add(new CheckOrderDTO(commissionOrderListDto.getId(),
+										commissionOrderListDto.getGmtCreate(), _id, false));
+						}
 					}
 				}
 			} catch (Exception e) {
