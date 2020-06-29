@@ -321,7 +321,7 @@ public class VisaController extends BaseCommissionOrderController {
 			}
 			if (StringUtil.isNotEmpty(bankCheck))
 				visaDto.setBankCheck(bankCheck);
-			visaDto.setChecked(isChecked != null && "true".equalsIgnoreCase(isChecked));
+			visaDto.setIsChecked(isChecked != null && "true".equalsIgnoreCase(isChecked));
 			if (StringUtil.isNotEmpty(remarks))
 				visaDto.setRemarks(remarks);
 			double commission = visaDto.getAmount();
