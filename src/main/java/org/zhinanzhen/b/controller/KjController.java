@@ -176,6 +176,7 @@ public class KjController extends BaseController {
 					if (_id.charAt(1) == 'V') { // VisaOrder
 						int id = Integer.parseInt(_id.substring(1, _id.length()).trim());
 						double amount = Double.parseDouble(_amount.trim());
+System.out.println("V#id="+id + "#amount" + amount);
 						VisaDTO visaDto = visaService.getVisaById(id);
 						if (visaDto.getAmount() == amount) {
 							visaDto.setBankCheck(_id);
@@ -187,6 +188,7 @@ public class KjController extends BaseController {
 					} else { // CommissionOrder
 						int id = Integer.parseInt(_id.trim());
 						double amount = Double.parseDouble(_amount.trim());
+System.out.println("#id="+id + "#amount" + amount);
 						CommissionOrderListDTO commissionOrderListDto = commissionOrderService
 								.getCommissionOrderById(id);
 						if (commissionOrderListDto.getAmount() == amount) {
