@@ -41,13 +41,13 @@ public class KjController extends BaseController {
 
 	@Resource
 	KjService kjService;
-	
+
 	@Resource
 	ServiceOrderService serviceOrderService;
-	
+
 	@Resource
 	VisaService visaService;
-	
+
 	@Resource
 	CommissionOrderService commissionOrderService;
 
@@ -169,7 +169,8 @@ public class KjController extends BaseController {
 
 	@RequestMapping(value = "/check", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<List<CheckOrderDTO>> check(@RequestParam(value = "text") String text, HttpServletResponse response) {
+	public Response<List<CheckOrderDTO>> check(@RequestParam(value = "text") String text,
+			HttpServletResponse response) {
 		List<CheckOrderDTO> checkOrderList = new ArrayList<>();
 		String[] array1 = text.split("\n");
 		for (String s : array1) {
@@ -188,11 +189,11 @@ public class KjController extends BaseController {
 								visaDto.setBankCheck(_id);
 								visaDto.setChecked(true);
 								visaService.updateVisa(visaDto);
-								checkOrderList
-										.add(new CheckOrderDTO(visaDto.getId(), visaDto.getGmtCreate(), _id, true));
+								checkOrderList.add(
+										new CheckOrderDTO(visaDto.getId(), visaDto.getGmtCreate(), "V", _id, true));
 							} else
-								checkOrderList
-										.add(new CheckOrderDTO(visaDto.getId(), visaDto.getGmtCreate(), _id, false));
+								checkOrderList.add(
+										new CheckOrderDTO(visaDto.getId(), visaDto.getGmtCreate(), "V", _id, false));
 						}
 					} else if (_id.charAt(0) == 'C') { // 佣金订单
 						if (_id.charAt(1) == 'V') { // 签证佣金订单
@@ -203,11 +204,11 @@ public class KjController extends BaseController {
 								visaDto.setBankCheck(_id);
 								visaDto.setChecked(true);
 								visaService.updateVisa(visaDto);
-								checkOrderList
-										.add(new CheckOrderDTO(visaDto.getId(), visaDto.getGmtCreate(), _id, true));
+								checkOrderList.add(
+										new CheckOrderDTO(visaDto.getId(), visaDto.getGmtCreate(), "CV", _id, true));
 							} else
-								checkOrderList
-										.add(new CheckOrderDTO(visaDto.getId(), visaDto.getGmtCreate(), _id, false));
+								checkOrderList.add(
+										new CheckOrderDTO(visaDto.getId(), visaDto.getGmtCreate(), "CV", _id, false));
 						} else if (_id.charAt(1) == 'S') { // 留学佣金订单
 							int id = Integer.parseInt(_id.substring(2, _id.length()).trim());
 							double amount = Double.parseDouble(_amount.trim());
@@ -218,10 +219,10 @@ public class KjController extends BaseController {
 								commissionOrderListDto.setChecked(true);
 								commissionOrderService.updateCommissionOrder(commissionOrderListDto);
 								checkOrderList.add(new CheckOrderDTO(commissionOrderListDto.getId(),
-										commissionOrderListDto.getGmtCreate(), _id, true));
+										commissionOrderListDto.getGmtCreate(), "CS", _id, true));
 							} else
 								checkOrderList.add(new CheckOrderDTO(commissionOrderListDto.getId(),
-										commissionOrderListDto.getGmtCreate(), _id, false));
+										commissionOrderListDto.getGmtCreate(), "CS", _id, false));
 						}
 					} else { // 留学服务订单
 						int id = Integer.parseInt(_id.trim());
@@ -235,10 +236,10 @@ public class KjController extends BaseController {
 								commissionOrderListDto.setChecked(true);
 								commissionOrderService.updateCommissionOrder(commissionOrderListDto);
 								checkOrderList.add(new CheckOrderDTO(commissionOrderListDto.getId(),
-										commissionOrderListDto.getGmtCreate(), _id, true));
+										commissionOrderListDto.getGmtCreate(), "S", _id, true));
 							} else
 								checkOrderList.add(new CheckOrderDTO(commissionOrderListDto.getId(),
-										commissionOrderListDto.getGmtCreate(), _id, false));
+										commissionOrderListDto.getGmtCreate(), "S", _id, false));
 						}
 					}
 				}
@@ -255,6 +256,8 @@ public class KjController extends BaseController {
 		private int id;
 
 		private Date gmtCreate;
+
+		private String type;
 
 		private String bankContent;
 
