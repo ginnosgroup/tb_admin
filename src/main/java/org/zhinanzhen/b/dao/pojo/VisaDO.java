@@ -75,7 +75,7 @@ public class VisaDO {
 	
 	private String bankCheck;
 	
-	private boolean isChecked;
+	private Boolean isChecked;
 
 	private String remarks;
 
