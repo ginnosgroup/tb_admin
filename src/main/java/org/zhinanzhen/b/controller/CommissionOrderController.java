@@ -281,7 +281,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
 			@RequestParam(value = "zyDate", required = false) String zyDate,
 			@RequestParam(value = "bankCheck", required = false) String bankCheck,
-			@RequestParam(value = "isChecked", required = false) Boolean isChecked,
+			@RequestParam(value = "isChecked", required = false) String isChecked,
 			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
@@ -387,8 +387,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				commissionOrderDto.setZyDate(new Date(Long.parseLong(zyDate)));
 			if (StringUtil.isNotEmpty(bankCheck))
 				commissionOrderDto.setBankCheck(bankCheck);
-			if (isChecked != null)
-				commissionOrderDto.setChecked(isChecked);
+			commissionOrderDto.setChecked(isChecked != null && "true".equalsIgnoreCase(isChecked));
 			if (StringUtil.isNotEmpty(remarks))
 				commissionOrderDto.setRemarks(remarks);
 

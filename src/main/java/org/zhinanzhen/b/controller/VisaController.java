@@ -228,7 +228,7 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "maraId", required = false) String maraId,
 			@RequestParam(value = "officialId", required = false) String officialId,
 			@RequestParam(value = "bankCheck", required = false) String bankCheck,
-			@RequestParam(value = "isChecked", required = false) Boolean isChecked,
+			@RequestParam(value = "isChecked", required = false) String isChecked,
 			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
@@ -321,8 +321,7 @@ public class VisaController extends BaseCommissionOrderController {
 			}
 			if (StringUtil.isNotEmpty(bankCheck))
 				visaDto.setBankCheck(bankCheck);
-			if (isChecked != null)
-				visaDto.setChecked(isChecked);
+			visaDto.setChecked(isChecked != null && "true".equalsIgnoreCase(isChecked));
 			if (StringUtil.isNotEmpty(remarks))
 				visaDto.setRemarks(remarks);
 			double commission = visaDto.getAmount();
