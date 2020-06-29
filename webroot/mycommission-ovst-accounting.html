@@ -427,7 +427,7 @@
 																<a href="javascript:open_detail({{item.serviceOrderId}},{{item.oid}});">查看</a>
 																<dli v-if="ap_list==='KJ' && commission_state ==='DJY'">
 																		<dli v-if="item.id">
-																				<dli v-if="item.schoolPaid">
+																				<dli v-if="item.isChecked">
 																				<a href="javascript:;" @click="table_modify($index)"><span style="color:blue;">编辑</span></a>
 																				</dli>
 																				<a href="javascript:show_confirmbox({{item.oid}},'WAIT',0);"><span style="color:blue;">驳回</span></a>
@@ -887,7 +887,7 @@
 								json['isChecked'] = '<select class="form-control" style="width:180px;" id="'+byid+'"></select>';
 						}else
 						{
-								json['isChecked'] = this.subject[index].checked;
+								json['isChecked'] = (!this.subject[index].checked ?  '':this.subject[index].checked);
 						}
 						json['gst'] = this.subject[index].gst;
 						json['deductGst'] = this.subject[index].deductGst;
