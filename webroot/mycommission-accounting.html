@@ -714,8 +714,8 @@
 						{
 								json['isChecked'] = '<select class="form-control" style="width:180px;" id="'+byid+'"></select>';
 						}else
-						{
-								json['isChecked'] = this.subject[index].checked;
+						{								
+								json['isChecked'] = (!this.subject[index].checked ?  '':this.subject[index].checked);
 						}
 						json['bonus'] = this.subject[index].bonus;
 						json['bonusDate'] = this.subject[index].bonusDate;
