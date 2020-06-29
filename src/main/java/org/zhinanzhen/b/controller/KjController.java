@@ -177,8 +177,8 @@ System.out.println("#arraySize="+array1.length);
 					String _amount = array2[1];
 System.out.println("##_id="+_id);
 System.out.println("##_amount="+_amount);
-System.out.println("##_id.charAt(1)="+_id.charAt(1));
-					if (_id.charAt(1) == 'V') { // VisaOrder
+System.out.println("##_id.charAt(0)="+_id.charAt(0));
+					if (_id.charAt(0) == 'V') { // VisaOrder
 						int id = Integer.parseInt(_id.substring(1, _id.length()).trim());
 						double amount = Double.parseDouble(_amount.trim());
 System.out.println("###Vid="+id + "#amount" + amount);
