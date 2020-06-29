@@ -697,7 +697,7 @@
             so.service_id AS serviceId
         FROM b_commission_order co, b_service_order so, tb_user u
         WHERE co.service_order_id = so.id AND co.user_id = u.id
-            AND co.installment = 1 AND co.service_order_id = #{serviceOrderId, jdbcType=INTEGER};
+            AND co.installment_num = 1 AND co.service_order_id = #{serviceOrderId, jdbcType=INTEGER};
     </select>
     
     <select id="sumTuitionFeeBySchoolId" resultType="java.lang.Double">

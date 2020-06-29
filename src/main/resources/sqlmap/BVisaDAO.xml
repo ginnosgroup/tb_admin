@@ -384,7 +384,7 @@
             remarks,
             is_close AS isClose
         FROM b_visa
-        WHERE installment = 1 AND service_order_id = #{serviceOrderId};
+        WHERE installment_num = 1 AND service_order_id = #{serviceOrderId};
     </select>
     
     <select id="sumBonusByThisMonth" resultType="java.lang.Double">
