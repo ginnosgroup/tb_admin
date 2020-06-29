@@ -92,7 +92,7 @@ public class VisaDTO {
 
 	private String bankCheck;
 
-	private Boolean isChecked;
+	private boolean isChecked;
 
 	private String remarks;
 

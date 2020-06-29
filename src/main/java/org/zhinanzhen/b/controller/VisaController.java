@@ -236,8 +236,7 @@ public class VisaController extends BaseCommissionOrderController {
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			VisaDTO _visaDto = visaService.getVisaById(id);
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(_visaDto.getServiceOrderId());
-			VisaDTO visaDto = new VisaDTO();
-			visaDto.setId(id);
+			VisaDTO visaDto = visaService.getVisaById(id);
 			if (adminUserLoginInfo != null && "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& commissionState != null) // 只有会计能修改佣金状态
 				visaDto.setCommissionState(CommissionStateEnum.get(commissionState.toUpperCase()).toString());
@@ -321,7 +320,7 @@ public class VisaController extends BaseCommissionOrderController {
 			}
 			if (StringUtil.isNotEmpty(bankCheck))
 				visaDto.setBankCheck(bankCheck);
-			visaDto.setIsChecked(isChecked != null && "true".equalsIgnoreCase(isChecked));
+			visaDto.setChecked(isChecked != null && "true".equalsIgnoreCase(isChecked));
 			if (StringUtil.isNotEmpty(remarks))
 				visaDto.setRemarks(remarks);
 			double commission = visaDto.getAmount();
