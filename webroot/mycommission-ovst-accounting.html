@@ -377,7 +377,7 @@
 														<th><span style="color:#FF6C60;">总计已收</span></th>											
 														<th>本次收款</th>
 														<th>预收业绩(<span style="color:#FF6C60;">Commission含GST</span>)</th>
-														<th v-if="ap_list==='KJ' && commission_state ==='TQKY'">确认预收业绩</th>
+														<th>确认预收业绩</th>
 														<th>GST</th>
 														<th>Deduct GST</th>
 														<th>学校支付金额</th>
@@ -414,7 +414,7 @@
 														<td v-html="item.totalAmount"></td>
 														<td v-html="item.amount"></td>
 														<td v-html="item.expectAmount"></td>
-														<td v-if="ap_list==='KJ' && commission_state ==='TQKY'" @dblclick="table_edit($index,'sureExpectAmount','t1')"><span v-html="item.sureExpectAmount"></span></td>
+														<td @dblclick="table_edit($index,'sureExpectAmount','t1')"><span v-html="item.sureExpectAmount"></span></td>
 														<td v-html="item.gst"></td>
 														<td v-html="item.deductGst"></td>
 														<th v-html="item.schoolPaymentAmount"></th>
@@ -845,6 +845,7 @@
 						});															
 					},									
 					table_edit: function (index,field,byid) {
+						if (field == 'sureExpectAmount'  && !this.subject[index].settle) return;						
 						if (this.current_index != null)
 						{
 								this.subject[this.current_index] = this.current_row;
@@ -939,6 +940,7 @@
 						result.data[i].bonusDate = result.data[i].bonusDate ? v.getTime(result.data[i].bonusDate):'';
 						result.data[i].zyDate = result.data[i].zyDate ? v.getTime(result.data[i].zyDate):'';
 						result.data[i].userName = result.data[i].user.name;
+						if (result.data[i].sureExpectAmount == '0') result.data[i].sureExpectAmount = result.data[i].expectAmount;
 						result.data[i].serviceName = '留学';
 						if (result.data[i].settle)
 						{
@@ -948,6 +950,7 @@
 						}else
 						{
 								result.data[i].strSettle = '否';
+								if (v.commission_state != 'TQKY') result.data[i].sureExpectAmount = (result.data[i].schoolPaymentAmount ? result.data[i].schoolPaymentAmount:0);
 						}
 						result.data[i].schoolName = result.data[i].school.name;
 						result.data[i].schoolSubject = result.data[i].school.subject;
@@ -958,8 +961,7 @@
 						result.data[i].adviserName = result.data[i].adviser.name;
 						result.data[i].strState = return_state(result.data[i].state);
 						result.data[i].currentState = result.data[i].state;
-						if (result.data[i].remarks) result.data[i].remarks = url_replace(result.data[i].remarks);
-						if (result.data[i].sureExpectAmount == '0') result.data[i].sureExpectAmount = result.data[i].expectAmount;
+						if (result.data[i].remarks) result.data[i].remarks = url_replace(result.data[i].remarks);												
 						var str_checked = '';
 						if (result.data[i].bankCheck)
 						{
