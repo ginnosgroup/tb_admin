@@ -21,7 +21,7 @@ public class AdminUserServiceImpl extends BaseService implements AdminUserServic
 
 	@Override
 	public int add(String username, String password, String apList, Integer adviserId, Integer maraId,
-			Integer officialId) throws ServiceException {
+			Integer officialId, Integer kjId) throws ServiceException {
 		if (StringUtil.isEmpty(password)) {
 			ServiceException se = new ServiceException("password is null !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -38,6 +38,8 @@ public class AdminUserServiceImpl extends BaseService implements AdminUserServic
 				adminUserDo.setMaraId(maraId);
 			if (officialId != null)
 				adminUserDo.setOfficialId(officialId);
+			if (kjId != null)
+				adminUserDo.setKjId(kjId);
 			return adminUserDao.add(adminUserDo);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
