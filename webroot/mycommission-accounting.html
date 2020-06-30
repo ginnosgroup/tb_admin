@@ -667,7 +667,8 @@
 							received: this.subject[index].received,
 							amount: this.subject[index].amount,
 							expectAmount: this.subject[index].expectAmount,
-							sureExpectAmount: this.subject[index].sureExpectAmount,
+							//sureExpectAmount: this.subject[index].sureExpectAmount,
+							sureExpectAmount: '<input type="text" class="form-control small" style="width:120px;" id="t3a" value="'+this.subject[index].sureExpectAmount+'">',
 							bonus: '<input type="text" class="form-control small" style="width:120px;" id="t1" value="'+this.subject[index].bonus+'">',
 							bonusDate: '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:120px;" id="t2" data-date-format="dd-mm-yyyy" value="'+this.subject[index].bonusDate+'">',
 							adviserName: this.subject[index].adviserName,
@@ -778,6 +779,8 @@
 	          	{
        						json['bonusDate'] = 0;      				
        				}
+       				var t3a = $(f+'#t3a').val();
+       				if (t3a != '') json['sureExpectAmount'] = t3a;
        				$.post(str_url, json,
 					   	function(data){
 					   			if (data.code == 0)
