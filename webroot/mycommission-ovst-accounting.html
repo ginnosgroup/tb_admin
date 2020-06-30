@@ -432,7 +432,7 @@
 																<a href="javascript:open_detail({{item.serviceOrderId}},{{item.oid}});">查看</a>
 																<dli v-if="ap_list==='KJ' && commission_state ==='DJY'">
 																		<dli v-if="item.id">
-																				<dli v-if="item.isChecked">
+																				<dli v-if="item.schoolPaid">
 																				<a href="javascript:;" @click="table_modify($index)"><span style="color:blue;">编辑</span></a>
 																				</dli>
 																				<a href="javascript:show_confirmbox({{item.oid}},'WAIT',0);"><span style="color:blue;">驳回</span></a>
@@ -447,7 +447,7 @@
 																				<a class="cancel" href="javascript:;">取消</a>
 																		</dli>
 																</dli>
-																<dli v-if="ap_list==='KJ' && commission_state ==='DZY'">
+																<dli v-if="ap_list==='KJ' && commission_state ==='DZY'">																	
 																		<dli v-if="item.id">
 																				<a href="javascript:;" @click="table_modify1($index)"><span style="color:blue;">编辑</span></a>
 																		</dli>
