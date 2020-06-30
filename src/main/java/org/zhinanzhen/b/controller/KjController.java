@@ -172,6 +172,7 @@ public class KjController extends BaseController {
 	public Response<List<CheckOrderDTO>> check(@RequestParam(value = "text") String text,
 			HttpServletResponse response) {
 		List<CheckOrderDTO> checkOrderList = new ArrayList<>();
+		String message = "";
 		String[] array1 = text.split("\n");
 		for (String s : array1) {
 			try {
@@ -195,7 +196,10 @@ public class KjController extends BaseController {
 								} else
 									checkOrderList.add(new CheckOrderDTO(visaDto.getId(), visaDto.getGmtCreate(), "V",
 											_id, false));
-						}
+							else
+								message += "未找到签证佣金订单(" + serviceOrderDto.getId() + ");";
+						} else
+							message += "未找到服务订单(" + id + ");";
 					} else if (_id.charAt(0) == 'C') { // 佣金订单
 						if (_id.charAt(1) == 'V') { // 签证佣金订单
 							int id = Integer.parseInt(_id.substring(2, _id.length()).trim());
@@ -211,6 +215,8 @@ public class KjController extends BaseController {
 								} else
 									checkOrderList.add(new CheckOrderDTO(visaDto.getId(), visaDto.getGmtCreate(), "CV",
 											_id, false));
+							else
+								message += "未找到签证佣金订单(" + id + ");";
 						} else if (_id.charAt(1) == 'S') { // 留学佣金订单
 							int id = Integer.parseInt(_id.substring(2, _id.length()).trim());
 							double amount = Double.parseDouble(_amount.trim());
@@ -226,6 +232,8 @@ public class KjController extends BaseController {
 								} else
 									checkOrderList.add(new CheckOrderDTO(commissionOrderListDto.getId(),
 											commissionOrderListDto.getGmtCreate(), "CS", _id, false));
+							else
+								message += "未找到留学佣金订单(" + id + ");";
 						}
 					} else { // 留学服务订单
 						int id = Integer.parseInt(_id.trim());
@@ -244,13 +252,18 @@ public class KjController extends BaseController {
 								} else
 									checkOrderList.add(new CheckOrderDTO(commissionOrderListDto.getId(),
 											commissionOrderListDto.getGmtCreate(), "S", _id, false));
-						}
+							else
+								message += "未找到留学佣金订单(" + serviceOrderDto.getId() + ");";
+						} else
+							message += "未找到服务订单(" + id + ");";
 					}
-				}
+				} else
+					message += "格式错误(" + s + ");";
 			} catch (Exception e) {
+				message += "异常:" + e.getMessage() + ";";
 			}
 		}
-		return new Response<>(0, checkOrderList);
+		return new Response<>(0, message, checkOrderList);
 	}
 
 	@AllArgsConstructor
