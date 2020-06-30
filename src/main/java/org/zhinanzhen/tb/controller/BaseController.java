@@ -75,7 +75,8 @@ public class BaseController {
 						folder.mkdirs();
 					}
 					// 自定义的文件名称
-					String newFileName = String.valueOf(System.currentTimeMillis()) + "_" + fileName.toLowerCase();
+//					String newFileName = String.valueOf(System.currentTimeMillis()) + "_" + fileName.toLowerCase();
+					String newFileName = String.valueOf(System.currentTimeMillis());
 					// 设置存放图片文件的路径
 					path = realPath + newFileName;
 					LOG.info("存放图片文件的路径:" + path);
@@ -104,7 +105,8 @@ public class BaseController {
 			if (!folder.isDirectory())
 				folder.mkdirs();
 			// 自定义的文件名称
-			String newFileName = String.valueOf(System.currentTimeMillis()) + "_" + fileName.toLowerCase();
+//			String newFileName = String.valueOf(System.currentTimeMillis()) + "_" + fileName.toLowerCase();
+			String newFileName = String.valueOf(System.currentTimeMillis());
 			// 设置存放文件的路径
 			String path = realPath + newFileName;
 			LOG.info("存放文件的路径:" + path);
