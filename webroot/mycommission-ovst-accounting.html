@@ -788,6 +788,7 @@
 							totalAmount: this.subject[index].totalAmount,
 							amount: this.subject[index].amount,
 							expectAmount: this.subject[index].expectAmount,
+							sureExpectAmount: '<input type="text" class="form-control small" style="width:120px;" id="t3a" value="'+this.subject[index].sureExpectAmount+'">',
 							gst: this.subject[index].gst,
 							deductGst: this.subject[index].deductGst,
 							schoolPaymentAmount: this.subject[index].schoolPaymentAmount,
@@ -1044,6 +1045,8 @@
 	          	{
        						json['bonusDate'] = 0;      				
        				}
+       				var t3a = $(f+'#t3a').val();
+       				if (t3a != '') json['sureExpectAmount'] = t3a;
        				$.post(str_url, json,
 					   	function(data){
 					   			if (data.code == 0)
