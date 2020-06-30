@@ -448,6 +448,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "schoolPaymentDate", required = false) String schoolPaymentDate,
 			@RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
 			@RequestParam(value = "zyDate", required = false) String zyDate,
+			@RequestParam(value = "sureExpectAmount", required = false) Double sureExpectAmount,
 			@RequestParam(value = "bonus", required = false) String bonus,
 			@RequestParam(value = "bonusDate", required = false) String bonusDate, HttpServletRequest request,
 			HttpServletResponse response) {
@@ -469,6 +470,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				commissionOrderDto.setInvoiceNumber(invoiceNumber);
 			if (StringUtil.isNotEmpty(zyDate))
 				commissionOrderDto.setZyDate(new Date(Long.parseLong(zyDate)));
+			if (sureExpectAmount != null)
+				commissionOrderDto.setSureExpectAmount(sureExpectAmount);
 			if (bonus != null)
 				commissionOrderDto.setBonus(Double.parseDouble(bonus));
 			if (bonusDate != null)
