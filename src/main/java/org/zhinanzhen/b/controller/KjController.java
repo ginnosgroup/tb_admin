@@ -192,14 +192,15 @@ public class KjController extends BaseController {
 									visaDto.setChecked(true);
 									visaService.updateVisa(visaDto);
 									checkOrderList.add(
-											new CheckOrderDTO(visaDto.getId(), visaDto.getGmtCreate(), "V", _id, true));
+											new CheckOrderDTO(visaDto.getId(), visaDto.getGmtCreate(), "V", _id, true, ""));
 								} else
 									checkOrderList.add(new CheckOrderDTO(visaDto.getId(), visaDto.getGmtCreate(), "V",
-											_id, false));
+											_id, false, ""));
 							else
-								message += "未找到签证佣金订单(" + serviceOrderDto.getId() + ");";
+								checkOrderList.add(new CheckOrderDTO(-1, null, "V", _id, false,
+										"未找到签证佣金订单(" + serviceOrderDto.getId() + ")"));
 						} else
-							message += "未找到服务订单(" + id + ");";
+							checkOrderList.add(new CheckOrderDTO(-1, null, "V", _id, false, "未找到服务订单(" + id + ")"));
 					} else if (_id.charAt(0) == 'C') { // 佣金订单
 						if (_id.charAt(1) == 'V') { // 签证佣金订单
 							int id = Integer.parseInt(_id.substring(2, _id.length()).trim());
@@ -211,12 +212,13 @@ public class KjController extends BaseController {
 									visaDto.setChecked(true);
 									visaService.updateVisa(visaDto);
 									checkOrderList.add(new CheckOrderDTO(visaDto.getId(), visaDto.getGmtCreate(), "CV",
-											_id, true));
+											_id, true, ""));
 								} else
 									checkOrderList.add(new CheckOrderDTO(visaDto.getId(), visaDto.getGmtCreate(), "CV",
-											_id, false));
+											_id, false, ""));
 							else
-								message += "未找到签证佣金订单(" + id + ");";
+								checkOrderList
+										.add(new CheckOrderDTO(-1, null, "CV", _id, false, "未找到签证佣金订单(" + id + ")"));
 						} else if (_id.charAt(1) == 'S') { // 留学佣金订单
 							int id = Integer.parseInt(_id.substring(2, _id.length()).trim());
 							double amount = Double.parseDouble(_amount.trim());
@@ -228,12 +230,13 @@ public class KjController extends BaseController {
 									commissionOrderListDto.setChecked(true);
 									commissionOrderService.updateCommissionOrder(commissionOrderListDto);
 									checkOrderList.add(new CheckOrderDTO(commissionOrderListDto.getId(),
-											commissionOrderListDto.getGmtCreate(), "CS", _id, true));
+											commissionOrderListDto.getGmtCreate(), "CS", _id, true, ""));
 								} else
 									checkOrderList.add(new CheckOrderDTO(commissionOrderListDto.getId(),
-											commissionOrderListDto.getGmtCreate(), "CS", _id, false));
+											commissionOrderListDto.getGmtCreate(), "CS", _id, false, ""));
 							else
-								message += "未找到留学佣金订单(" + id + ");";
+								checkOrderList
+										.add(new CheckOrderDTO(-1, null, "CS", _id, false, "未找到留学佣金订单(" + id + ")"));
 						}
 					} else { // 留学服务订单
 						int id = Integer.parseInt(_id.trim());
@@ -248,14 +251,15 @@ public class KjController extends BaseController {
 									commissionOrderListDto.setChecked(true);
 									commissionOrderService.updateCommissionOrder(commissionOrderListDto);
 									checkOrderList.add(new CheckOrderDTO(commissionOrderListDto.getId(),
-											commissionOrderListDto.getGmtCreate(), "S", _id, true));
+											commissionOrderListDto.getGmtCreate(), "S", _id, true, ""));
 								} else
 									checkOrderList.add(new CheckOrderDTO(commissionOrderListDto.getId(),
-											commissionOrderListDto.getGmtCreate(), "S", _id, false));
+											commissionOrderListDto.getGmtCreate(), "S", _id, false, ""));
 							else
-								message += "未找到留学佣金订单(" + serviceOrderDto.getId() + ");";
+								checkOrderList.add(new CheckOrderDTO(-1, null, "S", _id, false,
+										"未找到留学佣金订单(" + serviceOrderDto.getId() + ")"));
 						} else
-							message += "未找到服务订单(" + id + ");";
+							checkOrderList.add(new CheckOrderDTO(-1, null, "S", _id, false, "未找到服务订单(" + id + ")"));
 					}
 				} else
 					message += "格式错误(" + s + ");";
@@ -279,6 +283,8 @@ public class KjController extends BaseController {
 		private String bankContent;
 
 		private boolean isChedked;
+		
+		private String message;
 
 	}
 
