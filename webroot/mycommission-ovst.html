@@ -391,7 +391,7 @@
 																</d1>
 														</dle>
 														</td>
-														<td v-html="item.remarks" style="width:100px;word-break:break-all;"></td>
+														<td><div v-html="item.remarks" style="width:100px;overflow:hidden;"></div></td>
 													</tr>
 													<tr class="gradeX">
 														<td></td>
@@ -686,7 +686,7 @@
 								result.data[i].schoolPaid = true;
 								result.data[i].strSchoolPaid = '是';
 						}
-						json['isChecked'] = (!this.subject[index].checked ?  '':this.subject[index].checked);						
+						result.data[i].isChecked = result.data[i].checked;
 						result.data[i].bonusDate = result.data[i].bonusDate ? v.getTime(result.data[i].bonusDate):'';
 						result.data[i].userName = result.data[i].user.name;
 						result.data[i].serviceName = '留学';
