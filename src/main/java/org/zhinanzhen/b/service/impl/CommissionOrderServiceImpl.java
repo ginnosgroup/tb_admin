@@ -43,6 +43,7 @@ import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
 import com.ikasoa.core.ErrorCodeEnum;
+import com.ikasoa.core.utils.StringUtil;
 
 @Service("CommissionOrderService")
 public class CommissionOrderServiceImpl extends BaseService implements CommissionOrderService {
@@ -221,6 +222,28 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 		CommissionOrderListDTO commissionOrderListDto = null;
 		try {
 			CommissionOrderListDO commissionOrderListDo = commissionOrderDao.getCommissionOrderById(id);
+			if (commissionOrderListDo == null)
+				return null;
+			commissionOrderListDto = buildCommissionOrderListDto(commissionOrderListDo);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+		return commissionOrderListDto;
+	}
+
+	@Override
+	public CommissionOrderListDTO getCommissionOrderByInvoiceNumber(String invoiceNumber) throws ServiceException {
+		if (StringUtil.isEmpty(invoiceNumber)) {
+			ServiceException se = new ServiceException("invoiceNumber error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		CommissionOrderListDTO commissionOrderListDto = null;
+		try {
+			CommissionOrderListDO commissionOrderListDo = commissionOrderDao
+					.getCommissionOrderByInvoiceNumber(invoiceNumber);
 			if (commissionOrderListDo == null)
 				return null;
 			commissionOrderListDto = buildCommissionOrderListDto(commissionOrderListDo);

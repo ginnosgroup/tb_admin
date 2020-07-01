@@ -29,6 +29,8 @@ public interface CommissionOrderService {
 
 	CommissionOrderListDTO getFirstCommissionOrderByServiceOrderId(int serviceOrderId) throws ServiceException;
 	
+	CommissionOrderListDTO getCommissionOrderByInvoiceNumber(String invoiceNumber) throws ServiceException;
+	
 	int addComment(CommissionOrderCommentDTO commissionOrderCommentDto) throws ServiceException;
 
 	List<CommissionOrderCommentDTO> listComment(int id) throws ServiceException;
