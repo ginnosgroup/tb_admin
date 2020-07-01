@@ -366,11 +366,11 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			}
 			if (StringUtil.isNotEmpty(perAmount)) {
 				commissionOrderDto.setPerAmount(Double.parseDouble(perAmount));
-					serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
+				serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
 			}
 			if (StringUtil.isNotEmpty(amount)) {
 				commissionOrderDto.setAmount(Double.parseDouble(amount));
-					serviceOrderDto.setAmount(Double.parseDouble(amount));
+				serviceOrderDto.setAmount(Double.parseDouble(amount));
 			}
 			double _perAmount = commissionOrderListDto.getPerAmount();
 			if (commissionOrderDto.getPerAmount() > 0)
@@ -418,12 +418,12 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 			String msg = "";
 			if (commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0) {
-				CommissionOrderListDTO commissionOrderListDTO = commissionOrderService
+				CommissionOrderListDTO _commissionOrderListDto = commissionOrderService
 						.getCommissionOrderById(commissionOrderDto.getId());
-				serviceOrderDto.setReceivable(commissionOrderListDTO.getTotalPerAmount());
-				serviceOrderDto.setReceived(commissionOrderListDTO.getTotalAmount());
+				serviceOrderDto.setReceivable(_commissionOrderListDto.getTotalPerAmount());
+				serviceOrderDto.setReceived(_commissionOrderListDto.getTotalAmount());
 				serviceOrderService.updateServiceOrder(serviceOrderDto); // 同步修改服务订单
-				int i = schoolService.updateSchoolSetting(commissionOrderListDto); // 根据学校设置更新佣金值
+				int i = schoolService.updateSchoolSetting(_commissionOrderListDto); // 根据学校设置更新佣金值
 				if (i > 0) {
 				} else if (i == -1)
 					msg += id + "计算失败. (佣金记录不存在);";
@@ -483,9 +483,30 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				commissionOrderDto.setState(ReviewKjStateEnum.REVIEW.toString());
 				commissionOrderDto.setCommissionState(CommissionStateEnum.YZY.toString());
 			}
-			return commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0
-					? new Response<CommissionOrderDTO>(0, commissionOrderDto)
-					: new Response<CommissionOrderDTO>(1, "修改失败.", null);
+//			return commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0
+//					? new Response<CommissionOrderDTO>(0, commissionOrderDto)
+//					: new Response<CommissionOrderDTO>(1, "修改失败.", null);
+			
+			String msg = "";
+			if (commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0) {
+				if (sureExpectAmount > 0) {
+					CommissionOrderListDTO _commissionOrderListDto = commissionOrderService
+							.getCommissionOrderById(commissionOrderDto.getId());
+					int i = schoolService.updateSchoolSetting(_commissionOrderListDto); // 根据学校设置更新佣金值
+					if (i > 0) {
+					} else if (i == -1)
+						msg += id + "计算失败. (佣金记录不存在);";
+					else if (i == -2)
+						msg += id + "计算失败. (学校佣金设置不存在或不正确);";
+					else if (i == -3)
+						msg += id + "计算失败. (佣金办理时间不在设置合同时间范围内);";
+					else
+						msg += id + "计算失败. ;";
+				}
+				return new Response<CommissionOrderDTO>(0, msg, commissionOrderDto);
+			} else
+				return new Response<CommissionOrderDTO>(1, "修改失败.", null);
+			
 		} catch (ServiceException e) {
 			return new Response<CommissionOrderDTO>(e.getCode(), e.getMessage(), null);
 		}
