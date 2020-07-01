@@ -311,7 +311,30 @@
 											<div class="form-group">
 												<button name="btnSubmit" id="btnSubmit" @click="startCheck" type="button" class="btn btn-info">开始对账</button>&nbsp;&nbsp;<lable id="show_info" style="display:none;color:blue;">正在处理中，请等待......</lable>
 											</div>
-										</form>										
+										</form>
+										<div class="margin-top" id="result_list" style="display:none;">
+											<div style="text-align:center;">本次对账完成，共计匹配 {{result_true}} 条，未匹配数据 {{result_false}} 条，请进入佣金表进行查看详细数据或手工修正。</div>
+											<input type="hidden" name="id" id="id" value="0" />
+											<table class="display table table-bordered table-striped" id="example" style="margin-top:10px;width:85%;">
+												<thead>
+													<tr>
+														<!--<th><input @click="checked" type="checkbox"></th>-->
+														<th>日期</th>
+														<th>金额</th>
+														<th>备注信息</th>
+														<th>状态</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr v-for="item in subject" class="gradeX">
+														<td v-html="item.gmtCreate"></td>
+														<td v-html="item.bankAmount"></td>
+														<td v-html="item.bankContent"></td>
+														<td v-html="item.str_state"></td>																										
+													</tr>
+												</tbody>
+											</table>
+										</div>										
 									</div>
 								</div>
 							</section>
@@ -377,7 +400,9 @@
 					count: 0,				
 					name: '',
 					state: '',
-					cpcontent: '',					
+					cpcontent: '',
+					result_true: 0,					
+					result_false: 0,
 					pageNum: 0,
 					pageSize: 20,
 					allPage: 0,
@@ -422,14 +447,16 @@
 						   			{
 						   					if (data.data != '')
 						   					{
+						   							//返回数据结果
+						   							$('#result_list').show();
+						   							that.subject = return_result(data);
 						   					}else
 						   					{
 						   							$('#my_table #alert_error').css('marginLeft','30%');
 								   					$('#my_table #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
 						          			$("#my_table #error_info").html('无结果数据返回，请检查数据是否正确！');
 							        			return false;
-						   					}
-						   					console.log(data);
+						   					}						   					
 						   			}else
 						   			{
 						   					$('#my_table #alert_error').css('marginLeft','30%');
@@ -478,323 +505,39 @@
 				}		
 			});						
 			
-			function table_addsave()
-			{
-					var f = '#list_visa ';
-					var check_result = 0;
-					
-					if ($(f+'#t1').val() != '' && $(f+'#t2').val() != '' && $(f+'#t3').val() != '')
-					{
-							check_result = true;
-					}else
-					{
-							$('#my_table #alert_error').css('marginLeft','40%');
-			    		$('#my_table #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
-			        $("#my_table #error_info").html('提示：所有字段必须填写或选择！');
-			    		return false;
-					}
-					if (check_result)
-    			{    					
-			    		var str_url = "visa/kjUpdate";
-       				var json = {};
-       				json['id'] = v.orderId;
-       				json['bonus'] = $(f+'#t1').val();
-       				var t2 = $(f+'#t2').val();
-       				if (t2 != '')
-	        		{
-		          		var arr_d = t2.split("/");
-		          		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
-		              var date = new Date(str_d);
-		              json['bonusDate'] = date.getTime();
-	          	}else
-	          	{
-       						json['bonusDate'] = 0;      				
-       				}
-       				json['sureExpectAmount'] = $(f+'#t3').val();
-       				$.post(str_url, json,
-					   	function(data){
-					   			if (data.code == 0)
-					   			{
-					   					$('#my_table #alert_success').css('marginLeft','40%');
-					   					$('#my_table #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
-					   					v.table_remove();
-					   					//重新载入数据源
-					   					v.getDatalist();
-					   			}else
-					   			{
-					   					$('#my_table #alert_error').css('marginLeft','40%');
-					   					$('#my_table #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
-			          			$("#my_table #error_info").html(data.message);
-				        			return false;
-					   			}
-					   	});
-    			}
-			}
-			
 			function return_result(result)
 			{
+				v.result_true = 0;
+				v.result_false = 0;
 				for(var i = 0; i < result.data.length; i++) {
 						result.data[i].oid = result.data[i].id;
-						result.data[i].strOid = '';
-						if (result.data[i].installment > 1) result.data[i].strOid = '-' + result.data[i].installmentNum;
-						result.data[i].strHref = '<a href="javascript:open_detail('+result.data[i].serviceOrderId+','+result.data[i].id+');" title="查看详细">'+result.data[i].id+result.data[i].strOid+'</a>';
-						result.data[i].gmtCreate = v.getTime1(result.data[i].gmtCreate);
-						result.data[i].receiveDate = result.data[i].receiveDate ? v.getTime(result.data[i].receiveDate):'';
-						result.data[i].bonusDate = result.data[i].bonusDate ? v.getTime(result.data[i].bonusDate):'';
-						if (result.data[i].serviceOrder.type == 'SIV')
+						result.data[i].gmtCreate = (result.data[i].gmtCreate ? v.getTime(result.data[i].gmtCreate) : '');
+						result.data[i].str_state = (result.data[i].checked ? '匹配':'<span style="color:red;">未匹配</span>');
+						if (result.data[i].id == '-1') result.data[i].str_state += '<br/>'+result.data[i].message;						
+						if (result.data[i].checked)
 						{
-								var childrenService = return_childrenService(result.data[i].serviceOrder.childrenServiceOrders);
-								result.data[i].serviceName = '<span style="font-weight:bold;color:#0066CC;">独立技术移民</span><br/>'+childrenService;								
+								v.result_true += 1;
 						}else
 						{
-								result.data[i].serviceName = '签证-'+result.data[i].serviceCode;
+								v.result_false += 1;
 						}
-						result.data[i].payDate = '';//字段未添加，待修正
-						result.data[i].strState = return_state(result.data[i].state);
-						result.data[i].currentState = result.data[i].state;
-						if (result.data[i].remarks) result.data[i].remarks = url_replace(result.data[i].remarks);
 				};
 				return result.data;
-			}						
-      
-      function return_state(va)
-			{
-					var str_html = '';
-					switch(va)
-					{									
-						case 'REVIEW':
-									str_html = '待结佣';
-						break;
-						case 'WAIT':
-									str_html = '<label style="color:blue;">已驳回</label>';
-						break;
-						case 'FINISH':									
-									str_html = '<label style="color:blue;">已审核</label>';							
-						break;									
-						case 'COMPLETE':
-									str_html = '<label style="color:red;">已结佣</label>';
-						break;
-						case 'CLOSE':
-									str_html = '<label style="color:red;">已关闭</label>';
-						break;
-					}
-					return str_html;
-      }
-      
-      function return_childrenService(arr)
-      {
-      		var str = '';
-      		for(var i=0;i < arr.length;i++)
-      		{
-      				if (str == '')
-      				{
-      						str = return_packagetype(arr[i].servicePackageType);
-      				}else
-      				{
-      						str += '/'+return_packagetype(arr[i].servicePackageType);
-      				}
-      		}
-      		return str;
-      }
-      
-      function return_packagetype(v)
-			{
-				var str = '';
-				switch(v)
-				{
-						case 'CA':
-								str = '职业评估';
-						break;
-						case 'EOI':
-								str = 'EOI';
-						break;
-						case 'SA':
-								str = '学校申请';
-						break;
-						case 'VA':
-								str = '签证申请';
-						break;
-				}
-				return str;
-			}
-			
-			function return_attribute(peopleType,peopleNumber)
-			{
-					var str = '';
-					switch(peopleType)
-					{
-							case '1A':
-									str = '单人';
-							break;
-							case '1B':
-									str = '单人 - 提配偶';
-							break;
-							case '2A':
-									str = '多人('+peopleNumber+'人) - 带配偶';
-							break;
-							case 'XB':
-									str = '多人('+peopleNumber+'人) - 带配偶孩子';
-							break;
-							case 'XA':
-									str = '多人('+peopleNumber+'人) - 带孩子';
-							break;
-							case 'XC':
-									str = '多人('+peopleNumber+'人) - 其它';
-							break;
-					}
-					return str;
-			}                   
+			}                      
 			
 			v.$watch('subject', function(obj) {
 					$('.default-date-picker').datepicker({   				
 				        format: 'dd/mm/yyyy'
 				  });				 	
-				  //查询客户
-				  var user = $("#user_name");
-				  user.autocompleter({
-			    	highlightMatches: true,
-			    	limit: 10,
-			    	cache: false,
-			    	customValue: 'name',
-			    	customLabel: 'name',
-			    	source: 'user/list?authNickname=&phone=&pageNum=0',
-			    	combine: function(params) {
-			    		return {
-				        name: params.query,
-				        pageSize: params.limit
-				      };
-			    	},
-			    	callback: function(value, index, object) {
-			    		$('#userId').val(object.id);
-			    		v.userId = object.id;  		
-			    	},
-			    	minLength: 1						    	
-			    });
-			    //绑定顾问
-				  var obj_adviserId = $("#adviserId");
-				  $("#adviserId").empty();
-	        obj_adviserId.append("<option value='0'>全部</option>");
-			    $.ajax({
-	          url: 'adviser/list?pageNum=0&pageSize=100000',
-	          type: 'GET',
-	          async: false,
-	          dataType: 'json'
-	        }).done(function(response) {
-	        	//author:bischina
-	        	response = response.data;
-	        	for (var item in response)
-	        	{
-	        			obj_adviserId.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
-	        	}
-	        	obj_adviserId.val(v.adviser_id);	
-	        });			    
-			});
-			
-			function gotoUrl(va)
-			{
-					if (va == 'VISA')
-					{
-							window.location.href = "mycommission-accounting.html?commission_state="+v.commission_state;
-					}else
-					{
-							var str_list= '';
-							if (v.commission_state == 'DJY') str_list = '&list=DJY,DZY,YZY';
-							window.location.href = "mycommission-ovst-accounting.html?commission_state="+v.commission_state+str_list;
-					}
-			}
-			
-			function open_detail(serviceId,orderId)
-      {
-      		show_commission_detail(serviceId,orderId);
-      }
-      
-      function reqCommissionVisa(serviceId,orderId)
-      {
-      		edit_commission_detail(serviceId,orderId);
-      }
-      
-      function show_confirmbox(id,va,par)
-      {
-      		v.orderId = id;
-      		v.set_state = va;
-      		v.set_type = par;      		
-      		$('#showconfirmbox_id').modal('show');
-      }
-      
-      function update_state()
-      {      		
-      		flowstep(v.set_state,v.set_type);
-      		$('#showconfirmbox_id').modal('hide');
-      }
-      
-      function flowstep(va,par)
-      {
-      		var str_url = "visa/approval";
-      		if (par == '0' || va == 'CLOSE') str_url = "visa/refuse";
-      		
-      		var json = {};
-      		json['id'] = v.orderId;
-          json['state'] = va;          
-          $.post(str_url, json,
-			   	function(data){
-			   			if (data.code == 0)
-			   			{			   					
-			   					$('#my_table #alert_success').css('marginLeft','40%');
-			   					$('#my_table #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
-			   					//重新载入数据源
-					   			v.getDatalist();
-			   			}else
-			   			{
-			   					$('#my_table #alert_error').css('marginLeft','40%');
-			   					$('#my_table #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
-	          			$("#my_table #error_info").html(data.message);
-		        			return false;
-			   			}
-			   	});      		
-      }
-			
-			function getRequest(par)
-			{
-					var str_value = '';
-			    var url = decodeURI(location.search);
-			    var theRequest = new Object();
-			    if (url.indexOf('?') != -1) {
-			        url = url.substr(1);
-			    }
-			    if (url) {
-			        var strs = url.split('&');
-			        for (var i = 0; i < strs.length; i++) {
-			            var srtArry = strs[i].split('=');
-			            var y = srtArry.shift();
-			            theRequest[y] = unescape(srtArry.join('='));
-			        }
-			    }
-			    str_value = theRequest[par];
-			    $("#commission_state_"+str_value).addClass("active");
-			    return str_value;
-			}
+				  			    
+			});						
       
       function show_knowledge_detail(id,parentId)
       {
       		sessionStorage.setItem("id", id);
       		sessionStorage.setItem("menu_parentid", parentId);
 					window.location.href = "knowledge.html"; 
-      }
-      
-      function url_replace(str)
-			{
-					var reg = /((http|ftp|https):\/\/)?[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?/g;
-					str=str.replace(reg,function(a){
-					    if(!a.indexOf('http'))
-					    {
-					    	return '<a href="'+a+'" target="_blank">'+a+'</a>';
-					    }else
-					    {
-					    	return '<a href="http://'+a+'" target="_blank">'+a+'</a>';
-					    }
-					});
-					return str;
-			}			
+      }            			
 			
 			function  formatDate(now)
 			{
