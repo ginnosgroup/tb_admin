@@ -566,6 +566,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 			System.out.println(co.getId() + "预收业绩=学校设置计算金额[" + co.getCommission() + "]*1.1=" + co.getExpectAmount());
 		}
 		double expectAmount = co.getSureExpectAmount() > 0 ? co.getSureExpectAmount() : co.getExpectAmount();
+		System.out.println(co.getId() + "确认预收业绩=" + co.getSureExpectAmount());
 		if ("AU".equals(subagencyDo.getCountry())) {
 			co.setGst(expectAmount / 11);
 			System.out.println(co.getId() + "GST=预收业绩[" + expectAmount + "]/11=" + expectAmount);
