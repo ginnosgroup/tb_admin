@@ -768,8 +768,46 @@
 								this.subject[this.current_index] = this.current_row;
 						}
 						this.current_index = index;
-						this.current_row = this.subject[index];						
-						this.subject.splice(index,1, {
+						this.current_row = this.subject[index];
+						var json = {};
+						json['strOid'] = this.subject[index].id+'-'+this.subject[index].installmentNum;
+						json['gmtCreate'] = this.subject[index].gmtCreate;
+						json['receiveDate'] = this.subject[index].receiveDate;
+						json['userName'] = this.subject[index].userName;
+						json['studentCode'] = this.subject[index].studentCode;
+						json['receiveTypeName'] = this.subject[index].receiveTypeName;
+						json['serviceName'] = this.subject[index].serviceName;
+						json['strSettle'] = this.subject[index].strSettle;
+						json['schoolName'] = this.subject[index].schoolName;
+						json['schoolSubject'] = this.subject[index].schoolSubject;
+						json['installmentDueDate'] = this.subject[index].installmentDueDate;
+						json['receiveTypeName'] = this.subject[index].receiveTypeName;
+						json['tuitionFee'] = this.subject[index].tuitionFee;
+						json['perAmount'] = this.subject[index].perAmount;
+						json['totalPerAmount'] = this.subject[index].totalPerAmount;
+						json['totalAmount'] = this.subject[index].totalAmount;						
+						json['amount'] = this.subject[index].amount;
+						json['expectAmount'] = this.subject[index].expectAmount;
+						if (this.subject[index].settle)
+						{
+								json['sureExpectAmount'] = '<input type="text" class="form-control small" style="width:120px;" id="t3a" value="'+this.subject[index].sureExpectAmount+'">';
+						}else
+						{
+								json['sureExpectAmount'] = this.subject[index].sureExpectAmount;
+						}
+						json['gst'] = this.subject[index].gst;
+						json['deductGst'] = this.subject[index].deductGst;
+						json['schoolPaymentAmount'] = this.subject[index].schoolPaymentAmount;
+						json['schoolPaymentDate'] = this.subject[index].schoolPaymentDate;
+						json['invoiceNumber'] = this.subject[index].invoiceNumber;
+						json['zyDate'] = this.subject[index].zyDate;
+						json['subagencyName'] = this.subject[index].subagencyName;
+						json['bonus'] = '<input type="text" class="form-control small" style="width:120px;" id="t1" value="'+this.subject[index].bonus+'">';
+						json['bonusDate'] = '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:120px;" id="t2" data-date-format="dd-mm-yyyy" value="'+this.subject[index].bonusDate+'">';
+						json['adviserName'] = this.subject[index].adviserName;
+						json['strState'] = this.subject[index].strState;
+						this.subject.splice(index,1, json);
+						/*this.subject.splice(index,1, {
 							strOid: this.subject[index].id+'-'+this.subject[index].installmentNum,
 							gmtCreate: this.subject[index].gmtCreate,
 							//finishDate: this.subject[index].finishDate,
@@ -801,7 +839,7 @@
 							adviserName: this.subject[index].adviserName,
 							strState: this.subject[index].strState,
 							type: 1,
-						});															
+						});*/															
 					},					
 					table_modify1: function (index) {
 						v.orderId = this.subject[index].id;										
