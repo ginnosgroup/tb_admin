@@ -806,6 +806,7 @@
 						json['bonusDate'] = '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:120px;" id="t2" data-date-format="dd-mm-yyyy" value="'+this.subject[index].bonusDate+'">';
 						json['adviserName'] = this.subject[index].adviserName;
 						json['strState'] = this.subject[index].strState;
+						json['type'] = 1;
 						this.subject.splice(index,1, json);
 						/*this.subject.splice(index,1, {
 							strOid: this.subject[index].id+'-'+this.subject[index].installmentNum,
