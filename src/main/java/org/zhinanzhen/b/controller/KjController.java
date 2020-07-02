@@ -271,19 +271,29 @@ public class KjController extends BaseController {
 						double amount = Double.parseDouble(_amount.trim());
 						CommissionOrderListDTO commissionOrderListDto = commissionOrderService
 								.getCommissionOrderByInvoiceNumber(invoiceNo);
-						if (commissionOrderListDto != null)
-							if (commissionOrderListDto.getAmount() == amount) {
-								commissionOrderListDto.setBankCheck(_id);
-								commissionOrderListDto.setChecked(true);
-								commissionOrderService.updateCommissionOrder(commissionOrderListDto);
-								checkOrderList.add(new CheckOrderDTO(commissionOrderListDto.getId(),
-										commissionOrderListDto.getGmtCreate(), "S", _id, _amount, true, ""));
-							} else
-								checkOrderList.add(new CheckOrderDTO(commissionOrderListDto.getId(),
-										commissionOrderListDto.getGmtCreate(), "S", _id, _amount, false, ""));
+						if (commissionOrderListDto != null) {
+							ServiceOrderDTO serviceOrder = serviceOrderService
+									.getServiceOrderById(commissionOrderListDto.getServiceOrderId());
+							if(serviceOrder != null)
+							if (!serviceOrder.isSettle())
+								if (commissionOrderListDto.getAmount() == amount) {
+									commissionOrderListDto.setBankCheck(_id);
+									commissionOrderListDto.setChecked(true);
+									commissionOrderService.updateCommissionOrder(commissionOrderListDto);
+									checkOrderList.add(new CheckOrderDTO(commissionOrderListDto.getId(),
+											commissionOrderListDto.getGmtCreate(), "S", _id, _amount, true, ""));
+								} else
+									checkOrderList.add(new CheckOrderDTO(commissionOrderListDto.getId(),
+											commissionOrderListDto.getGmtCreate(), "S", _id, _amount, false, ""));
+							else
+								checkOrderList.add(new CheckOrderDTO(-1, null, "S", _id, _amount, false,
+										"提前扣佣订单请用ID匹配(invoiceNo:" + invoiceNo + ")"));
 						else
 							checkOrderList.add(new CheckOrderDTO(-1, null, "S", _id, _amount, false,
-									"未找到留学佣金订单(invoiceNo:" + invoiceNo + ")"));
+									"未找到留学佣金订单所匹配的服务订单(" + commissionOrderListDto.getServiceOrderId() + ")"));
+					} else
+						checkOrderList.add(new CheckOrderDTO(-1, null, "S", _id, _amount, false,
+								"未找到留学佣金订单(invoiceNo:" + invoiceNo + ")"));
 					}
 				} else
 					message += "格式错误(" + s + ");";
