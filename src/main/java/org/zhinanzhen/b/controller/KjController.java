@@ -262,7 +262,7 @@ public class KjController extends BaseController {
 											"未找到留学佣金订单(" + serviceOrderDto.getId() + ")"));
 							} else
 								checkOrderList.add(new CheckOrderDTO(-1, null, "S", _id, _amount, false,
-										"提前扣佣服务订单前缀错误(" + id + ")"));
+										"这是非提前扣佣服务订单,需要用invoiceNumber匹配(" + id + ")"));
 						} else
 							checkOrderList
 									.add(new CheckOrderDTO(-1, null, "S", _id, _amount, false, "未找到服务订单(" + id + ")"));
