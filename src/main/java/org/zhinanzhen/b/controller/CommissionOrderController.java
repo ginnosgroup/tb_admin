@@ -227,6 +227,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				}
 				int id = commissionOrderService.addCommissionOrder(commissionOrderDto);
 				if (id > 0) {
+					serviceOrderDto.setSubmitted(true);
+					serviceOrderService.updateServiceOrder(serviceOrderDto); // 同时更改服务订单状态
 					commissionOrderDtoList.add(commissionOrderDto);
 					CommissionOrderListDTO commissionOrderListDto = commissionOrderService.getCommissionOrderById(id);
 					int i = schoolService.updateSchoolSetting(commissionOrderListDto); // 根据学校设置更新佣金值
@@ -242,8 +244,6 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				} else
 					msg += "佣金订单创建失败. (" + commissionOrderDto.toString() + ");";
 			}
-			serviceOrderDto.setSubmitted(true);
-			serviceOrderService.updateServiceOrder(serviceOrderDto); // 同时更改服务订单状态
 			return new Response<List<CommissionOrderDTO>>(0, msg, commissionOrderDtoList);
 		} catch (ServiceException e) {
 			return new Response<List<CommissionOrderDTO>>(e.getCode(), e.getMessage(), null);
@@ -277,8 +277,11 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "receiveDate", required = false) String receiveDate,
 			@RequestParam(value = "perAmount", required = false) String perAmount,
 			@RequestParam(value = "amount", required = false) String amount,
+			@RequestParam(value = "sureExpectAmount", required = false) Double sureExpectAmount,
 			@RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
 			@RequestParam(value = "zyDate", required = false) String zyDate,
+			@RequestParam(value = "bankCheck", required = false) String bankCheck,
+			@RequestParam(value = "isChecked", required = false) String isChecked,
 			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
@@ -363,11 +366,11 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			}
 			if (StringUtil.isNotEmpty(perAmount)) {
 				commissionOrderDto.setPerAmount(Double.parseDouble(perAmount));
-					serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
+				serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
 			}
 			if (StringUtil.isNotEmpty(amount)) {
 				commissionOrderDto.setAmount(Double.parseDouble(amount));
-					serviceOrderDto.setAmount(Double.parseDouble(amount));
+				serviceOrderDto.setAmount(Double.parseDouble(amount));
 			}
 			double _perAmount = commissionOrderListDto.getPerAmount();
 			if (commissionOrderDto.getPerAmount() > 0)
@@ -376,10 +379,15 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				return new Response<CommissionOrderDTO>(1,
 						"本次应收款(" + _perAmount + ")不能小于本次已收款(" + commissionOrderDto.getAmount() + ")!", null);
 			commissionOrderDto.setDiscount(_perAmount - commissionOrderDto.getAmount());
+			if (sureExpectAmount != null)
+				commissionOrderDto.setSureExpectAmount(sureExpectAmount);
 			if (StringUtil.isNotEmpty(invoiceNumber))
 				commissionOrderDto.setInvoiceNumber(invoiceNumber);
 			if (StringUtil.isNotEmpty(zyDate))
 				commissionOrderDto.setZyDate(new Date(Long.parseLong(zyDate)));
+			if (StringUtil.isNotEmpty(bankCheck))
+				commissionOrderDto.setBankCheck(bankCheck);
+			commissionOrderDto.setChecked(isChecked != null && "true".equalsIgnoreCase(isChecked));
 			if (StringUtil.isNotEmpty(remarks))
 				commissionOrderDto.setRemarks(remarks);
 
@@ -410,12 +418,12 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 			String msg = "";
 			if (commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0) {
-				CommissionOrderListDTO commissionOrderListDTO = commissionOrderService
+				CommissionOrderListDTO _commissionOrderListDto = commissionOrderService
 						.getCommissionOrderById(commissionOrderDto.getId());
-				serviceOrderDto.setReceivable(commissionOrderListDTO.getTotalPerAmount());
-				serviceOrderDto.setReceived(commissionOrderListDTO.getTotalAmount());
+				serviceOrderDto.setReceivable(_commissionOrderListDto.getTotalPerAmount());
+				serviceOrderDto.setReceived(_commissionOrderListDto.getTotalAmount());
 				serviceOrderService.updateServiceOrder(serviceOrderDto); // 同步修改服务订单
-				int i = schoolService.updateSchoolSetting(commissionOrderListDto); // 根据学校设置更新佣金值
+				int i = schoolService.updateSchoolSetting(_commissionOrderListDto); // 根据学校设置更新佣金值
 				if (i > 0) {
 				} else if (i == -1)
 					msg += id + "计算失败. (佣金记录不存在);";
@@ -440,6 +448,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "schoolPaymentDate", required = false) String schoolPaymentDate,
 			@RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
 			@RequestParam(value = "zyDate", required = false) String zyDate,
+			@RequestParam(value = "sureExpectAmount", required = false) Double sureExpectAmount,
 			@RequestParam(value = "bonus", required = false) String bonus,
 			@RequestParam(value = "bonusDate", required = false) String bonusDate, HttpServletRequest request,
 			HttpServletResponse response) {
@@ -461,6 +470,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				commissionOrderDto.setInvoiceNumber(invoiceNumber);
 			if (StringUtil.isNotEmpty(zyDate))
 				commissionOrderDto.setZyDate(new Date(Long.parseLong(zyDate)));
+			if (sureExpectAmount != null)
+				commissionOrderDto.setSureExpectAmount(sureExpectAmount);
 			if (bonus != null)
 				commissionOrderDto.setBonus(Double.parseDouble(bonus));
 			if (bonusDate != null)
@@ -472,9 +483,30 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				commissionOrderDto.setState(ReviewKjStateEnum.REVIEW.toString());
 				commissionOrderDto.setCommissionState(CommissionStateEnum.YZY.toString());
 			}
-			return commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0
-					? new Response<CommissionOrderDTO>(0, commissionOrderDto)
-					: new Response<CommissionOrderDTO>(1, "修改失败.", null);
+//			return commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0
+//					? new Response<CommissionOrderDTO>(0, commissionOrderDto)
+//					: new Response<CommissionOrderDTO>(1, "修改失败.", null);
+			
+			String msg = "";
+			if (commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0) {
+				if (sureExpectAmount > 0) {
+					CommissionOrderListDTO _commissionOrderListDto = commissionOrderService
+							.getCommissionOrderById(commissionOrderDto.getId());
+					int i = schoolService.updateSchoolSetting(_commissionOrderListDto); // 根据学校设置更新佣金值
+					if (i > 0) {
+					} else if (i == -1)
+						msg += id + "计算失败. (佣金记录不存在);";
+					else if (i == -2)
+						msg += id + "计算失败. (学校佣金设置不存在或不正确);";
+					else if (i == -3)
+						msg += id + "计算失败. (佣金办理时间不在设置合同时间范围内);";
+					else
+						msg += id + "计算失败. ;";
+				}
+				return new Response<CommissionOrderDTO>(0, msg, commissionOrderDto);
+			} else
+				return new Response<CommissionOrderDTO>(1, "修改失败.", null);
+			
 		} catch (ServiceException e) {
 			return new Response<CommissionOrderDTO>(e.getCode(), e.getMessage(), null);
 		}

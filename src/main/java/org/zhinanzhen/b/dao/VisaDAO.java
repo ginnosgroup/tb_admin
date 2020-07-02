@@ -29,6 +29,8 @@ public interface VisaDAO {
 
 	List<VisaDO> listVisaByCode(@Param("code") String code);
 
+	VisaDO getFirstVisaByServiceOrderId(int serviceOrderId);
+
 	public double sumBonusByThisMonth();
 
 	public VisaDO getVisaById(int id);

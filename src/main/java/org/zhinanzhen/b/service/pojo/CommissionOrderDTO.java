@@ -46,11 +46,11 @@ public class CommissionOrderDTO {
 	private String paymentVoucherImageUrl1;
 
 	private String paymentVoucherImageUrl2;
-	
+
 	private String paymentVoucherImageUrl3;
-	
+
 	private String paymentVoucherImageUrl4;
-	
+
 	private String paymentVoucherImageUrl5;
 
 	private double schoolPaymentAmount;
@@ -78,6 +78,8 @@ public class CommissionOrderDTO {
 	private double amount;
 
 	private double expectAmount;
+	
+	private double sureExpectAmount = 0.00;
 
 	private double discount;
 
@@ -90,6 +92,10 @@ public class CommissionOrderDTO {
 	private Date bonusDate;
 
 	private Date zyDate;
+
+	private String bankCheck;
+
+	private boolean isChecked;
 
 	private String remarks;
 

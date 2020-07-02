@@ -76,6 +76,8 @@ public class CommissionOrderDO {
 	private double amount;
 
 	private double expectAmount;
+	
+	private double sureExpectAmount;
 
 	private double discount;
 
@@ -88,6 +90,10 @@ public class CommissionOrderDO {
 	private Date bonusDate;
 
 	private Date zyDate;
+
+	private String bankCheck;
+
+	private boolean isChecked;
 
 	private String remarks;
 

@@ -30,6 +30,7 @@
                 per_amount,
                 amount,
                 expect_amount,
+                sure_expect_amount,
                 discount,
                 gst,
                 deduct_gst,
@@ -38,6 +39,8 @@
                 adviser_id,
                 mara_id,
                 official_id,
+                bank_check,
+                is_checked,
                 remarks,
                 is_close)
             VALUES (
@@ -65,6 +68,7 @@
                 #{perAmount},
                 #{amount},
                 #{expectAmount},
+                #{sureExpectAmount},
                 #{discount},
                 #{gst},
                 #{deductGst},
@@ -73,6 +77,8 @@
                 #{adviserId},
                 #{maraId},
                 #{officialId},
+                NULL,
+                0,
                 #{remarks},
                 0);
     </insert>
@@ -137,6 +143,9 @@
         <if test='expectAmount != null and expectAmount != ""'>
             , expect_amount = #{expectAmount}
         </if>
+        <if test='sureExpectAmount != null and sureExpectAmount != ""'>
+            , sure_expect_amount = #{sureExpectAmount}
+        </if>
         <if test='gst != null and gst != ""'>
             , gst = #{gst}
         </if>
@@ -157,6 +166,12 @@
         </if>
         <if test='officialId != null and officialId != ""'>
             , official_id = #{officialId}
+        </if>
+        <if test='bankCheck != null and bankCheck != ""'>
+            , bank_check = #{bankCheck}
+        </if>
+        <if test='isChecked != null'>
+            , is_checked = #{isChecked}
         </if>
         <if test='remarks != null and remarks != ""'>
             , remarks = #{remarks}
@@ -237,6 +252,7 @@
             bv.per_amount AS perAmount,
             bv.amount AS amount,
             bv.expect_amount AS expectAmount,
+            bv.sure_expect_amount AS sureExpectAmount,
             bv.discount AS discount,
             bv.gst AS gst,
             bv.deduct_gst AS deductGst,
@@ -245,6 +261,8 @@
             bv.adviser_id AS adviserId,
             bv.mara_id AS maraId,
             bv.official_id AS officialId,
+            bv.bank_check AS bankCheck,
+            bv.is_checked AS isChecked,
             bv.remarks AS remarks,
             bv.is_close AS isClose,
             tbu.name AS userName,
@@ -309,6 +327,7 @@
             per_amount AS perAmount,
             amount,
             expect_amount AS expectAmount,
+            sure_expect_amount AS sureExpectAmount,
             discount,
             gst,
             deduct_gst AS deductGst,
@@ -317,10 +336,55 @@
             adviser_id AS adviserId,
             mara_id AS maraId,
             official_id AS officialId,
+            bank_check AS bankCheck,
+            is_checked AS isChecked,
             remarks,
             is_close AS isClose
         FROM b_visa
         WHERE code = #{code};
+    </select>
+    
+    <select id="getFirstVisaByServiceOrderId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.VisaDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            code,
+            handling_date AS handlingDate,
+            user_id AS userId,
+            state,
+            commission_state AS commissionState,
+            receive_type_id AS receiveTypeId,
+            receive_date AS receiveDate,
+            service_id AS serviceId,
+            service_order_id AS serviceOrderId,
+            installment_num AS installmentNum,
+            installment,
+            payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+            payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+            payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+            payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+            visa_voucher_image_url AS visaVoucherImageUrl,
+            receivable,
+            received,
+            per_amount AS perAmount,
+            amount,
+            expect_amount AS expectAmount,
+            sure_expect_amount AS sureExpectAmount,
+            discount,
+            gst,
+            deduct_gst AS deductGst,
+            bonus,
+            bonus_date AS bonusDate,
+            adviser_id AS adviserId,
+            mara_id AS maraId,
+            official_id AS officialId,
+            bank_check AS bankCheck,
+            is_checked AS isChecked,
+            remarks,
+            is_close AS isClose
+        FROM b_visa
+        WHERE installment_num = 1 AND service_order_id = #{serviceOrderId};
     </select>
     
     <select id="sumBonusByThisMonth" resultType="java.lang.Double">
@@ -353,6 +417,7 @@
             per_amount AS perAmount,
             amount,
             expect_amount AS expectAmount,
+            sure_expect_amount AS sureExpectAmount,
             discount,
             gst,
             deduct_gst AS deductGst,
@@ -361,6 +426,8 @@
             adviser_id AS adviserId,
             mara_id AS maraId,
             official_id AS officialId,
+            bank_check AS bankCheck,
+            is_checked AS isChecked,
             remarks,
             is_close AS isClose
         FROM b_visa WHERE id = #{id, jdbcType=INTEGER};

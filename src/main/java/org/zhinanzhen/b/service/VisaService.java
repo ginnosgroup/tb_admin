@@ -21,6 +21,8 @@ public interface VisaService {
 			Integer adviserId, Integer userId, int pageNum, int pageSize) throws ServiceException;
 
 	public VisaDTO getVisaById(int id) throws ServiceException;
+	
+	public VisaDTO getFirstVisaByServiceOrderId(int serviceOrderId) throws ServiceException;
 
 	public int deleteVisaById(int id) throws ServiceException;
 

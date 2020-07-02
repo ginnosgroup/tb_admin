@@ -42,6 +42,10 @@ public interface CommissionOrderDAO {
 	int updateCommissionOrder(CommissionOrderDO commissionOrderDo);
 
 	CommissionOrderListDO getCommissionOrderById(int id);
+	
+	CommissionOrderListDO getCommissionOrderByInvoiceNumber(String invoiceNumber);
+
+	CommissionOrderListDO getFirstCommissionOrderByServiceOrderId(int serviceOrderId);
 
 	Double sumTuitionFeeBySchoolId(@Param("schoolId") Integer schoolId);
 

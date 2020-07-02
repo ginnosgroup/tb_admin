@@ -72,7 +72,7 @@ public class OfficialController extends BaseController {
 			if (officialService.addOfficial(officialDto) > 0) {
 				if (password == null)
 					password = email; // 如果没有传入密码,则密码和email相同
-				adminUserService.add(email, password, "WA", null, null, officialDto.getId());
+				adminUserService.add(email, password, "WA", null, null, officialDto.getId(), null);
 				return new Response<Integer>(0, officialDto.getId());
 			} else {
 				return new Response<Integer>(0, "创建失败.", 0);
@@ -172,7 +172,7 @@ public class OfficialController extends BaseController {
 				AdminUserDTO adminUser = adminUserService.getAdminUserByUsername(officialDto.getEmail());
 				if (adminUser == null) {
 					adminUserService.add(officialDto.getEmail(), officialDto.getEmail(), "WA", null, null,
-							officialDto.getId());
+							officialDto.getId(), null);
 					num++;
 				} else
 					adminUserService.updateOfficialId(adminUser.getId(), officialDto.getId());

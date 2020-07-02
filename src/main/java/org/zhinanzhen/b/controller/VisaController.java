@@ -223,9 +223,12 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "received", required = false) String received,
 			@RequestParam(value = "perAmount", required = false) String perAmount,
 			@RequestParam(value = "amount", required = false) String amount,
+			@RequestParam(value = "sureExpectAmount", required = false) Double sureExpectAmount,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
 			@RequestParam(value = "maraId", required = false) String maraId,
 			@RequestParam(value = "officialId", required = false) String officialId,
+			@RequestParam(value = "bankCheck", required = false) String bankCheck,
+			@RequestParam(value = "isChecked", required = false) String isChecked,
 			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
@@ -299,6 +302,8 @@ public class VisaController extends BaseCommissionOrderController {
 				visaDto.setAmount(Double.parseDouble(amount));
 					serviceOrderDto.setAmount(Double.parseDouble(amount));
 			}
+			if (sureExpectAmount != null)
+				visaDto.setSureExpectAmount(sureExpectAmount);
 			double _perAmount = _visaDto.getPerAmount();
 			if (visaDto.getPerAmount() > 0)
 				_perAmount = visaDto.getPerAmount();
@@ -314,6 +319,12 @@ public class VisaController extends BaseCommissionOrderController {
 			if (StringUtil.isNotEmpty(officialId)) {
 				visaDto.setOfficialId(StringUtil.toInt(officialId));
 			}
+			if (StringUtil.isNotEmpty(bankCheck))
+				visaDto.setBankCheck(bankCheck);
+			if (StringUtil.isNotEmpty(isChecked))
+				visaDto.setChecked("true".equalsIgnoreCase(isChecked));
+			else
+				visaDto.setChecked(_visaDto.isChecked());
 			if (StringUtil.isNotEmpty(remarks))
 				visaDto.setRemarks(remarks);
 			double commission = visaDto.getAmount();
@@ -338,6 +349,7 @@ public class VisaController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/kjUpdate", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<VisaDTO> kjUpdate(@RequestParam(value = "id") int id,
+			@RequestParam(value = "sureExpectAmount", required = false) Double sureExpectAmount,
 			@RequestParam(value = "bonus", required = false) String bonus,
 			@RequestParam(value = "bonusDate", required = false) String bonusDate, HttpServletRequest request,
 			HttpServletResponse response) {
@@ -351,6 +363,8 @@ public class VisaController extends BaseCommissionOrderController {
 			VisaDTO visaDto = visaService.getVisaById(id);
 			if (visaDto == null)
 				return new Response<VisaDTO>(1, "签证佣金订单订单(ID:" + id + ")不存在!", null);
+			if (sureExpectAmount != null)
+				visaDto.setSureExpectAmount(sureExpectAmount);
 			if (bonus != null)
 				visaDto.setBonus(Double.parseDouble(bonus));
 			if (bonusDate != null)

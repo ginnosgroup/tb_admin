@@ -204,6 +204,7 @@ CREATE TABLE `b_visa` (
   `per_amount` decimal(8,2) NOT NULL COMMENT '本次应收款',
   `amount` decimal(8,2) NOT NULL COMMENT '本次收款',
   `expect_amount` decimal(8,2) DEFAULT NULL COMMENT '预收业绩',
+`sure_expect_amount` decimal(8,2) DEFAULT NULL COMMENT '确认预收业绩',
   `discount` decimal(8,2) NOT NULL DEFAULT 0 COMMENT '折扣',
   `gst` decimal(8,2) NOT NULL COMMENT 'GST',
   `deduct_gst` decimal(8,2) NOT NULL COMMENT 'Deduct GST',
@@ -212,6 +213,8 @@ CREATE TABLE `b_visa` (
   `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
   `mara_id` int NOT NULL COMMENT '所属MARA编号 (对应b_mara.id)',
   `official_id` int NOT NULL COMMENT '文案编号 (对应b_official.id)',
+`bank_check` varchar(32) DEFAULT NULL COMMENT '银行对账',
+`is_checked` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否对账成功',
   `remarks` text DEFAULT NULL COMMENT '备注',
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
@@ -463,12 +466,15 @@ CREATE TABLE `b_commission_order` (
   `per_amount` decimal(8,2) NOT NULL COMMENT '本次应收款',
   `amount` decimal(8,2) NOT NULL COMMENT '本次收款',
   `expect_amount` decimal(8,2) DEFAULT NULL COMMENT '预收业绩',
+`sure_expect_amount` decimal(8,2) DEFAULT NULL COMMENT '确认预收业绩',
   `discount` decimal(8,2) NOT NULL DEFAULT 0 COMMENT '折扣',
   `gst` decimal(8,2) NOT NULL COMMENT 'GST',
   `deduct_gst` decimal(8,2) NOT NULL COMMENT 'Deduct GST',
   `bonus` decimal(8,2) NOT NULL COMMENT '月奖金',
   `bonus_date` datetime DEFAULT NULL COMMENT '月奖金支付时间',
   `zy_date` datetime DEFAULT NULL COMMENT '追佣时间',
+`bank_check` varchar(32) DEFAULT NULL COMMENT '银行对账',
+`is_checked` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否对账成功',
   `remarks` text DEFAULT NULL COMMENT '备注',
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
