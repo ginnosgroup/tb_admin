@@ -205,6 +205,12 @@
         <if test='zyDate != null'>
             , zy_date = #{zyDate}
         </if>
+        <if test='bankCheck != null and bankCheck != ""'>
+            , bank_check = #{bankCheck}
+        </if>
+        <if test='isChecked != null'>
+            , is_checked = #{isChecked}
+        </if>
         <if test='remarks != null and remarks != ""'>
             , remarks = #{remarks}
         </if>
@@ -317,6 +323,8 @@
             co.bonus,
             co.bonus_date AS bonusDate,
             co.zy_date AS zyDate,
+            co.bank_check AS bankCheck,
+            co.is_checked AS isChecked,
             co.remarks,
             co.is_close AS isClose,
             so.id AS serviceOrderId,
@@ -412,6 +420,8 @@
             bonus,
             bonus_date AS bonusDate,
             zy_date AS zyDate,
+            bank_check AS bankCheck,
+            is_checked AS isChecked,
             remarks,
             is_close AS isClose
         FROM b_commission_order WHERE code = #{code};
@@ -461,6 +471,8 @@
             bonus,
             bonus_date AS bonusDate,
             zy_date AS zyDate,
+            bank_check AS bankCheck,
+            is_checked AS isChecked,
             remarks,
             is_close AS isClose
         FROM b_commission_order WHERE service_order_id = #{serviceOrderId};
@@ -510,6 +522,8 @@
             co.bonus,
             co.bonus_date AS bonusDate,
             co.zy_date AS zyDate,
+            co.bank_check AS bankCheck,
+            co.is_checked AS isChecked,
             co.remarks,
             co.is_close AS isClose,
             so.id AS serviceOrderId,
@@ -571,6 +585,8 @@
             co.bonus,
             co.bonus_date AS bonusDate,
             co.zy_date AS zyDate,
+            co.bank_check AS bankCheck,
+            co.is_checked AS isChecked,
             co.remarks,
             co.is_close AS isClose,
             so.id AS serviceOrderId,
@@ -635,6 +651,8 @@
             co.bonus,
             co.bonus_date AS bonusDate,
             co.zy_date AS zyDate,
+            co.bank_check AS bankCheck,
+            co.is_checked AS isChecked,
             co.remarks,
             co.is_close AS isClose,
             so.id AS serviceOrderId,
@@ -645,7 +663,7 @@
         WHERE co.service_order_id = so.id AND co.user_id = u.id and co.id = #{id, jdbcType=INTEGER};
     </select>
     
-    <select id="getCommissionOrderByInvoiceNumber" parameterType="java.lang.String" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderListDO">
+    <select id="listCommissionOrderByInvoiceNumber" parameterType="java.lang.String" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderListDO">
         SELECT
             co.id,
             co.gmt_create AS gmtCreate,
@@ -689,6 +707,8 @@
             co.bonus,
             co.bonus_date AS bonusDate,
             co.zy_date AS zyDate,
+            co.bank_check AS bankCheck,
+            co.is_checked AS isChecked,
             co.remarks,
             co.is_close AS isClose,
             so.id AS serviceOrderId,
@@ -743,6 +763,8 @@
             co.bonus,
             co.bonus_date AS bonusDate,
             co.zy_date AS zyDate,
+            co.bank_check AS bankCheck,
+            co.is_checked AS isChecked,
             co.remarks,
             co.is_close AS isClose,
             so.id AS serviceOrderId,

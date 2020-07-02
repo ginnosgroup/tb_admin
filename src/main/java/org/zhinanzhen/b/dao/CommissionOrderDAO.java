@@ -43,7 +43,7 @@ public interface CommissionOrderDAO {
 
 	CommissionOrderListDO getCommissionOrderById(int id);
 	
-	CommissionOrderListDO getCommissionOrderByInvoiceNumber(String invoiceNumber);
+	List<CommissionOrderListDO> listCommissionOrderByInvoiceNumber(String invoiceNumber);
 
 	CommissionOrderListDO getFirstCommissionOrderByServiceOrderId(int serviceOrderId);
 

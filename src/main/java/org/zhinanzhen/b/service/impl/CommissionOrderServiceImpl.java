@@ -234,25 +234,26 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 	}
 
 	@Override
-	public CommissionOrderListDTO getCommissionOrderByInvoiceNumber(String invoiceNumber) throws ServiceException {
+	public List<CommissionOrderListDTO> listCommissionOrderByInvoiceNumber(String invoiceNumber) throws ServiceException {
 		if (StringUtil.isEmpty(invoiceNumber)) {
 			ServiceException se = new ServiceException("invoiceNumber error !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
-		CommissionOrderListDTO commissionOrderListDto = null;
+		List<CommissionOrderListDTO> commissionOrderListDtoList = new ArrayList<>();
 		try {
-			CommissionOrderListDO commissionOrderListDo = commissionOrderDao
-					.getCommissionOrderByInvoiceNumber(invoiceNumber);
-			if (commissionOrderListDo == null)
+			List<CommissionOrderListDO> commissionOrderListDoList = commissionOrderDao
+					.listCommissionOrderByInvoiceNumber(invoiceNumber);
+			if (commissionOrderListDoList == null)
 				return null;
-			commissionOrderListDto = buildCommissionOrderListDto(commissionOrderListDo);
+			commissionOrderListDoList.forEach(commissionOrderListDo -> commissionOrderListDtoList
+					.add(buildCommissionOrderListDto(commissionOrderListDo)));
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
 		}
-		return commissionOrderListDto;
+		return commissionOrderListDtoList;
 	}
 	
 	@Override

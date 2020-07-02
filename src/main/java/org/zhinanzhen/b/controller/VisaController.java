@@ -29,6 +29,9 @@ import org.zhinanzhen.tb.service.ServiceException;
 
 import com.ikasoa.core.utils.StringUtil;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/visa")
@@ -360,22 +363,51 @@ public class VisaController extends BaseCommissionOrderController {
 				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
 						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 					return new Response<VisaDTO>(1, "仅限会计修改.", null);
-			VisaDTO visaDto = visaService.getVisaById(id);
-			if (visaDto == null)
-				return new Response<VisaDTO>(1, "签证佣金订单订单(ID:" + id + ")不存在!", null);
-			if (sureExpectAmount != null)
-				visaDto.setSureExpectAmount(sureExpectAmount);
-			if (bonus != null)
-				visaDto.setBonus(Double.parseDouble(bonus));
-			if (bonusDate != null)
-				visaDto.setBonusDate(new Date(Long.parseLong(bonusDate)));
-			visaDto.setState(ReviewKjStateEnum.COMPLETE.toString());
-			visaDto.setCommissionState(CommissionStateEnum.YJY.toString());
-			return visaService.updateVisa(visaDto) > 0 ? new Response<VisaDTO>(0, visaDto)
-					: new Response<VisaDTO>(1, "修改失败.", null);
+			return batchUpdate(id, sureExpectAmount, bonus, bonusDate);
 		} catch (ServiceException e) {
 			return new Response<VisaDTO>(e.getCode(), e.getMessage(), null);
 		}
+	}
+	
+	@RequestMapping(value = "/kjUpdate", method = RequestMethod.PUT)
+	@ResponseBody
+	public Response<Integer> kjUpdate(List<BatchUpdateDTO> batchUpdateList, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo != null)
+				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+					return new Response<Integer>(1, "仅限会计修改.", 0);
+			int i = 0;
+			for (BatchUpdateDTO batchUpdateDto : batchUpdateList) {
+				batchUpdate(batchUpdateDto.getId(), batchUpdateDto.getSureExpectAmount(), batchUpdateDto.getBonus(),
+						batchUpdateDto.getBonusDate());
+				i++;
+			}
+			return new Response<Integer>(0, i);
+		} catch (ServiceException e) {
+			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
+		}
+	}
+	
+	private Response<VisaDTO> batchUpdate(int id, Double sureExpectAmount, String bonus, String bonusDate)
+			throws ServiceException {
+		VisaDTO visaDto = visaService.getVisaById(id);
+		if (visaDto == null)
+			return new Response<VisaDTO>(1, "签证佣金订单订单(ID:" + id + ")不存在!", null);
+		if (sureExpectAmount != null)
+			visaDto.setSureExpectAmount(sureExpectAmount);
+		if (bonus != null)
+			visaDto.setBonus(Double.parseDouble(bonus));
+		if (bonusDate != null)
+			visaDto.setBonusDate(new Date(Long.parseLong(bonusDate)));
+		visaDto.setState(ReviewKjStateEnum.COMPLETE.toString());
+		visaDto.setCommissionState(CommissionStateEnum.YJY.toString());
+		return visaService.updateVisa(visaDto) > 0 ? new Response<VisaDTO>(0, visaDto)
+				: new Response<VisaDTO>(1, "修改失败.", null);
 	}
 
 	@RequestMapping(value = "/count", method = RequestMethod.GET)
@@ -649,6 +681,20 @@ public class VisaController extends BaseCommissionOrderController {
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), 0);
 		}
+	}
+
+	@AllArgsConstructor
+	@Data
+	class BatchUpdateDTO {
+
+		private int id;
+
+		private Double sureExpectAmount;
+
+		private String bonus;
+
+		private String bonusDate;
+
 	}
 
 }
