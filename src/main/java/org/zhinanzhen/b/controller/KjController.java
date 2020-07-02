@@ -271,9 +271,12 @@ public class KjController extends BaseController {
 				} else if (array2.length == 1 && (s.indexOf("S") != -1 || s.indexOf("M") != -1 || s.indexOf("T") != -1
 						|| s.indexOf("B") != -1 || s.indexOf("A") != -1 || s.indexOf("BJ") != -1)) { // 留学订单(非提前扣佣,仅匹配invoice)
 					String invoiceNo = s.trim();
-					CommissionOrderListDTO commissionOrderListDto = commissionOrderService
-							.getCommissionOrderByInvoiceNumber(invoiceNo);
-					if (commissionOrderListDto != null) {
+					List<CommissionOrderListDTO> commissionOrderListDtoList = commissionOrderService
+							.listCommissionOrderByInvoiceNumber(invoiceNo);
+					if (commissionOrderListDtoList == null || commissionOrderListDtoList.size() == 0)
+						checkOrderList.add(new CheckOrderDTO(-1, null, "I", s, null, false,
+								"未找到留学佣金订单(invoiceNo:" + invoiceNo + ")"));
+					for (CommissionOrderListDTO commissionOrderListDto : commissionOrderListDtoList) {
 						ServiceOrderDTO serviceOrder = serviceOrderService
 								.getServiceOrderById(commissionOrderListDto.getServiceOrderId());
 						if (serviceOrder != null)
@@ -289,9 +292,7 @@ public class KjController extends BaseController {
 						else
 							checkOrderList.add(new CheckOrderDTO(-1, null, "I", s, null, false,
 									"未找到留学佣金订单所匹配的服务订单(" + commissionOrderListDto.getServiceOrderId() + ")"));
-					} else
-						checkOrderList.add(new CheckOrderDTO(-1, null, "I", s, null, false,
-								"未找到留学佣金订单(invoiceNo:" + invoiceNo + ")"));
+					}
 				} else
 					message += "格式错误(" + s + ");";
 			} catch (Exception e) {
