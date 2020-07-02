@@ -348,7 +348,8 @@
 														<th><span style="color:#FF6C60;">总计已收</span></th>
 														<th v-if="ap_list==='GW'">是否对账完成</th>
 														<th>本次收款</th>
-														<th>预收业绩(<span style="color:#FF6C60;">Commission含GST</span>)</th>																											
+														<th>预收业绩(<span style="color:#FF6C60;">Commission含GST</span>)</th>
+														<th>确认预收业绩</th>																											
 														<th>月奖</th>														
 														<th>月奖支付时间</th>
 														<th>顾问</th>
@@ -374,9 +375,10 @@
 														<td v-html="item.perAmount"></td>
 														<td v-html="item.totalPerAmount"></td>
 														<td v-html="item.totalAmount"></td>
-														<td v-if="ap_list==='GW'" v-html="item.strSchoolPaid"></td>
+														<td v-if="ap_list==='GW'" v-html="item.isChecked"></td>
 														<td v-html="item.amount"></td>
-														<td v-html="item.expectAmount"></td>														
+														<td v-html="item.expectAmount"></td>
+														<td v-html="item.sureExpectAmount"></td>														
 														<td v-html="item.bonus"></td>														
 														<td v-html="item.bonusDate"></td>
 														<td v-html="item.adviser.name"></td>
@@ -389,7 +391,7 @@
 																</d1>
 														</dle>
 														</td>
-														<td v-html="item.remarks" style="width:100px;word-break:break-all;"></td>
+														<td><div v-html="item.remarks" style="width:100px;overflow:hidden;"></div></td>
 													</tr>
 													<tr class="gradeX">
 														<td></td>
@@ -408,8 +410,9 @@
 														<td></td>
 														<td></td>
 														<td></td>
-														<td bgcolor="#F4A460">合计：</td>
+														<td bgcolor="#F4A460">合计：</td>														
 														<td bgcolor="#F4A460">{{total_expectamount}}</td>
+														<td bgcolor="#F4A460">{{total_sureexpectamount}}</td>
 														<td bgcolor="#F4A460">{{total_bonus}}</td>
 														<td></td>
 														<td></td>
@@ -512,6 +515,7 @@
 					arr_ids : getRequestId(),
 					orderId: 0,
 					total_expectamount: 0.00,
+					total_sureexpectamount: 0.00,
 					total_bonus: 0.00,
 					order_detail: [],
 					subject: [],
@@ -664,6 +668,7 @@
 			function return_result(result)
 			{
 				v.total_expectamount = 0;
+				v.total_sureexpectamount = 0;
 				v.total_bonus = 0;
 				for(var i = 0; i < result.data.length; i++) {
 						var str_state = '';
@@ -680,7 +685,8 @@
 						{
 								result.data[i].schoolPaid = true;
 								result.data[i].strSchoolPaid = '是';
-						}						
+						}
+						result.data[i].isChecked = result.data[i].checked;
 						result.data[i].bonusDate = result.data[i].bonusDate ? v.getTime(result.data[i].bonusDate):'';
 						result.data[i].userName = result.data[i].user.name;
 						result.data[i].serviceName = '留学';
@@ -699,14 +705,19 @@
 						if (result.data[i].state == 'PENDING')
 						{
 								result.data[i].expectAmount = 0.00;
+								result.data[i].sureExpectAmount = 0.00;
 								result.data[i].bonus = 0.00;
 						}
 						v.total_expectamount += result.data[i].expectAmount;
+						v.total_sureexpectamount += result.data[i].sureExpectAmount;
 						v.total_bonus += result.data[i].bonus;
 						result.data[i].strState = return_state(result.data[i].state);
 						result.data[i].currentState = result.data[i].state;
 						if (result.data[i].remarks) result.data[i].remarks = url_replace(result.data[i].remarks);
 				};
+				v.total_expectamount = v.total_expectamount.toFixed(2);
+				v.total_sureexpectamount = v.total_sureexpectamount.toFixed(2);
+				v.total_bonus = v.total_bonus.toFixed(2);
 				return result.data;
 			}
 			

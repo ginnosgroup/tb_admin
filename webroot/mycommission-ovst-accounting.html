@@ -268,6 +268,11 @@
 										提前扣佣订单
 									</a>									
 								</li>
+								<li v-if="ap_list==='KJ'">
+									<a href="mycommission-check-accounting.html">
+										自动对账
+									</a>									
+								</li>
 								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
 									<a href="table-export.html">
 										导出数据
@@ -372,6 +377,7 @@
 														<th><span style="color:#FF6C60;">总计已收</span></th>											
 														<th>本次收款</th>
 														<th>预收业绩(<span style="color:#FF6C60;">Commission含GST</span>)</th>
+														<th>确认预收业绩</th>
 														<th>GST</th>
 														<th>Deduct GST</th>
 														<th>学校支付金额</th>
@@ -379,7 +385,8 @@
 														<th>Invoice NO.</th>
 														<th>追佣时间</th>
 														<th>Subagency</th>
-														<th v-if="ap_list==='KJ' && commission_state ==='DJY'">是否对账完成</th>
+														<th>银行对账字段</th>
+														<th>是否自动对账成功</th>
 														<th>月奖</th>														
 														<th>月奖支付时间</th>
 														<th>顾问</th>
@@ -407,6 +414,7 @@
 														<td v-html="item.totalAmount"></td>
 														<td v-html="item.amount"></td>
 														<td v-html="item.expectAmount"></td>
+														<td @dblclick="table_edit($index,'sureExpectAmount','t1')"><span v-html="item.sureExpectAmount"></span></td>
 														<td v-html="item.gst"></td>
 														<td v-html="item.deductGst"></td>
 														<th v-html="item.schoolPaymentAmount"></th>
@@ -414,7 +422,8 @@
 														<td v-html="item.invoiceNumber"></td>
 														<td v-html="item.zyDate"></td>
 														<td v-html="item.subagencyName"></td>
-														<td v-if="ap_list==='KJ' && commission_state ==='DJY'" v-html="item.strSchoolPaid"></td>
+														<td @dblclick="table_edit($index,'bankCheck','t2')"><span v-html="item.bankCheck"></span></td>
+														<td @dblclick="table_edit($index,'isChecked','t3')"><span v-html="item.isChecked"></span></td>
 														<td v-html="item.bonus"></td>														
 														<td v-html="item.bonusDate"></td>
 														<td v-html="item.adviser.name"></td>
@@ -429,21 +438,40 @@
 																				<a href="javascript:show_confirmbox({{item.oid}},'WAIT',0);"><span style="color:blue;">驳回</span></a>
 																		</dli>
 																		<dli v-else>
-																				<a class="save" href="javascript:;"><span style="color:blue;">保存并审批通过</span></a>
+																				<dli v-if="item.type">
+																				<a class="save" href="javascript:;"><span style="color:blue;" id="save{{item.oid}}">保存并审批通过</span></a>
+																				</dli>
+																				<dli v-else>
+																				<a class="save2" href="javascript:;"><span style="color:blue;">保存</span></a>
+																				</dli>
 																				<a class="cancel" href="javascript:;">取消</a>
 																		</dli>
 																</dli>
-																<dli v-if="ap_list==='KJ' && commission_state ==='DZY'">
+																<dli v-if="ap_list==='KJ' && commission_state ==='DZY'">																	
 																		<dli v-if="item.id">
 																				<a href="javascript:;" @click="table_modify1($index)"><span style="color:blue;">编辑</span></a>
 																		</dli>
 																		<dli v-else>
+																				<dli v-if="item.type">
 																				<a class="save1" href="javascript:;"><span style="color:blue;">保存</span></a>
+																				</dli>
+																				<dli v-else>
+																				<a class="save2" href="javascript:;"><span style="color:blue;">保存</span></a>
+																				</dli>
+																				<a class="cancel" href="javascript:;">取消</a>
+																		</dli>
+																</dli>
+																<dli v-if="ap_list==='KJ' && commission_state ==='TQKY'">																		
+																		<dli v-if="item.id"></dli>
+																		<dli v-else>																				
+																				<dli>
+																				<a class="save2" href="javascript:;"><span style="color:blue;">保存</span></a>
+																				</dli>
 																				<a class="cancel" href="javascript:;">取消</a>
 																		</dli>
 																</dli>
 														</td>
-														<td v-html="item.remarks" style="width:100px;word-break:break-all;"></td>
+														<td><div v-html="item.remarks" style="width:100px;overflow:hidden;"></div></td>
 													</tr>													
 												</tbody>
 											</table>
@@ -545,7 +573,9 @@
 					name: '',
 					schoolId: 0,
 					isSettle: '',
-					state: '',					
+					state: '',
+					update_field: '',					
+					update_byid: '',					
 					pageNum: 0,
 					pageSize: 20,
 					allPage: 0,
@@ -738,8 +768,47 @@
 								this.subject[this.current_index] = this.current_row;
 						}
 						this.current_index = index;
-						this.current_row = this.subject[index];						
-						this.subject.splice(index,1, {
+						this.current_row = this.subject[index];
+						var json = {};
+						json['strOid'] = this.subject[index].id+'-'+this.subject[index].installmentNum;
+						json['gmtCreate'] = this.subject[index].gmtCreate;
+						json['receiveDate'] = this.subject[index].receiveDate;
+						json['userName'] = this.subject[index].userName;
+						json['studentCode'] = this.subject[index].studentCode;
+						json['receiveTypeName'] = this.subject[index].receiveTypeName;
+						json['serviceName'] = this.subject[index].serviceName;
+						json['strSettle'] = this.subject[index].strSettle;
+						json['schoolName'] = this.subject[index].schoolName;
+						json['schoolSubject'] = this.subject[index].schoolSubject;
+						json['installmentDueDate'] = this.subject[index].installmentDueDate;
+						json['receiveTypeName'] = this.subject[index].receiveTypeName;
+						json['tuitionFee'] = this.subject[index].tuitionFee;
+						json['perAmount'] = this.subject[index].perAmount;
+						json['totalPerAmount'] = this.subject[index].totalPerAmount;
+						json['totalAmount'] = this.subject[index].totalAmount;						
+						json['amount'] = this.subject[index].amount;
+						json['expectAmount'] = this.subject[index].expectAmount;
+						if (this.subject[index].settle)
+						{
+								json['sureExpectAmount'] = '<input type="text" class="form-control small" style="width:120px;" id="t3a" value="'+this.subject[index].sureExpectAmount+'">';
+						}else
+						{
+								json['sureExpectAmount'] = this.subject[index].sureExpectAmount;
+						}
+						json['gst'] = this.subject[index].gst;
+						json['deductGst'] = this.subject[index].deductGst;
+						json['schoolPaymentAmount'] = this.subject[index].schoolPaymentAmount;
+						json['schoolPaymentDate'] = this.subject[index].schoolPaymentDate;
+						json['invoiceNumber'] = this.subject[index].invoiceNumber;
+						json['zyDate'] = this.subject[index].zyDate;
+						json['subagencyName'] = this.subject[index].subagencyName;
+						json['bonus'] = '<input type="text" class="form-control small" style="width:120px;" id="t1" value="'+this.subject[index].bonus+'">';
+						json['bonusDate'] = '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:120px;" id="t2" data-date-format="dd-mm-yyyy" value="'+this.subject[index].bonusDate+'">';
+						json['adviserName'] = this.subject[index].adviserName;
+						json['strState'] = this.subject[index].strState;
+						json['type'] = 1;
+						this.subject.splice(index,1, json);
+						/*this.subject.splice(index,1, {
 							strOid: this.subject[index].id+'-'+this.subject[index].installmentNum,
 							gmtCreate: this.subject[index].gmtCreate,
 							//finishDate: this.subject[index].finishDate,
@@ -758,18 +827,20 @@
 							totalAmount: this.subject[index].totalAmount,
 							amount: this.subject[index].amount,
 							expectAmount: this.subject[index].expectAmount,
+							sureExpectAmount: '<input type="text" class="form-control small" style="width:120px;" id="t3a" value="'+this.subject[index].sureExpectAmount+'">',
 							gst: this.subject[index].gst,
 							deductGst: this.subject[index].deductGst,
 							schoolPaymentAmount: this.subject[index].schoolPaymentAmount,
 							schoolPaymentDate: this.subject[index].schoolPaymentDate,
 							invoiceNumber: this.subject[index].invoiceNumber,
 							subagencyName: this.subject[index].subagencyName,
-							strSchoolPaid: this.subject[index].strSchoolPaid,
+							//strSchoolPaid: this.subject[index].strSchoolPaid,
 							bonus: '<input type="text" class="form-control small" style="width:120px;" id="t1" value="'+this.subject[index].bonus+'">',
 							bonusDate: '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:120px;" id="t2" data-date-format="dd-mm-yyyy" value="'+this.subject[index].bonusDate+'">',
 							adviserName: this.subject[index].adviserName,
 							strState: this.subject[index].strState,
-						});															
+							type: 1,
+						});*/															
 					},					
 					table_modify1: function (index) {
 						v.orderId = this.subject[index].id;										
@@ -810,7 +881,73 @@
 							bonusDate: this.subject[index].bonusDate,
 							adviserName: this.subject[index].adviserName,
 							strState: this.subject[index].strState,
+							type: 1,
 						});															
+					},									
+					table_edit: function (index,field,byid) {
+						if (field == 'sureExpectAmount'  && !this.subject[index].settle) return;						
+						if (this.current_index != null)
+						{
+								this.subject[this.current_index] = this.current_row;
+						}						
+						v.update_field = field;
+						v.update_byid = byid;
+						this.current_index = index;
+						this.current_row = this.subject[index];
+						v.orderId = this.subject[index].id;
+						var json = {};
+						json['strOid'] = this.subject[index].id+'-'+this.subject[index].installmentNum;
+						json['gmtCreate'] = this.subject[index].gmtCreate;
+						json['receiveDate'] = this.subject[index].receiveDate;
+						json['userName'] = this.subject[index].userName;
+						json['studentCode'] = this.subject[index].studentCode;
+						json['receiveTypeName'] = this.subject[index].receiveTypeName;
+						json['serviceName'] = this.subject[index].serviceName;
+						json['strSettle'] = this.subject[index].strSettle;
+						json['schoolName'] = this.subject[index].schoolName;
+						json['schoolSubject'] = this.subject[index].schoolSubject;
+						json['installmentDueDate'] = this.subject[index].installmentDueDate;
+						json['receiveTypeName'] = this.subject[index].receiveTypeName;
+						json['tuitionFee'] = this.subject[index].tuitionFee;
+						json['perAmount'] = this.subject[index].perAmount;
+						json['totalPerAmount'] = this.subject[index].totalPerAmount;
+						json['totalAmount'] = this.subject[index].totalAmount;						
+						json['amount'] = this.subject[index].amount;
+						json['expectAmount'] = this.subject[index].expectAmount;						
+						if (field == 'sureExpectAmount')
+						{
+								json['sureExpectAmount'] = '<input type="text" class="form-control small" style="width:120px;" id="'+byid+'" value="'+this.subject[index].sureExpectAmount+'">';
+						}else
+						{
+								json['sureExpectAmount'] = this.subject[index].sureExpectAmount;
+						}
+						if (field == 'bankCheck')
+						{
+								json['bankCheck'] = '<input type="text" class="form-control small" style="width:120px;" id="'+byid+'" value="'+(this.subject[index].bankCheck  == null ?  '':this.subject[index].bankCheck)+'">';
+						}else
+						{								
+								json['bankCheck'] = (this.subject[index].bankCheck  == null ?  '':this.subject[index].bankCheck);
+						}
+						if (field == 'isChecked')
+						{
+								json['isChecked'] = '<select class="form-control" style="width:180px;" id="'+byid+'"></select>';
+						}else
+						{
+								json['isChecked'] = (!this.subject[index].checked ?  '':this.subject[index].checked);
+						}
+						json['gst'] = this.subject[index].gst;
+						json['deductGst'] = this.subject[index].deductGst;
+						json['schoolPaymentAmount'] = this.subject[index].schoolPaymentAmount;
+						json['schoolPaymentDate'] = this.subject[index].schoolPaymentDate;
+						json['invoiceNumber'] = this.subject[index].invoiceNumber;
+						json['zyDate'] = this.subject[index].zyDate;
+						json['subagencyName'] = this.subject[index].subagencyName;
+						json['bonus'] = this.subject[index].bonus;
+						json['bonusDate'] = this.subject[index].bonusDate;
+						json['adviserName'] = this.subject[index].adviserName;
+						json['strState'] = this.subject[index].strState;						
+						json['type'] = 0;
+						this.subject.splice(index,1, json);															
 					},			
 					table_remove: function (index) {
              this.subject.splice(index, 1);  
@@ -843,6 +980,7 @@
 						result.data[i].bonusDate = result.data[i].bonusDate ? v.getTime(result.data[i].bonusDate):'';
 						result.data[i].zyDate = result.data[i].zyDate ? v.getTime(result.data[i].zyDate):'';
 						result.data[i].userName = result.data[i].user.name;
+						if (result.data[i].sureExpectAmount == '0') result.data[i].sureExpectAmount = result.data[i].expectAmount;
 						result.data[i].serviceName = '留学';
 						if (result.data[i].settle)
 						{
@@ -852,6 +990,7 @@
 						}else
 						{
 								result.data[i].strSettle = '否';
+								if (v.commission_state != 'TQKY') result.data[i].sureExpectAmount = (result.data[i].schoolPaymentAmount ? result.data[i].schoolPaymentAmount:0);
 						}
 						result.data[i].schoolName = result.data[i].school.name;
 						result.data[i].schoolSubject = result.data[i].school.subject;
@@ -862,7 +1001,13 @@
 						result.data[i].adviserName = result.data[i].adviser.name;
 						result.data[i].strState = return_state(result.data[i].state);
 						result.data[i].currentState = result.data[i].state;
-						if (result.data[i].remarks) result.data[i].remarks = url_replace(result.data[i].remarks);
+						if (result.data[i].remarks) result.data[i].remarks = url_replace(result.data[i].remarks);												
+						var str_checked = '';
+						if (result.data[i].bankCheck)
+						{
+								str_checked = result.data[i].checked;
+								if (!result.data[i].checked) str_checked = '<span style="color:red;">'+result.data[i].checked+'</span>';
+						}
 				};
 				return result.data;
 			}						
@@ -890,6 +1035,11 @@
 			$('#list_ovst a.save1').live('click', function (e) {
 				e.preventDefault();
 				table_addsave1();
+			});
+			
+			$('#list_ovst a.save2').live('click', function (e) {
+				e.preventDefault();
+				table_addsave2();
 			});
 			
 			$('#list_ovst a.cancel').live('click', function (e) {
@@ -934,6 +1084,8 @@
 	          	{
        						json['bonusDate'] = 0;      				
        				}
+       				var t3a = $(f+'#t3a').val();
+       				if (t3a != '') json['sureExpectAmount'] = t3a;
        				$.post(str_url, json,
 					   	function(data){
 					   			if (data.code == 0)
@@ -1018,10 +1170,63 @@
     			}
 			}
 			
+			function table_addsave2()
+			{
+					var f = '#list_ovst ';
+					var check_result = 0;
+					var str_val = $(f+'#'+v.update_byid).val();
+					var field = v.update_field;
+					
+					if (str_val != '')
+					{														
+							check_result = true;							
+					}else
+					{
+							$('#my_table #alert_error').css('marginLeft','40%');
+			    		$('#my_table #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+			        $("#my_table #error_info").html('提示：字段必须填写或选择！');
+			    		return false;
+					}
+					if (check_result)
+    			{    					
+			    		var str_url = "commissionOrder/update";
+       				var json = {};
+       				json['id'] = v.orderId;
+       				json[v.update_field] = str_val;
+       				$.post(str_url, json,
+					   	function(data){
+					   			if (data.code == 0)
+					   			{
+					   					$('#my_table #alert_success').css('marginLeft','40%');
+					   					$('#my_table #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+					   					if (field == 'sureExpectAmount') v.current_row.sureExpectAmount = str_val;					   					
+					   					if (field == 'bankCheck') v.current_row.bankCheck = str_val;					   					
+					   					if (field == 'isChecked') v.current_row.checked = str_val;					   					
+					   					v.subject.splice(v.current_index, 0);
+											v.subject.splice(v.current_index,1, v.current_row);
+					   					//重新载入数据源
+					   					v.getDatalist();
+					   			}else
+					   			{
+					   					$('#my_table #alert_error').css('marginLeft','40%');
+					   					$('#my_table #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+			          			$("#my_table #error_info").html(data.message);
+				        			return false;
+					   			}
+					   	});
+    			}
+			}
+			
 			v.$watch('subject', function(obj) {
 					$('.default-date-picker').datepicker({   				
 				        format: 'dd/mm/yyyy'
-				  });				 	
+				  });
+				  var checked_val = 'false';
+				  if (this.current_row.id)
+				  {
+				  		$("#id").val(this.current_row.id);
+				  		checked_val = this.current_row.checked;
+				  }		 	
 				  //查询客户
 				  var user = $("#user_name");
 				  user.autocompleter({
@@ -1084,7 +1289,13 @@
 			   	obj_isSettle.append("<option value=''>全部</option>");
 			   	obj_isSettle.append("<option value='true'>是</option>");
 			   	obj_isSettle.append("<option value='false'>否</option>");
-			   	obj_isSettle.val(v.isSettle);			   	
+			   	obj_isSettle.val(v.isSettle);
+			   	//是否自动对账完成
+			   	var obj_checked = $("#t3");
+	        $("#t3").empty();
+			    obj_checked.append('<option value="true">True</option>');
+			    obj_checked.append('<option value="false">False</option>');   
+			    obj_checked.val(checked_val.toString());
 			});
 			
 			function gotoUrl(va)
