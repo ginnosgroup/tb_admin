@@ -205,6 +205,12 @@
         <if test='zyDate != null'>
             , zy_date = #{zyDate}
         </if>
+        <if test='bankCheck != null and bankCheck != ""'>
+            , bank_check = #{bankCheck}
+        </if>
+        <if test='isChecked != null'>
+            , is_checked = #{isChecked}
+        </if>
         <if test='remarks != null and remarks != ""'>
             , remarks = #{remarks}
         </if>
