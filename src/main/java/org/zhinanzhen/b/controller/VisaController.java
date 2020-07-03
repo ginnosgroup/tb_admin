@@ -371,7 +371,7 @@ public class VisaController extends BaseCommissionOrderController {
 	
 	@RequestMapping(value = "/kjUpdate", method = RequestMethod.PUT)
 	@ResponseBody
-	public Response<Integer> kjUpdate(@RequestParam("batchUpdateList") List<BatchUpdateDTO> batchUpdateList, HttpServletRequest request,
+	public Response<Integer> kjUpdate(BatchUpdateDTO[] batchUpdateArray, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -381,7 +381,7 @@ public class VisaController extends BaseCommissionOrderController {
 //						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 //					return new Response<Integer>(1, "仅限会计修改.", 0);
 			int i = 0;
-			for (BatchUpdateDTO batchUpdateDto : batchUpdateList) {
+			for (BatchUpdateDTO batchUpdateDto : batchUpdateArray) {
 				updateOne(batchUpdateDto.getId(), batchUpdateDto.getSureExpectAmount(), batchUpdateDto.getBonus(),
 						batchUpdateDto.getBonusDate());
 				i++;
