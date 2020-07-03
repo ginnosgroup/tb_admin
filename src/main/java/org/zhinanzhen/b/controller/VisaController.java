@@ -376,11 +376,11 @@ public class VisaController extends BaseCommissionOrderController {
 		try {
 			super.setPostHeader(response);
 
-			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			if (adminUserLoginInfo != null)
-				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
-						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
-					return new Response<Integer>(1, "仅限会计修改.", 0);
+//			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+//			if (adminUserLoginInfo != null)
+//				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+//						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+//					return new Response<Integer>(1, "仅限会计修改.", 0);
 			int i = 0;
 			for (BatchUpdateDTO batchUpdateDto : batchUpdateList) {
 				updateOne(batchUpdateDto.getId(), batchUpdateDto.getSureExpectAmount(), batchUpdateDto.getBonus(),
