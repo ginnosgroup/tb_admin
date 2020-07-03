@@ -1007,7 +1007,8 @@
 						{
 								str_checked = result.data[i].checked;
 								if (!result.data[i].checked) str_checked = '<span style="color:red;">'+result.data[i].checked+'</span>';
-						}
+								result.data[i].isChecked = str_checked;
+						}						
 				};
 				return result.data;
 			}						
