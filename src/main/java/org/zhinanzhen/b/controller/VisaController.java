@@ -683,20 +683,5 @@ public class VisaController extends BaseCommissionOrderController {
 			return new Response<Integer>(1, e.getMessage(), 0);
 		}
 	}
-	
-	@AllArgsConstructor
-	@NoArgsConstructor
-	@Data
-	class BatchUpdateVisa {
-
-		private int id;
-
-		private Double sureExpectAmount;
-
-		private Double bonus;
-
-		private String bonusDate;
-
-	}
 
 }
