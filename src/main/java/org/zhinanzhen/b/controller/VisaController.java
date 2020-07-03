@@ -31,6 +31,7 @@ import com.ikasoa.core.utils.StringUtil;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -683,6 +684,7 @@ public class VisaController extends BaseCommissionOrderController {
 	}
 
 	@AllArgsConstructor
+	@NoArgsConstructor
 	@Data
 	class BatchUpdateDTO {
 

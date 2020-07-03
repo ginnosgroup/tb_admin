@@ -34,6 +34,7 @@ import com.ikasoa.core.utils.StringUtil;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -472,7 +473,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	
 	@RequestMapping(value = "/kjUpdate", method = RequestMethod.PUT)
 	@ResponseBody
-	public Response<Integer> kjUpdate(@RequestParam("batchUpdateList") List<BatchUpdateDTO> batchUpdateList,
+	public Response<Integer> kjUpdate(BatchUpdateDTO[] batchUpdateArray,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -483,7 +484,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					return new Response<Integer>(1, "仅限会计修改.", 0);
 			int x = 0;
 			String msg = "";
-			for (BatchUpdateDTO batchUpdateDto : batchUpdateList) {
+			for (BatchUpdateDTO batchUpdateDto : batchUpdateArray) {
 				Response<CommissionOrderDTO> _response = updateOne(batchUpdateDto.getId(),
 						batchUpdateDto.getSchoolPaymentAmount(), batchUpdateDto.getSchoolPaymentDate(),
 						batchUpdateDto.getInvoiceNumber(), batchUpdateDto.getZyDate(),
@@ -858,6 +859,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	}
 	
 	@AllArgsConstructor
+	@NoArgsConstructor
 	@Data
 	class BatchUpdateDTO {
 
