@@ -353,7 +353,7 @@ public class VisaController extends BaseCommissionOrderController {
 	@ResponseBody
 	public Response<VisaDTO> kjUpdate(@RequestParam(value = "id") int id,
 			@RequestParam(value = "sureExpectAmount", required = false) Double sureExpectAmount,
-			@RequestParam(value = "bonus", required = false) String bonus,
+			@RequestParam(value = "bonus", required = false) Double bonus,
 			@RequestParam(value = "bonusDate", required = false) String bonusDate, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
@@ -375,7 +375,6 @@ public class VisaController extends BaseCommissionOrderController {
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-
 //			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 //			if (adminUserLoginInfo != null)
 //				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
@@ -393,7 +392,7 @@ public class VisaController extends BaseCommissionOrderController {
 		}
 	}
 	
-	private Response<VisaDTO> updateOne(int id, Double sureExpectAmount, String bonus, String bonusDate)
+	private Response<VisaDTO> updateOne(int id, Double sureExpectAmount, Double bonus, String bonusDate)
 			throws ServiceException {
 		VisaDTO visaDto = visaService.getVisaById(id);
 		if (visaDto == null)
@@ -401,7 +400,7 @@ public class VisaController extends BaseCommissionOrderController {
 		if (sureExpectAmount != null)
 			visaDto.setSureExpectAmount(sureExpectAmount);
 		if (bonus != null)
-			visaDto.setBonus(Double.parseDouble(bonus));
+			visaDto.setBonus(bonus);
 		if (bonusDate != null)
 			visaDto.setBonusDate(new Date(Long.parseLong(bonusDate)));
 		visaDto.setState(ReviewKjStateEnum.COMPLETE.toString());
@@ -691,7 +690,7 @@ public class VisaController extends BaseCommissionOrderController {
 
 		private Double sureExpectAmount;
 
-		private String bonus;
+		private Double bonus;
 
 		private String bonusDate;
 

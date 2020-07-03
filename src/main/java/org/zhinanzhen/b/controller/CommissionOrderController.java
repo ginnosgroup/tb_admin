@@ -446,12 +446,12 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/kjUpdate", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<CommissionOrderDTO> kjUpdate(@RequestParam(value = "id") int id,
-			@RequestParam(value = "schoolPaymentAmount", required = false) String schoolPaymentAmount,
+			@RequestParam(value = "schoolPaymentAmount", required = false) Double schoolPaymentAmount,
 			@RequestParam(value = "schoolPaymentDate", required = false) String schoolPaymentDate,
 			@RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
 			@RequestParam(value = "zyDate", required = false) String zyDate,
 			@RequestParam(value = "sureExpectAmount", required = false) Double sureExpectAmount,
-			@RequestParam(value = "bonus", required = false) String bonus,
+			@RequestParam(value = "bonus", required = false) Double bonus,
 			@RequestParam(value = "bonusDate", required = false) String bonusDate, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
@@ -499,14 +499,14 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		}
 	}
 
-	private Response<CommissionOrderDTO> updateOne(int id, String schoolPaymentAmount, String schoolPaymentDate,
-			String invoiceNumber, String zyDate, Double sureExpectAmount, String bonus, String bonusDate)
+	private Response<CommissionOrderDTO> updateOne(int id, Double schoolPaymentAmount, String schoolPaymentDate,
+			String invoiceNumber, String zyDate, Double sureExpectAmount, Double bonus, String bonusDate)
 			throws ServiceException {
 		CommissionOrderDTO commissionOrderDto = commissionOrderService.getCommissionOrderById(id);
 		if (commissionOrderDto == null)
 			return new Response<CommissionOrderDTO>(1, "留学佣金订单订单(ID:" + id + ")不存在!", null);
-		if (StringUtil.isNotEmpty(schoolPaymentAmount))
-			commissionOrderDto.setSchoolPaymentAmount(Double.parseDouble(schoolPaymentAmount));
+		if (schoolPaymentAmount != null)
+			commissionOrderDto.setSchoolPaymentAmount(schoolPaymentAmount);
 		if (schoolPaymentDate != null)
 			commissionOrderDto.setSchoolPaymentDate(new Date(Long.parseLong(schoolPaymentDate)));
 		if (StringUtil.isNotEmpty(invoiceNumber))
@@ -516,7 +516,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		if (sureExpectAmount != null)
 			commissionOrderDto.setSureExpectAmount(sureExpectAmount);
 		if (bonus != null)
-			commissionOrderDto.setBonus(Double.parseDouble(bonus));
+			commissionOrderDto.setBonus(bonus);
 		if (bonusDate != null)
 			commissionOrderDto.setBonusDate(new Date(Long.parseLong(bonusDate)));
 		if (bonus != null || bonusDate != null) {
@@ -863,7 +863,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 		private int id;
 		
-		private String schoolPaymentAmount;
+		private Double schoolPaymentAmount;
 		
 		private String schoolPaymentDate;
 		
@@ -873,7 +873,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		
 		private Double sureExpectAmount;
 		
-		private String bonus;
+		private Double bonus;
 		
 		private String bonusDate;
 
