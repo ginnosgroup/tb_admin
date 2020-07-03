@@ -29,10 +29,6 @@ import org.zhinanzhen.tb.service.ServiceException;
 
 import com.ikasoa.core.utils.StringUtil;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/visa")
@@ -372,7 +368,7 @@ public class VisaController extends BaseCommissionOrderController {
 	
 	@RequestMapping(value = "/kjUpdate", method = RequestMethod.PUT)
 	@ResponseBody
-	public Response<Integer> kjUpdate(BatchUpdateDTO[] batchUpdateArray, HttpServletRequest request,
+	public Response<Integer> kjUpdate(BatchUpdateVisa[] batchUpdateArray, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -382,7 +378,7 @@ public class VisaController extends BaseCommissionOrderController {
 //						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 //					return new Response<Integer>(1, "仅限会计修改.", 0);
 			int i = 0;
-			for (BatchUpdateDTO batchUpdateDto : batchUpdateArray) {
+			for (BatchUpdateVisa batchUpdateDto : batchUpdateArray) {
 				updateOne(batchUpdateDto.getId(), batchUpdateDto.getSureExpectAmount(), batchUpdateDto.getBonus(),
 						batchUpdateDto.getBonusDate());
 				i++;
@@ -681,21 +677,6 @@ public class VisaController extends BaseCommissionOrderController {
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), 0);
 		}
-	}
-
-	@AllArgsConstructor
-	@NoArgsConstructor
-	@Data
-	class BatchUpdateDTO {
-
-		private int id;
-
-		private Double sureExpectAmount;
-
-		private Double bonus;
-
-		private String bonusDate;
-
 	}
 
 }

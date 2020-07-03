@@ -32,10 +32,6 @@ import org.zhinanzhen.tb.service.ServiceException;
 
 import com.ikasoa.core.utils.StringUtil;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/commissionOrder")
@@ -473,7 +469,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	
 	@RequestMapping(value = "/kjUpdate", method = RequestMethod.PUT)
 	@ResponseBody
-	public Response<Integer> kjUpdate(BatchUpdateDTO[] batchUpdateArray,
+	public Response<Integer> kjUpdate(BatchUpdateCommissionOrder[] batchUpdateArray,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -484,11 +480,11 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					return new Response<Integer>(1, "仅限会计修改.", 0);
 			int x = 0;
 			String msg = "";
-			for (BatchUpdateDTO batchUpdateDto : batchUpdateArray) {
-				Response<CommissionOrderDTO> _response = updateOne(batchUpdateDto.getId(),
-						batchUpdateDto.getSchoolPaymentAmount(), batchUpdateDto.getSchoolPaymentDate(),
-						batchUpdateDto.getInvoiceNumber(), batchUpdateDto.getZyDate(),
-						batchUpdateDto.getSureExpectAmount(), batchUpdateDto.getBonus(), batchUpdateDto.getBonusDate());
+			for (BatchUpdateCommissionOrder batchUpdate : batchUpdateArray) {
+				Response<CommissionOrderDTO> _response = updateOne(batchUpdate.getId(),
+						batchUpdate.getSchoolPaymentAmount(), batchUpdate.getSchoolPaymentDate(),
+						batchUpdate.getInvoiceNumber(), batchUpdate.getZyDate(),
+						batchUpdate.getSureExpectAmount(), batchUpdate.getBonus(), batchUpdate.getBonusDate());
 				if (_response.getCode() == 0)
 					x++;
 				else
@@ -856,29 +852,6 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), 0);
 		}
-	}
-	
-	@AllArgsConstructor
-	@NoArgsConstructor
-	@Data
-	class BatchUpdateDTO {
-
-		private int id;
-		
-		private Double schoolPaymentAmount;
-		
-		private String schoolPaymentDate;
-		
-		private String invoiceNumber;
-		
-		private String zyDate;
-		
-		private Double sureExpectAmount;
-		
-		private Double bonus;
-		
-		private String bonusDate;
-
 	}
 
 }
