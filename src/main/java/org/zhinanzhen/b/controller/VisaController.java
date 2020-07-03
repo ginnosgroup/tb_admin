@@ -363,7 +363,7 @@ public class VisaController extends BaseCommissionOrderController {
 				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
 						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 					return new Response<VisaDTO>(1, "仅限会计修改.", null);
-			return batchUpdate(id, sureExpectAmount, bonus, bonusDate);
+			return updateOne(id, sureExpectAmount, bonus, bonusDate);
 		} catch (ServiceException e) {
 			return new Response<VisaDTO>(e.getCode(), e.getMessage(), null);
 		}
@@ -383,7 +383,7 @@ public class VisaController extends BaseCommissionOrderController {
 					return new Response<Integer>(1, "仅限会计修改.", 0);
 			int i = 0;
 			for (BatchUpdateDTO batchUpdateDto : batchUpdateList) {
-				batchUpdate(batchUpdateDto.getId(), batchUpdateDto.getSureExpectAmount(), batchUpdateDto.getBonus(),
+				updateOne(batchUpdateDto.getId(), batchUpdateDto.getSureExpectAmount(), batchUpdateDto.getBonus(),
 						batchUpdateDto.getBonusDate());
 				i++;
 			}
@@ -393,7 +393,7 @@ public class VisaController extends BaseCommissionOrderController {
 		}
 	}
 	
-	private Response<VisaDTO> batchUpdate(int id, Double sureExpectAmount, String bonus, String bonusDate)
+	private Response<VisaDTO> updateOne(int id, Double sureExpectAmount, String bonus, String bonusDate)
 			throws ServiceException {
 		VisaDTO visaDto = visaService.getVisaById(id);
 		if (visaDto == null)
