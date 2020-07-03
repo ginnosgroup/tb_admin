@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,6 +32,10 @@ import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 
 import com.ikasoa.core.utils.StringUtil;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -469,7 +474,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	
 	@RequestMapping(value = "/kjUpdate", method = RequestMethod.PUT)
 	@ResponseBody
-	public Response<Integer> kjUpdate(BatchUpdateCommissionOrder[] batchUpdateArray,
+	public Response<Integer> kjUpdate(@RequestBody BatchUpdateCommissionOrder[] batchUpdateArray,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -852,6 +857,29 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), 0);
 		}
+	}
+	
+	@AllArgsConstructor
+	@NoArgsConstructor
+	@Data
+	class BatchUpdateCommissionOrder {
+
+		private int id;
+
+		private Double schoolPaymentAmount;
+
+		private String schoolPaymentDate;
+
+		private String invoiceNumber;
+
+		private String zyDate;
+
+		private Double sureExpectAmount;
+
+		private Double bonus;
+
+		private String bonusDate;
+
 	}
 
 }
