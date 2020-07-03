@@ -2,12 +2,13 @@ package org.zhinanzhen.b.controller;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
-@NoArgsConstructor
 @Data
 public class BatchUpdateVisa {
+
+	public BatchUpdateVisa() {
+	}
 
 	private int id;
 
