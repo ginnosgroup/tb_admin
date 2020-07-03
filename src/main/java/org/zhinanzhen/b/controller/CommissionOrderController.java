@@ -474,7 +474,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	
 	@RequestMapping(value = "/kjUpdate", method = RequestMethod.PUT)
 	@ResponseBody
-	public Response<Integer> kjUpdate(@RequestBody BatchUpdateCommissionOrder[] batchUpdateArray,
+	public Response<Integer> kjUpdate(@RequestBody List<BatchUpdateCommissionOrder> batchUpdateList,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -485,7 +485,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					return new Response<Integer>(1, "仅限会计修改.", 0);
 			int x = 0;
 			String msg = "";
-			for (BatchUpdateCommissionOrder batchUpdate : batchUpdateArray) {
+			for (BatchUpdateCommissionOrder batchUpdate : batchUpdateList) {
 				Response<CommissionOrderDTO> _response = updateOne(batchUpdate.getId(),
 						batchUpdate.getSchoolPaymentAmount(), batchUpdate.getSchoolPaymentDate(),
 						batchUpdate.getInvoiceNumber(), batchUpdate.getZyDate(),
