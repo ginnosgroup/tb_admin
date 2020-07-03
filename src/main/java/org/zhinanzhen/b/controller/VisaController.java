@@ -371,7 +371,7 @@ public class VisaController extends BaseCommissionOrderController {
 	
 	@RequestMapping(value = "/kjUpdate", method = RequestMethod.PUT)
 	@ResponseBody
-	public Response<Integer> kjUpdate(List<BatchUpdateDTO> batchUpdateList, HttpServletRequest request,
+	public Response<Integer> kjUpdate(@RequestParam("batchUpdateList") List<BatchUpdateDTO> batchUpdateList, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
