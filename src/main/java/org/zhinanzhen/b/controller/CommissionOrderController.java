@@ -858,28 +858,5 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			return new Response<Integer>(1, e.getMessage(), 0);
 		}
 	}
-	
-	@AllArgsConstructor
-	@NoArgsConstructor
-	@Data
-	class BatchUpdateCommissionOrder {
-
-		private int id;
-
-		private Double schoolPaymentAmount;
-
-		private String schoolPaymentDate;
-
-		private String invoiceNumber;
-
-		private String zyDate;
-
-		private Double sureExpectAmount;
-
-		private Double bonus;
-
-		private String bonusDate;
-
-	}
 
 }
