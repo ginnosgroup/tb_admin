@@ -1,7 +1,10 @@
 package org.zhinanzhen.b.controller;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -24,6 +27,7 @@ import org.zhinanzhen.b.service.CommissionOrderService;
 import org.zhinanzhen.b.service.SchoolService;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.SubagencyService;
+import org.zhinanzhen.b.service.pojo.BrokerageDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderCommentDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
@@ -33,6 +37,12 @@ import org.zhinanzhen.tb.service.ServiceException;
 
 import com.ikasoa.core.utils.StringUtil;
 
+import jxl.Workbook;
+import jxl.WorkbookSettings;
+import jxl.write.Label;
+import jxl.write.WritableCellFormat;
+import jxl.write.WritableSheet;
+import jxl.write.WriteException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -709,6 +719,124 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		} catch (ServiceException e) {
 			return new Response<List<CommissionOrderListDTO>>(1, e.getMessage(), null);
 		}
+	}
+	
+	@RequestMapping(value = "/down", method = RequestMethod.GET)
+	@ResponseBody
+	public void down(@RequestParam(value = "maraId", required = false) Integer maraId,
+			@RequestParam(value = "adviserId", required = false) Integer adviserId,
+			@RequestParam(value = "officialId", required = false) Integer officialId,
+			@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "phone", required = false) String phone,
+			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
+			@RequestParam(value = "schoolId", required = false) Integer schoolId,
+			@RequestParam(value = "isSettle", required = false) Boolean isSettle,
+			@RequestParam(value = "state", required = false) String state,
+			@RequestParam(value = "commissionState", required = false) String commissionState,
+			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
+			HttpServletRequest request, HttpServletResponse response) {
+
+		Integer newMaraId = getMaraId(request);
+		if (newMaraId != null)
+			maraId = newMaraId;
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId;
+		Integer newOfficialId = getOfficialId(request);
+		if (newOfficialId != null)
+			officialId = newOfficialId;
+
+		List<String> commissionStateList = null;
+		if (StringUtil.isNotEmpty(commissionState))
+			commissionStateList = Arrays.asList(commissionState.split(","));
+
+		// 会计角色过滤状态
+		Boolean isYzyAndYjy = false;
+		List<String> stateList = new ArrayList<>();
+		if (state == null && getKjId(request) != null) {
+			stateList.add(ReviewKjStateEnum.REVIEW.toString());
+			stateList.add(ReviewKjStateEnum.FINISH.toString());
+			stateList.add(ReviewKjStateEnum.COMPLETE.toString());
+			stateList.add(ReviewKjStateEnum.CLOSE.toString());
+			if (CommissionStateEnum.YZY.toString().equalsIgnoreCase(commissionState)) {
+				commissionStateList = null;
+				isYzyAndYjy = true;
+			}
+		} else if (state == null)
+			stateList = null;
+		else
+			stateList.add(state);
+
+		try {
+			super.setGetHeader(response);
+			List<CommissionOrderListDTO> commissionOrderList = commissionOrderService.listCommissionOrder(maraId,
+					adviserId, officialId, name, phone, wechatUsername, schoolId, isSettle, stateList,
+					commissionStateList, isYzyAndYjy, 0, 9999);
+			
+			response.reset();// 清空输出流
+			String tableName = "commission_order_information";
+			response.setHeader("Content-disposition",
+					"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
+			response.setContentType("application/msexcel");
+
+			OutputStream os = response.getOutputStream();
+			jxl.Workbook wb;
+			InputStream is;
+			try {
+				is = this.getClass().getResourceAsStream("/CommissionOrderTemplate.xls");
+			} catch (Exception e) {
+				throw new Exception("模版不存在");
+			}
+			try {
+				wb = Workbook.getWorkbook(is);
+			} catch (Exception e) {
+				throw new Exception("模版格式不支持");
+			}
+			WorkbookSettings settings = new WorkbookSettings();
+			settings.setWriteAccess(null);
+			jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
+
+			if (wbe == null) {
+				System.out.println("wbe is null !os=" + os + ",wb" + wb);
+			} else {
+				System.out.println("wbe not null !os=" + os + ",wb" + wb);
+			}
+			WritableSheet sheet = wbe.getSheet(0);
+			WritableCellFormat cellFormat = new WritableCellFormat();
+
+			int i = 1;
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			for (CommissionOrderListDTO commissionOrderListDto : commissionOrderList) {
+				sheet.addCell(new Label(0, i, commissionOrderListDto.getId() + "", cellFormat));
+				sheet.addCell(new Label(1, i, sdf.format(commissionOrderListDto.getGmtCreate()), cellFormat));
+				sheet.addCell(new Label(2, i, sdf.format(commissionOrderListDto.getReceiveDate()), cellFormat));
+				if (commissionOrderListDto.getUser() != null)
+					sheet.addCell(new Label(3, i, commissionOrderListDto.getUser().getName(), cellFormat));
+				if (commissionOrderListDto.getReceiveType() != null)
+					sheet.addCell(new Label(4, i, commissionOrderListDto.getReceiveType().getName() + "", cellFormat));
+				if (commissionOrderListDto.getService() != null)
+					sheet.addCell(new Label(5, i, commissionOrderListDto.getService().getName(), cellFormat));
+				sheet.addCell(new Label(6, i, commissionOrderListDto.getTotalPerAmount() + "", cellFormat));
+				sheet.addCell(new Label(7, i, commissionOrderListDto.getTotalAmount() + "", cellFormat));
+				sheet.addCell(new Label(8, i, commissionOrderListDto.getAmount() + "", cellFormat));
+				sheet.addCell(new Label(9, i, commissionOrderListDto.getExpectAmount() + "", cellFormat));
+				sheet.addCell(new Label(10, i, commissionOrderListDto.getSureExpectAmount() + "", cellFormat));
+				sheet.addCell(new Label(11, i, commissionOrderListDto.getBonus() + "", cellFormat));
+				sheet.addCell(new Label(12, i, sdf.format(commissionOrderListDto.getBonusDate()), cellFormat));
+				sheet.addCell(new Label(13, i, commissionOrderListDto.getBankCheck(), cellFormat));
+				sheet.addCell(new Label(14, i, commissionOrderListDto.isChecked() + "", cellFormat));
+				if (commissionOrderListDto.getAdviser() != null)
+					sheet.addCell(new Label(15, i, commissionOrderListDto.getAdviser().getName(), cellFormat));
+				sheet.addCell(new Label(16, i, commissionOrderListDto.getState(), cellFormat));
+				sheet.addCell(new Label(17, i, commissionOrderListDto.getRemarks(), cellFormat));
+				i++;
+			}
+			wbe.write();
+			wbe.close();
+		} catch (Exception e) {
+			return;
+		}
+
 	}
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
