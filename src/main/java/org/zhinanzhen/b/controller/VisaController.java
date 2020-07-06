@@ -544,15 +544,14 @@ public class VisaController extends BaseCommissionOrderController {
 			commissionStateList = Arrays.asList(commissionState.split(","));
 
 		try {
-			super.setGetHeader(response);
-			List<VisaDTO> list = visaService.listVisa(keyword, startHandlingDate, endHandlingDate, stateList,
-					commissionStateList, startDate, endDate, adviserId, userId, 0, 9999);
-			
 			response.reset();// 清空输出流
 			String tableName = "visa_information";
 			response.setHeader("Content-disposition",
 					"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
 			response.setContentType("application/msexcel");
+			
+			List<VisaDTO> list = visaService.listVisa(keyword, startHandlingDate, endHandlingDate, stateList,
+					commissionStateList, startDate, endDate, adviserId, userId, 0, 9999);
 			
 			list.forEach(v -> {
 				if (v.getServiceOrderId() > 0)
