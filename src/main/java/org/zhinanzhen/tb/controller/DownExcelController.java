@@ -173,7 +173,7 @@ public class DownExcelController extends BaseController {
 			jxl.Workbook wb;
 			InputStream is;
 			try {
-				is = this.getClass().getResourceAsStream("/VisaTemplate.xls");
+				is = this.getClass().getResourceAsStream("/VisaTemplate2.xls");
 			} catch (Exception e) {
 				throw new Exception("模版不存在");
 			}

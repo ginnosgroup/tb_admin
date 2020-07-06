@@ -1,7 +1,10 @@
 package org.zhinanzhen.b.controller;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -22,6 +25,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.VisaService;
+import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.VisaCommentDTO;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
@@ -30,6 +34,11 @@ import org.zhinanzhen.tb.service.ServiceException;
 
 import com.ikasoa.core.utils.StringUtil;
 
+import jxl.Workbook;
+import jxl.WorkbookSettings;
+import jxl.write.Label;
+import jxl.write.WritableCellFormat;
+import jxl.write.WritableSheet;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -500,6 +509,116 @@ public class VisaController extends BaseCommissionOrderController {
 			return new Response<List<VisaDTO>>(0, list);
 		} catch (ServiceException e) {
 			return new Response<List<VisaDTO>>(1, e.getMessage(), null);
+		}
+	}
+	
+	@RequestMapping(value = "/down", method = RequestMethod.GET)
+	@ResponseBody
+	public void down(@RequestParam(value = "keyword", required = false) String keyword,
+			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
+			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
+			@RequestParam(value = "commissionState", required = false) String commissionState,
+			@RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = "endDate", required = false) String endDate,
+			@RequestParam(value = "adviserId", required = false) Integer adviserId,
+			@RequestParam(value = "userId", required = false) Integer userId,
+			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
+			HttpServletRequest request, HttpServletResponse response) {
+
+		// 更改当前顾问编号
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId;
+
+		// 会计角色过滤状态
+		List<String> stateList = null;
+		if (getKjId(request) != null) {
+			stateList = new ArrayList<>();
+			stateList.add(ReviewKjStateEnum.REVIEW.toString());
+			stateList.add(ReviewKjStateEnum.FINISH.toString());
+			stateList.add(ReviewKjStateEnum.COMPLETE.toString());
+			stateList.add(ReviewKjStateEnum.CLOSE.toString());
+		}
+
+		List<String> commissionStateList = null;
+		if (StringUtil.isNotEmpty(commissionState))
+			commissionStateList = Arrays.asList(commissionState.split(","));
+
+		try {
+			super.setGetHeader(response);
+			List<VisaDTO> list = visaService.listVisa(keyword, startHandlingDate, endHandlingDate, stateList,
+					commissionStateList, startDate, endDate, adviserId, userId, pageNum, pageSize);
+			
+			response.reset();// 清空输出流
+			String tableName = "visa_information";
+			response.setHeader("Content-disposition",
+					"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
+			response.setContentType("application/msexcel");
+			
+			list.forEach(v -> {
+				if (v.getServiceOrderId() > 0)
+					try {
+						ServiceOrderDTO serviceOrderDto = serviceOrderService
+								.getServiceOrderById(v.getServiceOrderId());
+						if (serviceOrderDto != null)
+							v.setServiceOrder(serviceOrderDto);
+					} catch (ServiceException e) {
+					}
+			});
+			
+			OutputStream os = response.getOutputStream();
+			jxl.Workbook wb;
+			InputStream is;
+			try {
+				is = this.getClass().getResourceAsStream("/VisaTemplate.xls");
+			} catch (Exception e) {
+				throw new Exception("模版不存在");
+			}
+			try {
+				wb = Workbook.getWorkbook(is);
+			} catch (Exception e) {
+				throw new Exception("模版格式不支持");
+			}
+			WorkbookSettings settings = new WorkbookSettings();
+			settings.setWriteAccess(null);
+			jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
+
+			if (wbe == null) {
+				System.out.println("wbe is null !os=" + os + ",wb" + wb);
+			} else {
+				System.out.println("wbe not null !os=" + os + ",wb" + wb);
+			}
+			WritableSheet sheet = wbe.getSheet(0);
+			WritableCellFormat cellFormat = new WritableCellFormat();
+
+			int i = 1;
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			for (VisaDTO visaDto : list) {
+				sheet.addCell(new Label(0, i, visaDto.getId() + "", cellFormat));
+				sheet.addCell(new Label(1, i, sdf.format(visaDto.getGmtCreate()), cellFormat));
+				sheet.addCell(new Label(2, i, sdf.format(visaDto.getReceiveDate()), cellFormat));
+				sheet.addCell(new Label(3, i, visaDto.getUserName(), cellFormat));
+				sheet.addCell(new Label(4, i, visaDto.getReceiveTypeName(), cellFormat));
+				sheet.addCell(new Label(5, i, visaDto.getServiceCode(), cellFormat));
+				sheet.addCell(new Label(6, i, visaDto.getTotalPerAmount() + "", cellFormat));
+				sheet.addCell(new Label(7, i, visaDto.getTotalAmount() + "", cellFormat));
+				sheet.addCell(new Label(8, i, visaDto.getAmount() + "", cellFormat));
+				sheet.addCell(new Label(9, i, visaDto.getExpectAmount() + "", cellFormat));
+				sheet.addCell(new Label(10, i, visaDto.getSureExpectAmount() + "", cellFormat));
+				sheet.addCell(new Label(11, i, visaDto.getBonus() + "", cellFormat));
+				sheet.addCell(new Label(12, i, sdf.format(visaDto.getBonusDate()), cellFormat));
+				sheet.addCell(new Label(13, i, visaDto.getBankCheck(), cellFormat));
+				sheet.addCell(new Label(14, i, visaDto.isChecked() + "", cellFormat));
+				sheet.addCell(new Label(15, i, visaDto.getAdviserName(), cellFormat));
+				sheet.addCell(new Label(16, i, visaDto.getState(), cellFormat));
+				sheet.addCell(new Label(17, i, visaDto.getRemarks(), cellFormat));
+				i++;
+			}
+			wbe.write();
+			wbe.close();
+
+		} catch (Exception e) {
+			return;
 		}
 	}
 
