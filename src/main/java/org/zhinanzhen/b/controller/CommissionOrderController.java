@@ -733,7 +733,6 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "isSettle", required = false) Boolean isSettle,
 			@RequestParam(value = "state", required = false) String state,
 			@RequestParam(value = "commissionState", required = false) String commissionState,
-			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
 			HttpServletRequest request, HttpServletResponse response) {
 
 		Integer newMaraId = getMaraId(request);

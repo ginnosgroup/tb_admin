@@ -522,7 +522,6 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "userId", required = false) Integer userId,
-			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
 			HttpServletRequest request, HttpServletResponse response) {
 
 		// 更改当前顾问编号
@@ -547,7 +546,7 @@ public class VisaController extends BaseCommissionOrderController {
 		try {
 			super.setGetHeader(response);
 			List<VisaDTO> list = visaService.listVisa(keyword, startHandlingDate, endHandlingDate, stateList,
-					commissionStateList, startDate, endDate, adviserId, userId, pageNum, pageSize);
+					commissionStateList, startDate, endDate, adviserId, userId, 0, 9999);
 			
 			response.reset();// 清空输出流
 			String tableName = "visa_information";
