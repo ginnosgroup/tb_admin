@@ -767,16 +767,15 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			stateList.add(state);
 
 		try {
-			super.setGetHeader(response);
-			List<CommissionOrderListDTO> commissionOrderList = commissionOrderService.listCommissionOrder(maraId,
-					adviserId, officialId, name, phone, wechatUsername, schoolId, isSettle, stateList,
-					commissionStateList, isYzyAndYjy, 0, 9999);
-			
 			response.reset();// 清空输出流
 			String tableName = "commission_order_information";
 			response.setHeader("Content-disposition",
 					"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
 			response.setContentType("application/msexcel");
+			
+			List<CommissionOrderListDTO> commissionOrderList = commissionOrderService.listCommissionOrder(maraId,
+					adviserId, officialId, name, phone, wechatUsername, schoolId, isSettle, stateList,
+					commissionStateList, isYzyAndYjy, 0, 9999);
 
 			OutputStream os = response.getOutputStream();
 			jxl.Workbook wb;
