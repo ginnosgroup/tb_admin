@@ -611,7 +611,8 @@ public class VisaController extends BaseCommissionOrderController {
 				sheet.addCell(new Label(13, i, visaDto.getBankCheck(), cellFormat));
 				sheet.addCell(new Label(14, i, visaDto.isChecked() + "", cellFormat));
 				sheet.addCell(new Label(15, i, visaDto.getAdviserName(), cellFormat));
-				sheet.addCell(new Label(16, i, visaDto.getState(), cellFormat));
+				if (visaDto.getCommissionState() != null)
+					sheet.addCell(new Label(16, i, getKjStateStr(visaDto.getCommissionState()), cellFormat));
 				sheet.addCell(new Label(17, i, visaDto.getRemarks(), cellFormat));
 				i++;
 			}
