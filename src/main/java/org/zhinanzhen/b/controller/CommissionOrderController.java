@@ -807,7 +807,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			for (CommissionOrderListDTO commissionOrderListDto : commissionOrderList) {
 				sheet.addCell(new Label(0, i, commissionOrderListDto.getId() + "", cellFormat));
 				sheet.addCell(new Label(1, i, sdf.format(commissionOrderListDto.getGmtCreate()), cellFormat));
-				sheet.addCell(new Label(2, i, sdf.format(commissionOrderListDto.getReceiveDate()), cellFormat));
+				if (commissionOrderListDto.getReceiveDate() != null)
+					sheet.addCell(new Label(2, i, sdf.format(commissionOrderListDto.getReceiveDate()), cellFormat));
 				if (commissionOrderListDto.getUser() != null)
 					sheet.addCell(new Label(3, i, commissionOrderListDto.getUser().getName(), cellFormat));
 				sheet.addCell(new Label(4, i, commissionOrderListDto.getStudentCode(), cellFormat));
@@ -820,7 +821,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					sheet.addCell(new Label(8, i, commissionOrderListDto.getSchool().getName() + "", cellFormat));
 					sheet.addCell(new Label(9, i, commissionOrderListDto.getSchool().getSubject() + "", cellFormat));
 				}
-				sheet.addCell(new Label(10, i, sdf.format(commissionOrderListDto.getInstallmentDueDate()), cellFormat));
+				if (commissionOrderListDto.getInstallmentDueDate() != null)
+					sheet.addCell(
+							new Label(10, i, sdf.format(commissionOrderListDto.getInstallmentDueDate()), cellFormat));
 				if (commissionOrderListDto.getReceiveType() != null)
 					sheet.addCell(new Label(11, i, commissionOrderListDto.getReceiveType().getName() + "", cellFormat));
 				sheet.addCell(new Label(12, i, commissionOrderListDto.getTuitionFee() + "", cellFormat));
@@ -833,15 +836,19 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				sheet.addCell(new Label(19, i, commissionOrderListDto.getGst() + "", cellFormat));
 				sheet.addCell(new Label(20, i, commissionOrderListDto.getDeductGst() + "", cellFormat));
 				sheet.addCell(new Label(21, i, commissionOrderListDto.getSchoolPaymentAmount() + "", cellFormat));
-				sheet.addCell(new Label(22, i, sdf.format(commissionOrderListDto.getSchoolPaymentDate()), cellFormat));
+				if (commissionOrderListDto.getSchoolPaymentDate() != null)
+					sheet.addCell(
+							new Label(22, i, sdf.format(commissionOrderListDto.getSchoolPaymentDate()), cellFormat));
 				sheet.addCell(new Label(23, i, commissionOrderListDto.getInvoiceNumber(), cellFormat));
-				sheet.addCell(new Label(24, i, sdf.format(commissionOrderListDto.getZyDate()), cellFormat));
+				if (commissionOrderListDto.getZyDate() != null)
+					sheet.addCell(new Label(24, i, sdf.format(commissionOrderListDto.getZyDate()), cellFormat));
 				if (commissionOrderListDto.getSubagency() != null)
 					sheet.addCell(new Label(25, i, commissionOrderListDto.getSubagency().getName(), cellFormat));
 				sheet.addCell(new Label(26, i, commissionOrderListDto.getBankCheck(), cellFormat));
 				sheet.addCell(new Label(27, i, commissionOrderListDto.isChecked() + "", cellFormat));
 				sheet.addCell(new Label(28, i, commissionOrderListDto.getBonus() + "", cellFormat));
-				sheet.addCell(new Label(29, i, sdf.format(commissionOrderListDto.getBonusDate()), cellFormat));
+				if (commissionOrderListDto.getBonusDate() != null)
+					sheet.addCell(new Label(29, i, sdf.format(commissionOrderListDto.getBonusDate()), cellFormat));
 				if (commissionOrderListDto.getAdviser() != null)
 					sheet.addCell(new Label(30, i, commissionOrderListDto.getAdviser().getName(), cellFormat));
 				sheet.addCell(new Label(31, i, commissionOrderListDto.getState(), cellFormat));

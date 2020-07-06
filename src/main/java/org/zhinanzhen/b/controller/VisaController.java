@@ -595,7 +595,8 @@ public class VisaController extends BaseCommissionOrderController {
 			for (VisaDTO visaDto : list) {
 				sheet.addCell(new Label(0, i, visaDto.getId() + "", cellFormat));
 				sheet.addCell(new Label(1, i, sdf.format(visaDto.getGmtCreate()), cellFormat));
-				sheet.addCell(new Label(2, i, sdf.format(visaDto.getReceiveDate()), cellFormat));
+				if (visaDto.getReceiveDate() != null)
+					sheet.addCell(new Label(2, i, sdf.format(visaDto.getReceiveDate()), cellFormat));
 				sheet.addCell(new Label(3, i, visaDto.getUserName(), cellFormat));
 				sheet.addCell(new Label(4, i, visaDto.getReceiveTypeName(), cellFormat));
 				sheet.addCell(new Label(5, i, visaDto.getServiceCode(), cellFormat));
@@ -605,7 +606,8 @@ public class VisaController extends BaseCommissionOrderController {
 				sheet.addCell(new Label(9, i, visaDto.getExpectAmount() + "", cellFormat));
 				sheet.addCell(new Label(10, i, visaDto.getSureExpectAmount() + "", cellFormat));
 				sheet.addCell(new Label(11, i, visaDto.getBonus() + "", cellFormat));
-				sheet.addCell(new Label(12, i, sdf.format(visaDto.getBonusDate()), cellFormat));
+				if (visaDto.getBonusDate() != null)
+					sheet.addCell(new Label(12, i, sdf.format(visaDto.getBonusDate()), cellFormat));
 				sheet.addCell(new Label(13, i, visaDto.getBankCheck(), cellFormat));
 				sheet.addCell(new Label(14, i, visaDto.isChecked() + "", cellFormat));
 				sheet.addCell(new Label(15, i, visaDto.getAdviserName(), cellFormat));
