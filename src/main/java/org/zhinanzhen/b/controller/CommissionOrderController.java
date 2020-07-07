@@ -27,7 +27,6 @@ import org.zhinanzhen.b.service.CommissionOrderService;
 import org.zhinanzhen.b.service.SchoolService;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.SubagencyService;
-import org.zhinanzhen.b.service.pojo.BrokerageDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderCommentDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
@@ -901,8 +900,6 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 						serviceOrderService.approval(id, adminUserLoginInfo.getId(), null, null, null,
 								state.toUpperCase());
 						commissionOrderListDto.setState(state);
-						if ("COMPLETE".equalsIgnoreCase(state))
-							commissionOrderListDto.setKjApprovalDate(new Date());
 						if (commissionOrderService.updateCommissionOrder(commissionOrderListDto) > 0)
 							return new Response<CommissionOrderListDTO>(0, commissionOrderListDto);
 						else

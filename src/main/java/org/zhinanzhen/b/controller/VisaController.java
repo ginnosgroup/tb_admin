@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.VisaService;
-import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.VisaCommentDTO;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
@@ -695,8 +694,6 @@ public class VisaController extends BaseCommissionOrderController {
 						serviceOrderService.approval(id, adminUserLoginInfo.getId(), null, null, null,
 								state.toUpperCase());
 						visaDto.setState(state);
-						if ("COMPLETE".equalsIgnoreCase(state))
-							visaDto.setKjApprovalDate(new Date());
 						if (visaService.updateVisa(visaDto) > 0)
 							return new Response<VisaDTO>(0, visaDto);
 						else

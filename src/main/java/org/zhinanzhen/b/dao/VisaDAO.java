@@ -28,6 +28,8 @@ public interface VisaDAO {
 			@Param("rows") int rows);
 
 	List<VisaDO> listVisaByCode(@Param("code") String code);
+	
+	List<VisaDO> listVisaByServiceOrderId(@Param("serviceOrderId") int serviceOrderId);
 
 	VisaDO getFirstVisaByServiceOrderId(int serviceOrderId);
 
