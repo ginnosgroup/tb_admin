@@ -471,7 +471,7 @@
 																		</dli>
 																</dli>
 														</td>
-														<td><div v-html="item.remarks" style="width:100px;overflow:hidden;"></div></td>
+														<td v-html="item.strRemarks"></td>
 													</tr>													
 												</tbody>
 											</table>
@@ -608,6 +608,7 @@
 							that.pageNum = 0;
 							result.data = return_result(result);
 							that.subject = result.data;
+							that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
 							//console.log(that.subject);
 						});
 					},
@@ -649,6 +650,7 @@
 							that.pageNum = 0;
 							result.data = return_result(result);
 							that.subject = result.data;
+							that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
 						});
 					},
 					getTime: function(d) {
@@ -689,6 +691,7 @@
 								that.pageNum = 0;
 								result.data = return_result(result);
 								that.subject = result.data;
+								that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
 							});
 						}
 					},
@@ -712,6 +715,7 @@
 								console.log(result)
 								result.data = return_result(result);
 								that.subject = result.data;
+								that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
 							});
 						}
 					},
@@ -735,6 +739,7 @@
 								console.log(result)
 								result.data = return_result(result);
 								that.subject = result.data;
+								that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
 							});
 						}
 					},
@@ -758,6 +763,7 @@
 								that.pageNum = that.allPage - 1;
 								result.data = return_result(result);
 								that.subject = result.data;
+								that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
 							});
 						}
 					},
@@ -1001,7 +1007,8 @@
 						result.data[i].adviserName = result.data[i].adviser.name;
 						result.data[i].strState = return_state(result.data[i].state);
 						result.data[i].currentState = result.data[i].state;
-						if (result.data[i].remarks) result.data[i].remarks = url_replace(result.data[i].remarks);												
+						if (result.data[i].remarks) result.data[i].remarks = url_replace1(result.data[i].remarks);
+						result.data[i].strRemarks = '<button data-original-title="" data-html="true" data-content="'+result.data[i].remarks+'" data-placement="bottom" data-trigger="onclick" class="btn btn-info btn-xs popovers">查看备注</button>';												
 						var str_checked = '';
 						if (result.data[i].bankCheck)
 						{
@@ -1393,6 +1400,21 @@
 					    }else
 					    {
 					    	return '<a href="http://'+a+'" target="_blank">'+a+'</a>';
+					    }
+					});
+					return str;
+			}
+			
+			function url_replace1(str)
+			{
+					var reg = /((http|ftp|https):\/\/)?[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?/g;
+					str=str.replace(reg,function(a){
+					    if(!a.indexOf('http'))
+					    {
+					    	return "<a href=\'"+a+"\' target=\'_blank\'>"+a+"</a>";
+					    }else
+					    {
+					    	return "<a href=\'http://"+a+"\' target=\'_blank\'>"+a+"</a>";
 					    }
 					});
 					return str;
