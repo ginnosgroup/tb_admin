@@ -13,6 +13,7 @@
                 user_id,
                 state,
                 commission_state,
+                kj_approval_date,
                 receive_type_id,
                 receive_date,
                 service_id,
@@ -51,6 +52,7 @@
                 #{userId},
                 #{state},
                 'DJY',
+                NULL,
                 #{receiveTypeId},
                 #{receiveDate,jdbcType=TIMESTAMP},
                 #{serviceId},
@@ -97,6 +99,9 @@
         </if>
         <if test='commissionState != null and commissionState != ""'>
             , commission_state = #{commissionState}
+        </if>
+        <if test='kjApprovalDate != null'>
+            , kj_approval_date = #{kjApprovalDate}
         </if>
         <if test='receiveTypeId != null and receiveTypeId != ""'>
             , receive_type_id = #{receiveTypeId}
@@ -235,6 +240,7 @@
             bv.user_id AS userId,
             bv.state AS state,
             bv.commission_state AS commissionState,
+            bv.kj_approval_date AS kjApprovalDate,
             bv.receive_type_id AS receiveTypeId,
             bv.receive_date AS receiveDate,
             bv.service_id AS serviceId,
@@ -310,6 +316,7 @@
             user_id AS userId,
             state,
             commission_state AS commissionState,
+            kj_approval_date AS kjApprovalDate,
             receive_type_id AS receiveTypeId,
             receive_date AS receiveDate,
             service_id AS serviceId,
@@ -353,6 +360,7 @@
             user_id AS userId,
             state,
             commission_state AS commissionState,
+            kj_approval_date AS kjApprovalDate,
             receive_type_id AS receiveTypeId,
             receive_date AS receiveDate,
             service_id AS serviceId,
@@ -400,6 +408,7 @@
             user_id AS userId,
             state,
             commission_state AS commissionState,
+            kj_approval_date AS kjApprovalDate,
             receive_type_id AS receiveTypeId,
             receive_date AS receiveDate,
             service_id AS serviceId,

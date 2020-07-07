@@ -695,6 +695,8 @@ public class VisaController extends BaseCommissionOrderController {
 						serviceOrderService.approval(id, adminUserLoginInfo.getId(), null, null, null,
 								state.toUpperCase());
 						visaDto.setState(state);
+						if ("COMPLETE".equalsIgnoreCase(state))
+							visaDto.setKjApprovalDate(new Date());
 						if (visaService.updateVisa(visaDto) > 0)
 							return new Response<VisaDTO>(0, visaDto);
 						else

@@ -20,6 +20,8 @@ public class CommissionOrderDTO {
 	private String state;
 
 	private String commissionState;
+	
+	private Date kjApprovalDate;
 
 	private boolean isSettle;
 

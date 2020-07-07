@@ -901,6 +901,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 						serviceOrderService.approval(id, adminUserLoginInfo.getId(), null, null, null,
 								state.toUpperCase());
 						commissionOrderListDto.setState(state);
+						if ("COMPLETE".equalsIgnoreCase(state))
+							commissionOrderListDto.setKjApprovalDate(new Date());
 						if (commissionOrderService.updateCommissionOrder(commissionOrderListDto) > 0)
 							return new Response<CommissionOrderListDTO>(0, commissionOrderListDto);
 						else

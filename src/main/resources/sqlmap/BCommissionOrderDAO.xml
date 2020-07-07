@@ -12,6 +12,7 @@
                 service_order_id,
                 state,
                 commission_state,
+                kj_approval_date,
                 is_settle,
                 is_deposit_user,
                 school_id,
@@ -57,6 +58,7 @@
                 #{serviceOrderId},
                 #{state},
                 #{commissionState},
+                NULL,
                 #{isSettle},
                 #{isDepositUser},
                 #{schoolId},
@@ -105,6 +107,9 @@
         </if>
         <if test='commissionState != null and commissionState != ""'>
             , commission_state = #{commissionState}
+        </if>
+        <if test='kjApprovalDate != null'>
+            , kj_approval_date = #{kjApprovalDate}
         </if>
         <if test='isSettle != null'>
             , is_settle = #{isSettle}
@@ -287,6 +292,7 @@
             co.service_order_id AS serviceOrderId,
             co.state,
             co.commission_state AS commissionState,
+            co.kj_approval_date AS kjApprovalDate,
             co.is_settle AS isSettle,
             co.is_deposit_user AS isDepositUser,
             co.school_id AS schoolId,
@@ -384,6 +390,7 @@
             service_order_id AS serviceOrderId,
             state,
             commission_state AS commissionState,
+            kj_approval_date AS kjApprovalDate,
             is_settle AS isSettle,
             is_deposit_user AS isDepositUser,
             school_id AS schoolId,
@@ -435,6 +442,7 @@
             service_order_id AS serviceOrderId,
             state,
             commission_state AS commissionState,
+            kj_approval_date AS kjApprovalDate,
             is_settle AS isSettle,
             is_deposit_user AS isDepositUser,
             school_id AS schoolId,
@@ -486,6 +494,7 @@
             co.service_order_id AS serviceOrderId,
             co.state,
             co.commission_state AS commissionState,
+            co.kj_approval_date AS kjApprovalDate,
             co.is_settle AS isSettle,
             co.is_deposit_user AS isDepositUser,
             co.school_id AS schoolId,
@@ -549,6 +558,7 @@
             co.service_order_id AS serviceOrderId,
             co.state,
             co.commission_state AS commissionState,
+            co.kj_approval_date AS kjApprovalDate,
             co.is_settle AS isSettle,
             co.is_deposit_user AS isDepositUser,
             co.school_id AS schoolId,
@@ -615,6 +625,7 @@
             co.service_order_id AS serviceOrderId,
             co.state,
             co.commission_state AS commissionState,
+            co.kj_approval_date AS kjApprovalDate,
             co.is_settle AS isSettle,
             co.is_deposit_user AS isDepositUser,
             co.school_id AS schoolId,
@@ -671,6 +682,7 @@
             co.service_order_id AS serviceOrderId,
             co.state,
             co.commission_state AS commissionState,
+            co.kj_approval_date AS kjApprovalDate,
             co.is_settle AS isSettle,
             co.is_deposit_user AS isDepositUser,
             co.school_id AS schoolId,
@@ -727,6 +739,7 @@
             co.service_order_id AS serviceOrderId,
             co.state,
             co.commission_state AS commissionState,
+            co.kj_approval_date AS kjApprovalDate,
             co.is_settle AS isSettle,
             co.is_deposit_user AS isDepositUser,
             co.school_id AS schoolId,

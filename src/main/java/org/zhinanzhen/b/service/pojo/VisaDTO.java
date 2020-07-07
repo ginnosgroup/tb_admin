@@ -22,6 +22,8 @@ public class VisaDTO {
 
 	private String commissionState;
 
+	private Date kjApprovalDate;
+
 	private String userName;
 
 	private Date birthday;
@@ -67,7 +69,7 @@ public class VisaDTO {
 	private double amount;
 
 	private double expectAmount;
-	
+
 	private double sureExpectAmount;
 
 	private double discount;
