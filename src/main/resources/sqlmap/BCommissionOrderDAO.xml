@@ -262,6 +262,9 @@
                 #{commissionStateList}
             </foreach>
         </if>
+        <if test='startKjApprovalDate != null and startKjApprovalDate != "" and endKjApprovalDate != null and endKjApprovalDate != ""'>
+            <![CDATA[ AND kj_approval_date > #{startKjApprovalDate} AND kj_approval_date < #{endKjApprovalDate} ]]>
+        </if>
         <if test='isYzyAndYjy == true'>
             AND (co.commission_state = 'YZY' OR (co.commission_state = 'YJY' AND co.is_settle = false))
         </if>
@@ -374,6 +377,9 @@
             <foreach collection="commissionStateList" item="commissionStateList" index="index" open="(" close=")" separator=",">
                 #{commissionStateList}
             </foreach>
+        </if>
+        <if test='startKjApprovalDate != null and startKjApprovalDate != "" and endKjApprovalDate != null and endKjApprovalDate != ""'>
+            <![CDATA[ AND co.kj_approval_date > #{startKjApprovalDate} AND co.kj_approval_date < #{endKjApprovalDate} ]]>
         </if>
         <if test='isYzyAndYjy == true'>
             AND (co.commission_state = 'YZY' OR (co.commission_state = 'YJY' AND co.is_settle = false))

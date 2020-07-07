@@ -209,6 +209,9 @@
 				#{commissionStateList}
 			</foreach>
 		</if>
+		<if test='startKjApprovalDate != null and startKjApprovalDate != "" and endKjApprovalDate != null and endKjApprovalDate != ""'>
+            <![CDATA[ AND kj_approval_date > #{startKjApprovalDate} AND kj_approval_date < #{endKjApprovalDate} ]]>
+        </if>
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
             <![CDATA[ AND gmt_create > #{startDate} AND gmt_create < #{endDate} ]]>
         </if>
@@ -294,6 +297,9 @@
 				#{commissionStateList}
 			</foreach>
 		</if>
+		<if test='startKjApprovalDate != null and startKjApprovalDate != "" and endKjApprovalDate != null and endKjApprovalDate != ""'>
+            <![CDATA[ AND bv.kj_approval_date > #{startKjApprovalDate} AND bv.kj_approval_date < #{endKjApprovalDate} ]]>
+        </if>
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
             <![CDATA[ AND bv.gmt_create > #{startDate} AND bv.gmt_create < #{endDate} ]]>
         </if>

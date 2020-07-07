@@ -15,7 +15,9 @@ public interface CommissionOrderDAO {
 			@Param("officialId") Integer officialId, @Param("name") String name, @Param("phone") String phone,
 			@Param("wechatUsername") String wechatUsername, @Param("schoolId") Integer schoolId,
 			@Param("isSettle") Boolean isSettle, @Param("stateList") List<String> stateList,
-			@Param("commissionStateList") List<String> commissionStateList, @Param("isYzyAndYjy") Boolean isYzyAndYjy);
+			@Param("commissionStateList") List<String> commissionStateList,
+			@Param("startKjApprovalDate") String startKjApprovalDate,
+			@Param("endKjApprovalDate") String endKjApprovalDate, @Param("isYzyAndYjy") Boolean isYzyAndYjy);
 
 	int countCommissionOrderBySchoolId(@Param("schoolId") Integer schoolId);
 
@@ -27,7 +29,9 @@ public interface CommissionOrderDAO {
 			@Param("phone") String phone, @Param("wechatUsername") String wechatUsername,
 			@Param("schoolId") Integer schoolId, @Param("isSettle") Boolean isSettle,
 			@Param("stateList") List<String> stateList, @Param("commissionStateList") List<String> commissionStateList,
-			@Param("isYzyAndYjy") Boolean isYzyAndYjy, @Param("offset") int offset, @Param("rows") int rows);
+			@Param("startKjApprovalDate") String startKjApprovalDate,
+			@Param("endKjApprovalDate") String endKjApprovalDate, @Param("isYzyAndYjy") Boolean isYzyAndYjy,
+			@Param("offset") int offset, @Param("rows") int rows);
 
 	public List<CommissionOrderDO> listCommissionOrderByCode(String code);
 

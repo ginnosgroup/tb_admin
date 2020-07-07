@@ -425,6 +425,8 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
 			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
 			@RequestParam(value = "commissionState", required = false) String commissionState,
+			@RequestParam(value = "startKjApprovalDate", required = false) String startKjApprovalDate,
+			@RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
@@ -452,8 +454,9 @@ public class VisaController extends BaseCommissionOrderController {
 
 		try {
 			super.setGetHeader(response);
-			return new Response<Integer>(0, visaService.countVisa(keyword, startHandlingDate, endHandlingDate,
-					stateList, commissionStateList, startDate, endDate, adviserId, userId));
+			return new Response<Integer>(0,
+					visaService.countVisa(keyword, startHandlingDate, endHandlingDate, stateList, commissionStateList,
+							startKjApprovalDate, endKjApprovalDate, startDate, endDate, adviserId, userId));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -465,6 +468,8 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
 			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
 			@RequestParam(value = "commissionState", required = false) String commissionState,
+			@RequestParam(value = "startKjApprovalDate", required = false) String startKjApprovalDate,
+			@RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
@@ -494,7 +499,8 @@ public class VisaController extends BaseCommissionOrderController {
 		try {
 			super.setGetHeader(response);
 			List<VisaDTO> list = visaService.listVisa(keyword, startHandlingDate, endHandlingDate, stateList,
-					commissionStateList, startDate, endDate, adviserId, userId, pageNum, pageSize);
+					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, adviserId, userId,
+					pageNum, pageSize);
 			list.forEach(v -> {
 				if (v.getServiceOrderId() > 0)
 					try {
@@ -517,11 +523,13 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
 			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
 			@RequestParam(value = "commissionState", required = false) String commissionState,
+			@RequestParam(value = "startKjApprovalDate", required = false) String startKjApprovalDate,
+			@RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
-			@RequestParam(value = "userId", required = false) Integer userId,
-			HttpServletRequest request, HttpServletResponse response) {
+			@RequestParam(value = "userId", required = false) Integer userId, HttpServletRequest request,
+			HttpServletResponse response) {
 
 		// 更改当前顾问编号
 		Integer newAdviserId = getAdviserId(request);
@@ -548,10 +556,11 @@ public class VisaController extends BaseCommissionOrderController {
 			response.setHeader("Content-disposition",
 					"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
 			response.setContentType("application/msexcel");
-			
+
 			List<VisaDTO> list = visaService.listVisa(keyword, startHandlingDate, endHandlingDate, stateList,
-					commissionStateList, startDate, endDate, adviserId, userId, 0, 9999);
-			
+					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, adviserId, userId,
+					0, 9999);
+
 			list.forEach(v -> {
 				if (v.getServiceOrderId() > 0)
 					try {

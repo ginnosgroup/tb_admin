@@ -621,6 +621,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "isSettle", required = false) Boolean isSettle,
 			@RequestParam(value = "state", required = false) String state,
 			@RequestParam(value = "commissionState", required = false) String commissionState,
+			@RequestParam(value = "startKjApprovalDate", required = false) String startKjApprovalDate,
+			@RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
 			HttpServletRequest request, HttpServletResponse response) {
 
 		Integer newMaraId = getMaraId(request);
@@ -656,8 +658,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 		try {
 			super.setGetHeader(response);
-			return new Response<Integer>(0, commissionOrderService.countCommissionOrder(maraId, adviserId, officialId,
-					name, phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList, isYzyAndYjy));
+			return new Response<Integer>(0,
+					commissionOrderService.countCommissionOrder(maraId, adviserId, officialId, name, phone,
+							wechatUsername, schoolId, isSettle, stateList, commissionStateList, startKjApprovalDate,
+							endKjApprovalDate, isYzyAndYjy));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -675,7 +679,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "isSettle", required = false) Boolean isSettle,
 			@RequestParam(value = "state", required = false) String state,
 			@RequestParam(value = "commissionState", required = false) String commissionState,
-			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
+			@RequestParam(value = "startKjApprovalDate", required = false) String startKjApprovalDate,
+			@RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
+			@RequestParam(value = "pageNum") int pageNum,
+			@RequestParam(value = "pageSize") int pageSize,
 			HttpServletRequest request, HttpServletResponse response) {
 
 		Integer newMaraId = getMaraId(request);
@@ -713,8 +720,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			super.setGetHeader(response);
 			return new Response<List<CommissionOrderListDTO>>(0,
 					commissionOrderService.listCommissionOrder(maraId, adviserId, officialId, name, phone,
-							wechatUsername, schoolId, isSettle, stateList, commissionStateList, isYzyAndYjy, pageNum,
-							pageSize));
+							wechatUsername, schoolId, isSettle, stateList, commissionStateList, startKjApprovalDate,
+							endKjApprovalDate, isYzyAndYjy, pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<CommissionOrderListDTO>>(1, e.getMessage(), null);
 		}
@@ -732,6 +739,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "isSettle", required = false) Boolean isSettle,
 			@RequestParam(value = "state", required = false) String state,
 			@RequestParam(value = "commissionState", required = false) String commissionState,
+			@RequestParam(value = "startKjApprovalDate", required = false) String startKjApprovalDate,
+			@RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
 			HttpServletRequest request, HttpServletResponse response) {
 
 		Integer newMaraId = getMaraId(request);
@@ -771,10 +780,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			response.setHeader("Content-disposition",
 					"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
 			response.setContentType("application/msexcel");
-			
+
 			List<CommissionOrderListDTO> commissionOrderList = commissionOrderService.listCommissionOrder(maraId,
 					adviserId, officialId, name, phone, wechatUsername, schoolId, isSettle, stateList,
-					commissionStateList, isYzyAndYjy, 0, 9999);
+					commissionStateList, startKjApprovalDate, endKjApprovalDate, isYzyAndYjy, 0, 9999);
 
 			OutputStream os = response.getOutputStream();
 			jxl.Workbook wb;
