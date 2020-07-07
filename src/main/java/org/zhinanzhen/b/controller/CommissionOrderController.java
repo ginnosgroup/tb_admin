@@ -862,7 +862,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				if (commissionOrderListDto.getCommissionState() != null)
 					sheet.addCell(
 							new Label(31, i, getKjStateStr(commissionOrderListDto.getCommissionState()), cellFormat));
-				sheet.addCell(new Label(32, i, commissionOrderListDto.getRemarks(), cellFormat));
+				if (commissionOrderListDto.getKjApprovalDate() != null)
+					sheet.addCell(new Label(32, i, sdf.format(commissionOrderListDto.getKjApprovalDate()), cellFormat));
+				sheet.addCell(new Label(33, i, commissionOrderListDto.getRemarks(), cellFormat));
 				i++;
 			}
 			wbe.write();
