@@ -391,7 +391,7 @@
 																</d1>
 														</dle>
 														</td>
-														<td><div v-html="item.remarks" style="width:100px;overflow:hidden;"></div></td>
+														<td v-html="item.strRemarks"></td>
 													</tr>
 													<tr class="gradeX">
 														<td></td>
@@ -545,6 +545,7 @@
 							that.pageNum = 0;
 							result.data = return_result(result);
 							that.subject = result.data;
+							that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
 							//console.log(that.subject);
 						});
 					},
@@ -565,6 +566,7 @@
 							that.pageNum = 0;
 							result.data = return_result(result);
 							that.subject = result.data;
+							that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
 						});
 					},
 					getTime: function(d) {
@@ -599,66 +601,73 @@
 					},
 					firstPage: function() {
 						var that = this;
+						var json = {};
+						if (that.userId != '0') json['userId'] = that.userId;
+						if (that.adviserId != '0') json['adviserId'] = that.adviserId;						
+						if (that.type != '') json['type'] = that.type;
+						if (that.state != '') json['state'] = that.state;
+						json['pageNum'] = 0;
+						json['pageSize'] = that.pageSize;
 						if(that.pageNum > 0) {
-							$.get(url + "commissionOrder/list", {
-								keyword: that.name,
-								state: that.state,
-								pageNum: 0,
-								pageSize: that.pageSize
-							}, function(result) {
-								console.log(result)
+							$.get(url + "commissionOrder/list", json, function(result) {
 								that.pageNum = 0;
 								result.data = return_result(result);
 								that.subject = result.data;
+								that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
 							});
 						}
 					},
 					prevPage: function() {
 						var that = this;
+						var json = {};
+						if (that.userId != '0') json['userId'] = that.userId;
+						if (that.adviserId != '0') json['adviserId'] = that.adviserId;						
+						if (that.type != '') json['type'] = that.type;
+						if (that.state != '') json['state'] = that.state;						
 						if(that.pageNum > 0) {
 							that.pageNum--;
-							$.get(url + "commissionOrder/list", {
-								keyword: that.name,
-								pageNum: that.pageNum,
-								pageSize: that.pageSize
-							}, function(result) {
-								console.log(result)
+							json['pageNum'] = that.pageNum;
+							json['pageSize'] = that.pageSize;
+							$.get(url + "commissionOrder/list", json, function(result) {
 								result.data = return_result(result);
 								that.subject = result.data;
+								that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
 							});
 						}
 					},
 					nextPage: function() {
 						var that = this;
+						var json = {};
+						if (that.userId != '0') json['userId'] = that.userId;
+						if (that.adviserId != '0') json['adviserId'] = that.adviserId;						
+						if (that.type != '') json['type'] = that.type;
+						if (that.state != '') json['state'] = that.state;	
 						if(that.pageNum < that.allPage - 1) {
 							that.pageNum++;
-							$.get(url + "commissionOrder/list", {
-								keyword: that.name,
-								categoryId: that.sort,
-								state: that.state,
-								pageNum: that.pageNum,
-								pageSize: that.pageSize
-							}, function(result) {
-								console.log(result)
+							json['pageNum'] = that.pageNum;
+							json['pageSize'] = that.pageSize;
+							$.get(url + "commissionOrder/list", json, function(result) {
 								result.data = return_result(result);
 								that.subject = result.data;
+								that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
 							});
 						}
 					},
 					lastPage: function() {
 						var that = this;
+						var json = {};
+						if (that.userId != '0') json['userId'] = that.userId;
+						if (that.adviserId != '0') json['adviserId'] = that.adviserId;						
+						if (that.type != '') json['type'] = that.type;
+						if (that.state != '') json['state'] = that.state;	
 						if(that.pageNum < that.allPage - 1) {
-							$.get(url + "commissionOrder/list", {
-								keyword: that.name,
-								categoryId: that.sort,
-								state: that.state,
-								pageNum: that.allPage - 1,
-								pageSize: that.pageSize
-							}, function(result) {
-								console.log(result)
+							json['pageNum'] = that.allPage - 1;
+							json['pageSize'] = that.pageSize;
+							$.get(url + "commissionOrder/list", json, function(result) {
 								that.pageNum = that.allPage - 1;
 								result.data = return_result(result);
 								that.subject = result.data;
+								that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
 							});
 						}
 					}          
@@ -713,7 +722,8 @@
 						v.total_bonus += result.data[i].bonus;
 						result.data[i].strState = return_state(result.data[i].state);
 						result.data[i].currentState = result.data[i].state;
-						if (result.data[i].remarks) result.data[i].remarks = url_replace(result.data[i].remarks);
+						if (result.data[i].remarks) result.data[i].remarks = url_replace1(result.data[i].remarks);
+						result.data[i].strRemarks = '<button data-original-title="" data-html="true" data-content="'+result.data[i].remarks+'" data-placement="bottom" data-trigger="onclick" class="btn btn-info btn-xs popovers">查看备注</button>';
 				};
 				v.total_expectamount = v.total_expectamount.toFixed(2);
 				v.total_sureexpectamount = v.total_sureexpectamount.toFixed(2);
@@ -853,6 +863,21 @@
 					    }else
 					    {
 					    	return '<a href="http://'+a+'" target="_blank">'+a+'</a>';
+					    }
+					});
+					return str;
+			}
+			
+			function url_replace1(str)
+			{
+					var reg = /((http|ftp|https):\/\/)?[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?/g;
+					str=str.replace(reg,function(a){
+					    if(!a.indexOf('http'))
+					    {
+					    	return "<a href=\'"+a+"\' target=\'_blank\'>"+a+"</a>";
+					    }else
+					    {
+					    	return "<a href=\'http://"+a+"\' target=\'_blank\'>"+a+"</a>";
 					    }
 					});
 					return str;
