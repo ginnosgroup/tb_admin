@@ -583,68 +583,92 @@
 					},
 					firstPage: function() {
 						var that = this;
+						var json = {};
+						if (that.userId != '0') json['userId'] = that.userId;
+						if (that.adviserId != '0')
+						{
+								json['adviserId'] = that.adviserId;
+								v.adviser_id = that.adviserId;
+						}
+						if (that.type != '') json['type'] = that.type;
+						if (that.state != '') json['state'] = that.state;
+						json['commissionState'] = that.commission_state;
 						if(that.pageNum > 0) {
-							$.get(url + "visa/list", {
-								keyword: that.name,
-								state: that.state,
-								pageNum: 0,
-								pageSize: that.pageSize,
-								commissionState: that.commission_state
-							}, function(result) {
-								console.log(result)
+							json['pageNum'] = 0;
+							json['pageSize'] = that.pageSize;							
+							$.get(url + "visa/list", json, function(result) {
 								that.pageNum = 0;
 								result.data = return_result(result);
 								that.subject = result.data;
+								that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
 							});
 						}
 					},
 					prevPage: function() {
 						var that = this;
+						var json = {};
+						if (that.userId != '0') json['userId'] = that.userId;
+						if (that.adviserId != '0')
+						{
+								json['adviserId'] = that.adviserId;
+								v.adviser_id = that.adviserId;
+						}
+						if (that.type != '') json['type'] = that.type;
+						if (that.state != '') json['state'] = that.state;
+						json['commissionState'] = that.commission_state;
 						if(that.pageNum > 0) {
 							that.pageNum--;
-							$.get(url + "visa/list", {
-								keyword: that.name,
-								pageNum: that.pageNum,
-								pageSize: that.pageSize,
-								commissionState: that.commission_state
-							}, function(result) {
-								console.log(result)
+							json['pageNum'] = that.pageNum;
+							json['pageSize'] = that.pageSize;
+							$.get(url + "visa/list", json, function(result) {
 								result.data = return_result(result);
 								that.subject = result.data;
+								that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
 							});
 						}
 					},
 					nextPage: function() {
 						var that = this;
+						var json = {};
+						if (that.userId != '0') json['userId'] = that.userId;
+						if (that.adviserId != '0')
+						{
+								json['adviserId'] = that.adviserId;
+								v.adviser_id = that.adviserId;
+						}
+						if (that.type != '') json['type'] = that.type;
+						if (that.state != '') json['state'] = that.state;
+						json['commissionState'] = that.commission_state;
 						if(that.pageNum < that.allPage - 1) {
 							that.pageNum++;
-							$.get(url + "visa/list", {
-								keyword: that.name,
-								state: that.state,
-								pageNum: that.pageNum,
-								pageSize: that.pageSize,
-								commissionState: that.commission_state
-							}, function(result) {
-								console.log(result)
+							json['pageNum'] = that.pageNum;
+							json['pageSize'] = that.pageSize;
+							$.get(url + "visa/list", json, function(result) {
 								result.data = return_result(result);
 								that.subject = result.data;
+								that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
 							});
 						}
 					},
 					lastPage: function() {
 						var that = this;
+						if (that.userId != '0') json['userId'] = that.userId;
+						if (that.adviserId != '0')
+						{
+								json['adviserId'] = that.adviserId;
+								v.adviser_id = that.adviserId;
+						}
+						if (that.type != '') json['type'] = that.type;
+						if (that.state != '') json['state'] = that.state;
+						json['commissionState'] = that.commission_state;
 						if(that.pageNum < that.allPage - 1) {
-							$.get(url + "visa/list", {
-								keyword: that.name,
-								state: that.state,
-								pageNum: that.allPage - 1,
-								pageSize: that.pageSize,
-								commissionState: that.commission_state
-							}, function(result) {
-								console.log(result)
+							json['pageNum'] = that.allPage - 1;
+							json['pageSize'] = that.pageSize;							
+							$.get(url + "visa/list", json, function(result) {
 								that.pageNum = that.allPage - 1;
 								result.data = return_result(result);
 								that.subject = result.data;
+								that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
 							});
 						}
 					},
