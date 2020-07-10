@@ -18,6 +18,7 @@ import org.zhinanzhen.b.dao.SubagencyDAO;
 import org.zhinanzhen.b.dao.pojo.CommissionOrderCommentDO;
 import org.zhinanzhen.b.dao.pojo.CommissionOrderDO;
 import org.zhinanzhen.b.dao.pojo.CommissionOrderListDO;
+import org.zhinanzhen.b.dao.pojo.CommissionOrderReportDO;
 import org.zhinanzhen.b.dao.pojo.ReceiveTypeDO;
 import org.zhinanzhen.b.dao.pojo.SchoolDO;
 import org.zhinanzhen.b.dao.pojo.ServiceDO;
@@ -27,6 +28,7 @@ import org.zhinanzhen.b.service.CommissionOrderService;
 import org.zhinanzhen.b.service.pojo.CommissionOrderCommentDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
+import org.zhinanzhen.b.service.pojo.CommissionOrderReportDTO;
 import org.zhinanzhen.b.service.pojo.SchoolDTO;
 import org.zhinanzhen.b.service.pojo.SubagencyDTO;
 import org.zhinanzhen.b.service.pojo.ReceiveTypeDTO;
@@ -256,6 +258,26 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			throw se;
 		}
 		return commissionOrderListDtoList;
+	}
+
+	@Override
+	public List<CommissionOrderReportDTO> listCommissionOrderReport(String startDate, String endDate, String dateType,
+			String dateMethod, Integer regionId, Integer adviserId) throws ServiceException {
+		List<CommissionOrderReportDO> commissionOrderReportDoList = new ArrayList<>();
+		List<CommissionOrderReportDTO> commissionOrderReportDtoList = new ArrayList<>();
+		try {
+			commissionOrderReportDoList = commissionOrderDao.listCommissionOrderReport(startDate,
+					theDateTo23_59_59(endDate), dateType, dateMethod, regionId, adviserId);
+			if (commissionOrderReportDoList == null)
+				return null;
+			commissionOrderReportDoList.forEach(commissionOrderReportDo -> commissionOrderReportDtoList
+					.add(mapper.map(commissionOrderReportDo, CommissionOrderReportDTO.class)));
+			return commissionOrderReportDtoList;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
 	}
 	
 	@Override

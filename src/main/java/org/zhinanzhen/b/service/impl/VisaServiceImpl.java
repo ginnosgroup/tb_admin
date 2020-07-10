@@ -16,6 +16,7 @@ import org.zhinanzhen.b.dao.ServiceOrderReviewDAO;
 import org.zhinanzhen.b.dao.VisaCommentDAO;
 import org.zhinanzhen.b.dao.pojo.VisaDO;
 import org.zhinanzhen.b.dao.pojo.VisaListDO;
+import org.zhinanzhen.b.dao.pojo.VisaReportDO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.ReceiveTypeDO;
 import org.zhinanzhen.b.dao.pojo.RemindDO;
@@ -27,6 +28,7 @@ import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
 import org.zhinanzhen.b.service.pojo.VisaCommentDTO;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
+import org.zhinanzhen.b.service.pojo.VisaReportDTO;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
@@ -194,6 +196,26 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			visaDtoList.add(visaDto);
 		}
 		return visaDtoList;
+	}
+	
+	@Override
+	public List<VisaReportDTO> listVisa(String startDate, String endDate, String dateType, String dateMethod,
+			Integer regionId, Integer adviserId) throws ServiceException {
+		List<VisaReportDO> visaReportDoList = new ArrayList<>();
+		List<VisaReportDTO> visaReportDtoList = new ArrayList<>();
+		try {
+			visaReportDoList = visaDao.listVisaReport(startDate, theDateTo23_59_59(endDate), dateType, dateMethod,
+					regionId, adviserId);
+			if (visaReportDoList == null)
+				return null;
+			visaReportDoList
+					.forEach(visaReportDo -> visaReportDtoList.add(mapper.map(visaReportDo, VisaReportDTO.class)));
+			return visaReportDtoList;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
 	}
 
 	@Override

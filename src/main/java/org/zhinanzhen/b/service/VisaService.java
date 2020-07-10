@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.zhinanzhen.b.service.pojo.VisaCommentDTO;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
+import org.zhinanzhen.b.service.pojo.VisaReportDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 
 public interface VisaService {
@@ -20,6 +21,9 @@ public interface VisaService {
 			List<String> stateList, List<String> commissionStateList, String startDate, String startKjApprovalDate,
 			String endKjApprovalDate, String endDate, Integer adviserId, Integer userId, int pageNum, int pageSize)
 			throws ServiceException;
+
+	public List<VisaReportDTO> listVisa(String startDate, String endDate, String dateType, String dateMethod,
+			Integer regionId, Integer adviserId) throws ServiceException;
 
 	public VisaDTO getVisaById(int id) throws ServiceException;
 

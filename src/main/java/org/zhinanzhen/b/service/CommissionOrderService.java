@@ -5,6 +5,8 @@ import java.util.List;
 import org.zhinanzhen.b.service.pojo.CommissionOrderCommentDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
+import org.zhinanzhen.b.service.pojo.CommissionOrderReportDTO;
+import org.zhinanzhen.b.service.pojo.VisaReportDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 
 public interface CommissionOrderService {
@@ -24,8 +26,10 @@ public interface CommissionOrderService {
 			String endKjApprovalDate, Boolean isYzyAndYjy, int pageNum, int pageSize) throws ServiceException;
 
 	List<CommissionOrderListDTO> listThisMonthCommissionOrder(Integer adviserId,
-			Integer officialId)
-			throws ServiceException;
+			Integer officialId) throws ServiceException;
+
+	List<CommissionOrderReportDTO> listCommissionOrderReport(String startDate, String endDate, String dateType,
+			String dateMethod, Integer regionId, Integer adviserId) throws ServiceException;
 
 	CommissionOrderListDTO getCommissionOrderById(int id) throws ServiceException;
 
