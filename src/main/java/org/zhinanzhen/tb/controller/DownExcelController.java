@@ -5,7 +5,11 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,17 +17,24 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.zhinanzhen.b.controller.BaseCommissionOrderController.ReviewKjStateEnum;
 import org.zhinanzhen.b.service.BrokerageSaService;
 import org.zhinanzhen.b.service.BrokerageService;
+import org.zhinanzhen.b.service.CommissionOrderService;
 import org.zhinanzhen.b.service.RefundService;
 import org.zhinanzhen.b.service.SchoolBrokerageSaService;
 import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.b.service.pojo.BrokerageDTO;
 import org.zhinanzhen.b.service.pojo.BrokerageSaDTO;
+import org.zhinanzhen.b.service.pojo.CommissionOrderReportDTO;
 import org.zhinanzhen.b.service.pojo.RefundDTO;
 import org.zhinanzhen.b.service.pojo.SchoolBrokerageSaDTO;
+import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
+import org.zhinanzhen.b.service.pojo.VisaReportDTO;
 import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.OrderPayTypeEnum;
 import org.zhinanzhen.tb.service.OrderService;
@@ -46,6 +57,8 @@ import jxl.write.Label;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableFont;
 import jxl.write.WritableSheet;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -60,6 +73,9 @@ public class DownExcelController extends BaseController {
 
 	@Resource
 	VisaService visaService;
+	
+	@Resource
+	CommissionOrderService commissionOrderService;
 
 	@Resource
 	BrokerageService brokerageService;
@@ -850,4 +866,109 @@ public class DownExcelController extends BaseController {
 		wbe.close();
 	}
 
+	@RequestMapping(value = "/report", method = RequestMethod.GET)
+	@ResponseBody
+	public void down(@RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = "endDate", required = false) String endDate,
+			@RequestParam(value = "dateType", required = false) String dateType,
+			@RequestParam(value = "dateMethod", required = false) String dateMethod,
+			@RequestParam(value = "regionId", required = false) Integer regionId,
+			@RequestParam(value = "adviserId", required = false) Integer adviserId, HttpServletRequest request,
+			HttpServletResponse response) {
+
+		try {
+			response.reset();// 清空输出流
+			String tableName = "commission_report_information";
+			response.setHeader("Content-disposition",
+					"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
+			response.setContentType("application/msexcel");
+
+			Map<String, CommissionReport> crMap = new HashMap<>();
+			visaService.listVisaReport(startDate, endDate, dateType, dateMethod, regionId, adviserId).forEach(v -> {
+				crMap.put(v.getDate() + "-" + v.getRegionId() + "-" + v.getAdviserId(),
+						new CommissionReport(v.getDate(), v.getRegionId(), v.getArea(), v.getAdviserId(),
+								v.getConsultant(), v.getCommission(), v.getServiceFee(), 0, 0, 0));
+			});
+			commissionOrderService
+					.listCommissionOrderReport(startDate, endDate, dateType, dateMethod, regionId, adviserId)
+					.forEach(c -> {
+						CommissionReport cr = crMap.get(c.getDate() + "-" + c.getRegionId() + "-" + c.getAdviserId());
+						cr.setDeductionCommission(c.getDeductionCommission());
+						cr.setClaimCommission(c.getClaimCommission());
+						cr.setClaimedCommission(c.getClaimedCommission());
+						crMap.put(c.getDate() + "-" + c.getRegionId() + "-" + c.getAdviserId(), cr);
+					});
+
+			OutputStream os = response.getOutputStream();
+			jxl.Workbook wb;
+			InputStream is;
+			try {
+				is = this.getClass().getResourceAsStream("/CommissionReportTemplate.xls");
+			} catch (Exception e) {
+				throw new Exception("模版不存在");
+			}
+			try {
+				wb = Workbook.getWorkbook(is);
+			} catch (Exception e) {
+				throw new Exception("模版格式不支持");
+			}
+			WorkbookSettings settings = new WorkbookSettings();
+			settings.setWriteAccess(null);
+			jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
+
+			if (wbe == null) {
+				System.out.println("wbe is null !os=" + os + ",wb" + wb);
+			} else {
+				System.out.println("wbe not null !os=" + os + ",wb" + wb);
+			}
+			WritableSheet sheet = wbe.getSheet(0);
+			WritableCellFormat cellFormat = new WritableCellFormat();
+
+			int i = 1;
+			for (Map.Entry<String, CommissionReport> entry : crMap.entrySet()) {
+				CommissionReport commissionReport = entry.getValue();
+				sheet.addCell(new Label(0, i, commissionReport.getDate(), cellFormat));
+				sheet.addCell(new Label(1, i, commissionReport.getArea(), cellFormat));
+				sheet.addCell(new Label(3, i, commissionReport.getConsultant(), cellFormat));
+				sheet.addCell(new Label(3, i, commissionReport.getCommission() + "", cellFormat));
+				sheet.addCell(new Label(4, i, commissionReport.getServiceFee() + "", cellFormat));
+				sheet.addCell(new Label(5, i, commissionReport.getDeductionCommission() + "", cellFormat));
+				sheet.addCell(new Label(6, i, commissionReport.getClaimCommission() + "", cellFormat));
+				sheet.addCell(new Label(7, i, commissionReport.getClaimedCommission() + "", cellFormat));
+				i++;
+			}
+			wbe.write();
+			wbe.close();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return;
+		}
+	}
+	
+	@AllArgsConstructor
+	@Data
+	class CommissionReport {
+		
+		private String date;
+		
+		private int regionId;
+		
+		private String area;
+		
+		private int adviserId;
+		
+		private String consultant;
+		
+		private double commission;
+		
+		private double serviceFee;
+		
+		private double deductionCommission;
+
+		private double claimCommission;
+
+		private double claimedCommission;
+	}
+	
 }

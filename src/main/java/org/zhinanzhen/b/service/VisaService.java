@@ -22,7 +22,7 @@ public interface VisaService {
 			String endKjApprovalDate, String endDate, Integer adviserId, Integer userId, int pageNum, int pageSize)
 			throws ServiceException;
 
-	public List<VisaReportDTO> listVisa(String startDate, String endDate, String dateType, String dateMethod,
+	public List<VisaReportDTO> listVisaReport(String startDate, String endDate, String dateType, String dateMethod,
 			Integer regionId, Integer adviserId) throws ServiceException;
 
 	public VisaDTO getVisaById(int id) throws ServiceException;
