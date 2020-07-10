@@ -400,6 +400,57 @@
         FROM b_visa WHERE service_order_id = #{serviceOrderId};
     </select>
     
+    <select id="listVisaReport" resultType="org.zhinanzhen.b.dao.pojo.VisaReportDO">
+        SELECT
+            <choose>
+                <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "M"'>
+                    DATE_FORMAT(v.receive_date, '%Y-%m') AS date,
+                </when>
+                <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "D"'>
+                    DATE_FORMAT(v.receive_date, '%Y-%m-%d') AS date,
+                </when>
+                <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "M"'>
+                    DATE_FORMAT(v.kj_approval_date, '%Y-%m') AS date,
+                </when>
+                <otherwise>
+                    DATE_FORMAT(v.kj_approval_date, '%Y-%m-%d') AS date,
+                </otherwise>
+            </choose>
+            r.id AS regionId,
+            r.name AS area,
+            a.id AS adviserId,
+            a.name AS consultant, SUM(v.bonus) AS commission,
+            SUM(IFNULL(v.sure_expect_amount, 0)) AS serviceFee
+        FROM b_visa v, tb_adviser a, tb_region r
+        WHERE a.region_id = r.id AND v.adviser_id = a.id
+        <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+            <![CDATA[ AND v.kj_approval_date > #{startDate} AND v.kj_approval_date < #{endDate} ]]>
+        </if>
+        <if test='regionId != null and regionId != ""'>
+            AND r.id = #{regionId}
+        </if>
+        <if test='adviserId != null and adviserId != ""'>
+            AND a.id = #{adviserId}
+        </if>
+        GROUP BY
+            <choose>
+                <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "M"'>
+                    DATE_FORMAT(v.receive_date, '%Y-%m'),
+                </when>
+                <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "D"'>
+                    DATE_FORMAT(v.receive_date, '%Y-%m-%d'),
+                </when>
+                <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "M"'>
+                    DATE_FORMAT(v.kj_approval_date, '%Y-%m'),
+                </when>
+                <otherwise>
+                    DATE_FORMAT(v.kj_approval_date, '%Y-%m-%d'),
+                </otherwise>
+            </choose>
+            adviser_id
+        ORDER BY v.kj_approval_date DESC;
+    </select>
+    
     <select id="getFirstVisaByServiceOrderId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.VisaDO">
         SELECT
             id,

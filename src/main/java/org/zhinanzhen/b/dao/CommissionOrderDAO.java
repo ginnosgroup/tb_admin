@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.zhinanzhen.b.dao.pojo.CommissionOrderDO;
 import org.zhinanzhen.b.dao.pojo.CommissionOrderListDO;
+import org.zhinanzhen.b.dao.pojo.CommissionOrderReportDO;
 
 public interface CommissionOrderDAO {
 
@@ -43,10 +44,15 @@ public interface CommissionOrderDAO {
 	public List<CommissionOrderListDO> listThisMonthCommissionOrderAtDashboard(@Param("adviserId") Integer adviserId,
 			@Param("officialId") Integer officialId);
 
+	List<CommissionOrderReportDO> listCommissionOrderReport(@Param("startDate") String startDate,
+			@Param("endDate") String endDate, @Param("dateType") String dateType,
+			@Param("dateMethod") String dateMethod, @Param("regionId") Integer regionId,
+			@Param("adviserId") Integer adviserId);
+
 	int updateCommissionOrder(CommissionOrderDO commissionOrderDo);
 
 	CommissionOrderListDO getCommissionOrderById(int id);
-	
+
 	List<CommissionOrderListDO> listCommissionOrderByInvoiceNumber(String invoiceNumber);
 
 	CommissionOrderListDO getFirstCommissionOrderByServiceOrderId(int serviceOrderId);
