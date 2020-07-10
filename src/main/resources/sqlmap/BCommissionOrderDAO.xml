@@ -641,7 +641,8 @@
             </choose>
             r.id AS regionId,
             r.name AS area,
-            a.id AS adviserId, a.name AS consultant,
+            a.id AS adviserId,
+            a.name AS consultant,
             SUM(IF(co.is_settle = true, co.sure_expect_amount, 0)) AS deductionCommission,
             SUM(IF(co.is_settle = false, co.expect_amount, 0)) AS claimCommission,
             SUM(IF(co.commission_state = 'YZY', co.expect_amount, 0)) AS claimedCommission

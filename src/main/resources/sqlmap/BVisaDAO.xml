@@ -419,7 +419,8 @@
             r.id AS regionId,
             r.name AS area,
             a.id AS adviserId,
-            a.name AS consultant, SUM(v.bonus) AS commission,
+            a.name AS consultant,
+            SUM(v.bonus) AS commission,
             SUM(IFNULL(v.sure_expect_amount, 0)) AS serviceFee
         FROM b_visa v, tb_adviser a, tb_region r
         WHERE a.region_id = r.id AND v.adviser_id = a.id

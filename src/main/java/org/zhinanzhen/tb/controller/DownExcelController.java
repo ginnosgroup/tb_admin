@@ -896,10 +896,16 @@ public class DownExcelController extends BaseController {
 						if (c.getDate() != null) {
 							CommissionReport cr = crMap
 									.get(c.getDate() + "-" + c.getRegionId() + "-" + c.getAdviserId());
-							cr.setDeductionCommission(c.getDeductionCommission());
-							cr.setClaimCommission(c.getClaimCommission());
-							cr.setClaimedCommission(c.getClaimedCommission());
-							crMap.put(c.getDate() + "-" + c.getRegionId() + "-" + c.getAdviserId(), cr);
+							if (cr != null) {
+								cr.setDeductionCommission(c.getDeductionCommission());
+								cr.setClaimCommission(c.getClaimCommission());
+								cr.setClaimedCommission(c.getClaimedCommission());
+								crMap.put(c.getDate() + "-" + c.getRegionId() + "-" + c.getAdviserId(), cr);
+							} else
+								crMap.put(c.getDate() + "-" + c.getRegionId() + "-" + c.getAdviserId(),
+										new CommissionReport(c.getDate(), c.getRegionId(), c.getArea(),
+												c.getAdviserId(), c.getConsultant(), 0, 0, c.getDeductionCommission(),
+												c.getClaimCommission(), c.getClaimedCommission()));
 						}
 					});
 
@@ -933,7 +939,7 @@ public class DownExcelController extends BaseController {
 				CommissionReport commissionReport = entry.getValue();
 				sheet.addCell(new Label(0, i, commissionReport.getDate(), cellFormat));
 				sheet.addCell(new Label(1, i, commissionReport.getArea(), cellFormat));
-				sheet.addCell(new Label(3, i, commissionReport.getConsultant(), cellFormat));
+				sheet.addCell(new Label(2, i, commissionReport.getConsultant(), cellFormat));
 				sheet.addCell(new Label(3, i, commissionReport.getCommission() + "", cellFormat));
 				sheet.addCell(new Label(4, i, commissionReport.getServiceFee() + "", cellFormat));
 				sheet.addCell(new Label(5, i, commissionReport.getDeductionCommission() + "", cellFormat));
