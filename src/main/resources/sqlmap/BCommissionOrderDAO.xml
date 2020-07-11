@@ -118,7 +118,7 @@
             , is_deposit_user = #{isDepositUser}
         </if>
         <if test='schoolId != null and schoolId > 0'>
-            , school_id IN (SELECT id FROM b_school WHERE name IN (SELECT name FROM b_school WHERE id = #{schoolId}))
+            , school_id = #{schoolId}
         </if>
         <if test='studentCode != null and studentCode != ""'>
             , student_code = #{studentCode}

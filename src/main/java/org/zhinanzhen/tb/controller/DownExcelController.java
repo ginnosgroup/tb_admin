@@ -73,7 +73,7 @@ public class DownExcelController extends BaseController {
 
 	@Resource
 	VisaService visaService;
-	
+
 	@Resource
 	CommissionOrderService commissionOrderService;
 
@@ -884,30 +884,33 @@ public class DownExcelController extends BaseController {
 			response.setContentType("application/msexcel");
 
 			Map<String, CommissionReport> crMap = new HashMap<>();
-			visaService.listVisaReport(startDate, endDate, dateType, dateMethod, regionId, adviserId).forEach(v -> {
-				if (v.getDate() != null)
-					crMap.put(v.getDate() + "-" + v.getRegionId() + "-" + v.getAdviserId(),
-							new CommissionReport(v.getDate(), v.getRegionId(), v.getArea(), v.getAdviserId(),
-									v.getConsultant(), v.getCommission(), v.getServiceFee(), 0, 0, 0));
-			});
-			commissionOrderService
-					.listCommissionOrderReport(startDate, endDate, dateType, dateMethod, regionId, adviserId)
-					.forEach(c -> {
-						if (c.getDate() != null) {
-							CommissionReport cr = crMap
-									.get(c.getDate() + "-" + c.getRegionId() + "-" + c.getAdviserId());
-							if (cr != null) {
-								cr.setDeductionCommission(c.getDeductionCommission());
-								cr.setClaimCommission(c.getClaimCommission());
-								cr.setClaimedCommission(c.getClaimedCommission());
-								crMap.put(c.getDate() + "-" + c.getRegionId() + "-" + c.getAdviserId(), cr);
-							} else
-								crMap.put(c.getDate() + "-" + c.getRegionId() + "-" + c.getAdviserId(),
-										new CommissionReport(c.getDate(), c.getRegionId(), c.getArea(),
-												c.getAdviserId(), c.getConsultant(), 0, 0, c.getDeductionCommission(),
-												c.getClaimCommission(), c.getClaimedCommission()));
-						}
-					});
+			List<VisaReportDTO> visaReportList = visaService.listVisaReport(startDate, endDate, dateType, dateMethod,
+					regionId, adviserId);
+			if (visaReportList != null)
+				visaReportList.forEach(v -> {
+					if (v.getDate() != null)
+						crMap.put(v.getDate() + "-" + v.getRegionId() + "-" + v.getAdviserId(),
+								new CommissionReport(v.getDate(), v.getRegionId(), v.getArea(), v.getAdviserId(),
+										v.getConsultant(), v.getCommission(), v.getServiceFee(), 0, 0, 0));
+				});
+			List<CommissionOrderReportDTO> commissionOrderReportList = commissionOrderService
+					.listCommissionOrderReport(startDate, endDate, dateType, dateMethod, regionId, adviserId);
+			if (commissionOrderReportList != null)
+				commissionOrderReportList.forEach(c -> {
+					if (c.getDate() != null) {
+						CommissionReport cr = crMap.get(c.getDate() + "-" + c.getRegionId() + "-" + c.getAdviserId());
+						if (cr != null) {
+							cr.setDeductionCommission(c.getDeductionCommission());
+							cr.setClaimCommission(c.getClaimCommission());
+							cr.setClaimedCommission(c.getClaimedCommission());
+							crMap.put(c.getDate() + "-" + c.getRegionId() + "-" + c.getAdviserId(), cr);
+						} else
+							crMap.put(c.getDate() + "-" + c.getRegionId() + "-" + c.getAdviserId(),
+									new CommissionReport(c.getDate(), c.getRegionId(), c.getArea(), c.getAdviserId(),
+											c.getConsultant(), 0, 0, c.getDeductionCommission(), c.getClaimCommission(),
+											c.getClaimedCommission()));
+					}
+				});
 
 			OutputStream os = response.getOutputStream();
 			jxl.Workbook wb;
@@ -955,30 +958,30 @@ public class DownExcelController extends BaseController {
 			return;
 		}
 	}
-	
+
 	@AllArgsConstructor
 	@Data
 	class CommissionReport {
-		
+
 		private String date;
-		
+
 		private int regionId;
-		
+
 		private String area;
-		
+
 		private int adviserId;
-		
+
 		private String consultant;
-		
+
 		private double commission;
-		
+
 		private double serviceFee;
-		
+
 		private double deductionCommission;
 
 		private double claimCommission;
 
 		private double claimedCommission;
 	}
-	
+
 }
