@@ -504,7 +504,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				else
 					msg += _response.getMessage();
 			}
-			return new Response<Integer>(1, msg, x);
+			return new Response<Integer>(0, msg, x);
 		} catch (ServiceException e) {
 			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
 		}
