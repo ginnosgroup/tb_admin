@@ -354,6 +354,12 @@
 												<button @click="getSearch" type="button" class="btn btn-info">查询</button>
 												<button @click="getExport" type="button" class="btn btn-primary">导出</button>
 											</div>
+											<div v-if="commission_state ==='DZY'" class="form-group">
+												<button @click="multiple_edit" type="button" class="btn btn-warning">批量编辑</button>
+											</div>
+											<div v-if="commission_state ==='DJY'" class="form-group">
+												<button @click="multiple_edit1" type="button" class="btn btn-warning">批量编辑</button>
+											</div>
 										</form>
 										<div class="responsive-table margin-top">
 											<input type="hidden" name="id" id="id" value="0" />
@@ -452,13 +458,15 @@
 																				<a href="javascript:;" @click="table_modify1($index)"><span style="color:blue;">编辑</span></a>
 																		</dli>
 																		<dli v-else>
-																				<dli v-if="item.type">
-																				<a class="save1" href="javascript:;"><span style="color:blue;">保存</span></a>
+																				<dli v-if="!is_multiple">
+																						<dli v-if="item.type">
+																						<a class="save1" href="javascript:;"><span style="color:blue;">保存</span></a>
+																						</dli>
+																						<dli v-else>
+																						<a class="save2" href="javascript:;"><span style="color:blue;">保存</span></a>
+																						</dli>
+																						<a class="cancel" href="javascript:;">取消</a>
 																				</dli>
-																				<dli v-else>
-																				<a class="save2" href="javascript:;"><span style="color:blue;">保存</span></a>
-																				</dli>
-																				<a class="cancel" href="javascript:;">取消</a>
 																		</dli>
 																</dli>
 																<dli v-if="ap_list==='KJ' && commission_state ==='TQKY'">																		
@@ -501,6 +509,16 @@
 													</ul>
 												</div>
 											</div>
+										</div>
+										<div id="show_multiple" style="display:none;margin-top:10px;">
+											<button @click="multiple_save" id="btn_multiple_save" type="button" class="btn btn-primary">保存</button>
+											<button @click="multiple_remove" type="button" class="btn btn-default">取消</button>
+											<label id="show_info" style="display:none;margin-left:10px;color:blue;">正在保存，请稍等...</label>
+										</div>
+										<div id="show_multiple1" style="display:none;margin-top:10px;">
+											<button @click="multiple_save1" id="btn_multiple_save" type="button" class="btn btn-primary">保存</button>
+											<button @click="multiple_remove1" type="button" class="btn btn-default">取消</button>
+											<label id="show_info" style="display:none;margin-left:10px;color:blue;">正在保存，请稍等...</label>
 										</div>
 									</div>
 								</div>
@@ -569,13 +587,15 @@
 					set_type: 1,
 					order_detail: [],
 					subject: [],
+					subject_tmp: [],
 					count: 0,					
 					name: '',
 					schoolId: 0,
 					isSettle: '',
 					state: '',
 					update_field: '',					
-					update_byid: '',					
+					update_byid: '',
+					is_multiple: 0,					
 					pageNum: 0,
 					pageSize: 20,
 					allPage: 0,
@@ -877,40 +897,7 @@
 						json['adviserName'] = this.subject[index].adviserName;
 						json['strState'] = this.subject[index].strState;
 						json['type'] = 1;
-						this.subject.splice(index,1, json);
-						/*this.subject.splice(index,1, {
-							strOid: this.subject[index].id+'-'+this.subject[index].installmentNum,
-							gmtCreate: this.subject[index].gmtCreate,
-							//finishDate: this.subject[index].finishDate,
-							receiveDate: this.subject[index].receiveDate,
-							userName: this.subject[index].userName,
-							studentCode: this.subject[index].studentCode,							
-							serviceName: this.subject[index].serviceName,
-							strSettle: this.subject[index].strSettle,
-							schoolName: this.subject[index].schoolName,
-							schoolSubject: this.subject[index].schoolSubject,
-							installmentDueDate: this.subject[index].installmentDueDate,
-							receiveTypeName: this.subject[index].receiveTypeName,
-							tuitionFee: this.subject[index].tuitionFee,
-							perAmount: this.subject[index].perAmount,
-							totalPerAmount: this.subject[index].totalPerAmount,
-							totalAmount: this.subject[index].totalAmount,
-							amount: this.subject[index].amount,
-							expectAmount: this.subject[index].expectAmount,
-							sureExpectAmount: '<input type="text" class="form-control small" style="width:120px;" id="t3a" value="'+this.subject[index].sureExpectAmount+'">',
-							gst: this.subject[index].gst,
-							deductGst: this.subject[index].deductGst,
-							schoolPaymentAmount: this.subject[index].schoolPaymentAmount,
-							schoolPaymentDate: this.subject[index].schoolPaymentDate,
-							invoiceNumber: this.subject[index].invoiceNumber,
-							subagencyName: this.subject[index].subagencyName,
-							//strSchoolPaid: this.subject[index].strSchoolPaid,
-							bonus: '<input type="text" class="form-control small" style="width:120px;" id="t1" value="'+this.subject[index].bonus+'">',
-							bonusDate: '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:120px;" id="t2" data-date-format="dd-mm-yyyy" value="'+this.subject[index].bonusDate+'">',
-							adviserName: this.subject[index].adviserName,
-							strState: this.subject[index].strState,
-							type: 1,
-						});*/															
+						this.subject.splice(index,1, json);																					
 					},					
 					table_modify1: function (index) {
 						v.orderId = this.subject[index].id;										
@@ -1018,6 +1005,247 @@
 						json['strState'] = this.subject[index].strState;						
 						json['type'] = 0;
 						this.subject.splice(index,1, json);															
+					},
+					multiple_edit: function () {						
+						if (!this.is_multiple)
+						{
+								$("#show_multiple").show();
+								for(var index=0;index < this.subject.length;index++)
+								{
+										if (this.subject[index].invoiceNumber == null) this.subject[index].invoiceNumber = '';	
+										this.subject_tmp[index] = this.subject[index];
+										this.subject.splice(index,1, {
+										Oid: this.subject[index].id,
+										strOid: this.subject[index].id+'-'+this.subject[index].installmentNum,
+										gmtCreate: this.subject[index].gmtCreate,
+										receiveDate: this.subject[index].receiveDate,
+										userName: this.subject[index].userName,
+										studentCode: this.subject[index].studentCode,							
+										serviceName: this.subject[index].serviceName,
+										strSettle: this.subject[index].strSettle,
+										schoolName: this.subject[index].schoolName,
+										schoolSubject: this.subject[index].schoolSubject,
+										installmentDueDate: this.subject[index].installmentDueDate,
+										receiveTypeName: this.subject[index].receiveTypeName,
+										tuitionFee: this.subject[index].tuitionFee,
+										perAmount: this.subject[index].perAmount,
+										totalPerAmount: this.subject[index].totalPerAmount,
+										totalAmount: this.subject[index].totalAmount,
+										amount: this.subject[index].amount,
+										expectAmount: this.subject[index].expectAmount,
+										gst: this.subject[index].gst,
+										deductGst: this.subject[index].deductGst,
+										schoolPaymentAmount: '<input type="text" class="form-control small" style="width:120px;" id="d1_'+this.subject[index].id+'" value="'+this.subject[index].schoolPaymentAmount+'">',
+										schoolPaymentDate: '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:120px;" id="d2_'+this.subject[index].id+'" data-date-format="dd-mm-yyyy" value="'+this.subject[index].schoolPaymentDate+'">',
+										invoiceNumber: '<input type="text" class="form-control small" style="width:120px;" id="d3_'+this.subject[index].id+'" value="'+this.subject[index].invoiceNumber+'">',
+										zyDate: '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:120px;" id="d4_'+this.subject[index].id+'" data-date-format="dd-mm-yyyy" value="'+this.subject[index].zyDate+'">',
+										subagencyName: this.subject[index].subagencyName,
+										bonus: this.subject[index].bonus,
+										bonusDate: this.subject[index].bonusDate,
+										adviserName: this.subject[index].adviserName,
+										strState: this.subject[index].strState,
+										type: 1,
+									});
+								}
+						}
+						this.is_multiple = 1;
+					},					
+					multiple_save: function () {
+						var f = '#list_ovst ';
+						var json = {};
+						var str_json = '';								
+						for(var index=0;index < this.subject.length;index++)
+						{
+								var oid = parseInt(this.subject[index].Oid);
+								json['id'] = oid;
+								json['schoolPaymentAmount'] = $(f+'#d1_'+oid).val();
+								var d2 = $(f+'#d2_'+oid).val();
+	       				if (d2 != '')
+		        		{
+			          		var arr_d = d2.split("/");
+			          		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+			              var date = new Date(str_d);
+			              json['schoolPaymentDate'] = date.getTime();
+		          	}else
+		          	{
+	       						json['schoolPaymentDate'] = 0;      				
+	       				}
+	       				var d3 = $(f+'#d3_'+oid).val();
+       					if (d3 != '') json['invoiceNumber'] = d3;
+       					var d4 = $(f+'#d4_'+oid).val();
+	       				if (d4 != '')
+		        		{
+			          		var arr_d = d4.split("/");
+			          		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+			              var date = new Date(str_d);
+			              json['zyDate'] = date.getTime();
+		          	}else
+		          	{
+	       						json['zyDate'] = 0;      				
+	       				}
+       					if (str_json == '')
+       					{
+       							str_json += JSON.stringify(json);
+       					}else
+       					{
+       							str_json += ','+JSON.stringify(json);
+       					}
+						}						
+						str_json = '['+str_json+']';
+						$("#show_multiple #btn_multiple_save").attr("disabled","disabled");
+						$("#show_multiple #show_info").show();
+						var str_url = url + "commissionOrder/kjUpdate";
+						$.ajax({ 
+		            type:"PUT", 
+		            url: str_url, 
+		            contentType:"application/json",      
+		            dataType:"json",
+		            data: str_json, 
+		            success:function(data)
+		            {
+		            		if (data.code == 0)
+						   			{
+						   					$("#show_multiple #show_info").html('批量保存成功');
+						   					setTimeout(function(){window.location.href = "mycommission-ovst-accounting.html?commission_state=DZY&list=DZY";}, 3000);
+						   			}else
+						   			{
+						   					$("#show_multiple #btn_multiple_save").removeAttr("disabled");
+						   					$("#show_multiple #show_info").html("接口报错："+data.message);
+						   			}
+		          	}
+          	});					
+						this.is_multiple = 0;
+					},
+					multiple_edit1: function () {						
+						if (!this.is_multiple)
+						{
+								$("#show_multiple1").show();
+								for(var index=0;index < this.subject.length;index++)
+								{
+										this.subject_tmp[index] = this.subject[index];
+										if (this.subject[index].schoolPaymentAmount && this.subject[index].schoolPaymentDate)
+										{
+												var json = {};
+												json['Oid'] = this.subject[index].id;
+												json['strOid'] = this.subject[index].id+'-'+this.subject[index].installmentNum;
+												json['gmtCreate'] = this.subject[index].gmtCreate;
+												json['receiveDate'] = this.subject[index].receiveDate;
+												json['userName'] = this.subject[index].userName;
+												json['studentCode'] = this.subject[index].studentCode;
+												json['receiveTypeName'] = this.subject[index].receiveTypeName;
+												json['serviceName'] = this.subject[index].serviceName;
+												json['strSettle'] = this.subject[index].strSettle;
+												json['schoolName'] = this.subject[index].schoolName;
+												json['schoolSubject'] = this.subject[index].schoolSubject;
+												json['installmentDueDate'] = this.subject[index].installmentDueDate;
+												json['receiveTypeName'] = this.subject[index].receiveTypeName;
+												json['tuitionFee'] = this.subject[index].tuitionFee;
+												json['perAmount'] = this.subject[index].perAmount;
+												json['totalPerAmount'] = this.subject[index].totalPerAmount;
+												json['totalAmount'] = this.subject[index].totalAmount;						
+												json['amount'] = this.subject[index].amount;
+												json['expectAmount'] = this.subject[index].expectAmount;
+												if (this.subject[index].settle)
+												{
+														json['sureExpectAmount'] = '<input type="text" class="form-control small" style="width:120px;" id="t3a_'+this.subject[index].id+'" value="'+this.subject[index].sureExpectAmount+'">';
+												}else
+												{
+														json['sureExpectAmount'] = this.subject[index].sureExpectAmount;
+												}
+												json['gst'] = this.subject[index].gst;
+												json['deductGst'] = this.subject[index].deductGst;
+												json['schoolPaymentAmount'] = this.subject[index].schoolPaymentAmount;
+												json['schoolPaymentDate'] = this.subject[index].schoolPaymentDate;
+												json['invoiceNumber'] = this.subject[index].invoiceNumber;
+												json['zyDate'] = this.subject[index].zyDate;
+												json['subagencyName'] = this.subject[index].subagencyName;										
+												json['bonus'] = '<input type="text" class="form-control small" style="width:120px;" id="t1_'+this.subject[index].id+'" value="'+(this.subject[index].bonus ? this.subject[index].bonus:'')+'">';
+												json['bonusDate'] = '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:120px;" id="t2_'+this.subject[index].id+'" data-date-format="dd-mm-yyyy" value="'+this.subject[index].bonusDate+'">';
+												json['adviserName'] = this.subject[index].adviserName;
+												json['strState'] = this.subject[index].strState;
+												json['type'] = 1;
+												this.subject.splice(index,1, json);
+										}										
+								}
+						}
+						this.is_multiple = 1;
+					},
+					multiple_save1: function () {
+						var f = '#list_ovst ';
+						var json = {};
+						var str_json = '';								
+						for(var index=0;index < this.subject.length;index++)
+						{								
+								if (this.subject[index].schoolPaymentAmount && this.subject[index].schoolPaymentDate)
+								{
+										var oid = parseInt(this.subject[index].Oid);
+										json['id'] = oid;
+										var t3a = $(f+'#t3a_'+oid).val();
+		       					if (t3a != '') json['sureExpectAmount'] = t3a;
+		       					var t1 = $(f+'#t1_'+oid).val();
+		       					json['bonus:'] = t1;
+										var t2 = $(f+'#t2_'+oid).val();
+			       				if (t2 != '')
+				        		{
+					          		var arr_d = t2.split("/");
+					          		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+					              var date = new Date(str_d);
+					              json['bonusDate'] = date.getTime();
+				          	}else
+				          	{
+			       						json['bonusDate'] = 0;      				
+			       				}	       				       					
+		       					if (str_json == '')
+		       					{
+		       							str_json += JSON.stringify(json);
+		       					}else
+		       					{
+		       							str_json += ','+JSON.stringify(json);
+		       					}
+       					}
+						}								
+						str_json = '['+str_json+']';
+						$("#show_multiple1 #btn_multiple_save").attr("disabled","disabled");
+						$("#show_multiple1 #show_info").show();
+						var str_url = url + "commissionOrder/kjUpdate";
+						$.ajax({ 
+		            type:"PUT", 
+		            url: str_url, 
+		            contentType:"application/json",      
+		            dataType:"json",
+		            data: str_json, 
+		            success:function(data)
+		            {
+		            		if (data.code == 0)
+						   			{
+						   					$("#show_multiple1 #show_info").html('批量保存成功');
+						   					setTimeout(function(){window.location.href = "mycommission-ovst-accounting.html?commission_state=DJY&list=DJY,DZY,YZY";}, 3000);
+						   			}else
+						   			{
+						   					$("#show_multiple1 #btn_multiple_save").removeAttr("disabled");
+						   					$("#show_multiple1 #show_info").html("接口报错："+data.message);
+						   			}
+		          	}
+          	});					
+						this.is_multiple = 0;
+					},
+					multiple_remove: function () {
+						this.is_multiple = 0;					
+						for(var index=0;index < this.subject.length;index++)
+						{								
+								this.subject.splice(index, 0);
+								this.subject.splice(index,1,this.subject_tmp[index]);
+						}
+						$("#show_multiple").hide();
+					},
+					multiple_remove1: function () {
+						this.is_multiple = 0;					
+						for(var index=0;index < this.subject.length;index++)
+						{								
+								this.subject.splice(index, 0);
+								this.subject.splice(index,1,this.subject_tmp[index]);
+						}
+						$("#show_multiple1").hide();
 					},			
 					table_remove: function (index) {
              this.subject.splice(index, 1);  
