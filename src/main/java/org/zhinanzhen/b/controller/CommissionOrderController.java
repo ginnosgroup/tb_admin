@@ -543,7 +543,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 		String msg = "";
 		if (commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0) {
-			if (sureExpectAmount > 0) {
+			if (sureExpectAmount != null && sureExpectAmount > 0) {
 				CommissionOrderListDTO _commissionOrderListDto = commissionOrderService
 						.getCommissionOrderById(commissionOrderDto.getId());
 				int i = schoolService.updateSchoolSetting(_commissionOrderListDto); // 根据学校设置更新佣金值
