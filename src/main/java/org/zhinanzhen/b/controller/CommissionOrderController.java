@@ -473,7 +473,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 					return new Response<CommissionOrderDTO>(1, "仅限会计修改.", null);
 				return updateOne(id, schoolPaymentAmount, schoolPaymentDate, invoiceNumber, zyDate, sureExpectAmount,
-						bonus, bonusDate);
+						bonus, bonusDate, true);
 			} else
 				return new Response<CommissionOrderDTO>(1, "修改失败.", null);
 		} catch (ServiceException e) {
@@ -481,6 +481,23 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		}
 	}
 	
+	@RequestMapping(value = "/update", method = RequestMethod.PUT)
+	@ResponseBody
+	public Response<Integer> update(@RequestBody List<BatchUpdateCommissionOrder> batchUpdateList,
+			HttpServletRequest request, HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo != null)
+				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+					return new Response<Integer>(1, "仅限会计修改.", 0);
+			return batchUpdate(batchUpdateList, false);
+		} catch (ServiceException e) {
+			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
+		}
+	}
+
 	@RequestMapping(value = "/kjUpdate", method = RequestMethod.PUT)
 	@ResponseBody
 	public Response<Integer> kjUpdate(@RequestBody List<BatchUpdateCommissionOrder> batchUpdateList,
@@ -492,27 +509,32 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
 						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 					return new Response<Integer>(1, "仅限会计修改.", 0);
-			int x = 0;
-			String msg = "";
-			for (BatchUpdateCommissionOrder batchUpdate : batchUpdateList) {
-				Response<CommissionOrderDTO> _response = updateOne(batchUpdate.getId(),
-						batchUpdate.getSchoolPaymentAmount(), batchUpdate.getSchoolPaymentDate(),
-						batchUpdate.getInvoiceNumber(), batchUpdate.getZyDate(),
-						batchUpdate.getSureExpectAmount(), batchUpdate.getBonus(), batchUpdate.getBonusDate());
-				if (_response.getCode() == 0)
-					x++;
-				else
-					msg += _response.getMessage();
-			}
-			return new Response<Integer>(0, msg, x);
+			return batchUpdate(batchUpdateList, true);
 		} catch (ServiceException e) {
 			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
 		}
 	}
 
-	private Response<CommissionOrderDTO> updateOne(int id, Double schoolPaymentAmount, String schoolPaymentDate,
-			String invoiceNumber, String zyDate, Double sureExpectAmount, Double bonus, String bonusDate)
+	private Response<Integer> batchUpdate(List<BatchUpdateCommissionOrder> batchUpdateList, boolean isChangeState)
 			throws ServiceException {
+		int x = 0;
+		String msg = "";
+		for (BatchUpdateCommissionOrder batchUpdate : batchUpdateList) {
+			Response<CommissionOrderDTO> _response = updateOne(batchUpdate.getId(),
+					batchUpdate.getSchoolPaymentAmount(), batchUpdate.getSchoolPaymentDate(),
+					batchUpdate.getInvoiceNumber(), batchUpdate.getZyDate(), batchUpdate.getSureExpectAmount(),
+					batchUpdate.getBonus(), batchUpdate.getBonusDate(), isChangeState);
+			if (_response.getCode() == 0)
+				x++;
+			else
+				msg += _response.getMessage();
+		}
+		return new Response<Integer>(0, msg, x);
+	}
+
+	private Response<CommissionOrderDTO> updateOne(int id, Double schoolPaymentAmount, String schoolPaymentDate,
+			String invoiceNumber, String zyDate, Double sureExpectAmount, Double bonus, String bonusDate,
+			boolean isChangeState) throws ServiceException {
 		CommissionOrderDTO commissionOrderDto = commissionOrderService.getCommissionOrderById(id);
 		if (commissionOrderDto == null)
 			return new Response<CommissionOrderDTO>(1, "留学佣金订单订单(ID:" + id + ")不存在!", null);
@@ -530,13 +552,14 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			commissionOrderDto.setBonus(bonus);
 		if (bonusDate != null)
 			commissionOrderDto.setBonusDate(new Date(Long.parseLong(bonusDate)));
-		if (bonus != null || bonusDate != null) {
-			commissionOrderDto.setState(ReviewKjStateEnum.COMPLETE.toString());
-			commissionOrderDto.setCommissionState(CommissionStateEnum.YJY.toString());
-		} else {
-			commissionOrderDto.setState(ReviewKjStateEnum.REVIEW.toString());
-			commissionOrderDto.setCommissionState(CommissionStateEnum.YZY.toString());
-		}
+		if (isChangeState)
+			if (bonus != null || bonusDate != null) {
+				commissionOrderDto.setState(ReviewKjStateEnum.COMPLETE.toString());
+				commissionOrderDto.setCommissionState(CommissionStateEnum.YJY.toString());
+			} else {
+				commissionOrderDto.setState(ReviewKjStateEnum.REVIEW.toString());
+				commissionOrderDto.setCommissionState(CommissionStateEnum.YZY.toString());
+			}
 //		return commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0
 //				? new Response<CommissionOrderDTO>(0, commissionOrderDto)
 //				: new Response<CommissionOrderDTO>(1, "修改失败.", null);

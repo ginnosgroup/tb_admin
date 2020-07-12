@@ -190,7 +190,7 @@ public class VisaController extends BaseCommissionOrderController {
 //					if (_received > 0.00)
 //						visaDto.setAmount(_received > _amount ? _received - _amount : 0.00);
 //					else
-						visaDto.setAmount(visaDto.getPerAmount());
+					visaDto.setAmount(visaDto.getPerAmount());
 					visaDto.setDiscount(0.00);
 				} else
 					visaDto.setState(ReviewKjStateEnum.REVIEW.toString()); // 第一笔单子直接进入财务审核状态
@@ -309,11 +309,11 @@ public class VisaController extends BaseCommissionOrderController {
 //			}
 			if (StringUtil.isNotEmpty(perAmount)) {
 				visaDto.setPerAmount(Double.parseDouble(perAmount));
-					serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
+				serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
 			}
 			if (StringUtil.isNotEmpty(amount)) {
 				visaDto.setAmount(Double.parseDouble(amount));
-					serviceOrderDto.setAmount(Double.parseDouble(amount));
+				serviceOrderDto.setAmount(Double.parseDouble(amount));
 			}
 			if (sureExpectAmount != null)
 				visaDto.setSureExpectAmount(sureExpectAmount);
@@ -373,37 +373,59 @@ public class VisaController extends BaseCommissionOrderController {
 				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
 						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 					return new Response<VisaDTO>(1, "仅限会计修改.", null);
-			return updateOne(id, sureExpectAmount, bonus, bonusDate);
+			return updateOne(id, sureExpectAmount, bonus, bonusDate, true);
 		} catch (ServiceException e) {
 			return new Response<VisaDTO>(e.getCode(), e.getMessage(), null);
 		}
 	}
-	
+
+	@RequestMapping(value = "/update", method = RequestMethod.PUT)
+	@ResponseBody
+	public Response<Integer> update(@RequestBody List<BatchUpdateVisa> batchUpdateList, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo != null)
+				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+					return new Response<Integer>(1, "仅限会计修改.", 0);
+			return batchUpdate(batchUpdateList, false);
+		} catch (ServiceException e) {
+			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
+		}
+	}
+
 	@RequestMapping(value = "/kjUpdate", method = RequestMethod.PUT)
 	@ResponseBody
 	public Response<Integer> kjUpdate(@RequestBody List<BatchUpdateVisa> batchUpdateList, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-//			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-//			if (adminUserLoginInfo != null)
-//				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
-//						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
-//					return new Response<Integer>(1, "仅限会计修改.", 0);
-			int i = 0;
-			for (BatchUpdateVisa batchUpdateDto : batchUpdateList) {
-				updateOne(batchUpdateDto.getId(), batchUpdateDto.getSureExpectAmount(), batchUpdateDto.getBonus(),
-						batchUpdateDto.getBonusDate());
-				i++;
-			}
-			return new Response<Integer>(0, i);
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo != null)
+				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+					return new Response<Integer>(1, "仅限会计修改.", 0);
+			return batchUpdate(batchUpdateList, true);
 		} catch (ServiceException e) {
 			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
 		}
 	}
-	
-	private Response<VisaDTO> updateOne(int id, Double sureExpectAmount, Double bonus, String bonusDate)
+
+	private Response<Integer> batchUpdate(List<BatchUpdateVisa> batchUpdateList, boolean isChangeState)
 			throws ServiceException {
+		int i = 0;
+		for (BatchUpdateVisa batchUpdateDto : batchUpdateList) {
+			updateOne(batchUpdateDto.getId(), batchUpdateDto.getSureExpectAmount(), batchUpdateDto.getBonus(),
+					batchUpdateDto.getBonusDate(), isChangeState);
+			i++;
+		}
+		return new Response<Integer>(0, i);
+	}
+
+	private Response<VisaDTO> updateOne(int id, Double sureExpectAmount, Double bonus, String bonusDate,
+			boolean isChangeState) throws ServiceException {
 		VisaDTO visaDto = visaService.getVisaById(id);
 		if (visaDto == null)
 			return new Response<VisaDTO>(1, "签证佣金订单订单(ID:" + id + ")不存在!", null);
@@ -413,8 +435,10 @@ public class VisaController extends BaseCommissionOrderController {
 			visaDto.setBonus(bonus);
 		if (bonusDate != null)
 			visaDto.setBonusDate(new Date(Long.parseLong(bonusDate)));
-		visaDto.setState(ReviewKjStateEnum.COMPLETE.toString());
-		visaDto.setCommissionState(CommissionStateEnum.YJY.toString());
+		if (isChangeState) {
+			visaDto.setState(ReviewKjStateEnum.COMPLETE.toString());
+			visaDto.setCommissionState(CommissionStateEnum.YJY.toString());
+		}
 		return visaService.updateVisa(visaDto) > 0 ? new Response<VisaDTO>(0, visaDto)
 				: new Response<VisaDTO>(1, "修改失败.", null);
 	}
@@ -516,7 +540,7 @@ public class VisaController extends BaseCommissionOrderController {
 			return new Response<List<VisaDTO>>(1, e.getMessage(), null);
 		}
 	}
-	
+
 	@RequestMapping(value = "/down", method = RequestMethod.GET)
 	@ResponseBody
 	public void down(@RequestParam(value = "keyword", required = false) String keyword,
@@ -571,7 +595,7 @@ public class VisaController extends BaseCommissionOrderController {
 					} catch (ServiceException e) {
 					}
 			});
-			
+
 			OutputStream os = response.getOutputStream();
 			jxl.Workbook wb;
 			InputStream is;
