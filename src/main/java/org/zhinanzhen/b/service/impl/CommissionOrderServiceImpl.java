@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.service.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -121,7 +122,7 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 	@Override
 	public int countCommissionOrder(Integer maraId, Integer adviserId, Integer officialId, String name, String phone,
 			String wechatUsername, Integer schoolId, Boolean isSettle, List<String> stateList,
-			List<String> commissionStateList, String startKjApprovalDate, String endKjApprovalDate, Boolean isYzyAndYjy)
+			List<String> commissionStateList, Date startKjApprovalDate, Date endKjApprovalDate, Boolean isYzyAndYjy)
 			throws ServiceException {
 		return commissionOrderDao.countCommissionOrder(maraId, adviserId, officialId, name, phone, wechatUsername,
 				schoolId, isSettle, stateList, commissionStateList, startKjApprovalDate, endKjApprovalDate,
@@ -131,8 +132,8 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 	@Override
 	public List<CommissionOrderListDTO> listCommissionOrder(Integer maraId, Integer adviserId, Integer officialId,
 			String name, String phone, String wechatUsername, Integer schoolId, Boolean isSettle,
-			List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
-			String endKjApprovalDate, Boolean isYzyAndYjy, int pageNum, int pageSize) throws ServiceException {
+			List<String> stateList, List<String> commissionStateList, Date startKjApprovalDate, Date endKjApprovalDate,
+			Boolean isYzyAndYjy, int pageNum, int pageSize) throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
 		}
@@ -238,7 +239,8 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 	}
 
 	@Override
-	public List<CommissionOrderListDTO> listCommissionOrderByInvoiceNumber(String invoiceNumber) throws ServiceException {
+	public List<CommissionOrderListDTO> listCommissionOrderByInvoiceNumber(String invoiceNumber)
+			throws ServiceException {
 		if (StringUtil.isEmpty(invoiceNumber)) {
 			ServiceException se = new ServiceException("invoiceNumber error !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -279,7 +281,7 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			throw se;
 		}
 	}
-	
+
 	@Override
 	public CommissionOrderListDTO getFirstCommissionOrderByServiceOrderId(int serviceOrderId) throws ServiceException {
 		if (serviceOrderId <= 0) {

@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.dao;
 
+import java.util.Date;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
@@ -16,8 +17,8 @@ public interface VisaDAO {
 	public int countVisa(@Param("keyword") String keyword, @Param("startHandlingDate") String startHandlingDate,
 			@Param("endHandlingDate") String endHandlingDate, @Param("stateList") List<String> stateList,
 			@Param("commissionStateList") List<String> commissionStateList,
-			@Param("startKjApprovalDate") String startKjApprovalDate,
-			@Param("endKjApprovalDate") String endKjApprovalDate, @Param("startDate") String startDate,
+			@Param("startKjApprovalDate") Date startKjApprovalDate,
+			@Param("endKjApprovalDate") Date endKjApprovalDate, @Param("startDate") String startDate,
 			@Param("endDate") String endDate, @Param("adviserId") Integer adviserId, @Param("userId") Integer userId);
 
 	public int countVisaByServiceOrderIdAndExcludeCode(@Param("serviceOrderId") Integer serviceOrderId,
@@ -26,8 +27,8 @@ public interface VisaDAO {
 	public List<VisaListDO> listVisa(@Param("keyword") String keyword,
 			@Param("startHandlingDate") String startHandlingDate, @Param("endHandlingDate") String endHandlingDate,
 			@Param("stateList") List<String> stateList, @Param("commissionStateList") List<String> commissionStateList,
-			@Param("startKjApprovalDate") String startKjApprovalDate,
-			@Param("endKjApprovalDate") String endKjApprovalDate, @Param("startDate") String startDate,
+			@Param("startKjApprovalDate") Date startKjApprovalDate,
+			@Param("endKjApprovalDate") Date endKjApprovalDate, @Param("startDate") String startDate,
 			@Param("endDate") String endDate, @Param("adviserId") Integer adviserId, @Param("userId") Integer userId,
 			@Param("offset") int offset, @Param("rows") int rows);
 

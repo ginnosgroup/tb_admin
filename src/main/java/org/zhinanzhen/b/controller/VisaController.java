@@ -476,11 +476,18 @@ public class VisaController extends BaseCommissionOrderController {
 		if (StringUtil.isNotEmpty(commissionState))
 			commissionStateList = Arrays.asList(commissionState.split(","));
 
+		Date _startKjApprovalDate = null;
+		if (startKjApprovalDate != null)
+			_startKjApprovalDate = new Date(Long.parseLong(startKjApprovalDate));
+		Date _endKjApprovalDate = null;
+		if (endKjApprovalDate != null)
+			_endKjApprovalDate = new Date(Long.parseLong(endKjApprovalDate));
+
 		try {
 			super.setGetHeader(response);
 			return new Response<Integer>(0,
 					visaService.countVisa(keyword, startHandlingDate, endHandlingDate, stateList, commissionStateList,
-							startKjApprovalDate, endKjApprovalDate, startDate, endDate, adviserId, userId));
+							_startKjApprovalDate, _endKjApprovalDate, startDate, endDate, adviserId, userId));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -519,12 +526,19 @@ public class VisaController extends BaseCommissionOrderController {
 		List<String> commissionStateList = null;
 		if (StringUtil.isNotEmpty(commissionState))
 			commissionStateList = Arrays.asList(commissionState.split(","));
+		
+		Date _startKjApprovalDate = null;
+		if (startKjApprovalDate != null)
+			_startKjApprovalDate = new Date(Long.parseLong(startKjApprovalDate));
+		Date _endKjApprovalDate = null;
+		if (endKjApprovalDate != null)
+			_endKjApprovalDate = new Date(Long.parseLong(endKjApprovalDate));
 
 		try {
 			super.setGetHeader(response);
 			List<VisaDTO> list = visaService.listVisa(keyword, startHandlingDate, endHandlingDate, stateList,
-					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, adviserId, userId,
-					pageNum, pageSize);
+					commissionStateList, _startKjApprovalDate, _endKjApprovalDate, startDate, endDate, adviserId,
+					userId, pageNum, pageSize);
 			list.forEach(v -> {
 				if (v.getServiceOrderId() > 0)
 					try {
@@ -581,9 +595,16 @@ public class VisaController extends BaseCommissionOrderController {
 					"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
 			response.setContentType("application/msexcel");
 
+			Date _startKjApprovalDate = null;
+			if (startKjApprovalDate != null)
+				_startKjApprovalDate = new Date(Long.parseLong(startKjApprovalDate));
+			Date _endKjApprovalDate = null;
+			if (endKjApprovalDate != null)
+				_endKjApprovalDate = new Date(Long.parseLong(endKjApprovalDate));
+
 			List<VisaDTO> list = visaService.listVisa(keyword, startHandlingDate, endHandlingDate, stateList,
-					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, adviserId, userId,
-					0, 9999);
+					commissionStateList, _startKjApprovalDate, _endKjApprovalDate, startDate, endDate, adviserId,
+					userId, 0, 9999);
 
 			list.forEach(v -> {
 				if (v.getServiceOrderId() > 0)

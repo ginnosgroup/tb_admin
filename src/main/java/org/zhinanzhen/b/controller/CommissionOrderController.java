@@ -679,12 +679,19 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		else
 			stateList.add(state);
 
+		Date _startKjApprovalDate = null;
+		if (startKjApprovalDate != null)
+			_startKjApprovalDate = new Date(Long.parseLong(startKjApprovalDate));
+		Date _endKjApprovalDate = null;
+		if (endKjApprovalDate != null)
+			_endKjApprovalDate = new Date(Long.parseLong(endKjApprovalDate));
+
 		try {
 			super.setGetHeader(response);
 			return new Response<Integer>(0,
 					commissionOrderService.countCommissionOrder(maraId, adviserId, officialId, name, phone,
-							wechatUsername, schoolId, isSettle, stateList, commissionStateList, startKjApprovalDate,
-							endKjApprovalDate, isYzyAndYjy));
+							wechatUsername, schoolId, isSettle, stateList, commissionStateList, _startKjApprovalDate,
+							_endKjApprovalDate, isYzyAndYjy));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -738,13 +745,20 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			stateList = null;
 		else
 			stateList.add(state);
+		
+		Date _startKjApprovalDate = null;
+		if (startKjApprovalDate != null)
+			_startKjApprovalDate = new Date(Long.parseLong(startKjApprovalDate));
+		Date _endKjApprovalDate = null;
+		if (endKjApprovalDate != null)
+			_endKjApprovalDate = new Date(Long.parseLong(endKjApprovalDate));
 
 		try {
 			super.setGetHeader(response);
 			return new Response<List<CommissionOrderListDTO>>(0,
 					commissionOrderService.listCommissionOrder(maraId, adviserId, officialId, name, phone,
-							wechatUsername, schoolId, isSettle, stateList, commissionStateList, startKjApprovalDate,
-							endKjApprovalDate, isYzyAndYjy, pageNum, pageSize));
+							wechatUsername, schoolId, isSettle, stateList, commissionStateList, _startKjApprovalDate,
+							_endKjApprovalDate, isYzyAndYjy, pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<CommissionOrderListDTO>>(1, e.getMessage(), null);
 		}
@@ -804,9 +818,16 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
 			response.setContentType("application/msexcel");
 
+			Date _startKjApprovalDate = null;
+			if (startKjApprovalDate != null)
+				_startKjApprovalDate = new Date(Long.parseLong(startKjApprovalDate));
+			Date _endKjApprovalDate = null;
+			if (endKjApprovalDate != null)
+				_endKjApprovalDate = new Date(Long.parseLong(endKjApprovalDate));
+
 			List<CommissionOrderListDTO> commissionOrderList = commissionOrderService.listCommissionOrder(maraId,
 					adviserId, officialId, name, phone, wechatUsername, schoolId, isSettle, stateList,
-					commissionStateList, startKjApprovalDate, endKjApprovalDate, isYzyAndYjy, 0, 9999);
+					commissionStateList, _startKjApprovalDate, _endKjApprovalDate, isYzyAndYjy, 0, 9999);
 
 			OutputStream os = response.getOutputStream();
 			jxl.Workbook wb;

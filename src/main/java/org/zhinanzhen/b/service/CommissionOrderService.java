@@ -1,12 +1,12 @@
 package org.zhinanzhen.b.service;
 
+import java.util.Date;
 import java.util.List;
 
 import org.zhinanzhen.b.service.pojo.CommissionOrderCommentDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderReportDTO;
-import org.zhinanzhen.b.service.pojo.VisaReportDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 
 public interface CommissionOrderService {
@@ -17,16 +17,16 @@ public interface CommissionOrderService {
 
 	public int countCommissionOrder(Integer maraId, Integer adviserId, Integer officialId, String name, String phone,
 			String wechatUsername, Integer schoolId, Boolean isSettle, List<String> stateList,
-			List<String> commissionStateList, String startKjApprovalDate, String endKjApprovalDate, Boolean isYzyAndYjy)
+			List<String> commissionStateList, Date startKjApprovalDate, Date endKjApprovalDate, Boolean isYzyAndYjy)
 			throws ServiceException;
 
 	public List<CommissionOrderListDTO> listCommissionOrder(Integer maraId, Integer adviserId, Integer officialId,
 			String name, String phone, String wechatUsername, Integer schoolId, Boolean isSettle,
-			List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
-			String endKjApprovalDate, Boolean isYzyAndYjy, int pageNum, int pageSize) throws ServiceException;
+			List<String> stateList, List<String> commissionStateList, Date startKjApprovalDate, Date endKjApprovalDate,
+			Boolean isYzyAndYjy, int pageNum, int pageSize) throws ServiceException;
 
-	List<CommissionOrderListDTO> listThisMonthCommissionOrder(Integer adviserId,
-			Integer officialId) throws ServiceException;
+	List<CommissionOrderListDTO> listThisMonthCommissionOrder(Integer adviserId, Integer officialId)
+			throws ServiceException;
 
 	List<CommissionOrderReportDTO> listCommissionOrderReport(String startDate, String endDate, String dateType,
 			String dateMethod, Integer regionId, Integer adviserId) throws ServiceException;
