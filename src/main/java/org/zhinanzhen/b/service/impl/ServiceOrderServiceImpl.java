@@ -440,7 +440,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 							"亲爱的" + adviserDo.getName() + ":<br/>您有一条服务订单已正在处理中。<br/>订单号:" + id + "/服务类型:" + type
 									+ "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:" + date);
 				}
-				if ("REVIEW".equals(kjState)) {
+				if ("COMPLETE".equals(officialState)) {
 					List<AdminUserDO> adminUserDoList = adminUserDao.listAdminUserByAp("KJ");
 					for (AdminUserDO adminUserDo : adminUserDoList)
 						if (adminUserDo != null) {
