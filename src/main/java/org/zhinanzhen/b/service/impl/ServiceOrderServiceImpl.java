@@ -441,16 +441,16 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 									+ "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:" + date);
 				}
 				if ("COMPLETE".equals(officialState)) {
-					List<AdminUserDO> adminUserDoList = adminUserDao.listAdminUserByAp("KJ");
-					for (AdminUserDO adminUserDo : adminUserDoList)
-						if (adminUserDo != null) {
-							KjDO kjDo = kjDao.getKjById(adminUserDo.getKjId());
-							if (kjDo != null)
-								SendEmailUtil.send(kjDo.getEmail(), title,
-										"亲爱的" + kjDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:"
-												+ type + "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName()
-												+ "/创建时间:" + date);
-						}
+//					List<AdminUserDO> adminUserDoList = adminUserDao.listAdminUserByAp("KJ");
+//					for (AdminUserDO adminUserDo : adminUserDoList)
+//						if (adminUserDo != null) {
+//							KjDO kjDo = kjDao.getKjById(adminUserDo.getKjId());
+//							if (kjDo != null)
+//								SendEmailUtil.send(kjDo.getEmail(), title,
+//										"亲爱的" + kjDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:"
+//												+ type + "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName()
+//												+ "/创建时间:" + date);
+//						}
 					// 写入审核时间
 					if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())
 							|| "SIV".equalsIgnoreCase(serviceOrderDo.getType()))
