@@ -305,26 +305,24 @@
 									  <form class="form-inline" style="margin-top:10px;">
 									  	<input v-model.trim="userId" type="hidden" name="userId" id="userId" value="0" />
 											<div class="form-group">
-													<label>客户姓名</label>
-													<input type="text" name="user_name" id="user_name" class="form-control" style="width:150px;">													
+													<input type="text" name="user_name" id="user_name" class="form-control" style="width:150px;" placeholder="客户姓名">
+													<select v-model.trim="adviserId" id="adviserId" class="form-control" style="width:130px;">
+													</select>												
 											</div>
 											<div class="form-group">
-													<label>顾问</label>
-													<select v-model.trim="adviserId" id="adviserId" class="form-control" style="width:130px;">
-													</select>
+													<input v-model.trim="startHandlingDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:120px;" placeholder="办理时间(开始)">
+													<input v-model.trim="endHandlingDate" type="text"  autocomplete="off" class="form-control default-date-picker1" style="width:120px;" placeholder="办理时间(结束)">
+													<input v-model.trim="startDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:120px;" placeholder="创建时间(开始)">
+													<input v-model.trim="endDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:120px;" placeholder="创建时间(结束)">
+													<input v-model.trim="startKjApprovalDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:150px;" placeholder="财务审核时间(开始)">
+													<input v-model.trim="endKjApprovalDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:150px;" placeholder="财务审核时间(结束)">
+											</div>											
+											<div class="form-group">													
 													<label>服务项目</label>											
 													<select id="type" class="form-control" style="width:130px;" onchange="gotoUrl(this.value);">
 													<option value="VISA" selected="true">签证</option>
 													<option value="OVST">留学</option>
-													</select>
-													<label>状态</label>											
-													<select v-model.trim="state" id="state" class="form-control" style="width:130px;">
-													<option value="" selected="true">全部</option>
-													<option value="WAIT">佣金待审核</option>
-													<option value="FINISH">佣金已审核</option>
-													<option value="COMPLETE">佣金结算完成</option>													
-													<option value="CLOSE">已关闭</option>
-													</select>													
+													</select>																	
 											</div>
 											<div class="form-group">
 												<button @click="getSearch" type="button" class="btn btn-info">查询</button>
@@ -1146,7 +1144,7 @@
 			    //绑定顾问
 				  var obj_adviserId = $("#adviserId");
 				  $("#adviserId").empty();
-	        obj_adviserId.append("<option value='0'>全部</option>");
+	        obj_adviserId.append("<option value='0'>全部顾问</option>");
 			    $.ajax({
 	          url: 'adviser/list?pageNum=0&pageSize=100000',
 	          type: 'GET',
