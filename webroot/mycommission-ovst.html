@@ -299,25 +299,22 @@
                     </div>
 									  <form class="form-inline" style="margin-top:10px;">
 									  	<input v-model.trim="userId" type="hidden" name="userId" id="userId" value="0" />
+											<div class="form-group">													
+													<input type="text" name="user_name" id="user_name" class="form-control" style="width:150px;" placeholder="客户姓名">													
+											</div>
 											<div class="form-group">
-													<label>客户姓名</label>
-													<input type="text" name="user_name" id="user_name" class="form-control" style="width:150px;">													
+													<input v-model.trim="startHandlingDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:120px;" placeholder="办理时间(开始)">
+													<input v-model.trim="endHandlingDate" type="text"  autocomplete="off" class="form-control default-date-picker1" style="width:120px;" placeholder="办理时间(结束)">
+													<input v-model.trim="startDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:120px;" placeholder="创建时间(开始)">
+													<input v-model.trim="endDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:120px;" placeholder="创建时间(结束)">
+													<input v-model.trim="startKjApprovalDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:150px;" placeholder="财务审核时间(开始)">
+													<input v-model.trim="endKjApprovalDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:150px;" placeholder="财务审核时间(结束)">
 											</div>
 											<div class="form-group">
 													<label>服务项目</label>											
 													<select id="type" class="form-control" style="width:130px;" onchange="gotoUrl(this.value);">
 													<option value="OVST" selected="true">留学</option>
 													<option value="VISA">签证</option>													
-													</select>
-													<label>状态</label>											
-													<select v-model.trim="state" id="state" class="form-control" style="width:130px;">
-													<option value="" selected="true">全部</option>
-													<option value="PENDING">佣金待确认</option>
-													<option value="REVIEW">佣金审核中</option>
-													<option value="WAIT">佣金被驳回</option>
-													<option value="FINISH">佣金已审核</option>
-													<option value="COMPLETE">佣金结算完成</option>													
-													<option value="CLOSE">已关闭</option>
 													</select>													
 											</div>
 											<div class="form-group">
@@ -332,7 +329,8 @@
 												<thead>
 													<tr>
 														<th>订单ID</th>
-														<th>创建日期</th>														
+														<th>创建日期</th>
+														<th>提交审核时间</th>
 														<th>客户支付日期</th>
 														<th>客户姓名</th>
 														<th>StudentID</th>
@@ -362,6 +360,7 @@
 													<tr v-for="item in subject" class="gradeX">
 														<td v-html="item.strOid"></td>
 														<td v-html="item.gmtCreate"></td>
+														<td v-html="item.kjApprovalDate"></td>
 														<td v-html="item.receiveDate"></td>
 														<td v-html="item.userName"></td>
 														<td v-html="item.studentCode"></td>
@@ -394,6 +393,7 @@
 														<td v-html="item.strRemarks"></td>
 													</tr>
 													<tr class="gradeX">
+														<td></td>
 														<td></td>
 														<td></td>
 														<td></td>
@@ -527,6 +527,10 @@
 					allPage: 0					
 				},
 				created: function() {
+					$('.default-date-picker1').datepicker({   				
+				        format: 'yyyy-mm-dd',
+				        endDate: new Date()
+				  });
 					this.getDatalist();
 				},
 				methods: {					
@@ -555,7 +559,13 @@
 						if (that.userId != '0') json['userId'] = that.userId;
 						if (that.adviserId != '0') json['adviserId'] = that.adviserId;						
 						if (that.type != '') json['type'] = that.type;
-						if (that.state != '') json['state'] = that.state;
+						if (that.startHandlingDate != '') json['startHandlingDate'] = that.startHandlingDate;
+						if (that.endHandlingDate != '') json['endHandlingDate'] = that.endHandlingDate;
+						if (that.startKjApprovalDate != '') json['startKjApprovalDate'] = that.startKjApprovalDate;
+						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
+						if (that.startDate != '') json['startDate'] = that.startDate;
+						if (that.endDate != '') json['endDate'] = that.endDate;
+						
 						$.get(url + "commissionOrder/count", json, function(result) {
 							that.count = result.data;
 							that.allPage = Math.ceil(result.data / that.pageSize);
@@ -568,6 +578,73 @@
 							that.subject = result.data;
 							that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
 						});
+					},
+					getExport: function() {
+						var that = this;						
+						var down_url = url + "commissionOrder/down?";
+						if (typeof(that.userId) != "undefined")
+						{
+								down_url += "userId="+that.userId;
+						}else
+						{
+								down_url += "userId=";
+						}
+						if (typeof(that.adviserId) != "undefined")
+						{
+								down_url += "&adviserId="+that.adviserId;
+						}else
+						{
+								down_url += "&adviserId="+that.adviser_id;
+						}						
+						if (typeof(that.startHandlingDate) != "undefined")
+						{
+								down_url += "&startHandlingDate="+that.startHandlingDate;
+						}else
+						{
+								down_url += "&startHandlingDate=";
+						}
+						if (typeof(that.endHandlingDate) != "undefined")
+						{
+								down_url += "&endHandlingDate="+that.endHandlingDate;
+						}else
+						{
+								down_url += "&endHandlingDate=";
+						}
+						if (typeof(that.startDate) != "undefined")
+						{
+								down_url += "&startDate="+that.startDate;
+						}else
+						{
+								down_url += "&startDate=";
+						}
+						if (typeof(that.endDate) != "undefined")
+						{
+								down_url += "&endDate="+that.endDate;
+						}else
+						{
+								down_url += "&endDate=";
+						}
+						if (typeof(that.startKjApprovalDate) != "undefined")
+						{
+								down_url += "&startKjApprovalDate="+that.startKjApprovalDate;
+						}else
+						{
+								down_url += "&startKjApprovalDate=";
+						}
+						if (typeof(that.endKjApprovalDate) != "undefined")
+						{
+								down_url += "&endKjApprovalDate="+that.endKjApprovalDate;
+						}else
+						{
+								down_url += "&endKjApprovalDate=";
+						}
+						console.log(down_url);
+						var a = document.createElement('a');
+						a.download = 'commission_all_data.xls';
+						a.href = down_url;
+						$("body").append(a);
+						a.click();
+						$(a).remove();
 					},
 					getTime: function(d) {
 						var date1 = new Date(d);
@@ -605,7 +682,13 @@
 						if (that.userId != '0') json['userId'] = that.userId;
 						if (that.adviserId != '0') json['adviserId'] = that.adviserId;						
 						if (that.type != '') json['type'] = that.type;
-						if (that.state != '') json['state'] = that.state;
+						if (that.startHandlingDate != '') json['startHandlingDate'] = that.startHandlingDate;
+						if (that.endHandlingDate != '') json['endHandlingDate'] = that.endHandlingDate;
+						if (that.startKjApprovalDate != '') json['startKjApprovalDate'] = that.startKjApprovalDate;
+						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
+						if (that.startDate != '') json['startDate'] = that.startDate;
+						if (that.endDate != '') json['endDate'] = that.endDate;
+						
 						json['pageNum'] = 0;
 						json['pageSize'] = that.pageSize;
 						if(that.pageNum > 0) {
@@ -623,7 +706,13 @@
 						if (that.userId != '0') json['userId'] = that.userId;
 						if (that.adviserId != '0') json['adviserId'] = that.adviserId;						
 						if (that.type != '') json['type'] = that.type;
-						if (that.state != '') json['state'] = that.state;						
+						if (that.startHandlingDate != '') json['startHandlingDate'] = that.startHandlingDate;
+						if (that.endHandlingDate != '') json['endHandlingDate'] = that.endHandlingDate;
+						if (that.startKjApprovalDate != '') json['startKjApprovalDate'] = that.startKjApprovalDate;
+						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
+						if (that.startDate != '') json['startDate'] = that.startDate;
+						if (that.endDate != '') json['endDate'] = that.endDate;
+									
 						if(that.pageNum > 0) {
 							that.pageNum--;
 							json['pageNum'] = that.pageNum;
@@ -641,7 +730,13 @@
 						if (that.userId != '0') json['userId'] = that.userId;
 						if (that.adviserId != '0') json['adviserId'] = that.adviserId;						
 						if (that.type != '') json['type'] = that.type;
-						if (that.state != '') json['state'] = that.state;	
+						if (that.startHandlingDate != '') json['startHandlingDate'] = that.startHandlingDate;
+						if (that.endHandlingDate != '') json['endHandlingDate'] = that.endHandlingDate;
+						if (that.startKjApprovalDate != '') json['startKjApprovalDate'] = that.startKjApprovalDate;
+						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
+						if (that.startDate != '') json['startDate'] = that.startDate;
+						if (that.endDate != '') json['endDate'] = that.endDate;
+						
 						if(that.pageNum < that.allPage - 1) {
 							that.pageNum++;
 							json['pageNum'] = that.pageNum;
@@ -659,7 +754,13 @@
 						if (that.userId != '0') json['userId'] = that.userId;
 						if (that.adviserId != '0') json['adviserId'] = that.adviserId;						
 						if (that.type != '') json['type'] = that.type;
-						if (that.state != '') json['state'] = that.state;	
+						if (that.startHandlingDate != '') json['startHandlingDate'] = that.startHandlingDate;
+						if (that.endHandlingDate != '') json['endHandlingDate'] = that.endHandlingDate;
+						if (that.startKjApprovalDate != '') json['startKjApprovalDate'] = that.startKjApprovalDate;
+						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
+						if (that.startDate != '') json['startDate'] = that.startDate;
+						if (that.endDate != '') json['endDate'] = that.endDate;
+						
 						if(that.pageNum < that.allPage - 1) {
 							json['pageNum'] = that.allPage - 1;
 							json['pageSize'] = that.pageSize;
@@ -685,6 +786,7 @@
 						result.data[i].oid = result.data[i].id;
 						result.data[i].strOid = '<a href="javascript:open_detail('+result.data[i].serviceOrderId+','+result.data[i].id+');" title="查看详细">CS'+result.data[i].id+'</a>-'+result.data[i].installmentNum+'<br/><a onclick="copyText()" class="copybtn" data-clipboard-action="copy" data-clipboard-text="'+customer_text+'">复制</a>';
 						result.data[i].gmtCreate = v.getTime1(result.data[i].gmtCreate);
+						result.data[i].kjApprovalDate = result.data[i].kjApprovalDate ? v.getTime(result.data[i].kjApprovalDate):'';
 						//result.data[i].finishDate = result.data[i].finishDate ? v.getTime(result.data[i].finishDate):'';
 						result.data[i].receiveDate = result.data[i].receiveDate ? v.getTime(result.data[i].receiveDate):'';
 						//是否已对账

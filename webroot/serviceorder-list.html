@@ -380,6 +380,7 @@
 													<tr>
 														<th>ID</th>
 														<th>创建日期</th>
+														<th>提交审核时间</th>
 														<th>办理完成日期</th>
 														<th>客户ID</th>
 														<th>客户姓名</th>
@@ -398,6 +399,7 @@
 													<tr v-for="item in subject" class="gradeX">
 														<td v-html="item.oid"></td>
 														<td v-html="item.gmtCreate"></td>
+														<td v-html="item.approvalDate"></td>
 														<td v-html="item.finishDate"></td>
 														<td v-html="item.userId"></td>
 														<td v-html="item.userName"></td>
@@ -626,6 +628,18 @@
 						var date2 = d+"/"+m+"/"+y;
 						return date2;
 					},
+					getTime1: function(d) {
+						var date1 = new Date(d);
+						var y = date1.getFullYear();
+						var m = this.addZero(date1.getMonth() + 1);
+						var d = this.addZero(date1.getDate());
+						var h = this.addZero(date1.getHours());
+						var m2 = this.addZero(date1.getMinutes());
+						var s = this.addZero(date1.getSeconds());
+						//var date2 = y + "-" + m + "-" + d;
+						var date2 = d+"/"+m+"/"+y+' '+h+':'+m2+':'+s;
+						return date2;
+					},
 					addZero: function(obj) {
 						if(obj < 10) {
 							obj = '0' + obj;
@@ -747,6 +761,21 @@
 						result.data[i].oid = customer_text;
 						result.data[i].strRefuse = '';						
 						result.data[i].gmtCreate = v.getTime(result.data[i].gmtCreate);
+						switch(v.ap_list)
+						{
+								case 'GW':
+										result.data[i].approvalDate = result.data[i].officialApprovalDate ? v.getTime(result.data[i].officialApprovalDate):'';
+								break;
+								case 'WA':
+										result.data[i].approvalDate = result.data[i].maraApprovalDate ? v.getTime(result.data[i].maraApprovalDate):'';
+								break;
+								case 'MA':
+										result.data[i].approvalDate = result.data[i].maraApprovalDate ? v.getTime(result.data[i].maraApprovalDate):'';
+								break;
+								default:
+										result.data[i].approvalDate = '';
+								break;
+						}
 						result.data[i].finishDate = result.data[i].finishDate ? v.getTime(result.data[i].finishDate):'';
 						result.data[i].userName = result.data[i].user.name;
 						if (result.data[i].user.birthday) result.data[i].birthday = v.getTime(result.data[i].user.birthday);
