@@ -367,7 +367,8 @@
 												<thead>
 													<tr>
 														<th>订单ID</th>
-														<th>创建日期</th>														
+														<th>创建日期</th>
+														<th>提交审核时间</th>
 														<th>客户支付日期</th>
 														<th>客户姓名</th>
 														<th>StudentID</th>
@@ -405,6 +406,7 @@
 													<tr v-for="item in subject" class="gradeX">
 														<td v-html="item.strOid"></td>
 														<td v-html="item.gmtCreate"></td>
+														<td v-html="item.kjApprovalDate"></td>
 														<td v-html="item.receiveDate"></td>
 														<td v-html="item.userName"></td>
 														<td v-html="item.studentCode"></td>
@@ -862,6 +864,7 @@
 						var json = {};
 						json['strOid'] = this.subject[index].id+'-'+this.subject[index].installmentNum;
 						json['gmtCreate'] = this.subject[index].gmtCreate;
+						json['kjApprovalDate'] = this.subject[index].kjApprovalDate;
 						json['receiveDate'] = this.subject[index].receiveDate;
 						json['userName'] = this.subject[index].userName;
 						json['studentCode'] = this.subject[index].studentCode;
@@ -911,7 +914,7 @@
 						this.subject.splice(index,1, {
 							strOid: this.subject[index].id+'-'+this.subject[index].installmentNum,
 							gmtCreate: this.subject[index].gmtCreate,
-							//finishDate: this.subject[index].finishDate,
+							kjApprovalDate: this.subject[index].kjApprovalDate,
 							receiveDate: this.subject[index].receiveDate,
 							userName: this.subject[index].userName,
 							studentCode: this.subject[index].studentCode,							
@@ -955,6 +958,7 @@
 						var json = {};
 						json['strOid'] = this.subject[index].id+'-'+this.subject[index].installmentNum;
 						json['gmtCreate'] = this.subject[index].gmtCreate;
+						json['kjApprovalDate'] = this.subject[index].kjApprovalDate;
 						json['receiveDate'] = this.subject[index].receiveDate;
 						json['userName'] = this.subject[index].userName;
 						json['studentCode'] = this.subject[index].studentCode;
@@ -1018,6 +1022,7 @@
 										Oid: this.subject[index].id,
 										strOid: this.subject[index].id+'-'+this.subject[index].installmentNum,
 										gmtCreate: this.subject[index].gmtCreate,
+										kjApprovalDate: this.subject[index].kjApprovalDate,
 										receiveDate: this.subject[index].receiveDate,
 										userName: this.subject[index].userName,
 										studentCode: this.subject[index].studentCode,							
@@ -1129,6 +1134,7 @@
 												json['Oid'] = this.subject[index].id;
 												json['strOid'] = this.subject[index].id+'-'+this.subject[index].installmentNum;
 												json['gmtCreate'] = this.subject[index].gmtCreate;
+												json['kjApprovalDate'] = this.subject[index].kjApprovalDate;
 												json['receiveDate'] = this.subject[index].receiveDate;
 												json['userName'] = this.subject[index].userName;
 												json['studentCode'] = this.subject[index].studentCode;
