@@ -556,18 +556,7 @@
 						});
 					},
 					getExport: function() {
-						var that = this;
-						var json = {};
-						if (that.userId != '0') json['userId'] = that.userId;
-						if (that.adviserId != '0') json['adviserId'] = that.adviserId;						
-						if (that.type != '') json['type'] = that.type;
-						if (that.startHandlingDate != '') json['startHandlingDate'] = that.startHandlingDate;
-						if (that.endHandlingDate != '') json['endHandlingDate'] = that.endHandlingDate;
-						if (that.startKjApprovalDate != '') json['startKjApprovalDate'] = that.startKjApprovalDate;
-						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
-						if (that.startDate != '') json['startDate'] = that.startDate;
-						if (that.endDate != '') json['endDate'] = that.endDate;
-						
+						var that = this;						
 						var down_url = url + "visa/down?";
 						if (typeof(that.userId) != "undefined")
 						{

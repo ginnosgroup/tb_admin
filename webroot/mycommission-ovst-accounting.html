@@ -323,17 +323,14 @@
 									  <form class="form-inline" style="margin-top:10px;">
 									  	<input v-model.trim="userId" type="hidden" name="userId" id="userId" value="0" />
 											<div class="form-group">
-													<label>客户姓名</label>
-													<input type="text" name="user_name" id="user_name" class="form-control" style="width:150px;">													
-											</div>
-											<div class="form-group">													
+													<label>客户姓名</label>													
+													<input type="text" v-model.trim="name" class="form-control" style="width:150px;" placeholder="模糊匹配">
+													<label>电话号码</label>
+													<input type="text" v-model.trim="phone" class="form-control" style="width:100px;">
+													<label>微信号</label>
+													<input type="text" v-model.trim="wechatUsername" class="form-control" style="width:100px;">
 													<label>顾问</label>
 													<select v-model.trim="adviserId" id="adviserId" class="form-control" style="width:130px;">
-													</select>													
-													<label>服务项目</label>											
-													<select id="type" class="form-control" style="width:130px;" onchange="gotoUrl(this.value);">
-													<option value="OVST" selected="true">留学</option>
-													<option value="VISA">签证</option>													
 													</select>
 													<label>学校</label>
 													<select v-model.trim="schoolId" id="schoolId" class="form-control" style="width:130px;">
@@ -341,16 +338,17 @@
 													<label>提前扣佣</label>
 													<select v-model.trim="isSettle" id="isSettle" class="form-control" style="width:130px;">
 													</select>
-													<label>状态</label>											
-													<select v-model.trim="state" id="state" class="form-control" style="width:130px;">
-													<option value="" selected="true">全部</option>
-													<option value="PENDING">佣金待审核</option>
-													<option value="FINISH">佣金已审核</option>
-													<option value="COMPLETE">佣金结算完成</option>													
-													<option value="CLOSE">已关闭</option>
-													</select>
 											</div>
 											<div class="form-group">
+												<label>财务审核时间(开始)</label>	
+												<input v-model.trim="startKjApprovalDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:150px;">
+												<label>财务审核时间(结束)</label>	
+												<input v-model.trim="endKjApprovalDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:150px;">
+												<label>服务项目</label>											
+												<select id="type" class="form-control" style="width:130px;" onchange="gotoUrl(this.value);">
+												<option value="OVST" selected="true">留学</option>
+												<option value="VISA">签证</option>													
+												</select>
 												<button @click="getSearch" type="button" class="btn btn-info">查询</button>
 												<button @click="getExport" type="button" class="btn btn-primary">导出</button>
 											</div>
@@ -606,6 +604,10 @@
 					index: 0					
 				},
 				created: function() {
+					$('.default-date-picker1').datepicker({   				
+				        format: 'yyyy-mm-dd',
+				        endDate: new Date()
+				  });
 					this.getDatalist();
 				},
 				methods: {					
@@ -637,7 +639,9 @@
 					getSearch: function() {
 						var that = this;
 						var json = {};
-						if (that.userId != '0') json['userId'] = that.userId;
+						if (that.name != '') json['name'] = that.name;
+						if (that.phone != '') json['phone'] = that.phone;
+						if (that.wechatUsername != '') json['wechatUsername'] = that.wechatUsername;
 						if (that.adviserId != '0')
 						{
 								json['adviserId'] = that.adviserId;
@@ -654,14 +658,16 @@
 								v.isSettle = that.isSettle;
 						}
 						if (that.type != '') json['type'] = that.type;
-						if (that.state != '') json['state'] = that.state;
 						if (that.commission_list != 'TQKY')
 						{
 								json['commissionState'] = that.commission_list;
 						}else
 						{
 								if (that.isSettle == '') json['isSettle'] = true;
-						}						
+						}
+						if (that.startKjApprovalDate != '') json['startKjApprovalDate'] = that.startKjApprovalDate;
+						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
+						
 						$.get(url + "commissionOrder/count", json, function(result) {
 							that.count = result.data;
 							that.allPage = Math.ceil(result.data / that.pageSize);
@@ -674,6 +680,68 @@
 							that.subject = result.data;
 							that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
 						});
+					},					
+					getExport: function() {
+						var that = this;
+						var json = {};						
+						var down_url = url + "commissionOrder/down?";
+						if (typeof(that.userId) != "undefined")
+						{
+								down_url += "name="+that.name;
+						}else
+						{
+								down_url += "name=";
+						}
+						if (typeof(that.phone) != "undefined")
+						{
+								down_url += "&phone="+that.phone;
+						}else
+						{
+								down_url += "&phone=";
+						}
+						if (typeof(that.wechatUsername) != "undefined")
+						{
+								down_url += "&wechatUsername="+that.wechatUsername;
+						}else
+						{
+								down_url += "&wechatUsername=";
+						}
+						if (typeof(that.adviserId) != "undefined")
+						{
+								down_url += "&adviserId="+that.adviserId;
+						}else
+						{
+								down_url += "&adviserId=";
+						}						
+						if (typeof(that.schoolId) != "undefined")
+						{
+								down_url += "&schoolId="+that.schoolId;
+						}else
+						{
+								down_url += "&schoolId=";
+						}
+						if (typeof(that.startKjApprovalDate) != "undefined")
+						{
+								down_url += "&startKjApprovalDate="+that.startKjApprovalDate;
+						}else
+						{
+								down_url += "&startKjApprovalDate=";
+						}
+						if (typeof(that.endKjApprovalDate) != "undefined")
+						{
+								down_url += "&endKjApprovalDate="+that.endKjApprovalDate;
+						}else
+						{
+								down_url += "&endKjApprovalDate=";
+						}
+						down_url += "&commissionState="+that.commission_state;
+						console.log(down_url);
+						var a = document.createElement('a');
+						a.download = 'commission_all_data.xls';
+						a.href = down_url;
+						$("body").append(a);
+						a.click();
+						$(a).remove();
 					},
 					getTime: function(d) {
 						var date1 = new Date(d);
@@ -696,7 +764,9 @@
 					firstPage: function() {
 						var that = this;
 						var json = {};
-						if (that.userId != '0') json['userId'] = that.userId;
+						if (that.name != '') json['name'] = that.name;
+						if (that.phone != '') json['phone'] = that.phone;
+						if (that.wechatUsername != '') json['wechatUsername'] = that.wechatUsername;
 						if (that.adviserId != '0')
 						{
 								json['adviserId'] = that.adviserId;
@@ -713,7 +783,6 @@
 								v.isSettle = that.isSettle;
 						}
 						if (that.type != '') json['type'] = that.type;
-						if (that.state != '') json['state'] = that.state;
 						if (that.commission_list != 'TQKY')
 						{
 								json['commissionState'] = that.commission_list;
@@ -721,6 +790,9 @@
 						{
 								if (that.isSettle == '') json['isSettle'] = true;
 						}
+						if (that.startKjApprovalDate != '') json['startKjApprovalDate'] = that.startKjApprovalDate;
+						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
+						
 						json['pageNum'] = 0;
 						json['pageSize'] = that.pageSize;
 						if(that.pageNum > 0) {
@@ -738,7 +810,9 @@
 						if(that.pageNum > 0) {
 							that.pageNum--;
 							var json = {};
-							if (that.userId != '0') json['userId'] = that.userId;
+							if (that.name != '') json['name'] = that.name;
+							if (that.phone != '') json['phone'] = that.phone;
+							if (that.wechatUsername != '') json['wechatUsername'] = that.wechatUsername;
 							if (that.adviserId != '0')
 							{
 									json['adviserId'] = that.adviserId;
@@ -755,7 +829,6 @@
 									v.isSettle = that.isSettle;
 							}
 							if (that.type != '') json['type'] = that.type;
-							if (that.state != '') json['state'] = that.state;
 							if (that.commission_list != 'TQKY')
 							{
 									json['commissionState'] = that.commission_list;
@@ -763,6 +836,9 @@
 							{
 									if (that.isSettle == '') json['isSettle'] = true;
 							}
+							if (that.startKjApprovalDate != '') json['startKjApprovalDate'] = that.startKjApprovalDate;
+							if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
+						
 							json['pageNum'] = that.pageNum;
 							json['pageSize'] = that.pageSize;
 							$.get(url + "commissionOrder/list", json, function(result) {
@@ -778,7 +854,9 @@
 						if(that.pageNum < that.allPage - 1) {
 							that.pageNum++;
 							var json = {};
-							if (that.userId != '0') json['userId'] = that.userId;
+							if (that.name != '') json['name'] = that.name;
+							if (that.phone != '') json['phone'] = that.phone;
+							if (that.wechatUsername != '') json['wechatUsername'] = that.wechatUsername;
 							if (that.adviserId != '0')
 							{
 									json['adviserId'] = that.adviserId;
@@ -795,7 +873,6 @@
 									v.isSettle = that.isSettle;
 							}
 							if (that.type != '') json['type'] = that.type;
-							if (that.state != '') json['state'] = that.state;
 							if (that.commission_list != 'TQKY')
 							{
 									json['commissionState'] = that.commission_list;
@@ -803,6 +880,9 @@
 							{
 									if (that.isSettle == '') json['isSettle'] = true;
 							}
+							if (that.startKjApprovalDate != '') json['startKjApprovalDate'] = that.startKjApprovalDate;
+							if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
+							
 							json['pageNum'] = that.pageNum;
 							json['pageSize'] = that.pageSize;
 							$.get(url + "commissionOrder/list", json, function(result) {
@@ -817,7 +897,9 @@
 						var that = this;
 						if(that.pageNum < that.allPage - 1) {
 							var json = {};
-							if (that.userId != '0') json['userId'] = that.userId;
+							if (that.name != '') json['name'] = that.name;
+							if (that.phone != '') json['phone'] = that.phone;
+							if (that.wechatUsername != '') json['wechatUsername'] = that.wechatUsername;
 							if (that.adviserId != '0')
 							{
 									json['adviserId'] = that.adviserId;
@@ -834,7 +916,6 @@
 									v.isSettle = that.isSettle;
 							}
 							if (that.type != '') json['type'] = that.type;
-							if (that.state != '') json['state'] = that.state;
 							if (that.commission_list != 'TQKY')
 							{
 									json['commissionState'] = that.commission_list;
@@ -842,6 +923,9 @@
 							{
 									if (that.isSettle == '') json['isSettle'] = true;
 							}
+							if (that.startKjApprovalDate != '') json['startKjApprovalDate'] = that.startKjApprovalDate;
+							if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
+							
 							json['pageNum'] = that.allPage - 1;
 							json['pageSize'] = that.pageSize;
 							$.get(url + "commissionOrder/list", json, function(result) {
@@ -1532,28 +1616,7 @@
 				  {
 				  		$("#id").val(this.current_row.id);
 				  		checked_val = this.current_row.checked;
-				  }		 	
-				  //查询客户
-				  var user = $("#user_name");
-				  user.autocompleter({
-			    	highlightMatches: true,
-			    	limit: 10,
-			    	cache: false,
-			    	customValue: 'name',
-			    	customLabel: 'name',
-			    	source: 'user/list?authNickname=&phone=&pageNum=0',
-			    	combine: function(params) {
-			    		return {
-				        name: params.query,
-				        pageSize: params.limit
-				      };
-			    	},
-			    	callback: function(value, index, object) {
-			    		$('#userId').val(object.id);
-			    		v.userId = object.id;  		
-			    	},
-			    	minLength: 1						    	
-			    });
+				  }				  
 			    //绑定顾问
 				  var obj_adviserId = $("#adviserId");
 				  $("#adviserId").empty();
