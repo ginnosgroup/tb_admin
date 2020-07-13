@@ -332,7 +332,8 @@
 												<thead>
 													<tr>
 														<th>订单ID</th>
-														<th>创建日期</th>														
+														<th>创建日期</th>
+														<th>提交审核时间</th>
 														<th>客户支付日期</th>
 														<th>客户姓名</th>
 														<th>StudentID</th>
@@ -362,6 +363,7 @@
 													<tr v-for="item in subject" class="gradeX">
 														<td v-html="item.strOid"></td>
 														<td v-html="item.gmtCreate"></td>
+														<td v-html="item.kjApprovalDate"></td>
 														<td v-html="item.receiveDate"></td>
 														<td v-html="item.userName"></td>
 														<td v-html="item.studentCode"></td>
@@ -394,6 +396,7 @@
 														<td v-html="item.strRemarks"></td>
 													</tr>
 													<tr class="gradeX">
+														<td></td>
 														<td></td>
 														<td></td>
 														<td></td>
@@ -685,6 +688,7 @@
 						result.data[i].oid = result.data[i].id;
 						result.data[i].strOid = '<a href="javascript:open_detail('+result.data[i].serviceOrderId+','+result.data[i].id+');" title="查看详细">CS'+result.data[i].id+'</a>-'+result.data[i].installmentNum+'<br/><a onclick="copyText()" class="copybtn" data-clipboard-action="copy" data-clipboard-text="'+customer_text+'">复制</a>';
 						result.data[i].gmtCreate = v.getTime1(result.data[i].gmtCreate);
+						result.data[i].kjApprovalDate = result.data[i].kjApprovalDate ? v.getTime(result.data[i].kjApprovalDate):'';
 						//result.data[i].finishDate = result.data[i].finishDate ? v.getTime(result.data[i].finishDate):'';
 						result.data[i].receiveDate = result.data[i].receiveDate ? v.getTime(result.data[i].receiveDate):'';
 						//是否已对账

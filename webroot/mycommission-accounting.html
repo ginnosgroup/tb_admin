@@ -341,6 +341,7 @@
 													<tr>
 														<th>订单ID</th>
 														<th>佣金订单创建日期</th>
+														<th>提交审核时间</th>
 														<th>客户支付日期</th>
 														<th>客户姓名</th>
 														<th>收款方式</th>
@@ -364,6 +365,7 @@
 													<tr v-for="item in subject" class="gradeX">
 														<td v-html="item.strHref"></td>
 														<td v-html="item.gmtCreate"></td>
+														<td v-html="item.kjApprovalDate"></td>
 														<td v-html="item.receiveDate"></td>
 														<td v-html="item.userName"></td>
 														<td v-html="item.receiveTypeName"></td>
@@ -697,6 +699,7 @@
 						this.subject.splice(index,1, {
 							oid: parseInt(this.subject[index].id),
 							gmtCreate: this.subject[index].gmtCreate,
+							kjApprovalDate: this.subject[index].kjApprovalDate,
 							receiveDate: this.subject[index].receiveDate,
 							userName: this.subject[index].userName,
 							receiveTypeName: this.subject[index].receiveTypeName,
@@ -729,6 +732,7 @@
 						var json = {};
 						json['oid'] = parseInt(this.subject[index].id);
 						json['gmtCreate'] = this.subject[index].gmtCreate;
+						json['kjApprovalDate'] = this.subject[index].kjApprovalDate;
 						json['receiveDate'] = this.subject[index].receiveDate;
 						json['userName'] = this.subject[index].userName;
 						json['receiveTypeName'] = this.subject[index].receiveTypeName;
@@ -775,6 +779,7 @@
 										this.subject.splice(index,1, {
 										oid: parseInt(this.subject[index].id),
 										gmtCreate: this.subject[index].gmtCreate,
+										kjApprovalDate: this.subject[index].kjApprovalDate,
 										receiveDate: this.subject[index].receiveDate,
 										userName: this.subject[index].userName,
 										receiveTypeName: this.subject[index].receiveTypeName,
@@ -991,6 +996,7 @@
 						if (result.data[i].installment > 1) result.data[i].strOid = '-' + result.data[i].installmentNum;
 						result.data[i].strHref = '<a href="javascript:open_detail('+result.data[i].serviceOrderId+','+result.data[i].id+');" title="查看详细">'+result.data[i].id+result.data[i].strOid+'</a>';
 						result.data[i].gmtCreate = v.getTime1(result.data[i].gmtCreate);
+						result.data[i].kjApprovalDate = result.data[i].kjApprovalDate ? v.getTime(result.data[i].kjApprovalDate):'';
 						result.data[i].receiveDate = result.data[i].receiveDate ? v.getTime(result.data[i].receiveDate):'';
 						result.data[i].bonusDate = result.data[i].bonusDate ? v.getTime(result.data[i].bonusDate):'';
 						if (result.data[i].serviceOrder.type == 'SIV')
