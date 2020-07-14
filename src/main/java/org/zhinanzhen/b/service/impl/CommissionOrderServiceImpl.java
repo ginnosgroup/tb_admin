@@ -120,18 +120,18 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 	}
 
 	@Override
-	public int countCommissionOrder(Integer maraId, Integer adviserId, Integer officialId, String name, String phone,
-			String wechatUsername, Integer schoolId, Boolean isSettle, List<String> stateList,
+	public int countCommissionOrder(Integer maraId, Integer adviserId, Integer officialId, Integer userId, String name,
+			String phone, String wechatUsername, Integer schoolId, Boolean isSettle, List<String> stateList,
 			List<String> commissionStateList, Date startKjApprovalDate, Date endKjApprovalDate, Boolean isYzyAndYjy)
 			throws ServiceException {
-		return commissionOrderDao.countCommissionOrder(maraId, adviserId, officialId, name, phone, wechatUsername,
-				schoolId, isSettle, stateList, commissionStateList, startKjApprovalDate, endKjApprovalDate,
-				isYzyAndYjy);
+		return commissionOrderDao.countCommissionOrder(maraId, adviserId, officialId, userId, name, phone,
+				wechatUsername, schoolId, isSettle, stateList, commissionStateList, startKjApprovalDate,
+				endKjApprovalDate, isYzyAndYjy);
 	}
 
 	@Override
 	public List<CommissionOrderListDTO> listCommissionOrder(Integer maraId, Integer adviserId, Integer officialId,
-			String name, String phone, String wechatUsername, Integer schoolId, Boolean isSettle,
+			Integer userId, String name, String phone, String wechatUsername, Integer schoolId, Boolean isSettle,
 			List<String> stateList, List<String> commissionStateList, Date startKjApprovalDate, Date endKjApprovalDate,
 			Boolean isYzyAndYjy, int pageNum, int pageSize) throws ServiceException {
 		if (pageNum < 0) {
@@ -143,9 +143,9 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 		List<CommissionOrderListDTO> commissionOrderListDtoList = new ArrayList<>();
 		List<CommissionOrderListDO> commissionOrderListDoList = new ArrayList<>();
 		try {
-			commissionOrderListDoList = commissionOrderDao.listCommissionOrder(maraId, adviserId, officialId, name,
-					phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList, startKjApprovalDate,
-					endKjApprovalDate, isYzyAndYjy, pageNum * pageSize, pageSize);
+			commissionOrderListDoList = commissionOrderDao.listCommissionOrder(maraId, adviserId, officialId, userId,
+					name, phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
+					startKjApprovalDate, endKjApprovalDate, isYzyAndYjy, pageNum * pageSize, pageSize);
 			if (commissionOrderListDoList == null)
 				return null;
 		} catch (Exception e) {

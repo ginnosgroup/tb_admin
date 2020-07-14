@@ -480,7 +480,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			return new Response<CommissionOrderDTO>(e.getCode(), e.getMessage(), null);
 		}
 	}
-	
+
 	@RequestMapping(value = "/update", method = RequestMethod.PUT)
 	@ResponseBody
 	public Response<Integer> update(@RequestBody List<BatchUpdateCommissionOrder> batchUpdateList,
@@ -637,6 +637,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	public Response<Integer> count(@RequestParam(value = "maraId", required = false) Integer maraId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "officialId", required = false) Integer officialId,
+			@RequestParam(value = "userId", required = false) Integer userId,
 			@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "phone", required = false) String phone,
 			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
@@ -689,7 +690,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		try {
 			super.setGetHeader(response);
 			return new Response<Integer>(0,
-					commissionOrderService.countCommissionOrder(maraId, adviserId, officialId, name, phone,
+					commissionOrderService.countCommissionOrder(maraId, adviserId, officialId, userId, name, phone,
 							wechatUsername, schoolId, isSettle, stateList, commissionStateList, _startKjApprovalDate,
 							_endKjApprovalDate, isYzyAndYjy));
 		} catch (ServiceException e) {
@@ -702,6 +703,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	public Response<List<CommissionOrderListDTO>> list(@RequestParam(value = "maraId", required = false) Integer maraId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "officialId", required = false) Integer officialId,
+			@RequestParam(value = "userId", required = false) Integer userId,
 			@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "phone", required = false) String phone,
 			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
@@ -711,8 +713,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "commissionState", required = false) String commissionState,
 			@RequestParam(value = "startKjApprovalDate", required = false) String startKjApprovalDate,
 			@RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
-			@RequestParam(value = "pageNum") int pageNum,
-			@RequestParam(value = "pageSize") int pageSize,
+			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
 			HttpServletRequest request, HttpServletResponse response) {
 
 		Integer newMaraId = getMaraId(request);
@@ -745,7 +746,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			stateList = null;
 		else
 			stateList.add(state);
-		
+
 		Date _startKjApprovalDate = null;
 		if (startKjApprovalDate != null)
 			_startKjApprovalDate = new Date(Long.parseLong(startKjApprovalDate));
@@ -756,19 +757,20 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		try {
 			super.setGetHeader(response);
 			return new Response<List<CommissionOrderListDTO>>(0,
-					commissionOrderService.listCommissionOrder(maraId, adviserId, officialId, name, phone,
+					commissionOrderService.listCommissionOrder(maraId, adviserId, officialId, userId, name, phone,
 							wechatUsername, schoolId, isSettle, stateList, commissionStateList, _startKjApprovalDate,
 							_endKjApprovalDate, isYzyAndYjy, pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<CommissionOrderListDTO>>(1, e.getMessage(), null);
 		}
 	}
-	
+
 	@RequestMapping(value = "/down", method = RequestMethod.GET)
 	@ResponseBody
 	public void down(@RequestParam(value = "maraId", required = false) Integer maraId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "officialId", required = false) Integer officialId,
+			@RequestParam(value = "userId", required = false) Integer userId,
 			@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "phone", required = false) String phone,
 			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
@@ -826,7 +828,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				_endKjApprovalDate = new Date(Long.parseLong(endKjApprovalDate));
 
 			List<CommissionOrderListDTO> commissionOrderList = commissionOrderService.listCommissionOrder(maraId,
-					adviserId, officialId, name, phone, wechatUsername, schoolId, isSettle, stateList,
+					adviserId, officialId, userId, name, phone, wechatUsername, schoolId, isSettle, stateList,
 					commissionStateList, _startKjApprovalDate, _endKjApprovalDate, isYzyAndYjy, 0, 9999);
 
 			OutputStream os = response.getOutputStream();

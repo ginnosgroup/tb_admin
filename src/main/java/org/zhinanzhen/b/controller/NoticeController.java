@@ -97,7 +97,7 @@ public class NoticeController extends BaseController {
 				}
 			}
 
-			List<CommissionOrderListDTO> allCommissionOrderList = commissionOrderService.listCommissionOrder(0, 0, 0,
+			List<CommissionOrderListDTO> allCommissionOrderList = commissionOrderService.listCommissionOrder(0, 0, 0, 0,
 					null, null, null, null, null, null, null, null, null, null, 0, 1000);
 			for (CommissionOrderListDTO commissionOrderListDto : allCommissionOrderList) {
 				try {

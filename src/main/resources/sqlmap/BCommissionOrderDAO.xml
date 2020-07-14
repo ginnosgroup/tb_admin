@@ -235,6 +235,9 @@
         <if test='officialId != null and officialId > 0'>
             AND co.official_id = #{officialId}
         </if>
+        <if test='userId != null and userId > 0'>
+            AND co.user_id = #{userId}
+        </if>
         <if test='name != null and name != ""'>
             AND u.name LIKE '%${name}%'
         </if>
@@ -350,6 +353,9 @@
         </if>
         <if test='officialId != null and officialId > 0'>
             AND co.official_id = #{officialId}
+        </if>
+        <if test='userId != null and userId > 0'>
+            AND co.user_id = #{userId}
         </if>
         <if test='name != null and name != ""'>
             AND u.name LIKE '%${name}%'
