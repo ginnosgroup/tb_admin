@@ -122,7 +122,7 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 	@Override
 	public int countCommissionOrder(Integer maraId, Integer adviserId, Integer officialId, Integer userId, String name,
 			String phone, String wechatUsername, Integer schoolId, Boolean isSettle, List<String> stateList,
-			List<String> commissionStateList, Date startKjApprovalDate, Date endKjApprovalDate, Boolean isYzyAndYjy)
+			List<String> commissionStateList, String startKjApprovalDate, String endKjApprovalDate, Boolean isYzyAndYjy)
 			throws ServiceException {
 		return commissionOrderDao.countCommissionOrder(maraId, adviserId, officialId, userId, name, phone,
 				wechatUsername, schoolId, isSettle, stateList, commissionStateList, startKjApprovalDate,
@@ -132,7 +132,7 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 	@Override
 	public List<CommissionOrderListDTO> listCommissionOrder(Integer maraId, Integer adviserId, Integer officialId,
 			Integer userId, String name, String phone, String wechatUsername, Integer schoolId, Boolean isSettle,
-			List<String> stateList, List<String> commissionStateList, Date startKjApprovalDate, Date endKjApprovalDate,
+			List<String> stateList, List<String> commissionStateList, String startKjApprovalDate, String endKjApprovalDate,
 			Boolean isYzyAndYjy, int pageNum, int pageSize) throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;

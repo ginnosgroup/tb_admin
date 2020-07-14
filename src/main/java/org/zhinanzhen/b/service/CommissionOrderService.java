@@ -1,6 +1,5 @@
 package org.zhinanzhen.b.service;
 
-import java.util.Date;
 import java.util.List;
 
 import org.zhinanzhen.b.service.pojo.CommissionOrderCommentDTO;
@@ -17,13 +16,13 @@ public interface CommissionOrderService {
 
 	public int countCommissionOrder(Integer maraId, Integer adviserId, Integer officialId, Integer userId, String name,
 			String phone, String wechatUsername, Integer schoolId, Boolean isSettle, List<String> stateList,
-			List<String> commissionStateList, Date startKjApprovalDate, Date endKjApprovalDate, Boolean isYzyAndYjy)
+			List<String> commissionStateList, String startKjApprovalDate, String endKjApprovalDate, Boolean isYzyAndYjy)
 			throws ServiceException;
 
 	public List<CommissionOrderListDTO> listCommissionOrder(Integer maraId, Integer adviserId, Integer officialId,
 			Integer userId, String name, String phone, String wechatUsername, Integer schoolId, Boolean isSettle,
-			List<String> stateList, List<String> commissionStateList, Date startKjApprovalDate, Date endKjApprovalDate,
-			Boolean isYzyAndYjy, int pageNum, int pageSize) throws ServiceException;
+			List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
+			String endKjApprovalDate, Boolean isYzyAndYjy, int pageNum, int pageSize) throws ServiceException;
 
 	List<CommissionOrderListDTO> listThisMonthCommissionOrder(Integer adviserId, Integer officialId)
 			throws ServiceException;
