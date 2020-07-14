@@ -1,9 +1,11 @@
 package org.zhinanzhen.b.service;
 
+import java.util.Date;
 import java.util.List;
 
 import org.zhinanzhen.b.service.pojo.VisaCommentDTO;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
+import org.zhinanzhen.b.service.pojo.VisaReportDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 
 public interface VisaService {
@@ -13,15 +15,19 @@ public interface VisaService {
 	public int updateVisa(VisaDTO visaDto) throws ServiceException;
 
 	public int countVisa(String keyword, String startHandlingDate, String endHandlingDate, List<String> stateList,
-			List<String> commissionStateList, String startDate, String endDate, Integer adviserId, Integer userId)
-			throws ServiceException;
+			List<String> commissionStateList, String startKjApprovalDate, String endKjApprovalDate, String startDate,
+			String endDate, Integer adviserId, Integer userId) throws ServiceException;
 
 	public List<VisaDTO> listVisa(String keyword, String startHandlingDate, String endHandlingDate,
-			List<String> stateList, List<String> commissionStateList, String startDate, String endDate,
-			Integer adviserId, Integer userId, int pageNum, int pageSize) throws ServiceException;
+			List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
+			String endKjApprovalDate, String startDate, String endDate, Integer adviserId, Integer userId, int pageNum,
+			int pageSize) throws ServiceException;
+
+	public List<VisaReportDTO> listVisaReport(String startDate, String endDate, String dateType, String dateMethod,
+			Integer regionId, Integer adviserId) throws ServiceException;
 
 	public VisaDTO getVisaById(int id) throws ServiceException;
-	
+
 	public VisaDTO getFirstVisaByServiceOrderId(int serviceOrderId) throws ServiceException;
 
 	public int deleteVisaById(int id) throws ServiceException;

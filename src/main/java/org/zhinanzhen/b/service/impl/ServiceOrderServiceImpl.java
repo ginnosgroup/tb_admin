@@ -7,6 +7,8 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.zhinanzhen.b.controller.ServiceOrderController.ReviewMaraStateEnum;
 import org.zhinanzhen.b.dao.CommissionOrderDAO;
 import org.zhinanzhen.b.dao.KjDAO;
 import org.zhinanzhen.b.dao.MaraDAO;
@@ -387,6 +389,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	}
 
 	@Override
+	@Transactional
 	public ServiceOrderDTO approval(int id, int adminUserId, String adviserState, String maraState,
 			String officialState, String kjState) throws ServiceException {
 		ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(id);
@@ -419,30 +422,54 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 								"亲爱的" + maraDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:" + type
 										+ "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:"
 										+ date);
+					// 写入审核时间
+					if (serviceOrderDo.getMaraApprovalDate() == null)
+						serviceOrderDo.setMaraApprovalDate(new Date());
 				}
 				if ("REVIEW".equals(adviserState)) { // 给文案发邮件提醒，这时adviserState为REVIEW,officialState为NULL
 					SendEmailUtil.send(officialDo.getEmail() + ",maggie@zhinanzhen.org", title,
 							"亲爱的" + officialDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:" + type
 									+ "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:" + date
 									+ "<br/>备注:" + serviceOrderDo.getRemarks());
+					// 写入审核时间
+					if (serviceOrderDo.getOfficialApprovalDate() == null)
+						serviceOrderDo.setOfficialApprovalDate(new Date());
 				}
 				if ("REVIEW".equals(officialState)) { // 告诉顾问文案已经开始审核了
 					SendEmailUtil.send(adviserDo.getEmail(), title,
 							"亲爱的" + adviserDo.getName() + ":<br/>您有一条服务订单已正在处理中。<br/>订单号:" + id + "/服务类型:" + type
 									+ "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:" + date);
 				}
-				if ("REVIEW".equals(kjState)) {
-					List<AdminUserDO> adminUserDoList = adminUserDao.listAdminUserByAp("KJ");
-					for (AdminUserDO adminUserDo : adminUserDoList)
-						if (adminUserDo != null) {
-							KjDO kjDo = kjDao.getKjById(adminUserDo.getKjId());
-							if (kjDo != null)
-								SendEmailUtil.send(kjDo.getEmail(), title,
-										"亲爱的" + kjDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:"
-												+ type + "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName()
-												+ "/创建时间:" + date);
-						}
+				if ("COMPLETE".equals(officialState)) {
+//					List<AdminUserDO> adminUserDoList = adminUserDao.listAdminUserByAp("KJ");
+//					for (AdminUserDO adminUserDo : adminUserDoList)
+//						if (adminUserDo != null) {
+//							KjDO kjDo = kjDao.getKjById(adminUserDo.getKjId());
+//							if (kjDo != null)
+//								SendEmailUtil.send(kjDo.getEmail(), title,
+//										"亲爱的" + kjDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:"
+//												+ type + "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName()
+//												+ "/创建时间:" + date);
+//						}
+					// 写入审核时间
+					if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())
+							|| "SIV".equalsIgnoreCase(serviceOrderDo.getType()))
+						visaDao.listVisaByServiceOrderId(serviceOrderDo.getId()).forEach(visaDo -> {
+							if (visaDo.getKjApprovalDate() == null) {
+								visaDo.setKjApprovalDate(new Date());
+								visaDao.updateVisa(visaDo);
+							}
+						});
+					if ("OVST".equalsIgnoreCase(serviceOrderDo.getType()))
+						commissionOrderDao.listCommissionOrderByServiceOrderId(serviceOrderDo.getId())
+								.forEach(commissionOrderDo -> {
+									if (commissionOrderDo.getKjApprovalDate() == null) {
+										commissionOrderDo.setKjApprovalDate(new Date());
+										commissionOrderDao.updateCommissionOrder(commissionOrderDo);
+									}
+								});
 				}
+				serviceOrderDao.updateServiceOrder(serviceOrderDo);
 			}
 		}
 		return review(id, adminUserId, adviserState, maraState, officialState, kjState, "APPROVAL");

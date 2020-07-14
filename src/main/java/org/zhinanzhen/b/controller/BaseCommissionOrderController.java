@@ -12,6 +12,7 @@ public class BaseCommissionOrderController extends BaseController {
 
 	public enum ReviewKjStateEnum {
 		PENDING, WAIT, REVIEW, FINISH, COMPLETE, CLOSE;
+
 		public static ReviewKjStateEnum get(String name) {
 			for (ReviewKjStateEnum e : ReviewKjStateEnum.values())
 				if (e.toString().equals(name))
@@ -22,12 +23,25 @@ public class BaseCommissionOrderController extends BaseController {
 
 	public enum CommissionStateEnum {
 		DJY, YJY, DZY, YZY;
+
 		public static CommissionStateEnum get(String name) {
 			for (CommissionStateEnum e : CommissionStateEnum.values())
 				if (e.toString().equals(name))
 					return e;
 			return null;
 		}
+	}
+
+	protected String getKjStateStr(String state) {
+		if ("DJY".equalsIgnoreCase(state))
+			return "待结佣";
+		if ("YJY".equalsIgnoreCase(state))
+			return "已结佣";
+		if ("DZY".equalsIgnoreCase(state))
+			return "待追佣";
+		if ("YZY".equalsIgnoreCase(state))
+			return "已追佣";
+		return "";
 	}
 
 }

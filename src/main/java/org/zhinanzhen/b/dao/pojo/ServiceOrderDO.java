@@ -39,6 +39,10 @@ public class ServiceOrderDO {
 
 	private String state;
 
+	private Date maraApprovalDate;
+
+	private Date officialApprovalDate;
+
 	private String reviewState;
 
 	private boolean isSettle;

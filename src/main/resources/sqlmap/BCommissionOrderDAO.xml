@@ -12,6 +12,7 @@
                 service_order_id,
                 state,
                 commission_state,
+                kj_approval_date,
                 is_settle,
                 is_deposit_user,
                 school_id,
@@ -57,6 +58,7 @@
                 #{serviceOrderId},
                 #{state},
                 #{commissionState},
+                NULL,
                 #{isSettle},
                 #{isDepositUser},
                 #{schoolId},
@@ -105,6 +107,9 @@
         </if>
         <if test='commissionState != null and commissionState != ""'>
             , commission_state = #{commissionState}
+        </if>
+        <if test='kjApprovalDate != null'>
+            , kj_approval_date = #{kjApprovalDate}
         </if>
         <if test='isSettle != null'>
             , is_settle = #{isSettle}
@@ -230,6 +235,9 @@
         <if test='officialId != null and officialId > 0'>
             AND co.official_id = #{officialId}
         </if>
+        <if test='userId != null and userId > 0'>
+            AND co.user_id = #{userId}
+        </if>
         <if test='name != null and name != ""'>
             AND u.name LIKE '%${name}%'
         </if>
@@ -240,7 +248,7 @@
             AND u.wechat_username = #{wechatUsername}
         </if>
         <if test='schoolId != null and schoolId > 0'>
-            AND co.school_id = #{schoolId}
+            AND co.school_id IN (SELECT id FROM b_school WHERE name IN (SELECT name FROM b_school WHERE id = #{schoolId}))
         </if>
         <if test='isSettle != null'>
             AND co.is_settle = #{isSettle}
@@ -256,6 +264,9 @@
             <foreach collection="commissionStateList" item="commissionStateList" index="index" open="(" close=")" separator=",">
                 #{commissionStateList}
             </foreach>
+        </if>
+        <if test='startKjApprovalDate != null and startKjApprovalDate != "" and endKjApprovalDate != null and endKjApprovalDate != ""'>
+            <![CDATA[ AND kj_approval_date > #{startKjApprovalDate} AND kj_approval_date < #{endKjApprovalDate} ]]>
         </if>
         <if test='isYzyAndYjy == true'>
             AND (co.commission_state = 'YZY' OR (co.commission_state = 'YJY' AND co.is_settle = false))
@@ -287,6 +298,7 @@
             co.service_order_id AS serviceOrderId,
             co.state,
             co.commission_state AS commissionState,
+            co.kj_approval_date AS kjApprovalDate,
             co.is_settle AS isSettle,
             co.is_deposit_user AS isDepositUser,
             co.school_id AS schoolId,
@@ -342,6 +354,9 @@
         <if test='officialId != null and officialId > 0'>
             AND co.official_id = #{officialId}
         </if>
+        <if test='userId != null and userId > 0'>
+            AND co.user_id = #{userId}
+        </if>
         <if test='name != null and name != ""'>
             AND u.name LIKE '%${name}%'
         </if>
@@ -352,7 +367,7 @@
             AND u.wechat_username = #{wechatUsername}
         </if>
         <if test='schoolId != null and schoolId > 0'>
-            AND co.school_id = #{schoolId}
+            AND co.school_id IN (SELECT id FROM b_school WHERE name IN (SELECT name FROM b_school WHERE id = #{schoolId}))
         </if>
         <if test='isSettle != null'>
             AND co.is_settle = #{isSettle}
@@ -369,6 +384,9 @@
                 #{commissionStateList}
             </foreach>
         </if>
+        <if test='startKjApprovalDate != null and startKjApprovalDate != "" and endKjApprovalDate != null and endKjApprovalDate != ""'>
+            <![CDATA[ AND co.kj_approval_date > #{startKjApprovalDate} AND co.kj_approval_date < #{endKjApprovalDate} ]]>
+        </if>
         <if test='isYzyAndYjy == true'>
             AND (co.commission_state = 'YZY' OR (co.commission_state = 'YJY' AND co.is_settle = false))
         </if>
@@ -384,6 +402,7 @@
             service_order_id AS serviceOrderId,
             state,
             commission_state AS commissionState,
+            kj_approval_date AS kjApprovalDate,
             is_settle AS isSettle,
             is_deposit_user AS isDepositUser,
             school_id AS schoolId,
@@ -435,6 +454,7 @@
             service_order_id AS serviceOrderId,
             state,
             commission_state AS commissionState,
+            kj_approval_date AS kjApprovalDate,
             is_settle AS isSettle,
             is_deposit_user AS isDepositUser,
             school_id AS schoolId,
@@ -486,6 +506,7 @@
             co.service_order_id AS serviceOrderId,
             co.state,
             co.commission_state AS commissionState,
+            co.kj_approval_date AS kjApprovalDate,
             co.is_settle AS isSettle,
             co.is_deposit_user AS isDepositUser,
             co.school_id AS schoolId,
@@ -549,6 +570,7 @@
             co.service_order_id AS serviceOrderId,
             co.state,
             co.commission_state AS commissionState,
+            co.kj_approval_date AS kjApprovalDate,
             co.is_settle AS isSettle,
             co.is_deposit_user AS isDepositUser,
             co.school_id AS schoolId,
@@ -607,6 +629,59 @@
         LIMIT 10;
     </select>
     
+    <select id="listCommissionOrderReport" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderReportDO">
+        SELECT
+            <choose>
+                <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "M"'>
+                    DATE_FORMAT(co.school_payment_date, '%Y-%m') AS date,
+                </when>
+                <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "D"'>
+                    DATE_FORMAT(co.school_payment_date, '%Y-%m-%d') AS date,
+                </when>
+                <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "M"'>
+                    DATE_FORMAT(co.kj_approval_date, '%Y-%m') AS date,
+                </when>
+                <otherwise>
+                    DATE_FORMAT(co.kj_approval_date, '%Y-%m-%d') AS date,
+                </otherwise>
+            </choose>
+            r.id AS regionId,
+            r.name AS area,
+            a.id AS adviserId,
+            a.name AS consultant,
+            SUM(IF(co.is_settle = true, co.sure_expect_amount, 0)) AS deductionCommission,
+            SUM(IF(co.is_settle = false, co.expect_amount, 0)) AS claimCommission,
+            SUM(IF(co.commission_state = 'YZY', co.expect_amount, 0)) AS claimedCommission
+        FROM b_commission_order co, tb_adviser a, tb_region r
+        WHERE a.region_id = r.id AND co.adviser_id = a.id
+        <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+            <![CDATA[ AND co.kj_approval_date > #{startDate} AND co.kj_approval_date < #{endDate} ]]>
+        </if>
+        <if test='regionId != null and regionId != ""'>
+            AND r.id = #{regionId}
+        </if>
+        <if test='adviserId != null and adviserId != ""'>
+            AND a.id = #{adviserId}
+        </if>
+        GROUP BY
+            <choose>
+                <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "M"'>
+                    DATE_FORMAT(co.school_payment_date, '%Y-%m'),
+                </when>
+                <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "D"'>
+                    DATE_FORMAT(co.school_payment_date, '%Y-%m-%d'),
+                </when>
+                <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "M"'>
+                    DATE_FORMAT(co.kj_approval_date, '%Y-%m'),
+                </when>
+                <otherwise>
+                    DATE_FORMAT(co.kj_approval_date, '%Y-%m-%d'),
+                </otherwise>
+            </choose>
+            adviser_id
+        ORDER BY co.kj_approval_date DESC;
+    </select>
+    
     <select id="getCommissionOrderById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderListDO">
         SELECT
             co.id,
@@ -615,6 +690,7 @@
             co.service_order_id AS serviceOrderId,
             co.state,
             co.commission_state AS commissionState,
+            co.kj_approval_date AS kjApprovalDate,
             co.is_settle AS isSettle,
             co.is_deposit_user AS isDepositUser,
             co.school_id AS schoolId,
@@ -671,6 +747,7 @@
             co.service_order_id AS serviceOrderId,
             co.state,
             co.commission_state AS commissionState,
+            co.kj_approval_date AS kjApprovalDate,
             co.is_settle AS isSettle,
             co.is_deposit_user AS isDepositUser,
             co.school_id AS schoolId,
@@ -727,6 +804,7 @@
             co.service_order_id AS serviceOrderId,
             co.state,
             co.commission_state AS commissionState,
+            co.kj_approval_date AS kjApprovalDate,
             co.is_settle AS isSettle,
             co.is_deposit_user AS isDepositUser,
             co.school_id AS schoolId,

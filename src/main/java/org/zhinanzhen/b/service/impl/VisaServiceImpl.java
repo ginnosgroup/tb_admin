@@ -16,6 +16,7 @@ import org.zhinanzhen.b.dao.ServiceOrderReviewDAO;
 import org.zhinanzhen.b.dao.VisaCommentDAO;
 import org.zhinanzhen.b.dao.pojo.VisaDO;
 import org.zhinanzhen.b.dao.pojo.VisaListDO;
+import org.zhinanzhen.b.dao.pojo.VisaReportDO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.ReceiveTypeDO;
 import org.zhinanzhen.b.dao.pojo.RemindDO;
@@ -27,6 +28,7 @@ import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
 import org.zhinanzhen.b.service.pojo.VisaCommentDTO;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
+import org.zhinanzhen.b.service.pojo.VisaReportDTO;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
@@ -119,16 +121,18 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 
 	@Override
 	public int countVisa(String keyword, String startHandlingDate, String endHandlingDate, List<String> stateList,
-			List<String> commissionStateList, String stardDate, String endDate, Integer adviserId, Integer userId)
-			throws ServiceException {
+			List<String> commissionStateList, String startKjApprovalDate, String endKjApprovalDate, String startDate,
+			String endDate, Integer adviserId, Integer userId) throws ServiceException {
 		return visaDao.countVisa(keyword, startHandlingDate, theDateTo23_59_59(endHandlingDate), stateList,
-				commissionStateList, stardDate, theDateTo23_59_59(endDate), adviserId, userId);
+				commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate,
+				theDateTo23_59_59(endDate), adviserId, userId);
 	}
 
 	@Override
 	public List<VisaDTO> listVisa(String keyword, String startHandlingDate, String endHandlingDate,
-			List<String> stateList, List<String> commissionStateList, String stardDate, String endDate,
-			Integer adviserId, Integer userId, int pageNum, int pageSize) throws ServiceException {
+			List<String> stateList, List<String> commissionStateList, String startKjApprovalDate, String endKjApprovalDate,
+			String startDate, String endDate, Integer adviserId, Integer userId, int pageNum, int pageSize)
+			throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
 		}
@@ -139,8 +143,8 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 		List<VisaListDO> visaListDoList = new ArrayList<>();
 		try {
 			visaListDoList = visaDao.listVisa(keyword, startHandlingDate, theDateTo23_59_59(endHandlingDate), stateList,
-					commissionStateList, stardDate, theDateTo23_59_59(endDate), adviserId, userId, pageNum * pageSize,
-					pageSize);
+					commissionStateList, startKjApprovalDate, theDateTo23_59_59(endKjApprovalDate), startDate,
+					theDateTo23_59_59(endDate), adviserId, userId, pageNum * pageSize, pageSize);
 			if (visaListDoList == null)
 				return null;
 		} catch (Exception e) {
@@ -192,6 +196,26 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			visaDtoList.add(visaDto);
 		}
 		return visaDtoList;
+	}
+
+	@Override
+	public List<VisaReportDTO> listVisaReport(String startDate, String endDate, String dateType, String dateMethod,
+			Integer regionId, Integer adviserId) throws ServiceException {
+		List<VisaReportDO> visaReportDoList = new ArrayList<>();
+		List<VisaReportDTO> visaReportDtoList = new ArrayList<>();
+		try {
+			visaReportDoList = visaDao.listVisaReport(startDate, theDateTo23_59_59(endDate), dateType, dateMethod,
+					regionId, adviserId);
+			if (visaReportDoList == null)
+				return null;
+			visaReportDoList
+					.forEach(visaReportDo -> visaReportDtoList.add(mapper.map(visaReportDo, VisaReportDTO.class)));
+			return visaReportDtoList;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
 	}
 
 	@Override

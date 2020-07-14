@@ -19,6 +19,8 @@
                 service_package_id,
                 school_id,
                 state,
+                mara_approval_date,
+                official_approval_date,
                 is_settle,
                 is_deposit_user,
                 is_submitted,
@@ -69,6 +71,8 @@
                 #{servicePackageId},
                 #{schoolId},
                 #{state},
+                NULL,
+                NULL,
                 #{isSettle},
                 #{isDepositUser},
                 #{isSubmitted},
@@ -136,6 +140,12 @@
         </if>
         <if test='state != null and state != ""'>
             , state = #{state}
+        </if>
+        <if test='maraApprovalDate != null'>
+            , mara_approval_date = #{maraApprovalDate}
+        </if>
+        <if test='officialApprovalDate != null'>
+            , official_approval_date = #{officialApprovalDate}
         </if>
         <if test='isSettle != null'>
             , is_settle = #{isSettle}
@@ -310,6 +320,8 @@
             so.service_package_id AS servicePackageId,
             so.school_id AS schoolId,
             so.state AS state,
+            so.mara_approval_date AS maraApprovalDate,
+            so.official_approval_date AS officialApprovalDate,
             so.is_settle AS isSettle,
             so.is_deposit_user AS isDepositUser,
             so.is_submitted AS isSubmitted,
@@ -417,6 +429,8 @@
             service_package_id AS servicePackageId,
             school_id AS schoolId,
             state,
+            mara_approval_date AS maraApprovalDate,
+            official_approval_date AS officialApprovalDate,
             is_settle AS isSettle,
             is_deposit_user AS isDepositUser,
             is_submitted AS isSubmitted,

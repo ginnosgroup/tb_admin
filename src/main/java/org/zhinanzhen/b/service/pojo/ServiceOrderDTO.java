@@ -44,6 +44,10 @@ public class ServiceOrderDTO {
 	private SchoolDTO school;
 
 	private String state;
+	
+	private Date maraApprovalDate;
+
+	private Date officialApprovalDate;
 
 	private boolean isSettle;
 

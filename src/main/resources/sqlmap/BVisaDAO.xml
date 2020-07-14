@@ -13,6 +13,7 @@
                 user_id,
                 state,
                 commission_state,
+                kj_approval_date,
                 receive_type_id,
                 receive_date,
                 service_id,
@@ -51,6 +52,7 @@
                 #{userId},
                 #{state},
                 'DJY',
+                NULL,
                 #{receiveTypeId},
                 #{receiveDate,jdbcType=TIMESTAMP},
                 #{serviceId},
@@ -97,6 +99,9 @@
         </if>
         <if test='commissionState != null and commissionState != ""'>
             , commission_state = #{commissionState}
+        </if>
+        <if test='kjApprovalDate != null'>
+            , kj_approval_date = #{kjApprovalDate}
         </if>
         <if test='receiveTypeId != null and receiveTypeId != ""'>
             , receive_type_id = #{receiveTypeId}
@@ -204,6 +209,9 @@
 				#{commissionStateList}
 			</foreach>
 		</if>
+		<if test='startKjApprovalDate != null and startKjApprovalDate != "" and endKjApprovalDate != null and endKjApprovalDate != ""'>
+            <![CDATA[ AND kj_approval_date > #{startKjApprovalDate} AND kj_approval_date < #{endKjApprovalDate} ]]>
+        </if>
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
             <![CDATA[ AND gmt_create > #{startDate} AND gmt_create < #{endDate} ]]>
         </if>
@@ -235,6 +243,7 @@
             bv.user_id AS userId,
             bv.state AS state,
             bv.commission_state AS commissionState,
+            bv.kj_approval_date AS kjApprovalDate,
             bv.receive_type_id AS receiveTypeId,
             bv.receive_date AS receiveDate,
             bv.service_id AS serviceId,
@@ -288,6 +297,9 @@
 				#{commissionStateList}
 			</foreach>
 		</if>
+		<if test='startKjApprovalDate != null and startKjApprovalDate != "" and endKjApprovalDate != null and endKjApprovalDate != ""'>
+            <![CDATA[ AND bv.kj_approval_date > #{startKjApprovalDate} AND bv.kj_approval_date < #{endKjApprovalDate} ]]>
+        </if>
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
             <![CDATA[ AND bv.gmt_create > #{startDate} AND bv.gmt_create < #{endDate} ]]>
         </if>
@@ -310,6 +322,7 @@
             user_id AS userId,
             state,
             commission_state AS commissionState,
+            kj_approval_date AS kjApprovalDate,
             receive_type_id AS receiveTypeId,
             receive_date AS receiveDate,
             service_id AS serviceId,
@@ -344,6 +357,101 @@
         WHERE code = #{code};
     </select>
     
+    <select id="listVisaByServiceOrderId" resultType="org.zhinanzhen.b.dao.pojo.VisaListDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            code,
+            handling_date AS handlingDate,
+            user_id AS userId,
+            state,
+            commission_state AS commissionState,
+            kj_approval_date AS kjApprovalDate,
+            receive_type_id AS receiveTypeId,
+            receive_date AS receiveDate,
+            service_id AS serviceId,
+            service_order_id AS serviceOrderId,
+            installment_num AS installmentNum,
+            installment,
+            payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+            payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+            payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+            payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+            visa_voucher_image_url AS visaVoucherImageUrl,
+            receivable,
+            received,
+            per_amount AS perAmount,
+            amount,
+            expect_amount AS expectAmount,
+            sure_expect_amount AS sureExpectAmount,
+            discount,
+            gst,
+            deduct_gst AS deductGst,
+            bonus,
+            bonus_date AS bonusDate,
+            adviser_id AS adviserId,
+            mara_id AS maraId,
+            official_id AS officialId,
+            bank_check AS bankCheck,
+            is_checked AS isChecked,
+            remarks,
+            is_close AS isClose
+        FROM b_visa WHERE service_order_id = #{serviceOrderId};
+    </select>
+    
+    <select id="listVisaReport" resultType="org.zhinanzhen.b.dao.pojo.VisaReportDO">
+        SELECT
+            <choose>
+                <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "M"'>
+                    DATE_FORMAT(v.receive_date, '%Y-%m') AS date,
+                </when>
+                <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "D"'>
+                    DATE_FORMAT(v.receive_date, '%Y-%m-%d') AS date,
+                </when>
+                <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "M"'>
+                    DATE_FORMAT(v.kj_approval_date, '%Y-%m') AS date,
+                </when>
+                <otherwise>
+                    DATE_FORMAT(v.kj_approval_date, '%Y-%m-%d') AS date,
+                </otherwise>
+            </choose>
+            r.id AS regionId,
+            r.name AS area,
+            a.id AS adviserId,
+            a.name AS consultant,
+            SUM(v.bonus) AS commission,
+            SUM(IFNULL(v.sure_expect_amount, 0)) AS serviceFee
+        FROM b_visa v, tb_adviser a, tb_region r
+        WHERE a.region_id = r.id AND v.adviser_id = a.id
+        <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+            <![CDATA[ AND v.kj_approval_date > #{startDate} AND v.kj_approval_date < #{endDate} ]]>
+        </if>
+        <if test='regionId != null and regionId != ""'>
+            AND r.id = #{regionId}
+        </if>
+        <if test='adviserId != null and adviserId != ""'>
+            AND a.id = #{adviserId}
+        </if>
+        GROUP BY
+            <choose>
+                <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "M"'>
+                    DATE_FORMAT(v.receive_date, '%Y-%m'),
+                </when>
+                <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "D"'>
+                    DATE_FORMAT(v.receive_date, '%Y-%m-%d'),
+                </when>
+                <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "M"'>
+                    DATE_FORMAT(v.kj_approval_date, '%Y-%m'),
+                </when>
+                <otherwise>
+                    DATE_FORMAT(v.kj_approval_date, '%Y-%m-%d'),
+                </otherwise>
+            </choose>
+            adviser_id
+        ORDER BY v.kj_approval_date DESC;
+    </select>
+    
     <select id="getFirstVisaByServiceOrderId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.VisaDO">
         SELECT
             id,
@@ -353,6 +461,7 @@
             user_id AS userId,
             state,
             commission_state AS commissionState,
+            kj_approval_date AS kjApprovalDate,
             receive_type_id AS receiveTypeId,
             receive_date AS receiveDate,
             service_id AS serviceId,
@@ -400,6 +509,7 @@
             user_id AS userId,
             state,
             commission_state AS commissionState,
+            kj_approval_date AS kjApprovalDate,
             receive_type_id AS receiveTypeId,
             receive_date AS receiveDate,
             service_id AS serviceId,
