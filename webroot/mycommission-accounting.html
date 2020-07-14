@@ -516,6 +516,10 @@
 					index: 0			
 				},
 				created: function() {
+					$('.default-date-picker1').datepicker({   				
+				        format: 'yyyy-mm-dd',
+				        endDate: new Date()
+				  });
 					this.getDatalist();
 				},
 				methods: {					
