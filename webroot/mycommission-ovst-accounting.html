@@ -755,6 +755,18 @@
 						var date2 = d+"/"+m+"/"+y;
 						return date2;
 					},
+					getTime1: function(d) {
+						var date1 = new Date(d);
+						var y = date1.getFullYear();
+						var m = this.addZero(date1.getMonth() + 1);
+						var d = this.addZero(date1.getDate());
+						var h = this.addZero(date1.getHours());
+						var m2 = this.addZero(date1.getMinutes());
+						var s = this.addZero(date1.getSeconds());
+						//var date2 = y + "-" + m + "-" + d;
+						var date2 = d+"/"+m+"/"+y+' '+h+':'+m2+':'+s;
+						return date2;
+					},
 					addZero: function(obj) {
 						if(obj < 10) {
 							obj = '0' + obj;
@@ -1352,6 +1364,7 @@
 						result.data[i].oid = result.data[i].id;
 						result.data[i].strOid = '<a href="javascript:open_detail('+result.data[i].serviceOrderId+','+result.data[i].id+');" title="查看详细">'+result.data[i].id+'</a>-'+result.data[i].installmentNum;
 						result.data[i].gmtCreate = v.getTime(result.data[i].gmtCreate);
+						result.data[i].kjApprovalDate = v.getTime1(result.data[i].kjApprovalDate);
 						//result.data[i].finishDate = result.data[i].finishDate ? v.getTime(result.data[i].finishDate):'';
 						result.data[i].receiveDate = result.data[i].receiveDate ? v.getTime(result.data[i].receiveDate):'';
 						//是否已对账
