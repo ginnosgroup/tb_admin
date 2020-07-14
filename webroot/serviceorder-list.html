@@ -346,9 +346,11 @@
 													<option value="" selected="true">请选择</option>
 													</select>
 													</dle>
-													<dle v-if="ap_list!=='KJ'">
+													<dle v-if="ap_list==='GW' || ap_list==='WA'">
 													<input v-model.trim="startOfficialApprovalDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:150px;" placeholder="文案审核时间(开始)">
 													<input v-model.trim="endOfficialApprovalDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:150px;" placeholder="文案审核时间(结束)">
+													</dle>
+													<dle v-if="ap_list==='MA'">
 													<input v-model.trim="startMaraApprovalDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:150px;" placeholder="Mara审核时间(开始)">
 													<input v-model.trim="endMaraApprovalDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:150px;" placeholder="Mara审核时间(结束)">
 													</dle>											
