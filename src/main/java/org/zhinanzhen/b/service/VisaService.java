@@ -15,13 +15,13 @@ public interface VisaService {
 	public int updateVisa(VisaDTO visaDto) throws ServiceException;
 
 	public int countVisa(String keyword, String startHandlingDate, String endHandlingDate, List<String> stateList,
-			List<String> commissionStateList, Date startKjApprovalDate, Date endKjApprovalDate, String startDate,
+			List<String> commissionStateList, String startKjApprovalDate, String endKjApprovalDate, String startDate,
 			String endDate, Integer adviserId, Integer userId) throws ServiceException;
 
 	public List<VisaDTO> listVisa(String keyword, String startHandlingDate, String endHandlingDate,
-			List<String> stateList, List<String> commissionStateList, Date startKjApprovalDate,
-			Date endKjApprovalDate, String startDate, String endDate, Integer adviserId, Integer userId, int pageNum, int pageSize)
-			throws ServiceException;
+			List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
+			String endKjApprovalDate, String startDate, String endDate, Integer adviserId, Integer userId, int pageNum,
+			int pageSize) throws ServiceException;
 
 	public List<VisaReportDTO> listVisaReport(String startDate, String endDate, String dateType, String dateMethod,
 			Integer regionId, Integer adviserId) throws ServiceException;
