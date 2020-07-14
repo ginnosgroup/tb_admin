@@ -516,6 +516,10 @@
 					index: 0			
 				},
 				created: function() {
+					$('.default-date-picker1').datepicker({   				
+				        format: 'yyyy-mm-dd',
+				        endDate: new Date()
+				  });
 					this.getDatalist();
 				},
 				methods: {					
@@ -573,7 +577,7 @@
 					},
 					getExport: function() {
 						var that = this;						
-						json['commissionState'] = that.commission_state;
+						//json['commissionState'] = that.commission_state;
 						
 						var down_url = url + "visa/down?";
 						if (typeof(that.userId) != "undefined")
