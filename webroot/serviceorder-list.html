@@ -345,6 +345,12 @@
 													<select v-model.trim="maraId" id="maraId" class="form-control" style="width:130px;">
 													<option value="" selected="true">请选择</option>
 													</select>
+													</dle>
+													<dle v-if="ap_list!=='KJ'">
+													<input v-model.trim="startOfficialApprovalDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:150px;" placeholder="文案审核时间(开始)">
+													<input v-model.trim="endOfficialApprovalDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:150px;" placeholder="文案审核时间(结束)">
+													<input v-model.trim="startMaraApprovalDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:150px;" placeholder="Mara审核时间(开始)">
+													<input v-model.trim="endMaraApprovalDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:150px;" placeholder="Mara审核时间(结束)">
 													</dle>											
 											</div>
 											<div class="form-group">
@@ -564,7 +570,7 @@
 					index: 0,
 					close: false
 				},
-				created: function() {
+				created: function() {					
 					if (typeof(this.service_state) == "undefined") $("#servicestate").addClass("active");
 					this.getDatalist();
 				},
@@ -600,9 +606,14 @@
 						if (that.userId != '0') json['userId'] = that.userId;
 						if (that.adviserId != '0') json['adviserId'] = that.adviserId;
 						if (that.officialId != '0') json['officialId'] = that.officialId;
-						if (that.maraId != '0') json['maraId'] = that.maraId;
+						if (that.maraId != '') json['maraId'] = that.maraId;
 						if (that.type != '') json['type'] = that.type;
 						if (that.state != '') json['state'] = that.state;
+						if (that.startOfficialApprovalDate != '') json['startOfficialApprovalDate'] = that.startOfficialApprovalDate;
+						if (that.endOfficialApprovalDate != '') json['endOfficialApprovalDate'] = that.endOfficialApprovalDate;
+						if (that.startMaraApprovalDate != '') json['startMaraApprovalDate'] = that.startMaraApprovalDate;
+						if (that.endMaraApprovalDate != '') json['endMaraApprovalDate'] = that.endMaraApprovalDate;
+						console.log(json);
 						$.get(url + "serviceOrder/count", json, function(result) {
 							that.count = result.data;
 							that.allPage = Math.ceil(result.data / that.pageSize);
@@ -1102,6 +1113,10 @@
 			v.$watch('subject', function(obj) {
 					$('.default-date-picker').datepicker({   				
 				        format: 'dd/mm/yyyy'
+				  });
+				  $('.default-date-picker1').datepicker({   				
+				        format: 'yyyy-mm-dd',
+				        endDate: new Date()
 				  });
 				  var adviserId = 0;
 				  var officialId = 0;
