@@ -180,7 +180,7 @@ public class KjController extends BaseController {
 				if (array2.length >= 2) {
 					String _id = array2[0].split("-")[0];
 					String _amount = array2[1];
-					if (_id.charAt(0) == 'V') { // 签证服务订单
+					if (_id.charAt(0) == 'V' || _id.charAt(0) == 'v') { // 签证服务订单
 						int id = Integer.parseInt(_id.substring(1, _id.length()).trim());
 						double amount = Double.parseDouble(_amount.trim());
 						ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
@@ -202,8 +202,8 @@ public class KjController extends BaseController {
 						} else
 							checkOrderList
 									.add(new CheckOrderDTO(-1, null, "V", _id, _amount, false, "未找到服务订单(" + id + ")"));
-					} else if (_id.charAt(0) == 'C') { // 佣金订单
-						if (_id.charAt(1) == 'V') { // 签证佣金订单
+					} else if (_id.charAt(0) == 'C' || _id.charAt(0) == 'c') { // 佣金订单
+						if (_id.charAt(1) == 'V' || _id.charAt(1) == 'v') { // 签证佣金订单
 							int id = Integer.parseInt(_id.substring(2, _id.length()).trim());
 							double amount = Double.parseDouble(_amount.trim());
 							VisaDTO visaDto = visaService.getVisaById(id);
@@ -220,7 +220,7 @@ public class KjController extends BaseController {
 							else
 								checkOrderList.add(new CheckOrderDTO(-1, null, "CV", _id, _amount, false,
 										"未找到签证佣金订单(" + id + ")"));
-						} else if (_id.charAt(1) == 'S') { // 留学佣金订单
+						} else if (_id.charAt(1) == 'S' || _id.charAt(1) == 's') { // 留学佣金订单
 							int id = Integer.parseInt(_id.substring(2, _id.length()).trim());
 							double amount = Double.parseDouble(_amount.trim());
 							CommissionOrderListDTO commissionOrderListDto = commissionOrderService
@@ -239,7 +239,7 @@ public class KjController extends BaseController {
 								checkOrderList.add(new CheckOrderDTO(-1, null, "CS", _id, _amount, false,
 										"未找到留学佣金订单(" + id + ")"));
 						}
-					} else if (_id.charAt(0) == 'S') { // 留学服务订单(提前扣佣)
+					} else if (_id.charAt(0) == 'S' || _id.charAt(0) == 's') { // 留学服务订单(提前扣佣)
 						int id = Integer.parseInt(_id.substring(1, _id.length()).trim());
 						double amount = Double.parseDouble(_amount.trim());
 						ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
