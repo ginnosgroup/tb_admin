@@ -15,14 +15,23 @@ public interface ServiceOrderDAO {
 
 	int countServiceOrder(@Param("type") String type, @Param("excludeState") String excludeState,
 			@Param("stateList") List<String> stateList, @Param("reviewStateList") List<String> reviewStateList,
-			@Param("userId") Integer userId, @Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
+			@Param("startMaraApprovalDate") String startMaraApprovalDate,
+			@Param("endMaraApprovalDate") String endMaraApprovalDate,
+			@Param("startOfficialApprovalDate") String startOfficialApprovalDate,
+			@Param("endOfficialApprovalDate") String endOfficialApprovalDate, @Param("userId") Integer userId,
+			@Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
 			@Param("officialId") Integer officialId, @Param("parentId") Integer parentId,
 			@Param("isNotApproved") Boolean isNotApproved);
 
 	List<ServiceOrderDO> listServiceOrder(@Param("type") String type, @Param("excludeState") String excludeState,
 			@Param("stateList") List<String> stateList, @Param("reviewStateList") List<String> reviewStateList,
-			@Param("userId") Integer userId, @Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
-			@Param("officialId") Integer officialId, @Param("parentId") Integer parentId,
+			@Param("startMaraApprovalDate") String startMaraApprovalDate,
+			@Param("endMaraApprovalDate") String endMaraApprovalDate,
+			@Param("startOfficialApprovalDate") String startOfficialApprovalDate,
+			@Param("endOfficialApprovalDate") String endOfficialApprovalDate, @Param("userId") Integer userId,
+			@Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
+			@Param("officialId") Integer officialId,
+			@Param("parentId") Integer parentId,
 			@Param("isNotApproved") Boolean isNotApproved, @Param("offset") int offset, @Param("rows") int rows);
 
 	List<ServiceOrderDO> listByParentId(@Param("parentId") Integer parentId);

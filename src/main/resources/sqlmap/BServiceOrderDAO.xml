@@ -283,6 +283,12 @@
 				#{reviewStateList}
 			</foreach>
 		</if>
+		<if test='startMaraApprovalDate != null and startMaraApprovalDate != "" and endMaraApprovalDate != null and endMaraApprovalDate != ""'>
+            <![CDATA[ AND so.mara_approval_date > #{startMaraApprovalDate} AND so.mara_approval_date < #{endMaraApprovalDate} ]]>
+        </if>
+        <if test='startOfficialApprovalDate != null and startOfficialApprovalDate != "" and endOfficialApprovalDate != null and endOfficialApprovalDate != ""'>
+            <![CDATA[ AND so.official_approval_date > #{startOfficialApprovalDate} AND so.official_approval_date < #{endOfficialApprovalDate} ]]>
+        </if>
 		<if test='userId != null and userId > 0'>
 			AND so.user_id = #{userId}
 		</if>
@@ -377,6 +383,12 @@
 				#{reviewStateList}
 			</foreach>
 		</if>
+		<if test='startMaraApprovalDate != null and startMaraApprovalDate != "" and endMaraApprovalDate != null and endMaraApprovalDate != ""'>
+            <![CDATA[ AND so.mara_approval_date > #{startMaraApprovalDate} AND so.mara_approval_date < #{endMaraApprovalDate} ]]>
+        </if>
+        <if test='startOfficialApprovalDate != null and startOfficialApprovalDate != "" and endOfficialApprovalDate != null and endOfficialApprovalDate != ""'>
+            <![CDATA[ AND so.official_approval_date > #{startOfficialApprovalDate} AND so.official_approval_date < #{endOfficialApprovalDate} ]]>
+        </if>
 		<if test='userId != null and userId > 0'>
 			AND so.user_id = #{userId}
 		</if>
