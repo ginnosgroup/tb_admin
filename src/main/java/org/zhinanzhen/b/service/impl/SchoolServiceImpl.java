@@ -7,6 +7,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.controller.BaseCommissionOrderController.CommissionStateEnum;
 import org.zhinanzhen.b.dao.CommissionOrderDAO;
 import org.zhinanzhen.b.dao.SchoolDAO;
@@ -48,6 +49,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	private SubagencyDAO subagencyDao;
 
 	@Override
+	@Transactional
 	public int addSchool(SchoolDTO schoolDto) throws ServiceException {
 		if (schoolDto == null) {
 			ServiceException se = new ServiceException("schoolDto is null !");
@@ -57,6 +59,18 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		try {
 			SchoolDO schoolDo = mapper.map(schoolDto, SchoolDO.class);
 			if (schoolDao.addSchool(schoolDo) > 0) {
+				// 添加学校设置
+				if (schoolDo.getName() != null && schoolDo.getSubject() != null) {
+					List<SchoolDO> schoolList = schoolDao.list2(schoolDo.getName());
+					if (schoolList != null && schoolList.size() > 0)
+						schoolList.forEach(school -> {
+							if (school.getSubject() == null || "".equals(school.getSubject())) {
+								SchoolSettingDO schoolSettingDo = schoolSettingDao.getBySchoolId(school.getId());
+								schoolSettingDo.setSchoolId(schoolDo.getId());
+								schoolSettingDao.add(schoolSettingDo);
+							}
+						});
+				}
 				schoolDto.setId(schoolDo.getId());
 				return schoolDo.getId();
 			} else {
