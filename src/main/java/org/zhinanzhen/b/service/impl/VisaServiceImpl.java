@@ -155,6 +155,12 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 		for (VisaDO visaListDo : visaListDoList) {
 			VisaDTO visaDto = mapper.map(visaListDo, VisaDTO.class);
 			putReviews(visaDto);
+			if (visaDto.getUserId() > 0) {
+				UserDO userDo = userDao.getUserById(visaDto.getUserId());
+				visaDto.setUserName(userDo.getName());
+				visaDto.setPhone(userDo.getPhone());
+				visaDto.setBirthday(userDo.getBirthday());
+			}
 			AdviserDO adviserDo = adviserDao.getAdviserById(visaListDo.getAdviserId());
 			if (adviserDo != null) {
 				visaDto.setAdviserName(adviserDo.getName());

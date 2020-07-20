@@ -308,8 +308,10 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 		CommissionOrderListDTO commissionOrderListDto = mapper.map(commissionOrderListDo, CommissionOrderListDTO.class);
 		if (commissionOrderListDo.getUserId() > 0) {
 			UserDO userDo = userDao.getUserById(commissionOrderListDo.getUserId());
-			if (userDo != null)
+			if (userDo != null) {
 				commissionOrderListDto.setUser(mapper.map(userDo, UserDTO.class));
+				commissionOrderListDto.setBirthday(userDo.getBirthday());
+			}
 		}
 		if (commissionOrderListDo.getSchoolId() > 0) {
 			SchoolDO schoolDo = schoolDao.getSchoolById(commissionOrderListDo.getSchoolId());
