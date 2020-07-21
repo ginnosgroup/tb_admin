@@ -233,14 +233,16 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		if (schoolDoList == null)
 			return null;
 		schoolDoList.forEach(schoolDo -> {
-			int id = schoolDo.getId();
-			SchoolSettingDO schoolSettingDo = schoolSettingDao.getBySchoolId(id);
-			if (id > 0 && schoolSettingId == schoolSettingDo.getId()) {
-				SubjectSettingDO subjectSettingDo = subjectSettingDao.get(schoolSettingId, schoolDo.getName());
-				if (subjectSettingDo == null) {
-					subjectSettingDo = new SubjectSettingDO();
-					subjectSettingDo.setSchoolSettingId(schoolSettingId);
-					subjectSettingDao.add(subjectSettingDo);
+			if (schoolDo != null) {
+				int id = schoolDo.getId();
+				SchoolSettingDO schoolSettingDo = schoolSettingDao.getBySchoolId(id);
+				if (id > 0 && schoolSettingId == schoolSettingDo.getId()) {
+					SubjectSettingDO subjectSettingDo = subjectSettingDao.get(schoolSettingId, schoolDo.getName());
+					if (subjectSettingDo == null) {
+						subjectSettingDo = new SubjectSettingDO();
+						subjectSettingDo.setSchoolSettingId(schoolSettingId);
+						subjectSettingDao.add(subjectSettingDo);
+					}
 				}
 			}
 		});
