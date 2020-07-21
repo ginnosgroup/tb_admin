@@ -28,6 +28,10 @@ public class CommissionOrderListDTO extends CommissionOrderDTO {
 
 	@Getter
 	@Setter
+	private Date birthday;
+
+	@Getter
+	@Setter
 	private SchoolDTO school;
 
 	@Getter
