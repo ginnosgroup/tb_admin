@@ -124,7 +124,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			List<String> commissionStateList, String startKjApprovalDate, String endKjApprovalDate, String startDate,
 			String endDate, Integer adviserId, Integer userId) throws ServiceException {
 		return visaDao.countVisa(keyword, startHandlingDate, theDateTo23_59_59(endHandlingDate), stateList,
-				commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate,
+				commissionStateList, startKjApprovalDate, theDateTo23_59_59(endKjApprovalDate), startDate,
 				theDateTo23_59_59(endDate), adviserId, userId);
 	}
 
