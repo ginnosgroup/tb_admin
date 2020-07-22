@@ -712,7 +712,11 @@
 						}else
 						{
 								down_url += "&adviserId=";
-						}						
+						}
+						if (that.isSettle != '')
+						{
+								down_url += "&isSettle="+that.isSettle;							
+						}				
 						if (typeof(that.schoolId) != "undefined")
 						{
 								down_url += "&schoolId="+that.schoolId;
