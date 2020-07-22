@@ -632,6 +632,7 @@
 		<script src="js/jquery.nicescroll.js"></script>
 		<script src="assets/bootstrap-datepicker/js/bootstrap-datepicker-new.js"></script><!-- BOOTSTRAP DATEPICKER JS  -->      
 		<script src="js/jquery.autocompleter.js"></script>
+		<script src="js/clipboard.min.js"></script>
 		<script src="js/common-scripts.js"></script>
 		<script src="js/vue.js"></script>
 		<script src="js/common.js?verson=1"></script>
@@ -862,7 +863,7 @@
 				}
 			});
 			
-			function return_result(result)
+			/*function return_result(result)
 			{
 				for(var i = 0; i < result.data.length; i++) {
 						var str_state = '';
@@ -923,6 +924,151 @@
 						result.data[i].currentState = str_state;
 				};
 				return result.data;
+			}*/
+			
+			function return_result(result)
+			{				
+				for(var i = 0; i < result.data.length; i++) {
+						var str_state = '';
+						var str_refusestate = '';
+						var customer_text = '';
+						switch(result.data[i].type)
+						{
+								case 'VISA':
+										if (result.data[i].parentId)
+										{
+												customer_text = 'V'+result.data[i].id+'-'+result.data[i].servicePackage.num+'<br/><a onclick="copyText()" class="copybtn" data-clipboard-action="copy" data-clipboard-text="V'+result.data[i].id+'">复制</a>';
+										}else
+										{
+												customer_text = 'V'+result.data[i].id+'<br/><a onclick="copyText()" class="copybtn" data-clipboard-action="copy" data-clipboard-text="V'+result.data[i].id+'">复制</a>';
+										}
+								break;
+								case 'OVST':
+										customer_text = result.data[i].id;
+										if (result.data[i].settle)
+										{
+												customer_text = 'S'+result.data[i].id+'<br/><a onclick="copyText()" class="copybtn" data-clipboard-action="copy" data-clipboard-text="S'+result.data[i].id+'">复制</a>';
+										}
+								break;
+								case 'SIV':
+										customer_text = result.data[i].id;
+								break;
+						}
+						result.data[i].oid = customer_text;
+						result.data[i].strRefuse = '';						
+						result.data[i].gmtCreate = v.getTime(result.data[i].gmtCreate);
+						switch(v.ap_list)
+						{
+								case 'GW':
+										result.data[i].approvalDate = result.data[i].officialApprovalDate ? v.getTime(result.data[i].officialApprovalDate):'';
+								break;
+								case 'WA':
+										result.data[i].approvalDate = result.data[i].maraApprovalDate ? v.getTime(result.data[i].maraApprovalDate):'';
+								break;
+								case 'MA':
+										result.data[i].approvalDate = result.data[i].maraApprovalDate ? v.getTime(result.data[i].maraApprovalDate):'';
+								break;
+								default:
+										result.data[i].approvalDate = '';
+								break;
+						}
+						result.data[i].finishDate = result.data[i].finishDate ? v.getTime(result.data[i].finishDate):'';
+						result.data[i].userName = result.data[i].user.name;
+						if (result.data[i].user.birthday) result.data[i].birthday = v.getTime(result.data[i].user.birthday);
+						result.data[i].phone = result.data[i].user.phone;
+						result.data[i].adviserName = result.data[i].adviser.name;
+						result.data[i].officialName = (result.data[i].officialId ? result.data[i].official.name : '');
+						if (result.data[i].review.adviserState != null) str_state = result.data[i].review.adviserState;
+						if (result.data[i].review.officialState == 'REVIEW')
+						{
+								if (result.data[i].review.maraState == 'FINISH')
+								{
+										str_state = 'FINISH';//Mara已审核
+								}else
+								{
+										str_state = 'WA_REVIEW';//文案审核中...
+								}
+						}else if (result.data[i].review.officialState != null)
+						{
+								str_state = result.data[i].review.officialState;
+						}
+						
+						if (result.data[i].type == 'VISA')
+						{
+								result.data[i].maraName = (result.data[i].maraId ? result.data[i].mara.name:'');							
+								if (result.data[i].review.maraState == 'WAIT' && result.data[i].review.officialState == 'WAIT')
+								{
+										switch(v.ap_list)
+										{												
+												case 'GW':
+														str_state = 'WA_REVIEW';//文案审核中..
+												break;
+												case 'WA':
+														str_state = 'WA_MA_WAIT';//已提交Mara审核
+												break;
+												case 'MA':
+														str_state = 'MA_WAIT';//待审核
+												break;
+										}										
+								}
+								if (result.data[i].parentId)
+								{
+										result.data[i].serviceName = return_servicename('SIV');
+										var service_packagename = return_packagetype(result.data[i].servicePackage.type);
+										result.data[i].serviceName += '-'+service_packagename;										
+								}else
+								{
+										result.data[i].serviceName = return_servicename(result.data[i].type)+'-'+result.data[i].service.code;
+								}													
+						}else if (result.data[i].type == 'OVST')
+						{
+								//如果maraState='FINISH'，表示整个流程结束。
+								if (result.data[i].review.officialState == 'COMPLETE') str_state = 'COE_COMPLETE';
+								var str_school = (result.data[i].schoolId ? result.data[i].school.name : '');
+								result.data[i].serviceName = return_servicename(result.data[i].type)+'-'+str_school;
+						}else if (result.data[i].type == 'SIV')
+						{
+								//独立技术移民
+								result.data[i].serviceName = '<span style="font-weight:bold;color:#0066CC;">'+return_servicename(result.data[i].type)+'</span>';							
+						}
+						if (result.data[i].state == 'CLOSE') str_refusestate = (result.data[i].closedReason != null ? result.data[i].closedReason:'');
+						if (result.data[i].review.officialState == 'PENDING' && result.data[i].review.type == 'REFUSE') str_refusestate = '<br/><span style="color:#003333">文案已驳回</span>';
+						if (result.data[i].review.officialState == 'REVIEW' && result.data[i].review.type == 'REFUSE') str_refusestate = '<br/><span style="color:#003333">Mara已驳回</span>';
+						if (result.data[i].type == 'SIV')
+						{
+								if (result.data[i].submitted)
+								{
+										result.data[i].currentState = 'REVIEW';
+										result.data[i].strState = '<span style="color:#FF9966;">已提交佣金表</span>';
+								}else
+								{
+										result.data[i].currentState = str_state;
+								}
+						}else
+						{
+								var servicePackage = (result.data[i].servicePackageId ? result.data[i].servicePackage.type:'');
+								result.data[i].strState = return_state(str_state,servicePackage)+str_refusestate;
+								if (result.data[i].type == 'OVST' && result.data[i].submitted) result.data[i].strState = result.data[i].strState+'<br/><span style="color:#6495ED;">月奖已申请</span>';																
+								result.data[i].currentState = str_state;								
+						}
+						if (result.data[i].type == 'OVST' && result.data[i].state == 'PAID' && !result.data[i].submitted) result.data[i].strState = result.data[i].strState+'<br/><button onclick="open_detail('+result.data[i].id+',\''+result.data[i].type+'\',\''+result.data[i].currentState+'\');" type="button" class="btn btn-danger">待申请月奖</button>';						
+						if (result.data[i].remarks) result.data[i].remarks = url_replace1(result.data[i].remarks);
+						result.data[i].strRemarks = '<button data-original-title="" data-html="true" data-content="'+result.data[i].remarks+'" data-placement="bottom" data-trigger="onclick" class="btn btn-info btn-xs popovers">查看备注</button>';
+				};
+				return result.data;
+			}
+			
+			function copyText(oid)
+			{
+					var clipboard = new ClipboardJS('.copybtn');
+					clipboard.on('success',function(e)
+					{
+							e.clearSelection();
+							$('#copy_success').addClass('alert-success').show().delay(1500).fadeOut();
+					});
+					clipboard.on('error',function(e)
+					{							
+					});
 			}
 			
 			function return_servicename(va)
@@ -935,8 +1081,32 @@
          		case 'OVST':
          					return '留学';
          		break;
+         		case 'SIV':
+         					return '独立技术移民';
+         		break;
          }
       }
+      
+      function return_packagetype(v)
+			{
+				var str = '';
+				switch(v)
+				{
+						case 'CA':
+								str = '职业评估';
+						break;
+						case 'EOI':
+								str = 'EOI';
+						break;
+						case 'SA':
+								str = '学校申请';
+						break;
+						case 'VA':
+								str = '签证申请';
+						break;
+				}
+				return str;
+			}
 			
 			function return_state(va)
 			{
