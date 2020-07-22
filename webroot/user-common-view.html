@@ -277,8 +277,10 @@
 											<label class="control-label"><strong>佣金信息</strong></label>
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
-											<label class="control-label" style="width:150px;">StudentID<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c20" class="form-control" style="width:200px;font-weight:normal;" placeholder="请输入学生ID">							
+											<label class="control-label" style="width:150px;">Student ID<span style="color:red;">*</span></label>
+											<input type="text" autocomplete="off" id="c20" class="form-control" style="width:200px;font-weight:normal;" placeholder="请输入学生ID">
+											<label class="control-label" style="width:30px;margin-left:20px;display:none;">DOB<span style="color:red;">*</span></label>
+											<input type="text" autocomplete="off" id="c20a" value="{{birthday}}" class="form-control default-date-picker" style="width:150px;font-weight:normal;display:none;" placeholder="请选择学生生日">
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;">Installment：<span style="color:red;">*</span></label>
@@ -296,9 +298,9 @@
 											</select>
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
-											<label class="control-label" style="width:150px;">开课日期</label>
+											<label class="control-label" style="width:150px;">Course Start Data: <span style="color:red;">*</span></label>
 											<input type="text" autocomplete="off" id="c22" class="form-control default-date-picker" style="width:150px;font-weight:normal;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
-											<label class="control-label" style="margin-left:40px;">结束日期</label>
+											<label class="control-label" style="margin-left:40px;">Course End Data: <span style="color:red;">*</span></label>
 											<input type="text" autocomplete="off" id="c23" class="form-control default-date-picker" style="width:150px;font-weight:normal;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">								
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
@@ -586,6 +588,7 @@ var v_sub = new Vue({
 					mara_id: sessionStorage.getItem("mara_id"),
 					servicepackage_type: '',
 					orderType: '',
+					birthday: '',
 					flowstate_gw: '',
 					flowstate_wa: '',
 					flowstate_ma: '',
@@ -755,14 +758,15 @@ function show_addnewservice_id(orderId,type)
 					if (str_state == 'APPLY' || str_state == 'COMPLETE' || str_state == 'CLOSE') $("#b19").val(str_state);
     	}else if (type == 'OVST')//留学
     	{
-    			//留学
+    			//留学    			
     			$('#show_addnewservice2_id #upload_certificate').hide();
     			$('#show_addnewservice2_id #c1').html(response.user.name);
         	$('#show_addnewservice2_id #c8').html(response.adviser.name);
         	$('#show_addnewservice2_id #c9').html(response.official.name);
         	$('#show_addnewservice2_id #c3').html(response.school.name);
-        	$('#show_addnewservice2_id #c4').html(response.school.subject);
+        	$('#show_addnewservice2_id #c4').html(response.school.subject);        	
         	v_sub.submitted = response.submitted;
+        	v_sub.birthday = v.getTime(response.user.birthday);
         	var str_issettle = '否';
         	if (response.settle) str_issettle = '是';
         	$('#show_addnewservice2_id #c5').html(str_issettle);
@@ -810,7 +814,7 @@ function show_addnewservice_id(orderId,type)
         	$('#show_addnewservice2_id #c14').html(response.discount);
         	$('#show_addnewservice2_id #c15').html(response.received);
         	if (response.remarks) response.remarks = url_replace(response.remarks);        	
-        	$('#show_addnewservice2_id #c16').html(response.remarks);
+        	$('#show_addnewservice2_id #c16').html(response.remarks);        	
         	//$('#show_addnewservice2_id #c16a').val(response.remarks);
         	//CEO付款凭证
         	$('#show_addnewservice2_id #show_paymentpic').show();
@@ -863,14 +867,14 @@ function show_addnewservice_id(orderId,type)
         	if (v_sub.flowstate_wa == 'REVIEW') $("#c200").val('REVIEW');
         	if (v_sub.flowstate_wa == 'FINISH' || v_sub.flowstate_wa == 'APPLY' || v_sub.flowstate_wa == 'COMPLETE' || v_sub.flowstate_wa == 'PAID' || v_sub.flowstate_wa == 'CLOSE') $("#c200").val(v_sub.flowstate_wa);
         	v.addnewservice2_bind = 1;
-					$('#show_addnewservice2_id').modal('show');
+					$('#show_addnewservice2_id').modal('show');									
 					if (v_sub.flowstate_wa==='PAID' && !v_sub.submitted)
 					{
 					}else
 					{
 							$("#load-comment-1").html('');
 							$("#load-comment-2").load("user-common-view-comment.html?random="+Math.random());
-					}
+					}					
     	}else if (type == 'SIV')//独立技术移民
     	{
     			$('#show_addnewservice3_id').modal('show');
@@ -1246,7 +1250,7 @@ function reqCommissionOvst()
 		var json = {};
     
     var check_result = false;
-    if ($(f+'#c20').val() != '' && $(f+'#c24a1').val() != '' && $(f+'#c25').val() != '' && $(f+'#c26').val() != '' && $(f+'#c27').val() != '' && $(f+'#c28').val() != '0' && $(f+'#c29').val() != '' && $(f+'#c31').val() != '')
+    if ($(f+'#c20').val() != '' && $(f+'#c22').val() != '' && $(f+'#c23').val() != '' && $(f+'#c24a1').val() != '' && $(f+'#c25').val() != '' && $(f+'#c26').val() != '' && $(f+'#c27').val() != '' && $(f+'#c28').val() != '0' && $(f+'#c29').val() != '' && $(f+'#c31').val() != '')
     {
     		if (parseInt($(f+'#c21').val()) > 1)
     		{
@@ -1309,7 +1313,15 @@ function reqCommissionOvst()
        	json['officialId'] = v_sub.order_detail.officialId;
        	json['isStudying'] = true;
        	json['installment'] = $(f+'#c21').val();
-       	var d = 0;        		
+       	var d = 0;   
+       	if ($(f+'#c20a').val() != '')
+    		{
+        		var arr_d = $(f+'#c20a').val().split("/");
+        		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+            var date = new Date(str_d);
+            d = date.getTime();
+      	}
+      	json['DOB'] = d;//待确定
     		if ($(f+'#c22').val() != '')
     		{
         		var arr_d = $(f+'#c22').val().split("/");

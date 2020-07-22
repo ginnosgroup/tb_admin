@@ -542,14 +542,28 @@
 						<h4 class="modal-title" id="myModalLabel">添加客户</h4>
 					</div>
 					<div class="modal-body">
-							<form class="form-inline" style="">							
+							<form class="form-inline" style="">
+							<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+						      <button data-dismiss="alert" class="close close-sm" type="button">
+						      <i class="fa fa-times"></i>
+						      </button>
+						      <strong>Success!</strong> You  just achieved success.
+						  </div>
+						  <div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+                <button data-dismiss="alert" class="close close-sm" type="button">
+                <i class="fa fa-times"></i>
+                </button>
+                <strong id="error_info"></strong>
+             </div>						
 							<div class="form-group" style="width:100%;height:40px;">
 								<label class="control-label" style="color:red;">客户昵称</label>
 								<input type="text" class="form-control small" style="width:200px;" id="a1" placeholder="请输入客户的昵称" value="">								
 							</div>
 							<div class="form-group" style="width:100%;height:40px;">
-								<label class="control-label" style="color:red;">客户姓名</label>
-								<input type="text" autocomplete="off" id="a2" class="form-control" style="width:200px;" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,'');" placeholder="请输入客户姓名的拼音" >
+								<label class="control-label" style="color:red;">客户的姓</label>
+								<input type="text" autocomplete="off" id="a2" class="form-control" style="width:200px;" onKeyUp="value=value.replace(/[^a-zA-Z]/g,'').toUpperCase();" maxlength="6" placeholder="请输入客户姓的拼音" >
+								<label class="control-label" style="color:red;">客户的名</label>
+								<input type="text" autocomplete="off" id="a2b" class="form-control" style="width:200px;" onKeyUp="value=value.replace(/[^a-zA-Z]/g,'').substring(0, 1).toUpperCase()+value.replace(/[^a-zA-Z]/g,'').substring(1);" placeholder="请输入客户名的拼音" >
 							</div>
 							<div class="form-group" style="width:100%;height:40px;">
 								<label class="control-label" style="color:red;">手机号码</label>
@@ -1109,68 +1123,78 @@
 					   			//console.log(data);
 					   	});
 			  	}                
-      }
+      }            
       
       function addNewSave(par)
-			{
-          var jqInputs = $('input',$("#addnew_id"));
-          var jqSelect = $('select',$("#addnew_id"));
-          var jqTextarea = $('textarea',$("#addnew_id"));
+			{          
+          var f = '#addnew_id ';
+          var json = {};
           
           var check_result = 0;
-          if (jqInputs[0].value != '' && jqInputs[1].value != '' && jqInputs[2].value != '' && jqSelect[1].value != '0')
+          if ($(f+'#a1').val() !='' && $(f+'#a2').val() !='' && $(f+'#a2b').val() !='' && $(f+'#a3').val()!='' && $(f+'#a7').val() != '0')
           {
           		check_result = true;
           }else
           {
-          		$('#alert_error').css('marginLeft','30%');
-          		$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
-			        $("#error_info").html('提示：红色字段必须填写或选择！');
+          		$('#addnew_id #alert_error').css('marginLeft','30%');
+          		$('#addnew_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+			        $("#addnew_id #error_info").html('提示：红色字段必须填写或选择！');
           		return false;
           }          
           
           if (check_result)
           {
-          		var d4 = 0;
-          		if (jqInputs[4].value != '')
+          		json['authNickname'] = $(f+'#a1').val();
+          		var str_name = $(f+'#a2').val()+' '+$(f+'#a2b').val();
+            	json['name'] = str_name;
+            	json['phone'] = $(f+'#a3').val();
+            	json['wechatUsername'] = $(f+'#a4').val();            	
+          		var d = 0;
+          		if ($(f+'#a5').val() != '')
           		{
-		          		var arr_d = jqInputs[4].value.split("/");
+		          		var arr_d = $(f+'#a5').val().split("/");
 		          		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
 		              var date = new Date(str_d);
-		              d4 = date.getTime();
+		              d = date.getTime();		              
             	}
-            	var str_name = jqInputs[1].value;
+            	json['birthday'] = d;
+            	json['source'] = $(f+'#a6').val();
+            	json['adviserId'] = $(f+'#a7').val();
+            	json['firstControllerContents'] = $(f+'#a8').val();
+            	json['visaCode'] = null;
+            	json['visaExpirationDate'] = 0;
                              
              	var str_url = "user/add";
 	            var sa_id = $("#id").val();
 	            if (sa_id != '0') str_url = "user/update";
 	            $("#id").val('0');	            
               
-              $.post(str_url, { id: sa_id, authNickname: jqInputs[0].value, name: jqInputs[1].value, phone: jqInputs[2].value, wechatUsername: jqInputs[3].value,birthday: d4, source: jqSelect[0].value, adviserId: jqSelect[1].value,firstControllerContents: jqTextarea[0].value,visaCode: null,visaExpirationDate: 0},
+              $.post(str_url, json,
 					   	function(data){
 					   			if (data.code == 0)
 					   			{	   					   					
-					   					$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
+					   					$('#addnew_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
 					   					$('#addnew_id').modal('hide');
 					   					if (par == 0)
 					   					{
 					   							$('#a1').val('');
 					   							$('#a2').val('');
+					   							$('#a2b').val('');
 					   							$('#a3').val('');
 					   							$('#a4').val('');
 					   							$('#a5').val('');
-					   							$('#a8').val('');
-							   					v.getDatalist();
-							   					v.getSort();
+					   							$('#a8').val('');							   					
 					   					}else
 					   					{
 					   							//弹出新增服务					   							
 					   							add_service1(0,data.data,str_name);
 					   					}
+					   					v.getDatalist();
+							   			v.getSort();
 					   			}else
 					   			{
-					   					$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
-			          			$("#error_info").html(data.message);
+					   					$('#addnew_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+			          			$("#addnew_id #error_info").html(data.message);
 				        			return false;
 					   			}
 					   			//console.log(data);
