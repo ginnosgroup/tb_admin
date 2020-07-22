@@ -716,7 +716,7 @@
 						if (that.isSettle != '')
 						{
 								down_url += "&isSettle="+that.isSettle;							
-						}				
+						}									
 						if (typeof(that.schoolId) != "undefined")
 						{
 								down_url += "&schoolId="+that.schoolId;
@@ -737,8 +737,15 @@
 						}else
 						{
 								down_url += "&endKjApprovalDate=";
+						}						
+						if (that.commission_list != 'TQKY')
+						{
+								down_url += "&commissionState="+that.commission_list;
+						}else
+						{
+								down_url += "&commissionState="+that.commission_state;
+								if (that.isSettle == '') json['isSettle'] = true;
 						}
-						down_url += "&commissionState="+that.commission_state;
 						console.log(down_url);
 						var a = document.createElement('a');
 						a.download = 'commission_all_data.xls';
