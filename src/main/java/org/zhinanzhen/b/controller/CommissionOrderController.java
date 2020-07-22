@@ -210,6 +210,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				if (installmentNum == 1 && installmentDueDate1 != null) {
 					commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate1)));
 					commissionOrderDto.setState(ReviewKjStateEnum.REVIEW.toString()); // 第一笔单子直接进入财务审核状态
+					commissionOrderDto.setKjApprovalDate(new Date());
 				} else {
 					if (installmentNum == 2 && installmentDueDate2 != null) {
 						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate2)));

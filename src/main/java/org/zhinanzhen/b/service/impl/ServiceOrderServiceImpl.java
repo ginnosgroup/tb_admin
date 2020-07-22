@@ -439,24 +439,6 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 					// 写入文案审核时间
 					if (serviceOrderDo.getOfficialApprovalDate() == null)
 						serviceOrderDo.setOfficialApprovalDate(new Date());
-					// 写入会计审核时间
-					if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())
-							|| "SIV".equalsIgnoreCase(serviceOrderDo.getType()))
-						visaDao.listVisaByServiceOrderId(serviceOrderDo.getId()).forEach(visaDo -> {
-							if (visaDo.getKjApprovalDate() == null) {
-								visaDo.setKjApprovalDate(new Date());
-								visaDao.updateVisa(visaDo);
-							}
-						});
-					if ("OVST".equalsIgnoreCase(serviceOrderDo.getType()))
-						commissionOrderDao.listCommissionOrderByServiceOrderId(serviceOrderDo.getId())
-								.forEach(commissionOrderDo -> {
-									if (commissionOrderDo.getKjApprovalDate() == null) {
-										commissionOrderDo.setKjApprovalDate(new Date());
-										commissionOrderDao.updateCommissionOrder(commissionOrderDo);
-									}
-								});
-					
 				}
 				if ("REVIEW".equals(officialState)) { // 告诉顾问文案已经开始审核了
 					SendEmailUtil.send(adviserDo.getEmail(), title,
@@ -475,6 +457,25 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 //												+ "/创建时间:" + date);
 //						}
 					
+				}
+				if ("PAID".equals(adviserState)) {
+					// 写入会计审核时间
+					if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())
+							|| "SIV".equalsIgnoreCase(serviceOrderDo.getType()))
+						visaDao.listVisaByServiceOrderId(serviceOrderDo.getId()).forEach(visaDo -> {
+							if (visaDo.getKjApprovalDate() == null) {
+								visaDo.setKjApprovalDate(new Date());
+								visaDao.updateVisa(visaDo);
+							}
+						});
+					if ("OVST".equalsIgnoreCase(serviceOrderDo.getType()))
+						commissionOrderDao.listCommissionOrderByServiceOrderId(serviceOrderDo.getId())
+								.forEach(commissionOrderDo -> {
+									if (commissionOrderDo.getKjApprovalDate() == null) {
+										commissionOrderDo.setKjApprovalDate(new Date());
+										commissionOrderDao.updateCommissionOrder(commissionOrderDo);
+									}
+								});
 				}
 				serviceOrderDao.updateServiceOrder(serviceOrderDo);
 			}
