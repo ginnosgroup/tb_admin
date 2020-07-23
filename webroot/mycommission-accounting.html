@@ -401,6 +401,28 @@
 														</td>
 														<td v-html="item.strRemarks"></td>
 													</tr>
+													<tr class="gradeX">
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td style="background:#F4A460">合计：</td>
+														<td style="background:#F4A460">{{total_amount}}</td>
+														<td style="background:#F4A460">{{total_expectamount}}</td>														
+														<td bgcolor="#F4A460">{{total_sureexpectamount}}</td>
+														<td style="background:#F4A460">{{total_bonus}}</td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+													</tr>
 												</tbody>
 											</table>
 										</div>
@@ -497,6 +519,10 @@
 					kj_id: sessionStorage.getItem("kj_id"),
 					commission_state : getRequest('commission_state'),
 					orderId: 0,
+					total_amount: 0.00,
+					total_expectamount: 0.00,
+					total_sureexpectamount: 0.00,
+					total_bonus: 0.00,
 					order_detail: [],
 					set_state: '',
 					set_type: 1,
@@ -1092,6 +1118,10 @@
 			
 			function return_result(result)
 			{
+				v.total_amount = 0;
+				v.total_expectamount = 0;
+				v.total_sureexpectamount = 0;
+				v.total_bonus = 0;
 				for(var i = 0; i < result.data.length; i++) {
 						result.data[i].oid = result.data[i].id;
 						result.data[i].strOid = '';
@@ -1118,6 +1148,17 @@
 						}
 						result.data[i].isChecked = str_checked;					
 						result.data[i].payDate = '';//字段未添加，待修正
+						if (result.data[i].state == 'PENDING')
+						{
+								result.data[i].amount = 0.00;
+								result.data[i].expectAmount = 0.00;
+								result.data[i].sureExpectAmount = 0.00;
+								result.data[i].bonus = 0.00;
+						}
+						v.total_amount += result.data[i].amount;
+						v.total_expectamount += result.data[i].expectAmount;
+						v.total_sureexpectamount += result.data[i].sureExpectAmount;
+						v.total_bonus += result.data[i].bonus;
 						result.data[i].strState = return_state(result.data[i].state);
 						result.data[i].currentState = result.data[i].state;
 						if (result.data[i].remarks) result.data[i].remarks = url_replace1(result.data[i].remarks);
