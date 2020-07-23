@@ -479,7 +479,7 @@ public class ServiceOrderController extends BaseController {
 
 	@RequestMapping(value = "/count", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<Integer> countServiceOrder(@RequestParam(value = "id", required = false) int id,
+	public Response<Integer> countServiceOrder(@RequestParam(value = "id", required = false) Integer id,
 			@RequestParam(value = "type", required = false) String type,
 			@RequestParam(value = "state", required = false) String state,
 			@RequestParam(value = "reviewState", required = false) String reviewState,
@@ -520,7 +520,7 @@ public class ServiceOrderController extends BaseController {
 				excludeState = ReviewAdviserStateEnum.PENDING.toString();
 			}
 			
-			if (id > 0) {
+			if (id != null && id > 0) {
 				if (serviceOrderService.getServiceOrderById(id) != null)
 					return new Response<Integer>(0, 1);
 				else
@@ -540,7 +540,7 @@ public class ServiceOrderController extends BaseController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<ServiceOrderDTO>> listServiceOrder(@RequestParam(value = "id", required = false) int id,
+	public Response<List<ServiceOrderDTO>> listServiceOrder(@RequestParam(value = "id", required = false) Integer id,
 			@RequestParam(value = "type", required = false) String type,
 			@RequestParam(value = "state", required = false) String state,
 			@RequestParam(value = "reviewState", required = false) String reviewState,
@@ -581,8 +581,8 @@ public class ServiceOrderController extends BaseController {
 				officialId = newOfficialId + "";
 				excludeState = ReviewAdviserStateEnum.PENDING.toString();
 			}
-			
-			if (id > 0) {
+
+			if (id != null && id > 0) {
 				List<ServiceOrderDTO> list = new ArrayList<ServiceOrderDTO>();
 				ServiceOrderDTO serviceOrder = serviceOrderService.getServiceOrderById(id);
 				if (serviceOrder != null)
