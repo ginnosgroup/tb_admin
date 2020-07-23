@@ -192,8 +192,10 @@ public class VisaController extends BaseCommissionOrderController {
 //					else
 					visaDto.setAmount(visaDto.getPerAmount());
 					visaDto.setDiscount(0.00);
-				} else
+				} else {
 					visaDto.setState(ReviewKjStateEnum.REVIEW.toString()); // 第一笔单子直接进入财务审核状态
+					visaDto.setKjApprovalDate(new Date());
+				}
 				if (visaService.addVisa(visaDto) > 0)
 					visaDtoList.add(visaDto);
 				_perAmount += visaDto.getPerAmount();

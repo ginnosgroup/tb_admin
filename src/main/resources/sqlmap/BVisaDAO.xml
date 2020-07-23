@@ -52,7 +52,7 @@
                 #{userId},
                 #{state},
                 'DJY',
-                NULL,
+                #{kjApprovalDate},
                 #{receiveTypeId},
                 #{receiveDate,jdbcType=TIMESTAMP},
                 #{serviceId},

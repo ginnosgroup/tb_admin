@@ -58,7 +58,7 @@
                 #{serviceOrderId},
                 #{state},
                 #{commissionState},
-                NULL,
+                #{kjApprovalDate},
                 #{isSettle},
                 #{isDepositUser},
                 #{schoolId},
