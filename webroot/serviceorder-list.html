@@ -428,7 +428,7 @@
 																		</d2>
 																		<d2 v-if="item.type!=='SIV'">
 																				<d1 v-if="item.currentState==='PENDING'">
-																				<a href="javascript:show_confirmbox('{{item.type}}',{{item.id}},'REVIEW',1)">提交审核</a>
+																				<button onclick="show_confirmbox('{{item.type}}',{{item.id}},'REVIEW',1)" type="button" class="btn btn-danger">提交审核</button>
 																				</d1>
 																		</d2>
 																		<d2 v-if="item.type!=='SIV'">
@@ -780,7 +780,7 @@
 										result.data[i].approvalDate = result.data[i].officialApprovalDate ? v.getTime(result.data[i].officialApprovalDate):'';
 								break;
 								case 'WA':
-										result.data[i].approvalDate = result.data[i].maraApprovalDate ? v.getTime(result.data[i].maraApprovalDate):'';
+										result.data[i].approvalDate = result.data[i].officialApprovalDate ? v.getTime(result.data[i].officialApprovalDate):'';
 								break;
 								case 'MA':
 										result.data[i].approvalDate = result.data[i].maraApprovalDate ? v.getTime(result.data[i].maraApprovalDate):'';
@@ -865,9 +865,10 @@
 						{
 								var servicePackage = (result.data[i].servicePackageId ? result.data[i].servicePackage.type:'');
 								result.data[i].strState = return_state(str_state,servicePackage)+str_refusestate;
-								if (result.data[i].type == 'OVST' && result.data[i].submitted) result.data[i].strState = result.data[i].strState+'<br/><span style="color:#6495ED;">月奖已申请</span>';													
+								if (result.data[i].type == 'OVST' && result.data[i].submitted) result.data[i].strState = result.data[i].strState+'<br/><span style="color:#6495ED;">月奖已申请</span>';																
 								result.data[i].currentState = str_state;								
-						}						
+						}
+						if (result.data[i].type == 'OVST' && result.data[i].state == 'PAID' && !result.data[i].submitted) result.data[i].strState = result.data[i].strState+'<br/><button onclick="open_detail('+result.data[i].id+',\''+result.data[i].type+'\',\''+result.data[i].currentState+'\');" type="button" class="btn btn-danger">待申请月奖</button>';						
 						if (result.data[i].remarks) result.data[i].remarks = url_replace1(result.data[i].remarks);
 						result.data[i].strRemarks = '<button data-original-title="" data-html="true" data-content="'+result.data[i].remarks+'" data-placement="bottom" data-trigger="onclick" class="btn btn-info btn-xs popovers">查看备注</button>';
 				};
