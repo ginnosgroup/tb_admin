@@ -322,6 +322,8 @@
 									  <form class="form-inline" style="margin-top:10px;">
 									  	<input v-model.trim="userId" type="hidden" name="userId" id="userId" value="0" />
 											<div class="form-group">
+													<label>订单ID</label>
+													<input v-model.trim="id" id="id" type="text" class="form-control" style="width:130px;" placeholder="请输入纯数字">
 													<label>客户姓名</label>
 													<input type="text" name="user_name" id="user_name" class="form-control" style="width:150px;">	
 													<!--											
@@ -605,6 +607,7 @@
 					getSearch: function() {
 						var that = this;
 						var json = {};
+						if (that.id != '') json['id'] = that.id;
 						if (that.userId != '0') json['userId'] = that.userId;
 						if (that.adviserId != '0') json['adviserId'] = that.adviserId;
 						if (that.officialId != '0') json['officialId'] = that.officialId;
