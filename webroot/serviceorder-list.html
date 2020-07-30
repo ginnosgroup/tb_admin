@@ -423,7 +423,7 @@
 																<dle v-if="ap_list==='GW'">
 																		<d2 v-if="item.type==='SIV' && !item.parentId">																				
 																				<d1 v-if="!item.submitted && item.pay">
-																				<a href="javascript:show_confirmbox('{{item.type}}',{{item.id}},'REVIEW',1)"><span style="font-weight:bold;color:#99CC66;">提交佣金表</span></a>
+																				<button onclick="show_confirmbox('{{item.type}}',{{item.id}},'REVIEW',1)" type="button" class="btn btn-success" style="">提交佣金表</button>
 																				</d1>
 																		</d2>
 																		<d2 v-if="item.type!=='SIV'">
