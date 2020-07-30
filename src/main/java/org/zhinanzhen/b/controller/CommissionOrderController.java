@@ -67,7 +67,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	@Resource
 	ServiceOrderService serviceOrderService;
 	
-	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	@RequestMapping(value = "/upload_img", method = RequestMethod.POST)
 	@ResponseBody
@@ -774,10 +774,11 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 	@RequestMapping(value = "/upload", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<String> upload(@RequestParam MultipartFile file, HttpServletRequest request,
+	public Response<Integer> upload(@RequestParam MultipartFile file, HttpServletRequest request,
 			HttpServletResponse response) throws IllegalStateException, IOException {
 		super.setPostHeader(response);
 		String message = "";
+		int n = 0;
 		Response<String> r = super.upload2(file, request.getSession(), "/tmp/");
 		try (InputStream is = new FileInputStream(r.getData())) {
 			jxl.Workbook wb = jxl.Workbook.getWorkbook(is);
@@ -789,23 +790,26 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				String _schoolPaymentDate = cells[22].getContents();
 				String _invoiceNumber = cells[23].getContents();
 				String _zyDate = cells[23].getContents();
+				String _sureExpectAmount = cells[26].getContents();
 				String _bonus = cells[27].getContents();
 				String _bonusDate = cells[28].getContents();
 				try {
 					Response<CommissionOrderDTO> _r = updateOne(Integer.parseInt(_id),
 							Double.parseDouble(_schoolPaymentAmount), sdf.format(_schoolPaymentDate), _invoiceNumber,
-							sdf.format(_zyDate), null, Double.parseDouble(_bonus), sdf.format(_bonusDate), true);
+							sdf.format(_zyDate), Double.parseDouble(_sureExpectAmount), Double.parseDouble(_bonus),
+							sdf.format(_bonusDate), true);
 					if (_r.getCode() > 0)
 						message += "[" + _id + "]" + _r.getMessage() + ";";
+					else
+						n++;
 				} catch (NumberFormatException | ServiceException e) {
 					message += "[" + _id + "]" + e.getMessage() + ";";
 				}
 			}
 		} catch (BiffException | IOException e) {
-			return new Response<String>(1, "上传失败:" + e.getMessage(), null);
+			return new Response<Integer>(1, "上传失败:" + e.getMessage(), 0);
 		}
-		r.setMessage(message);
-		return r;
+		return new Response<Integer>(0, message, n);
 	}
 
 	@RequestMapping(value = "/down", method = RequestMethod.GET)
