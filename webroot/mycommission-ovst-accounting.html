@@ -323,6 +323,8 @@
 									  <form class="form-inline" style="margin-top:10px;">
 									  	<input v-model.trim="userId" type="hidden" name="userId" id="userId" value="0" />
 											<div class="form-group">
+													<label>订单ID</label>
+													<input v-model.trim="id" id="id" type="text" class="form-control" style="width:90px;" placeholder="请输入纯数字">
 													<label>客户姓名</label>													
 													<input type="text" v-model.trim="name" class="form-control" style="width:150px;" placeholder="模糊匹配">
 													<label>电话号码</label>
@@ -679,6 +681,7 @@
 					getSearch: function() {
 						var that = this;
 						var json = {};
+						if (that.id != '') json['id'] = that.id;
 						if (that.name != '') json['name'] = that.name;
 						if (that.phone != '') json['phone'] = that.phone;
 						if (that.wechatUsername != '') json['wechatUsername'] = that.wechatUsername;

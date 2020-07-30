@@ -302,9 +302,10 @@
                       </button>
                       <strong id="error_info"></strong>
                     </div>
-									  <form class="form-inline" style="margin-top:10px;">
+									  <form class="form-inline" style="margin-top:10px;">									  	
 									  	<input v-model.trim="userId" type="hidden" name="userId" id="userId" value="0" />
 											<div class="form-group">
+													<input type="text" v-model.trim="id" id="id" class="form-control" style="width:90px;" placeholder="订单ID">
 													<input type="text" name="user_name" id="user_name" class="form-control" style="width:150px;" placeholder="客户姓名">
 													<select v-model.trim="adviserId" id="adviserId" class="form-control" style="width:130px;">
 													</select>												
@@ -573,6 +574,7 @@
 					getSearch: function() {
 						var that = this;
 						var json = {};
+						if (that.id != '') json['id'] = that.id;
 						if (that.userId != '0') json['userId'] = that.userId;
 						if (that.adviserId != '0')
 						{
