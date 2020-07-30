@@ -577,6 +577,15 @@ public class VisaController extends BaseCommissionOrderController {
 				String _bonus = cells[11].getContents();
 				String _bonusDate = cells[12].getContents();
 				try {
+					VisaDTO visaDto = visaService.getVisaById(Integer.parseInt(_id));
+					if (visaDto == null) {
+						message += "[" + _id + "]佣金订单不存在;";
+						continue;
+					}
+					if (!CommissionStateEnum.DJY.toString().equals(visaDto.getCommissionState())) {
+						message += "[" + _id + "]佣金订单状态不是待结佣;";
+						continue;
+					}
 					Response<VisaDTO> _r = updateOne(Integer.parseInt(_id), null, Double.parseDouble(_bonus),
 							sdf.format(_bonusDate), true);
 					if (_r.getCode() > 0)

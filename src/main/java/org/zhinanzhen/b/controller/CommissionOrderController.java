@@ -794,6 +794,19 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				String _bonus = cells[27].getContents();
 				String _bonusDate = cells[28].getContents();
 				try {
+					CommissionOrderListDTO commissionOrderListDto = commissionOrderService
+							.getCommissionOrderById(Integer.parseInt(_id));
+					if (commissionOrderListDto == null) {
+						message += "[" + _id + "]佣金订单不存在;";
+						continue;
+					}
+					if (!CommissionStateEnum.DJY.toString()
+							.equalsIgnoreCase(commissionOrderListDto.getCommissionState())
+							&& !CommissionStateEnum.DZY.toString()
+									.equalsIgnoreCase(commissionOrderListDto.getCommissionState())) {
+						message += "[" + _id + "]佣金订单状态不是待结佣或待追佣;";
+						continue;
+					}
 					Response<CommissionOrderDTO> _r = updateOne(Integer.parseInt(_id),
 							Double.parseDouble(_schoolPaymentAmount), sdf.format(_schoolPaymentDate), _invoiceNumber,
 							sdf.format(_zyDate), Double.parseDouble(_sureExpectAmount), Double.parseDouble(_bonus),
