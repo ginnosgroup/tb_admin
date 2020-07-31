@@ -561,9 +561,9 @@
 							</div>
 							<div class="form-group" style="width:100%;height:40px;">
 								<label class="control-label" style="color:red;">客户的姓</label>
-								<input type="text" autocomplete="off" id="a2" class="form-control" style="width:200px;" onKeyUp="value=value.replace(/[^a-zA-Z]/g,'').toUpperCase();" maxlength="6" placeholder="请输入客户姓的拼音" >
+								<input type="text" autocomplete="off" id="a2" class="form-control" style="width:200px;" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,'').toUpperCase();" maxlength="6" placeholder="请输入客户姓的拼音" >
 								<label class="control-label" style="color:red;">客户的名</label>
-								<input type="text" autocomplete="off" id="a2b" class="form-control" style="width:200px;" onKeyUp="value=value.replace(/[^a-zA-Z]/g,'').substring(0, 1).toUpperCase()+value.replace(/[^a-zA-Z]/g,'').substring(1);" placeholder="请输入客户名的拼音" >
+								<input type="text" autocomplete="off" id="a2b" class="form-control" style="width:200px;" onKeyUp="value=value.replace(/[^a-zA-Z]/g,'').substring(0, 1).toUpperCase()+value.replace(/[^a-zA-Z ]/g,'').substring(1);" placeholder="请输入客户名的拼音" >
 							</div>
 							<div class="form-group" style="width:100%;height:40px;">
 								<label class="control-label" style="color:red;">手机号码</label>
