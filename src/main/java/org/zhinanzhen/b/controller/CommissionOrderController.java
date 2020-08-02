@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.controller;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -36,8 +37,11 @@ import org.zhinanzhen.tb.service.ServiceException;
 
 import com.ikasoa.core.utils.StringUtil;
 
+import jxl.Cell;
+import jxl.Sheet;
 import jxl.Workbook;
 import jxl.WorkbookSettings;
+import jxl.read.biff.BiffException;
 import jxl.write.Label;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
@@ -62,6 +66,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 	@Resource
 	ServiceOrderService serviceOrderService;
+	
+	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	@RequestMapping(value = "/upload_img", method = RequestMethod.POST)
 	@ResponseBody
@@ -766,6 +772,59 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		}
 	}
 
+	@RequestMapping(value = "/upload", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> upload(@RequestParam MultipartFile file, HttpServletRequest request,
+			HttpServletResponse response) throws IllegalStateException, IOException {
+		super.setPostHeader(response);
+		String message = "";
+		int n = 0;
+		Response<String> r = super.upload2(file, request.getSession(), "/tmp/");
+		try (InputStream is = new FileInputStream(r.getData())) {
+			jxl.Workbook wb = jxl.Workbook.getWorkbook(is);
+			Sheet sheet = wb.getSheet(0);
+			for (int i = 1; i < sheet.getRows(); i++) {
+				Cell[] cells = sheet.getRow(i);
+				String _id = cells[0].getContents();
+				String _schoolPaymentAmount = cells[21].getContents();
+				String _schoolPaymentDate = cells[22].getContents();
+				String _invoiceNumber = cells[23].getContents();
+				String _zyDate = cells[23].getContents();
+				String _sureExpectAmount = cells[26].getContents();
+				String _bonus = cells[27].getContents();
+				String _bonusDate = cells[28].getContents();
+				try {
+					CommissionOrderListDTO commissionOrderListDto = commissionOrderService
+							.getCommissionOrderById(Integer.parseInt(_id));
+					if (commissionOrderListDto == null) {
+						message += "[" + _id + "]佣金订单不存在;";
+						continue;
+					}
+					if (!CommissionStateEnum.DJY.toString()
+							.equalsIgnoreCase(commissionOrderListDto.getCommissionState())
+							&& !CommissionStateEnum.DZY.toString()
+									.equalsIgnoreCase(commissionOrderListDto.getCommissionState())) {
+						message += "[" + _id + "]佣金订单状态不是待结佣或待追佣;";
+						continue;
+					}
+					Response<CommissionOrderDTO> _r = updateOne(Integer.parseInt(_id),
+							Double.parseDouble(_schoolPaymentAmount), sdf.format(_schoolPaymentDate), _invoiceNumber,
+							sdf.format(_zyDate), Double.parseDouble(_sureExpectAmount), Double.parseDouble(_bonus),
+							sdf.format(_bonusDate), true);
+					if (_r.getCode() > 0)
+						message += "[" + _id + "]" + _r.getMessage() + ";";
+					else
+						n++;
+				} catch (NumberFormatException | ServiceException e) {
+					message += "[" + _id + "]" + e.getMessage() + ";";
+				}
+			}
+		} catch (BiffException | IOException e) {
+			return new Response<Integer>(1, "上传失败:" + e.getMessage(), 0);
+		}
+		return new Response<Integer>(0, message, n);
+	}
+
 	@RequestMapping(value = "/down", method = RequestMethod.GET)
 	@ResponseBody
 	public void down(@RequestParam(value = "maraId", required = false) Integer maraId,
@@ -858,7 +917,6 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			WritableCellFormat cellFormat = new WritableCellFormat();
 
 			int i = 1;
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			for (CommissionOrderListDTO commissionOrderListDto : commissionOrderList) {
 				sheet.addCell(new Label(0, i, commissionOrderListDto.getId() + "", cellFormat));
 				sheet.addCell(new Label(1, i, sdf.format(commissionOrderListDto.getGmtCreate()), cellFormat));

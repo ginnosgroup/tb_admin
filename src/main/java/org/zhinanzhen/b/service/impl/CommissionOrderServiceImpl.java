@@ -126,7 +126,7 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			throws ServiceException {
 		return commissionOrderDao.countCommissionOrder(maraId, adviserId, officialId, userId, name, phone,
 				wechatUsername, schoolId, isSettle, stateList, commissionStateList, startKjApprovalDate,
-				endKjApprovalDate, isYzyAndYjy);
+				theDateTo23_59_59(endKjApprovalDate), isYzyAndYjy);
 	}
 
 	@Override
@@ -145,7 +145,8 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 		try {
 			commissionOrderListDoList = commissionOrderDao.listCommissionOrder(maraId, adviserId, officialId, userId,
 					name, phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
-					startKjApprovalDate, endKjApprovalDate, isYzyAndYjy, pageNum * pageSize, pageSize);
+					startKjApprovalDate, theDateTo23_59_59(endKjApprovalDate), isYzyAndYjy, pageNum * pageSize,
+					pageSize);
 			if (commissionOrderListDoList == null)
 				return null;
 		} catch (Exception e) {

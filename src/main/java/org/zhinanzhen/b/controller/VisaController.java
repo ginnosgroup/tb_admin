@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.controller;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -33,14 +34,14 @@ import org.zhinanzhen.tb.service.ServiceException;
 
 import com.ikasoa.core.utils.StringUtil;
 
+import jxl.Cell;
+import jxl.Sheet;
 import jxl.Workbook;
 import jxl.WorkbookSettings;
+import jxl.read.biff.BiffException;
 import jxl.write.Label;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -52,6 +53,8 @@ public class VisaController extends BaseCommissionOrderController {
 
 	@Resource
 	ServiceOrderService serviceOrderService;
+	
+	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	@RequestMapping(value = "/upload_img", method = RequestMethod.POST)
 	@ResponseBody
@@ -556,6 +559,48 @@ public class VisaController extends BaseCommissionOrderController {
 			return new Response<List<VisaDTO>>(1, e.getMessage(), null);
 		}
 	}
+	
+	@RequestMapping(value = "/upload", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> upload(@RequestParam MultipartFile file, HttpServletRequest request,
+			HttpServletResponse response) throws IllegalStateException, IOException {
+		super.setPostHeader(response);
+		String message = "";
+		int n = 0;
+		Response<String> r = super.upload2(file, request.getSession(), "/tmp/");
+		try (InputStream is = new FileInputStream(r.getData())) {
+			jxl.Workbook wb = jxl.Workbook.getWorkbook(is);
+			Sheet sheet = wb.getSheet(0);
+			for (int i = 1; i < sheet.getRows(); i++) {
+				Cell[] cells = sheet.getRow(i);
+				String _id = cells[0].getContents();
+				String _bonus = cells[11].getContents();
+				String _bonusDate = cells[12].getContents();
+				try {
+					VisaDTO visaDto = visaService.getVisaById(Integer.parseInt(_id));
+					if (visaDto == null) {
+						message += "[" + _id + "]佣金订单不存在;";
+						continue;
+					}
+					if (!CommissionStateEnum.DJY.toString().equals(visaDto.getCommissionState())) {
+						message += "[" + _id + "]佣金订单状态不是待结佣;";
+						continue;
+					}
+					Response<VisaDTO> _r = updateOne(Integer.parseInt(_id), null, Double.parseDouble(_bonus),
+							sdf.format(_bonusDate), true);
+					if (_r.getCode() > 0)
+						message += "[" + _id + "]" + _r.getMessage() + ";";
+					else
+						n++;
+				} catch (NumberFormatException | ServiceException e) {
+					message += "[" + _id + "]" + e.getMessage() + ";";
+				}
+			}
+		} catch (BiffException | IOException e) {
+			return new Response<Integer>(1, "上传失败:" + e.getMessage(), 0);
+		}
+		return new Response<Integer>(0, message, n);
+	}
 
 	@RequestMapping(value = "/down", method = RequestMethod.GET)
 	@ResponseBody
@@ -645,7 +690,6 @@ public class VisaController extends BaseCommissionOrderController {
 			WritableCellFormat cellFormat = new WritableCellFormat();
 
 			int i = 1;
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			for (VisaDTO visaDto : list) {
 				sheet.addCell(new Label(0, i, visaDto.getId() + "", cellFormat));
 				sheet.addCell(new Label(1, i, sdf.format(visaDto.getGmtCreate()), cellFormat));
