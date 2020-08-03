@@ -517,7 +517,19 @@
 					</div>
 				</div>
 			</div>
-		</div>		
+		</div>
+		<div class="modal fade" id="loading_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop='static' style="z-index:9999;">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+					</div>
+					<div class="modal-body">
+							<div style="text-align:center;"><img src="img/input-spinner.gif" /> 正在执行，请稍后...</div>
+					</div>
+					
+				</div>
+			</div>
+		</div>
 		<div id="load-user-common-page"></div>
 		<div id="load-user-common-view-page"></div>
 		<script src="js/jquery-1.8.3.min.js"></script>
@@ -607,6 +619,14 @@
 					getSearch: function() {
 						var that = this;
 						var json = {};
+						//$('#loading_id').modal({backdrop: 'static', keyboard: false});
+						$('#loading_id').on('show.bs.modal', function(){
+		          var $this = $(this);
+		          var $modal_dialog = $this.find('.modal-dialog');
+		          $this.css('display', 'block');
+		          $modal_dialog.css({'margin-top': Math.max(0, ($(window).height() - $modal_dialog.height()) / 2) });
+		        });
+						$('#loading_id').modal('show');
 						if (that.id != '') json['id'] = that.id;
 						if (that.userId != '0') json['userId'] = that.userId;
 						if (that.adviserId != '0') json['adviserId'] = that.adviserId;
@@ -618,7 +638,7 @@
 						if (that.endOfficialApprovalDate != '') json['endOfficialApprovalDate'] = that.endOfficialApprovalDate;
 						if (that.startMaraApprovalDate != '') json['startMaraApprovalDate'] = that.startMaraApprovalDate;
 						if (that.endMaraApprovalDate != '') json['endMaraApprovalDate'] = that.endMaraApprovalDate;
-						console.log(json);
+						//console.log(json);
 						$.get(url + "serviceOrder/count", json, function(result) {
 							that.count = result.data;
 							that.allPage = Math.ceil(result.data / that.pageSize);
@@ -630,6 +650,7 @@
 							result.data = return_result(result);
 							that.subject = result.data;
 							that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
+							$('#loading_id').modal('hide');
 						});
 					},
 					getTime: function(d) {
