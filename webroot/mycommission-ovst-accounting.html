@@ -591,6 +591,18 @@
 					</div>
 				</div>
 			</div>
+		</div>
+		<div class="modal fade" id="loading_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop='static' style="z-index:99999;">
+			<div class="modal-dialog" role="document" style="width:350px;">
+				<div class="modal-content">
+					<div class="modal-header">
+					</div>
+					<div class="modal-body">
+							<div style="text-align:center;color:#0066CC;"><img src="img/input-spinner.gif" /> 正在执行，请稍后...</div>
+					</div>
+					
+				</div>
+			</div>
 		</div>		
 		<div id="load-mycommission-ovst-accounting-view-page"></div>
 		<script src="js/jquery-1.8.3.min.js"></script>
@@ -681,6 +693,7 @@
 					getSearch: function() {
 						var that = this;
 						var json = {};
+						show_loading();
 						if (that.id != '') json['id'] = that.id;
 						if (that.name != '') json['name'] = that.name;
 						if (that.phone != '') json['phone'] = that.phone;
@@ -722,12 +735,14 @@
 							result.data = return_result(result);
 							that.subject = result.data;
 							that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
+							$('#loading_id').modal('hide');
 						});
 					},					
 					getExport: function() {
 						var that = this;
 						var json = {};						
 						var down_url = url + "commissionOrder/down?";
+						show_loading();
 						if (typeof(that.userId) != "undefined")
 						{
 								down_url += "name="+that.name;
@@ -796,6 +811,7 @@
 						$("body").append(a);
 						a.click();
 						$(a).remove();
+						setTimeout(function(){$('#loading_id').modal('hide');}, 3000);
 					},
 					getTime: function(d) {
 						var date1 = new Date(d);
@@ -1554,8 +1570,10 @@
        				}
        				var t3a = $(f+'#t3a').val();
        				if (t3a != '') json['sureExpectAmount'] = t3a;
+       				show_loading();
        				$.post(str_url, json,
 					   	function(data){
+					   			$('#loading_id').modal('hide');
 					   			if (data.code == 0)
 					   			{
 					   					$('#my_table #alert_success').css('marginLeft','40%');
@@ -1618,8 +1636,10 @@
 		              d4= date.getTime();
        				}
        				json['zyDate'] = d4;
+       				show_loading();
        				$.post(str_url, json,
 					   	function(data){
+					   			$('#loading_id').modal('hide');
 					   			if (data.code == 0)
 					   			{
 					   					$('#my_table #alert_success').css('marginLeft','40%');
@@ -1880,6 +1900,17 @@
 			        s+="0";
 			    }
 			    return s+str;
+			}
+			
+			function show_loading()
+			{
+					$('#loading_id').on('show.bs.modal', function(){
+	          var $this = $(this);
+	          var $modal_dialog = $this.find('.modal-dialog');
+	          $this.css('display', 'block');
+	          $modal_dialog.css({'margin-top': Math.max(0, ($(window).height() - $modal_dialog.height()) / 2) });
+	        });
+					$('#loading_id').modal('show');
 			}
 			
 	    jQuery(document).ready(function() {
