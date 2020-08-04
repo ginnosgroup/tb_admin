@@ -641,7 +641,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 	@RequestMapping(value = "/count", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<Integer> count(@RequestParam(value = "maraId", required = false) Integer maraId,
+	public Response<Integer> count(@RequestParam(value = "regionId", required = false) Integer regionId,
+			@RequestParam(value = "maraId", required = false) Integer maraId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "officialId", required = false) Integer officialId,
 			@RequestParam(value = "userId", required = false) Integer userId,
@@ -697,7 +698,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		try {
 			super.setGetHeader(response);
 			return new Response<Integer>(0,
-					commissionOrderService.countCommissionOrder(maraId, adviserId, officialId, userId, name, phone,
+					commissionOrderService.countCommissionOrder(regionId, maraId, adviserId, officialId, userId, name, phone,
 							wechatUsername, schoolId, isSettle, stateList, commissionStateList, startKjApprovalDate,
 							endKjApprovalDate, isYzyAndYjy));
 		} catch (ServiceException e) {
@@ -707,7 +708,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<CommissionOrderListDTO>> list(@RequestParam(value = "maraId", required = false) Integer maraId,
+	public Response<List<CommissionOrderListDTO>> list(
+			@RequestParam(value = "regionId", required = false) Integer regionId,
+			@RequestParam(value = "maraId", required = false) Integer maraId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "officialId", required = false) Integer officialId,
 			@RequestParam(value = "userId", required = false) Integer userId,
@@ -764,9 +767,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		try {
 			super.setGetHeader(response);
 			return new Response<List<CommissionOrderListDTO>>(0,
-					commissionOrderService.listCommissionOrder(maraId, adviserId, officialId, userId, name, phone,
-							wechatUsername, schoolId, isSettle, stateList, commissionStateList, startKjApprovalDate,
-							endKjApprovalDate, isYzyAndYjy, pageNum, pageSize));
+					commissionOrderService.listCommissionOrder(regionId, maraId, adviserId, officialId, userId, name,
+							phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
+							startKjApprovalDate, endKjApprovalDate, isYzyAndYjy, pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<CommissionOrderListDTO>>(1, e.getMessage(), null);
 		}
@@ -827,7 +830,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 	@RequestMapping(value = "/down", method = RequestMethod.GET)
 	@ResponseBody
-	public void down(@RequestParam(value = "maraId", required = false) Integer maraId,
+	public void down(@RequestParam(value = "regionId", required = false) Integer regionId,
+			@RequestParam(value = "maraId", required = false) Integer maraId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "officialId", required = false) Integer officialId,
 			@RequestParam(value = "userId", required = false) Integer userId,
@@ -887,8 +891,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 //			if (endKjApprovalDate != null)
 //				_endKjApprovalDate = new Date(Long.parseLong(endKjApprovalDate));
 
-			List<CommissionOrderListDTO> commissionOrderList = commissionOrderService.listCommissionOrder(maraId,
-					adviserId, officialId, userId, name, phone, wechatUsername, schoolId, isSettle, stateList,
+			List<CommissionOrderListDTO> commissionOrderList = commissionOrderService.listCommissionOrder(regionId,
+					maraId, adviserId, officialId, userId, name, phone, wechatUsername, schoolId, isSettle, stateList,
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, isYzyAndYjy, 0, 9999);
 
 			OutputStream os = response.getOutputStream();

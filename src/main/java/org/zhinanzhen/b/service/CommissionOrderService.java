@@ -14,14 +14,14 @@ public interface CommissionOrderService {
 
 	int updateCommissionOrder(CommissionOrderDTO commissionOrderDto) throws ServiceException;
 
-	public int countCommissionOrder(Integer maraId, Integer adviserId, Integer officialId, Integer userId, String name,
-			String phone, String wechatUsername, Integer schoolId, Boolean isSettle, List<String> stateList,
-			List<String> commissionStateList, String startKjApprovalDate, String endKjApprovalDate, Boolean isYzyAndYjy)
-			throws ServiceException;
-
-	public List<CommissionOrderListDTO> listCommissionOrder(Integer maraId, Integer adviserId, Integer officialId,
+	public int countCommissionOrder(Integer regionId, Integer maraId, Integer adviserId, Integer officialId,
 			Integer userId, String name, String phone, String wechatUsername, Integer schoolId, Boolean isSettle,
 			List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
+			String endKjApprovalDate, Boolean isYzyAndYjy) throws ServiceException;
+
+	public List<CommissionOrderListDTO> listCommissionOrder(Integer regionId, Integer maraId, Integer adviserId,
+			Integer officialId, Integer userId, String name, String phone, String wechatUsername, Integer schoolId,
+			Boolean isSettle, List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
 			String endKjApprovalDate, Boolean isYzyAndYjy, int pageNum, int pageSize) throws ServiceException;
 
 	List<CommissionOrderListDTO> listThisMonthCommissionOrder(Integer adviserId, Integer officialId)
