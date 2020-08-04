@@ -458,6 +458,7 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
+			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "userId", required = false) Integer userId, HttpServletRequest request,
 			HttpServletResponse response) {
@@ -508,6 +509,7 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
+			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "userId", required = false) Integer userId,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
