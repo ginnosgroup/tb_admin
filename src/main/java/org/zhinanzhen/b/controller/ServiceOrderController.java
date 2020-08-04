@@ -487,6 +487,7 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "endMaraApprovalDate", required = false) String endMaraApprovalDate,
 			@RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
 			@RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
+			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "userId", required = false) String userId,
 			@RequestParam(value = "maraId", required = false) String maraId,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
@@ -530,7 +531,7 @@ public class ServiceOrderController extends BaseController {
 			return new Response<Integer>(0,
 					serviceOrderService.countServiceOrder(type, excludeState, stateList, reviewStateList,
 							startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
-							endOfficialApprovalDate, StringUtil.toInt(userId), StringUtil.toInt(maraId),
+							endOfficialApprovalDate, regionId, StringUtil.toInt(userId), StringUtil.toInt(maraId),
 							StringUtil.toInt(adviserId), StringUtil.toInt(officialId), 0,
 							isNotApproved != null ? isNotApproved : false));
 		} catch (ServiceException e) {
@@ -548,6 +549,7 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "endMaraApprovalDate", required = false) String endMaraApprovalDate,
 			@RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
 			@RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
+			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "userId", required = false) String userId,
 			@RequestParam(value = "maraId", required = false) String maraId,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
@@ -593,7 +595,7 @@ public class ServiceOrderController extends BaseController {
 			return new Response<List<ServiceOrderDTO>>(0,
 					serviceOrderService.listServiceOrder(type, excludeState, stateList, reviewStateList,
 							startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
-							endOfficialApprovalDate, StringUtil.toInt(userId), StringUtil.toInt(maraId),
+							endOfficialApprovalDate, regionId, StringUtil.toInt(userId), StringUtil.toInt(maraId),
 							StringUtil.toInt(adviserId), StringUtil.toInt(officialId), 0,
 							isNotApproved != null ? isNotApproved : false, pageNum, pageSize));
 		} catch (ServiceException e) {

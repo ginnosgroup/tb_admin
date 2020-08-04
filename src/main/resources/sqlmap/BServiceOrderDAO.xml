@@ -263,8 +263,8 @@
     
     <select id="countServiceOrder" resultType="java.lang.Integer">
         SELECT count(*)
-        FROM b_service_order so
-        WHERE so.is_delete = 0
+        FROM b_service_order so, tb_adviser a
+        WHERE so.is_delete = 0 AND a.id = so.adviser_id
         <if test='type != null and type != ""'>
 			AND so.type = #{type}
 		</if>
@@ -289,6 +289,9 @@
         <if test='startOfficialApprovalDate != null and startOfficialApprovalDate != "" and endOfficialApprovalDate != null and endOfficialApprovalDate != ""'>
             <![CDATA[ AND so.official_approval_date > #{startOfficialApprovalDate} AND so.official_approval_date < #{endOfficialApprovalDate} ]]>
         </if>
+        <if test='regionId != null and regionId > 0'>
+			AND a.region_id = #{regionId}
+		</if>
 		<if test='userId != null and userId > 0'>
 			AND so.user_id = #{userId}
 		</if>
@@ -363,8 +366,8 @@
             so.official_id AS officialId,
             so.remarks AS remarks,
             so.closed_reason AS closedReason
-        FROM b_service_order so
-        WHERE so.is_delete = 0
+        FROM b_service_order so, tb_adviser a
+        WHERE so.is_delete = 0 AND a.id = so.adviser_id
         <if test='type != null and type != ""'>
 			AND so.type = #{type}
 		</if>
@@ -389,6 +392,9 @@
         <if test='startOfficialApprovalDate != null and startOfficialApprovalDate != "" and endOfficialApprovalDate != null and endOfficialApprovalDate != ""'>
             <![CDATA[ AND so.official_approval_date > #{startOfficialApprovalDate} AND so.official_approval_date < #{endOfficialApprovalDate} ]]>
         </if>
+        <if test='regionId != null and regionId > 0'>
+			AND a.region_id = #{regionId}
+		</if>
 		<if test='userId != null and userId > 0'>
 			AND so.user_id = #{userId}
 		</if>
