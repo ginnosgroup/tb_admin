@@ -519,12 +519,12 @@
 			</div>
 		</div>
 		<div class="modal fade" id="loading_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop='static' style="z-index:9999;">
-			<div class="modal-dialog" role="document">
+			<div class="modal-dialog" role="document" style="width:350px;">
 				<div class="modal-content">
 					<div class="modal-header">
 					</div>
 					<div class="modal-body">
-							<div style="text-align:center;"><img src="img/input-spinner.gif" /> 正在执行，请稍后...</div>
+							<div style="text-align:center;color:#0066CC;"><img src="img/input-spinner.gif" /> 正在执行，请稍后...</div>
 					</div>
 					
 				</div>
@@ -627,6 +627,7 @@
 		          $modal_dialog.css({'margin-top': Math.max(0, ($(window).height() - $modal_dialog.height()) / 2) });
 		        });
 						$('#loading_id').modal('show');
+						return false;
 						if (that.id != '') json['id'] = that.id;
 						if (that.userId != '0') json['userId'] = that.userId;
 						if (that.adviserId != '0') json['adviserId'] = that.adviserId;
