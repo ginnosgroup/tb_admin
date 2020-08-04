@@ -77,6 +77,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 				return 0;
 			}
 		} catch (Exception e) {
+e.printStackTrace();
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
