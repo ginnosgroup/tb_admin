@@ -518,7 +518,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="modal fade" id="loading_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop='static' style="z-index:9999;">
+		<div class="modal fade" id="loading_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop='static' style="z-index:99999;">
 			<div class="modal-dialog" role="document" style="width:350px;">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -619,15 +619,7 @@
 					getSearch: function() {
 						var that = this;
 						var json = {};
-						//$('#loading_id').modal({backdrop: 'static', keyboard: false});
-						$('#loading_id').on('show.bs.modal', function(){
-		          var $this = $(this);
-		          var $modal_dialog = $this.find('.modal-dialog');
-		          $this.css('display', 'block');
-		          $modal_dialog.css({'margin-top': Math.max(0, ($(window).height() - $modal_dialog.height()) / 2) });
-		        });
-						$('#loading_id').modal('show');
-						return false;
+						show_loading();
 						if (that.id != '') json['id'] = that.id;
 						if (that.userId != '0') json['userId'] = that.userId;
 						if (that.adviserId != '0') json['adviserId'] = that.adviserId;
@@ -1034,7 +1026,7 @@
             
       
       function flowstep(va,par)
-      {
+      {      		
       		var str_url = "serviceOrder/approval";
       		if (par == '0' || va == 'CLOSE') str_url = "serviceOrder/refuse";
       		
@@ -1067,14 +1059,15 @@
 	          			$("#error_info").html('收款凭证没有上传，请上传之后再提交。');
           				return false;
           		}
-          }                    
+          }
           //文案更新
           if (v.orderType == 'OVST' && v.ap_list == 'WA')
           {
           		if (va != 'APPLY' && va != 'PAID' && va !='COMPLETE') json['subagencyId'] = $('#show_addnewservice2_id #c7a').val();
           		//if (va != 'APPLY' && va != 'PAID') json['remarks'] = $('#show_addnewservice2_id #c16a').val();
           }
-                   
+          show_loading();
+          
           json['id'] = v.orderId;
           json['state'] = va;          
           $.post(str_url, json,
@@ -1097,6 +1090,7 @@
 			   					setTimeout(function(){window.location.href = "serviceorder-list.html?state=";}, 2000);				   					
 			   			}else
 			   			{
+			   					$('#loading_id').modal('hide');
 			   					$('#alert_error').css('marginLeft','30%');
 			   					$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
 	          			$("#error_info").html(data.message);
@@ -1129,6 +1123,7 @@
       {      		
       		if (v_sub.order_detail.type=='SIV' && v.ap_list == 'GW' && !v_sub.order_detail.parentId && !v_sub.order_detail.submitted)
       		{
+      				show_loading();
       				reqCommissionVisa();//创建SIV佣金订单
       				$('#showconfirmbox_id').modal('hide');      				
       		}else
@@ -1308,6 +1303,17 @@
 			        s+="0";
 			    }
 			    return s+str;
+			}
+			
+			function show_loading()
+			{
+					$('#loading_id').on('show.bs.modal', function(){
+	          var $this = $(this);
+	          var $modal_dialog = $this.find('.modal-dialog');
+	          $this.css('display', 'block');
+	          $modal_dialog.css({'margin-top': Math.max(0, ($(window).height() - $modal_dialog.height()) / 2) });
+	        });
+					$('#loading_id').modal('show');
 			}
 			
 	    jQuery(document).ready(function() {
