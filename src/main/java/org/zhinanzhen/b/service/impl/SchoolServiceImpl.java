@@ -66,8 +66,10 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 						schoolList.forEach(school -> {
 							if (school.getSubject() == null || "".equals(school.getSubject())) {
 								SchoolSettingDO schoolSettingDo = schoolSettingDao.getBySchoolId(school.getId());
-								schoolSettingDo.setSchoolId(schoolDo.getId());
-								schoolSettingDao.add(schoolSettingDo);
+								if (schoolSettingDo != null) {
+									schoolSettingDo.setSchoolId(schoolDo.getId());
+									schoolSettingDao.add(schoolSettingDo);
+								}
 							}
 						});
 				}
@@ -77,7 +79,6 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 				return 0;
 			}
 		} catch (Exception e) {
-e.printStackTrace();
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
