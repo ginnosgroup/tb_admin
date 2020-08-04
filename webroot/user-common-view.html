@@ -1395,7 +1395,8 @@ function reqCommissionOvst()
    					$('#show_addnewservice2_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
       			$("#show_addnewservice2_id #error_info").html('收款凭证没有上传，请上传之后再提交。');
     				return false;
-   			}   		   			
+   			}
+   			show_loading();
        	
        	$.post(str_url, json,
 		   	function(data){
@@ -1407,6 +1408,7 @@ function reqCommissionOvst()
 		   					setTimeout(function(){window.location.href = "mycommission-ovst.html";}, 2000);
 		   			}else
 		   			{
+		   					$('#loading_id').modal('hide');
 		   					$('#show_addnewservice2_id #alert_error').css('marginTop','70%');
 		   					$('#show_addnewservice2_id #alert_error').css('marginLeft','30%');
 		   					$('#show_addnewservice2_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
