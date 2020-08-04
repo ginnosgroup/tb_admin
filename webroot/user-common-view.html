@@ -136,7 +136,7 @@
 										<option v-if="flowstate_gw==='REVIEW' && flowstate_wa===null" value="REVIEW">资料审核中</option>
 										<option v-if="flowstate_wa==='REVIEW' && servicepackage_type!=='EOI' && (flowstate_ma===null || flowstate_ma === 'REVIEW')" value="WAIT">提交Mara审核</option>
 										<option v-if="flowstate_wa==='WAIT'" value="">Mara审核中</option>
-										<option v-if="flowstate_ma==='FINISH' && servicepackage_type==='VISA'" value="APPLY">已提交申请</option>
+										<option v-if="flowstate_ma==='FINISH'" value="APPLY">已提交申请</option>
 										<option v-if="servicepackage_type==='VA' && (flowstate_wa==='APPLY' || flowstate_wa==='COMPLETE')" value="COMPLETE">申请成功</option>
 										<option v-if="servicepackage_type==='EOI' && (flowstate_wa==='APPLY' || flowstate_wa==='COMPLETE')" value="COMPLETE">EOI完成</option>
 										<option v-if="servicepackage_type==='CA' && (flowstate_wa==='APPLY' || flowstate_wa==='COMPLETE')" value="COMPLETE">评估完成</option>
@@ -723,7 +723,7 @@ function show_addnewservice_id(orderId,type)
         	
         	v_sub.flowstate_gw = response.review.adviserState;
         	v_sub.flowstate_wa = response.review.officialState;
-        	v_sub.flowstate_ma = response.review.maraState;
+        	v_sub.flowstate_ma = response.review.maraState;        	
         	if (response.review.officialState == 'REVIEW')
 					{
 							if (response.review.maraState == 'FINISH')
@@ -755,7 +755,7 @@ function show_addnewservice_id(orderId,type)
 					}
 					if (str_state == 'WA_REVIEW') $("#b19").val('REVIEW');
 					if (str_state == 'WA_MA_WAIT' ||  str_state == 'MA_WAIT') $("#b19").val('WAIT');
-					if (str_state == 'APPLY' || str_state == 'COMPLETE' || str_state == 'CLOSE') $("#b19").val(str_state);
+					if (str_state == 'APPLY' || str_state == 'COMPLETE' || str_state == 'CLOSE') $("#b19").val(str_state);					
     	}else if (type == 'OVST')//留学
     	{
     			//留学    			
