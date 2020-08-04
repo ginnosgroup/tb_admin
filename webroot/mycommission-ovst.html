@@ -483,6 +483,18 @@
 					</div>
 				</div>
 			</div>
+		</div>
+		<div class="modal fade" id="loading_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop='static' style="z-index:99999;">
+			<div class="modal-dialog" role="document" style="width:350px;">
+				<div class="modal-content">
+					<div class="modal-header">
+					</div>
+					<div class="modal-body">
+							<div style="text-align:center;color:#0066CC;"><img src="img/input-spinner.gif" /> 正在执行，请稍后...</div>
+					</div>
+					
+				</div>
+			</div>
 		</div>		
 		<div id="load-mycommission-ovst-page"></div>
 		<div id="load-mycommission-ovst-view-page"></div>
@@ -557,6 +569,7 @@
 					getSearch: function() {
 						var that = this;
 						var json = {};
+						show_loading();
 						if (that.id != '') json['id'] = that.id;
 						if (that.userId != '0') json['userId'] = that.userId;
 						if (that.adviserId != '0') json['adviserId'] = that.adviserId;						
@@ -579,11 +592,13 @@
 							result.data = return_result(result);
 							that.subject = result.data;
 							that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
+							$('#loading_id').modal('hide');
 						});
 					},
 					getExport: function() {
 						var that = this;						
 						var down_url = url + "commissionOrder/down?";
+						show_loading();
 						if (typeof(that.userId) != "undefined")
 						{
 								down_url += "userId="+that.userId;
@@ -647,6 +662,7 @@
 						$("body").append(a);
 						a.click();
 						$(a).remove();
+						setTimeout(function(){$('#loading_id').modal('hide');}, 3000);
 					},
 					getTime: function(d) {
 						var date1 = new Date(d);
@@ -930,6 +946,7 @@
       		
           var json = {};
           var closedReason = '';
+          show_loading();
                    
           json['id'] = v.orderId;
           json['state'] = va;
@@ -942,6 +959,7 @@
 			   					setTimeout(function(){window.location.href = "mycommission-ovst.html";}, 2000);				   					
 			   			}else
 			   			{
+			   					$('#loading_id').modal('hide');
 			   					$('#ovst_id #alert_error').css('marginLeft','30%');
 			   					$('#ovst_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
 	          			$("#ovst_id #error_info").html(data.message);
@@ -1026,6 +1044,17 @@
 			        s+="0";
 			    }
 			    return s+str;
+			}
+			
+			function show_loading()
+			{
+					$('#loading_id').on('show.bs.modal', function(){
+	          var $this = $(this);
+	          var $modal_dialog = $this.find('.modal-dialog');
+	          $this.css('display', 'block');
+	          $modal_dialog.css({'margin-top': Math.max(0, ($(window).height() - $modal_dialog.height()) / 2) });
+	        });
+					$('#loading_id').modal('show');
 			}
 			
 	    jQuery(document).ready(function() {
