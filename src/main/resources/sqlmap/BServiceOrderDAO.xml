@@ -266,50 +266,50 @@
         FROM b_service_order so, tb_adviser a
         WHERE so.is_delete = 0 AND a.id = so.adviser_id
         <if test='type != null and type != ""'>
-			AND so.type = #{type}
-		</if>
-		<if test='excludeState != null and excludeState != ""'>
-			AND so.state != #{excludeState}
-		</if>
-		<if test='stateList != null'>
-			AND so.state IN
-			<foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">
-				#{stateList}
-			</foreach>
-		</if>
-		<if test='reviewStateList != null'>
-			AND so.review_state IN
-			<foreach collection="reviewStateList" item="reviewStateList" index="index" open="(" close=")" separator=",">
-				#{reviewStateList}
-			</foreach>
-		</if>
-		<if test='startMaraApprovalDate != null and startMaraApprovalDate != "" and endMaraApprovalDate != null and endMaraApprovalDate != ""'>
+            AND so.type = #{type}
+        </if>
+        <if test='excludeState != null and excludeState != ""'>
+            AND so.state != #{excludeState}
+        </if>
+        <if test='stateList != null'>
+            AND so.state IN
+            <foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">
+                #{stateList}
+            </foreach>
+        </if>
+        <if test='reviewStateList != null'>
+            AND so.review_state IN
+            <foreach collection="reviewStateList" item="reviewStateList" index="index" open="(" close=")" separator=",">
+                #{reviewStateList}
+            </foreach>
+        </if>
+        <if test='startMaraApprovalDate != null and startMaraApprovalDate != "" and endMaraApprovalDate != null and endMaraApprovalDate != ""'>
             <![CDATA[ AND so.mara_approval_date > #{startMaraApprovalDate} AND so.mara_approval_date < #{endMaraApprovalDate} ]]>
         </if>
         <if test='startOfficialApprovalDate != null and startOfficialApprovalDate != "" and endOfficialApprovalDate != null and endOfficialApprovalDate != ""'>
             <![CDATA[ AND so.official_approval_date > #{startOfficialApprovalDate} AND so.official_approval_date < #{endOfficialApprovalDate} ]]>
         </if>
         <if test='regionId != null and regionId > 0'>
-			AND a.region_id = #{regionId}
-		</if>
-		<if test='userId != null and userId > 0'>
-			AND so.user_id = #{userId}
-		</if>
-		<if test='maraId != null and maraId > 0'>
-			AND so.mara_id = #{maraId}
-		</if>
-		<if test='adviserId != null and adviserId > 0'>
-			AND (so.adviser_id = #{adviserId} OR so.adviser_id_2 = #{adviserId})
-		</if>
-		<if test='officialId != null and officialId > 0'>
-			AND so.official_id = #{officialId}
-		</if>
-		<if test='parentId != null and parentId > 0'>
-			AND so.parent_id = #{parentId}
-		</if>
-		<if test='isNotApproved == true'>
-			<![CDATA[ AND (SELECT COUNT(id) FROM b_service_order_review WHERE service_order_id = so.id AND official_state IS NOT NULL) <= 0 ]]>
-		</if>
+            AND a.region_id = #{regionId}
+        </if>
+        <if test='userId != null and userId > 0'>
+            AND so.user_id = #{userId}
+        </if>
+        <if test='maraId != null and maraId > 0'>
+            AND so.mara_id = #{maraId}
+        </if>
+        <if test='adviserId != null and adviserId > 0'>
+            AND (so.adviser_id = #{adviserId} OR so.adviser_id_2 = #{adviserId})
+        </if>
+        <if test='officialId != null and officialId > 0'>
+            AND so.official_id = #{officialId}
+        </if>
+        <if test='parentId != null and parentId > 0'>
+            AND so.parent_id = #{parentId}
+        </if>
+        <if test='isNotApproved == true'>
+            <![CDATA[ AND (SELECT COUNT(id) FROM b_service_order_review WHERE service_order_id = so.id AND official_state IS NOT NULL) <= 0 ]]>
+        </if>
         ;
     </select>
     
@@ -369,50 +369,50 @@
         FROM b_service_order so, tb_adviser a
         WHERE so.is_delete = 0 AND a.id = so.adviser_id
         <if test='type != null and type != ""'>
-			AND so.type = #{type}
-		</if>
-		<if test='excludeState != null and excludeState != ""'>
-			AND so.state != #{excludeState}
-		</if>
-		<if test='stateList != null'>
-			AND so.state IN
-			<foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">
-				#{stateList}
-			</foreach>
-		</if>
-		<if test='reviewStateList != null'>
-			AND so.review_state IN
-			<foreach collection="reviewStateList" item="reviewStateList" index="index" open="(" close=")" separator=",">
-				#{reviewStateList}
-			</foreach>
-		</if>
-		<if test='startMaraApprovalDate != null and startMaraApprovalDate != "" and endMaraApprovalDate != null and endMaraApprovalDate != ""'>
+            AND so.type = #{type}
+        </if>
+        <if test='excludeState != null and excludeState != ""'>
+            AND so.state != #{excludeState}
+        </if>
+        <if test='stateList != null'>
+            AND so.state IN
+            <foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">
+                #{stateList}
+            </foreach>
+        </if>
+        <if test='reviewStateList != null'>
+            AND so.review_state IN
+            <foreach collection="reviewStateList" item="reviewStateList" index="index" open="(" close=")" separator=",">
+                #{reviewStateList}
+            </foreach>
+        </if>
+        <if test='startMaraApprovalDate != null and startMaraApprovalDate != "" and endMaraApprovalDate != null and endMaraApprovalDate != ""'>
             <![CDATA[ AND so.mara_approval_date > #{startMaraApprovalDate} AND so.mara_approval_date < #{endMaraApprovalDate} ]]>
         </if>
         <if test='startOfficialApprovalDate != null and startOfficialApprovalDate != "" and endOfficialApprovalDate != null and endOfficialApprovalDate != ""'>
             <![CDATA[ AND so.official_approval_date > #{startOfficialApprovalDate} AND so.official_approval_date < #{endOfficialApprovalDate} ]]>
         </if>
         <if test='regionId != null and regionId > 0'>
-			AND a.region_id = #{regionId}
-		</if>
-		<if test='userId != null and userId > 0'>
-			AND so.user_id = #{userId}
-		</if>
-		<if test='maraId != null and maraId > 0'>
-			AND so.mara_id = #{maraId}
-		</if>
-		<if test='adviserId != null and adviserId > 0'>
-			AND (so.adviser_id = #{adviserId} OR so.adviser_id_2 = #{adviserId})
-		</if>
-		<if test='officialId != null and officialId > 0'>
-			AND so.official_id = #{officialId}
-		</if>
-		<if test='parentId != null and parentId > 0'>
-			AND so.parent_id = #{parentId}
-		</if>
-		<if test='isNotApproved == true'>
-			<![CDATA[ AND (SELECT COUNT(id) FROM b_service_order_review WHERE service_order_id = so.id AND official_state IS NOT NULL) <= 0 ]]>
-		</if>
+            AND a.region_id = #{regionId}
+        </if>
+        <if test='userId != null and userId > 0'>
+            AND so.user_id = #{userId}
+        </if>
+        <if test='maraId != null and maraId > 0'>
+            AND so.mara_id = #{maraId}
+        </if>
+        <if test='adviserId != null and adviserId > 0'>
+            AND (so.adviser_id = #{adviserId} OR so.adviser_id_2 = #{adviserId})
+        </if>
+        <if test='officialId != null and officialId > 0'>
+            AND so.official_id = #{officialId}
+        </if>
+        <if test='parentId != null and parentId > 0'>
+            AND so.parent_id = #{parentId}
+        </if>
+        <if test='isNotApproved == true'>
+            <![CDATA[ AND (SELECT COUNT(id) FROM b_service_order_review WHERE service_order_id = so.id AND official_state IS NOT NULL) <= 0 ]]>
+        </if>
         ORDER BY so.id DESC
         LIMIT #{offset}, #{rows};
     </select>
@@ -425,9 +425,9 @@
             state
         FROM b_service_order
         WHERE is_delete = 0
-		<if test='parentId != null and parentId > 0'>
-			AND parent_id = #{parentId}
-		</if>
+        <if test='parentId != null and parentId > 0'>
+            AND parent_id = #{parentId}
+        </if>
         ORDER BY gmt_create DESC;
     </select>
     
@@ -486,8 +486,8 @@
             closed_reason AS closedReason
         FROM b_service_order WHERE id = #{id, jdbcType=INTEGER};
     </select>
-	
-	<update id="deleteServiceOrderById" parameterType="java.lang.Integer">
+    
+    <update id="deleteServiceOrderById" parameterType="java.lang.Integer">
         UPDATE b_service_order
         SET gmt_modify = now(), is_delete = 1
         WHERE id = #{id, jdbcType=INTEGER};
