@@ -289,13 +289,13 @@
             <![CDATA[ AND bv.handling_date > #{startHandlingDate} AND bv.handling_date < #{endHandlingDate} ]]>
         </if>
         <if test='stateList != null'>
-			AND state IN
+			AND bv.state IN
 			<foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">
 				#{stateList}
 			</foreach>
 		</if>
 		<if test='commissionStateList != null'>
-			AND commission_state IN
+			AND bv.commission_state IN
 			<foreach collection="commissionStateList" item="commissionStateList" index="index" open="(" close=")" separator=",">
 				#{commissionStateList}
 			</foreach>
