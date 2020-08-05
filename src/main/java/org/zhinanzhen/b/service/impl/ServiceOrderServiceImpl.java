@@ -173,6 +173,11 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			String startMaraApprovalDate, String endMaraApprovalDate, String startOfficialApprovalDate,
 			String endOfficialApprovalDate, Integer regionId, int userId, int maraId, int adviserId, int officialId,
 			int parentId, boolean isNotApproved) throws ServiceException {
+System.out.println("c----------type:" + type);
+System.out.println("c----------excludeState:" + excludeState);
+System.out.println("c----------stateList:" + stateList);
+System.out.println("c----------reviewStateList:" + reviewStateList);
+System.out.println("c----------isNotApproved:" + isNotApproved);
 System.out.println("c----------regionId:" + regionId);
 		return serviceOrderDao.countServiceOrder(type, excludeState, stateList, reviewStateList, startMaraApprovalDate,
 				endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate, regionId,
@@ -193,6 +198,11 @@ System.out.println("c----------regionId:" + regionId);
 		if (pageSize < 0)
 			pageSize = DEFAULT_PAGE_SIZE;
 		try {
+System.out.println("l----------type:" + type);
+System.out.println("l----------excludeState:" + excludeState);
+System.out.println("l----------stateList:" + stateList);
+System.out.println("l----------reviewStateList:" + reviewStateList);
+System.out.println("l----------isNotApproved:" + isNotApproved);
 System.out.println("l----------regionId:" + regionId);
 			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, excludeState, stateList, reviewStateList,
 					startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate,
