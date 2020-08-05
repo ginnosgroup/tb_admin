@@ -316,7 +316,12 @@
 													<select id="type" class="form-control" style="width:130px;" onchange="gotoUrl(this.value);">
 													<option value="OVST" selected="true">留学</option>
 													<option value="VISA">签证</option>													
-													</select>													
+													</select>
+													<dle v-if="ap_list!=='GW'">
+													<label>选择地区</label>
+													<select v-model.trim="regionId" id="regionId" class="form-control" style="width:130px;">
+													</select>
+													</dle>
 											</div>
 											<div class="form-group">
 												<button @click="getSearch" type="button" class="btn btn-info">查询</button>
@@ -580,6 +585,7 @@
 						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
 						if (that.startDate != '') json['startDate'] = that.startDate;
 						if (that.endDate != '') json['endDate'] = that.endDate;
+						if (that.ap_list != 'GW' && that.regionId != '') json['regionId'] = that.regionId;
 						
 						$.get(url + "commissionOrder/count", json, function(result) {
 							that.count = result.data;
@@ -655,7 +661,14 @@
 						{
 								down_url += "&endKjApprovalDate=";
 						}
-						console.log(down_url);
+						if (that.ap_list != 'GW' && typeof(that.regionId) != "undefined")
+						{
+								down_url += "&regionId="+that.regionId;
+						}else
+						{
+								down_url += "&regionId=";
+						}
+						//console.log(down_url);
 						var a = document.createElement('a');
 						a.download = 'commission_all_data.xls';
 						a.href = down_url;
@@ -915,7 +928,27 @@
 			    		v.userId = object.id;  		
 			    	},
 			    	minLength: 1						    	
-			    });			    
+			    });
+			    //绑定区域列表
+			    var obj_regionId = $("#regionId");
+			    $("#regionId").empty();
+			    obj_regionId.append("<option value='0'>请选择</option>");
+			    $.ajax({
+	          url: 'region/list_all',
+	          type: 'GET',
+	          dataType: 'json'
+	        }).done(function(response) {
+	        	var region_data = response.data;
+	        	for (var item in region_data)
+	        	{
+	        			obj_regionId.append("<option value='"+region_data[item].id+"'>"+region_data[item].name+"</option>");
+	        			var region_sub = region_data[item].regionList;
+	        			for (var itemsub in region_sub)
+	        			{
+	        					obj_regionId.append("<option value='"+region_sub[itemsub].id+"'>---"+region_sub[itemsub].name+"</option>");
+	        			}
+	        	}
+	        });		    
 			});
 			
 			function gotoUrl(va)
