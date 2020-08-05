@@ -931,6 +931,7 @@
 			    });
 			    //绑定区域列表
 			    var obj_regionId = $("#regionId");
+			    $("#regionId").empty();
 			    obj_regionId.append("<option value='0'>请选择</option>");
 			    $.ajax({
 	          url: 'region/list_all',
