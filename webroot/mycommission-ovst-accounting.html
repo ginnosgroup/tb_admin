@@ -351,9 +351,15 @@
 												<option value="OVST" selected="true">留学</option>
 												<option value="VISA">签证</option>													
 												</select>
+												<dle v-if="ap_list!=='GW'">
+												<label>选择地区</label>
+												<select v-model.trim="regionId" id="regionId" class="form-control" style="width:130px;">
+												</select>
+												</dle>
 												<button @click="getSearch" type="button" class="btn btn-info">查询</button>
 												<button @click="getExport" type="button" class="btn btn-primary">导出</button>
-											</div>
+												<button v-if="commission_state ==='DJY' || commission_state ==='DZY'" onclick="uploadFile()" type="button" class="btn btn-success">上传数据</button>
+											</div>											
 											<div v-if="commission_state ==='DZY'" class="form-group">
 												<button @click="multiple_edit" type="button" class="btn btn-warning">批量编辑</button>
 											</div>
@@ -592,6 +598,32 @@
 				</div>
 			</div>
 		</div>
+		<div class="modal fade" id="upload_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">上传数据</h4>
+					</div>
+					<div class="modal-body">
+							<form class="form-horizontal" autocomplete="off">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">请选择文件</label>
+								<div class="col-sm-8">
+									<input type="file" id="f2" accept=".xls,.xlsx" class="form-control" placeholder="请选择一个文件">
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-12 control-label" id="show_message" style="text-align: center;color:red;"></label>
+							</div>							
+							</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					</div>
+				</div>
+			</div>
+		</div>
 		<div class="modal fade" id="loading_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop='static' style="z-index:99999;">
 			<div class="modal-dialog" role="document" style="width:350px;">
 				<div class="modal-content">
@@ -723,6 +755,7 @@
 						}
 						if (that.startKjApprovalDate != '') json['startKjApprovalDate'] = that.startKjApprovalDate;
 						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
+						if (that.ap_list != 'GW' && that.regionId != '') json['regionId'] = that.regionId;
 						
 						$.get(url + "commissionOrder/count", json, function(result) {
 							that.count = result.data;
@@ -802,7 +835,14 @@
 						}else
 						{
 								down_url += "&commissionState="+that.commission_state;
-								if (that.isSettle == '') json['isSettle'] = true;
+								if (that.isSettle == '') down_url += "&isSettle=true";
+						}
+						if (that.ap_list != 'GW' && typeof(that.regionId) != "undefined")
+						{
+								down_url += "&regionId="+that.regionId;
+						}else
+						{
+								down_url += "&regionId=";
 						}
 						console.log(down_url);
 						var a = document.createElement('a');
@@ -1763,6 +1803,25 @@
 			    obj_checked.append('<option value="true">True</option>');
 			    obj_checked.append('<option value="false">False</option>');   
 			    obj_checked.val(checked_val.toString());
+			    //绑定区域列表
+			    var obj_regionId = $("#regionId");
+			    obj_regionId.append("<option value='0'>请选择</option>");
+			    $.ajax({
+	          url: 'region/list_all',
+	          type: 'GET',
+	          dataType: 'json'
+	        }).done(function(response) {
+	        	var region_data = response.data;
+	        	for (var item in region_data)
+	        	{
+	        			obj_regionId.append("<option value='"+region_data[item].id+"'>"+region_data[item].name+"</option>");
+	        			var region_sub = region_data[item].regionList;
+	        			for (var itemsub in region_sub)
+	        			{
+	        					obj_regionId.append("<option value='"+region_sub[itemsub].id+"'>---"+region_sub[itemsub].name+"</option>");
+	        			}
+	        	}
+	        });
 			});
 			
 			function gotoUrl(va)
@@ -1841,6 +1900,39 @@
 			    $("#commission_state_"+str_value).addClass("active");
 			    return str_value;
 			}
+			
+			function uploadFile()
+			{
+					$('#upload_id').modal('show');
+			}
+			
+			$('#upload_id #f2').live('change', function (e) {
+					var formData = new FormData();					
+					formData.append("file",$("#f2")[0].files[0]);
+					
+					$.ajax({
+			        url:'commissionOrder/upload',
+			        dataType:'json',
+			        type:'POST',
+			        async: false,
+			        data: formData,
+			        processData : false, //使数据不做处理
+			        contentType : false,
+			        success: function(data){			        		
+			            if (data.code == '0')
+			            {
+			            		$('#upload_id #show_message').css("color","#78CD51");
+			            		$('#upload_id #show_message').html('上传数据成功，请核对数据是否一致。');
+			            }else
+			            {
+			            		$('#upload_id #show_message').html(data.message);
+			            }	
+			        },
+			        error:function(response){
+			            console.log(response);
+			        }
+			    });
+			});
       
       function show_knowledge_detail(id,parentId)
       {

@@ -365,6 +365,11 @@
 													<option value="OVST">留学</option>
 													<option value="SIV">独立技术移民</option>
 													</select>
+													<dle v-if="ap_list!=='GW'">
+													<label>选择地区</label>
+													<select v-model.trim="regionId" id="regionId" class="form-control" style="width:130px;">
+													</select>
+													</dle>
 													<label>状态</label>											
 													<select v-model.trim="state" id="state" class="form-control" style="width:130px;">
 													<option value="" selected="true">全部</option>
@@ -620,6 +625,8 @@
 						var that = this;
 						var json = {};
 						show_loading();
+						json['isNotApproved'] = false;
+						if (that.service_state == 'REVIEW') json['isNotApproved'] = true;
 						if (that.id != '') json['id'] = that.id;
 						if (that.userId != '0') json['userId'] = that.userId;
 						if (that.adviserId != '0') json['adviserId'] = that.adviserId;
@@ -631,6 +638,7 @@
 						if (that.endOfficialApprovalDate != '') json['endOfficialApprovalDate'] = that.endOfficialApprovalDate;
 						if (that.startMaraApprovalDate != '') json['startMaraApprovalDate'] = that.startMaraApprovalDate;
 						if (that.endMaraApprovalDate != '') json['endMaraApprovalDate'] = that.endMaraApprovalDate;
+						if (that.ap_list != 'GW' && that.regionId != '') json['regionId'] = that.regionId;
 						//console.log(json);
 						$.get(url + "serviceOrder/count", json, function(result) {
 							that.count = result.data;
@@ -1221,6 +1229,25 @@
 	        			obj_mara.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
 	        	}
 	        	obj_mara.val(maraId);	        	
+	        });
+	        //绑定区域列表
+			    var obj_regionId = $("#regionId");
+			    obj_regionId.append("<option value='0'>请选择</option>");
+			    $.ajax({
+	          url: 'region/list_all',
+	          type: 'GET',
+	          dataType: 'json'
+	        }).done(function(response) {
+	        	var region_data = response.data;
+	        	for (var item in region_data)
+	        	{
+	        			obj_regionId.append("<option value='"+region_data[item].id+"'>"+region_data[item].name+"</option>");
+	        			var region_sub = region_data[item].regionList;
+	        			for (var itemsub in region_sub)
+	        			{
+	        					obj_regionId.append("<option value='"+region_sub[itemsub].id+"'>---"+region_sub[itemsub].name+"</option>");
+	        			}
+	        	}
 	        });	        
 			});
 			
