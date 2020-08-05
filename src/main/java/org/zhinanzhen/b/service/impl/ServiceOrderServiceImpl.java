@@ -173,6 +173,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			String startMaraApprovalDate, String endMaraApprovalDate, String startOfficialApprovalDate,
 			String endOfficialApprovalDate, Integer regionId, int userId, int maraId, int adviserId, int officialId,
 			int parentId, boolean isNotApproved) throws ServiceException {
+System.out.println("c----------regionId:" + regionId);
 		return serviceOrderDao.countServiceOrder(type, excludeState, stateList, reviewStateList, startMaraApprovalDate,
 				endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate, regionId,
 				userId > 0 ? userId : null, maraId > 0 ? maraId : null, adviserId > 0 ? adviserId : null,
@@ -192,6 +193,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		if (pageSize < 0)
 			pageSize = DEFAULT_PAGE_SIZE;
 		try {
+System.out.println("l----------regionId:" + regionId);
 			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, excludeState, stateList, reviewStateList,
 					startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate,
 					regionId, userId > 0 ? userId : null, maraId > 0 ? maraId : null, adviserId > 0
