@@ -208,9 +208,9 @@ function edit_commission_detail(serviceId,orderId)
 	    	{	    			
 	    			if (response.receiveDate) $("#visa_id #b8").val(v.getTime(response.receiveDate));
 	        	$("#visa_id #b9").val(response.receiveTypeId);
-	        	if (response.receivable) $("#visa_id #b10").val(response.totalPerAmount);
+	        	if (response.totalPerAmount) $("#visa_id #b10").val(response.totalPerAmount);
 	        	if (response.discount) $("#visa_id #b11").val(response.discount);
-	        	if (response.received) $("#visa_id #b12").val(response.totalAmount);	        	
+	        	if (response.totalAmount) $("#visa_id #b12").val(response.totalAmount);	        	
 	        	$('#visa_id #b13').html(response.installmentNum+'/'+response.installment);
 	        	if (response.perAmount) $("#visa_id #b14a").val(response.perAmount);
 	        	if (response.amount) $("#visa_id #b14").val(response.amount);
