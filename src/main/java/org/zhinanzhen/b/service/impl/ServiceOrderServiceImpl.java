@@ -173,12 +173,12 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			String startMaraApprovalDate, String endMaraApprovalDate, String startOfficialApprovalDate,
 			String endOfficialApprovalDate, Integer regionId, int userId, int maraId, int adviserId, int officialId,
 			int parentId, boolean isNotApproved) throws ServiceException {
-System.out.println("c----------type:" + type);
-System.out.println("c----------excludeState:" + excludeState);
-System.out.println("c----------stateList:" + stateList);
-System.out.println("c----------reviewStateList:" + reviewStateList);
-System.out.println("c----------isNotApproved:" + isNotApproved);
-System.out.println("c----------regionId:" + regionId);
+System.out.println("l----------startMaraApprovalDate:" + startMaraApprovalDate);
+System.out.println("l----------endMaraApprovalDate:" + endMaraApprovalDate);
+System.out.println("l----------startOfficialApprovalDate:" + startOfficialApprovalDate);
+System.out.println("l----------endOfficialApprovalDate:" + endOfficialApprovalDate);
+System.out.println("l----------userId:" + userId);
+System.out.println("l----------regionId:" + regionId);
 		return serviceOrderDao.countServiceOrder(type, excludeState, stateList, reviewStateList, startMaraApprovalDate,
 				endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate, regionId,
 				userId > 0 ? userId : null, maraId > 0 ? maraId : null, adviserId > 0 ? adviserId : null,
@@ -198,11 +198,11 @@ System.out.println("c----------regionId:" + regionId);
 		if (pageSize < 0)
 			pageSize = DEFAULT_PAGE_SIZE;
 		try {
-System.out.println("l----------type:" + type);
-System.out.println("l----------excludeState:" + excludeState);
-System.out.println("l----------stateList:" + stateList);
-System.out.println("l----------reviewStateList:" + reviewStateList);
-System.out.println("l----------isNotApproved:" + isNotApproved);
+System.out.println("l----------startMaraApprovalDate:" + startMaraApprovalDate);
+System.out.println("l----------endMaraApprovalDate:" + endMaraApprovalDate);
+System.out.println("l----------startOfficialApprovalDate:" + startOfficialApprovalDate);
+System.out.println("l----------endOfficialApprovalDate:" + endOfficialApprovalDate);
+System.out.println("l----------userId:" + userId);
 System.out.println("l----------regionId:" + regionId);
 			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, excludeState, stateList, reviewStateList,
 					startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate,
@@ -217,6 +217,7 @@ System.out.println("l----------regionId:" + regionId);
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
 			throw se;
 		}
+System.out.println("l----------serviceOrderDoList.size:"+serviceOrderDoList.size());
 		for (ServiceOrderDO serviceOrderDo : serviceOrderDoList) {
 			ServiceOrderDTO serviceOrderDto = mapper.map(serviceOrderDo, ServiceOrderDTO.class);
 			// 查询学校课程
