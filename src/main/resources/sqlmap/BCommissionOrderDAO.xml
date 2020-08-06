@@ -866,4 +866,10 @@
         WHERE school_id = #{schoolId};
     </select>
 
+    <delete id="deleteCommissionOrderById" parameterType="java.lang.Integer">
+        delete b_commission_order,b_commission_order_comment
+        from b_commission_order
+        left join b_commission_order_comment on b_commission_order.id = b_commission_order_comment.commission_order_id
+        where b_commission_order.id =#{id, jdbcType=INTEGER};
+    </delete>
 </mapper>
