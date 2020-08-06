@@ -708,7 +708,7 @@ public class VisaController extends BaseCommissionOrderController {
 				sheet.addCell(new Label(7, i, visaDto.getTotalAmount() + "", cellFormat));
 				sheet.addCell(new Label(8, i, visaDto.getAmount() + "", cellFormat));
 				sheet.addCell(new Label(9, i, visaDto.getExpectAmount() + "", cellFormat));
-				sheet.addCell(new Label(10, i, visaDto.getSureExpectAmount() + "", cellFormat));
+				sheet.addCell(new Label(10, i, visaDto.getExpectAmount() + "", cellFormat));
 				sheet.addCell(new Label(11, i, visaDto.getBonus() + "", cellFormat));
 				if (visaDto.getBonusDate() != null)
 					sheet.addCell(new Label(12, i, sdf.format(visaDto.getBonusDate()), cellFormat));
