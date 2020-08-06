@@ -545,6 +545,18 @@
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 						<h4 class="modal-title" id="myModalLabel">删除</h4>
 					</div>
+					<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+			      <button data-dismiss="alert" class="close close-sm" type="button">
+			      <i class="fa fa-times"></i>
+			      </button>
+			      <strong id="success_info">Success! You  just achieved success.</strong>
+			  	</div>
+			  	<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+		        <button data-dismiss="alert" class="close close-sm" type="button">
+		        <i class="fa fa-times"></i>
+		        </button>
+		        <strong id="error_info"></strong>
+		      </div>
 					<div class="modal-body">
 						[订单ID：<span id="order_id" style="font-weight:bold;"></span> 将被删除]&nbsp;&nbsp;执行后不可撤销操作，请慎重！！！&nbsp;&nbsp;<span style="color:red;">确认删除吗？</span>
 					</div>
@@ -1375,19 +1387,27 @@
 			
 			function deleteId()
       {
-      		alert(v.dId+'删除功能暂不可用。');
-      		return false;
-					$.get("serviceOrder1/delete", {
+      		//alert(v.dId+'删除功能暂不可用。');
+      		//return false;
+      		show_loading();
+					$.get("serviceOrder/delete", {
 						id: v.dId
 					}, function(result) {
-						if(result.data == true) {
-							$('#delete_id').modal('hide');
-							$('#alert_success').css('marginLeft','30%');
-			   			$('#alert_success').addClass('alert-success').show().delay(1500).fadeOut();
-							v.table_remove();
-	   					//重新载入数据源
-	   					v.getDatalist();
-						};
+						$('#loading_id').modal('hide');
+						if(result.data)
+						{
+								$('#delete_id').modal('hide');
+								$('#delete_id #alert_success').css('marginLeft','30%');
+				   			$('#delete_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+								//v.table_remove();
+		   					//重新载入数据源
+		   					v.getDatalist();
+						}else
+						{								
+								$('#delete_id #alert_error').css('marginLeft','30%');
+				   			$('#delete_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+        				$("#delete_id #error_info").html(result.data.message);
+						}
 					});      		
       }
 			
