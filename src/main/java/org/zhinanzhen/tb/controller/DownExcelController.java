@@ -183,7 +183,7 @@ public class DownExcelController extends BaseController {
 		try {
 			super.setGetHeader(response);
 			List<VisaDTO> visaDtoList = visaService.listVisa(keyword, startHandlingDate, endHandlingDate, null, null,
-					null, null, startDate, endDate, adviserId, null, 0, 9999);
+					null, null, startDate, endDate, null, adviserId, null, 0, 9999);
 
 			OutputStream os = response.getOutputStream();
 			jxl.Workbook wb;
@@ -583,7 +583,7 @@ public class DownExcelController extends BaseController {
 
 			// 签证类
 			List<VisaDTO> visaDtoList = visaService.listVisa(keyword, startHandlingDate, endHandlingDate, null, null,
-					null, null, startDate, endDate, adviserId, null, 0, 15);
+					null, null, startDate, endDate, null, adviserId, null, 0, 15);
 
 			// ?
 			// List<BrokerageDTO> brokerageDtoList =

@@ -19,7 +19,8 @@ public interface VisaDAO {
 			@Param("commissionStateList") List<String> commissionStateList,
 			@Param("startKjApprovalDate") String startKjApprovalDate,
 			@Param("endKjApprovalDate") String endKjApprovalDate, @Param("startDate") String startDate,
-			@Param("endDate") String endDate, @Param("adviserId") Integer adviserId, @Param("userId") Integer userId);
+			@Param("endDate") String endDate, @Param("regionId") Integer regionId,
+			@Param("adviserId") Integer adviserId, @Param("userId") Integer userId);
 
 	public int countVisaByServiceOrderIdAndExcludeCode(@Param("serviceOrderId") Integer serviceOrderId,
 			@Param("code") String code);
@@ -29,8 +30,9 @@ public interface VisaDAO {
 			@Param("stateList") List<String> stateList, @Param("commissionStateList") List<String> commissionStateList,
 			@Param("startKjApprovalDate") String startKjApprovalDate,
 			@Param("endKjApprovalDate") String endKjApprovalDate, @Param("startDate") String startDate,
-			@Param("endDate") String endDate, @Param("adviserId") Integer adviserId, @Param("userId") Integer userId,
-			@Param("offset") int offset, @Param("rows") int rows);
+			@Param("endDate") String endDate, @Param("regionId") Integer regionId,
+			@Param("adviserId") Integer adviserId, @Param("userId") Integer userId, @Param("offset") int offset,
+			@Param("rows") int rows);
 
 	List<VisaDO> listVisaByCode(@Param("code") String code);
 

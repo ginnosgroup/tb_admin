@@ -224,8 +224,11 @@
     
     <select id="countCommissionOrder" resultType="java.lang.Integer">
         SELECT count(*)
-        FROM b_commission_order co, b_service_order so, tb_user u
-        WHERE co.service_order_id = so.id AND co.user_id = u.id
+        FROM b_commission_order co, b_service_order so, tb_user u, tb_adviser a
+        WHERE co.service_order_id = so.id AND co.user_id = u.id AND a.id = co.adviser_id
+        <if test='regionId != null and regionId > 0'>
+			AND a.region_id = #{regionId}
+		</if>
         <if test='maraId != null and maraId > 0'>
             AND so.mara_id = #{maraId}
         </if>
@@ -343,8 +346,11 @@
             so.gmt_create AS signingDate,
             so.subagency_id AS subagencyId,
             so.service_id AS serviceId
-        FROM b_commission_order co, b_service_order so, tb_user u
-        WHERE co.service_order_id = so.id AND co.user_id = u.id
+        FROM b_commission_order co, b_service_order so, tb_user u, tb_adviser a
+        WHERE co.service_order_id = so.id AND co.user_id = u.id AND a.id = co.adviser_id
+        <if test='regionId != null and regionId > 0'>
+			AND a.region_id = #{regionId}
+		</if>
         <if test='maraId != null and maraId > 0'>
             AND so.mara_id = #{maraId}
         </if>

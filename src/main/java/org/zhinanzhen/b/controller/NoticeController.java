@@ -57,7 +57,7 @@ public class NoticeController extends BaseController {
 			String title = "提醒邮件";
 
 			List<ServiceOrderDTO> allServiceOrderList = serviceOrderService.listServiceOrder(null, null, null, null,
-					null, null, null, null, 0, 0, 0, 0, 0, false, 0, 1000);
+					null, null, null, null, 0, 0, 0, 0, 0, 0, false, 0, 1000);
 			for (ServiceOrderDTO serviceOrder : allServiceOrderList) {
 				int days = getDateDays(serviceOrder.getGmtModify(), new Date());
 				try {
@@ -75,7 +75,7 @@ public class NoticeController extends BaseController {
 				}
 			}
 
-			List<VisaDTO> allVisaList = visaService.listVisa(null, null, null, null, null, null, null, null, null, 0, 0,
+			List<VisaDTO> allVisaList = visaService.listVisa(null, null, null, null, null, null, null, null, null, 0, 0, 0,
 					0, 1000);
 			for (VisaDTO visa : allVisaList) {
 				try {
@@ -98,7 +98,7 @@ public class NoticeController extends BaseController {
 			}
 
 			List<CommissionOrderListDTO> allCommissionOrderList = commissionOrderService.listCommissionOrder(0, 0, 0, 0,
-					null, null, null, null, null, null, null, null, null, null, 0, 1000);
+					0, null, null, null, null, null, null, null, null, null, null, 0, 1000);
 			for (CommissionOrderListDTO commissionOrderListDto : allCommissionOrderList) {
 				try {
 					ServiceOrderDTO serviceOrderDto = serviceOrderService

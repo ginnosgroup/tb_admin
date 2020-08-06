@@ -8,7 +8,6 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.zhinanzhen.b.controller.ServiceOrderController.ReviewMaraStateEnum;
 import org.zhinanzhen.b.dao.CommissionOrderDAO;
 import org.zhinanzhen.b.dao.KjDAO;
 import org.zhinanzhen.b.dao.MaraDAO;
@@ -22,7 +21,6 @@ import org.zhinanzhen.b.dao.ServiceOrderReviewDAO;
 import org.zhinanzhen.b.dao.ServicePackageDAO;
 import org.zhinanzhen.b.dao.SubagencyDAO;
 import org.zhinanzhen.b.dao.VisaDAO;
-import org.zhinanzhen.b.dao.pojo.KjDO;
 import org.zhinanzhen.b.dao.pojo.MaraDO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.ReceiveTypeDO;
@@ -173,19 +171,20 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	@Override
 	public int countServiceOrder(String type, String excludeState, List<String> stateList, List<String> reviewStateList,
 			String startMaraApprovalDate, String endMaraApprovalDate, String startOfficialApprovalDate,
-			String endOfficialApprovalDate, int userId, int maraId, int adviserId, int officialId, int parentId,
-			boolean isNotApproved) throws ServiceException {
+			String endOfficialApprovalDate, Integer regionId, int userId, int maraId, int adviserId, int officialId,
+			int parentId, boolean isNotApproved) throws ServiceException {
 		return serviceOrderDao.countServiceOrder(type, excludeState, stateList, reviewStateList, startMaraApprovalDate,
-				endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate, userId > 0 ? userId : null,
-				maraId > 0 ? maraId : null, adviserId > 0 ? adviserId : null, officialId > 0 ? officialId : null,
-				parentId, isNotApproved);
+				endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate, regionId,
+				userId > 0 ? userId : null, maraId > 0 ? maraId : null, adviserId > 0 ? adviserId : null,
+				officialId > 0 ? officialId : null, parentId, isNotApproved);
 	}
 
 	@Override
 	public List<ServiceOrderDTO> listServiceOrder(String type, String excludeState, List<String> stateList,
 			List<String> reviewStateList, String startMaraApprovalDate, String endMaraApprovalDate,
-			String startOfficialApprovalDate, String endOfficialApprovalDate, int userId, int maraId, int adviserId,
-			int officialId, int parentId, boolean isNotApproved, int pageNum, int pageSize) throws ServiceException {
+			String startOfficialApprovalDate, String endOfficialApprovalDate, Integer regionId, int userId, int maraId,
+			int adviserId, int officialId, int parentId, boolean isNotApproved, int pageNum, int pageSize)
+			throws ServiceException {
 		List<ServiceOrderDTO> serviceOrderDtoList = new ArrayList<ServiceOrderDTO>();
 		List<ServiceOrderDO> serviceOrderDoList = new ArrayList<ServiceOrderDO>();
 		if (pageNum < 0)
@@ -195,7 +194,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		try {
 			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, excludeState, stateList, reviewStateList,
 					startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate,
-					userId > 0 ? userId : null, maraId > 0 ? maraId : null, adviserId > 0 ? adviserId
+					regionId, userId > 0 ? userId : null, maraId > 0 ? maraId : null, adviserId > 0
+							? adviserId
 							: null,
 					officialId > 0 ? officialId : null, parentId, isNotApproved, pageNum * pageSize, pageSize);
 			if (serviceOrderDoList == null)

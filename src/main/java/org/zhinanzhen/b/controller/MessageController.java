@@ -34,6 +34,8 @@ public class MessageController extends BaseController {
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
+			if(adminUserId == null)
+				return new Response<Integer>(1, "没有权限!请先登录.", 0);
 			MessageDTO messageDto = new MessageDTO();
 			messageDto.setAdminUserId(adminUserId);
 			messageDto.setKnowledgeId(knowledgeId);
