@@ -427,7 +427,7 @@
             a.id AS adviserId,
             a.name AS consultant,
             SUM(v.bonus) AS commission,
-            SUM(IFNULL(v.sure_expect_amount, 0)) AS serviceFee
+            SUM(CASE IFNULL(v.sure_expect_amount, 0) WHEN 0 THEN IFNULL(v.expect_amount, 0) END) AS serviceFee
         FROM b_visa v, tb_adviser a, tb_region r
         WHERE a.region_id = r.id AND v.adviser_id = a.id
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
