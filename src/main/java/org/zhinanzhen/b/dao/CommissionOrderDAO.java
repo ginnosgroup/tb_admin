@@ -61,4 +61,6 @@ public interface CommissionOrderDAO {
 
 	Double sumTuitionFeeBySchoolId(@Param("schoolId") Integer schoolId);
 
+	int deleteCommissionOrderById(int id);
+
 }
