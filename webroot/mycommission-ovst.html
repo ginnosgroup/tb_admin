@@ -235,7 +235,7 @@
                 </span>
 							</a>
 							<ul class="sub">								
-								<li v-if="ap_list==='GW'" class="active">
+								<li v-if="ap_list==='GW' || (ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA')" class="active">
 									<a href="mycommission.html">
 										我的佣金报表
 									</a>									
@@ -395,6 +395,9 @@
 																		<a href="javascript:reqCommissionOvst({{item.serviceOrderId}},{{item.oid}})"><span style="color:blue;">申请月奖</span></a>
 																</d1>
 														</dle>
+														<dle v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+																<a v-if="item.id" class="delete" href="#" @click="delete_confirm($index,item.id)">删除</a>
+														</dle>
 														</td>
 														<td v-html="item.strRemarks"></td>
 													</tr>
@@ -500,7 +503,36 @@
 					
 				</div>
 			</div>
-		</div>		
+		</div>
+		<div class="modal fade" id="delete_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">删除</h4>
+					</div>
+					<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+			      <button data-dismiss="alert" class="close close-sm" type="button">
+			      <i class="fa fa-times"></i>
+			      </button>
+			      <strong id="success_info">Success! You  just achieved success.</strong>
+			  	</div>
+			  	<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+		        <button data-dismiss="alert" class="close close-sm" type="button">
+		        <i class="fa fa-times"></i>
+		        </button>
+		        <strong id="error_info"></strong>
+		      </div>
+					<div class="modal-body">
+						[订单ID：<span id="order_id" style="font-weight:bold;"></span> 将被删除]&nbsp;&nbsp;执行后不可撤销操作，请慎重！！！&nbsp;&nbsp;<span style="color:red;">确认删除吗？</span>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+						<button onclick="deleteId()" type="button" class="btn btn-primary">确认</button>
+					</div>
+				</div>
+			</div>
+		</div>
 		<div id="load-mycommission-ovst-page"></div>
 		<div id="load-mycommission-ovst-view-page"></div>
 		<script src="js/jquery-1.8.3.min.js"></script>
@@ -802,7 +834,13 @@
 								that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
 							});
 						}
-					}          
+					},
+          delete_confirm: function (index,id) {
+          	$('#delete_id #order_id').html(id);
+          	$('#delete_id').modal('show');
+          	this.orderId = id;
+          	this.index = index;
+          }          
 				}		
 			});
 			
@@ -1089,6 +1127,33 @@
 	        });
 					$('#loading_id').modal('show');
 			}
+			
+			function deleteId()
+      {
+      		//alert(v.dId+'删除功能暂不可用。');
+      		//return false;
+      		show_loading();
+					$.get("commissionOrder/deleteCommissionOrder", {
+						id: v.orderId
+					}, function(result) {
+						$('#loading_id').modal('hide');
+						if(result.data)
+						{
+								v.orderId = 0;
+								$('#delete_id').modal('hide');
+								$('#delete_id #alert_success').css('marginLeft','30%');
+				   			$('#delete_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+								//v.table_remove();
+		   					//重新载入数据源
+		   					v.getDatalist();
+						}else
+						{								
+								$('#delete_id #alert_error').css('marginLeft','30%');
+				   			$('#delete_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+        				$("#delete_id #error_info").html(result.message);
+						}
+					});      		
+      }
 			
 	    jQuery(document).ready(function() {
 	    		if (v.arr_ids)
