@@ -419,4 +419,20 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 		}
 	}
 
+	@Override
+	public int deleteCommissionOrder(int id) throws ServiceException {
+		if (id <= 0) {
+			ServiceException se = new ServiceException("id error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			return commissionOrderDao.deleteCommissionOrderById(id);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
 }
