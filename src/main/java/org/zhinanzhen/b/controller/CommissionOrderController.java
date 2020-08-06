@@ -950,10 +950,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				sheet.addCell(new Label(16, i, commissionOrderListDto.getTotalAmount() + "", cellFormat));
 				sheet.addCell(new Label(17, i, commissionOrderListDto.getAmount() + "", cellFormat));
 				sheet.addCell(new Label(18, i, commissionOrderListDto.getExpectAmount() + "", cellFormat));
-				if (commissionOrderListDto.isSettle())
-					sheet.addCell(new Label(19, i, commissionOrderListDto.getExpectAmount() + "", cellFormat));
-				else
-					sheet.addCell(new Label(19, i, commissionOrderListDto.getSureExpectAmount() + "", cellFormat));
+				sheet.addCell(new Label(19, i, commissionOrderListDto.getSureExpectAmount() + "", cellFormat));
 				sheet.addCell(new Label(20, i, commissionOrderListDto.getGst() + "", cellFormat));
 				sheet.addCell(new Label(21, i, commissionOrderListDto.getDeductGst() + "", cellFormat));
 				sheet.addCell(new Label(22, i, commissionOrderListDto.getSchoolPaymentAmount() + "", cellFormat));
@@ -1132,6 +1129,17 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		try {
 			super.setGetHeader(response);
 			return new Response<Integer>(0, commissionOrderService.deleteComment(id));
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), 0);
+		}
+	}
+
+	@RequestMapping(value = "/deleteCommissionOrder", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> deleteCommissionOrder(@RequestParam(value = "id") int id, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<Integer>(0, commissionOrderService.deleteCommissionOrder(id));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), 0);
 		}
