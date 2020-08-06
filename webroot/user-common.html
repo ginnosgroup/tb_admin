@@ -1223,7 +1223,7 @@ function addnewService1Save()
     		var ispaid = $("#addnewservice1_id input[name='b7']:checked").val();
     		if (ispaid == '1')
     		{
-    				if (jqInputs[5].value != '' && jqInputs[6].value != '' && jqInputs[7].value != '' && jqInputs[8].value != '' && jqInputs[10].value != '')
+    				if (jqInputs[5].value != '' && jqInputs[6].value > 0 && jqInputs[7].value > 0 && jqInputs[8].value > 0 && jqInputs[10].value > 0)
     				{
 		    				if (jqSelect[6].value == '1' && jqInputs[8].value != jqInputs[10].value)
 		    				{
@@ -1238,10 +1238,10 @@ function addnewService1Save()
 		    				}
     				}else
     				{
-    						$('#addnewservice1_id #alert_error').css('marginLeft','30%');
+    						$('#addnewservice1_id #alert_error').css('marginLeft','15%');
 				    		$('#addnewservice1_id #alert_error').css('marginTop','20%');
 				    		$('#addnewservice1_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
-				        $("#addnewservice1_id #error_info").html('提示：收款日期/总计应收/总计收款/本次应收/本次收款必须填写或选择！');
+				        $("#addnewservice1_id #error_info").html('提示：收款日期/总计应收/总计收款/本次应收/本次收款必须填写或选择且金额须大于0！');
 				        return false;
     				}	
     		}else
@@ -1542,7 +1542,7 @@ function addnewService3Save()
 		    		var ispaid = $("#addnewservice3_id input[name='b7']:checked").val();
 		    		if (ispaid == '1')
 		    		{
-		    				if ($(f+'#b8').val() != '' && $(f+'#b10').val() != '' && $(f+'#b12').val() != '' && $(f+'#b14a').val() != '' && $(f+'#b14').val() != '')
+		    				if ($(f+'#b8').val() != '' && $(f+'#b10').val() > 0 && $(f+'#b12').val() > 0 && $(f+'#b14a').val() > 0 && $(f+'#b14').val() > 0)
 		    				{
 				    				if ($(f+'#b13').val().value == '1' && $(f+'#b14a').val() != $(f+'#b14').val())
 				    				{
@@ -1557,10 +1557,10 @@ function addnewService3Save()
 				    				}
 		    				}else
 		    				{
-		    						$('#addnewservice3_id #alert_error').css('marginLeft','30%');
+		    						$('#addnewservice3_id #alert_error').css('marginLeft','15%');
 						    		$('#addnewservice3_id #alert_error').css('marginTop','20%');
 						    		$('#addnewservice3_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
-						        $("#addnewservice3_id #error_info").html('提示：收款日期/总计应收/总计收款/本次应收/本次收款必须填写或选择！');
+						        $("#addnewservice3_id #error_info").html('提示：收款日期/总计应收/总计收款/本次应收/本次收款必须填写或选择且金额须大于0！');
 						        return false;
 		    				}	
 		    		}else
