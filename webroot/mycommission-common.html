@@ -303,7 +303,7 @@ function requestCommissionVisaSave()
 		var f = '#visa_id ';    
     
     var check_result = 0;    
-    if ($(f+'#b8').val() != '' && $(f+'#b10').val() != '' && $(f+'#b12').val() != '' && $(f+'#b14a').val() != '' && $(f+'#b14').val() != '')
+    if ($(f+'#b8').val() != '' && $(f+'#b10').val() >0 && $(f+'#b12').val() >0 && $(f+'#b14a').val() >0 && $(f+'#b14').val() > 0)
     {
     		check_result = true;
     }else    		
