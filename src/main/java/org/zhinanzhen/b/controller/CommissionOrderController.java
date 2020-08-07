@@ -950,7 +950,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				sheet.addCell(new Label(16, i, commissionOrderListDto.getTotalAmount() + "", cellFormat));
 				sheet.addCell(new Label(17, i, commissionOrderListDto.getAmount() + "", cellFormat));
 				sheet.addCell(new Label(18, i, commissionOrderListDto.getExpectAmount() + "", cellFormat));
-				sheet.addCell(new Label(19, i, commissionOrderListDto.getSureExpectAmount() + "", cellFormat));
+				if (commissionOrderListDto.isSettle())
+					sheet.addCell(new Label(19, i, commissionOrderListDto.getExpectAmount() + "", cellFormat));
+				else
+					sheet.addCell(new Label(19, i, commissionOrderListDto.getSureExpectAmount() + "", cellFormat));
 				sheet.addCell(new Label(20, i, commissionOrderListDto.getGst() + "", cellFormat));
 				sheet.addCell(new Label(21, i, commissionOrderListDto.getDeductGst() + "", cellFormat));
 				sheet.addCell(new Label(22, i, commissionOrderListDto.getSchoolPaymentAmount() + "", cellFormat));
