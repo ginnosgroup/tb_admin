@@ -197,14 +197,6 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 					pageSize);
 			if (serviceOrderDoList == null)
 				return null;
-			System.out.println("type:" + type + ",excludeState:" + excludeState + ",stateList:" + stateList
-					+ ",reviewStateList:" + reviewStateList + ",startMaraApprovalDate:" + startMaraApprovalDate
-					+ ",endMaraApprovalDate:" + endMaraApprovalDate + ",startOfficialApprovalDate:"
-					+ startOfficialApprovalDate + ",endOfficialApprovalDate:" + endOfficialApprovalDate + ",regionId:"
-					+ regionId + ",userId:" + userId + ",maraId:" + maraId + ",adviserId:" + adviserId + ",officialId:"
-					+ officialId + ",parentId:" + parentId + ",isNotApproved:" + isNotApproved + ",pageNum * pageSize:"
-					+ pageNum * pageSize + ",pageSize:" + pageSize);
-			System.out.println("debug:" + serviceOrderDoList.size());
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
