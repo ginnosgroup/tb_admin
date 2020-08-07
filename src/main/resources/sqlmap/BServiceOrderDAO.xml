@@ -413,7 +413,7 @@
 		<if test='isNotApproved == true'>
 			<![CDATA[ AND (SELECT COUNT(id) FROM b_service_order_review WHERE service_order_id = so.id AND official_state IS NOT NULL) <= 0 ]]>
 		</if>
-        ORDER BY so.id DESCa
+        ORDER BY so.id DESC
         LIMIT #{offset}, #{rows};
     </select>
     
