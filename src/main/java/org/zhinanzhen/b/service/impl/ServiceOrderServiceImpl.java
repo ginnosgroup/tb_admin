@@ -171,20 +171,19 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	@Override
 	public int countServiceOrder(String type, String excludeState, List<String> stateList, List<String> reviewStateList,
 			String startMaraApprovalDate, String endMaraApprovalDate, String startOfficialApprovalDate,
-			String endOfficialApprovalDate, Integer regionId, int userId, int maraId, int adviserId, int officialId,
-			int parentId, boolean isNotApproved) throws ServiceException {
+			String endOfficialApprovalDate, Integer regionId, Integer userId, Integer maraId, Integer adviserId,
+			Integer officialId, int parentId, boolean isNotApproved) throws ServiceException {
 		return serviceOrderDao.countServiceOrder(type, excludeState, stateList, reviewStateList, startMaraApprovalDate,
-				endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate, regionId,
-				userId > 0 ? userId : null, maraId > 0 ? maraId : null, adviserId > 0 ? adviserId : null,
-				officialId > 0 ? officialId : null, parentId, isNotApproved);
+				endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate, regionId, userId, maraId,
+				adviserId, officialId, parentId, isNotApproved);
 	}
 
 	@Override
 	public List<ServiceOrderDTO> listServiceOrder(String type, String excludeState, List<String> stateList,
 			List<String> reviewStateList, String startMaraApprovalDate, String endMaraApprovalDate,
-			String startOfficialApprovalDate, String endOfficialApprovalDate, Integer regionId, int userId, int maraId,
-			int adviserId, int officialId, int parentId, boolean isNotApproved, int pageNum, int pageSize)
-			throws ServiceException {
+			String startOfficialApprovalDate, String endOfficialApprovalDate, Integer regionId, Integer userId,
+			Integer maraId, Integer adviserId, Integer officialId, int parentId, boolean isNotApproved, int pageNum,
+			int pageSize) throws ServiceException {
 		List<ServiceOrderDTO> serviceOrderDtoList = new ArrayList<ServiceOrderDTO>();
 		List<ServiceOrderDO> serviceOrderDoList = new ArrayList<ServiceOrderDO>();
 		if (pageNum < 0)
@@ -194,10 +193,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		try {
 			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, excludeState, stateList, reviewStateList,
 					startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate,
-					regionId, userId > 0 ? userId : null, maraId > 0 ? maraId : null, adviserId > 0
-							? adviserId
-							: null,
-					officialId > 0 ? officialId : null, parentId, isNotApproved, pageNum * pageSize, pageSize);
+					regionId, userId, maraId, adviserId, officialId, parentId, isNotApproved, pageNum * pageSize,
+					pageSize);
 			if (serviceOrderDoList == null)
 				return null;
 		} catch (Exception e) {

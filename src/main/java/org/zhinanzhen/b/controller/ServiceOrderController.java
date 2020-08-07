@@ -488,10 +488,10 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
 			@RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
 			@RequestParam(value = "regionId", required = false) Integer regionId,
-			@RequestParam(value = "userId", required = false) String userId,
-			@RequestParam(value = "maraId", required = false) String maraId,
-			@RequestParam(value = "adviserId", required = false) String adviserId,
-			@RequestParam(value = "officialId", required = false) String officialId,
+			@RequestParam(value = "userId", required = false) Integer userId,
+			@RequestParam(value = "maraId", required = false) Integer maraId,
+			@RequestParam(value = "adviserId", required = false) Integer adviserId,
+			@RequestParam(value = "officialId", required = false) Integer officialId,
 			@RequestParam(value = "isNotApproved", required = false) Boolean isNotApproved, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
@@ -505,10 +505,10 @@ public class ServiceOrderController extends BaseController {
 				reviewStateList = new ArrayList<>(Arrays.asList(reviewState.split(",")));
 			Integer newAdviserId = getAdviserId(request);
 			if (newAdviserId != null)
-				adviserId = newAdviserId + "";
+				adviserId = newAdviserId;
 			Integer newMaraId = getMaraId(request);
 			if (newMaraId != null) {
-				maraId = newMaraId + "";
+				maraId = newMaraId;
 				excludeState = ReviewAdviserStateEnum.PENDING.toString();
 				reviewStateList = new ArrayList<>();
 				reviewStateList.add(ServiceOrderReviewStateEnum.ADVISER.toString());
@@ -517,7 +517,7 @@ public class ServiceOrderController extends BaseController {
 			}
 			Integer newOfficialId = getOfficialId(request);
 			if (newOfficialId != null) {
-				officialId = newOfficialId + "";
+				officialId = newOfficialId;
 				excludeState = ReviewAdviserStateEnum.PENDING.toString();
 			}
 			
@@ -531,8 +531,7 @@ public class ServiceOrderController extends BaseController {
 			return new Response<Integer>(0,
 					serviceOrderService.countServiceOrder(type, excludeState, stateList, reviewStateList,
 							startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
-							endOfficialApprovalDate, regionId, StringUtil.toInt(userId), StringUtil.toInt(maraId),
-							StringUtil.toInt(adviserId), StringUtil.toInt(officialId), 0,
+							endOfficialApprovalDate, regionId, userId, maraId, adviserId, officialId, 0,
 							isNotApproved != null ? isNotApproved : false));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
@@ -550,10 +549,10 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
 			@RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
 			@RequestParam(value = "regionId", required = false) Integer regionId,
-			@RequestParam(value = "userId", required = false) String userId,
-			@RequestParam(value = "maraId", required = false) String maraId,
-			@RequestParam(value = "adviserId", required = false) String adviserId,
-			@RequestParam(value = "officialId", required = false) String officialId,
+			@RequestParam(value = "userId", required = false) Integer userId,
+			@RequestParam(value = "maraId", required = false) Integer maraId,
+			@RequestParam(value = "adviserId", required = false) Integer adviserId,
+			@RequestParam(value = "officialId", required = false) Integer officialId,
 			@RequestParam(value = "isNotApproved", required = false) Boolean isNotApproved,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
 			HttpServletRequest request, HttpServletResponse response) {
@@ -568,10 +567,10 @@ public class ServiceOrderController extends BaseController {
 				reviewStateList = new ArrayList<>(Arrays.asList(reviewState.split(",")));
 			Integer newAdviserId = getAdviserId(request);
 			if (newAdviserId != null)
-				adviserId = newAdviserId + "";
+				adviserId = newAdviserId;
 			Integer newMaraId = getMaraId(request);
 			if (newMaraId != null) {
-				maraId = newMaraId + "";
+				maraId = newMaraId;
 				excludeState = ReviewAdviserStateEnum.PENDING.toString();
 				reviewStateList = new ArrayList<>();
 				reviewStateList.add(ServiceOrderReviewStateEnum.ADVISER.toString());
@@ -580,7 +579,7 @@ public class ServiceOrderController extends BaseController {
 			}
 			Integer newOfficialId = getOfficialId(request);
 			if (newOfficialId != null) {
-				officialId = newOfficialId + "";
+				officialId = newOfficialId;
 				excludeState = ReviewAdviserStateEnum.PENDING.toString();
 			}
 
@@ -595,8 +594,7 @@ public class ServiceOrderController extends BaseController {
 			return new Response<List<ServiceOrderDTO>>(0,
 					serviceOrderService.listServiceOrder(type, excludeState, stateList, reviewStateList,
 							startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
-							endOfficialApprovalDate, regionId, StringUtil.toInt(userId), StringUtil.toInt(maraId),
-							StringUtil.toInt(adviserId), StringUtil.toInt(officialId), 0,
+							endOfficialApprovalDate, regionId, userId, maraId, adviserId, officialId, 0,
 							isNotApproved != null ? isNotApproved : false, pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<ServiceOrderDTO>>(1, e.getMessage(), null);
