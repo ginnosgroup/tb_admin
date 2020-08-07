@@ -28,8 +28,8 @@ public interface ServiceOrderDAO {
 			@Param("startMaraApprovalDate") String startMaraApprovalDate,
 			@Param("endMaraApprovalDate") String endMaraApprovalDate,
 			@Param("startOfficialApprovalDate") String startOfficialApprovalDate,
-			@Param("endOfficialApprovalDate") String endOfficialApprovalDate, @Param("userId") Integer userId,
-			@Param("regionId") Integer regionId, @Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
+			@Param("endOfficialApprovalDate") String endOfficialApprovalDate, @Param("regionId") Integer regionId,
+			@Param("userId") Integer userId, @Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
 			@Param("officialId") Integer officialId,
 			@Param("parentId") Integer parentId,
 			@Param("isNotApproved") Boolean isNotApproved, @Param("offset") int offset, @Param("rows") int rows);

@@ -550,7 +550,10 @@
     </select>
     
     <delete id="deleteVisaById" parameterType="java.lang.Integer">
-		DELETE FROM b_visa WHERE id = #{id, jdbcType=INTEGER}
+		DELETE b_visa,b_visa_comment
+		FROM b_visa
+		left join b_visa_comment on b_visa.id = b_visa_comment.visa_id
+		WHERE b_visa.id = #{id, jdbcType=INTEGER}
 	</delete>
 
 </mapper>

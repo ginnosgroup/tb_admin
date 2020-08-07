@@ -1137,4 +1137,15 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		}
 	}
 
+	@RequestMapping(value = "/deleteCommissionOrder", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> deleteCommissionOrder(@RequestParam(value = "id") int id, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<Integer>(0, commissionOrderService.deleteCommissionOrder(id));
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), 0);
+		}
+	}
+
 }

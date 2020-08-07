@@ -42,4 +42,6 @@ public interface CommissionOrderService {
 
 	int deleteComment(int id) throws ServiceException;
 
+	int deleteCommissionOrder(int id) throws ServiceException;
+
 }
