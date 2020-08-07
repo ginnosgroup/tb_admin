@@ -197,6 +197,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 					pageSize);
 			if (serviceOrderDoList == null)
 				return null;
+System.out.println("debug:"+serviceOrderDoList.size());
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
