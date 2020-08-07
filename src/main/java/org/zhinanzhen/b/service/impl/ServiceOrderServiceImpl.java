@@ -401,7 +401,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			String detail = "";
 			if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())) {
 				type = "签证";
-				ServiceDTO service = serviceOrderDo.getService();
+				ServiceDO service = serviceDao.getServiceById(serviceOrderDo.getServiceId());
 				if (service != null)
 					detail += "/类型:" + service.getName() + "(" + service.getCode() + ")";
 			} else if ("OVST".equalsIgnoreCase(serviceOrderDo.getType())) {
