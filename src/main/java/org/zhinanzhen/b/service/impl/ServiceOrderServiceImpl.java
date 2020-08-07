@@ -401,11 +401,17 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			String detail = "";
 			if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())) {
 				type = "签证";
+				UserDO user = userDao.getUserById(serviceOrderDo.getUserId());
+				if (user != null)
+					detail += "/客户名称:" + user.getName();
 				ServiceDO service = serviceDao.getServiceById(serviceOrderDo.getServiceId());
 				if (service != null)
 					detail += "/类型:" + service.getName() + "(" + service.getCode() + ")";
 			} else if ("OVST".equalsIgnoreCase(serviceOrderDo.getType())) {
 				type = "留学";
+				UserDO user = userDao.getUserById(serviceOrderDo.getUserId());
+				if (user != null)
+					detail += "/客户名称:" + user.getName();
 				SchoolDO school = schoolDao.getSchoolById(serviceOrderDo.getSchoolId());
 				if (school != null) {
 					detail += "/学校:" + school.getName();
@@ -431,8 +437,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 						// + date);
 						SendEmailUtil.send(maraDo.getEmail(), title,
 								"亲爱的" + maraDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:" + type
-										+ "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:" + date
-										+ detail);
+										+ detail + "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName()
+										+ "/创建时间:" + date);
 					// 写入审核时间
 					if (serviceOrderDo.getMaraApprovalDate() == null)
 						serviceOrderDo.setMaraApprovalDate(new Date());
@@ -440,8 +446,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				if ("REVIEW".equals(adviserState)) { // 给文案发邮件提醒，这时adviserState为REVIEW,officialState为NULL
 					SendEmailUtil.send(officialDo.getEmail() + ",maggie@zhinanzhen.org", title,
 							"亲爱的" + officialDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:" + type
-									+ "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:" + date
-									+ detail + "<br/>备注:" + serviceOrderDo.getRemarks());
+									+ detail + "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:"
+									+ date + "<br/>备注:" + serviceOrderDo.getRemarks());
 					// 写入文案审核时间
 					if (serviceOrderDo.getOfficialApprovalDate() == null)
 						serviceOrderDo.setOfficialApprovalDate(new Date());
@@ -449,8 +455,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				if ("REVIEW".equals(officialState)) { // 告诉顾问文案已经开始审核了
 					SendEmailUtil.send(adviserDo.getEmail(), title,
 							"亲爱的" + adviserDo.getName() + ":<br/>您有一条服务订单已正在处理中。<br/>订单号:" + id + "/服务类型:" + type
-									+ "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:" + date
-									+ detail);
+									+ detail + "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:"
+									+ date);
 				}
 				if ("COMPLETE".equals(officialState)) {
 //					List<AdminUserDO> adminUserDoList = adminUserDao.listAdminUserByAp("KJ");
