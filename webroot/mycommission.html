@@ -1087,7 +1087,7 @@
 			function deleteId()
       {      		
       		show_loading();
-					$.get("visa/deleteVisaOrder", {
+					$.get("visa/delete", {
 						id: v.orderId
 					}, function(result) {
 						$('#loading_id').modal('hide');
