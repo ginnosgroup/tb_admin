@@ -590,8 +590,8 @@ public class VisaController extends BaseCommissionOrderController {
 						continue;
 					}
 					Response<VisaDTO> _r = updateOne(Integer.parseInt(_id), null,
-							StringUtil.isEmpty(_bonus) ? null : Double.parseDouble(_bonus),
-							StringUtil.isEmpty(_bonusDate) ? null : sdf.format(_bonusDate), true);
+							StringUtil.isEmpty(_bonus) ? null : Double.parseDouble(_bonus.trim()),
+							StringUtil.isEmpty(_bonusDate) ? null : sdf.format(_bonusDate.trim()), true);
 					if (_r.getCode() > 0)
 						message += "[" + _id + "]" + _r.getMessage() + ";";
 					else
