@@ -810,6 +810,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 						message += "[" + _id + "]佣金订单状态不是待结佣或待追佣;";
 						continue;
 					}
+System.out.println("_schoolPaymentDate: " + _schoolPaymentDate);
 					Response<CommissionOrderDTO> _r = updateOne(Integer.parseInt(_id),
 							StringUtil.isBlank(_schoolPaymentAmount) ? null : Double.parseDouble(_schoolPaymentAmount),
 							StringUtil.isBlank(_schoolPaymentDate) ? null : sdf.format(_schoolPaymentDate),
