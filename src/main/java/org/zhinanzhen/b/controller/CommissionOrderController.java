@@ -810,14 +810,13 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 						message += "[" + _id + "]佣金订单状态不是待结佣或待追佣;";
 						continue;
 					}
-System.out.println("_schoolPaymentDate: " + _schoolPaymentDate);
 					Response<CommissionOrderDTO> _r = updateOne(Integer.parseInt(_id),
-							StringUtil.isBlank(_schoolPaymentAmount) ? null : Double.parseDouble(_schoolPaymentAmount),
-							StringUtil.isBlank(_schoolPaymentDate) ? null : sdf.format(_schoolPaymentDate),
-							_invoiceNumber, StringUtil.isBlank(_zyDate) ? null : sdf.format(_zyDate),
+							StringUtil.isEmpty(_schoolPaymentAmount) ? null : Double.parseDouble(_schoolPaymentAmount),
+							StringUtil.isEmpty(_schoolPaymentDate) ? null : sdf.format(_schoolPaymentDate),
+							_invoiceNumber, StringUtil.isEmpty(_zyDate) ? null : sdf.format(_zyDate),
 							Double.parseDouble(_sureExpectAmount),
-							StringUtil.isBlank(_bonus) ? null : Double.parseDouble(_bonus),
-							StringUtil.isBlank(_bonusDate) ? null : sdf.format(_bonusDate), true);
+							StringUtil.isEmpty(_bonus) ? null : Double.parseDouble(_bonus),
+							StringUtil.isEmpty(_bonusDate) ? null : sdf.format(_bonusDate), true);
 					if (_r.getCode() > 0)
 						message += "[" + _id + "]" + _r.getMessage() + ";";
 					else
@@ -969,11 +968,11 @@ System.out.println("_schoolPaymentDate: " + _schoolPaymentDate);
 					sheet.addCell(new Label(25, i, sdf.format(commissionOrderListDto.getZyDate()), cellFormat));
 				if (commissionOrderListDto.getSubagency() != null)
 					sheet.addCell(new Label(26, i, commissionOrderListDto.getSubagency().getName(), cellFormat));
-				sheet.addCell(new Label(27, i, commissionOrderListDto.getBankCheck(), cellFormat));
-				sheet.addCell(new Label(28, i, commissionOrderListDto.isChecked() + "", cellFormat));
-				sheet.addCell(new Label(29, i, commissionOrderListDto.getBonus() + "", cellFormat));
+				sheet.addCell(new Label(27, i, commissionOrderListDto.getBonus() + "", cellFormat));
 				if (commissionOrderListDto.getBonusDate() != null)
-					sheet.addCell(new Label(30, i, sdf.format(commissionOrderListDto.getBonusDate()), cellFormat));
+					sheet.addCell(new Label(28, i, sdf.format(commissionOrderListDto.getBonusDate()), cellFormat));
+				sheet.addCell(new Label(29, i, commissionOrderListDto.getBankCheck(), cellFormat));
+				sheet.addCell(new Label(30, i, commissionOrderListDto.isChecked() + "", cellFormat));
 				if (commissionOrderListDto.getAdviser() != null)
 					sheet.addCell(new Label(31, i, commissionOrderListDto.getAdviser().getName(), cellFormat));
 				if (commissionOrderListDto.getCommissionState() != null)
