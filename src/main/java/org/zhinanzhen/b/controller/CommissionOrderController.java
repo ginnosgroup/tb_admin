@@ -783,7 +783,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		String message = "";
 		int n = 0;
 		Response<String> r = super.upload2(file, request.getSession(), "/tmp/");
-		try (InputStream is = new FileInputStream(r.getData())) {
+		try (InputStream is = new FileInputStream("/data" + r.getData())) {
 			jxl.Workbook wb = jxl.Workbook.getWorkbook(is);
 			Sheet sheet = wb.getSheet(0);
 			for (int i = 1; i < sheet.getRows(); i++) {
