@@ -589,8 +589,9 @@ public class VisaController extends BaseCommissionOrderController {
 						message += "[" + _id + "]佣金订单状态不是待结佣;";
 						continue;
 					}
-					Response<VisaDTO> _r = updateOne(Integer.parseInt(_id), null, Double.parseDouble(_bonus),
-							sdf.format(_bonusDate), true);
+					Response<VisaDTO> _r = updateOne(Integer.parseInt(_id), null,
+							StringUtil.isEmpty(_bonus) ? null : Double.parseDouble(_bonus),
+							StringUtil.isEmpty(_bonusDate) ? null : sdf.format(_bonusDate), true);
 					if (_r.getCode() > 0)
 						message += "[" + _id + "]" + _r.getMessage() + ";";
 					else
