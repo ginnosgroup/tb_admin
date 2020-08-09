@@ -813,11 +813,11 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					Response<CommissionOrderDTO> _r = updateOne(Integer.parseInt(_id),
 							StringUtil.isEmpty(_schoolPaymentAmount) ? null
 									: Double.parseDouble(_schoolPaymentAmount.trim()),
-							StringUtil.isEmpty(_schoolPaymentDate) ? null : sdf.format(_schoolPaymentDate.trim()),
-							_invoiceNumber, StringUtil.isEmpty(_zyDate) ? null : sdf.format(_zyDate.trim()),
+							StringUtil.isEmpty(_schoolPaymentDate) ? null : _schoolPaymentDate.trim(),
+							_invoiceNumber, StringUtil.isEmpty(_zyDate) ? null : _zyDate.trim(),
 							StringUtil.isEmpty(_sureExpectAmount) ? null : Double.parseDouble(_sureExpectAmount.trim()),
 							StringUtil.isEmpty(_bonus) ? null : Double.parseDouble(_bonus.trim()),
-							StringUtil.isEmpty(_bonusDate) ? null : sdf.format(_bonusDate.trim()), true);
+							StringUtil.isEmpty(_bonusDate) ? null : _bonusDate.trim(), true);
 					if (_r.getCode() > 0)
 						message += "[" + _id + "]" + _r.getMessage() + ";";
 					else
