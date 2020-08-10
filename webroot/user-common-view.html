@@ -279,8 +279,8 @@
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;">Student ID<span style="color:red;">*</span></label>
 											<input type="text" autocomplete="off" id="c20" class="form-control" style="width:200px;font-weight:normal;" placeholder="请输入学生ID">
-											<label class="control-label" style="width:30px;margin-left:20px;display:none;">DOB<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c20a" value="{{birthday}}" class="form-control default-date-picker" style="width:150px;font-weight:normal;display:none;" placeholder="请选择学生生日">
+											<label class="control-label" style="width:30px;margin-left:20px;display:;">DOB<span style="color:red;">*</span></label>
+											<input type="text" autocomplete="off" id="c20a" value="{{birthday}}" class="form-control default-date-picker" style="width:150px;font-weight:normal;display:;" placeholder="请选择学生生日">
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;">Installment：<span style="color:red;">*</span></label>
@@ -1250,7 +1250,7 @@ function reqCommissionOvst()
 		var json = {};
     
     var check_result = false;
-    if ($(f+'#c20').val() != '' && $(f+'#c22').val() != '' && $(f+'#c23').val() != '' && $(f+'#c24a1').val() != '' && $(f+'#c25').val() != '' && $(f+'#c26').val() != '' && $(f+'#c27').val() != '' && $(f+'#c28').val() != '0' && $(f+'#c29').val() != '' && $(f+'#c31').val() != '')
+    if ($(f+'#c20').val() != '' && $(f+'#c20a').val() != '' && $(f+'#c22').val() != '' && $(f+'#c23').val() != '' && $(f+'#c24a1').val() != '' && $(f+'#c25').val() != '' && $(f+'#c26').val() != '' && $(f+'#c27').val() != '' && $(f+'#c28').val() != '0' && $(f+'#c29').val() != '' && $(f+'#c31').val() != '')
     {
     		if (parseInt($(f+'#c21').val()) > 1)
     		{
@@ -1321,7 +1321,7 @@ function reqCommissionOvst()
             var date = new Date(str_d);
             d = date.getTime();
       	}
-      	json['DOB'] = d;//待确定
+      	json['dob'] = d;//待确定
     		if ($(f+'#c22').val() != '')
     		{
         		var arr_d = $(f+'#c22').val().split("/");
