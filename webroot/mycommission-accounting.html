@@ -553,7 +553,7 @@
 					update_byid: '',
 					is_multiple: 0,
 					pageNum: 0,
-					pageSize: 20,
+					pageSize: 2,
 					allPage: 0,
 					current_index: '',
 					current_row: '',
@@ -577,11 +577,11 @@
 							that.allPage = Math.ceil(result.data / that.pageSize);
 						});
 						$.get(url + "visa/list", {
-							pageNum: 0,
+							pageNum: that.pageNum,
 							pageSize: that.pageSize,
 							commissionState: that.commission_state
 						}, function(result) {							
-							that.pageNum = 0;
+							that.pageNum = that.pageNum;
 							result.data = return_result(result);
 							that.subject = result.data;							
 							that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
@@ -820,6 +820,7 @@
 					},
 					lastPage: function() {
 						var that = this;
+						var json = {};
 						if (that.userId != '0') json['userId'] = that.userId;
 						if (that.adviserId != '0')
 						{
@@ -1004,7 +1005,8 @@
 		            		if (data.code == 0)
 						   			{
 						   					$("#show_info").html('批量保存成功');
-						   					setTimeout(function(){window.location.href = "mycommission-accounting.html?commission_state=DJY";}, 3000);						   					
+						   					v.getDatalist();
+						   					//setTimeout(function(){window.location.href = "mycommission-accounting.html?commission_state=DJY";}, 3000);						   					
 						   			}else
 						   			{
 						   					$("#btn_multiple_save").removeAttr("disabled");
@@ -1085,9 +1087,9 @@
 					   			{
 					   					$('#my_table #alert_success').css('marginLeft','40%');
 					   					$('#my_table #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
-					   					v.table_remove();
+					   					//v.table_remove();
 					   					//重新载入数据源
-					   					//v.getDatalist();
+					   					v.getDatalist();
 					   			}else
 					   			{
 					   					$('#my_table #alert_error').css('marginLeft','40%');
@@ -1134,7 +1136,7 @@
 					   					v.subject.splice(v.current_index, 0);
 											v.subject.splice(v.current_index,1, v.current_row);
 					   					//重新载入数据源
-					   					//v.getDatalist();
+					   					v.getDatalist();
 					   			}else
 					   			{
 					   					$('#my_table #alert_error').css('marginLeft','40%');
