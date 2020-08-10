@@ -624,9 +624,9 @@
 					close: false
 				},
 				created: function() {					
-					if (typeof(this.service_state) == "undefined") $("#servicestate").addClass("active");
+					if (typeof(this.service_state) == "undefined") $("#servicestate").addClass("active");					
 					this.getDatalist();
-				},
+				},				
 				methods: {								
 					getDatalist: function() {
 						var that = this;
@@ -641,12 +641,12 @@
 							that.allPage = Math.ceil(result.data / that.pageSize);
 						});
 						$.get(url + "serviceOrder/list", {
-							pageNum: 0,
+							pageNum: that.pageNum,
 							pageSize: that.pageSize,
 							isNotApproved: that.isNotApproved,
 							state: that.state
 						}, function(result) {							
-							that.pageNum = 0;
+							that.pageNum = that.pageNum;
 							result.data = return_result(result);
 							that.subject = result.data;
 							that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
@@ -671,7 +671,6 @@
 						if (that.startMaraApprovalDate != '') json['startMaraApprovalDate'] = that.startMaraApprovalDate;
 						if (that.endMaraApprovalDate != '') json['endMaraApprovalDate'] = that.endMaraApprovalDate;
 						if (that.ap_list != 'GW' && that.regionId != '') json['regionId'] = that.regionId;
-						//console.log(json);
 						$.get(url + "serviceOrder/count", json, function(result) {
 							that.count = result.data;
 							that.allPage = Math.ceil(result.data / that.pageSize);
@@ -1121,6 +1120,7 @@
           json['state'] = va;          
           $.post(str_url, json,
 			   	function(data){
+			   			$('#loading_id').modal('hide');
 			   			if (data.code == 0)
 			   			{			   					                        
           				if (v.orderType == 'VISA' && v.ap_list == 'GW' && va == 'REVIEW') reqCommissionVisa();//如果GW提交审核,就创建佣金订单 		
@@ -1136,10 +1136,10 @@
 					      	}
 			   					$('#alert_success').css('marginLeft','30%');
 			   					$('#alert_success').addClass('alert-success').show().delay(1500).fadeOut();
-			   					setTimeout(function(){window.location.href = "serviceorder-list.html?state=";}, 2000);				   					
+			   					v.getDatalist();
+			   					//setTimeout(function(){window.location.href = "serviceorder-list.html?state=";}, 2000);				   					
 			   			}else
-			   			{
-			   					$('#loading_id').modal('hide');
+			   			{			   					
 			   					$('#alert_error').css('marginLeft','30%');
 			   					$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
 	          			$("#error_info").html(data.message);
@@ -1192,10 +1192,10 @@
 				  });
 				  var adviserId = 0;
 				  var officialId = 0;
-				  var maraId = 0;				  
+				  var maraId = 0;				   
 				  if (typeof v.adviserId != "undefined") adviserId = v.adviserId;		  
 				  if (typeof v.officialId != "undefined") officialId = v.officialId;
-				  if (typeof v.maraId != "undefined") maraId = v.maraId;
+				  if (typeof v.maraId != "undefined") maraId = v.maraId;				  
 				 	
 				  //查询客户
 				  var user = $("#user_name");

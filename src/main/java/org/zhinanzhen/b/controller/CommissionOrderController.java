@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -319,7 +320,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			CommissionOrderListDTO commissionOrderListDto = commissionOrderService.getCommissionOrderById(id);
 			if (commissionOrderListDto == null)
-				return new Response<CommissionOrderDTO>(1, "留学佣金订单订单(ID:" + id + ")不存在!", null);
+				return new Response<CommissionOrderDTO>(1, "留学佣金订单(ID:" + id + ")不存在!", null);
 			ServiceOrderDTO serviceOrderDto = serviceOrderService
 					.getServiceOrderById(commissionOrderListDto.getServiceOrderId());
 			if (serviceOrderDto == null)
@@ -556,7 +557,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			boolean isChangeState) throws ServiceException {
 		CommissionOrderDTO commissionOrderDto = commissionOrderService.getCommissionOrderById(id);
 		if (commissionOrderDto == null)
-			return new Response<CommissionOrderDTO>(1, "留学佣金订单订单(ID:" + id + ")不存在!", null);
+			return new Response<CommissionOrderDTO>(1, "留学佣金订单(ID:" + id + ")不存在!", null);
 		if (schoolPaymentAmount != null)
 			commissionOrderDto.setSchoolPaymentAmount(schoolPaymentAmount);
 		if (schoolPaymentDate != null)
@@ -825,16 +826,18 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					Response<CommissionOrderDTO> _r = updateOne(Integer.parseInt(_id),
 							StringUtil.isEmpty(_schoolPaymentAmount) ? null
 									: Double.parseDouble(_schoolPaymentAmount.trim()),
-							StringUtil.isEmpty(_schoolPaymentDate) ? null : _schoolPaymentDate.trim(),
-							_invoiceNumber, StringUtil.isEmpty(_zyDate) ? null : _zyDate.trim(),
+							StringUtil.isEmpty(_schoolPaymentDate) ? null
+									: sdf.parse(_schoolPaymentDate.trim()).getTime() + "",
+							_invoiceNumber,
+							StringUtil.isEmpty(_zyDate) ? null : sdf.parse(_zyDate.trim()).getTime() + "",
 							StringUtil.isEmpty(_sureExpectAmount) ? null : Double.parseDouble(_sureExpectAmount.trim()),
 							StringUtil.isEmpty(_bonus) ? null : Double.parseDouble(_bonus.trim()),
-							StringUtil.isEmpty(_bonusDate) ? null : _bonusDate.trim(), true);
+							StringUtil.isEmpty(_bonusDate) ? null : sdf.parse(_bonusDate.trim()).getTime() + "", true);
 					if (_r.getCode() > 0)
 						message += "[" + _id + "]" + _r.getMessage() + ";";
 					else
 						n++;
-				} catch (NumberFormatException | ServiceException e) {
+				} catch (NumberFormatException | ServiceException | ParseException e) {
 					message += "[" + _id + "]" + e.getMessage() + ";";
 				}
 			}
