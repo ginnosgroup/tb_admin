@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -591,7 +592,7 @@ public class VisaController extends BaseCommissionOrderController {
 					}
 					Response<VisaDTO> _r = updateOne(Integer.parseInt(_id), null,
 							StringUtil.isEmpty(_bonus) ? null : Double.parseDouble(_bonus.trim()),
-							StringUtil.isEmpty(_bonusDate) ? null : _bonusDate.trim(), true);
+							StringUtil.isEmpty(_bonusDate) ? null : sdf.parse(_bonusDate.trim()).getTime() + "", true);
 					if (_r.getCode() > 0)
 						message += "[" + _id + "]" + _r.getMessage() + ";";
 					else
@@ -600,7 +601,7 @@ public class VisaController extends BaseCommissionOrderController {
 					message += "[" + _id + "]" + e.getMessage() + ";";
 				}
 			}
-		} catch (BiffException | IOException e) {
+		} catch (BiffException | IOException | ParseException e) {
 			return new Response<Integer>(1, "上传失败:" + e.getMessage(), 0);
 		}
 		return new Response<Integer>(0, message, n);
