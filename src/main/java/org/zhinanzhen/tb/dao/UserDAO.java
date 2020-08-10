@@ -36,5 +36,7 @@ public interface UserDAO {
 
 	boolean updateBalanceById(@Param("id") int id, @Param("balance") double balance);
 
+	boolean updateDOB(@Param("date") Date date);
+
 	public List<UserDO> listUserByRecommendOpenId(String recommendOpenId);
 }
