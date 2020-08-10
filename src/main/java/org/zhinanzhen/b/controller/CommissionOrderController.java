@@ -103,6 +103,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
 			@RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
 			@RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
+			@RequestParam(value = "dob") String dob,
 			@RequestParam(value = "startDate") String startDate, @RequestParam(value = "endDate") String endDate,
 			@RequestParam(value = "tuitionFee") String tuitionFee,
 			@RequestParam(value = "perTermTuitionFee") String perTermTuitionFee,
@@ -167,6 +168,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				commissionOrderDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
 			else
 				commissionOrderDto.setPaymentVoucherImageUrl5(serviceOrderDto.getPaymentVoucherImageUrl5());
+			commissionOrderDto.setDob(new Date(Long.parseLong(dob)));
 			commissionOrderDto.setStartDate(new Date(Long.parseLong(startDate)));
 			commissionOrderDto.setEndDate(new Date(Long.parseLong(endDate)));
 			commissionOrderDto.setTuitionFee(Double.parseDouble(tuitionFee));
@@ -289,6 +291,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
 			@RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
 			@RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
+			@RequestParam(value = "dob", required = false) String dob,
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "tuitionFee", required = false) String tuitionFee,
@@ -368,6 +371,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				commissionOrderDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
 				serviceOrderDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
 			}
+			if (dob != null)
+				commissionOrderDto.setDob(new Date(Long.parseLong(dob)));
 			if (startDate != null)
 				commissionOrderDto.setStartDate(new Date(Long.parseLong(startDate)));
 			if (endDate != null)
