@@ -312,7 +312,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			CommissionOrderListDTO commissionOrderListDto = commissionOrderService.getCommissionOrderById(id);
 			if (commissionOrderListDto == null)
-				return new Response<CommissionOrderDTO>(1, "留学佣金订单订单(ID:" + id + ")不存在!", null);
+				return new Response<CommissionOrderDTO>(1, "留学佣金订单(ID:" + id + ")不存在!", null);
 			ServiceOrderDTO serviceOrderDto = serviceOrderService
 					.getServiceOrderById(commissionOrderListDto.getServiceOrderId());
 			if (serviceOrderDto == null)
@@ -547,9 +547,11 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	private Response<CommissionOrderDTO> updateOne(int id, Double schoolPaymentAmount, String schoolPaymentDate,
 			String invoiceNumber, String zyDate, Double sureExpectAmount, Double bonus, String bonusDate,
 			boolean isChangeState) throws ServiceException {
-		CommissionOrderDTO commissionOrderDto = commissionOrderService.getCommissionOrderById(id);
+//		CommissionOrderDTO commissionOrderDto = commissionOrderService.getCommissionOrderById(id);
+		CommissionOrderDTO commissionOrderDto = new CommissionOrderDTO();
+		commissionOrderDto.setId(id);
 		if (commissionOrderDto == null)
-			return new Response<CommissionOrderDTO>(1, "留学佣金订单订单(ID:" + id + ")不存在!", null);
+			return new Response<CommissionOrderDTO>(1, "留学佣金订单(ID:" + id + ")不存在!", null);
 		if (schoolPaymentAmount != null)
 			commissionOrderDto.setSchoolPaymentAmount(schoolPaymentAmount);
 		if (schoolPaymentDate != null)
