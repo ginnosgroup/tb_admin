@@ -61,6 +61,8 @@ public class CommissionOrderDTO {
 
 	private String invoiceNumber;
 
+	private Date dob;
+
 	private Date startDate;
 
 	private Date endDate;
