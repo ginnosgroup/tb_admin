@@ -74,6 +74,6 @@ public interface UserService {
 
 	public int deleteUserTagByTagIdAndUserId(int tagId, int userId) throws ServiceException;
 
-	public boolean updateDOB(Date date) throws ServiceException;
+	public int updateDOB(Date dob,int id) throws ServiceException;
 
 }
