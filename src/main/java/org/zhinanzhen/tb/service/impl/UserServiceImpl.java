@@ -376,4 +376,9 @@ public class UserServiceImpl extends BaseService implements UserService {
 		return tagDao.deleteUserTagByTagIdAndUserId(tagId, userId);
 	}
 
+	@Override
+	public boolean updateDOB(Date date) throws ServiceException {
+		return userDao.updateDOB(date);
+	}
+
 }
