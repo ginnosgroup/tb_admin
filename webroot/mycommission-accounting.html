@@ -1005,7 +1005,7 @@
 		            		if (data.code == 0)
 						   			{
 						   					$("#show_info").html('批量保存成功');
-						   					setTimeout(function(){v.getDatalist();}, 3000);	
+						   					setTimeout(function(){$("#show_multiple").hide();v.getDatalist();}, 2000);
 						   					//setTimeout(function(){window.location.href = "mycommission-accounting.html?commission_state=DJY";}, 3000);						   					
 						   			}else
 						   			{
