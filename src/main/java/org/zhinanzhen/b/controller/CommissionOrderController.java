@@ -548,9 +548,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	private Response<CommissionOrderDTO> updateOne(int id, Double schoolPaymentAmount, String schoolPaymentDate,
 			String invoiceNumber, String zyDate, Double sureExpectAmount, Double bonus, String bonusDate,
 			boolean isChangeState) throws ServiceException {
-//		CommissionOrderDTO commissionOrderDto = commissionOrderService.getCommissionOrderById(id);
-		CommissionOrderDTO commissionOrderDto = new CommissionOrderDTO();
-		commissionOrderDto.setId(id);
+		CommissionOrderDTO commissionOrderDto = commissionOrderService.getCommissionOrderById(id);
 		if (commissionOrderDto == null)
 			return new Response<CommissionOrderDTO>(1, "留学佣金订单(ID:" + id + ")不存在!", null);
 		if (schoolPaymentAmount != null)
@@ -805,20 +803,19 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				String _bonus = cells[27].getContents();
 				String _bonusDate = cells[28].getContents();
 				try {
-//					CommissionOrderListDTO commissionOrderListDto = commissionOrderService
-//							.getCommissionOrderById(Integer.parseInt(_id));
-//					if (commissionOrderListDto == null) {
-//						message += "[" + _id + "]佣金订单不存在;";
-//						continue;
-//					}
-//					if (!CommissionStateEnum.DJY.toString()
-//							.equalsIgnoreCase(commissionOrderListDto.getCommissionState())
-//							&& !CommissionStateEnum.DZY.toString()
-//									.equalsIgnoreCase(commissionOrderListDto.getCommissionState())) {
-//						message += "[" + _id + "]佣金订单状态不是待结佣或待追佣;";
-//						continue;
-//					}
-					
+					CommissionOrderListDTO commissionOrderListDto = commissionOrderService
+							.getCommissionOrderById(Integer.parseInt(_id));
+					if (commissionOrderListDto == null) {
+						message += "[" + _id + "]佣金订单不存在;";
+						continue;
+					}
+					if (!CommissionStateEnum.DJY.toString()
+							.equalsIgnoreCase(commissionOrderListDto.getCommissionState())
+							&& !CommissionStateEnum.DZY.toString()
+									.equalsIgnoreCase(commissionOrderListDto.getCommissionState())) {
+						message += "[" + _id + "]佣金订单状态不是待结佣或待追佣;";
+						continue;
+					}
 					Response<CommissionOrderDTO> _r = updateOne(Integer.parseInt(_id),
 							StringUtil.isEmpty(_schoolPaymentAmount) ? null
 									: Double.parseDouble(_schoolPaymentAmount.trim()),
