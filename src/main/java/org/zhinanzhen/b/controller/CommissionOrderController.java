@@ -49,6 +49,7 @@ import jxl.write.WriteException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.zhinanzhen.tb.service.UserService;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -63,6 +64,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 	@Resource
 	SchoolService schoolService;
+
+	@Resource
+	UserService userService;
 
 	@Resource
 	ServiceOrderService serviceOrderService;
@@ -118,6 +122,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		try {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			userService.updateDOB(new Date(Long.parseLong(dob)));
 			if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
 					&& !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 				return new Response<List<CommissionOrderDTO>>(1, "仅限顾问和超级管理员能创建佣金订单.", null);
@@ -125,6 +130,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(serviceOrderId);
 			if (serviceOrderDto == null)
 				return new Response<List<CommissionOrderDTO>>(1, "服务订单(ID:" + serviceOrderId + ")不存在!", null);
+
 			if (serviceOrderDto.getSubagencyId() <= 0)
 				return new Response<List<CommissionOrderDTO>>(1,
 						"SubagencyId(" + serviceOrderDto.getSubagencyId() + ")不存在!", null);
@@ -187,6 +193,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				commissionOrderDto.setZyDate(new Date(Long.parseLong(zyDate)));
 			if (StringUtil.isNotEmpty(remarks))
 				commissionOrderDto.setRemarks(remarks);
+
 
 			// SubagencyDTO subagencyDto =
 			// subagencyService.getSubagencyById(serviceOrderDto.getSubagencyId());
