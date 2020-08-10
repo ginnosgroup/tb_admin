@@ -377,8 +377,24 @@ public class UserServiceImpl extends BaseService implements UserService {
 	}
 
 	@Override
-	public boolean updateDOB(Date date) throws ServiceException {
-		return userDao.updateDOB(date);
+	public int updateDOB(Date dob,int id) throws ServiceException {
+		if (id <= 0) {
+			ServiceException se = new ServiceException("id error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			UserDTO userDTO = getUserById(id);
+			if (userDTO.getBirthday().equals(dob)){
+				return 0;
+			}else{
+				return userDao.updateDOB(dob,id);
+			}
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
 	}
 
 }
