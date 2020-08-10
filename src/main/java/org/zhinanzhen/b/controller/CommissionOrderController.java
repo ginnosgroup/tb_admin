@@ -951,6 +951,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				if (commissionOrderListDto.getInstallmentDueDate() != null)
 					sheet.addCell(
 							new Label(11, i, sdf.format(commissionOrderListDto.getInstallmentDueDate()), cellFormat));
+				if (commissionOrderListDto.getCourseStartDate() != null)
+					sheet.addCell(
+							new Label(11, i, sdf.format(commissionOrderListDto.getCourseStartDate()), cellFormat));
 				if (commissionOrderListDto.getReceiveType() != null)
 					sheet.addCell(new Label(12, i, commissionOrderListDto.getReceiveType().getName() + "", cellFormat));
 				sheet.addCell(new Label(13, i, commissionOrderListDto.getTuitionFee() + "", cellFormat));
