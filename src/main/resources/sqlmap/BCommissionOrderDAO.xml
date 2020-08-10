@@ -32,7 +32,6 @@
                 school_payment_amount,
                 school_payment_date,
                 invoice_number,
-                dob,
                 start_date,
                 end_date,
                 commission,
@@ -79,7 +78,6 @@
                 NULL,
                 NULL,
                 NULL,
-                #{dob,jdbcType=TIMESTAMP},
                 #{startDate,jdbcType=TIMESTAMP},
                 #{endDate,jdbcType=TIMESTAMP},
                 #{commission},
@@ -160,9 +158,6 @@
         </if>
         <if test='invoiceNumber != null'>
             , invoice_number = #{invoiceNumber}
-        </if>
-        <if test='dob != null'>
-            , dob = #{dob}
         </if>
         <if test='startDate != null'>
             , start_date = #{startDate}
@@ -326,7 +321,6 @@
             co.school_payment_amount AS schoolPaymentAmount,
             co.school_payment_date AS schoolPaymentDate,
             co.invoice_number AS invoiceNumber,
-            co.dob AS dob,
             co.start_date AS startDate,
             co.end_date AS endDate,
             co.commission,
@@ -434,7 +428,6 @@
             school_payment_amount AS schoolPaymentAmount,
             school_payment_date AS schoolPaymentDate,
             invoice_number AS invoiceNumber,
-            dob,
             start_date AS startDate,
             end_date AS endDate,
             commission,
@@ -487,7 +480,6 @@
             school_payment_amount AS schoolPaymentAmount,
             school_payment_date AS schoolPaymentDate,
             invoice_number AS invoiceNumber,
-            dob,
             start_date AS startDate,
             end_date AS endDate,
             commission,
@@ -540,7 +532,6 @@
             co.school_payment_amount AS schoolPaymentAmount,
             co.school_payment_date AS schoolPaymentDate,
             co.invoice_number AS invoiceNumber,
-            co.dob AS dob,
             co.start_date AS startDate,
             co.end_date AS endDate,
             co.commission,
@@ -605,7 +596,6 @@
             co.school_payment_amount AS schoolPaymentAmount,
             co.school_payment_date AS schoolPaymentDate,
             co.invoice_number AS invoiceNumber,
-            co,dob AS dob,
             co.start_date AS startDate,
             co.end_date AS endDate,
             co.commission,
@@ -752,7 +742,7 @@
             so.subagency_id AS subagencyId,
             so.service_id AS serviceId
         FROM b_commission_order co, b_service_order so, tb_user u
-        WHERE co.service_order_id = so.id AND co.user_id = u.id and co.id = #{id, jdbcType=INTEGER} and co.dob = u.birthday ;
+        WHERE co.service_order_id = so.id AND co.user_id = u.id and co.id = #{id, jdbcType=INTEGER}  ;
     </select>
     
     <select id="listCommissionOrderByInvoiceNumber" parameterType="java.lang.String" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderListDO">
@@ -783,7 +773,6 @@
             co.school_payment_amount AS schoolPaymentAmount,
             co.school_payment_date AS schoolPaymentDate,
             co.invoice_number AS invoiceNumber,
-            co.dob AS dob,
             co.start_date AS startDate,
             co.end_date AS endDate,
             co.commission,
@@ -841,7 +830,6 @@
             co.school_payment_amount AS schoolPaymentAmount,
             co.school_payment_date AS schoolPaymentDate,
             co.invoice_number AS invoiceNumber,
-            co.dob AS dob,
             co.start_date AS startDate,
             co.end_date AS endDate,
             co.commission,
