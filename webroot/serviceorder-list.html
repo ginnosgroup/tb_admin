@@ -1137,6 +1137,13 @@
 			   					$('#alert_success').addClass('alert-success').show().delay(1500).fadeOut();			   					
 			   					v.getDatalist();
 			   					$('.modal-backdrop').remove();
+			   					if (v.orderType == 'VISA')
+			   					{
+			   							$('#show_addnewservice1_id').modal('hide');			   							
+			   					}else if (v.orderType == 'OVST')
+			   					{
+			   							$('#show_addnewservice2_id').modal('hide');
+			   					}
 			   					//setTimeout(function(){window.location.href = "serviceorder-list.html?state=";}, 2000);				   					
 			   			}else
 			   			{			   					
