@@ -324,7 +324,7 @@
 													</dle>
 											</div>
 											<div class="form-group">
-												<button @click="getSearch" type="button" class="btn btn-info">查询</button>
+												<button @click="getDatalist" type="button" class="btn btn-info">查询</button>
 												<button @click="getExport" type="button" class="btn btn-primary">导出</button>
 											</div>
 										</form>
@@ -584,7 +584,7 @@
 					this.getDatalist();
 				},
 				methods: {					
-					getDatalist: function() {
+					getDatalist1: function() {
 						var that = this;
 						$.get(url + "commissionOrder/count", {
 							keyword: that.name,							
@@ -603,7 +603,7 @@
 							//console.log(that.subject);
 						});
 					},
-					getSearch: function() {
+					getDatalist: function() {
 						var that = this;
 						var json = {};
 						show_loading();
@@ -1023,14 +1023,14 @@
           json['state'] = va;
           $.post(str_url, json,
 			   	function(data){
+			   			$('#loading_id').modal('hide');
 			   			if (data.code == 0)
 			   			{
 			   					$('#ovst_id #alert_success').css('marginLeft','30%');
-			   					$('#ovst_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
-			   					setTimeout(function(){window.location.href = "mycommission-ovst.html";}, 2000);				   					
+			   					$('#ovst_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();			   					
+			   					setTimeout(function(){v.getDatalist();$('.modal-backdrop').remove();}, 1000);		   					
 			   			}else
-			   			{
-			   					$('#loading_id').modal('hide');
+			   			{			   					
 			   					$('#ovst_id #alert_error').css('marginLeft','30%');
 			   					$('#ovst_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
 	          			$("#ovst_id #error_info").html(data.message);
@@ -1129,9 +1129,7 @@
 			}
 			
 			function deleteId()
-      {
-      		//alert(v.dId+'删除功能暂不可用。');
-      		//return false;
+      {      		
       		show_loading();
 					$.get("commissionOrder/deleteCommissionOrder", {
 						id: v.orderId
@@ -1146,6 +1144,7 @@
 								//v.table_remove();
 		   					//重新载入数据源
 		   					v.getDatalist();
+		   					$('.modal-backdrop').remove();
 						}else
 						{								
 								$('#delete_id #alert_error').css('marginLeft','30%');
