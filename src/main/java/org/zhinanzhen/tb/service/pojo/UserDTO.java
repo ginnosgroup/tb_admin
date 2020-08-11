@@ -55,4 +55,6 @@ public class UserDTO {
 	private UserDTO recommendUserDto;
 	
 	private List<TagDTO> tagList;
+
+	private Date dob;
 }
