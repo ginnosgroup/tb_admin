@@ -331,7 +331,7 @@
 													</dle>
 											</div>
 											<div class="form-group">
-												<button @click="getSearch" type="button" class="btn btn-info">查询</button>
+												<button @click="getDatalist" type="button" class="btn btn-info">查询</button>
 												<button @click="getExport" type="button" class="btn btn-primary">导出</button>
 												<button v-if="commission_state ==='DJY' || commission_state ==='DZY'" onclick="uploadFile()" type="button" class="btn btn-success">上传数据</button>
 											</div>
@@ -594,7 +594,7 @@
 					this.getDatalist();
 				},
 				methods: {					
-					getDatalist: function() {
+					getDatalist1: function() {
 						var that = this;
 						$.get(url + "visa/count", {
 							keyword: that.name,
@@ -615,7 +615,7 @@
 							//console.log(that.subject);
 						});
 					},
-					getSearch: function() {
+					getDatalist: function() {
 						var that = this;
 						var json = {};
 						show_loading();
@@ -624,7 +624,7 @@
 						if (that.adviserId != '0')
 						{
 								json['adviserId'] = that.adviserId;
-								v.adviser_id = that.adviserId;
+								//v.adviser_id = that.adviserId;
 						}				
 						if (that.type != '') json['type'] = that.type;
 						if (that.startHandlingDate != '') json['startHandlingDate'] = that.startHandlingDate;
@@ -640,10 +640,9 @@
 							that.count = result.data;
 							that.allPage = Math.ceil(result.data / that.pageSize);
 						});
-						json['pageNum'] = 0;
+						json['pageNum'] = that.pageNum;
 						json['pageSize'] = that.pageSize;						
 						$.get(url + "visa/list", json, function(result) {
-							that.pageNum = 0;
 							result.data = return_result(result);
 							that.subject = result.data;
 							that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
@@ -1445,6 +1444,7 @@
 			   					$('#my_table #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
 			   					//重新载入数据源
 					   			v.getDatalist();
+			   					$('.modal-backdrop').remove();
 			   			}else
 			   			{			   					
 			   					$('#my_table #alert_error').css('marginLeft','40%');
