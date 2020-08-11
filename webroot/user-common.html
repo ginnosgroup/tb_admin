@@ -453,9 +453,12 @@ function add_service1(orderId,userId,name)
 					      $("#addnewservice1_id #b4").val(response.officialId);			      
 					      $("#addnewservice1_id #b5 option[value='OVST']").remove();
 					      $("#addnewservice1_id #b5 option[value='VISA']").remove();
-					      ajax_service('VISA');
-					      $("#addnewservice1_id #b6").val(response.serviceId);	        			
-	        			$("#addnewservice1_id #b6").attr("disabled","disabled");
+					      ajax_service('SIV');
+					      //$("#addnewservice1_id #b6").val(response.serviceId);
+								$("#addnewservice1_id #b6").find("option:selected").text("");
+								$("#addnewservice1_id #b6").empty();
+								$("#addnewservice1_id #b6").append("<option value='"+response.serviceId+"'>"+response.service.code+"</option>");
+	        			$("#addnewservice1_id #b6").attr("disabled","disabled");	        			
 	        			if (response.servicePackageId)
 					      {
 					      		v.servicepackage_type = response.servicePackage.type;
@@ -495,6 +498,8 @@ function add_service1(orderId,userId,name)
 					      $("#addnewservice1_id #b3").val(response.maraId);
 					      $("#addnewservice1_id #b4").val(response.officialId);			      
 					      $("#addnewservice1_id #b5 option[value='OVST']").remove();
+					      $("#addnewservice1_id #show_pic").html('');
+	        			$("#addnewservice1_id #show_pic").hide();
 					      ajax_service('VISA');
 					      $("#addnewservice1_id #b6").val(response.serviceId);			      
 					      var setPay = 1;
@@ -1039,7 +1044,7 @@ function ajax_service(va)
         			{
 		        			service_code.append("<option value='"+response[item].id+"'>"+response[item].code+"</option>");		
         			}
-        	}	        	     	
+        	}       	     	
         });
   	}else if (va == 'VISA')
 		{
@@ -1757,10 +1762,12 @@ function Service3VisaSave()
        	json['serviceId'] = $(f+'#b6').val();       	
        	json['userId'] = $("#addnewservice1_id #user_id").val();
        	json['remarks'] = $(f+'#b18').val();
-       	json['isPay'] = false;       	       	
+       	json['isPay'] = false; 
+       	show_loading();      	       	
        	
        	$.post(str_url, json,
-		   	function(data){		   			
+		   	function(data){
+		   			$('#loading_id').modal('hide');	
 		   			if (data.code == 0)
 		   			{
 		   					$('#addnewservice1_id #alert_success').css('marginTop','30%');
