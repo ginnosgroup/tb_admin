@@ -506,16 +506,19 @@ function requestCommissionSave()
        	$.post(str_url, json,
 		   	function(data){
 		   			//console.log(data);
+		   			$('#loading_id').modal('hide');
 		   			if (data.code == 0)
 		   			{
 		   					//提交财务审核
 		   					$('#ovst_id #alert_success').css('marginTop','30%');
 		   					$('#ovst_id #alert_success').css('marginLeft','30%');
 		   					$('#ovst_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
-		   					setTimeout(function(){window.location.href = "mycommission-ovst.html";}, 2000);
+		   					//setTimeout(function(){window.location.href = "mycommission-ovst.html";}, 2000);
+		   					v.getDatalist();
+			   				$('.modal-backdrop').remove();
+			   				$('#ovst_id').modal('hide');
 		   			}else
-		   			{
-		   					$('#loading_id').modal('hide');
+		   			{		   					
 		   					$('#ovst_id #alert_error').css('marginTop','30%');
 		   					$('#ovst_id #alert_error').css('marginLeft','30%');
 		   					$('#ovst_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
