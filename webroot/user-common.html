@@ -458,7 +458,7 @@ function add_service1(orderId,userId,name)
 								$("#addnewservice1_id #b6").find("option:selected").text("");
 								$("#addnewservice1_id #b6").empty();
 								$("#addnewservice1_id #b6").append("<option value='"+response.serviceId+"'>"+response.service.code+"</option>");
-	        			$("#addnewservice1_id #b6").attr("disabled","disabled");
+	        			$("#addnewservice1_id #b6").attr("disabled","disabled");	        			
 	        			if (response.servicePackageId)
 					      {
 					      		v.servicepackage_type = response.servicePackage.type;
@@ -498,6 +498,8 @@ function add_service1(orderId,userId,name)
 					      $("#addnewservice1_id #b3").val(response.maraId);
 					      $("#addnewservice1_id #b4").val(response.officialId);			      
 					      $("#addnewservice1_id #b5 option[value='OVST']").remove();
+					      $("#addnewservice1_id #show_pic").html('');
+	        			$("#addnewservice1_id #show_pic").hide();
 					      ajax_service('VISA');
 					      $("#addnewservice1_id #b6").val(response.serviceId);			      
 					      var setPay = 1;
