@@ -1622,8 +1622,7 @@
 					   					$('#my_table #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
 					   					v.table_remove();
 					   					//重新载入数据源
-					   					v.getDatalist();
-					   					$('.modal-backdrop').remove();
+					   					setTimeout(function(){v.getDatalist();$('.modal-backdrop').remove();}, 2000);
 					   			}else
 					   			{
 					   					$('#my_table #alert_error').css('marginLeft','40%');
@@ -1689,8 +1688,7 @@
 					   					$('#my_table #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
 					   					v.table_remove();
 					   					//重新载入数据源
-					   					v.getDatalist();
-					   					$('.modal-backdrop').remove();
+					   					setTimeout(function(){v.getDatalist();$('.modal-backdrop').remove();}, 2000);
 					   			}else
 					   			{
 					   					$('#my_table #alert_error').css('marginLeft','40%');
@@ -1737,8 +1735,7 @@
 					   					v.subject.splice(v.current_index, 0);
 											v.subject.splice(v.current_index,1, v.current_row);
 					   					//重新载入数据源
-					   					v.getDatalist();
-					   					$('.modal-backdrop').remove();
+					   					setTimeout(function(){v.getDatalist();$('.modal-backdrop').remove();}, 2000);
 					   			}else
 					   			{
 					   					$('#my_table #alert_error').css('marginLeft','40%');
@@ -1877,8 +1874,7 @@
 			   					$('#my_table #alert_success').css('marginLeft','40%');
 			   					$('#my_table #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
 			   					//重新载入数据源
-					   			v.getDatalist();
-					   			$('.modal-backdrop').remove();
+					   			setTimeout(function(){v.getDatalist();$('.modal-backdrop').remove();}, 2000);
 			   			}else
 			   			{
 			   					$('#my_table #alert_error').css('marginLeft','40%');

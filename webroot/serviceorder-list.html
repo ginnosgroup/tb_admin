@@ -1134,9 +1134,8 @@
 							        });
 					      	}
 			   					$('#alert_success').css('marginLeft','30%');
-			   					$('#alert_success').addClass('alert-success').show().delay(1500).fadeOut();			   					
-			   					v.getDatalist();
-			   					$('.modal-backdrop').remove();
+			   					$('#alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+			   					setTimeout(function(){v.getDatalist();$('.modal-backdrop').remove();}, 2000);			   								   					
 			   					if (v.orderType == 'VISA')
 			   					{
 			   							$('#show_addnewservice1_id').modal('hide');			   							
