@@ -260,7 +260,7 @@
 
     <update id="updateDOB">
         UPDATE tb_user
-        SET gmt_modify = now() and dob = #{birthday}
+        SET gmt_modify = now() , birthday = #{dob}
         WHERE id = #{id};
     </update>
 </mapper>
