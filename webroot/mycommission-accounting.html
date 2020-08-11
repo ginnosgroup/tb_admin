@@ -333,6 +333,7 @@
 											<div class="form-group">
 												<button @click="getSearch" type="button" class="btn btn-info">查询</button>
 												<button @click="getExport" type="button" class="btn btn-primary">导出</button>
+												<button v-if="commission_state ==='DJY' || commission_state ==='DZY'" onclick="uploadFile()" type="button" class="btn btn-success">上传数据</button>
 											</div>
 											<div class="form-group">
 												<button @click="multiple_edit" type="button" class="btn btn-warning">批量编辑</button>
@@ -497,6 +498,32 @@
 				</div>
 			</div>
 		</div>
+		<div class="modal fade" id="upload_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">上传数据</h4>
+					</div>
+					<div class="modal-body">
+							<form class="form-horizontal" autocomplete="off">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">请选择文件</label>
+								<div class="col-sm-8">
+									<input type="file" id="f2" accept=".xls,.xlsx" class="form-control" placeholder="请选择一个文件">
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-12 control-label" id="show_message" style="text-align: center;color:red;"></label>
+							</div>							
+							</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					</div>
+				</div>
+			</div>
+		</div>
 		<div class="modal fade" id="loading_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop='static' style="z-index:99999;">
 			<div class="modal-dialog" role="document" style="width:350px;">
 				<div class="modal-content">
@@ -577,11 +604,11 @@
 							that.allPage = Math.ceil(result.data / that.pageSize);
 						});
 						$.get(url + "visa/list", {
-							pageNum: 0,
+							pageNum: that.pageNum,
 							pageSize: that.pageSize,
 							commissionState: that.commission_state
 						}, function(result) {							
-							that.pageNum = 0;
+							that.pageNum = that.pageNum;
 							result.data = return_result(result);
 							that.subject = result.data;							
 							that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
@@ -820,6 +847,7 @@
 					},
 					lastPage: function() {
 						var that = this;
+						var json = {};
 						if (that.userId != '0') json['userId'] = that.userId;
 						if (that.adviserId != '0')
 						{
@@ -1004,7 +1032,8 @@
 		            		if (data.code == 0)
 						   			{
 						   					$("#show_info").html('批量保存成功');
-						   					setTimeout(function(){window.location.href = "mycommission-accounting.html?commission_state=DJY";}, 3000);						   					
+						   					setTimeout(function(){$("#show_multiple").hide();v.getDatalist();}, 2000);
+						   					//setTimeout(function(){window.location.href = "mycommission-accounting.html?commission_state=DJY";}, 3000);						   					
 						   			}else
 						   			{
 						   					$("#btn_multiple_save").removeAttr("disabled");
@@ -1085,9 +1114,9 @@
 					   			{
 					   					$('#my_table #alert_success').css('marginLeft','40%');
 					   					$('#my_table #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
-					   					v.table_remove();
+					   					//v.table_remove();
 					   					//重新载入数据源
-					   					//v.getDatalist();
+					   					v.getDatalist();
 					   			}else
 					   			{
 					   					$('#my_table #alert_error').css('marginLeft','40%');
@@ -1134,7 +1163,7 @@
 					   					v.subject.splice(v.current_index, 0);
 											v.subject.splice(v.current_index,1, v.current_row);
 					   					//重新载入数据源
-					   					//v.getDatalist();
+					   					v.getDatalist();
 					   			}else
 					   			{
 					   					$('#my_table #alert_error').css('marginLeft','40%');
@@ -1446,6 +1475,40 @@
 			    $("#commission_state_"+str_value).addClass("active");
 			    return str_value;
 			}
+			
+			function uploadFile()
+			{
+					$('#upload_id').modal('show');
+			}
+			
+			$('#upload_id #f2').live('change', function (e) {
+					var formData = new FormData();					
+					formData.append("file",$("#f2")[0].files[0]);
+					
+					$.ajax({
+			        url:'commissionOrder/upload',
+			        dataType:'json',
+			        type:'POST',
+			        async: false,
+			        data: formData,
+			        processData : false, //使数据不做处理
+			        contentType : false,
+			        success: function(data){			        		
+			            if (data.code == '0')
+			            {
+			            		$('#upload_id #show_message').html(data.message);
+			            		//$('#upload_id #show_message').css("color","#78CD51");
+			            		//$('#upload_id #show_message').html('上传数据成功，请核对数据是否一致。');
+			            }else
+			            {
+			            		$('#upload_id #show_message').html(data.message);
+			            }	
+			        },
+			        error:function(response){
+			            console.log(response);
+			        }
+			    });
+			});
       
       function show_knowledge_detail(id,parentId)
       {

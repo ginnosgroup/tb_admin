@@ -712,10 +712,10 @@
 							that.count = result.data;
 							that.allPage = Math.ceil(result.data / that.pageSize);
 						});
-						json['pageNum'] = 0;
+						json['pageNum'] = that.pageNum;
 						json['pageSize'] = that.pageSize;
 						$.get(url + "commissionOrder/list", json, function(result) {							
-							that.pageNum = 0;
+							//that.pageNum = 0;
 							result.data = return_result(result);
 							that.subject = result.data;
 							that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
@@ -726,7 +726,7 @@
 						var that = this;
 						var json = {};
 						show_loading();
-						if (that.id != '') json['id'] = that.id;
+						if (that.id != '') json['id'] = that.id
 						if (that.name != '') json['name'] = that.name;
 						if (that.phone != '') json['phone'] = that.phone;
 						if (that.wechatUsername != '') json['wechatUsername'] = that.wechatUsername;
@@ -1317,7 +1317,8 @@
 		            		if (data.code == 0)
 						   			{
 						   					$("#show_multiple #show_info").html('批量保存成功');
-						   					setTimeout(function(){window.location.href = "mycommission-ovst-accounting.html?commission_state=DZY&list=DZY";}, 3000);
+						   					setTimeout(function(){$("#show_multiple").hide();v.getDatalist();}, 2000);
+						   					//setTimeout(function(){window.location.href = "mycommission-ovst-accounting.html?commission_state=DZY&list=DZY";}, 3000);
 						   			}else
 						   			{
 						   					$("#show_multiple #btn_multiple_save").removeAttr("disabled");
@@ -1431,7 +1432,8 @@
 		            		if (data.code == 0)
 						   			{
 						   					$("#show_multiple1 #show_info").html('批量保存成功');
-						   					setTimeout(function(){window.location.href = "mycommission-ovst-accounting.html?commission_state=DJY&list=DJY,DZY,YZY";}, 3000);
+						   					setTimeout(function(){$("#show_multiple").hide();v.getDatalist();}, 2000);
+						   					//setTimeout(function(){window.location.href = "mycommission-ovst-accounting.html?commission_state=DJY&list=DJY,DZY,YZY";}, 3000);
 						   			}else
 						   			{
 						   					$("#show_multiple1 #btn_multiple_save").removeAttr("disabled");
@@ -1922,8 +1924,9 @@
 			        success: function(data){			        		
 			            if (data.code == '0')
 			            {
-			            		$('#upload_id #show_message').css("color","#78CD51");
-			            		$('#upload_id #show_message').html('上传数据成功，请核对数据是否一致。');
+			            		$('#upload_id #show_message').html(data.message);
+			            		//$('#upload_id #show_message').css("color","#78CD51");
+			            		//$('#upload_id #show_message').html('上传数据成功，请核对数据是否一致。');
 			            }else
 			            {
 			            		$('#upload_id #show_message').html(data.message);
