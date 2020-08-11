@@ -383,7 +383,7 @@
 													</select>													
 											</div>
 											<div class="form-group">
-												<button @click="getSearch" type="button" class="btn btn-info">查询</button>
+												<button @click="getDatalist" type="button" class="btn btn-info">查询</button>
 												<button @click="getExport" type="button" class="btn btn-primary" style="display:none;">导出</button>
 											</div>
 										</form>
@@ -628,7 +628,7 @@
 					this.getDatalist();
 				},				
 				methods: {								
-					getDatalist: function() {
+					getDatalist1: function() {
 						var that = this;
 						if (that.state == '') that.state = that.service_state;
 						if (that.service_state == 'REVIEW') that.isNotApproved = true;
@@ -653,7 +653,7 @@
 							//console.log(that.subject);
 						});
 					},
-					getSearch: function() {
+					getDatalist: function() {
 						var that = this;
 						var json = {};
 						show_loading();
@@ -675,10 +675,9 @@
 							that.count = result.data;
 							that.allPage = Math.ceil(result.data / that.pageSize);
 						});
-						json['pageNum'] = 0;
+						json['pageNum'] = that.pageNum;
 						json['pageSize'] = that.pageSize;
 						$.get(url + "serviceOrder/list", json, function(result) {
-							that.pageNum = 0;
 							result.data = return_result(result);
 							that.subject = result.data;
 							that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
@@ -1120,7 +1119,7 @@
           json['state'] = va;          
           $.post(str_url, json,
 			   	function(data){
-			   			$('#loading_id').modal('hide');
+			   			$('#loading_id').modal('hide');			   			
 			   			if (data.code == 0)
 			   			{			   					                        
           				if (v.orderType == 'VISA' && v.ap_list == 'GW' && va == 'REVIEW') reqCommissionVisa();//如果GW提交审核,就创建佣金订单 		
@@ -1135,8 +1134,9 @@
 							        });
 					      	}
 			   					$('#alert_success').css('marginLeft','30%');
-			   					$('#alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+			   					$('#alert_success').addClass('alert-success').show().delay(1500).fadeOut();			   					
 			   					v.getDatalist();
+			   					$('.modal-backdrop').remove();
 			   					//setTimeout(function(){window.location.href = "serviceorder-list.html?state=";}, 2000);				   					
 			   			}else
 			   			{			   					
