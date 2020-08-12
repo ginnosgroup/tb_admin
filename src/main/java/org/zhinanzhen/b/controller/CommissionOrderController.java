@@ -34,6 +34,7 @@ import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.tb.controller.Response;
+import org.zhinanzhen.tb.dao.UserDAO;
 import org.zhinanzhen.tb.service.ServiceException;
 
 import com.ikasoa.core.utils.StringUtil;
@@ -67,7 +68,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	SchoolService schoolService;
 
 	@Resource
-	UserService userService;
+	UserService	userService;
 
 	@Resource
 	ServiceOrderService serviceOrderService;
@@ -108,7 +109,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
 			@RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
 			@RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
-			@RequestParam(value = "dob", required = false) String dob,
+			@RequestParam(value = "dob") String dob,
 			@RequestParam(value = "startDate") String startDate, @RequestParam(value = "endDate") String endDate,
 			@RequestParam(value = "tuitionFee") String tuitionFee,
 			@RequestParam(value = "perTermTuitionFee") String perTermTuitionFee,
@@ -123,7 +124,6 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		try {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			userService.updateDOB(new Date(Long.parseLong(dob)),userId);
 			if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
 					&& !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 				return new Response<List<CommissionOrderDTO>>(1, "仅限顾问和超级管理员能创建佣金订单.", null);
@@ -258,6 +258,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				int id = commissionOrderService.addCommissionOrder(commissionOrderDto);
 				if (id > 0) {
 					serviceOrderDto.setSubmitted(true);
+					userService.updateDOB(new Date(Long.parseLong(dob)),userId);
 					serviceOrderService.updateServiceOrder(serviceOrderDto); // 同时更改服务订单状态
 					commissionOrderDtoList.add(commissionOrderDto);
 					CommissionOrderListDTO commissionOrderListDto = commissionOrderService.getCommissionOrderById(id);

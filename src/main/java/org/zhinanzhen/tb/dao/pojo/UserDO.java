@@ -46,4 +46,6 @@ public class UserDO {
 	private int adviserId;
 
 	private String recommendOpenid;
+
+	private Date dob;
 }

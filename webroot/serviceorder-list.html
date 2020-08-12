@@ -1134,9 +1134,15 @@
 							        });
 					      	}
 			   					$('#alert_success').css('marginLeft','30%');
-			   					$('#alert_success').addClass('alert-success').show().delay(1500).fadeOut();			   					
-			   					v.getDatalist();
-			   					$('.modal-backdrop').remove();
+			   					$('#alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+			   					setTimeout(function(){v.getDatalist();$('.modal-backdrop').remove();}, 1000);			   								   					
+			   					if (v.orderType == 'VISA')
+			   					{
+			   							$('#show_addnewservice1_id').modal('hide');			   							
+			   					}else if (v.orderType == 'OVST')
+			   					{
+			   							$('#show_addnewservice2_id').modal('hide');
+			   					}
 			   					//setTimeout(function(){window.location.href = "serviceorder-list.html?state=";}, 2000);				   					
 			   			}else
 			   			{			   					
