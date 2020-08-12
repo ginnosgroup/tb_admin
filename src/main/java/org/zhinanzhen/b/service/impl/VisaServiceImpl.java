@@ -132,7 +132,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 	public List<VisaDTO> listVisa(String keyword, String startHandlingDate, String endHandlingDate,
 			List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
 			String endKjApprovalDate, String startDate, String endDate, Integer regionId, Integer adviserId,
-			Integer userId, int pageNum, int pageSize) throws ServiceException {
+			Integer userId,String state, int pageNum, int pageSize) throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
 		}
@@ -142,11 +142,20 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 		List<VisaDTO> visaDtoList = new ArrayList<>();
 		List<VisaListDO> visaListDoList = new ArrayList<>();
 		try {
-			visaListDoList = visaDao.listVisa(keyword, startHandlingDate, theDateTo23_59_59(endHandlingDate), stateList,
-					commissionStateList, startKjApprovalDate, theDateTo23_59_59(endKjApprovalDate), startDate,
-					theDateTo23_59_59(endDate), regionId, adviserId, userId, pageNum * pageSize, pageSize);
-			if (visaListDoList == null)
-				return null;
+			if (state.equals("WAIT")  ||state.equals("PENDING") ) {
+				visaListDoList = visaDao.listVisaWait(keyword, startHandlingDate, theDateTo23_59_59(endHandlingDate), stateList,
+						commissionStateList, startKjApprovalDate, theDateTo23_59_59(endKjApprovalDate), startDate,
+						theDateTo23_59_59(endDate), regionId, adviserId, userId, state, pageNum * pageSize, pageSize);
+				if (visaListDoList == null)
+					return null;
+			}
+			if (state.equals("REVIEW")||state.equals("COMPLETE")){
+				visaListDoList = visaDao.listVisaDone(keyword, startHandlingDate, theDateTo23_59_59(endHandlingDate), stateList,
+						commissionStateList, startKjApprovalDate, theDateTo23_59_59(endKjApprovalDate), startDate,
+						theDateTo23_59_59(endDate), regionId, adviserId, userId, state, pageNum * pageSize, pageSize);
+				if (visaListDoList == null)
+					return null;
+			}
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
