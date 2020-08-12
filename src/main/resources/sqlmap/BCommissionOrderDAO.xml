@@ -244,6 +244,12 @@
         <if test='name != null and name != ""'>
             AND u.name LIKE '%${name}%'
         </if>
+        <if test='state == "PENDING" or state == "WAIT"'>
+            <![CDATA[ AND (co.state="PENDING" OR co.state="WAIT") ]]>
+        </if>
+        <if test='state == "COMPLETE" or state == "REVIEW"'>
+            <![CDATA[ AND (co.state="COMPLETE" OR co.state="REVIEW") ]]>
+        </if>
         <if test='phone != null and phone != ""'>
             AND u.phone = #{phone}
         </if>
