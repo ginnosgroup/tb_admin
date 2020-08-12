@@ -166,7 +166,8 @@ public class DownExcelController extends BaseController {
 			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
-			@RequestParam(value = "adviserId", required = false) Integer adviserId, HttpServletRequest request,
+			@RequestParam(value = "adviserId", required = false) Integer adviserId,
+			@RequestParam(value = "state",required = false) String state,HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
 
 		// 更改当前顾问编号
@@ -183,7 +184,7 @@ public class DownExcelController extends BaseController {
 		try {
 			super.setGetHeader(response);
 			List<VisaDTO> visaDtoList = visaService.listVisa(keyword, startHandlingDate, endHandlingDate, null, null,
-					null, null, startDate, endDate, null, adviserId, null, 0, 9999);
+					null, null, startDate, endDate, null, adviserId, null, state,0, 9999);
 
 			OutputStream os = response.getOutputStream();
 			jxl.Workbook wb;
@@ -563,6 +564,7 @@ public class DownExcelController extends BaseController {
 			@RequestParam(value = "subagencyId", required = false) Integer subagencyId,
 			@RequestParam(value = "officialId", required = false) Integer officialId,
 			@RequestParam(value = "isSettleAccounts", required = false) Boolean isSettleAccounts,
+			@RequestParam(value = "state",required = false) String state,
 			HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 		// 更改当前顾问编号
@@ -583,7 +585,7 @@ public class DownExcelController extends BaseController {
 
 			// 签证类
 			List<VisaDTO> visaDtoList = visaService.listVisa(keyword, startHandlingDate, endHandlingDate, null, null,
-					null, null, startDate, endDate, null, adviserId, null, 0, 15);
+					null, null, startDate, endDate, null, adviserId, null,state, 0, 15);
 
 			// ?
 			// List<BrokerageDTO> brokerageDtoList =
