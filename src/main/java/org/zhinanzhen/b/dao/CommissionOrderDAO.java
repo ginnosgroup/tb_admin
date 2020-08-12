@@ -34,8 +34,8 @@ public interface CommissionOrderDAO {
 			@Param("stateList") List<String> stateList, @Param("commissionStateList") List<String> commissionStateList,
 			@Param("startKjApprovalDate") String startKjApprovalDate,
 			@Param("endKjApprovalDate") String endKjApprovalDate, @Param("isYzyAndYjy") Boolean isYzyAndYjy,
+			@Param("state")String state,
 			@Param("offset") int offset, @Param("rows") int rows);
-
 	public List<CommissionOrderDO> listCommissionOrderByCode(String code);
 
 	public List<CommissionOrderDO> listCommissionOrderByServiceOrderId(Integer serviceOrderId);
@@ -62,5 +62,7 @@ public interface CommissionOrderDAO {
 	Double sumTuitionFeeBySchoolId(@Param("schoolId") Integer schoolId);
 
 	int deleteCommissionOrderById(int id);
+
+	public List<CommissionOrderDO> listCommissionOrderByState(String state);
 
 }
