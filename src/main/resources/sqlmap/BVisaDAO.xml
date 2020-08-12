@@ -429,7 +429,7 @@
             SUM(v.bonus) AS commission,
             SUM(CASE IFNULL(v.sure_expect_amount, 0) WHEN 0 THEN IFNULL(v.expect_amount, 0) END) AS serviceFee
         FROM b_visa v, tb_adviser a, tb_region r
-        WHERE a.region_id = r.id AND v.adviser_id = a.id
+        WHERE a.region_id = r.id AND v.adviser_id = a.id AND v.installment_num = 1
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
             <![CDATA[ AND v.kj_approval_date > #{startDate} AND v.kj_approval_date < #{endDate} ]]>
         </if>
