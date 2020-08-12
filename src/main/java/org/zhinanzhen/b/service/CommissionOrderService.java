@@ -22,7 +22,7 @@ public interface CommissionOrderService {
 	public List<CommissionOrderListDTO> listCommissionOrder(Integer regionId, Integer maraId, Integer adviserId,
 			Integer officialId, Integer userId, String name, String phone, String wechatUsername, Integer schoolId,
 			Boolean isSettle, List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
-			String endKjApprovalDate, Boolean isYzyAndYjy, int pageNum, int pageSize) throws ServiceException;
+			String endKjApprovalDate, Boolean isYzyAndYjy,String state, int pageNum, int pageSize) throws ServiceException;
 
 	List<CommissionOrderListDTO> listThisMonthCommissionOrder(Integer adviserId, Integer officialId)
 			throws ServiceException;
@@ -43,5 +43,6 @@ public interface CommissionOrderService {
 	int deleteComment(int id) throws ServiceException;
 
 	int deleteCommissionOrder(int id) throws ServiceException;
+
 
 }
