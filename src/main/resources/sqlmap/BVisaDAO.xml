@@ -209,7 +209,14 @@
 				#{commissionStateList}
 			</foreach>
 		</if>
-		<if test='startKjApprovalDate != null and startKjApprovalDate != "" and endKjApprovalDate != null and endKjApprovalDate != ""'>
+        <if test='state == "PENDING" or state == "WAIT"'>
+            <![CDATA[ AND (bv.state="PENDING" OR bv.state="WAIT") ]]>
+        </if>
+        <if test='state == "COMPLETE" or state == "REVIEW"'>
+            <![CDATA[ AND (bv.state="COMPLETE" OR bv.state="REVIEW") ]]>
+        </if>
+
+        <if test='startKjApprovalDate != null and startKjApprovalDate != "" and endKjApprovalDate != null and endKjApprovalDate != ""'>
             <![CDATA[ AND bv.kj_approval_date > #{startKjApprovalDate} AND bv.kj_approval_date < #{endKjApprovalDate} ]]>
         </if>
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
