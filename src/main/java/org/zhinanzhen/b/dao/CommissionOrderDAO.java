@@ -13,13 +13,14 @@ public interface CommissionOrderDAO {
 	int addCommissionOrder(CommissionOrderDO commissionOrderDo);
 
 	public int countCommissionOrder(@Param("regionId") Integer regionId, @Param("maraId") Integer maraId,
-			@Param("adviserId") Integer adviserId, @Param("officialId") Integer officialId,
-			@Param("userId") Integer userId, @Param("name") String name, @Param("phone") String phone,
-			@Param("wechatUsername") String wechatUsername, @Param("schoolId") Integer schoolId,
-			@Param("isSettle") Boolean isSettle, @Param("stateList") List<String> stateList,
-			@Param("commissionStateList") List<String> commissionStateList,
-			@Param("startKjApprovalDate") String startKjApprovalDate,
-			@Param("endKjApprovalDate") String endKjApprovalDate, @Param("isYzyAndYjy") Boolean isYzyAndYjy);
+									@Param("adviserId") Integer adviserId, @Param("officialId") Integer officialId,
+									@Param("userId") Integer userId, @Param("name") String name, @Param("phone") String phone,
+									@Param("wechatUsername") String wechatUsername, @Param("schoolId") Integer schoolId,
+									@Param("isSettle") Boolean isSettle, @Param("stateList") List<String> stateList,
+									@Param("commissionStateList") List<String> commissionStateList,
+									@Param("startKjApprovalDate") String startKjApprovalDate,
+									@Param("endKjApprovalDate") String endKjApprovalDate, @Param("isYzyAndYjy") Boolean isYzyAndYjy,
+									@Param("state")String state);
 
 	int countCommissionOrderBySchoolId(@Param("schoolId") Integer schoolId);
 
