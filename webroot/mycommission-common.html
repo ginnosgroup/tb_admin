@@ -372,16 +372,17 @@ function requestCommissionVisaSave()
        	
        	$.post(str_url, json,
 		   	function(data){
+		   			$('#loading_id').modal('hide');
 		   			if (data.code == 0)
 		   			{
 		   					//提交财务审核		   					
 		   					$('#visa_id #alert_success').css('marginTop','30%');
 		   					$('#visa_id #alert_success').css('marginLeft','30%');
 		   					$('#visa_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
-		   					setTimeout(function(){window.location.href = "mycommission.html";}, 2000);
+		   					setTimeout(function(){v.getDatalist();$('.modal-backdrop').remove();}, 1000);
+			   				$('#visa_id').modal('hide');
 		   			}else
-		   			{
-		   					$('#loading_id').modal('hide');
+		   			{		   					
 		   					$('#visa_id #alert_error').css('marginTop','30%');
 		   					$('#visa_id #alert_error').css('marginLeft','30%');
 		   					$('#visa_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
