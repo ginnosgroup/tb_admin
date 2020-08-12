@@ -513,6 +513,7 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "userId", required = false) Integer userId,
+			@RequestParam(value = "state") String state,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
 			HttpServletRequest request, HttpServletResponse response) {
 
@@ -546,8 +547,7 @@ public class VisaController extends BaseCommissionOrderController {
 			super.setGetHeader(response);
 			List<VisaDTO> list = visaService.listVisa(keyword, startHandlingDate, endHandlingDate, stateList,
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, regionId,
-					adviserId,
-					userId, pageNum, pageSize);
+					adviserId,userId,state, pageNum, pageSize);
 			list.forEach(v -> {
 				if (v.getServiceOrderId() > 0)
 					try {
@@ -620,6 +620,7 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "userId", required = false) Integer userId,
+			@RequestParam(value = "state",required = false) String state,
 			HttpServletRequest request,
 			HttpServletResponse response) {
 
@@ -658,8 +659,7 @@ public class VisaController extends BaseCommissionOrderController {
 
 			List<VisaDTO> list = visaService.listVisa(keyword, startHandlingDate, endHandlingDate, stateList,
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, regionId,
-					adviserId,
-					userId, 0, 9999);
+					adviserId,userId, state,0, 9999);
 
 			list.forEach(v -> {
 				if (v.getServiceOrderId() > 0)
