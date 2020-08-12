@@ -240,6 +240,16 @@
 										我的佣金报表
 									</a>									
 								</li>
+								<li v-if="ap_list==='GW' || (ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA')" style="display:none;">
+									<a href="mycommission.html?applyState=PENDING">
+										未申请月奖
+									</a>									
+								</li>
+								<li v-if="ap_list==='GW' || (ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA')" style="display:none;">
+									<a href="mycommission.html?applyState=COMPLETE">
+										已申请月奖
+									</a>									
+								</li>
 								<li v-if="ap_list==='KJ'" id="commission_state_DJY">
 									<a href="mycommission-accounting.html?commission_state=DJY">
 										待结佣订单
@@ -324,7 +334,7 @@
 													</dle>
 											</div>
 											<div class="form-group">
-												<button @click="getSearch" type="button" class="btn btn-info">查询</button>
+												<button @click="getDatalist" type="button" class="btn btn-info">查询</button>
 												<button @click="getExport" type="button" class="btn btn-primary">导出</button>
 											</div>
 										</form>
@@ -538,6 +548,7 @@
 					official_id: sessionStorage.getItem("official_id"),
 					mara_id: sessionStorage.getItem("mara_id"),
 					kj_id: sessionStorage.getItem("kj_id"),
+					applyState : getRequest('applyState'),
 					orderId: 0,
 					total_expectamount: 0.00,
 					total_sureexpectamount: 0.00,
@@ -559,7 +570,7 @@
 					this.getDatalist();
 				},
 				methods: {					
-					getDatalist: function() {
+					getDatalist1: function() {
 						var that = this;
 						$.get(url + "visa/count", {
 							keyword: that.name,							
@@ -578,7 +589,7 @@
 							//console.log(that.subject);
 						});
 					},
-					getSearch: function() {
+					getDatalist: function() {
 						var that = this;
 						var json = {};
 						show_loading();
@@ -593,16 +604,16 @@
 						if (that.startDate != '') json['startDate'] = that.startDate;
 						if (that.endDate != '') json['endDate'] = that.endDate;
 						if (that.ap_list != 'GW' && that.regionId != '') json['regionId'] = that.regionId;
+						if (that.applyState != '') json['applyState'] = that.applyState;
 						
 						$.get(url + "visa/count", json, function(result) {
 							that.count = result.data;
 							that.allPage = Math.ceil(result.data / that.pageSize);
 						});
-						json['pageNum'] = 0;
+						json['pageNum'] = that.pageNum;
 						json['pageSize'] = that.pageSize;
 						console.log(json);
 						$.get(url + "visa/list", json, function(result) {
-							that.pageNum = 0;
 							result.data = return_result(result);
 							that.subject = result.data;
 							that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
@@ -727,6 +738,7 @@
 						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
 						if (that.startDate != '') json['startDate'] = that.startDate;
 						if (that.endDate != '') json['endDate'] = that.endDate;
+						if (that.applyState != '') json['applyState'] = that.applyState;
 						
 						if(that.pageNum > 0) {
 							json['pageNum'] = 0;
@@ -752,6 +764,7 @@
 						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
 						if (that.startDate != '') json['startDate'] = that.startDate;
 						if (that.endDate != '') json['endDate'] = that.endDate;
+						if (that.applyState != '') json['applyState'] = that.applyState;
 						
 						if(that.pageNum > 0) {
 							that.pageNum--;
@@ -777,6 +790,7 @@
 						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
 						if (that.startDate != '') json['startDate'] = that.startDate;
 						if (that.endDate != '') json['endDate'] = that.endDate;
+						if (that.applyState != '') json['applyState'] = that.applyState;
 						
 						if(that.pageNum < that.allPage - 1) {
 							that.pageNum++;
@@ -801,6 +815,7 @@
 						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
 						if (that.startDate != '') json['startDate'] = that.startDate;
 						if (that.endDate != '') json['endDate'] = that.endDate;
+						if (that.applyState != '') json['applyState'] = that.applyState;
 						
 						if(that.pageNum < that.allPage - 1) {
 							json['pageNum'] = that.allPage - 1;
@@ -1003,6 +1018,27 @@
 					}
 			}
 			
+			function getRequest(par)
+			{
+					var str_value = '';
+			    var url = decodeURI(location.search);
+			    var theRequest = new Object();
+			    if (url.indexOf('?') != -1) {
+			        url = url.substr(1);
+			    }
+			    if (url) {
+			        var strs = url.split('&');
+			        for (var i = 0; i < strs.length; i++) {
+			            var srtArry = strs[i].split('=');
+			            var y = srtArry.shift();
+			            theRequest[y] = unescape(srtArry.join('='));
+			        }
+			    }
+			    str_value = theRequest[par];
+			    //$("#commission_state_"+str_value).addClass("active");
+			    return str_value;
+			}
+			
 			function open_detail(serviceId,orderId)
       {
       		show_commission_detail(serviceId,orderId);
@@ -1100,6 +1136,7 @@
 								//v.table_remove();
 		   					//重新载入数据源
 		   					v.getDatalist();
+		   					$('.modal-backdrop').remove();
 						}else
 						{								
 								$('#delete_id #alert_error').css('marginLeft','30%');
