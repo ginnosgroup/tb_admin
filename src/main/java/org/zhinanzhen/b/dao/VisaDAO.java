@@ -20,7 +20,7 @@ public interface VisaDAO {
 			@Param("startKjApprovalDate") String startKjApprovalDate,
 			@Param("endKjApprovalDate") String endKjApprovalDate, @Param("startDate") String startDate,
 			@Param("endDate") String endDate, @Param("regionId") Integer regionId,
-			@Param("adviserId") Integer adviserId, @Param("userId") Integer userId, @Param("applyState") String applyState);
+			@Param("adviserId") Integer adviserId, @Param("userId") Integer userId);
 
 	public int countVisaByServiceOrderIdAndExcludeCode(@Param("serviceOrderId") Integer serviceOrderId,
 			@Param("code") String code);
@@ -31,8 +31,10 @@ public interface VisaDAO {
 			@Param("startKjApprovalDate") String startKjApprovalDate,
 			@Param("endKjApprovalDate") String endKjApprovalDate, @Param("startDate") String startDate,
 			@Param("endDate") String endDate, @Param("regionId") Integer regionId,
-			@Param("adviserId") Integer adviserId, @Param("userId") Integer userId, @Param("offset") int offset,
-			@Param("rows") int rows, @Param("applyState") String applyState);
+			@Param("adviserId") Integer adviserId, @Param("userId") Integer userId,
+			@Param("state")String state,@Param("offset") int offset,
+			@Param("rows") int rows);
+
 
 	List<VisaDO> listVisaByCode(@Param("code") String code);
 
