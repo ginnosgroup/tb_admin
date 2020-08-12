@@ -122,11 +122,11 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 	@Override
 	public int countCommissionOrder(Integer regionId, Integer maraId, Integer adviserId, Integer officialId, Integer userId, String name,
 			String phone, String wechatUsername, Integer schoolId, Boolean isSettle, List<String> stateList,
-			List<String> commissionStateList, String startKjApprovalDate, String endKjApprovalDate, Boolean isYzyAndYjy)
+			List<String> commissionStateList, String startKjApprovalDate, String endKjApprovalDate, Boolean isYzyAndYjy,String state)
 			throws ServiceException {
 		return commissionOrderDao.countCommissionOrder(regionId, maraId, adviserId, officialId, userId, name, phone,
 				wechatUsername, schoolId, isSettle, stateList, commissionStateList, startKjApprovalDate,
-				theDateTo23_59_59(endKjApprovalDate), isYzyAndYjy);
+				theDateTo23_59_59(endKjApprovalDate), isYzyAndYjy,state);
 	}
 
 	@Override
