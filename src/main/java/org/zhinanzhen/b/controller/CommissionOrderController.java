@@ -16,6 +16,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,6 +34,7 @@ import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.tb.controller.Response;
+import org.zhinanzhen.tb.dao.UserDAO;
 import org.zhinanzhen.tb.service.ServiceException;
 
 import com.ikasoa.core.utils.StringUtil;
@@ -49,6 +51,7 @@ import jxl.write.WriteException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.zhinanzhen.tb.service.UserService;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -63,6 +66,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 	@Resource
 	SchoolService schoolService;
+
+	@Resource
+	UserService	userService;
 
 	@Resource
 	ServiceOrderService serviceOrderService;
@@ -103,6 +109,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
 			@RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
 			@RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
+			@RequestParam(value = "dob") String dob,
 			@RequestParam(value = "startDate") String startDate, @RequestParam(value = "endDate") String endDate,
 			@RequestParam(value = "tuitionFee") String tuitionFee,
 			@RequestParam(value = "perTermTuitionFee") String perTermTuitionFee,
@@ -120,10 +127,11 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
 					&& !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 				return new Response<List<CommissionOrderDTO>>(1, "仅限顾问和超级管理员能创建佣金订单.", null);
-			List<CommissionOrderDTO> commissionOrderDtoList = new ArrayList<>();
+			List<CommissionOrderDTO> commissionOrderDtoList =  new ArrayList<>();
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(serviceOrderId);
 			if (serviceOrderDto == null)
 				return new Response<List<CommissionOrderDTO>>(1, "服务订单(ID:" + serviceOrderId + ")不存在!", null);
+
 			if (serviceOrderDto.getSubagencyId() <= 0)
 				return new Response<List<CommissionOrderDTO>>(1,
 						"SubagencyId(" + serviceOrderDto.getSubagencyId() + ")不存在!", null);
@@ -167,6 +175,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				commissionOrderDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
 			else
 				commissionOrderDto.setPaymentVoucherImageUrl5(serviceOrderDto.getPaymentVoucherImageUrl5());
+			commissionOrderDto.setDob(new Date(Long.parseLong(dob)));
 			commissionOrderDto.setStartDate(new Date(Long.parseLong(startDate)));
 			commissionOrderDto.setEndDate(new Date(Long.parseLong(endDate)));
 			commissionOrderDto.setTuitionFee(Double.parseDouble(tuitionFee));
@@ -185,6 +194,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				commissionOrderDto.setZyDate(new Date(Long.parseLong(zyDate)));
 			if (StringUtil.isNotEmpty(remarks))
 				commissionOrderDto.setRemarks(remarks);
+
 
 			// SubagencyDTO subagencyDto =
 			// subagencyService.getSubagencyById(serviceOrderDto.getSubagencyId());
@@ -248,6 +258,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				int id = commissionOrderService.addCommissionOrder(commissionOrderDto);
 				if (id > 0) {
 					serviceOrderDto.setSubmitted(true);
+					userService.updateDOB(new Date(Long.parseLong(dob)),userId);
 					serviceOrderService.updateServiceOrder(serviceOrderDto); // 同时更改服务订单状态
 					commissionOrderDtoList.add(commissionOrderDto);
 					CommissionOrderListDTO commissionOrderListDto = commissionOrderService.getCommissionOrderById(id);
@@ -289,6 +300,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
 			@RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
 			@RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
+			@RequestParam(value = "dob", required = false) String dob,
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "tuitionFee", required = false) String tuitionFee,
@@ -368,6 +380,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				commissionOrderDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
 				serviceOrderDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
 			}
+			if (dob != null)
+				commissionOrderDto.setDob(new Date(Long.parseLong(dob)));
 			if (startDate != null)
 				commissionOrderDto.setStartDate(new Date(Long.parseLong(startDate)));
 			if (endDate != null)
@@ -783,17 +797,17 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		String message = "";
 		int n = 0;
 		Response<String> r = super.upload2(file, request.getSession(), "/tmp/");
-		try (InputStream is = new FileInputStream(r.getData())) {
+		try (InputStream is = new FileInputStream("/data" + r.getData())) {
 			jxl.Workbook wb = jxl.Workbook.getWorkbook(is);
 			Sheet sheet = wb.getSheet(0);
 			for (int i = 1; i < sheet.getRows(); i++) {
 				Cell[] cells = sheet.getRow(i);
 				String _id = cells[0].getContents();
 				String _schoolPaymentAmount = cells[21].getContents();
-				String _schoolPaymentDate = cells[22].getContents();
-				String _invoiceNumber = cells[23].getContents();
-				String _zyDate = cells[23].getContents();
-				String _sureExpectAmount = cells[26].getContents();
+				String _schoolPaymentDate = cells[23].getContents();
+				String _invoiceNumber = cells[24].getContents();
+				String _zyDate = cells[25].getContents();
+				String _sureExpectAmount = cells[19].getContents();
 				String _bonus = cells[27].getContents();
 				String _bonusDate = cells[28].getContents();
 				try {
@@ -811,9 +825,13 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 						continue;
 					}
 					Response<CommissionOrderDTO> _r = updateOne(Integer.parseInt(_id),
-							Double.parseDouble(_schoolPaymentAmount), sdf.format(_schoolPaymentDate), _invoiceNumber,
-							sdf.format(_zyDate), Double.parseDouble(_sureExpectAmount), Double.parseDouble(_bonus),
-							sdf.format(_bonusDate), true);
+							StringUtil.isEmpty(_schoolPaymentAmount) ? null
+									: Double.parseDouble(_schoolPaymentAmount.trim()),
+							StringUtil.isEmpty(_schoolPaymentDate) ? null : _schoolPaymentDate.trim(),
+							_invoiceNumber, StringUtil.isEmpty(_zyDate) ? null : _zyDate.trim(),
+							StringUtil.isEmpty(_sureExpectAmount) ? null : Double.parseDouble(_sureExpectAmount.trim()),
+							StringUtil.isEmpty(_bonus) ? null : Double.parseDouble(_bonus.trim()),
+							StringUtil.isEmpty(_bonusDate) ? null : _bonusDate.trim(), true);
 					if (_r.getCode() > 0)
 						message += "[" + _id + "]" + _r.getMessage() + ";";
 					else
@@ -942,6 +960,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				if (commissionOrderListDto.getInstallmentDueDate() != null)
 					sheet.addCell(
 							new Label(11, i, sdf.format(commissionOrderListDto.getInstallmentDueDate()), cellFormat));
+				if (commissionOrderListDto.getStartDate() != null)
+					sheet.addCell(
+							new Label(11, i, sdf.format(commissionOrderListDto.getStartDate()), cellFormat));
 				if (commissionOrderListDto.getReceiveType() != null)
 					sheet.addCell(new Label(12, i, commissionOrderListDto.getReceiveType().getName() + "", cellFormat));
 				sheet.addCell(new Label(13, i, commissionOrderListDto.getTuitionFee() + "", cellFormat));
@@ -965,11 +986,11 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					sheet.addCell(new Label(25, i, sdf.format(commissionOrderListDto.getZyDate()), cellFormat));
 				if (commissionOrderListDto.getSubagency() != null)
 					sheet.addCell(new Label(26, i, commissionOrderListDto.getSubagency().getName(), cellFormat));
-				sheet.addCell(new Label(27, i, commissionOrderListDto.getBankCheck(), cellFormat));
-				sheet.addCell(new Label(28, i, commissionOrderListDto.isChecked() + "", cellFormat));
-				sheet.addCell(new Label(29, i, commissionOrderListDto.getBonus() + "", cellFormat));
+				sheet.addCell(new Label(27, i, commissionOrderListDto.getBonus() + "", cellFormat));
 				if (commissionOrderListDto.getBonusDate() != null)
-					sheet.addCell(new Label(30, i, sdf.format(commissionOrderListDto.getBonusDate()), cellFormat));
+					sheet.addCell(new Label(28, i, sdf.format(commissionOrderListDto.getBonusDate()), cellFormat));
+				sheet.addCell(new Label(29, i, commissionOrderListDto.getBankCheck(), cellFormat));
+				sheet.addCell(new Label(30, i, commissionOrderListDto.isChecked() + "", cellFormat));
 				if (commissionOrderListDto.getAdviser() != null)
 					sheet.addCell(new Label(31, i, commissionOrderListDto.getAdviser().getName(), cellFormat));
 				if (commissionOrderListDto.getCommissionState() != null)

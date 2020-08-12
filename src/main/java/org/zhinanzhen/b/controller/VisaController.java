@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -571,7 +572,7 @@ public class VisaController extends BaseCommissionOrderController {
 		String message = "";
 		int n = 0;
 		Response<String> r = super.upload2(file, request.getSession(), "/tmp/");
-		try (InputStream is = new FileInputStream(r.getData())) {
+		try (InputStream is = new FileInputStream("/data" + r.getData())) {
 			jxl.Workbook wb = jxl.Workbook.getWorkbook(is);
 			Sheet sheet = wb.getSheet(0);
 			for (int i = 1; i < sheet.getRows(); i++) {
@@ -589,8 +590,9 @@ public class VisaController extends BaseCommissionOrderController {
 						message += "[" + _id + "]佣金订单状态不是待结佣;";
 						continue;
 					}
-					Response<VisaDTO> _r = updateOne(Integer.parseInt(_id), null, Double.parseDouble(_bonus),
-							sdf.format(_bonusDate), true);
+					Response<VisaDTO> _r = updateOne(Integer.parseInt(_id), null,
+							StringUtil.isEmpty(_bonus) ? null : Double.parseDouble(_bonus.trim()),
+							StringUtil.isEmpty(_bonusDate) ? null : sdf.parse(_bonusDate.trim()).getTime() + "", true);
 					if (_r.getCode() > 0)
 						message += "[" + _id + "]" + _r.getMessage() + ";";
 					else
@@ -599,7 +601,7 @@ public class VisaController extends BaseCommissionOrderController {
 					message += "[" + _id + "]" + e.getMessage() + ";";
 				}
 			}
-		} catch (BiffException | IOException e) {
+		} catch (BiffException | IOException | ParseException e) {
 			return new Response<Integer>(1, "上传失败:" + e.getMessage(), 0);
 		}
 		return new Response<Integer>(0, message, n);

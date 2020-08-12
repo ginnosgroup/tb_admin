@@ -257,4 +257,10 @@
         WHERE auth_type != 'V' AND recommend_openid = #{recommendOpenId}
         ORDER BY gmt_create DESC
     </select>
+
+    <update id="updateDOB">
+        UPDATE tb_user
+        SET gmt_modify = now() , birthday = #{dob}
+        WHERE id = #{id};
+    </update>
 </mapper>

@@ -59,6 +59,8 @@ public class CommissionOrderDO {
 
 	private String invoiceNumber;
 
+	private Date dob;
+
 	private Date startDate;
 
 	private Date endDate;

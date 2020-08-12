@@ -742,7 +742,7 @@
             so.subagency_id AS subagencyId,
             so.service_id AS serviceId
         FROM b_commission_order co, b_service_order so, tb_user u
-        WHERE co.service_order_id = so.id AND co.user_id = u.id and co.id = #{id, jdbcType=INTEGER};
+        WHERE co.service_order_id = so.id AND co.user_id = u.id and co.id = #{id, jdbcType=INTEGER}  ;
     </select>
     
     <select id="listCommissionOrderByInvoiceNumber" parameterType="java.lang.String" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderListDO">
