@@ -17,7 +17,7 @@ public interface CommissionOrderService {
 	public int countCommissionOrder(Integer regionId, Integer maraId, Integer adviserId, Integer officialId,
 			Integer userId, String name, String phone, String wechatUsername, Integer schoolId, Boolean isSettle,
 			List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
-			String endKjApprovalDate, Boolean isYzyAndYjy) throws ServiceException;
+			String endKjApprovalDate, Boolean isYzyAndYjy,String state) throws ServiceException;
 
 	public List<CommissionOrderListDTO> listCommissionOrder(Integer regionId, Integer maraId, Integer adviserId,
 			Integer officialId, Integer userId, String name, String phone, String wechatUsername, Integer schoolId,
