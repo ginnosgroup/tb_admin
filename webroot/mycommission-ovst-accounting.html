@@ -598,7 +598,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="modal fade" id="upload_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal fade" id="upload_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
 			<div class="modal-dialog" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -1909,11 +1909,14 @@
 			function uploadFile()
 			{
 					$('#upload_id').modal('show');
+					$('#upload_id #f2').val('');
+					$('#upload_id #show_message').html('');
 			}
 			
 			$('#upload_id #f2').live('change', function (e) {
 					var formData = new FormData();					
 					formData.append("file",$("#f2")[0].files[0]);
+					show_loading();
 					
 					$.ajax({
 			        url:'commissionOrder/upload',
@@ -1923,12 +1926,19 @@
 			        data: formData,
 			        processData : false, //使数据不做处理
 			        contentType : false,
-			        success: function(data){			        		
+			        success: function(data){
+			        		$('#loading_id').modal('hide');			        		
 			            if (data.code == '0')
-			            {
-			            		$('#upload_id #show_message').html(data.message);
-			            		//$('#upload_id #show_message').css("color","#78CD51");
-			            		//$('#upload_id #show_message').html('上传数据成功，请核对数据是否一致。');
+			            {			            		
+			            		if (data.message == '')
+			            		{
+			            				$('#upload_id #show_message').css("color","#78CD51");
+			            				$('#upload_id #show_message').html('上传数据成功，请核对数据是否一致。');
+			            		}else
+			            		{
+			            				$('#upload_id #show_message').css("color","red");
+			            				$('#upload_id #show_message').html(data.message);
+			            		}
 			            }else
 			            {
 			            		$('#upload_id #show_message').html(data.message);
