@@ -293,7 +293,7 @@
         ;
     </select>
     
-    <select id="listCommissionOrder" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderListDO">
+    <select id="listCommissionOrderWait" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderListDO">
         SELECT
             co.id,
             co.gmt_create AS gmtCreate,
@@ -347,7 +347,7 @@
             so.subagency_id AS subagencyId,
             so.service_id AS serviceId
         FROM b_commission_order co, b_service_order so, tb_user u, tb_adviser a
-        WHERE co.service_order_id = so.id AND co.user_id = u.id AND a.id = co.adviser_id
+        WHERE co.service_order_id = so.id AND co.user_id = u.id AND a.id = co.adviser_id and co.state in (select state from b_commission_order where state = 'WAIT' or state = 'PENDING')
         <if test='regionId != null and regionId > 0'>
 			AND a.region_id = #{regionId}
 		</if>
@@ -378,12 +378,109 @@
         <if test='isSettle != null'>
             AND co.is_settle = #{isSettle}
         </if>
-        <if test='stateList != null'>
-            AND co.state IN
-            <foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">
-                #{stateList}
+
+        <if test='commissionStateList != null'>
+            AND co.commission_state IN
+            <foreach collection="commissionStateList" item="commissionStateList" index="index" open="(" close=")" separator=",">
+                #{commissionStateList}
             </foreach>
         </if>
+        <if test='startKjApprovalDate != null and startKjApprovalDate != "" and endKjApprovalDate != null and endKjApprovalDate != ""'>
+            <![CDATA[ AND co.kj_approval_date > #{startKjApprovalDate} AND co.kj_approval_date < #{endKjApprovalDate} ]]>
+        </if>
+        <if test='isYzyAndYjy == true'>
+            AND (co.commission_state = 'YZY' OR (co.commission_state = 'YJY' AND co.is_settle = false))
+        </if>
+        ORDER BY co.gmt_create DESC, co.installment_num ASC
+        LIMIT #{offset}, #{rows};
+    </select>
+
+    <select id="listCommissionOrderDone" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderListDO">
+        SELECT
+        co.id,
+        co.gmt_create AS gmtCreate,
+        co.code,
+        co.service_order_id AS serviceOrderId,
+        co.state,
+        co.commission_state AS commissionState,
+        co.kj_approval_date AS kjApprovalDate,
+        co.is_settle AS isSettle,
+        co.is_deposit_user AS isDepositUser,
+        co.school_id AS schoolId,
+        co.student_code AS studentCode,
+        co.user_id AS userId,
+        co.adviser_id AS adviserId,
+        co.official_id AS officialId,
+        co.is_studying AS isStudying,
+        co.installment_num AS installmentNum,
+        co.installment,
+        co.installment_due_date AS installmentDueDate,
+        co.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+        co.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+        co.payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+        co.payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+        co.payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+        co.school_payment_amount AS schoolPaymentAmount,
+        co.school_payment_date AS schoolPaymentDate,
+        co.invoice_number AS invoiceNumber,
+        co.start_date AS startDate,
+        co.end_date AS endDate,
+        co.commission,
+        co.tuition_fee AS tuitionFee,
+        co.per_term_tuition_fee AS perTermTuitionFee,
+        co.receive_type_id AS receiveTypeId,
+        co.receive_date AS receiveDate,
+        co.per_amount AS perAmount,
+        co.amount,
+        co.expect_amount AS expectAmount,
+        co.sure_expect_amount AS sureExpectAmount,
+        co.discount,
+        co.gst,
+        co.deduct_gst AS deductGst,
+        co.bonus,
+        co.bonus_date AS bonusDate,
+        co.zy_date AS zyDate,
+        co.bank_check AS bankCheck,
+        co.is_checked AS isChecked,
+        co.remarks,
+        co.is_close AS isClose,
+        so.id AS serviceOrderId,
+        so.gmt_create AS signingDate,
+        so.subagency_id AS subagencyId,
+        so.service_id AS serviceId
+        FROM b_commission_order co, b_service_order so, tb_user u, tb_adviser a
+        WHERE co.service_order_id = so.id AND co.user_id = u.id AND a.id = co.adviser_id and co.state in (select state from b_commission_order where state = 'REVIEW' or state = 'COMPLETE')
+        <if test='regionId != null and regionId > 0'>
+            AND a.region_id = #{regionId}
+        </if>
+        <if test='maraId != null and maraId > 0'>
+            AND so.mara_id = #{maraId}
+        </if>
+        <if test='adviserId != null and adviserId > 0'>
+            AND co.adviser_id = #{adviserId}
+        </if>
+        <if test='officialId != null and officialId > 0'>
+            AND co.official_id = #{officialId}
+        </if>
+        <if test='userId != null and userId > 0'>
+            AND co.user_id = #{userId}
+        </if>
+        <if test='name != null and name != ""'>
+            AND u.name LIKE '%${name}%'
+        </if>
+        <if test='phone != null and phone != ""'>
+            AND u.phone = #{phone}
+        </if>
+        <if test='wechatUsername != null and wechatUsername != ""'>
+            AND u.wechat_username = #{wechatUsername}
+        </if>
+        <if test='schoolId != null and schoolId > 0'>
+            AND co.school_id IN (SELECT id FROM b_school WHERE name IN (SELECT name FROM b_school WHERE id = #{schoolId}))
+        </if>
+        <if test='isSettle != null'>
+            AND co.is_settle = #{isSettle}
+        </if>
+
         <if test='commissionStateList != null'>
             AND co.commission_state IN
             <foreach collection="commissionStateList" item="commissionStateList" index="index" open="(" close=")" separator=",">
