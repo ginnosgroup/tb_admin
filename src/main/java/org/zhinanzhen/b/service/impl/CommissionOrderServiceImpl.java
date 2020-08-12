@@ -133,7 +133,7 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 	public List<CommissionOrderListDTO> listCommissionOrder(Integer regionId, Integer maraId, Integer adviserId, Integer officialId,
 			Integer userId, String name, String phone, String wechatUsername, Integer schoolId, Boolean isSettle,
 			List<String> stateList, List<String> commissionStateList, String startKjApprovalDate, String endKjApprovalDate,
-			Boolean isYzyAndYjy,String state, int pageNum, int pageSize) throws ServiceException {
+			Boolean isYzyAndYjy, int pageNum, int pageSize) throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
 		}
@@ -143,22 +143,12 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 		List<CommissionOrderListDTO> commissionOrderListDtoList = new ArrayList<>();
 		List<CommissionOrderListDO> commissionOrderListDoList = new ArrayList<>();
 		try {
-			if (state.equals("WAIT") ||state.equals("PENDING") ) {
-				commissionOrderListDoList = commissionOrderDao.listCommissionOrderWait(regionId, maraId, adviserId, officialId, userId,
-						name, phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
-						startKjApprovalDate, theDateTo23_59_59(endKjApprovalDate), isYzyAndYjy, state,pageNum * pageSize,
-						pageSize);
-				if (commissionOrderListDoList == null)
-					return null;
-			}
-			if (state.equals("REVIEW")||state.equals("COMPLETE")){
-				commissionOrderListDoList = commissionOrderDao.listCommissionOrderDone(regionId, maraId, adviserId, officialId, userId,
-						name, phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
-						startKjApprovalDate, theDateTo23_59_59(endKjApprovalDate), isYzyAndYjy,state, pageNum * pageSize,
-						pageSize);
-				if (commissionOrderListDoList == null)
-					return null;
-			}
+			commissionOrderListDoList = commissionOrderDao.listCommissionOrder(regionId, maraId, adviserId, officialId, userId,
+					name, phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
+					startKjApprovalDate, theDateTo23_59_59(endKjApprovalDate), isYzyAndYjy, pageNum * pageSize,
+					pageSize);
+			if (commissionOrderListDoList == null)
+				return null;
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
