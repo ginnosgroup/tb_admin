@@ -209,12 +209,6 @@
 				#{commissionStateList}
 			</foreach>
 		</if>
-		<if test='applyState == "PENDING"'>
-            <![CDATA[ AND (bv.state="PENDING" OR bv.state="WAIT") ]]>
-    </if>
-    <if test='applyState == "COMPLETE"'>
-            <![CDATA[ AND (bv.state="COMPLETE" OR bv.state="REVIEW") ]]>
-    </if>       
 		<if test='startKjApprovalDate != null and startKjApprovalDate != "" and endKjApprovalDate != null and endKjApprovalDate != ""'>
             <![CDATA[ AND bv.kj_approval_date > #{startKjApprovalDate} AND bv.kj_approval_date < #{endKjApprovalDate} ]]>
         </if>
@@ -294,24 +288,21 @@
         <if test='startHandlingDate != null and startHandlingDate != "" and endHandlingDate != null and endHandlingDate != ""'>
             <![CDATA[ AND bv.handling_date > #{startHandlingDate} AND bv.handling_date < #{endHandlingDate} ]]>
         </if>
-        <if test='stateList != null'>
-			AND bv.state IN
-			<foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">
-				#{stateList}
-			</foreach>
-		</if>
+
+
+        <if test='state == "PENDING" or state == "WAIT"'>
+            <![CDATA[ AND (bv.state="PENDING" OR bv.state="WAIT") ]]>
+        </if>
+        <if test='state == "COMPLETE" or state == "REVIEW"'>
+            <![CDATA[ AND (bv.state="COMPLETE" OR bv.state="REVIEW") ]]>
+        </if>
+
 		<if test='commissionStateList != null'>
 			AND bv.commission_state IN
 			<foreach collection="commissionStateList" item="commissionStateList" index="index" open="(" close=")" separator=",">
 				#{commissionStateList}
 			</foreach>
 		</if>
-		<if test='applyState == "PENDING"'>
-            <![CDATA[ AND (bv.state="PENDING" OR bv.state="WAIT") ]]>
-    </if>
-    <if test='applyState == "COMPLETE"'>
-            <![CDATA[ AND (bv.state="REVIEW" OR bv.state="COMPLETE") ]]>
-    </if>
 		<if test='startKjApprovalDate != null and startKjApprovalDate != "" and endKjApprovalDate != null and endKjApprovalDate != ""'>
             <![CDATA[ AND bv.kj_approval_date > #{startKjApprovalDate} AND bv.kj_approval_date < #{endKjApprovalDate} ]]>
         </if>
