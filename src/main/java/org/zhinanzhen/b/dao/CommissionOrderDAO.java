@@ -26,7 +26,7 @@ public interface CommissionOrderDAO {
 	int countCommissionOrderByServiceOrderIdAndExcludeCode(@Param("serviceOrderId") Integer serviceOrderId,
 			@Param("code") String code);
 
-	public List<CommissionOrderListDO> listCommissionOrderWait(@Param("regionId") Integer regionId,
+	public List<CommissionOrderListDO> listCommissionOrder(@Param("regionId") Integer regionId,
 			@Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
 			@Param("officialId") Integer officialId, @Param("userId") Integer userId, @Param("name") String name,
 			@Param("phone") String phone, @Param("wechatUsername") String wechatUsername,
@@ -34,18 +34,7 @@ public interface CommissionOrderDAO {
 			@Param("stateList") List<String> stateList, @Param("commissionStateList") List<String> commissionStateList,
 			@Param("startKjApprovalDate") String startKjApprovalDate,
 			@Param("endKjApprovalDate") String endKjApprovalDate, @Param("isYzyAndYjy") Boolean isYzyAndYjy,
-			@Param("state")String state,
 			@Param("offset") int offset, @Param("rows") int rows);
-	public List<CommissionOrderListDO> listCommissionOrderDone(@Param("regionId") Integer regionId,
-		    @Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
-		    @Param("officialId") Integer officialId, @Param("userId") Integer userId, @Param("name") String name,
-		    @Param("phone") String phone, @Param("wechatUsername") String wechatUsername,
-		    @Param("schoolId") Integer schoolId, @Param("isSettle") Boolean isSettle,
-		    @Param("stateList") List<String> stateList, @Param("commissionStateList") List<String> commissionStateList,
-		    @Param("startKjApprovalDate") String startKjApprovalDate,
-		    @Param("endKjApprovalDate") String endKjApprovalDate, @Param("isYzyAndYjy") Boolean isYzyAndYjy,
-		    @Param("state")String state,
-		    @Param("offset") int offset, @Param("rows") int rows);
 
 	public List<CommissionOrderDO> listCommissionOrderByCode(String code);
 
@@ -73,7 +62,5 @@ public interface CommissionOrderDAO {
 	Double sumTuitionFeeBySchoolId(@Param("schoolId") Integer schoolId);
 
 	int deleteCommissionOrderById(int id);
-
-	public List<CommissionOrderDO> listCommissionOrderByState(String state);
 
 }
