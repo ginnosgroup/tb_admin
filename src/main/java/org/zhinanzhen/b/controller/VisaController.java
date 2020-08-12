@@ -461,8 +461,9 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
-			@RequestParam(value = "userId", required = false) Integer userId, HttpServletRequest request,
-			HttpServletResponse response) {
+			@RequestParam(value = "userId", required = false) Integer userId,
+			@RequestParam(value = "state",required = false) String state,
+			HttpServletRequest request,HttpServletResponse response) {
 
 		// 更改当前顾问编号
 		Integer newAdviserId = getAdviserId(request);
@@ -494,7 +495,7 @@ public class VisaController extends BaseCommissionOrderController {
 			super.setGetHeader(response);
 			return new Response<Integer>(0,
 					visaService.countVisa(keyword, startHandlingDate, endHandlingDate, stateList, commissionStateList,
-							startKjApprovalDate, endKjApprovalDate, startDate, endDate, regionId, adviserId, userId));
+							startKjApprovalDate, endKjApprovalDate, startDate, endDate, regionId, adviserId, userId,state));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
