@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 	<head>
@@ -56,6 +56,7 @@
 				</a>
 				<div class="top-nav ">
 					<ul class="nav pull-right top-menu">
+						<li style="padding-right:15px;"><a href="knowledge-detail.html?id=1000164" style="color:#ff6c60;">帮助中心</a></li>
 						<li class="dropdown">
 							<a data-toggle="dropdown" class="dropdown-toggle" href="#">
 								<span class="username">
@@ -171,14 +172,26 @@
                 </span>
               </a>
             </li>
-            <li>
-              <a href="service.html">
-                <i class="fa fa-book">
+            <li class="sub-menu">
+            	<a href="javascript:;">
+								<i class="fa fa-book">
                 </i>
-                <span>
-                  服务项目管理
+								<span>
+                 	 服务管理
                 </span>
-              </a>
+							</a>
+							<ul class="sub">
+								<li>
+									<a href="service.html">
+										服务项目管理
+									</a>
+								</li>
+								<li>
+									<a href="service-package.html">
+										服务包管理
+									</a>
+								</li>								
+							</ul>              
             </li>            
           	</dli>          	
           	<li v-if="ap_list!=='KJ' && ap_list!=='WA' && ap_list!=='MA'" class="sub-menu">
@@ -260,7 +273,7 @@
 									<a href="mycommission-check-accounting.html">
 										自动对账
 									</a>									
-								</li>								
+								</li>
 								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
 									<a href="table-export.html">
 										导出数据
@@ -369,6 +382,7 @@
                            <th>操作</th>
                         </tr>
                      </thead>
+                     <!--
                      <tbody>
                         <tr v-for="item in datalist4">
                            <td v-html="item.id"></td>
@@ -379,12 +393,12 @@
                            <td v-html="item.remindContents"></td>
                            <td><button type="button" class="btn btn-default btn-sm" @click="close_confirm2($index,item.id,item.userId,1)">关闭提醒</button></td>
                         </tr>                        
-                     </tbody>
+                     </tbody>-->
                   </table>
                </section>
           	</div>          	
           </div>        
-          <div class="row">
+          <div class="row" style="display:none;">
           	<div class="col-lg-6">
               <div class="panel">
                 <div class="panel-body">
@@ -435,7 +449,7 @@
           	<div class="col-lg-6">
           		<section class="panel">
                   <header class="panel-heading">
-                     <span class="label" style="color:#58c9f3;font-size:20px;">签证类提醒</span>
+                     <span class="label" style="color:#58c9f3;font-size:20px;">本月待申月奖订单</span>
                      <span class="tools pull-right">
                      <script>current_date();</script>
                      </span>
@@ -443,23 +457,20 @@
                   <table class="table">
                      <thead>
                         <tr>
-                           <th>Visa_Id</th>
-                           <th>姓名</th>
-                           <th>电话</th>
-                           <th>办理日期</th>
-                           <th>提醒日期</th>
-                           <th>&nbsp;</th>
-                           <th>&nbsp;</th>
+                           <th width="80">订单ID</th>
+                           <th>Installment Due Date</th>
+                           <th>客户姓名</th>
+                           <th>学校</th>
+                           <th>操作</th>                           
                         </tr>
                      </thead>
                      <tbody>
                         <tr v-for="item in subject1">
-                           <td v-html="item.visaId"></td>
+                           <td v-html="item.id"></td>
+                           <td v-html="item.installmentDueDate"></td>
                            <td v-html="item.userName"></td>
-                           <td v-html="item.phone"></td>
-                           <td v-html="item.handlingDate"></td>
-                           <td v-html="item.remindDate"></td>
-                           <td><button type="button" style="display:;" class="btn btn-default btn-sm" @click="close_confirm1($index,item.id,1)">关闭提醒</button></td>
+                           <td v-html="item.schoolName"></td>
+                           <td><a href="mycommission-ovst.html?service_id={{item.serviceOrderId}}&order_id={{item.id}}" target="_blank">查看</a></td>
                         </tr>                        
                      </tbody>
                   </table>
@@ -468,7 +479,7 @@
           	<div class="col-sm-6">
           		<section class="panel">
                   <header class="panel-heading">
-                     <span class="label" style="color:#58c9f3;font-size:20px;">提前扣佣提醒</span>
+                     <span class="label" style="color:#58c9f3;font-size:20px;">签证列表</span>
                      <span class="tools pull-right">
                      <script>current_date();</script>
                      </span>
@@ -476,24 +487,16 @@
                   <table class="table">
                      <thead>
                         <tr>
-                           <th>Sa_Id</th>
-                           <th>姓名</th>
-                           <th>电话</th>
-                           <th>办理日期</th>
-                           <th>提醒日期</th>
-                           <th>&nbsp;</th>
-                           <th>&nbsp;</th>
+                           <th>签证到期时间</th>
+                           <th>客户姓名</th>
+                           <th>操作</th>
                         </tr>
                      </thead>
                      <tbody>
                         <tr v-for="item in subject2">
                            <td v-html="item.brokerageSaId"></td>
                            <td v-html="item.userName"></td>
-                           <td v-html="item.phone"></td>
-                           <td v-html="item.handlingDate"></td>
-                           <td v-html="item.remindDate"></td>
-                           <td><button type="button" class="btn btn-info btn-sm" onclick="window.location.href='table-1.html'">录入佣金表</button></td>
-                           <td><button type="button" style="display:;" class="btn btn-default btn-sm" @click="close_confirm1($index,item.id,1)">关闭提醒</button></td>
+                           <td></td>
                         </tr>                        
                      </tbody>
                   </table>
@@ -530,6 +533,7 @@
 				</div>
 			</div>
 		</div>
+		<div id="load-mycommission-ovst-view-page"></div>
 		<script src="js/jquery-1.8.3.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
 		<script src="js/jquery.dcjqaccordion.2.7.js"></script>
@@ -544,6 +548,7 @@
     <script src="js/calendar/moment-2.2.1.js"></script><!-- CALENDER MOMENT JS -->
     <script src="js/underscore-min.js"></script><!-- UNDERSCORE JS -->
 		<script>
+			$("#load-mycommission-ovst-view-page").load("mycommission-ovst-common-view.html?random="+Math.random());
 			tb.isLogin("main.html");
 			$("td,th").addClass("text-center");
 			var v = new Vue({
@@ -563,8 +568,8 @@
 				},created: function() {
 					this.getDatalist();
 					this.getDatalist1();
-					this.getDatalist2();
-					this.getDatalist4();
+					//this.getDatalist2();
+					//this.getDatalist4();
 					this.getMenulist();
 				},methods: {
 			    getMenulist: function() {
@@ -621,18 +626,16 @@
 						var myDate = new Date();
   					var str_date = myDate.getFullYear()+'-'+(myDate.getMonth()+1)+'-'+myDate.getDate();
   					var date = new Date(str_date);
-			    	var current_tp = date.getTime();
-			    	//current_tp = 2000000000000;//临时使用		
-						$.get(url + "visaRemind/listByDate?date="+current_tp, {							
+			    	var current_tp = date.getTime();	
+						$.get(url + "dashboard/listThisMonthCommissionOrder", {							
 						}, function(result) {
 							console.log(result)
 							for(var i = 0; i < result.data.length; i++) {
-									result.data[i].id = result.data[i].id;
-									//result.data[i].userName = result.data[i].visa.userName;
-									result.data[i].userName = '<a href="javascript:;" onclick="show_detail('+result.data[i].visa.userId+');">'+result.data[i].visa.userName+'</a>';
-									result.data[i].phone = result.data[i].visa.phone;
-									result.data[i].handlingDate = that.getTime(result.data[i].visa.handlingDate);							
-									result.data[i].remindDate = that.getTime(result.data[i].remindDate);
+									//result.data[i].id = result.data[i].id;
+									//result.data[i].userName = '<a href="javascript:;" onclick="show_detail('+result.data[i].visa.userId+');">'+result.data[i].visa.userName+'</a>';
+									result.data[i].userName = result.data[i].user.name;
+									result.data[i].schoolName = result.data[i].school.name;
+									result.data[i].installmentDueDate = that.getTime(result.data[i].installmentDueDate);
 							};
 							that.subject1 = result.data;
 							console.log(that.subject1);
@@ -795,6 +798,26 @@
       		sessionStorage.setItem("id", id);
 					window.location.href = "knowledge.html"; 
       }
+      
+      function opennew_detail(serviceId,orderId)
+      {
+      		window.location.href = "mycommission-ovst.html?service_id="+serviceId+"&order_id="+orderId; 
+      }
+      
+      function url_replace(str)
+			{
+					var reg = /((http|ftp|https):\/\/)?[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?/g;
+					str=str.replace(reg,function(a){
+					    if(!a.indexOf('http'))
+					    {
+					    	return '<a href="'+a+'" target="_blank">'+a+'</a>';
+					    }else
+					    {
+					    	return '<a href="http://'+a+'" target="_blank">'+a+'</a>';
+					    }
+					});
+					return str;
+			}
     	    	
 		</script>
 	</body>
