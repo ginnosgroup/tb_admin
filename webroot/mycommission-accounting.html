@@ -591,11 +591,17 @@
 					index: 0			
 				},
 				created: function() {
-					$('.default-date-picker1').datepicker({   				
-				        format: 'yyyy-mm-dd',
-				        endDate: new Date()
-				  });
-					this.getDatalist();
+					if (this.kj_id == 'null')
+					{
+							setTimeout(function(){alert('没有权限访问此页面，请关闭对话框。');window.location.href = "mycommission.html";}, 2000);
+					}else
+					{
+							$('.default-date-picker1').datepicker({   				
+						        format: 'yyyy-mm-dd',
+						        endDate: new Date()
+						  });
+							this.getDatalist();
+					}
 				},
 				methods: {					
 					getDatalist1: function() {
