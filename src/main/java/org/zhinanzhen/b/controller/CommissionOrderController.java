@@ -458,6 +458,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				serviceOrderDto.setReceivable(_commissionOrderListDto.getTotalPerAmount());
 				serviceOrderDto.setReceived(_commissionOrderListDto.getTotalAmount());
 				serviceOrderService.updateServiceOrder(serviceOrderDto); // 同步修改服务订单
+				userService.updateDOB(new Date(Long.parseLong(dob)),commissionOrderListDto.getUserId());
 				int i = schoolService.updateSchoolSetting(_commissionOrderListDto); // 根据学校设置更新佣金值
 				if (i > 0) {
 				} else if (i == -1)
@@ -574,8 +575,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			commissionOrderDto.setBonus(bonus);
 		if (bonusDate != null)
 			commissionOrderDto.setBonusDate(new Date(Long.parseLong(bonusDate)));
-		if (isChangeState && schoolPaymentDate != null && schoolPaymentAmount != null
-				&& StringUtil.isNotEmpty(invoiceNumber))
+		if (isChangeState)
 			if (bonus != null || bonusDate != null) {
 				commissionOrderDto.setState(ReviewKjStateEnum.COMPLETE.toString());
 				commissionOrderDto.setCommissionState(CommissionStateEnum.YJY.toString());
