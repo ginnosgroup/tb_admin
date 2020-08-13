@@ -433,9 +433,16 @@ function requestCommissionSave()
        	json['officialId'] = v_sub2.order_detail.officialId;
        	json['isStudying'] = true;
        	json['isSettle'] = false;
-       	json['dob'] = $(f+'#c20a').val();
        	if ($(f+'#c5a').val() == '1') json['isSettle'] = true;       	    	
        	var d = 0;
+       	if ($(f+'#c20a').val() != '')
+    		{
+        		var arr_d = $(f+'#c20a').val().split("/");
+        		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+            var date = new Date(str_d);
+            d = date.getTime();
+      	}
+      	json['dob'] = d;//待确定
        	if ($(f+'#c22').val())
        	{
        			var arr_d = $(f+'#c22').val().split("/");
