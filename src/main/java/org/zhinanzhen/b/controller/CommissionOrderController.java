@@ -795,6 +795,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	public Response<Integer> upload(@RequestParam MultipartFile file, HttpServletRequest request,
 			HttpServletResponse response) throws IllegalStateException, IOException {
 		super.setPostHeader(response);
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		String message = "";
 		int n = 0;
 		Response<String> r = super.upload2(file, request.getSession(), "/tmp/");
@@ -831,12 +832,14 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 							StringUtil.isEmpty(_schoolPaymentAmount) ? null
 									: Double.parseDouble(_schoolPaymentAmount.trim()),
 							StringUtil.isEmpty(_schoolPaymentDate) ? null
-									: sdf.parse(_schoolPaymentDate.trim()).getTime() + "",
+									: simpleDateFormat.parse(_schoolPaymentDate.trim()).getTime() + "",
 							_invoiceNumber,
-							StringUtil.isEmpty(_zyDate) ? null : sdf.parse(_zyDate.trim()).getTime() + "",
+							StringUtil.isEmpty(_zyDate) ? null : simpleDateFormat.parse(_zyDate.trim()).getTime() + "",
 							StringUtil.isEmpty(_sureExpectAmount) ? null : Double.parseDouble(_sureExpectAmount.trim()),
 							StringUtil.isEmpty(_bonus) ? null : Double.parseDouble(_bonus.trim()),
-							StringUtil.isEmpty(_bonusDate) ? null : sdf.parse(_bonusDate.trim()).getTime() + "", true);
+							StringUtil.isEmpty(_bonusDate) ? null
+									: simpleDateFormat.parse(_bonusDate.trim()).getTime() + "",
+							true);
 					if (_r.getCode() > 0)
 						message += "[" + _id + "]" + _r.getMessage() + ";";
 					else

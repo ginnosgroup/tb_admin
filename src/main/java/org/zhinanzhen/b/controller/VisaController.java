@@ -570,6 +570,7 @@ public class VisaController extends BaseCommissionOrderController {
 	public Response<Integer> upload(@RequestParam MultipartFile file, HttpServletRequest request,
 			HttpServletResponse response) throws IllegalStateException, IOException {
 		super.setPostHeader(response);
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		String message = "";
 		int n = 0;
 		Response<String> r = super.upload2(file, request.getSession(), "/tmp/");
@@ -581,7 +582,7 @@ public class VisaController extends BaseCommissionOrderController {
 				String _id = cells[0].getContents();
 				String _bonus = cells[11].getContents();
 				String _bonusDate = cells[12].getContents();
-System.out.println("----------_bonusDate:" + _bonusDate);
+System.out.println("----------_bonusDate:" + _bonusDate + "|" + simpleDateFormat.parse(_bonusDate.trim()).getTime());
 				try {
 					VisaDTO visaDto = visaService.getVisaById(Integer.parseInt(_id));
 					if (visaDto == null) {
@@ -594,7 +595,9 @@ System.out.println("----------_bonusDate:" + _bonusDate);
 					}
 					Response<VisaDTO> _r = updateOne(Integer.parseInt(_id), null,
 							StringUtil.isEmpty(_bonus) ? null : Double.parseDouble(_bonus.trim()),
-							StringUtil.isEmpty(_bonusDate) ? null : sdf.parse(_bonusDate.trim()).getTime() + "", true);
+							StringUtil.isEmpty(_bonusDate) ? null
+									: simpleDateFormat.parse(_bonusDate.trim()).getTime() + "",
+							true);
 					if (_r.getCode() > 0)
 						message += "[" + _id + "]" + _r.getMessage() + ";";
 					else
