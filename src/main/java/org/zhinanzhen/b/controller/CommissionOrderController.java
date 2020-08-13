@@ -574,7 +574,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			commissionOrderDto.setBonus(bonus);
 		if (bonusDate != null)
 			commissionOrderDto.setBonusDate(new Date(Long.parseLong(bonusDate)));
-		if (isChangeState)
+		if (isChangeState && schoolPaymentDate != null && schoolPaymentAmount != null
+				&& StringUtil.isNotEmpty(invoiceNumber))
 			if (bonus != null || bonusDate != null) {
 				commissionOrderDto.setState(ReviewKjStateEnum.COMPLETE.toString());
 				commissionOrderDto.setCommissionState(CommissionStateEnum.YJY.toString());
