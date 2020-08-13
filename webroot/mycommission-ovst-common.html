@@ -433,6 +433,7 @@ function requestCommissionSave()
        	json['officialId'] = v_sub2.order_detail.officialId;
        	json['isStudying'] = true;
        	json['isSettle'] = false;
+       	json['dob'] = $(f+'#c20a').val();
        	if ($(f+'#c5a').val() == '1') json['isSettle'] = true;       	    	
        	var d = 0;
        	if ($(f+'#c22').val())
