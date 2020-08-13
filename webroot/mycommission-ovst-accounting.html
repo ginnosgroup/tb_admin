@@ -294,7 +294,11 @@
 										菜单管理
 									</a>
 								</li>
-								{{{m_list}}}							
+								<li>
+									<a href="knowledge.html">
+										知识库菜单
+									</a>
+								</li>
 							</ul>
 						</li>
 					</ul>
@@ -619,6 +623,7 @@
 							</form>
 					</div>
 					<div class="modal-footer">
+						<button id="btnUpload" type="button" class="btn btn-primary">确认上传</button>
 						<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
 					</div>
 				</div>
@@ -657,7 +662,6 @@
 				data: {
 					admin: sessionStorage.getItem("admin"),
 					ap_list: sessionStorage.getItem("ap_list"),
-					m_list: localStorage.getItem("str_html"),
 					adviser_id: sessionStorage.getItem("adviser_id"),
 					official_id: sessionStorage.getItem("official_id"),
 					mara_id: sessionStorage.getItem("mara_id"),
@@ -1913,9 +1917,10 @@
 					$('#upload_id #show_message').html('');
 			}
 			
-			$('#upload_id #f2').live('change', function (e) {
+			$('#upload_id #btnUpload').live('click', function (e) {
 					var formData = new FormData();					
 					formData.append("file",$("#f2")[0].files[0]);
+					$('#upload_id #show_message').html('');
 					show_loading();
 					
 					$.ajax({

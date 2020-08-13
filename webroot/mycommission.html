@@ -236,17 +236,17 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li v-if="ap_list==='GW' || (ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA')" class="active">
+								<li v-if="ap_list==='GW' || (ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA' && ap_list!=='KJ')" id="apply_state_" class="active">
 									<a href="mycommission.html">
 										我的佣金报表
 									</a>									
 								</li>
-								<li v-if="ap_list==='GW' || (ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA')" style="display:none;">
+								<li v-if="ap_list==='GW' || (ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA' && ap_list!=='KJ')" style="display:;" id="apply_state_PENDING">
 									<a href="mycommission.html?applyState=PENDING">
 										未申请月奖
 									</a>									
 								</li>
-								<li v-if="ap_list==='GW' || (ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA')" style="display:none;">
+								<li v-if="ap_list==='GW' || (ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA' && ap_list!=='KJ')" style="display:;" id="apply_state_COMPLETE">
 									<a href="mycommission.html?applyState=COMPLETE">
 										已申请月奖
 									</a>									
@@ -282,7 +282,11 @@
 										菜单管理
 									</a>
 								</li>
-								{{{m_list}}}							
+								<li>
+									<a href="knowledge.html">
+										知识库菜单
+									</a>
+								</li>
 							</ul>
 						</li>
 					</ul>
@@ -544,7 +548,6 @@
 				data: {
 					admin: sessionStorage.getItem("admin"),
 					ap_list: sessionStorage.getItem("ap_list"),
-					m_list: localStorage.getItem("str_html"),
 					adviser_id: sessionStorage.getItem("adviser_id"),
 					official_id: sessionStorage.getItem("official_id"),
 					mara_id: sessionStorage.getItem("mara_id"),
@@ -568,6 +571,7 @@
 				        format: 'yyyy-mm-dd',
 				        endDate: new Date()
 				  });
+				  if (typeof(this.applyState) == "undefined") $("#apply_state_").addClass("active");
 					this.getDatalist();
 				},
 				methods: {					
@@ -605,7 +609,7 @@
 						if (that.startDate != '') json['startDate'] = that.startDate;
 						if (that.endDate != '') json['endDate'] = that.endDate;
 						if (that.ap_list != 'GW' && that.regionId != '') json['regionId'] = that.regionId;
-						if (that.applyState != '') json['applyState'] = that.applyState;
+						if (that.applyState != '') json['state'] = that.applyState;
 						
 						$.get(url + "visa/count", json, function(result) {
 							that.count = result.data;
@@ -688,6 +692,13 @@
 						{
 								down_url += "&regionId=";
 						}
+						if (typeof(that.applyState) != "undefined")
+						{
+								down_url += "&state="+that.applyState;
+						}else
+						{
+								down_url += "&state=";
+						}
 						console.log(down_url);
 						var a = document.createElement('a');
 						a.download = 'visa_all_data.xls';
@@ -739,7 +750,7 @@
 						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
 						if (that.startDate != '') json['startDate'] = that.startDate;
 						if (that.endDate != '') json['endDate'] = that.endDate;
-						if (that.applyState != '') json['applyState'] = that.applyState;
+						if (that.applyState != '') json['state'] = that.applyState;
 						
 						if(that.pageNum > 0) {
 							json['pageNum'] = 0;
@@ -765,7 +776,7 @@
 						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
 						if (that.startDate != '') json['startDate'] = that.startDate;
 						if (that.endDate != '') json['endDate'] = that.endDate;
-						if (that.applyState != '') json['applyState'] = that.applyState;
+						if (that.applyState != '') json['state'] = that.applyState;
 						
 						if(that.pageNum > 0) {
 							that.pageNum--;
@@ -791,7 +802,7 @@
 						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
 						if (that.startDate != '') json['startDate'] = that.startDate;
 						if (that.endDate != '') json['endDate'] = that.endDate;
-						if (that.applyState != '') json['applyState'] = that.applyState;
+						if (that.applyState != '') json['state'] = that.applyState;
 						
 						if(that.pageNum < that.allPage - 1) {
 							that.pageNum++;
@@ -816,7 +827,7 @@
 						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
 						if (that.startDate != '') json['startDate'] = that.startDate;
 						if (that.endDate != '') json['endDate'] = that.endDate;
-						if (that.applyState != '') json['applyState'] = that.applyState;
+						if (that.applyState != '') json['state'] = that.applyState;
 						
 						if(that.pageNum < that.allPage - 1) {
 							json['pageNum'] = that.allPage - 1;
@@ -1036,7 +1047,8 @@
 			        }
 			    }
 			    str_value = theRequest[par];
-			    //$("#commission_state_"+str_value).addClass("active");
+			    $("#apply_state_"+str_value).addClass("active");
+			    if (str_value != '') $("#apply_state_").removeClass("active");
 			    return str_value;
 			}
 			
