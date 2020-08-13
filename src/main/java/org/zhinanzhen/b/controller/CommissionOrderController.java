@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -820,23 +821,27 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					if (!CommissionStateEnum.DJY.toString()
 							.equalsIgnoreCase(commissionOrderListDto.getCommissionState())
 							&& !CommissionStateEnum.DZY.toString()
+									.equalsIgnoreCase(commissionOrderListDto.getCommissionState())
+							&& !CommissionStateEnum.YZY.toString()
 									.equalsIgnoreCase(commissionOrderListDto.getCommissionState())) {
-						message += "[" + _id + "]佣金订单状态不是待结佣或待追佣;";
+						message += "[" + _id + "]只有状态为待结佣,待追佣,已追佣允许更新佣金订单;";
 						continue;
 					}
 					Response<CommissionOrderDTO> _r = updateOne(Integer.parseInt(_id),
 							StringUtil.isEmpty(_schoolPaymentAmount) ? null
 									: Double.parseDouble(_schoolPaymentAmount.trim()),
-							StringUtil.isEmpty(_schoolPaymentDate) ? null : _schoolPaymentDate.trim(),
-							_invoiceNumber, StringUtil.isEmpty(_zyDate) ? null : _zyDate.trim(),
+							StringUtil.isEmpty(_schoolPaymentDate) ? null
+									: sdf.parse(_schoolPaymentDate.trim()).getTime() + "",
+							_invoiceNumber,
+							StringUtil.isEmpty(_zyDate) ? null : sdf.parse(_zyDate.trim()).getTime() + "",
 							StringUtil.isEmpty(_sureExpectAmount) ? null : Double.parseDouble(_sureExpectAmount.trim()),
 							StringUtil.isEmpty(_bonus) ? null : Double.parseDouble(_bonus.trim()),
-							StringUtil.isEmpty(_bonusDate) ? null : _bonusDate.trim(), true);
+							StringUtil.isEmpty(_bonusDate) ? null : sdf.parse(_bonusDate.trim()).getTime() + "", true);
 					if (_r.getCode() > 0)
 						message += "[" + _id + "]" + _r.getMessage() + ";";
 					else
 						n++;
-				} catch (NumberFormatException | ServiceException e) {
+				} catch (NumberFormatException | ServiceException | ParseException e) {
 					message += "[" + _id + "]" + e.getMessage() + ";";
 				}
 			}
