@@ -633,7 +633,7 @@
 						if (that.startDate != '') json['startDate'] = that.startDate;
 						if (that.endDate != '') json['endDate'] = that.endDate;
 						if (that.ap_list != 'GW' && that.regionId != '') json['regionId'] = that.regionId;
-						if (that.applyState != '') json['state'] = that.applyState;
+						if (that.applyState != '') json['applyState'] = that.applyState;
 						
 						$.get(url + "commissionOrder/count", json, function(result) {
 							that.count = result.data;
@@ -718,10 +718,10 @@
 						}
 						if (typeof(that.applyState) != "undefined")
 						{
-								down_url += "&state="+that.applyState;
+								down_url += "&applyState="+that.applyState;
 						}else
 						{
-								down_url += "&state=";
+								down_url += "&applyState=";
 						}
 						//console.log(down_url);
 						var a = document.createElement('a');
@@ -774,7 +774,7 @@
 						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
 						if (that.startDate != '') json['startDate'] = that.startDate;
 						if (that.endDate != '') json['endDate'] = that.endDate;
-						if (that.applyState != '') json['state'] = that.applyState;
+						if (that.applyState != '') json['applyState'] = that.applyState;
 						
 						json['pageNum'] = 0;
 						json['pageSize'] = that.pageSize;
@@ -799,7 +799,7 @@
 						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
 						if (that.startDate != '') json['startDate'] = that.startDate;
 						if (that.endDate != '') json['endDate'] = that.endDate;
-						if (that.applyState != '') json['state'] = that.applyState;
+						if (that.applyState != '') json['applyState'] = that.applyState;
 									
 						if(that.pageNum > 0) {
 							that.pageNum--;
@@ -824,7 +824,7 @@
 						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
 						if (that.startDate != '') json['startDate'] = that.startDate;
 						if (that.endDate != '') json['endDate'] = that.endDate;
-						if (that.applyState != '') json['state'] = that.applyState;
+						if (that.applyState != '') json['applyState'] = that.applyState;
 						
 						if(that.pageNum < that.allPage - 1) {
 							that.pageNum++;
@@ -849,7 +849,7 @@
 						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
 						if (that.startDate != '') json['startDate'] = that.startDate;
 						if (that.endDate != '') json['endDate'] = that.endDate;
-						if (that.applyState != '') json['state'] = that.applyState;
+						if (that.applyState != '') json['applyState'] = that.applyState;
 						
 						if(that.pageNum < that.allPage - 1) {
 							json['pageNum'] = that.allPage - 1;
