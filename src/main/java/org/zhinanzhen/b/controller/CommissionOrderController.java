@@ -715,7 +715,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			return new Response<Integer>(0,
 					commissionOrderService.countCommissionOrder(regionId, maraId, adviserId, officialId, userId, name, phone,
 							wechatUsername, schoolId, isSettle, stateList, commissionStateList, startKjApprovalDate,
-							endKjApprovalDate, isYzyAndYjy));
+							endKjApprovalDate, isYzyAndYjy,state));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -784,7 +784,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			return new Response<List<CommissionOrderListDTO>>(0,
 					commissionOrderService.listCommissionOrder(regionId, maraId, adviserId, officialId, userId, name,
 							phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
-							startKjApprovalDate, endKjApprovalDate, isYzyAndYjy, pageNum, pageSize));
+							startKjApprovalDate, endKjApprovalDate, isYzyAndYjy,state, pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<CommissionOrderListDTO>>(1, e.getMessage(), null);
 		}
@@ -916,7 +916,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 			List<CommissionOrderListDTO> commissionOrderList = commissionOrderService.listCommissionOrder(regionId,
 					maraId, adviserId, officialId, userId, name, phone, wechatUsername, schoolId, isSettle, stateList,
-					commissionStateList, startKjApprovalDate, endKjApprovalDate, isYzyAndYjy, 0, 9999);
+					commissionStateList, startKjApprovalDate, endKjApprovalDate, isYzyAndYjy,state, 0, 9999);
 
 			OutputStream os = response.getOutputStream();
 			jxl.Workbook wb;
