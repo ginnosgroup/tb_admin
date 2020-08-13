@@ -104,15 +104,17 @@
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;font-weight:bold;">StudentID：</label>
 											<label id="c20"></label>
+											<label class="control-label" style="width:50px;margin-left:20px;font-weight:bold;">DOB：</label>
+											<label id="c20a"></label>											
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;font-weight:bold;">Installment：</label>
 											<label id="c21"></label>/<label id="c21a"></label>
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
-											<label class="control-label" style="width:150px;font-weight:bold;">开课日期：</label>
+											<label class="control-label" style="width:150px;font-weight:bold;">Course Start Data:</label>
 											<label id="c22"></label>
-											<label class="control-label" style="margin-left:40px;font-weight:bold;">结束日期：</label>
+											<label class="control-label" style="margin-left:40px;font-weight:bold;">Course End Data:</label>
 											<label id="c23"></label>
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
@@ -235,6 +237,7 @@ function show_commission_detail(serviceId,orderId)
 		    	}
 		    	$('#show_ovst_id #c6').html(str_isdeposituser);
 		    	$('#show_ovst_id #c7').html(response.subagency.name);
+		    	$('#show_ovst_id #c20a').html(v.getTime(response.user.birthday));
 		    	var str_ispay = '否';
 		    	if (response.pay)
 		    	{
