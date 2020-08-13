@@ -276,7 +276,11 @@
 										菜单管理
 									</a>
 								</li>
-								{{{m_list}}}							
+								<li>
+									<a href="knowledge.html">
+										知识库菜单
+									</a>
+								</li>
 							</ul>
 						</li>
 					</ul>
@@ -498,7 +502,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="modal fade" id="upload_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal fade" id="upload_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
 			<div class="modal-dialog" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -519,7 +523,8 @@
 							</form>
 					</div>
 					<div class="modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+						<button id="btnUpload" type="button" class="btn btn-primary">确认上传</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>						
 					</div>
 				</div>
 			</div>
@@ -557,7 +562,6 @@
 				data: {
 					admin: sessionStorage.getItem("admin"),
 					ap_list: sessionStorage.getItem("ap_list"),
-					m_list: localStorage.getItem("str_html"),
 					adviser_id: sessionStorage.getItem("adviser_id"),
 					official_id: sessionStorage.getItem("official_id"),
 					mara_id: sessionStorage.getItem("mara_id"),
@@ -1478,11 +1482,15 @@
 			function uploadFile()
 			{
 					$('#upload_id').modal('show');
+					$('#upload_id #f2').val('');
+					$('#upload_id #show_message').html('');
 			}
 			
-			$('#upload_id #f2').live('change', function (e) {
+			$('#upload_id #btnUpload').live('click', function (e) {
 					var formData = new FormData();					
 					formData.append("file",$("#f2")[0].files[0]);
+					$('#upload_id #show_message').html('');
+					show_loading();
 					
 					$.ajax({
 			        url:'visa/upload',
@@ -1492,12 +1500,19 @@
 			        data: formData,
 			        processData : false, //使数据不做处理
 			        contentType : false,
-			        success: function(data){			        		
+			        success: function(data){
+			        		$('#loading_id').modal('hide');			        		
 			            if (data.code == '0')
-			            {
-			            		$('#upload_id #show_message').html(data.message);
-			            		//$('#upload_id #show_message').css("color","#78CD51");
-			            		//$('#upload_id #show_message').html('上传数据成功，请核对数据是否一致。');
+			            {			            		
+			            		if (data.message == '')
+			            		{
+			            				$('#upload_id #show_message').css("color","#78CD51");
+			            				$('#upload_id #show_message').html('上传数据成功，请核对数据是否一致。');
+			            		}else
+			            		{
+			            				$('#upload_id #show_message').css("color","red");
+			            				$('#upload_id #show_message').html(data.message);
+			            		}
 			            }else
 			            {
 			            		$('#upload_id #show_message').html(data.message);

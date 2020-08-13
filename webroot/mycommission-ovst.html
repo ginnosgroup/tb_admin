@@ -236,9 +236,19 @@
                 </span>
 							</a>
 							<ul class="sub">								
-								<li v-if="ap_list==='GW' || (ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA')" class="active">
-									<a href="mycommission.html">
+								<li v-if="ap_list==='GW' || (ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA' && ap_list!=='KJ')" id="apply_state_" class="active">
+									<a href="mycommission-ovst.html">
 										我的佣金报表
+									</a>									
+								</li>
+								<li v-if="ap_list==='GW' || (ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA' && ap_list!=='KJ')" style="display:;" id="apply_state_PENDING">
+									<a href="mycommission-ovst.html?applyState=PENDING">
+										未申请月奖
+									</a>									
+								</li>
+								<li v-if="ap_list==='GW' || (ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA' && ap_list!=='KJ')" style="display:;" id="apply_state_COMPLETE">
+									<a href="mycommission-ovst.html?applyState=COMPLETE">
+										已申请月奖
 									</a>									
 								</li>
 								<li v-if="ap_list==='KJ'" id="commission_state_DJY">
@@ -272,7 +282,11 @@
 										菜单管理
 									</a>
 								</li>
-								{{{m_list}}}							
+								<li>
+									<a href="knowledge.html">
+										知识库菜单
+									</a>
+								</li>
 							</ul>
 						</li>
 					</ul>
@@ -558,11 +572,10 @@
 				data: {
 					admin: sessionStorage.getItem("admin"),
 					ap_list: sessionStorage.getItem("ap_list"),
-					m_list: localStorage.getItem("str_html"),
 					adviser_id: sessionStorage.getItem("adviser_id"),
 					official_id: sessionStorage.getItem("official_id"),
-					mara_id: sessionStorage.getItem("mara_id"),
 					kj_id: sessionStorage.getItem("kj_id"),
+					applyState : getRequest('applyState'),
 					arr_ids : getRequestId(),
 					orderId: 0,
 					total_expectamount: 0.00,
@@ -582,6 +595,7 @@
 				        format: 'yyyy-mm-dd',
 				        endDate: new Date()
 				  });
+				  if (typeof(this.applyState) == "undefined") $("#apply_state_").addClass("active");
 					this.getDatalist();
 				},
 				methods: {					
@@ -619,6 +633,7 @@
 						if (that.startDate != '') json['startDate'] = that.startDate;
 						if (that.endDate != '') json['endDate'] = that.endDate;
 						if (that.ap_list != 'GW' && that.regionId != '') json['regionId'] = that.regionId;
+						if (that.applyState != '') json['state'] = that.applyState;
 						
 						$.get(url + "commissionOrder/count", json, function(result) {
 							that.count = result.data;
@@ -701,6 +716,13 @@
 						{
 								down_url += "&regionId=";
 						}
+						if (typeof(that.applyState) != "undefined")
+						{
+								down_url += "&state="+that.applyState;
+						}else
+						{
+								down_url += "&state=";
+						}
 						//console.log(down_url);
 						var a = document.createElement('a');
 						a.download = 'commission_all_data.xls';
@@ -752,6 +774,7 @@
 						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
 						if (that.startDate != '') json['startDate'] = that.startDate;
 						if (that.endDate != '') json['endDate'] = that.endDate;
+						if (that.applyState != '') json['state'] = that.applyState;
 						
 						json['pageNum'] = 0;
 						json['pageSize'] = that.pageSize;
@@ -776,6 +799,7 @@
 						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
 						if (that.startDate != '') json['startDate'] = that.startDate;
 						if (that.endDate != '') json['endDate'] = that.endDate;
+						if (that.applyState != '') json['state'] = that.applyState;
 									
 						if(that.pageNum > 0) {
 							that.pageNum--;
@@ -800,6 +824,7 @@
 						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
 						if (that.startDate != '') json['startDate'] = that.startDate;
 						if (that.endDate != '') json['endDate'] = that.endDate;
+						if (that.applyState != '') json['state'] = that.applyState;
 						
 						if(that.pageNum < that.allPage - 1) {
 							that.pageNum++;
@@ -824,6 +849,7 @@
 						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
 						if (that.startDate != '') json['startDate'] = that.startDate;
 						if (that.endDate != '') json['endDate'] = that.endDate;
+						if (that.applyState != '') json['state'] = that.applyState;
 						
 						if(that.pageNum < that.allPage - 1) {
 							json['pageNum'] = that.allPage - 1;
@@ -999,6 +1025,28 @@
 					{
 							window.location.href = "mycommission-ovst.html";
 					}
+			}
+			
+			function getRequest(par)
+			{
+					var str_value = '';
+			    var url = decodeURI(location.search);
+			    var theRequest = new Object();
+			    if (url.indexOf('?') != -1) {
+			        url = url.substr(1);
+			    }
+			    if (url) {
+			        var strs = url.split('&');
+			        for (var i = 0; i < strs.length; i++) {
+			            var srtArry = strs[i].split('=');
+			            var y = srtArry.shift();
+			            theRequest[y] = unescape(srtArry.join('='));
+			        }
+			    }
+			    str_value = theRequest[par];
+			    $("#apply_state_"+str_value).addClass("active");
+			    if (str_value != '') $("#apply_state_").removeClass("active");
+			    return str_value;
 			}
 			
 			function open_detail(serviceId,orderId)

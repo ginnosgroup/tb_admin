@@ -461,8 +461,9 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
-			@RequestParam(value = "userId", required = false) Integer userId, HttpServletRequest request,
-			HttpServletResponse response) {
+			@RequestParam(value = "userId", required = false) Integer userId,
+			@RequestParam(value = "state",required = false) String state,
+			HttpServletRequest request,HttpServletResponse response) {
 
 		// 更改当前顾问编号
 		Integer newAdviserId = getAdviserId(request);
@@ -494,7 +495,7 @@ public class VisaController extends BaseCommissionOrderController {
 			super.setGetHeader(response);
 			return new Response<Integer>(0,
 					visaService.countVisa(keyword, startHandlingDate, endHandlingDate, stateList, commissionStateList,
-							startKjApprovalDate, endKjApprovalDate, startDate, endDate, regionId, adviserId, userId));
+							startKjApprovalDate, endKjApprovalDate, startDate, endDate, regionId, adviserId, userId,state));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -513,6 +514,7 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "userId", required = false) Integer userId,
+			@RequestParam(value = "state",required = false) String state,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
 			HttpServletRequest request, HttpServletResponse response) {
 
@@ -546,8 +548,7 @@ public class VisaController extends BaseCommissionOrderController {
 			super.setGetHeader(response);
 			List<VisaDTO> list = visaService.listVisa(keyword, startHandlingDate, endHandlingDate, stateList,
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, regionId,
-					adviserId,
-					userId, pageNum, pageSize);
+					adviserId,userId,state, pageNum, pageSize);
 			list.forEach(v -> {
 				if (v.getServiceOrderId() > 0)
 					try {
@@ -569,6 +570,7 @@ public class VisaController extends BaseCommissionOrderController {
 	public Response<Integer> upload(@RequestParam MultipartFile file, HttpServletRequest request,
 			HttpServletResponse response) throws IllegalStateException, IOException {
 		super.setPostHeader(response);
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		String message = "";
 		int n = 0;
 		Response<String> r = super.upload2(file, request.getSession(), "/tmp/");
@@ -592,7 +594,9 @@ public class VisaController extends BaseCommissionOrderController {
 					}
 					Response<VisaDTO> _r = updateOne(Integer.parseInt(_id), null,
 							StringUtil.isEmpty(_bonus) ? null : Double.parseDouble(_bonus.trim()),
-							StringUtil.isEmpty(_bonusDate) ? null : sdf.parse(_bonusDate.trim()).getTime() + "", true);
+							StringUtil.isEmpty(_bonusDate) ? null
+									: simpleDateFormat.parse(_bonusDate.trim()).getTime() + "",
+							true);
 					if (_r.getCode() > 0)
 						message += "[" + _id + "]" + _r.getMessage() + ";";
 					else
@@ -620,6 +624,7 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "userId", required = false) Integer userId,
+			@RequestParam(value = "state",required = false) String state,
 			HttpServletRequest request,
 			HttpServletResponse response) {
 
@@ -658,8 +663,7 @@ public class VisaController extends BaseCommissionOrderController {
 
 			List<VisaDTO> list = visaService.listVisa(keyword, startHandlingDate, endHandlingDate, stateList,
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, regionId,
-					adviserId,
-					userId, 0, 9999);
+					adviserId,userId, state,0, 9999);
 
 			list.forEach(v -> {
 				if (v.getServiceOrderId() > 0)

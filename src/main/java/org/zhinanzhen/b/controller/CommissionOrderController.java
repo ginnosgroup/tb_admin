@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -714,7 +715,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			return new Response<Integer>(0,
 					commissionOrderService.countCommissionOrder(regionId, maraId, adviserId, officialId, userId, name, phone,
 							wechatUsername, schoolId, isSettle, stateList, commissionStateList, startKjApprovalDate,
-							endKjApprovalDate, isYzyAndYjy));
+							endKjApprovalDate, isYzyAndYjy,state));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -783,7 +784,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			return new Response<List<CommissionOrderListDTO>>(0,
 					commissionOrderService.listCommissionOrder(regionId, maraId, adviserId, officialId, userId, name,
 							phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
-							startKjApprovalDate, endKjApprovalDate, isYzyAndYjy, pageNum, pageSize));
+							startKjApprovalDate, endKjApprovalDate, isYzyAndYjy,state, pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<CommissionOrderListDTO>>(1, e.getMessage(), null);
 		}
@@ -794,6 +795,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	public Response<Integer> upload(@RequestParam MultipartFile file, HttpServletRequest request,
 			HttpServletResponse response) throws IllegalStateException, IOException {
 		super.setPostHeader(response);
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		String message = "";
 		int n = 0;
 		Response<String> r = super.upload2(file, request.getSession(), "/tmp/");
@@ -820,23 +822,29 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					if (!CommissionStateEnum.DJY.toString()
 							.equalsIgnoreCase(commissionOrderListDto.getCommissionState())
 							&& !CommissionStateEnum.DZY.toString()
+									.equalsIgnoreCase(commissionOrderListDto.getCommissionState())
+							&& !CommissionStateEnum.YZY.toString()
 									.equalsIgnoreCase(commissionOrderListDto.getCommissionState())) {
-						message += "[" + _id + "]佣金订单状态不是待结佣或待追佣;";
+						message += "[" + _id + "]只有状态为待结佣,待追佣,已追佣允许更新佣金订单;";
 						continue;
 					}
 					Response<CommissionOrderDTO> _r = updateOne(Integer.parseInt(_id),
 							StringUtil.isEmpty(_schoolPaymentAmount) ? null
 									: Double.parseDouble(_schoolPaymentAmount.trim()),
-							StringUtil.isEmpty(_schoolPaymentDate) ? null : _schoolPaymentDate.trim(),
-							_invoiceNumber, StringUtil.isEmpty(_zyDate) ? null : _zyDate.trim(),
+							StringUtil.isEmpty(_schoolPaymentDate) ? null
+									: simpleDateFormat.parse(_schoolPaymentDate.trim()).getTime() + "",
+							_invoiceNumber,
+							StringUtil.isEmpty(_zyDate) ? null : simpleDateFormat.parse(_zyDate.trim()).getTime() + "",
 							StringUtil.isEmpty(_sureExpectAmount) ? null : Double.parseDouble(_sureExpectAmount.trim()),
 							StringUtil.isEmpty(_bonus) ? null : Double.parseDouble(_bonus.trim()),
-							StringUtil.isEmpty(_bonusDate) ? null : _bonusDate.trim(), true);
+							StringUtil.isEmpty(_bonusDate) ? null
+									: simpleDateFormat.parse(_bonusDate.trim()).getTime() + "",
+							true);
 					if (_r.getCode() > 0)
 						message += "[" + _id + "]" + _r.getMessage() + ";";
 					else
 						n++;
-				} catch (NumberFormatException | ServiceException e) {
+				} catch (NumberFormatException | ServiceException | ParseException e) {
 					message += "[" + _id + "]" + e.getMessage() + ";";
 				}
 			}
@@ -911,7 +919,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 			List<CommissionOrderListDTO> commissionOrderList = commissionOrderService.listCommissionOrder(regionId,
 					maraId, adviserId, officialId, userId, name, phone, wechatUsername, schoolId, isSettle, stateList,
-					commissionStateList, startKjApprovalDate, endKjApprovalDate, isYzyAndYjy, 0, 9999);
+					commissionStateList, startKjApprovalDate, endKjApprovalDate, isYzyAndYjy,state, 0, 9999);
 
 			OutputStream os = response.getOutputStream();
 			jxl.Workbook wb;
@@ -960,9 +968,6 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				if (commissionOrderListDto.getInstallmentDueDate() != null)
 					sheet.addCell(
 							new Label(11, i, sdf.format(commissionOrderListDto.getInstallmentDueDate()), cellFormat));
-				if (commissionOrderListDto.getStartDate() != null)
-					sheet.addCell(
-							new Label(11, i, sdf.format(commissionOrderListDto.getStartDate()), cellFormat));
 				if (commissionOrderListDto.getReceiveType() != null)
 					sheet.addCell(new Label(12, i, commissionOrderListDto.getReceiveType().getName() + "", cellFormat));
 				sheet.addCell(new Label(13, i, commissionOrderListDto.getTuitionFee() + "", cellFormat));

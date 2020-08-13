@@ -258,7 +258,7 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li v-if="ap_list==='GW'" class="active">
+								<li v-if="ap_list==='GW' || (ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA' && ap_list!=='KJ')" class="active">
 									<a href="mycommission.html">
 										我的佣金报表
 									</a>									
@@ -294,7 +294,11 @@
 										菜单管理
 									</a>
 								</li>
-								{{{m_list}}}							
+								<li>
+									<a href="knowledge.html">
+										知识库菜单
+									</a>
+								</li>
 							</ul>
 						</li>
 					</ul>
@@ -592,7 +596,6 @@
 				data: {
 					admin: sessionStorage.getItem("admin"),
 					ap_list: sessionStorage.getItem("ap_list"),
-					m_list: localStorage.getItem("str_html"),
 					adviser_id: sessionStorage.getItem("adviser_id"),
 					official_id: sessionStorage.getItem("official_id"),
 					mara_id: sessionStorage.getItem("mara_id"),
