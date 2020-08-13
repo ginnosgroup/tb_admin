@@ -20,7 +20,7 @@ public interface CommissionOrderDAO {
 									@Param("commissionStateList") List<String> commissionStateList,
 									@Param("startKjApprovalDate") String startKjApprovalDate,
 									@Param("endKjApprovalDate") String endKjApprovalDate, @Param("isYzyAndYjy") Boolean isYzyAndYjy,
-									@Param("state")String state);
+									@Param("applyState")String applyState);
 
 	int countCommissionOrderBySchoolId(@Param("schoolId") Integer schoolId);
 
@@ -35,7 +35,7 @@ public interface CommissionOrderDAO {
 			@Param("stateList") List<String> stateList, @Param("commissionStateList") List<String> commissionStateList,
 			@Param("startKjApprovalDate") String startKjApprovalDate,
 			@Param("endKjApprovalDate") String endKjApprovalDate, @Param("isYzyAndYjy") Boolean isYzyAndYjy,
-			@Param("state")String state,
+			@Param("applyState")String applyState,
 			@Param("offset") int offset, @Param("rows") int rows);
 	public List<CommissionOrderDO> listCommissionOrderByCode(String code);
 

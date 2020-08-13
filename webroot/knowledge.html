@@ -358,13 +358,13 @@
 							var str_html = '';																					
 							var menu_list = result.data;
 							for(var i = 0; i < menu_list.length; i++) {
-									str_html += '<div class="col-lg-2" style="height:300px;"><section class="panel"><div class="panel-body bg-primary text-center"><strong>'+ menu_list[i].name +'</strong></div><div>';
+									str_html += '<div class="col-lg-2" style="width:250px;height:300px;"><section class="panel"><div class="panel-body bg-primary text-center"><strong>'+ menu_list[i].name +'</strong></div><div>';
 									$.get(url + "knowledge/listMenu", {
 										knowledgeMenuId: menu_list[i].id
 									}, function(result) {
 										var data_list = result.data;
 										for(var j = 0; j < data_list.length; j++) {
-												str_html += '<label style="padding-top:10px;"><a id="add-regular" class="btn btn-default btn-sm" href="knowledge-list.html?menu_id='+data_list[j].id+'">'+data_list[j].name+'</a></label> ';
+												str_html += '<label style="padding-top:5px;"><a id="add-regular" class="btn btn-default btn-sm" href="knowledge-list.html?menu_id='+data_list[j].id+'">'+data_list[j].name+'</a></label> ';
 										}												
 									});
 									str_html += '</div></section></div>';

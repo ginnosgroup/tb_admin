@@ -564,7 +564,7 @@ public class DownExcelController extends BaseController {
 			@RequestParam(value = "subagencyId", required = false) Integer subagencyId,
 			@RequestParam(value = "officialId", required = false) Integer officialId,
 			@RequestParam(value = "isSettleAccounts", required = false) Boolean isSettleAccounts,
-			@RequestParam(value = "state",required = false) String state,
+			@RequestParam(value = "applyState",required = false) String applyState,
 			HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 		// 更改当前顾问编号
@@ -585,7 +585,7 @@ public class DownExcelController extends BaseController {
 
 			// 签证类
 			List<VisaDTO> visaDtoList = visaService.listVisa(keyword, startHandlingDate, endHandlingDate, null, null,
-					null, null, startDate, endDate, null, adviserId, null,state, 0, 15);
+					null, null, startDate, endDate, null, adviserId, null,applyState, 0, 15);
 
 			// ?
 			// List<BrokerageDTO> brokerageDtoList =

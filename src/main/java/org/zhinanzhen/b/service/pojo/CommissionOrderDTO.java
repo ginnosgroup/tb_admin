@@ -105,4 +105,6 @@ public class CommissionOrderDTO {
 
 	private boolean isClose;
 
+	private String applyState;
+
 }
