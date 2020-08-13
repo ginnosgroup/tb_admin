@@ -667,6 +667,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "schoolId", required = false) Integer schoolId,
 			@RequestParam(value = "isSettle", required = false) Boolean isSettle,
 			@RequestParam(value = "state", required = false) String state,
+			@RequestParam(value = "applyState", required = false) String applyState,
 			@RequestParam(value = "commissionState", required = false) String commissionState,
 			@RequestParam(value = "startKjApprovalDate", required = false) String startKjApprovalDate,
 			@RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
@@ -715,7 +716,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			return new Response<Integer>(0,
 					commissionOrderService.countCommissionOrder(regionId, maraId, adviserId, officialId, userId, name, phone,
 							wechatUsername, schoolId, isSettle, stateList, commissionStateList, startKjApprovalDate,
-							endKjApprovalDate, isYzyAndYjy,state));
+							endKjApprovalDate, isYzyAndYjy,applyState));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -735,6 +736,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "schoolId", required = false) Integer schoolId,
 			@RequestParam(value = "isSettle", required = false) Boolean isSettle,
 			@RequestParam(value = "state", required = false) String state,
+			@RequestParam(value = "applyState", required = false) String applyState,
 			@RequestParam(value = "commissionState", required = false) String commissionState,
 			@RequestParam(value = "startKjApprovalDate", required = false) String startKjApprovalDate,
 			@RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
@@ -784,7 +786,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			return new Response<List<CommissionOrderListDTO>>(0,
 					commissionOrderService.listCommissionOrder(regionId, maraId, adviserId, officialId, userId, name,
 							phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
-							startKjApprovalDate, endKjApprovalDate, isYzyAndYjy,state, pageNum, pageSize));
+							startKjApprovalDate, endKjApprovalDate, isYzyAndYjy,applyState, pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<CommissionOrderListDTO>>(1, e.getMessage(), null);
 		}
