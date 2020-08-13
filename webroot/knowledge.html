@@ -50,6 +50,7 @@
 				</a>
 				<div class="top-nav ">
 					<ul class="nav pull-right top-menu">
+						<li style="padding-right:15px;"><a href="knowledge-detail.html?id=1000164" style="color:#ff6c60;">帮助中心</a></li>
 						<li class="dropdown">
 							<a data-toggle="dropdown" class="dropdown-toggle" href="#">
 								<span class="username">
@@ -363,7 +364,7 @@
 									}, function(result) {
 										var data_list = result.data;
 										for(var j = 0; j < data_list.length; j++) {
-												str_html += '<label style="padding-top:10px;"><a id="add-regular" class="btn btn-default btn-sm" href="knowledge_list.html?menu_id='+data_list[j].id+'">'+data_list[j].name+'</a></label> ';
+												str_html += '<label style="padding-top:10px;"><a id="add-regular" class="btn btn-default btn-sm" href="knowledge-list.html?menu_id='+data_list[j].id+'">'+data_list[j].name+'</a></label> ';
 										}												
 									});
 									str_html += '</div></section></div>';
