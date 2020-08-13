@@ -103,4 +103,5 @@ public class CommissionOrderDO {
 
 	private boolean isClose;
 
+	private String applyState;
 }
