@@ -451,7 +451,9 @@ public class VisaController extends BaseCommissionOrderController {
 
 	@RequestMapping(value = "/count", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<Integer> countVisa(@RequestParam(value = "keyword", required = false) String keyword,
+	public Response<Integer> countVisa(
+			@RequestParam(value = "id", required = false) Integer id,
+			@RequestParam(value = "keyword", required = false) String keyword,
 			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
 			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
 			@RequestParam(value = "commissionState", required = false) String commissionState,
@@ -494,7 +496,7 @@ public class VisaController extends BaseCommissionOrderController {
 		try {
 			super.setGetHeader(response);
 			return new Response<Integer>(0,
-					visaService.countVisa(keyword, startHandlingDate, endHandlingDate, stateList, commissionStateList,
+					visaService.countVisa(id , keyword, startHandlingDate, endHandlingDate, stateList, commissionStateList,
 							startKjApprovalDate, endKjApprovalDate, startDate, endDate, regionId, adviserId, userId,state));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
@@ -503,7 +505,8 @@ public class VisaController extends BaseCommissionOrderController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<VisaDTO>> listVisa(@RequestParam(value = "keyword", required = false) String keyword,
+	public Response<List<VisaDTO>> listVisa(@RequestParam(value = "id", required = false) Integer id,
+			@RequestParam(value = "keyword", required = false) String keyword,
 			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
 			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
 			@RequestParam(value = "commissionState", required = false) String commissionState,
@@ -546,7 +549,7 @@ public class VisaController extends BaseCommissionOrderController {
 
 		try {
 			super.setGetHeader(response);
-			List<VisaDTO> list = visaService.listVisa(keyword, startHandlingDate, endHandlingDate, stateList,
+			List<VisaDTO> list = visaService.listVisa(id ,keyword, startHandlingDate, endHandlingDate, stateList,
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, regionId,
 					adviserId,userId,state, pageNum, pageSize);
 			list.forEach(v -> {
@@ -613,7 +616,8 @@ public class VisaController extends BaseCommissionOrderController {
 
 	@RequestMapping(value = "/down", method = RequestMethod.GET)
 	@ResponseBody
-	public void down(@RequestParam(value = "keyword", required = false) String keyword,
+	public void down(@RequestParam(value = "id", required = false) Integer id,
+			@RequestParam(value = "keyword", required = false) String keyword,
 			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
 			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
 			@RequestParam(value = "commissionState", required = false) String commissionState,
@@ -661,7 +665,7 @@ public class VisaController extends BaseCommissionOrderController {
 //			if (endKjApprovalDate != null)
 //				_endKjApprovalDate = new Date(Long.parseLong(endKjApprovalDate));
 
-			List<VisaDTO> list = visaService.listVisa(keyword, startHandlingDate, endHandlingDate, stateList,
+			List<VisaDTO> list = visaService.listVisa(id ,keyword, startHandlingDate, endHandlingDate, stateList,
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, regionId,
 					adviserId,userId, state,0, 9999);
 
