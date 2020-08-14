@@ -17,7 +17,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,7 +34,6 @@ import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.tb.controller.Response;
-import org.zhinanzhen.tb.dao.UserDAO;
 import org.zhinanzhen.tb.service.ServiceException;
 
 import com.ikasoa.core.utils.StringUtil;
@@ -48,10 +46,6 @@ import jxl.read.biff.BiffException;
 import jxl.write.Label;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
-import jxl.write.WriteException;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.zhinanzhen.tb.service.UserService;
 
 @Controller
@@ -575,7 +569,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			commissionOrderDto.setBonus(bonus);
 		if (bonusDate != null)
 			commissionOrderDto.setBonusDate(new Date(Long.parseLong(bonusDate)));
-		if (isChangeState)
+		if (isChangeState && schoolPaymentDate != null && schoolPaymentAmount != null
+				&& StringUtil.isNotEmpty(invoiceNumber))
 			if (bonus != null || bonusDate != null) {
 				commissionOrderDto.setState(ReviewKjStateEnum.COMPLETE.toString());
 				commissionOrderDto.setCommissionState(CommissionStateEnum.YJY.toString());
@@ -1006,9 +1001,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				sheet.addCell(new Label(30, i, commissionOrderListDto.isChecked() + "", cellFormat));
 				if (commissionOrderListDto.getAdviser() != null)
 					sheet.addCell(new Label(31, i, commissionOrderListDto.getAdviser().getName(), cellFormat));
-				if (commissionOrderListDto.getCommissionState() != null)
-					sheet.addCell(
-							new Label(32, i, getKjStateStr(commissionOrderListDto.getCommissionState()), cellFormat));
+				if (commissionOrderListDto.getState() != null)
+					sheet.addCell(new Label(32, i, getStateStr(commissionOrderListDto.getState()), cellFormat));
 				if (commissionOrderListDto.getKjApprovalDate() != null)
 					sheet.addCell(new Label(33, i, sdf.format(commissionOrderListDto.getKjApprovalDate()), cellFormat));
 				sheet.addCell(new Label(34, i, commissionOrderListDto.getRemarks(), cellFormat));
