@@ -226,6 +226,9 @@
         SELECT count(*)
         FROM b_commission_order co, b_service_order so, tb_user u, tb_adviser a
         WHERE co.service_order_id = so.id AND co.user_id = u.id AND a.id = co.adviser_id
+        <if test='id != null and id > 0'>
+            AND co.id = #{id}
+        </if>
         <if test='regionId != null and regionId > 0'>
 			AND a.region_id = #{regionId}
 		</if>
@@ -354,6 +357,9 @@
             so.service_id AS serviceId
         FROM b_commission_order co, b_service_order so, tb_user u, tb_adviser a
         WHERE co.service_order_id = so.id AND co.user_id = u.id AND a.id = co.adviser_id
+        <if test='id != null and id > 0'>
+            AND co.id = #{id}
+        </if>
         <if test='regionId != null and regionId > 0'>
 			AND a.region_id = #{regionId}
 		</if>

@@ -12,7 +12,7 @@ public interface CommissionOrderDAO {
 
 	int addCommissionOrder(CommissionOrderDO commissionOrderDo);
 
-	public int countCommissionOrder(@Param("regionId") Integer regionId, @Param("maraId") Integer maraId,
+	public int countCommissionOrder(@Param("id")Integer id ,@Param("regionId") Integer regionId, @Param("maraId") Integer maraId,
 									@Param("adviserId") Integer adviserId, @Param("officialId") Integer officialId,
 									@Param("userId") Integer userId, @Param("name") String name, @Param("phone") String phone,
 									@Param("wechatUsername") String wechatUsername, @Param("schoolId") Integer schoolId,
@@ -27,7 +27,7 @@ public interface CommissionOrderDAO {
 	int countCommissionOrderByServiceOrderIdAndExcludeCode(@Param("serviceOrderId") Integer serviceOrderId,
 			@Param("code") String code);
 
-	public List<CommissionOrderListDO> listCommissionOrder(@Param("regionId") Integer regionId,
+	public List<CommissionOrderListDO> listCommissionOrder(@Param("id")Integer id ,@Param("regionId") Integer regionId,
 			@Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
 			@Param("officialId") Integer officialId, @Param("userId") Integer userId, @Param("name") String name,
 			@Param("phone") String phone, @Param("wechatUsername") String wechatUsername,

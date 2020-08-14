@@ -161,7 +161,8 @@ public class DownExcelController extends BaseController {
 	}
 
 	@RequestMapping("/visa")
-	public void visaExport(@RequestParam(value = "keyword", required = false) String keyword,
+	public void visaExport(@RequestParam(value = "id", required = false) Integer id,
+			@RequestParam(value = "keyword", required = false) String keyword,
 			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
 			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
 			@RequestParam(value = "startDate", required = false) String startDate,
@@ -183,7 +184,7 @@ public class DownExcelController extends BaseController {
 
 		try {
 			super.setGetHeader(response);
-			List<VisaDTO> visaDtoList = visaService.listVisa(keyword, startHandlingDate, endHandlingDate, null, null,
+			List<VisaDTO> visaDtoList = visaService.listVisa(id , keyword, startHandlingDate, endHandlingDate, null, null,
 					null, null, startDate, endDate, null, adviserId, null, state,0, 9999);
 
 			OutputStream os = response.getOutputStream();
@@ -554,7 +555,8 @@ public class DownExcelController extends BaseController {
 	}
 
 	@RequestMapping("/merge")
-	public void mergeExport(@RequestParam(value = "keyword", required = false) String keyword,
+	public void mergeExport(@RequestParam(value = "id", required = false) Integer id,
+			@RequestParam(value = "keyword", required = false) String keyword,
 			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
 			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
 			@RequestParam(value = "startDate", required = false) String startDate,
@@ -584,7 +586,7 @@ public class DownExcelController extends BaseController {
 			AdviserDTO adviserDto = adviserService.getAdviserById(adviserId);
 
 			// 签证类
-			List<VisaDTO> visaDtoList = visaService.listVisa(keyword, startHandlingDate, endHandlingDate, null, null,
+			List<VisaDTO> visaDtoList = visaService.listVisa(id ,keyword, startHandlingDate, endHandlingDate, null, null,
 					null, null, startDate, endDate, null, adviserId, null,applyState, 0, 15);
 
 			// ?

@@ -652,7 +652,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 	@RequestMapping(value = "/count", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<Integer> count(@RequestParam(value = "regionId", required = false) Integer regionId,
+	public Response<Integer> count(
+			@RequestParam(value = "id", required = false) Integer id,
+			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "maraId", required = false) Integer maraId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "officialId", required = false) Integer officialId,
@@ -710,7 +712,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		try {
 			super.setGetHeader(response);
 			return new Response<Integer>(0,
-					commissionOrderService.countCommissionOrder(regionId, maraId, adviserId, officialId, userId, name, phone,
+					commissionOrderService.countCommissionOrder(id,regionId, maraId, adviserId, officialId, userId, name, phone,
 							wechatUsername, schoolId, isSettle, stateList, commissionStateList, startKjApprovalDate,
 							endKjApprovalDate, isYzyAndYjy,applyState));
 		} catch (ServiceException e) {
@@ -721,6 +723,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<List<CommissionOrderListDTO>> list(
+			@RequestParam(value = "id", required = false) Integer id,
 			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "maraId", required = false) Integer maraId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
@@ -780,7 +783,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		try {
 			super.setGetHeader(response);
 			return new Response<List<CommissionOrderListDTO>>(0,
-					commissionOrderService.listCommissionOrder(regionId, maraId, adviserId, officialId, userId, name,
+					commissionOrderService.listCommissionOrder(id , regionId, maraId, adviserId, officialId, userId, name,
 							phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
 							startKjApprovalDate, endKjApprovalDate, isYzyAndYjy,applyState, pageNum, pageSize));
 		} catch (ServiceException e) {
@@ -854,7 +857,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 	@RequestMapping(value = "/down", method = RequestMethod.GET)
 	@ResponseBody
-	public void down(@RequestParam(value = "regionId", required = false) Integer regionId,
+	public void down(
+			@RequestParam(value = "id", required = false) Integer id,
+			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "maraId", required = false) Integer maraId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "officialId", required = false) Integer officialId,
@@ -915,7 +920,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 //			if (endKjApprovalDate != null)
 //				_endKjApprovalDate = new Date(Long.parseLong(endKjApprovalDate));
 
-			List<CommissionOrderListDTO> commissionOrderList = commissionOrderService.listCommissionOrder(regionId,
+			List<CommissionOrderListDTO> commissionOrderList = commissionOrderService.listCommissionOrder(id , regionId,
 					maraId, adviserId, officialId, userId, name, phone, wechatUsername, schoolId, isSettle, stateList,
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, isYzyAndYjy,state, 0, 9999);
 
