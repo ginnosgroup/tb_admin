@@ -1232,6 +1232,10 @@
 						if (result.data[i].remarks) result.data[i].remarks = url_replace1(result.data[i].remarks);
 						result.data[i].strRemarks = '<button data-original-title="" data-html="true" data-content="'+result.data[i].remarks+'" data-placement="bottom" data-trigger="onclick" class="btn btn-info btn-xs popovers">查看备注</button>';
 				};
+				v.total_amount = v.total_amount.toFixed(2);
+				v.total_expectamount = v.total_expectamount.toFixed(2);
+				v.total_sureexpectamount = v.total_sureexpectamount.toFixed(2);
+				v.total_bonus = v.total_bonus.toFixed(2);
 				return result.data;
 			}						
       
