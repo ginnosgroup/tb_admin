@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.VisaService;
+import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.VisaCommentDTO;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
@@ -381,6 +382,31 @@ public class VisaController extends BaseCommissionOrderController {
 						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 					return new Response<VisaDTO>(1, "仅限会计修改.", null);
 			return updateOne(id, sureExpectAmount, bonus, bonusDate, true);
+		} catch (ServiceException e) {
+			return new Response<VisaDTO>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/updateKjApprovalDate", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<VisaDTO> updateKjApprovalDate(@RequestParam(value = "id") int id,
+			@RequestParam(value = "kjApprovalDate") String kjApprovalDate, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			VisaDTO visaDto = visaService.getVisaById(id);
+			if (visaDto == null)
+				return new Response<VisaDTO>(1, "签证佣金订单不存在,修改失败.", null);
+			if (adminUserLoginInfo != null && ("KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					|| StringUtil.isEmpty(adminUserLoginInfo.getApList())))
+				visaDto.setKjApprovalDate(new Date(Long.parseLong(kjApprovalDate)));
+			else
+				return new Response<VisaDTO>(1, "只有会计和超级管理员能修改会计审核时间.", null);
+			if (visaService.updateVisa(visaDto) > 0)
+				return new Response<VisaDTO>(0, visaDto);
+			else
+				return new Response<VisaDTO>(1, "修改失败.", null);
 		} catch (ServiceException e) {
 			return new Response<VisaDTO>(e.getCode(), e.getMessage(), null);
 		}

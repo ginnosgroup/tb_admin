@@ -33,6 +33,7 @@ import org.zhinanzhen.b.service.pojo.CommissionOrderCommentDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
+import org.zhinanzhen.b.service.pojo.VisaDTO;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 
@@ -494,6 +495,31 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				return updateOne(id, schoolPaymentAmount, schoolPaymentDate, invoiceNumber, zyDate, sureExpectAmount,
 						bonus, bonusDate, true);
 			} else
+				return new Response<CommissionOrderDTO>(1, "修改失败.", null);
+		} catch (ServiceException e) {
+			return new Response<CommissionOrderDTO>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/updateKjApprovalDate", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<CommissionOrderDTO> updateKjApprovalDate(@RequestParam(value = "id") int id,
+			@RequestParam(value = "kjApprovalDate") String kjApprovalDate, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			CommissionOrderDTO commissionOrderDto = commissionOrderService.getCommissionOrderById(id);
+			if (commissionOrderDto == null)
+				return new Response<CommissionOrderDTO>(1, "佣金订单不存在,修改失败.", null);
+			if (adminUserLoginInfo != null && ("KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					|| StringUtil.isEmpty(adminUserLoginInfo.getApList())))
+				commissionOrderDto.setKjApprovalDate(new Date(Long.parseLong(kjApprovalDate)));
+			else
+				return new Response<CommissionOrderDTO>(1, "只有会计和超级管理员能修改会计审核时间.", null);
+			if (commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0)
+				return new Response<CommissionOrderDTO>(0, "", commissionOrderDto);
+			else
 				return new Response<CommissionOrderDTO>(1, "修改失败.", null);
 		} catch (ServiceException e) {
 			return new Response<CommissionOrderDTO>(e.getCode(), e.getMessage(), null);
