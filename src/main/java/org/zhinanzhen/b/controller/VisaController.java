@@ -205,6 +205,7 @@ public class VisaController extends BaseCommissionOrderController {
 				_perAmount += visaDto.getPerAmount();
 				_amount += visaDto.getAmount();
 			}
+			serviceOrderDto.setOfficialApprovalDate(new Date());
 			serviceOrderDto.setSubmitted(true);
 			serviceOrderService.updateServiceOrder(serviceOrderDto);
 			if (serviceOrderDto.getParentId() > 0) {
