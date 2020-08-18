@@ -274,7 +274,12 @@
 										自动对账
 									</a>									
 								</li>
-								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'" && ap_list!=='KJ'">
+									<a href="create-visa-commission.html">
+										重建签证佣金表订单
+									</a>
+								</li>
+								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'" && ap_list!=='KJ'">
 									<a href="table-export.html">
 										导出数据
 									</a>

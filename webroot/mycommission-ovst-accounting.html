@@ -786,6 +786,13 @@
 						var json = {};						
 						var down_url = url + "commissionOrder/down?";
 						show_loading();
+						if (typeof(that.id) != "undefined")
+						{
+								down_url += "id="+that.id;
+						}else
+						{
+								down_url += "id=";
+						}
 						if (typeof(that.userId) != "undefined")
 						{
 								down_url += "name="+that.name;

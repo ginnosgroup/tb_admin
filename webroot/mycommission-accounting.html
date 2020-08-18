@@ -664,6 +664,13 @@
 						//json['commissionState'] = that.commission_state;
 						show_loading();
 						var down_url = url + "visa/down?";
+						if (typeof(that.id) != "undefined")
+						{
+								down_url += "id="+that.id;
+						}else
+						{
+								down_url += "id=";
+						}
 						if (typeof(that.userId) != "undefined")
 						{
 								down_url += "userId="+that.userId;
