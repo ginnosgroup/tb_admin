@@ -653,12 +653,19 @@
 						var that = this;						
 						var down_url = url + "commissionOrder/down?";
 						show_loading();
-						if (typeof(that.userId) != "undefined")
+						if (typeof(that.id) != "undefined")
 						{
-								down_url += "userId="+that.userId;
+								down_url += "id="+that.id;
 						}else
 						{
-								down_url += "userId=";
+								down_url += "id=";
+						}
+						if (typeof(that.userId) != "undefined")
+						{
+								down_url += "&userId="+that.userId;
+						}else
+						{
+								down_url += "&userId=";
 						}
 						if (typeof(that.adviserId) != "undefined")
 						{
