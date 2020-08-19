@@ -81,7 +81,7 @@
 										$<label id="b11" style="width:80px;"></label>
 									</div>
 									<div class="form-group">
-										<label class="control-label" style="width:80px;"><strong>本次收款：</strong></label>
+										<label class="control-label" style="width:80px;color:red;"><strong>本次实收金额：</strong></label>
 										$<label id="b14" style="width:80px;"></label>
 									</div>
 									<div class="form-group" style="margin-left:10px;">
@@ -367,8 +367,11 @@
 												$<input type="text" autocomplete="off" disabled="disabled" id="c30" value="0" class="form-control" style="width:100px;font-weight:normal;">
 											</div>
 											<div class="form-group" style="margin-left:10px;">
-												<label class="control-label">本次收款</label>
-												$<input type="text" autocomplete="off" id="c31" class="form-control" onkeyup="computeDiscount(this.value)" style="width:100px;font-weight:normal;">
+												<label class="control-label" style="color:red;">本次实收金额</label>
+												$<input type="text" autocomplete="off" id="c31" class="form-control" onkeyup="computeDiscount(this.value)" style="width:100px;font-weight:normal;"><br/>												
+											</div>
+											<div class="form-group text-right" style="margin-top:10px;width:650px;">
+												<label class="control-label" style="font-weight:bold;">(提醒：务必填写实际收到客户的金额。)</label>
 											</div>
 											<div class="form-group" style="margin-top:10px;margin-left:150px;">
 												<label class="control-label">预收业绩</label>
@@ -517,7 +520,7 @@
 										$<label id="b11" style="width:80px;"></label>
 									</div>
 									<div class="form-group">
-										<label class="control-label" style="width:80px;"><strong>本次收款：</strong></label>
+										<label class="control-label" style="width:80px;color:red;"><strong>本次实收金额：</strong></label>
 										$<label id="b14" style="width:80px;"></label>
 									</div>
 									<div class="form-group" style="margin-left:10px;">
