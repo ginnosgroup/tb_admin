@@ -823,8 +823,8 @@ public class ServiceOrderController extends BaseController {
 						if (ReviewAdviserStateEnum.PENDING.toString().equals(state.toUpperCase())) // 顾问撤回同时修改文案和mara状态
 							return new Response<ServiceOrderDTO>(0,
 									serviceOrderService.refuse(id, adminUserLoginInfo.getId(), state.toUpperCase(),
-											null, ReviewOfficialStateEnum.PENDING.toString(),
-											ReviewMaraStateEnum.WAIT.toString()));
+											ReviewOfficialStateEnum.PENDING.toString(),
+											ReviewMaraStateEnum.WAIT.toString(), null));
 						else if (ReviewOfficialStateEnum.REVIEW.toString().equals(state.toUpperCase())) // 顾问驳回同时修改mara状态
 							return new Response<ServiceOrderDTO>(0,
 									serviceOrderService.refuse(id, adminUserLoginInfo.getId(), state.toUpperCase(),
