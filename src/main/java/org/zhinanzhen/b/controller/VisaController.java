@@ -875,8 +875,8 @@ public class VisaController extends BaseCommissionOrderController {
 						VisaDTO visaDto = visaService.getVisaById(id);
 						if (visaDto == null)
 							return new Response<VisaDTO>(1, "佣金订单不存在!", null);
-						serviceOrderService.refuse(id, adminUserLoginInfo.getId(), null, null, null,
-								state.toUpperCase());
+//						serviceOrderService.refuse(id, adminUserLoginInfo.getId(), null, null, null,
+//								state.toUpperCase());
 						visaDto.setState(state);
 						if (visaService.updateVisa(visaDto) > 0)
 							return new Response<VisaDTO>(0, visaDto);
