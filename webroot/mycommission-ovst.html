@@ -460,8 +460,9 @@
 														<li :class="[pageNum==0?'disabled':'']">
 															<a @click="prevPage" href="javascript:;">← Pre</a>
 														</li>
-														<li class="nowPage">
-															第{{pageNum+1}}页
+														<li class="nowPage" style="padding: 0px 0px;margin: 0 1px;">
+															第{{pageNum+1}}页/共{{allPage}}页&nbsp;
+															跳到 <input type="text" v-model.trim="pnumber" @keyup.enter="submit" style="width:50px;color:#c7c7c7;border: 1px solid #ddd;border-radius: 3px;-webkit-border-radius: 3px;padding: 5px 10px;display: inline-block;" id="b100" placeholder="" value=""> 页
 														</li>
 														<li :class="[pageNum==allPage-1?'disabled':'']">
 															<a @click="nextPage" href="javascript:;">Next → </a>
@@ -597,6 +598,10 @@
 				  });
 				  if (typeof(this.applyState) == "undefined") $("#apply_state_").addClass("active");
 					this.getDatalist();
+					document.onkeydown = function(e) {
+						var key = window.event.keyCode;
+						if (key == 13) v.gotoPage();
+					};
 				},
 				methods: {					
 					getDatalist1: function() {
@@ -786,11 +791,13 @@
 						json['pageNum'] = 0;
 						json['pageSize'] = that.pageSize;
 						if(that.pageNum > 0) {
+							show_loading();
 							$.get(url + "commissionOrder/list", json, function(result) {
 								that.pageNum = 0;
 								result.data = return_result(result);
 								that.subject = result.data;
 								that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
+								$('#loading_id').modal('hide');
 							});
 						}
 					},
@@ -809,6 +816,7 @@
 						if (that.applyState != '') json['applyState'] = that.applyState;
 									
 						if(that.pageNum > 0) {
+							show_loading();
 							that.pageNum--;
 							json['pageNum'] = that.pageNum;
 							json['pageSize'] = that.pageSize;
@@ -816,6 +824,7 @@
 								result.data = return_result(result);
 								that.subject = result.data;
 								that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
+								$('#loading_id').modal('hide');
 							});
 						}
 					},
@@ -834,6 +843,7 @@
 						if (that.applyState != '') json['applyState'] = that.applyState;
 						
 						if(that.pageNum < that.allPage - 1) {
+							show_loading();
 							that.pageNum++;
 							json['pageNum'] = that.pageNum;
 							json['pageSize'] = that.pageSize;
@@ -841,6 +851,7 @@
 								result.data = return_result(result);
 								that.subject = result.data;
 								that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
+								$('#loading_id').modal('hide');
 							});
 						}
 					},
@@ -859,6 +870,7 @@
 						if (that.applyState != '') json['applyState'] = that.applyState;
 						
 						if(that.pageNum < that.allPage - 1) {
+							show_loading();
 							json['pageNum'] = that.allPage - 1;
 							json['pageSize'] = that.pageSize;
 							$.get(url + "commissionOrder/list", json, function(result) {
@@ -866,6 +878,41 @@
 								result.data = return_result(result);
 								that.subject = result.data;
 								that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
+								$('#loading_id').modal('hide');
+							});
+						}
+					},
+					gotoPage: function() {
+						var that = this;
+						var json = {};
+						if (that.userId != '0') json['userId'] = that.userId;
+						if (that.adviserId != '0') json['adviserId'] = that.adviserId;						
+						if (that.type != '') json['type'] = that.type;
+						if (that.startHandlingDate != '') json['startHandlingDate'] = that.startHandlingDate;
+						if (that.endHandlingDate != '') json['endHandlingDate'] = that.endHandlingDate;
+						if (that.startKjApprovalDate != '') json['startKjApprovalDate'] = that.startKjApprovalDate;
+						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
+						if (that.startDate != '') json['startDate'] = that.startDate;
+						if (that.endDate != '') json['endDate'] = that.endDate;
+						if (that.applyState != '') json['applyState'] = that.applyState;
+						that.pageNum = parseInt(that.pnumber);
+						if (that.pageNum > that.allPage)
+						{
+								that.pnumber = that.allPage;
+								that.pageNum = that.allPage;
+						}
+												
+						if(that.pageNum <= that.allPage) {
+							show_loading();
+							that.pageNum = that.pageNum - 1;
+							json['pageNum'] = that.pageNum;
+							json['pageSize'] = that.pageSize;				
+							$.get(url + "commissionOrder/list", json, function(result) {
+								console.log(result)
+								result.data = return_result(result);
+								that.subject = result.data;
+								that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
+								$('#loading_id').modal('hide');
 							});
 						}
 					},

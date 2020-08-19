@@ -545,8 +545,9 @@
 														<li :class="[pageNum==0?'disabled':'']">
 															<a @click="prevPage" href="javascript:;">← Pre</a>
 														</li>
-														<li class="nowPage">
-															第{{pageNum+1}}页
+														<li class="nowPage" style="padding: 0px 0px;margin: 0 1px;">
+															第{{pageNum+1}}页/共{{allPage}}页&nbsp;
+															跳到 <input type="text" v-model.trim="pnumber" @keyup.enter="submit" style="width:50px;color:#c7c7c7;border: 1px solid #ddd;border-radius: 3px;-webkit-border-radius: 3px;padding: 5px 10px;display: inline-block;" id="b100" placeholder="" value=""> 页
 														</li>
 														<li :class="[pageNum==allPage-1?'disabled':'']">
 															<a @click="nextPage" href="javascript:;">Next → </a>
@@ -704,6 +705,10 @@
 						        endDate: new Date()
 						  });
 							this.getDatalist();
+							document.onkeydown = function(e) {
+								var key = window.event.keyCode;
+								if (key == 13) v.gotoPage();
+							};
 					}
 				},
 				methods: {					
@@ -1073,6 +1078,58 @@
 								result.data = return_result(result);
 								that.subject = result.data;
 								that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
+							});
+						}
+					},
+					gotoPage: function() {
+						var that = this;
+						var json = {};
+						if (that.name != '') json['name'] = that.name;
+						if (that.phone != '') json['phone'] = that.phone;
+						if (that.wechatUsername != '') json['wechatUsername'] = that.wechatUsername;
+						if (that.adviserId != '0')
+						{
+								json['adviserId'] = that.adviserId;
+								v.adviser_id = that.adviserId;
+						}
+						if (that.schoolId != '0')
+						{
+								json['schoolId'] = that.schoolId;
+								v.schoolId = that.schoolId;
+						}
+						if (that.isSettle != '')
+						{
+								json['isSettle'] = that.isSettle;
+								v.isSettle = that.isSettle;
+						}
+						if (that.type != '') json['type'] = that.type;
+						if (that.commission_list != 'TQKY')
+						{
+								json['commissionState'] = that.commission_list;
+						}else
+						{
+								if (that.isSettle == '') json['isSettle'] = true;
+						}
+						if (that.startKjApprovalDate != '') json['startKjApprovalDate'] = that.startKjApprovalDate;
+						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
+						
+						that.pageNum = parseInt(that.pnumber);
+						if (that.pageNum > that.allPage)
+						{
+								that.pnumber = that.allPage;
+								that.pageNum = that.allPage;
+						}						
+						if(that.pageNum <= that.allPage) {
+							show_loading();
+							that.pageNum = that.pageNum - 1;
+							json['pageNum'] = that.pageNum;
+							json['pageSize'] = that.pageSize;
+							$.get(url + "commissionOrder/list", json, function(result) {
+								console.log(result)
+								result.data = return_result(result);
+								that.subject = result.data;
+								that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
+								$('#loading_id').modal('hide');
 							});
 						}
 					},
