@@ -950,7 +950,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 			List<CommissionOrderListDTO> commissionOrderList = commissionOrderService.listCommissionOrder(id , regionId,
 					maraId, adviserId, officialId, userId, name, phone, wechatUsername, schoolId, isSettle, stateList,
-					commissionStateList, startKjApprovalDate, endKjApprovalDate, isYzyAndYjy,state, 0, 9999);
+					commissionStateList, startKjApprovalDate, endKjApprovalDate, isYzyAndYjy, state, 0, 9999);
 
 			OutputStream os = response.getOutputStream();
 			jxl.Workbook wb;
