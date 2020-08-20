@@ -398,7 +398,7 @@
 													</select>													
 											</div>
 											<div class="form-group">
-												<button @click="getDatalist" type="button" class="btn btn-info">查询</button>
+												<button @click="getSearch" id="btnSearch" type="button" class="btn btn-info">查询</button>
 												<button @click="getExport" type="button" class="btn btn-primary" style="display:none;">导出</button>
 											</div>
 										</form>
@@ -672,6 +672,12 @@
 							//console.log(that.subject);
 						});
 					},
+					getSearch: function() {
+						var that = this;
+						that.pageNum = 0;
+						that.pnumber = null;
+						that.getDatalist();
+					},
 					getDatalist: function() {
 						var that = this;
 						var json = {};
@@ -753,7 +759,7 @@
 						
 						if(that.pageNum > 0) {
 							show_loading();
-							json['pageNum'] = that.pageNum;
+							json['pageNum'] = 0;
 							json['pageSize'] = that.pageSize;
 							$.get(url + "serviceOrder/list", json, function(result) {
 								console.log(result)
@@ -849,11 +855,11 @@
 						
 						if(that.pageNum < that.allPage - 1) {
 							show_loading();
-							json['pageNum'] = that.pageNum;
+							json['pageNum'] = that.allPage-1;
 							json['pageSize'] = that.pageSize;
 							$.get(url + "serviceOrder/list", json, function(result) {
 								console.log(result)
-								that.pageNum = that.allPage - 1;
+								that.pageNum = that.allPage-1;
 								result.data = return_result(result);
 								that.subject = result.data;
 								that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
@@ -1323,8 +1329,11 @@
 				      };
 			    	},
 			    	callback: function(value, index, object) {
-			    		$('#userId').val(object.id);
-			    		v.userId = object.id;  		
+			    		if (object.id)
+			    		{
+					    		$('#userId').val(object.id);
+					    		v.userId = object.id;  		
+			    		}
 			    	},
 			    	minLength: 1						    	
 			    });

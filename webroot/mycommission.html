@@ -339,7 +339,7 @@
 													</dle>
 											</div>
 											<div class="form-group">
-												<button @click="getDatalist" type="button" class="btn btn-info">查询</button>
+												<button @click="getSearch" type="button" class="btn btn-info">查询</button>
 												<button @click="getExport" type="button" class="btn btn-primary">导出</button>
 											</div>
 										</form>
@@ -598,6 +598,12 @@
 							that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
 							//console.log(that.subject);
 						});
+					},
+					getSearch: function() {
+						var that = this;
+						that.pageNum = 0;
+						that.pnumber = null;
+						that.getDatalist();
 					},
 					getDatalist: function() {
 						var that = this;
