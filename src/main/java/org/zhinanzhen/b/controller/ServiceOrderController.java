@@ -972,8 +972,7 @@ public class ServiceOrderController extends BaseController {
 							email = email + "," + adviser.getEmail();
 				}
 				if (!"".equals(email))
-//					SendEmailUtil.send(email, title, message);
-					System.out.println(email + "<br/><br/>" + title + "<br/><br/>" + message);
+					SendEmailUtil.send(email, title, message);
 				return new Response<Integer>(0, serviceOrderCommentDto.getId());
 			} else
 				return new Response<Integer>(1, "创建失败.", 0);

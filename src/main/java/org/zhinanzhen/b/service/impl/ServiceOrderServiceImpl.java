@@ -396,20 +396,20 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			String officialState, String kjState) throws ServiceException {
 		ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(id);
 		if (serviceOrderDo != null) {
-			String title = "提醒邮件";
+			String title = "新任务提醒:";
 			String type = "";
 			String detail = "";
+			UserDO user = userDao.getUserById(serviceOrderDo.getUserId());
 			if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())) {
 				type = "签证";
-				UserDO user = userDao.getUserById(serviceOrderDo.getUserId());
 				if (user != null)
 					detail += "/客户名称:" + user.getName();
 				ServiceDO service = serviceDao.getServiceById(serviceOrderDo.getServiceId());
 				if (service != null)
 					detail += "/类型:" + service.getName() + "(" + service.getCode() + ")";
+				title += user.getName() + "/" + type;
 			} else if ("OVST".equalsIgnoreCase(serviceOrderDo.getType())) {
 				type = "留学";
-				UserDO user = userDao.getUserById(serviceOrderDo.getUserId());
 				if (user != null)
 					detail += "/客户名称:" + user.getName();
 				SchoolDO school = schoolDao.getSchoolById(serviceOrderDo.getSchoolId());
@@ -417,10 +417,14 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 					detail += "/学校:" + school.getName();
 					detail += "/专业:" + school.getSubject();
 				}
-			} else if ("SIV".equalsIgnoreCase(serviceOrderDo.getType()))
+				title += user.getName() + "/" + type;
+			} else if ("SIV".equalsIgnoreCase(serviceOrderDo.getType())) {
 				type = "独立技术移民";
-			else if ("MT".equalsIgnoreCase(serviceOrderDo.getType()))
+				title += user.getName() + "/" + type;
+			} else if ("MT".equalsIgnoreCase(serviceOrderDo.getType())) {
 				type = "曼拓";
+				title += user.getName() + "/" + type;
+			}
 			AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderDo.getAdviserId());
 			OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
 			Date date = serviceOrderDo.getGmtCreate();
