@@ -335,7 +335,7 @@
 													</dle>
 											</div>
 											<div class="form-group">
-												<button @click="getDatalist" type="button" class="btn btn-info">查询</button>
+												<button @click="getSearch" type="button" class="btn btn-info">查询</button>
 												<button @click="getExport" type="button" class="btn btn-primary">导出</button>
 												<button v-if="commission_state ==='DJY' || commission_state ==='DZY'" onclick="uploadFile()" type="button" class="btn btn-success">上传数据</button>
 											</div>
@@ -374,7 +374,7 @@
 													<tr v-for="item in subject" class="gradeX">
 														<td v-html="item.strHref"></td>
 														<td v-html="item.gmtCreate"></td>
-														<td v-html="item.kjApprovalDate"></td>
+														<td @dblclick="table_edit($index,'kjApprovalDate','t4')"><span v-html="item.kjApprovalDate"></span></td>
 														<td v-html="item.receiveDate"></td>
 														<td v-html="item.userName"></td>
 														<td v-html="item.receiveTypeName"></td>
@@ -629,6 +629,12 @@
 							that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
 							//console.log(that.subject);
 						});
+					},
+					getSearch: function() {
+						var that = this;
+						that.pageNum = 0;
+						that.pnumber = null;
+						that.getDatalist();
 					},
 					getDatalist: function() {
 						var that = this;
@@ -1015,6 +1021,13 @@
 						{								
 								json['isChecked'] = (!this.subject[index].checked ?  '':this.subject[index].checked);
 						}
+						if (field == 'kjApprovalDate')
+						{
+								json['kjApprovalDate'] = '<input type="text" class="form-control small" style="width:170px;" id="'+byid+'" value="'+(this.subject[index].kjApprovalDate  == null ?  '':this.subject[index].kjApprovalDate)+'">';
+						}else
+						{								
+								json['kjApprovalDate'] = (this.subject[index].kjApprovalDate  == null ?  '':this.subject[index].kjApprovalDate);
+						}
 						json['bonus'] = this.subject[index].bonus;
 						json['bonusDate'] = this.subject[index].bonusDate;
 						json['adviserName'] = this.subject[index].adviserName;
@@ -1216,8 +1229,27 @@
     			{    					
 			    		var str_url = "visa/update";
        				var json = {};
-       				json['id'] = v.orderId;
-       				json[v.update_field] = str_val;
+       				json['id'] = v.orderId; 
+       				if (field == 'kjApprovalDate')
+       				{
+       						str_url = "visa/updateKjApprovalDate";
+       						var arr_d1 = str_val.split(" ");
+       						if (arr_d1.length == 2)
+       						{
+		       						var arr_d = arr_d1[0].split("/");
+				          		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+				          		str_d += ' '+arr_d1[1];     		
+				              var date = new Date(str_d);
+		       						json[v.update_field] = date.getTime();//转时间戳
+       						}else
+       						{
+       								alert('时间格式不正确！请核实后再提交。');
+       								return false;
+       						}
+       				}else
+       				{       				      				
+       						json[v.update_field] = str_val;
+       				}
        				$.post(str_url, json,
 					   	function(data){
 					   			if (data.code == 0)
@@ -1226,7 +1258,8 @@
 					   					$('#my_table #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
 					   					if (field == 'sureExpectAmount') v.current_row.sureExpectAmount = str_val;					   					
 					   					if (field == 'bankCheck') v.current_row.bankCheck = str_val;					   					
-					   					if (field == 'isChecked') v.current_row.isChecked = str_val;					   					
+					   					if (field == 'isChecked') v.current_row.isChecked = str_val;
+					   					if (field == 'kjApprovalDate') v.current_row.kjApprovalDate = str_val;						   					
 					   					v.subject.splice(v.current_index, 0);
 											v.subject.splice(v.current_index,1, v.current_row);
 					   					//重新载入数据源
