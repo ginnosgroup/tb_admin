@@ -416,7 +416,7 @@
 													<tr v-for="item in subject" class="gradeX">
 														<td v-html="item.strOid"></td>
 														<td v-html="item.gmtCreate"></td>
-														<td v-html="item.kjApprovalDate"></td>
+														<td @dblclick="table_edit($index,'kjApprovalDate','t4')"><span v-html="item.kjApprovalDate"></span></td>
 														<td v-html="item.receiveDate"></td>
 														<td v-html="item.userName"></td>
 														<td v-html="item.studentCode"></td>
@@ -1244,7 +1244,7 @@
 						var json = {};
 						json['strOid'] = this.subject[index].id+'-'+this.subject[index].installmentNum;
 						json['gmtCreate'] = this.subject[index].gmtCreate;
-						json['kjApprovalDate'] = this.subject[index].kjApprovalDate;
+						json['kjApprovalDate'] = this.subject[index].kjApprovalDate;						
 						json['receiveDate'] = this.subject[index].receiveDate;
 						json['userName'] = this.subject[index].userName;
 						json['studentCode'] = this.subject[index].studentCode;
@@ -1281,6 +1281,13 @@
 						}else
 						{
 								json['isChecked'] = (!this.subject[index].checked ?  '':this.subject[index].checked);
+						}
+						if (field == 'kjApprovalDate')
+						{
+								json['kjApprovalDate'] = '<input type="text" class="form-control small" style="width:170px;" id="'+byid+'" value="'+(this.subject[index].kjApprovalDate  == null ?  '':this.subject[index].kjApprovalDate)+'">';
+						}else
+						{								
+								json['kjApprovalDate'] = (this.subject[index].kjApprovalDate  == null ?  '':this.subject[index].kjApprovalDate);
 						}
 						json['gst'] = this.subject[index].gst;
 						json['deductGst'] = this.subject[index].deductGst;
@@ -1806,7 +1813,26 @@
 			    		var str_url = "commissionOrder/update";
        				var json = {};
        				json['id'] = v.orderId;
-       				json[v.update_field] = str_val;
+       				if (field == 'kjApprovalDate')
+       				{
+       						str_url = "commissionOrder/updateKjApprovalDate";
+       						var arr_d1 = str_val.split(" ");
+       						if (arr_d1.length == 2)
+       						{
+		       						var arr_d = arr_d1[0].split("/");
+				          		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+				          		str_d += ' '+arr_d1[1];     		
+				              var date = new Date(str_d);
+		       						json[v.update_field] = date.getTime();//转时间戳
+       						}else
+       						{
+       								alert('时间格式不正确！请核实后再提交。');
+       								return false;
+       						}
+       				}else
+       				{       				      				
+       						json[v.update_field] = str_val;
+       				}       				
        				$.post(str_url, json,
 					   	function(data){
 					   			if (data.code == 0)
@@ -1815,7 +1841,8 @@
 					   					$('#my_table #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
 					   					if (field == 'sureExpectAmount') v.current_row.sureExpectAmount = str_val;					   					
 					   					if (field == 'bankCheck') v.current_row.bankCheck = str_val;					   					
-					   					if (field == 'isChecked') v.current_row.checked = str_val;					   					
+					   					if (field == 'isChecked') v.current_row.checked = str_val;
+					   					if (field == 'kjApprovalDate') v.current_row.kjApprovalDate = str_val;
 					   					v.subject.splice(v.current_index, 0);
 											v.subject.splice(v.current_index,1, v.current_row);
 					   					//重新载入数据源
