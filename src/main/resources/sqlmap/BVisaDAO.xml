@@ -191,6 +191,9 @@
         SELECT count(*)
         FROM b_visa bv, tb_adviser a
         WHERE a.id = bv.adviser_id
+        <if test='id != null and id > 0'>
+            AND bv.id = #{id}
+        </if>
         <if test='keyword != null and keyword != ""'>
             AND bv.name LIKE '%${keyword}%'
         </if>
@@ -289,6 +292,9 @@
             tbu.phone AS phone
         FROM b_visa bv, tb_user tbu, tb_adviser a
         WHERE bv.user_id = tbu.id AND a.id = bv.adviser_id
+        <if test='id != null and id > 0'>
+            AND bv.id = #{id}
+        </if>
         <if test='keyword != null and keyword != ""'>
             AND bv.name LIKE '%${keyword}%'
         </if>
