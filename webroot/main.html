@@ -259,6 +259,16 @@
 										我的佣金报表
 									</a>									
 								</li>
+								<li v-if="ap_list==='GW' || (ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA' && ap_list!=='KJ')" style="display:;" id="apply_state_PENDING">
+									<a href="mycommission.html?applyState=PENDING">
+										未申请月奖
+									</a>									
+								</li>
+								<li v-if="ap_list==='GW' || (ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA' && ap_list!=='KJ')" style="display:;" id="apply_state_COMPLETE">
+									<a href="mycommission.html?applyState=COMPLETE">
+										已申请月奖
+									</a>									
+								</li>
 								<li v-if="ap_list==='KJ'" id="commission_state_DJY">
 									<a href="mycommission-accounting.html?commission_state=DJY">
 										待结佣订单
