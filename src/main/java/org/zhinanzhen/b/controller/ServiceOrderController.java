@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.ServicePackageService;
+import org.zhinanzhen.b.service.pojo.MaraDTO;
+import org.zhinanzhen.b.service.pojo.OfficialDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderCommentDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
@@ -30,6 +32,8 @@ import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserService;
+import org.zhinanzhen.tb.service.pojo.AdviserDTO;
+import org.zhinanzhen.tb.utils.SendEmailUtil;
 
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.StringUtil;
@@ -823,8 +827,8 @@ public class ServiceOrderController extends BaseController {
 						if (ReviewAdviserStateEnum.PENDING.toString().equals(state.toUpperCase())) // 顾问撤回同时修改文案和mara状态
 							return new Response<ServiceOrderDTO>(0,
 									serviceOrderService.refuse(id, adminUserLoginInfo.getId(), state.toUpperCase(),
-											null, ReviewOfficialStateEnum.PENDING.toString(),
-											ReviewMaraStateEnum.WAIT.toString()));
+											ReviewOfficialStateEnum.PENDING.toString(),
+											ReviewMaraStateEnum.WAIT.toString(), null));
 						else if (ReviewOfficialStateEnum.REVIEW.toString().equals(state.toUpperCase())) // 顾问驳回同时修改mara状态
 							return new Response<ServiceOrderDTO>(0,
 									serviceOrderService.refuse(id, adminUserLoginInfo.getId(), state.toUpperCase(),
@@ -911,14 +915,66 @@ public class ServiceOrderController extends BaseController {
 		try {
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			super.setPostHeader(response);
+			ServiceOrderDTO serviceOrder = serviceOrderService.getServiceOrderById(serviceOrderId);
+			if (serviceOrder == null)
+				return new Response<Integer>(1, "服务订单为空.", 0);
 			ServiceOrderCommentDTO serviceOrderCommentDto = new ServiceOrderCommentDTO();
 			serviceOrderCommentDto
 					.setAdminUserId(adminUserLoginInfo != null ? adminUserLoginInfo.getId() : adminUserId);
 			serviceOrderCommentDto.setServiceOrderId(serviceOrderId);
 			serviceOrderCommentDto.setContent(content);
-			if (serviceOrderService.addComment(serviceOrderCommentDto) > 0)
+			if (serviceOrderService.addComment(serviceOrderCommentDto) > 0) {
+				// 发送邮件
+				String serviceType = "?";
+				if("VISA".equalsIgnoreCase(serviceOrder.getType()))
+					serviceType = "签证";
+				else if("OVST".equalsIgnoreCase(serviceOrder.getType()))
+					serviceType = "留学";
+				else if ("SIV".equalsIgnoreCase(serviceOrder.getType()))
+					serviceType = "独立技术移民";
+				else if ("MT".equalsIgnoreCase(serviceOrder.getType()))
+					serviceType = "曼拓";
+				String title = "您的" + serviceType + "订单" + serviceOrder.getId() + "有最新评论";
+				String message = "您的服务订单有一条新的评论，请及时查看．<br/>服务订单类型:" + serviceType + "<br/>客户:"
+						+ (serviceOrder.getUser() != null ? serviceOrder.getUser().getName() : "") + "<br/>订单ID:"
+						+ serviceOrder.getId() + "<br/>评论内容:" + serviceOrderCommentDto.getContent() + "<br/>评论时间:"
+						+ new Date();
+				String email = "";
+				if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+					OfficialDTO official = serviceOrder.getOfficial();
+					if (official != null)
+						email = official.getEmail();
+					MaraDTO mara = serviceOrder.getMara();
+					if (mara != null)
+						if ("".equals(email))
+							email = mara.getEmail();
+						else
+							email = email + "," + mara.getEmail();
+				} else if (adminUserLoginInfo != null && "WA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+					AdviserDTO adviser = serviceOrder.getAdviser();
+					if (adviser != null)
+						email = adviser.getEmail();
+					MaraDTO mara = serviceOrder.getMara();
+					if (mara != null)
+						if ("".equals(email))
+							email = mara.getEmail();
+						else
+							email = email + "," + mara.getEmail();
+				} else if (adminUserLoginInfo != null && "M".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+					OfficialDTO official = serviceOrder.getOfficial();
+					if (official != null)
+						email = official.getEmail();
+					AdviserDTO adviser = serviceOrder.getAdviser();
+					if (adviser != null)
+						if ("".equals(email))
+							email = adviser.getEmail();
+						else
+							email = email + "," + adviser.getEmail();
+				}
+				if (!"".equals(email))
+					SendEmailUtil.send(email, title, message);
 				return new Response<Integer>(0, serviceOrderCommentDto.getId());
-			else
+			} else
 				return new Response<Integer>(1, "创建失败.", 0);
 		} catch (ServiceException e) {
 			return new Response<Integer>(e.getCode(), e.getMessage(), 0);

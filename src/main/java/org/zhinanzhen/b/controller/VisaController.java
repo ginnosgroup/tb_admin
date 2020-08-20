@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.VisaService;
+import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.VisaCommentDTO;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
@@ -205,6 +206,7 @@ public class VisaController extends BaseCommissionOrderController {
 				_perAmount += visaDto.getPerAmount();
 				_amount += visaDto.getAmount();
 			}
+			serviceOrderDto.setOfficialApprovalDate(new Date());
 			serviceOrderDto.setSubmitted(true);
 			serviceOrderService.updateServiceOrder(serviceOrderDto);
 			if (serviceOrderDto.getParentId() > 0) {
@@ -385,6 +387,31 @@ public class VisaController extends BaseCommissionOrderController {
 		}
 	}
 
+	@RequestMapping(value = "/updateKjApprovalDate", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<VisaDTO> updateKjApprovalDate(@RequestParam(value = "id") int id,
+			@RequestParam(value = "kjApprovalDate") String kjApprovalDate, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			VisaDTO visaDto = visaService.getVisaById(id);
+			if (visaDto == null)
+				return new Response<VisaDTO>(1, "签证佣金订单不存在,修改失败.", null);
+			if (adminUserLoginInfo != null && ("KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					|| StringUtil.isEmpty(adminUserLoginInfo.getApList())))
+				visaDto.setKjApprovalDate(new Date(Long.parseLong(kjApprovalDate)));
+			else
+				return new Response<VisaDTO>(1, "只有会计和超级管理员能修改会计审核时间.", null);
+			if (visaService.updateVisa(visaDto) > 0)
+				return new Response<VisaDTO>(0, visaDto);
+			else
+				return new Response<VisaDTO>(1, "修改失败.", null);
+		} catch (ServiceException e) {
+			return new Response<VisaDTO>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
 	@RequestMapping(value = "/update", method = RequestMethod.PUT)
 	@ResponseBody
 	public Response<Integer> update(@RequestBody List<BatchUpdateVisa> batchUpdateList, HttpServletRequest request,
@@ -451,7 +478,9 @@ public class VisaController extends BaseCommissionOrderController {
 
 	@RequestMapping(value = "/count", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<Integer> countVisa(@RequestParam(value = "keyword", required = false) String keyword,
+	public Response<Integer> countVisa(
+			@RequestParam(value = "id", required = false) Integer id,
+			@RequestParam(value = "keyword", required = false) String keyword,
 			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
 			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
 			@RequestParam(value = "commissionState", required = false) String commissionState,
@@ -494,7 +523,7 @@ public class VisaController extends BaseCommissionOrderController {
 		try {
 			super.setGetHeader(response);
 			return new Response<Integer>(0,
-					visaService.countVisa(keyword, startHandlingDate, endHandlingDate, stateList, commissionStateList,
+					visaService.countVisa(id , keyword, startHandlingDate, endHandlingDate, stateList, commissionStateList,
 							startKjApprovalDate, endKjApprovalDate, startDate, endDate, regionId, adviserId, userId,state));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
@@ -503,7 +532,8 @@ public class VisaController extends BaseCommissionOrderController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<VisaDTO>> listVisa(@RequestParam(value = "keyword", required = false) String keyword,
+	public Response<List<VisaDTO>> listVisa(@RequestParam(value = "id", required = false) Integer id,
+			@RequestParam(value = "keyword", required = false) String keyword,
 			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
 			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
 			@RequestParam(value = "commissionState", required = false) String commissionState,
@@ -546,7 +576,7 @@ public class VisaController extends BaseCommissionOrderController {
 
 		try {
 			super.setGetHeader(response);
-			List<VisaDTO> list = visaService.listVisa(keyword, startHandlingDate, endHandlingDate, stateList,
+			List<VisaDTO> list = visaService.listVisa(id ,keyword, startHandlingDate, endHandlingDate, stateList,
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, regionId,
 					adviserId,userId,state, pageNum, pageSize);
 			list.forEach(v -> {
@@ -613,7 +643,8 @@ public class VisaController extends BaseCommissionOrderController {
 
 	@RequestMapping(value = "/down", method = RequestMethod.GET)
 	@ResponseBody
-	public void down(@RequestParam(value = "keyword", required = false) String keyword,
+	public void down(@RequestParam(value = "id", required = false) Integer id,
+			@RequestParam(value = "keyword", required = false) String keyword,
 			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
 			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
 			@RequestParam(value = "commissionState", required = false) String commissionState,
@@ -661,7 +692,7 @@ public class VisaController extends BaseCommissionOrderController {
 //			if (endKjApprovalDate != null)
 //				_endKjApprovalDate = new Date(Long.parseLong(endKjApprovalDate));
 
-			List<VisaDTO> list = visaService.listVisa(keyword, startHandlingDate, endHandlingDate, stateList,
+			List<VisaDTO> list = visaService.listVisa(id ,keyword, startHandlingDate, endHandlingDate, stateList,
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, regionId,
 					adviserId,userId, state,0, 9999);
 
@@ -721,8 +752,8 @@ public class VisaController extends BaseCommissionOrderController {
 				sheet.addCell(new Label(13, i, visaDto.getBankCheck(), cellFormat));
 				sheet.addCell(new Label(14, i, visaDto.isChecked() + "", cellFormat));
 				sheet.addCell(new Label(15, i, visaDto.getAdviserName(), cellFormat));
-				if (visaDto.getCommissionState() != null)
-					sheet.addCell(new Label(16, i, getKjStateStr(visaDto.getCommissionState()), cellFormat));
+				if (visaDto.getState() != null)
+					sheet.addCell(new Label(16, i, getStateStr(visaDto.getState()), cellFormat));
 				if (visaDto.getKjApprovalDate() != null)
 					sheet.addCell(new Label(17, i, sdf.format(visaDto.getKjApprovalDate()), cellFormat));
 				sheet.addCell(new Label(18, i, visaDto.getRemarks(), cellFormat));
@@ -844,8 +875,8 @@ public class VisaController extends BaseCommissionOrderController {
 						VisaDTO visaDto = visaService.getVisaById(id);
 						if (visaDto == null)
 							return new Response<VisaDTO>(1, "佣金订单不存在!", null);
-						serviceOrderService.refuse(id, adminUserLoginInfo.getId(), null, null, null,
-								state.toUpperCase());
+//						serviceOrderService.refuse(id, adminUserLoginInfo.getId(), null, null, null,
+//								state.toUpperCase());
 						visaDto.setState(state);
 						if (visaService.updateVisa(visaDto) > 0)
 							return new Response<VisaDTO>(0, visaDto);

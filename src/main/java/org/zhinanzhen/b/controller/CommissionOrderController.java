@@ -17,7 +17,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,8 +33,8 @@ import org.zhinanzhen.b.service.pojo.CommissionOrderCommentDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
+import org.zhinanzhen.b.service.pojo.VisaDTO;
 import org.zhinanzhen.tb.controller.Response;
-import org.zhinanzhen.tb.dao.UserDAO;
 import org.zhinanzhen.tb.service.ServiceException;
 
 import com.ikasoa.core.utils.StringUtil;
@@ -48,10 +47,6 @@ import jxl.read.biff.BiffException;
 import jxl.write.Label;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
-import jxl.write.WriteException;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.zhinanzhen.tb.service.UserService;
 
 @Controller
@@ -425,6 +420,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			commissionOrderDto.setChecked(isChecked != null && "true".equalsIgnoreCase(isChecked));
 			if (StringUtil.isNotEmpty(remarks))
 				commissionOrderDto.setRemarks(remarks);
+			if (commissionOrderDto.getKjApprovalDate() == null)
+				commissionOrderDto.setKjApprovalDate(new Date());
 
 			// SubagencyDTO subagencyDto =
 			// subagencyService.getSubagencyById(serviceOrderDto.getSubagencyId());
@@ -458,6 +455,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				serviceOrderDto.setReceivable(_commissionOrderListDto.getTotalPerAmount());
 				serviceOrderDto.setReceived(_commissionOrderListDto.getTotalAmount());
 				serviceOrderService.updateServiceOrder(serviceOrderDto); // 同步修改服务订单
+				userService.updateDOB(new Date(Long.parseLong(dob)),commissionOrderListDto.getUserId());
 				int i = schoolService.updateSchoolSetting(_commissionOrderListDto); // 根据学校设置更新佣金值
 				if (i > 0) {
 				} else if (i == -1)
@@ -497,6 +495,31 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				return updateOne(id, schoolPaymentAmount, schoolPaymentDate, invoiceNumber, zyDate, sureExpectAmount,
 						bonus, bonusDate, true);
 			} else
+				return new Response<CommissionOrderDTO>(1, "修改失败.", null);
+		} catch (ServiceException e) {
+			return new Response<CommissionOrderDTO>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/updateKjApprovalDate", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<CommissionOrderDTO> updateKjApprovalDate(@RequestParam(value = "id") int id,
+			@RequestParam(value = "kjApprovalDate") String kjApprovalDate, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			CommissionOrderDTO commissionOrderDto = commissionOrderService.getCommissionOrderById(id);
+			if (commissionOrderDto == null)
+				return new Response<CommissionOrderDTO>(1, "佣金订单不存在,修改失败.", null);
+			if (adminUserLoginInfo != null && ("KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					|| StringUtil.isEmpty(adminUserLoginInfo.getApList())))
+				commissionOrderDto.setKjApprovalDate(new Date(Long.parseLong(kjApprovalDate)));
+			else
+				return new Response<CommissionOrderDTO>(1, "只有会计和超级管理员能修改会计审核时间.", null);
+			if (commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0)
+				return new Response<CommissionOrderDTO>(0, "", commissionOrderDto);
+			else
 				return new Response<CommissionOrderDTO>(1, "修改失败.", null);
 		} catch (ServiceException e) {
 			return new Response<CommissionOrderDTO>(e.getCode(), e.getMessage(), null);
@@ -574,7 +597,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			commissionOrderDto.setBonus(bonus);
 		if (bonusDate != null)
 			commissionOrderDto.setBonusDate(new Date(Long.parseLong(bonusDate)));
-		if (isChangeState)
+		if (isChangeState && schoolPaymentDate != null && schoolPaymentAmount != null
+				&& StringUtil.isNotEmpty(invoiceNumber))
 			if (bonus != null || bonusDate != null) {
 				commissionOrderDto.setState(ReviewKjStateEnum.COMPLETE.toString());
 				commissionOrderDto.setCommissionState(CommissionStateEnum.YJY.toString());
@@ -656,7 +680,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 	@RequestMapping(value = "/count", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<Integer> count(@RequestParam(value = "regionId", required = false) Integer regionId,
+	public Response<Integer> count(
+			@RequestParam(value = "id", required = false) Integer id,
+			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "maraId", required = false) Integer maraId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "officialId", required = false) Integer officialId,
@@ -714,7 +740,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		try {
 			super.setGetHeader(response);
 			return new Response<Integer>(0,
-					commissionOrderService.countCommissionOrder(regionId, maraId, adviserId, officialId, userId, name, phone,
+					commissionOrderService.countCommissionOrder(id,regionId, maraId, adviserId, officialId, userId, name, phone,
 							wechatUsername, schoolId, isSettle, stateList, commissionStateList, startKjApprovalDate,
 							endKjApprovalDate, isYzyAndYjy,applyState));
 		} catch (ServiceException e) {
@@ -725,6 +751,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<List<CommissionOrderListDTO>> list(
+			@RequestParam(value = "id", required = false) Integer id,
 			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "maraId", required = false) Integer maraId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
@@ -784,7 +811,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		try {
 			super.setGetHeader(response);
 			return new Response<List<CommissionOrderListDTO>>(0,
-					commissionOrderService.listCommissionOrder(regionId, maraId, adviserId, officialId, userId, name,
+					commissionOrderService.listCommissionOrder(id , regionId, maraId, adviserId, officialId, userId, name,
 							phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
 							startKjApprovalDate, endKjApprovalDate, isYzyAndYjy,applyState, pageNum, pageSize));
 		} catch (ServiceException e) {
@@ -858,7 +885,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 	@RequestMapping(value = "/down", method = RequestMethod.GET)
 	@ResponseBody
-	public void down(@RequestParam(value = "regionId", required = false) Integer regionId,
+	public void down(
+			@RequestParam(value = "id", required = false) Integer id,
+			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "maraId", required = false) Integer maraId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "officialId", required = false) Integer officialId,
@@ -919,9 +948,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 //			if (endKjApprovalDate != null)
 //				_endKjApprovalDate = new Date(Long.parseLong(endKjApprovalDate));
 
-			List<CommissionOrderListDTO> commissionOrderList = commissionOrderService.listCommissionOrder(regionId,
+			List<CommissionOrderListDTO> commissionOrderList = commissionOrderService.listCommissionOrder(id , regionId,
 					maraId, adviserId, officialId, userId, name, phone, wechatUsername, schoolId, isSettle, stateList,
-					commissionStateList, startKjApprovalDate, endKjApprovalDate, isYzyAndYjy,state, 0, 9999);
+					commissionStateList, startKjApprovalDate, endKjApprovalDate, isYzyAndYjy, state, 0, 9999);
 
 			OutputStream os = response.getOutputStream();
 			jxl.Workbook wb;
@@ -967,45 +996,48 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					sheet.addCell(new Label(9, i, commissionOrderListDto.getSchool().getName() + "", cellFormat));
 					sheet.addCell(new Label(10, i, commissionOrderListDto.getSchool().getSubject() + "", cellFormat));
 				}
+				if (commissionOrderListDto.getStartDate() != null)
+					sheet.addCell(new Label(11, i, sdf.format(commissionOrderListDto.getStartDate()), cellFormat));
+				if (commissionOrderListDto.getEndDate() != null)
+					sheet.addCell(new Label(12, i, sdf.format(commissionOrderListDto.getEndDate()), cellFormat));
 				if (commissionOrderListDto.getInstallmentDueDate() != null)
 					sheet.addCell(
-							new Label(11, i, sdf.format(commissionOrderListDto.getInstallmentDueDate()), cellFormat));
+							new Label(13, i, sdf.format(commissionOrderListDto.getInstallmentDueDate()), cellFormat));
 				if (commissionOrderListDto.getReceiveType() != null)
-					sheet.addCell(new Label(12, i, commissionOrderListDto.getReceiveType().getName() + "", cellFormat));
-				sheet.addCell(new Label(13, i, commissionOrderListDto.getTuitionFee() + "", cellFormat));
-				sheet.addCell(new Label(14, i, commissionOrderListDto.getPerAmount() + "", cellFormat)); // .getPerTermTuitionFee()
-				sheet.addCell(new Label(15, i, commissionOrderListDto.getTotalPerAmount() + "", cellFormat));
-				sheet.addCell(new Label(16, i, commissionOrderListDto.getTotalAmount() + "", cellFormat));
-				sheet.addCell(new Label(17, i, commissionOrderListDto.getAmount() + "", cellFormat));
-				sheet.addCell(new Label(18, i, commissionOrderListDto.getExpectAmount() + "", cellFormat));
+					sheet.addCell(new Label(14, i, commissionOrderListDto.getReceiveType().getName() + "", cellFormat));
+				sheet.addCell(new Label(15, i, commissionOrderListDto.getTuitionFee() + "", cellFormat));
+				sheet.addCell(new Label(16, i, commissionOrderListDto.getPerAmount() + "", cellFormat)); // .getPerTermTuitionFee()
+				sheet.addCell(new Label(17, i, commissionOrderListDto.getTotalPerAmount() + "", cellFormat));
+				sheet.addCell(new Label(18, i, commissionOrderListDto.getTotalAmount() + "", cellFormat));
+				sheet.addCell(new Label(19, i, commissionOrderListDto.getAmount() + "", cellFormat));
+				sheet.addCell(new Label(20, i, commissionOrderListDto.getExpectAmount() + "", cellFormat));
 				if (commissionOrderListDto.isSettle())
-					sheet.addCell(new Label(19, i, commissionOrderListDto.getExpectAmount() + "", cellFormat));
+					sheet.addCell(new Label(21, i, commissionOrderListDto.getExpectAmount() + "", cellFormat));
 				else
-					sheet.addCell(new Label(19, i, commissionOrderListDto.getSureExpectAmount() + "", cellFormat));
-				sheet.addCell(new Label(20, i, commissionOrderListDto.getGst() + "", cellFormat));
-				sheet.addCell(new Label(21, i, commissionOrderListDto.getDeductGst() + "", cellFormat));
-				sheet.addCell(new Label(22, i, commissionOrderListDto.getSchoolPaymentAmount() + "", cellFormat));
+					sheet.addCell(new Label(21, i, commissionOrderListDto.getSureExpectAmount() + "", cellFormat));
+				sheet.addCell(new Label(22, i, commissionOrderListDto.getGst() + "", cellFormat));
+				sheet.addCell(new Label(23, i, commissionOrderListDto.getDeductGst() + "", cellFormat));
+				sheet.addCell(new Label(24, i, commissionOrderListDto.getSchoolPaymentAmount() + "", cellFormat));
 				if (commissionOrderListDto.getSchoolPaymentDate() != null)
 					sheet.addCell(
-							new Label(23, i, sdf.format(commissionOrderListDto.getSchoolPaymentDate()), cellFormat));
-				sheet.addCell(new Label(24, i, commissionOrderListDto.getInvoiceNumber(), cellFormat));
+							new Label(25, i, sdf.format(commissionOrderListDto.getSchoolPaymentDate()), cellFormat));
+				sheet.addCell(new Label(26, i, commissionOrderListDto.getInvoiceNumber(), cellFormat));
 				if (commissionOrderListDto.getZyDate() != null)
-					sheet.addCell(new Label(25, i, sdf.format(commissionOrderListDto.getZyDate()), cellFormat));
+					sheet.addCell(new Label(27, i, sdf.format(commissionOrderListDto.getZyDate()), cellFormat));
 				if (commissionOrderListDto.getSubagency() != null)
-					sheet.addCell(new Label(26, i, commissionOrderListDto.getSubagency().getName(), cellFormat));
-				sheet.addCell(new Label(27, i, commissionOrderListDto.getBonus() + "", cellFormat));
+					sheet.addCell(new Label(28, i, commissionOrderListDto.getSubagency().getName(), cellFormat));
+				sheet.addCell(new Label(29, i, commissionOrderListDto.getBonus() + "", cellFormat));
 				if (commissionOrderListDto.getBonusDate() != null)
-					sheet.addCell(new Label(28, i, sdf.format(commissionOrderListDto.getBonusDate()), cellFormat));
-				sheet.addCell(new Label(29, i, commissionOrderListDto.getBankCheck(), cellFormat));
-				sheet.addCell(new Label(30, i, commissionOrderListDto.isChecked() + "", cellFormat));
+					sheet.addCell(new Label(30, i, sdf.format(commissionOrderListDto.getBonusDate()), cellFormat));
+				sheet.addCell(new Label(31, i, commissionOrderListDto.getBankCheck(), cellFormat));
+				sheet.addCell(new Label(32, i, commissionOrderListDto.isChecked() + "", cellFormat));
 				if (commissionOrderListDto.getAdviser() != null)
-					sheet.addCell(new Label(31, i, commissionOrderListDto.getAdviser().getName(), cellFormat));
-				if (commissionOrderListDto.getCommissionState() != null)
-					sheet.addCell(
-							new Label(32, i, getKjStateStr(commissionOrderListDto.getCommissionState()), cellFormat));
+					sheet.addCell(new Label(33, i, commissionOrderListDto.getAdviser().getName(), cellFormat));
+				if (commissionOrderListDto.getState() != null)
+					sheet.addCell(new Label(34, i, getStateStr(commissionOrderListDto.getState()), cellFormat));
 				if (commissionOrderListDto.getKjApprovalDate() != null)
-					sheet.addCell(new Label(33, i, sdf.format(commissionOrderListDto.getKjApprovalDate()), cellFormat));
-				sheet.addCell(new Label(34, i, commissionOrderListDto.getRemarks(), cellFormat));
+					sheet.addCell(new Label(35, i, sdf.format(commissionOrderListDto.getKjApprovalDate()), cellFormat));
+				sheet.addCell(new Label(36, i, commissionOrderListDto.getRemarks(), cellFormat));
 				i++;
 			}
 			wbe.write();

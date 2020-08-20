@@ -14,7 +14,8 @@ public interface VisaDAO {
 
 	public int updateVisa(VisaDO visaDo);
 
-	public int countVisa(@Param("keyword") String keyword, @Param("startHandlingDate") String startHandlingDate,
+	public int countVisa(@Param("id") Integer id,
+			@Param("keyword") String keyword, @Param("startHandlingDate") String startHandlingDate,
 			@Param("endHandlingDate") String endHandlingDate, @Param("stateList") List<String> stateList,
 			@Param("commissionStateList") List<String> commissionStateList,
 			@Param("startKjApprovalDate") String startKjApprovalDate,
@@ -26,7 +27,7 @@ public interface VisaDAO {
 	public int countVisaByServiceOrderIdAndExcludeCode(@Param("serviceOrderId") Integer serviceOrderId,
 			@Param("code") String code);
 
-	public List<VisaListDO> listVisa(@Param("keyword") String keyword,
+	public List<VisaListDO> listVisa(@Param("id") Integer id,@Param("keyword") String keyword,
 			@Param("startHandlingDate") String startHandlingDate, @Param("endHandlingDate") String endHandlingDate,
 			@Param("stateList") List<String> stateList, @Param("commissionStateList") List<String> commissionStateList,
 			@Param("startKjApprovalDate") String startKjApprovalDate,

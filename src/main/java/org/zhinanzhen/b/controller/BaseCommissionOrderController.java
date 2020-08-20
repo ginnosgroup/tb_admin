@@ -43,5 +43,19 @@ public class BaseCommissionOrderController extends BaseController {
 			return "已追佣";
 		return "";
 	}
+	
+	protected String getStateStr(String state) {
+		if ("REVIEW".equalsIgnoreCase(state))
+			return "待结佣";
+		if ("WAIT".equalsIgnoreCase(state))
+			return "已驳回";
+		if ("FINISH".equalsIgnoreCase(state))
+			return "已审核";
+		if ("COMPLETE".equalsIgnoreCase(state))
+			return "已结佣";
+		if ("CLOSE".equalsIgnoreCase(state))
+			return "已关闭";
+		return "";
+	}
 
 }
