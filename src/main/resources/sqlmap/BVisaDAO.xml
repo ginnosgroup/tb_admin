@@ -303,11 +303,11 @@
         </if>
         
         <if test='stateList != null'>
-            AND bv.state IN
-            <foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">
-                #{stateList}
-            </foreach>
-		</if>
+						AND bv.state IN
+						<foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">
+							#{stateList}
+						</foreach>
+				</if>
 
         <if test='state == "PENDING" or state == "WAIT"'>
             <![CDATA[ AND (bv.state="PENDING" OR bv.state="WAIT") ]]>
