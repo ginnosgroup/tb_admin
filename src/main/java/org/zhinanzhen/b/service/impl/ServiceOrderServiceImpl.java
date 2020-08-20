@@ -405,8 +405,10 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				if (user != null)
 					detail += "/客户名称:" + user.getName();
 				ServiceDO service = serviceDao.getServiceById(serviceOrderDo.getServiceId());
-				if (service != null)
+				if (service != null) {
 					detail += "/类型:" + service.getName() + "(" + service.getCode() + ")";
+					type += "(" + service.getCode() + ")";
+				}
 				title += user.getName() + "/" + type;
 			} else if ("OVST".equalsIgnoreCase(serviceOrderDo.getType())) {
 				type = "留学";
