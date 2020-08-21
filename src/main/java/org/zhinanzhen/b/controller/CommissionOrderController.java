@@ -834,13 +834,13 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			for (int i = 1; i < sheet.getRows(); i++) {
 				Cell[] cells = sheet.getRow(i);
 				String _id = cells[0].getContents();
-				String _schoolPaymentAmount = cells[21].getContents();
-				String _schoolPaymentDate = cells[23].getContents();
-				String _invoiceNumber = cells[24].getContents();
-				String _zyDate = cells[25].getContents();
-				String _sureExpectAmount = cells[19].getContents();
-				String _bonus = cells[27].getContents();
-				String _bonusDate = cells[28].getContents();
+				String _schoolPaymentAmount = cells[24].getContents();
+				String _schoolPaymentDate = cells[25].getContents();
+				String _invoiceNumber = cells[26].getContents();
+				String _zyDate = cells[27].getContents();
+				String _sureExpectAmount = cells[21].getContents();
+				String _bonus = cells[29].getContents();
+				String _bonusDate = cells[30].getContents();
 				try {
 					CommissionOrderListDTO commissionOrderListDto = commissionOrderService
 							.getCommissionOrderById(Integer.parseInt(_id));
