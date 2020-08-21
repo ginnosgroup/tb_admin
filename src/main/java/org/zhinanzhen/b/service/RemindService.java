@@ -10,8 +10,7 @@ public interface RemindService {
 
 	public int addRemind(RemindDTO remindDto) throws ServiceException;
 
-	public List<RemindDTO> listRemindBySchoolBrokerageSaId(int schoolBrokerageSaId, int adviserId, AbleStateEnum state)
-			throws ServiceException;
+	public List<RemindDTO> listRemindByServiceOrderId(int serviceOrderId, int adviserId, AbleStateEnum state) throws ServiceException;
 
 	public List<RemindDTO> listRemindByRemindDate(Date date, int adviserId) throws ServiceException;
 
@@ -19,6 +18,6 @@ public interface RemindService {
 
 	public int deleteRemindById(int id) throws ServiceException;
 
-	public int deleteRemindBySchoolBrokerageSaId(int id) throws ServiceException;
+	public int deleteRemindByServiceOrderId(int id) throws ServiceException;
 
 }

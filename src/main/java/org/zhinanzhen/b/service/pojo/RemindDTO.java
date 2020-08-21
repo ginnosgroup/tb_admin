@@ -13,12 +13,12 @@ public class RemindDTO {
 
 	private Date gmtModify;
 
-	private int schoolBrokerageSaId;
+	private int serviceOrderId;
 
 	private Date remindDate;
 
 	private String state;
 
-	private SchoolBrokerageSaDTO schoolBrokerageSa;
+	private ServiceOrderDTO serviceOrderDto;
 
 }

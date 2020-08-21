@@ -37,8 +37,8 @@ public class RemindServiceImpl extends BaseService implements RemindService {
 			throw se;
 		}
 		try {
-			List<RemindDO> remindDoList = remindDao.listRemindBySchoolBrokerageSaId(remindDto.getSchoolBrokerageSaId(),
-					null, null);
+			List<RemindDO> remindDoList = remindDao.listRemindByServiceOrderId(remindDto.getServiceOrderId(), null,
+					null);
 			for (RemindDO remindDo : remindDoList) {
 				if (remindDo.getRemindDate().getTime() == remindDto.getRemindDate().getTime()) {
 					ServiceException se = new ServiceException("该提醒日期已存在.");
@@ -61,13 +61,13 @@ public class RemindServiceImpl extends BaseService implements RemindService {
 	}
 
 	@Override
-	public List<RemindDTO> listRemindBySchoolBrokerageSaId(int schoolBrokerageSaId, int adviserId, AbleStateEnum state)
+	public List<RemindDTO> listRemindByServiceOrderId(int serviceOrderId, int adviserId, AbleStateEnum state)
 			throws ServiceException {
 		List<RemindDTO> remindDtoList = new ArrayList<RemindDTO>();
 		List<RemindDO> remindDoList = new ArrayList<RemindDO>();
 		try {
-			remindDoList = remindDao.listRemindBySchoolBrokerageSaId(schoolBrokerageSaId,
-					adviserId > 0 ? adviserId : null, state != null ? state.toString() : null);
+			remindDoList = remindDao.listRemindByServiceOrderId(serviceOrderId, adviserId > 0 ? adviserId : null,
+					state != null ? state.toString() : null);
 			if (remindDoList == null) {
 				return null;
 			}
@@ -103,10 +103,10 @@ public class RemindServiceImpl extends BaseService implements RemindService {
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
 			throw se;
 		}
-		remindDoList.stream().filter(remindDo -> remindDo.getSchoolBrokerageSaId() > 0).forEach(remindDo -> {
+		remindDoList.stream().filter(remindDo -> remindDo.getServiceOrderId() > 0).forEach(remindDo -> {
 			RemindDTO remindDto = mapper.map(remindDo, RemindDTO.class);
 			SchoolBrokerageSaDO schoolBrokerageSaDo = schoolBrokerageSaDao
-					.getSchoolBrokerageSaById(remindDto.getSchoolBrokerageSaId());
+					.getSchoolBrokerageSaById(remindDto.getServiceOrderId());
 			if (schoolBrokerageSaDo != null && schoolBrokerageSaDo.getAdviserId() == adviserId)
 				remindDtoList.add(remindDto);
 		});
@@ -130,8 +130,8 @@ public class RemindServiceImpl extends BaseService implements RemindService {
 	}
 
 	@Override
-	public int deleteRemindBySchoolBrokerageSaId(int id) throws ServiceException {
-		return remindDao.deleteRemindBySchoolBrokerageSaId(id);
+	public int deleteRemindByServiceOrderId(int id) throws ServiceException {
+		return remindDao.deleteRemindByServiceOrderId(id);
 	}
 
 }

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.zhinanzhen.b.service.AbleStateEnum;
 import org.zhinanzhen.b.service.RemindService;
 import org.zhinanzhen.b.service.SchoolBrokerageSaService;
+import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.RemindDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
@@ -32,18 +33,18 @@ public class RemindController extends BaseController {
 	RemindService remindService;
 
 	@Resource
-	SchoolBrokerageSaService schoolBrokerageSaService;
+	ServiceOrderService serviceOrderService;
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> addRemind(@RequestParam(value = "remindDate") String remindDate,
-			@RequestParam(value = "schoolBrokerageSaId") String schoolBrokerageSaId, HttpServletRequest request,
+			@RequestParam(value = "schoolBrokerageSaId") String serviceOrderId, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			RemindDTO remindDto = new RemindDTO();
 			remindDto.setRemindDate(new Date(Long.parseLong(remindDate)));
-			remindDto.setSchoolBrokerageSaId(StringUtil.toInt(schoolBrokerageSaId));
+			remindDto.setServiceOrderId(StringUtil.toInt(serviceOrderId));
 			if (remindService.addRemind(remindDto) > 0) {
 				return new Response<Integer>(0, remindDto.getId());
 			} else {
@@ -56,7 +57,7 @@ public class RemindController extends BaseController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<RemindDTO>> listRemind(@RequestParam(value = "schoolBrokerageSaId") String schoolBrokerageSaId,
+	public Response<List<RemindDTO>> listRemind(@RequestParam(value = "serviceOrderId") String serviceOrderId,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
 			@RequestParam(value = "state", required = false) String state, HttpServletRequest request,
 			HttpServletResponse response) {
@@ -69,10 +70,9 @@ public class RemindController extends BaseController {
 			super.setGetHeader(response);
 			return StringUtil.isEmpty(adviserId)
 					? new Response<List<RemindDTO>>(0,
-							remindService.listRemindBySchoolBrokerageSaId(Integer.parseInt(schoolBrokerageSaId), 0,
-									_state))
-					: new Response<List<RemindDTO>>(0, remindService.listRemindBySchoolBrokerageSaId(
-							Integer.parseInt(schoolBrokerageSaId), StringUtil.toInt(adviserId), _state));
+							remindService.listRemindByServiceOrderId(Integer.parseInt(serviceOrderId), 0, _state))
+					: new Response<List<RemindDTO>>(0, remindService.listRemindByServiceOrderId(
+							Integer.parseInt(serviceOrderId), StringUtil.toInt(adviserId), _state));
 		} catch (ServiceException e) {
 			return new Response<List<RemindDTO>>(1, e.getMessage(), null);
 		}
@@ -95,10 +95,9 @@ public class RemindController extends BaseController {
 					: remindService.listRemindByRemindDate(new Date(Long.parseLong(date)), StringUtil.toInt(adviserId));
 			remindList.forEach(r -> {
 				try {
-					r.setSchoolBrokerageSa(
-							schoolBrokerageSaService.getSchoolBrokerageSaById(r.getSchoolBrokerageSaId()));
+					r.setServiceOrderDto(serviceOrderService.getServiceOrderById(r.getServiceOrderId()));
 				} catch (ServiceException e) {
-					r.setSchoolBrokerageSa(null);
+					r.setServiceOrderDto(null);
 				}
 			});
 			return new Response<List<RemindDTO>>(0, remindList);
@@ -130,13 +129,13 @@ public class RemindController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/deleteRemindBySchoolBrokerageSaId", method = RequestMethod.GET)
+	@RequestMapping(value = "/deleteRemindByServiceOrderId", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<Integer> deleteRemindBySchoolBrokerageSaId(
-			@RequestParam(value = "schoolBrokerageSaId") int schoolBrokerageSaId, HttpServletResponse response) {
+	public Response<Integer> deleteRemindByServiceOrderId(@RequestParam(value = "serviceOrderId") int serviceOrderId,
+			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<Integer>(0, remindService.deleteRemindBySchoolBrokerageSaId(schoolBrokerageSaId));
+			return new Response<Integer>(0, remindService.deleteRemindByServiceOrderId(serviceOrderId));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), 0);
 		}

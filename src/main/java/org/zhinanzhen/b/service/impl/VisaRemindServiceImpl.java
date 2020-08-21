@@ -30,6 +30,7 @@ public class VisaRemindServiceImpl extends BaseService implements VisaRemindServ
 	private VisaDAO visaDao;
 
 	@Override
+	@Deprecated
 	public int addRemind(VisaRemindDTO visaRemindDto) throws ServiceException {
 		if (visaRemindDto == null) {
 			ServiceException se = new ServiceException("visaRemindDto is null !");
@@ -37,14 +38,14 @@ public class VisaRemindServiceImpl extends BaseService implements VisaRemindServ
 			throw se;
 		}
 		try {
-			List<RemindDO> remindDoList = remindDao.listRemindByVisaId(visaRemindDto.getVisaId(), null, null);
-			for (RemindDO remindDo : remindDoList) {
-				if (remindDo.getRemindDate().getTime() == visaRemindDto.getRemindDate().getTime()) {
-					ServiceException se = new ServiceException("该提醒日期已存在.");
-					se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
-					throw se;
-				}
-			}
+//			List<RemindDO> remindDoList = remindDao.listRemindByVisaId(visaRemindDto.getVisaId(), null, null);
+//			for (RemindDO remindDo : remindDoList) {
+//				if (remindDo.getRemindDate().getTime() == visaRemindDto.getRemindDate().getTime()) {
+//					ServiceException se = new ServiceException("该提醒日期已存在.");
+//					se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+//					throw se;
+//				}
+//			}
 			RemindDO remindDo = mapper.map(visaRemindDto, RemindDO.class);
 			if (remindDao.addRemind(remindDo) > 0) {
 				visaRemindDto.setId(remindDo.getId());
@@ -60,13 +61,14 @@ public class VisaRemindServiceImpl extends BaseService implements VisaRemindServ
 	}
 
 	@Override
+	@Deprecated
 	public List<VisaRemindDTO> listRemindByVisaId(int visaId, int adviserId, AbleStateEnum state)
 			throws ServiceException {
 		List<VisaRemindDTO> visaRemindDtoList = new ArrayList<VisaRemindDTO>();
 		List<RemindDO> remindDoList = new ArrayList<RemindDO>();
 		try {
-			remindDoList = remindDao.listRemindByVisaId(visaId, adviserId > 0 ? adviserId : null,
-					state != null ? state.toString() : null);
+//			remindDoList = remindDao.listRemindByVisaId(visaId, adviserId > 0 ? adviserId : null,
+//					state != null ? state.toString() : null);
 			if (remindDoList == null) {
 				return null;
 			}
@@ -84,6 +86,7 @@ public class VisaRemindServiceImpl extends BaseService implements VisaRemindServ
 	}
 
 	@Override
+	@Deprecated
 	public List<VisaRemindDTO> listRemindByRemindDate(Date date, int adviserId) throws ServiceException {
 		List<VisaRemindDTO> visaRemindDtoList = new ArrayList<VisaRemindDTO>();
 		List<RemindDO> remindDoList = new ArrayList<RemindDO>();
@@ -100,18 +103,20 @@ public class VisaRemindServiceImpl extends BaseService implements VisaRemindServ
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
 			throw se;
 		}
-		remindDoList.stream().filter(remindDo -> remindDo.getVisaId() > 0).forEach(remindDo -> {
-			VisaRemindDTO visaRemindDto = mapper.map(remindDo, VisaRemindDTO.class);
-			VisaDO visaDo = visaDao.getVisaById(visaRemindDto.getVisaId());
-			if (visaDo != null && visaDo.getAdviserId() == adviserId)
-				visaRemindDtoList.add(visaRemindDto);
-		});
+//		remindDoList.stream().filter(remindDo -> remindDo.getVisaId() > 0).forEach(remindDo -> {
+//			VisaRemindDTO visaRemindDto = mapper.map(remindDo, VisaRemindDTO.class);
+//			VisaDO visaDo = visaDao.getVisaById(visaRemindDto.getVisaId());
+//			if (visaDo != null && visaDo.getAdviserId() == adviserId)
+//				visaRemindDtoList.add(visaRemindDto);
+//		});
 		return visaRemindDtoList;
 	}
 
 	@Override
+	@Deprecated
 	public int deleteRemindByVisaId(int id) throws ServiceException {
-		return remindDao.deleteRemindByVisaId(id);
+//		return remindDao.deleteRemindByVisaId(id);
+		return -1;
 	}
 
 }
