@@ -10,7 +10,13 @@ public interface RemindDAO {
 
 	public int addRemind(RemindDO remindDo);
 
-	public List<RemindDO> listRemindByServiceOrderId(@Param("serviceOrderId") int serviceOrderId,
+	public List<RemindDO> listRemindBySchoolBrokerageSaId(@Param("schoolBrokerageSaId") int schoolBrokerageSaId,
+			@Param("adviserId") Integer adviserId, @Param("state") String state);
+
+	public List<RemindDO> listRemindByVisaId(@Param("visaId") int visaId, @Param("adviserId") Integer adviserId,
+			@Param("state") String state);
+
+	public List<RemindDO> listRemindByBrokerageSaId(@Param("brokerageSaId") int brokerageSaId,
 			@Param("adviserId") Integer adviserId, @Param("state") String state);
 
 	public List<RemindDO> listRemindByRemindDate(Date date);
@@ -20,6 +26,10 @@ public interface RemindDAO {
 	@Deprecated
 	public int deleteRemindById(int id);
 
-	public int deleteRemindByServiceOrderId(int id);
+	public int deleteRemindBySchoolBrokerageSaId(int id);
+
+	public int deleteRemindByVisaId(int id);
+
+	public int deleteRemindByBrokerageSaId(int id);
 
 }

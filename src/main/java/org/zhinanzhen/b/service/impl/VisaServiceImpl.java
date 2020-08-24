@@ -177,13 +177,13 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			if (serviceDo != null) {
 				visaDto.setServiceCode(serviceDo.getCode());
 			}
-//			List<Date> remindDateList = new ArrayList<>();
-//			List<RemindDO> remindDoList = remindDao.listRemindByVisaId(visaDto.getId(), adviserId,
-//					AbleStateEnum.ENABLED.toString());
-//			for (RemindDO remindDo : remindDoList) {
-//				remindDateList.add(remindDo.getRemindDate());
-//			}
-//			visaDto.setRemindDateList(remindDateList);
+			List<Date> remindDateList = new ArrayList<>();
+			List<RemindDO> remindDoList = remindDao.listRemindByVisaId(visaDto.getId(), adviserId,
+					AbleStateEnum.ENABLED.toString());
+			for (RemindDO remindDo : remindDoList) {
+				remindDateList.add(remindDo.getRemindDate());
+			}
+			visaDto.setRemindDateList(remindDateList);
 			List<VisaDO> list = visaDao.listVisaByCode(visaDto.getCode());
 			if (list != null) {
 				double totalPerAmount = 0.00;

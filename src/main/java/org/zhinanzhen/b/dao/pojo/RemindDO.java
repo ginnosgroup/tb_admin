@@ -13,10 +13,14 @@ public class RemindDO {
 
 	private Date gmtModify;
 
-	private int serviceOrderId;
-	
+	private int schoolBrokerageSaId;
+
+	private int visaId;
+
+	private int brokerageSaId;
+
 	private Date remindDate;
-	
+
 	private String state;
 
 }

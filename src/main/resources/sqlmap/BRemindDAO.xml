@@ -8,29 +8,71 @@
             INTO b_remind (
                 gmt_create,
                 gmt_modify,
-                service_order_id,
+                school_brokerage_sa_id,
+                visa_id,
+                brokerage_sa_id,
                 remind_date,
                 state)
             VALUES (
                 now(),
                 now(),
-                #{serviceOrderId},
+                #{schoolBrokerageSaId},
+                #{visaId},
+                #{brokerageSaId},
                 #{remindDate},
                 "ENABLED");
     </insert>
     
-    <select id="listRemindByServiceOrderId" resultType="org.zhinanzhen.b.dao.pojo.RemindDO">
+    <select id="listRemindBySchoolBrokerageSaId" resultType="org.zhinanzhen.b.dao.pojo.RemindDO">
         SELECT
             r.id,
             r.gmt_create AS gmtCreate,
             r.gmt_modify AS gmtModify,
-            r.service_order_id AS serviceOrderId,
+            r.school_brokerage_sa_id AS schoolBrokerageSaId,
             r.remind_date AS remindDate,
             r.state
-        FROM b_remind r, b_service_order so
-        WHERE r.service_order_id = so.id AND r.service_order_id = #{serviceOrderId, jdbcType=INTEGER}
+        FROM b_remind r, b_school_brokerage_sa sbs
+         WHERE r.school_brokerage_sa_id = sbs.id AND r.school_brokerage_sa_id = #{schoolBrokerageSaId, jdbcType=INTEGER}
         <if test='adviserId != null'>
-            AND so.adviser_id = #{adviserId}
+            AND sbs.adviser_id = #{adviserId}
+         </if>
+         <if test='state != null and state != ""'>
+             AND r.state = #{state}
+         </if>
+         ORDER BY r.remind_date DESC;
+     </select>
+
+     <select id="listRemindByVisaId" resultType="org.zhinanzhen.b.dao.pojo.RemindDO">
+         SELECT
+             r.id,
+             r.gmt_create AS gmtCreate,
+             r.gmt_modify AS gmtModify,
+             r.school_brokerage_sa_id AS schoolBrokerageSaId,
+             r.remind_date AS remindDate,
+             r.state
+         FROM b_remind r, b_visa v
+         WHERE r.visa_id = v.id AND r.visa_id = #{visaId, jdbcType=INTEGER}
+         <if test='adviserId != null'>
+             AND v.adviser_id = #{adviserId}
+         </if>
+         <if test='state != null and state != ""'>
+             AND r.state = #{state}
+         </if>
+         ORDER BY r.remind_date DESC;
+     </select>
+
+     <select id="listRemindByBrokerageSaId" resultType="org.zhinanzhen.b.dao.pojo.RemindDO">
+         SELECT
+             r.id,
+             r.gmt_create AS gmtCreate,
+             r.gmt_modify AS gmtModify,
+             r.school_brokerage_sa_id AS schoolBrokerageSaId,
+             r.remind_date AS remindDate,
+             r.state
+         FROM b_remind r, b_brokerage_sa bs
+         WHERE r.brokerage_sa_id = bs.id AND r.brokerage_sa_id = #{brokerageSaId, jdbcType=INTEGER}
+         <if test='adviserId != null'>
+             AND bs.adviser_id = #{adviserId}
         </if>
         <if test='state != null and state != ""'>
             AND r.state = #{state}
@@ -44,7 +86,9 @@
             id,
             gmt_create AS gmtCreate,
             gmt_modify AS gmtModify,
-            service_order_id AS serviceOrderId,
+            school_brokerage_sa_id AS schoolBrokerageSaId,
+            visa_id AS visaId,
+            brokerage_sa_id AS brokerageSaId,
             remind_date AS remindDate,
             state
         FROM b_remind
@@ -67,8 +111,16 @@
 		DELETE FROM b_remind WHERE id = #{id, jdbcType=INTEGER};
 	</delete>
 	
-	<delete id="deleteRemindByServiceOrderid" parameterType="java.lang.Integer">
-		DELETE FROM b_remind WHERE service_order_id = #{id, jdbcType=INTEGER};
+	<delete id="deleteRemindBySchoolBrokerageSaId" parameterType="java.lang.Integer">
+ 		DELETE FROM b_remind WHERE school_brokerage_sa_id = #{id, jdbcType=INTEGER};
+ 	</delete>
+
+ 	<delete id="deleteRemindByVisaId" parameterType="java.lang.Integer">
+ 		DELETE FROM b_remind WHERE visa_id = #{id, jdbcType=INTEGER};
+ 	</delete>
+
+ 	<delete id="deleteRemindByBrokerageSaId" parameterType="java.lang.Integer">
+ 		DELETE FROM b_remind WHERE brokerage_sa_id = #{id, jdbcType=INTEGER};
 	</delete>
 
 </mapper>
