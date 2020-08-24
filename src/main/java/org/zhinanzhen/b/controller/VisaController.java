@@ -99,7 +99,7 @@ public class VisaController extends BaseCommissionOrderController {
 			// AdminUserLoginInfo adminUserLoginInfo =
 			// getAdminUserLoginInfo(request);
 			// if (adminUserLoginInfo == null ||
-			// (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+			// (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 			// && !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 			// return new Response<List<VisaDTO>>(1, "仅顾问和超级管理员能创建佣金订单.", null);
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(serviceOrderId);
@@ -378,7 +378,7 @@ public class VisaController extends BaseCommissionOrderController {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			if (adminUserLoginInfo != null)
-				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+				if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 					return new Response<VisaDTO>(1, "仅限会计修改.", null);
 			return updateOne(id, sureExpectAmount, bonus, bonusDate, true);
@@ -399,7 +399,7 @@ public class VisaController extends BaseCommissionOrderController {
 			if (visaDto == null)
 				return new Response<VisaDTO>(1, "签证佣金订单不存在,修改失败.", null);
 			if (adminUserLoginInfo != null && ("KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())
-					|| StringUtil.isEmpty(adminUserLoginInfo.getApList())))
+					|| "SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 				visaDto.setKjApprovalDate(new Date(Long.parseLong(kjApprovalDate)));
 			else
 				return new Response<VisaDTO>(1, "只有会计和超级管理员能修改会计审核时间.", null);
@@ -420,7 +420,7 @@ public class VisaController extends BaseCommissionOrderController {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			if (adminUserLoginInfo != null)
-				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+				if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 					return new Response<Integer>(1, "仅限会计修改.", 0);
 			return batchUpdate(batchUpdateList, false);
@@ -437,7 +437,7 @@ public class VisaController extends BaseCommissionOrderController {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			if (adminUserLoginInfo != null)
-				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+				if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 					return new Response<Integer>(1, "仅限会计修改.", 0);
 			return batchUpdate(batchUpdateList, true);
@@ -827,10 +827,10 @@ public class VisaController extends BaseCommissionOrderController {
 			// 审核
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			if (adminUserLoginInfo != null) {
-				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+				if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 					return new Response<VisaDTO>(1, "仅限会计审核佣金订单.", null);
-				if (StringUtil.isEmpty(adminUserLoginInfo.getApList())
+				if ("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 						|| "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewKjStateEnum.get(state) != null) {
 						VisaDTO visaDto = visaService.getVisaById(id);
@@ -866,10 +866,10 @@ public class VisaController extends BaseCommissionOrderController {
 			// 审核
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			if (adminUserLoginInfo != null) {
-				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+				if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 					return new Response<VisaDTO>(1, "仅限会计审核佣金订单.", null);
-				if (StringUtil.isEmpty(adminUserLoginInfo.getApList())
+				if ("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 						|| "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewKjStateEnum.get(state) != null) {
 						VisaDTO visaDto = visaService.getVisaById(id);

@@ -151,7 +151,7 @@ public class ServiceOrderController extends BaseController {
 		try {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 				return new Response<Integer>(1, "仅限顾问和超级管理员能创建服务订单.", 0);
 			ServiceOrderDTO serviceOrderDto = new ServiceOrderDTO();
@@ -428,7 +428,7 @@ public class ServiceOrderController extends BaseController {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			if (adminUserLoginInfo != null)
-				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+				if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 						&& !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 					return new Response<Integer>(1, "仅限文案修改.", null);
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
@@ -466,7 +466,7 @@ public class ServiceOrderController extends BaseController {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			if (adminUserLoginInfo != null)
-				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+				if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 						&& !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 					return new Response<Integer>(1, "仅限文案修改.", null);
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
@@ -673,7 +673,7 @@ public class ServiceOrderController extends BaseController {
 			// 审核
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			if (adminUserLoginInfo != null)
-				if (StringUtil.isEmpty(adminUserLoginInfo.getApList())
+				if ("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 						|| "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewAdviserStateEnum.get(state) != null)
 						if (ReviewAdviserStateEnum.REVIEW.toString().equals(state.toUpperCase())) { // 顾问审核
@@ -821,7 +821,7 @@ public class ServiceOrderController extends BaseController {
 			// 审核
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			if (adminUserLoginInfo != null)
-				if (StringUtil.isEmpty(adminUserLoginInfo.getApList())
+				if ("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 						|| "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewAdviserStateEnum.get(state) != null)
 						if (ReviewAdviserStateEnum.PENDING.toString().equals(state.toUpperCase())) // 顾问撤回同时修改文案和mara状态
