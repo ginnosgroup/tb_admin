@@ -338,7 +338,7 @@
 												<tbody>
 													<tr v-for="item in subject" class="gradeX">
 														<td v-html="item.oid"></td>
-														<td v-html="item.typeName"></td>
+														<td v-html="item.name"></td>
 														<td v-html="item.code"></td>
 														<td><a v-if="item.id" class="edit" href="javascript:;" @click="table_modify($index)"><span class="label label-success">Edit</span></a>
 																<a v-else class="edit" href="javascript:;"><span class="label label-primary">Save</span></a>
