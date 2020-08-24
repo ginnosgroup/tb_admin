@@ -46,11 +46,11 @@ var v_sub_comment = new Vue({
 				methods: {
 					getMessagelist: function() {
 						var that = this;
-						$.get(url + "commissionOrder/countComment", {commissionOrderId:v.orderId}, function(result) {
+						$.get(url + "commissionOrder/countComment", {commissionOrderId:v_sub.orderId}, function(result) {
 							that.comment_count = result.data;				
 						});
 						$.get(url + "commissionOrder/listComment", {
-							commissionOrderId: v.orderId							
+							commissionOrderId: v_sub.orderId							
 						}, function(result) {
 							for(var i = 0; i < result.data.length; i++) {
 								result.data[i].gmtCreate = that.getTime(result.data[i].gmtCreate);
@@ -82,7 +82,7 @@ var v_sub_comment = new Vue({
 function btnSubmit()
 {
 		var that = this;
-    var id = v.orderId;
+    var id = v_sub.orderId;
     var cont = $('#message_content').val();
     if (cont != '')
     {
