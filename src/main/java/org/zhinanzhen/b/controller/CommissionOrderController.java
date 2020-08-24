@@ -1143,7 +1143,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/addComment", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> addComment(@RequestParam(value = "adminUserId", required = false) Integer adminUserId,
-			@RequestParam(value = "commissionOrderId") Integer commissionOrderId,
+			@RequestParam(value = "commissionOrderId", required = false) Integer commissionOrderId,
 			@RequestParam(value = "content") String content, HttpServletRequest request, HttpServletResponse response) {
 		try {
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);

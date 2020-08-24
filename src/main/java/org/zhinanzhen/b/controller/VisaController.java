@@ -896,7 +896,7 @@ public class VisaController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/addComment", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> addComment(@RequestParam(value = "adminUserId", required = false) Integer adminUserId,
-			@RequestParam(value = "visaId") Integer visaId, @RequestParam(value = "content") String content,
+			@RequestParam(value = "visaId", required = false) Integer visaId, @RequestParam(value = "content") String content,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
