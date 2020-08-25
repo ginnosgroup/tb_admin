@@ -44,7 +44,7 @@
           <span v-if="ap_list==='MA'">
            	 Mara
           </span>
-          <span v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+          <span v-if="ap_list==='SUPERAD'">
            	 超级管理员
           </span>
 				</a>
@@ -90,7 +90,7 @@
                 </span>
               </a>
             </li>
-            <dli v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">            
+            <dli v-if="ap_list==='SUPERAD'">            
             <li>
               <a href="adviser.html">
                 <i class="fa fa-book">
@@ -190,7 +190,7 @@
 										客户管理
 									</a>
 								</li>
-								<li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								<li v-if="ap_list==='SUPERAD'">
 									<a href="user-tags.html">
 										标签管理
 									</a>
@@ -206,7 +206,7 @@
                 </span>
               </a>
 						</li>
-            <li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'" class="sub-menu">
+            <li v-if="ap_list==='SUPERAD'" class="sub-menu">
 							<a href="javascript:;">
 								<i class="fa fa-book">
                 </i>
@@ -236,17 +236,17 @@
                 </span>
 							</a>
 							<ul class="sub">								
-								<li v-if="ap_list==='GW' || (ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA' && ap_list!=='KJ')" id="apply_state_" class="active">
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" id="apply_state_" class="active">
 									<a href="mycommission-ovst.html">
 										我的佣金报表
 									</a>									
 								</li>
-								<li v-if="ap_list==='GW' || (ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA' && ap_list!=='KJ')" style="display:;" id="apply_state_PENDING">
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" style="display:;" id="apply_state_PENDING">
 									<a href="mycommission-ovst.html?applyState=PENDING">
 										未申请月奖
 									</a>									
 								</li>
-								<li v-if="ap_list==='GW' || (ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA' && ap_list!=='KJ')" style="display:;" id="apply_state_COMPLETE">
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" style="display:;" id="apply_state_COMPLETE">
 									<a href="mycommission-ovst.html?applyState=COMPLETE">
 										已申请月奖
 									</a>									
@@ -261,7 +261,17 @@
 										已结佣订单
 									</a>									
 								</li>								
-								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
+									<a href="mycommission-check-accounting.html">
+										自动对账
+									</a>									
+								</li>
+								<li v-if="ap_list==='SUPERAD'">
+									<a href="create-visa-commission.html">
+										重建签证佣金表订单
+									</a>
+								</li>
+								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
 									<a href="table-export.html">
 										导出数据
 									</a>
@@ -277,7 +287,7 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								<li v-if="ap_list==='SUPERAD'">
 									<a href="knowledge-menu.html">
 										菜单管理
 									</a>
@@ -339,7 +349,7 @@
 													</dle>
 											</div>
 											<div class="form-group">
-												<button @click="getDatalist" type="button" class="btn btn-info">查询</button>
+												<button @click="getSearch" type="button" class="btn btn-info">查询</button>
 												<button @click="getExport" type="button" class="btn btn-primary">导出</button>
 											</div>
 										</form>
@@ -622,6 +632,12 @@
 							that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
 							//console.log(that.subject);
 						});
+					},
+					getSearch: function() {
+						var that = this;
+						that.pageNum = 0;
+						that.pnumber = null;
+						that.getDatalist();
 					},
 					getDatalist: function() {
 						var that = this;
