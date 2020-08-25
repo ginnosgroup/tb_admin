@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 	<head>
@@ -50,7 +50,7 @@
           <span v-if="ap_list==='MA'">
            	 Mara
           </span>
-          <span v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+          <span v-if="ap_list==='SUPERAD'">
            	 超级管理员
           </span>
 				</a>
@@ -96,7 +96,7 @@
                 </span>
               </a>
             </li>
-            <dli v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">            
+            <dli v-if="ap_list==='SUPERAD'">            
             <li>
               <a href="adviser.html">
                 <i class="fa fa-book">
@@ -208,7 +208,7 @@
 										客户管理
 									</a>
 								</li>
-								<li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								<li v-if="ap_list==='SUPERAD'">
 									<a href="user-tags.html">
 										标签管理
 									</a>
@@ -224,7 +224,7 @@
                 </span>
               </a>
 						</li>
-            <li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'" class="sub-menu">
+            <li v-if="ap_list==='SUPERAD'" class="sub-menu">
 							<a href="javascript:;">
 								<i class="fa fa-book">
                 </i>
@@ -254,17 +254,17 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li v-if="ap_list==='GW' || (ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA' && ap_list!=='KJ')" class="active">
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" class="active">
 									<a href="mycommission.html">
 										我的佣金报表
 									</a>									
 								</li>
-								<li v-if="ap_list==='GW' || (ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA' && ap_list!=='KJ')" style="display:;" id="apply_state_PENDING">
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" style="display:;" id="apply_state_PENDING">
 									<a href="mycommission.html?applyState=PENDING">
 										未申请月奖
 									</a>									
 								</li>
-								<li v-if="ap_list==='GW' || (ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA' && ap_list!=='KJ')" style="display:;" id="apply_state_COMPLETE">
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" style="display:;" id="apply_state_COMPLETE">
 									<a href="mycommission.html?applyState=COMPLETE">
 										已申请月奖
 									</a>									
@@ -279,17 +279,17 @@
 										已结佣订单
 									</a>									
 								</li>
-								<li v-if="ap_list==='KJ'" class="active">
+								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
 									<a href="mycommission-check-accounting.html">
 										自动对账
 									</a>									
 								</li>
-								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'" && ap_list!=='KJ'">
+								<li v-if="ap_list==='SUPERAD'">
 									<a href="create-visa-commission.html">
 										重建签证佣金表订单
 									</a>
 								</li>
-								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'"  && ap_list!=='KJ'">
+								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
 									<a href="table-export.html">
 										导出数据
 									</a>
@@ -305,7 +305,7 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								<li v-if="ap_list==='SUPERAD'">
 									<a href="knowledge-menu.html">
 										菜单管理
 									</a>
@@ -314,7 +314,7 @@
 									<a href="knowledge.html">
 										知识库菜单
 									</a>
-								</li>							
+								</li>
 							</ul>
 						</li>						
 					</ul>
@@ -401,7 +401,6 @@
                            <th>操作</th>
                         </tr>
                      </thead>
-                     <!--
                      <tbody>
                         <tr v-for="item in datalist4">
                            <td v-html="item.id"></td>
@@ -412,7 +411,7 @@
                            <td v-html="item.remindContents"></td>
                            <td><button type="button" class="btn btn-default btn-sm" @click="close_confirm2($index,item.id,item.userId,1)">关闭提醒</button></td>
                         </tr>                        
-                     </tbody>-->
+                     </tbody>
                   </table>
                </section>
           	</div>          	
@@ -587,7 +586,7 @@
 					this.getDatalist();
 					this.getDatalist1();
 					//this.getDatalist2();
-					//this.getDatalist4();
+					this.getDatalist4();
 					this.getMenulist();
 				},methods: {
 			    getMenulist: function() {
