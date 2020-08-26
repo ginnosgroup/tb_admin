@@ -6,7 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="renderer" content="webkit">
 		<link rel="shortcut icon" href="img/favicon.ico">
-		<title>修改密码</title>
+		<title>服务订单详细</title>
 		<link href="css/bootstrap.min.css" rel="stylesheet">
 		<link href="css/bootstrap-reset.css" rel="stylesheet">
 		<link href="assets/font-awesome/css/font-awesome.css" rel="stylesheet">
@@ -29,7 +29,7 @@
 		</script>
 	</head>
 
-	<body id="password" v-cloak>
+	<body id="serviceorder-detail" v-cloak>
 		<section id="container">
 			<header class="header white-bg">
 				<div class="sidebar-toggle-box">
@@ -203,7 +203,7 @@
 							</ul>
 						</li>
 						<li v-if="ap_list!=='KJ'">
-							<a href="serviceorder-list.html">
+							<a href="serviceorder-list.html" class="active">
                 <i class="fa fa-book">
                 </i>
                 <span>
@@ -313,37 +313,12 @@
 	          	<div class="col-lg-12">
 							<section class="panel">
 								<header class="panel-heading">
-									修改密码
+									服务订单ID：<label id="order_id"></label>&nbsp;&nbsp;<a href="javascript:open_detail(v.getId,'');">点击查看</a>
 								</header>
 								<div class="panel-body">
 									<div class="adv-table">
 										<form class="form-horizontal">											
-											<div class="form-group">
-												<label class="col-sm-2 control-label">当前的密码</label>
-												<div class="col-sm-4">
-													<input type="password" name="passwd" id="passwd" class="form-control" placeholder="请输入当前正在使用的密码">
-												</div>
-											</div>
-											<div class="form-group">
-												<label class="col-sm-2 control-label">新的密码</label>
-												<div class="col-sm-4">
-													<input  type="password" name="newPasswd" id="newPasswd" class="form-control" placeholder="请输入新的密码">
-												</div>
-											</div>
-											<div v-if="error" class="form-group">
-												<div class="col-sm-8 text-danger">{{error}}</div>
-											</div>
-											<div class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
-										      <button data-dismiss="alert" class="close close-sm" type="button">
-										      <i class="fa fa-times"></i>
-										      </button>
-										      <strong>Success!</strong> You  just achieved success.
-										  </div>
-											<div class="form-group buttons">
-												<div class="col-sm-8">
-													<button @click="passwdModify" type="button" class="btn btn-primary">修改</button>
-												</div>
-											</div>
+											
 										</form>
 								</div>
 							</section>	
@@ -361,6 +336,36 @@
 				</div>
 			</footer>
 		</section>
+		<div class="modal fade" id="showconfirmbox_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="z-index:9999;">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">操作提示</h4>
+					</div>
+					<div class="modal-body">
+						您确认执行此操作吗？
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+						<button onclick="update_state();" type="button" class="btn btn-primary">确认</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="modal fade" id="loading_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="z-index:99999;">
+			<div class="modal-dialog" role="document" style="width:350px;">
+				<div class="modal-content">
+					<div class="modal-header">
+					</div>
+					<div class="modal-body">
+							<div style="text-align:center;color:#0066CC;"><img src="img/input-spinner.gif" /> 正在执行，请稍后...</div>
+					</div>
+					
+				</div>
+			</div>
+		</div>
+		<div id="load-user-common-view-page"></div>
 		<script src="js/jquery-1.8.3.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
 		<script src="js/jquery.dcjqaccordion.2.7.js"></script>
@@ -374,56 +379,252 @@
     <script src="js/calendar/evnt.calendar.init.js"></script><!-- CALENDER EVENT JS -->
     <script src="js/calendar/moment-2.2.1.js"></script><!-- CALENDER MOMENT JS -->
     <script src="js/underscore-min.js"></script><!-- UNDERSCORE JS -->
-		<script>
-			tb.isLogin("password.html");
+		<script>			
+			tb.isLogin("serviceorder-detail.html");
 			$("td,th").addClass("text-center");
 			var v = new Vue({
-				el: '#password',
+				el: '#serviceorder-detail',
 				data: {
 					admin: sessionStorage.getItem("admin"),
 					ap_list: sessionStorage.getItem("ap_list"),
+					getId : getRequest('id'),					
+					addnewservice1_bind: 0,
+					addnewservice2_bind: 0,
+					addnewservice3_bind: 0,
+					orderId: 0,
+					orderType: '',
+					servicepackage_type: '',
 					subject: [],
-					subject1: [],	
-					subject2: [],	
 					showTime: 2000,
 					error: ''
-				},created: function() {					
-				},methods: {					
-					passwdModify: function() {
+				},created: function() {
+					this.getLogin();
+					$("#load-user-common-view-page").load("user-common-view.html?random="+Math.random(),function(){open_detail(getRequest('id'),'');$('#loading_id').modal('hide');});
+					show_loading();
+				},methods: {
+					getLogin: function() {
 						var that = this;
-						var passwd = document.getElementById("passwd").value;
-						var newPasswd = document.getElementById("newPasswd").value;
-						if (passwd == '')
-						{
-								that.error = "当前密码为空！";
-								return;
-						}
-						if (newPasswd == '')
-						{
-								that.error = "新密码为空！";
-								return;
-						}
-						$.post('admin_user/updatePassword', { username: v.admin, password: passwd, newPassword: newPasswd},
-					   	function(data){					   		
-					   		if (!data.code)
-					   		{					   		
-					   				$('.alert').addClass('alert-success').show().delay(1500).fadeOut();					   		
-					   		}else
-					   		{
-					   				that.error = data.message;
-					   		}
-					   	});			
+						$.get(url + "admin_user/isLogin", function(res) {
+								if(res.code == 1) {
+									var u = "serviceorder-detail.html?id="+getRequestId('id');
+									sessionStorage.setItem("goUrl", u);
+									window.location.href = "login.htm";
+								}else
+								{
+									sessionStorage.setItem("admin", res.data.username);
+									sessionStorage.setItem("admin_id", res.data.id);
+									sessionStorage.setItem("ap_list", res.data.apList);
+									sessionStorage.setItem("adviser_id", res.data.adviserId);	
+									sessionStorage.setItem("official_id", res.data.officialId);
+									sessionStorage.setItem("mara_id", res.data.maraId);
+									sessionStorage.setItem("kj_id", res.data.kjId);
+									that.admin =  res.data.username;
+									that.admin_id =  res.data.id;
+									that.ap_list =  res.data.apList;
+												
+								}
+						});
+					},
+					getTime: function(d) {
+						var date1 = new Date(d);
+						var y = date1.getFullYear();
+						var m = this.addZero(date1.getMonth() + 1);
+						var d = this.addZero(date1.getDate());
+						var h = this.addZero(date1.getHours());
+						var m2 = this.addZero(date1.getMinutes());
+						var s = this.addZero(date1.getSeconds());
+						//var date2 = y + "-" + m + "-" + d;
+						var date2 = d+"/"+m+"/"+y;
+						return date2;
+					},
+					getTime1: function(d) {
+						var date1 = new Date(d);
+						var y = date1.getFullYear();
+						var m = this.addZero(date1.getMonth() + 1);
+						var d = this.addZero(date1.getDate());
+						var h = this.addZero(date1.getHours());
+						var m2 = this.addZero(date1.getMinutes());
+						var s = this.addZero(date1.getSeconds());
+						//var date2 = y + "-" + m + "-" + d;
+						var date2 = d+"/"+m+"/"+y+' '+h+':'+m2+':'+s;
+						return date2;
+					},
+					addZero: function(obj) {
+						if(obj < 10) {
+							obj = '0' + obj;
+						};
+						return obj;
 					}
 				}
 			});
-			//alert(sessionStorage.getItem("ap_list"));			
 			
-			function show_knowledge_detail(id,parentId)
+			v.$watch('subject', function(obj) {
+					$('.default-date-picker').datepicker({   				
+				        format: 'dd/mm/yyyy'
+				  });
+				  $('.default-date-picker1').datepicker({   				
+				        format: 'yyyy-mm-dd',
+				        endDate: new Date()
+				  });
+			});
+			
+			function open_detail(id,type)
       {
-      		sessionStorage.setItem("id", id);
-      		sessionStorage.setItem("menu_parentid", parentId);
-					window.location.href = "knowledge.html"; 
-      }			
+      		show_addnewservice_id(id,type);
+      }
+      
+      function flowstep(va,par)
+      {      		
+      		var str_url = "serviceOrder/approval";
+      		if (par == '0' || va == 'CLOSE') str_url = "serviceOrder/refuse";
+      		
+          var json = {};
+          var closedReason = '';
+          if (va == 'CLOSE')
+          {
+          		if ($('#show_addnewservice1_id #b101').val() != '') closedReason = $('#show_addnewservice1_id #b101').val();
+          		if ($('#show_addnewservice2_id #c101').val() != '') closedReason = $('#show_addnewservice1_id #c101').val();
+          		json['closedReason'] = closedReason;
+          }              
+          if (v.orderType == 'VISA' && va == 'COMPLETE')
+          {
+          		var flist = $('#show_addnewservice1_id #flist').val();
+          		if (flist == '')
+          		{
+          				$('#alert_error').css('marginLeft','30%');
+			   					$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+	          			$("#error_info").html('签证凭证没有上传，请上传之后再提交。');
+          				return false;
+          		}
+          }
+          if (v.orderType == 'OVST' && va == 'PAID')
+          {
+          		var flist = $('#show_addnewservice2_id #flist').val();
+          		if (flist == '')
+          		{
+          				$('#alert_error').css('marginLeft','30%');
+			   					$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+	          			$("#error_info").html('收款凭证没有上传，请上传之后再提交。');
+          				return false;
+          		}
+          }
+          //文案更新
+          if (v.orderType == 'OVST' && v.ap_list == 'WA')
+          {
+          		if (va != 'APPLY' && va != 'PAID' && va !='COMPLETE') json['subagencyId'] = $('#show_addnewservice2_id #c7a').val();
+          		//if (va != 'APPLY' && va != 'PAID') json['remarks'] = $('#show_addnewservice2_id #c16a').val();
+          }
+          show_loading();
+          
+          json['id'] = v.orderId;
+          json['state'] = va;          
+          $.post(str_url, json,
+			   	function(data){
+			   			$('#loading_id').modal('hide');			   			
+			   			if (data.code == 0)
+			   			{			   					                        
+          				if (v.orderType == 'VISA' && v.ap_list == 'GW' && va == 'REVIEW') reqCommissionVisa();//如果GW提交审核,就创建佣金订单 		
+			   					if (va == 'PAID' || va == 'COMPLETE' || va == 'CLOSE')
+			   					{
+					   					$.ajax({
+							          url: 'serviceOrder/finish?id='+json['id'],
+							          type: 'GET',
+							          dataType: 'json'
+							        }).done(function(response) {
+							        	response = response.data;
+							        });
+					      	}			   							   								   					
+			   					if (v.orderType == 'VISA')
+			   					{
+			   							$('#show_addnewservice1_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+			   					}else if (v.orderType == 'OVST')
+			   					{
+			   							$('#show_addnewservice2_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+			   					}		
+			   			}else
+			   			{			   	
+			   					if (v.orderType == 'VISA')
+			   					{
+			   							$('#show_addnewservice1_id #alert_error').addClass('alert-success').show().delay(3000).fadeOut();
+			   							$("#show_addnewservice2_id #error_info").html(data.message);
+			   					}else if (v.orderType == 'OVST')
+			   					{
+			   							$('#show_addnewservice2_id #alert_error').addClass('alert-success').show().delay(3000).fadeOut();
+			   							$("#show_addnewservice2_id #error_info").html(data.message);
+			   					}	          			
+		        			return false;
+			   			}
+			   	});
+      }
+      
+      function getRequest(par)
+			{
+					var str_value = '';
+			    var url = decodeURI(location.search);
+			    var theRequest = new Object();
+			    if (url.indexOf('?') != -1) {
+			        url = url.substr(1);
+			    }
+			    if (url) {
+			        var strs = url.split('&');
+			        for (var i = 0; i < strs.length; i++) {
+			            var srtArry = strs[i].split('=');
+			            var y = srtArry.shift();
+			            theRequest[y] = unescape(srtArry.join('='));
+			        }
+			    }
+			    str_value = theRequest[par];
+			    if (str_value != '') $("#order_id").html(str_value);
+			    return str_value;
+			}
+      
+      function url_replace(str)
+			{
+					var reg = /((http|ftp|https):\/\/)?[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?/g;
+					str=str.replace(reg,function(a){
+					    if(!a.indexOf('http'))
+					    {
+					    	return '<a href="'+a+'" target="_blank">'+a+'</a>';
+					    }else
+					    {
+					    	return '<a href="http://'+a+'" target="_blank">'+a+'</a>';
+					    }
+					});
+					return str;
+			}
+			
+			function url_replace1(str)
+			{
+					var reg = /((http|ftp|https):\/\/)?[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?/g;
+					str=str.replace(reg,function(a){
+					    if(!a.indexOf('http'))
+					    {
+					    	return "<a href=\'"+a+"\' target=\'_blank\'>"+a+"</a>";
+					    }else
+					    {
+					    	return "<a href=\'http://"+a+"\' target=\'_blank\'>"+a+"</a>";
+					    }
+					});
+					return str;
+			}
+      
+      function show_loading()
+			{
+					$('#loading_id').on('show.bs.modal', function(){
+	          var $this = $(this);
+	          var $modal_dialog = $this.find('.modal-dialog');
+	          $this.css('display', 'block');
+	          $modal_dialog.css({'margin-top': Math.max(0, ($(window).height() - $modal_dialog.height()) / 2) });
+	        });
+					$('#loading_id').modal('show');
+			}						
+      
+      jQuery(document).ready(function() {
+	    });
+	    
+	    window.onload=function(){	    		
+	    		//open_detail(v.getId,'');
+	    };
     	    	
 		</script>
 	</body>
