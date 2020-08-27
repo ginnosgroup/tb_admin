@@ -1028,7 +1028,7 @@
 						}
 						if (field == 'kjApprovalDate')
 						{
-								json['kjApprovalDate'] = '<input type="text" class="form-control small" style="width:170px;" id="'+byid+'" value="'+(this.subject[index].kjApprovalDate  == null ?  '':this.subject[index].kjApprovalDate)+'">';
+								json['kjApprovalDate'] = '<input type="text" class="form-control small default-date-picker" style="width:170px;" id="'+byid+'" value="'+(this.subject[index].kjApprovalDate  == null ?  '':this.subject[index].kjApprovalDate)+'">';
 						}else
 						{								
 								json['kjApprovalDate'] = (this.subject[index].kjApprovalDate  == null ?  '':this.subject[index].kjApprovalDate);
@@ -1248,13 +1248,18 @@
 		       						json[v.update_field] = date.getTime();//转时间戳
        						}else
        						{
-       								alert('时间格式不正确！请核实后再提交。');
-       								return false;
+       								var arr_d = arr_d1[0].split("/");
+				          		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+				          		str_d += ' 09:00:00';     		
+				              var date = new Date(str_d);
+				              json[v.update_field] = date.getTime();//转时间戳
+       								//alert('时间格式不正确！请核实后再提交。');
+       								//return false;
        						}
        				}else
        				{       				      				
        						json[v.update_field] = str_val;
-       				}
+       				}       				
        				$.post(str_url, json,
 					   	function(data){
 					   			if (data.code == 0)
@@ -1425,6 +1430,10 @@
 			
 			v.$watch('subject', function(obj) {
 					$('.default-date-picker').datepicker({   				
+				        format: 'dd/mm/yyyy'
+				  });
+				  $('.default-date-picker2').datepicker({
+				  			minView: "hour",
 				        format: 'dd/mm/yyyy'
 				  });
 				  var checked_val = 'false';
