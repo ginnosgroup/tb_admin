@@ -821,7 +821,14 @@ function show_addnewservice_id(orderId,type)
         	$('#show_addnewservice2_id #c16').html(response.remarks);        	
         	//$('#show_addnewservice2_id #c16a').val(response.remarks);
         	//CEO付款凭证
-        	$('#show_addnewservice2_id #show_paymentpic').show();
+        	//如果下一个状态是：COE_COMPLETE，就重置凭证为空
+        	if (response.review.officialState == 'COMPLETE')
+        	{
+		        	$('#show_addnewservice2_id #flist').val('');
+		        	$('#show_addnewservice2_id #show_pic').empty();
+		        	$('#show_addnewservice2_id #upload_certificate').hide();
+        	}
+        	$('#show_addnewservice2_id #show_paymentpic').show();        	
         	$("#show_addnewservice2_id #paymentpic_url").empty();
         	if (response.coePaymentVoucherImageUrl1)
         	{
