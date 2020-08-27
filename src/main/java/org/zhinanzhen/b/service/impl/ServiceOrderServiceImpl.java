@@ -32,6 +32,7 @@ import org.zhinanzhen.b.dao.pojo.ServiceOrderReviewDO;
 import org.zhinanzhen.b.dao.pojo.ServicePackageDO;
 import org.zhinanzhen.b.dao.pojo.SubagencyDO;
 import org.zhinanzhen.b.service.ServiceOrderService;
+import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
 import org.zhinanzhen.b.service.pojo.ServicePackageDTO;
@@ -399,6 +400,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			String title = "新任务提醒:";
 			String type = "";
 			String detail = "";
+			String serviceOrderUrl = "<br/><a href='/admin/serviceorder-detail.html?id=" + serviceOrderDo.getId()
+					+ "'>服务订单详情</a>";
 			UserDO user = userDao.getUserById(serviceOrderDo.getUserId());
 			if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())) {
 				type = "签证";
@@ -444,7 +447,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 						SendEmailUtil.send(maraDo.getEmail(), title,
 								"亲爱的" + maraDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:" + type
 										+ detail + "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName()
-										+ "/创建时间:" + date);
+										+ "/创建时间:" + date + "<br/>" + serviceOrderUrl);
 					// 写入审核时间
 					if (serviceOrderDo.getMaraApprovalDate() == null)
 						serviceOrderDo.setMaraApprovalDate(new Date());
@@ -453,7 +456,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 					SendEmailUtil.send(officialDo.getEmail() + ",maggie@zhinanzhen.org", title,
 							"亲爱的" + officialDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:" + type
 									+ detail + "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:"
-									+ date + "<br/>备注:" + serviceOrderDo.getRemarks());
+									+ date + "<br/>备注:" + serviceOrderDo.getRemarks() + "<br/>" + serviceOrderUrl);
 					// 写入文案审核时间
 					if (serviceOrderDo.getOfficialApprovalDate() == null)
 						serviceOrderDo.setOfficialApprovalDate(new Date());
@@ -462,7 +465,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 					SendEmailUtil.send(adviserDo.getEmail(), title,
 							"亲爱的" + adviserDo.getName() + ":<br/>您有一条服务订单已正在处理中。<br/>订单号:" + id + "/服务类型:" + type
 									+ detail + "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:"
-									+ date);
+									+ date + "<br/>" + serviceOrderUrl);
 				}
 				if ("COMPLETE".equals(officialState)) {
 //					List<AdminUserDO> adminUserDoList = adminUserDao.listAdminUserByAp("KJ");
