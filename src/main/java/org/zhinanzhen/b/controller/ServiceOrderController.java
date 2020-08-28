@@ -938,8 +938,9 @@ public class ServiceOrderController extends BaseController {
 				String message = "您的服务订单有一条新的评论，请及时查看．<br/>服务订单类型:" + serviceType + "<br/>客户:"
 						+ (serviceOrder.getUser() != null ? serviceOrder.getUser().getName() : "") + "<br/>订单ID:"
 						+ serviceOrder.getId() + "<br/>评论内容:" + serviceOrderCommentDto.getContent() + "<br/>评论时间:"
-						+ new Date() + "<br/><br/><a href='/admin/serviceorder-detail.html?id=" + serviceOrder.getId()
-						+ "'>服务订单详情</a>";
+						+ new Date()
+						+ "<br/><br/><a href='https://yongjinbiao.zhinanzhen.org/admin/serviceorder-detail.html?id="
+						+ serviceOrder.getId() + "'>服务订单详情</a>";
 				String email = "";
 				if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					OfficialDTO official = serviceOrder.getOfficial();

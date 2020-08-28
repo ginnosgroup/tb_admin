@@ -400,8 +400,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			String title = "新任务提醒:";
 			String type = "";
 			String detail = "";
-			String serviceOrderUrl = "<br/><a href='/admin/serviceorder-detail.html?id=" + serviceOrderDo.getId()
-					+ "'>服务订单详情</a>";
+			String serviceOrderUrl = "<br/><a href='https://yongjinbiao.zhinanzhen.org/admin/serviceorder-detail.html?id="
+					+ serviceOrderDo.getId() + "'>服务订单详情</a>";
 			UserDO user = userDao.getUserById(serviceOrderDo.getUserId());
 			if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())) {
 				type = "签证";
