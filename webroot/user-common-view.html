@@ -423,7 +423,7 @@
 									<button v-if="submitted" onclick="window.location.href='mycommission-ovst.html'" type="button" class="btn btn-primary">月奖已申请，请至佣金表查看</button>
 							</dle>
 							<dle v-if="ap_list==='WA'">
-									<input type="file" id="f1b" style="display:none">
+									<dlle id="obj_f1b"><input type="file" id="f1b" style="display:none"></dlle>
 									<input type="hidden" id="flist" value="" />
 									<div id="show_pic" style="display:none;padding-bottom:10px;"></div>
 									<button onclick="upload_receipt_pic('f1b')" id="upload_certificate" type="button" class="btn btn-danger" style="display:none;">上传COE凭证</button>
@@ -1575,6 +1575,7 @@ $('#show_addnewservice2_id #f1b').live('change', function (e) {
 		   					function(data1){
 		   							if (data1.code = '0')
 		   							{
+		   									$("#show_addnewservice2_id #obj_f1b").html('<input type="file" id="f1b" style="display:none">');
 				   							$('#show_addnewservice2_id #alert_success').css('marginTop','50%');
 						   					$('#show_addnewservice2_id #alert_success').css('marginLeft','30%');						   					
 						   					$("#show_addnewservice2_id #success_info").html('COE收款凭证更新成功！');
