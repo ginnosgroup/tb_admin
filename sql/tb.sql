@@ -164,7 +164,7 @@ CREATE TABLE `tb_admin_user` (
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `username` varchar(32) NOT NULL COMMENT '管理员账户名称',
   `password` varchar(32) NOT NULL COMMENT '登录密码 (MD5加密)',
-  `ap_list` varchar(128) DEFAULT NULL COMMENT '权限列表 (KJ:会计,GW:顾问,MA:Mara,WA:文案,AD:管理员,TGAD:团购管理员;如果为NULL则为超级管理员,显示所有选项)',
+  `ap_list` varchar(128) DEFAULT NULL COMMENT '权限列表 (KJ:会计,GW:顾问,MA:Mara,WA:文案,AD:管理员,GWAD:顾问管理员,WAAD:文案管理员,TGAD:团购管理员,SUPERAD:超级管理员)',
   `adviser_id` int DEFAULT NULL COMMENT '所属顾问编号 (对应tb_adviser.id)',
   `mara_id` int DEFAULT NULL COMMENT '所属Mara编号 (对应b_mara.id)',
   `official_id` int DEFAULT NULL COMMENT '所属文案编号 (对应b_official.id)',

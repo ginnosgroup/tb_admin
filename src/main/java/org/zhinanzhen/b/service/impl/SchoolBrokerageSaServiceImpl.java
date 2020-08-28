@@ -113,6 +113,7 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 	}
 
 	@Override
+	@Deprecated
 	public List<SchoolBrokerageSaDTO> listSchoolBrokerageSa(String keyword, String startHandlingDate,
 			String endHandlingDate, String startDate, String endDate, Integer adviserId, Integer schoolId,
 			Integer subagencyId, Integer userId, Boolean isSettleAccounts, int pageNum, int pageSize)
@@ -142,13 +143,13 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 		}
 		for (SchoolBrokerageSaListDO schoolBrokerageSaListDo : schoolBrokerageSaListDoList) {
 			SchoolBrokerageSaDTO schoolBrokerageSaDto = mapper.map(schoolBrokerageSaListDo, SchoolBrokerageSaDTO.class);
-			List<Date> remindDateList = new ArrayList<>();
-			List<RemindDO> remindDoList = remindDao.listRemindBySchoolBrokerageSaId(schoolBrokerageSaDto.getId(),
-					adviserId, AbleStateEnum.ENABLED.toString());
-			for (RemindDO remindDo : remindDoList) {
-				remindDateList.add(remindDo.getRemindDate());
-			}
-			schoolBrokerageSaDto.setRemindDateList(remindDateList);
+//			List<Date> remindDateList = new ArrayList<>();
+//			List<RemindDO> remindDoList = remindDao.listRemindBySchoolBrokerageSaId(schoolBrokerageSaDto.getId(),
+//					adviserId, AbleStateEnum.ENABLED.toString());
+//			for (RemindDO remindDo : remindDoList) {
+//				remindDateList.add(remindDo.getRemindDate());
+//			}
+//			schoolBrokerageSaDto.setRemindDateList(remindDateList);
 			AdviserDO adviserDo = adviserDao.getAdviserById(schoolBrokerageSaListDo.getAdviserId());
 			if (adviserDo != null) {
 				schoolBrokerageSaDto.setAdviserName(adviserDo.getName());
@@ -163,6 +164,7 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 	}
 
 	@Override
+	@Deprecated
 	public List<SchoolBrokerageSaByDashboardListDTO> listSchoolBrokerageSaByDashboard(int adviserId, int pageNum,
 			int pageSize) throws ServiceException {
 		if (pageNum < 0) {
@@ -187,14 +189,14 @@ public class SchoolBrokerageSaServiceImpl extends BaseService implements SchoolB
 		for (SchoolBrokerageSaByDashboardListDO schoolBrokerageSaByDashboardListDo : schoolBrokerageSaByDashboardListDoList) {
 			SchoolBrokerageSaByDashboardListDTO schoolBrokerageSaByDashboardListDto = mapper
 					.map(schoolBrokerageSaByDashboardListDo, SchoolBrokerageSaByDashboardListDTO.class);
-			List<Date> remindDateList = new ArrayList<>();
-			List<RemindDO> remindDoList = remindDao.listRemindBySchoolBrokerageSaId(
-					schoolBrokerageSaByDashboardListDto.getId(), adviserId > 0 ? adviserId : null,
-					AbleStateEnum.ENABLED.toString());
-			for (RemindDO remindDo : remindDoList) {
-				remindDateList.add(remindDo.getRemindDate());
-			}
-			schoolBrokerageSaByDashboardListDto.setRemindDateList(remindDateList);
+//			List<Date> remindDateList = new ArrayList<>();
+//			List<RemindDO> remindDoList = remindDao.listRemindBySchoolBrokerageSaId(
+//					schoolBrokerageSaByDashboardListDto.getId(), adviserId > 0 ? adviserId : null,
+//					AbleStateEnum.ENABLED.toString());
+//			for (RemindDO remindDo : remindDoList) {
+//				remindDateList.add(remindDo.getRemindDate());
+//			}
+//			schoolBrokerageSaByDashboardListDto.setRemindDateList(remindDateList);
 			AdviserDO adviserDo = adviserDao.getAdviserById(schoolBrokerageSaByDashboardListDo.getAdviserId());
 			if (adviserDo != null) {
 				schoolBrokerageSaByDashboardListDto.setAdviserName(adviserDo.getName());

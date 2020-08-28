@@ -120,7 +120,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		try {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 				return new Response<List<CommissionOrderDTO>>(1, "仅限顾问和超级管理员能创建佣金订单.", null);
 			List<CommissionOrderDTO> commissionOrderDtoList =  new ArrayList<>();
@@ -489,7 +489,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			if (adminUserLoginInfo != null) {
-				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+				if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 					return new Response<CommissionOrderDTO>(1, "仅限会计修改.", null);
 				return updateOne(id, schoolPaymentAmount, schoolPaymentDate, invoiceNumber, zyDate, sureExpectAmount,
@@ -513,7 +513,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			if (commissionOrderDto == null)
 				return new Response<CommissionOrderDTO>(1, "佣金订单不存在,修改失败.", null);
 			if (adminUserLoginInfo != null && ("KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())
-					|| StringUtil.isEmpty(adminUserLoginInfo.getApList())))
+					|| "SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 				commissionOrderDto.setKjApprovalDate(new Date(Long.parseLong(kjApprovalDate)));
 			else
 				return new Response<CommissionOrderDTO>(1, "只有会计和超级管理员能修改会计审核时间.", null);
@@ -534,7 +534,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			if (adminUserLoginInfo != null)
-				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+				if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 					return new Response<Integer>(1, "仅限会计修改.", 0);
 			return batchUpdate(batchUpdateList, false);
@@ -551,7 +551,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			if (adminUserLoginInfo != null)
-				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+				if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 					return new Response<Integer>(1, "仅限会计修改.", 0);
 			return batchUpdate(batchUpdateList, true);
@@ -834,13 +834,13 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			for (int i = 1; i < sheet.getRows(); i++) {
 				Cell[] cells = sheet.getRow(i);
 				String _id = cells[0].getContents();
-				String _schoolPaymentAmount = cells[21].getContents();
-				String _schoolPaymentDate = cells[23].getContents();
-				String _invoiceNumber = cells[24].getContents();
-				String _zyDate = cells[25].getContents();
-				String _sureExpectAmount = cells[19].getContents();
-				String _bonus = cells[27].getContents();
-				String _bonusDate = cells[28].getContents();
+				String _schoolPaymentAmount = cells[24].getContents();
+				String _schoolPaymentDate = cells[25].getContents();
+				String _invoiceNumber = cells[26].getContents();
+				String _zyDate = cells[27].getContents();
+				String _sureExpectAmount = cells[21].getContents();
+				String _bonus = cells[29].getContents();
+				String _bonusDate = cells[30].getContents();
 				try {
 					CommissionOrderListDTO commissionOrderListDto = commissionOrderService
 							.getCommissionOrderById(Integer.parseInt(_id));
@@ -1071,10 +1071,11 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			// 审核
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			if (adminUserLoginInfo != null) {
-				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+				if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 					return new Response<CommissionOrderListDTO>(1, "仅限会计审核佣金订单.", null);
-				if (StringUtil.isEmpty(adminUserLoginInfo.getApList())
+				if ("SUPERAD".equalsIgnoreCase(
+						adminUserLoginInfo.getApList())
 						|| "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewKjStateEnum.get(state) != null) {
 						CommissionOrderListDTO commissionOrderListDto = commissionOrderService
@@ -1111,10 +1112,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			// 审核
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			if (adminUserLoginInfo != null) {
-				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+				if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 					return new Response<CommissionOrderListDTO>(1, "仅限会计审核佣金订单.", null);
-				if (StringUtil.isEmpty(adminUserLoginInfo.getApList())
+				if ("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 						|| "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewKjStateEnum.get(state) != null) {
 						CommissionOrderListDTO commissionOrderListDto = commissionOrderService
@@ -1142,7 +1143,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/addComment", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> addComment(@RequestParam(value = "adminUserId", required = false) Integer adminUserId,
-			@RequestParam(value = "commissionOrderId") Integer commissionOrderId,
+			@RequestParam(value = "commissionOrderId", required = false) Integer commissionOrderId,
 			@RequestParam(value = "content") String content, HttpServletRequest request, HttpServletResponse response) {
 		try {
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);

@@ -30,6 +30,7 @@ public class BrokerageSaRemindServiceImpl extends BaseService implements Brokera
 	private BrokerageSaDAO brokerageSaDao;
 
 	@Override
+	@Deprecated
 	public int addRemind(BrokerageSaRemindDTO brokerageSaRemindDto) throws ServiceException {
 		if (brokerageSaRemindDto == null) {
 			ServiceException se = new ServiceException("brokerageSaRemindDto is null !");
@@ -37,15 +38,15 @@ public class BrokerageSaRemindServiceImpl extends BaseService implements Brokera
 			throw se;
 		}
 		try {
-			List<RemindDO> remindDoList = remindDao.listRemindByBrokerageSaId(brokerageSaRemindDto.getBrokerageSaId(),
-					null, null);
-			for (RemindDO remindDo : remindDoList) {
-				if (remindDo.getRemindDate().getTime() == brokerageSaRemindDto.getRemindDate().getTime()) {
-					ServiceException se = new ServiceException("该提醒日期已存在.");
-					se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
-					throw se;
-				}
-			}
+//			List<RemindDO> remindDoList = remindDao.listRemindByBrokerageSaId(brokerageSaRemindDto.getBrokerageSaId(),
+//					null, null);
+//			for (RemindDO remindDo : remindDoList) {
+//				if (remindDo.getRemindDate().getTime() == brokerageSaRemindDto.getRemindDate().getTime()) {
+//					ServiceException se = new ServiceException("该提醒日期已存在.");
+//					se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+//					throw se;
+//				}
+//			}
 			RemindDO remindDo = mapper.map(brokerageSaRemindDto, RemindDO.class);
 			if (remindDao.addRemind(remindDo) > 0) {
 				brokerageSaRemindDto.setId(remindDo.getId());
@@ -61,29 +62,31 @@ public class BrokerageSaRemindServiceImpl extends BaseService implements Brokera
 	}
 
 	@Override
+	@Deprecated
 	public List<BrokerageSaRemindDTO> listRemindByBrokerageSaId(int brokerageSaId, int adviserId, AbleStateEnum state)
 			throws ServiceException {
 		List<BrokerageSaRemindDTO> brokerageSaRemindDtoList = new ArrayList<BrokerageSaRemindDTO>();
-		List<RemindDO> remindDoList = new ArrayList<RemindDO>();
-		try {
-			remindDoList = remindDao.listRemindByBrokerageSaId(brokerageSaId, adviserId > 0 ? adviserId : null,
-					state != null ? state.toString() : null);
-			if (remindDoList == null) {
-				return null;
-			}
-		} catch (Exception e) {
-			ServiceException se = new ServiceException(e);
-			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
-			throw se;
-		}
-		for (RemindDO remindDo : remindDoList) {
-			BrokerageSaRemindDTO brokerageSaRemindDto = mapper.map(remindDo, BrokerageSaRemindDTO.class);
-			brokerageSaRemindDtoList.add(brokerageSaRemindDto);
-		}
+//		List<RemindDO> remindDoList = new ArrayList<RemindDO>();
+//		try {
+//			remindDoList = remindDao.listRemindByBrokerageSaId(brokerageSaId, adviserId > 0 ? adviserId : null,
+//					state != null ? state.toString() : null);
+//			if (remindDoList == null) {
+//				return null;
+//			}
+//		} catch (Exception e) {
+//			ServiceException se = new ServiceException(e);
+//			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+//			throw se;
+//		}
+//		for (RemindDO remindDo : remindDoList) {
+//			BrokerageSaRemindDTO brokerageSaRemindDto = mapper.map(remindDo, BrokerageSaRemindDTO.class);
+//			brokerageSaRemindDtoList.add(brokerageSaRemindDto);
+//		}
 		return brokerageSaRemindDtoList;
 	}
 
 	@Override
+	@Deprecated
 	public List<BrokerageSaRemindDTO> listRemindByRemindDate(Date date, int adviserId) throws ServiceException {
 		List<BrokerageSaRemindDTO> brokerageSaRemindDtoList = new ArrayList<BrokerageSaRemindDTO>();
 		List<RemindDO> remindDoList = new ArrayList<RemindDO>();
@@ -100,18 +103,20 @@ public class BrokerageSaRemindServiceImpl extends BaseService implements Brokera
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
 			throw se;
 		}
-		remindDoList.stream().filter(remindDo -> remindDo.getBrokerageSaId() > 0).forEach(remindDo -> {
-			BrokerageSaRemindDTO brokerageSaRemindDto = mapper.map(remindDo, BrokerageSaRemindDTO.class);
-			BrokerageSaDO brokerageSaDo = brokerageSaDao.getBrokerageSaById(brokerageSaRemindDto.getBrokerageSaId());
-			if (brokerageSaDo != null && brokerageSaDo.getAdviserId() == adviserId)
-				brokerageSaRemindDtoList.add(brokerageSaRemindDto);
-		});
+//		remindDoList.stream().filter(remindDo -> remindDo.getBrokerageSaId() > 0).forEach(remindDo -> {
+//			BrokerageSaRemindDTO brokerageSaRemindDto = mapper.map(remindDo, BrokerageSaRemindDTO.class);
+//			BrokerageSaDO brokerageSaDo = brokerageSaDao.getBrokerageSaById(brokerageSaRemindDto.getBrokerageSaId());
+//			if (brokerageSaDo != null && brokerageSaDo.getAdviserId() == adviserId)
+//				brokerageSaRemindDtoList.add(brokerageSaRemindDto);
+//		});
 		return brokerageSaRemindDtoList;
 	}
 
 	@Override
+	@Deprecated
 	public int deleteRemindByBrokerageSaId(int id) throws ServiceException {
-		return remindDao.deleteRemindByBrokerageSaId(id);
+//		return remindDao.deleteRemindByBrokerageSaId(id);
+		return -1;
 	}
 
 }

@@ -101,6 +101,7 @@ public class BrokerageSaServiceImpl extends BaseService implements BrokerageSaSe
 	}
 
 	@Override
+	@Deprecated
 	public List<BrokerageSaDTO> listBrokerageSa(String keyword, String startHandlingDate, String endHandlingDate,
 			String startCreateDate, String endCreateDate, Integer adviserId, Integer schoolId, Integer userId,
 			int pageNum, int pageSize) throws ServiceException {
@@ -138,13 +139,13 @@ public class BrokerageSaServiceImpl extends BaseService implements BrokerageSaSe
 			if (receiveTypeDo != null) {
 				brokerageSaDto.setReceiveTypeName(receiveTypeDo.getName());
 			}
-			List<Date> remindDateList = new ArrayList<>();
-			List<RemindDO> remindDoList = remindDao.listRemindByBrokerageSaId(brokerageSaDto.getId(), adviserId,
-					AbleStateEnum.ENABLED.toString());
-			for (RemindDO remindDo : remindDoList) {
-				remindDateList.add(remindDo.getRemindDate());
-			}
-			brokerageSaDto.setRemindDateList(remindDateList);
+//			List<Date> remindDateList = new ArrayList<>();
+//			List<RemindDO> remindDoList = remindDao.listRemindByBrokerageSaId(brokerageSaDto.getId(), adviserId,
+//					AbleStateEnum.ENABLED.toString());
+//			for (RemindDO remindDo : remindDoList) {
+//				remindDateList.add(remindDo.getRemindDate());
+//			}
+//			brokerageSaDto.setRemindDateList(remindDateList);
 			brokerageSaDtoList.add(brokerageSaDto);
 		}
 		return brokerageSaDtoList;
