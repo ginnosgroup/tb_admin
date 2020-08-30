@@ -20,6 +20,8 @@ public class AdminUserDTO {
 	private int officialId;
 	
 	private int kjId;
+	
+	private Integer regionId;
 
 	private String sessionId;
 

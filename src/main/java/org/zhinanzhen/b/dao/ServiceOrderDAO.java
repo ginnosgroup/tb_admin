@@ -18,8 +18,9 @@ public interface ServiceOrderDAO {
 			@Param("startMaraApprovalDate") String startMaraApprovalDate,
 			@Param("endMaraApprovalDate") String endMaraApprovalDate,
 			@Param("startOfficialApprovalDate") String startOfficialApprovalDate,
-			@Param("endOfficialApprovalDate") String endOfficialApprovalDate, @Param("regionId") Integer regionId,
-			@Param("userId") Integer userId, @Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
+			@Param("endOfficialApprovalDate") String endOfficialApprovalDate,
+			@Param("regionIdList") List<Integer> regionIdList, @Param("userId") Integer userId,
+			@Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
 			@Param("officialId") Integer officialId, @Param("parentId") Integer parentId,
 			@Param("isNotApproved") Boolean isNotApproved);
 
@@ -28,8 +29,10 @@ public interface ServiceOrderDAO {
 			@Param("startMaraApprovalDate") String startMaraApprovalDate,
 			@Param("endMaraApprovalDate") String endMaraApprovalDate,
 			@Param("startOfficialApprovalDate") String startOfficialApprovalDate,
-			@Param("endOfficialApprovalDate") String endOfficialApprovalDate, @Param("regionId") Integer regionId,
-			@Param("userId") Integer userId, @Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
+			@Param("endOfficialApprovalDate") String endOfficialApprovalDate,
+			@Param("regionIdList") List<Integer> regionIdList, @Param("userId") Integer userId,
+			@Param("maraId") Integer maraId,
+			@Param("adviserId") Integer adviserId,
 			@Param("officialId") Integer officialId,
 			@Param("parentId") Integer parentId,
 			@Param("isNotApproved") Boolean isNotApproved, @Param("offset") int offset, @Param("rows") int rows);

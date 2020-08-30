@@ -22,6 +22,8 @@ public class AdminUserDO {
 	private Integer officialId;
 	
 	private Integer kjId;
+	
+	private Integer regionId;
 
 	private String sessionId;
 

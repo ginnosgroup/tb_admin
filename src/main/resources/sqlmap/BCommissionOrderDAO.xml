@@ -229,9 +229,12 @@
         <if test='id != null and id > 0'>
             AND co.id = #{id}
         </if>
-        <if test='regionId != null and regionId > 0'>
-			AND a.region_id = #{regionId}
-		</if>
+        <if test='regionIdList != null'>
+            AND a.region_id IN
+            <foreach collection="regionIdList" item="regionIdList" index="index" open="(" close=")" separator=",">
+                #{regionIdList}
+            </foreach>
+        </if>
         <if test='maraId != null and maraId > 0'>
             AND so.mara_id = #{maraId}
         </if>
@@ -360,9 +363,12 @@
         <if test='id != null and id > 0'>
             AND co.id = #{id}
         </if>
-        <if test='regionId != null and regionId > 0'>
-			AND a.region_id = #{regionId}
-		</if>
+        <if test='regionIdList != null'>
+            AND a.region_id IN
+            <foreach collection="regionIdList" item="regionIdList" index="index" open="(" close=")" separator=",">
+                #{regionIdList}
+            </foreach>
+        </if>
         <if test='maraId != null and maraId > 0'>
             AND so.mara_id = #{maraId}
         </if>

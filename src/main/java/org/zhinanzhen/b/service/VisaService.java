@@ -13,14 +13,15 @@ public interface VisaService {
 
 	public int updateVisa(VisaDTO visaDto) throws ServiceException;
 
-	public int countVisa(Integer id , String keyword, String startHandlingDate, String endHandlingDate, List<String> stateList,
-			List<String> commissionStateList, String startKjApprovalDate, String endKjApprovalDate, String startDate,
-			String endDate, Integer regionId, Integer adviserId, Integer userId,String state) throws ServiceException;
-
-	public List<VisaDTO> listVisa(Integer id ,String keyword, String startHandlingDate, String endHandlingDate,
+	public int countVisa(Integer id, String keyword, String startHandlingDate, String endHandlingDate,
 			List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
-			String endKjApprovalDate, String startDate, String endDate, Integer regionId, Integer adviserId,
-			Integer userId,String state ,int pageNum, int pageSize) throws ServiceException;
+			String endKjApprovalDate, String startDate, String endDate, List<Integer> regionIdList, Integer adviserId,
+			Integer userId, String state) throws ServiceException;
+
+	public List<VisaDTO> listVisa(Integer id, String keyword, String startHandlingDate, String endHandlingDate,
+			List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
+			String endKjApprovalDate, String startDate, String endDate, List<Integer> regionIdList, Integer adviserId,
+			Integer userId, String state, int pageNum, int pageSize) throws ServiceException;
 
 	public List<VisaReportDTO> listVisaReport(String startDate, String endDate, String dateType, String dateMethod,
 			Integer regionId, Integer adviserId) throws ServiceException;

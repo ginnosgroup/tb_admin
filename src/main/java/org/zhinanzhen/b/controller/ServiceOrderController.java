@@ -36,6 +36,7 @@ import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
 
 import com.ikasoa.core.ErrorCodeEnum;
+import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.core.utils.StringUtil;
 
 @Controller
@@ -525,6 +526,10 @@ public class ServiceOrderController extends BaseController {
 				excludeState = ReviewAdviserStateEnum.PENDING.toString();
 			}
 			
+			List<Integer> regionIdList = null;
+			if (regionId != null && regionId > 0)
+				regionIdList = ListUtil.newArrayList(regionId);
+			
 			if (id != null && id > 0) {
 				if (serviceOrderService.getServiceOrderById(id) != null)
 					return new Response<Integer>(0, 1);
@@ -535,7 +540,7 @@ public class ServiceOrderController extends BaseController {
 			return new Response<Integer>(0,
 					serviceOrderService.countServiceOrder(type, excludeState, stateList, reviewStateList,
 							startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
-							endOfficialApprovalDate, regionId, userId, maraId, adviserId, officialId, 0,
+							endOfficialApprovalDate, regionIdList, userId, maraId, adviserId, officialId, 0,
 							isNotApproved != null ? isNotApproved : false));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
@@ -587,6 +592,10 @@ public class ServiceOrderController extends BaseController {
 				excludeState = ReviewAdviserStateEnum.PENDING.toString();
 			}
 
+			List<Integer> regionIdList = null;
+			if (regionId != null && regionId > 0)
+				regionIdList = ListUtil.newArrayList(regionId);
+
 			if (id != null && id > 0) {
 				List<ServiceOrderDTO> list = new ArrayList<ServiceOrderDTO>();
 				ServiceOrderDTO serviceOrder = serviceOrderService.getServiceOrderById(id);
@@ -598,7 +607,7 @@ public class ServiceOrderController extends BaseController {
 			return new Response<List<ServiceOrderDTO>>(0,
 					serviceOrderService.listServiceOrder(type, excludeState, stateList, reviewStateList,
 							startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
-							endOfficialApprovalDate, regionId, userId, maraId, adviserId, officialId, 0,
+							endOfficialApprovalDate, regionIdList, userId, maraId, adviserId, officialId, 0,
 							isNotApproved != null ? isNotApproved : false, pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<ServiceOrderDTO>>(1, e.getMessage(), null);

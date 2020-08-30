@@ -17,14 +17,14 @@ public interface ServiceOrderService {
 
 	int countServiceOrder(String type, String excludeState, List<String> stateList, List<String> reviewStateList,
 			String startMaraApprovalDate, String endMaraApprovalDate, String startOfficialApprovalDate,
-			String endOfficialApprovalDate, Integer regionId, Integer userId, Integer maraId, Integer adviserId,
-			Integer officialId, int parentId, boolean isNotApproved) throws ServiceException;
+			String endOfficialApprovalDate, List<Integer> regionIdList, Integer userId, Integer maraId,
+			Integer adviserId, Integer officialId, int parentId, boolean isNotApproved) throws ServiceException;
 
 	List<ServiceOrderDTO> listServiceOrder(String type, String excludeState, List<String> stateList,
 			List<String> reviewStateList, String startMaraApprovalDate, String endMaraApprovalDate,
-			String startOfficialApprovalDate, String endOfficialApprovalDate, Integer regionId, Integer userId,
-			Integer maraId, Integer adviserId, Integer officialId, int parentId, boolean isNotApproved, int pageNum,
-			int pageSize) throws ServiceException;
+			String startOfficialApprovalDate, String endOfficialApprovalDate, List<Integer> regionIdList,
+			Integer userId, Integer maraId, Integer adviserId, Integer officialId, int parentId, boolean isNotApproved,
+			int pageNum, int pageSize) throws ServiceException;
 
 	ServiceOrderDTO getServiceOrderById(int id) throws ServiceException;
 

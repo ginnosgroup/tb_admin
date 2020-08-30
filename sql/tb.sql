@@ -169,6 +169,7 @@ CREATE TABLE `tb_admin_user` (
   `mara_id` int DEFAULT NULL COMMENT '所属Mara编号 (对应b_mara.id)',
   `official_id` int DEFAULT NULL COMMENT '所属文案编号 (对应b_official.id)',
   `kj_id` int DEFAULT NULL COMMENT '所属会计编号 (对应b_kj.id)',
+`region_id` int NOT NULL COMMENT '所属区域编号 (对应tb_region.id)'
   `session_id` varchar(255) DEFAULT NULL COMMENT '当前session_id值',
   `gmt_login` datetime NOT NULL COMMENT '最后登录时间',
   `login_ip` varchar(50) NOT NULL COMMENT '最后登录IP',

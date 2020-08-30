@@ -37,6 +37,7 @@ import org.zhinanzhen.b.service.pojo.VisaDTO;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 
+import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.core.utils.StringUtil;
 
 import jxl.Cell;
@@ -712,6 +713,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		List<String> commissionStateList = null;
 		if (StringUtil.isNotEmpty(commissionState))
 			commissionStateList = Arrays.asList(commissionState.split(","));
+		
+		List<Integer> regionIdList = null;
+		if (regionId != null && regionId > 0)
+			regionIdList = ListUtil.newArrayList(regionId);
 
 		// 会计角色过滤状态
 		Boolean isYzyAndYjy = false;
@@ -740,9 +745,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		try {
 			super.setGetHeader(response);
 			return new Response<Integer>(0,
-					commissionOrderService.countCommissionOrder(id,regionId, maraId, adviserId, officialId, userId, name, phone,
-							wechatUsername, schoolId, isSettle, stateList, commissionStateList, startKjApprovalDate,
-							endKjApprovalDate, isYzyAndYjy,applyState));
+					commissionOrderService.countCommissionOrder(id, regionIdList, maraId, adviserId, officialId, userId,
+							name, phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
+							startKjApprovalDate, endKjApprovalDate, isYzyAndYjy, applyState));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -800,6 +805,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			stateList = null;
 		else
 			stateList.add(state);
+		
+		List<Integer> regionIdList = null;
+		if (regionId != null && regionId > 0)
+			regionIdList = ListUtil.newArrayList(regionId);
 
 //		Date _startKjApprovalDate = null;
 //		if (startKjApprovalDate != null)
@@ -811,7 +820,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		try {
 			super.setGetHeader(response);
 			return new Response<List<CommissionOrderListDTO>>(0,
-					commissionOrderService.listCommissionOrder(id , regionId, maraId, adviserId, officialId, userId, name,
+					commissionOrderService.listCommissionOrder(id , regionIdList, maraId, adviserId, officialId, userId, name,
 							phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
 							startKjApprovalDate, endKjApprovalDate, isYzyAndYjy,applyState, pageNum, pageSize));
 		} catch (ServiceException e) {
@@ -933,6 +942,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			stateList = null;
 		else
 			stateList.add(state);
+		
+		List<Integer> regionIdList = null;
+		if (regionId != null && regionId > 0)
+			regionIdList = ListUtil.newArrayList(regionId);
 
 		try {
 			response.reset();// 清空输出流
@@ -948,9 +961,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 //			if (endKjApprovalDate != null)
 //				_endKjApprovalDate = new Date(Long.parseLong(endKjApprovalDate));
 
-			List<CommissionOrderListDTO> commissionOrderList = commissionOrderService.listCommissionOrder(id , regionId,
-					maraId, adviserId, officialId, userId, name, phone, wechatUsername, schoolId, isSettle, stateList,
-					commissionStateList, startKjApprovalDate, endKjApprovalDate, isYzyAndYjy, state, 0, 9999);
+			List<CommissionOrderListDTO> commissionOrderList = commissionOrderService.listCommissionOrder(id,
+					regionIdList, maraId, adviserId, officialId, userId, name, phone, wechatUsername, schoolId,
+					isSettle, stateList, commissionStateList, startKjApprovalDate, endKjApprovalDate, isYzyAndYjy,
+					state, 0, 9999);
 
 			OutputStream os = response.getOutputStream();
 			jxl.Workbook wb;

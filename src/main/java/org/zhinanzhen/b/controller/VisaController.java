@@ -34,6 +34,7 @@ import org.zhinanzhen.b.service.pojo.VisaDTO;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 
+import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.core.utils.StringUtil;
 
 import jxl.Cell;
@@ -512,6 +513,10 @@ public class VisaController extends BaseCommissionOrderController {
 		List<String> commissionStateList = null;
 		if (StringUtil.isNotEmpty(commissionState))
 			commissionStateList = Arrays.asList(commissionState.split(","));
+		
+		List<Integer> regionIdList = null;
+		if (regionId != null && regionId > 0)
+			regionIdList = ListUtil.newArrayList(regionId);
 
 //		Date _startKjApprovalDate = null;
 //		if (startKjApprovalDate != null)
@@ -524,7 +529,7 @@ public class VisaController extends BaseCommissionOrderController {
 			super.setGetHeader(response);
 			return new Response<Integer>(0,
 					visaService.countVisa(id , keyword, startHandlingDate, endHandlingDate, stateList, commissionStateList,
-							startKjApprovalDate, endKjApprovalDate, startDate, endDate, regionId, adviserId, userId,state));
+							startKjApprovalDate, endKjApprovalDate, startDate, endDate, regionIdList, adviserId, userId,state));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -566,6 +571,10 @@ public class VisaController extends BaseCommissionOrderController {
 		List<String> commissionStateList = null;
 		if (StringUtil.isNotEmpty(commissionState))
 			commissionStateList = Arrays.asList(commissionState.split(","));
+
+		List<Integer> regionIdList = null;
+		if (regionId != null && regionId > 0)
+			regionIdList = ListUtil.newArrayList(regionId);
 		
 //		Date _startKjApprovalDate = null;
 //		if (startKjApprovalDate != null)
@@ -576,9 +585,9 @@ public class VisaController extends BaseCommissionOrderController {
 
 		try {
 			super.setGetHeader(response);
-			List<VisaDTO> list = visaService.listVisa(id ,keyword, startHandlingDate, endHandlingDate, stateList,
-					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, regionId,
-					adviserId,userId,state, pageNum, pageSize);
+			List<VisaDTO> list = visaService.listVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
+					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, regionIdList,
+					adviserId, userId, state, pageNum, pageSize);
 			list.forEach(v -> {
 				if (v.getServiceOrderId() > 0)
 					try {
@@ -684,6 +693,10 @@ public class VisaController extends BaseCommissionOrderController {
 			response.setHeader("Content-disposition",
 					"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
 			response.setContentType("application/msexcel");
+			
+			List<Integer> regionIdList = null;
+			if (regionId != null && regionId > 0)
+				regionIdList = ListUtil.newArrayList(regionId);
 
 //			Date _startKjApprovalDate = null;
 //			if (startKjApprovalDate != null)
@@ -693,7 +706,7 @@ public class VisaController extends BaseCommissionOrderController {
 //				_endKjApprovalDate = new Date(Long.parseLong(endKjApprovalDate));
 
 			List<VisaDTO> list = visaService.listVisa(id ,keyword, startHandlingDate, endHandlingDate, stateList,
-					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, regionId,
+					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, regionIdList,
 					adviserId,userId, state,0, 9999);
 
 			list.forEach(v -> {
