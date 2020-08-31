@@ -534,7 +534,7 @@ public class VisaController extends BaseCommissionOrderController {
 			super.setGetHeader(response);
 			// 处理顾问管理员
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			if (adminUserLoginInfo != null && "GWAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
 				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
 				regionIdList = ListUtil.newArrayList(adminUserLoginInfo.getRegionId());
@@ -602,7 +602,7 @@ public class VisaController extends BaseCommissionOrderController {
 			super.setGetHeader(response);
 			// 处理顾问管理员
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			if (adminUserLoginInfo != null && "GWAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
 				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
 				regionIdList = ListUtil.newArrayList(adminUserLoginInfo.getRegionId());
@@ -720,7 +720,7 @@ public class VisaController extends BaseCommissionOrderController {
 
 			// 处理顾问管理员
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			if (adminUserLoginInfo != null && "GWAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
 				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
 				regionIdList = ListUtil.newArrayList(adminUserLoginInfo.getRegionId());

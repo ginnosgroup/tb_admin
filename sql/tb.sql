@@ -164,12 +164,12 @@ CREATE TABLE `tb_admin_user` (
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `username` varchar(32) NOT NULL COMMENT '管理员账户名称',
   `password` varchar(32) NOT NULL COMMENT '登录密码 (MD5加密)',
-  `ap_list` varchar(128) DEFAULT NULL COMMENT '权限列表 (KJ:会计,GW:顾问,MA:Mara,WA:文案,AD:管理员,GWAD:顾问管理员,WAAD:文案管理员,TGAD:团购管理员,SUPERAD:超级管理员)',
+  `ap_list` varchar(128) DEFAULT NULL COMMENT '权限列表 (KJ:会计,GW:顾问,MA:Mara,WA:文案,AD:管理员,WAAD:文案管理员,TGAD:团购管理员,SUPERAD:超级管理员)',
   `adviser_id` int DEFAULT NULL COMMENT '所属顾问编号 (对应tb_adviser.id)',
   `mara_id` int DEFAULT NULL COMMENT '所属Mara编号 (对应b_mara.id)',
   `official_id` int DEFAULT NULL COMMENT '所属文案编号 (对应b_official.id)',
   `kj_id` int DEFAULT NULL COMMENT '所属会计编号 (对应b_kj.id)',
-`region_id` int NOT NULL COMMENT '所属区域编号 (对应tb_region.id)'
+`region_id` int NOT NULL COMMENT '所属区域编号 (对应tb_region.id,不为空就是顾问管理员)'
   `session_id` varchar(255) DEFAULT NULL COMMENT '当前session_id值',
   `gmt_login` datetime NOT NULL COMMENT '最后登录时间',
   `login_ip` varchar(50) NOT NULL COMMENT '最后登录IP',

@@ -164,6 +164,7 @@ public class ServiceOrderController extends BaseController {
 			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 				return new Response<Integer>(1, "仅限顾问和超级管理员能创建服务订单.", 0);
+			
 			ServiceOrderDTO serviceOrderDto = new ServiceOrderDTO();
 			serviceOrderDto.setCode(UUID.randomUUID().toString());
 			if (StringUtil.isNotEmpty(type))
@@ -543,7 +544,7 @@ public class ServiceOrderController extends BaseController {
 
 			// 处理顾问管理员
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			if (adminUserLoginInfo != null && "GWAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
 				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
 				regionIdList = ListUtil.newArrayList(adminUserLoginInfo.getRegionId());
@@ -620,7 +621,7 @@ public class ServiceOrderController extends BaseController {
 			super.setGetHeader(response);
 			// 处理顾问管理员
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			if (adminUserLoginInfo != null && "GWAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
 				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
 				regionIdList = ListUtil.newArrayList(adminUserLoginInfo.getRegionId());
