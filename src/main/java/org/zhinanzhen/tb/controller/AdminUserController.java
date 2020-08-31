@@ -47,6 +47,7 @@ public class AdminUserController extends BaseController {
 					if (ap.contains("KJ"))
 						loginInfo.setKjId(adminUser.getKjId());
 				}
+				loginInfo.setRegionId(adminUser.getRegionId());
 			}
 			session.removeAttribute("AdminUserLoginInfo");
 			session.setAttribute("AdminUserLoginInfo", loginInfo);

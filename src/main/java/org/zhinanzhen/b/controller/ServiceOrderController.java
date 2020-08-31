@@ -30,9 +30,11 @@ import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
 import org.zhinanzhen.b.service.pojo.ServicePackageDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
+import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
+import org.zhinanzhen.tb.service.pojo.RegionDTO;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
 
 import com.ikasoa.core.ErrorCodeEnum;
@@ -55,8 +57,12 @@ public class ServiceOrderController extends BaseController {
 	@Resource
 	ServicePackageService servicePackageService;
 
+	@Resource
+	RegionService regionService;
+
 	public enum ReviewAdviserStateEnum {
 		PENDING, REVIEW, APPLY, COMPLETE, PAID, CLOSE;
+
 		public static ReviewAdviserStateEnum get(String name) {
 			for (ReviewAdviserStateEnum e : ReviewAdviserStateEnum.values())
 				if (e.toString().equals(name))
@@ -67,6 +73,7 @@ public class ServiceOrderController extends BaseController {
 
 	public enum ReviewMaraStateEnum {
 		WAIT, REVIEW, FINISH;
+
 		public static ReviewMaraStateEnum get(String name) {
 			for (ReviewMaraStateEnum e : ReviewMaraStateEnum.values())
 				if (e.toString().equals(name))
@@ -77,6 +84,7 @@ public class ServiceOrderController extends BaseController {
 
 	public enum ReviewOfficialStateEnum {
 		PENDING, WAIT, REVIEW, FINISH, APPLY, COMPLETE, PAID, CLOSE;
+
 		public static ReviewOfficialStateEnum get(String name) {
 			for (ReviewOfficialStateEnum e : ReviewOfficialStateEnum.values())
 				if (e.toString().equals(name))
@@ -87,6 +95,7 @@ public class ServiceOrderController extends BaseController {
 
 	public enum ServiceOrderReviewStateEnum {
 		ADVISER, OFFICIAL, MARA, KJ;
+
 		public static ServiceOrderReviewStateEnum get(String name) {
 			for (ServiceOrderReviewStateEnum e : ServiceOrderReviewStateEnum.values())
 				if (e.toString().equals(name))
@@ -499,37 +508,49 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "officialId", required = false) Integer officialId,
 			@RequestParam(value = "isNotApproved", required = false) Boolean isNotApproved, HttpServletRequest request,
 			HttpServletResponse response) {
+
+		String excludeState = null;
+		List<String> stateList = null;
+		if (state != null && !"".equals(state))
+			stateList = new ArrayList<>(Arrays.asList(state.split(",")));
+		List<String> reviewStateList = null;
+		if (reviewState != null && !"".equals(reviewState))
+			reviewStateList = new ArrayList<>(Arrays.asList(reviewState.split(",")));
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId;
+		Integer newMaraId = getMaraId(request);
+		if (newMaraId != null) {
+			maraId = newMaraId;
+			excludeState = ReviewAdviserStateEnum.PENDING.toString();
+			reviewStateList = new ArrayList<>();
+			reviewStateList.add(ServiceOrderReviewStateEnum.ADVISER.toString());
+			reviewStateList.add(ServiceOrderReviewStateEnum.MARA.toString());
+			reviewStateList.add(ServiceOrderReviewStateEnum.OFFICIAL.toString());
+		}
+		Integer newOfficialId = getOfficialId(request);
+		if (newOfficialId != null) {
+			officialId = newOfficialId;
+			excludeState = ReviewAdviserStateEnum.PENDING.toString();
+		}
+
+		List<Integer> regionIdList = null;
+		if (regionId != null && regionId > 0)
+			regionIdList = ListUtil.newArrayList(regionId);
+
 		try {
 			super.setGetHeader(response);
-			String excludeState = null;
-			List<String> stateList = null;
-			if (state != null && !"".equals(state))
-				stateList = new ArrayList<>(Arrays.asList(state.split(",")));
-			List<String> reviewStateList = null;
-			if (reviewState != null && !"".equals(reviewState))
-				reviewStateList = new ArrayList<>(Arrays.asList(reviewState.split(",")));
-			Integer newAdviserId = getAdviserId(request);
-			if (newAdviserId != null)
-				adviserId = newAdviserId;
-			Integer newMaraId = getMaraId(request);
-			if (newMaraId != null) {
-				maraId = newMaraId;
-				excludeState = ReviewAdviserStateEnum.PENDING.toString();
-				reviewStateList = new ArrayList<>();
-				reviewStateList.add(ServiceOrderReviewStateEnum.ADVISER.toString());
-				reviewStateList.add(ServiceOrderReviewStateEnum.MARA.toString());
-				reviewStateList.add(ServiceOrderReviewStateEnum.OFFICIAL.toString());
+
+			// 处理顾问管理员
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo != null && "GWAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
+				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
+				regionIdList = ListUtil.newArrayList(adminUserLoginInfo.getRegionId());
+				for (RegionDTO region : regionList)
+					regionIdList.add(region.getId());
 			}
-			Integer newOfficialId = getOfficialId(request);
-			if (newOfficialId != null) {
-				officialId = newOfficialId;
-				excludeState = ReviewAdviserStateEnum.PENDING.toString();
-			}
-			
-			List<Integer> regionIdList = null;
-			if (regionId != null && regionId > 0)
-				regionIdList = ListUtil.newArrayList(regionId);
-			
+
 			if (id != null && id > 0) {
 				if (serviceOrderService.getServiceOrderById(id) != null)
 					return new Response<Integer>(0, 1);
@@ -565,36 +586,47 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "isNotApproved", required = false) Boolean isNotApproved,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
 			HttpServletRequest request, HttpServletResponse response) {
+
+		String excludeState = null;
+		List<String> stateList = null;
+		if (state != null && !"".equals(state))
+			stateList = new ArrayList<>(Arrays.asList(state.split(",")));
+		List<String> reviewStateList = null;
+		if (reviewState != null && !"".equals(reviewState))
+			reviewStateList = new ArrayList<>(Arrays.asList(reviewState.split(",")));
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId;
+		Integer newMaraId = getMaraId(request);
+		if (newMaraId != null) {
+			maraId = newMaraId;
+			excludeState = ReviewAdviserStateEnum.PENDING.toString();
+			reviewStateList = new ArrayList<>();
+			reviewStateList.add(ServiceOrderReviewStateEnum.ADVISER.toString());
+			reviewStateList.add(ServiceOrderReviewStateEnum.MARA.toString());
+			reviewStateList.add(ServiceOrderReviewStateEnum.OFFICIAL.toString());
+		}
+		Integer newOfficialId = getOfficialId(request);
+		if (newOfficialId != null) {
+			officialId = newOfficialId;
+			excludeState = ReviewAdviserStateEnum.PENDING.toString();
+		}
+
+		List<Integer> regionIdList = null;
+		if (regionId != null && regionId > 0)
+			regionIdList = ListUtil.newArrayList(regionId);
+
 		try {
 			super.setGetHeader(response);
-			String excludeState = null;
-			List<String> stateList = null;
-			if (state != null && !"".equals(state))
-				stateList = new ArrayList<>(Arrays.asList(state.split(",")));
-			List<String> reviewStateList = null;
-			if (reviewState != null && !"".equals(reviewState))
-				reviewStateList = new ArrayList<>(Arrays.asList(reviewState.split(",")));
-			Integer newAdviserId = getAdviserId(request);
-			if (newAdviserId != null)
-				adviserId = newAdviserId;
-			Integer newMaraId = getMaraId(request);
-			if (newMaraId != null) {
-				maraId = newMaraId;
-				excludeState = ReviewAdviserStateEnum.PENDING.toString();
-				reviewStateList = new ArrayList<>();
-				reviewStateList.add(ServiceOrderReviewStateEnum.ADVISER.toString());
-				reviewStateList.add(ServiceOrderReviewStateEnum.MARA.toString());
-				reviewStateList.add(ServiceOrderReviewStateEnum.OFFICIAL.toString());
+			// 处理顾问管理员
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo != null && "GWAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
+				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
+				regionIdList = ListUtil.newArrayList(adminUserLoginInfo.getRegionId());
+				for (RegionDTO region : regionList)
+					regionIdList.add(region.getId());
 			}
-			Integer newOfficialId = getOfficialId(request);
-			if (newOfficialId != null) {
-				officialId = newOfficialId;
-				excludeState = ReviewAdviserStateEnum.PENDING.toString();
-			}
-
-			List<Integer> regionIdList = null;
-			if (regionId != null && regionId > 0)
-				regionIdList = ListUtil.newArrayList(regionId);
 
 			if (id != null && id > 0) {
 				List<ServiceOrderDTO> list = new ArrayList<ServiceOrderDTO>();
@@ -643,7 +675,8 @@ public class ServiceOrderController extends BaseController {
 		super.setPostHeader(response);
 		try {
 			return serviceOrderService.getServiceOrderById(id) != null
-					? new Response<Integer>(0, serviceOrderService.finish(id)) : null;
+					? new Response<Integer>(0, serviceOrderService.finish(id))
+					: null;
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), -1);
 		}
@@ -935,9 +968,9 @@ public class ServiceOrderController extends BaseController {
 			if (serviceOrderService.addComment(serviceOrderCommentDto) > 0) {
 				// 发送邮件
 				String serviceType = "?";
-				if("VISA".equalsIgnoreCase(serviceOrder.getType()))
+				if ("VISA".equalsIgnoreCase(serviceOrder.getType()))
 					serviceType = "签证";
-				else if("OVST".equalsIgnoreCase(serviceOrder.getType()))
+				else if ("OVST".equalsIgnoreCase(serviceOrder.getType()))
 					serviceType = "留学";
 				else if ("SIV".equalsIgnoreCase(serviceOrder.getType()))
 					serviceType = "独立技术移民";
