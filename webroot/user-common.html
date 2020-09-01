@@ -2,7 +2,7 @@
 <meta http-equiv="Pragma" content="no-cache" />   
 <meta http-equiv="Cache-Control" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<div class="modal fade" id="addnewservice1_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+<div class="modal fade" id="addnewservice1_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
 		<div class="modal-dialog" role="document" style="width:700px;">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -21,22 +21,22 @@
 	        </button>
 	        <strong id="error_info"></strong>
 	      </div>
-				<div class="modal-body">
-						<form class="form-inline" style="">
+	      <form class="cmxform form-inline" style="" name="addnewservice1_form" id="addnewservice1_form">
+				<div class="modal-body">						
 						<input type="hidden" name="user_id" id="user_id" value="0" />
 						<input type="hidden" name="flist" id="flist" value="" />																	
 						<div class="form-group" style="width:100%;height:40px;">
 							<label class="control-label" style="width:80px;">客户姓名<span style="color:red;">*</span></label>							
-							<label id="b1a"><input type="text" class="form-control small" style="width:150px;" id="b100" placeholder="请输入查询" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,'')" value=""></label>
+							<label id="b1a"><input type="text" class="form-control small" style="width:150px;" name="b100" id="b100" placeholder="请输入查询" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,'')" value=""></label>
 							<label id="b1"></label>
 						</div>
 						<div class="form-group" style="width:100%;height:40px;">
 							<label class="control-label" style="width:80px;">顾问<span style="color:red;">*</span></label>
-							<select class="form-control" style="width:150px;" id="b2"></select>
+							<select class="form-control" style="width:150px;" name="b2" id="b2"></select>
 							<label class="control-label" style="display:none;" id="b3text">Mara<span style="color:red;">*</span></label>
-							<select class="form-control" style="display:none;width:150px;" id="b3"></select>
+							<select class="form-control" style="display:none;width:150px;" name="b3" id="b3"></select>
 							<label class="control-label" style="display:none;" id="b4text">文案<span style="color:red;">*</span></label>
-							<select class="form-control" style="display:none;width:150px;" id="b4"></select>
+							<select class="form-control" style="display:none;width:150px;" name="b4" id="b4"></select>
 						</div>
 						<div class="form-group" style="width:100%;height:40px;">
 							<label class="control-label" style="width:80px;">服务项目<span style="color:red;">*</span></label>
@@ -45,7 +45,7 @@
 							<option value="OVST">留学</option>
 							<option value="SIV">独立技术移民</option>
 							</select>
-							<select class="form-control" style="width:150px;margin-left:42px;" id="b6"></select>
+							<select class="form-control" style="width:150px;margin-left:42px;" name="b6" id="b6"></select>
 							<div style="display:inline;" id="b6a"></div>								
 						</div>
 						<div id="is_payment" class="form-group" style="width:100%;height:40px;">
@@ -56,22 +56,22 @@
 						<div id="show_paid" style="width:100%;display:none;">
 						<div class="form-group" style="width:100%;">								
 								<label class="control-label" style="width:80px;">收款日期</label>
-								<input type="text" autocomplete="off" id="b8" class="form-control default-date-picker" style="width:200px;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
+								<input type="text" autocomplete="off" name="b8" id="b8" class="form-control default-date-picker" style="width:200px;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
 								<label class="control-label">收款方式</label>
-								<select class="form-control" style="width:150px;" id="b9"></select>									
+								<select class="form-control" style="width:150px;" name="b9" id="b9"></select>									
 						</div>
 						<div class="form-group" style="display:block;line-height:40px;">
 								<div class="form-group">
 									<label class="control-label" style="width:80px;">总计应收</label>
-									$<input type="text" autocomplete="off" id="b10" class="form-control" style="width:100px;">
+									$<input type="text" autocomplete="off" name="b10" id="b10" class="form-control" style="width:100px;">
 								</div>								
 								<div class="form-group" style="margin-left:10px;">
 									<label class="control-label">总计收款</label>
-									$<input type="text" autocomplete="off" id="b12" class="form-control" style="width:100px;">
+									$<input type="text" autocomplete="off" name="b12" id="b12" class="form-control" style="width:100px;">
 								</div>
 								<div class="form-group" style="margin-left:10px;">
 									<label class="control-label">付款次数</label>
-									<select class="form-control" style="width:70px;" id="b13">
+									<select class="form-control" style="width:70px;" name="b13" id="b13">
 									<option value="1"  selected="selected">1</option>
 									<option value="2">2</option>
 									</select>
@@ -80,49 +80,49 @@
 						<div class="form-group" style="display:block;line-height:40px;">
 								<div class="form-group">
 									<label class="control-label" style="width:80px;">本次应收</label>
-									$<input type="text" autocomplete="off" id="b14a" onkeyup="computeVisaDiscount()" class="form-control" style="width:80px;">
+									$<input type="text" autocomplete="off" id="b14a" name="b14a" onkeyup="computeVisaDiscount()" class="form-control" style="width:80px;">
 								</div>
 								<div class="form-group" style="margin-left:10px;">
 									<label class="control-label">折扣</label>
-									$<input type="text" autocomplete="off" disabled="disabled" id="b11" class="form-control" style="width:80px;">
+									$<input type="text" autocomplete="off" disabled="disabled" name="b11" id="b11" class="form-control" style="width:80px;">
 								</div>
 								<div class="form-group">
 									<label class="control-label" style="color:red;">本次实收金额</label>
-									$<input type="text" autocomplete="off" id="b14" onkeyup="computeVisaDiscount()" class="form-control" style="width:80px;">
+									$<input type="text" autocomplete="off" name="b14" id="b14" onkeyup="computeVisaDiscount()" class="form-control" style="width:80px;">
 								</div>
 								<div class="form-group" style="margin-left:10px;">
 									<label class="control-label">GST</label>
-									$<input type="text" autocomplete="off" id="b15" class="form-control" readonly="true" style="width:80px;">
+									$<input type="text" autocomplete="off" name="b15" id="b15" class="form-control" readonly="true" style="width:80px;">
 								</div>
 								<div class="form-group" style="margin-left:10px;">
 									<label class="control-label">Deduct GST</label>
-									$<input type="text" autocomplete="off" id="b16" class="form-control" readonly="true" style="width:80px;">
+									$<input type="text" autocomplete="off" name="b16" id="b16" class="form-control" readonly="true" style="width:80px;">
 								</div>
 								<div class="form-group" style="margin-left:10px;">
 									<label class="control-label">预收业绩</label>
-									$<input type="text" autocomplete="off" readonly="readonly" id="b17" class="form-control" style="width:80px;">&nbsp;<span style="font-weight:bold;">(“本次实收金额”务必填写实际收到客户的金额。)</span>
+									$<input type="text" autocomplete="off" readonly="readonly" name="b17" id="b17" class="form-control" style="width:80px;">&nbsp;<span style="font-weight:bold;">(“本次实收金额”务必填写实际收到客户的金额。)</span>
 								</div>
 						</div>
 						</div>
 						<div class="form-group" style="width:100%;line-height:40px;">
 							<label class="control-label">备注 <span style="color:red;font-weight:bold;">(可填写之前任务邮件内容，如申请人数，资料坚果云地址。)</span></label>
 							<textarea id="b18" class="form-control" style="width:98%"></textarea>
-						</div>
-						</form>
+						</div>						
 				</div>
 				<div class="modal-footer" style="text-align: center;">
 					<input type="file" id="f1" style="display:none">
 					<div id="show_currentpic" style="display:none;padding-bottom:10px;"></div>
 					<div id="show_pic" style="display:none;padding-bottom:10px;"></div>
 					<button onclick="upload_receipt_pic('f1')" id="upload_receipt" style="display:none;" type="button" class="btn btn-danger">上传收款凭证</button>
-					<button onclick="addnewService1Save()" id="btnSubmit" type="button" class="btn btn-primary"><span id="btn_id">提交</span></button>
+					<button id="btnSubmit" type="submit" class="btn btn-primary"><span id="btn_id">提交</span></button>
 					<button onclick="flowstep('REVIEW',1)" id="btnReview" style="display:none;" type="button" class="btn btn-primary">提交审核</button>
 					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
 				</div>
+				</form>
 			</div>
 		</div>
 </div>
-<div class="modal fade" id="addnewservice2_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+<div class="modal fade" id="addnewservice2_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
 		<div class="modal-dialog" role="document" style="width:700px;">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -141,28 +141,28 @@
 	        </button>
 	        <strong id="error_info"></strong>
 	      </div>
-				<div class="modal-body">
-						<form class="form-inline" style="">
+	      <form class="cmxform form-inline" style="" name="addnewservice2_form" id="addnewservice2_form">
+				<div class="modal-body">						
 						<input type="hidden" name="user_id" id="user_id" value="0" />
 						<input type="hidden" name="schoolid" id="schoolid" value="0" />
 						<input type="hidden" name="school_name" id="school_name" value="" />
 						<input type="hidden" name="school_subject" id="school_subject" value="" />																				
 						<div class="form-group" style="width:100%;height:40px;">
 							<label class="control-label" style="width:80px;">客户姓名<span style="color:red;">*</span></label>							
-							<label id="c1a"><input type="text" class="form-control small" style="width:150px;" id="c100" placeholder="请输入查询" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,'')" value=""></label>
+							<label id="c1a"><input type="text" class="form-control small" style="width:150px;" name="c100" id="c100" placeholder="请输入查询" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,'')" value=""></label>
 							<label id="c1"></label>
 						</div>
 						<div class="form-group" style="width:100%;height:40px;">
 							<label class="control-label" style="width:80px;">服务项目<span style="color:red;">*</span></label>
-							<select class="form-control" style="width:150px;" id="c2" onchange="$('#addnewservice2_id').modal('hide');if (this.value=='VISA'){add_service1(0,v.user_id,v.user_name);}else{add_service3(0,v.user_id,v.user_name);}">
+							<select class="form-control" style="width:150px;" name="c2" id="c2" onchange="$('#addnewservice2_id').modal('hide');if (this.value=='VISA'){add_service1(0,v.user_id,v.user_name);}else{add_service3(0,v.user_id,v.user_name);}">
 							<option value="OVST" selected="selected">留学</option>
 							<option value="VISA">签证</option>
 							<option value="SIV">独立技术移民</option>
 							</select>
 							<label class="control-label">学校<span style="color:red;">*</span></label>
-							<select class="form-control" style="width:150px;" id="c3" onchange="if (this.value!=''){addnewservice2_ajax_subject();}else{addnewservice2_set_empty();}"></select>
+							<select class="form-control" style="width:150px;" name="c3" id="c3" onchange="if (this.value!=''){addnewservice2_ajax_subject();}else{addnewservice2_set_empty();}"></select>
 							<label class="control-label">课程<span style="color:red;">*</span></label>
-							<select class="form-control" style="width:150px;" id="c4" onchange="addnewservice2_set_schoolid(this.value)"></select>					
+							<select class="form-control" style="width:150px;" name="c4" id="c4" onchange="addnewservice2_set_schoolid(this.value)"></select>					
 						</div>
 						<div class="form-group" style="width:100%;height:40px;">
 							<label class="control-label" style="width:80px;">提前扣佣<span style="color:red;display:none;">*</span></label>
@@ -170,13 +170,13 @@
 							<input type="radio" name="c5" id="c5b" value="0" checked="true" style="margin-left:20px;" /><label for="c5b">否</label>
 							<input type="checkbox" name="c6" id="c6" value="1" style="margin-left:75px;"><label id="labc6" for="c6">保证金客户</label>
 							<label class="control-label" style="width:80px;margin-left:60px;">Subagency<span style="color:red;">*</span></label>
-							<select class="form-control" style="width:150px;" id="c7"></select>	
+							<select class="form-control" style="width:150px;" name="c7" id="c7"></select>	
 						</div>
 						<div class="form-group" style="width:100%;height:40px;">
 							<label class="control-label" style="width:80px;">顾问<span style="color:red;">*</span></label>
-							<select class="form-control" style="width:150px;" id="c8"></select>								
+							<select class="form-control" style="width:150px;" name="c8" id="c8"></select>								
 							<label class="control-label">文案<span style="color:red;">*</span></label>
-							<select class="form-control" style="width:150px;" id="c9"></select>
+							<select class="form-control" style="width:150px;" name="c9" id="c9"></select>
 						</div>
 						<div id="show_deposit_user" style="width:100%;display:none;">
 						<div class="form-group" style="width:100%;height:40px;">
@@ -187,22 +187,22 @@
 						<div id="show_deposit_user_payment" style="width:100%;display:none;">
 						<div class="form-group" style="width:100%;">								
 								<label class="control-label" style="width:80px;">收款日期</label>
-								<input type="text" autocomplete="off" id="c11" class="form-control default-date-picker" style="width:200px;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
+								<input type="text" autocomplete="off" name="c11" id="c11" class="form-control default-date-picker" style="width:200px;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
 								<label class="control-label">收款方式</label>
-								<select class="form-control" style="width:150px;" id="c12"></select>									
+								<select class="form-control" style="width:150px;" name="c12" id="c12"></select>									
 						</div>
 						<div class="form-group" style="display:block;line-height:40px;">
 								<div class="form-group">
 									<label class="control-label" style="width:80px;">总计应收</label>
-									$<input type="text" autocomplete="off" onkeyup="computeOvstDiscount()" id="c13" class="form-control" style="width:100px;">
+									$<input type="text" autocomplete="off" onkeyup="computeOvstDiscount()" name="c13" id="c13" class="form-control" style="width:100px;">
 								</div>
 								<div class="form-group" style="margin-left:10px;">
 									<label class="control-label">折扣</label>
-									$<input type="text" autocomplete="off" disabled="disabled" id="c14" class="form-control" style="width:100px;">
+									$<input type="text" autocomplete="off" disabled="disabled" name="c14" id="c14" class="form-control" style="width:100px;">
 								</div>
 								<div class="form-group" style="margin-left:10px;">
 									<label class="control-label">总计收款</label>
-									$<input type="text" autocomplete="off" onkeyup="computeOvstDiscount()" id="c15" class="form-control" style="width:100px;">
+									$<input type="text" autocomplete="off" onkeyup="computeOvstDiscount()" name="c15" id="c15" class="form-control" style="width:100px;">
 								</div>									
 						</div>
 						</div>							
@@ -210,8 +210,7 @@
 						<div class="form-group" style="width:100%;line-height:40px;">
 							<label class="control-label">备注</label>
 							<textarea id="c16" class="form-control" style="width:98%"></textarea>
-						</div>
-						</form>
+						</div>						
 				</div>
 				<div class="modal-footer" style="text-align: center;">
 					<input type="file" id="f1d" style="display:none">
@@ -219,14 +218,15 @@
 					<div id="show_currentpic" style="display:none;padding-bottom:10px;"></div>
 					<div id="show_pic" style="display:none;padding-bottom:10px;"></div>
 					<button onclick="upload_receipt_pic('f1d')" id="upload_receipt" style="display:none;" type="button" class="btn btn-danger">上传收款凭证</button>
-					<button onclick="addnewService2Save()"type="button" class="btn btn-primary"><span id="btn_id">提交</span></button>
+					<button id="btnSubmit" type="submit" class="btn btn-primary"><span id="btn_id">提交</span></button>
 					<button onclick="flowstep('REVIEW',1)" id="btnReview" style="display:none;" type="button" class="btn btn-primary">提交审核</button>
 					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
 				</div>
+				</form>
 			</div>
 		</div>
 </div>
-<div class="modal fade" id="addnewservice2_add_schoolsubject_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="z-index:999999;">
+<div class="modal fade" id="addnewservice2_add_schoolsubject_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="z-index:999999;">
 			<div class="modal-dialog" role="document">
 				<div class="modal-content" style="background:#efefef;">
 					<div class="modal-header" style="background:#72d0eb;">
@@ -250,7 +250,7 @@
 				</div>
 			</div>
 </div>
-<div class="modal fade" id="addnewservice3_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+<div class="modal fade" id="addnewservice3_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
 		<div class="modal-dialog" role="document" style="width:700px;">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -269,29 +269,29 @@
 	        </button>
 	        <strong id="error_info"></strong>
 	      </div>
+	      <form class="cmxform form-inline" style="" name="addnewservice3_form" id="addnewservice3_form">
 				<div class="modal-body">
-						<form class="form-inline" style="">
 						<input type="hidden" name="user_id" id="user_id" value="0" />
 						<input type="hidden" name="flist" id="flist" value="" />																	
 						<div class="form-group" style="width:100%;height:40px;">
 							<label class="control-label" style="width:80px;">客户姓名<span style="color:red;">*</span></label>							
-							<label id="b1a"><input type="text" class="form-control small" style="width:150px;" id="b100" placeholder="请输入查询" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,'')" value=""></label>
+							<label id="b1a"><input type="text" class="form-control small" style="width:150px;" name="b100" id="b100" placeholder="请输入查询" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,'')" value=""></label>
 							<label id="b1"></label>
 						</div>
 						<div class="form-group" style="width:100%;height:40px;">
 							<label class="control-label" style="width:80px;">顾问<span style="color:red;">*</span></label>
-							<select class="form-control" style="width:150px;" id="b2"></select>
+							<select class="form-control" style="width:150px;" name="b2" id="b2"></select>
 							<label class="control-label" style="display:;" id="b3text">Mara<span style="color:red;">*</span></label>
-							<select class="form-control" style="display:;width:150px;" id="b3"></select>
+							<select class="form-control" style="display:;width:150px;" name="b3" id="b3"></select>
 							<label class="control-label" style="display:;" id="b4text">文案<span style="color:red;">*</span></label>
-							<select class="form-control" style="display:;width:150px;" id="b4"></select>
+							<select class="form-control" style="display:;width:150px;" name="b4" id="b4"></select>
 						</div>
 						<div class="form-group" style="width:100%;height:40px;">
 							<label class="control-label" style="width:80px;">服务项目<span style="color:red;">*</span></label>
-							<select class="form-control" style="width:150px;" id="b5">
+							<select class="form-control" style="width:150px;" name="b5" id="b5">
 							<option value="SIV" selected="selected">独立技术移民</option>
 							</select>
-							<select class="form-control" style="width:150px;margin-left:42px;" id="b6" onchange="loadServicePackage(this.value,'')"></select>
+							<select class="form-control" style="width:150px;margin-left:42px;" name="b6" id="b6" onchange="loadServicePackage(this.value,'')"></select>
 							<div style="display:inline;" id="b6a"></div>							
 						</div>
 						<div class="form-group" style="width:100%;height:40px;" id="b7text">
@@ -321,23 +321,23 @@
 						<div id="show_paid" style="width:100%;display:none;">
 						<div class="form-group" style="width:100%;">								
 								<label class="control-label" style="width:80px;">收款日期</label>
-								<input type="text" autocomplete="off" id="b8" class="form-control default-date-picker" style="width:200px;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
+								<input type="text" autocomplete="off" name="b8" id="b8" class="form-control default-date-picker" style="width:200px;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
 								<label class="control-label">收款方式</label>
-								<select class="form-control" style="width:150px;" id="b9"></select>									
+								<select class="form-control" style="width:150px;" name="b9" id="b9"></select>									
 						</div>
 						<div class="form-group" style="display:block;line-height:40px;">
 								<div class="form-group">
 									<label class="control-label" style="width:80px;">总计应收</label>
-									$<input type="text" autocomplete="off" id="b10" class="form-control" style="width:100px;">
+									$<input type="text" autocomplete="off" name="b10" id="b10" class="form-control" style="width:100px;">
 								</div>								
 								<div class="form-group" style="margin-left:10px;">
 									<label class="control-label">总计收款</label>
-									$<input type="text" autocomplete="off" id="b12" class="form-control" style="width:100px;">
+									$<input type="text" autocomplete="off" name="b12" id="b12" class="form-control" style="width:100px;">
 								</div>
 								<div class="form-group" style="margin-left:10px;">
 									<label class="control-label">付款次数</label>
-									<select class="form-control" style="width:70px;" id="b13">
-									<option value="1"  selected="selected">1</option>
+									<select class="form-control" style="width:70px;" name="b13" id="b13">
+									<option value="1" selected="selected">1</option>
 									<option value="2">2</option>
 									</select>
 								</div>
@@ -345,48 +345,53 @@
 						<div class="form-group" style="display:block;line-height:40px;">
 								<div class="form-group">
 									<label class="control-label" style="width:80px;">本次应收</label>
-									$<input type="text" autocomplete="off" id="b14a" onkeyup="computeVisaDiscount1()" class="form-control" style="width:80px;">
+									$<input type="text" autocomplete="off" name="b14a" id="b14a" onkeyup="computeVisaDiscount1()" class="form-control" style="width:80px;">
 								</div>
 								<div class="form-group" style="margin-left:10px;">
 									<label class="control-label">折扣</label>
-									$<input type="text" autocomplete="off" disabled="disabled" id="b11" class="form-control" style="width:80px;">
+									$<input type="text" autocomplete="off" disabled="disabled" name="b11" id="b11" class="form-control" style="width:80px;">
 								</div>
 								<div class="form-group">
 									<label class="control-label" style="color:red;">本次实收金额</label>
-									$<input type="text" autocomplete="off" id="b14" onkeyup="computeVisaDiscount1()" class="form-control" style="width:80px;">
+									$<input type="text" autocomplete="off" name="b14" id="b14" onkeyup="computeVisaDiscount1()" class="form-control" style="width:80px;">
 								</div>
 								<div class="form-group" style="margin-left:10px;">
 									<label class="control-label">GST</label>
-									$<input type="text" autocomplete="off" id="b15" class="form-control" readonly="true" style="width:80px;">
+									$<input type="text" autocomplete="off" name="b15" id="b15" class="form-control" readonly="true" style="width:80px;">
 								</div>
 								<div class="form-group" style="margin-left:10px;">
 									<label class="control-label">Deduct GST</label>
-									$<input type="text" autocomplete="off" id="b16" class="form-control" readonly="true" style="width:80px;">
+									$<input type="text" autocomplete="off" name="b16" id="b16" class="form-control" readonly="true" style="width:80px;">
 								</div>
 								<div class="form-group" style="margin-left:10px;">
 									<label class="control-label">预收业绩</label>
-									$<input type="text" autocomplete="off" readonly="readonly" id="b17" class="form-control" style="width:80px;">&nbsp;<span style="font-weight:bold;">(“本次实收金额”务必填写实际收到客户的金额。)</span>
+									$<input type="text" autocomplete="off" readonly="readonly" name="b17" id="b17" class="form-control" style="width:80px;">&nbsp;<span style="font-weight:bold;">(“本次实收金额”务必填写实际收到客户的金额。)</span>
 								</div>
 						</div>
 						</div>
 						<div class="form-group" style="width:100%;line-height:40px;">
 							<label class="control-label">备注</label>
-							<textarea id="b18" class="form-control" style="width:98%"></textarea>
-						</div>
-						</form>
+							<textarea name="b18" id="b18" class="form-control" style="width:98%"></textarea>
+						</div>						
 				</div>
 				<div class="modal-footer" style="text-align: center;">
 					<input type="file" id="f1a" style="display:none">
 					<div id="show_currentpic" style="display:none;padding-bottom:10px;"></div>
 					<div id="show_pic" style="display:none;padding-bottom:10px;"></div>
 					<button onclick="upload_receipt_pic('f1a')" id="upload_receipt" type="button" class="btn btn-danger">上传收款凭证</button>
-					<button onclick="addnewService3Save()" type="button" class="btn btn-primary"><span id="btn_id">提交</span></button>
+					<button id="btnSubmit" type="submit" class="btn btn-primary"><span id="btn_id">提交</span></button>
 					<button onclick="flowstep('REVIEW',1)" id="btnReview" style="display:none;" type="button" class="btn btn-primary">提交审核</button>
 					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
 				</div>
+				</form>
 			</div>
 		</div>
 </div>
+<style>
+.cmxform .form-group select.error, .cmxform .form-group textarea.error {
+    border-color: #B94A48 !important;
+}
+</style>
 <script>
 function add_service1(orderId,userId,name)
 {
@@ -482,7 +487,7 @@ function add_service1(orderId,userId,name)
 					      $('#addnewservice1_id #show_paid').hide();      				
 		  					$('#addnewservice1_id #upload_receipt').hide();
 		  					if (response.remarks) $("#addnewservice1_id #b18").val(response.remarks);
-		  					$("#addnewservice1_id #btnSubmit").attr("onclick","Service3VisaSave();");				          		
+		  					//$("#addnewservice1_id #btnSubmit").attr("onclick","Service3VisaSave();");				          		
 	        	}else
 	        	{
 	        			v.servicepackage_type = 'VA';
@@ -556,7 +561,7 @@ function add_service1(orderId,userId,name)
 			        	if (response.deductGst) $("#addnewservice1_id #b16").val(response.deductGst);
 			        	if (response.expectAmount) $("#addnewservice1_id #b17").val(response.expectAmount);
 			        	if (response.remarks) $("#addnewservice1_id #b18").val(response.remarks);
-			        	$("#addnewservice1_id #btnSubmit").attr("onclick","addnewService1Save();");
+			        	//$("#addnewservice1_id #btnSubmit").attr("onclick","addnewService1Save();");
 	        	}
 	        	if (response.submitted || response.hasCommissionOrder)//已提交佣金，不允许修改收款数据
 	        	{
@@ -741,7 +746,7 @@ function add_service3(orderId,userId,name)
 				$("#addnewservice3_id #b14a").val('');
 				$("#addnewservice3_id #b15").val('');
 				$("#addnewservice3_id #b16").val('');
-				$("#addnewservice3_id #b17").val('');				
+				$("#addnewservice3_id #b17").val('');					
 				ajax_service('SIV');
 		}else
 		{
@@ -897,7 +902,11 @@ function add_service3(orderId,userId,name)
 	      });
 		}
 		v.addnewservice3_bind = 1;//独立移民表单：绑定下拉框选项
-		$('#addnewservice3_id').modal('show');		
+		$('#addnewservice3_id').modal('show');
+		if (orderId == 0)
+		{
+				$("#addnewservice3_id #b3").rules("add",{required:true,min:1,messages:{required:"",min:""}});	
+		}
 }
 
 function return_servicePackageIds(result)
@@ -915,9 +924,14 @@ function return_servicePackageIds(result)
 		return ids;
 }
 
-$('#addnewservice1_id :radio').live('click', function (e) {
+$('#addnewservice1_id :radio[name=b7]').live('click', function (e) {
 		if ($(this).val() == '1')
 		{
+				$("#addnewservice1_id #b8").rules("add",{required:true,minlength:10,messages:{required:"请选择",minlength:"格式错"}});
+				$("#addnewservice1_id #b10").rules("add",{required:true,number:true,messages:{required:"",number:"格式错"}});
+				$("#addnewservice1_id #b12").rules("add",{required:true,number:true,messages:{required:"",number:"格式错"}});
+				$("#addnewservice1_id #b14a").rules("add",{required:true,number:true,messages:{required:"",number:"格式错"}});
+				$("#addnewservice1_id #b14").rules("add",{required:true,number:true,messages:{required:"",number:"格式错"}});
 				$('#addnewservice1_id #show_paid').show();
 				if (v.orderId != 0)
 				{		
@@ -926,6 +940,11 @@ $('#addnewservice1_id :radio').live('click', function (e) {
 				}
 		}else
 		{
+				$("#addnewservice1_id #b8").rules("remove");
+				$("#addnewservice1_id #b10").rules("remove");
+				$("#addnewservice1_id #b12").rules("remove");
+				$("#addnewservice1_id #b14a").rules("remove");
+				$("#addnewservice1_id #b14").rules("remove");
 				$('#addnewservice1_id #show_paid').hide();
 				$('#addnewservice1_id #upload_receipt').hide();
 				$('#addnewservice1_id #show_pic').hide();
@@ -983,11 +1002,17 @@ $('#addnewservice3_id :radio[name=b7]').live('click', function (e) {
 $('#addnewservice2_id :checkbox').live('click', function (e) {
 		if($('#addnewservice2_id #c6').is(':checked'))
 		{
+				$("#addnewservice2_id #c11").rules("add",{required:true,minlength:10,messages:{required:"请选择",minlength:"格式错"}});
+				$("#addnewservice2_id #c13").rules("add",{required:true,number:true,messages:{required:"",number:"格式错"}});
+				$("#addnewservice2_id #c15").rules("add",{required:true,number:true,messages:{required:"",number:"格式错"}});
 				$('#addnewservice2_id #upload_receipt').show();
 				$('#addnewservice2_id #show_deposit_user').show();      				
 				$('#addnewservice2_id #show_deposit_user_payment').show(); 
 		}else
 		{
+				$("#addnewservice2_id #c11").rules("remove");
+				$("#addnewservice2_id #c13").rules("remove");
+				$("#addnewservice2_id #c15").rules("remove");
 				$('#addnewservice2_id #show_deposit_user_payment').hide(); 
 				$('#addnewservice2_id #show_deposit_user').hide();
 				$('#addnewservice2_id #upload_receipt').hide();
@@ -996,12 +1021,18 @@ $('#addnewservice2_id :checkbox').live('click', function (e) {
 
 $("#addnewservice2_id :input[name=c10]").live('click', function (e) {
 		if ($(this).val() == 'true')
-		{				
+		{
+				$("#addnewservice2_id #c11").rules("add",{required:true,minlength:10,messages:{required:"请选择",minlength:"格式错"}});
+				$("#addnewservice2_id #c13").rules("add",{required:true,number:true,messages:{required:"",number:"格式错"}});
+				$("#addnewservice2_id #c15").rules("add",{required:true,number:true,messages:{required:"",number:"格式错"}});				
 				$('#addnewservice2_id #show_deposit_user_payment').show();
 				$('#addnewservice2_id #upload_receipt').show();
 				$('#addnewservice2_id #show_pic').show();
 		}else
 		{
+				$("#addnewservice2_id #c11").rules("remove");
+				$("#addnewservice2_id #c13").rules("remove");
+				$("#addnewservice2_id #c15").rules("remove");
 				$('#addnewservice2_id #show_deposit_user_payment').hide();
 				$('#addnewservice2_id #upload_receipt').hide();
 				$('#addnewservice2_id #show_pic').hide();
@@ -1243,10 +1274,10 @@ function addnewService1Save()
 		    				}
     				}else
     				{
-    						$('#addnewservice1_id #alert_error').css('marginLeft','15%');
+    						/*$('#addnewservice1_id #alert_error').css('marginLeft','15%');
 				    		$('#addnewservice1_id #alert_error').css('marginTop','20%');
 				    		$('#addnewservice1_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
-				        $("#addnewservice1_id #error_info").html('提示：收款日期/总计应收/总计收款/本次应收/本次实收金额必须填写或选择且金额须大于0！');
+				        $("#addnewservice1_id #error_info").html('提示：收款日期/总计应收/总计收款/本次应收/本次实收金额必须填写或选择且金额须大于0！');*/
 				        return false;
     				}	
     		}else
@@ -1406,8 +1437,8 @@ function addnewService2Save()
        	json['isPay'] = false;             	
        	if (json['isDepositUser'])
        	{
-       			json['isPay'] = $("#addnewservice2_id input[name='c10']:checked").val();
-       			if (json['isPay'] && jqInputs[15].value == '')
+       			json['isPay'] = $("#addnewservice2_id input[name='c10']:checked").val();       			
+       			if (json['isPay'] == 'true' && jqInputs[15].value == '')
        			{
        					$('#addnewservice2_id #alert_error').css('marginTop','30%');
 		   					$('#addnewservice2_id #alert_error').css('marginLeft','30%');
@@ -1774,7 +1805,7 @@ function Service3VisaSave()
 		   					$('#addnewservice1_id #alert_success').css('marginLeft','30%');
 		   					$('#addnewservice1_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
 		   					v.getDatalist();
-		   					setTimeout(function(){$('#addnewservice1_id').modal('hide')}, 2000);
+		   					setTimeout(function(){$('#addnewservice1_id').modal('hide');$('.modal-backdrop').remove();}, 2000);
 		   			}else
 		   			{
 		   					$('#addnewservice1_id #alert_error').css('marginTop','30%');
@@ -2410,4 +2441,77 @@ function jsonSort(json,key)
     return json;
 
 }
+
+$('#addnewservice1_id').on('show.bs.modal', function () {
+	$("#addnewservice1_form").validate({
+			submitHandler: function () {
+						if (v_sub.order_detail.parentId)
+						{
+								Service3VisaSave();
+						}else
+						{
+            		addnewService1Save();
+            }
+      },
+      rules: {
+          b100: "required",               
+          b2: {required: true,min: 1},
+          b3: {required: true,min: 1},
+          b4: {required: true,min: 1},
+          b6: {required: true,min: 1},
+      },
+      messages: {
+          b100: "",
+          b2: "",
+          b3: "",
+          b4: "",
+          b6: "",
+      }
+  });
+      
+});
+
+$('#addnewservice2_id').on('show.bs.modal', function () {
+	$("#addnewservice2_form").validate({
+			submitHandler: function () {
+            addnewService2Save();
+      },
+      rules: {
+          c100: "required",               
+          c3: {required: true},
+          c4: {required: true},
+          c7: {required: true,min: 1},
+          c8: {required: true,min: 1},
+          c9: {required: true,min: 1},
+      },
+      messages: {
+          c100: "",
+          c3: "",
+          c4: "",
+          c7: "",
+          c8: "",
+          c9: "",
+      }
+  });
+});
+
+$('#addnewservice3_id').on('show.bs.modal', function () {
+	$("#addnewservice3_form").validate({
+			submitHandler: function () {						
+            addnewService3Save();
+      },
+      rules: {
+          b100: "required",
+          b2: {required: true,min: 1},
+          b4: {required: true,min: 1},
+          b6: {required: true,min: 1},
+      },
+      messages: {
+          b100: "",
+          b2: "",
+          b4: "",
+          b6: "",
+      }
+  });
+});
 </script>
