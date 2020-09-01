@@ -2443,15 +2443,21 @@ function jsonSort(json,key)
 }
 
 $('#addnewservice1_id').on('show.bs.modal', function () {
-	$("#addnewservice1_form").validate({
+	$("#addnewservice1_id #addnewservice1_form").validate({
 			submitHandler: function () {
-						if (v_sub.order_detail.parentId)
+						if (v.orderId)
 						{
-								Service3VisaSave();
+								if (v_sub.order_detail.parentId)
+								{
+										Service3VisaSave();
+								}else
+								{
+										addnewService1Save();
+								}
 						}else
 						{
-            		addnewService1Save();
-            }
+								addnewService1Save();
+						}						
       },
       rules: {
           b100: "required",               
