@@ -193,5 +193,6 @@ public class BaseController {
 		private Integer maraId;
 		private Integer officialId;
 		private Integer kjId;
+		private Integer regionId;
 	}
 }

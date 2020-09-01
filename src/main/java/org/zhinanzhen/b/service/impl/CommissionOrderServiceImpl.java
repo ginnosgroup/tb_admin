@@ -120,20 +120,21 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 	}
 
 	@Override
-	public int countCommissionOrder(Integer id ,Integer regionId, Integer maraId, Integer adviserId, Integer officialId, Integer userId, String name,
-			String phone, String wechatUsername, Integer schoolId, Boolean isSettle, List<String> stateList,
-			List<String> commissionStateList, String startKjApprovalDate, String endKjApprovalDate, Boolean isYzyAndYjy,String applyState)
-			throws ServiceException {
-		return commissionOrderDao.countCommissionOrder(id ,regionId, maraId, adviserId, officialId, userId, name, phone,
-				wechatUsername, schoolId, isSettle, stateList, commissionStateList, startKjApprovalDate,
-				theDateTo23_59_59(endKjApprovalDate), isYzyAndYjy,applyState);
+	public int countCommissionOrder(Integer id, List<Integer> regionIdList, Integer maraId, Integer adviserId,
+			Integer officialId, Integer userId, String name, String phone, String wechatUsername, Integer schoolId,
+			Boolean isSettle, List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
+			String endKjApprovalDate, Boolean isYzyAndYjy, String applyState) throws ServiceException {
+		return commissionOrderDao.countCommissionOrder(id, regionIdList, maraId, adviserId, officialId, userId, name,
+				phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList, startKjApprovalDate,
+				theDateTo23_59_59(endKjApprovalDate), isYzyAndYjy, applyState);
 	}
 
 	@Override
-	public List<CommissionOrderListDTO> listCommissionOrder(Integer id ,Integer regionId, Integer maraId, Integer adviserId, Integer officialId,
-			Integer userId, String name, String phone, String wechatUsername, Integer schoolId, Boolean isSettle,
-			List<String> stateList, List<String> commissionStateList, String startKjApprovalDate, String endKjApprovalDate,
-			Boolean isYzyAndYjy,String applyState, int pageNum, int pageSize) throws ServiceException {
+	public List<CommissionOrderListDTO> listCommissionOrder(Integer id, List<Integer> regionIdList, Integer maraId,
+			Integer adviserId, Integer officialId, Integer userId, String name, String phone, String wechatUsername,
+			Integer schoolId, Boolean isSettle, List<String> stateList, List<String> commissionStateList,
+			String startKjApprovalDate, String endKjApprovalDate, Boolean isYzyAndYjy, String applyState, int pageNum,
+			int pageSize) throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
 		}
@@ -143,8 +144,9 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 		List<CommissionOrderListDTO> commissionOrderListDtoList = new ArrayList<>();
 		List<CommissionOrderListDO> commissionOrderListDoList = new ArrayList<>();
 		try {
-			commissionOrderListDoList = commissionOrderDao.listCommissionOrder(id ,regionId, maraId, adviserId, officialId, userId,
-					name, phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
+			commissionOrderListDoList = commissionOrderDao.listCommissionOrder(id, regionIdList, maraId, adviserId,
+					officialId, userId, name, phone, wechatUsername, schoolId, isSettle, stateList,
+					commissionStateList,
 					startKjApprovalDate, theDateTo23_59_59(endKjApprovalDate), isYzyAndYjy, applyState,pageNum * pageSize,
 					pageSize);
 			if (commissionOrderListDoList == null)

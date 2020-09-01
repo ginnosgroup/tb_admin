@@ -19,8 +19,8 @@
 		        </button>
 		        <strong id="error_info"></strong>
 		      </div>
-					<div class="modal-body">
-							<form class="form-inline" style="">																											
+		      <form class="cmxform form-inline" method="POST" name="visaid_form" id="visaid_form">
+					<div class="modal-body">																																	
 							<div class="form-group" style="width:100%;height:40px;">
 								<label class="control-label" style="width:80px;"><strong>服务订单Id：</strong></label>								
 								<label id="b0"></label>
@@ -62,18 +62,18 @@
 							<div id="show_paid" style="width:100%;">
 							<div class="form-group" style="width:100%;">								
 									<label class="control-label" style="width:80px;"><strong>收款日期</strong></label>
-									<input type="text" autocomplete="off" id="b8" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
+									<input type="text" autocomplete="off" name="b8" id="b8" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
 									<label class="control-label"><strong>收款方式</strong></label>
-									<select class="form-control" style="width:150px;font-weight:normal;" id="b9"></select>									
+									<select class="form-control" style="width:150px;font-weight:normal;" name="b9" id="b9"></select>									
 							</div>
 							<div class="form-group" style="display:block;line-height:40px;">
 									<div class="form-group">
 										<label class="control-label" style="width:80px;"><strong>总计应收</strong></label>
-										$<input type="text" autocomplete="off" id="b10" class="form-control" style="width:100px;font-weight:normal;">
+										$<input type="text" autocomplete="off" name="b10" id="b10" class="form-control" style="width:100px;font-weight:normal;">
 									</div>								
 									<div class="form-group" style="margin-left:10px;">
 										<label class="control-label"><strong>总计收款</strong></label>
-										$<input type="text" autocomplete="off" id="b12" class="form-control" style="width:100px;font-weight:normal;">
+										$<input type="text" autocomplete="off" name="b12" id="b12" class="form-control" style="width:100px;font-weight:normal;">
 									</div>
 									<div class="form-group" style="margin-left:10px;">
 										<label class="control-label"><strong>付款次数</strong></label>
@@ -83,35 +83,34 @@
 							<div class="form-group" style="display:block;line-height:40px;">
 									<div class="form-group">
 										<label class="control-label" style="width:80px;"><strong>本次应收</strong></label>
-										$<input type="text" autocomplete="off" id="b14a" onkeyup="computeDiscount()" class="form-control" style="width:80px;font-weight:normal;">
+										$<input type="text" autocomplete="off" name="b14a" id="b14a" onkeyup="computeDiscount()" class="form-control" style="width:80px;font-weight:normal;">
 									</div>
 									<div class="form-group" style="margin-left:10px;">
 										<label class="control-label"><strong>折扣</strong></label>
-										$<input type="text" autocomplete="off" disabled="disabled" id="b11" class="form-control" style="width:80px;font-weight:normal;">
+										$<input type="text" autocomplete="off" disabled="disabled" name="b11" id="b11" class="form-control" style="width:80px;font-weight:normal;">
 									</div>
 									<div class="form-group">
 										<label class="control-label" style="color:red;"><strong>本次实收金额</strong></label>
-										$<input type="text" autocomplete="off" id="b14" onkeyup="computeDiscount()" class="form-control" style="width:80px;font-weight:normal;">
+										$<input type="text" autocomplete="off" name="b14" id="b14" onkeyup="computeDiscount()" class="form-control" style="width:80px;font-weight:normal;">
 									</div>
 									<div class="form-group" style="margin-left:10px;">
 										<label class="control-label"><strong>GST</strong></label>
-										$<input type="text" autocomplete="off" id="b15" class="form-control" readonly="true" style="width:80px;font-weight:normal;">
+										$<input type="text" autocomplete="off" name="b15" id="b15" class="form-control" readonly="true" style="width:80px;font-weight:normal;">
 									</div>
 									<div class="form-group" style="margin-left:10px;">
 										<label class="control-label"><strong>Deduct GST</strong></label>
-										$<input type="text" autocomplete="off" id="b16" class="form-control" readonly="true" style="width:80px;font-weight:normal;">
+										$<input type="text" autocomplete="off" name="b16" id="b16" class="form-control" readonly="true" style="width:80px;font-weight:normal;">
 									</div>
 									<div class="form-group" style="margin-left:10px;">
 										<label class="control-label">预收业绩(<span style="color:#FF6C60;">Commission含GST</span>)</label>
-										$<input type="text" autocomplete="off" readonly="readonly" id="b17" class="form-control" style="width:80px;font-weight:normal;">&nbsp;<span style="font-weight:bold;">(“本次实收金额”务必填写实际收到客户的金额。)</span>
+										$<input type="text" autocomplete="off" readonly="readonly" name="b17" id="b17" class="form-control" style="width:80px;font-weight:normal;">&nbsp;<span style="font-weight:bold;">(“本次实收金额”务必填写实际收到客户的金额。)</span>
 									</div>
 							</div>
 							</div>							
 							<div class="form-group" style="width:100%;line-height:40px;">
 								<label class="control-label"><strong>备注</strong></label>
 								<textarea id="b18" class="form-control" style="width:98%;font-weight:normal;"></textarea>
-							</div>												
-							</form>							
+							</div>																										
 					</div>										
 					<div class="modal-footer" style="text-align: center;">
 							<input type="file" id="f1" style="display:none">
@@ -120,12 +119,13 @@
 							<dle id="btn-footer" v-if="ap_list==='GW'">									
 									<dle v-if="state==='PENDING' || state==='WAIT'">
 									<div id="show_pic" style="display:none;padding-bottom:10px;"></div>
-									<button onclick="upload_receipt_pic('f1')" id="btn_receipt" type="button" class="btn btn-danger">上传收款凭证</button>									
-									<button onclick="requestCommissionVisaSave()" id="btn_request" type="button" class="btn btn-primary">申请月奖</button>									
+									<button onclick="upload_receipt_pic('f1')" id="btn_receipt" type="button" class="btn btn-danger">上传收款凭证</button>
+									<button id="btn_request" type="submit" class="btn btn-primary"><span id="btn_id">申请月奖</span></button>									
 									</dle>
 							</dle>													
 							<button onclick="" type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
 					</div>
+					</form>
 				</div>
 			</div>
 </div>
@@ -478,5 +478,25 @@ $('#visa_id #f1').live('change', function (e) {
             console.log(response);
         }
     });
-});  
+});
+
+$('#visa_id').on('show.bs.modal', function () {
+	$("#visa_id #visaid_form").validate({
+			submitHandler: function () {						
+            requestCommissionVisaSave();
+      },
+      rules: {
+          b8: {required:true,minlength:10},
+          b9: {required:true,min:1},
+          b14a: {required:true,minlength:1,number:true},
+          b14: {required:true,minlength:1,number:true},          
+      },
+      messages: {
+          b8: {required:"请选择",minlength:"格式错"},
+          b9: {required:"",min:"请选择"},
+          b14a: {required:"",minlength:"",number:"格式错"},
+          b14: {required:"",minlength:"",number:"格式错"},          
+      }
+  });
+});
 </script>

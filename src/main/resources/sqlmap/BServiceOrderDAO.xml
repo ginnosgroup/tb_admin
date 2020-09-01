@@ -289,9 +289,12 @@
         <if test='startOfficialApprovalDate != null and startOfficialApprovalDate != "" and endOfficialApprovalDate != null and endOfficialApprovalDate != ""'>
             <![CDATA[ AND so.official_approval_date > #{startOfficialApprovalDate} AND so.official_approval_date < #{endOfficialApprovalDate} ]]>
         </if>
-        <if test='regionId != null and regionId > 0'>
-			AND a.region_id = #{regionId}
-		</if>
+		<if test='regionIdList != null'>
+            AND a.region_id IN
+            <foreach collection="regionIdList" item="regionIdList" index="index" open="(" close=")" separator=",">
+                #{regionIdList}
+            </foreach>
+        </if>
 		<if test='userId != null and userId > 0'>
 			AND so.user_id = #{userId}
 		</if>
@@ -392,9 +395,12 @@
         <if test='startOfficialApprovalDate != null and startOfficialApprovalDate != "" and endOfficialApprovalDate != null and endOfficialApprovalDate != ""'>
             <![CDATA[ AND so.official_approval_date > #{startOfficialApprovalDate} AND so.official_approval_date < #{endOfficialApprovalDate} ]]>
         </if>
-        <if test='regionId != null and regionId > 0'>
-			AND a.region_id = #{regionId}
-		</if>
+        <if test='regionIdList != null'>
+            AND a.region_id IN
+            <foreach collection="regionIdList" item="regionIdList" index="index" open="(" close=")" separator=",">
+                #{regionIdList}
+            </foreach>
+        </if>
 		<if test='userId != null and userId > 0'>
 			AND so.user_id = #{userId}
 		</if>

@@ -201,17 +201,17 @@
             <![CDATA[ AND bv.handling_date > #{startHandlingDate} AND bv.handling_date < #{endHandlingDate} ]]>
         </if>
         <if test='stateList != null'>
-			AND bv.state IN
-			<foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">
-				#{stateList}
-			</foreach>
-		</if>
-		<if test='commissionStateList != null'>
-			AND bv.commission_state IN
-			<foreach collection="commissionStateList" item="commissionStateList" index="index" open="(" close=")" separator=",">
-				#{commissionStateList}
-			</foreach>
-		</if>
+            AND bv.state IN
+            <foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">
+                #{stateList}
+            </foreach>
+        </if>
+        <if test='commissionStateList != null'>
+            AND bv.commission_state IN
+            <foreach collection="commissionStateList" item="commissionStateList" index="index" open="(" close=")" separator=",">
+                #{commissionStateList}
+            </foreach>
+        </if>
         <if test='state == "PENDING" or state == "WAIT"'>
             <![CDATA[ AND (bv.state="PENDING" OR bv.state="WAIT") ]]>
         </if>
@@ -225,9 +225,12 @@
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
             <![CDATA[ AND bv.gmt_create > #{startDate} AND bv.gmt_create < #{endDate} ]]>
         </if>
-        <if test='regionId != null and regionId > 0'>
-			AND a.region_id = #{regionId}
-		</if>
+        <if test='regionIdList != null'>
+            AND a.region_id IN
+            <foreach collection="regionIdList" item="regionIdList" index="index" open="(" close=")" separator=",">
+                #{regionIdList}
+            </foreach>
+        </if>
         <if test='adviserId != null and adviserId != ""'>
             AND bv.adviser_id = #{adviserId}
         </if>
@@ -303,11 +306,11 @@
         </if>
         
         <if test='stateList != null'>
-						AND bv.state IN
-						<foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">
-							#{stateList}
-						</foreach>
-				</if>
+            AND bv.state IN
+            <foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">
+                #{stateList}
+            </foreach>
+        </if>
 
         <if test='state == "PENDING" or state == "WAIT"'>
             <![CDATA[ AND (bv.state="PENDING" OR bv.state="WAIT") ]]>
@@ -316,21 +319,24 @@
             <![CDATA[ AND (bv.state="COMPLETE" OR bv.state="REVIEW") ]]>
         </if>
 
-		<if test='commissionStateList != null'>
-			AND bv.commission_state IN
-			<foreach collection="commissionStateList" item="commissionStateList" index="index" open="(" close=")" separator=",">
-				#{commissionStateList}
-			</foreach>
-		</if>
-		<if test='startKjApprovalDate != null and startKjApprovalDate != "" and endKjApprovalDate != null and endKjApprovalDate != ""'>
+        <if test='commissionStateList != null'>
+            AND bv.commission_state IN
+            <foreach collection="commissionStateList" item="commissionStateList" index="index" open="(" close=")" separator=",">
+                #{commissionStateList}
+            </foreach>
+        </if>
+        <if test='startKjApprovalDate != null and startKjApprovalDate != "" and endKjApprovalDate != null and endKjApprovalDate != ""'>
             <![CDATA[ AND bv.kj_approval_date > #{startKjApprovalDate} AND bv.kj_approval_date < #{endKjApprovalDate} ]]>
         </if>
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
             <![CDATA[ AND bv.gmt_create > #{startDate} AND bv.gmt_create < #{endDate} ]]>
         </if>
-        <if test='regionId != null and regionId > 0'>
-			AND a.region_id = #{regionId}
-		</if>
+        <if test='regionIdList != null'>
+            AND a.region_id IN
+            <foreach collection="regionIdList" item="regionIdList" index="index" open="(" close=")" separator=",">
+                #{regionIdList}
+            </foreach>
+        </if>
         <if test='adviserId != null and adviserId != ""'>
             AND bv.adviser_id = #{adviserId}
         </if>
@@ -525,8 +531,8 @@
     </select>
     
     <select id="sumBonusByThisMonth" resultType="java.lang.Double">
-		select IFNULL(sum(bonus), 0.00) from b_visa where DATE_FORMAT(gmt_create, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m') and is_close = 0;
-	</select>
+        select IFNULL(sum(bonus), 0.00) from b_visa where DATE_FORMAT(gmt_create, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m') and is_close = 0;
+    </select>
 
     <select id="getVisaById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.VisaDO">
         SELECT
@@ -572,10 +578,10 @@
     </select>
     
     <delete id="deleteVisaById" parameterType="java.lang.Integer">
-		DELETE b_visa,b_visa_comment
-		FROM b_visa
-		left join b_visa_comment on b_visa.id = b_visa_comment.visa_id
-		WHERE b_visa.id = #{id, jdbcType=INTEGER}
-	</delete>
+        DELETE b_visa,b_visa_comment
+        FROM b_visa
+        left join b_visa_comment on b_visa.id = b_visa_comment.visa_id
+        WHERE b_visa.id = #{id, jdbcType=INTEGER}
+    </delete>
 
 </mapper>

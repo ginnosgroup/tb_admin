@@ -35,8 +35,10 @@ import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
 import org.zhinanzhen.tb.controller.Response;
+import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 
+import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.core.utils.StringUtil;
 
 import jxl.Cell;
@@ -48,6 +50,7 @@ import jxl.write.Label;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
 import org.zhinanzhen.tb.service.UserService;
+import org.zhinanzhen.tb.service.pojo.RegionDTO;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -64,11 +67,14 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	SchoolService schoolService;
 
 	@Resource
-	UserService	userService;
+	UserService userService;
 
 	@Resource
 	ServiceOrderService serviceOrderService;
-	
+
+	@Resource
+	RegionService regionService;
+
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	@RequestMapping(value = "/upload_img", method = RequestMethod.POST)
@@ -105,9 +111,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
 			@RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
 			@RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
-			@RequestParam(value = "dob") String dob,
-			@RequestParam(value = "startDate") String startDate, @RequestParam(value = "endDate") String endDate,
-			@RequestParam(value = "tuitionFee") String tuitionFee,
+			@RequestParam(value = "dob") String dob, @RequestParam(value = "startDate") String startDate,
+			@RequestParam(value = "endDate") String endDate, @RequestParam(value = "tuitionFee") String tuitionFee,
 			@RequestParam(value = "perTermTuitionFee") String perTermTuitionFee,
 			@RequestParam(value = "receiveTypeId") Integer receiveTypeId,
 			@RequestParam(value = "receiveDate") String receiveDate,
@@ -123,7 +128,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 				return new Response<List<CommissionOrderDTO>>(1, "仅限顾问和超级管理员能创建佣金订单.", null);
-			List<CommissionOrderDTO> commissionOrderDtoList =  new ArrayList<>();
+			List<CommissionOrderDTO> commissionOrderDtoList = new ArrayList<>();
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(serviceOrderId);
 			if (serviceOrderDto == null)
 				return new Response<List<CommissionOrderDTO>>(1, "服务订单(ID:" + serviceOrderId + ")不存在!", null);
@@ -191,7 +196,6 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			if (StringUtil.isNotEmpty(remarks))
 				commissionOrderDto.setRemarks(remarks);
 
-
 			// SubagencyDTO subagencyDto =
 			// subagencyService.getSubagencyById(serviceOrderDto.getSubagencyId());
 			// if (subagencyDto == null)
@@ -254,7 +258,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				int id = commissionOrderService.addCommissionOrder(commissionOrderDto);
 				if (id > 0) {
 					serviceOrderDto.setSubmitted(true);
-					userService.updateDOB(new Date(Long.parseLong(dob)),userId);
+					userService.updateDOB(new Date(Long.parseLong(dob)), userId);
 					serviceOrderService.updateServiceOrder(serviceOrderDto); // 同时更改服务订单状态
 					commissionOrderDtoList.add(commissionOrderDto);
 					CommissionOrderListDTO commissionOrderListDto = commissionOrderService.getCommissionOrderById(id);
@@ -455,7 +459,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				serviceOrderDto.setReceivable(_commissionOrderListDto.getTotalPerAmount());
 				serviceOrderDto.setReceived(_commissionOrderListDto.getTotalAmount());
 				serviceOrderService.updateServiceOrder(serviceOrderDto); // 同步修改服务订单
-				userService.updateDOB(new Date(Long.parseLong(dob)),commissionOrderListDto.getUserId());
+				userService.updateDOB(new Date(Long.parseLong(dob)), commissionOrderListDto.getUserId());
 				int i = schoolService.updateSchoolSetting(_commissionOrderListDto); // 根据学校设置更新佣金值
 				if (i > 0) {
 				} else if (i == -1)
@@ -680,8 +684,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 	@RequestMapping(value = "/count", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<Integer> count(
-			@RequestParam(value = "id", required = false) Integer id,
+	public Response<Integer> count(@RequestParam(value = "id", required = false) Integer id,
 			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "maraId", required = false) Integer maraId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
@@ -713,6 +716,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		if (StringUtil.isNotEmpty(commissionState))
 			commissionStateList = Arrays.asList(commissionState.split(","));
 
+		List<Integer> regionIdList = null;
+		if (regionId != null && regionId > 0)
+			regionIdList = ListUtil.newArrayList(regionId);
+
 		// 会计角色过滤状态
 		Boolean isYzyAndYjy = false;
 		List<String> stateList = new ArrayList<>();
@@ -739,10 +746,20 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 		try {
 			super.setGetHeader(response);
+			// 处理顾问管理员
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
+				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
+				regionIdList = ListUtil.newArrayList(adminUserLoginInfo.getRegionId());
+				for (RegionDTO region : regionList)
+					regionIdList.add(region.getId());
+			}
+
 			return new Response<Integer>(0,
-					commissionOrderService.countCommissionOrder(id,regionId, maraId, adviserId, officialId, userId, name, phone,
-							wechatUsername, schoolId, isSettle, stateList, commissionStateList, startKjApprovalDate,
-							endKjApprovalDate, isYzyAndYjy,applyState));
+					commissionOrderService.countCommissionOrder(id, regionIdList, maraId, adviserId, officialId, userId,
+							name, phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
+							startKjApprovalDate, endKjApprovalDate, isYzyAndYjy, applyState));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -750,8 +767,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<CommissionOrderListDTO>> list(
-			@RequestParam(value = "id", required = false) Integer id,
+	public Response<List<CommissionOrderListDTO>> list(@RequestParam(value = "id", required = false) Integer id,
 			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "maraId", required = false) Integer maraId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
@@ -801,6 +817,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		else
 			stateList.add(state);
 
+		List<Integer> regionIdList = null;
+		if (regionId != null && regionId > 0)
+			regionIdList = ListUtil.newArrayList(regionId);
+
 //		Date _startKjApprovalDate = null;
 //		if (startKjApprovalDate != null)
 //			_startKjApprovalDate = new Date(Long.parseLong(startKjApprovalDate));
@@ -810,10 +830,20 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 		try {
 			super.setGetHeader(response);
+			// 处理顾问管理员
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
+				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
+				regionIdList = ListUtil.newArrayList(adminUserLoginInfo.getRegionId());
+				for (RegionDTO region : regionList)
+					regionIdList.add(region.getId());
+			}
+
 			return new Response<List<CommissionOrderListDTO>>(0,
-					commissionOrderService.listCommissionOrder(id , regionId, maraId, adviserId, officialId, userId, name,
-							phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
-							startKjApprovalDate, endKjApprovalDate, isYzyAndYjy,applyState, pageNum, pageSize));
+					commissionOrderService.listCommissionOrder(id, regionIdList, maraId, adviserId, officialId, userId,
+							name, phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
+							startKjApprovalDate, endKjApprovalDate, isYzyAndYjy, applyState, pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<CommissionOrderListDTO>>(1, e.getMessage(), null);
 		}
@@ -885,8 +915,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 	@RequestMapping(value = "/down", method = RequestMethod.GET)
 	@ResponseBody
-	public void down(
-			@RequestParam(value = "id", required = false) Integer id,
+	public void down(@RequestParam(value = "id", required = false) Integer id,
 			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "maraId", required = false) Integer maraId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
@@ -934,7 +963,22 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		else
 			stateList.add(state);
 
+		List<Integer> regionIdList = null;
+		if (regionId != null && regionId > 0)
+			regionIdList = ListUtil.newArrayList(regionId);
+
 		try {
+
+			// 处理顾问管理员
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
+				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
+				regionIdList = ListUtil.newArrayList(adminUserLoginInfo.getRegionId());
+				for (RegionDTO region : regionList)
+					regionIdList.add(region.getId());
+			}
+
 			response.reset();// 清空输出流
 			String tableName = "commission_order_information";
 			response.setHeader("Content-disposition",
@@ -948,9 +992,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 //			if (endKjApprovalDate != null)
 //				_endKjApprovalDate = new Date(Long.parseLong(endKjApprovalDate));
 
-			List<CommissionOrderListDTO> commissionOrderList = commissionOrderService.listCommissionOrder(id , regionId,
-					maraId, adviserId, officialId, userId, name, phone, wechatUsername, schoolId, isSettle, stateList,
-					commissionStateList, startKjApprovalDate, endKjApprovalDate, isYzyAndYjy, state, 0, 9999);
+			List<CommissionOrderListDTO> commissionOrderList = commissionOrderService.listCommissionOrder(id,
+					regionIdList, maraId, adviserId, officialId, userId, name, phone, wechatUsername, schoolId,
+					isSettle, stateList, commissionStateList, startKjApprovalDate, endKjApprovalDate, isYzyAndYjy,
+					state, 0, 9999);
 
 			OutputStream os = response.getOutputStream();
 			jxl.Workbook wb;
@@ -1074,8 +1119,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 					return new Response<CommissionOrderListDTO>(1, "仅限会计审核佣金订单.", null);
-				if ("SUPERAD".equalsIgnoreCase(
-						adminUserLoginInfo.getApList())
+				if ("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 						|| "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewKjStateEnum.get(state) != null) {
 						CommissionOrderListDTO commissionOrderListDto = commissionOrderService

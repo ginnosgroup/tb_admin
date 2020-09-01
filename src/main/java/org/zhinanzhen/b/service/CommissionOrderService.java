@@ -14,15 +14,16 @@ public interface CommissionOrderService {
 
 	int updateCommissionOrder(CommissionOrderDTO commissionOrderDto) throws ServiceException;
 
-	public int countCommissionOrder(Integer id ,Integer regionId, Integer maraId, Integer adviserId, Integer officialId,
-			Integer userId, String name, String phone, String wechatUsername, Integer schoolId, Boolean isSettle,
-			List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
-			String endKjApprovalDate, Boolean isYzyAndYjy,String applyState) throws ServiceException;
-
-	public List<CommissionOrderListDTO> listCommissionOrder(Integer id ,Integer regionId, Integer maraId, Integer adviserId,
+	public int countCommissionOrder(Integer id, List<Integer> regionIdList, Integer maraId, Integer adviserId,
 			Integer officialId, Integer userId, String name, String phone, String wechatUsername, Integer schoolId,
 			Boolean isSettle, List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
-			String endKjApprovalDate, Boolean isYzyAndYjy,String applyState, int pageNum, int pageSize) throws ServiceException;
+			String endKjApprovalDate, Boolean isYzyAndYjy, String applyState) throws ServiceException;
+
+	public List<CommissionOrderListDTO> listCommissionOrder(Integer id, List<Integer> regionIdList, Integer maraId,
+			Integer adviserId, Integer officialId, Integer userId, String name, String phone, String wechatUsername,
+			Integer schoolId, Boolean isSettle, List<String> stateList, List<String> commissionStateList,
+			String startKjApprovalDate, String endKjApprovalDate, Boolean isYzyAndYjy, String applyState, int pageNum,
+			int pageSize) throws ServiceException;
 
 	List<CommissionOrderListDTO> listThisMonthCommissionOrder(Integer adviserId, Integer officialId)
 			throws ServiceException;
@@ -43,6 +44,5 @@ public interface CommissionOrderService {
 	int deleteComment(int id) throws ServiceException;
 
 	int deleteCommissionOrder(int id) throws ServiceException;
-
 
 }
