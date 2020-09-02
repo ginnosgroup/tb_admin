@@ -591,6 +591,7 @@ public class VisaController extends BaseCommissionOrderController {
 		if (regionId != null && regionId > 0)
 			regionIdList = ListUtil.newArrayList(regionId);
 		
+System.out.println("1=====regionIdList:" + regionIdList);
 //		Date _startKjApprovalDate = null;
 //		if (startKjApprovalDate != null)
 //			_startKjApprovalDate = new Date(Long.parseLong(startKjApprovalDate));
@@ -610,6 +611,7 @@ public class VisaController extends BaseCommissionOrderController {
 					regionIdList.add(region.getId());
 			}
 			
+System.out.println("2=====regionIdList:" + regionIdList);
 			List<VisaDTO> list = visaService.listVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, regionIdList,
 					adviserId, userId, state, pageNum, pageSize);
