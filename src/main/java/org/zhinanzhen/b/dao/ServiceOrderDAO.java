@@ -14,7 +14,7 @@ public interface ServiceOrderDAO {
 	int updateReviewState(@Param("id") Integer id, @Param("reviewState") String reviewState);
 
 	int countServiceOrder(@Param("type") String type, @Param("excludeState") String excludeState,
-			@Param("stateList") List<String> stateList, @Param("reviewStateList") List<String> reviewStateList,
+			@Param("stateList") List<String> stateList, @Param("auditingState") String auditingState, @Param("reviewStateList") List<String> reviewStateList,
 			@Param("startMaraApprovalDate") String startMaraApprovalDate,
 			@Param("endMaraApprovalDate") String endMaraApprovalDate,
 			@Param("startOfficialApprovalDate") String startOfficialApprovalDate,
@@ -25,7 +25,7 @@ public interface ServiceOrderDAO {
 			@Param("isNotApproved") Boolean isNotApproved);
 
 	List<ServiceOrderDO> listServiceOrder(@Param("type") String type, @Param("excludeState") String excludeState,
-			@Param("stateList") List<String> stateList, @Param("reviewStateList") List<String> reviewStateList,
+			@Param("stateList") List<String> stateList, @Param("auditingState") String auditingState, @Param("reviewStateList") List<String> reviewStateList,
 			@Param("startMaraApprovalDate") String startMaraApprovalDate,
 			@Param("endMaraApprovalDate") String endMaraApprovalDate,
 			@Param("startOfficialApprovalDate") String startOfficialApprovalDate,

@@ -170,17 +170,17 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	}
 
 	@Override
-	public int countServiceOrder(String type, String excludeState, List<String> stateList, List<String> reviewStateList,
+	public int countServiceOrder(String type, String excludeState, List<String> stateList, String auditingState, List<String> reviewStateList,
 			String startMaraApprovalDate, String endMaraApprovalDate, String startOfficialApprovalDate,
 			String endOfficialApprovalDate, List<Integer> regionIdList, Integer userId, Integer maraId,
 			Integer adviserId, Integer officialId, int parentId, boolean isNotApproved) throws ServiceException {
-		return serviceOrderDao.countServiceOrder(type, excludeState, stateList, reviewStateList, startMaraApprovalDate,
+		return serviceOrderDao.countServiceOrder(type, excludeState, stateList, auditingState, reviewStateList, startMaraApprovalDate,
 				endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate, regionIdList, userId, maraId,
 				adviserId, officialId, parentId, isNotApproved);
 	}
 
 	@Override
-	public List<ServiceOrderDTO> listServiceOrder(String type, String excludeState, List<String> stateList,
+	public List<ServiceOrderDTO> listServiceOrder(String type, String excludeState, List<String> stateList, String auditingState,
 			List<String> reviewStateList, String startMaraApprovalDate, String endMaraApprovalDate,
 			String startOfficialApprovalDate, String endOfficialApprovalDate, List<Integer> regionIdList,
 			Integer userId, Integer maraId, Integer adviserId, Integer officialId, int parentId, boolean isNotApproved,
@@ -192,7 +192,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		if (pageSize < 0)
 			pageSize = DEFAULT_PAGE_SIZE;
 		try {
-			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, excludeState, stateList, reviewStateList,
+			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, excludeState, stateList, auditingState, reviewStateList,
 					startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate,
 					regionIdList, userId, maraId, adviserId, officialId, parentId, isNotApproved, pageNum * pageSize,
 					pageSize);
