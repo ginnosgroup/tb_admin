@@ -161,6 +161,17 @@ public class BaseController {
 		}
 		return null;
 	}
+	
+	// 获取当前Official管理员编号
+	protected Integer getOfficialAdminId(HttpServletRequest request) {
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo != null) {
+			String ap = adminUserLoginInfo.getApList();
+			if (ap != null && ap.contains("WAAD"))
+				return adminUserLoginInfo.getOfficialId();
+		}
+		return null;
+	}
 
 	// 获取当前KJ编号
 	protected Integer getKjId(HttpServletRequest request) {

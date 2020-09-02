@@ -164,7 +164,6 @@ public class ServiceOrderController extends BaseController {
 			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 				return new Response<Integer>(1, "仅限顾问和超级管理员能创建服务订单.", 0);
-			
 			ServiceOrderDTO serviceOrderDto = new ServiceOrderDTO();
 			serviceOrderDto.setCode(UUID.randomUUID().toString());
 			if (StringUtil.isNotEmpty(type))
@@ -324,6 +323,8 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "remarks", required = false) String remarks,
 			@RequestParam(value = "closedReason", required = false) String closedReason, HttpServletRequest request,
 			HttpServletResponse response) {
+		if (getOfficialAdminId(request) != null)
+			return new Response<Integer>(1, "文案管理员不可操作服务订单.", 0);
 		try {
 			super.setPostHeader(response);
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
@@ -435,6 +436,8 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "coePaymentVoucherImageUrl5", required = false) String coePaymentVoucherImageUrl5,
 			@RequestParam(value = "visaVoucherImageUrl", required = false) String visaVoucherImageUrl,
 			HttpServletRequest request, HttpServletResponse response) {
+		if (getOfficialAdminId(request) != null)
+			return new Response<Integer>(1, "文案管理员不可操作服务订单.", 0);
 		try {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
@@ -473,6 +476,8 @@ public class ServiceOrderController extends BaseController {
 	public Response<Integer> updateRemarks(@RequestParam(value = "id") int id,
 			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
 			HttpServletResponse response) {
+		if (getOfficialAdminId(request) != null)
+			return new Response<Integer>(1, "文案管理员不可操作服务订单.", 0);
 		try {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
@@ -485,6 +490,26 @@ public class ServiceOrderController extends BaseController {
 				return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
 			if (StringUtil.isNotEmpty(remarks))
 				serviceOrderDto.setRemarks(remarks);
+			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
+			return i > 0 ? new Response<Integer>(0, i) : new Response<Integer>(1, "修改失败.", 0);
+		} catch (ServiceException e) {
+			return new Response<Integer>(e.getCode(), e.getMessage(), null);
+		}
+	}
+	
+	@RequestMapping(value = "/updateOfficial", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> updateOfficial(@RequestParam(value = "id") int id,
+			@RequestParam(value = "officialId") Integer officialId, HttpServletRequest request,
+			HttpServletResponse response) {
+		if (getOfficialAdminId(request) == null)
+			return new Response<Integer>(1, "仅限文案管理员操作.", 0);
+		try {
+			super.setPostHeader(response);
+			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
+			if (serviceOrderDto == null)
+				return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
+			serviceOrderDto.setOfficialId(officialId);
 			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
 			return i > 0 ? new Response<Integer>(0, i) : new Response<Integer>(1, "修改失败.", 0);
 		} catch (ServiceException e) {
@@ -532,6 +557,10 @@ public class ServiceOrderController extends BaseController {
 		Integer newOfficialId = getOfficialId(request);
 		if (newOfficialId != null) {
 			officialId = newOfficialId;
+			excludeState = ReviewAdviserStateEnum.PENDING.toString();
+		}
+		if (getOfficialAdminId(request) != null) {
+			officialId = null; // 文案管理员可以查看所有文案数据
 			excludeState = ReviewAdviserStateEnum.PENDING.toString();
 		}
 
@@ -610,6 +639,10 @@ public class ServiceOrderController extends BaseController {
 		Integer newOfficialId = getOfficialId(request);
 		if (newOfficialId != null) {
 			officialId = newOfficialId;
+			excludeState = ReviewAdviserStateEnum.PENDING.toString();
+		}
+		if (getOfficialAdminId(request) != null) {
+			officialId = null; // 文案管理员可以查看所有文案数据
 			excludeState = ReviewAdviserStateEnum.PENDING.toString();
 		}
 
