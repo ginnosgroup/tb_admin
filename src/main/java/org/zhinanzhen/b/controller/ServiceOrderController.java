@@ -566,7 +566,7 @@ public class ServiceOrderController extends BaseController {
 
 		List<Integer> regionIdList = null;
 		if (regionId != null && regionId > 0)
-			regionIdList = ListUtil.newArrayList(regionId);
+			regionIdList = ListUtil.buildArrayList(regionId);
 
 		try {
 			super.setGetHeader(response);
@@ -576,7 +576,7 @@ public class ServiceOrderController extends BaseController {
 			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
 				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
-				regionIdList = ListUtil.newArrayList(adminUserLoginInfo.getRegionId());
+				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
 				for (RegionDTO region : regionList)
 					regionIdList.add(region.getId());
 			}
@@ -648,7 +648,7 @@ public class ServiceOrderController extends BaseController {
 
 		List<Integer> regionIdList = null;
 		if (regionId != null && regionId > 0)
-			regionIdList = ListUtil.newArrayList(regionId);
+			regionIdList = ListUtil.buildArrayList(regionId);
 
 		try {
 			super.setGetHeader(response);
@@ -657,7 +657,7 @@ public class ServiceOrderController extends BaseController {
 			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
 				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
-				regionIdList = ListUtil.newArrayList(adminUserLoginInfo.getRegionId());
+				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
 				for (RegionDTO region : regionList)
 					regionIdList.add(region.getId());
 			}

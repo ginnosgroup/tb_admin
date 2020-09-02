@@ -521,7 +521,7 @@ public class VisaController extends BaseCommissionOrderController {
 		
 		List<Integer> regionIdList = null;
 		if (regionId != null && regionId > 0)
-			regionIdList = ListUtil.newArrayList(regionId);
+			regionIdList = ListUtil.buildArrayList(regionId);
 
 //		Date _startKjApprovalDate = null;
 //		if (startKjApprovalDate != null)
@@ -537,7 +537,7 @@ public class VisaController extends BaseCommissionOrderController {
 			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
 				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
-				regionIdList = ListUtil.newArrayList(adminUserLoginInfo.getRegionId());
+				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
 				for (RegionDTO region : regionList)
 					regionIdList.add(region.getId());
 			}
@@ -589,9 +589,8 @@ public class VisaController extends BaseCommissionOrderController {
 
 		List<Integer> regionIdList = null;
 		if (regionId != null && regionId > 0)
-			regionIdList = ListUtil.newArrayList(regionId);
+			regionIdList = ListUtil.buildArrayList(regionId);
 		
-System.out.println("1=====regionIdList:" + regionIdList);
 //		Date _startKjApprovalDate = null;
 //		if (startKjApprovalDate != null)
 //			_startKjApprovalDate = new Date(Long.parseLong(startKjApprovalDate));
@@ -606,12 +605,11 @@ System.out.println("1=====regionIdList:" + regionIdList);
 			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
 				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
-				regionIdList = ListUtil.newArrayList(adminUserLoginInfo.getRegionId());
+				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
 				for (RegionDTO region : regionList)
 					regionIdList.add(region.getId());
 			}
 			
-System.out.println("2=====regionIdList:" + regionIdList);
 			List<VisaDTO> list = visaService.listVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, regionIdList,
 					adviserId, userId, state, pageNum, pageSize);
@@ -716,7 +714,7 @@ System.out.println("2=====regionIdList:" + regionIdList);
 
 		List<Integer> regionIdList = null;
 		if (regionId != null && regionId > 0)
-			regionIdList = ListUtil.newArrayList(regionId);
+			regionIdList = ListUtil.buildArrayList(regionId);
 
 		try {
 
@@ -725,7 +723,7 @@ System.out.println("2=====regionIdList:" + regionIdList);
 			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
 				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
-				regionIdList = ListUtil.newArrayList(adminUserLoginInfo.getRegionId());
+				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
 				for (RegionDTO region : regionList)
 					regionIdList.add(region.getId());
 			}
