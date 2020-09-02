@@ -1,0 +1,2523 @@
+﻿<meta charset="utf-8"/>
+<meta http-equiv="Pragma" content="no-cache" />   
+<meta http-equiv="Cache-Control" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<div class="modal fade" id="addnewservice1_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+		<div class="modal-dialog" role="document" style="width:700px;">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="addnewservice1_id_title">新增签证服务</h4>
+				</div>
+				<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+		      <button data-dismiss="alert" class="close close-sm" type="button">
+		      <i class="fa fa-times"></i>
+		      </button>
+		      <strong>Success!</strong> You  just achieved success.
+		  	</div>
+		  	<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+	        <button data-dismiss="alert" class="close close-sm" type="button">
+	        <i class="fa fa-times"></i>
+	        </button>
+	        <strong id="error_info"></strong>
+	      </div>
+	      <form class="cmxform form-inline" style="" name="addnewservice1_form" id="addnewservice1_form">
+				<div class="modal-body">						
+						<input type="hidden" name="user_id" id="user_id" value="0" />
+						<input type="hidden" name="flist" id="flist" value="" />																	
+						<div class="form-group" style="width:100%;height:40px;">
+							<label class="control-label" style="width:80px;">客户姓名<span style="color:red;">*</span></label>							
+							<label id="b1a"><input type="text" class="form-control small" style="width:150px;" name="b100" id="b100" placeholder="请输入查询" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,'')" value=""></label>
+							<label id="b1"></label>
+						</div>
+						<div class="form-group" style="width:100%;height:40px;">
+							<label class="control-label" style="width:80px;">顾问<span style="color:red;">*</span></label>
+							<select class="form-control" style="width:150px;" name="b2" id="b2"></select>
+							<label class="control-label" style="display:none;" id="b3text">Mara<span style="color:red;">*</span></label>
+							<select class="form-control" style="display:none;width:150px;" name="b3" id="b3"></select>
+							<label class="control-label" style="display:none;" id="b4text">文案<span style="color:red;">*</span></label>
+							<select class="form-control" style="display:none;width:150px;" name="b4" id="b4"></select>
+						</div>
+						<div class="form-group" style="width:100%;height:40px;">
+							<label class="control-label" style="width:80px;">服务项目<span style="color:red;">*</span></label>
+							<select class="form-control" style="width:150px;" id="b5" onchange="$('#addnewservice1_id').modal('hide');if (this.value == 'OVST'){add_service2(0,v.user_id,v.user_name);}else{add_service3(0,v.user_id,v.user_name);}">
+							<option value="VISA">签证</option>
+							<option value="OVST">留学</option>
+							<option value="SIV">独立技术移民</option>
+							</select>
+							<select class="form-control" style="width:150px;margin-left:42px;" name="b6" id="b6"></select>
+							<div style="display:inline;" id="b6a"></div>								
+						</div>
+						<div id="is_payment" class="form-group" style="width:100%;height:40px;">
+							<label class="control-label" style="width:80px;">是否已支付<span style="color:red;">*</span></label>
+							<input type="radio" name="b7" id="b7a" value="1" /><label for="b7a">是</label>
+							<input type="radio" name="b7" id="b7b" value="0" checked="true" style="margin-left:20px;" /><label for="b7b">否</label>&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-weight:bold;color:red;">如果本次服务是免费的 或者 历史订单已经claim过的请选择【否】</span>
+						</div>
+						<div id="show_paid" style="width:100%;display:none;">
+						<div class="form-group" style="width:100%;">								
+								<label class="control-label" style="width:80px;">收款日期</label>
+								<input type="text" autocomplete="off" name="b8" id="b8" class="form-control default-date-picker" style="width:200px;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
+								<label class="control-label">收款方式</label>
+								<select class="form-control" style="width:150px;" name="b9" id="b9"></select>									
+						</div>
+						<div class="form-group" style="display:block;line-height:40px;">
+								<div class="form-group">
+									<label class="control-label" style="width:80px;">总计应收</label>
+									$<input type="text" autocomplete="off" name="b10" id="b10" class="form-control" style="width:100px;">
+								</div>								
+								<div class="form-group" style="margin-left:10px;">
+									<label class="control-label">总计收款</label>
+									$<input type="text" autocomplete="off" name="b12" id="b12" class="form-control" style="width:100px;">
+								</div>
+								<div class="form-group" style="margin-left:10px;">
+									<label class="control-label">付款次数</label>
+									<select class="form-control" style="width:70px;" name="b13" id="b13">
+									<option value="1"  selected="selected">1</option>
+									<option value="2">2</option>
+									</select>
+								</div>
+						</div>
+						<div class="form-group" style="display:block;line-height:40px;">
+								<div class="form-group">
+									<label class="control-label" style="width:80px;">本次应收</label>
+									$<input type="text" autocomplete="off" id="b14a" name="b14a" onkeyup="computeVisaDiscount()" class="form-control" style="width:80px;">
+								</div>
+								<div class="form-group" style="margin-left:10px;">
+									<label class="control-label">折扣</label>
+									$<input type="text" autocomplete="off" disabled="disabled" name="b11" id="b11" class="form-control" style="width:80px;">
+								</div>
+								<div class="form-group">
+									<label class="control-label" style="color:red;">本次实收金额</label>
+									$<input type="text" autocomplete="off" name="b14" id="b14" onkeyup="computeVisaDiscount()" class="form-control" style="width:80px;">
+								</div>
+								<div class="form-group" style="margin-left:10px;">
+									<label class="control-label">GST</label>
+									$<input type="text" autocomplete="off" name="b15" id="b15" class="form-control" readonly="true" style="width:80px;">
+								</div>
+								<div class="form-group" style="margin-left:10px;">
+									<label class="control-label">Deduct GST</label>
+									$<input type="text" autocomplete="off" name="b16" id="b16" class="form-control" readonly="true" style="width:80px;">
+								</div>
+								<div class="form-group" style="margin-left:10px;">
+									<label class="control-label">预收业绩</label>
+									$<input type="text" autocomplete="off" readonly="readonly" name="b17" id="b17" class="form-control" style="width:80px;">&nbsp;<span style="font-weight:bold;">(“本次实收金额”务必填写实际收到客户的金额。)</span>
+								</div>
+						</div>
+						</div>
+						<div class="form-group" style="width:100%;line-height:40px;">
+							<label class="control-label">备注 <span style="color:red;font-weight:bold;">(可填写之前任务邮件内容，如申请人数，资料坚果云地址。)</span></label>
+							<textarea id="b18" class="form-control" style="width:98%"></textarea>
+						</div>						
+				</div>
+				<div class="modal-footer" style="text-align: center;">
+					<input type="file" id="f1" style="display:none">
+					<div id="show_currentpic" style="display:none;padding-bottom:10px;"></div>
+					<div id="show_pic" style="display:none;padding-bottom:10px;"></div>
+					<button onclick="upload_receipt_pic('f1')" id="upload_receipt" style="display:none;" type="button" class="btn btn-danger">上传收款凭证</button>
+					<button id="btnSubmit" type="submit" class="btn btn-primary"><span id="btn_id">提交</span></button>
+					<button onclick="flowstep('REVIEW',1)" id="btnReview" style="display:none;" type="button" class="btn btn-primary">提交审核</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+				</div>
+				</form>
+			</div>
+		</div>
+</div>
+<div class="modal fade" id="addnewservice2_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+		<div class="modal-dialog" role="document" style="width:700px;">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="addnewservice2_id_title">新增留学服务</h4>
+				</div>
+				<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+		      <button data-dismiss="alert" class="close close-sm" type="button">
+		      <i class="fa fa-times"></i>
+		      </button>
+		      <strong>Success!</strong> You  just achieved success.
+		  	</div>
+		  	<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+	        <button data-dismiss="alert" class="close close-sm" type="button">
+	        <i class="fa fa-times"></i>
+	        </button>
+	        <strong id="error_info"></strong>
+	      </div>
+	      <form class="cmxform form-inline" style="" name="addnewservice2_form" id="addnewservice2_form">
+				<div class="modal-body">						
+						<input type="hidden" name="user_id" id="user_id" value="0" />
+						<input type="hidden" name="schoolid" id="schoolid" value="0" />
+						<input type="hidden" name="school_name" id="school_name" value="" />
+						<input type="hidden" name="school_subject" id="school_subject" value="" />																				
+						<div class="form-group" style="width:100%;height:40px;">
+							<label class="control-label" style="width:80px;">客户姓名<span style="color:red;">*</span></label>							
+							<label id="c1a"><input type="text" class="form-control small" style="width:150px;" name="c100" id="c100" placeholder="请输入查询" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,'')" value=""></label>
+							<label id="c1"></label>
+						</div>
+						<div class="form-group" style="width:100%;height:40px;">
+							<label class="control-label" style="width:80px;">服务项目<span style="color:red;">*</span></label>
+							<select class="form-control" style="width:150px;" name="c2" id="c2" onchange="$('#addnewservice2_id').modal('hide');if (this.value=='VISA'){add_service1(0,v.user_id,v.user_name);}else{add_service3(0,v.user_id,v.user_name);}">
+							<option value="OVST" selected="selected">留学</option>
+							<option value="VISA">签证</option>
+							<option value="SIV">独立技术移民</option>
+							</select>
+							<label class="control-label">学校<span style="color:red;">*</span></label>
+							<select class="form-control" style="width:150px;" name="c3" id="c3" onchange="if (this.value!=''){addnewservice2_ajax_subject();}else{addnewservice2_set_empty();}"></select>
+							<label class="control-label">课程<span style="color:red;">*</span></label>
+							<select class="form-control" style="width:150px;" name="c4" id="c4" onchange="addnewservice2_set_schoolid(this.value)"></select>					
+						</div>
+						<div class="form-group" style="width:100%;height:40px;">
+							<label class="control-label" style="width:80px;">提前扣佣<span style="color:red;display:none;">*</span></label>
+							<input type="radio" name="c5" id="c5a" value="1" /><label for="c5a">是</label>
+							<input type="radio" name="c5" id="c5b" value="0" checked="true" style="margin-left:20px;" /><label for="c5b">否</label>
+							<input type="checkbox" name="c6" id="c6" value="1" style="margin-left:75px;"><label id="labc6" for="c6">保证金客户</label>
+							<label class="control-label" style="width:80px;margin-left:60px;">Subagency<span style="color:red;">*</span></label>
+							<select class="form-control" style="width:150px;" name="c7" id="c7"></select>	
+						</div>
+						<div class="form-group" style="width:100%;height:40px;">
+							<label class="control-label" style="width:80px;">顾问<span style="color:red;">*</span></label>
+							<select class="form-control" style="width:150px;" name="c8" id="c8"></select>								
+							<label class="control-label">文案<span style="color:red;">*</span></label>
+							<select class="form-control" style="width:150px;" name="c9" id="c9"></select>
+						</div>
+						<div id="show_deposit_user" style="width:100%;display:none;">
+						<div class="form-group" style="width:100%;height:40px;">
+							<label class="control-label" style="width:80px;">保证金是否已支付<span style="color:red;">*</span></label>
+							<input type="radio" name="c10" id="c10a" value="true" checked="true" /><label for="c10a">是</label>
+							<input type="radio" name="c10" id="c10b" value="false" style="margin-left:20px;" /><label for="c10b">否</label>
+						</div>
+						<div id="show_deposit_user_payment" style="width:100%;display:none;">
+						<div class="form-group" style="width:100%;">								
+								<label class="control-label" style="width:80px;">收款日期</label>
+								<input type="text" autocomplete="off" name="c11" id="c11" class="form-control default-date-picker" style="width:200px;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
+								<label class="control-label">收款方式</label>
+								<select class="form-control" style="width:150px;" name="c12" id="c12"></select>									
+						</div>
+						<div class="form-group" style="display:block;line-height:40px;">
+								<div class="form-group">
+									<label class="control-label" style="width:80px;">总计应收</label>
+									$<input type="text" autocomplete="off" onkeyup="computeOvstDiscount()" name="c13" id="c13" class="form-control" style="width:100px;">
+								</div>
+								<div class="form-group" style="margin-left:10px;">
+									<label class="control-label">折扣</label>
+									$<input type="text" autocomplete="off" disabled="disabled" name="c14" id="c14" class="form-control" style="width:100px;">
+								</div>
+								<div class="form-group" style="margin-left:10px;">
+									<label class="control-label">总计收款</label>
+									$<input type="text" autocomplete="off" onkeyup="computeOvstDiscount()" name="c15" id="c15" class="form-control" style="width:100px;">
+								</div>									
+						</div>
+						</div>							
+						</div>
+						<div class="form-group" style="width:100%;line-height:40px;">
+							<label class="control-label">备注 <span style="color:red;font-weight:bold;">(可填写之前任务邮件内容，如申请人数，资料坚果云地址。)</span></label>
+							<textarea id="c16" class="form-control" style="width:98%"></textarea>
+						</div>						
+				</div>
+				<div class="modal-footer" style="text-align: center;">
+					<input type="file" id="f1d" style="display:none">
+					<input type="hidden" name="flist" id="flist" value="" />
+					<div id="show_currentpic" style="display:none;padding-bottom:10px;"></div>
+					<div id="show_pic" style="display:none;padding-bottom:10px;"></div>
+					<button onclick="upload_receipt_pic('f1d')" id="upload_receipt" style="display:none;" type="button" class="btn btn-danger">上传收款凭证</button>
+					<button id="btnSubmit" type="submit" class="btn btn-primary"><span id="btn_id">提交</span></button>
+					<button onclick="flowstep('REVIEW',1)" id="btnReview" style="display:none;" type="button" class="btn btn-primary">提交审核</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+				</div>
+				</form>
+			</div>
+		</div>
+</div>
+<div class="modal fade" id="addnewservice2_add_schoolsubject_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="z-index:999999;">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content" style="background:#efefef;">
+					<div class="modal-header" style="background:#72d0eb;">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">添加课程</h4>
+					</div>
+					<div class="modal-body" style="background:#efefef;">
+							<form class="form-horizontal">
+							<div class="form-group">
+								<label class="col-sm-2 control-label">课程名程<span style="color:red;">*</span></label>
+								<div class="col-sm-8">
+									<input type="text" id="schoolsubject_name" class="form-control" placeholder="" />
+								</div>
+							</div>
+							</form>
+					</div>
+					<div class="modal-footer" style="background:#efefef;">
+						<button type="button" class="btn btn-default" data-dismiss="modal" onclick="addnewservice2_ajax_subject();">取消</button>
+						<button onclick="addnewservice2_schoolSubjectSave()" type="button" class="btn btn-primary">确认</button>
+					</div>
+				</div>
+			</div>
+</div>
+<div class="modal fade" id="addnewservice3_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+		<div class="modal-dialog" role="document" style="width:700px;">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="addnewservice3_id_title">新增独立技术移民服务</h4>
+				</div>
+				<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+		      <button data-dismiss="alert" class="close close-sm" type="button">
+		      <i class="fa fa-times"></i>
+		      </button>
+		      <strong>Success!</strong> You  just achieved success.
+		  	</div>
+		  	<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+	        <button data-dismiss="alert" class="close close-sm" type="button">
+	        <i class="fa fa-times"></i>
+	        </button>
+	        <strong id="error_info"></strong>
+	      </div>
+	      <form class="cmxform form-inline" style="" name="addnewservice3_form" id="addnewservice3_form">
+				<div class="modal-body">
+						<input type="hidden" name="user_id" id="user_id" value="0" />
+						<input type="hidden" name="flist" id="flist" value="" />																	
+						<div class="form-group" style="width:100%;height:40px;">
+							<label class="control-label" style="width:80px;">客户姓名<span style="color:red;">*</span></label>							
+							<label id="b1a"><input type="text" class="form-control small" style="width:150px;" name="b100" id="b100" placeholder="请输入查询" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,'')" value=""></label>
+							<label id="b1"></label>
+						</div>
+						<div class="form-group" style="width:100%;height:40px;">
+							<label class="control-label" style="width:80px;">顾问<span style="color:red;">*</span></label>
+							<select class="form-control" style="width:150px;" name="b2" id="b2"></select>
+							<label class="control-label" style="display:;" id="b3text">Mara<span style="color:red;">*</span></label>
+							<select class="form-control" style="display:;width:150px;" name="b3" id="b3"></select>
+							<label class="control-label" style="display:;" id="b4text">文案<span style="color:red;">*</span></label>
+							<select class="form-control" style="display:;width:150px;" name="b4" id="b4"></select>
+						</div>
+						<div class="form-group" style="width:100%;height:40px;">
+							<label class="control-label" style="width:80px;">服务项目<span style="color:red;">*</span></label>
+							<select class="form-control" style="width:150px;" name="b5" id="b5">
+							<option value="SIV" selected="selected">独立技术移民</option>
+							</select>
+							<select class="form-control" style="width:150px;margin-left:42px;" name="b6" id="b6" onchange="loadServicePackage(this.value,'')"></select>
+							<div style="display:inline;" id="b6a"></div>							
+						</div>
+						<div class="form-group" style="width:100%;height:40px;" id="b7text">
+							<label class="control-label" style="width:80px;">属性<span style="color:red;">*</span></label>
+							<input type="radio" name="b6c" id="b6c1" value="1A" checked="true" /><label for="b6c1">单人</label>							
+							<input type="checkbox" name="b6c1a" id="b6c1a" value="1B" style="display:;margin-left:10px;">
+							<label id="b6c1a1" for="b6c1a" style="display:;width:80px;">单人提配偶</label>
+							<input type="radio" name="b6c" id="b6c2" value="2" style="margin-left:20px;" /><label for="b6c2">多人</label>
+							<select class="form-control" style="display:none;width:100px;margin-left:10px;" id="b6c2a">
+							<option value="2">2人</option>
+							<option value="3">3人</option>
+							<option value="4">4人</option></select>
+							<input type="checkbox" name="b6c3[]" id="b6c3a" value="2A" style="display:none;margin-left:10px;">
+							<label id="b6c3a1" for="b6c3a" style="display:none;width:40px;">带配偶</label>
+							<input type="checkbox" name="b6c3[]" id="b6c3b" value="XB" style="display:none;">
+							<label id="b6c3b1" for="b6c3b" style="display:none;width:70px;">带配偶孩子</label>
+							<input type="checkbox" name="b6c3[]" id="b6c3c" value="XA" style="display:none;">
+							<label id="b6c3c1" for="b6c3c" style="display:none;width:40px;">带孩子</label>
+							<input type="checkbox" name="b6c3[]" id="b6c3d" value="XC" style="display:none;">
+							<label id="b6c3d1" for="b6c3d" style="display:none;width:40px;">其它</label>
+						</div>
+						<div class="form-group" style="width:100%;height:40px;" id="b7text">
+							<label class="control-label" style="width:80px;">是否已支付<span style="color:red;">*</span></label>
+							<input type="radio" name="b7" id="b7a1" value="1" /><label for="b7a1">是</label>
+							<input type="radio" name="b7" id="b7b1" value="0" checked="true" style="margin-left:20px;" /><label for="b7b1">否</label>
+						</div>
+						<div id="show_paid" style="width:100%;display:none;">
+						<div class="form-group" style="width:100%;">								
+								<label class="control-label" style="width:80px;">收款日期</label>
+								<input type="text" autocomplete="off" name="b8" id="b8" class="form-control default-date-picker" style="width:200px;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
+								<label class="control-label">收款方式</label>
+								<select class="form-control" style="width:150px;" name="b9" id="b9"></select>									
+						</div>
+						<div class="form-group" style="display:block;line-height:40px;">
+								<div class="form-group">
+									<label class="control-label" style="width:80px;">总计应收</label>
+									$<input type="text" autocomplete="off" name="b10" id="b10" class="form-control" style="width:100px;">
+								</div>								
+								<div class="form-group" style="margin-left:10px;">
+									<label class="control-label">总计收款</label>
+									$<input type="text" autocomplete="off" name="b12" id="b12" class="form-control" style="width:100px;">
+								</div>
+								<div class="form-group" style="margin-left:10px;">
+									<label class="control-label">付款次数</label>
+									<select class="form-control" style="width:70px;" name="b13" id="b13">
+									<option value="1" selected="selected">1</option>
+									<option value="2">2</option>
+									</select>
+								</div>
+						</div>
+						<div class="form-group" style="display:block;line-height:40px;">
+								<div class="form-group">
+									<label class="control-label" style="width:80px;">本次应收</label>
+									$<input type="text" autocomplete="off" name="b14a" id="b14a" onkeyup="computeVisaDiscount1()" class="form-control" style="width:80px;">
+								</div>
+								<div class="form-group" style="margin-left:10px;">
+									<label class="control-label">折扣</label>
+									$<input type="text" autocomplete="off" disabled="disabled" name="b11" id="b11" class="form-control" style="width:80px;">
+								</div>
+								<div class="form-group">
+									<label class="control-label" style="color:red;">本次实收金额</label>
+									$<input type="text" autocomplete="off" name="b14" id="b14" onkeyup="computeVisaDiscount1()" class="form-control" style="width:80px;">
+								</div>
+								<div class="form-group" style="margin-left:10px;">
+									<label class="control-label">GST</label>
+									$<input type="text" autocomplete="off" name="b15" id="b15" class="form-control" readonly="true" style="width:80px;">
+								</div>
+								<div class="form-group" style="margin-left:10px;">
+									<label class="control-label">Deduct GST</label>
+									$<input type="text" autocomplete="off" name="b16" id="b16" class="form-control" readonly="true" style="width:80px;">
+								</div>
+								<div class="form-group" style="margin-left:10px;">
+									<label class="control-label">预收业绩</label>
+									$<input type="text" autocomplete="off" readonly="readonly" name="b17" id="b17" class="form-control" style="width:80px;">&nbsp;<span style="font-weight:bold;">(“本次实收金额”务必填写实际收到客户的金额。)</span>
+								</div>
+						</div>
+						</div>
+						<div class="form-group" style="width:100%;line-height:40px;">
+							<label class="control-label">备注 <span style="color:red;font-weight:bold;">(可填写之前任务邮件内容，如申请人数，资料坚果云地址。)</span></label>
+							<textarea name="b18" id="b18" class="form-control" style="width:98%"></textarea>
+						</div>						
+				</div>
+				<div class="modal-footer" style="text-align: center;">
+					<input type="file" id="f1a" style="display:none">
+					<div id="show_currentpic" style="display:none;padding-bottom:10px;"></div>
+					<div id="show_pic" style="display:none;padding-bottom:10px;"></div>
+					<button onclick="upload_receipt_pic('f1a')" id="upload_receipt" type="button" class="btn btn-danger">上传收款凭证</button>
+					<button id="btnSubmit" type="submit" class="btn btn-primary"><span id="btn_id">提交</span></button>
+					<button onclick="flowstep('REVIEW',1)" id="btnReview" style="display:none;" type="button" class="btn btn-primary">提交审核</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+				</div>
+				</form>
+			</div>
+		</div>
+</div>
+<style>
+.cmxform .form-group select.error, .cmxform .form-group textarea.error {
+    border-color: #B94A48 !important;
+}
+</style>
+<script>
+function add_service1(orderId,userId,name)
+{
+		//签证服务
+		if (orderId == 0)
+		{
+				//添加
+				$("#addnewservice1_id #user_id").val('0');
+				if (userId != 0)
+				{ 	
+						$("#addnewservice1_id #user_id").val(userId);
+						$('#addnewservice1_id #b1').show();
+						$('#addnewservice1_id #b1').html(name);
+						$('#addnewservice1_id #b1a').hide();      				
+						v.user_id = userId;
+						v.user_name = name;
+				}else
+				{
+						$("#addnewservice1_id #b100").val('');
+						$('#addnewservice1_id #b1').hide();
+						$('#addnewservice1_id #b1').html('');
+						$('#addnewservice1_id #b1a').show();
+				}
+				$("#addnewservice1_id #b3text").show();
+    		$("#addnewservice1_id #b3").show();
+    		$("#addnewservice1_id #b4text").show();
+    		$("#addnewservice1_id #b4").show();	
+				$('#addnewservice1_id #show_paid').hide();
+				$('#addnewservice1_id #upload_receipt').hide();
+				$("#addnewservice1_id #b5 option:first").prop('selected', 'selected');
+				$("#addnewservice1_id #b7b").attr('checked','checked');
+				$("#addnewservice1_id #b8").val('');
+				$("#addnewservice1_id #b9 option:first").prop('selected', 'selected'); 
+				$("#addnewservice1_id #b10").val('');
+				$("#addnewservice1_id #b11").val('');
+				$("#addnewservice1_id #b12").val('');
+				$("#addnewservice1_id #b13 option:first").prop('selected', 'selected'); 
+				$("#addnewservice1_id #b14").val('');
+				$("#addnewservice1_id #b14a").val('');
+				$("#addnewservice1_id #b15").val('');
+				$("#addnewservice1_id #b16").val('');
+				$("#addnewservice1_id #b17").val('');
+				ajax_service('VISA');
+		}else
+		{
+				//修改
+				$.ajax({
+	          url: 'serviceOrder/get?id='+orderId,
+	          type: 'GET',	          
+	          dataType: 'json'
+	        }).done(function(response) {
+	        	response = response.data;			        	
+	        	v_sub.order_detail = response;
+	        	v.orderId = orderId;	        	
+	        	v.orderType = 'VISA';
+	        	var title = '修改签证服务';
+	        	if (response.parentId)
+	        	{
+	        			title = '修改独立技术移民服务';
+	        			$('#addnewservice1_id #addnewservice1_id_title').html(title);
+			        	$('#addnewservice1_id #user_id').val(response.userId);
+					      $('#addnewservice1_id #b100').val(response.user.name);
+					      $("#addnewservice1_id #b3").val(response.maraId);
+					      $("#addnewservice1_id #b4").val(response.officialId);			      
+					      $("#addnewservice1_id #b5 option[value='OVST']").remove();
+					      $("#addnewservice1_id #b5 option[value='VISA']").remove();
+					      ajax_service('SIV');
+					      //$("#addnewservice1_id #b6").val(response.serviceId);
+								$("#addnewservice1_id #b6").find("option:selected").text("");
+								$("#addnewservice1_id #b6").empty();
+								$("#addnewservice1_id #b6").append("<option value='"+response.serviceId+"'>"+response.service.code+"</option>");
+	        			$("#addnewservice1_id #b6").attr("disabled","disabled");	        			
+	        			if (response.servicePackageId)
+					      {
+					      		v.servicepackage_type = response.servicePackage.type;
+					      		if (response.servicePackage.type == 'CA' || response.servicePackage.type == 'VA')
+			        			{
+			        					$("#addnewservice1_id #b3text").show();
+							      		$("#addnewservice1_id #b3").show();
+							      		$("#addnewservice1_id #b4text").show();
+							      		$("#addnewservice1_id #b4").show();	
+			        			}else if (response.servicePackage.type == 'EOI')
+			        			{
+			        					$("#addnewservice1_id #b3text").hide();
+							      		$("#addnewservice1_id #b3").hide();
+			        					$("#addnewservice1_id #b4text").show();
+							      		$("#addnewservice1_id #b4").show();
+			        			}
+			        			$("#addnewservice1_id #b6a").show();
+			        			$("#addnewservice1_id #b6a").html('<span style="padding-left:10px;color:#c2c2c2;">-【'+return_type(response.servicePackage.type)+'】</span>');
+					      }
+					      $('#addnewservice1_id #is_payment').hide();  				      
+					      $('#addnewservice1_id #show_paid').hide();      				
+		  					$('#addnewservice1_id #upload_receipt').hide();
+		  					if (response.remarks) $("#addnewservice1_id #b18").val(response.remarks);
+		  					//$("#addnewservice1_id #btnSubmit").attr("onclick","Service3VisaSave();");				          		
+	        	}else
+	        	{
+	        			v.servicepackage_type = 'VA';
+	        			$("#addnewservice1_id #b3text").show();
+			      		$("#addnewservice1_id #b3").show();
+			      		$("#addnewservice1_id #b4text").show();
+			      		$("#addnewservice1_id #b4").show();		        			
+	        			$('#addnewservice1_id #is_payment').show();
+	        			$("#addnewservice1_id #b6a").hide();
+	        			$('#addnewservice1_id #addnewservice1_id_title').html(title);
+			        	$('#addnewservice1_id #user_id').val(response.userId);
+					      $('#addnewservice1_id #b100').val(response.user.name);
+					      $("#addnewservice1_id #b3").val(response.maraId);
+					      $("#addnewservice1_id #b4").val(response.officialId);			      
+					      $("#addnewservice1_id #b5 option[value='OVST']").remove();
+					      $("#addnewservice1_id #show_pic").html('');
+	        			$("#addnewservice1_id #show_pic").hide();
+					      ajax_service('VISA');
+					      $("#addnewservice1_id #b6").val(response.serviceId);			      
+					      var setPay = 1;
+			        	if (response.pay)
+			        	{
+			        			setPay = 0;
+			        			$('#addnewservice1_id #show_paid').show();      				
+		  							$('#addnewservice1_id #upload_receipt').show();
+		  							//生成收款凭证列表
+		  							var str_flist = '';
+		  							$("#addnewservice1_id #show_currentpic").empty();
+		  							if (response.paymentVoucherImageUrl1)
+		  							{
+		  									str_flist = response.paymentVoucherImageUrl1;
+		  									$("#addnewservice1_id #show_currentpic").append('<a href="/statics'+response.paymentVoucherImageUrl1+'" target="_blank">查看凭证1</a>&nbsp;');
+		  							}
+		  							if (response.paymentVoucherImageUrl2)
+		  							{
+		  									str_flist += ','+response.paymentVoucherImageUrl2;
+		  									$("#addnewservice1_id #show_currentpic").append('<a href="/statics'+response.paymentVoucherImageUrl2+'" target="_blank">查看凭证2</a>&nbsp;');
+		  							}
+		  							if (response.paymentVoucherImageUrl3)
+		  							{
+		  									str_flist += ','+response.paymentVoucherImageUrl3;
+		  									$("#addnewservice1_id #show_currentpic").append('<a href="/statics'+response.paymentVoucherImageUrl3+'" target="_blank">查看凭证3</a>&nbsp;');
+		  							}
+		  							if (response.paymentVoucherImageUrl4)
+		  							{
+		  									str_flist += ','+response.paymentVoucherImageUrl4;
+		  									$("#addnewservice1_id #show_currentpic").append('<a href="/statics'+response.paymentVoucherImageUrl3+'" target="_blank">查看凭证4</a>&nbsp;');
+		  							}
+		  							if (response.paymentVoucherImageUrl5)
+		  							{
+		  									str_flist += ','+response.paymentVoucherImageUrl5;
+		  									$("#addnewservice1_id #show_currentpic").append('<a href="/statics'+response.paymentVoucherImageUrl3+'" target="_blank">查看凭证5</a>&nbsp;');
+		  							}
+		  							if (str_flist != '') $('#addnewservice1_id #flist').val(str_flist);
+		  							$('#addnewservice1_id #show_currentpic').show(); 
+			        	}else
+			        	{
+			        			$('#addnewservice1_id #show_paid').hide();
+		  							$('#addnewservice1_id #upload_receipt').hide();
+			        	}
+			        	$('#addnewservice1_id :radio:eq('+setPay+')').prop("checked",'checked');
+			        	if (response.receiveDate) $("#addnewservice1_id #b8").val(v.getTime(response.receiveDate));
+			        	$("#addnewservice1_id #b9").val(response.receiveTypeId);
+			        	if (response.receivable) $("#addnewservice1_id #b10").val(response.receivable);
+			        	if (response.discount) $("#addnewservice1_id #b11").val(response.discount);
+			        	if (response.received) $("#addnewservice1_id #b12").val(response.received);
+			        	if (response.installment) $("#addnewservice1_id #b13").val(response.installment);
+			        	if (response.perAmount) $("#addnewservice1_id #b14a").val(response.perAmount);
+			        	if (response.amount) $("#addnewservice1_id #b14").val(response.amount);
+			        	if (response.gst) $("#addnewservice1_id #b15").val(response.gst);
+			        	if (response.deductGst) $("#addnewservice1_id #b16").val(response.deductGst);
+			        	if (response.expectAmount) $("#addnewservice1_id #b17").val(response.expectAmount);
+			        	if (response.remarks) $("#addnewservice1_id #b18").val(response.remarks);
+			        	//$("#addnewservice1_id #btnSubmit").attr("onclick","addnewService1Save();");
+	        	}
+	        	if (response.submitted || response.hasCommissionOrder)//已提交佣金，不允许修改收款数据
+	        	{
+	        			$("#addnewservice1_id #b8").attr("disabled",true);
+	        			$("#addnewservice1_id #b9").attr("disabled",true);
+	        			$("#addnewservice1_id #b10").attr("disabled",true);
+	        			$("#addnewservice1_id #b12").attr("disabled",true);
+	        			$("#addnewservice1_id #b13").attr("disabled",true);
+	        			$("#addnewservice1_id #b14").attr("disabled",true);
+	        			$("#addnewservice1_id #b14a").attr("disabled",true);	        			
+	        	}else
+	        	{
+	        			$("#addnewservice1_id #b8").attr("disabled",false);
+	        			$("#addnewservice1_id #b9").attr("disabled",false);
+	        			$("#addnewservice1_id #b10").attr("disabled",false);
+	        			$("#addnewservice1_id #b12").attr("disabled",false);
+	        			$("#addnewservice1_id #b13").attr("disabled",false);
+	        			$("#addnewservice1_id #b14").attr("disabled",false);
+	        			$("#addnewservice1_id #b14a").attr("disabled",false);
+	        	}        		        		        		        	
+	        	$('#addnewservice1_id #btn_id').html('保存修改');
+	        	//$('#addnewservice1_id #btnReview').show();
+	      });
+		}
+		v.addnewservice1_bind = 1;//签证表单：绑定下拉框选项
+		$('#addnewservice1_id').modal('show');		
+}
+
+function add_service2(orderId,userId,name)
+{
+		$("#addnewservice2_id #c11").val('');
+		$("#addnewservice2_id #c13").val('');
+		$("#addnewservice2_id #c14").val('');
+		$("#addnewservice2_id #c15").val('');
+		//留学服务
+		if (orderId == 0)
+		{
+				//添加
+				$("#addnewservice2_id #user_id").val('0');
+				if (userId != '')
+				{ 	
+						$("#addnewservice2_id #user_id").val(userId);
+						$('#addnewservice2_id #c1').show();
+						$('#addnewservice2_id #c1').html(name);
+						$('#addnewservice2_id #c1a').hide();      				
+						v.user_id = userId;
+						v.user_name = name;
+				}else
+				{
+						$("#addnewservice2_id #c100").val('');
+						$('#addnewservice2_id #c1').hide();
+						$('#addnewservice2_id #c1').html('');
+						$('#addnewservice2_id #c1a').show();
+				}
+				$("#addnewservice2_id #labc6");
+				var school_subject = $("#addnewservice2_id #c4");
+				school_subject.append("<option value=''>请选择</option>");    		
+				$("#addnewservice2_id #c2 option:first").prop('selected', 'selected');				
+		}else
+		{
+				//修改
+				$.ajax({
+	          url: 'serviceOrder/get?id='+orderId,
+	          type: 'GET',
+	          dataType: 'json'
+	        }).done(function(response) {
+	        	response = response.data;
+	        	v.orderId = orderId;
+	        	$('#addnewservice2_id #addnewservice2_id_title').html('修改留学服务');
+	        	$('#addnewservice2_id #upload_receipt').hide();
+	        	$('#addnewservice2_id #user_id').val(response.userId);
+		      	$('#addnewservice2_id #c100').val(response.user.name);
+		      	$("#addnewservice2_id #c2 option[value='VISA']").remove();
+		      	$("#addnewservice2_id #c3").val(response.school.name);
+		      	$("#addnewservice2_id #c4").val(response.schoolId);
+		      	var school_subject = $("#addnewservice2_id #c4");
+						school_subject.append("<option value=''>请选择</option>"); 
+		      	$("#addnewservice2_id #c7").val(response.subagencyId);
+		      	$("#addnewservice2_id #c8").val(response.adviserId);
+		      	$("#addnewservice2_id #c9").val(response.officialId);
+		      	$("#addnewservice2_id #schoolid").val(response.schoolId);
+		      	$("#addnewservice2_id #school_name").val(response.school.name);
+		      	$("#addnewservice2_id #school_subject").val(response.school.subject);
+		      	var is_settle = 1;
+		      	if (response.settle) is_settle = 0;
+		      	$('#addnewservice2_id :radio:eq('+is_settle+')').prop("checked",'checked');
+		      	$('#addnewservice2_id #show_deposit_user').hide();
+		      	if (response.depositUser)
+		      	{		      			
+		      			$('#addnewservice2_id  :checkbox').prop("checked",'checked');
+		      			$('#addnewservice2_id #show_deposit_user').show();
+		      	}else
+		      	{
+		      			$('#addnewservice2_id  :checkbox').prop("checked",false);
+		      	}
+		      	var is_pay = 1;
+		      	if (response.pay)
+		      	{
+		      			is_pay = 0;
+		      			$('#addnewservice2_id #show_deposit_user_payment').show();
+		      			$('#addnewservice2_id #upload_receipt').show();
+		      			//生成收款凭证列表		      			
+  							var str_flist = '';
+  							$("#addnewservice2_id #show_currentpic").empty();
+  							if (response.paymentVoucherImageUrl1)
+  							{
+  									str_flist = response.paymentVoucherImageUrl1;
+  									$("#addnewservice2_id #show_currentpic").append('<a href="/statics'+response.paymentVoucherImageUrl1+'" target="_blank">查看当前凭证1</a>&nbsp;');
+  							}
+  							if (response.paymentVoucherImageUrl2)
+  							{
+  									str_flist += ','+response.paymentVoucherImageUrl2;
+  									$("#addnewservice2_id #show_currentpic").append('<a href="/statics'+response.paymentVoucherImageUrl2+'" target="_blank">查看当前凭证2</a>&nbsp;');
+  							}
+  							if (response.paymentVoucherImageUrl3)
+  							{
+  									str_flist += ','+response.paymentVoucherImageUrl3;
+  									$("#addnewservice2_id #show_currentpic").append('<a href="/statics'+response.paymentVoucherImageUrl3+'" target="_blank">查看当前凭证3</a>&nbsp;');
+  							}
+  							if (response.paymentVoucherImageUrl4)
+  							{
+  									str_flist += ','+response.paymentVoucherImageUrl4;
+  									$("#addnewservice2_id #show_currentpic").append('<a href="/statics'+response.paymentVoucherImageUrl3+'" target="_blank">查看当前凭证4</a>&nbsp;');
+  							}
+  							if (response.paymentVoucherImageUrl5)
+  							{
+  									str_flist += ','+response.paymentVoucherImageUrl5;
+  									$("#addnewservice2_id #show_currentpic").append('<a href="/statics'+response.paymentVoucherImageUrl3+'" target="_blank">查看当前凭证5</a>&nbsp;');
+  							}
+  							if (str_flist != '') $('#addnewservice2_id #flist').val(str_flist);
+  							$('#addnewservice2_id #show_currentpic').show(); 
+		      	}
+		      	$('#addnewservice2_id :radio[name=c10]:eq('+is_pay+')').prop("checked",'checked');			        	
+		      	if (response.receiveDate) $("#addnewservice2_id #c11").val(v.getTime(response.receiveDate));
+		      	$("#addnewservice2_id #c12").val(response.receiveTypeId);
+		      	if (response.receivable) $("#addnewservice2_id #c13").val(response.receivable);
+		      	if (response.discount) $("#addnewservice2_id #c14").val(response.discount);
+		      	if (response.received) $("#addnewservice2_id #c15").val(response.received);
+		      	if (response.remarks) $("#addnewservice2_id #c16").val(response.remarks);
+		      	addnewservice2_ajax_subject();
+		      	$('#addnewservice2_id #btn_id').html('保存修改');
+	        	//$('#addnewservice2_id #btnReview').show();
+	       });				
+		}
+		v.addnewservice2_bind = 1;//留学表单：绑定下拉框选项		
+		$('#addnewservice2_id').modal('show');   		
+}
+
+function add_service3(orderId,userId,name)
+{
+		//独立移民服务
+		if (orderId == 0)
+		{
+				//添加				
+				$("#addnewservice3_id #user_id").val('0');
+				if (userId != 0)
+				{ 	
+						$("#addnewservice3_id #user_id").val(userId);
+						$('#addnewservice3_id #b1').show();
+						$('#addnewservice3_id #b1').html(name);
+						$('#addnewservice3_id #b1a').hide();      				
+						v.user_id = userId;
+						v.user_name = name;
+				}else
+				{
+						$("#addnewservice3_id #b100").val('');
+						$('#addnewservice3_id #b1').hide();
+						$('#addnewservice3_id #b1').html('');
+						$('#addnewservice3_id #b1a').show();
+				}
+				$('#addnewservice3_id #show_paid').hide();
+				$('#addnewservice3_id #upload_receipt').hide();
+				$("#addnewservice3_id #b5 option:last").prop('selected', 'selected');
+				$("#addnewservice3_id #b7b").attr('checked','checked');
+				$("#addnewservice3_id #b8").val('');
+				$("#addnewservice3_id #b9 option:first").prop('selected', 'selected'); 
+				$("#addnewservice3_id #b10").val('');
+				$("#addnewservice3_id #b11").val('');
+				$("#addnewservice3_id #b12").val('');
+				$("#addnewservice3_id #b13 option:first").prop('selected', 'selected'); 
+				$("#addnewservice3_id #b14").val('');
+				$("#addnewservice3_id #b14a").val('');
+				$("#addnewservice3_id #b15").val('');
+				$("#addnewservice3_id #b16").val('');
+				$("#addnewservice3_id #b17").val('');					
+				ajax_service('SIV');
+		}else
+		{
+				//修改
+				$.ajax({
+	          url: 'serviceOrder/get?id='+orderId,
+	          type: 'GET',	          
+	          dataType: 'json'
+	        }).done(function(response) {
+	        	response = response.data;			        	
+	        	v_sub.order_detail = response;
+	        	v.orderId = orderId;	        	
+	        	v.orderType = 'SIV';
+	        	$('#addnewservice3_id #addnewservice3_id_title').html('修改独立移民服务');	        	
+	        	$('#addnewservice3_id #user_id').val(response.userId);
+			      $('#addnewservice3_id #b100').val(response.user.name);
+			      $("#addnewservice3_id #b2").val(response.adviserId);
+			      $("#addnewservice3_id #b3").val(response.maraId);
+			      $("#addnewservice3_id #b4").val(response.officialId);
+			      $("#addnewservice3_id #b5 option[value='VISA']").remove();
+			      $("#addnewservice3_id #b5 option[value='OVST']").remove();
+			      ajax_service('SIV');
+			      $("#addnewservice3_id #b6").val(response.serviceId);
+			      $("#addnewservice3_id #b6").attr("disabled","disabled");
+			      if (response.servicePackageId)
+			      {
+			      		if (response.servicePackage.type == 'CA' || response.servicePackage.type == 'VA')
+	        			{
+	        					$("#addnewservice3_id #b3text").show();
+					      		$("#addnewservice3_id #b3").show();
+					      		$("#addnewservice3_id #b4text").show();
+					      		$("#addnewservice3_id #b4").show();	
+	        			}else if (response.servicePackage.type == 'EOI')
+	        			{
+	        					$("#addnewservice3_id #b3text").hide();
+					      		$("#addnewservice3_id #b3").hide();
+	        					$("#addnewservice3_id #b4text").show();
+					      		$("#addnewservice3_id #b4").show();
+	        			}		      		
+			      		//隐掉是否已支付
+			      		$("#addnewservice3_id #b7text").hide();			      		
+			      		response.childrenServicePackageIds = response.servicePackageId;
+			      }else
+			      {
+			      		$('#addnewservice3_id #b6c1a').hide();
+								$('#addnewservice3_id #b6c1a1').hide();
+								$('#addnewservice3_id #b6c2a').hide();				
+								$('#addnewservice3_id #b6c3a').hide();
+								$('#addnewservice3_id #b6c3a1').hide();
+								$('#addnewservice3_id #b6c3b').hide();
+								$('#addnewservice3_id #b6c3b1').hide();
+								$('#addnewservice3_id #b6c3c').hide();
+								$('#addnewservice3_id #b6c3c1').hide();
+								$('#addnewservice3_id #b6c3d').hide();
+								$('#addnewservice3_id #b6c3d1').hide();
+			      		//属性处理
+			      		if (response.peopleType == '1A' || response.peopleType == '1B')
+			      		{
+			      				$('#addnewservice3_id :radio[name=b6c]').get(0).checked=true;
+			      				$('#addnewservice3_id #b6c1a').show();
+										$('#addnewservice3_id #b6c1a1').show();										
+										if (response.peopleType == '1B') $('#addnewservice3_id #b6c1a').attr("checked", true);
+			      		}else
+			      		{			      				
+			      				$('#addnewservice3_id :radio[name=b6c]').get(1).checked=true;
+			      				$('#addnewservice3_id #b6c2 :eq(1)').prop("checked",'checked');
+										$('#addnewservice3_id #b6c2a').show();				
+										$('#addnewservice3_id #b6c3a').show();
+										$('#addnewservice3_id #b6c3a1').show();
+										$('#addnewservice3_id #b6c3b').show();
+										$('#addnewservice3_id #b6c3b1').show();
+										$('#addnewservice3_id #b6c3c').show();
+										$('#addnewservice3_id #b6c3c1').show();
+										$('#addnewservice3_id #b6c3d').show();
+										$('#addnewservice3_id #b6c3d1').show();
+			      				$('#addnewservice3_id #b6c2a').val(response.peopleNumber);
+			      				switch(response.peopleType)
+			      				{
+			      						case '2A':
+			      								$('#addnewservice3_id #b6c3a').attr("checked", true);
+			      						break;
+			      						case 'XB':
+			      								$('#addnewservice3_id #b6c3b').attr("checked", true);
+			      						break;
+			      						case 'XA':
+			      								$('#addnewservice3_id #b6c3c').attr("checked", true);
+			      						break;
+			      						case 'XC':
+			      								$('#addnewservice3_id #b6c3d').attr("checked", true);
+			      						break;
+			      				}
+			      		}
+			      			      		
+			      		$("#addnewservice3_id #b3text").hide();
+				    		$("#addnewservice3_id #b3").hide();
+				    		$("#addnewservice3_id #b4text").hide();
+				    		$("#addnewservice3_id #b4").hide();
+				    		$("#addnewservice3_id #b7text").show();				    		
+			      }
+			      var servicePackageIds = (response.childrenServiceOrders ? return_servicePackageIds(response.childrenServiceOrders): response.servicePackageId);
+			      loadServicePackage(response.serviceId,servicePackageIds);
+			      var setPay = 1;
+	        	if (response.pay)
+	        	{
+	        			setPay = 0;
+	        			$('#addnewservice3_id #show_paid').show();      				
+  							$('#addnewservice3_id #upload_receipt').show();
+  							//生成收款凭证列表
+  							var str_flist = '';
+  							$("#addnewservice3_id #show_currentpic").empty();
+  							if (response.paymentVoucherImageUrl1)
+  							{
+  									str_flist = response.paymentVoucherImageUrl1;
+  									$("#addnewservice3_id #show_currentpic").append('<a href="/statics'+response.paymentVoucherImageUrl1+'" target="_blank">查看当前凭证</a>&nbsp;');
+  							}
+  							if (response.paymentVoucherImageUrl2)
+  							{
+  									str_flist += ','+response.paymentVoucherImageUrl2;
+  									$("#addnewservice3_id #show_currentpic").append('<a href="/statics'+response.paymentVoucherImageUrl2+'" target="_blank">查看当前凭证</a>&nbsp;');
+  							}
+  							if (str_flist != '') $('#addnewservice3_id #flist').val(str_flist);
+  							$('#addnewservice3_id #show_currentpic').show(); 
+	        	}else
+	        	{
+	        			$('#addnewservice3_id #show_paid').hide();
+  							$('#addnewservice3_id #upload_receipt').hide();
+	        	}
+	        	$('#addnewservice3_id :radio[name=b7]').get(setPay).checked = true;
+	        	if (response.receiveDate) $("#addnewservice3_id #b8").val(v.getTime(response.receiveDate));
+	        	$("#addnewservice3_id #b9").val(response.receiveTypeId);
+	        	if (response.receivable) $("#addnewservice3_id #b10").val(response.receivable);
+	        	if (response.discount) $("#addnewservice3_id #b11").val(response.discount);
+	        	if (response.received) $("#addnewservice3_id #b12").val(response.received);
+	        	if (response.installment) $("#addnewservice3_id #b13").val(response.installment);
+	        	if (response.perAmount) $("#addnewservice3_id #b14a").val(response.perAmount);
+	        	if (response.amount) $("#addnewservice3_id #b14").val(response.amount);
+	        	if (response.gst) $("#addnewservice3_id #b15").val(response.gst);
+	        	if (response.deductGst) $("#addnewservice3_id #b16").val(response.deductGst);
+	        	if (response.expectAmount) $("#addnewservice3_id #b17").val(response.expectAmount);
+	        	if (response.remarks) $("#addnewservice3_id #b18").val(response.remarks);	        	      		        	
+	        	$('#addnewservice3_id #btn_id').html('保存修改');
+	        	//$('#addnewservice3_id #btnReview').show();
+	        	if (response.servicePackageId)
+	        	{
+	        			$("#addnewservice3_id #show_paid").hide();
+	        			$('#addnewservice3_id #show_currentpic').hide(); 
+	        			$('#addnewservice3_id #upload_receipt').hide();
+	        			$('#addnewservice3_id #btnReview').hide();	        			  			
+	        	}else
+	        	{	        			
+	        			if(response.pay) $("#addnewservice3_id #show_paid").show();
+	        	}
+	      });
+		}
+		v.addnewservice3_bind = 1;//独立移民表单：绑定下拉框选项
+		$('#addnewservice3_id').modal('show');
+		if (orderId == 0)
+		{
+				$("#addnewservice3_id #b3").rules("add",{required:true,min:1,messages:{required:"",min:""}});	
+		}
+}
+
+function return_servicePackageIds(result)
+{
+		var ids = '';
+		for(var i = 0; i < result.length; i++) {
+				if (ids == '')
+				{
+						ids = result[i].servicePackageId;
+				}else
+				{
+						ids += ','+result[i].servicePackageId;
+				}
+		}
+		return ids;
+}
+
+$('#addnewservice1_id :radio[name=b7]').live('click', function (e) {
+		if ($(this).val() == '1')
+		{
+				$("#addnewservice1_id #b8").rules("add",{required:true,minlength:10,messages:{required:"请选择",minlength:"格式错"}});
+				$("#addnewservice1_id #b10").rules("add",{required:true,number:true,messages:{required:"",number:"格式错"}});
+				$("#addnewservice1_id #b12").rules("add",{required:true,number:true,messages:{required:"",number:"格式错"}});
+				$("#addnewservice1_id #b14a").rules("add",{required:true,number:true,messages:{required:"",number:"格式错"}});
+				$("#addnewservice1_id #b14").rules("add",{required:true,number:true,messages:{required:"",number:"格式错"}});
+				$('#addnewservice1_id #show_paid').show();
+				if (v.orderId != 0)
+				{		
+						$('#addnewservice1_id #upload_receipt').show();
+						$('#addnewservice1_id #show_pic').show();
+				}
+		}else
+		{
+				$("#addnewservice1_id #b8").rules("remove");
+				$("#addnewservice1_id #b10").rules("remove");
+				$("#addnewservice1_id #b12").rules("remove");
+				$("#addnewservice1_id #b14a").rules("remove");
+				$("#addnewservice1_id #b14").rules("remove");
+				$('#addnewservice1_id #show_paid').hide();
+				$('#addnewservice1_id #upload_receipt').hide();
+				$('#addnewservice1_id #show_pic').hide();
+		}				
+});
+
+$('#addnewservice3_id :radio[name=b6c]').live('click', function (e) {
+		if ($(this).val() == '1A')
+		{				
+				$('#addnewservice3_id #b6c1a').show();
+				$('#addnewservice3_id #b6c1a1').show();
+				$('#addnewservice3_id #b6c2a').hide();				
+				$('#addnewservice3_id #b6c3a').hide();
+				$('#addnewservice3_id #b6c3a1').hide();
+				$('#addnewservice3_id #b6c3b').hide();
+				$('#addnewservice3_id #b6c3b1').hide();
+				$('#addnewservice3_id #b6c3c').hide();
+				$('#addnewservice3_id #b6c3c1').hide();
+				$('#addnewservice3_id #b6c3d').hide();
+				$('#addnewservice3_id #b6c3d1').hide();
+		}else
+		{								
+				$('#addnewservice3_id #b6c1a').hide();
+				$('#addnewservice3_id #b6c1a1').hide();
+				$('#addnewservice3_id #b6c2a').show();				
+				$('#addnewservice3_id #b6c3a').show();
+				$('#addnewservice3_id #b6c3a1').show();
+				$('#addnewservice3_id #b6c3b').show();
+				$('#addnewservice3_id #b6c3b1').show();
+				$('#addnewservice3_id #b6c3c').show();
+				$('#addnewservice3_id #b6c3c1').show();
+				$('#addnewservice3_id #b6c3d').show();
+				$('#addnewservice3_id #b6c3d1').show();
+		}				
+});
+
+$("#addnewservice3_id :checkbox[name='b6c3[]']").live('click', function (e) {
+		$("#addnewservice3_id :checkbox[name='b6c3[]']").not(this).attr("checked", false);
+});
+
+$('#addnewservice3_id :radio[name=b7]').live('click', function (e) {
+		if ($(this).val() == '1')
+		{
+				$('#addnewservice3_id #show_paid').show();		
+				$('#addnewservice3_id #upload_receipt').show();
+				$('#addnewservice3_id #show_pic').show();
+		}else
+		{
+				$('#addnewservice3_id #show_paid').hide();
+				$('#addnewservice3_id #upload_receipt').hide();
+				$('#addnewservice3_id #show_pic').hide();
+		}				
+});
+
+$('#addnewservice2_id :checkbox').live('click', function (e) {
+		if($('#addnewservice2_id #c6').is(':checked'))
+		{
+				$("#addnewservice2_id #c11").rules("add",{required:true,minlength:10,messages:{required:"请选择",minlength:"格式错"}});
+				$("#addnewservice2_id #c13").rules("add",{required:true,number:true,messages:{required:"",number:"格式错"}});
+				$("#addnewservice2_id #c15").rules("add",{required:true,number:true,messages:{required:"",number:"格式错"}});
+				$('#addnewservice2_id #upload_receipt').show();
+				$('#addnewservice2_id #show_deposit_user').show();      				
+				$('#addnewservice2_id #show_deposit_user_payment').show(); 
+		}else
+		{
+				$("#addnewservice2_id #c11").rules("remove");
+				$("#addnewservice2_id #c13").rules("remove");
+				$("#addnewservice2_id #c15").rules("remove");
+				$('#addnewservice2_id #show_deposit_user_payment').hide(); 
+				$('#addnewservice2_id #show_deposit_user').hide();
+				$('#addnewservice2_id #upload_receipt').hide();
+		}				
+});
+
+$("#addnewservice2_id :input[name=c10]").live('click', function (e) {
+		if ($(this).val() == 'true')
+		{
+				$("#addnewservice2_id #c11").rules("add",{required:true,minlength:10,messages:{required:"请选择",minlength:"格式错"}});
+				$("#addnewservice2_id #c13").rules("add",{required:true,number:true,messages:{required:"",number:"格式错"}});
+				$("#addnewservice2_id #c15").rules("add",{required:true,number:true,messages:{required:"",number:"格式错"}});				
+				$('#addnewservice2_id #show_deposit_user_payment').show();
+				$('#addnewservice2_id #upload_receipt').show();
+				$('#addnewservice2_id #show_pic').show();
+		}else
+		{
+				$("#addnewservice2_id #c11").rules("remove");
+				$("#addnewservice2_id #c13").rules("remove");
+				$("#addnewservice2_id #c15").rules("remove");
+				$('#addnewservice2_id #show_deposit_user_payment').hide();
+				$('#addnewservice2_id #upload_receipt').hide();
+				$('#addnewservice2_id #show_pic').hide();
+		}				
+});
+
+/*$('#addnewservice2_id #labc6').live('click', function (e) {
+		if (!c6checked)
+		{
+				$('#addnewservice2_id #c6').prop("checked",'checked');
+				$('#addnewservice2_id #show_deposit_user').show();
+				c6checked = 1;
+		}else
+		{
+				$('#addnewservice2_id #c6').prop("checked",false);
+				$('#addnewservice2_id #show_deposit_user').hide();
+				c6checked = 0;
+		}
+});*/
+
+function ajax_service(va)
+{
+		if (va == 'SIV')
+		{
+				//独立移民服务
+				var service_code = $("#addnewservice3_id #b6");
+				service_code.find("option:selected").text("");
+				service_code.empty();
+				service_code.append("<option value=''>请选择</option>");
+				$.ajax({
+          url: 'service/list?name=独立技术移民',
+          type: 'GET',
+          async: false,
+          dataType: 'json'
+        }).done(function(response) {
+        	response = response.data;
+        	for (var item in response)
+        	{
+        			if (!response[item].code == '')
+        			{
+		        			service_code.append("<option value='"+response[item].id+"'>"+response[item].code+"</option>");		
+        			}
+        	}       	     	
+        });
+  	}else if (va == 'VISA')
+		{
+				//签证服务
+				var service_code = $("#addnewservice1_id #b6");
+				service_code.find("option:selected").text("");
+				service_code.empty();
+				service_code.append("<option value=''>请选择</option>");
+				$.ajax({
+          url: 'service/list?name=签证',
+          type: 'GET',
+          async: false,
+          dataType: 'json'
+        }).done(function(response) {
+        	response = response.data;
+        	for (var item in response)
+        	{
+        			if (!response[item].code == '')
+        			{
+		        			service_code.append("<option value='"+response[item].id+"'>"+response[item].code+"</option>");		
+        			}
+        	}	        	     	
+        });
+  	}else if (va == 'OVST')
+  	{
+  			//留学服务
+  			$('#addnewservice1_id').modal('hide'); 
+  			add_service2(v.user_id,v.user_name);
+  	}
+}
+
+function loadServicePackage(service_id,packids)
+{
+		//服务包
+		var service_package = $("#addnewservice3_id #b6a");
+		service_package.empty();
+		if (service_id)
+		{
+				$.ajax({
+		      url: 'servicePackage/list?serviceId='+service_id,
+		      type: 'GET',
+		      async: false,
+		      dataType: 'json'
+		    }).done(function(response) {
+		    	response = response.data;
+		    	var i = 1;
+		    	var strChecked = '';		    	
+		    	for (var item in response)
+		    	{
+		    			if (packids)
+		    			{
+				    			if	(packids.toString().indexOf(response[item].id) >= 0)
+				    			{
+				    					strChecked = ' checked="checked"';
+				    			}else
+				    			{
+				    					strChecked = '';
+				    			}
+				    			service_package.append("<input type='checkbox' name='b6b[]' id='b6b"+i+"' value='"+response[item].id+"'"+strChecked+" disabled='disabled' style='margin-left:10px;'><label for='b6b"+i+"'>"+return_type(response[item].type)+"</label>");
+		    			}else
+		    			{
+		    					strChecked = ' checked="checked"';
+		    					service_package.append("<input type='checkbox' name='b6b[]' id='b6b"+i+"' value='"+response[item].id+"'"+strChecked+" style='margin-left:10px;'><label for='b6b"+i+"'>"+return_type(response[item].type)+"</label>");
+		    			}
+		    			i++; 			
+		    	}
+		    });
+  	}
+}
+
+function return_type(v)
+{
+	var str = '';
+	switch(v)
+	{
+			case 'CA':
+					str = '职业评估';
+			break;
+			case 'EOI':
+					str = 'EOI';
+			break;
+			case 'SA':
+					str = '学校';
+			break;
+			case 'VA':
+					str = '签证申请';
+			break;
+	}
+	return str;
+}
+
+function addnewservice2_ajax_subject()
+{
+	var school_subject = $("#addnewservice2_id #c4");
+	var school_name = $("#addnewservice2_id #c3").find("option:selected").text();			
+	if (school_name != '请选择学校' || $("#addnewservice2_id #school_name").val() != '')
+	{
+			schoolid = $("#addnewservice2_id #schoolid").val();
+			schoolSubject = $("#addnewservice2_id #school_subject").val();
+			if (school_name == '请选择学校') school_name = $("#addnewservice2_id #school_name").val();
+			v.school_name = school_name;						
+			school_subject.find("option:selected").text("");
+			school_subject.empty();
+			school_subject.append("<option value=''>请选择</option>");
+	    $.ajax({
+        url: 'school/list?name='+encodeURIComponent(school_name),
+        type: 'GET',
+        dataType: 'json'
+      }).done(function(response) {
+      	response = response.data;
+      	for (var item in response)
+      	{
+      			if (!response[item].subject == '')
+      			{
+	        			school_subject.append("<option value='"+response[item].id+"'>"+response[item].subject+"</option>");		
+	        			v.country = response[item].country;	        			
+      			}
+      	}
+      	school_subject.append("<option value='-1'>我要添加</option>");
+      	if(schoolSubject != '') school_subject.val(schoolid);		        	
+      });
+	}else
+	{
+			school_subject.find("option:selected").text("");
+			school_subject.empty();
+	}
+}
+
+function addnewservice2_set_empty()
+{
+	var school_subject = $("#addnewservice2_id #c4");
+	school_subject.find("option:selected").text("");
+	school_subject.empty();
+	school_subject.append("<option value=''>请选择</option>");
+}
+
+function addnewservice2_set_schoolid(id)
+{
+	if(id > 0)
+	{
+		$("#addnewservice2_id #schoolid").val(id);
+	}else if(id == '')
+	{
+		$("#addnewservice2_id #schoolid").val(0);
+	}else if(id == -1)
+	{
+		$('#addnewservice2_add_schoolsubject_id').modal('show');
+	}
+}
+
+function addnewservice2_schoolSubjectSave()
+{
+	var school_subject = $("#addnewservice2_add_schoolsubject_id #schoolsubject_name").val();
+	if (school_subject != '')
+	{
+			//if (v.country == '') v.country = 'AUS';
+			var str_url = "school/add";
+			$.post(str_url, { id: 0, name: v.school_name, subject: school_subject, country: v.country},
+	   	function(data){
+	   			if (data.code == 0)
+	   			{
+	   					//添加成功
+	   					$('#addnewservice2_add_schoolsubject_id').modal('hide');
+	   					addnewservice2_ajax_subject();
+	   			}
+	   			//console.log(data);
+	   	});
+	}
+}
+
+function addnewService1Save()
+{
+		var jqInputs = $('input',$("#addnewservice1_id"));
+    var jqSelect = $('select',$("#addnewservice1_id"));
+    var jqTextarea = $('textarea',$("#addnewservice1_id"));    
+    
+    var check_result = 0;    
+    if (jqSelect[0].value != '0' && jqSelect[1].value != '0' && jqSelect[2].value != '0' && jqSelect[4].value != '')
+    {
+    		//如果付款次数为1次，本次应收/本次收款，需要一致    		
+    		var ispaid = $("#addnewservice1_id input[name='b7']:checked").val();
+    		if (ispaid == '1')
+    		{
+    				if (jqInputs[5].value != '' && jqInputs[6].value > 0 && jqInputs[7].value > 0 && jqInputs[8].value > 0 && jqInputs[10].value > 0)
+    				{
+		    				if (jqSelect[6].value == '1' && jqInputs[8].value != jqInputs[10].value)
+		    				{
+		    						$('#addnewservice1_id #alert_error').css('marginLeft','30%');
+						    		$('#addnewservice1_id #alert_error').css('marginTop','20%');
+						    		$('#addnewservice1_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+						        $("#addnewservice1_id #error_info").html('提示：1次付款时，本次应收与本次实收金额需一致！');
+						    		return false;
+		    				}else
+		    				{
+		    						check_result = true;
+		    				}
+    				}else
+    				{
+    						/*$('#addnewservice1_id #alert_error').css('marginLeft','15%');
+				    		$('#addnewservice1_id #alert_error').css('marginTop','20%');
+				    		$('#addnewservice1_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+				        $("#addnewservice1_id #error_info").html('提示：收款日期/总计应收/总计收款/本次应收/本次实收金额必须填写或选择且金额须大于0！');*/
+				        return false;
+    				}	
+    		}else
+    		{
+    				check_result = true;
+    		}
+    }else    		
+    {
+    		$('#addnewservice1_id #alert_error').css('marginLeft','30%');
+    		$('#addnewservice1_id #alert_error').css('marginTop','20%');
+    		$('#addnewservice1_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+        $("#addnewservice1_id #error_info").html('提示：红色字段必须填写或选择！');
+    		return false;
+    }
+    
+    if (check_result)
+    {            	            	            	                             
+       	var str_url = "serviceOrder/add";    		  		
+       	var json = {};       
+       	if (v.orderId != 0)
+       	{
+       			str_url = "serviceOrder/update";
+       			json['id'] = v.orderId;
+       	}
+       	
+       	json['adviserId'] = jqSelect[0].value;
+       	json['maraId'] = jqSelect[1].value;
+       	json['officialId'] = jqSelect[2].value;
+       	json['type'] = jqSelect[3].value;
+       	json['serviceId'] = jqSelect[4].value;
+       	json['paid'] = $("#addnewservice1_id input[name='b7']:checked").val();
+       	json['userId'] = $("#addnewservice1_id #user_id").val();
+       	json['remarks'] = jqTextarea[0].value;
+       	json['isPay'] = false;       	
+       	if (json['paid'] == 1)
+       	{
+       			//校验是否上传了凭证
+       			var flist = $("#addnewservice1_id #flist").val();       			
+       			//if (flist != '')
+       			if (json['adviserId'] != '')
+       			{
+       					//对凭证进行处理
+       					var arr = flist.split(',');
+       					if (arr.length && arr.length <= 5)
+       					{
+       							var t = 1;
+       							for(var i=0;i<arr.length;i++)
+       							{
+	       								json['paymentVoucherImageUrl'+t] = arr[i];
+	       								t++;
+       							}       							
+       					}
+		       			var d1 = 0;          		
+		        		if (jqInputs[5].value != '')
+		        		{
+			          		var arr_d = jqInputs[5].value.split("/");
+			          		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+			              var date = new Date(str_d);
+			              d1 = date.getTime();
+		          	}
+		          	json['receiveDate'] = d1;
+		          	json['receiveTypeId'] = jqSelect[5].value;
+		          	json['receivable'] = jqInputs[6].value;
+		          	json['discount'] = jqInputs[9].value;
+		          	json['received'] = jqInputs[7].value;
+		          	json['perAmount'] = jqInputs[8].value;
+		          	json['installment'] = jqSelect[6].value;
+		          	json['amount'] = jqInputs[10].value;
+		          	json['gst'] = jqInputs[11].value;
+		          	json['deductGst'] = jqInputs[12].value;
+		          	json['expectAmount'] = jqInputs[13].value;
+		          	json['isPay'] = true;
+          	}else
+          	{
+          			$('#addnewservice1_id #alert_error').css('marginTop','30%');
+          			$('#addnewservice1_id #alert_error').css('marginLeft','30%');
+		   					$('#addnewservice1_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+          			$("#addnewservice1_id #error_info").html('收款凭证没有上传，请上传之后再提交。');
+        				return false;
+          	}
+       	}
+       	//console.log(json);       	
+       	//return false;
+       	
+       	$.post(str_url, json,
+		   	function(data){		   			
+		   			if (data.code == 0)
+		   			{
+		   					$('#addnewservice1_id #alert_success').css('marginTop','30%');
+		   					$('#addnewservice1_id #alert_success').css('marginLeft','30%');
+		   					$('#addnewservice1_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+		   					if (v.orderId == 0)
+		   					{
+		   							//json['orderId'] = data.data;		   							
+		   							setTimeout(function(){window.location.href = "serviceorder-list.html";}, 2000);
+		   					}else
+		   					{
+		   							v.getDatalist();
+		   							setTimeout(function(){$('#addnewservice1_id').modal('hide')}, 2000);		   							
+		   					}
+		   			}else
+		   			{
+		   					$('#addnewservice1_id #alert_error').css('marginTop','30%');
+		   					$('#addnewservice1_id #alert_error').css('marginLeft','30%');
+		   					$('#addnewservice1_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+          			$("#addnewservice1_id #error_info").html(data.message);
+	        			return false;
+		   			}
+		   	});       		            
+    }
+}
+
+function addnewService2Save()
+{
+		var jqInputs = $('input',$("#addnewservice2_id"));
+    var jqSelect = $('select',$("#addnewservice2_id"));
+    var jqTextarea = $('textarea',$("#addnewservice2_id"));    
+    
+    var check_result = 0;
+    if (jqSelect[0].value != '0' && jqSelect[1].value != '0' && jqSelect[2].value != '0' && jqSelect[3].value != '0' && jqSelect[4].value != '0' && jqSelect[5].value != '0' && jqInputs[0].value != '0')
+    {
+    		check_result = true;
+    }else
+    {
+    		$('#addnewservice2_id #alert_error').css('marginLeft','30%');
+    		$('#addnewservice2_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+        $("#addnewservice2_id #error_info").html('提示：红色字段必须填写或选择！');
+    		return false;
+    }
+    
+    if (check_result)
+    {    		      	            	            	                             
+       	var str_url = "serviceOrder/add";    		  		
+       	var json = {};
+       	if (v.orderId != 0)
+       	{
+       			str_url = "serviceOrder/update";
+       			json['id'] = v.orderId;
+       	}
+       	             	
+       	json['type'] = jqSelect[0].value;
+       	json['schoolId'] = jqSelect[2].value;
+       	json['isSettle'] = false;
+       	if ($("input[name='c5']:checked").val() == 1) json['isSettle'] = true;
+       	if ($('#addnewservice2_id #c6').is(':checked'))
+       	{
+       			json['isDepositUser'] = true;       			
+       	}else
+       	{
+       			json['isDepositUser'] = false;
+       	}         	
+       	json['subagencyId'] = jqSelect[3].value;
+       	json['adviserId'] = jqSelect[4].value;
+       	json['officialId'] = jqSelect[5].value;             	
+       	json['userId'] = $("#addnewservice2_id #user_id").val();
+       	json['remarks'] = jqTextarea[0].value;
+       	json['isPay'] = false;             	
+       	if (json['isDepositUser'])
+       	{
+       			json['isPay'] = $("#addnewservice2_id input[name='c10']:checked").val();       			
+       			if (json['isPay'] == 'true' && jqInputs[15].value == '')
+       			{
+       					$('#addnewservice2_id #alert_error').css('marginTop','30%');
+		   					$('#addnewservice2_id #alert_error').css('marginLeft','30%');
+		   					$('#addnewservice2_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+          			$("#addnewservice2_id #error_info").html('请上传支付保证金的凭证。');
+	        			return false;
+       			}
+       			
+       			//上传收款凭证
+       			var flist = $("#addnewservice2_id #flist").val();
+       			if (json['isPay'] && flist != '')
+       			{
+       					//对凭证进行处理
+       					var arr = flist.split(',');
+       					if (arr.length && arr.length <= 5)
+       					{
+       							var t = 1;
+       							for(var i=0;i<arr.length;i++)
+       							{
+	       								json['paymentVoucherImageUrl'+t] = arr[i];
+	       								t++;
+       							}       							
+       					}
+       			} 
+       			var d1 = 0;          		
+        		if (jqInputs[10].value != '')
+        		{
+	          		var arr_d = jqInputs[10].value.split("/");
+	          		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+	              var date = new Date(str_d);
+	              d1 = date.getTime();
+          	}
+          	json['receiveDate'] = d1;
+          	json['receiveTypeId'] = jqSelect[6].value;
+          	json['receivable'] = jqInputs[11].value;
+          	json['discount'] = jqInputs[12].value;
+          	json['received'] = jqInputs[13].value;		            			            	
+       	}
+       	//预设空值
+       	json['serviceId'] = 0;
+       	json['maraId'] = 0;
+       	//console.log(json);
+       	//return false;
+       	
+       	$.post(str_url, json,
+		   	function(data){
+		   			if (data.code == 0)
+		   			{
+		   					$('#addnewservice2_id #alert_success').css('marginTop','30%');
+		   					$('#addnewservice2_id #alert_success').css('marginLeft','30%');
+		   					$('#addnewservice2_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+		   					$('#addservice_id').modal('hide');
+		   					if (v.orderId == 0)
+		   					{
+		   							setTimeout(function(){window.location.href = "serviceorder-list.html";}, 2000);
+		   					}else
+		   					{
+		   							setTimeout(function(){$('#addnewservice2_id').modal('hide')}, 2000);
+		   					}
+		   			}else
+		   			{
+		   					$('#addnewservice2_id #alert_error').css('marginTop','30%');
+		   					$('#addnewservice2_id #alert_error').css('marginLeft','30%');
+		   					$('#addnewservice2_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+          			$("#addnewservice2_id #error_info").html(data.message);
+	        			return false;
+		   			}
+		   	});
+       		            
+    }
+}
+
+function addnewService3Save()
+{		 
+    var f = '#addnewservice3_id ';   
+    
+    var check_result = 0;
+    var isCheck = 0;
+    var maraId = 0;
+    var officialId = 0;
+    var people_number = 0;
+    if ($(f+'#b8').val() != '0' && $(f+'#b5').val() != '' && $(f+'#b6').val() != '')
+    {
+    		if (v.orderId != 0)
+    		{
+		    		if (v_sub.order_detail.parentId)
+		    		{
+		    				if (v_sub.order_detail.servicePackage.type == 'CA' || v_sub.order_detail.servicePackage.type == 'VA')//职业评估/签证
+		    				{
+				    				if ($(f+'#b3').val() != '0' && $(f+'#b4').val() != '0')
+				    				{
+				    						maraId = $(f+'#b3').val();
+				    						officialId = $(f+'#b4').val();
+				    						isCheck = 1;    						 				
+				    				}
+		    				}else if(v_sub.order_detail.servicePackage.type == 'EOI')//EOI
+		    				{
+		    						if ($(f+'#b4').val() != '0')
+				    				{
+				    						officialId = $(f+'#b4').val();
+				    						isCheck = 1;    						 				
+				    				}
+		    				}
+		    		}else
+		    		{
+		    				isCheck = 1;
+		    		}
+    		}else
+    		{
+    				maraId = $(f+'#b3').val();
+    				officialId = $(f+'#b4').val();
+    				isCheck = 1;
+    		}
+    		if (isCheck)
+    		{
+    				//检查属性
+    				var people_type = $("#addnewservice3_id input[name='b6c']:checked").val();
+    				if (people_type == '1A')
+    				{
+    						if ($("#addnewservice3_id :checkbox[name='b6c1a']").is(':checked')) people_type = $("#addnewservice3_id input[name='b6c1a']:checked").val();
+    				}else
+    				{
+    						people_number = $(f+'#b6c2a').val();
+    						if ($("#addnewservice3_id :checkbox[name='b6c3[]']").is(':checked'))
+    						{
+    								people_type = $("#addnewservice3_id input[name='b6c3[]']:checked").val();
+    						}else
+    						{
+    								$('#addnewservice3_id #alert_error').css('marginLeft','30%');
+						    		$('#addnewservice3_id #alert_error').css('marginTop','20%');
+						    		$('#addnewservice3_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+						        $("#addnewservice3_id #error_info").html('提示：请选择多人属性！');
+						    		return false;
+    						}
+    				}
+		    		//如果付款次数为1次，本次应收/本次收款，需要一致    		
+		    		var ispaid = $("#addnewservice3_id input[name='b7']:checked").val();
+		    		if (ispaid == '1')
+		    		{
+		    				if ($(f+'#b8').val() != '' && $(f+'#b10').val() > 0 && $(f+'#b12').val() > 0 && $(f+'#b14a').val() > 0 && $(f+'#b14').val() > 0)
+		    				{
+				    				if ($(f+'#b13').val().value == '1' && $(f+'#b14a').val() != $(f+'#b14').val())
+				    				{
+				    						$('#addnewservice3_id #alert_error').css('marginLeft','30%');
+								    		$('#addnewservice3_id #alert_error').css('marginTop','20%');
+								    		$('#addnewservice3_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+								        $("#addnewservice3_id #error_info").html('提示：1次付款时，本次应收与本次实收金额需一致！');
+								    		return false;
+				    				}else
+				    				{
+				    						check_result = true;
+				    				}
+		    				}else
+		    				{
+		    						$('#addnewservice3_id #alert_error').css('marginLeft','15%');
+						    		$('#addnewservice3_id #alert_error').css('marginTop','20%');
+						    		$('#addnewservice3_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+						        $("#addnewservice3_id #error_info").html('提示：收款日期/总计应收/总计收款/本次应收/本次实收金额必须填写或选择且金额须大于0！');
+						        return false;
+		    				}	
+		    		}else
+		    		{
+		    				check_result = true;
+		    		}
+    		}
+    }    
+    if (!check_result) 		
+    {
+    		$('#addnewservice3_id #alert_error').css('marginLeft','30%');
+    		$('#addnewservice3_id #alert_error').css('marginTop','20%');
+    		$('#addnewservice3_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+        $("#addnewservice3_id #error_info").html('提示：红色字段必须填写或选择！');
+    		return false;
+    }
+    
+    if (check_result)
+    {            	            	            	                             
+       	var str_url = "serviceOrder/add";    		  		
+       	var json = {};       
+       	if (v.orderId != 0)
+       	{
+       			str_url = "serviceOrder/update";
+       			json['id'] = v.orderId;
+       	}
+       	
+       	json['adviserId'] = $(f+'#b2').val();
+       	json['maraId'] = maraId;
+       	json['officialId'] = officialId;
+       	json['type'] = $(f+'#b5').val();
+       	json['serviceId'] = $(f+'#b6').val();
+       	var spids = '';
+       	if (v.orderId == 0)
+       	{
+       			var num = 0;
+		       	if ($(f+'#b6b1').is(':checked'))
+		       	{
+		       			spids = $(f+'#b6b1').val();
+		       			num++;		       			
+		       	}
+		       	if ($(f+'#b6b2').is(':checked'))
+		       	{
+		       			num++;
+		       			if (spids)
+		       			{
+		       					spids += ','+$(f+'#b6b2').val();
+		       			}else
+		       			{
+		       					spids += $(f+'#b6b2').val();
+		       			}   	
+		       	}
+		       	if ($(f+'#b6b3').is(':checked'))
+		       	{
+		       			num++;
+		       			if (spids)
+		       			{
+		       					spids += ','+$(f+'#b6b3').val();
+		       			}else
+		       			{
+		       					spids += $(f+'#b6b3').val();
+		       			}   	
+		       	}       	
+		       	if (num<2)
+		       	{
+		       			$('#addnewservice3_id #alert_error').css('marginLeft','30%');
+				    		$('#addnewservice3_id #alert_error').css('marginTop','20%');
+				    		$('#addnewservice3_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+				        $("#addnewservice3_id #error_info").html('提示：服务项目的子项目至少要选择两项！');
+		       			return false;
+		       	}
+      	}
+       	json['servicePackageIds'] = spids;//服务包id
+       	json['peopleType'] = people_type;
+       	json['peopleNumber'] = people_number;
+       	json['paid'] = $("#addnewservice3_id input[name='b7']:checked").val();
+       	json['userId'] = $("#addnewservice3_id #user_id").val();
+       	json['remarks'] = $(f+'#b18').val();
+       	json['isPay'] = false;       	
+       	if (json['paid'] == 1)
+       	{
+       			//校验是否上传了凭证
+       			var flist = $("#addnewservice3_id #flist").val();       			
+       			if (flist != '')
+       			{
+       					//对凭证进行处理
+       					var arr = flist.split(',');
+       					if (arr.length && arr.length <= 5)
+       					{
+       							var t = 1;
+       							for(var i=0;i<arr.length;i++)
+       							{
+	       								json['paymentVoucherImageUrl'+t] = arr[i];
+	       								t++;
+       							}       							
+       					}
+		       			var d1 = 0;          		
+		        		if ($(f+'#b8').val() != '')
+		        		{
+			          		var arr_d = $(f+'#b8').val().split("/");
+			          		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+			              var date = new Date(str_d);
+			              d1 = date.getTime();
+		          	}
+		          	json['receiveDate'] = d1;
+		          	json['receiveTypeId'] = $(f+'#b9').val();
+		          	json['receivable'] = $(f+'#b10').val();
+		          	json['discount'] = $(f+'#b11').val();
+		          	json['received'] = $(f+'#b12').val();
+		          	json['perAmount'] = $(f+'#b14a').val();
+		          	json['installment'] = $(f+'#b13').val();
+		          	json['amount'] = $(f+'#b14').val();
+		          	json['gst'] = $(f+'#b15').val();
+		          	json['deductGst'] = $(f+'#b16').val();
+		          	json['expectAmount'] = $(f+'#b17').val();
+		          	json['isPay'] = true;
+          	}else
+          	{
+          			$('#addnewservice3_id #alert_error').css('marginTop','30%');
+          			$('#addnewservice3_id #alert_error').css('marginLeft','30%');
+		   					$('#addnewservice3_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+          			$("#addnewservice3_id #error_info").html('收款凭证没有上传，请上传之后再提交。');
+        				return false;
+          	}
+       	}
+       	//console.log(json);
+       	//return false;   	
+       	
+       	$.post(str_url, json,
+		   	function(data){		   			
+		   			if (data.code == 0)
+		   			{
+		   					$('#addnewservice3_id #alert_success').css('marginTop','30%');
+		   					$('#addnewservice3_id #alert_success').css('marginLeft','30%');
+		   					$('#addnewservice3_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+		   					if (v.orderId == 0)
+		   					{
+		   							//json['orderId'] = data.data;		   							
+		   							setTimeout(function(){window.location.href = "serviceorder-list.html";}, 2000);
+		   					}else
+		   					{
+		   							v.getDatalist();
+		   							setTimeout(function(){$('#addnewservice3_id').modal('hide')}, 2000);
+		   					}
+		   			}else
+		   			{
+		   					$('#addnewservice3_id #alert_error').css('marginTop','30%');
+		   					$('#addnewservice3_id #alert_error').css('marginLeft','30%');
+		   					$('#addnewservice3_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+          			$("#addnewservice3_id #error_info").html(data.message);
+	        			return false;
+		   			}
+		   	});       		            
+    }
+}
+
+function Service3VisaSave()
+{		 
+    var f = '#addnewservice1_id ';      
+    
+    var check_result = 0;
+    var maraId = 0;
+    var officialId = 0;
+    var e_info = '';
+    
+    if (v.servicepackage_type == 'CA' || v.servicepackage_type == 'VA')
+    {
+    		e_info = '提示：Mara/文案必须选择！';
+    		if ($(f+'#b3').val() != '0' && $(f+'#b4').val() != '0') check_result = 1;    		
+    }else if (v.servicepackage_type == 'EOI')
+    {
+    		e_info = '提示：文案必须选择！';
+    		if ($(f+'#b4').val() != '0') check_result = 1; 
+    }
+        
+    if (!check_result) 		
+    {
+    		$('#addnewservice1_id #alert_error').css('marginLeft','30%');
+    		$('#addnewservice1_id #alert_error').css('marginTop','20%');
+    		$('#addnewservice1_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+        $("#addnewservice1_id #error_info").html(e_info);
+    		return false;
+    }
+    
+    if (check_result)
+    {            	            	            	                             
+       	var str_url = "serviceOrder/update";    		  		
+       	var json = {};       
+       	json['id'] = v.orderId;
+       	json['adviserId'] = $(f+'#b2').val();
+       	json['maraId'] = $(f+'#b3').val();
+       	json['officialId'] = $(f+'#b4').val();
+       	json['type'] = 'VISA';
+       	json['serviceId'] = $(f+'#b6').val();       	
+       	json['userId'] = $("#addnewservice1_id #user_id").val();
+       	json['remarks'] = $(f+'#b18').val();
+       	json['isPay'] = false; 
+       	show_loading();      	       	
+       	
+       	$.post(str_url, json,
+		   	function(data){
+		   			$('#loading_id').modal('hide');	
+		   			if (data.code == 0)
+		   			{
+		   					$('#addnewservice1_id #alert_success').css('marginTop','30%');
+		   					$('#addnewservice1_id #alert_success').css('marginLeft','30%');
+		   					$('#addnewservice1_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+		   					v.getDatalist();
+		   					setTimeout(function(){$('#addnewservice1_id').modal('hide');$('.modal-backdrop').remove();}, 2000);
+		   			}else
+		   			{
+		   					$('#addnewservice1_id #alert_error').css('marginTop','30%');
+		   					$('#addnewservice1_id #alert_error').css('marginLeft','30%');
+		   					$('#addnewservice1_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+          			$("#addnewservice1_id #error_info").html(data.message);
+	        			return false;
+		   			}
+		   	});       		            
+    }
+}
+
+function reqCommissionVisa()
+{
+		var result_data = {};
+		var order = v_sub.order_detail;		
+		if (order.pay == true)
+		{
+				var str_url = "visa/add";
+		   	var json = {};
+		   	   	
+		   	json['userId'] = order.userId;
+		   	json['handlingDate'] = new Date().getTime();
+		   	json['receiveTypeId'] = order.receiveTypeId;
+		   	json['receiveDate'] = order.receiveDate;
+		   	json['serviceId'] = order.serviceId;   	
+		   	json['serviceOrderId'] = v.orderId;
+		   	json['installment'] = order.installment;
+		   	json['receivable'] = order.receivable;
+		   	json['received'] = order.received;
+		   	json['perAmount'] = order.perAmount;
+		   	json['amount'] = order.amount;
+		   	//json['discount'] = order.discount;
+		   	json['adviserId'] = order.adviserId;
+		   	json['maraId'] = order.maraId;
+		   	json['officialId'] = order.officialId;
+		   	json['remarks'] = order.remarks;
+		   	
+		   	$.post(str_url, json,
+		   	function(data){
+		   			$('#loading_id').modal('hide');
+		   			if (data.code != 0)
+		   			{
+		   					$('#alert_error').css('marginLeft','30%');
+		   					$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+	        			$("#error_info").html(data.message);
+	        			return false;		   					
+		   			}else
+		   			{
+		   					$('#alert_success').css('marginLeft','30%');
+		   					$('#alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+		   					v.getDatalist();
+		   			}
+		   	});
+  	}  	
+}
+
+function reqCommissionVisa1(order_json)
+{		
+		var order = order_json;		
+		if (order.isPay == true)
+		{
+				var str_url = "visa/add";
+		   	var json = {};
+		   	
+		   	json['userId'] = order.userId;
+		   	json['handlingDate'] = new Date().getTime();
+		   	json['receiveTypeId'] = order.receiveTypeId;
+		   	json['receiveDate'] = order.receiveDate;
+		   	json['serviceId'] = order.serviceId;   	
+		   	json['serviceOrderId'] = order.orderId;
+		   	json['installment'] = order.paymentTimes;
+		   	json['receivable'] = order.receivable;
+		   	json['received'] = order.received;
+		   	json['perAmount'] = order.perAmount;
+		   	json['amount'] = order.amount;
+		   	//json['discount'] = order.discount;
+		   	json['adviserId'] = order.adviserId;
+		   	json['maraId'] = order.maraId;
+		   	json['officialId'] = order.officialId;
+		   	json['remarks'] = order.remarks;		   	
+		   	
+		   	$.post(str_url, json,
+		   	function(data){		   			
+		   			if (data.code == 0)
+		   			{
+		   					setTimeout(function(){window.location.href = "serviceorder-list.html";}, 2000);
+		   			}else
+		   			{
+		   					$('#addnewservice1_id #alert_error').css('marginTop','50%');
+		   					$('#addnewservice1_id #alert_error').css('marginLeft','30%');
+		   					$('#addnewservice1_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+		      			$("#addnewservice1_id #error_info").html(data.message);
+		      			return false;
+		   			}
+		   	});
+  	}
+}
+
+v.$watch('addnewservice1_bind', function(obj) {
+		$('.default-date-picker').datepicker({   				
+	        format: 'dd/mm/yyyy'
+	  });
+	  $('.default-date-picker1').datepicker({   				
+	        format: 'dd/mm/yyyy'			        
+	  });
+	  //查询客户
+	  var user = $("#addnewservice1_id #b100");
+	  user.autocompleter({
+    	highlightMatches: true,
+    	limit: 10,
+    	cache: false,
+    	customValue: 'name',
+    	customLabel: 'name',
+    	source: 'user/list?authNickname=&phone=&pageNum=0',
+    	combine: function(params) {
+    		return {
+	        name: params.query,
+	        pageSize: params.limit
+	      };
+    	},
+    	callback: function(value, index, object) {
+    		$('#addnewservice1_id #user_id').val(object.id);	    		
+    	},
+    	minLength: 1						    	
+    });    
+	  //绑定顾问
+	  var obj_adviserId = $("#addnewservice1_id #b2");
+	  //obj_adviserId.empty();
+    obj_adviserId.append("<option value='0'>请选择</option>");
+    $.ajax({
+      url: 'adviser/list?pageNum=0&pageSize=100000',
+      type: 'GET',
+      async: false,
+      dataType: 'json'
+    }).done(function(response) {
+    	response = response.data;
+    	for (var item in response)
+    	{
+    			if (v.adviser_id == 'null')
+    			{
+    					obj_adviserId.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+    			}else
+    			{
+    					if (v.adviser_id == response[item].id) obj_adviserId.append("<option value='"+response[item].id+"' selected='true'>"+response[item].name+"</option>");    					
+    			}
+    	}
+    	obj_adviserId.val(v.adviser_id);
+    });
+    //绑定Mara列表			    
+    var obj_mara = $("#addnewservice1_id #b3");
+    //obj_mara.empty();
+    obj_mara.append("<option value='0'>请选择</option>");
+    $.ajax({
+      url: 'mara/list?pageNum=0&pageSize=100000',
+      type: 'GET',
+      async: false,
+      dataType: 'json'
+    }).done(function(response) {
+    	response = response.data;
+    	for (var item in response)
+    	{
+    			obj_mara.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+    	}
+    	obj_mara.val(0);	        	
+    });
+    //绑定文案列表			    
+    var obj_officialId = $("#addnewservice1_id #b4");
+    //obj_officialId.empty();
+    obj_officialId.append("<option value='0'>请选择</option>");
+    $.ajax({
+      url: 'official/list?pageNum=0&pageSize=100000',
+      type: 'GET',
+      async: false,
+      dataType: 'json'
+    }).done(function(response) {
+    	response = response.data;
+    	for (var item in response)
+    	{
+    			obj_officialId.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+    	}
+    	obj_officialId.val(0);	        	
+    });
+    //绑定收款方式
+    var receive_type = $("#addnewservice1_id #b9");    
+    $.ajax({
+      url: 'receiveType/list?state=ENABLED',
+      type: 'GET',
+      async: false,
+      dataType: 'json'
+    }).done(function(response) {
+    	response = response.data;
+    	for (var item in response)
+    	{
+    			receive_type.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+    	}	        	 	    
+    });
+    //计算GST相关金额
+    $("#addnewservice1_id #b14").keyup(function(){
+    	var fee = $("#addnewservice1_id #b14").val();
+    	var gst = (fee/11).toFixed(2);
+    	$("#addnewservice1_id #b15").val(gst);
+    	var deduct_gst = (fee-gst).toFixed(2);
+    	$("#addnewservice1_id #b16").val(deduct_gst);	
+    	$("#addnewservice1_id #b17").val(fee);	        	
+		});
+		//填充总计应收
+		$("#addnewservice1_id #b12").keyup(function(){
+    	var v = $("#addnewservice1_id #b12").val();    	
+    	$("#addnewservice1_id #b10").val(v);    	        	
+		});
+		//填充总计收款
+		$("#addnewservice1_id #b10").keyup(function(){
+    	var v = $("#addnewservice1_id #b10").val();    	
+    	$("#addnewservice1_id #b12").val(v);    	        	
+		});
+});
+
+v.$watch('addnewservice3_bind', function(obj) {
+		$('.default-date-picker').datepicker({   				
+	        format: 'dd/mm/yyyy'
+	  });
+	  $('.default-date-picker1').datepicker({   				
+	        format: 'dd/mm/yyyy'			        
+	  });
+	  //查询客户
+	  var user = $("#addnewservice3_id #b100");
+	  user.autocompleter({
+    	highlightMatches: true,
+    	limit: 10,
+    	cache: false,
+    	customValue: 'name',
+    	customLabel: 'name',
+    	source: 'user/list?authNickname=&phone=&pageNum=0',
+    	combine: function(params) {
+    		return {
+	        name: params.query,
+	        pageSize: params.limit
+	      };
+    	},
+    	callback: function(value, index, object) {
+    		$('#addnewservice3_id #user_id').val(object.id);	    		
+    	},
+    	minLength: 1						    	
+    });    
+	  //绑定顾问
+	  var obj_adviserId = $("#addnewservice3_id #b2");
+	  //obj_adviserId.empty();
+    obj_adviserId.append("<option value='0'>请选择</option>");
+    $.ajax({
+      url: 'adviser/list?pageNum=0&pageSize=100000',
+      type: 'GET',
+      async: false,
+      dataType: 'json'
+    }).done(function(response) {
+    	response = response.data;
+    	for (var item in response)
+    	{
+    			if (v.adviser_id == 'null')
+    			{
+    					obj_adviserId.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+    			}else
+    			{
+    					if (v.adviser_id == response[item].id) obj_adviserId.append("<option value='"+response[item].id+"' selected='true'>"+response[item].name+"</option>");    					
+    			}
+    	}
+    	obj_adviserId.val(v.adviser_id);
+    });
+    //绑定Mara列表			    
+    var obj_mara = $("#addnewservice3_id #b3");
+    //obj_mara.empty();
+    obj_mara.append("<option value='0'>请选择</option>");
+    $.ajax({
+      url: 'mara/list?pageNum=0&pageSize=100000',
+      type: 'GET',
+      async: false,
+      dataType: 'json'
+    }).done(function(response) {
+    	response = response.data;
+    	for (var item in response)
+    	{
+    			obj_mara.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+    	}
+    	obj_mara.val(0);	        	
+    });
+    //绑定文案列表			    
+    var obj_officialId = $("#addnewservice3_id #b4");
+    //obj_officialId.empty();
+    obj_officialId.append("<option value='0'>请选择</option>");
+    $.ajax({
+      url: 'official/list?pageNum=0&pageSize=100000',
+      type: 'GET',
+      async: false,
+      dataType: 'json'
+    }).done(function(response) {
+    	response = response.data;
+    	for (var item in response)
+    	{
+    			obj_officialId.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+    	}
+    	obj_officialId.val(0);	        	
+    });
+    //绑定收款方式
+    var receive_type = $("#addnewservice3_id #b9");    
+    $.ajax({
+      url: 'receiveType/list?state=ENABLED',
+      type: 'GET',
+      async: false,
+      dataType: 'json'
+    }).done(function(response) {
+    	response = response.data;
+    	for (var item in response)
+    	{
+    			receive_type.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+    	}	        	 	    
+    });
+    //计算GST相关金额
+    $("#addnewservice3_id #b14").keyup(function(){
+    	var fee = $("#addnewservice3_id #b14").val();
+    	var gst = (fee/11).toFixed(2);
+    	$("#addnewservice3_id #b15").val(gst);
+    	var deduct_gst = (fee-gst).toFixed(2);
+    	$("#addnewservice3_id #b16").val(deduct_gst);	
+    	$("#addnewservice3_id #b17").val(fee);	        	
+		});
+		//填充总计应收
+		$("#addnewservice3_id #b12").keyup(function(){
+    	var v = $("#addnewservice3_id #b12").val();    	
+    	$("#addnewservice3_id #b10").val(v);    	        	
+		});
+		//填充总计收款
+		$("#addnewservice3_id #b10").keyup(function(){
+    	var v = $("#addnewservice3_id #b10").val();    	
+    	$("#addnewservice3_id #b12").val(v);    	        	
+		});
+});
+
+function computeVisaDiscount()
+{
+		var b14a = $("#addnewservice1_id #b14a").val();
+		var b14 = $("#addnewservice1_id #b14").val();
+		if (parseInt(b14a) && parseInt(b14))
+		{				
+				var discount = parseInt(b14a) - parseInt(b14);
+				$("#addnewservice1_id #b11").val(discount);
+		}
+}
+
+function computeVisaDiscount1()
+{
+		var b14a = $("#addnewservice3_id #b14a").val();
+		var b14 = $("#addnewservice3_id #b14").val();
+		if (parseInt(b14a) && parseInt(b14))
+		{				
+				var discount = parseInt(b14a) - parseInt(b14);
+				$("#addnewservice3_id #b11").val(discount);
+		}
+}
+
+function computeOvstDiscount()
+{
+		var c13 = $("#addnewservice2_id #c13").val();
+		var c15 = $("#addnewservice2_id #c15").val();
+		if (parseInt(c13) && parseInt(c15))
+		{				
+				var discount = parseInt(c13) - parseInt(c15);
+				$("#addnewservice2_id #c14").val(discount);
+		}
+}
+
+function upload_receipt_pic(fname)
+{
+		document.getElementById(fname).click(); 
+}
+
+$('#addnewservice1_id #f1').live('change', function (e) {
+		var formData = new FormData();					
+		formData.append("file",$("#f1")[0].files[0]);
+		
+		$.ajax({
+        url:'serviceOrder/upload_img',
+        dataType:'json',
+        type:'POST',
+        async: false,
+        data: formData,
+        processData : false, //使数据不做处理
+        contentType : false,
+        success: function(data){			        		
+            if (data.code == '0') {
+            		var flist = $("#addnewservice1_id #flist").val();
+            		if (flist)
+            		{
+            				$("#addnewservice1_id #flist").val(flist+','+data.data);
+            		}else
+            		{
+            				$("#addnewservice1_id #flist").val(data.data);
+            		}
+		        		$("#addnewservice1_id #show_pic").append('<a href="/statics'+data.data+'" target="_blank">查看凭证</a>&nbsp;');
+		        		$("#addnewservice1_id #show_pic").show();
+            }else
+            {
+            		$('#addnewservice1_id #alert_error').css('marginTop','60%');
+          			$('#addnewservice1_id #alert_error').css('marginLeft','60%');
+		   					$('#addnewservice1_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+          			$("#addnewservice1_id #error_info").html('收款凭证上传失败！');
+            }	
+        },
+        error:function(response){
+            console.log(response);
+        }
+    });
+});
+
+$('#addnewservice2_id #f1d').live('change', function (e) {
+		var formData = new FormData();					
+		formData.append("file",$("#f1d")[0].files[0]);
+		
+		$.ajax({
+        url:'serviceOrder/upload_img',
+        dataType:'json',
+        type:'POST',
+        async: false,
+        data: formData,
+        processData : false, //使数据不做处理
+        contentType : false,
+        success: function(data){			        		
+            if (data.code == '0') {
+            		var flist = $("#addnewservice2_id #flist").val();
+            		if (flist)
+            		{
+            				$("#addnewservice2_id #flist").val(flist+','+data.data);
+            		}else
+            		{
+            				$("#addnewservice2_id #flist").val(data.data);
+            		}
+		        		$("#addnewservice2_id #show_pic").append('<a href="/statics/'+data.data+'" target="_blank">查看凭证</a>&nbsp;');
+		        		$("#addnewservice2_id #show_pic").show();
+            }else
+            {
+            		$('#addnewservice2_id #alert_error').css('marginTop','60%');
+          			$('#addnewservice2_id #alert_error').css('marginLeft','60%');
+		   					$('#addnewservice2_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+          			$("#addnewservice2_id #error_info").html('收款凭证上传失败！');
+            }	
+        },
+        error:function(response){
+            console.log(response);
+        }
+    });
+});
+
+$('#addnewservice3_id #f1a').live('change', function (e) {
+		var formData = new FormData();					
+		formData.append("file",$('#f1a')[0].files[0]);
+		
+		$.ajax({
+        url:'serviceOrder/upload_img',
+        dataType:'json',
+        type:'POST',
+        async: false,
+        data: formData,
+        processData : false, //使数据不做处理
+        contentType : false,
+        success: function(data){			        		
+            if (data.code == '0') {
+            		var flist = $("#addnewservice3_id #flist").val();
+            		if (flist)
+            		{
+            				$("#addnewservice3_id #flist").val(flist+','+data.data);
+            		}else
+            		{
+            				$("#addnewservice3_id #flist").val(data.data);
+            		}
+		        		$("#addnewservice3_id #show_pic").append('<a href="/statics'+data.data+'" target="_blank">查看凭证</a>&nbsp;');
+		        		$("#addnewservice3_id #show_pic").show();
+            }else
+            {
+            		$('#addnewservice3_id #alert_error').css('marginTop','60%');
+          			$('#addnewservice3_id #alert_error').css('marginLeft','60%');
+		   					$('#addnewservice3_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+          			$("#addnewservice3_id #error_info").html('收款凭证上传失败！');
+            }	
+        },
+        error:function(response){
+            console.log(response);
+        }
+    });
+});
+
+v.$watch('addnewservice2_bind', function(obj) {
+		$('.default-date-picker').datepicker({   				
+	        format: 'dd/mm/yyyy'
+	  });
+	  $('.default-date-picker1').datepicker({   				
+	        format: 'dd/mm/yyyy'			        
+	  });
+	  //查询客户
+	  var user = $("#addnewservice2_id #c100");
+	  user.autocompleter({
+    	highlightMatches: true,
+    	limit: 10,
+    	cache: false,
+    	customValue: 'name',
+    	customLabel: 'name',
+    	source: 'user/list?authNickname=&phone=&pageNum=0',
+    	combine: function(params) {
+    		return {
+	        name: params.query,
+	        pageSize: params.limit
+	      };
+    	},
+    	callback: function(value, index, object) {
+    		$('#addnewservice2_id #user_id').val(object.id);	    		
+    	},
+    	minLength: 1						    	
+    });
+	  //绑定学校信息
+    var school_name = $("#addnewservice2_id #c3");
+    school_name.append("<option value=''>请选择学校</option>");
+    $.ajax({
+      url: 'school/listSchool?name=',
+      type: 'GET',
+      async: false,
+      dataType: 'json'
+    }).done(function(response) {
+    	response = response.data;    	
+    	response = jsonSort(response,'name');//排序
+    	for (var item in response)
+    	{
+    			school_name.append("<option value='"+response[item].name+"'>"+response[item].name+"</option>");
+    	}	
+    	school_name.val('');
+    });
+    //绑定Subagency列表
+    var obj_subagencyId = $("#addnewservice2_id #c7");	
+    $.ajax({
+      url: 'subagency/list',
+      type: 'GET',
+      async: false,
+      dataType: 'json'
+    }).done(function(response) {
+    	response = response.data;
+    	for (var item in response)
+    	{
+    			obj_subagencyId.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+    	}
+    	obj_subagencyId.val('');   
+    });
+	  //绑定顾问
+	  var obj_adviserId = $("#addnewservice2_id #c8");
+    obj_adviserId.append("<option value='0'>请选择</option>");
+    $.ajax({
+      url: 'adviser/list?pageNum=0&pageSize=100000',
+      type: 'GET',
+      async: false,
+      dataType: 'json'
+    }).done(function(response) {
+    	response = response.data;
+    	for (var item in response)
+    	{
+    			if (v.adviser_id == 'null')
+    			{
+    					obj_adviserId.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+    			}else
+    			{
+    					if (v.adviser_id == response[item].id) obj_adviserId.append("<option value='"+response[item].id+"' selected='true'>"+response[item].name+"</option>");    					
+    			}
+    	}
+    	obj_adviserId.val(v.adviser_id);   
+    });    
+    //绑定文案列表			    
+    var obj_officialId = $("#addnewservice2_id #c9");
+    obj_officialId.append("<option value='0'>请选择</option>");
+    $.ajax({
+      url: 'official/list?pageNum=0&pageSize=100000',
+      type: 'GET',
+      async: false,
+      dataType: 'json'
+    }).done(function(response) {
+    	response = response.data;
+    	for (var item in response)
+    	{
+    			obj_officialId.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+    	}
+    	obj_officialId.val(0);	        	
+    });
+    //绑定收款方式
+    var receive_type = $("#addnewservice2_id #c12");
+    $.ajax({
+      url: 'receiveType/list?state=ENABLED',
+      type: 'GET',
+      async: false,
+      dataType: 'json'
+    }).done(function(response) {
+    	response = response.data;
+    	for (var item in response)
+    	{
+    			receive_type.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+    	}	        	 	    
+    });
+});
+
+function chooseService(v)
+{
+		switch(v)
+		{
+				case 'VISA':
+						add_service1(0,v.user_id,v.user_name);
+				break;
+				case 'OVST':
+						add_service2(0,v.user_id,v.user_name);
+				break;
+				case 'SIV':
+						add_service3(0,v.user_id,v.user_name);
+				break;
+		}
+}
+
+function jsonSort(json,key)
+{
+    for(var j=1,jl=json.length;j < jl;j++)
+    {
+        var temp = json[j],
+            val  = temp[key],
+            i    = j-1;
+        while(i >=0 && json[i][key]>val){
+            json[i+1] = json[i];
+            i = i-1;   
+        }
+        json[i+1] = temp;
+       
+    }
+    return json;
+
+}
+
+$('#addnewservice1_id').on('show.bs.modal', function () {
+	$("#addnewservice1_id #addnewservice1_form").validate({
+			submitHandler: function () {
+						if (v.orderId)
+						{
+								if (v_sub.order_detail.parentId)
+								{
+										Service3VisaSave();
+								}else
+								{
+										addnewService1Save();
+								}
+						}else
+						{
+								addnewService1Save();
+						}						
+      },
+      rules: {
+          b100: "required",               
+          b2: {required: true,min: 1},
+          b3: {required: true,min: 1},
+          b4: {required: true,min: 1},
+          b6: {required: true,min: 1},
+      },
+      messages: {
+          b100: "",
+          b2: "",
+          b3: "",
+          b4: "",
+          b6: "",
+      }
+  });
+      
+});
+
+$('#addnewservice2_id').on('show.bs.modal', function () {
+	$("#addnewservice2_form").validate({
+			submitHandler: function () {
+            addnewService2Save();
+      },
+      rules: {
+          c100: "required",               
+          c3: {required: true},
+          c4: {required: true},
+          c7: {required: true,min: 1},
+          c8: {required: true,min: 1},
+          c9: {required: true,min: 1},
+      },
+      messages: {
+          c100: "",
+          c3: "",
+          c4: "",
+          c7: "",
+          c8: "",
+          c9: "",
+      }
+  });
+});
+
+$('#addnewservice3_id').on('show.bs.modal', function () {
+	$("#addnewservice3_form").validate({
+			submitHandler: function () {						
+            addnewService3Save();
+      },
+      rules: {
+          b100: "required",
+          b2: {required: true,min: 1},
+          b4: {required: true,min: 1},
+          b6: {required: true,min: 1},
+      },
+      messages: {
+          b100: "",
+          b2: "",
+          b4: "",
+          b6: "",
+      }
+  });
+});
+</script>
