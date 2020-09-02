@@ -521,7 +521,7 @@ public class VisaController extends BaseCommissionOrderController {
 		
 		List<Integer> regionIdList = null;
 		if (regionId != null && regionId > 0)
-			regionIdList = ListUtil.newArrayList(regionId);
+			regionIdList = ListUtil.buildArrayList(regionId);
 
 //		Date _startKjApprovalDate = null;
 //		if (startKjApprovalDate != null)
@@ -537,7 +537,7 @@ public class VisaController extends BaseCommissionOrderController {
 			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
 				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
-				regionIdList = ListUtil.newArrayList(adminUserLoginInfo.getRegionId());
+				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
 				for (RegionDTO region : regionList)
 					regionIdList.add(region.getId());
 			}
@@ -589,7 +589,7 @@ public class VisaController extends BaseCommissionOrderController {
 
 		List<Integer> regionIdList = null;
 		if (regionId != null && regionId > 0)
-			regionIdList = ListUtil.newArrayList(regionId);
+			regionIdList = ListUtil.buildArrayList(regionId);
 		
 //		Date _startKjApprovalDate = null;
 //		if (startKjApprovalDate != null)
@@ -605,7 +605,7 @@ public class VisaController extends BaseCommissionOrderController {
 			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
 				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
-				regionIdList = ListUtil.newArrayList(adminUserLoginInfo.getRegionId());
+				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
 				for (RegionDTO region : regionList)
 					regionIdList.add(region.getId());
 			}
@@ -714,7 +714,7 @@ public class VisaController extends BaseCommissionOrderController {
 
 		List<Integer> regionIdList = null;
 		if (regionId != null && regionId > 0)
-			regionIdList = ListUtil.newArrayList(regionId);
+			regionIdList = ListUtil.buildArrayList(regionId);
 
 		try {
 
@@ -723,7 +723,7 @@ public class VisaController extends BaseCommissionOrderController {
 			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
 				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
-				regionIdList = ListUtil.newArrayList(adminUserLoginInfo.getRegionId());
+				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
 				for (RegionDTO region : regionList)
 					regionIdList.add(region.getId());
 			}
