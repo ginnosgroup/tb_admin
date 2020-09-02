@@ -122,7 +122,7 @@
 										<select class="form-control" style="width:180px;" id="b19" onchange="changeVisaState(this.value);">
 										<option v-if="flowstate_wa!=='WAIT' && flowstate_wa!=='COMPLETE'" value="">请选择</option>
 										<option v-if="flowstate_gw==='REVIEW' && flowstate_wa===null" value="REVIEW">资料审核中</option>
-										<option v-if="flowstate_wa==='REVIEW' && (flowstate_wa===null || flowstate_ma===null || flowstate_ma === 'REVIEW')" value="WAIT">提交Mara审核</option>
+										<option v-if="(flowstate_wa===null || flowstate_wa==='REVIEW') && (flowstate_ma===null || flowstate_ma === 'REVIEW')" value="WAIT">提交Mara审核</option>
 										<option v-if="flowstate_wa==='WAIT'" value="">Mara审核中</option>
 										<option v-if="flowstate_ma==='FINISH'" value="APPLY">已提交申请</option>
 										<option v-if="flowstate_wa==='APPLY' || flowstate_wa==='COMPLETE'" value="COMPLETE">申请成功</option>
@@ -134,7 +134,7 @@
 										<select class="form-control" style="width:180px;" id="b19" onchange="changeVisaState(this.value);">
 										<option v-if="flowstate_wa!=='WAIT' && flowstate_wa!=='COMPLETE'" value="">请选择</option>
 										<option v-if="flowstate_gw==='REVIEW' && flowstate_wa===null" value="REVIEW">资料审核中</option>
-										<option v-if="flowstate_wa==='REVIEW' && servicepackage_type!=='EOI' && (flowstate_wa===null || flowstate_ma===null || flowstate_ma === 'REVIEW')" value="WAIT">提交Mara审核</option>
+										<option v-if="(flowstate_wa===null || flowstate_wa==='REVIEW') && servicepackage_type!=='EOI' && (flowstate_ma===null || flowstate_ma === 'REVIEW')" value="WAIT">提交Mara审核</option>
 										<option v-if="flowstate_wa==='WAIT'" value="">Mara审核中</option>
 										<option v-if="flowstate_ma==='FINISH'" value="APPLY">已提交申请</option>
 										<option v-if="servicepackage_type==='VA' && (flowstate_wa==='APPLY' || flowstate_wa==='COMPLETE')" value="COMPLETE">申请成功</option>
