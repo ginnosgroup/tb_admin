@@ -393,12 +393,12 @@
 										<label class="control-label"><strong>状态：</strong></label>
 										<select class="form-control" id="c200" onchange="changeOvstState(this.value);">											
 										<option v-if="flowstate_wa!=='PAID'" value="">请选择</option>
-										<option v-if="flowstate_gw==='REVIEW'" value="REVIEW">资料审核中</option>
-										<option v-if="flowstate_wa==='REVIEW'" value="FINISH">资料已审核</option>
-										<option v-if="flowstate_wa==='FINISH'" value="APPLY">已提交申请</option>
-										<option v-if="flowstate_wa==='APPLY'" value="COMPLETE">申请成功等待COE支付</option>
-										<option v-if="flowstate_wa==='COMPLETE' || flowstate_wa==='PAID'" value="PAID">COE支付成功</option>
-										<option v-if="flowstate_wa!='PAID' && flowstate_wa==='COMPLETE'" value="CLOSE">关闭申请</option>
+										<option v-if="flowstate_wa===null || flowstate_gw==='REVIEW'" value="REVIEW">资料审核中</option>
+										<option v-if="flowstate_wa===null || flowstate_wa==='REVIEW'" value="FINISH">资料已审核</option>
+										<option v-if="flowstate_wa===null || flowstate_wa==='FINISH'" value="APPLY">已提交申请</option>
+										<option v-if="flowstate_wa===null || flowstate_wa==='APPLY'" value="COMPLETE">申请成功等待COE支付</option>
+										<option v-if="flowstate_wa===null || flowstate_wa==='COMPLETE' || flowstate_wa==='PAID'" value="PAID">COE支付成功</option>
+										<option v-if="flowstate_wa===null || flowstate_wa!='PAID' && flowstate_wa==='COMPLETE'" value="CLOSE">关闭申请</option>
 										</select>
 									</div>
 									<div id="close_remarks" class="form-group" style="display:none;width:100%;line-height:40px;">
