@@ -200,8 +200,8 @@
 		        </button>
 		        <strong id="error_info"></strong>
 		      </div>
-					<div class="modal-body">
-							<form class="form-inline" style="">																											
+		      <form class="cmxform form-inline" method="POST" name="addnewservice2b_form" id="addnewservice2b_form">
+					<div class="modal-body">							
 							<div class="form-group" style="width:100%;height:40px;">
 								<label class="control-label" style="width:80px;"><strong>客户姓名：</strong></label>								
 								<label id="c1"></label>
@@ -278,13 +278,13 @@
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;">Student ID<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c20" class="form-control" style="width:200px;font-weight:normal;" placeholder="请输入学生ID">
+											<input type="text" autocomplete="off" name="c20" id="c20" class="form-control" style="width:200px;font-weight:normal;" placeholder="请输入学生ID">
 											<label class="control-label" style="width:30px;margin-left:20px;display:;">DOB<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c20a" value="{{birthday}}" class="form-control default-date-picker" style="width:150px;font-weight:normal;display:;" placeholder="请选择学生生日">
+											<input type="text" autocomplete="off" name="c20a" id="c20a" value="{{birthday}}" class="form-control default-date-picker" style="width:150px;font-weight:normal;display:;" placeholder="请选择学生生日">
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;">Installment：<span style="color:red;">*</span></label>
-											<select class="form-control" style="width:70px;font-weight:normal;" id="c21" onchange="setInstallment(this.value)">
+											<select class="form-control" style="width:70px;font-weight:normal;" name="c21" id="c21" onchange="setInstallment(this.value)">
 											<option value="1">1</option>
 											<option value="2">2</option>
 											<option value="3">3</option>
@@ -299,83 +299,83 @@
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;">Course Start Data: <span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c22" class="form-control default-date-picker" style="width:150px;font-weight:normal;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
+											<input type="text" autocomplete="off" name="c22" id="c22" class="form-control default-date-picker" style="width:150px;font-weight:normal;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
 											<label class="control-label" style="margin-left:40px;">Course End Data: <span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c23" class="form-control default-date-picker" style="width:150px;font-weight:normal;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">								
+											<input type="text" autocomplete="off" name="c23" id="c23" class="form-control default-date-picker" style="width:150px;font-weight:normal;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">								
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;">Installment 1<br/>Due Date<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c24a1" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">&nbsp;&nbsp;<button onclick="init_date()" type="button" class="btn btn-primary">点击生成Due日期</button>
+											<input type="text" autocomplete="off" name="c24a1" id="c24a1" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">&nbsp;&nbsp;<button onclick="init_date()" type="button" class="btn btn-primary">点击生成Due日期</button>
 									</div>
 									<div id="installment_date2" class="form-group" style="width:100%;margin-top:10px;display:none;">								
 											<label class="control-label" style="width:150px;">Installment 2<br/>Due Date<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c24a2" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
+											<input type="text" autocomplete="off" name="c24a2" id="c24a2" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
 									</div>
 									<div id="installment_date3" class="form-group" style="width:100%;margin-top:10px;display:none;">								
 											<label class="control-label" style="width:150px;">Installment 3<br/>Due Date<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c24a3" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
+											<input type="text" autocomplete="off" name="c24a3" id="c24a3" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
 									</div>
 									<div id="installment_date4" class="form-group" style="width:100%;margin-top:10px;display:none;">								
 											<label class="control-label" style="width:150px;">Installment 4<br/>Due Date<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c24a4" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
+											<input type="text" autocomplete="off" name="c24a4" id="c24a4" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
 									</div>
 									<div id="installment_date5" class="form-group" style="width:100%;margin-top:10px;display:none;">								
 											<label class="control-label" style="width:150px;">Installment 5<br/>Due Date<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c24a5" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
+											<input type="text" autocomplete="off" name="c24a5" id="c24a5" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
 									</div>
 									<div id="installment_date6" class="form-group" style="width:100%;margin-top:10px;display:none;">								
 											<label class="control-label" style="width:150px;">Installment 6<br/>Due Date<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c24a6" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
+											<input type="text" autocomplete="off" name="c24a6" id="c24a6" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
 									</div>
 									<div id="installment_date7" class="form-group" style="width:100%;margin-top:10px;display:none;">								
 											<label class="control-label" style="width:150px;">Installment 7<br/>Due Date<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c24a7" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
+											<input type="text" autocomplete="off" name="c24a7" id="c24a7" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
 									</div>
 									<div id="installment_date8" class="form-group" style="width:100%;margin-top:10px;display:none;">								
 											<label class="control-label" style="width:150px;">Installment 8<br/>Due Date<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c24a8" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
+											<input type="text" autocomplete="off" name="c24a8" id="c24a8" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
 									</div>
 									<div id="installment_date9" class="form-group" style="width:100%;margin-top:10px;display:none;">								
 											<label class="control-label" style="width:150px;">Installment 9<br/>Due Date<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c24a9" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
+											<input type="text" autocomplete="off" name="c24a9" id="c24a9" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
 									</div>
 									<div id="installment_date10" class="form-group" style="width:100%;margin-top:10px;display:none;">								
 											<label class="control-label" style="width:150px;">Installment 10<br/>Due Date<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c24a10" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
+											<input type="text" autocomplete="off" name="c24a10" id="c24a10" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
 									</div>																		
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;">学费总金额<br/>Tuition Fee<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c25" class="form-control" style="width:200px;font-weight:normal;" placeholder="">							
+											<input type="text" autocomplete="off" name="c25" id="c25" class="form-control" style="width:200px;font-weight:normal;" placeholder="">							
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;">每学期学费金额<br/>Per Term Tuition Fee<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c26" class="form-control" style="width:200px;font-weight:normal;" placeholder="">							
+											<input type="text" autocomplete="off" name="c26" id="c26" class="form-control" style="width:200px;font-weight:normal;" placeholder="">							
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;">本次收款日期<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c27" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
+											<input type="text" autocomplete="off" name="c27" id="c27" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
 											<label class="control-label">收款方式<span style="color:red;">*</span></label>
-											<select class="form-control" style="width:150px;font-weight:normal;" id="c28"></select>									
+											<select class="form-control" style="width:150px;font-weight:normal;" name="c28" id="c28"></select>									
 									</div>
 									<div class="form-group" style="display:block;margin-top:10px;">
 											<div class="form-group">
 												<label class="control-label" style="width:150px;">本次应收学费<span style="color:red;">*</span></label>
-												$<input type="text" autocomplete="off" id="c29" class="form-control" onkeyup="computeDiscount(this.value)" style="width:100px;font-weight:normal;">
+												$<input type="text" autocomplete="off" name="c29" id="c29" class="form-control" onkeyup="computeDiscount(this.value)" style="width:100px;font-weight:normal;">
 											</div>
 											<div class="form-group" style="margin-left:10px;">
 												<label class="control-label">折扣</label>
-												$<input type="text" autocomplete="off" disabled="disabled" id="c30" value="0" class="form-control" style="width:100px;font-weight:normal;">
+												$<input type="text" autocomplete="off" disabled="disabled" name="c30" id="c30" value="0" class="form-control" style="width:100px;font-weight:normal;">
 											</div>
 											<div class="form-group" style="margin-left:10px;">
 												<label class="control-label" style="color:red;">本次实收金额</label>
-												$<input type="text" autocomplete="off" id="c31" class="form-control" onkeyup="computeDiscount(this.value)" style="width:100px;font-weight:normal;"><br/>												
+												$<input type="text" autocomplete="off" name="c31" id="c31" class="form-control" onkeyup="computeDiscount(this.value)" style="width:100px;font-weight:normal;"><br/>												
 											</div>
 											<div class="form-group text-right" style="margin-top:10px;width:650px;">
 												<label class="control-label" style="font-weight:bold;">(提醒：务必填写实际收到客户的金额。)</label>
 											</div>
 											<div class="form-group" style="margin-top:10px;margin-left:150px;">
 												<label class="control-label">预收业绩</label>
-												$<input type="text" autocomplete="off" disabled="disabled" id="c32" class="form-control" style="width:100px;font-weight:normal;">&nbsp;(“预收业绩”仅供参考，具体以会计结算为准。)
+												$<input type="text" autocomplete="off" disabled="disabled" name="c32" id="c32" class="form-control" style="width:100px;font-weight:normal;">&nbsp;(“预收业绩”仅供参考，具体以会计结算为准。)
 											</div>									
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">
@@ -405,8 +405,7 @@
 										<label class="control-label"><strong>备注：</strong></label>
 										<textarea id="c101" class="form-control" style="width:98%"></textarea>							
 									</div>
-							</div>
-							</form>
+							</div>							
 					</div>
 					<div class="modal-footer" style="text-align: center;">
 							<dle v-if="ap_list==='GW'">									
@@ -418,7 +417,7 @@
 									<input type="hidden" id="flist1" value="" />
 									<div id="show_pic" style="display:none;padding-bottom:10px;"></div>
 									<button onclick="upload_receipt_pic('f1c')" id="upload_certificate" type="button" class="btn btn-danger" style="display:;">上传收款凭证</button>
-									<button onclick="reqCommissionOvst()" type="button" class="btn btn-primary">申请月奖</button>
+									<button id="btnSubmit" type="submit" class="btn btn-primary"><span id="btn_id">申请月奖</span></button>
 									</dle>
 									<button v-if="submitted" onclick="window.location.href='mycommission-ovst.html'" type="button" class="btn btn-primary">月奖已申请，请至佣金表查看</button>
 							</dle>
@@ -434,6 +433,7 @@
 							</dle>							
 							<button onclick="" type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
 					</div>
+					</form>
 				</div>
 			</div>
 </div>
@@ -877,6 +877,7 @@ function show_addnewservice_id(orderId,type)
 					$('#show_addnewservice2_id').modal('show');									
 					if (v_sub.flowstate_wa==='PAID' && !v_sub.submitted)
 					{
+							$('#show_addnewservice2_id #upload_certificate').show();
 					}else
 					{
 							$("#load-comment-1").html('');
@@ -1239,12 +1240,14 @@ function setInstallment(va)
 {
 		for(var i=1;i<=10;i++)
 		{
-				$("#show_addnewservice2_id #installment_date"+i).hide();
+				$("#addnewservice2b_form #c24a"+i).rules("remove");
+				$("#show_addnewservice2_id #installment_date"+i).hide();				
 		}
 		for(var i=1;i<=10;i++)
 		{
 				if (i <= va)
 				{
+						$("#addnewservice2b_form #c24a"+i).rules("add",{required:true,minlength:10,messages:{required:"请选择",minlength:"格式错"}});
 						$("#show_addnewservice2_id #installment_date"+i).show();
 				}
 		}		
@@ -1638,5 +1641,39 @@ $('#show_addnewservice2_id #f1c').live('change', function (e) {
             console.log(response);
         }
     });
+});
+
+$('#show_addnewservice2_id').on('show.bs.modal', function () {
+	$("#show_addnewservice2_id #addnewservice2b_form").validate({
+			submitHandler: function () {						
+            reqCommissionOvst();
+      },
+      rules: {
+          c20: {required: true,min: 1},
+          c20a: {required:true,minlength:10},
+          c22: {required:true,minlength:10},
+          c23: {required:true,minlength:10},
+          c24a1: {required:true,minlength:10},
+          c25: {required:true,minlength:1,number:true},
+          c26: {required:true,minlength:1,number:true},
+          c27: {required:true,minlength:10},
+          c28: {required:true,min:1},
+          c29: {required:true,minlength:1,number:true},
+          c31: {required:true,minlength:1,number:true},
+      },
+      messages: {
+          c20: "",
+          c20a: {required:"请选择",minlength:"格式错"},
+          c22: {required:"请选择",minlength:"格式错"},
+          c23: {required:"请选择",minlength:"格式错"},
+          c24a1: {required:"请选择",minlength:"格式错"},
+          c25: {required:"",minlength:"",number:"格式错"},
+          c26: {required:"",minlength:"",number:"格式错"},
+          c27: {required:"请选择",minlength:"格式错"},
+          c28: {required:"",min:"请选择"},
+          c29: {required:"",minlength:"",number:"格式错"},
+          c31: {required:"",minlength:"",number:"格式错"},
+      }
+  });
 });
 </script>

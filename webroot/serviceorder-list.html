@@ -219,7 +219,7 @@
 										所有订单
 									</a>
 								</li>								
-							</ul>
+							</ul>							
 							<a v-if="ap_list!=='WA'" href="serviceorder-list.html"  class="active">
                 <i class="fa fa-book">
                 </i>
@@ -227,6 +227,18 @@
                   服务订单管理
                 </span>
               </a>
+              <ul v-if="ap_list==='MA'" class="sub">
+								<li id="servicestateMAWAIT">
+									<a href="serviceorder-list.html?state=MAWAIT">
+										未审核
+									</a>
+								</li>
+								<li id="servicestateMAFINISH">
+									<a href="serviceorder-list.html?state=MAFINISH">
+										已审核
+									</a>
+								</li>								
+							</ul>
 						</li>
             <li v-if="ap_list==='SUPERAD'" class="sub-menu">
 							<a href="javascript:;">
@@ -603,6 +615,7 @@
 		<script src="assets/bootstrap-datepicker/js/bootstrap-datepicker.js"></script><!-- BOOTSTRAP DATEPICKER JS  -->
     <script src="assets/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js"></script><!-- BOOTSTRAP DATETIMEPICKER JS  -->
     <script src="js/jquery.autocompleter.js"></script>
+    <script src="js/jquery.validate.min.js"></script><!-- VALIDATE JS  -->
 		<script src="js/clipboard.min.js"></script>
 		<script src="js/common-scripts.js"></script>
 		<script src="js/vue.js"></script>
@@ -620,7 +633,7 @@
 					adviser_id: sessionStorage.getItem("adviser_id"),
 					official_id: sessionStorage.getItem("official_id"),
 					mara_id: sessionStorage.getItem("mara_id"),
-					service_state : getRequest('state'),
+					auditingState : getRequest('state'),
 					addnewservice1_bind: 0,
 					addnewservice2_bind: 0,
 					addnewservice3_bind: 0,					
@@ -649,39 +662,14 @@
 					close: false
 				},
 				created: function() {					
-					if (typeof(this.service_state) == "undefined") $("#servicestate").addClass("active");					
+					if (typeof(this.auditingState) == "undefined") $("#servicestate").addClass("active");					
 					this.getDatalist();
 					document.onkeydown = function(e) {
 						var key = window.event.keyCode;
 						if (key == 13) v.gotoPage();
 					};
 				},				
-				methods: {								
-					getDatalist1: function() {
-						var that = this;
-						if (that.state == '') that.state = that.service_state;
-						if (that.service_state == 'REVIEW') that.isNotApproved = true;
-						$.get(url + "serviceOrder/count", {
-							keyword: that.name,
-							isNotApproved: that.isNotApproved,
-							state: that.state							
-						}, function(result) {
-							that.count = result.data;
-							that.allPage = Math.ceil(result.data / that.pageSize);
-						});
-						$.get(url + "serviceOrder/list", {
-							pageNum: that.pageNum,
-							pageSize: that.pageSize,
-							isNotApproved: that.isNotApproved,
-							state: that.state
-						}, function(result) {							
-							that.pageNum = that.pageNum;
-							result.data = return_result(result);
-							that.subject = result.data;
-							that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
-							//console.log(that.subject);
-						});
-					},
+				methods: {				
 					getSearch: function() {
 						var that = this;
 						that.pageNum = 0;
@@ -693,7 +681,8 @@
 						var json = {};
 						show_loading();
 						json['isNotApproved'] = false;
-						if (that.service_state == 'REVIEW') json['isNotApproved'] = true;
+						if (that.auditingState == 'REVIEW') json['isNotApproved'] = true;
+						if (that.auditingState != '') json['auditingState'] = that.auditingState;
 						if (that.id != '') json['id'] = that.id;
 						if (that.userId != '0') json['userId'] = that.userId;
 						if (that.adviserId != '0') json['adviserId'] = that.adviserId;
@@ -753,7 +742,8 @@
 						var that = this;
 						var json = {};
 						json['isNotApproved'] = false;
-						if (that.service_state == 'REVIEW') json['isNotApproved'] = true;
+						if (that.auditingState == 'REVIEW') json['isNotApproved'] = true;
+						if (that.auditingState != '') json['auditingState'] = that.auditingState;
 						if (that.id != '') json['id'] = that.id;
 						if (that.userId != '0') json['userId'] = that.userId;
 						if (that.adviserId != '0') json['adviserId'] = that.adviserId;
@@ -785,7 +775,8 @@
 						var that = this;						
 						var json = {};
 						json['isNotApproved'] = false;
-						if (that.service_state == 'REVIEW') json['isNotApproved'] = true;
+						if (that.auditingState == 'REVIEW') json['isNotApproved'] = true;
+						if (that.auditingState != '') json['auditingState'] = that.auditingState;
 						if (that.id != '') json['id'] = that.id;
 						if (that.userId != '0') json['userId'] = that.userId;
 						if (that.adviserId != '0') json['adviserId'] = that.adviserId;
@@ -817,7 +808,8 @@
 						var that = this;						
 						var json = {};
 						json['isNotApproved'] = false;
-						if (that.service_state == 'REVIEW') json['isNotApproved'] = true;
+						if (that.auditingState == 'REVIEW') json['isNotApproved'] = true;
+						if (that.auditingState != '') json['auditingState'] = that.auditingState;
 						if (that.id != '') json['id'] = that.id;
 						if (that.userId != '0') json['userId'] = that.userId;
 						if (that.adviserId != '0') json['adviserId'] = that.adviserId;
@@ -849,7 +841,8 @@
 						var that = this;
 						var json = {};
 						json['isNotApproved'] = false;
-						if (that.service_state == 'REVIEW') json['isNotApproved'] = true;
+						if (that.auditingState == 'REVIEW') json['isNotApproved'] = true;
+						if (that.auditingState != '') json['auditingState'] = that.auditingState;
 						if (that.id != '') json['id'] = that.id;
 						if (that.userId != '0') json['userId'] = that.userId;
 						if (that.adviserId != '0') json['adviserId'] = that.adviserId;
@@ -881,7 +874,8 @@
 						var that = this;
 						var json = {};
 						json['isNotApproved'] = false;
-						if (that.service_state == 'REVIEW') json['isNotApproved'] = true;
+						if (that.auditingState == 'REVIEW') json['isNotApproved'] = true;
+						if (that.auditingState != '') json['auditingState'] = that.auditingState;
 						if (that.id != '') json['id'] = that.id;
 						if (that.userId != '0') json['userId'] = that.userId;
 						if (that.adviserId != '0') json['adviserId'] = that.adviserId;
