@@ -125,3 +125,8 @@ table.display thead th {
 /*.content .border-top{
   border-bottom: 1px solid #eff2f7;
 }*/
+
+.form-inline select{
+	background:#F0FFFF;
+	color:#428bca;
+}
