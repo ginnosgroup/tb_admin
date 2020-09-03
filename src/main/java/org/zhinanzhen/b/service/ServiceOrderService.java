@@ -15,12 +15,12 @@ public interface ServiceOrderService {
 
 	int updateServiceOrderRviewState(int id, String reviewState) throws ServiceException;
 
-	int countServiceOrder(String type, String excludeState, List<String> stateList, List<String> reviewStateList,
+	int countServiceOrder(String type, String excludeState, List<String> stateList, String auditingState, List<String> reviewStateList,
 			String startMaraApprovalDate, String endMaraApprovalDate, String startOfficialApprovalDate,
 			String endOfficialApprovalDate, List<Integer> regionIdList, Integer userId, Integer maraId,
 			Integer adviserId, Integer officialId, int parentId, boolean isNotApproved) throws ServiceException;
 
-	List<ServiceOrderDTO> listServiceOrder(String type, String excludeState, List<String> stateList,
+	List<ServiceOrderDTO> listServiceOrder(String type, String excludeState, List<String> stateList, String auditingState,
 			List<String> reviewStateList, String startMaraApprovalDate, String endMaraApprovalDate,
 			String startOfficialApprovalDate, String endOfficialApprovalDate, List<Integer> regionIdList,
 			Integer userId, Integer maraId, Integer adviserId, Integer officialId, int parentId, boolean isNotApproved,
