@@ -1649,7 +1649,7 @@ $('#show_addnewservice2_id').on('show.bs.modal', function () {
             reqCommissionOvst();
       },
       rules: {
-          c20: {required: true,min: 1},
+          c20: {required: true},
           c20a: {required:true,minlength:10},
           c22: {required:true,minlength:10},
           c23: {required:true,minlength:10},
@@ -1662,7 +1662,7 @@ $('#show_addnewservice2_id').on('show.bs.modal', function () {
           c31: {required:true,minlength:1,number:true},
       },
       messages: {
-          c20: "",
+          c20: {required:""},
           c20a: {required:"请选择",minlength:"格式错"},
           c22: {required:"请选择",minlength:"格式错"},
           c23: {required:"请选择",minlength:"格式错"},
