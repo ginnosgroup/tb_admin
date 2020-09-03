@@ -522,6 +522,7 @@ public class ServiceOrderController extends BaseController {
 	public Response<Integer> countServiceOrder(@RequestParam(value = "id", required = false) Integer id,
 			@RequestParam(value = "type", required = false) String type,
 			@RequestParam(value = "state", required = false) String state,
+			@RequestParam(value = "auditingState", required = false) String auditingState,
 			@RequestParam(value = "reviewState", required = false) String reviewState,
 			@RequestParam(value = "startMaraApprovalDate", required = false) String startMaraApprovalDate,
 			@RequestParam(value = "endMaraApprovalDate", required = false) String endMaraApprovalDate,
@@ -589,7 +590,7 @@ public class ServiceOrderController extends BaseController {
 			}
 
 			return new Response<Integer>(0,
-					serviceOrderService.countServiceOrder(type, excludeState, stateList, reviewStateList,
+					serviceOrderService.countServiceOrder(type, excludeState, stateList, auditingState, reviewStateList,
 							startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
 							endOfficialApprovalDate, regionIdList, userId, maraId, adviserId, officialId, 0,
 							isNotApproved != null ? isNotApproved : false));
@@ -603,6 +604,7 @@ public class ServiceOrderController extends BaseController {
 	public Response<List<ServiceOrderDTO>> listServiceOrder(@RequestParam(value = "id", required = false) Integer id,
 			@RequestParam(value = "type", required = false) String type,
 			@RequestParam(value = "state", required = false) String state,
+			@RequestParam(value = "auditingState", required = false) String auditingState,
 			@RequestParam(value = "reviewState", required = false) String reviewState,
 			@RequestParam(value = "startMaraApprovalDate", required = false) String startMaraApprovalDate,
 			@RequestParam(value = "endMaraApprovalDate", required = false) String endMaraApprovalDate,
@@ -671,7 +673,7 @@ public class ServiceOrderController extends BaseController {
 			}
 
 			return new Response<List<ServiceOrderDTO>>(0,
-					serviceOrderService.listServiceOrder(type, excludeState, stateList, reviewStateList,
+					serviceOrderService.listServiceOrder(type, excludeState, stateList, auditingState, reviewStateList,
 							startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
 							endOfficialApprovalDate, regionIdList, userId, maraId, adviserId, officialId, 0,
 							isNotApproved != null ? isNotApproved : false, pageNum, pageSize));

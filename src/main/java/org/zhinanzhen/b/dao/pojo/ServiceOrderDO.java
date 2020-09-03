@@ -38,6 +38,8 @@ public class ServiceOrderDO {
 	private int schoolId;
 
 	private String state;
+	
+	private String auditingState;
 
 	private Date maraApprovalDate;
 
