@@ -560,15 +560,15 @@
 				</div>
 			</div>
 		</div>		
-		<div class="modal fade" id="addnew_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal fade" id="addnew_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
 			<div class="modal-dialog" role="document" style="width:700px;">
 				<div class="modal-content">
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 						<h4 class="modal-title" id="myModalLabel">添加客户</h4>
 					</div>
-					<div class="modal-body">
-							<form class="form-inline" style="">
+					<form class="cmxform form-inline" style="" name="addnewid_form" id="addnewid_form">
+					<div class="modal-body">							
 							<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
 						      <button data-dismiss="alert" class="close close-sm" type="button">
 						      <i class="fa fa-times"></i>
@@ -583,46 +583,46 @@
              </div>						
 							<div class="form-group" style="width:100%;height:40px;">
 								<label class="control-label" style="color:red;">客户昵称</label>
-								<input type="text" class="form-control small" style="width:200px;" id="a1" placeholder="请输入客户的昵称" value="">								
+								<input type="text" class="form-control small" style="width:200px;" name="a1" id="a1" placeholder="请输入客户的昵称" value="">								
 							</div>
 							<div class="form-group" style="width:100%;height:40px;">
 								<label class="control-label" style="color:red;">客户的姓</label>
-								<input type="text" autocomplete="off" id="a2" class="form-control" style="width:200px;" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,'').toUpperCase();" maxlength="6" placeholder="请输入客户姓的拼音" >
+								<input type="text" autocomplete="off" name="a2" id="a2" class="form-control" style="width:200px;" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,'').toUpperCase();" maxlength="6" placeholder="请输入客户姓的拼音" >
 								<label class="control-label" style="color:red;">客户的名</label>
-								<input type="text" autocomplete="off" id="a2b" class="form-control" style="width:200px;" onKeyUp="value=value.replace(/[^a-zA-Z]/g,'').substring(0, 1).toUpperCase()+value.replace(/[^a-zA-Z ]/g,'').substring(1);" placeholder="请输入客户名的拼音" >
+								<input type="text" autocomplete="off" name="a2b" id="a2b" class="form-control" style="width:200px;" onKeyUp="value=value.replace(/[^a-zA-Z]/g,'').substring(0, 1).toUpperCase()+value.replace(/[^a-zA-Z ]/g,'').substring(1);" placeholder="请输入客户名的拼音" >
 							</div>
 							<div class="form-group" style="width:100%;height:40px;">
 								<label class="control-label" style="color:red;">手机号码</label>
-								<input type="text" autocomplete="off" id="a3" class="form-control" style="width:200px;" placeholder="请输入手机号码" >
+								<input type="text" autocomplete="off" name="a3" id="a3" class="form-control" style="width:200px;" placeholder="请输入手机号码" >
 							</div>
 							<div class="form-group" style="width:100%;height:40px;">
 								<label class="control-label">微信账号</label>
-								<input type="text" autocomplete="off" id="a4" class="form-control" style="width:200px;" placeholder="请输入微信号" >
+								<input type="text" autocomplete="off" name="a4" id="a4" class="form-control" style="width:200px;" placeholder="请输入微信号" >
 							</div>
 							<div class="form-group" style="height:40px;">
 								<label class="control-label">客户生日</label>
-								<input type="text" autocomplete="off" id="a5" class="form-control default-date-picker" style="width:200px;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
+								<input type="text" autocomplete="off" name="a5" id="a5" class="form-control default-date-picker" style="width:200px;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
 							</div>
 							<div class="form-group" style="width:100%;line-height:40px;">
 								<label class="control-label">客户来源</label>
-								<select class="form-control" style="width:200px;" id="a6"></select>
+								<select class="form-control" style="width:200px;" name="a6" id="a6"></select>
 							</div>						
 							<div class="form-group" style="width:100%;line-height:40px;">
 								<label class="control-label" style="color:red;">所属顾问</label>
-								<select class="form-control" style="width:200px;" id="a7"></select>
+								<select class="form-control" style="width:200px;" name="a7" id="a7"></select>
 							</div>							
 							<div class="form-group" style="width:100%;line-height:40px;">
 								<label class="control-label">初次咨询记录</label>
 								<textarea id="a8" class="form-control" style="width:98%"></textarea>
-							</div>
-							</form>
+							</div>							
 					</div>
 					<div class="modal-footer" style="text-align: center;">						
-						<button onclick="addNewSave(1)" type="button" class="btn btn-primary">提交并增加服务</button>
+						<button id="btnSubmit1" type="submit" class="btn btn-primary"><span id="btn_id">提交并增加服务</span></button>
 						<button onclick="addNewSave(0)" type="button" class="btn btn-primary">仅提交</button>
 						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
 					</div>
 				</div>
+				</form>
 			</div>
 		</div>
 		<div class="modal fade" id="loading_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop='static' style="z-index:99999;">
@@ -1220,7 +1220,7 @@
           var f = '#addnew_id ';
           var json = {};
           
-          var check_result = 0;
+          var check_result = 0;          
           if ($(f+'#a1').val() !='' && $(f+'#a2').val() !='' && $(f+'#a2b').val() !='' && $(f+'#a3').val()!='' && $(f+'#a7').val() != '0')
           {
           		check_result = true;
@@ -1230,7 +1230,7 @@
           		$('#addnew_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
 			        $("#addnew_id #error_info").html('提示：红色字段必须填写或选择！');
           		return false;
-          }          
+          }
           
           if (check_result)
           {
@@ -1603,6 +1603,30 @@
 			
 	    jQuery(document).ready(function() {
 	    });
+	    
+	    $('#addnew_id').on('show.bs.modal', function () {
+				$("#addnew_id #addnewid_form").validate({
+						submitHandler: function () {						
+			            addNewSave(1);
+			      },
+			      rules: {
+			          a1: {required: true},
+			          a2: {required: true},
+			          a2b: {required: true},
+			          a3: {required: true},
+			          a5: {minlength: 10},
+			          a7: {required: true,min: 1},
+			      },
+			      messages: {
+			          a1: "",
+			          a2: "",
+			          a2b: "",
+			          a3: "",
+			          a5: " 格式错：只能选择日期。",
+			          a7: "",
+			      }
+			  });
+			});
 		</script>
 	</body>
 
