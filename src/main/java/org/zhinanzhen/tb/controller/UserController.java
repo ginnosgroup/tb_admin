@@ -174,6 +174,7 @@ public class UserController extends BaseController {
 	public Response<Boolean> updateAdviserId(int id, int adviserId, HttpServletResponse response)
 			throws ServiceException {
 		super.setPostHeader(response);
+		// TODO: 这里或许要判断一下顾问管理员
 		return new Response<Boolean>(0, userService.updateAdviserId(adviserId, id));
 	}
 

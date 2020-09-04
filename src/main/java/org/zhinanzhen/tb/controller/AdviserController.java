@@ -18,6 +18,7 @@ import org.zhinanzhen.tb.service.AdminUserService;
 import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.AdviserStateEnum;
 import org.zhinanzhen.tb.service.ServiceException;
+import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 
 import com.ikasoa.core.utils.StringUtil;
@@ -91,12 +92,12 @@ public class AdviserController extends BaseController {
 			@RequestParam(value = "email", required = false) String email,
 			@RequestParam(value = "state", required = false) String state,
 			@RequestParam(value = "imageUrl", required = false) String imageUrl,
-			@RequestParam(value = "regionId", required = false) Integer regionId, HttpServletRequest request,
+			@RequestParam(value = "regionId", required = false) Integer regionId,
+			@RequestParam(value = "adminRegionId", required = false) Integer adminRegionId, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			AdviserDTO adviserDto = new AdviserDTO();
-			adviserDto.setId(id);
+			AdviserDTO adviserDto = adviserService.getAdviserById(id);
 			if (StringUtil.isNotEmpty(name)) {
 				adviserDto.setName(name);
 			}
@@ -116,9 +117,15 @@ public class AdviserController extends BaseController {
 				adviserDto.setRegionId(regionId);
 			}
 			if (adviserService.updateAdviser(adviserDto) > 0) {
+				AdminUserDTO adminUser = adminUserService.getAdminUserByUsername(adviserDto.getEmail());
+				if (adminUser != null)
+					adminUserService.updateRegionId(adminUser.getId(), adminRegionId);
+				else
+					return new Response<AdviserDTO>(0, "顾问修改成功,但修改顾问管理员区域失败.(没有找到管理员帐号:" + adviserDto.getEmail() + ")",
+							null);
 				return new Response<AdviserDTO>(0, adviserDto);
 			} else {
-				return new Response<AdviserDTO>(0, "修改失败.", null);
+				return new Response<AdviserDTO>(1, "修改失败.", null);
 			}
 		} catch (ServiceException e) {
 			return new Response<AdviserDTO>(e.getCode(), e.getMessage(), null);

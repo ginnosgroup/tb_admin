@@ -14,8 +14,10 @@ public interface AdminUserDAO {
 	public boolean updateSessionId(@Param("id") int id, @Param("sessionId") String sessionId);
 
 	public boolean updatePassword(@Param("username") String username, @Param("password") String password);
-	
+
 	boolean updateOfficialId(@Param("id") int id, @Param("officialId") int officialId);
+
+	boolean updateRegionId(@Param("id") int id, @Param("regionId") int regionId);
 
 	public AdminUserDO getAdminUserById(int id);
 	
