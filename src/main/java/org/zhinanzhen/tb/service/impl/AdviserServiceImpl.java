@@ -6,8 +6,10 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.RegionDAO;
+import org.zhinanzhen.tb.dao.pojo.AdminUserDO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.dao.pojo.RegionDO;
 import org.zhinanzhen.tb.service.AdviserService;
@@ -22,6 +24,8 @@ public class AdviserServiceImpl extends BaseService implements AdviserService {
 	private AdviserDAO adviserDao;
 	@Resource
 	private RegionDAO regionDao;
+	@Resource
+	private AdminUserDAO adminUserDao;
 	@Override
 	public int addAdviser(AdviserDTO adviserDto) throws ServiceException {
 		if (adviserDto == null) {
@@ -102,6 +106,9 @@ public class AdviserServiceImpl extends BaseService implements AdviserService {
 				adviserDto.setRegionName(regionDo.getName());
 				adviserDto.setRegionDo(regionDo);
 			}
+			AdminUserDO adminUserDo = adminUserDao.getAdminUserByAdviserId(adviserDo.getId());
+			if (adminUserDo != null)
+				adviserDto.setAdminRegionId(adminUserDo.getRegionId());
 			adviserDtoList.add(adviserDto);
 		}
 		return adviserDtoList;

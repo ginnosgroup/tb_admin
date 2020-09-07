@@ -29,4 +29,6 @@ public class AdviserDTO {
 	private String regionName;
 	
 	private RegionDO regionDo;
+	
+	private Integer adminRegionId;
 }

@@ -21,6 +21,8 @@ public interface AdminUserDAO {
 
 	public AdminUserDO getAdminUserById(int id);
 	
+	AdminUserDO getAdminUserByAdviserId(int adviserId);
+	
 	List<AdminUserDO> listAdminUserByAp(String ap);
 	
 	AdminUserDO getAdminUserByUsername(String username);
