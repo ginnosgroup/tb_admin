@@ -432,6 +432,16 @@ CREATE TABLE `b_service_order_comment` (
   `content` text NOT NULL COMMENT '内容'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
+-- 服务订单文案记录
+CREATE TABLE `b_service_order_official_remarks` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `official_id` int NOT NULL COMMENT '所属文案编号 (对应b_official.id)',
+  `service_order_id` int NOT NULL COMMENT '服务订单编号 (对应b_service_order.id)',
+  `content` text NOT NULL COMMENT '内容'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
 -- 佣金订单(留学)
 CREATE TABLE `b_commission_order` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
@@ -441,7 +451,7 @@ CREATE TABLE `b_commission_order` (
   `service_order_id` int NOT NULL COMMENT '服务订单编号 (对应b_service_order.id)',
   `state` varchar(8) NOT NULL COMMENT '状态(PENDING, WAIT, REVIEW, FINISH, COMPLETE, CLOSE)',
   `commission_state` varchar(8) NOT NULL COMMENT '佣金状态(DJY:待结佣, YJY:已结佣, DZY:待追佣, YZY:已追佣)',
-`kj_approval_date` datetime DEFAULT NULL COMMENT '财务审核时间',
+  `kj_approval_date` datetime DEFAULT NULL COMMENT '财务审核时间',
   `is_settle` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否提前扣佣',
   `is_deposit_user` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否为保证金用户',
   `school_id` int NOT NULL COMMENT '学校编号 (对应b_school.id)',
