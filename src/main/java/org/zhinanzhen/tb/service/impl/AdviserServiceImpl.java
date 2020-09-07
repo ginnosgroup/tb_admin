@@ -107,8 +107,12 @@ public class AdviserServiceImpl extends BaseService implements AdviserService {
 				adviserDto.setRegionDo(regionDo);
 			}
 			AdminUserDO adminUserDo = adminUserDao.getAdminUserByAdviserId(adviserDo.getId());
-			if (adminUserDo != null)
+			if (adminUserDo != null && adminUserDo.getRegionId() != null) {
 				adviserDto.setAdminRegionId(adminUserDo.getRegionId());
+				RegionDO adminRegionDo = regionDao.getRegionById(adminUserDo.getRegionId());
+				if (adminRegionDo != null)
+					adviserDto.setAdminRegionName(adminRegionDo.getName());
+			}
 			adviserDtoList.add(adviserDto);
 		}
 		return adviserDtoList;

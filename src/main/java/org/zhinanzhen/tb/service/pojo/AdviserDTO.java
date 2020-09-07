@@ -31,4 +31,6 @@ public class AdviserDTO {
 	private RegionDO regionDo;
 	
 	private Integer adminRegionId;
+	
+	private String adminRegionName;
 }
