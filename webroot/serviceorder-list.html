@@ -1515,16 +1515,17 @@
       		show_loading();
 					$.get("serviceOrder/delete", {
 						id: v.dId
-					}, function(result) {
+					}, function(result) {											
 						$('#loading_id').modal('hide');
 						if(result.data)
-						{
+						{								
 								$('#delete_id').modal('hide');
 								$('#delete_id #alert_success').css('marginLeft','30%');
 				   			$('#delete_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
 								//v.table_remove();
-		   					//重新载入数据源
+		   					//重新载入数据源		   					
 		   					v.getDatalist();
+		   					$('.modal-backdrop').remove();	
 						}else
 						{								
 								$('#delete_id #alert_error').css('marginLeft','30%');
