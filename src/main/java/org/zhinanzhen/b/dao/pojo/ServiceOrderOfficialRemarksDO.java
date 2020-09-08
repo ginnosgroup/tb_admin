@@ -16,5 +16,7 @@ public class ServiceOrderOfficialRemarksDO {
 	private int officialId;
 
 	private int serviceOrderId;
+	
+	private String content;
 
 }
