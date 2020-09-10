@@ -661,8 +661,10 @@ public class ServiceOrderController extends BaseController {
 					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
 				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
 				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
-				for (RegionDTO region : regionList)
+				for (RegionDTO region : regionList) {
 					regionIdList.add(region.getId());
+System.out.println("debug=====regionId:" + region.getId());
+				}
 			}
 
 			if (id != null && id > 0) {
