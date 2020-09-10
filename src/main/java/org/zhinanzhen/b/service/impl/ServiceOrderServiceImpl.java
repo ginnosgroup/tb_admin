@@ -196,12 +196,17 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		if (pageSize < 0)
 			pageSize = DEFAULT_PAGE_SIZE;
 		try {
-			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, excludeState, stateList, auditingState, reviewStateList,
-					startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate,
+System.out.println(type + "|" + excludeState + "|" + stateList + "|" + auditingState + "|" + reviewStateList
+					+ "|" + startMaraApprovalDate + "|" + endMaraApprovalDate + "|" + startOfficialApprovalDate + "|"
+					+ endOfficialApprovalDate + "|" + regionIdList + "|" + userId + "|" + maraId + "|" + adviserId + "|"
+					+ officialId + "|" + parentId + "|" + isNotApproved);
+			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, excludeState, stateList, auditingState,
+					reviewStateList,					startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate,
 					regionIdList, userId, maraId, adviserId, officialId, parentId, isNotApproved, pageNum * pageSize,
 					pageSize);
 			if (serviceOrderDoList == null)
 				return null;
+System.out.println("debug===serviceOrderDoList.size:" + serviceOrderDoList.size());
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
