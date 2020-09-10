@@ -540,6 +540,7 @@ public class VisaController extends BaseCommissionOrderController {
 				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
 				for (RegionDTO region : regionList)
 					regionIdList.add(region.getId());
+				adviserId = null;
 			}
 			
 			return new Response<Integer>(0,
@@ -608,6 +609,7 @@ public class VisaController extends BaseCommissionOrderController {
 				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
 				for (RegionDTO region : regionList)
 					regionIdList.add(region.getId());
+				adviserId = null;
 			}
 			
 			List<VisaDTO> list = visaService.listVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
@@ -726,6 +728,7 @@ public class VisaController extends BaseCommissionOrderController {
 				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
 				for (RegionDTO region : regionList)
 					regionIdList.add(region.getId());
+				adviserId = null;
 			}
 
 			response.reset();// 清空输出流

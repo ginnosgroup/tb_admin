@@ -754,6 +754,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
 				for (RegionDTO region : regionList)
 					regionIdList.add(region.getId());
+				adviserId = null;
 			}
 
 			return new Response<Integer>(0,
@@ -838,6 +839,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
 				for (RegionDTO region : regionList)
 					regionIdList.add(region.getId());
+				adviserId = null;
 			}
 
 			return new Response<List<CommissionOrderListDTO>>(0,
@@ -977,6 +979,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
 				for (RegionDTO region : regionList)
 					regionIdList.add(region.getId());
+				adviserId = null;
 			}
 
 			response.reset();// 清空输出流

@@ -581,6 +581,7 @@ public class ServiceOrderController extends BaseController {
 				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
 				for (RegionDTO region : regionList)
 					regionIdList.add(region.getId());
+				adviserId = null;
 			}
 
 			if (id != null && id > 0) {
@@ -663,9 +664,8 @@ public class ServiceOrderController extends BaseController {
 				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
 				for (RegionDTO region : regionList)
 					regionIdList.add(region.getId());
+				adviserId = null;
 			}
-for(Integer i : regionIdList)
-	System.out.println("debug=====regionId:" + i);
 
 			if (id != null && id > 0) {
 				List<ServiceOrderDTO> list = new ArrayList<ServiceOrderDTO>();
