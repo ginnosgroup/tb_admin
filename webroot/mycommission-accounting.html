@@ -800,6 +800,7 @@
 								v.adviser_id = that.adviserId;
 						}				
 						if (that.type != '') json['type'] = that.type;
+						if (that.regionId != '') json['regionId'] = that.regionId;
 						if (that.startHandlingDate != '') json['startHandlingDate'] = that.startHandlingDate;
 						if (that.endHandlingDate != '') json['endHandlingDate'] = that.endHandlingDate;
 						if (that.startKjApprovalDate != '') json['startKjApprovalDate'] = that.startKjApprovalDate;
@@ -831,6 +832,7 @@
 								v.adviser_id = that.adviserId;
 						}				
 						if (that.type != '') json['type'] = that.type;
+						if (that.regionId != '') json['regionId'] = that.regionId;
 						if (that.startHandlingDate != '') json['startHandlingDate'] = that.startHandlingDate;
 						if (that.endHandlingDate != '') json['endHandlingDate'] = that.endHandlingDate;
 						if (that.startKjApprovalDate != '') json['startKjApprovalDate'] = that.startKjApprovalDate;
@@ -862,6 +864,7 @@
 								v.adviser_id = that.adviserId;
 						}				
 						if (that.type != '') json['type'] = that.type;
+						if (that.regionId != '') json['regionId'] = that.regionId;
 						if (that.startHandlingDate != '') json['startHandlingDate'] = that.startHandlingDate;
 						if (that.endHandlingDate != '') json['endHandlingDate'] = that.endHandlingDate;
 						if (that.startKjApprovalDate != '') json['startKjApprovalDate'] = that.startKjApprovalDate;
@@ -893,6 +896,7 @@
 								v.adviser_id = that.adviserId;
 						}				
 						if (that.type != '') json['type'] = that.type;
+						if (that.regionId != '') json['regionId'] = that.regionId;
 						if (that.startHandlingDate != '') json['startHandlingDate'] = that.startHandlingDate;
 						if (that.endHandlingDate != '') json['endHandlingDate'] = that.endHandlingDate;
 						if (that.startKjApprovalDate != '') json['startKjApprovalDate'] = that.startKjApprovalDate;
@@ -924,6 +928,7 @@
 								v.adviser_id = that.adviserId;
 						}				
 						if (that.type != '') json['type'] = that.type;
+						if (that.regionId != '') json['regionId'] = that.regionId;
 						if (that.startHandlingDate != '') json['startHandlingDate'] = that.startHandlingDate;
 						if (that.endHandlingDate != '') json['endHandlingDate'] = that.endHandlingDate;
 						if (that.startKjApprovalDate != '') json['startKjApprovalDate'] = that.startKjApprovalDate;
@@ -1505,6 +1510,7 @@
 	        					obj_regionId.append("<option value='"+region_sub[itemsub].id+"'>---"+region_sub[itemsub].name+"</option>");
 	        			}
 	        	}
+	        	obj_regionId.val(v.regionId);
 	        });
 			});
 			
