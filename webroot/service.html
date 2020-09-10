@@ -358,7 +358,7 @@
 												<tbody>
 													<tr v-for="item in subject" class="gradeX">
 														<td v-html="item.oid"></td>
-														<td v-html="item.name"></td>
+														<td v-html="item.typeName"></td>
 														<td v-html="item.code"></td>
 														<td><a v-if="item.id" class="edit" href="javascript:;" @click="table_modify($index)"><span class="label label-success">Edit</span></a>
 																<a v-else class="edit" href="javascript:;"><span class="label label-primary">Save</span></a>
@@ -669,19 +669,19 @@
 				var str = '';
 				switch(v)
 				{
-						case 'SIV':
+						case '独立技术移民':
 								str = '独立技术移民';
 						break;
-						case 'OVST':
+						case '留学':
 								str = '留学';
 						break;
-						case 'VISA':
+						case '签证':
 								str = '签证';
 						break;
-						case 'MT':
+						case '曼拓':
 								str = '曼拓';
 						break;
-						case 'OTHER':
+						case '其他':
 								str = '其他';
 						break;
 				}
@@ -734,17 +734,18 @@
 				  var name_val = '';
 				 	if (this.current_row.id)
 				  {
+				  		console.log(this.current_row);
 				  		$("#id").val(this.current_row.id);
-				  		name_val = this.current_row.name;		  			  		
+				  		name_val = this.current_row.name;		  		
 				  }
 				  //绑定业务类型列表
 			    var obj_name = $("#t1");
 			    obj_name.append("<option value=''>---请选择---</option>");
-			    obj_name.append("<option value='SIV'>独立技术移民</option>");
-			    obj_name.append("<option value='VISA'>签证</option>");
-			    obj_name.append("<option value='OVST'>留学</option>");			    
-			    obj_name.append("<option value='MT'>曼拓</option>");
-			    obj_name.append("<option value='OTHER'>其他</option>");
+			    obj_name.append("<option value='独立技术移民'>独立技术移民</option>");
+			    obj_name.append("<option value='签证'>签证</option>");
+			    obj_name.append("<option value='留学'>留学</option>");			    
+			    obj_name.append("<option value='曼拓'>曼拓</option>");
+			    obj_name.append("<option value='其他'>其他</option>");
 			    obj_name.val(name_val);		     
 			});
 			
