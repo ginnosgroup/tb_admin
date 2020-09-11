@@ -93,8 +93,8 @@
             country
         FROM b_school WHERE id = #{id, jdbcType=INTEGER};
     </select>
-	
-	<update id="deleteSchoolById" parameterType="java.lang.Integer">
+    
+    <update id="deleteSchoolById" parameterType="java.lang.Integer">
         UPDATE b_school 
         SET gmt_modify = now(), is_delete = 1
         WHERE id = #{id, jdbcType=INTEGER};
