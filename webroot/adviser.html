@@ -515,6 +515,7 @@
 														<th>登录密码</th>
 														<th>二维码</th>
 														<th>所属区域</th>														
+														<th>管理区域</th>	
 														<th>账户状态</th>
 														<th>Edit</th>
 														<th>操作</th>
@@ -528,12 +529,13 @@
 														<td v-html="item.email"></td>
 														<td v-html="item.password"></td>
 														<td v-html="item.imageUrl"></td>
-														<td v-html="item.regionName"></td>													
+														<td v-html="item.regionName"></td>											
+														<td v-html="item.adminRegionName"></td>
 														<td v-html="item.state"></td>
 														<td>
 																<dle v-if="item.id">
 																<a class="edit" href="javascript:;" @click="table_modify($index)"><span class="label label-success">Edit</span></a>
-																<a href="javascript:;" @click="table_setadmin(item.id)"><span class="label label-success" style="background-color: #58c9f3;">设为管理员</span></a>
+																<a href="javascript:;" @click="table_setadmin(item.id,item.adminRegionId)"><span class="label label-success" style="background-color: #58c9f3;">设为管理员</span></a>
 																</dle>
 																<a v-else class="edit" href="javascript:;"><span class="label label-primary">Save</span></a>
 														</td>
@@ -721,6 +723,7 @@
 					count: 0,
 					dId: '',
 					eId: '',
+					current_adminRegionId: 0,
 					username: '',
 					name: '',
 					sort: '',
@@ -910,9 +913,18 @@
 						}
 						//alert(this.current_row.id);																			
 					},
-					table_setadmin:	function (id) {
-						this.dId = id;
+					table_setadmin:	function (id,adminRegionId) {
+						this.dId = id;						
+						if (adminRegionId != 'null')
+						{
+								this.current_adminRegionId = adminRegionId;
+						}else
+						{
+								this.current_adminRegionId = 0;
+						}
 						$('#setadmin_id').modal('show');
+						var obj_adminRegionId = $("#setadmin_id #adminRegionId");
+						obj_adminRegionId.val(this.current_adminRegionId);
 					},				
 					table_remove: function (index) {
              this.subject.splice(index, 1);  
@@ -965,6 +977,10 @@
 			{
 				for(var i = 0; i < result.data.length; i++) {
 						result.data[i].oid = result.data[i].id;	
+						if (result.data[i].adminRegionId != null)
+						{
+								result.data[i].adminRegionName = '<label style="color:red;font-weight:bold;">'+result.data[i].adminRegionName+'</label>';
+						}
 						result.data[i].password = '<label id="t5" style="width:150px;"><a href="javascript:;" onclick="passwdSet(\''+result.data[i].email+'\')">重置密码</a></label>';				
 				};
 				return result.data;
@@ -1027,11 +1043,11 @@
 					$('.default-date-picker').datepicker({   				
 				        format: 'dd/mm/yyyy'
 				  });
-				  var regionId = 0;
+				  var regionId = 0;				  
 				 	if (this.current_row.id)
 				  {
 				  		$("#id").val(this.current_row.id);	  		
-				  		regionId = this.current_row.regionId;				  			  		
+				  		regionId = this.current_row.regionId;	
 				  }				   	    			    
 			    //绑定区域列表
 			    var obj_regionId = $("#t4");	
@@ -1062,7 +1078,8 @@
 	          type: 'GET',
 	          dataType: 'json'
 	        }).done(function(response) {
-	        	//author:bischina
+	        	//author:bischina	        	
+	        	var str_html = '';
 	        	var region_data = response.data;
 	        	for (var item in region_data)
 	        	{
@@ -1072,7 +1089,7 @@
 	        			{
 	        					obj_adminRegionId.append("<option value='"+region_sub[itemsub].id+"'>---"+region_sub[itemsub].name+"</option>");
 	        			}
-	        	} 
+	        	}
 	        });
 			});
 			

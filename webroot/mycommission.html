@@ -399,7 +399,7 @@
 														<td v-html="item.strState"></td>
 														<td>
 																<a href="javascript:open_detail({{item.serviceOrderId}},{{item.oid}});">查看</a>
-																<dle v-if="ap_list==='GW'">
+																<dle v-if="ap_list==='GW' && item.adviserId === current_adviserId">
 																		<d1 v-if="item.currentState==='PENDING' || item.currentState==='WAIT'">
 																				<a href="javascript:reqCommissionVisa({{item.serviceOrderId}},{{item.oid}})"><span style="color:blue;">申请月奖</span></a>
 																		</d1>
@@ -564,6 +564,7 @@
 					official_id: sessionStorage.getItem("official_id"),
 					mara_id: sessionStorage.getItem("mara_id"),
 					kj_id: sessionStorage.getItem("kj_id"),
+					current_adviserId: parseInt(sessionStorage.getItem("adviser_id")),
 					applyState : getRequest('applyState'),
 					orderId: 0,
 					total_expectamount: 0.00,

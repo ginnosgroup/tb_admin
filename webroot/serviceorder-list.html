@@ -462,21 +462,26 @@
 														<td v-html="item.officialName"></td>
 														<td v-html="item.serviceName"></td>
 														<td v-html="item.strState"></td>
-														<td>																
-																<a href="javascript:open_detail({{item.id}},'{{item.type}}','{{item.currentState}}');">查看</a>																
+														<td>
+																<dle v-if="ap_list==='GW' && item.adviserId !== current_adviserId">													
+																		<a href="javascript:show_addnewservice_id({{item.id}},'{{item.type}}');">查看</a>
+																</dle>
+																<dle v-else>
+																		<a href="javascript:open_detail({{item.id}},'{{item.type}}','{{item.currentState}}');">查看</a>
+																</dle>												
 																<dle v-if="ap_list==='GW'">
 																		<d2 v-if="item.type==='SIV' && !item.parentId">																				
-																				<d1 v-if="!item.submitted && item.pay">
+																				<d1 v-if="!item.submitted && item.pay && item.adviserId === current_adviserId">
 																				<button onclick="show_confirmbox('{{item.type}}',{{item.id}},'REVIEW',1)" type="button" class="btn btn-success" style="">提交佣金表</button>
 																				</d1>
 																		</d2>
 																		<d2 v-if="item.type!=='SIV'">
-																				<d1 v-if="item.currentState==='PENDING'">
+																				<d1 v-if="item.currentState==='PENDING' && item.adviserId === current_adviserId">
 																				<button onclick="show_confirmbox('{{item.type}}',{{item.id}},'REVIEW',1)" type="button" class="btn btn-danger">提交审核</button>
 																				</d1>
 																		</d2>
 																		<d2 v-if="item.type!=='SIV'">
-																				<d1 v-if="item.currentState==='REVIEW'">
+																				<d1 v-if="item.currentState==='REVIEW' && item.adviserId === current_adviserId">
 																				<a href="javascript:show_confirmbox('{{item.type}}',{{item.id}},'PENDING',1)" style="color:#ACA9A9;">撤回</a>
 																				</d1>
 																		</d2>
@@ -633,6 +638,7 @@
 					adviser_id: sessionStorage.getItem("adviser_id"),
 					official_id: sessionStorage.getItem("official_id"),
 					mara_id: sessionStorage.getItem("mara_id"),
+					current_adviserId: parseInt(sessionStorage.getItem("adviser_id")),
 					auditingState : getRequest('state'),
 					addnewservice1_bind: 0,
 					addnewservice2_bind: 0,
