@@ -40,7 +40,7 @@
         <if test='name != null and name != ""'>
             AND name = #{name}
         </if>
-        ORDER BY gmt_create DESC;
+        ORDER BY code;
     </select>
     
     <select id="getServiceById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.ServiceDO">

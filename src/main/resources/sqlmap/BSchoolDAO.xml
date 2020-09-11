@@ -82,7 +82,7 @@
             AND country = #{country}
         </if>
         GROUP BY name
-        ORDER BY gmt_create DESC;
+        ORDER BY name;
     </select>
     
     <select id="getSchoolById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.SchoolDO">
