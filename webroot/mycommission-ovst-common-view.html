@@ -168,7 +168,7 @@
 					</div>					
 					<div class="modal-footer" style="text-align: center;">
 							<dle v-if="ap_list==='GW'">									
-									<dle v-if="state==='PENDING'">
+									<dle v-if="state==='PENDING' && v_sub.adviserId === current_adviserId">
 									<button onclick="$('#show_ovst_id').modal('hide');reqCommissionOvst(v_sub.serviceId,v_sub.orderId);" type="button" class="btn btn-primary">申请月奖</button>
 									</dle>
 							</dle>													
@@ -188,6 +188,7 @@ var v_sub = new Vue({
 					m_list: localStorage.getItem("str_html"),
 					adviser_id: sessionStorage.getItem("adviser_id"),
 					official_id: sessionStorage.getItem("official_id"),
+					current_adviserId: parseInt(sessionStorage.getItem("adviser_id")),
 					serviceId: 0,
 					orderId: 0,
 					state: '',
