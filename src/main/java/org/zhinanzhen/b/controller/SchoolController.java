@@ -162,8 +162,8 @@ public class SchoolController extends BaseController {
 	@ResponseBody
 	public Response<List<SchoolSettingDTO>> listSchoolSetting(@RequestParam(value = "schoolName", required = false) String schoolName,
 			HttpServletRequest request, HttpServletResponse response) {
-		if (!super.isAdminUser(request) && super.getOfficialAdminId(request) == null)
-			return new Response<List<SchoolSettingDTO>>(1, "仅限管理员使用.", null);
+//		if (!super.isAdminUser(request) && super.getOfficialAdminId(request) == null)
+//			return new Response<List<SchoolSettingDTO>>(1, "仅限管理员使用.", null);
 		super.setGetHeader(response);
 		try {
 			return new Response<List<SchoolSettingDTO>>(0, schoolService.listSchoolSetting(schoolName));
@@ -191,8 +191,8 @@ public class SchoolController extends BaseController {
 	@ResponseBody
 	public Response<Boolean> updateSchoolSetting0(@RequestParam(value = "id") String id, HttpServletRequest request,
 			HttpServletResponse response) {
-		if (!super.isAdminUser(request) && super.getOfficialAdminId(request) == null)
-			return new Response<Boolean>(1, "仅限管理员使用.", false);
+//		if (!super.isAdminUser(request) && super.getOfficialAdminId(request) == null)
+//			return new Response<Boolean>(1, "仅限管理员使用.", false);
 		super.setPostHeader(response);
 		try {
 			schoolService.updateSchoolSetting(StringUtil.toInt(id), 0, new Date(), new Date(), null);
@@ -209,8 +209,8 @@ public class SchoolController extends BaseController {
 			@RequestParam(value = "startDate") String startDate, @RequestParam(value = "endDate") String endDate,
 			@RequestParam(value = "proportion") String proportion, HttpServletRequest request,
 			HttpServletResponse response) {
-		if (!super.isAdminUser(request) && super.getOfficialAdminId(request) == null)
-			return new Response<Boolean>(1, "仅限管理员使用.", false);
+//		if (!super.isAdminUser(request) && super.getOfficialAdminId(request) == null)
+//			return new Response<Boolean>(1, "仅限管理员使用.", false);
 		super.setPostHeader(response);
 		try {
 			schoolService.updateSchoolSetting(StringUtil.toInt(id), 1, new Date(Long.parseLong(startDate)),
@@ -240,8 +240,8 @@ public class SchoolController extends BaseController {
 			@RequestParam(value = "number4_1", required = false) String number4_1,
 			@RequestParam(value = "number4_2", required = false) String number4_2, HttpServletRequest request,
 			HttpServletResponse response) {
-		if (!super.isAdminUser(request) && super.getOfficialAdminId(request) == null)
-			return new Response<Boolean>(1, "仅限管理员使用.", false);
+//		if (!super.isAdminUser(request) && super.getOfficialAdminId(request) == null)
+//			return new Response<Boolean>(1, "仅限管理员使用.", false);
 		super.setPostHeader(response);
 		String parameters = proportion;
 		if (StringUtil.isNotEmpty(fee1) && StringUtil.isNotEmpty(number1_1) && StringUtil.isNotEmpty(number1_2))
@@ -268,8 +268,8 @@ public class SchoolController extends BaseController {
 			@RequestParam(value = "startDate") String startDate, @RequestParam(value = "endDate") String endDate,
 			@RequestParam(value = "proportion") String proportion, @RequestParam(value = "fee") String fee,
 			@RequestParam(value = "number") String number, HttpServletRequest request, HttpServletResponse response) {
-		if (!super.isAdminUser(request) && super.getOfficialAdminId(request) == null)
-			return new Response<Boolean>(1, "仅限管理员使用.", false);
+//		if (!super.isAdminUser(request) && super.getOfficialAdminId(request) == null)
+//			return new Response<Boolean>(1, "仅限管理员使用.", false);
 		super.setPostHeader(response);
 		String parameters = proportion + "|" + fee + "/" + number;
 		try {
@@ -295,8 +295,8 @@ public class SchoolController extends BaseController {
 			@RequestParam(value = "proportion4", required = false) String proportion4,
 			@RequestParam(value = "number4", required = false) String number4, HttpServletRequest request,
 			HttpServletResponse response) {
-		if (!super.isAdminUser(request) && super.getOfficialAdminId(request) == null)
-			return new Response<Boolean>(1, "仅限管理员使用.", false);
+//		if (!super.isAdminUser(request) && super.getOfficialAdminId(request) == null)
+//			return new Response<Boolean>(1, "仅限管理员使用.", false);
 		super.setPostHeader(response);
 		String parameters = "";
 		if (StringUtil.isNotEmpty(proportion1) && StringUtil.isNotEmpty(number1))
@@ -330,8 +330,8 @@ public class SchoolController extends BaseController {
 			@RequestParam(value = "fee4", required = false) String fee4,
 			@RequestParam(value = "number4", required = false) String number4, HttpServletRequest request,
 			HttpServletResponse response) {
-		if (!super.isAdminUser(request) && super.getOfficialAdminId(request) == null)
-			return new Response<Boolean>(1, "仅限管理员使用.", false);
+//		if (!super.isAdminUser(request) && super.getOfficialAdminId(request) == null)
+//			return new Response<Boolean>(1, "仅限管理员使用.", false);
 		super.setPostHeader(response);
 		String parameters = "";
 		if (StringUtil.isNotEmpty(fee1) && StringUtil.isNotEmpty(number1))
@@ -358,8 +358,8 @@ public class SchoolController extends BaseController {
 			@RequestParam(value = "startDate") String startDate, @RequestParam(value = "endDate") String endDate,
 			@RequestParam(value = "fee") String fee, @RequestParam(value = "number") String number,
 			HttpServletRequest request, HttpServletResponse response) {
-		if (!super.isAdminUser(request) && super.getOfficialAdminId(request) == null)
-			return new Response<Boolean>(1, "仅限管理员使用.", false);
+//		if (!super.isAdminUser(request) && super.getOfficialAdminId(request) == null)
+//			return new Response<Boolean>(1, "仅限管理员使用.", false);
 		super.setPostHeader(response);
 		String parameters = fee + "/" + number;
 		try {
@@ -377,8 +377,8 @@ public class SchoolController extends BaseController {
 	public Response<Boolean> updateSchoolSetting7(@RequestParam(value = "id") String id,
 			@RequestParam(value = "fee") String fee, @RequestParam(value = "startDate") String startDate,
 			@RequestParam(value = "endDate") String endDate, HttpServletRequest request, HttpServletResponse response) {
-		if (!super.isAdminUser(request) && super.getOfficialAdminId(request) == null)
-			return new Response<Boolean>(1, "仅限管理员使用.", false);
+//		if (!super.isAdminUser(request) && super.getOfficialAdminId(request) == null)
+//			return new Response<Boolean>(1, "仅限管理员使用.", false);
 		super.setPostHeader(response);
 		try {
 			schoolService.updateSchoolSetting(StringUtil.toInt(id), 7, new Date(Long.parseLong(startDate)),
@@ -394,8 +394,8 @@ public class SchoolController extends BaseController {
 	public Response<List<SubjectSettingDTO>> listSubjectSetting(
 			@RequestParam(value = "schoolSettingId") String schoolSettingId, HttpServletRequest request,
 			HttpServletResponse response) {
-		if (!super.isAdminUser(request) && super.getOfficialAdminId(request) == null)
-			return new Response<List<SubjectSettingDTO>>(1, "仅限管理员使用.", null);
+//		if (!super.isAdminUser(request) && super.getOfficialAdminId(request) == null)
+//			return new Response<List<SubjectSettingDTO>>(1, "仅限管理员使用.", null);
 		super.setGetHeader(response);
 		try {
 			return new Response<List<SubjectSettingDTO>>(0,
@@ -409,8 +409,8 @@ public class SchoolController extends BaseController {
 	@ResponseBody
 	public Response<Boolean> updateSubjectSetting(@RequestParam(value = "subjectSettingId") String subjectSettingId,
 			@RequestParam(value = "price") String price, HttpServletRequest request, HttpServletResponse response) {
-		if (!super.isAdminUser(request) && super.getOfficialAdminId(request) == null)
-			return new Response<Boolean>(1, "仅限管理员使用.", false);
+//		if (!super.isAdminUser(request) && super.getOfficialAdminId(request) == null)
+//			return new Response<Boolean>(1, "仅限管理员使用.", false);
 		super.setPostHeader(response);
 		try {
 			return new Response<Boolean>(0, schoolService.updateSubjectSetting(StringUtil.toInt(subjectSettingId),
@@ -424,8 +424,8 @@ public class SchoolController extends BaseController {
 	@ResponseBody
 	public Response<Boolean> updateSubjectSettings(@RequestParam(value = "parameters") String parameters,
 			HttpServletRequest request, HttpServletResponse response) {
-		if (!super.isAdminUser(request) && super.getOfficialAdminId(request) == null)
-			return new Response<Boolean>(1, "仅限管理员使用.", false);
+//		if (!super.isAdminUser(request) && super.getOfficialAdminId(request) == null)
+//			return new Response<Boolean>(1, "仅限管理员使用.", false);
 		super.setPostHeader(response);
 		if (StringUtil.isEmpty(parameters))
 			return new Response<Boolean>(1, "参数错误.", false);
