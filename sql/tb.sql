@@ -442,6 +442,24 @@ CREATE TABLE `b_service_order_official_remarks` (
   `content` text NOT NULL COMMENT '内容'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
+-- 服务订单文案标签关联
+CREATE TABLE `b_service_order_official_tag` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `service_order_id` int NOT NULL COMMENT '服务订单编号',
+  `officialr_tag_id` int NOT NULL COMMENT '标签编号(对应b_official_tag.id)'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+-- 服务订单文案标签
+CREATE TABLE `b_official_tag` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `name` varchar(32) NOT NULL COMMENT '标签名称',
+  `colour` varchar(8) NOT NULL COMMENT '标签颜色'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
 -- 佣金订单(留学)
 CREATE TABLE `b_commission_order` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
