@@ -20,7 +20,6 @@ import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
-import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.b.service.pojo.OfficialDTO;
 
 import com.ikasoa.core.utils.StringUtil;
@@ -96,8 +95,9 @@ public class OfficialController extends BaseController {
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			OfficialDTO officialDto = new OfficialDTO();
-			officialDto.setId(id);
+			if (id <= 0)
+				return new Response<OfficialDTO>(1, "请输入有效id.", null);
+			OfficialDTO officialDto = officialService.getOfficialById(id);
 			if (StringUtil.isNotEmpty(name)) {
 				officialDto.setName(name);
 			}
@@ -122,7 +122,8 @@ public class OfficialController extends BaseController {
 					adminUserService.updateOfficialAdmin(adminUser.getId(), isOfficialAdmin);
 				else
 					return new Response<OfficialDTO>(0, "文案管理员修改失败.", officialDto);
-			} else if (officialService.updateOfficial(officialDto) > 0) {
+			}
+			if (officialService.updateOfficial(officialDto) > 0) {
 				return new Response<OfficialDTO>(0, officialDto);
 			} else
 				return new Response<OfficialDTO>(1, "修改失败.", null);
