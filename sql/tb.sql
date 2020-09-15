@@ -368,8 +368,8 @@ CREATE TABLE `b_service_order` (
   `school_id` int DEFAULT NULL COMMENT '学校编号 (对应b_school.id,留学服务专用字段)',
   `state` varchar(8) NOT NULL COMMENT '状态 (PENDING:待提交审核,REVIEW:审核中,APPLY:服务申请中,COMPLETE:服务申请完成,PAID:完成-支付成功,CLOSE:关闭)',
   `review_state` varchar(8) DEFAULT NULL COMMENT '审批状态 (OFFICIAL:文案审批通过,MARA:Mara审批通过,KJ:财务审批通过)',
-`official_approval_date` datetime DEFAULT NULL COMMENT '文案审核时间',
-`mara_approval_date` datetime DEFAULT NULL COMMENT 'mara审核时间',
+  `official_approval_date` datetime DEFAULT NULL COMMENT '文案审核时间',
+  `mara_approval_date` datetime DEFAULT NULL COMMENT 'mara审核时间',
   `is_settle` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否提前扣佣 (留学服务专用字段)',
   `is_deposit_user` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否为保证金用户 (留学服务专用字段)',
   `is_submitted` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已提交 (是否已创建佣金订单)',
@@ -447,8 +447,8 @@ CREATE TABLE `b_service_order_official_tag` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
-  `service_order_id` int NOT NULL COMMENT '服务订单编号',
-  `officialr_tag_id` int NOT NULL COMMENT '标签编号(对应b_official_tag.id)'
+  `service_order_id` int NOT NULL COMMENT '服务订单编号 (对应b_service_order.id)',
+  `official_tag_id` int NOT NULL COMMENT '标签编号(对应b_official_tag.id)'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
 -- 服务订单文案标签
@@ -499,15 +499,15 @@ CREATE TABLE `b_commission_order` (
   `per_amount` decimal(8,2) NOT NULL COMMENT '本次应收款',
   `amount` decimal(8,2) NOT NULL COMMENT '本次收款',
   `expect_amount` decimal(8,2) DEFAULT NULL COMMENT '预收业绩',
-`sure_expect_amount` decimal(8,2) DEFAULT NULL COMMENT '确认预收业绩',
+  `sure_expect_amount` decimal(8,2) DEFAULT NULL COMMENT '确认预收业绩',
   `discount` decimal(8,2) NOT NULL DEFAULT 0 COMMENT '折扣',
   `gst` decimal(8,2) NOT NULL COMMENT 'GST',
   `deduct_gst` decimal(8,2) NOT NULL COMMENT 'Deduct GST',
   `bonus` decimal(8,2) NOT NULL COMMENT '月奖金',
   `bonus_date` datetime DEFAULT NULL COMMENT '月奖金支付时间',
   `zy_date` datetime DEFAULT NULL COMMENT '追佣时间',
-`bank_check` varchar(32) DEFAULT NULL COMMENT '银行对账',
-`is_checked` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否对账成功',
+  `bank_check` varchar(32) DEFAULT NULL COMMENT '银行对账',
+  `is_checked` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否对账成功',
   `remarks` text DEFAULT NULL COMMENT '备注',
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
