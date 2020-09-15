@@ -1021,7 +1021,7 @@
               
               $.post(str_url, { id: sa_id, name: str_name, phone: str_phone, email: str_email, password: passwd, imageUrl: jqText[0].value, regionId: jqSelect[0].value},
 					   	function(data){
-					   			if (data.message == null)
+					   			if (data.message == '')
 					   			{
 					   					v.add = false;
 					   					$('#alert_success').addClass('alert-success').show().delay(1500).fadeOut();
