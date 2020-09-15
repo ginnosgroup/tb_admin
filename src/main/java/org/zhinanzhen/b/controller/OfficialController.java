@@ -116,7 +116,7 @@ public class OfficialController extends BaseController {
 			if (regionId != null && regionId > 0) {
 				officialDto.setRegionId(regionId);
 			}
-			if (isOfficialAdmin) {
+			if (isOfficialAdmin != null) {
 				AdminUserDTO adminUser = adminUserService.getAdminUserByUsername(officialDto.getEmail());
 				if (adminUser != null && isOfficialAdmin != null)
 					adminUserService.updateOfficialAdmin(adminUser.getId(), isOfficialAdmin);
