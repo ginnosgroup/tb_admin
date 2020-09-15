@@ -116,12 +116,13 @@ public class OfficialController extends BaseController {
 			if (regionId != null && regionId > 0) {
 				officialDto.setRegionId(regionId);
 			}
-			if (officialService.updateOfficial(officialDto) > 0) {
+			if (isOfficialAdmin) {
 				AdminUserDTO adminUser = adminUserService.getAdminUserByUsername(officialDto.getEmail());
 				if (adminUser != null && isOfficialAdmin != null)
 					adminUserService.updateOfficialAdmin(adminUser.getId(), isOfficialAdmin);
 				else
 					return new Response<OfficialDTO>(0, "文案管理员修改失败.", officialDto);
+			} else if (officialService.updateOfficial(officialDto) > 0) {
 				return new Response<OfficialDTO>(0, officialDto);
 			} else
 				return new Response<OfficialDTO>(1, "修改失败.", null);
