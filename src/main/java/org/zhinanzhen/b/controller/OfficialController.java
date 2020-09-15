@@ -20,6 +20,7 @@ import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
+import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.b.service.pojo.OfficialDTO;
 
 import com.ikasoa.core.utils.StringUtil;
@@ -90,8 +91,9 @@ public class OfficialController extends BaseController {
 			@RequestParam(value = "email", required = false) String email,
 			@RequestParam(value = "state", required = false) String state,
 			@RequestParam(value = "imageUrl", required = false) String imageUrl,
-			@RequestParam(value = "regionId", required = false) Integer regionId, HttpServletRequest request,
-			HttpServletResponse response) {
+			@RequestParam(value = "regionId", required = false) Integer regionId,
+			@RequestParam(value = "isOfficialAdmin", required = false) Boolean isOfficialAdmin,
+			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			OfficialDTO officialDto = new OfficialDTO();
@@ -115,10 +117,14 @@ public class OfficialController extends BaseController {
 				officialDto.setRegionId(regionId);
 			}
 			if (officialService.updateOfficial(officialDto) > 0) {
+				AdminUserDTO adminUser = adminUserService.getAdminUserByUsername(officialDto.getEmail());
+				if (adminUser != null && isOfficialAdmin != null)
+					adminUserService.updateOfficialAdmin(adminUser.getId(), isOfficialAdmin);
+				else
+					return new Response<OfficialDTO>(0, "文案管理员修改失败.", officialDto);
 				return new Response<OfficialDTO>(0, officialDto);
-			} else {
-				return new Response<OfficialDTO>(0, "修改失败.", null);
-			}
+			} else
+				return new Response<OfficialDTO>(1, "修改失败.", null);
 		} catch (ServiceException e) {
 			return new Response<OfficialDTO>(e.getCode(), e.getMessage(), null);
 		}

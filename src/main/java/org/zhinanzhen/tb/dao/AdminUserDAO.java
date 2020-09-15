@@ -17,6 +17,8 @@ public interface AdminUserDAO {
 
 	boolean updateOfficialId(@Param("id") int id, @Param("officialId") int officialId);
 
+	boolean updateOfficialAdmin(@Param("id") int id, @Param("isOfficialAdmin") int isOfficialAdmin);
+
 	boolean updateRegionId(@Param("id") int id, @Param("regionId") int regionId);
 
 	public AdminUserDO getAdminUserById(int id);
