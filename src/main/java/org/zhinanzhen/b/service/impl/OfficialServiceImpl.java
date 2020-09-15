@@ -10,7 +10,9 @@ import org.zhinanzhen.b.dao.OfficialDAO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.service.OfficialService;
 import org.zhinanzhen.b.service.OfficialStateEnum;
+import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.RegionDAO;
+import org.zhinanzhen.tb.dao.pojo.AdminUserDO;
 import org.zhinanzhen.tb.dao.pojo.RegionDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
@@ -24,6 +26,8 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 	private OfficialDAO officialDao;
 	@Resource
 	private RegionDAO regionDao;
+	@Resource
+	private AdminUserDAO adminUserDao;
 
 	@Override
 	public int addOfficial(OfficialDTO officialDto) throws ServiceException {
@@ -106,6 +110,9 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 				officialDto.setRegionName(regionDo.getName());
 				officialDto.setRegionDo(regionDo);
 			}
+			AdminUserDO adminUserDo = adminUserDao.getAdminUserByUsername(officialDo.getEmail());
+			if (adminUserDo != null)
+				officialDto.setIsOfficialAdmin(adminUserDo.isOfficialAdmin());
 			officialDtoList.add(officialDto);
 		}
 		return officialDtoList;
