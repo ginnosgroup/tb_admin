@@ -113,6 +113,8 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 			AdminUserDO adminUserDo = adminUserDao.getAdminUserByUsername(officialDo.getEmail());
 			if (adminUserDo != null)
 				officialDto.setIsOfficialAdmin(adminUserDo.isOfficialAdmin());
+			else
+				officialDto.setIsOfficialAdmin(false);
 			officialDtoList.add(officialDto);
 		}
 		return officialDtoList;
