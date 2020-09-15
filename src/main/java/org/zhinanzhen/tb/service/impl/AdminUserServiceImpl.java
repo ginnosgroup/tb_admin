@@ -169,7 +169,7 @@ public class AdminUserServiceImpl extends BaseService implements AdminUserServic
 
 	@Override
 	public boolean updateOfficialAdmin(int id, boolean isOfficialAdmin) throws ServiceException {
-		return adminUserDao.updateOfficialAdmin(id, isOfficialAdmin ? 1 : 0);
+		return adminUserDao.updateOfficialAdmin(id, isOfficialAdmin);
 	}
 
 }
