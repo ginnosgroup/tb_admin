@@ -167,7 +167,7 @@ public class BaseController {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo != null) {
 			String ap = adminUserLoginInfo.getApList();
-			if (ap != null && ap.contains("WAAD"))
+			if (ap != null && ap.contains("WA") && adminUserLoginInfo.isOfficialAdmin())
 				return adminUserLoginInfo.getOfficialId();
 		}
 		return null;
@@ -205,5 +205,6 @@ public class BaseController {
 		private Integer officialId;
 		private Integer kjId;
 		private Integer regionId;
+		private boolean isOfficialAdmin;
 	}
 }
