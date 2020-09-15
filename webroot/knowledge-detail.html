@@ -99,6 +99,8 @@
                 </span>
               </a>
             </li>
+            </dli>
+            <dli v-if="ap_list==='SUPERAD' || (ap_list==='WA' && wa_admin === 'true')">
             <li>
               <a href="official.html">
                 <i class="fa fa-book">
@@ -108,6 +110,8 @@
                 </span>
               </a>
             </li>
+            </dli>
+            <dli v-if="ap_list==='SUPERAD'">
             <li>
               <a href="mara.html">
                 <i class="fa fa-book">
@@ -411,7 +415,8 @@
 					admin: sessionStorage.getItem("admin"),
 					admin_id: sessionStorage.getItem("admin_id"),
 					ap_list: sessionStorage.getItem("ap_list"),	
-					gw_regionid: sessionStorage.getItem("gw_regionid"),				
+					gw_regionid: sessionStorage.getItem("gw_regionid"),
+					wa_admin: sessionStorage.getItem("wa_admin"),			
 					kid : getRequestId(),
 					m_list: localStorage.getItem("str_html"),
 					datalist: [],
