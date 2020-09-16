@@ -558,11 +558,8 @@ public class ServiceOrderController extends BaseController {
 		}
 		Integer newOfficialId = getOfficialId(request);
 		if (newOfficialId != null) {
-			officialId = newOfficialId;
-			excludeState = ReviewAdviserStateEnum.PENDING.toString();
-		}
-		if (getOfficialAdminId(request) != null) {
-			officialId = null; // 文案管理员可以查看所有文案数据
+			if (getOfficialAdminId(request) == null)
+				officialId = newOfficialId; // 非文案管理员就只显示自己的单子
 			excludeState = ReviewAdviserStateEnum.PENDING.toString();
 		}
 
@@ -642,11 +639,8 @@ public class ServiceOrderController extends BaseController {
 		}
 		Integer newOfficialId = getOfficialId(request);
 		if (newOfficialId != null) {
-			officialId = newOfficialId;
-			excludeState = ReviewAdviserStateEnum.PENDING.toString();
-		}
-		if (getOfficialAdminId(request) != null) {
-//			officialId = null; // 文案管理员可以查看所有文案数据
+			if (getOfficialAdminId(request) == null)
+				officialId = newOfficialId; // 非文案管理员就只显示自己的单子
 			excludeState = ReviewAdviserStateEnum.PENDING.toString();
 		}
 
