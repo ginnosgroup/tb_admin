@@ -1002,12 +1002,13 @@
 			function loadCourses(id,name)
 			{
 					if (v.currentId)
-					{							
-							var arr = v.currentSubId.split(',');
+					{
+							var str = v.currentSubId.toString();
+							var arr = str.split(',');
 							for(var i=0;i < arr.length;i++)
 							{
 									$("#sub_"+arr[i]).remove();
-							}						
+							}
 							$('#s_'+v.currentId).html('+');	
 							v.opened = 0;
 					}
@@ -1027,147 +1028,150 @@
 						pageNum: 0,
 						pageSize: 100000
 					}, function(result) {
-						var str_html = '';	
-						for(var i = 0; i < result.data.length; i++) {
-								result.data[i].oid = result.data[i].id;
-								if (result.data[i].schoolSubject != '')
-								{
-										result.data[i].str_init = '';
-										result.data[i].str_parameters = '';
-										switch(result.data[i].type)
+						var str_html = '';
+						if (result.data != null)
+						{
+								for(var i = 0; i < result.data.length; i++) {
+										result.data[i].oid = result.data[i].id;
+										if (result.data[i].schoolSubject != '')
 										{
-												case 1:
-														result.data[i].str_init = result.data[i].startDate+'|'+result.data[i].endDate+'|'+result.data[i].parameters;
-														if (result.data[i].parameters)
-														{
-																result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'，成本为课程原价'+result.data[i].parameters+'%。';
-														}
-												break;
-												case 2:
-														result.data[i].str_init = result.data[i].startDate+'#'+result.data[i].endDate+'#'+result.data[i].parameters;
-														if (result.data[i].parameters)
-														{
-																arr = result.data[i].parameters.split("|");
-																result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'，成本为课程原价'+arr[0]+'%。';
-																var arr1 = arr[1].split("/");
-																var str_txt = '额外每人补贴$'+arr1[0]+'（总人数超过'+arr1[2]+'人）';															
-																if (arr[2] != null)
+												result.data[i].str_init = '';
+												result.data[i].str_parameters = '';
+												switch(result.data[i].type)
+												{
+														case 1:
+																result.data[i].str_init = result.data[i].startDate+'|'+result.data[i].endDate+'|'+result.data[i].parameters;
+																if (result.data[i].parameters)
 																{
-																		arr1 = arr[2].split("/");
-																		str_txt += '或额外每人补贴$'+arr1[0]+'（总人数超过'+arr1[2]+'人）';
+																		result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'，成本为课程原价'+result.data[i].parameters+'%。';
 																}
-																if (arr[3] != null)
+														break;
+														case 2:
+																result.data[i].str_init = result.data[i].startDate+'#'+result.data[i].endDate+'#'+result.data[i].parameters;
+																if (result.data[i].parameters)
 																{
-																		arr1 = arr[3].split("/");
-																		str_txt += '或额外每人补贴$'+arr1[0]+'（总人数超过'+arr1[2]+'人）';
+																		arr = result.data[i].parameters.split("|");
+																		result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'，成本为课程原价'+arr[0]+'%。';
+																		var arr1 = arr[1].split("/");
+																		var str_txt = '额外每人补贴$'+arr1[0]+'（总人数超过'+arr1[2]+'人）';															
+																		if (arr[2] != null)
+																		{
+																				arr1 = arr[2].split("/");
+																				str_txt += '或额外每人补贴$'+arr1[0]+'（总人数超过'+arr1[2]+'人）';
+																		}
+																		if (arr[3] != null)
+																		{
+																				arr1 = arr[3].split("/");
+																				str_txt += '或额外每人补贴$'+arr1[0]+'（总人数超过'+arr1[2]+'人）';
+																		}
+																		if (arr[4] != null)
+																		{
+																				arr1 = arr[4].split("/");
+																				str_txt += '或额外每人补贴$'+arr1[0]+'（总人数超过'+arr1[2]+'人）';
+																		}
+																		result.data[i].str_parameters += str_txt;															
 																}
-																if (arr[4] != null)
+														break;
+														case 3:
+																result.data[i].str_init = result.data[i].startDate+'#'+result.data[i].endDate+'#'+result.data[i].parameters;
+																if (result.data[i].parameters)
 																{
-																		arr1 = arr[4].split("/");
-																		str_txt += '或额外每人补贴$'+arr1[0]+'（总人数超过'+arr1[2]+'人）';
+																		arr = null;
+																		arr = result.data[i].parameters.split("|");
+																		result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'，成本为课程原价'+arr[0]+'%。';
+																		var arr1 = arr[1].split("/");
+																		if (arr1[1] != null)
+																		{
+																				var str_txt = '总人数超过'+arr1[0]+'人一次性补贴$'+arr1[1];
+																				result.data[i].str_parameters += str_txt;
+																		}																										
 																}
-																result.data[i].str_parameters += str_txt;															
-														}
-												break;
-												case 3:
-														result.data[i].str_init = result.data[i].startDate+'#'+result.data[i].endDate+'#'+result.data[i].parameters;
-														if (result.data[i].parameters)
-														{
-																arr = null;
-																arr = result.data[i].parameters.split("|");
-																result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'，成本为课程原价'+arr[0]+'%。';
-																var arr1 = arr[1].split("/");
-																if (arr1[1] != null)
+														break;
+														case 4:
+																result.data[i].str_init = result.data[i].startDate+'#'+result.data[i].endDate+'#'+result.data[i].parameters;
+																if (result.data[i].parameters)
 																{
-																		var str_txt = '总人数超过'+arr1[0]+'人一次性补贴$'+arr1[1];
+																		arr = null;
+																		arr = result.data[i].parameters.split("|");
+																		result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'。';
+																		var arr1 = arr[1].split("/");
+																		var str_txt = '成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';															
+																		if (arr[2] != null)
+																		{
+																				arr1 = arr[2].split("/");
+																				str_txt += '或成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';
+																		}
+																		if (arr[3] != null)
+																		{
+																				arr1 = arr[3].split("/");
+																				str_txt += '或成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';
+																		}
+																		if (arr[4] != null)
+																		{
+																				arr1 = arr[4].split("/");
+																				str_txt += '或成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';
+																		}
 																		result.data[i].str_parameters += str_txt;
-																}																										
-														}
-												break;
-												case 4:
-														result.data[i].str_init = result.data[i].startDate+'#'+result.data[i].endDate+'#'+result.data[i].parameters;
-														if (result.data[i].parameters)
-														{
-																arr = null;
-																arr = result.data[i].parameters.split("|");
-																result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'。';
-																var arr1 = arr[1].split("/");
-																var str_txt = '成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';															
-																if (arr[2] != null)
-																{
-																		arr1 = arr[2].split("/");
-																		str_txt += '或成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';
 																}
-																if (arr[3] != null)
+														break;
+														case 7:													
+																result.data[i].str_init = result.data[i].startDate+'#'+result.data[i].endDate+'#'+result.data[i].parameters;
+																result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'，成本为固定价：'+result.data[i].parameters+'。';
+														break;
+														case 5:
+																result.data[i].str_init = result.data[i].startDate+'#'+result.data[i].endDate+'#'+result.data[i].parameters;
+																if (result.data[i].parameters)
 																{
-																		arr1 = arr[3].split("/");
-																		str_txt += '或成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';
+																		arr = null;
+																		arr = result.data[i].parameters.split("|");
+																		result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'。成本为固定值，请设置课程价目表。';
+																		var arr1 = arr[1].split("/");
+																		var str_txt = '额外每人补贴$'+arr1[1]+'（总人数超过'+arr1[0]+'人）';															
+																		if (arr[2] != null)
+																		{
+																				arr1 = arr[2].split("/");
+																				str_txt += '或额外每人补贴$'+arr1[1]+'（总人数超过'+arr1[0]+'人）';
+																		}
+																		if (arr[3] != null)
+																		{
+																				arr1 = arr[3].split("/");
+																				str_txt += '或额外每人补贴$'+arr1[1]+'（总人数超过'+arr1[0]+'人）';
+																		}
+																		if (arr[4] != null)
+																		{
+																				arr1 = arr[4].split("/");
+																				str_txt += '或额外每人补贴$'+arr1[1]+'（总人数超过'+arr1[0]+'人）';
+																		}
+																		result.data[i].str_parameters += str_txt+'<a href="javascript:v.schoolid = '+result.data[i].id+';v.school_name = \''+result.data[i].schoolName+'\';loadschoolsubject_7();">课程列表</a>';
 																}
-																if (arr[4] != null)
+														break;
+														case 6:
+																result.data[i].str_init = result.data[i].startDate+'#'+result.data[i].endDate+'#'+result.data[i].parameters;
+																if (result.data[i].parameters)
 																{
-																		arr1 = arr[4].split("/");
-																		str_txt += '或成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';
+																		arr = null;
+																		result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'。成本为固定值，请设置课程价目表。';
+																		var arr1 = result.data[i].parameters.split("/");
+																		if (arr1[1] != null)
+																		{
+																				var str_txt = '总人数超过'+arr1[1]+'人一次性补贴$'+arr1[0];
+																				result.data[i].str_parameters += str_txt;
+																		}																										
 																}
-																result.data[i].str_parameters += str_txt;
-														}
-												break;
-												case 7:													
-														result.data[i].str_init = result.data[i].startDate+'#'+result.data[i].endDate+'#'+result.data[i].parameters;
-														result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'，成本为固定价：'+result.data[i].parameters+'。';
-												break;
-												case 5:
-														result.data[i].str_init = result.data[i].startDate+'#'+result.data[i].endDate+'#'+result.data[i].parameters;
-														if (result.data[i].parameters)
-														{
-																arr = null;
-																arr = result.data[i].parameters.split("|");
-																result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'。成本为固定值，请设置课程价目表。';
-																var arr1 = arr[1].split("/");
-																var str_txt = '额外每人补贴$'+arr1[1]+'（总人数超过'+arr1[0]+'人）';															
-																if (arr[2] != null)
-																{
-																		arr1 = arr[2].split("/");
-																		str_txt += '或额外每人补贴$'+arr1[1]+'（总人数超过'+arr1[0]+'人）';
-																}
-																if (arr[3] != null)
-																{
-																		arr1 = arr[3].split("/");
-																		str_txt += '或额外每人补贴$'+arr1[1]+'（总人数超过'+arr1[0]+'人）';
-																}
-																if (arr[4] != null)
-																{
-																		arr1 = arr[4].split("/");
-																		str_txt += '或额外每人补贴$'+arr1[1]+'（总人数超过'+arr1[0]+'人）';
-																}
-																result.data[i].str_parameters += str_txt+'<a href="javascript:v.schoolid = '+result.data[i].id+';v.school_name = \''+result.data[i].schoolName+'\';loadschoolsubject_7();">课程列表</a>';
-														}
-												break;
-												case 6:
-														result.data[i].str_init = result.data[i].startDate+'#'+result.data[i].endDate+'#'+result.data[i].parameters;
-														if (result.data[i].parameters)
-														{
-																arr = null;
-																result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'。成本为固定值，请设置课程价目表。';
-																var arr1 = result.data[i].parameters.split("/");
-																if (arr1[1] != null)
-																{
-																		var str_txt = '总人数超过'+arr1[1]+'人一次性补贴$'+arr1[0];
-																		result.data[i].str_parameters += str_txt;
-																}																										
-														}
-												break;
-										}									
-										result.data[i].str_type = sltype(result.data[i].type,result.data[i].id,result.data[i].str_init,result.data[i].schoolName);
-										if (v.currentSubId == '')
-										{
-												v.currentSubId = result.data[i].id;
-										}else
-										{
-												v.currentSubId += ','+result.data[i].id;
+														break;
+												}									
+												result.data[i].str_type = sltype(result.data[i].type,result.data[i].id,result.data[i].str_init,result.data[i].schoolName);
+												if (v.currentSubId == '')
+												{
+														v.currentSubId = result.data[i].id;
+												}else
+												{
+														v.currentSubId += ','+result.data[i].id;
+												}
+												$("#list_"+id).after('<tr id="sub_'+result.data[i].id+'"><td></td><td align="center" style="color:#000;">'+result.data[i].schoolSubject+'</td><td>'+result.data[i].str_type+'</td><td style="color:#008000;">'+result.data[i].str_parameters +'</td><td></td><td></td></tr>');
 										}
-										$("#list_"+id).after('<tr id="sub_'+result.data[i].id+'"><td></td><td align="center" style="color:#000;">'+result.data[i].schoolSubject+'</td><td>'+result.data[i].str_type+'</td><td style="color:#008000;">'+result.data[i].str_parameters +'</td><td></td><td></td></tr>');
 								}
-						};
+						}
 					});
 			}						
 			
