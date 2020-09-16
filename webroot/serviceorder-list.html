@@ -103,6 +103,8 @@
                 </span>
               </a>
             </li>
+            </dli>
+            <dli v-if="ap_list==='SUPERAD' || (ap_list==='WA' && wa_admin === 'true')">
             <li>
               <a href="official.html">
                 <i class="fa fa-book">
@@ -112,6 +114,8 @@
                 </span>
               </a>
             </li>
+            </dli>
+            <dli v-if="ap_list==='SUPERAD'">
             <li>
               <a href="mara.html">
                 <i class="fa fa-book">
@@ -378,7 +382,7 @@
 													<select v-model.trim="adviserId" id="adviserId" class="form-control" style="width:130px;">
 													</select>
 													</dle>
-													<dle v-if="ap_list!=='KJ' && ap_list!=='WA'">
+													<dle v-if="(ap_list!=='KJ' && ap_list!=='WA') || (ap_list==='WA' && wa_admin === 'true')">
 													<label>文案</label>											
 													<select v-model.trim="officialId" id="officialId" class="form-control" style="width:130px;">
 													</select>
@@ -644,6 +648,7 @@
 					official_id: sessionStorage.getItem("official_id"),
 					mara_id: sessionStorage.getItem("mara_id"),
 					current_adviserId: parseInt(sessionStorage.getItem("adviser_id")),
+					wa_admin: sessionStorage.getItem("wa_admin"),
 					auditingState : getRequest('state'),
 					addnewservice1_bind: 0,
 					addnewservice2_bind: 0,
