@@ -65,6 +65,9 @@
         <if test='name != null and name != ""'>
             AND name = #{name}
         </if>
+        <if test='subject != null and subject != ""'>
+            AND subject = #{subject}
+        </if>
         ;
     </select>
     

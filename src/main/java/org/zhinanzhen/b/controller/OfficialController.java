@@ -123,9 +123,9 @@ public class OfficialController extends BaseController {
 				else
 					return new Response<OfficialDTO>(0, "文案管理员修改失败.", officialDto);
 			}
-			if (officialService.updateOfficial(officialDto) > 0) {
+			if (officialService.updateOfficial(officialDto) > 0)
 				return new Response<OfficialDTO>(0, officialDto);
-			} else
+			else
 				return new Response<OfficialDTO>(1, "修改失败.", null);
 		} catch (ServiceException e) {
 			return new Response<OfficialDTO>(e.getCode(), e.getMessage(), null);

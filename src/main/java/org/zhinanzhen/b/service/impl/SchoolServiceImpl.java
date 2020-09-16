@@ -61,7 +61,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 			if (schoolDao.addSchool(schoolDo) > 0) {
 				// 添加学校设置
 				if (schoolDo.getName() != null && schoolDo.getSubject() != null) {
-					List<SchoolDO> schoolList = schoolDao.list2(schoolDo.getName());
+					List<SchoolDO> schoolList = schoolDao.list2(schoolDo.getName(), null);
 					if (schoolList != null && schoolList.size() > 0)
 						schoolList.forEach(school -> {
 							if (school.getSubject() == null || "".equals(school.getSubject())) {
@@ -101,7 +101,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		List<SchoolDTO> schoolDtoList = new ArrayList<SchoolDTO>();
 		List<SchoolDO> schoolDoList = new ArrayList<SchoolDO>();
 		try {
-			schoolDoList = schoolDao.list2(name);
+			schoolDoList = schoolDao.list2(name, null);
 			if (schoolDoList == null)
 				return null;
 		} catch (Exception e) {
@@ -187,7 +187,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	public int updateSchoolSetting(CommissionOrderListDTO commissionOrderListDto) throws ServiceException {
 		if (commissionOrderListDto == null || commissionOrderListDto.getSchool() == null)
 			return -1;
-		listSchoolSetting(null); // 初始化
+		listSchoolSetting(null, null); // 初始化
 		SchoolSettingDO schoolSettingDo = schoolSettingDao.getBySchoolId(commissionOrderListDto.getSchool().getId());
 		if (schoolSettingDo == null)
 			return -2;
@@ -217,13 +217,13 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	}
 
 	@Override
-	public List<SchoolSettingDTO> listSchoolSetting(String schoolName) throws ServiceException {
+	public List<SchoolSettingDTO> listSchoolSetting(String schoolName, String subjectName) throws ServiceException {
 		List<SchoolDO> schoolDoList = null;
 		if (StringUtil.isEmpty(schoolName)) {
-			buildSchoolSettingList(schoolDao.list2(null));
+			buildSchoolSettingList(schoolDao.list2(null, null));
 			schoolDoList = schoolDao.listSchool(null, null); // 一级列表合并学校
 		} else
-			schoolDoList = schoolDao.list2(schoolName); // 二级列表查询专业课程
+			schoolDoList = schoolDao.list2(schoolName, subjectName); // 二级列表查询专业课程
 		return buildSchoolSettingList(schoolDoList);
 	}
 
@@ -231,7 +231,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	@Deprecated
 	public List<SubjectSettingDTO> listSubjectSetting(int schoolSettingId) throws ServiceException {
 		List<SubjectSettingDTO> subjectSettingDtoList = new ArrayList<SubjectSettingDTO>();
-		List<SchoolDO> schoolDoList = schoolDao.list2(null);
+		List<SchoolDO> schoolDoList = schoolDao.list2(null, null);
 		if (schoolDoList == null)
 			return null;
 		schoolDoList.forEach(schoolDo -> {
