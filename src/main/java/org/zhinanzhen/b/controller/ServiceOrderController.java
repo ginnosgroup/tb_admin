@@ -646,7 +646,7 @@ public class ServiceOrderController extends BaseController {
 			excludeState = ReviewAdviserStateEnum.PENDING.toString();
 		}
 		if (getOfficialAdminId(request) != null) {
-			officialId = null; // 文案管理员可以查看所有文案数据
+//			officialId = null; // 文案管理员可以查看所有文案数据
 			excludeState = ReviewAdviserStateEnum.PENDING.toString();
 		}
 
