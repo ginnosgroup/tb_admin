@@ -197,9 +197,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			pageSize = DEFAULT_PAGE_SIZE;
 		try {
 			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, excludeState, stateList, auditingState,
-					reviewStateList,					startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate,
-					regionIdList, userId, maraId, adviserId, officialId, parentId, isNotApproved, pageNum * pageSize,
-					pageSize);
+					reviewStateList, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
+					endOfficialApprovalDate, regionIdList, userId, maraId, adviserId, officialId, parentId,
+					isNotApproved, pageNum * pageSize, pageSize);
 			if (serviceOrderDoList == null)
 				return null;
 		} catch (Exception e) {
