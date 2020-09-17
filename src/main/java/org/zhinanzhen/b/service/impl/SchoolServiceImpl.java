@@ -322,18 +322,17 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		if (schoolDoList == null || schoolDoList.size() == 0)
 			return null;
 		schoolDoList.forEach(schoolDo -> {
-			List<SchoolDO> sl = schoolDao.list2(schoolDo.getName(), null);
-			if (sl.size() > 0) {
-				for (SchoolDO s : sl)
-					if (s.getSubject() == null || "".equalsIgnoreCase(s.getSubject())) {
-						SchoolDO _schoolDo = new SchoolDO();
-						_schoolDo.setName(s.getName());
-						_schoolDo.setCountry(s.getCountry());
-						_schoolDo.setSubject("");
-System.out.println("........"+s.getName());
-						schoolDao.addSchool(_schoolDo);
-					}
-			}
+//			List<SchoolDO> sl = schoolDao.list2(schoolDo.getName(), null);
+//			if (sl.size() > 0) {
+//				for (SchoolDO s : sl)
+//					if (s.getSubject() == null || "".equalsIgnoreCase(s.getSubject())) {
+//						SchoolDO _schoolDo = new SchoolDO();
+//						_schoolDo.setName(s.getName());
+//						_schoolDo.setCountry(s.getCountry());
+//						_schoolDo.setSubject("");
+//						schoolDao.addSchool(_schoolDo);
+//					}
+//			}
 			int id = schoolDo.getId();
 			SchoolSettingDO schoolSettingDo = schoolSettingDao.getBySchoolId(id);
 			SchoolSettingDTO schoolSettingDto = null;
