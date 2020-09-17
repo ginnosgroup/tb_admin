@@ -176,8 +176,7 @@ public class SchoolController extends BaseController {
 	
 	@RequestMapping(value = "/getSchoolSetting", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<SchoolSettingDTO> getSchoolSetting(
-			@RequestParam(value = "schoolName", required = false) String schoolName,
+	public Response<SchoolSettingDTO> getSchoolSetting(@RequestParam(value = "schoolName") String schoolName,
 			@RequestParam(value = "subjectName", required = false) String subjectName, HttpServletRequest request,
 			HttpServletResponse response) {
 //		if (!super.isAdminUser(request) && super.getOfficialAdminId(request) == null)
@@ -191,8 +190,10 @@ public class SchoolController extends BaseController {
 					schoolSettingDto = schoolSettingDtoList.get(0);
 				else
 					for (SchoolSettingDTO ss : schoolSettingDtoList)
-						if (ss.getSchoolSubject() == null || "".equalsIgnoreCase(ss.getSchoolSubject()))
+						if (schoolName.equals(ss.getSchoolName())) {
 							schoolSettingDto = ss;
+							break;
+						}
 			return new Response<SchoolSettingDTO>(0, schoolSettingDto);
 		} catch (ServiceException e) {
 			return new Response<SchoolSettingDTO>(1, e.getMessage(), null);
