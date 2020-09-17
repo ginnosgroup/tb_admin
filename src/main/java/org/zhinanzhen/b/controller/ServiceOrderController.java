@@ -324,8 +324,8 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "remarks", required = false) String remarks,
 			@RequestParam(value = "closedReason", required = false) String closedReason, HttpServletRequest request,
 			HttpServletResponse response) {
-		if (getOfficialAdminId(request) != null)
-			return new Response<Integer>(1, "文案管理员不可操作服务订单.", 0);
+//		if (getOfficialAdminId(request) != null)
+//			return new Response<Integer>(1, "文案管理员不可操作服务订单.", 0);
 		try {
 			super.setPostHeader(response);
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
