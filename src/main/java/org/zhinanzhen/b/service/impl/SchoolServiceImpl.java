@@ -330,6 +330,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 						_schoolDo.setName(s.getName());
 						_schoolDo.setCountry(s.getCountry());
 						_schoolDo.setSubject("");
+System.out.println("........"+s.getName());
 						schoolDao.addSchool(_schoolDo);
 					}
 			}
