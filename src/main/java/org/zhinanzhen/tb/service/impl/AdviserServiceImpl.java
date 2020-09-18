@@ -71,12 +71,12 @@ public class AdviserServiceImpl extends BaseService implements AdviserService {
 	}
 
 	@Override
-	public int countAdviser(String name, Integer regionId) throws ServiceException {
-		return adviserDao.countAdviser(name, regionId);
+	public int countAdviser(String name, List<Integer> regionIdList) throws ServiceException {
+		return adviserDao.countAdviser(name, regionIdList);
 	}
 
 	@Override
-	public List<AdviserDTO> listAdviser(String name, Integer regionId, int pageNum, int pageSize)
+	public List<AdviserDTO> listAdviser(String name, List<Integer> regionIdList, int pageNum, int pageSize)
 			throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
@@ -87,7 +87,7 @@ public class AdviserServiceImpl extends BaseService implements AdviserService {
 		List<AdviserDTO> adviserDtoList = new ArrayList<AdviserDTO>();
 		List<AdviserDO> adviserDoList = new ArrayList<AdviserDO>();
 		try {
-			adviserDoList = adviserDao.listAdviser(name, regionId, pageNum * pageSize, pageSize);
+			adviserDoList = adviserDao.listAdviser(name, regionIdList, pageNum * pageSize, pageSize);
 			if (adviserDoList == null) {
 				return null;
 			}
