@@ -40,10 +40,12 @@ public class DashboardServiceImpl extends BaseService implements DashboardServic
 				- (refundSBBTM == null ? 0.00 : refundSBBTM);
 
 		 */
-		Double BServiceOrderSBBTM = dashboardDAO.getThisMonthExpectAmount(adviserId);
-		System.out.println("this is");
+		Double visaExpectAmountSBBTM = dashboardDAO.getThisMonthVisaExpectAmount(adviserId);
+		Double bCommissionOrderExpectAmountSBBTM = dashboardDAO.getThisMonthbCommissionOrderExpectAmountSBBTM(adviserId);
 
-		return BServiceOrderSBBTM;
+
+		return (visaExpectAmountSBBTM == null ? 0.00 : visaExpectAmountSBBTM) +
+				(bCommissionOrderExpectAmountSBBTM == null ? 0.00 : bCommissionOrderExpectAmountSBBTM);
 	}
 
 }
