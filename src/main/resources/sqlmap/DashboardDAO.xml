@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.zhinanzhen.b.dao.DashboardDAO">
+
+    <select id="getThisMonthExpectAmount" resultType="java.lang.Double">
+        select IFNULL(sum(expect_amount),0.00) FROM b_service_order,b_service_order_review where DATE_FORMAT(b_service_order.gmt_create, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
+        and is_delete = 0   and b_service_order_review.kj_state = 'WAIT' and b_service_order.id = b_service_order_review.service_order_id
+        <if test='adviserId != null'>
+            AND adviser_id = #{adviserId}
+        </if>
+        ;
+    </select>
+</mapper>

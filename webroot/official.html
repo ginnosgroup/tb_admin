@@ -842,7 +842,8 @@
 				  		regionId = this.current_row.regionId;				  			  		
 				  }
 			    //绑定区域列表
-			    var obj_regionId = $("#t4");	
+			    var obj_regionId = $("#t4");
+			    $("#t4").empty();	
 			    $.ajax({
 	          url: 'region/list_all',
 	          type: 'GET',
