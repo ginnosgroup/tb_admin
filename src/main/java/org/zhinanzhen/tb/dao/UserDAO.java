@@ -13,7 +13,7 @@ public interface UserDAO {
 	public int countUser(@Param("name") String name, @Param("authType") String authType,
 			@Param("authNickname") String authNickname, @Param("phone") String phone,
 			@Param("wechatUsername") String wechatUsername, @Param("adviserId") Integer adviserId,
-			@Param("regionId") Integer regionId);
+			@Param("regionId") Integer regionId, @Param("tagId") Integer tagId);
 
 	public int countUserByThisMonth(@Param("adviserId") Integer adviserId);
 

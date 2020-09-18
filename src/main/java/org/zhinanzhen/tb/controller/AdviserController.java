@@ -17,10 +17,13 @@ import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.tb.service.AdminUserService;
 import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.AdviserStateEnum;
+import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
+import org.zhinanzhen.tb.service.pojo.RegionDTO;
 
+import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.core.utils.StringUtil;
 
 @Controller
@@ -33,6 +36,9 @@ public class AdviserController extends BaseController {
 
 	@Resource
 	AdminUserService adminUserService;
+	
+	@Resource
+	RegionService regionService;
 
 	@RequestMapping(value = "/upload_img", method = RequestMethod.POST)
 	@ResponseBody
@@ -138,7 +144,16 @@ public class AdviserController extends BaseController {
 			@RequestParam(value = "regionId", required = false) Integer regionId, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<Integer>(0, adviserService.countAdviser(name, regionId));
+
+			List<Integer> regionIdList = null;
+			if (regionId != null && regionId > 0) {
+				regionIdList = ListUtil.buildArrayList(regionId);
+				List<RegionDTO> regionList = regionService.listRegion(regionId);
+				for (RegionDTO region : regionList)
+					regionIdList.add(region.getId());
+			}
+
+			return new Response<Integer>(0, adviserService.countAdviser(name, regionIdList));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -152,7 +167,16 @@ public class AdviserController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<List<AdviserDTO>>(0, adviserService.listAdviser(name, regionId, pageNum, pageSize));
+
+			List<Integer> regionIdList = null;
+			if (regionId != null && regionId > 0) {
+				regionIdList = ListUtil.buildArrayList(regionId);
+				List<RegionDTO> regionList = regionService.listRegion(regionId);
+				for (RegionDTO region : regionList)
+					regionIdList.add(region.getId());
+			}
+			
+			return new Response<List<AdviserDTO>>(0, adviserService.listAdviser(name, regionIdList, pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<AdviserDTO>>(1, e.getMessage(), null);
 		}

@@ -79,13 +79,13 @@ public class UserServiceImpl extends BaseService implements UserService {
 
 	@Override
 	public int countUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
-			String wechatUsername, int adviserId, int regionId) throws ServiceException {
+			String wechatUsername, int adviserId, int regionId, Integer tagId) throws ServiceException {
 		if (authType == null) {
 			return userDao.countUser(name, null, authNickname, phone, wechatUsername, adviserId <= 0 ? null : adviserId,
-					regionId <= 0 ? null : regionId);
+					regionId <= 0 ? null : regionId, tagId);
 		} else {
 			return userDao.countUser(name, authType.toString(), authNickname, phone, wechatUsername,
-					adviserId <= 0 ? null : adviserId, regionId <= 0 ? null : regionId);
+					adviserId <= 0 ? null : adviserId, regionId <= 0 ? null : regionId, tagId);
 		}
 	}
 
@@ -236,7 +236,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
-		if (StringUtil.isNotEmpty(phone) && userDao.countUser(null, null, null, phone, null, null, null) > 0) {
+		if (StringUtil.isNotEmpty(phone) && userDao.countUser(null, null, null, phone, null, null, null, null) > 0) {
 			List<UserDO> userList = userDao.listUser(null, null, null, phone, null, null, null, null, null, null, 0, 1);
 			if (userList.size() > 0 && userList.get(0).getId() != id) { // 排除当前id
 				ServiceException se = new ServiceException("The phone is already existed !");

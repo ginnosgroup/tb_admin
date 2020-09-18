@@ -43,7 +43,8 @@ public class UserController extends BaseController {
 			@RequestParam(value = "regionId", required = false) String regionId, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			if (phone != null && !"".equals(phone) && userService.countUser(null, null, null, phone, null, 0, 0) > 0)
+			if (phone != null && !"".equals(phone)
+					&& userService.countUser(null, null, null, phone, null, 0, 0, null) > 0)
 				return new Response<Integer>(1, "该电话号码已被使用,添加失败.", 0);
 			if (phone == null)
 				phone = "";
@@ -68,7 +69,7 @@ public class UserController extends BaseController {
 			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
 			@RequestParam(value = "regionId", required = false) String regionId, HttpServletRequest request,
-			HttpServletResponse response) {
+			@RequestParam(value = "tagId", required = false) String tagId, HttpServletResponse response) {
 
 		// 更改当前顾问编号
 		Integer newAdviserId = getAdviserId(request);
@@ -84,7 +85,7 @@ public class UserController extends BaseController {
 				authTypeEnum = UserAuthTypeEnum.get(authType);
 			}
 			int count = userService.countUser(name, authTypeEnum, authNickname, phone, wechatUsername,
-					StringUtil.toInt(adviserId), StringUtil.toInt(regionId));
+					StringUtil.toInt(adviserId), StringUtil.toInt(regionId), StringUtil.toInt(tagId));
 			return new Response<Integer>(0, count);
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), -1);

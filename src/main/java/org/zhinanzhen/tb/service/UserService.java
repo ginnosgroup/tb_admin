@@ -13,11 +13,12 @@ public interface UserService {
 			int regionId) throws ServiceException;
 
 	public int countUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
-			String wechatUsername, int adviserId, int regionId) throws ServiceException;
+			String wechatUsername, int adviserId, int regionId, Integer tagId) throws ServiceException;
 
 	public int countUserByThisMonth(Integer adviserId) throws ServiceException;
 
-	public List<UserDTO> listUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
+	public List<UserDTO> listUser(String name, UserAuthTypeEnum authType,
+			String authNickname, String phone,
 			String wechatUsername, int adviserId, int regionId, int pageNum, int pageSize) throws ServiceException;
 
 	public List<UserDTO> listUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
