@@ -12,15 +12,17 @@ public interface UserDAO {
 
 	public int countUser(@Param("name") String name, @Param("authType") String authType,
 			@Param("authNickname") String authNickname, @Param("phone") String phone,
-			@Param("wechatUsername") String wechatUsername, @Param("adviserId") Integer adviserId);
+			@Param("wechatUsername") String wechatUsername, @Param("adviserId") Integer adviserId,
+			@Param("regionId") Integer regionId);
 
 	public int countUserByThisMonth(@Param("adviserId") Integer adviserId);
 
 	public List<UserDO> listUser(@Param("name") String name, @Param("authType") String authType,
 			@Param("authNickname") String authNickname, @Param("phone") String phone,
 			@Param("wechatUsername") String wechatUsername, @Param("adviserId") Integer adviserId,
-			@Param("tagId") Integer tagId, @Param("orderByField") String orderByField, @Param("isDesc") Boolean isDesc,
-			@Param("offset") int offset, @Param("rows") int rows);
+			@Param("regionId") Integer regionId, @Param("tagId") Integer tagId,
+			@Param("orderByField") String orderByField, @Param("isDesc") Boolean isDesc, @Param("offset") int offset,
+			@Param("rows") int rows);
 
 	public UserDO getUserById(int id);
 
