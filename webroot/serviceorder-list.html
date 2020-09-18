@@ -377,7 +377,7 @@
 													<label>客户微信号</label>
 													<input v-model.trim="wechatUsername" type="text" class="form-control" style="width:130px;" placeholder="输入客户微信号">
 													-->
-													<dle v-if="ap_list!=='KJ' && ap_list!=='GW'">
+													<dle v-if="gw_regionid !== 'null'">
 													<label>顾问</label>
 													<select v-model.trim="adviserId" id="adviserId" class="form-control" style="width:130px;">
 													</select>
@@ -465,7 +465,7 @@
 														<td v-html="item.userName"></td>
 														<td v-html="item.birthday"></td>
 														<td v-html="item.phone"></td>
-														<td @dblclick="table_edit($index,'adviserName','t2')"><span v-html="item.adviserName"></span></td>
+														<td v-html="item.adviserName"></td>
 														<td v-html="item.maraName"></td>
 														<td @dblclick="table_edit($index,'officialName','t1')"><span v-html="item.officialName"></span></td>
 														<td v-html="item.serviceName"></td>
