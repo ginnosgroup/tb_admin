@@ -106,7 +106,7 @@ public class DownExcelController extends BaseController {
 		if (StringUtil.isNotEmpty(authType)) {
 			authTypeEnum = UserAuthTypeEnum.get(authType);
 		}
-		List<UserDTO> userDtoList = userService.listUser(name, authTypeEnum, authNickname, phone, null, 0, 0, 10000);
+		List<UserDTO> userDtoList = userService.listUser(name, authTypeEnum, authNickname, phone, null, 0, 0, 0, 10000);
 		downUserUtil(os, inpath, userDtoList);
 	}
 

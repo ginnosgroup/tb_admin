@@ -40,17 +40,20 @@ public class UserController extends BaseController {
 			@RequestParam(value = "visaCode") String visaCode,
 			@RequestParam(value = "visaExpirationDate", required = false) String visaExpirationDate,
 			@RequestParam(value = "source") String source, @RequestParam(value = "adviserId") String adviserId,
-			HttpServletResponse response) {
+			@RequestParam(value = "regionId", required = false) String regionId, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			if (phone != null && !"".equals(phone) && userService.countUser(null, null, null, phone, null, 0) > 0)
+			if (phone != null && !"".equals(phone) && userService.countUser(null, null, null, phone, null, 0, 0) > 0)
 				return new Response<Integer>(1, "该电话号码已被使用,添加失败.", 0);
 			if (phone == null)
 				phone = "";
+			if (regionId == null)
+				regionId = "0";
 			return new Response<Integer>(0,
 					userService.addUser(name, authNickname, new Date(Long.parseLong(birthday.trim())), phone,
 							wechatUsername, firstControllerContents, visaCode,
-							new Date(Long.parseLong(visaExpirationDate)), source, StringUtil.toInt(adviserId)));
+							new Date(Long.parseLong(visaExpirationDate)), source, StringUtil.toInt(adviserId),
+							StringUtil.toInt(regionId)));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), -1);
 		}
@@ -63,7 +66,8 @@ public class UserController extends BaseController {
 			@RequestParam(value = "authNickname", required = false) String authNickname,
 			@RequestParam(value = "phone", required = false) String phone,
 			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
-			@RequestParam(value = "adviserId", required = false) String adviserId, HttpServletRequest request,
+			@RequestParam(value = "adviserId", required = false) String adviserId,
+			@RequestParam(value = "regionId", required = false) String regionId, HttpServletRequest request,
 			HttpServletResponse response) {
 
 		// 更改当前顾问编号
@@ -80,7 +84,7 @@ public class UserController extends BaseController {
 				authTypeEnum = UserAuthTypeEnum.get(authType);
 			}
 			int count = userService.countUser(name, authTypeEnum, authNickname, phone, wechatUsername,
-					StringUtil.toInt(adviserId));
+					StringUtil.toInt(adviserId), StringUtil.toInt(regionId));
 			return new Response<Integer>(0, count);
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), -1);
@@ -106,6 +110,7 @@ public class UserController extends BaseController {
 			@RequestParam(value = "phone", required = false) String phone,
 			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
+			@RequestParam(value = "regionId", required = false) String regionId,
 			@RequestParam(value = "orderByField", required = false) String orderByField,
 			@RequestParam(value = "isDesc", required = false) String isDesc,
 			@RequestParam(value = "tagId", required = false) String tagId, @RequestParam(value = "pageNum") int pageNum,
@@ -125,7 +130,7 @@ public class UserController extends BaseController {
 				authTypeEnum = UserAuthTypeEnum.get(authType);
 			}
 			List<UserDTO> list = userService.listUser(name, authTypeEnum, authNickname, phone, wechatUsername,
-					StringUtil.toInt(adviserId), StringUtil.toInt(tagId), orderByField,
+					StringUtil.toInt(adviserId), StringUtil.toInt(regionId), StringUtil.toInt(tagId), orderByField,
 					Boolean.parseBoolean(StringUtil.isEmpty(isDesc) ? "false" : isDesc), pageNum, pageSize);
 			return new Response<List<UserDTO>>(0, list);
 		} catch (ServiceException e) {
