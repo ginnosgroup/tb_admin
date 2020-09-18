@@ -99,6 +99,8 @@
                 </span>
               </a>
             </li>
+            </dli>
+            <dli v-if="ap_list==='SUPERAD' || (ap_list==='WA' && wa_admin === 'true')"> 
             <li>
               <a href="official.html" class="active">
                 <i class="fa fa-book">
@@ -108,6 +110,8 @@
                 </span>
               </a>
             </li>
+            </dli>
+            <dli v-if="ap_list==='SUPERAD'"> 
             <li>
               <a href="mara.html">
                 <i class="fa fa-book">
@@ -323,7 +327,7 @@
                       </button>
                       <strong id="error_info"></strong>
                    	</div>
-										<div class="clearfix">
+										<div v-if="ap_list==='SUPERAD'" class="clearfix">
                        <div class="btn-group">
                           <button id="editable-sample_new" class="btn btn-success green" @click="table_insert">
                           Add New <i class="fa fa-plus"></i>
@@ -350,7 +354,8 @@
 														<th>电子邮箱</th>
 														<th>登录密码</th>
 														<th>二维码</th>
-														<th>所属区域</th>														
+														<th>所属区域</th>
+														<th>是否管理员</th>
 														<th>Edit</th>
 														<th>Delete</th>
 													</tr>
@@ -362,13 +367,24 @@
 														<td v-html="item.phone"></td>
 														<td v-html="item.email"></td>
 														<td v-html="item.password"></td>
-														<td v-html="item.imageUrl"></td>
-														<td v-html="item.regionName"></td>														
-														<td><a v-if="item.id" class="edit" href="javascript:;" @click="table_modify($index)"><span class="label label-success">Edit</span></a>
+														<td v-html="item.imageUrl"></td>														
+														<td v-html="item.regionName"></td>
+														<td v-html="item.is_official_admin"></td>
+														<td>
+																<dle v-if="item.id">
+																<a class="edit" href="javascript:;" @click="table_modify($index)"><span class="label label-success">Edit</span></a>
+																<a v-if="ap_list==='SUPERAD'" href="javascript:;" @click="table_setadmin(item.id,item.name)"><span class="label label-success" style="background-color: #58c9f3;">设为管理员</span></a>
+																</dle>
 																<a v-else class="edit" href="javascript:;"><span class="label label-primary">Save</span></a>
 														</td>
-														<td><a v-if="item.id" class="delete" href="#" @click="delete_confirm($index,item.id)"><span class="label label-danger">Delete</span></a>
+														<td>
+															<dle v-if="ap_list==='SUPERAD'">																														
+																<a v-if="item.id" class="delete" href="#" @click="delete_confirm($index,item.id)"><span class="label label-danger">Delete</span></a>
 																<a v-else class="cancel" href="javascript:;"><span class="label label-info">Cancel</span></a>
+															</dle>
+															<dle v-else>
+																<a v-if="!item.id" class="cancel" href="javascript:;"><span class="label label-info">Cancel</span></a>
+															</dle>
 														</td>														
 													</tr>
 												</tbody>
@@ -473,26 +489,32 @@
 					</div>
 				</div>
 			</div>
-		</div>
-		<div class="modal fade" id="passwd_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		</div>		
+		<div class="modal fade" id="setadmin_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 			<div class="modal-dialog" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<h4 class="modal-title" id="myModalLabel">重置密码</h4>
+						<h4 class="modal-title" id="close_title">设为管理员</h4>
 					</div>
+					<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+			      <button data-dismiss="alert" class="close close-sm" type="button">
+			      <i class="fa fa-times"></i>
+			      </button>
+			      <strong>Success!</strong> You  just achieved success.
+			  	</div>
+			  	<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+		        <button data-dismiss="alert" class="close close-sm" type="button">
+		        <i class="fa fa-times"></i>
+		        </button>
+		        <strong id="error_info"></strong>
+		      </div>
 					<div class="modal-body">
-							<form class="form-horizontal">
-							<div class="form-group">
-								<label class="col-sm-4 control-label">新的随机密码</label>
-								<div class="col-sm-8">
-									<label id="resetPasswd" style="color:red;"></label>
-								</div>
-							</div>
-							</form>
+						确认将文案 [<span id="official_name" style="font-weight:bold;"></span>] 设为管理员吗？
 					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					<div class="modal-footer">						
+						<button onclick="setadminSave()" type="button" class="btn btn-primary">确认</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
 					</div>
 				</div>
 			</div>
@@ -516,6 +538,7 @@
 				data: {
 					admin: sessionStorage.getItem("admin"),
 					ap_list: sessionStorage.getItem("ap_list"),
+					wa_admin: sessionStorage.getItem("wa_admin"),
 					allSort: [],
 					subject: [],
 					count: 0,
@@ -705,6 +728,11 @@
 						}
 						//alert(this.current_row.id);																			
 					},
+					table_setadmin:	function (id,name) {
+						this.dId = id;						
+						$('#setadmin_id').modal('show');
+						$('#setadmin_id #official_name').html(name);
+					},
 					table_remove: function (index) {
              this.subject.splice(index, 1);  
           },
@@ -790,13 +818,15 @@
 					   			if (data.code == 0)
 					   			{
 					   					v.add = false;
-					   					$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
+					   					$('#alert_success').addClass('alert-success').show().delay(1500).fadeOut();
 					   					v.table_remove();
 					   					//重新载入数据源
-					   					v.getDatalist();
-					   					v.getSort();
+					   					V.getDatalist();
+					   			}else
+					   			{
+					   					$('#alert_error').addClass('alert-danger').show().delay(1500).fadeOut();
+					   					$("#error_info").html(data.message);
 					   			}
-					   			//console.log(data);
 					   	});
 			  	}                
       }
@@ -812,7 +842,8 @@
 				  		regionId = this.current_row.regionId;				  			  		
 				  }
 			    //绑定区域列表
-			    var obj_regionId = $("#t4");	
+			    var obj_regionId = $("#t4");
+			    $("#t4").empty();	
 			    $.ajax({
 	          url: 'region/list_all',
 	          type: 'GET',
@@ -864,6 +895,52 @@
 			   		}
 			   	});
       		$('#passwd_id').modal('show');
+      }
+      
+      function setadminSave()
+      {
+      		var f = '#setadmin_id ';
+      		var check_result = 0;
+      		var e_info = '';
+      		
+      		var officialId = v.dId;
+      		v.dId = 0;
+      		if (officialId)
+          {
+          		check_result = true;
+          }else
+          {
+          		e_info = '请务必选择一个文案。';
+      				$('#setadmin_id #alert_error').css('marginLeft','30%');
+			    		$('#setadmin_id #alert_error').css('marginTop','10%');
+			    		$('#setadmin_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+			        $("#setadmin_id #error_info").html(e_info);
+      				return false;
+          }
+          
+          if (check_result)
+    			{
+    					var str_url = "official/update";
+    					$.post(str_url, { id: officialId,isOfficialAdmin: true},
+					   	function(data){
+					   			if (data.code == 0)
+					   			{
+					   					$('#setadmin_id #alert_success').css('marginLeft','30%');
+			    						$('#setadmin_id #alert_success').css('marginTop','10%');
+					   					$('#setadmin_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();					   					
+					   					setTimeout(function(){$('#setadmin_id').modal('hide');}, 2000);
+					   					//重新载入数据源					   					
+					   					v.getDatalist();
+					   			}else
+					   			{
+					   					$('#setadmin_id #alert_error').css('marginLeft','30%');
+			    						$('#setadmin_id #alert_error').css('marginTop','10%');
+					   					$('#setadmin_id #alert_error').addClass('alert-danger').show().delay(1500).fadeOut();
+					   					$("#setadmin_id #error_info").html(data.message);
+					   			}
+					   			//console.log(data);
+					   	});
+    			}
       }
       
       function show_knowledge_detail(id,parentId)
