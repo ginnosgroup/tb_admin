@@ -377,7 +377,7 @@
 													<label>客户微信号</label>
 													<input v-model.trim="wechatUsername" type="text" class="form-control" style="width:130px;" placeholder="输入客户微信号">
 													-->
-													<dle v-if="ap_list!=='KJ' && ap_list!=='GW'">
+													<dle v-if="gw_regionid !== 'null'">
 													<label>顾问</label>
 													<select v-model.trim="adviserId" id="adviserId" class="form-control" style="width:130px;">
 													</select>
@@ -435,7 +435,7 @@
 										<div class="responsive-table margin-top">
 											<input type="hidden" name="id" id="id" value="0" />
 											<div id="copy_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">已复制！请告知客户转账时务必在备注填写该订单号码。</div>
-											<table class="display table table-bordered table-striped" id="example">
+											<table class="display table table-bordered table-striped" id="order_list">
 												<thead>
 													<tr>
 														<th>ID</th>
@@ -465,9 +465,9 @@
 														<td v-html="item.userName"></td>
 														<td v-html="item.birthday"></td>
 														<td v-html="item.phone"></td>
-														<td v-html="item.adviserName"></td>
+														<td @dblclick="table_edit($index,'adviserName','t2')"><span v-html="item.adviserName"></span></td>
 														<td v-html="item.maraName"></td>
-														<td v-html="item.officialName"></td>
+														<td @dblclick="table_edit($index,'officialName','t1')"><span v-html="item.officialName"></span></td>
 														<td v-html="item.serviceName"></td>
 														<td v-html="item.strState"></td>
 														<td>
@@ -494,7 +494,7 @@
 																				</d1>
 																		</d2>
 																</dle>	
-																<dle v-if="ap_list==='WA'">
+																<dle v-if="ap_list==='WA'">																		
 																		<d1 v-if="item.type==='VISA'">																				
 																				<d1 v-if="item.currentState==='WA_MA_WAIT'">
 																				<a href="javascript:show_confirmbox('{{item.type}}',{{item.id}},'REVIEW',1)" style="color:#ACA9A9;">撤回</a>
@@ -664,6 +664,8 @@
 					name: '',
 					sort: '',
 					state: '',
+					update_field: '',					
+					update_byid: '',
 					isNotApproved: false,
 					flowstate_gw: '',
 					flowstate_wa: '',
@@ -674,6 +676,8 @@
 					pageSize: 20,
 					allPage: 0,
 					add: false,
+					current_index: '',
+					current_row: '',
 					index: 0,
 					close: false
 				},
@@ -933,7 +937,49 @@
           },
 					table_remove: function (index) {
              this.subject.splice(index, 1);  
-          }          
+          },						
+					table_edit: function (index,field,byid) {
+						if ((this.ap_list == 'WA' && this.wa_admin == 'true') || (this.ap_list == 'GW' && this.gw_regionid != ''))
+						{				
+								if (this.current_index != null)
+								{
+										this.subject[this.current_index] = this.current_row;
+								}						
+								v.update_field = field;
+								v.update_byid = byid;
+								this.current_index = index;
+								this.current_row = this.subject[index];
+								v.dId = this.subject[index].id;
+								var json = {};
+								json['oid'] = this.subject[index].oid;
+								json['gmtCreate'] = this.subject[index].gmtCreate;
+								json['approvalDate'] = this.subject[index].officialApprovalDate;
+								json['finishDate'] = this.subject[index].finishDate;
+								json['userId'] = this.subject[index].userId;
+								json['userName'] = this.subject[index].userName;
+								json['birthday'] = this.subject[index].birthday;
+								json['phone'] = this.subject[index].phone;
+								json['adviserName'] = this.subject[index].adviserName;
+								json['maraName'] = this.subject[index].maraName;
+								json['serviceName'] = this.subject[index].serviceName;
+								json['strState'] = this.subject[index].strState;
+								if (field == 'adviserName' && this.ap_list == 'GW' && this.gw_regionid != '')
+								{
+										json['adviserName'] = '<select class="form-control" style="width:120px;" id="'+byid+'" style="background: #F0FFFF;color: #428bca;"></select><div style="padding-top:10px;"><a class="save1" href="javascript:;"><span style="color:blue;">保存</span></a>&nbsp;&nbsp;<a class="cancel" href="javascript:;">取消</a></div>';
+								}else
+								{
+										json['adviserName'] = this.subject[index].adviserName;
+								}
+								if (field == 'officialName' && this.ap_list == 'WA' && this.wa_admin == 'true')
+								{
+										json['officialName'] = '<select class="form-control" style="width:120px;" id="'+byid+'" style="background: #F0FFFF;color: #428bca;"></select><div style="padding-top:10px;"><a class="save1" href="javascript:;"><span style="color:blue;">保存</span></a>&nbsp;&nbsp;<a class="cancel" href="javascript:;">取消</a></div>';
+								}else
+								{
+										json['officialName'] = this.subject[index].officialName;
+								}						
+								this.subject.splice(index,1, json);
+						}														
+					},          
 				}		
 			});
 			
@@ -1316,7 +1362,72 @@
 		      		flowstep(v.set_state,v.set_type);
 		      		$('#showconfirmbox_id').modal('hide');		      			      		
       		}      		
-      }            
+      }
+      
+      $('#order_list a.save1').live('click', function (e) {
+					e.preventDefault();
+					table_addsave1();
+			});
+			
+			$('#order_list a.cancel').live('click', function (e) {
+					e.preventDefault();
+					v.subject.splice(v.current_index, 0);
+					v.subject.splice(v.current_index,1, v.current_row);
+			});
+			
+			function table_addsave1()
+			{
+					var f = '#order_list ';
+					var str_val = $(f+'#'+v.update_byid).val();
+					var field = v.update_field;
+					var check_result = 0;
+					
+					if (parseInt(str_val))
+					{
+							check_result = true;
+					}else
+					{
+							$('#alert_error').css('marginLeft','40%');
+			    		$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+			        $("#error_info").html('提示：字段必须选择！');
+			    		return false;
+					}
+					
+					if (check_result)
+    			{
+    					var str_url = "serviceOrder/update";
+       				var json = {};
+       				json['id'] = v.dId;
+       				if (field == 'adviserName')
+       				{
+       					 json['adviserId'] = str_val;
+       				}else if (field == 'officialName')
+       				{
+       					 json['officialId'] = str_val;
+       				}  				
+       				
+       				
+       				show_loading();       				
+       				$.post(str_url, json,
+					   	function(data){
+					   			$('#loading_id').modal('hide');
+					   			if (data.code == 0)
+					   			{
+					   					v.dId = 0;
+					   					$('#alert_success').css('marginLeft','40%');
+					   					$('#alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+					   					v.table_remove();
+					   					setTimeout(function(){v.getDatalist();$('.modal-backdrop').remove();}, 1000);
+					   			}else
+					   			{
+					   					$('#alert_error').css('marginLeft','40%');
+					   					$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+			          			$("#error_info").html(data.message);
+				        			return false;
+					   			}				   	
+					   	});
+    			}
+			}
 			
 			v.$watch('subject', function(obj) {
 					$('.default-date-picker').datepicker({   				
@@ -1326,12 +1437,22 @@
 				        format: 'yyyy-mm-dd',
 				        endDate: new Date()
 				  });
+				  	
 				  var adviserId = 0;
+				  var adviserId_t2 = 0;
 				  var officialId = 0;
+				  var officialId_t1 = 0;				  
 				  var maraId = 0;				   
 				  if (typeof v.adviserId != "undefined") adviserId = v.adviserId;		  
 				  if (typeof v.officialId != "undefined") officialId = v.officialId;
-				  if (typeof v.maraId != "undefined") maraId = v.maraId;				  
+				  if (typeof v.maraId != "undefined") maraId = v.maraId;
+				  
+				  if (this.current_row.id)
+				  {
+				  		$("#id").val(this.current_row.id);
+				  		adviserId_t2 = this.current_row.adviserId;
+				  		officialId_t1 = this.current_row.officialId;
+				  }
 				 	
 				  //查询客户
 				  var user = $("#user_name");
@@ -1375,6 +1496,23 @@
 	        	}
 	        	obj_adviserId.val(adviserId);	
 	        });
+	        var obj_adviserId_t2 = $("#t2");
+				  $("#t2").empty();
+	        obj_adviserId_t2.append("<option value='0'>请选择</option>");
+			    $.ajax({
+	          url: 'adviser/list?pageNum=0&pageSize=100000',
+	          type: 'GET',
+	          async: false,
+	          dataType: 'json'
+	        }).done(function(response) {
+	        	//author:bischina
+	        	response = response.data;
+	        	for (var item in response)
+	        	{
+	        			obj_adviserId_t2.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+	        	}
+	        	obj_adviserId_t2.val(adviserId_t2);	
+	        });
 				  //绑定文案列表			    
 	        var obj_officialId = $("#officialId");
 	        $("#officialId").empty();
@@ -1391,6 +1529,23 @@
 	        			obj_officialId.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
 	        	}
 	        	obj_officialId.val(officialId);	        	
+	        });
+	        //绑定文案列表			    
+	        var obj_officialId_t1 = $("#t1");
+	        $("#t1").empty();
+	        obj_officialId_t1.append("<option value='0'>请选择</option>");
+			    $.ajax({
+	          url: 'official/list?pageNum=0&pageSize=100000',
+	          type: 'GET',
+	          async: false,
+	          dataType: 'json'
+	        }).done(function(response) {
+	        	response = response.data;
+	        	for (var item in response)
+	        	{
+	        			obj_officialId_t1.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+	        	}
+	        	obj_officialId_t1.val(officialId_t1);	        	
 	        });
 	        //绑定Mara列表			    
 	        var obj_mara = $("#maraId");
