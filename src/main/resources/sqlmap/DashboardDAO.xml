@@ -3,7 +3,7 @@
 <mapper namespace="org.zhinanzhen.b.dao.DashboardDAO">
 
     <select id="getThisMonthVisaExpectAmount" resultType="java.lang.Double">
-        select IFNULL(sum(expect_amount),0.00) FROM b_visa  where DATE_FORMAT(gmt_create, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
+        select IFNULL(sum(expect_amount),0.00) FROM b_visa  where DATE_FORMAT(kj_approval_date, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
         and is_close = 0
         <if test='adviserId != null'>
             AND adviser_id = #{adviserId}
@@ -11,7 +11,7 @@
         ;
     </select>
     <select id="getThisMonthbCommissionOrderExpectAmountSBBTM" resultType="java.lang.Double">
-        select IFNULL(sum(expect_amount),0.00) FROM b_commission_order  where DATE_FORMAT(gmt_create, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
+        select IFNULL(sum(expect_amount),0.00) FROM b_commission_order  where DATE_FORMAT(kj_approval_date, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
         and is_close = 0
         <if test='adviserId != null'>
             AND adviser_id = #{adviserId}
