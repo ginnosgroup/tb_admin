@@ -1,7 +1,8 @@
 ﻿<meta charset="utf-8"/>
 <div id="app_sub">
 <div class="modal fade" id="show_addnewservice1_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
-			<div class="modal-dialog" role="document" style="width:700px;">
+			<div class="modal-dialog" role="document" style="width:1100px;">
+				<div class="col-lg-6" style="width:700px;">
 				<div class="modal-content">
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -178,6 +179,66 @@
 							<button onclick="" type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
 					</div>
 				</div>
+				</div>
+				<div class="col-lg-6" style="width:400px;">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">Note</h4>
+					</div>
+					<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+			      <button data-dismiss="alert" class="close close-sm" type="button">
+			      <i class="fa fa-times"></i>
+			      </button>
+			      <strong id="success_info">Success! You  just achieved success.</strong>
+			  	</div>
+			  	<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+		        <button data-dismiss="alert" class="close close-sm" type="button">
+		        <i class="fa fa-times"></i>
+		        </button>
+		        <strong id="error_info"></strong>
+		      </div>
+					<div class="modal-body">
+							<textarea name="message_content" id="message_content" class="form-control" style="width:100%;height:80px;" placeholder="请输入内容"></textarea>
+					</div>
+					<div class="modal-footer">
+							<button onclick="" type="button" class="btn btn-primary">保存</button>
+					</div>
+				</div>
+				<div class="modal-content" style="margin-top:20px;">
+					<div class="modal-header">
+						<label class="close1" style="float: right;"><a href=""><span style="color:black;">新增提醒</span></a></label>
+						<h4 class="modal-title" id="myModalLabel">设置提醒</h4>
+					</div>
+					<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+			      <button data-dismiss="alert" class="close close-sm" type="button">
+			      <i class="fa fa-times"></i>
+			      </button>
+			      <strong id="success_info">Success! You  just achieved success.</strong>
+			  	</div>
+			  	<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+		        <button data-dismiss="alert" class="close close-sm" type="button">
+		        <i class="fa fa-times"></i>
+		        </button>
+		        <strong id="error_info"></strong>
+		      </div>
+					<div class="modal-body">
+							<div id="message_list" style="margin-top:10px;max-height:250px;overflow-y:auto;background:#f9f9f9;padding-left:10px;padding-right:10px;">
+								<div class="message_item">													
+										<div style="padding-bottom:10px;line-height:25px;font-weight:normal;">
+												<div style="width:100%;">
+														<div style="float:left;width:80%;">2020-09-16</div>
+														<div style="float:left;width:20%;text-align:right;"><a href="">取消提醒</a></div>
+												</div>
+												<div style="font-weight:bold;padding-top:10px;">准备上诉材料</div>												
+										</div>
+								</div>
+							</div>
+					</div>
+					<div class="modal-footer">							
+					</div>
+				</div>
+				</div>
 			</div>
 </div>
 
@@ -269,7 +330,8 @@
 							<div class="form-group" style="width:100%;line-height:40px;">
 									<label class="control-label"><strong>备注：</strong></label>
 									<textarea id="c16a" class="form-control" style="width:98%;display:none;"></textarea>
-									<label id="c16" style="word-break:break-all;"></label>									
+									<label id="c16" style="word-break:break-all;"></label><br/>
+									<label id="school_setting_result" style="color:#428bca;"></label>								
 							</div>							
 							<div id="show_reqcommission" v-if="flowstate_wa==='PAID' && ap_list === 'GW' && !submitted" style="width:100%;margin-bottom:10px;display:;">
 									<hr/>
@@ -771,7 +833,8 @@ function show_addnewservice_id(orderId,type)
         	$('#show_addnewservice2_id #c8').html(response.adviser.name);
         	$('#show_addnewservice2_id #c9').html(response.official.name);
         	$('#show_addnewservice2_id #c3').html(response.school.name);
-        	$('#show_addnewservice2_id #c4').html(response.school.subject);        	
+        	$('#show_addnewservice2_id #c4').html(response.school.subject);
+        	loadSchoolCourses(response.school.id);
         	v_sub.submitted = response.submitted;
         	v_sub.birthday = v.getTime(response.user.birthday);
         	var str_issettle = '否';
@@ -1112,6 +1175,184 @@ function return_servicePackage(service_id,packids)
 		    });
   	}
   	return str_package;
+}
+
+function loadSchoolCourses(schoolId)
+{
+					$("#show_addnewservice2_id #school_setting_result").empty();
+					var schoolName = $("#show_addnewservice2_id #c3").html();
+					var subjectName = $("#show_addnewservice2_id #c4").html();
+					$.get(url + "school/listSchoolSetting?schoolName="+schoolName, {
+						pageNum: 0,
+						pageSize: 100000
+					}, function(result) {
+						var str_html = '';	
+						for(var i = 0; i < result.data.length; i++) {
+								result.data[i].oid = result.data[i].id;
+								if (result.data[i].schoolId == schoolId)
+								{
+										result.data[i].str_init = '';
+										result.data[i].str_parameters = '';
+										switch(result.data[i].type)
+										{
+												case 1:
+														result.data[i].str_init = result.data[i].startDate+'|'+result.data[i].endDate+'|'+result.data[i].parameters;
+														if (result.data[i].parameters)
+														{
+																result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'，成本为课程原价'+result.data[i].parameters+'%。';
+														}
+												break;
+												case 2:
+														result.data[i].str_init = result.data[i].startDate+'#'+result.data[i].endDate+'#'+result.data[i].parameters;
+														if (result.data[i].parameters)
+														{
+																arr = result.data[i].parameters.split("|");
+																result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'，成本为课程原价'+arr[0]+'%。';
+																var arr1 = arr[1].split("/");
+																var str_txt = '额外每人补贴$'+arr1[0]+'（总人数超过'+arr1[2]+'人）';															
+																if (arr[2] != null)
+																{
+																		arr1 = arr[2].split("/");
+																		str_txt += '或额外每人补贴$'+arr1[0]+'（总人数超过'+arr1[2]+'人）';
+																}
+																if (arr[3] != null)
+																{
+																		arr1 = arr[3].split("/");
+																		str_txt += '或额外每人补贴$'+arr1[0]+'（总人数超过'+arr1[2]+'人）';
+																}
+																if (arr[4] != null)
+																{
+																		arr1 = arr[4].split("/");
+																		str_txt += '或额外每人补贴$'+arr1[0]+'（总人数超过'+arr1[2]+'人）';
+																}
+																result.data[i].str_parameters += str_txt;															
+														}
+												break;
+												case 4:
+														result.data[i].str_init = result.data[i].startDate+'#'+result.data[i].endDate+'#'+result.data[i].parameters;
+														if (result.data[i].parameters)
+														{
+																arr = null;
+																arr = result.data[i].parameters.split("|");
+																result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'。';
+																var arr1 = arr[1].split("/");
+																var str_txt = '成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';															
+																if (arr[2] != null)
+																{
+																		arr1 = arr[2].split("/");
+																		str_txt += '或成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';
+																}
+																if (arr[3] != null)
+																{
+																		arr1 = arr[3].split("/");
+																		str_txt += '或成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';
+																}
+																if (arr[4] != null)
+																{
+																		arr1 = arr[4].split("/");
+																		str_txt += '或成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';
+																}
+																result.data[i].str_parameters += str_txt;
+														}
+												break;
+												case 7:													
+														result.data[i].str_init = result.data[i].startDate+'#'+result.data[i].endDate+'#'+result.data[i].parameters;
+														result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'，成本为固定价：'+result.data[i].parameters+'。';
+												break;												
+										}									
+										result.data[i].str_type = sltype(result.data[i].type,result.data[i].id,result.data[i].str_init,result.data[i].schoolName);
+										$("#show_addnewservice2_id #school_setting_result").html(result.data[i].str_parameters);
+										break;										
+								}
+						};
+						if ($("#school_setting_result").html() == '')
+						{
+								//如果专业没有设置佣金参数，就取学校的佣金参数
+								$.get(url + "school/getSchoolSetting?schoolName="+schoolName, {
+									pageNum: 0,
+									pageSize: 100000
+								}, function(result) {
+									console.log(result);
+									if (result.data.type)
+									{
+											result.data.str_init = '';
+											result.data.str_parameters = '';
+											switch(result.data.type)
+											{
+													case 1:
+															result.data.str_init = result.data.startDate+'|'+result.data.endDate+'|'+result.data.parameters;
+															if (result.data.parameters)
+															{
+																	result.data.str_parameters = '合同周期从'+v.getTime(result.data.startDate)+'到'+v.getTime(result.data.endDate)+'，成本为课程原价'+result.data.parameters+'%。';
+															}
+													break;
+													case 2:
+															result.data.str_init = result.data.startDate+'#'+result.data.endDate+'#'+result.data.parameters;
+															if (result.data.parameters)
+															{
+																	arr = result.data.parameters.split("|");
+																	result.data.str_parameters = '合同周期从'+v.getTime(result.data.startDate)+'到'+v.getTime(result.data.endDate)+'，成本为课程原价'+arr[0]+'%。';
+																	var arr1 = arr[1].split("/");
+																	var str_txt = '额外每人补贴$'+arr1[0]+'（总人数超过'+arr1[2]+'人）';															
+																	if (arr[2] != null)
+																	{
+																			arr1 = arr[2].split("/");
+																			str_txt += '或额外每人补贴$'+arr1[0]+'（总人数超过'+arr1[2]+'人）';
+																	}
+																	if (arr[3] != null)
+																	{
+																			arr1 = arr[3].split("/");
+																			str_txt += '或额外每人补贴$'+arr1[0]+'（总人数超过'+arr1[2]+'人）';
+																	}
+																	if (arr[4] != null)
+																	{
+																			arr1 = arr[4].split("/");
+																			str_txt += '或额外每人补贴$'+arr1[0]+'（总人数超过'+arr1[2]+'人）';
+																	}
+																	result.data.str_parameters += str_txt;															
+															}
+													break;
+													case 4:
+															result.data.str_init = result.data.startDate+'#'+result.data.endDate+'#'+result.data.parameters;
+															if (result.data.parameters)
+															{
+																	arr = null;
+																	arr = result.data.parameters.split("|");
+																	result.data.str_parameters = '合同周期从'+v.getTime(result.data.startDate)+'到'+v.getTime(result.data.endDate)+'。';
+																	var arr1 = arr[1].split("/");
+																	var str_txt = '成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';															
+																	if (arr[2] != null)
+																	{
+																			arr1 = arr[2].split("/");
+																			str_txt += '或成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';
+																	}
+																	if (arr[3] != null)
+																	{
+																			arr1 = arr[3].split("/");
+																			str_txt += '或成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';
+																	}
+																	if (arr[4] != null)
+																	{
+																			arr1 = arr[4].split("/");
+																			str_txt += '或成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';
+																	}
+																	result.data.str_parameters += str_txt;
+															}
+													break;
+													case 7:													
+															result.data.str_init = result.data.startDate+'#'+result.data.endDate+'#'+result.data.parameters;
+															result.data.str_parameters = '合同周期从'+v.getTime(result.data.startDate)+'到'+v.getTime(result.data.endDate)+'，成本为固定价：'+result.data.parameters+'。';
+													break;												
+											}									
+											result.data.str_type = sltype(result.data.type,result.data.id,result.data.str_init,result.data.schoolName);
+											$("#school_setting_result").html(result.data.str_parameters);
+									}else
+									{
+											$("#school_setting_result").html('温馨提示：暂无该学校/专业 佣金设置，请联系您的BM进行添加。');
+									}
+								});
+						}
+					});
 }
 
 function checkform(type)
