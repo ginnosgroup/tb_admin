@@ -142,5 +142,7 @@ public class ServiceOrderDTO {
 	private List<ServiceOrderReviewDTO> reviews;
 
 	private List<ChildrenServiceOrderDTO> childrenServiceOrders;
+	
+	private List<ServiceOrderOfficialRemarksDTO> officialNotes;
 
 }

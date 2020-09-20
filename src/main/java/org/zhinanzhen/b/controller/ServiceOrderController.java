@@ -668,12 +668,17 @@ public class ServiceOrderController extends BaseController {
 					list.add(serviceOrder);
 				return new Response<List<ServiceOrderDTO>>(0, list);
 			}
+			
+			List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(type, excludeState, stateList, auditingState, reviewStateList,
+					startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
+					endOfficialApprovalDate, regionIdList, userId, maraId, adviserId, officialId, 0,
+					isNotApproved != null ? isNotApproved : false, pageNum, pageSize);
 
-			return new Response<List<ServiceOrderDTO>>(0,
-					serviceOrderService.listServiceOrder(type, excludeState, stateList, auditingState, reviewStateList,
-							startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
-							endOfficialApprovalDate, regionIdList, userId, maraId, adviserId, officialId, 0,
-							isNotApproved != null ? isNotApproved : false, pageNum, pageSize));
+			if (newOfficialId != null)
+				for (ServiceOrderDTO so : serviceOrderList)
+					so.setOfficialNotes(serviceOrderService.listOfficialRemarks(so.getId(), newOfficialId)); // 写入note
+			
+			return new Response<List<ServiceOrderDTO>>(0, serviceOrderList);
 		} catch (ServiceException e) {
 			return new Response<List<ServiceOrderDTO>>(1, e.getMessage(), null);
 		}
@@ -681,10 +686,14 @@ public class ServiceOrderController extends BaseController {
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<ServiceOrderDTO> getServiceOrder(@RequestParam(value = "id") int id, HttpServletResponse response) {
+	public Response<ServiceOrderDTO> getServiceOrder(@RequestParam(value = "id") int id, HttpServletRequest request,
+			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<ServiceOrderDTO>(0, serviceOrderService.getServiceOrderById(id));
+			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
+			if (getAdminUserLoginInfo(request) != null && getOfficialId(request) != null)
+				serviceOrderDto.setOfficialNotes(serviceOrderService.listOfficialRemarks(id, getOfficialId(request))); // 写入文案note
+			return new Response<ServiceOrderDTO>(0, serviceOrderDto);
 		} catch (ServiceException e) {
 			return new Response<ServiceOrderDTO>(1, e.getMessage(), null);
 		}
