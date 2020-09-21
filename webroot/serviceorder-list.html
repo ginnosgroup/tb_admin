@@ -953,7 +953,7 @@
 								var json = {};
 								json['oid'] = this.subject[index].oid;
 								json['gmtCreate'] = this.subject[index].gmtCreate;
-								json['approvalDate'] = this.subject[index].officialApprovalDate;
+								json['approvalDate'] = v.getTime(this.subject[index].officialApprovalDate);
 								json['finishDate'] = this.subject[index].finishDate;
 								json['userId'] = this.subject[index].userId;
 								json['userName'] = this.subject[index].userName;
