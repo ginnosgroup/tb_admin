@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.SchoolAttachmentsDAO">
+
+    <insert id="addSchoolAttachments" parameterType="org.zhinanzhen.b.dao.pojo.SchoolAttachmentsDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+            INTO b_school_attachments (
+                gmt_create,
+                gmt_modify,
+                sachool_name,
+                contract_file1,
+                contract_file2,
+                contract_file3,
+                remarks)
+            VALUES (
+                now(),
+                now(),
+                #{schoolName},
+                #{contractFile1},
+                #{contractFile2},
+                #{contractFile3},
+                #{remarks});
+    </insert>
+    
+    <update id="updateSchoolAttachments" parameterType="org.zhinanzhen.b.dao.pojo.SchoolAttachmentsDO">
+        UPDATE b_school_attachments 
+        SET gmt_modify = now()
+        <if test='contractFile1 != null and contractFile1 != ""'>
+            , contract_file1 = #{contractFile1}
+        </if>
+        <if test='contractFile2 != null and contractFile2 != ""'>
+            , contract_file2 = #{contractFile2}
+        </if>
+        <if test='contractFile3 != null and contractFile3 != ""'>
+            , contract_file3 = #{contractFile3}
+        </if>
+        <if test='remarks != null and remarks != ""'>
+            , remarks = #{remarks}
+        </if>
+        WHERE id = #{id};
+    </update>
+    
+    <select id="listBySchoolName" parameterType="java.lang.String" resultType="org.zhinanzhen.b.dao.pojo.SchoolAttachmentsDO">
+        SELECT
+            id,
+            sachool_name,
+            contract_file1,
+            contract_file2,
+            contract_file3,
+            remarks
+        FROM b_school_attachments WHERE school_name = #{schoolName};
+    </select>
+
+</mapper>

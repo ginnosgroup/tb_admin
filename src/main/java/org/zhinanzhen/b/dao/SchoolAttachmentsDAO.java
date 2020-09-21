@@ -1,5 +1,7 @@
 package org.zhinanzhen.b.dao;
 
+import java.util.List;
+
 import org.zhinanzhen.b.dao.pojo.SchoolAttachmentsDO;
 
 public interface SchoolAttachmentsDAO {
@@ -8,6 +10,6 @@ public interface SchoolAttachmentsDAO {
 
 	int updateSchoolAttachments(SchoolAttachmentsDO schoolAttachmentsDo);
 
-	SchoolAttachmentsDO getBySchoolName(String schoolName);
+	List<SchoolAttachmentsDO> listBySchoolName(String schoolName); // 理论上只会有一条
 
 }
