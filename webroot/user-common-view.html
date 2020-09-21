@@ -1779,11 +1779,19 @@ function reqCommissionOvst()
 
 function saveNote()
 {		
-		var f = '#note_box ';		
+		var f = '';		
 		var json = {};
 		
 		var check_result = false;
-		var content = $(f+'#note_content').val();
+		var content = '';
+		if (v_sub.orderType == 'VISA')
+		{
+				f = '#show_addnewservice1_id #note_box ';
+		}else if (v_sub.orderType == 'OVST')
+		{
+				f = '#show_addnewservice2_id #note_box ';
+		}
+		content = $(f+'#note_content').val();
     if (content != '')
     {
     		check_result = true;
