@@ -44,10 +44,10 @@
     <select id="listBySchoolName" parameterType="java.lang.String" resultType="org.zhinanzhen.b.dao.pojo.SchoolAttachmentsDO">
         SELECT
             id,
-            sachool_name,
-            contract_file1,
-            contract_file2,
-            contract_file3,
+            sachool_name AS sachoolName,
+            contract_file1 AS contractFile1,
+            contract_file2 AS contractFile2,
+            contract_file3 AS contractFile3,
             remarks
         FROM b_school_attachments WHERE school_name = #{schoolName};
     </select>
