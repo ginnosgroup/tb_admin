@@ -1130,6 +1130,30 @@ public class ServiceOrderController extends BaseController {
 			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
 		}
 	}
+	
+	@RequestMapping(value = "/updateOfficialRemarks", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> updateOfficialRemarks(@RequestParam(value = "id") Integer id, @RequestParam(value = "content") String content,
+			HttpServletRequest request, HttpServletResponse response) {
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo != null)
+			if (adminUserLoginInfo == null || !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					|| adminUserLoginInfo.getOfficialId() == null)
+				return new Response<Integer>(1, "仅限文案操作.", null);
+		try {
+			super.setPostHeader(response);
+			ServiceOrderOfficialRemarksDTO serviceOrderOfficialRemarksDto = new ServiceOrderOfficialRemarksDTO();
+			serviceOrderOfficialRemarksDto.setId(id);
+			serviceOrderOfficialRemarksDto.setOfficialId(adminUserLoginInfo.getOfficialId());
+			serviceOrderOfficialRemarksDto.setContent(content);
+			if (serviceOrderService.updateOfficialRemarks(serviceOrderOfficialRemarksDto) > 0)
+				return new Response<Integer>(0, serviceOrderOfficialRemarksDto.getId());
+			else
+				return new Response<Integer>(1, "修改失败.", 0);
+		} catch (ServiceException e) {
+			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
+		}
+	}
 
 	@RequestMapping(value = "/listOfficialRemarks", method = RequestMethod.GET)
 	@ResponseBody

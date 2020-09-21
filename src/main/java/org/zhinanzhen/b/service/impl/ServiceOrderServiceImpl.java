@@ -643,6 +643,27 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			throw se;
 		}
 	}
+	
+	@Override
+	public int updateOfficialRemarks(ServiceOrderOfficialRemarksDTO serviceOrderOfficialRemarksDto)
+			throws ServiceException {
+		if (serviceOrderOfficialRemarksDto == null) {
+			ServiceException se = new ServiceException("serviceOrderOfficialRemarksDto is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			if (serviceOrderOfficialRemarksDao
+					.update(mapper.map(serviceOrderOfficialRemarksDto, ServiceOrderOfficialRemarksDO.class)) > 0)
+				return serviceOrderOfficialRemarksDto.getId();
+			else
+				return 0;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
 
 	@Override
 	public List<ServiceOrderOfficialRemarksDTO> listOfficialRemarks(int id, int officialId) throws ServiceException {

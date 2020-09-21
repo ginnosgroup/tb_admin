@@ -19,6 +19,18 @@
                 #{content});
     </insert>
     
+    <update id="update" parameterType="org.zhinanzhen.b.dao.pojo.ServiceOrderOfficialRemarksDO">
+        UPDATE b_service_order_official_remarks 
+        SET gmt_modify = now()
+        <if test='content != null and content != ""'>
+            , content = #{content}
+        </if>
+        <if test='officialId != null and officialId != ""'>
+            , official_id = #{officialId}
+        </if>
+        WHERE id = #{id};
+    </update>
+    
     <select id="list" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderOfficialRemarksDO">
         SELECT
             id,
