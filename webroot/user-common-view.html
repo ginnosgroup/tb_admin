@@ -1,8 +1,8 @@
 ﻿<meta charset="utf-8"/>
 <div id="app_sub">
 <div class="modal fade" id="show_addnewservice1_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
-			<div class="modal-dialog" role="document" style="width:1100px;">
-				<div class="col-lg-6" style="width:700px;">
+			<div class="modal-dialog" id="document1" role="document" style="width:1100px;">
+				<div class="col-lg-6" id="leftbox" style="width:700px;">
 				<div class="modal-content">
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -185,8 +185,8 @@
 </div>
 
 <div class="modal fade" id="show_addnewservice2_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
-			<div class="modal-dialog" role="document" style="width:1100px;">
-				<div class="col-lg-6" style="width:700px;">
+			<div class="modal-dialog" id="document2" role="document" style="width:1100px;">
+				<div class="col-lg-6" id="leftbox" style="width:700px;">
 				<div class="modal-content">
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -724,6 +724,11 @@ function show_addnewservice_id(orderId,type)
         	$('#show_addnewservice1_id #b2').html(response.adviser.name);
         	if (v_sub.ap_list == 'WA')
         	{
+        			$("#show_addnewservice1_id #document1").css("width","1100px");
+        			$("#show_addnewservice1_id #leftbox").addClass("col-lg-6");
+        			$("#show_addnewservice1_id #leftbox").css("width","700px");
+        			$("#show_addnewservice1_id #rightbox").addClass("col-lg-6");
+        			$("#show_addnewservice1_id #rightbox").css("width","400px");
         			$("#show_addnewservice2_id #rightbox").html('');
         			$("#show_addnewservice1_id #rightbox").html($("#wa_right_area").html());
         			$("#show_addnewservice1_id #rightbox").show();
@@ -746,6 +751,13 @@ function show_addnewservice_id(orderId,type)
         					v_sub.officialNoteId = 0;
         					$("#show_addnewservice1_id #note_content").val(''); 
         			}    			
+        	}else
+        	{
+        			$("#show_addnewservice1_id #document1").css("width","700px");
+        			$("#show_addnewservice1_id #leftbox").css("width","700px");
+        			$("#show_addnewservice1_id #leftbox").removeClass("col-lg-6");
+        			$("#show_addnewservice1_id #rightbox").css("width","0px");
+        			$("#show_addnewservice1_id #rightbox").removeClass("col-lg-6");
         	}
         	if (response.parentId)
 	        {
@@ -894,7 +906,12 @@ function show_addnewservice_id(orderId,type)
         	$('#show_addnewservice2_id #c4').html(response.school.subject);
         	if (v_sub.ap_list == 'WA')
         	{
-        			$("#show_addnewservice1_id #rightbox").html('');
+        			$("#show_addnewservice2_id #document1").css("width","1100px");
+        			$("#show_addnewservice2_id #leftbox").addClass("col-lg-6");
+        			$("#show_addnewservice2_id #leftbox").css("width","700px");
+        			$("#show_addnewservice2_id #rightbox").addClass("col-lg-6");
+        			$("#show_addnewservice2_id #rightbox").css("width","400px");
+        			$("#show_addnewservice2_id #rightbox").html('');
         			$("#show_addnewservice2_id #rightbox").html($("#wa_right_area").html());
         			$("#show_addnewservice2_id #rightbox").show();
         			$("wa_right_area").show();
@@ -916,6 +933,13 @@ function show_addnewservice_id(orderId,type)
         					v_sub.officialNoteId = 0;
         					$("#show_addnewservice2_id #note_content").val(''); 
         			}    			
+        	}else
+        	{
+        			$("#show_addnewservice2_id #document2").css("width","700px");
+        			$("#show_addnewservice2_id #leftbox").css("width","700px");
+        			$("#show_addnewservice2_id #leftbox").removeClass("col-lg-6");
+        			$("#show_addnewservice2_id #rightbox").css("width","0px");
+        			$("#show_addnewservice2_id #rightbox").removeClass("col-lg-6");
         	}
         	loadSchoolCourses(response.school.id);
         	v_sub.submitted = response.submitted;
