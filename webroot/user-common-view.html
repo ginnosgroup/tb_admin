@@ -180,70 +180,13 @@
 					</div>
 				</div>
 				</div>
-				<div class="col-lg-6" style="width:400px;">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<h4 class="modal-title" id="myModalLabel">Note</h4>
-					</div>
-					<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
-			      <button data-dismiss="alert" class="close close-sm" type="button">
-			      <i class="fa fa-times"></i>
-			      </button>
-			      <strong id="success_info">Success! You  just achieved success.</strong>
-			  	</div>
-			  	<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
-		        <button data-dismiss="alert" class="close close-sm" type="button">
-		        <i class="fa fa-times"></i>
-		        </button>
-		        <strong id="error_info"></strong>
-		      </div>
-					<div class="modal-body">
-							<textarea name="message_content" id="message_content" class="form-control" style="width:100%;height:80px;" placeholder="请输入内容"></textarea>
-					</div>
-					<div class="modal-footer">
-							<button onclick="" type="button" class="btn btn-primary">保存</button>
-					</div>
-				</div>
-				<div class="modal-content" style="margin-top:20px;">
-					<div class="modal-header">
-						<label class="close1" style="float: right;"><a href=""><span style="color:black;">新增提醒</span></a></label>
-						<h4 class="modal-title" id="myModalLabel">设置提醒</h4>
-					</div>
-					<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
-			      <button data-dismiss="alert" class="close close-sm" type="button">
-			      <i class="fa fa-times"></i>
-			      </button>
-			      <strong id="success_info">Success! You  just achieved success.</strong>
-			  	</div>
-			  	<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
-		        <button data-dismiss="alert" class="close close-sm" type="button">
-		        <i class="fa fa-times"></i>
-		        </button>
-		        <strong id="error_info"></strong>
-		      </div>
-					<div class="modal-body">
-							<div id="message_list" style="margin-top:10px;max-height:250px;overflow-y:auto;background:#f9f9f9;padding-left:10px;padding-right:10px;">
-								<div class="message_item">													
-										<div style="padding-bottom:10px;line-height:25px;font-weight:normal;">
-												<div style="width:100%;">
-														<div style="float:left;width:80%;">2020-09-16</div>
-														<div style="float:left;width:20%;text-align:right;"><a href="">取消提醒</a></div>
-												</div>
-												<div style="font-weight:bold;padding-top:10px;">准备上诉材料</div>												
-										</div>
-								</div>
-							</div>
-					</div>
-					<div class="modal-footer">							
-					</div>
-				</div>
-				</div>
+				<div class="col-lg-6" id="rightbox" style="width:400px;"></div>
 			</div>
 </div>
 
 <div class="modal fade" id="show_addnewservice2_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
-			<div class="modal-dialog" role="document" style="width:700px;">
+			<div class="modal-dialog" role="document" style="width:1100px;">
+				<div class="col-lg-6" style="width:700px;">
 				<div class="modal-content">
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -497,6 +440,8 @@
 					</div>
 					</form>
 				</div>
+				</div>
+				<div class="col-lg-6" id="rightbox" style="width:400px;"></div>
 			</div>
 </div>
 
@@ -620,6 +565,7 @@
 					</div>
 				</div>
 			</div>
+			</div>
 </div>
 
 <div class="modal fade" id="confirm_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="top:55%;">
@@ -640,6 +586,90 @@
 	</div>
 </div>
 
+<div id="wa_right_area" style="display:none;">
+		<div class="modal-content" id="note_box">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel">Note</h4>
+				</div>
+				<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+		      <button data-dismiss="alert" class="close close-sm" type="button">
+		      <i class="fa fa-times"></i>
+		      </button>
+		      <strong id="success_info">Success! You  just achieved success.</strong>
+		  	</div>
+		  	<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+	        <button data-dismiss="alert" class="close close-sm" type="button">
+	        <i class="fa fa-times"></i>
+	        </button>
+	        <strong id="error_info"></strong>
+	      </div>
+				<div class="modal-body">
+						<textarea name="note_content" id="note_content" class="form-control" style="width:100%;height:80px;font-weight:normal;" placeholder="请输入内容"></textarea>
+				</div>
+				<div class="modal-footer">
+						<button onclick="saveNote();" type="button" class="btn btn-primary">保存</button>
+				</div>
+		</div>
+		<div class="modal-content" id="remind_box" style="margin-top:20px;">
+				<div class="modal-header">
+					<label class="close1" style="float: right;"><a href="javascript:$('#show_addnewservice1_id #wa_add_remind').show();"><span style="color:black;">新增提醒</span></a></label>
+					<h4 class="modal-title" id="myModalLabel">设置提醒</h4>
+				</div>
+				<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+		      <button data-dismiss="alert" class="close close-sm" type="button">
+		      <i class="fa fa-times"></i>
+		      </button>
+		      <strong id="success_info">Success! You  just achieved success.</strong>
+		  	</div>
+		  	<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+	        <button data-dismiss="alert" class="close close-sm" type="button">
+	        <i class="fa fa-times"></i>
+	        </button>
+	        <strong id="error_info"></strong>
+	      </div>
+				<div class="modal-body">
+						<div id="wa_add_remind" style="display:none;">
+								<form class="form-horizontal" autocomplete="off">									
+								<div class="form-group">
+									<label class="col-sm-3 control-label"><strong>提醒日期</strong></label>
+									<div class="col-sm-8">
+										<input type="text" id="remind_date" class="form-control default-date-picker1" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
+									</div>
+								</div>
+								
+								<div class="form-group">
+									<label class="col-sm-3 control-label"><strong>提醒内容</strong></label>
+									<div class="col-sm-8">
+										<textarea id="remind_content" class="form-control" style="height:60px;"></textarea>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-sm-3 control-label"></label>
+									<div class="col-sm-8 text-right">												
+											<button onclick="addRemind()" type="button" class="btn btn-primary">确认</button>
+											<button type="button" class="btn btn-default" onclick="$('#show_addnewservice1_id #wa_add_remind').hide();">取消</button>
+									</div>
+								</div>
+								</form>									
+						</div>
+						<div id="message_list" style="margin-top:10px;max-height:250px;overflow-y:auto;background:#f9f9f9;padding-left:10px;padding-right:10px;">
+							<div class="message_item">													
+									<div style="padding-bottom:10px;line-height:25px;font-weight:normal;">
+											<div style="width:100%;">
+													<div style="float:left;width:80%;">2020-09-16</div>
+													<div style="float:left;width:20%;text-align:right;"><a href="javascript:">取消提醒</a></div>
+											</div>
+											<div style="font-weight:bold;padding-top:10px;">准备上诉材料</div>												
+									</div>
+							</div>
+						</div>
+				</div>
+				<div class="modal-footer">							
+				</div>
+		</div>
+</div>
+
 </div>
 <script>
 var v_sub = new Vue({
@@ -652,6 +682,7 @@ var v_sub = new Vue({
 					official_id: sessionStorage.getItem("official_id"),
 					mara_id: sessionStorage.getItem("mara_id"),
 					servicepackage_type: '',
+					orderId: 0,
 					orderType: '',
 					birthday: '',
 					flowstate_gw: '',
@@ -659,6 +690,7 @@ var v_sub = new Vue({
 					flowstate_ma: '',
 					submitted: 0,					
 					order_detail: [],
+					officialNoteId: 0,
 					subagency_id: 0
 				},
 				created: function() {					
@@ -667,7 +699,8 @@ var v_sub = new Vue({
 
 function show_addnewservice_id(orderId,type)
 {
-		v.orderId = orderId;		
+		v.orderId = orderId;
+		v_sub.orderId = orderId;	
 		//服务详细页
 		$.ajax({
       url: 'serviceOrder/get?id='+orderId,
@@ -689,6 +722,31 @@ function show_addnewservice_id(orderId,type)
     			$("#load-comment-1").load("user-common-view-comment.html?random="+Math.random());    				
         	$('#show_addnewservice1_id #b1').html(response.user.name);
         	$('#show_addnewservice1_id #b2').html(response.adviser.name);
+        	if (v_sub.ap_list == 'WA')
+        	{
+        			$("#show_addnewservice2_id #rightbox").html('');
+        			$("#show_addnewservice1_id #rightbox").html($("#wa_right_area").html());
+        			$("#show_addnewservice1_id #rightbox").show();
+        			$("wa_right_area").show();
+        			$('.default-date-picker1').datepicker({
+	        				format: 'dd/mm/yyyy'			        
+							});
+        			if (response.officialNotes.length)
+        			{        					        					        			
+		        			for(var i = 0; i < response.officialNotes.length; i++) {
+		        				if (response.officialNotes[i].serviceOrderId == orderId)
+		        				{
+				        				$("#show_addnewservice1_id #note_content").val(response.officialNotes[i].content); 
+				        				v_sub.officialNoteId = response.officialNotes[i].id;      				
+				        				break;
+		        				}
+		        			}
+        			}else
+        			{
+        					v_sub.officialNoteId = 0;
+        					$("#show_addnewservice1_id #note_content").val(''); 
+        			}    			
+        	}
         	if (response.parentId)
 	        {
 	        		//子订单
@@ -834,6 +892,31 @@ function show_addnewservice_id(orderId,type)
         	$('#show_addnewservice2_id #c9').html(response.official.name);
         	$('#show_addnewservice2_id #c3').html(response.school.name);
         	$('#show_addnewservice2_id #c4').html(response.school.subject);
+        	if (v_sub.ap_list == 'WA')
+        	{
+        			$("#show_addnewservice1_id #rightbox").html('');
+        			$("#show_addnewservice2_id #rightbox").html($("#wa_right_area").html());
+        			$("#show_addnewservice2_id #rightbox").show();
+        			$("wa_right_area").show();
+        			$('.default-date-picker1').datepicker({
+	        				format: 'dd/mm/yyyy'			        
+							});
+        			if (response.officialNotes.length)
+        			{        					        					        			
+		        			for(var i = 0; i < response.officialNotes.length; i++) {
+		        				if (response.officialNotes[i].serviceOrderId == orderId)
+		        				{
+				        				$("#show_addnewservice2_id #note_content").val(response.officialNotes[i].content); 
+				        				v_sub.officialNoteId = response.officialNotes[i].id;      				
+				        				break;
+		        				}
+		        			}
+        			}else
+        			{
+        					v_sub.officialNoteId = 0;
+        					$("#show_addnewservice2_id #note_content").val(''); 
+        			}    			
+        	}
         	loadSchoolCourses(response.school.id);
         	v_sub.submitted = response.submitted;
         	v_sub.birthday = v.getTime(response.user.birthday);
@@ -1665,6 +1748,122 @@ function reqCommissionOvst()
 		   					$('#show_addnewservice2_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
           			$("#show_addnewservice2_id #error_info").html(data.message);
 	        			return false;
+		   			}
+		   	});
+    }
+}
+
+function saveNote()
+{		
+		var f = '#note_box ';		
+		var json = {};
+		
+		var check_result = false;
+		var content = $(f+'#note_content').val();
+    if (content != '')
+    {
+    		check_result = true;
+    }
+    
+    if (!check_result)
+    {
+    		$('#note_box #alert_error').css('marginTop','10%');
+    		$('#note_box #alert_error').css('marginLeft','20%');
+    		$('#note_box #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+        $("#note_box #error_info").html('提示：Note内容不能为空！');
+    		return false;
+    }else
+    {
+    		var str_url = "serviceOrder/addOfficialRemarks";
+    		if (v_sub.officialNoteId)
+    		{
+    				str_url = "serviceOrder/updateOfficialRemarks";
+    				json['id'] = v_sub.officialNoteId;
+    		}else
+    		{
+    				json['serviceOrderId'] = v_sub.orderId;
+    		}
+       	json['content'] = content;
+       	
+       	show_loading();
+       	
+       	$.post(str_url, json,
+		   	function(data){
+		   			$('#loading_id').modal('hide');
+		   			if (parseInt(data.code) == 0)
+		   			{
+		   					$('#note_box #alert_success').css('marginTop','10%');
+		   					$('#note_box #alert_success').css('marginLeft','20%');
+		   					$('#note_box #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+		   			}else
+		   			{
+		   					$('#note_box #alert_error').css('marginTop','10%');
+				    		$('#note_box #alert_error').css('marginLeft','20%');
+				    		$('#note_box #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+				        $("#note_box #error_info").html(data.message);
+		   			}
+		   	});
+    }
+}
+
+function addRemind()
+{		
+		var f = '#remind_box ';
+		var strList = '';
+		var json = {};
+		
+		var check_result = false;
+		var int_d = $(f+'#remind_date').val();
+		var content = $(f+'#remind_content').val();
+    if (int_d != '' && content != '')
+    {
+    		check_result = true;
+    }
+    
+    if (!check_result)
+    {
+    		$('#remind_box #alert_error').css('marginTop','10%');
+    		$('#remind_box #alert_error').css('marginLeft','20%');
+    		$('#remind_box #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+        $("#remind_box #error_info").html('提示：提醒日期或提醒内容不能为空！');
+    		return false;
+    }else
+    {
+    		$('#remind_box #alert_error').css('marginTop','10%');
+    		$('#remind_box #alert_error').css('marginLeft','20%');
+    		$('#remind_box #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+        $("#remind_box #error_info").html('提示：后端接口还没有实现...');
+        return false;
+    		var str_url = "serviceOrder/addOfficialRemind";
+    		json['serviceOrderId'] = v_sub.orderId;
+    		
+    		var d = 0;
+    		if (int_d != '')
+    		{
+        		var arr_d = int_d.split("/");
+        		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+            var date = new Date(str_d);
+            d = date.getTime();
+            json['remindDate'] = d;
+      	}
+       	json['remindContent'] = content;
+       	
+       	show_loading();
+       	
+       	$.post(str_url, json,
+		   	function(data){
+		   			$('#loading_id').modal('hide');
+		   			if (parseInt(data.code) == 0)
+		   			{
+		   					$('#remind_box #alert_success').css('marginTop','10%');
+		   					$('#remind_box #alert_success').css('marginLeft','20%');
+		   					$('#remind_box #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+		   			}else
+		   			{
+		   					$('#remind_box #alert_error').css('marginTop','10%');
+				    		$('#remind_box #alert_error').css('marginLeft','20%');
+				    		$('#remind_box #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+				        $("#remind_box #error_info").html(data.message);
 		   			}
 		   	});
     }
