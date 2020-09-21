@@ -534,13 +534,25 @@ CREATE TABLE `b_school` (
   `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已删除'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
+-- 学校附件*
+CREATE TABLE `b_school_attachments` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `school_name` varchar(128) NOT NULL COMMENT '学校名称',
+  `contract_file_1` varchar(128) DEFAULT NULL COMMENT '合同地址1',
+  `contract_file_2` varchar(128) DEFAULT NULL COMMENT '合同地址2',
+  `contract_file_3` varchar(128) DEFAULT NULL COMMENT '合同地址3',
+  `remarks` text DEFAULT NULL COMMENT '备注'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
 -- Subagency
 CREATE TABLE `b_subagency` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `name` varchar(32) NOT NULL COMMENT '名称',
-`country` varchar(4) NOT NULL DEFAULT 'AUS' COMMENT '国家 (CHN:中国,AUS:澳大利亚)',
+  `country` varchar(4) NOT NULL DEFAULT 'AUS' COMMENT '国家 (CHN:中国,AUS:澳大利亚)',
   `commission_rate` decimal(8,2) NOT NULL COMMENT 'Commission Rate',
   `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已删除'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
