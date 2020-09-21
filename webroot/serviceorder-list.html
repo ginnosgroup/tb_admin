@@ -953,7 +953,7 @@
 								var json = {};
 								json['oid'] = this.subject[index].oid;
 								json['gmtCreate'] = this.subject[index].gmtCreate;
-								json['approvalDate'] = this.subject[index].officialApprovalDate;
+								json['approvalDate'] = v.getTime(this.subject[index].officialApprovalDate);
 								json['finishDate'] = this.subject[index].finishDate;
 								json['userId'] = this.subject[index].userId;
 								json['userName'] = this.subject[index].userName;
@@ -1481,9 +1481,11 @@
 				  //绑定顾问
 				  var obj_adviserId = $("#adviserId");
 				  $("#adviserId").empty();
+				  var strPar = '';
+				  if (v.gw_regionid != 'null') strPar = '&regionId='+v.gw_regionid;
 	        obj_adviserId.append("<option value='0'>请选择</option>");
 			    $.ajax({
-	          url: 'adviser/list?pageNum=0&pageSize=100000',
+	          url: 'adviser/list?pageNum=0&pageSize=100000'+strPar,
 	          type: 'GET',
 	          async: false,
 	          dataType: 'json'
