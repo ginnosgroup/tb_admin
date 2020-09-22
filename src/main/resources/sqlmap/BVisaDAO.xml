@@ -589,7 +589,7 @@
         <if test="adviserId != 0">
             where adviser_id = #{adviserId}
         </if>
-        ORDER BY visa_expiration_date DESC;
+        ORDER BY visa_expiration_date DESC limit #{pageNum},#{pageSize} ;
     </select>
 
 </mapper>

@@ -112,12 +112,13 @@ public class VisaRemindServiceImpl extends BaseService implements VisaRemindServ
 
 
 	@Override
-	public List<UserDTO> listVisaRemindDateDesc(String adviserId) throws ServiceException {
+	public List<UserDTO> listVisaRemindDateDesc(String adviserId,String pageNum,String  pageSize) throws ServiceException {
 		Integer newAdviserId= 0;
 		if(adviserId!=null){
 			newAdviserId = Integer.parseInt(adviserId);
 		}
-		return visaDao.listVisaRemindDateDesc(newAdviserId);
+
+		return visaDao.listVisaRemindDateDesc(newAdviserId,Integer.parseInt(pageNum)-1,Integer.parseInt(pageSize));
 	}
 
 

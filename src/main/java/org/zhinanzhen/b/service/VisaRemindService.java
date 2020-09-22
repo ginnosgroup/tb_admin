@@ -18,5 +18,5 @@ public interface VisaRemindService {
 
 	public int deleteRemindByVisaId(int id) throws ServiceException;
 
-	List<UserDTO> listVisaRemindDateDesc(String adviserId) throws ServiceException;
+	List<UserDTO> listVisaRemindDateDesc(String adviserId,String pageNum,String  pageSize ) throws ServiceException;
 }

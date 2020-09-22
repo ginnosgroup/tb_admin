@@ -110,8 +110,11 @@ public class VisaRemindController extends BaseController {
 
 	@RequestMapping(value = "/listVisaRemindDateDesc", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<UserDTO>> listVisaRemindDateDesc(@RequestParam(value = "adviserId", required = false) String adviserId, HttpServletRequest request,
-																HttpServletResponse response) {
+	public Response<List<UserDTO>> listVisaRemindDateDesc(@RequestParam(value = "adviserId", required = false) String adviserId,
+														  @RequestParam(value = "pageNum", required = true) String pageNum,
+														  @RequestParam(value = "pageSize", required = true) String pageSize,
+														  HttpServletRequest request,
+														  HttpServletResponse response) {
 		// 更改当前顾问编号
 		Integer newAdviserId = getAdviserId(request);
 		if (newAdviserId != null)
@@ -119,7 +122,7 @@ public class VisaRemindController extends BaseController {
 
 		try {
 			super.setGetHeader(response);
-			List<UserDTO> userDTOList = visaRemindService.listVisaRemindDateDesc(adviserId);
+			List<UserDTO> userDTOList = visaRemindService.listVisaRemindDateDesc(adviserId,pageNum,pageSize);
 
 			return new Response<List<UserDTO>>(0, userDTOList);
 		} catch (ServiceException e) {

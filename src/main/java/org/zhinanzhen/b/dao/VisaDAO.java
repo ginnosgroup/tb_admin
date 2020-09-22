@@ -50,5 +50,5 @@ public interface VisaDAO {
 
 	public int deleteVisaById(int id);
 
-    List<UserDTO> listVisaRemindDateDesc(@Param("adviserId")int adviserId);
+    List<UserDTO> listVisaRemindDateDesc(@Param("adviserId")int adviserId,@Param("pageNum") int pageNum,@Param("pageSize") int  pageSize);
 }
