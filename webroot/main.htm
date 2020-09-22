@@ -648,7 +648,7 @@
   					var date = new Date(str_date);
 			    	var current_tp = date.getTime();
 			    	//current_tp = 2000000000000;//临时使用		
-						$.get(url + "visaRemind/listVisaRemindDateDesc", {							
+						$.get(url + "visaRemind/listVisaRemindDateDesc?pageNum=1&pageSize=10", {							
 						}, function(result) {
 							console.log(result)
 							for(var i = 0; i < result.data.length; i++) {									
