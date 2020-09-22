@@ -177,9 +177,11 @@ public class UserController extends BaseController {
 
 	@RequestMapping(value = "/updateAdviser", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<Boolean> updateAdviserId(int id, int adviserId, HttpServletResponse response)
-			throws ServiceException {
+	public Response<Boolean> updateAdviserId(@RequestParam(value = "id") int id,
+			@RequestParam(value = "adviserId") int adviserId, HttpServletResponse response) throws ServiceException {
 		super.setPostHeader(response);
+		if (id <= 0 || adviserId <= 0)
+			return new Response<Boolean>(1, "请检查参数!");
 		// TODO: 这里或许要判断一下顾问管理员
 		return new Response<Boolean>(0, userService.updateAdviserId(adviserId, id));
 	}
