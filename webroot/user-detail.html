@@ -116,6 +116,8 @@
                 </span>
               </a>
             </li>
+            </dli>
+            <dli v-if="ap_list==='SUPERAD' || (ap_list==='WA' && wa_admin === 'true')">
             <li>
               <a href="official.html">
                 <i class="fa fa-book">
@@ -125,6 +127,8 @@
                 </span>
               </a>
             </li>
+            </dli>
+            <dli v-if="ap_list==='SUPERAD'">
             <li>
               <a href="mara.html">
                 <i class="fa fa-book">
@@ -143,6 +147,8 @@
                 </span>
               </a>
             </li>
+            </dli>
+          	<dli v-if="ap_list==='SUPERAD' || (ap_list==='GW' && gw_regionid !== 'null')">
             <li class="sub-menu">
 							<a href="javascript:;">
 								<i class="fa fa-book">
@@ -152,7 +158,7 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li>
+								<li v-if="ap_list==='SUPERAD'">
 									<a href="school.html">
 										学校管理
 									</a>
@@ -164,6 +170,8 @@
 								</li>								
 							</ul>
 						</li>
+						</dli>
+						<dli v-if="ap_list==='SUPERAD'">
             <li>
               <a href="receive-type.html">
                 <i class="fa fa-book">
@@ -658,6 +666,7 @@
 		<script src="js/jquery.nicescroll.js"></script>
 		<script src="assets/bootstrap-datepicker/js/bootstrap-datepicker-new.js"></script><!-- BOOTSTRAP DATEPICKER JS  -->      
 		<script src="js/jquery.autocompleter.js"></script>
+		<script src="js/jquery.validate.min.js"></script><!-- VALIDATE JS  -->
 		<script src="js/clipboard.min.js"></script>
 		<script src="js/common-scripts.js"></script>
 		<script src="js/vue.js"></script>
@@ -671,7 +680,9 @@
 				el: '#user-detail',
 				data: {
 					admin: sessionStorage.getItem("admin"),
-					ap_list: sessionStorage.getItem("ap_list"),			
+					ap_list: sessionStorage.getItem("ap_list"),
+					gw_regionid: sessionStorage.getItem("gw_regionid"),
+					wa_admin: sessionStorage.getItem("wa_admin"),
 					userid: sessionStorage.getItem("userId"),
 					adviser_id: sessionStorage.getItem("adviser_id"),
 					addnewservice1_bind: 0,
@@ -1470,6 +1481,21 @@
       		sessionStorage.setItem("menu_parentid", parentId);
 					window.location.href = "knowledge.html"; 
       }
+      
+      function url_replace1(str)
+			{
+					var reg = /((http|ftp|https):\/\/)?[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?/g;
+					str=str.replace(reg,function(a){
+					    if(!a.indexOf('http'))
+					    {
+					    	return "<a href=\'"+a+"\' target=\'_blank\'>"+a+"</a>";
+					    }else
+					    {
+					    	return "<a href=\'http://"+a+"\' target=\'_blank\'>"+a+"</a>";
+					    }
+					});
+					return str;
+			}
       
       function  formatDate(now)
 			{
