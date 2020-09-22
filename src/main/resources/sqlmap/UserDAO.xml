@@ -70,7 +70,7 @@
             AND adviser_id = #{adviserId}
         </if>
         <if test='regionIdList != null'>
-            AND u.region_id IN
+            AND region_id IN
             <foreach collection="regionIdList" item="regionIdList" index="index" open="(" close=")" separator=",">
                 #{regionIdList}
             </foreach>
