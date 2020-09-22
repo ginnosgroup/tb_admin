@@ -249,6 +249,12 @@ public class UserServiceImpl extends BaseService implements UserService {
 	}
 
 	@Override
+	public boolean updateAdviser(int id, int adviserId) throws ServiceException {
+
+		return false;
+	}
+
+	@Override
 	public boolean updateAdviserId(int adviserId, int id) throws ServiceException {
 		if (adviserId <= 0) {
 			ServiceException se = new ServiceException("adviserId error ! adviserId = " + adviserId);
