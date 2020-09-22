@@ -180,6 +180,7 @@
 					</div>
 				</div>
 				</div>
+				<div v-if="ap_list==='WA'" class="col-lg-1" id="tmpbox" style="width:30px;height:100px;padding-top:15px;padding-left:0px;padding-right:0px;margin-top:80px;background:#72d0eb;text-align:center;color:white;border-radius:5px 5px 5px 5px;"><a href="javascript:show_rightbox();"><span style="color:white;">N<br/>O<br/>T<br/>E</span></a></div>
 				<div class="col-lg-6" id="rightbox" style="width:400px;"></div>
 			</div>
 </div>
@@ -441,6 +442,7 @@
 					</form>
 				</div>
 				</div>
+				<div v-if="ap_list==='WA'" class="col-lg-1" id="tmpbox" style="width:30px;height:100px;padding-top:15px;padding-left:0px;padding-right:0px;margin-top:80px;background:#72d0eb;text-align:center;color:white;border-radius:5px 5px 5px 5px;"><a href="javascript:show_rightbox();"><span style="color:white;">N<br/>O<br/>T<br/>E</span></a></div>
 				<div class="col-lg-6" id="rightbox" style="width:400px;"></div>
 			</div>
 </div>
@@ -589,7 +591,7 @@
 <div id="wa_right_area" style="display:none;">
 		<div class="modal-content" id="note_box">
 				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<button type="button" class="rhide" onclick="hide_rightbox();"><span aria-hidden="true">-</span></button>
 					<h4 class="modal-title" id="myModalLabel">Note</h4>
 				</div>
 				<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
@@ -605,7 +607,7 @@
 	        <strong id="error_info"></strong>
 	      </div>
 				<div class="modal-body">
-						<textarea name="note_content" id="note_content" class="form-control" style="width:100%;height:80px;font-weight:normal;" placeholder="请输入内容"></textarea>
+						<textarea name="note_content" id="note_content" class="form-control" style="width:100%;height:80px;color:#797979;" placeholder="请输入内容"></textarea>
 				</div>
 				<div class="modal-footer">
 						<button onclick="saveNote();" type="button" class="btn btn-primary">保存</button>
@@ -671,6 +673,39 @@
 </div>
 
 </div>
+<style>
+.rhide {
+    float: right;
+    font-size: 21px;
+    font-weight: 700;
+    line-height: 1;
+    color: #000;
+    text-shadow: 0 1px 0 #fff;
+    opacity: .2;
+    filter: alpha(opacity=20);
+}
+
+.rhide:hover,.rhide:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+    opacity: .5;
+    filter: alpha(opacity=50);
+}
+
+button.rhide {
+    padding: 0;
+    cursor: pointer;
+    background: 0 0;
+    border: 0;
+    -webkit-appearance: none;
+}
+
+.modal-header .rhide {
+    margin-top: -2px;
+}
+
+</style>
 <script>
 var v_sub = new Vue({
 				el: '#app_sub',
@@ -724,18 +759,15 @@ function show_addnewservice_id(orderId,type)
         	$('#show_addnewservice1_id #b2').html(response.adviser.name);
         	if (v_sub.ap_list == 'WA')
         	{
-        			$("#show_addnewservice1_id #document1").css("width","1100px");
-        			$("#show_addnewservice1_id #leftbox").addClass("col-lg-6");
+        			$("#show_addnewservice1_id #document1").css("width","750px");        			
         			$("#show_addnewservice1_id #leftbox").css("width","700px");
-        			$("#show_addnewservice1_id #rightbox").addClass("col-lg-6");
-        			$("#show_addnewservice1_id #rightbox").css("width","400px");
-        			$("#show_addnewservice2_id #rightbox").html('');
-        			$("#show_addnewservice1_id #rightbox").html($("#wa_right_area").html());
-        			$("#show_addnewservice1_id #rightbox").show();
-        			$("wa_right_area").show();
-        			$('.default-date-picker1').datepicker({
-	        				format: 'dd/mm/yyyy'			        
-							});
+        			$("#show_addnewservice1_id #leftbox").css("padding-left","0px");
+        			$("#show_addnewservice1_id #leftbox").css("padding-right","0px");
+        			//$("#show_addnewservice1_id #leftbox").removeClass("col-lg-6");        			
+        			$("#show_addnewservice1_id #rightbox").css("width","0px");
+        			$("#show_addnewservice1_id #rightbox").removeClass("col-lg-6");
+        			$("#show_addnewservice1_id #rightbox").hide();
+        			$("#show_addnewservice1_id #rightbox").html($("#wa_right_area").html());     			
         			if (response.officialNotes.length)
         			{        					        					        			
 		        			for(var i = 0; i < response.officialNotes.length; i++) {
@@ -906,18 +938,14 @@ function show_addnewservice_id(orderId,type)
         	$('#show_addnewservice2_id #c4').html(response.school.subject);
         	if (v_sub.ap_list == 'WA')
         	{
-        			$("#show_addnewservice2_id #document1").css("width","1100px");
-        			$("#show_addnewservice2_id #leftbox").addClass("col-lg-6");
+        			$("#show_addnewservice2_id #document2").css("width","750px");
         			$("#show_addnewservice2_id #leftbox").css("width","700px");
-        			$("#show_addnewservice2_id #rightbox").addClass("col-lg-6");
-        			$("#show_addnewservice2_id #rightbox").css("width","400px");
-        			$("#show_addnewservice2_id #rightbox").html('');
-        			$("#show_addnewservice2_id #rightbox").html($("#wa_right_area").html());
-        			$("#show_addnewservice2_id #rightbox").show();
-        			$("wa_right_area").show();
-        			$('.default-date-picker1').datepicker({
-	        				format: 'dd/mm/yyyy'			        
-							});
+        			$("#show_addnewservice2_id #leftbox").css("padding-left","0px");
+        			$("#show_addnewservice2_id #leftbox").css("padding-right","0px");
+        			$("#show_addnewservice2_id #rightbox").css("width","0px");
+        			$("#show_addnewservice2_id #rightbox").removeClass("col-lg-6");
+        			$("#show_addnewservice2_id #rightbox").hide();
+        			$("#show_addnewservice2_id #rightbox").html($("#wa_right_area").html());        			
         			if (response.officialNotes.length)
         			{        					        					        			
 		        			for(var i = 0; i < response.officialNotes.length; i++) {
@@ -1899,6 +1927,60 @@ function addRemind()
 		   			}
 		   	});
     }
+}
+
+function hide_rightbox()
+{
+		if (v_sub.orderType == 'VISA')
+		{
+				$("#show_addnewservice1_id #rightbox").hide();
+				$("#show_addnewservice1_id #document1").css("width","750px");
+  			$("#show_addnewservice1_id #leftbox").css("width","700px");
+  			//$("#show_addnewservice1_id #leftbox").removeClass("col-lg-6");
+  			$("#show_addnewservice1_id #rightbox").css("width","0px");
+  			$("#show_addnewservice1_id #rightbox").removeClass("col-lg-6");
+  			$("#show_addnewservice1_id #tmpbox").show();
+		}else
+		{
+				$("#show_addnewservice2_id #rightbox").hide();
+				$("#show_addnewservice2_id #document2").css("width","750px");
+  			$("#show_addnewservice2_id #leftbox").css("width","700px");
+  			//$("#show_addnewservice2_id #leftbox").removeClass("col-lg-6");
+  			$("#show_addnewservice2_id #rightbox").css("width","0px");
+  			$("#show_addnewservice2_id #rightbox").removeClass("col-lg-6");
+  			$("#show_addnewservice2_id #tmpbox").show();
+		}
+}
+
+function show_rightbox()
+{
+		if (v_sub.orderType == 'VISA')
+		{
+				$("#show_addnewservice1_id #document1").css("width","1100px");
+  			$("#show_addnewservice1_id #leftbox").addClass("col-lg-6");
+  			$("#show_addnewservice1_id #leftbox").css("width","700px");
+  			$("#show_addnewservice1_id #rightbox").addClass("col-lg-6");
+  			$("#show_addnewservice1_id #rightbox").css("width","400px");		
+  			$("#show_addnewservice1_id #rightbox").show();
+  			$("#wa_right_area").show();
+  			$('.default-date-picker1').datepicker({
+    				format: 'dd/mm/yyyy'			        
+				});
+				$("#show_addnewservice1_id #tmpbox").hide();
+		}else
+		{
+				$("#show_addnewservice2_id #document2").css("width","1100px");
+  			$("#show_addnewservice2_id #leftbox").addClass("col-lg-6");
+  			$("#show_addnewservice2_id #leftbox").css("width","700px");
+  			$("#show_addnewservice2_id #rightbox").addClass("col-lg-6");
+  			$("#show_addnewservice2_id #rightbox").css("width","400px");  			
+  			$("#show_addnewservice2_id #rightbox").show();
+  			$("#wa_right_area").show();
+  			$('.default-date-picker1').datepicker({
+    				format: 'dd/mm/yyyy'			        
+				});
+				$("#show_addnewservice2_id #tmpbox").hide();
+		}
 }
 
 function computeDiscount(v)

@@ -3,6 +3,7 @@ package org.zhinanzhen.b.service;
 import java.util.Date;
 import java.util.List;
 
+import org.zhinanzhen.b.service.pojo.UserDTO;
 import org.zhinanzhen.b.service.pojo.VisaRemindDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 
@@ -17,4 +18,5 @@ public interface VisaRemindService {
 
 	public int deleteRemindByVisaId(int id) throws ServiceException;
 
+	List<UserDTO> listVisaRemindDateDesc(String adviserId,String pageNum,String  pageSize ) throws ServiceException;
 }
