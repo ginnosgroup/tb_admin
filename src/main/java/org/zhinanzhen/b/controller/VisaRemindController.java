@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.zhinanzhen.b.service.AbleStateEnum;
 import org.zhinanzhen.b.service.VisaRemindService;
 import org.zhinanzhen.b.service.VisaService;
+import org.zhinanzhen.b.service.pojo.UserDTO;
 import org.zhinanzhen.b.service.pojo.VisaRemindDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
@@ -106,6 +107,27 @@ public class VisaRemindController extends BaseController {
 		}
 	}
 
+
+	@RequestMapping(value = "/listVisaRemindDateDesc", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<UserDTO>> listVisaRemindDateDesc(@RequestParam(value = "adviserId", required = false) String adviserId, HttpServletRequest request,
+																HttpServletResponse response) {
+		// 更改当前顾问编号
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId + "";
+
+		try {
+			super.setGetHeader(response);
+			List<UserDTO> userDTOList = visaRemindService.listVisaRemindDateDesc(adviserId);
+
+			return new Response<List<UserDTO>>(0, userDTOList);
+		} catch (ServiceException e) {
+			return new Response<List<UserDTO>>(1, e.getMessage(), null);
+		}
+	}
+
+
 	@RequestMapping(value = "/deleteRemindByVisaId", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<Integer> deleteRemindByVisaId(@RequestParam(value = "visaId") int visaId,
@@ -117,5 +139,8 @@ public class VisaRemindController extends BaseController {
 			return new Response<Integer>(1, e.getMessage(), 0);
 		}
 	}
+
+
+
 
 }

@@ -584,4 +584,12 @@
         WHERE b_visa.id = #{id, jdbcType=INTEGER}
     </delete>
 
+    <select id="listVisaRemindDateDesc" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.service.pojo.UserDTO">
+        SELECT visa_expiration_date,`name`,id from tb_user
+        <if test="adviserId != 0">
+            where adviser_id = #{adviserId}
+        </if>
+        ORDER BY visa_expiration_date DESC;
+    </select>
+
 </mapper>

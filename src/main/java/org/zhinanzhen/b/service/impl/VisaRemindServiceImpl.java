@@ -14,6 +14,7 @@ import org.zhinanzhen.b.dao.pojo.RemindDO;
 import org.zhinanzhen.b.dao.pojo.VisaDO;
 import org.zhinanzhen.b.service.AbleStateEnum;
 import org.zhinanzhen.b.service.VisaRemindService;
+import org.zhinanzhen.b.service.pojo.UserDTO;
 import org.zhinanzhen.b.service.pojo.VisaRemindDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
@@ -109,9 +110,23 @@ public class VisaRemindServiceImpl extends BaseService implements VisaRemindServ
 		return visaRemindDtoList;
 	}
 
+
+	@Override
+	public List<UserDTO> listVisaRemindDateDesc(String adviserId) throws ServiceException {
+		Integer newAdviserId= 0;
+		if(adviserId!=null){
+			newAdviserId = Integer.parseInt(adviserId);
+		}
+		return visaDao.listVisaRemindDateDesc(newAdviserId);
+	}
+
+
+
 	@Override
 	public int deleteRemindByVisaId(int id) throws ServiceException {
 		return remindDao.deleteRemindByVisaId(id);
 	}
+
+
 
 }
