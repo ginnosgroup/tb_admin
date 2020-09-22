@@ -763,9 +763,11 @@ function show_addnewservice_id(orderId,type)
         			$("#show_addnewservice1_id #leftbox").css("width","700px");
         			$("#show_addnewservice1_id #leftbox").css("padding-left","0px");
         			$("#show_addnewservice1_id #leftbox").css("padding-right","0px");
-        			//$("#show_addnewservice1_id #leftbox").removeClass("col-lg-6");
+        			//$("#show_addnewservice1_id #leftbox").removeClass("col-lg-6");        			
         			$("#show_addnewservice1_id #rightbox").css("width","0px");
-        			$("#show_addnewservice1_id #rightbox").removeClass("col-lg-6");        			
+        			$("#show_addnewservice1_id #rightbox").removeClass("col-lg-6");
+        			$("#show_addnewservice1_id #rightbox").hide();
+        			$("#show_addnewservice1_id #rightbox").html($("#wa_right_area").html());     			
         			if (response.officialNotes.length)
         			{        					        					        			
 		        			for(var i = 0; i < response.officialNotes.length; i++) {
@@ -941,7 +943,9 @@ function show_addnewservice_id(orderId,type)
         			$("#show_addnewservice2_id #leftbox").css("padding-left","0px");
         			$("#show_addnewservice2_id #leftbox").css("padding-right","0px");
         			$("#show_addnewservice2_id #rightbox").css("width","0px");
-        			$("#show_addnewservice2_id #rightbox").removeClass("col-lg-6");        			
+        			$("#show_addnewservice2_id #rightbox").removeClass("col-lg-6");
+        			$("#show_addnewservice2_id #rightbox").hide();
+        			$("#show_addnewservice2_id #rightbox").html($("#wa_right_area").html());        			
         			if (response.officialNotes.length)
         			{        					        					        			
 		        			for(var i = 0; i < response.officialNotes.length; i++) {
@@ -1956,11 +1960,9 @@ function show_rightbox()
   			$("#show_addnewservice1_id #leftbox").addClass("col-lg-6");
   			$("#show_addnewservice1_id #leftbox").css("width","700px");
   			$("#show_addnewservice1_id #rightbox").addClass("col-lg-6");
-  			$("#show_addnewservice1_id #rightbox").css("width","400px");
-  			$("#show_addnewservice2_id #rightbox").html('');
-  			$("#show_addnewservice1_id #rightbox").html($("#wa_right_area").html());
+  			$("#show_addnewservice1_id #rightbox").css("width","400px");		
   			$("#show_addnewservice1_id #rightbox").show();
-  			$("wa_right_area").show();
+  			$("#wa_right_area").show();
   			$('.default-date-picker1').datepicker({
     				format: 'dd/mm/yyyy'			        
 				});
@@ -1971,11 +1973,9 @@ function show_rightbox()
   			$("#show_addnewservice2_id #leftbox").addClass("col-lg-6");
   			$("#show_addnewservice2_id #leftbox").css("width","700px");
   			$("#show_addnewservice2_id #rightbox").addClass("col-lg-6");
-  			$("#show_addnewservice2_id #rightbox").css("width","400px");
-  			$("#show_addnewservice2_id #rightbox").html('');
-  			$("#show_addnewservice2_id #rightbox").html($("#wa_right_area").html());
+  			$("#show_addnewservice2_id #rightbox").css("width","400px");  			
   			$("#show_addnewservice2_id #rightbox").show();
-  			$("wa_right_area").show();
+  			$("#wa_right_area").show();
   			$('.default-date-picker1').datepicker({
     				format: 'dd/mm/yyyy'			        
 				});
