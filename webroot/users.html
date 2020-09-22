@@ -722,8 +722,7 @@
 					getDatalist: function() {
 						var that = this;
 						show_loading();
-						$.get(url + "user/count", {
-							keyword: that.name							
+						$.get(url + "user/count", {											
 						}, function(result) {
 							console.log(result)
 							that.count = result.data;
@@ -878,8 +877,11 @@
 						if(that.pageNum > 0) {
 							show_loading();
 							$.get(url + "user/list", {
-								keyword: that.name,
-								state: that.state,
+								name: that.name,
+								phone: that.phone,
+								adviserId: that.adviserId,
+								wechatUsername: that.wechatUsername,
+								tagId: that.tagId,
 								pageNum: 0,
 								pageSize: that.pageSize
 							}, function(result) {
@@ -895,7 +897,11 @@
 							show_loading();
 							that.pageNum--;
 							$.get(url + "user/list", {
-								keyword: that.name,
+								name: that.name,
+								phone: that.phone,
+								adviserId: that.adviserId,
+								wechatUsername: that.wechatUsername,
+								tagId: that.tagId,
 								pageNum: that.pageNum,
 								pageSize: that.pageSize
 							}, function(result) {
@@ -910,9 +916,11 @@
 							show_loading();
 							that.pageNum++;
 							$.get(url + "user/list", {
-								keyword: that.name,
-								categoryId: that.sort,
-								state: that.state,
+								name: that.name,
+								phone: that.phone,
+								adviserId: that.adviserId,
+								wechatUsername: that.wechatUsername,
+								tagId: that.tagId,
 								pageNum: that.pageNum,
 								pageSize: that.pageSize
 							}, function(result) {
@@ -926,9 +934,11 @@
 						if(that.pageNum < that.allPage - 1) {
 							show_loading();
 							$.get(url + "user/list", {
-								keyword: that.name,
-								categoryId: that.sort,
-								state: that.state,
+								name: that.name,
+								phone: that.phone,
+								adviserId: that.adviserId,
+								wechatUsername: that.wechatUsername,
+								tagId: that.tagId,
 								pageNum: that.allPage - 1,
 								pageSize: that.pageSize
 							}, function(result) {
@@ -950,9 +960,11 @@
 							show_loading();
 							that.pageNum = that.pageNum - 1;							
 							$.get(url + "user/list", {
-								keyword: that.name,
-								categoryId: that.sort,
-								state: that.state,						
+								name: that.name,
+								phone: that.phone,
+								adviserId: that.adviserId,
+								wechatUsername: that.wechatUsername,
+								tagId: that.tagId,
 								pageNum: that.pageNum,
 								pageSize: that.pageSize
 							}, function(result) {
@@ -1412,7 +1424,8 @@
 				  		adviserId = v.adviser_id;
 				  }			    
 			    //绑定顾问列表
-			    var obj_adviserId = $("#t4");	
+			    var obj_adviserId = $("#t4");
+			    $("#t4").empty();
 			    $.ajax({
 	          url: 'adviser/list?pageNum=0&pageSize=100000',
 	          type: 'GET',
@@ -1469,7 +1482,7 @@
 	        	{
 	        			obj_adviserId2.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
 	        	}
-	        	obj_adviserId2.val(adviserId);   
+	        	obj_adviserId2.val(v.adviserId);   
 	        });
 	        var obj_adviserId_u1 = $("#u1");
 				  $("#u1").empty();
@@ -1492,6 +1505,7 @@
 	        });            
 	        //绑定tagId
 	        var obj_tagid= $("#tagId");
+	        $("#tagId").empty();
 			    $.ajax({
 	          url: 'user/listTag',
 	          type: 'GET',
@@ -1505,9 +1519,11 @@
 	        			var tag_id = arr_tag[item].id;
 	        			obj_tagid.append("<option value='"+tag_id+"'>"+tag_name+"</option>");
 	        	}
+	        	obj_tagid.val(v.tagId);	
 	        });	
 	        //绑定客户来源	        
 	        var obj_source = $("#t12");
+	        $("#t12").empty();
 			    $.ajax({
 	          url: 'source/listSourceRegion',
 	          type: 'GET',
@@ -1540,6 +1556,7 @@
 	        	obj_source.val(str_source);   
 	        });
 	        var obj_source1 = $("#a6");
+	        $("#a6").empty();
 			    $.ajax({
 	          url: 'source/listSourceRegion',
 	          type: 'GET',
