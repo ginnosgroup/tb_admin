@@ -41,8 +41,6 @@ public interface UserService {
 			String firstControllerContents, String visaCode, Date visaExpirationDate, String source)
 			throws ServiceException;
 
-	boolean updateAdviser(int id, int adviserId) throws ServiceException;
-
 	/**
 	 * 用户重新绑定顾问
 	 * 
