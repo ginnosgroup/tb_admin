@@ -76,13 +76,6 @@ public class UserController extends BaseController {
 			@RequestParam(value = "adviserId", required = false) String adviserId,
 			@RequestParam(value = "regionId", required = false) Integer regionId, HttpServletRequest request,
 			@RequestParam(value = "tagId", required = false) String tagId, HttpServletResponse response) {
-
-		// 更改当前顾问编号
-		Integer newAdviserId = getAdviserId(request);
-		if (newAdviserId != null)
-			adviserId = newAdviserId + "";
-		if (StringUtil.isBlank(adviserId) && !isAdminUser(request))
-			return new Response<Integer>(1, "No permission !", -1);
 		
 		List<Integer> regionIdList = null;
 		if (regionId != null && regionId > 0)
@@ -102,7 +95,12 @@ public class UserController extends BaseController {
 				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
 				for (RegionDTO region : regionList)
 					regionIdList.add(region.getId());
-				adviserId = null;
+			} else {
+				Integer newAdviserId = getAdviserId(request);
+				if (newAdviserId != null)
+					adviserId = newAdviserId + "";
+				if (StringUtil.isBlank(adviserId) && !isAdminUser(request))
+					return new Response<Integer>(1, "No permission !", -1);
 			}
 			int count = userService.countUser(name, authTypeEnum, authNickname, phone, wechatUsername,
 					StringUtil.toInt(adviserId), regionIdList, StringUtil.toInt(tagId));
@@ -136,13 +134,6 @@ public class UserController extends BaseController {
 			@RequestParam(value = "isDesc", required = false) String isDesc,
 			@RequestParam(value = "tagId", required = false) String tagId, @RequestParam(value = "pageNum") int pageNum,
 			@RequestParam(value = "pageSize") int pageSize, HttpServletRequest request, HttpServletResponse response) {
-
-		// 更改当前顾问编号
-		Integer newAdviserId = getAdviserId(request);
-		if (newAdviserId != null)
-			adviserId = newAdviserId + "";
-		if (StringUtil.isBlank(adviserId) && !isAdminUser(request))
-			return new Response<List<UserDTO>>(1, "No permission !", null);
 		
 		List<Integer> regionIdList = null;
 		if (regionId != null && regionId > 0)
@@ -162,7 +153,12 @@ public class UserController extends BaseController {
 				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
 				for (RegionDTO region : regionList)
 					regionIdList.add(region.getId());
-				adviserId = null;
+			} else {
+				Integer newAdviserId = getAdviserId(request);
+				if (newAdviserId != null)
+					adviserId = newAdviserId + "";
+				if (StringUtil.isBlank(adviserId) && !isAdminUser(request))
+					return new Response<List<UserDTO>>(1, "No permission !", null);
 			}
 			List<UserDTO> list = userService.listUser(name, authTypeEnum, authNickname, phone, wechatUsername,
 					StringUtil.toInt(adviserId), regionIdList, StringUtil.toInt(tagId), orderByField,
