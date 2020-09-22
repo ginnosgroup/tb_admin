@@ -13,17 +13,17 @@ public interface UserService {
 			int regionId) throws ServiceException;
 
 	public int countUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
-			String wechatUsername, int adviserId, int regionId, Integer tagId) throws ServiceException;
+			String wechatUsername, int adviserId, List<Integer> regionIdList, Integer tagId) throws ServiceException;
 
 	public int countUserByThisMonth(Integer adviserId) throws ServiceException;
 
-	public List<UserDTO> listUser(String name, UserAuthTypeEnum authType,
-			String authNickname, String phone,
-			String wechatUsername, int adviserId, int regionId, int pageNum, int pageSize) throws ServiceException;
+	public List<UserDTO> listUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
+			String wechatUsername, int adviserId, List<Integer> regionIdList, int pageNum, int pageSize)
+			throws ServiceException;
 
 	public List<UserDTO> listUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
-			String wechatUsername, int adviserId, int regionId, Integer tagId, String orderByField, Boolean isDesc,
-			int pageNum, int pageSize) throws ServiceException;
+			String wechatUsername, int adviserId, List<Integer> regionIdList, Integer tagId, String orderByField,
+			Boolean isDesc, int pageNum, int pageSize) throws ServiceException;
 
 	public UserDTO getUserById(int id) throws ServiceException;
 

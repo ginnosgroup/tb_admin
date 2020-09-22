@@ -79,13 +79,13 @@ public class UserServiceImpl extends BaseService implements UserService {
 
 	@Override
 	public int countUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
-			String wechatUsername, int adviserId, int regionId, Integer tagId) throws ServiceException {
+			String wechatUsername, int adviserId, List<Integer> regionIdList, Integer tagId) throws ServiceException {
 		if (authType == null) {
 			return userDao.countUser(name, null, authNickname, phone, wechatUsername, adviserId <= 0 ? null : adviserId,
-					regionId <= 0 ? null : regionId, tagId);
+					regionIdList, tagId);
 		} else {
 			return userDao.countUser(name, authType.toString(), authNickname, phone, wechatUsername,
-					adviserId <= 0 ? null : adviserId, regionId <= 0 ? null : regionId, tagId);
+					adviserId <= 0 ? null : adviserId, regionIdList, tagId);
 		}
 	}
 
@@ -96,15 +96,16 @@ public class UserServiceImpl extends BaseService implements UserService {
 
 	@Override
 	public List<UserDTO> listUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
-			String wechatUsername, int adviserId, int regionId, int pageNum, int pageSize) throws ServiceException {
-		return listUser(name, authType, authNickname, phone, wechatUsername, adviserId, regionId, null, "gmt_create",
-				true, pageNum, pageSize);
+			String wechatUsername, int adviserId, List<Integer> regionIdList, int pageNum, int pageSize)
+			throws ServiceException {
+		return listUser(name, authType, authNickname, phone, wechatUsername, adviserId, regionIdList, null,
+				"gmt_create", true, pageNum, pageSize);
 	}
 
 	@Override
 	public List<UserDTO> listUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
-			String wechatUsername, int adviserId, int regionId, Integer tagId, String orderByField, Boolean isDesc,
-			int pageNum, int pageSize) throws ServiceException {
+			String wechatUsername, int adviserId, List<Integer> regionIdList, Integer tagId, String orderByField,
+			Boolean isDesc, int pageNum, int pageSize) throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
 		}
@@ -127,11 +128,11 @@ public class UserServiceImpl extends BaseService implements UserService {
 		try {
 			if (authType == null) {
 				userDoList = userDao.listUser(name, null, authNickname, phone, wechatUsername,
-						adviserId <= 0 ? null : adviserId, regionId <= 0 ? null : regionId, tagId, orderByField, isDesc,
+						adviserId <= 0 ? null : adviserId, regionIdList, tagId, orderByField, isDesc,
 						pageNum * pageSize, pageSize);
 			} else {
 				userDoList = userDao.listUser(name, authType.toString(), authNickname, phone, wechatUsername,
-						adviserId <= 0 ? null : adviserId, regionId <= 0 ? null : regionId, tagId, orderByField, isDesc,
+						adviserId <= 0 ? null : adviserId, regionIdList, tagId, orderByField, isDesc,
 						pageNum * pageSize, pageSize);
 			}
 			if (userDoList == null) {

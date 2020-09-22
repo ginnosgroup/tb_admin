@@ -69,8 +69,11 @@
         <if test='adviserId != null'>
             AND adviser_id = #{adviserId}
         </if>
-        <if test='regionId != null and regionId != ""'>
-            AND u.region_id = #{regionId}
+        <if test='regionIdList != null'>
+            AND u.region_id IN
+            <foreach collection="regionIdList" item="regionIdList" index="index" open="(" close=")" separator=",">
+                #{regionIdList}
+            </foreach>
         </if>
         <if test='tagId != null and tagId != ""'>
             AND ut.tag_id = #{tagId}
@@ -125,8 +128,11 @@
         <if test='adviserId != null and adviserId != ""'>
             AND u.adviser_id = #{adviserId}
         </if>
-        <if test='regionId != null and regionId != ""'>
-            AND u.region_id = #{regionId}
+        <if test='regionIdList != null'>
+            AND u.region_id IN
+            <foreach collection="regionIdList" item="regionIdList" index="index" open="(" close=")" separator=",">
+                #{regionIdList}
+            </foreach>
         </if>
         <if test='tagId != null and tagId != ""'>
             AND ut.tag_id = #{tagId}
