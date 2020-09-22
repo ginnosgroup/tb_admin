@@ -162,6 +162,7 @@ public class UserController extends BaseController {
 				for (RegionDTO region : regionList)
 					regionIdList.add(region.getId());
 			}
+System.out.println("adviserId:" + adviserId + ", regionIdList:" + regionIdList);
 			List<UserDTO> list = userService.listUser(name, authTypeEnum, authNickname, phone, wechatUsername,
 					StringUtil.toInt(adviserId), regionIdList, StringUtil.toInt(tagId), orderByField,
 					Boolean.parseBoolean(StringUtil.isEmpty(isDesc) ? "false" : isDesc), pageNum, pageSize);
