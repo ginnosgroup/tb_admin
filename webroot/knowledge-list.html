@@ -100,6 +100,8 @@
                 </span>
               </a>
             </li>
+            </dli>
+            <dli v-if="ap_list==='SUPERAD' || (ap_list==='WA' && wa_admin === 'true')">
             <li>
               <a href="official.html">
                 <i class="fa fa-book">
@@ -109,6 +111,8 @@
                 </span>
               </a>
             </li>
+            </dli>
+            <dli v-if="ap_list==='SUPERAD'">
             <li>
               <a href="mara.html">
                 <i class="fa fa-book">
@@ -127,6 +131,8 @@
                 </span>
               </a>
             </li>
+            </dli>
+          	<dli v-if="ap_list==='SUPERAD' || (ap_list==='GW' && gw_regionid !== 'null')">
             <li class="sub-menu">
 							<a href="javascript:;">
 								<i class="fa fa-book">
@@ -136,7 +142,7 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li>
+								<li v-if="ap_list==='SUPERAD'">
 									<a href="school.html">
 										学校管理
 									</a>
@@ -148,6 +154,8 @@
 								</li>								
 							</ul>
 						</li>
+						</dli>
+						<dli v-if="ap_list==='SUPERAD'">
             <li>
               <a href="receive-type.html">
                 <i class="fa fa-book">
@@ -513,6 +521,8 @@
 					admin: sessionStorage.getItem("admin"),
 					admin_id: sessionStorage.getItem("admin_id"),
 					ap_list: sessionStorage.getItem("ap_list"),
+					gw_regionid: sessionStorage.getItem("gw_regionid"),
+					wa_admin: sessionStorage.getItem("wa_admin"),
 					menu_id: getRequest('menu_id'),
 					menu_name: '',
 					allSort: [],

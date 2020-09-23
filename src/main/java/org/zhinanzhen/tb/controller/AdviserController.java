@@ -17,9 +17,13 @@ import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.tb.service.AdminUserService;
 import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.AdviserStateEnum;
+import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
+import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
+import org.zhinanzhen.tb.service.pojo.RegionDTO;
 
+import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.core.utils.StringUtil;
 
 @Controller
@@ -32,6 +36,9 @@ public class AdviserController extends BaseController {
 
 	@Resource
 	AdminUserService adminUserService;
+	
+	@Resource
+	RegionService regionService;
 
 	@RequestMapping(value = "/upload_img", method = RequestMethod.POST)
 	@ResponseBody
@@ -91,12 +98,12 @@ public class AdviserController extends BaseController {
 			@RequestParam(value = "email", required = false) String email,
 			@RequestParam(value = "state", required = false) String state,
 			@RequestParam(value = "imageUrl", required = false) String imageUrl,
-			@RequestParam(value = "regionId", required = false) Integer regionId, HttpServletRequest request,
+			@RequestParam(value = "regionId", required = false) Integer regionId,
+			@RequestParam(value = "adminRegionId", required = false) Integer adminRegionId, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			AdviserDTO adviserDto = new AdviserDTO();
-			adviserDto.setId(id);
+			AdviserDTO adviserDto = adviserService.getAdviserById(id);
 			if (StringUtil.isNotEmpty(name)) {
 				adviserDto.setName(name);
 			}
@@ -116,9 +123,15 @@ public class AdviserController extends BaseController {
 				adviserDto.setRegionId(regionId);
 			}
 			if (adviserService.updateAdviser(adviserDto) > 0) {
+				AdminUserDTO adminUser = adminUserService.getAdminUserByUsername(adviserDto.getEmail());
+				if (adminUser != null)
+					adminUserService.updateRegionId(adminUser.getId(), adminRegionId);
+				else
+					return new Response<AdviserDTO>(0, "顾问修改成功,但修改顾问管理员区域失败.(没有找到管理员帐号:" + adviserDto.getEmail() + ")",
+							null);
 				return new Response<AdviserDTO>(0, adviserDto);
 			} else {
-				return new Response<AdviserDTO>(0, "修改失败.", null);
+				return new Response<AdviserDTO>(1, "修改失败.", null);
 			}
 		} catch (ServiceException e) {
 			return new Response<AdviserDTO>(e.getCode(), e.getMessage(), null);
@@ -131,7 +144,16 @@ public class AdviserController extends BaseController {
 			@RequestParam(value = "regionId", required = false) Integer regionId, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<Integer>(0, adviserService.countAdviser(name, regionId));
+
+			List<Integer> regionIdList = null;
+			if (regionId != null && regionId > 0) {
+				regionIdList = ListUtil.buildArrayList(regionId);
+				List<RegionDTO> regionList = regionService.listRegion(regionId);
+				for (RegionDTO region : regionList)
+					regionIdList.add(region.getId());
+			}
+
+			return new Response<Integer>(0, adviserService.countAdviser(name, regionIdList));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -145,7 +167,16 @@ public class AdviserController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<List<AdviserDTO>>(0, adviserService.listAdviser(name, regionId, pageNum, pageSize));
+
+			List<Integer> regionIdList = null;
+			if (regionId != null && regionId > 0) {
+				regionIdList = ListUtil.buildArrayList(regionId);
+				List<RegionDTO> regionList = regionService.listRegion(regionId);
+				for (RegionDTO region : regionList)
+					regionIdList.add(region.getId());
+			}
+			
+			return new Response<List<AdviserDTO>>(0, adviserService.listAdviser(name, regionIdList, pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<AdviserDTO>>(1, e.getMessage(), null);
 		}

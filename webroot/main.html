@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 	<head>
@@ -106,6 +106,8 @@
                 </span>
               </a>
             </li>
+            </dli>
+            <dli v-if="ap_list==='SUPERAD' || (ap_list==='WA' && wa_admin === 'true')"> 
             <li>
               <a href="official.html">
                 <i class="fa fa-book">
@@ -115,6 +117,8 @@
                 </span>
               </a>
             </li>
+            </dli>
+            <dli v-if="ap_list==='SUPERAD'"> 
             <li>
               <a href="mara.html">
                 <i class="fa fa-book">
@@ -133,6 +137,8 @@
                 </span>
               </a>
             </li>
+          	</dli>
+          	<dli v-if="ap_list==='SUPERAD' || (ap_list==='GW' && gw_regionid !== 'null')">
             <li class="sub-menu">
 							<a href="javascript:;">
 								<i class="fa fa-book">
@@ -142,7 +148,7 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li>
+								<li v-if="ap_list==='SUPERAD'">
 									<a href="school.html">
 										学校管理
 									</a>
@@ -154,6 +160,8 @@
 								</li>								
 							</ul>
 						</li>
+						</dli>
+						<dli v-if="ap_list==='SUPERAD'">
             <li>
               <a href="receive-type.html">
                 <i class="fa fa-book">
@@ -512,9 +520,9 @@
                      </thead>
                      <tbody>
                         <tr v-for="item in subject2">
-                           <td v-html="item.brokerageSaId"></td>
+                           <td v-html="item.visaExpirationDate" style="color:#ff6c60;"></td>
                            <td v-html="item.userName"></td>
-                           <td></td>
+                           <td><a href="javascript:show_detail({{item.id}});">查看详细</a></td>
                         </tr>                        
                      </tbody>
                   </table>
@@ -574,6 +582,8 @@
 				data: {
 					admin: sessionStorage.getItem("admin"),
 					ap_list: sessionStorage.getItem("ap_list"),
+					gw_regionid: sessionStorage.getItem("gw_regionid"),
+					wa_admin: sessionStorage.getItem("wa_admin"),
 					subject: [],
 					subject1: [],	
 					subject2: [],
@@ -585,36 +595,9 @@
 				},created: function() {
 					this.getDatalist();
 					this.getDatalist1();
-					//this.getDatalist2();
+					this.getDatalist2();
 					this.getDatalist4();
-					this.getMenulist();
-				},methods: {
-			    getMenulist: function() {
-						var that = this;
-						$.ajaxSettings.async = false; 
-						$.get(url + "knowledge/listMenu", {
-							knowledgeMenuId: 0						
-						}, function(result) {
-							var str_html = '';																					
-							var menu_list = result.data;
-							for(var i = 0; i < menu_list.length; i++) {
-									str_html += '<li class="sub-menu"><a href="javascript:;" class="active">'+ menu_list[i].name +'</a>';									
-									$.get(url + "knowledge/listMenu", {
-										knowledgeMenuId: menu_list[i].id
-									}, function(result) {
-										var data_list = result.data;
-										str_html += '<ul class="sub">';
-										for(var j = 0; j < data_list.length; j++) {
-												str_html += '<li><a href="javascript:show_knowledge_detail('+data_list[j].id+')">'+data_list[j].name+'</a></li>';
-										}
-										str_html += '</ul>';							
-									});
-							}
-							localStorage.removeItem('str_html');
-							localStorage.setItem("str_html", str_html);
-							console.log(localStorage.getItem("str_html"))
-						});
-					},								
+				},methods: {			    								
 					getDatalist: function() {
 						var that = this;																
 						var myDate = new Date();
@@ -665,16 +648,13 @@
   					var date = new Date(str_date);
 			    	var current_tp = date.getTime();
 			    	//current_tp = 2000000000000;//临时使用		
-						$.get(url + "brokerageSaRemind/listByDate?date="+current_tp, {							
+						$.get(url + "visaRemind/listVisaRemindDateDesc?pageNum=1&pageSize=10", {							
 						}, function(result) {
 							console.log(result)
 							for(var i = 0; i < result.data.length; i++) {									
-									result.data[i].id = result.data[i].id;
-									//result.data[i].userName = result.data[i].brokerageSa.userName;
-									result.data[i].userName = '<a href="javascript:;" onclick="show_detail('+result.data[i].brokerageSa.userId+');">'+result.data[i].brokerageSa.userName+'</a>';
-									result.data[i].phone = result.data[i].brokerageSa.phone;
-									result.data[i].handlingDate = that.getTime(result.data[i].brokerageSa.handlingDate);								
-									result.data[i].remindDate = that.getTime(result.data[i].remindDate);
+									//result.data[i].id = result.data[i].id;
+									result.data[i].userName = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].name+'</a>';
+									result.data[i].visaExpirationDate = that.getTime(result.data[i].visa_expiration_date);
 							};
 							that.subject2 = result.data;
 							console.log(that.subject2);

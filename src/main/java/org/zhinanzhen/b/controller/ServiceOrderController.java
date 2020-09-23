@@ -26,6 +26,7 @@ import org.zhinanzhen.b.service.pojo.MaraDTO;
 import org.zhinanzhen.b.service.pojo.OfficialDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderCommentDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
+import org.zhinanzhen.b.service.pojo.ServiceOrderOfficialRemarksDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
 import org.zhinanzhen.b.service.pojo.ServicePackageDTO;
 import org.zhinanzhen.tb.controller.BaseController;
@@ -323,8 +324,8 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "remarks", required = false) String remarks,
 			@RequestParam(value = "closedReason", required = false) String closedReason, HttpServletRequest request,
 			HttpServletResponse response) {
-		if (getOfficialAdminId(request) != null)
-			return new Response<Integer>(1, "文案管理员不可操作服务订单.", 0);
+//		if (getOfficialAdminId(request) != null)
+//			return new Response<Integer>(1, "文案管理员不可操作服务订单.", 0);
 		try {
 			super.setPostHeader(response);
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
@@ -557,11 +558,8 @@ public class ServiceOrderController extends BaseController {
 		}
 		Integer newOfficialId = getOfficialId(request);
 		if (newOfficialId != null) {
-			officialId = newOfficialId;
-			excludeState = ReviewAdviserStateEnum.PENDING.toString();
-		}
-		if (getOfficialAdminId(request) != null) {
-			officialId = null; // 文案管理员可以查看所有文案数据
+			if (getOfficialAdminId(request) == null)
+				officialId = newOfficialId; // 非文案管理员就只显示自己的单子
 			excludeState = ReviewAdviserStateEnum.PENDING.toString();
 		}
 
@@ -580,6 +578,7 @@ public class ServiceOrderController extends BaseController {
 				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
 				for (RegionDTO region : regionList)
 					regionIdList.add(region.getId());
+				adviserId = null;
 			}
 
 			if (id != null && id > 0) {
@@ -640,11 +639,8 @@ public class ServiceOrderController extends BaseController {
 		}
 		Integer newOfficialId = getOfficialId(request);
 		if (newOfficialId != null) {
-			officialId = newOfficialId;
-			excludeState = ReviewAdviserStateEnum.PENDING.toString();
-		}
-		if (getOfficialAdminId(request) != null) {
-			officialId = null; // 文案管理员可以查看所有文案数据
+			if (getOfficialAdminId(request) == null)
+				officialId = newOfficialId; // 非文案管理员就只显示自己的单子
 			excludeState = ReviewAdviserStateEnum.PENDING.toString();
 		}
 
@@ -662,6 +658,7 @@ public class ServiceOrderController extends BaseController {
 				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
 				for (RegionDTO region : regionList)
 					regionIdList.add(region.getId());
+				adviserId = null;
 			}
 
 			if (id != null && id > 0) {
@@ -671,12 +668,17 @@ public class ServiceOrderController extends BaseController {
 					list.add(serviceOrder);
 				return new Response<List<ServiceOrderDTO>>(0, list);
 			}
+			
+			List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(type, excludeState, stateList, auditingState, reviewStateList,
+					startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
+					endOfficialApprovalDate, regionIdList, userId, maraId, adviserId, officialId, 0,
+					isNotApproved != null ? isNotApproved : false, pageNum, pageSize);
 
-			return new Response<List<ServiceOrderDTO>>(0,
-					serviceOrderService.listServiceOrder(type, excludeState, stateList, auditingState, reviewStateList,
-							startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
-							endOfficialApprovalDate, regionIdList, userId, maraId, adviserId, officialId, 0,
-							isNotApproved != null ? isNotApproved : false, pageNum, pageSize));
+			if (newOfficialId != null)
+				for (ServiceOrderDTO so : serviceOrderList)
+					so.setOfficialNotes(serviceOrderService.listOfficialRemarks(so.getId(), newOfficialId)); // 写入note
+			
+			return new Response<List<ServiceOrderDTO>>(0, serviceOrderList);
 		} catch (ServiceException e) {
 			return new Response<List<ServiceOrderDTO>>(1, e.getMessage(), null);
 		}
@@ -684,10 +686,14 @@ public class ServiceOrderController extends BaseController {
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<ServiceOrderDTO> getServiceOrder(@RequestParam(value = "id") int id, HttpServletResponse response) {
+	public Response<ServiceOrderDTO> getServiceOrder(@RequestParam(value = "id") int id, HttpServletRequest request,
+			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<ServiceOrderDTO>(0, serviceOrderService.getServiceOrderById(id));
+			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
+			if (getAdminUserLoginInfo(request) != null && getOfficialId(request) != null)
+				serviceOrderDto.setOfficialNotes(serviceOrderService.listOfficialRemarks(id, getOfficialId(request))); // 写入文案note
+			return new Response<ServiceOrderDTO>(0, serviceOrderDto);
 		} catch (ServiceException e) {
 			return new Response<ServiceOrderDTO>(1, e.getMessage(), null);
 		}
@@ -1095,5 +1101,94 @@ public class ServiceOrderController extends BaseController {
 			return new Response<Integer>(1, e.getMessage(), 0);
 		}
 	}
+	
+	//
+	
+	@RequestMapping(value = "/addOfficialRemarks", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> addOfficialRemarks(@RequestParam(value = "serviceOrderId") Integer serviceOrderId,
+			@RequestParam(value = "content") String content, HttpServletRequest request, HttpServletResponse response) {
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo != null)
+			if (adminUserLoginInfo == null || !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					|| adminUserLoginInfo.getOfficialId() == null)
+				return new Response<Integer>(1, "仅限文案操作.", null);
+		try {
+			super.setPostHeader(response);
+			ServiceOrderDTO serviceOrder = serviceOrderService.getServiceOrderById(serviceOrderId);
+			if (serviceOrder == null)
+				return new Response<Integer>(1, "服务订单为空.", 0);
+			ServiceOrderOfficialRemarksDTO serviceOrderOfficialRemarksDto = new ServiceOrderOfficialRemarksDTO();
+			serviceOrderOfficialRemarksDto.setOfficialId(adminUserLoginInfo.getOfficialId());
+			serviceOrderOfficialRemarksDto.setServiceOrderId(serviceOrderId);
+			serviceOrderOfficialRemarksDto.setContent(content);
+			if (serviceOrderService.addOfficialRemarks(serviceOrderOfficialRemarksDto) > 0)
+				return new Response<Integer>(0, serviceOrderOfficialRemarksDto.getId());
+			else
+				return new Response<Integer>(1, "创建失败.", 0);
+		} catch (ServiceException e) {
+			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
+		}
+	}
+	
+	@RequestMapping(value = "/updateOfficialRemarks", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> updateOfficialRemarks(@RequestParam(value = "id") Integer id, @RequestParam(value = "content") String content,
+			HttpServletRequest request, HttpServletResponse response) {
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo != null)
+			if (adminUserLoginInfo == null || !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					|| adminUserLoginInfo.getOfficialId() == null)
+				return new Response<Integer>(1, "仅限文案操作.", null);
+		try {
+			super.setPostHeader(response);
+			ServiceOrderOfficialRemarksDTO serviceOrderOfficialRemarksDto = new ServiceOrderOfficialRemarksDTO();
+			serviceOrderOfficialRemarksDto.setId(id);
+			serviceOrderOfficialRemarksDto.setOfficialId(adminUserLoginInfo.getOfficialId());
+			serviceOrderOfficialRemarksDto.setContent(content);
+			if (serviceOrderService.updateOfficialRemarks(serviceOrderOfficialRemarksDto) > 0)
+				return new Response<Integer>(0, serviceOrderOfficialRemarksDto.getId());
+			else
+				return new Response<Integer>(1, "修改失败.", 0);
+		} catch (ServiceException e) {
+			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
+		}
+	}
 
+	@RequestMapping(value = "/listOfficialRemarks", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<ServiceOrderOfficialRemarksDTO>> listOfficialRemarks(
+			@RequestParam(value = "serviceOrderId") Integer serviceOrderId, HttpServletRequest request,
+			HttpServletResponse response) {
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo != null)
+			if (adminUserLoginInfo == null || !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					|| adminUserLoginInfo.getOfficialId() == null)
+				return new Response<List<ServiceOrderOfficialRemarksDTO>>(1, "仅限文案操作.", null);
+		try {
+			super.setGetHeader(response);
+			return new Response<List<ServiceOrderOfficialRemarksDTO>>(0,
+					serviceOrderService.listOfficialRemarks(serviceOrderId, adminUserLoginInfo.getOfficialId()));
+		} catch (ServiceException e) {
+			return new Response<List<ServiceOrderOfficialRemarksDTO>>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/deleteOfficialRemarks", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> deleteOfficialRemarks(@RequestParam(value = "id") int id, HttpServletRequest request,
+			HttpServletResponse response) {
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo != null)
+			if (adminUserLoginInfo == null || !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					|| adminUserLoginInfo.getOfficialId() == null)
+				return new Response<Integer>(1, "仅限文案操作.", null);
+		try {
+			super.setGetHeader(response);
+			return new Response<Integer>(0, serviceOrderService.deleteServiceOrderOfficialRemarksDTO(id));
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), 0);
+		}
+	}
+	
 }

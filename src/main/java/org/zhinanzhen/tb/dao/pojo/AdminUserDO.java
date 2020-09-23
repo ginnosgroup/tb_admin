@@ -20,10 +20,12 @@ public class AdminUserDO {
 	private Integer maraId;
 
 	private Integer officialId;
-	
+
 	private Integer kjId;
-	
+
 	private Integer regionId;
+
+	private boolean isOfficialAdmin;
 
 	private String sessionId;
 

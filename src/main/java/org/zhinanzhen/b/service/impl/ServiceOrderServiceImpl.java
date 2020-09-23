@@ -17,6 +17,7 @@ import org.zhinanzhen.b.dao.SchoolDAO;
 import org.zhinanzhen.b.dao.ServiceDAO;
 import org.zhinanzhen.b.dao.ServiceOrderCommentDAO;
 import org.zhinanzhen.b.dao.ServiceOrderDAO;
+import org.zhinanzhen.b.dao.ServiceOrderOfficialRemarksDAO;
 import org.zhinanzhen.b.dao.ServiceOrderReviewDAO;
 import org.zhinanzhen.b.dao.ServicePackageDAO;
 import org.zhinanzhen.b.dao.SubagencyDAO;
@@ -28,12 +29,13 @@ import org.zhinanzhen.b.dao.pojo.SchoolDO;
 import org.zhinanzhen.b.dao.pojo.ServiceDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderCommentDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
+import org.zhinanzhen.b.dao.pojo.ServiceOrderOfficialRemarksDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderReviewDO;
 import org.zhinanzhen.b.dao.pojo.ServicePackageDO;
 import org.zhinanzhen.b.dao.pojo.SubagencyDO;
 import org.zhinanzhen.b.service.ServiceOrderService;
-import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
+import org.zhinanzhen.b.service.pojo.ServiceOrderOfficialRemarksDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
 import org.zhinanzhen.b.service.pojo.ServicePackageDTO;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
@@ -46,7 +48,6 @@ import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
-import org.zhinanzhen.tb.utils.MailUtil;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
 import org.zhinanzhen.b.service.pojo.ChildrenServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.MaraDTO;
@@ -103,6 +104,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
 	@Resource
 	private CommissionOrderDAO commissionOrderDao;
+	
+	@Resource
+	private ServiceOrderOfficialRemarksDAO serviceOrderOfficialRemarksDao;
 
 	@Resource
 	private VisaDAO visaDao;
@@ -192,10 +196,10 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		if (pageSize < 0)
 			pageSize = DEFAULT_PAGE_SIZE;
 		try {
-			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, excludeState, stateList, auditingState, reviewStateList,
-					startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate,
-					regionIdList, userId, maraId, adviserId, officialId, parentId, isNotApproved, pageNum * pageSize,
-					pageSize);
+			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, excludeState, stateList, auditingState,
+					reviewStateList, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
+					endOfficialApprovalDate, regionIdList, userId, maraId, adviserId, officialId, parentId,
+					isNotApproved, pageNum * pageSize, pageSize);
 			if (serviceOrderDoList == null)
 				return null;
 		} catch (Exception e) {
@@ -611,6 +615,84 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		}
 		try {
 			return serviceOrderCommentDao.delete(id);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
+	public int addOfficialRemarks(ServiceOrderOfficialRemarksDTO serviceOrderOfficialRemarksDto)
+			throws ServiceException {
+		if (serviceOrderOfficialRemarksDto == null) {
+			ServiceException se = new ServiceException("serviceOrderOfficialRemarksDto is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			ServiceOrderOfficialRemarksDO serviceOrderOfficialRemarksDo = mapper.map(serviceOrderOfficialRemarksDto,
+					ServiceOrderOfficialRemarksDO.class);
+			if (serviceOrderOfficialRemarksDao.add(serviceOrderOfficialRemarksDo) > 0)
+				return serviceOrderOfficialRemarksDo.getId();
+			else
+				return 0;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+	
+	@Override
+	public int updateOfficialRemarks(ServiceOrderOfficialRemarksDTO serviceOrderOfficialRemarksDto)
+			throws ServiceException {
+		if (serviceOrderOfficialRemarksDto == null) {
+			ServiceException se = new ServiceException("serviceOrderOfficialRemarksDto is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			if (serviceOrderOfficialRemarksDao
+					.update(mapper.map(serviceOrderOfficialRemarksDto, ServiceOrderOfficialRemarksDO.class)) > 0)
+				return serviceOrderOfficialRemarksDto.getId();
+			else
+				return 0;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
+	public List<ServiceOrderOfficialRemarksDTO> listOfficialRemarks(int id, int officialId) throws ServiceException {
+		List<ServiceOrderOfficialRemarksDTO> serviceOrderOfficialRemarksDtoList = new ArrayList<>();
+		List<ServiceOrderOfficialRemarksDO> serviceOrderOfficialRemarksDoList = new ArrayList<>();
+		try {
+			serviceOrderOfficialRemarksDoList = serviceOrderOfficialRemarksDao.list(officialId, id);
+			if (serviceOrderOfficialRemarksDoList == null)
+				return null;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+		for (ServiceOrderOfficialRemarksDO serviceOrderOfficialRemarksDo : serviceOrderOfficialRemarksDoList)
+			serviceOrderOfficialRemarksDtoList
+					.add(mapper.map(serviceOrderOfficialRemarksDo, ServiceOrderOfficialRemarksDTO.class));
+		return serviceOrderOfficialRemarksDtoList;
+	}
+
+	@Override
+	public int deleteServiceOrderOfficialRemarksDTO(int id) throws ServiceException {
+		if (id <= 0) {
+			ServiceException se = new ServiceException("id error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			return serviceOrderOfficialRemarksDao.delete(id);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());

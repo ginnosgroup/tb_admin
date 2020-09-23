@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.zhinanzhen.b.service.pojo.ServiceOrderCommentDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
+import org.zhinanzhen.b.service.pojo.ServiceOrderOfficialRemarksDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 
@@ -45,4 +46,12 @@ public interface ServiceOrderService {
 	List<ServiceOrderCommentDTO> listComment(int id) throws ServiceException;
 
 	int deleteComment(int id) throws ServiceException;
+
+	int addOfficialRemarks(ServiceOrderOfficialRemarksDTO serviceOrderOfficialRemarksDto) throws ServiceException;
+	
+	int updateOfficialRemarks(ServiceOrderOfficialRemarksDTO serviceOrderOfficialRemarksDto) throws ServiceException;
+
+	List<ServiceOrderOfficialRemarksDTO> listOfficialRemarks(int id, int officialId) throws ServiceException;
+
+	int deleteServiceOrderOfficialRemarksDTO(int id) throws ServiceException;
 }

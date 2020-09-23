@@ -108,7 +108,7 @@ CREATE TABLE `tb_user` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
-  `name` varchar(32) NOT NULL COMMENT '名称',
+  `name` varchar(64) NOT NULL COMMENT '名称',
   `birthday` datetime NOT NULL COMMENT '生日',
   `phone` varchar(16) DEFAULT NULL COMMENT '电话号码',
   `email` varchar(128) NOT NULL COMMENT '邮箱',
@@ -164,12 +164,13 @@ CREATE TABLE `tb_admin_user` (
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `username` varchar(32) NOT NULL COMMENT '管理员账户名称',
   `password` varchar(32) NOT NULL COMMENT '登录密码 (MD5加密)',
-  `ap_list` varchar(128) DEFAULT NULL COMMENT '权限列表 (KJ:会计,GW:顾问,MA:Mara,WA:文案,AD:管理员,WAAD:文案管理员,TGAD:团购管理员,SUPERAD:超级管理员)',
+  `ap_list` varchar(128) DEFAULT NULL COMMENT '权限列表 (KJ:会计,GW:顾问,MA:Mara,WA:文案,AD:管理员,TGAD:团购管理员,SUPERAD:超级管理员)',
   `adviser_id` int DEFAULT NULL COMMENT '所属顾问编号 (对应tb_adviser.id)',
   `mara_id` int DEFAULT NULL COMMENT '所属Mara编号 (对应b_mara.id)',
   `official_id` int DEFAULT NULL COMMENT '所属文案编号 (对应b_official.id)',
   `kj_id` int DEFAULT NULL COMMENT '所属会计编号 (对应b_kj.id)',
-`region_id` int NOT NULL COMMENT '所属区域编号 (对应tb_region.id,不为空就是顾问管理员)'
+`region_id` int NOT NULL COMMENT '所属区域编号 (对应tb_region.id,不为空就是顾问管理员)',
+`is_official_admin` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否为文案管理员',
   `session_id` varchar(255) DEFAULT NULL COMMENT '当前session_id值',
   `gmt_login` datetime NOT NULL COMMENT '最后登录时间',
   `login_ip` varchar(50) NOT NULL COMMENT '最后登录IP',
@@ -188,7 +189,7 @@ CREATE TABLE `b_visa` (
   `user_id` int NOT NULL COMMENT '用户编号 (对应tb_user.id)',
   `state` varchar(8) NOT NULL COMMENT '状态',
   `commission_state` varchar(8) NOT NULL COMMENT '佣金状态(DJY:待结佣, YJY:已结佣, DZY:待追佣, YZY:已追佣)',
-`kj_approval_date` datetime DEFAULT NULL COMMENT '财务审核时间',
+  `kj_approval_date` datetime DEFAULT NULL COMMENT '财务审核时间',
   `receive_type_id` int NOT NULL COMMENT '收款方式编号(对应b_receive_type.id)',
   `receive_date` datetime NOT NULL COMMENT '收款日期',
   `service_id` int NOT NULL COMMENT '移民-服务项目编号 (对应b_service.id)',
@@ -206,7 +207,7 @@ CREATE TABLE `b_visa` (
   `per_amount` decimal(8,2) NOT NULL COMMENT '本次应收款',
   `amount` decimal(8,2) NOT NULL COMMENT '本次收款',
   `expect_amount` decimal(8,2) DEFAULT NULL COMMENT '预收业绩',
-`sure_expect_amount` decimal(8,2) DEFAULT NULL COMMENT '确认预收业绩',
+  `sure_expect_amount` decimal(8,2) DEFAULT NULL COMMENT '确认预收业绩',
   `discount` decimal(8,2) NOT NULL DEFAULT 0 COMMENT '折扣',
   `gst` decimal(8,2) NOT NULL COMMENT 'GST',
   `deduct_gst` decimal(8,2) NOT NULL COMMENT 'Deduct GST',
@@ -215,8 +216,8 @@ CREATE TABLE `b_visa` (
   `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
   `mara_id` int NOT NULL COMMENT '所属MARA编号 (对应b_mara.id)',
   `official_id` int NOT NULL COMMENT '文案编号 (对应b_official.id)',
-`bank_check` varchar(32) DEFAULT NULL COMMENT '银行对账',
-`is_checked` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否对账成功',
+  `bank_check` varchar(32) DEFAULT NULL COMMENT '银行对账',
+  `is_checked` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否对账成功',
   `remarks` text DEFAULT NULL COMMENT '备注',
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
@@ -368,8 +369,8 @@ CREATE TABLE `b_service_order` (
   `school_id` int DEFAULT NULL COMMENT '学校编号 (对应b_school.id,留学服务专用字段)',
   `state` varchar(8) NOT NULL COMMENT '状态 (PENDING:待提交审核,REVIEW:审核中,APPLY:服务申请中,COMPLETE:服务申请完成,PAID:完成-支付成功,CLOSE:关闭)',
   `review_state` varchar(8) DEFAULT NULL COMMENT '审批状态 (OFFICIAL:文案审批通过,MARA:Mara审批通过,KJ:财务审批通过)',
-`official_approval_date` datetime DEFAULT NULL COMMENT '文案审核时间',
-`mara_approval_date` datetime DEFAULT NULL COMMENT 'mara审核时间',
+  `official_approval_date` datetime DEFAULT NULL COMMENT '文案审核时间',
+  `mara_approval_date` datetime DEFAULT NULL COMMENT 'mara审核时间',
   `is_settle` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否提前扣佣 (留学服务专用字段)',
   `is_deposit_user` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否为保证金用户 (留学服务专用字段)',
   `is_submitted` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已提交 (是否已创建佣金订单)',
@@ -432,6 +433,34 @@ CREATE TABLE `b_service_order_comment` (
   `content` text NOT NULL COMMENT '内容'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
+-- 服务订单文案记录
+CREATE TABLE `b_service_order_official_remarks` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `official_id` int NOT NULL COMMENT '所属文案编号 (对应b_official.id)',
+  `service_order_id` int NOT NULL COMMENT '服务订单编号 (对应b_service_order.id)',
+  `content` text NOT NULL COMMENT '内容'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+-- 服务订单文案标签关联
+CREATE TABLE `b_service_order_official_tag` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `service_order_id` int NOT NULL COMMENT '服务订单编号 (对应b_service_order.id)',
+  `official_tag_id` int NOT NULL COMMENT '标签编号(对应b_official_tag.id)'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+-- 服务订单文案标签
+CREATE TABLE `b_official_tag` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `name` varchar(32) NOT NULL COMMENT '标签名称',
+  `colour` varchar(8) NOT NULL COMMENT '标签颜色'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
 -- 佣金订单(留学)
 CREATE TABLE `b_commission_order` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
@@ -441,7 +470,7 @@ CREATE TABLE `b_commission_order` (
   `service_order_id` int NOT NULL COMMENT '服务订单编号 (对应b_service_order.id)',
   `state` varchar(8) NOT NULL COMMENT '状态(PENDING, WAIT, REVIEW, FINISH, COMPLETE, CLOSE)',
   `commission_state` varchar(8) NOT NULL COMMENT '佣金状态(DJY:待结佣, YJY:已结佣, DZY:待追佣, YZY:已追佣)',
-`kj_approval_date` datetime DEFAULT NULL COMMENT '财务审核时间',
+  `kj_approval_date` datetime DEFAULT NULL COMMENT '财务审核时间',
   `is_settle` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否提前扣佣',
   `is_deposit_user` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否为保证金用户',
   `school_id` int NOT NULL COMMENT '学校编号 (对应b_school.id)',
@@ -471,15 +500,15 @@ CREATE TABLE `b_commission_order` (
   `per_amount` decimal(8,2) NOT NULL COMMENT '本次应收款',
   `amount` decimal(8,2) NOT NULL COMMENT '本次收款',
   `expect_amount` decimal(8,2) DEFAULT NULL COMMENT '预收业绩',
-`sure_expect_amount` decimal(8,2) DEFAULT NULL COMMENT '确认预收业绩',
+  `sure_expect_amount` decimal(8,2) DEFAULT NULL COMMENT '确认预收业绩',
   `discount` decimal(8,2) NOT NULL DEFAULT 0 COMMENT '折扣',
   `gst` decimal(8,2) NOT NULL COMMENT 'GST',
   `deduct_gst` decimal(8,2) NOT NULL COMMENT 'Deduct GST',
   `bonus` decimal(8,2) NOT NULL COMMENT '月奖金',
   `bonus_date` datetime DEFAULT NULL COMMENT '月奖金支付时间',
   `zy_date` datetime DEFAULT NULL COMMENT '追佣时间',
-`bank_check` varchar(32) DEFAULT NULL COMMENT '银行对账',
-`is_checked` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否对账成功',
+  `bank_check` varchar(32) DEFAULT NULL COMMENT '银行对账',
+  `is_checked` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否对账成功',
   `remarks` text DEFAULT NULL COMMENT '备注',
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
@@ -505,13 +534,25 @@ CREATE TABLE `b_school` (
   `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已删除'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
+-- 学校附件*
+CREATE TABLE `b_school_attachments` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `school_name` varchar(128) NOT NULL COMMENT '学校名称',
+  `contract_file_1` varchar(128) DEFAULT NULL COMMENT '合同地址1',
+  `contract_file_2` varchar(128) DEFAULT NULL COMMENT '合同地址2',
+  `contract_file_3` varchar(128) DEFAULT NULL COMMENT '合同地址3',
+  `remarks` text DEFAULT NULL COMMENT '备注'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
 -- Subagency
 CREATE TABLE `b_subagency` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `name` varchar(32) NOT NULL COMMENT '名称',
-`country` varchar(4) NOT NULL DEFAULT 'AUS' COMMENT '国家 (CHN:中国,AUS:澳大利亚)',
+  `country` varchar(4) NOT NULL DEFAULT 'AUS' COMMENT '国家 (CHN:中国,AUS:澳大利亚)',
   `commission_rate` decimal(8,2) NOT NULL COMMENT 'Commission Rate',
   `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已删除'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;

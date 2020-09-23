@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Param;
 import org.zhinanzhen.b.dao.pojo.VisaDO;
 import org.zhinanzhen.b.dao.pojo.VisaListDO;
 import org.zhinanzhen.b.dao.pojo.VisaReportDO;
+import org.zhinanzhen.b.service.pojo.UserDTO;
 
 public interface VisaDAO {
 
@@ -49,4 +50,5 @@ public interface VisaDAO {
 
 	public int deleteVisaById(int id);
 
+    List<UserDTO> listVisaRemindDateDesc(@Param("adviserId")int adviserId,@Param("pageNum") int pageNum,@Param("pageSize") int  pageSize);
 }

@@ -4,7 +4,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -754,6 +753,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
 				for (RegionDTO region : regionList)
 					regionIdList.add(region.getId());
+				adviserId = null;
 			}
 
 			return new Response<Integer>(0,
@@ -838,6 +838,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
 				for (RegionDTO region : regionList)
 					regionIdList.add(region.getId());
+				adviserId = null;
 			}
 
 			return new Response<List<CommissionOrderListDTO>>(0,
@@ -977,6 +978,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
 				for (RegionDTO region : regionList)
 					regionIdList.add(region.getId());
+				adviserId = null;
 			}
 
 			response.reset();// 清空输出流

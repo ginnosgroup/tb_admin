@@ -127,6 +127,8 @@
                 </span>
               </a>
             </li>
+            </dli>
+          	<dli v-if="ap_list==='SUPERAD' || (ap_list==='GW' && gw_regionid !== 'null')">
             <li class="sub-menu">
 							<a href="javascript:;">
 								<i class="fa fa-book">
@@ -136,7 +138,7 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li>
+								<li v-if="ap_list==='SUPERAD'">
 									<a href="school.html">
 										学校管理
 									</a>
@@ -148,6 +150,8 @@
 								</li>								
 							</ul>
 						</li>
+						</dli>
+						<dli v-if="ap_list==='SUPERAD'">
             <li>
               <a href="receive-type.html">
                 <i class="fa fa-book">
@@ -415,7 +419,7 @@
 														<td v-html="item.strState"></td>
 														<td>
 														<a href="javascript:open_detail({{item.serviceOrderId}},{{item.oid}});">查看</a>
-														<dle v-if="ap_list==='GW'">
+														<dle v-if="ap_list==='GW' && item.adviserId === current_adviserId">
 																<d1 v-if="item.currentState==='PENDING' || item.currentState==='WAIT'">
 																		<a href="javascript:reqCommissionOvst({{item.serviceOrderId}},{{item.oid}})"><span style="color:blue;">申请月奖</span></a>
 																</d1>
@@ -587,6 +591,7 @@
 					adviser_id: sessionStorage.getItem("adviser_id"),
 					official_id: sessionStorage.getItem("official_id"),
 					kj_id: sessionStorage.getItem("kj_id"),
+					current_adviserId: parseInt(sessionStorage.getItem("adviser_id")),
 					applyState : getRequest('applyState'),
 					arr_ids : getRequestId(),
 					orderId: 0,

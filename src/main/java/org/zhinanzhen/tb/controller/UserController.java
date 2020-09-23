@@ -13,12 +13,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserAuthTypeEnum;
 import org.zhinanzhen.tb.service.UserService;
+import org.zhinanzhen.tb.service.pojo.RegionDTO;
 import org.zhinanzhen.tb.service.pojo.TagDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 
+import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.core.utils.StringUtil;
 
 @Controller
@@ -28,6 +31,9 @@ public class UserController extends BaseController {
 
 	@Resource
 	UserService userService;
+	
+	@Resource
+	RegionService regionService;
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
@@ -40,17 +46,21 @@ public class UserController extends BaseController {
 			@RequestParam(value = "visaCode") String visaCode,
 			@RequestParam(value = "visaExpirationDate", required = false) String visaExpirationDate,
 			@RequestParam(value = "source") String source, @RequestParam(value = "adviserId") String adviserId,
-			HttpServletResponse response) {
+			@RequestParam(value = "regionId", required = false) String regionId, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			if (phone != null && !"".equals(phone) && userService.countUser(null, null, null, phone, null, 0) > 0)
+			if (phone != null && !"".equals(phone)
+					&& userService.countUser(null, null, null, phone, null, 0, null, null) > 0)
 				return new Response<Integer>(1, "该电话号码已被使用,添加失败.", 0);
 			if (phone == null)
 				phone = "";
+			if (regionId == null)
+				regionId = "0";
 			return new Response<Integer>(0,
 					userService.addUser(name, authNickname, new Date(Long.parseLong(birthday.trim())), phone,
 							wechatUsername, firstControllerContents, visaCode,
-							new Date(Long.parseLong(visaExpirationDate)), source, StringUtil.toInt(adviserId)));
+							new Date(Long.parseLong(visaExpirationDate)), source, StringUtil.toInt(adviserId),
+							StringUtil.toInt(regionId)));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), -1);
 		}
@@ -63,15 +73,13 @@ public class UserController extends BaseController {
 			@RequestParam(value = "authNickname", required = false) String authNickname,
 			@RequestParam(value = "phone", required = false) String phone,
 			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
-			@RequestParam(value = "adviserId", required = false) String adviserId, HttpServletRequest request,
-			HttpServletResponse response) {
-
-		// 更改当前顾问编号
-		Integer newAdviserId = getAdviserId(request);
-		if (newAdviserId != null)
-			adviserId = newAdviserId + "";
-		if (StringUtil.isBlank(adviserId) && !isAdminUser(request))
-			return new Response<Integer>(1, "No permission !", -1);
+			@RequestParam(value = "adviserId", required = false) String adviserId,
+			@RequestParam(value = "regionId", required = false) Integer regionId, HttpServletRequest request,
+			@RequestParam(value = "tagId", required = false) String tagId, HttpServletResponse response) {
+		
+		List<Integer> regionIdList = null;
+		if (regionId != null && regionId > 0)
+			regionIdList = ListUtil.buildArrayList(regionId);
 
 		try {
 			super.setGetHeader(response);
@@ -79,8 +87,23 @@ public class UserController extends BaseController {
 			if (StringUtil.isNotEmpty(authType)) {
 				authTypeEnum = UserAuthTypeEnum.get(authType);
 			}
+			// 处理顾问管理员
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
+				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
+				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
+				for (RegionDTO region : regionList)
+					regionIdList.add(region.getId());
+			} else {
+				Integer newAdviserId = getAdviserId(request);
+				if (newAdviserId != null)
+					adviserId = newAdviserId + "";
+				if (StringUtil.isBlank(adviserId) && !isAdminUser(request))
+					return new Response<Integer>(1, "No permission !", -1);
+			}
 			int count = userService.countUser(name, authTypeEnum, authNickname, phone, wechatUsername,
-					StringUtil.toInt(adviserId));
+					StringUtil.toInt(adviserId), regionIdList, StringUtil.toInt(tagId));
 			return new Response<Integer>(0, count);
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), -1);
@@ -106,17 +129,15 @@ public class UserController extends BaseController {
 			@RequestParam(value = "phone", required = false) String phone,
 			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
+			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "orderByField", required = false) String orderByField,
 			@RequestParam(value = "isDesc", required = false) String isDesc,
 			@RequestParam(value = "tagId", required = false) String tagId, @RequestParam(value = "pageNum") int pageNum,
 			@RequestParam(value = "pageSize") int pageSize, HttpServletRequest request, HttpServletResponse response) {
-
-		// 更改当前顾问编号
-		Integer newAdviserId = getAdviserId(request);
-		if (newAdviserId != null)
-			adviserId = newAdviserId + "";
-		if (StringUtil.isBlank(adviserId) && !isAdminUser(request))
-			return new Response<List<UserDTO>>(1, "No permission !", null);
+		
+		List<Integer> regionIdList = null;
+		if (regionId != null && regionId > 0)
+			regionIdList = ListUtil.buildArrayList(regionId);
 
 		try {
 			super.setGetHeader(response);
@@ -124,8 +145,23 @@ public class UserController extends BaseController {
 			if (StringUtil.isNotEmpty(authType)) {
 				authTypeEnum = UserAuthTypeEnum.get(authType);
 			}
+			// 处理顾问管理员
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
+				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
+				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
+				for (RegionDTO region : regionList)
+					regionIdList.add(region.getId());
+			} else {
+				Integer newAdviserId = getAdviserId(request);
+				if (newAdviserId != null)
+					adviserId = newAdviserId + "";
+				if (StringUtil.isBlank(adviserId) && !isAdminUser(request))
+					return new Response<List<UserDTO>>(1, "No permission !", null);
+			}
 			List<UserDTO> list = userService.listUser(name, authTypeEnum, authNickname, phone, wechatUsername,
-					StringUtil.toInt(adviserId), StringUtil.toInt(tagId), orderByField,
+					StringUtil.toInt(adviserId), regionIdList, StringUtil.toInt(tagId), orderByField,
 					Boolean.parseBoolean(StringUtil.isEmpty(isDesc) ? "false" : isDesc), pageNum, pageSize);
 			return new Response<List<UserDTO>>(0, list);
 		} catch (ServiceException e) {
@@ -171,9 +207,12 @@ public class UserController extends BaseController {
 
 	@RequestMapping(value = "/updateAdviser", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<Boolean> updateAdviserId(int id, int adviserId, HttpServletResponse response)
-			throws ServiceException {
+	public Response<Boolean> updateAdviserId(@RequestParam(value = "id") int id,
+			@RequestParam(value = "adviserId") int adviserId, HttpServletResponse response) throws ServiceException {
 		super.setPostHeader(response);
+		if (id <= 0 || adviserId <= 0)
+			return new Response<Boolean>(1, "请检查参数!");
+		// TODO: 这里或许要判断一下顾问管理员
 		return new Response<Boolean>(0, userService.updateAdviserId(adviserId, id));
 	}
 

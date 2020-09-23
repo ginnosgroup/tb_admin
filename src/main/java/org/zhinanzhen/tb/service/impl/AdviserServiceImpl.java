@@ -6,8 +6,10 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.RegionDAO;
+import org.zhinanzhen.tb.dao.pojo.AdminUserDO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.dao.pojo.RegionDO;
 import org.zhinanzhen.tb.service.AdviserService;
@@ -22,6 +24,8 @@ public class AdviserServiceImpl extends BaseService implements AdviserService {
 	private AdviserDAO adviserDao;
 	@Resource
 	private RegionDAO regionDao;
+	@Resource
+	private AdminUserDAO adminUserDao;
 	@Override
 	public int addAdviser(AdviserDTO adviserDto) throws ServiceException {
 		if (adviserDto == null) {
@@ -67,12 +71,12 @@ public class AdviserServiceImpl extends BaseService implements AdviserService {
 	}
 
 	@Override
-	public int countAdviser(String name, Integer regionId) throws ServiceException {
-		return adviserDao.countAdviser(name, regionId);
+	public int countAdviser(String name, List<Integer> regionIdList) throws ServiceException {
+		return adviserDao.countAdviser(name, regionIdList);
 	}
 
 	@Override
-	public List<AdviserDTO> listAdviser(String name, Integer regionId, int pageNum, int pageSize)
+	public List<AdviserDTO> listAdviser(String name, List<Integer> regionIdList, int pageNum, int pageSize)
 			throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
@@ -83,7 +87,7 @@ public class AdviserServiceImpl extends BaseService implements AdviserService {
 		List<AdviserDTO> adviserDtoList = new ArrayList<AdviserDTO>();
 		List<AdviserDO> adviserDoList = new ArrayList<AdviserDO>();
 		try {
-			adviserDoList = adviserDao.listAdviser(name, regionId, pageNum * pageSize, pageSize);
+			adviserDoList = adviserDao.listAdviser(name, regionIdList, pageNum * pageSize, pageSize);
 			if (adviserDoList == null) {
 				return null;
 			}
@@ -101,6 +105,13 @@ public class AdviserServiceImpl extends BaseService implements AdviserService {
 			if (regionDo != null) {
 				adviserDto.setRegionName(regionDo.getName());
 				adviserDto.setRegionDo(regionDo);
+			}
+			AdminUserDO adminUserDo = adminUserDao.getAdminUserByAdviserId(adviserDo.getId());
+			if (adminUserDo != null && adminUserDo.getRegionId() != null) {
+				adviserDto.setAdminRegionId(adminUserDo.getRegionId());
+				RegionDO adminRegionDo = regionDao.getRegionById(adminUserDo.getRegionId());
+				if (adminRegionDo != null)
+					adviserDto.setAdminRegionName(adminRegionDo.getName());
 			}
 			adviserDtoList.add(adviserDto);
 		}

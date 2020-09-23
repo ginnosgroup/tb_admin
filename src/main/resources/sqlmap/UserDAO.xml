@@ -43,7 +43,7 @@
         "",
         0,
         #{adviserId},
-        0)
+        #{regionId})
     </insert>
 
     <select id="countUser" parameterType="org.zhinanzhen.tb.dao.pojo.UserDO"
@@ -68,6 +68,15 @@
         </if>
         <if test='adviserId != null'>
             AND adviser_id = #{adviserId}
+        </if>
+        <if test='regionIdList != null'>
+            AND region_id IN
+            <foreach collection="regionIdList" item="regionIdList" index="index" open="(" close=")" separator=",">
+                #{regionIdList}
+            </foreach>
+        </if>
+        <if test='tagId != null and tagId != ""'>
+            AND ut.tag_id = #{tagId}
         </if>
         ;
     </select>
@@ -97,7 +106,8 @@
         u.auth_username AS authUsername,
         u.phone AS phone,
         u.balance AS balance,
-        u.adviser_id AS adviserId
+        u.adviser_id AS adviserId,
+        u.region_id AS regionId
         FROM tb_user u LEFT JOIN b_user_tag ut ON u.id = ut.user_id
         WHERE u.auth_type != 'V'
         <if test='name != null and name != ""'>
@@ -117,6 +127,12 @@
         </if>
         <if test='adviserId != null and adviserId != ""'>
             AND u.adviser_id = #{adviserId}
+        </if>
+        <if test='regionIdList != null'>
+            AND u.region_id IN
+            <foreach collection="regionIdList" item="regionIdList" index="index" open="(" close=")" separator=",">
+                #{regionIdList}
+            </foreach>
         </if>
         <if test='tagId != null and tagId != ""'>
             AND ut.tag_id = #{tagId}

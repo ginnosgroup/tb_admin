@@ -1,7 +1,8 @@
 ﻿<meta charset="utf-8"/>
 <div id="app_sub">
 <div class="modal fade" id="show_addnewservice1_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
-			<div class="modal-dialog" role="document" style="width:700px;">
+			<div class="modal-dialog" id="document1" role="document" style="width:1100px;">
+				<div class="col-lg-6" id="leftbox" style="width:700px;">
 				<div class="modal-content">
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -178,11 +179,15 @@
 							<button onclick="" type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
 					</div>
 				</div>
+				</div>
+				<div v-if="ap_list==='WA'" class="col-lg-1" id="tmpbox" style="width:30px;height:100px;padding-top:15px;padding-left:0px;padding-right:0px;margin-top:80px;background:#72d0eb;text-align:center;color:white;border-radius:5px 5px 5px 5px;"><a href="javascript:show_rightbox();"><span style="color:white;">N<br/>O<br/>T<br/>E</span></a></div>
+				<div class="col-lg-6" id="rightbox" style="width:400px;"></div>
 			</div>
 </div>
 
 <div class="modal fade" id="show_addnewservice2_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
-			<div class="modal-dialog" role="document" style="width:700px;">
+			<div class="modal-dialog" id="document2" role="document" style="width:1100px;">
+				<div class="col-lg-6" id="leftbox" style="width:700px;">
 				<div class="modal-content">
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -269,7 +274,8 @@
 							<div class="form-group" style="width:100%;line-height:40px;">
 									<label class="control-label"><strong>备注：</strong></label>
 									<textarea id="c16a" class="form-control" style="width:98%;display:none;"></textarea>
-									<label id="c16" style="word-break:break-all;"></label>									
+									<label id="c16" style="word-break:break-all;"></label><br/>
+									<label id="school_setting_result" style="color:#428bca;"></label>								
 							</div>							
 							<div id="show_reqcommission" v-if="flowstate_wa==='PAID' && ap_list === 'GW' && !submitted" style="width:100%;margin-bottom:10px;display:;">
 									<hr/>
@@ -435,6 +441,9 @@
 					</div>
 					</form>
 				</div>
+				</div>
+				<div v-if="ap_list==='WA'" class="col-lg-1" id="tmpbox" style="width:30px;height:100px;padding-top:15px;padding-left:0px;padding-right:0px;margin-top:80px;background:#72d0eb;text-align:center;color:white;border-radius:5px 5px 5px 5px;"><a href="javascript:show_rightbox();"><span style="color:white;">N<br/>O<br/>T<br/>E</span></a></div>
+				<div class="col-lg-6" id="rightbox" style="width:400px;"></div>
 			</div>
 </div>
 
@@ -558,6 +567,7 @@
 					</div>
 				</div>
 			</div>
+			</div>
 </div>
 
 <div class="modal fade" id="confirm_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="top:55%;">
@@ -578,7 +588,124 @@
 	</div>
 </div>
 
+<div id="wa_right_area" style="display:none;">
+		<div class="modal-content" id="note_box">
+				<div class="modal-header">
+					<button type="button" class="rhide" onclick="hide_rightbox();"><span aria-hidden="true">-</span></button>
+					<h4 class="modal-title" id="myModalLabel">Note</h4>
+				</div>
+				<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+		      <button data-dismiss="alert" class="close close-sm" type="button">
+		      <i class="fa fa-times"></i>
+		      </button>
+		      <strong id="success_info">Success! You  just achieved success.</strong>
+		  	</div>
+		  	<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+	        <button data-dismiss="alert" class="close close-sm" type="button">
+	        <i class="fa fa-times"></i>
+	        </button>
+	        <strong id="error_info"></strong>
+	      </div>
+				<div class="modal-body">
+						<textarea name="note_content" id="note_content" class="form-control" style="width:100%;height:80px;color:#797979;" placeholder="请输入内容"></textarea>
+				</div>
+				<div class="modal-footer">
+						<button onclick="saveNote();" type="button" class="btn btn-primary">保存</button>
+				</div>
+		</div>
+		<div class="modal-content" id="remind_box" style="margin-top:20px;">
+				<div class="modal-header">
+					<label class="close1" style="float: right;"><a href="javascript:$('#wa_add_remind').show();"><span style="color:black;">新增提醒</span></a></label>
+					<h4 class="modal-title" id="myModalLabel">设置提醒</h4>
+				</div>
+				<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+		      <button data-dismiss="alert" class="close close-sm" type="button">
+		      <i class="fa fa-times"></i>
+		      </button>
+		      <strong id="success_info">Success! You  just achieved success.</strong>
+		  	</div>
+		  	<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+	        <button data-dismiss="alert" class="close close-sm" type="button">
+	        <i class="fa fa-times"></i>
+	        </button>
+	        <strong id="error_info"></strong>
+	      </div>
+				<div class="modal-body">
+						<div id="wa_add_remind" style="display:none;">
+								<form class="form-horizontal" autocomplete="off">									
+								<div class="form-group">
+									<label class="col-sm-3 control-label"><strong>提醒日期</strong></label>
+									<div class="col-sm-8">
+										<input type="text" id="remind_date" class="form-control default-date-picker1" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
+									</div>
+								</div>
+								
+								<div class="form-group">
+									<label class="col-sm-3 control-label"><strong>提醒内容</strong></label>
+									<div class="col-sm-8">
+										<textarea id="remind_content" class="form-control" style="height:60px;"></textarea>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-sm-3 control-label"></label>
+									<div class="col-sm-8 text-right">												
+											<button onclick="addRemind()" type="button" class="btn btn-primary">确认</button>
+											<button type="button" class="btn btn-default" onclick="$('#wa_add_remind').hide();">取消</button>
+									</div>
+								</div>
+								</form>									
+						</div>
+						<div id="message_list" style="margin-top:10px;max-height:250px;overflow-y:auto;background:#f9f9f9;padding-left:10px;padding-right:10px;">
+							<div class="message_item">													
+									<div style="padding-bottom:10px;line-height:25px;font-weight:normal;">
+											<div style="width:100%;">
+													<div style="float:left;width:80%;">2020-09-16</div>
+													<div style="float:left;width:20%;text-align:right;"><a href="javascript:">取消提醒</a></div>
+											</div>
+											<div style="font-weight:bold;padding-top:10px;">准备上诉材料</div>												
+									</div>
+							</div>
+						</div>
+				</div>
+				<div class="modal-footer">							
+				</div>
+		</div>
 </div>
+
+</div>
+<style>
+.rhide {
+    float: right;
+    font-size: 21px;
+    font-weight: 700;
+    line-height: 1;
+    color: #000;
+    text-shadow: 0 1px 0 #fff;
+    opacity: .2;
+    filter: alpha(opacity=20);
+}
+
+.rhide:hover,.rhide:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+    opacity: .5;
+    filter: alpha(opacity=50);
+}
+
+button.rhide {
+    padding: 0;
+    cursor: pointer;
+    background: 0 0;
+    border: 0;
+    -webkit-appearance: none;
+}
+
+.modal-header .rhide {
+    margin-top: -2px;
+}
+
+</style>
 <script>
 var v_sub = new Vue({
 				el: '#app_sub',
@@ -590,6 +717,7 @@ var v_sub = new Vue({
 					official_id: sessionStorage.getItem("official_id"),
 					mara_id: sessionStorage.getItem("mara_id"),
 					servicepackage_type: '',
+					orderId: 0,
 					orderType: '',
 					birthday: '',
 					flowstate_gw: '',
@@ -597,6 +725,7 @@ var v_sub = new Vue({
 					flowstate_ma: '',
 					submitted: 0,					
 					order_detail: [],
+					officialNoteId: 0,
 					subagency_id: 0
 				},
 				created: function() {					
@@ -605,7 +734,8 @@ var v_sub = new Vue({
 
 function show_addnewservice_id(orderId,type)
 {
-		v.orderId = orderId;		
+		v.orderId = orderId;
+		v_sub.orderId = orderId;	
 		//服务详细页
 		$.ajax({
       url: 'serviceOrder/get?id='+orderId,
@@ -627,6 +757,40 @@ function show_addnewservice_id(orderId,type)
     			$("#load-comment-1").load("user-common-view-comment.html?random="+Math.random());    				
         	$('#show_addnewservice1_id #b1').html(response.user.name);
         	$('#show_addnewservice1_id #b2').html(response.adviser.name);
+        	if (v_sub.ap_list == 'WA')
+        	{
+        			$("#show_addnewservice1_id #document1").css("width","750px");        			
+        			$("#show_addnewservice1_id #leftbox").css("width","700px");
+        			$("#show_addnewservice1_id #leftbox").css("padding-left","0px");
+        			$("#show_addnewservice1_id #leftbox").css("padding-right","0px");
+        			//$("#show_addnewservice1_id #leftbox").removeClass("col-lg-6");        			
+        			$("#show_addnewservice1_id #rightbox").css("width","0px");
+        			$("#show_addnewservice1_id #rightbox").removeClass("col-lg-6");
+        			$("#show_addnewservice1_id #rightbox").hide();
+        			$("#show_addnewservice1_id #rightbox").html($("#wa_right_area").html());     			
+        			if (response.officialNotes.length)
+        			{        					        					        			
+		        			for(var i = 0; i < response.officialNotes.length; i++) {
+		        				if (response.officialNotes[i].serviceOrderId == orderId)
+		        				{
+				        				$("#show_addnewservice1_id #note_content").val(response.officialNotes[i].content); 
+				        				v_sub.officialNoteId = response.officialNotes[i].id;      				
+				        				break;
+		        				}
+		        			}
+        			}else
+        			{
+        					v_sub.officialNoteId = 0;
+        					$("#show_addnewservice1_id #note_content").val(''); 
+        			}    			
+        	}else
+        	{
+        			$("#show_addnewservice1_id #document1").css("width","700px");
+        			$("#show_addnewservice1_id #leftbox").css("width","700px");
+        			$("#show_addnewservice1_id #leftbox").removeClass("col-lg-6");
+        			$("#show_addnewservice1_id #rightbox").css("width","0px");
+        			$("#show_addnewservice1_id #rightbox").removeClass("col-lg-6");
+        	}
         	if (response.parentId)
 	        {
 	        		//子订单
@@ -771,7 +935,41 @@ function show_addnewservice_id(orderId,type)
         	$('#show_addnewservice2_id #c8').html(response.adviser.name);
         	$('#show_addnewservice2_id #c9').html(response.official.name);
         	$('#show_addnewservice2_id #c3').html(response.school.name);
-        	$('#show_addnewservice2_id #c4').html(response.school.subject);        	
+        	$('#show_addnewservice2_id #c4').html(response.school.subject);
+        	if (v_sub.ap_list == 'WA')
+        	{
+        			$("#show_addnewservice2_id #document2").css("width","750px");
+        			$("#show_addnewservice2_id #leftbox").css("width","700px");
+        			$("#show_addnewservice2_id #leftbox").css("padding-left","0px");
+        			$("#show_addnewservice2_id #leftbox").css("padding-right","0px");
+        			$("#show_addnewservice2_id #rightbox").css("width","0px");
+        			$("#show_addnewservice2_id #rightbox").removeClass("col-lg-6");
+        			$("#show_addnewservice2_id #rightbox").hide();
+        			$("#show_addnewservice2_id #rightbox").html($("#wa_right_area").html());        			
+        			if (response.officialNotes.length)
+        			{        					        					        			
+		        			for(var i = 0; i < response.officialNotes.length; i++) {
+		        				if (response.officialNotes[i].serviceOrderId == orderId)
+		        				{
+				        				$("#show_addnewservice2_id #note_content").val(response.officialNotes[i].content); 
+				        				v_sub.officialNoteId = response.officialNotes[i].id;      				
+				        				break;
+		        				}
+		        			}
+        			}else
+        			{
+        					v_sub.officialNoteId = 0;
+        					$("#show_addnewservice2_id #note_content").val(''); 
+        			}    			
+        	}else
+        	{
+        			$("#show_addnewservice2_id #document2").css("width","700px");
+        			$("#show_addnewservice2_id #leftbox").css("width","700px");
+        			$("#show_addnewservice2_id #leftbox").removeClass("col-lg-6");
+        			$("#show_addnewservice2_id #rightbox").css("width","0px");
+        			$("#show_addnewservice2_id #rightbox").removeClass("col-lg-6");
+        	}
+        	loadSchoolCourses(response.school.id);
         	v_sub.submitted = response.submitted;
         	v_sub.birthday = v.getTime(response.user.birthday);
         	var str_issettle = '否';
@@ -1114,6 +1312,184 @@ function return_servicePackage(service_id,packids)
   	return str_package;
 }
 
+function loadSchoolCourses(schoolId)
+{
+					$("#show_addnewservice2_id #school_setting_result").empty();
+					var schoolName = $("#show_addnewservice2_id #c3").html();
+					var subjectName = $("#show_addnewservice2_id #c4").html();
+					$.get(url + "school/listSchoolSetting?schoolName="+schoolName, {
+						pageNum: 0,
+						pageSize: 100000
+					}, function(result) {
+						var str_html = '';	
+						for(var i = 0; i < result.data.length; i++) {
+								result.data[i].oid = result.data[i].id;
+								if (result.data[i].schoolId == schoolId)
+								{
+										result.data[i].str_init = '';
+										result.data[i].str_parameters = '';
+										switch(result.data[i].type)
+										{
+												case 1:
+														result.data[i].str_init = result.data[i].startDate+'|'+result.data[i].endDate+'|'+result.data[i].parameters;
+														if (result.data[i].parameters)
+														{
+																result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'，成本为课程原价'+result.data[i].parameters+'%。';
+														}
+												break;
+												case 2:
+														result.data[i].str_init = result.data[i].startDate+'#'+result.data[i].endDate+'#'+result.data[i].parameters;
+														if (result.data[i].parameters)
+														{
+																arr = result.data[i].parameters.split("|");
+																result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'，成本为课程原价'+arr[0]+'%。';
+																var arr1 = arr[1].split("/");
+																var str_txt = '额外每人补贴$'+arr1[0]+'（总人数超过'+arr1[2]+'人）';															
+																if (arr[2] != null)
+																{
+																		arr1 = arr[2].split("/");
+																		str_txt += '或额外每人补贴$'+arr1[0]+'（总人数超过'+arr1[2]+'人）';
+																}
+																if (arr[3] != null)
+																{
+																		arr1 = arr[3].split("/");
+																		str_txt += '或额外每人补贴$'+arr1[0]+'（总人数超过'+arr1[2]+'人）';
+																}
+																if (arr[4] != null)
+																{
+																		arr1 = arr[4].split("/");
+																		str_txt += '或额外每人补贴$'+arr1[0]+'（总人数超过'+arr1[2]+'人）';
+																}
+																result.data[i].str_parameters += str_txt;															
+														}
+												break;
+												case 4:
+														result.data[i].str_init = result.data[i].startDate+'#'+result.data[i].endDate+'#'+result.data[i].parameters;
+														if (result.data[i].parameters)
+														{
+																arr = null;
+																arr = result.data[i].parameters.split("|");
+																result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'。';
+																var arr1 = arr[1].split("/");
+																var str_txt = '成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';															
+																if (arr[2] != null)
+																{
+																		arr1 = arr[2].split("/");
+																		str_txt += '或成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';
+																}
+																if (arr[3] != null)
+																{
+																		arr1 = arr[3].split("/");
+																		str_txt += '或成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';
+																}
+																if (arr[4] != null)
+																{
+																		arr1 = arr[4].split("/");
+																		str_txt += '或成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';
+																}
+																result.data[i].str_parameters += str_txt;
+														}
+												break;
+												case 7:													
+														result.data[i].str_init = result.data[i].startDate+'#'+result.data[i].endDate+'#'+result.data[i].parameters;
+														result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'，成本为固定价：'+result.data[i].parameters+'。';
+												break;												
+										}									
+										result.data[i].str_type = sltype(result.data[i].type,result.data[i].id,result.data[i].str_init,result.data[i].schoolName);
+										$("#show_addnewservice2_id #school_setting_result").html(result.data[i].str_parameters);
+										break;										
+								}
+						};
+						if ($("#school_setting_result").html() == '')
+						{
+								//如果专业没有设置佣金参数，就取学校的佣金参数
+								$.get(url + "school/getSchoolSetting?schoolName="+schoolName, {
+									pageNum: 0,
+									pageSize: 100000
+								}, function(result) {
+									console.log(result);
+									if (result.data.type)
+									{
+											result.data.str_init = '';
+											result.data.str_parameters = '';
+											switch(result.data.type)
+											{
+													case 1:
+															result.data.str_init = result.data.startDate+'|'+result.data.endDate+'|'+result.data.parameters;
+															if (result.data.parameters)
+															{
+																	result.data.str_parameters = '合同周期从'+v.getTime(result.data.startDate)+'到'+v.getTime(result.data.endDate)+'，成本为课程原价'+result.data.parameters+'%。';
+															}
+													break;
+													case 2:
+															result.data.str_init = result.data.startDate+'#'+result.data.endDate+'#'+result.data.parameters;
+															if (result.data.parameters)
+															{
+																	arr = result.data.parameters.split("|");
+																	result.data.str_parameters = '合同周期从'+v.getTime(result.data.startDate)+'到'+v.getTime(result.data.endDate)+'，成本为课程原价'+arr[0]+'%。';
+																	var arr1 = arr[1].split("/");
+																	var str_txt = '额外每人补贴$'+arr1[0]+'（总人数超过'+arr1[2]+'人）';															
+																	if (arr[2] != null)
+																	{
+																			arr1 = arr[2].split("/");
+																			str_txt += '或额外每人补贴$'+arr1[0]+'（总人数超过'+arr1[2]+'人）';
+																	}
+																	if (arr[3] != null)
+																	{
+																			arr1 = arr[3].split("/");
+																			str_txt += '或额外每人补贴$'+arr1[0]+'（总人数超过'+arr1[2]+'人）';
+																	}
+																	if (arr[4] != null)
+																	{
+																			arr1 = arr[4].split("/");
+																			str_txt += '或额外每人补贴$'+arr1[0]+'（总人数超过'+arr1[2]+'人）';
+																	}
+																	result.data.str_parameters += str_txt;															
+															}
+													break;
+													case 4:
+															result.data.str_init = result.data.startDate+'#'+result.data.endDate+'#'+result.data.parameters;
+															if (result.data.parameters)
+															{
+																	arr = null;
+																	arr = result.data.parameters.split("|");
+																	result.data.str_parameters = '合同周期从'+v.getTime(result.data.startDate)+'到'+v.getTime(result.data.endDate)+'。';
+																	var arr1 = arr[1].split("/");
+																	var str_txt = '成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';															
+																	if (arr[2] != null)
+																	{
+																			arr1 = arr[2].split("/");
+																			str_txt += '或成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';
+																	}
+																	if (arr[3] != null)
+																	{
+																			arr1 = arr[3].split("/");
+																			str_txt += '或成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';
+																	}
+																	if (arr[4] != null)
+																	{
+																			arr1 = arr[4].split("/");
+																			str_txt += '或成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';
+																	}
+																	result.data.str_parameters += str_txt;
+															}
+													break;
+													case 7:													
+															result.data.str_init = result.data.startDate+'#'+result.data.endDate+'#'+result.data.parameters;
+															result.data.str_parameters = '合同周期从'+v.getTime(result.data.startDate)+'到'+v.getTime(result.data.endDate)+'，成本为固定价：'+result.data.parameters+'。';
+													break;												
+											}									
+											result.data.str_type = sltype(result.data.type,result.data.id,result.data.str_init,result.data.schoolName);
+											$("#school_setting_result").html(result.data.str_parameters);
+									}else
+									{
+											$("#school_setting_result").html('温馨提示：暂无该学校/专业 佣金设置，请联系您的BM进行添加。');
+									}
+								});
+						}
+					});
+}
+
 function checkform(type)
 {
 		if (type == 'VISA')
@@ -1427,6 +1803,184 @@ function reqCommissionOvst()
 		   			}
 		   	});
     }
+}
+
+function saveNote()
+{		
+		var f = '';		
+		var json = {};
+		
+		var check_result = false;
+		var content = '';
+		if (v_sub.orderType == 'VISA')
+		{
+				f = '#show_addnewservice1_id #note_box ';
+		}else if (v_sub.orderType == 'OVST')
+		{
+				f = '#show_addnewservice2_id #note_box ';
+		}
+		content = $(f+'#note_content').val();
+    if (content != '')
+    {
+    		check_result = true;
+    }
+    
+    if (!check_result)
+    {
+    		$('#note_box #alert_error').css('marginTop','10%');
+    		$('#note_box #alert_error').css('marginLeft','20%');
+    		$('#note_box #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+        $("#note_box #error_info").html('提示：Note内容不能为空！');
+    		return false;
+    }else
+    {
+    		var str_url = "serviceOrder/addOfficialRemarks";
+    		if (v_sub.officialNoteId)
+    		{
+    				str_url = "serviceOrder/updateOfficialRemarks";
+    				json['id'] = v_sub.officialNoteId;
+    		}else
+    		{
+    				json['serviceOrderId'] = v_sub.orderId;
+    		}
+       	json['content'] = content;
+       	
+       	show_loading();
+       	
+       	$.post(str_url, json,
+		   	function(data){
+		   			$('#loading_id').modal('hide');
+		   			if (parseInt(data.code) == 0)
+		   			{
+		   					$('#note_box #alert_success').css('marginTop','10%');
+		   					$('#note_box #alert_success').css('marginLeft','20%');
+		   					$('#note_box #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+		   			}else
+		   			{
+		   					$('#note_box #alert_error').css('marginTop','10%');
+				    		$('#note_box #alert_error').css('marginLeft','20%');
+				    		$('#note_box #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+				        $("#note_box #error_info").html(data.message);
+		   			}
+		   	});
+    }
+}
+
+function addRemind()
+{		
+		var f = '#remind_box ';
+		var strList = '';
+		var json = {};
+		
+		var check_result = false;
+		var int_d = $(f+'#remind_date').val();
+		var content = $(f+'#remind_content').val();
+    if (int_d != '' && content != '')
+    {
+    		check_result = true;
+    }
+    
+    if (!check_result)
+    {
+    		$('#remind_box #alert_error').css('marginTop','10%');
+    		$('#remind_box #alert_error').css('marginLeft','20%');
+    		$('#remind_box #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+        $("#remind_box #error_info").html('提示：提醒日期或提醒内容不能为空！');
+    		return false;
+    }else
+    {
+    		$('#remind_box #alert_error').css('marginTop','10%');
+    		$('#remind_box #alert_error').css('marginLeft','20%');
+    		$('#remind_box #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+        $("#remind_box #error_info").html('提示：后端接口还没有实现...');
+        return false;
+    		var str_url = "serviceOrder/addOfficialRemind";
+    		json['serviceOrderId'] = v_sub.orderId;
+    		
+    		var d = 0;
+    		if (int_d != '')
+    		{
+        		var arr_d = int_d.split("/");
+        		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+            var date = new Date(str_d);
+            d = date.getTime();
+            json['remindDate'] = d;
+      	}
+       	json['remindContent'] = content;
+       	
+       	show_loading();
+       	
+       	$.post(str_url, json,
+		   	function(data){
+		   			$('#loading_id').modal('hide');
+		   			if (parseInt(data.code) == 0)
+		   			{
+		   					$('#remind_box #alert_success').css('marginTop','10%');
+		   					$('#remind_box #alert_success').css('marginLeft','20%');
+		   					$('#remind_box #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+		   			}else
+		   			{
+		   					$('#remind_box #alert_error').css('marginTop','10%');
+				    		$('#remind_box #alert_error').css('marginLeft','20%');
+				    		$('#remind_box #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+				        $("#remind_box #error_info").html(data.message);
+		   			}
+		   	});
+    }
+}
+
+function hide_rightbox()
+{
+		if (v_sub.orderType == 'VISA')
+		{
+				$("#show_addnewservice1_id #rightbox").hide();
+				$("#show_addnewservice1_id #document1").css("width","750px");
+  			$("#show_addnewservice1_id #leftbox").css("width","700px");
+  			//$("#show_addnewservice1_id #leftbox").removeClass("col-lg-6");
+  			$("#show_addnewservice1_id #rightbox").css("width","0px");
+  			$("#show_addnewservice1_id #rightbox").removeClass("col-lg-6");
+  			$("#show_addnewservice1_id #tmpbox").show();
+		}else
+		{
+				$("#show_addnewservice2_id #rightbox").hide();
+				$("#show_addnewservice2_id #document2").css("width","750px");
+  			$("#show_addnewservice2_id #leftbox").css("width","700px");
+  			//$("#show_addnewservice2_id #leftbox").removeClass("col-lg-6");
+  			$("#show_addnewservice2_id #rightbox").css("width","0px");
+  			$("#show_addnewservice2_id #rightbox").removeClass("col-lg-6");
+  			$("#show_addnewservice2_id #tmpbox").show();
+		}
+}
+
+function show_rightbox()
+{
+		if (v_sub.orderType == 'VISA')
+		{
+				$("#show_addnewservice1_id #document1").css("width","1100px");
+  			$("#show_addnewservice1_id #leftbox").addClass("col-lg-6");
+  			$("#show_addnewservice1_id #leftbox").css("width","700px");
+  			$("#show_addnewservice1_id #rightbox").addClass("col-lg-6");
+  			$("#show_addnewservice1_id #rightbox").css("width","400px");		
+  			$("#show_addnewservice1_id #rightbox").show();
+  			$("#wa_right_area").show();
+  			$('.default-date-picker1').datepicker({
+    				format: 'dd/mm/yyyy'			        
+				});
+				$("#show_addnewservice1_id #tmpbox").hide();
+		}else
+		{
+				$("#show_addnewservice2_id #document2").css("width","1100px");
+  			$("#show_addnewservice2_id #leftbox").addClass("col-lg-6");
+  			$("#show_addnewservice2_id #leftbox").css("width","700px");
+  			$("#show_addnewservice2_id #rightbox").addClass("col-lg-6");
+  			$("#show_addnewservice2_id #rightbox").css("width","400px");  			
+  			$("#show_addnewservice2_id #rightbox").show();
+  			$("#wa_right_area").show();
+  			$('.default-date-picker1').datepicker({
+    				format: 'dd/mm/yyyy'			        
+				});
+				$("#show_addnewservice2_id #tmpbox").hide();
+		}
 }
 
 function computeDiscount(v)

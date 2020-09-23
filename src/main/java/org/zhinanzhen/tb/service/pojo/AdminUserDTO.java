@@ -22,6 +22,8 @@ public class AdminUserDTO {
 	private int kjId;
 	
 	private Integer regionId;
+	
+	private boolean isOfficialAdmin;
 
 	private String sessionId;
 
