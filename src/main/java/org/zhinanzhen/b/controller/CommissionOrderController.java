@@ -704,9 +704,6 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		Integer newMaraId = getMaraId(request);
 		if (newMaraId != null)
 			maraId = newMaraId;
-		Integer newAdviserId = getAdviserId(request);
-		if (newAdviserId != null)
-			adviserId = newAdviserId;
 		Integer newOfficialId = getOfficialId(request);
 		if (newOfficialId != null)
 			officialId = newOfficialId;
@@ -753,7 +750,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
 				for (RegionDTO region : regionList)
 					regionIdList.add(region.getId());
-				adviserId = null;
+			} else {
+				Integer newAdviserId = getAdviserId(request);
+				if (newAdviserId != null)
+					adviserId = newAdviserId;
 			}
 
 			return new Response<Integer>(0,
@@ -789,9 +789,6 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		Integer newMaraId = getMaraId(request);
 		if (newMaraId != null)
 			maraId = newMaraId;
-		Integer newAdviserId = getAdviserId(request);
-		if (newAdviserId != null)
-			adviserId = newAdviserId;
 		Integer newOfficialId = getOfficialId(request);
 		if (newOfficialId != null)
 			officialId = newOfficialId;
@@ -838,7 +835,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
 				for (RegionDTO region : regionList)
 					regionIdList.add(region.getId());
-				adviserId = null;
+			} else {
+				Integer newAdviserId = getAdviserId(request);
+				if (newAdviserId != null)
+					adviserId = newAdviserId;
 			}
 
 			return new Response<List<CommissionOrderListDTO>>(0,

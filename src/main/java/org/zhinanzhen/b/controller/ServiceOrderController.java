@@ -544,9 +544,6 @@ public class ServiceOrderController extends BaseController {
 		List<String> reviewStateList = null;
 		if (reviewState != null && !"".equals(reviewState))
 			reviewStateList = new ArrayList<>(Arrays.asList(reviewState.split(",")));
-		Integer newAdviserId = getAdviserId(request);
-		if (newAdviserId != null)
-			adviserId = newAdviserId;
 		Integer newMaraId = getMaraId(request);
 		if (newMaraId != null) {
 			maraId = newMaraId;
@@ -578,7 +575,10 @@ public class ServiceOrderController extends BaseController {
 				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
 				for (RegionDTO region : regionList)
 					regionIdList.add(region.getId());
-				adviserId = null;
+			} else {
+				Integer newAdviserId = getAdviserId(request);
+				if (newAdviserId != null)
+					adviserId = newAdviserId;
 			}
 
 			if (id != null && id > 0) {
@@ -625,9 +625,6 @@ public class ServiceOrderController extends BaseController {
 		List<String> reviewStateList = null;
 		if (reviewState != null && !"".equals(reviewState))
 			reviewStateList = new ArrayList<>(Arrays.asList(reviewState.split(",")));
-		Integer newAdviserId = getAdviserId(request);
-		if (newAdviserId != null)
-			adviserId = newAdviserId;
 		Integer newMaraId = getMaraId(request);
 		if (newMaraId != null) {
 			maraId = newMaraId;
@@ -658,7 +655,10 @@ public class ServiceOrderController extends BaseController {
 				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
 				for (RegionDTO region : regionList)
 					regionIdList.add(region.getId());
-				adviserId = null;
+			} else {
+				Integer newAdviserId = getAdviserId(request);
+				if (newAdviserId != null)
+					adviserId = newAdviserId;
 			}
 
 			if (id != null && id > 0) {
