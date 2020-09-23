@@ -361,7 +361,7 @@
 											<div class="form-group">
 												<input v-model.trim="name" type="text" class="form-control" placeholder="输入姓名">
 												<input v-model.trim="phone" type="text" class="form-control" placeholder="输入手机号码">
-												<select v-model.trim="adviserId" id="adviserId" class="form-control" style="width:130px;"></select>
+												<select v-if="ap_list==='SUPERAD' || (ap_list==='GW' && gw_regionid !== 'null')" v-model.trim="adviserId" id="adviserId" class="form-control" style="width:130px;"></select>
 												<input v-model.trim="wechatUsername" type="text" class="form-control" placeholder="输入客户微信号">
 												<select v-model.trim="tagId" id="tagId" class="form-control">
 												<option value="" selected="true">请选择标签</option>
