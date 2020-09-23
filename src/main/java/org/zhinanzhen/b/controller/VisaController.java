@@ -500,11 +500,6 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "state",required = false) String state,
 			HttpServletRequest request,HttpServletResponse response) {
 
-		// 更改当前顾问编号
-		Integer newAdviserId = getAdviserId(request);
-		if (newAdviserId != null)
-			adviserId = newAdviserId;
-
 		// 会计角色过滤状态
 		List<String> stateList = null;
 		if (getKjId(request) != null) {
@@ -540,7 +535,11 @@ public class VisaController extends BaseCommissionOrderController {
 				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
 				for (RegionDTO region : regionList)
 					regionIdList.add(region.getId());
-				adviserId = null;
+			} else {
+				// 更改当前顾问编号
+				Integer newAdviserId = getAdviserId(request);
+				if (newAdviserId != null)
+					adviserId = newAdviserId;
 			}
 			
 			return new Response<Integer>(0,
@@ -569,11 +568,6 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
 			HttpServletRequest request, HttpServletResponse response) {
 
-		// 更改当前顾问编号
-		Integer newAdviserId = getAdviserId(request);
-		if (newAdviserId != null)
-			adviserId = newAdviserId;
-
 		// 会计角色过滤状态
 		List<String> stateList = null;
 		if (getKjId(request) != null) {
@@ -609,7 +603,11 @@ public class VisaController extends BaseCommissionOrderController {
 				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
 				for (RegionDTO region : regionList)
 					regionIdList.add(region.getId());
-				adviserId = null;
+			} else {
+				// 更改当前顾问编号
+				Integer newAdviserId = getAdviserId(request);
+				if (newAdviserId != null)
+					adviserId = newAdviserId;
 			}
 			
 			List<VisaDTO> list = visaService.listVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
