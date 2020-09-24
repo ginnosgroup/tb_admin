@@ -654,7 +654,19 @@
 						show_loading();
 						if (that.id != '') json['id'] = that.id;
 						if (that.userId != '0') json['userId'] = that.userId;
-						if (that.adviserId != '0') json['adviserId'] = that.adviserId;						
+						if (this.gw_regionid != 'null')
+						{
+								if (this.adviserId == undefined)
+								{
+										json['adviserId'] = this.adviser_id;
+								}else
+								{
+										if (that.adviserId != '0') json['adviserId'] = that.adviserId;
+								}
+						}else
+						{
+								if (that.adviserId != '0') json['adviserId'] = that.adviserId;
+						}
 						if (that.type != '') json['type'] = that.type;
 						if (that.startHandlingDate != '') json['startHandlingDate'] = that.startHandlingDate;
 						if (that.endHandlingDate != '') json['endHandlingDate'] = that.endHandlingDate;
@@ -1051,7 +1063,10 @@
 			v.$watch('subject', function(obj) {
 					$('.default-date-picker').datepicker({   				
 				        format: 'dd/mm/yyyy'
-				  });				 	
+				  });
+				  
+				  var adviserId = 0;
+				  if (typeof v.adviserId != "undefined") adviserId = v.adviserId; 		 	
 				  //查询客户
 				  var user = $("#user_name");
 				  user.autocompleter({
@@ -1077,7 +1092,11 @@
 	        var obj_adviserId2 = $("#adviserId");
 	        $("#adviserId").empty();
 	        var strPar = '';
-				  if (v.gw_regionid != 'null') strPar = '&regionId='+v.gw_regionid;
+				  if (v.gw_regionid != 'null')
+				  {
+				  		if (!adviserId) adviserId = v.adviser_id;				  			  		
+				  		strPar = '&regionId='+v.gw_regionid;
+				  }
 	        obj_adviserId2.append("<option value='0'>请选择顾问</option>");
 			    $.ajax({
 	          url: 'adviser/list?pageNum=0&pageSize=100000'+strPar,
@@ -1091,7 +1110,7 @@
 	        	{
 	        			obj_adviserId2.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
 	        	}
-	        	obj_adviserId2.val(v.adviserId);   
+	        	obj_adviserId2.val(adviserId);   
 	        });
 			    //绑定区域列表
 			    var obj_regionId = $("#regionId");

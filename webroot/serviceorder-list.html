@@ -682,7 +682,7 @@
 					close: false
 				},
 				created: function() {					
-					if (typeof(this.auditingState) == "undefined") $("#servicestate").addClass("active");					
+					if (typeof(this.auditingState) == "undefined") $("#servicestate").addClass("active");							
 					this.getDatalist();
 					document.onkeydown = function(e) {
 						var key = window.event.keyCode;
@@ -705,8 +705,32 @@
 						if (that.auditingState != '') json['auditingState'] = that.auditingState;
 						if (that.id != '') json['id'] = that.id;
 						if (that.userId != '0') json['userId'] = that.userId;
-						if (that.adviserId != '0') json['adviserId'] = that.adviserId;
-						if (that.officialId != '0') json['officialId'] = that.officialId;
+						if (this.gw_regionid != 'null')
+						{
+								if (this.adviserId == undefined)
+								{
+										json['adviserId'] = this.adviser_id;
+								}else
+								{
+										if (that.adviserId != '0') json['adviserId'] = that.adviserId;
+								}
+						}else
+						{
+								if (that.adviserId != '0') json['adviserId'] = that.adviserId;
+						}
+						if (this.ap_list == 'WA' && this.wa_admin == 'true')
+						{
+								if (this.officialId == undefined)
+								{
+										json['officialId'] = this.official_id;
+								}else
+								{
+										if (that.officialId != '0') json['officialId'] = that.officialId;
+								}
+						}else
+						{
+								if (that.officialId != '0') json['officialId'] = that.officialId;	
+						}						
 						if (that.maraId != '') json['maraId'] = that.maraId;
 						if (that.type != '') json['type'] = that.type;
 						if (that.state != '') json['state'] = that.state;
@@ -1443,13 +1467,13 @@
 				  var officialId = 0;
 				  var officialId_t1 = 0;				  
 				  var maraId = 0;				   
-				  if (typeof v.adviserId != "undefined") adviserId = v.adviserId;		  
+				  if (typeof v.adviserId != "undefined") adviserId = v.adviserId; 
 				  if (typeof v.officialId != "undefined") officialId = v.officialId;
 				  if (typeof v.maraId != "undefined") maraId = v.maraId;
 				  
 				  if (this.current_row.id)
 				  {
-				  		$("#id").val(this.current_row.id);
+				  		$("#id").val(this.current_row.id);				  		
 				  		adviserId_t2 = this.current_row.adviserId;
 				  		officialId_t1 = this.current_row.officialId;
 				  }
@@ -1482,7 +1506,11 @@
 				  var obj_adviserId = $("#adviserId");
 				  $("#adviserId").empty();
 				  var strPar = '';
-				  if (v.gw_regionid != 'null') strPar = '&regionId='+v.gw_regionid;
+				  if (v.gw_regionid != 'null')
+				  {
+				  		if (!adviserId) adviserId = v.adviser_id;				  			  		
+				  		strPar = '&regionId='+v.gw_regionid;
+				  }
 	        obj_adviserId.append("<option value='0'>请选择</option>");
 			    $.ajax({
 	          url: 'adviser/list?pageNum=0&pageSize=100000'+strPar,
@@ -1518,6 +1546,10 @@
 				  //绑定文案列表			    
 	        var obj_officialId = $("#officialId");
 	        $("#officialId").empty();
+	        if (this.ap_list == 'WA' && this.wa_admin == 'true')
+	        {
+	        		if (!officialId) officialId = v.official_id;	
+	        }
 	        obj_officialId.append("<option value='0'>请选择</option>");
 			    $.ajax({
 	          url: 'official/list?pageNum=0&pageSize=100000',
