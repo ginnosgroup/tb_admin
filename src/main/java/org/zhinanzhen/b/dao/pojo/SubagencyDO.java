@@ -9,6 +9,8 @@ public class SubagencyDO {
 
 	private String name;
 	
+	private String country;
+	
 	private double commissionRate;
 
 }

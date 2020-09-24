@@ -11,9 +11,9 @@ public interface AdviserDAO {
 
 	public int updateAdviser(AdviserDO adviserDo);
 
-	public int countAdviser(@Param("name") String name, @Param("regionId") Integer regionId);
+	public int countAdviser(@Param("name") String name, @Param("regionIdList") List<Integer> regionIdList);
 
-	public List<AdviserDO> listAdviser(@Param("name") String name, @Param("regionId") Integer regionId,
+	public List<AdviserDO> listAdviser(@Param("name") String name, @Param("regionIdList") List<Integer> regionIdList,
 			@Param("offset") int offset, @Param("rows") int rows);
 
 	public AdviserDO getAdviserById(int id);

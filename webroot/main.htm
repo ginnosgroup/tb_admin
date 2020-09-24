@@ -50,12 +50,13 @@
           <span v-if="ap_list==='MA'">
            	 Mara
           </span>
-          <span v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+          <span v-if="ap_list==='SUPERAD'">
            	 超级管理员
           </span>
 				</a>
 				<div class="top-nav ">
 					<ul class="nav pull-right top-menu">
+						<li style="padding-right:15px;"><a href="knowledge-detail.html?id=1000164" style="color:#ff6c60;">帮助中心</a></li>
 						<li class="dropdown">
 							<a data-toggle="dropdown" class="dropdown-toggle" href="#">
 								<span class="username">
@@ -95,7 +96,7 @@
                 </span>
               </a>
             </li>
-            <dli v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">            
+            <dli v-if="ap_list==='SUPERAD'">            
             <li>
               <a href="adviser.html">
                 <i class="fa fa-book">
@@ -105,6 +106,8 @@
                 </span>
               </a>
             </li>
+            </dli>
+            <dli v-if="ap_list==='SUPERAD' || (ap_list==='WA' && wa_admin === 'true')"> 
             <li>
               <a href="official.html">
                 <i class="fa fa-book">
@@ -114,6 +117,8 @@
                 </span>
               </a>
             </li>
+            </dli>
+            <dli v-if="ap_list==='SUPERAD'"> 
             <li>
               <a href="mara.html">
                 <i class="fa fa-book">
@@ -132,6 +137,8 @@
                 </span>
               </a>
             </li>
+          	</dli>
+          	<dli v-if="ap_list==='SUPERAD' || (ap_list==='GW' && gw_regionid !== 'null')">
             <li class="sub-menu">
 							<a href="javascript:;">
 								<i class="fa fa-book">
@@ -141,7 +148,7 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li>
+								<li v-if="ap_list==='SUPERAD'">
 									<a href="school.html">
 										学校管理
 									</a>
@@ -153,6 +160,8 @@
 								</li>								
 							</ul>
 						</li>
+						</dli>
+						<dli v-if="ap_list==='SUPERAD'">
             <li>
               <a href="receive-type.html">
                 <i class="fa fa-book">
@@ -171,14 +180,26 @@
                 </span>
               </a>
             </li>
-            <li>
-              <a href="service.html">
-                <i class="fa fa-book">
+            <li class="sub-menu">
+            	<a href="javascript:;">
+								<i class="fa fa-book">
                 </i>
-                <span>
-                  服务项目管理
+								<span>
+                 	 服务管理
                 </span>
-              </a>
+							</a>
+							<ul class="sub">
+								<li>
+									<a href="service.html">
+										服务项目管理
+									</a>
+								</li>
+								<li>
+									<a href="service-package.html">
+										服务包管理
+									</a>
+								</li>								
+							</ul>              
             </li>            
           	</dli>          	
           	<li v-if="ap_list!=='KJ' && ap_list!=='WA' && ap_list!=='MA'" class="sub-menu">
@@ -195,7 +216,7 @@
 										客户管理
 									</a>
 								</li>
-								<li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								<li v-if="ap_list==='SUPERAD'">
 									<a href="user-tags.html">
 										标签管理
 									</a>
@@ -211,7 +232,7 @@
                 </span>
               </a>
 						</li>
-            <li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'" class="sub-menu">
+            <li v-if="ap_list==='SUPERAD'" class="sub-menu">
 							<a href="javascript:;">
 								<i class="fa fa-book">
                 </i>
@@ -241,9 +262,19 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li v-if="ap_list==='GW'" class="active">
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" class="active">
 									<a href="mycommission.html">
 										我的佣金报表
+									</a>									
+								</li>
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" style="display:;" id="apply_state_PENDING">
+									<a href="mycommission.html?applyState=PENDING">
+										未申请月奖
+									</a>									
+								</li>
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" style="display:;" id="apply_state_COMPLETE">
+									<a href="mycommission.html?applyState=COMPLETE">
+										已申请月奖
 									</a>									
 								</li>
 								<li v-if="ap_list==='KJ'" id="commission_state_DJY">
@@ -255,8 +286,18 @@
 									<a href="mycommission-accounting.html?commission_state=YJY">
 										已结佣订单
 									</a>									
-								</li>								
-								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								</li>
+								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
+									<a href="mycommission-check-accounting.html">
+										自动对账
+									</a>									
+								</li>
+								<li v-if="ap_list==='SUPERAD'">
+									<a href="create-visa-commission.html">
+										重建签证佣金表订单
+									</a>
+								</li>
+								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
 									<a href="table-export.html">
 										导出数据
 									</a>
@@ -272,12 +313,16 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								<li v-if="ap_list==='SUPERAD'">
 									<a href="knowledge-menu.html">
 										菜单管理
 									</a>
 								</li>								
-								{{{m_list}}}							
+								<li>
+									<a href="knowledge.html">
+										知识库菜单
+									</a>
+								</li>
 							</ul>
 						</li>						
 					</ul>
@@ -379,7 +424,7 @@
                </section>
           	</div>          	
           </div>        
-          <div class="row">
+          <div class="row" style="display:none;">
           	<div class="col-lg-6">
               <div class="panel">
                 <div class="panel-body">
@@ -430,7 +475,7 @@
           	<div class="col-lg-6">
           		<section class="panel">
                   <header class="panel-heading">
-                     <span class="label" style="color:#58c9f3;font-size:20px;">签证类提醒</span>
+                     <span class="label" style="color:#58c9f3;font-size:20px;">本月待申月奖订单</span>
                      <span class="tools pull-right">
                      <script>current_date();</script>
                      </span>
@@ -438,23 +483,20 @@
                   <table class="table">
                      <thead>
                         <tr>
-                           <th>Visa_Id</th>
-                           <th>姓名</th>
-                           <th>电话</th>
-                           <th>办理日期</th>
-                           <th>提醒日期</th>
-                           <th>&nbsp;</th>
-                           <th>&nbsp;</th>
+                           <th width="80">订单ID</th>
+                           <th>Installment Due Date</th>
+                           <th>客户姓名</th>
+                           <th>学校</th>
+                           <th>操作</th>                           
                         </tr>
                      </thead>
                      <tbody>
                         <tr v-for="item in subject1">
-                           <td v-html="item.visaId"></td>
+                           <td v-html="item.id"></td>
+                           <td v-html="item.installmentDueDate"></td>
                            <td v-html="item.userName"></td>
-                           <td v-html="item.phone"></td>
-                           <td v-html="item.handlingDate"></td>
-                           <td v-html="item.remindDate"></td>
-                           <td><button type="button" style="display:;" class="btn btn-default btn-sm" @click="close_confirm1($index,item.id,1)">关闭提醒</button></td>
+                           <td v-html="item.schoolName"></td>
+                           <td><a href="mycommission-ovst.html?service_id={{item.serviceOrderId}}&order_id={{item.id}}" target="_blank">查看</a></td>
                         </tr>                        
                      </tbody>
                   </table>
@@ -463,7 +505,7 @@
           	<div class="col-sm-6">
           		<section class="panel">
                   <header class="panel-heading">
-                     <span class="label" style="color:#58c9f3;font-size:20px;">提前扣佣提醒</span>
+                     <span class="label" style="color:#58c9f3;font-size:20px;">签证列表</span>
                      <span class="tools pull-right">
                      <script>current_date();</script>
                      </span>
@@ -471,24 +513,16 @@
                   <table class="table">
                      <thead>
                         <tr>
-                           <th>Sa_Id</th>
-                           <th>姓名</th>
-                           <th>电话</th>
-                           <th>办理日期</th>
-                           <th>提醒日期</th>
-                           <th>&nbsp;</th>
-                           <th>&nbsp;</th>
+                           <th>签证到期时间</th>
+                           <th>客户姓名</th>
+                           <th>操作</th>
                         </tr>
                      </thead>
                      <tbody>
                         <tr v-for="item in subject2">
-                           <td v-html="item.brokerageSaId"></td>
+                           <td v-html="item.visaExpirationDate" style="color:#ff6c60;"></td>
                            <td v-html="item.userName"></td>
-                           <td v-html="item.phone"></td>
-                           <td v-html="item.handlingDate"></td>
-                           <td v-html="item.remindDate"></td>
-                           <td><button type="button" class="btn btn-info btn-sm" onclick="window.location.href='table-1.html'">录入佣金表</button></td>
-                           <td><button type="button" style="display:;" class="btn btn-default btn-sm" @click="close_confirm1($index,item.id,1)">关闭提醒</button></td>
+                           <td><a href="javascript:show_detail({{item.id}});">查看详细</a></td>
                         </tr>                        
                      </tbody>
                   </table>
@@ -525,6 +559,7 @@
 				</div>
 			</div>
 		</div>
+		<div id="load-mycommission-ovst-view-page"></div>
 		<script src="js/jquery-1.8.3.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
 		<script src="js/jquery.dcjqaccordion.2.7.js"></script>
@@ -539,6 +574,7 @@
     <script src="js/calendar/moment-2.2.1.js"></script><!-- CALENDER MOMENT JS -->
     <script src="js/underscore-min.js"></script><!-- UNDERSCORE JS -->
 		<script>
+			$("#load-mycommission-ovst-view-page").load("mycommission-ovst-common-view.html?random="+Math.random());
 			tb.isLogin("main.html");
 			$("td,th").addClass("text-center");
 			var v = new Vue({
@@ -546,7 +582,8 @@
 				data: {
 					admin: sessionStorage.getItem("admin"),
 					ap_list: sessionStorage.getItem("ap_list"),
-					m_list: localStorage.getItem("str_html"),
+					gw_regionid: sessionStorage.getItem("gw_regionid"),
+					wa_admin: sessionStorage.getItem("wa_admin"),
 					subject: [],
 					subject1: [],	
 					subject2: [],
@@ -560,34 +597,7 @@
 					this.getDatalist1();
 					this.getDatalist2();
 					this.getDatalist4();
-					this.getMenulist();
-				},methods: {
-			    getMenulist: function() {
-						var that = this;
-						$.ajaxSettings.async = false; 
-						$.get(url + "knowledge/listMenu", {
-							knowledgeMenuId: 0						
-						}, function(result) {
-							var str_html = '';																					
-							var menu_list = result.data;
-							for(var i = 0; i < menu_list.length; i++) {
-									str_html += '<li class="sub-menu"><a href="javascript:;" class="active">'+ menu_list[i].name +'</a>';									
-									$.get(url + "knowledge/listMenu", {
-										knowledgeMenuId: menu_list[i].id
-									}, function(result) {
-										var data_list = result.data;
-										str_html += '<ul class="sub">';
-										for(var j = 0; j < data_list.length; j++) {
-												str_html += '<li><a href="javascript:show_knowledge_detail('+data_list[j].id+')">'+data_list[j].name+'</a></li>';
-										}
-										str_html += '</ul>';							
-									});
-							}
-							localStorage.removeItem('str_html');
-							localStorage.setItem("str_html", str_html);
-							console.log(localStorage.getItem("str_html"))
-						});
-					},								
+				},methods: {			    								
 					getDatalist: function() {
 						var that = this;																
 						var myDate = new Date();
@@ -616,18 +626,16 @@
 						var myDate = new Date();
   					var str_date = myDate.getFullYear()+'-'+(myDate.getMonth()+1)+'-'+myDate.getDate();
   					var date = new Date(str_date);
-			    	var current_tp = date.getTime();
-			    	//current_tp = 2000000000000;//临时使用		
-						$.get(url + "visaRemind/listByDate?date="+current_tp, {							
+			    	var current_tp = date.getTime();	
+						$.get(url + "dashboard/listThisMonthCommissionOrder", {							
 						}, function(result) {
 							console.log(result)
 							for(var i = 0; i < result.data.length; i++) {
-									result.data[i].id = result.data[i].id;
-									//result.data[i].userName = result.data[i].visa.userName;
-									result.data[i].userName = '<a href="javascript:;" onclick="show_detail('+result.data[i].visa.userId+');">'+result.data[i].visa.userName+'</a>';
-									result.data[i].phone = result.data[i].visa.phone;
-									result.data[i].handlingDate = that.getTime(result.data[i].visa.handlingDate);							
-									result.data[i].remindDate = that.getTime(result.data[i].remindDate);
+									//result.data[i].id = result.data[i].id;
+									//result.data[i].userName = '<a href="javascript:;" onclick="show_detail('+result.data[i].visa.userId+');">'+result.data[i].visa.userName+'</a>';
+									result.data[i].userName = result.data[i].user.name;
+									result.data[i].schoolName = result.data[i].school.name;
+									result.data[i].installmentDueDate = that.getTime(result.data[i].installmentDueDate);
 							};
 							that.subject1 = result.data;
 							console.log(that.subject1);
@@ -640,16 +648,13 @@
   					var date = new Date(str_date);
 			    	var current_tp = date.getTime();
 			    	//current_tp = 2000000000000;//临时使用		
-						$.get(url + "brokerageSaRemind/listByDate?date="+current_tp, {							
+						$.get(url + "visaRemind/listVisaRemindDateDesc?pageNum=1&pageSize=10", {							
 						}, function(result) {
 							console.log(result)
 							for(var i = 0; i < result.data.length; i++) {									
-									result.data[i].id = result.data[i].id;
-									//result.data[i].userName = result.data[i].brokerageSa.userName;
-									result.data[i].userName = '<a href="javascript:;" onclick="show_detail('+result.data[i].brokerageSa.userId+');">'+result.data[i].brokerageSa.userName+'</a>';
-									result.data[i].phone = result.data[i].brokerageSa.phone;
-									result.data[i].handlingDate = that.getTime(result.data[i].brokerageSa.handlingDate);								
-									result.data[i].remindDate = that.getTime(result.data[i].remindDate);
+									//result.data[i].id = result.data[i].id;
+									result.data[i].userName = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].name+'</a>';
+									result.data[i].visaExpirationDate = that.getTime(result.data[i].visa_expiration_date);
 							};
 							that.subject2 = result.data;
 							console.log(that.subject2);
@@ -790,6 +795,26 @@
       		sessionStorage.setItem("id", id);
 					window.location.href = "knowledge.html"; 
       }
+      
+      function opennew_detail(serviceId,orderId)
+      {
+      		window.location.href = "mycommission-ovst.html?service_id="+serviceId+"&order_id="+orderId; 
+      }
+      
+      function url_replace(str)
+			{
+					var reg = /((http|ftp|https):\/\/)?[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?/g;
+					str=str.replace(reg,function(a){
+					    if(!a.indexOf('http'))
+					    {
+					    	return '<a href="'+a+'" target="_blank">'+a+'</a>';
+					    }else
+					    {
+					    	return '<a href="http://'+a+'" target="_blank">'+a+'</a>';
+					    }
+					});
+					return str;
+			}
     	    	
 		</script>
 	</body>

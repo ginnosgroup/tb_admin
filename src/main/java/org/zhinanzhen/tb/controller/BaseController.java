@@ -61,7 +61,7 @@ public class BaseController {
 		if (file != null) {
 			String path = "/root/tmp/";// 文件路径
 			String type = "JPG";// 文件类型
-			String fileName = file.getOriginalFilename();// 文件原名称
+			String fileName = file.getOriginalFilename().replace(" ", "_").replace("%20", "_");// 文件原名称
 			LOG.info("上传的文件原名称:" + fileName);
 			// 判断文件类型
 			type = fileName.indexOf(".") != -1 ? fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length())
@@ -75,7 +75,8 @@ public class BaseController {
 						folder.mkdirs();
 					}
 					// 自定义的文件名称
-					String newFileName = String.valueOf(System.currentTimeMillis()) + "_" + fileName.toLowerCase();
+//					String newFileName = String.valueOf(System.currentTimeMillis()) + "_" + fileName.toLowerCase();
+					String newFileName = String.valueOf(System.currentTimeMillis());
 					// 设置存放图片文件的路径
 					path = realPath + newFileName;
 					LOG.info("存放图片文件的路径:" + path);
@@ -96,7 +97,7 @@ public class BaseController {
 	public static Response<String> upload2(MultipartFile file, HttpSession session, String dir)
 			throws IllegalStateException, IOException {
 		if (file != null) {
-			String fileName = file.getOriginalFilename();// 文件原名称
+			String fileName = file.getOriginalFilename().replace(" ", "_").replace("%20", "_");// 文件原名称
 			LOG.info("上传的文件原名称:" + fileName);
 			String realPath = "/data" + dir;
 			// 创建目录
@@ -104,7 +105,8 @@ public class BaseController {
 			if (!folder.isDirectory())
 				folder.mkdirs();
 			// 自定义的文件名称
-			String newFileName = String.valueOf(System.currentTimeMillis()) + "_" + fileName.toLowerCase();
+//			String newFileName = String.valueOf(System.currentTimeMillis()) + "_" + fileName.toLowerCase();
+			String newFileName = String.valueOf(System.currentTimeMillis());
 			// 设置存放文件的路径
 			String path = realPath + newFileName;
 			LOG.info("存放文件的路径:" + path);
@@ -159,6 +161,17 @@ public class BaseController {
 		}
 		return null;
 	}
+	
+	// 获取当前Official管理员编号
+	protected Integer getOfficialAdminId(HttpServletRequest request) {
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo != null) {
+			String ap = adminUserLoginInfo.getApList();
+			if (ap != null && ap.contains("WA") && adminUserLoginInfo.isOfficialAdmin())
+				return adminUserLoginInfo.getOfficialId();
+		}
+		return null;
+	}
 
 	// 获取当前KJ编号
 	protected Integer getKjId(HttpServletRequest request) {
@@ -191,5 +204,7 @@ public class BaseController {
 		private Integer maraId;
 		private Integer officialId;
 		private Integer kjId;
+		private Integer regionId;
+		private boolean isOfficialAdmin;
 	}
 }

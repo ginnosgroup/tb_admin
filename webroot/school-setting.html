@@ -44,7 +44,7 @@
           <span v-if="ap_list==='MA'">
            	 Mara
           </span>
-          <span v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+          <span v-if="ap_list==='SUPERAD'">
            	 超级管理员
           </span>
 				</a>
@@ -89,7 +89,7 @@
                 </span>
               </a>
             </li>
-            <dli v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">            
+            <dli v-if="ap_list==='SUPERAD'">            
             <li>
               <a href="adviser.html">
                 <i class="fa fa-book">
@@ -100,7 +100,7 @@
               </a>
             </li>
             <li>
-              <a href="official.html" class="active">
+              <a href="official.html">
                 <i class="fa fa-book">
                 </i>
                 <span>
@@ -126,6 +126,8 @@
                 </span>
               </a>
             </li>
+            </dli>
+          	<dli v-if="ap_list==='SUPERAD' || (ap_list==='GW' && gw_regionid !== 'null')">
             <li class="sub-menu">
 							<a href="javascript:;" class="active">
 								<i class="fa fa-book">
@@ -135,7 +137,7 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li>
+								<li v-if="ap_list==='SUPERAD'">
 									<a href="school.html">
 										学校管理
 									</a>
@@ -147,6 +149,8 @@
 								</li>								
 							</ul>
 						</li>
+						</dli>
+						<dli v-if="ap_list==='SUPERAD'">
             <li>
               <a href="receive-type.html">
                 <i class="fa fa-book">
@@ -189,7 +193,7 @@
 										客户管理
 									</a>
 								</li>
-								<li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								<li v-if="ap_list==='SUPERAD'">
 									<a href="user-tags.html">
 										标签管理
 									</a>
@@ -205,7 +209,7 @@
                 </span>
               </a>
 						</li>
-            <li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'" class="sub-menu">
+            <li v-if="ap_list==='SUPERAD'" class="sub-menu">
 							<a href="javascript:;">
 								<i class="fa fa-book">
                 </i>
@@ -235,9 +239,19 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li v-if="ap_list==='GW'" class="active">
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" class="active">
 									<a href="mycommission.html">
 										我的佣金报表
+									</a>									
+								</li>
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" style="display:;" id="apply_state_PENDING">
+									<a href="mycommission.html?applyState=PENDING">
+										未申请月奖
+									</a>									
+								</li>
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" style="display:;" id="apply_state_COMPLETE">
+									<a href="mycommission.html?applyState=COMPLETE">
+										已申请月奖
 									</a>									
 								</li>
 								<li v-if="ap_list==='KJ'" id="commission_state_DJY">
@@ -250,7 +264,17 @@
 										已结佣订单
 									</a>									
 								</li>								
-								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
+									<a href="mycommission-check-accounting.html">
+										自动对账
+									</a>									
+								</li>
+								<li v-if="ap_list==='SUPERAD'">
+									<a href="create-visa-commission.html">
+										重建签证佣金表订单
+									</a>
+								</li>
+								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
 									<a href="table-export.html">
 										导出数据
 									</a>
@@ -266,12 +290,16 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								<li v-if="ap_list==='SUPERAD'">
 									<a href="knowledge-menu.html">
 										菜单管理
 									</a>
 								</li>
-								{{{m_list}}}							
+								<li>
+									<a href="knowledge.html">
+										知识库菜单
+									</a>
+								</li>
 							</ul>
 						</li>
 					</ul>
@@ -309,15 +337,15 @@
 														<th>ID</th>
 														<th>学校</th>
 														<th>选择佣金卡片类型</th>
-														<th>当前参数</th>
+														<th>当前参数</th>														
 														<th>周期内业务总额</th>
 														<th>周期内业务总量</th>
 													</tr>
 												</thead>
 												<tbody>
-													<tr v-for="item in subject" class="gradeX">
+													<tr v-for="item in subject" class="gradeX" id="list_{{item.id}}">
 														<td v-html="item.oid"></td>
-														<td v-html="item.schoolName"></td>
+														<td v-html="item.schoolName1" style="width:400px;"></td>
 														<td v-html="item.str_type">														
 														</td>
 														<td v-html="item.str_parameters" style="color:#008000;"></td>
@@ -542,11 +570,11 @@
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-4 control-label">点击设置各课程成本：</label>
-								<div class="col-sm-8" style="padding: 6px 12px;">
-									<a href="javascript:loadschoolsubject_7();">课程列表</a>
+								<label class="col-sm-4 control-label">底价</label>
+								<div class="col-sm-8">
+									<input type="text" autocomplete="off" style="width:150px;display:Inline;" id="t7a3" class="form-control" placeholder="">
 								</div>
-							</div>
+							</div>							
 							</form>
 					</div>
 					<div class="modal-footer">
@@ -761,7 +789,7 @@
 				data: {
 					admin: sessionStorage.getItem("admin"),
 					ap_list: sessionStorage.getItem("ap_list"),
-					m_list: localStorage.getItem("str_html"),
+					gw_regionid: sessionStorage.getItem("gw_regionid"),
 					allSort: [],
 					subject: [],
 					subject1: [],
@@ -770,6 +798,9 @@
 					eId: '',
 					schoolid: 0,
 					school_name: '',
+					currentId: 0,
+					currentSubId: '',
+					opened: 0,
 					name: '',
 					sort: '',
 					state: '',
@@ -799,6 +830,7 @@
 									result.data[i].oid = result.data[i].id;
 									result.data[i].str_init = '';
 									result.data[i].str_parameters = '';
+									result.data[i].schoolName1 = '<div onclick="loadCourses('+result.data[i].id+',\''+result.data[i].schoolName+'\')"><div style="display:inline-block;">'+result.data[i].schoolName+'</div><div style="display:inline-block;margin-left:10px;" id="s_'+result.data[i].id+'">+</div></div>';
 									switch(result.data[i].type)
 									{
 											case 1:
@@ -857,27 +889,27 @@
 															arr = result.data[i].parameters.split("|");
 															result.data[i].str_parameters = '合同周期从'+that.getTime(result.data[i].startDate)+'到'+that.getTime(result.data[i].endDate)+'。';
 															var arr1 = arr[1].split("/");
-															var str_txt = '成本比例为'+arr1[1]+'%（总人数达到'+arr1[0]+'人）';															
+															var str_txt = '成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';															
 															if (arr[2] != null)
 															{
 																	arr1 = arr[2].split("/");
-																	str_txt += '或成本比例为'+arr1[1]+'%（总人数达到'+arr1[0]+'人）';
+																	str_txt += '或成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';
 															}
 															if (arr[3] != null)
 															{
 																	arr1 = arr[3].split("/");
-																	str_txt += '或成本比例为'+arr1[1]+'%（总人数达到'+arr1[0]+'人）';
+																	str_txt += '或成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';
 															}
 															if (arr[4] != null)
 															{
 																	arr1 = arr[4].split("/");
-																	str_txt += '或成本比例为'+arr1[1]+'%（总人数达到'+arr1[0]+'人）';
+																	str_txt += '或成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';
 															}
 															result.data[i].str_parameters += str_txt;
 													}
 											break;
 											case 7:													
-													result.data[i].str_init = result.data[i].startDate+'#'+result.data[i].endDate;
+													result.data[i].str_init = result.data[i].startDate+'#'+result.data[i].endDate+'#'+result.data[i].parameters;
 													result.data[i].str_parameters = '合同周期从'+that.getTime(result.data[i].startDate)+'到'+that.getTime(result.data[i].endDate)+'，成本为固定价，请设置课程价目表。<a href="javascript:v.schoolid = '+result.data[i].id+';v.school_name = \''+result.data[i].schoolName+'\';loadschoolsubject_7();">课程列表</a>';
 											break;
 											case 5:
@@ -923,6 +955,8 @@
 											break;
 									}									
 									result.data[i].str_type = sltype(result.data[i].type,result.data[i].id,result.data[i].str_init,result.data[i].schoolName);
+									//result.data[i].str_type = '';
+									//result.data[i].str_parameters = '';
 							};
 							that.subject = result.data;
 							//console.log(that.subject);
@@ -965,6 +999,181 @@
 				}		
 			});						
 						
+			function loadCourses(id,name)
+			{
+					if (v.currentId)
+					{
+							var str = v.currentSubId.toString();
+							var arr = str.split(',');
+							for(var i=0;i < arr.length;i++)
+							{
+									$("#sub_"+arr[i]).remove();
+							}
+							$('#s_'+v.currentId).html('+');	
+							v.opened = 0;
+					}
+					if (!v.opened)
+					{
+							$('#s_'+id).html('-');
+							v.opened = 1;
+							//ajax请求课程
+							ajaxGetCourses(id,name);
+					}
+					v.currentId = id;					
+			}
+			
+			function ajaxGetCourses(id,name)
+			{
+					$.get(url + "school/listSchoolSetting?schoolName="+name, {
+						pageNum: 0,
+						pageSize: 100000
+					}, function(result) {
+						var str_html = '';
+						if (result.data != null)
+						{
+								for(var i = 0; i < result.data.length; i++) {
+										result.data[i].oid = result.data[i].id;
+										if (result.data[i].schoolSubject != '')
+										{
+												result.data[i].str_init = '';
+												result.data[i].str_parameters = '';
+												switch(result.data[i].type)
+												{
+														case 1:
+																result.data[i].str_init = result.data[i].startDate+'|'+result.data[i].endDate+'|'+result.data[i].parameters;
+																if (result.data[i].parameters)
+																{
+																		result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'，成本为课程原价'+result.data[i].parameters+'%。';
+																}
+														break;
+														case 2:
+																result.data[i].str_init = result.data[i].startDate+'#'+result.data[i].endDate+'#'+result.data[i].parameters;
+																if (result.data[i].parameters)
+																{
+																		arr = result.data[i].parameters.split("|");
+																		result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'，成本为课程原价'+arr[0]+'%。';
+																		var arr1 = arr[1].split("/");
+																		var str_txt = '额外每人补贴$'+arr1[0]+'（总人数超过'+arr1[2]+'人）';															
+																		if (arr[2] != null)
+																		{
+																				arr1 = arr[2].split("/");
+																				str_txt += '或额外每人补贴$'+arr1[0]+'（总人数超过'+arr1[2]+'人）';
+																		}
+																		if (arr[3] != null)
+																		{
+																				arr1 = arr[3].split("/");
+																				str_txt += '或额外每人补贴$'+arr1[0]+'（总人数超过'+arr1[2]+'人）';
+																		}
+																		if (arr[4] != null)
+																		{
+																				arr1 = arr[4].split("/");
+																				str_txt += '或额外每人补贴$'+arr1[0]+'（总人数超过'+arr1[2]+'人）';
+																		}
+																		result.data[i].str_parameters += str_txt;															
+																}
+														break;
+														case 3:
+																result.data[i].str_init = result.data[i].startDate+'#'+result.data[i].endDate+'#'+result.data[i].parameters;
+																if (result.data[i].parameters)
+																{
+																		arr = null;
+																		arr = result.data[i].parameters.split("|");
+																		result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'，成本为课程原价'+arr[0]+'%。';
+																		var arr1 = arr[1].split("/");
+																		if (arr1[1] != null)
+																		{
+																				var str_txt = '总人数超过'+arr1[0]+'人一次性补贴$'+arr1[1];
+																				result.data[i].str_parameters += str_txt;
+																		}																										
+																}
+														break;
+														case 4:
+																result.data[i].str_init = result.data[i].startDate+'#'+result.data[i].endDate+'#'+result.data[i].parameters;
+																if (result.data[i].parameters)
+																{
+																		arr = null;
+																		arr = result.data[i].parameters.split("|");
+																		result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'。';
+																		var arr1 = arr[1].split("/");
+																		var str_txt = '成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';															
+																		if (arr[2] != null)
+																		{
+																				arr1 = arr[2].split("/");
+																				str_txt += '或成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';
+																		}
+																		if (arr[3] != null)
+																		{
+																				arr1 = arr[3].split("/");
+																				str_txt += '或成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';
+																		}
+																		if (arr[4] != null)
+																		{
+																				arr1 = arr[4].split("/");
+																				str_txt += '或成本比例为'+arr1[0]+'%（总人数达到'+arr1[1]+'人）';
+																		}
+																		result.data[i].str_parameters += str_txt;
+																}
+														break;
+														case 7:													
+																result.data[i].str_init = result.data[i].startDate+'#'+result.data[i].endDate+'#'+result.data[i].parameters;
+																result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'，成本为固定价：'+result.data[i].parameters+'。';
+														break;
+														case 5:
+																result.data[i].str_init = result.data[i].startDate+'#'+result.data[i].endDate+'#'+result.data[i].parameters;
+																if (result.data[i].parameters)
+																{
+																		arr = null;
+																		arr = result.data[i].parameters.split("|");
+																		result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'。成本为固定值，请设置课程价目表。';
+																		var arr1 = arr[1].split("/");
+																		var str_txt = '额外每人补贴$'+arr1[1]+'（总人数超过'+arr1[0]+'人）';															
+																		if (arr[2] != null)
+																		{
+																				arr1 = arr[2].split("/");
+																				str_txt += '或额外每人补贴$'+arr1[1]+'（总人数超过'+arr1[0]+'人）';
+																		}
+																		if (arr[3] != null)
+																		{
+																				arr1 = arr[3].split("/");
+																				str_txt += '或额外每人补贴$'+arr1[1]+'（总人数超过'+arr1[0]+'人）';
+																		}
+																		if (arr[4] != null)
+																		{
+																				arr1 = arr[4].split("/");
+																				str_txt += '或额外每人补贴$'+arr1[1]+'（总人数超过'+arr1[0]+'人）';
+																		}
+																		result.data[i].str_parameters += str_txt+'<a href="javascript:v.schoolid = '+result.data[i].id+';v.school_name = \''+result.data[i].schoolName+'\';loadschoolsubject_7();">课程列表</a>';
+																}
+														break;
+														case 6:
+																result.data[i].str_init = result.data[i].startDate+'#'+result.data[i].endDate+'#'+result.data[i].parameters;
+																if (result.data[i].parameters)
+																{
+																		arr = null;
+																		result.data[i].str_parameters = '合同周期从'+v.getTime(result.data[i].startDate)+'到'+v.getTime(result.data[i].endDate)+'。成本为固定值，请设置课程价目表。';
+																		var arr1 = result.data[i].parameters.split("/");
+																		if (arr1[1] != null)
+																		{
+																				var str_txt = '总人数超过'+arr1[1]+'人一次性补贴$'+arr1[0];
+																				result.data[i].str_parameters += str_txt;
+																		}																										
+																}
+														break;
+												}									
+												result.data[i].str_type = sltype(result.data[i].type,result.data[i].id,result.data[i].str_init,result.data[i].schoolName);
+												if (v.currentSubId == '')
+												{
+														v.currentSubId = result.data[i].id;
+												}else
+												{
+														v.currentSubId += ','+result.data[i].id;
+												}
+												$("#list_"+id).after('<tr id="sub_'+result.data[i].id+'"><td></td><td align="center" style="color:#000;">'+result.data[i].schoolSubject+'</td><td>'+result.data[i].str_type+'</td><td style="color:#008000;">'+result.data[i].str_parameters +'</td><td></td><td></td></tr>');
+										}
+								}
+						}
+					});
+			}						
 			
 			function sltype(type,sid,str_init,school_name)
 			{	
@@ -1046,18 +1255,27 @@
 											$('#t2c1').val(arrc[0]);
 											$('#t2c2').val(arrc[1]);
 											$('#t2c3').val(arrc[2]);
-											var arrd = arr1[2].split("/");
-											$('#t2d1').val(arrd[0]);
-											$('#t2d2').val(arrd[1]);
-											$('#t2d3').val(arrd[2]);
-											var arre = arr1[3].split("/");
-											$('#t2e1').val(arre[0]);
-											$('#t2e2').val(arre[1]);
-											$('#t2e3').val(arre[2]);
-											var arrf = arr1[4].split("/");
-											$('#t2f1').val(arrf[0]);
-											$('#t2f2').val(arrf[1]);
-											$('#t2f3').val(arrf[2]);
+											if (typeof(arr1[2]) != "undefined") 
+											{
+													var arrd = arr1[2].split("/");
+													$('#t2d1').val(arrd[0]);
+													$('#t2d2').val(arrd[1]);
+													$('#t2d3').val(arrd[2]);
+											}
+											if (typeof(arr1[3]) != "undefined") 
+											{
+													var arre = arr1[3].split("/");
+													$('#t2e1').val(arre[0]);
+													$('#t2e2').val(arre[1]);
+													$('#t2e3').val(arre[2]);
+											}
+											if (typeof(arr1[4]) != "undefined") 
+											{
+													var arrf = arr1[4].split("/");
+													$('#t2f1').val(arrf[0]);
+													$('#t2f2').val(arrf[1]);
+													$('#t2f3').val(arrf[2]);
+											}
 									}
 							break;
 							case 3:
@@ -1097,18 +1315,30 @@
 											$('#t4a1').val(formatDate(parseInt(arr[0])));
 											$('#t4a2').val(formatDate(parseInt(arr[1])));
 											var arr1 = arr[2].split("|");
-											var arrb = arr1[1].split("/");											
-											$('#t4b1').val(arrb[0]);
-											$('#t4b2').val(arrb[1]);
-											var arrc = arr1[2].split("/");
-											$('#t4c1').val(arrc[0]);
-											$('#t4c2').val(arrc[1]);
-											var arrd = arr1[3].split("/");
-											$('#t4d1').val(arrd[0]);
-											$('#t4d2').val(arrd[1]);
-											var arre = arr1[4].split("/");
-											$('#t4e1').val(arre[0]);
-											$('#t4e2').val(arre[1]);
+											if (typeof(arr1[1]) != "undefined") 
+											{
+													var arrb = arr1[1].split("/");											
+													$('#t4b1').val(arrb[0]);
+													$('#t4b2').val(arrb[1]);
+											}
+											if (typeof(arr1[2]) != "undefined") 
+											{
+													var arrc = arr1[2].split("/");
+													$('#t4c1').val(arrc[0]);
+													$('#t4c2').val(arrc[1]);
+											}
+											if (typeof(arr1[3]) != "undefined") 
+											{
+													var arrd = arr1[3].split("/");
+													$('#t4d1').val(arrd[0]);
+													$('#t4d2').val(arrd[1]);
+											}
+											if (typeof(arr1[4]) != "undefined") 
+											{
+													var arre = arr1[4].split("/");
+													$('#t4e1').val(arre[0]);
+													$('#t4e2').val(arre[1]);
+											}
 									}
 							break;
 							case 7:
@@ -1120,6 +1350,7 @@
 											arr = str_init.split("#");
 											$('#t7a1').val(formatDate(parseInt(arr[0])));
 											$('#t7a2').val(formatDate(parseInt(arr[1])));
+											$('#t7a3').val(arr[2]);
 									}								
 									v.schoolid = id;
 							break;
@@ -1133,18 +1364,30 @@
 											$('#t5a1').val(formatDate(parseInt(arr[0])));
 											$('#t5a2').val(formatDate(parseInt(arr[1])));
 											var arr1 = arr[2].split("|");
-											var arrb = arr1[1].split("/");											
-											$('#t5b1').val(arrb[0]);
-											$('#t5b2').val(arrb[1]);
-											var arrc = arr1[2].split("/");
-											$('#t5c1').val(arrc[0]);
-											$('#t5c2').val(arrc[1]);
-											var arrd = arr1[3].split("/");
-											$('#t5d1').val(arrd[0]);
-											$('#t5d2').val(arrd[1]);
-											var arre = arr1[4].split("/");
-											$('#t5e1').val(arre[0]);
-											$('#t5e2').val(arre[1]);
+											if (typeof(arr1[1]) != "undefined") 
+											{
+													var arrb = arr1[1].split("/");											
+													$('#t5b1').val(arrb[0]);
+													$('#t5b2').val(arrb[1]);
+											}
+											if (typeof(arr1[2]) != "undefined") 
+											{
+													var arrc = arr1[2].split("/");
+													$('#t5c1').val(arrc[0]);
+													$('#t5c2').val(arrc[1]);
+											}
+											if (typeof(arr1[3]) != "undefined") 
+											{
+													var arrd = arr1[3].split("/");
+													$('#t5d1').val(arrd[0]);
+													$('#t5d2').val(arrd[1]);
+											}
+											if (typeof(arr1[2]) != "undefined") 
+											{
+													var arre = arr1[4].split("/");
+													$('#t5e1').val(arre[0]);
+													$('#t5e2').val(arre[1]);
+											}
 									}								
 									v.schoolid = id;
 							break;
@@ -1408,7 +1651,7 @@
           		var str_url = "school/updateSchoolSetting4";
               var sa_id = v.dId;
               
-              $.post(str_url, { id: sa_id, startDate: a1, endDate: a2, proportion1: b1, number1: b2, proportion2: c1, number2: c2, proportion3: d1, number3: d2, proportion4: e1, number4: e2},
+              $.post(str_url, { id: sa_id, startDate: a1, endDate: a2, number1: b1, proportion1: b2, number2: c1, proportion2: c2, number3: d1, proportion3: d2, number4: e1, proportion4: e2},
 					   	function(data){
 					   			if (data.code == 0)
 					   			{
@@ -1446,7 +1689,7 @@
               a2 = date.getTime();
         	}
         	var check_result = 0;
-          if (jqInputs[0].value != '' && jqInputs[1].value != '')
+          if (jqInputs[0].value != '' && jqInputs[1].value != '' && jqInputs[2].value != '')
           {
           		check_result = true;
           }else
@@ -1459,7 +1702,7 @@
           		var str_url = "school/updateSchoolSetting7";
               var sa_id = v.dId;
               
-              $.post(str_url, { id: sa_id, startDate: a1, endDate: a2},
+              $.post(str_url, { id: sa_id, startDate: a1, endDate: a2, fee: jqInputs[2].value},
 					   	function(data){
 					   			if (data.code == 0)
 					   			{
@@ -1670,7 +1913,7 @@
 			   			//console.log(data);
 			   	});     
 					
-			}
+			}						
 			
 			v.$watch('subject', function(obj) {
 					$('.default-date-picker1').datepicker({   				

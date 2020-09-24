@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
 
-import com.ikasoa.core.utils.StringUtil;
-
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/admin_user")
@@ -49,6 +47,8 @@ public class AdminUserController extends BaseController {
 					if (ap.contains("KJ"))
 						loginInfo.setKjId(adminUser.getKjId());
 				}
+				loginInfo.setRegionId(adminUser.getRegionId());
+				loginInfo.setOfficialAdmin(adminUser.isOfficialAdmin());
 			}
 			session.removeAttribute("AdminUserLoginInfo");
 			session.setAttribute("AdminUserLoginInfo", loginInfo);
@@ -108,7 +108,7 @@ public class AdminUserController extends BaseController {
 	public Response<String> resetPassword(@RequestParam(value = "username") String username, HttpServletRequest request,
 			HttpServletResponse response) throws ServiceException {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-		if (adminUserLoginInfo != null && (StringUtil.isEmpty(adminUserLoginInfo.getApList())
+		if (adminUserLoginInfo != null && ("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 				|| "AD".equalsIgnoreCase(adminUserLoginInfo.getApList()))) {
 			String newPassword = RandomStringUtils.randomAlphanumeric(4);
 			if (adminUserService.updatePassword(username, newPassword))

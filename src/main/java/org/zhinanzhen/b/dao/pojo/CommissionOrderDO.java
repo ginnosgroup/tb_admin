@@ -18,6 +18,8 @@ public class CommissionOrderDO {
 	private String state;
 
 	private String commissionState;
+	
+	private Date kjApprovalDate;
 
 	private boolean isSettle;
 
@@ -45,11 +47,19 @@ public class CommissionOrderDO {
 
 	private String paymentVoucherImageUrl2;
 
+	private String paymentVoucherImageUrl3;
+
+	private String paymentVoucherImageUrl4;
+
+	private String paymentVoucherImageUrl5;
+
 	private double schoolPaymentAmount;
 
 	private Date schoolPaymentDate;
 
 	private String invoiceNumber;
+
+	private Date dob;
 
 	private Date startDate;
 
@@ -70,6 +80,8 @@ public class CommissionOrderDO {
 	private double amount;
 
 	private double expectAmount;
+	
+	private double sureExpectAmount;
 
 	private double discount;
 
@@ -81,8 +93,15 @@ public class CommissionOrderDO {
 
 	private Date bonusDate;
 
+	private Date zyDate;
+
+	private String bankCheck;
+
+	private boolean isChecked;
+
 	private String remarks;
 
 	private boolean isClose;
 
+	private String applyState;
 }

@@ -208,9 +208,9 @@
           <span v-if="ap_list==='MA'">
            	 Mara
           </span>
-          <span v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+          <span v-if="ap_list==='SUPERAD'">
            	 超级管理员
-          </span>
+          </span>          
 				</a>
 				<div class="top-nav ">
 					<ul class="nav pull-right top-menu">
@@ -253,7 +253,7 @@
                 </span>
               </a>
             </li>
-            <dli v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">            
+            <dli v-if="ap_list==='SUPERAD'">            
             <li>
               <a href="adviser.html" class="active">
                 <i class="fa fa-book">
@@ -353,7 +353,7 @@
 										客户管理
 									</a>
 								</li>
-								<li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								<li v-if="ap_list==='SUPERAD'">
 									<a href="user-tags.html">
 										标签管理
 									</a>
@@ -369,7 +369,7 @@
                 </span>
               </a>
 						</li>
-            <li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'" class="sub-menu">
+            <li v-if="ap_list==='SUPERAD'" class="sub-menu">
 							<a href="javascript:;">
 								<i class="fa fa-book">
                 </i>
@@ -399,9 +399,19 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li v-if="ap_list==='GW'" class="active">
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" class="active">
 									<a href="mycommission.html">
 										我的佣金报表
+									</a>									
+								</li>
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" style="display:;" id="apply_state_PENDING">
+									<a href="mycommission.html?applyState=PENDING">
+										未申请月奖
+									</a>									
+								</li>
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" style="display:;" id="apply_state_COMPLETE">
+									<a href="mycommission.html?applyState=COMPLETE">
+										已申请月奖
 									</a>									
 								</li>
 								<li v-if="ap_list==='KJ'" id="commission_state_DJY">
@@ -414,7 +424,17 @@
 										已结佣订单
 									</a>									
 								</li>								
-								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
+									<a href="mycommission-check-accounting.html">
+										自动对账
+									</a>									
+								</li>
+								<li v-if="ap_list==='SUPERAD'">
+									<a href="create-visa-commission.html">
+										重建签证佣金表订单
+									</a>
+								</li>
+								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
 									<a href="table-export.html">
 										导出数据
 									</a>
@@ -430,12 +450,16 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								<li v-if="ap_list==='SUPERAD'">
 									<a href="knowledge-menu.html">
 										菜单管理
 									</a>
 								</li>
-								{{{m_list}}}							
+								<li>
+									<a href="knowledge.html">
+										知识库菜单
+									</a>
+								</li>
 							</ul>
 						</li>
 					</ul>
@@ -451,7 +475,7 @@
 								</header>
 								<div class="panel-body responsive-table">
 									<div class="adv-table editable-table">
-										<div class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+										<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
 									      <button data-dismiss="alert" class="close close-sm" type="button">
 									      <i class="fa fa-times"></i>
 									      </button>
@@ -491,6 +515,7 @@
 														<th>登录密码</th>
 														<th>二维码</th>
 														<th>所属区域</th>														
+														<th>管理区域</th>	
 														<th>账户状态</th>
 														<th>Edit</th>
 														<th>操作</th>
@@ -504,9 +529,14 @@
 														<td v-html="item.email"></td>
 														<td v-html="item.password"></td>
 														<td v-html="item.imageUrl"></td>
-														<td v-html="item.regionName"></td>													
+														<td v-html="item.regionName"></td>											
+														<td v-html="item.adminRegionName"></td>
 														<td v-html="item.state"></td>
-														<td><a v-if="item.id" class="edit" href="javascript:;" @click="table_modify($index)"><span class="label label-success">Edit</span></a>
+														<td>
+																<dle v-if="item.id">
+																<a class="edit" href="javascript:;" @click="table_modify($index)"><span class="label label-success">Edit</span></a>
+																<a href="javascript:;" @click="table_setadmin(item.id,item.adminRegionId)"><span class="label label-success" style="background-color: #58c9f3;">设为管理员</span></a>
+																</dle>
 																<a v-else class="edit" href="javascript:;"><span class="label label-primary">Save</span></a>
 														</td>
 														<td>
@@ -640,6 +670,35 @@
 				</div>
 			</div>
 		</div>
+		<div class="modal fade" id="setadmin_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="close_title">请配置管理员管理地区</h4>
+					</div>
+					<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+			      <button data-dismiss="alert" class="close close-sm" type="button">
+			      <i class="fa fa-times"></i>
+			      </button>
+			      <strong>Success!</strong> You  just achieved success.
+			  	</div>
+			  	<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+		        <button data-dismiss="alert" class="close close-sm" type="button">
+		        <i class="fa fa-times"></i>
+		        </button>
+		        <strong id="error_info"></strong>
+		      </div>
+					<div class="modal-body">						
+							<select class="form-control" style="width:200px;" name="adminRegionId" id="adminRegionId"></select>
+					</div>
+					<div class="modal-footer">
+						<button onclick="setadminSave()" type="button" class="btn btn-primary">确认</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>						
+					</div>
+				</div>
+			</div>
+		</div>
 		<script src="js/jquery-1.8.3.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
 		<script src="js/jquery.dcjqaccordion.2.7.js"></script>
@@ -659,12 +718,12 @@
 				data: {
 					admin: sessionStorage.getItem("admin"),
 					ap_list: sessionStorage.getItem("ap_list"),
-					m_list: localStorage.getItem("str_html"),
 					allSort: [],
 					subject: [],
 					count: 0,
 					dId: '',
 					eId: '',
+					current_adminRegionId: 0,
 					username: '',
 					name: '',
 					sort: '',
@@ -854,6 +913,19 @@
 						}
 						//alert(this.current_row.id);																			
 					},
+					table_setadmin:	function (id,adminRegionId) {
+						this.dId = id;						
+						if (adminRegionId != 'null')
+						{
+								this.current_adminRegionId = adminRegionId;
+						}else
+						{
+								this.current_adminRegionId = 0;
+						}
+						$('#setadmin_id').modal('show');
+						var obj_adminRegionId = $("#setadmin_id #adminRegionId");
+						obj_adminRegionId.val(this.current_adminRegionId);
+					},				
 					table_remove: function (index) {
              this.subject.splice(index, 1);  
           },
@@ -905,6 +977,10 @@
 			{
 				for(var i = 0; i < result.data.length; i++) {
 						result.data[i].oid = result.data[i].id;	
+						if (result.data[i].adminRegionId != null)
+						{
+								result.data[i].adminRegionName = '<label style="color:red;font-weight:bold;">'+result.data[i].adminRegionName+'</label>';
+						}
 						result.data[i].password = '<label id="t5" style="width:150px;"><a href="javascript:;" onclick="passwdSet(\''+result.data[i].email+'\')">重置密码</a></label>';				
 				};
 				return result.data;
@@ -945,15 +1021,14 @@
               
               $.post(str_url, { id: sa_id, name: str_name, phone: str_phone, email: str_email, password: passwd, imageUrl: jqText[0].value, regionId: jqSelect[0].value},
 					   	function(data){
-					   			if (data.code == 0)
+					   			if (data.message == '')
 					   			{
 					   					v.add = false;
-					   					$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
+					   					$('#alert_success').addClass('alert-success').show().delay(1500).fadeOut();
 					   					v.table_remove();
 					   					//重新载入数据源
 					   					this.add = false;
 					   					v.getDatalist();
-					   					v.getSort();
 					   			}else
 					   			{
 					   					$('#alert_error').addClass('alert-danger').show().delay(1500).fadeOut();
@@ -968,11 +1043,11 @@
 					$('.default-date-picker').datepicker({   				
 				        format: 'dd/mm/yyyy'
 				  });
-				  var regionId = 0;
+				  var regionId = 0;				  
 				 	if (this.current_row.id)
 				  {
 				  		$("#id").val(this.current_row.id);	  		
-				  		regionId = this.current_row.regionId;				  			  		
+				  		regionId = this.current_row.regionId;	
 				  }				   	    			    
 			    //绑定区域列表
 			    var obj_regionId = $("#t4");	
@@ -994,6 +1069,27 @@
 	        			}
 	        	}
 	        	obj_regionId.val(regionId);   
+	        });
+	        var obj_adminRegionId = $("#setadmin_id #adminRegionId");
+	        obj_adminRegionId.empty();
+	        obj_adminRegionId.append("<option value='0'>请选择</option>");
+			    $.ajax({
+	          url: 'region/list_all',
+	          type: 'GET',
+	          dataType: 'json'
+	        }).done(function(response) {
+	        	//author:bischina	        	
+	        	var str_html = '';
+	        	var region_data = response.data;
+	        	for (var item in region_data)
+	        	{
+	        			obj_adminRegionId.append("<option value='"+region_data[item].id+"'>"+region_data[item].name+"</option>");
+	        			var region_sub = region_data[item].regionList;
+	        			for (var itemsub in region_sub)
+	        			{
+	        					obj_adminRegionId.append("<option value='"+region_sub[itemsub].id+"'>---"+region_sub[itemsub].name+"</option>");
+	        			}
+	        	}
 	        });
 			});
 			
@@ -1046,6 +1142,53 @@
 			   		}
 			   	});
       		$('#passwd_id').modal('show');
+      }
+      
+      function setadminSave()
+      {
+      		var f = '#setadmin_id ';
+      		var check_result = 0;
+      		var e_info = '';
+      		
+      		var adviserId = v.dId;
+      		var adminRegionId = parseInt($(f+'#adminRegionId').val());
+      		v.dId = 0;
+      		if (adminRegionId)
+          {
+          		check_result = true;
+          }else
+          {
+          		e_info = '请务必选择一个管理区域。';
+      				$('#setadmin_id #alert_error').css('marginLeft','30%');
+			    		$('#setadmin_id #alert_error').css('marginTop','10%');
+			    		$('#setadmin_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+			        $("#setadmin_id #error_info").html(e_info);
+      				return false;
+          }
+          
+          if (check_result)
+    			{
+    					var str_url = "adviser/update";
+    					$.post(str_url, { id: adviserId,adminRegionId: adminRegionId},
+					   	function(data){
+					   			if (data.code == 0)
+					   			{
+					   					$('#setadmin_id #alert_success').css('marginLeft','30%');
+			    						$('#setadmin_id #alert_success').css('marginTop','10%');
+					   					$('#setadmin_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();					   					
+					   					setTimeout(function(){$('#setadmin_id').modal('hide');}, 2000);
+					   					//重新载入数据源					   					
+					   					v.getDatalist();
+					   			}else
+					   			{
+					   					$('#setadmin_id #alert_error').css('marginLeft','30%');
+			    						$('#setadmin_id #alert_error').css('marginTop','10%');
+					   					$('#setadmin_id #alert_error').addClass('alert-danger').show().delay(1500).fadeOut();
+					   					$("#setadmin_id #error_info").html(data.message);
+					   			}
+					   			//console.log(data);
+					   	});
+    			}
       }
       
       function show_knowledge_detail(id,parentId)

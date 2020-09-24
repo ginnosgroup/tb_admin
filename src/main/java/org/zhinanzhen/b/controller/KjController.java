@@ -1,6 +1,8 @@
 package org.zhinanzhen.b.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -14,14 +16,23 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.zhinanzhen.b.service.CommissionOrderService;
 import org.zhinanzhen.b.service.KjService;
 import org.zhinanzhen.b.service.KjStateEnum;
+import org.zhinanzhen.b.service.ServiceOrderService;
+import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
+import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.b.service.pojo.KjDTO;
+import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
+import org.zhinanzhen.b.service.pojo.VisaDTO;
 
 import com.ikasoa.core.utils.StringUtil;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -30,6 +41,15 @@ public class KjController extends BaseController {
 
 	@Resource
 	KjService kjService;
+
+	@Resource
+	ServiceOrderService serviceOrderService;
+
+	@Resource
+	VisaService visaService;
+
+	@Resource
+	CommissionOrderService commissionOrderService;
 
 	@RequestMapping(value = "/upload_img", method = RequestMethod.POST)
 	@ResponseBody
@@ -66,7 +86,7 @@ public class KjController extends BaseController {
 			if (kjService.addKj(kjDto) > 0) {
 				if (password == null)
 					password = email; // 如果没有传入密码,则密码和email相同
-				adminUserService.add(email, password, "KJ", null, null, kjDto.getId());
+				adminUserService.add(email, password, "KJ", null, null, null, kjDto.getId(), null);
 				return new Response<Integer>(0, kjDto.getId());
 			} else
 				return new Response<Integer>(0, "创建失败.", 0);
@@ -145,6 +165,161 @@ public class KjController extends BaseController {
 		} catch (ServiceException e) {
 			return new Response<KjDTO>(1, e.getMessage(), null);
 		}
+	}
+
+	@RequestMapping(value = "/check", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<List<CheckOrderDTO>> check(@RequestParam(value = "text") String text,
+			HttpServletResponse response) {
+		List<CheckOrderDTO> checkOrderList = new ArrayList<>();
+		String message = "";
+		String[] array1 = text.split("\n");
+		for (String s : array1) {
+			try {
+				String[] array2 = s.split("[,]");
+				if (array2.length >= 2) {
+					String _id = array2[0].split("-")[0];
+					String _amount = array2[1];
+					if (_id.charAt(0) == 'V' || _id.charAt(0) == 'v') { // 签证服务订单
+						int id = Integer.parseInt(_id.substring(1, _id.length()).trim());
+						double amount = Double.parseDouble(_amount.trim());
+						ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
+						if (serviceOrderDto != null) {
+							VisaDTO visaDto = visaService.getFirstVisaByServiceOrderId(serviceOrderDto.getId());
+							if (visaDto != null)
+								if (visaDto.getAmount() == amount) {
+									visaDto.setBankCheck(_id);
+									visaDto.setChecked(true);
+									visaService.updateVisa(visaDto);
+									checkOrderList.add(new CheckOrderDTO(visaDto.getId(), visaDto.getGmtCreate(), "V",
+											_id, _amount, true, ""));
+								} else
+									checkOrderList.add(new CheckOrderDTO(visaDto.getId(), visaDto.getGmtCreate(), "V",
+											_id, _amount, false, ""));
+							else
+								checkOrderList.add(new CheckOrderDTO(-1, null, "V", _id, _amount, false,
+										"未找到签证佣金订单(" + serviceOrderDto.getId() + ")"));
+						} else
+							checkOrderList
+									.add(new CheckOrderDTO(-1, null, "V", _id, _amount, false, "未找到服务订单(" + id + ")"));
+					} else if (_id.charAt(0) == 'C' || _id.charAt(0) == 'c') { // 佣金订单
+						if (_id.charAt(1) == 'V' || _id.charAt(1) == 'v') { // 签证佣金订单
+							int id = Integer.parseInt(_id.substring(2, _id.length()).trim());
+							double amount = Double.parseDouble(_amount.trim());
+							VisaDTO visaDto = visaService.getVisaById(id);
+							if (visaDto != null)
+								if (visaDto.getAmount() == amount) {
+									visaDto.setBankCheck(_id);
+									visaDto.setChecked(true);
+									visaService.updateVisa(visaDto);
+									checkOrderList.add(new CheckOrderDTO(visaDto.getId(), visaDto.getGmtCreate(), "CV",
+											_id, _amount, true, ""));
+								} else
+									checkOrderList.add(new CheckOrderDTO(visaDto.getId(), visaDto.getGmtCreate(), "CV",
+											_id, _amount, false, ""));
+							else
+								checkOrderList.add(new CheckOrderDTO(-1, null, "CV", _id, _amount, false,
+										"未找到签证佣金订单(" + id + ")"));
+						} else if (_id.charAt(1) == 'S' || _id.charAt(1) == 's') { // 留学佣金订单
+							int id = Integer.parseInt(_id.substring(2, _id.length()).trim());
+							double amount = Double.parseDouble(_amount.trim());
+							CommissionOrderListDTO commissionOrderListDto = commissionOrderService
+									.getCommissionOrderById(id);
+							if (commissionOrderListDto != null)
+								if (commissionOrderListDto.getAmount() == amount) {
+									commissionOrderListDto.setBankCheck(_id);
+									commissionOrderListDto.setChecked(true);
+									commissionOrderService.updateCommissionOrder(commissionOrderListDto);
+									checkOrderList.add(new CheckOrderDTO(commissionOrderListDto.getId(),
+											commissionOrderListDto.getGmtCreate(), "CS", _id, _amount, true, ""));
+								} else
+									checkOrderList.add(new CheckOrderDTO(commissionOrderListDto.getId(),
+											commissionOrderListDto.getGmtCreate(), "CS", _id, _amount, false, ""));
+							else
+								checkOrderList.add(new CheckOrderDTO(-1, null, "CS", _id, _amount, false,
+										"未找到留学佣金订单(" + id + ")"));
+						}
+					} else if (_id.charAt(0) == 'S' || _id.charAt(0) == 's') { // 留学服务订单(提前扣佣)
+						int id = Integer.parseInt(_id.substring(1, _id.length()).trim());
+						double amount = Double.parseDouble(_amount.trim());
+						ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
+						if (serviceOrderDto != null) {
+							if (serviceOrderDto.isSettle()) {
+								CommissionOrderListDTO commissionOrderListDto = commissionOrderService
+										.getFirstCommissionOrderByServiceOrderId(serviceOrderDto.getId());
+								if (commissionOrderListDto != null)
+									if (commissionOrderListDto.getAmount() == amount) {
+										commissionOrderListDto.setBankCheck(_id);
+										commissionOrderListDto.setChecked(true);
+										commissionOrderService.updateCommissionOrder(commissionOrderListDto);
+										checkOrderList.add(new CheckOrderDTO(commissionOrderListDto.getId(),
+												commissionOrderListDto.getGmtCreate(), "S", _id, _amount, true, ""));
+									} else
+										checkOrderList.add(new CheckOrderDTO(commissionOrderListDto.getId(),
+												commissionOrderListDto.getGmtCreate(), "S", _id, _amount, false, ""));
+								else
+									checkOrderList.add(new CheckOrderDTO(-1, null, "S", _id, _amount, false,
+											"未找到留学佣金订单(" + serviceOrderDto.getId() + ")"));
+							} else
+								checkOrderList.add(new CheckOrderDTO(-1, null, "S", _id, _amount, false,
+										"这是非提前扣佣服务订单,需要用invoiceNumber匹配(" + id + ")"));
+						} else
+							checkOrderList
+									.add(new CheckOrderDTO(-1, null, "S", _id, _amount, false, "未找到服务订单(" + id + ")"));
+					} else
+						checkOrderList.add(new CheckOrderDTO(-1, null, "S", _id, _amount, false, "请加上前缀(" + _id + ")"));
+				} else if (array2.length == 1 && (s.indexOf("S") != -1 || s.indexOf("M") != -1 || s.indexOf("T") != -1
+						|| s.indexOf("B") != -1 || s.indexOf("A") != -1 || s.indexOf("BJ") != -1)) { // 留学订单(非提前扣佣,仅匹配invoice)
+					String invoiceNo = s.trim();
+					List<CommissionOrderListDTO> commissionOrderListDtoList = commissionOrderService
+							.listCommissionOrderByInvoiceNumber(invoiceNo);
+					if (commissionOrderListDtoList == null || commissionOrderListDtoList.size() == 0)
+						checkOrderList.add(new CheckOrderDTO(-1, null, "I", s, null, false,
+								"未找到留学佣金订单(invoiceNo:" + invoiceNo + ")"));
+					for (CommissionOrderListDTO commissionOrderListDto : commissionOrderListDtoList) {
+						ServiceOrderDTO serviceOrder = serviceOrderService
+								.getServiceOrderById(commissionOrderListDto.getServiceOrderId());
+						if (serviceOrder != null)
+							if (!serviceOrder.isSettle()) {
+								commissionOrderListDto.setBankCheck(s);
+								commissionOrderListDto.setChecked(true);
+								commissionOrderService.updateCommissionOrder(commissionOrderListDto);
+								checkOrderList.add(new CheckOrderDTO(commissionOrderListDto.getId(),
+										commissionOrderListDto.getGmtCreate(), "I", s, null, true, ""));
+							} else
+								checkOrderList.add(new CheckOrderDTO(-1, null, "I", s, null, false,
+										"提前扣佣订单请用ID匹配(invoiceNo:" + invoiceNo + ")"));
+						else
+							checkOrderList.add(new CheckOrderDTO(-1, null, "I", s, null, false,
+									"未找到留学佣金订单所匹配的服务订单(" + commissionOrderListDto.getServiceOrderId() + ")"));
+					}
+				} else
+					message += "格式错误(" + s + ");";
+			} catch (Exception e) {
+				message += "异常:" + e.getMessage() + ";";
+			}
+		}
+		return new Response<>(0, message, checkOrderList);
+	}
+
+	@AllArgsConstructor
+	@Data
+	class CheckOrderDTO {
+
+		private int id;
+
+		private Date gmtCreate;
+
+		private String type;
+
+		private String bankContent;
+		
+		private String bankAmount;
+
+		private boolean isChecked;
+		
+		private String message;
+
 	}
 
 }

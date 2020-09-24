@@ -44,6 +44,12 @@ public class ServiceOrderDTO {
 	private SchoolDTO school;
 
 	private String state;
+	
+	private String auditingState;
+	
+	private Date maraApprovalDate;
+
+	private Date officialApprovalDate;
 
 	private boolean isSettle;
 
@@ -76,6 +82,20 @@ public class ServiceOrderDTO {
 	private String paymentVoucherImageUrl2;
 
 	private String paymentVoucherImageUrl3;
+	
+	private String paymentVoucherImageUrl4;
+
+	private String paymentVoucherImageUrl5;
+	
+	private String coePaymentVoucherImageUrl1;
+	
+	private String coePaymentVoucherImageUrl2;
+	
+	private String coePaymentVoucherImageUrl3;
+	
+	private String coePaymentVoucherImageUrl4;
+	
+	private String coePaymentVoucherImageUrl5;
 
 	private String visaVoucherImageUrl;
 
@@ -115,10 +135,14 @@ public class ServiceOrderDTO {
 
 	private String closedReason;
 
+	private boolean hasCommissionOrder = false;
+
 	private ServiceOrderReviewDTO review;
 
 	private List<ServiceOrderReviewDTO> reviews;
 
 	private List<ChildrenServiceOrderDTO> childrenServiceOrders;
+	
+	private List<ServiceOrderOfficialRemarksDTO> officialNotes;
 
 }

@@ -1,6 +1,6 @@
 ﻿<meta charset="utf-8"/>
 <div id="app_sub">
-<div class="modal fade" id="show_ovst_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+<div class="modal fade" id="show_ovst_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"  data-backdrop="static">
 			<div class="modal-dialog" role="document" style="width:700px;">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -33,9 +33,11 @@
 								<label class="control-label" style="width:80px;"><strong>服务项目：</strong></label>
 								<label id="c2" style="width:100px;">留学</strong></label>
 								<label class="control-label"><strong>学校：</strong></label>
-								<label id="c3" style="width:150px;"></label>
+								<label id="c3" style="width:150px;"></label>								
+							</div>
+							<div class="form-group" style="width:100%;height:40px;">
 								<label class="control-label"><strong>课程：</strong></label>
-								<label id="c4"></label>			
+								<label id="c4"></label>
 							</div>
 							<div class="form-group" style="width:100%;height:40px;">
 								<label class="control-label" style="width:80px;"><strong>提前扣佣：</strong></label>
@@ -77,6 +79,14 @@
 									</div>									
 							</div>							
 							</div>
+							<div id="show_depositpaymentpic" class="form-group" style="display:;width:100%;line-height:40px;">
+								<label class="control-label"><strong>保证金收款凭证：</strong></label>
+								<label id="depositpaymentpic_url"></label>
+							</div>
+							<div id="show_coepaymentpic" class="form-group" style="display:;width:100%;line-height:40px;">
+								<label class="control-label"><strong>COE收款凭证：</strong></label>
+								<label id="coepaymentpic_url"></label>
+							</div>
 							<hr/>
 							<div class="form-group" style="width:100%;line-height:40px;">
 									<label class="control-label"><strong>备注：</strong></label>
@@ -94,15 +104,17 @@
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;font-weight:bold;">StudentID：</label>
 											<label id="c20"></label>
+											<label class="control-label" style="width:50px;margin-left:20px;font-weight:bold;">DOB：</label>
+											<label id="c20a"></label>											
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;font-weight:bold;">Installment：</label>
 											<label id="c21"></label>/<label id="c21a"></label>
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
-											<label class="control-label" style="width:150px;font-weight:bold;">开课日期：</label>
+											<label class="control-label" style="width:150px;font-weight:bold;">Course Start Data:</label>
 											<label id="c22"></label>
-											<label class="control-label" style="margin-left:40px;font-weight:bold;">结束日期：</label>
+											<label class="control-label" style="margin-left:40px;font-weight:bold;">Course End Data:</label>
 											<label id="c23"></label>
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
@@ -133,7 +145,7 @@
 												$<label id="c30"></label>
 											</div>
 											<div class="form-group" style="margin-left:10px;">
-												<label class="control-label" style="font-weight:bold;">本次收款：</label>
+												<label class="control-label" style="font-weight:bold;color:red;">本次实收金额：</label>
 												$<label id="c31"></label>
 											</div>
 																				
@@ -149,13 +161,14 @@
 									<div class="form-group" style="width:100%;margin-top:10px;">
 											<label class="control-label" style="font-weight:bold;">备注：</label>
 											<label id="c33" style="word-break:break-all;"></label>
-									</div>
-							</div>														
-							</form>
-					</div>
+									</div>									
+							</div>
+							<div id="load-comment-2" style="display:;"></div>												
+							</form>							
+					</div>					
 					<div class="modal-footer" style="text-align: center;">
 							<dle v-if="ap_list==='GW'">									
-									<dle v-if="state==='PENDING'">
+									<dle v-if="state==='PENDING' && v_sub.adviserId === current_adviserId">
 									<button onclick="$('#show_ovst_id').modal('hide');reqCommissionOvst(v_sub.serviceId,v_sub.orderId);" type="button" class="btn btn-primary">申请月奖</button>
 									</dle>
 							</dle>													
@@ -175,6 +188,7 @@ var v_sub = new Vue({
 					m_list: localStorage.getItem("str_html"),
 					adviser_id: sessionStorage.getItem("adviser_id"),
 					official_id: sessionStorage.getItem("official_id"),
+					current_adviserId: parseInt(sessionStorage.getItem("adviser_id")),
 					serviceId: 0,
 					orderId: 0,
 					state: '',
@@ -206,6 +220,7 @@ function show_commission_detail(serviceId,orderId)
     	if (response.id)
     	{
 		    	$('#show_ovst_id').modal('show');
+		    	$("#load-comment-2").load("mycommission-ovst-common-view-comment.html?random="+Math.random());
 		    	$('#show_ovst_id #c0').html(response.id);
 		    	$('#show_ovst_id #c1').html(response.user.name);
 		    	$('#show_ovst_id #c8').html(response.adviser.name);
@@ -223,8 +238,58 @@ function show_commission_detail(serviceId,orderId)
 		    	}
 		    	$('#show_ovst_id #c6').html(str_isdeposituser);
 		    	$('#show_ovst_id #c7').html(response.subagency.name);
+		    	$('#show_ovst_id #c20a').html(v.getTime(response.user.birthday));
 		    	var str_ispay = '否';
-		    	if (response.pay) str_ispay = '是';
+		    	if (response.pay)
+		    	{
+		    			str_ispay = '是';
+		    			$("#show_ovst_id #depositpaymentpic_url").empty();
+        			//收款凭证
+        			$('#show_ovst_id #show_depositpaymentpic').show();		        			
+        			if (response.paymentVoucherImageUrl1)
+							{
+									$("#show_ovst_id #depositpaymentpic_url").append('<a href="/statics'+response.paymentVoucherImageUrl1+'" target="_blank">凭证1</a>&nbsp;');
+							}
+							if (response.paymentVoucherImageUrl2)
+							{
+									$("#show_ovst_id #depositpaymentpic_url").append('<a href="/statics'+response.paymentVoucherImageUrl2+'" target="_blank">凭证2</a>&nbsp;');
+							}
+							if (response.paymentVoucherImageUrl3)
+							{
+									$("#show_ovst_id #depositpaymentpic_url").append('<a href="/statics'+response.paymentVoucherImageUrl3+'" target="_blank">凭证3</a>&nbsp;');
+							}
+							if (response.paymentVoucherImageUrl4)
+							{
+									$("#show_ovst_id #depositpaymentpic_url").append('<a href="/statics'+response.paymentVoucherImageUrl4+'" target="_blank">凭证4</a>&nbsp;');
+							}
+							if (response.paymentVoucherImageUrl5)
+							{
+									$("#show_ovst_id #depositpaymentpic_url").append('<a href="/statics'+response.paymentVoucherImageUrl5+'" target="_blank">凭证5</a>&nbsp;');
+							}
+		    	}
+		    	//CEO付款凭证
+        	$('#show_ovst_id #show_coepaymentpic').show();
+        	$("#show_ovst_id #coepaymentpic_url").empty();
+        	if (response.coePaymentVoucherImageUrl1)
+        	{
+        			$('#show_ovst_id #coepaymentpic_url').append('<a href="/statics'+response.coePaymentVoucherImageUrl1+'" target="_blank">凭证1</a>&nbsp;');
+        	}
+        	if (response.coePaymentVoucherImageUrl2)
+        	{
+        			$('#show_ovst_id #coepaymentpic_url').append('<a href="/statics'+response.coePaymentVoucherImageUrl2+'" target="_blank">凭证2</a>');
+        	}
+        	if (response.coePaymentVoucherImageUrl3)
+        	{
+        			$('#show_ovst_id #coepaymentpic_url').append('<a href="/statics'+response.coePaymentVoucherImageUrl3+'" target="_blank">凭证3</a>');
+        	}
+        	if (response.coePaymentVoucherImageUrl4)
+        	{
+        			$('#show_ovst_id #coepaymentpic_url').append('<a href="/statics'+response.coePaymentVoucherImageUrl4+'" target="_blank">凭证4</a>');
+        	}
+        	if (response.coePaymentVoucherImageUrl5)
+        	{
+        			$('#show_ovst_id #coepaymentpic_url').append('<a href="/statics'+response.coePaymentVoucherImageUrl5+'" target="_blank">凭证5</a>');
+        	}
 		    	$('#show_ovst_id #c10').html(str_ispay);
 		    	$('#show_ovst_id #c11').html(v.getTime(response.receiveDate));
 		    	if (response.depositUser) $('#show_ovst_id #c12').html(response.receiveType.name);
@@ -276,12 +341,12 @@ function show_commission_detail(serviceId,orderId)
 						if (response.paymentVoucherImageUrl1)
 						{
 								str_flist = response.paymentVoucherImageUrl1;
-								$("#show_ovst_id #paymentpic_url").append('<a href="/statics'+response.paymentVoucherImageUrl1+'" target="_blank">查看凭证1</a>&nbsp;');
+								$("#show_ovst_id #paymentpic_url").append('<a href="/statics'+response.paymentVoucherImageUrl1+'" target="_blank">凭证1</a>&nbsp;');
 						}
 						if (response.paymentVoucherImageUrl2)
 						{
 								str_flist += ','+response.paymentVoucherImageUrl2;
-								$("#show_ovst_id #paymentpic_url").append('<a href="/statics'+response.paymentVoucherImageUrl2+'" target="_blank">查看凭证2</a>&nbsp;');
+								$("#show_ovst_id #paymentpic_url").append('<a href="/statics'+response.paymentVoucherImageUrl2+'" target="_blank">凭证2</a>&nbsp;');
 						}
 	    	}
     	});

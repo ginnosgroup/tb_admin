@@ -7,6 +7,8 @@ import org.zhinanzhen.tb.service.pojo.RegionDTO;
 public interface RegionService {
 
 	public List<RegionDTO> listAllRegion() throws ServiceException;
+
+	public List<RegionDTO> listRegion(Integer parentId) throws ServiceException;
 	/**
 	 * 新增大区
 	 * @param name

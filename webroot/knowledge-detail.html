@@ -44,7 +44,7 @@
           <span v-if="ap_list==='MA'">
            	 Mara
           </span>
-          <span v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+          <span v-if="ap_list==='SUPERAD'">
            	 超级管理员
           </span>
 				</a>
@@ -89,7 +89,7 @@
                 </span>
               </a>
             </li>
-            <dli v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">            
+            <dli v-if="ap_list==='SUPERAD'">            
             <li>
               <a href="adviser.html">
                 <i class="fa fa-book">
@@ -99,6 +99,8 @@
                 </span>
               </a>
             </li>
+            </dli>
+            <dli v-if="ap_list==='SUPERAD' || (ap_list==='WA' && wa_admin === 'true')">
             <li>
               <a href="official.html">
                 <i class="fa fa-book">
@@ -108,6 +110,8 @@
                 </span>
               </a>
             </li>
+            </dli>
+            <dli v-if="ap_list==='SUPERAD'">
             <li>
               <a href="mara.html">
                 <i class="fa fa-book">
@@ -126,6 +130,8 @@
                 </span>
               </a>
             </li>
+            </dli>
+          	<dli v-if="ap_list==='SUPERAD' || (ap_list==='GW' && gw_regionid !== 'null')">
             <li class="sub-menu">
 							<a href="javascript:;">
 								<i class="fa fa-book">
@@ -135,7 +141,7 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li>
+								<li v-if="ap_list==='SUPERAD'">
 									<a href="school.html">
 										学校管理
 									</a>
@@ -147,6 +153,8 @@
 								</li>								
 							</ul>
 						</li>
+						</dli>
+						<dli v-if="ap_list==='SUPERAD'">
             <li>
               <a href="receive-type.html">
                 <i class="fa fa-book">
@@ -189,7 +197,7 @@
 										客户管理
 									</a>
 								</li>
-								<li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								<li v-if="ap_list==='SUPERAD'">
 									<a href="user-tags.html">
 										标签管理
 									</a>
@@ -205,7 +213,7 @@
                 </span>
               </a>
 						</li>
-            <li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'" class="sub-menu">
+            <li v-if="ap_list==='SUPERAD'" class="sub-menu">
 							<a href="javascript:;">
 								<i class="fa fa-book">
                 </i>
@@ -235,9 +243,19 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li v-if="ap_list==='GW'" class="active">
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" class="active">
 									<a href="mycommission.html">
 										我的佣金报表
+									</a>									
+								</li>
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" style="display:;" id="apply_state_PENDING">
+									<a href="mycommission.html?applyState=PENDING">
+										未申请月奖
+									</a>									
+								</li>
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" style="display:;" id="apply_state_COMPLETE">
+									<a href="mycommission.html?applyState=COMPLETE">
+										已申请月奖
 									</a>									
 								</li>
 								<li v-if="ap_list==='KJ'" id="commission_state_DJY">
@@ -250,7 +268,17 @@
 										已结佣订单
 									</a>									
 								</li>								
-								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
+									<a href="mycommission-check-accounting.html">
+										自动对账
+									</a>									
+								</li>
+								<li v-if="ap_list==='SUPERAD'">
+									<a href="create-visa-commission.html">
+										重建签证佣金表订单
+									</a>
+								</li>
+								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
 									<a href="table-export.html">
 										导出数据
 									</a>
@@ -266,12 +294,16 @@
                 </span>
 							</a>
 							<ul class="sub" id="knowledge-menu">
-								<li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								<li v-if="ap_list==='SUPERAD'">
 									<a href="knowledge-menu.html">
 										菜单管理
 									</a>
 								</li>
-								{{{m_list}}}
+								<li>
+									<a href="knowledge.html">
+										知识库菜单
+									</a>
+								</li>
 							</ul>
 						</li>						
 					</ul>
@@ -312,7 +344,7 @@
 																	<div style="padding-top:10px;" v-html="item.content"></div>
 																	<div style="padding-top:10px;">
 																			<div style="display: inline-block;" v-html="item.gmtCreate"></div>
-																			<div style="display: inline-block;padding-left:10px;"><a href="javascript:btnZan({{item.id}});">顶</a>&nbsp;<span id="zan_{{item.id}}" v-html="item.zan"></span>&nbsp;&nbsp;<a href="javascript:btnReply({{item.id}},'{{item.adminUserName}}','{{item.content}}');">回复</a></div>
+																			<div style="display: inline-block;padding-left:10px;"><a href="javascript:btnZan({{item.id}});">顶</a>&nbsp;<span id="zan_{{item.id}}" v-html="item.zan"></span>&nbsp;&nbsp;<a href="javascript:btnReply({{item.id}},'{{item.adminUserName}}','{{item.content}}');">回复</a>&nbsp;&nbsp;<a href="javascript:btnDel({{item.id}});">删除</a></div>
 																	</div>
 															</div>
 													</div>
@@ -375,14 +407,16 @@
 		<script src="js/vue.js"></script>
 		<script src="js/common.js?verson=1"></script>
 		<script>
-			tb.isLogin("knowledge-detail.html?id="+getRequestId());
+			//tb.isLogin("knowledge-detail.html?id="+getRequestId());
 			$("td,th").addClass("text-center");
 			var v = new Vue({
 				el: '#official',
 				data: {
 					admin: sessionStorage.getItem("admin"),
 					admin_id: sessionStorage.getItem("admin_id"),
-					ap_list: sessionStorage.getItem("ap_list"),					
+					ap_list: sessionStorage.getItem("ap_list"),	
+					gw_regionid: sessionStorage.getItem("gw_regionid"),
+					wa_admin: sessionStorage.getItem("wa_admin"),			
 					kid : getRequestId(),
 					m_list: localStorage.getItem("str_html"),
 					datalist: [],
@@ -390,6 +424,7 @@
 					eId: ''					
 				},
 				created: function() {
+					this.getLogin();
 					$.get(url + "knowledge/get", {
 						id: this.kid,									
 					}, function(result) {
@@ -409,6 +444,29 @@
 					this.getMessagelist();
 				},
 				methods: {
+					getLogin: function() {
+						var that = this;
+						$.get(url + "admin_user/isLogin", function(res) {
+								if(res.code == 1) {
+									var u = "knowledge-detail.html?id="+getRequestId();
+									sessionStorage.setItem("goUrl", u);
+									window.location.href = "login.htm";
+								}else
+								{
+									sessionStorage.setItem("admin", res.data.username);
+									sessionStorage.setItem("admin_id", res.data.id);
+									sessionStorage.setItem("ap_list", res.data.apList);
+									sessionStorage.setItem("adviser_id", res.data.adviserId);	
+									sessionStorage.setItem("official_id", res.data.officialId);
+									sessionStorage.setItem("mara_id", res.data.maraId);
+									sessionStorage.setItem("kj_id", res.data.kjId);
+									that.admin =  res.data.username;
+									that.admin_id =  res.data.id;
+									that.ap_list =  res.data.apList;
+												
+								}
+						});
+					},
 					getMessagelist: function() {
 						var that = this;
 						$.get(url + "message/list", {
@@ -529,6 +587,23 @@
 					   				alert(data.message);
 					   		}
 					   	});
+			    }
+			}
+			
+			function btnDel(id)
+			{
+					var that = this;
+			    if(confirm('提醒：请确认是否执行删除操作？'))
+			    {
+			    		$.get("message/delete", {
+								id: id
+							}, function(result) {
+								console.log(result);
+								if(result.data == true) {
+									$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
+									v.getMessagelist();
+								};
+							});
 			    }
 			}
 			

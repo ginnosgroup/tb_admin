@@ -11,6 +11,8 @@ public class ChildrenServiceOrderDTO {
 	
 	private int servicePackageId;
 	
+	private String servicePackageType;
+	
 	private String state;
 
 }

@@ -21,6 +21,8 @@ public class VisaDO {
 
 	private String commissionState;
 
+	private Date kjApprovalDate;
+
 	private int receiveTypeId;
 
 	private Date receiveDate;
@@ -37,6 +39,12 @@ public class VisaDO {
 
 	private String paymentVoucherImageUrl2;
 
+	private String paymentVoucherImageUrl3;
+
+	private String paymentVoucherImageUrl4;
+
+	private String paymentVoucherImageUrl5;
+
 	private String visaVoucherImageUrl;
 
 	private double receivable;
@@ -48,6 +56,8 @@ public class VisaDO {
 	private double amount;
 
 	private double expectAmount;
+
+	private double sureExpectAmount;
 
 	private double discount;
 
@@ -64,6 +74,10 @@ public class VisaDO {
 	private int maraId;
 
 	private int officialId;
+
+	private String bankCheck;
+
+	private boolean isChecked;
 
 	private String remarks;
 

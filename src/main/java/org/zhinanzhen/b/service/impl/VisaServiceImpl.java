@@ -16,6 +16,7 @@ import org.zhinanzhen.b.dao.ServiceOrderReviewDAO;
 import org.zhinanzhen.b.dao.VisaCommentDAO;
 import org.zhinanzhen.b.dao.pojo.VisaDO;
 import org.zhinanzhen.b.dao.pojo.VisaListDO;
+import org.zhinanzhen.b.dao.pojo.VisaReportDO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.ReceiveTypeDO;
 import org.zhinanzhen.b.dao.pojo.RemindDO;
@@ -27,6 +28,7 @@ import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
 import org.zhinanzhen.b.service.pojo.VisaCommentDTO;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
+import org.zhinanzhen.b.service.pojo.VisaReportDTO;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
@@ -118,17 +120,20 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 	}
 
 	@Override
-	public int countVisa(String keyword, String startHandlingDate, String endHandlingDate, List<String> stateList,
-			List<String> commissionStateList, String stardDate, String endDate, Integer adviserId, Integer userId)
-			throws ServiceException {
-		return visaDao.countVisa(keyword, startHandlingDate, theDateTo23_59_59(endHandlingDate), stateList,
-				commissionStateList, stardDate, theDateTo23_59_59(endDate), adviserId, userId);
+	public int countVisa(Integer id, String keyword, String startHandlingDate, String endHandlingDate,
+			List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
+			String endKjApprovalDate, String startDate, String endDate, List<Integer> regionIdList, Integer adviserId,
+			Integer userId, String state) throws ServiceException {
+		return visaDao.countVisa(id, keyword, startHandlingDate, theDateTo23_59_59(endHandlingDate), stateList,
+				commissionStateList, startKjApprovalDate, theDateTo23_59_59(endKjApprovalDate), startDate,
+				theDateTo23_59_59(endDate), regionIdList, adviserId, userId, state);
 	}
 
 	@Override
-	public List<VisaDTO> listVisa(String keyword, String startHandlingDate, String endHandlingDate,
-			List<String> stateList, List<String> commissionStateList, String stardDate, String endDate,
-			Integer adviserId, Integer userId, int pageNum, int pageSize) throws ServiceException {
+	public List<VisaDTO> listVisa(Integer id, String keyword, String startHandlingDate, String endHandlingDate,
+			List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
+			String endKjApprovalDate, String startDate, String endDate, List<Integer> regionIdList, Integer adviserId,
+			Integer userId, String state, int pageNum, int pageSize) throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
 		}
@@ -138,12 +143,12 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 		List<VisaDTO> visaDtoList = new ArrayList<>();
 		List<VisaListDO> visaListDoList = new ArrayList<>();
 		try {
-			visaListDoList = visaDao.listVisa(keyword, startHandlingDate, theDateTo23_59_59(endHandlingDate), stateList,
-					commissionStateList, stardDate, theDateTo23_59_59(endDate), adviserId, userId, pageNum * pageSize,
+			visaListDoList = visaDao.listVisa(id, keyword, startHandlingDate, theDateTo23_59_59(endHandlingDate),
+					stateList, commissionStateList, startKjApprovalDate, theDateTo23_59_59(endKjApprovalDate),
+					startDate, theDateTo23_59_59(endDate), regionIdList, adviserId, userId, state, pageNum * pageSize,
 					pageSize);
-			if (visaListDoList == null) {
+			if (visaListDoList == null)
 				return null;
-			}
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
@@ -152,6 +157,12 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 		for (VisaDO visaListDo : visaListDoList) {
 			VisaDTO visaDto = mapper.map(visaListDo, VisaDTO.class);
 			putReviews(visaDto);
+			if (visaDto.getUserId() > 0) {
+				UserDO userDo = userDao.getUserById(visaDto.getUserId());
+				visaDto.setUserName(userDo.getName());
+				visaDto.setPhone(userDo.getPhone());
+				visaDto.setBirthday(userDo.getBirthday());
+			}
 			AdviserDO adviserDo = adviserDao.getAdviserById(visaListDo.getAdviserId());
 			if (adviserDo != null) {
 				visaDto.setAdviserName(adviserDo.getName());
@@ -181,7 +192,10 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 				double totalAmount = 0.00;
 				for (VisaDO visaDo : list) {
 					totalPerAmount += visaDo.getPerAmount();
-					if (visaDo.getPaymentVoucherImageUrl1() != null || visaDo.getPaymentVoucherImageUrl2() != null)
+					if (visaDo.getPaymentVoucherImageUrl1() != null || visaDo.getPaymentVoucherImageUrl2() != null
+							|| visaDo.getPaymentVoucherImageUrl3() != null
+							|| visaDo.getPaymentVoucherImageUrl4() != null
+							|| visaDo.getPaymentVoucherImageUrl5() != null)
 						totalAmount += visaDo.getAmount();
 				}
 				visaDto.setTotalPerAmount(totalPerAmount);
@@ -190,6 +204,26 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			visaDtoList.add(visaDto);
 		}
 		return visaDtoList;
+	}
+
+	@Override
+	public List<VisaReportDTO> listVisaReport(String startDate, String endDate, String dateType, String dateMethod,
+			Integer regionId, Integer adviserId) throws ServiceException {
+		List<VisaReportDO> visaReportDoList = new ArrayList<>();
+		List<VisaReportDTO> visaReportDtoList = new ArrayList<>();
+		try {
+			visaReportDoList = visaDao.listVisaReport(startDate, theDateTo23_59_59(endDate), dateType, dateMethod,
+					regionId, adviserId);
+			if (visaReportDoList == null)
+				return null;
+			visaReportDoList
+					.forEach(visaReportDo -> visaReportDtoList.add(mapper.map(visaReportDo, VisaReportDTO.class)));
+			return visaReportDtoList;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
 	}
 
 	@Override
@@ -217,6 +251,63 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 				ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(visaDto.getReceiveTypeId());
 				if (receiveTypeDo != null)
 					visaDto.setReceiveTypeName(receiveTypeDo.getName());
+			}
+			List<VisaDO> list = visaDao.listVisaByCode(visaDto.getCode());
+			if (list != null) {
+				double totalPerAmount = 0.00;
+				double totalAmount = 0.00;
+				for (VisaDO _visaDo : list) {
+					totalPerAmount += _visaDo.getPerAmount();
+					if (_visaDo.getPaymentVoucherImageUrl1() != null || _visaDo.getPaymentVoucherImageUrl2() != null)
+						totalAmount += _visaDo.getAmount();
+				}
+				visaDto.setTotalPerAmount(totalPerAmount);
+				visaDto.setTotalAmount(totalAmount);
+			}
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+		return visaDto;
+	}
+
+	@Override
+	public VisaDTO getFirstVisaByServiceOrderId(int serviceOrderId) throws ServiceException {
+		if (serviceOrderId <= 0) {
+			ServiceException se = new ServiceException("serviceOrderId error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		VisaDTO visaDto = null;
+		try {
+			VisaDO visaDo = visaDao.getFirstVisaByServiceOrderId(serviceOrderId);
+			if (visaDo == null)
+				return null;
+			visaDto = mapper.map(visaDo, VisaDTO.class);
+			putReviews(visaDto);
+			if (visaDto.getUserId() > 0) {
+				UserDO userDo = userDao.getUserById(visaDto.getUserId());
+				visaDto.setUserName(userDo.getName());
+				visaDto.setPhone(userDo.getPhone());
+				visaDto.setBirthday(userDo.getBirthday());
+			}
+			if (visaDto.getReceiveTypeId() > 0) {
+				ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(visaDto.getReceiveTypeId());
+				if (receiveTypeDo != null)
+					visaDto.setReceiveTypeName(receiveTypeDo.getName());
+			}
+			List<VisaDO> list = visaDao.listVisaByCode(visaDto.getCode());
+			if (list != null) {
+				double totalPerAmount = 0.00;
+				double totalAmount = 0.00;
+				for (VisaDO _visaDo : list) {
+					totalPerAmount += _visaDo.getPerAmount();
+					if (_visaDo.getPaymentVoucherImageUrl1() != null || _visaDo.getPaymentVoucherImageUrl2() != null)
+						totalAmount += _visaDo.getAmount();
+				}
+				visaDto.setTotalPerAmount(totalPerAmount);
+				visaDto.setTotalAmount(totalAmount);
 			}
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
@@ -252,7 +343,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			for (ServiceOrderReviewDTO serviceOrderReviewDto : serviceOrderReviewDtoList)
 				if (serviceOrderReviewDto != null && StringUtil.isNotEmpty(serviceOrderReviewDto.getKjState())) {
 					visaDto.setState(serviceOrderReviewDto.getKjState());
-					updateVisa(visaDto);
+					visaDao.updateVisa(mapper.map(visaDto, VisaDO.class));
 					break;
 				}
 	}

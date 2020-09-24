@@ -9,20 +9,21 @@ import org.zhinanzhen.tb.service.pojo.TagDTO;
 public interface UserService {
 
 	public int addUser(String name, String authNickname, Date birthday, String phone, String wechatUsername,
-			String firstControllerContents, String visaCode, Date visaExpirationDate, String source, int adviserId)
-			throws ServiceException;
+			String firstControllerContents, String visaCode, Date visaExpirationDate, String source, int adviserId,
+			int regionId) throws ServiceException;
 
 	public int countUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
-			String wechatUsername, int adviserId) throws ServiceException;
+			String wechatUsername, int adviserId, List<Integer> regionIdList, Integer tagId) throws ServiceException;
 
 	public int countUserByThisMonth(Integer adviserId) throws ServiceException;
 
 	public List<UserDTO> listUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
-			String wechatUsername, int adviserId, int pageNum, int pageSize) throws ServiceException;
+			String wechatUsername, int adviserId, List<Integer> regionIdList, int pageNum, int pageSize)
+			throws ServiceException;
 
 	public List<UserDTO> listUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
-			String wechatUsername, int adviserId, Integer tagId, String orderByField, Boolean isDesc, int pageNum,
-			int pageSize) throws ServiceException;
+			String wechatUsername, int adviserId, List<Integer> regionIdList, Integer tagId, String orderByField,
+			Boolean isDesc, int pageNum, int pageSize) throws ServiceException;
 
 	public UserDTO getUserById(int id) throws ServiceException;
 
@@ -73,5 +74,7 @@ public interface UserService {
 	public int deleteUserTagByUserId(int userId) throws ServiceException;
 
 	public int deleteUserTagByTagIdAndUserId(int tagId, int userId) throws ServiceException;
+
+	public int updateDOB(Date dob,int id) throws ServiceException;
 
 }

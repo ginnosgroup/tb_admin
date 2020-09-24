@@ -7,6 +7,9 @@
     metadata-complete="true">
     <display-name>TB-Admin</display-name>
     <description>TB-Admin</description>
+    <session-config>  
+        <session-timeout>60</session-timeout>  
+    </session-config>
     <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>classpath*:spring/spring_*.xml</param-value>

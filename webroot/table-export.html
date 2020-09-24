@@ -44,7 +44,7 @@
           <span v-if="ap_list==='MA'">
            	 Mara
           </span>
-          <span v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+          <span v-if="ap_list==='SUPERAD'">
            	 超级管理员
           </span>
 				</a>
@@ -89,7 +89,7 @@
                 </span>
               </a>
             </li>
-            <dli v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">            
+            <dli v-if="ap_list==='SUPERAD'">            
             <li>
               <a href="adviser.html">
                 <i class="fa fa-book">
@@ -189,7 +189,7 @@
 										客户管理
 									</a>
 								</li>
-								<li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								<li v-if="ap_list==='SUPERAD'">
 									<a href="user-tags.html">
 										标签管理
 									</a>
@@ -205,7 +205,7 @@
                 </span>
               </a>
 						</li>
-            <li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'" class="sub-menu">
+            <li v-if="ap_list==='SUPERAD'" class="sub-menu">
 							<a href="javascript:;">
 								<i class="fa fa-book">
                 </i>
@@ -227,7 +227,7 @@
 							</ul>
 						</li>
 						<li v-if="ap_list!=='WA' && ap_list!=='MA'" class="sub-menu">
-							<a href="javascript:;">
+							<a href="javascript:;" class="active">
 								<i class="fa fa-book">
                 </i>
 								<span>
@@ -235,9 +235,19 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li v-if="ap_list==='GW'" class="active">
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" class="active">
 									<a href="mycommission.html">
 										我的佣金报表
+									</a>									
+								</li>
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" style="display:;" id="apply_state_PENDING">
+									<a href="mycommission.html?applyState=PENDING">
+										未申请月奖
+									</a>									
+								</li>
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" style="display:;" id="apply_state_COMPLETE">
+									<a href="mycommission.html?applyState=COMPLETE">
+										已申请月奖
 									</a>									
 								</li>
 								<li v-if="ap_list==='KJ'" id="commission_state_DJY">
@@ -250,7 +260,17 @@
 										已结佣订单
 									</a>									
 								</li>								
-								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
+									<a href="mycommission-check-accounting.html">
+										自动对账
+									</a>									
+								</li>
+								<li v-if="ap_list==='SUPERAD'">
+									<a href="create-visa-commission.html">
+										重建签证佣金表订单
+									</a>
+								</li>
+								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
 									<a href="table-export.html">
 										导出数据
 									</a>
@@ -266,12 +286,16 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								<li v-if="ap_list==='SUPERAD'">
 									<a href="knowledge-menu.html">
 										菜单管理
 									</a>
 								</li>
-								{{{m_list}}}							
+								<li>
+									<a href="knowledge.html">
+										知识库菜单
+									</a>
+								</li>							
 							</ul>
 						</li>						
 					</ul>
@@ -297,11 +321,25 @@
 											<div class="form-group">
 												<select v-if="ap_list!='KJ' && ap_list!='GW'" v-model.trim="adviserId" id="adviserId" name="adviserId" class="form-control">
 												<option value="" selected="selected">请选择顾问</option>
-												</select>								
-												<input v-model.trim="startHandlingDate" type="text" autocomplete="off" class="form-control default-date-picker" style="width:120px;" placeholder="办理时间(开始)">
-												<input v-model.trim="endHandlingDate" type="text"  autocomplete="off" class="form-control default-date-picker" style="width:120px;" placeholder="办理时间(结束)">
-												<input v-model.trim="startDate" type="text" autocomplete="off" class="form-control default-date-picker" style="width:150px;" placeholder="创建时间(开始)">
-												<input v-model.trim="endDate" type="text" autocomplete="off" class="form-control default-date-picker" style="width:150px;" placeholder="创建时间(结束)">
+												</select>
+												<label>时间范围：</label>	
+												<input v-model.trim="startDate" type="text" autocomplete="off" class="form-control default-date-picker" style="width:120px;" placeholder="时间(开始)">
+												<label>至</label>
+												<input v-model.trim="endDate" type="text"  autocomplete="off" class="form-control default-date-picker" style="width:120px;" placeholder="时间(结束)">												
+												<input v-model.trim="dateMethod" id="dateMethod1" type="radio" value="D">
+												<label for="dateMethod1">按日</label>												
+												<input v-model.trim="dateMethod" id="dateMethod2" type="radio" value="M" checked="checked" style="margin-left:10px;">
+												<label for="dateMethod2">按月</label>
+												<select v-model.trim="dateType" class="form-control" style="margin-left:10px;">
+												<option value="A" selected="selected">提交财务审核时间</option>
+												<option value="P">客户支付日期</option>
+												</select>
+												<label>请选择地区</label>
+												<select v-model.trim="regionId" id="regionId" class="form-control" style="width:130px;">
+												</select>
+												<label>顾问</label>
+												<select v-model.trim="adviserId" id="adviserId" class="form-control" style="width:130px;">
+												</select>
 											</div>											
 											<div class="form-group">
 												<button @click="exportData" type="button" class="btn btn-info">导出</button>
@@ -344,41 +382,19 @@
 					admin: sessionStorage.getItem("admin"),
 					ap_list: sessionStorage.getItem("ap_list"),
 					adviser_id: sessionStorage.getItem("adviser_id"),
-					m_list: localStorage.getItem("str_html"),
 					subject: []					
 				},
 				created: function() {					
 					$('.default-date-picker').datepicker({   				
 				        format: 'yyyy-mm-dd',
 				        endDate: new Date()
-				  });				
+				  });				  
 				},
 				methods: {					
 					exportData: function() {
 						var that = this;
 						//console.log(that);						
-						var down_url = url + "down/merge?";						
-						if (typeof(that.adviserId) != "undefined")
-						{
-								down_url += "adviserId="+that.adviserId;
-						}else
-						{
-								down_url += "adviserId="+that.adviser_id;
-						}						
-						if (typeof(that.startHandlingDate) != "undefined")
-						{
-								down_url += "&startHandlingDate="+that.startHandlingDate;
-						}else
-						{
-								down_url += "&startHandlingDate=";
-						}
-						if (typeof(that.endHandlingDate) != "undefined")
-						{
-								down_url += "&endHandlingDate="+that.endHandlingDate;
-						}else
-						{
-								down_url += "&endHandlingDate=";
-						}
+						var down_url = url + "down/report?";
 						if (typeof(that.startDate) != "undefined")
 						{
 								down_url += "&startDate="+that.startDate;
@@ -392,6 +408,14 @@
 						}else
 						{
 								down_url += "&endDate=";
+						}
+						down_url += "&dateMethod="+that.dateMethod+"&dateType="+that.dateType+"&regionId="+that.regionId;						
+						if (typeof(that.adviserId) != "undefined")
+						{
+								down_url += "&adviserId="+that.adviserId;
+						}else
+						{
+								down_url += "&adviserId=";
 						}						
 						console.log(down_url);
 						var a = document.createElement('a');
@@ -457,23 +481,41 @@
 			}
 			
 	    jQuery(document).ready(function() {
-	    		if (v.adviser_id == 'null')
-	    		{
-			    		//绑定顾问列表			    
-					    var obj_adviserId = $("#adviserId");	
-					    $.ajax({
-			          url: 'adviser/list?pageNum=0&pageSize=100000',
-			          type: 'GET',
-			          dataType: 'json'
-			        }).done(function(response) {
-			        	//author:bischina
-			        	response = response.data;
-			        	for (var item in response)
-			        	{
-			        			obj_adviserId.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
-			        	} 
-			        });
-	      	}    		
+	    		//绑定区域列表
+			    var obj_regionId = $("#regionId");	
+			    $.ajax({
+	          url: 'region/list_all',
+	          type: 'GET',
+	          dataType: 'json'
+	        }).done(function(response) {
+	        	//author:bischina
+	        	var region_data = response.data;
+	        	console.log(region_data);
+	        	for (var item in region_data)
+	        	{
+	        			obj_regionId.append("<option value='"+region_data[item].id+"'>"+region_data[item].name+"</option>");
+	        			var region_sub = region_data[item].regionList;
+	        			for (var itemsub in region_sub)
+	        			{
+	        					obj_regionId.append("<option value='"+region_sub[itemsub].id+"'>---"+region_sub[itemsub].name+"</option>");
+	        			}
+	        	}
+	        });
+	    		//绑定顾问列表			    
+			    var obj_adviserId = $("#adviserId");
+			    obj_adviserId.append("<option value=''>全部</option>");	
+			    $.ajax({
+	          url: 'adviser/list?pageNum=0&pageSize=100000',
+	          type: 'GET',
+	          dataType: 'json'
+	        }).done(function(response) {
+	        	//author:bischina
+	        	response = response.data;
+	        	for (var item in response)
+	        	{
+	        			obj_adviserId.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+	        	} 
+	        });  		
 	    });
 		</script>
 	</body>

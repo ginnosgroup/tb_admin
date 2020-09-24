@@ -1,0 +1,551 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="renderer" content="webkit">
+		<link rel="shortcut icon" href="img/favicon.ico">
+		<title>佣金订单详细</title>
+		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<link href="css/bootstrap-reset.css" rel="stylesheet">
+		<link href="assets/font-awesome/css/font-awesome.css" rel="stylesheet">
+		<link href="assets/advanced-datatable/media/css/demo_table.css" rel="stylesheet">
+		<link href="css/style.css" rel="stylesheet">
+		<link href="css/style-responsive.css" rel="stylesheet">
+		<link href="css/index.css" rel="stylesheet">
+		<link href="css/clndr.css" rel="stylesheet"><!-- CALENDER CSS -->
+		<!--[if lt IE 9]>
+			<script src="js/html5shiv.js"></script>
+			<script src="js/respond.min.js"></script>
+		<![endif]-->
+		<script>
+		function current_date()
+  	{
+  			var myDate = new Date();
+  			var str_date = myDate.getDate()+'/'+(myDate.getMonth()+1)+'/'+myDate.getFullYear();
+  			document.write(str_date);   			
+  	}
+		</script>
+	</head>
+
+	<body id="mycommission-ovst-detail" v-cloak>
+		<section id="container">
+			<header class="header white-bg">
+				<div class="sidebar-toggle-box">
+					<div data-placement="right" class="fa fa-bars tooltips">
+					</div>
+				</div>
+				<a href="main.html" class="logo">
+					佣金系统
+					<span v-if="ap_list==='KJ'">
+           	 会计
+          </span>
+          <span v-if="ap_list==='GW'">
+           	 顾问
+          </span>
+          <span v-if="ap_list==='WA'">
+           	 文案
+          </span>
+          <span v-if="ap_list==='MA'">
+           	 Mara
+          </span>
+          <span v-if="ap_list==='SUPERAD'">
+           	 超级管理员
+          </span>
+				</a>
+				<div class="top-nav ">
+					<ul class="nav pull-right top-menu">
+						<li class="dropdown">
+							<a data-toggle="dropdown" class="dropdown-toggle" href="#">
+								<span class="username">
+                  {{admin}}
+                </span>
+								<b class="caret">
+                </b>
+							</a>
+							<ul class="dropdown-menu extended logout">
+								<li class="log-arrow-up">
+								</li>
+								<li>
+									<a href="password.html">
+										<i class="fa fa-key">
+                    </i> 修改密码
+									</a>
+								</li>
+								<li><a href="javascript:tb.out();">
+										<i class="fa fa-user">
+                    </i> Log Out
+									</a>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</header>
+			<aside>
+				<div id="sidebar" class="nav-collapse">
+					<ul class="sidebar-menu" id="nav-accordion">
+						<li >
+              <a href="main.html" class="active">
+                <i class="fa fa-dashboard">
+                </i>
+                <span>
+                  Dashboard
+                </span>
+              </a>
+            </li>
+            <dli v-if="ap_list==='SUPERAD'">            
+            <li>
+              <a href="adviser.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  顾问管理
+                </span>
+              </a>
+            </li>
+            <li>
+              <a href="official.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  文案管理
+                </span>
+              </a>
+            </li>
+            <li>
+              <a href="mara.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  MARA管理
+                </span>
+              </a>
+            </li>
+            <li>
+              <a href="accounting.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  会计管理
+                </span>
+              </a>
+            </li>
+            <li class="sub-menu">
+							<a href="javascript:;">
+								<i class="fa fa-book">
+                </i>
+								<span>
+                 	 学校管理
+                </span>
+							</a>
+							<ul class="sub">
+								<li>
+									<a href="school.html">
+										学校管理
+									</a>
+								</li>
+								<li>
+									<a href="school-setting.html">
+										佣金设置
+									</a>
+								</li>								
+							</ul>
+						</li>
+            <li>
+              <a href="receive-type.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  收款方式管理
+                </span>
+              </a>
+            </li>
+            <li>
+              <a href="subagency.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  Subagency管理
+                </span>
+              </a>
+            </li>
+            <li>
+              <a href="service.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  服务项目管理
+                </span>
+              </a>
+            </li>            
+          	</dli>          	
+          	<li v-if="ap_list!=='KJ' && ap_list!=='WA' && ap_list!=='MA'" class="sub-menu">
+							<a href="javascript:;">
+								<i class="fa fa-book">
+                </i>
+								<span>
+                 	 客户管理
+                </span>
+							</a>
+							<ul class="sub">
+								<li>
+									<a href="users.html">
+										客户管理
+									</a>
+								</li>
+								<li v-if="ap_list==='SUPERAD'">
+									<a href="user-tags.html">
+										标签管理
+									</a>
+								</li>								
+							</ul>
+						</li>
+						<li v-if="ap_list!=='KJ'">
+							<a href="serviceorder-list.html">
+                <i class="fa fa-book">
+                </i>
+                <span>
+                  服务订单管理
+                </span>
+              </a>
+						</li>
+            <li v-if="ap_list==='SUPERAD'" class="sub-menu">
+							<a href="javascript:;">
+								<i class="fa fa-book">
+                </i>
+								<span>
+                 	 渠道管理
+                </span>
+							</a>
+							<ul class="sub">
+								<li>
+									<a href="source.html">
+										渠道列表
+									</a>
+								</li>
+								<li>
+									<a href="source-type.html">
+										来源分类
+									</a>
+								</li>								
+							</ul>
+						</li>
+						<li v-if="ap_list!=='WA' && ap_list!=='MA'" class="sub-menu">
+							<a href="javascript:;"  class="active">
+								<i class="fa fa-book">
+                </i>
+								<span>
+                 	 佣金表
+                </span>
+							</a>
+							<ul class="sub">
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" class="active">
+									<a href="mycommission.html">
+										我的佣金报表
+									</a>									
+								</li>
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" style="display:;" id="apply_state_PENDING">
+									<a href="mycommission.html?applyState=PENDING">
+										未申请月奖
+									</a>									
+								</li>
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" style="display:;" id="apply_state_COMPLETE">
+									<a href="mycommission.html?applyState=COMPLETE">
+										已申请月奖
+									</a>									
+								</li>
+								<li v-if="ap_list==='KJ'" id="commission_state_DJY">
+									<a href="mycommission-accounting.html?commission_state=DJY">
+										待结佣订单
+									</a>									
+								</li>
+								<li v-if="ap_list==='KJ'" id="commission_state_YJY">
+									<a href="mycommission-accounting.html?commission_state=YJY">
+										已结佣订单
+									</a>									
+								</li>								
+								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
+									<a href="mycommission-check-accounting.html">
+										自动对账
+									</a>									
+								</li>
+								<li v-if="ap_list==='SUPERAD'">
+									<a href="create-visa-commission.html">
+										重建签证佣金表订单
+									</a>
+								</li>
+								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
+									<a href="table-export.html">
+										导出数据
+									</a>
+								</li>
+							</ul>
+						</li>
+						<li class="sub-menu">
+							<a href="javascript:;">
+								<i class="fa fa-book">
+                </i>
+								<span>
+                 	 知识库
+                </span>
+							</a>
+							<ul class="sub">
+								<li v-if="ap_list==='SUPERAD'">
+									<a href="knowledge-menu.html">
+										菜单管理
+									</a>
+								</li>
+								<li>
+									<a href="knowledge.html">
+										知识库菜单
+									</a>
+								</li>					
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</aside>
+			<section id="main-content" class="content">
+				<section class="wrapper site-min-height">					
+         <div class="row">
+	          	<div class="col-lg-12">
+							<section class="panel">
+								<header class="panel-heading">
+									佣金订单ID：<label id="order_id"></label>&nbsp;&nbsp;<a href="javascript:open_detail(v.serviceId,v.getId);">点击查看</a>
+								</header>
+								<div class="panel-body">
+									<div class="adv-table">
+										<form class="form-horizontal">											
+											
+										</form>
+								</div>
+							</section>	
+							</div>         
+          </div>          
+				</section>
+			</section>
+			<footer class="site-footer">
+				<div class="text-center">
+					2018 &copy; 佣金系统 by <span style="color:#2a8ba7;">GIG</span>.
+					<a href="#" class="go-top">
+						<i class="fa fa-angle-up">
+            </i>
+					</a>
+				</div>
+			</footer>
+		</section>
+		<div class="modal fade" id="showconfirmbox_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="z-index:9999;">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">操作提示</h4>
+					</div>
+					<div class="modal-body">
+						您确认执行此操作吗？
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+						<button onclick="update_state();" type="button" class="btn btn-primary">确认</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="modal fade" id="loading_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="z-index:99999;">
+			<div class="modal-dialog" role="document" style="width:350px;">
+				<div class="modal-content">
+					<div class="modal-header">
+					</div>
+					<div class="modal-body">
+							<div style="text-align:center;color:#0066CC;"><img src="img/input-spinner.gif" /> 正在执行，请稍后...</div>
+					</div>
+					
+				</div>
+			</div>
+		</div>
+		<div id="load-mycommission-ovst-view-page"></div>
+		<script src="js/jquery-1.8.3.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		<script src="js/jquery.dcjqaccordion.2.7.js"></script>
+		<script src="js/jquery.scrollTo.min.js"></script>
+		<script src="js/jquery.nicescroll.js"></script>
+		<script src="js/common-scripts.js"></script>
+		<script src="js/vue.js"></script>
+		<script src="js/ajaxfileupload.js"></script>
+		<script src="js/common.js?verson=1"></script>
+		<script src="js/calendar/clndr.js"></script><!-- CALENDER JS -->
+    <script src="js/calendar/evnt.calendar.init.js"></script><!-- CALENDER EVENT JS -->
+    <script src="js/calendar/moment-2.2.1.js"></script><!-- CALENDER MOMENT JS -->
+    <script src="js/underscore-min.js"></script><!-- UNDERSCORE JS -->
+		<script>			
+			tb.isLogin("mycommission-ovst-detail.html");
+			$("td,th").addClass("text-center");
+			var v = new Vue({
+				el: '#mycommission-ovst-detail',
+				data: {
+					admin: sessionStorage.getItem("admin"),
+					ap_list: sessionStorage.getItem("ap_list"),
+					adviser_id: sessionStorage.getItem("adviser_id"),
+					official_id: sessionStorage.getItem("official_id"),
+					mara_id: sessionStorage.getItem("mara_id"),
+					kj_id: sessionStorage.getItem("kj_id"),
+					getId : getRequest('id'),			
+					serviceId : getRequest('serviceid'),					
+					orderId: 0,
+					orderType: '',
+					order_detail: [],
+					showTime: 2000,
+					error: ''
+				},created: function() {
+					this.getLogin();
+					$("#load-mycommission-ovst-view-page").load("mycommission-ovst-common-view.html?random="+Math.random(),function(){open_detail(getRequest('serviceid'),getRequest('id'));$('#loading_id').modal('hide');});
+					show_loading();
+				},methods: {
+					getLogin: function() {
+						var that = this;
+						$.get(url + "admin_user/isLogin", function(res) {
+								if(res.code == 1) {
+									var u = "serviceorder-detail.html?id="+getRequestId('id');
+									sessionStorage.setItem("goUrl", u);
+									window.location.href = "login.htm";
+								}else
+								{
+									sessionStorage.setItem("admin", res.data.username);
+									sessionStorage.setItem("admin_id", res.data.id);
+									sessionStorage.setItem("ap_list", res.data.apList);
+									sessionStorage.setItem("adviser_id", res.data.adviserId);	
+									sessionStorage.setItem("official_id", res.data.officialId);
+									sessionStorage.setItem("mara_id", res.data.maraId);
+									sessionStorage.setItem("kj_id", res.data.kjId);
+									that.admin =  res.data.username;
+									that.admin_id =  res.data.id;
+									that.ap_list =  res.data.apList;
+												
+								}
+						});
+					},
+					getTime: function(d) {
+						var date1 = new Date(d);
+						var y = date1.getFullYear();
+						var m = this.addZero(date1.getMonth() + 1);
+						var d = this.addZero(date1.getDate());
+						var h = this.addZero(date1.getHours());
+						var m2 = this.addZero(date1.getMinutes());
+						var s = this.addZero(date1.getSeconds());
+						//var date2 = y + "-" + m + "-" + d;
+						var date2 = d+"/"+m+"/"+y;
+						return date2;
+					},
+					getTime1: function(d) {
+						var date1 = new Date(d);
+						var y = date1.getFullYear();
+						var m = this.addZero(date1.getMonth() + 1);
+						var d = this.addZero(date1.getDate());
+						var h = this.addZero(date1.getHours());
+						var m2 = this.addZero(date1.getMinutes());
+						var s = this.addZero(date1.getSeconds());
+						//var date2 = y + "-" + m + "-" + d;
+						var date2 = d+"/"+m+"/"+y+' '+h+':'+m2+':'+s;
+						return date2;
+					},
+					addZero: function(obj) {
+						if(obj < 10) {
+							obj = '0' + obj;
+						};
+						return obj;
+					}
+				}
+			});
+			
+			v.$watch('subject', function(obj) {
+					$('.default-date-picker').datepicker({   				
+				        format: 'dd/mm/yyyy'
+				  });
+				  $('.default-date-picker1').datepicker({   				
+				        format: 'yyyy-mm-dd',
+				        endDate: new Date()
+				  });
+			});
+			
+			function open_detail(serviceId,orderId)
+      {
+      		show_commission_detail(serviceId,orderId);
+      }
+      
+      
+      
+      function getRequest(par)
+			{
+					var str_value = '';
+			    var url = decodeURI(location.search);
+			    var theRequest = new Object();
+			    if (url.indexOf('?') != -1) {
+			        url = url.substr(1);
+			    }
+			    if (url) {
+			        var strs = url.split('&');
+			        for (var i = 0; i < strs.length; i++) {
+			            var srtArry = strs[i].split('=');
+			            var y = srtArry.shift();
+			            theRequest[y] = unescape(srtArry.join('='));
+			        }
+			    }
+			    str_value = theRequest[par];
+			    if (str_value != '') $("#order_id").html(str_value);
+			    return str_value;
+			}
+      
+      function url_replace(str)
+			{
+					var reg = /((http|ftp|https):\/\/)?[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?/g;
+					str=str.replace(reg,function(a){
+					    if(!a.indexOf('http'))
+					    {
+					    	return '<a href="'+a+'" target="_blank">'+a+'</a>';
+					    }else
+					    {
+					    	return '<a href="http://'+a+'" target="_blank">'+a+'</a>';
+					    }
+					});
+					return str;
+			}
+			
+			function url_replace1(str)
+			{
+					var reg = /((http|ftp|https):\/\/)?[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?/g;
+					str=str.replace(reg,function(a){
+					    if(!a.indexOf('http'))
+					    {
+					    	return "<a href=\'"+a+"\' target=\'_blank\'>"+a+"</a>";
+					    }else
+					    {
+					    	return "<a href=\'http://"+a+"\' target=\'_blank\'>"+a+"</a>";
+					    }
+					});
+					return str;
+			}
+      
+      function show_loading()
+			{
+					$('#loading_id').on('show.bs.modal', function(){
+	          var $this = $(this);
+	          var $modal_dialog = $this.find('.modal-dialog');
+	          $this.css('display', 'block');
+	          $modal_dialog.css({'margin-top': Math.max(0, ($(window).height() - $modal_dialog.height()) / 2) });
+	        });
+					$('#loading_id').modal('show');
+			}						
+      
+      jQuery(document).ready(function() {
+	    });
+	    
+	    window.onload=function(){	    		
+	    		//open_detail(v.getId,'');
+	    };
+    	    	
+		</script>
+	</body>
+
+</html>

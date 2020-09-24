@@ -31,12 +31,14 @@ public class SubagencyController extends BaseController {
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> addSubagency(@RequestParam(value = "name") String name,
+			@RequestParam(value = "country") String country,
 			@RequestParam(value = "commissionRate") String commissionRate, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			SubagencyDTO subagencyDto = new SubagencyDTO();
 			subagencyDto.setName(name);
+			subagencyDto.setCountry(country);
 			subagencyDto.setCommissionRate(Double.parseDouble(commissionRate.trim()));
 			if (subagencyService.addSubagency(subagencyDto) > 0) {
 				return new Response<Integer>(0, subagencyDto.getId());
@@ -52,6 +54,7 @@ public class SubagencyController extends BaseController {
 	@ResponseBody
 	public Response<Integer> updateSubagency(@RequestParam(value = "id") int id,
 			@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "country", required = false) String country,
 			@RequestParam(value = "commissionRate", required = false) String commissionRate, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
@@ -60,7 +63,7 @@ public class SubagencyController extends BaseController {
 			if (StringUtil.isNotEmpty(commissionRate)) {
 				_commissionRate = Double.parseDouble(commissionRate.trim());
 			}
-			int i = subagencyService.updateSubagency(id, name, _commissionRate);
+			int i = subagencyService.updateSubagency(id, name, country, _commissionRate);
 			if (i > 0) {
 				return new Response<Integer>(0, i);
 			} else {

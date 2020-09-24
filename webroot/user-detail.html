@@ -60,12 +60,13 @@
           <span v-if="ap_list==='MA'">
            	 Mara
           </span>
-          <span v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+          <span v-if="ap_list==='SUPERAD'">
            	 超级管理员
           </span>
 				</a>
 				<div class="top-nav ">
 					<ul class="nav pull-right top-menu">
+						<li style="padding-right:15px;"><a href="knowledge-detail.html?id=1000164" style="color:#ff6c60;">帮助中心</a></li>
 						<li class="dropdown">
 							<a data-toggle="dropdown" class="dropdown-toggle" href="#">
 								<span class="username">
@@ -105,7 +106,7 @@
                 </span>
               </a>
             </li>
-            <dli v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">            
+            <dli v-if="ap_list==='SUPERAD'">            
             <li>
               <a href="adviser.html">
                 <i class="fa fa-book">
@@ -115,6 +116,8 @@
                 </span>
               </a>
             </li>
+            </dli>
+            <dli v-if="ap_list==='SUPERAD' || (ap_list==='WA' && wa_admin === 'true')">
             <li>
               <a href="official.html">
                 <i class="fa fa-book">
@@ -124,6 +127,8 @@
                 </span>
               </a>
             </li>
+            </dli>
+            <dli v-if="ap_list==='SUPERAD'">
             <li>
               <a href="mara.html">
                 <i class="fa fa-book">
@@ -142,6 +147,8 @@
                 </span>
               </a>
             </li>
+            </dli>
+          	<dli v-if="ap_list==='SUPERAD' || (ap_list==='GW' && gw_regionid !== 'null')">
             <li class="sub-menu">
 							<a href="javascript:;">
 								<i class="fa fa-book">
@@ -151,7 +158,7 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li>
+								<li v-if="ap_list==='SUPERAD'">
 									<a href="school.html">
 										学校管理
 									</a>
@@ -163,6 +170,8 @@
 								</li>								
 							</ul>
 						</li>
+						</dli>
+						<dli v-if="ap_list==='SUPERAD'">
             <li>
               <a href="receive-type.html">
                 <i class="fa fa-book">
@@ -205,7 +214,7 @@
 										客户管理
 									</a>
 								</li>
-								<li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								<li v-if="ap_list==='SUPERAD'">
 									<a href="user-tags.html">
 										标签管理
 									</a>
@@ -221,7 +230,7 @@
                 </span>
               </a>
 						</li>
-            <li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'" class="sub-menu">
+            <li v-if="ap_list==='SUPERAD'" class="sub-menu">
 							<a href="javascript:;">
 								<i class="fa fa-book">
                 </i>
@@ -251,9 +260,19 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li v-if="ap_list==='GW'" class="active">
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'">
 									<a href="mycommission.html">
 										我的佣金报表
+									</a>									
+								</li>
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" style="display:;" id="apply_state_PENDING">
+									<a href="mycommission.html?applyState=PENDING">
+										未申请月奖
+									</a>									
+								</li>
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" style="display:;" id="apply_state_COMPLETE">
+									<a href="mycommission.html?applyState=COMPLETE">
+										已申请月奖
 									</a>									
 								</li>
 								<li v-if="ap_list==='KJ'" id="commission_state_DJY">
@@ -266,7 +285,17 @@
 										已结佣订单
 									</a>									
 								</li>								
-								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
+									<a href="mycommission-check-accounting.html">
+										自动对账
+									</a>									
+								</li>
+								<li v-if="ap_list==='SUPERAD'">
+									<a href="create-visa-commission.html">
+										重建签证佣金表订单
+									</a>
+								</li>
+								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
 									<a href="table-export.html">
 										导出数据
 									</a>
@@ -282,12 +311,16 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								<li v-if="ap_list==='SUPERAD'">
 									<a href="knowledge-menu.html">
 										菜单管理
 									</a>
 								</li>
-								{{{m_list}}}							
+								<li>
+									<a href="knowledge.html">
+										知识库菜单
+									</a>
+								</li>
 							</ul>
 						</li>
 					</ul>
@@ -434,6 +467,7 @@
                           </button>
                        </div>
 										  </div>
+										  <div id="copy_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">已复制！请告知客户转账时务必在备注填写该订单号码。</div>
 										  <div class="clearfix">
 	                       <div class="btn-group">
 	                          <button id="editable-no1" class="btn btn-success green tab_current" @click="show_panel(1);">
@@ -632,6 +666,8 @@
 		<script src="js/jquery.nicescroll.js"></script>
 		<script src="assets/bootstrap-datepicker/js/bootstrap-datepicker-new.js"></script><!-- BOOTSTRAP DATEPICKER JS  -->      
 		<script src="js/jquery.autocompleter.js"></script>
+		<script src="js/jquery.validate.min.js"></script><!-- VALIDATE JS  -->
+		<script src="js/clipboard.min.js"></script>
 		<script src="js/common-scripts.js"></script>
 		<script src="js/vue.js"></script>
 		<script src="js/common.js?verson=1"></script>
@@ -644,10 +680,11 @@
 				el: '#user-detail',
 				data: {
 					admin: sessionStorage.getItem("admin"),
-					ap_list: sessionStorage.getItem("ap_list"),			
+					ap_list: sessionStorage.getItem("ap_list"),
+					gw_regionid: sessionStorage.getItem("gw_regionid"),
+					wa_admin: sessionStorage.getItem("wa_admin"),
 					userid: sessionStorage.getItem("userId"),
 					adviser_id: sessionStorage.getItem("adviser_id"),
-					m_list: localStorage.getItem("str_html"),
 					addnewservice1_bind: 0,
 					addnewservice2_bind: 0,
 					orderId : 0,
@@ -862,7 +899,7 @@
 				}
 			});
 			
-			function return_result(result)
+			/*function return_result(result)
 			{
 				for(var i = 0; i < result.data.length; i++) {
 						var str_state = '';
@@ -923,6 +960,151 @@
 						result.data[i].currentState = str_state;
 				};
 				return result.data;
+			}*/
+			
+			function return_result(result)
+			{				
+				for(var i = 0; i < result.data.length; i++) {
+						var str_state = '';
+						var str_refusestate = '';
+						var customer_text = '';
+						switch(result.data[i].type)
+						{
+								case 'VISA':
+										if (result.data[i].parentId)
+										{
+												customer_text = 'V'+result.data[i].id+'-'+result.data[i].servicePackage.num+'<br/><a onclick="copyText()" class="copybtn" data-clipboard-action="copy" data-clipboard-text="V'+result.data[i].id+'">复制</a>';
+										}else
+										{
+												customer_text = 'V'+result.data[i].id+'<br/><a onclick="copyText()" class="copybtn" data-clipboard-action="copy" data-clipboard-text="V'+result.data[i].id+'">复制</a>';
+										}
+								break;
+								case 'OVST':
+										customer_text = result.data[i].id;
+										if (result.data[i].settle)
+										{
+												customer_text = 'S'+result.data[i].id+'<br/><a onclick="copyText()" class="copybtn" data-clipboard-action="copy" data-clipboard-text="S'+result.data[i].id+'">复制</a>';
+										}
+								break;
+								case 'SIV':
+										customer_text = result.data[i].id;
+								break;
+						}
+						result.data[i].oid = customer_text;
+						result.data[i].strRefuse = '';						
+						result.data[i].gmtCreate = v.getTime(result.data[i].gmtCreate);
+						switch(v.ap_list)
+						{
+								case 'GW':
+										result.data[i].approvalDate = result.data[i].officialApprovalDate ? v.getTime(result.data[i].officialApprovalDate):'';
+								break;
+								case 'WA':
+										result.data[i].approvalDate = result.data[i].maraApprovalDate ? v.getTime(result.data[i].maraApprovalDate):'';
+								break;
+								case 'MA':
+										result.data[i].approvalDate = result.data[i].maraApprovalDate ? v.getTime(result.data[i].maraApprovalDate):'';
+								break;
+								default:
+										result.data[i].approvalDate = '';
+								break;
+						}
+						result.data[i].finishDate = result.data[i].finishDate ? v.getTime(result.data[i].finishDate):'';
+						result.data[i].userName = result.data[i].user.name;
+						if (result.data[i].user.birthday) result.data[i].birthday = v.getTime(result.data[i].user.birthday);
+						result.data[i].phone = result.data[i].user.phone;
+						result.data[i].adviserName = result.data[i].adviser.name;
+						result.data[i].officialName = (result.data[i].officialId ? result.data[i].official.name : '');
+						if (result.data[i].review.adviserState != null) str_state = result.data[i].review.adviserState;
+						if (result.data[i].review.officialState == 'REVIEW')
+						{
+								if (result.data[i].review.maraState == 'FINISH')
+								{
+										str_state = 'FINISH';//Mara已审核
+								}else
+								{
+										str_state = 'WA_REVIEW';//文案审核中...
+								}
+						}else if (result.data[i].review.officialState != null)
+						{
+								str_state = result.data[i].review.officialState;
+						}
+						
+						if (result.data[i].type == 'VISA')
+						{
+								result.data[i].maraName = (result.data[i].maraId ? result.data[i].mara.name:'');							
+								if (result.data[i].review.maraState == 'WAIT' && result.data[i].review.officialState == 'WAIT')
+								{
+										switch(v.ap_list)
+										{												
+												case 'GW':
+														str_state = 'WA_REVIEW';//文案审核中..
+												break;
+												case 'WA':
+														str_state = 'WA_MA_WAIT';//已提交Mara审核
+												break;
+												case 'MA':
+														str_state = 'MA_WAIT';//待审核
+												break;
+										}										
+								}
+								if (result.data[i].parentId)
+								{
+										result.data[i].serviceName = return_servicename('SIV');
+										var service_packagename = return_packagetype(result.data[i].servicePackage.type);
+										result.data[i].serviceName += '-'+service_packagename;										
+								}else
+								{
+										result.data[i].serviceName = return_servicename(result.data[i].type)+'-'+result.data[i].service.code;
+								}													
+						}else if (result.data[i].type == 'OVST')
+						{
+								//如果maraState='FINISH'，表示整个流程结束。
+								if (result.data[i].review.officialState == 'COMPLETE') str_state = 'COE_COMPLETE';
+								var str_school = (result.data[i].schoolId ? result.data[i].school.name : '');
+								result.data[i].serviceName = return_servicename(result.data[i].type)+'-'+str_school;
+						}else if (result.data[i].type == 'SIV')
+						{
+								//独立技术移民
+								result.data[i].serviceName = '<span style="font-weight:bold;color:#0066CC;">'+return_servicename(result.data[i].type)+'</span>';							
+						}
+						if (result.data[i].state == 'CLOSE') str_refusestate = (result.data[i].closedReason != null ? result.data[i].closedReason:'');
+						if (result.data[i].review.officialState == 'PENDING' && result.data[i].review.type == 'REFUSE') str_refusestate = '<br/><span style="color:#003333">文案已驳回</span>';
+						if (result.data[i].review.officialState == 'REVIEW' && result.data[i].review.type == 'REFUSE') str_refusestate = '<br/><span style="color:#003333">Mara已驳回</span>';
+						if (result.data[i].type == 'SIV')
+						{
+								if (result.data[i].submitted)
+								{
+										result.data[i].currentState = 'REVIEW';
+										result.data[i].strState = '<span style="color:#FF9966;">已提交佣金表</span>';
+								}else
+								{
+										result.data[i].currentState = str_state;
+								}
+						}else
+						{
+								var servicePackage = (result.data[i].servicePackageId ? result.data[i].servicePackage.type:'');
+								result.data[i].strState = return_state(str_state,servicePackage)+str_refusestate;
+								if (result.data[i].type == 'OVST' && result.data[i].submitted) result.data[i].strState = result.data[i].strState+'<br/><span style="color:#6495ED;">月奖已申请</span>';																
+								result.data[i].currentState = str_state;								
+						}
+						if (result.data[i].type == 'OVST' && result.data[i].state == 'PAID' && !result.data[i].submitted) result.data[i].strState = result.data[i].strState+'<br/><button onclick="open_detail('+result.data[i].id+',\''+result.data[i].type+'\',\''+result.data[i].currentState+'\');" type="button" class="btn btn-danger">待申请月奖</button>';						
+						if (result.data[i].remarks) result.data[i].remarks = url_replace1(result.data[i].remarks);
+						result.data[i].strRemarks = '<button data-original-title="" data-html="true" data-content="'+result.data[i].remarks+'" data-placement="bottom" data-trigger="onclick" class="btn btn-info btn-xs popovers">查看备注</button>';
+				};
+				return result.data;
+			}
+			
+			function copyText(oid)
+			{
+					var clipboard = new ClipboardJS('.copybtn');
+					clipboard.on('success',function(e)
+					{
+							e.clearSelection();
+							$('#copy_success').addClass('alert-success').show().delay(1500).fadeOut();
+					});
+					clipboard.on('error',function(e)
+					{							
+					});
 			}
 			
 			function return_servicename(va)
@@ -935,8 +1117,32 @@
          		case 'OVST':
          					return '留学';
          		break;
+         		case 'SIV':
+         					return '独立技术移民';
+         		break;
          }
       }
+      
+      function return_packagetype(v)
+			{
+				var str = '';
+				switch(v)
+				{
+						case 'CA':
+								str = '职业评估';
+						break;
+						case 'EOI':
+								str = 'EOI';
+						break;
+						case 'SA':
+								str = '学校申请';
+						break;
+						case 'VA':
+								str = '签证申请';
+						break;
+				}
+				return str;
+			}
 			
 			function return_state(va)
 			{
@@ -1275,6 +1481,21 @@
       		sessionStorage.setItem("menu_parentid", parentId);
 					window.location.href = "knowledge.html"; 
       }
+      
+      function url_replace1(str)
+			{
+					var reg = /((http|ftp|https):\/\/)?[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?/g;
+					str=str.replace(reg,function(a){
+					    if(!a.indexOf('http'))
+					    {
+					    	return "<a href=\'"+a+"\' target=\'_blank\'>"+a+"</a>";
+					    }else
+					    {
+					    	return "<a href=\'http://"+a+"\' target=\'_blank\'>"+a+"</a>";
+					    }
+					});
+					return str;
+			}
       
       function  formatDate(now)
 			{

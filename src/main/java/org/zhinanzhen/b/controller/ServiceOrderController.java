@@ -22,15 +22,24 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.ServicePackageService;
+import org.zhinanzhen.b.service.pojo.MaraDTO;
+import org.zhinanzhen.b.service.pojo.OfficialDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderCommentDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
+import org.zhinanzhen.b.service.pojo.ServiceOrderOfficialRemarksDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
 import org.zhinanzhen.b.service.pojo.ServicePackageDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
+import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserService;
+import org.zhinanzhen.tb.service.pojo.AdviserDTO;
+import org.zhinanzhen.tb.service.pojo.RegionDTO;
+import org.zhinanzhen.tb.utils.SendEmailUtil;
 
+import com.ikasoa.core.ErrorCodeEnum;
+import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.core.utils.StringUtil;
 
 @Controller
@@ -49,8 +58,12 @@ public class ServiceOrderController extends BaseController {
 	@Resource
 	ServicePackageService servicePackageService;
 
+	@Resource
+	RegionService regionService;
+
 	public enum ReviewAdviserStateEnum {
 		PENDING, REVIEW, APPLY, COMPLETE, PAID, CLOSE;
+
 		public static ReviewAdviserStateEnum get(String name) {
 			for (ReviewAdviserStateEnum e : ReviewAdviserStateEnum.values())
 				if (e.toString().equals(name))
@@ -61,6 +74,7 @@ public class ServiceOrderController extends BaseController {
 
 	public enum ReviewMaraStateEnum {
 		WAIT, REVIEW, FINISH;
+
 		public static ReviewMaraStateEnum get(String name) {
 			for (ReviewMaraStateEnum e : ReviewMaraStateEnum.values())
 				if (e.toString().equals(name))
@@ -71,6 +85,7 @@ public class ServiceOrderController extends BaseController {
 
 	public enum ReviewOfficialStateEnum {
 		PENDING, WAIT, REVIEW, FINISH, APPLY, COMPLETE, PAID, CLOSE;
+
 		public static ReviewOfficialStateEnum get(String name) {
 			for (ReviewOfficialStateEnum e : ReviewOfficialStateEnum.values())
 				if (e.toString().equals(name))
@@ -81,6 +96,7 @@ public class ServiceOrderController extends BaseController {
 
 	public enum ServiceOrderReviewStateEnum {
 		ADVISER, OFFICIAL, MARA, KJ;
+
 		public static ServiceOrderReviewStateEnum get(String name) {
 			for (ServiceOrderReviewStateEnum e : ServiceOrderReviewStateEnum.values())
 				if (e.toString().equals(name))
@@ -102,7 +118,7 @@ public class ServiceOrderController extends BaseController {
 	public Response<String> uploadVisaVoucherImage(@RequestParam MultipartFile file, HttpServletRequest request,
 			HttpServletResponse response) throws IllegalStateException, IOException {
 		super.setPostHeader(response);
-		return super.upload(file, request.getSession(), "/uploads/visa_voucher_image_url/");
+		return super.upload2(file, request.getSession(), "/uploads/visa_voucher_image_url/");
 	}
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
@@ -127,6 +143,9 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "installment", required = false) Integer installment,
 			@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
 			@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
+			@RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
+			@RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
+			@RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
 			@RequestParam(value = "perAmount", required = false) String perAmount,
 			@RequestParam(value = "amount", required = false) String amount,
 			@RequestParam(value = "expectAmount", required = false) String expectAmount,
@@ -143,7 +162,7 @@ public class ServiceOrderController extends BaseController {
 		try {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 				return new Response<Integer>(1, "仅限顾问和超级管理员能创建服务订单.", 0);
 			ServiceOrderDTO serviceOrderDto = new ServiceOrderDTO();
@@ -184,6 +203,12 @@ public class ServiceOrderController extends BaseController {
 			// return new Response<Integer>(1, "必须上传支付凭证!", 0);
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
 				serviceOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl3))
+				serviceOrderDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl4))
+				serviceOrderDto.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl5))
+				serviceOrderDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
 			if (StringUtil.isNotEmpty(perAmount))
 				serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
 			if (StringUtil.isNotEmpty(amount))
@@ -201,11 +226,13 @@ public class ServiceOrderController extends BaseController {
 					return new Response<Integer>(1, "用户编号错误(" + userId + ")，创建失败.", 0);
 				else
 					serviceOrderDto.setUserId(StringUtil.toInt(userId));
-			if (StringUtil.isNotEmpty(maraId))
+			if (StringUtil.isNotEmpty(maraId) && !"SIV".equalsIgnoreCase(serviceOrderDto.getType())
+					&& !"MT".equalsIgnoreCase(serviceOrderDto.getType())) // SIV主订单和MT主订单不需要mara
 				serviceOrderDto.setMaraId(StringUtil.toInt(maraId));
 			if (StringUtil.isNotEmpty(adviserId))
 				serviceOrderDto.setAdviserId(StringUtil.toInt(adviserId));
-			if (StringUtil.isNotEmpty(officialId))
+			if (StringUtil.isNotEmpty(officialId) && !"SIV".equalsIgnoreCase(serviceOrderDto.getType())
+					&& !"MT".equalsIgnoreCase(serviceOrderDto.getType())) // SIV主订单和MT主订单不需要文案
 				serviceOrderDto.setOfficialId(StringUtil.toInt(officialId));
 			if (StringUtil.isNotEmpty(remarks))
 				serviceOrderDto.setRemarks(remarks);
@@ -215,7 +242,7 @@ public class ServiceOrderController extends BaseController {
 				String msg = "";
 				if (adminUserLoginInfo != null)
 					serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
-							ReviewAdviserStateEnum.PENDING.toString(), null, null, null);
+							serviceOrderDto.getState(), null, null, null);
 				// 创建子服务订单
 				if (StringUtil.isNotEmpty(servicePackageIds)) {
 					List<String> servicePackageIdList = Arrays.asList(servicePackageIds.split(","));
@@ -231,6 +258,12 @@ public class ServiceOrderController extends BaseController {
 						ServicePackageDTO servicePackageDto = servicePackageService.getById(id);
 						if (servicePackageDto == null)
 							return new Response<Integer>(1, "服务包不存在.", 0);
+						serviceOrderDto.setType("VISA"); // 独立技术移民子订单为VISA
+						serviceOrderDto.setPay(false); // 独立技术移民子订单都未支付
+						if (StringUtil.isNotEmpty(maraId))
+							serviceOrderDto.setMaraId(StringUtil.toInt(maraId)); // 独立技术移民子订单需要mara
+						if (StringUtil.isNotEmpty(officialId))
+							serviceOrderDto.setOfficialId(StringUtil.toInt(officialId)); // 独立技术移民子订单需要文案
 						if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null)
 							serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
 									ReviewAdviserStateEnum.PENDING.toString(), null, null, null);
@@ -275,6 +308,9 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "installment", required = false) Integer installment,
 			@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
 			@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
+			@RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
+			@RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
+			@RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
 			@RequestParam(value = "perAmount", required = false) String perAmount,
 			@RequestParam(value = "amount", required = false) String amount,
 			@RequestParam(value = "expectAmount", required = false) String expectAmount,
@@ -288,6 +324,8 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "remarks", required = false) String remarks,
 			@RequestParam(value = "closedReason", required = false) String closedReason, HttpServletRequest request,
 			HttpServletResponse response) {
+//		if (getOfficialAdminId(request) != null)
+//			return new Response<Integer>(1, "文案管理员不可操作服务订单.", 0);
 		try {
 			super.setPostHeader(response);
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
@@ -331,6 +369,12 @@ public class ServiceOrderController extends BaseController {
 			// return new Response<Integer>(1, "必须上传支付凭证!", 0);
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
 				serviceOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl3))
+				serviceOrderDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl4))
+				serviceOrderDto.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl5))
+				serviceOrderDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
 			if (StringUtil.isNotEmpty(perAmount))
 				serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
 			if (StringUtil.isNotEmpty(amount))
@@ -362,11 +406,13 @@ public class ServiceOrderController extends BaseController {
 					return new Response<Integer>(1, "服务包不存在:" + serviceOrderDto.getServicePackageId(), 0);
 				// if (serviceOrderDto.getOfficialId() <= 0 &&
 				// "SIV".equalsIgnoreCase(serviceOrderDto.getType()))
-				if (StringUtil.isEmpty(officialId) && "SIV".equalsIgnoreCase(serviceOrderDto.getType()))
+				if (StringUtil.isEmpty(officialId)
+						&& ("SIV".equalsIgnoreCase(serviceOrderDto.getType()) || serviceOrderDto.getParentId() > 0))
 					return new Response<Integer>(1, "必须选择文案.", 0);
 				// if (serviceOrderDto.getMaraId() <= 0 &&
 				// "SIV".equalsIgnoreCase(serviceOrderDto.getType())
-				if (StringUtil.isEmpty(maraId) && "SIV".equalsIgnoreCase(serviceOrderDto.getType())
+				if (StringUtil.isEmpty(maraId)
+						&& ("SIV".equalsIgnoreCase(serviceOrderDto.getType()) || serviceOrderDto.getParentId() > 0)
 						&& !"EOI".equalsIgnoreCase(servicePackageDto.getType()))
 					return new Response<Integer>(1, "必须选择Mara.", 0);
 			}
@@ -384,21 +430,35 @@ public class ServiceOrderController extends BaseController {
 	@RequestMapping(value = "/updateVoucherImageUrl", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> updateVoucherImageUrl(@RequestParam(value = "id") int id,
-			@RequestParam(value = "paymentVoucherImageUrl", required = false) String paymentVoucherImageUrl,
+			@RequestParam(value = "coePaymentVoucherImageUrl1", required = false) String coePaymentVoucherImageUrl1,
+			@RequestParam(value = "coePaymentVoucherImageUrl2", required = false) String coePaymentVoucherImageUrl2,
+			@RequestParam(value = "coePaymentVoucherImageUrl3", required = false) String coePaymentVoucherImageUrl3,
+			@RequestParam(value = "coePaymentVoucherImageUrl4", required = false) String coePaymentVoucherImageUrl4,
+			@RequestParam(value = "coePaymentVoucherImageUrl5", required = false) String coePaymentVoucherImageUrl5,
 			@RequestParam(value = "visaVoucherImageUrl", required = false) String visaVoucherImageUrl,
 			HttpServletRequest request, HttpServletResponse response) {
+		if (getOfficialAdminId(request) != null)
+			return new Response<Integer>(1, "文案管理员不可操作服务订单.", 0);
 		try {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			if (adminUserLoginInfo != null)
-				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+				if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 						&& !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 					return new Response<Integer>(1, "仅限文案修改.", null);
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
 			if (serviceOrderDto == null)
 				return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl))
-				serviceOrderDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl);
+			if (StringUtil.isNotEmpty(coePaymentVoucherImageUrl1))
+				serviceOrderDto.setCoePaymentVoucherImageUrl1(coePaymentVoucherImageUrl1);
+			if (StringUtil.isNotEmpty(coePaymentVoucherImageUrl2))
+				serviceOrderDto.setCoePaymentVoucherImageUrl2(coePaymentVoucherImageUrl2);
+			if (StringUtil.isNotEmpty(coePaymentVoucherImageUrl3))
+				serviceOrderDto.setCoePaymentVoucherImageUrl3(coePaymentVoucherImageUrl3);
+			if (StringUtil.isNotEmpty(coePaymentVoucherImageUrl4))
+				serviceOrderDto.setCoePaymentVoucherImageUrl4(coePaymentVoucherImageUrl4);
+			if (StringUtil.isNotEmpty(coePaymentVoucherImageUrl5))
+				serviceOrderDto.setCoePaymentVoucherImageUrl5(coePaymentVoucherImageUrl5);
 			if (StringUtil.isNotEmpty(visaVoucherImageUrl))
 				serviceOrderDto.setVisaVoucherImageUrl(visaVoucherImageUrl);
 			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
@@ -417,11 +477,13 @@ public class ServiceOrderController extends BaseController {
 	public Response<Integer> updateRemarks(@RequestParam(value = "id") int id,
 			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
 			HttpServletResponse response) {
+		if (getOfficialAdminId(request) != null)
+			return new Response<Integer>(1, "文案管理员不可操作服务订单.", 0);
 		try {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			if (adminUserLoginInfo != null)
-				if (adminUserLoginInfo == null || (StringUtil.isNotEmpty(adminUserLoginInfo.getApList())
+				if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 						&& !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 					return new Response<Integer>(1, "仅限文案修改.", null);
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
@@ -435,45 +497,102 @@ public class ServiceOrderController extends BaseController {
 			return new Response<Integer>(e.getCode(), e.getMessage(), null);
 		}
 	}
+	
+	@RequestMapping(value = "/updateOfficial", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> updateOfficial(@RequestParam(value = "id") int id,
+			@RequestParam(value = "officialId") Integer officialId, HttpServletRequest request,
+			HttpServletResponse response) {
+		if (getOfficialAdminId(request) == null)
+			return new Response<Integer>(1, "仅限文案管理员操作.", 0);
+		try {
+			super.setPostHeader(response);
+			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
+			if (serviceOrderDto == null)
+				return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
+			serviceOrderDto.setOfficialId(officialId);
+			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
+			return i > 0 ? new Response<Integer>(0, i) : new Response<Integer>(1, "修改失败.", 0);
+		} catch (ServiceException e) {
+			return new Response<Integer>(e.getCode(), e.getMessage(), null);
+		}
+	}
 
 	@RequestMapping(value = "/count", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<Integer> countServiceOrder(@RequestParam(value = "type", required = false) String type,
+	public Response<Integer> countServiceOrder(@RequestParam(value = "id", required = false) Integer id,
+			@RequestParam(value = "type", required = false) String type,
 			@RequestParam(value = "state", required = false) String state,
-			@RequestParam(value = "userId", required = false) String userId,
-			@RequestParam(value = "maraId", required = false) String maraId,
-			@RequestParam(value = "adviserId", required = false) String adviserId,
-			@RequestParam(value = "officialId", required = false) String officialId, HttpServletRequest request,
+			@RequestParam(value = "auditingState", required = false) String auditingState,
+			@RequestParam(value = "reviewState", required = false) String reviewState,
+			@RequestParam(value = "startMaraApprovalDate", required = false) String startMaraApprovalDate,
+			@RequestParam(value = "endMaraApprovalDate", required = false) String endMaraApprovalDate,
+			@RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
+			@RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
+			@RequestParam(value = "regionId", required = false) Integer regionId,
+			@RequestParam(value = "userId", required = false) Integer userId,
+			@RequestParam(value = "maraId", required = false) Integer maraId,
+			@RequestParam(value = "adviserId", required = false) Integer adviserId,
+			@RequestParam(value = "officialId", required = false) Integer officialId,
+			@RequestParam(value = "isNotApproved", required = false) Boolean isNotApproved, HttpServletRequest request,
 			HttpServletResponse response) {
+
+		String excludeState = null;
+		List<String> stateList = null;
+		if (state != null && !"".equals(state))
+			stateList = new ArrayList<>(Arrays.asList(state.split(",")));
+		List<String> reviewStateList = null;
+		if (reviewState != null && !"".equals(reviewState))
+			reviewStateList = new ArrayList<>(Arrays.asList(reviewState.split(",")));
+		Integer newMaraId = getMaraId(request);
+		if (newMaraId != null) {
+			maraId = newMaraId;
+			excludeState = ReviewAdviserStateEnum.PENDING.toString();
+			reviewStateList = new ArrayList<>();
+			reviewStateList.add(ServiceOrderReviewStateEnum.ADVISER.toString());
+			reviewStateList.add(ServiceOrderReviewStateEnum.MARA.toString());
+			reviewStateList.add(ServiceOrderReviewStateEnum.OFFICIAL.toString());
+		}
+		Integer newOfficialId = getOfficialId(request);
+		if (newOfficialId != null) {
+			if (getOfficialAdminId(request) == null)
+				officialId = newOfficialId; // 非文案管理员就只显示自己的单子
+			excludeState = ReviewAdviserStateEnum.PENDING.toString();
+		}
+
+		List<Integer> regionIdList = null;
+		if (regionId != null && regionId > 0)
+			regionIdList = ListUtil.buildArrayList(regionId);
+
 		try {
 			super.setGetHeader(response);
-			String excludeState = null;
-			List<String> stateList = null;
-			if (state != null)
-				stateList = new ArrayList<>(Arrays.asList(state.split(",")));
-			List<String> reviewStateList = null;
-			Integer newAdviserId = getAdviserId(request);
-			if (newAdviserId != null)
-				adviserId = newAdviserId + "";
-			Integer newMaraId = getMaraId(request);
-			if (newMaraId != null) {
-				maraId = newMaraId + "";
-				excludeState = ReviewAdviserStateEnum.PENDING.toString();
-				reviewStateList = new ArrayList<>();
-				reviewStateList.add(ServiceOrderReviewStateEnum.ADVISER.toString());
-				reviewStateList.add(ServiceOrderReviewStateEnum.MARA.toString());
-				reviewStateList.add(ServiceOrderReviewStateEnum.OFFICIAL.toString());
+
+			// 处理顾问管理员
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
+				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
+				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
+				for (RegionDTO region : regionList)
+					regionIdList.add(region.getId());
+			} else {
+				Integer newAdviserId = getAdviserId(request);
+				if (newAdviserId != null)
+					adviserId = newAdviserId;
 			}
-			Integer newOfficialId = getOfficialId(request);
-			if (newOfficialId != null) {
-				officialId = newOfficialId + "";
-				excludeState = ReviewAdviserStateEnum.PENDING.toString();
+
+			if (id != null && id > 0) {
+				if (serviceOrderService.getServiceOrderById(id) != null)
+					return new Response<Integer>(0, 1);
+				else
+					return new Response<Integer>(0, 0);
 			}
 
 			return new Response<Integer>(0,
-					serviceOrderService.countServiceOrder(type, excludeState, stateList, reviewStateList,
-							StringUtil.toInt(userId), StringUtil.toInt(maraId), StringUtil.toInt(adviserId),
-							StringUtil.toInt(officialId), 0));
+					serviceOrderService.countServiceOrder(type, excludeState, stateList, auditingState, reviewStateList,
+							startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
+							endOfficialApprovalDate, regionIdList, userId, maraId, adviserId, officialId, 0,
+							isNotApproved != null ? isNotApproved : false));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -481,43 +600,85 @@ public class ServiceOrderController extends BaseController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<ServiceOrderDTO>> listServiceOrder(@RequestParam(value = "type", required = false) String type,
+	public Response<List<ServiceOrderDTO>> listServiceOrder(@RequestParam(value = "id", required = false) Integer id,
+			@RequestParam(value = "type", required = false) String type,
 			@RequestParam(value = "state", required = false) String state,
-			@RequestParam(value = "userId", required = false) String userId,
-			@RequestParam(value = "maraId", required = false) String maraId,
-			@RequestParam(value = "adviserId", required = false) String adviserId,
-			@RequestParam(value = "officialId", required = false) String officialId,
+			@RequestParam(value = "auditingState", required = false) String auditingState,
+			@RequestParam(value = "reviewState", required = false) String reviewState,
+			@RequestParam(value = "startMaraApprovalDate", required = false) String startMaraApprovalDate,
+			@RequestParam(value = "endMaraApprovalDate", required = false) String endMaraApprovalDate,
+			@RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
+			@RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
+			@RequestParam(value = "regionId", required = false) Integer regionId,
+			@RequestParam(value = "userId", required = false) Integer userId,
+			@RequestParam(value = "maraId", required = false) Integer maraId,
+			@RequestParam(value = "adviserId", required = false) Integer adviserId,
+			@RequestParam(value = "officialId", required = false) Integer officialId,
+			@RequestParam(value = "isNotApproved", required = false) Boolean isNotApproved,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
 			HttpServletRequest request, HttpServletResponse response) {
+
+		String excludeState = null;
+		List<String> stateList = null;
+		if (state != null && !"".equals(state))
+			stateList = new ArrayList<>(Arrays.asList(state.split(",")));
+		List<String> reviewStateList = null;
+		if (reviewState != null && !"".equals(reviewState))
+			reviewStateList = new ArrayList<>(Arrays.asList(reviewState.split(",")));
+		Integer newMaraId = getMaraId(request);
+		if (newMaraId != null) {
+			maraId = newMaraId;
+			excludeState = ReviewAdviserStateEnum.PENDING.toString();
+			reviewStateList = new ArrayList<>();
+			reviewStateList.add(ServiceOrderReviewStateEnum.ADVISER.toString());
+			reviewStateList.add(ServiceOrderReviewStateEnum.MARA.toString());
+			reviewStateList.add(ServiceOrderReviewStateEnum.OFFICIAL.toString());
+		}
+		Integer newOfficialId = getOfficialId(request);
+		if (newOfficialId != null) {
+			if (getOfficialAdminId(request) == null)
+				officialId = newOfficialId; // 非文案管理员就只显示自己的单子
+			excludeState = ReviewAdviserStateEnum.PENDING.toString();
+		}
+
+		List<Integer> regionIdList = null;
+		if (regionId != null && regionId > 0)
+			regionIdList = ListUtil.buildArrayList(regionId);
+
 		try {
 			super.setGetHeader(response);
-			String excludeState = null;
-			List<String> stateList = null;
-			if (state != null)
-				stateList = new ArrayList<>(Arrays.asList(state.split(",")));
-			List<String> reviewStateList = null;
-			Integer newAdviserId = getAdviserId(request);
-			if (newAdviserId != null)
-				adviserId = newAdviserId + "";
-			Integer newMaraId = getMaraId(request);
-			if (newMaraId != null) {
-				maraId = newMaraId + "";
-				excludeState = ReviewAdviserStateEnum.PENDING.toString();
-				reviewStateList = new ArrayList<>();
-				reviewStateList.add(ServiceOrderReviewStateEnum.ADVISER.toString());
-				reviewStateList.add(ServiceOrderReviewStateEnum.MARA.toString());
-				reviewStateList.add(ServiceOrderReviewStateEnum.OFFICIAL.toString());
-			}
-			Integer newOfficialId = getOfficialId(request);
-			if (newOfficialId != null) {
-				officialId = newOfficialId + "";
-				excludeState = ReviewAdviserStateEnum.PENDING.toString();
+			// 处理顾问管理员
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
+				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
+				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
+				for (RegionDTO region : regionList)
+					regionIdList.add(region.getId());
+			} else {
+				Integer newAdviserId = getAdviserId(request);
+				if (newAdviserId != null)
+					adviserId = newAdviserId;
 			}
 
-			return new Response<List<ServiceOrderDTO>>(0,
-					serviceOrderService.listServiceOrder(type, excludeState, stateList, reviewStateList,
-							StringUtil.toInt(userId), StringUtil.toInt(maraId), StringUtil.toInt(adviserId),
-							StringUtil.toInt(officialId), 0, pageNum, pageSize));
+			if (id != null && id > 0) {
+				List<ServiceOrderDTO> list = new ArrayList<ServiceOrderDTO>();
+				ServiceOrderDTO serviceOrder = serviceOrderService.getServiceOrderById(id);
+				if (serviceOrder != null)
+					list.add(serviceOrder);
+				return new Response<List<ServiceOrderDTO>>(0, list);
+			}
+			
+			List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(type, excludeState, stateList, auditingState, reviewStateList,
+					startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
+					endOfficialApprovalDate, regionIdList, userId, maraId, adviserId, officialId, 0,
+					isNotApproved != null ? isNotApproved : false, pageNum, pageSize);
+
+			if (newOfficialId != null)
+				for (ServiceOrderDTO so : serviceOrderList)
+					so.setOfficialNotes(serviceOrderService.listOfficialRemarks(so.getId(), newOfficialId)); // 写入note
+			
+			return new Response<List<ServiceOrderDTO>>(0, serviceOrderList);
 		} catch (ServiceException e) {
 			return new Response<List<ServiceOrderDTO>>(1, e.getMessage(), null);
 		}
@@ -525,10 +686,14 @@ public class ServiceOrderController extends BaseController {
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<ServiceOrderDTO> getServiceOrder(@RequestParam(value = "id") int id, HttpServletResponse response) {
+	public Response<ServiceOrderDTO> getServiceOrder(@RequestParam(value = "id") int id, HttpServletRequest request,
+			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<ServiceOrderDTO>(0, serviceOrderService.getServiceOrderById(id));
+			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
+			if (getAdminUserLoginInfo(request) != null && getOfficialId(request) != null)
+				serviceOrderDto.setOfficialNotes(serviceOrderService.listOfficialRemarks(id, getOfficialId(request))); // 写入文案note
+			return new Response<ServiceOrderDTO>(0, serviceOrderDto);
 		} catch (ServiceException e) {
 			return new Response<ServiceOrderDTO>(1, e.getMessage(), null);
 		}
@@ -552,7 +717,8 @@ public class ServiceOrderController extends BaseController {
 		super.setPostHeader(response);
 		try {
 			return serviceOrderService.getServiceOrderById(id) != null
-					? new Response<Integer>(0, serviceOrderService.finish(id)) : null;
+					? new Response<Integer>(0, serviceOrderService.finish(id))
+					: null;
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), -1);
 		}
@@ -576,29 +742,48 @@ public class ServiceOrderController extends BaseController {
 			} catch (ServiceException e) {
 				return new Response<ServiceOrderDTO>(1, e.getMessage(), null);
 			}
+			if (serviceOrderDto == null) {
+				ServiceException se = new ServiceException("服务订单不存在:" + id);
+				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+				throw se;
+			}
+			if (!"OVST".equals(serviceOrderDto.getType()) && serviceOrderDto.isPay()
+					&& serviceOrderDto.getPaymentVoucherImageUrl1() == null
+					&& serviceOrderDto.getPaymentVoucherImageUrl2() == null) {
+				ServiceException se = new ServiceException("支付凭证不能为空!");
+				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+				throw se;
+			}
 			// 审核
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			if (adminUserLoginInfo != null)
-				if (StringUtil.isEmpty(adminUserLoginInfo.getApList())
+				if ("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 						|| "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewAdviserStateEnum.get(state) != null)
 						if (ReviewAdviserStateEnum.REVIEW.toString().equals(state.toUpperCase())) { // 顾问审核
-							// 如果有子订单,就一起提交审核
-							if (serviceOrderDto.getParentId() == 0
-									&& "SIV".equalsIgnoreCase(serviceOrderDto.getType())) {
-								List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(null,
-										null, null, null, 0, 0, 0, 0, serviceOrderDto.getId(), 0, 10);
-								for (ServiceOrderDTO so : serviceOrderList) {
-									if (so.getServicePackage() == null)
-										return new Response<ServiceOrderDTO>(1, "子订单没有服务包.", so);
-									if (so.getOfficialId() <= 0 && "SIV".equalsIgnoreCase(so.getType()))
-										return new Response<ServiceOrderDTO>(1, "子订单必须选择文案.", so);
-									if (so.getMaraId() <= 0 && "SIV".equalsIgnoreCase(so.getType())
-											&& !"EOI".equalsIgnoreCase(so.getServicePackage().getType()))
-										return new Response<ServiceOrderDTO>(1, "子订单必须选择Mara.", so);
-									serviceOrderService.approval(so.getId(), adminUserLoginInfo.getId(),
-											state.toUpperCase(), null, null, null);
-								}
+							if (serviceOrderDto.getParentId() == 0 && ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
+									|| "MT".equalsIgnoreCase(serviceOrderDto.getType()))) {
+								return new Response<ServiceOrderDTO>(1, "该订单不支持审核.", serviceOrderDto);
+								// List<ServiceOrderDTO> serviceOrderList =
+								// serviceOrderService.listServiceOrder(null,
+								// null, null, null, 0, 0, 0, 0,
+								// serviceOrderDto.getId(), 0, 10);
+								// for (ServiceOrderDTO so : serviceOrderList) {
+								// if (so.getServicePackage() == null)
+								// return new Response<ServiceOrderDTO>(1,
+								// "子订单没有服务包.", so);
+								// if (so.getOfficialId() <= 0)
+								// return new Response<ServiceOrderDTO>(1,
+								// "子订单必须选择文案.", so);
+								// if (so.getMaraId() <= 0
+								// &&
+								// !"EOI".equalsIgnoreCase(so.getServicePackage().getType()))
+								// return new Response<ServiceOrderDTO>(1,
+								// "子订单必须选择Mara.", so);
+								// serviceOrderService.approval(so.getId(),
+								// adminUserLoginInfo.getId(),
+								// state.toUpperCase(), null, null, null);
+								// }
 							}
 							return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id,
 									adminUserLoginInfo.getId(), state.toUpperCase(), null, null, null));
@@ -720,14 +905,14 @@ public class ServiceOrderController extends BaseController {
 			// 审核
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			if (adminUserLoginInfo != null)
-				if (StringUtil.isEmpty(adminUserLoginInfo.getApList())
+				if ("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 						|| "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewAdviserStateEnum.get(state) != null)
 						if (ReviewAdviserStateEnum.PENDING.toString().equals(state.toUpperCase())) // 顾问撤回同时修改文案和mara状态
 							return new Response<ServiceOrderDTO>(0,
 									serviceOrderService.refuse(id, adminUserLoginInfo.getId(), state.toUpperCase(),
-											null, ReviewOfficialStateEnum.PENDING.toString(),
-											ReviewMaraStateEnum.WAIT.toString()));
+											ReviewOfficialStateEnum.PENDING.toString(),
+											ReviewMaraStateEnum.WAIT.toString(), null));
 						else if (ReviewOfficialStateEnum.REVIEW.toString().equals(state.toUpperCase())) // 顾问驳回同时修改mara状态
 							return new Response<ServiceOrderDTO>(0,
 									serviceOrderService.refuse(id, adminUserLoginInfo.getId(), state.toUpperCase(),
@@ -814,14 +999,68 @@ public class ServiceOrderController extends BaseController {
 		try {
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			super.setPostHeader(response);
+			ServiceOrderDTO serviceOrder = serviceOrderService.getServiceOrderById(serviceOrderId);
+			if (serviceOrder == null)
+				return new Response<Integer>(1, "服务订单为空.", 0);
 			ServiceOrderCommentDTO serviceOrderCommentDto = new ServiceOrderCommentDTO();
 			serviceOrderCommentDto
 					.setAdminUserId(adminUserLoginInfo != null ? adminUserLoginInfo.getId() : adminUserId);
 			serviceOrderCommentDto.setServiceOrderId(serviceOrderId);
 			serviceOrderCommentDto.setContent(content);
-			if (serviceOrderService.addComment(serviceOrderCommentDto) > 0)
+			if (serviceOrderService.addComment(serviceOrderCommentDto) > 0) {
+				// 发送邮件
+				String serviceType = "?";
+				if ("VISA".equalsIgnoreCase(serviceOrder.getType()))
+					serviceType = "签证";
+				else if ("OVST".equalsIgnoreCase(serviceOrder.getType()))
+					serviceType = "留学";
+				else if ("SIV".equalsIgnoreCase(serviceOrder.getType()))
+					serviceType = "独立技术移民";
+				else if ("MT".equalsIgnoreCase(serviceOrder.getType()))
+					serviceType = "曼拓";
+				String title = "您的" + serviceType + "订单" + serviceOrder.getId() + "有最新评论";
+				String message = "您的服务订单有一条新的评论，请及时查看．<br/>服务订单类型:" + serviceType + "<br/>客户:"
+						+ (serviceOrder.getUser() != null ? serviceOrder.getUser().getName() : "") + "<br/>订单ID:"
+						+ serviceOrder.getId() + "<br/>评论内容:" + serviceOrderCommentDto.getContent() + "<br/>评论时间:"
+						+ new Date()
+						+ "<br/><br/><a href='https://yongjinbiao.zhinanzhen.org/admin/serviceorder-detail.html?id="
+						+ serviceOrder.getId() + "'>服务订单详情</a>";
+				String email = "";
+				if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+					OfficialDTO official = serviceOrder.getOfficial();
+					if (official != null)
+						email = official.getEmail();
+					MaraDTO mara = serviceOrder.getMara();
+					if (mara != null)
+						if ("".equals(email))
+							email = mara.getEmail();
+						else
+							email = email + "," + mara.getEmail();
+				} else if (adminUserLoginInfo != null && "WA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+					AdviserDTO adviser = serviceOrder.getAdviser();
+					if (adviser != null)
+						email = adviser.getEmail();
+					MaraDTO mara = serviceOrder.getMara();
+					if (mara != null)
+						if ("".equals(email))
+							email = mara.getEmail();
+						else
+							email = email + "," + mara.getEmail();
+				} else if (adminUserLoginInfo != null && "M".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+					OfficialDTO official = serviceOrder.getOfficial();
+					if (official != null)
+						email = official.getEmail();
+					AdviserDTO adviser = serviceOrder.getAdviser();
+					if (adviser != null)
+						if ("".equals(email))
+							email = adviser.getEmail();
+						else
+							email = email + "," + adviser.getEmail();
+				}
+				if (!"".equals(email))
+					SendEmailUtil.send(email, title, message);
 				return new Response<Integer>(0, serviceOrderCommentDto.getId());
-			else
+			} else
 				return new Response<Integer>(1, "创建失败.", 0);
 		} catch (ServiceException e) {
 			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
@@ -862,5 +1101,94 @@ public class ServiceOrderController extends BaseController {
 			return new Response<Integer>(1, e.getMessage(), 0);
 		}
 	}
+	
+	//
+	
+	@RequestMapping(value = "/addOfficialRemarks", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> addOfficialRemarks(@RequestParam(value = "serviceOrderId") Integer serviceOrderId,
+			@RequestParam(value = "content") String content, HttpServletRequest request, HttpServletResponse response) {
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo != null)
+			if (adminUserLoginInfo == null || !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					|| adminUserLoginInfo.getOfficialId() == null)
+				return new Response<Integer>(1, "仅限文案操作.", null);
+		try {
+			super.setPostHeader(response);
+			ServiceOrderDTO serviceOrder = serviceOrderService.getServiceOrderById(serviceOrderId);
+			if (serviceOrder == null)
+				return new Response<Integer>(1, "服务订单为空.", 0);
+			ServiceOrderOfficialRemarksDTO serviceOrderOfficialRemarksDto = new ServiceOrderOfficialRemarksDTO();
+			serviceOrderOfficialRemarksDto.setOfficialId(adminUserLoginInfo.getOfficialId());
+			serviceOrderOfficialRemarksDto.setServiceOrderId(serviceOrderId);
+			serviceOrderOfficialRemarksDto.setContent(content);
+			if (serviceOrderService.addOfficialRemarks(serviceOrderOfficialRemarksDto) > 0)
+				return new Response<Integer>(0, serviceOrderOfficialRemarksDto.getId());
+			else
+				return new Response<Integer>(1, "创建失败.", 0);
+		} catch (ServiceException e) {
+			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
+		}
+	}
+	
+	@RequestMapping(value = "/updateOfficialRemarks", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> updateOfficialRemarks(@RequestParam(value = "id") Integer id, @RequestParam(value = "content") String content,
+			HttpServletRequest request, HttpServletResponse response) {
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo != null)
+			if (adminUserLoginInfo == null || !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					|| adminUserLoginInfo.getOfficialId() == null)
+				return new Response<Integer>(1, "仅限文案操作.", null);
+		try {
+			super.setPostHeader(response);
+			ServiceOrderOfficialRemarksDTO serviceOrderOfficialRemarksDto = new ServiceOrderOfficialRemarksDTO();
+			serviceOrderOfficialRemarksDto.setId(id);
+			serviceOrderOfficialRemarksDto.setOfficialId(adminUserLoginInfo.getOfficialId());
+			serviceOrderOfficialRemarksDto.setContent(content);
+			if (serviceOrderService.updateOfficialRemarks(serviceOrderOfficialRemarksDto) > 0)
+				return new Response<Integer>(0, serviceOrderOfficialRemarksDto.getId());
+			else
+				return new Response<Integer>(1, "修改失败.", 0);
+		} catch (ServiceException e) {
+			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
+		}
+	}
 
+	@RequestMapping(value = "/listOfficialRemarks", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<ServiceOrderOfficialRemarksDTO>> listOfficialRemarks(
+			@RequestParam(value = "serviceOrderId") Integer serviceOrderId, HttpServletRequest request,
+			HttpServletResponse response) {
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo != null)
+			if (adminUserLoginInfo == null || !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					|| adminUserLoginInfo.getOfficialId() == null)
+				return new Response<List<ServiceOrderOfficialRemarksDTO>>(1, "仅限文案操作.", null);
+		try {
+			super.setGetHeader(response);
+			return new Response<List<ServiceOrderOfficialRemarksDTO>>(0,
+					serviceOrderService.listOfficialRemarks(serviceOrderId, adminUserLoginInfo.getOfficialId()));
+		} catch (ServiceException e) {
+			return new Response<List<ServiceOrderOfficialRemarksDTO>>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/deleteOfficialRemarks", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> deleteOfficialRemarks(@RequestParam(value = "id") int id, HttpServletRequest request,
+			HttpServletResponse response) {
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo != null)
+			if (adminUserLoginInfo == null || !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					|| adminUserLoginInfo.getOfficialId() == null)
+				return new Response<Integer>(1, "仅限文案操作.", null);
+		try {
+			super.setGetHeader(response);
+			return new Response<Integer>(0, serviceOrderService.deleteServiceOrderOfficialRemarksDTO(id));
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), 0);
+		}
+	}
+	
 }

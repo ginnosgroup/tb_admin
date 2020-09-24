@@ -45,7 +45,7 @@
           <span v-if="ap_list==='MA'">
            	 Mara
           </span>
-          <span v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+          <span v-if="ap_list==='SUPERAD'">
            	 超级管理员
           </span>
 				</a>
@@ -90,7 +90,7 @@
                 </span>
               </a>
             </li>
-            <dli v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">            
+            <dli v-if="ap_list==='SUPERAD'">            
             <li>
               <a href="adviser.html">
                 <i class="fa fa-book">
@@ -190,7 +190,7 @@
 										客户管理
 									</a>
 								</li>
-								<li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								<li v-if="ap_list==='SUPERAD'">
 									<a href="user-tags.html">
 										标签管理
 									</a>
@@ -206,7 +206,7 @@
                 </span>
               </a>
 						</li>
-            <li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'" class="sub-menu" class="sub-menu">
+            <li v-if="ap_list==='SUPERAD'" class="sub-menu" class="sub-menu">
 							<a href="javascript:;">
 								<i class="fa fa-book">
                 </i>
@@ -236,9 +236,19 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li v-if="ap_list==='GW'" class="active">
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" class="active">
 									<a href="mycommission.html">
 										我的佣金报表
+									</a>									
+								</li>
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" style="display:;" id="apply_state_PENDING">
+									<a href="mycommission.html?applyState=PENDING">
+										未申请月奖
+									</a>									
+								</li>
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" style="display:;" id="apply_state_COMPLETE">
+									<a href="mycommission.html?applyState=COMPLETE">
+										已申请月奖
 									</a>									
 								</li>
 								<li v-if="ap_list==='KJ'" id="commission_state_DJY">
@@ -251,7 +261,17 @@
 										已结佣订单
 									</a>									
 								</li>								
-								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
+									<a href="mycommission-check-accounting.html">
+										自动对账
+									</a>									
+								</li>
+								<li v-if="ap_list==='SUPERAD'">
+									<a href="create-visa-commission.html">
+										重建签证佣金表订单
+									</a>
+								</li>
+								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
 									<a href="table-export.html">
 										导出数据
 									</a>
@@ -267,12 +287,16 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								<li v-if="ap_list==='SUPERAD'">
 									<a href="knowledge-menu.html">
 										菜单管理
 									</a>
 								</li>
-								{{{m_list}}}							
+								<li>
+									<a href="knowledge.html">
+										知识库菜单
+									</a>
+								</li>
 							</ul>
 						</li>
 					</ul>
@@ -475,7 +499,6 @@
 				data: {
 					admin: sessionStorage.getItem("admin"),
 					ap_list: sessionStorage.getItem("ap_list"),
-					m_list: localStorage.getItem("str_html"),
 					data_list: [],
 					tree_data: [],
 					tree_first_node: false,
@@ -610,16 +633,19 @@
 			    var str_selected3 = '';
 			    var str_selected4 = '';
 			    var str_selected5 = '';
+			    var str_selected6 = '';
 			    if (country == 'AUS') str_selected1 = ' SELECTED';
 			    if (country == 'USA') str_selected2 = ' SELECTED';
 			    if (country == 'GBR') str_selected3 = ' SELECTED';
 			    if (country == 'CAN') str_selected4 = ' SELECTED';
-			    if (country == 'NZL') str_selected5 = ' SELECTED';			    
+			    if (country == 'NZL') str_selected5 = ' SELECTED';
+			    if (country == 'CHN') str_selected6 = ' SELECTED';			    
 	        obj_country.append("<option value='AUS'"+str_selected1+">澳大利亚</option>");
 	        obj_country.append("<option value='USA'"+str_selected2+">美国</option>");
 	        obj_country.append("<option value='GBR'"+str_selected3+">英国</option>");
 	        obj_country.append("<option value='CAN'"+str_selected4+">加拿大</option>");
 	        obj_country.append("<option value='NZL'"+str_selected5+">新西兰</option>");
+	        obj_country.append("<option value='CHN'"+str_selected6+">中国</option>");
       }
       
       function schoolEdit(country,name,id)
@@ -670,6 +696,7 @@
           {              
               var str_url = "school/update";
               var sa_id = $("#id").val();
+              $("#id").val('0');
               if (sa_id)
               {              
 		              $.post(str_url, { id: sa_id, subject: subject_name},

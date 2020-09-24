@@ -24,7 +24,7 @@
 	</head>
 
 	<body id="mycommission-accounting" v-cloak>
-		<section id="container">
+<section id="container">
 			<header class="header white-bg">
 				<div class="sidebar-toggle-box">
 					<div data-placement="right" class="fa fa-bars tooltips">
@@ -44,7 +44,7 @@
           <span v-if="ap_list==='MA'">
            	 Mara
           </span>
-          <span v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+          <span v-if="ap_list==='SUPERAD'">
            	 超级管理员
           </span>
 				</a>
@@ -89,7 +89,7 @@
                 </span>
               </a>
             </li>
-            <dli v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">            
+            <dli v-if="ap_list==='SUPERAD'">            
             <li>
               <a href="adviser.html">
                 <i class="fa fa-book">
@@ -189,7 +189,7 @@
 										客户管理
 									</a>
 								</li>
-								<li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								<li v-if="ap_list==='SUPERAD'">
 									<a href="user-tags.html">
 										标签管理
 									</a>
@@ -205,7 +205,7 @@
                 </span>
               </a>
 						</li>
-            <li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'" class="sub-menu">
+            <li v-if="ap_list==='SUPERAD'" class="sub-menu">
 							<a href="javascript:;">
 								<i class="fa fa-book">
                 </i>
@@ -239,7 +239,7 @@
 									<a href="mycommission.html">
 										我的佣金报表
 									</a>									
-								</li>
+								</li>								
 								<li v-if="ap_list==='KJ'" id="commission_state_DJY">
 									<a href="mycommission-accounting.html?commission_state=DJY">
 										待结佣订单
@@ -249,8 +249,18 @@
 									<a href="mycommission-accounting.html?commission_state=YJY">
 										已结佣订单
 									</a>									
-								</li>								
-								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								</li>
+								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
+									<a href="mycommission-check-accounting.html">
+										自动对账
+									</a>									
+								</li>
+								<li v-if="ap_list==='SUPERAD'">
+									<a href="create-visa-commission.html">
+										重建签证佣金表订单
+									</a>
+								</li>
+								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
 									<a href="table-export.html">
 										导出数据
 									</a>
@@ -266,12 +276,16 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								<li v-if="ap_list==='SUPERAD'">
 									<a href="knowledge-menu.html">
 										菜单管理
 									</a>
 								</li>
-								{{{m_list}}}							
+								<li>
+									<a href="knowledge.html">
+										知识库菜单
+									</a>
+								</li>
 							</ul>
 						</li>
 					</ul>
@@ -297,42 +311,51 @@
                       </button>
                       <strong id="error_info"></strong>
                     </div>
-									  <form class="form-inline" style="margin-top:10px;">
+									  <form class="form-inline" style="margin-top:10px;">									  	
 									  	<input v-model.trim="userId" type="hidden" name="userId" id="userId" value="0" />
 											<div class="form-group">
-													<label>客户姓名</label>
-													<input type="text" name="user_name" id="user_name" class="form-control" style="width:150px;">													
+													<input type="text" v-model.trim="id" id="id" class="form-control" style="width:90px;" placeholder="订单ID">
+													<input type="text" name="user_name" id="user_name" class="form-control" style="width:150px;" placeholder="客户姓名">
+													<select v-model.trim="adviserId" id="adviserId" class="form-control" style="width:130px;">
+													</select>												
 											</div>
 											<div class="form-group">
-													<label>顾问</label>
-													<select v-model.trim="adviserId" id="adviserId" class="form-control" style="width:130px;">
-													</select>
+													<input v-model.trim="startHandlingDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:120px;" placeholder="办理时间(开始)">
+													<input v-model.trim="endHandlingDate" type="text"  autocomplete="off" class="form-control default-date-picker1" style="width:120px;" placeholder="办理时间(结束)">
+													<input v-model.trim="startDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:120px;" placeholder="创建时间(开始)">
+													<input v-model.trim="endDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:120px;" placeholder="创建时间(结束)">
+													<input v-model.trim="startKjApprovalDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:150px;" placeholder="财务审核时间(开始)">
+													<input v-model.trim="endKjApprovalDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:150px;" placeholder="财务审核时间(结束)">
+											</div>											
+											<div class="form-group">													
 													<label>服务项目</label>											
 													<select id="type" class="form-control" style="width:130px;" onchange="gotoUrl(this.value);">
 													<option value="VISA" selected="true">签证</option>
 													<option value="OVST">留学</option>
 													</select>
-													<label>状态</label>											
-													<select v-model.trim="state" id="state" class="form-control" style="width:130px;">
-													<option value="" selected="true">全部</option>
-													<option value="WAIT">佣金待审核</option>
-													<option value="FINISH">佣金已审核</option>
-													<option value="COMPLETE">佣金结算完成</option>													
-													<option value="CLOSE">已关闭</option>
-													</select>													
+													<dle v-if="ap_list!=='GW'">
+													<label>选择地区</label>
+													<select v-model.trim="regionId" id="regionId" class="form-control" style="width:130px;">
+													</select>
+													</dle>
 											</div>
 											<div class="form-group">
 												<button @click="getSearch" type="button" class="btn btn-info">查询</button>
 												<button @click="getExport" type="button" class="btn btn-primary">导出</button>
+												<button v-if="commission_state ==='DJY' || commission_state ==='DZY'" onclick="uploadFile()" type="button" class="btn btn-success">上传数据</button>
+											</div>
+											<div class="form-group">
+												<button @click="multiple_edit" type="button" class="btn btn-warning">批量编辑</button>
 											</div>
 										</form>
 										<div class="responsive-table margin-top">
 											<input type="hidden" name="id" id="id" value="0" />
-											<table class="display table table-bordered table-striped" id="list_visa" style="width:1700px;">
+											<table class="display table table-bordered table-striped" id="list_visa" style="width:2000px;">
 												<thead>
 													<tr>
 														<th>订单ID</th>
 														<th>佣金订单创建日期</th>
+														<th>提交审核时间</th>
 														<th>客户支付日期</th>
 														<th>客户姓名</th>
 														<th>收款方式</th>
@@ -340,9 +363,12 @@
 														<th><span style="color:#FF6C60;">总计应收</span></th>
 														<th><span style="color:#FF6C60;">总计收款</span></th>
 														<th>本次收款</th>
-														<th>预收业绩(<span style="color:#FF6C60;">Commission含GST</span>)</th>														
+														<th>预收业绩(<span style="color:#FF6C60;">Commission含GST</span>)</th>
+														<th>确认预收业绩</th>														
 														<th>月奖</th>
 														<th>月奖支付时间</th>
+														<th>银行对账字段</th>
+														<th>是否自动对账成功</th>
 														<th>顾问</th>
 														<th>状态</th>
 														<th>操作</th>
@@ -353,16 +379,20 @@
 													<tr v-for="item in subject" class="gradeX">
 														<td v-html="item.strHref"></td>
 														<td v-html="item.gmtCreate"></td>
+														<td @dblclick="table_edit($index,'kjApprovalDate','t4')"><span v-html="item.kjApprovalDate"></span></td>
 														<td v-html="item.receiveDate"></td>
 														<td v-html="item.userName"></td>
 														<td v-html="item.receiveTypeName"></td>
 														<td v-html="item.serviceName"></td>
-														<td v-html="item.receivable"></td>
-														<td v-html="item.received"></td>
+														<td v-html="item.totalPerAmount"></td>
+														<td v-html="item.totalAmount"></td>
 														<td v-html="item.amount"></td>
 														<td v-html="item.expectAmount"></td>
+														<td @dblclick="table_edit($index,'sureExpectAmount','t1')"><span v-html="item.sureExpectAmount"></span></td>
 														<td v-html="item.bonus"></td>
 														<td v-html="item.bonusDate"></td>
+														<td @dblclick="table_edit($index,'bankCheck','t2')"><span v-html="item.bankCheck"></span></td>
+														<td @dblclick="table_edit($index,'isChecked','t3')"><span v-html="item.isChecked"></span></td>
 														<td v-html="item.adviserName"></td>
 														<td v-html="item.strState"></td>
 														<td>																
@@ -373,12 +403,41 @@
 																				<a href="javascript:show_confirmbox({{item.oid}},'WAIT',0);"><span style="color:blue;">驳回</span></a>
 																		</dli>
 																		<dli v-else>
-																				<a class="save" href="javascript:;"><span style="color:blue;">保存并审批通过</span></a>
-																				<a class="cancel" href="javascript:;">取消</a>
+																				<dli v-if="!is_multiple">
+																						<dli v-if="item.type">
+																						<a class="save" href="javascript:;"><span style="color:blue;" id="save{{item.oid}}">保存并审批通过</span></a>
+																						</dli>
+																						<dli v-else>
+																						<a class="save1" href="javascript:;"><span style="color:blue;">保存</span></a>
+																						</dli>
+																						<a class="cancel" href="javascript:;">取消</a>
+																				</dli>
 																		</dli>
 																</dli>
 														</td>
-														<td v-html="item.remarks" style="width:100px;word-break:break-all;"></td>
+														<td v-html="item.strRemarks"></td>
+													</tr>
+													<tr class="gradeX">
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td style="background:#F4A460">合计：</td>
+														<td style="background:#F4A460">{{total_amount}}</td>
+														<td style="background:#F4A460">{{total_expectamount}}</td>														
+														<td bgcolor="#F4A460">{{total_sureexpectamount}}</td>
+														<td style="background:#F4A460">{{total_bonus}}</td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
 													</tr>
 												</tbody>
 											</table>
@@ -396,8 +455,9 @@
 														<li :class="[pageNum==0?'disabled':'']">
 															<a @click="prevPage" href="javascript:;">← Pre</a>
 														</li>
-														<li class="nowPage">
-															第{{pageNum+1}}页
+														<li class="nowPage" style="padding: 0px 0px;margin: 0 1px;">
+															第{{pageNum+1}}页/共{{allPage}}页&nbsp;
+															跳到 <input type="text" v-model.trim="pnumber" @keyup.enter="submit" style="width:50px;color:#c7c7c7;border: 1px solid #ddd;border-radius: 3px;-webkit-border-radius: 3px;padding: 5px 10px;display: inline-block;" id="b100" placeholder="" value=""> 页
 														</li>
 														<li :class="[pageNum==allPage-1?'disabled':'']">
 															<a @click="nextPage" href="javascript:;">Next → </a>
@@ -409,8 +469,13 @@
 												</div>
 											</div>
 										</div>
-									</div>
-								</div>
+										<div id="show_multiple" style="display:none;margin-top:10px;">
+											<button @click="multiple_save" id="btn_multiple_save" type="button" class="btn btn-primary">保存</button>
+											<button @click="multiple_remove" type="button" class="btn btn-default">取消</button>
+											<label id="show_info" style="display:none;margin-left:10px;color:blue;">正在保存，请稍等...</label>
+										</div>
+									</div>									
+								</div>								
 							</section>
 						</div>
 					</div>
@@ -442,6 +507,45 @@
 					</div>
 				</div>
 			</div>
+		</div>
+		<div class="modal fade" id="upload_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">上传数据</h4>
+					</div>
+					<div class="modal-body">
+							<form class="form-horizontal" autocomplete="off">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">请选择文件</label>
+								<div class="col-sm-8">
+									<input type="file" id="f2" accept=".xls,.xlsx" class="form-control" placeholder="请选择一个文件">
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-12 control-label" id="show_message" style="text-align: center;color:red;"></label>
+							</div>							
+							</form>
+					</div>
+					<div class="modal-footer">
+						<button id="btnUpload" type="button" class="btn btn-primary">确认上传</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>						
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="modal fade" id="loading_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop='static' style="z-index:99999;">
+			<div class="modal-dialog" role="document" style="width:350px;">
+				<div class="modal-content">
+					<div class="modal-header">
+					</div>
+					<div class="modal-body">
+							<div style="text-align:center;color:#0066CC;"><img src="img/input-spinner.gif" /> 正在执行，请稍后...</div>
+					</div>
+					
+				</div>
+			</div>
 		</div>		
 		<div id="load-mycommission-visa-view-page"></div>
 		<script src="js/jquery-1.8.3.min.js"></script>
@@ -455,7 +559,7 @@
 		<script src="js/common-scripts.js"></script>
 		<script src="js/vue.js"></script>
 		<script src="js/common.js?verson=1"></script>
-		<script>
+		<script>			
 			$("#load-mycommission-visa-view-page").load("mycommission-common-view.html?random="+Math.random());
 			tb.isLogin("mycommission-accounting.html");
 			$("td,th").addClass("text-center");
@@ -464,20 +568,27 @@
 				data: {
 					admin: sessionStorage.getItem("admin"),
 					ap_list: sessionStorage.getItem("ap_list"),
-					m_list: localStorage.getItem("str_html"),
 					adviser_id: sessionStorage.getItem("adviser_id"),
 					official_id: sessionStorage.getItem("official_id"),
 					mara_id: sessionStorage.getItem("mara_id"),
 					kj_id: sessionStorage.getItem("kj_id"),
 					commission_state : getRequest('commission_state'),
 					orderId: 0,
+					total_amount: 0.00,
+					total_expectamount: 0.00,
+					total_sureexpectamount: 0.00,
+					total_bonus: 0.00,
 					order_detail: [],
 					set_state: '',
 					set_type: 1,
 					subject: [],
+					subject_tmp: [],
 					count: 0,				
 					name: '',
-					state: '',					
+					state: '',
+					update_field: '',					
+					update_byid: '',
+					is_multiple: 0,
 					pageNum: 0,
 					pageSize: 20,
 					allPage: 0,
@@ -486,10 +597,24 @@
 					index: 0			
 				},
 				created: function() {
-					this.getDatalist();
+					if (this.kj_id == 'null')
+					{
+							setTimeout(function(){alert('没有权限访问此页面，请关闭对话框。');window.location.href = "mycommission.html";}, 2000);
+					}else
+					{
+							$('.default-date-picker1').datepicker({   				
+						        format: 'yyyy-mm-dd',
+						        endDate: new Date()
+						  });
+							this.getDatalist();
+							document.onkeydown = function(e) {
+								var key = window.event.keyCode;
+								if (key == 13) v.gotoPage();
+							};
+					}
 				},
 				methods: {					
-					getDatalist: function() {
+					getDatalist1: function() {
 						var that = this;
 						$.get(url + "visa/count", {
 							keyword: that.name,
@@ -499,39 +624,141 @@
 							that.allPage = Math.ceil(result.data / that.pageSize);
 						});
 						$.get(url + "visa/list", {
-							pageNum: 0,
+							pageNum: that.pageNum,
 							pageSize: that.pageSize,
 							commissionState: that.commission_state
 						}, function(result) {							
-							that.pageNum = 0;
+							that.pageNum = that.pageNum;
 							result.data = return_result(result);
-							that.subject = result.data;
+							that.subject = result.data;							
+							that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
 							//console.log(that.subject);
 						});
 					},
 					getSearch: function() {
 						var that = this;
+						that.pageNum = 0;
+						that.pnumber = null;
+						that.getDatalist();
+					},
+					getDatalist: function() {
+						var that = this;
 						var json = {};
+						show_loading();
+						if (that.id != '') json['id'] = that.id;
 						if (that.userId != '0') json['userId'] = that.userId;
 						if (that.adviserId != '0')
 						{
 								json['adviserId'] = that.adviserId;
-								v.adviser_id = that.adviserId;
-						}
+								//v.adviser_id = that.adviserId;
+						}				
 						if (that.type != '') json['type'] = that.type;
-						if (that.state != '') json['state'] = that.state;
+						if (that.startHandlingDate != '') json['startHandlingDate'] = that.startHandlingDate;
+						if (that.endHandlingDate != '') json['endHandlingDate'] = that.endHandlingDate;
+						if (that.startKjApprovalDate != '') json['startKjApprovalDate'] = that.startKjApprovalDate;
+						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
+						if (that.startDate != '') json['startDate'] = that.startDate;
+						if (that.endDate != '') json['endDate'] = that.endDate;
+						if (that.ap_list != 'GW' && that.regionId != '') json['regionId'] = that.regionId;
 						json['commissionState'] = that.commission_state;
+						
 						$.get(url + "visa/count", json, function(result) {
 							that.count = result.data;
 							that.allPage = Math.ceil(result.data / that.pageSize);
 						});
-						json['pageNum'] = 0;
+						json['pageNum'] = that.pageNum;
 						json['pageSize'] = that.pageSize;						
 						$.get(url + "visa/list", json, function(result) {
-							that.pageNum = 0;
 							result.data = return_result(result);
 							that.subject = result.data;
+							that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
+							$('#loading_id').modal('hide');
 						});
+					},
+					getExport: function() {
+						var that = this;						
+						//json['commissionState'] = that.commission_state;
+						show_loading();
+						var down_url = url + "visa/down?";
+						if (typeof(that.id) != "undefined")
+						{
+								down_url += "id="+that.id;
+						}else
+						{
+								down_url += "id=";
+						}
+						if (typeof(that.userId) != "undefined")
+						{
+								down_url += "&userId="+that.userId;
+						}else
+						{
+								down_url += "&userId=";
+						}
+						if (typeof(that.adviserId) != "undefined")
+						{								
+								down_url += "&adviserId="+that.adviserId;
+						}else
+						{
+								down_url += "&adviserId=";
+						}						
+						if (typeof(that.startHandlingDate) != "undefined")
+						{
+								down_url += "&startHandlingDate="+that.startHandlingDate;
+						}else
+						{
+								down_url += "&startHandlingDate=";
+						}
+						if (typeof(that.endHandlingDate) != "undefined")
+						{
+								down_url += "&endHandlingDate="+that.endHandlingDate;
+						}else
+						{
+								down_url += "&endHandlingDate=";
+						}
+						if (typeof(that.startDate) != "undefined")
+						{
+								down_url += "&startDate="+that.startDate;
+						}else
+						{
+								down_url += "&startDate=";
+						}
+						if (typeof(that.endDate) != "undefined")
+						{
+								down_url += "&endDate="+that.endDate;
+						}else
+						{
+								down_url += "&endDate=";
+						}
+						if (typeof(that.startKjApprovalDate) != "undefined")
+						{
+								down_url += "&startKjApprovalDate="+that.startKjApprovalDate;
+						}else
+						{
+								down_url += "&startKjApprovalDate=";
+						}
+						if (typeof(that.endKjApprovalDate) != "undefined")
+						{
+								down_url += "&endKjApprovalDate="+that.endKjApprovalDate;
+						}else
+						{
+								down_url += "&endKjApprovalDate=";
+						}
+						if (that.ap_list != 'GW' && typeof(that.regionId) != "undefined")
+						{
+								down_url += "&regionId="+that.regionId;
+						}else
+						{
+								down_url += "&regionId=";
+						}
+						down_url += "&commissionState="+that.commission_state;
+						console.log(down_url);
+						var a = document.createElement('a');
+						a.download = 'visa_all_data.xls';
+						a.href = down_url;
+						$("body").append(a);
+						a.click();
+						$(a).remove();
+						setTimeout(function(){$('#loading_id').modal('hide');}, 3000);
 					},
 					getTime: function(d) {
 						var date1 = new Date(d);
@@ -565,68 +792,168 @@
 					},
 					firstPage: function() {
 						var that = this;
+						var json = {};
+						if (that.userId != '0') json['userId'] = that.userId;
+						if (that.adviserId != '0')
+						{
+								json['adviserId'] = that.adviserId;
+								v.adviser_id = that.adviserId;
+						}				
+						if (that.type != '') json['type'] = that.type;
+						if (that.regionId != '') json['regionId'] = that.regionId;
+						if (that.startHandlingDate != '') json['startHandlingDate'] = that.startHandlingDate;
+						if (that.endHandlingDate != '') json['endHandlingDate'] = that.endHandlingDate;
+						if (that.startKjApprovalDate != '') json['startKjApprovalDate'] = that.startKjApprovalDate;
+						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
+						if (that.startDate != '') json['startDate'] = that.startDate;
+						if (that.endDate != '') json['endDate'] = that.endDate;
+						json['commissionState'] = that.commission_state;
+						
 						if(that.pageNum > 0) {
-							$.get(url + "visa/list", {
-								keyword: that.name,
-								state: that.state,
-								pageNum: 0,
-								pageSize: that.pageSize,
-								commissionState: that.commission_state
-							}, function(result) {
-								console.log(result)
+							show_loading();
+							json['pageNum'] = 0;
+							json['pageSize'] = that.pageSize;							
+							$.get(url + "visa/list", json, function(result) {
 								that.pageNum = 0;
 								result.data = return_result(result);
 								that.subject = result.data;
+								that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
+								$('#loading_id').modal('hide');
 							});
 						}
 					},
 					prevPage: function() {
 						var that = this;
+						var json = {};
+						if (that.userId != '0') json['userId'] = that.userId;
+						if (that.adviserId != '0')
+						{
+								json['adviserId'] = that.adviserId;
+								v.adviser_id = that.adviserId;
+						}				
+						if (that.type != '') json['type'] = that.type;
+						if (that.regionId != '') json['regionId'] = that.regionId;
+						if (that.startHandlingDate != '') json['startHandlingDate'] = that.startHandlingDate;
+						if (that.endHandlingDate != '') json['endHandlingDate'] = that.endHandlingDate;
+						if (that.startKjApprovalDate != '') json['startKjApprovalDate'] = that.startKjApprovalDate;
+						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
+						if (that.startDate != '') json['startDate'] = that.startDate;
+						if (that.endDate != '') json['endDate'] = that.endDate;
+						json['commissionState'] = that.commission_state;
+						
 						if(that.pageNum > 0) {
+							show_loading();
 							that.pageNum--;
-							$.get(url + "visa/list", {
-								keyword: that.name,
-								pageNum: that.pageNum,
-								pageSize: that.pageSize,
-								commissionState: that.commission_state
-							}, function(result) {
-								console.log(result)
+							json['pageNum'] = that.pageNum;
+							json['pageSize'] = that.pageSize;
+							$.get(url + "visa/list", json, function(result) {
 								result.data = return_result(result);
 								that.subject = result.data;
+								that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
+								$('#loading_id').modal('hide');
 							});
 						}
 					},
 					nextPage: function() {
 						var that = this;
+						var json = {};
+						if (that.userId != '0') json['userId'] = that.userId;
+						if (that.adviserId != '0')
+						{
+								json['adviserId'] = that.adviserId;
+								v.adviser_id = that.adviserId;
+						}				
+						if (that.type != '') json['type'] = that.type;
+						if (that.regionId != '') json['regionId'] = that.regionId;
+						if (that.startHandlingDate != '') json['startHandlingDate'] = that.startHandlingDate;
+						if (that.endHandlingDate != '') json['endHandlingDate'] = that.endHandlingDate;
+						if (that.startKjApprovalDate != '') json['startKjApprovalDate'] = that.startKjApprovalDate;
+						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
+						if (that.startDate != '') json['startDate'] = that.startDate;
+						if (that.endDate != '') json['endDate'] = that.endDate;
+						json['commissionState'] = that.commission_state;
+						
 						if(that.pageNum < that.allPage - 1) {
+							show_loading();
 							that.pageNum++;
-							$.get(url + "visa/list", {
-								keyword: that.name,
-								state: that.state,
-								pageNum: that.pageNum,
-								pageSize: that.pageSize,
-								commissionState: that.commission_state
-							}, function(result) {
-								console.log(result)
+							json['pageNum'] = that.pageNum;
+							json['pageSize'] = that.pageSize;
+							$.get(url + "visa/list", json, function(result) {
 								result.data = return_result(result);
-								that.subject = result.data;
+								that.subject = result.data;								
+								that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
+								$('#loading_id').modal('hide');
 							});
 						}
 					},
 					lastPage: function() {
 						var that = this;
+						var json = {};
+						if (that.userId != '0') json['userId'] = that.userId;
+						if (that.adviserId != '0')
+						{
+								json['adviserId'] = that.adviserId;
+								v.adviser_id = that.adviserId;
+						}				
+						if (that.type != '') json['type'] = that.type;
+						if (that.regionId != '') json['regionId'] = that.regionId;
+						if (that.startHandlingDate != '') json['startHandlingDate'] = that.startHandlingDate;
+						if (that.endHandlingDate != '') json['endHandlingDate'] = that.endHandlingDate;
+						if (that.startKjApprovalDate != '') json['startKjApprovalDate'] = that.startKjApprovalDate;
+						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
+						if (that.startDate != '') json['startDate'] = that.startDate;
+						if (that.endDate != '') json['endDate'] = that.endDate;
+						json['commissionState'] = that.commission_state;
+						
 						if(that.pageNum < that.allPage - 1) {
-							$.get(url + "visa/list", {
-								keyword: that.name,
-								state: that.state,
-								pageNum: that.allPage - 1,
-								pageSize: that.pageSize,
-								commissionState: that.commission_state
-							}, function(result) {
-								console.log(result)
+							show_loading();
+							json['pageNum'] = that.allPage - 1;
+							json['pageSize'] = that.pageSize;							
+							$.get(url + "visa/list", json, function(result) {
 								that.pageNum = that.allPage - 1;
 								result.data = return_result(result);
 								that.subject = result.data;
+								that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
+								$('#loading_id').modal('hide');
+							});
+						}
+					},
+					gotoPage: function() {
+						var that = this;
+						var json = {};
+						if (that.userId != '0') json['userId'] = that.userId;
+						if (that.adviserId != '0')
+						{
+								json['adviserId'] = that.adviserId;
+								v.adviser_id = that.adviserId;
+						}				
+						if (that.type != '') json['type'] = that.type;
+						if (that.regionId != '') json['regionId'] = that.regionId;
+						if (that.startHandlingDate != '') json['startHandlingDate'] = that.startHandlingDate;
+						if (that.endHandlingDate != '') json['endHandlingDate'] = that.endHandlingDate;
+						if (that.startKjApprovalDate != '') json['startKjApprovalDate'] = that.startKjApprovalDate;
+						if (that.endKjApprovalDate != '') json['endKjApprovalDate'] = that.endKjApprovalDate;
+						if (that.startDate != '') json['startDate'] = that.startDate;
+						if (that.endDate != '') json['endDate'] = that.endDate;
+						json['commissionState'] = that.commission_state;
+						
+						that.pageNum = parseInt(that.pnumber);
+						if (that.pageNum > that.allPage)
+						{
+								that.pnumber = that.allPage;
+								that.pageNum = that.allPage;
+						}						
+						if(that.pageNum <= that.allPage) {
+							show_loading();
+							that.pageNum = that.pageNum - 1;
+							json['pageNum'] = that.pageNum;
+							json['pageSize'] = that.pageSize;						
+							$.get(url + "visa/list", json, function(result) {
+								console.log(result)
+								result.data = return_result(result);
+								that.subject = result.data;
+								that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
+								$('#loading_id').modal('hide');
 							});
 						}
 					},
@@ -641,6 +968,7 @@
 						this.subject.splice(index,1, {
 							oid: parseInt(this.subject[index].id),
 							gmtCreate: this.subject[index].gmtCreate,
+							kjApprovalDate: this.subject[index].kjApprovalDate,
 							receiveDate: this.subject[index].receiveDate,
 							userName: this.subject[index].userName,
 							receiveTypeName: this.subject[index].receiveTypeName,
@@ -649,12 +977,171 @@
 							received: this.subject[index].received,
 							amount: this.subject[index].amount,
 							expectAmount: this.subject[index].expectAmount,
+							//sureExpectAmount: this.subject[index].sureExpectAmount,
+							sureExpectAmount: '<input type="text" class="form-control small" style="width:120px;" id="t3a" value="'+this.subject[index].sureExpectAmount+'">',
 							bonus: '<input type="text" class="form-control small" style="width:120px;" id="t1" value="'+this.subject[index].bonus+'">',
 							bonusDate: '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:120px;" id="t2" data-date-format="dd-mm-yyyy" value="'+this.subject[index].bonusDate+'">',
+							bankCheck: this.subject[index].bankCheck,
+							isChecked: this.subject[index].isChecked,
 							adviserName: this.subject[index].adviserName,
 							strState: this.subject[index].strState,
+							type: 1,
 						});															
 					},					
+					table_edit: function (index,field,byid) {
+						if (this.current_index != null)
+						{
+								this.subject[this.current_index] = this.current_row;
+						}						
+						v.update_field = field;
+						v.update_byid = byid;
+						this.current_index = index;
+						this.current_row = this.subject[index];
+						v.orderId = this.subject[index].id;
+						var json = {};
+						json['oid'] = parseInt(this.subject[index].id);
+						json['gmtCreate'] = this.subject[index].gmtCreate;
+						json['kjApprovalDate'] = this.subject[index].kjApprovalDate;
+						json['receiveDate'] = this.subject[index].receiveDate;
+						json['userName'] = this.subject[index].userName;
+						json['receiveTypeName'] = this.subject[index].receiveTypeName;
+						json['serviceName'] = this.subject[index].serviceName;
+						json['receivable'] = this.subject[index].receivable;
+						json['received'] = this.subject[index].received;
+						json['amount'] = this.subject[index].amount;
+						json['expectAmount'] = this.subject[index].expectAmount;
+						if (field == 'sureExpectAmount')
+						{
+								json['sureExpectAmount'] = '<input type="text" class="form-control small" style="width:120px;" id="'+byid+'" value="'+this.subject[index].sureExpectAmount+'">';
+						}else
+						{
+								json['sureExpectAmount'] = this.subject[index].sureExpectAmount;
+						}
+						if (field == 'bankCheck')
+						{
+								json['bankCheck'] = '<input type="text" class="form-control small" style="width:120px;" id="'+byid+'" value="'+(this.subject[index].bankCheck  == null ?  '':this.subject[index].bankCheck)+'">';
+						}else
+						{								
+								json['bankCheck'] = (this.subject[index].bankCheck  == null ?  '':this.subject[index].bankCheck);
+						}
+						if (field == 'isChecked')
+						{
+								json['isChecked'] = '<select class="form-control" style="width:180px;" id="'+byid+'"></select>';
+						}else
+						{								
+								json['isChecked'] = (!this.subject[index].checked ?  '':this.subject[index].checked);
+						}
+						if (field == 'kjApprovalDate')
+						{
+								json['kjApprovalDate'] = '<input type="text" class="form-control small default-date-picker" style="width:170px;" id="'+byid+'" value="'+(this.subject[index].kjApprovalDate  == null ?  '':this.subject[index].kjApprovalDate)+'">';
+						}else
+						{								
+								json['kjApprovalDate'] = (this.subject[index].kjApprovalDate  == null ?  '':this.subject[index].kjApprovalDate);
+						}
+						json['bonus'] = this.subject[index].bonus;
+						json['bonusDate'] = this.subject[index].bonusDate;
+						json['adviserName'] = this.subject[index].adviserName;
+						json['strState'] = this.subject[index].strState;
+						json['type'] = 0;
+						this.subject.splice(index,1, json);															
+					},
+					multiple_edit: function () {						
+						if (!this.is_multiple)
+						{
+								$("#show_multiple").show();
+								for(var index=0;index < this.subject.length;index++)
+								{
+										this.subject_tmp[index] = this.subject[index];
+										this.subject.splice(index,1, {
+										oid: parseInt(this.subject[index].id),
+										gmtCreate: this.subject[index].gmtCreate,
+										kjApprovalDate: this.subject[index].kjApprovalDate,
+										receiveDate: this.subject[index].receiveDate,
+										userName: this.subject[index].userName,
+										receiveTypeName: this.subject[index].receiveTypeName,
+										serviceName: this.subject[index].serviceName,
+										receivable: this.subject[index].receivable,
+										received: this.subject[index].received,
+										amount: this.subject[index].amount,
+										expectAmount: this.subject[index].expectAmount,
+										sureExpectAmount: '<input type="text" class="form-control small" style="width:120px;" id="t3a_'+this.subject[index].id+'" value="'+this.subject[index].sureExpectAmount+'">',
+										bonus: '<input type="text" class="form-control small" style="width:120px;" id="t1_'+this.subject[index].id+'" value="'+this.subject[index].bonus+'">',
+										bonusDate: '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:120px;" id="t2_'+this.subject[index].id+'" data-date-format="dd-mm-yyyy" value="'+this.subject[index].bonusDate+'">',
+										bankCheck: this.subject[index].bankCheck,
+										isChecked: this.subject[index].isChecked,
+										adviserName: this.subject[index].adviserName,
+										strState: this.subject[index].strState,
+										type: 1,
+									});
+								}
+						}
+						this.is_multiple = 1;
+					},
+					multiple_save: function () {
+						var f = '#list_visa ';
+						var json = {};
+						var str_json = '';						
+						for(var index=0;index < this.subject.length;index++)
+						{
+								var oid = parseInt(this.subject[index].oid);								
+								json['id'] = oid;
+								json['bonus'] = $(f+'#t1_'+oid).val();
+								var t2 = $(f+'#t2_'+oid).val();
+	       				if (t2 != '')
+		        		{
+			          		var arr_d = t2.split("/");
+			          		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+			              var date = new Date(str_d);
+			              json['bonusDate'] = date.getTime();
+		          	}else
+		          	{
+	       						json['bonusDate'] = 0;      				
+	       				}
+	       				var t3a = $(f+'#t3a_'+oid).val();
+       					if (t3a != '') json['sureExpectAmount'] = t3a;
+       					if (str_json == '')
+       					{
+       							str_json += JSON.stringify(json);
+       					}else
+       					{
+       							str_json += ','+JSON.stringify(json);
+       					}
+						}
+						str_json = '['+str_json+']';
+						$("#btn_multiple_save").attr("disabled","disabled");
+						$("#show_info").show();
+						var str_url = url + "visa/kjUpdate";
+						$.ajax({ 
+		            type:"PUT", 
+		            url: str_url, 
+		            contentType:"application/json",      
+		            dataType:"json",
+		            data: str_json, 
+		            success:function(data)
+		            {
+		            		if (data.code == 0)
+						   			{
+						   					$("#show_info").html('批量保存成功');
+						   					setTimeout(function(){$("#show_multiple").hide();v.getDatalist();}, 1000);
+						   					//setTimeout(function(){window.location.href = "mycommission-accounting.html?commission_state=DJY";}, 3000);						   					
+						   			}else
+						   			{
+						   					$("#btn_multiple_save").removeAttr("disabled");
+						   					$("#show_info").html(data.message);
+						   			}
+		          	}
+          	});					
+						this.is_multiple = 0;
+					},
+					multiple_remove: function () {
+						this.is_multiple = 0;					
+						for(var index=0;index < this.subject.length;index++)
+						{								
+								this.subject.splice(index, 0);
+								this.subject.splice(index,1,this.subject_tmp[index]);
+						}
+						$("#show_multiple").hide();
+					},
 					table_remove: function (index) {
              this.subject.splice(index, 1);  
           }
@@ -664,6 +1151,11 @@
 			$('#list_visa a.save').live('click', function (e) {
 				e.preventDefault();
 				table_addsave();
+			});
+			
+			$('#list_visa a.save1').live('click', function (e) {
+				e.preventDefault();
+				table_addsave1();
 			});
 			
 			$('#list_visa a.cancel').live('click', function (e) {
@@ -704,13 +1196,87 @@
 	          	{
        						json['bonusDate'] = 0;      				
        				}
+       				var t3a = $(f+'#t3a').val();
+       				if (t3a != '') json['sureExpectAmount'] = t3a;
        				$.post(str_url, json,
 					   	function(data){
 					   			if (data.code == 0)
 					   			{
 					   					$('#my_table #alert_success').css('marginLeft','40%');
 					   					$('#my_table #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
-					   					v.table_remove();
+					   					//v.table_remove();
+					   					//重新载入数据源
+					   					v.getDatalist();
+					   			}else
+					   			{
+					   					$('#my_table #alert_error').css('marginLeft','40%');
+					   					$('#my_table #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+			          			$("#my_table #error_info").html(data.message);
+				        			return false;
+					   			}
+					   	});
+    			}
+			}
+			
+			function table_addsave1()
+			{
+					var f = '#list_visa ';
+					var check_result = 0;
+					var str_val = $(f+'#'+v.update_byid).val();
+					var field = v.update_field;
+					
+					if (str_val != '')
+					{														
+							check_result = true;							
+					}else
+					{
+							$('#my_table #alert_error').css('marginLeft','40%');
+			    		$('#my_table #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+			        $("#my_table #error_info").html('提示：字段必须填写或选择！');
+			    		return false;
+					}
+					if (check_result)
+    			{    					
+			    		var str_url = "visa/update";
+       				var json = {};
+       				json['id'] = v.orderId; 
+       				if (field == 'kjApprovalDate')
+       				{
+       						str_url = "visa/updateKjApprovalDate";
+       						var arr_d1 = str_val.split(" ");
+       						if (arr_d1.length == 2)
+       						{
+		       						var arr_d = arr_d1[0].split("/");
+				          		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+				          		str_d += ' '+arr_d1[1];     		
+				              var date = new Date(str_d);
+		       						json[v.update_field] = date.getTime();//转时间戳
+       						}else
+       						{
+       								var arr_d = arr_d1[0].split("/");
+				          		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+				          		str_d += ' 09:00:00';     		
+				              var date = new Date(str_d);
+				              json[v.update_field] = date.getTime();//转时间戳
+       								//alert('时间格式不正确！请核实后再提交。');
+       								//return false;
+       						}
+       				}else
+       				{       				      				
+       						json[v.update_field] = str_val;
+       				}       				
+       				$.post(str_url, json,
+					   	function(data){
+					   			if (data.code == 0)
+					   			{
+					   					$('#my_table #alert_success').css('marginLeft','40%');
+					   					$('#my_table #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+					   					if (field == 'sureExpectAmount') v.current_row.sureExpectAmount = str_val;					   					
+					   					if (field == 'bankCheck') v.current_row.bankCheck = str_val;					   					
+					   					if (field == 'isChecked') v.current_row.isChecked = str_val;
+					   					if (field == 'kjApprovalDate') v.current_row.kjApprovalDate = str_val;						   					
+					   					v.subject.splice(v.current_index, 0);
+											v.subject.splice(v.current_index,1, v.current_row);
 					   					//重新载入数据源
 					   					v.getDatalist();
 					   			}else
@@ -726,20 +1292,56 @@
 			
 			function return_result(result)
 			{
+				v.total_amount = 0;
+				v.total_expectamount = 0;
+				v.total_sureexpectamount = 0;
+				v.total_bonus = 0;
 				for(var i = 0; i < result.data.length; i++) {
 						result.data[i].oid = result.data[i].id;
 						result.data[i].strOid = '';
 						if (result.data[i].installment > 1) result.data[i].strOid = '-' + result.data[i].installmentNum;
 						result.data[i].strHref = '<a href="javascript:open_detail('+result.data[i].serviceOrderId+','+result.data[i].id+');" title="查看详细">'+result.data[i].id+result.data[i].strOid+'</a>';
 						result.data[i].gmtCreate = v.getTime1(result.data[i].gmtCreate);
+						result.data[i].kjApprovalDate = result.data[i].kjApprovalDate ? v.getTime(result.data[i].kjApprovalDate):'';
 						result.data[i].receiveDate = result.data[i].receiveDate ? v.getTime(result.data[i].receiveDate):'';
 						result.data[i].bonusDate = result.data[i].bonusDate ? v.getTime(result.data[i].bonusDate):'';
-						result.data[i].serviceName = '签证-'+result.data[i].serviceCode;
+						if (result.data[i].serviceOrder.type == 'SIV')
+						{
+								var childrenService = return_childrenService(result.data[i].serviceOrder.childrenServiceOrders);
+								result.data[i].serviceName = '<span style="font-weight:bold;color:#0066CC;">独立技术移民</span><br/>'+childrenService;								
+						}else
+						{
+								result.data[i].serviceName = '签证-'+result.data[i].serviceCode;
+						}
+						if (result.data[i].sureExpectAmount == '0') result.data[i].sureExpectAmount = result.data[i].expectAmount;
+						var str_checked = '';
+						if (result.data[i].bankCheck)
+						{
+								str_checked = result.data[i].checked;
+								if (!result.data[i].checked) str_checked = '<span style="color:red;">'+result.data[i].checked+'</span>';
+						}
+						result.data[i].isChecked = str_checked;					
 						result.data[i].payDate = '';//字段未添加，待修正
+						if (result.data[i].state == 'PENDING')
+						{
+								result.data[i].amount = 0.00;
+								result.data[i].expectAmount = 0.00;
+								result.data[i].sureExpectAmount = 0.00;
+								result.data[i].bonus = 0.00;
+						}
+						v.total_amount += result.data[i].amount;
+						v.total_expectamount += result.data[i].expectAmount;
+						v.total_sureexpectamount += result.data[i].sureExpectAmount;
+						v.total_bonus += result.data[i].bonus;
 						result.data[i].strState = return_state(result.data[i].state);
 						result.data[i].currentState = result.data[i].state;
-						if (result.data[i].remarks) result.data[i].remarks = url_replace(result.data[i].remarks);
+						if (result.data[i].remarks) result.data[i].remarks = url_replace1(result.data[i].remarks);
+						result.data[i].strRemarks = '<button data-original-title="" data-html="true" data-content="'+result.data[i].remarks+'" data-placement="bottom" data-trigger="onclick" class="btn btn-info btn-xs popovers">查看备注</button>';
 				};
+				v.total_amount = v.total_amount.toFixed(2);
+				v.total_expectamount = v.total_expectamount.toFixed(2);
+				v.total_sureexpectamount = v.total_sureexpectamount.toFixed(2);
+				v.total_bonus = v.total_bonus.toFixed(2);
 				return result.data;
 			}						
       
@@ -765,12 +1367,86 @@
 						break;
 					}
 					return str_html;
-      }                   
+      }
+      
+      function return_childrenService(arr)
+      {
+      		var str = '';
+      		for(var i=0;i < arr.length;i++)
+      		{
+      				if (str == '')
+      				{
+      						str = return_packagetype(arr[i].servicePackageType);
+      				}else
+      				{
+      						str += '/'+return_packagetype(arr[i].servicePackageType);
+      				}
+      		}
+      		return str;
+      }
+      
+      function return_packagetype(v)
+			{
+				var str = '';
+				switch(v)
+				{
+						case 'CA':
+								str = '职业评估';
+						break;
+						case 'EOI':
+								str = 'EOI';
+						break;
+						case 'SA':
+								str = '学校申请';
+						break;
+						case 'VA':
+								str = '签证申请';
+						break;
+				}
+				return str;
+			}
+			
+			function return_attribute(peopleType,peopleNumber)
+			{
+					var str = '';
+					switch(peopleType)
+					{
+							case '1A':
+									str = '单人';
+							break;
+							case '1B':
+									str = '单人 - 提配偶';
+							break;
+							case '2A':
+									str = '多人('+peopleNumber+'人) - 带配偶';
+							break;
+							case 'XB':
+									str = '多人('+peopleNumber+'人) - 带配偶孩子';
+							break;
+							case 'XA':
+									str = '多人('+peopleNumber+'人) - 带孩子';
+							break;
+							case 'XC':
+									str = '多人('+peopleNumber+'人) - 其它';
+							break;
+					}
+					return str;
+			}                   
 			
 			v.$watch('subject', function(obj) {
 					$('.default-date-picker').datepicker({   				
 				        format: 'dd/mm/yyyy'
-				  });				 	
+				  });
+				  $('.default-date-picker2').datepicker({
+				  			minView: "hour",
+				        format: 'dd/mm/yyyy'
+				  });
+				  var checked_val = 'false';
+				  if (this.current_row.id)
+				  {
+				  		$("#id").val(this.current_row.id);
+				  		checked_val = this.current_row.isChecked;
+				  }				 	
 				  //查询客户
 				  var user = $("#user_name");
 				  user.autocompleter({
@@ -795,7 +1471,7 @@
 			    //绑定顾问
 				  var obj_adviserId = $("#adviserId");
 				  $("#adviserId").empty();
-	        obj_adviserId.append("<option value='0'>全部</option>");
+	        obj_adviserId.append("<option value='0'>全部顾问</option>");
 			    $.ajax({
 	          url: 'adviser/list?pageNum=0&pageSize=100000',
 	          type: 'GET',
@@ -809,7 +1485,33 @@
 	        			obj_adviserId.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
 	        	}
 	        	obj_adviserId.val(v.adviser_id);	
-	        });			    
+	        });
+	        var obj_checked = $("#t3");
+	        $("#t3").empty();
+			    obj_checked.append('<option value="true">True</option>');
+			    obj_checked.append('<option value="false">False</option>');		   
+			    obj_checked.val(checked_val.toString());
+			    //绑定区域列表
+			    var obj_regionId = $("#regionId");
+			    $("#regionId").empty();
+			    obj_regionId.append("<option value='0'>请选择</option>");
+			    $.ajax({
+	          url: 'region/list_all',
+	          type: 'GET',
+	          dataType: 'json'
+	        }).done(function(response) {
+	        	var region_data = response.data;
+	        	for (var item in region_data)
+	        	{
+	        			obj_regionId.append("<option value='"+region_data[item].id+"'>"+region_data[item].name+"</option>");
+	        			var region_sub = region_data[item].regionList;
+	        			for (var itemsub in region_sub)
+	        			{
+	        					obj_regionId.append("<option value='"+region_sub[itemsub].id+"'>---"+region_sub[itemsub].name+"</option>");
+	        			}
+	        	}
+	        	obj_regionId.val(v.regionId);
+	        });
 			});
 			
 			function gotoUrl(va)
@@ -856,17 +1558,19 @@
       		
       		var json = {};
       		json['id'] = v.orderId;
-          json['state'] = va;          
+          json['state'] = va;
+          show_loading();          
           $.post(str_url, json,
 			   	function(data){
+			   			$('#loading_id').modal('hide');
 			   			if (data.code == 0)
 			   			{			   					
 			   					$('#my_table #alert_success').css('marginLeft','40%');
 			   					$('#my_table #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
 			   					//重新载入数据源
-					   			v.getDatalist();
+					   			setTimeout(function(){v.getDatalist();$('.modal-backdrop').remove();}, 1000);
 			   			}else
-			   			{
+			   			{			   					
 			   					$('#my_table #alert_error').css('marginLeft','40%');
 			   					$('#my_table #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
 	          			$("#my_table #error_info").html(data.message);
@@ -895,6 +1599,51 @@
 			    $("#commission_state_"+str_value).addClass("active");
 			    return str_value;
 			}
+			
+			function uploadFile()
+			{
+					$('#upload_id').modal('show');
+					$('#upload_id #f2').val('');
+					$('#upload_id #show_message').html('');
+			}
+			
+			$('#upload_id #btnUpload').live('click', function (e) {
+					var formData = new FormData();					
+					formData.append("file",$("#f2")[0].files[0]);
+					$('#upload_id #show_message').html('');
+					show_loading();
+					
+					$.ajax({
+			        url:'visa/upload',
+			        dataType:'json',
+			        type:'POST',
+			        async: false,
+			        data: formData,
+			        processData : false, //使数据不做处理
+			        contentType : false,
+			        success: function(data){
+			        		$('#loading_id').modal('hide');			        		
+			            if (data.code == '0')
+			            {			            		
+			            		if (data.message == '')
+			            		{
+			            				$('#upload_id #show_message').css("color","#78CD51");
+			            				$('#upload_id #show_message').html('上传数据成功，请核对数据是否一致。');
+			            		}else
+			            		{
+			            				$('#upload_id #show_message').css("color","red");
+			            				$('#upload_id #show_message').html(data.message);
+			            		}
+			            }else
+			            {
+			            		$('#upload_id #show_message').html(data.message);
+			            }	
+			        },
+			        error:function(response){
+			            console.log(response);
+			        }
+			    });
+			});
       
       function show_knowledge_detail(id,parentId)
       {
@@ -916,7 +1665,22 @@
 					    }
 					});
 					return str;
-			}			
+			}
+			
+			function url_replace1(str)
+			{
+					var reg = /((http|ftp|https):\/\/)?[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?/g;
+					str=str.replace(reg,function(a){
+					    if(!a.indexOf('http'))
+					    {
+					    	return "<a href=\'"+a+"\' target=\'_blank\'>"+a+"</a>";
+					    }else
+					    {
+					    	return "<a href=\'http://"+a+"\' target=\'_blank\'>"+a+"</a>";
+					    }
+					});
+					return str;
+			}		
 			
 			function  formatDate(now)
 			{
@@ -939,6 +1703,17 @@
 			        s+="0";
 			    }
 			    return s+str;
+			}
+			
+			function show_loading()
+			{
+					$('#loading_id').on('show.bs.modal', function(){
+	          var $this = $(this);
+	          var $modal_dialog = $this.find('.modal-dialog');
+	          $this.css('display', 'block');
+	          $modal_dialog.css({'margin-top': Math.max(0, ($(window).height() - $modal_dialog.height()) / 2) });
+	        });
+					$('#loading_id').modal('show');
 			}
 			
 	    jQuery(document).ready(function() {

@@ -72,7 +72,7 @@ public class OfficialController extends BaseController {
 			if (officialService.addOfficial(officialDto) > 0) {
 				if (password == null)
 					password = email; // 如果没有传入密码,则密码和email相同
-				adminUserService.add(email, password, "WA", null, null, officialDto.getId());
+				adminUserService.add(email, password, "WA", null, null, officialDto.getId(), null, null);
 				return new Response<Integer>(0, officialDto.getId());
 			} else {
 				return new Response<Integer>(0, "创建失败.", 0);
@@ -90,12 +90,14 @@ public class OfficialController extends BaseController {
 			@RequestParam(value = "email", required = false) String email,
 			@RequestParam(value = "state", required = false) String state,
 			@RequestParam(value = "imageUrl", required = false) String imageUrl,
-			@RequestParam(value = "regionId", required = false) Integer regionId, HttpServletRequest request,
-			HttpServletResponse response) {
+			@RequestParam(value = "regionId", required = false) Integer regionId,
+			@RequestParam(value = "isOfficialAdmin", required = false) Boolean isOfficialAdmin,
+			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			OfficialDTO officialDto = new OfficialDTO();
-			officialDto.setId(id);
+			if (id <= 0)
+				return new Response<OfficialDTO>(1, "请输入有效id.", null);
+			OfficialDTO officialDto = officialService.getOfficialById(id);
 			if (StringUtil.isNotEmpty(name)) {
 				officialDto.setName(name);
 			}
@@ -114,11 +116,17 @@ public class OfficialController extends BaseController {
 			if (regionId != null && regionId > 0) {
 				officialDto.setRegionId(regionId);
 			}
-			if (officialService.updateOfficial(officialDto) > 0) {
-				return new Response<OfficialDTO>(0, officialDto);
-			} else {
-				return new Response<OfficialDTO>(0, "修改失败.", null);
+			if (isOfficialAdmin != null) {
+				AdminUserDTO adminUser = adminUserService.getAdminUserByUsername(officialDto.getEmail());
+				if (adminUser != null && isOfficialAdmin != null)
+					adminUserService.updateOfficialAdmin(adminUser.getId(), isOfficialAdmin);
+				else
+					return new Response<OfficialDTO>(0, "文案管理员修改失败.", officialDto);
 			}
+			if (officialService.updateOfficial(officialDto) > 0)
+				return new Response<OfficialDTO>(0, officialDto);
+			else
+				return new Response<OfficialDTO>(1, "修改失败.", null);
 		} catch (ServiceException e) {
 			return new Response<OfficialDTO>(e.getCode(), e.getMessage(), null);
 		}
@@ -172,7 +180,7 @@ public class OfficialController extends BaseController {
 				AdminUserDTO adminUser = adminUserService.getAdminUserByUsername(officialDto.getEmail());
 				if (adminUser == null) {
 					adminUserService.add(officialDto.getEmail(), officialDto.getEmail(), "WA", null, null,
-							officialDto.getId());
+							officialDto.getId(), null, null);
 					num++;
 				} else
 					adminUserService.updateOfficialId(adminUser.getId(), officialDto.getId());

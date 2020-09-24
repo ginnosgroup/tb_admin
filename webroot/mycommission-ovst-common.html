@@ -19,8 +19,8 @@
 		        </button>
 		        <strong id="error_info"></strong>
 		      </div>
-					<div class="modal-body">
-							<form class="form-inline" style="">																											
+		      <form class="cmxform form-inline" method="POST" name="ovstid_form" id="ovstid_form">
+					<div class="modal-body">																																		
 							<div class="form-group" style="width:100%;height:40px;">
 								<label class="control-label" style="width:80px;"><strong>服务订单Id：</strong></label>								
 								<label id="c0"></label>
@@ -98,52 +98,54 @@
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;">StudentID<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c20" class="form-control" style="width:200px;font-weight:normal;" readonly="readonly" placeholder="请输入学生ID">							
+											<input type="text" autocomplete="off" name="c20" id="c20" class="form-control" style="width:200px;font-weight:normal;" readonly="readonly" placeholder="请输入学生ID">
+											<label class="control-label" style="width:30px;margin-left:20px;display:;">DOB<span style="color:red;">*</span></label>
+											<input type="text" autocomplete="off" name="c20a" id="c20a" value="" class="form-control default-date-picker" style="width:150px;font-weight:normal;display:;" placeholder="请选择学生生日">
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;">Installment：<span style="color:red;">*</span></label>
 											<label id="c21"></label>/<label id="c21a"></label>
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
-											<label class="control-label" style="width:150px;">开课日期</label>
-											<input type="text" autocomplete="off" id="c22" class="form-control default-date-picker" style="width:150px;font-weight:normal;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
-											<label class="control-label" style="margin-left:40px;">结束日期</label>
-											<input type="text" autocomplete="off" id="c23" class="form-control default-date-picker" style="width:150px;font-weight:normal;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">								
+											<label class="control-label" style="width:150px;">Course Start Data:</label>
+											<input type="text" autocomplete="off" name="c22" id="c22" class="form-control default-date-picker" style="width:150px;font-weight:normal;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
+											<label class="control-label" style="margin-left:40px;">Course End Data:</label>
+											<input type="text" autocomplete="off" name="c23" id="c23" class="form-control default-date-picker" style="width:150px;font-weight:normal;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">								
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;">Installment <span id="c24a">1</span><br/>Due Date<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c24" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
+											<input type="text" autocomplete="off" name="c24" id="c24" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
 									</div>																											
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;">学费总金额<br/>Tuition Fee<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c25" class="form-control" style="width:200px;font-weight:normal;" readonly="readonly" placeholder="">							
+											<input type="text" autocomplete="off" name="c25" id="c25" class="form-control" style="width:200px;font-weight:normal;" readonly="readonly" placeholder="">							
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;">每学期学费金额<br/>Per Term Tuition Fee<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c26" class="form-control" style="width:200px;font-weight:normal;" readonly="readonly" placeholder="">							
+											<input type="text" autocomplete="off" name="c26" id="c26" class="form-control" style="width:200px;font-weight:normal;" readonly="readonly" placeholder="">							
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 											<label class="control-label" style="width:150px;">本次收款日期<span style="color:red;">*</span></label>
-											<input type="text" autocomplete="off" id="c27" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
+											<input type="text" autocomplete="off" name="c27" id="c27" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
 											<label class="control-label">收款方式<span style="color:red;">*</span></label>
-											<select class="form-control" style="width:150px;font-weight:normal;" id="c28"></select>									
+											<select class="form-control" style="width:150px;font-weight:normal;" name="c28" id="c28"></select>									
 									</div>
 									<div class="form-group" style="display:block;margin-top:10px;">
 											<div class="form-group">
 												<label class="control-label" style="width:150px;">本次应收学费<span style="color:red;">*</span></label>
-												$<input type="text" autocomplete="off" id="c29" class="form-control" onkeyup="computeDiscount1()" style="width:100px;font-weight:normal;">
+												$<input type="text" autocomplete="off" name="c29" id="c29" class="form-control" onkeyup="computeDiscount1()" style="width:100px;font-weight:normal;">
 											</div>
 											<div class="form-group" style="margin-left:10px;">
 												<label class="control-label">折扣</label>
-												$<input type="text" autocomplete="off" disabled="disabled" id="c30" value="0" class="form-control" style="width:100px;font-weight:normal;">
+												$<input type="text" autocomplete="off" disabled="disabled" name="c30" id="c30" value="0" class="form-control" style="width:100px;font-weight:normal;">
 											</div>
 											<div class="form-group" style="margin-left:10px;">
-												<label class="control-label">本次收款</label>
-												$<input type="text" autocomplete="off" id="c31" class="form-control" onkeyup="computeDiscount2()" style="width:100px;font-weight:normal;">
+												<label class="control-label" style="color:red;">本次实收金额</label>
+												$<input type="text" autocomplete="off" name="c31" id="c31" class="form-control" onkeyup="computeDiscount2()" style="width:100px;font-weight:normal;">
 											</div>
 											<div class="form-group" style="margin-top:10px;margin-left:150px;">
 												<label class="control-label">预收业绩(<span style="color:#FF6C60;">Commission含GST</span>)</label>
-												$<input type="text" autocomplete="off" disabled="disabled" id="c32" class="form-control" style="width:100px;font-weight:normal;">
+												$<input type="text" autocomplete="off" disabled="disabled" name="c32" id="c32" class="form-control" style="width:100px;font-weight:normal;">&nbsp;<span style="font-weight:bold;">(“本次实收金额”务必填写实际收到客户的金额。)</span>
 											</div>									
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">
@@ -151,7 +153,6 @@
 											<textarea id="c33" class="form-control" style="width:98%;font-weight:normal;"></textarea>
 									</div>
 							</div>							
-							</form>
 					</div>
 					<div class="modal-footer" style="text-align: center;">
 							<div id="show_payment_pic" style="display:none;padding-bottom:10px;"></div>
@@ -161,12 +162,13 @@
 									<dle v-if="state==='PENDING' || state==='WAIT'">																	
 									<div id="show_pic" style="display:none;padding-bottom:10px;"></div>
 									<button onclick="upload_receipt_pic('f1c')" id="upload_certificate" type="button" class="btn btn-danger" style="display:;">上传收款凭证</button>
-									<button onclick="requestCommissionSave()" id="btn_request" type="button" class="btn btn-primary">申请月奖</button>									
+									<button id="btn_request" type="submit" class="btn btn-primary"><span id="btn_id">申请月奖</span></button>								
 									<button onclick="requestCommissionClose();" id="btn_close" type="button" style="display:none;" class="btn btn-primary">关闭订单</button>
 									</dle>
 							</dle>													
 							<button onclick="" type="button" class="btn btn-default" data-dismiss="modal">取消</button>
 					</div>
+					</form>
 				</div>
 			</div>
 </div>
@@ -248,6 +250,7 @@ function edit_commission_detail(serviceId,orderId)
 		    	$('#ovst_id #c14').html(response.discount);
 		    	$('#ovst_id #c15').html(response.received);
 		    	$('#ovst_id #c16').html(response.remarks);
+		    	$('#ovst_id #c20a').val(v.getTime(response.user.birthday));
     	}   	
     	//查询佣金订单信息
     	$.ajax({
@@ -288,13 +291,28 @@ function edit_commission_detail(serviceId,orderId)
 	        	if (response.paymentVoucherImageUrl1)
 						{
 								str_flist = response.paymentVoucherImageUrl1;
-								$("#ovst_id #show_payment_pic").append('<a href="/statics'+response.paymentVoucherImageUrl1+'" target="_blank">查看收款凭证1</a>&nbsp;');
+								$("#ovst_id #show_payment_pic").append('<a href="/statics'+response.paymentVoucherImageUrl1+'" target="_blank">凭证1</a>&nbsp;');
 						}
 						if (response.paymentVoucherImageUrl2)
 						{
 								str_flist += ','+response.paymentVoucherImageUrl2;
-								$("#ovst_id #show_payment_pic").append('<a href="/statics'+response.paymentVoucherImageUrl2+'" target="_blank">查看收款凭证2</a>&nbsp;');
-						}						
+								$("#ovst_id #show_payment_pic").append('<a href="/statics'+response.paymentVoucherImageUrl2+'" target="_blank">凭证2</a>&nbsp;');
+						}
+						if (response.paymentVoucherImageUrl3)
+						{
+								str_flist += ','+response.paymentVoucherImageUrl3;
+								$("#ovst_id #show_payment_pic").append('<a href="/statics'+response.paymentVoucherImageUrl3+'" target="_blank">凭证3</a>&nbsp;');
+						}
+						if (response.paymentVoucherImageUrl4)
+						{
+								str_flist += ','+response.paymentVoucherImageUrl4;
+								$("#ovst_id #show_payment_pic").append('<a href="/statics'+response.paymentVoucherImageUrl4+'" target="_blank">凭证4</a>&nbsp;');
+						}
+						if (response.paymentVoucherImageUrl5)
+						{
+								str_flist += ','+response.paymentVoucherImageUrl5;
+								$("#ovst_id #show_payment_pic").append('<a href="/statics'+response.paymentVoucherImageUrl5+'" target="_blank">凭证5</a>&nbsp;');
+						}
 						if (str_flist != '')
 						{
 								$('#ovst_id #flist1').val(str_flist);
@@ -417,6 +435,14 @@ function requestCommissionSave()
        	json['isSettle'] = false;
        	if ($(f+'#c5a').val() == '1') json['isSettle'] = true;       	    	
        	var d = 0;
+       	if ($(f+'#c20a').val() != '')
+    		{
+        		var arr_d = $(f+'#c20a').val().split("/");
+        		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+            var date = new Date(str_d);
+            d = date.getTime();
+      	}
+      	json['dob'] = d;//待确定
        	if ($(f+'#c22').val())
        	{
        			var arr_d = $(f+'#c22').val().split("/");
@@ -485,20 +511,25 @@ function requestCommissionSave()
    					$('#ovst_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
       			$("#ovst_id #error_info").html('收款凭证没有上传，请上传之后再提交。');
     				return false;
-   			}     	       	
+   			}
+   			show_loading();
        	
        	$.post(str_url, json,
 		   	function(data){
 		   			//console.log(data);
+		   			$('#loading_id').modal('hide');
 		   			if (data.code == 0)
 		   			{
 		   					//提交财务审核
 		   					$('#ovst_id #alert_success').css('marginTop','30%');
 		   					$('#ovst_id #alert_success').css('marginLeft','30%');
 		   					$('#ovst_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
-		   					setTimeout(function(){window.location.href = "mycommission-ovst.html";}, 2000);
+		   					//setTimeout(function(){window.location.href = "mycommission-ovst.html";}, 2000);
+		   					v.getDatalist();
+			   				$('.modal-backdrop').remove();
+			   				$('#ovst_id').modal('hide');
 		   			}else
-		   			{
+		   			{		   					
 		   					$('#ovst_id #alert_error').css('marginTop','30%');
 		   					$('#ovst_id #alert_error').css('marginLeft','30%');
 		   					$('#ovst_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
@@ -587,5 +618,33 @@ function page_init()
     			receive_type.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
     	}    		 	    
     });
-}	  
+}
+
+$('#ovst_id').on('show.bs.modal', function () {
+	$("#ovst_id #ovstid_form").validate({
+			submitHandler: function () {						
+            requestCommissionSave();
+      },
+      rules: {
+          c20a: {required:true,minlength:10},
+          //c22: {required:true,minlength:10},
+          //c23: {required:true,minlength:10},
+          c24: {required:true,minlength:10},          
+          c27: {required:true,minlength:10},
+          c28: {required:true,min:1},
+          c29: {required:true,minlength:1,number:true},
+          c31: {required:true,minlength:1,number:true},
+      },
+      messages: {
+          c20a: {required:"请选择",minlength:"格式错"},
+          //c22: {required:"请选择",minlength:"格式错"},
+          //c23: {required:"请选择",minlength:"格式错"},
+          c24: {required:"请选择",minlength:"格式错"},          
+          c27: {required:"请选择",minlength:"格式错"},
+          c28: {required:"",min:"请选择"},
+          c29: {required:"",minlength:"",number:"格式错"},
+          c31: {required:"",minlength:"",number:"格式错"},
+      }
+  });
+});
 </script>

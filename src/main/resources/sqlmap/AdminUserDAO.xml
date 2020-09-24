@@ -15,6 +15,8 @@
                 mara_id,
                 official_id,
                 kj_id,
+                region_id,
+                is_official_admin,
                 session_id,
                 gmt_login,
                 login_ip,
@@ -29,6 +31,8 @@
                 #{maraId},
                 #{officialId},
                 #{kjId},
+                #{regionId},
+                #{isOfficialAdmin},
                 null,
                 now(),
                 '127.0.0.1',
@@ -44,6 +48,8 @@
             mara_id AS maraId,
             official_id AS officialId,
             kj_id AS kjId,
+            region_id AS regionId,
+            is_official_admin AS isOfficialAdmin,
             session_id AS sessionId,
             gmt_login AS gmtLogin,
             login_ip AS loginIp,
@@ -68,6 +74,18 @@
         SET gmt_modify = now(), official_id = #{officialId}
         WHERE id = #{id};
     </update>
+    
+    <update id="updateRegionId" parameterType="org.zhinanzhen.tb.dao.pojo.AdminUserDO">
+        UPDATE tb_admin_user 
+        SET gmt_modify = now(), region_id = #{regionId}
+        WHERE id = #{id};
+    </update>
+    
+    <update id="updateOfficialAdmin" parameterType="org.zhinanzhen.tb.dao.pojo.AdminUserDO">
+        UPDATE tb_admin_user 
+        SET gmt_modify = now(), is_official_admin = #{isOfficialAdmin}
+        WHERE id = #{id};
+    </update>
 
     <select id="getAdminUserById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.tb.dao.pojo.AdminUserDO">
         SELECT
@@ -78,11 +96,31 @@
             mara_id AS maraId,
             official_id AS officialId,
             kj_id AS kjId,
+            region_id AS regionId,
+            is_official_admin AS isOfficialAdmin,
             session_id AS sessionId,
             gmt_login AS gmtLogin,
             login_ip AS loginIp,
             status
         FROM tb_admin_user WHERE id = #{id, jdbcType=INTEGER};
+    </select>
+    
+    <select id="getAdminUserByAdviserId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.tb.dao.pojo.AdminUserDO">
+        SELECT
+            id,
+            username,
+            ap_list AS apList,
+            adviser_id AS adviserId,
+            mara_id AS maraId,
+            official_id AS officialId,
+            kj_id AS kjId,
+            region_id AS regionId,
+            is_official_admin AS isOfficialAdmin,
+            session_id AS sessionId,
+            gmt_login AS gmtLogin,
+            login_ip AS loginIp,
+            status
+        FROM tb_admin_user WHERE adviser_id = #{adviserId, jdbcType=INTEGER};
     </select>
     
     <select id="getAdminUserByUsername" parameterType="java.lang.String" resultType="org.zhinanzhen.tb.dao.pojo.AdminUserDO">
@@ -94,6 +132,8 @@
             mara_id AS maraId,
             official_id AS officialId,
             kj_id AS kjId,
+            region_id AS regionId,
+            is_official_admin AS isOfficialAdmin,
             session_id AS sessionId,
             gmt_login AS gmtLogin,
             login_ip AS loginIp,
@@ -110,6 +150,8 @@
             mara_id AS maraId,
             official_id AS officialId,
             kj_id AS kjId,
+            region_id AS regionId,
+            is_official_admin AS isOfficialAdmin,
             session_id AS sessionId,
             gmt_login AS gmtLogin,
             login_ip AS loginIp,

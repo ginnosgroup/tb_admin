@@ -21,7 +21,7 @@ public class AdminUserServiceImpl extends BaseService implements AdminUserServic
 
 	@Override
 	public int add(String username, String password, String apList, Integer adviserId, Integer maraId,
-			Integer officialId) throws ServiceException {
+			Integer officialId, Integer kjId, Integer regionId) throws ServiceException {
 		if (StringUtil.isEmpty(password)) {
 			ServiceException se = new ServiceException("password is null !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -38,6 +38,10 @@ public class AdminUserServiceImpl extends BaseService implements AdminUserServic
 				adminUserDo.setMaraId(maraId);
 			if (officialId != null)
 				adminUserDo.setOfficialId(officialId);
+			if (kjId != null)
+				adminUserDo.setKjId(kjId);
+			if (regionId != null)
+				adminUserDo.setRegionId(regionId);
 			return adminUserDao.add(adminUserDo);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
@@ -80,6 +84,16 @@ public class AdminUserServiceImpl extends BaseService implements AdminUserServic
 			throw se;
 		}
 		return adminUserDao.updateSessionId(id, sessionId);
+	}
+	
+	@Override
+	public boolean updateRegionId(int id, Integer regionId) throws ServiceException {
+		if (id <= 0) {
+			ServiceException se = new ServiceException("id error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		return adminUserDao.updateRegionId(id, regionId);
 	}
 
 	@Override
@@ -151,6 +165,11 @@ public class AdminUserServiceImpl extends BaseService implements AdminUserServic
 	@Override
 	public boolean updateOfficialId(int id, int officialId) throws ServiceException {
 		return adminUserDao.updateOfficialId(id, officialId);
+	}
+
+	@Override
+	public boolean updateOfficialAdmin(int id, boolean isOfficialAdmin) throws ServiceException {
+		return adminUserDao.updateOfficialAdmin(id, isOfficialAdmin);
 	}
 
 }

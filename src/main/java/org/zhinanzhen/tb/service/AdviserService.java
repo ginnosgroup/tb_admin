@@ -10,9 +10,9 @@ public interface AdviserService {
 
 	public int updateAdviser(AdviserDTO adviserDto) throws ServiceException;
 
-	public int countAdviser(String name, Integer regionId) throws ServiceException;
+	public int countAdviser(String name, List<Integer> regionIdList) throws ServiceException;
 
-	public List<AdviserDTO> listAdviser(String name, Integer regionId, int pageNum, int pageSize)
+	public List<AdviserDTO> listAdviser(String name, List<Integer> regionIdList, int pageNum, int pageSize)
 			throws ServiceException;
 
 	public AdviserDTO getAdviserById(int id) throws ServiceException;

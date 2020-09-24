@@ -56,8 +56,11 @@
         <if test='name != null and name != ""'>
             AND name = #{name}
         </if>
-        <if test='regionId != null and regionId != ""'>
-            AND region_id = #{regionId}
+        <if test='regionIdList != null'>
+            AND region_id IN
+            <foreach collection="regionIdList" item="regionIdList" index="index" open="(" close=")" separator=",">
+                #{regionIdList}
+            </foreach>
         </if>
         ;
     </select>
@@ -76,10 +79,13 @@
         <if test='name != null and name != ""'>
             AND name = #{name}
         </if>
-        <if test='regionId != null and regionId != ""'>
-            AND region_id = #{regionId}
+        <if test='regionIdList != null'>
+            AND region_id IN
+            <foreach collection="regionIdList" item="regionIdList" index="index" open="(" close=")" separator=",">
+                #{regionIdList}
+            </foreach>
         </if>
-        ORDER BY gmt_create DESC
+        ORDER BY name
         LIMIT #{offset}, #{rows};
     </select>
 

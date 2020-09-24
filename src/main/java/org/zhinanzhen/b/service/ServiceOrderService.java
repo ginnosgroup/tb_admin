@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.zhinanzhen.b.service.pojo.ServiceOrderCommentDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
+import org.zhinanzhen.b.service.pojo.ServiceOrderOfficialRemarksDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 
@@ -15,11 +16,15 @@ public interface ServiceOrderService {
 
 	int updateServiceOrderRviewState(int id, String reviewState) throws ServiceException;
 
-	int countServiceOrder(String type, String excludeState, List<String> stateList, List<String> reviewStateList,
-			int userId, int maraId, int adviserId, int officialId, int parentId) throws ServiceException;
+	int countServiceOrder(String type, String excludeState, List<String> stateList, String auditingState, List<String> reviewStateList,
+			String startMaraApprovalDate, String endMaraApprovalDate, String startOfficialApprovalDate,
+			String endOfficialApprovalDate, List<Integer> regionIdList, Integer userId, Integer maraId,
+			Integer adviserId, Integer officialId, int parentId, boolean isNotApproved) throws ServiceException;
 
-	List<ServiceOrderDTO> listServiceOrder(String type, String excludeState, List<String> stateList,
-			List<String> reviewStateList, int userId, int maraId, int adviserId, int officialId, int parentId,
+	List<ServiceOrderDTO> listServiceOrder(String type, String excludeState, List<String> stateList, String auditingState,
+			List<String> reviewStateList, String startMaraApprovalDate, String endMaraApprovalDate,
+			String startOfficialApprovalDate, String endOfficialApprovalDate, List<Integer> regionIdList,
+			Integer userId, Integer maraId, Integer adviserId, Integer officialId, int parentId, boolean isNotApproved,
 			int pageNum, int pageSize) throws ServiceException;
 
 	ServiceOrderDTO getServiceOrderById(int id) throws ServiceException;
@@ -41,4 +46,12 @@ public interface ServiceOrderService {
 	List<ServiceOrderCommentDTO> listComment(int id) throws ServiceException;
 
 	int deleteComment(int id) throws ServiceException;
+
+	int addOfficialRemarks(ServiceOrderOfficialRemarksDTO serviceOrderOfficialRemarksDto) throws ServiceException;
+	
+	int updateOfficialRemarks(ServiceOrderOfficialRemarksDTO serviceOrderOfficialRemarksDto) throws ServiceException;
+
+	List<ServiceOrderOfficialRemarksDTO> listOfficialRemarks(int id, int officialId) throws ServiceException;
+
+	int deleteServiceOrderOfficialRemarksDTO(int id) throws ServiceException;
 }

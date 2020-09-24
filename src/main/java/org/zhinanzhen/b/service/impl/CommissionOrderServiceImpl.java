@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.service.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -18,6 +19,7 @@ import org.zhinanzhen.b.dao.SubagencyDAO;
 import org.zhinanzhen.b.dao.pojo.CommissionOrderCommentDO;
 import org.zhinanzhen.b.dao.pojo.CommissionOrderDO;
 import org.zhinanzhen.b.dao.pojo.CommissionOrderListDO;
+import org.zhinanzhen.b.dao.pojo.CommissionOrderReportDO;
 import org.zhinanzhen.b.dao.pojo.ReceiveTypeDO;
 import org.zhinanzhen.b.dao.pojo.SchoolDO;
 import org.zhinanzhen.b.dao.pojo.ServiceDO;
@@ -27,6 +29,7 @@ import org.zhinanzhen.b.service.CommissionOrderService;
 import org.zhinanzhen.b.service.pojo.CommissionOrderCommentDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
+import org.zhinanzhen.b.service.pojo.CommissionOrderReportDTO;
 import org.zhinanzhen.b.service.pojo.SchoolDTO;
 import org.zhinanzhen.b.service.pojo.SubagencyDTO;
 import org.zhinanzhen.b.service.pojo.ReceiveTypeDTO;
@@ -43,6 +46,7 @@ import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
 import com.ikasoa.core.ErrorCodeEnum;
+import com.ikasoa.core.utils.StringUtil;
 
 @Service("CommissionOrderService")
 public class CommissionOrderServiceImpl extends BaseService implements CommissionOrderService {
@@ -116,18 +120,21 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 	}
 
 	@Override
-	public int countCommissionOrder(Integer maraId, Integer adviserId, Integer officialId, String name, String phone,
-			String wechatUsername, Integer schoolId, Boolean isSettle, List<String> stateList,
-			List<String> commissionStateList, Boolean isYzyAndYjy) throws ServiceException {
-		return commissionOrderDao.countCommissionOrder(maraId, adviserId, officialId, name, phone, wechatUsername,
-				schoolId, isSettle, stateList, commissionStateList, isYzyAndYjy);
+	public int countCommissionOrder(Integer id, List<Integer> regionIdList, Integer maraId, Integer adviserId,
+			Integer officialId, Integer userId, String name, String phone, String wechatUsername, Integer schoolId,
+			Boolean isSettle, List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
+			String endKjApprovalDate, Boolean isYzyAndYjy, String applyState) throws ServiceException {
+		return commissionOrderDao.countCommissionOrder(id, regionIdList, maraId, adviserId, officialId, userId, name,
+				phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList, startKjApprovalDate,
+				theDateTo23_59_59(endKjApprovalDate), isYzyAndYjy, applyState);
 	}
 
 	@Override
-	public List<CommissionOrderListDTO> listCommissionOrder(Integer maraId, Integer adviserId, Integer officialId,
-			String name, String phone, String wechatUsername, Integer schoolId, Boolean isSettle,
-			List<String> stateList, List<String> commissionStateList, Boolean isYzyAndYjy, int pageNum, int pageSize)
-			throws ServiceException {
+	public List<CommissionOrderListDTO> listCommissionOrder(Integer id, List<Integer> regionIdList, Integer maraId,
+			Integer adviserId, Integer officialId, Integer userId, String name, String phone, String wechatUsername,
+			Integer schoolId, Boolean isSettle, List<String> stateList, List<String> commissionStateList,
+			String startKjApprovalDate, String endKjApprovalDate, Boolean isYzyAndYjy, String applyState, int pageNum,
+			int pageSize) throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
 		}
@@ -137,9 +144,11 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 		List<CommissionOrderListDTO> commissionOrderListDtoList = new ArrayList<>();
 		List<CommissionOrderListDO> commissionOrderListDoList = new ArrayList<>();
 		try {
-			commissionOrderListDoList = commissionOrderDao.listCommissionOrder(maraId, adviserId, officialId, name,
-					phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList, isYzyAndYjy,
-					pageNum * pageSize, pageSize);
+			commissionOrderListDoList = commissionOrderDao.listCommissionOrder(id, regionIdList, maraId, adviserId,
+					officialId, userId, name, phone, wechatUsername, schoolId, isSettle, stateList,
+					commissionStateList,
+					startKjApprovalDate, theDateTo23_59_59(endKjApprovalDate), isYzyAndYjy, applyState,pageNum * pageSize,
+					pageSize);
 			if (commissionOrderListDoList == null)
 				return null;
 		} catch (Exception e) {
@@ -232,12 +241,80 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 		return commissionOrderListDto;
 	}
 
+	@Override
+	public List<CommissionOrderListDTO> listCommissionOrderByInvoiceNumber(String invoiceNumber)
+			throws ServiceException {
+		if (StringUtil.isEmpty(invoiceNumber)) {
+			ServiceException se = new ServiceException("invoiceNumber error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		List<CommissionOrderListDTO> commissionOrderListDtoList = new ArrayList<>();
+		try {
+			List<CommissionOrderListDO> commissionOrderListDoList = commissionOrderDao
+					.listCommissionOrderByInvoiceNumber(invoiceNumber);
+			if (commissionOrderListDoList == null)
+				return null;
+			commissionOrderListDoList.forEach(commissionOrderListDo -> commissionOrderListDtoList
+					.add(buildCommissionOrderListDto(commissionOrderListDo)));
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+		return commissionOrderListDtoList;
+	}
+
+	@Override
+	public List<CommissionOrderReportDTO> listCommissionOrderReport(String startDate, String endDate, String dateType,
+			String dateMethod, Integer regionId, Integer adviserId) throws ServiceException {
+		List<CommissionOrderReportDO> commissionOrderReportDoList = new ArrayList<>();
+		List<CommissionOrderReportDTO> commissionOrderReportDtoList = new ArrayList<>();
+		try {
+			commissionOrderReportDoList = commissionOrderDao.listCommissionOrderReport(startDate,
+					theDateTo23_59_59(endDate), dateType, dateMethod, regionId, adviserId);
+			if (commissionOrderReportDoList == null)
+				return null;
+			commissionOrderReportDoList.forEach(commissionOrderReportDo -> commissionOrderReportDtoList
+					.add(mapper.map(commissionOrderReportDo, CommissionOrderReportDTO.class)));
+			return commissionOrderReportDtoList;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
+	public CommissionOrderListDTO getFirstCommissionOrderByServiceOrderId(int serviceOrderId) throws ServiceException {
+		if (serviceOrderId <= 0) {
+			ServiceException se = new ServiceException("serviceOrderId error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		CommissionOrderListDTO commissionOrderListDto = null;
+		try {
+			CommissionOrderListDO commissionOrderListDo = commissionOrderDao
+					.getFirstCommissionOrderByServiceOrderId(serviceOrderId);
+			if (commissionOrderListDo == null)
+				return null;
+			commissionOrderListDto = buildCommissionOrderListDto(commissionOrderListDo);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+		return commissionOrderListDto;
+	}
+
 	private CommissionOrderListDTO buildCommissionOrderListDto(CommissionOrderListDO commissionOrderListDo) {
 		CommissionOrderListDTO commissionOrderListDto = mapper.map(commissionOrderListDo, CommissionOrderListDTO.class);
 		if (commissionOrderListDo.getUserId() > 0) {
 			UserDO userDo = userDao.getUserById(commissionOrderListDo.getUserId());
-			if (userDo != null)
+			if (userDo != null) {
 				commissionOrderListDto.setUser(mapper.map(userDo, UserDTO.class));
+				commissionOrderListDto.setBirthday(userDo.getBirthday());
+			}
 		}
 		if (commissionOrderListDo.getSchoolId() > 0) {
 			SchoolDO schoolDo = schoolDao.getSchoolById(commissionOrderListDo.getSchoolId());
@@ -337,6 +414,22 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 		}
 		try {
 			return commissionOrderCommentDao.delete(id);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
+	public int deleteCommissionOrder(int id) throws ServiceException {
+		if (id <= 0) {
+			ServiceException se = new ServiceException("id error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			return commissionOrderDao.deleteCommissionOrderById(id);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());

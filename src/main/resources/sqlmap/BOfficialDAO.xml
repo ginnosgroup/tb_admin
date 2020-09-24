@@ -79,7 +79,7 @@
         <if test='regionId != null and regionId != ""'>
             AND region_id = #{regionId}
         </if>
-        ORDER BY gmt_create DESC
+        ORDER BY name
         LIMIT #{offset}, #{rows};
     </select>
 

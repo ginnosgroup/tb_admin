@@ -5,6 +5,9 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="renderer" content="webkit">
+		<meta http-equiv="Pragma" content="no-cache" />   
+		<meta http-equiv="Cache-Control" content="no-cache" />
+		<meta http-equiv="Expires" content="0" />
 		<link rel="shortcut icon" href="img/favicon.ico">
 		<title>客户管理</title>
 		<link href="css/bootstrap.min.css" rel="stylesheet">
@@ -44,12 +47,13 @@
           <span v-if="ap_list==='MA'">
            	 Mara
           </span>
-          <span v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+          <span v-if="ap_list==='SUPERAD'">
            	 超级管理员
           </span>
 				</a>
 				<div class="top-nav ">
 					<ul class="nav pull-right top-menu">
+						<li style="padding-right:15px;"><a href="knowledge-detail.html?id=1000164" style="color:#ff6c60;">帮助中心</a></li>
 						<li class="dropdown">
 							<a data-toggle="dropdown" class="dropdown-toggle" href="#">
 								<span class="username">
@@ -89,7 +93,7 @@
                 </span>
               </a>
             </li>
-            <dli v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">            
+            <dli v-if="ap_list==='SUPERAD'">            
             <li>
               <a href="adviser.html">
                 <i class="fa fa-book">
@@ -99,6 +103,8 @@
                 </span>
               </a>
             </li>
+            </dli>
+            <dli v-if="ap_list==='SUPERAD' || (ap_list==='WA' && wa_admin === 'true')"> 
             <li>
               <a href="official.html">
                 <i class="fa fa-book">
@@ -108,6 +114,8 @@
                 </span>
               </a>
             </li>
+            </dli>
+            <dli v-if="ap_list==='SUPERAD'">
             <li>
               <a href="mara.html">
                 <i class="fa fa-book">
@@ -126,6 +134,8 @@
                 </span>
               </a>
             </li>
+            </dli>
+          	<dli v-if="ap_list==='SUPERAD' || (ap_list==='GW' && gw_regionid !== 'null')">
             <li class="sub-menu">
 							<a href="javascript:;">
 								<i class="fa fa-book">
@@ -135,7 +145,7 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li>
+								<li v-if="ap_list==='SUPERAD'">
 									<a href="school.html">
 										学校管理
 									</a>
@@ -147,6 +157,8 @@
 								</li>								
 							</ul>
 						</li>
+						</dli>
+						<dli v-if="ap_list==='SUPERAD'">
             <li>
               <a href="receive-type.html">
                 <i class="fa fa-book">
@@ -189,7 +201,7 @@
 										客户管理
 									</a>
 								</li>
-								<li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								<li v-if="ap_list==='SUPERAD'">
 									<a href="user-tags.html">
 										标签管理
 									</a>
@@ -205,7 +217,7 @@
                 </span>
               </a>
 						</li>           	
-            <li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'" class="sub-menu" class="sub-menu">
+            <li v-if="ap_list==='SUPERAD'" class="sub-menu" class="sub-menu">
 							<a href="javascript:;">
 								<i class="fa fa-book">
                 </i>
@@ -235,9 +247,19 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li v-if="ap_list==='GW'" class="active">
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'">
 									<a href="mycommission.html">
 										我的佣金报表
+									</a>									
+								</li>
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" style="display:;" id="apply_state_PENDING">
+									<a href="mycommission.html?applyState=PENDING">
+										未申请月奖
+									</a>									
+								</li>
+								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" style="display:;" id="apply_state_COMPLETE">
+									<a href="mycommission.html?applyState=COMPLETE">
+										已申请月奖
 									</a>									
 								</li>
 								<li v-if="ap_list==='KJ'" id="commission_state_DJY">
@@ -250,7 +272,17 @@
 										已结佣订单
 									</a>									
 								</li>								
-								<li v-if="ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
+									<a href="mycommission-check-accounting.html">
+										自动对账
+									</a>									
+								</li>
+								<li v-if="ap_list==='SUPERAD'">
+									<a href="create-visa-commission.html">
+										重建签证佣金表订单
+									</a>
+								</li>
+								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
 									<a href="table-export.html">
 										导出数据
 									</a>
@@ -266,12 +298,16 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
+								<li v-if="ap_list==='SUPERAD'">
 									<a href="knowledge-menu.html">
 										菜单管理
 									</a>
 								</li>
-								{{{m_list}}}							
+								<li>
+									<a href="knowledge.html">
+										知识库菜单
+									</a>
+								</li>
 							</ul>
 						</li>
 					</ul>
@@ -306,6 +342,11 @@
                           </button>
                        </div>
                        <div class="btn-group">
+                          <button id="editable-sample_new" class="btn btn-info" onclick="add_service3(0,0,'');">
+                          独立技术移民 <i class="fa"></i>
+                          </button>
+                       </div>
+                       <div class="btn-group">
                           <button id="editable-sample_new" class="btn btn-info" onclick="add_service1(0,0,'');">
                           签证服务 <i class="fa"></i>
                           </button>
@@ -320,7 +361,7 @@
 											<div class="form-group">
 												<input v-model.trim="name" type="text" class="form-control" placeholder="输入姓名">
 												<input v-model.trim="phone" type="text" class="form-control" placeholder="输入手机号码">
-												<input v-model.trim="adviserId" type="text" class="form-control" placeholder="输入顾问编号">
+												<select v-if="ap_list==='SUPERAD' || (ap_list==='GW' && gw_regionid !== 'null')" v-model.trim="adviserId" id="adviserId" class="form-control" style="width:130px;"></select>
 												<input v-model.trim="wechatUsername" type="text" class="form-control" placeholder="输入客户微信号">
 												<select v-model.trim="tagId" id="tagId" class="form-control">
 												<option value="" selected="true">请选择标签</option>
@@ -367,7 +408,7 @@
 														<td v-html="item.wechatUsername"></td>
 														<td v-html="item.source"></td>
 														<td v-html="item.str_tagListName"></td>
-														<td v-html="item.adviserName"></td>
+														<td @dblclick="table_edit($index,'adviserName','u1')"><span v-html="item.adviserName"></span></td>
 														<td v-html="item.consultation"></td>
 														<td v-html="item.service"></td>
 														<td><a v-if="item.id" class="edit" href="javascript:;" @click="table_modify($index)"><span class="label label-success">Edit</span></a>
@@ -393,8 +434,9 @@
 														<li :class="[pageNum==0?'disabled':'']">
 															<a @click="prevPage" href="javascript:;">← Pre</a>
 														</li>
-														<li class="nowPage">
-															第{{pageNum+1}}页
+														<li class="nowPage" style="padding: 0px 0px;margin: 0 1px;">
+															第{{pageNum+1}}页/共{{allPage}}页&nbsp;
+															跳到 <input type="text" v-model.trim="pnumber" @keyup.enter="submit" style="width:50px;color:#c7c7c7;border: 1px solid #ddd;border-radius: 3px;-webkit-border-radius: 3px;padding: 5px 10px;display: inline-block;" id="b100" placeholder="" value=""> 页
 														</li>
 														<li :class="[pageNum==allPage-1?'disabled':'']">
 															<a @click="nextPage" href="javascript:;">Next → </a>
@@ -526,54 +568,80 @@
 				</div>
 			</div>
 		</div>		
-		<div class="modal fade" id="addnew_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal fade" id="addnew_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
 			<div class="modal-dialog" role="document" style="width:700px;">
 				<div class="modal-content">
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 						<h4 class="modal-title" id="myModalLabel">添加客户</h4>
 					</div>
-					<div class="modal-body">
-							<form class="form-inline" style="">							
+					<form class="cmxform form-inline" style="" name="addnewid_form" id="addnewid_form">
+					<div class="modal-body">							
+							<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+						      <button data-dismiss="alert" class="close close-sm" type="button">
+						      <i class="fa fa-times"></i>
+						      </button>
+						      <strong>Success!</strong> You  just achieved success.
+						  </div>
+						  <div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+                <button data-dismiss="alert" class="close close-sm" type="button">
+                <i class="fa fa-times"></i>
+                </button>
+                <strong id="error_info"></strong>
+             </div>						
 							<div class="form-group" style="width:100%;height:40px;">
 								<label class="control-label" style="color:red;">客户昵称</label>
-								<input type="text" class="form-control small" style="width:200px;" id="a1" placeholder="请输入客户的昵称" value="">								
+								<input type="text" class="form-control small" style="width:200px;" name="a1" id="a1" placeholder="请输入客户的昵称" value="">								
 							</div>
 							<div class="form-group" style="width:100%;height:40px;">
-								<label class="control-label" style="color:red;">客户姓名</label>
-								<input type="text" autocomplete="off" id="a2" class="form-control" style="width:200px;" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,'');" placeholder="请输入客户姓名的拼音" >
+								<label class="control-label" style="color:red;">客户的姓</label>
+								<input type="text" autocomplete="off" name="a2" id="a2" class="form-control" style="width:200px;" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,'').toUpperCase();" placeholder="请输入客户姓的拼音" >
+								<label class="control-label" style="color:red;">客户的名</label>
+								<input type="text" autocomplete="off" name="a2b" id="a2b" class="form-control" style="width:200px;" onKeyUp="value=value.replace(/[^a-zA-Z]/g,'').substring(0, 1).toUpperCase()+value.replace(/[^a-zA-Z ]/g,'').substring(1);" placeholder="请输入客户名的拼音" >
 							</div>
 							<div class="form-group" style="width:100%;height:40px;">
 								<label class="control-label" style="color:red;">手机号码</label>
-								<input type="text" autocomplete="off" id="a3" class="form-control" style="width:200px;" placeholder="请输入手机号码" >
+								<input type="text" autocomplete="off" name="a3" id="a3" class="form-control" style="width:200px;" placeholder="请输入手机号码" >
 							</div>
 							<div class="form-group" style="width:100%;height:40px;">
 								<label class="control-label">微信账号</label>
-								<input type="text" autocomplete="off" id="a4" class="form-control" style="width:200px;" placeholder="请输入微信号" >
+								<input type="text" autocomplete="off" name="a4" id="a4" class="form-control" style="width:200px;" placeholder="请输入微信号" >
 							</div>
 							<div class="form-group" style="height:40px;">
 								<label class="control-label">客户生日</label>
-								<input type="text" autocomplete="off" id="a5" class="form-control default-date-picker" style="width:200px;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
+								<input type="text" autocomplete="off" name="a5" id="a5" class="form-control default-date-picker" style="width:200px;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
 							</div>
 							<div class="form-group" style="width:100%;line-height:40px;">
 								<label class="control-label">客户来源</label>
-								<select class="form-control" style="width:200px;" id="a6"></select>
+								<select class="form-control" style="width:200px;" name="a6" id="a6"></select>
 							</div>						
 							<div class="form-group" style="width:100%;line-height:40px;">
 								<label class="control-label" style="color:red;">所属顾问</label>
-								<select class="form-control" style="width:200px;" id="a7"></select>
+								<select class="form-control" style="width:200px;" name="a7" id="a7"></select>
 							</div>							
 							<div class="form-group" style="width:100%;line-height:40px;">
 								<label class="control-label">初次咨询记录</label>
 								<textarea id="a8" class="form-control" style="width:98%"></textarea>
-							</div>
-							</form>
+							</div>							
 					</div>
 					<div class="modal-footer" style="text-align: center;">						
-						<button onclick="addNewSave(1)" type="button" class="btn btn-primary">提交并增加服务</button>
+						<button id="btnSubmit1" type="submit" class="btn btn-primary"><span id="btn_id">提交并增加服务</span></button>
 						<button onclick="addNewSave(0)" type="button" class="btn btn-primary">仅提交</button>
 						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
 					</div>
+				</div>
+				</form>
+			</div>
+		</div>
+		<div class="modal fade" id="loading_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop='static' style="z-index:99999;">
+			<div class="modal-dialog" role="document" style="width:350px;">
+				<div class="modal-content">
+					<div class="modal-header">
+					</div>
+					<div class="modal-body">
+							<div style="text-align:center;color:#0066CC;"><img src="img/input-spinner.gif" /> 正在执行，请稍后...</div>
+					</div>
+					
 				</div>
 			</div>
 		</div>		
@@ -586,6 +654,7 @@
 		<script src="assets/bootstrap-datepicker/js/bootstrap-datepicker.js"></script><!-- BOOTSTRAP DATEPICKER JS  -->
     <script src="assets/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js"></script><!-- BOOTSTRAP DATETIMEPICKER JS  -->
     <script src="js/jquery.autocompleter.js"></script>
+    <script src="js/jquery.validate.min.js"></script><!-- VALIDATE JS  -->
 		<script src="js/common-scripts.js"></script>
 		<script src="js/vue.js"></script>
 		<script src="js/common.js?verson=1"></script>
@@ -598,10 +667,12 @@
 				data: {
 					admin: sessionStorage.getItem("admin"),
 					ap_list: sessionStorage.getItem("ap_list"),
+					gw_regionid: sessionStorage.getItem("gw_regionid"),
+					wa_admin: sessionStorage.getItem("wa_admin"),
 					adviser_id: sessionStorage.getItem("adviser_id"),
-					m_list: localStorage.getItem("str_html"),
 					addnewservice1_bind: 0,
 					addnewservice2_bind: 0,
+					addnewservice3_bind: 0,
 					orderId : 0,
 					country: '',
 					allSort: [],
@@ -617,7 +688,7 @@
 					sort: '',
 					state: '',
 					pageNum: 0,
-					pageSize: 10,
+					pageSize: 20,
 					allPage: 0,
 					add: false,
 					current_index: '',
@@ -628,11 +699,16 @@
 				},
 				created: function() {
 					this.getDatalist();
+					document.onkeydown = function(e) {
+						var key = window.event.keyCode;
+						if (key == 13) v.gotoPage();
+					};
 					//this.getSort();
 				},
 				methods: {
 					getSort: function() {
 						var that = this;
+						show_loading();
 						$.get(url + "user/list", {
 							state: "",
 							pageNum: 0,
@@ -640,12 +716,14 @@
 						}, function(result) {
 							console.log(result)
 							that.allSort = result.data;
+							$('#loading_id').modal('hide');
 						});
 					},
 					getDatalist: function() {
 						var that = this;
+						show_loading();
 						$.get(url + "user/count", {
-							keyword: that.name							
+							adviserId: that.adviser_id								
 						}, function(result) {
 							console.log(result)
 							that.count = result.data;
@@ -653,17 +731,20 @@
 							console.log(that.allPage)
 						});
 						$.get(url + "user/list", {
+							adviserId: that.adviser_id,
 							pageNum: 0,
 							pageSize: that.pageSize
 						}, function(result) {
 							//console.log(result)
 							that.pageNum = 0;							
 							that.subject = return_result(result);
+							$('#loading_id').modal('hide');
 							//console.log(that.subject);
 						});
 					},
 					getUser: function() {
 						var that = this;
+						show_loading();
 						$.get(url + "user/count", {
 							name: that.name,
 							phone: that.phone,
@@ -688,11 +769,13 @@
 							//console.log(result)
 							that.pageNum = 0;
 							that.subject = return_result(result);
+							$('#loading_id').modal('hide');
 							//console.log(that.subject);
 						});
 					},
 					getOrder1: function() {
 						var that = this;
+						show_loading();
 						if (v.orderby == true)
 						{
 								v.orderby = false;
@@ -714,11 +797,13 @@
 							//console.log(result)
 							that.pageNum = 0;
 							that.subject = return_result(result);
+							$('#loading_id').modal('hide');
 							//console.log(that.subject);
 						});
 					},
 					getOrder2: function() {
 						var that = this;
+						show_loading();
 						if (v.orderby == true)
 						{
 								v.orderby = false;
@@ -740,11 +825,13 @@
 							//console.log(result)
 							that.pageNum = 0;
 							that.subject = return_result(result);
+							$('#loading_id').modal('hide');
 							//console.log(that.subject);
 						});
 					},
 					getOrder3: function() {
 						var that = this;
+						show_loading();
 						if (v.orderby == true)
 						{
 								v.orderby = false;
@@ -765,6 +852,7 @@
 						}, function(result) {
 							that.pageNum = 0;
 							that.subject = return_result(result);
+							$('#loading_id').modal('hide');
 							//console.log(that.subject);
 						});
 					},
@@ -787,58 +875,105 @@
 						return obj;
 					},
 					firstPage: function() {
-						var that = this;
+						var that = this;						
 						if(that.pageNum > 0) {
+							show_loading();
 							$.get(url + "user/list", {
-								keyword: that.name,
-								state: that.state,
+								name: that.name,
+								phone: that.phone,
+								adviserId: that.adviserId,
+								wechatUsername: that.wechatUsername,
+								tagId: that.tagId,
 								pageNum: 0,
 								pageSize: that.pageSize
 							}, function(result) {
 								that.pageNum = 0;
 								that.subject = return_result(result);
+								$('#loading_id').modal('hide');
 							});
 						}
 					},
 					prevPage: function() {
-						var that = this;
+						var that = this;						
 						if(that.pageNum > 0) {
+							show_loading();
 							that.pageNum--;
 							$.get(url + "user/list", {
-								keyword: that.name,
+								name: that.name,
+								phone: that.phone,
+								adviserId: that.adviserId,
+								wechatUsername: that.wechatUsername,
+								tagId: that.tagId,
 								pageNum: that.pageNum,
 								pageSize: that.pageSize
 							}, function(result) {
 								that.subject = return_result(result);
+								$('#loading_id').modal('hide');
 							});
 						}
 					},
 					nextPage: function() {
-						var that = this;
+						var that = this;						
 						if(that.pageNum < that.allPage - 1) {
+							show_loading();
 							that.pageNum++;
 							$.get(url + "user/list", {
-								keyword: that.name,
-								categoryId: that.sort,
-								state: that.state,
+								name: that.name,
+								phone: that.phone,
+								adviserId: that.adviserId,
+								wechatUsername: that.wechatUsername,
+								tagId: that.tagId,
 								pageNum: that.pageNum,
 								pageSize: that.pageSize
 							}, function(result) {
 								that.subject = return_result(result);
+								$('#loading_id').modal('hide');
 							});
 						}
 					},
 					lastPage: function() {
-						var that = this;
+						var that = this;						
 						if(that.pageNum < that.allPage - 1) {
+							show_loading();
 							$.get(url + "user/list", {
-								keyword: that.name,
-								categoryId: that.sort,
-								state: that.state,
+								name: that.name,
+								phone: that.phone,
+								adviserId: that.adviserId,
+								wechatUsername: that.wechatUsername,
+								tagId: that.tagId,
 								pageNum: that.allPage - 1,
 								pageSize: that.pageSize
 							}, function(result) {
 								that.subject = return_result(result);
+								$('#loading_id').modal('hide');
+							});
+						}
+					},
+					gotoPage: function() {
+						var that = this;
+						that.pageNum = parseInt(that.pnumber);
+						if (that.pageNum > that.allPage)
+						{
+								that.pnumber = that.allPage;
+								that.pageNum = that.allPage;
+						}
+						
+						if(that.pageNum <= that.allPage) {
+							show_loading();
+							that.pageNum = that.pageNum - 1;							
+							$.get(url + "user/list", {
+								name: that.name,
+								phone: that.phone,
+								adviserId: that.adviserId,
+								wechatUsername: that.wechatUsername,
+								tagId: that.tagId,
+								pageNum: that.pageNum,
+								pageSize: that.pageSize
+							}, function(result) {
+								console.log(result)
+								result.data = return_result(result);
+								that.subject = result.data;
+								$('#loading_id').modal('hide');
 							});
 						}
 					},
@@ -920,6 +1055,39 @@
 					table_remove: function (index) {
              this.subject.splice(index, 1);  
           },
+          table_edit: function (index,field,byid) {
+						if (this.ap_list == 'GW' && this.gw_regionid != '')
+						{
+								if (this.current_index != null)
+								{
+										this.subject[this.current_index] = this.current_row;
+								}						
+								v.update_field = field;
+								v.update_byid = byid;
+								this.current_index = index;
+								this.current_row = this.subject[index];
+								v.dId = this.subject[index].id;
+								var json = {};
+								json['oid'] = this.subject[index].oid;
+								json['authNickname'] = this.subject[index].authNickname;
+								json['name'] = this.subject[index].name;
+								json['firstControllerContents'] = this.subject[index].firstControllerContents;
+								json['birthday'] = this.subject[index].birthday;
+								json['phone'] = this.subject[index].phone;
+								json['visaCode'] = this.subject[index].visaCode;
+								json['visaExpirationDate'] = this.subject[index].visaExpirationDate;
+								json['wechatUsername'] = this.subject[index].wechatUsername;
+								json['source'] = this.subject[index].source;
+								json['str_tagListName'] = this.subject[index].str_tagListName;
+								json['consultation'] = this.subject[index].consultation;
+								json['service'] = this.subject[index].service;
+								if (field == 'adviserName' && this.ap_list == 'GW' && this.gw_regionid != '')
+								{
+										json['adviserName'] = '<select class="form-control" style="width:120px;" id="'+byid+'" style="background: #F0FFFF;color: #428bca;"></select><div style="padding-top:10px;"><a class="save1" href="javascript:;"><span style="color:blue;">保存</span></a>&nbsp;&nbsp;<a class="cancel" href="javascript:;">取消</a></div>';
+								}
+								this.subject.splice(index,1, json);
+						}
+					},
           delete_confirm: function (index,id) {
           	$('#delete_id').modal('show');
           	this.dId = id;
@@ -973,11 +1141,16 @@
 				}
 			});
 			
+			$('#example a.save1').live('click', function (e) {
+					e.preventDefault();
+					table_changeAdviser();
+			});
+			
 			function return_result(result)
 			{
 					for(var i = 0; i < result.data.length; i++) {
 							result.data[i].oid = result.data[i].id;
-							result.data[i].service = '<a href="javascript:;" onclick="add_service1(0,\''+result.data[i].id+'\',\''+result.data[i].name+'\')"><span class="label label-primary">签证</span></a>&nbsp;<a href="javascript:;" onclick="add_service2(0,\''+result.data[i].id+'\',\''+result.data[i].name+'\')"><span class="label label-primary">留学</span></a>';
+							result.data[i].service = '<a href="javascript:;" onclick="add_service3(0,\''+result.data[i].id+'\',\''+result.data[i].name+'\')"><span class="label label-primary">独立技术移民</span></a>&nbsp;<a href="javascript:;" onclick="add_service1(0,\''+result.data[i].id+'\',\''+result.data[i].name+'\')"><span class="label label-primary">签证</span></a>&nbsp;<a href="javascript:;" onclick="add_service2(0,\''+result.data[i].id+'\',\''+result.data[i].name+'\')"><span class="label label-primary">留学</span></a>';
 							result.data[i].name = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].name+'</a>';									
 							result.data[i].authNickname = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].authNickname+'</a>';
 							if (result.data[i].birthday)
@@ -1007,15 +1180,18 @@
 							result.data[i].str_tagListName = '';
 							var str = '';
 							var str_name = '';
-							for(var t = 0; t < result.data[i].tagList.length; t++) {
-									if (str == '')
-									{
-											str = result.data[i].tagList[t].id;
-											str_name = '['+result.data[i].tagList[t].name+']';
-									}else
-									{
-											str += ','+result.data[i].tagList[t].id;
-											str_name += '<br/>['+result.data[i].tagList[t].name+']';
+							if (result.data[i].tagList)
+							{
+									for(var t = 0; t < result.data[i].tagList.length; t++) {
+											if (str == '')
+											{
+													str = result.data[i].tagList[t].id;
+													str_name = '['+result.data[i].tagList[t].name+']';
+											}else
+											{
+													str += ','+result.data[i].tagList[t].id;
+													str_name += '<br/>['+result.data[i].tagList[t].name+']';
+											}
 									}
 							}
 							result.data[i].str_tagList = str;
@@ -1099,73 +1275,133 @@
 					   			//console.log(data);
 					   	});
 			  	}                
-      }
+      }            
       
       function addNewSave(par)
-			{
-          var jqInputs = $('input',$("#addnew_id"));
-          var jqSelect = $('select',$("#addnew_id"));
-          var jqTextarea = $('textarea',$("#addnew_id"));
+			{          
+          var f = '#addnew_id ';
+          var json = {};
           
-          var check_result = 0;
-          if (jqInputs[0].value != '' && jqInputs[1].value != '' && jqInputs[2].value != '' && jqSelect[1].value != '0')
+          var check_result = 0;          
+          if ($(f+'#a1').val() !='' && $(f+'#a2').val() !='' && $(f+'#a2b').val() !='' && $(f+'#a3').val()!='' && $(f+'#a7').val() != '0')
           {
           		check_result = true;
           }else
           {
-          		$('#alert_error').css('marginLeft','30%');
-          		$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
-			        $("#error_info").html('提示：红色字段必须填写或选择！');
+          		$('#addnew_id #alert_error').css('marginLeft','30%');
+          		$('#addnew_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+			        $("#addnew_id #error_info").html('提示：红色字段必须填写或选择！');
           		return false;
-          }          
+          }
           
           if (check_result)
           {
-          		var d4 = 0;
-          		if (jqInputs[4].value != '')
+          		json['authNickname'] = $(f+'#a1').val();
+          		var str_name = $(f+'#a2').val()+' '+$(f+'#a2b').val();
+            	json['name'] = str_name;
+            	json['phone'] = $(f+'#a3').val();
+            	json['wechatUsername'] = $(f+'#a4').val();            	
+          		var d = 0;
+          		if ($(f+'#a5').val() != '')
           		{
-		          		var arr_d = jqInputs[4].value.split("/");
+		          		var arr_d = $(f+'#a5').val().split("/");
 		          		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
 		              var date = new Date(str_d);
-		              d4 = date.getTime();
+		              d = date.getTime();		              
             	}
-            	var str_name = jqInputs[1].value;
+            	json['birthday'] = d;
+            	json['source'] = $(f+'#a6').val();
+            	json['adviserId'] = $(f+'#a7').val();
+            	json['firstControllerContents'] = $(f+'#a8').val();
+            	json['visaCode'] = null;
+            	json['visaExpirationDate'] = 0;
                              
              	var str_url = "user/add";
 	            var sa_id = $("#id").val();
 	            if (sa_id != '0') str_url = "user/update";
 	            $("#id").val('0');	            
               
-              $.post(str_url, { id: sa_id, authNickname: jqInputs[0].value, name: jqInputs[1].value, phone: jqInputs[2].value, wechatUsername: jqInputs[3].value,birthday: d4, source: jqSelect[0].value, adviserId: jqSelect[1].value,firstControllerContents: jqTextarea[0].value,visaCode: null,visaExpirationDate: 0},
+              $.post(str_url, json,
 					   	function(data){
 					   			if (data.code == 0)
 					   			{	   					   					
-					   					$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
+					   					$('#addnew_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
 					   					$('#addnew_id').modal('hide');
 					   					if (par == 0)
 					   					{
 					   							$('#a1').val('');
 					   							$('#a2').val('');
+					   							$('#a2b').val('');
 					   							$('#a3').val('');
 					   							$('#a4').val('');
 					   							$('#a5').val('');
-					   							$('#a8').val('');
-							   					v.getDatalist();
-							   					v.getSort();
+					   							$('#a8').val('');							   					
 					   					}else
 					   					{
 					   							//弹出新增服务					   							
 					   							add_service1(0,data.data,str_name);
 					   					}
+					   					v.getDatalist();
+							   			v.getSort();
 					   			}else
 					   			{
-					   					$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
-			          			$("#error_info").html(data.message);
+					   					$('#addnew_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+			          			$("#addnew_id #error_info").html(data.message);
 				        			return false;
 					   			}
 					   			//console.log(data);
 					   	});
 			  	}                
+      }
+      
+      function table_changeAdviser()
+      {
+      		var f = '#example ';
+					var str_val = $(f+'#'+v.update_byid).val();
+					var field = v.update_field;
+					var check_result = 0;
+					
+					if (parseInt(str_val))
+					{
+							check_result = true;
+					}else
+					{
+							$('#alert_error').css('marginLeft','40%');
+			    		$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+			        $("#error_info").html('提示：所属顾问 必须选择！');
+			    		return false;
+					}
+					
+					if (check_result)
+    			{
+    					var str_url = "user/updateAdviser";
+       				var json = {};
+       				json['id'] = v.dId;
+       				if (field == 'adviserName')
+       				{
+       					 json['adviserId'] = str_val;
+       				} 				
+       				       				
+       				show_loading();       				
+       				$.post(str_url, json,
+					   	function(data){
+					   			$('#loading_id').modal('hide');
+					   			if (data.code == 0)
+					   			{
+					   					v.dId = 0;
+					   					$('#alert_success').css('marginLeft','40%');
+					   					$('#alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+					   					v.table_remove();
+					   					setTimeout(function(){v.getDatalist();$('.modal-backdrop').remove();}, 1000);
+					   			}else
+					   			{
+					   					$('#alert_error').css('marginLeft','40%');
+					   					$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+			          			$("#error_info").html(data.message);
+				        			return false;
+					   			}				   	
+					   	});
+    			}
       }            
 			
 			v.$watch('subject', function(obj) {
@@ -1176,6 +1412,7 @@
 				        format: 'dd/mm/yyyy'			        
 				  });	
 				  var adviserId = 0;
+				  var adviserId_u1 = 0;
 				  var str_source = '';
 				  var str_taglist = '';
 				 	if (this.current_row.id)
@@ -1183,12 +1420,14 @@
 				  		$("#id").val(this.current_row.id);	  		
 				  		adviserId = this.current_row.adviserId;
 				  		str_source = 	this.current_row.source;
+				  		adviserId_u1 = this.current_row.adviserId;
 				  }else
 				  {
 				  		adviserId = v.adviser_id;
 				  }			    
 			    //绑定顾问列表
-			    var obj_adviserId = $("#t4");	
+			    var obj_adviserId = $("#t4");
+			    $("#t4").empty();
 			    $.ajax({
 	          url: 'adviser/list?pageNum=0&pageSize=100000',
 	          type: 'GET',
@@ -1205,6 +1444,7 @@
 	        });
 	        //绑定顾问列表
 	        var obj_adviserId1 = $("#a7");
+	        $("#a7").empty();
 	        obj_adviserId1.append("<option value='0'>请选择</option>");
 			    $.ajax({
 	          url: 'adviser/list?pageNum=0&pageSize=100000',
@@ -1225,9 +1465,49 @@
 	        			}
 	        	}
 	        	obj_adviserId1.val(adviserId);   
-	        });	        
+	        });
+	        //绑定顾问列表
+	        var obj_adviserId2 = $("#adviserId");
+	        $("#adviserId").empty();
+	        var strPar = '';
+				  if (v.gw_regionid != 'null') strPar = '&regionId='+v.gw_regionid;
+	        obj_adviserId2.append("<option value='0'>请选择顾问</option>");
+			    $.ajax({
+	          url: 'adviser/list?pageNum=0&pageSize=100000'+strPar,
+	          type: 'GET',
+	          dataType: 'json'
+	        }).done(function(response) {
+	        	//author:bischina
+	        	var str_selected = '';
+	        	response = response.data;
+	        	for (var item in response)
+	        	{
+	        			obj_adviserId2.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+	        	}
+	        	obj_adviserId2.val((v.adviserId ? v.adviserId:adviserId));
+	        });
+	        var obj_adviserId_u1 = $("#u1");
+				  $("#u1").empty();
+				  var strPar = '';
+				  if (v.gw_regionid != 'null') strPar = '&regionId='+v.gw_regionid;
+	        obj_adviserId_u1.append("<option value='0'>请选择</option>");
+			    $.ajax({
+	          url: 'adviser/list?pageNum=0&pageSize=100000'+strPar,
+	          type: 'GET',
+	          async: false,
+	          dataType: 'json'
+	        }).done(function(response) {
+	        	//author:bischina
+	        	response = response.data;
+	        	for (var item in response)
+	        	{
+	        			obj_adviserId_u1.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+	        	}
+	        	obj_adviserId_u1.val(adviserId_u1);	
+	        });            
 	        //绑定tagId
 	        var obj_tagid= $("#tagId");
+	        $("#tagId").empty();
 			    $.ajax({
 	          url: 'user/listTag',
 	          type: 'GET',
@@ -1241,9 +1521,11 @@
 	        			var tag_id = arr_tag[item].id;
 	        			obj_tagid.append("<option value='"+tag_id+"'>"+tag_name+"</option>");
 	        	}
+	        	obj_tagid.val(v.tagId);	
 	        });	
 	        //绑定客户来源	        
 	        var obj_source = $("#t12");
+	        $("#t12").empty();
 			    $.ajax({
 	          url: 'source/listSourceRegion',
 	          type: 'GET',
@@ -1276,6 +1558,7 @@
 	        	obj_source.val(str_source);   
 	        });
 	        var obj_source1 = $("#a6");
+	        $("#a6").empty();
 			    $.ajax({
 	          url: 'source/listSourceRegion',
 	          type: 'GET',
@@ -1309,6 +1592,17 @@
 	        });       
 	        
 			});
+			
+			function show_loading()
+			{
+					$('#loading_id').on('show.bs.modal', function(){
+	          var $this = $(this);
+	          var $modal_dialog = $this.find('.modal-dialog');
+	          $this.css('display', 'block');
+	          $modal_dialog.css({'margin-top': Math.max(0, ($(window).height() - $modal_dialog.height()) / 2) });
+	        });
+					$('#loading_id').modal('show');
+			}
 			
 			function deleteId()
       {
@@ -1445,6 +1739,30 @@
 			
 	    jQuery(document).ready(function() {
 	    });
+	    
+	    $('#addnew_id').on('show.bs.modal', function () {
+				$("#addnew_id #addnewid_form").validate({
+						submitHandler: function () {						
+			            addNewSave(1);
+			      },
+			      rules: {
+			          a1: {required: true},
+			          a2: {required: true},
+			          a2b: {required: true},
+			          a3: {required: true},
+			          a5: {minlength: 10},
+			          a7: {required: true,min: 1},
+			      },
+			      messages: {
+			          a1: "",
+			          a2: "",
+			          a2b: "",
+			          a3: "",
+			          a5: " 格式错：只能选择日期。",
+			          a7: "",
+			      }
+			  });
+			});
 		</script>
 	</body>
 
