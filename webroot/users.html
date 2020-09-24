@@ -722,7 +722,8 @@
 					getDatalist: function() {
 						var that = this;
 						show_loading();
-						$.get(url + "user/count", {											
+						$.get(url + "user/count", {
+							adviserId: that.adviser_id								
 						}, function(result) {
 							console.log(result)
 							that.count = result.data;
@@ -730,6 +731,7 @@
 							console.log(that.allPage)
 						});
 						$.get(url + "user/list", {
+							adviserId: that.adviser_id,
 							pageNum: 0,
 							pageSize: that.pageSize
 						}, function(result) {
@@ -1482,7 +1484,7 @@
 	        	{
 	        			obj_adviserId2.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
 	        	}
-	        	obj_adviserId2.val(v.adviserId);   
+	        	obj_adviserId2.val((v.adviserId ? v.adviserId:adviserId));
 	        });
 	        var obj_adviserId_u1 = $("#u1");
 				  $("#u1").empty();
