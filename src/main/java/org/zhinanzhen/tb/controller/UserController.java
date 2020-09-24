@@ -88,20 +88,25 @@ public class UserController extends BaseController {
 				authTypeEnum = UserAuthTypeEnum.get(authType);
 			}
 			// 处理顾问管理员
-			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
-					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
-				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
-				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
-				for (RegionDTO region : regionList)
-					regionIdList.add(region.getId());
-			} else {
-				Integer newAdviserId = getAdviserId(request);
-				if (newAdviserId != null)
-					adviserId = newAdviserId + "";
-				if (StringUtil.isBlank(adviserId) && !isAdminUser(request))
-					return new Response<Integer>(1, "No permission !", -1);
-			}
+//			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+//			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
+//					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
+//				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
+//				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
+//				for (RegionDTO region : regionList)
+//					regionIdList.add(region.getId());
+//			} else {
+//				Integer newAdviserId = getAdviserId(request);
+//				if (newAdviserId != null)
+//					adviserId = newAdviserId + "";
+//				if (StringUtil.isBlank(adviserId) && !isAdminUser(request))
+//					return new Response<Integer>(1, "No permission !", -1);
+//			}
+			Integer newAdviserId = getAdviserId(request);
+			if (newAdviserId != null)
+				adviserId = newAdviserId + "";
+			if (StringUtil.isBlank(adviserId) && !isAdminUser(request))
+				return new Response<Integer>(1, "No permission !", null);
 			int count = userService.countUser(name, authTypeEnum, authNickname, phone, wechatUsername,
 					StringUtil.toInt(adviserId), regionIdList, StringUtil.toInt(tagId));
 			return new Response<Integer>(0, count);
@@ -146,20 +151,25 @@ public class UserController extends BaseController {
 				authTypeEnum = UserAuthTypeEnum.get(authType);
 			}
 			// 处理顾问管理员
-			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
-					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
-				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
-				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
-				for (RegionDTO region : regionList)
-					regionIdList.add(region.getId());
-			} else {
-				Integer newAdviserId = getAdviserId(request);
-				if (newAdviserId != null)
-					adviserId = newAdviserId + "";
-				if (StringUtil.isBlank(adviserId) && !isAdminUser(request))
-					return new Response<List<UserDTO>>(1, "No permission !", null);
-			}
+//			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+//			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
+//					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
+//				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
+//				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
+//				for (RegionDTO region : regionList)
+//					regionIdList.add(region.getId());
+//			} else {
+//				Integer newAdviserId = getAdviserId(request);
+//				if (newAdviserId != null)
+//					adviserId = newAdviserId + "";
+//				if (StringUtil.isBlank(adviserId) && !isAdminUser(request))
+//					return new Response<List<UserDTO>>(1, "No permission !", null);
+//			}
+			Integer newAdviserId = getAdviserId(request);
+			if (newAdviserId != null)
+				adviserId = newAdviserId + "";
+			if (StringUtil.isBlank(adviserId) && !isAdminUser(request))
+				return new Response<List<UserDTO>>(1, "No permission !", null);
 			List<UserDTO> list = userService.listUser(name, authTypeEnum, authNickname, phone, wechatUsername,
 					StringUtil.toInt(adviserId), regionIdList, StringUtil.toInt(tagId), orderByField,
 					Boolean.parseBoolean(StringUtil.isEmpty(isDesc) ? "false" : isDesc), pageNum, pageSize);
