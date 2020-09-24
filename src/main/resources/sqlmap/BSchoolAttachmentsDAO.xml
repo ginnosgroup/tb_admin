@@ -51,5 +51,10 @@
             remarks
         FROM b_school_attachments WHERE school_name = #{schoolName};
     </select>
+    
+    <update id="deleteBySchoolName" parameterType="java.lang.String">
+        DELETE FROM b_school_attachments
+        WHERE sachool_name = #{sachoolName};
+    </update>
 
 </mapper>

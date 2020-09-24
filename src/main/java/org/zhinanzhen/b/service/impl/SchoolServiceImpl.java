@@ -10,17 +10,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.controller.BaseCommissionOrderController.CommissionStateEnum;
 import org.zhinanzhen.b.dao.CommissionOrderDAO;
+import org.zhinanzhen.b.dao.SchoolAttachmentsDAO;
 import org.zhinanzhen.b.dao.SchoolDAO;
 import org.zhinanzhen.b.dao.SchoolSettingDAO;
 import org.zhinanzhen.b.dao.SubagencyDAO;
 import org.zhinanzhen.b.dao.SubjectSettingDAO;
 import org.zhinanzhen.b.dao.pojo.CommissionOrderListDO;
+import org.zhinanzhen.b.dao.pojo.SchoolAttachmentsDO;
 import org.zhinanzhen.b.dao.pojo.SchoolDO;
 import org.zhinanzhen.b.dao.pojo.SchoolSettingDO;
 import org.zhinanzhen.b.dao.pojo.SubagencyDO;
 import org.zhinanzhen.b.dao.pojo.SubjectSettingDO;
 import org.zhinanzhen.b.service.SchoolService;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
+import org.zhinanzhen.b.service.pojo.SchoolAttachmentsDTO;
 import org.zhinanzhen.b.service.pojo.SchoolDTO;
 import org.zhinanzhen.b.service.pojo.SchoolSettingDTO;
 import org.zhinanzhen.b.service.pojo.SubjectSettingDTO;
@@ -35,6 +38,9 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 
 	@Resource
 	private SchoolDAO schoolDao;
+	
+	@Resource
+	private SchoolAttachmentsDAO schoolAttachmentsDao;
 
 	@Resource
 	private SchoolSettingDAO schoolSettingDao;
@@ -111,6 +117,9 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		}
 		for (SchoolDO schoolDo : schoolDoList) {
 			SchoolDTO schoolDto = mapper.map(schoolDo, SchoolDTO.class);
+			List<SchoolAttachmentsDO> saList = schoolAttachmentsDao.listBySchoolName(schoolDto.getName());
+			if (saList != null && saList.size() > 0)
+				schoolDto.setSchoolAttachments(mapper.map(saList.get(0), SchoolAttachmentsDTO.class));
 			schoolDtoList.add(schoolDto);
 		}
 		return schoolDtoList;
@@ -131,6 +140,9 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		}
 		for (SchoolDO schoolDo : schoolDoList) {
 			SchoolDTO schoolDto = mapper.map(schoolDo, SchoolDTO.class);
+			List<SchoolAttachmentsDO> saList = schoolAttachmentsDao.listBySchoolName(schoolDto.getName());
+			if (saList != null && saList.size() > 0)
+				schoolDto.setSchoolAttachments(mapper.map(saList.get(0), SchoolAttachmentsDTO.class));
 			schoolDtoList.add(schoolDto);
 		}
 		return schoolDtoList;
@@ -152,6 +164,9 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		}
 		for (SchoolDO schoolDo : schoolDoList) {
 			SchoolDTO schoolDto = mapper.map(schoolDo, SchoolDTO.class);
+			List<SchoolAttachmentsDO> saList = schoolAttachmentsDao.listBySchoolName(schoolDto.getName());
+			if (saList != null && saList.size() > 0)
+				schoolDto.setSchoolAttachments(mapper.map(saList.get(0), SchoolAttachmentsDTO.class));
 			schoolDtoList.add(schoolDto);
 		}
 		return schoolDtoList;
@@ -273,10 +288,12 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		SchoolDTO schoolDto = null;
 		try {
 			SchoolDO schoolDo = schoolDao.getSchoolById(id);
-			if (schoolDo == null) {
+			if (schoolDo == null)
 				return null;
-			}
 			schoolDto = mapper.map(schoolDo, SchoolDTO.class);
+			List<SchoolAttachmentsDO> saList = schoolAttachmentsDao.listBySchoolName(schoolDto.getName());
+			if (saList != null && saList.size() > 0)
+				schoolDto.setSchoolAttachments(mapper.map(saList.get(0), SchoolAttachmentsDTO.class));
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
@@ -293,7 +310,12 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 			throw se;
 		}
 		try {
-			return schoolDao.deleteSchoolById(id);
+			SchoolDO schoolDo = schoolDao.getSchoolById(id);
+			if (schoolDo != null) {
+				schoolAttachmentsDao.deleteBySchoolName(schoolDo.getName());
+				return schoolDao.deleteSchoolById(id);
+			} else
+				return 0;
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
@@ -309,6 +331,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 			throw se;
 		}
 		try {
+			schoolAttachmentsDao.deleteBySchoolName(name);
 			return schoolDao.deleteSchoolByName(name);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
