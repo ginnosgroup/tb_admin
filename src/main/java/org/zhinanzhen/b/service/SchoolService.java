@@ -15,6 +15,9 @@ public interface SchoolService {
 
 	public int updateSchool(int id, String name, String subject, String country) throws ServiceException;
 
+	int updateSchoolAttachments(String name, String contractFile1, String contractFile2, String contractFile3,
+			String remarks) throws ServiceException;
+
 	public List<SchoolDTO> list(String name) throws ServiceException;
 
 	public List<SchoolDTO> list(String name, String subject, String country) throws ServiceException;

@@ -103,6 +103,32 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	}
 
 	@Override
+	public int updateSchoolAttachments(String name, String contractFile1, String contractFile2, String contractFile3,
+			String remarks) throws ServiceException {
+		try {
+			if (schoolDao.list2(name, null).size() == 0) {
+				ServiceException se = new ServiceException(StringUtil.merge("学校'", name, "'不存在!"));
+				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+				throw se;
+			}
+			SchoolAttachmentsDO schoolAttachmentsDo = new SchoolAttachmentsDO();
+			schoolAttachmentsDo.setSchoolName(name);
+			schoolAttachmentsDo.setContractFile1(contractFile1);
+			schoolAttachmentsDo.setContractFile2(contractFile2);
+			schoolAttachmentsDo.setContractFile3(contractFile3);
+			schoolAttachmentsDo.setRemarks(remarks);
+			if (schoolAttachmentsDao.listBySchoolName(name).size() > 0)
+				return schoolAttachmentsDao.updateSchoolAttachments(schoolAttachmentsDo);
+			else
+				return schoolAttachmentsDao.addSchoolAttachments(schoolAttachmentsDo);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
 	public List<SchoolDTO> list(String name) throws ServiceException {
 		List<SchoolDTO> schoolDtoList = new ArrayList<SchoolDTO>();
 		List<SchoolDO> schoolDoList = new ArrayList<SchoolDO>();
