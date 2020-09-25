@@ -365,7 +365,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 			throw se;
 		}
 	}
-	
+
 	private List<SchoolSettingDTO> buildSchoolSettingList(List<SchoolDO> schoolDoList) {
 		List<SchoolSettingDTO> schoolSettingDtoList = new ArrayList<SchoolSettingDTO>();
 		if (schoolDoList == null || schoolDoList.size() == 0)
@@ -385,6 +385,9 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 				if (commissionOrderDao.sumTuitionFeeBySchoolId(id) != null)
 					schoolSettingDto.setAmount(commissionOrderDao.sumTuitionFeeBySchoolId(id));
 			}
+			List<SchoolAttachmentsDO> saList = schoolAttachmentsDao.listBySchoolName(schoolSettingDto.getSchoolName());
+			if (saList != null && saList.size() > 0)
+				schoolSettingDto.setSchoolAttachments(mapper.map(saList.get(0), SchoolAttachmentsDTO.class));
 			schoolSettingDtoList.add(schoolSettingDto);
 		});
 		return schoolSettingDtoList;
