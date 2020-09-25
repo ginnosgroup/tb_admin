@@ -106,6 +106,26 @@ public class SchoolController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/updateSchoolAttachments", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<String> updateSchoolAttachments(@RequestParam(value = "name") String name,
+			@RequestParam(value = "contractFile1", required = false) String contractFile1,
+			@RequestParam(value = "contractFile2", required = false) String contractFile2,
+			@RequestParam(value = "contractFile3", required = false) String contractFile3,
+			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			if (schoolService.updateSchoolAttachments(name, contractFile1, contractFile2, contractFile3, remarks) > 0) {
+				return new Response<String>(0, null, name);
+			} else {
+				return new Response<String>(1, "修改失败.", name);
+			}
+		} catch (ServiceException e) {
+			return new Response<String>(e.getCode(), e.getMessage(), name);
+		}
+	}
+
 	@RequestMapping(value = "/updateName", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Boolean> updateSchoolName(@RequestParam(value = "oldName") String oldName,
