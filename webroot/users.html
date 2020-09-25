@@ -721,20 +721,30 @@
 					},
 					getDatalist: function() {
 						var that = this;
+						var json = {};
 						show_loading();
-						$.get(url + "user/count", {
-							adviserId: that.adviser_id								
-						}, function(result) {
+						/*if (this.gw_regionid != 'null')
+						{
+								if (this.adviserId == undefined)
+								{
+										json['adviserId'] = this.adviser_id;
+								}else
+								{
+										if (that.adviserId != '0') json['adviserId'] = that.adviserId;
+								}
+						}else
+						{
+								if (that.adviserId != '0') json['adviserId'] = that.adviserId;
+						}*/
+						$.get(url + "user/count", json, function(result) {
 							console.log(result)
 							that.count = result.data;
 							that.allPage = Math.ceil(result.data / that.pageSize);
 							console.log(that.allPage)
 						});
-						$.get(url + "user/list", {
-							adviserId: that.adviser_id,
-							pageNum: 0,
-							pageSize: that.pageSize
-						}, function(result) {
+						json['pageNum'] = that.pageNum;
+						json['pageSize'] = that.pageSize;
+						$.get(url + "user/list", json, function(result) {
 							//console.log(result)
 							that.pageNum = 0;							
 							that.subject = return_result(result);
