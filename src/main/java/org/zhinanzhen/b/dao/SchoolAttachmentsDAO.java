@@ -11,5 +11,7 @@ public interface SchoolAttachmentsDAO {
 	int updateSchoolAttachments(SchoolAttachmentsDO schoolAttachmentsDo);
 
 	List<SchoolAttachmentsDO> listBySchoolName(String schoolName); // 理论上只会有一条
+	
+	int deleteBySchoolName(String schoolName);
 
 }

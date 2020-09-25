@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.controller;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.SchoolService;
 import org.zhinanzhen.b.service.pojo.SchoolDTO;
 import org.zhinanzhen.b.service.pojo.SchoolSettingDTO;
@@ -30,6 +32,14 @@ public class SchoolController extends BaseController {
 
 	@Resource
 	SchoolService schoolService;
+
+	@RequestMapping(value = "/upload_contract_file", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<String> uploadContractFile(@RequestParam MultipartFile file, HttpServletRequest request,
+			HttpServletResponse response) throws IllegalStateException, IOException {
+		super.setPostHeader(response);
+		return super.upload2(file, request.getSession(), "/uploads/school_contract_files/");
+	}
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
@@ -93,6 +103,26 @@ public class SchoolController extends BaseController {
 			}
 		} catch (ServiceException e) {
 			return new Response<SchoolDTO>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/updateSchoolAttachments", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<String> updateSchoolAttachments(@RequestParam(value = "name") String name,
+			@RequestParam(value = "contractFile1", required = false) String contractFile1,
+			@RequestParam(value = "contractFile2", required = false) String contractFile2,
+			@RequestParam(value = "contractFile3", required = false) String contractFile3,
+			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			if (schoolService.updateSchoolAttachments(name, contractFile1, contractFile2, contractFile3, remarks) > 0) {
+				return new Response<String>(0, null, name);
+			} else {
+				return new Response<String>(1, "修改失败.", name);
+			}
+		} catch (ServiceException e) {
+			return new Response<String>(e.getCode(), e.getMessage(), name);
 		}
 	}
 
