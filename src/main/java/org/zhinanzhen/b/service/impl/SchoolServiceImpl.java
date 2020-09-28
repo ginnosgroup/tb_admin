@@ -111,16 +111,17 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 				throw se;
 			}
+			List<SchoolAttachmentsDO> list = schoolAttachmentsDao.listBySchoolName(name);
 			SchoolAttachmentsDO schoolAttachmentsDo = new SchoolAttachmentsDO();
+			if (list.size() > 0)
+				schoolAttachmentsDo = list.get(0);
 			schoolAttachmentsDo.setSchoolName(name);
 			schoolAttachmentsDo.setContractFile1(contractFile1);
 			schoolAttachmentsDo.setContractFile2(contractFile2);
 			schoolAttachmentsDo.setContractFile3(contractFile3);
 			schoolAttachmentsDo.setRemarks(remarks);
-			if (schoolAttachmentsDao.listBySchoolName(name).size() > 0)
-				return schoolAttachmentsDao.updateSchoolAttachments(schoolAttachmentsDo);
-			else
-				return schoolAttachmentsDao.addSchoolAttachments(schoolAttachmentsDo);
+			return list.size() > 0 ? schoolAttachmentsDao.updateSchoolAttachments(schoolAttachmentsDo)
+					: schoolAttachmentsDao.addSchoolAttachments(schoolAttachmentsDo);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
