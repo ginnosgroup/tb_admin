@@ -1287,13 +1287,16 @@
           }              
           if (v.orderType == 'VISA' && va == 'COMPLETE')
           {
-          		var flist = $('#show_addnewservice1_id #flist').val();
-          		if (flist == '')
+          		if (v_sub.order_detail.servicePackage == null)
           		{
-          				$('#alert_error').css('marginLeft','30%');
-			   					$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
-	          			$("#error_info").html('签证凭证没有上传，请上传之后再提交。');
-          				return false;
+		          		var flist = $('#show_addnewservice1_id #flist').val();
+		          		if (flist == '')
+		          		{
+		          				$('#alert_error').css('marginLeft','30%');
+					   					$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+			          			$("#error_info").html('签证凭证没有上传，请上传之后再提交。');
+		          				return false;
+		          		}
           		}
           }
           if (v.orderType == 'OVST' && va == 'PAID')
