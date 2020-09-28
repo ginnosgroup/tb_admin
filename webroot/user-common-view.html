@@ -139,8 +139,8 @@
 										<option v-if="flowstate_wa==='WAIT'" value="">Mara审核中</option>
 										<option v-if="flowstate_ma==='FINISH'" value="APPLY">已提交申请</option>
 										<option v-if="servicepackage_type==='VA' && (flowstate_ma==='FINISH' || flowstate_wa==='APPLY' || flowstate_wa==='COMPLETE')" value="COMPLETE">申请成功</option>
-										<option v-if="servicepackage_type==='EOI' && (flowstate_wa==='APPLY' || flowstate_wa==='COMPLETE')" value="COMPLETE">EOI完成</option>
-										<option v-if="servicepackage_type==='CA' && (flowstate_wa==='APPLY' || flowstate_wa==='COMPLETE')" value="COMPLETE">评估完成</option>
+										<option v-if="servicepackage_type==='EOI' && (flowstate_wa==='REVIEW' || flowstate_wa==='COMPLETE')" value="COMPLETE">EOI完成</option>
+										<option v-if="servicepackage_type==='CA' && (flowstate_wa==='REVIEW' || flowstate_wa==='COMPLETE')" value="COMPLETE">评估完成</option>
 										<option v-if="flowstate_wa!=='COMPLETE'" value="CLOSE">关闭申请</option>
 										</select>
 									</div>
