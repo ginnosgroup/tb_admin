@@ -1076,17 +1076,17 @@
 									if (result.data[i].schoolAttachments != null)
 									{
 											if (result.data[i].schoolAttachments.remarks != null) result.data[i].str_remarks = result.data[i].schoolAttachments.remarks;
-											if (result.data[i].schoolAttachments.contractFile1 != '')
+											if (result.data[i].schoolAttachments.contractFile1 != null)
 											{
 													result.data[i].attachments += '<a href="'+result.data[i].schoolAttachments.contractFile1+'" target="_blank">合同1</a>&nbsp;&nbsp;';
 													result.data[i].str_flist = result.data[i].schoolAttachments.contractFile1;
 											}
-											if (result.data[i].schoolAttachments.contractFile2 != '')
+											if (result.data[i].schoolAttachments.contractFile2 != null)
 											{
 													result.data[i].attachments += '<a href="'+result.data[i].schoolAttachments.contractFile2+'" target="_blank">合同2</a>&nbsp;&nbsp;';
 													result.data[i].str_flist += ','+result.data[i].schoolAttachments.contractFile2;
 											}
-											if (result.data[i].schoolAttachments.contractFile3 != '')
+											if (result.data[i].schoolAttachments.contractFile3 != null)
 											{
 													result.data[i].attachments += '<a href="'+result.data[i].schoolAttachments.contractFile3+'" target="_blank">合同3</a>&nbsp;&nbsp;';
 													result.data[i].str_flist += ','+result.data[i].schoolAttachments.contractFile3;
