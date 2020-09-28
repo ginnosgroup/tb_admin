@@ -144,7 +144,7 @@ public class BaseController {
 					LOG.info("存放PDF文件的路径:" + path);
 					// 转存文件到指定的路径
 					file.transferTo(new File(path));
-					return new Response<String>(0, "", dir + newFileName);
+					return new Response<String>(0, "", dir + newFileName + "." + type);
 				} else {
 					return new Response<String>(1, "文件类型只能是pdf.", null);
 				}
