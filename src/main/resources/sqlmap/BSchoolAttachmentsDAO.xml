@@ -8,7 +8,7 @@
             INTO b_school_attachments (
                 gmt_create,
                 gmt_modify,
-                sachool_name,
+                school_name,
                 contract_file1,
                 contract_file2,
                 contract_file3,
@@ -44,7 +44,7 @@
     <select id="listBySchoolName" parameterType="java.lang.String" resultType="org.zhinanzhen.b.dao.pojo.SchoolAttachmentsDO">
         SELECT
             id,
-            sachool_name AS sachoolName,
+            school_name AS schoolName,
             contract_file1 AS contractFile1,
             contract_file2 AS contractFile2,
             contract_file3 AS contractFile3,
@@ -54,7 +54,7 @@
     
     <update id="deleteBySchoolName" parameterType="java.lang.String">
         DELETE FROM b_school_attachments
-        WHERE sachool_name = #{sachoolName};
+        WHERE school_name = #{schoolName};
     </update>
 
 </mapper>
