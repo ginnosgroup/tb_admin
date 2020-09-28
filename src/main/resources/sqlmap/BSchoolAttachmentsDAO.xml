@@ -9,9 +9,9 @@
                 gmt_create,
                 gmt_modify,
                 school_name,
-                contract_file1,
-                contract_file2,
-                contract_file3,
+                contract_file_1,
+                contract_file_2,
+                contract_file_3,
                 remarks)
             VALUES (
                 now(),
@@ -27,13 +27,13 @@
         UPDATE b_school_attachments 
         SET gmt_modify = now()
         <if test='contractFile1 != null and contractFile1 != ""'>
-            , contract_file1 = #{contractFile1}
+            , contract_file_1 = #{contractFile1}
         </if>
         <if test='contractFile2 != null and contractFile2 != ""'>
-            , contract_file2 = #{contractFile2}
+            , contract_file_2 = #{contractFile2}
         </if>
         <if test='contractFile3 != null and contractFile3 != ""'>
-            , contract_file3 = #{contractFile3}
+            , contract_file_3 = #{contractFile3}
         </if>
         <if test='remarks != null and remarks != ""'>
             , remarks = #{remarks}
@@ -45,9 +45,9 @@
         SELECT
             id,
             school_name AS schoolName,
-            contract_file1 AS contractFile1,
-            contract_file2 AS contractFile2,
-            contract_file3 AS contractFile3,
+            contract_file_1 AS contractFile1,
+            contract_file_2 AS contractFile2,
+            contract_file_3 AS contractFile3,
             remarks
         FROM b_school_attachments WHERE school_name = #{schoolName};
     </select>
