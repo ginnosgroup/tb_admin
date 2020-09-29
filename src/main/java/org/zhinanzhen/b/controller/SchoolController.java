@@ -38,7 +38,7 @@ public class SchoolController extends BaseController {
 	public Response<String> uploadContractFile(@RequestParam MultipartFile file, HttpServletRequest request,
 			HttpServletResponse response) throws IllegalStateException, IOException {
 		super.setPostHeader(response);
-		return super.upload2(file, request.getSession(), "/uploads/school_contract_files/");
+		return super.uploadPdf(file, request.getSession(), "/uploads/school_contract_files/");
 	}
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
@@ -117,6 +117,23 @@ public class SchoolController extends BaseController {
 		try {
 			super.setPostHeader(response);
 			if (schoolService.updateSchoolAttachments(name, contractFile1, contractFile2, contractFile3, remarks) > 0) {
+				return new Response<String>(0, null, name);
+			} else {
+				return new Response<String>(1, "修改失败.", name);
+			}
+		} catch (ServiceException e) {
+			return new Response<String>(e.getCode(), e.getMessage(), name);
+		}
+	}
+	
+	@RequestMapping(value = "/updateSchoolRemarks", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<String> updateSchoolRemarks(@RequestParam(value = "name") String name,
+			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			if (schoolService.updateSchoolAttachments(name, null, null, null, remarks) > 0) {
 				return new Response<String>(0, null, name);
 			} else {
 				return new Response<String>(1, "修改失败.", name);

@@ -271,11 +271,12 @@
 								<label id="paymentpic_url"></label>
 							</div>
 							<hr/>
-							<div class="form-group" style="width:100%;line-height:40px;">
+							<div class="form-group" style="width:100%;">
 									<label class="control-label"><strong>备注：</strong></label>
 									<textarea id="c16a" class="form-control" style="width:98%;display:none;"></textarea>
 									<label id="c16" style="word-break:break-all;"></label><br/>
-									<label id="school_setting_result" style="color:#428bca;"></label>								
+									<label id="school_setting_result" style="color:#428bca;"></label>
+									<label id="school_setting_remarks" style="color:#428bca;"></label>
 							</div>							
 							<div id="show_reqcommission" v-if="flowstate_wa==='PAID' && ap_list === 'GW' && !submitted" style="width:100%;margin-bottom:10px;display:;">
 									<hr/>
@@ -1487,6 +1488,20 @@ function loadSchoolCourses(schoolId)
 									}
 								});
 						}
+						//备注信息
+						$.get(url + "school/getSchoolSetting?schoolName="+schoolName, {
+							pageNum: 0,
+							pageSize: 100000
+						}, function(result) {
+							$("#show_addnewservice2_id #school_setting_remarks").html('');
+							if (result.data.schoolAttachments != null)
+							{
+									if (result.data.schoolAttachments.remarks != '')
+									{
+											$("#show_addnewservice2_id #school_setting_remarks").html('['+result.data.schoolAttachments.remarks+']');
+									}						
+							}
+						});
 					});
 }
 

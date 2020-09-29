@@ -13,6 +13,6 @@ public class SchoolDTO {
 
 	private String country;
 
-	private SchoolAttachmentsDTO schoolAttachments;
+	private SchoolAttachmentsDTO schoolAttachments = new SchoolAttachmentsDTO();
 
 }

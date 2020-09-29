@@ -54,4 +54,5 @@ public interface ServiceOrderService {
 	List<ServiceOrderOfficialRemarksDTO> listOfficialRemarks(int id, int officialId) throws ServiceException;
 
 	int deleteServiceOrderOfficialRemarksDTO(int id) throws ServiceException;
+	
 }

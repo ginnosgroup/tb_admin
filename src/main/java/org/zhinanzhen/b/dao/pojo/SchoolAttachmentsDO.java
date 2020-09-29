@@ -15,6 +15,6 @@ public class SchoolAttachmentsDO {
 
 	private String contractFile3;
 
-	private String remarks;
+	private String remarks = "";
 
 }

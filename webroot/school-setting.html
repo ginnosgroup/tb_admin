@@ -337,20 +337,29 @@
 														<th>ID</th>
 														<th>学校</th>
 														<th>选择佣金卡片类型</th>
-														<th>当前参数</th>														
+														<th>当前参数</th>																							
 														<th>周期内业务总额</th>
 														<th>周期内业务总量</th>
+														<th>合同附件</th>
+														<th>备注</th>
 													</tr>
 												</thead>
 												<tbody>
 													<tr v-for="item in subject" class="gradeX" id="list_{{item.id}}">
 														<td v-html="item.oid"></td>
 														<td v-html="item.schoolName1" style="width:400px;"></td>
-														<td v-html="item.str_type">														
-														</td>
-														<td v-html="item.str_parameters" style="color:#008000;"></td>
+														<td v-html="item.str_type"></td>
+														<td v-html="item.str_parameters" style="color:#008000;"></td>														
 														<td v-html="item.amount"></td>
 														<td v-html="item.count"></td>
+														<td>																
+																<div v-html="item.attachments" style="margin-top:10px;"></div>
+																<div style="margin-top:10px;"><button onclick="show_upload_attachment('{{item.schoolName}}','{{item.str_flist}}');" type="button" class="btn btn-primary">上传合同</button></div>
+														</td>
+														<td>
+																<div id="remarks{{item.id}}">{{item.str_remarks}}</div>
+																<div style="margin-top:10px;"><button onclick="show_update_remarks({{item.id}},'{{item.schoolName}}');" type="button" class="btn btn-primary">更新备注</button></div>
+														</td>
 													</tr>
 												</tbody>
 											</table>
@@ -770,6 +779,110 @@
 				</div>
 			</div>
 		</div>
+		<div class="modal fade" id="school_attachments" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">上传合同附件</h4>
+					</div>
+					<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+			      <button data-dismiss="alert" class="close close-sm" type="button">
+			      <i class="fa fa-times"></i>
+			      </button>
+			      <strong>Success!</strong> You  just achieved success.
+			  	</div>
+			  	<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+		        <button data-dismiss="alert" class="close close-sm" type="button">
+		        <i class="fa fa-times"></i>
+		        </button>
+		        <strong id="error_info"></strong>
+		      </div>
+					<div class="modal-body">
+							<form class="form-horizontal" autocomplete="off">							
+							<div class="form-group">
+								<label class="col-sm-3 control-label">学校名称</label>
+								<div class="col-sm-8">
+									<label id="schoolName"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">上传合同文件<br/>(最多3份)</label>
+								<div class="col-sm-8">
+									<input type="hidden" id="school_name" value="" />
+									<input type="file" id="f1" style="display:none">
+									<input type="file" id="f1e1" style="display:none">
+									<input type="file" id="f1e2" style="display:none">
+									<input type="file" id="f1e3" style="display:none">
+									<input type="hidden" id="flist" value="" />
+									<div id="show_pic" style="display:none;padding-bottom:10px;"></div>
+									<button onclick="upload_attachment('f1')" id="new_upload_attachment" type="button" class="btn btn-danger">上传合同附件</button>
+								</div>
+							</div>
+							</form>
+					</div>
+					<div class="modal-footer">
+						<button onclick="uploadAttachment()" type="button" class="btn btn-primary">更新</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>					
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="modal fade" id="school_remarks" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">更新学校备注</h4>
+					</div>
+					<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+			      <button data-dismiss="alert" class="close close-sm" type="button">
+			      <i class="fa fa-times"></i>
+			      </button>
+			      <strong>Success!</strong> You  just achieved success.
+			  	</div>
+			  	<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+		        <button data-dismiss="alert" class="close close-sm" type="button">
+		        <i class="fa fa-times"></i>
+		        </button>
+		        <strong id="error_info"></strong>
+		      </div>
+					<div class="modal-body">
+							<form class="form-horizontal" autocomplete="off">							
+							<div class="form-group">
+								<label class="col-sm-3 control-label">学校名称</label>
+								<div class="col-sm-8">
+									<label id="schoolName"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">备注内容</label>
+								<div class="col-sm-8">
+										<input type="hidden" id="school_name" value="" />
+										<textarea name="remarks" id="remarks" class="form-control" style="width:100%;height:80px;color:#797979;" placeholder="请输入内容"></textarea>
+								</div>
+							</div>
+							</form>
+					</div>
+					<div class="modal-footer">
+						<button onclick="updateRemarks()" type="button" class="btn btn-primary">更新</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>					
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="modal fade" id="loading_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop='static' style="z-index:99999;">
+			<div class="modal-dialog" role="document" style="width:350px;">
+				<div class="modal-content">
+					<div class="modal-header">
+					</div>
+					<div class="modal-body">
+							<div style="text-align:center;color:#0066CC;"><img src="img/input-spinner.gif" /> 正在执行，请稍后...</div>
+					</div>
+					
+				</div>
+			</div>
+		</div>
 		<script src="js/jquery-1.8.3.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
 		<script src="js/jquery.dcjqaccordion.2.7.js"></script>
@@ -798,6 +911,7 @@
 					eId: '',
 					schoolid: 0,
 					school_name: '',
+					school_remarks: '',
 					currentId: 0,
 					currentSubId: '',
 					opened: 0,
@@ -957,6 +1071,27 @@
 									result.data[i].str_type = sltype(result.data[i].type,result.data[i].id,result.data[i].str_init,result.data[i].schoolName);
 									//result.data[i].str_type = '';
 									//result.data[i].str_parameters = '';
+									result.data[i].attachments = '';
+									result.data[i].str_flist = '';																
+									if (result.data[i].schoolAttachments != null)
+									{
+											if (result.data[i].schoolAttachments.remarks != null) result.data[i].str_remarks = result.data[i].schoolAttachments.remarks;
+											if (result.data[i].schoolAttachments.contractFile1 != null)
+											{
+													result.data[i].attachments += '<a href="'+result.data[i].schoolAttachments.contractFile1+'" target="_blank">合同1</a>&nbsp;&nbsp;';
+													result.data[i].str_flist = result.data[i].schoolAttachments.contractFile1;
+											}
+											if (result.data[i].schoolAttachments.contractFile2 != null)
+											{
+													result.data[i].attachments += '<a href="'+result.data[i].schoolAttachments.contractFile2+'" target="_blank">合同2</a>&nbsp;&nbsp;';
+													result.data[i].str_flist += ','+result.data[i].schoolAttachments.contractFile2;
+											}
+											if (result.data[i].schoolAttachments.contractFile3 != null)
+											{
+													result.data[i].attachments += '<a href="'+result.data[i].schoolAttachments.contractFile3+'" target="_blank">合同3</a>&nbsp;&nbsp;';
+													result.data[i].str_flist += ','+result.data[i].schoolAttachments.contractFile3;
+											}
+									}
 							};
 							that.subject = result.data;
 							//console.log(that.subject);
@@ -1913,7 +2048,324 @@
 			   			//console.log(data);
 			   	});     
 					
-			}						
+			}
+			
+			function show_update_remarks(id,name)
+			{
+					$('#school_remarks #schoolName').html(name);
+					$('#school_remarks #school_name').val(name);
+					$('#school_remarks #remarks').val($('#example #remarks'+id).html());
+					v.schoolid = id;
+					$('#school_remarks').modal('show');
+			}
+			
+			function updateRemarks()
+			{
+					var str_remarks = $('#school_remarks #remarks').val();
+					if (str_remarks != '')
+					{
+							var json = {};
+							
+							var str_url = "school/updateSchoolAttachments";
+ 							json['name'] = $('#school_remarks #school_name').val();
+ 							json['remarks'] = str_remarks;
+ 							show_loading();
+ 							
+ 							$.post(str_url, json,
+					   	function(data){
+					   			$('#loading_id').modal('hide');
+					   			if (parseInt(data.code) == 0)
+					   			{
+					   					$('#example #remarks'+v.schoolid).html(str_remarks);
+					   					$('#school_remarks #alert_success').css('marginTop','10px');
+					   					$('#school_remarks #alert_success').css('marginLeft','10%');
+					   					$('#school_remarks #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+					   					v.schoolid = 0;
+					   					setTimeout(function(){$('#school_remarks').modal('hide');$('.modal-backdrop').remove();}, 2000);
+					   			}else
+					   			{
+					   					$('#school_remarks #alert_error').css('marginTop','10px');
+					   					$('#school_remarks #alert_error').css('marginLeft','10%');
+					   					$('#school_remarks #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+			          			$("#school_remarks #error_info").html(data.message);
+				        			return false;
+					   			}
+					   	});
+					}else
+					{
+							$('#school_remarks #alert_error').css('marginTop','10px');
+        			$('#school_remarks #alert_error').css('marginLeft','10%');
+	   					$('#school_remarks #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+        			$("#school_remarks #error_info").html('备注内容不能为空！');
+					}
+					
+			}
+			
+			function show_upload_attachment(name,str_flist)	
+			{
+					$('#school_attachments #schoolName').html(name);
+					$('#school_attachments #school_name').val(name);
+					$("#school_attachments #show_pic").empty();
+					//初始化已上传的合同
+					if (str_flist != '')
+					{							
+							$("#school_attachments #flist").val(str_flist);
+							var arr = str_flist.split(',');
+							var str_html = '';
+							var t = 1;
+							for(var i=0;i<arr.length;i++)
+							{
+									$("#school_attachments #show_pic").append('<div style="line-height:40px;" id="attach'+t+'"><a href="/statics'+arr[i]+'" target="_blank">查看合同'+t+'</a>&nbsp;&nbsp;<button onclick="upload_attachment(\'f1e'+t+'\')" id="edit_upload_attachment" type="button" class="btn btn-primary" style="">重新上传</button></div>');
+									t++;
+							}
+							$("#school_attachments #show_pic").show();
+					}else
+					{
+							$("#school_attachments #flist").val('');
+					}
+					$('#school_attachments').modal('show');
+			}
+			
+			function upload_attachment(fname)
+			{
+					document.getElementById(fname).click(); 
+			}
+			
+			function uploadAttachment()
+			{
+					var flist = $("#school_attachments #flist").val();
+					if (flist != '')
+					{
+							var json = {};
+							var arr = flist.split(',');
+							var t = 1;
+ 							for(var i=0;i<arr.length;i++)
+ 							{
+   								json['contractFile'+t] = arr[i];
+   								t++;
+ 							}
+ 							
+ 							var str_url = "school/updateSchoolAttachments";
+ 							json['name'] = $('#school_attachments #school_name').val();
+ 							show_loading();
+ 							
+ 							$.post(str_url, json,
+					   	function(data){
+					   			$('#loading_id').modal('hide');
+					   			if (parseInt(data.code) == 0)
+					   			{					   					
+					   					$('#school_attachments #alert_success').css('marginTop','10px');
+					   					$('#school_attachments #alert_success').css('marginLeft','10%');
+					   					$('#school_attachments #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+					   					setTimeout(function(){$('#school_attachments').modal('hide');v.getDatalist();$('.modal-backdrop').remove();}, 2000);
+					   			}else
+					   			{
+					   					$('#school_attachments #alert_error').css('marginTop','10px');
+					   					$('#school_attachments #alert_error').css('marginLeft','10%');
+					   					$('#school_attachments #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+			          			$("#school_attachments #error_info").html(data.message);
+				        			return false;
+					   			}
+					   	});
+					}else
+					{
+							$('#school_attachments #alert_error').css('marginTop','10px');
+        			$('#school_attachments #alert_error').css('marginLeft','10%');
+	   					$('#school_attachments #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+        			$("#school_attachments #error_info").html('请至少上传1个合同附件！');
+					}
+			}
+			
+			$('#school_attachments #f1').live('change', function (e) {
+					var formData = new FormData();					
+					formData.append("file",$("#f1")[0].files[0]);
+					var flist = $("#school_attachments #flist").val();
+					var arr_flist = Array();
+					var i = 0;
+					if (flist != '')
+					{
+							arr_flist = flist.split(",");
+							i = arr_flist.length;
+					}
+					
+					if (i < 3)
+					{					
+							$.ajax({
+					        url:'school/upload_contract_file',
+					        dataType:'json',
+					        type:'POST',
+					        async: false,
+					        data: formData,
+					        processData : false, //使数据不做处理
+					        contentType : false,
+					        success: function(data){			        		
+					            if (data.code == '0') {			            		
+					            		if (flist)
+					            		{
+					            				$("#school_attachments #flist").val(flist+','+data.data);
+					            		}else
+					            		{
+					            				$("#school_attachments #flist").val(data.data);
+					            		}
+							        		$("#school_attachments #show_pic").append('<a href="/statics'+data.data+'" target="_blank">查看合同</a>&nbsp;');
+							        		$("#school_attachments #show_pic").show();
+					            }else
+					            {
+					            		$('#school_attachments #alert_error').css('marginTop','10px');
+					          			$('#school_attachments #alert_error').css('marginLeft','10%');
+							   					$('#school_attachments #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+					          			$("#school_attachments #error_info").html('上传失败！');
+					            }	
+					        },
+					        error:function(response){
+					            console.log(response);
+					        }
+					    });
+			  	}else
+			  	{
+			  			$('#school_attachments #alert_error').css('marginTop','10px');
+        			$('#school_attachments #alert_error').css('marginLeft','10%');
+	   					$('#school_attachments #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+        			$("#school_attachments #error_info").html('只允许最多上传3份！');
+			  	}
+			});
+			
+			$('#school_attachments #f1e1').live('change', function (e) {
+					var formData = new FormData();					
+					formData.append("file",$("#f1e1")[0].files[0]);
+					var flist = $("#school_attachments #flist").val();
+					var arr_flist = Array();
+					var current_fpath = '';
+					if (flist != '')
+					{
+							arr_flist = flist.split(",");
+							current_fpath = arr_flist[0];
+					}
+					
+					if (current_fpath != '')
+					{					
+							$.ajax({
+					        url:'school/upload_contract_file',
+					        dataType:'json',
+					        type:'POST',
+					        async: false,
+					        data: formData,
+					        processData : false, //使数据不做处理
+					        contentType : false,
+					        success: function(data){			        		
+					            if (data.code == '0') {
+					            		flist = flist.replace(current_fpath,data.data);
+					            		$("#school_attachments #flist").val(flist);
+					            		$("#school_attachments #show_pic #attach1").append('&nbsp;&nbsp;<a href="/statics'+data.data+'" target="_blank">新上传的合同1</a>');
+					            }else
+					            {
+					            		$('#school_attachments #alert_error').css('marginTop','10px');
+					          			$('#school_attachments #alert_error').css('marginLeft','10%');
+							   					$('#school_attachments #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+					          			$("#school_attachments #error_info").html('上传失败！');
+					            }	
+					        },
+					        error:function(response){
+					            console.log(response);
+					        }
+					    });
+			  	}
+			});
+			
+			$('#school_attachments #f1e2').live('change', function (e) {
+					var formData = new FormData();					
+					formData.append("file",$("#f1e2")[0].files[0]);
+					var flist = $("#school_attachments #flist").val();
+					var arr_flist = Array();
+					var current_fpath = '';
+					if (flist != '')
+					{
+							arr_flist = flist.split(",");
+							current_fpath = arr_flist[1];
+					}
+					
+					if (current_fpath != '')
+					{					
+							$.ajax({
+					        url:'school/upload_contract_file',
+					        dataType:'json',
+					        type:'POST',
+					        async: false,
+					        data: formData,
+					        processData : false, //使数据不做处理
+					        contentType : false,
+					        success: function(data){			        		
+					            if (data.code == '0') {
+					            		flist = flist.replace(current_fpath,data.data);
+					            		$("#school_attachments #flist").val(flist);
+					            		$("#school_attachments #show_pic #attach2").append('&nbsp;&nbsp;<a href="/statics'+data.data+'" target="_blank">新上传的合同2</a>');
+					            }else
+					            {
+					            		$('#school_attachments #alert_error').css('marginTop','10px');
+					          			$('#school_attachments #alert_error').css('marginLeft','10%');
+							   					$('#school_attachments #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+					          			$("#school_attachments #error_info").html('上传失败！');
+					            }	
+					        },
+					        error:function(response){
+					            console.log(response);
+					        }
+					    });
+			  	}
+			});
+			
+			$('#school_attachments #f1e3').live('change', function (e) {
+					var formData = new FormData();					
+					formData.append("file",$("#f1e3")[0].files[0]);
+					var flist = $("#school_attachments #flist").val();
+					var arr_flist = Array();
+					var current_fpath = '';
+					if (flist != '')
+					{
+							arr_flist = flist.split(",");
+							current_fpath = arr_flist[2];
+					}
+					
+					if (current_fpath != '')
+					{					
+							$.ajax({
+					        url:'school/upload_contract_file',
+					        dataType:'json',
+					        type:'POST',
+					        async: false,
+					        data: formData,
+					        processData : false, //使数据不做处理
+					        contentType : false,
+					        success: function(data){			        		
+					            if (data.code == '0') {
+					            		flist = flist.replace(current_fpath,data.data);
+					            		$("#school_attachments #flist").val(flist);
+					            		$("#school_attachments #show_pic #attach3").append('&nbsp;&nbsp;<a href="/statics'+data.data+'" target="_blank">新上传的合同3</a>');
+					            }else
+					            {
+					            		$('#school_attachments #alert_error').css('marginTop','10px');
+					          			$('#school_attachments #alert_error').css('marginLeft','10%');
+							   					$('#school_attachments #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+					          			$("#school_attachments #error_info").html('上传失败！');
+					            }	
+					        },
+					        error:function(response){
+					            console.log(response);
+					        }
+					    });
+			  	}
+			});
+			
+			function show_loading()
+			{
+					$('#loading_id').on('show.bs.modal', function(){
+	          var $this = $(this);
+	          var $modal_dialog = $this.find('.modal-dialog');
+	          $this.css('display', 'block');
+	          $modal_dialog.css({'margin-top': Math.max(0, ($(window).height() - $modal_dialog.height()) / 2) });
+	        });
+					$('#loading_id').modal('show');
+			}
 			
 			v.$watch('subject', function(obj) {
 					$('.default-date-picker1').datepicker({   				
