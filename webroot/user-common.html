@@ -211,6 +211,7 @@
 							<label class="control-label">备注 <span style="color:red;font-weight:bold;">(可填写之前任务邮件内容，如申请人数，资料坚果云地址。)</span></label>
 							<textarea id="c16" class="form-control" style="width:98%"></textarea>
 							<label id="school_setting_result" style="color:#428bca;"></label>
+							<label id="school_setting_remarks" style="color:#428bca;"></label>
 						</div>						
 				</div>
 				<div class="modal-footer" style="text-align: center;">
@@ -1187,6 +1188,15 @@ function addnewservice2_ajax_subject()
         type: 'GET',
         dataType: 'json'
       }).done(function(response) {
+      	//调用备注信息
+      	$("#addnewservice2_id #school_setting_remarks").html('');
+				if (response.data[0].schoolAttachments != null)
+				{
+						if (response.data[0].schoolAttachments.remarks != '')
+						{
+								$("#addnewservice2_id #school_setting_remarks").html('['+response.data[0].schoolAttachments.remarks+']');
+						}						
+				}
       	response = response.data;
       	for (var item in response)
       	{
@@ -1197,7 +1207,7 @@ function addnewservice2_ajax_subject()
       			}
       	}
       	school_subject.append("<option value='-1'>我要添加</option>");
-      	if(schoolSubject != '') school_subject.val(schoolid);		        	
+      	if(schoolSubject != '') school_subject.val(schoolid);      	
       });
 	}else
 	{
@@ -1403,7 +1413,7 @@ function loadSchoolCourses(schoolId)
 											$("#school_setting_result").html('温馨提示：暂无该学校/专业 佣金设置，请联系您的BM进行添加。');
 									}
 								});
-						}
+						}						
 					});
 }
 
