@@ -32,7 +32,6 @@ import org.zhinanzhen.b.service.pojo.CommissionOrderCommentDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
-import org.zhinanzhen.b.service.pojo.VisaDTO;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -105,6 +104,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "installmentDueDate8", required = false) String installmentDueDate8,
 			@RequestParam(value = "installmentDueDate9", required = false) String installmentDueDate9,
 			@RequestParam(value = "installmentDueDate10", required = false) String installmentDueDate10,
+			@RequestParam(value = "installmentDueDate11", required = false) String installmentDueDate11,
+			@RequestParam(value = "installmentDueDate12", required = false) String installmentDueDate12,
 			@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
 			@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
 			@RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
@@ -245,6 +246,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate9)));
 					} else if (installmentNum == 10 && installmentDueDate10 != null) {
 						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate10)));
+					} else if (installmentNum == 11 && installmentDueDate11 != null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate11)));
+					} else if (installmentNum == 12 && installmentDueDate12 != null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate12)));
 					} else
 						break;
 					commissionOrderDto.setState(ReviewKjStateEnum.PENDING.toString());
