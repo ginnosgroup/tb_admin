@@ -33,7 +33,7 @@ public class Scheduled {
     private  SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     //每月发送一次邮件
-    @org.springframework.scheduling.annotation.Scheduled(cron = "0 */5 * * * ?")
+    //@org.springframework.scheduling.annotation.Scheduled(cron = "0 */5 * * * ?")
     public void everyMonth(){
         calendar  = Calendar.getInstance();
         System.out.println("邮件开始发送");
@@ -59,7 +59,7 @@ public class Scheduled {
     }
 
     //每周发送
-    @org.springframework.scheduling.annotation.Scheduled(cron = " 0 */5 * * * ?")
+    //@org.springframework.scheduling.annotation.Scheduled(cron = " 0 */5 * * * ?")
     public void everyWeek(){
 
          //* 上周五
