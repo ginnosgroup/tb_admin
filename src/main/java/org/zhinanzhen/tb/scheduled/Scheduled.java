@@ -37,7 +37,7 @@ public class Scheduled {
     String endDate = "2020-09-25";
 
     //    1-25号
-    @org.springframework.scheduling.annotation.Scheduled(cron = " 0 0 12 * * ?")
+    @org.springframework.scheduling.annotation.Scheduled(cron = " 0 0 16 * * ?")
     public void everyMonth(){
         calendar  = Calendar.getInstance();
         //String endDate = sdf.format(calendar.getTime());            //也就是当前时间
@@ -82,7 +82,7 @@ public class Scheduled {
     }
 
     //上周六到本周五
-    @org.springframework.scheduling.annotation.Scheduled(cron = " 0 0 12 * * ?")
+    @org.springframework.scheduling.annotation.Scheduled(cron = " 0 0 16 * * ?")
     public void everyWeek(){
         /**
          * 上周五
