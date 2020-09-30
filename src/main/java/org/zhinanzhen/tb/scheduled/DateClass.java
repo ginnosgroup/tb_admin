@@ -39,21 +39,16 @@ public class DateClass {
 
 
     public static void main(String[] args) {
-        /*SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:MM:ss");
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-        System.out.println(Calendar.DAY_OF_WEEK+"Calendar.DAY_OF_WEEK");
-        System.out.println( Calendar.MONDAY+" Calendar.MONDAY");
-        System.out.println("本周一: "+sdf.format(calendar.getTime()));*/
-        //System.out.println(sdf.format(calendar.getTime()));
-        //lastFirday();
+        Calendar instance = Calendar.getInstance();
+        lastSaturday(instance);
     }
 
-    public static String lastFirday(Calendar instance) {
+    //上周五
+    public static String lastSaturday(Calendar instance) {
 
         // 当前日期
         instance = Calendar.getInstance();
-        instance.set(Calendar.DAY_OF_WEEK,6);
+        instance.set(Calendar.DAY_OF_WEEK,7);
         instance.add(Calendar.DAY_OF_MONTH, -7);
 
         System.out.println(sdf.format(instance.getTime()));
@@ -61,5 +56,16 @@ public class DateClass {
         return sdf.format(instance.getTime());
     }
 
+    //本月一号
+    public static String thisMonthFirstDay(Calendar instance) {
+
+        // 当前日期
+        instance.add(Calendar.MONTH, 0);
+        instance.set(Calendar.DAY_OF_MONTH, 1);
+
+        System.out.println(sdf.format(instance.getTime()));
+
+        return sdf.format(instance.getTime());
+    }
 
 }

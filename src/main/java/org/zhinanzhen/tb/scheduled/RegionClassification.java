@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class RegionClassification {
 
-    //各个地区分类
+    // dataDTOList 按照地区进行分类，返回每个地区顾问的数据
     public  static List<List<DataDTO>> classification (List<DataDTO> dataDTOList){
         //每一个area的数据
         HashSet<String> areaset = new HashSet();
