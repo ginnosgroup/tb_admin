@@ -69,6 +69,26 @@ public class EmailModel {
         return content;
     }
 
+    public static StringBuilder areaModelNoDate(DataDTO data){
+        StringBuilder content = new StringBuilder();
+        content.append("<table border=\"5\" style=\"border:solid 1px #E8F2F9;font-size=14px;;font-size:18px;\">");
+        content.append("<tr style=\"background-color: #428BCA; color:#ffffff\">" +
+                "<th>Area</th><th>deductionCommission</th><th>claimCommission</th><th>claimedCommission</th><th>serviceFee</th><th>total</th>" +
+                "</tr>");
+
+            content.append("<tr>");
+            content.append("<td>" + data.getArea() + "</td>"); //第二列
+            content.append("<td>" + data.getDeductionCommission() + "</td>");
+            content.append("<td>" + data.getClaimCommission() + "</td>");
+            content.append("<td>" + data.getClaimedCommission() + "</td>");
+            content.append("<td>" + data.getServiceFee() + "</td>");
+            content.append("<td>" + data.getTotal() + "</td>");
+            content.append("</tr>");
+        content.append("</table>");
+        return content;
+    }
+
+
     //全area地区的RankModel   有金额     dataDTOList
     public  static StringBuilder rankModelHave(List<DataDTO> areaRankModel){
         StringBuilder content = new StringBuilder();
