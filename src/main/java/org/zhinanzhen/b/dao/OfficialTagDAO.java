@@ -8,6 +8,8 @@ import org.zhinanzhen.b.dao.pojo.OfficialTagDO;
 public interface OfficialTagDAO {
 
 	int addOfficialTag(OfficialTagDO officialTagDO);
+	
+	int updateOfficialTag(OfficialTagDO officialTagDO);
 
 	List<OfficialTagDO> listOfficialTag();
 

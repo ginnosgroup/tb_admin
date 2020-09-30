@@ -29,4 +29,15 @@ public class OfficialTagServiceImpl extends BaseService implements OfficialTagSe
 		return officialTagDao.addOfficialTag(officialTagDo) > 0 ? officialTagDo.getId() : 0;
 	}
 
+	@Override
+	public int updateOfficialTag(OfficialTagDTO officialTagDto) throws ServiceException {
+		if (officialTagDto == null) {
+			ServiceException se = new ServiceException("officialTagDto is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		OfficialTagDO officialTagDo = mapper.map(officialTagDto, OfficialTagDO.class);
+		return officialTagDao.updateOfficialTag(officialTagDo) > 0 ? officialTagDo.getId() : 0;
+	}
+
 }

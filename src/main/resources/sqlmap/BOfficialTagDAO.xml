@@ -17,6 +17,18 @@
                 #{colour});
     </insert>
     
+    <update id="updateOfficialTag" parameterType="org.zhinanzhen.b.dao.pojo.OfficialTagDO">
+        UPDATE b_official_tag 
+        SET gmt_modify = now()
+        <if test='name != null and name != ""'>
+            , name = #{name}
+        </if>
+        <if test='colour != null and colour != ""'>
+            , colour = #{colour}
+        </if>
+        WHERE id = #{id};
+    </update>
+    
     <select id="listOfficialTag" resultType="org.zhinanzhen.b.dao.pojo.OfficialTagDO">
         SELECT
             id,
