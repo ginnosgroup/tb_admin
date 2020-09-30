@@ -169,13 +169,14 @@ CREATE TABLE `tb_admin_user` (
   `mara_id` int DEFAULT NULL COMMENT '所属Mara编号 (对应b_mara.id)',
   `official_id` int DEFAULT NULL COMMENT '所属文案编号 (对应b_official.id)',
   `kj_id` int DEFAULT NULL COMMENT '所属会计编号 (对应b_kj.id)',
-`region_id` int NOT NULL COMMENT '所属区域编号 (对应tb_region.id,不为空就是顾问管理员)',
-`is_official_admin` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否为文案管理员',
+  `region_id` int NOT NULL COMMENT '所属区域编号 (对应tb_region.id,不为空就是顾问管理员)',
+  `is_official_admin` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否为文案管理员',
   `session_id` varchar(255) DEFAULT NULL COMMENT '当前session_id值',
   `gmt_login` datetime NOT NULL COMMENT '最后登录时间',
   `login_ip` varchar(50) NOT NULL COMMENT '最后登录IP',
   `status` varchar(8) NOT NULL DEFAULT 'ENABLED' COMMENT '账户状态标识 (ENABLED:可用,DISABLED:不可用)'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+ALTER TABLE `tb_admin_user` ADD INDEX index_name (`username`, `adviser_id`, `mara_id`, `official_id`, `kj_id`, `region_id`);
 
 -- ----------佣金系统相关表----------
 
@@ -221,6 +222,7 @@ CREATE TABLE `b_visa` (
   `remarks` text DEFAULT NULL COMMENT '备注',
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+ALTER TABLE `b_visa` ADD INDEX index_name (`user_id`, `adviser_id`, `mara_id`, `official_id`);
 
 -- 签证佣金订单评论
 CREATE TABLE `b_visa_comment` (
@@ -231,6 +233,7 @@ CREATE TABLE `b_visa_comment` (
   `visa_id` int NOT NULL COMMENT '签证佣金订单编号 (对应b_visa.id)',
   `content` text NOT NULL COMMENT '内容'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+ALTER TABLE `b_visa_comment` ADD INDEX index_name (`admin_user_id`, `visa_id`);
 
 -- 移民佣金 (OLD)
 CREATE TABLE `b_brokerage` (
@@ -408,6 +411,7 @@ CREATE TABLE `b_service_order` (
   `closed_reason` varchar(255) DEFAULT NULL COMMENT '关闭原因',
   `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已删除'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+ALTER TABLE `b_service_order` ADD INDEX index_name (`user_id`, `adviser_id`, `official_id`, `mara_id`, `state`, `service_id`, `parent_id`);
 
 CREATE TABLE `b_service_order_review` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
@@ -422,6 +426,7 @@ CREATE TABLE `b_service_order_review` (
   `type` varchar(8) NOT NULL COMMENT '类型 (APPROVAL:通过,REFUSE:驳回)',
   `admin_user_id` int NOT NULL COMMENT '管理员编号 (对应tb_admin_user.id)'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+ALTER TABLE `b_service_order_review` ADD INDEX index_name (`service_order_id`, `commission_order_id`);
 
 -- 服务订单评论
 CREATE TABLE `b_service_order_comment` (
@@ -442,6 +447,7 @@ CREATE TABLE `b_service_order_official_remarks` (
   `service_order_id` int NOT NULL COMMENT '服务订单编号 (对应b_service_order.id)',
   `content` text NOT NULL COMMENT '内容'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+ALTER TABLE `b_service_order_official_remarks` ADD INDEX index_name (`official_id`, `service_order_id`);
 
 -- 服务订单文案标签关联
 CREATE TABLE `b_service_order_official_tag` (
@@ -451,6 +457,7 @@ CREATE TABLE `b_service_order_official_tag` (
   `service_order_id` int NOT NULL COMMENT '服务订单编号 (对应b_service_order.id)',
   `official_tag_id` int NOT NULL COMMENT '标签编号(对应b_official_tag.id)'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+ALTER TABLE `b_service_order_official_tag` ADD INDEX index_name (`service_order_id`, `official_tag_id`);
 
 -- 服务订单文案标签
 CREATE TABLE `b_official_tag` (
@@ -512,6 +519,7 @@ CREATE TABLE `b_commission_order` (
   `remarks` text DEFAULT NULL COMMENT '备注',
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+ALTER TABLE `b_commission_order` ADD INDEX index_name (`school_id`, `user_id`, `adviser_id`, `official_id`);
 
 -- (留学)佣金订单评论
 CREATE TABLE `b_commission_order_comment` (
@@ -522,6 +530,7 @@ CREATE TABLE `b_commission_order_comment` (
   `commission_order_id` int NOT NULL COMMENT '佣金订单编号 (对应b_commission_order.id)',
   `content` text NOT NULL COMMENT '内容'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+ALTER TABLE `b_commission_order_comment` ADD INDEX index_name (`admin_user_id`, `commission_order_id`);
 
 -- 留学-学校
 CREATE TABLE `b_school` (
