@@ -723,7 +723,7 @@
 						var that = this;
 						var json = {};
 						show_loading();
-						/*if (this.gw_regionid != 'null')
+						if (this.gw_regionid != 'null')
 						{
 								if (this.adviserId == undefined)
 								{
@@ -735,7 +735,7 @@
 						}else
 						{
 								if (that.adviserId != '0') json['adviserId'] = that.adviserId;
-						}*/
+						}
 						$.get(url + "user/count", json, function(result) {
 							console.log(result)
 							that.count = result.data;
@@ -755,6 +755,7 @@
 					getUser: function() {
 						var that = this;
 						show_loading();
+						if (that.adviserId === undefined) that.adviserId = that.adviser_id;
 						$.get(url + "user/count", {
 							name: that.name,
 							phone: that.phone,
