@@ -91,10 +91,12 @@ public class UserController extends BaseController {
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
-//				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
-//				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
-//				for (RegionDTO region : regionList)
-//					regionIdList.add(region.getId());
+				if (regionIdList == null) {
+					List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
+					regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
+					for (RegionDTO region : regionList)
+						regionIdList.add(region.getId());
+				}
 			} else {
 				Integer newAdviserId = getAdviserId(request);
 				if (newAdviserId != null)
@@ -149,10 +151,12 @@ public class UserController extends BaseController {
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
-//				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
-//				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
-//				for (RegionDTO region : regionList)
-//					regionIdList.add(region.getId());
+				if (regionIdList == null) {
+					List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
+					regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
+					for (RegionDTO region : regionList)
+						regionIdList.add(region.getId());
+				}
 			} else {
 				Integer newAdviserId = getAdviserId(request);
 				if (newAdviserId != null)
