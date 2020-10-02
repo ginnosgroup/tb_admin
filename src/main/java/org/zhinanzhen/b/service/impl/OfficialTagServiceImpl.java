@@ -19,7 +19,7 @@ public class OfficialTagServiceImpl extends BaseService implements OfficialTagSe
 	private OfficialTagDAO officialTagDao;
 
 	@Override
-	public int addOfficialTag(OfficialTagDTO officialTagDto) throws ServiceException {
+	public int add(OfficialTagDTO officialTagDto) throws ServiceException {
 		if (officialTagDto == null) {
 			ServiceException se = new ServiceException("officialTagDto is null !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -30,7 +30,7 @@ public class OfficialTagServiceImpl extends BaseService implements OfficialTagSe
 	}
 
 	@Override
-	public int updateOfficialTag(OfficialTagDTO officialTagDto) throws ServiceException {
+	public int update(OfficialTagDTO officialTagDto) throws ServiceException {
 		if (officialTagDto == null) {
 			ServiceException se = new ServiceException("officialTagDto is null !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -38,6 +38,37 @@ public class OfficialTagServiceImpl extends BaseService implements OfficialTagSe
 		}
 		OfficialTagDO officialTagDo = mapper.map(officialTagDto, OfficialTagDO.class);
 		return officialTagDao.updateOfficialTag(officialTagDo) > 0 ? officialTagDo.getId() : 0;
+	}
+
+	@Override
+	public OfficialTagDTO get(int id) throws ServiceException {
+		if (id <= 0) {
+			ServiceException se = new ServiceException("id error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		OfficialTagDTO officialTagDto = null;
+		try {
+			OfficialTagDO officialTagDo = officialTagDao.getOfficialTagById(id);
+			if (officialTagDo == null)
+				return null;
+			officialTagDto = mapper.map(officialTagDo, OfficialTagDTO.class);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+		return officialTagDto;
+	}
+
+	@Override
+	public int delete(int id) throws ServiceException {
+		if (id <= 0) {
+			ServiceException se = new ServiceException("id error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		return officialTagDao.deleteOfficialTagById(id);
 	}
 
 }

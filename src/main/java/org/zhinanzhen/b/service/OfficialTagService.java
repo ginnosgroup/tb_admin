@@ -5,8 +5,12 @@ import org.zhinanzhen.tb.service.ServiceException;
 
 public interface OfficialTagService {
 
-	int addOfficialTag(OfficialTagDTO officialTagDto) throws ServiceException;
+	int add(OfficialTagDTO officialTagDto) throws ServiceException;
 	
-	int updateOfficialTag(OfficialTagDTO officialTagDto) throws ServiceException;
+	int update(OfficialTagDTO officialTagDto) throws ServiceException;
+	
+	OfficialTagDTO get(int id) throws ServiceException;
+	
+	int delete(int id) throws ServiceException;
 
 }

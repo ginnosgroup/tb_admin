@@ -38,7 +38,7 @@ public class OfficialTagController extends BaseController {
 			OfficialTagDTO officialTagDto = new OfficialTagDTO();
 			officialTagDto.setName(name);
 			officialTagDto.setColour(colour);
-			if (officialTagService.addOfficialTag(officialTagDto) > 0)
+			if (officialTagService.add(officialTagDto) > 0)
 				return new Response<Integer>(0, officialTagDto.getId());
 			else
 				return new Response<Integer>(1, "创建失败.", 0);
