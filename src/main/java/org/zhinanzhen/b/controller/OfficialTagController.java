@@ -95,5 +95,26 @@ public class OfficialTagController extends BaseController {
 			return new Response<Boolean>(e.getCode(), e.getMessage(), false);
 		}
 	}
+	
+	@RequestMapping(value = "/addServiceOrderOfficialTag", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> addServiceOrderOfficialTag(@RequestParam(value = "id") Integer id,
+			@RequestParam(value = "serviceOrderId") Integer serviceOrderId, HttpServletRequest request,
+			HttpServletResponse response) {
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo != null)
+			if (adminUserLoginInfo == null || !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					|| adminUserLoginInfo.getOfficialId() == null)
+				return new Response<Integer>(1, "仅限文案操作.", null);
+		try {
+			super.setPostHeader(response);
+			if (officialTagService.addServiceOrderOfficialTag(id, serviceOrderId) > 0)
+				return new Response<Integer>(0, id);
+			else
+				return new Response<Integer>(1, "创建失败.", 0);
+		} catch (ServiceException e) {
+			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
+		}
+	}
 
 }

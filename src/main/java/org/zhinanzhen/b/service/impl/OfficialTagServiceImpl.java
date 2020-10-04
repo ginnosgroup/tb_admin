@@ -4,6 +4,7 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.OfficialTagDAO;
+import org.zhinanzhen.b.dao.ServiceOrderOfficialTagDAO;
 import org.zhinanzhen.b.dao.pojo.OfficialTagDO;
 import org.zhinanzhen.b.service.OfficialTagService;
 import org.zhinanzhen.b.service.pojo.OfficialTagDTO;
@@ -17,6 +18,9 @@ public class OfficialTagServiceImpl extends BaseService implements OfficialTagSe
 
 	@Resource
 	private OfficialTagDAO officialTagDao;
+
+	@Resource
+	ServiceOrderOfficialTagDAO ServiceOrderOfficialTagDao;
 
 	@Override
 	public int add(OfficialTagDTO officialTagDto) throws ServiceException {
@@ -69,6 +73,21 @@ public class OfficialTagServiceImpl extends BaseService implements OfficialTagSe
 			throw se;
 		}
 		return officialTagDao.deleteOfficialTagById(id);
+	}
+
+	@Override
+	public int addServiceOrderOfficialTag(int id, int serviceOrderId) throws ServiceException {
+		if (id <= 0) {
+			ServiceException se = new ServiceException("id error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		if (serviceOrderId <= 0) {
+			ServiceException se = new ServiceException("serviceOrderId error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		return ServiceOrderOfficialTagDao.addServiceOrderOfficialTag(id, serviceOrderId) > 0 ? id : 0;
 	}
 
 }
