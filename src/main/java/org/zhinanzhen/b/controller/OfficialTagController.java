@@ -117,4 +117,25 @@ public class OfficialTagController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/deleteServiceOrderOfficialTagById", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Boolean> deleteServiceOrderOfficialTagById(
+			@RequestParam(value = "serviceOrderOfficialTagId") Integer serviceOrderOfficialTagId,
+			HttpServletRequest request, HttpServletResponse response) {
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo != null)
+			if (adminUserLoginInfo == null || !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					|| adminUserLoginInfo.getOfficialId() == null)
+				return new Response<Boolean>(1, "仅限文案操作.", false);
+		try {
+			super.setPostHeader(response);
+			if (officialTagService.deleteServiceOrderOfficialTagById(serviceOrderOfficialTagId) > 0)
+				return new Response<Boolean>(0, true);
+			else
+				return new Response<Boolean>(1, "删除失败.", false);
+		} catch (ServiceException e) {
+			return new Response<Boolean>(e.getCode(), e.getMessage(), false);
+		}
+	}
+
 }

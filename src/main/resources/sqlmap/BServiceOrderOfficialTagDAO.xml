@@ -14,11 +14,15 @@
                 now(),
                 now(),
                 #{serviceOrderId},
-                #{id});
+                #{officialTagId});
     </insert>
     
     <delete id="deleteServiceOrderOfficialTagById" parameterType="java.lang.Integer">
 		DELETE FROM b_service_order_official_tag WHERE id = #{id, jdbcType=INTEGER}
+	</delete>
+	
+	<delete id="deleteServiceOrderOfficialTagByOfficialTagId" parameterType="java.lang.Integer">
+		DELETE FROM b_service_order_official_tag WHERE official_tag_id = #{officialTagId, jdbcType=INTEGER}
 	</delete>
 
 </mapper>

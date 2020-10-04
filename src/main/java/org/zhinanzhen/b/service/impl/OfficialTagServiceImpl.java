@@ -3,6 +3,7 @@ package org.zhinanzhen.b.service.impl;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.OfficialTagDAO;
 import org.zhinanzhen.b.dao.ServiceOrderOfficialTagDAO;
 import org.zhinanzhen.b.dao.pojo.OfficialTagDO;
@@ -66,12 +67,14 @@ public class OfficialTagServiceImpl extends BaseService implements OfficialTagSe
 	}
 
 	@Override
+	@Transactional
 	public int delete(int id) throws ServiceException {
 		if (id <= 0) {
 			ServiceException se = new ServiceException("id error !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
+		ServiceOrderOfficialTagDao.deleteServiceOrderOfficialTagByOfficialTagId(id);
 		return officialTagDao.deleteOfficialTagById(id);
 	}
 
@@ -88,6 +91,16 @@ public class OfficialTagServiceImpl extends BaseService implements OfficialTagSe
 			throw se;
 		}
 		return ServiceOrderOfficialTagDao.addServiceOrderOfficialTag(id, serviceOrderId) > 0 ? id : 0;
+	}
+
+	@Override
+	public int deleteServiceOrderOfficialTagById(int serviceOrderOfficialTagId) throws ServiceException {
+		if (serviceOrderOfficialTagId <= 0) {
+			ServiceException se = new ServiceException("serviceOrderOfficialTagId error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		return ServiceOrderOfficialTagDao.deleteServiceOrderOfficialTagById(serviceOrderOfficialTagId);
 	}
 
 }
