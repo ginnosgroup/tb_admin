@@ -1,5 +1,7 @@
 package org.zhinanzhen.b.service.impl;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
@@ -13,6 +15,7 @@ import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
 import com.ikasoa.core.ErrorCodeEnum;
+import com.ikasoa.core.utils.ListUtil;
 
 @Service("OfficialTagService")
 public class OfficialTagServiceImpl extends BaseService implements OfficialTagService {
@@ -43,6 +46,13 @@ public class OfficialTagServiceImpl extends BaseService implements OfficialTagSe
 		}
 		OfficialTagDO officialTagDo = mapper.map(officialTagDto, OfficialTagDO.class);
 		return officialTagDao.updateOfficialTag(officialTagDo) > 0 ? officialTagDo.getId() : 0;
+	}
+	
+	@Override
+	public List<OfficialTagDTO> list() throws ServiceException {
+		List<OfficialTagDTO> officialTagDtoList = ListUtil.newArrayList();
+		officialTagDao.listOfficialTag().forEach(ot -> officialTagDtoList.add(mapper.map(ot, OfficialTagDTO.class)));
+		return officialTagDtoList;
 	}
 
 	@Override

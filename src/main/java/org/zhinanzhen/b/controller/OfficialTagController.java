@@ -1,5 +1,7 @@
 package org.zhinanzhen.b.controller;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -70,6 +72,22 @@ public class OfficialTagController extends BaseController {
 				return new Response<Integer>(1, "修改失败.", 0);
 		} catch (ServiceException e) {
 			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
+		}
+	}
+
+	@RequestMapping(value = "/list", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<List<OfficialTagDTO>> updateOfficialTag(HttpServletRequest request, HttpServletResponse response) {
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo != null)
+			if (adminUserLoginInfo == null || !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					|| adminUserLoginInfo.getOfficialId() == null)
+				return new Response<List<OfficialTagDTO>>(1, "仅限文案操作.", null);
+		try {
+			super.setPostHeader(response);
+			return new Response<List<OfficialTagDTO>>(0, officialTagService.list());
+		} catch (ServiceException e) {
+			return new Response<List<OfficialTagDTO>>(e.getCode(), e.getMessage(), null);
 		}
 	}
 
