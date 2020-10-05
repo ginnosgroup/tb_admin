@@ -95,7 +95,7 @@ public class OfficialTagController extends BaseController {
 			return new Response<Boolean>(e.getCode(), e.getMessage(), false);
 		}
 	}
-	
+
 	@RequestMapping(value = "/addServiceOrderOfficialTag", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> addServiceOrderOfficialTag(@RequestParam(value = "id") Integer id,
@@ -119,9 +119,9 @@ public class OfficialTagController extends BaseController {
 
 	@RequestMapping(value = "/deleteServiceOrderOfficialTagById", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<Boolean> deleteServiceOrderOfficialTagById(
-			@RequestParam(value = "serviceOrderOfficialTagId") Integer serviceOrderOfficialTagId,
-			HttpServletRequest request, HttpServletResponse response) {
+	public Response<Boolean> deleteServiceOrderOfficialTagById(@RequestParam(value = "id") Integer id,
+			@RequestParam(value = "serviceOrderId") Integer serviceOrderId, HttpServletRequest request,
+			HttpServletResponse response) {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo != null)
 			if (adminUserLoginInfo == null || !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
@@ -129,7 +129,7 @@ public class OfficialTagController extends BaseController {
 				return new Response<Boolean>(1, "仅限文案操作.", false);
 		try {
 			super.setPostHeader(response);
-			if (officialTagService.deleteServiceOrderOfficialTagById(serviceOrderOfficialTagId) > 0)
+			if (officialTagService.deleteServiceOrderOfficialTagByTagIdAndServiceOrderId(id, serviceOrderId) > 0)
 				return new Response<Boolean>(0, true);
 			else
 				return new Response<Boolean>(1, "删除失败.", false);

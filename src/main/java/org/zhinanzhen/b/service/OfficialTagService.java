@@ -15,6 +15,6 @@ public interface OfficialTagService {
 
 	int addServiceOrderOfficialTag(int id, int serviceOrderId) throws ServiceException;
 
-	int deleteServiceOrderOfficialTagById(int serviceOrderOfficialTagId) throws ServiceException;
+	int deleteServiceOrderOfficialTagByTagIdAndServiceOrderId(int id, int serviceOrderId) throws ServiceException;
 
 }
