@@ -56,6 +56,14 @@
         FROM b_official_tag WHERE id = #{id, jdbcType=INTEGER};
     </select>
     
+    <select id="getOfficialTagByServiceOrderId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.OfficialTagDO">
+        SELECT
+            t.id,
+            t.name,
+            t.colour
+        FROM b_official_tag t, b_service_order_official_tag st WHERE t.id = st.official_tag_id AND st.service_order_id = #{serviceOrderId, jdbcType=INTEGER};
+    </select>
+    
     <delete id="deleteOfficialTagById" parameterType="java.lang.Integer">
 		DELETE FROM b_official_tag WHERE id = #{id, jdbcType=INTEGER}
 	</delete>
