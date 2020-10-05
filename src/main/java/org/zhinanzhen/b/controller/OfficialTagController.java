@@ -75,7 +75,7 @@ public class OfficialTagController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/list", method = RequestMethod.POST)
+	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<List<OfficialTagDTO>> updateOfficialTag(HttpServletRequest request, HttpServletResponse response) {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
@@ -91,7 +91,7 @@ public class OfficialTagController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/deleteOfficialTag", method = RequestMethod.POST)
+	@RequestMapping(value = "/deleteOfficialTag", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<Boolean> deleteOfficialTag(@RequestParam(value = "id") Integer id,
 			@RequestParam(value = "name") String name, @RequestParam(value = "colour") String colour,
@@ -135,7 +135,7 @@ public class OfficialTagController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/deleteServiceOrderOfficialTagById", method = RequestMethod.POST)
+	@RequestMapping(value = "/deleteServiceOrderOfficialTagById", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<Boolean> deleteServiceOrderOfficialTagById(@RequestParam(value = "id") Integer id,
 			@RequestParam(value = "serviceOrderId") Integer serviceOrderId, HttpServletRequest request,
