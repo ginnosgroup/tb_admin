@@ -755,7 +755,8 @@
 					getUser: function() {
 						var that = this;
 						show_loading();
-						if (that.adviserId === undefined) that.adviserId = that.adviser_id;
+						if (that.adviserId == undefined) that.adviserId = that.adviser_id;
+						if (that.adviserId == null) that.adviserId = '';
 						$.get(url + "user/count", {
 							name: that.name,
 							phone: that.phone,
