@@ -1173,8 +1173,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 								.getCommissionOrderById(id);
 						if (commissionOrderListDto == null)
 							return new Response<CommissionOrderListDTO>(1, "佣金订单不存在!", null);
-						serviceOrderService.refuse(id, adminUserLoginInfo.getId(), null, null, null,
-								state.toUpperCase());
+//						serviceOrderService.refuse(id, adminUserLoginInfo.getId(), null, null, null,
+//								state.toUpperCase());
 						commissionOrderListDto.setState(state);
 						if (commissionOrderService.updateCommissionOrder(commissionOrderListDto) > 0)
 							return new Response<CommissionOrderListDTO>(0, commissionOrderListDto);

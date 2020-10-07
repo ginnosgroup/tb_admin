@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.ServiceOrderOfficialTagDAO">
+
+    <insert id="addServiceOrderOfficialTag" parameterType="org.zhinanzhen.b.dao.pojo.ServiceOrderOfficialTagDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+            INTO b_service_order_official_tag (
+                gmt_create,
+                gmt_modify,
+                service_order_id,
+                official_tag_id)
+            VALUES (
+                now(),
+                now(),
+                #{serviceOrderId},
+                #{officialTagId});
+    </insert>
+    
+    <delete id="deleteServiceOrderOfficialTagByTagIdAndServiceOrderId">
+        DELETE FROM b_service_order_official_tag
+        WHERE official_tag_id = #{officialTagId, jdbcType=INTEGER} AND service_order_id = #{serviceOrderId, jdbcType=INTEGER};
+    </delete>
+    
+    <delete id="deleteServiceOrderOfficialTagByOfficialTagId" parameterType="java.lang.Integer">
+        DELETE FROM b_service_order_official_tag WHERE official_tag_id = #{officialTagId, jdbcType=INTEGER};
+    </delete>
+
+</mapper>

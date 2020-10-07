@@ -12,6 +12,7 @@ import org.zhinanzhen.b.dao.CommissionOrderDAO;
 import org.zhinanzhen.b.dao.KjDAO;
 import org.zhinanzhen.b.dao.MaraDAO;
 import org.zhinanzhen.b.dao.OfficialDAO;
+import org.zhinanzhen.b.dao.OfficialTagDAO;
 import org.zhinanzhen.b.dao.ReceiveTypeDAO;
 import org.zhinanzhen.b.dao.SchoolDAO;
 import org.zhinanzhen.b.dao.ServiceDAO;
@@ -24,6 +25,7 @@ import org.zhinanzhen.b.dao.SubagencyDAO;
 import org.zhinanzhen.b.dao.VisaDAO;
 import org.zhinanzhen.b.dao.pojo.MaraDO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
+import org.zhinanzhen.b.dao.pojo.OfficialTagDO;
 import org.zhinanzhen.b.dao.pojo.ReceiveTypeDO;
 import org.zhinanzhen.b.dao.pojo.SchoolDO;
 import org.zhinanzhen.b.dao.pojo.ServiceDO;
@@ -38,6 +40,7 @@ import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderOfficialRemarksDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
 import org.zhinanzhen.b.service.pojo.ServicePackageDTO;
+import org.zhinanzhen.b.service.pojo.OfficialTagDTO;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
@@ -107,6 +110,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	
 	@Resource
 	private ServiceOrderOfficialRemarksDAO serviceOrderOfficialRemarksDao;
+	
+	@Resource
+	private OfficialTagDAO officialTagDao;
 
 	@Resource
 	private VisaDAO visaDao;
@@ -257,6 +263,10 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDto.getOfficialId());
 			if (officialDo != null)
 				serviceOrderDto.setOfficial(mapper.map(officialDo, OfficialDTO.class));
+			// 查询文案Tag
+			OfficialTagDO officialTagDo = officialTagDao.getOfficialTagByServiceOrderId(serviceOrderDto.getId());
+			if (officialTagDo != null)
+				serviceOrderDto.setOfficialTag(mapper.map(officialTagDo, OfficialTagDTO.class));
 			// 查询子服务
 			if (serviceOrderDto.getParentId() <= 0) {
 				List<ChildrenServiceOrderDTO> childrenServiceOrderList = new ArrayList<>();
@@ -342,6 +352,10 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDto.getOfficialId());
 			if (officialDo != null)
 				serviceOrderDto.setOfficial(mapper.map(officialDo, OfficialDTO.class));
+			// 查询文案Tag
+			OfficialTagDO officialTagDo = officialTagDao.getOfficialTagByServiceOrderId(serviceOrderDto.getId());
+			if (officialTagDo != null)
+				serviceOrderDto.setOfficialTag(mapper.map(officialTagDo, OfficialTagDTO.class));
 			// 是否有创建过佣金订单
 			if ("OVST".equalsIgnoreCase(serviceOrderDto.getType()))
 				serviceOrderDto.setHasCommissionOrder(commissionOrderDao
