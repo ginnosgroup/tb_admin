@@ -47,13 +47,13 @@ public class Scheduled {
     //String endDate = "2020-09-25";
 
     //    1-25号
-    @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 9 ?  *  FRI")
+    @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 9 ?  *  SAT")
     public void everyWeek(){
 
 
         String startDate = DateClass.thisMonthFirstDay(Calendar.getInstance());   //本月一号的时间
         String lastSaturdayDate = DateClass.lastSaturday(Calendar.getInstance()); //上周六
-        String endDate = sdf.format(Calendar.getInstance().getTime());            //也就是当前时间
+        String endDate = DateClass.thisMonthFriday(Calendar.getInstance());            //也就是当前时间
 
 
         //月初截止到本周五的
