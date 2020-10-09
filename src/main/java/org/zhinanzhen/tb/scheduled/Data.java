@@ -126,24 +126,6 @@ public class Data extends BaseService {
             //输出查看
             VisaReportList.forEach(aa -> System.out.println(aa.toString()));
             commissionOrderReportDtoList.forEach(aa -> System.out.println(aa.toString()));
-            //System.out.println("========dataDTOList倒序之后=========");
-            //dataDTOList.forEach(dataDTO -> System.out.println(dataDTO.toString()));
-            //System.out.println("========areaDataList=========");
-            //areaDataList.forEach(area-> System.out.println(area.toString()));
-
-
-            /**   dataDTOList里面有全部地区的数据，包括每个顾问的详细数据
-             *    areaDataList里面有每个地方的数据,是将每个地方的数据汇总之后的list
-             */
-
-
-            /*StringBuilder content = new StringBuilder("<html><head></head><body>");
-            content.append(EmailModelUtil.areaModel(areaDataList));
-            content.append(EmailModelUtil.weekModel(areaDataList));
-            content.append(EmailModelUtil.areaRankModel(dataDTOList));
-            content.append(EmailModelUtil.end());
-            //SendEmailUtil.send("baoshanzhou@hotmail.com","title",content.toString());
-            SendEmailUtil.send("815124560@qq.com","title",content.toString());*/
 
             if(opt.equals("A")){
                 return areaDataList;
