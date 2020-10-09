@@ -52,6 +52,7 @@ public class DateClass {
 
         lastSaturday(Calendar.getInstance());
         thisMonthFirstDay(Calendar.getInstance());
+        thisMonthFriday(Calendar.getInstance());
 
         lastMonthFirstDay(Calendar.getInstance());
         lastMonthLastDay(Calendar.getInstance());
@@ -66,6 +67,17 @@ public class DateClass {
         instance = Calendar.getInstance();
         instance.set(Calendar.DAY_OF_WEEK,7);
         instance.add(Calendar.DAY_OF_MONTH, -7);
+
+        System.out.println(sdf.format(instance.getTime()));
+
+        return sdf.format(instance.getTime());
+    }
+
+    //本周五
+    public static String thisMonthFriday(Calendar instance) {
+
+        // 当前日期
+        instance.add(Calendar.DATE, -1);
 
         System.out.println(sdf.format(instance.getTime()));
 
