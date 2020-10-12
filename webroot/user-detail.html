@@ -505,7 +505,7 @@
 														<td v-html="item.serviceName"></td>
 														<td v-html="item.strState"></td>
 														<td>																
-																<a href="javascript:open_detail({{item.oid}},'{{item.type}}','{{item.currentState}}');">查看</a>																
+																<a href="javascript:open_detail({{item.id}},'{{item.type}}','{{item.currentState}}');">查看</a>																
 														</td>
 														<td v-html="item.remarks"></td>
 													</tr>
@@ -547,7 +547,7 @@
 														<td v-html="item.serviceName"></td>
 														<td v-html="item.strState"></td>
 														<td>																
-																<a href="javascript:open_detail({{item.oid}},'{{item.type}}','{{item.currentState}}');">查看</a>																
+																<a href="javascript:open_detail({{item.id}},'{{item.type}}','{{item.currentState}}');">查看</a>																
 														</td>
 														<td v-html="item.remarks"></td>
 													</tr>
@@ -1481,6 +1481,21 @@
       		sessionStorage.setItem("menu_parentid", parentId);
 					window.location.href = "knowledge.html"; 
       }
+      
+      function url_replace(str)
+			{
+					var reg = /((http|ftp|https):\/\/)?[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?/g;
+					str=str.replace(reg,function(a){
+					    if(!a.indexOf('http'))
+					    {
+					    	return '<a href="'+a+'" target="_blank">'+a+'</a>';
+					    }else
+					    {
+					    	return '<a href="http://'+a+'" target="_blank">'+a+'</a>';
+					    }
+					});
+					return str;
+			}
       
       function url_replace1(str)
 			{
