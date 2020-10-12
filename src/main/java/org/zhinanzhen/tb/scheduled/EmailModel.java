@@ -24,7 +24,7 @@ public class EmailModel {
         StringBuilder content = new StringBuilder();
         content.append("<table border=\"5\" style=\"border:solid 1px #E8F2F9;font-size=14px;;font-size:18px;\">");
         content.append("<tr style=\"background-color: #428BCA; color:#ffffff\">" +
-                "<th>Date</th><th>Area</th><th>serviceFee</th><th>deductionCommission</th><th>claimCommission</th><th>claimedCommission</th><th>total</th>" +
+                "<th>Date</th><th>Area</th><th>serviceFee</th><th>deductionCommission</th><th>claimCommission</th><th>claimedCommission</th><th  style=\"background-color: #FFB800; color:#ffffff\">total</th>" +
                 "</tr>");
         for (DataDTO data : areaDataList) {
             content.append("<tr>");
@@ -34,12 +34,12 @@ public class EmailModel {
             content.append("<td>" + df.format(data.getDeductionCommission()) + "</td>");
             content.append("<td>" + df.format(data.getClaimCommission()) + "</td>");
             content.append("<td>" + df.format(data.getClaimedCommission()) + "</td>");
-            content.append("<td>" + df.format(data.getTotal()) + "</td>");
+            content.append("<td  style=\"background-color: #FDF3D7; color:#000000\">" + df.format(data.getTotal()) + "</td>");
             content.append("</tr>");
         }
         content.append("<tr>");
         content.append("<td></td>");
-        content.append("<td>total</td>");
+        content.append("<td  style=\"background-color: #FFB800; color:#ffffff\">total</td>");
         content.append(sum(areaDataList));
         content.append("</tr>");
         content.append("</table>");
@@ -49,7 +49,7 @@ public class EmailModel {
         StringBuilder content = new StringBuilder();
         content.append("<table border=\"5\" style=\"border:solid 1px #E8F2F9;font-size=14px;;font-size:18px;\">");
         content.append("<tr style=\"background-color: #428BCA; color:#ffffff\">" +
-                "<th>Date</th><th>Area</th><th>serviceFee</th><th>deductionCommission</th><th>claimCommission</th><th>claimedCommission</th><th>total</th>" +
+                "<th>Date</th><th>Area</th><th>serviceFee</th><th>deductionCommission</th><th>claimCommission</th><th>claimedCommission</th><th  style=\"background-color: #FFB800; color:#ffffff\">total</th>" +
                 "</tr>");
 
         content.append("<tr>");
@@ -59,7 +59,7 @@ public class EmailModel {
         content.append("<td>" + df.format(data.getDeductionCommission()) + "</td>");
         content.append("<td>" + df.format(data.getClaimCommission()) + "</td>");
         content.append("<td>" + df.format(data.getClaimedCommission()) + "</td>");
-        content.append("<td>" + df.format(data.getTotal()) + "</td>");
+        content.append("<td  style=\"background-color: #FDF3D7; color:#000000\">" + df.format(data.getTotal()) + "</td>");
         content.append("</tr>");
         content.append("</table>");
         return content;
@@ -70,7 +70,7 @@ public class EmailModel {
          StringBuilder content = new StringBuilder();
         content.append("<table border=\"5\" style=\"border:solid 1px #E8F2F9;font-size=14px;;font-size:18px;\">");
         content.append("<tr style=\"background-color: #428BCA; color:#ffffff\">" +
-                "<th>Area</th><th>serviceFee</th><th>deductionCommission</th><th>claimCommission</th><th>claimedCommission</th><th>total</th>" +
+                "<th>Area</th><th>serviceFee</th><th>deductionCommission</th><th>claimCommission</th><th>claimedCommission</th><th  style=\"background-color: #FFB800; color:#ffffff\">total</th>" +
                 "</tr>");
         for (DataDTO data : areaDataList) {
             content.append("<tr>");
@@ -79,11 +79,11 @@ public class EmailModel {
             content.append("<td>" + df.format(data.getDeductionCommission()) + "</td>");
             content.append("<td>" + df.format(data.getClaimCommission()) + "</td>");
             content.append("<td>" + df.format(data.getClaimedCommission()) + "</td>");
-            content.append("<td>" + df.format(data.getTotal()) + "</td>");
+            content.append("<td  style=\"background-color: #FDF3D7; color:#000000\">" + df.format(data.getTotal()) + "</td>");
             content.append("</tr>");
         }
         content.append("<tr>");
-        content.append("<td>total</td>");
+        content.append("<td  style=\"background-color: #FFB800; color:#ffffff\">total</td>");
         content.append(sum(areaDataList));
         content.append("</tr>");
         content.append("</table>");
@@ -94,7 +94,7 @@ public class EmailModel {
         StringBuilder content = new StringBuilder();
         content.append("<table border=\"5\" style=\"border:solid 1px #E8F2F9;font-size=14px;;font-size:18px;\">");
         content.append("<tr style=\"background-color: #428BCA; color:#ffffff\">" +
-                "<th>Area</th><th>serviceFee</th><th>deductionCommission</th><th>claimCommission</th><th>claimedCommission</th><th>total</th>" +
+                "<th>Area</th><th>serviceFee</th><th>deductionCommission</th><th>claimCommission</th><th>claimedCommission</th><th  style=\"background-color: #FFB800; color:#ffffff\">total</th>" +
                 "</tr>");
 
         content.append("<tr>");
@@ -103,7 +103,7 @@ public class EmailModel {
         content.append("<td>" + df.format(data.getDeductionCommission()) + "</td>");
         content.append("<td>" + df.format(data.getClaimCommission()) + "</td>");
         content.append("<td>" + df.format(data.getClaimedCommission()) + "</td>");
-        content.append("<td>" + df.format(data.getTotal()) + "</td>");
+        content.append("<td  style=\"background-color: #FDF3D7; color:#000000\">" + df.format(data.getTotal()) + "</td>");
         content.append("</tr>");
         content.append("</table>");
         return content;
@@ -115,7 +115,7 @@ public class EmailModel {
         StringBuilder content = new StringBuilder();
         content.append("<table border=\"5\" style=\"border:solid 1px #E8F2F9;font-size=14px;;font-size:18px;\">");
         content.append("<tr style=\"background-color: #428BCA; color:#ffffff\">" +
-                "<th>Rank</th><th>Date</th><th>Area</th><th>Consultant</th><th>serviceFee</th><th>deductionCommission</th><th>claimCommission</th><th>claimedCommission</th><th>total</th>" +
+                "<th>Rank</th><th>Date</th><th>Area</th><th>Consultant</th><th>serviceFee</th><th>deductionCommission</th><th>claimCommission</th><th>claimedCommission</th><th  style=\"background-color: #FFB800; color:#ffffff\">total</th>" +
                 "</tr>");
         for (int index = 0 ;index <areaRankModel.size() ; index++) {
             content.append("<tr>");
@@ -127,7 +127,7 @@ public class EmailModel {
             content.append("<td>" + df.format(areaRankModel.get(index).getDeductionCommission()) + "</td>");
             content.append("<td>" + df.format(areaRankModel.get(index).getClaimCommission()) + "</td>");
             content.append("<td>" + df.format(areaRankModel.get(index).getClaimedCommission()) + "</td>");
-            content.append("<td>" + df.format(areaRankModel.get(index).getTotal()) + "</td>");
+            content.append("<td  style=\"background-color: #FDF3D7; color:#000000\">" + df.format(areaRankModel.get(index).getTotal()) + "</td>");
             content.append("</tr>");
         }
         content.append("</table>");
@@ -182,11 +182,11 @@ public class EmailModel {
             claimedCommission  = claimedCommission + dataDTO.getClaimedCommission();
             deductionCommission = deductionCommission+ dataDTO.getDeductionCommission();
         }
-        content.append("<td>" + df.format(serviceFee) + "</td>");
-        content.append("<td>" + df.format(deductionCommission) + "</td>");
-        content.append("<td>" + df.format(claimCommission) + "</td>");
-        content.append("<td>" + df.format(claimedCommission) + "</td>");
-        content.append("<td>" + df.format(deductionCommission+ claimCommission + claimedCommission + serviceFee) +"</td>");
+        content.append("<td  style=\"background-color: #FDF3D7; color:#000000\">" + df.format(serviceFee) + "</td>");
+        content.append("<td  style=\"background-color: #FDF3D7; color:#000000\">" + df.format(deductionCommission) + "</td>");
+        content.append("<td  style=\"background-color: #FDF3D7; color:#000000\">" + df.format(claimCommission) + "</td>");
+        content.append("<td  style=\"background-color: #FDF3D7; color:#000000\">" + df.format(claimedCommission) + "</td>");
+        content.append("<td  style=\"background-color: #FDF3D7; color:#000000\">" + df.format(deductionCommission+ claimCommission + claimedCommission + serviceFee) +"</td>");
         return content;
     }
 

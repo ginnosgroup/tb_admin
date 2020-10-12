@@ -118,7 +118,7 @@ public class Scheduled {
                     SendEmailUtil.send("juntao@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
                     SendEmailUtil.send("jiaheng.xu@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
                 }
-                if (area.getArea() .equals("sydeny2")){
+                if (area.getArea() .equals("Sydney2")){
                     SendEmailUtil.send("kevin@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
                     SendEmailUtil.send("jiaheng.xu@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
                 }
@@ -197,7 +197,7 @@ public class Scheduled {
                     SendEmailUtil.send("juntao@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
                     SendEmailUtil.send("jiaheng.xu@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
                 }
-                if (area.getArea() .equals("sydeny2")){
+                if (area.getArea() .equals("Sydney2")){
                     SendEmailUtil.send("kevin@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
                     SendEmailUtil.send("jiaheng.xu@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
                 }
