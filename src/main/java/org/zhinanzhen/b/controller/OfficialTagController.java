@@ -32,9 +32,10 @@ public class OfficialTagController extends BaseController {
 			@RequestParam(value = "colour") String colour, HttpServletRequest request, HttpServletResponse response) {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo != null)
-			if (adminUserLoginInfo == null || !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
-					|| adminUserLoginInfo.getOfficialId() == null)
-				return new Response<Integer>(1, "仅限文案操作.", null);
+			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& (!"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
+							|| adminUserLoginInfo.getOfficialId() == null)))
+				return new Response<Integer>(1, "仅限文案和管理员操作.", null);
 		try {
 			super.setPostHeader(response);
 			OfficialTagDTO officialTagDto = new OfficialTagDTO();
@@ -56,9 +57,10 @@ public class OfficialTagController extends BaseController {
 			HttpServletRequest request, HttpServletResponse response) {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo != null)
-			if (adminUserLoginInfo == null || !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
-					|| adminUserLoginInfo.getOfficialId() == null)
-				return new Response<Integer>(1, "仅限文案操作.", null);
+			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& (!"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
+							|| adminUserLoginInfo.getOfficialId() == null)))
+				return new Response<Integer>(1, "仅限文案和管理员操作.", null);
 		try {
 			super.setPostHeader(response);
 			OfficialTagDTO officialTagDto = officialTagService.get(id);
@@ -80,9 +82,10 @@ public class OfficialTagController extends BaseController {
 	public Response<List<OfficialTagDTO>> updateOfficialTag(HttpServletRequest request, HttpServletResponse response) {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo != null)
-			if (adminUserLoginInfo == null || !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
-					|| adminUserLoginInfo.getOfficialId() == null)
-				return new Response<List<OfficialTagDTO>>(1, "仅限文案操作.", null);
+			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& (!"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
+							|| adminUserLoginInfo.getOfficialId() == null)))
+				return new Response<List<OfficialTagDTO>>(1, "仅限文案和管理员操作.", null);
 		try {
 			super.setPostHeader(response);
 			return new Response<List<OfficialTagDTO>>(0, officialTagService.list());
@@ -121,9 +124,10 @@ public class OfficialTagController extends BaseController {
 			HttpServletResponse response) {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo != null)
-			if (adminUserLoginInfo == null || !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
-					|| adminUserLoginInfo.getOfficialId() == null)
-				return new Response<Integer>(1, "仅限文案操作.", null);
+			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& (!"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
+							|| adminUserLoginInfo.getOfficialId() == null)))
+				return new Response<Integer>(1, "仅限文案和管理员操作.", null);
 		try {
 			super.setPostHeader(response);
 			if (officialTagService.addServiceOrderOfficialTag(id, serviceOrderId) > 0)
@@ -142,9 +146,10 @@ public class OfficialTagController extends BaseController {
 			HttpServletResponse response) {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo != null)
-			if (adminUserLoginInfo == null || !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
-					|| adminUserLoginInfo.getOfficialId() == null)
-				return new Response<Boolean>(1, "仅限文案操作.", false);
+			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& (!"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
+							|| adminUserLoginInfo.getOfficialId() == null)))
+				return new Response<Boolean>(1, "仅限文案和管理员操作.", false);
 		try {
 			super.setPostHeader(response);
 			if (officialTagService.deleteServiceOrderOfficialTagByTagIdAndServiceOrderId(id, serviceOrderId) > 0)
