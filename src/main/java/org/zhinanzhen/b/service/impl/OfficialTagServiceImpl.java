@@ -100,7 +100,7 @@ public class OfficialTagServiceImpl extends BaseService implements OfficialTagSe
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
-		return ServiceOrderOfficialTagDao.addServiceOrderOfficialTag(id, serviceOrderId) > 0 ? id : 0;
+		return ServiceOrderOfficialTagDao.addServiceOrderOfficialTag(id, serviceOrderId);
 	}
 
 	@Override
