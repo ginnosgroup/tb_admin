@@ -96,9 +96,8 @@ public class OfficialTagController extends BaseController {
 
 	@RequestMapping(value = "/deleteOfficialTag", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<Boolean> deleteOfficialTag(@RequestParam(value = "id") Integer id,
-			@RequestParam(value = "name") String name, @RequestParam(value = "colour") String colour,
-			HttpServletRequest request, HttpServletResponse response) {
+	public Response<Boolean> deleteOfficialTag(@RequestParam(value = "id") Integer id, HttpServletRequest request,
+			HttpServletResponse response) {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo != null)
 			if (adminUserLoginInfo == null || !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
