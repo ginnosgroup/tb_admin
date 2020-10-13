@@ -409,14 +409,21 @@
 						{
 								down_url += "&endDate=";
 						}
-						down_url += "&dateMethod="+that.dateMethod+"&dateType="+that.dateType+"&regionId="+that.regionId;						
+						down_url += "&dateMethod="+that.dateMethod+"&dateType="+that.dateType;						
 						if (typeof(that.adviserId) != "undefined")
 						{
 								down_url += "&adviserId="+that.adviserId;
 						}else
 						{
 								down_url += "&adviserId=";
-						}						
+						}
+						if (typeof(that.regionId) != "undefined")
+						{
+								down_url += "&regionId="+that.regionId;
+						}else
+						{
+								down_url += "&regionId=";
+						}					
 						console.log(down_url);
 						var a = document.createElement('a');
 						a.download = 'table_all_data.xls';

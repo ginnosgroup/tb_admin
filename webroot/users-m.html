@@ -33,8 +33,7 @@
 					<div data-placement="right" class="fa fa-bars tooltips">
 					</div>
 				</div>
-				<a href="main.html" class="logo">
-					佣金系统
+				<a href="main-m.html" class="logo">
 					<span v-if="ap_list==='KJ'">
            	 会计
           </span>
@@ -53,7 +52,6 @@
 				</a>
 				<div class="top-nav ">
 					<ul class="nav pull-right top-menu">
-						<li style="padding-right:15px;"><a href="knowledge-detail.html?id=1000164" style="color:#ff6c60;">帮助中心</a></li>
 						<li class="dropdown">
 							<a data-toggle="dropdown" class="dropdown-toggle" href="#">
 								<span class="username">
@@ -64,13 +62,7 @@
 							</a>
 							<ul class="dropdown-menu extended logout">
 								<li class="log-arrow-up">
-								</li>
-								<li>
-									<a href="password.html">
-										<i class="fa fa-key">
-                    </i> 修改密码
-									</a>
-								</li>
+								</li>								
 								<li><a href="javascript:tb.out();">
 										<i class="fa fa-user">
                     </i> Log Out
@@ -85,108 +77,14 @@
 				<div id="sidebar" class="nav-collapse">
 					<ul class="sidebar-menu" id="nav-accordion">
 						<li >
-              <a href="main.html">
+              <a href="main-m.html">
                 <i class="fa fa-dashboard">
                 </i>
                 <span>
                   Dashboard
                 </span>
               </a>
-            </li>
-            <dli v-if="ap_list==='SUPERAD'">            
-            <li>
-              <a href="adviser.html">
-                <i class="fa fa-book">
-                </i>
-                <span>
-                  顾问管理
-                </span>
-              </a>
-            </li>
-            </dli>
-            <dli v-if="ap_list==='SUPERAD' || (ap_list==='WA' && wa_admin === 'true')"> 
-            <li>
-              <a href="official.html">
-                <i class="fa fa-book">
-                </i>
-                <span>
-                  文案管理
-                </span>
-              </a>
-            </li>
-            </dli>
-            <dli v-if="ap_list==='SUPERAD'">
-            <li>
-              <a href="mara.html">
-                <i class="fa fa-book">
-                </i>
-                <span>
-                  MARA管理
-                </span>
-              </a>
-            </li>
-            <li>
-              <a href="accounting.html">
-                <i class="fa fa-book">
-                </i>
-                <span>
-                  会计管理
-                </span>
-              </a>
-            </li>
-            </dli>
-          	<dli v-if="ap_list==='SUPERAD' || (ap_list==='GW' && gw_regionid !== 'null')">
-            <li class="sub-menu">
-							<a href="javascript:;">
-								<i class="fa fa-book">
-                </i>
-								<span>
-                 	 学校管理
-                </span>
-							</a>
-							<ul class="sub">
-								<li v-if="ap_list==='SUPERAD'">
-									<a href="school.html">
-										学校管理
-									</a>
-								</li>
-								<li>
-									<a href="school-setting.html">
-										佣金设置
-									</a>
-								</li>								
-							</ul>
-						</li>
-						</dli>
-						<dli v-if="ap_list==='SUPERAD'">
-            <li>
-              <a href="receive-type.html">
-                <i class="fa fa-book">
-                </i>
-                <span>
-                  收款方式管理
-                </span>
-              </a>
-            </li>
-            <li>
-              <a href="subagency.html">
-                <i class="fa fa-book">
-                </i>
-                <span>
-                  Subagency管理
-                </span>
-              </a>
-            </li>
-            <li>
-              <a href="service.html">
-                <i class="fa fa-book">
-                </i>
-                <span>
-                  服务项目管理
-                </span>
-              </a>
-            </li>
-          	</dli>
+            </li>            
           	<li v-if="ap_list!=='KJ' && ap_list!=='WA' && ap_list!=='MA'" class="sub-menu">
 							<a href="javascript:;" class="active">
 								<i class="fa fa-book">
@@ -197,7 +95,7 @@
 							</a>
 							<ul class="sub">
 								<li class="active">
-									<a href="users.html">
+									<a href="users-m.html">
 										客户管理
 									</a>
 								</li>
@@ -209,107 +107,14 @@
 							</ul>
 						</li>
 						<li v-if="ap_list!=='KJ'" class="sub-menu">
-							<a href="serviceorder-list.html">
+							<a href="serviceorder-list-m.html">
                 <i class="fa fa-book">
                 </i>
                 <span>
                   服务订单管理
                 </span>
               </a>
-						</li>           	
-            <li v-if="ap_list==='SUPERAD'" class="sub-menu" class="sub-menu">
-							<a href="javascript:;">
-								<i class="fa fa-book">
-                </i>
-								<span>
-                 	 渠道管理
-                </span>
-							</a>
-							<ul class="sub">
-								<li>
-									<a href="source.html">
-										渠道列表
-									</a>
-								</li>
-								<li>
-									<a href="source-type.html">
-										来源分类
-									</a>
-								</li>								
-							</ul>
-						</li>
-						<li v-if="ap_list!=='WA' && ap_list!=='MA'" class="sub-menu">
-							<a href="javascript:;">
-								<i class="fa fa-book">
-                </i>
-								<span>
-                 	 佣金表
-                </span>
-							</a>
-							<ul class="sub">
-								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'">
-									<a href="mycommission.html">
-										我的佣金报表
-									</a>									
-								</li>
-								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" style="display:;" id="apply_state_PENDING">
-									<a href="mycommission.html?applyState=PENDING">
-										未申请月奖
-									</a>									
-								</li>
-								<li v-if="ap_list==='GW' || ap_list==='SUPERAD'" style="display:;" id="apply_state_COMPLETE">
-									<a href="mycommission.html?applyState=COMPLETE">
-										已申请月奖
-									</a>									
-								</li>
-								<li v-if="ap_list==='KJ'" id="commission_state_DJY">
-									<a href="mycommission-accounting.html?commission_state=DJY">
-										待结佣订单
-									</a>									
-								</li>
-								<li v-if="ap_list==='KJ'" id="commission_state_YJY">
-									<a href="mycommission-accounting.html?commission_state=YJY">
-										已结佣订单
-									</a>									
-								</li>								
-								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
-									<a href="mycommission-check-accounting.html">
-										自动对账
-									</a>									
-								</li>
-								<li v-if="ap_list==='SUPERAD'">
-									<a href="create-visa-commission.html">
-										重建签证佣金表订单
-									</a>
-								</li>
-								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
-									<a href="table-export.html">
-										导出数据
-									</a>
-								</li>
-							</ul>
-						</li>
-						<li class="sub-menu">
-							<a href="javascript:;">
-								<i class="fa fa-book">
-                </i>
-								<span>
-                 	 知识库
-                </span>
-							</a>
-							<ul class="sub">
-								<li v-if="ap_list==='SUPERAD'">
-									<a href="knowledge-menu.html">
-										菜单管理
-									</a>
-								</li>
-								<li>
-									<a href="knowledge.html">
-										知识库菜单
-									</a>
-								</li>
-							</ul>
-						</li>
+						</li>												
 					</ul>
 				</div>
 			</aside>
@@ -376,47 +181,18 @@
 											<table class="display table table-bordered table-striped" id="example">
 												<thead>
 													<tr>
-														<!--<th><input @click="checked" type="checkbox"></th>-->
-														<th>ID</th>
-														<th>昵称</th>
-														<th>姓名(拼音)&nbsp;<a @click="getOrder1" href="javascript:;">排序</a></th>
-														<th>初次咨询记录</th>														
-														<th>生日&nbsp;<a @click="getOrder2" href="javascript:;">排序</a></th>
-														<th>手机号码&nbsp;<a @click="getOrder3" href="javascript:;">排序</a></th>
-														<th>所持签证类别号</th>
-														<th>签证到期日期</th>
-														<th>微信号</th>											
-														<th>客户来源</th>														
-														<th>客户标签</th>
+														<th>昵称</th>														
+														<th>微信号</th>																									
 														<th>所属顾问</th>
-														<th>咨询提醒</th>
-														<th>服务项目</th>
-														<th>Edit</th>
-														<th>Delete</th>
+														<th>服务项目</th>														
 													</tr>
 												</thead>
 												<tbody>
 													<tr v-for="item in subject" class="gradeX">
-														<td v-html="item.oid"></td>
-														<td v-html="item.authNickname"></td>
-														<td v-html="item.name"></td>
-														<td v-html="item.firstControllerContents"></td>														
-														<td v-html="item.birthday"></td>
-														<td v-html="item.phone"></td>
-														<td v-html="item.visaCode"></td>													
-														<td v-html="item.visaExpirationDate"></td>
-														<td v-html="item.wechatUsername"></td>
-														<td v-html="item.source"></td>
-														<td v-html="item.str_tagListName"></td>
+														<td v-html="item.name"></td>														
+														<td v-html="item.wechatUsername"></td>														
 														<td @dblclick="table_edit($index,'adviserName','u1')"><span v-html="item.adviserName"></span></td>
-														<td v-html="item.consultation"></td>
-														<td v-html="item.service"></td>
-														<td><a v-if="item.id" class="edit" href="javascript:;" @click="table_modify($index)"><span class="label label-success">Edit</span></a>
-																<a v-else class="edit" href="javascript:;"><span class="label label-primary">Save</span></a>
-														</td>
-														<td><a v-if="item.id" class="delete" href="#" @click="delete_confirm($index,item.id)"><span class="label label-danger">Delete</span></a>
-																<a v-else class="cancel" href="javascript:;"><span class="label label-info">Cancel</span></a>
-														</td>														
+														<td v-html="item.service" style="line-height:30px;"></td>																										
 													</tr>
 												</tbody>
 											</table>
@@ -569,7 +345,7 @@
 			</div>
 		</div>		
 		<div class="modal fade" id="addnew_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
-			<div class="modal-dialog" role="document" style="width:700px;">
+			<div class="modal-dialog" role="document" style="">
 				<div class="modal-content">
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -589,37 +365,37 @@
                 </button>
                 <strong id="error_info"></strong>
              </div>						
-							<div class="form-group" style="width:100%;height:40px;">
+							<div class="form-group" style="width:100%;">
 								<label class="control-label" style="color:red;">客户昵称</label>
-								<input type="text" class="form-control small" style="width:200px;" name="a1" id="a1" placeholder="请输入客户的昵称" value="">								
+								<input type="text" class="form-control small" style="" name="a1" id="a1" placeholder="请输入客户的昵称" value="">								
 							</div>
-							<div class="form-group" style="width:100%;height:40px;">
+							<div class="form-group" style="width:100%;">
 								<label class="control-label" style="color:red;">客户的姓</label>
-								<input type="text" autocomplete="off" name="a2" id="a2" class="form-control" style="width:200px;" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,'').toUpperCase();" placeholder="请输入客户姓的拼音" >
+								<input type="text" autocomplete="off" name="a2" id="a2" class="form-control" style="" onKeyUp="value=value.replace(/[^a-zA-Z ]/g,'').toUpperCase();" placeholder="请输入客户姓的拼音" >
 								<label class="control-label" style="color:red;">客户的名</label>
-								<input type="text" autocomplete="off" name="a2b" id="a2b" class="form-control" style="width:200px;" onKeyUp="value=value.replace(/[^a-zA-Z]/g,'').substring(0, 1).toUpperCase()+value.replace(/[^a-zA-Z ]/g,'').substring(1);" placeholder="请输入客户名的拼音" >
+								<input type="text" autocomplete="off" name="a2b" id="a2b" class="form-control" style="" onKeyUp="value=value.replace(/[^a-zA-Z]/g,'').substring(0, 1).toUpperCase()+value.replace(/[^a-zA-Z ]/g,'').substring(1);" placeholder="请输入客户名的拼音" >
 							</div>
-							<div class="form-group" style="width:100%;height:40px;">
+							<div class="form-group" style="width:100%;">
 								<label class="control-label" style="color:red;">手机号码</label>
-								<input type="text" autocomplete="off" name="a3" id="a3" class="form-control" style="width:200px;" placeholder="请输入手机号码" >
+								<input type="text" autocomplete="off" name="a3" id="a3" class="form-control" style="" placeholder="请输入手机号码" >
 							</div>
-							<div class="form-group" style="width:100%;height:40px;">
+							<div class="form-group" style="width:100%;">
 								<label class="control-label">微信账号</label>
-								<input type="text" autocomplete="off" name="a4" id="a4" class="form-control" style="width:200px;" placeholder="请输入微信号" >
+								<input type="text" autocomplete="off" name="a4" id="a4" class="form-control" style="" placeholder="请输入微信号" >
 							</div>
-							<div class="form-group" style="height:40px;">
+							<div class="form-group" style="">
 								<label class="control-label">客户生日</label>
-								<input type="text" autocomplete="off" name="a5" id="a5" class="form-control default-date-picker" style="width:200px;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
+								<input type="text" autocomplete="off" name="a5" id="a5" class="form-control default-date-picker" style="" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
 							</div>
-							<div class="form-group" style="width:100%;line-height:40px;">
+							<div class="form-group" style="width:100%;">
 								<label class="control-label">客户来源</label>
-								<select class="form-control" style="width:200px;" name="a6" id="a6"></select>
+								<select class="form-control" style="" name="a6" id="a6"></select>
 							</div>						
-							<div class="form-group" style="width:100%;line-height:40px;">
+							<div class="form-group" style="width:100%;">
 								<label class="control-label" style="color:red;">所属顾问</label>
-								<select class="form-control" style="width:200px;" name="a7" id="a7"></select>
+								<select class="form-control" style="" name="a7" id="a7"></select>
 							</div>							
-							<div class="form-group" style="width:100%;line-height:40px;">
+							<div class="form-group" style="width:100%;">
 								<label class="control-label">初次咨询记录</label>
 								<textarea id="a8" class="form-control" style="width:98%"></textarea>
 							</div>							
@@ -659,13 +435,14 @@
 		<script src="js/vue.js"></script>
 		<script src="js/common.js?verson=1"></script>
 		<script>
-			$("#load-user-common-page").load("user-common.html?random="+Math.random());
+			$("#load-user-common-page").load("user-common-m.html?random="+Math.random());
 			tb.isLogin("users.html");
 			$("td,th").addClass("text-center");
 			var v = new Vue({
 				el: '#users',
 				data: {
 					admin: sessionStorage.getItem("admin"),
+					current_admin: getPrefix(sessionStorage.getItem("admin")),
 					ap_list: sessionStorage.getItem("ap_list"),
 					gw_regionid: sessionStorage.getItem("gw_regionid"),
 					wa_admin: sessionStorage.getItem("wa_admin"),
@@ -754,9 +531,9 @@
 					},
 					getUser: function() {
 						var that = this;
-						show_loading();
+						show_loading();					
 						if (that.adviserId == undefined) that.adviserId = that.adviser_id;
-						if (that.adviserId == null) that.adviserId = '';
+						if (that.adviserId == 'null') that.adviserId = '';
 						$.get(url + "user/count", {
 							name: that.name,
 							phone: that.phone,
@@ -1162,8 +939,8 @@
 			{
 					for(var i = 0; i < result.data.length; i++) {
 							result.data[i].oid = result.data[i].id;
-							result.data[i].service = '<a href="javascript:;" onclick="add_service3(0,\''+result.data[i].id+'\',\''+result.data[i].name+'\')"><span class="label label-primary">独立技术移民</span></a>&nbsp;<a href="javascript:;" onclick="add_service1(0,\''+result.data[i].id+'\',\''+result.data[i].name+'\')"><span class="label label-primary">签证</span></a>&nbsp;<a href="javascript:;" onclick="add_service2(0,\''+result.data[i].id+'\',\''+result.data[i].name+'\')"><span class="label label-primary">留学</span></a>';
-							result.data[i].name = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].name+'</a>';									
+							result.data[i].service = '<div><a href="javascript:;" onclick="add_service3(0,\''+result.data[i].id+'\',\''+result.data[i].name+'\')" title="独立技术移民"><span class="label label-primary">独移</span></a></div><div><a href="javascript:;" onclick="add_service1(0,\''+result.data[i].id+'\',\''+result.data[i].name+'\')"><span class="label label-primary">签证</span></a></div><div><a href="javascript:;" onclick="add_service2(0,\''+result.data[i].id+'\',\''+result.data[i].name+'\')"><span class="label label-primary">留学</span></a></div>';
+							//result.data[i].name = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].name+'</a>';
 							result.data[i].authNickname = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].authNickname+'</a>';
 							if (result.data[i].birthday)
 							{
@@ -1747,6 +1524,16 @@
 			        s+="0";
 			    }
 			    return s+str;
+			}
+			
+			function getPrefix(username)
+			{
+					if (username.indexOf("@"))
+					{
+							var array = username.split('@');
+							return array[0];
+					}
+					return username;
 			}
 			
 	    jQuery(document).ready(function() {

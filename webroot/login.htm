@@ -77,28 +77,37 @@
 									sessionStorage.setItem("wa_admin", res.data.officialAdmin);
 								});								
 								alert('欢迎！您已成功登录！');
-								if(goUrl) {
-									window.location.href = goUrl;
-								} else {
-									switch(sessionStorage.getItem("ap_list"))
-									{
-											case 'KJ':
-											window.location.href = "main.html";
-											break;
-											case 'GW':
-											window.location.href = "main.html";
-											break;
-											case 'AD':
-											window.location.href = "main.html";
-											break;
-											case 'TGAD':
-											window.location.href = "class-list.htm";
-											break;
-											default :
-											window.location.href = "main.html";
-											break;
-									}
+								if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))								
+								{
+										window.location.href = 'main-m.html';//手机端页面
+								}else
+								{
+										if (goUrl) 
+										{
+												window.location.href = goUrl;
+										}else
+										{
+												switch(sessionStorage.getItem("ap_list"))
+												{
+														case 'KJ':
+														window.location.href = "main.html";
+														break;
+														case 'GW':
+														window.location.href = "main.html";
+														break;
+														case 'AD':
+														window.location.href = "main.html";
+														break;
+														case 'TGAD':
+														window.location.href = "class-list.htm";
+														break;
+														default :
+														window.location.href = "main.html";
+														break;
+												}
+										}
 								}
+								
 							} else {
 								that.eror = "输入有误，请重新输入用户名和密码";
 								that.userName = "";
