@@ -100,9 +100,10 @@ public class OfficialTagController extends BaseController {
 			HttpServletResponse response) {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo != null)
-			if (adminUserLoginInfo == null || !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
-					|| adminUserLoginInfo.getOfficialId() == null)
-				return new Response<Boolean>(1, "仅限文案操作.", false);
+			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& (!"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
+							|| adminUserLoginInfo.getOfficialId() == null)))
+				return new Response<Boolean>(1, "仅限文案和管理员操作.", null);
 		try {
 			super.setPostHeader(response);
 			if (officialTagService.get(id) == null)
