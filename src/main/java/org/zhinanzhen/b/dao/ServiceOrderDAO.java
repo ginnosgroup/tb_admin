@@ -14,28 +14,29 @@ public interface ServiceOrderDAO {
 	int updateReviewState(@Param("id") Integer id, @Param("reviewState") String reviewState);
 
 	int countServiceOrder(@Param("type") String type, @Param("excludeState") String excludeState,
-			@Param("stateList") List<String> stateList, @Param("auditingState") String auditingState, @Param("reviewStateList") List<String> reviewStateList,
+			@Param("stateList") List<String> stateList, @Param("auditingState") String auditingState,
+			@Param("reviewStateList") List<String> reviewStateList,
 			@Param("startMaraApprovalDate") String startMaraApprovalDate,
 			@Param("endMaraApprovalDate") String endMaraApprovalDate,
 			@Param("startOfficialApprovalDate") String startOfficialApprovalDate,
 			@Param("endOfficialApprovalDate") String endOfficialApprovalDate,
 			@Param("regionIdList") List<Integer> regionIdList, @Param("userId") Integer userId,
 			@Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
-			@Param("officialId") Integer officialId, @Param("parentId") Integer parentId,
-			@Param("isNotApproved") Boolean isNotApproved);
+			@Param("officialId") Integer officialId, @Param("officialTagId") Integer officialTagId,
+			@Param("parentId") Integer parentId, @Param("isNotApproved") Boolean isNotApproved);
 
 	List<ServiceOrderDO> listServiceOrder(@Param("type") String type, @Param("excludeState") String excludeState,
-			@Param("stateList") List<String> stateList, @Param("auditingState") String auditingState, @Param("reviewStateList") List<String> reviewStateList,
+			@Param("stateList") List<String> stateList, @Param("auditingState") String auditingState,
+			@Param("reviewStateList") List<String> reviewStateList,
 			@Param("startMaraApprovalDate") String startMaraApprovalDate,
 			@Param("endMaraApprovalDate") String endMaraApprovalDate,
 			@Param("startOfficialApprovalDate") String startOfficialApprovalDate,
 			@Param("endOfficialApprovalDate") String endOfficialApprovalDate,
 			@Param("regionIdList") List<Integer> regionIdList, @Param("userId") Integer userId,
-			@Param("maraId") Integer maraId,
-			@Param("adviserId") Integer adviserId,
-			@Param("officialId") Integer officialId,
-			@Param("parentId") Integer parentId,
-			@Param("isNotApproved") Boolean isNotApproved, @Param("offset") int offset, @Param("rows") int rows);
+			@Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
+			@Param("officialId") Integer officialId, @Param("officialTagId") Integer officialTagId,
+			@Param("parentId") Integer parentId, @Param("isNotApproved") Boolean isNotApproved,
+			@Param("offset") int offset, @Param("rows") int rows);
 
 	List<ServiceOrderDO> listByParentId(@Param("parentId") Integer parentId);
 

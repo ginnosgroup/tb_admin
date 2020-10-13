@@ -534,6 +534,7 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "maraId", required = false) Integer maraId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "officialId", required = false) Integer officialId,
+			@RequestParam(value = "officialTagId", required = false) Integer officialTagId,
 			@RequestParam(value = "isNotApproved", required = false) Boolean isNotApproved, HttpServletRequest request,
 			HttpServletResponse response) {
 
@@ -591,8 +592,8 @@ public class ServiceOrderController extends BaseController {
 			return new Response<Integer>(0,
 					serviceOrderService.countServiceOrder(type, excludeState, stateList, auditingState, reviewStateList,
 							startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
-							endOfficialApprovalDate, regionIdList, userId, maraId, adviserId, officialId, 0,
-							isNotApproved != null ? isNotApproved : false));
+							endOfficialApprovalDate, regionIdList, userId, maraId, adviserId, officialId, officialTagId,
+							0, isNotApproved != null ? isNotApproved : false));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -614,6 +615,7 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "maraId", required = false) Integer maraId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "officialId", required = false) Integer officialId,
+			@RequestParam(value = "officialTagId", required = false) Integer officialTagId,
 			@RequestParam(value = "isNotApproved", required = false) Boolean isNotApproved,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
 			HttpServletRequest request, HttpServletResponse response) {
@@ -668,11 +670,11 @@ public class ServiceOrderController extends BaseController {
 					list.add(serviceOrder);
 				return new Response<List<ServiceOrderDTO>>(0, list);
 			}
-			
-			List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(type, excludeState, stateList, auditingState, reviewStateList,
-					startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
-					endOfficialApprovalDate, regionIdList, userId, maraId, adviserId, officialId, 0,
-					isNotApproved != null ? isNotApproved : false, pageNum, pageSize);
+
+			List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(type, excludeState, stateList,
+					auditingState, reviewStateList, startMaraApprovalDate, endMaraApprovalDate,
+					startOfficialApprovalDate, endOfficialApprovalDate, regionIdList, userId, maraId, adviserId,
+					officialId, officialTagId, 0, isNotApproved != null ? isNotApproved : false, pageNum, pageSize);
 
 			if (newOfficialId != null)
 				for (ServiceOrderDTO so : serviceOrderList)
