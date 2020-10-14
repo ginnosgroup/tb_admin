@@ -6,13 +6,14 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="renderer" content="webkit">
 		<link rel="shortcut icon" href="img/favicon.ico">
-		<title>会计管理</title>
+		<title>文案管理</title>
 		<link href="css/bootstrap.min.css" rel="stylesheet">
 		<link href="css/bootstrap-reset.css" rel="stylesheet">
 		<link href="assets/font-awesome/css/font-awesome.css" rel="stylesheet">
 		<link href="assets/advanced-datatable/media/css/demo_table.css" rel="stylesheet">
 		<link rel="stylesheet" type="text/css" href="assets/bootstrap-datepicker/css/datepicker.css"><!-- BOOTSTRAP DATEPICKER PLUGIN CSS -->
-		<link rel="stylesheet" type="text/css" href="assets/bootstrap-timepicker/compiled/timepicker.css"><!-- BOOTSTRAP TIMEPICKER PLUGIN CSS -->		
+		<link rel="stylesheet" type="text/css" href="assets/bootstrap-timepicker/compiled/timepicker.css"><!-- BOOTSTRAP TIMEPICKER PLUGIN CSS -->
+		<link rel="stylesheet" type="text/css" href="assets/bootstrap-colorpicker/css/colorpicker.css"><!-- BOOTSTRAP COLORPICKER PLUGIN CSS -->
 		<link rel="stylesheet" type="text/css" href="css/jquery.autocompleter.css">
 		<link href="css/style.css" rel="stylesheet">
 		<link href="css/style-responsive.css" rel="stylesheet">
@@ -23,7 +24,7 @@
 		<![endif]-->
 	</head>
 
-	<body id="accounting" v-cloak>
+	<body id="official" v-cloak>
 		<section id="container">
 			<header class="header white-bg">
 				<div class="sidebar-toggle-box">
@@ -99,8 +100,10 @@
                 </span>
               </a>
             </li>
+            </dli>
+            <dli v-if="ap_list==='SUPERAD' || (ap_list==='WA' && wa_admin === 'true')"> 
             <li class="sub-menu">
-							<a href="javascript:;">
+							<a href="javascript:;" class="active">
 								<i class="fa fa-book">
                 </i>
 								<span>
@@ -113,13 +116,15 @@
 										文案管理
 									</a>
 								</li>
-								<li  v-if="ap_list==='SUPERAD'" >
+								<li v-if="ap_list==='SUPERAD'" class="active">
 									<a href="official-tag.html">
 										订单标签管理
 									</a>
 								</li>								
 							</ul>
 						</li>
+            </dli>
+            <dli v-if="ap_list==='SUPERAD'"> 
             <li>
               <a href="mara.html">
                 <i class="fa fa-book">
@@ -130,7 +135,7 @@
               </a>
             </li>
             <li>
-              <a href="accounting.html" class="active">
+              <a href="accounting.html">
                 <i class="fa fa-book">
                 </i>
                 <span>
@@ -298,7 +303,7 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li v-if="ap_list==='SUPERAD'">
+								<li v-if="ap_list!=='KJ' && ap_list!=='GW' && ap_list!=='WA' && ap_list!=='MA'">
 									<a href="knowledge-menu.html">
 										菜单管理
 									</a>
@@ -307,7 +312,7 @@
 									<a href="knowledge.html">
 										知识库菜单
 									</a>
-								</li>
+								</li>							
 							</ul>
 						</li>
 					</ul>
@@ -319,7 +324,7 @@
 						<div class="col-lg-12">
 							<section class="panel">
 								<header class="panel-heading">
-									会计管理
+									订单标签管理
 								</header>
 								<div class="panel-body">
 									<div class="adv-table editable-table">
@@ -335,16 +340,16 @@
                       </button>
                       <strong id="error_info"></strong>
                    	</div>
-										<div class="clearfix">
+										<div v-if="ap_list==='SUPERAD'" class="clearfix">
                        <div class="btn-group">
-                          <button id="editable-sample_new" class="btn btn-success green" @click="table_insert">
+                          <button id="editable-sample_new" class="btn btn-success green" onclick="show_watag(0,'','');">
                           Add New <i class="fa fa-plus"></i>
                           </button>
                        </div>
                     </div>
-                    <form class="form-inline" style="margin-top:10px;">
+                    <form class="form-inline" style="margin-top:10px;display:none;">
 											<div class="form-group">
-												<input v-model.trim="name" type="text" class="form-control" placeholder="输入会计名称">												
+												<input v-model.trim="name" type="text" class="form-control" placeholder="输入名称">												
 											</div>
 											<div class="form-group">
 												<button @click="getUser" type="button" class="btn btn-info">查询</button>
@@ -355,32 +360,23 @@
 											<table class="display table table-bordered table-striped" id="example">
 												<thead>
 													<tr>
-														<!--<th><input @click="checked" type="checkbox"></th>-->
 														<th>ID</th>
-														<th>会计名称</th>
-														<th>电话号码</th>
-														<th>电子邮箱</th>
-														<th>登录密码</th>
-														<th>二维码</th>
-														<th>所属区域</th>														
+														<th>标签名称</th>
+														<th>标签颜色</th>														
 														<th>Edit</th>
-														<th>Delete</th>
+														<th>Delete</th>													
 													</tr>
 												</thead>
 												<tbody>
 													<tr v-for="item in subject" class="gradeX">
 														<td v-html="item.oid"></td>
 														<td v-html="item.name"></td>
-														<td v-html="item.phone"></td>
-														<td v-html="item.email"></td>
-														<td v-html="item.password"></td>
-														<td v-html="item.imageUrl"></td>
-														<td v-html="item.regionName"></td>														
-														<td><a v-if="item.id" class="edit" href="javascript:;" @click="table_modify($index)"><span class="label label-success">Edit</span></a>
-																<a v-else class="edit" href="javascript:;"><span class="label label-primary">Save</span></a>
+														<td v-html="item.colour" style="background:{{item.colour}}"></td>														
+														<td>
+																<a class="edit" href="javascript:;" onclick="show_watag({{item.id}},'{{item.name}}','{{item.colour}}')"><span class="label label-success">Edit</span></a>													
 														</td>
-														<td><a v-if="item.id" class="delete" href="#" @click="delete_confirm($index,item.id)"><span class="label label-danger">Delete</span></a>
-																<a v-else class="cancel" href="javascript:;"><span class="label label-info">Cancel</span></a>
+														<td>
+																<a class="delete" href="#" @click="delete_confirm($index,item.id)"><span class="label label-danger">Delete</span></a>
 														</td>														
 													</tr>
 												</tbody>
@@ -436,6 +432,18 @@
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 						<h4 class="modal-title" id="myModalLabel">删除</h4>
 					</div>
+					<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+			      <button data-dismiss="alert" class="close close-sm" type="button">
+			      <i class="fa fa-times"></i>
+			      </button>
+			      <strong>Success!</strong> You  just achieved success.
+			  	</div>
+			  	<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+		        <button data-dismiss="alert" class="close close-sm" type="button">
+		        <i class="fa fa-times"></i>
+		        </button>
+		        <strong id="error_info"></strong>
+		      </div>
 					<div class="modal-body">
 						确认删除吗？
 					</div>
@@ -446,46 +454,48 @@
 				</div>
 			</div>
 		</div>
-		<div class="modal fade" id="close_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<h4 class="modal-title" id="close_title">关闭</h4>
-					</div>
-					<div class="modal-body">
-						确认<span id="close_title1">关闭</span>吗？
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-						<button onclick="closeId()" type="button" class="btn btn-primary">确认</button>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="modal fade" id="passwd_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<h4 class="modal-title" id="myModalLabel">重置密码</h4>
-					</div>
-					<div class="modal-body">
-							<form class="form-horizontal">
-							<div class="form-group">
-								<label class="col-sm-4 control-label">新的随机密码</label>
-								<div class="col-sm-8">
-									<label id="resetPasswd" style="color:red;"></label>
-								</div>
+		<div class="modal fade" id="wa_tagbox" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="z-index:999999;">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+								<h4 class="modal-title" id="myModalLabel"><span id="title_ae">添加</span>订单标签</h4>
 							</div>
-							</form>
+							<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+					      <button data-dismiss="alert" class="close close-sm" type="button">
+					      <i class="fa fa-times"></i>
+					      </button>
+					      <strong>Success!</strong> You  just achieved success.
+					  	</div>
+					  	<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+				        <button data-dismiss="alert" class="close close-sm" type="button">
+				        <i class="fa fa-times"></i>
+				        </button>
+				        <strong id="error_info"></strong>
+				      </div>
+							<div class="modal-body">
+									<form class="form-horizontal">									
+									<div class="form-group">
+										<label class="col-sm-2 control-label">标签名称<span style="color:red;">*</span></label>
+										<div class="col-sm-8">
+											<input type="text" style="" name="tag_newname" id="tag_newname" class="form-control" placeholder="" value="" />
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="col-sm-2 control-label">标签颜色<span style="color:red;">*</span></label>
+										<div class="col-sm-8">
+											<label><input type="text" style="width:100px;" name="tag_newcolour" id="tag_newcolour" class="colorpicker-default form-control" value="" /></label>
+										</div>
+									</div>
+									</form>
+							</div>
+							<div class="modal-footer">
+								<button onclick="addTagSave()" type="button" class="btn btn-primary">确认</button>
+								<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>								
+							</div>
+						</div>
 					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-					</div>
-				</div>
-			</div>
-		</div>
+		</div>		
 		<script src="js/jquery-1.8.3.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
 		<script src="js/jquery.dcjqaccordion.2.7.js"></script>
@@ -493,76 +503,70 @@
 		<script src="js/jquery.nicescroll.js"></script>
 		<script src="assets/bootstrap-datepicker/js/bootstrap-datepicker.js"></script><!-- BOOTSTRAP DATEPICKER JS  -->
     <script src="assets/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js"></script><!-- BOOTSTRAP DATETIMEPICKER JS  -->
+    <script src="assets/bootstrap-colorpicker/js/bootstrap-colorpicker.js"> </script><!-- BOOTSTRAP COLORPICKER JS  -->
     <script src="js/jquery.autocompleter.js"></script>
 		<script src="js/common-scripts.js"></script>
 		<script src="js/vue.js"></script>
 		<script src="js/common.js?verson=1"></script>
-		<script>
-			tb.isLogin("accounting.html");
+		<script>			
+			tb.isLogin("official.html");
 			$("td,th").addClass("text-center");
 			var v = new Vue({
-				el: '#accounting',
+				el: '#official',
 				data: {
 					admin: sessionStorage.getItem("admin"),
 					ap_list: sessionStorage.getItem("ap_list"),
-					allSort: [],
+					wa_admin: sessionStorage.getItem("wa_admin"),
 					subject: [],
 					count: 0,
-					dId: '',
-					eId: '',
+					tagId: 0,
 					name: '',
-					sort: '',
-					state: '',
 					pageNum: 0,
 					pageSize: 10,
-					allPage: 0,
-					add: false,
-					current_index: '',
-					current_row: '',
-					index: 0,
-					close: false
+					allPage: 0,					
+					index: 0
 				},
 				created: function() {
 					this.getDatalist();
 				},
 				methods: {
-					getUser: function() {
+					getTag: function() {
 						var that = this;
-						$.get(url + "kj/count", {
-							name: that.name,							
-							adviserId: that.adviserId
+						$.get(url + "officialTag/count", {
+							name: that.name,
 						}, function(result) {
 							console.log(result)
 							that.count = result.data;
 							that.allPage = Math.ceil(result.data / that.pageSize);
 							console.log(that.allPage)
 						});
-						$.get(url + "kj/list", {
-							name: that.name,
-							adviserId: that.adviserId,							
+						$.get(url + "officialTag/list", {
+							name: that.name,						
 							pageNum: 0,
 							pageSize: that.pageSize
 						}, function(result) {
+							//console.log(result)
 							that.pageNum = 0;
 							that.subject = return_result(result);
+							//console.log(that.subject);
 						});
 					},
 					getDatalist: function() {
 						var that = this;
-						$.get(url + "kj/count", {
-							keyword: that.name							
-						}, function(result) {
-							console.log(result)
+						$.get(url + "officialTag/count", {
+							keyword: that.name		
+						}, function(result) {							
 							that.count = result.data;
 							that.allPage = Math.ceil(result.data / that.pageSize);
-							console.log(that.allPage)
 						});
-						$.get(url + "kj/list", {
+						$.get(url + "officialTag/list", {
 							pageNum: 0,
 							pageSize: that.pageSize
 						}, function(result) {
+							//console.log(result)
 							that.pageNum = 0;
 							that.subject = return_result(result);
+							//console.log(that.subject);
 						});
 					},
 					getTime: function(d) {
@@ -586,9 +590,8 @@
 					firstPage: function() {
 						var that = this;
 						if(that.pageNum > 0) {
-							$.get(url + "kj/list", {
+							$.get(url + "officialTag/list", {
 								keyword: that.name,
-								state: that.state,
 								pageNum: 0,
 								pageSize: that.pageSize
 							}, function(result) {
@@ -601,11 +604,11 @@
 						var that = this;
 						if(that.pageNum > 0) {
 							that.pageNum--;
-							$.get(url + "kj/list", {
+							$.get(url + "officialTag/list", {
 								keyword: that.name,
 								pageNum: that.pageNum,
 								pageSize: that.pageSize
-							}, function(result) {
+							}, function(result) {								
 								that.subject = return_result(result);
 							});
 						}
@@ -614,10 +617,8 @@
 						var that = this;
 						if(that.pageNum < that.allPage - 1) {
 							that.pageNum++;
-							$.get(url + "kj/list", {
+							$.get(url + "officialTag/list", {
 								keyword: that.name,
-								categoryId: that.sort,
-								state: that.state,
 								pageNum: that.pageNum,
 								pageSize: that.pageSize
 							}, function(result) {
@@ -628,10 +629,8 @@
 					lastPage: function() {
 						var that = this;
 						if(that.pageNum < that.allPage - 1) {
-							$.get(url + "kj/list", {
+							$.get(url + "officialTag/list", {
 								keyword: that.name,
-								categoryId: that.sort,
-								state: that.state,
 								pageNum: that.allPage - 1,
 								pageSize: that.pageSize
 							}, function(result) {
@@ -640,217 +639,118 @@
 							});
 						}
 					},
-					table_insert() {
-						if (!this.add)
-						{
-								$("#id").val('0');
-								if (this.current_index != null)
-								{
-										this.subject[this.current_index] = this.current_row;
-										this.current_index = '';
-										this.current_row = '';
-								}											
-								this.subject.splice(0,0, {
-									id:'',									
-									name: '<input type="text" class="form-control small" style="width:150px;" id="t0" value="">',
-									phone: '<input type="text" class="form-control small" style="width:150px;" id="t1" value="">',
-									email: '<input type="text" class="form-control small" style="width:200px;" id="t2" value="">',
-									password: '<input type="password" autocomplete="off" class="form-control small" style="width:150px;" id="t5" value="">',
-									imageUrl: '<textarea type="text" class="form-control small" style="width:200px;" id="t3"></textarea>',
-									regionName: '<select class="form-control" style="width:150px;" id="t4"></select>',
-									});
-								this.add = true;
-						}
-					},
-					table_modify: function (index) {						
-						if (this.current_index != null)
-						{
-								if (this.add)
-								{
-										this.subject[this.current_index-1] = this.current_row;
-								}else
-								{
-										this.subject[this.current_index] = this.current_row;
-								}
-						}
-						this.current_index = index;
-						this.current_row = this.subject[index];
-						if (this.subject[index].imageUrl == null) this.subject[index].imageUrl = '';
-						this.subject.splice(index,1, {
-							oid: parseInt(this.subject[index].id),
-							name: '<input type="text" class="form-control small" style="width:150px;" id="t0" value="'+this.subject[index].name+'">',
-							phone: '<input type="text" class="form-control small" style="width:150px;" id="t1" value="'+this.subject[index].phone+'">',
-							email: '<input type="text" class="form-control small" style="width:200px;" id="t2" value="'+this.subject[index].email+'">',
-							imageUrl: '<textarea type="text" class="form-control small" style="width:200px;" id="t3">'+this.subject[index].imageUrl+'</textarea>',
-							regionName: '<select class="form-control" style="width:150px;" id="t4"></select>',							
-						});						
-						if (this.add)
-						{
-								this.subject.splice(0, 1);
-								this.add = false;
-								this.current_index = index-1;								
-						}
-						//alert(this.current_row.id);																			
-					},
-					table_remove: function (index) {
-             this.subject.splice(index, 1);  
-          },
           delete_confirm: function (index,id) {
           	$('#delete_id').modal('show');
-          	this.dId = id;
-          	this.index = index;
-          },
-          passwdSet: function (username){
-          			$.post('admin_user/resetPassword', { username: username},
-						   	function(data){
-						   		if (data.code == 0)
-						   		{
-						   				$('#resetPasswd').html(data.data);
-						   		}else
-						   		{
-						   				$('#resetPasswd').html(data.message);
-						   		}
-						   	});
-			      		$('#passwd_id').modal('show');
-			    }
+          	this.tagId = id;
+          }
 				}		
-			});
-			
-			$('#example a.edit').live('click', function (e) {
-				e.preventDefault();
-				table_addsave();
-			});
-			
-			$('#example a.cancel').live('click', function (e) {
-				e.preventDefault();
-				if (!parseInt($("#id").val()))
-				{
-						v.subject.splice(0, 1);
-						v.add = false;
-				}else
-				{
-						v.subject.splice(v.current_index, 0);
-						v.subject.splice(v.current_index,1, v.current_row);
-				}
-			});
+			});											
 			
 			function return_result(result)
 			{
 				for(var i = 0; i < result.data.length; i++) {
 						result.data[i].oid = result.data[i].id;
-						result.data[i].password = '<label id="t5" style="width:150px;"><a href="javascript:;" onclick="passwdSet(\''+result.data[i].email+'\')">重置密码</a></label>';
 				};
-				return result.data;
-			}
-			
-			function table_addsave()
-			{
-          var jqInputs = $('input',$("#example"));
-          var jqText = $('textarea',$("#example"));
-          var jqSelect = $('select',$("#example"));          
-          
-          var check_result = 0;
-          if (jqInputs[0].value != '' && jqInputs[1].value != '' && jqInputs[2].value != '')
-          {
-          		check_result = true;
-          }else
-          {
-          		alert('所有选项必须填写！');
-          }                    
-          
-          if (check_result)
-          {              
-              var str_url = "kj/add";
-              var sa_id = $("#id").val();           
-              if (sa_id != '0') str_url = "kj/update";
-              $("#id").val('0');
-              
-              var passwd = '';
-              if (jqInputs[3] != undefined) passwd = jqInputs[3].value;
-              
-              $.post(str_url, { id: sa_id, name: jqInputs[0].value, phone: jqInputs[1].value, email: jqInputs[2].value, password: passwd, imageUrl: jqText[0].value, regionId: jqSelect[0].value},
-					   	function(data){
-					   			if (data.code == 0)
-					   			{
-					   					v.add = false;
-					   					$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
-					   					v.table_remove();
-					   					//重新载入数据源
-					   					v.getDatalist();
-					   					v.getSort();
-					   			}else
-					   			{
-					   					$('#alert_error').addClass('alert-danger').show().delay(1500).fadeOut();
-					   					$("#error_info").html(data.message);
-					   			}
-					   			//console.log(data);
-					   	});
-			  	}                
-      }
+				return result.data;				
+			}						
 			
 			v.$watch('subject', function(obj) {
 					$('.default-date-picker').datepicker({   				
 				        format: 'dd/mm/yyyy'
 				  });
-				  var regionId = 0;
-				 	if (this.current_row.id)
-				  {
-				  		$("#id").val(this.current_row.id);	  		
-				  		regionId = this.current_row.regionId;				  			  		
-				  }
-			    //绑定区域列表
-			    var obj_regionId = $("#t4");	
-			    $.ajax({
-	          url: 'region/list_all',
-	          type: 'GET',
-	          dataType: 'json'
-	        }).done(function(response) {
-	        	//author:bischina
-	        	var region_data = response.data;
-	        	console.log(region_data);
-	        	for (var item in region_data)
-	        	{
-	        			obj_regionId.append("<option value='"+region_data[item].id+"'>"+region_data[item].name+"</option>");
-	        			var region_sub = region_data[item].regionList;
-	        			for (var itemsub in region_sub)
-	        			{
-	        					obj_regionId.append("<option value='"+region_sub[itemsub].id+"'>---"+region_sub[itemsub].name+"</option>");
-	        			}
-	        	}
-	        	obj_regionId.val(regionId);   
-	        });
+				  
+				  $('.colorpicker-default').colorpicker({
+					    format: 'hex'
+					});	    
 			});
 			
 			function deleteId()
       {
-					$.get("kj/delete", {
-						id: v.dId
+					$.get("officialTag/deleteOfficialTag", {
+						id: v.tagId
 					}, function(result) {
-						console.log(result);
 						if(result.data == true) {
 							$('#delete_id').modal('hide');
-							$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
-							v.table_remove();
+							$('#delete_id #alert_success').css('marginLeft','15%');
+			    		$('#delete_id #alert_success').css('marginTop','5%');
+							$('#delete_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();							
 	   					//重新载入数据源
-	   					v.getDatalist();
-	   					v.getSort();
-						};
+	   					v.getDatalist();	   					
+						}else
+						{
+							$('#delete_id #alert_error').css('marginLeft','15%');
+			    		$('#delete_id #alert_error').css('marginTop','5%');
+							$('#delete_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+			        $('#delete_id #error_info').html(result.message);
+						}
 					});      		
-      }
+      } 
       
-      function passwdSet(username)
+      function show_watag(id,name,colour)
       {
-      		$.post('admin_user/resetPassword', { username: username},
-			   	function(data){
-			   		if (data.code == 0)
-			   		{
-			   				$('#resetPasswd').html(data.data);
-			   		}else
-			   		{
-			   				$('#resetPasswd').html(data.message);
-			   		}
-			   	});
-      		$('#passwd_id').modal('show');
+      		var title_ae = '添加';
+      		if (id)
+      		{
+      				title_ae = '修改'; 
+      				v.tagId = id;
+      				$('#wa_tagbox #tag_newname').val(name);
+      				$('#wa_tagbox #tag_newcolour').val(colour);
+      				$('#wa_tagbox #tag_newcolour').css("background",colour);
+      		}
+      		$('#wa_tagbox #title_ae').html(title_ae);
+      		$('#wa_tagbox').modal('show');
+      }           
+      
+      function addTagSave()
+      {
+      		var f = '#wa_tagbox ';
+      		var check_result = 0;
+      		var e_info = '';
+      		      		
+      		if ($(f+'#tag_newname').val() != '' && $(f+'#tag_newcolour').val())
+          {
+          		check_result = true;
+          }else
+          {
+          		e_info = '标签名称/颜色 必须填写！';
+      				$(f+'#alert_error').css('marginLeft','30%');
+			    		$(f+'#alert_error').css('marginTop','10%');
+			    		$(f+'#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+			        $(f+"#error_info").html(e_info);
+      				return false;
+          }
+          
+          if (check_result)
+    			{
+    					var str_url = "officialTag/addOfficialTag";
+    					var json = {};       
+			       	if (v.tagId != 0)
+			       	{
+			       			str_url = "officialTag/updateOfficialTag";
+			       			json['id'] = v.tagId;
+			       	}
+			       	json['name'] = $(f+'#tag_newname').val();
+			       	json['colour'] = $(f+'#tag_newcolour').val();
+              
+    					$.post(str_url, json,
+					   	function(data){
+					   			if (data.code == 0)
+					   			{
+					   					$(f+'#alert_success').css('marginLeft','30%');
+			    						$(f+'#alert_success').css('marginTop','10%');
+					   					$(f+'#alert_success').addClass('alert-success').show().delay(1500).fadeOut();					   					
+					   					setTimeout(function(){$(f).modal('hide');}, 1500);
+					   					//重新载入数据源					   					
+					   					v.getDatalist();
+					   			}else
+					   			{
+					   					$(f+'#alert_error').css('marginLeft','30%');
+			    						$(f+'#alert_error').css('marginTop','10%');
+					   					$(f+'#alert_error').addClass('alert-danger').show().delay(1500).fadeOut();
+					   					$(f+'#error_info').html(data.message);
+					   			}					   			
+					   	});
+    			}
       }
       
       function show_knowledge_detail(id,parentId)
@@ -884,6 +784,13 @@
 			}
 			
 	    jQuery(document).ready(function() {
+	    		$('.colorpicker').live('click', function()
+					{
+							var str_bgcolor = $('.colorpicker-color').html();
+							str_bgcolor = str_bgcolor.replace('<div style="background-color: ','');
+							str_bgcolor = str_bgcolor.replace(';"></div>','');
+							$('#tag_newcolour').css('background-color',str_bgcolor);
+					});
 	    });
 		</script>
 	</body>
