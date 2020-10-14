@@ -7,6 +7,8 @@ public interface ServiceOrderOfficialTagDAO {
 
 	int addServiceOrderOfficialTag(ServiceOrderOfficialTagDO serviceOrderOfficialTagDo);
 
+	int updateServiceOrderOfficialTag(ServiceOrderOfficialTagDO serviceOrderOfficialTagDo);
+
 	int deleteServiceOrderOfficialTagByTagIdAndServiceOrderId(@Param("officialTagId") int officialTagId,
 			@Param("serviceOrderId") int serviceOrderId);
 

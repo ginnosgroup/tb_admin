@@ -138,6 +138,28 @@ public class OfficialTagController extends BaseController {
 			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
 		}
 	}
+	
+	@RequestMapping(value = "/updateServiceOrderOfficialTag", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> updateServiceOrderOfficialTag(@RequestParam(value = "id") Integer id,
+			@RequestParam(value = "serviceOrderId") Integer serviceOrderId, HttpServletRequest request,
+			HttpServletResponse response) {
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo != null)
+			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& (!"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
+							|| adminUserLoginInfo.getOfficialId() == null)))
+				return new Response<Integer>(1, "仅限文案和管理员操作.", null);
+		try {
+			super.setPostHeader(response);
+			if (officialTagService.updateServiceOrderOfficialTag(id, serviceOrderId) > 0)
+				return new Response<Integer>(0, id);
+			else
+				return new Response<Integer>(1, "修改失败.", 0);
+		} catch (ServiceException e) {
+			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
+		}
+	}
 
 	@RequestMapping(value = "/deleteServiceOrderOfficialTagById", method = RequestMethod.GET)
 	@ResponseBody

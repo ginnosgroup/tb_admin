@@ -114,6 +114,31 @@ public class OfficialTagServiceImpl extends BaseService implements OfficialTagSe
 	}
 
 	@Override
+	public int updateServiceOrderOfficialTag(int id, int serviceOrderId) throws ServiceException {
+		if (id <= 0) {
+			ServiceException se = new ServiceException("id error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		if (serviceOrderId <= 0) {
+			ServiceException se = new ServiceException("serviceOrderId error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		OfficialTagDO officialTagDo = officialTagDao.getOfficialTagByServiceOrderId(serviceOrderId);
+		if (officialTagDo != null) {
+			ServiceOrderOfficialTagDO serviceOrderOfficialTagDo = new ServiceOrderOfficialTagDO();
+			serviceOrderOfficialTagDo.setServiceOrderId(serviceOrderId);
+			serviceOrderOfficialTagDo.setOfficialTagId(id);
+			return ServiceOrderOfficialTagDao.updateServiceOrderOfficialTag(serviceOrderOfficialTagDo);
+		} else {
+			ServiceException se = new ServiceException("The tag is not exists ! cannot update it.");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
 	public int deleteServiceOrderOfficialTagByTagIdAndServiceOrderId(int id, int serviceOrderId)
 			throws ServiceException {
 		if (id <= 0) {

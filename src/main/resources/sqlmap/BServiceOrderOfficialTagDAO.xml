@@ -17,6 +17,15 @@
                 #{officialTagId, jdbcType=INTEGER});
     </insert>
     
+    <update id="updateServiceOrderOfficialTag" parameterType="org.zhinanzhen.b.dao.pojo.ServiceOrderOfficialTagDO">
+        UPDATE b_service_order_official_tag 
+        SET gmt_modify = now()
+        <if test='officialTagId != null and officialTagId > 0'>
+            , official_tag_id = #{officialTagId}
+        </if>
+        WHERE service_order_id = #{serviceOrderId};
+    </update>
+    
     <delete id="deleteServiceOrderOfficialTagByTagIdAndServiceOrderId">
         DELETE FROM b_service_order_official_tag
         WHERE official_tag_id = #{officialTagId, jdbcType=INTEGER} AND service_order_id = #{serviceOrderId, jdbcType=INTEGER};
