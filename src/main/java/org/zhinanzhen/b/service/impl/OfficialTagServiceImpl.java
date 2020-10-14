@@ -101,6 +101,12 @@ public class OfficialTagServiceImpl extends BaseService implements OfficialTagSe
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
+		OfficialTagDO officialTagDo = officialTagDao.getOfficialTagByServiceOrderId(serviceOrderId);
+		if (officialTagDo != null && officialTagDo.getId() == id) {
+			ServiceException se = new ServiceException("The tag is exists !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
 		ServiceOrderOfficialTagDO serviceOrderOfficialTagDo = new ServiceOrderOfficialTagDO();
 		serviceOrderOfficialTagDo.setServiceOrderId(serviceOrderId);
 		serviceOrderOfficialTagDo.setOfficialTagId(id);
