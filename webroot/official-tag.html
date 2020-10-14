@@ -116,7 +116,7 @@
 										文案管理
 									</a>
 								</li>
-								<li v-if="ap_list==='SUPERAD'" class="active">
+								<li class="active">
 									<a href="official-tag.html">
 										订单标签管理
 									</a>
@@ -340,7 +340,7 @@
                       </button>
                       <strong id="error_info"></strong>
                    	</div>
-										<div v-if="ap_list==='SUPERAD'" class="clearfix">
+										<div v-if="ap_list==='SUPERAD' || (ap_list==='WA' && wa_admin === 'true')" class="clearfix">
                        <div class="btn-group">
                           <button id="editable-sample_new" class="btn btn-success green" onclick="show_watag(0,'','');">
                           Add New <i class="fa fa-plus"></i>
