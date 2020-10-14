@@ -13,8 +13,8 @@
             VALUES (
                 now(),
                 now(),
-                #{serviceOrderId},
-                #{officialTagId});
+                #{serviceOrderId, jdbcType=INTEGER},
+                #{officialTagId, jdbcType=INTEGER});
     </insert>
     
     <delete id="deleteServiceOrderOfficialTagByTagIdAndServiceOrderId">
