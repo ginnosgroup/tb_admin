@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.OfficialTagDAO;
 import org.zhinanzhen.b.dao.ServiceOrderOfficialTagDAO;
 import org.zhinanzhen.b.dao.pojo.OfficialTagDO;
+import org.zhinanzhen.b.dao.pojo.ServiceOrderOfficialTagDO;
 import org.zhinanzhen.b.service.OfficialTagService;
 import org.zhinanzhen.b.service.pojo.OfficialTagDTO;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -100,7 +101,10 @@ public class OfficialTagServiceImpl extends BaseService implements OfficialTagSe
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
-		return ServiceOrderOfficialTagDao.addServiceOrderOfficialTag(id, serviceOrderId);
+		ServiceOrderOfficialTagDO serviceOrderOfficialTagDo = new ServiceOrderOfficialTagDO();
+		serviceOrderOfficialTagDo.setServiceOrderId(serviceOrderId);
+		serviceOrderOfficialTagDo.setOfficialTagId(id);
+		return ServiceOrderOfficialTagDao.addServiceOrderOfficialTag(serviceOrderOfficialTagDo);
 	}
 
 	@Override
