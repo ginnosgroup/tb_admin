@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.OfficialTagDAO;
 import org.zhinanzhen.b.dao.ServiceOrderOfficialTagDAO;
 import org.zhinanzhen.b.dao.pojo.OfficialTagDO;
+import org.zhinanzhen.b.dao.pojo.ServiceOrderOfficialTagDO;
 import org.zhinanzhen.b.service.OfficialTagService;
 import org.zhinanzhen.b.service.pojo.OfficialTagDTO;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -100,7 +101,41 @@ public class OfficialTagServiceImpl extends BaseService implements OfficialTagSe
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
-		return ServiceOrderOfficialTagDao.addServiceOrderOfficialTag(id, serviceOrderId) > 0 ? id : 0;
+		OfficialTagDO officialTagDo = officialTagDao.getOfficialTagByServiceOrderId(serviceOrderId);
+		if (officialTagDo != null && officialTagDo.getId() == id) {
+			ServiceException se = new ServiceException("The tag is exists !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		ServiceOrderOfficialTagDO serviceOrderOfficialTagDo = new ServiceOrderOfficialTagDO();
+		serviceOrderOfficialTagDo.setServiceOrderId(serviceOrderId);
+		serviceOrderOfficialTagDo.setOfficialTagId(id);
+		return ServiceOrderOfficialTagDao.addServiceOrderOfficialTag(serviceOrderOfficialTagDo);
+	}
+
+	@Override
+	public int updateServiceOrderOfficialTag(int id, int serviceOrderId) throws ServiceException {
+		if (id <= 0) {
+			ServiceException se = new ServiceException("id error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		if (serviceOrderId <= 0) {
+			ServiceException se = new ServiceException("serviceOrderId error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		OfficialTagDO officialTagDo = officialTagDao.getOfficialTagByServiceOrderId(serviceOrderId);
+		if (officialTagDo != null) {
+			ServiceOrderOfficialTagDO serviceOrderOfficialTagDo = new ServiceOrderOfficialTagDO();
+			serviceOrderOfficialTagDo.setServiceOrderId(serviceOrderId);
+			serviceOrderOfficialTagDo.setOfficialTagId(id);
+			return ServiceOrderOfficialTagDao.updateServiceOrderOfficialTag(serviceOrderOfficialTagDo);
+		} else {
+			ServiceException se = new ServiceException("The tag is not exists ! cannot update it.");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
 	}
 
 	@Override

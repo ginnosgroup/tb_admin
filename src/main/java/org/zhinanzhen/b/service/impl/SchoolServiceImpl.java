@@ -629,16 +629,22 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	private void updateGST(CommissionOrderListDO co) {
 		SubagencyDO subagencyDo = subagencyDao.getSubagencyById(co.getSubagencyId());
 		if (subagencyDo != null) {
-			co.setExpectAmount(co.getCommission() * subagencyDo.getCommissionRate() * 1.1);
-			System.out.println(co.getId() + "预收业绩=学校设置计算金额[" + co.getCommission() + "]*subagencyRate["
-					+ subagencyDo.getCommissionRate() + "]*1.1=" + co.getExpectAmount());
+			if ("AU".equals(subagencyDo.getCountry())) {
+				co.setExpectAmount(co.getCommission() * subagencyDo.getCommissionRate() * 1.1);
+				System.out.println(co.getId() + "(澳洲)预收业绩=学校设置计算金额[" + co.getCommission() + "]*subagencyRate["
+						+ subagencyDo.getCommissionRate() + "]*1.1=" + co.getExpectAmount());
+			} else {
+				co.setExpectAmount(co.getCommission() * subagencyDo.getCommissionRate());
+				System.out.println(co.getId() + "(非澳洲)预收业绩=学校设置计算金额[" + co.getCommission() + "]*subagencyRate["
+						+ subagencyDo.getCommissionRate() + "]=" + co.getExpectAmount());
+			}
 		} else {
 			co.setExpectAmount(co.getCommission() * 1.1);
 			System.out.println(co.getId() + "预收业绩=学校设置计算金额[" + co.getCommission() + "]*1.1=" + co.getExpectAmount());
 		}
 		double expectAmount = co.getSureExpectAmount() > 0 ? co.getSureExpectAmount() : co.getExpectAmount();
 		System.out.println(co.getId() + "确认预收业绩=" + co.getSureExpectAmount());
-		if ("AU".equals(subagencyDo.getCountry())) {
+		if (subagencyDo != null && "AU".equals(subagencyDo.getCountry())) {
 			co.setGst(expectAmount / 11);
 			System.out.println(co.getId() + "GST=预收业绩[" + expectAmount + "]/11=" + expectAmount);
 			co.setDeductGst(expectAmount - co.getGst());
