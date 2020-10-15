@@ -352,7 +352,7 @@
 												<input v-model.trim="name" type="text" class="form-control" placeholder="输入名称">												
 											</div>
 											<div class="form-group">
-												<button @click="getUser" type="button" class="btn btn-info">查询</button>
+												<button @click="getTag" type="button" class="btn btn-info">查询</button>
 											</div>
 										</form>
 										<div class="responsive-table margin-top">
@@ -532,14 +532,14 @@
 				methods: {
 					getTag: function() {
 						var that = this;
-						$.get(url + "officialTag/count", {
+						/*$.get(url + "officialTag/count", {
 							name: that.name,
 						}, function(result) {
 							console.log(result)
 							that.count = result.data;
 							that.allPage = Math.ceil(result.data / that.pageSize);
 							console.log(that.allPage)
-						});
+						});*/
 						$.get(url + "officialTag/list", {
 							name: that.name,						
 							pageNum: 0,
