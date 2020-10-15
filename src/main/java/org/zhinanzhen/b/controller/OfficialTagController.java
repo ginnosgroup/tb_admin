@@ -79,7 +79,7 @@ public class OfficialTagController extends BaseController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<OfficialTagDTO>> updateOfficialTag(HttpServletRequest request, HttpServletResponse response) {
+	public Response<List<OfficialTagDTO>> listOfficialTag(HttpServletRequest request, HttpServletResponse response) {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo != null)
 			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())

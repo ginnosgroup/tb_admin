@@ -263,7 +263,7 @@
     
     <select id="countServiceOrder" resultType="java.lang.Integer">
         SELECT count(*)
-        FROM b_service_order so, tb_adviser a
+        FROM tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON so.id=soot.service_order_id
         WHERE so.is_delete = 0 AND a.id = so.adviser_id
         <if test='type != null and type != ""'>
             AND so.type = #{type}
@@ -306,6 +306,9 @@
         </if>
         <if test='officialId != null and officialId > 0'>
             AND so.official_id = #{officialId}
+        </if>
+        <if test='officialTagId != null and officialTagId > 0'>
+            AND soot.official_tag_id = #{officialTagId}
         </if>
         <if test='parentId != null and parentId > 0'>
             AND so.parent_id = #{parentId}
@@ -375,7 +378,7 @@
             so.official_id AS officialId,
             so.remarks AS remarks,
             so.closed_reason AS closedReason
-        FROM b_service_order so, tb_adviser a
+        FROM tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON so.id=soot.service_order_id
         WHERE so.is_delete = 0 AND a.id = so.adviser_id
         <if test='type != null and type != ""'>
             AND so.type = #{type}
@@ -418,6 +421,9 @@
         </if>
         <if test='officialId != null and officialId > 0'>
             AND so.official_id = #{officialId}
+        </if>
+        <if test='officialTagId != null and officialTagId > 0'>
+            AND soot.official_tag_id = #{officialTagId}
         </if>
         <if test='parentId != null and parentId > 0'>
             AND so.parent_id = #{parentId}
