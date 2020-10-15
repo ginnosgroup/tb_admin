@@ -15,7 +15,8 @@
 		<link href="assets/font-awesome/css/font-awesome.css" rel="stylesheet">
 		<link href="assets/advanced-datatable/media/css/demo_table.css" rel="stylesheet">
 		<link rel="stylesheet" type="text/css" href="assets/bootstrap-datepicker/css/datepicker.css"><!-- BOOTSTRAP DATEPICKER PLUGIN CSS -->
-		<link rel="stylesheet" type="text/css" href="assets/bootstrap-timepicker/compiled/timepicker.css"><!-- BOOTSTRAP TIMEPICKER PLUGIN CSS -->		
+		<link rel="stylesheet" type="text/css" href="assets/bootstrap-timepicker/compiled/timepicker.css"><!-- BOOTSTRAP TIMEPICKER PLUGIN CSS -->
+		<link rel="stylesheet" type="text/css" href="assets/bootstrap-colorpicker/css/colorpicker.css"><!-- BOOTSTRAP COLORPICKER PLUGIN CSS -->
 		<link rel="stylesheet" type="text/css" href="css/jquery.autocompleter.css">
 		<link href="css/style.css" rel="stylesheet">
 		<link href="css/style-responsive.css" rel="stylesheet">
@@ -105,15 +106,27 @@
             </li>
             </dli>
             <dli v-if="ap_list==='SUPERAD' || (ap_list==='WA' && wa_admin === 'true')">
-            <li>
-              <a href="official.html">
-                <i class="fa fa-book">
+            <li class="sub-menu">
+							<a href="javascript:;">
+								<i class="fa fa-book">
                 </i>
-                <span>
-                  文案管理
+								<span>
+                 	 文案管理
                 </span>
-              </a>
-            </li>
+							</a>
+							<ul class="sub">
+								<li>
+									<a href="official.html">
+										文案管理
+									</a>
+								</li>
+								<li>
+									<a href="official-tag.html">
+										订单标签管理
+									</a>
+								</li>								
+							</ul>
+						</li>
             </dli>
             <dli v-if="ap_list==='SUPERAD'">
             <li>
@@ -425,7 +438,10 @@
 													<option value="COMPLETE">申请成功</option>													
 													<option value="PAID">COE支付成功</option>
 													<option value="CLOSE">已关闭申请</option>
-													</select>													
+													</select>
+													<label v-if="ap_list==='WA'">标签</label>
+													<select v-if="ap_list==='WA'" v-model.trim="officialTagId" id="officialTagId" class="form-control" style="width:130px;">
+													</select>												
 											</div>
 											<div class="form-group">
 												<button @click="getSearch" id="btnSearch" type="button" class="btn btn-info">查询</button>
@@ -451,6 +467,7 @@
 														<th>文案</th>
 														<th>服务项目</th>
 														<th>状态</th>
+														<th v-if="ap_list==='WA'">标签</th>
 														<th>操作</th>
 														<th>备注</th>
 													</tr>
@@ -470,6 +487,10 @@
 														<td @dblclick="table_edit($index,'officialName','t1')"><span v-html="item.officialName"></span></td>
 														<td v-html="item.serviceName"></td>
 														<td v-html="item.strState"></td>
+														<td v-if="ap_list==='WA'">
+																<div v-if="!item.tagId"><a href="javascript:show_tagbox({{item.id}},'{{item.tagId}}');">设置标签</a></div>
+																<div v-if="item.tagId" onclick="show_tagbox({{item.id}},'{{item.tagId}}')"><label style="width:80px;color:white;background:{{item.tagColour}};">{{item.tagText}}</label></div>
+														</td>
 														<td>
 																<dle v-if="ap_list==='GW' && item.adviserId !== current_adviserId">													
 																		<a href="javascript:show_addnewservice_id({{item.id}},'{{item.type}}');">查看</a>
@@ -618,6 +639,48 @@
 				</div>
 			</div>
 		</div>
+		<div class="modal fade" id="wa_tagbox" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="z-index:999999;">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+								<h4 class="modal-title" id="myModalLabel">设置订单标签</h4>
+							</div>
+							<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+					      <button data-dismiss="alert" class="close close-sm" type="button">
+					      <i class="fa fa-times"></i>
+					      </button>
+					      <strong>Success!</strong> You  just achieved success.
+					  	</div>
+					  	<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+				        <button data-dismiss="alert" class="close close-sm" type="button">
+				        <i class="fa fa-times"></i>
+				        </button>
+				        <strong id="error_info"></strong>
+				      </div>
+							<div class="modal-body">
+									<form class="form-horizontal">
+									<div class="form-group">
+										<label class="col-sm-2 control-label">选择标签<span style="color:red;">*</span></label>
+										<div class="col-sm-8">
+											<select class="form-control" style="background: #F0FFFF;color:#428bca;" name="tag_id" id="tag_id"></select>
+										</div>
+									</div>
+									<div class="form-group" id="del_tag" style="display:none;">
+										<label class="col-sm-2 control-label">&nbsp;</label>
+										<div class="col-sm-8">
+												<button onclick="delWaTag()" type="button" class="btn btn-danger">清除当前设置</button>
+										</div>
+									</div>									
+									</form>
+							</div>
+							<div class="modal-footer">
+								<button onclick="setWaTag()" type="button" class="btn btn-primary">确认</button>
+								<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>								
+							</div>
+						</div>
+					</div>
+		</div>
 		<div id="load-user-common-page"></div>
 		<div id="load-user-common-view-page"></div>
 		<script src="js/jquery-1.8.3.min.js"></script>
@@ -627,6 +690,7 @@
 		<script src="js/jquery.nicescroll.js"></script>
 		<script src="assets/bootstrap-datepicker/js/bootstrap-datepicker.js"></script><!-- BOOTSTRAP DATEPICKER JS  -->
     <script src="assets/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js"></script><!-- BOOTSTRAP DATETIMEPICKER JS  -->
+    <script src="assets/bootstrap-colorpicker/js/bootstrap-colorpicker.js"> </script><!-- BOOTSTRAP COLORPICKER JS  -->
     <script src="js/jquery.autocompleter.js"></script>
     <script src="js/jquery.validate.min.js"></script><!-- VALIDATE JS  -->
 		<script src="js/clipboard.min.js"></script>
@@ -661,6 +725,7 @@
 					count: 0,
 					dId: '',
 					eId: '',
+					tagId: 0,
 					name: '',
 					sort: '',
 					state: '',
@@ -730,7 +795,7 @@
 						}else
 						{
 								if (that.officialId != '0') json['officialId'] = that.officialId;	
-						}						
+						}					
 						if (that.maraId != '') json['maraId'] = that.maraId;
 						if (that.type != '') json['type'] = that.type;
 						if (that.state != '') json['state'] = that.state;
@@ -739,6 +804,7 @@
 						if (that.startMaraApprovalDate != '') json['startMaraApprovalDate'] = that.startMaraApprovalDate;
 						if (that.endMaraApprovalDate != '') json['endMaraApprovalDate'] = that.endMaraApprovalDate;
 						if (that.ap_list != 'GW' && that.regionId != '') json['regionId'] = that.regionId;
+						if (this.ap_list == 'WA') json['officialTagId'] = that.officialTagId;
 						$.get(url + "serviceOrder/count", json, function(result) {
 							that.count = result.data;
 							that.allPage = Math.ceil(result.data / that.pageSize);
@@ -1135,6 +1201,15 @@
 						if (result.data[i].type == 'OVST' && result.data[i].state == 'PAID' && !result.data[i].submitted) result.data[i].strState = result.data[i].strState+'<br/><button onclick="open_detail('+result.data[i].id+',\''+result.data[i].type+'\',\''+result.data[i].currentState+'\');" type="button" class="btn btn-danger">待申请月奖</button>';						
 						if (result.data[i].remarks) result.data[i].remarks = url_replace1(result.data[i].remarks);
 						result.data[i].strRemarks = '<button data-original-title="" data-html="true" data-content="'+result.data[i].remarks+'" data-placement="bottom" data-trigger="onclick" class="btn btn-info btn-xs popovers">查看备注</button>';
+						result.data[i].tagId = 0;
+						result.data[i].tagColour = '';
+						result.data[i].tagText = '';
+						if (result.data[i].officialTag != null)  
+						{
+								result.data[i].tagId = result.data[i].officialTag.id;
+								result.data[i].tagColour = result.data[i].officialTag.colour;
+								result.data[i].tagText = result.data[i].officialTag.name;
+						}
 				};
 				return result.data;
 			}
@@ -1463,7 +1538,7 @@
 				  $('.default-date-picker1').datepicker({   				
 				        format: 'yyyy-mm-dd',
 				        endDate: new Date()
-				  });
+				  });				  				  
 				  	
 				  var adviserId = 0;
 				  var adviserId_t2 = 0;
@@ -1521,7 +1596,7 @@
 	          async: false,
 	          dataType: 'json'
 	        }).done(function(response) {
-	        	//author:bischina
+	        	
 	        	response = response.data;
 	        	for (var item in response)
 	        	{
@@ -1538,7 +1613,7 @@
 	          async: false,
 	          dataType: 'json'
 	        }).done(function(response) {
-	        	//author:bischina
+	        	
 	        	response = response.data;
 	        	for (var item in response)
 	        	{
@@ -1594,7 +1669,7 @@
 	          async: false,
 	          dataType: 'json'
 	        }).done(function(response) {
-	        	//author:bischina
+	        	
 	        	response = response.data;
 	        	for (var item in response)
 	        	{
@@ -1621,7 +1696,33 @@
 	        					obj_regionId.append("<option value='"+region_sub[itemsub].id+"'>---"+region_sub[itemsub].name+"</option>");
 	        			}
 	        	}
-	        });	        
+	        });
+	        //绑定文案Tag列表			    
+	        var obj_tag = $("#tag_id");
+	        var obj_stag = new Object();
+	        if (this.ap_list == 'WA')
+	        {
+	        		obj_stag = $("#officialTagId");
+	        		obj_stag.empty();	
+	        		obj_stag.append("<option value='0'>请选择</option>");       		
+	        }
+	        $("#tag_id").empty();
+	        obj_tag.append("<option value='0'>请选择</option>");
+			    $.ajax({
+	          url: 'officialTag/list?pageNum=0&pageSize=100000',
+	          type: 'GET',
+	          async: false,
+	          dataType: 'json'
+	        }).done(function(response) {
+	        	response = response.data;
+	        	for (var item in response)
+	        	{
+	        			obj_tag.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+	        			if (v.ap_list == 'WA') obj_stag.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+	        	}
+	        	obj_tag.val();
+	        	if (v.ap_list == 'WA') obj_stag.val(v.officialTagId);	        	
+	        });        
 			});
 			
 			function getRequest(par)
@@ -1714,6 +1815,98 @@
 	          $modal_dialog.css({'margin-top': Math.max(0, ($(window).height() - $modal_dialog.height()) / 2) });
 	        });
 					$('#loading_id').modal('show');
+			}
+			
+			function show_tagbox(orderId,tagId)
+			{
+					if (v.ap_list == 'WA')
+					{
+							v.tagId = 0;
+							v.orderId = orderId;
+							if (tagId != '0')
+							{
+									v.tagId = tagId;
+									$('#wa_tagbox #tag_id').val(tagId);
+									$('#wa_tagbox #del_tag').show();
+							}else
+							{
+									$('#wa_tagbox #del_tag').hide();
+									$('#wa_tagbox #tag_id').val(0);
+							}
+							$('#wa_tagbox').modal('show');
+					}
+			}
+			
+			function setWaTag()
+			{
+					var f = '#wa_tagbox ';
+					var tagId = $(f+"#tag_id").val();
+					
+					if (tagId == '')
+					{
+							$(f+'#alert_error').css('marginLeft','30%');
+				   		$(f+'#alert_error').addClass('alert-danger').show().delay(1500).fadeOut();
+				   		return false;
+					}else
+					{
+							var str_url = "officialTag/addServiceOrderOfficialTag";
+							if (v.tagId) str_url = "officialTag/updateServiceOrderOfficialTag";
+							var json = {};
+							json['id'] = tagId;
+							json['serviceOrderId'] = v.orderId;
+							
+							$.post(str_url, json,
+					   	function(data){
+					   			if (data.code == 0)
+					   			{
+					   					$(f+'#alert_success').css('marginLeft','30%');
+			    						$(f+'#alert_success').css('marginTop','10%');
+					   					$(f+'#alert_success').addClass('alert-success').show().delay(1500).fadeOut();					   					
+					   					setTimeout(function(){$("#wa_tagbox").modal('hide');}, 1500);
+					   					//重新载入数据源					   					
+					   					v.getDatalist();
+					   			}else
+					   			{
+					   					$(f+'#alert_error').css('marginLeft','30%');
+			    						$(f+'#alert_error').css('marginTop','10%');
+					   					$(f+'#alert_error').addClass('alert-danger').show().delay(1500).fadeOut();
+					   					$(f+'#error_info').html(data.message);
+					   			}					   			
+					   	});
+					}
+			}
+			
+			function delWaTag()
+			{
+					var f = '#wa_tagbox ';
+					var tagId = $(f+"#tag_id").val();
+					
+					if (tagId != '')
+					{
+							var str_url = "officialTag/deleteServiceOrderOfficialTagById";							
+							var json = {};
+							json['id'] = tagId;
+							json['serviceOrderId'] = v.orderId;
+							
+							$.get(str_url, json,
+					   	function(data){
+					   			if (data.code == 0)
+					   			{
+					   					$(f+'#alert_success').css('marginLeft','30%');
+			    						$(f+'#alert_success').css('marginTop','10%');
+					   					$(f+'#alert_success').addClass('alert-success').show().delay(1500).fadeOut();					   					
+					   					setTimeout(function(){$("#wa_tagbox").modal('hide');}, 1500);
+					   					//重新载入数据源					   					
+					   					v.getDatalist();
+					   			}else
+					   			{
+					   					$(f+'#alert_error').css('marginLeft','30%');
+			    						$(f+'#alert_error').css('marginTop','10%');
+					   					$(f+'#alert_error').addClass('alert-danger').show().delay(1500).fadeOut();
+					   					$(f+'#error_info').html(data.message);
+					   			}					   			
+					   	});
+					}
 			}
 			
 			function deleteId()
