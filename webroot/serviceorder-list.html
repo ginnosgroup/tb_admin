@@ -663,7 +663,7 @@
 											<select class="form-control" style="background: #F0FFFF;color:#428bca;" name="tag_id" id="tag_id"></select>
 										</div>
 									</div>
-									<div class="form-group">
+									<div class="form-group" id="del_tag" style="display:none;">
 										<label class="col-sm-2 control-label">&nbsp;</label>
 										<div class="col-sm-8">
 												<button onclick="delWaTag()" type="button" class="btn btn-danger">清除当前设置</button>
@@ -1814,8 +1814,10 @@
 							{
 									v.tagId = tagId;
 									$('#wa_tagbox #tag_id').val(tagId);
+									$('#wa_tagbox #del_tag').show();
 							}else
 							{
+									$('#wa_tagbox #del_tag').hide();
 									$('#wa_tagbox #tag_id').val(0);
 							}
 							$('#wa_tagbox').modal('show');
