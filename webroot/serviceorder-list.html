@@ -662,6 +662,12 @@
 										<div class="col-sm-8">
 											<select class="form-control" style="background: #F0FFFF;color:#428bca;" name="tag_id" id="tag_id"></select>
 										</div>
+									</div>
+									<div class="form-group">
+										<label class="col-sm-2 control-label">&nbsp;</label>
+										<div class="col-sm-8">
+												<button onclick="delWaTag()" type="button" class="btn btn-danger">清除当前设置</button>
+										</div>
 									</div>									
 									</form>
 							</div>
@@ -1841,7 +1847,40 @@
 					   					$(f+'#alert_success').css('marginLeft','30%');
 			    						$(f+'#alert_success').css('marginTop','10%');
 					   					$(f+'#alert_success').addClass('alert-success').show().delay(1500).fadeOut();					   					
-					   					setTimeout(function(){$(f).modal('hide');}, 1500);
+					   					setTimeout(function(){$("#wa_tagbox").modal('hide');}, 1500);
+					   					//重新载入数据源					   					
+					   					v.getDatalist();
+					   			}else
+					   			{
+					   					$(f+'#alert_error').css('marginLeft','30%');
+			    						$(f+'#alert_error').css('marginTop','10%');
+					   					$(f+'#alert_error').addClass('alert-danger').show().delay(1500).fadeOut();
+					   					$(f+'#error_info').html(data.message);
+					   			}					   			
+					   	});
+					}
+			}
+			
+			function delWaTag()
+			{
+					var f = '#wa_tagbox ';
+					var tagId = $(f+"#tag_id").val();
+					
+					if (tagId != '')
+					{
+							var str_url = "officialTag/deleteServiceOrderOfficialTagById";							
+							var json = {};
+							json['id'] = tagId;
+							json['serviceOrderId'] = v.orderId;
+							
+							$.get(str_url, json,
+					   	function(data){
+					   			if (data.code == 0)
+					   			{
+					   					$(f+'#alert_success').css('marginLeft','30%');
+			    						$(f+'#alert_success').css('marginTop','10%');
+					   					$(f+'#alert_success').addClass('alert-success').show().delay(1500).fadeOut();					   					
+					   					setTimeout(function(){$("#wa_tagbox").modal('hide');}, 1500);
 					   					//重新载入数据源					   					
 					   					v.getDatalist();
 					   			}else
