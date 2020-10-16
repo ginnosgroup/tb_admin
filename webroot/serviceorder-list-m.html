@@ -350,6 +350,16 @@
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 						<h4 class="modal-title" id="myModalLabel">操作提示</h4>
 					</div>
+					<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+				      <button data-dismiss="alert" class="close close-sm" type="button">
+				      </button>
+				      <strong>Success!</strong> You  just achieved success.
+				  </div>
+				  <div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+	          <button data-dismiss="alert" class="close close-sm" type="button">                      
+	          </button>
+	          <strong id="error_info"></strong>
+	        </div>
 					<div class="modal-body">
 						您确认执行此操作吗？
 					</div>
@@ -367,11 +377,10 @@
 					</div>
 					<div class="modal-body">
 							<div style="text-align:center;color:#0066CC;"><img src="img/input-spinner.gif" /> 正在执行，请稍后...</div>
-					</div>
-					
+					</div>					
 				</div>
 			</div>
-		</div>
+		</div>		
 		<div class="modal fade" id="delete_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 			<div class="modal-dialog" role="document">
 				<div class="modal-content">
@@ -1113,6 +1122,7 @@
           		//if (va != 'APPLY' && va != 'PAID') json['remarks'] = $('#show_addnewservice2_id #c16a').val();
           }
           show_loading();
+          $('#alert_error').css({'margin-top': ($('#showconfirmbox_id').offset().top+$(window).height())/2});
           
           json['id'] = v.orderId;
           json['state'] = va;          
@@ -1144,8 +1154,9 @@
 			   					}
 			   					//setTimeout(function(){window.location.href = "serviceorder-list-m.html?state=";}, 2000);				   					
 			   			}else
-			   			{			   					
+			   			{
 			   					$('#alert_error').css('marginLeft','30%');
+			   					$('#alert_error').css('display', 'block');			   					
 			   					$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
 	          			$("#error_info").html(data.message);
 		        			return false;
