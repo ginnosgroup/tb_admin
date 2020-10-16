@@ -1080,7 +1080,9 @@
       function flowstep(va,par)
       {      		
       		var str_url = "serviceOrder/approval";
-      		if (par == '0' || va == 'CLOSE') str_url = "serviceOrder/refuse";
+      		if (par == '0' || va == 'CLOSE') str_url = "serviceOrder/refuse";      		
+      		$('#alert_error').css({'margin-top': ($('#showconfirmbox_id').offset().top+$(window).height()+200)/2});
+          $('#alert_success').css({'margin-top': ($('#showconfirmbox_id').offset().top+$(window).height()+200)/2});
       		
           var json = {};
           var closedReason = '';
@@ -1097,7 +1099,7 @@
 		          		var flist = $('#show_addnewservice1_id #flist').val();
 		          		if (flist == '')
 		          		{
-		          				$('#alert_error').css('marginLeft','30%');
+		          				$('#alert_error').css('marginLeft','20%');
 					   					$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
 			          			$("#error_info").html('签证凭证没有上传，请上传之后再提交。');
 		          				return false;
@@ -1109,7 +1111,7 @@
           		var flist = $('#show_addnewservice2_id #flist').val();
           		if (flist == '')
           		{
-          				$('#alert_error').css('marginLeft','30%');
+          				$('#alert_error').css('marginLeft','20%');
 			   					$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
 	          			$("#error_info").html('收款凭证没有上传，请上传之后再提交。');
           				return false;
@@ -1121,8 +1123,7 @@
           		if (va != 'APPLY' && va != 'PAID' && va !='COMPLETE') json['subagencyId'] = $('#show_addnewservice2_id #c7a').val();
           		//if (va != 'APPLY' && va != 'PAID') json['remarks'] = $('#show_addnewservice2_id #c16a').val();
           }
-          show_loading();
-          $('#alert_error').css({'margin-top': ($('#showconfirmbox_id').offset().top+$(window).height())/2});
+          show_loading();          
           
           json['id'] = v.orderId;
           json['state'] = va;          
@@ -1142,7 +1143,7 @@
 							        	response = response.data;
 							        });
 					      	}
-			   					$('#alert_success').css('marginLeft','30%');
+			   					$('#alert_success').css('marginLeft','20%');
 			   					$('#alert_success').addClass('alert-success').show().delay(1500).fadeOut();
 			   					setTimeout(function(){v.getDatalist();$('.modal-backdrop').remove();}, 1000);			   								   					
 			   					if (v.orderType == 'VISA')
@@ -1155,8 +1156,7 @@
 			   					//setTimeout(function(){window.location.href = "serviceorder-list-m.html?state=";}, 2000);				   					
 			   			}else
 			   			{
-			   					$('#alert_error').css('marginLeft','30%');
-			   					$('#alert_error').css('display', 'block');			   					
+			   					$('#alert_error').css('marginLeft','20%');			   								   					
 			   					$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
 	          			$("#error_info").html(data.message);
 		        			return false;
