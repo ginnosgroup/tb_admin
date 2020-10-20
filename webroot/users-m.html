@@ -401,8 +401,8 @@
 							</div>							
 					</div>
 					<div class="modal-footer" style="text-align: center;">						
-						<button id="btnSubmit1" type="submit" class="btn btn-primary"><span id="btn_id">提交并增加服务</span></button>
-						<button onclick="addNewSave(0)" type="button" class="btn btn-primary">仅提交</button>
+						<button id="btnSubmit1" onclick="v.eId='btnSubmit1'" type="submit" class="btn btn-primary"><span id="btn_id">提交并增加服务</span></button>
+						<button id="btnSubmit2" onclick="v.eId='btnSubmit2'" type="submit" type="button" class="btn btn-primary">仅提交</button>
 						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
 					</div>
 				</div>
@@ -1541,8 +1541,14 @@
 	    
 	    $('#addnew_id').on('show.bs.modal', function () {
 				$("#addnew_id #addnewid_form").validate({
-						submitHandler: function () {						
-			            addNewSave(1);
+						submitHandler: function () {
+								if (v.eId == 'btnSubmit1')
+								{
+										addNewSave(1);
+								}else
+								{
+										addNewSave(0);
+								}
 			      },
 			      rules: {
 			          a1: {required: true},
