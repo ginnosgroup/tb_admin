@@ -60,6 +60,8 @@ public class VisaDO {
 	private double sureExpectAmount;
 
 	private double discount;
+	
+	private String invoiceNumber;
 
 	private double gst;
 

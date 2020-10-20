@@ -33,6 +33,7 @@
                 expect_amount,
                 sure_expect_amount,
                 discount,
+                invoice_number,
                 gst,
                 deduct_gst,
                 bonus,
@@ -72,6 +73,7 @@
                 #{expectAmount},
                 #{sureExpectAmount},
                 #{discount},
+                #{invoiceNumber},
                 #{gst},
                 #{deductGst},
                 #{bonus},
@@ -150,6 +152,9 @@
         </if>
         <if test='sureExpectAmount != null and sureExpectAmount != ""'>
             , sure_expect_amount = #{sureExpectAmount}
+        </if>
+        <if test='invoiceNumber != null and invoiceNumber != ""'>
+            , invoice_number = #{invoiceNumber}
         </if>
         <if test='gst != null and gst != ""'>
             , gst = #{gst}
@@ -279,6 +284,7 @@
             bv.expect_amount AS expectAmount,
             bv.sure_expect_amount AS sureExpectAmount,
             bv.discount AS discount,
+            bv.invoice_number AS invoiceNumber,
             bv.gst AS gst,
             bv.deduct_gst AS deductGst,
             bv.bonus AS bonus,
@@ -376,6 +382,7 @@
             expect_amount AS expectAmount,
             sure_expect_amount AS sureExpectAmount,
             discount,
+            invoice_number AS invoiceNumber,
             gst,
             deduct_gst AS deductGst,
             bonus,
@@ -420,6 +427,7 @@
             expect_amount AS expectAmount,
             sure_expect_amount AS sureExpectAmount,
             discount,
+            invoice_number AS invoiceNumber,
             gst,
             deduct_gst AS deductGst,
             bonus,
@@ -515,6 +523,7 @@
             expect_amount AS expectAmount,
             sure_expect_amount AS sureExpectAmount,
             discount,
+            invoice_number AS invoiceNumber,
             gst,
             deduct_gst AS deductGst,
             bonus,
@@ -563,6 +572,7 @@
             expect_amount AS expectAmount,
             sure_expect_amount AS sureExpectAmount,
             discount,
+            invoice_number AS invoiceNumber,
             gst,
             deduct_gst AS deductGst,
             bonus,

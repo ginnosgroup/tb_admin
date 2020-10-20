@@ -214,6 +214,7 @@ CREATE TABLE `b_visa` (
   `deduct_gst` decimal(8,2) NOT NULL COMMENT 'Deduct GST',
   `bonus` decimal(8,2) NOT NULL COMMENT '月奖金',
   `bonus_date` datetime DEFAULT NULL COMMENT '月奖金支付时间',
+`invoice_number` varchar(64) DEFAULT NULL COMMENT 'InvoiceNo.',
   `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
   `mara_id` int NOT NULL COMMENT '所属MARA编号 (对应b_mara.id)',
   `official_id` int NOT NULL COMMENT '文案编号 (对应b_official.id)',
