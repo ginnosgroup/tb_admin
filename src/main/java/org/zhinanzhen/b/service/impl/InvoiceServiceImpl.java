@@ -1,16 +1,20 @@
 package org.zhinanzhen.b.service.impl;
 
+import org.apache.ibatis.transaction.Transaction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.InvoiceDAO;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.InvoiceService;
+import org.zhinanzhen.b.service.pojo.DataDTO;
 import org.zhinanzhen.b.service.pojo.InvoiceCompanyDTO;
 import org.zhinanzhen.b.service.pojo.InvoiceDTO;
+import org.zhinanzhen.b.service.pojo.InvoiceServiceFeeDTO;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -63,21 +67,27 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
             List<InvoiceDTO> list = new ArrayList<>();
             if (kind == null) {
                 InvoiceDTO invoiceSC = invoiceDAO.selectCommissionOrder(order_id);
-                invoiceSC.setIds("SC" + invoiceSC.getId());
+                if(invoiceSC != null){
+                    invoiceSC.setIds("SC" + invoiceSC.getId());
+                    list.add(invoiceSC);
+                }
                 InvoiceDTO invoiceSF = invoiceDAO.selectVisaOrder(order_id);
-                invoiceSF.setIds("SF" + invoiceSF.getId());
-                list.add(invoiceSC);
-                list.add(invoiceSF);
+                if(invoiceSF != null){
+                    invoiceSF.setIds("SF" + invoiceSF.getId());
+                    list.add(invoiceSF);
+                }
                 return  list;
             }
             if (kind.equals("SC")) {
                 InvoiceDTO invoiceSC = invoiceDAO.selectCommissionOrder(order_id);
+                if(invoiceSC != null)
                 invoiceSC.setIds("SC" + invoiceSC.getId());
                 list.add(invoiceSC);
                 return list;
             }
             if (kind.equals("SF")) {
                 InvoiceDTO invoiceSF = invoiceDAO.selectVisaOrder(order_id);
+                if(invoiceSF != null)
                 invoiceSF.setIds("SF" + invoiceSF.getId());
                 list.add(invoiceSF);
                 return list;
@@ -121,23 +131,24 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
     @Override
     public InvoiceCompanyDTO addServiceFeeInvoice(String branch, String company) {
 
-        InvoiceCompanyDTO  invoiceCompanyDTO = null;
-
-        if(company.equals("Compass Education and Migration Pty Ltd")){
-            invoiceCompanyDTO =  invoiceDAO.selectCompanyByName(company,"SF");
-            InvoiceAddressDO invoiceAddressDO = invoiceDAO.selectAddressByBranch(branch);
-            if(invoiceCompanyDTO != null & invoiceAddressDO !=null ){
-                invoiceCompanyDTO.setAddress(invoiceAddressDO.getAddress());
-                invoiceCompanyDTO.setAccount(invoiceAddressDO.getAccount());
-                invoiceCompanyDTO.setBsb(invoiceAddressDO.getBsb());
+        InvoiceCompanyDTO  invoiceCompanyDTO =  invoiceDAO.selectCompanyByName(company,"SF");
+        if(invoiceCompanyDTO != null) {
+            if (invoiceCompanyDTO.getSimple().equals("CEM")) {
+                InvoiceAddressDO invoiceAddressDO = invoiceDAO.selectAddressByBranch(branch);
+                if (invoiceCompanyDTO != null & invoiceAddressDO != null) {
+                    invoiceCompanyDTO.setAddress(invoiceAddressDO.getAddress());
+                    invoiceCompanyDTO.setAccount(invoiceAddressDO.getAccount());
+                    invoiceCompanyDTO.setBsb(invoiceAddressDO.getBsb());
+                    return invoiceCompanyDTO;
+                }
+            }
+            if (invoiceCompanyDTO.getSimple().equals("CS")) {
+                InvoiceAddressDO invoiceAddressDO = invoiceDAO.selectAddressByBranch("SYD");
+                if (invoiceCompanyDTO != null & invoiceAddressDO != null) {
+                    invoiceCompanyDTO.setAddress(invoiceAddressDO.getAddress());
+                }
                 return invoiceCompanyDTO;
             }
-        }
-        if(company.equals("COMPASS SYDNEY PTY LTD")){
-            invoiceCompanyDTO =  invoiceDAO.selectCompanyByName(company,"SF");
-            if( invoiceCompanyDTO != null )
-            invoiceCompanyDTO.setAddress("402/630-634 George Street, Sydney NSW 2000");
-            return  invoiceCompanyDTO;
         }
         return null;
     }
@@ -190,14 +201,25 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
     //查询一个invoice
     @Override
     public Response selectInvoiceByNo(String invoiceNo, String invoiceIds) {
-        if(invoiceIds.substring(0,2).equals("SF")){
+        if(invoiceIds.substring(0,2).equals("SF")) {
+            BigDecimal totalGST = new BigDecimal("0");
+            BigDecimal GST = new BigDecimal("0");
             InvoiceServiceFeeDO invoiceServiceFeeDO = invoiceDAO.selectSFInvoiceByNo(invoiceNo);
-            System.out.println(invoiceNo+"==="+invoiceServiceFeeDO.toString());
-            return new Response(1,invoiceServiceFeeDO);
+            if (invoiceServiceFeeDO != null) {
+                InvoiceServiceFeeDTO invoiceServiceFeeDTO = mapper.map(invoiceServiceFeeDO, InvoiceServiceFeeDTO.class);
+                List<InvoiceServiceFeeDescriptionDO> descriptions = invoiceServiceFeeDTO.getInvoiceServiceFeeDescriptionDOList();
+                for (InvoiceServiceFeeDescriptionDO description : descriptions) {
+                    totalGST = totalGST.add(description.getAmount());
+                }
+                GST = totalGST.divide(new BigDecimal("11"), 2, BigDecimal.ROUND_HALF_UP);
+                invoiceServiceFeeDTO.setSubtotal(totalGST.subtract(GST));
+                invoiceServiceFeeDTO.setGST(GST);
+                invoiceServiceFeeDTO.setTotalGST(totalGST);
+                return new Response(1, invoiceServiceFeeDTO);
+            }
         }
         if(invoiceIds.substring(0,2).equals("SC")){
             InvoiceSchoolDO invoiceSchoolDO = invoiceDAO.selectSCInvoiceByNo(invoiceNo);
-            System.out.println(invoiceNo+"==="+invoiceSchoolDO.toString());
             return new Response(1,invoiceSchoolDO);
         }
         return  null;
@@ -206,5 +228,24 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
     @Override
     public int relationCommissionOrder(String[] idList, String invoiceNo) {
         return invoiceDAO.relationCommissionOrder(idList , invoiceNo);
+    }
+
+    @Override
+    public int addBillTo(String company, String abn, String address) {
+        return invoiceDAO.addBillTo(company,abn,address);
+    }
+
+    //保存servicefee
+    @Override
+    @Transactional
+    public int saveServiceFeeInvoice(String invoiceDate, String email, String company, String abn, String address, String tel, String invoiceNo,
+                                     String note, String accountname, String bsb, String accountno, String branch,
+                                     List<InvoiceServiceFeeDescriptionDO> invoiceServiceFeeDescriptionDOList) {
+
+        int resultsavein = invoiceDAO.saveServiceFeeInvoice(invoiceDate,email,company,abn,address,tel,invoiceNo,note,accountname,bsb,accountno,branch);
+        int resultsavedes = invoiceDAO.saveServiceFeeDescription(invoiceServiceFeeDescriptionDOList,invoiceNo);
+        if(resultsavein > 0 && resultsavedes > 0)
+            return 1 ;
+        return 0;
     }
 }

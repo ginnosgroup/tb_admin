@@ -1,9 +1,6 @@
 package org.zhinanzhen.b.service;
 
-import org.zhinanzhen.b.dao.pojo.InvoiceBranchDO;
-import org.zhinanzhen.b.dao.pojo.InvoiceAddressDO;
-import org.zhinanzhen.b.dao.pojo.InvoiceCompanyDO;
-import org.zhinanzhen.b.dao.pojo.InvoiceServiceFeeDO;
+import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.pojo.InvoiceCompanyDTO;
 import org.zhinanzhen.b.service.pojo.InvoiceDTO;
 import org.zhinanzhen.tb.controller.Response;
@@ -40,4 +37,8 @@ public interface InvoiceService {
     Response selectInvoiceByNo(String invoiceNo, String invoiceIds);
 
     int relationCommissionOrder(String[] idList, String invoiceNo);
+
+    int addBillTo(String company, String abn, String address);
+
+    int saveServiceFeeInvoice(String invoiceDate, String email, String company, String abn, String address, String tel, String invoiceNo, String note, String accountname, String bsb, String accountno, String branch, List<InvoiceServiceFeeDescriptionDO> invoiceServiceFeeDescriptionDOList);
 }

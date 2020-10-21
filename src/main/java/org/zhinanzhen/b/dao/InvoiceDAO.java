@@ -56,4 +56,12 @@ public interface InvoiceDAO {
 
     //school导入数据的时候，关联订单id
     int relationCommissionOrder(@Param("idList") String[] idList, @Param("invoiceNo") String invoiceNo);
+
+    int addBillTo(@Param("company") String company,@Param("abn") String abn,@Param("address") String address);
+
+    int saveServiceFeeInvoice(@Param("invoiceDate")String invoiceDate, @Param("email")String email, @Param("company")String company, @Param("abn")String abn,
+                              @Param("address")String address, @Param("tel")String tel, @Param("invoiceNo")String invoiceNo, @Param("note")String note,
+                              @Param("accountname")String accountname, @Param("bsb")String bsb, @Param("accountno")String accountno, @Param("branch")String branch);
+
+    int saveServiceFeeDescription(@Param("invoiceServiceFeeDescriptionDOList") List<InvoiceServiceFeeDescriptionDO> invoiceServiceFeeDescriptionDOList ,@Param("invoiceNo") String invoiceNo);
 }

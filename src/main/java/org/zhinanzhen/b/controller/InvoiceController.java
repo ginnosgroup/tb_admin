@@ -15,6 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -167,9 +168,28 @@ public class InvoiceController {
     //保存serviceFee invoice
     @RequestMapping(value = "/saveServiceFeeInvoice" , method = RequestMethod.POST )
     @ResponseBody
-    public Response saveServiceFeeInvoice(InvoiceServiceFeeDO invoiceServiceFeeDO){
-        System.out.println(invoiceServiceFeeDO.toString());
-        return null;
+    public Response saveServiceFeeInvoice(@RequestBody Map paramMap){
+
+        String invoiceDate = (String) paramMap.get("invoiceDate");
+        String email = (String)paramMap.get("email");
+        String company = (String)paramMap.get("company");
+        String abn = (String)paramMap.get("abn");
+        String address = (String)paramMap.get("address");
+        String tel = (String)paramMap.get("tel");
+        String invoiceNo = (String) paramMap.get("invoiceNo");
+        String note = (String)paramMap.get("note");
+        String accountname = (String)paramMap.get("accountname");
+        String bsb = (String)paramMap.get("bsb");
+        String accountno = (String)paramMap.get("accountno");
+        String branch = (String)paramMap.get("branch");
+        List<InvoiceServiceFeeDescriptionDO> invoiceServiceFeeDescriptionDOList = (List<InvoiceServiceFeeDescriptionDO>) paramMap .get("descriptionList");
+        int result = invoiceService.saveServiceFeeInvoice(invoiceDate,email,company,abn,address,tel,invoiceNo,note,accountname,bsb,accountno,branch,invoiceServiceFeeDescriptionDOList);
+
+        if (result>0){
+            return new Response(1,"success");
+        }
+
+        return new Response(1,"fail");
     }
 
 
@@ -188,6 +208,17 @@ public class InvoiceController {
         }
 
         return  new Response(1,companyNameList);
+    }
+
+    @RequestMapping(value = "/addBillTo" ,method =  RequestMethod.POST )
+    @ResponseBody
+    public Response addBillTo(@RequestParam(value = "company" ,required =  true)String company ,
+                              @RequestParam(value = "abn", required = true )String abn ,
+                              @RequestParam(value = "address", required =  true) String address ){
+        int result = invoiceService.addBillTo(company,abn,address);
+        if( result > 0 )
+            return  new Response(1,"success");
+        return  new Response(1,"fail");
     }
 
     //添加schoolInvoice

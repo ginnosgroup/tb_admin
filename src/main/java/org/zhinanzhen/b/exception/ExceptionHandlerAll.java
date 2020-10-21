@@ -12,9 +12,8 @@ import org.zhinanzhen.tb.controller.Response;
  * Description:异常处理
  * Version: V1.0
  */
-//@ControllerAdvice
+@ControllerAdvice
 public class ExceptionHandlerAll {
-
 
     /**
      * 处理当前项目中的所有异常 Throwable
@@ -23,7 +22,7 @@ public class ExceptionHandlerAll {
     @ExceptionHandler(Throwable.class)
     @ResponseBody
     public Response handlerException(Exception ex){
-        Response result = new Response(0," 系统出现 " + ex.getMessage() + " 错误，请联系管理员! ");
+        Response result = new Response(0," 系统出现错误，请联系管理员! ");
         return  result;
     }
 

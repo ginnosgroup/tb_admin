@@ -65,7 +65,7 @@
         bc.invoice_no,
         bc.branch,
         bc.state
-        from `b_invoice_school` as bc   WHERE bc.invoice_no = (select DISTINCT bo.invoice_number from  `b_commission_order` as bo WHERE bo.service_order_id = #{order_id})
+        from `b_invoice_school` as bc   WHERE bc.invoice_no = (select DISTINCT bo.invoice_number from  `b_commission_order` as bo WHERE bo.id = #{order_id})
     </select>
     <select id="selectVisaOrder" resultType="org.zhinanzhen.b.service.pojo.InvoiceDTO">
         select bf.id,
@@ -74,7 +74,7 @@
         bf.invoice_no,
         bf.branch,
         bf.state
-        from `b_invoice_servicefee` as bf   WHERE bf.invoice_no = (select DISTINCT bv.invoice_number from  `b_visa` as bv WHERE bv.service_order_id = #{order_id})
+        from `b_invoice_servicefee` as bf   WHERE bf.invoice_no = (select DISTINCT bv.invoice_number from  `b_visa` as bv WHERE bv.id = #{order_id})
     </select>
 
     <!-- 更改invoice状态-->
@@ -228,4 +228,24 @@
             #{id}
         </foreach>
     </update>
+
+    <!-- 选择bill to company 添加company-->
+    <insert id="addBillTo">
+        insert into `b_invoice_billto` (company,abn,address,gmt_create,gmt_modify) values  (#{company},#{abn},#{address},now(),now())
+    </insert>
+
+    <!-- save srvicefee invoice-->
+    <insert id="saveServiceFeeInvoice">
+        insert into `b_invoice_servicefee` (gmt_create,gmt_modify,email,company,abn,address,tel,invoice_no,note,accountname,bsb,accountno,state,branch) values
+        (#{invoiceDate},now(),#{email},#{company},#{abn},#{address},#{tel},#{invoiceNo},#{note},#{accountname},#{bsb},#{accountno},"NORMAL",#{branch})
+    </insert>
+    <!-- save srvicefeedescription invoice-->
+    <insert id="saveServiceFeeDescription">
+        insert into `b_invoice_servicefee_description` (id,description,unit_price,quantity,amount,invoice_no,gmt_create,gmt_modify) values
+        <if test="invoiceServiceFeeDescriptionDOList != null ">
+            <foreach collection="invoiceServiceFeeDescriptionDOList" index="index" item="des" separator="," close=";">
+                (#{des.id},#{des.description},#{des.unitPrice},#{des.quantity},#{des.amount},#{invoiceNo},now(),now())
+            </foreach>
+        </if>
+    </insert>
 </mapper>
