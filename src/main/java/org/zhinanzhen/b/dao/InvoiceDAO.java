@@ -6,6 +6,7 @@ import org.zhinanzhen.b.service.pojo.InvoiceCompanyDTO;
 import org.zhinanzhen.b.service.pojo.InvoiceDTO;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -50,12 +51,14 @@ public interface InvoiceDAO {
     int relationVisaOrder(@Param("idList") String[] idList, @Param("invoiceNo") String invoiceNo);
 
     //查询一个invoice
-    InvoiceServiceFeeDO selectSFInvoiceByNo(@Param("invoiceNo") String invoiceNo);
+    InvoiceServiceFeeDO selectSFInvoiceByNo(@Param("invoiceNo") String invoiceNo ,@Param("id") String id);
 
     InvoiceSchoolDO selectSCInvoiceByNo(@Param("invoiceNo")String invoiceNo);
 
     //school导入数据的时候，关联订单id
     int relationCommissionOrder(@Param("idList") String[] idList, @Param("invoiceNo") String invoiceNo);
+
+    List<InvoiceBillToDO> billToList();
 
     int addBillTo(@Param("company") String company,@Param("abn") String abn,@Param("address") String address);
 
@@ -64,4 +67,10 @@ public interface InvoiceDAO {
                               @Param("accountname")String accountname, @Param("bsb")String bsb, @Param("accountno")String accountno, @Param("branch")String branch);
 
     int saveServiceFeeDescription(@Param("invoiceServiceFeeDescriptionDOList") List<InvoiceServiceFeeDescriptionDO> invoiceServiceFeeDescriptionDOList ,@Param("invoiceNo") String invoiceNo);
+
+    boolean saveSchoolInvoice(Map paramMap);
+
+    boolean saveSchoolDescription(@Param("description") List<InvoiceSchoolDescriptionDO> description,@Param("invoiceNo") Object invoiceNo);
+
+
 }

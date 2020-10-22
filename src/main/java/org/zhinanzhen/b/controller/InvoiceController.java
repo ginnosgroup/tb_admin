@@ -1,5 +1,7 @@
 package org.zhinanzhen.b.controller;
 
+import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.zhinanzhen.b.dao.pojo.*;
@@ -11,6 +13,8 @@ import org.zhinanzhen.tb.controller.Response;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -164,32 +168,36 @@ public class InvoiceController {
         return   new Response(0,"失败");
     }
 
-    //!!!!!!!!!!!!!
+
     //保存serviceFee invoice
     @RequestMapping(value = "/saveServiceFeeInvoice" , method = RequestMethod.POST )
     @ResponseBody
     public Response saveServiceFeeInvoice(@RequestBody Map paramMap){
 
-        String invoiceDate = (String) paramMap.get("invoiceDate");
-        String email = (String)paramMap.get("email");
-        String company = (String)paramMap.get("company");
-        String abn = (String)paramMap.get("abn");
-        String address = (String)paramMap.get("address");
-        String tel = (String)paramMap.get("tel");
-        String invoiceNo = (String) paramMap.get("invoiceNo");
-        String note = (String)paramMap.get("note");
-        String accountname = (String)paramMap.get("accountname");
-        String bsb = (String)paramMap.get("bsb");
-        String accountno = (String)paramMap.get("accountno");
-        String branch = (String)paramMap.get("branch");
-        List<InvoiceServiceFeeDescriptionDO> invoiceServiceFeeDescriptionDOList = (List<InvoiceServiceFeeDescriptionDO>) paramMap .get("descriptionList");
-        int result = invoiceService.saveServiceFeeInvoice(invoiceDate,email,company,abn,address,tel,invoiceNo,note,accountname,bsb,accountno,branch,invoiceServiceFeeDescriptionDOList);
+       try {
+            String invoiceDate = (String) paramMap.get("invoiceDate");
+            String email = (String) paramMap.get("email");
+            String company = (String) paramMap.get("company");
+            String abn = (String) paramMap.get("abn");
+            String address = (String) paramMap.get("address");
+            String tel = (String) paramMap.get("tel");
+            String invoiceNo = (String) paramMap.get("invoiceNo");
+            String note = (String) paramMap.get("note");
+            String accountname = (String) paramMap.get("accountname");
+            String bsb = (String) paramMap.get("bsb");
+            String accountno = (String) paramMap.get("accountno");
+            String branch = (String) paramMap.get("branch");
+            List<InvoiceServiceFeeDescriptionDO> invoiceServiceFeeDescriptionDOList = (List<InvoiceServiceFeeDescriptionDO>) paramMap.get("descriptionList");
+            int result = invoiceService.saveServiceFeeInvoice(invoiceDate, email, company, abn, address, tel, invoiceNo, note, accountname, bsb, accountno, branch, invoiceServiceFeeDescriptionDOList);
 
-        if (result>0){
-            return new Response(1,"success");
+            if (result > 0) {
+                return new Response(1, "success");
+            }
+            return new Response(1,"fail");
+        }catch (DataAccessException ex){
+            return new Response(1 ,"参数错误" );
         }
 
-        return new Response(1,"fail");
     }
 
 
@@ -208,6 +216,12 @@ public class InvoiceController {
         }
 
         return  new Response(1,companyNameList);
+    }
+
+    @RequestMapping(value = "/selectBillTo" ,method =  RequestMethod.GET )
+    @ResponseBody
+    public Response billToList(){
+        return  new Response(1,invoiceService.billToList());
     }
 
     @RequestMapping(value = "/addBillTo" ,method =  RequestMethod.POST )
@@ -270,6 +284,24 @@ public class InvoiceController {
             return new Response(1,"成功");
         }
         return   new Response(0,"失败");
+    }
+
+    //保存school invoice
+    @RequestMapping( value = "/saveSchoolInvoice" ,method =  RequestMethod.POST)
+    @ResponseBody
+    public  Response saveSchoolInvoice(@RequestBody Map paramMap){
+        try {
+            int result = invoiceService.saveSchoolInvoice(paramMap);
+            if ( result >0 ){
+                return  new Response(1 ,"success" );
+            }
+            return new Response(1 ,"fail" );
+        }catch (DataAccessException ex){
+            return new Response(1 ,"参数错误" );
+        }
+
+
+
     }
 
 }

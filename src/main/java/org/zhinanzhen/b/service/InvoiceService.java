@@ -6,6 +6,7 @@ import org.zhinanzhen.b.service.pojo.InvoiceDTO;
 import org.zhinanzhen.tb.controller.Response;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -41,4 +42,8 @@ public interface InvoiceService {
     int addBillTo(String company, String abn, String address);
 
     int saveServiceFeeInvoice(String invoiceDate, String email, String company, String abn, String address, String tel, String invoiceNo, String note, String accountname, String bsb, String accountno, String branch, List<InvoiceServiceFeeDescriptionDO> invoiceServiceFeeDescriptionDOList);
+
+    int saveSchoolInvoice(Map paramMap);
+
+    List<InvoiceBillToDO> billToList();
 }

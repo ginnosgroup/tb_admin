@@ -150,7 +150,7 @@
     <select id="selectSFInvoiceByNo" resultMap="invoiceServiceFee">
         select sf.id,sf.gmt_create,sf.email,sf.invoice_no,sf.company,sf.abn,sf.address,sf.tel,note,accountname,bsb,accountno,state,branch,
         sfd.id as did,description as ddescription,unit_price as dunit_price,quantity as dquantity ,amount as damount from `b_invoice_servicefee` as sf ,
-        `b_invoice_servicefee_description` as sfd where sf.invoice_no = #{invoiceNo} and sf.invoice_no = sfd.invoice_no
+        `b_invoice_servicefee_description` as sfd where sf.invoice_no = #{invoiceNo} and sf.invoice_no = sfd.invoice_no and sf.id = #{id}
     </select>
     <resultMap id="invoiceServiceFee" type="org.zhinanzhen.b.dao.pojo.InvoiceServiceFeeDO">
         <id column="id" property="id"></id>
@@ -229,6 +229,10 @@
         </foreach>
     </update>
 
+    <select id="billToList" resultType="org.zhinanzhen.b.dao.pojo.InvoiceBillToDO">
+        select id,company,abn,address from `b_invoice_billto`
+    </select>
+
     <!-- 选择bill to company 添加company-->
     <insert id="addBillTo">
         insert into `b_invoice_billto` (company,abn,address,gmt_create,gmt_modify) values  (#{company},#{abn},#{address},now(),now())
@@ -245,6 +249,22 @@
         <if test="invoiceServiceFeeDescriptionDOList != null ">
             <foreach collection="invoiceServiceFeeDescriptionDOList" index="index" item="des" separator="," close=";">
                 (#{des.id},#{des.description},#{des.unitPrice},#{des.quantity},#{des.amount},#{invoiceNo},now(),now())
+            </foreach>
+        </if>
+    </insert>
+
+    <!-- save srvicefee invoice-->
+    <insert id="saveSchoolInvoice" parameterType="java.util.Map">
+        insert  into `b_invoice_school` (gmt_create,gmt_modify,email,company,abn,address,tel,invoice_no,billto_id,note,accountname,bsb,accountno,state,branch)
+        values (#{invoiceDate},now(),#{email},#{company},#{abn},#{address},#{tel},#{invoiceNo},#{billto_id},#{note},#{accountname},#{bsb},#{accountno},"NORMAL",#{branch})
+    </insert>
+    <insert id="saveSchoolDescription">
+        insert  into `b_invoice_school_description` (id,studentname,dob,student_id,course,startDate,instalment,tuitionfee,bonus,commissionrate,commission,gmt_create,gmt_modify,invoice_no)
+        values
+        <if test=" description != null ">
+            <foreach collection="description" item="des"  index="index" separator="," close=";">
+                (#{des.id},#{des.studentname},#{des.dob},#{des.studentId},#{des.course},#{des.startDate},#{des.instalMent},#{des.tuitionFee},#{des.bonus},#{des.commissionrate},#{des.commission},
+                now(),now(),#{invoiceNo})
             </foreach>
         </if>
     </insert>

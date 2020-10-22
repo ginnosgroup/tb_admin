@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -204,7 +205,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
         if(invoiceIds.substring(0,2).equals("SF")) {
             BigDecimal totalGST = new BigDecimal("0");
             BigDecimal GST = new BigDecimal("0");
-            InvoiceServiceFeeDO invoiceServiceFeeDO = invoiceDAO.selectSFInvoiceByNo(invoiceNo);
+            InvoiceServiceFeeDO invoiceServiceFeeDO = invoiceDAO.selectSFInvoiceByNo(invoiceNo,invoiceIds.substring(2,invoiceIds.length()));
             if (invoiceServiceFeeDO != null) {
                 InvoiceServiceFeeDTO invoiceServiceFeeDTO = mapper.map(invoiceServiceFeeDO, InvoiceServiceFeeDTO.class);
                 List<InvoiceServiceFeeDescriptionDO> descriptions = invoiceServiceFeeDTO.getInvoiceServiceFeeDescriptionDOList();
@@ -231,6 +232,11 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
     }
 
     @Override
+    public List<InvoiceBillToDO> billToList() {
+        return invoiceDAO.billToList();
+    }
+
+    @Override
     public int addBillTo(String company, String abn, String address) {
         return invoiceDAO.addBillTo(company,abn,address);
     }
@@ -248,4 +254,15 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
             return 1 ;
         return 0;
     }
+
+    @Override
+    @Transactional
+    public int saveSchoolInvoice(Map paramMap) {
+        List<InvoiceSchoolDescriptionDO> description = (List<InvoiceSchoolDescriptionDO>) paramMap .get("description");
+        if(invoiceDAO.saveSchoolInvoice(paramMap)  && invoiceDAO.saveSchoolDescription(description, paramMap.get("invoiceNo")) )
+            return 1 ;
+        return 0;
+    }
+
+
 }
