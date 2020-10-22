@@ -14,7 +14,7 @@ import org.zhinanzhen.tb.controller.Response;
  * Description:异常处理
  * Version: V1.0
  */
-//@ControllerAdvice
+@ControllerAdvice
 public class ExceptionHandlerAll {
 
 
