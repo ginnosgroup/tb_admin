@@ -770,7 +770,8 @@ function show_addnewservice_id(orderId,type)
         	$('#show_addnewservice1_id #b2').html(response.adviser.name);
         	if (v_sub.ap_list == 'WA')
         	{
-        			$("#show_addnewservice1_id #document1").css("width","750px");        			
+        			$("#show_addnewservice1_id #document1").css("width","750px");
+        			$("#show_addnewservice1_id #leftbox").show();     			
         			$("#show_addnewservice1_id #leftbox").css("width","700px");
         			$("#show_addnewservice1_id #leftbox").css("padding-left","0px");
         			$("#show_addnewservice1_id #leftbox").css("padding-right","0px");
@@ -950,6 +951,7 @@ function show_addnewservice_id(orderId,type)
         	if (v_sub.ap_list == 'WA')
         	{
         			$("#show_addnewservice2_id #document2").css("width","750px");
+        			$("#show_addnewservice2_id #leftbox").show();
         			$("#show_addnewservice2_id #leftbox").css("width","700px");
         			$("#show_addnewservice2_id #leftbox").css("padding-left","0px");
         			$("#show_addnewservice2_id #leftbox").css("padding-right","0px");
@@ -1992,7 +1994,7 @@ function show_rightbox()
     				format: 'dd/mm/yyyy'			        
 				});
 				$("#show_addnewservice1_id #tmpbox").hide();
-		}else
+		}else if (v_sub.orderType == 'OVST')
 		{
 				$("#show_addnewservice2_id #document2").css("width","1100px");
   			$("#show_addnewservice2_id #leftbox").addClass("col-lg-6");
