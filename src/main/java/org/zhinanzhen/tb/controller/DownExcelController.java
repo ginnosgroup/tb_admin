@@ -45,7 +45,6 @@ import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.OrderDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
-import org.zhinanzhen.tb.utils.ConfigService;
 
 import com.ikasoa.core.utils.StringUtil;
 
@@ -64,8 +63,6 @@ import lombok.Data;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/down")
 public class DownExcelController extends BaseController {
-	@Resource
-	private ConfigService configService;
 	@Resource
 	private UserService userService;
 	@Resource
