@@ -19,17 +19,27 @@ public interface InvoiceDAO {
 
     List<InvoiceDTO> selectScoolInvoice(@Param("invoice_no") String invoice_no, @Param("order_id") String order_id,
                                         @Param("create_start") String create_start, @Param("create_end") String create_end,
-                                        @Param("branch") String branch,
+                                        @Param("branch") String branch, @Param("state") String state,
                                         @Param("pageNum") int pageNum, @Param("pageSize") int pageSize);
 
     List<InvoiceDTO> selectServiceFeeInvoice(@Param("invoice_no") String invoice_no, @Param("order_id") String order_id,
                                              @Param("create_start") String create_start, @Param("create_end") String create_end,
-                                             @Param("branch") String branch,
+                                             @Param("branch") String branch,@Param("state") String state,
                                              @Param("pageNum") int pageNum, @Param("pageSize") int pageSize);
+
+    Integer selectSFCount(@Param("invoice_no")String invoice_no, @Param("order_id")String order_id, @Param("create_start")String create_start,
+                      @Param("create_end")String create_end, @Param("kind")String kind,@Param("branch") String branch ,@Param("state") String state);
+
+    Integer selectSCCount(@Param("invoice_no")String invoice_no, @Param("order_id")String order_id, @Param("create_start")String create_start,
+                      @Param("create_end")String create_end, @Param("kind")String kind,@Param("branch") String branch ,@Param("state") String state);
 
     InvoiceDTO selectCommissionOrder(@Param("order_id") String order_id);
 
+    int selectCommissionOrderCount(@Param("order_id") String order_id);
+
     InvoiceDTO selectVisaOrder(@Param("order_id")String order_id);
+
+    int selectVisaOrderCount(@Param("order_id")String order_id);
 
     int updateSFState(@Param("invoiceNo") String invoiceNo);
 
@@ -49,6 +59,8 @@ public interface InvoiceDAO {
 
     //servicefee导入数据的时候，关联订单id
     int relationVisaOrder(@Param("idList") String[] idList, @Param("invoiceNo") String invoiceNo);
+    //插入invoice 表中 的 order_id
+    int insertOrderIdInInvoice(@Param("idList") String [] idList, @Param("invoiceNo") String invoiceNo);
 
     //查询一个invoice
     InvoiceServiceFeeDO selectSFInvoiceByNo(@Param("invoiceNo") String invoiceNo ,@Param("id") String id);
@@ -71,6 +83,7 @@ public interface InvoiceDAO {
     boolean saveSchoolInvoice(Map paramMap);
 
     boolean saveSchoolDescription(@Param("description") List<InvoiceSchoolDescriptionDO> description,@Param("invoiceNo") Object invoiceNo);
+
 
 
 }

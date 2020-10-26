@@ -27,6 +27,9 @@
             <if test='branch != null and branch !="" '>
                 and branch = #{branch}
             </if>
+
+                and state  like  "%"#{state}
+
         </where>
         limit #{pageNum} ,#{pageSize} ;
     </select>
@@ -55,9 +58,60 @@
             <if test='branch != null and branch !="" '>
                 and branch = #{branch}
             </if>
+            and state  like  "%"#{state}
         </where>
         limit #{pageNum} ,#{pageSize} ;
     </select>
+
+    <select id="selectSFCount" resultType="java.lang.Integer">
+        select
+        COUNT(id)
+        from `b_invoice_servicefee`
+        <where>
+            <if test='invoice_no != null and invoice_no !="" '>
+                invoice_no = #{invoice_no}
+            </if>
+            <if test='order_id != null and order_id !="" '>
+                and order_id = #{order_id}
+            </if>
+            <if test='create_start != null and create_start !="" '>
+                and gmt_create &gt;= #{create_start}
+            </if>
+            <if test='create_end != null and create_end !="" '>
+                and gmt_create  &lt;= #{create_end}
+            </if>
+            <if test='branch != null and branch !="" '>
+                and branch = #{branch}
+            </if>
+            and state  like  "%"#{state}
+        </where>
+    </select>
+    <select id="selectSCCount" resultType="java.lang.Integer">
+        select
+        COUNT(id)
+        from `b_invoice_school`
+        <where>
+            <if test='invoice_no != null and invoice_no !="" '>
+                invoice_no = #{invoice_no}
+            </if>
+            <if test='order_id != null and order_id !="" '>
+                and order_id = #{order_id}
+            </if>
+            <if test='create_start != null and create_start !="" '>
+                and gmt_create &gt;= #{create_start}
+            </if>
+            <if test='create_end != null and create_end !="" '>
+                and gmt_create  &lt;= #{create_end}
+            </if>
+            <if test='branch != null and branch !="" '>
+                and branch = #{branch}
+            </if>
+            and state  like  "%"#{state}
+        </where>
+    </select>
+
+
+
     <select id="selectCommissionOrder" resultType="org.zhinanzhen.b.service.pojo.InvoiceDTO">
         select bc.id,
         bc.order_id,
@@ -76,6 +130,16 @@
         bf.state
         from `b_invoice_servicefee` as bf   WHERE bf.invoice_no = (select DISTINCT bv.invoice_number from  `b_visa` as bv WHERE bv.id = #{order_id})
     </select>
+
+    <select id="selectCommissionOrderCount" resultType="java.lang.Integer">
+        select count(bc.id)
+        from `b_invoice_school` as bc   WHERE bc.invoice_no = (select DISTINCT bo.invoice_number from  `b_commission_order` as bo WHERE bo.id = #{order_id})
+    </select>
+    <select id="selectVisaOrderCount" resultType="java.lang.Integer">
+        select count(bf.id)
+        from `b_invoice_servicefee` as bf   WHERE bf.invoice_no = (select DISTINCT bv.invoice_number from  `b_visa` as bv WHERE bv.id = #{order_id})
+    </select>
+
 
     <!-- 更改invoice状态-->
     <update id="updateSFState">
@@ -144,6 +208,13 @@
         <foreach collection="idList" index="index" item="id" open="(" close=")" separator=",">
             #{id}
         </foreach>
+    </update>
+    <update id="insertOrderIdInInvoice" >
+        update `b_invoice_servicefee` set order_id =
+        <foreach collection="idList" item="id"  index="index" open="" close="" separator=",">
+                 #{id}
+        </foreach>
+        where invoice_no = #{invoiceNo}
     </update>
 
     <!-- 查询一个invoice-->
