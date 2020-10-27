@@ -16,10 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -51,16 +48,40 @@ public class InvoiceController {
             @RequestParam( value = "create_end",required =  false ) String create_end ,
             @RequestParam( value = "kind",required =  false ) String kind ,
             @RequestParam( value = "branch",required =  false ) String branch ,
+            @RequestParam( value = "state",required =  false ) String state ,
             @RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
             HttpServletRequest request, HttpServletResponse response
     ){
-        List<InvoiceDTO> invoiceDTOList = invoiceService.selectInvoice(invoice_no,order_id,create_start,create_end,kind,branch,pageNum,pageSize);
-        //List<InvoiceBranchDO> branchDOS = invoiceService.selectBranch();
-        //HttpSession session =  request.getSession();
-        //session.setAttribute("branchDOS",branchDOS);
+        if (state==null){
+            state = "";
+        }
+        if (pageNum <= 0 )
+            pageNum = 1 ;
+        if (pageSize <= 0 )
+            pageNum = 10 ;
+        state = state.toUpperCase();
+        List<InvoiceDTO> invoiceDTOList = invoiceService.selectInvoice(invoice_no,order_id,create_start,create_end,kind,branch,pageNum,pageSize,state);
         return  new Response(1,invoiceDTOList);
     }
 
+    @RequestMapping(value = "/count" , method = RequestMethod.GET)
+    @ResponseBody
+    public Response count(
+            @RequestParam( value = "invoice_no" , required = false ) String invoice_no,
+            @RequestParam( value = "order_no" , required =  false ) String order_id,
+            @RequestParam( value = "create_start" , required = false ) String create_start,
+            @RequestParam( value = "create_end",required =  false ) String create_end ,
+            @RequestParam( value = "kind",required =  false ) String kind ,
+            @RequestParam( value = "branch",required =  false ) String branch ,
+            @RequestParam( value = "state",required =  false ) String state
+    ){
+        if (state==null){
+            state = "";
+        }
+        state = state.toUpperCase();
+        int count = invoiceService.selectCount(invoice_no,order_id,create_start,create_end,kind,branch,state);
+        return new Response(1,count);
+    }
 
     @RequestMapping(value = "/updateState",method = RequestMethod.POST)
     @ResponseBody
@@ -117,7 +138,7 @@ public class InvoiceController {
     }
 
     //添加ServiceFeeInvoice
-    @RequestMapping(value = "/addServicefee" , method = RequestMethod.POST )
+    @RequestMapping(value = "/addServicefee" , method = RequestMethod.GET )
     @ResponseBody
     public Response addServiceFeeInvoice(
             @RequestParam(value = "branch",required = true) String branch,

@@ -1,12 +1,10 @@
 package org.zhinanzhen.b.service.impl;
 
-import org.apache.ibatis.transaction.Transaction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.InvoiceDAO;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.InvoiceService;
-import org.zhinanzhen.b.service.pojo.DataDTO;
 import org.zhinanzhen.b.service.pojo.InvoiceCompanyDTO;
 import org.zhinanzhen.b.service.pojo.InvoiceDTO;
 import org.zhinanzhen.b.service.pojo.InvoiceServiceFeeDTO;
@@ -35,11 +33,11 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
 
     //查询invoice
     @Override
-    public List<InvoiceDTO> selectInvoice(String invoice_no, String order_id, String create_start, String create_end, String kind, String branch, int pageNum, int pageSize) {
+    public List<InvoiceDTO> selectInvoice(String invoice_no, String order_id, String create_start, String create_end, String kind, String branch, int pageNum, int pageSize,String state) {
 
         if(order_id == null | order_id == "" ) {
-            List<InvoiceDTO> invoiceDTOList = invoiceDAO.selectScoolInvoice(invoice_no, order_id, create_start, create_end, branch, (pageNum - 1) * pageSize, pageSize);
-            List<InvoiceDTO> invoiceServiceFeeDTOList = invoiceDAO.selectServiceFeeInvoice(invoice_no, order_id, create_start, create_end, branch, (pageNum - 1) * pageSize, pageSize);
+            List<InvoiceDTO> invoiceDTOList = invoiceDAO.selectScoolInvoice(invoice_no, order_id, create_start, create_end, branch,state, (pageNum - 1) * pageSize, pageSize);
+            List<InvoiceDTO> invoiceServiceFeeDTOList = invoiceDAO.selectServiceFeeInvoice(invoice_no, order_id, create_start, create_end, branch, state,(pageNum - 1) * pageSize, pageSize);
             invoiceDTOList.forEach(invoice -> {
                 invoice.setIds("SC" + invoice.getId());
             });
@@ -47,8 +45,8 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
                 invoice.setIds("SF" + invoice.getId());
             });
             if (kind == null) {
-                invoiceDTOList = invoiceDAO.selectScoolInvoice(invoice_no, order_id, create_start, create_end, branch, (pageNum - 1) * pageSize / 2, pageSize / 2);
-                invoiceServiceFeeDTOList = invoiceDAO.selectServiceFeeInvoice(invoice_no, order_id, create_start, create_end, branch, (pageNum - 1) * pageSize / 2, pageSize / 2);
+                invoiceDTOList = invoiceDAO.selectScoolInvoice(invoice_no, order_id, create_start, create_end, branch, state,(pageNum - 1) * pageSize / 2, pageSize / 2);
+                invoiceServiceFeeDTOList = invoiceDAO.selectServiceFeeInvoice(invoice_no, order_id, create_start, create_end, branch, state ,(pageNum - 1) * pageSize / 2, pageSize / 2);
                 invoiceDTOList.forEach(invoice -> {
                     invoice.setIds("SC" + invoice.getId());
                 });
@@ -95,6 +93,36 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
             }
         }
         return null;
+    }
+
+    @Override
+    public int selectCount(String invoice_no, String order_id, String create_start, String create_end, String kind, String branch, String state) {
+
+        if(order_id == null | order_id == "" ) {
+            int sfcount = invoiceDAO.selectSFCount(invoice_no,order_id,create_start,create_end,kind,branch ,state);
+            int sccount = invoiceDAO.selectSCCount(invoice_no,order_id,create_start,create_end,kind,branch ,state);
+            if(kind == null){
+                return sccount+sfcount;
+            }
+            if (kind .equals("SF"))
+                return sfcount ;
+            if (kind .equals("SC"))
+                return sccount ;
+        }else {
+            int sfcount = invoiceDAO.selectVisaOrderCount(order_id);
+            int sccount = invoiceDAO.selectCommissionOrderCount(order_id);
+            if(kind == null){
+                return sccount+sfcount;
+            }
+            if (kind .equals("SF"))
+                return sfcount ;
+            if (kind .equals("SC"))
+                return sccount ;
+
+        }
+
+
+        return 0;
     }
 
     //更改invoice状态
@@ -196,7 +224,11 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
     @Override
     @Transactional
     public int relationVisaOrder(String[] idList, String invoiceNo) {
-        return invoiceDAO.relationVisaOrder(idList , invoiceNo);
+        int resulti =  invoiceDAO.insertOrderIdInInvoice(idList , invoiceNo);
+        //int resultv = invoiceDAO.relationVisaOrder(idList , invoiceNo);
+        if ( resulti > 0  )
+            return 1;
+        return  0;
     }
 
     //查询一个invoice

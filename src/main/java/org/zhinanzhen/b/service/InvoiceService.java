@@ -17,7 +17,9 @@ import java.util.Map;
  */
 public interface InvoiceService {
 
-    List<InvoiceDTO> selectInvoice(String invoice_no, String order_id, String create_start, String create_end, String kind, String branch, int pageNum, int pageSize);
+    List<InvoiceDTO> selectInvoice(String invoice_no, String order_id, String create_start, String create_end, String kind, String branch, int pageNum, int pageSize,String state);
+
+    int selectCount(String invoice_no, String order_id, String create_start, String create_end, String kind, String branch, String state);
 
     int updateState(String invoiceNo, String invoiceIds);
 
@@ -46,4 +48,7 @@ public interface InvoiceService {
     int saveSchoolInvoice(Map paramMap);
 
     List<InvoiceBillToDO> billToList();
+
+
+
 }
