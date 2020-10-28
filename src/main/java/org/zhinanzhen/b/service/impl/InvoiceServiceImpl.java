@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.service.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.InvoiceDAO;
@@ -7,6 +8,7 @@ import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.InvoiceService;
 import org.zhinanzhen.b.service.pojo.InvoiceCompanyDTO;
 import org.zhinanzhen.b.service.pojo.InvoiceDTO;
+import org.zhinanzhen.b.service.pojo.InvoiceSchoolDTO;
 import org.zhinanzhen.b.service.pojo.InvoiceServiceFeeDTO;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.impl.BaseService;
@@ -36,8 +38,8 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
     public List<InvoiceDTO> selectInvoice(String invoice_no, String order_id, String create_start, String create_end, String kind, String branch, int pageNum, int pageSize,String state) {
 
         if(order_id == null | order_id == "" ) {
-            List<InvoiceDTO> invoiceDTOList = invoiceDAO.selectScoolInvoice(invoice_no, order_id, create_start, create_end, branch,state, (pageNum - 1) * pageSize, pageSize);
-            List<InvoiceDTO> invoiceServiceFeeDTOList = invoiceDAO.selectServiceFeeInvoice(invoice_no, order_id, create_start, create_end, branch, state,(pageNum - 1) * pageSize, pageSize);
+            List<InvoiceDTO> invoiceDTOList = invoiceDAO.selectScoolInvoice(invoice_no, order_id, create_start, create_end, branch,state, pageNum  * pageSize, pageSize);
+            List<InvoiceDTO> invoiceServiceFeeDTOList = invoiceDAO.selectServiceFeeInvoice(invoice_no, order_id, create_start, create_end, branch, state,pageNum  * pageSize, pageSize);
             invoiceDTOList.forEach(invoice -> {
                 invoice.setIds("SC" + invoice.getId());
             });
@@ -45,8 +47,8 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
                 invoice.setIds("SF" + invoice.getId());
             });
             if (kind == null) {
-                invoiceDTOList = invoiceDAO.selectScoolInvoice(invoice_no, order_id, create_start, create_end, branch, state,(pageNum - 1) * pageSize / 2, pageSize / 2);
-                invoiceServiceFeeDTOList = invoiceDAO.selectServiceFeeInvoice(invoice_no, order_id, create_start, create_end, branch, state ,(pageNum - 1) * pageSize / 2, pageSize / 2);
+                invoiceDTOList = invoiceDAO.selectScoolInvoice(invoice_no, order_id, create_start, create_end, branch, state,pageNum  * pageSize / 2, pageSize / 2);
+                invoiceServiceFeeDTOList = invoiceDAO.selectServiceFeeInvoice(invoice_no, order_id, create_start, create_end, branch, state ,pageNum * pageSize / 2, pageSize / 2);
                 invoiceDTOList.forEach(invoice -> {
                     invoice.setIds("SC" + invoice.getId());
                 });
@@ -220,20 +222,23 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
         return  null;
     }
 
-    //导入数据的时候关联订单id
+    //导入数据的时候关联签证订单id
     @Override
     @Transactional
     public int relationVisaOrder(String[] idList, String invoiceNo) {
-        int resulti =  invoiceDAO.insertOrderIdInInvoice(idList , invoiceNo);
-        //int resultv = invoiceDAO.relationVisaOrder(idList , invoiceNo);
-        if ( resulti > 0  )
+        int resulti =  invoiceDAO.insertOrderIdInInvoice(StringUtils.join(idList, ",") , invoiceNo);
+        int resultv = invoiceDAO.relationVisaOrder(idList , invoiceNo);
+        if (resulti > 0 & resultv > 0 )
             return 1;
+        else{
+            rollback();
+        }
         return  0;
     }
 
     //查询一个invoice
     @Override
-    public Response selectInvoiceByNo(String invoiceNo, String invoiceIds) {
+    public Response selectInvoiceByNo(String invoiceNo, String invoiceIds ,String marketing) {
         if(invoiceIds.substring(0,2).equals("SF")) {
             BigDecimal totalGST = new BigDecimal("0");
             BigDecimal GST = new BigDecimal("0");
@@ -252,15 +257,54 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
             }
         }
         if(invoiceIds.substring(0,2).equals("SC")){
-            InvoiceSchoolDO invoiceSchoolDO = invoiceDAO.selectSCInvoiceByNo(invoiceNo);
-            return new Response(1,invoiceSchoolDO);
+            BigDecimal totalGST = new BigDecimal("0");
+            BigDecimal GST = new BigDecimal("0");
+            InvoiceSchoolDO invoiceSchoolDO = invoiceDAO.selectSCInvoiceByNo(invoiceNo,invoiceIds.substring(2,invoiceIds.length()));
+            if ( marketing == null | marketing == ""){
+                if ( invoiceSchoolDO != null ){
+                    InvoiceSchoolDTO invoiceSchoolDTO = mapper.map(invoiceSchoolDO, InvoiceSchoolDTO.class);
+                    List<InvoiceSchoolDescriptionDO> descriptionDOS = invoiceSchoolDO.getInvoiceSchoolDescriptionDOS();
+                    for(InvoiceSchoolDescriptionDO description : descriptionDOS){
+                        totalGST = totalGST.add(description.getBonus());
+                        totalGST = totalGST.add(description.getCommission());
+                    }
+                    GST = totalGST.divide(new BigDecimal("11"), 2, BigDecimal.ROUND_HALF_UP);
+                    invoiceSchoolDTO.setTotalGST(totalGST);
+                    invoiceSchoolDTO.setGST(GST);
+                    return new Response(1, invoiceSchoolDTO);
+                }
+
+            }if (marketing .equalsIgnoreCase("marketing")){
+                if ( invoiceSchoolDO != null ){
+                    InvoiceSchoolDTO invoiceSchoolDTO = mapper.map(invoiceSchoolDO, InvoiceSchoolDTO.class);
+                    List<InvoiceSchoolDescriptionDO> descriptionDOS = invoiceSchoolDO.getInvoiceSchoolDescriptionDOS();
+                    for(InvoiceSchoolDescriptionDO description : descriptionDOS){
+                        totalGST = totalGST.add(description.getMarketing());
+                    }
+                    System.out.println();
+                    GST = totalGST.divide(new BigDecimal("11"), 2, BigDecimal.ROUND_HALF_UP);
+                    invoiceSchoolDTO.setTotalGST(totalGST);
+                    invoiceSchoolDTO.setGST(GST);
+                    return new Response(1, invoiceSchoolDTO);
+                }
+            }
         }
         return  null;
     }
 
+    //关联留学订单id
     @Override
+    @Transactional
     public int relationCommissionOrder(String[] idList, String invoiceNo) {
-        return invoiceDAO.relationCommissionOrder(idList , invoiceNo);
+        int resulti =  invoiceDAO.insertCommissionOrderIdInInvoice(StringUtils.join(idList, ",") , invoiceNo);
+        int resultc = invoiceDAO.relationCommissionOrder(idList , invoiceNo);
+        if ( resulti > 0 & resultc > 0 ){
+            return  1 ;
+        }
+        else {
+            rollback();
+        }
+        return 0;
     }
 
     @Override
@@ -284,6 +328,9 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
         int resultsavedes = invoiceDAO.saveServiceFeeDescription(invoiceServiceFeeDescriptionDOList,invoiceNo);
         if(resultsavein > 0 && resultsavedes > 0)
             return 1 ;
+        else {
+            rollback();
+        }
         return 0;
     }
 
@@ -293,6 +340,9 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
         List<InvoiceSchoolDescriptionDO> description = (List<InvoiceSchoolDescriptionDO>) paramMap .get("description");
         if(invoiceDAO.saveSchoolInvoice(paramMap)  && invoiceDAO.saveSchoolDescription(description, paramMap.get("invoiceNo")) )
             return 1 ;
+        else{
+            rollback();
+        }
         return 0;
     }
 

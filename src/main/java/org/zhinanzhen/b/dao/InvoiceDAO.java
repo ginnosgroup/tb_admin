@@ -60,15 +60,17 @@ public interface InvoiceDAO {
     //servicefee导入数据的时候，关联订单id
     int relationVisaOrder(@Param("idList") String[] idList, @Param("invoiceNo") String invoiceNo);
     //插入invoice 表中 的 order_id
-    int insertOrderIdInInvoice(@Param("idList") String [] idList, @Param("invoiceNo") String invoiceNo);
+    int insertOrderIdInInvoice(@Param("idList") String  idList, @Param("invoiceNo") String invoiceNo);
 
     //查询一个invoice
     InvoiceServiceFeeDO selectSFInvoiceByNo(@Param("invoiceNo") String invoiceNo ,@Param("id") String id);
 
-    InvoiceSchoolDO selectSCInvoiceByNo(@Param("invoiceNo")String invoiceNo);
+    InvoiceSchoolDO selectSCInvoiceByNo(@Param("invoiceNo")String invoiceNo , @Param("id") String id);
 
     //school导入数据的时候，关联订单id
     int relationCommissionOrder(@Param("idList") String[] idList, @Param("invoiceNo") String invoiceNo);
+
+    int insertCommissionOrderIdInInvoice(@Param("idList") String idList, @Param("invoiceNo") String invoiceNo);
 
     List<InvoiceBillToDO> billToList();
 
@@ -83,7 +85,5 @@ public interface InvoiceDAO {
     boolean saveSchoolInvoice(Map paramMap);
 
     boolean saveSchoolDescription(@Param("description") List<InvoiceSchoolDescriptionDO> description,@Param("invoiceNo") Object invoiceNo);
-
-
 
 }

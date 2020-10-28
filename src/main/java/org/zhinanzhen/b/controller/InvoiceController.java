@@ -55,8 +55,8 @@ public class InvoiceController {
         if (state==null){
             state = "";
         }
-        if (pageNum <= 0 )
-            pageNum = 1 ;
+        if (pageNum < 0 )
+            pageNum = 0 ;
         if (pageSize <= 0 )
             pageNum = 10 ;
         state = state.toUpperCase();
@@ -100,11 +100,12 @@ public class InvoiceController {
     @RequestMapping(value = "/selectInvoiecByNo",method = RequestMethod.GET)
     @ResponseBody
     public Response selectInvoiecByNo(
-            @RequestParam(value = "invoiceNo")String invoiceNo,
-            @RequestParam(value = "invoiceIds")String invoiceIds
+            @RequestParam(value = "invoiceNo" ,required = true)String invoiceNo,
+            @RequestParam(value = "invoiceIds" , required = true)String invoiceIds ,
+            @RequestParam(value = "marketing" ,required = false) String marketing
     ){
 
-        return invoiceService.selectInvoiceByNo(invoiceNo,invoiceIds);
+        return invoiceService.selectInvoiceByNo(invoiceNo,invoiceIds,marketing);
     }
 
     //添加ServiceFee 中的查询 companyTile
@@ -177,7 +178,7 @@ public class InvoiceController {
         return  new Response(1,"没有数据！");
     }
 
-    //addservicefee导入数据，关联订单id
+    //addservicefee导入数据，关联订单id (已弃用)
     @RequestMapping(value = "/relationVisaOrder" , method = RequestMethod.POST )
     @ResponseBody
     public Response relationVisaOrder(@RequestParam (value = "idList" ,required = true) String [] idList ,
@@ -208,10 +209,11 @@ public class InvoiceController {
             String bsb = (String) paramMap.get("bsb");
             String accountno = (String) paramMap.get("accountno");
             String branch = (String) paramMap.get("branch");
+            String [] idList = ((String)paramMap.get("idList")).split(",");
             List<InvoiceServiceFeeDescriptionDO> invoiceServiceFeeDescriptionDOList = (List<InvoiceServiceFeeDescriptionDO>) paramMap.get("descriptionList");
             int result = invoiceService.saveServiceFeeInvoice(invoiceDate, email, company, abn, address, tel, invoiceNo, note, accountname, bsb, accountno, branch, invoiceServiceFeeDescriptionDOList);
-
-            if (result > 0) {
+            int resultrela = invoiceService.relationVisaOrder(idList,invoiceNo);
+            if (resultrela > 0) {
                 return new Response(1, "success");
             }
             return new Response(1,"fail");
@@ -256,8 +258,8 @@ public class InvoiceController {
         return  new Response(1,"fail");
     }
 
-    //添加schoolInvoice
-    @RequestMapping(value = "/addSchool" , method = RequestMethod.POST )
+    //添加schoolInvoice 返回数据
+    @RequestMapping(value = "/addSchool" , method = RequestMethod.GET )
     @ResponseBody
     public Response addSchoolInvoice(
             @RequestParam(value = "branch",required = true) String branch,
@@ -295,7 +297,7 @@ public class InvoiceController {
         return  new Response(1,"没有数据！");
     }
 
-    //addschool导入数据，关联订单id
+    //addschool导入数据，关联订单id (已弃用)
     @RequestMapping(value = "/relationCommissionOrder" , method = RequestMethod.POST )
     @ResponseBody
     public Response relationCommissionOrder(@RequestParam (value = "idList" ,required = true) String [] idList ,
@@ -312,8 +314,16 @@ public class InvoiceController {
     @ResponseBody
     public  Response saveSchoolInvoice(@RequestBody Map paramMap){
         try {
+            if (paramMap.get("idList") == null)
+                return  new Response(1,"idList is null");
+            if (paramMap.get("invoiceNo") == null)
+                return  new Response(1,"invoiceNo is null");
+            String [] idList = ((String)paramMap.get("idList")).split(",");
+            String invoiceNo = (String) paramMap.get("invoiceNo");
+            int resultrela = invoiceService.relationCommissionOrder(idList,invoiceNo);
+
             int result = invoiceService.saveSchoolInvoice(paramMap);
-            if ( result >0 ){
+            if ( result > 0 ){
                 return  new Response(1 ,"success" );
             }
             return new Response(1 ,"fail" );

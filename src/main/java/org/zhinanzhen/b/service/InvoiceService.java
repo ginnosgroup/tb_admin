@@ -37,7 +37,7 @@ public interface InvoiceService {
     //导入数据的时候关联订单Id
     int relationVisaOrder(String[] idList, String invoiceNo);
     //查询一个invoice
-    Response selectInvoiceByNo(String invoiceNo, String invoiceIds);
+    Response selectInvoiceByNo(String invoiceNo, String invoiceIds, String marketing);
 
     int relationCommissionOrder(String[] idList, String invoiceNo);
 
@@ -48,7 +48,5 @@ public interface InvoiceService {
     int saveSchoolInvoice(Map paramMap);
 
     List<InvoiceBillToDO> billToList();
-
-
 
 }
