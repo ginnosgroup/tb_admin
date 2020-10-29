@@ -17,7 +17,7 @@ public class InvoiceServiceFeeDTO extends InvoiceServiceFeeDO {
 
     private BigDecimal subtotal;
 
-    private BigDecimal GST;
+    private BigDecimal gst;
 
     private BigDecimal totalGST;
 }

@@ -21,6 +21,8 @@ public class InvoiceSchoolDO {
 
     private String company;
 
+    private int companyId;
+
     private String abn;
 
     private String address;

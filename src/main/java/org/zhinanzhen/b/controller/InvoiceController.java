@@ -1,14 +1,18 @@
 package org.zhinanzhen.b.controller;
 
 import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
+import org.dozer.DozerBeanMapper;
+import org.dozer.Mapper;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.InvoiceService;
 import org.zhinanzhen.b.service.pojo.InvoiceCompanyDTO;
+import org.zhinanzhen.b.service.pojo.InvoiceCompanyIdNameDTO;
 import org.zhinanzhen.b.service.pojo.InvoiceDTO;
 import org.zhinanzhen.tb.controller.Response;
+import org.zhinanzhen.tb.service.impl.BaseService;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -29,7 +33,9 @@ import java.util.*;
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/invoice")
-public class InvoiceController {
+public class InvoiceController  extends BaseService {
+
+    private Mapper mapper = new DozerBeanMapper();
 
     @Resource
     private InvoiceService invoiceService;
@@ -104,8 +110,9 @@ public class InvoiceController {
             @RequestParam(value = "invoiceIds" , required = true)String invoiceIds ,
             @RequestParam(value = "marketing" ,required = false) String marketing
     ){
+        Response response = invoiceService.selectInvoiceByNo(invoiceNo,invoiceIds,marketing);
 
-        return invoiceService.selectInvoiceByNo(invoiceNo,invoiceIds,marketing);
+        return response;
     }
 
     //添加ServiceFee 中的查询 companyTile
@@ -231,14 +238,12 @@ public class InvoiceController {
     @ResponseBody
     public Response selectCompanySC(){
         List<InvoiceCompanyDO>  companyDOS = invoiceService.selectCompany("SC");
-        List<String> companyNameList = new ArrayList<>();
-        if(companyDOS != null ){
-            companyDOS.forEach( company ->{
-                companyNameList.add(company.getName());
-            });
-        }
+        List<InvoiceCompanyIdNameDTO> invoiceCompanyIdNameDTOList = new ArrayList<>();
+        companyDOS.forEach(company ->{
+            invoiceCompanyIdNameDTOList.add(mapper.map(company,InvoiceCompanyIdNameDTO.class));
+        });
 
-        return  new Response(1,companyNameList);
+        return  new Response(1,invoiceCompanyIdNameDTOList);
     }
 
     @RequestMapping(value = "/selectBillTo" ,method =  RequestMethod.GET )
@@ -320,9 +325,11 @@ public class InvoiceController {
                 return  new Response(1,"invoiceNo is null");
             String [] idList = ((String)paramMap.get("idList")).split(",");
             String invoiceNo = (String) paramMap.get("invoiceNo");
-            int resultrela = invoiceService.relationCommissionOrder(idList,invoiceNo);
 
             int result = invoiceService.saveSchoolInvoice(paramMap);
+            
+            int resultrela = invoiceService.relationCommissionOrder(idList,invoiceNo);
+
             if ( result > 0 ){
                 return  new Response(1 ,"success" );
             }
@@ -330,9 +337,21 @@ public class InvoiceController {
         }catch (DataAccessException ex){
             return new Response(1 ,"参数错误" );
         }
-
-
-
     }
+
+
+    //查询一个invoice
+    @RequestMapping(value = "/pdfPrint",method = RequestMethod.GET)
+    @ResponseBody
+    public Response pdfPrint(
+            @RequestParam(value = "invoiceNo" ,required = true)String invoiceNo,
+            @RequestParam(value = "invoiceIds" , required = true)String invoiceIds ,
+            @RequestParam(value = "marketing" ,required = false) String marketing
+    ){
+        Response response = invoiceService.pdfPrint(invoiceNo,invoiceIds,marketing);
+
+        return response;
+    }
+
 
 }

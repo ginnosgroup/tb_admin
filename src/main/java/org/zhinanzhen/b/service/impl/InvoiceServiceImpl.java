@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +13,7 @@ import org.zhinanzhen.b.service.pojo.InvoiceSchoolDTO;
 import org.zhinanzhen.b.service.pojo.InvoiceServiceFeeDTO;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.impl.BaseService;
+import org.zhinanzhen.tb.utils.PrintPdfUtil;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -251,7 +253,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
                 }
                 GST = totalGST.divide(new BigDecimal("11"), 2, BigDecimal.ROUND_HALF_UP);
                 invoiceServiceFeeDTO.setSubtotal(totalGST.subtract(GST));
-                invoiceServiceFeeDTO.setGST(GST);
+                invoiceServiceFeeDTO.setGst(GST);
                 invoiceServiceFeeDTO.setTotalGST(totalGST);
                 return new Response(1, invoiceServiceFeeDTO);
             }
@@ -281,7 +283,6 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
                     for(InvoiceSchoolDescriptionDO description : descriptionDOS){
                         totalGST = totalGST.add(description.getMarketing());
                     }
-                    System.out.println();
                     GST = totalGST.divide(new BigDecimal("11"), 2, BigDecimal.ROUND_HALF_UP);
                     invoiceSchoolDTO.setTotalGST(totalGST);
                     invoiceSchoolDTO.setGST(GST);
@@ -311,6 +312,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
     public List<InvoiceBillToDO> billToList() {
         return invoiceDAO.billToList();
     }
+
 
     @Override
     public int addBillTo(String company, String abn, String address) {
@@ -346,5 +348,37 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
         return 0;
     }
 
+    @Override
+    public Response pdfPrint(String invoiceNo, String invoiceIds, String marketing) {
+
+            Response response = selectInvoiceByNo(invoiceNo,invoiceIds,marketing);
+
+            if(invoiceIds.substring(0,2).equals("SF")) {
+                InvoiceServiceFeeDTO invoiceServiceFeeDTO = (InvoiceServiceFeeDTO) response.getData();
+                if (invoiceServiceFeeDTO != null) {
+                    Map<String,Object> servicefeepdfMap = JSON.parseObject(JSON.toJSONString(invoiceServiceFeeDTO),Map.class);
+                    PrintPdfUtil.pdfout(servicefeepdfMap,"servicefee.pdf");
+
+                    return new Response(1, "yes");
+                }
+            }
+            if(invoiceIds.substring(0,2).equals("SC")){
+                InvoiceSchoolDTO invoiceSchoolDTO = (InvoiceSchoolDTO) response.getData();
+                if ( marketing == null | marketing == ""){
+                    if ( invoiceSchoolDTO != null ){
+                        Map<String,Object> schoolpdfMap = JSON.parseObject(JSON.toJSONString(invoiceSchoolDTO),Map.class);
+                        PrintPdfUtil.pdfout(schoolpdfMap,"");
+                        return new Response(1, invoiceSchoolDTO);
+                    }
+
+                }if (marketing .equalsIgnoreCase("marketing")){
+
+                        return new Response(1, invoiceSchoolDTO);
+
+                }
+            }
+            return  null;
+
+    }
 
 }
