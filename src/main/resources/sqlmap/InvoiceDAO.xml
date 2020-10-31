@@ -174,6 +174,11 @@
         </where>
     </select>
 
+    <!-- 查询b_invoice_company By company-->
+    <select id="selectCompanyById" resultType="org.zhinanzhen.b.service.pojo.InvoiceCompanyDTO">
+        select id,name,abn,email,tel,bsb,account,simple from `b_invoice_company` where id = #{companyId} and  flag like "%SC%";
+    </select>
+
     <!-- 查询b_invoice_address By branch-->
     <select id="selectAddressByBranch" resultType="org.zhinanzhen.b.dao.pojo.InvoiceAddressDO">
         select branch,address,bsb,account from `b_invoice_address`

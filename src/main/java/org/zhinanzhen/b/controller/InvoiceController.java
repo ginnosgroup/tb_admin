@@ -202,7 +202,6 @@ public class InvoiceController  extends BaseService {
     @RequestMapping(value = "/saveServiceFeeInvoice" , method = RequestMethod.POST )
     @ResponseBody
     public Response saveServiceFeeInvoice(@RequestBody Map paramMap){
-
        try {
             String invoiceDate = (String) paramMap.get("invoiceDate");
             String email = (String) paramMap.get("email");
@@ -219,8 +218,10 @@ public class InvoiceController  extends BaseService {
             String [] idList = ((String)paramMap.get("idList")).split(",");
             List<InvoiceServiceFeeDescriptionDO> invoiceServiceFeeDescriptionDOList = (List<InvoiceServiceFeeDescriptionDO>) paramMap.get("descriptionList");
             int result = invoiceService.saveServiceFeeInvoice(invoiceDate, email, company, abn, address, tel, invoiceNo, note, accountname, bsb, accountno, branch, invoiceServiceFeeDescriptionDOList);
-            int resultrela = invoiceService.relationVisaOrder(idList,invoiceNo);
-            if (resultrela > 0) {
+           if (idList != null & !idList .equals("")){
+               int resultrela = invoiceService.relationVisaOrder(idList,invoiceNo);
+           }
+            if (result > 0) {
                 return new Response(1, "success");
             }
             return new Response(1,"fail");

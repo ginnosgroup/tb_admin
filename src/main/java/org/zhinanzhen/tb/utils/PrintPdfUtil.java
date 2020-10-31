@@ -4,11 +4,19 @@ import ch.qos.logback.core.util.FileUtil;
 import com.alibaba.fastjson.JSON;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
+import org.hamcrest.Description;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.zhinanzhen.b.dao.pojo.InvoiceSchoolDescriptionDO;
 import org.zhinanzhen.b.dao.pojo.InvoiceServiceFeeDescriptionDO;
+import org.zhinanzhen.b.service.pojo.InvoiceSchoolDTO;
 import org.zhinanzhen.b.service.pojo.InvoiceServiceFeeDTO;
+import org.zhinanzhen.tb.controller.Response;
 
 import java.io.*;
+import java.sql.Time;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,54 +29,77 @@ import java.util.Map;
  */
 public class PrintPdfUtil {
 
-    public static String pdfout(Map map ,String path) {
+    public static String pdfout(Response response , String path) {
         // 模板路径
         String templatePath = path ;      //"servicefee.pdf";
         // 生成的新文件路径
-        String newPDFPath = "E:mytest.pdf";
+        String newPDFPath = "E:mytest"+path;
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
 
         PdfReader reader;
         FileOutputStream out;
         ByteArrayOutputStream bos;
         PdfStamper stamper;
         try {
-            BaseFont bf = BaseFont.createFont("c://windows//fonts//simsun.ttc,1" , BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
-            Font FontChinese = new Font(bf, 4, Font.NORMAL);
+            BaseFont bf = BaseFont.createFont("C:/WINDOWS/Fonts/SIMYOU.TTF", BaseFont.IDENTITY_H,BaseFont.NOT_EMBEDDED);
             reader = new PdfReader(templatePath);// 读取pdf模板
             out = new FileOutputStream(newPDFPath);// 输出流
-
             bos = new ByteArrayOutputStream();
             stamper = new PdfStamper(reader, bos);
 
             AcroFields form = stamper.getAcroFields();
-
-
-
+            form.addSubstitutionFont(bf);
             // 设置字体
-            //BaseFont bfChinese = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
-            //com.itextpdf.text.Font thFont = new com.itextpdf.text.Font(bfChinese, 22, com.itextpdf.text.Font.BOLD);
-            //com.itextpdf.text.Font nomalFont = new com.itextpdf.text.Font(bfChinese, 20, com.itextpdf.text.Font.NORMAL);
 
 
 
             //文字类的内容处理
-            form.addSubstitutionFont(bf);
-            for(Object key : map.keySet()){
-                Object value = map.get(key);
-                form.setField(key.toString(),value.toString());
 
+
+
+            if (path.equals("servicefee.pdf")){
+                //InvoiceServiceFeeDTO invoiceServiceFeeDTO = JSON.parseObject(JSON.toJSONString(map),InvoiceServiceFeeDTO.class);
+                InvoiceServiceFeeDTO invoiceServiceFeeDTO = (InvoiceServiceFeeDTO) response.getData();
+                Map<Object,Object> map = JSON.parseObject(JSON.toJSONString(invoiceServiceFeeDTO),Map.class);
+                System.out.println(map.toString());
+                for(Object key : map.keySet()){
+                    form.setField(key.toString(),map.get(key).toString());
+                    if (key.equals("invoiceDate")){
+                        form.setField(key.toString(),sdf.format(invoiceServiceFeeDTO.getInvoiceDate()));
+                    }
+                }
+                List<InvoiceServiceFeeDescriptionDO> invoiceServiceFeeDescriptionDOList = invoiceServiceFeeDTO.getInvoiceServiceFeeDescriptionDOList();
+                int index = 1 ;
+                for(InvoiceServiceFeeDescriptionDO  description :  invoiceServiceFeeDescriptionDOList){
+                    form.setField("id"+index,description.getId()+"");
+                    form.setField("description"+index,description.getDescription());
+                    form.setField("unitPrice"+index,description.getUnitPrice().toString());
+                    form.setField("quantity"+index,description.getQuantity()+"");
+                    form.setField("amount"+index,description.getAmount().toString());
+                    index ++ ;
+                }
             }
-            InvoiceServiceFeeDTO invoiceServiceFeeDTO = JSON.parseObject(JSON.toJSONString(map),InvoiceServiceFeeDTO.class);
-            List<InvoiceServiceFeeDescriptionDO> invoiceServiceFeeDescriptionDOList = invoiceServiceFeeDTO.getInvoiceServiceFeeDescriptionDOList();
-            int index = 1 ;
-            for(InvoiceServiceFeeDescriptionDO  description :  invoiceServiceFeeDescriptionDOList){
-                form.setField("id"+index,description.getId()+"");
-                form.setField("description"+index,description.getDescription());
-                form.setField("unitPrice"+index,description.getUnitPrice().toString());
-                form.setField("quantity"+index,description.getQuantity()+"");
-                form.setField("amount"+index,description.getAmount().toString());
-                index ++ ;
+            if (path.equals("IES.pdf")){
+                Map map =new HashMap();
+                InvoiceSchoolDTO invoiceSchoolDTO = JSON.parseObject(JSON.toJSONString(map),InvoiceSchoolDTO.class);
+                List<InvoiceSchoolDescriptionDO> invoiceSchoolDescriptionDOS = invoiceSchoolDTO.getInvoiceSchoolDescriptionDOS();
+                int index = 1 ;
+                for(InvoiceSchoolDescriptionDO descriptionDO : invoiceSchoolDescriptionDOS){
+                    form.setField("id"+index,descriptionDO.getId()+"");
+                    form.setField("studentname"+index,descriptionDO.getStudentname());
+                    form.setField("dob"+index,sdf.format(descriptionDO.getDob()));
+                    form.setField("studentId"+index,descriptionDO.getStudentId()+"");
+                    form.setField("course"+index,descriptionDO.getCourse());
+                    form.setField("startDate"+index,sdf.format(descriptionDO.getStartDate()));
+                    form.setField("tuitionFee"+index,descriptionDO.getTuitionFee().toString());
+                    form.setField("commissionrate"+index,descriptionDO.getCommissionrate().toString());
+                    form.setField("commission"+index,descriptionDO.getCommission().toString());
+                    form.setField("bonus"+index,descriptionDO.getBonus().toString());
+                    form.setField("instalMent"+index,descriptionDO.getInstalMent());
+                }
             }
+
 
 
 
@@ -76,15 +107,12 @@ public class PrintPdfUtil {
             stamper.close();
 
             Document doc = new Document();
-            Font font = new Font(bf, 10);
+            Font font = new Font(bf, 4);
             PdfCopy copy = new PdfCopy(doc, out);
             doc.open();
             PdfImportedPage importPage = copy.getImportedPage(new PdfReader(bos.toByteArray()), 1);
             copy.addPage(importPage);
             doc.close();
-
-
-
         } catch (IOException e) {
             System.out.println(e);
         } catch (DocumentException e) {

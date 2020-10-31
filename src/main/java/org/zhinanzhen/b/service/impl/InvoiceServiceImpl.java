@@ -17,10 +17,8 @@ import org.zhinanzhen.tb.utils.PrintPdfUtil;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -351,23 +349,31 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
     @Override
     public Response pdfPrint(String invoiceNo, String invoiceIds, String marketing) {
 
-            Response response = selectInvoiceByNo(invoiceNo,invoiceIds,marketing);
+        Response response = selectInvoiceByNo(invoiceNo,invoiceIds,marketing);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
 
             if(invoiceIds.substring(0,2).equals("SF")) {
                 InvoiceServiceFeeDTO invoiceServiceFeeDTO = (InvoiceServiceFeeDTO) response.getData();
                 if (invoiceServiceFeeDTO != null) {
                     Map<String,Object> servicefeepdfMap = JSON.parseObject(JSON.toJSONString(invoiceServiceFeeDTO),Map.class);
-                    PrintPdfUtil.pdfout(servicefeepdfMap,"servicefee.pdf");
-
+                    PrintPdfUtil.pdfout(response,"servicefee.pdf");
+                    System.out.println("impl"+response.getData().toString());
                     return new Response(1, "yes");
                 }
             }
             if(invoiceIds.substring(0,2).equals("SC")){
                 InvoiceSchoolDTO invoiceSchoolDTO = (InvoiceSchoolDTO) response.getData();
+                int companyId = invoiceSchoolDTO.getCompanyId();
+                InvoiceCompanyDTO invoiceCompanyDTO = invoiceDAO.selectCompanyById(companyId);
+                if (invoiceCompanyDTO.getSimple().equals("IES")){
+                    Map<String,Object> schoolpdfMap = JSON.parseObject(JSON.toJSONString(invoiceSchoolDTO),Map.class);
+                    PrintPdfUtil.pdfout(response,"IES.pdf");
+                }
                 if ( marketing == null | marketing == ""){
                     if ( invoiceSchoolDTO != null ){
                         Map<String,Object> schoolpdfMap = JSON.parseObject(JSON.toJSONString(invoiceSchoolDTO),Map.class);
-                        PrintPdfUtil.pdfout(schoolpdfMap,"");
+                        //PrintPdfUtil.pdfout(schoolpdfMap,"");
                         return new Response(1, invoiceSchoolDTO);
                     }
 

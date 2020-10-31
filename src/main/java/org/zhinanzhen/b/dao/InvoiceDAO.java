@@ -53,6 +53,8 @@ public interface InvoiceDAO {
 
     InvoiceCompanyDTO selectCompanyByName(@Param("company") String company,@Param("flag") String flag);
 
+    InvoiceCompanyDTO selectCompanyById(@Param("companyId") int companyId);
+
     InvoiceAddressDO selectAddressByBranch(@Param("branch") String branch);
 
     List<String> selectInvoiceBySimple(@Param("simpleBranch") String simpleBranch ,@Param("flag") String flag);
@@ -85,5 +87,6 @@ public interface InvoiceDAO {
     boolean saveSchoolInvoice(Map paramMap);
 
     boolean saveSchoolDescription(@Param("description") List<InvoiceSchoolDescriptionDO> description,@Param("invoiceNo") Object invoiceNo);
+
 
 }
