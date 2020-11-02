@@ -43,6 +43,8 @@ public interface InvoiceService {
 
     int addBillTo(String company, String abn, String address);
 
+    boolean selectInvoiceNo(String invoiceNo ,String table);
+
     int saveServiceFeeInvoice(String invoiceDate, String email, String company, String abn, String address, String tel, String invoiceNo, String note, String accountname, String bsb, String accountno, String branch, List<InvoiceServiceFeeDescriptionDO> invoiceServiceFeeDescriptionDOList);
 
     int saveSchoolInvoice(Map paramMap);
@@ -50,4 +52,6 @@ public interface InvoiceService {
     List<InvoiceBillToDO> billToList();
 
     Response pdfPrint(String invoiceNo, String invoiceIds, String marketing);
+
+
 }

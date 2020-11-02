@@ -253,7 +253,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
                 invoiceServiceFeeDTO.setSubtotal(totalGST.subtract(GST));
                 invoiceServiceFeeDTO.setGst(GST);
                 invoiceServiceFeeDTO.setTotalGST(totalGST);
-                return new Response(1, invoiceServiceFeeDTO);
+                return new Response(0, invoiceServiceFeeDTO);
             }
         }
         if(invoiceIds.substring(0,2).equals("SC")){
@@ -271,7 +271,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
                     GST = totalGST.divide(new BigDecimal("11"), 2, BigDecimal.ROUND_HALF_UP);
                     invoiceSchoolDTO.setTotalGST(totalGST);
                     invoiceSchoolDTO.setGST(GST);
-                    return new Response(1, invoiceSchoolDTO);
+                    return new Response(0, invoiceSchoolDTO);
                 }
 
             }if (marketing .equalsIgnoreCase("marketing")){
@@ -284,7 +284,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
                     GST = totalGST.divide(new BigDecimal("11"), 2, BigDecimal.ROUND_HALF_UP);
                     invoiceSchoolDTO.setTotalGST(totalGST);
                     invoiceSchoolDTO.setGST(GST);
-                    return new Response(1, invoiceSchoolDTO);
+                    return new Response(0, invoiceSchoolDTO);
                 }
             }
         }
@@ -315,6 +315,14 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
     @Override
     public int addBillTo(String company, String abn, String address) {
         return invoiceDAO.addBillTo(company,abn,address);
+    }
+
+    @Override
+    public boolean selectInvoiceNo(String invoiceNo ,String table) {
+        List<String> invoiceNoList = invoiceDAO.selectInvoiceNo(table);
+        if (invoiceNoList.contains(invoiceNo))
+            return true;
+        return false;
     }
 
     //保存servicefee
@@ -359,7 +367,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
                     Map<String,Object> servicefeepdfMap = JSON.parseObject(JSON.toJSONString(invoiceServiceFeeDTO),Map.class);
                     PrintPdfUtil.pdfout(response,"servicefee.pdf");
                     System.out.println("impl"+response.getData().toString());
-                    return new Response(1, "yes");
+                    return new Response(0, "yes");
                 }
             }
             if(invoiceIds.substring(0,2).equals("SC")){
@@ -374,12 +382,12 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
                     if ( invoiceSchoolDTO != null ){
                         Map<String,Object> schoolpdfMap = JSON.parseObject(JSON.toJSONString(invoiceSchoolDTO),Map.class);
                         //PrintPdfUtil.pdfout(schoolpdfMap,"");
-                        return new Response(1, invoiceSchoolDTO);
+                        return new Response(0, invoiceSchoolDTO);
                     }
 
                 }if (marketing .equalsIgnoreCase("marketing")){
 
-                        return new Response(1, invoiceSchoolDTO);
+                        return new Response(0, invoiceSchoolDTO);
 
                 }
             }

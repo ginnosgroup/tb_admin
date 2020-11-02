@@ -67,7 +67,7 @@ public class InvoiceController  extends BaseService {
             pageNum = 10 ;
         state = state.toUpperCase();
         List<InvoiceDTO> invoiceDTOList = invoiceService.selectInvoice(invoice_no,order_id,create_start,create_end,kind,branch,pageNum,pageSize,state);
-        return  new Response(1,invoiceDTOList);
+        return  new Response(0,invoiceDTOList);
     }
 
     @RequestMapping(value = "/count" , method = RequestMethod.GET)
@@ -86,7 +86,7 @@ public class InvoiceController  extends BaseService {
         }
         state = state.toUpperCase();
         int count = invoiceService.selectCount(invoice_no,order_id,create_start,create_end,kind,branch,state);
-        return new Response(1,count);
+        return new Response(0,count);
     }
 
     @RequestMapping(value = "/updateState",method = RequestMethod.POST)
@@ -96,7 +96,7 @@ public class InvoiceController  extends BaseService {
 
         int result = invoiceService.updateState(invoiceNo,invoiceIds);
         if (result>0){
-            return new Response(1,"更改成功");
+            return new Response(0,"更改成功");
         }
 
         return new Response(1,"更改失败");
@@ -127,7 +127,7 @@ public class InvoiceController  extends BaseService {
             });
         }
 
-        return  new Response(1,companyNameList);
+        return  new Response(0,companyNameList);
     }
 
     //添加ServiceFee 中的查询 branch
@@ -142,7 +142,7 @@ public class InvoiceController  extends BaseService {
             });
         }
 
-        return  new Response(1,addressNameList);
+        return  new Response(0,addressNameList);
     }
 
     //添加ServiceFeeInvoice
@@ -179,10 +179,10 @@ public class InvoiceController  extends BaseService {
          invoiceCompanyDTO.setInvoiceNo(invoiceNo);
          invoiceCompanyDTO.setInvoiceDate(invoiceDate);
          if(invoiceCompanyDTO != null){
-             return new Response(1,invoiceCompanyDTO);
+             return new Response(0,invoiceCompanyDTO);
          }
 
-        return  new Response(1,"没有数据！");
+        return  new Response(0,"没有数据！");
     }
 
     //addservicefee导入数据，关联订单id (已弃用)
@@ -192,9 +192,9 @@ public class InvoiceController  extends BaseService {
                                   @RequestParam(value = "invoiceNo" ,required = true) String invoiceNo){
         int result = invoiceService.relationVisaOrder(idList,invoiceNo);
         if( result > 0 ){
-            return new Response(1,"成功");
+            return new Response(0,"成功");
         }
-        return   new Response(0,"失败");
+        return   new Response(1,"失败");
     }
 
 
@@ -202,7 +202,7 @@ public class InvoiceController  extends BaseService {
     @RequestMapping(value = "/saveServiceFeeInvoice" , method = RequestMethod.POST )
     @ResponseBody
     public Response saveServiceFeeInvoice(@RequestBody Map paramMap){
-       try {
+        try {
             String invoiceDate = (String) paramMap.get("invoiceDate");
             String email = (String) paramMap.get("email");
             String company = (String) paramMap.get("company");
@@ -217,16 +217,21 @@ public class InvoiceController  extends BaseService {
             String branch = (String) paramMap.get("branch");
             String [] idList = ((String)paramMap.get("idList")).split(",");
             List<InvoiceServiceFeeDescriptionDO> invoiceServiceFeeDescriptionDOList = (List<InvoiceServiceFeeDescriptionDO>) paramMap.get("descriptionList");
+
+            if (invoiceService.selectInvoiceNo(invoiceNo,"b_invoice_servicefee"))
+                return  new Response(1,"invoiceNo repeat!");
             int result = invoiceService.saveServiceFeeInvoice(invoiceDate, email, company, abn, address, tel, invoiceNo, note, accountname, bsb, accountno, branch, invoiceServiceFeeDescriptionDOList);
            if (idList != null & !idList .equals("")){
                int resultrela = invoiceService.relationVisaOrder(idList,invoiceNo);
            }
             if (result > 0) {
-                return new Response(1, "success");
+                return new Response(0, "success");
             }
             return new Response(1,"fail");
         }catch (DataAccessException ex){
             return new Response(1 ,"参数错误" );
+        }catch (Exception ex){
+          return new Response(1 ,"系统错误，请联系管理员！" );
         }
 
     }
@@ -244,13 +249,13 @@ public class InvoiceController  extends BaseService {
             invoiceCompanyIdNameDTOList.add(mapper.map(company,InvoiceCompanyIdNameDTO.class));
         });
 
-        return  new Response(1,invoiceCompanyIdNameDTOList);
+        return  new Response(0,invoiceCompanyIdNameDTOList);
     }
 
     @RequestMapping(value = "/selectBillTo" ,method =  RequestMethod.GET )
     @ResponseBody
     public Response billToList(){
-        return  new Response(1,invoiceService.billToList());
+        return  new Response(0,invoiceService.billToList());
     }
 
     @RequestMapping(value = "/addBillTo" ,method =  RequestMethod.POST )
@@ -260,7 +265,7 @@ public class InvoiceController  extends BaseService {
                               @RequestParam(value = "address", required =  true) String address ){
         int result = invoiceService.addBillTo(company,abn,address);
         if( result > 0 )
-            return  new Response(1,"success");
+            return  new Response(0,"success");
         return  new Response(1,"fail");
     }
 
@@ -297,10 +302,10 @@ public class InvoiceController  extends BaseService {
         invoiceCompanyDTO.setInvoiceNo(invoiceNo);
         invoiceCompanyDTO.setInvoiceDate(invoiceDate);
         if(invoiceCompanyDTO != null){
-            return new Response(1,invoiceCompanyDTO);
+            return new Response(0,invoiceCompanyDTO);
         }
 
-        return  new Response(1,"没有数据！");
+        return  new Response(0,"没有数据！");
     }
 
     //addschool导入数据，关联订单id (已弃用)
@@ -310,9 +315,9 @@ public class InvoiceController  extends BaseService {
                                       @RequestParam(value = "invoiceNo" ,required = true) String invoiceNo){
         int result = invoiceService.relationCommissionOrder(idList,invoiceNo);
         if( result > 0 ){
-            return new Response(1,"成功");
+            return new Response(0,"成功");
         }
-        return   new Response(0,"失败");
+        return   new Response(1,"失败");
     }
 
     //保存school invoice
@@ -327,16 +332,22 @@ public class InvoiceController  extends BaseService {
             String [] idList = ((String)paramMap.get("idList")).split(",");
             String invoiceNo = (String) paramMap.get("invoiceNo");
 
+            if (invoiceService.selectInvoiceNo(invoiceNo,"b_invoice_school"))
+                return  new Response(1,"invoiceNo repeat!");
             int result = invoiceService.saveSchoolInvoice(paramMap);
-            
-            int resultrela = invoiceService.relationCommissionOrder(idList,invoiceNo);
+
+            if (idList != null & !idList .equals("")) {
+                int resultrela = invoiceService.relationCommissionOrder(idList, invoiceNo);
+            }
 
             if ( result > 0 ){
-                return  new Response(1 ,"success" );
+                return  new Response(0 ,"success" );
             }
             return new Response(1 ,"fail" );
         }catch (DataAccessException ex){
             return new Response(1 ,"参数错误" );
+        }catch (Exception ex){
+            return new Response(1 ,"系统错误，请联系管理员！" );
         }
     }
 

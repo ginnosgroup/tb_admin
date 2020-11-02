@@ -88,5 +88,5 @@ public interface InvoiceDAO {
 
     boolean saveSchoolDescription(@Param("description") List<InvoiceSchoolDescriptionDO> description,@Param("invoiceNo") Object invoiceNo);
 
-
+    List<String> selectInvoiceNo(@Param("table") String table);
 }

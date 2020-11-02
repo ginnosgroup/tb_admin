@@ -345,4 +345,19 @@
             </foreach>
         </if>
     </insert>
+
+    <!-- 查询servicefee中的invoiceNo-->
+    <select id="selectInvoiceNo" resultType="string">
+        select invoice_no from
+        <choose>
+            <when test="table == 'b_invoice_servicefee' ">
+                `b_invoice_servicefee`
+            </when>
+            <when test="table == 'b_invoice_school' ">
+                `b_invoice_school`
+            </when>
+        </choose>
+        where DATE_FORMAT( gmt_create, '%Y%m' ) = DATE_FORMAT( CURDATE( ) , '%Y%m' );
+    </select>
+
 </mapper>
