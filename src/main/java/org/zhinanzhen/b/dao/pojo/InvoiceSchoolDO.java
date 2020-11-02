@@ -2,6 +2,7 @@ package org.zhinanzhen.b.dao.pojo;
 
 import lombok.Data;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -15,11 +16,13 @@ import java.util.List;
 public class InvoiceSchoolDO {
     private int id;
 
-    private String invoiceDate;
+    private Date invoiceDate;
 
     private String email;
 
     private String company;
+
+    private int companyId;
 
     private String abn;
 

@@ -37,11 +37,13 @@ public interface InvoiceService {
     //导入数据的时候关联订单Id
     int relationVisaOrder(String[] idList, String invoiceNo);
     //查询一个invoice
-    Response selectInvoiceByNo(String invoiceNo, String invoiceIds);
+    Response selectInvoiceByNo(String invoiceNo, String invoiceIds, String marketing);
 
     int relationCommissionOrder(String[] idList, String invoiceNo);
 
     int addBillTo(String company, String abn, String address);
+
+    boolean selectInvoiceNo(String invoiceNo ,String table);
 
     int saveServiceFeeInvoice(String invoiceDate, String email, String company, String abn, String address, String tel, String invoiceNo, String note, String accountname, String bsb, String accountno, String branch, List<InvoiceServiceFeeDescriptionDO> invoiceServiceFeeDescriptionDOList);
 
@@ -49,6 +51,7 @@ public interface InvoiceService {
 
     List<InvoiceBillToDO> billToList();
 
+    Response pdfPrint(String invoiceNo, String invoiceIds, String marketing);
 
 
 }

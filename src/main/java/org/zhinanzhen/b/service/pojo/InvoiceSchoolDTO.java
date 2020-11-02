@@ -1,23 +1,21 @@
 package org.zhinanzhen.b.service.pojo;
 
 import lombok.Data;
-import org.zhinanzhen.b.dao.pojo.InvoiceServiceFeeDO;
+import org.zhinanzhen.b.dao.pojo.InvoiceSchoolDO;
 
 import java.math.BigDecimal;
 
 /**
  * Created with IntelliJ IDEA.
  * User: bsz
- * Date: 2020/10/21 13:39
+ * Date: 2020/10/26 15:21
  * Description:
  * Version: V1.0
  */
 @Data
-public class InvoiceServiceFeeDTO extends InvoiceServiceFeeDO {
+public class InvoiceSchoolDTO extends InvoiceSchoolDO {
 
-    private BigDecimal subtotal;
-
-    private BigDecimal gst;
+    private BigDecimal GST;
 
     private BigDecimal totalGST;
 }

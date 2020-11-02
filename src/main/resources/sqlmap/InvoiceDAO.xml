@@ -174,6 +174,11 @@
         </where>
     </select>
 
+    <!-- 查询b_invoice_company By company-->
+    <select id="selectCompanyById" resultType="org.zhinanzhen.b.service.pojo.InvoiceCompanyDTO">
+        select id,name,abn,email,tel,bsb,account,simple from `b_invoice_company` where id = #{companyId} and  flag like "%SC%";
+    </select>
+
     <!-- 查询b_invoice_address By branch-->
     <select id="selectAddressByBranch" resultType="org.zhinanzhen.b.dao.pojo.InvoiceAddressDO">
         select branch,address,bsb,account from `b_invoice_address`
@@ -210,17 +215,13 @@
         </foreach>
     </update>
     <update id="insertOrderIdInInvoice" >
-        update `b_invoice_servicefee` set order_id =
-        <foreach collection="idList" item="id"  index="index" open="" close="" separator=",">
-                 #{id}
-        </foreach>
-        where invoice_no = #{invoiceNo}
+        update `b_invoice_servicefee` set order_id = #{idList} where invoice_no = #{invoiceNo}
     </update>
 
     <!-- 查询一个invoice-->
     <select id="selectSFInvoiceByNo" resultMap="invoiceServiceFee">
         select sf.id,sf.gmt_create,sf.email,sf.invoice_no,sf.company,sf.abn,sf.address,sf.tel,note,accountname,bsb,accountno,state,branch,
-        sfd.id as did,description as ddescription,unit_price as dunit_price,quantity as dquantity ,amount as damount from `b_invoice_servicefee` as sf ,
+        sfd.id as did,description as ddescription,IFNULL(unit_price,0.00) as dunit_price,quantity as dquantity ,IFNULL(amount,0.00) as damount from `b_invoice_servicefee` as sf ,
         `b_invoice_servicefee_description` as sfd where sf.invoice_no = #{invoiceNo} and sf.invoice_no = sfd.invoice_no and sf.id = #{id}
     </select>
     <resultMap id="invoiceServiceFee" type="org.zhinanzhen.b.dao.pojo.InvoiceServiceFeeDO">
@@ -248,12 +249,12 @@
     </resultMap>
 
     <select id="selectSCInvoiceByNo" resultMap="invoiceSchool">
-        select sf.id,sf.gmt_create,sf.email,sf.invoice_no,sf.company,sf.abn,sf.address,sf.tel,note,accountname,bsb,accountno,state,branch,
+        select sf.id,sf.gmt_create,sf.email,sf.invoice_no,sf.company_id,sf.company,sf.abn,sf.address,sf.tel,note,accountname,bsb,accountno,state,branch,
         sfd.id as sfdid,studentname as sfdstudentname ,dob as sfddob,student_id as sfdstudent_id,course as sfdcourse,startDate as sfdstartDate,
-        instalment as sfdinstalment,tuitionfee as sfdtuitionfee,bonus as sfdbonus,commissionrate as sfdcommissionrate,commission as sfdcommission,
-        bb.id as bid,bb.company as bcompany,bb.abn as babn,bb.address as baddress
+        instalment as sfdinstalment,  IFNULL(tuitionfee,0.00) as sfdtuitionfee, IFNULL(bonus,0.00) as sfdbonus,IFNULL(commissionrate,0.00) as sfdcommissionrate,
+        IFNULL(commission,0.00) as sfdcommission,IFNULL(marketing_bonus,0.00) as sfdmarketing ,bb.id as bid,bb.company as bcompany,bb.abn as babn,bb.address as baddress
         from `b_invoice_school` as sf ,`b_invoice_school_description` as sfd , `b_invoice_billto` as bb where sf.invoice_no = #{invoiceNo} and
-        sf.invoice_no = sfd.invoice_no and sf.billto_id = bb.id
+        sf.invoice_no = sfd.invoice_no and sf.billto_id = bb.id and sf.id = #{id}
     </select>
 
     <resultMap id="invoiceSchool" type="org.zhinanzhen.b.dao.pojo.InvoiceSchoolDO">
@@ -262,6 +263,7 @@
         <result column="email" property="email"></result>
         <result column="invoice_no" property="invoiceNo"></result>
         <result column="company" property="company"></result>
+        <result column="company_id" property="companyId"></result>
         <result column="abn" property="abn"></result>
         <result column="address" property="address"></result>
         <result column="tel" property="tel"></result>
@@ -289,6 +291,7 @@
             <result column="sfdbonus" property="bonus"></result>
             <result column="sfdcommissionrate" property="commissionrate"></result>
             <result column="sfdcommission" property="commission"></result>
+            <result column="sfdmarketing" property="marketing"></result>
         </collection>
     </resultMap>
 
@@ -298,6 +301,9 @@
         <foreach collection="idList" index="index" item="id" open="(" close=")" separator=",">
             #{id}
         </foreach>
+    </update>
+    <update id="insertCommissionOrderIdInInvoice" >
+        update  `b_invoice_school` set order_id = #{idList}  where invoice_no = #{invoiceNo}
     </update>
 
     <select id="billToList" resultType="org.zhinanzhen.b.dao.pojo.InvoiceBillToDO">
@@ -326,17 +332,32 @@
 
     <!-- save srvicefee invoice-->
     <insert id="saveSchoolInvoice" parameterType="java.util.Map">
-        insert  into `b_invoice_school` (gmt_create,gmt_modify,email,company,abn,address,tel,invoice_no,billto_id,note,accountname,bsb,accountno,state,branch)
-        values (#{invoiceDate},now(),#{email},#{company},#{abn},#{address},#{tel},#{invoiceNo},#{billto_id},#{note},#{accountname},#{bsb},#{accountno},"NORMAL",#{branch})
+        insert  into `b_invoice_school` (gmt_create,gmt_modify,email,company_id,company,abn,address,tel,invoice_no,billto_id,note,accountname,bsb,accountno,state,branch)
+        values (#{invoiceDate},now(),#{email},#{companyId},#{company},#{abn},#{address},#{tel},#{invoiceNo},#{billto_id},#{note},#{accountname},#{bsb},#{accountno},"NORMAL",#{branch})
     </insert>
     <insert id="saveSchoolDescription">
-        insert  into `b_invoice_school_description` (id,studentname,dob,student_id,course,startDate,instalment,tuitionfee,bonus,commissionrate,commission,gmt_create,gmt_modify,invoice_no)
+        insert  into `b_invoice_school_description` (id,studentname,dob,student_id,course,startDate,instalment,tuitionfee,bonus,commissionrate,commission,marketing_bonus,gmt_create,gmt_modify,invoice_no)
         values
         <if test=" description != null ">
             <foreach collection="description" item="des"  index="index" separator="," close=";">
                 (#{des.id},#{des.studentname},#{des.dob},#{des.studentId},#{des.course},#{des.startDate},#{des.instalMent},#{des.tuitionFee},#{des.bonus},#{des.commissionrate},#{des.commission},
-                now(),now(),#{invoiceNo})
+                 #{des.marketing},now(),now(),#{invoiceNo})
             </foreach>
         </if>
     </insert>
+
+    <!-- 查询servicefee中的invoiceNo-->
+    <select id="selectInvoiceNo" resultType="string">
+        select invoice_no from
+        <choose>
+            <when test="table == 'b_invoice_servicefee' ">
+                `b_invoice_servicefee`
+            </when>
+            <when test="table == 'b_invoice_school' ">
+                `b_invoice_school`
+            </when>
+        </choose>
+        where DATE_FORMAT( gmt_create, '%Y%m' ) = DATE_FORMAT( CURDATE( ) , '%Y%m' );
+    </select>
+
 </mapper>

@@ -30,14 +30,17 @@ public class InvoiceSchoolDescriptionDO {
     private String instalMent;
 
     //学费
-    private double tuitionFee;
+    private BigDecimal tuitionFee;
 
     //奖金
-    private double bonus;
+    private BigDecimal bonus;
 
     //佣金率
-    private double commissionrate;
+    private BigDecimal commissionrate;
 
     //佣金
-    private double commission;
+    private BigDecimal commission;
+
+    //专属市场bonus
+    private BigDecimal marketing;
 }
