@@ -99,6 +99,10 @@ public class BaseController {
 		if (file != null) {
 			String fileName = file.getOriginalFilename().replace(" ", "_").replace("%20", "_");// 文件原名称
 			LOG.info("上传的文件原名称:" + fileName);
+			// 判断文件类型
+			String type = fileName.indexOf(".") != -1
+					? fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length())
+					: null;
 			String realPath = "/data" + dir;
 			// 创建目录
 			File folder = new File(realPath);
@@ -108,11 +112,11 @@ public class BaseController {
 //			String newFileName = String.valueOf(System.currentTimeMillis()) + "_" + fileName.toLowerCase();
 			String newFileName = String.valueOf(System.currentTimeMillis());
 			// 设置存放文件的路径
-			String path = realPath + newFileName;
+			String path = realPath + newFileName + "." + type;
 			LOG.info("存放文件的路径:" + path);
 			// 转存文件到指定的路径
 			file.transferTo(new File(path));
-			return new Response<String>(0, "", dir + newFileName);
+			return new Response<String>(0, "", dir + newFileName + "." + type);
 		} else {
 			return new Response<String>(3, "文件为空.", null);
 		}
