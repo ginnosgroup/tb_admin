@@ -226,14 +226,18 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
     @Override
     @Transactional
     public int relationVisaOrder(String[] idList, String invoiceNo) {
+        List<Integer> visaIds = invoiceDAO.selectVisaId(idList);
+        if (visaIds.size() != 0 ){
+            return visaIds.get(0);
+        }
         int resulti =  invoiceDAO.insertOrderIdInInvoice(StringUtils.join(idList, ",") , invoiceNo);
         int resultv = invoiceDAO.relationVisaOrder(idList , invoiceNo);
         if (resulti > 0 & resultv > 0 )
-            return 1;
+            return -1;
         else{
             rollback();
         }
-        return  0;
+        return  -2;
     }
 
     //查询一个invoice
@@ -355,7 +359,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
     }
 
     @Override
-    public Response pdfPrint(String invoiceNo, String invoiceIds, String marketing) {
+    public Response pdfPrint(String invoiceNo, String invoiceIds, String marketing ,String realpath) {
 
         Response response = selectInvoiceByNo(invoiceNo,invoiceIds,marketing);
 
@@ -365,8 +369,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
                 InvoiceServiceFeeDTO invoiceServiceFeeDTO = (InvoiceServiceFeeDTO) response.getData();
                 if (invoiceServiceFeeDTO != null) {
                     Map<String,Object> servicefeepdfMap = JSON.parseObject(JSON.toJSONString(invoiceServiceFeeDTO),Map.class);
-                    PrintPdfUtil.pdfout(response,"servicefee.pdf");
-                    System.out.println("impl"+response.getData().toString());
+                    PrintPdfUtil.pdfout(response,"servicefee.pdf" ,realpath);
                     return new Response(0, "yes");
                 }
             }
@@ -376,7 +379,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
                 InvoiceCompanyDTO invoiceCompanyDTO = invoiceDAO.selectCompanyById(companyId);
                 if (invoiceCompanyDTO.getSimple().equals("IES")){
                     Map<String,Object> schoolpdfMap = JSON.parseObject(JSON.toJSONString(invoiceSchoolDTO),Map.class);
-                    PrintPdfUtil.pdfout(response,"IES.pdf");
+                    //PrintPdfUtil.pdfout(response,"IES.pdf");
                 }
                 if ( marketing == null | marketing == ""){
                     if ( invoiceSchoolDTO != null ){

@@ -29,11 +29,15 @@ import java.util.Map;
  */
 public class PrintPdfUtil {
 
-    public static String pdfout(Response response , String path) {
+    public static String pdfout(Response response , String path ,String realPath) {
+
+        int i = 1;
         // 模板路径
         String templatePath = path ;      //"servicefee.pdf";
         // 生成的新文件路径
-        String newPDFPath = "E:mytest"+path;
+        String newPDFPath = 1 +"new"+ path;
+
+        File file = new File(realPath+"\\pdf\\"+newPDFPath);
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
 
@@ -44,7 +48,7 @@ public class PrintPdfUtil {
         try {
             BaseFont bf = BaseFont.createFont("C:/WINDOWS/Fonts/SIMYOU.TTF", BaseFont.IDENTITY_H,BaseFont.NOT_EMBEDDED);
             reader = new PdfReader(templatePath);// 读取pdf模板
-            out = new FileOutputStream(newPDFPath);// 输出流
+            out = new FileOutputStream(file);// 输出流
             bos = new ByteArrayOutputStream();
             stamper = new PdfStamper(reader, bos);
 

@@ -15,6 +15,7 @@ import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.sql.SQLException;
@@ -220,12 +221,17 @@ public class InvoiceController  extends BaseService {
 
             if (invoiceService.selectInvoiceNo(invoiceNo,"b_invoice_servicefee"))
                 return  new Response(1,"invoiceNo repeat!");
-            int result = invoiceService.saveServiceFeeInvoice(invoiceDate, email, company, abn, address, tel, invoiceNo, note, accountname, bsb, accountno, branch, invoiceServiceFeeDescriptionDOList);
-           if (idList != null & !idList .equals("")){
+            if (idList != null & !idList .equals("")){
                int resultrela = invoiceService.relationVisaOrder(idList,invoiceNo);
-           }
-            if (result > 0) {
-                return new Response(0, "success");
+               if (resultrela > 0) {
+                   return new Response(1, resultrela+"订单已经关联！");
+               }else {
+                   int result = invoiceService.saveServiceFeeInvoice(invoiceDate, email, company, abn, address, tel, invoiceNo, note, accountname, bsb, accountno, branch, invoiceServiceFeeDescriptionDOList);
+                    resultrela = invoiceService.relationVisaOrder(idList,invoiceNo);
+                   if (result > 0) {
+                       return new Response(0, "success");
+                   }
+               }
             }
             return new Response(1,"fail");
         }catch (DataAccessException ex){
@@ -352,16 +358,23 @@ public class InvoiceController  extends BaseService {
     }
 
 
-    //查询一个invoice
+    //打印pdf
     @RequestMapping(value = "/pdfPrint",method = RequestMethod.GET)
     @ResponseBody
     public Response pdfPrint(
             @RequestParam(value = "invoiceNo" ,required = true)String invoiceNo,
             @RequestParam(value = "invoiceIds" , required = true)String invoiceIds ,
-            @RequestParam(value = "marketing" ,required = false) String marketing
+            @RequestParam(value = "marketing" ,required = false) String marketing,
+            HttpServletRequest req
     ){
-        Response response = invoiceService.pdfPrint(invoiceNo,invoiceIds,marketing);
-
+        ServletContext ctrx = req.getServletContext();
+        String path1 = ctrx.getContextPath();// 项目名而且是活的
+        String path2 = ctrx.getRealPath("/");// 绝对路径：D:\apache-tomcat-7.0.30\webapps\servletDemo3\imgs
+        String realPath =  req.getContextPath();
+        Response response = invoiceService.pdfPrint(invoiceNo,invoiceIds,marketing, path2);
+        System.out.println(realPath);
+        System.out.println(path1+"path1");
+        System.out.println(path2+"path2");
         return response;
     }
 

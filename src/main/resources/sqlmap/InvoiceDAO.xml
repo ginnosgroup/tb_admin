@@ -207,6 +207,13 @@
         </where>
     </select>
 
+    <!-- visa中invoice_number不为空的id-->
+    <select id="selectVisaId" resultType="java.lang.Integer">
+        select id from `b_visa` where invoice_number is not null and id in
+        <foreach collection="idList" index="index" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
     <!-- servicefee导入数据，关联订单id-->
     <update id="relationVisaOrder" parameterType="java.lang.String">
         update `b_visa` set invoice_number = #{invoiceNo} where id in
@@ -220,7 +227,7 @@
 
     <!-- 查询一个invoice-->
     <select id="selectSFInvoiceByNo" resultMap="invoiceServiceFee">
-        select sf.id,sf.gmt_create,sf.email,sf.invoice_no,sf.company,sf.abn,sf.address,sf.tel,note,accountname,bsb,accountno,state,branch,
+        select sf.id,sf.gmt_create,sf.email,sf.invoice_no,sf.company,sf.abn,sf.address,sf.tel,note,accountname,bsb,accountno,state,order_id,branch,
         sfd.id as did,description as ddescription,IFNULL(unit_price,0.00) as dunit_price,quantity as dquantity ,IFNULL(amount,0.00) as damount from `b_invoice_servicefee` as sf ,
         `b_invoice_servicefee_description` as sfd where sf.invoice_no = #{invoiceNo} and sf.invoice_no = sfd.invoice_no and sf.id = #{id}
     </select>
@@ -228,6 +235,7 @@
         <id column="id" property="id"></id>
         <result column="gmt_create" property="invoiceDate"></result>
         <result column="email" property="email"></result>
+        <result column="order_id" property="order_id"></result>
         <result column="invoice_no" property="invoiceNo"></result>
         <result column="company" property="company"></result>
         <result column="abn" property="abn"></result>
@@ -249,7 +257,7 @@
     </resultMap>
 
     <select id="selectSCInvoiceByNo" resultMap="invoiceSchool">
-        select sf.id,sf.gmt_create,sf.email,sf.invoice_no,sf.company_id,sf.company,sf.abn,sf.address,sf.tel,note,accountname,bsb,accountno,state,branch,
+        select sf.id,sf.gmt_create,sf.email,sf.invoice_no,sf.company_id,sf.company,sf.abn,sf.address,sf.tel,note,accountname,bsb,accountno,state,order_id,branch,
         sfd.id as sfdid,studentname as sfdstudentname ,dob as sfddob,student_id as sfdstudent_id,course as sfdcourse,startDate as sfdstartDate,
         instalment as sfdinstalment,  IFNULL(tuitionfee,0.00) as sfdtuitionfee, IFNULL(bonus,0.00) as sfdbonus,IFNULL(commissionrate,0.00) as sfdcommissionrate,
         IFNULL(commission,0.00) as sfdcommission,IFNULL(marketing_bonus,0.00) as sfdmarketing ,bb.id as bid,bb.company as bcompany,bb.abn as babn,bb.address as baddress
@@ -262,6 +270,7 @@
         <result column="gmt_create" property="invoiceDate"></result>
         <result column="email" property="email"></result>
         <result column="invoice_no" property="invoiceNo"></result>
+        <result column="order_id" property="order_id"></result>
         <result column="company" property="company"></result>
         <result column="company_id" property="companyId"></result>
         <result column="abn" property="abn"></result>

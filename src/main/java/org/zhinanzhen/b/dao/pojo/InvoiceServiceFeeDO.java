@@ -17,6 +17,8 @@ public class InvoiceServiceFeeDO {
 
     private int id;
 
+    private String order_id;
+
     private Date invoiceDate;
 
     private String email;

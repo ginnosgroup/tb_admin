@@ -59,6 +59,8 @@ public interface InvoiceDAO {
 
     List<String> selectInvoiceBySimple(@Param("simpleBranch") String simpleBranch ,@Param("flag") String flag);
 
+    //visa invoice_number 不为空的id
+    List<Integer> selectVisaId(@Param("idList")String[] idList);
     //servicefee导入数据的时候，关联订单id
     int relationVisaOrder(@Param("idList") String[] idList, @Param("invoiceNo") String invoiceNo);
     //插入invoice 表中 的 order_id
@@ -89,4 +91,6 @@ public interface InvoiceDAO {
     boolean saveSchoolDescription(@Param("description") List<InvoiceSchoolDescriptionDO> description,@Param("invoiceNo") Object invoiceNo);
 
     List<String> selectInvoiceNo(@Param("table") String table);
+
+
 }
