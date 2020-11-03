@@ -135,6 +135,138 @@
 			</div>
 		</div>
 </div>
+<div class="modal fade" id="addovst_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+		<div class="modal-dialog" role="document" style="width:700px;">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">Add 留学 Tax Invoice</h4>
+				</div>
+				<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+		      <button data-dismiss="alert" class="close close-sm" type="button">
+		      <i class="fa fa-times"></i>
+		      </button>
+		      <strong>Success!</strong> You  just achieved success.
+		  	</div>
+		  	<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+	        <button data-dismiss="alert" class="close close-sm" type="button">
+	        <i class="fa fa-times"></i>
+	        </button>
+	        <strong id="error_info"></strong>
+	      </div>
+	      <form class="cmxform form-inline" style="" name="addservicefee_form" id="addservicefee_form">
+				<div class="modal-body">						
+						<input type="hidden" name="ids" id="ids" value="" />																	
+						<div class="form-group" style="width:100%;height:40px;">
+							<label class="control-label" style="width:120px;">请选择地区：<span style="color:red;">*</span></label>							
+							<select class="form-control" style="width:150px;" name="b1" id="b1"></select>
+						</div>
+						<div class="form-group" style="width:100%;height:40px;">
+							<label class="control-label" style="width:120px;">Company Title：<span style="color:red;">*</span></label>							
+							<select class="form-control" style="width:300px;" name="b2" id="b2"></select>
+							<label class="control-label" style="margin-left:20px;">ABN：<span id="b2a"></span></label>
+						</div>
+						<div class="form-group" style="width:100%;height:40px;">
+							<label class="control-label" style="width:120px;">Address：</label>							
+							<label class="control-label" style="width:300px;" name="b3" id="b3"></label>
+							<label class="control-label" style="margin-left:20px;">Tel：<span id="b3a"></span></label>
+						</div>
+						<div class="form-group" style="width:100%;height:40px;">							
+							<label class="control-label" style="width:120px;">E-mail：</label>
+							<label class="control-label" style="" id="b3b"></label>
+						</div>
+						<div class="form-group" style="width:100%;height:40px;line-height:40px;text-align:center;border-top: 1px solid #e5e5e5;border-bottom: 1px solid #e5e5e5;">							
+							<label class="control-label" style="font-weight:bold;">Tax Invoice</label>
+						</div>
+						<div class="form-group" style="width:100%;line-height:40px;text-align:right;">							
+							<label class="control-label" style="font-weight:bold;">Invoice No.：</label>
+							<label class="control-label" style="" id="b4a"></label>
+							<label class="control-label" style="font-weight:bold;">Invoice Date：</label>
+							<label class="control-label" style="" id="b4b"></label>
+						</div>
+						<div class="form-group" style="width:100%;line-height:40px;">
+							<label class="control-label"><strong>Description</strong></label>
+							<label class="control-label" style="margin-left:20px;"><a href="javascript:import_commission();">导入数据</a></label>
+							<table class="table table-bordered">
+		             <thead style="background-color:#efefef;">
+		                <tr>
+		                   <th>No.</th>
+		                   <th>DESCRIPTION</th>
+		                   <th>UNIT PRICE</th>
+		                   <th>QUANTITY</th>
+		                   <th>AMOUNT</th>
+		                   <th style="text-align:center;"><a  @click="table_insert"><i class="fa fa-plus-square"></i></a></th>
+		                </tr>		                
+		             </thead>
+		             		<tr v-for="item in subject" id="d{{item.id}}" class="gradeX">
+		             				<td v-html="item.id"></td>
+												<td v-html="item.description"></td>
+												<td v-html="item.unitprice"></td>
+												<td v-html="item.quantity"></td>
+												<td v-html="item.amount"></td>
+												<td style="text-align:center;"><a @click="table_remove($index)"><i class="fa fa-minus-square"></i></a></td>
+		             		</tr>
+		             <tbody>             			 
+		             </tbody>
+		          </table>
+						</div>
+						<div class="form-group" style="width:100%;line-height:20px;text-align:right;">							
+							<div>
+									<label class="control-label" style="font-weight:bold;">Subtotal：</label>
+									<label class="control-label" style="" id="b6a">0.00</label>
+							</div>							
+						</div>
+						<div class="form-group" style="width:100%;line-height:20px;text-align:right;">							
+							<div>
+									<label class="control-label" style="font-weight:bold;">10%GST：</label>
+									<label class="control-label" style="" id="b6b">0.00</label>
+							</div>								
+						</div>
+						<div class="form-group" style="width:100%;line-height:20px;text-align:right;">							
+							<div>
+									<label class="control-label" style="font-weight:bold;">Invoice total with GST：</label>
+									<label class="control-label" style="" id="b6c">0.00</label>
+							</div>								
+						</div>
+						<div class="form-group" style="width:100%;line-height:40px;">
+							<label class="control-label">Note</label>
+							<textarea id="b7" class="form-control" style="width:98%"></textarea>
+						</div>
+						<div class="form-group" style="width:100%;line-height:40px;">
+							<label class="control-label"><strong>Please make payment to the account below,and quote the invoice number:<strong></label>
+							<table class="table table-bordered">
+		             <thead style="background-color:#efefef;">
+		                <tr>
+		                   <th style="width:150px;">Bank Name</th>
+		                   <th>Commonwealth Bank</th>
+		                </tr>
+		             </thead>
+		             <tbody style="font-weight:normal;">
+		                <tr>
+		                   <td>Account Name</td>
+		                   <td><label id="b5a"></label></td>
+		                </tr>	
+		                <tr>
+		                   <td>BSB</td>
+		                   <td><label id="b5b"></label></td>
+		                </tr>
+		                <tr>
+		                   <td>Account No.</td>
+		                   <td><label id="b5c"></label></td>
+		                </tr>
+		             </tbody>
+		          </table>
+						</div>						
+				</div>
+				<div class="modal-footer" style="text-align: center;">										
+					<button id="btnSubmit" type="submit" class="btn btn-primary"><span id="btn_id">保存并下载</span></button>
+					<button id="btnReview" type="button" onclick="preview_form()" class="btn btn-primary" style="display:none;">预览</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+				</div>
+				</form>
+			</div>
+		</div>
+</div>
 </div>
 <style>
 .cmxform .form-group select.error, .cmxform .form-group textarea.error {
@@ -156,6 +288,7 @@ var v_sub = new Vue({
 			gsttotal: 0,
 			total_with_gst: 0,
 			subject: [],
+			subject1: [],
 			invoices: [],
 			row_nums: 0,
 			bind_total: 0,
@@ -219,6 +352,12 @@ function addservicefee()
 		v_sub.addservicefee_id = 1;
 }
 
+function addovst()
+{
+		$('#addovst_id').modal('show');		
+  	v_sub.subject1 = [];
+}
+
 $("#addservicefee_id #b1").live('change', function (e) {
 		loadcompany();
 });
@@ -275,8 +414,8 @@ function createTable(nums,str)
 		var arr = new Array();
 		var arr_sub = new Array();
 		//清空表格
-		v_sub.subject = [];
-		v_sub.row_nums = 0;
+		//v_sub.subject = [];
+		//v_sub.row_nums = 0;
 		arr = str.split('#');
 		for(var i=0;i < nums;i++)
 		{				
