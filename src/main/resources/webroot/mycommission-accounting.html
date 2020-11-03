@@ -1090,10 +1090,13 @@
 						json['userName'] = this.subject[index].userName;
 						json['receiveTypeName'] = this.subject[index].receiveTypeName;
 						json['serviceName'] = this.subject[index].serviceName;
+						json['totalPerAmount'] = this.subject[index].totalPerAmount;
+						json['totalAmount'] = this.subject[index].totalAmount;
 						json['receivable'] = this.subject[index].receivable;
 						json['received'] = this.subject[index].received;
 						json['amount'] = this.subject[index].amount;
 						json['expectAmount'] = this.subject[index].expectAmount;
+						json['invoiceNumber'] = this.subject[index].invoiceNumber;
 						if (field == 'sureExpectAmount')
 						{
 								json['sureExpectAmount'] = '<input type="text" class="form-control small" style="width:120px;" id="'+byid+'" value="'+this.subject[index].sureExpectAmount+'">';
@@ -1144,6 +1147,8 @@
 										userName: this.subject[index].userName,
 										receiveTypeName: this.subject[index].receiveTypeName,
 										serviceName: this.subject[index].serviceName,
+										totalPerAmount: this.subject[index].totalPerAmount,
+										totalAmount: this.subject[index].totalAmount,
 										receivable: this.subject[index].receivable,
 										received: this.subject[index].received,
 										amount: this.subject[index].amount,
@@ -1155,6 +1160,7 @@
 										isChecked: this.subject[index].isChecked,
 										adviserName: this.subject[index].adviserName,
 										strState: this.subject[index].strState,
+										invoiceNumber: this.subject[index].invoiceNumber,
 										type: 1,
 									});
 								}
