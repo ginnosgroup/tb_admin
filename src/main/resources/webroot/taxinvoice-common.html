@@ -626,19 +626,45 @@ function addservicefeeSave()
 		      contentType:"application/json",
 		      dataType: 'json',
 		      data: JSON.stringify(json),
-		    }).done(function(data) {
-		    		$('#loading_id').modal('hide');
+		    }).done(function(data) {		    		
 		    		if (data.code == 0)
 		   			{
-		   					localStorage.setItem("is_select", "no");
-		   					$(f+'#alert_success').css('marginTop','30%');
-		   					$(f+'#alert_success').css('marginLeft','30%');
-		   					$(f+'#alert_success').addClass('alert-success').show().delay(1500).fadeOut();
-		   					$('#addservicefee_id').modal('hide');
-		   					v.getDatalist();
-		   					$('.modal-backdrop').remove();
+		   					//调用生成pdf接口
+		   					$.ajax({
+						      url: url+'invoice/pdfPrint?invoiceNo='+json['invoiceNo']+'&invoiceIds=SF',
+						      type: 'GET',
+						    }).done(function(response){
+						    			$('#loading_id').modal('hide');
+						    			if (response.code == 0)
+						    			{
+						    					//触发下载pdf
+						    					var pdf_url = response.message;
+						    					var a = document.createElement('a');
+													a.href = url+pdf_url;
+													a.target = '_blank';
+													$("body").append(a);
+													a.click();
+													$(a).remove();
+						    					localStorage.setItem("is_select", "no");
+							   					$(f+'#alert_success').css('marginTop','30%');
+							   					$(f+'#alert_success').css('marginLeft','30%');
+							   					$(f+'#alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+							   					$('#addservicefee_id').modal('hide');
+							   					v.getDatalist();
+							   					$('.modal-backdrop').remove();
+						    			}else
+						    			{
+						    					$('#loading_id').modal('hide');
+							   					$(f+'#alert_error').css('marginTop','30%');
+							   					$(f+'#alert_error').css('marginLeft','30%');
+							   					$(f+'#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+					          			$(f+"#error_info").html(data.message);
+						        			return false;
+						    			}
+						    });		   					
 		   			}else
 		   			{
+		   					$('#loading_id').modal('hide');
 		   					$(f+'#alert_error').css('marginTop','30%');
 		   					$(f+'#alert_error').css('marginLeft','30%');
 		   					$(f+'#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
@@ -647,6 +673,17 @@ function addservicefeeSave()
 		   			}
 		    });
     }
+}
+
+function taxinvoice_download(invoiceNo,invoiceIds)
+{
+		var down_url = url+'data/upload/pdf/'+invoiceNo.substring(0,6)+'/'+invoiceNo+'_'+invoiceIds+'.pdf';
+		var a = document.createElement('a');
+		a.href = down_url;
+		a.target = '_blank';
+		$("body").append(a);
+		a.click();
+		$(a).remove();
 }
 
 $('#addservicefee_id').on('show.bs.modal', function () {
