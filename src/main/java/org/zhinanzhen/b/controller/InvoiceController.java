@@ -1,10 +1,10 @@
 package org.zhinanzhen.b.controller;
 
-import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
 import org.dozer.DozerBeanMapper;
 import org.dozer.Mapper;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.*;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.InvoiceService;
@@ -15,11 +15,9 @@ import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
 import javax.annotation.Resource;
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
+import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -330,7 +328,7 @@ public class InvoiceController  extends BaseService {
     @RequestMapping( value = "/saveSchoolInvoice" ,method =  RequestMethod.POST)
     @ResponseBody
     public  Response saveSchoolInvoice(@RequestBody Map paramMap){
-        try {
+        //try {
             if (paramMap.get("idList") == null)
                 return  new Response(1,"idList is null");
             if (paramMap.get("invoiceNo") == null)
@@ -340,21 +338,28 @@ public class InvoiceController  extends BaseService {
 
             if (invoiceService.selectInvoiceNo(invoiceNo,"b_invoice_school"))
                 return  new Response(1,"invoiceNo repeat!");
-            int result = invoiceService.saveSchoolInvoice(paramMap);
+
 
             if (idList != null & !idList .equals("")) {
                 int resultrela = invoiceService.relationCommissionOrder(idList, invoiceNo);
+                if ( resultrela > 0 )
+                return  new Response(1,resultrela+"  订单已经关联了！");
+                else {
+                    int result = invoiceService.saveSchoolInvoice(paramMap);
+                    resultrela = invoiceService.relationCommissionOrder(idList, invoiceNo);
+                    if ( result > 0 ){
+                        return  new Response(0 ,"success" );
+                    }
+                }
             }
 
-            if ( result > 0 ){
-                return  new Response(0 ,"success" );
-            }
+
             return new Response(1 ,"fail" );
-        }catch (DataAccessException ex){
-            return new Response(1 ,"参数错误" );
-        }catch (Exception ex){
-            return new Response(1 ,"系统错误，请联系管理员！" );
-        }
+        //}catch (DataAccessException ex){
+        //    return new Response(1 ,"参数错误" );
+        //}catch (Exception ex){
+         //   return new Response(1 ,"系统错误，请联系管理员！" );
+       // }
     }
 
 
@@ -365,17 +370,16 @@ public class InvoiceController  extends BaseService {
             @RequestParam(value = "invoiceNo" ,required = true)String invoiceNo,
             @RequestParam(value = "invoiceIds" , required = true)String invoiceIds ,
             @RequestParam(value = "marketing" ,required = false) String marketing,
-            HttpServletRequest req
-    ){
-        ServletContext ctrx = req.getServletContext();
-        String path1 = ctrx.getContextPath();// 项目名而且是活的
-        String path2 = ctrx.getRealPath("/");// 绝对路径：D:\apache-tomcat-7.0.30\webapps\servletDemo3\imgs
-        String realPath =  req.getContextPath();
-        Response response = invoiceService.pdfPrint(invoiceNo,invoiceIds,marketing, path2);
-        System.out.println(realPath);
-        System.out.println(path1+"path1");
-        System.out.println(path2+"path2");
+            HttpServletRequest req ,HttpServletResponse resp
+    ) throws FileNotFoundException {
+
+        String fileName = ResourceUtils.getURL("classpath:").getPath();
+
+        Response response = invoiceService.pdfPrint(invoiceNo,invoiceIds,marketing, fileName,req,resp);
+
         return response;
+
+
     }
 
 

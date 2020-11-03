@@ -31,7 +31,7 @@
                 and state  like  "%"#{state}
 
         </where>
-        limit #{pageNum} ,#{pageSize} ;
+        order by gmt_create desc  limit #{pageNum} ,#{pageSize} ;
     </select>
     <select id="selectScoolInvoice" resultType="org.zhinanzhen.b.service.pojo.InvoiceDTO">
         select
@@ -60,7 +60,7 @@
             </if>
             and state  like  "%"#{state}
         </where>
-        limit #{pageNum} ,#{pageSize} ;
+        order by gmt_create desc  limit #{pageNum} ,#{pageSize} ;
     </select>
 
     <select id="selectSFCount" resultType="java.lang.Integer">
@@ -145,8 +145,14 @@
     <update id="updateSFState">
         update `b_invoice_servicefee` set state ="CANCELED" where invoice_no = #{invoiceNo}
     </update>
+    <update id="updateVisaInvoiceNumberNull">
+        update `b_visa` set invoice_number = null where invoice_number = #{invoiceNo} ;
+    </update>
     <update id="updateSCState">
         update `b_invoice_school` set state ="CANCELED" where invoice_no = #{invoiceNo}
+    </update>
+    <update id="updateCommissionOrderInvoiceNumberNull">
+        update `b_commission_order` set invoice_number = null where invoice_number = #{invoiceNo} ;
     </update>
 
     <!-- 查询company表-->
@@ -209,7 +215,16 @@
 
     <!-- visa中invoice_number不为空的id-->
     <select id="selectVisaId" resultType="java.lang.Integer">
-        select id from `b_visa` where invoice_number is not null and id in
+        select id from
+        <choose>
+            <when test=" flag == 'SF' ">
+                `b_visa`
+            </when>
+            <when test=" flag == 'SC' ">
+                `b_commission_order`
+            </when>
+        </choose>
+        where invoice_number is not null and id in
         <foreach collection="idList" index="index" item="id" open="(" close=")" separator=",">
             #{id}
         </foreach>
@@ -229,7 +244,7 @@
     <select id="selectSFInvoiceByNo" resultMap="invoiceServiceFee">
         select sf.id,sf.gmt_create,sf.email,sf.invoice_no,sf.company,sf.abn,sf.address,sf.tel,note,accountname,bsb,accountno,state,order_id,branch,
         sfd.id as did,description as ddescription,IFNULL(unit_price,0.00) as dunit_price,quantity as dquantity ,IFNULL(amount,0.00) as damount from `b_invoice_servicefee` as sf ,
-        `b_invoice_servicefee_description` as sfd where sf.invoice_no = #{invoiceNo} and sf.invoice_no = sfd.invoice_no and sf.id = #{id}
+        `b_invoice_servicefee_description` as sfd where sf.invoice_no = #{invoiceNo} and sf.invoice_no = sfd.invoice_no
     </select>
     <resultMap id="invoiceServiceFee" type="org.zhinanzhen.b.dao.pojo.InvoiceServiceFeeDO">
         <id column="id" property="id"></id>
@@ -262,7 +277,7 @@
         instalment as sfdinstalment,  IFNULL(tuitionfee,0.00) as sfdtuitionfee, IFNULL(bonus,0.00) as sfdbonus,IFNULL(commissionrate,0.00) as sfdcommissionrate,
         IFNULL(commission,0.00) as sfdcommission,IFNULL(marketing_bonus,0.00) as sfdmarketing ,bb.id as bid,bb.company as bcompany,bb.abn as babn,bb.address as baddress
         from `b_invoice_school` as sf ,`b_invoice_school_description` as sfd , `b_invoice_billto` as bb where sf.invoice_no = #{invoiceNo} and
-        sf.invoice_no = sfd.invoice_no and sf.billto_id = bb.id and sf.id = #{id}
+        sf.invoice_no = sfd.invoice_no and sf.billto_id = bb.id
     </select>
 
     <resultMap id="invoiceSchool" type="org.zhinanzhen.b.dao.pojo.InvoiceSchoolDO">
@@ -366,7 +381,7 @@
                 `b_invoice_school`
             </when>
         </choose>
-        where DATE_FORMAT( gmt_create, '%Y%m' ) = DATE_FORMAT( CURDATE( ) , '%Y%m' );
+        where invoice_no = #{invoiceNo} ;
     </select>
 
 </mapper>

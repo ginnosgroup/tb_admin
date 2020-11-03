@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @Data
 public class InvoiceSchoolDTO extends InvoiceSchoolDO {
 
-    private BigDecimal GST;
+    private BigDecimal gst;
 
     private BigDecimal totalGST;
 }
