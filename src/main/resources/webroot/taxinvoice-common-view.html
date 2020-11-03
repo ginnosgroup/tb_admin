@@ -154,7 +154,7 @@ function invoice_view(invoiceNo,invoiceIds)
       dataType: 'json'
     }).done(function(response) {		        	
     	response = response.data;
-    	$('#show_addservicefee_id #b0').html(invoiceIds);
+    	$('#show_addservicefee_id #b0').html(invoiceIds+response.id);
     	$('#show_addservicefee_id #b1').html(response.branch);
     	$('#show_addservicefee_id #b2').html(response.company);
     	$('#show_addservicefee_id #b2a').html(response.abn);
