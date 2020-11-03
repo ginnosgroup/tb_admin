@@ -52,10 +52,10 @@ public class PrintPdfUtil {
         String newPDFPath = realPath.replace('/', '\\').substring(1, realPath.length());
 
         if (pdfModel.equals("servicefee.pdf")){
-            invoiceNo = invoiceNo + "SF.pdf";
+            invoiceNo = invoiceNo + ".pdf";
         }
         if (pdfModel.equals("IES.pdf")){
-            invoiceNo = invoiceNo + "SC.pdf";
+            invoiceNo = invoiceNo + ".pdf";
         }
         newPDFPath = newPDFPath +File.separator+ invoiceNo;
 

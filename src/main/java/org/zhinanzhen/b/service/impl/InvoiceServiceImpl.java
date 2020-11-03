@@ -379,7 +379,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
             InvoiceServiceFeeDTO invoiceServiceFeeDTO = (InvoiceServiceFeeDTO) response.getData();
             if (invoiceServiceFeeDTO != null) {
                 //Map<String, Object> servicefeepdfMap = JSON.parseObject(JSON.toJSONString(invoiceServiceFeeDTO), Map.class);
-                String result = PrintPdfUtil.pdfout(invoiceNo, response, "servicefee.pdf", realpath, req, resp);
+                String result = PrintPdfUtil.pdfout(invoiceNo+"_"+invoiceIds, response, "servicefee.pdf", realpath, req, resp);
                 return new Response(0, result);
             }
         }
