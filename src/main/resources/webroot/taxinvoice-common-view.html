@@ -2,7 +2,7 @@
 <meta http-equiv="Pragma" content="no-cache" />   
 <meta http-equiv="Cache-Control" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<div id="app_sub_1">
+<div id="taxinvoice_app_sub_1">
 <div class="modal fade" id="show_addservicefee_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
 		<div class="modal-dialog" role="document" style="width:700px;">
 			<div class="modal-content">
@@ -138,8 +138,8 @@
 </div>
 </div>
 <script>
-var v_sub1 = new Vue({
-		el: '#app_sub_1',
+var v_sub1_taxinvoice = new Vue({
+		el: '#taxinvoice_app_sub_1',
 		data: {			
 			subject: [],								
 		}
@@ -177,13 +177,12 @@ function invoice_view(invoiceNo,invoiceIds)
     	{
     			$('#show_addservicefee_id #commission_ids').html('');
     	}    	
-    	v_sub1.subject = [];
-    	console.log(response.invoiceServiceFeeDescriptionDOList);
+    	v_sub1_taxinvoice.subject = [];
     	for(var i=0;i < response.invoiceServiceFeeDescriptionDOList.length;i++)
     	{
     			var index = 0;				
-					if (v_sub.subject.length) index = v_sub1.subject.length;
-					v_sub1.subject.splice(index,0, {
+					if (v_sub1_taxinvoice.subject.length) index = v_sub1_taxinvoice.subject.length;
+					v_sub1_taxinvoice.subject.splice(index,0, {
 						id: response.invoiceServiceFeeDescriptionDOList[i].id,
 						description: response.invoiceServiceFeeDescriptionDOList[i].description,
 						unitprice: response.invoiceServiceFeeDescriptionDOList[i].unitPrice,

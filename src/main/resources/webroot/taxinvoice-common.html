@@ -2,7 +2,7 @@
 <meta http-equiv="Pragma" content="no-cache" />   
 <meta http-equiv="Cache-Control" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<div id="app_sub">
+<div id="taxinvoice_app_sub">
 <div class="modal fade" id="addservicefee_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
 		<div class="modal-dialog" role="document" style="width:700px;">
 			<div class="modal-content">
@@ -274,8 +274,8 @@
 }
 </style>
 <script>
-var v_sub = new Vue({
-		el: '#app_sub',
+var v_sub_taxinvoice = new Vue({
+		el: '#taxinvoice_app_sub',
 		data: {
 			admin: sessionStorage.getItem("admin"),
 			ap_list: sessionStorage.getItem("ap_list"),
@@ -348,14 +348,14 @@ function addservicefee()
   	$("#addservicefee_id #b6a").html('0.00');
   	$("#addservicefee_id #b6b").html('0.00');
   	$("#addservicefee_id #b6c").html('0.00');
-  	v_sub.subject = [];
-		v_sub.addservicefee_id = 1;
+  	v_sub_taxinvoice.subject = [];
+		v_sub_taxinvoice.addservicefee_id = 1;
 }
 
 function addovst()
 {
 		$('#addovst_id').modal('show');		
-  	v_sub.subject1 = [];
+  	v_sub_taxinvoice.subject1 = [];
 }
 
 $("#addservicefee_id #b1").live('change', function (e) {
@@ -378,7 +378,7 @@ function loadcompany()
 			    dataType: 'json'
 			  }).done(function(response) {
 			  	var result_data = response.data;
-			  	v_sub.invoices = result_data;
+			  	v_sub_taxinvoice.invoices = result_data;
 			  	$("#addservicefee_id #b2a").html(result_data.abn);
 			  	$("#addservicefee_id #b3").html(result_data.address);
 			  	$("#addservicefee_id #b3a").html(result_data.tel);
@@ -414,25 +414,25 @@ function createTable(nums,str)
 		var arr = new Array();
 		var arr_sub = new Array();
 		//清空表格
-		//v_sub.subject = [];
-		//v_sub.row_nums = 0;
+		//v_sub_taxinvoice.subject = [];
+		//v_sub_taxinvoice.row_nums = 0;
 		arr = str.split('#');
 		for(var i=0;i < nums;i++)
 		{				
 				arr_sub = arr[i].split(',');
 				var index = 0;				
-				if (v_sub.subject.length) index = v_sub.subject.length;
+				if (v_sub_taxinvoice.subject.length) index = v_sub_taxinvoice.subject.length;
 				var tindex = index+1;
-				v_sub.subject.splice(index,0, {
+				v_sub_taxinvoice.subject.splice(index,0, {
 				id: index+1,									
 				description: '<input type="text" class="form-control small" style="" id="ta" value="'+arr_sub[1]+' '+arr_sub[2]+'">',
 				unitprice: '<input type="text" class="form-control small" style="width:80px;" id="tb" onkeyup="total_amount(\'price\',this.value,$(this).parent().parent().attr(\'id\'))" value="'+arr_sub[3]+'">',
 				quantity: '<select class="form-control small" style="width:80px;" id="tc" onchange="total_amount(\'quantity\',this.value,$(this).parent().parent().attr(\'id\'))"><option value=\'1\'>1</option><option value=\'2\'>2</option><option value=\'3\'>3</option><option value=\'4\'>4</option><option value=\'5\'>5</option></select>',
 				amount: '<input type="text" autocomplete="off" class="form-control small" style="width:80px;" id="td" readonly="readonly" value="'+arr_sub[3]+'">',
 				});
-				v_sub.row_nums++;					
+				v_sub_taxinvoice.row_nums++;					
 		}
-		v_sub.bind_total = 1;
+		v_sub_taxinvoice.bind_total = 1;
 }
 
 function total_amount(type,value,parentid)
@@ -456,7 +456,7 @@ function total_withgst()
 {
 		var total_with_gst = 0;
 		var tindex = 0;
-		for(var i=0;i < v_sub.subject.length;i++)
+		for(var i=0;i < v_sub_taxinvoice.subject.length;i++)
 		{
 				tindex = i+1;
 				if ($("#addservicefee_id #d"+tindex+" #td").val() != '')
@@ -467,15 +467,15 @@ function total_withgst()
 						total_with_gst += 0;
 				}
 		}
-		v_sub.total_with_gst = Math.round(total_with_gst*100)/100;
-		v_sub.gsttotal = Math.round((v_sub.total_with_gst/11)*100)/100;
-		v_sub.subtotal = Math.round((total_with_gst - v_sub.gsttotal)*100)/100;
-		$("#addservicefee_id #b6a").html(v_sub.subtotal);
-		$("#addservicefee_id #b6b").html(v_sub.gsttotal);
-		$("#addservicefee_id #b6c").html(v_sub.total_with_gst);
+		v_sub_taxinvoice.total_with_gst = Math.round(total_with_gst*100)/100;
+		v_sub_taxinvoice.gsttotal = Math.round((v_sub_taxinvoice.total_with_gst/11)*100)/100;
+		v_sub_taxinvoice.subtotal = Math.round((total_with_gst - v_sub_taxinvoice.gsttotal)*100)/100;
+		$("#addservicefee_id #b6a").html(v_sub_taxinvoice.subtotal);
+		$("#addservicefee_id #b6b").html(v_sub_taxinvoice.gsttotal);
+		$("#addservicefee_id #b6c").html(v_sub_taxinvoice.total_with_gst);
 }
 
-v_sub.$watch('addservicefee_id', function(obj) {
+v_sub_taxinvoice.$watch('addservicefee_id', function(obj) {
 		$('.default-date-picker').datepicker({   				
 	        format: 'dd/mm/yyyy'
 	  });
@@ -514,9 +514,9 @@ v_sub.$watch('addservicefee_id', function(obj) {
     });       
 });
 
-v_sub.$watch('bind_total', function(obj) {
+v_sub_taxinvoice.$watch('bind_total', function(obj) {
 		total_withgst();
-		v_sub.bind_total = 0;
+		v_sub_taxinvoice.bind_total = 0;
 });
 
 function addservicefeeSave()
@@ -525,7 +525,7 @@ function addservicefeeSave()
 		var check_result = 0;
 		var e_info = '';
 		
-		if (!v_sub.row_nums)
+		if (!v_sub_taxinvoice.row_nums)
 		{
 				e_info = '提示：Description行不能为空！';
 		}else
@@ -557,22 +557,22 @@ function addservicefeeSave()
        	var myDate = new Date();
 				var str_date = formatDate1(myDate);
        	json['invoiceDate'] = str_date;
-       	json['email'] = v_sub.invoices.email;
-       	json['company'] = v_sub.invoices.name;
-       	json['abn'] = v_sub.invoices.abn;
-       	json['address'] = v_sub.invoices.address;
-       	json['tel'] = v_sub.invoices.tel;
-       	json['invoiceNo'] = v_sub.invoices.invoiceNo;
+       	json['email'] = v_sub_taxinvoice.invoices.email;
+       	json['company'] = v_sub_taxinvoice.invoices.name;
+       	json['abn'] = v_sub_taxinvoice.invoices.abn;
+       	json['address'] = v_sub_taxinvoice.invoices.address;
+       	json['tel'] = v_sub_taxinvoice.invoices.tel;
+       	json['invoiceNo'] = v_sub_taxinvoice.invoices.invoiceNo;
        	json['note'] = $(f+'#b7').val();
-       	json['accountname'] = v_sub.invoices.name;
-       	json['bsb'] = v_sub.invoices.bsb;
-       	json['accountno'] = v_sub.invoices.account;
+       	json['accountname'] = v_sub_taxinvoice.invoices.name;
+       	json['bsb'] = v_sub_taxinvoice.invoices.bsb;
+       	json['accountno'] = v_sub_taxinvoice.invoices.account;
        	json['state'] = 'NORMAL';
        	json['branch'] = $(f+'#b1').val();
        	json['idList'] = $(f+'#ids').val();
        	json['descriptionList'] = [];
        	var tindex = 0;       	
-       	for(var i=0;i< v_sub.row_nums;i++)
+       	for(var i=0;i< v_sub_taxinvoice.row_nums;i++)
        	{
        			var tindex = i+1;
        			json['descriptionList'][i] = {};

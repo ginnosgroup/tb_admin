@@ -624,6 +624,8 @@
 			</div>
 		</div>		
 		<div id="load-mycommission-visa-view-page"></div>
+		<div id="load-taxinvoice-common-page"></div>
+		<div id="load-taxinvoice-view-page"></div>
 		<script src="js/jquery-1.8.3.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
 		<script src="js/jquery.dcjqaccordion.2.7.js"></script>
@@ -637,6 +639,8 @@
 		<script src="js/common.js?verson=1"></script>
 		<script>			
 			$("#load-mycommission-visa-view-page").load("mycommission-common-view.html?random="+Math.random());
+			$("#load-taxinvoice-common-page").load("taxinvoice-common.html?random="+Math.random());
+			$("#load-taxinvoice-view-page").load("taxinvoice-common-view.html?random="+Math.random());
 			tb.isLogin("mycommission-accounting.html");
 			$("td,th").addClass("text-center");
 			var v = new Vue({
