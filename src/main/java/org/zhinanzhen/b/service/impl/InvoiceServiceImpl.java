@@ -369,45 +369,46 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
 
     //保存pdf到文件夹中
     @Override
-    public Response pdfPrint(String invoiceNo, String invoiceIds, String marketing, String realpath, HttpServletRequest req, HttpServletResponse resp) {
+    public Response pdfPrint(String invoiceNo, String invoiceIds, String marketing, String realpath) {
 
         Response response = selectInvoiceByNo(invoiceNo, invoiceIds, marketing);
+        if (response != null) {
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
 
-        if (invoiceIds.substring(0, 2).equals("SF")) {
-            InvoiceServiceFeeDTO invoiceServiceFeeDTO = (InvoiceServiceFeeDTO) response.getData();
-            if (invoiceServiceFeeDTO != null) {
-                //Map<String, Object> servicefeepdfMap = JSON.parseObject(JSON.toJSONString(invoiceServiceFeeDTO), Map.class);
-                String result = PrintPdfUtil.pdfout(invoiceNo+"_"+invoiceIds, response, "servicefee.pdf", realpath, req, resp);
-                return new Response(0, result);
-            }
-        }
-        if (invoiceIds.substring(0, 2).equals("SC")) {
-            InvoiceSchoolDTO invoiceSchoolDTO = (InvoiceSchoolDTO) response.getData();
-            //通过companyid查询是不是IES公司
-            if (invoiceSchoolDTO == null)
-                return null;
-            int companyId = invoiceSchoolDTO.getCompanyId();
-            InvoiceCompanyDTO invoiceCompanyDTO = invoiceDAO.selectCompanyById(companyId);
-            if (invoiceCompanyDTO.getSimple().equals("IES")) {
-                //Map<String, Object> schoolpdfMap = JSON.parseObject(JSON.toJSONString(invoiceSchoolDTO), Map.class);
-                //PrintPdfUtil.pdfout(response,"IES.pdf");
-                String result = PrintPdfUtil.pdfout(invoiceNo, response, "IES.pdf", realpath, req, resp);
-                return new Response(0, result);
-            }
-            if (marketing == null | marketing == "") {
-                if (invoiceSchoolDTO != null) {
-                    Map<String, Object> schoolpdfMap = JSON.parseObject(JSON.toJSONString(invoiceSchoolDTO), Map.class);
-                    //PrintPdfUtil.pdfout(schoolpdfMap,"");
-                    return new Response(0, invoiceSchoolDTO);
+            if (invoiceIds.substring(0, 2).equals("SF")) {
+                InvoiceServiceFeeDTO invoiceServiceFeeDTO = (InvoiceServiceFeeDTO) response.getData();
+                if (invoiceServiceFeeDTO != null) {
+                    //Map<String, Object> servicefeepdfMap = JSON.parseObject(JSON.toJSONString(invoiceServiceFeeDTO), Map.class);
+                    String result = PrintPdfUtil.pdfout(invoiceNo + "_SF" + invoiceServiceFeeDTO.getId(), response, "servicefee.pdf", realpath);
+                    return new Response(0, result);
                 }
-
             }
-            if (marketing.equalsIgnoreCase("marketing")) {
+            if (invoiceIds.substring(0, 2).equals("SC")) {
+                InvoiceSchoolDTO invoiceSchoolDTO = (InvoiceSchoolDTO) response.getData();
+                //通过companyid查询是不是IES公司
+                if (invoiceSchoolDTO == null)
+                    return null;
+                int companyId = invoiceSchoolDTO.getCompanyId();
+                InvoiceCompanyDTO invoiceCompanyDTO = invoiceDAO.selectCompanyById(companyId);
+                if (invoiceCompanyDTO.getSimple().equals("IES")) {
+                    //Map<String, Object> schoolpdfMap = JSON.parseObject(JSON.toJSONString(invoiceSchoolDTO), Map.class);
+                    //PrintPdfUtil.pdfout(response,"IES.pdf");
+                    String result = PrintPdfUtil.pdfout(invoiceNo, response, "IES.pdf", realpath);
+                    return new Response(0, result);
+                }
+                if (marketing == null | marketing == "") {
+                    if (invoiceSchoolDTO != null) {
+                        Map<String, Object> schoolpdfMap = JSON.parseObject(JSON.toJSONString(invoiceSchoolDTO), Map.class);
+                        //PrintPdfUtil.pdfout(schoolpdfMap,"");
+                        return new Response(0, invoiceSchoolDTO);
+                    }
 
-                return new Response(0, invoiceSchoolDTO);
+                }
+                if (marketing.equalsIgnoreCase("marketing")) {
 
+                    return new Response(0, invoiceSchoolDTO);
+
+                }
             }
         }
         return null;

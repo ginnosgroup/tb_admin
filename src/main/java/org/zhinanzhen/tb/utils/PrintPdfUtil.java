@@ -32,12 +32,12 @@ import java.util.List;
  */
 public class PrintPdfUtil {
 
-    public static String pdfout(String invoiceNo ,Response response , String pdfModel , String realPath, HttpServletRequest req , HttpServletResponse rep) {
+    public static String pdfout(String invoiceNo ,Response response , String pdfModel , String realPath ) {
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
         SimpleDateFormat sdftodocument = new SimpleDateFormat("yyyyMM");
         //得到static之后的路径
-        String path = "static/data/upload/pdf/"+sdftodocument.format(Calendar.getInstance().getTime());
+        String path = "/data/upload/pdf/"+sdftodocument.format(Calendar.getInstance().getTime());
         realPath = realPath + path;
         // 模板路径
         String templatePath = pdfModel;      //"servicefee.pdf";
@@ -73,7 +73,8 @@ public class PrintPdfUtil {
         ByteArrayOutputStream bos;
         PdfStamper stamper;
         try {
-            BaseFont bf = BaseFont.createFont("C:/WINDOWS/Fonts/SIMYOU.TTF", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
+            //BaseFont bf = BaseFont.createFont("C:/WINDOWS/Fonts/SIMYOU.TTF", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
+            BaseFont bf = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H",BaseFont.NOT_EMBEDDED);
             reader = new PdfReader(templatePath);// 读取pdf模板
             out = new FileOutputStream(newPDFPath);// 输出流
             bos = new ByteArrayOutputStream();
@@ -157,7 +158,7 @@ public class PrintPdfUtil {
             return "系统错误！";
         }
 
-        return path+File.separator+invoiceNo;
+        return path+"/"+invoiceNo;
 
     }
 }

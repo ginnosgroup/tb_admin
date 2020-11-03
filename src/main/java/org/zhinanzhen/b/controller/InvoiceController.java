@@ -328,7 +328,7 @@ public class InvoiceController  extends BaseService {
     @RequestMapping( value = "/saveSchoolInvoice" ,method =  RequestMethod.POST)
     @ResponseBody
     public  Response saveSchoolInvoice(@RequestBody Map paramMap){
-        //try {
+        try {
             if (paramMap.get("idList") == null)
                 return  new Response(1,"idList is null");
             if (paramMap.get("invoiceNo") == null)
@@ -355,11 +355,11 @@ public class InvoiceController  extends BaseService {
 
 
             return new Response(1 ,"fail" );
-        //}catch (DataAccessException ex){
-        //    return new Response(1 ,"参数错误" );
-        //}catch (Exception ex){
-         //   return new Response(1 ,"系统错误，请联系管理员！" );
-       // }
+        }catch (DataAccessException ex){
+            return new Response(1 ,"参数错误" );
+        }catch (Exception ex){
+            return new Response(1 ,"系统错误，请联系管理员！" );
+        }
     }
 
 
@@ -373,9 +373,9 @@ public class InvoiceController  extends BaseService {
             HttpServletRequest req ,HttpServletResponse resp
     ) throws FileNotFoundException {
 
-        String fileName = ResourceUtils.getURL("classpath:").getPath();
+        String fileName = ResourceUtils.getURL("classpath:").getPath()+"static";
 
-        Response response = invoiceService.pdfPrint(invoiceNo,invoiceIds,marketing, fileName,req,resp);
+        Response response = invoiceService.pdfPrint(invoiceNo,invoiceIds,marketing, fileName);
 
         return response;
 

@@ -53,7 +53,6 @@ public interface InvoiceService {
 
     List<InvoiceBillToDO> billToList();
 
-    Response pdfPrint(String invoiceNo, String invoiceIds, String marketing, String realpath, HttpServletRequest req, HttpServletResponse resp);
-
+    Response pdfPrint(String invoiceNo, String invoiceIds, String marketing, String realpath);
 
 }
