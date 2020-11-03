@@ -434,8 +434,10 @@
 														<td v-html="item.adviserName"></td>
 														<td v-html="item.strState"></td>
 														<td>
+																<dli v-if="item.invoiceNumber===null">
 																<label><a href="javascript:"><span style="color:#72d0eb;">生成发票</span></a></label>
-																<label v-html="item.invoiceNumber"></label>
+																</dli>
+																<label v-html="item.invoiceNumber"></label>																
 														</td>
 														<td>																
 																<a v-if="item.id" href="javascript:open_detail({{item.serviceOrderId}},{{item.oid}});">查看</a>
