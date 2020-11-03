@@ -435,9 +435,9 @@
 														<td v-html="item.strState"></td>
 														<td>
 																<dli v-if="item.invoiceNumber===null">
-																<label><a href="javascript:"><span style="color:#72d0eb;">生成发票</span></a></label>
+																<label><a href="javascript:addservicefee_visa('{{item.userName}}','{{item.serviceName}}',{{item.amount}})"><span style="color:#72d0eb;">生成发票</span></a></label>
 																</dli>
-																<label v-html="item.invoiceNumber"></label>																
+																<label><a href="javascript:invoice_view('{{item.invoiceNumber}}','SF');" title="点击查看"><span v-html="item.invoiceNumber"></span></a></label>																
 														</td>
 														<td>																
 																<a v-if="item.id" href="javascript:open_detail({{item.serviceOrderId}},{{item.oid}});">查看</a>
@@ -636,6 +636,7 @@
 		<script src="assets/bootstrap-datepicker/js/bootstrap-datepicker.js"></script><!-- BOOTSTRAP DATEPICKER JS  -->
     <script src="assets/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js"></script><!-- BOOTSTRAP DATETIMEPICKER JS  -->
     <script src="js/jquery.autocompleter.js"></script>
+    <script src="js/jquery.validate.min.js"></script><!-- VALIDATE JS  -->
 		<script src="js/common-scripts.js"></script>
 		<script src="js/vue.js"></script>
 		<script src="js/common.js?verson=1"></script>

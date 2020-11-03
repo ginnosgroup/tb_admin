@@ -352,6 +352,38 @@ function addservicefee()
 		v_sub_taxinvoice.addservicefee_id = 1;
 }
 
+function addservicefee_visa(userName,serviceName,amount)
+{
+		$('#addservicefee_id').modal('show');
+		//重置数据
+		$('#addservicefee_id #addservicefee_form')[0].reset();
+		$("#addservicefee_id #b2a").html('');
+  	$("#addservicefee_id #b3").html('');
+  	$("#addservicefee_id #b3a").html('');
+  	$("#addservicefee_id #b3b").html('');
+  	$("#addservicefee_id #b4a").html('');
+  	$("#addservicefee_id #b4b").html('');
+  	$("#addservicefee_id #b5a").html('');
+  	$("#addservicefee_id #b5b").html('');
+  	$("#addservicefee_id #b5c").html('');
+  	$("#addservicefee_id #b6a").html('0.00');
+  	$("#addservicefee_id #b6b").html('0.00');
+  	$("#addservicefee_id #b6c").html('0.00');
+  	v_sub_taxinvoice.subject = [];
+  	var index = 0;				
+		if (v_sub_taxinvoice.subject.length) index = v_sub_taxinvoice.subject.length;
+		var tindex = index+1;
+		v_sub_taxinvoice.subject.splice(index,0, {
+		id: index+1,									
+		description: '<input type="text" class="form-control small" style="" id="ta" value="'+userName+' '+serviceName+'">',
+		unitprice: '<input type="text" class="form-control small" style="width:80px;" id="tb" onkeyup="total_amount(\'price\',this.value,$(this).parent().parent().attr(\'id\'))" value="'+amount+'">',
+		quantity: '<select class="form-control small" style="width:80px;" id="tc" onchange="total_amount(\'quantity\',this.value,$(this).parent().parent().attr(\'id\'))"><option value=\'1\'>1</option><option value=\'2\'>2</option><option value=\'3\'>3</option><option value=\'4\'>4</option><option value=\'5\'>5</option></select>',
+		amount: '<input type="text" autocomplete="off" class="form-control small" style="width:80px;" id="td" readonly="readonly" value="'+amount+'">',
+		});
+		v_sub_taxinvoice.row_nums++;
+		v_sub_taxinvoice.addservicefee_id = 1;
+}
+
 function addovst()
 {
 		$('#addovst_id').modal('show');		
