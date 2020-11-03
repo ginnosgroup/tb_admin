@@ -293,6 +293,27 @@
 								</li>
 							</ul>
 						</li>
+						<li v-if="ap_list==='KJ' || ap_list==='SUPERAD'" class="sub-menu">
+							<a href="javascript:;">
+								<i class="fa fa-book">
+                </i>
+								<span>
+                 	 Tax Invoice管理
+                </span>
+							</a>
+							<ul class="sub">
+								<li id="invoice_">
+									<a href="taxinvoice-list.html?state=">
+										Tax Invoice列表
+									</a>									
+								</li>
+								<li id="invoice_canceled">
+									<a href="taxinvoice-list.html?state=canceled">
+										已Cancel列表
+									</a>									
+								</li>															
+							</ul>
+						</li>
 						<li class="sub-menu">
 							<a href="javascript:;">
 								<i class="fa fa-book">
