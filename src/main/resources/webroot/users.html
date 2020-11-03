@@ -1274,9 +1274,9 @@
           		{
           				d5 = 0;
           		}
-              var str_url = "user/add";
+              var str_url = url + "user/add";
               var sa_id = $("#id").val();
-              if (sa_id != '0') str_url = "user/update";
+              if (sa_id != '0') str_url = url + "user/update";
               $("#id").val('0');
               
               $.post(str_url, { id: sa_id, name: jqInputs[1].value, firstControllerContents: jqTextarea[0].value, authNickname: jqInputs[0].value, birthday: d2, phone: jqInputs[3].value, visaCode: jqInputs[4].value, visaExpirationDate: d5, wechatUsername: jqInputs[6].value, source: jqSelect[0].value, adviserId: jqSelect[1].value},
@@ -1284,7 +1284,7 @@
 					   			if (data.code == 0)
 					   			{
 					   					//更换顾问
-					   					$.post('user/updateAdviser', { id: sa_id, adviserId: jqSelect[1].value},function(data){});					   					
+					   					$.post(url + 'user/updateAdviser', { id: sa_id, adviserId: jqSelect[1].value},function(data){});					   					
 					   					v.add = false;		
 					   					$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
 					   					v.table_remove();
@@ -1340,9 +1340,9 @@
             	json['visaCode'] = null;
             	json['visaExpirationDate'] = 0;
                              
-             	var str_url = "user/add";
+             	var str_url = url + "user/add";
 	            var sa_id = $("#id").val();
-	            if (sa_id != '0') str_url = "user/update";
+	            if (sa_id != '0') str_url = url + "user/update";
 	            $("#id").val('0');	            
               
               $.post(str_url, json,
@@ -1398,7 +1398,7 @@
 					
 					if (check_result)
     			{
-    					var str_url = "user/updateAdviser";
+    					var str_url = url + "user/updateAdviser";
        				var json = {};
        				json['id'] = v.dId;
        				if (field == 'adviserName')
@@ -1453,7 +1453,7 @@
 			    var obj_adviserId = $("#t4");
 			    $("#t4").empty();
 			    $.ajax({
-	          url: 'adviser/list?pageNum=0&pageSize=100000',
+	          url: url + 'adviser/list?pageNum=0&pageSize=100000',
 	          type: 'GET',
 	          dataType: 'json'
 	        }).done(function(response) {
@@ -1471,7 +1471,7 @@
 	        $("#a7").empty();
 	        obj_adviserId1.append("<option value='0'>请选择</option>");
 			    $.ajax({
-	          url: 'adviser/list?pageNum=0&pageSize=100000',
+	          url: url + 'adviser/list?pageNum=0&pageSize=100000',
 	          type: 'GET',
 	          dataType: 'json'
 	        }).done(function(response) {
@@ -1497,7 +1497,7 @@
 				  if (v.gw_regionid != 'null') strPar = '&regionId='+v.gw_regionid;
 	        obj_adviserId2.append("<option value='0'>请选择顾问</option>");
 			    $.ajax({
-	          url: 'adviser/list?pageNum=0&pageSize=100000'+strPar,
+	          url: url + 'adviser/list?pageNum=0&pageSize=100000'+strPar,
 	          type: 'GET',
 	          dataType: 'json'
 	        }).done(function(response) {
@@ -1516,7 +1516,7 @@
 				  if (v.gw_regionid != 'null') strPar = '&regionId='+v.gw_regionid;
 	        obj_adviserId_u1.append("<option value='0'>请选择</option>");
 			    $.ajax({
-	          url: 'adviser/list?pageNum=0&pageSize=100000'+strPar,
+	          url: url + 'adviser/list?pageNum=0&pageSize=100000'+strPar,
 	          type: 'GET',
 	          async: false,
 	          dataType: 'json'
@@ -1533,7 +1533,7 @@
 	        var obj_tagid= $("#tagId");
 	        $("#tagId").empty();
 			    $.ajax({
-	          url: 'user/listTag',
+	          url: url + 'user/listTag',
 	          type: 'GET',
 	          dataType: 'json',
 	          async: false
@@ -1551,7 +1551,7 @@
 	        var obj_source = $("#t12");
 	        $("#t12").empty();
 			    $.ajax({
-	          url: 'source/listSourceRegion',
+	          url: url + 'source/listSourceRegion',
 	          type: 'GET',
 	          dataType: 'json',
 	          async: false
@@ -1565,7 +1565,7 @@
 	        			var region_id = source_region[item].id;
 	        			obj_source.append("<optgroup  label='"+region_name+"'>");
 	        			$.ajax({
-				          url: 'source/list?sourceRegionId='+region_id,
+				          url: url + 'source/list?sourceRegionId='+region_id,
 				          type: 'GET',
 				          dataType: 'json',
 				          async: false
@@ -1584,7 +1584,7 @@
 	        var obj_source1 = $("#a6");
 	        $("#a6").empty();
 			    $.ajax({
-	          url: 'source/listSourceRegion',
+	          url: url + 'source/listSourceRegion',
 	          type: 'GET',
 	          dataType: 'json',
 	          async: false
@@ -1598,7 +1598,7 @@
 	        			var region_id = source_region1[item].id;
 	        			obj_source1.append("<optgroup  label='"+region_name+"'>");
 	        			$.ajax({
-				          url: 'source/list?sourceRegionId='+region_id,
+				          url: url + 'source/list?sourceRegionId='+region_id,
 				          type: 'GET',
 				          dataType: 'json',
 				          async: false
@@ -1630,7 +1630,7 @@
 			
 			function deleteId()
       {
-					$.get("user/delete", {
+					$.get(url + "user/delete", {
 						id: v.dId
 					}, function(result) {
 						console.log(result);
@@ -1683,7 +1683,7 @@
 	    		
       		if (str_contents != '')
       		{      				    		
-			    		$.post('consultation/add', { userId: v.userid, contents: str_contents, remindDate: remind_d,remindContents: str_remindContents},
+			    		$.post(url + 'consultation/add', { userId: v.userid, contents: str_contents, remindDate: remind_d,remindContents: str_remindContents},
 					   	function(data){
 					   		$('#consultation_id').modal('hide');
 					   		$('.alert').addClass('alert-success').show().delay(1500).fadeOut();				   		
@@ -1715,7 +1715,7 @@
 						var result = tagold_array.indexOf(tagnew_array[i].toString());
 						if (result == -1) 
 						{
-								$.post('user/addTag', { userId: v.dId, tagId: tagnew_array[i]},function(data){});								
+								$.post(url + 'user/addTag', { userId: v.dId, tagId: tagnew_array[i]},function(data){});								
 								//add_array.push(tagnew_array[i]);
 						}
 					}		
@@ -1725,7 +1725,7 @@
 						var result = tagnew_array.indexOf(tagold_array[i].toString());
 						if (result == -1)
 						{
-								$.get("user/deleteUserTagByTagIdAndUserId", {tagId: tagold_array[i],userId: v.dId}, function(result){});
+								$.get(url + "user/deleteUserTagByTagIdAndUserId", {tagId: tagold_array[i],userId: v.dId}, function(result){});
 								//del_array.push(tagold_array[i]);
 						}
 					}

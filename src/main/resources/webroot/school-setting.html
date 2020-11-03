@@ -1623,7 +1623,7 @@
           
           if (check_result)
           {
-          		var str_url = "school/updateSchoolSetting1";
+          		var str_url = url + "school/updateSchoolSetting1";
               var sa_id = v.dId;
               
               $.post(str_url, { id: sa_id, startDate: a1, endDate: a2, proportion: b1},
@@ -1693,7 +1693,7 @@
           
           if (check_result)
           {
-          		var str_url = "school/updateSchoolSetting2";
+          		var str_url = url + "school/updateSchoolSetting2";
               var sa_id = v.dId;
               
               $.post(str_url, { id: sa_id, startDate: a1, endDate: a2, proportion: b1, fee1: c1, number1_1: c2, number1_2: c3, fee2: d1, number2_1: d2, number2_2: d3, fee3: e1, number3_1: e2, number3_2: e3, fee4: f1, number4_1: f2, number4_2: f3},
@@ -1747,7 +1747,7 @@
           
           if (check_result)
           {
-          		var str_url = "school/updateSchoolSetting3";
+          		var str_url = url + "school/updateSchoolSetting3";
               var sa_id = v.dId;
               
               $.post(str_url, { id: sa_id, startDate: a1, endDate: a2, proportion: b1, number: c1, fee: c2},
@@ -1806,7 +1806,7 @@
           
           if (check_result)
           {
-          		var str_url = "school/updateSchoolSetting4";
+          		var str_url = url + "school/updateSchoolSetting4";
               var sa_id = v.dId;
               
               $.post(str_url, { id: sa_id, startDate: a1, endDate: a2, number1: b1, proportion1: b2, number2: c1, proportion2: c2, number3: d1, proportion3: d2, number4: e1, proportion4: e2},
@@ -1857,7 +1857,7 @@
           
           if (check_result)
           {
-          		var str_url = "school/updateSchoolSetting7";
+          		var str_url = url + "school/updateSchoolSetting7";
               var sa_id = v.dId;
               
               $.post(str_url, { id: sa_id, startDate: a1, endDate: a2, fee: jqInputs[2].value},
@@ -1889,7 +1889,7 @@
 							}
 			    }
 			    
-			    var str_url = "school/updateSubjectSettings";
+			    var str_url = url + "school/updateSubjectSettings";
           
           $.post(str_url, {parameters: str_field},
 			   	function(data){
@@ -1945,7 +1945,7 @@
           
           if (check_result)
           {
-          		var str_url = "school/updateSchoolSetting5";
+          		var str_url = url + "school/updateSchoolSetting5";
               var sa_id = v.dId;
               
               $.post(str_url, { id: sa_id, startDate: a1, endDate: a2, number1: b1, fee1: b2, number2: c1, fee2: c2, number3: d1, fee3: d2, number4: e1, fee4: e2},
@@ -1977,7 +1977,7 @@
 							}
 			    }
 			    
-			    var str_url = "school/updateSubjectSettings";
+			    var str_url = url + "school/updateSubjectSettings";
           
           $.post(str_url, {parameters: str_field},
 			   	function(data){
@@ -2027,7 +2027,7 @@
           
           if (check_result)
           {
-          		var str_url = "school/updateSchoolSetting6";
+          		var str_url = url + "school/updateSchoolSetting6";
               var sa_id = v.dId;
               
               $.post(str_url, { id: sa_id, startDate: a1, endDate: a2, number: b1, fee: b2},
@@ -2059,7 +2059,7 @@
 							}
 			    }
 			    
-			    var str_url = "school/updateSubjectSettings";
+			    var str_url = url + "school/updateSubjectSettings";
           
           $.post(str_url, {parameters: str_field},
 			   	function(data){
@@ -2089,7 +2089,7 @@
 					{
 							var json = {};
 							
-							var str_url = "school/updateSchoolAttachments";
+							var str_url = url + "school/updateSchoolAttachments";
  							json['name'] = $('#school_remarks #school_name').val();
  							json['remarks'] = str_remarks;
  							show_loading();
@@ -2168,7 +2168,7 @@
    								t++;
  							}
  							
- 							var str_url = "school/updateSchoolAttachments";
+ 							var str_url = url + "school/updateSchoolAttachments";
  							json['name'] = $('#school_attachments #school_name').val();
  							show_loading();
  							
@@ -2214,7 +2214,7 @@
 					if (i < 3)
 					{					
 							$.ajax({
-					        url:'school/upload_contract_file',
+					        url: url + 'school/upload_contract_file',
 					        dataType:'json',
 					        type:'POST',
 					        async: false,
@@ -2268,7 +2268,7 @@
 					if (current_fpath != '')
 					{					
 							$.ajax({
-					        url:'school/upload_contract_file',
+					        url: url + 'school/upload_contract_file',
 					        dataType:'json',
 					        type:'POST',
 					        async: false,
@@ -2310,7 +2310,7 @@
 					if (current_fpath != '')
 					{					
 							$.ajax({
-					        url:'school/upload_contract_file',
+					        url: url + 'school/upload_contract_file',
 					        dataType:'json',
 					        type:'POST',
 					        async: false,
@@ -2352,7 +2352,7 @@
 					if (current_fpath != '')
 					{					
 							$.ajax({
-					        url:'school/upload_contract_file',
+					        url: url + 'school/upload_contract_file',
 					        dataType:'json',
 					        type:'POST',
 					        async: false,

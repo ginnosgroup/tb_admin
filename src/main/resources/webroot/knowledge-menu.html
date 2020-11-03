@@ -608,7 +608,7 @@
       
       function deleteId()
       {      		
-      		$.get("knowledge/deleteMenu", {
+      		$.get(url + "knowledge/deleteMenu", {
 						id: v.dId
 					}, function(result) {
 						console.log(result);
@@ -636,9 +636,9 @@
           
           if (check_result)
           {
-              var str_url = "knowledge/addMenu";
+              var str_url = url + "knowledge/addMenu";
               var sa_id = $("#id").val();              
-              if (sa_id != '0') str_url = "knowledge/updateMenu";              
+              if (sa_id != '0') str_url = url + "knowledge/updateMenu";              
               $("#id").val('0');
               $.post(str_url, { id: sa_id, name: t1,knowledgeMenuId: t0},
 					   	function(data){

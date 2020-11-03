@@ -1,4 +1,7 @@
 ﻿<meta charset="utf-8"/>
+<meta http-equiv="Pragma" content="no-cache" />   
+<meta http-equiv="Cache-Control" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
 <div id="app_sub_comment">
 		<section class="panel">
 			<header class="panel-heading" id="title" onclick="show_comment();">
@@ -86,7 +89,7 @@ function btnSubmit()
     var cont = $('#message_content').val();
     if (cont != '')
     {
-    		var str_url = 'visa/addComment';
+    		var str_url = url + 'visa/addComment';
     		$.post(str_url, { visaId: id, adminUserId: v.admin_id,content: cont},
 		   	function(data){
 		   		if (!data.code)
@@ -113,7 +116,7 @@ function btnDel(id)
 		var that = this;
     if(confirm('提醒：请确认是否执行删除操作？'))
     {
-    		$.get("visa/deleteComment", {
+    		$.get(url + "visa/deleteComment", {
 					id: id
 				}, function(result) {
 					console.log(result);

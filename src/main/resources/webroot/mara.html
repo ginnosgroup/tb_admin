@@ -701,7 +701,7 @@
           	this.index = index;
           },
           passwdSet: function (username){
-          			$.post('admin_user/resetPassword', { username: username},
+          			$.post(url + 'admin_user/resetPassword', { username: username},
 						   	function(data){
 						   		if (data.code == 0)
 						   		{
@@ -760,9 +760,9 @@
           
           if (check_result)
           {              
-              var str_url = "mara/add";
+              var str_url = url + "mara/add";
               var sa_id = $("#id").val();
-              if (sa_id != '0') str_url = "mara/update";
+              if (sa_id != '0') str_url = url + "mara/update";
               $("#id").val('0');
               
               var passwd = '';
@@ -801,7 +801,7 @@
 			    //绑定区域列表
 			    var obj_regionId = $("#t4");	
 			    $.ajax({
-	          url: 'region/list_all',
+	          url: url + 'region/list_all',
 	          type: 'GET',
 	          dataType: 'json'
 	        }).done(function(response) {
@@ -823,7 +823,7 @@
 			
 			function deleteId()
       {
-					$.get("mara/delete", {
+					$.get(url+"mara/delete", {
 						id: v.dId
 					}, function(result) {
 						console.log(result);
@@ -840,7 +840,7 @@
       
       function passwdSet(username)
       {
-      		$.post('admin_user/resetPassword', { username: username},
+      		$.post(url + 'admin_user/resetPassword', { username: username},
 			   	function(data){
 			   		if (data.code == 0)
 			   		{

@@ -754,7 +754,7 @@
           	this.index = index;
           },
           passwdSet: function (username){
-          			$.post('admin_user/resetPassword', { username: username},
+          			$.post(url + 'admin_user/resetPassword', { username: username},
 						   	function(data){
 						   		if (data.code == 0)
 						   		{
@@ -813,9 +813,9 @@
           
           if (check_result)
           {              
-              var str_url = "official/add";
+              var str_url = url + "official/add";
               var sa_id = $("#id").val();
-              if (sa_id != '0') str_url = "official/update";
+              if (sa_id != '0') str_url = url + "official/update";
               $("#id").val('0');
               
               var passwd = '';
@@ -857,7 +857,7 @@
 			    var obj_regionId = $("#t4");
 			    $("#t4").empty();	
 			    $.ajax({
-	          url: 'region/list_all',
+	          url: url + 'region/list_all',
 	          type: 'GET',
 	          dataType: 'json'
 	        }).done(function(response) {
@@ -879,7 +879,7 @@
 			
 			function deleteId()
       {
-					$.get("official/delete", {
+					$.get(url + "official/delete", {
 						id: v.dId
 					}, function(result) {
 						console.log(result);
@@ -896,7 +896,7 @@
       
       function passwdSet(username)
       {
-      		$.post('admin_user/resetPassword', { username: username},
+      		$.post(url + 'admin_user/resetPassword', { username: username},
 			   	function(data){
 			   		if (data.code == 0)
 			   		{
@@ -932,7 +932,7 @@
           
           if (check_result)
     			{
-    					var str_url = "official/update";
+    					var str_url = url + "official/update";
     					$.post(str_url, { id: officialId,isOfficialAdmin: true},
 					   	function(data){
 					   			if (data.code == 0)

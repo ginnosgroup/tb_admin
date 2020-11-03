@@ -1249,9 +1249,9 @@
           		{
           				d5 = 0;
           		}
-              var str_url = "user/add";
+              var str_url = url + "user/add";
               var sa_id = $("#id").val();
-              if (sa_id != '0') str_url = "user/update";
+              if (sa_id != '0') str_url = url + "user/update";
               $("#id").val('0');
               
               $.post(str_url, { id: sa_id, name: jqInputs[0].value, firstControllerContents: jqTextarea[0].value, authNickname: jqInputs[1].value, birthday: d2, phone: jqInputs[3].value, visaCode: jqInputs[4].value, visaExpirationDate: d5, wechatUsername: jqInputs[6].value, source: jqSelect[0].value, adviserId: jqSelect[1].value},
@@ -1259,7 +1259,7 @@
 					   			if (data.code == 0)
 					   			{
 					   					//更换顾问
-					   					$.post('user/updateAdviser', { id: sa_id, adviserId: jqSelect[1].value},function(data){});
+					   					$.post(url + 'user/updateAdviser', { id: sa_id, adviserId: jqSelect[1].value},function(data){});
 					   					v.add = false;		
 					   					$('#alert').addClass('alert-success').show().delay(1500).fadeOut();
 					   					v.table_remove();
@@ -1289,7 +1289,7 @@
 			    //绑定顾问列表
 			    var obj_adviserId = $("#t4");	
 			    $.ajax({
-	          url: 'adviser/list?pageNum=0&pageSize=10000',
+	          url: url + 'adviser/list?pageNum=0&pageSize=10000',
 	          type: 'GET',
 	          dataType: 'json'
 	        }).done(function(response) {
@@ -1304,7 +1304,7 @@
 	        //绑定客户来源
 	        var obj_source = $("#t12");
 			    $.ajax({
-	          url: 'source/listSourceRegion',
+	          url: url + 'source/listSourceRegion',
 	          type: 'GET',
 	          dataType: 'json',
 	          async: false
@@ -1317,7 +1317,7 @@
 	        			var region_id = source_region[item].id;
 	        			obj_source.append("<optgroup  label='"+region_name+"'>");
 	        			$.ajax({
-				          url: 'source/list?sourceRegionId='+region_id,
+				          url: url + 'source/list?sourceRegionId='+region_id,
 				          type: 'GET',
 				          dataType: 'json',
 				          async: false
@@ -1337,7 +1337,7 @@
 	        var obj_adviserId1 = $("#a7");
 	        obj_adviserId1.append("<option value='0'>请选择</option>");
 			    $.ajax({
-	          url: 'adviser/list?pageNum=0&pageSize=100000',
+	          url: url + 'adviser/list?pageNum=0&pageSize=100000',
 	          type: 'GET',
 	          dataType: 'json'
 	        }).done(function(response) {
@@ -1401,7 +1401,7 @@
 	    		
       		if (str_contents != '')
       		{      				    		
-			    		$.post('consultation/add', { userId: v.userid, contents: str_contents, remindDate: remind_d,remindContents: str_remindContents},
+			    		$.post(url + 'consultation/add', { userId: v.userid, contents: str_contents, remindDate: remind_d,remindContents: str_remindContents},
 					   	function(data){
 					   		$('#consultation_id').modal('hide');
 					   		$('#alert1').addClass('alert-success').show().delay(1500).fadeOut();
@@ -1422,7 +1422,7 @@
 	    		
       		if (setdate != ''  && str_remindContents != '')
       		{      				    		
-			    		$.post('consultation/update', { id: v.dId,userId: v.userid, remindDate: remind_d,remindContents: str_remindContents},
+			    		$.post(url + 'consultation/update', { id: v.dId,userId: v.userid, remindDate: remind_d,remindContents: str_remindContents},
 					   	function(data){
 					   		$('#consultation_remind_id').modal('hide');
 					   		$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
@@ -1456,28 +1456,28 @@
 					}); 
       	  if (d1)
       		{
-      			$.post('consultation/add', { userId: v.userid, contents: cont, remindDate: d1,remindContents: cont},
+      			$.post(url + 'consultation/add', { userId: v.userid, contents: cont, remindDate: d1,remindContents: cont},
 					   	function(data){					   		
 					   		//$('#alert1').addClass('alert-success').show().delay(1500).fadeOut();					   		
 					   	});
       		}
       		if (d3)
       		{
-      			$.post('consultation/add', { userId: v.userid, contents: cont, remindDate: d3,remindContents: cont},
+      			$.post(url + 'consultation/add', { userId: v.userid, contents: cont, remindDate: d3,remindContents: cont},
 					   	function(data){					   		
 					   		//$('#alert1').addClass('alert-success').show().delay(1500).fadeOut();					   		
 					   	});
       		}
       		if (d10)
       		{
-      			$.post('consultation/add', { userId: v.userid, contents: cont, remindDate: d10,remindContents: cont},
+      			$.post(url + 'consultation/add', { userId: v.userid, contents: cont, remindDate: d10,remindContents: cont},
 					   	function(data){					   		
 					   		//$('#alert1').addClass('alert-success').show().delay(1500).fadeOut();
 					   	});
       		}
       		if (d17)
       		{
-      			$.post('consultation/add', { userId: v.userid, contents: cont, remindDate: d17,remindContents: cont},
+      			$.post(url + 'consultation/add', { userId: v.userid, contents: cont, remindDate: d17,remindContents: cont},
 					   	function(data){					   		
 					   		$('#alert1').addClass('alert-success').show().delay(1500).fadeOut();
 					   	});

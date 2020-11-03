@@ -503,7 +503,7 @@
 	    		//绑定区域列表
 			    var obj_regionId = $("#regionId");	
 			    $.ajax({
-	          url: 'region/list_all',
+	          url: url + 'region/list_all',
 	          type: 'GET',
 	          dataType: 'json'
 	        }).done(function(response) {
@@ -524,7 +524,7 @@
 			    var obj_adviserId = $("#adviserId");
 			    obj_adviserId.append("<option value=''>全部</option>");	
 			    $.ajax({
-	          url: 'adviser/list?pageNum=0&pageSize=100000',
+	          url: url + 'adviser/list?pageNum=0&pageSize=100000',
 	          type: 'GET',
 	          dataType: 'json'
 	        }).done(function(response) {

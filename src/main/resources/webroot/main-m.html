@@ -394,7 +394,6 @@
   					//str_date = '2019-06-27';
   					var date = new Date(str_date);
 			    	var current_tp = date.getTime();
-			    	//$.get(url + "school_brokerage_sa/listByDashboard?", {
 						$.get(url + "remind/listByDate?date="+current_tp, {										
 						}, function(result) {
 							console.log(result)
@@ -494,7 +493,7 @@
 					close_confirm: function (index,id,close) {
 						if(confirm("确认关闭该学生所有后续确认就读提醒？"))
 						{
-		          	var str_url = 'remind/updateStateById';
+		          	var str_url = url + 'remind/updateStateById';
 		          	$.post(str_url, {
 									id: id,
 									state: 'DISABLED'
@@ -509,7 +508,7 @@
           close_confirm1: function (index,id,close) {
           	if(confirm("确认关闭提醒？"))
 						{
-		          	var str_url = 'remind/updateStateById';
+		          	var str_url = url + 'remind/updateStateById';
 		          	$.post(str_url, {
 									id: id,
 									state: 'DISABLED'
@@ -525,7 +524,7 @@
           close_confirm2: function (index,id,userId,close) {
           	if(confirm("确认关闭提醒？"))
 						{
-		          	var str_url = 'consultation/update';
+		          	var str_url = url + 'consultation/update';
 		          	$.post(str_url, {
 									id: id,
 									userId: userId,
@@ -546,7 +545,7 @@
 			
 			function init_getData()
       {
-					$.get("user/count", {
+					$.get(url + "user/count", {
 					}, function(result) {
 						console.log(result);
 						if(result.code == '0') {
@@ -554,7 +553,7 @@
 						};
 					});
 					//本月用户
-					$.get("user/countMonth", {
+					$.get(url + "user/countMonth", {
 					}, function(result) {
 						console.log(result);
 						if(result.code == '0') {
@@ -562,7 +561,7 @@
 						};
 					});
 					//本月佣金
-					$.get("dashboard/getMonthExpectAmount", {
+					$.get(url + "dashboard/getMonthExpectAmount", {
 					}, function(result) {
 						console.log(result);
 						if(result.code == '0') {

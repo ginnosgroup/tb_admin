@@ -1103,9 +1103,9 @@
           		str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
               date = new Date(str_d);
               var d2 = date.getTime();      
-              var str_url = "visa/add";
+              var str_url = url + "visa/add";
               var sa_id = $("#id").val();
-              if (sa_id != '0') str_url = "visa/update";
+              if (sa_id != '0') str_url = url + "visa/update";
               $("#id").val('0');
               
               $.post(str_url, { id: sa_id, handlingDate: d0, userId: $('#userid').val(), receiveDate: d2, receiveTypeId: jqSelect[0].value, serviceId: jqSelect[1].value, receivable: jqInputs[3].value, received: jqInputs[4].value, amount: jqInputs[5].value, adviserId: jqSelect[2].value, officialId: jqSelect[3].value,remarks: jqTextarea[0].value},
@@ -1151,9 +1151,9 @@
           		str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
               date = new Date(str_d);
               var d4 = date.getTime();      
-              var str_url = "visa/add";
+              var str_url = url + "visa/add";
               var sa_id = $("#id").val();
-              if (sa_id != '0') str_url = "visa/update";
+              if (sa_id != '0') str_url = url + "visa/update";
               $("#id").val('0');
               
               $.post(str_url, { id: sa_id, handlingDate: d0, userId: $('#userid').val(), receiveDate: d4, receiveTypeId: jqSelect[0].value, serviceId: jqSelect[1].value, receivable: jqInputs[5].value, received: jqInputs[6].value, amount: jqInputs[7].value, adviserId: jqSelect[2].value, officialId: jqSelect[3].value,remarks: jqTextarea[0].value},
@@ -1242,7 +1242,7 @@
 			    //绑定收款方式
 			    var receive_type = $("#t5");	
 			    $.ajax({
-	          url: 'receiveType/list?state=ENABLED',
+	          url: url + 'receiveType/list?state=ENABLED',
 	          type: 'GET',
 	          dataType: 'json'
 	        }).done(function(response) {
@@ -1256,7 +1256,7 @@
 	        });
 	        var receive_type1 = $("#a5");	
 			    $.ajax({
-	          url: 'receiveType/list?state=ENABLED',
+	          url: url + 'receiveType/list?state=ENABLED',
 	          type: 'GET',
 	          dataType: 'json'
 	        }).done(function(response) {
@@ -1271,7 +1271,7 @@
 	        //绑定服务项目
 			    var service_Id = $("#t6");	
 			    $.ajax({
-	          url: 'service/list',
+	          url: url + 'service/list',
 	          type: 'GET',
 	          dataType: 'json'
 	        }).done(function(response) {
@@ -1285,7 +1285,7 @@
 	        });
 	        var service_Id1 = $("#a6");	
 			    $.ajax({
-	          url: 'service/list',
+	          url: url + 'service/list',
 	          type: 'GET',
 	          dataType: 'json'
 	        }).done(function(response) {
@@ -1321,7 +1321,7 @@
 					var current_adviserId = this.adviser_id;
 			    var obj_adviserId = $("#t13");	
 			    $.ajax({
-	          url: 'adviser/list?pageNum=0&pageSize=100000',
+	          url: url + 'adviser/list?pageNum=0&pageSize=100000',
 	          type: 'GET',
 	          dataType: 'json'
 	        }).done(function(response) {
@@ -1340,7 +1340,7 @@
 	        });
 	        var obj_adviserId1 = $("#a13");	
 			    $.ajax({
-	          url: 'adviser/list?pageNum=0&pageSize=100000',
+	          url: url + 'adviser/list?pageNum=0&pageSize=100000',
 	          type: 'GET',
 	          dataType: 'json'
 	        }).done(function(response) {
@@ -1360,7 +1360,7 @@
 	        //绑定文案列表
 			    var obj_officialId = $("#t14");	
 			    $.ajax({
-	          url: 'official/list?pageNum=0&pageSize=10',
+	          url: url + 'official/list?pageNum=0&pageSize=10',
 	          type: 'GET',
 	          dataType: 'json'
 	        }).done(function(response) {
@@ -1374,7 +1374,7 @@
 	        });
 	        var obj_officialId1 = $("#a14");	
 			    $.ajax({
-	          url: 'official/list?pageNum=0&pageSize=10',
+	          url: url + 'official/list?pageNum=0&pageSize=10',
 	          type: 'GET',
 	          dataType: 'json'
 	        }).done(function(response) {
@@ -1390,7 +1390,7 @@
 			
 			function deleteId()
       {
-					$.get("visa/delete", {
+					$.get(url + "visa/delete", {
 						id: v.dId
 					}, function(result) {
 						console.log(result);
@@ -1410,10 +1410,10 @@
       		var str_url = '';
       		if (v.close)
       		{
-      				str_url = 'visa/reopen';
+      				str_url = url + 'visa/reopen';
       		}else
       		{
-      				str_url = 'visa/close';
+      				str_url = url + 'visa/close';
       		}
 					$.get(str_url, {
 						id: v.dId
@@ -1439,7 +1439,7 @@
           		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];     				
 		      		var date = new Date(str_d);
 			    		var remind_d = date.getTime();			    		
-			    		$.post('visaRemind/add', { visaId: v.dId, remindDate: remind_d},
+			    		$.post(url + 'visaRemind/add', { visaId: v.dId, remindDate: remind_d},
 					   	function(data){
 					   		$('#remind_id').modal('hide');
 					   		$('.alert').addClass('alert-success').show().delay(1500).fadeOut();

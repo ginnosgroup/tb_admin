@@ -86,7 +86,7 @@ function btnSubmit()
     var cont = $('#message_content').val();
     if (cont != '')
     {
-    		var str_url = 'serviceOrder/addComment';
+    		var str_url = url + 'serviceOrder/addComment';
     		$.post(str_url, { serviceOrderId: id, adminUserId: v.admin_id,content: cont},
 		   	function(data){
 		   		if (!data.code)
@@ -113,7 +113,7 @@ function btnDel(id)
 		var that = this;
     if(confirm('提醒：请确认是否执行删除操作？'))
     {
-    		$.get("serviceOrder/deleteComment", {
+    		$.get(url + "serviceOrder/deleteComment", {
 					id: id
 				}, function(result) {
 					console.log(result);

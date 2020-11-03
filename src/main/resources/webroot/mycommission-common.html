@@ -156,7 +156,7 @@ function edit_commission_detail(serviceId,orderId)
 		v_sub2.orderId = orderId;		
 		//佣金详细页
 		$.ajax({
-      url: 'serviceOrder/get?id='+serviceId,
+      url: url + 'serviceOrder/get?id='+serviceId,
       type: 'GET',
       dataType: 'json'
     }).done(function(response) {			        	
@@ -196,7 +196,7 @@ function edit_commission_detail(serviceId,orderId)
     	}   	
     	//查询佣金订单信息
     	$.ajax({
-	      url: 'visa/get?id='+orderId,
+	      url: url + 'visa/get?id='+orderId,
 	      type: 'GET',
 	      async: false,
 	      dataType: 'json'
@@ -317,7 +317,7 @@ function requestCommissionVisaSave()
         
     if (check_result)
     {            	            	            	                             
-       	var str_url = "visa/update";
+       	var str_url = url + "visa/update";
        	var json = {};
        	       		
        	json['id'] = v_sub2.orderId;
@@ -415,7 +415,7 @@ function page_init()
 	  //收款方式
 	  var receive_type = $("#visa_id #b9");
     $.ajax({
-      url: 'receiveType/list?state=ENABLED',
+      url: url + 'receiveType/list?state=ENABLED',
       type: 'GET',
       async: false,
       dataType: 'json'
@@ -447,7 +447,7 @@ $('#visa_id #f1').live('change', function (e) {
 		formData.append("file",$("#f1")[0].files[0]);
 		
 		$.ajax({
-        url:'visa/upload_img',
+        url: url + 'visa/upload_img',
         dataType:'json',
         type:'POST',
         async: false,

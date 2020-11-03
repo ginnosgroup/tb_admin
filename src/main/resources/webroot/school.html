@@ -553,7 +553,7 @@
           	  				this._data = '';
           	  				var str_country = options.father;
           	  				var school_name = options.additionalParameters.id;
-          	  				var remoteUrl = '/admin/school/list?name='+school_name+'&country='+str_country;
+          	  				var remoteUrl = url +'school/list?name='+school_name+'&country='+str_country;
 						      		$.get(remoteUrl, {
 													pageNum: 0,
 													pageSize: 10000
@@ -706,7 +706,7 @@
           
           if (check_result)
           {              
-              var str_url = "school/update";
+              var str_url = url+"school/update";
               var sa_id = $("#id").val();
               $("#id").val('0');
               if (sa_id)
@@ -736,7 +736,7 @@
       {
       		if (v.dId)
       		{
-		      		$.get("school/delete", {
+		      		$.get(url + "school/delete", {
 								id: v.dId
 							}, function(result) {						
 								if(result.data == true) {
@@ -756,7 +756,7 @@
       function goto_schoolDel(country,school_name,id)
       {
       		school_name = school_name.split('#').join(' ');
-      		$.get("school/deleteByName", {
+      		$.get(url + "school/deleteByName", {
 						name: school_name
 					}, function(result) {
 						console.log(result);
@@ -785,7 +785,7 @@
           
           if (check_result)
           {              
-              var str_url = "school/add";
+              var str_url = url + "school/add";
               var sa_id = $("#id").val();
               $("#school_name").val('');
               $("#id").val('0');
@@ -793,7 +793,7 @@
               {
               		if (t1 != school_name)
               		{
-              				str_url = "school/updateName";
+              				str_url = url + "school/updateName";
               				$.post(str_url, { id: sa_id, oldName: school_name, newName: t1},
 									   	function(data){
 									   			if (data.code == 0)

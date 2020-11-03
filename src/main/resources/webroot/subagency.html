@@ -694,9 +694,9 @@
           
           if (check_result)
           {              
-              var str_url = "subagency/add";
+              var str_url = url + "subagency/add";
               var sa_id = $("#id").val();
-              if (sa_id != '0') str_url = "subagency/update";
+              if (sa_id != '0') str_url = url + "subagency/update";
               $("#id").val('0');
               
               $.post(str_url, { id: sa_id, name: jqInputs[0].value, commissionRate: jqInputs[1].value, country: jqSelect[0].value},
@@ -734,7 +734,7 @@
 			
 			function deleteId()
       {
-					$.get("subagency/delete", {
+					$.get(url + "subagency/delete", {
 						id: v.dId
 					}, function(result) {
 						console.log(result);

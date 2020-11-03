@@ -439,9 +439,9 @@
 														<td v-html="item.gmtCreate"></td>
 														<td @dblclick="table_edit($index,'kjApprovalDate','t4')"><span v-html="item.kjApprovalDate"></span></td>
 														<td v-html="item.receiveDate"></td>
-														<td v-html="item.userName"></td>
+														<td v-html="item.userName" id="userName{{item.id}}"></td>
 														<td v-html="item.studentCode"></td>
-														<td v-html="item.serviceName"></td>
+														<td v-html="item.serviceName" id="serviceName{{item.id}}"></td>
 														<td v-html="item.strSettle"></td>
 														<td v-html="item.schoolName"></td>
 														<td v-html="item.schoolSubject"></td>
@@ -451,7 +451,7 @@
 														<td v-html="item.perAmount"></td>
 														<td v-html="item.totalPerAmount"></td>
 														<td v-html="item.totalAmount"></td>
-														<td v-html="item.amount"></td>
+														<td v-html="item.amount" id="amount{{item.id}}"></td>
 														<td v-html="item.expectAmount"></td>
 														<td @dblclick="table_edit($index,'sureExpectAmount','t1')"><span v-html="item.sureExpectAmount"></span></td>
 														<td v-html="item.gst"></td>
@@ -590,6 +590,11 @@
 											<button @click="multiple_remove1" type="button" class="btn btn-default">取消</button>
 											<label id="show_info" style="display:none;margin-left:10px;color:blue;">正在保存，请稍等...</label>
 										</div>
+										<div v-if="is_select==='yes'" id="ids_multiple" style="margin-top:10px;">
+												<a id="selectAll" href="javascript:">全选</a>&nbsp;|&nbsp;<a id="reverse" href="javascript:">反选</a>&nbsp;|&nbsp;<a id="unSelect" href="javascript:">取消选择</a>
+												<button onclick="multiple_import()" id="btn_multiple_import" type="button" class="btn btn-primary">确认导入</button>
+												<button onclick="self.close();localStorage.setItem("is_select", "no");" type="button" class="btn btn-default">取消</button>
+										</div>
 									</div>
 								</div>
 							</section>
@@ -662,7 +667,36 @@
 					
 				</div>
 			</div>
-		</div>		
+		</div>
+		<div class="modal fade" id="showconfirmbox_invoice_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="z-index:9999;">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">操作提示</h4>
+					</div>
+					<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+			      <button data-dismiss="alert" class="close close-sm" type="button">
+			      <i class="fa fa-times"></i>
+			      </button>
+			      <strong>Success!</strong> You  just achieved success.
+			  	</div>
+			  	<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+		        <button data-dismiss="alert" class="close close-sm" type="button">
+		        <i class="fa fa-times"></i>
+		        </button>
+		        <strong id="error_info"></strong>
+		      </div>
+					<div class="modal-body">
+						是否将<strong>Invoice</strong>信息添加至佣金订单中，您确认执行此操作吗？
+					</div>
+					<div class="modal-footer">						
+						<button onclick="updateToInvoice();" type="button" class="btn btn-primary">确认</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+					</div>
+				</div>
+			</div>
+		</div>
 		<div id="load-mycommission-ovst-accounting-view-page"></div>
 		<script src="js/jquery-1.8.3.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
@@ -690,6 +724,7 @@
 					kj_id: sessionStorage.getItem("kj_id"),
 					commission_state: getRequest('commission_state'),
 					commission_list: getRequest('list'),
+					is_select : localStorage.is_select,
 					orderId: 0,
 					total_amount: 0.00,
 					total_expectamount: 0.00,
@@ -1590,6 +1625,7 @@
 						var str_state = '';
 						result.data[i].oid = result.data[i].id;
 						result.data[i].strOid = '<a href="javascript:open_detail('+result.data[i].serviceOrderId+','+result.data[i].id+');" title="查看详细">'+result.data[i].id+'</a>-'+result.data[i].installmentNum;
+						if (v.is_select == 'yes') result.data[i].strOid += '<br/><input type="checkbox" name="ids[]" value="'+result.data[i].id+'" />';
 						result.data[i].gmtCreate = v.getTime(result.data[i].gmtCreate);
 						result.data[i].kjApprovalDate = v.getTime1(result.data[i].kjApprovalDate);
 						//result.data[i].finishDate = result.data[i].finishDate ? v.getTime(result.data[i].finishDate):'';
@@ -1707,12 +1743,8 @@
 			    		return false;
 					}
 					if (check_result)
-    			{
-    					/*$('#my_table #alert_error').css('marginLeft','40%');
-			    		$('#my_table #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
-			        $("#my_table #error_info").html('API接口还没有实现，等待中...');
-			    		return false;*/
-			    		var str_url = "commissionOrder/kjUpdate";
+    			{    					
+			    		var str_url = url + "commissionOrder/kjUpdate";
        				var json = {};
        				json['id'] = v.orderId;
        				json['bonus'] = $(f+'#t1').val();
@@ -1769,8 +1801,8 @@
 					}
 					if (check_result)
     			{    					
-			    		var str_url = "commissionOrder/kjUpdate";
-			    		if ($(f+'#d1').val() == '' || $(f+'#d2').val() == '') str_url = "commissionOrder/update";
+			    		var str_url = url + "commissionOrder/kjUpdate";
+			    		if ($(f+'#d1').val() == '' || $(f+'#d2').val() == '') str_url = url + "commissionOrder/update";
        				var json = {};
        				json['id'] = v.orderId;
        				json['schoolPaymentAmount'] = $(f+'#d1').val();
@@ -1836,12 +1868,12 @@
 					}
 					if (check_result)
     			{    					
-			    		var str_url = "commissionOrder/update";
+			    		var str_url = url + "commissionOrder/update";
        				var json = {};
        				json['id'] = v.orderId;
        				if (field == 'kjApprovalDate')
        				{
-       						str_url = "commissionOrder/updateKjApprovalDate";
+       						str_url = url + "commissionOrder/updateKjApprovalDate";
        						var arr_d1 = str_val.split(" ");
        						if (arr_d1.length == 2)
        						{
@@ -1904,7 +1936,7 @@
 				  $("#adviserId").empty();
 	        obj_adviserId.append("<option value='0'>全部</option>");
 			    $.ajax({
-	          url: 'adviser/list?pageNum=0&pageSize=100000',
+	          url: url + 'adviser/list?pageNum=0&pageSize=100000',
 	          type: 'GET',
 	          async: false,
 	          dataType: 'json'
@@ -1922,7 +1954,7 @@
 			    $("#schoolId").empty();
 			    school_name.append("<option value='0'>全部</option>");
 			    $.ajax({
-			      url: 'school/listSchool?name=',
+			      url: url + 'school/listSchool?name=',
 			      type: 'GET',
 			      async: false,
 			      dataType: 'json'
@@ -1952,7 +1984,7 @@
 			    $("#regionId").empty();
 			    obj_regionId.append("<option value='0'>请选择</option>");
 			    $.ajax({
-	          url: 'region/list_all',
+	          url: url + 'region/list_all',
 	          type: 'GET',
 	          dataType: 'json'
 	        }).done(function(response) {
@@ -2002,8 +2034,8 @@
       
       function flowstep(va,par)
       {
-      		var str_url = "commissionOrder/approval";
-      		if (par == '0' || va == 'CLOSE') str_url = "commissionOrder/refuse";
+      		var str_url = url + "commissionOrder/approval";
+      		if (par == '0' || va == 'CLOSE') str_url = url + "commissionOrder/refuse";
       		
       		var json = {};
       		show_loading();
@@ -2063,7 +2095,7 @@
 					show_loading();
 					
 					$.ajax({
-			        url:'commissionOrder/upload',
+			        url: url + 'commissionOrder/upload',
 			        dataType:'json',
 			        type:'POST',
 			        async: false,
@@ -2163,6 +2195,65 @@
 	          $modal_dialog.css({'margin-top': Math.max(0, ($(window).height() - $modal_dialog.height()) / 2) });
 	        });
 					$('#loading_id').modal('show');
+			}
+			
+			$("#selectAll").click(function () {
+			  $("#list_ovst :checkbox").prop("checked", true); 
+			});
+			
+			$("#unSelect").click(function () {
+			  $("#list_ovst :checkbox").prop("checked", false); 
+			});
+			
+			$("#reverse").click(function () { 
+			  $("#list_ovst :checkbox").each(function () { 
+			    $(this).prop("checked", !$(this).prop("checked")); 
+			  });
+			});
+			
+			function multiple_import()
+			{
+					$('#showconfirmbox_invoice_id').on('show.bs.modal', function(){
+	          var $this = $(this);
+	          var $modal_dialog = $this.find('.modal-dialog');
+	          $this.css('display', 'block');
+	          $modal_dialog.css({'margin-top': Math.max(0, ($(window).height() - $modal_dialog.height()) / 2) });
+	        });
+					$('#showconfirmbox_invoice_id').modal('show')
+			}
+			
+			function updateToInvoice()
+			{
+					var ids_value = [];
+					var chk_value = [];
+					var str = '';
+					$("#list_ovst :checked").each(function () {
+						str = $(this).val()+','+$("#list_ovst #userName"+$(this).val()).html()+','+$("#list_ovst #serviceName"+$(this).val()).html()+','+$("#list_ovst #amount"+$(this).val()).html();
+						str = removeHTMLTag(str);
+				    chk_value.push(str);
+				    ids_value.push($(this).val());
+				  });
+				  if (chk_value.length)
+				  {				  		
+				  		$("#ids",window.opener.document).val(ids_value.join(','));
+				  		window.opener.createTable(chk_value.length,chk_value.join('#'));
+				  		self.close();
+				  }else
+				  {
+				  		$('#showconfirmbox_invoice_id #alert_error').css('marginTop','10%');
+		   				$('#showconfirmbox_invoice_id #alert_error').css('marginLeft','30%');
+				  		$('#showconfirmbox_invoice_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+        			$("#showconfirmbox_invoice_id #error_info").html('请至少勾选一个订单！');
+        			return false;
+				  }
+			}
+			
+			function removeHTMLTag(str)
+			{
+					str = str.replace('<br>','-');
+			    str = str.replace(/<\/?[^>]*>/g, ''); //去除HTML tag
+			    str = str.replace(/ /ig, ''); //去掉 
+			    return str;
 			}
 			
 	    jQuery(document).ready(function() {

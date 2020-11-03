@@ -718,9 +718,9 @@
           
           if (check_result)
           {              
-              var str_url = "service/add";
+              var str_url = url + "service/add";
               var sa_id = $("#id").val();
-              if (sa_id != '0') str_url = "service/update";
+              if (sa_id != '0') str_url = url + "service/update";
               $("#id").val('0');
               
               $.post(str_url, { id: sa_id, name: jqSelect[0].value, code: jqInputs[0].value},
@@ -763,7 +763,7 @@
 			
 			function deleteId()
       {
-					$.get("service/delete", {
+					$.get(url + "service/delete", {
 						id: v.dId
 					}, function(result) {
 						console.log(result);

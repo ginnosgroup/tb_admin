@@ -717,7 +717,7 @@
           
           if (check_result)
           {
-              var str_url = "knowledge/add";
+              var str_url = url + "knowledge/add";
               var sa_id = $("#id").val();
               var json = {};
               json['id'] = sa_id;
@@ -726,7 +726,7 @@
               json['knowledgeMenuId'] = v.menu_id;
               if (t3 != '') json['password'] = t3;
               if (t4) json['password'] = '';
-              if (sa_id != '0') str_url = "knowledge/update";              
+              if (sa_id != '0') str_url = url + "knowledge/update";              
               $("#id").val('0');
               
               $.post(str_url, json,
@@ -791,7 +791,7 @@
 			
 			function deleteId()
       {
-					$.get("knowledge/delete", {
+					$.get(url + "knowledge/delete", {
 						id: v.dId
 					}, function(result) {
 						console.log(result);
@@ -833,7 +833,7 @@
 					formData.append("file",$("#t4")[0].files[0]);
 					
 					$.ajax({
-			        url:'knowledge/upload',
+			        url: url + 'knowledge/upload',
 			        dataType:'json',
 			        type:'POST',
 			        async: false,

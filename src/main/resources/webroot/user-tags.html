@@ -581,9 +581,9 @@
           
           if (check_result)
           {              
-              var str_url = "user/newTag";
+              var str_url = url + "user/newTag";
               var sa_id = $("#id").val();
-              if (sa_id != '0') str_url = "user/updateTag";
+              if (sa_id != '0') str_url = url + "user/updateTag";
               $("#id").val('0');
               
               $.post(str_url, { id: sa_id, name: jqInputs[0].value},
@@ -617,7 +617,7 @@
 			
 			function deleteId()
       {
-					$.get("user/deleteTagById", {
+					$.get(url + "user/deleteTagById", {
 						id: v.dId
 					}, function(result) {
 						console.log(result);

@@ -749,7 +749,7 @@ function show_addnewservice_id(orderId,type)
 		v_sub.orderId = orderId;	
 		//服务详细页
 		$.ajax({
-      url: 'serviceOrder/get?id='+orderId,
+      url: url + 'serviceOrder/get?id='+orderId,
       type: 'GET',
       dataType: 'json'
     }).done(function(response) {			        	
@@ -1298,7 +1298,7 @@ function return_servicePackage(service_id,packids)
 		if (service_id)
 		{
 				$.ajax({
-		      url: 'servicePackage/list?serviceId='+service_id,
+		      url: url + 'servicePackage/list?serviceId='+service_id,
 		      type: 'GET',
 		      async: false,
 		      dataType: 'json'
@@ -1611,7 +1611,7 @@ v.$watch('addnewservice2_bind', function(obj) {
     var receive_type = $("#show_addnewservice2_id #c28");
     receive_type.append("<option value='0'>请选择</option>");
     $.ajax({
-      url: 'receiveType/list?state=ENABLED',
+      url: url + 'receiveType/list?state=ENABLED',
       type: 'GET',
       async: false,
       dataType: 'json'
@@ -1625,7 +1625,7 @@ v.$watch('addnewservice2_bind', function(obj) {
     //绑定Subagency列表
     var obj_subagencyId = $("#show_addnewservice2_id #c7a");	
     $.ajax({
-      url: 'subagency/list',
+      url: url + 'subagency/list',
       type: 'GET',
       async: false,
       dataType: 'json'
@@ -1714,7 +1714,7 @@ function reqCommissionOvst()
     		return false;
     }else
     {         	            	            	                             
-       	var str_url = "commissionOrder/add";
+       	var str_url = url + "commissionOrder/add";
        	       	    	       	
        	json['serviceOrderId'] = v_sub.orderId;
        	json['isSettle'] = v_sub.order_detail.settle;
@@ -1861,10 +1861,10 @@ function saveNote()
     		return false;
     }else
     {
-    		var str_url = "serviceOrder/addOfficialRemarks";
+    		var str_url = url + "serviceOrder/addOfficialRemarks";
     		if (v_sub.officialNoteId)
     		{
-    				str_url = "serviceOrder/updateOfficialRemarks";
+    				str_url = url + "serviceOrder/updateOfficialRemarks";
     				json['id'] = v_sub.officialNoteId;
     		}else
     		{
@@ -1921,7 +1921,7 @@ function addRemind()
     		$('#remind_box #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
         $("#remind_box #error_info").html('提示：后端接口还没有实现...');
         return false;
-    		var str_url = "serviceOrder/addOfficialRemind";
+    		var str_url = url + "serviceOrder/addOfficialRemind";
     		json['serviceOrderId'] = v_sub.orderId;
     		
     		var d = 0;
@@ -2070,7 +2070,7 @@ $('#show_addnewservice1_id #f1h').live('change', function (e) {
 		formData.append("file",$("#f1h")[0].files[0]);
 		
 		$.ajax({
-        url:'serviceOrder/upload_visa_voucher_img',
+        url: url + 'serviceOrder/upload_visa_voucher_img',
         dataType:'json',
         type:'POST',
         async: false,
@@ -2086,7 +2086,7 @@ $('#show_addnewservice1_id #f1h').live('change', function (e) {
             		//更新签证凭证
             		var json = {};
             		json['visaVoucherImageUrl'] = pic_url;
-            		var str_url = 'serviceOrder/updateVoucherImageUrl?id='+v.orderId;
+            		var str_url = url + 'serviceOrder/updateVoucherImageUrl?id='+v.orderId;
             		$.post(str_url, json,
 		   					function(data1){
 		   							if (data1.code = '0')
@@ -2123,7 +2123,7 @@ $('#show_addnewservice2_id #f1b').live('change', function (e) {
 		formData.append("file",$("#f1b")[0].files[0]);		
 		
 		$.ajax({
-        url:'serviceOrder/upload_img',
+        url: url + 'serviceOrder/upload_img',
         dataType:'json',
         type:'POST',
         async: false,
@@ -2155,7 +2155,7 @@ $('#show_addnewservice2_id #f1b').live('change', function (e) {
 		        		$("#show_addnewservice2_id #show_pic").append('<a href="/statics'+data.data+'" target="_blank">查看凭证</a>&nbsp;');
 		        		$("#show_addnewservice2_id #show_pic").show();
 		        		//文案更新COE收款凭证            		
-            		var str_url = 'serviceOrder/updateVoucherImageUrl?id='+v.orderId;            		
+            		var str_url = url + 'serviceOrder/updateVoucherImageUrl?id='+v.orderId;            		
             		$.post(str_url, json,
 		   					function(data1){
 		   							if (data1.code = '0')
@@ -2192,7 +2192,7 @@ $('#show_addnewservice2_id #f1c').live('change', function (e) {
 		formData.append("file",$("#f1c")[0].files[0]);
 		
 		$.ajax({
-        url:'serviceOrder/upload_img',
+        url: url + 'serviceOrder/upload_img',
         dataType:'json',
         type:'POST',
         async: false,
