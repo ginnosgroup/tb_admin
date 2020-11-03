@@ -127,7 +127,7 @@
 						</div>						
 				</div>
 				<div class="modal-footer" style="text-align: center;">										
-					<button id="btnSubmit" type="submit" class="btn btn-primary"><span id="btn_id">保存并下载</span></button>
+					<button id="btnSubmit" type="button" onclick="addservicefeeSave();" class="btn btn-primary"><span id="btn_id">保存并下载</span></button>
 					<button id="btnReview" type="button" onclick="preview_form()" class="btn btn-primary" style="display:none;">预览</button>
 					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
 				</div>
@@ -352,7 +352,7 @@ function addservicefee()
 		v_sub_taxinvoice.addservicefee_id = 1;
 }
 
-function addservicefee_visa(userName,serviceName,amount)
+function addservicefee_visa(ids,userName,serviceName,amount)
 {
 		$('#addservicefee_id').modal('show');
 		//重置数据
@@ -369,6 +369,7 @@ function addservicefee_visa(userName,serviceName,amount)
   	$("#addservicefee_id #b6a").html('0.00');
   	$("#addservicefee_id #b6b").html('0.00');
   	$("#addservicefee_id #b6c").html('0.00');
+  	$("#addservicefee_id #ids").val(ids);
   	v_sub_taxinvoice.subject = [];
   	var index = 0;				
 		if (v_sub_taxinvoice.subject.length) index = v_sub_taxinvoice.subject.length;
@@ -380,8 +381,9 @@ function addservicefee_visa(userName,serviceName,amount)
 		quantity: '<select class="form-control small" style="width:80px;" id="tc" onchange="total_amount(\'quantity\',this.value,$(this).parent().parent().attr(\'id\'))"><option value=\'1\'>1</option><option value=\'2\'>2</option><option value=\'3\'>3</option><option value=\'4\'>4</option><option value=\'5\'>5</option></select>',
 		amount: '<input type="text" autocomplete="off" class="form-control small" style="width:80px;" id="td" readonly="readonly" value="'+amount+'">',
 		});
-		v_sub_taxinvoice.row_nums++;
+		v_sub_taxinvoice.row_nums = 1;
 		v_sub_taxinvoice.addservicefee_id = 1;
+		v_sub_taxinvoice.bind_total = 1;
 }
 
 function addovst()
@@ -642,7 +644,7 @@ function addservicefeeSave()
           			$(f+"#error_info").html(data.message);
 	        			return false;
 		   			}
-		    });       	
+		    });
     }
 }
 

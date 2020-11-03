@@ -435,7 +435,7 @@
 														<td v-html="item.strState"></td>
 														<td>
 																<dli v-if="item.invoiceNumber===null">
-																<label><a href="javascript:addservicefee_visa('{{item.userName}}','{{item.serviceName}}',{{item.amount}})"><span style="color:#72d0eb;">生成发票</span></a></label>
+																<label><a href="javascript:addservicefee_visa({{item.id}},'{{item.userName}}','{{item.serviceName}}',{{item.amount}})"><span style="color:#72d0eb;">生成发票</span></a></label>
 																</dli>
 																<label><a href="javascript:invoice_view('{{item.invoiceNumber}}','SF');" title="点击查看"><span v-html="item.invoiceNumber"></span></a></label>																
 														</td>
@@ -1777,7 +1777,19 @@
 			    var   minute=now.getMinutes();     
 			    var   second=now.getSeconds();
 			    return fixZero(date,2)+"/"+fixZero(month,2)+"/"+year;
-			}  
+			}
+			
+			function  formatDate1(now)
+			{
+			    var   now= new Date(now);     
+			    var   year=now.getFullYear();     
+			    var   month=now.getMonth()+1;     
+			    var   date=now.getDate();     
+			    var   hour=now.getHours();
+			    var   minute=now.getMinutes();     
+			    var   second=now.getSeconds();
+			    return   year+"-"+fixZero(month,2)+"-"+fixZero(date,2)+" "+fixZero(hour,2)+":"+fixZero(minute,2)+":"+fixZero(second,2); 
+			} 
 			
 			function fixZero(num,length)
 			{     
