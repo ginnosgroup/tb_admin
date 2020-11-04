@@ -3,6 +3,8 @@
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.zhinanzhen.b.dao.TagDAO">
 
+    <cache eviction="LRU" flushInterval="120000" readOnly="false" size="100"></cache>
+
     <insert id="addTag" parameterType="org.zhinanzhen.b.dao.pojo.TagDO" useGeneratedKeys="true" keyProperty="id">
         INSERT
             INTO b_tag (

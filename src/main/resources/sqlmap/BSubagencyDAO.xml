@@ -2,6 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.zhinanzhen.b.dao.SubagencyDAO">
+    
+    <cache eviction="LRU" flushInterval="30000" readOnly="false" size="256"></cache>
 
     <insert id="addSubagency" parameterType="org.zhinanzhen.b.dao.pojo.SubagencyDO" useGeneratedKeys="true" keyProperty="id">
         INSERT
