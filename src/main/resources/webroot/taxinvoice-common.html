@@ -1,0 +1,708 @@
+﻿<meta charset="utf-8"/>
+<meta http-equiv="Pragma" content="no-cache" />   
+<meta http-equiv="Cache-Control" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<div id="taxinvoice_app_sub">
+<div class="modal fade" id="addservicefee_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+		<div class="modal-dialog" role="document" style="width:700px;">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="addnewservice1_id_title">Add Service Fee Tax Invoice</h4>
+				</div>
+				<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+		      <button data-dismiss="alert" class="close close-sm" type="button">
+		      <i class="fa fa-times"></i>
+		      </button>
+		      <strong>Success!</strong> You  just achieved success.
+		  	</div>
+		  	<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+	        <button data-dismiss="alert" class="close close-sm" type="button">
+	        <i class="fa fa-times"></i>
+	        </button>
+	        <strong id="error_info"></strong>
+	      </div>
+	      <form class="cmxform form-inline" style="" name="addservicefee_form" id="addservicefee_form">
+				<div class="modal-body">						
+						<input type="hidden" name="ids" id="ids" value="" />																	
+						<div class="form-group" style="width:100%;height:40px;">
+							<label class="control-label" style="width:120px;">请选择地区：<span style="color:red;">*</span></label>							
+							<select class="form-control" style="width:150px;" name="b1" id="b1"></select>
+						</div>
+						<div class="form-group" style="width:100%;height:40px;">
+							<label class="control-label" style="width:120px;">Company Title：<span style="color:red;">*</span></label>							
+							<select class="form-control" style="width:300px;" name="b2" id="b2"></select>
+							<label class="control-label" style="margin-left:20px;">ABN：<span id="b2a"></span></label>
+						</div>
+						<div class="form-group" style="width:100%;height:40px;">
+							<label class="control-label" style="width:120px;">Address：</label>							
+							<label class="control-label" style="width:300px;" name="b3" id="b3"></label>
+							<label class="control-label" style="margin-left:20px;">Tel：<span id="b3a"></span></label>
+						</div>
+						<div class="form-group" style="width:100%;height:40px;">							
+							<label class="control-label" style="width:120px;">E-mail：</label>
+							<label class="control-label" style="" id="b3b"></label>
+						</div>
+						<div class="form-group" style="width:100%;height:40px;line-height:40px;text-align:center;border-top: 1px solid #e5e5e5;border-bottom: 1px solid #e5e5e5;">							
+							<label class="control-label" style="font-weight:bold;">Tax Invoice</label>
+						</div>
+						<div class="form-group" style="width:100%;line-height:40px;text-align:right;">							
+							<label class="control-label" style="font-weight:bold;">Invoice No.：</label>
+							<label class="control-label" style="" id="b4a"></label>
+							<label class="control-label" style="font-weight:bold;">Invoice Date：</label>
+							<label class="control-label" style="" id="b4b"></label>
+						</div>
+						<div class="form-group" style="width:100%;line-height:40px;">
+							<label class="control-label"><strong>Description</strong></label>
+							<label class="control-label" style="margin-left:20px;"><a href="javascript:import_commission();">导入数据</a></label>
+							<table class="table table-bordered">
+		             <thead style="background-color:#efefef;">
+		                <tr>
+		                   <th>No.</th>
+		                   <th>DESCRIPTION</th>
+		                   <th>UNIT PRICE</th>
+		                   <th>QUANTITY</th>
+		                   <th>AMOUNT</th>
+		                   <th style="text-align:center;"><a  @click="table_insert"><i class="fa fa-plus-square"></i></a></th>
+		                </tr>		                
+		             </thead>
+		             		<tr v-for="item in subject" id="d{{item.id}}" class="gradeX">
+		             				<td v-html="item.id"></td>
+												<td v-html="item.description"></td>
+												<td v-html="item.unitprice"></td>
+												<td v-html="item.quantity"></td>
+												<td v-html="item.amount"></td>
+												<td style="text-align:center;"><a @click="table_remove($index)"><i class="fa fa-minus-square"></i></a></td>
+		             		</tr>
+		             <tbody>             			 
+		             </tbody>
+		          </table>
+						</div>
+						<div class="form-group" style="width:100%;line-height:20px;text-align:right;">							
+							<div>
+									<label class="control-label" style="font-weight:bold;">Subtotal：</label>
+									<label class="control-label" style="" id="b6a">0.00</label>
+							</div>							
+						</div>
+						<div class="form-group" style="width:100%;line-height:20px;text-align:right;">							
+							<div>
+									<label class="control-label" style="font-weight:bold;">10%GST：</label>
+									<label class="control-label" style="" id="b6b">0.00</label>
+							</div>								
+						</div>
+						<div class="form-group" style="width:100%;line-height:20px;text-align:right;">							
+							<div>
+									<label class="control-label" style="font-weight:bold;">Invoice total with GST：</label>
+									<label class="control-label" style="" id="b6c">0.00</label>
+							</div>								
+						</div>
+						<div class="form-group" style="width:100%;line-height:40px;">
+							<label class="control-label">Note</label>
+							<textarea id="b7" class="form-control" style="width:98%"></textarea>
+						</div>
+						<div class="form-group" style="width:100%;line-height:40px;">
+							<label class="control-label"><strong>Please make payment to the account below,and quote the invoice number:<strong></label>
+							<table class="table table-bordered">
+		             <thead style="background-color:#efefef;">
+		                <tr>
+		                   <th style="width:150px;">Bank Name</th>
+		                   <th>Commonwealth Bank</th>
+		                </tr>
+		             </thead>
+		             <tbody style="font-weight:normal;">
+		                <tr>
+		                   <td>Account Name</td>
+		                   <td><label id="b5a"></label></td>
+		                </tr>	
+		                <tr>
+		                   <td>BSB</td>
+		                   <td><label id="b5b"></label></td>
+		                </tr>
+		                <tr>
+		                   <td>Account No.</td>
+		                   <td><label id="b5c"></label></td>
+		                </tr>
+		             </tbody>
+		          </table>
+						</div>						
+				</div>
+				<div class="modal-footer" style="text-align: center;">										
+					<button id="btnSubmit" type="button" onclick="addservicefeeSave();" class="btn btn-primary"><span id="btn_id">保存并下载</span></button>
+					<button id="btnReview" type="button" onclick="preview_form()" class="btn btn-primary" style="display:none;">预览</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+				</div>
+				</form>
+			</div>
+		</div>
+</div>
+<div class="modal fade" id="addovst_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+		<div class="modal-dialog" role="document" style="width:700px;">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">Add 留学 Tax Invoice</h4>
+				</div>
+				<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+		      <button data-dismiss="alert" class="close close-sm" type="button">
+		      <i class="fa fa-times"></i>
+		      </button>
+		      <strong>Success!</strong> You  just achieved success.
+		  	</div>
+		  	<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+	        <button data-dismiss="alert" class="close close-sm" type="button">
+	        <i class="fa fa-times"></i>
+	        </button>
+	        <strong id="error_info"></strong>
+	      </div>
+	      <form class="cmxform form-inline" style="" name="addservicefee_form" id="addservicefee_form">
+				<div class="modal-body">						
+						<input type="hidden" name="ids" id="ids" value="" />																	
+						<div class="form-group" style="width:100%;height:40px;">
+							<label class="control-label" style="width:120px;">请选择地区：<span style="color:red;">*</span></label>							
+							<select class="form-control" style="width:150px;" name="b1" id="b1"></select>
+						</div>
+						<div class="form-group" style="width:100%;height:40px;">
+							<label class="control-label" style="width:120px;">Company Title：<span style="color:red;">*</span></label>							
+							<select class="form-control" style="width:300px;" name="b2" id="b2"></select>
+							<label class="control-label" style="margin-left:20px;">ABN：<span id="b2a"></span></label>
+						</div>
+						<div class="form-group" style="width:100%;height:40px;">
+							<label class="control-label" style="width:120px;">Address：</label>							
+							<label class="control-label" style="width:300px;" name="b3" id="b3"></label>
+							<label class="control-label" style="margin-left:20px;">Tel：<span id="b3a"></span></label>
+						</div>
+						<div class="form-group" style="width:100%;height:40px;">							
+							<label class="control-label" style="width:120px;">E-mail：</label>
+							<label class="control-label" style="" id="b3b"></label>
+						</div>
+						<div class="form-group" style="width:100%;height:40px;line-height:40px;text-align:center;border-top: 1px solid #e5e5e5;border-bottom: 1px solid #e5e5e5;">							
+							<label class="control-label" style="font-weight:bold;">Tax Invoice</label>
+						</div>
+						<div class="form-group" style="width:100%;line-height:40px;text-align:right;">							
+							<label class="control-label" style="font-weight:bold;">Invoice No.：</label>
+							<label class="control-label" style="" id="b4a"></label>
+							<label class="control-label" style="font-weight:bold;">Invoice Date：</label>
+							<label class="control-label" style="" id="b4b"></label>
+						</div>
+						<div class="form-group" style="width:100%;line-height:40px;">
+							<label class="control-label"><strong>Description</strong></label>
+							<label class="control-label" style="margin-left:20px;"><a href="javascript:import_commission();">导入数据</a></label>
+							<table class="table table-bordered">
+		             <thead style="background-color:#efefef;">
+		                <tr>
+		                   <th>No.</th>
+		                   <th>DESCRIPTION</th>
+		                   <th>UNIT PRICE</th>
+		                   <th>QUANTITY</th>
+		                   <th>AMOUNT</th>
+		                   <th style="text-align:center;"><a  @click="table_insert"><i class="fa fa-plus-square"></i></a></th>
+		                </tr>		                
+		             </thead>
+		             		<tr v-for="item in subject" id="d{{item.id}}" class="gradeX">
+		             				<td v-html="item.id"></td>
+												<td v-html="item.description"></td>
+												<td v-html="item.unitprice"></td>
+												<td v-html="item.quantity"></td>
+												<td v-html="item.amount"></td>
+												<td style="text-align:center;"><a @click="table_remove($index)"><i class="fa fa-minus-square"></i></a></td>
+		             		</tr>
+		             <tbody>             			 
+		             </tbody>
+		          </table>
+						</div>
+						<div class="form-group" style="width:100%;line-height:20px;text-align:right;">							
+							<div>
+									<label class="control-label" style="font-weight:bold;">Subtotal：</label>
+									<label class="control-label" style="" id="b6a">0.00</label>
+							</div>							
+						</div>
+						<div class="form-group" style="width:100%;line-height:20px;text-align:right;">							
+							<div>
+									<label class="control-label" style="font-weight:bold;">10%GST：</label>
+									<label class="control-label" style="" id="b6b">0.00</label>
+							</div>								
+						</div>
+						<div class="form-group" style="width:100%;line-height:20px;text-align:right;">							
+							<div>
+									<label class="control-label" style="font-weight:bold;">Invoice total with GST：</label>
+									<label class="control-label" style="" id="b6c">0.00</label>
+							</div>								
+						</div>
+						<div class="form-group" style="width:100%;line-height:40px;">
+							<label class="control-label">Note</label>
+							<textarea id="b7" class="form-control" style="width:98%"></textarea>
+						</div>
+						<div class="form-group" style="width:100%;line-height:40px;">
+							<label class="control-label"><strong>Please make payment to the account below,and quote the invoice number:<strong></label>
+							<table class="table table-bordered">
+		             <thead style="background-color:#efefef;">
+		                <tr>
+		                   <th style="width:150px;">Bank Name</th>
+		                   <th>Commonwealth Bank</th>
+		                </tr>
+		             </thead>
+		             <tbody style="font-weight:normal;">
+		                <tr>
+		                   <td>Account Name</td>
+		                   <td><label id="b5a"></label></td>
+		                </tr>	
+		                <tr>
+		                   <td>BSB</td>
+		                   <td><label id="b5b"></label></td>
+		                </tr>
+		                <tr>
+		                   <td>Account No.</td>
+		                   <td><label id="b5c"></label></td>
+		                </tr>
+		             </tbody>
+		          </table>
+						</div>						
+				</div>
+				<div class="modal-footer" style="text-align: center;">										
+					<button id="btnSubmit" type="submit" class="btn btn-primary"><span id="btn_id">保存并下载</span></button>
+					<button id="btnReview" type="button" onclick="preview_form()" class="btn btn-primary" style="display:none;">预览</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+				</div>
+				</form>
+			</div>
+		</div>
+</div>
+</div>
+<style>
+.cmxform .form-group select.error, .cmxform .form-group textarea.error {
+    border-color: #B94A48 !important;
+}
+</style>
+<script>
+var v_sub_taxinvoice = new Vue({
+		el: '#taxinvoice_app_sub',
+		data: {
+			admin: sessionStorage.getItem("admin"),
+			ap_list: sessionStorage.getItem("ap_list"),
+			m_list: localStorage.getItem("str_html"),
+			adviser_id: sessionStorage.getItem("adviser_id"),
+			official_id: sessionStorage.getItem("official_id"),
+			mara_id: sessionStorage.getItem("mara_id"),
+			addservicefee_id: 0,
+			subtotal: 0,
+			gsttotal: 0,
+			total_with_gst: 0,
+			subject: [],
+			subject1: [],
+			invoices: [],
+			row_nums: 0,
+			bind_total: 0,
+		},
+		created: function() {					
+		},
+		methods: {
+				table_insert() {
+						var index = 0;
+						var tindex = 0;
+						if (this.subject.length) index = this.subject.length;
+						tindex = index+1;										
+						this.subject.splice(index,0, {
+						id: index+1,									
+						description: '<input type="text" class="form-control small" style="" id="ta" value="">',
+						unitprice: '<input type="text" class="form-control small" style="width:80px;" id="tb" onkeyup="total_amount(\'price\',this.value,$(this).parent().parent().attr(\'id\'));" value="">',
+						quantity: '<select class="form-control small" style="width:80px;" id="tc" onchange="total_amount(\'quantity\',this.value,$(this).parent().parent().attr(\'id\'))"><option value=\'1\'>1</option><option value=\'2\'>2</option><option value=\'3\'>3</option><option value=\'4\'>4</option><option value=\'5\'>5</option></select>',
+						amount: '<input type="text" autocomplete="off" class="form-control small" style="width:80px;" id="td" readonly="readonly" value="">',
+						});
+						this.row_nums++;
+				},
+				table_remove: function (index) {
+					 var ids = $("#addservicefee_id #ids").val();
+					 if (ids != '')
+					 {
+					 		 var arr = ids.split(',');
+					 		 arr.splice(index,1);
+					 		 ids = arr.join(',');
+					 		 $("#addservicefee_id #ids").val(ids);
+					 }
+           this.subject.splice(index, 1);
+           this.row_nums--;
+           //对No重写
+           for(var i=0;i<this.subject.length;i++)
+           {           		
+           		this.subject[i].id = i+1;           		
+           }
+           this.bind_total = 1;
+        },
+		}
+});
+
+function addservicefee()
+{
+		$('#addservicefee_id').modal('show');
+		//重置数据
+		$('#addservicefee_id #addservicefee_form')[0].reset();
+		$("#addservicefee_id #b2a").html('');
+  	$("#addservicefee_id #b3").html('');
+  	$("#addservicefee_id #b3a").html('');
+  	$("#addservicefee_id #b3b").html('');
+  	$("#addservicefee_id #b4a").html('');
+  	$("#addservicefee_id #b4b").html('');
+  	$("#addservicefee_id #b5a").html('');
+  	$("#addservicefee_id #b5b").html('');
+  	$("#addservicefee_id #b5c").html('');
+  	$("#addservicefee_id #b6a").html('0.00');
+  	$("#addservicefee_id #b6b").html('0.00');
+  	$("#addservicefee_id #b6c").html('0.00');
+  	v_sub_taxinvoice.subject = [];
+  	v_sub_taxinvoice.row_nums = 0;
+		v_sub_taxinvoice.addservicefee_id = 1;
+}
+
+function addservicefee_visa(ids,userName,serviceName,amount)
+{
+		$('#addservicefee_id').modal('show');
+		//重置数据
+		$('#addservicefee_id #addservicefee_form')[0].reset();
+		$("#addservicefee_id #b2a").html('');
+  	$("#addservicefee_id #b3").html('');
+  	$("#addservicefee_id #b3a").html('');
+  	$("#addservicefee_id #b3b").html('');
+  	$("#addservicefee_id #b4a").html('');
+  	$("#addservicefee_id #b4b").html('');
+  	$("#addservicefee_id #b5a").html('');
+  	$("#addservicefee_id #b5b").html('');
+  	$("#addservicefee_id #b5c").html('');
+  	$("#addservicefee_id #b6a").html('0.00');
+  	$("#addservicefee_id #b6b").html('0.00');
+  	$("#addservicefee_id #b6c").html('0.00');
+  	$("#addservicefee_id #ids").val(ids);
+  	v_sub_taxinvoice.subject = [];
+  	var index = 0;				
+		if (v_sub_taxinvoice.subject.length) index = v_sub_taxinvoice.subject.length;
+		var tindex = index+1;
+		v_sub_taxinvoice.subject.splice(index,0, {
+		id: index+1,									
+		description: '<input type="text" class="form-control small" style="" id="ta" value="'+userName+' '+serviceName+'">',
+		unitprice: '<input type="text" class="form-control small" style="width:80px;" id="tb" onkeyup="total_amount(\'price\',this.value,$(this).parent().parent().attr(\'id\'))" value="'+amount+'">',
+		quantity: '<select class="form-control small" style="width:80px;" id="tc" onchange="total_amount(\'quantity\',this.value,$(this).parent().parent().attr(\'id\'))"><option value=\'1\'>1</option><option value=\'2\'>2</option><option value=\'3\'>3</option><option value=\'4\'>4</option><option value=\'5\'>5</option></select>',
+		amount: '<input type="text" autocomplete="off" class="form-control small" style="width:80px;" id="td" readonly="readonly" value="'+amount+'">',
+		});
+		v_sub_taxinvoice.row_nums = 1;
+		v_sub_taxinvoice.addservicefee_id = 1;
+		v_sub_taxinvoice.bind_total = 1;
+}
+
+function addovst()
+{
+		$('#addovst_id').modal('show');		
+  	v_sub_taxinvoice.subject1 = [];
+}
+
+$("#addservicefee_id #b1").live('change', function (e) {
+		loadcompany();
+});
+
+$("#addservicefee_id #b2").live('change', function (e) {
+		loadcompany();
+});
+
+function loadcompany()
+{
+		var b1 = $("#addservicefee_id #b1").val();
+		var b2 = $("#addservicefee_id #b2").val();
+		if (b1 != '' && b2 != '')
+		{
+				$.ajax({
+			    url: url+'invoice/addServicefee?company='+b2+'&branch='+b1,
+			    type: 'GET',
+			    dataType: 'json'
+			  }).done(function(response) {
+			  	var result_data = response.data;
+			  	v_sub_taxinvoice.invoices = result_data;
+			  	$("#addservicefee_id #b2a").html(result_data.abn);
+			  	$("#addservicefee_id #b3").html(result_data.address);
+			  	$("#addservicefee_id #b3a").html(result_data.tel);
+			  	$("#addservicefee_id #b3b").html(result_data.email);
+			  	$("#addservicefee_id #b4a").html(result_data.invoiceNo);
+			  	$("#addservicefee_id #b4b").html(result_data.invoiceDate);
+			  	$("#addservicefee_id #b5a").html(result_data.name);
+			  	$("#addservicefee_id #b5b").html(result_data.bsb);
+			  	$("#addservicefee_id #b5c").html(result_data.account);
+			  });
+		}else
+		{
+				$("#addservicefee_id #b2a").html('');
+		  	$("#addservicefee_id #b3").html('');
+		  	$("#addservicefee_id #b3a").html('');
+		  	$("#addservicefee_id #b3b").html('');
+		  	$("#addservicefee_id #b4a").html('');
+		  	$("#addservicefee_id #b4b").html('');
+		  	$("#addservicefee_id #b5a").html('');
+		  	$("#addservicefee_id #b5b").html('');
+		  	$("#addservicefee_id #b5c").html('');
+		}
+}
+
+function import_commission()
+{
+		localStorage.setItem("is_select", "yes");
+		window.open("mycommission-accounting.html?commission_state=YJY","newwin","height=500, width=800, top=150, left=300, toolbar=no, menubar=no,scrollbars=no,resizable=no, location=no, status=no");
+}
+
+function createTable(nums,str)
+{
+		var arr = new Array();
+		var arr_sub = new Array();
+		//清空表格
+		//v_sub_taxinvoice.subject = [];
+		//v_sub_taxinvoice.row_nums = 0;
+		arr = str.split('#');
+		for(var i=0;i < nums;i++)
+		{				
+				arr_sub = arr[i].split(',');
+				var index = 0;				
+				if (v_sub_taxinvoice.subject.length) index = v_sub_taxinvoice.subject.length;
+				var tindex = index+1;
+				v_sub_taxinvoice.subject.splice(index,0, {
+				id: index+1,									
+				description: '<input type="text" class="form-control small" style="" id="ta" value="'+arr_sub[1]+' '+arr_sub[2]+'">',
+				unitprice: '<input type="text" class="form-control small" style="width:80px;" id="tb" onkeyup="total_amount(\'price\',this.value,$(this).parent().parent().attr(\'id\'))" value="'+arr_sub[3]+'">',
+				quantity: '<select class="form-control small" style="width:80px;" id="tc" onchange="total_amount(\'quantity\',this.value,$(this).parent().parent().attr(\'id\'))"><option value=\'1\'>1</option><option value=\'2\'>2</option><option value=\'3\'>3</option><option value=\'4\'>4</option><option value=\'5\'>5</option></select>',
+				amount: '<input type="text" autocomplete="off" class="form-control small" style="width:80px;" id="td" readonly="readonly" value="'+arr_sub[3]+'">',
+				});
+				v_sub_taxinvoice.row_nums++;					
+		}
+		v_sub_taxinvoice.bind_total = 1;
+}
+
+function total_amount(type,value,parentid)
+{		
+		var amount = 0;
+		var price = $("#addservicefee_id #"+parentid+" #tb").val();
+		var quantity = $("#addservicefee_id #"+parentid+" #tc").val();
+		if (type == 'price')
+		{
+				amount = parseFloat(value)*parseInt(quantity);
+				$("#addservicefee_id #"+parentid+" #td").val(amount);
+		}else if (type == 'quantity')
+		{
+				amount = parseInt(value)*parseFloat(price);
+				$("#addservicefee_id #"+parentid+" #td").val(amount);
+		}
+		total_withgst();
+}
+
+function total_withgst()
+{
+		var total_with_gst = 0;
+		var tindex = 0;
+		for(var i=0;i < v_sub_taxinvoice.subject.length;i++)
+		{
+				tindex = i+1;
+				if ($("#addservicefee_id #d"+tindex+" #td").val() != '')
+				{
+						total_with_gst += parseFloat($("#addservicefee_id #d"+tindex+" #td").val());
+				}else
+				{
+						total_with_gst += 0;
+				}
+		}
+		v_sub_taxinvoice.total_with_gst = Math.round(total_with_gst*100)/100;
+		v_sub_taxinvoice.gsttotal = Math.round((v_sub_taxinvoice.total_with_gst/11)*100)/100;
+		v_sub_taxinvoice.subtotal = Math.round((total_with_gst - v_sub_taxinvoice.gsttotal)*100)/100;
+		$("#addservicefee_id #b6a").html(v_sub_taxinvoice.subtotal);
+		$("#addservicefee_id #b6b").html(v_sub_taxinvoice.gsttotal);
+		$("#addservicefee_id #b6c").html(v_sub_taxinvoice.total_with_gst);
+}
+
+v_sub_taxinvoice.$watch('addservicefee_id', function(obj) {
+		$('.default-date-picker').datepicker({   				
+	        format: 'dd/mm/yyyy'
+	  });
+	  $('.default-date-picker1').datepicker({   				
+	        format: 'dd/mm/yyyy'			        
+	  });
+	  //绑定地区
+    var obj_b1 = $("#addservicefee_id #b1");
+    $("#addservicefee_id #b1").empty();
+    obj_b1.append("<option value=''>请选择</option>");
+    $.ajax({
+      url: url+'invoice/selectAddress',
+      type: 'GET',
+      dataType: 'json'
+    }).done(function(response) {
+    	var result_data = response.data;    	
+    	for (var item in result_data)
+    	{
+    			obj_b1.append("<option value='"+result_data[item]+"'>"+result_data[item]+"</option>");	        			
+    	}
+    });
+    //绑定公司
+    var obj_b2 = $("#addservicefee_id #b2");
+    $("#addservicefee_id #b2").empty();
+    obj_b2.append("<option value=''>请选择</option>");
+    $.ajax({
+      url: url+'invoice/selectCompanySF',
+      type: 'GET',
+      dataType: 'json'
+    }).done(function(response) {
+    	var result_data = response.data;    	
+    	for (var item in result_data)
+    	{
+    			obj_b2.append("<option value='"+result_data[item]+"'>"+result_data[item]+"</option>");	        			
+    	}
+    });       
+});
+
+v_sub_taxinvoice.$watch('bind_total', function(obj) {
+		total_withgst();
+		v_sub_taxinvoice.bind_total = 0;
+});
+
+function addservicefeeSave()
+{
+		var f = '#addservicefee_id ';
+		var check_result = 0;
+		var e_info = '';
+		
+		if (!v_sub_taxinvoice.row_nums)
+		{
+				e_info = '提示：Description行不能为空！';
+		}else
+		{
+				//校验第一行是否为空
+				var description = $(f+'#d1 #ta').val();
+				var unitprice = $(f+'#d1 #tb').val();
+				if (description == '' || unitprice == '')
+				{
+						e_info = '提示：Description行内容有空的字段！';
+				}else
+				{
+						check_result = 1;
+				}				
+		}
+		
+		if (!check_result) 		
+    {
+    		$(f+'#alert_error').css('marginLeft','30%');
+    		$(f+'#alert_error').css('marginTop','20%');
+    		$(f+'#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+        $(f+'#error_info').html(e_info);
+    		return false;
+    }else
+    {
+    		var str_url = url+"invoice/saveServiceFeeInvoice";    		  		
+       	var json = {}; 
+       	
+       	var myDate = new Date();
+				var str_date = formatDate1(myDate);
+       	json['invoiceDate'] = str_date;
+       	json['email'] = v_sub_taxinvoice.invoices.email;
+       	json['company'] = v_sub_taxinvoice.invoices.name;
+       	json['abn'] = v_sub_taxinvoice.invoices.abn;
+       	json['address'] = v_sub_taxinvoice.invoices.address;
+       	json['tel'] = v_sub_taxinvoice.invoices.tel;
+       	json['invoiceNo'] = v_sub_taxinvoice.invoices.invoiceNo;
+       	json['note'] = $(f+'#b7').val();
+       	json['accountname'] = v_sub_taxinvoice.invoices.name;
+       	json['bsb'] = v_sub_taxinvoice.invoices.bsb;
+       	json['accountno'] = v_sub_taxinvoice.invoices.account;
+       	json['state'] = 'NORMAL';
+       	json['branch'] = $(f+'#b1').val();
+       	json['idList'] = $(f+'#ids').val();
+       	json['descriptionList'] = [];
+       	var tindex = 0;       	
+       	for(var i=0;i< v_sub_taxinvoice.row_nums;i++)
+       	{
+       			var tindex = i+1;
+       			json['descriptionList'][i] = {};
+       			json['descriptionList'][i]['id'] = tindex;
+       			json['descriptionList'][i]['description'] = $("#addservicefee_id #d"+tindex+" #ta").val();
+       			json['descriptionList'][i]['unitPrice'] = $("#addservicefee_id #d"+tindex+" #tb").val();
+       			json['descriptionList'][i]['quantity'] = $("#addservicefee_id #d"+tindex+" #tc").val();
+       			json['descriptionList'][i]['amount'] = $("#addservicefee_id #d"+tindex+" #td").val();
+       	}        	   	
+       	//console.log(json);
+       	show_loading();
+       	$.ajax({
+		      url: str_url,
+		      type: 'POST',
+		      async: false,
+		      contentType:"application/json",
+		      dataType: 'json',
+		      data: JSON.stringify(json),
+		    }).done(function(data) {		    		
+		    		if (data.code == 0)
+		   			{
+		   					//调用生成pdf接口
+		   					$.ajax({
+						      url: url+'invoice/pdfPrint?invoiceNo='+json['invoiceNo']+'&invoiceIds=SF',
+						      type: 'GET',
+						    }).done(function(response){
+						    			$('#loading_id').modal('hide');
+						    			if (response.code == 0)
+						    			{
+						    					//触发下载pdf
+						    					var pdf_url = response.message;
+						    					var a = document.createElement('a');
+													a.href = url+pdf_url;
+													a.target = '_blank';
+													$("body").append(a);
+													a.click();
+													$(a).remove();
+						    					localStorage.setItem("is_select", "no");
+							   					$(f+'#alert_success').css('marginTop','30%');
+							   					$(f+'#alert_success').css('marginLeft','30%');
+							   					$(f+'#alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+							   					$('#addservicefee_id').modal('hide');
+							   					v.getDatalist();
+							   					$('.modal-backdrop').remove();
+						    			}else
+						    			{
+						    					$('#loading_id').modal('hide');
+							   					$(f+'#alert_error').css('marginTop','30%');
+							   					$(f+'#alert_error').css('marginLeft','30%');
+							   					$(f+'#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+					          			$(f+"#error_info").html(data.message);
+						        			return false;
+						    			}
+						    });		   					
+		   			}else
+		   			{
+		   					$('#loading_id').modal('hide');
+		   					$(f+'#alert_error').css('marginTop','30%');
+		   					$(f+'#alert_error').css('marginLeft','30%');
+		   					$(f+'#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+          			$(f+"#error_info").html(data.message);
+	        			return false;
+		   			}
+		    });
+    }
+}
+
+function taxinvoice_download(invoiceNo,invoiceIds)
+{
+		var down_url = url+'data/upload/pdf/'+invoiceNo.substring(0,6)+'/'+invoiceNo+'_'+invoiceIds+'.pdf';
+		var a = document.createElement('a');
+		a.href = down_url;
+		a.target = '_blank';
+		$("body").append(a);
+		a.click();
+		$(a).remove();
+}
+
+$('#addservicefee_id').on('show.bs.modal', function () {
+	$("#addservicefee_form").validate({
+			submitHandler: function () {						
+            addservicefeeSave();
+      },
+      rules: {
+          b1: "required",
+          b2: "required",          
+      },
+      messages: {
+          b1: "必须选择",
+          b2: "必须选择",         
+      }
+  });
+});
+
+$('#addservicefee_id').on('hidden.bs.modal', function () {
+	localStorage.setItem("is_select", "no");
+});
+</script>

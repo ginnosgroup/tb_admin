@@ -157,7 +157,7 @@ function show_commission_detail(serviceId,orderId)
 		v.orderId = orderId;		
 		//佣金详细页
 		$.ajax({
-      url: 'serviceOrder/get?id='+serviceId,
+      url: url + 'serviceOrder/get?id='+serviceId,
       type: 'GET',
       dataType: 'json'
     }).done(function(response) {			        	
@@ -198,7 +198,7 @@ function show_commission_detail(serviceId,orderId)
     	}  	
     	//查询佣金订单信息
     	$.ajax({
-	      url: 'visa/get?id='+orderId,
+	      url: url + 'visa/get?id='+orderId,
 	      type: 'GET',
 	      dataType: 'json'
 	    }).done(function(response) {			        	

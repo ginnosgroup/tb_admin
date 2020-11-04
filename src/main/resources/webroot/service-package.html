@@ -704,9 +704,9 @@
           
           if (check_result)
           {              
-              var str_url = "servicePackage/add";
+              var str_url = url + "servicePackage/add";
               var sa_id = $("#id").val();
-              if (sa_id != '0') str_url = "servicePackage/update";
+              if (sa_id != '0') str_url = url + "servicePackage/update";
               $("#id").val('0');
               
               $.post(str_url, { id: sa_id, type: jqSelect[0].value, serviceId: jqSelect[1].value, num: jqInputs[0].value},
@@ -748,7 +748,7 @@
 			    var obj_serviceId = $("#t1");
 			    obj_serviceId.append("<option value=''>---请选择---</option>");
 			    $.ajax({
-	          url: 'service/list',
+	          url: url + 'service/list',
 	          type: 'GET',
 	          dataType: 'json'
 	        }).done(function(response) {
@@ -786,7 +786,7 @@
 			
 			function deleteId()
       {
-					$.get("servicePackage/delete", {
+					$.get(url + "servicePackage/delete", {
 						id: v.dId
 					}, function(result) {
 						console.log(result);

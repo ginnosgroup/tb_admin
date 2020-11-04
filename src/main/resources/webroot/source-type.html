@@ -593,11 +593,11 @@
           
           if (check_result)
           {              
-              var str_url = "source/addSourceRegion";
+              var str_url = url + "source/addSourceRegion";
               var sa_id = $("#id").val();
               if (sa_id != '0')
               {
-              		str_url = "source/updateSourceRegion";
+              		str_url = url + "source/updateSourceRegion";
               		alert('提示：暂不可修改！');
               		return;
               }
@@ -630,7 +630,7 @@
 			
 			function deleteId()
       {
-					$.get("source/deleteSourceRegion", {
+					$.get(url + "source/deleteSourceRegion", {
 						id: v.dId
 					}, function(result) {
 						console.log(result);

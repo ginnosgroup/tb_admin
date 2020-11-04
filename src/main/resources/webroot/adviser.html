@@ -952,7 +952,7 @@
           	this.index = index;
           },
           passwdSet: function (username){
-          			$.post('admin_user/resetPassword', { username: username},
+          			$.post(url + 'admin_user/resetPassword', { username: username},
 						   	function(data){
 						   		if (data.code == 0)
 						   		{
@@ -1016,9 +1016,9 @@
           
           if (check_result)
           {              
-              var str_url = "adviser/add";
+              var str_url = url + "adviser/add";
               var sa_id = $("#id").val();
-              if (sa_id != '0') str_url = "adviser/update";
+              if (sa_id != '0') str_url = url + "adviser/update";
               $("#id").val('0');
               
               var passwd = '';
@@ -1064,7 +1064,7 @@
 			    //绑定区域列表
 			    var obj_regionId = $("#t4");	
 			    $.ajax({
-	          url: 'region/list_all',
+	          url: url + 'region/list_all',
 	          type: 'GET',
 	          dataType: 'json'
 	        }).done(function(response) {
@@ -1086,7 +1086,7 @@
 	        obj_adminRegionId.empty();
 	        obj_adminRegionId.append("<option value='0'>请选择</option>");
 			    $.ajax({
-	          url: 'region/list_all',
+	          url: url + 'region/list_all',
 	          type: 'GET',
 	          dataType: 'json'
 	        }).done(function(response) {
@@ -1107,7 +1107,7 @@
 			
 			function deleteId()
       {
-					 $.post("adviser/update", {
+					 $.post(url + "adviser/update", {
 						id: v.dId,
 						state: 'DISABLED'
 					}, function(result) {
@@ -1125,7 +1125,7 @@
       
       function openId()
       {
-					 $.post("adviser/update", {
+					 $.post(url + "adviser/update", {
 						id: v.dId,
 						state: 'ENABLED'
 					}, function(result) {
@@ -1143,7 +1143,7 @@
       
       function passwdSet(username)
       {
-      		$.post('admin_user/resetPassword', { username: username},
+      		$.post(url + 'admin_user/resetPassword', { username: username},
 			   	function(data){
 			   		if (data.code == 0)
 			   		{
@@ -1180,7 +1180,7 @@
           
           if (check_result)
     			{
-    					var str_url = "adviser/update";
+    					var str_url = url + "adviser/update";
     					$.post(str_url, { id: adviserId,adminRegionId: adminRegionId},
 					   	function(data){
 					   			if (data.code == 0)

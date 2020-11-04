@@ -43,7 +43,11 @@ public interface InvoiceDAO {
 
     int updateSFState(@Param("invoiceNo") String invoiceNo);
 
+    int updateVisaInvoiceNumberNull(@Param("invoiceNo") String invoiceNo);
+
     int updateSCState(@Param("invoiceNo")String invoiceNo);
+
+    int updateCommissionOrderInvoiceNumberNull(@Param("invoiceNo") String invoiceNo);
 
     List<InvoiceCompanyDO> selectCompany(@Param("flag") String flag);
 
@@ -59,15 +63,17 @@ public interface InvoiceDAO {
 
     List<String> selectInvoiceBySimple(@Param("simpleBranch") String simpleBranch ,@Param("flag") String flag);
 
+    //visa invoice_number 不为空的id
+    List<Integer> selectVisaId(@Param("idList")String[] idList,@Param("flag") String flag);
     //servicefee导入数据的时候，关联订单id
     int relationVisaOrder(@Param("idList") String[] idList, @Param("invoiceNo") String invoiceNo);
     //插入invoice 表中 的 order_id
     int insertOrderIdInInvoice(@Param("idList") String  idList, @Param("invoiceNo") String invoiceNo);
 
     //查询一个invoice
-    InvoiceServiceFeeDO selectSFInvoiceByNo(@Param("invoiceNo") String invoiceNo ,@Param("id") String id);
+    InvoiceServiceFeeDO selectSFInvoiceByNo(@Param("invoiceNo") String invoiceNo);
 
-    InvoiceSchoolDO selectSCInvoiceByNo(@Param("invoiceNo")String invoiceNo , @Param("id") String id);
+    InvoiceSchoolDO selectSCInvoiceByNo(@Param("invoiceNo")String invoiceNo);
 
     //school导入数据的时候，关联订单id
     int relationCommissionOrder(@Param("idList") String[] idList, @Param("invoiceNo") String invoiceNo);
@@ -88,5 +94,8 @@ public interface InvoiceDAO {
 
     boolean saveSchoolDescription(@Param("description") List<InvoiceSchoolDescriptionDO> description,@Param("invoiceNo") Object invoiceNo);
 
-    List<String> selectInvoiceNo(@Param("table") String table);
+    List<String> selectInvoiceNo(@Param("table") String table ,@Param("invoiceNo") String invoiceNo);
+
+
+
 }

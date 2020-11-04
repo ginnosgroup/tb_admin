@@ -1349,8 +1349,8 @@
       
       function flowstep(va,par)
       {      		
-      		var str_url = "serviceOrder/approval";
-      		if (par == '0' || va == 'CLOSE') str_url = "serviceOrder/refuse";
+      		var str_url = url + "serviceOrder/approval";
+      		if (par == '0' || va == 'CLOSE') str_url = url + "serviceOrder/refuse";
       		
           var json = {};
           var closedReason = '';
@@ -1404,7 +1404,7 @@
 			   					if (va == 'PAID' || va == 'COMPLETE' || va == 'CLOSE')
 			   					{
 					   					$.ajax({
-							          url: 'serviceOrder/finish?id='+json['id'],
+							          url: url + 'serviceOrder/finish?id='+json['id'],
 							          type: 'GET',
 							          dataType: 'json'
 							        }).done(function(response) {
@@ -1441,7 +1441,7 @@
       		if (v.orderId)
 					{
 							$.ajax({
-			          url: 'serviceOrder/get?id='+v.orderId,
+			          url: url + 'serviceOrder/get?id='+v.orderId,
 			          type: 'GET',	          
 			          dataType: 'json'
 			        }).done(function(response) {
@@ -1497,7 +1497,7 @@
 					
 					if (check_result)
     			{
-    					var str_url = "serviceOrder/update";
+    					var str_url = url + "serviceOrder/update";
        				var json = {};
        				json['id'] = v.dId;
        				if (field == 'adviserName')
@@ -1564,7 +1564,7 @@
 			    	cache: false,
 			    	customValue: 'name',
 			    	customLabel: 'name',
-			    	source: 'user/list?authNickname=&phone=&pageNum=0',
+			    	source: url + 'user/list?authNickname=&phone=&pageNum=0',
 			    	combine: function(params) {
 			    		return {
 				        name: params.query,
@@ -1591,7 +1591,7 @@
 				  }
 	        obj_adviserId.append("<option value='0'>请选择</option>");
 			    $.ajax({
-	          url: 'adviser/list?pageNum=0&pageSize=100000'+strPar,
+	          url: url + 'adviser/list?pageNum=0&pageSize=100000'+strPar,
 	          type: 'GET',
 	          async: false,
 	          dataType: 'json'
@@ -1608,7 +1608,7 @@
 				  $("#t2").empty();
 	        obj_adviserId_t2.append("<option value='0'>请选择</option>");
 			    $.ajax({
-	          url: 'adviser/list?pageNum=0&pageSize=100000',
+	          url: url + 'adviser/list?pageNum=0&pageSize=100000',
 	          type: 'GET',
 	          async: false,
 	          dataType: 'json'
@@ -1630,7 +1630,7 @@
 	        }
 	        obj_officialId.append("<option value='0'>请选择</option>");
 			    $.ajax({
-	          url: 'official/list?pageNum=0&pageSize=100000',
+	          url: url + 'official/list?pageNum=0&pageSize=100000',
 	          type: 'GET',
 	          async: false,
 	          dataType: 'json'
@@ -1647,7 +1647,7 @@
 	        $("#t1").empty();
 	        obj_officialId_t1.append("<option value='0'>请选择</option>");
 			    $.ajax({
-	          url: 'official/list?pageNum=0&pageSize=100000',
+	          url: url + 'official/list?pageNum=0&pageSize=100000',
 	          type: 'GET',
 	          async: false,
 	          dataType: 'json'
@@ -1664,7 +1664,7 @@
 	        $("#maraId").empty();
 	        obj_mara.append("<option value='0'>请选择</option>");
 			    $.ajax({
-	          url: 'mara/list?pageNum=0&pageSize=100000',
+	          url: url + 'mara/list?pageNum=0&pageSize=100000',
 	          type: 'GET',
 	          async: false,
 	          dataType: 'json'
@@ -1682,7 +1682,7 @@
 			    $("#regionId").empty();
 			    obj_regionId.append("<option value='0'>请选择</option>");
 			    $.ajax({
-	          url: 'region/list_all',
+	          url: url + 'region/list_all',
 	          type: 'GET',
 	          dataType: 'json'
 	        }).done(function(response) {
@@ -1709,7 +1709,7 @@
 	        $("#tag_id").empty();
 	        obj_tag.append("<option value='0'>请选择</option>");
 			    $.ajax({
-	          url: 'officialTag/list?pageNum=0&pageSize=100000',
+	          url: url + 'officialTag/list?pageNum=0&pageSize=100000',
 	          type: 'GET',
 	          async: false,
 	          dataType: 'json'
@@ -1849,8 +1849,8 @@
 				   		return false;
 					}else
 					{
-							var str_url = "officialTag/addServiceOrderOfficialTag";
-							if (v.tagId) str_url = "officialTag/updateServiceOrderOfficialTag";
+							var str_url = url + "officialTag/addServiceOrderOfficialTag";
+							if (v.tagId) str_url = url + "officialTag/updateServiceOrderOfficialTag";
 							var json = {};
 							json['id'] = tagId;
 							json['serviceOrderId'] = v.orderId;
@@ -1883,7 +1883,7 @@
 					
 					if (tagId != '')
 					{
-							var str_url = "officialTag/deleteServiceOrderOfficialTagById";							
+							var str_url = url + "officialTag/deleteServiceOrderOfficialTagById";							
 							var json = {};
 							json['id'] = tagId;
 							json['serviceOrderId'] = v.orderId;
@@ -1914,7 +1914,7 @@
       		//alert(v.dId+'删除功能暂不可用。');
       		//return false;
       		show_loading();
-					$.get("serviceOrder/delete", {
+					$.get(url + "serviceOrder/delete", {
 						id: v.dId
 					}, function(result) {											
 						$('#loading_id').modal('hide');

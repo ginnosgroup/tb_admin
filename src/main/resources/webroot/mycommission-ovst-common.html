@@ -216,7 +216,7 @@ function edit_commission_detail(serviceId,orderId)
 		v_sub2.orderId = orderId;		
 		//佣金详细页
 		$.ajax({
-      url: 'serviceOrder/get?id='+serviceId,
+      url: url + 'serviceOrder/get?id='+serviceId,
       type: 'GET',
       dataType: 'json'
     }).done(function(response) {			        	
@@ -257,7 +257,7 @@ function edit_commission_detail(serviceId,orderId)
     	}   	
     	//查询佣金订单信息
     	$.ajax({
-	      url: 'commissionOrder/get?id='+orderId,
+	      url: url + 'commissionOrder/get?id='+orderId,
 	      type: 'GET',
 	      async: false,
 	      dataType: 'json'
@@ -375,7 +375,7 @@ $('#ovst_id #f1c').live('change', function (e) {
 		formData.append("file",$("#f1c")[0].files[0]);
 		
 		$.ajax({
-        url:'serviceOrder/upload_img',
+        url: url + 'serviceOrder/upload_img',
         dataType:'json',
         type:'POST',
         async: false,
@@ -427,7 +427,7 @@ function requestCommissionSave()
         
     if (check_result)
     {            	            	            	                             
-       	var str_url = "commissionOrder/update";
+       	var str_url = url + "commissionOrder/update";
        	var json = {};       	
        	json['id'] = v_sub2.orderId;       	
        	json['schoolId'] = v_sub2.order_detail.schoolId;
@@ -550,7 +550,7 @@ function requestCommissionClose()
     var check_result = true;            
     if (check_result && confirm('您确认关闭这个佣金订单吗？注意：操作后，不可恢复。'))
     {            	            	            	                             
-       	var str_url = "commissionOrder/close";
+       	var str_url = url + "commissionOrder/close";
        	var json = {};       	
        	json['id'] = v_sub2.orderId;       	
        	json['isStudying'] = false;       	       	
@@ -610,7 +610,7 @@ function page_init()
 	  
 	  var receive_type = $("#ovst_id #c28");
     $.ajax({
-      url: 'receiveType/list?state=ENABLED',
+      url: url + 'receiveType/list?state=ENABLED',
       type: 'GET',
       async: false,
       dataType: 'json'

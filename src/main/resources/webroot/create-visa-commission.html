@@ -441,7 +441,7 @@
 								var orderId = arr[i];
 								$.ajaxSettings.async = false; 
 								$.ajax({
-							      url: 'serviceOrder/get?id='+orderId,
+							      url: url + 'serviceOrder/get?id='+orderId,
 							      type: 'GET',
 							      dataType: 'json'
 						    }).done(function(response) {			        	
@@ -490,7 +490,7 @@
 					var order = v.order_detail;		
 					if (order.pay == true)
 					{
-							var str_url = "visa/add";
+							var str_url = url + "visa/add";
 					   	var json = {};
 					   	   	
 					   	json['userId'] = order.userId;

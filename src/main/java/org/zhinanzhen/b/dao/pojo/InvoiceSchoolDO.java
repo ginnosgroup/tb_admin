@@ -18,6 +18,8 @@ public class InvoiceSchoolDO {
 
     private Date invoiceDate;
 
+    private  String order_id;
+
     private String email;
 
     private String company;

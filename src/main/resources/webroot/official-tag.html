@@ -531,15 +531,7 @@
 				},
 				methods: {
 					getTag: function() {
-						var that = this;
-						/*$.get(url + "officialTag/count", {
-							name: that.name,
-						}, function(result) {
-							console.log(result)
-							that.count = result.data;
-							that.allPage = Math.ceil(result.data / that.pageSize);
-							console.log(that.allPage)
-						});*/
+						var that = this;						
 						$.get(url + "officialTag/list", {
 							name: that.name,						
 							pageNum: 0,
@@ -553,12 +545,12 @@
 					},
 					getDatalist: function() {
 						var that = this;
-						$.get(url + "officialTag/count", {
+						/*$.get(url + "officialTag/count", {
 							keyword: that.name		
 						}, function(result) {							
 							that.count = result.data;
 							that.allPage = Math.ceil(result.data / that.pageSize);
-						});
+						});*/
 						$.get(url + "officialTag/list", {
 							pageNum: 0,
 							pageSize: that.pageSize
@@ -666,7 +658,7 @@
 			
 			function deleteId()
       {
-					$.get("officialTag/deleteOfficialTag", {
+					$.get(url + "officialTag/deleteOfficialTag", {
 						id: v.tagId
 					}, function(result) {
 						if(result.data == true) {
@@ -722,11 +714,11 @@
           
           if (check_result)
     			{
-    					var str_url = "officialTag/addOfficialTag";
+    					var str_url = url + "officialTag/addOfficialTag";
     					var json = {};       
 			       	if (v.tagId != 0)
 			       	{
-			       			str_url = "officialTag/updateOfficialTag";
+			       			str_url = url + "officialTag/updateOfficialTag";
 			       			json['id'] = v.tagId;
 			       	}
 			       	json['name'] = $(f+'#tag_newname').val();

@@ -1111,7 +1111,7 @@
 				  }
 	        obj_adviserId2.append("<option value='0'>请选择顾问</option>");
 			    $.ajax({
-	          url: 'adviser/list?pageNum=0&pageSize=100000'+strPar,
+	          url: url + 'adviser/list?pageNum=0&pageSize=100000'+strPar,
 	          type: 'GET',
 	          dataType: 'json'
 	        }).done(function(response) {
@@ -1129,7 +1129,7 @@
 			    $("#regionId").empty();
 			    obj_regionId.append("<option value='0'>请选择</option>");
 			    $.ajax({
-	          url: 'region/list_all',
+	          url: url + 'region/list_all',
 	          type: 'GET',
 	          dataType: 'json'
 	        }).done(function(response) {
@@ -1191,8 +1191,8 @@
       
       function flowstep(va,par)
       {
-      		var str_url = "commissionOrder/approval";
-      		if (par == '0' || va == 'WAIT') str_url = "commissionOrder/refuse";
+      		var str_url = url + "commissionOrder/approval";
+      		if (par == '0' || va == 'WAIT') str_url = url + "commissionOrder/refuse";
       		
           var json = {};
           var closedReason = '';

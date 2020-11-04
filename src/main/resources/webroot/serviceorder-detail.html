@@ -487,8 +487,8 @@
       
       function flowstep(va,par)
       {      		
-      		var str_url = "serviceOrder/approval";
-      		if (par == '0' || va == 'CLOSE') str_url = "serviceOrder/refuse";
+      		var str_url = url + "serviceOrder/approval";
+      		if (par == '0' || va == 'CLOSE') str_url = url + "serviceOrder/refuse";
       		
           var json = {};
           var closedReason = '';
@@ -539,7 +539,7 @@
 			   					if (va == 'PAID' || va == 'COMPLETE' || va == 'CLOSE')
 			   					{
 					   					$.ajax({
-							          url: 'serviceOrder/finish?id='+json['id'],
+							          url: url + 'serviceOrder/finish?id='+json['id'],
 							          type: 'GET',
 							          dataType: 'json'
 							        }).done(function(response) {

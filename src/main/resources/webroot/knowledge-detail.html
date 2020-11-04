@@ -560,7 +560,7 @@
 			    var cont = $('#message_content').val();
 			    if (cont != '')
 			    {
-			    		var str_url = 'message/add';
+			    		var str_url = url + 'message/add';
 			    		$.post(str_url, { knowledgeId: kid, adminUserId: v.admin_id,content: cont},
 					   	function(data){
 					   		if (!data.code)
@@ -587,7 +587,7 @@
 					var that = this;
 			    if (id)
 			    {
-			    		var str_url = 'message/zan';
+			    		var str_url = url + 'message/zan';
 			    		$.post(str_url, { messageId: id, adminUserId: v.admin_id},
 					   	function(data){
 					   		if (!data.code)
@@ -607,7 +607,7 @@
 					var that = this;
 			    if(confirm('提醒：请确认是否执行删除操作？'))
 			    {
-			    		$.get("message/delete", {
+			    		$.get(url + "message/delete", {
 								id: id
 							}, function(result) {
 								console.log(result);

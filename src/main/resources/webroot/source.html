@@ -578,7 +578,7 @@
       
       function deleteId()
       {      		
-      		$.get("source/delete", {
+      		$.get(url + "source/delete", {
 						id: v.dId
 					}, function(result) {
 						console.log(result);
@@ -606,7 +606,7 @@
           
           if (check_result)
           {              
-              var str_url = "source/add";
+              var str_url = url + "source/add";
               var sa_id = $("#id").val();
               $("#id").val('0');            
               if (sa_id != '0')
