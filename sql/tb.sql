@@ -520,7 +520,7 @@ CREATE TABLE `b_commission_order` (
   `remarks` text DEFAULT NULL COMMENT '备注',
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
-ALTER TABLE `b_commission_order` ADD INDEX index_name (`school_id`, `user_id`, `adviser_id`, `official_id`);
+ALTER TABLE `b_commission_order` ADD INDEX index_name (`code`, `school_id`, `user_id`, `adviser_id`, `official_id`);
 
 -- (留学)佣金订单评论
 CREATE TABLE `b_commission_order_comment` (
@@ -716,6 +716,7 @@ CREATE TABLE `b_school_setting` (
   `end_date` datetime NOT NULL COMMENT '合同结束时间',
   `parameters` varchar(255) COMMENT '参数'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+ALTER TABLE `b_school_setting` ADD INDEX index_name (`school_id`);
 
 -- (OLD)
 CREATE TABLE `b_subject_setting` (

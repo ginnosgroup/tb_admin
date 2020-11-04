@@ -383,8 +383,9 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 			schoolSettingDto = mapper.map(schoolSettingDo, SchoolSettingDTO.class);
 			if (id > 0) {
 				schoolSettingDto.setCount(commissionOrderDao.countCommissionOrderBySchoolId(id));
-				if (commissionOrderDao.sumTuitionFeeBySchoolId(id) != null)
-					schoolSettingDto.setAmount(commissionOrderDao.sumTuitionFeeBySchoolId(id));
+				Double stf = commissionOrderDao.sumTuitionFeeBySchoolId(id);
+				if (stf != null)
+					schoolSettingDto.setAmount(stf);
 			}
 			List<SchoolAttachmentsDO> saList = schoolAttachmentsDao.listBySchoolName(schoolSettingDto.getSchoolName());
 			if (saList != null && saList.size() > 0)
