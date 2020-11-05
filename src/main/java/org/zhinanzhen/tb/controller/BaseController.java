@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.tb.service.AdminUserService;
 
+import com.ikasoa.core.utils.StringUtil;
+
 import lombok.Data;
 
 public class BaseController {
@@ -103,7 +105,7 @@ public class BaseController {
 			String type = fileName.indexOf(".") != -1
 					? fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length())
 					: null;
-			String realPath = "/data" + dir;
+			String realPath = StringUtil.merge("/data", dir);
 			// 创建目录
 			File folder = new File(realPath);
 			if (!folder.isDirectory())
@@ -112,11 +114,11 @@ public class BaseController {
 //			String newFileName = String.valueOf(System.currentTimeMillis()) + "_" + fileName.toLowerCase();
 			String newFileName = String.valueOf(System.currentTimeMillis());
 			// 设置存放文件的路径
-			String path = realPath + newFileName + "." + type;
+			String path = StringUtil.merge(realPath, newFileName, ".", type);
 			LOG.info("存放文件的路径:" + path);
 			// 转存文件到指定的路径
 			file.transferTo(new File(path));
-			return new Response<String>(0, "", dir + newFileName + "." + type);
+			return new Response<String>(0, "", StringUtil.merge(dir, newFileName, ".", type));
 		} else {
 			return new Response<String>(3, "文件为空.", null);
 		}
