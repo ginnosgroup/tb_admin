@@ -69,7 +69,7 @@ public class VisaController extends BaseCommissionOrderController {
 	public Response<String> uploadImage(@RequestParam MultipartFile file, HttpServletRequest request,
 			HttpServletResponse response) throws IllegalStateException, IOException {
 		super.setPostHeader(response);
-		return super.upload2(file, request.getSession(), "/uploads/payment_voucher_image_url/");
+		return super.upload2(file, request.getSession(), "/uploads/payment_voucher_image_url_v/");
 	}
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
