@@ -46,6 +46,8 @@ public class InvoiceSchoolDO {
 
     private String branch;
 
+    private String flag;
+
     private List<InvoiceSchoolDescriptionDO> invoiceSchoolDescriptionDOS;
 
     private InvoiceBillToDO invoiceBillToDO;

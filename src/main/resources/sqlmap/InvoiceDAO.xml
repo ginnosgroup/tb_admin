@@ -208,7 +208,7 @@
         </choose>
         <where>
             <if test="simpleBranch != null and simpleBranch !='' ">
-                invoice_no like "%"#{simpleBranch}
+                invoice_no like "%"#{simpleBranch}  and  DATE_FORMAT(gmt_create,'%Y%m')  =  DATE_FORMAT(CURDATE(),'%Y%m')
             </if>
         </where>
     </select>
@@ -272,7 +272,7 @@
     </resultMap>
 
     <select id="selectSCInvoiceByNo" resultMap="invoiceSchool">
-        select sf.id,sf.gmt_create,sf.email,sf.invoice_no,sf.company_id,sf.company,sf.abn,sf.address,sf.tel,note,accountname,bsb,accountno,state,order_id,branch,
+        select sf.id,sf.gmt_create,sf.email,sf.invoice_no,sf.company_id,sf.company,sf.abn,sf.address,sf.tel,note,accountname,bsb,accountno,state,order_id,branch,flag,
         sfd.id as sfdid,studentname as sfdstudentname ,dob as sfddob,student_id as sfdstudent_id,course as sfdcourse,startDate as sfdstartDate,
         instalment as sfdinstalment,  IFNULL(tuitionfee,0.00) as sfdtuitionfee, IFNULL(bonus,0.00) as sfdbonus,IFNULL(commissionrate,0.00) as sfdcommissionrate,
         IFNULL(commission,0.00) as sfdcommission,IFNULL(marketing_bonus,0.00) as sfdmarketing ,bb.id as bid,bb.company as bcompany,bb.abn as babn,bb.address as baddress
@@ -297,6 +297,7 @@
         <result column="accountno" property="accountno"></result>
         <result column="state" property="state"></result>
         <result column="branch" property="branch"></result>
+        <result column="flag" property="flag"></result>
         <association property="invoiceBillToDO" javaType="org.zhinanzhen.b.dao.pojo.InvoiceBillToDO">
             <id property="id" column="bid"></id>
             <result property="company" column="bcompany"></result>
@@ -356,8 +357,8 @@
 
     <!-- save srvicefee invoice-->
     <insert id="saveSchoolInvoice" parameterType="java.util.Map">
-        insert  into `b_invoice_school` (gmt_create,gmt_modify,email,company_id,company,abn,address,tel,invoice_no,billto_id,note,accountname,bsb,accountno,state,branch)
-        values (#{invoiceDate},now(),#{email},#{companyId},#{company},#{abn},#{address},#{tel},#{invoiceNo},#{billto_id},#{note},#{accountname},#{bsb},#{accountno},"NORMAL",#{branch})
+        insert  into `b_invoice_school` (gmt_create,gmt_modify,email,company_id,company,abn,address,tel,invoice_no,billto_id,note,accountname,bsb,accountno,state,branch,flag)
+        values (#{invoiceDate},now(),#{email},#{companyId},#{company},#{abn},#{address},#{tel},#{invoiceNo},#{billto_id},#{note},#{accountname},#{bsb},#{accountno},"NORMAL",#{branch},#{flag})
     </insert>
     <insert id="saveSchoolDescription">
         insert  into `b_invoice_school_description` (id,studentname,dob,student_id,course,startDate,instalment,tuitionfee,bonus,commissionrate,commission,marketing_bonus,gmt_create,gmt_modify,invoice_no)
