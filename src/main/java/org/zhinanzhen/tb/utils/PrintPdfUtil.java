@@ -51,12 +51,8 @@ public class PrintPdfUtil {
 
         String newPDFPath = realPath.replace('/', '\\').substring(1, realPath.length());
 
-        if (pdfModel.equals("servicefee.pdf")){
-            invoiceNo = invoiceNo + ".pdf";
-        }
-        if (pdfModel.equals("IES.pdf")){
-            invoiceNo = invoiceNo + ".pdf";
-        }
+        invoiceNo = invoiceNo + ".pdf";
+
         newPDFPath = newPDFPath +File.separator+ invoiceNo;
 
         //创建根目录
@@ -72,6 +68,7 @@ public class PrintPdfUtil {
         FileOutputStream out;
         ByteArrayOutputStream bos;
         PdfStamper stamper;
+        PdfPTable table = null;
         try {
             //BaseFont bf = BaseFont.createFont("C:/WINDOWS/Fonts/SIMYOU.TTF", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
             BaseFont bf = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H",BaseFont.NOT_EMBEDDED);
@@ -106,13 +103,9 @@ public class PrintPdfUtil {
             if (pdfModel.equals("IES.pdf")) {
                 //InvoiceSchoolDTO invoiceSchoolDTO = JSON.parseObject(JSON.toJSONString(map), InvoiceSchoolDTO.class);
                 InvoiceSchoolDTO invoiceSchoolDTO = (InvoiceSchoolDTO) response.getData();
-                System.out.println(invoiceSchoolDTO.toString());
                 Map<Object, Object> map = JSON.parseObject(JSON.toJSONString(invoiceSchoolDTO), Map.class);
                 for (Object key : map.keySet()) {
                     form.setField(key.toString(), map.get(key).toString());
-                    if (key.equals("invoiceDate")) {
-                        form.setField(key.toString(), sdf.format(invoiceSchoolDTO.getInvoiceDate()));
-                    }
                     if (key.equals("invoiceDate")) {
                         form.setField(key.toString(), sdf.format(invoiceSchoolDTO.getInvoiceDate()));
                     }
@@ -137,8 +130,43 @@ public class PrintPdfUtil {
                     index ++ ;
                 }
             }
+            if (pdfModel.equals("Markteting.pdf")) {
+                //InvoiceSchoolDTO invoiceSchoolDTO = JSON.parseObject(JSON.toJSONString(map), InvoiceSchoolDTO.class);
+                InvoiceSchoolDTO invoiceSchoolDTO = (InvoiceSchoolDTO) response.getData();
+                Map<Object, Object> map = JSON.parseObject(JSON.toJSONString(invoiceSchoolDTO), Map.class);
+                for (Object key : map.keySet()) {
+                    form.setField(key.toString(), map.get(key).toString());
+                    if (key.equals("invoiceDate")) {
+                        form.setField(key.toString(), sdf.format(invoiceSchoolDTO.getInvoiceDate()));
+                    }
+                }
+                form.setField("billCompany",invoiceSchoolDTO.getInvoiceBillToDO().getCompany());
+                form.setField("billAbn",invoiceSchoolDTO.getInvoiceBillToDO().getAbn());
+                form.setField("billAddress",invoiceSchoolDTO.getInvoiceBillToDO().getAddress());
+                List<InvoiceSchoolDescriptionDO> invoiceSchoolDescriptionDOS = invoiceSchoolDTO.getInvoiceSchoolDescriptionDOS();
+                Document document = new Document(PageSize.A4);
+                //PdfWriter writer =  PdfWriter.getInstance(document, new FileOutputStream(newPDFPath));
+                //table = createTable(stamper.getWriter());
+                int index = 1;
+                for (InvoiceSchoolDescriptionDO descriptionDO : invoiceSchoolDescriptionDOS) {
+                    form.setField("id" + index, descriptionDO.getId() + "");
+                    form.setField("studentname" + index, descriptionDO.getStudentname());
+                    form.setField("dob" + index, sdf.format(descriptionDO.getDob()));
+                    form.setField("studentId" + index, descriptionDO.getStudentId() + "");
+                    form.setField("course" + index, descriptionDO.getCourse());
+                    form.setField("startDate" + index, sdf.format(descriptionDO.getStartDate()));
+                    form.setField("tuitionFee" + index, descriptionDO.getTuitionFee().toString());
+                    form.setField("commissionrate" + index, descriptionDO.getCommissionrate().toString());
+                    form.setField("commission" + index, descriptionDO.getCommission().toString());
+                    form.setField("bonus" + index, descriptionDO.getBonus().toString());
+                    form.setField("instalMent" + index, descriptionDO.getInstalMent());
+                    index ++ ;
+                }
+            }
 
 
+
+            stamper.flush();
             stamper.setFormFlattening(true);// 如果为false，生成的PDF文件可以编辑，如果为true，生成的PDF文件不可以编辑
             stamper.close();
 
@@ -148,6 +176,7 @@ public class PrintPdfUtil {
             doc.open();
             PdfImportedPage importPage = copy.getImportedPage(new PdfReader(bos.toByteArray()), 1);
             copy.addPage(importPage);
+            doc.add(table);
             doc.close();
 
         } catch (IOException e) {
@@ -161,4 +190,24 @@ public class PrintPdfUtil {
         return path+"/"+invoiceNo;
 
     }
+    public static PdfPTable createTable(PdfWriter writer) throws IOException, DocumentException {
+        PdfPTable table = new PdfPTable(3);//生成一个两列的表格
+        PdfPCell cell;
+        int size = 20;
+        Font font = new Font(BaseFont.createFont("C://Windows//Fonts//simfang.ttf", BaseFont.IDENTITY_H,
+                BaseFont.NOT_EMBEDDED));
+        for(int i = 0;i<3 ;i++) {
+            cell = new PdfPCell(new Phrase("1",font));//产品编号
+            cell.setFixedHeight(size);
+            table.addCell(cell);
+            cell = new PdfPCell(new Phrase("豆腐",font));//产品名称
+            cell.setFixedHeight(size);
+            table.addCell(cell);
+            cell = new PdfPCell(new Phrase("豆腐西施啊",font));//产品价格
+            cell.setFixedHeight(size);
+            table.addCell(cell);
+        }
+        return table;
+    }
+
 }
