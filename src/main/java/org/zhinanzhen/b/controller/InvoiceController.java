@@ -303,6 +303,7 @@ public class InvoiceController  extends BaseService {
         }
         String invoiceNo = sdfNo.format(Calendar.getInstance().getTime())+newNumber+simpleBranch;
         String invoiceDate = sdfDate.format(Calendar.getInstance().getTime());
+
         invoiceCompanyDTO.setInvoiceNo(invoiceNo);
         invoiceCompanyDTO.setInvoiceDate(invoiceDate);
         if(invoiceCompanyDTO != null){
@@ -317,7 +318,7 @@ public class InvoiceController  extends BaseService {
     @ResponseBody
     public Response relationCommissionOrder(@RequestParam (value = "idList" ,required = true) String [] idList ,
                                       @RequestParam(value = "invoiceNo" ,required = true) String invoiceNo){
-        int result = invoiceService.relationCommissionOrder(idList,invoiceNo);
+        int result = invoiceService.relationCommissionOrder(idList,invoiceNo,"");
         if( result > 0 ){
             return new Response(0,"成功");
         }
@@ -335,18 +336,40 @@ public class InvoiceController  extends BaseService {
                 return  new Response(1,"invoiceNo is null");
             String [] idList = ((String)paramMap.get("idList")).split(",");
             String invoiceNo = (String) paramMap.get("invoiceNo");
+            String flag = (String) paramMap.get("flag");
 
             if (invoiceService.selectInvoiceNo(invoiceNo,"b_invoice_school"))
                 return  new Response(1,"invoiceNo repeat!");
-
-
             if (idList != null & !idList .equals("")) {
-                int resultrela = invoiceService.relationCommissionOrder(idList, invoiceNo);
+                int resultrela = invoiceService.relationCommissionOrder(idList, invoiceNo ,"");
                 if ( resultrela > 0 )
                 return  new Response(1,resultrela+"  订单已经关联了！");
                 else {
-                    int result = invoiceService.saveSchoolInvoice(paramMap);
-                    resultrela = invoiceService.relationCommissionOrder(idList, invoiceNo);
+                    int result = 0;
+                    List<InvoiceSchoolDescriptionDO> descriptionNormal = (List<InvoiceSchoolDescriptionDO>) paramMap .get("normal");
+                    List<InvoiceSchoolDescriptionDO> descriptionMarketing = (List<InvoiceSchoolDescriptionDO>) paramMap .get("marketing");
+                    if (descriptionNormal==null ){
+                        paramMap.put("flag","M");
+                        result= invoiceService.saveSchoolInvoice(paramMap ,descriptionMarketing);
+                        resultrela = invoiceService.relationCommissionOrder(idList, invoiceNo , "");
+
+                    }
+                    else if (descriptionMarketing==null){
+                        paramMap.put("flag","N");
+                        result= invoiceService.saveSchoolInvoice(paramMap ,descriptionNormal);
+                        resultrela = invoiceService.relationCommissionOrder(idList, invoiceNo , "");
+                    }else if ( descriptionNormal !=null | descriptionMarketing != null){
+                        Integer  newNum = Integer.parseInt(invoiceNo.substring(6,invoiceNo.length()-1)) + 1 ;
+                        String  newInvoiceNo = invoiceNo.substring(0,6) + newNum +invoiceNo.substring(invoiceNo.length()-1,invoiceNo.length());
+                        paramMap.put("flag","N");
+                        result= invoiceService.saveSchoolInvoice(paramMap,descriptionNormal);
+                        paramMap.put("invoiceNo",newInvoiceNo);
+                        paramMap.put("flag","M");
+                        invoiceService.saveSchoolInvoice(paramMap,descriptionMarketing);
+                        resultrela = invoiceService.relationCommissionOrder(idList, invoiceNo , newInvoiceNo);
+                    }
+
+
                     if ( result > 0 ){
                         return  new Response(0 ,"success" );
                     }

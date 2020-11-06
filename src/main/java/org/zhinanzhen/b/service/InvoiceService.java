@@ -41,7 +41,7 @@ public interface InvoiceService {
     //查询一个invoice
     Response selectInvoiceByNo(String invoiceNo, String invoiceIds, String marketing);
 
-    int relationCommissionOrder(String[] idList, String invoiceNo);
+    int relationCommissionOrder(String[] idList, String invoiceNo , String newInvoiceNo);
 
     int addBillTo(String company, String abn, String address);
 
@@ -50,6 +50,8 @@ public interface InvoiceService {
     int saveServiceFeeInvoice(String invoiceDate, String email, String company, String abn, String address, String tel, String invoiceNo, String note, String accountname, String bsb, String accountno, String branch, List<InvoiceServiceFeeDescriptionDO> invoiceServiceFeeDescriptionDOList);
 
     int saveSchoolInvoice(Map paramMap);
+
+    int saveSchoolInvoice(Map paramMap ,List<InvoiceSchoolDescriptionDO> des);
 
     List<InvoiceBillToDO> billToList();
 

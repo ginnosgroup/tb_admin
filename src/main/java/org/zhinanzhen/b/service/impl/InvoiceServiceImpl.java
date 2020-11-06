@@ -198,7 +198,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
                 invoiceNumber.add(Integer.parseInt(invoiceNo.substring(0,invoiceNo.length()-1)));
             });
             String invoiceNumberMax = Collections.max(invoiceNumber).toString();
-            String number = invoiceNumberMax.substring(invoiceNumberMax.length()-2,invoiceNumberMax.length());
+            String number = invoiceNumberMax.substring(6,invoiceNumberMax.length());
             return number;
         }
         return "0";
@@ -269,6 +269,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
             BigDecimal totalGST = new BigDecimal("0");
             BigDecimal GST = new BigDecimal("0");
             InvoiceSchoolDO invoiceSchoolDO = invoiceDAO.selectSCInvoiceByNo(invoiceNo);
+            /*
             if ( marketing == null | marketing == ""){
                 if ( invoiceSchoolDO != null ){
                     InvoiceSchoolDTO invoiceSchoolDTO = mapper.map(invoiceSchoolDO, InvoiceSchoolDTO.class);
@@ -295,7 +296,31 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
                     invoiceSchoolDTO.setGst(GST);
                     return new Response(0, invoiceSchoolDTO);
                 }
+            } */
+            if (invoiceSchoolDO!= null){
+                InvoiceSchoolDTO invoiceSchoolDTO = mapper.map(invoiceSchoolDO, InvoiceSchoolDTO.class);
+                List<InvoiceSchoolDescriptionDO> descriptionDOS = invoiceSchoolDO.getInvoiceSchoolDescriptionDOS();
+                if (invoiceSchoolDO.getFlag().equals("N")){
+                    for(InvoiceSchoolDescriptionDO description : descriptionDOS){
+                        totalGST = totalGST.add(description.getBonus());
+                        totalGST = totalGST.add(description.getCommission());
+                    }
+                    GST = totalGST.divide(new BigDecimal("11"), 2, BigDecimal.ROUND_HALF_UP);
+                    invoiceSchoolDTO.setTotalGST(totalGST);
+                    invoiceSchoolDTO.setGst(GST);
+                    return new Response(0, invoiceSchoolDTO);
+                }
+                if (invoiceSchoolDO.getFlag().equals("M")){
+                    for(InvoiceSchoolDescriptionDO description : descriptionDOS){
+                        totalGST = totalGST.add(description.getMarketing());
+                    }
+                    GST = totalGST.divide(new BigDecimal("11"), 2, BigDecimal.ROUND_HALF_UP);
+                    invoiceSchoolDTO.setTotalGST(totalGST);
+                    invoiceSchoolDTO.setGst(GST);
+                    return new Response(0, invoiceSchoolDTO);
+                }
             }
+
         }
         return  null;
     }
@@ -303,13 +328,14 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
     //关联留学订单id
     @Override
     @Transactional
-    public int relationCommissionOrder(String[] idList, String invoiceNo) {
+    public int relationCommissionOrder(String[] idList, String invoiceNo ,String newInvoiceNo) {
         List<Integer> visaIds = invoiceDAO.selectVisaId(idList,"SC");
         if (visaIds.size() != 0 ){
             return visaIds.get(0);
         }
         int resulti =  invoiceDAO.insertCommissionOrderIdInInvoice(StringUtils.join(idList, ",") , invoiceNo);
-        int resultc = invoiceDAO.relationCommissionOrder(idList , invoiceNo);
+        int resultin =  invoiceDAO.insertCommissionOrderIdInInvoice(StringUtils.join(idList, ",") , newInvoiceNo);
+        int resultc = invoiceDAO.relationCommissionOrder(idList , invoiceNo + "," + newInvoiceNo);
         if ( resulti > 0 & resultc > 0 ){
             return  -1 ;
         }
@@ -355,11 +381,26 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
         return 0;
     }
 
+    /**
+     * 暂时弃用
+     * @param paramMap
+     * @return
+     */
     @Override
     @Transactional
     public int saveSchoolInvoice(Map paramMap) {
         List<InvoiceSchoolDescriptionDO> description = (List<InvoiceSchoolDescriptionDO>) paramMap .get("description");
         if(invoiceDAO.saveSchoolInvoice(paramMap)  && invoiceDAO.saveSchoolDescription(description, paramMap.get("invoiceNo")) )
+            return 1 ;
+        else{
+            rollback();
+        }
+        return 0;
+    }
+
+    @Override
+    public int saveSchoolInvoice(Map paramMap, List<InvoiceSchoolDescriptionDO> des) {
+        if(invoiceDAO.saveSchoolInvoice(paramMap)  && invoiceDAO.saveSchoolDescription(des, paramMap.get("invoiceNo")) )
             return 1 ;
         else{
             rollback();
@@ -373,8 +414,6 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
 
         Response response = selectInvoiceByNo(invoiceNo, invoiceIds, marketing);
         if (response != null) {
-
-
             if (invoiceIds.substring(0, 2).equals("SF")) {
                 InvoiceServiceFeeDTO invoiceServiceFeeDTO = (InvoiceServiceFeeDTO) response.getData();
                 if (invoiceServiceFeeDTO != null) {
@@ -391,24 +430,25 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
                 int companyId = invoiceSchoolDTO.getCompanyId();
                 InvoiceCompanyDTO invoiceCompanyDTO = invoiceDAO.selectCompanyById(companyId);
                 if (invoiceCompanyDTO.getSimple().equals("IES")) {
-                    //Map<String, Object> schoolpdfMap = JSON.parseObject(JSON.toJSONString(invoiceSchoolDTO), Map.class);
-                    //PrintPdfUtil.pdfout(response,"IES.pdf");
-                    String result = PrintPdfUtil.pdfout(invoiceNo, response, "IES.pdf", realpath);
+                    String result = PrintPdfUtil.pdfout(invoiceNo + "_SC" + invoiceSchoolDTO.getId(), response, "IES.pdf", realpath);
                     return new Response(0, result);
-                }
-                if (marketing == null | marketing == "") {
-                    if (invoiceSchoolDTO != null) {
-                        Map<String, Object> schoolpdfMap = JSON.parseObject(JSON.toJSONString(invoiceSchoolDTO), Map.class);
-                        //PrintPdfUtil.pdfout(schoolpdfMap,"");
-                        return new Response(0, invoiceSchoolDTO);
+                }else {
+                    if (marketing == null | marketing == "") {
+                        if (invoiceSchoolDTO != null) {
+                            //Map<String, Object> schoolpdfMap = JSON.parseObject(JSON.toJSONString(invoiceSchoolDTO), Map.class);
+                            //PrintPdfUtil.pdfout(schoolpdfMap,"");
+                            return new Response(0, invoiceSchoolDTO);
+                        }
+                    }
+                    if (marketing.equalsIgnoreCase("marketing")) {
+                        System.out.println(marketing+"      marketing");
+                        String result = PrintPdfUtil.pdfout(invoiceNo + "_SC" + invoiceSchoolDTO.getId(), response, "Markteting.pdf", realpath);
+                        return new Response(0, result);
+
                     }
 
                 }
-                if (marketing.equalsIgnoreCase("marketing")) {
-
-                    return new Response(0, invoiceSchoolDTO);
-
-                }
+                System.out.println("在这里出来");
             }
         }
         return null;
