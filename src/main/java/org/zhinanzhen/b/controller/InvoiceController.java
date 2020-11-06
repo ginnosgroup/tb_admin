@@ -13,7 +13,6 @@ import org.zhinanzhen.b.service.pojo.InvoiceCompanyIdNameDTO;
 import org.zhinanzhen.b.service.pojo.InvoiceDTO;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.impl.BaseService;
-
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -396,7 +395,7 @@ public class InvoiceController  extends BaseService {
             HttpServletRequest req ,HttpServletResponse resp
     ) throws FileNotFoundException {
 
-        String fileName = ResourceUtils.getURL("classpath:").getPath()+"static";
+        String fileName = ResourceUtils.getURL("classpath:").getPath();
 
         Response response = invoiceService.pdfPrint(invoiceNo,invoiceIds,marketing, fileName);
 

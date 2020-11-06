@@ -418,7 +418,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
                 InvoiceServiceFeeDTO invoiceServiceFeeDTO = (InvoiceServiceFeeDTO) response.getData();
                 if (invoiceServiceFeeDTO != null) {
                     //Map<String, Object> servicefeepdfMap = JSON.parseObject(JSON.toJSONString(invoiceServiceFeeDTO), Map.class);
-                    String result = PrintPdfUtil.pdfout(invoiceNo + "_SF" + invoiceServiceFeeDTO.getId(), response, "servicefee.pdf", realpath);
+                    String result = PrintPdfUtil.pdfout(invoiceNo + "_SF" + invoiceServiceFeeDTO.getId(), response, "SF", realpath);
                     return new Response(0, result);
                 }
             }
@@ -430,25 +430,21 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
                 int companyId = invoiceSchoolDTO.getCompanyId();
                 InvoiceCompanyDTO invoiceCompanyDTO = invoiceDAO.selectCompanyById(companyId);
                 if (invoiceCompanyDTO.getSimple().equals("IES")) {
-                    String result = PrintPdfUtil.pdfout(invoiceNo + "_SC" + invoiceSchoolDTO.getId(), response, "IES.pdf", realpath);
+                    String result = PrintPdfUtil.pdfout(invoiceNo + "_SC" + invoiceSchoolDTO.getId(), response, "IES", realpath);
                     return new Response(0, result);
                 }else {
-                    if (marketing == null | marketing == "") {
-                        if (invoiceSchoolDTO != null) {
-                            //Map<String, Object> schoolpdfMap = JSON.parseObject(JSON.toJSONString(invoiceSchoolDTO), Map.class);
-                            //PrintPdfUtil.pdfout(schoolpdfMap,"");
-                            return new Response(0, invoiceSchoolDTO);
-                        }
+                    if (invoiceSchoolDTO.getFlag().equals("M")) {
+                        String result = PrintPdfUtil.pdfout(invoiceNo + "_SC" + invoiceSchoolDTO.getId(), response, "M", realpath);
+                        return new Response(0, result);
                     }
-                    if (marketing.equalsIgnoreCase("marketing")) {
-                        System.out.println(marketing+"      marketing");
-                        String result = PrintPdfUtil.pdfout(invoiceNo + "_SC" + invoiceSchoolDTO.getId(), response, "Markteting.pdf", realpath);
+                    if (invoiceSchoolDTO.getFlag().equals("N")) {
+
+                        String result = PrintPdfUtil.pdfout(invoiceNo + "_SC" + invoiceSchoolDTO.getId(), response, "N", realpath);
                         return new Response(0, result);
 
                     }
 
                 }
-                System.out.println("在这里出来");
             }
         }
         return null;
