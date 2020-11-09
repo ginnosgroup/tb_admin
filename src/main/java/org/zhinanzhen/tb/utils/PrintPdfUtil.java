@@ -32,8 +32,7 @@ public class PrintPdfUtil {
     static Font FontChinese8Bold = FontFactory.getFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,8f, Font.BOLD, BaseColor.BLACK);
     static Font FontChinese10 = FontFactory.getFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,10f, Font.NORMAL, BaseColor.BLACK);
     static SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-    static SimpleDateFormat dobsdf = new SimpleDateFormat("yyyy/MM/dd ");
-    static SimpleDateFormat startsdf = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
+    static SimpleDateFormat dobsdf = new SimpleDateFormat("dd/MM/yyyy ");
 
     public static String pdfout(String invoiceNo ,Response response , String Model , String realPath ) {
 
@@ -739,7 +738,7 @@ public class PrintPdfUtil {
                     table10.addCell(cell10);
                     cell10 = new PdfPCell(new Paragraph(des.get(i).getCourse(), FontChinese8));
                     table10.addCell(cell10);
-                    cell10 = new PdfPCell(new Paragraph(startsdf.format(des.get(i).getStartDate()), FontChinese8));
+                    cell10 = new PdfPCell(new Paragraph(dobsdf.format(des.get(i).getStartDate()), FontChinese8));
                     table10.addCell(cell10);
                     cell10 = new PdfPCell(new Paragraph(des.get(i).getTuitionFee().toString(), FontChinese8));
                     table10.addCell(cell10);
@@ -1114,7 +1113,7 @@ public class PrintPdfUtil {
                     table10.addCell(cell10);
                     cell10 = new PdfPCell(new Paragraph(des.get(i).getCourse(), FontChinese8));
                     table10.addCell(cell10);
-                    cell10 = new PdfPCell(new Paragraph(startsdf.format(des.get(i).getStartDate()), FontChinese8));
+                    cell10 = new PdfPCell(new Paragraph(dobsdf.format(des.get(i).getStartDate()), FontChinese8));
                     table10.addCell(cell10);
                     cell10 = new PdfPCell(new Paragraph(des.get(i).getInstalMent(), FontChinese8));
                     table10.addCell(cell10);
@@ -1492,7 +1491,7 @@ public class PrintPdfUtil {
                     table10.addCell(cell10);
                     cell10 = new PdfPCell(new Paragraph(des.get(i).getCourse(), FontChinese8));
                     table10.addCell(cell10);
-                    cell10 = new PdfPCell(new Paragraph(startsdf.format(des.get(i).getStartDate()), FontChinese8));
+                    cell10 = new PdfPCell(new Paragraph(dobsdf.format(des.get(i).getStartDate()), FontChinese8));
                     table10.addCell(cell10);
                     cell10 = new PdfPCell(new Paragraph(des.get(i).getInstalMent(), FontChinese8));
                     table10.addCell(cell10);
