@@ -325,17 +325,25 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
         return  null;
     }
 
-    //关联留学订单id
     @Override
-    @Transactional
-    public int relationCommissionOrder(String[] idList, String invoiceNo ,String newInvoiceNo) {
+    public int selectReaplceOrderId(String[] idList, String invoiceNo) {
         List<Integer> visaIds = invoiceDAO.selectVisaId(idList,"SC");
         if (visaIds.size() != 0 ){
             return visaIds.get(0);
         }
+        return 0;
+    }
+
+
+    //关联留学订单id
+    @Override
+    @Transactional
+    public int relationCommissionOrder(String[] idList, String invoiceNo) {
+        //b_invoce_school中插入order_id
         int resulti =  invoiceDAO.insertCommissionOrderIdInInvoice(StringUtils.join(idList, ",") , invoiceNo);
-        int resultin =  invoiceDAO.insertCommissionOrderIdInInvoice(StringUtils.join(idList, ",") , newInvoiceNo);
-        int resultc = invoiceDAO.relationCommissionOrder(idList , invoiceNo + "," + newInvoiceNo);
+        //int resultin =  invoiceDAO.insertCommissionOrderIdInInvoice(StringUtils.join(idList, ",") , newInvoiceNo);
+        //b_commission_order插入invoice_no
+        int resultc = invoiceDAO.relationCommissionOrder(idList , invoiceNo);
         if ( resulti > 0 & resultc > 0 ){
             return  -1 ;
         }

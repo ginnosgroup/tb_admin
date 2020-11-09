@@ -38,7 +38,9 @@ public interface InvoiceService {
     //查询一个invoice
     Response selectInvoiceByNo(String invoiceNo, String invoiceIds, String marketing);
 
-    int relationCommissionOrder(String[] idList, String invoiceNo , String newInvoiceNo);
+    int selectReaplceOrderId(String[] idList, String invoiceNo);
+
+    int relationCommissionOrder(String[] idList, String invoiceNo);
 
     int addBillTo(String company, String abn, String address);
 

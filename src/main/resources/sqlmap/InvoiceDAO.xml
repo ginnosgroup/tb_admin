@@ -322,7 +322,7 @@
 
     <!-- school导入数据，关联订单id-->
     <update id="relationCommissionOrder" parameterType="java.lang.String">
-        update `b_commission_order` set invoice_number = #{invoiceNo} where id in
+        update `b_commission_order` set invoice_number =  concat_ws(',',invoice_number,#{invoiceNo})   where id in
         <foreach collection="idList" index="index" item="id" open="(" close=")" separator=",">
             #{id}
         </foreach>

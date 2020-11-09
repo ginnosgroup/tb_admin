@@ -224,7 +224,7 @@ public class InvoiceController  extends BaseService {
                    return new Response(1, resultrela+"订单已经关联！");
                }else {
                    int result = invoiceService.saveServiceFeeInvoice(invoiceDate, email, company, abn, address, tel, invoiceNo, note, accountname, bsb, accountno, branch, invoiceServiceFeeDescriptionDOList);
-                    resultrela = invoiceService.relationVisaOrder(idList,invoiceNo);
+                   resultrela = invoiceService.relationVisaOrder(idList,invoiceNo);
                    if (result > 0) {
                        return new Response(0, "success");
                    }
@@ -326,17 +326,7 @@ public class InvoiceController  extends BaseService {
         return  new Response(0,"没有数据！");
     }
 
-    //addschool导入数据，关联订单id (已弃用)
-    @RequestMapping(value = "/relationCommissionOrder" , method = RequestMethod.POST )
-    @ResponseBody
-    public Response relationCommissionOrder(@RequestParam (value = "idList" ,required = true) String [] idList ,
-                                      @RequestParam(value = "invoiceNo" ,required = true) String invoiceNo){
-        int result = invoiceService.relationCommissionOrder(idList,invoiceNo,"");
-        if( result > 0 ){
-            return new Response(0,"成功");
-        }
-        return   new Response(1,"失败");
-    }
+
 
     //保存school invoice
     @RequestMapping( value = "/saveSchoolInvoice" ,method =  RequestMethod.POST)
@@ -347,14 +337,26 @@ public class InvoiceController  extends BaseService {
                 return  new Response(1,"idList is null");
             if (paramMap.get("invoiceNo") == null)
                 return  new Response(1,"invoiceNo is null");
-            String [] idList = ((String)paramMap.get("idList")).split(",");
+            //String [] idstr = ((String)paramMap.get("idList")).split("#");
+            String  newInvoiceNo = "";
+            String  str = ((String)paramMap.get("idList"));
             String invoiceNo = (String) paramMap.get("invoiceNo");
             String flag = (String) paramMap.get("flag");
+
+            String  arr1 = str.substring(0,str.indexOf('#'));
+            String  arr2 = str.substring(str.indexOf('#')+1);
+
+
+            List<String> list = new ArrayList<String>();
+            Collections.addAll(list,arr1.split(","));
+            Collections.addAll(list,arr2.split(","));
+            String  [] idList = list.toArray(new String[list.size()]);
+
 
             if (invoiceService.selectInvoiceNo(invoiceNo,"b_invoice_school"))
                 return  new Response(1,"invoiceNo repeat!");
             if (idList != null & !idList .equals("")) {
-                int resultrela = invoiceService.relationCommissionOrder(idList, invoiceNo ,"");
+                int resultrela = invoiceService.selectReaplceOrderId(idList, invoiceNo);
                 if ( resultrela > 0 )
                 return  new Response(1,resultrela+"  订单已经关联了！");
                 else {
@@ -364,29 +366,31 @@ public class InvoiceController  extends BaseService {
                     if (descriptionNormal.size() == 0 ){
                         paramMap.put("flag","M");
                         result= invoiceService.saveSchoolInvoice(paramMap ,descriptionMarketing);
-                        resultrela = invoiceService.relationCommissionOrder(idList, invoiceNo , "");
+                        resultrela = invoiceService.relationCommissionOrder(idList, invoiceNo);
 
                     }
                     else if (descriptionMarketing.size() == 0){
                         paramMap.put("flag","N");
                         result= invoiceService.saveSchoolInvoice(paramMap ,descriptionNormal);
-                        resultrela = invoiceService.relationCommissionOrder(idList, invoiceNo , "");
+                        resultrela = invoiceService.relationCommissionOrder(idList, invoiceNo);
 
                     }else if ( descriptionNormal.size() !=  0 | descriptionMarketing.size() != 0){
                         Integer  newNum = Integer.parseInt(invoiceNo.substring(6,invoiceNo.length()-1)) + 1 ;
-                        String  newInvoiceNo = invoiceNo.substring(0,6) + newNum +invoiceNo.substring(invoiceNo.length()-1,invoiceNo.length());
+                        newInvoiceNo = invoiceNo.substring(0,6) + newNum +invoiceNo.substring(invoiceNo.length()-1,invoiceNo.length());
                         paramMap.put("flag","N");
                         result= invoiceService.saveSchoolInvoice(paramMap,descriptionNormal);
                         paramMap.put("invoiceNo",newInvoiceNo);
                         paramMap.put("flag","M");
                         invoiceService.saveSchoolInvoice(paramMap,descriptionMarketing);
-                        resultrela = invoiceService.relationCommissionOrder(idList, invoiceNo , newInvoiceNo);
-
+                        System.out.println(Arrays.toString(arr1.split(",")));
+                        resultrela = invoiceService.relationCommissionOrder(arr1.split(","), invoiceNo);
+                        System.out.println(Arrays.toString(arr2.split(",")));
+                        invoiceService.relationCommissionOrder( arr2.split(","),newInvoiceNo);
                     }
 
 
                     if ( result > 0 ){
-                        return  new Response(0 ,"success" );
+                        return  new Response(0 ,"success" , newInvoiceNo);
                     }
                 }
             }
@@ -394,8 +398,10 @@ public class InvoiceController  extends BaseService {
 
             return new Response(1 ,"fail" );
         }catch (DataAccessException ex){
+            System.out.println(ex);
             return new Response(1 ,"参数错误" );
         }catch (Exception ex){
+            System.out.println(ex);
             return new Response(1 ,"系统错误，请联系管理员！" );
         }
     }
