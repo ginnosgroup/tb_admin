@@ -339,6 +339,9 @@
     <insert id="addBillTo">
         insert into `b_invoice_billto` (company,abn,address,gmt_create,gmt_modify) values  (#{company},#{abn},#{address},now(),now())
     </insert>
+    <select id="selectLastBillTo" resultType="java.lang.Integer">
+        select id from `b_invoice_billto`  order by id DESC limit 1
+    </select>
 
     <!-- save srvicefee invoice-->
     <insert id="saveServiceFeeInvoice">

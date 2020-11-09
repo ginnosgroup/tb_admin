@@ -84,6 +84,8 @@ public interface InvoiceDAO {
 
     int addBillTo(@Param("company") String company,@Param("abn") String abn,@Param("address") String address);
 
+    int selectLastBillTo();
+
     int saveServiceFeeInvoice(@Param("invoiceDate")String invoiceDate, @Param("email")String email, @Param("company")String company, @Param("abn")String abn,
                               @Param("address")String address, @Param("tel")String tel, @Param("invoiceNo")String invoiceNo, @Param("note")String note,
                               @Param("accountname")String accountname, @Param("bsb")String bsb, @Param("accountno")String accountno, @Param("branch")String branch);
@@ -95,7 +97,5 @@ public interface InvoiceDAO {
     boolean saveSchoolDescription(@Param("description") List<InvoiceSchoolDescriptionDO> description,@Param("invoiceNo") Object invoiceNo);
 
     List<String> selectInvoiceNo(@Param("table") String table ,@Param("invoiceNo") String invoiceNo);
-
-
 
 }

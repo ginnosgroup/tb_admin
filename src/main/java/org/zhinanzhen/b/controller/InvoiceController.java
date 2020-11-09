@@ -255,20 +255,34 @@ public class InvoiceController  extends BaseService {
         return  new Response(0,invoiceCompanyIdNameDTOList);
     }
 
+    /**
+     * 查询billto公司list
+     * @return
+     */
     @RequestMapping(value = "/selectBillTo" ,method =  RequestMethod.GET )
     @ResponseBody
     public Response billToList(){
         return  new Response(0,invoiceService.billToList());
     }
 
+    /**
+     * 添加billto公司返回id
+     * @param company
+     * @param abn
+     * @param address
+     * @return
+     */
     @RequestMapping(value = "/addBillTo" ,method =  RequestMethod.POST )
     @ResponseBody
     public Response addBillTo(@RequestParam(value = "company" ,required =  true)String company ,
                               @RequestParam(value = "abn", required = true )String abn ,
                               @RequestParam(value = "address", required =  true) String address ){
         int result = invoiceService.addBillTo(company,abn,address);
-        if( result > 0 )
-            return  new Response(0,"success");
+        if( result > 0 ){
+            int billId = invoiceService.selectLastBillTo();
+            return  new Response(0,"success",billId);
+        }
+
         return  new Response(1,"fail");
     }
 
@@ -347,17 +361,18 @@ public class InvoiceController  extends BaseService {
                     int result = 0;
                     List<InvoiceSchoolDescriptionDO> descriptionNormal = (List<InvoiceSchoolDescriptionDO>) paramMap .get("normal");
                     List<InvoiceSchoolDescriptionDO> descriptionMarketing = (List<InvoiceSchoolDescriptionDO>) paramMap .get("marketing");
-                    if (descriptionNormal==null ){
+                    if (descriptionNormal.size() == 0 ){
                         paramMap.put("flag","M");
                         result= invoiceService.saveSchoolInvoice(paramMap ,descriptionMarketing);
                         resultrela = invoiceService.relationCommissionOrder(idList, invoiceNo , "");
 
                     }
-                    else if (descriptionMarketing==null){
+                    else if (descriptionMarketing.size() == 0){
                         paramMap.put("flag","N");
                         result= invoiceService.saveSchoolInvoice(paramMap ,descriptionNormal);
                         resultrela = invoiceService.relationCommissionOrder(idList, invoiceNo , "");
-                    }else if ( descriptionNormal !=null | descriptionMarketing != null){
+
+                    }else if ( descriptionNormal.size() !=  0 | descriptionMarketing.size() != 0){
                         Integer  newNum = Integer.parseInt(invoiceNo.substring(6,invoiceNo.length()-1)) + 1 ;
                         String  newInvoiceNo = invoiceNo.substring(0,6) + newNum +invoiceNo.substring(invoiceNo.length()-1,invoiceNo.length());
                         paramMap.put("flag","N");
@@ -366,6 +381,7 @@ public class InvoiceController  extends BaseService {
                         paramMap.put("flag","M");
                         invoiceService.saveSchoolInvoice(paramMap,descriptionMarketing);
                         resultrela = invoiceService.relationCommissionOrder(idList, invoiceNo , newInvoiceNo);
+
                     }
 
 

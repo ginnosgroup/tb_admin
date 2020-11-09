@@ -14,10 +14,7 @@ import org.zhinanzhen.b.service.pojo.InvoiceServiceFeeDTO;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.impl.BaseService;
 import org.zhinanzhen.tb.utils.PrintPdfUtil;
-
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -34,6 +31,9 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
 
     @Resource
     private InvoiceDAO invoiceDAO;
+
+    private static  SimpleDateFormat sdfdob = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
+    private static  SimpleDateFormat sdfolddob = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
     //查询invoice
     @Override
@@ -300,6 +300,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
             if (invoiceSchoolDO!= null){
                 InvoiceSchoolDTO invoiceSchoolDTO = mapper.map(invoiceSchoolDO, InvoiceSchoolDTO.class);
                 List<InvoiceSchoolDescriptionDO> descriptionDOS = invoiceSchoolDO.getInvoiceSchoolDescriptionDOS();
+                System.out.println(descriptionDOS.get(1).getDob());
                 if (invoiceSchoolDO.getFlag().equals("N")){
                     for(InvoiceSchoolDescriptionDO description : descriptionDOS){
                         totalGST = totalGST.add(description.getBonus());
@@ -357,6 +358,11 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
     }
 
     @Override
+    public int selectLastBillTo() {
+        return invoiceDAO.selectLastBillTo();
+    }
+
+    @Override
     public boolean selectInvoiceNo(String invoiceNo ,String table) {
         List<String> invoiceNoList = invoiceDAO.selectInvoiceNo(table,invoiceNo);
         if ( invoiceNoList.size() > 0 )
@@ -399,10 +405,11 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
     }
 
     @Override
+    @Transactional
     public int saveSchoolInvoice(Map paramMap, List<InvoiceSchoolDescriptionDO> des) {
-        if(invoiceDAO.saveSchoolInvoice(paramMap)  && invoiceDAO.saveSchoolDescription(des, paramMap.get("invoiceNo")) )
-            return 1 ;
-        else{
+        if(  invoiceDAO.saveSchoolInvoice(paramMap) && invoiceDAO.saveSchoolDescription(des, paramMap.get("invoiceNo"))) {
+            return 1;
+        } else{
             rollback();
         }
         return 0;
