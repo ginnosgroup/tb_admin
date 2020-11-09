@@ -1169,7 +1169,8 @@ function addovstSave()
        			json['marketing'][i]['tuitionFee'] = $(f+"#dm"+tindex+" #tg").val();
        			json['marketing'][i]['marketing'] = $(f+"#dm"+tindex+" #th").val();       			
        	}
-       	console.log(json);       	
+       	console.log(json);
+       	//return false;
        	show_loading();
        	$.ajax({
 		      url: str_url,
@@ -1182,9 +1183,18 @@ function addovstSave()
 		    		if (data.code == 0)
 		   			{
 		   					//生成normal的pdf  					
-						    make_pdf(f,json['invoiceNo'],'SC');
+						    if (v_sub_taxinvoice.row_nums_normal) make_pdf(f,json['invoiceNo'],'SC');
 						    //生成markteting的pdf
-						    if (v_sub_taxinvoice.row_nums_markteting) make_pdf(f,data.data,'SC');
+						    if (v_sub_taxinvoice.row_nums_markteting)
+						    {
+						    		if (v_sub_taxinvoice.row_nums_normal)
+						    		{
+						    				make_pdf(f,data.data,'SC');
+						    		}else
+						    		{
+						    				make_pdf(f,json['invoiceNo'],'SC');
+						    		}
+						    }
 						    localStorage.setItem("is_select", "no");
 		   					$(f+'#alert_success').css('marginTop','30%');
 		   					$(f+'#alert_success').css('marginLeft','30%');
@@ -1193,7 +1203,7 @@ function addovstSave()
 		   					//v.kind = 'SC';
 		   					//v.getDatalist();
 		   					//$('.modal-backdrop').remove();
-		   					var go_url = 'taxinvoice-list.html?state=&type=SF';
+		   					var go_url = 'taxinvoice-list.html?state=&type=SC';
 		   					setTimeout(function(){window.location.href = go_url;}, 1500);
 		   									    
 		   			}else
