@@ -278,10 +278,14 @@ public class InvoiceController  extends BaseService {
                               @RequestParam(value = "abn", required = true )String abn ,
                               @RequestParam(value = "address", required =  true) String address ){
         int result = invoiceService.addBillTo(company,abn,address);
+        if (result == -1){
+            return new Response(1,"this company has been added ！");
+        }
         if( result > 0 ){
             int billId = invoiceService.selectLastBillTo();
             return  new Response(0,"success",billId);
         }
+
 
         return  new Response(1,"fail");
     }

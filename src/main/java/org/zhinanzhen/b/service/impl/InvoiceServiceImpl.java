@@ -361,6 +361,12 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
 
     @Override
     public int addBillTo(String company, String abn, String address) {
+        List<InvoiceBillToDO> billToDOS = invoiceDAO.billToList();
+        for (InvoiceBillToDO billTo : billToDOS){
+            if (billTo.getCompany().equals(company))
+                return  -1;
+        }
+
         return invoiceDAO.addBillTo(company,abn,address);
     }
 
