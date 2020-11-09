@@ -140,7 +140,7 @@
               </a>
             </li>
             </dli>
-          	<dli v-if="ap_list==='SUPERAD' || (ap_list==='GW' && gw_regionid !== 'null')">
+          	<dli v-if="ap_list==='SUPERAD' || (ap_list==='GW' && gw_regionid !== 'null') || ap_list==='KJ'">
             <li class="sub-menu">
 							<a href="javascript:;">
 								<i class="fa fa-book">
@@ -304,12 +304,12 @@
 							</a>
 							<ul class="sub">
 								<li class="active" id="invoice_">
-									<a href="taxinvoice-list.html?state=">
+									<a href="taxinvoice-list.html?state=&type=SF">
 										Tax Invoice列表
 									</a>									
 								</li>
 								<li id="invoice_canceled">
-									<a href="taxinvoice-list.html?state=canceled">
+									<a href="taxinvoice-list.html?state=canceled&type=SF">
 										已Cancel列表
 									</a>									
 								</li>															
@@ -381,7 +381,7 @@
 													<input v-model.trim="create_start" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:120px;" placeholder="创建时间(开始)">
 													<input v-model.trim="create_end" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:120px;" placeholder="创建时间(结束)">
 													<label>类型</label>		
-													<select v-model.trim="kind" id="kind" class="form-control" style="width:120px;"></select>
+													<select v-model.trim="kind" id="kind" class="form-control" style="width:120px;" onchange="window.location.href='taxinvoice-list.html?state={{applyState}}&type='+this.value"></select>
 													<label>请选择地区</label>		
 													<select v-model.trim="branch" id="branch" class="form-control" style="width:120px;"></select>
 											</div>											
@@ -540,7 +540,8 @@
 					official_id: sessionStorage.getItem("official_id"),
 					mara_id: sessionStorage.getItem("mara_id"),
 					kj_id: sessionStorage.getItem("kj_id"),
-					applyState : getRequest('state'),					
+					applyState : getRequest('state'),
+					invoiceType : getRequest('type'),	
 					subject: [],
 					invoiceNo: '',
 					invoiceIds: '',
@@ -577,13 +578,7 @@
 						if (that.order_no != '') json['order_no'] = that.order_no;
 						if (that.create_start != '') json['create_start'] = that.create_start;
 						if (that.create_end != '') json['create_end'] = that.create_end;
-						if(typeof(that.kind) == "undefined")
-						{
-								json['kind'] = 'SF';
-						}else
-						{
-								json['kind'] = that.kind;
-						}						
+						if (that.invoiceType != '') json['kind'] = that.invoiceType;
 						if (that.branch != '') json['branch'] = that.branch;				
 						if (that.applyState != '') json['state'] = that.applyState;
 						
@@ -638,13 +633,7 @@
 						if (that.order_no != '') json['order_no'] = that.order_no;
 						if (that.create_start != '') json['create_start'] = that.create_start;
 						if (that.create_end != '') json['create_end'] = that.create_end;
-						if (typeof(that.kind) == "undefined")
-						{
-								json['kind'] = 'SF';
-						}else
-						{
-								json['kind'] = that.kind;
-						}
+						if (that.invoiceType != '') json['kind'] = that.invoiceType;
 						if (that.branch != '') json['branch'] = that.branch;
 						if (that.applyState != '') json['state'] = that.applyState;
 						
@@ -669,13 +658,7 @@
 						if (that.order_no != '') json['order_no'] = that.order_no;
 						if (that.create_start != '') json['create_start'] = that.create_start;
 						if (that.create_end != '') json['create_end'] = that.create_end;
-						if (typeof(that.kind) == "undefined")
-						{
-								json['kind'] = 'SF';
-						}else
-						{
-								json['kind'] = that.kind;
-						}
+						if (that.invoiceType != '') json['kind'] = that.invoiceType;
 						if (that.branch != '') json['branch'] = that.branch;
 						if (that.applyState != '') json['state'] = that.applyState;
 						
@@ -700,13 +683,7 @@
 						if (that.order_no != '') json['order_no'] = that.order_no;
 						if (that.create_start != '') json['create_start'] = that.create_start;
 						if (that.create_end != '') json['create_end'] = that.create_end;
-						if (typeof(that.kind) == "undefined")
-						{
-								json['kind'] = 'SF';
-						}else
-						{
-								json['kind'] = that.kind;
-						}
+						if (that.invoiceType != '') json['kind'] = that.invoiceType;
 						if (that.branch != '') json['branch'] = that.branch;
 						if (that.applyState != '') json['state'] = that.applyState;
 						
@@ -730,13 +707,7 @@
 						if (that.order_no != '') json['order_no'] = that.order_no;
 						if (that.create_start != '') json['create_start'] = that.create_start;
 						if (that.create_end != '') json['create_end'] = that.create_end;
-						if (typeof(that.kind) == "undefined")
-						{
-								json['kind'] = 'SF';
-						}else
-						{
-								json['kind'] = that.kind;
-						}
+						if (that.invoiceType != '') json['kind'] = that.invoiceType;
 						if (that.branch != '') json['branch'] = that.branch;
 						if (that.applyState != '') json['state'] = that.applyState;
 						
@@ -761,13 +732,7 @@
 						if (that.order_no != '') json['order_no'] = that.order_no;
 						if (that.create_start != '') json['create_start'] = that.create_start;
 						if (that.create_end != '') json['create_end'] = that.create_end;
-						if (typeof(that.kind) == "undefined")
-						{
-								json['kind'] = 'SF';
-						}else
-						{
-								json['kind'] = that.kind;
-						}
+						if (that.invoiceType != '') json['kind'] = that.invoiceType;
 						if (that.branch != '') json['branch'] = that.branch;
 						if (that.applyState != '') json['state'] = that.applyState;
 						that.pageNum = parseInt(that.pnumber);
@@ -824,7 +789,7 @@
 			    //obj_kind.append("<option value=''>请选择</option>");
 			    obj_kind.append("<option value='SF'>签证</option>");
 			    obj_kind.append("<option value='SC'>留学</option>");
-			    obj_kind.val(v.kind);		    
+			    obj_kind.val(v.invoiceType);		    
 	        //绑定地区
 			    var obj_branch = $("#branch");
 			    $("#branch").empty();
@@ -860,8 +825,11 @@
 			        }
 			    }
 			    str_value = theRequest[par];
-			    $("#invoice_"+str_value).addClass("active");
-			    if (str_value != '') $("#invoice_").removeClass("active");
+			    if (par == 'state')
+			    {					    
+					    $("#invoice_"+str_value).addClass("active");
+					    if (str_value != '') $("#invoice_").removeClass("active");
+			  	}
 			    return str_value;
 			}						        
       

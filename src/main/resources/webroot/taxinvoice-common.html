@@ -98,7 +98,7 @@
 						</div>
 						<div class="form-group" style="width:100%;line-height:40px;">
 							<label class="control-label">Note</label>
-							<textarea id="b7" class="form-control" style="width:98%"></textarea>
+							<textarea id="b7" class="form-control" style="width:98%;font-weight:normal;"></textarea>
 						</div>
 						<div class="form-group" style="width:100%;line-height:40px;">
 							<label class="control-label"><strong>Please make payment to the account below,and quote the invoice number:<strong></label>
@@ -156,7 +156,9 @@
 	      </div>
 	      <form class="cmxform form-inline" style="" name="addovst_form" id="addovst_form">
 				<div class="modal-body">						
-						<input type="hidden" name="ids_ovst" id="ids_ovst" value="" />																	
+						<input type="hidden" name="current_tab" id="current_tab" value="{{current_tab}}" />
+						<input type="hidden" name="ids_normal" id="ids_normal" value="" />
+						<input type="hidden" name="ids_markteting" id="ids_markteting" value="" />
 						<div class="form-group" style="width:100%;height:40px;">
 							<label class="control-label" style="width:120px;">请选择地区：<span style="color:red;">*</span></label>							
 							<select class="form-control" style="width:150px;" name="b1" id="b1"></select>
@@ -300,7 +302,7 @@
 						</div>												
 						<div class="form-group" style="width:100%;line-height:40px;">
 							<label class="control-label">Note</label>
-							<textarea id="b7" class="form-control" style="width:98%"></textarea>
+							<textarea id="b7" class="form-control" style="width:98%;font-weight:normal;"></textarea>
 						</div>
 						<div class="form-group" style="width:100%;line-height:40px;">
 							<label class="control-label"><strong>Please make payment to the account below,and quote the invoice number:<strong></label>
@@ -419,7 +421,7 @@ var v_sub_taxinvoice = new Vue({
 						studentname: '<input type="text" class="form-control small" style="" id="ta" value="">',
 						dob: '<input type="text" class="form-control small default-date-picker" style="width:110px;" id="tb" value="">',
 						studentId: '<input type="text" class="form-control small" style="width:80px;" id="tc" value="">',
-						course: '<input type="text" class="form-control small" style="width:150px;" id="td" value="">',
+						course: '<textarea class="form-control" style="width:150px;" id="td"></textarea>',
 						startDate: '<input type="text" class="form-control small default-date-picker" style="width:110px;" id="te" value="">',
 						instalMent: '<select class="form-control small" style="width:80px;" id="tf"><option value=\'1\'>1</option><option value=\'2\'>2</option><option value=\'3\'>3</option><option value=\'4\'>4</option><option value=\'5\'>5</option><option value=\'6\'>6</option><option value=\'7\'>7</option><option value=\'8\'>8</option><option value=\'9\'>9</option><option value=\'10\'>10</option><option value=\'11\'>11</option><option value=\'12\'>12</option></select>',
 						tuitionFee: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="tg" value="">',
@@ -430,13 +432,13 @@ var v_sub_taxinvoice = new Vue({
 						this.row_nums_normal++;
 				},
 				table_remove_normal: function (index) {
-					 var ids = $("#addovst_id #ids_ovst").val();
+					 var ids = $("#addovst_id #ids_normal").val();
 					 if (ids != '')
 					 {
 					 		 var arr = ids.split(',');
 					 		 arr.splice(index,1);
 					 		 ids = arr.join(',');
-					 		 $("#addovst_id #ids_ovst").val(ids);
+					 		 $("#addovst_id #ids_normal").val(ids);
 					 }
            this.subject_normal.splice(index, 1);
            this.row_nums_normal--;
@@ -457,7 +459,7 @@ var v_sub_taxinvoice = new Vue({
 						studentname: '<input type="text" class="form-control small" style="" id="ta" value="">',
 						dob: '<input type="text" class="form-control small default-date-picker" style="width:110px;" id="tb" value="">',
 						studentId: '<input type="text" class="form-control small" style="width:80px;" id="tc" value="">',
-						course: '<input type="text" class="form-control small" style="width:150px;" id="td" value="">',
+						course: '<textarea class="form-control" style="width:150px;" id="td"></textarea>',
 						startDate: '<input type="text" class="form-control small default-date-picker" style="width:110px;" id="te" value="">',
 						instalMent: '<select class="form-control small" style="width:80px;" id="tf"><option value=\'1\'>1</option><option value=\'2\'>2</option><option value=\'3\'>3</option><option value=\'4\'>4</option><option value=\'5\'>5</option><option value=\'6\'>6</option><option value=\'7\'>7</option><option value=\'8\'>8</option><option value=\'9\'>9</option><option value=\'10\'>10</option><option value=\'11\'>11</option><option value=\'12\'>12</option></select>',
 						tuitionFee: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="tg" value="">',						
@@ -466,13 +468,13 @@ var v_sub_taxinvoice = new Vue({
 						this.row_nums_markteting++;
 				},
 				table_remove_markteting: function (index) {
-					 var ids = $("#addovst_id #ids_ovst").val();
+					 var ids = $("#addovst_id #ids_markteting").val();
 					 if (ids != '')
 					 {
 					 		 var arr = ids.split(',');
 					 		 arr.splice(index,1);
 					 		 ids = arr.join(',');
-					 		 $("#addovst_id #ids_ovst").val(ids);
+					 		 $("#addovst_id #ids_markteting").val(ids);
 					 }
            this.subject_markteting.splice(index, 1);
            this.row_nums_markteting--;
@@ -639,7 +641,7 @@ function import_commission(type)
 
 function setTab(name)
 {
-		v.current_tab = name;
+		v_sub_taxinvoice.current_tab = name;
 }
 
 function createTable(nums,str)
@@ -672,12 +674,11 @@ function createOvstTable(nums,str)
 {
 		var arr = new Array();
 		var arr_sub = new Array();
-		var f = '';
+		var f = '#addovst_id ';
 		//清空表格，暂时取消
 		arr = str.split('#');
 		if (v_sub_taxinvoice.current_tab == 'normal')
-		{
-				f = '#addovst_id ';
+		{				
 				for(var i=0;i < nums;i++)
 				{
 						arr_sub = arr[i].split(',');
@@ -691,7 +692,7 @@ function createOvstTable(nums,str)
 						studentname: '<input type="text" class="form-control small" style="" id="ta" value="'+arr_sub[1]+'">',
 						dob: '<input type="text" class="form-control small default-date-picker" style="width:110px;" id="tb" value="'+arr_sub[2]+'">',
 						studentId: '<input type="text" class="form-control small" style="width:80px;" id="tc" value="'+arr_sub[3]+'">',
-						course: '<input type="text" class="form-control small" style="width:150px;" id="td" value="'+arr_sub[4]+'">',
+						course: '<textarea class="form-control" style="width:150px;" id="td">'+arr_sub[4]+'</textarea>',
 						startDate: '<input type="text" class="form-control small default-date-picker" style="width:110px;" id="te" value="'+arr_sub[5]+'">',
 						instalMent: '<input type="text" class="form-control small" style="width:80px;" id="tf" value="'+arr_sub[6]+'">',
 						tuitionFee: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="tg" value="'+arr_sub[7]+'">',
@@ -702,9 +703,28 @@ function createOvstTable(nums,str)
 						v_sub_taxinvoice.row_nums_normal++;
 				}
 				v_sub_taxinvoice.bind_total_normal = 1;
-		}else if (v.current_tab == 'markteting')
+		}else if (v_sub_taxinvoice.current_tab == 'markteting')
 		{
-									
+				for(var i=0;i < nums;i++)
+				{
+						arr_sub = arr[i].split(',');						
+						var index = 0;				
+						if (v_sub_taxinvoice.subject_markteting.length) index = v_sub_taxinvoice.subject_markteting.length;						
+						var tindex = index+1;						
+						v_sub_taxinvoice.subject_markteting.splice(index,0, {
+						id: index+1,									
+						studentname: '<input type="text" class="form-control small" style="" id="ta" value="'+arr_sub[1]+'">',
+						dob: '<input type="text" class="form-control small default-date-picker" style="width:110px;" id="tb" value="'+arr_sub[2]+'">',
+						studentId: '<input type="text" class="form-control small" style="width:80px;" id="tc" value="'+arr_sub[3]+'">',
+						course: '<input type="text" class="form-control small" style="width:150px;" id="td" value="'+arr_sub[4]+'">',
+						startDate: '<input type="text" class="form-control small default-date-picker" style="width:110px;" id="te" value="'+arr_sub[5]+'">',
+						instalMent: '<input type="text" class="form-control small" style="width:80px;" id="tf" value="'+arr_sub[6]+'">',
+						tuitionFee: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="tg" value="'+arr_sub[7]+'">',						
+						marketing: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="th" onkeyup="total_withgst_markteting();" value="">',
+						});						
+						v_sub_taxinvoice.row_nums_markteting++;
+				}
+				v_sub_taxinvoice.bind_total_markteting = 1;				
 		}		
 }
 
@@ -1069,6 +1089,7 @@ function addovstSave()
        	var billCpId = 0;
        	
        	//如果是添加bill公司,写库获取billto_id
+       	$.ajaxSettings.async = false; 
        	var b8a = $(f+"#b8a").val();		
 				if (!parseInt(b8a))
 				{
@@ -1080,7 +1101,7 @@ function addovstSave()
 		   			function(data){
 		   					if (data.code == 0)
 		   					{
-		   							billCpId = data.data.id;
+		   							billCpId = data.data;
 		   					}else
 		   					{
 		   							$(f+'#alert_error').css('marginLeft','30%');
@@ -1112,7 +1133,8 @@ function addovstSave()
        	json['billto_id'] = billCpId;       	
        	json['state'] = 'NORMAL';
        	json['branch'] = $(f+'#b1').val();
-       	json['idList'] = $(f+'#ids_ovst').val();
+       	//json['idList'] = $(f+'#ids_normal').val()+'#'+$(f+'#ids_markteting').val();
+       	json['idList'] = $(f+'#ids_normal').val();
        	json['normal'] = [];
        	var tindex = 0;       	
        	for(var i=0;i< v_sub_taxinvoice.row_nums_normal;i++)
@@ -1157,8 +1179,7 @@ function addovstSave()
 		      contentType:"application/json",
 		      dataType: 'json',
 		      data: JSON.stringify(json),
-		    }).done(function(data) {
-		    		return false;		    		
+		    }).done(function(data) {    		
 		    		if (data.code == 0)
 		   			{
 		   					//调用生成pdf接口
@@ -1181,7 +1202,8 @@ function addovstSave()
 							   					$(f+'#alert_success').css('marginTop','30%');
 							   					$(f+'#alert_success').css('marginLeft','30%');
 							   					$(f+'#alert_success').addClass('alert-success').show().delay(1500).fadeOut();
-							   					$('#addservicefee_id').modal('hide');
+							   					$('#addovst_id').modal('hide');
+							   					v.kind = 'SC';
 							   					v.getDatalist();
 							   					$('.modal-backdrop').remove();
 						    			}else

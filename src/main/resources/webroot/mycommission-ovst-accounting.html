@@ -311,12 +311,12 @@
 							</a>
 							<ul class="sub">
 								<li id="invoice_">
-									<a href="taxinvoice-list.html?state=">
+									<a href="taxinvoice-list.html?state=&type=SF">
 										Tax Invoice列表
 									</a>									
 								</li>
 								<li id="invoice_canceled">
-									<a href="taxinvoice-list.html?state=canceled">
+									<a href="taxinvoice-list.html?state=canceled&type=SF">
 										已Cancel列表
 									</a>									
 								</li>															
@@ -2261,8 +2261,15 @@
 				    ids_value.push($(this).val());
 				  });
 				  if (chk_value.length)
-				  {				  		
-				  		$("#ids_ovst",window.opener.document).val(ids_value.join(','));
+				  {
+				  		var current_tab = $("#current_tab",window.opener.document).val();
+				  		if (current_tab == 'normal')
+				  		{
+				  				$("#ids_normal",window.opener.document).val(ids_value.join(','));
+				  		}else
+				  		{
+				  				$("#ids_markteting",window.opener.document).val(ids_value.join(','));
+				  		}
 				  		window.opener.createOvstTable(chk_value.length,chk_value.join('#'));
 				  		self.close();
 				  }else
