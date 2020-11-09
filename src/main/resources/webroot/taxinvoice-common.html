@@ -54,7 +54,7 @@
 						</div>
 						<div class="form-group" style="width:100%;line-height:40px;">
 							<label class="control-label"><strong>Description</strong></label>
-							<label class="control-label" style="margin-left:20px;"><a href="javascript:import_commission();">导入数据</a></label>
+							<label class="control-label" style="margin-left:20px;"><a href="javascript:import_commission('VISA');">导入数据</a></label>
 							<table class="table table-bordered">
 		             <thead style="background-color:#efefef;">
 		                <tr>
@@ -156,7 +156,7 @@
 	      </div>
 	      <form class="cmxform form-inline" style="" name="addovst_form" id="addovst_form">
 				<div class="modal-body">						
-						<input type="hidden" name="ids" id="ids" value="" />																	
+						<input type="hidden" name="ids_ovst" id="ids_ovst" value="" />																	
 						<div class="form-group" style="width:100%;height:40px;">
 							<label class="control-label" style="width:120px;">请选择地区：<span style="color:red;">*</span></label>							
 							<select class="form-control" style="width:150px;" name="b1" id="b1"></select>
@@ -202,13 +202,13 @@
 						</div>
 						<div class="form-group" style="width:100%;line-height:40px;">
 							<label class="control-label"><strong>Description</strong></label>
-							<label class="control-label" style="margin-left:20px;"><a href="javascript:import_commission();">导入数据</a></label>
+							<label class="control-label" style="margin-left:20px;"><a href="javascript:import_commission('OVST');">导入数据</a></label>
 							<ul class="nav nav-tabs">
                 <li class="active">
-                   <a data-toggle="tab" href="#normal">Normal</a>
+                   <a data-toggle="tab" href="#normal" onclick="setTab('normal');">Normal</a>
                 </li>
                 <li class="">
-                   <a data-toggle="tab" href="#markteting">Markteting fee</a>
+                   <a data-toggle="tab" href="#markteting" onclick="setTab('markteting');">Markteting fee</a>
                 </li>                
               </ul>
               <div class="tab-content">
@@ -372,6 +372,7 @@ var v_sub_taxinvoice = new Vue({
 			bind_total: 0,
 			bind_total_normal: 0,
 			bind_total_markteting: 0,
+			current_tab: 'normal',
 		},
 		created: function() {				
 		},
@@ -429,13 +430,13 @@ var v_sub_taxinvoice = new Vue({
 						this.row_nums_normal++;
 				},
 				table_remove_normal: function (index) {
-					 var ids = $("#addovst_id #ids").val();
+					 var ids = $("#addovst_id #ids_ovst").val();
 					 if (ids != '')
 					 {
 					 		 var arr = ids.split(',');
 					 		 arr.splice(index,1);
 					 		 ids = arr.join(',');
-					 		 $("#addovst_id #ids").val(ids);
+					 		 $("#addovst_id #ids_ovst").val(ids);
 					 }
            this.subject_normal.splice(index, 1);
            this.row_nums_normal--;
@@ -465,13 +466,13 @@ var v_sub_taxinvoice = new Vue({
 						this.row_nums_markteting++;
 				},
 				table_remove_markteting: function (index) {
-					 var ids = $("#addovst_id #ids").val();
+					 var ids = $("#addovst_id #ids_ovst").val();
 					 if (ids != '')
 					 {
 					 		 var arr = ids.split(',');
 					 		 arr.splice(index,1);
 					 		 ids = arr.join(',');
-					 		 $("#addovst_id #ids").val(ids);
+					 		 $("#addovst_id #ids_ovst").val(ids);
 					 }
            this.subject_markteting.splice(index, 1);
            this.row_nums_markteting--;
@@ -628,10 +629,17 @@ function loadcompany(f)
 		}
 }
 
-function import_commission()
+function import_commission(type)
 {
+		var str_url = "mycommission-accounting.html?commission_state=YJY";
+		if (type == 'OVST') str_url = "mycommission-ovst-accounting.html?commission_state=YJY";
 		localStorage.setItem("is_select", "yes");
-		window.open("mycommission-accounting.html?commission_state=YJY","newwin","height=500, width=800, top=150, left=300, toolbar=no, menubar=no,scrollbars=no,resizable=no, location=no, status=no");
+		window.open(str_url,"newwin","height=500, width=800, top=150, left=300, toolbar=no, menubar=no,scrollbars=yes,resizable=no, location=no, status=no");
+}
+
+function setTab(name)
+{
+		v.current_tab = name;
 }
 
 function createTable(nums,str)
@@ -658,6 +666,46 @@ function createTable(nums,str)
 				v_sub_taxinvoice.row_nums++;					
 		}
 		v_sub_taxinvoice.bind_total = 1;
+}
+
+function createOvstTable(nums,str)
+{
+		var arr = new Array();
+		var arr_sub = new Array();
+		var f = '';
+		//清空表格，暂时取消
+		arr = str.split('#');
+		if (v_sub_taxinvoice.current_tab == 'normal')
+		{
+				f = '#addovst_id ';
+				for(var i=0;i < nums;i++)
+				{
+						arr_sub = arr[i].split(',');
+						var commissionrate = '';
+						if (parseFloat(arr_sub[8])) commissionrate = (Math.round((parseFloat(arr_sub[8])/parseFloat(arr_sub[7]))*100)/100)*100+'%';
+						var index = 0;				
+						if (v_sub_taxinvoice.subject_normal.length) index = v_sub_taxinvoice.subject_normal.length;						
+						var tindex = index+1;						
+						v_sub_taxinvoice.subject_normal.splice(index,0, {
+						id: index+1,									
+						studentname: '<input type="text" class="form-control small" style="" id="ta" value="'+arr_sub[1]+'">',
+						dob: '<input type="text" class="form-control small default-date-picker" style="width:110px;" id="tb" value="'+arr_sub[2]+'">',
+						studentId: '<input type="text" class="form-control small" style="width:80px;" id="tc" value="'+arr_sub[3]+'">',
+						course: '<input type="text" class="form-control small" style="width:150px;" id="td" value="'+arr_sub[4]+'">',
+						startDate: '<input type="text" class="form-control small default-date-picker" style="width:110px;" id="te" value="'+arr_sub[5]+'">',
+						instalMent: '<input type="text" class="form-control small" style="width:80px;" id="tf" value="'+arr_sub[6]+'">',
+						tuitionFee: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="tg" value="'+arr_sub[7]+'">',
+						commissionrate: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="th" value="'+commissionrate+'">',
+						commission: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="ti" onkeyup="total_withgst_normal();" value="'+arr_sub[8]+'">',
+						bonus: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="tj" onkeyup="total_withgst_normal();" value="'+arr_sub[9]+'">',
+						});						
+						v_sub_taxinvoice.row_nums_normal++;
+				}
+				v_sub_taxinvoice.bind_total_normal = 1;
+		}else if (v.current_tab == 'markteting')
+		{
+									
+		}		
 }
 
 function total_amount(type,value,parentid)
@@ -1064,7 +1112,7 @@ function addovstSave()
        	json['billto_id'] = billCpId;       	
        	json['state'] = 'NORMAL';
        	json['branch'] = $(f+'#b1').val();
-       	json['idList'] = $(f+'#ids').val();
+       	json['idList'] = $(f+'#ids_ovst').val();
        	json['normal'] = [];
        	var tindex = 0;       	
        	for(var i=0;i< v_sub_taxinvoice.row_nums_normal;i++)
@@ -1073,10 +1121,11 @@ function addovstSave()
        			json['normal'][i] = {};
        			json['normal'][i]['id'] = tindex;
        			json['normal'][i]['studentname'] = $(f+"#d"+tindex+" #ta").val();
-       			json['normal'][i]['dob'] = $(f+"#d"+tindex+" #tb").val();
+       			//日期格式转化：Y-m-d
+       			json['normal'][i]['dob'] = formatDate2($(f+"#d"+tindex+" #tb").val());
        			json['normal'][i]['studentId'] = $(f+"#d"+tindex+" #tc").val();
        			json['normal'][i]['course'] = $(f+"#d"+tindex+" #td").val();
-       			json['normal'][i]['startDate'] = $(f+"#d"+tindex+" #te").val();
+       			json['normal'][i]['startDate'] = formatDate2($(f+"#d"+tindex+" #te").val());
        			json['normal'][i]['instalMent'] = $(f+"#d"+tindex+" #tf").val();
        			json['normal'][i]['tuitionFee'] = $(f+"#d"+tindex+" #tg").val();
        			json['normal'][i]['commissionrate'] = $(f+"#d"+tindex+" #th").val();
@@ -1090,10 +1139,10 @@ function addovstSave()
        			json['marketing'][i] = {};
        			json['marketing'][i]['id'] = tindex;
        			json['marketing'][i]['studentname'] = $(f+"#dm"+tindex+" #ta").val();
-       			json['marketing'][i]['dob'] = $(f+"#dm"+tindex+" #tb").val();
+       			json['marketing'][i]['dob'] = formatDate2($(f+"#dm"+tindex+" #tb").val());
        			json['marketing'][i]['studentId'] = $(f+"#dm"+tindex+" #tc").val();
        			json['normarketingmal'][i]['course'] = $(f+"#dm"+tindex+" #td").val();
-       			json['marketing'][i]['startDate'] = $(f+"#dm"+tindex+" #te").val();
+       			json['marketing'][i]['startDate'] = formatDate2($(f+"#dm"+tindex+" #te").val());
        			json['marketing'][i]['instalMent'] = $(f+"#dm"+tindex+" #tf").val();
        			json['marketing'][i]['tuitionFee'] = $(f+"#dm"+tindex+" #tg").val();
        			json['marketing'][i]['marketing'] = $(f+"#dm"+tindex+" #th").val();       			

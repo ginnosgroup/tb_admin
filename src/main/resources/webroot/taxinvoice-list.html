@@ -926,6 +926,15 @@
 			    return   year+"-"+fixZero(month,2)+"-"+fixZero(date,2)+" "+fixZero(hour,2)+":"+fixZero(minute,2)+":"+fixZero(second,2); 
 			}
 			
+			function  formatDate2(str_date)
+			{
+			    var arr = str_date.split("/");
+			    var year = arr[2];
+			    var month = arr[1];
+			    var date = arr[0];
+			    return   year+"-"+fixZero(month,2)+"-"+fixZero(date,2)+" 00:00:00"; 
+			}
+			
 			function fixZero(num,length)
 			{     
 			    var str=""+num;
