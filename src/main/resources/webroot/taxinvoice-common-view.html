@@ -275,7 +275,7 @@
 				                   <th>Installment</th>
 				                   <th>Tuition Fee</th>				                   
 				                   <th>Marketing Bonus</th>
-				                   <th style="text-align:center;"><a  @click="table_insert_markteting"><i class="fa fa-plus-square"></i></a></th>
+				                   <th style="text-align:center;"></th>
 				                </tr>		                
 				             </thead>
 				             <tbody style="font-weight:normal;">
@@ -452,9 +452,10 @@ function invoice_view(invoiceNo,invoiceIds)
 									v_sub1_taxinvoice.subject_normal.splice(index,0, {
 										id: response.invoiceSchoolDescriptionDOS[i].id,
 										studentname: response.invoiceSchoolDescriptionDOS[i].studentname,
-										dob: response.invoiceSchoolDescriptionDOS[i].dob,
+										dob: v.getTime(response.invoiceSchoolDescriptionDOS[i].dob),
 										studentId: response.invoiceSchoolDescriptionDOS[i].studentId,
 										course: response.invoiceSchoolDescriptionDOS[i].course,
+										startDate: v.getTime(response.invoiceSchoolDescriptionDOS[i].startDate),
 										instalMent: response.invoiceSchoolDescriptionDOS[i].instalMent,								
 										tuitionFee: response.invoiceSchoolDescriptionDOS[i].tuitionFee,
 										commissionrate: response.invoiceSchoolDescriptionDOS[i].commissionrate,
@@ -476,9 +477,10 @@ function invoice_view(invoiceNo,invoiceIds)
 									v_sub1_taxinvoice.subject_markteting.splice(index,0, {
 										id: response.invoiceSchoolDescriptionDOS[i].id,
 										studentname: response.invoiceSchoolDescriptionDOS[i].studentname,
-										dob: response.invoiceSchoolDescriptionDOS[i].dob,
+										dob: v.getTime(response.invoiceSchoolDescriptionDOS[i].dob),
 										studentId: response.invoiceSchoolDescriptionDOS[i].studentId,
 										course: response.invoiceSchoolDescriptionDOS[i].course,
+										startDate: v.getTime(response.invoiceSchoolDescriptionDOS[i].startDate),
 										instalMent: response.invoiceSchoolDescriptionDOS[i].instalMent,								
 										tuitionFee: response.invoiceSchoolDescriptionDOS[i].tuitionFee,										
 										marketing: response.invoiceSchoolDescriptionDOS[i].marketing,
