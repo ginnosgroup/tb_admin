@@ -300,7 +300,6 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
             if (invoiceSchoolDO!= null){
                 InvoiceSchoolDTO invoiceSchoolDTO = mapper.map(invoiceSchoolDO, InvoiceSchoolDTO.class);
                 List<InvoiceSchoolDescriptionDO> descriptionDOS = invoiceSchoolDO.getInvoiceSchoolDescriptionDOS();
-                System.out.println(descriptionDOS.get(1).getDob());
                 if (invoiceSchoolDO.getFlag().equals("N")){
                     for(InvoiceSchoolDescriptionDO description : descriptionDOS){
                         totalGST = totalGST.add(description.getBonus());
