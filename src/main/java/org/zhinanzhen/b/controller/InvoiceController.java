@@ -418,7 +418,7 @@ public class InvoiceController  extends BaseService {
     ) throws FileNotFoundException {
 
         String fileName = ResourceUtils.getURL("classpath:").getPath();
-
+        System.out.println("fileName        "+fileName);
         Response response = invoiceService.pdfPrint(invoiceNo,invoiceIds,marketing, fileName);
 
         return response;

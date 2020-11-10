@@ -64,12 +64,16 @@ public class PrintPdfUtil {
         PDFPath = path +File.separator+ invoiceNo;
 
         //创建根目录
-        File file = new File(path, invoiceNo);
-        if (!file.exists()) {
-            file.getParentFile().mkdirs();
+        //File file = new File(path, invoiceNo);
+        //if (!file.exists()) {
+         //   file.getParentFile().mkdirs();
+        //}
+        File file = new File(PDFPath);
+        if (!file.exists()){
+            file.mkdirs();
         }
 
-        System.out.println("newPDFPath  "+PDFPath);//打印路径是不是正确的
+        System.out.println("PDFPath  "+PDFPath);//打印路径是不是正确的
 
         if (Model.equals("SF"))
             createServiceFeePdf((InvoiceServiceFeeDTO) response.getData() ,PDFPath ,realPath);
