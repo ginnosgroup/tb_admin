@@ -69,7 +69,7 @@ public class PrintPdfUtil {
         //if (!file.exists()) {
          //   file.getParentFile().mkdirs();
         //}
-        File file = new File(PDFPath);
+        File file = new File(path);
         if (!file.exists()){
             file.mkdirs();
         }
