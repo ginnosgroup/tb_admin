@@ -226,7 +226,8 @@ public class PrintPdfUtil {
             //第一列
             PdfPTable table1 = new PdfPTable(3);
             //String znzimagePath = "D:\\Program Files\\JetBrains\\IdeaDocuments\\boot1\\src\\main\\resources\\static\\img\\znz.png";
-            String znzimagePath = realPath + "img/znz.png";
+            //String znzimagePath = realPath + "img/znz.png";
+            String znzimagePath = "/data/uploads/pdfimg/znz.png";
             Image znzlogo = Image.getInstance(URLDecoder.decode(znzimagePath, "utf-8"));
             int width1[] = {20,60,20};
             table1.setWidths(width1);
@@ -941,7 +942,8 @@ public class PrintPdfUtil {
             document.open();
 
             PdfPTable table1 = new PdfPTable(3);
-            String znzimagePath = realPath + "img/znz.png";
+            //String znzimagePath = realPath + "img/znz.png";
+            String znzimagePath = "/data/uploads/pdfimg/znz.png";
             Image znzlogo = Image.getInstance(URLDecoder.decode(znzimagePath, "utf-8"));
             int width1[] = {20,60,20};
             table1.setWidths(width1);
@@ -1332,7 +1334,8 @@ public class PrintPdfUtil {
             //第一列
             PdfPTable table1 = new PdfPTable(3);
             //String znzimagePath = "D:\\Program Files\\JetBrains\\IdeaDocuments\\boot1\\src\\main\\resources\\static\\img\\znz.png";
-            String znzimagePath = realPath + "img/znz.png";
+            //String znzimagePath = realPath + "img/znz.png";
+            String znzimagePath = "/data/uploads/pdfimg/znz.png";
             Image znzlogo = Image.getInstance(URLDecoder.decode(znzimagePath, "utf-8"));
             int width1[] = {20,60,20};
             table1.setWidths(width1);
