@@ -1104,17 +1104,18 @@ function addovstSave()
 		   							billCpId = data.data;
 		   					}else
 		   					{
+		   							$(f+"#b8d")[0].focus();
 		   							$(f+'#alert_error').css('marginLeft','30%');
 						    		$(f+'#alert_error').css('marginTop','30%');
 						    		$(f+'#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
-						        $(f+'#error_info').html(data.message);
-						    		return false;
+						        $(f+'#error_info').html(data.message);						    		
 		   					}
 		   			});
 				}else
 				{
 						billCpId = b8a;
 				}
+				if (!billCpId) return false;
 				
        	var myDate = new Date();
 				var str_date = formatDate1(myDate);
@@ -1133,8 +1134,8 @@ function addovstSave()
        	json['billto_id'] = billCpId;       	
        	json['state'] = 'NORMAL';
        	json['branch'] = $(f+'#b1').val();
-       	//json['idList'] = $(f+'#ids_normal').val()+'#'+$(f+'#ids_markteting').val();
-       	json['idList'] = $(f+'#ids_normal').val();
+       	json['idList'] = $(f+'#ids_normal').val()+'#'+$(f+'#ids_markteting').val();
+       	//json['idList'] = $(f+'#ids_normal').val();
        	json['normal'] = [];
        	var tindex = 0;       	
        	for(var i=0;i< v_sub_taxinvoice.row_nums_normal;i++)
@@ -1163,7 +1164,7 @@ function addovstSave()
        			json['marketing'][i]['studentname'] = $(f+"#dm"+tindex+" #ta").val();
        			json['marketing'][i]['dob'] = formatDate2($(f+"#dm"+tindex+" #tb").val());
        			json['marketing'][i]['studentId'] = $(f+"#dm"+tindex+" #tc").val();
-       			json['normarketingmal'][i]['course'] = $(f+"#dm"+tindex+" #td").val();
+       			json['marketing'][i]['course'] = $(f+"#dm"+tindex+" #td").val();
        			json['marketing'][i]['startDate'] = formatDate2($(f+"#dm"+tindex+" #te").val());
        			json['marketing'][i]['instalMent'] = $(f+"#dm"+tindex+" #tf").val();
        			json['marketing'][i]['tuitionFee'] = $(f+"#dm"+tindex+" #tg").val();
@@ -1182,40 +1183,30 @@ function addovstSave()
 		    }).done(function(data) {    		
 		    		if (data.code == 0)
 		   			{
-		   					//调用生成pdf接口
-		   					$.ajax({
-						      url: url+'invoice/pdfPrint?invoiceNo='+json['invoiceNo']+'&invoiceIds=SC',
-						      type: 'GET',
-						    }).done(function(response){
-						    			$('#loading_id').modal('hide');
-						    			if (response.code == 0)
-						    			{
-						    					//触发下载pdf
-						    					var pdf_url = response.message;
-						    					var a = document.createElement('a');
-													a.href = url+pdf_url;
-													a.target = '_blank';
-													$("body").append(a);
-													a.click();
-													$(a).remove();
-						    					localStorage.setItem("is_select", "no");
-							   					$(f+'#alert_success').css('marginTop','30%');
-							   					$(f+'#alert_success').css('marginLeft','30%');
-							   					$(f+'#alert_success').addClass('alert-success').show().delay(1500).fadeOut();
-							   					$('#addovst_id').modal('hide');
-							   					v.kind = 'SC';
-							   					v.getDatalist();
-							   					$('.modal-backdrop').remove();
-						    			}else
-						    			{
-						    					$('#loading_id').modal('hide');
-							   					$(f+'#alert_error').css('marginTop','30%');
-							   					$(f+'#alert_error').css('marginLeft','30%');
-							   					$(f+'#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
-					          			$(f+"#error_info").html(data.message);
-						        			return false;
-						    			}
-						    });		   					
+		   					//生成normal的pdf  					
+						    if (v_sub_taxinvoice.row_nums_normal) make_pdf(f,json['invoiceNo'],'SC');
+						    //生成markteting的pdf
+						    if (v_sub_taxinvoice.row_nums_markteting)
+						    {
+						    		if (v_sub_taxinvoice.row_nums_normal)
+						    		{
+						    				make_pdf(f,data.data,'SC');
+						    		}else
+						    		{
+						    				make_pdf(f,json['invoiceNo'],'SC');
+						    		}
+						    }
+						    localStorage.setItem("is_select", "no");
+		   					$(f+'#alert_success').css('marginTop','30%');
+		   					$(f+'#alert_success').css('marginLeft','30%');
+		   					$(f+'#alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+		   					$('#addovst_id').modal('hide');
+		   					//v.kind = 'SC';
+		   					//v.getDatalist();
+		   					//$('.modal-backdrop').remove();
+		   					var go_url = 'taxinvoice-list.html?state=&type=SC';
+		   					setTimeout(function(){window.location.href = go_url;}, 1500);
+		   									    
 		   			}else
 		   			{
 		   					$('#loading_id').modal('hide');
@@ -1227,6 +1218,36 @@ function addovstSave()
 		   			}
 		    });
     }
+}
+
+function make_pdf(f,invoiceNo,type)
+{
+		//调用生成pdf接口
+		$.ajax({
+      url: url+'invoice/pdfPrint?invoiceNo='+invoiceNo+'&invoiceIds='+type,
+      type: 'GET',
+    }).done(function(response){
+    			$('#loading_id').modal('hide');
+    			if (response.code == 0)
+    			{
+    					//触发下载pdf
+    					var pdf_url = response.message;
+    					var a = document.createElement('a');
+							a.href = url+pdf_url;
+							a.target = '_blank';
+							$("body").append(a);
+							a.click();
+							$(a).remove();    					
+    			}else
+    			{
+    					$('#loading_id').modal('hide');
+	   					$(f+'#alert_error').css('marginTop','30%');
+	   					$(f+'#alert_error').css('marginLeft','30%');
+	   					$(f+'#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+        			$(f+"#error_info").html(data.message);
+        			return false;
+    			}
+    });
 }
 
 function taxinvoice_download(invoiceNo,invoiceIds)

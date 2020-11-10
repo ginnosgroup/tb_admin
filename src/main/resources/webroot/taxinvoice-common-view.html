@@ -275,7 +275,7 @@
 				                   <th>Installment</th>
 				                   <th>Tuition Fee</th>				                   
 				                   <th>Marketing Bonus</th>
-				                   <th style="text-align:center;"><a  @click="table_insert_markteting"><i class="fa fa-plus-square"></i></a></th>
+				                   <th style="text-align:center;"></th>
 				                </tr>		                
 				             </thead>
 				             <tbody style="font-weight:normal;">
@@ -289,7 +289,7 @@
 														<td v-html="item.instalMent"></td>
 														<td v-html="item.tuitionFee"></td>
 														<td v-html="item.marketing"></td>
-														<td style="text-align:center;"><a @click="table_remove_markteting($index)"><i class="fa fa-minus-square"></i></a></td>
+														<td style="text-align:center;"></td>
 				             		</tr>				                         			 
 				             </tbody>
 				          </table>
@@ -441,38 +441,46 @@ function invoice_view(invoiceNo,invoiceIds)
 		    	if (response.flag == 'N')
 		    	{
 		    			$('#show_addovst_id #li_normal').show();
-		    			$('#show_addovst_id #li_markteting').hide();				    	
+		    			$("#show_addovst_id #li_normal").addClass("active");
+		    			$("#show_addovst_id #normal").addClass("active");
+		    			$('#show_addovst_id #li_markteting').hide();
+		    			$("#show_addovst_id #li_markteting").removeClass("active");
+		    			$("#show_addovst_id #markteting").removeClass("active");
 				    	for(var i=0;i < response.invoiceSchoolDescriptionDOS.length;i++)
 				    	{
-				    			var index = 0;				
-									if (v_sub1_taxinvoice.subject_normal.length) index = v_sub1_taxinvoice.subject_normal.length;
+				    			var index = 0;
 									v_sub1_taxinvoice.subject_normal.splice(index,0, {
 										id: response.invoiceSchoolDescriptionDOS[i].id,
 										studentname: response.invoiceSchoolDescriptionDOS[i].studentname,
-										dob: response.invoiceSchoolDescriptionDOS[i].dob,
+										dob: v.getTime(response.invoiceSchoolDescriptionDOS[i].dob),
 										studentId: response.invoiceSchoolDescriptionDOS[i].studentId,
 										course: response.invoiceSchoolDescriptionDOS[i].course,
+										startDate: v.getTime(response.invoiceSchoolDescriptionDOS[i].startDate),
 										instalMent: response.invoiceSchoolDescriptionDOS[i].instalMent,								
 										tuitionFee: response.invoiceSchoolDescriptionDOS[i].tuitionFee,
 										commissionrate: response.invoiceSchoolDescriptionDOS[i].commissionrate,
 										commission: response.invoiceSchoolDescriptionDOS[i].commission,
 										bonus: response.invoiceSchoolDescriptionDOS[i].bonus,
-									});					
+									});													
 				    	}
 		    	}else
 		    	{
 		    			$('#show_addovst_id #li_normal').hide();
-		    			$('#show_addovst_id #li_markteting').show();				    	
+		    			$("#show_addovst_id #li_normal").removeClass("active");
+		    			$("#show_addovst_id #normal").removeClass("active");
+		    			$("#show_addovst_id #markteting").addClass("active");
+		    			$("#show_addovst_id #li_markteting").addClass("active");
+		    			$('#show_addovst_id #li_markteting').show();		    					    	
 				    	for(var i=0;i < response.invoiceSchoolDescriptionDOS.length;i++)
 				    	{
-				    			var index = 0;				
-									if (v_sub1_taxinvoice.subject_markteting.length) index = v_sub1_taxinvoice.subject_markteting.length;
+				    			var index = 0;
 									v_sub1_taxinvoice.subject_markteting.splice(index,0, {
 										id: response.invoiceSchoolDescriptionDOS[i].id,
 										studentname: response.invoiceSchoolDescriptionDOS[i].studentname,
-										dob: response.invoiceSchoolDescriptionDOS[i].dob,
+										dob: v.getTime(response.invoiceSchoolDescriptionDOS[i].dob),
 										studentId: response.invoiceSchoolDescriptionDOS[i].studentId,
 										course: response.invoiceSchoolDescriptionDOS[i].course,
+										startDate: v.getTime(response.invoiceSchoolDescriptionDOS[i].startDate),
 										instalMent: response.invoiceSchoolDescriptionDOS[i].instalMent,								
 										tuitionFee: response.invoiceSchoolDescriptionDOS[i].tuitionFee,										
 										marketing: response.invoiceSchoolDescriptionDOS[i].marketing,
