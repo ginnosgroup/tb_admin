@@ -1104,17 +1104,18 @@ function addovstSave()
 		   							billCpId = data.data;
 		   					}else
 		   					{
+		   							$(f+"#b8d")[0].focus();
 		   							$(f+'#alert_error').css('marginLeft','30%');
 						    		$(f+'#alert_error').css('marginTop','30%');
 						    		$(f+'#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
-						        $(f+'#error_info').html(data.message);
-						    		return false;
+						        $(f+'#error_info').html(data.message);						    		
 		   					}
 		   			});
 				}else
 				{
 						billCpId = b8a;
 				}
+				if (!billCpId) return false;
 				
        	var myDate = new Date();
 				var str_date = formatDate1(myDate);
