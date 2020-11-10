@@ -370,13 +370,13 @@ public class InvoiceController  extends BaseService {
                     if (descriptionNormal.size() == 0 ){
                         paramMap.put("flag","M");
                         result= invoiceService.saveSchoolInvoice(paramMap ,descriptionMarketing);
-                        resultrela = invoiceService.relationCommissionOrder(idList, invoiceNo);
+                        resultrela = invoiceService.relationCommissionOrder(arr2.split(","), invoiceNo);
 
                     }
                     else if (descriptionMarketing.size() == 0){
                         paramMap.put("flag","N");
                         result= invoiceService.saveSchoolInvoice(paramMap ,descriptionNormal);
-                        resultrela = invoiceService.relationCommissionOrder(idList, invoiceNo);
+                        resultrela = invoiceService.relationCommissionOrder(arr1.split(","), invoiceNo);
 
                     }else if ( descriptionNormal.size() !=  0 | descriptionMarketing.size() != 0){
                         Integer  newNum = Integer.parseInt(invoiceNo.substring(6,invoiceNo.length()-1)) + 1 ;
@@ -386,9 +386,7 @@ public class InvoiceController  extends BaseService {
                         paramMap.put("invoiceNo",newInvoiceNo);
                         paramMap.put("flag","M");
                         invoiceService.saveSchoolInvoice(paramMap,descriptionMarketing);
-                        System.out.println(Arrays.toString(arr1.split(",")));
                         resultrela = invoiceService.relationCommissionOrder(arr1.split(","), invoiceNo);
-                        System.out.println(Arrays.toString(arr2.split(",")));
                         invoiceService.relationCommissionOrder( arr2.split(","),newInvoiceNo);
                     }
 
