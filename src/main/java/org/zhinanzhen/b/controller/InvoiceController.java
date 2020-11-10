@@ -396,14 +396,12 @@ public class InvoiceController  extends BaseService {
                     }
                 }
             }
-
-
             return new Response(1 ,"fail" );
         }catch (DataAccessException ex){
-            System.out.println(ex);
+            //System.out.println(ex);
             return new Response(1 ,"参数错误" );
         }catch (Exception ex){
-            System.out.println(ex);
+            //System.out.println(ex);
             return new Response(1 ,"系统错误，请联系管理员！" );
         }
     }
