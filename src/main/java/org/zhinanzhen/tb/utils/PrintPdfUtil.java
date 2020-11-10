@@ -41,7 +41,7 @@ public class PrintPdfUtil {
 
         //得到static之后的路径
         String path = "/data/uploads/pdf/"+sdftodocument.format(Calendar.getInstance().getTime());
-
+        System.out.println("path      "+path);
         /*
         String staticpath = realPath+"static" ;//加上static
         System.out.println("staticpath   "+staticpath);
@@ -58,11 +58,12 @@ public class PrintPdfUtil {
         }
 
         String PDFPath = staticpath.replace('/', '\\').substring(1, realPath.length());*/
-        String PDFPath = path.replace('/', '\\').substring(1, realPath.length());
+        //String PDFPath = path.replace('/', '\\').substring(1, realPath.length());
+        String PDFPath = "";
         invoiceNo = invoiceNo + ".pdf";
 
         PDFPath = path +File.separator+ invoiceNo;
-
+        System.out.println("PDFPath      "+PDFPath);
         //创建根目录
         //File file = new File(path, invoiceNo);
         //if (!file.exists()) {
