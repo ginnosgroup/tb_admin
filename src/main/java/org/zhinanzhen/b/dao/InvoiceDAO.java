@@ -80,9 +80,13 @@ public interface InvoiceDAO {
 
     int insertCommissionOrderIdInInvoice(@Param("idList") String idList, @Param("invoiceNo") String invoiceNo);
 
+    int updateCommissionOrderZyDate(@Param("stateList") List<String> stateList, @Param("idList") String[] idList);
+
     List<InvoiceBillToDO> billToList();
 
     int addBillTo(@Param("company") String company,@Param("abn") String abn,@Param("address") String address);
+
+    int selectLastBillTo();
 
     int saveServiceFeeInvoice(@Param("invoiceDate")String invoiceDate, @Param("email")String email, @Param("company")String company, @Param("abn")String abn,
                               @Param("address")String address, @Param("tel")String tel, @Param("invoiceNo")String invoiceNo, @Param("note")String note,
@@ -95,7 +99,5 @@ public interface InvoiceDAO {
     boolean saveSchoolDescription(@Param("description") List<InvoiceSchoolDescriptionDO> description,@Param("invoiceNo") Object invoiceNo);
 
     List<String> selectInvoiceNo(@Param("table") String table ,@Param("invoiceNo") String invoiceNo);
-
-
 
 }

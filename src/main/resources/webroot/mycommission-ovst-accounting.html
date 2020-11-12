@@ -311,12 +311,12 @@
 							</a>
 							<ul class="sub">
 								<li id="invoice_">
-									<a href="taxinvoice-list.html?state=">
+									<a href="taxinvoice-list.html?state=&type=SF">
 										Tax Invoice列表
 									</a>									
 								</li>
 								<li id="invoice_canceled">
-									<a href="taxinvoice-list.html?state=canceled">
+									<a href="taxinvoice-list.html?state=canceled&type=SF">
 										已Cancel列表
 									</a>									
 								</li>															
@@ -461,19 +461,19 @@
 														<td @dblclick="table_edit($index,'kjApprovalDate','t4')"><span v-html="item.kjApprovalDate"></span></td>
 														<td v-html="item.receiveDate"></td>
 														<td v-html="item.userName" id="userName{{item.id}}"></td>
-														<td v-html="item.studentCode"></td>
+														<td v-html="item.studentCode" id="studentCode{{item.id}}"></td>
 														<td v-html="item.serviceName" id="serviceName{{item.id}}"></td>
 														<td v-html="item.strSettle"></td>
 														<td v-html="item.schoolName"></td>
-														<td v-html="item.schoolSubject"></td>
+														<td v-html="item.schoolSubject" id="schoolSubject{{item.id}}"></td>
 														<td v-html="item.installmentDueDate"></td>
 														<td v-html="item.receiveTypeName"></td>
-														<td v-html="item.tuitionFee"></td>
+														<td v-html="item.tuitionFee" id="tuitionFee{{item.id}}"></td>
 														<td v-html="item.perAmount"></td>
 														<td v-html="item.totalPerAmount"></td>
 														<td v-html="item.totalAmount"></td>
 														<td v-html="item.amount" id="amount{{item.id}}"></td>
-														<td v-html="item.expectAmount"></td>
+														<td v-html="item.expectAmount" id="expectAmount{{item.id}}"></td>
 														<td @dblclick="table_edit($index,'sureExpectAmount','t1')"><span v-html="item.sureExpectAmount"></span></td>
 														<td v-html="item.gst"></td>
 														<td v-html="item.deductGst"></td>
@@ -534,6 +534,8 @@
 																</dli>
 														</td>
 														<td v-html="item.strRemarks"></td>
+														<td style="display:none;" v-html="item.startDate" id="startDate{{item.id}}"></td>
+														<td style="display:none;" v-html="item.birthday" id="dob{{item.id}}"></td>
 													</tr>
 													<tr class="gradeX">
 														<td></td>
@@ -570,6 +572,8 @@
 														<td></td>
 														<td></td>
 														<td></td>
+														<td style="display:none;"></td>
+														<td style="display:none;"></td>
 													</tr>													
 												</tbody>
 											</table>
@@ -1645,9 +1649,11 @@
 				for(var i = 0; i < result.data.length; i++) {
 						var str_state = '';
 						result.data[i].oid = result.data[i].id;
-						result.data[i].strOid = '<a href="javascript:open_detail('+result.data[i].serviceOrderId+','+result.data[i].id+');" title="查看详细">'+result.data[i].id+'</a>-'+result.data[i].installmentNum;
+						result.data[i].strOid = '<a href="javascript:open_detail('+result.data[i].serviceOrderId+','+result.data[i].id+');" title="查看详细">'+result.data[i].id+'</a>-<span id="installmentNum'+result.data[i].id+'">'+result.data[i].installmentNum+'</span>';
 						if (v.is_select == 'yes') result.data[i].strOid += '<br/><input type="checkbox" name="ids[]" value="'+result.data[i].id+'" />';
 						result.data[i].gmtCreate = v.getTime(result.data[i].gmtCreate);
+						result.data[i].birthday = v.getTime(result.data[i].birthday);
+						result.data[i].startDate = v.getTime(result.data[i].startDate);
 						result.data[i].kjApprovalDate = v.getTime1(result.data[i].kjApprovalDate);
 						//result.data[i].finishDate = result.data[i].finishDate ? v.getTime(result.data[i].finishDate):'';
 						result.data[i].receiveDate = result.data[i].receiveDate ? v.getTime(result.data[i].receiveDate):'';
@@ -2249,15 +2255,22 @@
 					var chk_value = [];
 					var str = '';
 					$("#list_ovst :checked").each(function () {
-						str = $(this).val()+','+$("#list_ovst #userName"+$(this).val()).html()+','+$("#list_ovst #serviceName"+$(this).val()).html()+','+$("#list_ovst #amount"+$(this).val()).html();
-						str = removeHTMLTag(str);
+						str = $(this).val()+','+$("#list_ovst #userName"+$(this).val()).html()+','+$("#list_ovst #dob"+$(this).val()).html()+','+$("#list_ovst #studentCode"+$(this).val()).html()+','+$("#list_ovst #schoolSubject"+$(this).val()).html()+','+$("#list_ovst #startDate"+$(this).val()).html()+','+$("#list_ovst #installmentNum"+$(this).val()).html()+','+$("#list_ovst #tuitionFee"+$(this).val()).html()+','+$("#list_ovst #expectAmount"+$(this).val()).html()+','+$("#list_ovst #amount"+$(this).val()).html();
+						//str = removeHTMLTag(str);
 				    chk_value.push(str);
 				    ids_value.push($(this).val());
 				  });
 				  if (chk_value.length)
-				  {				  		
-				  		$("#ids",window.opener.document).val(ids_value.join(','));
-				  		window.opener.createTable(chk_value.length,chk_value.join('#'));
+				  {
+				  		var current_tab = $("#current_tab",window.opener.document).val();
+				  		if (current_tab == 'normal')
+				  		{
+				  				$("#ids_normal",window.opener.document).val(ids_value.join(','));
+				  		}else
+				  		{
+				  				$("#ids_markteting",window.opener.document).val(ids_value.join(','));
+				  		}
+				  		window.opener.createOvstTable(chk_value.length,chk_value.join('#'));
 				  		self.close();
 				  }else
 				  {

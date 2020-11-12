@@ -322,7 +322,7 @@
 
     <!-- school导入数据，关联订单id-->
     <update id="relationCommissionOrder" parameterType="java.lang.String">
-        update `b_commission_order` set invoice_number = #{invoiceNo} where id in
+        update `b_commission_order` set invoice_number =  concat_ws(',',invoice_number,#{invoiceNo})   where id in
         <foreach collection="idList" index="index" item="id" open="(" close=")" separator=",">
             #{id}
         </foreach>
@@ -330,6 +330,22 @@
     <update id="insertCommissionOrderIdInInvoice" >
         update  `b_invoice_school` set order_id = #{idList}  where invoice_no = #{invoiceNo}
     </update>
+    <update id="updateCommissionOrderZyDate">
+        update `b_commission_order` set zy_date = now() where commission_state = 'DZY' and is_settle = 0
+        <if test='stateList != null'>
+            AND state IN
+            <foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">
+                #{stateList}
+            </foreach>
+        </if>
+        <if test='idList != null'>
+            AND  id IN
+            <foreach collection="idList" item="id" index="index" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+    </update>
+
 
     <select id="billToList" resultType="org.zhinanzhen.b.dao.pojo.InvoiceBillToDO">
         select id,company,abn,address from `b_invoice_billto`
@@ -339,6 +355,9 @@
     <insert id="addBillTo">
         insert into `b_invoice_billto` (company,abn,address,gmt_create,gmt_modify) values  (#{company},#{abn},#{address},now(),now())
     </insert>
+    <select id="selectLastBillTo" resultType="java.lang.Integer">
+        select id from `b_invoice_billto`  order by id DESC limit 1
+    </select>
 
     <!-- save srvicefee invoice-->
     <insert id="saveServiceFeeInvoice">

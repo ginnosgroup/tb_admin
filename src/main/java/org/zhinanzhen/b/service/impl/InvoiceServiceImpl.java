@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.zhinanzhen.b.controller.BaseCommissionOrderController;
 import org.zhinanzhen.b.dao.InvoiceDAO;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.InvoiceService;
@@ -14,10 +15,7 @@ import org.zhinanzhen.b.service.pojo.InvoiceServiceFeeDTO;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.impl.BaseService;
 import org.zhinanzhen.tb.utils.PrintPdfUtil;
-
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -34,6 +32,9 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
 
     @Resource
     private InvoiceDAO invoiceDAO;
+
+    private static  SimpleDateFormat sdfdob = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
+    private static  SimpleDateFormat sdfolddob = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
     //查询invoice
     @Override
@@ -325,17 +326,32 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
         return  null;
     }
 
-    //关联留学订单id
     @Override
-    @Transactional
-    public int relationCommissionOrder(String[] idList, String invoiceNo ,String newInvoiceNo) {
+    public int selectReaplceOrderId(String[] idList, String invoiceNo) {
         List<Integer> visaIds = invoiceDAO.selectVisaId(idList,"SC");
         if (visaIds.size() != 0 ){
             return visaIds.get(0);
         }
+        return 0;
+    }
+
+
+    //关联留学订单id
+    @Override
+    @Transactional
+    public int relationCommissionOrder(String[] idList, String invoiceNo) {
+        //b_invoce_school中插入order_id
         int resulti =  invoiceDAO.insertCommissionOrderIdInInvoice(StringUtils.join(idList, ",") , invoiceNo);
-        int resultin =  invoiceDAO.insertCommissionOrderIdInInvoice(StringUtils.join(idList, ",") , newInvoiceNo);
-        int resultc = invoiceDAO.relationCommissionOrder(idList , invoiceNo + "," + newInvoiceNo);
+        //int resultin =  invoiceDAO.insertCommissionOrderIdInInvoice(StringUtils.join(idList, ",") , newInvoiceNo);
+        //b_commission_order插入invoice_no
+        int resultc = invoiceDAO.relationCommissionOrder(idList , invoiceNo);
+
+        List<String> stateList = new ArrayList<>();
+        stateList.add(BaseCommissionOrderController.ReviewKjStateEnum.REVIEW.toString());
+        stateList.add(BaseCommissionOrderController.ReviewKjStateEnum.FINISH.toString());
+        stateList.add(BaseCommissionOrderController.ReviewKjStateEnum.COMPLETE.toString());
+        stateList.add(BaseCommissionOrderController.ReviewKjStateEnum.CLOSE.toString());
+        int resultzydate = invoiceDAO.updateCommissionOrderZyDate(stateList,idList);
         if ( resulti > 0 & resultc > 0 ){
             return  -1 ;
         }
@@ -353,7 +369,18 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
 
     @Override
     public int addBillTo(String company, String abn, String address) {
+        List<InvoiceBillToDO> billToDOS = invoiceDAO.billToList();
+        for (InvoiceBillToDO billTo : billToDOS){
+            if (billTo.getCompany().equals(company))
+                return  -1;
+        }
+
         return invoiceDAO.addBillTo(company,abn,address);
+    }
+
+    @Override
+    public int selectLastBillTo() {
+        return invoiceDAO.selectLastBillTo();
     }
 
     @Override
@@ -399,10 +426,11 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
     }
 
     @Override
+    @Transactional
     public int saveSchoolInvoice(Map paramMap, List<InvoiceSchoolDescriptionDO> des) {
-        if(invoiceDAO.saveSchoolInvoice(paramMap)  && invoiceDAO.saveSchoolDescription(des, paramMap.get("invoiceNo")) )
-            return 1 ;
-        else{
+        if(  invoiceDAO.saveSchoolInvoice(paramMap) && invoiceDAO.saveSchoolDescription(des, paramMap.get("invoiceNo"))) {
+            return 1;
+        } else{
             rollback();
         }
         return 0;
@@ -418,7 +446,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
                 InvoiceServiceFeeDTO invoiceServiceFeeDTO = (InvoiceServiceFeeDTO) response.getData();
                 if (invoiceServiceFeeDTO != null) {
                     //Map<String, Object> servicefeepdfMap = JSON.parseObject(JSON.toJSONString(invoiceServiceFeeDTO), Map.class);
-                    String result = PrintPdfUtil.pdfout(invoiceNo + "_SF" + invoiceServiceFeeDTO.getId(), response, "servicefee.pdf", realpath);
+                    String result = PrintPdfUtil.pdfout(invoiceNo + "_SF" + invoiceServiceFeeDTO.getId(), response, "SF", realpath);
                     return new Response(0, result);
                 }
             }
@@ -430,25 +458,21 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
                 int companyId = invoiceSchoolDTO.getCompanyId();
                 InvoiceCompanyDTO invoiceCompanyDTO = invoiceDAO.selectCompanyById(companyId);
                 if (invoiceCompanyDTO.getSimple().equals("IES")) {
-                    String result = PrintPdfUtil.pdfout(invoiceNo + "_SC" + invoiceSchoolDTO.getId(), response, "IES.pdf", realpath);
+                    String result = PrintPdfUtil.pdfout(invoiceNo + "_SC" + invoiceSchoolDTO.getId(), response, "IES", realpath);
                     return new Response(0, result);
                 }else {
-                    if (marketing == null | marketing == "") {
-                        if (invoiceSchoolDTO != null) {
-                            //Map<String, Object> schoolpdfMap = JSON.parseObject(JSON.toJSONString(invoiceSchoolDTO), Map.class);
-                            //PrintPdfUtil.pdfout(schoolpdfMap,"");
-                            return new Response(0, invoiceSchoolDTO);
-                        }
+                    if (invoiceSchoolDTO.getFlag().equals("M")) {
+                        String result = PrintPdfUtil.pdfout(invoiceNo + "_SC" + invoiceSchoolDTO.getId(), response, "M", realpath);
+                        return new Response(0, result);
                     }
-                    if (marketing.equalsIgnoreCase("marketing")) {
-                        System.out.println(marketing+"      marketing");
-                        String result = PrintPdfUtil.pdfout(invoiceNo + "_SC" + invoiceSchoolDTO.getId(), response, "Markteting.pdf", realpath);
+                    if (invoiceSchoolDTO.getFlag().equals("N")) {
+
+                        String result = PrintPdfUtil.pdfout(invoiceNo + "_SC" + invoiceSchoolDTO.getId(), response, "N", realpath);
                         return new Response(0, result);
 
                     }
 
                 }
-                System.out.println("在这里出来");
             }
         }
         return null;

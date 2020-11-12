@@ -4,9 +4,6 @@ import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.pojo.InvoiceCompanyDTO;
 import org.zhinanzhen.b.service.pojo.InvoiceDTO;
 import org.zhinanzhen.tb.controller.Response;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map;
 
@@ -41,9 +38,13 @@ public interface InvoiceService {
     //查询一个invoice
     Response selectInvoiceByNo(String invoiceNo, String invoiceIds, String marketing);
 
-    int relationCommissionOrder(String[] idList, String invoiceNo , String newInvoiceNo);
+    int selectReaplceOrderId(String[] idList, String invoiceNo);
+
+    int relationCommissionOrder(String[] idList, String invoiceNo);
 
     int addBillTo(String company, String abn, String address);
+
+    int selectLastBillTo();
 
     boolean selectInvoiceNo(String invoiceNo ,String table);
 

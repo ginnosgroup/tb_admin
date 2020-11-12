@@ -36,7 +36,7 @@ public class InvoiceSchoolDescriptionDO {
     private BigDecimal bonus;
 
     //佣金率
-    private BigDecimal commissionrate;
+    private String commissionrate;
 
     //佣金
     private BigDecimal commission;
