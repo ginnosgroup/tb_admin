@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.zhinanzhen.b.controller.BaseCommissionOrderController;
 import org.zhinanzhen.b.dao.InvoiceDAO;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.InvoiceService;
@@ -344,6 +345,13 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
         //int resultin =  invoiceDAO.insertCommissionOrderIdInInvoice(StringUtils.join(idList, ",") , newInvoiceNo);
         //b_commission_order插入invoice_no
         int resultc = invoiceDAO.relationCommissionOrder(idList , invoiceNo);
+
+        List<String> stateList = new ArrayList<>();
+        stateList.add(BaseCommissionOrderController.ReviewKjStateEnum.REVIEW.toString());
+        stateList.add(BaseCommissionOrderController.ReviewKjStateEnum.FINISH.toString());
+        stateList.add(BaseCommissionOrderController.ReviewKjStateEnum.COMPLETE.toString());
+        stateList.add(BaseCommissionOrderController.ReviewKjStateEnum.CLOSE.toString());
+        int resultzydate = invoiceDAO.updateCommissionOrderZyDate(stateList,idList);
         if ( resulti > 0 & resultc > 0 ){
             return  -1 ;
         }
