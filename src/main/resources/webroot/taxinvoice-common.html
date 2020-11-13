@@ -368,13 +368,14 @@ var v_sub_taxinvoice = new Vue({
 			subject_markteting: [],
 			invoices: [],
 			bill_company: [],
+			billto_add: 0,
 			row_nums: 0,
 			row_nums_normal: 0,
 			row_nums_markteting: 0,
 			bind_total: 0,
 			bind_total_normal: 0,
 			bind_total_markteting: 0,
-			current_tab: 'normal',
+			current_tab: 'normal',			
 		},
 		created: function() {				
 		},
@@ -552,6 +553,7 @@ function addovst()
   	$("#addovst_id #label_b8d").hide();
   	v_sub_taxinvoice.subject_normal = [];
   	v_sub_taxinvoice.row_nums_normal = 0;
+  	v_sub_taxinvoice.billto_add = 0;
 		v_sub_taxinvoice.addovst_id = 1;
 }
 
@@ -1089,31 +1091,35 @@ function addovstSave()
        	var billCpId = 0;
        	
        	//如果是添加bill公司,写库获取billto_id
-       	$.ajaxSettings.async = false; 
-       	var b8a = $(f+"#b8a").val();		
-				if (!parseInt(b8a))
-				{
-						var billto_json = {};
-						billto_json['company'] = $(f+"#b8d").val();
-						billto_json['abn'] = $(f+"#b8b").val();
-						billto_json['address'] = $(f+"#b8c").val();
-						$.post(str_url1, billto_json,
-		   			function(data){
-		   					if (data.code == 0)
-		   					{
-		   							billCpId = data.data;
-		   					}else
-		   					{
-		   							$(f+"#b8d")[0].focus();
-		   							$(f+'#alert_error').css('marginLeft','30%');
-						    		$(f+'#alert_error').css('marginTop','30%');
-						    		$(f+'#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
-						        $(f+'#error_info').html(data.message);						    		
-		   					}
-		   			});
-				}else
-				{
-						billCpId = b8a;
+       	if (!v_sub_taxinvoice.billto_add)
+       	{
+		       	$.ajaxSettings.async = false; 
+		       	var b8a = $(f+"#b8a").val();		
+						if (!parseInt(b8a))
+						{
+								var billto_json = {};
+								billto_json['company'] = $(f+"#b8d").val();
+								billto_json['abn'] = $(f+"#b8b").val();
+								billto_json['address'] = $(f+"#b8c").val();
+								$.post(str_url1, billto_json,
+				   			function(data){
+				   					if (data.code == 0)
+				   					{
+				   							billCpId = data.data;
+				   							v_sub_taxinvoice.billto_add = 1;
+				   					}else
+				   					{
+				   							$(f+"#b8d")[0].focus();
+				   							$(f+'#alert_error').css('marginLeft','30%');
+								    		$(f+'#alert_error').css('marginTop','30%');
+								    		$(f+'#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+								        $(f+'#error_info').html(data.message);						    		
+				   					}
+				   			});
+						}else
+						{
+								billCpId = b8a;
+						}
 				}
 				if (!billCpId) return false;
 				
