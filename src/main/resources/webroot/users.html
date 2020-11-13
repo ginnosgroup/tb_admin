@@ -375,7 +375,7 @@
 												<input v-model.trim="phone" type="text" class="form-control" placeholder="输入手机号码">
 												<select v-if="ap_list==='SUPERAD' || (ap_list==='GW' && gw_regionid !== 'null')" v-model.trim="adviserId" id="adviserId" class="form-control" style="width:130px;"></select>
 												<input v-model.trim="wechatUsername" type="text" class="form-control" placeholder="输入客户微信号">
-												<select v-model.trim="tagId" id="tagId" class="form-control">
+												<select v-model.trim="tagId" id="tagId" class="form-control" style="display:none;">
 												<option value="" selected="true">请选择标签</option>
 												</select>
 											</div>
@@ -774,7 +774,7 @@
 							phone: that.phone,
 							adviserId: that.adviserId,
 							wechatUsername: that.wechatUsername,
-							tagId: that.tagId
+							//tagId: that.tagId
 						}, function(result) {
 							console.log(result)
 							that.count = result.data;
@@ -786,7 +786,7 @@
 							phone: that.phone,
 							adviserId: that.adviserId,
 							wechatUsername: that.wechatUsername,
-							tagId: that.tagId,
+							//tagId: that.tagId,
 							pageNum: 0,
 							pageSize: that.pageSize
 						}, function(result) {
@@ -907,7 +907,7 @@
 								phone: that.phone,
 								adviserId: that.adviserId,
 								wechatUsername: that.wechatUsername,
-								tagId: that.tagId,
+								//tagId: that.tagId,
 								pageNum: 0,
 								pageSize: that.pageSize
 							}, function(result) {
@@ -927,7 +927,7 @@
 								phone: that.phone,
 								adviserId: that.adviserId,
 								wechatUsername: that.wechatUsername,
-								tagId: that.tagId,
+								//tagId: that.tagId,
 								pageNum: that.pageNum,
 								pageSize: that.pageSize
 							}, function(result) {
@@ -946,7 +946,7 @@
 								phone: that.phone,
 								adviserId: that.adviserId,
 								wechatUsername: that.wechatUsername,
-								tagId: that.tagId,
+								//tagId: that.tagId,
 								pageNum: that.pageNum,
 								pageSize: that.pageSize
 							}, function(result) {
@@ -964,7 +964,7 @@
 								phone: that.phone,
 								adviserId: that.adviserId,
 								wechatUsername: that.wechatUsername,
-								tagId: that.tagId,
+								//tagId: that.tagId,
 								pageNum: that.allPage - 1,
 								pageSize: that.pageSize
 							}, function(result) {
@@ -990,7 +990,7 @@
 								phone: that.phone,
 								adviserId: that.adviserId,
 								wechatUsername: that.wechatUsername,
-								tagId: that.tagId,
+								//tagId: that.tagId,
 								pageNum: that.pageNum,
 								pageSize: that.pageSize
 							}, function(result) {

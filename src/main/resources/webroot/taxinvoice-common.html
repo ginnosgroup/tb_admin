@@ -548,6 +548,17 @@ function addservicefee_visa(ids,userName,serviceName,amount)
 function addovst()
 {
 		$('#addovst_id').modal('show');
+		//重置数据
+		$('#addovst_id #addservicefee_form')[0].reset();
+		$("#addovst_id #b2a").html('');
+  	$("#addovst_id #b3").html('');
+  	$("#addovst_id #b3a").html('');
+  	$("#addovst_id #b3b").html('');
+  	$("#addovst_id #b4a").html('');
+  	$("#addovst_id #b4b").html('');
+  	$("#addovst_id #b5a").html('');
+  	$("#addovst_id #b5b").html('');
+  	$("#addovst_id #b5c").html('');  	
 		$("#addovst_id #b6a").html('0.00');
   	$("#addovst_id #b6b").html('0.00');
   	$("#addovst_id #label_b8d").hide();
