@@ -368,7 +368,7 @@ var v_sub_taxinvoice = new Vue({
 			subject_markteting: [],
 			invoices: [],
 			bill_company: [],
-			billto_add: 0,
+			billCpId: 0,
 			row_nums: 0,
 			row_nums_normal: 0,
 			row_nums_markteting: 0,
@@ -564,7 +564,7 @@ function addovst()
   	$("#addovst_id #label_b8d").hide();
   	v_sub_taxinvoice.subject_normal = [];
   	v_sub_taxinvoice.row_nums_normal = 0;
-  	v_sub_taxinvoice.billto_add = 0;
+  	v_sub_taxinvoice.billCpId = 0;
 		v_sub_taxinvoice.addovst_id = 1;
 }
 
@@ -1102,7 +1102,7 @@ function addovstSave()
        	var billCpId = 0;
        	
        	//如果是添加bill公司,写库获取billto_id
-       	if (!v_sub_taxinvoice.billto_add)
+       	if (!parseInt(v_sub_taxinvoice.billCpId))
        	{
 		       	$.ajaxSettings.async = false; 
 		       	var b8a = $(f+"#b8a").val();		
@@ -1117,7 +1117,7 @@ function addovstSave()
 				   					if (data.code == 0)
 				   					{
 				   							billCpId = data.data;
-				   							v_sub_taxinvoice.billto_add = 1;
+				   							v_sub_taxinvoice.billCpId = billCpId;
 				   					}else
 				   					{
 				   							$(f+"#b8d")[0].focus();
@@ -1131,8 +1131,11 @@ function addovstSave()
 						{
 								billCpId = b8a;
 						}
+				}else
+				{
+						billCpId = v_sub_taxinvoice.billCpId;
 				}
-				if (!billCpId) return false;
+				if (!billCpId) return false;				
 				
        	var myDate = new Date();
 				var str_date = formatDate1(myDate);
