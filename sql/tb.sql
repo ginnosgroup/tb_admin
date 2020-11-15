@@ -770,7 +770,7 @@ CREATE TABLE `b_invoice_billto` (
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='Bill to 的时候选择的 Company';
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COMMENT='Bill to 的时候选择的 Company';
 
 
 -- 各地区的简写
@@ -810,11 +810,12 @@ CREATE TABLE `b_invoice_school` (
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `order_id` varchar(20) DEFAULT NULL COMMENT '对应订单id',
   `email` varchar(128) NOT NULL COMMENT '公司邮箱',
+  `company_id` int(11) DEFAULT NULL COMMENT '对应 invoice_company.id',
   `company` varchar(100) NOT NULL COMMENT '公司名称',
   `abn` varchar(20) NOT NULL COMMENT 'ABN',
   `address` varchar(50) NOT NULL COMMENT '公司地址',
   `tel` varchar(20) NOT NULL COMMENT '公司电话',
-  `invoice_no` varchar(12) DEFAULT NULL COMMENT '税务发票编号',
+  `invoice_no` varchar(20) DEFAULT NULL COMMENT '税务发票编号',
   `billto_id` int(11) DEFAULT NULL COMMENT '对应 b_invoice_billto.id  ，付款公司',
   `note` varchar(255) DEFAULT NULL COMMENT '备注NOTE',
   `accountname` varchar(100) NOT NULL COMMENT 'Account Name  账户名字',
@@ -822,23 +823,25 @@ CREATE TABLE `b_invoice_school` (
   `accountno` varchar(10) NOT NULL COMMENT 'Account Name 账号',
   `state` varchar(10) NOT NULL COMMENT '状态 NORMAL:正常 CANCELED:取消',
   `branch` varchar(10) DEFAULT NULL COMMENT 'branch 地区',
+  `flag` varchar(10) DEFAULT NULL COMMENT '标识是normal还是mark',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='Service Fee 税务的模板';
+) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8 COMMENT='Service Fee 税务的模板';
 
 -- 留学税务模板里面的 description
 DROP TABLE IF EXISTS `b_invoice_school_description`;
 CREATE TABLE `b_invoice_school_description` (
-  `id` int(11) NOT NULL COMMENT '主键',
+  `id` int(11) unsigned NOT NULL COMMENT '主键',
   `studentname` varchar(50) NOT NULL COMMENT '学生姓名',
   `dob` datetime NOT NULL COMMENT '出生日期',
   `student_id` int(11) NOT NULL COMMENT '对应学生ID',
-  `course` varchar(11) NOT NULL COMMENT '课程',
+  `course` varchar(200) NOT NULL COMMENT '课程',
   `startDate` datetime NOT NULL COMMENT '课程开始时时间',
   `instalment` varchar(50) NOT NULL COMMENT '机构名称',
-  `tuitionfee` decimal(10,2) NOT NULL COMMENT '学费',
-  `bonus` decimal(10,2) NOT NULL COMMENT '奖金',
-  `commissionrate` decimal(4,2) NOT NULL COMMENT '佣金率',
-  `commission` decimal(10,2) NOT NULL COMMENT '佣金',
+  `tuitionfee` decimal(10,2) DEFAULT '0.00' COMMENT '学费',
+  `bonus` decimal(10,2) DEFAULT '0.00' COMMENT '奖金',
+  `commissionrate` varchar(10) DEFAULT '0' COMMENT '佣金率',
+  `commission` decimal(10,2) DEFAULT '0.00' COMMENT '佣金',
+  `marketing_bonus` decimal(11,2) DEFAULT '0.00' COMMENT '专属市场bonus',
   `description_id` int(11) DEFAULT NULL COMMENT '对应 b_invoice_school_description.id , 对应description信息',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
@@ -855,9 +858,9 @@ CREATE TABLE `b_invoice_servicefee` (
   `email` varchar(128) NOT NULL COMMENT '公司邮箱',
   `company` varchar(100) NOT NULL COMMENT '公司名称',
   `abn` varchar(20) NOT NULL COMMENT 'ABN',
-  `address` varchar(50) NOT NULL COMMENT '公司地址',
+  `address` varchar(128) NOT NULL COMMENT '公司地址',
   `tel` varchar(20) NOT NULL COMMENT '公司电话',
-  `invoice_no` varchar(12) DEFAULT NULL COMMENT '税务发票编号',
+  `invoice_no` varchar(20) DEFAULT NULL COMMENT '税务发票编号',
   `note` varchar(255) DEFAULT NULL COMMENT '备注NOTE',
   `accountname` varchar(100) NOT NULL COMMENT 'Account Name  账户名字',
   `bsb` varchar(10) NOT NULL COMMENT 'BSB',
@@ -866,17 +869,17 @@ CREATE TABLE `b_invoice_servicefee` (
   `order_id` varchar(20) DEFAULT NULL COMMENT '对应佣金订单id',
   `branch` varchar(10) DEFAULT NULL COMMENT 'branch 地区',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COMMENT='Service Fee 税务的模板';
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='Service Fee 税务的模板';
 
 -- serviceFee 税务里面的 description
 DROP TABLE IF EXISTS `b_invoice_servicefee_description`;
 CREATE TABLE `b_invoice_servicefee_description` (
   `id` int(11) NOT NULL COMMENT '编号',
-  `description` varchar(50) NOT NULL COMMENT '客服姓名+f服务项目；中间空格',
-  `unit_price` decimal(10,2) NOT NULL COMMENT '本次收款',
+  `description` varchar(100) NOT NULL COMMENT '客服姓名+f服务项目；中间空格',
+  `unit_price` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '本次收款',
   `quantity` int(2) NOT NULL COMMENT '收款次数，默认为1',
-  `amount` decimal(10,2) NOT NULL COMMENT 'unit_price * quantity',
-  `invoice_no` varchar(12) DEFAULT NULL COMMENT '税务发票编号 （对应b_invoice表中的invoice_no）',
+  `amount` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT 'unit_price * quantity',
+  `invoice_no` varchar(20) DEFAULT NULL COMMENT '税务发票编号 （对应b_invoice表中的invoice_no）',
   `servicefee_id` int(11) DEFAULT NULL COMMENT '对应  b_invoice_servicefee.id  ',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',

@@ -248,7 +248,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
 
     //查询一个invoice
     @Override
-    public Response selectInvoiceByNo(String invoiceNo, String invoiceIds ,String marketing) {
+    public Response selectInvoiceByNo(String invoiceNo, String invoiceIds ) {
         if(invoiceIds.substring(0,2).equals("SF")) {
             BigDecimal totalGST = new BigDecimal("0");
             BigDecimal GST = new BigDecimal("0");
@@ -438,15 +438,15 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
 
     //保存pdf到文件夹中
     @Override
-    public Response pdfPrint(String invoiceNo, String invoiceIds, String marketing, String realpath) {
+    public Response pdfPrint(String invoiceNo, String invoiceIds, String realpath ,boolean canceled) {
 
-        Response response = selectInvoiceByNo(invoiceNo, invoiceIds, marketing);
+        Response response = selectInvoiceByNo(invoiceNo, invoiceIds);
         if (response != null) {
             if (invoiceIds.substring(0, 2).equals("SF")) {
                 InvoiceServiceFeeDTO invoiceServiceFeeDTO = (InvoiceServiceFeeDTO) response.getData();
                 if (invoiceServiceFeeDTO != null) {
                     //Map<String, Object> servicefeepdfMap = JSON.parseObject(JSON.toJSONString(invoiceServiceFeeDTO), Map.class);
-                    String result = PrintPdfUtil.pdfout(invoiceNo + "_SF" + invoiceServiceFeeDTO.getId(), response, "SF", realpath);
+                    String result = PrintPdfUtil.pdfout(invoiceNo + "_SF" + invoiceServiceFeeDTO.getId(), response, "SF", realpath ,canceled);
                     return new Response(0, result);
                 }
             }
@@ -458,16 +458,16 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
                 int companyId = invoiceSchoolDTO.getCompanyId();
                 InvoiceCompanyDTO invoiceCompanyDTO = invoiceDAO.selectCompanyById(companyId);
                 if (invoiceCompanyDTO.getSimple().equals("IES")) {
-                    String result = PrintPdfUtil.pdfout(invoiceNo + "_SC" + invoiceSchoolDTO.getId(), response, "IES", realpath);
+                    String result = PrintPdfUtil.pdfout(invoiceNo + "_SC" + invoiceSchoolDTO.getId(), response, "IES", realpath ,canceled);
                     return new Response(0, result);
                 }else {
                     if (invoiceSchoolDTO.getFlag().equals("M")) {
-                        String result = PrintPdfUtil.pdfout(invoiceNo + "_SC" + invoiceSchoolDTO.getId(), response, "M", realpath);
+                        String result = PrintPdfUtil.pdfout(invoiceNo + "_SC" + invoiceSchoolDTO.getId(), response, "M", realpath ,canceled);
                         return new Response(0, result);
                     }
                     if (invoiceSchoolDTO.getFlag().equals("N")) {
 
-                        String result = PrintPdfUtil.pdfout(invoiceNo + "_SC" + invoiceSchoolDTO.getId(), response, "N", realpath);
+                        String result = PrintPdfUtil.pdfout(invoiceNo + "_SC" + invoiceSchoolDTO.getId(), response, "N", realpath ,canceled);
                         return new Response(0, result);
 
                     }
@@ -477,6 +477,26 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
         }
         return null;
 
+    }
+
+    @Override
+    @Transactional
+    public int updateSFInvoice(Map paramMap) {
+        String invoiceNo = (String) paramMap.get("invoiceNo");
+        invoiceDAO.deleteDesc(invoiceNo,"SF");
+        List<InvoiceServiceFeeDescriptionDO> description = (List<InvoiceServiceFeeDescriptionDO>) paramMap.get("description");
+        invoiceDAO.saveServiceFeeDescription(description,invoiceNo);
+        return invoiceDAO.updateSFInvoice(paramMap);
+    }
+
+    @Override
+    @Transactional
+    public int updateSCInvoice(Map paramMap) {
+        String invoiceNo = (String) paramMap.get("invoiceNo");
+        invoiceDAO.deleteDesc(invoiceNo,"SC");
+        List<InvoiceSchoolDescriptionDO> description = (List<InvoiceSchoolDescriptionDO>) paramMap.get("description");
+        invoiceDAO.saveSchoolDescription(description,invoiceNo);
+        return invoiceDAO.updateSCInvoice(paramMap);
     }
 
 }

@@ -100,4 +100,10 @@ public interface InvoiceDAO {
 
     List<String> selectInvoiceNo(@Param("table") String table ,@Param("invoiceNo") String invoiceNo);
 
+    int updateSFInvoice(Map paramMap);
+
+    int deleteDesc(@Param("invoiceNo") String invoiceNo, @Param("flag") String flag);
+
+    int updateSCInvoice(Map paramMap);
+
 }

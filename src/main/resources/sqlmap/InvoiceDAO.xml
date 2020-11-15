@@ -143,13 +143,13 @@
 
     <!-- 更改invoice状态-->
     <update id="updateSFState">
-        update `b_invoice_servicefee` set state ="CANCELED" where invoice_no = #{invoiceNo}
+        update `b_invoice_servicefee` set state ="CANCELED" , order_id = null where invoice_no = #{invoiceNo}
     </update>
     <update id="updateVisaInvoiceNumberNull">
         update `b_visa` set invoice_number = null where invoice_number = #{invoiceNo} ;
     </update>
     <update id="updateSCState">
-        update `b_invoice_school` set state ="CANCELED" where invoice_no = #{invoiceNo}
+        update `b_invoice_school` set state ="CANCELED" , order_id = null where invoice_no = #{invoiceNo}
     </update>
     <update id="updateCommissionOrderInvoiceNumberNull">
         update `b_commission_order` set invoice_number = null where invoice_number = #{invoiceNo} ;
@@ -404,4 +404,26 @@
         where invoice_no = #{invoiceNo} ;
     </select>
 
+    <!-- 更改invoice -->
+    <update id="updateSFInvoice" parameterType="java.util.Map">
+        update  `b_invoice_servicefee` set gmt_modify = now() ,email = #{email},company = #{company} ,abn = #{abn},address = #{address},tel = #{tel},note = #{note},
+        accountname = #{accountname},bsb = #{bsb},accountno =#{accountno},branch = #{branch}  where invoice_no = #{invoiceNo}
+    </update>
+    <delete id="deleteDesc">
+        delete from
+        <choose>
+            <when test="flag=='SF'">
+            `b_invoice_servicefee_description`
+            </when>
+            <when test="flag=='SC'">
+                `b_invoice_school_description`
+            </when>
+        </choose>
+        where  invoice_no = #{invoiceNo}
+    </delete>
+
+    <update id="updateSCInvoice">
+       update  `b_invoice_school` set gmt_modify = now(),email = #{email} , company_id = #{companyId},company = #{company}, abn= #{abn},address=#{address},tel=#{tel},
+       billto_id=#{billto_id},note=#{note},accountname=#{accountname},bsb=#{bsb},accountno=#{accountno},branch = #{branch} where invoice_no =#{invoiceNo};
+    </update>
 </mapper>

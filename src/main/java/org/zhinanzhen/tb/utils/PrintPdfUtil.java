@@ -34,20 +34,19 @@ public class PrintPdfUtil {
     static SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
     static SimpleDateFormat dobsdf = new SimpleDateFormat("dd/MM/yyyy ");
 
-    public static String pdfout(String invoiceNo ,Response response , String Model , String realPath ) {
+    private static Watermark watermark = new Watermark();
 
-        //SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+    public static String pdfout(String invoiceNo ,Response response , String Model , String realPath ,boolean canceled ) {
+
         SimpleDateFormat sdftodocument = new SimpleDateFormat("yyyyMM");
 
+        /*
         //得到static之后的路径
         String path = "/data/upload/pdf/"+sdftodocument.format(Calendar.getInstance().getTime());
 
         String staticpath = realPath+"static" ;//加上static
+
         staticpath = staticpath + path;
-
-        // 模板路径
-        String templatePath = Model;      //"servicefee.pdf";
-
         try {
             //去掉空格  D:\Program%20Files
             staticpath = URLDecoder.decode(staticpath, "utf-8");
@@ -66,145 +65,40 @@ public class PrintPdfUtil {
         if (!file.exists()) {
             file.getParentFile().mkdirs();
         }
+        */
+
+        String uploadsPath = "/uploads/pdf/"+sdftodocument.format(Calendar.getInstance().getTime());
+
+        String path = "/data"+uploadsPath;
+
+        //这里是生成在/data/uploads 下面
+        invoiceNo = invoiceNo + ".pdf";
+
+        String PDFPath = path +File.separator+ invoiceNo;
+
+        //创建根目录
+        File file = new File(PDFPath, invoiceNo);
+        if (!file.exists()) {
+            file.getParentFile().mkdirs();
+        }
+
+
 
         System.out.println("newPDFPath  "+PDFPath);//打印路径是不是正确的
 
+
+
+
         if (Model.equals("SF"))
-            createServiceFeePdf((InvoiceServiceFeeDTO) response.getData() ,PDFPath ,realPath);
+            createServiceFeePdf((InvoiceServiceFeeDTO) response.getData() ,PDFPath ,realPath , canceled);
         else if (Model.equals("IES"))
-            createIESPdf((InvoiceSchoolDTO) response.getData() ,PDFPath ,realPath);
+            createIESPdf((InvoiceSchoolDTO) response.getData() ,PDFPath ,realPath , canceled);
         else if (Model.equals("M"))
-            createMarkPdf((InvoiceSchoolDTO) response.getData() ,PDFPath ,realPath);
+            createMarkPdf((InvoiceSchoolDTO) response.getData() ,PDFPath ,realPath , canceled);
         else if (Model.equals("N"))
-            createNorPdf((InvoiceSchoolDTO) response.getData() ,PDFPath ,realPath);
+            createNorPdf((InvoiceSchoolDTO) response.getData() ,PDFPath ,realPath , canceled);
 
-
-        /*
-        PdfReader reader;
-        FileOutputStream out;
-        ByteArrayOutputStream bos;
-        PdfStamper stamper;
-        PdfPTable table = null;
-        try {
-            //BaseFont bf = BaseFont.createFont("C:/WINDOWS/Fonts/SIMYOU.TTF", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
-            BaseFont bf = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H",BaseFont.NOT_EMBEDDED);
-            reader = new PdfReader(templatePath);// 读取pdf模板
-            out = new FileOutputStream(newPDFPath);// 输出流
-            bos = new ByteArrayOutputStream();
-            stamper = new PdfStamper(reader, bos);
-
-            AcroFields form = stamper.getAcroFields();
-            form.addSubstitutionFont(bf);
-
-            if (pdfModel.equals("servicefee.pdf")) {
-                InvoiceServiceFeeDTO invoiceServiceFeeDTO = (InvoiceServiceFeeDTO) response.getData();
-                Map<Object, Object> map = JSON.parseObject(JSON.toJSONString(invoiceServiceFeeDTO), Map.class);
-                for (Object key : map.keySet()) {
-                    form.setField(key.toString(), map.get(key).toString());
-                    if (key.equals("invoiceDate")) {
-                        form.setField(key.toString(), sdf.format(invoiceServiceFeeDTO.getInvoiceDate()));
-                    }
-                }
-                List<InvoiceServiceFeeDescriptionDO> invoiceServiceFeeDescriptionDOList = invoiceServiceFeeDTO.getInvoiceServiceFeeDescriptionDOList();
-                int index = 1;
-                for (InvoiceServiceFeeDescriptionDO description : invoiceServiceFeeDescriptionDOList) {
-                    form.setField("id" + index, description.getId() + "");
-                    form.setField("description" + index, description.getDescription());
-                    form.setField("unitPrice" + index, description.getUnitPrice().toString());
-                    form.setField("quantity" + index, description.getQuantity() + "");
-                    form.setField("amount" + index, description.getAmount().toString());
-                    index++;
-                }
-            }
-            if (pdfModel.equals("IES.pdf")) {
-                //InvoiceSchoolDTO invoiceSchoolDTO = JSON.parseObject(JSON.toJSONString(map), InvoiceSchoolDTO.class);
-                InvoiceSchoolDTO invoiceSchoolDTO = (InvoiceSchoolDTO) response.getData();
-                Map<Object, Object> map = JSON.parseObject(JSON.toJSONString(invoiceSchoolDTO), Map.class);
-                for (Object key : map.keySet()) {
-                    form.setField(key.toString(), map.get(key).toString());
-                    if (key.equals("invoiceDate")) {
-                        form.setField(key.toString(), sdf.format(invoiceSchoolDTO.getInvoiceDate()));
-                    }
-                }
-                form.setField("billCompany",invoiceSchoolDTO.getInvoiceBillToDO().getCompany());
-                form.setField("billAbn",invoiceSchoolDTO.getInvoiceBillToDO().getAbn());
-                form.setField("billAddress",invoiceSchoolDTO.getInvoiceBillToDO().getAddress());
-                List<InvoiceSchoolDescriptionDO> invoiceSchoolDescriptionDOS = invoiceSchoolDTO.getInvoiceSchoolDescriptionDOS();
-                int index = 1;
-                for (InvoiceSchoolDescriptionDO descriptionDO : invoiceSchoolDescriptionDOS) {
-                    form.setField("id" + index, descriptionDO.getId() + "");
-                    form.setField("studentname" + index, descriptionDO.getStudentname());
-                    form.setField("dob" + index, sdf.format(descriptionDO.getDob()));
-                    form.setField("studentId" + index, descriptionDO.getStudentId() + "");
-                    form.setField("course" + index, descriptionDO.getCourse());
-                    form.setField("startDate" + index, sdf.format(descriptionDO.getStartDate()));
-                    form.setField("tuitionFee" + index, descriptionDO.getTuitionFee().toString());
-                    form.setField("commissionrate" + index, descriptionDO.getCommissionrate().toString());
-                    form.setField("commission" + index, descriptionDO.getCommission().toString());
-                    form.setField("bonus" + index, descriptionDO.getBonus().toString());
-                    form.setField("instalMent" + index, descriptionDO.getInstalMent());
-                    index ++ ;
-                }
-            }
-            if (pdfModel.equals("Markteting.pdf")) {
-                //InvoiceSchoolDTO invoiceSchoolDTO = JSON.parseObject(JSON.toJSONString(map), InvoiceSchoolDTO.class);
-                InvoiceSchoolDTO invoiceSchoolDTO = (InvoiceSchoolDTO) response.getData();
-                Map<Object, Object> map = JSON.parseObject(JSON.toJSONString(invoiceSchoolDTO), Map.class);
-                for (Object key : map.keySet()) {
-                    form.setField(key.toString(), map.get(key).toString());
-                    if (key.equals("invoiceDate")) {
-                        form.setField(key.toString(), sdf.format(invoiceSchoolDTO.getInvoiceDate()));
-                    }
-                }
-                form.setField("billCompany",invoiceSchoolDTO.getInvoiceBillToDO().getCompany());
-                form.setField("billAbn",invoiceSchoolDTO.getInvoiceBillToDO().getAbn());
-                form.setField("billAddress",invoiceSchoolDTO.getInvoiceBillToDO().getAddress());
-                List<InvoiceSchoolDescriptionDO> invoiceSchoolDescriptionDOS = invoiceSchoolDTO.getInvoiceSchoolDescriptionDOS();
-                Document document = new Document(PageSize.A4);
-                //PdfWriter writer =  PdfWriter.getInstance(document, new FileOutputStream(newPDFPath));
-                //table = createTable(stamper.getWriter());
-                int index = 1;
-                for (InvoiceSchoolDescriptionDO descriptionDO : invoiceSchoolDescriptionDOS) {
-                    form.setField("id" + index, descriptionDO.getId() + "");
-                    form.setField("studentname" + index, descriptionDO.getStudentname());
-                    form.setField("dob" + index, sdf.format(descriptionDO.getDob()));
-                    form.setField("studentId" + index, descriptionDO.getStudentId() + "");
-                    form.setField("course" + index, descriptionDO.getCourse());
-                    form.setField("startDate" + index, sdf.format(descriptionDO.getStartDate()));
-                    form.setField("tuitionFee" + index, descriptionDO.getTuitionFee().toString());
-                    form.setField("commissionrate" + index, descriptionDO.getCommissionrate().toString());
-                    form.setField("commission" + index, descriptionDO.getCommission().toString());
-                    form.setField("bonus" + index, descriptionDO.getBonus().toString());
-                    form.setField("instalMent" + index, descriptionDO.getInstalMent());
-                    index ++ ;
-                }
-            }
-
-
-
-            stamper.flush();
-            stamper.setFormFlattening(true);// 如果为false，生成的PDF文件可以编辑，如果为true，生成的PDF文件不可以编辑
-            stamper.close();
-
-            Document doc = new Document();
-            Font font = new Font(bf, 4);
-            PdfCopy copy = new PdfCopy(doc, out);
-            doc.open();
-            PdfImportedPage importPage = copy.getImportedPage(new PdfReader(bos.toByteArray()), 1);
-            copy.addPage(importPage);
-            doc.add(table);
-            doc.close();
-
-        } catch (IOException e) {
-            System.out.println(e);
-            return "系统错误！";
-        } catch (DocumentException e) {
-            System.out.println(e);
-            return "系统错误！";
-        }
-         */
-
-        return path+"/"+invoiceNo;
+        return "/statics"+uploadsPath+"/"+invoiceNo;
 
     }
 
@@ -212,20 +106,23 @@ public class PrintPdfUtil {
      * servicefee pdf 模板
      * @param invoiceServiceFeeDTO
      */
-    public static void createServiceFeePdf(InvoiceServiceFeeDTO invoiceServiceFeeDTO , String pdfpath ,String realPath){
+    public static void createServiceFeePdf(InvoiceServiceFeeDTO invoiceServiceFeeDTO , String pdfpath ,String realPath ,boolean canceled){
 
 
         try {
             Document document = new Document(PageSize.A4.rotate());
             //PdfWriter.getInstance(document, new FileOutputStream("E:\\Helloworld.PDF"));
-            PdfWriter.getInstance(document, new FileOutputStream(pdfpath));
+            PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(pdfpath));
             PdfPCell nullcell = new PdfPCell();
             nullcell.setBorder(0);
             document.open();
 
+            if (canceled == true)
+            watermark.onEndPage(writer,document);
+
             //第一列
             PdfPTable table1 = new PdfPTable(3);
-            //String znzimagePath = "D:\\Program Files\\JetBrains\\IdeaDocuments\\boot1\\src\\main\\resources\\static\\img\\znz.png";
+            //String znzimagePath = "/data/uploads/adviser_img/1505966408725_logo.png";
             //String znzimagePath = realPath + "img/znz.png";
             String znzimagePath = "/data/uploads/pdfimg/znz.png";
             Image znzlogo = Image.getInstance(URLDecoder.decode(znzimagePath, "utf-8"));
@@ -524,6 +421,7 @@ public class PrintPdfUtil {
             table18.addCell(nullcell);
             document.add(table18);
 
+
             document.close();
 
         } catch (DocumentException e) {
@@ -539,16 +437,18 @@ public class PrintPdfUtil {
     /**
      * IES 留学专用模板
      */
-    public static void createIESPdf(InvoiceSchoolDTO invoiceSchoolDTO , String pdfpath ,String realPath){
+    public static void createIESPdf(InvoiceSchoolDTO invoiceSchoolDTO, String pdfpath, String realPath, boolean canceled){
         try {
 
             Document document = new Document(PageSize.A4.rotate());
-            PdfWriter.getInstance(document, new FileOutputStream(pdfpath));
+            PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(pdfpath));
 
             PdfPCell nullcell = new PdfPCell();
             nullcell.setBorder(0);
             document.open();
 
+            if (canceled == true)
+                watermark.onEndPage(writer,document);
 
             //第二列
             PdfPTable table2 = new PdfPTable(3);
@@ -931,17 +831,21 @@ public class PrintPdfUtil {
     /**
      * mark市场模板
      */
-    public static void createMarkPdf(InvoiceSchoolDTO invoiceSchoolDTO , String pdfpath ,String realPath){
+    public static void createMarkPdf(InvoiceSchoolDTO invoiceSchoolDTO, String pdfpath, String realPath, boolean canceled){
         try {
 
             Document document = new Document(PageSize.A4.rotate());
-            PdfWriter.getInstance(document, new FileOutputStream(pdfpath));
+            PdfWriter writer =  PdfWriter.getInstance(document, new FileOutputStream(pdfpath));
 
             PdfPCell nullcell = new PdfPCell();
             nullcell.setBorder(0);
             document.open();
 
+            if (canceled == true)
+                watermark.onEndPage(writer,document);
+
             PdfPTable table1 = new PdfPTable(3);
+            //String znzimagePath = "/data/uploads/adviser_img/1505966408725_logo.png";
             //String znzimagePath = realPath + "img/znz.png";
             String znzimagePath = "/data/uploads/pdfimg/znz.png";
             Image znzlogo = Image.getInstance(URLDecoder.decode(znzimagePath, "utf-8"));
@@ -1321,19 +1225,22 @@ public class PrintPdfUtil {
     /**
      * Normal 留学专用模板
      */
-    public static void createNorPdf(InvoiceSchoolDTO invoiceSchoolDTO , String pdfpath ,String realPath){
+    public static void createNorPdf(InvoiceSchoolDTO invoiceSchoolDTO, String pdfpath, String realPath, boolean canceled){
         try {
 
             Document document = new Document(PageSize.A4.rotate());
-            PdfWriter.getInstance(document, new FileOutputStream(pdfpath));
+            PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(pdfpath));
 
             PdfPCell nullcell = new PdfPCell();
             nullcell.setBorder(0);
             document.open();
 
+            if (canceled == true)
+                watermark.onEndPage(writer,document);
+
             //第一列
             PdfPTable table1 = new PdfPTable(3);
-            //String znzimagePath = "D:\\Program Files\\JetBrains\\IdeaDocuments\\boot1\\src\\main\\resources\\static\\img\\znz.png";
+            //String znzimagePath = "/data/uploads/adviser_img/1505966408725_logo.png";;
             //String znzimagePath = realPath + "img/znz.png";
             String znzimagePath = "/data/uploads/pdfimg/znz.png";
             Image znzlogo = Image.getInstance(URLDecoder.decode(znzimagePath, "utf-8"));

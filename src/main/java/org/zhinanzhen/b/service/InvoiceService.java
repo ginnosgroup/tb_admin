@@ -36,7 +36,7 @@ public interface InvoiceService {
     //导入数据的时候关联订单Id
     int relationVisaOrder(String[] idList, String invoiceNo);
     //查询一个invoice
-    Response selectInvoiceByNo(String invoiceNo, String invoiceIds, String marketing);
+    Response selectInvoiceByNo(String invoiceNo, String invoiceIds);
 
     int selectReaplceOrderId(String[] idList, String invoiceNo);
 
@@ -56,6 +56,9 @@ public interface InvoiceService {
 
     List<InvoiceBillToDO> billToList();
 
-    Response pdfPrint(String invoiceNo, String invoiceIds, String marketing, String realpath);
+    Response pdfPrint(String invoiceNo, String invoiceIds, String realpath,boolean canceled);
 
+    int updateSFInvoice(Map paramMap);
+
+    int updateSCInvoice(Map paramMap);
 }

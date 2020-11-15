@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.controller;
 
+import com.ikasoa.core.utils.StringUtil;
 import org.dozer.DozerBeanMapper;
 import org.dozer.Mapper;
 import org.springframework.dao.DataAccessException;
@@ -11,6 +12,7 @@ import org.zhinanzhen.b.service.InvoiceService;
 import org.zhinanzhen.b.service.pojo.InvoiceCompanyDTO;
 import org.zhinanzhen.b.service.pojo.InvoiceCompanyIdNameDTO;
 import org.zhinanzhen.b.service.pojo.InvoiceDTO;
+import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.impl.BaseService;
 import javax.annotation.Resource;
@@ -31,7 +33,7 @@ import java.util.*;
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/invoice")
-public class InvoiceController  extends BaseService {
+public class InvoiceController  extends BaseController {
 
     private Mapper mapper = new DozerBeanMapper();
 
@@ -93,11 +95,19 @@ public class InvoiceController  extends BaseService {
                                 @RequestParam(value = "invoiceIds")String invoiceIds ){
 
         int result = invoiceService.updateState(invoiceNo,invoiceIds);
+        String fileName = null;
+        try {
+            fileName = ResourceUtils.getURL("classpath:").getPath();
+            invoiceService.pdfPrint(invoiceNo,invoiceIds, fileName,true);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return new Response(1,"error");
+        }
         if (result>0){
-            return new Response(0,"更改成功");
+            return new Response(0,"success");
         }
 
-        return new Response(1,"更改失败");
+        return new Response(1,"fail");
     }
 
     //查询一个invoice
@@ -106,9 +116,11 @@ public class InvoiceController  extends BaseService {
     public Response selectInvoiecByNo(
             @RequestParam(value = "invoiceNo" ,required = true)String invoiceNo,
             @RequestParam(value = "invoiceIds" , required = true)String invoiceIds ,
-            @RequestParam(value = "marketing" ,required = false) String marketing
+            @RequestParam(value = "marketing" ,required = false) String marketing,
+            HttpServletRequest req, HttpServletResponse res
     ){
-        Response response = invoiceService.selectInvoiceByNo(invoiceNo,invoiceIds,marketing);
+        super.setPostHeader(res);
+        Response response = invoiceService.selectInvoiceByNo(invoiceNo,invoiceIds);
 
         return response;
     }
@@ -239,7 +251,22 @@ public class InvoiceController  extends BaseService {
 
     }
 
-
+    //更改invoice
+    @RequestMapping(value = "/update" , method = RequestMethod.POST )
+    @ResponseBody
+    public Response update(@RequestBody Map paramMap){
+        int result = 0;
+        if (StringUtil.isNotEmpty((String) paramMap.get("billto_id"))) {
+            System.out.println("SC");
+            result =  invoiceService.updateSCInvoice(paramMap);
+        }else if (StringUtil.isEmpty((String)paramMap.get("billto_id"))){
+            System.out.println("SF");
+            result =  invoiceService.updateSFInvoice(paramMap);
+        }
+        if (result>0)
+            return  new Response(0,"success");
+        return new Response(0,"fail");
+    }
 
 
     //添加School 中的查询 companyTile
@@ -419,7 +446,7 @@ public class InvoiceController  extends BaseService {
 
         String fileName = ResourceUtils.getURL("classpath:").getPath();
         System.out.println("fileName        "+fileName);
-        Response response = invoiceService.pdfPrint(invoiceNo,invoiceIds,marketing, fileName);
+        Response response = invoiceService.pdfPrint(invoiceNo,invoiceIds, fileName,false);
 
         return response;
 
