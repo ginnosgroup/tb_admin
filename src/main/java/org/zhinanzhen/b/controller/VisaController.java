@@ -69,7 +69,7 @@ public class VisaController extends BaseCommissionOrderController {
 	public Response<String> uploadImage(@RequestParam MultipartFile file, HttpServletRequest request,
 			HttpServletResponse response) throws IllegalStateException, IOException {
 		super.setPostHeader(response);
-		return super.upload2(file, request.getSession(), "/uploads/payment_voucher_image_url/");
+		return super.upload2(file, request.getSession(), "/uploads/payment_voucher_image_url_v/");
 	}
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
@@ -90,6 +90,7 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "receivable") String receivable,
 			@RequestParam(value = "received", required = false) String received,
 			@RequestParam(value = "perAmount") String perAmount, @RequestParam(value = "amount") String amount,
+			@RequestParam(value = "invoiceNumber") String invoiceNumber,
 			@RequestParam(value = "adviserId") String adviserId, @RequestParam(value = "maraId") String maraId,
 			@RequestParam(value = "officialId") String officialId,
 			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
@@ -170,6 +171,8 @@ public class VisaController extends BaseCommissionOrderController {
 				return new Response<List<VisaDTO>>(1,
 						"本次应收款(" + visaDto.getPerAmount() + ")不能小于本次已收款(" + visaDto.getAmount() + ")!", null);
 			visaDto.setDiscount(visaDto.getPerAmount() - visaDto.getAmount());
+			if (StringUtil.isNotEmpty(invoiceNumber))
+				visaDto.setInvoiceNumber(invoiceNumber);
 			if (StringUtil.isNotEmpty(adviserId)) {
 				visaDto.setAdviserId(StringUtil.toInt(adviserId));
 			}
@@ -251,6 +254,7 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "perAmount", required = false) String perAmount,
 			@RequestParam(value = "amount", required = false) String amount,
 			@RequestParam(value = "sureExpectAmount", required = false) Double sureExpectAmount,
+			@RequestParam(value = "invoiceNumber") String invoiceNumber,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
 			@RequestParam(value = "maraId", required = false) String maraId,
 			@RequestParam(value = "officialId", required = false) String officialId,
@@ -338,6 +342,8 @@ public class VisaController extends BaseCommissionOrderController {
 				return new Response<VisaDTO>(1, "本次应收款(" + _perAmount + ")不能小于本次已收款(" + visaDto.getAmount() + ")!",
 						null);
 			visaDto.setDiscount(_perAmount - visaDto.getAmount());
+			if (StringUtil.isNotEmpty(invoiceNumber))
+				visaDto.setInvoiceNumber(invoiceNumber);
 			if (StringUtil.isNotEmpty(adviserId)) {
 				visaDto.setAdviserId(StringUtil.toInt(adviserId));
 			}

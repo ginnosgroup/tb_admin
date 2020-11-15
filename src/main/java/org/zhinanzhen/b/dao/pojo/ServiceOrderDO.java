@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.dao.pojo;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import org.zhinanzhen.b.service.pojo.ServiceDTO;
@@ -7,7 +8,9 @@ import org.zhinanzhen.b.service.pojo.ServiceDTO;
 import lombok.Data;
 
 @Data
-public class ServiceOrderDO {
+public class ServiceOrderDO implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private int id;
 

@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class VisaListDO extends VisaDO {
+	
+	private static final long serialVersionUID = 1L;
 
 	@Getter
 	@Setter

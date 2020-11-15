@@ -73,7 +73,18 @@ public class UserServiceImpl extends BaseService implements UserService {
 		userDo.setVisaExpirationDate(visaExpirationDate);
 		userDo.setSource(source);
 		userDo.setAdviserId(adviserId);
-		userDo.setRegionId(regionId);
+		if (regionId > 0)
+			userDo.setRegionId(regionId);
+		else {
+			AdviserDTO adviserDto = adviserService.getAdviserById(adviserId);
+			if (adviserDto != null)
+				userDo.setRegionId(adviserDto.getRegionId());
+			else {
+				ServiceException se = new ServiceException("The adviser is not exist : " + adviserId);
+				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+				throw se;
+			}
+		}
 		return userDao.addUser(userDo) > 0 ? userDo.getId() : 0;
 	}
 

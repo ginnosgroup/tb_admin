@@ -1,11 +1,15 @@
 package org.zhinanzhen.b.dao.pojo;
 
+import java.io.Serializable;
+
 import lombok.Data;
 import lombok.ToString;;
 
 @Data
 @ToString
-public class SubjectSettingDO {
+public class SubjectSettingDO implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 	
 	private int id;
 	
