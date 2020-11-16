@@ -1518,7 +1518,7 @@ function addnewService1Save()
     
     if (check_result)
     {            	            	            	                             
-       	var str_url = url + "serviceOrder/add";    		  		
+       	var str_url = url + "serviceOrder/add";	
        	var json = {};       
        	if (v.orderId != 0)
        	{
@@ -1633,11 +1633,11 @@ function addnewService2Save()
     
     if (check_result)
     {    		      	            	            	                             
-       	var str_url = "serviceOrder/add";    		  		
+       	var str_url = url + "serviceOrder/add";    		  		
        	var json = {};
        	if (v.orderId != 0)
        	{
-       			str_url = "serviceOrder/update";
+       			str_url = url + "serviceOrder/update";
        			json['id'] = v.orderId;
        	}
        	             	
