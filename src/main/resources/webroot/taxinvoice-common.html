@@ -1272,7 +1272,7 @@ function make_pdf(f,invoiceNo,type)
 
 function taxinvoice_download(invoiceNo,invoiceIds)
 {
-		var down_url = url+'data/upload/pdf/'+invoiceNo.substring(0,6)+'/'+invoiceNo+'_'+invoiceIds+'.pdf';
+		var down_url = '/statics/uploads/pdf/'+invoiceNo.substring(0,6)+'/'+invoiceNo+'_'+invoiceIds+'.pdf';
 		var a = document.createElement('a');
 		a.href = down_url;
 		a.target = '_blank';
