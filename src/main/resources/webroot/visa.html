@@ -1203,7 +1203,7 @@
 			    	cache: false,
 			    	customValue: 'name',
 			    	customLabel: 'name',
-			    	source: 'user/list?authNickname=&phone=&pageNum=0&adviserId='+this.adviser_id,
+			    	source: url + 'user/list?authNickname=&phone=&pageNum=0&adviserId='+this.adviser_id,
 			    	combine: function(params) {
 			    		return {
 				        name: params.query,
@@ -1225,7 +1225,7 @@
 			    	cache: false,
 			    	customValue: 'name',
 			    	customLabel: 'name',
-			    	source: 'user/list?authNickname=&phone=&pageNum=0&adviserId='+this.adviser_id,
+			    	source: url + 'user/list?authNickname=&phone=&pageNum=0&adviserId='+this.adviser_id,
 			    	combine: function(params) {
 			    		return {
 				        name: params.query,
