@@ -82,7 +82,7 @@ public class PrintPdfUtil {
             file.getParentFile().mkdirs();
         }
 
-
+        System.out.println("path  "+path);
 
         System.out.println("newPDFPath  "+PDFPath);//打印路径是不是正确的
 
