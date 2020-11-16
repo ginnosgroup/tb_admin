@@ -10,17 +10,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.controller.BaseCommissionOrderController.CommissionStateEnum;
 import org.zhinanzhen.b.dao.CommissionOrderDAO;
+import org.zhinanzhen.b.dao.SchoolAttachmentsDAO;
 import org.zhinanzhen.b.dao.SchoolDAO;
 import org.zhinanzhen.b.dao.SchoolSettingDAO;
 import org.zhinanzhen.b.dao.SubagencyDAO;
 import org.zhinanzhen.b.dao.SubjectSettingDAO;
 import org.zhinanzhen.b.dao.pojo.CommissionOrderListDO;
+import org.zhinanzhen.b.dao.pojo.SchoolAttachmentsDO;
 import org.zhinanzhen.b.dao.pojo.SchoolDO;
 import org.zhinanzhen.b.dao.pojo.SchoolSettingDO;
 import org.zhinanzhen.b.dao.pojo.SubagencyDO;
 import org.zhinanzhen.b.dao.pojo.SubjectSettingDO;
 import org.zhinanzhen.b.service.SchoolService;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
+import org.zhinanzhen.b.service.pojo.SchoolAttachmentsDTO;
 import org.zhinanzhen.b.service.pojo.SchoolDTO;
 import org.zhinanzhen.b.service.pojo.SchoolSettingDTO;
 import org.zhinanzhen.b.service.pojo.SubjectSettingDTO;
@@ -35,6 +38,9 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 
 	@Resource
 	private SchoolDAO schoolDao;
+	
+	@Resource
+	private SchoolAttachmentsDAO schoolAttachmentsDao;
 
 	@Resource
 	private SchoolSettingDAO schoolSettingDao;
@@ -97,6 +103,33 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	}
 
 	@Override
+	public int updateSchoolAttachments(String name, String contractFile1, String contractFile2, String contractFile3,
+			String remarks) throws ServiceException {
+		try {
+			if (schoolDao.list2(name, null).size() == 0) {
+				ServiceException se = new ServiceException(StringUtil.merge("学校'", name, "'不存在!"));
+				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+				throw se;
+			}
+			List<SchoolAttachmentsDO> list = schoolAttachmentsDao.listBySchoolName(name);
+			SchoolAttachmentsDO schoolAttachmentsDo = new SchoolAttachmentsDO();
+			if (list.size() > 0)
+				schoolAttachmentsDo = list.get(0);
+			schoolAttachmentsDo.setSchoolName(name);
+			schoolAttachmentsDo.setContractFile1(contractFile1);
+			schoolAttachmentsDo.setContractFile2(contractFile2);
+			schoolAttachmentsDo.setContractFile3(contractFile3);
+			schoolAttachmentsDo.setRemarks(remarks);
+			return list.size() > 0 ? schoolAttachmentsDao.updateSchoolAttachments(schoolAttachmentsDo)
+					: schoolAttachmentsDao.addSchoolAttachments(schoolAttachmentsDo);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
 	public List<SchoolDTO> list(String name) throws ServiceException {
 		List<SchoolDTO> schoolDtoList = new ArrayList<SchoolDTO>();
 		List<SchoolDO> schoolDoList = new ArrayList<SchoolDO>();
@@ -111,6 +144,9 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		}
 		for (SchoolDO schoolDo : schoolDoList) {
 			SchoolDTO schoolDto = mapper.map(schoolDo, SchoolDTO.class);
+			List<SchoolAttachmentsDO> saList = schoolAttachmentsDao.listBySchoolName(schoolDto.getName());
+			if (saList != null && saList.size() > 0)
+				schoolDto.setSchoolAttachments(mapper.map(saList.get(0), SchoolAttachmentsDTO.class));
 			schoolDtoList.add(schoolDto);
 		}
 		return schoolDtoList;
@@ -131,6 +167,9 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		}
 		for (SchoolDO schoolDo : schoolDoList) {
 			SchoolDTO schoolDto = mapper.map(schoolDo, SchoolDTO.class);
+			List<SchoolAttachmentsDO> saList = schoolAttachmentsDao.listBySchoolName(schoolDto.getName());
+			if (saList != null && saList.size() > 0)
+				schoolDto.setSchoolAttachments(mapper.map(saList.get(0), SchoolAttachmentsDTO.class));
 			schoolDtoList.add(schoolDto);
 		}
 		return schoolDtoList;
@@ -152,6 +191,9 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		}
 		for (SchoolDO schoolDo : schoolDoList) {
 			SchoolDTO schoolDto = mapper.map(schoolDo, SchoolDTO.class);
+			List<SchoolAttachmentsDO> saList = schoolAttachmentsDao.listBySchoolName(schoolDto.getName());
+			if (saList != null && saList.size() > 0)
+				schoolDto.setSchoolAttachments(mapper.map(saList.get(0), SchoolAttachmentsDTO.class));
 			schoolDtoList.add(schoolDto);
 		}
 		return schoolDtoList;
@@ -273,10 +315,12 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		SchoolDTO schoolDto = null;
 		try {
 			SchoolDO schoolDo = schoolDao.getSchoolById(id);
-			if (schoolDo == null) {
+			if (schoolDo == null)
 				return null;
-			}
 			schoolDto = mapper.map(schoolDo, SchoolDTO.class);
+			List<SchoolAttachmentsDO> saList = schoolAttachmentsDao.listBySchoolName(schoolDto.getName());
+			if (saList != null && saList.size() > 0)
+				schoolDto.setSchoolAttachments(mapper.map(saList.get(0), SchoolAttachmentsDTO.class));
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
@@ -293,7 +337,12 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 			throw se;
 		}
 		try {
-			return schoolDao.deleteSchoolById(id);
+			SchoolDO schoolDo = schoolDao.getSchoolById(id);
+			if (schoolDo != null) {
+				schoolAttachmentsDao.deleteBySchoolName(schoolDo.getName());
+				return schoolDao.deleteSchoolById(id);
+			} else
+				return 0;
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
@@ -309,6 +358,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 			throw se;
 		}
 		try {
+			schoolAttachmentsDao.deleteBySchoolName(name);
 			return schoolDao.deleteSchoolByName(name);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
@@ -316,7 +366,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 			throw se;
 		}
 	}
-	
+
 	private List<SchoolSettingDTO> buildSchoolSettingList(List<SchoolDO> schoolDoList) {
 		List<SchoolSettingDTO> schoolSettingDtoList = new ArrayList<SchoolSettingDTO>();
 		if (schoolDoList == null || schoolDoList.size() == 0)
@@ -333,9 +383,13 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 			schoolSettingDto = mapper.map(schoolSettingDo, SchoolSettingDTO.class);
 			if (id > 0) {
 				schoolSettingDto.setCount(commissionOrderDao.countCommissionOrderBySchoolId(id));
-				if (commissionOrderDao.sumTuitionFeeBySchoolId(id) != null)
-					schoolSettingDto.setAmount(commissionOrderDao.sumTuitionFeeBySchoolId(id));
+				Double stf = commissionOrderDao.sumTuitionFeeBySchoolId(id);
+				if (stf != null)
+					schoolSettingDto.setAmount(stf);
 			}
+			List<SchoolAttachmentsDO> saList = schoolAttachmentsDao.listBySchoolName(schoolSettingDto.getSchoolName());
+			if (saList != null && saList.size() > 0)
+				schoolSettingDto.setSchoolAttachments(mapper.map(saList.get(0), SchoolAttachmentsDTO.class));
 			schoolSettingDtoList.add(schoolSettingDto);
 		});
 		return schoolSettingDtoList;
@@ -576,16 +630,22 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	private void updateGST(CommissionOrderListDO co) {
 		SubagencyDO subagencyDo = subagencyDao.getSubagencyById(co.getSubagencyId());
 		if (subagencyDo != null) {
-			co.setExpectAmount(co.getCommission() * subagencyDo.getCommissionRate() * 1.1);
-			System.out.println(co.getId() + "预收业绩=学校设置计算金额[" + co.getCommission() + "]*subagencyRate["
-					+ subagencyDo.getCommissionRate() + "]*1.1=" + co.getExpectAmount());
+			if ("AU".equals(subagencyDo.getCountry())) {
+				co.setExpectAmount(co.getCommission() * subagencyDo.getCommissionRate() * 1.1);
+				System.out.println(co.getId() + "(澳洲)预收业绩=学校设置计算金额[" + co.getCommission() + "]*subagencyRate["
+						+ subagencyDo.getCommissionRate() + "]*1.1=" + co.getExpectAmount());
+			} else {
+				co.setExpectAmount(co.getCommission() * subagencyDo.getCommissionRate());
+				System.out.println(co.getId() + "(非澳洲)预收业绩=学校设置计算金额[" + co.getCommission() + "]*subagencyRate["
+						+ subagencyDo.getCommissionRate() + "]=" + co.getExpectAmount());
+			}
 		} else {
 			co.setExpectAmount(co.getCommission() * 1.1);
 			System.out.println(co.getId() + "预收业绩=学校设置计算金额[" + co.getCommission() + "]*1.1=" + co.getExpectAmount());
 		}
 		double expectAmount = co.getSureExpectAmount() > 0 ? co.getSureExpectAmount() : co.getExpectAmount();
 		System.out.println(co.getId() + "确认预收业绩=" + co.getSureExpectAmount());
-		if ("AU".equals(subagencyDo.getCountry())) {
+		if (subagencyDo != null && "AU".equals(subagencyDo.getCountry())) {
 			co.setGst(expectAmount / 11);
 			System.out.println(co.getId() + "GST=预收业绩[" + expectAmount + "]/11=" + expectAmount);
 			co.setDeductGst(expectAmount - co.getGst());

@@ -1,11 +1,14 @@
 package org.zhinanzhen.b.dao.pojo;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import lombok.Data;
 
 @Data
-public class VisaDO {
+public class VisaDO implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private int id;
 
@@ -60,6 +63,8 @@ public class VisaDO {
 	private double sureExpectAmount;
 
 	private double discount;
+	
+	private String invoiceNumber;
 
 	private double gst;
 

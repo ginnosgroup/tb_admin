@@ -1,9 +1,13 @@
 package org.zhinanzhen.b.dao.pojo;
 
+import java.io.Serializable;
+
 import lombok.Data;
 
 @Data
-public class SchoolAttachmentsDO {
+public class SchoolAttachmentsDO implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private int id;
 
@@ -15,6 +19,6 @@ public class SchoolAttachmentsDO {
 
 	private String contractFile3;
 
-	private String remarks;
+	private String remarks = "";
 
 }

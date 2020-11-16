@@ -7,6 +7,8 @@ import lombok.Setter;
 
 public class CommissionOrderListDO extends CommissionOrderDO {
 
+	private static final long serialVersionUID = 1L;
+
 	@Getter
 	@Setter
 	private int serviceOrderId;

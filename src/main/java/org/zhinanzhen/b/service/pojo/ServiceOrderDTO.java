@@ -138,6 +138,8 @@ public class ServiceOrderDTO {
 	private boolean hasCommissionOrder = false;
 
 	private ServiceOrderReviewDTO review;
+	
+	private OfficialTagDTO officialTag;
 
 	private List<ServiceOrderReviewDTO> reviews;
 

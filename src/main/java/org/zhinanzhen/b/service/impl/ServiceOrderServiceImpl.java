@@ -12,6 +12,7 @@ import org.zhinanzhen.b.dao.CommissionOrderDAO;
 import org.zhinanzhen.b.dao.KjDAO;
 import org.zhinanzhen.b.dao.MaraDAO;
 import org.zhinanzhen.b.dao.OfficialDAO;
+import org.zhinanzhen.b.dao.OfficialTagDAO;
 import org.zhinanzhen.b.dao.ReceiveTypeDAO;
 import org.zhinanzhen.b.dao.SchoolDAO;
 import org.zhinanzhen.b.dao.ServiceDAO;
@@ -24,6 +25,7 @@ import org.zhinanzhen.b.dao.SubagencyDAO;
 import org.zhinanzhen.b.dao.VisaDAO;
 import org.zhinanzhen.b.dao.pojo.MaraDO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
+import org.zhinanzhen.b.dao.pojo.OfficialTagDO;
 import org.zhinanzhen.b.dao.pojo.ReceiveTypeDO;
 import org.zhinanzhen.b.dao.pojo.SchoolDO;
 import org.zhinanzhen.b.dao.pojo.ServiceDO;
@@ -38,6 +40,7 @@ import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderOfficialRemarksDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
 import org.zhinanzhen.b.service.pojo.ServicePackageDTO;
+import org.zhinanzhen.b.service.pojo.OfficialTagDTO;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
@@ -59,6 +62,7 @@ import org.zhinanzhen.b.service.pojo.SubagencyDTO;
 import org.zhinanzhen.b.service.pojo.ReceiveTypeDTO;
 
 import com.ikasoa.core.ErrorCodeEnum;
+import com.ikasoa.core.utils.StringUtil;
 
 @Service("ServiceOrderService")
 public class ServiceOrderServiceImpl extends BaseService implements ServiceOrderService {
@@ -107,6 +111,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	
 	@Resource
 	private ServiceOrderOfficialRemarksDAO serviceOrderOfficialRemarksDao;
+	
+	@Resource
+	private OfficialTagDAO officialTagDao;
 
 	@Resource
 	private VisaDAO visaDao;
@@ -174,21 +181,23 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	}
 
 	@Override
-	public int countServiceOrder(String type, String excludeState, List<String> stateList, String auditingState, List<String> reviewStateList,
-			String startMaraApprovalDate, String endMaraApprovalDate, String startOfficialApprovalDate,
-			String endOfficialApprovalDate, List<Integer> regionIdList, Integer userId, Integer maraId,
-			Integer adviserId, Integer officialId, int parentId, boolean isNotApproved) throws ServiceException {
-		return serviceOrderDao.countServiceOrder(type, excludeState, stateList, auditingState, reviewStateList, startMaraApprovalDate,
-				endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate, regionIdList, userId, maraId,
-				adviserId, officialId, parentId, isNotApproved);
+	public int countServiceOrder(String type, String excludeState, List<String> stateList, String auditingState,
+			List<String> reviewStateList, String startMaraApprovalDate, String endMaraApprovalDate,
+			String startOfficialApprovalDate, String endOfficialApprovalDate, List<Integer> regionIdList,
+			Integer userId, Integer maraId, Integer adviserId, Integer officialId, Integer officialTagId, int parentId,
+			boolean isNotApproved) throws ServiceException {
+		return serviceOrderDao.countServiceOrder(type, excludeState, stateList, auditingState, reviewStateList,
+				startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate,
+				regionIdList, userId, maraId, adviserId, officialId, officialTagId, parentId, isNotApproved);
 	}
 
 	@Override
-	public List<ServiceOrderDTO> listServiceOrder(String type, String excludeState, List<String> stateList, String auditingState,
-			List<String> reviewStateList, String startMaraApprovalDate, String endMaraApprovalDate,
-			String startOfficialApprovalDate, String endOfficialApprovalDate, List<Integer> regionIdList,
-			Integer userId, Integer maraId, Integer adviserId, Integer officialId, int parentId, boolean isNotApproved,
-			int pageNum, int pageSize) throws ServiceException {
+	public List<ServiceOrderDTO> listServiceOrder(String type, String excludeState, List<String> stateList,
+			String auditingState, List<String> reviewStateList, String startMaraApprovalDate,
+			String endMaraApprovalDate, String startOfficialApprovalDate, String endOfficialApprovalDate,
+			List<Integer> regionIdList, Integer userId, Integer maraId, Integer adviserId, Integer officialId,
+			Integer officialTagId, int parentId, boolean isNotApproved, int pageNum, int pageSize)
+			throws ServiceException {
 		List<ServiceOrderDTO> serviceOrderDtoList = new ArrayList<ServiceOrderDTO>();
 		List<ServiceOrderDO> serviceOrderDoList = new ArrayList<ServiceOrderDO>();
 		if (pageNum < 0)
@@ -198,8 +207,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		try {
 			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, excludeState, stateList, auditingState,
 					reviewStateList, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
-					endOfficialApprovalDate, regionIdList, userId, maraId, adviserId, officialId, parentId,
-					isNotApproved, pageNum * pageSize, pageSize);
+					endOfficialApprovalDate, regionIdList, userId, maraId, adviserId, officialId, officialTagId,
+					parentId, isNotApproved, pageNum * pageSize, pageSize);
 			if (serviceOrderDoList == null)
 				return null;
 		} catch (Exception e) {
@@ -257,6 +266,10 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDto.getOfficialId());
 			if (officialDo != null)
 				serviceOrderDto.setOfficial(mapper.map(officialDo, OfficialDTO.class));
+			// 查询文案Tag
+			OfficialTagDO officialTagDo = officialTagDao.getOfficialTagByServiceOrderId(serviceOrderDto.getId());
+			if (officialTagDo != null)
+				serviceOrderDto.setOfficialTag(mapper.map(officialTagDo, OfficialTagDTO.class));
 			// 查询子服务
 			if (serviceOrderDto.getParentId() <= 0) {
 				List<ChildrenServiceOrderDTO> childrenServiceOrderList = new ArrayList<>();
@@ -342,6 +355,10 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDto.getOfficialId());
 			if (officialDo != null)
 				serviceOrderDto.setOfficial(mapper.map(officialDo, OfficialDTO.class));
+			// 查询文案Tag
+			OfficialTagDO officialTagDo = officialTagDao.getOfficialTagByServiceOrderId(serviceOrderDto.getId());
+			if (officialTagDo != null)
+				serviceOrderDto.setOfficialTag(mapper.map(officialTagDo, OfficialTagDTO.class));
 			// 是否有创建过佣金订单
 			if ("OVST".equalsIgnoreCase(serviceOrderDto.getType()))
 				serviceOrderDto.setHasCommissionOrder(commissionOrderDao
@@ -441,17 +458,23 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				if ("REVIEW".equals(maraState) || "WAIT".equals(maraState)) {
 					MaraDO maraDo = maraDao.getMaraById(serviceOrderDo.getMaraId());
 					if (maraDo != null)
-						// MailUtil.sendMail(maraDo.getEmail(),
-						// maraDo.getEmail(), "亲爱的" + maraDo.getName() +
-						// ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:" +
-						// type
-						// + "/顾问:" + adviserDo.getName() + "/文案:" +
-						// officialDo.getName() + "/创建时间:"
-						// + date);
 						SendEmailUtil.send(maraDo.getEmail(), title,
 								"亲爱的" + maraDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:" + type
 										+ detail + "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName()
 										+ "/创建时间:" + date + "<br/>" + serviceOrderUrl);
+					String _title = StringUtil.merge("MARA审核通过提醒:", user.getName(), "/签证");
+					// 发送给顾问
+					SendEmailUtil.send(adviserDo.getEmail(), _title,
+							StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>", "您的订单已经审核完成请查看并进行下一步操作。<br>订单号:",
+									serviceOrderDo.getId(), "/服务类型:签证/客户名称:", user.getName(), "/顾问:",
+									adviserDo.getName(), "/文案:", officialDo.getName(), "/创建时间:", date, "/备注:",
+									serviceOrderDo.getRemarks(), "<br/>", serviceOrderUrl));
+					// 发送给文案
+					SendEmailUtil.send(adviserDo.getEmail(), _title,
+							StringUtil.merge("亲爱的:", officialDo.getName(), "<br/>", "您的订单已经审核完成请查看并进行下一步操作。<br>订单号:",
+									serviceOrderDo.getId(), "/服务类型:签证/客户名称:", user.getName(), "/顾问:",
+									adviserDo.getName(), "/文案:", officialDo.getName(), "/创建时间:", date, "/备注:",
+									serviceOrderDo.getRemarks(), "<br/>", serviceOrderUrl));
 					// 写入审核时间
 					if (serviceOrderDo.getMaraApprovalDate() == null)
 						serviceOrderDo.setMaraApprovalDate(new Date());

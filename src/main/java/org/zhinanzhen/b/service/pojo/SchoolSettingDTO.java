@@ -27,4 +27,6 @@ public class SchoolSettingDTO {
 
 	private int count = 0;
 
+	private SchoolAttachmentsDTO schoolAttachments = new SchoolAttachmentsDTO();
+
 }

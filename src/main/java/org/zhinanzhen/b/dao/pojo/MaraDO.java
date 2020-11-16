@@ -1,11 +1,14 @@
 package org.zhinanzhen.b.dao.pojo;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import lombok.Data;
 
 @Data
-public class MaraDO {
+public class MaraDO implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private int id;
 

@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.tb.service.AdminUserService;
 
+import com.ikasoa.core.utils.StringUtil;
+
 import lombok.Data;
 
 public class BaseController {
@@ -99,7 +101,11 @@ public class BaseController {
 		if (file != null) {
 			String fileName = file.getOriginalFilename().replace(" ", "_").replace("%20", "_");// 文件原名称
 			LOG.info("上传的文件原名称:" + fileName);
-			String realPath = "/data" + dir;
+			// 判断文件类型
+			String type = fileName.indexOf(".") != -1
+					? fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length())
+					: null;
+			String realPath = StringUtil.merge("/data", dir);
 			// 创建目录
 			File folder = new File(realPath);
 			if (!folder.isDirectory())
@@ -108,11 +114,49 @@ public class BaseController {
 //			String newFileName = String.valueOf(System.currentTimeMillis()) + "_" + fileName.toLowerCase();
 			String newFileName = String.valueOf(System.currentTimeMillis());
 			// 设置存放文件的路径
-			String path = realPath + newFileName;
+			String path = StringUtil.merge(realPath, newFileName, ".", type);
 			LOG.info("存放文件的路径:" + path);
 			// 转存文件到指定的路径
 			file.transferTo(new File(path));
-			return new Response<String>(0, "", dir + newFileName);
+			return new Response<String>(0, "", StringUtil.merge(dir, newFileName, ".", type));
+		} else {
+			return new Response<String>(3, "文件为空.", null);
+		}
+	}
+	
+	public static Response<String> uploadPdf(MultipartFile file, HttpSession session, String dir)
+			throws IllegalStateException, IOException {
+		if (file != null) {
+			String path = "/root/tmp/";// 文件路径
+			String type = "PDF";// 文件类型
+			String fileName = file.getOriginalFilename().replace(" ", "_").replace("%20", "_");// 文件原名称
+			LOG.info("上传的文件原名称:" + fileName);
+			// 判断文件类型
+			type = fileName.indexOf(".") != -1 ? fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length())
+					: null;
+			if (type != null) {// 判断文件类型是否为空
+				if ("PDF".equals(type.toUpperCase())) {
+					String realPath = "/data" + dir;
+					// 创建目录
+					File folder = new File(realPath);
+					if (!folder.isDirectory()) {
+						folder.mkdirs();
+					}
+					// 自定义的文件名称
+//					String newFileName = String.valueOf(System.currentTimeMillis()) + "_" + fileName.toLowerCase();
+					String newFileName = String.valueOf(System.currentTimeMillis());
+					// 设置存放图片文件的路径
+					path = realPath + newFileName + "." + type;
+					LOG.info("存放PDF文件的路径:" + path);
+					// 转存文件到指定的路径
+					file.transferTo(new File(path));
+					return new Response<String>(0, "", dir + newFileName + "." + type);
+				} else {
+					return new Response<String>(1, "文件类型只能是pdf.", null);
+				}
+			} else {
+				return new Response<String>(2, "文件类型为空.", null);
+			}
 		} else {
 			return new Response<String>(3, "文件为空.", null);
 		}
