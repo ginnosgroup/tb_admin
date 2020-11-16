@@ -77,7 +77,7 @@ public class PrintPdfUtil {
         String PDFPath = path +File.separator+ invoiceNo;
 
         //创建根目录
-        File file = new File(path, invoiceNo);
+        File file = new File(PDFPath);
         if (!file.exists()) {
             file.getParentFile().mkdirs();
         }
