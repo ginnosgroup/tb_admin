@@ -62,6 +62,7 @@ import org.zhinanzhen.b.service.pojo.SubagencyDTO;
 import org.zhinanzhen.b.service.pojo.ReceiveTypeDTO;
 
 import com.ikasoa.core.ErrorCodeEnum;
+import com.ikasoa.core.utils.StringUtil;
 
 @Service("ServiceOrderService")
 public class ServiceOrderServiceImpl extends BaseService implements ServiceOrderService {
@@ -457,17 +458,23 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				if ("REVIEW".equals(maraState) || "WAIT".equals(maraState)) {
 					MaraDO maraDo = maraDao.getMaraById(serviceOrderDo.getMaraId());
 					if (maraDo != null)
-						// MailUtil.sendMail(maraDo.getEmail(),
-						// maraDo.getEmail(), "亲爱的" + maraDo.getName() +
-						// ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:" +
-						// type
-						// + "/顾问:" + adviserDo.getName() + "/文案:" +
-						// officialDo.getName() + "/创建时间:"
-						// + date);
 						SendEmailUtil.send(maraDo.getEmail(), title,
 								"亲爱的" + maraDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:" + type
 										+ detail + "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName()
 										+ "/创建时间:" + date + "<br/>" + serviceOrderUrl);
+					String _title = StringUtil.merge("MARA审核通过提醒:", user.getName(), "/签证");
+					// 发送给顾问
+					SendEmailUtil.send(adviserDo.getEmail(), _title,
+							StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>", "您的订单已经审核完成请查看并进行下一步操作。<br>订单号:",
+									serviceOrderDo.getId(), "/服务类型:签证/客户名称:", user.getName(), "/顾问:",
+									adviserDo.getName(), "/文案:", officialDo.getName(), "/创建时间:", date, "/备注:",
+									serviceOrderDo.getRemarks(), "<br/>", serviceOrderUrl));
+					// 发送给文案
+					SendEmailUtil.send(adviserDo.getEmail(), _title,
+							StringUtil.merge("亲爱的:", officialDo.getName(), "<br/>", "您的订单已经审核完成请查看并进行下一步操作。<br>订单号:",
+									serviceOrderDo.getId(), "/服务类型:签证/客户名称:", user.getName(), "/顾问:",
+									adviserDo.getName(), "/文案:", officialDo.getName(), "/创建时间:", date, "/备注:",
+									serviceOrderDo.getRemarks(), "<br/>", serviceOrderUrl));
 					// 写入审核时间
 					if (serviceOrderDo.getMaraApprovalDate() == null)
 						serviceOrderDo.setMaraApprovalDate(new Date());

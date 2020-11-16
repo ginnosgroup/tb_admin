@@ -1048,6 +1048,13 @@ public class ServiceOrderController extends BaseController {
 							email = mara.getEmail();
 						else
 							email = email + "," + mara.getEmail();
+				} else if (adminUserLoginInfo != null && "MA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+					MaraDTO mara = serviceOrder.getMara();
+					if (mara != null)
+						if ("".equals(email))
+							email = mara.getEmail();
+						else
+							email = email + "," + mara.getEmail();
 				} else if (adminUserLoginInfo != null && "M".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					OfficialDTO official = serviceOrder.getOfficial();
 					if (official != null)
