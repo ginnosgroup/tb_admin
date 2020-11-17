@@ -90,7 +90,7 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "receivable") String receivable,
 			@RequestParam(value = "received", required = false) String received,
 			@RequestParam(value = "perAmount") String perAmount, @RequestParam(value = "amount") String amount,
-			@RequestParam(value = "invoiceNumber") String invoiceNumber,
+			@RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
 			@RequestParam(value = "adviserId") String adviserId, @RequestParam(value = "maraId") String maraId,
 			@RequestParam(value = "officialId") String officialId,
 			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
@@ -365,6 +365,7 @@ public class VisaController extends BaseCommissionOrderController {
 			visaDto.setDeductGst(commission - visaDto.getGst());
 			visaDto.setBonus(visaDto.getDeductGst() * 0.1);
 			visaDto.setExpectAmount(commission);
+			visaDto.setKjApprovalDate(new Date()); // debug
 			if (visaService.updateVisa(visaDto) > 0) {
 				VisaDTO _visaDTO = visaService.getVisaById(visaDto.getId());
 				serviceOrderDto.setReceivable(_visaDTO.getTotalPerAmount());
