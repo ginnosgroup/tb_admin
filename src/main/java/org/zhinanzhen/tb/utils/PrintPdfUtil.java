@@ -77,12 +77,12 @@ public class PrintPdfUtil {
         String PDFPath = path +File.separator+ invoiceNo;
 
         //创建根目录
-        File file = new File(path, invoiceNo);
+        File file = new File(PDFPath);
         if (!file.exists()) {
             file.getParentFile().mkdirs();
         }
 
-
+        System.out.println("path  "+path);
 
         System.out.println("newPDFPath  "+PDFPath);//打印路径是不是正确的
 

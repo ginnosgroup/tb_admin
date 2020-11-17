@@ -813,7 +813,7 @@ CREATE TABLE `b_invoice_school` (
   `company_id` int(11) DEFAULT NULL COMMENT '对应 invoice_company.id',
   `company` varchar(100) NOT NULL COMMENT '公司名称',
   `abn` varchar(20) NOT NULL COMMENT 'ABN',
-  `address` varchar(50) NOT NULL COMMENT '公司地址',
+  `address` varchar(128) NOT NULL COMMENT '公司地址',
   `tel` varchar(20) NOT NULL COMMENT '公司电话',
   `invoice_no` varchar(20) DEFAULT NULL COMMENT '税务发票编号',
   `billto_id` int(11) DEFAULT NULL COMMENT '对应 b_invoice_billto.id  ，付款公司',
