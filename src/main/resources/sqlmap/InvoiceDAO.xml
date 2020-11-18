@@ -331,7 +331,16 @@
         update  `b_invoice_school` set order_id = #{idList}  where invoice_no = #{invoiceNo}
     </update>
     <update id="updateCommissionOrderZyDate">
-        update `b_commission_order` set zy_date = now() where commission_state = 'DZY' and is_settle = 0
+        update `b_commission_order`
+        <choose>
+            <when test=" invoiceDate==null ">
+                set zy_date = now()
+            </when>
+            <otherwise>
+                set zy_date = #{invoiceDate}
+            </otherwise>
+        </choose>
+        where commission_state = 'DZY' and is_settle = 0
         <if test='stateList != null'>
             AND state IN
             <foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">

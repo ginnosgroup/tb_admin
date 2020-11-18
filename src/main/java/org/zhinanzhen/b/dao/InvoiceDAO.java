@@ -80,7 +80,7 @@ public interface InvoiceDAO {
 
     int insertCommissionOrderIdInInvoice(@Param("idList") String idList, @Param("invoiceNo") String invoiceNo);
 
-    int updateCommissionOrderZyDate(@Param("stateList") List<String> stateList, @Param("idList") String[] idList);
+    int updateCommissionOrderZyDate(@Param("stateList") List<String> stateList, @Param("idList") String[] idList ,@Param("invoiceDate") String invoiceDate);
 
     List<InvoiceBillToDO> billToList();
 

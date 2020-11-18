@@ -244,28 +244,13 @@ public class InvoiceController  extends BaseController {
             }
             return new Response(1,"fail");
         }catch (DataAccessException ex){
+            System.out.println(ex);
             return new Response(1 ,"参数错误" );
         }catch (Exception ex){
+            System.out.println(ex);
           return new Response(1 ,"系统错误，请联系管理员！" );
         }
 
-    }
-
-    //更改invoice
-    @RequestMapping(value = "/update" , method = RequestMethod.POST )
-    @ResponseBody
-    public Response update(@RequestBody Map paramMap){
-        int result = 0;
-        if (StringUtil.isNotEmpty((String) paramMap.get("billto_id"))) {
-            System.out.println("SC");
-            result =  invoiceService.updateSCInvoice(paramMap);
-        }else if (StringUtil.isEmpty((String)paramMap.get("billto_id"))){
-            System.out.println("SF");
-            result =  invoiceService.updateSFInvoice(paramMap);
-        }
-        if (result>0)
-            return  new Response(0,"success");
-        return new Response(0,"fail");
     }
 
 
@@ -451,6 +436,22 @@ public class InvoiceController  extends BaseController {
         return response;
 
 
+    }
+
+    //更改invoice
+    @RequestMapping(value = "/update" , method = RequestMethod.POST )
+    @ResponseBody
+    public Response update(@RequestBody Map paramMap){
+        if (StringUtil.isNotEmpty((String) paramMap.get("billto_id"))) {
+            //System.out.println("SC");
+            return  new Response(0,invoiceService.updateSCInvoice(paramMap));
+
+        }else if (StringUtil.isEmpty((String)paramMap.get("billto_id"))){
+            //System.out.println("SF");
+            return  new Response(0,invoiceService.updateSFInvoice(paramMap));
+        }
+
+        return new Response(0,"fail");
     }
 
 
