@@ -331,7 +331,16 @@
         update  `b_invoice_school` set order_id = #{idList}  where invoice_no = #{invoiceNo}
     </update>
     <update id="updateCommissionOrderZyDate">
-        update `b_commission_order` set zy_date = now() where commission_state = 'DZY' and is_settle = 0
+        update `b_commission_order`
+        <choose>
+            <when test=" invoiceDate==null ">
+                set zy_date = now()
+            </when>
+            <otherwise>
+                set zy_date = #{invoiceDate}
+            </otherwise>
+        </choose>
+        where commission_state = 'DZY' and is_settle = 0
         <if test='stateList != null'>
             AND state IN
             <foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">
@@ -406,8 +415,7 @@
 
     <!-- 更改invoice -->
     <update id="updateSFInvoice" parameterType="java.util.Map">
-        update  `b_invoice_servicefee` set gmt_modify = now() ,email = #{email},company = #{company} ,abn = #{abn},address = #{address},tel = #{tel},note = #{note},
-        accountname = #{accountname},bsb = #{bsb},accountno =#{accountno},branch = #{branch}  where invoice_no = #{invoiceNo}
+        update  `b_invoice_servicefee` set gmt_modify = now() ,note = #{note} where invoice_no = #{invoiceNo}
     </update>
     <delete id="deleteDesc">
         delete from
@@ -423,7 +431,6 @@
     </delete>
 
     <update id="updateSCInvoice">
-       update  `b_invoice_school` set gmt_modify = now(),email = #{email} , company_id = #{companyId},company = #{company}, abn= #{abn},address=#{address},tel=#{tel},
-       billto_id=#{billto_id},note=#{note},accountname=#{accountname},bsb=#{bsb},accountno=#{accountno},branch = #{branch} where invoice_no =#{invoiceNo};
+       update  `b_invoice_school` set gmt_modify = now(), billto_id=#{billto_id},note=#{note} where invoice_no =#{invoiceNo};
     </update>
 </mapper>
