@@ -58,7 +58,7 @@ public interface InvoiceService {
 
     Response pdfPrint(String invoiceNo, String invoiceIds, String realpath,boolean canceled);
 
-    int updateSFInvoice(Map paramMap);
+    String updateSFInvoice(Map paramMap);
 
-    int updateSCInvoice(Map paramMap);
+    String updateSCInvoice(Map paramMap);
 }

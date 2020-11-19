@@ -351,7 +351,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
         stateList.add(BaseCommissionOrderController.ReviewKjStateEnum.FINISH.toString());
         stateList.add(BaseCommissionOrderController.ReviewKjStateEnum.COMPLETE.toString());
         stateList.add(BaseCommissionOrderController.ReviewKjStateEnum.CLOSE.toString());
-        int resultzydate = invoiceDAO.updateCommissionOrderZyDate(stateList,idList);
+        int resultzydate = invoiceDAO.updateCommissionOrderZyDate(stateList,idList,null);
         if ( resulti > 0 & resultc > 0 ){
             return  -1 ;
         }
@@ -481,22 +481,60 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
 
     @Override
     @Transactional
-    public int updateSFInvoice(Map paramMap) {
+    public String updateSFInvoice(Map paramMap) {
         String invoiceNo = (String) paramMap.get("invoiceNo");
-        invoiceDAO.deleteDesc(invoiceNo,"SF");
+        String idList [] =  ((String) paramMap.get("idList")).split(",");
         List<InvoiceServiceFeeDescriptionDO> description = (List<InvoiceServiceFeeDescriptionDO>) paramMap.get("description");
+
+        invoiceDAO.updateVisaInvoiceNumberNull(invoiceNo);
+        List<Integer> visaIds = invoiceDAO.selectVisaId(idList,"SF");
+        if (visaIds.size() != 0 ){
+            rollback();
+            return visaIds.get(0) + " 已经被关联了 ！";
+        }
+
+        int resulti =  invoiceDAO.insertOrderIdInInvoice(StringUtils.join(idList, ",") , invoiceNo);
+        int resultv = invoiceDAO.relationVisaOrder(idList , invoiceNo);
+
+        invoiceDAO.deleteDesc(invoiceNo,"SF");
         invoiceDAO.saveServiceFeeDescription(description,invoiceNo);
-        return invoiceDAO.updateSFInvoice(paramMap);
+
+        if (invoiceDAO.updateSFInvoice(paramMap)>0)
+            return "success";
+        return "";
     }
 
     @Override
     @Transactional
-    public int updateSCInvoice(Map paramMap) {
+    public String updateSCInvoice(Map paramMap) {
         String invoiceNo = (String) paramMap.get("invoiceNo");
-        invoiceDAO.deleteDesc(invoiceNo,"SC");
+        String idList [] =  ((String) paramMap.get("idList")).split(",");
         List<InvoiceSchoolDescriptionDO> description = (List<InvoiceSchoolDescriptionDO>) paramMap.get("description");
+        String invoiceDate = (String) paramMap.get("invoiceDate");
+
+        invoiceDAO.updateCommissionOrderInvoiceNumberNull(invoiceNo);
+        List<Integer> visaIds = invoiceDAO.selectVisaId(idList,"SC");
+        if (visaIds.size() != 0 ){
+            rollback();
+            return visaIds.get(0) + " 佣金订单已经关联！";
+        }
+
+
+        int resulti =  invoiceDAO.insertCommissionOrderIdInInvoice(StringUtils.join(idList, ",") , invoiceNo);
+        int resultc = invoiceDAO.relationCommissionOrder(idList , invoiceNo);
+
+        List<String> stateList = new ArrayList<>();
+        stateList.add(BaseCommissionOrderController.ReviewKjStateEnum.REVIEW.toString());
+        stateList.add(BaseCommissionOrderController.ReviewKjStateEnum.FINISH.toString());
+        stateList.add(BaseCommissionOrderController.ReviewKjStateEnum.COMPLETE.toString());
+        stateList.add(BaseCommissionOrderController.ReviewKjStateEnum.CLOSE.toString());
+        int resultzydate = invoiceDAO.updateCommissionOrderZyDate(stateList,idList ,invoiceDate);
+
+        invoiceDAO.deleteDesc(invoiceNo,"SC");
         invoiceDAO.saveSchoolDescription(description,invoiceNo);
-        return invoiceDAO.updateSCInvoice(paramMap);
+        if (invoiceDAO.updateSCInvoice(paramMap)>0)
+            return "sucess";
+        return "fail";
     }
 
 }

@@ -8,7 +8,7 @@
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title" id="addnewservice1_id_title">Add Service Fee Tax Invoice</h4>
+					<h4 class="modal-title" id="addservicefee_id_title">Add Service Fee Tax Invoice</h4>
 				</div>
 				<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
 		      <button data-dismiss="alert" class="close close-sm" type="button">
@@ -24,7 +24,11 @@
 	      </div>
 	      <form class="cmxform form-inline" style="" name="addservicefee_form" id="addservicefee_form">
 				<div class="modal-body">						
-						<input type="hidden" name="ids" id="ids" value="" />																	
+						<input type="hidden" name="ids" id="ids" value="" />
+						<div class="form-group" id="show_b0" style="width:100%;height:40px;display:none;">
+							<label class="control-label" style="width:120px;">发票ID：</label>							
+							<label name="b0" id="b0"></label>
+						</div>
 						<div class="form-group" style="width:100%;height:40px;">
 							<label class="control-label" style="width:120px;">请选择地区：<span style="color:red;">*</span></label>							
 							<select class="form-control" style="width:150px;" name="b1" id="b1"></select>
@@ -126,8 +130,9 @@
 		          </table>
 						</div>						
 				</div>
-				<div class="modal-footer" style="text-align: center;">										
-					<button id="btnSubmit" type="button" onclick="addservicefeeSave();" class="btn btn-primary"><span id="btn_id">保存并下载</span></button>
+				<div class="modal-footer" style="text-align: center;">
+					<button v-if="invoiceNo===''" id="btnSubmit" type="submit" class="btn btn-primary"><span id="btn_id">保存并下载</span></button>
+					<button v-if="invoiceNo!==''" id="btnSubmit" type="submit" class="btn btn-primary"><span id="btn_id">修改并下载</span></button>
 					<button id="btnReview" type="button" onclick="preview_form()" class="btn btn-primary" style="display:none;">预览</button>
 					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
 				</div>
@@ -140,7 +145,7 @@
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title">Add 留学 Tax Invoice</h4>
+					<h4 class="modal-title" id="addovst_id_title">Add 留学 Tax Invoice</h4>
 				</div>
 				<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
 		      <button data-dismiss="alert" class="close close-sm" type="button">
@@ -206,10 +211,10 @@
 							<label class="control-label"><strong>Description</strong></label>
 							<label class="control-label" style="margin-left:20px;"><a href="javascript:import_commission('OVST');">导入数据</a></label>
 							<ul class="nav nav-tabs">
-                <li class="active">
+                <li class="active" id="li_normal">
                    <a data-toggle="tab" href="#normal" onclick="setTab('normal');">Normal</a>
                 </li>
-                <li class="">
+                <li class="" id="li_markteting">
                    <a data-toggle="tab" href="#markteting" onclick="setTab('markteting');">Markteting fee</a>
                 </li>                
               </ul>
@@ -331,7 +336,8 @@
 						</div>						
 				</div>
 				<div class="modal-footer" style="text-align: center;">										
-					<button id="btnSubmit" type="submit" class="btn btn-primary"><span id="btn_id">保存并下载</span></button>
+					<button v-if="invoiceNo===''" id="btnSubmit" type="submit" class="btn btn-primary"><span id="btn_id">保存并下载</span></button>
+					<button v-if="invoiceNo!==''" id="btnSubmit" type="submit" class="btn btn-primary"><span id="btn_id">修改并下载</span></button>
 					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
 				</div>
 				</form>
@@ -375,7 +381,8 @@ var v_sub_taxinvoice = new Vue({
 			bind_total: 0,
 			bind_total_normal: 0,
 			bind_total_markteting: 0,
-			current_tab: 'normal',			
+			current_tab: 'normal',
+			invoiceNo: '',			
 		},
 		created: function() {				
 		},
@@ -491,8 +498,13 @@ var v_sub_taxinvoice = new Vue({
 
 function addservicefee()
 {
+		$('#addservicefee_id #addservicefee_id_title').html('Add Service Fee Tax Invoice');
 		$('#addservicefee_id').modal('show');
 		//重置数据
+		v_sub_taxinvoice.invoices = [];
+		$('#addservicefee_id #b1').removeAttr("disabled");
+		$('#addservicefee_id #b2').removeAttr("disabled");
+		$('#addservicefee_id #show_b0').hide();
 		$('#addservicefee_id #addservicefee_form')[0].reset();
 		$("#addservicefee_id #b2a").html('');
   	$("#addservicefee_id #b3").html('');
@@ -506,6 +518,7 @@ function addservicefee()
   	$("#addservicefee_id #b6a").html('0.00');
   	$("#addservicefee_id #b6b").html('0.00');
   	$("#addservicefee_id #b6c").html('0.00');
+  	v_sub_taxinvoice.invoiceNo = '';
   	v_sub_taxinvoice.subject = [];
   	v_sub_taxinvoice.row_nums = 0;
 		v_sub_taxinvoice.addservicefee_id = 1;
@@ -513,8 +526,13 @@ function addservicefee()
 
 function addservicefee_visa(ids,userName,serviceName,amount)
 {
+		$('#addservicefee_id #addservicefee_id_title').html('Add Service Fee Tax Invoice');
 		$('#addservicefee_id').modal('show');
 		//重置数据
+		v_sub_taxinvoice.invoices = [];
+		$('#addservicefee_id #b1').removeAttr("disabled");
+		$('#addservicefee_id #b2').removeAttr("disabled");
+		$('#addservicefee_id #show_b0').hide();
 		$('#addservicefee_id #addservicefee_form')[0].reset();
 		$("#addservicefee_id #b2a").html('');
   	$("#addservicefee_id #b3").html('');
@@ -548,7 +566,11 @@ function addservicefee_visa(ids,userName,serviceName,amount)
 function addovst()
 {
 		$('#addovst_id').modal('show');
+		$('#addovst_id #addovst_id_title').html('Add 留学 Tax Invoice');
 		//重置数据
+		v_sub_taxinvoice.invoices = [];
+		$('#addovst_id #b1').removeAttr("disabled");
+		$('#addovst_id #b2').removeAttr("disabled");
 		$('#addovst_id #addovst_form')[0].reset();
 		$("#addovst_id #b2a").html('');
   	$("#addovst_id #b3").html('');
@@ -561,10 +583,15 @@ function addovst()
   	$("#addovst_id #b5c").html('');  	
 		$("#addovst_id #b6a").html('0.00');
   	$("#addovst_id #b6b").html('0.00');
+  	$("#addovst_id #b6c").html('0.00');
+  	$("#addovst_id #b6d").html('0.00');
+  	$("#addovst_id #b7").html('');
   	$("#addovst_id #label_b8d").hide();
+  	v_sub_taxinvoice.invoiceNo = '';
   	v_sub_taxinvoice.subject_normal = [];
+  	v_sub_taxinvoice.subject_markteting = [];
   	v_sub_taxinvoice.row_nums_normal = 0;
-  	v_sub_taxinvoice.billCpId = 0;
+  	v_sub_taxinvoice.billCpId = 0;  	
 		v_sub_taxinvoice.addovst_id = 1;
 }
 
@@ -625,7 +652,7 @@ function loadcompany(f)
 			  	$(f+" #b3a").html(result_data.tel);
 			  	$(f+" #b3b").html(result_data.email);
 			  	$(f+" #b4a").html(result_data.invoiceNo);
-			  	$(f+" #b4b").html(result_data.invoiceDate);
+					$(f+" #b4b").html(result_data.invoiceDate);
 			  	$(f+" #b5a").html(result_data.name);
 			  	$(f+" #b5b").html(result_data.bsb);
 			  	$(f+" #b5c").html(result_data.account);
@@ -820,6 +847,160 @@ function total_withgst_markteting()
 		$("#addovst_id #b6d").html(v_sub_taxinvoice.total_with_gst_markteting);
 }
 
+function invoice_edit(invoiceNo,invoiceIds)
+{		
+		//详细页
+		$.ajax({
+      url: url+'invoice/selectInvoiecByNo?invoiceNo='+invoiceNo+'&invoiceIds='+invoiceIds,
+      type: 'GET',
+      dataType: 'json'
+    }).done(function(response) {		        	
+    	response = response.data;
+    	console.log(response);    	
+    	v_sub_taxinvoice.invoices = [];
+    	v_sub_taxinvoice.invoices = response;
+    	v_sub_taxinvoice.invoiceNo = invoiceNo;
+    	v_sub_taxinvoice.invoiceIds = invoiceIds;    	
+    	if (invoiceIds.indexOf("SF") == '0')
+			{
+					v_sub_taxinvoice.addservicefee_id = 1;
+					$('#addservicefee_id #addservicefee_id_title').html('Edit Service Fee Tax Invoice');							
+		    	$('#addservicefee_id #b0').html(invoiceIds);
+		    	$('#addservicefee_id #b1').val(response.branch);
+		    	$('#addservicefee_id #b1').attr("disabled","disabled");
+		    	$('#addservicefee_id #b2').val(response.companyId);
+		    	$('#addservicefee_id #b2').attr("disabled","disabled");   	
+		    	$('#addservicefee_id #b2a').html(response.abn);
+		    	$('#addservicefee_id #b3').html(response.address);
+		    	$('#addservicefee_id #b3a').html(response.tel);
+		    	$('#addservicefee_id #b3b').html(response.email);
+		    	$('#addservicefee_id #b4a').html(invoiceNo);
+		    	$('#addservicefee_id #b4b').html(formatDate(response.invoiceDate));
+		    	$('#addservicefee_id #b6a').html(response.subtotal);
+		    	$('#addservicefee_id #b6b').html(response.gst);
+		    	$('#addservicefee_id #b6c').html(response.totalGST);
+		    	$('#addservicefee_id #b5a').html(response.accountname);
+		    	$('#addservicefee_id #b5b').html(response.bsb);
+		    	$('#addservicefee_id #b5c').html(response.accountno);
+		    	$('#addservicefee_id #b7').html(response.note);		    		
+		    	$('#addservicefee_id #ids').val(response.order_id);
+		    	v_sub_taxinvoice.subject = [];
+		    	for(var i=0;i < response.invoiceServiceFeeDescriptionDOList.length;i++)
+		    	{
+		    			var index = 0;				
+							if (v_sub_taxinvoice.subject.length) index = v_sub_taxinvoice.subject.length;
+							var tindex = index+1;
+							v_sub_taxinvoice.subject.splice(index,0, {
+								id: tindex,								
+								description: '<input type="text" class="form-control small" style="" id="ta" value="'+response.invoiceServiceFeeDescriptionDOList[i].description+'">',
+								unitprice: '<input type="text" class="form-control small" style="width:80px;" id="tb" onkeyup="total_amount(\'price\',this.value,$(this).parent().parent().attr(\'id\'));" value="'+response.invoiceServiceFeeDescriptionDOList[i].unitPrice+'">',
+								quantity: '<select class="form-control small" style="width:80px;" id="tc" onchange="total_amount(\'quantity\',this.value,$(this).parent().parent().attr(\'id\'))"><option value=\'1\'>1</option><option value=\'2\'>2</option><option value=\'3\'>3</option><option value=\'4\'>4</option><option value=\'5\'>5</option></select>',
+								amount: '<input type="text" autocomplete="off" class="form-control small" style="width:80px;" id="td" readonly="readonly" value="'+response.invoiceServiceFeeDescriptionDOList[i].amount+'">',
+							});
+							//选中quantity
+							$("#addservicefee_id #d"+tindex+" #tc").val(response.invoiceServiceFeeDescriptionDOList[i].quantity);
+							v_sub_taxinvoice.row_nums++;				
+		    	}
+		    	v_sub_taxinvoice.bind_total = 1;
+		    	$('#addservicefee_id').modal('show');	
+    	}else if (invoiceIds.indexOf("SC") == '0')
+    	{
+    			v_sub_taxinvoice.addovst_id = 1;
+    			$('#addovst_id #addovst_id_title').html('Edit 留学 Tax Invoice');
+    			$("#addovst_id #label_b8d").hide();
+    			$('#addovst_id #b0').html(invoiceIds);
+		    	$('#addovst_id #b1').val(response.branch);
+		    	$('#addovst_id #b1').attr("disabled","disabled");
+		    	$('#addovst_id #b2').val(response.company);
+		    	$('#addovst_id #b2').attr("disabled","disabled");
+		    	$('#addovst_id #b2a').html(response.abn);
+		    	$('#addovst_id #b3').html(response.address);
+		    	$('#addovst_id #b3a').html(response.tel);
+		    	$('#addovst_id #b3b').html(response.email);
+		    	$('#addovst_id #b4a').html(invoiceNo);
+		    	$('#addovst_id #b4b').html(formatDate(response.invoiceDate));
+		    	$('#addovst_id #b6a').html(response.gst);
+		    	$('#addovst_id #b6b').html(response.totalGST);
+		    	$('#addovst_id #b5a').html(response.accountname);
+		    	$('#addovst_id #b5b').html(response.bsb);
+		    	$('#addovst_id #b5c').html(response.accountno);
+		    	$('#addovst_id #b7').html(response.note);		    			    	
+		    	if (response.invoiceBillToDO != null)
+		    	{
+		    			$('#addovst_id #b8a').val(response.invoiceBillToDO.company);
+		    			$('#addovst_id #b8b').val(response.invoiceBillToDO.abn);
+		    			$('#addovst_id #b8c').val(response.invoiceBillToDO.address);
+		    	}		    	
+		    	v_sub_taxinvoice.subject_normal = [];
+		    	v_sub_taxinvoice.subject_markteting = [];
+		    	if (response.flag == 'N')
+		    	{
+		    			$('#addovst_id #ids_normal').val(response.order_id);
+		    			$('#addovst_id #li_normal').show();
+		    			$("#addovst_id #li_normal").addClass("active");
+		    			$("#addovst_id #normal").addClass("active");
+		    			$('#addovst_id #li_markteting').hide();
+		    			$("#addovst_id #li_markteting").removeClass("active");
+		    			$("#addovst_id #markteting").removeClass("active");
+				    	for(var i=0;i < response.invoiceSchoolDescriptionDOS.length;i++)
+				    	{
+				    			var index = 0;
+									if (v_sub_taxinvoice.subject_normal.length) index = v_sub_taxinvoice.subject_normal.length;
+									var tindex = index+1;
+									v_sub_taxinvoice.subject_normal.splice(index,0, {
+										id: tindex,
+										studentname: '<input type="text" class="form-control small" style="" id="ta" value="'+response.invoiceSchoolDescriptionDOS[i].studentname+'">',
+										dob: '<input type="text" class="form-control small default-date-picker" style="width:110px;" id="tb" value="'+v.getTime(response.invoiceSchoolDescriptionDOS[i].dob)+'">',
+										studentId: '<input type="text" class="form-control small" style="width:80px;" id="tc" value="'+response.invoiceSchoolDescriptionDOS[i].studentId+'">',
+										course: '<textarea class="form-control" style="width:150px;" id="td">'+response.invoiceSchoolDescriptionDOS[i].course+'</textarea>',
+										startDate: '<input type="text" class="form-control small default-date-picker" style="width:110px;" id="te" value="'+v.getTime(response.invoiceSchoolDescriptionDOS[i].startDate)+'">',
+										instalMent: '<select class="form-control small" style="width:80px;" id="tf"><option value=\'1\'>1</option><option value=\'2\'>2</option><option value=\'3\'>3</option><option value=\'4\'>4</option><option value=\'5\'>5</option><option value=\'6\'>6</option><option value=\'7\'>7</option><option value=\'8\'>8</option><option value=\'9\'>9</option><option value=\'10\'>10</option><option value=\'11\'>11</option><option value=\'12\'>12</option></select>',
+										tuitionFee: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="tg" value="'+response.invoiceSchoolDescriptionDOS[i].tuitionFee+'">',
+										commissionrate: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="th" value="'+response.invoiceSchoolDescriptionDOS[i].commissionrate+'">',
+										commission: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="ti" onkeyup="total_withgst_normal();" value="'+response.invoiceSchoolDescriptionDOS[i].commission+'">',
+										bonus: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="tj" onkeyup="total_withgst_normal();" value="'+response.invoiceSchoolDescriptionDOS[i].bonus+'">',										
+									});
+									//选中quantity
+									$("#addovst_id #d"+tindex+" #tf").val(response.invoiceSchoolDescriptionDOS[i].instalMent);
+									v_sub_taxinvoice.row_nums_normal++;													
+				    	}
+				    	v_sub_taxinvoice.bind_total_normal = 1;
+		    	}else
+		    	{
+		    			$('#addovst_id #ids_markteting').val(response.order_id);
+		    			$('#addovst_id #li_normal').hide();
+		    			$("#addovst_id #li_normal").removeClass("active");
+		    			$("#addovst_id #normal").removeClass("active");
+		    			$("#addovst_id #markteting").addClass("active");
+		    			$("#addovst_id #li_markteting").addClass("active");
+		    			$('#addovst_id #li_markteting').show();		    					    	
+				    	for(var i=0;i < response.invoiceSchoolDescriptionDOS.length;i++)
+				    	{
+				    			var index = 0;
+									if (v_sub_taxinvoice.subject_markteting.length) index = v_sub_taxinvoice.subject_markteting.length;
+									var tindex = index+1;
+									v_sub_taxinvoice.subject_markteting.splice(index,0, {
+										id: tindex,
+										studentname: '<input type="text" class="form-control small" style="" id="ta" value="'+response.invoiceSchoolDescriptionDOS[i].studentname+'">',
+										dob: '<input type="text" class="form-control small default-date-picker" style="width:110px;" id="tb" value="'+v.getTime(response.invoiceSchoolDescriptionDOS[i].dob)+'">',
+										studentId: '<input type="text" class="form-control small" style="width:80px;" id="tc" value="'+response.invoiceSchoolDescriptionDOS[i].studentId+'">',
+										course: '<textarea class="form-control" style="width:150px;" id="td">'+response.invoiceSchoolDescriptionDOS[i].course+'</textarea>',
+										startDate: '<input type="text" class="form-control small default-date-picker" style="width:110px;" id="te" value="'+v.getTime(response.invoiceSchoolDescriptionDOS[i].startDate)+'">',
+										instalMent: '<select class="form-control small" style="width:80px;" id="tf"><option value=\'1\'>1</option><option value=\'2\'>2</option><option value=\'3\'>3</option><option value=\'4\'>4</option><option value=\'5\'>5</option><option value=\'6\'>6</option><option value=\'7\'>7</option><option value=\'8\'>8</option><option value=\'9\'>9</option><option value=\'10\'>10</option><option value=\'11\'>11</option><option value=\'12\'>12</option></select>',
+										tuitionFee: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="tg" value="'+response.invoiceSchoolDescriptionDOS[i].tuitionFee+'">',						
+										marketing: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="th" onkeyup="total_withgst_markteting()" value="'+response.invoiceSchoolDescriptionDOS[i].marketing+'">',								
+									});
+									//选中quantity
+									$("#addovst_id #d"+tindex+" #tf").val(response.invoiceSchoolDescriptionDOS[i].instalMent);
+									v_sub_taxinvoice.row_nums_markteting++;
+				    	}
+				    	v_sub_taxinvoice.bind_total_markteting = 1;
+		    	}
+    			$('#addovst_id').modal('show');
+    	}
+    });		
+}
+
 v_sub_taxinvoice.$watch('addservicefee_id', function(obj) {
 		$('.default-date-picker').datepicker({   				
 	        format: 'dd/mm/yyyy'
@@ -841,6 +1022,7 @@ v_sub_taxinvoice.$watch('addservicefee_id', function(obj) {
     	{
     			obj_b1.append("<option value='"+result_data[item]+"'>"+result_data[item]+"</option>");	        			
     	}
+    	if (v_sub_taxinvoice.invoices.branch) obj_b1.val(v_sub_taxinvoice.invoices.branch);
     });
     //绑定公司
     var obj_b2 = $("#addservicefee_id #b2");
@@ -856,6 +1038,7 @@ v_sub_taxinvoice.$watch('addservicefee_id', function(obj) {
     	{
     			obj_b2.append("<option value='"+result_data[item]+"'>"+result_data[item]+"</option>");	        			
     	}
+    	if (v_sub_taxinvoice.invoices.company) obj_b2.val(v_sub_taxinvoice.invoices.company);
     });       
 });
 
@@ -874,6 +1057,7 @@ v_sub_taxinvoice.$watch('addovst_id', function(obj) {
     	{
     			obj_b1.append("<option value='"+result_data[item]+"'>"+result_data[item]+"</option>");	        			
     	}
+    	if (v_sub_taxinvoice.invoices.branch) obj_b1.val(v_sub_taxinvoice.invoices.branch);
     });
     //绑定公司
     var obj_b2 = $("#addovst_id #b2");
@@ -889,6 +1073,7 @@ v_sub_taxinvoice.$watch('addovst_id', function(obj) {
     	{
     			obj_b2.append("<option value='"+result_data[item].name+"'>"+result_data[item].name+"</option>");	        			
     	}
+    	if (v_sub_taxinvoice.invoices.company) obj_b2.val(v_sub_taxinvoice.invoices.company);
     });
     //绑定bill
     var obj_b8a = $("#addovst_id #b8a");
@@ -905,6 +1090,7 @@ v_sub_taxinvoice.$watch('addovst_id', function(obj) {
     			v_sub_taxinvoice.bill_company[result_data[item].id] = result_data[item];
     			obj_b8a.append("<option value='"+result_data[item].id+"'>"+result_data[item].company+"</option>");	        			
     	}
+    	if (v_sub_taxinvoice.invoices.invoiceBillToDO != null) obj_b8a.val(v_sub_taxinvoice.invoices.invoiceBillToDO.id);
     	obj_b8a.append("<option value='0'>新添加</option>");
     });
 });
@@ -1240,6 +1426,287 @@ function addovstSave()
     }
 }
 
+function editservicefeeSave()
+{
+		var f = '#addservicefee_id ';
+		var check_result = 0;
+		var e_info = '';
+		
+		if (!v_sub_taxinvoice.row_nums)
+		{
+				e_info = '提示：Description行不能为空！';
+		}else
+		{
+				//校验第一行是否为空
+				var description = $(f+'#d1 #ta').val();
+				var unitprice = $(f+'#d1 #tb').val();
+				if (description == '' || unitprice == '')
+				{
+						e_info = '提示：Description行内容有空的字段！';
+				}else
+				{
+						check_result = 1;
+				}				
+		}
+		
+		if (!check_result) 		
+    {
+    		$(f+'#alert_error').css('marginLeft','30%');
+    		$(f+'#alert_error').css('marginTop','20%');
+    		$(f+'#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+        $(f+'#error_info').html(e_info);
+    		return false;
+    }else
+    {
+    		var str_url = url+"invoice/update";    		  		
+       	var json = {}; 
+       	       	
+       	json['invoiceNo'] = v_sub_taxinvoice.invoiceNo;
+       	json['note'] = $(f+'#b7').val();       	
+       	json['idList'] = $(f+'#ids').val();
+       	json['description'] = [];
+       	var tindex = 0;       	
+       	for(var i=0;i< v_sub_taxinvoice.row_nums;i++)
+       	{
+       			var tindex = i+1;
+       			json['description'][i] = {};
+       			json['description'][i]['id'] = tindex;
+       			json['description'][i]['description'] = $("#addservicefee_id #d"+tindex+" #ta").val();
+       			json['description'][i]['unitPrice'] = $("#addservicefee_id #d"+tindex+" #tb").val();
+       			json['description'][i]['quantity'] = $("#addservicefee_id #d"+tindex+" #tc").val();
+       			json['description'][i]['amount'] = $("#addservicefee_id #d"+tindex+" #td").val();
+       	}        	   	
+       	//console.log(json);
+       	show_loading();
+       	$.ajax({
+		      url: str_url,
+		      type: 'POST',
+		      async: false,
+		      contentType:"application/json",
+		      dataType: 'json',
+		      data: JSON.stringify(json),
+		    }).done(function(data) {		    		
+		    		if (data.code == 0)
+		   			{
+		   					//调用生成pdf接口
+		   					$.ajax({
+						      url: url+'invoice/pdfPrint?invoiceNo='+json['invoiceNo']+'&invoiceIds=SF',
+						      type: 'GET',
+						    }).done(function(response){
+						    			$('#loading_id').modal('hide');
+						    			if (response.code == 0)
+						    			{
+						    					//触发下载pdf
+						    					var pdf_url = response.message;
+						    					var a = document.createElement('a');
+													a.href = url+pdf_url;
+													a.target = '_blank';
+													$("body").append(a);
+													a.click();
+													$(a).remove();
+													v_sub_taxinvoice.addservicefee_id = 0;
+													v_sub_taxinvoice.row_nums = 0;
+													v_sub_taxinvoice.bind_total = 0;
+						    					localStorage.setItem("is_select", "no");
+							   					$(f+'#alert_success').css('marginTop','30%');
+							   					$(f+'#alert_success').css('marginLeft','30%');
+							   					$(f+'#alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+							   					$('#addservicefee_id').modal('hide');
+							   					v.getDatalist();
+							   					$('.modal-backdrop').remove();
+						    			}else
+						    			{
+						    					$('#loading_id').modal('hide');
+							   					$(f+'#alert_error').css('marginTop','30%');
+							   					$(f+'#alert_error').css('marginLeft','30%');
+							   					$(f+'#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+					          			$(f+"#error_info").html(data.message);
+						        			return false;
+						    			}
+						    });		   					
+		   			}else
+		   			{
+		   					$('#loading_id').modal('hide');
+		   					$(f+'#alert_error').css('marginTop','30%');
+		   					$(f+'#alert_error').css('marginLeft','30%');
+		   					$(f+'#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+          			$(f+"#error_info").html(data.message);
+	        			return false;
+		   			}
+		    });
+    }
+}
+
+function editovstSave()
+{
+		var f = '#addovst_id ';
+		var check_result = 0;
+		var e_info = '';
+		
+		if (!v_sub_taxinvoice.row_nums_normal && !v_sub_taxinvoice.row_nums_markteting)
+		{
+				e_info = '提示：Description行不能为空！';
+		}else
+		{
+				//校验normal行是否有空				
+				for(var i=1;i<= v_sub_taxinvoice.row_nums_normal;i++)
+       	{
+       			if ($(f+'#d'+i+' #ta').val() == '' || $(f+'#d'+i+' #tb').val() == '' || $(f+'#d'+i+' #tc').val() == '' || $(f+'#d'+i+' #td').val() == '' || $(f+'#d'+i+' #te').val() == '' || $(f+'#d'+i+' #tg').val() == '' || $(f+'#d'+i+' #th').val() == '' || $(f+'#d'+i+' #ti').val() == '' || $(f+'#d'+i+' #tj').val() == '') e_info += 'Normal 第'+i+'行有空字段！<br/>';       			
+       	}
+       	//校验markteting行是否有空
+				for(var i=1;i<= v_sub_taxinvoice.row_nums_markteting;i++)
+       	{
+       			if ($(f+'#dm'+i+' #ta').val() == '' || $(f+'#dm'+i+' #tb').val() == '' || $(f+'#dm'+i+' #tc').val() == '' || $(f+'#dm'+i+' #td').val() == '' || $(f+'#dm'+i+' #te').val() == '' || $(f+'#dm'+i+' #tg').val() == '' || $(f+'#dm'+i+' #th').val() == '') e_info += 'Markteting Fee 第'+i+'行有空字段！<br/>';       			
+       	}
+       	if (e_info == '') check_result = 1;       	
+		}
+		
+		if (!check_result) 		
+    {
+    		$(f+'#alert_error').css('marginLeft','30%');
+    		$(f+'#alert_error').css('marginTop','30%');
+    		$(f+'#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+        $(f+'#error_info').html(e_info);
+    		return false;
+    }else
+    {
+    		var str_url = url+"invoice/update";
+    		var str_url1 = url+"invoice/addBillTo";
+       	var json = {};
+       	var billCpId = 0;
+       	
+       	//如果是添加bill公司,写库获取billto_id
+       	if (!parseInt(v_sub_taxinvoice.billCpId))
+       	{
+		       	$.ajaxSettings.async = false; 
+		       	var b8a = $(f+"#b8a").val();		
+						if (!parseInt(b8a))
+						{
+								var billto_json = {};
+								billto_json['company'] = $(f+"#b8d").val();
+								billto_json['abn'] = $(f+"#b8b").val();
+								billto_json['address'] = $(f+"#b8c").val();
+								$.post(str_url1, billto_json,
+				   			function(data){
+				   					if (data.code == 0)
+				   					{
+				   							billCpId = data.data;
+				   							v_sub_taxinvoice.billCpId = billCpId;
+				   					}else
+				   					{
+				   							$(f+"#b8d")[0].focus();
+				   							$(f+'#alert_error').css('marginLeft','30%');
+								    		$(f+'#alert_error').css('marginTop','30%');
+								    		$(f+'#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+								        $(f+'#error_info').html(data.message);						    		
+				   					}
+				   			});
+						}else
+						{
+								billCpId = b8a;
+						}
+				}else
+				{
+						billCpId = v_sub_taxinvoice.billCpId;
+				}
+				if (!billCpId) return false;				
+				
+       	json['invoiceDate'] = v.getTime2(v_sub_taxinvoice.invoices.invoiceDate);       	
+       	json['invoiceNo'] = v_sub_taxinvoice.invoices.invoiceNo;
+       	json['note'] = $(f+'#b7').val();       	
+       	json['billto_id'] = billCpId;
+       	if (v_sub_taxinvoice.invoices.flag == 'N')
+       	{
+       			json['idList'] = $(f+'#ids_normal').val();
+       			json['description'] = [];
+		       	var tindex = 0;       	
+		       	for(var i=0;i< v_sub_taxinvoice.row_nums_normal;i++)
+		       	{
+		       			var tindex = i+1;
+		       			json['description'][i] = {};
+		       			json['description'][i]['id'] = tindex;
+		       			json['description'][i]['studentname'] = $(f+"#d"+tindex+" #ta").val();
+		       			//日期格式转化：Y-m-d
+		       			json['description'][i]['dob'] = formatDate2($(f+"#d"+tindex+" #tb").val());
+		       			json['description'][i]['studentId'] = $(f+"#d"+tindex+" #tc").val();
+		       			json['description'][i]['course'] = $(f+"#d"+tindex+" #td").val();
+		       			json['description'][i]['startDate'] = formatDate2($(f+"#d"+tindex+" #te").val());
+		       			json['description'][i]['instalMent'] = $(f+"#d"+tindex+" #tf").val();
+		       			json['description'][i]['tuitionFee'] = $(f+"#d"+tindex+" #tg").val();
+		       			json['description'][i]['commissionrate'] = $(f+"#d"+tindex+" #th").val();
+		       			json['description'][i]['commission'] = $(f+"#d"+tindex+" #ti").val();
+		       			json['description'][i]['bonus'] = $(f+"#d"+tindex+" #tj").val();
+		       	}
+      	}else
+      	{
+      			json['idList'] = $(f+'#ids_markteting').val()
+      			json['description'] = [];
+		       	for(var i=0;i< v_sub_taxinvoice.row_nums_markteting;i++)
+		       	{
+		       			var tindex = i+1;
+		       			json['description'][i] = {};
+		       			json['description'][i]['id'] = tindex;
+		       			json['description'][i]['studentname'] = $(f+"#dm"+tindex+" #ta").val();
+		       			json['description'][i]['dob'] = formatDate2($(f+"#dm"+tindex+" #tb").val());
+		       			json['description'][i]['studentId'] = $(f+"#dm"+tindex+" #tc").val();
+		       			json['description'][i]['course'] = $(f+"#dm"+tindex+" #td").val();
+		       			json['description'][i]['startDate'] = formatDate2($(f+"#dm"+tindex+" #te").val());
+		       			json['description'][i]['instalMent'] = $(f+"#dm"+tindex+" #tf").val();
+		       			json['description'][i]['tuitionFee'] = $(f+"#dm"+tindex+" #tg").val();
+		       			json['description'][i]['marketing'] = $(f+"#dm"+tindex+" #th").val();       			
+		       	}
+      	}       	
+       	
+       	console.log(json);
+       	//return false;
+       	show_loading();
+       	$.ajax({
+		      url: str_url,
+		      type: 'POST',
+		      async: false,
+		      contentType:"application/json",
+		      dataType: 'json',
+		      data: JSON.stringify(json),
+		    }).done(function(data) {    		
+		    		if (data.code == 0)
+		   			{
+		   					//生成normal的pdf  					
+						    if (v_sub_taxinvoice.row_nums_normal) make_pdf(f,json['invoiceNo'],'SC');
+						    //生成markteting的pdf
+						    if (v_sub_taxinvoice.row_nums_markteting)
+						    {
+						    		if (v_sub_taxinvoice.row_nums_normal)
+						    		{
+						    				make_pdf(f,data.data,'SC');
+						    		}else
+						    		{
+						    				make_pdf(f,json['invoiceNo'],'SC');
+						    		}
+						    }
+						    localStorage.setItem("is_select", "no");
+		   					$(f+'#alert_success').css('marginTop','30%');
+		   					$(f+'#alert_success').css('marginLeft','30%');
+		   					$(f+'#alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+		   					$('#addovst_id').modal('hide');
+		   					//v.kind = 'SC';
+		   					//v.getDatalist();
+		   					//$('.modal-backdrop').remove();
+		   					var go_url = 'taxinvoice-list.html?state=&type=SC';
+		   					setTimeout(function(){window.location.href = go_url;}, 1500);
+		   									    
+		   			}else
+		   			{
+		   					$('#loading_id').modal('hide');
+		   					$(f+'#alert_error').css('marginTop','30%');
+		   					$(f+'#alert_error').css('marginLeft','30%');
+		   					$(f+'#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+          			$(f+"#error_info").html(data.message);
+	        			return false;
+		   			}
+		    });
+    }
+}
+
 function make_pdf(f,invoiceNo,type)
 {
 		//调用生成pdf接口
@@ -1272,6 +1739,7 @@ function make_pdf(f,invoiceNo,type)
 
 function taxinvoice_download(invoiceNo,invoiceIds)
 {
+		//var down_url = url+'data/upload/pdf/'+invoiceNo.substring(0,6)+'/'+invoiceNo+'_'+invoiceIds+'.pdf';
 		var down_url = '/statics/uploads/pdf/'+invoiceNo.substring(0,6)+'/'+invoiceNo+'_'+invoiceIds+'.pdf';
 		var a = document.createElement('a');
 		a.href = down_url;
@@ -1283,8 +1751,14 @@ function taxinvoice_download(invoiceNo,invoiceIds)
 
 $('#addservicefee_id').on('show.bs.modal', function () {
 	$("#addservicefee_form").validate({
-			submitHandler: function () {						
-            addservicefeeSave();
+			submitHandler: function () {
+						if(v_sub_taxinvoice.invoiceNo == '')
+						{						
+            		addservicefeeSave();
+            }else
+            {
+            		editservicefeeSave();
+            }
       },
       rules: {
           b1: "required",
@@ -1299,8 +1773,14 @@ $('#addservicefee_id').on('show.bs.modal', function () {
 
 $('#addovst_id').on('show.bs.modal', function () {
 	$("#addovst_form").validate({
-			submitHandler: function () {						
-            addovstSave();
+			submitHandler: function () {
+						if(v_sub_taxinvoice.invoiceNo == '')
+						{						
+            		addovstSave();
+            }else
+            {
+            		editovstSave();
+            }
       },
       rules: {
           b1: "required",
@@ -1320,6 +1800,13 @@ $('#addovst_id').on('show.bs.modal', function () {
 });
 
 $('#addservicefee_id').on('hidden.bs.modal', function () {
+	v_sub_taxinvoice.addservicefee_id = 0;
+	v_sub_taxinvoice.row_nums = 0;
+	v_sub_taxinvoice.bind_total = 0;
+	localStorage.setItem("is_select", "no");
+});
+$('#addovst_id').on('hidden.bs.modal', function () {
+	v_sub_taxinvoice.addovst_id = 0;
 	localStorage.setItem("is_select", "no");
 });
 </script>
