@@ -428,7 +428,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			commissionOrderDto.setChecked(isChecked != null && "true".equalsIgnoreCase(isChecked));
 			if (StringUtil.isNotEmpty(remarks))
 				commissionOrderDto.setRemarks(remarks);
-//			if (commissionOrderDto.getKjApprovalDate() == null)
+			if (commissionOrderDto.getKjApprovalDate() == null || commissionOrderDto.getKjApprovalDate().getTime() == 0)
 				commissionOrderDto.setKjApprovalDate(new Date());
 
 			// SubagencyDTO subagencyDto =
