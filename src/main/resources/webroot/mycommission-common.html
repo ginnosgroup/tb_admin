@@ -206,7 +206,7 @@ function edit_commission_detail(serviceId,orderId)
 	    	v_sub2.state = response.state;   	
 	    	if (response.id)	    	
 	    	{	    			
-	    			if (response.receiveDate) $("#visa_id #b8").val(v.getTime(response.receiveDate));
+	    			//if (response.receiveDate) $("#visa_id #b8").val(v.getTime(response.receiveDate));
 	        	$("#visa_id #b9").val(response.receiveTypeId);
 	        	if (response.totalPerAmount) $("#visa_id #b10").val(response.totalPerAmount);
 	        	if (response.discount) $("#visa_id #b11").val(response.discount);
