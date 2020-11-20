@@ -1214,7 +1214,7 @@ function addservicefeeSave()
 						    					//触发下载pdf
 						    					var pdf_url = response.message;
 						    					var a = document.createElement('a');
-													a.href = url+pdf_url;
+													a.href = pdf_url;
 													a.target = '_blank';
 													$("body").append(a);
 													a.click();
