@@ -365,7 +365,8 @@ public class VisaController extends BaseCommissionOrderController {
 			visaDto.setDeductGst(commission - visaDto.getGst());
 			visaDto.setBonus(visaDto.getDeductGst() * 0.1);
 			visaDto.setExpectAmount(commission);
-			visaDto.setKjApprovalDate(new Date()); // debug
+			if (visaDto.getKjApprovalDate() == null || visaDto.getKjApprovalDate().getTime() == 0)
+				visaDto.setKjApprovalDate(new Date()); // debug
 			if (visaService.updateVisa(visaDto) > 0) {
 				VisaDTO _visaDTO = visaService.getVisaById(visaDto.getId());
 				serviceOrderDto.setReceivable(_visaDTO.getTotalPerAmount());
