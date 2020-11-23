@@ -200,6 +200,7 @@ public class VisaController extends BaseCommissionOrderController {
 					visaDto.setPaymentVoucherImageUrl4(null);
 					visaDto.setPaymentVoucherImageUrl5(null);
 					visaDto.setState(ReviewKjStateEnum.PENDING.toString());
+					visaDto.setKjApprovalDate(null);
 					visaDto.setPerAmount(_receivable > _perAmount ? _receivable - _perAmount : 0.00); // 第二笔单子修改本次应收款
 //					if (_received > 0.00)
 //						visaDto.setAmount(_received > _amount ? _received - _amount : 0.00);

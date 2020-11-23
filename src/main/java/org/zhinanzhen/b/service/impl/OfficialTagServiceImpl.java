@@ -107,6 +107,11 @@ public class OfficialTagServiceImpl extends BaseService implements OfficialTagSe
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
+		if (ServiceOrderOfficialTagDao.countServiceOrderOfficialTag(id, serviceOrderId) > 0) {
+			ServiceException se = new ServiceException("The tag is added !");
+			se.setCode(ErrorCodeEnum.DATA_ERROR.code());
+			throw se;
+		}
 		ServiceOrderOfficialTagDO serviceOrderOfficialTagDo = new ServiceOrderOfficialTagDO();
 		serviceOrderOfficialTagDo.setServiceOrderId(serviceOrderId);
 		serviceOrderOfficialTagDo.setOfficialTagId(id);
