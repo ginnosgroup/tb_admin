@@ -26,6 +26,12 @@
         WHERE service_order_id = #{serviceOrderId};
     </update>
     
+    <select id="countServiceOrderOfficialTag" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM b_service_order_official_tag
+        WHERE service_order_id = #{serviceOrderId, jdbcType=INTEGER} AND official_tag_id = #{officialTagId, jdbcType=INTEGER};
+    </select>
+    
     <delete id="deleteServiceOrderOfficialTagByTagIdAndServiceOrderId">
         DELETE FROM b_service_order_official_tag
         WHERE official_tag_id = #{officialTagId, jdbcType=INTEGER} AND service_order_id = #{serviceOrderId, jdbcType=INTEGER};

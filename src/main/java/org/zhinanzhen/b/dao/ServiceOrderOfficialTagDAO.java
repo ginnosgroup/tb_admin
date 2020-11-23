@@ -9,6 +9,9 @@ public interface ServiceOrderOfficialTagDAO {
 
 	int updateServiceOrderOfficialTag(ServiceOrderOfficialTagDO serviceOrderOfficialTagDo);
 
+	int countServiceOrderOfficialTag(@Param("officialTagId") int officialTagId,
+			@Param("serviceOrderId") int serviceOrderId);
+
 	int deleteServiceOrderOfficialTagByTagIdAndServiceOrderId(@Param("officialTagId") int officialTagId,
 			@Param("serviceOrderId") int serviceOrderId);
 
