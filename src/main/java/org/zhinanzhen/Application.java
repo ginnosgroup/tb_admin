@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 @SpringBootApplication
@@ -26,5 +27,11 @@ public class Application extends WebMvcConfigurerAdapter {
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry.addResourceHandler("/webroot/**").addResourceLocations("classpath:/webroot/");
 	}
+	
+	@Override
+    public void addViewControllers(ViewControllerRegistry registry){
+        registry.addViewController("/").setViewName("/admin/webroot/login.htm");
+        super.addViewControllers(registry);
+    }
 
 }
