@@ -56,7 +56,12 @@
                 official_id,
                 remarks,
                 closed_reason,
-                is_delete)
+                is_delete,
+                information,
+                is_history,
+                nut_cloud,
+                service_assess_id,
+                real_people_number)
             VALUES (
                 now(),
                 now(),
@@ -108,7 +113,12 @@
                 #{officialId},
                 #{remarks},
                 #{closedReason},
-                0);
+                0,
+                #{information},
+                #{isHistory},
+                #{nutCloud},
+                #{serviceAssessId},
+                #{realPeopleNumber});
     </insert>
     
     <update id="updateServiceOrder" parameterType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
@@ -252,6 +262,19 @@
         <if test='closedReason != null'>
             , closed_reason = #{closedReason}
         </if>
+        <if test="information != null">
+            , information = #{information}
+        </if>
+        <if test="isHistory != null">
+            , is_history = #{isHistory}
+        </if>
+        <if test="nutCloud != null">
+            , nut_cloud = #{nutCloud}
+        </if>
+            , service_assess_id = #{serviceAssessId}
+        <if test=" realPeopleNumber != null  and realPeopleNumber > 0 ">
+            , real_People_Number = #{realPeopleNumber}
+        </if>
         WHERE id = #{id};
     </update>
     
@@ -377,7 +400,12 @@
             so.adviser_id_2 AS adviserId2,
             so.official_id AS officialId,
             so.remarks AS remarks,
-            so.closed_reason AS closedReason
+            so.closed_reason AS closedReason,
+            so.information AS information ,
+            so.is_history AS isHistory,
+            so.nut_cloud AS nutCloud,
+            so.service_assess_id AS serviceAssessId ,
+            so.real_people_number AS realPeopleNumber
         FROM tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON so.id=soot.service_order_id
         WHERE so.is_delete = 0 AND a.id = so.adviser_id
         <if test='type != null and type != ""'>
@@ -507,7 +535,12 @@
             adviser_id_2 AS adviserId2,
             official_id AS officialId,
             remarks,
-            closed_reason AS closedReason
+            closed_reason AS closedReason,
+            information  ,
+            is_history AS isHistory,
+            nut_cloud AS nutCloud,
+            service_assess_id AS serviceAssessId ,
+            real_people_number AS realPeopleNumber
         FROM b_service_order WHERE id = #{id, jdbcType=INTEGER};
     </select>
     

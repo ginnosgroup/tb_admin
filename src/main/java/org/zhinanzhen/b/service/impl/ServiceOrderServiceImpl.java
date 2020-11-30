@@ -8,33 +8,8 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.zhinanzhen.b.dao.CommissionOrderDAO;
-import org.zhinanzhen.b.dao.KjDAO;
-import org.zhinanzhen.b.dao.MaraDAO;
-import org.zhinanzhen.b.dao.OfficialDAO;
-import org.zhinanzhen.b.dao.OfficialTagDAO;
-import org.zhinanzhen.b.dao.ReceiveTypeDAO;
-import org.zhinanzhen.b.dao.SchoolDAO;
-import org.zhinanzhen.b.dao.ServiceDAO;
-import org.zhinanzhen.b.dao.ServiceOrderCommentDAO;
-import org.zhinanzhen.b.dao.ServiceOrderDAO;
-import org.zhinanzhen.b.dao.ServiceOrderOfficialRemarksDAO;
-import org.zhinanzhen.b.dao.ServiceOrderReviewDAO;
-import org.zhinanzhen.b.dao.ServicePackageDAO;
-import org.zhinanzhen.b.dao.SubagencyDAO;
-import org.zhinanzhen.b.dao.VisaDAO;
-import org.zhinanzhen.b.dao.pojo.MaraDO;
-import org.zhinanzhen.b.dao.pojo.OfficialDO;
-import org.zhinanzhen.b.dao.pojo.OfficialTagDO;
-import org.zhinanzhen.b.dao.pojo.ReceiveTypeDO;
-import org.zhinanzhen.b.dao.pojo.SchoolDO;
-import org.zhinanzhen.b.dao.pojo.ServiceDO;
-import org.zhinanzhen.b.dao.pojo.ServiceOrderCommentDO;
-import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
-import org.zhinanzhen.b.dao.pojo.ServiceOrderOfficialRemarksDO;
-import org.zhinanzhen.b.dao.pojo.ServiceOrderReviewDO;
-import org.zhinanzhen.b.dao.pojo.ServicePackageDO;
-import org.zhinanzhen.b.dao.pojo.SubagencyDO;
+import org.zhinanzhen.b.dao.*;
+import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderOfficialRemarksDTO;
@@ -120,6 +95,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
 	@Resource
 	private AdminUserDAO adminUserDao;
+
+	@Resource
+	private ServiceAssessDao serviceAssessDao;
 
 	@Override
 	public int addServiceOrder(ServiceOrderDTO serviceOrderDto) throws ServiceException {
@@ -290,6 +268,11 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			// 查询审核记录
 			putReviews(serviceOrderDto);
 			serviceOrderDtoList.add(serviceOrderDto);
+
+			//查询职业名称
+			ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDto.getServiceAssessId());
+			if (serviceAssessDO!= null)
+				serviceOrderDto.setServiceAssessDO(serviceAssessDO);
 		}
 		return serviceOrderDtoList;
 	}
@@ -383,6 +366,12 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			}
 			// 查询审核记录
 			putReviews(serviceOrderDto);
+
+			//查询职业名称
+			ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDto.getServiceAssessId());
+			if (serviceAssessDO!= null)
+				serviceOrderDto.setServiceAssessDO(serviceAssessDO);
+
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());

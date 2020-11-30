@@ -3,6 +3,7 @@ package org.zhinanzhen.b.service.pojo;
 import java.util.Date;
 import java.util.List;
 
+import org.zhinanzhen.b.dao.pojo.ServiceAssessDO;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 
@@ -135,6 +136,16 @@ public class ServiceOrderDTO {
 
 	private String closedReason;
 
+	private String information;
+
+	private boolean isHistory;
+
+	private  String nutCloud;
+
+	private String serviceAssessId;
+
+	private Integer realPeopleNumber;
+
 	private boolean hasCommissionOrder = false;
 
 	private ServiceOrderReviewDTO review;
@@ -146,5 +157,7 @@ public class ServiceOrderDTO {
 	private List<ChildrenServiceOrderDTO> childrenServiceOrders;
 	
 	private List<ServiceOrderOfficialRemarksDTO> officialNotes;
+
+	private ServiceAssessDO serviceAssessDO;
 
 }
