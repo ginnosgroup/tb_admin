@@ -120,4 +120,14 @@ public class ServiceOrderDO implements Serializable {
 
 	private String closedReason;
 
+	private String information;
+
+	private boolean isHistory;
+
+	private  String nutCloud;
+
+	private String serviceAssessId;
+
+	private  Integer realPeopleNumber;
+
 }
