@@ -17,16 +17,16 @@ public interface ServiceOrderService {
 	int updateServiceOrderRviewState(int id, String reviewState) throws ServiceException;
 
 	int countServiceOrder(String type, String excludeState, List<String> stateList, String auditingState,
-			List<String> reviewStateList, String startMaraApprovalDate, String endMaraApprovalDate,
-			String startOfficialApprovalDate, String endOfficialApprovalDate, List<Integer> regionIdList,
-			Integer userId, Integer maraId, Integer adviserId, Integer officialId, Integer officialTagId, int parentId,
-			boolean isNotApproved) throws ServiceException;
+						  List<String> reviewStateList, String startMaraApprovalDate, String endMaraApprovalDate,
+						  String startOfficialApprovalDate, String endOfficialApprovalDate, List<Integer> regionIdList,
+						  Integer userId, Integer maraId, Integer adviserId, Integer officialId, Integer officialTagId, int parentId,
+						  boolean isNotApproved, Integer serviceId, Integer schoolId) throws ServiceException;
 
 	List<ServiceOrderDTO> listServiceOrder(String type, String excludeState, List<String> stateList,
-			String auditingState, List<String> reviewStateList, String startMaraApprovalDate,
-			String endMaraApprovalDate, String startOfficialApprovalDate, String endOfficialApprovalDate,
-			List<Integer> regionIdList, Integer userId, Integer maraId, Integer adviserId, Integer officialId,
-			Integer officialTagId, int parentId, boolean isNotApproved, int pageNum, int pageSize)
+										   String auditingState, List<String> reviewStateList, String startMaraApprovalDate,
+										   String endMaraApprovalDate, String startOfficialApprovalDate, String endOfficialApprovalDate,
+										   List<Integer> regionIdList, Integer userId, Integer maraId, Integer adviserId, Integer officialId,
+										   Integer officialTagId, int parentId, boolean isNotApproved, int pageNum, int pageSize, Integer serviceId, Integer schoolId)
 			throws ServiceException;
 
 	ServiceOrderDTO getServiceOrderById(int id) throws ServiceException;

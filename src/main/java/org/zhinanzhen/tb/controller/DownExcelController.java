@@ -179,7 +179,6 @@ public class DownExcelController extends BaseController {
 		response.setHeader("Content-disposition",
 				"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
 		response.setContentType("application/msexcel");
-
 		try {
 			super.setGetHeader(response);
 			List<VisaDTO> visaDtoList = visaService.listVisa(id , keyword, startHandlingDate, endHandlingDate, null, null,
