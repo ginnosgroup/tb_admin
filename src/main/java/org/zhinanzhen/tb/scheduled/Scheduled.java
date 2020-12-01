@@ -145,7 +145,7 @@ public class Scheduled {
     }
 
     //上月一号到上月末(每月触发)
-    @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 9  1 * ?  ")
+    @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 12  2 * ?")
     public void everyMonth(){
 
         String startDate = DateClass.lastMonthFirstDay(Calendar.getInstance());   //就是上个月一号的时间
