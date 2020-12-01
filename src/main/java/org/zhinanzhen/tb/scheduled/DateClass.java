@@ -19,11 +19,8 @@ public class DateClass {
     //上月一号
     public static String lastMonthFirstDay(Calendar calendar){
 
-        int maxCurrentMonthDay=0;
 
-        maxCurrentMonthDay = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-        calendar.add(Calendar.DAY_OF_MONTH, - maxCurrentMonthDay);
+        calendar.add(Calendar.MONTH, - 1);
 
         calendar.set(Calendar.DAY_OF_MONTH, 1);
 
@@ -95,5 +92,6 @@ public class DateClass {
 
         return sdf.format(instance.getTime());
     }
+
 
 }
