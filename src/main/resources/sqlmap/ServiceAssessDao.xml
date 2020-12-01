@@ -18,7 +18,7 @@
     </update>
 
     <update id="delete">
-        update `b_service_assess` set is_delete =  true  where id = #{id};
+        update `b_service_assess` set is_delete =  true , gmt_modify = now() where id = #{id};
     </update>
 
     <select id="seleteAssessById" resultType="org.zhinanzhen.b.dao.pojo.ServiceAssessDO">

@@ -1435,26 +1435,32 @@ public class ServiceOrderController extends BaseController {
 					sheet.addCell(new Label(9, i, so.getMara().getName() , cellFormat));
 				if (so.getOfficial() != null)
 					sheet.addCell(new Label(10, i, so.getOfficial().getName(), cellFormat));
-				if (so.getType().equalsIgnoreCase("VISA"))
-					sheet.addCell(new Label(11, i, "签证-" + so.getService().getCode(), cellFormat));
-				if (so.getType().equalsIgnoreCase("OVST"))
-					sheet.addCell(new Label(11, i, "留学-" + so.getSchool().getName(), cellFormat));
-				if (so.getType().equalsIgnoreCase("SIV"))
-					sheet.addCell(new Label(11, i, "独立移民技术-" + so.getService().getCode(), cellFormat));
-				sheet.addCell(new Label(12, i, so.getState(), cellFormat));
+				if (so.getType().equalsIgnoreCase("VISA")){
+					sheet.addCell(new Label(11, i,  " 签证 " , cellFormat));
+					sheet.addCell(new Label(12, i, so.getService().getCode(), cellFormat));
+				}
+				if (so.getType().equalsIgnoreCase("OVST")){
+					sheet.addCell(new Label(11, i, " 留学 " , cellFormat));
+					sheet.addCell(new Label(12, i, so.getSchool().getName(), cellFormat));
+				}
+				if (so.getType().equalsIgnoreCase("SIV")){
+					sheet.addCell(new Label(11, i, " 独立移民技术 ", cellFormat));
+					sheet.addCell(new Label(12, i, so.getService().getCode(), cellFormat));
+				}
+
 				if (ReviewAdviserStateEnum.PENDING.toString().equalsIgnoreCase(so.getState()))
-					sheet.addCell(new Label(12, i, "待提交审核", cellFormat));
+					sheet.addCell(new Label(13, i, "待提交审核", cellFormat));
 				if (ReviewAdviserStateEnum.REVIEW.toString().equalsIgnoreCase(so.getState()))
-				sheet.addCell(new Label(12, i,"审核中", cellFormat));
+				sheet.addCell(new Label(13, i,"审核中", cellFormat));
 				if (ReviewAdviserStateEnum.APPLY.toString().equalsIgnoreCase(so.getState()))
-				sheet.addCell(new Label(12, i,"服务申请中", cellFormat));
+				sheet.addCell(new Label(13, i,"服务申请中", cellFormat));
 				if (ReviewAdviserStateEnum.COMPLETE.toString().equalsIgnoreCase(so.getState()))
-				sheet.addCell(new Label(12, i, "服务申请完成", cellFormat));
+				sheet.addCell(new Label(13, i, "服务申请完成", cellFormat));
 				if (ReviewAdviserStateEnum.PAID.toString().equalsIgnoreCase(so.getState()))
-				sheet.addCell(new Label(12, i,"完成-支付成功", cellFormat));
+				sheet.addCell(new Label(13, i,"完成-支付成功", cellFormat));
 				if (ReviewAdviserStateEnum.CLOSE.toString().equalsIgnoreCase(so.getState()))
-				sheet.addCell(new Label(12, i, "关闭", cellFormat));
-				sheet.addCell(new Label(13, i, so.getRemarks(), cellFormat));
+				sheet.addCell(new Label(13, i, "关闭", cellFormat));
+				sheet.addCell(new Label(14, i, so.getRemarks(), cellFormat));
 				i++;
 			}
 			wbe.write();
