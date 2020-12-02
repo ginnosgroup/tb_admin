@@ -6,7 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="renderer" content="webkit">
 		<link rel="shortcut icon" href="img/favicon.ico">
-		<title>MARA管理</title>
+		<title>签证职业评估管理</title>
 		<link href="css/bootstrap.min.css" rel="stylesheet">
 		<link href="css/bootstrap-reset.css" rel="stylesheet">
 		<link href="assets/font-awesome/css/font-awesome.css" rel="stylesheet">
@@ -23,7 +23,7 @@
 		<![endif]-->
 	</head>
 
-	<body id="mara" v-cloak>
+	<body id="service" v-cloak>
 		<section id="container">
 			<header class="header white-bg">
 				<div class="sidebar-toggle-box">
@@ -46,7 +46,7 @@
           </span>
           <span v-if="ap_list==='SUPERAD'">
            	 超级管理员
-          </span>          
+          </span>
 				</a>
 				<div class="top-nav ">
 					<ul class="nav pull-right top-menu">
@@ -121,7 +121,7 @@
 							</ul>
 						</li>
             <li>
-              <a href="mara.html" class="active">
+              <a href="mara.html">
                 <i class="fa fa-book">
                 </i>
                 <span>
@@ -178,7 +178,7 @@
               </a>
             </li>
             <li class="sub-menu">
-            	<a href="javascript:;">
+            	<a href="javascript:;" class="active">
 								<i class="fa fa-book">
                 </i>
 								<span>
@@ -195,14 +195,14 @@
 									<a href="service-package.html">
 										服务包管理
 									</a>
-								</li>
-								<li>
+								</li>	
+								<li  class="active">
 									<a href="visa-ca.html">
 										签证职业评估管理
 									</a>
 								</li>							
 							</ul>              
-            </li>
+            </li>            
           	</dli>
           	<li v-if="ap_list!=='KJ' && ap_list!=='WA' && ap_list!=='MA'" class="sub-menu">
 							<a href="javascript:;">
@@ -324,7 +324,7 @@
 									<a href="knowledge.html">
 										知识库菜单
 									</a>
-								</li>							
+								</li>
 							</ul>
 						</li>
 					</ul>
@@ -336,22 +336,22 @@
 						<div class="col-lg-12">
 							<section class="panel">
 								<header class="panel-heading">
-									MARA管理
+									签证职业评估管理
 								</header>
 								<div class="panel-body">
 									<div class="adv-table editable-table">
+										<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+                      <button data-dismiss="alert" class="close close-sm" type="button">
+                      <i class="fa fa-times"></i>
+                      </button>
+                      <strong id="error_info"></strong>
+                   	</div>
 										<div class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
 									      <button data-dismiss="alert" class="close close-sm" type="button">
 									      <i class="fa fa-times"></i>
 									      </button>
 									      <strong>Success!</strong> You  just achieved success.
 									  </div>
-									  <div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
-                      <button data-dismiss="alert" class="close close-sm" type="button">
-                      <i class="fa fa-times"></i>
-                      </button>
-                      <strong id="error_info"></strong>
-                   	</div>
 										<div class="clearfix">
                        <div class="btn-group">
                           <button id="editable-sample_new" class="btn btn-success green" @click="table_insert">
@@ -359,14 +359,6 @@
                           </button>
                        </div>
                     </div>
-                    <form class="form-inline" style="margin-top:10px;">
-											<div class="form-group">
-												<input v-model.trim="name" type="text" class="form-control" placeholder="输入Mara名称">												
-											</div>
-											<div class="form-group">
-												<button @click="getUser" type="button" class="btn btn-info">查询</button>
-											</div>
-										</form>
 										<div class="responsive-table margin-top">
 											<input type="hidden" name="id" id="id" value="0" />
 											<table class="display table table-bordered table-striped" id="example">
@@ -374,12 +366,8 @@
 													<tr>
 														<!--<th><input @click="checked" type="checkbox"></th>-->
 														<th>ID</th>
-														<th>MARA名称</th>
-														<th>电话号码</th>
-														<th>电子邮箱</th>
-														<th>登录密码</th>
-														<th>二维码</th>
-														<th>所属区域</th>														
+														<th>名称</th>
+														<th>职业名称</th>
 														<th>Edit</th>
 														<th>Delete</th>
 													</tr>
@@ -387,12 +375,8 @@
 												<tbody>
 													<tr v-for="item in subject" class="gradeX">
 														<td v-html="item.oid"></td>
+														<td v-html="item.type"></td>
 														<td v-html="item.name"></td>
-														<td v-html="item.phone"></td>
-														<td v-html="item.email"></td>
-														<td v-html="item.password"></td>
-														<td v-html="item.imageUrl"></td>
-														<td v-html="item.regionName"></td>														
 														<td><a v-if="item.id" class="edit" href="javascript:;" @click="table_modify($index)"><span class="label label-success">Edit</span></a>
 																<a v-else class="edit" href="javascript:;"><span class="label label-primary">Save</span></a>
 														</td>
@@ -403,7 +387,7 @@
 												</tbody>
 											</table>
 										</div>
-										<div class="row-fluid">
+										<div class="row-fluid" style="display:none;">
 											<div class="span6">
 												<div class="dataTables_info" id="hidden-table-info_info">共{{count}}条</div>
 											</div>
@@ -480,29 +464,6 @@
 				</div>
 			</div>
 		</div>
-		<div class="modal fade" id="passwd_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<h4 class="modal-title" id="myModalLabel">重置密码</h4>
-					</div>
-					<div class="modal-body">
-							<form class="form-horizontal">
-							<div class="form-group">
-								<label class="col-sm-4 control-label">新的随机密码</label>
-								<div class="col-sm-8">
-									<label id="resetPasswd" style="color:red;"></label>
-								</div>
-							</div>
-							</form>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-					</div>
-				</div>
-			</div>
-		</div>
 		<script src="js/jquery-1.8.3.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
 		<script src="js/jquery.dcjqaccordion.2.7.js"></script>
@@ -515,13 +476,13 @@
 		<script src="js/vue.js"></script>
 		<script src="js/common.js?verson=1"></script>
 		<script>
-			tb.isLogin("mara.html");
+			tb.isLogin("service.html");
 			$("td,th").addClass("text-center");
 			var v = new Vue({
-				el: '#mara',
+				el: '#service',
 				data: {
 					admin: sessionStorage.getItem("admin"),
-					ap_list: sessionStorage.getItem("ap_list"),
+					ap_list: sessionStorage.getItem("ap_list"),					
 					allSort: [],
 					subject: [],
 					count: 0,
@@ -531,7 +492,7 @@
 					sort: '',
 					state: '',
 					pageNum: 0,
-					pageSize: 10,
+					pageSize: 100000,
 					allPage: 0,
 					add: false,
 					current_index: '',
@@ -542,44 +503,23 @@
 				created: function() {
 					this.getDatalist();
 				},
-				methods: {
-					getUser: function() {
-						var that = this;
-						$.get(url + "mara/count", {
-							name: that.name,							
-							adviserId: that.adviserId
-						}, function(result) {
-							console.log(result)
-							that.count = result.data;
-							that.allPage = Math.ceil(result.data / that.pageSize);
-							console.log(that.allPage)
-						});
-						$.get(url + "mara/list", {
-							name: that.name,
-							adviserId: that.adviserId,							
-							pageNum: 0,
-							pageSize: that.pageSize
-						}, function(result) {
-							that.pageNum = 0;
-							that.subject = return_result(result);
-						});
-					},
+				methods: {					
 					getDatalist: function() {
 						var that = this;
-						$.get(url + "mara/count", {
+						$.get(url + "serviceAssess/count", {
 							keyword: that.name							
 						}, function(result) {
-							console.log(result)
 							that.count = result.data;
 							that.allPage = Math.ceil(result.data / that.pageSize);
-							console.log(that.allPage)
 						});
-						$.get(url + "mara/list", {
+						$.get(url + "serviceAssess/list", {
 							pageNum: 0,
 							pageSize: that.pageSize
 						}, function(result) {
-							that.pageNum = 0;
+							//console.log(result)
+							that.pageNum = 0;							
 							that.subject = return_result(result);
+							//console.log(that.subject);
 						});
 					},
 					getTime: function(d) {
@@ -603,7 +543,7 @@
 					firstPage: function() {
 						var that = this;
 						if(that.pageNum > 0) {
-							$.get(url + "mara/list", {
+							$.get(url + "serviceAssess/list", {
 								keyword: that.name,
 								state: that.state,
 								pageNum: 0,
@@ -618,7 +558,7 @@
 						var that = this;
 						if(that.pageNum > 0) {
 							that.pageNum--;
-							$.get(url + "mara/list", {
+							$.get(url + "serviceAssess/list", {
 								keyword: that.name,
 								pageNum: that.pageNum,
 								pageSize: that.pageSize
@@ -631,7 +571,7 @@
 						var that = this;
 						if(that.pageNum < that.allPage - 1) {
 							that.pageNum++;
-							$.get(url + "mara/list", {
+							$.get(url + "serviceAssess/list", {
 								keyword: that.name,
 								categoryId: that.sort,
 								state: that.state,
@@ -645,7 +585,7 @@
 					lastPage: function() {
 						var that = this;
 						if(that.pageNum < that.allPage - 1) {
-							$.get(url + "mara/list", {
+							$.get(url + "serviceAssess/list", {
 								keyword: that.name,
 								categoryId: that.sort,
 								state: that.state,
@@ -668,13 +608,9 @@
 										this.current_row = '';
 								}											
 								this.subject.splice(0,0, {
-									id:'',									
-									name: '<input type="text" class="form-control small" style="width:150px;" id="t0" value="">',
-									phone: '<input type="text" class="form-control small" style="width:150px;" id="t1" value="">',
-									email: '<input type="text" class="form-control small" style="width:200px;" id="t2" value="">',
-									password: '<input type="password" autocomplete="off" class="form-control small" style="width:150px;" id="t5" value="">',
-									imageUrl: '<textarea type="text" class="form-control small" style="width:200px;" id="t3"></textarea>',
-									regionName: '<select class="form-control" style="width:150px;" id="t4"></select>',
+									id:'',
+									type: '<select class="form-control" style="width:150px;" id="t1"></select>',
+									name: '<input type="text" class="form-control small" style="width:80%;" id="t0" value="">',
 									});
 								this.add = true;
 						}
@@ -691,15 +627,11 @@
 								}
 						}
 						this.current_index = index;
-						this.current_row = this.subject[index];
-						if (this.subject[index].imageUrl == null) this.subject[index].imageUrl = '';
+						this.current_row = this.subject[index];						
 						this.subject.splice(index,1, {
 							oid: parseInt(this.subject[index].id),
-							name: '<input type="text" class="form-control small" style="width:150px;" id="t0" value="'+this.subject[index].name+'">',
-							phone: '<input type="text" class="form-control small" style="width:150px;" id="t1" value="'+this.subject[index].phone+'">',
-							email: '<input type="text" class="form-control small" style="width:200px;" id="t2" value="'+this.subject[index].email+'">',
-							imageUrl: '<textarea type="text" class="form-control small" style="width:200px;" id="t3">'+this.subject[index].imageUrl+'</textarea>',
-							regionName: '<select class="form-control" style="width:150px;" id="t4"></select>',							
+							type: '<select class="form-control" style="width:150px;" id="t1"></select>',
+							name: '<input type="text" class="form-control small" style="width:80%;" id="t0" value="'+this.subject[index].name+'">',
 						});						
 						if (this.add)
 						{
@@ -716,20 +648,7 @@
           	$('#delete_id').modal('show');
           	this.dId = id;
           	this.index = index;
-          },
-          passwdSet: function (username){
-          			$.post(url + 'admin_user/resetPassword', { username: username},
-						   	function(data){
-						   		if (data.code == 0)
-						   		{
-						   				$('#resetPasswd').html(data.data);
-						   		}else
-						   		{
-						   				$('#resetPasswd').html(data.message);
-						   		}
-						   	});
-			      		$('#passwd_id').modal('show');
-			    }
+          }
 				}		
 			});
 			
@@ -755,50 +674,43 @@
 			{
 				for(var i = 0; i < result.data.length; i++) {
 						result.data[i].oid = result.data[i].id;
-						result.data[i].password = '<label id="t5" style="width:150px;"><a href="javascript:;" onclick="passwdSet(\''+result.data[i].email+'\')">重置密码</a></label>';
+						result.data[i].type = '签证 - 职业评估';
 				};
 				return result.data;
-			}
+			}			
 			
 			function table_addsave()
 			{
           var jqInputs = $('input',$("#example"));
-          var jqText = $('textarea',$("#example"));
           var jqSelect = $('select',$("#example"));
           
           var check_result = 0;
-          if (jqInputs[0].value != '' && jqInputs[1].value != '' && jqInputs[2].value != '')
+          if (jqSelect[0].value != '' && jqInputs[0].value != '')
           {
           		check_result = true;
           }else
           {
-          		alert('所有选项必须填写！');
-          }                    
+          		$('#alert_error').addClass('alert-danger').show().delay(1500).fadeOut();
+					   	$("#error_info").html('职业名称不能为空！');
+					   	return false;
+          }
           
           if (check_result)
           {              
-              var str_url = url + "mara/add";
+              var str_url = url + "serviceAssess/add";
               var sa_id = $("#id").val();
-              if (sa_id != '0') str_url = url + "mara/update";
+              if (sa_id != '0') str_url = url + "serviceAssess/update";
               $("#id").val('0');
               
-              var passwd = '';
-              if (jqInputs[3] != undefined) passwd = jqInputs[3].value;
-              
-              $.post(str_url, { id: sa_id, name: jqInputs[0].value, phone: jqInputs[1].value, email: jqInputs[2].value, password: passwd, imageUrl: jqText[0].value, regionId: jqSelect[0].value},
+              $.post(str_url, { id: sa_id, serviceId: jqSelect[0].value, name: jqInputs[0].value},
 					   	function(data){
 					   			if (data.code == 0)
 					   			{
-					   					v.add = false;
+					   					v.add = false;					   					
 					   					$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
 					   					v.table_remove();
 					   					//重新载入数据源
 					   					v.getDatalist();
-					   					v.getSort();
-					   			}else
-					   			{
-					   					$('#alert_error').addClass('alert-danger').show().delay(1500).fadeOut();
-					   					$("#error_info").html(data.message);
 					   			}
 					   			//console.log(data);
 					   	});
@@ -809,42 +721,24 @@
 					$('.default-date-picker').datepicker({   				
 				        format: 'dd/mm/yyyy'
 				  });
-				  var regionId = 0;
+				  var name_val = '';
 				 	if (this.current_row.id)
 				  {
+				  		console.log(this.current_row);
 				  		$("#id").val(this.current_row.id);	  		
-				  		regionId = this.current_row.regionId;				  			  		
 				  }
-			    //绑定区域列表
-			    var obj_regionId = $("#t4");	
-			    $.ajax({
-	          url: url + 'region/list_all',
-	          type: 'GET',
-	          dataType: 'json'
-	        }).done(function(response) {
-	        	//author:bischina
-	        	var region_data = response.data;
-	        	console.log(region_data);
-	        	for (var item in region_data)
-	        	{
-	        			obj_regionId.append("<option value='"+region_data[item].id+"'>"+region_data[item].name+"</option>");
-	        			var region_sub = region_data[item].regionList;
-	        			for (var itemsub in region_sub)
-	        			{
-	        					obj_regionId.append("<option value='"+region_sub[itemsub].id+"'>---"+region_sub[itemsub].name+"</option>");
-	        			}
-	        	}
-	        	obj_regionId.val(regionId);   
-	        });
+				  //绑定列表
+			    var obj_name = $("#t1");
+			    obj_name.append("<option value='24'>签证 - 职业评估</option>");    
 			});
 			
 			function deleteId()
       {
-					$.get(url+"mara/delete", {
+					$.post(url + "serviceAssess/delete", {
 						id: v.dId
 					}, function(result) {
 						console.log(result);
-						if(result.data == true) {
+						if(result.code == 0) {
 							$('#delete_id').modal('hide');
 							$('.alert').addClass('alert-success').show().delay(1500).fadeOut();
 							v.table_remove();
@@ -853,29 +747,14 @@
 	   					v.getSort();
 						};
 					});      		
-      }
-      
-      function passwdSet(username)
-      {
-      		$.post(url + 'admin_user/resetPassword', { username: username},
-			   	function(data){
-			   		if (data.code == 0)
-			   		{
-			   				$('#resetPasswd').html(data.data);
-			   		}else
-			   		{
-			   				$('#resetPasswd').html(data.message);
-			   		}
-			   	});
-      		$('#passwd_id').modal('show');
-      }
+      }      
       
       function show_knowledge_detail(id,parentId)
       {
       		sessionStorage.setItem("id", id);
       		sessionStorage.setItem("menu_parentid", parentId);
 					window.location.href = "knowledge.html"; 
-      } 
+      }
 			
 			function  formatDate(now)
 			{
@@ -886,7 +765,7 @@
 			    var   hour=now.getHours();
 			    var   minute=now.getMinutes();     
 			    var   second=now.getSeconds();
-			    return fixZero(date,2)+"/"+fixZero(month,2)+"/"+year; 
+			    return fixZero(date,2)+"/"+fixZero(month,2)+"/"+year;
 			}  
 			
 			function fixZero(num,length)
