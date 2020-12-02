@@ -410,7 +410,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			String title = "新任务提醒:";
 			String type = "";
 			String detail = "";
-			String serviceOrderUrl = "<br/><a href='https://yongjinbiao.zhinanzhen.org/admin/serviceorder-detail.html?id="
+			String serviceOrderUrl = "<br/><a href='https://yongjinbiao.zhinanzhen.org/webroot/serviceorder-detail.html?id="
 					+ serviceOrderDo.getId() + "'>服务订单详情</a>";
 			UserDO user = userDao.getUserById(serviceOrderDo.getUserId());
 			if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())) {
@@ -611,7 +611,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderDo.getAdviserId());
 				OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
 				Date date = serviceOrderDo.getGmtCreate();
-				String serviceOrderUrl = "<br/><a href='https://yongjinbiao.zhinanzhen.org/admin/serviceorder-detail.html?id="
+				String serviceOrderUrl = "<br/><a href='https://yongjinbiao.zhinanzhen.org/webroot/serviceorder-detail.html?id="
 						+ serviceOrderDo.getId() + "'>服务订单详情</a>";
 				UserDO user = userDao.getUserById(serviceOrderDo.getUserId());
 				if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())) {
