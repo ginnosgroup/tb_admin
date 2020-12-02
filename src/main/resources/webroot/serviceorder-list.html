@@ -190,14 +190,31 @@
                 </span>
               </a>
             </li>
-            <li>
-              <a href="service.html">
-                <i class="fa fa-book">
+            <li class="sub-menu">
+            	<a href="javascript:;">
+								<i class="fa fa-book">
                 </i>
-                <span>
-                  服务项目管理
+								<span>
+                 	 服务管理
                 </span>
-              </a>
+							</a>
+							<ul class="sub">
+								<li>
+									<a href="service.html">
+										服务项目管理
+									</a>
+								</li>
+								<li>
+									<a href="service-package.html">
+										服务包管理
+									</a>
+								</li>
+								<li>
+									<a href="visa-ca.html">
+										签证职业评估管理
+									</a>
+								</li>							
+							</ul>              
             </li>
           	</dli>
           	<li v-if="ap_list!=='KJ' && ap_list!=='WA' && ap_list!=='MA'" class="sub-menu">
@@ -1200,7 +1217,14 @@
 						}
 						if (result.data[i].type == 'OVST' && result.data[i].state == 'PAID' && !result.data[i].submitted) result.data[i].strState = result.data[i].strState+'<br/><button onclick="open_detail('+result.data[i].id+',\''+result.data[i].type+'\',\''+result.data[i].currentState+'\');" type="button" class="btn btn-danger">待申请月奖</button>';						
 						if (result.data[i].remarks) result.data[i].remarks = url_replace1(result.data[i].remarks);
-						result.data[i].strRemarks = '<button data-original-title="" data-html="true" data-content="'+result.data[i].remarks+'" data-placement="bottom" data-trigger="onclick" class="btn btn-info btn-xs popovers">查看备注</button>';
+						result.data[i].strRemarks = '';
+						if (result.data[i].nutCloud !=null) result.data[i].strRemarks = '<button data-original-title="" data-html="true" data-content="<a href=\''+result.data[i].nutCloud+'\' target=\'_blank\'>点击访问</a>" data-placement="top" data-trigger="onclick" class="btn btn-info btn-xs popovers">查看资料地址</button><br/>';
+						if (result.data[i].information !=null)
+						{
+							result.data[i].information = url_replace1(result.data[i].information);
+							result.data[i].strRemarks += '<button style="margin-top:5px;" data-original-title="" data-html="true" data-content="'+result.data[i].information+'" data-placement="top" data-trigger="onclick" class="btn btn-info btn-xs popovers">客户基本信息</button><br/>';
+						}
+						result.data[i].strRemarks += '<button style="margin-top:5px;" data-original-title="" data-html="true" data-content="'+result.data[i].remarks+'" data-placement="bottom" data-trigger="onclick" class="btn btn-info btn-xs popovers">查看备注</button>';
 						result.data[i].tagId = 0;
 						result.data[i].tagColour = '';
 						result.data[i].tagText = '';
