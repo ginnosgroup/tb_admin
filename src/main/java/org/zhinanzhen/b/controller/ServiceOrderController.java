@@ -14,7 +14,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import ch.qos.logback.core.joran.conditional.ElseAction;
 import jxl.Workbook;
 import jxl.WorkbookSettings;
 import jxl.write.Label;
@@ -22,7 +21,6 @@ import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.core.namedparam.SqlParameterSourceUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,7 +40,6 @@ import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
 import org.zhinanzhen.b.service.pojo.ServicePackageDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
-import org.zhinanzhen.tb.service.AdviserStateEnum;
 import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserService;
@@ -637,7 +634,9 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "officialId", required = false) Integer officialId,
 			@RequestParam(value = "officialTagId", required = false) Integer officialTagId,
-			@RequestParam(value = "isNotApproved", required = false) Boolean isNotApproved, HttpServletRequest request,
+			@RequestParam(value = "isNotApproved", required = false) Boolean isNotApproved,
+			@RequestParam(value = "serviceId", required = false) Integer serviceId,
+			@RequestParam(value = "schoolId", required = false) Integer schoolId,HttpServletRequest request,
 			HttpServletResponse response) {
 
 		String excludeState = null;
@@ -695,7 +694,7 @@ public class ServiceOrderController extends BaseController {
 					serviceOrderService.countServiceOrder(type, excludeState, stateList, auditingState, reviewStateList,
 							startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
 							endOfficialApprovalDate, regionIdList, userId, maraId, adviserId, officialId, officialTagId,
-							0, isNotApproved != null ? isNotApproved : false));
+							0, isNotApproved != null ? isNotApproved : false,serviceId,schoolId));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -719,6 +718,8 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "officialId", required = false) Integer officialId,
 			@RequestParam(value = "officialTagId", required = false) Integer officialTagId,
 			@RequestParam(value = "isNotApproved", required = false) Boolean isNotApproved,
+			@RequestParam(value = "serviceId", required = false) Integer serviceId,
+			@RequestParam(value = "schoolId", required = false) Integer schoolId,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
 			HttpServletRequest request, HttpServletResponse response) {
 		String excludeState = null;
@@ -774,7 +775,7 @@ public class ServiceOrderController extends BaseController {
 			List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(type, excludeState, stateList,
 					auditingState, reviewStateList, startMaraApprovalDate, endMaraApprovalDate,
 					startOfficialApprovalDate, endOfficialApprovalDate, regionIdList, userId, maraId, adviserId,
-					officialId, officialTagId, 0, isNotApproved != null ? isNotApproved : false, pageNum, pageSize);
+					officialId, officialTagId, 0, isNotApproved != null ? isNotApproved : false, pageNum, pageSize,serviceId,schoolId);
 
 			if (newOfficialId != null)
 				for (ServiceOrderDTO so : serviceOrderList)
@@ -1317,6 +1318,8 @@ public class ServiceOrderController extends BaseController {
 					  @RequestParam(value = "officialId", required = false) Integer officialId,
 					  @RequestParam(value = "officialTagId", required = false) Integer officialTagId,
 					  @RequestParam(value = "isNotApproved", required = false) Boolean isNotApproved,
+					  @RequestParam(value = "serviceId", required = false) Integer serviceId,
+					  @RequestParam(value = "schoolId", required = false) Integer schoolId,
 					  HttpServletRequest request, HttpServletResponse response){
 
 		String excludeState = null;
@@ -1372,7 +1375,7 @@ public class ServiceOrderController extends BaseController {
 			List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(type, excludeState, stateList,
 					auditingState, reviewStateList, startMaraApprovalDate, endMaraApprovalDate,
 					startOfficialApprovalDate, endOfficialApprovalDate, regionIdList, userId, maraId, adviserId,
-					officialId, officialTagId, 0, isNotApproved != null ? isNotApproved : false, 0, 9999);
+					officialId, officialTagId, 0, isNotApproved != null ? isNotApproved : false, 0, 9999, serviceId, schoolId);
 
 			if (newOfficialId != null)
 				for (ServiceOrderDTO so : serviceOrderList)
@@ -1432,26 +1435,32 @@ public class ServiceOrderController extends BaseController {
 					sheet.addCell(new Label(9, i, so.getMara().getName() , cellFormat));
 				if (so.getOfficial() != null)
 					sheet.addCell(new Label(10, i, so.getOfficial().getName(), cellFormat));
-				if (so.getType().equalsIgnoreCase("VISA"))
-					sheet.addCell(new Label(11, i, "签证-" + so.getService().getCode(), cellFormat));
-				if (so.getType().equalsIgnoreCase("OVST"))
-					sheet.addCell(new Label(11, i, "留学-" + so.getSchool().getName(), cellFormat));
-				if (so.getType().equalsIgnoreCase("SIV"))
-					sheet.addCell(new Label(11, i, "独立移民技术-" + so.getService().getCode(), cellFormat));
-				sheet.addCell(new Label(12, i, so.getState(), cellFormat));
+				if (so.getType().equalsIgnoreCase("VISA")){
+					sheet.addCell(new Label(11, i,  " 签证 " , cellFormat));
+					sheet.addCell(new Label(12, i, so.getService().getCode(), cellFormat));
+				}
+				if (so.getType().equalsIgnoreCase("OVST")){
+					sheet.addCell(new Label(11, i, " 留学 " , cellFormat));
+					sheet.addCell(new Label(12, i, so.getSchool().getName(), cellFormat));
+				}
+				if (so.getType().equalsIgnoreCase("SIV")){
+					sheet.addCell(new Label(11, i, " 独立移民技术 ", cellFormat));
+					sheet.addCell(new Label(12, i, so.getService().getCode(), cellFormat));
+				}
+
 				if (ReviewAdviserStateEnum.PENDING.toString().equalsIgnoreCase(so.getState()))
-					sheet.addCell(new Label(12, i, "待提交审核", cellFormat));
+					sheet.addCell(new Label(13, i, "待提交审核", cellFormat));
 				if (ReviewAdviserStateEnum.REVIEW.toString().equalsIgnoreCase(so.getState()))
-				sheet.addCell(new Label(12, i,"审核中", cellFormat));
+				sheet.addCell(new Label(13, i,"审核中", cellFormat));
 				if (ReviewAdviserStateEnum.APPLY.toString().equalsIgnoreCase(so.getState()))
-				sheet.addCell(new Label(12, i,"服务申请中", cellFormat));
+				sheet.addCell(new Label(13, i,"服务申请中", cellFormat));
 				if (ReviewAdviserStateEnum.COMPLETE.toString().equalsIgnoreCase(so.getState()))
-				sheet.addCell(new Label(12, i, "服务申请完成", cellFormat));
+				sheet.addCell(new Label(13, i, "服务申请完成", cellFormat));
 				if (ReviewAdviserStateEnum.PAID.toString().equalsIgnoreCase(so.getState()))
-				sheet.addCell(new Label(12, i,"完成-支付成功", cellFormat));
+				sheet.addCell(new Label(13, i,"完成-支付成功", cellFormat));
 				if (ReviewAdviserStateEnum.CLOSE.toString().equalsIgnoreCase(so.getState()))
-				sheet.addCell(new Label(12, i, "关闭", cellFormat));
-				sheet.addCell(new Label(13, i, so.getRemarks(), cellFormat));
+				sheet.addCell(new Label(13, i, "关闭", cellFormat));
+				sheet.addCell(new Label(14, i, so.getRemarks(), cellFormat));
 				i++;
 			}
 			wbe.write();

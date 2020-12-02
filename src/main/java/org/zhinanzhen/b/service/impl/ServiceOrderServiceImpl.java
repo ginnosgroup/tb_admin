@@ -160,21 +160,21 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
 	@Override
 	public int countServiceOrder(String type, String excludeState, List<String> stateList, String auditingState,
-			List<String> reviewStateList, String startMaraApprovalDate, String endMaraApprovalDate,
-			String startOfficialApprovalDate, String endOfficialApprovalDate, List<Integer> regionIdList,
-			Integer userId, Integer maraId, Integer adviserId, Integer officialId, Integer officialTagId, int parentId,
-			boolean isNotApproved) throws ServiceException {
+								 List<String> reviewStateList, String startMaraApprovalDate, String endMaraApprovalDate,
+								 String startOfficialApprovalDate, String endOfficialApprovalDate, List<Integer> regionIdList,
+								 Integer userId, Integer maraId, Integer adviserId, Integer officialId, Integer officialTagId, int parentId,
+								 boolean isNotApproved, Integer serviceId, Integer schoolId) throws ServiceException {
 		return serviceOrderDao.countServiceOrder(type, excludeState, stateList, auditingState, reviewStateList,
 				startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate,
-				regionIdList, userId, maraId, adviserId, officialId, officialTagId, parentId, isNotApproved);
+				regionIdList, userId, maraId, adviserId, officialId, officialTagId, parentId, isNotApproved,serviceId,schoolId);
 	}
 
 	@Override
 	public List<ServiceOrderDTO> listServiceOrder(String type, String excludeState, List<String> stateList,
-			String auditingState, List<String> reviewStateList, String startMaraApprovalDate,
-			String endMaraApprovalDate, String startOfficialApprovalDate, String endOfficialApprovalDate,
-			List<Integer> regionIdList, Integer userId, Integer maraId, Integer adviserId, Integer officialId,
-			Integer officialTagId, int parentId, boolean isNotApproved, int pageNum, int pageSize)
+												  String auditingState, List<String> reviewStateList, String startMaraApprovalDate,
+												  String endMaraApprovalDate, String startOfficialApprovalDate, String endOfficialApprovalDate,
+												  List<Integer> regionIdList, Integer userId, Integer maraId, Integer adviserId, Integer officialId,
+												  Integer officialTagId, int parentId, boolean isNotApproved, int pageNum, int pageSize, Integer serviceId, Integer schoolId)
 			throws ServiceException {
 		List<ServiceOrderDTO> serviceOrderDtoList = new ArrayList<ServiceOrderDTO>();
 		List<ServiceOrderDO> serviceOrderDoList = new ArrayList<ServiceOrderDO>();
@@ -186,7 +186,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, excludeState, stateList, auditingState,
 					reviewStateList, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
 					endOfficialApprovalDate, regionIdList, userId, maraId, adviserId, officialId, officialTagId,
-					parentId, isNotApproved, pageNum * pageSize, pageSize);
+					parentId, isNotApproved, pageNum * pageSize, pageSize,serviceId,schoolId);
 			if (serviceOrderDoList == null)
 				return null;
 		} catch (Exception e) {

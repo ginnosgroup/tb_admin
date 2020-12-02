@@ -50,6 +50,7 @@ public class ServiceAssessCntroller {
     }
 
     @RequestMapping(value = "/update",method = RequestMethod.POST)
+    @ResponseBody
     public  Response update(@RequestParam(value = "name")String name,
                             @RequestParam(value = "id")Integer id){
         if (serviceAssessService.update(id,name ) > 0 )
@@ -58,8 +59,8 @@ public class ServiceAssessCntroller {
     }
 
     @RequestMapping(value = "delete", method = RequestMethod.POST)
+    @ResponseBody
     public Response delete(@RequestParam(value = "id")Integer id){
-
         if (serviceAssessService.delete(id) > 0 )
             return new Response(0,"success");
         return new Response(1,"fail");
