@@ -49,9 +49,9 @@ public class UserController extends BaseController {
 			@RequestParam(value = "regionId", required = false) String regionId, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			if (phone != null && !"".equals(phone)
-					&& userService.countUser(null, null, null, phone, null, 0, null, null) > 0)
-				return new Response<Integer>(1, "该电话号码已被使用,添加失败.", 0);
+//			if (phone != null && !"".equals(phone)
+//					&& userService.countUser(null, null, null, phone, null, 0, null, null) > 0)
+//				return new Response<Integer>(1, "该电话号码已被使用,添加失败.", 0);
 			if (phone == null)
 				phone = "";
 			if (regionId == null)
