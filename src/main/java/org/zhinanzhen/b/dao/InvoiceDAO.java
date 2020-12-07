@@ -89,7 +89,7 @@ public interface InvoiceDAO {
     int selectLastBillTo();
 
     int saveServiceFeeInvoice(@Param("invoiceDate")String invoiceDate, @Param("email")String email, @Param("company")String company, @Param("abn")String abn,
-                              @Param("address")String address, @Param("tel")String tel, @Param("invoiceNo")String invoiceNo, @Param("note")String note,
+                              @Param("address")String address, @Param("tel")String tel, @Param("invoiceNo")String invoiceNo, @Param("billTo") String billTo,@Param("note")String note,
                               @Param("accountname")String accountname, @Param("bsb")String bsb, @Param("accountno")String accountno, @Param("branch")String branch);
 
     int saveServiceFeeDescription(@Param("invoiceServiceFeeDescriptionDOList") List<InvoiceServiceFeeDescriptionDO> invoiceServiceFeeDescriptionDOList ,@Param("invoiceNo") String invoiceNo);

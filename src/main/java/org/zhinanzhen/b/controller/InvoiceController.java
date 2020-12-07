@@ -220,6 +220,7 @@ public class InvoiceController  extends BaseController {
             String address = (String) paramMap.get("address");
             String tel = (String) paramMap.get("tel");
             String invoiceNo = (String) paramMap.get("invoiceNo");
+            String billTo = (String) paramMap.get("billTo");
             String note = (String) paramMap.get("note");
             String accountname = (String) paramMap.get("accountname");
             String bsb = (String) paramMap.get("bsb");
@@ -235,7 +236,7 @@ public class InvoiceController  extends BaseController {
                 if (resultrela > 0) {
                     return new Response(1, resultrela + "订单已经关联！");
                 } else {
-                    int result = invoiceService.saveServiceFeeInvoice(invoiceDate, email, company, abn, address, tel, invoiceNo, note, accountname, bsb, accountno, branch, invoiceServiceFeeDescriptionDOList);
+                    int result = invoiceService.saveServiceFeeInvoice(invoiceDate, email, company, abn, address, tel, invoiceNo,billTo, note, accountname, bsb, accountno, branch, invoiceServiceFeeDescriptionDOList);
                     resultrela = invoiceService.relationVisaOrder(idList, invoiceNo);
                     if (result > 0) {
                         return new Response(0, "success");

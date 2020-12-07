@@ -371,8 +371,8 @@
 
     <!-- save srvicefee invoice-->
     <insert id="saveServiceFeeInvoice">
-        insert into `b_invoice_servicefee` (gmt_create,gmt_modify,email,company,abn,address,tel,invoice_no,note,accountname,bsb,accountno,state,branch) values
-        (#{invoiceDate},now(),#{email},#{company},#{abn},#{address},#{tel},#{invoiceNo},#{note},#{accountname},#{bsb},#{accountno},"NORMAL",#{branch})
+        insert into `b_invoice_servicefee` (gmt_create,gmt_modify,email,company,abn,address,tel,invoice_no,bill_to,note,accountname,bsb,accountno,state,branch) values
+        (#{invoiceDate},now(),#{email},#{company},#{abn},#{address},#{tel},#{invoiceNo},#{billTo},#{note},#{accountname},#{bsb},#{accountno},"NORMAL",#{branch})
     </insert>
     <!-- save srvicefeedescription invoice-->
     <insert id="saveServiceFeeDescription">

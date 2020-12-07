@@ -1,6 +1,5 @@
 package org.zhinanzhen.b.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -394,11 +393,11 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
     //保存servicefee
     @Override
     @Transactional
-    public int saveServiceFeeInvoice(String invoiceDate, String email, String company, String abn, String address, String tel, String invoiceNo,
-                                     String note, String accountname, String bsb, String accountno, String branch,
+    public int saveServiceFeeInvoice( String invoiceDate, String email, String company, String abn, String address, String tel, String invoiceNo,
+                                      String billTo,String note, String accountname, String bsb, String accountno, String branch,
                                      List<InvoiceServiceFeeDescriptionDO> invoiceServiceFeeDescriptionDOList) {
 
-        int resultsavein = invoiceDAO.saveServiceFeeInvoice(invoiceDate,email,company,abn,address,tel,invoiceNo,note,accountname,bsb,accountno,branch);
+        int resultsavein = invoiceDAO.saveServiceFeeInvoice(invoiceDate,email,company,abn,address,tel,invoiceNo,billTo,note,accountname,bsb,accountno,branch);
         int resultsavedes = invoiceDAO.saveServiceFeeDescription(invoiceServiceFeeDescriptionDOList,invoiceNo);
         if(resultsavein > 0 && resultsavedes > 0)
             return 1 ;
