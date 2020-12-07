@@ -463,6 +463,7 @@
 											<div class="form-group">
 												<button @click="getSearch" id="btnSearch" type="button" class="btn btn-info">查询</button>
 												<button @click="getExport" type="button" class="btn btn-primary" style="display:none;">导出</button>
+												<button v-if="ap_list==='WA' && wa_admin === 'true'" @click="getWaExport" type="button" class="btn btn-primary">导出</button>
 											</div>
 										</form>
 										<div class="responsive-table margin-top">
@@ -485,6 +486,7 @@
 														<th>服务项目</th>
 														<th>状态</th>
 														<th v-if="ap_list==='WA'">标签</th>
+														<th v-if="ap_list==='WA'">计数</th>
 														<th>操作</th>
 														<th>备注</th>
 													</tr>
@@ -508,6 +510,7 @@
 																<div v-if="!item.tagId"><a href="javascript:show_tagbox({{item.id}},'{{item.tagId}}');">设置标签</a></div>
 																<div v-if="item.tagId" onclick="show_tagbox({{item.id}},'{{item.tagId}}')"><label style="width:80px;color:white;background:{{item.tagColour}};">{{item.tagText}}</label></div>
 														</td>
+														<td v-if="ap_list==='WA'" @dblclick="table_edit($index,'realPeopleNumber','tnumber')"><span v-html="item.realPeopleNumber"></span></td>
 														<td>
 																<dle v-if="ap_list==='GW' && item.adviserId !== current_adviserId">													
 																		<a href="javascript:show_addnewservice_id({{item.id}},'{{item.type}}');">查看</a>
@@ -834,6 +837,72 @@
 							that.$nextTick(function(){ $('[data-original-title=""]').popover(); });
 							$('#loading_id').modal('hide');
 						});
+					},					
+					getWaExport: function() {
+						var that = this;
+						var json = {};
+						show_loading();
+						var down_url = url + "serviceOrder/down?";
+						json['isNotApproved'] = false;
+						if (that.auditingState == 'REVIEW') json['isNotApproved'] = true;
+						if (that.auditingState != '') json['auditingState'] = that.auditingState;
+						if (that.id != '') json['id'] = that.id;
+						if (that.userId != '0') json['userId'] = that.userId;
+						if (this.gw_regionid != 'null')
+						{
+								if (this.adviserId == undefined)
+								{
+										json['adviserId'] = this.adviser_id;
+								}else
+								{
+										if (that.adviserId != '0') json['adviserId'] = that.adviserId;
+								}
+						}else
+						{
+								if (that.adviserId != '0') json['adviserId'] = that.adviserId;
+						}
+						if (this.ap_list == 'WA' && this.wa_admin == 'true')
+						{
+								if (this.officialId == undefined)
+								{
+										json['officialId'] = this.official_id;
+								}else
+								{
+										if (that.officialId != '0') json['officialId'] = that.officialId;
+								}
+						}else
+						{
+								if (that.officialId != '0') json['officialId'] = that.officialId;	
+						}					
+						if (that.maraId != '') json['maraId'] = that.maraId;
+						if (that.type != '') json['type'] = that.type;
+						if (that.state != '') json['state'] = that.state;
+						if (that.startOfficialApprovalDate != '') json['startOfficialApprovalDate'] = that.startOfficialApprovalDate;
+						if (that.endOfficialApprovalDate != '') json['endOfficialApprovalDate'] = that.endOfficialApprovalDate;
+						if (that.startMaraApprovalDate != '') json['startMaraApprovalDate'] = that.startMaraApprovalDate;
+						if (that.endMaraApprovalDate != '') json['endMaraApprovalDate'] = that.endMaraApprovalDate;
+						if (that.ap_list != 'GW' && that.regionId != '') json['regionId'] = that.regionId;
+						if (this.ap_list == 'WA') json['officialTagId'] = that.officialTagId;
+						//生成url
+						var str_url = '';						
+						for(var key in json)
+						{
+								if (json[key] == undefined) json[key]= '';
+								if (str_url == '')
+								{
+										str_url = key+'='+json[key];
+								}else
+								{
+										str_url += '&'+key+'='+json[key];
+								}
+						}						
+						var a = document.createElement('a');
+						a.download = 'serviceOrder_data.xls';
+						a.href = down_url+str_url;
+						$("body").append(a);
+						a.click();
+						$(a).remove();
+						setTimeout(function(){$('#loading_id').modal('hide');}, 3000);
 					},
 					getTime: function(d) {
 						var date1 = new Date(d);
@@ -1083,7 +1152,14 @@
 								}else
 								{
 										json['officialName'] = this.subject[index].officialName;
-								}						
+								}
+								if (field == 'realPeopleNumber' && this.ap_list == 'WA')
+								{
+										json['realPeopleNumber'] = '<input type="text" class="form-control" style="width:70px;" id="'+byid+'" value="'+this.subject[index].realPeopleNumber+'" style="background: #F0FFFF;color: #428bca;"><div style="padding-top:10px;"><a class="save1" href="javascript:;"><span style="color:blue;">保存</span></a>&nbsp;&nbsp;<a class="cancel" href="javascript:;">取消</a></div>';
+								}else
+								{
+										json['realPeopleNumber'] = this.subject[index].realPeopleNumber;
+								}					
 								this.subject.splice(index,1, json);
 						}														
 					},          
@@ -1530,6 +1606,10 @@
        				}else if (field == 'officialName')
        				{
        					 json['officialId'] = str_val;
+       				}else if (field == 'realPeopleNumber')
+       				{
+       					 str_url = url + "serviceOrder/updateRealPeopleNumber";
+       					 json['realPeopleNumber'] = str_val;
        				}  				
        				
        				
