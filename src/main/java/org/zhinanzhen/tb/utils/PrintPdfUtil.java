@@ -31,7 +31,7 @@ public class PrintPdfUtil {
     static Font FontChinese8 = FontFactory.getFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,8f, Font.NORMAL, BaseColor.BLACK);
     static Font FontChinese8Bold = FontFactory.getFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,8f, Font.BOLD, BaseColor.BLACK);
     static Font FontChinese10 = FontFactory.getFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,10f, Font.NORMAL, BaseColor.BLACK);
-    static SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+    //static SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
     static SimpleDateFormat dobsdf = new SimpleDateFormat("dd/MM/yyyy ");
 
     private static Watermark watermark = new Watermark();
@@ -64,8 +64,8 @@ public class PrintPdfUtil {
         File file = new File(staticpath, invoiceNo);
         if (!file.exists()) {
             file.getParentFile().mkdirs();
-        }
-        */
+        }*/
+
 
         String uploadsPath = "/uploads/pdf/"+sdftodocument.format(Calendar.getInstance().getTime());
 
@@ -99,6 +99,7 @@ public class PrintPdfUtil {
             createNorPdf((InvoiceSchoolDTO) response.getData() ,PDFPath ,realPath , canceled);
 
         return "/statics"+uploadsPath+"/"+invoiceNo;
+
 
     }
 
@@ -218,7 +219,7 @@ public class PrintPdfUtil {
             PdfPCell cell52 = new PdfPCell(new Paragraph("Invoice No.: ", FontChinese10));
             PdfPCell cell53 = new PdfPCell(new Paragraph(invoiceServiceFeeDTO.getInvoiceNo(), fontbule10));
             PdfPCell cell54 = new PdfPCell(new Paragraph("Invoice Date : ", FontChinese10));
-            PdfPCell cell55 = new PdfPCell(new Paragraph(sdf.format(invoiceServiceFeeDTO.getInvoiceDate()), fontbule10));
+            PdfPCell cell55 = new PdfPCell(new Paragraph(dobsdf.format(invoiceServiceFeeDTO.getInvoiceDate()), fontbule10));
             cell52.setFixedHeight(20);
             cell52.setBorder(0);
             cell53.setBorder(0);
@@ -235,7 +236,21 @@ public class PrintPdfUtil {
             document.add(table5);
 
 
-
+            //增加一列  19列
+            PdfPTable table19 = new PdfPTable(4);
+            PdfPCell cell191 = new PdfPCell(new Paragraph(" Bill To : ", FontChinese10));
+            PdfPCell cell192 = new PdfPCell(new Paragraph(invoiceServiceFeeDTO.getBillTo(), FontChinese10));
+            cell191.setFixedHeight(20);
+            cell191.setBorder(0);
+            cell192.setBorder(0);
+            int width19[] = {2,6,34,58};
+            table19.setWidths(width19);
+            table19.getDefaultCell().setBorder(0);
+            table19.addCell(nullcell);
+            table19.addCell(cell191);
+            table19.addCell(cell192);
+            table19.addCell(nullcell);
+            document.add(table19);
 
             //第9列
             PdfPTable table9 = new PdfPTable(1);
@@ -535,7 +550,7 @@ public class PrintPdfUtil {
             PdfPCell cell52 = new PdfPCell(new Paragraph("Invoice No.: ", FontChinese10));
             PdfPCell cell53 = new PdfPCell(new Paragraph(invoiceSchoolDTO.getInvoiceNo(), fontbule10));
             PdfPCell cell54 = new PdfPCell(new Paragraph("Invoice Date : ", FontChinese10));
-            PdfPCell cell55 = new PdfPCell(new Paragraph(sdf.format(invoiceSchoolDTO.getInvoiceDate()), fontbule10));
+            PdfPCell cell55 = new PdfPCell(new Paragraph(dobsdf.format(invoiceSchoolDTO.getInvoiceDate()), fontbule10));
             cell51.setFixedHeight(20);
             cell51.setBorder(0);
             cell52.setBorder(0);
@@ -941,7 +956,7 @@ public class PrintPdfUtil {
             PdfPCell cell52 = new PdfPCell(new Paragraph("Invoice No.: ", FontChinese10));
             PdfPCell cell53 = new PdfPCell(new Paragraph(invoiceSchoolDTO.getInvoiceNo(), fontbule10));
             PdfPCell cell54 = new PdfPCell(new Paragraph("Invoice Date : ", FontChinese10));
-            PdfPCell cell55 = new PdfPCell(new Paragraph(sdf.format(invoiceSchoolDTO.getInvoiceDate()), fontbule10));
+            PdfPCell cell55 = new PdfPCell(new Paragraph(dobsdf.format(invoiceSchoolDTO.getInvoiceDate()), fontbule10));
             cell51.setFixedHeight(20);
             cell51.setBorder(0);
             cell52.setBorder(0);
@@ -1337,7 +1352,7 @@ public class PrintPdfUtil {
             PdfPCell cell52 = new PdfPCell(new Paragraph("Invoice No.: ", FontChinese10));
             PdfPCell cell53 = new PdfPCell(new Paragraph(invoiceSchoolDTO.getInvoiceNo(), fontbule10));
             PdfPCell cell54 = new PdfPCell(new Paragraph("Invoice Date : ", FontChinese10));
-            PdfPCell cell55 = new PdfPCell(new Paragraph(sdf.format(invoiceSchoolDTO.getInvoiceDate()), fontbule10));
+            PdfPCell cell55 = new PdfPCell(new Paragraph(dobsdf.format(invoiceSchoolDTO.getInvoiceDate()), fontbule10));
             cell51.setFixedHeight(20);
             cell51.setBorder(0);
             cell52.setBorder(0);
