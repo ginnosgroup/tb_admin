@@ -1376,21 +1376,24 @@ public class ServiceOrderController extends BaseController {
 					adviserId = newAdviserId;
 			}
 
+			List<ServiceOrderDTO> serviceOrderList = null;
 			if (id != null && id > 0) {
-				List<ServiceOrderDTO> list = new ArrayList<ServiceOrderDTO>();
+				serviceOrderList = new ArrayList<ServiceOrderDTO>();
 				ServiceOrderDTO serviceOrder = serviceOrderService.getServiceOrderById(id);
 				if (serviceOrder != null)
-					list.add(serviceOrder);
-				//return new Response<List<ServiceOrderDTO>>(0, list);
+					serviceOrderList.add(serviceOrder);
 			}
-			List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(type, excludeState, stateList,
-					auditingState, reviewStateList, startMaraApprovalDate, endMaraApprovalDate,
-					startOfficialApprovalDate, endOfficialApprovalDate, regionIdList, userId, maraId, adviserId,
-					officialId, officialTagId, 0, isNotApproved != null ? isNotApproved : false, 0, 9999, serviceId, schoolId);
+			if (id == null | id == 0 ){
+				serviceOrderList= serviceOrderService.listServiceOrder(type, excludeState, stateList,
+						auditingState, reviewStateList, startMaraApprovalDate, endMaraApprovalDate,
+						startOfficialApprovalDate, endOfficialApprovalDate, regionIdList, userId, maraId, adviserId,
+						officialId, officialTagId, 0, isNotApproved != null ? isNotApproved : false, 0, 9999, serviceId, schoolId);
 
-			if (newOfficialId != null)
-				for (ServiceOrderDTO so : serviceOrderList)
-					so.setOfficialNotes(serviceOrderService.listOfficialRemarks(so.getId(), newOfficialId)); // 写入note
+				if (newOfficialId != null)
+					for (ServiceOrderDTO so : serviceOrderList)
+						so.setOfficialNotes(serviceOrderService.listOfficialRemarks(so.getId(), newOfficialId)); // 写入note
+			}
+
 
 
 
@@ -1482,5 +1485,162 @@ public class ServiceOrderController extends BaseController {
 			return;
 		}
 	}
-	
+
+	/*
+	@RequestMapping(value = "/downExcel", method = RequestMethod.GET)
+	@ResponseBody
+	public void  downExcel(@RequestParam(value = "type", required = false) String type,
+						   @RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
+						   @RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
+						   HttpServletRequest request, HttpServletResponse response){
+
+
+		try {
+			super.setGetHeader(response);
+			// 处理顾问管理员
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
+				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
+				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
+				for (RegionDTO region : regionList)
+					regionIdList.add(region.getId());
+			} else {
+				Integer newAdviserId = getAdviserId(request);
+				if (newAdviserId != null)
+					adviserId = newAdviserId;
+			}
+
+			if (id != null && id > 0) {
+				List<ServiceOrderDTO> list = new ArrayList<ServiceOrderDTO>();
+				ServiceOrderDTO serviceOrder = serviceOrderService.getServiceOrderById(id);
+				if (serviceOrder != null)
+					list.add(serviceOrder);
+				//return new Response<List<ServiceOrderDTO>>(0, list);
+			}
+			List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(type, excludeState, stateList,
+					auditingState, reviewStateList, startMaraApprovalDate, endMaraApprovalDate,
+					startOfficialApprovalDate, endOfficialApprovalDate, regionIdList, userId, maraId, adviserId,
+					officialId, officialTagId, 0, isNotApproved != null ? isNotApproved : false, 0, 9999, serviceId, schoolId);
+
+			if (newOfficialId != null)
+				for (ServiceOrderDTO so : serviceOrderList)
+					so.setOfficialNotes(serviceOrderService.listOfficialRemarks(so.getId(), newOfficialId)); // 写入note
+
+
+			List<EachRegionNumberDTO> eachRegionNumberDTOS = new ArrayList<>();
+
+			for (ServiceOrderDTO so : serviceOrderList){
+				EachRegionNumberDTO eachRegionNumberDTO = new EachRegionNumberDTO();
+				if (type.equalsIgnoreCase("VISA") && so.getParentId() == 0 ){
+					eachRegionNumberDTO.setName(so.getService().getCode());
+				}
+			}
+			System.out.println(type+"  "+excludeState+stateList+"  "+auditingState+"  "+reviewStateList+"  "+
+					regionIdList+"  "+userId+"   "+maraId+"  "+adviserId+"  "+officialId+"  "+officialTagId+"  "+isNotApproved);
+
+
+			response.reset();// 清空输出流
+			String tableName = "Information";
+			response.setHeader("Content-disposition",
+					"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
+			response.setContentType("application/msexcel");
+
+
+			OutputStream os = response.getOutputStream();
+			jxl.Workbook wb;
+			InputStream is;
+			try {
+				is = this.getClass().getResourceAsStream("/data.xls");
+			} catch (Exception e) {
+				throw new Exception("模版不存在");
+			}
+			try {
+				wb = Workbook.getWorkbook(is);
+			} catch (Exception e) {
+				throw new Exception("模版格式不支持");
+			}
+			WorkbookSettings settings = new WorkbookSettings();
+			settings.setWriteAccess(null);
+			jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
+
+			if (wbe == null) {
+				System.out.println("wbe is null !os=" + os + ",wb" + wb);
+			} else {
+				System.out.println("wbe not null !os=" + os + ",wb" + wb);
+			}
+			WritableSheet sheet = wbe.getSheet(0);
+			WritableCellFormat cellFormat = new WritableCellFormat();
+			int i = 0;
+			for (ServiceOrderDTO so : serviceOrderList){
+				if ( i == 0){
+					sheet.addCell(new Label(1, i, "签证项目", cellFormat));
+					continue;
+				}
+				sheet.addCell(new Label(0, i, "", cellFormat));
+
+
+
+				sheet.addCell(new Label(0, i, so.getId() + "", cellFormat));
+				if (so.getGmtCreate() != null )
+					sheet.addCell(new Label(1, i, sdf.format(so.getGmtCreate()), cellFormat));
+				if (so.getOfficialApprovalDate()!= null)
+					sheet.addCell(new Label(2, i, sdf.format(so.getOfficialApprovalDate() ), cellFormat));
+				if (so.getFinishDate()!=null)
+					sheet.addCell(new Label(3, i, sdf.format(so.getFinishDate()), cellFormat));
+				sheet.addCell(new Label(4, i, so.getUserId() + "", cellFormat));
+				if (so.getUser()!=null){
+					sheet.addCell(new Label(5, i, so.getUser().getName() + "", cellFormat));
+					sheet.addCell(new Label(6, i, sdf.format(so.getUser().getBirthday() ), cellFormat));
+					sheet.addCell(new Label(7, i, so.getUser().getPhone(), cellFormat));
+				}
+				if (so.getAdviser() != null)
+					sheet.addCell(new Label(8, i, so.getAdviser().getName(), cellFormat));
+				if (so.getMara() != null)
+					sheet.addCell(new Label(9, i, so.getMara().getName() , cellFormat));
+				if (so.getOfficial() != null)
+					sheet.addCell(new Label(10, i, so.getOfficial().getName(), cellFormat));
+				if (so.getType().equalsIgnoreCase("VISA")){
+					sheet.addCell(new Label(11, i,  " 签证 " , cellFormat));
+					sheet.addCell(new Label(12, i, so.getService().getCode(), cellFormat));
+				}
+				if (so.getType().equalsIgnoreCase("OVST")){
+					sheet.addCell(new Label(11, i, " 留学 " , cellFormat));
+					sheet.addCell(new Label(12, i, so.getSchool().getName(), cellFormat));
+				}
+				if (so.getType().equalsIgnoreCase("SIV")){
+					sheet.addCell(new Label(11, i, " 独立移民技术 ", cellFormat));
+					sheet.addCell(new Label(12, i, so.getService().getCode(), cellFormat));
+				}
+
+				if (ReviewAdviserStateEnum.PENDING.toString().equalsIgnoreCase(so.getState()))
+					sheet.addCell(new Label(13, i, "待提交审核", cellFormat));
+				if (ReviewAdviserStateEnum.REVIEW.toString().equalsIgnoreCase(so.getState()))
+					sheet.addCell(new Label(13, i,"审核中", cellFormat));
+				if (ReviewAdviserStateEnum.APPLY.toString().equalsIgnoreCase(so.getState()))
+					sheet.addCell(new Label(13, i,"服务申请中", cellFormat));
+				if (ReviewAdviserStateEnum.COMPLETE.toString().equalsIgnoreCase(so.getState()))
+					sheet.addCell(new Label(13, i, "服务申请完成", cellFormat));
+				if (ReviewAdviserStateEnum.PAID.toString().equalsIgnoreCase(so.getState()))
+					sheet.addCell(new Label(13, i,"完成-支付成功", cellFormat));
+				if (ReviewAdviserStateEnum.CLOSE.toString().equalsIgnoreCase(so.getState()))
+					sheet.addCell(new Label(13, i, "关闭", cellFormat));
+				sheet.addCell(new Label(14, i, so.getRemarks(), cellFormat));
+				i++;
+			}
+			wbe.write();
+			wbe.close();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return;
+		}
+	}
+	 */
+
+	@RequestMapping(value = "/downTest", method = RequestMethod.GET)
+	@ResponseBody
+	public void downTest(){
+		serviceOrderService.listServiceOrderGroupByForRegion();
+	}
 }
