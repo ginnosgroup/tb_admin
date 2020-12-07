@@ -31,13 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.ServiceAssessService;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.ServicePackageService;
-import org.zhinanzhen.b.service.pojo.MaraDTO;
-import org.zhinanzhen.b.service.pojo.OfficialDTO;
-import org.zhinanzhen.b.service.pojo.ServiceOrderCommentDTO;
-import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
-import org.zhinanzhen.b.service.pojo.ServiceOrderOfficialRemarksDTO;
-import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
-import org.zhinanzhen.b.service.pojo.ServicePackageDTO;
+import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.RegionService;
@@ -309,32 +303,49 @@ public class ServiceOrderController extends BaseController {
 				if (schoolId2 != null && schoolId2 > 0 && "OVST".equalsIgnoreCase(type)) {
 					serviceOrderDto.setId(0);
 					serviceOrderDto.setSchoolId(schoolId2);
-					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0)
+					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0){
+						if (adminUserLoginInfo != null)
+							serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
+									serviceOrderDto.getState(), null, null, null);
 						msg += "创建第二学校服务订单成功(第二服务订单编号:" + serviceOrderDto.getId() + "). ";
+					}
+
 					else
 						msg += "创建第二学校服务订单失败(第二学校编号:" + schoolId2 + "). ";
 				}
 				if (schoolId3 != null && schoolId3 > 0 && "OVST".equalsIgnoreCase(type)) {
 					serviceOrderDto.setId(0);
 					serviceOrderDto.setSchoolId(schoolId3);
-					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0)
+					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0){
+						if (adminUserLoginInfo != null)
+							serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
+									serviceOrderDto.getState(), null, null, null);
 						msg += "创建第三学校服务订单成功(第三服务订单编号:" + serviceOrderDto.getId() + "). ";
+					}
 					else
 						msg += "创建第三学校服务订单失败(第三学校编号:" + schoolId3 + "). ";
 				}
 				if (schoolId4 != null && schoolId4 > 0 && "OVST".equalsIgnoreCase(type)) {
 					serviceOrderDto.setId(0);
 					serviceOrderDto.setSchoolId(schoolId4);
-					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0)
+					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0){
+						if (adminUserLoginInfo != null)
+							serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
+									serviceOrderDto.getState(), null, null, null);
 						msg += "创建第四学校服务订单成功(第四服务订单编号:" + serviceOrderDto.getId() + "). ";
+					}
 					else
 						msg += "创建第四学校服务订单失败(第四学校编号:" + schoolId4 + "). ";
 				}
 				if (schoolId5 != null && schoolId5 > 0 && "OVST".equalsIgnoreCase(type)) {
 					serviceOrderDto.setId(0);
 					serviceOrderDto.setSchoolId(schoolId5);
-					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0)
+					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0){
+						if (adminUserLoginInfo != null)
+							serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
+									serviceOrderDto.getState(), null, null, null);
 						msg += "创建第五学校服务订单成功(第五服务订单编号:" + serviceOrderDto.getId() + "). ";
+					}
 					else
 						msg += "创建第五学校服务订单失败(第五学校编号:" + schoolId5 + "). ";
 				}
