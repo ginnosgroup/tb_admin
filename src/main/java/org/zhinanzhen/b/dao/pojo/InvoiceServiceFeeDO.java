@@ -45,5 +45,7 @@ public class InvoiceServiceFeeDO {
 
     private String branch;
 
+    private String billTo;
+
     private List<InvoiceServiceFeeDescriptionDO> invoiceServiceFeeDescriptionDOList;
 }

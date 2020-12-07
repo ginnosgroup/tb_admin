@@ -2,10 +2,7 @@ package org.zhinanzhen.b.service;
 
 import java.util.List;
 
-import org.zhinanzhen.b.service.pojo.ServiceOrderCommentDTO;
-import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
-import org.zhinanzhen.b.service.pojo.ServiceOrderOfficialRemarksDTO;
-import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
+import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.tb.service.ServiceException;
 
 public interface ServiceOrderService {
@@ -56,5 +53,7 @@ public interface ServiceOrderService {
 	List<ServiceOrderOfficialRemarksDTO> listOfficialRemarks(int id, int officialId) throws ServiceException;
 
 	int deleteServiceOrderOfficialRemarksDTO(int id) throws ServiceException;
+
+	List<EachRegionNumberDTO> listServiceOrderGroupByForRegion(String type, String startOfficialApprovalDate, String endOfficialApprovalDate);
 	
 }

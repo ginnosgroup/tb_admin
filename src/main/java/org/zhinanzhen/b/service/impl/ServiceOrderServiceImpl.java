@@ -1,8 +1,6 @@
 package org.zhinanzhen.b.service.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import javax.annotation.Resource;
 
@@ -11,11 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.ServiceOrderService;
-import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
-import org.zhinanzhen.b.service.pojo.ServiceOrderOfficialRemarksDTO;
-import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
-import org.zhinanzhen.b.service.pojo.ServicePackageDTO;
-import org.zhinanzhen.b.service.pojo.OfficialTagDTO;
+import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
@@ -27,14 +21,6 @@ import org.zhinanzhen.tb.service.impl.BaseService;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
-import org.zhinanzhen.b.service.pojo.ChildrenServiceOrderDTO;
-import org.zhinanzhen.b.service.pojo.MaraDTO;
-import org.zhinanzhen.b.service.pojo.OfficialDTO;
-import org.zhinanzhen.b.service.pojo.SchoolDTO;
-import org.zhinanzhen.b.service.pojo.ServiceDTO;
-import org.zhinanzhen.b.service.pojo.ServiceOrderCommentDTO;
-import org.zhinanzhen.b.service.pojo.SubagencyDTO;
-import org.zhinanzhen.b.service.pojo.ReceiveTypeDTO;
 
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.StringUtil;
@@ -780,5 +766,60 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			throw se;
 		}
 	}
+
+	@Override
+	public List<EachRegionNumberDTO> listServiceOrderGroupByForRegion(String type, String startOfficialApprovalDate, String endOfficialApprovalDate) {
+		List<EachRegionNumberDO> eachRegionNumberDOS = serviceOrderDao.listServiceOrderGroupByForRegion(type,startOfficialApprovalDate,endOfficialApprovalDate);
+		List<EachRegionNumberDTO> eachRegionNumberDTOS = new ArrayList<>();
+		Set<String> codeSet = new HashSet<>();
+		eachRegionNumberDOS.forEach(eachRegionNumberDO ->{
+			codeSet.add(eachRegionNumberDO.getCode());
+		});
+		for (String code : codeSet){
+			EachRegionNumberDTO eachRegionNumberDTO = new EachRegionNumberDTO();
+			eachRegionNumberDOS.forEach(eachRegionNumberDO -> {
+				if (eachRegionNumberDO.getCode().equalsIgnoreCase(code)){
+					if (eachRegionNumberDO.getName().equalsIgnoreCase("sydney")){
+						eachRegionNumberDTO.setSydney(eachRegionNumberDO.getCount());
+					}
+					if (eachRegionNumberDO.getName().equalsIgnoreCase("melbourne")){
+						eachRegionNumberDTO.setMelbourne(eachRegionNumberDO.getCount());
+					}
+					if (eachRegionNumberDO.getName().equalsIgnoreCase("brisbane")){
+						eachRegionNumberDTO.setBrisbane(eachRegionNumberDO.getCount());
+					}
+					if (eachRegionNumberDO.getName().equalsIgnoreCase("adelaide")){
+						eachRegionNumberDTO.setAdelaide(eachRegionNumberDO.getCount());
+					}
+					if (eachRegionNumberDO.getName().equalsIgnoreCase("hobart")){
+						eachRegionNumberDTO.setHobart(eachRegionNumberDO.getCount());
+					}
+					if (eachRegionNumberDO.getName().equalsIgnoreCase("canberra")){
+						eachRegionNumberDTO.setCanberra(eachRegionNumberDO.getCount());
+					}
+					if (eachRegionNumberDO.getName().equalsIgnoreCase("sydney2")){
+						eachRegionNumberDTO.setSydney2(eachRegionNumberDO.getCount());
+					}
+				}
+			});
+			eachRegionNumberDTO.setTotal(eachRegionNumberDTO.getAdelaide()+eachRegionNumberDTO.getSydney()+eachRegionNumberDTO.getBrisbane()+
+					eachRegionNumberDTO.getCanberra()+eachRegionNumberDTO.getHobart()+eachRegionNumberDTO.getMelbourne()+eachRegionNumberDTO.getSydney2());
+			eachRegionNumberDTO.setName(code);
+			eachRegionNumberDTOS.add(eachRegionNumberDTO);
+		}
+		Collections.sort(eachRegionNumberDTOS, new Comparator<EachRegionNumberDTO>() {
+			@Override
+			public int compare(EachRegionNumberDTO o1, EachRegionNumberDTO o2) {
+				if(o1.getTotal() > o2.getTotal())
+					return -1;
+				else if(o1.getTotal() < o2.getTotal())
+					return 1;
+				else
+					return 0;
+			}
+		});
+		return eachRegionNumberDTOS;
+	}
+
 
 }

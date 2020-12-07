@@ -43,16 +43,27 @@
 							<div class="form-group" style="width:100%;height:40px;">
 								<label class="control-label" style="width:80px;"><strong>服务项目：</strong></label>
 								<label id="b5">签证</label> - 
-								<label id="b6"></label>						
-							</div>
-							<div class="form-group" style="width:100%;height:40px;">
-								<label class="control-label" style="width:80px;"><strong>是否已支付：</strong></label>
-								<label id="b7"></label>
+								<label id="b6"></label>
+								<label style="display:inline;" id="b6a"></label>	
 							</div>
 							<div class="form-group" style="display:none;width:100%;height:40px;" id="b7text">
 								<label class="control-label" style="width:80px;"><strong>属性：</strong></label>
 								<label id="b6c"></label>								
 							</div>
+							<div id="b20atext" class="form-group" style="width:100%;height:40px;">
+								<label class="control-label" style="width:80px"><strong>坚果云<br/>资料地址：</strong></label>							
+								<label id="b20a"></label>
+							</div>
+							<div id="b20btext" class="form-group" style="width:100%;line-height:40px;">
+								<label class="control-label"><strong>客户基本信息描述：</strong></label>
+								<label id="b20b"></label>
+							</div>
+							<div class="form-group" style="width:100%;height:40px;">
+								<label class="control-label" style="width:80px;"><strong>是否已支付：</strong></label>
+								<label id="b7"></label>
+								<label id="b7atext" style="margin-left:10px;"><strong>是否历史订单：</strong></label>
+								<label id="b7a"></label>
+							</div>							
 							<div id="show_paid" style="width:100%;">
 							<hr/>
 							<div class="form-group" style="width:100%;">								
@@ -192,6 +203,20 @@ function show_commission_detail(serviceId,orderId)
 				    	$("#show_visa_id #b5").html('签证');	
 				    	$('#show_visa_id #b6').html(response.service.code);
 				    	$("#show_visa_id #b7text").hide();
+				    	//属性处理
+        			if (response.peopleType) $('#show_visa_id #b6c').html(return_attribute(response.peopleType,response.peopleNumber)); 
+		        	$("#show_visa_id #b7text").show();
+		        	$("#show_visa_id #b7atext").show();
+		        	var isHistory = '否';
+		        	if (response.history) isHistory = '是'; 
+		        	$("#show_visa_id #b7a").html(isHistory);
+		        	$("#show_visa_id #b7a").show(); 
+		        	$("#show_visa_id #b20atext").show();
+		        	$("#show_visa_id #b20btext").show();
+		        	var nutCloud_url = '';
+		        	if (response.nutCloud != null) nutCloud_url = '<a href="'+response.nutCloud+'" target="_blank">打开链接</a>';
+		        	$("#show_visa_id #b20a").html(nutCloud_url);
+		        	$("#show_visa_id #b20b").html(response.information);
 		    	}
         	$('#show_visa_id #b7').html('是'); 
         	$('#show_visa_id #show_paid').show();

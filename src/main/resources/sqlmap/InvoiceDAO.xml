@@ -242,7 +242,7 @@
 
     <!-- 查询一个invoice-->
     <select id="selectSFInvoiceByNo" resultMap="invoiceServiceFee">
-        select sf.id,sf.gmt_create,sf.email,sf.invoice_no,sf.company,sf.abn,sf.address,sf.tel,note,accountname,bsb,accountno,state,order_id,branch,
+        select sf.id,sf.gmt_create,sf.email,sf.invoice_no,sf.company,sf.abn,sf.address,sf.tel,note,accountname,bsb,accountno,state,order_id,branch,bill_to,
         sfd.id as did,description as ddescription,IFNULL(unit_price,0.00) as dunit_price,quantity as dquantity ,IFNULL(amount,0.00) as damount from `b_invoice_servicefee` as sf ,
         `b_invoice_servicefee_description` as sfd where sf.invoice_no = #{invoiceNo} and sf.invoice_no = sfd.invoice_no
     </select>
@@ -262,6 +262,7 @@
         <result column="accountno" property="accountno"></result>
         <result column="state" property="state"></result>
         <result column="branch" property="branch"></result>
+        <result column="bill_to" property="billTo"></result>
         <collection property="invoiceServiceFeeDescriptionDOList" ofType="org.zhinanzhen.b.dao.pojo.InvoiceServiceFeeDescriptionDO">
             <result property="id" column="did"></result>
             <result column="ddescription" property="description"></result>
@@ -370,8 +371,8 @@
 
     <!-- save srvicefee invoice-->
     <insert id="saveServiceFeeInvoice">
-        insert into `b_invoice_servicefee` (gmt_create,gmt_modify,email,company,abn,address,tel,invoice_no,note,accountname,bsb,accountno,state,branch) values
-        (#{invoiceDate},now(),#{email},#{company},#{abn},#{address},#{tel},#{invoiceNo},#{note},#{accountname},#{bsb},#{accountno},"NORMAL",#{branch})
+        insert into `b_invoice_servicefee` (gmt_create,gmt_modify,email,company,abn,address,tel,invoice_no,bill_to,note,accountname,bsb,accountno,state,branch) values
+        (#{invoiceDate},now(),#{email},#{company},#{abn},#{address},#{tel},#{invoiceNo},#{billTo},#{note},#{accountname},#{bsb},#{accountno},"NORMAL",#{branch})
     </insert>
     <!-- save srvicefeedescription invoice-->
     <insert id="saveServiceFeeDescription">
@@ -415,7 +416,12 @@
 
     <!-- 更改invoice -->
     <update id="updateSFInvoice" parameterType="java.util.Map">
-        update  `b_invoice_servicefee` set gmt_modify = now() ,note = #{note} where invoice_no = #{invoiceNo}
+        update  `b_invoice_servicefee` set gmt_modify = now() ,note = #{note} ,
+        <if test="invoiceDate != null and invoiceDate != ''">
+            gmt_create  = #{invoiceDate} ,
+        </if>
+            bill_to = #{billTo}
+        where invoice_no = #{invoiceNo}
     </update>
     <delete id="deleteDesc">
         delete from
@@ -431,6 +437,10 @@
     </delete>
 
     <update id="updateSCInvoice">
-       update  `b_invoice_school` set gmt_modify = now(), billto_id=#{billto_id},note=#{note} where invoice_no =#{invoiceNo};
+       update  `b_invoice_school` set gmt_modify = now(), billto_id=#{billto_id},note=#{note} ,
+        <if test="invoiceDate != null and invoiceDate != ''">
+            gmt_create  = #{invoiceDate}
+        </if>
+       where invoice_no =#{invoiceNo};
     </update>
 </mapper>

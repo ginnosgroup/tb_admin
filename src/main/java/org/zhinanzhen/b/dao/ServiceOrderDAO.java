@@ -3,6 +3,7 @@ package org.zhinanzhen.b.dao;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
+import org.zhinanzhen.b.dao.pojo.EachRegionNumberDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
 
 public interface ServiceOrderDAO {
@@ -48,4 +49,6 @@ public interface ServiceOrderDAO {
 
 	int finishServiceOrder(int id);
 
+	List<EachRegionNumberDO> listServiceOrderGroupByForRegion(@Param("type") String type,@Param("startOfficialApprovalDate") String startOfficialApprovalDate,
+															  @Param("endOfficialApprovalDate") String endOfficialApprovalDate);
 }

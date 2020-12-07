@@ -574,4 +574,33 @@
         WHERE id = #{id, jdbcType=INTEGER};
     </update>
 
+
+    <select id="listServiceOrderGroupByForRegion" resultType="org.zhinanzhen.b.dao.pojo.EachRegionNumberDO">
+        SELECT
+            count( so.id ) AS count,
+            tr.`name` AS name,
+            bs.`code` AS code,
+            service_id AS serviceId
+        FROM
+            tb_adviser a,
+            b_service_order so,
+            tb_region tr,
+            b_service bs
+        WHERE
+            so.is_delete = 0
+            AND a.id = so.adviser_id
+        <if test=" type != null and type != ''">
+            AND type = #{type}
+        </if>
+            AND so.parent_id = 0
+            AND so.state != 'PENDING'
+            AND tr.id = a.region_id
+            AND service_id = bs.id
+        <if test='startOfficialApprovalDate != null and startOfficialApprovalDate != "" and endOfficialApprovalDate != null and endOfficialApprovalDate != ""'>
+            <![CDATA[ AND so.official_approval_date > #{startOfficialApprovalDate} AND so.official_approval_date < #{endOfficialApprovalDate} ]]>
+        </if>
+        GROUP BY
+            service_id,
+            tr.`name`
+    </select>
 </mapper>
