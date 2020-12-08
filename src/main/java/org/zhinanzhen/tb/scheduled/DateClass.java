@@ -19,7 +19,6 @@ public class DateClass {
     //上月一号
     public static String lastMonthFirstDay(Calendar calendar){
 
-
         calendar.add(Calendar.MONTH, - 1);
 
         calendar.set(Calendar.DAY_OF_MONTH, 1);

@@ -1,0 +1,653 @@
+﻿<meta charset="utf-8"/>
+<div id="app_sub2">
+<div class="modal fade" id="ovst_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" role="document" style="width:700px;">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">佣金详情页</h4>
+					</div>
+					<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+			      <button data-dismiss="alert" class="close close-sm" type="button">
+			      <i class="fa fa-times"></i>
+			      </button>
+			      <strong>Success!</strong> You  just achieved success.
+			  	</div>
+			  	<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+		        <button data-dismiss="alert" class="close close-sm" type="button">
+		        <i class="fa fa-times"></i>
+		        </button>
+		        <strong id="error_info"></strong>
+		      </div>
+		      <form class="cmxform form-inline" method="POST" name="ovstid_form" id="ovstid_form">
+					<div class="modal-body">																																		
+							<div class="form-group" style="width:100%;height:40px;">
+								<label class="control-label" style="width:80px;"><strong>服务订单Id：</strong></label>								
+								<label id="c0"></label>
+							</div>
+							<div class="form-group" style="width:100%;height:40px;">
+								<label class="control-label" style="width:80px;"><strong>客户姓名：</strong></label>								
+								<label id="c1"></label>
+							</div>
+							<div class="form-group" style="width:100%;height:40px;">
+								<label class="control-label" style="width:80px;"><strong>服务项目：</strong></label>
+								<label id="c2" style="width:100px;">留学</strong></label>
+								<label class="control-label"><strong>学校：</strong></label>
+								<label id="c3" style="width:150px;"></label>
+								<label class="control-label"><strong>课程：</strong></label>
+								<label id="c4"></label>			
+							</div>
+							<div class="form-group" style="width:100%;height:40px;">
+								<label class="control-label" style="width:80px;"><strong>提前扣佣：</strong></label>
+								<select class="form-control" style="width:100px;" id="c5a">
+								<option value="0">否</option>
+								<option value="1">是</option>
+								</select>	
+								<label id="c5" style="width:50px;display:none;"></label>
+								<label><strong>保证金客户：</strong></label>
+								<label id="c6" style="width:50px;"></label>
+								<label class="control-label" style="width:80px;margin-left:60px;"><strong>Subagency：</strong></label>
+								<label id="c7"></label>
+							</div>
+							<div class="form-group" style="width:100%;height:40px;">
+								<label class="control-label" style="width:80px;"><strong>顾问：</strong></label>
+								<label id="c8" style="width:100px;"></label>
+								<label class="control-label"><strong>文案：</strong></label>
+								<label id="c9" style="width:100px;"></label>
+							</div>
+							<div id="show_deposit_user" style="width:100%;display:none;">
+							<div class="form-group" style="width:100%;height:40px;">
+								<label class="control-label" style="width:120px;"><strong>保证金是否已支付：</strong></label>
+								<label id="c10" style="width:100px;"></label>
+							</div>
+							<div class="form-group" style="width:100%;">								
+									<label class="control-label" style="width:80px;"><strong>收款日期：</strong></label>
+									<label id="c11" style="width:100px;"></label>
+									<label class="control-label"><strong>收款方式：</strong></label>
+									<label id="c12"></label>
+							</div>
+							<div class="form-group" style="display:block;line-height:40px;">
+									<div class="form-group">
+										<label class="control-label" style="width:80px;"><strong>总计应收：</strong></label>
+										$<label id="c13" style="width:100px;"></label>
+									</div>
+									<div class="form-group" style="margin-left:10px;">
+										<label class="control-label"><strong>折扣：</strong></label>
+										$<label id="c14" style="width:100px;"></label>
+									</div>
+									<div class="form-group" style="margin-left:10px;">
+										<label class="control-label"><strong>总计收款：</strong></label>
+										$<label id="c15"></label>
+									</div>									
+							</div>							
+							</div>
+							<hr/>
+							<div class="form-group" style="width:100%;line-height:40px;">
+									<label class="control-label"><strong>备注：</strong></label>
+									<label id="c16"></label>									
+							</div>							
+							<div id="show_reqcommission_form" style="width:100%;margin-bottom:10px;display:;">
+									<hr/>
+									<div class="form-group" style="width:100%;line-height:40px;">
+											<label class="control-label"><strong>佣金信息</strong></label>
+									</div>
+									<div class="form-group" style="width:100%;margin-top:10px;">								
+											<label class="control-label" style="width:150px;">是否就读：</label>
+											<input type="radio" name="c40" id="c40a" value="1" checked="true" /><label for="c40a">是</label>
+											<input type="radio" name="c40" id="c40b" value="0" style="margin-left:20px;" /><label for="c40b">否</label>
+									</div>
+									<div class="form-group" style="width:100%;margin-top:10px;">								
+											<label class="control-label" style="width:150px;">StudentID<span style="color:red;">*</span></label>
+											<input type="text" autocomplete="off" name="c20" id="c20" class="form-control" style="width:200px;font-weight:normal;" readonly="readonly" placeholder="请输入学生ID">
+											<label class="control-label" style="width:30px;margin-left:20px;display:;">DOB<span style="color:red;">*</span></label>
+											<input type="text" autocomplete="off" name="c20a" id="c20a" value="" class="form-control default-date-picker" style="width:150px;font-weight:normal;display:;" placeholder="请选择学生生日">
+									</div>
+									<div class="form-group" style="width:100%;margin-top:10px;">								
+											<label class="control-label" style="width:150px;">Installment：<span style="color:red;">*</span></label>
+											<label id="c21"></label>/<label id="c21a"></label>
+									</div>
+									<div class="form-group" style="width:100%;margin-top:10px;">								
+											<label class="control-label" style="width:150px;">Course Start Data:</label>
+											<input type="text" autocomplete="off" name="c22" id="c22" class="form-control default-date-picker" style="width:150px;font-weight:normal;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
+											<label class="control-label" style="margin-left:40px;">Course End Data:</label>
+											<input type="text" autocomplete="off" name="c23" id="c23" class="form-control default-date-picker" style="width:150px;font-weight:normal;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">								
+									</div>
+									<div class="form-group" style="width:100%;margin-top:10px;">								
+											<label class="control-label" style="width:150px;">Installment <span id="c24a">1</span><br/>Due Date<span style="color:red;">*</span></label>
+											<input type="text" autocomplete="off" name="c24" id="c24" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期">							
+									</div>																											
+									<div class="form-group" style="width:100%;margin-top:10px;">								
+											<label class="control-label" style="width:150px;">学费总金额<br/>Tuition Fee<span style="color:red;">*</span></label>
+											<input type="text" autocomplete="off" name="c25" id="c25" class="form-control" style="width:200px;font-weight:normal;" readonly="readonly" placeholder="">							
+									</div>
+									<div class="form-group" style="width:100%;margin-top:10px;">								
+											<label class="control-label" style="width:150px;">每学期学费金额<br/>Per Term Tuition Fee<span style="color:red;">*</span></label>
+											<input type="text" autocomplete="off" name="c26" id="c26" class="form-control" style="width:200px;font-weight:normal;" readonly="readonly" placeholder="">							
+									</div>
+									<div class="form-group" style="width:100%;margin-top:10px;">								
+											<label class="control-label" style="width:150px;">本次收款日期<span style="color:red;">*</span></label>
+											<input type="text" autocomplete="off" name="c27" id="c27" class="form-control default-date-picker" style="width:200px;font-weight:normal;" placeholder="请选择日期" data-date-format="yyyy-mm-dd">
+											<label class="control-label">收款方式<span style="color:red;">*</span></label>
+											<select class="form-control" style="width:150px;font-weight:normal;" name="c28" id="c28"></select>									
+									</div>
+									<div class="form-group" style="display:block;margin-top:10px;">
+											<div class="form-group">
+												<label class="control-label" style="width:150px;">本次应收学费<span style="color:red;">*</span></label>
+												$<input type="text" autocomplete="off" name="c29" id="c29" class="form-control" onkeyup="computeDiscount1()" style="width:100px;font-weight:normal;">
+											</div>
+											<div class="form-group" style="margin-left:10px;">
+												<label class="control-label">折扣</label>
+												$<input type="text" autocomplete="off" disabled="disabled" name="c30" id="c30" value="0" class="form-control" style="width:100px;font-weight:normal;">
+											</div>
+											<div class="form-group" style="margin-left:10px;">
+												<label class="control-label" style="color:red;">本次实收金额</label>
+												$<input type="text" autocomplete="off" name="c31" id="c31" class="form-control" onkeyup="computeDiscount2()" style="width:100px;font-weight:normal;">
+											</div>
+											<div class="form-group text-right" style="margin-top:10px;width:650px;">
+												<label class="control-label" style="font-weight:bold;color:red;">(提醒：“本次实收金额”务必填写实际收到客户的金额。如留学业务仅填写纯学费不包含注册费等学杂费。)</label>
+											</div>
+											<div class="form-group" style="margin-top:10px;margin-left:150px;">
+												<label class="control-label">预收业绩(<span style="color:#FF6C60;">Commission含GST</span>)</label>
+												$<input type="text" autocomplete="off" disabled="disabled" name="c32" id="c32" class="form-control" style="width:100px;font-weight:normal;">
+											</div>									
+									</div>
+									<div class="form-group" style="width:100%;margin-top:10px;">
+											<label class="control-label">备注</label>
+											<textarea id="c33" class="form-control" style="width:98%;font-weight:normal;"></textarea>
+									</div>
+							</div>							
+					</div>
+					<div class="modal-footer" style="text-align: center;">
+							<div id="show_payment_pic" style="display:none;padding-bottom:10px;"></div>
+									<input type="file" id="f1c" style="display:none">
+									<input type="hidden" id="flist1" value="" />	
+							<dle v-if="ap_list==='GW'">									
+									<dle v-if="state==='PENDING' || state==='WAIT'">																	
+									<div id="show_pic" style="display:none;padding-bottom:10px;"></div>
+									<button onclick="upload_receipt_pic('f1c')" id="upload_certificate" type="button" class="btn btn-danger" style="display:;">上传收款凭证</button>
+									<button id="btn_request" type="submit" class="btn btn-primary"><span id="btn_id">申请月奖</span></button>								
+									<button onclick="requestCommissionClose();" id="btn_close" type="button" style="display:none;" class="btn btn-primary">关闭订单</button>
+									</dle>
+							</dle>													
+							<button onclick="" type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+					</div>
+					</form>
+				</div>
+			</div>
+</div>
+</div>
+<script>
+var v_sub2 = new Vue({
+				el: '#app_sub2',
+				data: {
+					admin: sessionStorage.getItem("admin"),
+					ap_list: sessionStorage.getItem("ap_list"),
+					m_list: localStorage.getItem("str_html"),
+					adviser_id: sessionStorage.getItem("adviser_id"),
+					official_id: sessionStorage.getItem("official_id"),
+					serviceId: 0,
+					orderId: 0,
+					state: '',
+					order_detail: [],					
+				},
+				created: function() {
+					//初始化
+					page_init();
+				}
+});
+
+function edit_commission_detail(serviceId,orderId)
+{
+		$('#ovst_id #c20').attr("disabled",false);
+  	$('#ovst_id #c22').attr("disabled",false);
+  	$('#ovst_id #c23').attr("disabled",false);
+		$('#ovst_id #c24').attr("disabled",false);
+		$('#ovst_id #c25').attr("disabled",false);
+  	$('#ovst_id #c26').attr("disabled",false);
+  	$('#ovst_id #c27').attr("disabled",false);
+  	$('#ovst_id #c28').attr("disabled",false);
+  	$('#ovst_id #c29').attr("disabled",false);
+  	$('#ovst_id #c30').attr("disabled",false);
+  	$('#ovst_id #c31').attr("disabled",false);
+  	$('#ovst_id #btn_request').show();
+  	$('#ovst_id #upload_certificate').show();
+  	$('#ovst_id #btn_close').hide();
+		v_sub2.serviceId = serviceId;
+		v_sub2.orderId = orderId;		
+		//佣金详细页
+		$.ajax({
+      url: url + 'serviceOrder/get?id='+serviceId,
+      type: 'GET',
+      dataType: 'json'
+    }).done(function(response) {			        	
+    	response = response.data;
+    	//v_sub.order_detail = response;//存储数据到本地
+    	if (response.id)    	
+    	{
+    			$('#ovst_id').modal('show');
+		    	$('#ovst_id #c0').html(response.id);
+		    	$('#ovst_id #c1').html(response.user.name);
+		    	$('#ovst_id #c8').html(response.adviser.name);
+		    	$('#ovst_id #c9').html(response.official.name);
+		    	$('#ovst_id #c3').html(response.school.name);
+		    	$('#ovst_id #c4').html(response.school.subject);
+		    	var obj_issettle = $("#ovst_id #c5a");
+		    	obj_issettle.val(response.settle);
+		    	var str_issettle = '否';
+		    	if (response.settle) str_issettle = '是';		    	
+		    	$('#ovst_id #c5').html(str_issettle);		    			    	
+		    	var str_isdeposituser = '否';
+		    	if (response.depositUser)
+		    	{
+		    			str_isdeposituser = '是';
+		    			$('#ovst_id #show_deposit_user').show();	
+		    	}
+		    	$('#ovst_id #c6').html(str_isdeposituser);
+		    	$('#ovst_id #c7').html(response.subagency.name);
+		    	var str_ispay = '否';
+		    	if (response.pay) str_ispay = '是';
+		    	$('#ovst_id #c10').html(str_ispay);
+		    	$('#ovst_id #c11').html(v.getTime(response.receiveDate));
+		    	if (response.depositUser) $('#ovst_id #c12').html(response.receiveType.name);
+		    	$('#ovst_id #c13').html(response.receivable);
+		    	$('#ovst_id #c14').html(response.discount);
+		    	$('#ovst_id #c15').html(response.received);
+		    	$('#ovst_id #c16').html(response.remarks);
+		    	$('#ovst_id #c20a').val(v.getTime(response.user.birthday));
+    	}   	
+    	//查询佣金订单信息
+    	$.ajax({
+	      url: url + 'commissionOrder/get?id='+orderId,
+	      type: 'GET',
+	      async: false,
+	      dataType: 'json'
+	    }).done(function(response) {			        	
+	    	response = response.data;
+	    	v_sub2.order_detail = response;
+	    	v_sub2.state = response.state;
+	    	v.commissionsave_bind = 1;//绑定    	
+	    	if (response.id)	    	
+	    	{	    			
+	    			var is_studying = 1;
+		      	if (response.studying) is_studying = 0;
+	    			$('#ovst_id :radio:eq('+is_studying+')').prop("checked",'checked');
+	    			$('#ovst_id #c20').val(response.studentCode);
+	    			$('#ovst_id #c21').html(response.installmentNum);
+			    	$('#ovst_id #c21a').html(response.installment);
+			    	$('#ovst_id #c22').val(v.getTime(response.startDate));
+			    	$('#ovst_id #c23').val(v.getTime(response.endDate));
+	    			$('#ovst_id #c24a').html(response.installmentNum);
+	    			$('#ovst_id #c24').val(v.getTime(response.installmentDueDate));
+	    			$('#ovst_id #c25').val(response.tuitionFee);
+			    	$('#ovst_id #c26').val(response.perTermTuitionFee);
+			    	//$('#ovst_id #c27').val(v.getTime(response.receiveDate));
+			    	$('#ovst_id #c28').val(response.receiveTypeId);
+			    	$('#ovst_id #c29').val(response.perAmount);
+			    	$('#ovst_id #c30').val(response.discount);
+			    	$('#ovst_id #c31').val(response.amount);
+			    	$('#ovst_id #c32').val(response.expectAmount);
+			    	$('#ovst_id #c33').val(response.remarks);
+			    	
+			    	//生成收款凭证    	
+	        	var str_flist = '';
+	        	$("#ovst_id #show_payment_pic").empty();
+	        	if (response.paymentVoucherImageUrl1)
+						{
+								str_flist = response.paymentVoucherImageUrl1;
+								$("#ovst_id #show_payment_pic").append('<a href="/statics'+response.paymentVoucherImageUrl1+'" target="_blank">凭证1</a>&nbsp;');
+						}
+						if (response.paymentVoucherImageUrl2)
+						{
+								str_flist += ','+response.paymentVoucherImageUrl2;
+								$("#ovst_id #show_payment_pic").append('<a href="/statics'+response.paymentVoucherImageUrl2+'" target="_blank">凭证2</a>&nbsp;');
+						}
+						if (response.paymentVoucherImageUrl3)
+						{
+								str_flist += ','+response.paymentVoucherImageUrl3;
+								$("#ovst_id #show_payment_pic").append('<a href="/statics'+response.paymentVoucherImageUrl3+'" target="_blank">凭证3</a>&nbsp;');
+						}
+						if (response.paymentVoucherImageUrl4)
+						{
+								str_flist += ','+response.paymentVoucherImageUrl4;
+								$("#ovst_id #show_payment_pic").append('<a href="/statics'+response.paymentVoucherImageUrl4+'" target="_blank">凭证4</a>&nbsp;');
+						}
+						if (response.paymentVoucherImageUrl5)
+						{
+								str_flist += ','+response.paymentVoucherImageUrl5;
+								$("#ovst_id #show_payment_pic").append('<a href="/statics'+response.paymentVoucherImageUrl5+'" target="_blank">凭证5</a>&nbsp;');
+						}
+						if (str_flist != '')
+						{
+								$('#ovst_id #flist1').val(str_flist);
+								$('#ovst_id #show_payment_pic').show();
+						}
+	    	}
+    	});
+    	
+    });
+}
+
+$('#ovst_id :radio').live('click', function (e) {
+		if ($(this).val() == '1')
+		{
+				$('#ovst_id #c20').attr("disabled",false);
+	    	$('#ovst_id #c22').attr("disabled",false);
+	    	$('#ovst_id #c23').attr("disabled",false);
+  			$('#ovst_id #c24').attr("disabled",false);
+  			$('#ovst_id #c25').attr("disabled",false);
+	    	$('#ovst_id #c26').attr("disabled",false);
+	    	$('#ovst_id #c27').attr("disabled",false);
+	    	$('#ovst_id #c28').attr("disabled",false);
+	    	$('#ovst_id #c29').attr("disabled",false);
+	    	$('#ovst_id #c30').attr("disabled",false);
+	    	$('#ovst_id #c31').attr("disabled",false);
+	    	$('#ovst_id #btn_request').show();
+	    	$("#ovst_id #show_pic").show();
+	    	$('#ovst_id #upload_certificate').show();	
+	    	$('#ovst_id #btn_close').hide();
+		}else
+		{				
+				$('#ovst_id #c20').attr("disabled",true);
+	    	$('#ovst_id #c22').attr("disabled",true);
+	    	$('#ovst_id #c23').attr("disabled",true);
+  			$('#ovst_id #c24').attr("disabled",true);
+  			$('#ovst_id #c25').attr("disabled",true);
+	    	$('#ovst_id #c26').attr("disabled",true);
+	    	$('#ovst_id #c27').attr("disabled",true);
+	    	$('#ovst_id #c28').attr("disabled",true);
+	    	$('#ovst_id #c29').attr("disabled",true);
+	    	$('#ovst_id #c30').attr("disabled",true);
+	    	$('#ovst_id #c31').attr("disabled",true);
+	    	$('#ovst_id #btn_request').hide();
+	    	$("#ovst_id #show_pic").hide();
+	    	$('#ovst_id #upload_certificate').hide();
+	    	$('#ovst_id #btn_close').show();
+		}				
+});
+
+function upload_receipt_pic(fname)
+{
+		document.getElementById(fname).click(); 
+}
+
+$('#ovst_id #f1c').live('change', function (e) {
+		var formData = new FormData();					
+		formData.append("file",$("#f1c")[0].files[0]);
+		
+		$.ajax({
+        url: url + 'serviceOrder/upload_img',
+        dataType:'json',
+        type:'POST',
+        async: false,
+        data: formData,
+        processData : false, //使数据不做处理
+        contentType : false,
+        success: function(data){			        		
+            if (data.code == '0') {
+            		var flist = $("#ovst_id #flist1").val();
+            		if (flist)
+            		{
+            				$("#ovst_id #flist1").val(flist+','+data.data);
+            		}else
+            		{
+            				$("#ovst_id #flist1").val(data.data);
+            		}
+		        		$("#ovst_id #show_pic").append('<a href="/statics'+data.data+'" target="_blank">查看凭证</a>&nbsp;');
+		        		$("#ovst_id #show_pic").show();
+            }else
+            {
+            		$('#ovst_id #alert_error').css('marginTop','60%');
+          			$('#ovst_id #alert_error').css('marginLeft','60%');
+		   					$('#ovst_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+          			$("#ovst_id #error_info").html('收款凭证上传失败！');
+            }	
+        },
+        error:function(response){
+            console.log(response);
+        }
+    });
+});
+
+function requestCommissionSave()
+{
+		var f = '#ovst_id ';    
+    
+    var check_result = 0;    
+    if ($(f+'#c20').val() != '' && $(f+'#c24').val() != '' && $(f+'#c25').val() != '' && $(f+'#c26').val() != '' && $(f+'#c27').val() != '' && $(f+'#c29').val() != '' && $(f+'#c32').val() != '')
+    {
+    		check_result = true;
+    }else    		
+    {
+    		$('#ovst_id #alert_error').css('marginLeft','30%');
+    		$('#ovst_id #alert_error').css('marginTop','50%');
+    		$('#ovst_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+        $("#ovst_id #error_info").html('提示：红色字段必须填写或选择！');
+    		return false;
+    }   
+        
+    if (check_result)
+    {            	            	            	                             
+       	var str_url = url + "commissionOrder/update";
+       	var json = {};       	
+       	json['id'] = v_sub2.orderId;       	
+       	json['schoolId'] = v_sub2.order_detail.schoolId;
+       	json['studentCode'] = $(f+'#c20').val();
+       	json['adviserId'] = v_sub2.order_detail.adviserId;
+       	json['officialId'] = v_sub2.order_detail.officialId;
+       	json['isStudying'] = true;
+       	json['isSettle'] = false;
+       	if ($(f+'#c5a').val() == '1') json['isSettle'] = true;       	    	
+       	var d = 0;
+       	if ($(f+'#c20a').val() != '')
+    		{
+        		var arr_d = $(f+'#c20a').val().split("/");
+        		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+            var date = new Date(str_d);
+            d = date.getTime();
+      	}
+      	json['dob'] = d;//待确定
+       	if ($(f+'#c22').val())
+       	{
+       			var arr_d = $(f+'#c22').val().split("/");
+        		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+            var date = new Date(str_d);
+            d = date.getTime();
+       	}else
+       	{
+       			d = 0;
+       	}
+       	json['startDate'] =  d;
+       	if ($(f+'#c23').val())
+       	{
+       			var arr_d = $(f+'#c23').val().split("/");
+        		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+            var date = new Date(str_d);
+            d = date.getTime();
+       	}else
+       	{
+       			d = 0;
+       	}
+       	json['endDate'] =  d;
+       	if ($(f+'#c24').val())
+       	{
+       			var arr_d = $(f+'#c24').val().split("/");
+        		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+            var date = new Date(str_d);
+            d = date.getTime();
+       	}else
+       	{
+       			d = 0;
+       	}
+       	json['installmentDueDate'] =  d;
+       	json['tuitionFee'] =  $(f+'#c25').val();
+       	json['perTermTuitionFee'] =  $(f+'#c26').val();
+       	json['receiveTypeId'] =  $(f+'#c28').val();
+       	if ($(f+'#c27').val())
+       	{
+       			var arr_d = $(f+'#c27').val().split("/");
+        		var str_d = arr_d[2]+'-'+arr_d[1]+'-'+arr_d[0];
+            var date = new Date(str_d);
+            d = date.getTime();
+       	}else
+       	{
+       			d = 0;
+       	}
+       	json['receiveDate'] =  d;
+       	json['perAmount'] =  $(f+'#c29').val();       	
+       	json['amount'] =  $(f+'#c31').val();
+       	json['remarks'] =  $(f+'#c33').val();
+       	//校验是否上传了凭证
+       	var flist = $("#ovst_id #flist1").val();
+       	if (flist != '')
+   			{
+   					//对凭证进行处理
+   					var arr = flist.split(',');
+   					if (arr.length)
+   					{
+   							json['paymentVoucherImageUrl1'] = arr[0];
+   							if (arr.length == 2) json['paymentVoucherImageUrl2'] = arr[1];
+   					}
+   			}else
+   			{
+   					$('#ovst_id #alert_error').css('marginTop','50%');
+      			$('#ovst_id #alert_error').css('marginLeft','30%');
+   					$('#ovst_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+      			$("#ovst_id #error_info").html('收款凭证没有上传，请上传之后再提交。');
+    				return false;
+   			}
+   			show_loading();
+       	
+       	$.post(str_url, json,
+		   	function(data){
+		   			//console.log(data);
+		   			$('#loading_id').modal('hide');
+		   			if (data.code == 0)
+		   			{
+		   					//提交财务审核
+		   					$('#ovst_id #alert_success').css('marginTop','30%');
+		   					$('#ovst_id #alert_success').css('marginLeft','30%');
+		   					$('#ovst_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+		   					//setTimeout(function(){window.location.href = "mycommission-ovst.html";}, 2000);
+		   					v.getDatalist();
+			   				$('.modal-backdrop').remove();
+			   				$('#ovst_id').modal('hide');
+		   			}else
+		   			{		   					
+		   					$('#ovst_id #alert_error').css('marginTop','30%');
+		   					$('#ovst_id #alert_error').css('marginLeft','30%');
+		   					$('#ovst_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+          			$("#ovst_id #error_info").html(data.message);
+	        			return false;
+		   			}
+		   	});       		            
+    }
+}
+
+function requestCommissionClose()
+{
+		var f = '#ovst_id ';		 
+    
+    var check_result = true;            
+    if (check_result && confirm('您确认关闭这个佣金订单吗？注意：操作后，不可恢复。'))
+    {            	            	            	                             
+       	var str_url = url + "commissionOrder/close";
+       	var json = {};       	
+       	json['id'] = v_sub2.orderId;       	
+       	json['isStudying'] = false;       	       	
+       	json['remarks'] =  $(f+'#c33').val();       	       	
+       	
+       	$.post(str_url, json,
+		   	function(data){
+		   			if (data.code == 0)
+		   			{
+		   					$('#ovst_id #alert_success').css('marginTop','30%');
+		   					$('#ovst_id #alert_success').css('marginLeft','30%');
+		   					$('#ovst_id #alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+		   					setTimeout(function(){window.location.href = "mycommission-ovst.html";}, 2000);
+		   			}else
+		   			{
+		   					$('#ovst_id #alert_error').css('marginTop','30%');
+		   					$('#ovst_id #alert_error').css('marginLeft','30%');
+		   					$('#ovst_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+          			$("#ovst_id #error_info").html(data.message);
+	        			return false;
+		   			}
+		   	});       		            
+    }
+}
+
+function computeDiscount1()
+{
+		var perAmount = $("#ovst_id #c29").val();
+		var amount = $("#ovst_id #c31").val();
+		if (parseInt(perAmount) && parseInt(amount))
+		{				
+				var discount = parseInt(perAmount) - parseInt(amount);
+				$("#ovst_id #c30").val(discount);
+		}
+}
+
+function computeDiscount2()
+{
+		var perAmount = $("#ovst_id #c29").val();
+		var amount = $("#ovst_id #c31").val();
+		if (parseInt(perAmount) && parseInt(amount))
+		{				
+				var discount = parseInt(perAmount) - parseInt(amount);
+				$("#ovst_id #c30").val(discount);
+				$("#ovst_id #c32").val(amount);
+		}
+}
+
+function page_init()
+{
+		$('.default-date-picker').datepicker({   				
+	        format: 'dd/mm/yyyy'
+	  });
+	  $('.default-date-picker1').datepicker({   				
+	        format: 'dd/mm/yyyy'			        
+	  });
+	  
+	  var receive_type = $("#ovst_id #c28");
+    $.ajax({
+      url: url + 'receiveType/list?state=ENABLED',
+      type: 'GET',
+      async: false,
+      dataType: 'json'
+    }).done(function(response) {
+    	response = response.data;
+    	for (var item in response)
+    	{
+    			receive_type.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+    	}    		 	    
+    });
+}
+
+$('#ovst_id').on('show.bs.modal', function () {
+	$("#ovst_id #ovstid_form").validate({
+			submitHandler: function () {						
+            requestCommissionSave();
+      },
+      rules: {
+          c20a: {required:true,minlength:10},
+          //c22: {required:true,minlength:10},
+          //c23: {required:true,minlength:10},
+          c24: {required:true,minlength:10},          
+          c27: {required:true,minlength:10},
+          c28: {required:true,min:1},
+          c29: {required:true,minlength:1,number:true},
+          c31: {required:true,minlength:1,number:true},
+      },
+      messages: {
+          c20a: {required:"请选择",minlength:"格式错"},
+          //c22: {required:"请选择",minlength:"格式错"},
+          //c23: {required:"请选择",minlength:"格式错"},
+          c24: {required:"请选择",minlength:"格式错"},          
+          c27: {required:"请选择",minlength:"格式错"},
+          c28: {required:"",min:"请选择"},
+          c29: {required:"",minlength:"",number:"格式错"},
+          c31: {required:"",minlength:"",number:"格式错"},
+      }
+  });
+});
+</script>

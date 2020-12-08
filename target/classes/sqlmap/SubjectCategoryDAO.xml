@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.tb.dao.SubjectCategoryDAO">
+
+    <insert id="addSubjectCategory" parameterType="org.zhinanzhen.tb.dao.pojo.SubjectCategoryDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+            INTO tb_subject_category (
+                gmt_create,
+                gmt_modify,
+                name,
+                state,
+                weight)
+            VALUES (
+                now(),
+                now(),
+                #{name},
+                #{state},
+                #{weight});
+    </insert>
+    
+    <update id="updateSubjectCategoryState">
+        UPDATE tb_subject_category 
+        SET gmt_modify = now(), state = #{state}
+        WHERE id = #{id};
+    </update>
+    
+    <update id="updateSubjectCategory" parameterType="org.zhinanzhen.tb.dao.pojo.SubjectCategoryDO">
+        UPDATE tb_subject_category 
+        SET gmt_modify = now()
+        <if test='name != null and name != ""'>
+            , name = #{name}
+        </if>
+        <if test='state != null and state != ""'>
+            , state = #{state}
+        </if>
+        <if test='weight != null and weight != ""'>
+            , weight = #{weight}
+        </if>
+        WHERE id = #{id};
+    </update>
+
+    <select id="countSubjectCategory" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM tb_subject_category
+        WHERE state != 'DELETE'
+        <if test='state != null and state != ""'>
+            AND state = #{state}
+        </if>
+        ;
+    </select>
+    
+    <select id="listSubjectCategory" resultType="org.zhinanzhen.tb.dao.pojo.SubjectCategoryDO">
+        SELECT
+            id,
+            name,
+            state,
+            weight
+        FROM tb_subject_category
+        WHERE state != 'DELETE'
+        <if test='state != null and state != ""'>
+            AND state = #{state}
+        </if>
+        ORDER BY weight DESC
+        LIMIT #{offset}, #{rows};
+    </select>
+    
+    <select id="getSubjectCategoryById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.tb.dao.pojo.SubjectCategoryDO">
+        SELECT
+            id,
+            name,
+            state,
+            weight
+        FROM tb_subject_category WHERE state != 'DELETE' AND id = #{id, jdbcType=INTEGER};
+    </select>
+
+</mapper>

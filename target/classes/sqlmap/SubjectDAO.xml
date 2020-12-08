@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.tb.dao.SubjectDAO">
+    <insert id="addSubject" parameterType="org.zhinanzhen.tb.dao.pojo.SubjectDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+            INTO tb_subject (
+                gmt_create,
+                gmt_modify,
+                name,
+                type,
+                parent_id,
+                logo,
+                price,
+                start_date,
+                end_date,
+                state,
+                category_id,
+                pre_amount,
+                codex,
+                details,
+                region_ids,
+                weight)
+            VALUES (
+                now(),
+                now(),
+                #{name},
+                #{type},
+                0,
+                #{logo},
+                #{price},
+                #{startDate},
+                #{endDate},
+                'WAIT',
+                #{categoryId},
+                #{preAmount},
+                #{codex},
+                #{details},
+                #{regionIds},
+                #{weight});
+    </insert>
+
+    <update id="updateSubjectState">
+        UPDATE tb_subject 
+        SET gmt_modify = now(), state = #{state}
+        WHERE id = #{id};
+    </update>
+
+    <update id="updateSubject" parameterType="org.zhinanzhen.tb.dao.pojo.SubjectUpdateDO">
+        UPDATE tb_subject 
+        SET gmt_modify = now()
+        <if test='name != null and name != ""'>
+            , name = #{name}
+        </if>
+        <if test='type != null and type != ""'>
+            , type = #{type}
+        </if>
+        <if test='logo != null and logo != ""'>
+            , logo = #{logo}
+        </if>
+        <if test='startDateTimpstamp != null'>
+            , start_date = #{startDateTimpstamp, jdbcType=TIMESTAMP}
+        </if>
+        <if test='endDateTimpstamp != null'>
+            , end_date = #{endDateTimpstamp, jdbcType=TIMESTAMP}
+        </if>
+        <if test='categoryId != null and categoryId != ""'>
+            , category_id = #{categoryId}
+        </if>
+        <if test='preAmount != null and preAmount != ""'>
+            , pre_amount = #{preAmount}
+        </if>
+        <if test='codex != null and codex != ""'>
+            , codex = #{codex}
+        </if>
+        <if test='details != null and details != ""'>
+            , details = #{details}
+        </if>
+        <if test='regionIds != null and regionIds != ""'>
+            , region_ids = #{regionIds}
+        </if>
+        <if test='weight != null and weight != ""'>
+            , weight = #{weight}
+        </if>
+        WHERE id = #{id} AND state IN ('WAIT', 'START');
+    </update>
+    
+    <update id="updateSubjectWeight">
+        UPDATE tb_subject 
+        SET gmt_modify = now(), weight = #{weight}
+        WHERE id = #{id};
+    </update>
+    <update id="updateSubjectWeightPlus">
+        UPDATE tb_subject 
+        SET gmt_modify = now(), weight = (weight + 1)
+        WHERE weight > #{weight};
+    </update>
+    <update id="updateSubjectCategory">
+        UPDATE tb_subject 
+        SET gmt_modify = now(), category_id = #{categoryId}
+        WHERE id = #{id};
+    </update>
+
+    <select id="countSubject" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM tb_subject
+        WHERE state != 'DELETE'
+        <if test='keyword != null and keyword != ""'>
+            AND name LIKE '%${keyword}%'
+        </if>
+        <if test='state != null and state != ""'>
+            AND state = #{state}
+        </if>
+        <if test='categoryId != null and categoryId != ""'>
+            AND category_id = #{categoryId}
+        </if>
+        ;
+    </select>
+    
+    <select id="listSubject" resultType="org.zhinanzhen.tb.dao.pojo.SubjectDO">
+        SELECT
+            id,
+            name,
+            type,
+            parent_id AS parentId,
+            logo,
+            start_date AS startDate,
+            end_date AS endDate,
+            state,
+            category_id AS categoryId,
+            weight
+        FROM tb_subject
+        WHERE state != 'DELETE'
+        <if test='keyword != null and keyword != ""'>
+            AND name LIKE '%${keyword}%'
+        </if>
+        <if test='state != null and state != ""'>
+            AND state = #{state}
+        </if>
+        <if test='categoryId != null and categoryId != ""'>
+            AND category_id = #{categoryId}
+        </if>
+        ORDER BY gmt_create DESC 
+        LIMIT #{offset}, #{rows};
+    </select>
+    
+    <select id="listSubjectByParentId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.tb.dao.pojo.SubjectDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            name,
+            type,
+            parent_id AS parentId,
+            logo,
+            price,
+            start_date AS startDate,
+            end_date AS endDate,
+            state,
+            category_id AS categoryId,
+            pre_amount AS preAmount,
+            codex,
+            details,
+            region_ids AS regionIds,
+            weight
+        FROM tb_subject WHERE state != 'DELETE' AND parent_id = #{id, jdbcType=INTEGER};
+    </select>
+
+    <select id="getSubjectById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.tb.dao.pojo.SubjectDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            name,
+            type,
+            parent_id AS parentId,
+            logo,
+            price,
+            start_date AS startDate,
+            end_date AS endDate,
+            state,
+            category_id AS categoryId,
+            pre_amount AS preAmount,
+            codex,
+            details,
+            region_ids AS regionIds,
+            weight
+        FROM tb_subject WHERE id = #{id, jdbcType=INTEGER};
+    </select>
+    
+    <select id="getFirstSubject" resultType="org.zhinanzhen.tb.dao.pojo.SubjectDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            name,
+            type,
+            parent_id,
+            logo,
+            price,
+            start_date AS startDate,
+            end_date AS endDate,
+            state,
+            category_id AS categoryId,
+            pre_amount AS preAmount,
+            codex,
+            details,
+            region_ids AS regionIds,
+            weight
+        FROM tb_subject
+        ORDER BY weight DESC
+        LIMIT 1;
+    </select>
+    
+    <delete id="deleteSubjectById" parameterType="java.lang.Integer">
+		DELETE FROM tb_subject WHERE id = #{id, jdbcType=INTEGER}
+	</delete>
+
+</mapper>

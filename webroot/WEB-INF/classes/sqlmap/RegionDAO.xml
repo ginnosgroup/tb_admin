@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.tb.dao.RegionDAO">
+    
+    <cache eviction="LRU" flushInterval="120000" readOnly="false" size="100"></cache>
+
+	<select id="getRegionById" parameterType="java.lang.Integer"
+		resultType="org.zhinanzhen.tb.dao.pojo.RegionDO">
+		SELECT
+		id,
+		name,
+		weight,
+		parent_id AS parentId
+		FROM tb_region WHERE id
+		= #{id, jdbcType=INTEGER};
+	</select>
+
+	<select id="listAllRegion" resultType="org.zhinanzhen.tb.dao.pojo.RegionDO">
+		SELECT
+		id,
+		name,
+		weight,
+		parent_id AS
+		parentId
+		FROM tb_region;
+	</select>
+	<insert id="insert" parameterType="org.zhinanzhen.tb.dao.pojo.RegionDO"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into tb_region (name,
+		gmt_create,gmt_modify,
+		parent_id,
+		weight
+		)
+		values
+		(#{name},now(),now(),
+		#{parentId},#{weight}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE tb_region
+		SET gmt_modify = now(), name =
+		#{name},weight = #{weight}
+		WHERE id = #{id};
+	</update>
+	<select id="selectByParent" resultType="org.zhinanzhen.tb.dao.pojo.RegionDO">
+		select id, name, parent_id,weight
+		from
+		tb_region
+		where parent_id is null
+		ORDER BY weight DESC
+	</select>
+	<select id="selectByParentId" resultType="org.zhinanzhen.tb.dao.pojo.RegionDO"
+		parameterType="java.lang.Integer">
+		select
+		m.id,
+		m.name,
+		m.parent_id,
+		m.weight,
+		n.name as parentName
+		from tb_region m left join
+		tb_region n on m.parent_id = n.id
+		where m.parent_id = #{parentId}
+		ORDER BY m.weight DESC
+	</select>
+</mapper>

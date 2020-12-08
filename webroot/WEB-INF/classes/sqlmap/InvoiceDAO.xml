@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.zhinanzhen.b.dao.InvoiceDAO">
+
+    <select id="selectServiceFeeInvoice" resultType="org.zhinanzhen.b.service.pojo.InvoiceDTO">
+        select
+        id,
+        order_id,
+        gmt_create ,
+        invoice_no,
+        branch,
+        state
+        from `b_invoice_servicefee`
+        <where>
+            <if test='invoice_no != null and invoice_no !="" '>
+                invoice_no = #{invoice_no}
+            </if>
+            <if test='order_id != null and order_id !="" '>
+                and order_id = #{order_id}
+            </if>
+            <if test='create_start != null and create_start !="" '>
+                and gmt_create &gt;= #{create_start}
+            </if>
+            <if test='create_end != null and create_end !="" '>
+                and gmt_create  &lt;= #{create_end}
+            </if>
+            <if test='branch != null and branch !="" '>
+                and branch = #{branch}
+            </if>
+
+                and state  like  "%"#{state}
+
+        </where>
+        order by gmt_create desc  limit #{pageNum} ,#{pageSize} ;
+    </select>
+    <select id="selectScoolInvoice" resultType="org.zhinanzhen.b.service.pojo.InvoiceDTO">
+        select
+        id,
+        order_id,
+        gmt_create ,
+        invoice_no,
+        branch,
+        state
+        from `b_invoice_school`
+        <where>
+            <if test='invoice_no != null and invoice_no !="" '>
+                invoice_no = #{invoice_no}
+            </if>
+            <if test='order_id != null and order_id !="" '>
+                and order_id = #{order_id}
+            </if>
+            <if test='create_start != null and create_start !="" '>
+                and gmt_create &gt;= #{create_start}
+            </if>
+            <if test='create_end != null and create_end !="" '>
+                and gmt_create  &lt;= #{create_end}
+            </if>
+            <if test='branch != null and branch !="" '>
+                and branch = #{branch}
+            </if>
+            and state  like  "%"#{state}
+        </where>
+        order by gmt_create desc  limit #{pageNum} ,#{pageSize} ;
+    </select>
+
+    <select id="selectSFCount" resultType="java.lang.Integer">
+        select
+        COUNT(id)
+        from `b_invoice_servicefee`
+        <where>
+            <if test='invoice_no != null and invoice_no !="" '>
+                invoice_no = #{invoice_no}
+            </if>
+            <if test='order_id != null and order_id !="" '>
+                and order_id = #{order_id}
+            </if>
+            <if test='create_start != null and create_start !="" '>
+                and gmt_create &gt;= #{create_start}
+            </if>
+            <if test='create_end != null and create_end !="" '>
+                and gmt_create  &lt;= #{create_end}
+            </if>
+            <if test='branch != null and branch !="" '>
+                and branch = #{branch}
+            </if>
+            and state  like  "%"#{state}
+        </where>
+    </select>
+    <select id="selectSCCount" resultType="java.lang.Integer">
+        select
+        COUNT(id)
+        from `b_invoice_school`
+        <where>
+            <if test='invoice_no != null and invoice_no !="" '>
+                invoice_no = #{invoice_no}
+            </if>
+            <if test='order_id != null and order_id !="" '>
+                and order_id = #{order_id}
+            </if>
+            <if test='create_start != null and create_start !="" '>
+                and gmt_create &gt;= #{create_start}
+            </if>
+            <if test='create_end != null and create_end !="" '>
+                and gmt_create  &lt;= #{create_end}
+            </if>
+            <if test='branch != null and branch !="" '>
+                and branch = #{branch}
+            </if>
+            and state  like  "%"#{state}
+        </where>
+    </select>
+
+
+
+    <select id="selectCommissionOrder" resultType="org.zhinanzhen.b.service.pojo.InvoiceDTO">
+        select bc.id,
+        bc.order_id,
+        bc.gmt_create ,
+        bc.invoice_no,
+        bc.branch,
+        bc.state
+        from `b_invoice_school` as bc   WHERE bc.invoice_no = (select DISTINCT bo.invoice_number from  `b_commission_order` as bo WHERE bo.id = #{order_id})
+    </select>
+    <select id="selectVisaOrder" resultType="org.zhinanzhen.b.service.pojo.InvoiceDTO">
+        select bf.id,
+        bf.order_id,
+        bf.gmt_create ,
+        bf.invoice_no,
+        bf.branch,
+        bf.state
+        from `b_invoice_servicefee` as bf   WHERE bf.invoice_no = (select DISTINCT bv.invoice_number from  `b_visa` as bv WHERE bv.id = #{order_id})
+    </select>
+
+    <select id="selectCommissionOrderCount" resultType="java.lang.Integer">
+        select count(bc.id)
+        from `b_invoice_school` as bc   WHERE bc.invoice_no = (select DISTINCT bo.invoice_number from  `b_commission_order` as bo WHERE bo.id = #{order_id})
+    </select>
+    <select id="selectVisaOrderCount" resultType="java.lang.Integer">
+        select count(bf.id)
+        from `b_invoice_servicefee` as bf   WHERE bf.invoice_no = (select DISTINCT bv.invoice_number from  `b_visa` as bv WHERE bv.id = #{order_id})
+    </select>
+
+
+    <!-- 更改invoice状态-->
+    <update id="updateSFState">
+        update `b_invoice_servicefee` set state ="CANCELED" where invoice_no = #{invoiceNo}
+    </update>
+    <update id="updateVisaInvoiceNumberNull">
+        update `b_visa` set invoice_number = null where invoice_number = #{invoiceNo} ;
+    </update>
+    <update id="updateSCState">
+        update `b_invoice_school` set state ="CANCELED" where invoice_no = #{invoiceNo}
+    </update>
+    <update id="updateCommissionOrderInvoiceNumberNull">
+        update `b_commission_order` set invoice_number = null where invoice_number = #{invoiceNo} ;
+    </update>
+
+    <!-- 查询company表-->
+    <select id="selectCompany" resultType="org.zhinanzhen.b.dao.pojo.InvoiceCompanyDO">
+        select id,name,abn,email,tel,bsb,account,flag  from `b_invoice_company` where flag like "%"#{flag}"%"
+    </select>
+
+    <!-- 查询address表-->
+    <select id="selectAddress" resultType="org.zhinanzhen.b.dao.pojo.InvoiceAddressDO">
+        select id,branch,address,bsb,account from `b_invoice_address`
+    </select>
+
+    <select id="selectBranch" resultType="org.zhinanzhen.b.dao.pojo.InvoiceBranchDO">
+        select id,branch,simple from `b_invoice_branch_simple`
+    </select>
+
+    <!-- 查询b_invoice_company By company-->
+    <select id="selectCompanyByName" resultType="org.zhinanzhen.b.service.pojo.InvoiceCompanyDTO">
+        select id,name,abn,email,tel,bsb,account,simple from `b_invoice_company`
+        <where>
+            <if test=' company != null ' >
+                name = #{company}
+            </if>
+            and flag like "%"#{flag}"%"
+        </where>
+    </select>
+
+    <!-- 查询b_invoice_company By company-->
+    <select id="selectCompanyById" resultType="org.zhinanzhen.b.service.pojo.InvoiceCompanyDTO">
+        select id,name,abn,email,tel,bsb,account,simple from `b_invoice_company` where id = #{companyId} and  flag like "%SC%";
+    </select>
+
+    <!-- 查询b_invoice_address By branch-->
+    <select id="selectAddressByBranch" resultType="org.zhinanzhen.b.dao.pojo.InvoiceAddressDO">
+        select branch,address,bsb,account from `b_invoice_address`
+        <where>
+            <if test=" branch != null " >
+                branch = #{branch}
+            </if>
+        </where>
+    </select>
+
+    <!-- 查询b_invoice表 By simpleBranch-->
+    <select id="selectInvoiceBySimple" resultType="string">
+        select invoice_no from
+        <choose>
+            <when test="flag=='SF'">
+                `b_invoice_servicefee`
+            </when>
+            <when test="flag=='SC'">
+                `b_invoice_school`
+            </when>
+        </choose>
+        <where>
+            <if test="simpleBranch != null and simpleBranch !='' ">
+                invoice_no like "%"#{simpleBranch}
+            </if>
+        </where>
+    </select>
+
+    <!-- visa中invoice_number不为空的id-->
+    <select id="selectVisaId" resultType="java.lang.Integer">
+        select id from
+        <choose>
+            <when test=" flag == 'SF' ">
+                `b_visa`
+            </when>
+            <when test=" flag == 'SC' ">
+                `b_commission_order`
+            </when>
+        </choose>
+        where invoice_number is not null and id in
+        <foreach collection="idList" index="index" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+    <!-- servicefee导入数据，关联订单id-->
+    <update id="relationVisaOrder" parameterType="java.lang.String">
+        update `b_visa` set invoice_number = #{invoiceNo} where id in
+        <foreach collection="idList" index="index" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+    <update id="insertOrderIdInInvoice" >
+        update `b_invoice_servicefee` set order_id = #{idList} where invoice_no = #{invoiceNo}
+    </update>
+
+    <!-- 查询一个invoice-->
+    <select id="selectSFInvoiceByNo" resultMap="invoiceServiceFee">
+        select sf.id,sf.gmt_create,sf.email,sf.invoice_no,sf.company,sf.abn,sf.address,sf.tel,note,accountname,bsb,accountno,state,order_id,branch,
+        sfd.id as did,description as ddescription,IFNULL(unit_price,0.00) as dunit_price,quantity as dquantity ,IFNULL(amount,0.00) as damount from `b_invoice_servicefee` as sf ,
+        `b_invoice_servicefee_description` as sfd where sf.invoice_no = #{invoiceNo} and sf.invoice_no = sfd.invoice_no
+    </select>
+    <resultMap id="invoiceServiceFee" type="org.zhinanzhen.b.dao.pojo.InvoiceServiceFeeDO">
+        <id column="id" property="id"></id>
+        <result column="gmt_create" property="invoiceDate"></result>
+        <result column="email" property="email"></result>
+        <result column="order_id" property="order_id"></result>
+        <result column="invoice_no" property="invoiceNo"></result>
+        <result column="company" property="company"></result>
+        <result column="abn" property="abn"></result>
+        <result column="address" property="address"></result>
+        <result column="tel" property="tel"></result>
+        <result column="note" property="note"></result>
+        <result column="accountname" property="accountname"></result>
+        <result column="bsb" property="bsb"></result>
+        <result column="accountno" property="accountno"></result>
+        <result column="state" property="state"></result>
+        <result column="branch" property="branch"></result>
+        <collection property="invoiceServiceFeeDescriptionDOList" ofType="org.zhinanzhen.b.dao.pojo.InvoiceServiceFeeDescriptionDO">
+            <result property="id" column="did"></result>
+            <result column="ddescription" property="description"></result>
+            <result column="dunit_price" property="unitPrice"></result>
+            <result column="dquantity" property="quantity"></result>
+            <result column="damount" property="amount"></result>
+        </collection>
+    </resultMap>
+
+    <select id="selectSCInvoiceByNo" resultMap="invoiceSchool">
+        select sf.id,sf.gmt_create,sf.email,sf.invoice_no,sf.company_id,sf.company,sf.abn,sf.address,sf.tel,note,accountname,bsb,accountno,state,order_id,branch,
+        sfd.id as sfdid,studentname as sfdstudentname ,dob as sfddob,student_id as sfdstudent_id,course as sfdcourse,startDate as sfdstartDate,
+        instalment as sfdinstalment,  IFNULL(tuitionfee,0.00) as sfdtuitionfee, IFNULL(bonus,0.00) as sfdbonus,IFNULL(commissionrate,0.00) as sfdcommissionrate,
+        IFNULL(commission,0.00) as sfdcommission,IFNULL(marketing_bonus,0.00) as sfdmarketing ,bb.id as bid,bb.company as bcompany,bb.abn as babn,bb.address as baddress
+        from `b_invoice_school` as sf ,`b_invoice_school_description` as sfd , `b_invoice_billto` as bb where sf.invoice_no = #{invoiceNo} and
+        sf.invoice_no = sfd.invoice_no and sf.billto_id = bb.id
+    </select>
+
+    <resultMap id="invoiceSchool" type="org.zhinanzhen.b.dao.pojo.InvoiceSchoolDO">
+        <id column="id" property="id"></id>
+        <result column="gmt_create" property="invoiceDate"></result>
+        <result column="email" property="email"></result>
+        <result column="invoice_no" property="invoiceNo"></result>
+        <result column="order_id" property="order_id"></result>
+        <result column="company" property="company"></result>
+        <result column="company_id" property="companyId"></result>
+        <result column="abn" property="abn"></result>
+        <result column="address" property="address"></result>
+        <result column="tel" property="tel"></result>
+        <result column="note" property="note"></result>
+        <result column="accountname" property="accountname"></result>
+        <result column="bsb" property="bsb"></result>
+        <result column="accountno" property="accountno"></result>
+        <result column="state" property="state"></result>
+        <result column="branch" property="branch"></result>
+        <association property="invoiceBillToDO" javaType="org.zhinanzhen.b.dao.pojo.InvoiceBillToDO">
+            <id property="id" column="bid"></id>
+            <result property="company" column="bcompany"></result>
+            <result property="abn" column="babn"></result>
+            <result property="address" column="baddress"></result>
+        </association>
+        <collection property="invoiceSchoolDescriptionDOS" ofType="org.zhinanzhen.b.dao.pojo.InvoiceSchoolDescriptionDO">
+            <result property="id" column="sfdid"></result>
+            <result column="sfdstudentname" property="studentname"></result>
+            <result column="sfddob" property="dob"></result>
+            <result column="sfdstudent_id" property="studentId"></result>
+            <result column="sfdcourse" property="course"></result>
+            <result column="sfdstartDate" property="startDate"></result>
+            <result column="sfdinstalment" property="instalMent"></result>
+            <result column="sfdtuitionfee" property="tuitionFee"></result>
+            <result column="sfdbonus" property="bonus"></result>
+            <result column="sfdcommissionrate" property="commissionrate"></result>
+            <result column="sfdcommission" property="commission"></result>
+            <result column="sfdmarketing" property="marketing"></result>
+        </collection>
+    </resultMap>
+
+    <!-- school导入数据，关联订单id-->
+    <update id="relationCommissionOrder" parameterType="java.lang.String">
+        update `b_commission_order` set invoice_number = #{invoiceNo} where id in
+        <foreach collection="idList" index="index" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+    <update id="insertCommissionOrderIdInInvoice" >
+        update  `b_invoice_school` set order_id = #{idList}  where invoice_no = #{invoiceNo}
+    </update>
+
+    <select id="billToList" resultType="org.zhinanzhen.b.dao.pojo.InvoiceBillToDO">
+        select id,company,abn,address from `b_invoice_billto`
+    </select>
+
+    <!-- 选择bill to company 添加company-->
+    <insert id="addBillTo">
+        insert into `b_invoice_billto` (company,abn,address,gmt_create,gmt_modify) values  (#{company},#{abn},#{address},now(),now())
+    </insert>
+
+    <!-- save srvicefee invoice-->
+    <insert id="saveServiceFeeInvoice">
+        insert into `b_invoice_servicefee` (gmt_create,gmt_modify,email,company,abn,address,tel,invoice_no,note,accountname,bsb,accountno,state,branch) values
+        (#{invoiceDate},now(),#{email},#{company},#{abn},#{address},#{tel},#{invoiceNo},#{note},#{accountname},#{bsb},#{accountno},"NORMAL",#{branch})
+    </insert>
+    <!-- save srvicefeedescription invoice-->
+    <insert id="saveServiceFeeDescription">
+        insert into `b_invoice_servicefee_description` (id,description,unit_price,quantity,amount,invoice_no,gmt_create,gmt_modify) values
+        <if test="invoiceServiceFeeDescriptionDOList != null ">
+            <foreach collection="invoiceServiceFeeDescriptionDOList" index="index" item="des" separator="," close=";">
+                (#{des.id},#{des.description},#{des.unitPrice},#{des.quantity},#{des.amount},#{invoiceNo},now(),now())
+            </foreach>
+        </if>
+    </insert>
+
+    <!-- save srvicefee invoice-->
+    <insert id="saveSchoolInvoice" parameterType="java.util.Map">
+        insert  into `b_invoice_school` (gmt_create,gmt_modify,email,company_id,company,abn,address,tel,invoice_no,billto_id,note,accountname,bsb,accountno,state,branch)
+        values (#{invoiceDate},now(),#{email},#{companyId},#{company},#{abn},#{address},#{tel},#{invoiceNo},#{billto_id},#{note},#{accountname},#{bsb},#{accountno},"NORMAL",#{branch})
+    </insert>
+    <insert id="saveSchoolDescription">
+        insert  into `b_invoice_school_description` (id,studentname,dob,student_id,course,startDate,instalment,tuitionfee,bonus,commissionrate,commission,marketing_bonus,gmt_create,gmt_modify,invoice_no)
+        values
+        <if test=" description != null ">
+            <foreach collection="description" item="des"  index="index" separator="," close=";">
+                (#{des.id},#{des.studentname},#{des.dob},#{des.studentId},#{des.course},#{des.startDate},#{des.instalMent},#{des.tuitionFee},#{des.bonus},#{des.commissionrate},#{des.commission},
+                 #{des.marketing},now(),now(),#{invoiceNo})
+            </foreach>
+        </if>
+    </insert>
+
+    <!-- 查询servicefee中的invoiceNo-->
+    <select id="selectInvoiceNo" resultType="string">
+        select invoice_no from
+        <choose>
+            <when test="table == 'b_invoice_servicefee' ">
+                `b_invoice_servicefee`
+            </when>
+            <when test="table == 'b_invoice_school' ">
+                `b_invoice_school`
+            </when>
+        </choose>
+        where invoice_no = #{invoiceNo} ;
+    </select>
+
+</mapper>

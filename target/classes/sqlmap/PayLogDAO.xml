@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.zhinanzhen.tb.dao.PayLogDAO">
+	<resultMap id="BaseResultMap" type="org.zhinanzhen.tb.dao.pojo.PayLogDO">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="user_id" property="userId" jdbcType="INTEGER" />
+		<result column="order_id" property="orderId" jdbcType="INTEGER" />
+		<result column="pay_type" property="payType" jdbcType="VARCHAR" />
+		<result column="pay_code" property="payCode" jdbcType="VARCHAR" />
+		<result column="pay_amount" property="payAmount" jdbcType="DECIMAL" />
+		<result column="pay_date" property="payDate" jdbcType="TIMESTAMP" />
+	</resultMap>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from tb_pay_log
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	<insert id="insert" parameterType="org.zhinanzhen.tb.dao.pojo.PayLogDO">
+		insert into tb_pay_log (id, gmt_create,gmt_modify,user_id, order_id,
+		pay_type, pay_code, pay_amount,
+		pay_date)
+		values (#{id,jdbcType=INTEGER},now(),now(), #{userId,jdbcType=INTEGER},
+		#{orderId,jdbcType=INTEGER},
+		#{payType,jdbcType=VARCHAR}, #{payCode,jdbcType=VARCHAR}, #{payAmount,jdbcType=DECIMAL},
+		#{payDate,jdbcType=TIMESTAMP})
+	</insert>
+	<update id="updateByPrimaryKey" parameterType="org.zhinanzhen.tb.dao.pojo.PayLogDO">
+		update tb_pay_log
+		set user_id = #{userId,jdbcType=INTEGER},
+		order_id = #{orderId,jdbcType=INTEGER},
+		pay_type = #{payType,jdbcType=VARCHAR},
+		pay_code = #{payCode,jdbcType=VARCHAR},
+		pay_amount = #{payAmount,jdbcType=DECIMAL},
+		pay_date = #{payDate,jdbcType=TIMESTAMP}
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select id, user_id, order_id, pay_type, pay_code, pay_amount, pay_date
+		from tb_pay_log
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	<select id="selectAll" resultMap="BaseResultMap">
+		select id, user_id, order_id, pay_type, pay_code, pay_amount, pay_date
+		from tb_pay_log
+	</select>
+	<select id="selectByUserId" resultMap="BaseResultMap">
+		select id, user_id, order_id, pay_type, pay_code, pay_amount, pay_date
+		from tb_pay_log
+		where user_id = #{userId}
+		<if test="payType != 'ALL'">
+			AND pay_type = #{payType}
+		</if>
+	</select>
+</mapper>

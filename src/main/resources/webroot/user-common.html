@@ -74,13 +74,13 @@
 						</div>
 						<div id="b20btext" class="form-group" style="width:100%;line-height:40px;">
 							<label class="control-label">客户基本信息描述<span style="color:red;">*</span></label>
-							<textarea name="b20b" id="b20b" class="form-control" style="width:98%;color:#428bca;" placeholder="请填写客户背景信息比如特殊要求、紧急程度、家庭背景等。"></textarea>
+							<textarea id="b20b" class="form-control" style="width:98%;color:#428bca;" placeholder="请填写客户背景信息比如特殊要求、紧急程度、家庭背景等。"></textarea>
 						</div>
 						<div id="is_payment" class="form-group" style="width:100%;height:40px;margin-top:10px;">
 							<label class="control-label" style="width:80px;">是否已支付<span style="color:red;">*</span></label>
 							<input type="radio" name="b7" id="b7a" value="1" /><label for="b7a">是</label>
 							<input type="radio" name="b7" id="b7b" value="0" checked="true" style="margin-left:20px;" /><label for="b7b">否</label>
-							<input type="checkbox" name="b20c" id="b20c" value="true" style="display:;margin-left:10px;">
+							<input type="checkbox" name="b20c" id="b20c" value="1B" style="display:;margin-left:10px;">
 							<label id="b20c1" for="b20c" style="display:;width:80px;">是否历史订单</label>
 						</div>
 						<div id="show_paid" style="width:100%;display:none;">
@@ -537,7 +537,10 @@ function add_service1(orderId,userId,name)
 				$("#addnewservice1_id #b16").val('');
 				$("#addnewservice1_id #b17").val('');
 				$("#addnewservice1_id #b20a").rules("add",{required:true,messages:{required:""}});
+<<<<<<< HEAD
 				$("#addnewservice1_id #b20b").rules("add",{required:true,messages:{required:""}});
+=======
+>>>>>>> f2a0d67fbd650e9636fa03378d45af11aac31429
 				ajax_service('VISA');
 		}else
 		{
@@ -555,7 +558,11 @@ function add_service1(orderId,userId,name)
 	        	if (response.parentId)
 	        	{
 	        			title = '修改独立技术移民服务';
+<<<<<<< HEAD
 	        			$('#addnewservice1_id #b6b').hide();	        			
+=======
+	        			$('#addnewservice1_id #b6b').hide();
+>>>>>>> f2a0d67fbd650e9636fa03378d45af11aac31429
 	        			$('#addnewservice1_id #b20atext').hide();
 	        			$('#addnewservice1_id #b20btext').hide();
 	        			$('#addnewservice1_id #addnewservice1_id_title').html(title);
@@ -600,15 +607,22 @@ function add_service1(orderId,userId,name)
 	        	{
 	        			v.servicepackage_type = 'VA';
 	        			//绑定签证职评
+<<<<<<< HEAD
 	        			$('#addnewservice1_id #b7text').show();
+=======
+>>>>>>> f2a0d67fbd650e9636fa03378d45af11aac31429
 	        			$("#addnewservice1_id #b6").removeAttr("disabled");
 	        			$('#addnewservice1_id #b20atext').show();
 	        			$('#addnewservice1_id #b20btext').show();
 	        			if (response.history == true) $('#addnewservice1_id #b20c').attr("checked", true);
 	        			$('#addnewservice1_id #b20a').val(response.nutCloud);
 	        			$('#addnewservice1_id #b20b').val(response.information);
+<<<<<<< HEAD
 	        			$("#addnewservice1_id #b20a").rules("add",{required:true,messages:{required:""}});	 
 	        			$("#addnewservice1_id #b20b").rules("add",{required:true,messages:{required:""}});       			
+=======
+	        			$("#addnewservice1_id #b20a").rules("add",{required:true,messages:{required:""}});	        			
+>>>>>>> f2a0d67fbd650e9636fa03378d45af11aac31429
 	        			$('#addnewservice1_id #b6b').show();
 	        			$('#addnewservice1_id #b6b').val(response.serviceAssessId);
 	        			$('#addnewservice1_id #b6c1a').hide();

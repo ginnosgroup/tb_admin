@@ -1,0 +1,490 @@
+﻿<meta charset="utf-8"/>
+<meta http-equiv="Pragma" content="no-cache" />   
+<meta http-equiv="Cache-Control" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<div id="taxinvoice_app_sub_1">
+<div class="modal fade" id="show_addservicefee_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+		<div class="modal-dialog" role="document" style="width:700px;">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="addnewservice1_id_title">Service Fee Tax Invoice</h4>
+				</div>
+				<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+		      <button data-dismiss="alert" class="close close-sm" type="button">
+		      <i class="fa fa-times"></i>
+		      </button>
+		      <strong>Success!</strong> You  just achieved success.
+		  	</div>
+		  	<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+	        <button data-dismiss="alert" class="close close-sm" type="button">
+	        <i class="fa fa-times"></i>
+	        </button>
+	        <strong id="error_info"></strong>
+	      </div>
+	      <form class="cmxform form-inline" style="" name="addservicefee_form" id="addservicefee_form">
+				<div class="modal-body">						
+						<input type="hidden" name="ids" id="ids" value="" />
+						<div class="form-group" style="width:100%;height:40px;">
+							<label class="control-label" style="width:120px;">发票ID：</label>							
+							<label name="b0" id="b0"></label>
+						</div>	
+						<div class="form-group" style="width:100%;height:40px;">
+							<label class="control-label" style="width:120px;">地区：<span style="color:red;">*</span></label>							
+							<label name="b1" id="b1"></label>
+						</div>
+						<div class="form-group" style="width:100%;height:40px;">
+							<label class="control-label" style="width:120px;">Company Title：<span style="color:red;">*</span></label>							
+							<label name="b2" id="b2"></label>
+							<label class="control-label" style="margin-left:20px;">ABN：<span id="b2a"></span></label>
+						</div>
+						<div class="form-group" style="width:100%;height:40px;">
+							<label class="control-label" style="width:120px;">Address：</label>							
+							<label class="control-label" style="width:300px;" name="b3" id="b3"></label>
+							<label class="control-label" style="margin-left:20px;">Tel：<span id="b3a"></span></label>
+						</div>
+						<div class="form-group" style="width:100%;height:40px;">							
+							<label class="control-label" style="width:120px;">E-mail：</label>
+							<label class="control-label" style="" id="b3b"></label>
+						</div>
+						<div class="form-group" style="width:100%;height:40px;line-height:40px;text-align:center;border-top: 1px solid #e5e5e5;border-bottom: 1px solid #e5e5e5;">							
+							<label class="control-label" style="font-weight:bold;">Tax Invoice</label>
+						</div>
+						<div class="form-group" style="width:100%;line-height:40px;text-align:right;">							
+							<label class="control-label" style="font-weight:bold;">Invoice No.：</label>
+							<label class="control-label" style="" id="b4a"></label>
+							<label class="control-label" style="font-weight:bold;">Invoice Date：</label>
+							<label class="control-label" style="" id="b4b"></label>
+						</div>
+						<div class="form-group" style="width:100%;line-height:40px;">
+							<label class="control-label"><strong>Description</strong></label>
+							<label class="control-label" style="margin-left:20px;" id="commission_ids"></label>
+							<table class="table table-bordered">
+		             <thead style="background-color:#efefef;">
+		                <tr>
+		                   <th>No.</th>
+		                   <th>DESCRIPTION</th>
+		                   <th>UNIT PRICE</th>
+		                   <th>QUANTITY</th>
+		                   <th>AMOUNT</th>
+		                </tr>		                
+		             </thead>
+		             		<tr v-for="item in subject" id="d{{item.id}}" class="gradeX">
+		             				<td v-html="item.id"></td>
+												<td v-html="item.description"></td>
+												<td v-html="item.unitprice"></td>
+												<td v-html="item.quantity"></td>
+												<td v-html="item.amount"></td>
+		             		</tr>
+		             <tbody>             			 
+		             </tbody>
+		          </table>
+						</div>
+						<div class="form-group" style="width:100%;line-height:20px;text-align:right;">							
+							<div>
+									<label class="control-label" style="font-weight:bold;">Subtotal：</label>
+									<label class="control-label" style="" id="b6a">0.00</label>
+							</div>							
+						</div>
+						<div class="form-group" style="width:100%;line-height:20px;text-align:right;">							
+							<div>
+									<label class="control-label" style="font-weight:bold;">10%GST：</label>
+									<label class="control-label" style="" id="b6b">0.00</label>
+							</div>								
+						</div>
+						<div class="form-group" style="width:100%;line-height:20px;text-align:right;">							
+							<div>
+									<label class="control-label" style="font-weight:bold;">Invoice total with GST：</label>
+									<label class="control-label" style="" id="b6c">0.00</label>
+							</div>								
+						</div>
+						<div class="form-group" style="width:100%;line-height:40px;">
+							<label class="control-label">Note</label><br/>
+							<label class="control-label" style="color:#72d0eb;" id="b7"></label>
+						</div>
+						<div class="form-group" style="width:100%;line-height:40px;">
+							<label class="control-label"><strong>Please make payment to the account below,and quote the invoice number:<strong></label>
+							<table class="table table-bordered">
+		             <thead style="background-color:#efefef;">
+		                <tr>
+		                   <th style="width:150px;">Bank Name</th>
+		                   <th>Commonwealth Bank</th>
+		                </tr>
+		             </thead>
+		             <tbody style="font-weight:normal;">
+		                <tr>
+		                   <td>Account Name</td>
+		                   <td><label id="b5a"></label></td>
+		                </tr>	
+		                <tr>
+		                   <td>BSB</td>
+		                   <td><label id="b5b"></label></td>
+		                </tr>
+		                <tr>
+		                   <td>Account No.</td>
+		                   <td><label id="b5c"></label></td>
+		                </tr>
+		             </tbody>
+		          </table>
+						</div>						
+				</div>
+				<div class="modal-footer" style="text-align: center;">										
+					<button id="btnSubmit" type="button" onclick="taxinvoice_download('{{invoiceNo}}','{{invoiceIds}}');" class="btn btn-primary"><span id="btn_id">下载</span></button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+				</div>
+				</form>
+			</div>
+		</div>
+</div>
+<div class="modal fade" id="show_addovst_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+		<div class="modal-dialog" role="document" style="width:90%;">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">留学 Tax Invoice</h4>
+				</div>
+				<div id="alert_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">
+		      <button data-dismiss="alert" class="close close-sm" type="button">
+		      <i class="fa fa-times"></i>
+		      </button>
+		      <strong>Success!</strong> You  just achieved success.
+		  	</div>
+		  	<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
+	        <button data-dismiss="alert" class="close close-sm" type="button">
+	        <i class="fa fa-times"></i>
+	        </button>
+	        <strong id="error_info"></strong>
+	      </div>
+	      <form class="cmxform form-inline" style="" name="addovst_form" id="addovst_form">
+				<div class="modal-body">						
+						<input type="hidden" name="current_tab" id="current_tab" value="{{current_tab}}" />
+						<input type="hidden" name="ids_normal" id="ids_normal" value="" />
+						<input type="hidden" name="ids_markteting" id="ids_markteting" value="" />
+						<div class="form-group" style="width:100%;height:40px;">
+							<label class="control-label" style="width:120px;">发票ID：</label>							
+							<label name="b0" id="b0"></label>
+						</div>
+						<div class="form-group" style="width:100%;height:40px;">
+							<label class="control-label" style="width:120px;">地区：</label>
+							<label name="b1" id="b1"></label>
+						</div>
+						<div class="form-group" style="width:100%;height:40px;">
+							<label class="control-label" style="width:120px;">Company Title：</label>							
+							<label name="b2" id="b2"></label>
+							<label class="control-label" style="margin-left:20px;">ABN：<span id="b2a"></span></label>
+						</div>
+						<div class="form-group" style="width:100%;height:40px;">
+							<label class="control-label" style="width:120px;">Address：</label>							
+							<label class="control-label" style="width:300px;" name="b3" id="b3"></label>
+							<label class="control-label" style="margin-left:20px;">Tel：<span id="b3a"></span></label>
+						</div>
+						<div class="form-group" style="width:100%;height:40px;">							
+							<label class="control-label" style="width:120px;">E-mail：</label>
+							<label class="control-label" style="" id="b3b"></label>
+						</div>
+						<div class="form-group" style="width:100%;height:40px;line-height:40px;text-align:center;border-top: 1px solid #e5e5e5;border-bottom: 1px solid #e5e5e5;">							
+							<label class="control-label" style="font-weight:bold;">Tax Invoice</label>
+						</div>
+						<div class="form-group" style="width:100%;line-height:40px;text-align:right;">							
+							<label class="control-label" style="font-weight:bold;">Invoice No.：</label>
+							<label class="control-label" style="" id="b4a"></label>
+							<label class="control-label" style="font-weight:bold;">Invoice Date：</label>
+							<label class="control-label" style="" id="b4b"></label>
+						</div>
+						<div class="form-group" style="width:100%;">
+							<label class="control-label" style="width:120px;">Bill to：</label>
+						</div>
+						<div class="form-group" style="width:100%;height:40px;">
+							<label class="control-label" style="width:120px;">Company：</label>
+							<label name="b8a" id="b8a"></label>						
+						</div>
+						<div class="form-group" style="width:100%;height:40px;">
+							<label class="control-label" style="width:120px;">ABN：</label>
+							<label name="b8b" id="b8b"></label>
+						</div>
+						<div class="form-group" style="width:100%;">
+							<label class="control-label" style="width:120px;">Address：</label>
+							<label name="b8c" id="b8c"></label>
+						</div>
+						<div class="form-group" style="width:100%;line-height:40px;">
+							<label class="control-label"><strong>Description</strong></label>
+							<label class="control-label" style="margin-left:20px;" id="commission_ids"></label>
+							<ul class="nav nav-tabs">
+                <li class="active" id="li_normal">
+                   <a data-toggle="tab" href="#normal" onclick="setTab('normal');">Normal</a>
+                </li>
+                <li class="" id="li_markteting">
+                   <a data-toggle="tab" href="#markteting" onclick="setTab('markteting');">Markteting fee</a>
+                </li>                
+              </ul>
+              <div class="tab-content">
+              		<div id="normal" class="tab-pane active">
+									<table class="table table-bordered" id="tab_normal" style="margin-top:10px;">
+				             <thead style="background-color:#efefef;">
+				                <tr>
+				                   <th>No.</th>
+				                   <th>Student Name</th>
+				                   <th>DOB</th>
+				                   <th>Student ID</th>
+				                   <th>Course</th>
+				                   <th>Start Date</th>
+				                   <th>Installment</th>
+				                   <th>Tuition Fee</th>
+				                   <th>Commission Rate</th>
+				                   <th>Commission</th>
+				                   <th>Bonus Amount</th>
+				                </tr>		                
+				             </thead>
+				             <tbody style="font-weight:normal;">
+				             		<tr v-for="item in subject_normal" id="d{{item.id}}" class="gradeX">
+				             				<td v-html="item.id"></td>
+														<td v-html="item.studentname"></td>
+														<td v-html="item.dob"></td>
+														<td v-html="item.studentId"></td>
+														<td v-html="item.course"></td>
+														<td v-html="item.startDate"></td>
+														<td v-html="item.instalMent"></td>
+														<td v-html="item.tuitionFee"></td>
+														<td v-html="item.commissionrate"></td>
+														<td v-html="item.commission"></td>
+														<td v-html="item.bonus"></td>
+				             		</tr>           			 
+				             </tbody>
+				          </table>
+				          <div  style="width:100%;line-height:20px;text-align:right;">							
+										<label class="control-label" style="font-weight:bold;">10%GST：</label>
+										<label class="control-label" style="" id="b6a">0.00</label>								
+									</div>
+									<div style="width:100%;line-height:20px;text-align:right;">							
+										<label class="control-label" style="font-weight:bold;">Invoice total with GST：</label>
+										<label class="control-label" style="" id="b6b">0.00</label>							
+									</div>
+				        	</div>
+				        	<div id="markteting" class="tab-pane">
+				          <table class="table table-bordered" id="tab_markteting" style="margin-top:10px;">
+				             <thead style="background-color:#efefef;">
+				                <tr>
+				                   <th>No.</th>
+				                   <th>Student Name</th>
+				                   <th>DOB</th>
+				                   <th>Student ID</th>
+				                   <th>Course</th>
+				                   <th>Start Date</th>
+				                   <th>Installment</th>
+				                   <th>Tuition Fee</th>				                   
+				                   <th>Marketing Bonus</th>
+				                </tr>		                
+				             </thead>
+				             <tbody style="font-weight:normal;">
+				             		<tr v-for="item in subject_markteting" id="dm{{item.id}}" class="gradeX">
+				             				<td v-html="item.id"></td>
+														<td v-html="item.studentname"></td>
+														<td v-html="item.dob"></td>
+														<td v-html="item.studentId"></td>
+														<td v-html="item.course"></td>
+														<td v-html="item.startDate"></td>
+														<td v-html="item.instalMent"></td>
+														<td v-html="item.tuitionFee"></td>
+														<td v-html="item.marketing"></td>
+				             		</tr>				                         			 
+				             </tbody>
+				          </table>
+				          <div  style="width:100%;line-height:20px;text-align:right;">							
+										<label class="control-label" style="font-weight:bold;">10%GST：</label>
+										<label class="control-label" style="" id="b6c">0.00</label>								
+									</div>
+									<div style="width:100%;line-height:20px;text-align:right;">							
+										<label class="control-label" style="font-weight:bold;">Invoice total with GST：</label>
+										<label class="control-label" style="" id="b6d">0.00</label>							
+									</div>
+				        	</div>
+		        	</div>
+						</div>												
+						<div class="form-group" style="width:100%;line-height:40px;">
+							<label class="control-label">Note</label>
+							<label class="control-label" style="color:#72d0eb;" id="b7"></label>
+						</div>
+						<div class="form-group" style="width:100%;line-height:40px;">
+							<label class="control-label"><strong>Please make payment to the account below,and quote the invoice number:<strong></label>
+							<table class="table table-bordered">
+		             <thead style="background-color:#efefef;">
+		                <tr>
+		                   <th style="width:150px;">Bank Name</th>
+		                   <th>Commonwealth Bank</th>
+		                </tr>
+		             </thead>
+		             <tbody style="font-weight:normal;">
+		                <tr>
+		                   <td>Account Name</td>
+		                   <td><label id="b5a"></label></td>
+		                </tr>	
+		                <tr>
+		                   <td>BSB</td>
+		                   <td><label id="b5b"></label></td>
+		                </tr>
+		                <tr>
+		                   <td>Account No.</td>
+		                   <td><label id="b5c"></label></td>
+		                </tr>
+		             </tbody>
+		          </table>
+						</div>						
+				</div>
+				<div class="modal-footer" style="text-align: center;">										
+					<button id="btnSubmit" type="button" onclick="taxinvoice_download('{{invoiceNo}}','{{invoiceIds}}');" class="btn btn-primary"><span id="btn_id">下载</span></button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+				</div>
+				</form>
+			</div>
+		</div>
+</div>
+</div>
+<script>
+var v_sub1_taxinvoice = new Vue({
+		el: '#taxinvoice_app_sub_1',
+		data: {			
+			subject: [],
+			subject_normal: [],
+			subject_markteting: [],
+			invoiceNo: '',											
+			invoiceIds: '',
+		}
+});	
+
+function invoice_view(invoiceNo,invoiceIds)
+{		
+		//详细页
+		$.ajax({
+      url: url+'invoice/selectInvoiecByNo?invoiceNo='+invoiceNo+'&invoiceIds='+invoiceIds,
+      type: 'GET',
+      dataType: 'json'
+    }).done(function(response) {		        	
+    	response = response.data;
+    	console.log(response);
+    	v_sub1_taxinvoice.invoiceNo = invoiceNo;
+    	v_sub1_taxinvoice.invoiceIds = invoiceIds;
+    	if (invoiceIds.indexOf("SF") == '0')
+			{
+		    	$('#show_addservicefee_id #b0').html(invoiceIds);
+		    	$('#show_addservicefee_id #b1').html(response.branch);
+		    	$('#show_addservicefee_id #b2').html(response.company);
+		    	$('#show_addservicefee_id #b2a').html(response.abn);
+		    	$('#show_addservicefee_id #b3').html(response.address);
+		    	$('#show_addservicefee_id #b3a').html(response.tel);
+		    	$('#show_addservicefee_id #b3b').html(response.email);
+		    	$('#show_addservicefee_id #b4a').html(invoiceNo);
+		    	$('#show_addservicefee_id #b4b').html(formatDate(response.invoiceDate));
+		    	$('#show_addservicefee_id #b6a').html(response.subtotal);
+		    	$('#show_addservicefee_id #b6b').html(response.gst);
+		    	$('#show_addservicefee_id #b6c').html(response.totalGST);
+		    	$('#show_addservicefee_id #b5a').html(response.accountname);
+		    	$('#show_addservicefee_id #b5b').html(response.bsb);
+		    	$('#show_addservicefee_id #b5c').html(response.accountno);
+		    	$('#show_addservicefee_id #b7').html(response.note);
+		    	if (response.order_id != null)
+		    	{
+		    			$('#show_addservicefee_id #commission_ids').html('(已关联的佣金订单ID：'+response.order_id+')');
+		    	}else
+		    	{
+		    			$('#show_addservicefee_id #commission_ids').html('');
+		    	}    	
+		    	v_sub1_taxinvoice.subject = [];
+		    	for(var i=0;i < response.invoiceServiceFeeDescriptionDOList.length;i++)
+		    	{
+		    			var index = 0;				
+							if (v_sub1_taxinvoice.subject.length) index = v_sub1_taxinvoice.subject.length;
+							v_sub1_taxinvoice.subject.splice(index,0, {
+								id: response.invoiceServiceFeeDescriptionDOList[i].id,
+								description: response.invoiceServiceFeeDescriptionDOList[i].description,
+								unitprice: response.invoiceServiceFeeDescriptionDOList[i].unitPrice,
+								quantity: response.invoiceServiceFeeDescriptionDOList[i].quantity,
+								amount: response.invoiceServiceFeeDescriptionDOList[i].amount,
+							});					
+		    	}
+		    	$('#show_addservicefee_id').modal('show');
+    	}else if (invoiceIds.indexOf("SC") == '0')
+    	{
+    			$('#show_addovst_id #b0').html(invoiceIds);
+		    	$('#show_addovst_id #b1').html(response.branch);
+		    	$('#show_addovst_id #b2').html(response.company);
+		    	$('#show_addovst_id #b2a').html(response.abn);
+		    	$('#show_addovst_id #b3').html(response.address);
+		    	$('#show_addovst_id #b3a').html(response.tel);
+		    	$('#show_addovst_id #b3b').html(response.email);
+		    	$('#show_addovst_id #b4a').html(invoiceNo);
+		    	$('#show_addovst_id #b4b').html(formatDate(response.invoiceDate));
+		    	$('#show_addovst_id #b6a').html(response.gst);
+		    	$('#show_addovst_id #b6b').html(response.totalGST);
+		    	$('#show_addovst_id #b5a').html(response.accountname);
+		    	$('#show_addovst_id #b5b').html(response.bsb);
+		    	$('#show_addovst_id #b5c').html(response.accountno);
+		    	$('#show_addovst_id #b7').html(response.note);
+		    	if (response.invoiceBillToDO != null)
+		    	{
+		    			$('#show_addovst_id #b8a').html(response.invoiceBillToDO.company);
+		    			$('#show_addovst_id #b8b').html(response.invoiceBillToDO.abn);
+		    			$('#show_addovst_id #b8c').html(response.invoiceBillToDO.address);
+		    	}
+		    	if (response.order_id != null)
+		    	{
+		    			$('#show_addovst_id #commission_ids').html('(已关联的佣金订单ID：'+response.order_id+')');
+		    	}else
+		    	{
+		    			$('#show_addovst_id #commission_ids').html('');
+		    	}
+		    	v_sub1_taxinvoice.subject_normal = [];
+		    	v_sub1_taxinvoice.subject_markteting = [];
+		    	if (response.flag == 'N')
+		    	{
+		    			$('#show_addovst_id #li_normal').show();
+		    			$("#show_addovst_id #li_normal").addClass("active");
+		    			$("#show_addovst_id #normal").addClass("active");
+		    			$('#show_addovst_id #li_markteting').hide();
+		    			$("#show_addovst_id #li_markteting").removeClass("active");
+		    			$("#show_addovst_id #markteting").removeClass("active");
+				    	for(var i=0;i < response.invoiceSchoolDescriptionDOS.length;i++)
+				    	{
+				    			var index = 0;
+									v_sub1_taxinvoice.subject_normal.splice(index,0, {
+										id: response.invoiceSchoolDescriptionDOS[i].id,
+										studentname: response.invoiceSchoolDescriptionDOS[i].studentname,
+										dob: v.getTime(response.invoiceSchoolDescriptionDOS[i].dob),
+										studentId: response.invoiceSchoolDescriptionDOS[i].studentId,
+										course: response.invoiceSchoolDescriptionDOS[i].course,
+										startDate: v.getTime(response.invoiceSchoolDescriptionDOS[i].startDate),
+										instalMent: response.invoiceSchoolDescriptionDOS[i].instalMent,								
+										tuitionFee: response.invoiceSchoolDescriptionDOS[i].tuitionFee,
+										commissionrate: response.invoiceSchoolDescriptionDOS[i].commissionrate,
+										commission: response.invoiceSchoolDescriptionDOS[i].commission,
+										bonus: response.invoiceSchoolDescriptionDOS[i].bonus,
+									});													
+				    	}
+		    	}else
+		    	{
+		    			$('#show_addovst_id #li_normal').hide();
+		    			$("#show_addovst_id #li_normal").removeClass("active");
+		    			$("#show_addovst_id #normal").removeClass("active");
+		    			$("#show_addovst_id #markteting").addClass("active");
+		    			$("#show_addovst_id #li_markteting").addClass("active");
+		    			$('#show_addovst_id #li_markteting').show();		    					    	
+				    	for(var i=0;i < response.invoiceSchoolDescriptionDOS.length;i++)
+				    	{
+				    			var index = 0;
+									v_sub1_taxinvoice.subject_markteting.splice(index,0, {
+										id: response.invoiceSchoolDescriptionDOS[i].id,
+										studentname: response.invoiceSchoolDescriptionDOS[i].studentname,
+										dob: v.getTime(response.invoiceSchoolDescriptionDOS[i].dob),
+										studentId: response.invoiceSchoolDescriptionDOS[i].studentId,
+										course: response.invoiceSchoolDescriptionDOS[i].course,
+										startDate: v.getTime(response.invoiceSchoolDescriptionDOS[i].startDate),
+										instalMent: response.invoiceSchoolDescriptionDOS[i].instalMent,								
+										tuitionFee: response.invoiceSchoolDescriptionDOS[i].tuitionFee,										
+										marketing: response.invoiceSchoolDescriptionDOS[i].marketing,
+									});					
+				    	}
+		    	}
+    			$('#show_addovst_id').modal('show');
+    	}
+    });		
+}
+</script>
