@@ -4,7 +4,7 @@
 <meta http-equiv="Expires" content="0" />
 <div id="taxinvoice_app_sub">
 <div class="modal fade" id="addservicefee_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
-		<div class="modal-dialog" role="document" style="width:700px;">
+		<div class="modal-dialog" role="document" style="width:850px;">
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -50,11 +50,13 @@
 						<div class="form-group" style="width:100%;height:40px;line-height:40px;text-align:center;border-top: 1px solid #e5e5e5;border-bottom: 1px solid #e5e5e5;">							
 							<label class="control-label" style="font-weight:bold;">Tax Invoice</label>
 						</div>
-						<div class="form-group" style="width:100%;line-height:40px;text-align:right;">							
+						<div class="form-group" style="width:100%;margin-top:10px;line-height:40px;text-align:right;">
+							<label class="control-label" style="font-weight:bold;">Bill To：<span style="color:red;">*</span></label>
+							<input type="text" autocomplete="off" name="b4c" id="b4c" class="form-control" style="width:300px;font-weight:normal;">
 							<label class="control-label" style="font-weight:bold;">Invoice No.：</label>
-							<label class="control-label" style="" id="b4a"></label>
+							<label class="control-label" style="width:60px;" id="b4a"></label>
 							<label class="control-label" style="font-weight:bold;">Invoice Date：</label>
-							<label class="control-label" style="" id="b4b"></label>
+							<label class="control-label" style=""><input type="text" autocomplete="off" name="b4b" id="b4b" class="form-control default-date-picker" style="width:120px;font-weight:normal;"></label>
 						</div>
 						<div class="form-group" style="width:100%;line-height:40px;">
 							<label class="control-label"><strong>Description</strong></label>
@@ -189,7 +191,7 @@
 							<label class="control-label" style="font-weight:bold;">Invoice No.：</label>
 							<label class="control-label" style="" id="b4a"></label>
 							<label class="control-label" style="font-weight:bold;">Invoice Date：</label>
-							<label class="control-label" style="" id="b4b"></label>
+							<label class="control-label" style=""><input type="text" autocomplete="off" name="b4b" id="b4b" class="form-control default-date-picker" style="width:120px;font-weight:normal;"></label>
 						</div>
 						<div class="form-group" style="width:100%;">
 							<label class="control-label" style="width:120px;">Bill to：</label>
@@ -511,7 +513,8 @@ function addservicefee()
   	$("#addservicefee_id #b3a").html('');
   	$("#addservicefee_id #b3b").html('');
   	$("#addservicefee_id #b4a").html('');
-  	$("#addservicefee_id #b4b").html('');
+  	$("#addservicefee_id #b4b").val('');
+  	$("#addservicefee_id #b4c").val('');
   	$("#addservicefee_id #b5a").html('');
   	$("#addservicefee_id #b5b").html('');
   	$("#addservicefee_id #b5c").html('');
@@ -539,7 +542,7 @@ function addservicefee_visa(ids,userName,serviceName,amount)
   	$("#addservicefee_id #b3a").html('');
   	$("#addservicefee_id #b3b").html('');
   	$("#addservicefee_id #b4a").html('');
-  	$("#addservicefee_id #b4b").html('');
+  	$("#addservicefee_id #b4b").val('');
   	$("#addservicefee_id #b5a").html('');
   	$("#addservicefee_id #b5b").html('');
   	$("#addservicefee_id #b5c").html('');
@@ -577,7 +580,8 @@ function addovst()
   	$("#addovst_id #b3a").html('');
   	$("#addovst_id #b3b").html('');
   	$("#addovst_id #b4a").html('');
-  	$("#addovst_id #b4b").html('');
+  	$("#addovst_id #b4b").val('');
+  	$("#addovst_id #b4c").val('');
   	$("#addovst_id #b5a").html('');
   	$("#addovst_id #b5b").html('');
   	$("#addovst_id #b5c").html('');  	
@@ -652,7 +656,7 @@ function loadcompany(f)
 			  	$(f+" #b3a").html(result_data.tel);
 			  	$(f+" #b3b").html(result_data.email);
 			  	$(f+" #b4a").html(result_data.invoiceNo);
-					$(f+" #b4b").html(result_data.invoiceDate);
+					$(f+" #b4b").val(result_data.invoiceDate);
 			  	$(f+" #b5a").html(result_data.name);
 			  	$(f+" #b5b").html(result_data.bsb);
 			  	$(f+" #b5c").html(result_data.account);
@@ -664,7 +668,7 @@ function loadcompany(f)
 		  	$(f+" #b3a").html('');
 		  	$(f+" #b3b").html('');
 		  	$(f+" #b4a").html('');
-		  	$(f+" #b4b").html('');
+		  	$(f+" #b4b").val('');
 		  	$(f+" #b5a").html('');
 		  	$(f+" #b5b").html('');
 		  	$(f+" #b5c").html('');
@@ -875,7 +879,8 @@ function invoice_edit(invoiceNo,invoiceIds)
 		    	$('#addservicefee_id #b3a').html(response.tel);
 		    	$('#addservicefee_id #b3b').html(response.email);
 		    	$('#addservicefee_id #b4a').html(invoiceNo);
-		    	$('#addservicefee_id #b4b').html(formatDate(response.invoiceDate));
+		    	$('#addservicefee_id #b4b').val(formatDate(response.invoiceDate));
+		    	$('#addservicefee_id #b4c').val(response.billTo);
 		    	$('#addservicefee_id #b6a').html(response.subtotal);
 		    	$('#addservicefee_id #b6b').html(response.gst);
 		    	$('#addservicefee_id #b6c').html(response.totalGST);
@@ -918,7 +923,7 @@ function invoice_edit(invoiceNo,invoiceIds)
 		    	$('#addovst_id #b3a').html(response.tel);
 		    	$('#addovst_id #b3b').html(response.email);
 		    	$('#addovst_id #b4a').html(invoiceNo);
-		    	$('#addovst_id #b4b').html(formatDate(response.invoiceDate));
+		    	$('#addovst_id #b4b').val(formatDate(response.invoiceDate));
 		    	$('#addovst_id #b6a').html(response.gst);
 		    	$('#addovst_id #b6b').html(response.totalGST);
 		    	$('#addovst_id #b5a').html(response.accountname);
@@ -1163,9 +1168,9 @@ function addservicefeeSave()
     		var str_url = url+"invoice/saveServiceFeeInvoice";    		  		
        	var json = {}; 
        	
-       	var myDate = new Date();
-				var str_date = formatDate1(myDate);
-       	json['invoiceDate'] = str_date;
+				var invoiceDate = formatDate2($(f+'#b4b').val());				
+       	json['invoiceDate'] = invoiceDate;
+       	json['billTo'] = $(f+'#b4c').val();
        	json['email'] = v_sub_taxinvoice.invoices.email;
        	json['company'] = v_sub_taxinvoice.invoices.name;
        	json['abn'] = v_sub_taxinvoice.invoices.abn;
@@ -1178,7 +1183,7 @@ function addservicefeeSave()
        	json['accountno'] = v_sub_taxinvoice.invoices.account;
        	json['state'] = 'NORMAL';
        	json['branch'] = $(f+'#b1').val();
-       	json['idList'] = $(f+'#ids').val();
+       	json['idList'] = $(f+'#ids').val();       	
        	json['descriptionList'] = [];
        	var tindex = 0;       	
        	for(var i=0;i< v_sub_taxinvoice.row_nums;i++)
@@ -1191,7 +1196,8 @@ function addservicefeeSave()
        			json['descriptionList'][i]['quantity'] = $("#addservicefee_id #d"+tindex+" #tc").val();
        			json['descriptionList'][i]['amount'] = $("#addservicefee_id #d"+tindex+" #td").val();
        	}        	   	
-       	//console.log(json);
+       	console.log(json);
+       	//return false;
        	show_loading();
        	$.ajax({
 		      url: str_url,
@@ -1323,9 +1329,8 @@ function addovstSave()
 				}
 				if (!billCpId) return false;				
 				
-       	var myDate = new Date();
-				var str_date = formatDate1(myDate);
-       	json['invoiceDate'] = str_date;
+       	var invoiceDate = formatDate2($(f+'#b4b').val());
+       	json['invoiceDate'] = invoiceDate;
        	json['email'] = v_sub_taxinvoice.invoices.email;
        	json['company'] = v_sub_taxinvoice.invoices.name;
        	json['companyId'] = v_sub_taxinvoice.invoices.id;       	
@@ -1459,8 +1464,11 @@ function editservicefeeSave()
     }else
     {
     		var str_url = url+"invoice/update";    		  		
-       	var json = {}; 
-       	       	
+       	var json = {};
+       	
+       	var invoiceDate = formatDate2($(f+'#b4b').val());
+       	json['invoiceDate'] = invoiceDate;
+       	json['billTo'] = $(f+'#b4c').val();          	       	
        	json['invoiceNo'] = v_sub_taxinvoice.invoiceNo;
        	json['note'] = $(f+'#b7').val();       	
        	json['idList'] = $(f+'#ids').val();
@@ -1611,7 +1619,9 @@ function editovstSave()
 				}
 				if (!billCpId) return false;				
 				
-       	json['invoiceDate'] = v.getTime2(v_sub_taxinvoice.invoices.invoiceDate);       	
+       	//json['invoiceDate'] = v.getTime2(v_sub_taxinvoice.invoices.invoiceDate);
+       	var invoiceDate = formatDate2($(f+'#b4b').val());
+       	json['invoiceDate'] = invoiceDate;
        	json['invoiceNo'] = v_sub_taxinvoice.invoices.invoiceNo;
        	json['note'] = $(f+'#b7').val();       	
        	json['billto_id'] = billCpId;
@@ -1762,11 +1772,13 @@ $('#addservicefee_id').on('show.bs.modal', function () {
       },
       rules: {
           b1: "required",
-          b2: "required",          
+          b2: "required",
+          b4c: "required",       
       },
       messages: {
-          b1: "必择",
+          b1: "必选",
           b2: "必选",         
+          b4c: "必填",         
       }
   });
 });
