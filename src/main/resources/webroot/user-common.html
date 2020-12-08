@@ -555,7 +555,7 @@ function add_service1(orderId,userId,name)
 	        	if (response.parentId)
 	        	{
 	        			title = '修改独立技术移民服务';
-	        			$('#addnewservice1_id #b6b').hide();
+	        			$('#addnewservice1_id #b6b').hide();	        			
 	        			$('#addnewservice1_id #b20atext').hide();
 	        			$('#addnewservice1_id #b20btext').hide();
 	        			$('#addnewservice1_id #addnewservice1_id_title').html(title);
@@ -590,6 +590,7 @@ function add_service1(orderId,userId,name)
 			        			$("#addnewservice1_id #b6a").show();
 			        			$("#addnewservice1_id #b6a").html('<span style="padding-left:10px;color:#c2c2c2;">-【'+return_type(response.servicePackage.type)+'】</span>');
 					      }
+					      $('#addnewservice1_id #b7text').hide();
 					      $('#addnewservice1_id #is_payment').hide();  				      
 					      $('#addnewservice1_id #show_paid').hide();      				
 		  					$('#addnewservice1_id #upload_receipt').hide();
@@ -599,6 +600,7 @@ function add_service1(orderId,userId,name)
 	        	{
 	        			v.servicepackage_type = 'VA';
 	        			//绑定签证职评
+	        			$('#addnewservice1_id #b7text').show();
 	        			$("#addnewservice1_id #b6").removeAttr("disabled");
 	        			$('#addnewservice1_id #b20atext').show();
 	        			$('#addnewservice1_id #b20btext').show();
