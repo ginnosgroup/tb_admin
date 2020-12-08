@@ -2171,7 +2171,10 @@ function addnewService3Save()
        	json['paid'] = $("#addnewservice3_id input[name='b7']:checked").val();
        	json['userId'] = $("#addnewservice3_id #user_id").val();
        	json['remarks'] = $(f+'#b18').val();
-       	json['isPay'] = false;       	
+       	json['isPay'] = false; 
+       	json['isHistory'] = false;
+       	json['nutCloud'] = null;
+       	json['information'] = null;	
        	if (json['paid'] == 1)
        	{
        			//校验是否上传了凭证
