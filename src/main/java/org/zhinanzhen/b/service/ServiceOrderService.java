@@ -2,10 +2,7 @@ package org.zhinanzhen.b.service;
 
 import java.util.List;
 
-import org.zhinanzhen.b.service.pojo.ServiceOrderCommentDTO;
-import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
-import org.zhinanzhen.b.service.pojo.ServiceOrderOfficialRemarksDTO;
-import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
+import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.tb.service.ServiceException;
 
 public interface ServiceOrderService {
@@ -17,16 +14,16 @@ public interface ServiceOrderService {
 	int updateServiceOrderRviewState(int id, String reviewState) throws ServiceException;
 
 	int countServiceOrder(String type, String excludeState, List<String> stateList, String auditingState,
-			List<String> reviewStateList, String startMaraApprovalDate, String endMaraApprovalDate,
-			String startOfficialApprovalDate, String endOfficialApprovalDate, List<Integer> regionIdList,
-			Integer userId, Integer maraId, Integer adviserId, Integer officialId, Integer officialTagId, int parentId,
-			boolean isNotApproved) throws ServiceException;
+						  List<String> reviewStateList, String startMaraApprovalDate, String endMaraApprovalDate,
+						  String startOfficialApprovalDate, String endOfficialApprovalDate, List<Integer> regionIdList,
+						  Integer userId, Integer maraId, Integer adviserId, Integer officialId, Integer officialTagId, int parentId,
+						  boolean isNotApproved, Integer serviceId, Integer schoolId) throws ServiceException;
 
 	List<ServiceOrderDTO> listServiceOrder(String type, String excludeState, List<String> stateList,
-			String auditingState, List<String> reviewStateList, String startMaraApprovalDate,
-			String endMaraApprovalDate, String startOfficialApprovalDate, String endOfficialApprovalDate,
-			List<Integer> regionIdList, Integer userId, Integer maraId, Integer adviserId, Integer officialId,
-			Integer officialTagId, int parentId, boolean isNotApproved, int pageNum, int pageSize)
+										   String auditingState, List<String> reviewStateList, String startMaraApprovalDate,
+										   String endMaraApprovalDate, String startOfficialApprovalDate, String endOfficialApprovalDate,
+										   List<Integer> regionIdList, Integer userId, Integer maraId, Integer adviserId, Integer officialId,
+										   Integer officialTagId, int parentId, boolean isNotApproved, int pageNum, int pageSize, Integer serviceId, Integer schoolId)
 			throws ServiceException;
 
 	ServiceOrderDTO getServiceOrderById(int id) throws ServiceException;
@@ -56,5 +53,7 @@ public interface ServiceOrderService {
 	List<ServiceOrderOfficialRemarksDTO> listOfficialRemarks(int id, int officialId) throws ServiceException;
 
 	int deleteServiceOrderOfficialRemarksDTO(int id) throws ServiceException;
+
+	List<EachRegionNumberDTO> listServiceOrderGroupByForRegion(String type, String startOfficialApprovalDate, String endOfficialApprovalDate);
 	
 }

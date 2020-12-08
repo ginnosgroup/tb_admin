@@ -1,8 +1,6 @@
 package org.zhinanzhen.b.service.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import javax.annotation.Resource;
 
@@ -11,11 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.ServiceOrderService;
-import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
-import org.zhinanzhen.b.service.pojo.ServiceOrderOfficialRemarksDTO;
-import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
-import org.zhinanzhen.b.service.pojo.ServicePackageDTO;
-import org.zhinanzhen.b.service.pojo.OfficialTagDTO;
+import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
@@ -27,14 +21,6 @@ import org.zhinanzhen.tb.service.impl.BaseService;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
-import org.zhinanzhen.b.service.pojo.ChildrenServiceOrderDTO;
-import org.zhinanzhen.b.service.pojo.MaraDTO;
-import org.zhinanzhen.b.service.pojo.OfficialDTO;
-import org.zhinanzhen.b.service.pojo.SchoolDTO;
-import org.zhinanzhen.b.service.pojo.ServiceDTO;
-import org.zhinanzhen.b.service.pojo.ServiceOrderCommentDTO;
-import org.zhinanzhen.b.service.pojo.SubagencyDTO;
-import org.zhinanzhen.b.service.pojo.ReceiveTypeDTO;
 
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.StringUtil;
@@ -160,21 +146,21 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
 	@Override
 	public int countServiceOrder(String type, String excludeState, List<String> stateList, String auditingState,
-			List<String> reviewStateList, String startMaraApprovalDate, String endMaraApprovalDate,
-			String startOfficialApprovalDate, String endOfficialApprovalDate, List<Integer> regionIdList,
-			Integer userId, Integer maraId, Integer adviserId, Integer officialId, Integer officialTagId, int parentId,
-			boolean isNotApproved) throws ServiceException {
+								 List<String> reviewStateList, String startMaraApprovalDate, String endMaraApprovalDate,
+								 String startOfficialApprovalDate, String endOfficialApprovalDate, List<Integer> regionIdList,
+								 Integer userId, Integer maraId, Integer adviserId, Integer officialId, Integer officialTagId, int parentId,
+								 boolean isNotApproved, Integer serviceId, Integer schoolId) throws ServiceException {
 		return serviceOrderDao.countServiceOrder(type, excludeState, stateList, auditingState, reviewStateList,
 				startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate,
-				regionIdList, userId, maraId, adviserId, officialId, officialTagId, parentId, isNotApproved);
+				regionIdList, userId, maraId, adviserId, officialId, officialTagId, parentId, isNotApproved,serviceId,schoolId);
 	}
 
 	@Override
 	public List<ServiceOrderDTO> listServiceOrder(String type, String excludeState, List<String> stateList,
-			String auditingState, List<String> reviewStateList, String startMaraApprovalDate,
-			String endMaraApprovalDate, String startOfficialApprovalDate, String endOfficialApprovalDate,
-			List<Integer> regionIdList, Integer userId, Integer maraId, Integer adviserId, Integer officialId,
-			Integer officialTagId, int parentId, boolean isNotApproved, int pageNum, int pageSize)
+												  String auditingState, List<String> reviewStateList, String startMaraApprovalDate,
+												  String endMaraApprovalDate, String startOfficialApprovalDate, String endOfficialApprovalDate,
+												  List<Integer> regionIdList, Integer userId, Integer maraId, Integer adviserId, Integer officialId,
+												  Integer officialTagId, int parentId, boolean isNotApproved, int pageNum, int pageSize, Integer serviceId, Integer schoolId)
 			throws ServiceException {
 		List<ServiceOrderDTO> serviceOrderDtoList = new ArrayList<ServiceOrderDTO>();
 		List<ServiceOrderDO> serviceOrderDoList = new ArrayList<ServiceOrderDO>();
@@ -186,7 +172,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, excludeState, stateList, auditingState,
 					reviewStateList, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
 					endOfficialApprovalDate, regionIdList, userId, maraId, adviserId, officialId, officialTagId,
-					parentId, isNotApproved, pageNum * pageSize, pageSize);
+					parentId, isNotApproved, pageNum * pageSize, pageSize,serviceId,schoolId);
 			if (serviceOrderDoList == null)
 				return null;
 		} catch (Exception e) {
@@ -410,7 +396,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			String title = "新任务提醒:";
 			String type = "";
 			String detail = "";
-			String serviceOrderUrl = "<br/><a href='https://yongjinbiao.zhinanzhen.org/admin/serviceorder-detail.html?id="
+			String serviceOrderUrl = "<br/><a href='https://yongjinbiao.zhinanzhen.org/webroot/serviceorder-detail.html?id="
 					+ serviceOrderDo.getId() + "'>服务订单详情</a>";
 			UserDO user = userDao.getUserById(serviceOrderDo.getUserId());
 			if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())) {
@@ -611,7 +597,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderDo.getAdviserId());
 				OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
 				Date date = serviceOrderDo.getGmtCreate();
-				String serviceOrderUrl = "<br/><a href='https://yongjinbiao.zhinanzhen.org/admin/serviceorder-detail.html?id="
+				String serviceOrderUrl = "<br/><a href='https://yongjinbiao.zhinanzhen.org/webroot/serviceorder-detail.html?id="
 						+ serviceOrderDo.getId() + "'>服务订单详情</a>";
 				UserDO user = userDao.getUserById(serviceOrderDo.getUserId());
 				if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())) {
@@ -780,5 +766,60 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			throw se;
 		}
 	}
+
+	@Override
+	public List<EachRegionNumberDTO> listServiceOrderGroupByForRegion(String type, String startOfficialApprovalDate, String endOfficialApprovalDate) {
+		List<EachRegionNumberDO> eachRegionNumberDOS = serviceOrderDao.listServiceOrderGroupByForRegion(type,startOfficialApprovalDate,endOfficialApprovalDate);
+		List<EachRegionNumberDTO> eachRegionNumberDTOS = new ArrayList<>();
+		Set<String> codeSet = new HashSet<>();
+		eachRegionNumberDOS.forEach(eachRegionNumberDO ->{
+			codeSet.add(eachRegionNumberDO.getCode());
+		});
+		for (String code : codeSet){
+			EachRegionNumberDTO eachRegionNumberDTO = new EachRegionNumberDTO();
+			eachRegionNumberDOS.forEach(eachRegionNumberDO -> {
+				if (eachRegionNumberDO.getCode().equalsIgnoreCase(code)){
+					if (eachRegionNumberDO.getName().equalsIgnoreCase("sydney")){
+						eachRegionNumberDTO.setSydney(eachRegionNumberDO.getCount());
+					}
+					if (eachRegionNumberDO.getName().equalsIgnoreCase("melbourne")){
+						eachRegionNumberDTO.setMelbourne(eachRegionNumberDO.getCount());
+					}
+					if (eachRegionNumberDO.getName().equalsIgnoreCase("brisbane")){
+						eachRegionNumberDTO.setBrisbane(eachRegionNumberDO.getCount());
+					}
+					if (eachRegionNumberDO.getName().equalsIgnoreCase("adelaide")){
+						eachRegionNumberDTO.setAdelaide(eachRegionNumberDO.getCount());
+					}
+					if (eachRegionNumberDO.getName().equalsIgnoreCase("hobart")){
+						eachRegionNumberDTO.setHobart(eachRegionNumberDO.getCount());
+					}
+					if (eachRegionNumberDO.getName().equalsIgnoreCase("canberra")){
+						eachRegionNumberDTO.setCanberra(eachRegionNumberDO.getCount());
+					}
+					if (eachRegionNumberDO.getName().equalsIgnoreCase("sydney2")){
+						eachRegionNumberDTO.setSydney2(eachRegionNumberDO.getCount());
+					}
+				}
+			});
+			eachRegionNumberDTO.setTotal(eachRegionNumberDTO.getAdelaide()+eachRegionNumberDTO.getSydney()+eachRegionNumberDTO.getBrisbane()+
+					eachRegionNumberDTO.getCanberra()+eachRegionNumberDTO.getHobart()+eachRegionNumberDTO.getMelbourne()+eachRegionNumberDTO.getSydney2());
+			eachRegionNumberDTO.setName(code);
+			eachRegionNumberDTOS.add(eachRegionNumberDTO);
+		}
+		Collections.sort(eachRegionNumberDTOS, new Comparator<EachRegionNumberDTO>() {
+			@Override
+			public int compare(EachRegionNumberDTO o1, EachRegionNumberDTO o2) {
+				if(o1.getTotal() > o2.getTotal())
+					return -1;
+				else if(o1.getTotal() < o2.getTotal())
+					return 1;
+				else
+					return 0;
+			}
+		});
+		return eachRegionNumberDTOS;
+	}
+
 
 }

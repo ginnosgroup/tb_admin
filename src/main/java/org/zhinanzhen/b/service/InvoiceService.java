@@ -48,7 +48,7 @@ public interface InvoiceService {
 
     boolean selectInvoiceNo(String invoiceNo ,String table);
 
-    int saveServiceFeeInvoice(String invoiceDate, String email, String company, String abn, String address, String tel, String invoiceNo, String note, String accountname, String bsb, String accountno, String branch, List<InvoiceServiceFeeDescriptionDO> invoiceServiceFeeDescriptionDOList);
+    int saveServiceFeeInvoice( String invoiceDate, String email, String company, String abn, String address, String tel, String invoiceNo,String billTo, String note, String accountname, String bsb, String accountno, String branch, List<InvoiceServiceFeeDescriptionDO> invoiceServiceFeeDescriptionDOList);
 
     int saveSchoolInvoice(Map paramMap);
 
