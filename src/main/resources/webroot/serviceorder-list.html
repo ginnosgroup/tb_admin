@@ -1115,7 +1115,7 @@
              this.subject.splice(index, 1);  
           },						
 					table_edit: function (index,field,byid) {
-						if ((this.ap_list == 'WA' && this.wa_admin == 'true') || (this.ap_list == 'GW' && this.gw_regionid != ''))
+						if (this.ap_list == 'WA' || (this.ap_list == 'GW' && this.gw_regionid != ''))
 						{				
 								if (this.current_index != null)
 								{
