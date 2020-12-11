@@ -1536,6 +1536,10 @@ public class ServiceOrderController extends BaseController {
 					sheet.addCell(new Label(1, i, "签证项目", cellFormat));
 					i++;
 				}
+				if ( i == 0 && type.equalsIgnoreCase("OVST")){
+					sheet.addCell(new Label(1, i, "留学学校", cellFormat));
+					i++;
+				}
 				sheet.addCell(new Label(0, i,  i + "", cellFormat));
 				sheet.addCell(new Label(1, i, eo.getName(), cellFormat));
 				sheet.addCell(new Label(2, i, eo.getTotal() + "", cellFormat));
@@ -1544,7 +1548,8 @@ public class ServiceOrderController extends BaseController {
 				sheet.addCell(new Label(5, i, eo.getBrisbane() + "", cellFormat));
 				sheet.addCell(new Label(6, i, eo.getAdelaide()+"", cellFormat));
 				sheet.addCell(new Label(7, i, eo.getHobart() + "", cellFormat));
-				sheet.addCell(new Label(8, i, eo.getSydney2() + "", cellFormat));
+				sheet.addCell(new Label(8, i, eo.getCanberra() + "", cellFormat));
+				sheet.addCell(new Label(9, i, eo.getSydney2() + "", cellFormat));
 				i++;
 			}
 			wbe.write();
