@@ -1447,31 +1447,63 @@ public class ServiceOrderController extends BaseController {
 					sheet.addCell(new Label(9, i, so.getMara().getName() , cellFormat));
 				if (so.getOfficial() != null)
 					sheet.addCell(new Label(10, i, so.getOfficial().getName(), cellFormat));
-				if (so.getType().equalsIgnoreCase("VISA")){
-					sheet.addCell(new Label(11, i,  " 签证 " , cellFormat));
+
+				if (so.getService() != null){
+					sheet.addCell(new Label(11, i,  so.getService().getName() , cellFormat));
 					sheet.addCell(new Label(12, i, so.getService().getCode(), cellFormat));
+					if (so.getServiceAssessDO() != null)
+						sheet.addCell(new Label(12, i, so.getService().getCode() +" - "+ so.getServiceAssessDO().getName(), cellFormat));
 				}
-				if (so.getType().equalsIgnoreCase("OVST")){
-					sheet.addCell(new Label(11, i, " 留学 " , cellFormat));
+				if (so.getSchool() != null){
+					sheet.addCell(new Label(11, i, " 留学 ", cellFormat));
 					sheet.addCell(new Label(12, i, so.getSchool().getName(), cellFormat));
 				}
-				if (so.getType().equalsIgnoreCase("SIV")){
-					sheet.addCell(new Label(11, i, " 独立移民技术 ", cellFormat));
-					sheet.addCell(new Label(12, i, so.getService().getCode(), cellFormat));
-				}
 
-				if (ReviewAdviserStateEnum.PENDING.toString().equalsIgnoreCase(so.getState()))
-					sheet.addCell(new Label(13, i, "待提交审核", cellFormat));
-				if (ReviewAdviserStateEnum.REVIEW.toString().equalsIgnoreCase(so.getState()))
-				sheet.addCell(new Label(13, i,"审核中", cellFormat));
-				if (ReviewAdviserStateEnum.APPLY.toString().equalsIgnoreCase(so.getState()))
-				sheet.addCell(new Label(13, i,"服务申请中", cellFormat));
-				if (ReviewAdviserStateEnum.COMPLETE.toString().equalsIgnoreCase(so.getState()))
-				sheet.addCell(new Label(13, i, "服务申请完成", cellFormat));
-				if (ReviewAdviserStateEnum.PAID.toString().equalsIgnoreCase(so.getState()))
-				sheet.addCell(new Label(13, i,"完成-支付成功", cellFormat));
-				if (ReviewAdviserStateEnum.CLOSE.toString().equalsIgnoreCase(so.getState()))
-				sheet.addCell(new Label(13, i, "关闭", cellFormat));
+				if ( so.getReview() != null ){
+					if (so.getState().equalsIgnoreCase("PENDING"))
+						sheet.addCell(new Label(13, i,"待提交审核", cellFormat));
+					else {
+						if (so.getReview().getType().equalsIgnoreCase("APPROVAL")) {
+							if (StringUtil.isEmpty(so.getReview().getOfficialState()))
+								sheet.addCell(new Label(13, i, "资料待审核", cellFormat));
+							if (StringUtil.isNotEmpty(so.getReview().getOfficialState())) {
+								if (so.getReview().getOfficialState().equalsIgnoreCase("REVIEW")){
+									sheet.addCell(new Label(13, i, "资料审核中", cellFormat));
+									if (StringUtil.isNotBlank(so.getReview().getMaraState()) && so.getReview().getMaraState().equalsIgnoreCase("FINISH"))
+										sheet.addCell(new Label(13, i, "资料审核完成", cellFormat));
+								}
+
+								if (so.getReview().getOfficialState().equalsIgnoreCase("WAIT")){
+									if (StringUtil.isNotBlank(so.getReview().getMaraState()) && so.getReview().getMaraState().equalsIgnoreCase("WAIT"))
+										sheet.addCell(new Label(13, i, "已提交Mara审核", cellFormat));
+								}
+								if (so.getReview().getOfficialState().equalsIgnoreCase("APPLY"))
+									sheet.addCell(new Label(13, i, "服务申请中", cellFormat));
+								if (so.getReview().getOfficialState().equalsIgnoreCase("COMPLETE"))
+									sheet.addCell(new Label(13, i, "申请成功", cellFormat));
+								if (so.getReview().getOfficialState().equalsIgnoreCase("PAID")) {
+									sheet.addCell(new Label(13, i, "支付成功", cellFormat));
+									if (so.getType().equalsIgnoreCase("OVST"))
+										if (so.isSubmitted())
+											sheet.addCell(new Label(13, i, "支付成功,月奖已申请", cellFormat));
+										else
+											sheet.addCell(new Label(13, i, "支付成功,月奖未申请", cellFormat));
+								}
+								if (so.getReview().getOfficialState().equalsIgnoreCase("CLOSE"))
+									sheet.addCell(new Label(13, i, "已关闭", cellFormat));
+							}
+						}
+						if (so.getReview().getType() .equalsIgnoreCase("REFUSE") & StringUtil.isNotBlank(so.getReview().getOfficialState()) ){
+							if (so.getReview().getOfficialState().equalsIgnoreCase("PENDING"))
+								sheet.addCell(new Label(13, i,"待提交审核,文案已驳回", cellFormat));
+							if (so.getReview().getOfficialState().equalsIgnoreCase("REVIEW"))
+								sheet.addCell(new Label(13, i,"资料审核中,已驳回", cellFormat));
+							if (so.getReview().getOfficialState().equalsIgnoreCase("CLOSE"))
+								sheet.addCell(new Label(13, i,"已关闭", cellFormat));
+						}
+					}
+
+				}
 				sheet.addCell(new Label(14, i, so.getRemarks(), cellFormat));
 				i++;
 			}
