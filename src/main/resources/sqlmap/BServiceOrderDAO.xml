@@ -577,30 +577,59 @@
 
     <select id="listServiceOrderGroupByForRegion" resultType="org.zhinanzhen.b.dao.pojo.EachRegionNumberDO">
         SELECT
-            count( so.id ) AS count,
-            tr.`name` AS name,
-            bs.`code` AS code,
-            service_id AS serviceId
-        FROM
-            tb_adviser a,
-            b_service_order so,
-            tb_region tr,
-            b_service bs
+        count( so.id ) AS count,
+        tr.`name` AS name,
+        <choose>
+            <when test=" type!=null and type!='' and type == 'OVST' ">
+                bsc.`name` AS code,
+                school_id AS serviceId
+                FROM
+                tb_adviser a,
+                b_service_order so,
+                tb_region tr,
+                b_school bsc
+            </when>
+            <when test=" type!=null and type!='' and type == 'VISA' ">
+                bs.`code` AS code,
+                service_id AS serviceId
+                FROM
+                tb_adviser a,
+                b_service_order so,
+                tb_region tr,
+                b_service bs
+            </when>
+        </choose>
         WHERE
-            so.is_delete = 0
-            AND a.id = so.adviser_id
+        so.is_delete = 0
+        AND a.id = so.adviser_id
         <if test=" type != null and type != ''">
             AND type = #{type}
         </if>
-            AND so.parent_id = 0
-            AND so.state != 'PENDING'
-            AND tr.id = a.region_id
-            AND service_id = bs.id
+        AND so.parent_id = 0
+        AND so.state != 'PENDING'
+        AND tr.id = a.region_id
+        <choose>
+            <when test=" type!=null and type!='' and type == 'OVST' ">
+                AND school_id = bsc.id
+            </when>
+            <when test=" type!=null and type!='' and type == 'VISA' ">
+                AND service_id = bs.id
+            </when>
+        </choose>
         <if test='startOfficialApprovalDate != null and startOfficialApprovalDate != "" and endOfficialApprovalDate != null and endOfficialApprovalDate != ""'>
             <![CDATA[ AND so.official_approval_date > #{startOfficialApprovalDate} AND so.official_approval_date < #{endOfficialApprovalDate} ]]>
         </if>
-        GROUP BY
-            service_id,
-            tr.`name`
+        <choose>
+            <when test=" type!=null and type!='' and type == 'OVST' ">
+                GROUP BY
+                school_id,
+                tr.`name`
+            </when>
+            <when test=" type!=null and type!='' and type == 'VISA' ">
+                GROUP BY
+                service_id,
+                tr.`name`
+            </when>
+        </choose>
     </select>
 </mapper>

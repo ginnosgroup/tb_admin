@@ -356,6 +356,17 @@ CREATE TABLE `b_service_package` (
 `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已删除'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
+-- 签证  评估的职业
+CREATE TABLE `b_service_assess` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键，自增',
+  `name` varchar(20) DEFAULT NULL COMMENT '职业名称',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '修改时间',
+  `service_id` int(11) DEFAULT NULL COMMENT '(b_service.id)',
+  `is_delete` tinyint(1) NOT NULL COMMENT '是否删除 0 false,1 true',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+
 -- 服务订单
 CREATE TABLE `b_service_order` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
@@ -410,7 +421,12 @@ CREATE TABLE `b_service_order` (
   `official_id` int DEFAULT NULL COMMENT '文案编号 (对应b_official.id,曼拓文案为空)',
   `remarks` text DEFAULT NULL COMMENT '备注',
   `closed_reason` varchar(255) DEFAULT NULL COMMENT '关闭原因',
-  `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已删除'
+  `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已删除',
+  `information` varchar(128) DEFAULT NULL COMMENT '填写客户背景信息比如特殊要求、紧急程度、家庭背景等',
+  `is_history` tinyint(1) NOT NULL COMMENT '是否为历史订单，0为否，1为是',
+  `nut_cloud` varchar(128) DEFAULT NULL COMMENT '坚果云地址',
+  `service_assess_id` int(11) DEFAULT NULL COMMENT '签证职业评估编号(对应b_service_assess.id)',
+  `real_people_number` int(11) NOT NULL DEFAULT '1' COMMENT '历史订单:0,不是历史订单:对应people_number(只文案可修改)'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 ALTER TABLE `b_service_order` ADD INDEX index_name (`user_id`, `adviser_id`, `official_id`, `mara_id`, `state`, `service_id`, `parent_id`);
 
@@ -868,6 +884,7 @@ CREATE TABLE `b_invoice_servicefee` (
   `state` varchar(10) NOT NULL COMMENT '状态 NORMAL:正常 CANCELED:取消',
   `order_id` varchar(20) DEFAULT NULL COMMENT '对应佣金订单id',
   `branch` varchar(10) DEFAULT NULL COMMENT 'branch 地区',
+  `bill_to` varchar(64) DEFAULT NULL COMMENT '客户姓名',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='Service Fee 税务的模板';
 
