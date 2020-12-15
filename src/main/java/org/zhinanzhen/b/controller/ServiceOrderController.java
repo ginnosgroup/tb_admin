@@ -1504,7 +1504,8 @@ public class ServiceOrderController extends BaseController {
 					}
 
 				}
-				sheet.addCell(new Label(14, i, so.getRemarks(), cellFormat));
+				sheet.addCell(new Label(14, i, so.getRealPeopleNumber() + "", cellFormat));
+				sheet.addCell(new Label(15, i, so.getRemarks(), cellFormat));
 				i++;
 			}
 			wbe.write();
