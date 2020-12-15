@@ -1583,6 +1583,7 @@ public class ServiceOrderController extends BaseController {
 				sheet.addCell(new Label(7, i, eo.getHobart() + "", cellFormat));
 				sheet.addCell(new Label(8, i, eo.getCanberra() + "", cellFormat));
 				sheet.addCell(new Label(9, i, eo.getSydney2() + "", cellFormat));
+				sheet.addCell(new Label(10, i, eo.getOther() + "", cellFormat));
 				i++;
 			}
 			wbe.write();
