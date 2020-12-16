@@ -28,4 +28,6 @@ public class EachRegionNumberDTO {
     private int canberra;
 
     private int sydney2;
+
+    private int other;
 }
