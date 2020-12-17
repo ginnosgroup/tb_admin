@@ -697,6 +697,7 @@
 									//result.data[i].id = result.data[i].id;
 									result.data[i].userName = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].name+'</a>';
 									result.data[i].visaExpirationDate = that.getTime(result.data[i].visa_expiration_date);
+									if (result.data[i].visaExpirationDate == '1970-01-01') result.data[i].visaExpirationDate = '';
 							};
 							that.subject2 = result.data;
 							console.log(that.subject2);

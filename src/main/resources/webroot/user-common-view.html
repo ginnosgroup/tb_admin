@@ -248,11 +248,11 @@
 								<label id="c9atext" style="margin-left:10px;"><strong>是否历史订单：</strong></label>
 								<label id="c9a"></label>
 							</div>
-							<div id="c20atext" class="form-group" style="width:100%;height:40px;">
+							<div id="c200atext" class="form-group" style="width:100%;height:40px;">
 								<label class="control-label" style="width:80px"><strong>坚果云<br/>资料地址：</strong></label>							
 								<label id="c200a"></label>
 							</div>
-							<div id="c20btext" class="form-group" style="width:100%;line-height:40px;">
+							<div id="c200btext" class="form-group" style="width:100%;line-height:40px;">
 								<label class="control-label"><strong>客户基本信息描述：</strong></label>
 								<label id="c200b"></label>
 							</div>
@@ -1003,8 +1003,8 @@ function show_addnewservice_id(orderId,type)
         	if (response.history) isHistory = '是'; 
         	$("#show_addnewservice2_id #c9a").html(isHistory);
         	$("#show_addnewservice2_id #c9a").show();
-        	$("#show_addnewservice2_id #c20atext").show();
-        	$("#show_addnewservice2_id #c20btext").show();
+        	$("#show_addnewservice2_id #c200atext").show();
+        	$("#show_addnewservice2_id #c200btext").show();
         	var nutCloud_url = '';
         	if (response.nutCloud != null) nutCloud_url = '<a href="'+response.nutCloud+'" target="_blank">打开链接</a>';
         	$("#show_addnewservice2_id #c200a").html(nutCloud_url);
