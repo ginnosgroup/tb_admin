@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.zhinanzhen.b.service.CommissionOrderService;
 import org.zhinanzhen.b.service.ServiceAssessService;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.ServicePackageService;
@@ -66,6 +67,9 @@ public class ServiceOrderController extends BaseController {
 
 	@Resource
 	ServiceAssessService serviceAssessService;
+
+	@Resource
+	CommissionOrderService commissionOrderService;
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -172,7 +176,8 @@ public class ServiceOrderController extends BaseController {
 		    @RequestParam(value = "information",required = false) String information,
 			@RequestParam(value = "isHistory",required = false) String isHistory,
 			@RequestParam(value = "nutCloud") String nutCloud,
-			@RequestParam(value = "serviceAssessId",required = false) String serviceAssessId,	 HttpServletRequest request,
+			@RequestParam(value = "serviceAssessId",required = false) String serviceAssessId,
+			@RequestParam(value = "verifyCode",required = false) String verifyCode,	 HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -267,6 +272,8 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setRealPeopleNumber(0);
 			else
 				serviceOrderDto.setRealPeopleNumber(peopleNumber != null && peopleNumber > 0 ? peopleNumber : 1);
+			if (StringUtil.isNotEmpty(verifyCode))
+				serviceOrderDto.setVerifyCode(verifyCode);
 			if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
 				String msg = "";
 				if (adminUserLoginInfo != null)
@@ -397,6 +404,7 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "isHistory",required = false) String isHistory,
 			@RequestParam(value = "nutCloud",required = false) String nutCloud,
 			@RequestParam(value = "serviceAssessId",required = false) String serviceAssessId,
+			@RequestParam(value = "verifyCode",required = false) String verifyCode,
 			HttpServletResponse response) {
 //		if (getOfficialAdminId(request) != null)
 //			return new Response<Integer>(1, "文案管理员不可操作服务订单.", 0);
@@ -501,6 +509,8 @@ public class ServiceOrderController extends BaseController {
 					serviceOrderDto.setServiceAssessId(serviceAssessId);
 			}else
 				serviceOrderDto.setServiceAssessId(null);
+			if (StringUtil.isNotEmpty(verifyCode))
+				serviceOrderDto.setVerifyCode(verifyCode);
 			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
 			if (i > 0) {
 				return new Response<Integer>(0, i);

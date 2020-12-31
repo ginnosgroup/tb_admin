@@ -86,6 +86,10 @@ public class VisaDO implements Serializable {
 
 	private String remarks;
 
+	private  String verifyCode;
+
+	private Date bankDate;
+
 	private boolean isClose;
 
 }

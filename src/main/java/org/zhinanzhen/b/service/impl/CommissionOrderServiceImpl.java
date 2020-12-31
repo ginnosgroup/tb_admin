@@ -9,22 +9,8 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.controller.BaseCommissionOrderController.ReviewKjStateEnum;
-import org.zhinanzhen.b.dao.CommissionOrderCommentDAO;
-import org.zhinanzhen.b.dao.CommissionOrderDAO;
-import org.zhinanzhen.b.dao.ReceiveTypeDAO;
-import org.zhinanzhen.b.dao.SchoolDAO;
-import org.zhinanzhen.b.dao.ServiceDAO;
-import org.zhinanzhen.b.dao.ServiceOrderReviewDAO;
-import org.zhinanzhen.b.dao.SubagencyDAO;
-import org.zhinanzhen.b.dao.pojo.CommissionOrderCommentDO;
-import org.zhinanzhen.b.dao.pojo.CommissionOrderDO;
-import org.zhinanzhen.b.dao.pojo.CommissionOrderListDO;
-import org.zhinanzhen.b.dao.pojo.CommissionOrderReportDO;
-import org.zhinanzhen.b.dao.pojo.ReceiveTypeDO;
-import org.zhinanzhen.b.dao.pojo.SchoolDO;
-import org.zhinanzhen.b.dao.pojo.ServiceDO;
-import org.zhinanzhen.b.dao.pojo.ServiceOrderReviewDO;
-import org.zhinanzhen.b.dao.pojo.SubagencyDO;
+import org.zhinanzhen.b.dao.*;
+import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.CommissionOrderService;
 import org.zhinanzhen.b.service.pojo.CommissionOrderCommentDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
@@ -81,6 +67,9 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 	@Resource
 	private AdminUserDAO adminUserDao;
 
+	@Resource
+	private VisaDAO visaDao;
+
 	@Override
 	@Transactional
 	public int addCommissionOrder(CommissionOrderDTO commissionOrderDto) throws ServiceException {
@@ -88,6 +77,15 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			ServiceException se = new ServiceException("commissionOrderDto is null !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
+		}
+		if (commissionOrderDto.getVerifyCode() != null){
+			List<CommissionOrderDO> commissionOrderDOS = commissionOrderDao.listCommissionOrderByVerifyCode(commissionOrderDto.getVerifyCode());
+			List<VisaDO> visaDOS = visaDao.listVisaByVerifyCode(commissionOrderDto.getVerifyCode());
+			if (commissionOrderDOS.size() > 0 | visaDOS.size()> 0) {
+				ServiceException se = new ServiceException("对账code:"+commissionOrderDto.getVerifyCode()+"已经存在,请重新创建新的code!");
+				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+				throw se;
+			}
 		}
 		try {
 			CommissionOrderDO commissionOrderDo = mapper.map(commissionOrderDto, CommissionOrderDO.class);
@@ -168,6 +166,24 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			ServiceException se = new ServiceException("commissionOrderDto is null !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
+		}
+		if (commissionOrderDto.getVerifyCode() != null){
+			List<CommissionOrderDO> commissionOrderDOS = commissionOrderDao.listCommissionOrderByVerifyCode(commissionOrderDto.getVerifyCode());
+			List<VisaDO> visaDOS = visaDao.listVisaByVerifyCode(commissionOrderDto.getVerifyCode());
+			if ( visaDOS.size()> 0) {
+				ServiceException se = new ServiceException("对账code:"+commissionOrderDto.getVerifyCode()+"已经存在,请重新创建新的code!");
+				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+				throw se;
+			}
+			if (commissionOrderDOS.size()>0){
+				for (CommissionOrderDO commissionOrderDO : commissionOrderDOS){
+					if (commissionOrderDO.getId() != commissionOrderDto.getId()){
+						ServiceException se = new ServiceException("对账code:"+commissionOrderDto.getVerifyCode()+"已经存在,请重新创建新的code!");
+						se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+						throw se;
+					}
+				}
+			}
 		}
 		try {
 			CommissionOrderDO commissionOrderDo = mapper.map(commissionOrderDto, CommissionOrderDO.class);

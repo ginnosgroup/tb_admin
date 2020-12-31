@@ -17,4 +17,6 @@ public class RegionDO implements Serializable {
 	
 	private int weight;
 
+	private int financeBankId;
+
 }

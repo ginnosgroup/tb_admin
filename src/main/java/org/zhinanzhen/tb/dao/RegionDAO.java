@@ -21,4 +21,7 @@ public interface RegionDAO {
     // 根据父区域获取子区域
     List<RegionDO> selectByParentId(Integer parentId);
 
+    List<RegionDO> regionList();
+
+    int updateFinanceBankId(@Param("id") Integer regionId, @Param("financeBankId") Integer financeBankId);
 }

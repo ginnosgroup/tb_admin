@@ -119,7 +119,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "perAmount") String perAmount, @RequestParam(value = "amount") String amount,
 			@RequestParam(value = "bonusDate", required = false) String bonusDate,
 			@RequestParam(value = "zyDate", required = false) String zyDate,
-			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
+			@RequestParam(value = "remarks", required = false) String remarks,
+			@RequestParam(value = "verifyCode", required = false) String verifyCode, HttpServletRequest request,
 			HttpServletResponse response) {
 
 		try {
@@ -226,6 +227,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				if (installmentNum == 1 && installmentDueDate1 != null) {
 					commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate1)));
 					commissionOrderDto.setState(ReviewKjStateEnum.REVIEW.toString()); // 第一笔单子直接进入财务审核状态
+					commissionOrderDto.setVerifyCode(verifyCode);
 					commissionOrderDto.setKjApprovalDate(new Date());
 				} else {
 					if (installmentNum == 2 && installmentDueDate2 != null) {
@@ -253,6 +255,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					} else
 						break;
 					commissionOrderDto.setState(ReviewKjStateEnum.PENDING.toString());
+					commissionOrderDto.setVerifyCode(null);
 					commissionOrderDto.setKjApprovalDate(null);
 					commissionOrderDto.setPaymentVoucherImageUrl1(null);
 					commissionOrderDto.setPaymentVoucherImageUrl2(null);
@@ -319,7 +322,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "zyDate", required = false) String zyDate,
 			@RequestParam(value = "bankCheck", required = false) String bankCheck,
 			@RequestParam(value = "isChecked", required = false) String isChecked,
-			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
+			@RequestParam(value = "remarks", required = false) String remarks,
+			@RequestParam(value = "verifyCode", required = false) String verifyCode, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -429,6 +433,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			commissionOrderDto.setChecked(isChecked != null && "true".equalsIgnoreCase(isChecked));
 			if (StringUtil.isNotEmpty(remarks))
 				commissionOrderDto.setRemarks(remarks);
+			if (StringUtil.isNotEmpty(verifyCode))
+				commissionOrderDto.setVerifyCode(verifyCode);
 			if (commissionOrderDto.getKjApprovalDate() == null || commissionOrderDto.getKjApprovalDate().getTime() == 0)
 				commissionOrderDto.setKjApprovalDate(new Date());
 

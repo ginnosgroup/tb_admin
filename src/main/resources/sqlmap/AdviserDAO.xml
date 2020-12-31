@@ -104,4 +104,19 @@
         FROM tb_adviser WHERE id = #{id, jdbcType=INTEGER};
     </select>
 
+    <select id="listAdviserByRegionId" resultType="org.zhinanzhen.tb.dao.pojo.AdviserDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            name,
+            phone,
+            email,
+            state,
+            image_url AS imageUrl,
+            region_id AS regionId
+        FROM tb_adviser WHERE region_id = #{regionId}
+        <if test="state!=null">
+            and state = #{state}
+        </if>;
+    </select>
 </mapper>

@@ -92,6 +92,15 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
+		if (serviceOrderDto.getVerifyCode() != null){
+			List<CommissionOrderDO> commissionOrderDOS = commissionOrderDao.listCommissionOrderByVerifyCode(serviceOrderDto.getVerifyCode());
+			List<VisaDO> visaDOS = visaDao.listVisaByVerifyCode(serviceOrderDto.getVerifyCode());
+			if (commissionOrderDOS.size() > 0 | visaDOS.size()> 0) {
+				ServiceException se = new ServiceException("对账code:"+serviceOrderDto.getVerifyCode()+"已经存在,请重新创建新的code!");
+				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+				throw se;
+			}
+		}
 		try {
 			ServiceOrderDO serviceOrderDo = mapper.map(serviceOrderDto, ServiceOrderDO.class);
 			if (serviceOrderDao.addServiceOrder(serviceOrderDo) > 0) {
@@ -118,6 +127,22 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			ServiceException se = new ServiceException("id is null !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
+		}
+		if (serviceOrderDto.getVerifyCode() != null){
+			List<CommissionOrderDO> commissionOrderDOS = commissionOrderDao.listCommissionOrderByVerifyCode(serviceOrderDto.getVerifyCode());
+			List<VisaDO> visaDOS = visaDao.listVisaByVerifyCode(serviceOrderDto.getVerifyCode());
+			if (commissionOrderDOS.size() > 0) {
+				ServiceException se = new ServiceException("对账code:"+serviceOrderDto.getVerifyCode()+"已经存在,请重新创建新的code!");
+				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+				throw se;
+			}
+			for (VisaDO visaDO : visaDOS){
+				if (visaDO.getServiceOrderId() != serviceOrderDto.getId()){
+					ServiceException se = new ServiceException("对账code:"+serviceOrderDto.getVerifyCode()+"已经存在,请重新创建新的code!");
+					se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+					throw se;
+				}
+			}
 		}
 		try {
 			return serviceOrderDao.updateServiceOrder(mapper.map(serviceOrderDto, ServiceOrderDO.class));

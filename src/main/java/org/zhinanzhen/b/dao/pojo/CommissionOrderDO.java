@@ -107,4 +107,8 @@ public class CommissionOrderDO implements Serializable {
 	private boolean isClose;
 
 	private String applyState;
+
+	private String verifyCode;
+
+	private Date bankDate;
 }

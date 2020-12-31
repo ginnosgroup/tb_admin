@@ -7,22 +7,8 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
-import org.zhinanzhen.b.dao.VisaDAO;
-import org.zhinanzhen.b.dao.OfficialDAO;
-import org.zhinanzhen.b.dao.ReceiveTypeDAO;
-import org.zhinanzhen.b.dao.RemindDAO;
-import org.zhinanzhen.b.dao.ServiceDAO;
-import org.zhinanzhen.b.dao.ServiceOrderReviewDAO;
-import org.zhinanzhen.b.dao.VisaCommentDAO;
-import org.zhinanzhen.b.dao.pojo.VisaDO;
-import org.zhinanzhen.b.dao.pojo.VisaListDO;
-import org.zhinanzhen.b.dao.pojo.VisaReportDO;
-import org.zhinanzhen.b.dao.pojo.OfficialDO;
-import org.zhinanzhen.b.dao.pojo.ReceiveTypeDO;
-import org.zhinanzhen.b.dao.pojo.RemindDO;
-import org.zhinanzhen.b.dao.pojo.ServiceDO;
-import org.zhinanzhen.b.dao.pojo.ServiceOrderReviewDO;
-import org.zhinanzhen.b.dao.pojo.VisaCommentDO;
+import org.zhinanzhen.b.dao.*;
+import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.AbleStateEnum;
 import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
@@ -74,6 +60,9 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 	@Resource
 	private AdminUserDAO adminUserDao;
 
+	@Resource
+	CommissionOrderDAO commissionOrderDAO;
+
 	@Override
 	public int addVisa(VisaDTO visaDto) throws ServiceException {
 		if (visaDto == null) {
@@ -107,6 +96,22 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			ServiceException se = new ServiceException("visaDto is null !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
+		}
+		if (visaDto.getVerifyCode() != null){
+			List<CommissionOrderDO> commissionOrderDOS = commissionOrderDAO.listCommissionOrderByVerifyCode(visaDto.getVerifyCode());
+			List<VisaDO> visaDOS = visaDao.listVisaByVerifyCode(visaDto.getVerifyCode());
+			if (commissionOrderDOS.size() > 0) {
+				ServiceException se = new ServiceException("对账code:"+visaDto.getVerifyCode()+"已经存在,请重新创建新的code!");
+				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+				throw se;
+			}
+			for (VisaDO visaDO : visaDOS){
+				if (visaDO.getId() != visaDto.getId()){
+					ServiceException se = new ServiceException("对账code:"+visaDto.getVerifyCode()+"已经存在,请重新创建新的code!");
+					se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+					throw se;
+				}
+			}
 		}
 		try {
 			putReviews(visaDto);

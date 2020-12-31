@@ -25,7 +25,8 @@ public class ExceptionHandlerAll {
     @ExceptionHandler(Throwable.class)
     @ResponseBody
     public Response handlerException(Exception ex){
-        Response result = new Response(0," 系统出现错误，请联系管理员! ");
+        //Response result = new Response(0," 系统出现错误，请联系管理员! ");
+        Response result = new Response(1,ex.getMessage());
         return  result;
     }
 

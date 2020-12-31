@@ -221,7 +221,9 @@ CREATE TABLE `b_visa` (
   `bank_check` varchar(32) DEFAULT NULL COMMENT '银行对账',
   `is_checked` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否对账成功',
   `remarks` text DEFAULT NULL COMMENT '备注',
-  `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
+  `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消',
+  `verify_code` varchar(64) DEFAULT NULL COMMENT '对账使用的code,顾问名称+地区+随机数',
+  `bank_date` datetime DEFAULT NULL COMMENT '入账时间,对应b_finance_code.bank_date'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 ALTER TABLE `b_visa` ADD INDEX index_name (`user_id`, `adviser_id`, `mara_id`, `official_id`);
 
@@ -426,7 +428,8 @@ CREATE TABLE `b_service_order` (
   `is_history` tinyint(1) NOT NULL COMMENT '是否为历史订单，0为否，1为是',
   `nut_cloud` varchar(128) DEFAULT NULL COMMENT '坚果云地址',
   `service_assess_id` int(11) DEFAULT NULL COMMENT '签证职业评估编号(对应b_service_assess.id)',
-  `real_people_number` int(11) NOT NULL DEFAULT '1' COMMENT '历史订单:0,不是历史订单:对应people_number(只文案可修改)'
+  `real_people_number` int(11) NOT NULL DEFAULT '1' COMMENT '历史订单:0,不是历史订单:对应people_number(只文案可修改)',
+  `verify_code` varchar(64) DEFAULT null COMMENT '对账使用的code,顾问名称+地区+随机数'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 ALTER TABLE `b_service_order` ADD INDEX index_name (`user_id`, `adviser_id`, `official_id`, `mara_id`, `state`, `service_id`, `parent_id`);
 
@@ -534,7 +537,9 @@ CREATE TABLE `b_commission_order` (
   `bank_check` varchar(32) DEFAULT NULL COMMENT '银行对账',
   `is_checked` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否对账成功',
   `remarks` text DEFAULT NULL COMMENT '备注',
-  `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
+  `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消',
+  `verify_code` varchar(64) DEFAULT NULL COMMENT '对账使用的code,顾问名称+地区+随机数',
+  `bank_date` datetime DEFAULT NULL COMMENT '入账时间,对应b_finance_code.bank_date'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 ALTER TABLE `b_commission_order` ADD INDEX index_name (`code`, `school_id`, `user_id`, `adviser_id`, `official_id`);
 

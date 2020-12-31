@@ -11,7 +11,8 @@
 		id,
 		name,
 		weight,
-		parent_id AS parentId
+		parent_id AS parentId ,
+		finance_bank_id AS financeBankId
 		FROM tb_region WHERE id
 		= #{id, jdbcType=INTEGER};
 	</select>
@@ -64,4 +65,21 @@
 		where m.parent_id = #{parentId}
 		ORDER BY m.weight DESC
 	</select>
+
+	<select id="regionList" resultType="org.zhinanzhen.tb.dao.pojo.RegionDO">
+        select id,
+        name ,
+        parent_id as parentId,
+        weight ,
+        finance_bank_id as financeBankId
+        from `tb_region` where parent_id is not null ;
+    </select>
+
+	<update id="updateFinanceBankId">
+		update `tb_region` set  gmt_modify = now()
+		<if test="financeBankId != null and financeBankId > 0 ">
+			, finance_bank_id = #{financeBankId}
+		</if>
+		where id = #{id};
+	</update>
 </mapper>

@@ -67,4 +67,6 @@ public interface CommissionOrderDAO {
 
 	public List<CommissionOrderDO> listCommissionOrderByState(String state);
 
+	List<CommissionOrderDO> listCommissionOrderByVerifyCode(String verifyCode);
+
 }

@@ -61,7 +61,8 @@
                 is_history,
                 nut_cloud,
                 service_assess_id,
-                real_people_number)
+                real_people_number,
+                verify_code )
             VALUES (
                 now(),
                 now(),
@@ -118,7 +119,8 @@
                 #{isHistory},
                 #{nutCloud},
                 #{serviceAssessId},
-                #{realPeopleNumber});
+                #{realPeopleNumber},
+                #{verifyCode});
     </insert>
     
     <update id="updateServiceOrder" parameterType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
@@ -275,6 +277,9 @@
         <if test=" realPeopleNumber != null  and realPeopleNumber > 0 ">
             , real_People_Number = #{realPeopleNumber}
         </if>
+        <if test="verifyCode != null">
+            ,verify_code = #{verifyCode}
+        </if>
         WHERE id = #{id};
     </update>
     
@@ -411,7 +416,8 @@
             so.is_history AS isHistory,
             so.nut_cloud AS nutCloud,
             so.service_assess_id AS serviceAssessId ,
-            so.real_people_number AS realPeopleNumber
+            so.real_people_number AS realPeopleNumber ,
+            so.verify_code AS verifyCode
         FROM tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON so.id=soot.service_order_id
         WHERE so.is_delete = 0 AND a.id = so.adviser_id
         <if test='type != null and type != ""'>
@@ -552,7 +558,8 @@
             is_history AS isHistory,
             nut_cloud AS nutCloud,
             service_assess_id AS serviceAssessId ,
-            real_people_number AS realPeopleNumber
+            real_people_number AS realPeopleNumber ,
+            verify_code AS verifyCode
         FROM b_service_order WHERE id = #{id, jdbcType=INTEGER};
     </select>
     
