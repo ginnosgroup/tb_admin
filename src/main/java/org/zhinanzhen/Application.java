@@ -22,9 +22,10 @@ public class Application extends WebMvcConfigurerAdapter {
 		registry.addMapping("/**").allowedOrigins("*");
 	}
 
-//	@Override
-//	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-//		registry.addResourceHandler("/webroot/**").addResourceLocations("classpath:/webroot/");
-//	}
+	@Override
+	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+		//registry.addResourceHandler("/webroot/**").addResourceLocations("classpath:/webroot/");
+		registry.addResourceHandler("/webroot_new/**").addResourceLocations("file:/data/webroot_new/");
+	}
 
 }
