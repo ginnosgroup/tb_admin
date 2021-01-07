@@ -280,6 +280,9 @@
         <if test="verifyCode != null">
             ,verify_code = #{verifyCode}
         </if>
+        <if test="readcommittedDate != null">
+            ,readcommitted_date = #{readcommittedDate}
+        </if>
         WHERE id = #{id};
     </update>
     
@@ -316,6 +319,9 @@
         </if>
         <if test='startOfficialApprovalDate != null and startOfficialApprovalDate != "" and endOfficialApprovalDate != null and endOfficialApprovalDate != ""'>
             <![CDATA[ AND so.official_approval_date > #{startOfficialApprovalDate} AND so.official_approval_date < #{endOfficialApprovalDate} ]]>
+        </if>
+        <if test='startReadcommittedDate != null and startReadcommittedDate != "" and endReadcommittedDate != null and endReadcommittedDate != ""'>
+            <![CDATA[ AND so.readcommitted_date > #{startReadcommittedDate} AND so.readcommitted_date < #{endReadcommittedDate} ]]>
         </if>
         <if test='regionIdList != null'>
             AND a.region_id IN
@@ -417,7 +423,8 @@
             so.nut_cloud AS nutCloud,
             so.service_assess_id AS serviceAssessId ,
             so.real_people_number AS realPeopleNumber ,
-            so.verify_code AS verifyCode
+            so.verify_code AS verifyCode ,
+            so.readcommitted_date AS readcommittedDate
         FROM tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON so.id=soot.service_order_id
         WHERE so.is_delete = 0 AND a.id = so.adviser_id
         <if test='type != null and type != ""'>
@@ -443,6 +450,9 @@
         </if>
         <if test='startOfficialApprovalDate != null and startOfficialApprovalDate != "" and endOfficialApprovalDate != null and endOfficialApprovalDate != ""'>
             <![CDATA[ AND so.official_approval_date > #{startOfficialApprovalDate} AND so.official_approval_date < #{endOfficialApprovalDate} ]]>
+        </if>
+        <if test='startReadcommittedDate != null and startReadcommittedDate != "" and endReadcommittedDate != null and endReadcommittedDate != ""'>
+            <![CDATA[ AND so.readcommitted_date > #{startReadcommittedDate} AND so.readcommitted_date < #{endReadcommittedDate} ]]>
         </if>
         <if test='regionIdList != null'>
             AND a.region_id IN
@@ -559,7 +569,8 @@
             nut_cloud AS nutCloud,
             service_assess_id AS serviceAssessId ,
             real_people_number AS realPeopleNumber ,
-            verify_code AS verifyCode
+            verify_code AS verifyCode ,
+            readcommitted_date AS readcommittedDate
         FROM b_service_order WHERE id = #{id, jdbcType=INTEGER};
     </select>
     
@@ -578,6 +589,12 @@
     <update id="finishServiceOrder" parameterType="java.lang.Integer">
         UPDATE b_service_order
         SET gmt_modify = now(), finish_date = now()
+        WHERE id = #{id, jdbcType=INTEGER};
+    </update>
+
+    <update id="ReadcommittedServiceOrder" parameterType="java.lang.Integer">
+        UPDATE b_service_order
+        SET gmt_modify = now(), readcommitted_date = now()
         WHERE id = #{id, jdbcType=INTEGER};
     </update>
 

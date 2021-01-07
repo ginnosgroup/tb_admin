@@ -429,7 +429,8 @@ CREATE TABLE `b_service_order` (
   `nut_cloud` varchar(128) DEFAULT NULL COMMENT '坚果云地址',
   `service_assess_id` int(11) DEFAULT NULL COMMENT '签证职业评估编号(对应b_service_assess.id)',
   `real_people_number` int(11) NOT NULL DEFAULT '1' COMMENT '历史订单:0,不是历史订单:对应people_number(只文案可修改)',
-  `verify_code` varchar(64) DEFAULT null COMMENT '对账使用的code,顾问名称+地区+随机数'
+  `verify_code` varchar(64) DEFAULT null COMMENT '对账使用的code,顾问名称+地区+随机数',
+  `readcommitted_date` datetime DEFAULT NULL COMMENT '已提交申请的时间'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 ALTER TABLE `b_service_order` ADD INDEX index_name (`user_id`, `adviser_id`, `official_id`, `mara_id`, `state`, `service_id`, `parent_id`);
 
@@ -907,3 +908,13 @@ CREATE TABLE `b_invoice_servicefee_description` (
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   KEY `invoice_servicefee` (`invoice_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- b_service_order 表中的 readcommitted_date 字段的修改历史
+CREATE TABLE `b_service_order_readcommitted_date` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `service_order_id` int(11) NOT NULL COMMENT 'b_service_order.id',
+  `history_date` datetime NOT NULL COMMENT '已提交申请字段的历史时间(b_service_order.readcommitted_date)',
+  `gmt_modify` datetime NOT NULL COMMENT '修改时间',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;

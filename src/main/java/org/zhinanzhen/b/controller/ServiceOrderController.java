@@ -3,6 +3,7 @@ package org.zhinanzhen.b.controller;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,16 +23,15 @@ import jxl.write.WritableSheet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import org.zhinanzhen.b.service.CommissionOrderService;
-import org.zhinanzhen.b.service.ServiceAssessService;
-import org.zhinanzhen.b.service.ServiceOrderService;
-import org.zhinanzhen.b.service.ServicePackageService;
+import org.zhinanzhen.b.dao.pojo.ServiceOrderReadcommittedDateDO;
+import org.zhinanzhen.b.service.*;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
@@ -70,6 +70,9 @@ public class ServiceOrderController extends BaseController {
 
 	@Resource
 	CommissionOrderService commissionOrderService;
+
+	@Resource
+	ServiceOrderReadcommittedDateService serviceOrderReadcommittedDateService;
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -636,6 +639,37 @@ public class ServiceOrderController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/updateReadcommittedDate", method = RequestMethod.POST)
+	@ResponseBody
+	@Transactional
+	public Response<Integer> updateReadcommittedDate(@RequestParam(value = "id") int id,
+											@RequestParam(value = "readcommittedDate") String readcommittedDate, HttpServletRequest request,
+											HttpServletResponse response) {
+		if (getOfficialAdminId(request) == null)
+			return new Response<Integer>(1, "仅限文案管理员操作.", 0);
+		try {
+			super.setPostHeader(response);
+			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
+			if (serviceOrderDto == null)
+				return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
+			ServiceOrderReadcommittedDateDO serviceOrderReadcommittedDateDO = new ServiceOrderReadcommittedDateDO();
+			serviceOrderReadcommittedDateDO.setServiceOrderId(serviceOrderDto.getId());
+			serviceOrderReadcommittedDateDO.setHistoryDate(serviceOrderDto.getReadcommittedDate());
+			serviceOrderDto.setReadcommittedDate(sdf.parse(readcommittedDate));
+			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
+			if (i > 0){
+				serviceOrderReadcommittedDateService.add(serviceOrderReadcommittedDateDO);
+				return new Response<Integer>(0, i);
+			}
+			return  new Response<Integer>(1, "修改失败.", 0);
+		} catch (ServiceException e) {
+			return new Response<Integer>(e.getCode(), e.getMessage(), null);
+		} catch (ParseException e) {
+			e.printStackTrace();
+			return new Response<Integer>(1, e.getMessage(), null);
+		}
+	}
+
 	@RequestMapping(value = "/count", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<Integer> countServiceOrder(@RequestParam(value = "id", required = false) Integer id,
@@ -647,6 +681,8 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "endMaraApprovalDate", required = false) String endMaraApprovalDate,
 			@RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
 			@RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
+			@RequestParam(value = "startReadcommittedDate", required = false) String startReadcommittedDate,
+			@RequestParam(value = "endReadcommittedDate", required = false) String endReadcommittedDate,
 			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "userId", required = false) Integer userId,
 			@RequestParam(value = "maraId", required = false) Integer maraId,
@@ -712,7 +748,7 @@ public class ServiceOrderController extends BaseController {
 			return new Response<Integer>(0,
 					serviceOrderService.countServiceOrder(type, excludeState, stateList, auditingState, reviewStateList,
 							startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
-							endOfficialApprovalDate, regionIdList, userId, maraId, adviserId, officialId, officialTagId,
+							endOfficialApprovalDate,startReadcommittedDate,endReadcommittedDate, regionIdList, userId, maraId, adviserId, officialId, officialTagId,
 							0, isNotApproved != null ? isNotApproved : false,serviceId,schoolId));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
@@ -730,6 +766,8 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "endMaraApprovalDate", required = false) String endMaraApprovalDate,
 			@RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
 			@RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
+			@RequestParam(value = "startReadcommittedDate", required = false) String startReadcommittedDate,
+			@RequestParam(value = "endReadcommittedDate", required = false) String endReadcommittedDate,
 			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "userId", required = false) Integer userId,
 			@RequestParam(value = "maraId", required = false) Integer maraId,
@@ -793,7 +831,7 @@ public class ServiceOrderController extends BaseController {
 			}
 			List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(type, excludeState, stateList,
 					auditingState, reviewStateList, startMaraApprovalDate, endMaraApprovalDate,
-					startOfficialApprovalDate, endOfficialApprovalDate, regionIdList, userId, maraId, adviserId,
+					startOfficialApprovalDate, endOfficialApprovalDate,startReadcommittedDate,endReadcommittedDate, regionIdList, userId, maraId, adviserId,
 					officialId, officialTagId, 0, isNotApproved != null ? isNotApproved : false, pageNum, pageSize,serviceId,schoolId);
 
 			if (newOfficialId != null)
@@ -955,18 +993,21 @@ public class ServiceOrderController extends BaseController {
 									serviceOrderService.approval(id, adminUserLoginInfo.getId(), null,
 											ReviewMaraStateEnum.WAIT.toString(), state.toUpperCase(), null));
 						} else if (ReviewOfficialStateEnum.APPLY.toString().equals(state.toUpperCase())) { // 文案申请同时修改顾问状态
-							serviceOrderService.finish(id);
+							//serviceOrderService.finish(id);
+							serviceOrderService.Readcommitted(id);
 							waUpdateRemarks(serviceOrderDto, remarks);
 							return new Response<ServiceOrderDTO>(0,
 									serviceOrderService.approval(id, adminUserLoginInfo.getId(),
 											ReviewAdviserStateEnum.APPLY.toString(), null, state.toUpperCase(), null));
 						} else if (ReviewOfficialStateEnum.PAID.toString().equals(state.toUpperCase())) { // 文案支付同时修改顾问状态
+							serviceOrderService.Readcommitted(id);
 							serviceOrderService.finish(id);
 							return new Response<ServiceOrderDTO>(0,
 									serviceOrderService.approval(id, adminUserLoginInfo.getId(),
 											ReviewAdviserStateEnum.PAID.toString(), null, state.toUpperCase(), null));
 						} else if (ReviewOfficialStateEnum.COMPLETE.toString().equals(state.toUpperCase())) { // 文案完成同时修改顾问和会计状态
-							serviceOrderService.finish(id);
+							//serviceOrderService.finish(id);
+							serviceOrderService.Readcommitted(id);
 							waUpdateRemarks(serviceOrderDto, remarks);
 							return new Response<ServiceOrderDTO>(0,
 									serviceOrderService.approval(id, adminUserLoginInfo.getId(),
@@ -1330,6 +1371,8 @@ public class ServiceOrderController extends BaseController {
 					  @RequestParam(value = "endMaraApprovalDate", required = false) String endMaraApprovalDate,
 					  @RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
 					  @RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
+					  @RequestParam(value = "startReadcommittedDate", required = false) String startReadcommittedDate,
+					  @RequestParam(value = "endReadcommittedDate", required = false) String endReadcommittedDate,
 					  @RequestParam(value = "regionId", required = false) Integer regionId,
 					  @RequestParam(value = "userId", required = false) Integer userId,
 					  @RequestParam(value = "maraId", required = false) Integer maraId,
@@ -1394,7 +1437,7 @@ public class ServiceOrderController extends BaseController {
 			if (id == null){
 				serviceOrderList= serviceOrderService.listServiceOrder(type, excludeState, stateList,
 						auditingState, reviewStateList, startMaraApprovalDate, endMaraApprovalDate,
-						startOfficialApprovalDate, endOfficialApprovalDate, regionIdList, userId, maraId, adviserId,
+						startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId, maraId, adviserId,
 						officialId, officialTagId, 0, isNotApproved != null ? isNotApproved : false, 0, 9999, serviceId, schoolId);
 
 				if (newOfficialId != null)

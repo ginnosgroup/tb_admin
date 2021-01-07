@@ -83,8 +83,6 @@ public class VerifyController {
                     }
                 }
         }
-        System.out.println(financeCodeDOS.toString());
-
         for (Iterator iterator = financeCodeDOS.listIterator(); iterator.hasNext();){
                 FinanceCodeDO financeCodeDO = (FinanceCodeDO) iterator.next();
             if (StringUtil.isNotEmpty(financeCodeDO.getOrderId())){

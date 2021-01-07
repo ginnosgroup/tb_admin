@@ -133,4 +133,6 @@ public class ServiceOrderDO implements Serializable {
 	//对账使用的code
 	private String verifyCode;
 
+	private Date readcommittedDate;
+
 }
