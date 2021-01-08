@@ -668,6 +668,7 @@
         WHERE co.service_order_id = so.id AND co.school_id = bs.id AND co.user_id = tbu.id
         AND DATE_FORMAT(co.installment_due_date, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
         AND co.bonus != 0.00
+        AND co.state = 'PENDING'
         <if test='adviserId != null and adviserId > 0'>
             AND co.adviser_id = #{adviserId}
         </if>
