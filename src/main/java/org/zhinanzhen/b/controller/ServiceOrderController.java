@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.zhinanzhen.b.controller.nodes.SONodeFactory;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderReadcommittedDateDO;
 import org.zhinanzhen.b.service.*;
 import org.zhinanzhen.b.service.pojo.*;
@@ -44,7 +45,14 @@ import org.zhinanzhen.tb.utils.SendEmailUtil;
 
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.ListUtil;
+import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
+import com.ikasoa.web.workflow.Context;
+import com.ikasoa.web.workflow.Node;
+import com.ikasoa.web.workflow.NodeFactory;
+import com.ikasoa.web.workflow.Workflow;
+import com.ikasoa.web.workflow.WorkflowStarter;
+import com.ikasoa.web.workflow.impl.WorkflowStarterImpl;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -52,6 +60,8 @@ import com.ikasoa.core.utils.StringUtil;
 public class ServiceOrderController extends BaseController {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ServiceOrderController.class);
+
+	private static WorkflowStarter workflowStarter = new WorkflowStarterImpl();
 
 	@Resource
 	ServiceOrderService serviceOrderService;
@@ -176,11 +186,11 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "officialId", required = false) String officialId,
 			@RequestParam(value = "remarks", required = false) String remarks,
 			@RequestParam(value = "closedReason", required = false) String closedReason,
-		    @RequestParam(value = "information",required = false) String information,
-			@RequestParam(value = "isHistory",required = false) String isHistory,
+			@RequestParam(value = "information", required = false) String information,
+			@RequestParam(value = "isHistory", required = false) String isHistory,
 			@RequestParam(value = "nutCloud") String nutCloud,
-			@RequestParam(value = "serviceAssessId",required = false) String serviceAssessId,
-			@RequestParam(value = "verifyCode",required = false) String verifyCode,	 HttpServletRequest request,
+			@RequestParam(value = "serviceAssessId", required = false) String serviceAssessId,
+			@RequestParam(value = "verifyCode", required = false) String verifyCode, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -266,8 +276,8 @@ public class ServiceOrderController extends BaseController {
 			serviceOrderDto.setHistory(isHistory != null && "true".equalsIgnoreCase(isHistory));
 			if (StringUtil.isNotEmpty(nutCloud))
 				serviceOrderDto.setNutCloud(nutCloud);
-			if (StringUtil.isNotEmpty(serviceAssessId)){
-				if (serviceAssessService.seleteAssessByServiceId(serviceId).size() == 0 )
+			if (StringUtil.isNotEmpty(serviceAssessId)) {
+				if (serviceAssessService.seleteAssessByServiceId(serviceId).size() == 0)
 					return new Response(1, "当前服务编号不是评估(" + serviceId + ")，创建失败.", 0);
 				serviceOrderDto.setServiceAssessId(serviceAssessId);
 			}
@@ -313,7 +323,7 @@ public class ServiceOrderController extends BaseController {
 				if (schoolId2 != null && schoolId2 > 0 && "OVST".equalsIgnoreCase(type)) {
 					serviceOrderDto.setId(0);
 					serviceOrderDto.setSchoolId(schoolId2);
-					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0){
+					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
 						if (adminUserLoginInfo != null)
 							serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
 									serviceOrderDto.getState(), null, null, null);
@@ -326,37 +336,34 @@ public class ServiceOrderController extends BaseController {
 				if (schoolId3 != null && schoolId3 > 0 && "OVST".equalsIgnoreCase(type)) {
 					serviceOrderDto.setId(0);
 					serviceOrderDto.setSchoolId(schoolId3);
-					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0){
+					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
 						if (adminUserLoginInfo != null)
 							serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
 									serviceOrderDto.getState(), null, null, null);
 						msg += "创建第三学校服务订单成功(第三服务订单编号:" + serviceOrderDto.getId() + "). ";
-					}
-					else
+					} else
 						msg += "创建第三学校服务订单失败(第三学校编号:" + schoolId3 + "). ";
 				}
 				if (schoolId4 != null && schoolId4 > 0 && "OVST".equalsIgnoreCase(type)) {
 					serviceOrderDto.setId(0);
 					serviceOrderDto.setSchoolId(schoolId4);
-					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0){
+					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
 						if (adminUserLoginInfo != null)
 							serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
 									serviceOrderDto.getState(), null, null, null);
 						msg += "创建第四学校服务订单成功(第四服务订单编号:" + serviceOrderDto.getId() + "). ";
-					}
-					else
+					} else
 						msg += "创建第四学校服务订单失败(第四学校编号:" + schoolId4 + "). ";
 				}
 				if (schoolId5 != null && schoolId5 > 0 && "OVST".equalsIgnoreCase(type)) {
 					serviceOrderDto.setId(0);
 					serviceOrderDto.setSchoolId(schoolId5);
-					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0){
+					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
 						if (adminUserLoginInfo != null)
 							serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
 									serviceOrderDto.getState(), null, null, null);
 						msg += "创建第五学校服务订单成功(第五服务订单编号:" + serviceOrderDto.getId() + "). ";
-					}
-					else
+					} else
 						msg += "创建第五学校服务订单失败(第五学校编号:" + schoolId5 + "). ";
 				}
 				return new Response<Integer>(0, msg, serviceOrderDto.getId());
@@ -403,12 +410,11 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "officialId", required = false) String officialId,
 			@RequestParam(value = "remarks", required = false) String remarks,
 			@RequestParam(value = "closedReason", required = false) String closedReason, HttpServletRequest request,
-			@RequestParam(value = "information",required = false) String information,
-			@RequestParam(value = "isHistory",required = false) String isHistory,
-			@RequestParam(value = "nutCloud",required = false) String nutCloud,
-			@RequestParam(value = "serviceAssessId",required = false) String serviceAssessId,
-			@RequestParam(value = "verifyCode",required = false) String verifyCode,
-			HttpServletResponse response) {
+			@RequestParam(value = "information", required = false) String information,
+			@RequestParam(value = "isHistory", required = false) String isHistory,
+			@RequestParam(value = "nutCloud", required = false) String nutCloud,
+			@RequestParam(value = "serviceAssessId", required = false) String serviceAssessId,
+			@RequestParam(value = "verifyCode", required = false) String verifyCode, HttpServletResponse response) {
 //		if (getOfficialAdminId(request) != null)
 //			return new Response<Integer>(1, "文案管理员不可操作服务订单.", 0);
 		try {
@@ -509,8 +515,8 @@ public class ServiceOrderController extends BaseController {
 			if (StringUtil.isNotEmpty(serviceAssessId)) {
 				if (serviceAssessService.seleteAssessByServiceId(serviceId).size() == 0)
 					return new Response(1, "当前服务编号不是评估(" + serviceId + ") .", 0);
-					serviceOrderDto.setServiceAssessId(serviceAssessId);
-			}else
+				serviceOrderDto.setServiceAssessId(serviceAssessId);
+			} else
 				serviceOrderDto.setServiceAssessId(null);
 			if (StringUtil.isNotEmpty(verifyCode))
 				serviceOrderDto.setVerifyCode(verifyCode);
@@ -599,8 +605,8 @@ public class ServiceOrderController extends BaseController {
 	@RequestMapping(value = "/updateRealPeopleNumber", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> updateRealPeopleNumber(@RequestParam(value = "id") int id,
-		@RequestParam(value = "realPeopleNumber", required = false) Integer realPeopleNumber, HttpServletRequest request,
-		HttpServletResponse response) {
+			@RequestParam(value = "realPeopleNumber", required = false) Integer realPeopleNumber,
+			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
@@ -611,7 +617,8 @@ public class ServiceOrderController extends BaseController {
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
 			if (serviceOrderDto == null)
 				return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
-			serviceOrderDto.setRealPeopleNumber(realPeopleNumber != null && realPeopleNumber > 0 ? realPeopleNumber : 1);
+			serviceOrderDto
+					.setRealPeopleNumber(realPeopleNumber != null && realPeopleNumber > 0 ? realPeopleNumber : 1);
 			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
 			return i > 0 ? new Response<Integer>(0, i) : new Response<Integer>(1, "修改失败.", 0);
 		} catch (ServiceException e) {
@@ -643,8 +650,8 @@ public class ServiceOrderController extends BaseController {
 	@ResponseBody
 	@Transactional
 	public Response<Integer> updateReadcommittedDate(@RequestParam(value = "id") int id,
-											@RequestParam(value = "readcommittedDate") String readcommittedDate, HttpServletRequest request,
-											HttpServletResponse response) {
+			@RequestParam(value = "readcommittedDate") String readcommittedDate, HttpServletRequest request,
+			HttpServletResponse response) {
 		if (getOfficialAdminId(request) == null)
 			return new Response<Integer>(1, "仅限文案管理员操作.", 0);
 		try {
@@ -657,11 +664,11 @@ public class ServiceOrderController extends BaseController {
 			serviceOrderReadcommittedDateDO.setHistoryDate(serviceOrderDto.getReadcommittedDate());
 			serviceOrderDto.setReadcommittedDate(sdf.parse(readcommittedDate));
 			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
-			if (i > 0){
+			if (i > 0) {
 				serviceOrderReadcommittedDateService.add(serviceOrderReadcommittedDateDO);
 				return new Response<Integer>(0, i);
 			}
-			return  new Response<Integer>(1, "修改失败.", 0);
+			return new Response<Integer>(1, "修改失败.", 0);
 		} catch (ServiceException e) {
 			return new Response<Integer>(e.getCode(), e.getMessage(), null);
 		} catch (ParseException e) {
@@ -691,7 +698,7 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "officialTagId", required = false) Integer officialTagId,
 			@RequestParam(value = "isNotApproved", required = false) Boolean isNotApproved,
 			@RequestParam(value = "serviceId", required = false) Integer serviceId,
-			@RequestParam(value = "schoolId", required = false) Integer schoolId,HttpServletRequest request,
+			@RequestParam(value = "schoolId", required = false) Integer schoolId, HttpServletRequest request,
 			HttpServletResponse response) {
 
 		String excludeState = null;
@@ -748,8 +755,9 @@ public class ServiceOrderController extends BaseController {
 			return new Response<Integer>(0,
 					serviceOrderService.countServiceOrder(type, excludeState, stateList, auditingState, reviewStateList,
 							startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
-							endOfficialApprovalDate,startReadcommittedDate,endReadcommittedDate, regionIdList, userId, maraId, adviserId, officialId, officialTagId,
-							0, isNotApproved != null ? isNotApproved : false,serviceId,schoolId));
+							endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId,
+							maraId, adviserId, officialId, officialTagId, 0,
+							isNotApproved != null ? isNotApproved : false, serviceId, schoolId));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -831,8 +839,9 @@ public class ServiceOrderController extends BaseController {
 			}
 			List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(type, excludeState, stateList,
 					auditingState, reviewStateList, startMaraApprovalDate, endMaraApprovalDate,
-					startOfficialApprovalDate, endOfficialApprovalDate,startReadcommittedDate,endReadcommittedDate, regionIdList, userId, maraId, adviserId,
-					officialId, officialTagId, 0, isNotApproved != null ? isNotApproved : false, pageNum, pageSize,serviceId,schoolId);
+					startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate,
+					regionIdList, userId, maraId, adviserId, officialId, officialTagId, 0,
+					isNotApproved != null ? isNotApproved : false, pageNum, pageSize, serviceId, schoolId);
 
 			if (newOfficialId != null)
 				for (ServiceOrderDTO so : serviceOrderList)
@@ -993,7 +1002,7 @@ public class ServiceOrderController extends BaseController {
 									serviceOrderService.approval(id, adminUserLoginInfo.getId(), null,
 											ReviewMaraStateEnum.WAIT.toString(), state.toUpperCase(), null));
 						} else if (ReviewOfficialStateEnum.APPLY.toString().equals(state.toUpperCase())) { // 文案申请同时修改顾问状态
-							//serviceOrderService.finish(id);
+							// serviceOrderService.finish(id);
 							serviceOrderService.Readcommitted(id);
 							waUpdateRemarks(serviceOrderDto, remarks);
 							return new Response<ServiceOrderDTO>(0,
@@ -1006,7 +1015,7 @@ public class ServiceOrderController extends BaseController {
 									serviceOrderService.approval(id, adminUserLoginInfo.getId(),
 											ReviewAdviserStateEnum.PAID.toString(), null, state.toUpperCase(), null));
 						} else if (ReviewOfficialStateEnum.COMPLETE.toString().equals(state.toUpperCase())) { // 文案完成同时修改顾问和会计状态
-							//serviceOrderService.finish(id);
+							// serviceOrderService.finish(id);
 							serviceOrderService.Readcommitted(id);
 							waUpdateRemarks(serviceOrderDto, remarks);
 							return new Response<ServiceOrderDTO>(0,
@@ -1270,9 +1279,9 @@ public class ServiceOrderController extends BaseController {
 			return new Response<Integer>(1, e.getMessage(), 0);
 		}
 	}
-	
+
 	//
-	
+
 	@RequestMapping(value = "/addOfficialRemarks", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> addOfficialRemarks(@RequestParam(value = "serviceOrderId") Integer serviceOrderId,
@@ -1299,11 +1308,11 @@ public class ServiceOrderController extends BaseController {
 			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
 		}
 	}
-	
+
 	@RequestMapping(value = "/updateOfficialRemarks", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<Integer> updateOfficialRemarks(@RequestParam(value = "id") Integer id, @RequestParam(value = "content") String content,
-			HttpServletRequest request, HttpServletResponse response) {
+	public Response<Integer> updateOfficialRemarks(@RequestParam(value = "id") Integer id,
+			@RequestParam(value = "content") String content, HttpServletRequest request, HttpServletResponse response) {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo != null)
 			if (adminUserLoginInfo == null || !"WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
@@ -1362,27 +1371,27 @@ public class ServiceOrderController extends BaseController {
 
 	@RequestMapping(value = "/down", method = RequestMethod.GET)
 	@ResponseBody
-	public void  down(@RequestParam(value = "id", required = false) Integer id,
-					  @RequestParam(value = "type", required = false) String type,
-					  @RequestParam(value = "state", required = false) String state,
-					  @RequestParam(value = "auditingState", required = false) String auditingState,
-					  @RequestParam(value = "reviewState", required = false) String reviewState,
-					  @RequestParam(value = "startMaraApprovalDate", required = false) String startMaraApprovalDate,
-					  @RequestParam(value = "endMaraApprovalDate", required = false) String endMaraApprovalDate,
-					  @RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
-					  @RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
-					  @RequestParam(value = "startReadcommittedDate", required = false) String startReadcommittedDate,
-					  @RequestParam(value = "endReadcommittedDate", required = false) String endReadcommittedDate,
-					  @RequestParam(value = "regionId", required = false) Integer regionId,
-					  @RequestParam(value = "userId", required = false) Integer userId,
-					  @RequestParam(value = "maraId", required = false) Integer maraId,
-					  @RequestParam(value = "adviserId", required = false) Integer adviserId,
-					  @RequestParam(value = "officialId", required = false) Integer officialId,
-					  @RequestParam(value = "officialTagId", required = false) Integer officialTagId,
-					  @RequestParam(value = "isNotApproved", required = false) Boolean isNotApproved,
-					  @RequestParam(value = "serviceId", required = false) Integer serviceId,
-					  @RequestParam(value = "schoolId", required = false) Integer schoolId,
-					  HttpServletRequest request, HttpServletResponse response){
+	public void down(@RequestParam(value = "id", required = false) Integer id,
+			@RequestParam(value = "type", required = false) String type,
+			@RequestParam(value = "state", required = false) String state,
+			@RequestParam(value = "auditingState", required = false) String auditingState,
+			@RequestParam(value = "reviewState", required = false) String reviewState,
+			@RequestParam(value = "startMaraApprovalDate", required = false) String startMaraApprovalDate,
+			@RequestParam(value = "endMaraApprovalDate", required = false) String endMaraApprovalDate,
+			@RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
+			@RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
+			@RequestParam(value = "startReadcommittedDate", required = false) String startReadcommittedDate,
+			@RequestParam(value = "endReadcommittedDate", required = false) String endReadcommittedDate,
+			@RequestParam(value = "regionId", required = false) Integer regionId,
+			@RequestParam(value = "userId", required = false) Integer userId,
+			@RequestParam(value = "maraId", required = false) Integer maraId,
+			@RequestParam(value = "adviserId", required = false) Integer adviserId,
+			@RequestParam(value = "officialId", required = false) Integer officialId,
+			@RequestParam(value = "officialTagId", required = false) Integer officialTagId,
+			@RequestParam(value = "isNotApproved", required = false) Boolean isNotApproved,
+			@RequestParam(value = "serviceId", required = false) Integer serviceId,
+			@RequestParam(value = "schoolId", required = false) Integer schoolId, HttpServletRequest request,
+			HttpServletResponse response) {
 
 		String excludeState = null;
 		List<String> stateList = null;
@@ -1434,26 +1443,23 @@ public class ServiceOrderController extends BaseController {
 				if (serviceOrder != null)
 					serviceOrderList.add(serviceOrder);
 			}
-			if (id == null){
-				serviceOrderList= serviceOrderService.listServiceOrder(type, excludeState, stateList,
-						auditingState, reviewStateList, startMaraApprovalDate, endMaraApprovalDate,
-						startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId, maraId, adviserId,
-						officialId, officialTagId, 0, isNotApproved != null ? isNotApproved : false, 0, 9999, serviceId, schoolId);
+			if (id == null) {
+				serviceOrderList = serviceOrderService.listServiceOrder(type, excludeState, stateList, auditingState,
+						reviewStateList, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
+						endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId,
+						maraId, adviserId, officialId, officialTagId, 0, isNotApproved != null ? isNotApproved : false,
+						0, 9999, serviceId, schoolId);
 
 				if (newOfficialId != null)
 					for (ServiceOrderDTO so : serviceOrderList)
 						so.setOfficialNotes(serviceOrderService.listOfficialRemarks(so.getId(), newOfficialId)); // 写入note
 			}
 
-
-
-
 			response.reset();// 清空输出流
 			String tableName = "ServiceOrderInformation";
 			response.setHeader("Content-disposition",
 					"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
 			response.setContentType("application/msexcel");
-
 
 			OutputStream os = response.getOutputStream();
 			jxl.Workbook wb;
@@ -1480,54 +1486,57 @@ public class ServiceOrderController extends BaseController {
 			WritableSheet sheet = wbe.getSheet(0);
 			WritableCellFormat cellFormat = new WritableCellFormat();
 			int i = 1;
-			for (ServiceOrderDTO so : serviceOrderList){
+			for (ServiceOrderDTO so : serviceOrderList) {
 				sheet.addCell(new Label(0, i, so.getId() + "", cellFormat));
-				if (so.getGmtCreate() != null )
+				if (so.getGmtCreate() != null)
 					sheet.addCell(new Label(1, i, sdf.format(so.getGmtCreate()), cellFormat));
-				if (so.getOfficialApprovalDate()!= null)
-					sheet.addCell(new Label(2, i, sdf.format(so.getOfficialApprovalDate() ), cellFormat));
-				if (so.getFinishDate()!=null)
+				if (so.getOfficialApprovalDate() != null)
+					sheet.addCell(new Label(2, i, sdf.format(so.getOfficialApprovalDate()), cellFormat));
+				if (so.getFinishDate() != null)
 					sheet.addCell(new Label(3, i, sdf.format(so.getFinishDate()), cellFormat));
 				sheet.addCell(new Label(4, i, so.getUserId() + "", cellFormat));
-				if (so.getUser()!=null){
+				if (so.getUser() != null) {
 					sheet.addCell(new Label(5, i, so.getUser().getName() + "", cellFormat));
-					sheet.addCell(new Label(6, i, sdf.format(so.getUser().getBirthday() ), cellFormat));
+					sheet.addCell(new Label(6, i, sdf.format(so.getUser().getBirthday()), cellFormat));
 					sheet.addCell(new Label(7, i, so.getUser().getPhone(), cellFormat));
 				}
 				if (so.getAdviser() != null)
 					sheet.addCell(new Label(8, i, so.getAdviser().getName(), cellFormat));
 				if (so.getMara() != null)
-					sheet.addCell(new Label(9, i, so.getMara().getName() , cellFormat));
+					sheet.addCell(new Label(9, i, so.getMara().getName(), cellFormat));
 				if (so.getOfficial() != null)
 					sheet.addCell(new Label(10, i, so.getOfficial().getName(), cellFormat));
 
-				if (so.getService() != null){
-					sheet.addCell(new Label(11, i,  so.getService().getName() , cellFormat));
+				if (so.getService() != null) {
+					sheet.addCell(new Label(11, i, so.getService().getName(), cellFormat));
 					sheet.addCell(new Label(12, i, so.getService().getCode(), cellFormat));
 					if (so.getServiceAssessDO() != null)
-						sheet.addCell(new Label(12, i, so.getService().getCode() +" - "+ so.getServiceAssessDO().getName(), cellFormat));
+						sheet.addCell(new Label(12, i,
+								so.getService().getCode() + " - " + so.getServiceAssessDO().getName(), cellFormat));
 				}
-				if (so.getSchool() != null){
+				if (so.getSchool() != null) {
 					sheet.addCell(new Label(11, i, " 留学 ", cellFormat));
 					sheet.addCell(new Label(12, i, so.getSchool().getName(), cellFormat));
 				}
 
-				if ( so.getReview() != null ){
+				if (so.getReview() != null) {
 					if (so.getState().equalsIgnoreCase("PENDING"))
-						sheet.addCell(new Label(13, i,"待提交审核", cellFormat));
+						sheet.addCell(new Label(13, i, "待提交审核", cellFormat));
 					else {
 						if (so.getReview().getType().equalsIgnoreCase("APPROVAL")) {
 							if (StringUtil.isEmpty(so.getReview().getOfficialState()))
 								sheet.addCell(new Label(13, i, "资料待审核", cellFormat));
 							if (StringUtil.isNotEmpty(so.getReview().getOfficialState())) {
-								if (so.getReview().getOfficialState().equalsIgnoreCase("REVIEW")){
+								if (so.getReview().getOfficialState().equalsIgnoreCase("REVIEW")) {
 									sheet.addCell(new Label(13, i, "资料审核中", cellFormat));
-									if (StringUtil.isNotBlank(so.getReview().getMaraState()) && so.getReview().getMaraState().equalsIgnoreCase("FINISH"))
+									if (StringUtil.isNotBlank(so.getReview().getMaraState())
+											&& so.getReview().getMaraState().equalsIgnoreCase("FINISH"))
 										sheet.addCell(new Label(13, i, "资料审核完成", cellFormat));
 								}
 
-								if (so.getReview().getOfficialState().equalsIgnoreCase("WAIT")){
-									if (StringUtil.isNotBlank(so.getReview().getMaraState()) && so.getReview().getMaraState().equalsIgnoreCase("WAIT"))
+								if (so.getReview().getOfficialState().equalsIgnoreCase("WAIT")) {
+									if (StringUtil.isNotBlank(so.getReview().getMaraState())
+											&& so.getReview().getMaraState().equalsIgnoreCase("WAIT"))
 										sheet.addCell(new Label(13, i, "已提交Mara审核", cellFormat));
 								}
 								if (so.getReview().getOfficialState().equalsIgnoreCase("APPLY"))
@@ -1546,13 +1555,14 @@ public class ServiceOrderController extends BaseController {
 									sheet.addCell(new Label(13, i, "已关闭", cellFormat));
 							}
 						}
-						if (so.getReview().getType() .equalsIgnoreCase("REFUSE") & StringUtil.isNotBlank(so.getReview().getOfficialState()) ){
+						if (so.getReview().getType().equalsIgnoreCase("REFUSE")
+								& StringUtil.isNotBlank(so.getReview().getOfficialState())) {
 							if (so.getReview().getOfficialState().equalsIgnoreCase("PENDING"))
-								sheet.addCell(new Label(13, i,"待提交审核,文案已驳回", cellFormat));
+								sheet.addCell(new Label(13, i, "待提交审核,文案已驳回", cellFormat));
 							if (so.getReview().getOfficialState().equalsIgnoreCase("REVIEW"))
-								sheet.addCell(new Label(13, i,"资料审核中,已驳回", cellFormat));
+								sheet.addCell(new Label(13, i, "资料审核中,已驳回", cellFormat));
 							if (so.getReview().getOfficialState().equalsIgnoreCase("CLOSE"))
-								sheet.addCell(new Label(13, i,"已关闭", cellFormat));
+								sheet.addCell(new Label(13, i, "已关闭", cellFormat));
 						}
 					}
 
@@ -1570,27 +1580,23 @@ public class ServiceOrderController extends BaseController {
 		}
 	}
 
-
 	@RequestMapping(value = "/downExcel", method = RequestMethod.GET)
 	@ResponseBody
-	public void  downExcel(@RequestParam(value = "type", required = false) String type,
-						   @RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
-						   @RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
-						   HttpServletRequest request, HttpServletResponse response){
-
+	public void downExcel(@RequestParam(value = "type", required = false) String type,
+			@RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
+			@RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
+			HttpServletRequest request, HttpServletResponse response) {
 
 		try {
 			super.setGetHeader(response);
-			List<EachRegionNumberDTO> eachRegionNumberDTOS = serviceOrderService.listServiceOrderGroupByForRegion(type,startOfficialApprovalDate,endOfficialApprovalDate);
-
-
+			List<EachRegionNumberDTO> eachRegionNumberDTOS = serviceOrderService.listServiceOrderGroupByForRegion(type,
+					startOfficialApprovalDate, endOfficialApprovalDate);
 
 			response.reset();// 清空输出流
 			String tableName = "Information";
 			response.setHeader("Content-disposition",
 					"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
 			response.setContentType("application/msexcel");
-
 
 			OutputStream os = response.getOutputStream();
 			jxl.Workbook wb;
@@ -1617,22 +1623,22 @@ public class ServiceOrderController extends BaseController {
 			WritableSheet sheet = wbe.getSheet(0);
 			WritableCellFormat cellFormat = new WritableCellFormat();
 			int i = 0;
-			for (EachRegionNumberDTO eo : eachRegionNumberDTOS){
-				if ( i == 0 && type.equalsIgnoreCase("VISA")){
+			for (EachRegionNumberDTO eo : eachRegionNumberDTOS) {
+				if (i == 0 && type.equalsIgnoreCase("VISA")) {
 					sheet.addCell(new Label(1, i, "签证项目", cellFormat));
 					i++;
 				}
-				if ( i == 0 && type.equalsIgnoreCase("OVST")){
+				if (i == 0 && type.equalsIgnoreCase("OVST")) {
 					sheet.addCell(new Label(1, i, "留学学校", cellFormat));
 					i++;
 				}
-				sheet.addCell(new Label(0, i,  i + "", cellFormat));
+				sheet.addCell(new Label(0, i, i + "", cellFormat));
 				sheet.addCell(new Label(1, i, eo.getName(), cellFormat));
 				sheet.addCell(new Label(2, i, eo.getTotal() + "", cellFormat));
 				sheet.addCell(new Label(3, i, eo.getSydney() + "", cellFormat));
 				sheet.addCell(new Label(4, i, eo.getMelbourne() + "", cellFormat));
 				sheet.addCell(new Label(5, i, eo.getBrisbane() + "", cellFormat));
-				sheet.addCell(new Label(6, i, eo.getAdelaide()+"", cellFormat));
+				sheet.addCell(new Label(6, i, eo.getAdelaide() + "", cellFormat));
 				sheet.addCell(new Label(7, i, eo.getHobart() + "", cellFormat));
 				sheet.addCell(new Label(8, i, eo.getCanberra() + "", cellFormat));
 				sheet.addCell(new Label(9, i, eo.getSydney2() + "", cellFormat));
@@ -1646,5 +1652,37 @@ public class ServiceOrderController extends BaseController {
 			e.printStackTrace();
 			return;
 		}
+	}
+
+	
+	@RequestMapping(value = "/next_flow", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<ServiceOrderDTO> approval(@RequestParam(value = "id") int id,
+			@RequestParam(value = "state") String state,
+			@RequestParam(value = "subagencyId", required = false) String subagencyId,
+			@RequestParam(value = "closedReason", required = false) String closedReason,
+			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
+			HttpServletResponse response) {
+		if (id <= 0)
+			return new Response<ServiceOrderDTO>(1, "id不正确:" + id, null);
+		ServiceOrderDTO serviceOrderDto;
+		try {
+			serviceOrderDto = serviceOrderService.getServiceOrderById(id);
+			if (ObjectUtil.isNull(serviceOrderDto))
+				return new Response<ServiceOrderDTO>(1, "服务订单不存在:" + id, null);
+			Node currentNode = SONodeFactory.getNode(serviceOrderDto.getState());
+			Workflow workflow = new Workflow("Service Order Work Flow", currentNode,
+					new NodeFactory(SONodeFactory.nodeList));
+			Context context = new Context();
+			context.putParameter("serviceOrderId", id);
+			context.putParameter("state", state);
+			context.putParameter("subagencyId", subagencyId);
+			context.putParameter("closedReason", closedReason);
+			context.putParameter("remarks", remarks);
+			workflowStarter.process(workflow, context);
+		} catch (ServiceException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }
