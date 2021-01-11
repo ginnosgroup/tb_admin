@@ -1,6 +1,8 @@
 package org.zhinanzhen.b.controller.nodes;
 
 import org.springframework.stereotype.Component;
+import org.zhinanzhen.b.controller.SONode;
+import org.zhinanzhen.b.controller.SONodeFactory;
 
 import com.ikasoa.web.workflow.Context;
 import com.ikasoa.web.workflow.Node;

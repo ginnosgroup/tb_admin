@@ -1,4 +1,4 @@
-package org.zhinanzhen.b.controller.nodes;
+package org.zhinanzhen.b.controller;
 
 import java.util.Map;
 

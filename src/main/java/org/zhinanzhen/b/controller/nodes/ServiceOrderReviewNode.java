@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.controller.nodes;
 
 import org.springframework.stereotype.Component;
+import org.zhinanzhen.b.controller.SODecisionNode;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -22,7 +23,6 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 	protected String decide(Context context) {
 		isSingleStep = true;
 		try {
-System.out.println("serviceOrderService=" + serviceOrderService);
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(getServiceOrderId(context));
 			if (serviceOrderDto == null) {
 				context.putParameter("response",
