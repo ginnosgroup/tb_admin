@@ -5,7 +5,6 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.tb.controller.Response;
@@ -16,7 +15,7 @@ import com.ikasoa.web.workflow.nodes.AbstractDecisionNode;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Controller
+@Component
 @Slf4j
 public abstract class SODecisionNode extends AbstractDecisionNode {
 
