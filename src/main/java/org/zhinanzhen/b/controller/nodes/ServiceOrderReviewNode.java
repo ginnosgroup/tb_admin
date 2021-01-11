@@ -22,6 +22,7 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 	protected String decide(Context context) {
 		isSingleStep = true;
 		try {
+System.out.println("serviceOrderService=" + serviceOrderService);
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(getServiceOrderId(context));
 			if (serviceOrderDto == null) {
 				context.putParameter("response",

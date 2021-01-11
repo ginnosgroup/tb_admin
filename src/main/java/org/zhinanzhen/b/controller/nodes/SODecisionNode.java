@@ -10,7 +10,6 @@ import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 
-import com.ikasoa.core.utils.StringUtil;
 import com.ikasoa.web.workflow.Context;
 import com.ikasoa.web.workflow.nodes.AbstractDecisionNode;
 
