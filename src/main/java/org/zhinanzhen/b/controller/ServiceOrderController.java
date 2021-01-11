@@ -1662,9 +1662,9 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "closedReason", required = false) String closedReason,
 			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
 			HttpServletResponse response) {
-		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-		if (adminUserLoginInfo == null)
-			return new Response<ServiceOrderDTO>(1, "请先登录.", null);
+//		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+//		if (adminUserLoginInfo == null)
+//			return new Response<ServiceOrderDTO>(1, "请先登录.", null);
 		if (id <= 0)
 			return new Response<ServiceOrderDTO>(1, "id不正确:" + id, null);
 		ServiceOrderDTO serviceOrderDto;
@@ -1681,8 +1681,8 @@ public class ServiceOrderController extends BaseController {
 			context.putParameter("subagencyId", subagencyId);
 			context.putParameter("closedReason", closedReason);
 			context.putParameter("remarks", remarks);
-			context.putParameter("ap", adminUserLoginInfo.getApList());
-			context.putParameter("adminUserId", adminUserLoginInfo.getId());
+//			context.putParameter("ap", adminUserLoginInfo.getApList());
+//			context.putParameter("adminUserId", adminUserLoginInfo.getId());
 			context = workflowStarter.process(workflow, context);
 			return context.getParameter("response") != null ? (Response<ServiceOrderDTO>) context.getParameter("response") : new Response<ServiceOrderDTO>(1, "异常" + id, null);
 		} catch (ServiceException e) {
