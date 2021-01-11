@@ -76,8 +76,7 @@ public abstract class SODecisionNode extends AbstractDecisionNode {
 			log.error("serviceOrderId不存在!");
 			return 0;
 		}
-		log.info("serviceOrderId=" + parameters.get("serviceOrderId"));
-		return StringUtil.toInt((String) parameters.get("serviceOrderId"));
+		return (Integer) parameters.get("serviceOrderId");
 	}
 
 	protected String getState(Context context, String... stateList) {
