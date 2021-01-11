@@ -3,7 +3,6 @@ package org.zhinanzhen.b.controller.nodes;
 import java.util.Map;
 
 import org.springframework.stereotype.Component;
-import org.zhinanzhen.b.controller.SODecisionNode;
 
 import com.ikasoa.web.workflow.Context;
 

@@ -1,14 +1,6 @@
-package org.zhinanzhen.b.controller;
+package org.zhinanzhen.b.controller.nodes;
 
 import java.util.List;
-
-import org.zhinanzhen.b.controller.nodes.ServiceOrderCloseNode;
-import org.zhinanzhen.b.controller.nodes.ServiceOrderCompleteNode;
-import org.zhinanzhen.b.controller.nodes.ServiceOrderFinishNode;
-import org.zhinanzhen.b.controller.nodes.ServiceOrderPaidNode;
-import org.zhinanzhen.b.controller.nodes.ServiceOrderPendingNode;
-import org.zhinanzhen.b.controller.nodes.ServiceOrderReviewNode;
-import org.zhinanzhen.b.controller.nodes.ServiceOrderWaitNode;
 
 import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.web.workflow.Node;
