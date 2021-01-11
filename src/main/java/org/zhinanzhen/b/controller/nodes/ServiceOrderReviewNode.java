@@ -28,11 +28,11 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 						new Response<ServiceOrderDTO>(1, "服务订单不存在:" + getServiceOrderId(context), null));
 				return SUSPEND_NODE;
 			}
-			if (serviceOrderDto.getParentId() == 0 && ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
-					|| "MT".equalsIgnoreCase(serviceOrderDto.getType()))) {
-				context.putParameter("response", new Response<ServiceOrderDTO>(1, "该订单不支持审核.", serviceOrderDto));
-				return SUSPEND_NODE;
-			}
+//			if (serviceOrderDto.getParentId() == 0 && ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
+//					|| "MT".equalsIgnoreCase(serviceOrderDto.getType()))) {
+//				context.putParameter("response", new Response<ServiceOrderDTO>(1, "该订单不支持审核.", serviceOrderDto));
+//				return SUSPEND_NODE;
+//			}
 		} catch (ServiceException e) {
 			context.putParameter("response", new Response<ServiceOrderDTO>(1, "服务订单执行异常:" + e.getMessage(), null));
 			return SUSPEND_NODE;
