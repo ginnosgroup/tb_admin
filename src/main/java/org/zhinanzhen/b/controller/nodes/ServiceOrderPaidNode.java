@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.controller.nodes;
 
 import org.springframework.stereotype.Component;
+import org.zhinanzhen.b.service.ServiceOrderService;
 
 import com.ikasoa.web.workflow.Context;
 
@@ -8,6 +9,10 @@ import com.ikasoa.web.workflow.Context;
 @Component
 public class ServiceOrderPaidNode extends SODecisionNode {
 
+	public ServiceOrderPaidNode(ServiceOrderService serviceOrderService) {
+		super.serviceOrderService = serviceOrderService;
+	}
+	
 	@Override
 	public String getName() {
 		return "PAID";

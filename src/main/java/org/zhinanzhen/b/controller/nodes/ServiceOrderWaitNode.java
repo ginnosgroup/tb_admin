@@ -3,6 +3,7 @@ package org.zhinanzhen.b.controller.nodes;
 import java.util.Map;
 
 import org.springframework.stereotype.Component;
+import org.zhinanzhen.b.service.ServiceOrderService;
 
 import com.ikasoa.web.workflow.Context;
 
@@ -11,6 +12,10 @@ import com.ikasoa.web.workflow.Context;
 public class ServiceOrderWaitNode extends SODecisionNode {
 	
 	// 文案,mara
+	
+	public ServiceOrderWaitNode(ServiceOrderService serviceOrderService) {
+		super.serviceOrderService = serviceOrderService;
+	}
 
 	@Override
 	public String getName() {

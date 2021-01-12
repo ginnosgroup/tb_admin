@@ -21,11 +21,11 @@ public class SONodeFactory implements NodeFactory {
 	public List<Node> nodeList = ListUtil.buildArrayList(
 			new ServiceOrderPendingNode(serviceOrderService),
 			new ServiceOrderReviewNode(serviceOrderService), 
-			new ServiceOrderWaitNode(),
-			new ServiceOrderCloseNode(),
-			new ServiceOrderFinishNode(),
-			new ServiceOrderCompleteNode(),
-			new ServiceOrderPaidNode(),
+			new ServiceOrderWaitNode(serviceOrderService),
+			new ServiceOrderCloseNode(serviceOrderService),
+			new ServiceOrderFinishNode(serviceOrderService),
+			new ServiceOrderCompleteNode(serviceOrderService),
+			new ServiceOrderPaidNode(serviceOrderService),
 			new SuspendNode());
 
 	public Node getNode(String name) {
