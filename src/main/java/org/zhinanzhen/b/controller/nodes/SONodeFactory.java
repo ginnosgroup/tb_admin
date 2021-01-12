@@ -10,10 +10,13 @@ import com.ikasoa.web.workflow.nodes.SuspendNode;
 public class SONodeFactory {
 	
 	@Resource
+	private static ServiceOrderPendingNode serviceOrderPendingNode;
+	
+	@Resource
 	private static ServiceOrderReviewNode serviceOrderReviewNode;
 
 	public static NodeFactory nodeFactory = new NodeFactory(ListUtil.buildArrayList(
-			new ServiceOrderPendingNode(),
+			serviceOrderPendingNode,
 			serviceOrderReviewNode, 
 			new ServiceOrderWaitNode(),
 			new ServiceOrderCloseNode(),
