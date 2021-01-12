@@ -85,7 +85,8 @@ public abstract class SODecisionNode extends AbstractDecisionNode {
 			if (state != null)
 				return state;
 			else {
-				context.putParameter("response", new Response<ServiceOrderDTO>(1, "无效的状态参数:" + state, null));
+				context.putParameter("response",
+						new Response<ServiceOrderDTO>(1, "无效的状态参数:" + parameters.get("state"), null));
 				return null;
 			}
 		} else {
@@ -99,6 +100,7 @@ public abstract class SODecisionNode extends AbstractDecisionNode {
 			if (s.equals(state))
 				return state;
 		}
+		log.warn("状态未注册:" + state);
 		return null;
 	}
 
