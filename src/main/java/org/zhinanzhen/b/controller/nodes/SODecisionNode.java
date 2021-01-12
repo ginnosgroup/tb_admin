@@ -4,7 +4,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
@@ -14,16 +13,18 @@ import org.zhinanzhen.tb.service.ServiceException;
 import com.ikasoa.web.workflow.Context;
 import com.ikasoa.web.workflow.nodes.AbstractDecisionNode;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
+@Getter
 @Slf4j
 public abstract class SODecisionNode extends AbstractDecisionNode {
 
 	protected final static String SUSPEND_NODE = "SuspendNode";
 
-	@Autowired
-	ServiceOrderService serviceOrderService;
+	@Resource
+	private ServiceOrderService serviceOrderService;
 
 	@Override
 	protected boolean saveNode(Context context) {
