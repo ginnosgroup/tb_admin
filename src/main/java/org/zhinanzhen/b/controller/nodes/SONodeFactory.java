@@ -32,6 +32,8 @@ public class SONodeFactory implements NodeFactory {
 
 	public Node getNode(String name) {
 		for (Node node : nodeList) {
+System.out.println("----------name:"+name);
+System.out.println("----------node.getName():"+node.getName());
 			if (name.equals(node.getName()))
 				return node;
 		}
