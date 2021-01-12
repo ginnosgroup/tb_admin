@@ -1,7 +1,5 @@
 package org.zhinanzhen.b.controller.nodes;
 
-import java.util.List;
-
 import javax.annotation.Resource;
 
 import com.ikasoa.core.utils.ListUtil;
@@ -13,9 +11,8 @@ public class SONodeFactory {
 	
 	@Resource
 	private static ServiceOrderReviewNode serviceOrderReviewNode;
-	
-	
-	public static List<Node> nodeList = ListUtil.buildArrayList(
+
+	public static NodeFactory nodeFactory = new NodeFactory(ListUtil.buildArrayList(
 			new ServiceOrderPendingNode(),
 			serviceOrderReviewNode, 
 			new ServiceOrderWaitNode(),
@@ -23,9 +20,7 @@ public class SONodeFactory {
 			new ServiceOrderFinishNode(),
 			new ServiceOrderCompleteNode(),
 			new ServiceOrderPaidNode(),
-			new SuspendNode());
-
-	private static NodeFactory nodeFactory = new NodeFactory(nodeList);
+			new SuspendNode()));
 
 	public static Node getNode(String name) {
 		return nodeFactory.getNode(name);

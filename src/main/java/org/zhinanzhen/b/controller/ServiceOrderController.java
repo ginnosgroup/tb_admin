@@ -1673,8 +1673,7 @@ public class ServiceOrderController extends BaseController {
 			if (ObjectUtil.isNull(serviceOrderDto))
 				return new Response<ServiceOrderDTO>(1, "服务订单不存在:" + id, null);
 			Node currentNode = SONodeFactory.getNode(serviceOrderDto.getState());
-			Workflow workflow = new Workflow("Service Order Work Flow", currentNode,
-					new NodeFactory(SONodeFactory.nodeList));
+			Workflow workflow = new Workflow("Service Order Work Flow", currentNode, SONodeFactory.nodeFactory);
 			Context context = new Context();
 			context.putParameter("serviceOrderId", id);
 			context.putParameter("state", state);
