@@ -3,6 +3,7 @@ package org.zhinanzhen.b.controller.nodes;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.tb.controller.Response;
@@ -11,7 +12,7 @@ import org.zhinanzhen.tb.service.ServiceException;
 import com.ikasoa.web.workflow.Context;
 
 // 文案审核
-@Component
+@Controller
 public class ServiceOrderReviewNode extends SODecisionNode {
 	
 	@Resource
