@@ -119,8 +119,10 @@ public class VerifyController {
                       HttpServletRequest request, HttpServletResponse response){
 
         try {
-            bankDateStart = sdfbankDateout.format(sdfbankDatein.parse(bankDateStart));
-            bankDateEnd = sdfbankDateout.format(sdfbankDatein.parse(bankDateEnd));
+            if (StringUtil.isNotEmpty(bankDateStart))
+                bankDateStart = sdfbankDateout.format(sdfbankDatein.parse(bankDateStart));
+            if (StringUtil.isNotEmpty(bankDateEnd))
+                bankDateEnd = sdfbankDateout.format(sdfbankDatein.parse(bankDateEnd));
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -194,8 +196,10 @@ public class VerifyController {
     public  Response count(@RequestParam(value = "bankDateStart",required = false) String bankDateStart,
                            @RequestParam(value = "bankDateEnd",required = false)String bankDateEnd){
         try {
-            bankDateStart = sdfbankDateout.format(sdfbankDatein.parse(bankDateStart));
-            bankDateEnd = sdfbankDateout.format(sdfbankDatein.parse(bankDateEnd));
+            if (StringUtil.isNotEmpty(bankDateStart))
+                bankDateStart = sdfbankDateout.format(sdfbankDatein.parse(bankDateStart));
+            if (StringUtil.isNotEmpty(bankDateEnd))
+                bankDateEnd = sdfbankDateout.format(sdfbankDatein.parse(bankDateEnd));
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -210,8 +214,10 @@ public class VerifyController {
                           @RequestParam(value = "pageSize",required = true)Integer pageSize,
                           @RequestParam(value = "pageNum",required = true)Integer pageNumber){
         try {
-            bankDateStart = sdfbankDateout.format(sdfbankDatein.parse(bankDateStart));
-            bankDateEnd = sdfbankDateout.format(sdfbankDatein.parse(bankDateEnd));
+            if (StringUtil.isNotEmpty(bankDateStart))
+                bankDateStart = sdfbankDateout.format(sdfbankDatein.parse(bankDateStart));
+            if (StringUtil.isNotEmpty(bankDateEnd))
+                bankDateEnd = sdfbankDateout.format(sdfbankDatein.parse(bankDateEnd));
         } catch (ParseException e) {
             e.printStackTrace();
         }
