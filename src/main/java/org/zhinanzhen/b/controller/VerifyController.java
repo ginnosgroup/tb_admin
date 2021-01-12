@@ -1,6 +1,11 @@
 package org.zhinanzhen.b.controller;
 
 import com.ikasoa.core.utils.StringUtil;
+import jxl.Workbook;
+import jxl.WorkbookSettings;
+import jxl.write.Label;
+import jxl.write.WritableCellFormat;
+import jxl.write.WritableSheet;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -18,8 +23,12 @@ import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 
 import javax.annotation.Resource;
-import java.io.IOException;
-import java.util.ArrayList;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.List;
 
@@ -49,6 +58,10 @@ public class VerifyController {
 
     @Resource
     ServiceOrderService serviceOrderService;
+
+    private  SimpleDateFormat  sdfbankDatein = new SimpleDateFormat("dd/MM/yyyy");
+
+    private  SimpleDateFormat  sdfbankDateout = new SimpleDateFormat("yyyy-MM-dd");
 
     @RequestMapping(value = "/uploadexcel",method = RequestMethod.POST)
     @ResponseBody
@@ -99,10 +112,93 @@ public class VerifyController {
 
     }
 
+    @GetMapping(value = "/down")
+    @ResponseBody
+    public  void down(@RequestParam(value = "bankDateStart",required = false) String bankDateStart,
+                      @RequestParam(value = "bankDateEnd",required = false)String bankDateEnd,
+                      HttpServletRequest request, HttpServletResponse response){
+
+        try {
+            bankDateStart = sdfbankDateout.format(sdfbankDatein.parse(bankDateStart));
+            bankDateEnd = sdfbankDateout.format(sdfbankDatein.parse(bankDateEnd));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        List<FinanceCodeDTO> financeCodeDTOS = verifyService.list(bankDateStart,bankDateEnd+" 23:59:59",9999,0);
+
+        try {
+            response.reset();// 清空输出流
+            String tableName = "bankstatement";
+            response.setHeader("Content-disposition",
+                    "attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
+            response.setContentType("application/msexcel");
+
+            OutputStream os = response.getOutputStream();
+            jxl.Workbook wb;
+            InputStream is;
+            try {
+                is = this.getClass().getResourceAsStream("/bankstatement.xls");
+            } catch (Exception e) {
+                throw new Exception("模版不存在");
+            }
+            try {
+                wb = Workbook.getWorkbook(is);
+            } catch (Exception e) {
+                throw new Exception("模版格式不支持");
+            }
+            WorkbookSettings settings = new WorkbookSettings();
+            settings.setWriteAccess(null);
+            jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
+
+            if (wbe == null) {
+                System.out.println("wbe is null !os=" + os + ",wb" + wb);
+            } else {
+                System.out.println("wbe not null !os=" + os + ",wb" + wb);
+            }
+            WritableSheet sheet = wbe.getSheet(0);
+            WritableCellFormat cellFormat = new WritableCellFormat();
+            int i = 1;
+            for (FinanceCodeDTO financeCodeDTO:financeCodeDTOS){
+                sheet.addCell(new Label(0, i, financeCodeDTO.getId() + "", cellFormat));
+                if (financeCodeDTO.getBankDate()!=null)
+                    sheet.addCell(new Label(1, i, sdfbankDatein.format(financeCodeDTO.getBankDate()), cellFormat));
+                if (financeCodeDTO.getUser()!=null)
+                    sheet.addCell(new Label(2, i, financeCodeDTO.getUser().getName(), cellFormat));
+                if (financeCodeDTO.isIncome())
+                    sheet.addCell(new Label(3, i, "收入", cellFormat)) ;
+                else
+                    sheet.addCell(new Label(3, i, "支出", cellFormat));
+                sheet.addCell(new Label(4, i, financeCodeDTO.getMoney() + "", cellFormat));
+                sheet.addCell(new Label(5, i, financeCodeDTO.getBalance() + "", cellFormat));
+                if (financeCodeDTO.getAdviser()!=null)
+                    sheet.addCell(new Label(6, i, financeCodeDTO.getAdviser().getName() + "", cellFormat));
+                if (financeCodeDTO.getBusiness()!=null)
+                    sheet.addCell(new Label(7, i, financeCodeDTO.getBusiness() + "", cellFormat));
+                if (financeCodeDTO.getOrderId() !=null)
+                    sheet.addCell(new Label(8, i, financeCodeDTO.getOrderId() + "", cellFormat));
+                if (financeCodeDTO.getComment() !=null)
+                    sheet.addCell(new Label(9, i, financeCodeDTO.getComment() + "", cellFormat));
+                i++;
+            }
+
+            wbe.write();
+            wbe.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
     @GetMapping(value = "/count")
     @ResponseBody
     public  Response count(@RequestParam(value = "bankDateStart",required = false) String bankDateStart,
                            @RequestParam(value = "bankDateEnd",required = false)String bankDateEnd){
+        try {
+            bankDateStart = sdfbankDateout.format(sdfbankDatein.parse(bankDateStart));
+            bankDateEnd = sdfbankDateout.format(sdfbankDatein.parse(bankDateEnd));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
         return  new Response(0,verifyService.count(bankDateStart,bankDateEnd+" 23:59:59"));
     }
 
@@ -113,6 +209,12 @@ public class VerifyController {
                           @RequestParam(value = "bankDateEnd",required = false)String bankDateEnd,
                           @RequestParam(value = "pageSize",required = true)Integer pageSize,
                           @RequestParam(value = "pageNum",required = true)Integer pageNumber){
+        try {
+            bankDateStart = sdfbankDateout.format(sdfbankDatein.parse(bankDateStart));
+            bankDateEnd = sdfbankDateout.format(sdfbankDatein.parse(bankDateEnd));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
         return  new Response(0,verifyService.list(bankDateStart,bankDateEnd+" 23:59:59",pageSize,pageNumber));
     }
 
