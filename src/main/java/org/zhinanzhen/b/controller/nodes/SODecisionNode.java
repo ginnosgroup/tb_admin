@@ -85,8 +85,8 @@ public abstract class SODecisionNode extends AbstractDecisionNode {
 			if (state != null)
 				return state;
 			else {
-				context.putParameter("response",
-						new Response<ServiceOrderDTO>(1, "无效的状态参数:" + parameters.get("state"), null));
+				context.putParameter("response", new Response<ServiceOrderDTO>(1,
+						"无效的状态参数!(可选状态为:" + stateList + ",但状态参数为:" + parameters.get("state"), null));
 				return null;
 			}
 		} else {
