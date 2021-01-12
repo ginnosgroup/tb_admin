@@ -10,6 +10,7 @@ import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 
+import com.ikasoa.core.utils.StringUtil;
 import com.ikasoa.web.workflow.Context;
 import com.ikasoa.web.workflow.nodes.AbstractDecisionNode;
 
@@ -85,8 +86,11 @@ public abstract class SODecisionNode extends AbstractDecisionNode {
 			if (state != null)
 				return state;
 			else {
+				String states = "";
+				for (String s : stateList)
+					states += StringUtil.merge(s, "/");
 				context.putParameter("response", new Response<ServiceOrderDTO>(1,
-						"无效的状态参数!(可选状态为:" + stateList + ",但状态参数为:" + parameters.get("state"), null));
+						StringUtil.merge("无效的状态参数!(可选状态为:" + states + ",但状态参数为:" + parameters.get("state")), null));
 				return null;
 			}
 		} else {
