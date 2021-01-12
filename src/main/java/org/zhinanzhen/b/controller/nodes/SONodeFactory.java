@@ -1,21 +1,26 @@
 package org.zhinanzhen.b.controller.nodes;
 
+import java.util.List;
+
 import javax.annotation.Resource;
+
+import org.springframework.stereotype.Component;
 
 import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.web.workflow.Node;
 import com.ikasoa.web.workflow.NodeFactory;
 import com.ikasoa.web.workflow.nodes.SuspendNode;
 
-public class SONodeFactory {
+@Component
+public class SONodeFactory implements NodeFactory {
 	
 	@Resource
-	private static ServiceOrderPendingNode serviceOrderPendingNode;
+	private ServiceOrderPendingNode serviceOrderPendingNode;
 	
 	@Resource
-	private static ServiceOrderReviewNode serviceOrderReviewNode;
+	private ServiceOrderReviewNode serviceOrderReviewNode;
 
-	public static NodeFactory nodeFactory = new NodeFactory(ListUtil.buildArrayList(
+	public List<Node> nodeList = ListUtil.buildArrayList(
 			serviceOrderPendingNode,
 			serviceOrderReviewNode, 
 			new ServiceOrderWaitNode(),
@@ -23,10 +28,14 @@ public class SONodeFactory {
 			new ServiceOrderFinishNode(),
 			new ServiceOrderCompleteNode(),
 			new ServiceOrderPaidNode(),
-			new SuspendNode()));
+			new SuspendNode());
 
-	public static Node getNode(String name) {
-		return nodeFactory.getNode(name);
+	public Node getNode(String name) {
+		for (Node node : nodeList) {
+			if (name.equals(node.getName()))
+				return node;
+		}
+		return null;
 	}
 
 }

@@ -22,7 +22,7 @@ public class ServiceOrderCloseNode extends SONode {
 	}
 
 	@Override
-	public Node getNextNode() {
+	public Node getNextNode(Context context) {
 		return new SuspendNode();
 	}
 

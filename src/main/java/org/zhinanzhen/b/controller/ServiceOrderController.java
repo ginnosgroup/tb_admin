@@ -83,6 +83,9 @@ public class ServiceOrderController extends BaseController {
 
 	@Resource
 	ServiceOrderReadcommittedDateService serviceOrderReadcommittedDateService;
+	
+	@Resource
+	SONodeFactory soNodeFactory;
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -1672,8 +1675,8 @@ public class ServiceOrderController extends BaseController {
 			serviceOrderDto = serviceOrderService.getServiceOrderById(id);
 			if (ObjectUtil.isNull(serviceOrderDto))
 				return new Response<ServiceOrderDTO>(1, "服务订单不存在:" + id, null);
-			Node currentNode = SONodeFactory.getNode(serviceOrderDto.getState());
-			Workflow workflow = new Workflow("Service Order Work Flow", currentNode, SONodeFactory.nodeFactory);
+			Node currentNode = soNodeFactory.getNode(serviceOrderDto.getState());
+			Workflow workflow = new Workflow("Service Order Work Flow", currentNode, soNodeFactory);
 			Context context = new Context();
 			context.putParameter("serviceOrderId", id);
 			context.putParameter("state", state);
