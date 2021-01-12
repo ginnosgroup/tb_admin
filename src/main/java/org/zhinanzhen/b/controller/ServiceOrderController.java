@@ -31,13 +31,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.controller.nodes.SONodeFactory;
-import org.zhinanzhen.b.controller.nodes.ServiceOrderCloseNode;
-import org.zhinanzhen.b.controller.nodes.ServiceOrderCompleteNode;
-import org.zhinanzhen.b.controller.nodes.ServiceOrderFinishNode;
-import org.zhinanzhen.b.controller.nodes.ServiceOrderPaidNode;
-import org.zhinanzhen.b.controller.nodes.ServiceOrderPendingNode;
-import org.zhinanzhen.b.controller.nodes.ServiceOrderReviewNode;
-import org.zhinanzhen.b.controller.nodes.ServiceOrderWaitNode;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderReadcommittedDateDO;
 import org.zhinanzhen.b.service.*;
 import org.zhinanzhen.b.service.pojo.*;
@@ -60,7 +53,6 @@ import com.ikasoa.web.workflow.NodeFactory;
 import com.ikasoa.web.workflow.Workflow;
 import com.ikasoa.web.workflow.WorkflowStarter;
 import com.ikasoa.web.workflow.impl.WorkflowStarterImpl;
-import com.ikasoa.web.workflow.nodes.SuspendNode;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -91,39 +83,6 @@ public class ServiceOrderController extends BaseController {
 
 	@Resource
 	ServiceOrderReadcommittedDateService serviceOrderReadcommittedDateService;
-	
-	// wf
-	
-	@Resource
-	private ServiceOrderReviewNode serviceOrderReviewNode;
-	
-	@Resource
-	private ServiceOrderPendingNode serviceOrderPendingNode;
-	
-	@Resource
-	private ServiceOrderWaitNode serviceOrderWaitNode;
-	
-	@Resource
-	private ServiceOrderCloseNode serviceOrderCloseNode;
-	
-	@Resource
-	private ServiceOrderFinishNode serviceOrderFinishNode;
-	
-	@Resource
-	private ServiceOrderCompleteNode serviceOrderCompleteNode;
-	
-	@Resource
-	private ServiceOrderPaidNode serviceOrderPaidNode;
-	
-	private NodeFactory nodeFactory = new NodeFactory(ListUtil.buildArrayList(
-			serviceOrderPendingNode,
-			serviceOrderReviewNode, 
-			serviceOrderWaitNode,
-			serviceOrderCloseNode,
-			serviceOrderFinishNode,
-			serviceOrderCompleteNode,
-			serviceOrderPaidNode,
-			new SuspendNode()));
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
