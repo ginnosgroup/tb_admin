@@ -21,7 +21,7 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
 	@Override
 	protected String decide(Context context) {
 		try {
-			ServiceOrderDTO serviceOrderDto = getServiceOrderService().getServiceOrderById(getServiceOrderId(context));
+			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(getServiceOrderId(context));
 			String type = serviceOrderDto.getType();
 			if (!"OVST".equals(type))
 				return SUSPEND_NODE;

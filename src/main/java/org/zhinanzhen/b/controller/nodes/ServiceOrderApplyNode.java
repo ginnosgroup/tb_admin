@@ -23,7 +23,7 @@ public class ServiceOrderApplyNode extends SODecisionNode {
 		isSingleStep = true;
 		ServiceOrderDTO serviceOrderDto;
 		try {
-			serviceOrderDto = getServiceOrderService().getServiceOrderById(getServiceOrderId(context));
+			serviceOrderDto = serviceOrderService.getServiceOrderById(getServiceOrderId(context));
 			if (serviceOrderDto == null) {
 				context.putParameter("response",
 						new Response<ServiceOrderDTO>(1, "服务订单不存在:" + getServiceOrderId(context), null));

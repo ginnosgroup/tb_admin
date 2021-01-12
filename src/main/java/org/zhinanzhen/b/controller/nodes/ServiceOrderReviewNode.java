@@ -1,6 +1,9 @@
 package org.zhinanzhen.b.controller.nodes;
 
+import javax.annotation.Resource;
+
 import org.springframework.stereotype.Component;
+import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -10,6 +13,9 @@ import com.ikasoa.web.workflow.Context;
 // 文案审核
 @Component
 public class ServiceOrderReviewNode extends SODecisionNode {
+	
+	@Resource
+	private ServiceOrderService serviceOrderService;
 
 	// 顾问,文案
 
@@ -22,7 +28,7 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 	protected String decide(Context context) {
 		isSingleStep = true;
 		try {
-			ServiceOrderDTO serviceOrderDto = getServiceOrderService().getServiceOrderById(getServiceOrderId(context));
+			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(getServiceOrderId(context));
 			if (serviceOrderDto == null) {
 				context.putParameter("response",
 						new Response<ServiceOrderDTO>(1, "服务订单不存在:" + getServiceOrderId(context), null));

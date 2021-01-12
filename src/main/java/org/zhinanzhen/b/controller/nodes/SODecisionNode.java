@@ -13,18 +13,16 @@ import org.zhinanzhen.tb.service.ServiceException;
 import com.ikasoa.web.workflow.Context;
 import com.ikasoa.web.workflow.nodes.AbstractDecisionNode;
 
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
-@Getter
 @Slf4j
 public abstract class SODecisionNode extends AbstractDecisionNode {
 
 	protected final static String SUSPEND_NODE = "SuspendNode";
 
 	@Resource
-	private ServiceOrderService serviceOrderService;
+	protected ServiceOrderService serviceOrderService;
 
 	@Override
 	protected boolean saveNode(Context context) {
