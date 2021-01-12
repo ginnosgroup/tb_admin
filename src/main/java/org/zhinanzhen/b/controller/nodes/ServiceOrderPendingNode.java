@@ -4,12 +4,9 @@ import org.springframework.stereotype.Component;
 
 import com.ikasoa.web.workflow.Context;
 import com.ikasoa.web.workflow.Node;
-import com.ikasoa.web.workflow.NodeFactory;
 
 @Component
 public class ServiceOrderPendingNode extends SONode {
-	
-	private NodeFactory nodeFactory;
 
 	// 顾问
 
@@ -20,15 +17,12 @@ public class ServiceOrderPendingNode extends SONode {
 
 	@Override
 	public Node getNextNode() {
-		if(nodeFactory == null)
-			return null;
-		return nodeFactory.getNode("REVIEW");
+		return SONodeFactory.getNode("REVIEW");
 	}
 
 	@Override
 	public Context processNode(Context context) {
 		isSingleStep = true;
-		nodeFactory = context.getNodeFactory();
 		return context;
 	}
 
