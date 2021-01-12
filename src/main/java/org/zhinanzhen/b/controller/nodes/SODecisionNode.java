@@ -4,6 +4,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
@@ -21,7 +22,7 @@ public abstract class SODecisionNode extends AbstractDecisionNode {
 
 	protected final static String SUSPEND_NODE = "SuspendNode";
 
-	@Resource
+	@Autowired
 	ServiceOrderService serviceOrderService;
 
 	@Override
