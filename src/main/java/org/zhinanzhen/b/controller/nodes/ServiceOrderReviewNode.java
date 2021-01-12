@@ -15,6 +15,10 @@ import com.ikasoa.web.workflow.Context;
 public class ServiceOrderReviewNode extends SODecisionNode {
 
 	// 顾问,文案
+	
+	public ServiceOrderReviewNode(ServiceOrderService serviceOrderService) {
+		super.serviceOrderService = serviceOrderService;
+	}
 
 	@Override
 	public String getName() {

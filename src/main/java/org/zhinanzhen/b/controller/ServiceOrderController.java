@@ -49,7 +49,6 @@ import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import com.ikasoa.web.workflow.Context;
 import com.ikasoa.web.workflow.Node;
-import com.ikasoa.web.workflow.NodeFactory;
 import com.ikasoa.web.workflow.Workflow;
 import com.ikasoa.web.workflow.WorkflowStarter;
 import com.ikasoa.web.workflow.impl.WorkflowStarterImpl;
