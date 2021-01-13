@@ -279,6 +279,16 @@
 										已结佣订单
 									</a>									
 								</li>
+								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
+									<a href="accounting-bank.html">
+										转账信息配置
+									</a>									
+								</li>
+								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
+									<a href="accounting-bankbill.html">
+										银行对账单
+									</a>									
+								</li>
 								<li v-if="ap_list==='KJ'" class="active">
 									<a href="mycommission-check-accounting.html">
 										自动对账
