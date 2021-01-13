@@ -141,7 +141,8 @@ public class VerifyServiceImpl implements VerifyService {
                     financeCodeDO.setOrderId(orderId);
                 } else {
                     String comment = financeCodeDO.getComment();
-                    String verifyCode = comment.substring(comment.indexOf("$$") + 2, comment.lastIndexOf("$"));
+                    //得到 verifyCode 并且字符全部转换成大写
+                    String verifyCode = comment.substring(comment.indexOf("$$") + 2, comment.lastIndexOf("$")).toUpperCase();
                     List<VisaDO> visaDOS = visaDAO.listVisaByVerifyCode(verifyCode);
                     List<CommissionOrderDO> commissionOrderDOS = commissionOrderDAO.listCommissionOrderByVerifyCode(verifyCode);
                     if (visaDOS.size() > 1 | commissionOrderDOS.size() > 1)
@@ -289,6 +290,7 @@ public class VerifyServiceImpl implements VerifyService {
 
     @Override
     public FinanceBankCodeDTO getPaymentCode(Integer adviserId) {
+        boolean flag = true;
         FinanceBankCodeDTO financeBankCodeDTO = new FinanceBankCodeDTO();
         AdviserDO adviserDO = adviserDao.getAdviserById(adviserId);
         if (adviserDO!=null){
@@ -298,7 +300,15 @@ public class VerifyServiceImpl implements VerifyService {
                     FinanceBankDO financeBankDO = verifyDao.getFinanceBankById(regionDO.getFinanceBankId());
                     if (financeBankDO!=null)
                     financeBankCodeDTO=mapper.map(financeBankDO,FinanceBankCodeDTO.class);
-                    String code = "$$"+adviserDO.getName()+ regionDO.getName().substring(0,3)+ RandomStringUtils.randomAlphanumeric(5) +"$";
+                    String code = "JIAHENGSYDD4XUHQ";
+                    while (flag){
+                        code= adviserDO.getName()+ regionDO.getName().substring(0,3)+ RandomStringUtils.randomAlphanumeric(6);
+                        code = code.toUpperCase();
+                        if (commissionOrderDAO.listCommissionOrderByVerifyCode(code).size()==0 && visaDAO.listVisaByVerifyCode(code).size()==0){
+                            flag = false;
+                            code = "$$"+code +"$";
+                        }
+                    }
                     financeBankCodeDTO.setCode(code.replaceAll(" ",""));
                     financeBankCodeDTO.setRegionDO(regionDO);
                 }
