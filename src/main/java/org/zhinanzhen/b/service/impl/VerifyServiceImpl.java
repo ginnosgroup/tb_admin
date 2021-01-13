@@ -139,10 +139,10 @@ public class VerifyServiceImpl implements VerifyService {
                     //    financeCodeDO.setCommissionOrderId(Integer.parseInt(id.substring(2)));
                     //}
                     financeCodeDO.setOrderId(orderId);
-                } else {
+                }else if (financeCodeDO.getComment().contains("$$") & financeCodeDO.getComment().contains("#")){
                     String comment = financeCodeDO.getComment();
                     //得到 verifyCode 并且字符全部转换成大写
-                    String verifyCode = comment.substring(comment.indexOf("$$") + 2, comment.lastIndexOf("$")).toUpperCase();
+                    String verifyCode = comment.substring(comment.indexOf("$$") + 2, comment.lastIndexOf("#")).toUpperCase();
                     List<VisaDO> visaDOS = visaDAO.listVisaByVerifyCode(verifyCode);
                     List<CommissionOrderDO> commissionOrderDOS = commissionOrderDAO.listCommissionOrderByVerifyCode(verifyCode);
                     if (visaDOS.size() > 1 | commissionOrderDOS.size() > 1)
@@ -300,13 +300,13 @@ public class VerifyServiceImpl implements VerifyService {
                     FinanceBankDO financeBankDO = verifyDao.getFinanceBankById(regionDO.getFinanceBankId());
                     if (financeBankDO!=null)
                     financeBankCodeDTO=mapper.map(financeBankDO,FinanceBankCodeDTO.class);
-                    String code = "JIAHENGSYDD4XUHQ";
+                    String code = "";
                     while (flag){
                         code= adviserDO.getName()+ regionDO.getName().substring(0,3)+ RandomStringUtils.randomAlphanumeric(6);
                         code = code.toUpperCase();
                         if (commissionOrderDAO.listCommissionOrderByVerifyCode(code).size()==0 && visaDAO.listVisaByVerifyCode(code).size()==0){
                             flag = false;
-                            code = "$$"+code +"$";
+                            code = "$$"+code +"#";
                         }
                     }
                     financeBankCodeDTO.setCode(code.replaceAll(" ",""));
