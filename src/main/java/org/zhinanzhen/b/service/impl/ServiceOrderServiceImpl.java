@@ -421,6 +421,18 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	@Transactional
 	public ServiceOrderDTO approval(int id, int adminUserId, String adviserState, String maraState,
 			String officialState, String kjState) throws ServiceException {
+		sendRemind(id, adviserState, maraState, officialState);
+		return review(id, adminUserId, adviserState, maraState, officialState, kjState, "APPROVAL");
+	}
+	
+	@Override
+	public ServiceOrderDTO refuse(int id, int adminUserId, String adviserState, String maraState, String officialState,
+			String kjState) throws ServiceException {
+		return review(id, adminUserId, adviserState, maraState, officialState, kjState, "REFUSE");
+	}
+	
+	@Override
+	public void sendRemind(int id, String adviserState, String maraState, String officialState) {
 		ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(id);
 		if (serviceOrderDo != null) {
 			String title = "新任务提醒:";
@@ -575,13 +587,6 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				serviceOrderDao.updateServiceOrder(serviceOrderDo);
 			}
 		}
-		return review(id, adminUserId, adviserState, maraState, officialState, kjState, "APPROVAL");
-	}
-
-	@Override
-	public ServiceOrderDTO refuse(int id, int adminUserId, String adviserState, String maraState, String officialState,
-			String kjState) throws ServiceException {
-		return review(id, adminUserId, adviserState, maraState, officialState, kjState, "REFUSE");
 	}
 
 	@Override

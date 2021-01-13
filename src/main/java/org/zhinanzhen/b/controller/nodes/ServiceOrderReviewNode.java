@@ -1,7 +1,5 @@
 package org.zhinanzhen.b.controller.nodes;
 
-import javax.annotation.Resource;
-
 import org.springframework.stereotype.Component;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
