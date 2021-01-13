@@ -26,12 +26,7 @@
           转账信息
         </h2>
 				<div class="login-wrap">						
-				  	<div id="alert_error" class="alert alert-block alert-danger fade in" style="display:none;position:absolute;z-index:9999;">
-			        <button data-dismiss="alert" class="close close-sm" type="button">
-			        <i class="fa fa-times"></i>
-			        </button>
-			        <strong id="error_info"></strong>
-			      </div>
+				  	<div id="copy_success" class="alert alert-success fade in" style="display:none;position:absolute;z-index:9999;">已复制！请告知客户转账时务必在备注填写Code。</div>
 			      <form class="cmxform form-inline" style="" name="myForm" id="myForm">
 						<div class="modal-body" id="is_first">
 								<div class="form-group" style="width:100%;">
@@ -50,14 +45,18 @@
 						<div class="modal-body" id="is_bankinfo" style="display:none;">
 								<div class="form-group" style="width:100%;">
 									<label class="control-label" style="font-weight:bold;"><span id="str_region"></span>地区Bank转账信息如下：</label>
-									<div style="margin-top:10px;background:#e9f1f6;padding:5px;">
+									<div style="margin-top:10px;background:#e9f1f6;padding:5px;" id="copy_text">
 											<div>Account Name: <span id="accountName"></span></div>
 											<div>Account No.: <span id="accountNo"></span></div>
 											<div>Bsb: <span id="bsb"></span></div>
 											<div>转账备注Code: <span id="code"></span></div>
-									</div>
-								</div>																
+									</div>									
+								</div>
+								<div class="modal-footer" style="text-align: center;">
+									<button id="btnCopy" type="button" class="copybtn btn btn-primary" onclick="copyText()" data-clipboard-action="copy" data-clipboard-text="">一键复制</button>
+								</div>														
 						</div>
+						
 						</form>
 					
 				</div>
@@ -66,6 +65,7 @@
 		<script src="js/jquery-1.8.3.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
 		<script src="js/jquery.validate.min.js"></script><!-- VALIDATE JS  -->
+		<script src="js/clipboard.min.js"></script>
 		<script src="js/vue.js"></script>
 		<script src="js/common.js?verson=1"></script>
 		<script>
@@ -73,6 +73,7 @@
 				el: '#bank-info',
 				data: {
 					is_first : 1,
+					bankinfo: '',
 					eror: ''
 				},
 				created: function() {
@@ -171,6 +172,10 @@
 			        	$("#code").html('');
 	        	}else
 	        	{
+	        			v.bankinfo = 'Account Name: '+data.bank;
+	        			v.bankinfo += '\nAccount No.: '+data.accountNo;
+	        			v.bankinfo += '\nBsb: '+data.bsb;
+	        			v.bankinfo += '\n转账备注Code: '+data.code;
 			        	$("#accountName").html(data.bank);
 			        	$("#accountNo").html(data.accountNo);
 			        	$("#bsb").html(data.bsb);
@@ -204,6 +209,24 @@
 	        	obj_adviserId.val(localStorage.adviserId);
 	        });
 			}
+			
+			function copyText()
+			{					
+					//var clipboard = new ClipboardJS('.copybtn',{target:function(){return $("#copy_text").html();});					
+					var clipboard = new ClipboardJS('.copybtn', {
+					    text: function(trigger) {
+					        return v.bankinfo;
+					    }
+					});
+					clipboard.on('success',function(e)
+					{
+							e.clearSelection();
+							$('#copy_success').addClass('alert-success').show().delay(1500).fadeOut();
+					});
+					clipboard.on('error',function(e)
+					{
+					});
+			}	
 						
 		</script>
 	</body>
