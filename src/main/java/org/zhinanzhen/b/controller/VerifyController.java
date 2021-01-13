@@ -81,6 +81,7 @@ public class VerifyController {
                         financeCodeDO.setUserId(commissionOrderListDTO.getUserId());
                         financeCodeDO.setBusiness("留学-"+commissionOrderListDTO.getSchool().getName());
                         commissionOrderListDTO.setBankDate(financeCodeDO.getBankDate());
+                        commissionOrderListDTO.setChecked(true);
                         commissionOrderService.updateCommissionOrder(commissionOrderListDTO);
                     }
                 }
@@ -92,6 +93,7 @@ public class VerifyController {
                         ServiceOrderDTO serviceOrderDTO = serviceOrderService.getServiceOrderById(visaDTO.getServiceOrderId());
                         financeCodeDO.setBusiness(serviceOrderDTO.getService().getName()+"-"+serviceOrderDTO.getService().getCode());
                         visaDTO.setBankDate(financeCodeDO.getBankDate());
+                        visaDTO.setChecked(true);
                         visaService.updateVisa(visaDTO);
                     }
                 }
@@ -245,6 +247,7 @@ public class VerifyController {
             financeCodeDO.setUserId(commissionOrderListDTO.getUserId());
             financeCodeDO.setBusiness("留学-"+commissionOrderListDTO.getSchool().getName());
             commissionOrderListDTO.setBankDate(financeCodeDO.getBankDate());
+            commissionOrderListDTO.setChecked(true);
             commissionOrderService.updateCommissionOrder(commissionOrderListDTO);
         }
         if (order.equalsIgnoreCase("CV")){
@@ -256,6 +259,7 @@ public class VerifyController {
             ServiceOrderDTO serviceOrderDTO = serviceOrderService.getServiceOrderById(visaDTO.getServiceOrderId());
             financeCodeDO.setBusiness(serviceOrderDTO.getService().getName()+"-"+serviceOrderDTO.getService().getCode());
             visaDTO.setBankDate(financeCodeDO.getBankDate());
+            visaDTO.setChecked(true);
             visaService.updateVisa(visaDTO);
         }
         if( verifyService.update(financeCodeDO) > 0 ){
