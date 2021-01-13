@@ -1,11 +1,6 @@
 package org.zhinanzhen.b.service.impl;
 
 import com.ikasoa.core.utils.StringUtil;
-import jxl.WorkbookSettings;
-import jxl.write.Label;
-import jxl.write.WritableCellFormat;
-import jxl.write.WritableSheet;
-import jxl.write.WritableWorkbook;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -34,7 +29,6 @@ import org.zhinanzhen.tb.dao.RegionDAO;
 import org.zhinanzhen.tb.dao.pojo.AdminUserDO;
 import org.zhinanzhen.tb.dao.pojo.RegionDO;
 import org.zhinanzhen.tb.service.AdviserStateEnum;
-import org.zhinanzhen.tb.service.pojo.RegionDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
@@ -43,14 +37,11 @@ import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 
 import javax.annotation.Resource;
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -90,8 +81,8 @@ public class VerifyServiceImpl implements VerifyService {
     @Transactional
     public List<FinanceCodeDO> excelToList(InputStream inputStream, String fileName) throws Exception {
         List<FinanceCodeDO> financeCodeDOS = new ArrayList<>();
-        double money = 0.00;
-        double balance = 0.00;
+        //double money = 0.00;
+        //double balance = 0.00;
         Workbook workbook = null;
         try {
             boolean isExcel2003 = true;
@@ -100,10 +91,10 @@ public class VerifyServiceImpl implements VerifyService {
             }
             if (isExcel2003) {
                 workbook = new HSSFWorkbook(inputStream);
-                System.out.println("HSSFWorkbook");
+                //System.out.println("HSSFWorkbook");
             } else {
                 workbook = new XSSFWorkbook(inputStream);
-                System.out.println("XSSFWorkbook");
+                //System.out.println("XSSFWorkbook");
             }
             //关闭 Stream
             inputStream.close();
@@ -112,12 +103,12 @@ public class VerifyServiceImpl implements VerifyService {
 
             //总行数
             int rowLength = sheet.getLastRowNum();
-            System.out.println(rowLength);
+            //System.out.println(rowLength);
             //工作表的列
             Row row = sheet.getRow(0);
             //总列数
             int colLength = row.getLastCellNum();
-            System.out.println("colLength"+colLength);
+            //System.out.println("colLength"+colLength);
             //得到指定的单元格
             Cell cell = null;
             //从第二行的数据开始
@@ -148,9 +139,10 @@ public class VerifyServiceImpl implements VerifyService {
                     //    financeCodeDO.setCommissionOrderId(Integer.parseInt(id.substring(2)));
                     //}
                     financeCodeDO.setOrderId(orderId);
-                } else {
+                }else if (financeCodeDO.getComment().contains("$$") & financeCodeDO.getComment().contains("#")){
                     String comment = financeCodeDO.getComment();
-                    String verifyCode = comment.substring(comment.indexOf("$$") + 2, comment.lastIndexOf("$"));
+                    //得到 verifyCode 并且字符全部转换成大写
+                    String verifyCode = comment.substring(comment.indexOf("$$") + 2, comment.lastIndexOf("#")).toUpperCase();
                     List<VisaDO> visaDOS = visaDAO.listVisaByVerifyCode(verifyCode);
                     List<CommissionOrderDO> commissionOrderDOS = commissionOrderDAO.listCommissionOrderByVerifyCode(verifyCode);
                     if (visaDOS.size() > 1 | commissionOrderDOS.size() > 1)
@@ -159,6 +151,7 @@ public class VerifyServiceImpl implements VerifyService {
                         VisaDO visaDO = visaDOS.get(0);
                         if (visaDO != null) {
                             visaDO.setBankDate(financeCodeDO.getBankDate());
+                            visaDO.setChecked(true);
                             if (visaDAO.updateVisa(visaDO) > 0)
                                 financeCodeDO.setOrderId("CV" + visaDO.getId());
                         }
@@ -167,16 +160,18 @@ public class VerifyServiceImpl implements VerifyService {
                         CommissionOrderDO commissionOrderDO = commissionOrderDOS.get(0);
                         if (commissionOrderDO != null) {
                             commissionOrderDO.setBankDate(financeCodeDO.getBankDate());
+                            commissionOrderDO.setChecked(true);
                             if (commissionOrderDAO.updateCommissionOrder(commissionOrderDO) > 0)
                                 financeCodeDO.setOrderId("CS" + commissionOrderDO.getId());
                         }
                     }
                 }
-                balance = financeCodeDO.getBalance()+balance;
-                money = financeCodeDO.getMoney() + money;
+                //balance = financeCodeDO.getBalance()+balance;
+                //money = financeCodeDO.getMoney() + money;
                 financeCodeDOS.add(financeCodeDO);
             }
 
+            /*
             //创建xls文件
             SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyyy");
             DecimalFormat moneysdf = new DecimalFormat("0.00");
@@ -208,9 +203,8 @@ public class VerifyServiceImpl implements VerifyService {
             }
             wwb.write();
             wwb.close();
+             */
         } catch (ParseException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
             e.printStackTrace();
         }
         return financeCodeDOS;
@@ -296,6 +290,7 @@ public class VerifyServiceImpl implements VerifyService {
 
     @Override
     public FinanceBankCodeDTO getPaymentCode(Integer adviserId) {
+        boolean flag = true;
         FinanceBankCodeDTO financeBankCodeDTO = new FinanceBankCodeDTO();
         AdviserDO adviserDO = adviserDao.getAdviserById(adviserId);
         if (adviserDO!=null){
@@ -305,7 +300,15 @@ public class VerifyServiceImpl implements VerifyService {
                     FinanceBankDO financeBankDO = verifyDao.getFinanceBankById(regionDO.getFinanceBankId());
                     if (financeBankDO!=null)
                     financeBankCodeDTO=mapper.map(financeBankDO,FinanceBankCodeDTO.class);
-                    String code = "$$"+adviserDO.getName()+regionDO.getName()+ RandomStringUtils.randomAlphanumeric(10) +"$";
+                    String code = "";
+                    while (flag){
+                        code= adviserDO.getName()+ regionDO.getName().substring(0,3)+ RandomStringUtils.randomAlphanumeric(6);
+                        code = code.toUpperCase();
+                        if (commissionOrderDAO.listCommissionOrderByVerifyCode(code).size()==0 && visaDAO.listVisaByVerifyCode(code).size()==0){
+                            flag = false;
+                            code = "$$"+code +"#";
+                        }
+                    }
                     financeBankCodeDTO.setCode(code.replaceAll(" ",""));
                     financeBankCodeDTO.setRegionDO(regionDO);
                 }

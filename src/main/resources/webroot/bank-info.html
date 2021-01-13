@@ -1,0 +1,234 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="renderer" content="webkit">
+		<link rel="shortcut icon" href="img/favicon.ico">
+		<title>转账信息</title>
+		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<link href="css/bootstrap-reset.css" rel="stylesheet">
+		<link href="assets/font-awesome/css/font-awesome.css" rel="stylesheet">
+		<link href="css/style.css" rel="stylesheet">
+		<link href="css/style-responsive.css" rel="stylesheet">
+		<link href="css/index.css" rel="stylesheet">
+		<!--[if lt IE 9]>
+			<script src="js/html5shiv.js"></script>
+			<script src="js/respond.min.js"></script>
+		<![endif]-->
+	</head>
+
+	<body id="bank-info" class="login-screen" v-cloak>
+		<div class="container">
+			<div class="form-signin" style="max-width:500px;">
+				<h2 class="form-signin-heading">
+          转账信息
+        </h2>
+				<div class="login-wrap">				  	
+			      <form class="cmxform form-inline" style="" name="myForm" id="myForm">
+						<div class="modal-body" id="is_first">
+								<div class="form-group" style="width:100%;">
+									<label class="control-label" style="width:120px;font-weight:bold;">地区：<span style="color:red;">*</span></label>
+									<select v-model.trim="regionId" name="regionId" id="regionId" class="form-control" onchange="chooseRegion(this.value)" style="padding: 2px;"></select>
+								</div>					
+								<div class="form-group" style="width:100%;margin-top:10px;">
+									<label class="control-label" style="width:120px;font-weight:bold;">顾问：<span style="color:red;">*</span></label>							
+									<select v-model.trim="adviserId" name="adviserId" id="adviserId" class="form-control" style="padding: 2px;"><option value="" selected="selected">---请选择---</option></select>
+								</div>									
+						</div>												
+						<div class="modal-footer" style="text-align: center;">
+							<button id="btnSubmit" type="submit" class="btn btn-primary"><span id="btn_id">确认</span></button>
+							<div style="display:none;margin-top:10px;color:red;" id="index_info">为保证每次转账都正确，请务必笔笔新订单都获取最新支付信息。</div>
+						</div>
+						<div class="modal-body" id="is_bankinfo" style="display:none;">
+								<div class="form-group" style="width:100%;">
+									<label class="control-label" style="font-weight:bold;"><span id="str_region"></span>地区Bank转账信息如下：</label>
+									<div style="margin-top:10px;background:#e9f1f6;padding:5px;" id="copy_text">
+											<div>Account Name: <span id="accountName"></span></div>
+											<div>Account No.: <span id="accountNo"></span></div>
+											<div>Bsb: <span id="bsb"></span></div>
+											<div>为保证您的权益转账请备注唯一Code: <span id="code"></span></div>
+									</div>									
+								</div>
+								<div class="modal-footer" style="text-align: center;">
+									<div id="copy_success" style="color:red;font-size:18px;"></div>
+									<button id="btnCopy" type="button" class="copybtn btn btn-primary" onclick="copyText()" data-clipboard-action="copy" data-clipboard-text="">一键复制</button>
+								</div>														
+						</div>
+						
+						</form>
+					
+				</div>
+			</div>
+		</div>
+		<script src="js/jquery-1.8.3.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		<script src="js/jquery.validate.min.js"></script><!-- VALIDATE JS  -->
+		<script src="js/clipboard.min.js"></script>
+		<script src="js/vue.js"></script>
+		<script src="js/common.js?verson=1"></script>
+		<script>
+			var v = new Vue({
+				el: '#bank-info',
+				data: {
+					is_first : 1,
+					bankinfo: '',
+					eror: ''
+				},
+				created: function() {
+						//localStorage.removeItem("is_first");						
+						if (localStorage.is_first != null)
+						{
+								this.is_first = localStorage.is_first;
+								$("#index_info").show();								
+								$("#btn_id").html('获取银行信息');
+								chooseRegion(localStorage.regionId);									
+						}else
+						{
+								localStorage.setItem("regionId", '');
+								localStorage.setItem("adviserId", '');
+						}
+						init_data();
+				},
+				methods: {				
+				}
+			});
+			
+			function init_data()
+			{
+					//绑定区域列表
+			    var obj_regionId = $("#regionId");
+			    $("#regionId").empty();
+			    obj_regionId.append("<option value='' selected='selected'>---请选择---</option>");			    
+			    $.ajax({
+	          url: url + 'region/list_all',
+	          type: 'GET',
+	          dataType: 'json'
+	        }).done(function(response) {
+	        	var region_data = response.data;	        	
+	        	for (var item in region_data)
+	        	{
+	        			obj_regionId.append("<option value='"+region_data[item].id+"'>"+region_data[item].name+"</option>");
+	        			var region_sub = region_data[item].regionList;
+	        			for (var itemsub in region_sub)
+	        			{
+	        					obj_regionId.append("<option value='"+region_sub[itemsub].id+"'>---"+region_sub[itemsub].name+"</option>");
+	        			}
+	        	}
+	        	obj_regionId.val(localStorage.regionId);
+	        });
+	        $("#myForm").validate({
+							submitHandler: function () {						
+									saveChoose();
+				      },
+				      rules: {
+				          regionId: "required",
+				          adviserId: "required",				         
+				      },
+				      messages: {
+				          regionId: "必选",         
+				          adviserId: "必选",
+				      }
+				  });
+			}
+			
+			function saveChoose()
+			{
+					$("#index_info").show();					
+					$("#btn_id").html('获取银行信息');
+					if (localStorage.is_first != null)
+					{
+							//获取最新的转账信息
+							$("#is_bankinfo").show();
+							var str_region = $("#regionId").find("option:selected").text();
+							str_region = str_region.replace(/---/,'');
+							$("#str_region").html(str_region);
+							getBankInfo();
+					}
+					v.is_first = 0;
+					//设置本地数据
+					localStorage.setItem("is_first", "0");
+					localStorage.setItem("regionId", $("#regionId").val());
+					localStorage.setItem("adviserId", $("#adviserId").val());
+					return;
+			}
+			
+			function getBankInfo()
+			{
+					var adviserId = localStorage.adviserId;
+					$.ajax({
+	          url: url + 'verify/paymentcode?adviserId='+adviserId,
+	          type: 'GET',
+	          dataType: 'json'
+	        }).done(function(response) {
+	        	var data = response.data;
+	        	if (data.accountNo == null)
+	        	{
+	        			alert('转账信息获取失败，请联系管理员确认。');
+	        			$("#accountName").html('');
+			        	$("#accountNo").html('');
+			        	$("#bsb").html('');
+			        	$("#code").html('');
+	        	}else
+	        	{
+	        			v.bankinfo = 'Account Name: '+data.bank;
+	        			v.bankinfo += '\nAccount No.: '+data.accountNo;
+	        			v.bankinfo += '\nBsb: '+data.bsb;
+	        			v.bankinfo += '\n为保证您的权益转账请备注唯一Code: '+data.code;
+			        	$("#accountName").html(data.bank);
+			        	$("#accountNo").html(data.accountNo);
+			        	$("#bsb").html(data.bsb);
+			        	$("#code").html(data.code);
+	        	}
+	        	console.log(response);
+	        });
+			}
+			
+			function chooseRegion(regionId)
+			{
+					//绑定顾问列表
+	        var obj_adviserId = $("#adviserId");
+	        $("#adviserId").empty();
+	        var strPar = '';
+				  if (regionId)
+				  {		  			  		
+				  		strPar = '&regionId='+regionId;
+				  }
+	        obj_adviserId.append("<option value=''>---请选择---</option>");
+			    $.ajax({
+	          url: url + 'adviser/list?pageNum=0&pageSize=100000'+strPar,
+	          type: 'GET',
+	          dataType: 'json'
+	        }).done(function(response) {
+	        	response = response.data;
+	        	for (var item in response)
+	        	{
+	        			obj_adviserId.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+	        	}
+	        	obj_adviserId.val(localStorage.adviserId);
+	        });
+			}
+			
+			function copyText()
+			{					
+					//var clipboard = new ClipboardJS('.copybtn',{target:function(){return $("#copy_text").html();});					
+					var clipboard = new ClipboardJS('.copybtn', {
+					    text: function(trigger) {
+					        return v.bankinfo;
+					    }
+					});
+					clipboard.on('success',function(e)
+					{
+							e.clearSelection();
+							$('#copy_success').html('已复制！请告知客户转账时务必在备注填写Code。');
+					});
+					clipboard.on('error',function(e)
+					{
+					});
+			}	
+						
+		</script>
+	</body>
+
+</html>

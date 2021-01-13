@@ -24,7 +24,7 @@ public class Application extends WebMvcConfigurerAdapter {
 
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		//registry.addResourceHandler("/webroot/**").addResourceLocations("classpath:/webroot/");
+		registry.addResourceHandler("/webroot/**").addResourceLocations("classpath:/webroot/");
 	}
 
 }

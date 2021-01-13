@@ -918,3 +918,33 @@ CREATE TABLE `b_service_order_readcommitted_date` (
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
+-- 财务对账使用的银行
+CREATE TABLE `b_finance_bank` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `bank` varchar(255) NOT NULL COMMENT '名字',
+  `bsb` varchar(64) NOT NULL COMMENT 'bsb',
+  `accountno` varchar(64) NOT NULL COMMENT 'accountno',
+  `simple` varchar(5) NOT NULL COMMENT 'bank字段简称',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '更改时间',
+  `is_delete` tinyint(1) NOT NULL COMMENT '是否删除(0:否,1是)',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+-------   bankstatement表格--
+CREATE TABLE `b_finance_code` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '修改时间',
+  `bank_date` datetime NOT NULL COMMENT '入账时间',
+  `user_id` int(11) NOT NULL COMMENT '客户姓名',
+  `is_income` tinyint(1) NOT NULL COMMENT '是否收入(1:是;0否)',
+  `money` double(10,2) NOT NULL COMMENT '金额',
+  `balance` double(10,2) NOT NULL COMMENT '余额',
+  `adviser_id` int(11) NOT NULL COMMENT '顾问id，对应tb_adviser.id',
+  `business` varchar(255) DEFAULT NULL COMMENT '签证获取签证+类型；留学获取学校名称',
+  `order_id` varchar(64) DEFAULT NULL COMMENT '对应b_commission_order.id/b_visa.id(CS/CV判断)',
+  `comment` varchar(255) DEFAULT NULL COMMENT '银行备注',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

@@ -284,6 +284,16 @@
 									</a>									
 								</li>
 								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
+									<a href="accounting-bank.html">
+										转账信息配置
+									</a>									
+								</li>
+								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
+									<a href="accounting-bankbill.html">
+										银行对账单
+									</a>									
+								</li>
+								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
 									<a href="mycommission-check-accounting.html">
 										自动对账
 									</a>									
@@ -338,6 +348,11 @@
 								<li>
 									<a href="knowledge.html">
 										知识库菜单
+									</a>
+								</li>
+								<li>
+									<a href="http://question.zhinanzhen.org/api/users/znz/{{admin}}" target="_blank">
+										指南针问答
 									</a>
 								</li>
 							</ul>
@@ -423,6 +438,7 @@
 														<th>月奖支付时间</th>
 														<th>银行对账字段</th>
 														<th>是否自动对账成功</th>
+														<th>入账日期</th>
 														<th>顾问</th>
 														<th>状态</th>
 														<th>Invoice No.</th>
@@ -448,6 +464,7 @@
 														<td v-html="item.bonusDate"></td>
 														<td @dblclick="table_edit($index,'bankCheck','t2')"><span v-html="item.bankCheck"></span></td>
 														<td @dblclick="table_edit($index,'isChecked','t3')"><span v-html="item.isChecked"></span></td>
+														<td v-html="item.bankDate"></td>
 														<td v-html="item.adviserName"></td>
 														<td v-html="item.strState"></td>
 														<td>
@@ -1084,6 +1101,7 @@
 							bonusDate: '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:120px;" id="t2" data-date-format="dd-mm-yyyy" value="'+this.subject[index].bonusDate+'">',
 							bankCheck: this.subject[index].bankCheck,
 							isChecked: this.subject[index].isChecked,
+							bankDate: this.subject[index].bankDate,
 							adviserName: this.subject[index].adviserName,
 							strState: this.subject[index].strState,
 							type: 1,
@@ -1144,6 +1162,7 @@
 						}
 						json['bonus'] = this.subject[index].bonus;
 						json['bonusDate'] = this.subject[index].bonusDate;
+						json['bankDate'] = this.subject[index].bankDate;
 						json['adviserName'] = this.subject[index].adviserName;
 						json['strState'] = this.subject[index].strState;
 						json['type'] = 0;
@@ -1175,6 +1194,7 @@
 										bonusDate: '<input type="text" autocomplete="off" class="form-control small default-date-picker" style="width:120px;" id="t2_'+this.subject[index].id+'" data-date-format="dd-mm-yyyy" value="'+this.subject[index].bonusDate+'">',
 										bankCheck: this.subject[index].bankCheck,
 										isChecked: this.subject[index].isChecked,
+										bankDate: this.subject[index].bankDate,
 										adviserName: this.subject[index].adviserName,
 										strState: this.subject[index].strState,
 										invoiceNumber: this.subject[index].invoiceNumber,
@@ -1428,7 +1448,8 @@
 								str_checked = result.data[i].checked;
 								if (!result.data[i].checked) str_checked = '<span style="color:red;">'+result.data[i].checked+'</span>';
 						}
-						result.data[i].isChecked = str_checked;					
+						result.data[i].isChecked = str_checked;
+						result.data[i].bankDate = v.getTime(result.data[i].bankDate);
 						result.data[i].payDate = '';//字段未添加，待修正
 						if (result.data[i].state == 'PENDING')
 						{
