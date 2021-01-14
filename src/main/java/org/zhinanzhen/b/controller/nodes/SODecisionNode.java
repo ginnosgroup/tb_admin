@@ -99,6 +99,16 @@ public abstract class SODecisionNode extends AbstractDecisionNode {
 		}
 	}
 
+	protected String getType(Context context) {
+		Map<String, Object> parameters = context.getParameters();
+		if (parameters.containsKey("type"))
+			return (String) parameters.get("type");
+		else {
+			context.putParameter("response", new Response<ServiceOrderDTO>(1, "类型参数不存在!", null));
+			return null;
+		}
+	}
+
 	private String getState(String state, String... stateList) {
 		for (String s : stateList) {
 			if (s.equals(state))

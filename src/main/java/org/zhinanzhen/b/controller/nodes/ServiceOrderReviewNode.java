@@ -43,6 +43,10 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 			return SUSPEND_NODE;
 		}
 		String state = getState(context, "WAIT", "CLOSE", "FINISH");
+		if ("WAIT".equalsIgnoreCase(state) && !"VISA".equalsIgnoreCase(getType(context))) {
+			context.putParameter("response", new Response<ServiceOrderDTO>(1, "只有签证类才能进行mara审核流程.", null));
+			return SUSPEND_NODE;
+		}
 		if (state == null)
 			return SUSPEND_NODE;
 		return state;

@@ -1678,6 +1678,7 @@ public class ServiceOrderController extends BaseController {
 			Workflow workflow = new Workflow("Service Order Work Flow", currentNode, soNodeFactory);
 			Context context = new Context();
 			context.putParameter("serviceOrderId", id);
+			context.putParameter("type", serviceOrderDto.getType());
 			context.putParameter("state", state);
 			context.putParameter("subagencyId", subagencyId);
 			context.putParameter("closedReason", closedReason);
