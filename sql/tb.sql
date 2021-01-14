@@ -948,3 +948,4 @@ CREATE TABLE `b_finance_code` (
   `comment` varchar(255) DEFAULT NULL COMMENT '银行备注',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+ALTER TABLE `b_finance_code` ADD INDEX index_name (order_id);
