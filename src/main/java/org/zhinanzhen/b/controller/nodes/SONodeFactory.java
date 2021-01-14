@@ -22,6 +22,7 @@ public class SONodeFactory implements NodeFactory {
 			new ServiceOrderPendingNode(serviceOrderService),
 			new ServiceOrderReviewNode(serviceOrderService), 
 			new ServiceOrderWaitNode(serviceOrderService),
+			new ServiceOrderRejectNode(serviceOrderService),
 			new ServiceOrderCloseNode(serviceOrderService),
 			new ServiceOrderFinishNode(serviceOrderService),
 			new ServiceOrderCompleteNode(serviceOrderService),
