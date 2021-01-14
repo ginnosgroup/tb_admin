@@ -417,6 +417,10 @@
 											</div>									
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">
+											<label class="control-label" style="width:150px;">银行对账Code</label>
+											<input type="text" autocomplete="off" name="c2a" id="c32a" class="form-control" style="width:150px;">
+									</div>
+									<div class="form-group" style="width:100%;margin-top:10px;">
 											<label class="control-label">备注</label>
 											<textarea id="c33" class="form-control" style="width:98%;font-weight:normal;"></textarea>
 									</div>
@@ -1845,6 +1849,7 @@ function reqCommissionOvst()
        	json['discount'] = $(f+'#c30').val();
        	json['amount'] = $(f+'#c31').val();
        	//json['expectAmount'] = jqInputs[12].value;
+       	json['verifyCode'] = $(f+'#c32a').val();
        	json['remarks'] = $(f+'#c33').val();
        	//console.log(json);
        	//return false;

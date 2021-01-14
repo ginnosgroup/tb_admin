@@ -112,6 +112,10 @@
 										$<label id="b17" style="width:50px;"></label>&nbsp;<span style="font-weight:bold;">(“本次实收金额”务必填写实际收到客户的金额。)</span>
 									</div>
 							</div>
+							<div class="form-group" style="width:100%;height:40px;margin-top:10px;">
+									<label class="control-label"><strong>银行对账Code</strong></label>
+									<label id="b17a" style="width:50px;"></label>
+							</div>
 							</div>
 							<div id="show_paymentpic" class="form-group" style="display:;width:100%;line-height:40px;">
 								<label class="control-label"><strong>收款凭证：</strong></label>
@@ -243,6 +247,7 @@ function show_commission_detail(serviceId,orderId)
 	        	$('#show_visa_id #b15').html(response.gst);
 	        	$('#show_visa_id #b16').html(response.deductGst);
 	        	$('#show_visa_id #b17').html(response.expectAmount);
+	        	$('#show_visa_id #b17a').html(response.verifyCode);
 	        	if (response.remarks) response.remarks = url_replace(response.remarks);
 	        	$('#show_visa_id #b18').html(response.remarks);
 	        	//生成收款凭证列表
