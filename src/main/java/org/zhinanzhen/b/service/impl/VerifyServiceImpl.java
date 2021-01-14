@@ -152,6 +152,7 @@ public class VerifyServiceImpl implements VerifyService {
                         if (visaDO != null) {
                             visaDO.setBankDate(financeCodeDO.getBankDate());
                             visaDO.setChecked(true);
+                            visaDO.setBankCheck("Code");
                             if (visaDAO.updateVisa(visaDO) > 0)
                                 financeCodeDO.setOrderId("CV" + visaDO.getId());
                         }
@@ -161,6 +162,7 @@ public class VerifyServiceImpl implements VerifyService {
                         if (commissionOrderDO != null) {
                             commissionOrderDO.setBankDate(financeCodeDO.getBankDate());
                             commissionOrderDO.setChecked(true);
+                            commissionOrderDO.setBankCheck("Code");
                             if (commissionOrderDAO.updateCommissionOrder(commissionOrderDO) > 0)
                                 financeCodeDO.setOrderId("CS" + commissionOrderDO.getId());
                         }
@@ -236,8 +238,12 @@ public class VerifyServiceImpl implements VerifyService {
             financeCodeDTOS.forEach(financeCodeDTO -> {
                 if (financeCodeDTO.getAdviserId() > 0 ){
                     AdviserDO adviserDO = adviserDao.getAdviserById(financeCodeDTO.getAdviserId());
-                    if (adviserDO!= null)
+                    if (adviserDO!= null){
                         financeCodeDTO.setAdviser(mapper.map(adviserDO,AdviserDTO.class));
+                        RegionDO regionDO = regionDAO.getRegionById(adviserDO.getRegionId());
+                        if (regionDO!=null)
+                            financeCodeDTO.getAdviser().setRegionName(regionDO.getName());
+                    }
                 }
                 if (financeCodeDTO.getUserId() > 0 ){
                     UserDO userDO = userDAO.getUserById(financeCodeDTO.getUserId());
