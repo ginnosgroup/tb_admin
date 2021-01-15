@@ -369,6 +369,11 @@
 										知识库菜单
 									</a>
 								</li>
+								<li>
+									<a href="http://question.zhinanzhen.org/api/users/znz/{{admin}}" target="_blank">
+										指南针问答
+									</a>
+								</li>
 							</ul>
 						</li>
 					</ul>
@@ -426,20 +431,16 @@
 													<dle v-if="ap_list==='GW' || ap_list==='WA'">
 													<input v-model.trim="startOfficialApprovalDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:150px;" placeholder="文案审核时间(开始)">
 													<input v-model.trim="endOfficialApprovalDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:150px;" placeholder="文案审核时间(结束)">
-													</dle>
-													<dle v-if="ap_list==='MA'">
-													<input v-model.trim="startMaraApprovalDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:150px;" placeholder="Mara审核时间(开始)">
-													<input v-model.trim="endMaraApprovalDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:150px;" placeholder="Mara审核时间(结束)">
-													</dle>											
+													</dle>																																					
 											</div>
-											<div class="form-group">
+											<div class="form-group">													
 													<label>服务项目</label>											
 													<select v-model.trim="type" id="type" class="form-control" style="width:130px;">
 													<option value="" selected="true">请选择</option>
 													<option value="VISA">签证</option>
 													<option value="OVST">留学</option>
 													<option value="SIV">独立技术移民</option>
-													</select>
+													</select>													
 													<dle v-if="ap_list!=='GW'">
 													<label>选择地区</label>
 													<select v-model.trim="regionId" id="regionId" class="form-control" style="width:130px;">
@@ -458,7 +459,11 @@
 													</select>
 													<label v-if="ap_list==='WA'">标签</label>
 													<select v-if="ap_list==='WA'" v-model.trim="officialTagId" id="officialTagId" class="form-control" style="width:130px;">
-													</select>												
+													</select>
+													<dle v-if="ap_list==='WA'">
+													<input v-model.trim="startReadcommittedDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:150px;" placeholder="提交申请时间(开始)">
+													<input v-model.trim="endReadcommittedDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:150px;" placeholder="提交申请时间(结束)">
+													</dle>											
 											</div>
 											<div class="form-group">
 												<button @click="getSearch" id="btnSearch" type="button" class="btn btn-info">查询</button>
@@ -473,7 +478,7 @@
 												<thead>
 													<tr>
 														<th>ID</th>
-														<th><dle v-if="ap_list!=='WA'">创建日期</dle><dle else>创建日期</dle></th>
+														<th><dle v-if="ap_list!=='WA'">创建日期</dle><dle else>提交申请日期</dle></th>
 														<th>提交审核时间</th>
 														<th>办理完成日期</th>
 														<th>客户ID</th>
@@ -494,7 +499,8 @@
 												<tbody>
 													<tr v-for="item in subject" class="gradeX">
 														<td v-html="item.oid"></td>
-														<td v-html="item.gmtCreate"></td>
+														<td v-if="ap_list!=='WA'" v-html="item.gmtCreate"></td>
+														<td v-if="ap_list==='WA'" @dblclick="table_edit($index,'gmtCreate','t3')"><span v-html="item.gmtCreate"></span></td>
 														<td v-html="item.approvalDate"></td>
 														<td v-html="item.finishDate"></td>
 														<td v-html="item.userId"></td>
@@ -821,6 +827,8 @@
 						if (that.state != '') json['state'] = that.state;
 						if (that.startOfficialApprovalDate != '') json['startOfficialApprovalDate'] = that.startOfficialApprovalDate;
 						if (that.endOfficialApprovalDate != '') json['endOfficialApprovalDate'] = that.endOfficialApprovalDate;
+						if (that.startReadcommittedDate != '') json['startReadcommittedDate'] = that.startReadcommittedDate;
+						if (that.endReadcommittedDate != '') json['endReadcommittedDate'] = that.endReadcommittedDate;
 						if (that.startMaraApprovalDate != '') json['startMaraApprovalDate'] = that.startMaraApprovalDate;
 						if (that.endMaraApprovalDate != '') json['endMaraApprovalDate'] = that.endMaraApprovalDate;
 						if (that.ap_list != 'GW' && that.regionId != '') json['regionId'] = that.regionId;
@@ -879,6 +887,8 @@
 						if (that.state != '') json['state'] = that.state;
 						if (that.startOfficialApprovalDate != '') json['startOfficialApprovalDate'] = that.startOfficialApprovalDate;
 						if (that.endOfficialApprovalDate != '') json['endOfficialApprovalDate'] = that.endOfficialApprovalDate;
+						if (that.startReadcommittedDate != '') json['startReadcommittedDate'] = that.startReadcommittedDate;
+						if (that.endReadcommittedDate != '') json['endReadcommittedDate'] = that.endReadcommittedDate;
 						if (that.startMaraApprovalDate != '') json['startMaraApprovalDate'] = that.startMaraApprovalDate;
 						if (that.endMaraApprovalDate != '') json['endMaraApprovalDate'] = that.endMaraApprovalDate;
 						if (that.ap_list != 'GW' && that.regionId != '') json['regionId'] = that.regionId;
@@ -949,6 +959,8 @@
 						if (that.state != '') json['state'] = that.state;
 						if (that.startOfficialApprovalDate != '') json['startOfficialApprovalDate'] = that.startOfficialApprovalDate;
 						if (that.endOfficialApprovalDate != '') json['endOfficialApprovalDate'] = that.endOfficialApprovalDate;
+						if (that.startReadcommittedDate != '') json['startReadcommittedDate'] = that.startReadcommittedDate;
+						if (that.endReadcommittedDate != '') json['endReadcommittedDate'] = that.endReadcommittedDate;
 						if (that.startMaraApprovalDate != '') json['startMaraApprovalDate'] = that.startMaraApprovalDate;
 						if (that.endMaraApprovalDate != '') json['endMaraApprovalDate'] = that.endMaraApprovalDate;
 						if (that.ap_list != 'GW' && that.regionId != '') json['regionId'] = that.regionId;
@@ -982,6 +994,8 @@
 						if (that.state != '') json['state'] = that.state;
 						if (that.startOfficialApprovalDate != '') json['startOfficialApprovalDate'] = that.startOfficialApprovalDate;
 						if (that.endOfficialApprovalDate != '') json['endOfficialApprovalDate'] = that.endOfficialApprovalDate;
+						if (that.startReadcommittedDate != '') json['startReadcommittedDate'] = that.startReadcommittedDate;
+						if (that.endReadcommittedDate != '') json['endReadcommittedDate'] = that.endReadcommittedDate;
 						if (that.startMaraApprovalDate != '') json['startMaraApprovalDate'] = that.startMaraApprovalDate;
 						if (that.endMaraApprovalDate != '') json['endMaraApprovalDate'] = that.endMaraApprovalDate;
 						if (that.ap_list != 'GW' && that.regionId != '') json['regionId'] = that.regionId;
@@ -1015,6 +1029,8 @@
 						if (that.state != '') json['state'] = that.state;
 						if (that.startOfficialApprovalDate != '') json['startOfficialApprovalDate'] = that.startOfficialApprovalDate;
 						if (that.endOfficialApprovalDate != '') json['endOfficialApprovalDate'] = that.endOfficialApprovalDate;
+						if (that.startReadcommittedDate != '') json['startReadcommittedDate'] = that.startReadcommittedDate;
+						if (that.endReadcommittedDate != '') json['endReadcommittedDate'] = that.endReadcommittedDate;
 						if (that.startMaraApprovalDate != '') json['startMaraApprovalDate'] = that.startMaraApprovalDate;
 						if (that.endMaraApprovalDate != '') json['endMaraApprovalDate'] = that.endMaraApprovalDate;
 						if (that.ap_list != 'GW' && that.regionId != '') json['regionId'] = that.regionId;
@@ -1048,6 +1064,8 @@
 						if (that.state != '') json['state'] = that.state;
 						if (that.startOfficialApprovalDate != '') json['startOfficialApprovalDate'] = that.startOfficialApprovalDate;
 						if (that.endOfficialApprovalDate != '') json['endOfficialApprovalDate'] = that.endOfficialApprovalDate;
+						if (that.startReadcommittedDate != '') json['startReadcommittedDate'] = that.startReadcommittedDate;
+						if (that.endReadcommittedDate != '') json['endReadcommittedDate'] = that.endReadcommittedDate;
 						if (that.startMaraApprovalDate != '') json['startMaraApprovalDate'] = that.startMaraApprovalDate;
 						if (that.endMaraApprovalDate != '') json['endMaraApprovalDate'] = that.endMaraApprovalDate;
 						if (that.ap_list != 'GW' && that.regionId != '') json['regionId'] = that.regionId;
@@ -1081,6 +1099,8 @@
 						if (that.state != '') json['state'] = that.state;
 						if (that.startOfficialApprovalDate != '') json['startOfficialApprovalDate'] = that.startOfficialApprovalDate;
 						if (that.endOfficialApprovalDate != '') json['endOfficialApprovalDate'] = that.endOfficialApprovalDate;
+						if (that.startReadcommittedDate != '') json['startReadcommittedDate'] = that.startReadcommittedDate;
+						if (that.endReadcommittedDate != '') json['endReadcommittedDate'] = that.endReadcommittedDate;
 						if (that.startMaraApprovalDate != '') json['startMaraApprovalDate'] = that.startMaraApprovalDate;
 						if (that.endMaraApprovalDate != '') json['endMaraApprovalDate'] = that.endMaraApprovalDate;
 						if (that.ap_list != 'GW' && that.regionId != '') json['regionId'] = that.regionId;
@@ -1128,7 +1148,13 @@
 								v.dId = this.subject[index].id;
 								var json = {};
 								json['oid'] = this.subject[index].oid;
-								json['gmtCreate'] = this.subject[index].gmtCreate;
+								if (field == 'gmtCreate' && this.ap_list == 'WA' && this.wa_admin == 'true')
+								{
+										json['gmtCreate'] = '<input type="text" class="form-control  default-date-picker" style="width:110px;" id="'+byid+'" value="'+this.subject[index].gmtCreate+'" style="background: #F0FFFF;color: #428bca;"><div style="padding-top:10px;"><a class="save1" href="javascript:;"><span style="color:blue;">保存</span></a>&nbsp;&nbsp;<a class="cancel" href="javascript:;">取消</a></div>';
+								}else
+								{
+										json['gmtCreate'] = this.subject[index].gmtCreate;	
+								}								
 								json['approvalDate'] = v.getTime(this.subject[index].officialApprovalDate);
 								json['finishDate'] = this.subject[index].finishDate;
 								json['userId'] = this.subject[index].userId;
@@ -1200,10 +1226,11 @@
 						switch(v.ap_list)
 						{
 								case 'GW':
-										result.data[i].approvalDate = result.data[i].officialApprovalDate ? v.getTime(result.data[i].officialApprovalDate):'';
+										result.data[i].approvalDate = result.data[i].officialApprovalDate ? v.getTime(result.data[i].officialApprovalDate):'';										
 								break;
 								case 'WA':
 										result.data[i].approvalDate = result.data[i].officialApprovalDate ? v.getTime(result.data[i].officialApprovalDate):'';
+										result.data[i].gmtCreate = result.data[i].readcommittedDate ? v.getTime(result.data[i].readcommittedDate):'';
 								break;
 								case 'MA':
 										result.data[i].approvalDate = result.data[i].maraApprovalDate ? v.getTime(result.data[i].maraApprovalDate):'';
@@ -1610,6 +1637,12 @@
        				{
        					 str_url = url + "serviceOrder/updateRealPeopleNumber";
        					 json['realPeopleNumber'] = str_val;
+       				}else if (field == 'gmtCreate')
+       				{
+       					 str_url = url + "serviceOrder/updateReadcommittedDate";
+       					 //时间格式转换
+       					 if (str_val != '') str_val = formatDate2(str_val);
+       					 json['readcommittedDate'] = str_val;
        				}  				
        				
        				
@@ -1897,7 +1930,16 @@
 			    var   minute=now.getMinutes();     
 			    var   second=now.getSeconds();
 			    return fixZero(date,2)+"/"+fixZero(month,2)+"/"+year;
-			}  
+			}
+			
+			function  formatDate2(str_date)
+			{
+			    var arr = str_date.split("/");
+			    var year = arr[2];
+			    var month = arr[1];
+			    var date = arr[0];
+			    return   year+"-"+fixZero(month,2)+"-"+fixZero(date,2)+" 00:00:00"; 
+			} 
 			
 			function fixZero(num,length)
 			{     
