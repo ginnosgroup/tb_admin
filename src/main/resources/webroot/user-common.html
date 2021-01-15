@@ -2352,6 +2352,7 @@ function reqCommissionVisa()
 		   	json['adviserId'] = order.adviserId;
 		   	json['maraId'] = order.maraId;
 		   	json['officialId'] = order.officialId;
+		   	json['verifyCode'] = order.verifyCode;
 		   	json['remarks'] = order.remarks;
 		   	
 		   	$.post(str_url, json,
