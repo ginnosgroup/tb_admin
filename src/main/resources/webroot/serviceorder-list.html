@@ -431,7 +431,11 @@
 													<dle v-if="ap_list==='GW' || ap_list==='WA'">
 													<input v-model.trim="startOfficialApprovalDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:150px;" placeholder="文案审核时间(开始)">
 													<input v-model.trim="endOfficialApprovalDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:150px;" placeholder="文案审核时间(结束)">
-													</dle>																																					
+													</dle>
+													<dle v-if="ap_list==='WA'">
+													<input v-model.trim="startReadcommittedDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:150px;" placeholder="提交申请时间(开始)">
+													<input v-model.trim="endReadcommittedDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:150px;" placeholder="提交申请时间(结束)">
+													</dle>																																				
 											</div>
 											<div class="form-group">													
 													<label>服务项目</label>											
@@ -459,11 +463,7 @@
 													</select>
 													<label v-if="ap_list==='WA'">标签</label>
 													<select v-if="ap_list==='WA'" v-model.trim="officialTagId" id="officialTagId" class="form-control" style="width:130px;">
-													</select>
-													<dle v-if="ap_list==='WA'">
-													<input v-model.trim="startReadcommittedDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:150px;" placeholder="提交申请时间(开始)">
-													<input v-model.trim="endReadcommittedDate" type="text" autocomplete="off" class="form-control default-date-picker1" style="width:150px;" placeholder="提交申请时间(结束)">
-													</dle>											
+													</select>																								
 											</div>
 											<div class="form-group">
 												<button @click="getSearch" id="btnSearch" type="button" class="btn btn-info">查询</button>
