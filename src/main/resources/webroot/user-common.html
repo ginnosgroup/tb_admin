@@ -753,7 +753,8 @@ function add_service1(orderId,userId,name)
 	        			$("#addnewservice1_id #b13").attr("disabled",false);
 	        			$("#addnewservice1_id #b14").attr("disabled",false);
 	        			$("#addnewservice1_id #b14a").attr("disabled",false);
-	        	}        		        		        		        	
+	        	}
+	        	$('#addnewservice1_id #b17a').val(response.verifyCode);        		        		        		        	
 	        	$('#addnewservice1_id #btn_id').html('保存修改');
 	        	//$('#addnewservice1_id #btnReview').show();
 	      });
