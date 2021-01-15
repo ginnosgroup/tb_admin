@@ -146,6 +146,10 @@ public class ServiceOrderDTO {
 
 	private Integer realPeopleNumber;
 
+	private String verifyCode;//会计自动对账code
+
+	private Date readcommittedDate;
+
 	private boolean hasCommissionOrder = false;
 
 	private ServiceOrderReviewDTO review;

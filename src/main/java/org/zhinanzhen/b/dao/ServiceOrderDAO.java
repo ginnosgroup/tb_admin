@@ -21,6 +21,8 @@ public interface ServiceOrderDAO {
 						  @Param("endMaraApprovalDate") String endMaraApprovalDate,
 						  @Param("startOfficialApprovalDate") String startOfficialApprovalDate,
 						  @Param("endOfficialApprovalDate") String endOfficialApprovalDate,
+						  @Param("startReadcommittedDate") String startReadcommittedDate,
+						  @Param("endReadcommittedDate") String endReadcommittedDate,
 						  @Param("regionIdList") List<Integer> regionIdList, @Param("userId") Integer userId,
 						  @Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
 						  @Param("officialId") Integer officialId, @Param("officialTagId") Integer officialTagId,
@@ -34,6 +36,8 @@ public interface ServiceOrderDAO {
 										  @Param("endMaraApprovalDate") String endMaraApprovalDate,
 										  @Param("startOfficialApprovalDate") String startOfficialApprovalDate,
 										  @Param("endOfficialApprovalDate") String endOfficialApprovalDate,
+										  @Param("startReadcommittedDate") String startReadcommittedDate,
+										  @Param("endReadcommittedDate") String endReadcommittedDate,
 										  @Param("regionIdList") List<Integer> regionIdList, @Param("userId") Integer userId,
 										  @Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
 										  @Param("officialId") Integer officialId, @Param("officialTagId") Integer officialTagId,
@@ -48,6 +52,8 @@ public interface ServiceOrderDAO {
 	int deleteServiceOrderById(int id);
 
 	int finishServiceOrder(int id);
+
+	int ReadcommittedServiceOrder(int id);
 
 	List<EachRegionNumberDO> listServiceOrderGroupByForRegion(@Param("type") String type,@Param("startOfficialApprovalDate") String startOfficialApprovalDate,
 															  @Param("endOfficialApprovalDate") String endOfficialApprovalDate);

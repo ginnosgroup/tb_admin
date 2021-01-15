@@ -93,7 +93,8 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
 			@RequestParam(value = "adviserId") String adviserId, @RequestParam(value = "maraId") String maraId,
 			@RequestParam(value = "officialId") String officialId,
-			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
+			@RequestParam(value = "remarks", required = false) String remarks,
+			@RequestParam(value = "verifyCode",required = false) String verifyCode,HttpServletRequest request,
 			HttpServletResponse response) {
 
 		// 更改当前顾问编号
@@ -200,6 +201,7 @@ public class VisaController extends BaseCommissionOrderController {
 					visaDto.setPaymentVoucherImageUrl4(null);
 					visaDto.setPaymentVoucherImageUrl5(null);
 					visaDto.setState(ReviewKjStateEnum.PENDING.toString());
+					visaDto.setVerifyCode(null);//只给第一笔对账verifyCode
 					visaDto.setKjApprovalDate(null);
 					visaDto.setPerAmount(_receivable > _perAmount ? _receivable - _perAmount : 0.00); // 第二笔单子修改本次应收款
 //					if (_received > 0.00)
@@ -209,6 +211,8 @@ public class VisaController extends BaseCommissionOrderController {
 					visaDto.setDiscount(0.00);
 				} else {
 					visaDto.setState(ReviewKjStateEnum.REVIEW.toString()); // 第一笔单子直接进入财务审核状态
+					if (StringUtil.isNotEmpty(verifyCode))//只给第一笔赋值verifyCode
+						visaDto.setVerifyCode(verifyCode);
 					visaDto.setKjApprovalDate(new Date());
 				}
 				if (visaService.addVisa(visaDto) > 0)
@@ -261,7 +265,8 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "officialId", required = false) String officialId,
 			@RequestParam(value = "bankCheck", required = false) String bankCheck,
 			@RequestParam(value = "isChecked", required = false) String isChecked,
-			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
+			@RequestParam(value = "remarks", required = false) String remarks,
+			@RequestParam(value = "verifyCode", required = false) String verifyCode,HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -361,6 +366,8 @@ public class VisaController extends BaseCommissionOrderController {
 				visaDto.setChecked(_visaDto.isChecked());
 			if (StringUtil.isNotEmpty(remarks))
 				visaDto.setRemarks(remarks);
+			if (StringUtil.isNotEmpty(verifyCode))
+				visaDto.setVerifyCode(verifyCode);
 			double commission = visaDto.getAmount();
 			visaDto.setGst(commission / 11);
 			visaDto.setDeductGst(commission - visaDto.getGst());

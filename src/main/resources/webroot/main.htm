@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 	<head>
@@ -210,7 +210,12 @@
 									<a href="service-package.html">
 										服务包管理
 									</a>
-								</li>								
+								</li>
+								<li>
+									<a href="visa-ca.html">
+										签证职业评估管理
+									</a>
+								</li>							
 							</ul>              
             </li>            
           	</dli>          	
@@ -300,6 +305,16 @@
 									</a>									
 								</li>
 								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
+									<a href="accounting-bank.html">
+										转账信息配置
+									</a>									
+								</li>
+								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
+									<a href="accounting-bankbill.html">
+										银行对账单
+									</a>									
+								</li>	
+								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
 									<a href="mycommission-check-accounting.html">
 										自动对账
 									</a>									
@@ -315,7 +330,7 @@
 									</a>
 								</li>
 							</ul>
-						</li>
+						</li>						
 						<li v-if="ap_list==='KJ' || ap_list==='SUPERAD'" class="sub-menu">
 							<a href="javascript:;">
 								<i class="fa fa-book">
@@ -325,13 +340,13 @@
                 </span>
 							</a>
 							<ul class="sub">
-								<li class="active">
-									<a href="taxinvoice-list.html">
+								<li id="invoice_">
+									<a href="taxinvoice-list.html?state=&type=SF">
 										Tax Invoice列表
 									</a>									
 								</li>
-								<li>
-									<a href="taxinvoice-list.html?state=cancel">
+								<li id="invoice_canceled">
+									<a href="taxinvoice-list.html?state=canceled&type=SF">
 										已Cancel列表
 									</a>									
 								</li>															
@@ -354,6 +369,11 @@
 								<li>
 									<a href="knowledge.html">
 										知识库菜单
+									</a>
+								</li>
+								<li>
+									<a href="http://question.zhinanzhen.org/api/users/znz/{{admin}}" target="_blank">
+										指南针问答
 									</a>
 								</li>
 							</ul>
@@ -687,6 +707,7 @@
 									//result.data[i].id = result.data[i].id;
 									result.data[i].userName = '<a href="javascript:;" onclick="show_detail('+result.data[i].id+');">'+result.data[i].name+'</a>';
 									result.data[i].visaExpirationDate = that.getTime(result.data[i].visa_expiration_date);
+									if (result.data[i].visaExpirationDate == '1970-01-01') result.data[i].visaExpirationDate = '';
 							};
 							that.subject2 = result.data;
 							console.log(that.subject2);
@@ -846,7 +867,7 @@
 					    }
 					});
 					return str;
-			}
+			}						
     	    	
 		</script>
 	</body>

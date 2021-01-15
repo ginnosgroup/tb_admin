@@ -221,7 +221,9 @@ CREATE TABLE `b_visa` (
   `bank_check` varchar(32) DEFAULT NULL COMMENT '银行对账',
   `is_checked` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否对账成功',
   `remarks` text DEFAULT NULL COMMENT '备注',
-  `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
+  `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消',
+  `verify_code` varchar(64) DEFAULT NULL COMMENT '对账使用的code,顾问名称+地区+随机数',
+  `bank_date` datetime DEFAULT NULL COMMENT '入账时间,对应b_finance_code.bank_date'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 ALTER TABLE `b_visa` ADD INDEX index_name (`user_id`, `adviser_id`, `mara_id`, `official_id`);
 
@@ -426,7 +428,9 @@ CREATE TABLE `b_service_order` (
   `is_history` tinyint(1) NOT NULL COMMENT '是否为历史订单，0为否，1为是',
   `nut_cloud` varchar(128) DEFAULT NULL COMMENT '坚果云地址',
   `service_assess_id` int(11) DEFAULT NULL COMMENT '签证职业评估编号(对应b_service_assess.id)',
-  `real_people_number` int(11) NOT NULL DEFAULT '1' COMMENT '历史订单:0,不是历史订单:对应people_number(只文案可修改)'
+  `real_people_number` int(11) NOT NULL DEFAULT '1' COMMENT '历史订单:0,不是历史订单:对应people_number(只文案可修改)',
+  `verify_code` varchar(64) DEFAULT null COMMENT '对账使用的code,顾问名称+地区+随机数',
+  `readcommitted_date` datetime DEFAULT NULL COMMENT '已提交申请的时间'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 ALTER TABLE `b_service_order` ADD INDEX index_name (`user_id`, `adviser_id`, `official_id`, `mara_id`, `state`, `service_id`, `parent_id`);
 
@@ -534,7 +538,9 @@ CREATE TABLE `b_commission_order` (
   `bank_check` varchar(32) DEFAULT NULL COMMENT '银行对账',
   `is_checked` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否对账成功',
   `remarks` text DEFAULT NULL COMMENT '备注',
-  `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
+  `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消',
+  `verify_code` varchar(64) DEFAULT NULL COMMENT '对账使用的code,顾问名称+地区+随机数',
+  `bank_date` datetime DEFAULT NULL COMMENT '入账时间,对应b_finance_code.bank_date'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 ALTER TABLE `b_commission_order` ADD INDEX index_name (`code`, `school_id`, `user_id`, `adviser_id`, `official_id`);
 
@@ -902,3 +908,44 @@ CREATE TABLE `b_invoice_servicefee_description` (
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   KEY `invoice_servicefee` (`invoice_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- b_service_order 表中的 readcommitted_date 字段的修改历史
+CREATE TABLE `b_service_order_readcommitted_date` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `service_order_id` int(11) NOT NULL COMMENT 'b_service_order.id',
+  `history_date` datetime NOT NULL COMMENT '已提交申请字段的历史时间(b_service_order.readcommitted_date)',
+  `gmt_modify` datetime NOT NULL COMMENT '修改时间',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
+-- 财务对账使用的银行
+CREATE TABLE `b_finance_bank` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `bank` varchar(255) NOT NULL COMMENT '名字',
+  `bsb` varchar(64) NOT NULL COMMENT 'bsb',
+  `accountno` varchar(64) NOT NULL COMMENT 'accountno',
+  `simple` varchar(5) NOT NULL COMMENT 'bank字段简称',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '更改时间',
+  `is_delete` tinyint(1) NOT NULL COMMENT '是否删除(0:否,1是)',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+-------   bankstatement表格--
+CREATE TABLE `b_finance_code` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '修改时间',
+  `bank_date` datetime NOT NULL COMMENT '入账时间',
+  `user_id` int(11) NOT NULL COMMENT '客户姓名',
+  `is_income` tinyint(1) NOT NULL COMMENT '是否收入(1:是;0否)',
+  `money` double(10,2) NOT NULL COMMENT '金额',
+  `balance` double(10,2) NOT NULL COMMENT '余额',
+  `adviser_id` int(11) NOT NULL COMMENT '顾问id，对应tb_adviser.id',
+  `business` varchar(255) DEFAULT NULL COMMENT '签证获取签证+类型；留学获取学校名称',
+  `order_id` varchar(64) DEFAULT NULL COMMENT '对应b_commission_order.id/b_visa.id(CS/CV判断)',
+  `comment` varchar(255) DEFAULT NULL COMMENT '银行备注',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+ALTER TABLE `b_finance_code` ADD INDEX index_name (order_id);

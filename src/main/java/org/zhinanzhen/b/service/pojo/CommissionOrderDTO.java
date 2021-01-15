@@ -107,4 +107,8 @@ public class CommissionOrderDTO {
 
 	private String applyState;
 
+	private String verifyCode;
+
+	private Date bankDate;
+
 }

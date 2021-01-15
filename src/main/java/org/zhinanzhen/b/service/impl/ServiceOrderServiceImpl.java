@@ -92,6 +92,15 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
+		if (serviceOrderDto.getVerifyCode() != null){
+			List<CommissionOrderDO> commissionOrderDOS = commissionOrderDao.listCommissionOrderByVerifyCode(serviceOrderDto.getVerifyCode());
+			List<VisaDO> visaDOS = visaDao.listVisaByVerifyCode(serviceOrderDto.getVerifyCode());
+			if (commissionOrderDOS.size() > 0 | visaDOS.size()> 0) {
+				ServiceException se = new ServiceException("对账code:"+serviceOrderDto.getVerifyCode()+"已经存在,请重新创建新的code!");
+				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+				throw se;
+			}
+		}
 		try {
 			ServiceOrderDO serviceOrderDo = mapper.map(serviceOrderDto, ServiceOrderDO.class);
 			if (serviceOrderDao.addServiceOrder(serviceOrderDo) > 0) {
@@ -118,6 +127,22 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			ServiceException se = new ServiceException("id is null !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
+		}
+		if (serviceOrderDto.getVerifyCode() != null){
+			List<CommissionOrderDO> commissionOrderDOS = commissionOrderDao.listCommissionOrderByVerifyCode(serviceOrderDto.getVerifyCode());
+			List<VisaDO> visaDOS = visaDao.listVisaByVerifyCode(serviceOrderDto.getVerifyCode());
+			if (commissionOrderDOS.size() > 0) {
+				ServiceException se = new ServiceException("对账code:"+serviceOrderDto.getVerifyCode()+"已经存在,请重新创建新的code!");
+				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+				throw se;
+			}
+			for (VisaDO visaDO : visaDOS){
+				if (visaDO.getServiceOrderId() != serviceOrderDto.getId()){
+					ServiceException se = new ServiceException("对账code:"+serviceOrderDto.getVerifyCode()+"已经存在,请重新创建新的code!");
+					se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+					throw se;
+				}
+			}
 		}
 		try {
 			return serviceOrderDao.updateServiceOrder(mapper.map(serviceOrderDto, ServiceOrderDO.class));
@@ -147,11 +172,11 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	@Override
 	public int countServiceOrder(String type, String excludeState, List<String> stateList, String auditingState,
 								 List<String> reviewStateList, String startMaraApprovalDate, String endMaraApprovalDate,
-								 String startOfficialApprovalDate, String endOfficialApprovalDate, List<Integer> regionIdList,
+								 String startOfficialApprovalDate, String endOfficialApprovalDate, String startReadcommittedDate, String endReadcommittedDate, List<Integer> regionIdList,
 								 Integer userId, Integer maraId, Integer adviserId, Integer officialId, Integer officialTagId, int parentId,
 								 boolean isNotApproved, Integer serviceId, Integer schoolId) throws ServiceException {
 		return serviceOrderDao.countServiceOrder(type, excludeState, stateList, auditingState, reviewStateList,
-				startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate,
+				startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate,startReadcommittedDate,endReadcommittedDate,
 				regionIdList, userId, maraId, adviserId, officialId, officialTagId, parentId, isNotApproved,serviceId,schoolId);
 	}
 
@@ -159,7 +184,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	public List<ServiceOrderDTO> listServiceOrder(String type, String excludeState, List<String> stateList,
 												  String auditingState, List<String> reviewStateList, String startMaraApprovalDate,
 												  String endMaraApprovalDate, String startOfficialApprovalDate, String endOfficialApprovalDate,
-												  List<Integer> regionIdList, Integer userId, Integer maraId, Integer adviserId, Integer officialId,
+												  String startReadcommittedDate, String endReadcommittedDate, List<Integer> regionIdList, Integer userId, Integer maraId, Integer adviserId, Integer officialId,
 												  Integer officialTagId, int parentId, boolean isNotApproved, int pageNum, int pageSize, Integer serviceId, Integer schoolId)
 			throws ServiceException {
 		List<ServiceOrderDTO> serviceOrderDtoList = new ArrayList<ServiceOrderDTO>();
@@ -171,7 +196,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		try {
 			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, excludeState, stateList, auditingState,
 					reviewStateList, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
-					endOfficialApprovalDate, regionIdList, userId, maraId, adviserId, officialId, officialTagId,
+					endOfficialApprovalDate,startReadcommittedDate,endReadcommittedDate, regionIdList, userId, maraId, adviserId, officialId, officialTagId,
 					parentId, isNotApproved, pageNum * pageSize, pageSize,serviceId,schoolId);
 			if (serviceOrderDoList == null)
 				return null;
@@ -388,9 +413,26 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	}
 
 	@Override
+	public int Readcommitted(int id) throws ServiceException {
+		return serviceOrderDao.ReadcommittedServiceOrder(id);
+	}
+
+	@Override
 	@Transactional
 	public ServiceOrderDTO approval(int id, int adminUserId, String adviserState, String maraState,
 			String officialState, String kjState) throws ServiceException {
+		sendRemind(id, adviserState, maraState, officialState);
+		return review(id, adminUserId, adviserState, maraState, officialState, kjState, "APPROVAL");
+	}
+	
+	@Override
+	public ServiceOrderDTO refuse(int id, int adminUserId, String adviserState, String maraState, String officialState,
+			String kjState) throws ServiceException {
+		return review(id, adminUserId, adviserState, maraState, officialState, kjState, "REFUSE");
+	}
+	
+	@Override
+	public void sendRemind(int id, String adviserState, String maraState, String officialState) {
 		ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(id);
 		if (serviceOrderDo != null) {
 			String title = "新任务提醒:";
@@ -545,13 +587,6 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				serviceOrderDao.updateServiceOrder(serviceOrderDo);
 			}
 		}
-		return review(id, adminUserId, adviserState, maraState, officialState, kjState, "APPROVAL");
-	}
-
-	@Override
-	public ServiceOrderDTO refuse(int id, int adminUserId, String adviserState, String maraState, String officialState,
-			String kjState) throws ServiceException {
-		return review(id, adminUserId, adviserState, maraState, officialState, kjState, "REFUSE");
 	}
 
 	@Override

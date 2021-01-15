@@ -130,4 +130,9 @@ public class ServiceOrderDO implements Serializable {
 
 	private  Integer realPeopleNumber;
 
+	//对账使用的code
+	private String verifyCode;
+
+	private Date readcommittedDate;
+
 }

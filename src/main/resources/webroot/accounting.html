@@ -288,7 +288,17 @@
 									<a href="mycommission-accounting.html?commission_state=YJY">
 										已结佣订单
 									</a>									
-								</li>								
+								</li>
+								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
+									<a href="accounting-bank.html">
+										转账信息配置
+									</a>									
+								</li>
+								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
+									<a href="accounting-bankbill.html">
+										银行对账单
+									</a>									
+								</li>							
 								<li v-if="ap_list==='SUPERAD' || ap_list==='KJ'">
 									<a href="mycommission-check-accounting.html">
 										自动对账
@@ -323,6 +333,11 @@
 								<li>
 									<a href="knowledge.html">
 										知识库菜单
+									</a>
+								</li>
+								<li>
+									<a href="http://question.zhinanzhen.org/api/users/znz/{{admin}}" target="_blank">
+										指南针问答
 									</a>
 								</li>
 							</ul>

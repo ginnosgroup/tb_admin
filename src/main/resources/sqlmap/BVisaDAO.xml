@@ -44,7 +44,8 @@
                 bank_check,
                 is_checked,
                 remarks,
-                is_close)
+                is_close,
+                verify_code)
             VALUES (
                 now(),
                 now(),
@@ -84,7 +85,8 @@
                 NULL,
                 0,
                 #{remarks},
-                0);
+                0,
+                #{verifyCode});
     </insert>
 
     <update id="updateVisa" parameterType="org.zhinanzhen.b.dao.pojo.VisaDO">
@@ -185,6 +187,12 @@
         </if>
         <if test='remarks != null and remarks != ""'>
             , remarks = #{remarks}
+        </if>
+        <if test='verifyCode != null and verifyCode != ""'>
+            , verify_code = #{verifyCode}
+        </if>
+        <if test='bankDate != null'>
+            , bank_date = #{bankDate}
         </if>
         <if test='isClose != null'>
             , is_close = #{isClose}
@@ -295,6 +303,8 @@
             bv.bank_check AS bankCheck,
             bv.is_checked AS isChecked,
             bv.remarks AS remarks,
+            bv.verify_code AS verifyCode,
+            bv.bank_date AS bankDate,
             bv.is_close AS isClose,
             tbu.name AS userName,
             tbu.birthday AS birthday,
@@ -393,6 +403,8 @@
             bank_check AS bankCheck,
             is_checked AS isChecked,
             remarks,
+            verify_code AS verifyCode,
+            bank_date AS bankDate,
             is_close AS isClose
         FROM b_visa
         WHERE code = #{code};
@@ -438,6 +450,8 @@
             bank_check AS bankCheck,
             is_checked AS isChecked,
             remarks,
+            verify_code AS verifyCode,
+            bank_date AS bankDate,
             is_close AS isClose
         FROM b_visa WHERE service_order_id = #{serviceOrderId};
     </select>
@@ -534,6 +548,8 @@
             bank_check AS bankCheck,
             is_checked AS isChecked,
             remarks,
+            verify_code AS verifyCode,
+            bank_date AS bankDate,
             is_close AS isClose
         FROM b_visa
         WHERE installment_num = 1 AND service_order_id = #{serviceOrderId};
@@ -583,6 +599,8 @@
             bank_check AS bankCheck,
             is_checked AS isChecked,
             remarks,
+            verify_code AS verifyCode,
+            bank_date AS bankDate,
             is_close AS isClose
         FROM b_visa WHERE id = #{id, jdbcType=INTEGER};
     </select>
@@ -603,4 +621,50 @@
         ORDER BY visa_expiration_date ASC limit #{pageNum},#{pageSize} ;
     </select>
 
+    <select id="listVisaByVerifyCode" resultType="org.zhinanzhen.b.dao.pojo.VisaListDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            code,
+            handling_date AS handlingDate,
+            user_id AS userId,
+            state,
+            commission_state AS commissionState,
+            kj_approval_date AS kjApprovalDate,
+            receive_type_id AS receiveTypeId,
+            receive_date AS receiveDate,
+            service_id AS serviceId,
+            service_order_id AS serviceOrderId,
+            installment_num AS installmentNum,
+            installment,
+            payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+            payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+            payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+            payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+            visa_voucher_image_url AS visaVoucherImageUrl,
+            receivable,
+            received,
+            per_amount AS perAmount,
+            amount,
+            expect_amount AS expectAmount,
+            sure_expect_amount AS sureExpectAmount,
+            discount,
+            invoice_number AS invoiceNumber,
+            gst,
+            deduct_gst AS deductGst,
+            bonus,
+            bonus_date AS bonusDate,
+            adviser_id AS adviserId,
+            mara_id AS maraId,
+            official_id AS officialId,
+            bank_check AS bankCheck,
+            is_checked AS isChecked,
+            remarks,
+            verify_code AS verifyCode,
+            bank_date AS bankDate,
+            is_close AS isClose
+        FROM b_visa
+        WHERE verify_code  = #{verifyCode};
+    </select>
 </mapper>

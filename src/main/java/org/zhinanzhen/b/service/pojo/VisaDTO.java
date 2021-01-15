@@ -100,6 +100,10 @@ public class VisaDTO {
 
 	private String remarks;
 
+	private String verifyCode;
+
+	private Date bankDate;
+
 	private boolean isClose;
 
 	private List<Date> remindDateList;

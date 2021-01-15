@@ -176,6 +176,25 @@
 			</div>
 </div>
 </div>
+
+<div class="modal fade" id="confirm_id" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="top:15%;">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content"  style="background:#F5F5DC;">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="myModalLabel">确认</h4>
+			</div>
+			<div class="modal-body">
+				<h2>请确认该订单属性：提交扣佣【<span id="confirm_issettle">null</span>】</h2>
+				注：追要佣金属性为【否】，提前扣佣属性为【是】。如客户已将学费交给学校，请选择【否】。
+			</div>
+			<div class="modal-footer">				
+				<button onclick="$('#confirm_id').modal('hide');requestCommissionSave();" type="button" class="btn btn-primary">确认</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+			</div>
+		</div>
+	</div>
+</div>
 <script>
 var v_sub2 = new Vue({
 				el: '#app_sub2',
@@ -234,7 +253,8 @@ function edit_commission_detail(serviceId,orderId)
 		    	var obj_issettle = $("#ovst_id #c5a");
 		    	obj_issettle.val(response.settle);
 		    	var str_issettle = '否';
-		    	if (response.settle) str_issettle = '是';		    	
+		    	if (response.settle) str_issettle = '是';
+		    	$('#confirm_id #confirm_issettle').html(str_issettle);			    	
 		    	$('#ovst_id #c5').html(str_issettle);		    			    	
 		    	var str_isdeposituser = '否';
 		    	if (response.depositUser)
@@ -423,7 +443,7 @@ function requestCommissionSave()
     		$('#ovst_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
         $("#ovst_id #error_info").html('提示：红色字段必须填写或选择！');
     		return false;
-    }   
+    }    
         
     if (check_result)
     {            	            	            	                             
@@ -625,8 +645,21 @@ function page_init()
 
 $('#ovst_id').on('show.bs.modal', function () {
 	$("#ovst_id #ovstid_form").validate({
-			submitHandler: function () {						
-            requestCommissionSave();
+			submitHandler: function () {
+						var flist = $("#ovst_id #flist1").val();
+		       	if (flist != '')
+		   			{
+								$('#confirm_id').modal('show');
+						}else
+						{
+								$('#ovst_id #alert_error').css('marginTop','50%');
+		      			$('#ovst_id #alert_error').css('marginLeft','30%');
+		   					$('#ovst_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+		      			$("#ovst_id #error_info").html('收款凭证没有上传，请上传之后再提交。');
+		    				return false;
+						}
+						//return false;
+            //requestCommissionSave();
       },
       rules: {
           c20a: {required:true,minlength:10},

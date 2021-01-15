@@ -18,4 +18,6 @@ public interface AdviserDAO {
 
 	public AdviserDO getAdviserById(int id);
 
+	List<AdviserDO> listAdviserByRegionId(@Param("regionId")Integer regionId,@Param("state")String state);
+
 }

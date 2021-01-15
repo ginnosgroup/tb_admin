@@ -801,7 +801,8 @@ function add_service2(orderId,userId,name)
 				$("#addnewservice2_id #labc6");
 				var school_subject = $("#addnewservice2_id #c4");
 				school_subject.append("<option value=''>请选择</option>");    		
-				$("#addnewservice2_id #c2 option:first").prop('selected', 'selected');				
+				$("#addnewservice2_id #c2 option:first").prop('selected', 'selected');
+				$("#addnewservice2_id #c7").val('1000001');
 		}else
 		{
 				//修改
@@ -2884,7 +2885,7 @@ v.$watch('addnewservice2_bind', function(obj) {
     	{
     			obj_subagencyId.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
     	}
-    	obj_subagencyId.val('');   
+    	obj_subagencyId.val('1000001');   
     });
 	  //绑定顾问
 	  var obj_adviserId = $("#addnewservice2_id #c8");

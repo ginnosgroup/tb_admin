@@ -15,14 +15,14 @@ public interface ServiceOrderService {
 
 	int countServiceOrder(String type, String excludeState, List<String> stateList, String auditingState,
 						  List<String> reviewStateList, String startMaraApprovalDate, String endMaraApprovalDate,
-						  String startOfficialApprovalDate, String endOfficialApprovalDate, List<Integer> regionIdList,
+						  String startOfficialApprovalDate, String endOfficialApprovalDate, String startReadcommittedDate, String endReadcommittedDate, List<Integer> regionIdList,
 						  Integer userId, Integer maraId, Integer adviserId, Integer officialId, Integer officialTagId, int parentId,
 						  boolean isNotApproved, Integer serviceId, Integer schoolId) throws ServiceException;
 
 	List<ServiceOrderDTO> listServiceOrder(String type, String excludeState, List<String> stateList,
 										   String auditingState, List<String> reviewStateList, String startMaraApprovalDate,
 										   String endMaraApprovalDate, String startOfficialApprovalDate, String endOfficialApprovalDate,
-										   List<Integer> regionIdList, Integer userId, Integer maraId, Integer adviserId, Integer officialId,
+										   String startReadcommittedDate, String endReadcommittedDate, List<Integer> regionIdList, Integer userId, Integer maraId, Integer adviserId, Integer officialId,
 										   Integer officialTagId, int parentId, boolean isNotApproved, int pageNum, int pageSize, Integer serviceId, Integer schoolId)
 			throws ServiceException;
 
@@ -32,11 +32,15 @@ public interface ServiceOrderService {
 
 	int finish(int id) throws ServiceException;
 
+	int Readcommitted(int id) throws ServiceException;
+
 	ServiceOrderDTO approval(int id, int adminUserId, String adviserState, String maraState, String officialState,
 			String kjState) throws ServiceException;
 
 	ServiceOrderDTO refuse(int id, int adminUserId, String adviserState, String maraState, String officialState,
 			String kjState) throws ServiceException;
+	
+	void sendRemind(int id, String adviserState, String maraState, String officialState);
 
 	List<ServiceOrderReviewDTO> reviews(int serviceOrderId) throws ServiceException;
 
