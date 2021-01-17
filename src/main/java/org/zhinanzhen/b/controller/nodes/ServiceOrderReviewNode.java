@@ -26,10 +26,10 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 	@Override
 	protected String decide(Context context) {
 		isSingleStep = true;
-		if (!"GW".equalsIgnoreCase(getAp(context))) {
-			context.putParameter("response", new Response<ServiceOrderDTO>(1, "仅限顾问操作!文案审核请传'OREVIEW'.", null));
-			return SUSPEND_NODE;
-		}
+//		if (!"GW".equalsIgnoreCase(getAp(context))) {
+//			context.putParameter("response", new Response<ServiceOrderDTO>(1, "仅限顾问操作!文案审核请传'OREVIEW'.", null));
+//			return SUSPEND_NODE;
+//		}
 		try {
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(getServiceOrderId(context));
 			if (serviceOrderDto == null) {

@@ -25,6 +25,10 @@ public class ServiceOrderWaitNode extends SODecisionNode {
 	@Override
 	protected String decide(Context context) {
 		isSingleStep = true;
+//		if (!"WA".equalsIgnoreCase(getAp(context))) {
+//		context.putParameter("response", new Response<ServiceOrderDTO>(1, "仅限文案操作!", null));
+//		return SUSPEND_NODE;
+//	}
 		String state = getState(context, "OREVIEW", "REVIEW", "REJECT", "FINISH");
 		if ("REJECT".equalsIgnoreCase(state) && !"VISA".equalsIgnoreCase(getType(context))) {
 			context.putParameter("response", new Response<ServiceOrderDTO>(1, "只有签证类才能进行mara审核流程.", null));
