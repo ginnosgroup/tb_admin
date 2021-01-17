@@ -133,6 +133,10 @@
 									$<input type="text" autocomplete="off" readonly="readonly" name="b17" id="b17" class="form-control" style="width:80px;">&nbsp;<span style="font-weight:bold;">(“本次实收金额”务必填写实际收到客户的金额。)</span>
 								</div>
 						</div>
+						<div class="form-group" style="width:100%;height:40px;margin-top:10px;">
+								<label class="control-label" style="width:80px;">银行对账Code</label>
+								<input type="text" autocomplete="off" name="b17a" id="b17a" class="form-control" style="width:150px;">
+						</div>
 						</div>
 						<div class="form-group" style="width:100%;line-height:40px;">
 							<label class="control-label">备注 <span style="color:red;font-weight:bold;">(可填写之前任务邮件内容，如申请人数，资料坚果云地址。)</span></label>
@@ -749,7 +753,8 @@ function add_service1(orderId,userId,name)
 	        			$("#addnewservice1_id #b13").attr("disabled",false);
 	        			$("#addnewservice1_id #b14").attr("disabled",false);
 	        			$("#addnewservice1_id #b14a").attr("disabled",false);
-	        	}        		        		        		        	
+	        	}
+	        	$('#addnewservice1_id #b17a').val(response.verifyCode);        		        		        		        	
 	        	$('#addnewservice1_id #btn_id').html('保存修改');
 	        	//$('#addnewservice1_id #btnReview').show();
 	      });
@@ -1107,6 +1112,7 @@ $('#addnewservice1_id :radio[name=b7]').live('click', function (e) {
 				$("#addnewservice1_id #b12").rules("add",{required:true,number:true,messages:{required:"",number:"格式错"}});
 				$("#addnewservice1_id #b14a").rules("add",{required:true,number:true,messages:{required:"",number:"格式错"}});
 				$("#addnewservice1_id #b14").rules("add",{required:true,number:true,messages:{required:"",number:"格式错"}});
+				//$("#addnewservice1_id #b17a").rules("add",{required:true,messages:{required:""}});
 				$('#addnewservice1_id #show_paid').show();
 				if (v.orderId != 0)
 				{		
@@ -1120,6 +1126,7 @@ $('#addnewservice1_id :radio[name=b7]').live('click', function (e) {
 				$("#addnewservice1_id #b12").rules("remove");
 				$("#addnewservice1_id #b14a").rules("remove");
 				$("#addnewservice1_id #b14").rules("remove");
+				//$("#addnewservice1_id #b17a").rules("remove");
 				$('#addnewservice1_id #show_paid').hide();
 				$('#addnewservice1_id #upload_receipt').hide();
 				$('#addnewservice1_id #show_pic').hide();
@@ -1801,7 +1808,8 @@ function addnewService1Save()
        	json['isHistory'] = isHistory;       	
        	json['paid'] = $("#addnewservice1_id input[name='b7']:checked").val();
        	json['userId'] = $("#addnewservice1_id #user_id").val();
-       	json['remarks'] = $(f+'#b18').val();
+       	json['verifyCode'] = $(f+'#b17a').val();
+       	json['remarks'] = $(f+'#b18').val();       	
        	json['isPay'] = false;       	      	
        	if (json['paid'] == 1)
        	{
@@ -2344,6 +2352,7 @@ function reqCommissionVisa()
 		   	json['adviserId'] = order.adviserId;
 		   	json['maraId'] = order.maraId;
 		   	json['officialId'] = order.officialId;
+		   	json['verifyCode'] = order.verifyCode;
 		   	json['remarks'] = order.remarks;
 		   	
 		   	$.post(str_url, json,

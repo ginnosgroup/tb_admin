@@ -157,12 +157,15 @@
 											<div class="form-group" style="margin-left:10px;">
 												<label class="control-label" style="font-weight:bold;color:red;">本次实收金额：</label>
 												$<label id="c31"></label>
-											</div>
-																				
+											</div>																				
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">								
 												<label class="control-label" style="width:150px;font-weight:bold;">预收业绩<br/>(<span style="color:#FF6C60;">Commission含GST</span>)：</label>
 												$<label id="c32"></label>					
+									</div>
+									<div class="form-group" style="width:100%;height:40px;margin-top:10px;">
+											<label class="control-label"><strong>银行对账Code：</strong></label>
+											<label id="c32a" style="width:50px;"></label>
 									</div>
 									<div id="show_paymentpic" class="form-group" style="display:;width:100%;line-height:40px;">
 											<label class="control-label"><strong>收款凭证：</strong></label>
@@ -353,6 +356,7 @@ function show_commission_detail(serviceId,orderId)
 			    	$('#show_ovst_id #c30').html(response.discount);
 			    	$('#show_ovst_id #c31').html(response.amount);
 			    	$('#show_ovst_id #c32').html(response.expectAmount);
+			    	$('#show_ovst_id #c32a').html(response.verifyCode);
 			    	if (response.remarks) response.remarks = url_replace(response.remarks);
 			    	$('#show_ovst_id #c33').html(response.remarks);
 			    	

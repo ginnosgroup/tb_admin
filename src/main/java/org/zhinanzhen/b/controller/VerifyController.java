@@ -80,8 +80,12 @@ public class VerifyController {
                         //financeCodeDO.setName(commissionOrderListDTO.getUser().getName());
                         financeCodeDO.setUserId(commissionOrderListDTO.getUserId());
                         financeCodeDO.setBusiness("留学-"+commissionOrderListDTO.getSchool().getName());
-                        commissionOrderListDTO.setBankDate(financeCodeDO.getBankDate());
-                        commissionOrderListDTO.setChecked(true);
+                        if (commissionOrderListDTO.getBankDate()==null)
+                            commissionOrderListDTO.setBankDate(financeCodeDO.getBankDate());
+                        if (!commissionOrderListDTO.isChecked())
+                            commissionOrderListDTO.setChecked(true);
+                        if (StringUtil.isEmpty(commissionOrderListDTO.getBankCheck()))
+                            commissionOrderListDTO.setBankCheck("手工");
                         commissionOrderService.updateCommissionOrder(commissionOrderListDTO);
                     }
                 }
@@ -92,8 +96,12 @@ public class VerifyController {
                         financeCodeDO.setUserId(visaDTO.getUserId());
                         ServiceOrderDTO serviceOrderDTO = serviceOrderService.getServiceOrderById(visaDTO.getServiceOrderId());
                         financeCodeDO.setBusiness(serviceOrderDTO.getService().getName()+"-"+serviceOrderDTO.getService().getCode());
-                        visaDTO.setBankDate(financeCodeDO.getBankDate());
-                        visaDTO.setChecked(true);
+                        if (visaDTO.getBankDate()==null)
+                            visaDTO.setBankDate(financeCodeDO.getBankDate());
+                        if (!visaDTO.isChecked())
+                            visaDTO.setChecked(true);
+                        if (StringUtil.isEmpty(visaDTO.getBankCheck()))
+                            visaDTO.setBankCheck("手工");
                         visaService.updateVisa(visaDTO);
                     }
                 }
@@ -163,25 +171,30 @@ public class VerifyController {
             WritableCellFormat cellFormat = new WritableCellFormat();
             int i = 1;
             for (FinanceCodeDTO financeCodeDTO:financeCodeDTOS){
-                sheet.addCell(new Label(0, i, financeCodeDTO.getId() + "", cellFormat));
+                if (financeCodeDTO.getOrderId() !=null)
+                    sheet.addCell(new Label(0, i, financeCodeDTO.getOrderId() + "", cellFormat));
                 if (financeCodeDTO.getBankDate()!=null)
                     sheet.addCell(new Label(1, i, sdfbankDatein.format(financeCodeDTO.getBankDate()), cellFormat));
                 if (financeCodeDTO.getUser()!=null)
                     sheet.addCell(new Label(2, i, financeCodeDTO.getUser().getName(), cellFormat));
-                if (financeCodeDTO.isIncome())
-                    sheet.addCell(new Label(3, i, "收入", cellFormat)) ;
-                else
-                    sheet.addCell(new Label(3, i, "支出", cellFormat));
-                sheet.addCell(new Label(4, i, financeCodeDTO.getMoney() + "", cellFormat));
-                sheet.addCell(new Label(5, i, financeCodeDTO.getBalance() + "", cellFormat));
-                if (financeCodeDTO.getAdviser()!=null)
-                    sheet.addCell(new Label(6, i, financeCodeDTO.getAdviser().getName() + "", cellFormat));
                 if (financeCodeDTO.getBusiness()!=null)
-                    sheet.addCell(new Label(7, i, financeCodeDTO.getBusiness() + "", cellFormat));
-                if (financeCodeDTO.getOrderId() !=null)
-                    sheet.addCell(new Label(8, i, financeCodeDTO.getOrderId() + "", cellFormat));
+                    sheet.addCell(new Label(3, i, financeCodeDTO.getBusiness() + "", cellFormat));
                 if (financeCodeDTO.getComment() !=null)
-                    sheet.addCell(new Label(9, i, financeCodeDTO.getComment() + "", cellFormat));
+                    sheet.addCell(new Label(4, i, financeCodeDTO.getComment() + "", cellFormat));
+                if (financeCodeDTO.isIncome())
+                    sheet.addCell(new Label(5, i, "收入", cellFormat)) ;
+                else
+                    sheet.addCell(new Label(5, i, "支出", cellFormat));
+                sheet.addCell(new Label(6, i, financeCodeDTO.getMoney() + "", cellFormat));
+                sheet.addCell(new Label(7, i, financeCodeDTO.getBalance() + "", cellFormat));
+                if (financeCodeDTO.getAdviser()!=null){
+                    sheet.addCell(new Label(8, i, financeCodeDTO.getAdviser().getRegionName() + "", cellFormat));
+                    sheet.addCell(new Label(9, i, financeCodeDTO.getAdviser().getName() + "", cellFormat));
+                }
+
+
+
+
                 i++;
             }
 
@@ -248,6 +261,7 @@ public class VerifyController {
             financeCodeDO.setBusiness("留学-"+commissionOrderListDTO.getSchool().getName());
             commissionOrderListDTO.setBankDate(financeCodeDO.getBankDate());
             commissionOrderListDTO.setChecked(true);
+            commissionOrderListDTO.setBankCheck("手工");
             commissionOrderService.updateCommissionOrder(commissionOrderListDTO);
         }
         if (order.equalsIgnoreCase("CV")){
@@ -260,6 +274,7 @@ public class VerifyController {
             financeCodeDO.setBusiness(serviceOrderDTO.getService().getName()+"-"+serviceOrderDTO.getService().getCode());
             visaDTO.setBankDate(financeCodeDO.getBankDate());
             visaDTO.setChecked(true);
+            visaDTO.setBankCheck("手工");
             visaService.updateVisa(visaDTO);
         }
         if( verifyService.update(financeCodeDO) > 0 ){

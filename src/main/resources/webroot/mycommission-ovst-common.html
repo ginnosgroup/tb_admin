@@ -152,6 +152,10 @@
 											</div>									
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">
+											<label class="control-label" style="width:150px;">银行对账Code</label>
+											<input type="text" autocomplete="off" name="c2a" id="c32a" class="form-control" style="width:150px;">
+									</div>
+									<div class="form-group" style="width:100%;margin-top:10px;">
 											<label class="control-label">备注</label>
 											<textarea id="c33" class="form-control" style="width:98%;font-weight:normal;"></textarea>
 									</div>
@@ -306,6 +310,7 @@ function edit_commission_detail(serviceId,orderId)
 			    	$('#ovst_id #c30').val(response.discount);
 			    	$('#ovst_id #c31').val(response.amount);
 			    	$('#ovst_id #c32').val(response.expectAmount);
+			    	$('#ovst_id #c32a').val(response.verifyCode);
 			    	$('#ovst_id #c33').val(response.remarks);
 			    	
 			    	//生成收款凭证    	
@@ -515,6 +520,7 @@ function requestCommissionSave()
        	json['receiveDate'] =  d;
        	json['perAmount'] =  $(f+'#c29').val();       	
        	json['amount'] =  $(f+'#c31').val();
+       	json['verifyCode'] =  $(f+'#c32a').val();
        	json['remarks'] =  $(f+'#c33').val();
        	//校验是否上传了凭证
        	var flist = $("#ovst_id #flist1").val();
