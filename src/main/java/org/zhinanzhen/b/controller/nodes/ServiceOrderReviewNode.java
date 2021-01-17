@@ -26,6 +26,10 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 	@Override
 	protected String decide(Context context) {
 		isSingleStep = true;
+		if (!"GW".equalsIgnoreCase(getAp(context))) {
+			context.putParameter("response", new Response<ServiceOrderDTO>(1, "仅限顾问操作!文案审核请传'OREVIEW'.", null));
+			return SUSPEND_NODE;
+		}
 		try {
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(getServiceOrderId(context));
 			if (serviceOrderDto == null) {
@@ -42,7 +46,7 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 			context.putParameter("response", new Response<ServiceOrderDTO>(1, "服务订单执行异常:" + e.getMessage(), null));
 			return SUSPEND_NODE;
 		}
-		String state = getState(context, "WAIT", "CLOSE", "FINISH");
+		String state = getState(context, "OREVIEW", "WAIT", "CLOSE", "FINISH");
 		if ("WAIT".equalsIgnoreCase(state) && !"VISA".equalsIgnoreCase(getType(context))) {
 			context.putParameter("response", new Response<ServiceOrderDTO>(1, "只有签证类才能进行mara审核流程.", null));
 			return SUSPEND_NODE;
