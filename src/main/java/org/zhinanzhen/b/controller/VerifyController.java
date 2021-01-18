@@ -252,7 +252,6 @@ public class VerifyController {
              order = orderId.substring(0,2);
              number = Integer.parseInt(orderId.substring(2));
         }catch (Exception e){
-            System.out.println("jinlai l");
             throw new Exception("orderId error");
         }
         if (number <= 0 | id <= 0 )
