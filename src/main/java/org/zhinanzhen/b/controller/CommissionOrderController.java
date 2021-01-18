@@ -228,7 +228,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate1)));
 					commissionOrderDto.setState(ReviewKjStateEnum.REVIEW.toString()); // 第一笔单子直接进入财务审核状态
 					if (StringUtil.isNotEmpty(verifyCode))
-						commissionOrderDto.setVerifyCode(verifyCode.replace("$","").replace("#",""));
+						commissionOrderDto.setVerifyCode(verifyCode.replace("$","").replace("#","").replace(" ",""));
 					commissionOrderDto.setKjApprovalDate(new Date());
 				} else {
 					if (installmentNum == 2 && installmentDueDate2 != null) {
@@ -435,7 +435,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			if (StringUtil.isNotEmpty(remarks))
 				commissionOrderDto.setRemarks(remarks);
 			if (StringUtil.isNotEmpty(verifyCode))
-				commissionOrderDto.setVerifyCode(verifyCode.replace("$","").replace("#",""));
+				commissionOrderDto.setVerifyCode(verifyCode.replace("$","").replace("#","").replace(" ",""));
 			if (commissionOrderDto.getKjApprovalDate() == null || commissionOrderDto.getKjApprovalDate().getTime() == 0)
 				commissionOrderDto.setKjApprovalDate(new Date());
 

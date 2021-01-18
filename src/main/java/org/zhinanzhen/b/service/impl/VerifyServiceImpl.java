@@ -117,7 +117,7 @@ public class VerifyServiceImpl implements VerifyService {
                 row = sheet.getRow(r);
                 Object columnValue = null;
 
-                DecimalFormat df = new DecimalFormat("0");// 格式化 number
+                DecimalFormat df = new DecimalFormat("0.00");// 格式化 number
                 SimpleDateFormat sdfParse = new SimpleDateFormat("dd/MM/yyyy");// 格式化日期字符串
 
                 if (row.getCell(0) == null){

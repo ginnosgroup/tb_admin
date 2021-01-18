@@ -212,7 +212,7 @@ public class VisaController extends BaseCommissionOrderController {
 				} else {
 					visaDto.setState(ReviewKjStateEnum.REVIEW.toString()); // 第一笔单子直接进入财务审核状态
 					if (StringUtil.isNotEmpty(verifyCode))//只给第一笔赋值verifyCode
-						visaDto.setVerifyCode(verifyCode.replace("$","").replace("#",""));
+						visaDto.setVerifyCode(verifyCode.replace("$","").replace("#","").replace(" ",""));
 					visaDto.setKjApprovalDate(new Date());
 				}
 				if (visaService.addVisa(visaDto) > 0)
@@ -367,7 +367,7 @@ public class VisaController extends BaseCommissionOrderController {
 			if (StringUtil.isNotEmpty(remarks))
 				visaDto.setRemarks(remarks);
 			if (StringUtil.isNotEmpty(verifyCode))
-				visaDto.setVerifyCode(verifyCode.replace("$","").replace("#",""));
+				visaDto.setVerifyCode(verifyCode.replace("$","").replace("#","").replace(" ",""));
 			double commission = visaDto.getAmount();
 			visaDto.setGst(commission / 11);
 			visaDto.setDeductGst(commission - visaDto.getGst());
