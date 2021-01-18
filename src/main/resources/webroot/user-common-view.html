@@ -104,9 +104,13 @@
 										$<label id="b16" style="width:65px;"></label>
 									</div>
 									<div class="form-group" style="">
-										<label class="control-label"><strong>预收业绩</strong></label>
+										<label class="control-label"><strong>预收业绩：</strong></label>
 										$<label id="b17" style="width:50px;"></label>
 									</div>
+							</div>
+							<div class="form-group" style="width:100%;margin-top:10px;">
+									<label class="control-label" style="width:150px;">银行对账Code：</label>
+									<label id="b17a" style=""></label>
 							</div>
 							</div>
 							<div id="show_paymentpic" class="form-group" style="display:none;width:100%;line-height:40px;">
@@ -415,6 +419,10 @@
 												<label class="control-label">预收业绩</label>
 												$<input type="text" autocomplete="off" disabled="disabled" name="c32" id="c32" class="form-control" style="width:100px;font-weight:normal;">&nbsp;(“预收业绩”仅供参考，具体以会计结算为准。)
 											</div>									
+									</div>
+									<div class="form-group" style="width:100%;margin-top:10px;">
+											<label class="control-label" style="width:150px;">银行对账Code</label>
+											<input type="text" autocomplete="off" name="c2a" id="c32a" class="form-control" style="width:150px;">
 									</div>
 									<div class="form-group" style="width:100%;margin-top:10px;">
 											<label class="control-label">备注</label>
@@ -938,6 +946,7 @@ function show_addnewservice_id(orderId,type)
 		        	$('#show_addnewservice1_id #b15').html(response.gst);
 		        	$('#show_addnewservice1_id #b16').html(response.deductGst);
 		        	$('#show_addnewservice1_id #b17').html(response.expectAmount);
+		        	$('#show_addnewservice1_id #b17a').html(response.verifyCode);
 		        	if (response.remarks) response.remarks = url_replace(response.remarks);
 		        	$('#show_addnewservice1_id #b18').html(response.remarks);		        	
 		        	//签证凭证
@@ -1845,6 +1854,7 @@ function reqCommissionOvst()
        	json['discount'] = $(f+'#c30').val();
        	json['amount'] = $(f+'#c31').val();
        	//json['expectAmount'] = jqInputs[12].value;
+       	json['verifyCode'] = $(f+'#c32a').val();
        	json['remarks'] = $(f+'#c33').val();
        	//console.log(json);
        	//return false;

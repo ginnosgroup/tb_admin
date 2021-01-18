@@ -288,7 +288,7 @@ public class ServiceOrderController extends BaseController {
 			else
 				serviceOrderDto.setRealPeopleNumber(peopleNumber != null && peopleNumber > 0 ? peopleNumber : 1);
 			if (StringUtil.isNotEmpty(verifyCode))
-				serviceOrderDto.setVerifyCode(verifyCode);
+				serviceOrderDto.setVerifyCode(verifyCode.replace("$","").replace("#","").replace(" ",""));
 			if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
 				String msg = "";
 				if (adminUserLoginInfo != null)
@@ -521,7 +521,7 @@ public class ServiceOrderController extends BaseController {
 			} else
 				serviceOrderDto.setServiceAssessId(null);
 			if (StringUtil.isNotEmpty(verifyCode))
-				serviceOrderDto.setVerifyCode(verifyCode);
+				serviceOrderDto.setVerifyCode(verifyCode.replace("$","").replace("#","").replace(" ",""));
 			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
 			if (i > 0) {
 				return new Response<Integer>(0, i);

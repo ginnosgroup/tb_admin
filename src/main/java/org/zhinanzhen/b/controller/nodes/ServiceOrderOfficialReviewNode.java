@@ -10,24 +10,24 @@ import com.ikasoa.web.workflow.Context;
 
 // 文案审核
 @Component
-public class ServiceOrderReviewNode extends SODecisionNode {
+public class ServiceOrderOfficialReviewNode extends SODecisionNode {
 
 	// 顾问,文案
 	
-	public ServiceOrderReviewNode(ServiceOrderService serviceOrderService) {
+	public ServiceOrderOfficialReviewNode(ServiceOrderService serviceOrderService) {
 		super.serviceOrderService = serviceOrderService;
 	}
 
 	@Override
 	public String getName() {
-		return "REVIEW";
+		return "OREVIEW";
 	}
 
 	@Override
 	protected String decide(Context context) {
 		isSingleStep = true;
-//		if (!"GW".equalsIgnoreCase(getAp(context))) {
-//			context.putParameter("response", new Response<ServiceOrderDTO>(1, "仅限顾问操作!文案审核请传'OREVIEW'.", null));
+//		if (!"WA".equalsIgnoreCase(getAp(context))) {
+//			context.putParameter("response", new Response<ServiceOrderDTO>(1, "仅限文案操作!", null));
 //			return SUSPEND_NODE;
 //		}
 		try {
@@ -46,7 +46,7 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 			context.putParameter("response", new Response<ServiceOrderDTO>(1, "服务订单执行异常:" + e.getMessage(), null));
 			return SUSPEND_NODE;
 		}
-		String state = getState(context, "OREVIEW", "WAIT", "CLOSE", "FINISH");
+		String state = getState(context, "WAIT", "CLOSE", "FINISH");
 		if ("WAIT".equalsIgnoreCase(state) && !"VISA".equalsIgnoreCase(getType(context))) {
 			context.putParameter("response", new Response<ServiceOrderDTO>(1, "只有签证类才能进行mara审核流程.", null));
 			return SUSPEND_NODE;
