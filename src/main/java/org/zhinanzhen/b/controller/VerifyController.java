@@ -247,7 +247,12 @@ public class VerifyController {
     public  Response update(@RequestParam(value = "orderId",required = true)String orderId,
                             @RequestParam(value = "id") Integer id) throws Exception {
         String order = orderId.substring(0,2);
-        Integer number = Integer.parseInt(orderId.substring(2));
+        Integer number = null;
+        try {
+             number = Integer.parseInt(orderId.substring(2));
+        }catch (Exception e){
+            throw new Exception("orderId error !");
+        }
         if (number <= 0 | id <= 0 )
             throw new Exception("id or orderId error !");
         FinanceCodeDO financeCodeDO = verifyService.financeCodeById(id);
