@@ -79,10 +79,11 @@ public class VerifyController {
                         financeCodeDO.setAdviserId(commissionOrderListDTO.getAdviserId());
                         //financeCodeDO.setName(commissionOrderListDTO.getUser().getName());
                         financeCodeDO.setUserId(commissionOrderListDTO.getUserId());
+                        financeCodeDO.setAmount(commissionOrderListDTO.getAmount());
                         financeCodeDO.setBusiness("留学-"+commissionOrderListDTO.getSchool().getName());
                         if (commissionOrderListDTO.getBankDate()==null)
                             commissionOrderListDTO.setBankDate(financeCodeDO.getBankDate());
-                        if (!commissionOrderListDTO.isChecked())
+                        if (commissionOrderListDTO.getAmount() == financeCodeDO.getMoney())
                             commissionOrderListDTO.setChecked(true);
                         if (StringUtil.isEmpty(commissionOrderListDTO.getBankCheck()))
                             commissionOrderListDTO.setBankCheck("手工");
@@ -94,11 +95,12 @@ public class VerifyController {
                     if (visaDTO!=null){
                         financeCodeDO.setAdviserId(visaDTO.getAdviserId());
                         financeCodeDO.setUserId(visaDTO.getUserId());
+                        financeCodeDO.setAmount(visaDTO.getAmount());
                         ServiceOrderDTO serviceOrderDTO = serviceOrderService.getServiceOrderById(visaDTO.getServiceOrderId());
                         financeCodeDO.setBusiness(serviceOrderDTO.getService().getName()+"-"+serviceOrderDTO.getService().getCode());
                         if (visaDTO.getBankDate()==null)
                             visaDTO.setBankDate(financeCodeDO.getBankDate());
-                        if (!visaDTO.isChecked())
+                        if (visaDTO.getAmount()==financeCodeDO.getMoney())
                             visaDTO.setChecked(true);
                         if (StringUtil.isEmpty(visaDTO.getBankCheck()))
                             visaDTO.setBankCheck("手工");
@@ -258,9 +260,11 @@ public class VerifyController {
                 throw new Exception(" 没有此佣金订单:" + orderId +"!");
             financeCodeDO.setAdviserId(commissionOrderListDTO.getAdviserId());
             financeCodeDO.setUserId(commissionOrderListDTO.getUserId());
+            financeCodeDO.setAmount(commissionOrderListDTO.getAmount());
             financeCodeDO.setBusiness("留学-"+commissionOrderListDTO.getSchool().getName());
             commissionOrderListDTO.setBankDate(financeCodeDO.getBankDate());
-            commissionOrderListDTO.setChecked(true);
+            if (financeCodeDO.getMoney() == commissionOrderListDTO.getAmount())
+                commissionOrderListDTO.setChecked(true);
             commissionOrderListDTO.setBankCheck("手工");
             commissionOrderService.updateCommissionOrder(commissionOrderListDTO);
         }
@@ -270,10 +274,12 @@ public class VerifyController {
                 throw new Exception(" 没有此佣金订单:" + orderId +"!");
             financeCodeDO.setAdviserId(visaDTO.getAdviserId());
             financeCodeDO.setUserId(visaDTO.getUserId());
+            financeCodeDO.setAmount(visaDTO.getAmount());
             ServiceOrderDTO serviceOrderDTO = serviceOrderService.getServiceOrderById(visaDTO.getServiceOrderId());
             financeCodeDO.setBusiness(serviceOrderDTO.getService().getName()+"-"+serviceOrderDTO.getService().getCode());
             visaDTO.setBankDate(financeCodeDO.getBankDate());
-            visaDTO.setChecked(true);
+            if (visaDTO.getAmount() == financeCodeDO.getMoney())
+                visaDTO.setChecked(true);
             visaDTO.setBankCheck("手工");
             visaService.updateVisa(visaDTO);
         }
