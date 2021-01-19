@@ -946,6 +946,7 @@ CREATE TABLE `b_finance_code` (
   `business` varchar(255) DEFAULT NULL COMMENT '签证获取签证+类型；留学获取学校名称',
   `order_id` varchar(64) DEFAULT NULL COMMENT '对应b_commission_order.id/b_visa.id(CS/CV判断)',
   `comment` varchar(255) DEFAULT NULL COMMENT '银行备注',
+  `amount` decimal(8,2) DEFAULT NULL COMMENT '佣金订单中的实收金额',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 ALTER TABLE `b_finance_code` ADD INDEX index_name (order_id);
