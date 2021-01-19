@@ -1688,7 +1688,7 @@ public class ServiceOrderController extends BaseController {
 			context = workflowStarter.process(workflow, context);
 			return context.getParameter("response") != null
 					? (Response<ServiceOrderDTO>) context.getParameter("response")
-					: new Response<ServiceOrderDTO>(1, "异常:" + id, null);
+					: new Response<ServiceOrderDTO>(1, "异常(没有response):" + id, null);
 		} catch (ServiceException e) {
 			e.printStackTrace();
 		}
