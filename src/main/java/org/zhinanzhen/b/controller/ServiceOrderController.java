@@ -1691,7 +1691,8 @@ public class ServiceOrderController extends BaseController {
 				if (Arrays.asList(nextNodeNames).contains(state))
 					node = soNodeFactory.getNode(state);
 				else
-					return new Response<ServiceOrderDTO>(1, "状态:" + state + "不是合法状态. (" + Arrays.toString(nextNodeNames) + ")", null);
+					return new Response<ServiceOrderDTO>(1,
+							StringUtil.merge("状态:", state, "不是合法状态. (", Arrays.toString(nextNodeNames), ")"), null);
 
 			Workflow workflow = new Workflow("Service Order Work Flow", node, soNodeFactory);
 			
