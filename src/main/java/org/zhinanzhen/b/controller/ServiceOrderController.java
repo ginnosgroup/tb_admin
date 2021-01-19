@@ -1691,14 +1691,14 @@ public class ServiceOrderController extends BaseController {
 				if (Arrays.asList(nextNodeNames).contains(state))
 					node = soNodeFactory.getNode(state);
 				else
-					return new Response<ServiceOrderDTO>(1, "状态:" + state + "不是合法状态. (" + nextNodeNames + ")", null);
+					return new Response<ServiceOrderDTO>(1, "状态:" + state + "不是合法状态. (" + Arrays.toString(nextNodeNames) + ")", null);
 
 			Workflow workflow = new Workflow("Service Order Work Flow", node, soNodeFactory);
 			
 			context = workflowStarter.process(workflow, context);
 			return context.getParameter("response") != null
 					? (Response<ServiceOrderDTO>) context.getParameter("response")
-					: new Response<ServiceOrderDTO>(1, "异常(没有response):" + id, null);
+					: new Response<ServiceOrderDTO>(0, id + "", null);
 		} catch (ServiceException e) {
 			return new Response<ServiceOrderDTO>(1, "异常:" + e.getMessage(), null);
 		}
