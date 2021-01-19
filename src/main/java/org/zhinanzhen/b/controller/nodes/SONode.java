@@ -54,6 +54,11 @@ public abstract class SONode extends AbstractNode {
 		}
 		return true;
 	}
+	
+	@Override
+	public String[] nextNodeNames() {
+		return null;
+	}
 
 	protected int getServiceOrderId(Context context) {
 		Map<String, Object> parameters = context.getParameters();

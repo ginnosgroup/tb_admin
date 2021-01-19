@@ -50,7 +50,6 @@ public class ServiceOrderCloseNode extends SONode {
 			context.putParameter("response", new Response<ServiceOrderDTO>(1, "服务订单执行异常:" + e.getMessage(), null));
 		}
 		return context;
-
 	}
 
 }

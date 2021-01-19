@@ -42,10 +42,17 @@ public class ServiceOrderFinishNode extends SODecisionNode {
 			context.putParameter("response", new Response<ServiceOrderDTO>(1, "服务订单执行异常:" + e.getMessage(), null));
 			return SUSPEND_NODE;
 		}
-		String state = getState(context, "APPLY", "COMPLETE", "CLOSE");
-		if (state == null)
+		String state = getNextState(context);
+		if (state == null && context.getParameter("state") == null) {
+			context.putParameter("response", new Response<ServiceOrderDTO>(1, "状态值不能为空.", null));
 			return SUSPEND_NODE;
+		}
 		return state;
+	}
+	
+	@Override
+	public String[] nextNodeNames() {
+		return new String[]{"APPLY", "COMPLETE", "CLOSE"};
 	}
 
 }

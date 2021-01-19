@@ -60,6 +60,11 @@ public abstract class SODecisionNode extends AbstractDecisionNode {
 		}
 		return true;
 	}
+	
+	@Override
+	public String[] nextNodeNames() {
+		return null;
+	}
 
 	protected String getAp(Context context) {
 		Map<String, Object> parameters = context.getParameters();
@@ -79,7 +84,10 @@ public abstract class SODecisionNode extends AbstractDecisionNode {
 		return (Integer) parameters.get("serviceOrderId");
 	}
 
-	protected String getState(Context context, String... stateList) {
+	protected String getNextState(Context context) {
+		String[] stateList = nextNodeNames();
+		if(stateList == null)
+			return null;
 		Map<String, Object> parameters = context.getParameters();
 		if (parameters.containsKey("state")) {
 			String state = getState((String) parameters.get("state"), stateList);

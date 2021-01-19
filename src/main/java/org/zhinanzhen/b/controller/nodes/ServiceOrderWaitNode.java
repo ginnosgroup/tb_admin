@@ -29,12 +29,17 @@ public class ServiceOrderWaitNode extends SODecisionNode {
 //		context.putParameter("response", new Response<ServiceOrderDTO>(1, "仅限文案操作!", null));
 //		return SUSPEND_NODE;
 //	}
-		String state = getState(context, "OREVIEW", "REVIEW", "REJECT", "FINISH");
+		String state = getNextState(context);
 		if ("REJECT".equalsIgnoreCase(state) && !"VISA".equalsIgnoreCase(getType(context))) {
 			context.putParameter("response", new Response<ServiceOrderDTO>(1, "只有签证类才能进行mara审核流程.", null));
 			return SUSPEND_NODE;
 		}
 		return state;
+	}
+
+	@Override
+	public String[] nextNodeNames() {
+		return new String[] { "OREVIEW", "REVIEW", "REJECT", "FINISH" };
 	}
 
 }

@@ -1674,8 +1674,8 @@ public class ServiceOrderController extends BaseController {
 			serviceOrderDto = serviceOrderService.getServiceOrderById(id);
 			if (ObjectUtil.isNull(serviceOrderDto))
 				return new Response<ServiceOrderDTO>(1, "服务订单不存在:" + id, null);
-			Node currentNode = soNodeFactory.getNode(serviceOrderDto.getState());
-			Workflow workflow = new Workflow("Service Order Work Flow", currentNode, soNodeFactory);
+			Node node = soNodeFactory.getNode(serviceOrderDto.getState());
+			
 			Context context = new Context();
 			context.putParameter("serviceOrderId", id);
 			context.putParameter("type", serviceOrderDto.getType());
@@ -1685,13 +1685,22 @@ public class ServiceOrderController extends BaseController {
 			context.putParameter("remarks", remarks);
 //			context.putParameter("ap", adminUserLoginInfo.getApList());
 //			context.putParameter("adminUserId", adminUserLoginInfo.getId());
+			
+			String[] nextNodeNames = node.nextNodeNames();
+			if (nextNodeNames != null)
+				if (Arrays.asList(nextNodeNames).contains(state))
+					node = soNodeFactory.getNode(state);
+				else
+					return new Response<ServiceOrderDTO>(1, "状态:" + state + "不是合法状态. (" + nextNodeNames + ")", null);
+
+			Workflow workflow = new Workflow("Service Order Work Flow", node, soNodeFactory);
+			
 			context = workflowStarter.process(workflow, context);
 			return context.getParameter("response") != null
 					? (Response<ServiceOrderDTO>) context.getParameter("response")
 					: new Response<ServiceOrderDTO>(1, "异常(没有response):" + id, null);
 		} catch (ServiceException e) {
-			e.printStackTrace();
+			return new Response<ServiceOrderDTO>(1, "异常:" + e.getMessage(), null);
 		}
-		return null;
 	}
 }

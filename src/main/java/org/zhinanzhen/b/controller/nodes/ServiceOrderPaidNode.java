@@ -29,5 +29,10 @@ public class ServiceOrderPaidNode extends SODecisionNode {
 		}
 		return null;
 	}
+	
+	@Override
+	public String[] nextNodeNames() {
+		return null;
+	}
 
 }
