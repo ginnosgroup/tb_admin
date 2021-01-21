@@ -275,6 +275,20 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				});
 				serviceOrderDto.setChildrenServiceOrders(childrenServiceOrderList);
 			}
+			
+			List<Integer> cIds = new ArrayList<>();
+			List<VisaDO> visaList = visaDao.listVisaByServiceOrderId(serviceOrderDo.getId());
+			if (visaList != null && visaList.size() > 0) {
+				for (VisaDO visaDo : visaList)
+					cIds.add(visaDo.getId());
+			}
+			List<CommissionOrderDO> commissionOrderList = commissionOrderDao
+					.listCommissionOrderByServiceOrderId(serviceOrderDto.getId());
+			if (commissionOrderList != null && commissionOrderList.size() > 0) {
+				for (CommissionOrderDO commissionOrderDo : commissionOrderList)
+					cIds.add(commissionOrderDo.getId());
+			}
+			serviceOrderDto.setCIds(cIds);
 
 			// 查询审核记录
 			putReviews(serviceOrderDto);
@@ -284,6 +298,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDto.getServiceAssessId());
 			if (serviceAssessDO!= null)
 				serviceOrderDto.setServiceAssessDO(serviceAssessDO);
+			
 		}
 		return serviceOrderDtoList;
 	}

@@ -163,5 +163,7 @@ public class ServiceOrderDTO {
 	private List<ServiceOrderOfficialRemarksDTO> officialNotes;
 
 	private ServiceAssessDO serviceAssessDO;
+	
+	private List<Integer> cIds; // 佣金订单编号
 
 }
