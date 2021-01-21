@@ -395,6 +395,7 @@
 														<th>余额</th>
 														<th>顾问名称</th>
 														<th>业务名称</th>
+														<th>本次实收金额</th>
 														<th>对应佣金订单ID (修改：请双击对应栏)</th>
 														<th>Bank statement(备注)</th>
 														<th>操作</th>
@@ -410,6 +411,7 @@
 														<td v-html="item.balance"></td>
 														<td v-html="item.adviserName"></td>
 														<td v-html="item.business"></td>
+														<td v-html="item.amount"></td>
 														<td @dblclick="table_edit($index,'orderId','t1')"><span v-html="item.orderId"></span></td>
 														<td v-html="item.comment"></td>
 														<td>
