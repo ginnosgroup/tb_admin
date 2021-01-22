@@ -1039,7 +1039,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 			int i = 1;
 			for (CommissionOrderListDTO commissionOrderListDto : commissionOrderList) {
-				sheet.addCell(new Label(0, i, commissionOrderListDto.getId() + "", cellFormat));
+				sheet.addCell(new Label(0, i, "CS"+commissionOrderListDto.getId(), cellFormat));
 				sheet.addCell(new Label(1, i, sdf.format(commissionOrderListDto.getGmtCreate()), cellFormat));
 				if (commissionOrderListDto.getReceiveDate() != null)
 					sheet.addCell(new Label(2, i, sdf.format(commissionOrderListDto.getReceiveDate()), cellFormat));
@@ -1098,6 +1098,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				if (commissionOrderListDto.getKjApprovalDate() != null)
 					sheet.addCell(new Label(35, i, sdf.format(commissionOrderListDto.getKjApprovalDate()), cellFormat));
 				sheet.addCell(new Label(36, i, commissionOrderListDto.getRemarks(), cellFormat));
+				ServiceOrderDTO serviceOrderDTO =  serviceOrderService.getServiceOrderById(commissionOrderListDto.getServiceOrderId());
+				sheet.addCell(new Label(37, i, serviceOrderDTO != null && serviceOrderDTO.getRemarks()!=null ? serviceOrderDTO.getRemarks(): "" , cellFormat));
 				i++;
 			}
 			wbe.write();
