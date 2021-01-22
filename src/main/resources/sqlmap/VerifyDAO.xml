@@ -3,10 +3,10 @@
 <mapper namespace="org.zhinanzhen.b.dao.VerifyDao">
     <insert id="add">
          <if test=" financeCodeDOS != null ">
-             insert into `b_finance_code` (gmt_create,gmt_modify,bank_date,user_id,is_income,money,balance,adviser_id,business,order_id,comment)
+             insert into `b_finance_code` (gmt_create,gmt_modify,bank_date,user_id,is_income,money,balance,adviser_id,business,amount,order_id,comment)
               values
              <foreach collection="financeCodeDOS" item="tem" separator="," close=";"  index="index">
-                 (now(),now(),#{tem.bankDate},#{tem.userId},#{tem.isIncome},#{tem.money},#{tem.balance},#{tem.adviserId},#{tem.business},#{tem.orderId},#{tem.comment})
+                 (now(),now(),#{tem.bankDate},#{tem.userId},#{tem.isIncome},#{tem.money},#{tem.balance},#{tem.adviserId},#{tem.business},#{tem.amount},#{tem.orderId},#{tem.comment})
              </foreach>
          </if>
     </insert>
@@ -32,6 +32,7 @@
         balance ,
         adviser_id as adviserId,
         business ,
+        amount ,
         order_id as orderId,
         comment
         from `b_finance_code`
@@ -54,6 +55,9 @@
         </if>
         <if test=" business != null and business != '' ">
             , business = #{business}
+        </if>
+        <if test=" amount != null ">
+            , amount = #{amount}
         </if>
         <if test=" orderId != null ">
             , order_id = #{orderId}
@@ -116,6 +120,7 @@
         is_income as isIncome,
         money ,
         balance ,
+        amount ,
         adviser_id as adviserId,
         business ,
         order_id as orderId,
@@ -149,6 +154,7 @@
         is_income AS isIncome,
         money,
         balance,
+        amount ,
         adviser_id AS adviserId,
         business,
         order_id AS orderId,

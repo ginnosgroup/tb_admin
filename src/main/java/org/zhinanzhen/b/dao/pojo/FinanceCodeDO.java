@@ -42,6 +42,8 @@ public class FinanceCodeDO {
 
     //private int visaId;
 
+    private double amount;
+
     private String orderId;
 
     //银行备注
