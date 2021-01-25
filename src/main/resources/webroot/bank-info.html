@@ -162,7 +162,8 @@
 	          type: 'GET',
 	          dataType: 'json'
 	        }).done(function(response) {
-	        	var data = response.data;
+	        	$("#copy_success").hide();
+	        	var data = response.data;	        	
 	        	if (data.accountNo == null)
 	        	{
 	        			alert('转账信息获取失败，请联系管理员确认。');
@@ -219,9 +220,10 @@
 					    }
 					});
 					clipboard.on('success',function(e)
-					{
+					{							
 							e.clearSelection();
 							$('#copy_success').html('已复制！请告知客户转账时务必在备注填写Code。');
+							$("#copy_success").show();
 					});
 					clipboard.on('error',function(e)
 					{
