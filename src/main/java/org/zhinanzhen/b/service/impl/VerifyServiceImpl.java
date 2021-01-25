@@ -310,7 +310,8 @@ public class VerifyServiceImpl implements VerifyService {
                     financeBankCodeDTO=mapper.map(financeBankDO,FinanceBankCodeDTO.class);
                     String code = "";
                     while (flag){
-                        code= adviserDO.getName()+ regionDO.getName().substring(0,3)+ RandomStringUtils.randomAlphanumeric(6);
+                        String adviserName = adviserDO.getName();
+                        code= (adviserName.contains(".")? adviserName.substring(0,adviserName.indexOf(".")) : adviserName ) + regionDO.getName().substring(0,3)+ RandomStringUtils.randomAlphanumeric(6);
                         code = code.toUpperCase();
                         if (commissionOrderDAO.listCommissionOrderByVerifyCode(code).size()==0 && visaDAO.listVisaByVerifyCode(code).size()==0){
                             flag = false;
