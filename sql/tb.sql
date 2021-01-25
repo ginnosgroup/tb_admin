@@ -343,7 +343,7 @@ CREATE TABLE `b_service` (
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `name` varchar(32) DEFAULT NULL COMMENT '项目名称',
-  `code` varchar(8) DEFAULT NULL COMMENT '项目编码',
+  `code` varchar(32) DEFAULT NULL COMMENT '项目编码',
   `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已删除'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
