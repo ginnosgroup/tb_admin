@@ -151,7 +151,7 @@ public class VerifyServiceImpl implements VerifyService {
                         VisaDO visaDO = visaDOS.get(0);
                         if (visaDO != null) {
                             visaDO.setBankDate(financeCodeDO.getBankDate());
-                            if (financeCodeDO.getMoney() == visaDO.getAmount())
+                            if (visaDO.getAmount()==financeCodeDO.getMoney())
                                 visaDO.setChecked(true);
                             visaDO.setBankCheck("Code");
                             if (visaDAO.updateVisa(visaDO) > 0)
@@ -162,7 +162,7 @@ public class VerifyServiceImpl implements VerifyService {
                         CommissionOrderDO commissionOrderDO = commissionOrderDOS.get(0);
                         if (commissionOrderDO != null) {
                             commissionOrderDO.setBankDate(financeCodeDO.getBankDate());
-                            if (financeCodeDO.getMoney() == commissionOrderDO.getAmount())
+                            if (commissionOrderDO.getAmount()==financeCodeDO.getMoney())
                                 commissionOrderDO.setChecked(true);
                             commissionOrderDO.setBankCheck("Code");
                             if (commissionOrderDAO.updateCommissionOrder(commissionOrderDO) > 0)

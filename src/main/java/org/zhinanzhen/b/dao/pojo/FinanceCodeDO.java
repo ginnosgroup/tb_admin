@@ -42,7 +42,6 @@ public class FinanceCodeDO {
 
     //private int visaId;
 
-    //本次实收金额 来自佣金订单
     private double amount;
 
     private String orderId;

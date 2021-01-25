@@ -436,7 +436,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	@Transactional
 	public ServiceOrderDTO approval(int id, int adminUserId, String adviserState, String maraState,
 			String officialState, String kjState) throws ServiceException {
-//		sendRemind(id, adviserState, maraState, officialState);
+		sendRemind(id, adviserState, maraState, officialState);
 		return review(id, adminUserId, adviserState, maraState, officialState, kjState, "APPROVAL");
 	}
 	
@@ -447,7 +447,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	}
 	
 	@Override
-	public void sendRemind(int id, String state) {
+	public void sendRemind(int id, String adviserState, String maraState, String officialState) {
 		ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(id);
 		if (serviceOrderDo != null) {
 			String title = "新任务提醒:";
@@ -487,7 +487,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
 			Date date = serviceOrderDo.getGmtCreate();
 			if (adviserDo != null && officialDo != null) {
-				if ("REJECT".equals(state) || "WAIT".equals(state)) {
+				if ("REVIEW".equals(maraState) || "WAIT".equals(maraState)) {
 					MaraDO maraDo = maraDao.getMaraById(serviceOrderDo.getMaraId());
 					if (maraDo != null)
 						SendEmailUtil.send(maraDo.getEmail(), title,
@@ -513,7 +513,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 					if (serviceOrderDo.getMaraApprovalDate() == null)
 						serviceOrderDo.setMaraApprovalDate(new Date());
 				}
-				if ("REVIEW".equals(state)) { // 给文案发邮件提醒，这时adviserState为REVIEW,officialState为NULL
+				if ("REVIEW".equals(adviserState)) { // 给文案发邮件提醒，这时adviserState为REVIEW,officialState为NULL
 					SendEmailUtil.send(officialDo.getEmail() + ",maggie@zhinanzhen.org", title,
 							"亲爱的" + officialDo.getName() + ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:" + id + "/服务类型:" + type
 									+ detail + "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:"
@@ -522,13 +522,13 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 					if (serviceOrderDo.getOfficialApprovalDate() == null)
 						serviceOrderDo.setOfficialApprovalDate(new Date());
 				}
-				if ("OREVIEW".equals(state)) { // 告诉顾问文案已经开始审核了
+				if ("REVIEW".equals(officialState)) { // 告诉顾问文案已经开始审核了
 					SendEmailUtil.send(adviserDo.getEmail(), title,
 							"亲爱的" + adviserDo.getName() + ":<br/>您有一条服务订单已正在处理中。<br/>订单号:" + id + "/服务类型:" + type
 									+ detail + "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName() + "/创建时间:"
 									+ date + "<br/>" + serviceOrderUrl);
 				}
-				if ("COMPLETE".equals(state)) {
+				if ("COMPLETE".equals(officialState)) {
 
 					if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())) {
 						String _title = StringUtil.merge("审核完成提醒:", user.getName(), "/签证");
@@ -566,7 +566,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 					}
 
 				}
-				if ("PAID".equals(state)) {
+				if ("PAID".equals(adviserState)) {
 					// 写入会计审核时间
 					if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())
 							|| "SIV".equalsIgnoreCase(serviceOrderDo.getType()))
@@ -584,7 +584,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 										commissionOrderDao.updateCommissionOrder(commissionOrderDo);
 									}
 								});
-						if ("PAID".equals(state)) {
+						if ("PAID".equals(officialState)) {
 							String _title = StringUtil.merge("审核完成提醒:", user.getName(), "/留学");
 							// 发送给顾问
 							SchoolDO schoolDo = schoolDao.getSchoolById(serviceOrderDo.getSchoolId());

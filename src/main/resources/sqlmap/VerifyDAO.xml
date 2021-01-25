@@ -32,7 +32,7 @@
         balance ,
         adviser_id as adviserId,
         business ,
-        amount,
+        amount ,
         order_id as orderId,
         comment
         from `b_finance_code`

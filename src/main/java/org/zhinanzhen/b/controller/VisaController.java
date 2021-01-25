@@ -800,7 +800,7 @@ public class VisaController extends BaseCommissionOrderController {
 
 			int i = 1;
 			for (VisaDTO visaDto : list) {
-				sheet.addCell(new Label(0, i, "CV" + visaDto.getId(), cellFormat));
+				sheet.addCell(new Label(0, i, "CV" + visaDto.getId() , cellFormat));
 				sheet.addCell(new Label(1, i, sdf.format(visaDto.getGmtCreate()), cellFormat));
 				if (visaDto.getReceiveDate() != null)
 					sheet.addCell(new Label(2, i, sdf.format(visaDto.getReceiveDate()), cellFormat));

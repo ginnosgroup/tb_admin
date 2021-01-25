@@ -100,7 +100,7 @@ public class VerifyController {
                         financeCodeDO.setBusiness(serviceOrderDTO.getService().getName()+"-"+serviceOrderDTO.getService().getCode());
                         if (visaDTO.getBankDate()==null)
                             visaDTO.setBankDate(financeCodeDO.getBankDate());
-                        if (visaDTO.getAmount()==financeCodeDO.getMoney())
+                        if (visaDTO.getAmount() == financeCodeDO.getMoney())
                             visaDTO.setChecked(true);
                         if (StringUtil.isEmpty(visaDTO.getBankCheck()))
                             visaDTO.setBankCheck("手工");
@@ -249,8 +249,8 @@ public class VerifyController {
         String order = "";
         Integer number = null;
         try {
-             order = orderId.substring(0,2);
-             number = Integer.parseInt(orderId.substring(2));
+            order = orderId.substring(0,2);
+            number = Integer.parseInt(orderId.substring(2));
         }catch (Exception e){
             throw new Exception("orderId error");
         }
