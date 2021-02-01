@@ -2,6 +2,7 @@ package org.zhinanzhen.tb.controller;
 
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -28,6 +29,8 @@ import com.ikasoa.core.utils.StringUtil;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/user")
 public class UserController extends BaseController {
+	
+	private static final Pattern EMAIL_PATTERN = Pattern.compile("^\\s*?(.+)@(.+?)\\s*$");
 
 	@Resource
 	UserService userService;
@@ -40,7 +43,9 @@ public class UserController extends BaseController {
 	public Response<Integer> addUser(@RequestParam(value = "name") String name,
 			@RequestParam(value = "authNickname", required = false) String authNickname,
 			@RequestParam(value = "birthday") String birthday,
+			@RequestParam(value = "areaCode", required = false) String areaCode,
 			@RequestParam(value = "phone", required = false) String phone,
+			@RequestParam(value = "email", required = false) String email,
 			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
 			@RequestParam(value = "firstControllerContents", required = false) String firstControllerContents,
 			@RequestParam(value = "visaCode") String visaCode,
@@ -52,13 +57,19 @@ public class UserController extends BaseController {
 			if (phone != null && !"".equals(phone)
 					&& userService.countUser(null, null, null, phone, null, 0, null, null) > 0)
 				return new Response<Integer>(1, "该电话号码已被使用,添加失败.", 0);
+			if (email != null && !"".equals(email) && !EMAIL_PATTERN.matcher(email).matches())
+				return new Response<Integer>(1, "邮箱地址格式不正确,添加失败.", 0);
+			if (areaCode == null)
+				areaCode = "";
 			if (phone == null)
 				phone = "";
+			if (email == null)
+				email = "";
 			if (regionId == null)
 				regionId = "0";
 			return new Response<Integer>(0,
-					userService.addUser(name, authNickname, new Date(Long.parseLong(birthday.trim())), phone,
-							wechatUsername, firstControllerContents, visaCode,
+					userService.addUser(name, authNickname, new Date(Long.parseLong(birthday.trim())), areaCode, phone,
+							email, wechatUsername, firstControllerContents, visaCode,
 							new Date(Long.parseLong(visaExpirationDate)), source, StringUtil.toInt(adviserId),
 							StringUtil.toInt(regionId)));
 		} catch (ServiceException e) {

@@ -8,7 +8,7 @@ import org.zhinanzhen.tb.service.pojo.TagDTO;
 
 public interface UserService {
 
-	public int addUser(String name, String authNickname, Date birthday, String phone, String wechatUsername,
+	public int addUser(String name, String authNickname, Date birthday, String areaCode, String phone, String email, String wechatUsername,
 			String firstControllerContents, String visaCode, Date visaExpirationDate, String source, int adviserId,
 			int regionId) throws ServiceException;
 

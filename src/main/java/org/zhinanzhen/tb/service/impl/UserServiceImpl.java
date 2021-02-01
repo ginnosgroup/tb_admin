@@ -36,9 +36,9 @@ public class UserServiceImpl extends BaseService implements UserService {
 	private TagDAO tagDao;
 
 	@Override
-	public int addUser(String name, String authNickname, Date birthday, String phone, String wechatUsername,
-			String firstControllerContents, String visaCode, Date visaExpirationDate, String source, int adviserId,
-			int regionId) throws ServiceException {
+	public int addUser(String name, String authNickname, Date birthday, String areaCode, String phone, String email,
+			String wechatUsername, String firstControllerContents, String visaCode, Date visaExpirationDate,
+			String source, int adviserId, int regionId) throws ServiceException {
 		if (StringUtil.isEmpty(name)) {
 			ServiceException se = new ServiceException("name is null !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -66,7 +66,9 @@ public class UserServiceImpl extends BaseService implements UserService {
 		userDo.setName(name);
 		userDo.setAuthNickname(authNickname);
 		userDo.setBirthday(birthday);
+		userDo.setAreaCode(areaCode);
 		userDo.setPhone(phone);
+		userDo.setEmail(email);
 		userDo.setWechatUsername(wechatUsername);
 		userDo.setFirstControllerContents(firstControllerContents);
 		userDo.setVisaCode(visaCode);

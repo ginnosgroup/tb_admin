@@ -17,6 +17,8 @@ public class UserDO implements Serializable {
 	private String name;
 
 	private Date birthday;
+	
+	private String areaCode;
 
 	private String phone;
 
