@@ -325,6 +325,11 @@
 										知识库菜单
 									</a>
 								</li>
+								<li>
+									<a href="http://question.zhinanzhen.org/api/users/znz/{{admin}}" target="_blank">
+										指南针问答
+									</a>
+								</li>
 							</ul>
 						</li>
 					</ul>
@@ -610,7 +615,7 @@
 								this.subject.splice(0,0, {
 									id:'',
 									typeName: '<select class="form-control" style="width:150px;" id="t1"></select>',
-									code: '<input type="text" class="form-control small" style="width:150px;" maxlength="8" id="t0" value="">',
+									code: '<input type="text" class="form-control small" style="width:150px;" id="t0" value="">',
 									});
 								this.add = true;
 						}
@@ -633,7 +638,7 @@
 						this.subject.splice(index,1, {
 							oid: parseInt(this.subject[index].id),
 							typeName: '<select class="form-control" style="width:150px;" id="t1"></select>',
-							code: '<input type="text" class="form-control small" style="width:150px;" maxlength="8" id="t0" value="'+this.subject[index].code+'">',
+							code: '<input type="text" class="form-control small" style="width:150px;" id="t0" value="'+this.subject[index].code+'">',
 						});						
 						if (this.add)
 						{
