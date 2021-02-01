@@ -258,6 +258,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					commissionOrderDto.setState(ReviewKjStateEnum.PENDING.toString());
 					commissionOrderDto.setVerifyCode(null);
 					commissionOrderDto.setKjApprovalDate(null);
+					commissionOrderDto.setReceiveDate(null);
 					commissionOrderDto.setPaymentVoucherImageUrl1(null);
 					commissionOrderDto.setPaymentVoucherImageUrl2(null);
 					commissionOrderDto.setPaymentVoucherImageUrl3(null);
