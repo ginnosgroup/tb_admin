@@ -106,6 +106,7 @@
         u.auth_type AS authType,
         u.auth_nickname AS authNickname,
         u.auth_username AS authUsername,
+        u.area_code AS areaCode,
         u.phone AS phone,
         u.balance AS balance,
         u.adviser_id AS adviserId,
