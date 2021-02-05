@@ -41,4 +41,7 @@ public interface UserDAO {
 	int updateDOB(@Param("dob") Date dob,@Param("id") int id);
 
 	public List<UserDO> listUserByRecommendOpenId(String recommendOpenId);
+
+	public List<UserDO> getUserByAuth_openid(@Param("Auth_openid")String Auth_openid);
+
 }

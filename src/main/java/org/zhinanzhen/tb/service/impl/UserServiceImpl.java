@@ -65,6 +65,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 		UserDO userDo = new UserDO();
 		userDo.setName(name);
 		userDo.setAuthNickname(authNickname);
+		userDo.setAuthType("BROKERAGE");
+		userDo.setAuthOpenid("");
 		userDo.setBirthday(birthday);
 		userDo.setAreaCode(areaCode);
 		userDo.setPhone(phone);

@@ -38,8 +38,8 @@
         #{visaCode},
         #{visaExpirationDate},
         #{source},
-        "BROKERAGE",
-        "",
+        #{authType},
+        #{authOpenid},
         "",
         #{authNickname},
         "",
@@ -282,4 +282,30 @@
         SET gmt_modify = now() , birthday = #{dob}
         WHERE id = #{id};
     </update>
+
+    <select id="getUserByAuth_openid" resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
+        SELECT
+        id,
+        gmt_create AS gmtCreate,
+        name,
+        birthday,
+        phone,
+        email,
+        wechat_username AS wechatUsername,
+        first_controller_contents AS firstControllerContents,
+        visa_code AS visaCode,
+        visa_expiration_date AS visaExpirationDate,
+        source,
+        auth_type AS authType,
+        auth_openid AS authOpenid,
+        auth_username AS
+        authUsername,
+        auth_nickname AS authNickname,
+        auth_logo AS authLogo,
+        balance,
+        adviser_id AS adviserId,
+        region_id AS regionId
+        FROM tb_user
+        WHERE auth_openid = #{Auth_openid};
+    </select>
 </mapper>

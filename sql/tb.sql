@@ -99,7 +99,8 @@ CREATE TABLE `tb_adviser` (
   `email` varchar(128) NOT NULL COMMENT '邮箱',
   `state` varchar(8) NOT NULL COMMENT '状态 (ENABLED:激活,DISABLED:禁止)',
   `image_url` varchar(128) DEFAULT NULL COMMENT '图片地址',
-  `region_id` int NOT NULL COMMENT '所属区域编号 (对应tb_region.id)'
+  `region_id` int NOT NULL COMMENT '所属区域编号 (对应tb_region.id)',
+  `oper_userid` varchar(64) DEFAULT NULL COMMENT '企业微信的oper_userid'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 ALTER TABLE `tb_adviser` ADD INDEX index_name (`state`);
 
@@ -117,7 +118,7 @@ CREATE TABLE `tb_user` (
   `visa_code` varchar(8) DEFAULT NULL COMMENT '签证编号',
   `visa_expiration_date` datetime DEFAULT NULL COMMENT '签证到期日期',
   `source` varchar(32) DEFAULT NULL COMMENT '客户来源',
-  `auth_type` varchar(16) NOT NULL COMMENT '登录授权分类 (WECHAT:微信,IOS_WECHAT:IOS微信,FACEBOOK:facebook,BROKERAGE:佣金系统用户,V:虚拟用户)',
+  `auth_type` varchar(16) NOT NULL COMMENT '登录授权分类 (WECHAT:微信,IOS_WECHAT:IOS微信,FACEBOOK:facebook,BROKERAGE:佣金系统用户,V:虚拟用户,WECHAT_WORK:企业微信)',
   `auth_openid` varchar(64) NOT NULL COMMENT '授权帐号编号',
   `auth_username` varchar(64) DEFAULT NULL COMMENT '授权帐号',
   `auth_nickname` varchar(128) DEFAULT NULL COMMENT '授权帐号用户昵称',
