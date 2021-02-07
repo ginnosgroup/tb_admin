@@ -373,6 +373,52 @@ public class UserController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/untrueCount", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> untrueCount(@RequestParam(value = "authType", required = false) String authType,
+			@RequestParam(value = "adviserId", required = false) String adviserId,
+			@RequestParam(value = "regionId", required = false) Integer regionId, HttpServletRequest request,
+			HttpServletResponse response) {
+
+		List<Integer> regionIdList = null;
+		if (regionId != null && regionId > 0)
+			regionIdList = ListUtil.buildArrayList(regionId);
+
+		try {
+			super.setGetHeader(response);
+			// 处理顾问管理员
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
+				if (regionIdList == null) {
+					List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
+					regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
+					for (RegionDTO region : regionList)
+						regionIdList.add(region.getId());
+				}
+			} else {
+				Integer newAdviserId = getAdviserId(request);
+				if (newAdviserId != null)
+					adviserId = newAdviserId + "";
+				if (StringUtil.isBlank(adviserId) && !isAdminUser(request))
+					return new Response<Integer>(1, "No permission !", null);
+			}
+			List<UserDTO> list = userService.listUser(null, null, null, null, null, StringUtil.toInt(adviserId),
+					regionIdList, null, null, false, 0, 9999);
+			Integer count = 0;
+			for (UserDTO user : list) {
+				String phone = user.getPhone();
+				String areaCode = user.getAreaCode();
+				if (!isNumber(phone) || StringUtil.isEmpty(areaCode) || "+86".equals(areaCode) && phone.length() != 11
+						|| "+61".equals(areaCode) && phone.length() != 10)
+					count++;
+			}
+			return new Response<Integer>(0, count);
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), null);
+		}
+	}
+
 	private static boolean isNumber(String string) {
 		if (StringUtil.isEmpty(string))
 			return false;
