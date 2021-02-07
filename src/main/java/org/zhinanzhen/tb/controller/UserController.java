@@ -362,7 +362,9 @@ public class UserController extends BaseController {
 			List<UserDTO> _list = new ArrayList<UserDTO>();
 			for (UserDTO user : list) {
 				String phone = user.getPhone();
-				if (!isNumber(phone) || phone.length() < 10 || phone.length() > 11)
+				String areaCode = user.getAreaCode();
+				if (!isNumber(phone) || StringUtil.isEmpty(areaCode) || "+86".equals(areaCode) && phone.length() != 11
+						|| "+61".equals(areaCode) && phone.length() != 10)
 					_list.add(user);
 			}
 			return new Response<List<UserDTO>>(0, _list);
