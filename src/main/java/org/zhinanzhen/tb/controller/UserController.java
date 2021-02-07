@@ -1,5 +1,6 @@
 package org.zhinanzhen.tb.controller;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -325,6 +326,56 @@ public class UserController extends BaseController {
 			@RequestParam(value = "userId") String userId) throws ServiceException {
 		return new Response<Integer>(0,
 				userService.deleteUserTagByTagIdAndUserId(Integer.parseInt(tagId), Integer.parseInt(userId)));
+	}
+	
+	@RequestMapping(value = "/untrueList", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<UserDTO>> untrueList(@RequestParam(value = "authType", required = false) String authType,
+			@RequestParam(value = "adviserId", required = false) String adviserId,
+			@RequestParam(value = "regionId", required = false) Integer regionId,HttpServletRequest request, HttpServletResponse response) {
+		
+		List<Integer> regionIdList = null;
+		if (regionId != null && regionId > 0)
+			regionIdList = ListUtil.buildArrayList(regionId);
+
+		try {
+			super.setGetHeader(response);
+			// 处理顾问管理员
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
+				if (regionIdList == null) {
+					List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
+					regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
+					for (RegionDTO region : regionList)
+						regionIdList.add(region.getId());
+				}
+			} else {
+				Integer newAdviserId = getAdviserId(request);
+				if (newAdviserId != null)
+					adviserId = newAdviserId + "";
+				if (StringUtil.isBlank(adviserId) && !isAdminUser(request))
+					return new Response<List<UserDTO>>(1, "No permission !", null);
+			}
+			List<UserDTO> list = userService.listUser(null, null, null, null, null, StringUtil.toInt(adviserId),
+					regionIdList, null, null, false, 0, 9999);
+			List<UserDTO> _list = new ArrayList<UserDTO>();
+			for (UserDTO user : list) {
+				String phone = user.getPhone();
+				if (!isNumber(phone) || phone.length() < 10 || phone.length() > 11)
+					_list.add(user);
+			}
+			return new Response<List<UserDTO>>(0, _list);
+		} catch (ServiceException e) {
+			return new Response<List<UserDTO>>(1, e.getMessage(), null);
+		}
+	}
+
+	private static boolean isNumber(String string) {
+		if (StringUtil.isEmpty(string))
+			return false;
+		Pattern pattern = Pattern.compile("^-?\\d+(\\.\\d+)?$");
+		return pattern.matcher(string).matches();
 	}
 
 }
