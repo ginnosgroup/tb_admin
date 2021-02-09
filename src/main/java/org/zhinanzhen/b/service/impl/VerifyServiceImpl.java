@@ -190,6 +190,8 @@ public class VerifyServiceImpl implements VerifyService {
                 return str.substring(str.indexOf(e.toString()),str.lastIndexOf("ZNZ")+3);
             }
         }
+        if(str.contains("$$") & str.contains("#"))
+            return  str.substring(str.indexOf("$$") + 2, str.lastIndexOf("#"));
         return  null;
     }
 
