@@ -492,14 +492,14 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 					String _title = StringUtil.merge("MARA审核通过提醒:", user.getName(), "/签证");
 					// 发送给顾问
 					SendEmailUtil.send(adviserDo.getEmail(), _title, StringUtil.merge("亲爱的:", adviserDo.getName(),
-							"<br/>", "您的订单已经审核完成请查看并进行下一步操作。<br>订单号:", serviceOrderDo.getId(), "/服务类型:签证/客户名称:",
+							"<br/>", "您的订单已经审核完成请查看并进行下一步操作。<br>订单号:", serviceOrderDo.getId(), "<br/>服务类型:签证/客户名称:",
 							user.getName(), "/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
 							getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
 							serviceOrderDo.getNutCloud(), "<br/>客户基本信息:", serviceOrderDo.getInformation(), "<br/>备注:",
 							serviceOrderDo.getRemarks(), "<br/>创建时间:", date, "<br/>", serviceOrderUrl));
 					// 发送给文案
 					SendEmailUtil.send(adviserDo.getEmail(), _title, StringUtil.merge("亲爱的:", officialDo.getName(),
-							"<br/>", "您的订单已经审核完成请查看并进行下一步操作。<br>订单号:", serviceOrderDo.getId(), "/服务类型:签证/客户名称:",
+							"<br/>", "您的订单已经审核完成请查看并进行下一步操作。<br>订单号:", serviceOrderDo.getId(), "<br/>服务类型:签证/客户名称:",
 							user.getName(), "/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
 							getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
 							serviceOrderDo.getNutCloud(), "<br/>客户基本信息:", serviceOrderDo.getInformation(), "<br/>备注:",
@@ -511,7 +511,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			}
 			if ("REVIEW".equals(state)) { // 给文案发邮件提醒，这时adviserState为REVIEW,officialState为NULL
 				SendEmailUtil.send(officialDo.getEmail() + ",maggie@zhinanzhen.org", title,
-						StringUtil.merge("亲爱的", officialDo.getName(), ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:", id, "/服务类型:",
+						StringUtil.merge("亲爱的", officialDo.getName(), ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:", id, "<br/>服务类型:",
 								type, detail, "/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
 								getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
 								serviceOrderDo.getNutCloud(), "<br/>客户基本信息:", serviceOrderDo.getInformation(),
@@ -543,7 +543,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 					if (maraDo != null) {
 						// 发送给MARA
 						SendEmailUtil.send(maraDo.getEmail(), _title, StringUtil.merge("亲爱的:", maraDo.getName(),
-								"<br/>", "您的订单已经申请成功，请检查并进行下一步操作。<br>订单号:", serviceOrderDo.getId(), "/服务类型:签证/客户名称:",
+								"<br/>", "您的订单已经申请成功，请检查并进行下一步操作。<br>订单号:", serviceOrderDo.getId(), "<br/>服务类型:签证/客户名称:",
 								user.getName(), "/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
 								getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
 								serviceOrderDo.getNutCloud(), "<br/>客户基本信息:", serviceOrderDo.getInformation(),
@@ -559,7 +559,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 					if (schoolDo != null)
 						SendEmailUtil.send(adviserDo.getEmail(), _title, StringUtil.merge("亲爱的:", adviserDo.getName(),
 								"<br/>", "您的订单已经申请成功等待coe支付，请检查并进行下一步操作。<br>订单号:", serviceOrderDo.getId(),
-								"/服务类型:留学/客户名称:", user.getName(), "/学校:", schoolDo.getName(), "/专业:",
+								"<br/>服务类型:留学/客户名称:", user.getName(), "/学校:", schoolDo.getName(), "/专业:",
 								schoolDo.getSubject(), "/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(),
 								"<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
 								serviceOrderDo.getNutCloud(), "<br/>客户基本信息:", serviceOrderDo.getInformation(),
@@ -593,7 +593,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 							SendEmailUtil.send(adviserDo.getEmail(), _title,
 									StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>",
 											"您的订单已经申请成功coe支付成功，请检查并进行下一步操作。<br>订单号:", serviceOrderDo.getId(),
-											"/服务类型:留学/客户名称:", user.getName(), "/学校:", schoolDo.getName(), "/专业:",
+											"<br/>服务类型:留学/客户名称:", user.getName(), "/学校:", schoolDo.getName(), "/专业:",
 											schoolDo.getSubject(), "/顾问:", adviserDo.getName(), "/文案:",
 											officialDo.getName(), "<br/>属性:",
 											getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
