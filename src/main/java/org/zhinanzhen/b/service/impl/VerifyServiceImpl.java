@@ -3,10 +3,7 @@ package org.zhinanzhen.b.service.impl;
 import com.ikasoa.core.utils.StringUtil;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.dozer.DozerBeanMapper;
 import org.dozer.Mapper;
@@ -76,6 +73,7 @@ public class VerifyServiceImpl implements VerifyService {
     @Resource
     private AdminUserDAO adminUserDAO;
 
+    private  DataFormatter dataFormatter = new DataFormatter();
 
     @Override
     @Transactional
@@ -123,8 +121,9 @@ public class VerifyServiceImpl implements VerifyService {
                 if (row.getCell(0) == null){
                     throw new Exception("入账日期有误,行数:"+r+1);
                 }
-
-                financeCodeDO.setBankDate(sdfParse.parse(row.getCell(0).getStringCellValue()));
+                if (StringUtil.isEmpty(dataFormatter.formatCellValue(row.getCell(0))))
+                    continue;
+                financeCodeDO.setBankDate(sdfParse.parse(dataFormatter.formatCellValue(row.getCell(0))));
                 financeCodeDO.setIncome(row.getCell(1).getNumericCellValue() > 0);
                 financeCodeDO.setMoney(Double.parseDouble(df.format(row.getCell(1).getNumericCellValue())));
                 financeCodeDO.setComment(row.getCell(2).getStringCellValue());
