@@ -726,6 +726,7 @@ function createOvstTable(nums,str)
 				for(var i=0;i < nums;i++)
 				{
 						arr_sub = arr[i].split(',');
+						//console.log(arr_sub);
 						var commissionrate = '';
 						if (parseFloat(arr_sub[8])) commissionrate = (Math.round((parseFloat(arr_sub[8])/parseFloat(arr_sub[7]))*100)/100)*100+'%';
 						var index = 0;				
@@ -739,10 +740,10 @@ function createOvstTable(nums,str)
 						course: '<textarea class="form-control" style="width:150px;" id="td">'+arr_sub[4]+'</textarea>',
 						startDate: '<input type="text" class="form-control small default-date-picker" style="width:110px;" id="te" value="'+arr_sub[5]+'">',
 						instalMent: '<input type="text" class="form-control small" style="width:80px;" id="tf" value="'+arr_sub[6]+'">',
-						tuitionFee: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="tg" value="'+arr_sub[7]+'">',
+						tuitionFee: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="tg" value="'+arr_sub[9]+'">',
 						commissionrate: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="th" value="'+commissionrate+'">',
 						commission: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="ti" onkeyup="total_withgst_normal();" value="'+arr_sub[8]+'">',
-						bonus: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="tj" onkeyup="total_withgst_normal();" value="'+arr_sub[9]+'">',
+						bonus: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="tj" onkeyup="total_withgst_normal();" value="">',
 						});						
 						v_sub_taxinvoice.row_nums_normal++;
 				}
