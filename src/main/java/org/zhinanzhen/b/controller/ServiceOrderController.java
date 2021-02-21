@@ -1061,6 +1061,7 @@ public class ServiceOrderController extends BaseController {
 	@ResponseBody
 	public Response<ServiceOrderDTO> refuse(@RequestParam(value = "id") int id,
 			@RequestParam(value = "state") String state,
+			@RequestParam(value = "refuseReason", required = false) String refuseReason,
 			@RequestParam(value = "closedReason", required = false) String closedReason, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
@@ -1124,6 +1125,11 @@ public class ServiceOrderController extends BaseController {
 					if (ReviewOfficialStateEnum.get(state) != null)
 						if (ReviewOfficialStateEnum.CLOSE.toString().equals(state.toUpperCase())) { // 文案关闭同时修改顾问状态
 							serviceOrderService.finish(id);
+							// 更新驳回原因
+							if (StringUtil.isNotEmpty(refuseReason)) {
+								serviceOrderDto.setRefuseReason(refuseReason);
+								serviceOrderService.updateServiceOrder(serviceOrderDto);
+							}
 							// 更新关闭原因
 							if (StringUtil.isNotEmpty(closedReason)) {
 								serviceOrderDto.setClosedReason(closedReason);

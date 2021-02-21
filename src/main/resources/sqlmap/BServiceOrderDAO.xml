@@ -55,6 +55,7 @@
                 adviser_id_2,
                 official_id,
                 remarks,
+                refuse_reason,
                 closed_reason,
                 is_delete,
                 information,
@@ -113,6 +114,7 @@
                 #{adviserId2},
                 #{officialId},
                 #{remarks},
+                #{refuseReason},
                 #{closedReason},
                 0,
                 #{information},
@@ -260,6 +262,9 @@
         </if>
         <if test='remarks != null'>
             , remarks = #{remarks}
+        </if>
+        <if test='refuseReason != null'>
+            , refuse_reason = #{refuseReason}
         </if>
         <if test='closedReason != null'>
             , closed_reason = #{closedReason}
@@ -417,6 +422,7 @@
             so.adviser_id_2 AS adviserId2,
             so.official_id AS officialId,
             so.remarks AS remarks,
+            so.refuse_reason AS refuseReason,
             so.closed_reason AS closedReason,
             so.information AS information ,
             so.is_history AS isHistory,
@@ -563,6 +569,7 @@
             adviser_id_2 AS adviserId2,
             official_id AS officialId,
             remarks,
+            refuse_reason AS refuseReason,
             closed_reason AS closedReason,
             information  ,
             is_history AS isHistory,

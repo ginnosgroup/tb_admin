@@ -133,6 +133,8 @@ public class ServiceOrderDTO {
 	private OfficialDTO official;
 
 	private String remarks;
+	
+	private String refuseReason;
 
 	private String closedReason;
 

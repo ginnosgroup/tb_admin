@@ -117,6 +117,8 @@ public class ServiceOrderDO implements Serializable {
 	private int officialId;
 
 	private String remarks;
+	
+	private String refuseReason;
 
 	private String closedReason;
 
