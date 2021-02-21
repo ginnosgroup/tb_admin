@@ -436,7 +436,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	@Transactional
 	public ServiceOrderDTO approval(int id, int adminUserId, String adviserState, String maraState,
 			String officialState, String kjState) throws ServiceException {
-//		sendRemind(id, adviserState, maraState, officialState);
+		sendRemind(id, adviserState, maraState, officialState);
 		return review(id, adminUserId, adviserState, maraState, officialState, kjState, "APPROVAL");
 	}
 	
@@ -604,6 +604,183 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				}
 			}
 			serviceOrderDao.updateServiceOrder(serviceOrderDo);
+		}
+	}
+	
+	@Deprecated
+	public void sendRemind(int id, String adviserState, String maraState, String officialState) {
+		ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(id);
+		if (serviceOrderDo != null) {
+			String title = "新任务提醒:";
+			String type = "";
+			String detail = "";
+			String serviceOrderUrl = "<br/><a href='https://yongjinbiao.zhinanzhen.org/webroot/serviceorder-detail.html?id="
+					+ serviceOrderDo.getId() + "'>服务订单详情</a>";
+			UserDO user = userDao.getUserById(serviceOrderDo.getUserId());
+			if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())) {
+				type = "签证";
+				if (user != null)
+					detail += "/客户名称:" + user.getName();
+				ServiceDO service = serviceDao.getServiceById(serviceOrderDo.getServiceId());
+				if (service != null) {
+					detail += "/类型:" + service.getName() + "(" + service.getCode() + ")";
+					type += "(" + service.getCode() + ")";
+				}
+				title += user.getName() + "/" + type;
+			} else if ("OVST".equalsIgnoreCase(serviceOrderDo.getType())) {
+				type = "留学";
+				if (user != null)
+					detail += "/客户名称:" + user.getName();
+				SchoolDO school = schoolDao.getSchoolById(serviceOrderDo.getSchoolId());
+				if (school != null) {
+					detail += "/学校:" + school.getName();
+					detail += "/专业:" + school.getSubject();
+				}
+				title += user.getName() + "/" + type;
+			} else if ("SIV".equalsIgnoreCase(serviceOrderDo.getType())) {
+				type = "独立技术移民";
+				title += user.getName() + "/" + type;
+			} else if ("MT".equalsIgnoreCase(serviceOrderDo.getType())) {
+				type = "曼拓";
+				title += user.getName() + "/" + type;
+			}
+			AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderDo.getAdviserId());
+			OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
+			Date date = serviceOrderDo.getGmtCreate();
+			if (adviserDo != null && officialDo != null) {
+				if ("REVIEW".equals(maraState) || "WAIT".equals(maraState)) {
+					MaraDO maraDo = maraDao.getMaraById(serviceOrderDo.getMaraId());
+					if (maraDo != null)
+						SendEmailUtil.send(maraDo.getEmail(), title, StringUtil.merge("亲爱的", maraDo.getName(),
+								":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:", id, "<br/>服务类型:", type, detail,
+								"/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName(), "<br/>属性:",
+								getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
+								serviceOrderDo.getNutCloud(), "<br/>客户基本信息:", serviceOrderDo.getInformation(),
+								"<br/>备注:", serviceOrderDo.getRemarks(), "<br/>创建时间:", date, "<br/>", serviceOrderUrl));
+					if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())) {
+						String _title = StringUtil.merge("MARA审核通过提醒:", user.getName(), "/签证");
+						// 发送给顾问
+						SendEmailUtil.send(adviserDo.getEmail(), _title, StringUtil.merge("亲爱的:", adviserDo.getName(),
+								"<br/>", "您的订单已经审核完成请查看并进行下一步操作。<br>订单号:", serviceOrderDo.getId(), "<br/>服务类型:签证/客户名称:",
+								user.getName(), "/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
+								getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
+								serviceOrderDo.getNutCloud(), "<br/>客户基本信息:", serviceOrderDo.getInformation(),
+								"<br/>备注:", serviceOrderDo.getRemarks(), "<br/>创建时间:", date, "<br/>", serviceOrderUrl));
+						// 发送给文案
+						SendEmailUtil.send(adviserDo.getEmail(), _title, StringUtil.merge("亲爱的:", officialDo.getName(),
+								"<br/>", "您的订单已经审核完成请查看并进行下一步操作。<br>订单号:", serviceOrderDo.getId(), "<br/>服务类型:签证/客户名称:",
+								user.getName(), "/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
+								getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
+								serviceOrderDo.getNutCloud(), "<br/>客户基本信息:", serviceOrderDo.getInformation(),
+								"<br/>备注:", serviceOrderDo.getRemarks(), "<br/>创建时间:", date, "<br/>", serviceOrderUrl));
+					}
+					// 写入审核时间
+					if (serviceOrderDo.getMaraApprovalDate() == null)
+						serviceOrderDo.setMaraApprovalDate(new Date());
+				}
+				if ("REVIEW".equals(adviserState)) { // 给文案发邮件提醒，这时adviserState为REVIEW,officialState为NULL
+					SendEmailUtil.send(officialDo.getEmail() + ",maggie@zhinanzhen.org", title,
+							StringUtil.merge("亲爱的", officialDo.getName(), ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:", id,
+									"<br/>服务类型:", type, detail, "/顾问:", adviserDo.getName(), "/文案:",
+									officialDo.getName(), "<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()),
+									"<br/>坚果云资料地址:", serviceOrderDo.getNutCloud(), "<br/>客户基本信息:",
+									serviceOrderDo.getInformation(), "<br/>备注:", serviceOrderDo.getRemarks(),
+									"<br/>创建时间:", date, "<br/>", serviceOrderUrl));
+					// 写入文案审核时间
+					if (serviceOrderDo.getOfficialApprovalDate() == null)
+						serviceOrderDo.setOfficialApprovalDate(new Date());
+				}
+				if ("REVIEW".equals(officialState)) { // 告诉顾问文案已经开始审核了
+					SendEmailUtil.send(adviserDo.getEmail(), title,
+							StringUtil.merge("亲爱的", adviserDo.getName(), ":<br/>您有一条服务订单已正在处理中。<br/>订单号:", id,
+									"<br/>服务类型:", type, detail, "/顾问:", adviserDo.getName(), "/文案:",
+									officialDo.getName(), "<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()),
+									"<br/>坚果云资料地址:", serviceOrderDo.getNutCloud(), "<br/>客户基本信息:",
+									serviceOrderDo.getInformation(), "<br/>备注:", serviceOrderDo.getRemarks(),
+									"<br/>创建时间:", date, "<br/>", serviceOrderUrl));
+				}
+				if ("COMPLETE".equals(officialState)) {
+
+					if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())) {
+						String _title = StringUtil.merge("审核完成提醒:", user.getName(), "/签证");
+						// 发送给顾问
+						SendEmailUtil.send(adviserDo.getEmail(), _title,
+								StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>",
+										"您的订单已经申请成功，请检查并进行下一步操作。<br>订单号:", serviceOrderDo.getId(), "<br/>服务类型:签证/客户名称:",
+										user.getName(), "/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(),
+										"<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
+										serviceOrderDo.getNutCloud(), "<br/>客户基本信息:", serviceOrderDo.getInformation(),
+										"<br/>备注:", serviceOrderDo.getRemarks(), "<br/>创建时间:", date, "<br/>",
+										serviceOrderUrl));
+						MaraDO maraDo = maraDao.getMaraById(serviceOrderDo.getMaraId());
+						if (maraDo != null) {
+							// 发送给MARA
+							SendEmailUtil.send(maraDo.getEmail(), _title, StringUtil.merge("亲爱的:", maraDo.getName(),
+									"<br/>", "您的订单已经申请成功，请检查并进行下一步操作。<br>订单号:", serviceOrderDo.getId(),
+									"<br/>服务类型:签证/客户名称:", user.getName(), "/顾问:", adviserDo.getName(), "/文案:",
+									officialDo.getName(), "<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()),
+									"<br/>坚果云资料地址:", serviceOrderDo.getNutCloud(), "<br/>客户基本信息:",
+									serviceOrderDo.getInformation(), "<br/>备注:", serviceOrderDo.getRemarks(),
+									"<br/>创建时间:", date, "<br/>", serviceOrderUrl));
+						}
+
+					}
+
+					if ("OVST".equalsIgnoreCase(serviceOrderDo.getType())) {
+						String _title = StringUtil.merge("审核完成提醒:", user.getName(), "/留学");
+						// 发送给顾问
+						SchoolDO schoolDo = schoolDao.getSchoolById(serviceOrderDo.getSchoolId());
+						if (schoolDo != null)
+							SendEmailUtil.send(adviserDo.getEmail(), _title,
+									StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>",
+											"您的订单已经申请成功等待coe支付，请检查并进行下一步操作。<br>订单号:", serviceOrderDo.getId(),
+											"<br/>服务类型:留学/客户名称:", user.getName(), "/学校:", schoolDo.getName(), "/专业:",
+											schoolDo.getSubject(), "/顾问:", adviserDo.getName(), "/文案:",
+											officialDo.getName(), "<br/>属性:",
+											getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
+											serviceOrderDo.getNutCloud(), "<br/>客户基本信息:",
+											serviceOrderDo.getInformation(), "<br/>备注:", serviceOrderDo.getRemarks(),
+											"<br/>创建时间:", date, "<br/>", serviceOrderUrl));
+					}
+
+				}
+				if ("PAID".equals(adviserState)) {
+					// 写入会计审核时间
+					if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())
+							|| "SIV".equalsIgnoreCase(serviceOrderDo.getType()))
+						visaDao.listVisaByServiceOrderId(serviceOrderDo.getId()).forEach(visaDo -> {
+							if (visaDo.getKjApprovalDate() == null) {
+								visaDo.setKjApprovalDate(new Date());
+								visaDao.updateVisa(visaDo);
+							}
+						});
+					if ("OVST".equalsIgnoreCase(serviceOrderDo.getType())) {
+						commissionOrderDao.listCommissionOrderByServiceOrderId(serviceOrderDo.getId())
+								.forEach(commissionOrderDo -> {
+									if (commissionOrderDo.getKjApprovalDate() == null) {
+										commissionOrderDo.setKjApprovalDate(new Date());
+										commissionOrderDao.updateCommissionOrder(commissionOrderDo);
+									}
+								});
+						if ("PAID".equals(officialState)) {
+							String _title = StringUtil.merge("审核完成提醒:", user.getName(), "/留学");
+							// 发送给顾问
+							SchoolDO schoolDo = schoolDao.getSchoolById(serviceOrderDo.getSchoolId());
+							if (schoolDo != null)
+								SendEmailUtil.send(adviserDo.getEmail(), _title, StringUtil.merge("亲爱的:",
+										adviserDo.getName(), "<br/>", "您的订单已经申请成功coe支付成功，请检查并进行下一步操作。<br>订单号:",
+										serviceOrderDo.getId(), "<br/>服务类型:留学/客户名称:", user.getName(), "/学校:",
+										schoolDo.getName(), "/专业:", schoolDo.getSubject(), "/顾问:", adviserDo.getName(),
+										"/文案:", officialDo.getName(), "<br/>属性:",
+										getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
+										serviceOrderDo.getNutCloud(), "<br/>客户基本信息:", serviceOrderDo.getInformation(),
+										"<br/>备注:", serviceOrderDo.getRemarks(), "<br/>创建时间:", date, "<br/>",
+										serviceOrderUrl));
+						}
+					}
+				}
+				serviceOrderDao.updateServiceOrder(serviceOrderDo);
+			}
 		}
 	}
 
