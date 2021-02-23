@@ -1668,6 +1668,7 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "state") String state,
 			@RequestParam(value = "subagencyId", required = false) String subagencyId,
 			@RequestParam(value = "closedReason", required = false) String closedReason,
+			@RequestParam(value = "refuseReason", required = false) String refuseReason,
 			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
 			HttpServletResponse response) {
 //		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
@@ -1688,6 +1689,7 @@ public class ServiceOrderController extends BaseController {
 			context.putParameter("state", state);
 			context.putParameter("subagencyId", subagencyId);
 			context.putParameter("closedReason", closedReason);
+			context.putParameter("refuseReason", refuseReason);
 			context.putParameter("remarks", remarks);
 //			context.putParameter("ap", adminUserLoginInfo.getApList());
 //			context.putParameter("adminUserId", adminUserLoginInfo.getId());
