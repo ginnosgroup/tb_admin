@@ -411,10 +411,10 @@ public class InvoiceController  extends BaseController {
             }
             return new Response(1, "fail");
         } catch (DataAccessException ex) {
-            //System.out.println(ex);
+            ex.printStackTrace();
             return new Response(1, "参数错误");
         } catch (Exception ex) {
-            //System.out.println(ex);
+            ex.printStackTrace();
             return new Response(1, "系统错误，请联系管理员！");
         }
     }
