@@ -1,13 +1,24 @@
 package org.zhinanzhen.tb.scheduled;
 
+import com.ikasoa.core.utils.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
+import org.zhinanzhen.b.dao.CommissionOrderDAO;
+import org.zhinanzhen.b.dao.SchoolDAO;
+import org.zhinanzhen.b.dao.VerifyDao;
+import org.zhinanzhen.b.dao.VisaDAO;
+import org.zhinanzhen.b.dao.pojo.CommissionOrderDO;
+import org.zhinanzhen.b.dao.pojo.FinanceCodeDO;
+import org.zhinanzhen.b.dao.pojo.SchoolDO;
+import org.zhinanzhen.b.dao.pojo.VisaDO;
+import org.zhinanzhen.b.service.ServiceOrderService;
+import org.zhinanzhen.b.service.impl.VerifyServiceImpl;
 import org.zhinanzhen.b.service.pojo.DataDTO;
+import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
+import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
-
-import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -35,6 +46,21 @@ public class Scheduled {
 
     @Autowired
     Data data;
+
+    @Autowired
+    private VerifyDao verifyDao;
+
+    @Autowired
+    private VisaDAO visaDAO;
+
+    @Autowired
+    private CommissionOrderDAO commissionOrderDAO;
+
+    @Autowired
+    private ServiceOrderService serviceOrderService;
+
+    @Autowired
+    private SchoolDAO schoolDAO;
 
     private Calendar calendar ;
 
@@ -222,6 +248,68 @@ public class Scheduled {
         }
 
 
+    }
+
+    //每天凌晨触发
+    //@org.springframework.scheduling.annotation.Scheduled(cron = "0 0 0 * * ? ")
+    @org.springframework.scheduling.annotation.Scheduled(cron = "0 45 10 * * ? ")
+    public void verifyCodeEveryDay(){
+        List<FinanceCodeDO> financeCodeDOS = verifyDao.getFinanceCodeOrderIdIsNull();
+        for (FinanceCodeDO financeCodeDO : financeCodeDOS){
+            if (StringUtil.isNotEmpty(VerifyServiceImpl.checkVerifyCode(financeCodeDO.getComment()))){
+                String comment = financeCodeDO.getComment();
+                //得到 verifyCode 并且字符全部转换成大写
+                String verifyCode = VerifyServiceImpl.checkVerifyCode(comment).toUpperCase();
+
+                List<VisaDO> visaDOS = visaDAO.listVisaByVerifyCode(verifyCode);
+                List<CommissionOrderDO> commissionOrderDOS = commissionOrderDAO.listCommissionOrderByVerifyCode(verifyCode);
+                if (visaDOS.size() > 0) { //visaDOS 判断list是否有数据
+                    VisaDO visaDO = visaDOS.get(0);
+                    if (visaDO != null) {
+                        visaDO.setBankDate(financeCodeDO.getBankDate());
+                        if (visaDO.getAmount()==financeCodeDO.getMoney())
+                            visaDO.setChecked(true);
+                        visaDO.setBankCheck("Code");
+                        if (visaDAO.updateVisa(visaDO) > 0){
+                            financeCodeDO.setOrderId("CV" + visaDO.getId());
+                            financeCodeDO.setAdviserId(visaDO.getAdviserId());
+                            financeCodeDO.setUserId(visaDO.getUserId());
+                            financeCodeDO.setAmount(visaDO.getAmount());
+                            if (visaDO.getServiceOrderId() > 0){
+                                try {
+                                    ServiceOrderDTO serviceOrderDTO = serviceOrderService.getServiceOrderById(visaDO.getServiceOrderId());
+                                    financeCodeDO.setBusiness(serviceOrderDTO.getService().getName()+"-"+serviceOrderDTO.getService().getCode());
+                                } catch (ServiceException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    }
+                }
+                if (commissionOrderDOS.size() > 0) { //commissionOrderDOS 判断list是否有数据
+                    CommissionOrderDO commissionOrderDO = commissionOrderDOS.get(0);
+                    if (commissionOrderDO != null) {
+                        commissionOrderDO.setBankDate(financeCodeDO.getBankDate());
+                        if (commissionOrderDO.getAmount()==financeCodeDO.getMoney())
+                            commissionOrderDO.setChecked(true);
+                        commissionOrderDO.setBankCheck("Code");
+                        if (commissionOrderDAO.updateCommissionOrder(commissionOrderDO) > 0){
+                            financeCodeDO.setOrderId("CS" + commissionOrderDO.getId());
+                            financeCodeDO.setAdviserId(commissionOrderDO.getAdviserId());
+                            financeCodeDO.setUserId(commissionOrderDO.getUserId());
+                            financeCodeDO.setAmount(commissionOrderDO.getAmount());
+                            if (commissionOrderDO.getSchoolId()>0) {
+                                SchoolDO schoolDO = schoolDAO.getSchoolById(commissionOrderDO.getSchoolId());
+                                 if (schoolDO != null)
+                                     //commissionOrderListDto.setSchool(mapper.map(schoolDo, SchoolDTO.class));
+                                     financeCodeDO.setBusiness("留学-"+schoolDO.getName());
+                                }
+                        }
+                    }
+                }
+            }
+            verifyDao.update(financeCodeDO);
+        }
     }
 
 }

@@ -181,7 +181,7 @@ public class VerifyServiceImpl implements VerifyService {
         return financeCodeDOS;
     }
 
-    public  String checkVerifyCode(String str){
+    public static String checkVerifyCode(String str){
         if (StringUtil.isEmpty(str))
             return null;
         for (regionEnum e : regionEnum.values()){
@@ -203,13 +203,13 @@ public class VerifyServiceImpl implements VerifyService {
     }
 
     @Override
-    public int count(String bankDateStart, String bankDateEnd) {
-        return verifyDao.count(bankDateStart,bankDateEnd);
+    public int count(String bankDateStart, String bankDateEnd, Integer regionId) {
+        return verifyDao.count(bankDateStart,bankDateEnd ,regionId);
     }
 
     @Override
-    public List<FinanceCodeDTO> list(String bankDateStart, String bankDateEnd, Integer pageSize, Integer pageNumber) {
-        List<FinanceCodeDO> financeCodeDOS = verifyDao.list(bankDateStart,bankDateEnd,pageSize,pageNumber * pageSize);
+    public List<FinanceCodeDTO> list(String bankDateStart, String bankDateEnd, Integer regionId, Integer pageSize, Integer pageNumber) {
+        List<FinanceCodeDO> financeCodeDOS = verifyDao.list(bankDateStart,bankDateEnd,regionId,pageSize,pageNumber * pageSize);
         List<FinanceCodeDTO> financeCodeDTOS  = new ArrayList<>();
         if ( financeCodeDOS != null){
             financeCodeDOS.forEach(financeCodeDO -> {

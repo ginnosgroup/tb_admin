@@ -3,9 +3,7 @@ package org.zhinanzhen.b.dao;
 import org.apache.ibatis.annotations.Param;
 import org.zhinanzhen.b.dao.pojo.FinanceBankDO;
 import org.zhinanzhen.b.dao.pojo.FinanceCodeDO;
-import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.dao.pojo.RegionDO;
-import org.zhinanzhen.tb.service.AdviserStateEnum;
 
 import java.util.List;
 
@@ -19,9 +17,11 @@ public interface VerifyDao {
 
     int add(@Param("financeCodeDOS") List<FinanceCodeDO> financeCodeDOS);
 
-    int count(@Param("bankDateStart") String bankDateStart, @Param("bankDateEnd") String bankDateEnd);
+    int count(@Param("bankDateStart") String bankDateStart, @Param("bankDateEnd") String bankDateEnd,
+              @Param("regionId") Integer regionId);
 
     List<FinanceCodeDO> list(@Param("bankDateStart") String bankDateStart, @Param("bankDateEnd") String bankDateEnd,
+                             @Param("regionId") Integer regionId,
                              @Param("pageSize") Integer pageSize, @Param("pageNumber") Integer pageNumber);
 
 
@@ -42,4 +42,6 @@ public interface VerifyDao {
     int addBank(FinanceBankDO financeBankDO);
 
     FinanceCodeDO financeCodeById(@Param("id") Integer id);
+
+    List<FinanceCodeDO> getFinanceCodeOrderIdIsNull();
 }
