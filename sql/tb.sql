@@ -787,7 +787,7 @@ DROP TABLE IF EXISTS `b_invoice_billto`;
 CREATE TABLE `b_invoice_billto` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
   `company` varchar(100) NOT NULL COMMENT 'company名字',
-  `abn` varchar(64) NOT NULL COMMENT 'ABN',
+  `abn` varchar(64) DEFAULT NULL COMMENT 'ABN',
   `address` varchar(100) NOT NULL COMMENT '地址',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
@@ -855,7 +855,7 @@ CREATE TABLE `b_invoice_school_description` (
   `id` int(11) unsigned NOT NULL COMMENT '主键',
   `studentname` varchar(50) NOT NULL COMMENT '学生姓名',
   `dob` datetime NOT NULL COMMENT '出生日期',
-  `student_id` int(11) NOT NULL COMMENT '对应学生ID',
+  `student_id` varchar(64) NOT NULL COMMENT '对应学生ID',
   `course` varchar(200) NOT NULL COMMENT '课程',
   `startDate` datetime NOT NULL COMMENT '课程开始时时间',
   `instalment` varchar(50) NOT NULL COMMENT '机构名称',
