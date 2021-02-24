@@ -21,7 +21,7 @@ public class InvoiceSchoolDescriptionDO {
 
     private Date  dob;
 
-    private int studentId;
+    private String studentId;
 
     private String course;
 
