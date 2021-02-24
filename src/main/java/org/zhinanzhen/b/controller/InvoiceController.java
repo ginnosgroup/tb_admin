@@ -290,7 +290,7 @@ public class InvoiceController  extends BaseController {
     @RequestMapping(value = "/addBillTo", method = RequestMethod.POST)
     @ResponseBody
     public Response addBillTo(@RequestParam(value = "company", required = true) String company,
-                              @RequestParam(value = "abn", required = true) String abn,
+                              @RequestParam(value = "abn", required = false) String abn,
                               @RequestParam(value = "address", required = true) String address) {
         int result = invoiceService.addBillTo(company, abn, address);
         if (result == -1) {
