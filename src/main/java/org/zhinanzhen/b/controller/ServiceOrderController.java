@@ -1126,6 +1126,7 @@ public class ServiceOrderController extends BaseController {
 						if (ReviewOfficialStateEnum.CLOSE.toString().equals(state.toUpperCase())) { // 文案关闭同时修改顾问状态
 							serviceOrderService.finish(id);
 							// 更新驳回原因
+System.out.println("----------refuseReason:" + refuseReason);
 							if (StringUtil.isNotEmpty(refuseReason)) {
 								serviceOrderDto.setRefuseReason(refuseReason);
 								serviceOrderService.updateServiceOrder(serviceOrderDto);

@@ -145,6 +145,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			}
 		}
 		try {
+System.out.println("----------serviceOrderDto.getRefuseReason():" + serviceOrderDto.getRefuseReason());
 			return serviceOrderDao.updateServiceOrder(mapper.map(serviceOrderDto, ServiceOrderDO.class));
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
