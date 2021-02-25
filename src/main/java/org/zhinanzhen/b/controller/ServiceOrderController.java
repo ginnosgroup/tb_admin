@@ -1122,15 +1122,14 @@ public class ServiceOrderController extends BaseController {
 					} else
 						return new Response<ServiceOrderDTO>(1, "state错误!(" + state + ")", null);
 				} else if ("WA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
-					if (ReviewOfficialStateEnum.get(state) != null)
+					if (ReviewOfficialStateEnum.get(state) != null) {
+						// 更新驳回原因
+						if (StringUtil.isNotEmpty(refuseReason)) {
+							serviceOrderDto.setRefuseReason(refuseReason);
+							serviceOrderService.updateServiceOrder(serviceOrderDto);
+						}
 						if (ReviewOfficialStateEnum.CLOSE.toString().equals(state.toUpperCase())) { // 文案关闭同时修改顾问状态
 							serviceOrderService.finish(id);
-							// 更新驳回原因
-System.out.println("----------refuseReason:" + refuseReason);
-							if (StringUtil.isNotEmpty(refuseReason)) {
-								serviceOrderDto.setRefuseReason(refuseReason);
-								serviceOrderService.updateServiceOrder(serviceOrderDto);
-							}
 							// 更新关闭原因
 							if (StringUtil.isNotEmpty(closedReason)) {
 								serviceOrderDto.setClosedReason(closedReason);
@@ -1147,7 +1146,7 @@ System.out.println("----------refuseReason:" + refuseReason);
 						else
 							return new Response<ServiceOrderDTO>(0, serviceOrderService.refuse(id,
 									adminUserLoginInfo.getId(), null, null, state.toUpperCase(), null));
-					else
+					} else
 						return new Response<ServiceOrderDTO>(1, "state错误!(" + state + ")", null);
 				} else
 					return new Response<ServiceOrderDTO>(1, "该用户无审核权限!", null);
