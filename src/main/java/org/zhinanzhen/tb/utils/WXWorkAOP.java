@@ -92,4 +92,26 @@ public class WXWorkAOP {
             //System.out.println("customerToken=========="+tokenMap.get("access_token"));
         }
     }
+
+    @Before("execution(* org.zhinanzhen.b.service.impl.WXWorkServiceImpl.sendMsg(..))")
+    public  void  beforeSendMsg(JoinPoint joinPoint) throws Exception {
+        ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+        HttpSession session=attr.getRequest().getSession(true);
+        if (session.getAttribute("corpToken") == null) {
+            System.out.println("corpToken is null");
+            Map<String, Object> tokenMap = wxWorkService.getToken(WXWorkAPI.SECRET_CORP);
+            if ((int)tokenMap.get("errcode") != 0)
+                throw  new RuntimeException( tokenMap.get("errmsg").toString());
+            session.setAttribute("corpToken",tokenMap.get("access_token"));
+            session.setMaxInactiveInterval((Integer) tokenMap.get("expires_in"));
+        }
+        if (session.getAttribute("customerToken") == null) {
+            System.out.println("customerToken is null");
+            Map<String, Object> tokenMap = wxWorkService.getToken(WXWorkAPI.SECRET_CUSTOMER);
+            if ((int)tokenMap.get("errcode") != 0)
+                throw  new RuntimeException( tokenMap.get("errmsg").toString());
+            session.setAttribute("customerToken",tokenMap.get("access_token"));
+            session.setMaxInactiveInterval((Integer) tokenMap.get("expires_in"));
+        }
+    }
 }

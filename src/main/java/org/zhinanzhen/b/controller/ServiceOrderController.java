@@ -33,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.controller.nodes.SONodeFactory;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderReadcommittedDateDO;
 import org.zhinanzhen.b.service.*;
+import org.zhinanzhen.b.service.impl.WXWorkServiceImpl;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
@@ -85,6 +86,9 @@ public class ServiceOrderController extends BaseController {
 	
 	@Resource
 	SONodeFactory soNodeFactory;
+
+	@Resource
+	WXWorkService wxWorkService;
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -367,6 +371,9 @@ public class ServiceOrderController extends BaseController {
 						msg += "创建第五学校服务订单成功(第五服务订单编号:" + serviceOrderDto.getId() + "). ";
 					} else
 						msg += "创建第五学校服务订单失败(第五学校编号:" + schoolId5 + "). ";
+				}
+				if (type.equalsIgnoreCase("VISA")){
+					wxWorkService.sendMsg(serviceOrderDto.getId());
 				}
 				return new Response<Integer>(0, msg, serviceOrderDto.getId());
 			} else

@@ -21,21 +21,24 @@ import java.util.Map;
  */
 public class WXWorkAPI {
 
-    public  final  static  String  CORPID = "ww605a1531f63a3629";//企业id
-    //public  final  static  String  CORPID = "wwd3243681b49f8414";//企业id
+    //群聊id
+    public final static  String CHATID = "nameid";
 
-    public  final  static  String  AGENTID = "1000010";
-    //public  final  static  String  AGENTID = "1000003";
+    //public  final  static  String  CORPID = "ww605a1531f63a3629";//企业id
+    public  final  static  String  CORPID = "wwd3243681b49f8414";//企业id
 
-    //应用的凭证密钥
-    public  final  static  String  SECRET_CORP = "6jgmyQa32YLJMIdN5RNaXOOS2z2sDhnZ5p26193Lhp8";
-
-    public  final  static  String  SECRET_CUSTOMER = "OJd0c4VImqx3EJitBCoCMosjmFOIOdlIgmiuegAiTHs";
+    //public  final  static  String  AGENTID = "1000010";
+    public  final  static  String  AGENTID = "1000003";
 
     //应用的凭证密钥
-    //public  final  static  String  SECRET_CORP = "u9YgNImH-UjKwZwNMZmKIz174oiiuuPQpjnJT8s4kfs";
+    //public  final  static  String  SECRET_CORP = "6jgmyQa32YLJMIdN5RNaXOOS2z2sDhnZ5p26193Lhp8";
 
-    //public  final  static  String  SECRET_CUSTOMER = "1mb5VhsAwYl1rLFWaMeCdLap2FHxQk2VNHPKicPVFZk";
+    //public  final  static  String  SECRET_CUSTOMER = "OJd0c4VImqx3EJitBCoCMosjmFOIOdlIgmiuegAiTHs";
+
+    //应用的凭证密钥
+    public  final  static  String  SECRET_CORP = "u9YgNImH-UjKwZwNMZmKIz174oiiuuPQpjnJT8s4kfs";
+
+    public  final  static  String  SECRET_CUSTOMER = "1mb5VhsAwYl1rLFWaMeCdLap2FHxQk2VNHPKicPVFZk";
 
     public   final  static String  WXWORK_STRING_CODE =
             "https://open.work.weixin.qq.com/wwopen/sso/qrConnect?appid=CORPID&agentid=AGENTID&redirect_uri=REDIRECT_URI&state=STATE";
@@ -45,6 +48,8 @@ public class WXWorkAPI {
     public  final  static  String ACCESS_TOKEN = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=ID&corpsecret=SECRET";
 
     public  final  static  String  EXTERNAL_CONTACT_LIST = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/batch/get_by_user?access_token=ACCESS_TOKEN";
+
+    public  final  static  String SENDMESSAGE = "https://qyapi.weixin.qq.com/cgi-bin/appchat/send?access_token=ACCESS_TOKEN";
 
     //发送GET请求
     public static JSONObject sendGet(String url) {
@@ -63,13 +68,6 @@ public class WXWorkAPI {
             // 建立实际的连接
             connection.connect();
             // 获取所有响应头字段
-            /*Map<String, List<String>> map = connection.getHeaderFields();
-            // 遍历所有的响应头字段
-            for (String key : map.keySet()) {
-                System.out.println(key + "--->" + map.get(key));
-            }
-            // 定义 BufferedReader输入流来读取URL的响应
-             */
             in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
             String line;
@@ -117,6 +115,44 @@ public class WXWorkAPI {
             parm.put("userid", userId);
             parm.put("cursor", cursor);
             parm.put("limit", limit);
+            writer.write(parm.toString());
+            writer.flush();
+            InputStream is = connection.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+            while ((strRead = reader.readLine()) != null) {
+                //sbf.append(strRead);
+                jsonss =com.alibaba.fastjson.JSONObject.parseObject(strRead);
+            }
+            reader.close();
+            connection.disconnect();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return  jsonss;
+    }
+
+
+    public static JSONObject sendPostBody_Map(String url,JSONObject parm){
+        JSONObject jsonss = null;
+        try {
+            String strRead = null;
+            URL realUrl = new URL(url);
+            HttpURLConnection connection = (HttpURLConnection) realUrl.openConnection();
+            connection.setRequestMethod("POST");//请求post方式
+            connection.setDoInput(true);
+            connection.setDoOutput(true);
+
+            //connection.setRequestProperty("Content-Type", "application/json");
+            //connection.setRequestProperty("Authorization", "Bearer 59e0-9fcc-c3faea0e2a6c");
+            connection.setRequestProperty("Accept", "application/json"); // 设置接收数据的格式
+            connection.setRequestProperty("Content-Type", "application/json"); // 设置发送数据的格式
+            connection.connect();
+            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream(), "UTF-8");
+            //body参数在这里put到JSONObject中
+            //JSONObject parm = new JSONObject();
+            //parm.put("userid", userId);
+            //parm.put("cursor", cursor);
+            //parm.put("limit", limit);
             writer.write(parm.toString());
             writer.flush();
             InputStream is = connection.getInputStream();

@@ -6,6 +6,10 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.dozer.DozerBeanMapper;
 import org.dozer.Mapper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import org.zhinanzhen.b.dao.ServiceOrderDAO;
+import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
 import org.zhinanzhen.b.service.WXWorkService;
 import org.zhinanzhen.tb.dao.UserDAO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
@@ -13,6 +17,7 @@ import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.utils.WXWorkAPI;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpSession;
 import java.util.Map;
 
 /**
@@ -28,6 +33,9 @@ public class WXWorkServiceImpl implements WXWorkService {
 
     @Resource
     private UserDAO userDAO;
+
+    @Resource
+    private ServiceOrderDAO serviceOrderDAO;
 
     @Override
     public String getWXWorkUrl() {
@@ -78,5 +86,31 @@ public class WXWorkServiceImpl implements WXWorkService {
         return 0 ;
     }
 
+    @Override
+    public  void sendMsg(int id){
+        JSONObject parm = new JSONObject();
+        JSONObject content = new JSONObject();
+        String msg = "";
+        ServiceOrderDO serviceOrderDO = serviceOrderDAO.getServiceOrderById(id);
+        if (serviceOrderDO!=null){
+            UserDO userDO = userDAO.getUserById(serviceOrderDO.getId());
+            if (userDO!=null)
+                msg = "ID:"+serviceOrderDO.getId()+"\n"
+                    +"姓名:"+userDO.getName()+"\n"
+                    +"备注:"+serviceOrderDO.getRemarks()+"\n"
+                    +"信息:"+serviceOrderDO.getInformation()+"\n";
+        }
+
+        content.put("content",msg);
+        parm.put("chatid",WXWorkAPI.CHATID);
+        parm.put("msgtype","text");
+        parm.put("text",content);
+        parm.put("safe",0);
+
+        ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+        HttpSession session=attr.getRequest().getSession(true);
+        String token = (String) session.getAttribute("corpToken");
+        JSONObject json =  WXWorkAPI.sendPostBody_Map(WXWorkAPI.SENDMESSAGE.replace("ACCESS_TOKEN",token),parm);
+    }
 
 }

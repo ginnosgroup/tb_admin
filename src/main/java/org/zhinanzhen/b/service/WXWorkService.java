@@ -21,4 +21,6 @@ public interface WXWorkService {
     Map<String, Object> getexternalContactList(String token, String userId, String cursor, int limit);
 
     int add(UserDTO userDTO);
+
+    void sendMsg(int id);
 }
