@@ -372,9 +372,6 @@ public class ServiceOrderController extends BaseController {
 					} else
 						msg += "创建第五学校服务订单失败(第五学校编号:" + schoolId5 + "). ";
 				}
-				if (type.equalsIgnoreCase("VISA")){
-					wxWorkService.sendMsg(serviceOrderDto.getId());
-				}
 				return new Response<Integer>(0, msg, serviceOrderDto.getId());
 			} else
 				return new Response<Integer>(1, "创建失败.", 0);

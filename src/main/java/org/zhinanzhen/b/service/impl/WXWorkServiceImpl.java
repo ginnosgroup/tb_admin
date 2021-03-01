@@ -113,4 +113,7 @@ public class WXWorkServiceImpl implements WXWorkService {
         JSONObject json =  WXWorkAPI.sendPostBody_Map(WXWorkAPI.SENDMESSAGE.replace("ACCESS_TOKEN",token),parm);
     }
 
+    //if (type.equalsIgnoreCase("VISA")){
+    //    wxWorkService.sendMsg(serviceOrderDto.getId());
+    //}
 }
