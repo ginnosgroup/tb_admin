@@ -373,6 +373,9 @@
 													<input v-model.trim="bankDateStart" type="text" autocomplete="off" class="form-control default-date-picker" style="width:120px;" placeholder="时间(开始)">
 													<label>至</label>
 													<input v-model.trim="bankDateEnd" type="text"  autocomplete="off" class="form-control default-date-picker" style="width:120px;" placeholder="时间(结束)">
+													<label>选择地区</label>
+													<select v-model.trim="regionId" id="regionId1" class="form-control" style="width:130px;">
+													</select>
 											</div>
 											<div class="form-group">
 													<button @click="getSearch" type="button" class="btn btn-info">查询</button>
@@ -496,6 +499,13 @@
 								</div>
 							</div>
 							<div class="form-group">
+								<label class="col-sm-3 control-label">请选择地区</label>
+								<div class="col-sm-8">
+									<select id="regionId" class="form-control" style="width:130px;">
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
 								<label class="col-sm-12 control-label" id="show_message" style="text-align: center;color:red;"></label>
 							</div>							
 							</form>
@@ -561,6 +571,7 @@
 						$.get(url + "verify/count", {
 							bankDateStart: that.bankDateStart,
 							bankDateEnd: that.bankDateEnd,
+							regionId: that.regionId,
 						}, function(result) {
 							that.count = result.data;
 							that.allPage = Math.ceil(result.data / that.pageSize);
@@ -568,6 +579,7 @@
 						$.get(url + "verify/list", {
 							bankDateStart: that.bankDateStart,
 							bankDateEnd: that.bankDateEnd,
+							regionId: that.regionId,
 							pageNum: 0,
 							pageSize: that.pageSize
 						}, function(result) {
@@ -602,7 +614,14 @@
 						}else
 						{
 								down_url += "&bankDateEnd=";
-						}						
+						}
+						if (typeof(that.regionId) != "undefined")
+						{
+								down_url += "&regionId="+that.regionId;
+						}else
+						{
+								down_url += "&regionId=";
+						}					
 						console.log(down_url);
 						var a = document.createElement('a');
 						a.download = 'bankbill.xls';
@@ -648,6 +667,7 @@
 							$.get(url + "verify/list", {
 								bankDateStart: that.bankDateStart,
 								bankDateEnd: that.bankDateEnd,
+								regionId: that.regionId,
 								pageNum: 0,
 								pageSize: that.pageSize
 							}, function(result) {
@@ -663,6 +683,7 @@
 							$.get(url + "verify/list", {
 								bankDateStart: that.bankDateStart,
 								bankDateEnd: that.bankDateEnd,
+								regionId: that.regionId,
 								pageNum: that.pageNum,
 								pageSize: that.pageSize
 							}, function(result) {
@@ -677,6 +698,7 @@
 							$.get(url + "verify/list", {
 								bankDateStart: that.bankDateStart,
 								bankDateEnd: that.bankDateEnd,
+								regionId: that.regionId,
 								pageNum: that.pageNum,
 								pageSize: that.pageSize
 							}, function(result) {
@@ -690,6 +712,7 @@
 							$.get(url + "verify/list", {
 								bankDateStart: that.bankDateStart,
 								bankDateEnd: that.bankDateEnd,
+								regionId: that.regionId,
 								pageNum: that.allPage - 1,
 								pageSize: that.pageSize
 							}, function(result) {
@@ -774,7 +797,35 @@
 				  {
 				  		console.log(this.current_row);
 				  		$("#id").val(this.current_row.id);	  		
-				  }				      
+				  }	
+				  
+				  //绑定区域列表
+			    var obj_regionId = $("#regionId");
+			    var obj_regionId1 = $("#regionId1");
+			    $("#regionId").empty();
+			    $("#regionId1").empty();
+			    obj_regionId.append("<option value='0'>请选择</option>");
+			    obj_regionId1.append("<option value='0'>请选择</option>");
+			    $.ajax({
+	          url: url + 'region/list_all',
+	          type: 'GET',
+	          dataType: 'json'
+	        }).done(function(response) {
+	        	var region_data = response.data;
+	        	for (var item in region_data)
+	        	{
+	        			obj_regionId.append("<option value='"+region_data[item].id+"'>"+region_data[item].name+"</option>");
+	        			obj_regionId1.append("<option value='"+region_data[item].id+"'>"+region_data[item].name+"</option>");
+	        			var region_sub = region_data[item].regionList;
+	        			for (var itemsub in region_sub)
+	        			{
+	        					obj_regionId.append("<option value='"+region_sub[itemsub].id+"'>---"+region_sub[itemsub].name+"</option>");
+	        					obj_regionId1.append("<option value='"+region_sub[itemsub].id+"'>---"+region_sub[itemsub].name+"</option>");
+	        			}
+	        	}
+	        	obj_regionId.val('0');
+	        	obj_regionId1.val(v.regionId);
+	        });			      
 			});
 			
 			function uploadFile()
@@ -788,7 +839,13 @@
 					var formData = new FormData();					
 					formData.append("file",$("#f2")[0].files[0]);
 					$('#upload_id #show_message').html('');
-					if ($("#f2").val() == '') return;
+					if ($("#f2").val() == '' || $("#upload_id #regionId").val() == '0')
+					{
+							$('#upload_id #show_message').css("color","red");
+			        $('#upload_id #show_message').html('文件 / 地区都必须选择，请确认。');
+							return;
+					}
+					formData.append("regionId",$("#upload_id #regionId").val());
 					show_loading();
 					
 					$.ajax({
