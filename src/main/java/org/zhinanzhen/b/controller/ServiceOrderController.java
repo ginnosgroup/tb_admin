@@ -283,7 +283,7 @@ public class ServiceOrderController extends BaseController {
 			if (StringUtil.isNotEmpty(nutCloud))
 				serviceOrderDto.setNutCloud(nutCloud);
 			if (StringUtil.isNotEmpty(serviceAssessId)) {
-				if (serviceAssessService.seleteAssessByServiceId(serviceId).size() == 0)
+				if ( !type.equalsIgnoreCase("SIV") && serviceAssessService.seleteAssessByServiceId(serviceId).size() == 0 )
 					return new Response(1, "当前服务编号不是评估(" + serviceId + ")，创建失败.", 0);
 				serviceOrderDto.setServiceAssessId(serviceAssessId);
 			}
@@ -313,6 +313,7 @@ public class ServiceOrderController extends BaseController {
 						ServicePackageDTO servicePackageDto = servicePackageService.getById(id);
 						if (servicePackageDto == null)
 							return new Response<Integer>(1, "服务包不存在.", 0);
+						serviceOrderDto.setServiceAssessId("CA".equalsIgnoreCase(servicePackageDto.getType()) ? serviceAssessId : null);
 						serviceOrderDto.setType("VISA"); // 独立技术移民子订单为VISA
 						serviceOrderDto.setPay(false); // 独立技术移民子订单都未支付
 						if (StringUtil.isNotEmpty(maraId))

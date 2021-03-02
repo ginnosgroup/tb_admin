@@ -25,9 +25,9 @@ public interface VerifyService {
 
     int add(List<FinanceCodeDO> financeCodeDOS);
 
-    int count(String bankDateStart, String bankDateEnd);
+    int count(String bankDateStart, String bankDateEnd, Integer regionId);
 
-    List<FinanceCodeDTO> list(String bankDateStart, String bankDateEnd, Integer pageSize, Integer pageNumber);
+    List<FinanceCodeDTO> list(String bankDateStart, String bankDateEnd, Integer regionId, Integer pageSize, Integer pageNumber);
 
     int update(FinanceCodeDO financeCodeDO);
 

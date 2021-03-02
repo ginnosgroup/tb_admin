@@ -3,10 +3,7 @@ package org.zhinanzhen.b.service.impl;
 import com.ikasoa.core.utils.StringUtil;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.dozer.DozerBeanMapper;
 import org.dozer.Mapper;
@@ -76,6 +73,7 @@ public class VerifyServiceImpl implements VerifyService {
     @Resource
     private AdminUserDAO adminUserDAO;
 
+    private  DataFormatter dataFormatter = new DataFormatter();
 
     @Override
     @Transactional
@@ -123,8 +121,9 @@ public class VerifyServiceImpl implements VerifyService {
                 if (row.getCell(0) == null){
                     throw new Exception("入账日期有误,行数:"+r+1);
                 }
-
-                financeCodeDO.setBankDate(sdfParse.parse(row.getCell(0).getStringCellValue()));
+                if (StringUtil.isEmpty(dataFormatter.formatCellValue(row.getCell(0))))
+                    continue;
+                financeCodeDO.setBankDate(sdfParse.parse(dataFormatter.formatCellValue(row.getCell(0))));
                 financeCodeDO.setIncome(row.getCell(1).getNumericCellValue() > 0);
                 financeCodeDO.setMoney(Double.parseDouble(df.format(row.getCell(1).getNumericCellValue())));
                 financeCodeDO.setComment(row.getCell(2).getStringCellValue());
@@ -139,10 +138,11 @@ public class VerifyServiceImpl implements VerifyService {
                     //    financeCodeDO.setCommissionOrderId(Integer.parseInt(id.substring(2)));
                     //}
                     financeCodeDO.setOrderId(orderId);
-                }else if (financeCodeDO.getComment().contains("$$") & financeCodeDO.getComment().contains("#")){
+                }else if (StringUtil.isNotEmpty(checkVerifyCode(financeCodeDO.getComment()))){
                     String comment = financeCodeDO.getComment();
                     //得到 verifyCode 并且字符全部转换成大写
-                    String verifyCode = comment.substring(comment.indexOf("$$") + 2, comment.lastIndexOf("#")).toUpperCase();
+                    String verifyCode = checkVerifyCode(comment).toUpperCase();
+
                     List<VisaDO> visaDOS = visaDAO.listVisaByVerifyCode(verifyCode);
                     List<CommissionOrderDO> commissionOrderDOS = commissionOrderDAO.listCommissionOrderByVerifyCode(verifyCode);
                     if (visaDOS.size() > 1 | commissionOrderDOS.size() > 1)
@@ -175,43 +175,23 @@ public class VerifyServiceImpl implements VerifyService {
                 financeCodeDOS.add(financeCodeDO);
             }
 
-            /*
-            //创建xls文件
-            SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyyy");
-            DecimalFormat moneysdf = new DecimalFormat("0.00");
-            Calendar calendar = Calendar.getInstance();
-            String str = sdf.format(calendar.getTime());
-            str = str + "_" + moneysdf.format(money) + "_"+ moneysdf.format(balance) + ".xls";
-
-            //File file = new File("/data/uploads/excel/" + str );
-            File file = new File("E:/data/uploads/excel/" + str );
-
-            if (!file.exists()) {
-                file.getParentFile().mkdirs();
-            }
-            WorkbookSettings settings = new WorkbookSettings();
-            settings.setWriteAccess(null);
-            WritableWorkbook wwb = jxl.Workbook.createWorkbook(file, settings);
-            WritableCellFormat cellFormat = new WritableCellFormat();
-            WritableSheet sheetTwo = wwb.createSheet("sheet one", 1);
-            for (int r = 0; r <= rowLength; r++) {
-                row = sheet.getRow(r);
-                for (int c = 0 ; c < colLength; c++) {
-                    cell = row.getCell(c);
-                    sheetTwo.addCell(new Label(c, r, cell + "", cellFormat));
-                    if (cell == null)
-                        sheetTwo.addCell(new Label(c, r, "", cellFormat));
-                    //System.out.print(cell+"  ");
-                }
-                //System.out.println();
-            }
-            wwb.write();
-            wwb.close();
-             */
         } catch (ParseException e) {
             e.printStackTrace();
         }
         return financeCodeDOS;
+    }
+
+    public static String checkVerifyCode(String str){
+        if (StringUtil.isEmpty(str))
+            return null;
+        for (regionEnum e : regionEnum.values()){
+            if (str.contains(e.toString()) && str.contains("ZNZ")){
+                return str.substring(str.indexOf(e.toString()),str.lastIndexOf("ZNZ")+3);
+            }
+        }
+        if(str.contains("$$") & str.contains("#"))
+            return  str.substring(str.indexOf("$$") + 2, str.lastIndexOf("#"));
+        return  null;
     }
 
     @Override
@@ -223,13 +203,13 @@ public class VerifyServiceImpl implements VerifyService {
     }
 
     @Override
-    public int count(String bankDateStart, String bankDateEnd) {
-        return verifyDao.count(bankDateStart,bankDateEnd);
+    public int count(String bankDateStart, String bankDateEnd, Integer regionId) {
+        return verifyDao.count(bankDateStart,bankDateEnd ,regionId);
     }
 
     @Override
-    public List<FinanceCodeDTO> list(String bankDateStart, String bankDateEnd, Integer pageSize, Integer pageNumber) {
-        List<FinanceCodeDO> financeCodeDOS = verifyDao.list(bankDateStart,bankDateEnd,pageSize,pageNumber * pageSize);
+    public List<FinanceCodeDTO> list(String bankDateStart, String bankDateEnd, Integer regionId, Integer pageSize, Integer pageNumber) {
+        List<FinanceCodeDO> financeCodeDOS = verifyDao.list(bankDateStart,bankDateEnd,regionId,pageSize,pageNumber * pageSize);
         List<FinanceCodeDTO> financeCodeDTOS  = new ArrayList<>();
         if ( financeCodeDOS != null){
             financeCodeDOS.forEach(financeCodeDO -> {
@@ -300,6 +280,7 @@ public class VerifyServiceImpl implements VerifyService {
     public FinanceBankCodeDTO getPaymentCode(Integer adviserId) {
         boolean flag = true;
         FinanceBankCodeDTO financeBankCodeDTO = new FinanceBankCodeDTO();
+        List<RegionDO> regionDOParentList = regionDAO.selectByParent();
         AdviserDO adviserDO = adviserDao.getAdviserById(adviserId);
         if (adviserDO!=null){
             if (adviserDO.getRegionId()>0){
@@ -310,12 +291,39 @@ public class VerifyServiceImpl implements VerifyService {
                     financeBankCodeDTO=mapper.map(financeBankDO,FinanceBankCodeDTO.class);
                     String code = "";
                     while (flag){
+                        for (RegionDO regionParent : regionDOParentList){
+                            if (regionParent.getId() == regionDO.getId() || (regionDO.getParentId()== null ? 0 : regionDO.getParentId()) == regionParent.getId()){
+                                if (regionParent.getName().equalsIgnoreCase(regionEnum.SYD.value)){
+                                    code = regionEnum.SYD.toString();
+                                    break;
+                                }
+                                if (regionParent.getName().equalsIgnoreCase(regionEnum.ADE.value)) {
+                                    code = regionEnum.ADE.toString();
+                                    break;
+                                }
+                                if (regionParent.getName().equalsIgnoreCase(regionEnum.TAS.value)){
+                                    code = regionEnum.TAS.toString();
+                                    break;
+                                }
+                                if (regionParent.getName().equalsIgnoreCase(regionEnum.BNE.value)){
+                                    code = regionEnum.BNE.toString();
+                                    break;
+                                }
+                                if (regionParent.getName().equalsIgnoreCase(regionEnum.BJ.value)){
+                                    code = regionEnum.BJ.toString();
+                                    break;
+                                }
+                                if (regionParent.getName().equalsIgnoreCase(regionEnum.MEL.value)){
+                                    code = regionEnum.MEL.toString();
+                                    break;
+                                }
+                            }
+                        }
                         String adviserName = adviserDO.getName();
-                        code= (adviserName.contains(".")? adviserName.substring(0,adviserName.indexOf(".")) : adviserName ) + regionDO.getName().substring(0,3)+ RandomStringUtils.randomAlphanumeric(6);
+                        code= code + (adviserName.contains(".")? adviserName.substring(0,adviserName.indexOf(".")) : adviserName ) +  RandomStringUtils.randomAlphanumeric(6) + "ZNZ";
                         code = code.toUpperCase();
                         if (commissionOrderDAO.listCommissionOrderByVerifyCode(code).size()==0 && visaDAO.listVisaByVerifyCode(code).size()==0){
                             flag = false;
-                            code = "$$"+code +"#";
                         }
                     }
                     financeBankCodeDTO.setCode(code.replaceAll(" ",""));
@@ -398,4 +406,19 @@ public class VerifyServiceImpl implements VerifyService {
         return verifyDao.financeCodeById(id);
     }
 
+    public enum regionEnum {
+        SYD("NSW & ACT"),BNE("QLD"),TAS("TAS"),MEL("VIC"),ADE("SA"),BJ("北京");
+
+        private String value;
+        private regionEnum (String value) {
+            this.value = value;
+        }
+
+        public static regionEnum get(String name) {
+            for (regionEnum e : regionEnum.values())
+                if (e.toString().equals(name))
+                    return e;
+            return null;
+        }
+    }
 }
