@@ -22,23 +22,24 @@ import java.util.Map;
 public class WXWorkAPI {
 
     //群聊id
-    public final static  String CHATID = "nameid";
+    public final static  String CHATID = "zhinanzhen";
+    //public final static  String CHATID = "nameid";
 
-    //public  final  static  String  CORPID = "ww605a1531f63a3629";//企业id
-    public  final  static  String  CORPID = "wwd3243681b49f8414";//企业id
+    public  final  static  String  CORPID = "ww605a1531f63a3629";//企业id
+    //public  final  static  String  CORPID = "wwd3243681b49f8414";//企业id
 
-    //public  final  static  String  AGENTID = "1000010";
-    public  final  static  String  AGENTID = "1000003";
-
-    //应用的凭证密钥
-    //public  final  static  String  SECRET_CORP = "6jgmyQa32YLJMIdN5RNaXOOS2z2sDhnZ5p26193Lhp8";
-
-    //public  final  static  String  SECRET_CUSTOMER = "OJd0c4VImqx3EJitBCoCMosjmFOIOdlIgmiuegAiTHs";
+    public  final  static  String  AGENTID = "1000010";
+    //public  final  static  String  AGENTID = "1000003";
 
     //应用的凭证密钥
-    public  final  static  String  SECRET_CORP = "u9YgNImH-UjKwZwNMZmKIz174oiiuuPQpjnJT8s4kfs";
+    public  final  static  String  SECRET_CORP = "6jgmyQa32YLJMIdN5RNaXOOS2z2sDhnZ5p26193Lhp8";
 
-    public  final  static  String  SECRET_CUSTOMER = "1mb5VhsAwYl1rLFWaMeCdLap2FHxQk2VNHPKicPVFZk";
+    public  final  static  String  SECRET_CUSTOMER = "OJd0c4VImqx3EJitBCoCMosjmFOIOdlIgmiuegAiTHs";
+
+    //应用的凭证密钥
+    //public  final  static  String  SECRET_CORP = "u9YgNImH-UjKwZwNMZmKIz174oiiuuPQpjnJT8s4kfs";
+
+    //public  final  static  String  SECRET_CUSTOMER = "1mb5VhsAwYl1rLFWaMeCdLap2FHxQk2VNHPKicPVFZk";
 
     public   final  static String  WXWORK_STRING_CODE =
             "https://open.work.weixin.qq.com/wwopen/sso/qrConnect?appid=CORPID&agentid=AGENTID&redirect_uri=REDIRECT_URI&state=STATE";
@@ -148,11 +149,6 @@ public class WXWorkAPI {
             connection.setRequestProperty("Content-Type", "application/json"); // 设置发送数据的格式
             connection.connect();
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream(), "UTF-8");
-            //body参数在这里put到JSONObject中
-            //JSONObject parm = new JSONObject();
-            //parm.put("userid", userId);
-            //parm.put("cursor", cursor);
-            //parm.put("limit", limit);
             writer.write(parm.toString());
             writer.flush();
             InputStream is = connection.getInputStream();
