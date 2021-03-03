@@ -1009,6 +1009,7 @@
 						v.total_sureexpectamount += result.data[i].sureExpectAmount;
 						v.total_bonus += result.data[i].bonus;
 						result.data[i].strState = return_state(result.data[i].state);
+						if (result.data[i].state == 'WAIT' && result.data[i].refuseReason != '') result.data[i].strState += '('+result.data[i].refuseReason+')';
 						result.data[i].currentState = result.data[i].state;
 						if (result.data[i].remarks) result.data[i].remarks = url_replace1(result.data[i].remarks);
 						result.data[i].strRemarks = '<button data-original-title="" data-html="true" data-content="'+result.data[i].remarks+'" data-placement="bottom" data-trigger="onclick" class="btn btn-info btn-xs popovers">查看备注</button>';
