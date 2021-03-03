@@ -367,7 +367,8 @@
             so.id AS serviceOrderId,
             so.gmt_create AS signingDate,
             so.subagency_id AS subagencyId,
-            so.service_id AS serviceId
+            so.service_id AS serviceId,
+            so.refuse_reason AS refuseReason
         FROM b_commission_order co, b_service_order so, tb_user u, tb_adviser a
         WHERE co.service_order_id = so.id AND co.user_id = u.id AND a.id = co.adviser_id
         <if test='id != null and id > 0'>
@@ -597,7 +598,8 @@
             so.id AS serviceOrderId,
             so.gmt_create AS signingDate,
             so.subagency_id AS subagencyId,
-            so.service_id AS serviceId
+            so.service_id AS serviceId,
+            so.refuse_reason AS refuseReason
         FROM b_commission_order co, b_service_order so, b_school bs, tb_user tbu
         WHERE co.service_order_id = so.id AND co.school_id = bs.id AND co.user_id = tbu.id
         <if test='startDate != null and endDate != null'>
@@ -663,7 +665,8 @@
             so.id AS serviceOrderId,
             so.gmt_create AS signingDate,
             so.subagency_id AS subagencyId,
-            so.service_id AS serviceId
+            so.service_id AS serviceId,
+            so.refuse_reason AS refuseReason
         FROM b_commission_order co, b_service_order so, b_school bs, tb_user tbu
         WHERE co.service_order_id = so.id AND co.school_id = bs.id AND co.user_id = tbu.id
         AND DATE_FORMAT(co.installment_due_date, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
@@ -786,7 +789,8 @@
             so.id AS serviceOrderId,
             so.gmt_create AS signingDate,
             so.subagency_id AS subagencyId,
-            so.service_id AS serviceId
+            so.service_id AS serviceId,
+            so.refuse_reason AS refuseReason
         FROM b_commission_order co, b_service_order so, tb_user u
         WHERE co.service_order_id = so.id AND co.user_id = u.id and co.id = #{id, jdbcType=INTEGER}  ;
     </select>
@@ -845,7 +849,8 @@
             so.id AS serviceOrderId,
             so.gmt_create AS signingDate,
             so.subagency_id AS subagencyId,
-            so.service_id AS serviceId
+            so.service_id AS serviceId,
+            so.refuse_reason AS refuseReason
         FROM b_commission_order co, b_service_order so, tb_user u
         WHERE co.service_order_id = so.id AND co.user_id = u.id and co.invoice_number = #{invoiceNumber};
     </select>
@@ -904,7 +909,8 @@
             so.id AS serviceOrderId,
             so.gmt_create AS signingDate,
             so.subagency_id AS subagencyId,
-            so.service_id AS serviceId
+            so.service_id AS serviceId,
+            so.refuse_reason AS refuseReason
         FROM b_commission_order co, b_service_order so, tb_user u
         WHERE co.service_order_id = so.id AND co.user_id = u.id
             AND co.installment_num = 1 AND co.service_order_id = #{serviceOrderId, jdbcType=INTEGER};

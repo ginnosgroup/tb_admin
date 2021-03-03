@@ -50,6 +50,9 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 
 	@Resource
 	private UserDAO userDao;
+	
+	@Resource
+	private ServiceOrderDAO serviceOrderDao;
 
 	@Resource
 	private ServiceOrderReviewDAO serviceOrderReviewDao;
@@ -168,6 +171,9 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 				visaDto.setPhone(userDo.getPhone());
 				visaDto.setBirthday(userDo.getBirthday());
 			}
+			ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(visaListDo.getServiceOrderId());
+			if (serviceOrderDo != null && StringUtil.isNotEmpty(serviceOrderDo.getRefuseReason()))
+				visaDto.setRefuseReason(serviceOrderDo.getRefuseReason());
 			AdviserDO adviserDo = adviserDao.getAdviserById(visaListDo.getAdviserId());
 			if (adviserDo != null) {
 				visaDto.setAdviserName(adviserDo.getName());

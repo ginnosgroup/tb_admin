@@ -111,5 +111,7 @@ public class VisaDTO {
 	private double totalPerAmount;
 
 	private double totalAmount;
+	
+	private String refuseReason;
 
 }
