@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.tb.dao.UserDAO">
+
+    <insert id="addUser" parameterType="org.zhinanzhen.tb.dao.pojo.UserDO" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into tb_user(
+        gmt_create,
+        gmt_modify,
+        name,
+        birthday,
+        area_code,
+        phone,
+        email,
+        wechat_username,
+        first_controller_contents,
+        visa_code,
+        visa_expiration_date,
+        source,
+        auth_type,
+        auth_openid,
+        auth_username,
+        auth_nickname,
+        auth_logo,
+        balance,
+        adviser_id,
+        region_id)
+        values (
+        now(),
+        now(),
+        #{name},
+        #{birthday},
+        #{areaCode},
+        #{phone},
+        #{email},
+        #{wechatUsername},
+        #{firstControllerContents},
+        #{visaCode},
+        #{visaExpirationDate},
+        #{source},
+        #{authType},
+        #{authOpenid},
+        "",
+        #{authNickname},
+        "",
+        0,
+        #{adviserId},
+        #{regionId})
+    </insert>
+
+    <select id="countUser" parameterType="org.zhinanzhen.tb.dao.pojo.UserDO"
+        resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM tb_user
+        WHERE auth_type != 'V'
+        <if test='name != null and name != ""'>
+            AND name LIKE '%${name}%'
+        </if>
+        <if test='authType != null and authType != ""'>
+            AND auth_type = #{authType}
+        </if>
+        <if test='authNickname != null and authNickname != ""'>
+            AND auth_nickname = #{authNickname}
+        </if>
+        <if test='phone != null and phone != ""'>
+            AND phone = #{phone}
+        </if>
+        <if test='wechatUsername != null and wechatUsername != ""'>
+            AND wechat_username = #{wechatUsername}
+        </if>
+        <if test='adviserId != null'>
+            AND adviser_id = #{adviserId}
+        </if>
+        <if test='regionIdList != null'>
+            AND region_id IN
+            <foreach collection="regionIdList" item="regionIdList" index="index" open="(" close=")" separator=",">
+                #{regionIdList}
+            </foreach>
+        </if>
+        <if test='tagId != null and tagId != ""'>
+            AND ut.tag_id = #{tagId}
+        </if>
+        ;
+    </select>
+
+    <select id="countUserByThisMonth" resultType="java.lang.Integer">
+        select count(*) from tb_user where auth_type != 'V' AND DATE_FORMAT(gmt_create, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
+        <if test='adviserId != null'>
+            AND adviser_id = #{adviserId}
+        </if>
+        ;
+    </select>
+
+    <select id="listUser" resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
+        SELECT
+        u.id AS id,
+        u.gmt_create AS gmtCreate,
+        u.name AS name,
+        u.birthday AS birthday,
+        u.email AS email,
+        u.wechat_username AS wechatUsername,
+        u.first_controller_contents AS firstControllerContents,
+        u.visa_code AS visaCode,
+        u.visa_expiration_date AS visaExpirationDate,
+        u.source AS source,
+        u.auth_type AS authType,
+        u.auth_nickname AS authNickname,
+        u.auth_username AS authUsername,
+        u.area_code AS areaCode,
+        u.phone AS phone,
+        u.balance AS balance,
+        u.adviser_id AS adviserId,
+        u.region_id AS regionId
+        FROM tb_user u LEFT JOIN b_user_tag ut ON u.id = ut.user_id
+        WHERE u.auth_type != 'V'
+        <if test='name != null and name != ""'>
+            AND u.name LIKE '%${name}%'
+        </if>
+        <if test='authType != null and authType != ""'>
+            AND u.auth_type = #{authType}
+        </if>
+        <if test='authNickname != null and authNickname != ""'>
+            AND u.auth_nickname = #{authNickname}
+        </if>
+        <if test='phone != null and phone != ""'>
+            AND u.phone = #{phone}
+        </if>
+        <if test='wechatUsername != null and wechatUsername != ""'>
+            AND u.wechat_username = #{wechatUsername}
+        </if>
+        <if test='adviserId != null and adviserId != ""'>
+            AND u.adviser_id = #{adviserId}
+        </if>
+        <if test='regionIdList != null'>
+            AND u.region_id IN
+            <foreach collection="regionIdList" item="regionIdList" index="index" open="(" close=")" separator=",">
+                #{regionIdList}
+            </foreach>
+        </if>
+        <if test='tagId != null and tagId != ""'>
+            AND ut.tag_id = #{tagId}
+        </if>
+        GROUP BY u.id
+        <if test='orderByField != null and orderByField != ""'>
+            ORDER BY u.${orderByField}
+            <if test='isDesc == true'>
+                DESC
+            </if>
+        </if>
+        LIMIT #{offset}, #{rows};
+    </select>
+
+    <select id="getUserById" parameterType="java.lang.Integer"
+        resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
+        SELECT
+        id,
+        gmt_create AS gmtCreate,
+        name,
+        birthday,
+        phone,
+        email,
+        wechat_username AS wechatUsername,
+        first_controller_contents AS firstControllerContents,
+        visa_code AS visaCode,
+        visa_expiration_date AS visaExpirationDate,
+        source,
+        auth_type AS authType,
+        auth_openid AS authOpenid,
+        auth_username AS
+        authUsername,
+        auth_nickname AS authNickname,
+        auth_logo AS authLogo,
+        balance,
+        adviser_id AS adviserId,
+        region_id AS regionId
+        FROM tb_user
+        WHERE id = #{id, jdbcType=INTEGER};
+    </select>
+    
+    <select id="getUserByThird" resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
+        SELECT
+        id,
+        gmt_create AS
+        gmtCreate,
+        name,
+        birthday,
+        phone,
+        email,
+        wechat_username AS wechatUsername,
+        first_controller_contents AS firstControllerContents,
+        visa_code AS visaCode,
+        visa_expiration_date AS visaExpirationDate,
+        source,
+        auth_type AS authType,
+        auth_openid AS
+        authOpenid,
+        auth_username AS authUsername,
+        auth_nickname AS
+        authNickname,
+        auth_logo AS authLogo,
+        balance,
+        adviser_id AS adviserId,
+        region_id AS regionId
+        from tb_user
+        where
+        auth_type =
+        #{thirdType}
+        and
+        auth_openid = #{thirdId}
+    </select>
+    
+    <update id="update">
+        UPDATE tb_user
+        SET gmt_modify = now()
+        <if test='name != null and name != ""'>
+            , name = #{name, jdbcType=VARCHAR}
+        </if>
+        <if test='authNickname != null and authNickname != ""'>
+            , auth_nickname = #{authNickname, jdbcType=VARCHAR}
+        </if>
+        <if test='birthday != null'>
+            , birthday = #{birthday}
+        </if>
+        <if test='phone != null'>
+            , phone = #{phone}
+        </if>
+        <if test='wechatUsername != null and wechatUsername != ""'>
+            , wechat_username = #{wechatUsername}
+        </if>
+        <if test='firstControllerContents != null and firstControllerContents != ""'>
+            , first_controller_contents = #{firstControllerContents}
+        </if>
+        <if test='visaCode != null and visaCode != ""'>
+            , visa_code = #{visaCode}
+        </if>
+        <if test='visaExpirationDate != null'>
+            , visa_expiration_date = #{visaExpirationDate}
+        </if>
+        <if test='source != null and source != ""'>
+            , source = #{source}
+        </if>
+        WHERE id = #{id};
+    </update>
+    
+    <update id="updateAdviserById">
+        UPDATE tb_user
+        SET gmt_modify = now(), adviser_id = #{adviserId}
+        WHERE id = #{id};
+    </update>
+    
+    <update id="updateBalanceById">
+        UPDATE tb_user
+        SET gmt_modify = now(), balance = #{balance}
+        WHERE id = #{id};
+    </update>
+    
+    <select id="listUserByRecommendOpenId" resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
+        SELECT
+        id,
+        gmt_create AS gmtCreate,
+        name,
+        birthday,
+        phone,
+        email,
+        wechat_username AS wechatUsername,
+        first_controller_contents AS firstControllerContents,
+        visa_code AS visaCode,
+        visa_expiration_date AS visaExpirationDate,
+        source,
+        auth_type AS authType,
+        auth_nickname AS authNickname,
+        auth_username AS authUsername,
+        balance,
+        adviser_id AS adviserId
+        FROM tb_user
+        WHERE auth_type != 'V' AND recommend_openid = #{recommendOpenId}
+        ORDER BY gmt_create DESC
+    </select>
+
+    <update id="updateDOB">
+        UPDATE tb_user
+        SET gmt_modify = now() , birthday = #{dob}
+        WHERE id = #{id};
+    </update>
+
+    <select id="getUserByAuth_openid" resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
+        SELECT
+        id,
+        gmt_create AS gmtCreate,
+        name,
+        birthday,
+        phone,
+        email,
+        wechat_username AS wechatUsername,
+        first_controller_contents AS firstControllerContents,
+        visa_code AS visaCode,
+        visa_expiration_date AS visaExpirationDate,
+        source,
+        auth_type AS authType,
+        auth_openid AS authOpenid,
+        auth_username AS
+        authUsername,
+        auth_nickname AS authNickname,
+        auth_logo AS authLogo,
+        balance,
+        adviser_id AS adviserId,
+        region_id AS regionId
+        FROM tb_user
+        WHERE auth_openid = #{Auth_openid};
+    </select>
+</mapper>

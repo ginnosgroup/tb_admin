@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.KnowledgeDAO">
+
+    <insert id="addKnowledge" parameterType="org.zhinanzhen.b.dao.pojo.KnowledgeDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+            INTO b_knowledge (
+                gmt_create,
+                gmt_modify,
+                title,
+                content,
+                password,
+                knowledge_menu_id,
+                admin_user_id)
+            VALUES (
+                now(),
+                now(),
+                #{title},
+                #{content},
+                #{password},
+                #{knowledgeMenuId},
+                #{adminUserId});
+    </insert>
+    
+    <update id="updateKnowledge" parameterType="org.zhinanzhen.b.dao.pojo.KnowledgeDO">
+        UPDATE b_knowledge 
+        SET gmt_modify = now()
+        <if test='title != null'>
+            , title = #{title}
+        </if>
+        <if test='content != null'>
+            , content = #{content}
+        </if>
+        <if test='password != null'>
+            , password = #{password}
+        </if>
+        <if test='knowledgeMenuId != null'>
+            , knowledge_menu_id = #{knowledgeMenuId}
+        </if>
+        WHERE id = #{id};
+    </update>
+    
+    <select id="countKnowledge" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM b_knowledge
+        WHERE 1 = 1
+        <if test='knowledgeMenuId != null'>
+            AND knowledge_menu_id = #{knowledgeMenuId}
+        </if>
+        <if test='keyword != null and keyword != ""'>
+            AND (title LIKE '%${keyword}%' OR content LIKE '%${keyword}%')
+        </if>
+        ;
+    </select>
+    
+    <select id="listKnowledge" resultType="org.zhinanzhen.b.dao.pojo.KnowledgeDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            title,
+            content,
+            password,
+            knowledge_menu_id AS knowledgeMenuId,
+            admin_user_id AS adminUserId
+        FROM b_knowledge
+        WHERE 1 = 1
+        <if test='knowledgeMenuId != null'>
+            AND knowledge_menu_id = #{knowledgeMenuId}
+        </if>
+        <if test='keyword != null and keyword != ""'>
+            AND (title LIKE '%${keyword}%' OR content LIKE '%${keyword}%')
+        </if>
+        ORDER BY id ASC
+        LIMIT #{offset}, #{rows};
+    </select>
+    
+    <select id="getKnowledge" resultType="org.zhinanzhen.b.dao.pojo.KnowledgeDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            title,
+            content,
+            password,
+            knowledge_menu_id AS knowledgeMenuId,
+            admin_user_id AS adminUserId
+        FROM b_knowledge
+        WHERE id = #{id}
+        ;
+    </select>
+    
+    <delete id="deleteKnowledge" parameterType="java.lang.Integer">
+		DELETE FROM b_knowledge WHERE id = #{id, jdbcType=INTEGER}
+	</delete>
+
+</mapper>
