@@ -1115,6 +1115,11 @@ public class ServiceOrderController extends BaseController {
 					if (!"VISA".equalsIgnoreCase(serviceOrderDto.getType()))
 						return new Response<ServiceOrderDTO>(1, "Mara审核仅限签证服务订单!", null);
 					if (ReviewMaraStateEnum.get(state) != null) {
+						// 更新驳回原因
+						if (StringUtil.isNotEmpty(refuseReason)) {
+							serviceOrderDto.setRefuseReason(refuseReason);
+							serviceOrderService.updateServiceOrder(serviceOrderDto);
+						}
 						if (ReviewMaraStateEnum.REVIEW.toString().equals(state.toUpperCase())) { // mara驳回同时修改顾问状态
 							serviceOrderService.updateServiceOrderRviewState(id, null);
 							return new Response<ServiceOrderDTO>(0,
