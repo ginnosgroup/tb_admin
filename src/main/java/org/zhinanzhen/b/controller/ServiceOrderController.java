@@ -960,8 +960,10 @@ public class ServiceOrderController extends BaseController {
 								// state.toUpperCase(), null, null, null);
 								// }
 							}
-							return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id,
-									adminUserLoginInfo.getId(), state.toUpperCase(), null, null, null));
+							ServiceOrderDTO serviceOrderDTO = serviceOrderService.approval(id, adminUserLoginInfo.getId(), state.toUpperCase(), null, null, null);
+							if (!serviceOrderDTO.getType().equalsIgnoreCase("OVST"))
+							    wxWorkService.sendMsg(serviceOrderDto.getId());
+							return new Response<ServiceOrderDTO>(0, serviceOrderDTO);
 						} else if (ReviewAdviserStateEnum.PAID.toString().equals(state.toUpperCase())) { // 顾问支付同时修改文案状态
 							serviceOrderService.finish(id);
 							return new Response<ServiceOrderDTO>(0,
