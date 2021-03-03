@@ -1166,7 +1166,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/refuse", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<CommissionOrderListDTO> refuse(@RequestParam(value = "id") int id,
-			@RequestParam(value = "state") String state, HttpServletRequest request, HttpServletResponse response) {
+			@RequestParam(value = "state") String state,
+			@RequestParam(value = "refuseReason", required = false) String refuseReason, HttpServletRequest request,
+			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			if (ReviewKjStateEnum.COMPLETE.toString().equalsIgnoreCase(state)
@@ -1181,10 +1183,14 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				if ("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 						|| "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewKjStateEnum.get(state) != null) {
+						
 						CommissionOrderListDTO commissionOrderListDto = commissionOrderService
 								.getCommissionOrderById(id);
 						if (commissionOrderListDto == null)
 							return new Response<CommissionOrderListDTO>(1, "佣金订单不存在!", null);
+						
+						// TODO: sulei  refuseReason
+						
 //						serviceOrderService.refuse(id, adminUserLoginInfo.getId(), null, null, null,
 //								state.toUpperCase());
 						commissionOrderListDto.setState(state);
