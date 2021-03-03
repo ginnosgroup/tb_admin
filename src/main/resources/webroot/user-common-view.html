@@ -136,6 +136,7 @@
 										<label class="control-label"><strong>状态：</strong></label>
 										<select class="form-control" style="width:180px;" id="b19" onchange="changeVisaState(this.value);">
 										<option v-if="flowstate_wa!=='WAIT' && flowstate_wa!=='COMPLETE'" value="">请选择</option>
+										<option v-if="flowstate_gw==='REVIEW' && flowstate_wa===null" value="PENDING">驳回</option>
 										<option v-if="flowstate_gw==='REVIEW' && flowstate_wa===null" value="REVIEW">资料审核中</option>
 										<option v-if="(flowstate_wa===null || flowstate_wa==='REVIEW') && (flowstate_ma===null || flowstate_ma === 'REVIEW')" value="WAIT">提交Mara审核</option>
 										<option v-if="flowstate_wa==='WAIT'" value="">Mara审核中</option>
@@ -148,6 +149,7 @@
 										<label class="control-label"><strong>状态：</strong></label>
 										<select class="form-control" style="width:180px;" id="b19" onchange="changeVisaState(this.value);">
 										<option v-if="flowstate_wa!=='WAIT' && flowstate_wa!=='COMPLETE'" value="">请选择</option>
+										<option v-if="flowstate_gw==='REVIEW' && flowstate_wa===null" value="PENDING">驳回</option>
 										<option v-if="flowstate_gw==='REVIEW' && flowstate_wa===null" value="REVIEW">资料审核中</option>
 										<option v-if="(flowstate_wa===null || flowstate_wa==='REVIEW') && servicepackage_type!=='EOI' && (flowstate_ma===null || flowstate_ma === 'REVIEW')" value="WAIT">提交Mara审核</option>
 										<option v-if="flowstate_wa==='WAIT'" value="">Mara审核中</option>
@@ -160,6 +162,12 @@
 									</div>
 									<div id="close_remarks" class="form-group" style="display:none;width:100%;line-height:40px;">
 										<label class="control-label"><strong>备注：</strong></label>
+										<textarea id="b101" class="form-control" style="width:98%"></textarea>							
+									</div>
+							</div>
+							<div v-if="ap_list==='MA'">
+									<div id="close_remarks" class="form-group" style="display:none;width:100%;line-height:40px;">
+										<label class="control-label"><strong style="color:red;">驳回备注：</strong></label>
 										<textarea id="b101" class="form-control" style="width:98%"></textarea>							
 									</div>
 							</div>							
@@ -176,10 +184,7 @@
 									<input type="hidden" id="flist" value="" />
 									<div id="show_pic" style="display:none;padding-bottom:10px;"></div>
 									<button onclick="upload_receipt_pic('f1h')" id="upload_certificate" type="button" class="btn btn-danger" style="display:none;">上传签证凭证</button>									
-									<button v-if="flowstate_wa!=='WAIT' && flowstate_wa!='COMPLETE'" onclick="checkform('VISA');" type="button" class="btn btn-primary">提交</button>							
-									<dle v-if="flowstate_gw==='REVIEW'">
-											<button v-if="flowstate_wa===null" onclick="flowstep('PENDING',0)" id="btnRefuse" type="button" class="btn btn-default">驳回</button>
-									</dle>									
+									<button v-if="flowstate_wa!=='WAIT' && flowstate_wa!='COMPLETE'" onclick="checkform('VISA');" type="button" class="btn btn-primary">提交</button>
 									<dle v-if="flowstate_ma==='WAIT' || flowstate_wa==='WAIT'">
 											<button onclick="flowstep('REVIEW',1)" id="btnCancel"  type="button" class="btn btn-default">撤回</button>
 									</dle>									
@@ -187,7 +192,7 @@
 							<dle v-if="ap_list==='MA'">
 									<dle v-if="flowstate_ma==='WAIT' || flowstate_wa==='WAIT'">
 											<button onclick="flowstep('FINISH',1)" type="button" class="btn btn-primary">通过</button>
-											<button onclick="flowstep('REVIEW',0)" type="button" class="btn btn-default">驳回</button>
+											<button onclick="checkRefuseRemarks();flowstep('REVIEW',0)" type="button" class="btn btn-default">驳回</button>
 									</dle>
 							</dle>						
 							<button onclick="" type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
@@ -439,6 +444,7 @@
 										<label class="control-label"><strong>状态：</strong></label>
 										<select class="form-control" id="c200" onchange="changeOvstState(this.value);">											
 										<option v-if="flowstate_wa!=='PAID'" value="">请选择</option>
+										<option v-if="flowstate_wa===null || flowstate_gw==='REVIEW'" value="PENDING">驳回</option>
 										<option v-if="flowstate_wa===null || flowstate_gw==='REVIEW'" value="REVIEW">资料审核中</option>
 										<option v-if="flowstate_wa===null || flowstate_wa==='REVIEW'" value="FINISH">资料已审核</option>
 										<option v-if="flowstate_wa===null || flowstate_wa==='FINISH'" value="APPLY">已提交申请</option>
@@ -472,10 +478,7 @@
 									<input type="hidden" id="flist" value="" />
 									<div id="show_pic" style="display:none;padding-bottom:10px;"></div>
 									<button onclick="upload_receipt_pic('f1b')" id="upload_certificate" type="button" class="btn btn-danger" style="display:none;">上传COE凭证</button>
-									<button v-if="flowstate_wa!='PAID'" onclick="checkform('OVST');" type="button" class="btn btn-primary">提交</button>							
-									<dle v-if="flowstate_gw==='REVIEW'">
-											<button v-if="flowstate_wa===null" onclick="flowstep('PENDING',0)" id="btnRefuse" type="button" class="btn btn-default">驳回</button>
-									</dle>									
+									<button v-if="flowstate_wa!='PAID'" onclick="checkform('OVST');" type="button" class="btn btn-primary">提交</button>									
 							</dle>							
 							<button onclick="" type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
 					</div>
@@ -527,7 +530,8 @@
 								<label class="control-label" style="width:80px;"><strong>服务项目：</strong></label>
 								<label id="b5">独立技术移民</label> - 
 								<label id="b6"></label> -
-								<label id="b6a"></label>						
+								<label id="b6a"></label>
+								<label style="display:inline;" id="b6ba"></label>						
 							</div>
 							<div class="form-group" style="width:100%;height:40px;" id="b7text">
 								<label class="control-label" style="width:80px;"><strong>属性：</strong></label>
@@ -621,7 +625,7 @@
 				重要提醒：请确认subagency 是否正确？
 			</div>
 			<div class="modal-footer">				
-				<button onclick="$('#confirm_id').modal('hide');flowstep($('#show_addnewservice2_id #c200').val(),1);" type="button" class="btn btn-primary">确认</button>
+				<button onclick="btnConfirm();" type="button" class="btn btn-primary">确认</button>
 				<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
 			</div>
 		</div>
@@ -766,7 +770,8 @@ var v_sub = new Vue({
 					submitted: 0,					
 					order_detail: [],
 					officialNoteId: 0,
-					subagency_id: 0
+					subagency_id: 0,
+					par: 1,
 				},
 				created: function() {					
 				}
@@ -775,7 +780,9 @@ var v_sub = new Vue({
 function show_addnewservice_id(orderId,type)
 {
 		v.orderId = orderId;
-		v_sub.orderId = orderId;	
+		v_sub.orderId = orderId;		
+		$('#show_addnewservice1_id #close_remarks').hide();	
+		$('#show_addnewservice2_id #close_remarks').hide();
 		//服务详细页
 		$.ajax({
       url: url + 'serviceOrder/get?id='+orderId,
@@ -790,9 +797,10 @@ function show_addnewservice_id(orderId,type)
     	v_sub.order_detail = response;//存储数据到本地
     	$('#show_addnewservice1_id #upload_certificate').hide();
     	$('#show_addnewservice1_id #b19').val('');
+    	$('#show_addnewservice2_id #c200').val('');
     	if (type == 'VISA')//签证
     	{    			
-    			$('#show_addnewservice1_id').modal('show');
+    			$('#show_addnewservice1_id').modal('show');    			
     			$("#load-comment-2").html('');
     			$("#load-comment-1").load("user-common-view-comment.html?random="+Math.random());    				
         	$('#show_addnewservice1_id #b1').html(response.user.name);
@@ -842,7 +850,7 @@ function show_addnewservice_id(orderId,type)
 				      {
 				      		v_sub.servicepackage_type = response.servicePackage.type;
 				      		if (response.servicePackage.type == 'CA' || response.servicePackage.type == 'VA')
-		        			{
+		        			{		        					
 		        					$('#show_addnewservice1_id #b3').html(response.mara.name);
 		        					$("#show_addnewservice1_id #b3text").show();
 						      		$("#show_addnewservice1_id #b3").show();
@@ -858,6 +866,7 @@ function show_addnewservice_id(orderId,type)
 		        			$('#show_addnewservice1_id #b6').html(response.service.code);
 		        			$("#show_addnewservice1_id #b6a").show();
 		        			$("#show_addnewservice1_id #b6a").html('<span style="padding-left:10px;">-【'+return_type(response.servicePackage.type)+'】</span>');
+		        			if (response.serviceAssessDO != null) $('#show_addnewservice1_id #b6a').append('- '+response.serviceAssessDO.name);				        	
 				      }
 				      //属性处理
         			if (response.peopleType) $('#show_addnewservice1_id #b6c').html(return_attribute(response.peopleType,response.peopleNumber)); 
@@ -964,6 +973,7 @@ function show_addnewservice_id(orderId,type)
         	v_sub.flowstate_gw = response.review.adviserState;
         	v_sub.flowstate_wa = response.review.officialState;
         	v_sub.flowstate_ma = response.review.maraState;        	
+        	if (v_sub.ap_list == 'MA' && (v_sub.flowstate_ma == 'WAIT' || v_sub.flowstate_wa == 'WAIT')) $('#show_addnewservice1_id #close_remarks').show();
         	if (response.review.officialState == 'REVIEW')
 					{
 							if (response.review.maraState == 'FINISH')
@@ -1152,7 +1162,7 @@ function show_addnewservice_id(orderId,type)
         	}
         	//文案操作状态
         	var str_state = '';
-        	if (v_sub.flowstate_gw == 'REVIEW') $("#c200").val('PENDING');
+        	//if (v_sub.flowstate_gw == 'REVIEW') $("#c200").val('PENDING');
         	if (v_sub.flowstate_wa == 'REVIEW') $("#c200").val('REVIEW');
         	if (v_sub.flowstate_wa == 'FINISH' || v_sub.flowstate_wa == 'APPLY' || v_sub.flowstate_wa == 'COMPLETE' || v_sub.flowstate_wa == 'PAID' || v_sub.flowstate_wa == 'CLOSE') $("#c200").val(v_sub.flowstate_wa);
         	v.addnewservice2_bind = 1;
@@ -1187,6 +1197,13 @@ function show_addnewservice_id(orderId,type)
 						      v_sub.flowstate_wa = response.review.officialState;						      
 				      		if (response.servicePackage.type == 'CA' || response.servicePackage.type == 'VA')
 		        			{
+		        					if (response.serviceAssessDO != null)
+						        	{
+						        			$('#show_addnewservice3_id #b6ba').html('- '+response.serviceAssessDO.name);
+						        	}else
+						        	{
+						        			$('#show_addnewservice3_id #b6ba').html('');
+						        	}
 		        					$("#show_addnewservice3_id #b3text").show();
 					      			$("#show_addnewservice3_id #b3").show();
 					      			$("#show_addnewservice3_id #b4text").show();
@@ -1590,6 +1607,8 @@ function loadSchoolCourses(schoolId)
 
 function checkform(type)
 {
+		var par = 1;
+		v_sub.par = 1;
 		if (type == 'VISA')
 		{
 				if ($('#show_addnewservice1_id #b19').val() == '')
@@ -1600,8 +1619,20 @@ function checkform(type)
 			      $("#show_addnewservice1_id #error_info").html('请选择需要修改的状态！');
 						return false;
 				}else
-				{						
-						flowstep($('#show_addnewservice1_id #b19').val(),1);
+				{
+						if ($('#show_addnewservice1_id #b19').val() == 'PENDING')
+						{
+								if ($('#show_addnewservice1_id #b101').val() == '')
+								{
+										$('#show_addnewservice1_id #alert_error').css('marginLeft','30%');
+										$('#show_addnewservice1_id #alert_error').css('marginTop','30%');	
+										$('#show_addnewservice1_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+							      $("#show_addnewservice1_id #error_info").html('请填写驳回原因！');
+										return false;
+								}
+								par = 0;
+						}
+						flowstep($('#show_addnewservice1_id #b19').val(),par);
 				}
 		}else
 		{
@@ -1613,14 +1644,27 @@ function checkform(type)
 			      $("#show_addnewservice2_id #error_info").html('请选择需要修改的状态！');
 						return false;
 				}else
-				{
+				{												
+						if ($('#show_addnewservice2_id #c200').val() == 'PENDING')
+						{
+								if ($('#show_addnewservice2_id #c101').val() == '')
+								{
+										$('#show_addnewservice2_id #alert_error').css('marginLeft','30%');
+										$('#show_addnewservice2_id #alert_error').css('marginTop','30%');	
+										$('#show_addnewservice2_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+							      $("#show_addnewservice2_id #error_info").html('请填写驳回原因！');
+										return false;
+								}
+								par = 0;
+								v_sub.par = 0;
+						}
 						//确认框
 						if (v_sub.ap_list === 'WA' && v_sub.flowstate_wa!='APPLY' && v_sub.flowstate_wa!='PAID' && v_sub.flowstate_wa!='COMPLETE')
 						{								
 								$('#confirm_id').modal('show');
 								return false;
-						}					
-						flowstep($('#show_addnewservice2_id #c200').val(),1);
+						}
+						flowstep($('#show_addnewservice2_id #c200').val(),par);
 				}
 		}
 }
@@ -1629,10 +1673,13 @@ function changeVisaState(va)
 {
 		$('#show_addnewservice1_id #upload_certificate').hide();
 		$('#show_addnewservice1_id #close_remarks').hide();
-		$('#show_addnewservice1_id #btnRefuse').hide();
+		//$('#show_addnewservice1_id #btnRefuse').hide();
 		$('#show_addnewservice1_id #btnCancel').hide();		
 		switch(va)
-		{				
+		{
+				case 'PENDING':
+					$('#show_addnewservice1_id #close_remarks').show();
+				break;
 				case 'APPLY':
 					//$('#show_addnewservice1_id #upload_certificate').show();
 				break;
@@ -1643,7 +1690,7 @@ function changeVisaState(va)
 					$('#show_addnewservice1_id #close_remarks').show();
 				break;
 				case '':
-					$('#show_addnewservice1_id #btnRefuse').show();
+					//$('#show_addnewservice1_id #btnRefuse').show();
 				break;			
 		}
 }
@@ -1652,9 +1699,13 @@ function changeOvstState(va,state)
 {
 		$('#show_addnewservice2_id #upload_certificate').hide();
 		$('#show_addnewservice2_id #close_remarks').hide();
-		$('#show_addnewservice2_id #btnRefuse').hide();
+		$('#show_addnewservice2_id #close_remarks').hide();
+		//$('#show_addnewservice2_id #btnRefuse').hide();
 		switch(va)
-		{				
+		{
+				case 'PENDING':
+					$('#show_addnewservice2_id #close_remarks').show();
+				break;
 				case 'APPLY':					
 				break;
 				case 'COMPLETE':
@@ -1666,9 +1717,15 @@ function changeOvstState(va,state)
 					$('#show_addnewservice2_id #close_remarks').show();
 				break;
 				case '':
-					$('#show_addnewservice2_id #btnRefuse').show();
+					//$('#show_addnewservice2_id #btnRefuse').show();
 				break;				
 		}
+}
+
+function btnConfirm()
+{
+		$('#confirm_id').modal('hide');
+		flowstep($('#show_addnewservice2_id #c200').val(),v_sub.par);
 }
 
 v.$watch('addnewservice2_bind', function(obj) {
@@ -2097,6 +2154,19 @@ function computeDiscount(v)
 		{
 				var expect_amount = (parseInt(amount)*1.1).toFixed(2);
 				$("#show_addnewservice2_id #c32").val(expect_amount);
+		}
+}
+
+function checkRefuseRemarks()
+{
+		var str_refuseremarks = $("#show_addnewservice1_id #b101").val();
+		if (str_refuseremarks == '')
+		{
+				$('#show_addnewservice1_id #alert_error').css('marginTop','60%');
+  			$('#show_addnewservice1_id #alert_error').css('marginLeft','60%');
+				$('#show_addnewservice1_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+  			$("#show_addnewservice1_id #error_info").html('提示：必须填写驳回原因！');
+  			return false;
 		}
 }
 

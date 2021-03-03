@@ -344,7 +344,10 @@
 							<option value="SIV" selected="selected">独立技术移民</option>
 							</select>
 							<select class="form-control" style="width:150px;margin-left:42px;" name="b6" id="b6" onchange="loadServicePackage(this.value,'')"></select>
-							<div style="display:inline;" id="b6a"></div>							
+							<div style="display:inline;" id="b6a"></div>												
+						</div>
+						<div class="form-group" id="b6bRow" style="width:100%;height:40px;display:none;">							
+							<select class="form-control" style="width:150px;margin-left:82px;" name="b6ba" id="b6ba"></select>
 						</div>
 						<div class="form-group" style="width:100%;height:40px;" id="b7text">
 							<label class="control-label" style="width:80px;">属性<span style="color:red;">*</span></label>
@@ -583,7 +586,7 @@ function add_service1(orderId,userId,name)
 			        					$("#addnewservice1_id #b3text").show();
 							      		$("#addnewservice1_id #b3").show();
 							      		$("#addnewservice1_id #b4text").show();
-							      		$("#addnewservice1_id #b4").show();	
+							      		$("#addnewservice1_id #b4").show();								      									      		
 			        			}else if (response.servicePackage.type == 'EOI')
 			        			{
 			        					$("#addnewservice1_id #b3text").hide();
@@ -593,6 +596,7 @@ function add_service1(orderId,userId,name)
 			        			}
 			        			$("#addnewservice1_id #b6a").show();
 			        			$("#addnewservice1_id #b6a").html('<span style="padding-left:10px;color:#c2c2c2;">-【'+return_type(response.servicePackage.type)+'】</span>');
+			        			if (response.serviceAssessDO != null) $("#addnewservice1_id #b6a").append(' - '+response.serviceAssessDO.name);
 					      }
 					      $('#addnewservice1_id #b7text').hide();
 					      $('#addnewservice1_id #is_payment').hide();  				      
@@ -677,7 +681,7 @@ function add_service1(orderId,userId,name)
 					      $("#addnewservice1_id #b4").val(response.officialId);			      
 					      $("#addnewservice1_id #b5 option[value='OVST']").remove();
 					      $("#addnewservice1_id #b5").attr("disabled", true);
-					      $("#addnewservice1_id #b6b").hide();
+					      if (response.serviceAssessId == null) $("#addnewservice1_id #b6b").hide();
 					      $("#addnewservice1_id #show_pic").html('');
 	        			$("#addnewservice1_id #show_pic").hide();
 					      ajax_service('VISA');
@@ -952,7 +956,7 @@ function add_service3(orderId,userId,name)
 			      $("#addnewservice3_id #b5 option[value='OVST']").remove();
 			      ajax_service('SIV');
 			      $("#addnewservice3_id #b6").val(response.serviceId);
-			      $("#addnewservice3_id #b6").attr("disabled","disabled");
+			      $("#addnewservice3_id #b6").attr("disabled","disabled");			      
 			      if (response.servicePackageId)
 			      {
 			      		if (response.servicePackage.type == 'CA' || response.servicePackage.type == 'VA')
@@ -960,14 +964,14 @@ function add_service3(orderId,userId,name)
 	        					$("#addnewservice3_id #b3text").show();
 					      		$("#addnewservice3_id #b3").show();
 					      		$("#addnewservice3_id #b4text").show();
-					      		$("#addnewservice3_id #b4").show();	
+					      		$("#addnewservice3_id #b4").show();						      		
 	        			}else if (response.servicePackage.type == 'EOI')
 	        			{
 	        					$("#addnewservice3_id #b3text").hide();
 					      		$("#addnewservice3_id #b3").hide();
 	        					$("#addnewservice3_id #b4text").show();
 					      		$("#addnewservice3_id #b4").show();
-	        			}		      		
+	        			}	        			
 			      		//隐掉是否已支付
 			      		$("#addnewservice3_id #b7text").hide();			      		
 			      		response.childrenServicePackageIds = response.servicePackageId;
@@ -1030,6 +1034,13 @@ function add_service3(orderId,userId,name)
 			      }
 			      var servicePackageIds = (response.childrenServiceOrders ? return_servicePackageIds(response.childrenServiceOrders): response.servicePackageId);
 			      loadServicePackage(response.serviceId,servicePackageIds);
+			      if (response.serviceAssessId)
+      			{      						
+	        			$('#addnewservice3_id #b6bRow').show();
+	      				$('#addnewservice3_id #b6ba').show();
+  							$('#addnewservice3_id #b6ba').val(response.serviceAssessId); 
+  							$("#addnewservice3_id #b6ba").attr("disabled","disabled");
+						}
 			      var setPay = 1;
 	        	if (response.pay)
 	        	{
@@ -1338,6 +1349,7 @@ function ajax_service(va)
 function loadServicePackage(service_id,packids)
 {
 		//服务包
+		$('#addnewservice3_id #b6bRow').hide();
 		var service_package = $("#addnewservice3_id #b6a");
 		service_package.empty();
 		if (service_id)
@@ -1366,12 +1378,30 @@ function loadServicePackage(service_id,packids)
 		    			}else
 		    			{
 		    					strChecked = ' checked="checked"';
-		    					service_package.append("<input type='checkbox' name='b6b[]' id='b6b"+i+"' value='"+response[item].id+"'"+strChecked+" style='margin-left:10px;'><label for='b6b"+i+"'>"+return_type(response[item].type)+"</label>");
+		    					service_package.append("<input type='checkbox' name='b6b[]' id='b6b"+i+"' value='"+response[item].id+"'"+strChecked+" style='margin-left:10px;' onclick=\"setCA('"+response[item].type+"');\"><label for='b6b"+i+"'>"+return_type(response[item].type)+"</label>");		    					
+		    					$('#addnewservice3_id #b6bRow').show();
+		    					$("#addnewservice3_id #b6ba").rules("add",{required:true,messages:{required:""}});
 		    			}
 		    			i++; 			
 		    	}
 		    });
   	}
+}
+
+function setCA(v)
+{
+		if (v == 'CA')
+		{
+				 if ($("#addnewservice3_id #b6bRow").is(":hidden"))
+				 {				 		
+				 		$('#addnewservice3_id #b6bRow').show();
+				 		$("#addnewservice3_id #b6ba").rules("add",{required:true,messages:{required:""}});
+				 }else
+				 {
+				 		$("#addnewservice3_id #b6ba").rules("remove");
+				 		$('#addnewservice3_id #b6bRow').hide();
+				 }
+		}
 }
 
 function return_type(v)
@@ -2145,6 +2175,17 @@ function addnewService3Save()
 		       	if ($(f+'#b6b1').is(':checked'))
 		       	{
 		       			spids = $(f+'#b6b1').val();
+		       			//检查职业是否选择
+		       			var b6b = $(f+'#b6ba').val();	       			
+		       			if (b6b == '0')
+		       			{
+		       					$('#addnewservice3_id #alert_error').css('marginLeft','30%');
+						    		$('#addnewservice3_id #alert_error').css('marginTop','20%');
+						    		$('#addnewservice3_id #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+						        $("#addnewservice3_id #error_info").html('提示：职业必须选择！');
+						    		return false;
+		       			}
+		       			json['serviceAssessId'] = $(f+'#b6ba').val();         			
 		       			num++;		       			
 		       	}
 		       	if ($(f+'#b6b2').is(':checked'))
@@ -2519,7 +2560,7 @@ v.$watch('addnewservice1_bind', function(obj) {
 		//绑定列表
 		var obj_b6b = $("#addnewservice1_id #b6b");
 		obj_b6b.empty();
-    obj_b6b.append("<option value='0'>请选择</option>");
+    obj_b6b.append("<option value='0'>请选择职业</option>");
     $.ajax({
       url: url + 'serviceAssess/list?pageNum=0&pageSize=100000',
       type: 'GET',
@@ -2531,7 +2572,7 @@ v.$watch('addnewservice1_bind', function(obj) {
     	{
     			obj_b6b.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
     	}
-    	obj_b6b.val(0);	        	
+    	obj_b6b.val(0);
     });
     //计算GST相关金额
     $("#addnewservice1_id #b14").keyup(function(){
@@ -2651,6 +2692,23 @@ v.$watch('addnewservice3_bind', function(obj) {
     	{
     			receive_type.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
     	}	        	 	    
+    });
+    //绑定列表
+		var obj_b6b = $("#addnewservice3_id #b6ba");
+		obj_b6b.empty();
+    obj_b6b.append("<option value='0'>请选择职业</option>");
+    $.ajax({
+      url: url + 'serviceAssess/list?pageNum=0&pageSize=100000',
+      type: 'GET',
+      async: false,
+      dataType: 'json'
+    }).done(function(response) {
+    	response = response.data;
+    	for (var item in response)
+    	{
+    			obj_b6b.append("<option value='"+response[item].id+"'>"+response[item].name+"</option>");
+    	}
+    	obj_b6b.val(0);
     });
     //计算GST相关金额
     $("#addnewservice3_id #b14").keyup(function(){

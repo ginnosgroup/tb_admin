@@ -8,16 +8,23 @@ import org.dozer.Mapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.zhinanzhen.b.dao.ServiceDAO;
 import org.zhinanzhen.b.dao.ServiceOrderDAO;
+import org.zhinanzhen.b.dao.pojo.ServiceDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
 import org.zhinanzhen.b.service.WXWorkService;
+import org.zhinanzhen.tb.dao.AdviserDAO;
+import org.zhinanzhen.tb.dao.RegionDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
+import org.zhinanzhen.tb.dao.pojo.AdviserDO;
+import org.zhinanzhen.tb.dao.pojo.RegionDO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.utils.WXWorkAPI;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
+import java.text.SimpleDateFormat;
 import java.util.Map;
 
 /**
@@ -36,6 +43,17 @@ public class WXWorkServiceImpl implements WXWorkService {
 
     @Resource
     private ServiceOrderDAO serviceOrderDAO;
+
+    @Resource
+    private  AdviserDAO adviserDAO;
+
+    @Resource
+    private RegionDAO regionDAO;
+
+    @Resource
+    private ServiceDAO serviceDAO;
+
+    private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
     @Override
     public String getWXWorkUrl() {
@@ -92,13 +110,19 @@ public class WXWorkServiceImpl implements WXWorkService {
         JSONObject content = new JSONObject();
         String msg = "";
         ServiceOrderDO serviceOrderDO = serviceOrderDAO.getServiceOrderById(id);
-        if (serviceOrderDO!=null){
-            UserDO userDO = userDAO.getUserById(serviceOrderDO.getId());
-            if (userDO!=null)
-                msg = "ID:"+serviceOrderDO.getId()+"\n"
-                    +"姓名:"+userDO.getName()+"\n"
-                    +"备注:"+serviceOrderDO.getRemarks()+"\n"
-                    +"信息:"+serviceOrderDO.getInformation()+"\n";
+        if (serviceOrderDO != null){
+            msg = "创建时间:" + sdf.format(serviceOrderDO.getGmtCreate()) + "\n";
+            AdviserDO adviserDO = adviserDAO.getAdviserById(serviceOrderDO.getAdviserId());
+            if (adviserDO != null){
+                msg = msg +"顾问:" + adviserDO.getName() + "\n" ;
+                RegionDO regionDO = regionDAO.getRegionById(adviserDO.getRegionId());
+                if (regionDO != null)
+                    msg = msg + "地区:" + regionDO.getName() + "\n";
+            }
+            ServiceDO serviceDO = serviceDAO.getServiceById(serviceOrderDO.getServiceId());
+            if (serviceDO != null)
+                msg = msg
+                        + "服务项目:" + serviceDO.getName() + "-" + serviceDO.getCode() + "\n";
         }
 
         content.put("content",msg);
