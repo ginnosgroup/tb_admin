@@ -10,8 +10,10 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.zhinanzhen.b.dao.ServiceDAO;
 import org.zhinanzhen.b.dao.ServiceOrderDAO;
+import org.zhinanzhen.b.dao.ServicePackageDAO;
 import org.zhinanzhen.b.dao.pojo.ServiceDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
+import org.zhinanzhen.b.dao.pojo.ServicePackageDO;
 import org.zhinanzhen.b.service.WXWorkService;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.RegionDAO;
@@ -52,6 +54,9 @@ public class WXWorkServiceImpl implements WXWorkService {
 
     @Resource
     private ServiceDAO serviceDAO;
+
+    @Resource
+    ServicePackageDAO servicePackageDAO;
 
     private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
@@ -122,7 +127,15 @@ public class WXWorkServiceImpl implements WXWorkService {
             ServiceDO serviceDO = serviceDAO.getServiceById(serviceOrderDO.getServiceId());
             if (serviceDO != null)
                 msg = msg
-                        + "服务项目:" + serviceDO.getName() + "-" + serviceDO.getCode() + "\n";
+                        + "服务项目:" + serviceDO.getName() + "-" + serviceDO.getCode();
+            ServicePackageDO servicePackageDO = servicePackageDAO.getById(serviceOrderDO.getServicePackageId());
+            if (servicePackageDO != null)
+                switch (servicePackageDO.getType()){
+                    case  "CA" : msg = msg + "-" + "职业评估";break;
+                    case  "EOI" : msg = msg + "-" + "EOI";break;
+                    case  "VA" : msg = msg + "-" + "签证申请";break;
+                }
+
         }
 
         content.put("content",msg);
