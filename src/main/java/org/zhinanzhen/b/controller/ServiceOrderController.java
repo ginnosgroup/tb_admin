@@ -36,6 +36,7 @@ import org.zhinanzhen.b.service.*;
 import org.zhinanzhen.b.service.impl.WXWorkServiceImpl;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.tb.controller.BaseController;
+import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -689,6 +690,7 @@ public class ServiceOrderController extends BaseController {
 
 	@RequestMapping(value = "/count", method = RequestMethod.GET)
 	@ResponseBody
+	@Deprecated
 	public Response<Integer> countServiceOrder(@RequestParam(value = "id", required = false) Integer id,
 			@RequestParam(value = "type", required = false) String type,
 			@RequestParam(value = "state", required = false) String state,
@@ -775,7 +777,7 @@ public class ServiceOrderController extends BaseController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<ServiceOrderDTO>> listServiceOrder(@RequestParam(value = "id", required = false) Integer id,
+	public ListResponse<List<ServiceOrderDTO>> listServiceOrder(@RequestParam(value = "id", required = false) Integer id,
 			@RequestParam(value = "type", required = false) String type,
 			@RequestParam(value = "state", required = false) String state,
 			@RequestParam(value = "auditingState", required = false) String auditingState,
@@ -845,8 +847,13 @@ public class ServiceOrderController extends BaseController {
 				ServiceOrderDTO serviceOrder = serviceOrderService.getServiceOrderById(id);
 				if (serviceOrder != null)
 					list.add(serviceOrder);
-				return new Response<List<ServiceOrderDTO>>(0, list);
+				return new ListResponse<List<ServiceOrderDTO>>(false, pageSize, 0, list, "");
 			}
+			int total = serviceOrderService.countServiceOrder(type, excludeState, stateList, auditingState,
+					reviewStateList, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
+					endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId, maraId,
+					adviserId, officialId, officialTagId, 0, isNotApproved != null ? isNotApproved : false, serviceId,
+					schoolId);
 			List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(type, excludeState, stateList,
 					auditingState, reviewStateList, startMaraApprovalDate, endMaraApprovalDate,
 					startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate,
@@ -856,9 +863,9 @@ public class ServiceOrderController extends BaseController {
 			if (newOfficialId != null)
 				for (ServiceOrderDTO so : serviceOrderList)
 					so.setOfficialNotes(serviceOrderService.listOfficialRemarks(so.getId(), newOfficialId)); // 写入note
-			return new Response<List<ServiceOrderDTO>>(0, serviceOrderList);
+			return new ListResponse<List<ServiceOrderDTO>>(true, pageSize, total, serviceOrderList, "");
 		} catch (ServiceException e) {
-			return new Response<List<ServiceOrderDTO>>(1, e.getMessage(), null);
+			return new ListResponse<List<ServiceOrderDTO>>(false, pageSize, 0, null, e.getMessage());
 		}
 	}
 
