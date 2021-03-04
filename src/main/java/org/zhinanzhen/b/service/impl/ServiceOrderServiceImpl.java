@@ -443,6 +443,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	@Override
 	public ServiceOrderDTO refuse(int id, int adminUserId, String adviserState, String maraState, String officialState,
 			String kjState) throws ServiceException {
+		sendRemind(id, adviserState, maraState, officialState);
 		return review(id, adminUserId, adviserState, maraState, officialState, kjState, "REFUSE");
 	}
 	
