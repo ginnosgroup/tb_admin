@@ -102,6 +102,8 @@ public class CommissionOrderDTO {
 	private boolean isChecked;
 
 	private String remarks;
+	
+	private String refuseReason;
 
 	private boolean isClose;
 

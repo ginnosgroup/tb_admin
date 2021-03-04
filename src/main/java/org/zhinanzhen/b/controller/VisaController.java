@@ -929,7 +929,8 @@ public class VisaController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/refuse", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<VisaDTO> refuse(@RequestParam(value = "id") int id, @RequestParam(value = "state") String state,
-			HttpServletRequest request, HttpServletResponse response) {
+			@RequestParam(value = "refuseReason", required = false) String refuseReason, HttpServletRequest request,
+			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			if (ReviewKjStateEnum.COMPLETE.toString().equalsIgnoreCase(state)
@@ -947,8 +948,11 @@ public class VisaController extends BaseCommissionOrderController {
 						VisaDTO visaDto = visaService.getVisaById(id);
 						if (visaDto == null)
 							return new Response<VisaDTO>(1, "佣金订单不存在!", null);
-//						serviceOrderService.refuse(id, adminUserLoginInfo.getId(), null, null, null,
-//								state.toUpperCase());
+						// 更新驳回原因
+						if (StringUtil.isNotEmpty(refuseReason)) {
+							visaDto.setRefuseReason(refuseReason);
+							visaService.updateVisa(visaDto);
+						}
 						visaDto.setState(state);
 						if (visaService.updateVisa(visaDto) > 0)
 							return new Response<VisaDTO>(0, visaDto);
