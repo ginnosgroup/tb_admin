@@ -44,6 +44,7 @@
                 bank_check,
                 is_checked,
                 remarks,
+                refuse_reason,
                 is_close,
                 verify_code)
             VALUES (
@@ -85,6 +86,7 @@
                 NULL,
                 0,
                 #{remarks},
+                #{refuseReason},
                 0,
                 #{verifyCode});
     </insert>
@@ -187,6 +189,9 @@
         </if>
         <if test='remarks != null and remarks != ""'>
             , remarks = #{remarks}
+        </if>
+        <if test='refuseReason != null'>
+            , refuse_reason = #{refuseReason}
         </if>
         <if test='verifyCode != null and verifyCode != ""'>
             , verify_code = #{verifyCode}
@@ -303,6 +308,7 @@
             bv.bank_check AS bankCheck,
             bv.is_checked AS isChecked,
             bv.remarks AS remarks,
+            bv.refuse_reason AS refuseReason,
             bv.verify_code AS verifyCode,
             bv.bank_date AS bankDate,
             bv.is_close AS isClose,
@@ -403,6 +409,7 @@
             bank_check AS bankCheck,
             is_checked AS isChecked,
             remarks,
+            refuse_reason AS refuseReason,
             verify_code AS verifyCode,
             bank_date AS bankDate,
             is_close AS isClose
@@ -450,6 +457,7 @@
             bank_check AS bankCheck,
             is_checked AS isChecked,
             remarks,
+            refuse_reason AS refuseReason,
             verify_code AS verifyCode,
             bank_date AS bankDate,
             is_close AS isClose
@@ -548,6 +556,7 @@
             bank_check AS bankCheck,
             is_checked AS isChecked,
             remarks,
+            refuse_reason AS refuseReason,
             verify_code AS verifyCode,
             bank_date AS bankDate,
             is_close AS isClose
@@ -599,6 +608,7 @@
             bank_check AS bankCheck,
             is_checked AS isChecked,
             remarks,
+            refuse_reason AS refuseReason,
             verify_code AS verifyCode,
             bank_date AS bankDate,
             is_close AS isClose
@@ -661,6 +671,7 @@
             bank_check AS bankCheck,
             is_checked AS isChecked,
             remarks,
+            refuse_reason AS refuseReason,
             verify_code AS verifyCode,
             bank_date AS bankDate,
             is_close AS isClose

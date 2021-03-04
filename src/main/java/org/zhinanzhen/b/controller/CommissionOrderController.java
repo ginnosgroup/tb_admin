@@ -1194,11 +1194,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 								.getCommissionOrderById(id);
 						if (commissionOrderListDto == null)
 							return new Response<CommissionOrderListDTO>(1, "佣金订单不存在!", null);
-						
-						// TODO: sulei  refuseReason
-						
-//						serviceOrderService.refuse(id, adminUserLoginInfo.getId(), null, null, null,
-//								state.toUpperCase());
+						// 更新驳回原因
+						if (StringUtil.isNotEmpty(refuseReason))
+							commissionOrderListDto.setRefuseReason(refuseReason);
 						commissionOrderListDto.setState(state);
 						if (commissionOrderService.updateCommissionOrder(commissionOrderListDto) > 0)
 							return new Response<CommissionOrderListDTO>(0, commissionOrderListDto);

@@ -99,6 +99,8 @@ public class VisaDTO {
 	private boolean isChecked;
 
 	private String remarks;
+	
+	private String refuseReason;
 
 	private String verifyCode;
 
@@ -111,7 +113,5 @@ public class VisaDTO {
 	private double totalPerAmount;
 
 	private double totalAmount;
-	
-	private String refuseReason;
 
 }

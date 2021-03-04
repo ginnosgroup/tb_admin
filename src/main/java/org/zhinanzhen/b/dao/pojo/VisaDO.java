@@ -85,6 +85,8 @@ public class VisaDO implements Serializable {
 	private boolean isChecked;
 
 	private String remarks;
+	
+	private String refuseReason;
 
 	private  String verifyCode;
 

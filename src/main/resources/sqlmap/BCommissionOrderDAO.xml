@@ -50,6 +50,7 @@
                 bonus_date,
                 zy_date,
                 remarks,
+                refuse_reason
                 is_close,
                 verify_code)
             VALUES (
@@ -97,6 +98,7 @@
                 #{bonusDate},
                 #{zyDate},
                 #{remarks},
+                #{refuseReason},
                 0,
                 #{verifyCode});
     </insert>
@@ -220,6 +222,9 @@
         </if>
         <if test='remarks != null and remarks != ""'>
             , remarks = #{remarks}
+        </if>
+        <if test='refuseReason != null'>
+            , refuse_reason = #{refuseReason}
         </if>
         <if test='verifyCode != null and verifyCode != ""'>
             , verify_code = #{verifyCode}
@@ -361,14 +366,14 @@
             co.bank_check AS bankCheck,
             co.is_checked AS isChecked,
             co.remarks,
+            co.refuse_reason AS refuseReason,
             co.verify_code AS verifyCode,
             co.bank_date AS bankDate,
             co.is_close AS isClose,
             so.id AS serviceOrderId,
             so.gmt_create AS signingDate,
             so.subagency_id AS subagencyId,
-            so.service_id AS serviceId,
-            so.refuse_reason AS refuseReason
+            so.service_id AS serviceId
         FROM b_commission_order co, b_service_order so, tb_user u, tb_adviser a
         WHERE co.service_order_id = so.id AND co.user_id = u.id AND a.id = co.adviser_id
         <if test='id != null and id > 0'>
@@ -484,6 +489,7 @@
             bank_check AS bankCheck,
             is_checked AS isChecked,
             remarks,
+            refuse_reason AS refuseReason,
             verify_code AS verifyCode,
             bank_date AS bankDate,
             is_close AS isClose
@@ -538,6 +544,7 @@
             bank_check AS bankCheck,
             is_checked AS isChecked,
             remarks,
+            refuse_reason AS refuseReason,
             verify_code AS verifyCode,
             bank_date AS bankDate,
             is_close AS isClose
@@ -592,14 +599,14 @@
             co.bank_check AS bankCheck,
             co.is_checked AS isChecked,
             co.remarks,
+            co.refuse_reason AS refuseReason,
             co.verify_code AS verifyCode,
             co.bank_date AS bankDate,
             co.is_close AS isClose,
             so.id AS serviceOrderId,
             so.gmt_create AS signingDate,
             so.subagency_id AS subagencyId,
-            so.service_id AS serviceId,
-            so.refuse_reason AS refuseReason
+            so.service_id AS serviceId
         FROM b_commission_order co, b_service_order so, b_school bs, tb_user tbu
         WHERE co.service_order_id = so.id AND co.school_id = bs.id AND co.user_id = tbu.id
         <if test='startDate != null and endDate != null'>
@@ -659,14 +666,14 @@
             co.bank_check AS bankCheck,
             co.is_checked AS isChecked,
             co.remarks,
+            co.refuse_reason AS refuseReason,
             co.verify_code AS verifyCode,
             co.bank_date AS bankDate,
             co.is_close AS isClose,
             so.id AS serviceOrderId,
             so.gmt_create AS signingDate,
             so.subagency_id AS subagencyId,
-            so.service_id AS serviceId,
-            so.refuse_reason AS refuseReason
+            so.service_id AS serviceId
         FROM b_commission_order co, b_service_order so, b_school bs, tb_user tbu
         WHERE co.service_order_id = so.id AND co.school_id = bs.id AND co.user_id = tbu.id
         AND DATE_FORMAT(co.installment_due_date, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
@@ -783,14 +790,14 @@
             co.bank_check AS bankCheck,
             co.is_checked AS isChecked,
             co.remarks,
+            co.refuse_reason AS refuseReason,
             co.verify_code AS verifyCode,
             co.bank_date AS bankDate,
             co.is_close AS isClose,
             so.id AS serviceOrderId,
             so.gmt_create AS signingDate,
             so.subagency_id AS subagencyId,
-            so.service_id AS serviceId,
-            so.refuse_reason AS refuseReason
+            so.service_id AS serviceId
         FROM b_commission_order co, b_service_order so, tb_user u
         WHERE co.service_order_id = so.id AND co.user_id = u.id and co.id = #{id, jdbcType=INTEGER}  ;
     </select>
@@ -843,14 +850,14 @@
             co.bank_check AS bankCheck,
             co.is_checked AS isChecked,
             co.remarks,
+            co.refuse_reason AS refuseReason,
             co.verify_code AS verifyCode,
             co.bank_date AS bankDate,
             co.is_close AS isClose,
             so.id AS serviceOrderId,
             so.gmt_create AS signingDate,
             so.subagency_id AS subagencyId,
-            so.service_id AS serviceId,
-            so.refuse_reason AS refuseReason
+            so.service_id AS serviceId
         FROM b_commission_order co, b_service_order so, tb_user u
         WHERE co.service_order_id = so.id AND co.user_id = u.id and co.invoice_number = #{invoiceNumber};
     </select>
@@ -903,14 +910,14 @@
             co.bank_check AS bankCheck,
             co.is_checked AS isChecked,
             co.remarks,
+            co.refuse_reason AS refuseReason,
             co.verify_code AS verifyCode,
             co.bank_date AS bankDate,
             co.is_close AS isClose,
             so.id AS serviceOrderId,
             so.gmt_create AS signingDate,
             so.subagency_id AS subagencyId,
-            so.service_id AS serviceId,
-            so.refuse_reason AS refuseReason
+            so.service_id AS serviceId
         FROM b_commission_order co, b_service_order so, tb_user u
         WHERE co.service_order_id = so.id AND co.user_id = u.id
             AND co.installment_num = 1 AND co.service_order_id = #{serviceOrderId, jdbcType=INTEGER};
@@ -977,6 +984,7 @@
             bank_check AS bankCheck,
             is_checked AS isChecked,
             remarks,
+            refuse_reason AS refuseReason,
             verify_code AS verifyCode,
             bank_date AS bankDate,
             is_close AS isClose
