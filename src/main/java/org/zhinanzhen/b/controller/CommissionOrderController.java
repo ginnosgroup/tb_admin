@@ -1195,10 +1195,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 						if (commissionOrderListDto == null)
 							return new Response<CommissionOrderListDTO>(1, "佣金订单不存在!", null);
 						// 更新驳回原因
-						if (StringUtil.isNotEmpty(refuseReason)) {
+						if (StringUtil.isNotEmpty(refuseReason))
 							commissionOrderListDto.setRefuseReason(refuseReason);
-							commissionOrderService.updateCommissionOrder(commissionOrderListDto);
-						}
 						commissionOrderListDto.setState(state);
 						if (commissionOrderService.updateCommissionOrder(commissionOrderListDto) > 0)
 							return new Response<CommissionOrderListDTO>(0, commissionOrderListDto);

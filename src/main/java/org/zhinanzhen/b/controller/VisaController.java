@@ -949,10 +949,8 @@ public class VisaController extends BaseCommissionOrderController {
 						if (visaDto == null)
 							return new Response<VisaDTO>(1, "佣金订单不存在!", null);
 						// 更新驳回原因
-						if (StringUtil.isNotEmpty(refuseReason)) {
+						if (StringUtil.isNotEmpty(refuseReason))
 							visaDto.setRefuseReason(refuseReason);
-							visaService.updateVisa(visaDto);
-						}
 						visaDto.setState(state);
 						if (visaService.updateVisa(visaDto) > 0)
 							return new Response<VisaDTO>(0, visaDto);
