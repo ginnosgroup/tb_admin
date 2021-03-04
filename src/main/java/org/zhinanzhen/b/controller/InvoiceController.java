@@ -13,6 +13,7 @@ import org.zhinanzhen.b.service.pojo.InvoiceCompanyDTO;
 import org.zhinanzhen.b.service.pojo.InvoiceCompanyIdNameDTO;
 import org.zhinanzhen.b.service.pojo.InvoiceDTO;
 import org.zhinanzhen.tb.controller.BaseController;
+import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.impl.BaseService;
 import javax.annotation.Resource;
@@ -47,7 +48,7 @@ public class InvoiceController  extends BaseController {
     //查询invoice
     @RequestMapping(value = "/selectInvoice", method = RequestMethod.GET)
     @ResponseBody
-    public Response selectAllInvoice(
+    public ListResponse selectAllInvoice(
             @RequestParam(value = "invoice_no", required = false) String invoice_no,
             @RequestParam(value = "order_no", required = false) String order_id,
             @RequestParam(value = "create_start", required = false) String create_start,
@@ -67,7 +68,8 @@ public class InvoiceController  extends BaseController {
             pageNum = 10;
         state = state.toUpperCase();
         List<InvoiceDTO> invoiceDTOList = invoiceService.selectInvoice(invoice_no, order_id, create_start, create_end, kind, branch, pageNum, pageSize, state);
-        return new Response(0, invoiceDTOList);
+        int count = invoiceService.selectCount(invoice_no, order_id, create_start, create_end, kind, branch, state);
+        return new ListResponse(true,pageSize, count,invoiceDTOList,"ok");
     }
 
     @RequestMapping(value = "/count", method = RequestMethod.GET)

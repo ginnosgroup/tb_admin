@@ -3,17 +3,14 @@ package org.zhinanzhen.b.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang.RandomStringUtils;
+import org.aspectj.org.eclipse.jdt.core.IField;
 import org.dozer.DozerBeanMapper;
 import org.dozer.Mapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import org.zhinanzhen.b.dao.ServiceDAO;
-import org.zhinanzhen.b.dao.ServiceOrderDAO;
-import org.zhinanzhen.b.dao.ServicePackageDAO;
-import org.zhinanzhen.b.dao.pojo.ServiceDO;
-import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
-import org.zhinanzhen.b.dao.pojo.ServicePackageDO;
+import org.zhinanzhen.b.dao.*;
+import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.WXWorkService;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.RegionDAO;
@@ -57,6 +54,12 @@ public class WXWorkServiceImpl implements WXWorkService {
 
     @Resource
     ServicePackageDAO servicePackageDAO;
+
+    @Resource
+    private ServiceAssessDao serviceAssessDao;
+
+    @Resource
+    private SchoolDAO schoolDAO;
 
     private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
@@ -124,17 +127,34 @@ public class WXWorkServiceImpl implements WXWorkService {
                 if (regionDO != null)
                     msg = msg + "地区:" + regionDO.getName() + "\n";
             }
-            ServiceDO serviceDO = serviceDAO.getServiceById(serviceOrderDO.getServiceId());
-            if (serviceDO != null)
-                msg = msg
-                        + "服务项目:" + serviceDO.getName() + "-" + serviceDO.getCode();
-            ServicePackageDO servicePackageDO = servicePackageDAO.getById(serviceOrderDO.getServicePackageId());
-            if (servicePackageDO != null)
-                switch (servicePackageDO.getType()){
-                    case  "CA" : msg = msg + "-" + "职业评估";break;
-                    case  "EOI" : msg = msg + "-" + "EOI";break;
-                    case  "VA" : msg = msg + "-" + "签证申请";break;
-                }
+            if (serviceOrderDO.getType().equalsIgnoreCase("VISA")) {
+                ServiceDO serviceDO = serviceDAO.getServiceById(serviceOrderDO.getServiceId());
+                if (serviceDO != null)
+                    msg = msg
+                            + "服务项目:" + serviceDO.getName() + "-" + serviceDO.getCode();
+                ServicePackageDO servicePackageDO = servicePackageDAO.getById(serviceOrderDO.getServicePackageId());
+                if (servicePackageDO != null)
+                    switch (servicePackageDO.getType()) {
+                        case "CA":
+                            msg = msg + "-" + "职业评估";
+                            break;
+                        case "EOI":
+                            msg = msg + "-" + "EOI";
+                            break;
+                        case "VA":
+                            msg = msg + "-" + "签证申请";
+                            break;
+                    }
+                ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDO.getServiceAssessId());
+                if (serviceAssessDO != null)
+                    msg = msg + "-" + serviceAssessDO.getName();
+            }
+            if (serviceOrderDO.getType().equalsIgnoreCase("OVST")){
+                SchoolDO schoolDO =  schoolDAO.getSchoolById(serviceOrderDO.getSchoolId());
+                if (schoolDO != null )
+                    msg = msg
+                            + "服务项目: 留学 - " + schoolDO.getName();
+            }
 
         }
 
@@ -149,8 +169,4 @@ public class WXWorkServiceImpl implements WXWorkService {
         String token = (String) session.getAttribute("corpToken");
         JSONObject json =  WXWorkAPI.sendPostBody_Map(WXWorkAPI.SENDMESSAGE.replace("ACCESS_TOKEN",token),parm);
     }
-
-    //if (type.equalsIgnoreCase("VISA")){
-    //    wxWorkService.sendMsg(serviceOrderDto.getId());
-    //}
 }
