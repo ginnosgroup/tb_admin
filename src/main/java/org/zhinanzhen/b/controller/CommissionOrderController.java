@@ -32,6 +32,7 @@ import org.zhinanzhen.b.service.pojo.CommissionOrderCommentDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
+import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -697,6 +698,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 	@RequestMapping(value = "/count", method = RequestMethod.GET)
 	@ResponseBody
+	@Deprecated
 	public Response<Integer> count(@RequestParam(value = "id", required = false) Integer id,
 			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "maraId", required = false) Integer maraId,
@@ -781,7 +783,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<CommissionOrderListDTO>> list(@RequestParam(value = "id", required = false) Integer id,
+	public ListResponse<List<CommissionOrderListDTO>> list(@RequestParam(value = "id", required = false) Integer id,
 			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "maraId", required = false) Integer maraId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
@@ -855,12 +857,16 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					adviserId = newAdviserId;
 			}
 
-			return new Response<List<CommissionOrderListDTO>>(0,
+			int total = commissionOrderService.countCommissionOrder(id, regionIdList, maraId, adviserId, officialId,
+					userId, name, phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
+					startKjApprovalDate, endKjApprovalDate, isYzyAndYjy, applyState);
+			return new ListResponse<List<CommissionOrderListDTO>>(true, pageSize, total,
 					commissionOrderService.listCommissionOrder(id, regionIdList, maraId, adviserId, officialId, userId,
 							name, phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
-							startKjApprovalDate, endKjApprovalDate, isYzyAndYjy, applyState, pageNum, pageSize));
+							startKjApprovalDate, endKjApprovalDate, isYzyAndYjy, applyState, pageNum, pageSize),
+					"");
 		} catch (ServiceException e) {
-			return new Response<List<CommissionOrderListDTO>>(1, e.getMessage(), null);
+			return new ListResponse<List<CommissionOrderListDTO>>(false, pageSize, 0, null, e.getMessage());
 		}
 	}
 
