@@ -80,6 +80,7 @@ public class UserController extends BaseController {
 
 	@RequestMapping(value = "/count", method = RequestMethod.GET)
 	@ResponseBody
+	@Deprecated
 	public Response<Integer> countUser(@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "authType", required = false) String authType,
 			@RequestParam(value = "authNickname", required = false) String authNickname,
@@ -137,7 +138,7 @@ public class UserController extends BaseController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<UserDTO>> listUser(@RequestParam(value = "name", required = false) String name,
+	public ListResponse<List<UserDTO>> listUser(@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "authType", required = false) String authType,
 			@RequestParam(value = "authNickname", required = false) String authNickname,
 			@RequestParam(value = "phone", required = false) String phone,
@@ -174,14 +175,16 @@ public class UserController extends BaseController {
 				if (newAdviserId != null)
 					adviserId = newAdviserId + "";
 				if (StringUtil.isBlank(adviserId) && !isAdminUser(request))
-					return new Response<List<UserDTO>>(1, "No permission !", null);
+					return new ListResponse<List<UserDTO>>(false, pageSize, 0, null, "No permission !");
 			}
+			int total = userService.countUser(name, authTypeEnum, authNickname, phone, wechatUsername,
+					StringUtil.toInt(adviserId), regionIdList, StringUtil.toInt(tagId));
 			List<UserDTO> list = userService.listUser(name, authTypeEnum, authNickname, phone, wechatUsername,
 					StringUtil.toInt(adviserId), regionIdList, StringUtil.toInt(tagId), orderByField,
 					Boolean.parseBoolean(StringUtil.isEmpty(isDesc) ? "false" : isDesc), pageNum, pageSize);
-			return new Response<List<UserDTO>>(0, list);
+			return new ListResponse<List<UserDTO>>(true, pageSize, total, list, "");
 		} catch (ServiceException e) {
-			return new Response<List<UserDTO>>(1, e.getMessage(), null);
+			return new ListResponse<List<UserDTO>>(false, pageSize, 0, null, e.getMessage());
 		}
 	}
 
