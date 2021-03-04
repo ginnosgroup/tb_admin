@@ -499,26 +499,26 @@
 												</thead>
 												<tbody>
 													<tr v-for="item in subject" class="gradeX">
-														<td v-html="item.oid"></td>
-														<td v-if="ap_list!=='WA'" v-html="item.gmtCreate"></td>
-														<td v-if="ap_list==='WA'" @dblclick="table_edit($index,'gmtCreate','t3')"><span v-html="item.gmtCreate"></span></td>
-														<td v-html="item.approvalDate"></td>
-														<td v-html="item.finishDate"></td>
-														<td v-html="item.userId"></td>
-														<td v-html="item.userName"></td>
-														<td v-html="item.birthday"></td>
-														<td v-html="item.phone"></td>
-														<td v-html="item.adviserName"></td>
-														<td v-html="item.maraName"></td>
-														<td @dblclick="table_edit($index,'officialName','t1')"><span v-html="item.officialName"></span></td>
-														<td v-html="item.serviceName"></td>
-														<td v-html="item.strState"></td>
-														<td v-if="ap_list==='WA'">
+														<td v-html="item.oid" style="{{item.refusebgcolor}}"></td>
+														<td v-if="ap_list!=='WA'" v-html="item.gmtCreate" style="{{item.refusebgcolor}}"></td>
+														<td v-if="ap_list==='WA'" @dblclick="table_edit($index,'gmtCreate','t3')" style="{{item.refusebgcolor}}"><span v-html="item.gmtCreate"></span></td>
+														<td v-html="item.approvalDate" style="{{item.refusebgcolor}}"></td>
+														<td v-html="item.finishDate" style="{{item.refusebgcolor}}"></td>
+														<td v-html="item.userId" style="{{item.refusebgcolor}}"></td>
+														<td v-html="item.userName" style="{{item.refusebgcolor}}"></td>
+														<td v-html="item.birthday" style="{{item.refusebgcolor}}"></td>
+														<td v-html="item.phone" style="{{item.refusebgcolor}}"></td>
+														<td v-html="item.adviserName" style="{{item.refusebgcolor}}"></td>
+														<td v-html="item.maraName" style="{{item.refusebgcolor}}"></td>
+														<td @dblclick="table_edit($index,'officialName','t1')" style="{{item.refusebgcolor}}"><span v-html="item.officialName"></span></td>
+														<td v-html="item.serviceName" style="{{item.refusebgcolor}}"></td>
+														<td v-html="item.strState" style="{{item.refusebgcolor}}"></td>
+														<td v-if="ap_list==='WA'" style="{{item.refusebgcolor}}">
 																<div v-if="!item.tagId"><a href="javascript:show_tagbox({{item.id}},'{{item.tagId}}');">设置标签</a></div>
 																<div v-if="item.tagId" onclick="show_tagbox({{item.id}},'{{item.tagId}}')"><label style="width:80px;color:white;background:{{item.tagColour}};">{{item.tagText}}</label></div>
 														</td>
-														<td v-if="ap_list==='WA'" @dblclick="table_edit($index,'realPeopleNumber','tnumber')"><span v-html="item.realPeopleNumber"></span></td>
-														<td>
+														<td v-if="ap_list==='WA'" @dblclick="table_edit($index,'realPeopleNumber','tnumber')" style="{{item.refusebgcolor}}"><span v-html="item.realPeopleNumber"></span></td>
+														<td style="{{item.refusebgcolor}}">
 																<dle v-if="ap_list==='GW' && item.adviserId !== current_adviserId">													
 																		<a href="javascript:show_addnewservice_id({{item.id}},'{{item.type}}');">查看</a>
 																</dle>
@@ -559,7 +559,7 @@
 																		<a v-if="item.id" class="delete" href="#" @click="delete_confirm($index,item.id)">删除</a>
 																</dle>
 														</td>
-														<td v-html="item.strRemarks"></td>
+														<td v-html="item.strRemarks" style="{{item.refusebgcolor}}"></td>
 													</tr>													
 												</tbody>
 											</table>
@@ -1307,7 +1307,12 @@
 								result.data[i].serviceName = '<span style="font-weight:bold;color:#0066CC;">'+return_servicename(result.data[i].type)+'</span>';							
 						}
 						if (result.data[i].state == 'CLOSE') str_refusestate = (result.data[i].closedReason != null ? result.data[i].closedReason:'');
-						if (result.data[i].review.officialState == 'PENDING' && result.data[i].review.type == 'REFUSE') str_refusestate = '<br/><span style="color:#003333">文案已驳回</span><br/>('+result.data[i].refuseReason+')';
+						result.data[i].refusebgcolor = '';
+						if (result.data[i].review.officialState == 'PENDING' && result.data[i].review.type == 'REFUSE')
+						{
+								result.data[i].refusebgcolor = 'background:#FFCCCC;';
+								str_refusestate = '<br/><span style="color:#003333">文案已驳回</span><br/>('+result.data[i].refuseReason+')';
+						}
 						if (result.data[i].review.officialState == 'REVIEW' && result.data[i].review.type == 'REFUSE') str_refusestate = '<br/><span style="color:#003333">Mara已驳回</span><br/>('+result.data[i].refuseReason+')';
 						if (result.data[i].type == 'SIV')
 						{
