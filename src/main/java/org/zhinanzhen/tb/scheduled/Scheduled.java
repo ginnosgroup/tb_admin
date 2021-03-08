@@ -251,8 +251,8 @@ public class Scheduled {
     }
 
     //每天凌晨触发
-    //@org.springframework.scheduling.annotation.Scheduled(cron = "0 0 0 * * ? ")
-    @org.springframework.scheduling.annotation.Scheduled(cron = "0 45 10 * * ? ")
+    @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 0 * * ? ")
+    //@org.springframework.scheduling.annotation.Scheduled(cron = "0 45 10 * * ? ")
     public void verifyCodeEveryDay(){
         List<FinanceCodeDO> financeCodeDOS = verifyDao.getFinanceCodeOrderIdIsNull();
         for (FinanceCodeDO financeCodeDO : financeCodeDOS){
