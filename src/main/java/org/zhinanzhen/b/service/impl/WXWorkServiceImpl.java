@@ -119,19 +119,18 @@ public class WXWorkServiceImpl implements WXWorkService {
         String msg = "";
         ServiceOrderDO serviceOrderDO = serviceOrderDAO.getServiceOrderById(id);
         if (serviceOrderDO != null){
-            msg = "创建时间:" + sdf.format(serviceOrderDO.getGmtCreate()) + "\n";
+            msg = "\uD83D\uDCB0\uD83D\uDCB0\uD83D\uDCB0\uD83D\uDCB0\uD83D\uDCB0\uD83D\uDCB0\uD83D\uDCB0\uD83D\uDCB0\n";
             AdviserDO adviserDO = adviserDAO.getAdviserById(serviceOrderDO.getAdviserId());
             if (adviserDO != null){
-                msg = msg +"顾问:" + adviserDO.getName() + "\n" ;
                 RegionDO regionDO = regionDAO.getRegionById(adviserDO.getRegionId());
                 if (regionDO != null)
-                    msg = msg + "地区:" + regionDO.getName() + "\n";
+                    msg = msg + "恭喜 :[ " + regionDO.getName() + " ] [ " + adviserDO.getName() + " ] , 成功签约 ";
             }
             if (serviceOrderDO.getType().equalsIgnoreCase("VISA")) {
                 ServiceDO serviceDO = serviceDAO.getServiceById(serviceOrderDO.getServiceId());
                 if (serviceDO != null)
                     msg = msg
-                            + "服务项目:" + serviceDO.getName() + "-" + serviceDO.getCode();
+                            + "[ " + serviceDO.getName() + "-" + serviceDO.getCode();
                 ServicePackageDO servicePackageDO = servicePackageDAO.getById(serviceOrderDO.getServicePackageId());
                 if (servicePackageDO != null)
                     switch (servicePackageDO.getType()) {
@@ -148,14 +147,15 @@ public class WXWorkServiceImpl implements WXWorkService {
                 ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDO.getServiceAssessId());
                 if (serviceAssessDO != null)
                     msg = msg + "-" + serviceAssessDO.getName();
+                msg = msg + " ] . \n";
             }
             if (serviceOrderDO.getType().equalsIgnoreCase("OVST")){
                 SchoolDO schoolDO =  schoolDAO.getSchoolById(serviceOrderDO.getSchoolId());
                 if (schoolDO != null )
                     msg = msg
-                            + "服务项目: 留学 - " + schoolDO.getName();
+                            + "[ 留学 - " + schoolDO.getName() + " ] . \n";
             }
-
+            msg = msg + "各地区加油\n\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F";
         }
 
         content.put("content",msg);
