@@ -50,7 +50,7 @@
                 bonus_date,
                 zy_date,
                 remarks,
-                refuse_reason
+                refuse_reason,
                 is_close,
                 verify_code)
             VALUES (

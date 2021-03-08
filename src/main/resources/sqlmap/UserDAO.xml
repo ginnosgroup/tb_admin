@@ -224,6 +224,9 @@
         <if test='phone != null'>
             , phone = #{phone}
         </if>
+        <if test='areaCode != null'>
+            , area_code = #{areaCode}
+        </if>
         <if test='wechatUsername != null and wechatUsername != ""'>
             , wechat_username = #{wechatUsername}
         </if>

@@ -141,6 +141,7 @@ public class UserController extends BaseController {
 	public ListResponse<List<UserDTO>> listUser(@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "authType", required = false) String authType,
 			@RequestParam(value = "authNickname", required = false) String authNickname,
+			@RequestParam(value = "areaCode", required = false) String areaCode,
 			@RequestParam(value = "phone", required = false) String phone,
 			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
@@ -207,6 +208,7 @@ public class UserController extends BaseController {
 			@RequestParam(value = "authNickname", required = false) String authNickname,
 			@RequestParam(value = "birthday", required = false) String birthday,
 			@RequestParam(value = "phone", required = false) String phone,
+			@RequestParam(value = "areaCode", required = false) String areaCode,
 			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
 			@RequestParam(value = "firstControllerContents", required = false) String firstControllerContents,
 			@RequestParam(value = "visaCode", required = false) String visaCode,
@@ -220,8 +222,8 @@ public class UserController extends BaseController {
 		Date _visaExpirationDate = null;
 		if (visaExpirationDate != null)
 			_visaExpirationDate = new Date(Long.parseLong(visaExpirationDate.trim()));
-		return new Response<Boolean>(0, userService.update(id, name, authNickname, _birthday, phone, wechatUsername,
-				firstControllerContents, visaCode, _visaExpirationDate, source));
+		return new Response<Boolean>(0, userService.update(id, name, authNickname, _birthday, phone, areaCode,
+				wechatUsername, firstControllerContents, visaCode, _visaExpirationDate, source));
 	}
 
 	@RequestMapping(value = "/updateAdviser", method = RequestMethod.POST)
