@@ -1,7 +1,6 @@
 package org.zhinanzhen.b.service.impl;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -22,6 +21,7 @@ import org.zhinanzhen.b.service.pojo.ReceiveTypeDTO;
 import org.zhinanzhen.b.service.pojo.ServiceDTO;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
+import org.zhinanzhen.tb.utils.SendEmailUtil;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
@@ -54,6 +54,9 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 
 	@Resource
 	private AdviserDAO adviserDao;
+	
+	@Resource
+	private OfficialDAO officialDao;
 
 	@Resource
 	private ReceiveTypeDAO receiveTypeDao;
@@ -451,6 +454,19 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
 		}
+	}
+
+	@Override
+	public void sendRefuseEmail(int id) {
+		CommissionOrderDO commissionOrderDo = commissionOrderDao.getCommissionOrderById(id);
+		AdviserDO adviserDo = adviserDao.getAdviserById(commissionOrderDo.getAdviserId());
+		OfficialDO officialDo = officialDao.getOfficialById(commissionOrderDo.getOfficialId());
+		// 发送给顾问
+		SendEmailUtil.send(adviserDo.getEmail(), "留学佣金订单驳回提醒", StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>",
+				"您的订单已被驳回。<br>订单号:", commissionOrderDo.getId(), "<br/>驳回原因:", commissionOrderDo.getRefuseReason()));
+		// 发送给文案
+		SendEmailUtil.send(officialDo.getEmail(), "留学佣金订单驳回提醒", StringUtil.merge("亲爱的:", officialDo.getName(), "<br/>",
+				"您的订单已被驳回。<br>订单号:", commissionOrderDo.getId(), "<br/>驳回原因:", commissionOrderDo.getRefuseReason()));
 	}
 
 }

@@ -952,9 +952,10 @@ public class VisaController extends BaseCommissionOrderController {
 						if (StringUtil.isNotEmpty(refuseReason))
 							visaDto.setRefuseReason(refuseReason);
 						visaDto.setState(state);
-						if (visaService.updateVisa(visaDto) > 0)
+						if (visaService.updateVisa(visaDto) > 0) {
+							visaService.sendRefuseEmail(id);
 							return new Response<VisaDTO>(0, visaDto);
-						else
+						} else
 							return new Response<VisaDTO>(1, "修改操作异常!", null);
 					} else
 						return new Response<VisaDTO>(1, "state错误!(" + state + ")", null);

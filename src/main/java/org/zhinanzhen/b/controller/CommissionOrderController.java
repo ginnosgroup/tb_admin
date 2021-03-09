@@ -1198,9 +1198,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 						if (StringUtil.isNotEmpty(refuseReason))
 							commissionOrderListDto.setRefuseReason(refuseReason);
 						commissionOrderListDto.setState(state);
-						if (commissionOrderService.updateCommissionOrder(commissionOrderListDto) > 0)
+						if (commissionOrderService.updateCommissionOrder(commissionOrderListDto) > 0) {
+							commissionOrderService.sendRefuseEmail(id);
 							return new Response<CommissionOrderListDTO>(0, commissionOrderListDto);
-						else
+						} else
 							return new Response<CommissionOrderListDTO>(1, "修改操作异常!", null);
 					} else
 						return new Response<CommissionOrderListDTO>(1, "state错误!(" + state + ")", null);

@@ -23,6 +23,7 @@ import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
+import org.zhinanzhen.tb.utils.SendEmailUtil;
 
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.StringUtil;
@@ -418,6 +419,19 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
 		}
+	}
+
+	@Override
+	public void sendRefuseEmail(int id) {
+		VisaDO visaDo = visaDao.getVisaById(id);
+		AdviserDO adviserDo = adviserDao.getAdviserById(visaDo.getAdviserId());
+		OfficialDO officialDo = officialDao.getOfficialById(visaDo.getOfficialId());
+		// 发送给顾问
+		SendEmailUtil.send(adviserDo.getEmail(), "签证佣金订单驳回提醒", StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>",
+				"您的订单已被驳回。<br>订单号:", visaDo.getId(), "<br/>驳回原因:", visaDo.getRefuseReason()));
+		// 发送给文案
+		SendEmailUtil.send(officialDo.getEmail(), "签证佣金订单驳回提醒", StringUtil.merge("亲爱的:", officialDo.getName(), "<br/>",
+				"您的订单已被驳回。<br>订单号:", visaDo.getId(), "<br/>驳回原因:", visaDo.getRefuseReason()));
 	}
 
 }

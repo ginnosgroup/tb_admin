@@ -37,5 +37,7 @@ public interface VisaService {
 	List<VisaCommentDTO> listComment(int id) throws ServiceException;
 
 	int deleteComment(int id) throws ServiceException;
+	
+	void sendRefuseEmail(int id);
 
 }

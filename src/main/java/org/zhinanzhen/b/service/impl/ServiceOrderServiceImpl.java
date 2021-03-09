@@ -443,7 +443,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	@Override
 	public ServiceOrderDTO refuse(int id, int adminUserId, String adviserState, String maraState, String officialState,
 			String kjState) throws ServiceException {
-		sendRemind(id, adviserState, maraState, officialState);
+		sendRemind2(id, adviserState, maraState, officialState);
 		return review(id, adminUserId, adviserState, maraState, officialState, kjState, "REFUSE");
 	}
 	
@@ -793,6 +793,82 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 										serviceOrderUrl));
 						}
 					}
+				}
+				serviceOrderDao.updateServiceOrder(serviceOrderDo);
+			}
+		}
+	}
+	
+	@Deprecated
+	public void sendRemind2(int id, String adviserState, String maraState, String officialState) {
+		ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(id);
+		if (serviceOrderDo != null) {
+			String title = "订单驳回提醒:";
+			String type = "";
+			String detail = "";
+			String serviceOrderUrl = "<br/><a href='https://yongjinbiao.zhinanzhen.org/webroot/serviceorder-detail.html?id="
+					+ serviceOrderDo.getId() + "'>服务订单详情</a>";
+			UserDO user = userDao.getUserById(serviceOrderDo.getUserId());
+			if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())) {
+				type = "签证";
+				if (user != null)
+					detail += "/客户名称:" + user.getName();
+				ServiceDO service = serviceDao.getServiceById(serviceOrderDo.getServiceId());
+				if (service != null) {
+					detail += "/类型:" + service.getName() + "(" + service.getCode() + ")";
+					type += "(" + service.getCode() + ")";
+				}
+				title += user.getName() + "/" + type;
+			} else if ("OVST".equalsIgnoreCase(serviceOrderDo.getType())) {
+				type = "留学";
+				if (user != null)
+					detail += "/客户名称:" + user.getName();
+				SchoolDO school = schoolDao.getSchoolById(serviceOrderDo.getSchoolId());
+				if (school != null) {
+					detail += "/学校:" + school.getName();
+					detail += "/专业:" + school.getSubject();
+				}
+				title += user.getName() + "/" + type;
+			} else if ("SIV".equalsIgnoreCase(serviceOrderDo.getType())) {
+				type = "独立技术移民";
+				title += user.getName() + "/" + type;
+			} else if ("MT".equalsIgnoreCase(serviceOrderDo.getType())) {
+				type = "曼拓";
+				title += user.getName() + "/" + type;
+			}
+			AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderDo.getAdviserId());
+			OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
+			Date date = serviceOrderDo.getGmtCreate();
+			if (adviserDo != null && officialDo != null) {
+				if ("REVIEW".equals(adviserState)) {
+					// 发送给顾问
+					SendEmailUtil.send(adviserDo.getEmail(), title,
+							StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>", "您的订单已被驳回。<br>订单号:",
+									serviceOrderDo.getId(), "<br/>服务类型:签证/客户名称:", user.getName(), "/顾问:",
+									adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
+									getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
+									serviceOrderDo.getNutCloud(), "<br/>客户基本信息:", serviceOrderDo.getInformation(),
+									"<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:",
+									serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date, "<br/>", serviceOrderUrl));
+				}
+				if ("REVIEW".equals(officialState)) {
+					// 发送给文案
+					SendEmailUtil.send(officialDo.getEmail(), title,
+							StringUtil.merge("亲爱的:", officialDo.getName(), "<br/>", "您的订单已被驳回。<br>订单号:",
+									serviceOrderDo.getId(), "<br/>服务类型:签证/客户名称:", user.getName(), "/顾问:",
+									adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
+									getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
+									serviceOrderDo.getNutCloud(), "<br/>客户基本信息:", serviceOrderDo.getInformation(),
+									"<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:",
+									serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date, "<br/>", serviceOrderUrl));
+				}
+				if ("PENDING".equals(adviserState)) { // 文案驳回
+					SendEmailUtil.send(adviserDo.getEmail(), title, StringUtil.merge("亲爱的", adviserDo.getName(),
+							":<br/>您有一条服务订单已被驳回。<br/>订单号:", id, "<br/>服务类型:", type, detail, "/顾问:", adviserDo.getName(),
+							"/文案:", officialDo.getName(), "<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()),
+							"<br/>坚果云资料地址:", serviceOrderDo.getNutCloud(), "<br/>客户基本信息:",
+							serviceOrderDo.getInformation(), "<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:",
+							serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date, "<br/>", serviceOrderUrl));
 				}
 				serviceOrderDao.updateServiceOrder(serviceOrderDo);
 			}
