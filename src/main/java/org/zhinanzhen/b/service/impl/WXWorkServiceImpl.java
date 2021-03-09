@@ -124,7 +124,7 @@ public class WXWorkServiceImpl implements WXWorkService {
             if (adviserDO != null){
                 RegionDO regionDO = regionDAO.getRegionById(adviserDO.getRegionId());
                 if (regionDO != null)
-                    msg = msg + "恭喜 :[ " + regionDO.getName() + " ] [ " + adviserDO.getName() + " ] , 成功签约 ";
+                    msg = msg + "恭喜 : " + regionDO.getName() + "   " + adviserDO.getName() + "  , 成功签约 ";
             }
             if (serviceOrderDO.getType().equalsIgnoreCase("VISA")) {
                 ServiceDO serviceDO = serviceDAO.getServiceById(serviceOrderDO.getServiceId());
@@ -153,7 +153,7 @@ public class WXWorkServiceImpl implements WXWorkService {
                 SchoolDO schoolDO =  schoolDAO.getSchoolById(serviceOrderDO.getSchoolId());
                 if (schoolDO != null )
                     msg = msg
-                            + "[ 留学 - " + schoolDO.getName() + " ] . \n";
+                            + "[ 留学 - " + schoolDO.getName() + schoolDO.getSubject() +  " ] . \n";
             }
             msg = msg + "各地区加油\n\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F";
         }
