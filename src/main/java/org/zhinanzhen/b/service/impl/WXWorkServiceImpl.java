@@ -153,7 +153,7 @@ public class WXWorkServiceImpl implements WXWorkService {
                 SchoolDO schoolDO =  schoolDAO.getSchoolById(serviceOrderDO.getSchoolId());
                 if (schoolDO != null )
                     msg = msg
-                            + "[ 留学 - " + schoolDO.getName() + schoolDO.getSubject() +  " ] . \n";
+                            + "[ 留学 - " + schoolDO.getName() + "      专业 : " + schoolDO.getSubject() +  " ] . \n";
             }
             msg = msg + "各地区加油\n\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F";
         }
