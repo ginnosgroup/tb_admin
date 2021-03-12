@@ -194,7 +194,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 							serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>创建时间:",
 							date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
 					SendEmailUtil.send(_maraDo.getEmail(), "变更任务提醒:", StringUtil.merge("亲爱的", _maraDo.getName(),
-							":<br/>", "您有的订单号:", serviceOrderDo.getId(), "已从您这更改为文案:", maraDo.getName()));
+							":<br/>", "您有的订单号:", serviceOrderDo.getId(), "已从您这更改为Mara:", maraDo.getName()));
 				}
 			}
 			if (!ObjectUtil.same(_serviceOrderDo.getOfficialId(), serviceOrderDo.getOfficialId())) {
