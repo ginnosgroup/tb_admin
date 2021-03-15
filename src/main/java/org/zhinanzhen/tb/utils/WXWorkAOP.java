@@ -30,7 +30,6 @@ public class WXWorkAOP {
         ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
         HttpSession session=attr.getRequest().getSession(true);
         if (session.getAttribute("corpToken") == null) {
-            System.out.println("corpToken is null");
             Map<String, Object> tokenMap = wxWorkService.getToken(WXWorkAPI.SECRET_CORP);
             if ((int)tokenMap.get("errcode") != 0)
                 throw  new RuntimeException(tokenMap.get("errmsg").toString());
@@ -43,7 +42,6 @@ public class WXWorkAOP {
             //System.out.println("corpToken=========="+tokenMap.get("access_token"));
         }
         if (session.getAttribute("customerToken") == null) {
-            System.out.println("customerToken is null");
             Map<String, Object> tokenMap = wxWorkService.getToken(WXWorkAPI.SECRET_CUSTOMER);
             if ((int)tokenMap.get("errcode") != 0)
                 throw  new RuntimeException(tokenMap.get("errmsg").toString());
@@ -62,7 +60,6 @@ public class WXWorkAOP {
         ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
         HttpSession session=attr.getRequest().getSession(true);
         if (session.getAttribute("corpToken") == null) {
-            System.out.println("corpToken is null");
             Map<String, Object> tokenMap = wxWorkService.getToken(WXWorkAPI.SECRET_CORP);
                 if ((int)tokenMap.get("errcode") != 0)
                     throw  new RuntimeException( tokenMap.get("errmsg").toString());
@@ -78,7 +75,6 @@ public class WXWorkAOP {
             //System.out.println("corpToken=========="+tokenMap.get("access_token"));
         }
         if (session.getAttribute("customerToken") == null) {
-            System.out.println("customerToken is null");
             Map<String, Object> tokenMap = wxWorkService.getToken(WXWorkAPI.SECRET_CUSTOMER);
             if ((int)tokenMap.get("errcode") != 0)
                 throw  new RuntimeException( tokenMap.get("errmsg").toString());
