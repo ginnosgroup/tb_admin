@@ -69,7 +69,6 @@ public class WXWorkController extends  BaseController{
         if ((int) infoMap.get("errcode") != 0)
             return new Response(1 , infoMap.get("errmsg"));
         String userId = (String) infoMap.get("UserId");
-        System.out.println("userId"+userId);
         AdviserDTO adviserDTO =  adviserService.getAdviserById(adviserId);
         if (adviserDTO != null){
             adviserDTO.setOperUserId(userId);
