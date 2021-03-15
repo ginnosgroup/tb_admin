@@ -156,8 +156,10 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			ServiceOrderDO _serviceOrderDo = serviceOrderDao.getServiceOrderById(serviceOrderDto.getId());
 			ServiceOrderDO serviceOrderDo = mapper.map(serviceOrderDto, ServiceOrderDO.class);
 			int i = serviceOrderDao.updateServiceOrder(serviceOrderDo);
-			if (i > 0 && (!ObjectUtil.same(_serviceOrderDo.getMaraId(), serviceOrderDo.getMaraId())
-					|| !ObjectUtil.same(_serviceOrderDo.getOfficialId(), serviceOrderDo.getOfficialId())))
+			if (i > 0 && ((_serviceOrderDo.getMaraId() > 0 && serviceOrderDo.getMaraId() > 0
+					&& _serviceOrderDo.getMaraId() != serviceOrderDo.getMaraId())
+					|| (_serviceOrderDo.getOfficialId() > 0 && serviceOrderDo.getOfficialId() > 0
+							&& _serviceOrderDo.getOfficialId() != serviceOrderDo.getOfficialId())))
 				sendEmailOfUpdateOfficial(serviceOrderDo, _serviceOrderDo);
 			return i;
 		} catch (Exception e) {
