@@ -3,26 +3,21 @@ package org.zhinanzhen.b.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.ikasoa.core.utils.StringUtil;
-import org.apache.commons.collections4.SplitMapUtils;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.STSourceType;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.zhinanzhen.b.service.WXWorkService;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
-import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.utils.EmojiFilter;
-
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -51,14 +46,15 @@ public class WXWorkController extends  BaseController{
     @RequestMapping(value = "/userId" , method =  RequestMethod.GET)
     @ResponseBody
     @Transactional
-    public Response getUserId(@RequestParam(value = "code") String code,
-                                         @RequestParam(value = "state", required = false) String state,
-                                         HttpServletRequest request, HttpServletResponse response) throws ServiceException {
+    public String getUserId(@RequestParam(value = "code") String code,
+                                  @RequestParam(value = "state", required = false) String state,
+                                  HttpServletRequest request, HttpServletResponse response) throws ServiceException {
         super.setGetHeader(response);
+        String str = "<script>setTimeout(self.close,3000)</script>";
         HttpSession session = request.getSession();
         Integer adviserId = getAdviserId(request);
         if (adviserId == null)
-            return  new Response(1 , "adviserId is null");
+            return "<div style= 'color:#3c763d;'>未登录，授权失败 !</div>" + str;
 
         String corpToken = "";
         String customerToken = "";
@@ -67,15 +63,16 @@ public class WXWorkController extends  BaseController{
         customerToken = (String) session.getAttribute("customerToken");
         Map<String, Object> infoMap = wxWorkService.getUserInfo(corpToken, code);
         if ((int) infoMap.get("errcode") != 0)
-            return new Response(1 , infoMap.get("errmsg"));
+            return "<div style= 'color:#3c763d;'>系统出错,授权失败 !</div>" + str;
         String userId = (String) infoMap.get("UserId");
         AdviserDTO adviserDTO =  adviserService.getAdviserById(adviserId);
         if (adviserDTO != null){
             adviserDTO.setOperUserId(userId);
         }
-        if (adviserService.updateAdviser(adviserDTO)>0)
-            return new Response(0,"授权登录成功,请手动关闭此页面!");
-        return new Response(1,"授权登录失败,请手动关闭此页面!");
+        if (adviserService.updateAdviser(adviserDTO)>0){
+            return "<div style= 'color:#3c763d;'>客户导入成功，请在客户管理查看并编辑客户资料!</div>" + str;
+        }
+        return  "<div style= 'color:#3c763d;'>客户导入失败!</div>" + str;
     }
 
 
