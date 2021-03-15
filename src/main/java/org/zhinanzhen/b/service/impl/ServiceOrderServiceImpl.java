@@ -183,7 +183,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 							serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date, "<br/>",
 							serviceOrderMailDetail.getServiceOrderUrl()));
 			if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())) {
-				if (!ObjectUtil.same(_serviceOrderDo.getMaraId(), serviceOrderDo.getMaraId())) {
+System.out.println("DEBUG-MARA-" + _serviceOrderDo.getId() + ":" + _serviceOrderDo.getMaraId() + " & " + serviceOrderDo.getMaraId());
+				if (_serviceOrderDo.getMaraId() > 0 && serviceOrderDo.getMaraId() > 0
+						&& _serviceOrderDo.getMaraId() != serviceOrderDo.getMaraId()) {
 					MaraDO maraDo = maraDao.getMaraById(serviceOrderDo.getMaraId());
 					MaraDO _maraDo = maraDao.getMaraById(_serviceOrderDo.getMaraId());
 					SendEmailUtil.send(maraDo.getEmail(), "变更任务提醒:", StringUtil.merge("亲爱的:", maraDo.getName(), "<br/>",
@@ -197,9 +199,11 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 							":<br/>", "您有的订单号:", serviceOrderDo.getId(), "已从您这更改为Mara:", maraDo.getName()));
 				}
 			}
-			if (!ObjectUtil.same(_serviceOrderDo.getOfficialId(), serviceOrderDo.getOfficialId())) {
-				SendEmailUtil.send(officialDo.getEmail() + ",maggie@zhinanzhen.org", "新任务提醒:",
-						StringUtil.merge("亲爱的", officialDo.getName(), ":<br/>", "您有一条新的服务订单任务请及时处理。", "<br/>订单号:",
+System.out.println("DEBUG-OFFICIAL-" + _serviceOrderDo.getId() + ":" + _serviceOrderDo.getOfficialId() + " & " + serviceOrderDo.getOfficialId());
+			if (_serviceOrderDo.getOfficialId() > 0 && serviceOrderDo.getOfficialId() > 0
+					&& _serviceOrderDo.getOfficialId() != serviceOrderDo.getOfficialId()) {
+				SendEmailUtil.send(officialDo.getEmail() + ",maggie@zhinanzhen.org",
+						"新任务提醒:",	StringUtil.merge("亲爱的", officialDo.getName(), ":<br/>", "您有一条新的服务订单任务请及时处理。", "<br/>订单号:",
 								serviceOrderDo.getId(), "<br/>服务类型:", serviceOrderMailDetail.getType(),
 								serviceOrderMailDetail.getDetail(), "/顾问:", adviserDo.getName(), "/文案:",
 								officialDo.getName(), "<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()),
