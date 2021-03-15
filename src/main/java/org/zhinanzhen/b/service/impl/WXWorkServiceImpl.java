@@ -67,7 +67,7 @@ public class WXWorkServiceImpl implements WXWorkService {
     public String getWXWorkUrl() {
         String WXWORK_STRING_CODE = WXWorkAPI.WXWORK_STRING_CODE;
         WXWORK_STRING_CODE = WXWORK_STRING_CODE.replace("CORPID" ,WXWorkAPI .CORPID).replace("AGENTID",WXWorkAPI.AGENTID)
-                .replace("REDIRECT_URI","http://127.0.0.1:8080/admin/wxwork/userId").replace("STATE", RandomStringUtils.randomAlphanumeric(5));
+                .replace("REDIRECT_URI","http://45.77.232.197:8080/admin/wxwork/userId").replace("STATE", RandomStringUtils.randomAlphanumeric(5));
         return WXWORK_STRING_CODE;
     }
 

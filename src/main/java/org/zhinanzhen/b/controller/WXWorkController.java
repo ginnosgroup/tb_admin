@@ -74,8 +74,8 @@ public class WXWorkController extends  BaseController{
             adviserDTO.setOperUserId(userId);
         }
         if (adviserService.updateAdviser(adviserDTO)>0)
-            return new Response(0,"success");
-        return new Response(1,"fail");
+            return new Response(0,"授权登录成功,请手动关闭此页面!");
+        return new Response(1,"授权登录失败,请手动关闭此页面!");
     }
 
 
