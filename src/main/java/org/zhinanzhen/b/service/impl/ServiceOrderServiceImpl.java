@@ -23,7 +23,6 @@ import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
 
 import com.ikasoa.core.ErrorCodeEnum;
-import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 
 import lombok.Data;
@@ -185,7 +184,6 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 							serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date, "<br/>",
 							serviceOrderMailDetail.getServiceOrderUrl()));
 			if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())) {
-System.out.println("DEBUG-MARA-" + _serviceOrderDo.getId() + ":" + _serviceOrderDo.getMaraId() + " & " + serviceOrderDo.getMaraId());
 				if (_serviceOrderDo.getMaraId() > 0 && serviceOrderDo.getMaraId() > 0
 						&& _serviceOrderDo.getMaraId() != serviceOrderDo.getMaraId()) {
 					MaraDO maraDo = maraDao.getMaraById(serviceOrderDo.getMaraId());
@@ -201,7 +199,6 @@ System.out.println("DEBUG-MARA-" + _serviceOrderDo.getId() + ":" + _serviceOrder
 							":<br/>", "您有的订单号:", serviceOrderDo.getId(), "已从您这更改为Mara:", maraDo.getName()));
 				}
 			}
-System.out.println("DEBUG-OFFICIAL-" + _serviceOrderDo.getId() + ":" + _serviceOrderDo.getOfficialId() + " & " + serviceOrderDo.getOfficialId());
 			if (_serviceOrderDo.getOfficialId() > 0 && serviceOrderDo.getOfficialId() > 0
 					&& _serviceOrderDo.getOfficialId() != serviceOrderDo.getOfficialId()) {
 				SendEmailUtil.send(officialDo.getEmail() + ",maggie@zhinanzhen.org",
@@ -901,6 +898,7 @@ System.out.println("DEBUG-OFFICIAL-" + _serviceOrderDo.getId() + ":" + _serviceO
 			type = "曼拓";
 			title += user.getName() + "/" + type;
 		}
+		serviceOrderMailDetail.setTitle(title);
 		serviceOrderMailDetail.setType(type);
 		serviceOrderMailDetail.setDetail(detail);
 		serviceOrderMailDetail.setUser(user);
