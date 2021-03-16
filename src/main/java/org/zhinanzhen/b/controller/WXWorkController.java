@@ -50,7 +50,7 @@ public class WXWorkController extends  BaseController{
                                   @RequestParam(value = "state", required = false) String state,
                                   HttpServletRequest request, HttpServletResponse response) throws ServiceException {
         super.setGetHeader(response);
-        String str = "<script>setTimeout(self.close,3000)</script>";
+        String str = "<script>setTimeout(self.close,7000)</script>";
         HttpSession session = request.getSession();
         Integer adviserId = getAdviserId(request);
         if (adviserId == null)
@@ -66,13 +66,16 @@ public class WXWorkController extends  BaseController{
             return "<div style= 'color:#3c763d;'>系统出错,授权失败 !</div>" + str;
         String userId = (String) infoMap.get("UserId");
         AdviserDTO adviserDTO =  adviserService.getAdviserById(adviserId);
-        if (adviserDTO != null){
-            adviserDTO.setOperUserId(userId);
+        if (adviserDTO != null ){
+            if (StringUtil.isNotEmpty(adviserDTO.getOperUserId()))
+                return "<div style= 'color:#3c763d;'>该用户已经授权了!</div>" + str;
+            if (StringUtil.isEmpty(adviserDTO.getOperUserId()))
+                adviserDTO.setOperUserId(userId);
         }
         if (adviserService.updateAdviser(adviserDTO)>0){
-            return "<div style= 'color:#3c763d;'>客户导入成功，请在客户管理查看并编辑客户资料!</div>" + str;
+            return "<div style= 'color:#3c763d;'>授权成功，请在客户管理页面导入并编辑客户资料!</div>" + str;
         }
-        return  "<div style= 'color:#3c763d;'>客户导入失败!</div>" + str;
+        return  "<div style= 'color:#3c763d;'>授权失败!</div>" + str;
     }
 
 
