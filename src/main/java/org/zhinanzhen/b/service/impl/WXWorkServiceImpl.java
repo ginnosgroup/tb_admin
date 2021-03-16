@@ -3,9 +3,7 @@ package org.zhinanzhen.b.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang.RandomStringUtils;
-import org.aspectj.org.eclipse.jdt.core.IField;
 import org.dozer.DozerBeanMapper;
-import org.dozer.Mapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -20,7 +18,6 @@ import org.zhinanzhen.tb.dao.pojo.RegionDO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.utils.WXWorkAPI;
-
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 import java.text.SimpleDateFormat;
@@ -67,7 +64,7 @@ public class WXWorkServiceImpl implements WXWorkService {
     public String getWXWorkUrl() {
         String WXWORK_STRING_CODE = WXWorkAPI.WXWORK_STRING_CODE;
         WXWORK_STRING_CODE = WXWORK_STRING_CODE.replace("CORPID" ,WXWorkAPI .CORPID).replace("AGENTID",WXWorkAPI.AGENTID)
-                .replace("REDIRECT_URI","http://127.0.0.1:8080/admin/wxwork/userId").replace("STATE", RandomStringUtils.randomAlphanumeric(5));
+                .replace("REDIRECT_URI","http://45.77.232.197:8080/admin/wxwork/userId").replace("STATE", RandomStringUtils.randomAlphanumeric(5));
         return WXWORK_STRING_CODE;
     }
 

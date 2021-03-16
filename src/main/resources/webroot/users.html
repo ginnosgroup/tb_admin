@@ -391,6 +391,14 @@
                           留学服务 <i class="fa"></i>
                           </button>
                        </div>
+                       <div class="btn-group">
+                       		<div id="wxwork_qrcode" style="display:none;"><a id="wxwork_link" target="_blank"><img src="img/wxwork.png" /></a></div>
+                       		<div id="wxwork_sync" style="display:none;">
+                       				<button class="btn btn-danger" onclick="wxwork_sync();">
+		                          同步企业微信 <i class="fa"></i>
+		                          </button>
+                       		</div>
+                       </div>
                     </div>
                     <form class="form-inline" style="margin-top:10px;">
 											<div class="form-group">
@@ -733,6 +741,7 @@
 					close: false
 				},
 				created: function() {
+					if (this.ap_list == 'GW') loading_wxqr(this.adviser_id);
 					this.getDatalist();
 					document.onkeydown = function(e) {
 						var key = window.event.keyCode;
@@ -1759,7 +1768,68 @@
       function delHtmlTag(str)
 			{
 			return str.replace(/<[^>]+>/g,"");
-			}      
+			}
+			
+			function loading_wxqr(adviser_id)
+			{
+				if (adviser_id)
+				{
+						//查询是否授权过企业微信
+						$.get(url + "adviser/get?id="+adviser_id, {						
+							}, function(data) {
+								var str_html = '';
+								if (data.code == '0')
+								{
+										$('#wxwork_qrcode').hide();
+										$('#wxwork_sync').hide();
+										if (data.data.operUserId == null)
+										{
+												$('#wxwork_qrcode').show();
+												//调用扫码接口
+								        $.get(url + "wxwork/WXWorkCode", {						
+													}, function(data) {														
+														if (data.code == '0')
+														{
+																document.getElementById('wxwork_link').href = data.data;								
+														}else
+														{
+																$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+											         	$("#error_info").html(data.message);
+																return false;
+														}
+												});
+										}else
+										{
+												$('#wxwork_sync').show();												
+										}
+								}else
+								{
+										$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+					         	$("#error_info").html(data.message);
+										return false;
+								}
+						});		       
+				}
+			}
+			
+			function wxwork_sync()
+			{
+					//调用同步接口
+	        $.get(url + "wxwork/getexternalcontactlist", {						
+						}, function(data) {														
+							if (data.code == '0')
+							{
+									//同步成功
+									$('#alert_success').addClass('alert-success').show().delay(1500).fadeOut();
+									v.getDatalist();					
+							}else
+							{
+									$('#alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
+				         	$("#error_info").html(data.message);
+									return false;
+							}
+					});
+			}
 			
 			function  formatDate(now)
 			{
