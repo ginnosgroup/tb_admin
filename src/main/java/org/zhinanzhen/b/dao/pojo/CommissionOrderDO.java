@@ -113,4 +113,6 @@ public class CommissionOrderDO implements Serializable {
 	private String verifyCode;
 
 	private Date bankDate;
+
+	private Date invoiceCreate;
 }

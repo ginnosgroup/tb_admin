@@ -4,7 +4,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -27,7 +26,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.VisaService;
-import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.VisaCommentDTO;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
@@ -513,6 +511,8 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
+			@RequestParam(value = "startInvoiceCreate", required = false) String startInvoiceCreate,
+			@RequestParam(value = "endInvoiceCreate", required = false) String endInvoiceCreate,
 			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "userId", required = false) Integer userId,
@@ -563,7 +563,7 @@ public class VisaController extends BaseCommissionOrderController {
 			
 			return new Response<Integer>(0,
 					visaService.countVisa(id , keyword, startHandlingDate, endHandlingDate, stateList, commissionStateList,
-							startKjApprovalDate, endKjApprovalDate, startDate, endDate, regionIdList, adviserId, userId,state));
+							startKjApprovalDate, endKjApprovalDate, startDate, endDate, startInvoiceCreate, endInvoiceCreate, regionIdList, adviserId, userId,state));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -580,6 +580,8 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
+			@RequestParam(value = "startInvoiceCreate", required = false) String startInvoiceCreate,
+			@RequestParam(value = "endInvoiceCreate", required = false) String endInvoiceCreate,
 			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "userId", required = false) Integer userId,
@@ -630,10 +632,12 @@ public class VisaController extends BaseCommissionOrderController {
 			}
 
 			int total = visaService.countVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
-					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, regionIdList,
+					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate,
+					startInvoiceCreate,endInvoiceCreate,regionIdList,
 					adviserId, userId, state);
 			List<VisaDTO> list = visaService.listVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
-					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, regionIdList,
+					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate,
+					startInvoiceCreate,endInvoiceCreate,regionIdList,
 					adviserId, userId, state, pageNum, pageSize);
 			list.forEach(v -> {
 				if (v.getServiceOrderId() > 0)
@@ -708,6 +712,8 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
+			@RequestParam(value = "startInvoiceCreate", required = false) String startInvoiceCreate,
+			@RequestParam(value = "endInvoiceCreate", required = false) String endInvoiceCreate,
 			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "userId", required = false) Integer userId,
@@ -765,7 +771,7 @@ public class VisaController extends BaseCommissionOrderController {
 //				_endKjApprovalDate = new Date(Long.parseLong(endKjApprovalDate));
 
 			List<VisaDTO> list = visaService.listVisa(id ,keyword, startHandlingDate, endHandlingDate, stateList,
-					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, regionIdList,
+					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, startInvoiceCreate, endInvoiceCreate, regionIdList,
 					adviserId,userId, state,0, 9999);
 
 			list.forEach(v -> {

@@ -114,4 +114,6 @@ public class VisaDTO {
 
 	private double totalAmount;
 
+	private Date invoiceCreate;
+
 }

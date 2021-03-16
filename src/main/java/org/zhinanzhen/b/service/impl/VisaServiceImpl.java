@@ -130,19 +130,19 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 
 	@Override
 	public int countVisa(Integer id, String keyword, String startHandlingDate, String endHandlingDate,
-			List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
-			String endKjApprovalDate, String startDate, String endDate, List<Integer> regionIdList, Integer adviserId,
-			Integer userId, String state) throws ServiceException {
+                         List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
+                         String endKjApprovalDate, String startDate, String endDate, String startInvoiceCreate, String endInvoiceCreate, List<Integer> regionIdList, Integer adviserId,
+                         Integer userId, String state) throws ServiceException {
 		return visaDao.countVisa(id, keyword, startHandlingDate, theDateTo23_59_59(endHandlingDate), stateList,
 				commissionStateList, startKjApprovalDate, theDateTo23_59_59(endKjApprovalDate), startDate,
-				theDateTo23_59_59(endDate), regionIdList, adviserId, userId, state);
+				theDateTo23_59_59(endDate), startInvoiceCreate,theDateTo23_59_59(endInvoiceCreate),regionIdList, adviserId, userId, state);
 	}
 
 	@Override
 	public List<VisaDTO> listVisa(Integer id, String keyword, String startHandlingDate, String endHandlingDate,
-			List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
-			String endKjApprovalDate, String startDate, String endDate, List<Integer> regionIdList, Integer adviserId,
-			Integer userId, String state, int pageNum, int pageSize) throws ServiceException {
+								  List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
+								  String endKjApprovalDate, String startDate, String endDate, String startInvoiceCreate, String endInvoiceCreate, List<Integer> regionIdList, Integer adviserId,
+								  Integer userId, String state, int pageNum, int pageSize) throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
 		}
@@ -154,7 +154,8 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 		try {
 			visaListDoList = visaDao.listVisa(id, keyword, startHandlingDate, theDateTo23_59_59(endHandlingDate),
 					stateList, commissionStateList, startKjApprovalDate, theDateTo23_59_59(endKjApprovalDate),
-					startDate, theDateTo23_59_59(endDate), regionIdList, adviserId, userId, state, pageNum * pageSize,
+					startDate, theDateTo23_59_59(endDate), startInvoiceCreate,theDateTo23_59_59(endInvoiceCreate),
+					regionIdList, adviserId, userId, state, pageNum * pageSize,
 					pageSize);
 			if (visaListDoList == null)
 				return null;

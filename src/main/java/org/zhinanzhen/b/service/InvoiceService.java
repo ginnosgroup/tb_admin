@@ -34,13 +34,13 @@ public interface InvoiceService {
 
     InvoiceCompanyDTO addSchoolInvoice(String branch, String company);
     //导入数据的时候关联订单Id
-    int relationVisaOrder(String[] idList, String invoiceNo);
+    int relationVisaOrder(String[] idList, String invoiceNo, String invoiceDate);
     //查询一个invoice
     Response selectInvoiceByNo(String invoiceNo, String invoiceIds);
 
     int selectReaplceOrderId(String[] idList, String invoiceNo);
 
-    int relationCommissionOrder(String[] idList, String invoiceNo);
+    int relationCommissionOrder(String[] idList, String invoiceNo, String invoiceDate);
 
     int addBillTo(String company, String abn, String address);
 

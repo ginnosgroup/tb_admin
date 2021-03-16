@@ -94,4 +94,6 @@ public class VisaDO implements Serializable {
 
 	private boolean isClose;
 
+	private Date invoiceCreate;
+
 }

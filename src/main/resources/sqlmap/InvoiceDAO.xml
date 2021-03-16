@@ -146,13 +146,13 @@
         update `b_invoice_servicefee` set state ="CANCELED" , order_id = null where invoice_no = #{invoiceNo}
     </update>
     <update id="updateVisaInvoiceNumberNull">
-        update `b_visa` set invoice_number = null where invoice_number = #{invoiceNo} ;
+        update `b_visa` set invoice_number = null,invoice_create = null where invoice_number = #{invoiceNo} ;
     </update>
     <update id="updateSCState">
         update `b_invoice_school` set state ="CANCELED" , order_id = null where invoice_no = #{invoiceNo}
     </update>
     <update id="updateCommissionOrderInvoiceNumberNull">
-        update `b_commission_order` set invoice_number = null where invoice_number = #{invoiceNo} ;
+        update `b_commission_order` set invoice_number = null , invoice_create = null where invoice_number = #{invoiceNo} ;
     </update>
 
     <!-- 查询company表-->
@@ -232,6 +232,20 @@
     <!-- servicefee导入数据，关联订单id-->
     <update id="relationVisaOrder" parameterType="java.lang.String">
         update `b_visa` set invoice_number = #{invoiceNo} where id in
+        <foreach collection="idList" index="index" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+    <update id="updateInvoiceCreate" parameterType="java.lang.String">
+        <choose>
+            <when test=" type == 'SF' ">
+                update `b_visa`
+            </when>
+            <when test=" type == 'SC' ">
+                update `b_commission_order`
+            </when>
+        </choose>
+        set invoice_create = #{invoiceDate} where id in
         <foreach collection="idList" index="index" item="id" open="(" close=")" separator=",">
             #{id}
         </foreach>

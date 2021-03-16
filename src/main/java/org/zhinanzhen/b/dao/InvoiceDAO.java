@@ -67,6 +67,10 @@ public interface InvoiceDAO {
     List<Integer> selectVisaId(@Param("idList")String[] idList,@Param("flag") String flag);
     //servicefee导入数据的时候，关联订单id
     int relationVisaOrder(@Param("idList") String[] idList, @Param("invoiceNo") String invoiceNo);
+
+    int updateInvoiceCreate(@Param("idList") String[] idList , @Param("invoiceDate") String invoiceDate,
+                            @Param("type") String type);
+
     //插入invoice 表中 的 order_id
     int insertOrderIdInInvoice(@Param("idList") String  idList, @Param("invoiceNo") String invoiceNo);
 
