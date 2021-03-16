@@ -460,13 +460,13 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 	public void sendRefuseEmail(int id) {
 		CommissionOrderDO commissionOrderDo = commissionOrderDao.getCommissionOrderById(id);
 		AdviserDO adviserDo = adviserDao.getAdviserById(commissionOrderDo.getAdviserId());
-		OfficialDO officialDo = officialDao.getOfficialById(commissionOrderDo.getOfficialId());
+//		OfficialDO officialDo = officialDao.getOfficialById(commissionOrderDo.getOfficialId());
 		// 发送给顾问
 		SendEmailUtil.send(adviserDo.getEmail(), "留学佣金订单驳回提醒", StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>",
 				"您的订单已被驳回。<br>订单号:", commissionOrderDo.getId(), "<br/>驳回原因:", commissionOrderDo.getRefuseReason()));
 		// 发送给文案
-		SendEmailUtil.send(officialDo.getEmail(), "留学佣金订单驳回提醒", StringUtil.merge("亲爱的:", officialDo.getName(), "<br/>",
-				"您的订单已被驳回。<br>订单号:", commissionOrderDo.getId(), "<br/>驳回原因:", commissionOrderDo.getRefuseReason()));
+//		SendEmailUtil.send(officialDo.getEmail(), "留学佣金订单驳回提醒", StringUtil.merge("亲爱的:", officialDo.getName(), "<br/>",
+//				"您的订单已被驳回。<br>订单号:", commissionOrderDo.getId(), "<br/>驳回原因:", commissionOrderDo.getRefuseReason()));
 	}
 
 }
