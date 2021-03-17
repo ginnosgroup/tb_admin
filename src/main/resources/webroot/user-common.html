@@ -1148,10 +1148,12 @@ $('#addnewservice1_id :radio[name=b7]').live('click', function (e) {
 
 $('#addnewservice1_id #b6').live('change', function (e) {
 		if ($(this).val() == '24')
-		{
+		{				
 				$('#addnewservice1_id #b6b').show();
+				$("#addnewservice1_id #b6b").rules("add",{required:true,messages:{required:""}});
 		}else
 		{
+				$("#addnewservice1_id #b6b").rules("remove");
 				$('#addnewservice1_id #b6b').hide();
 		}
 });	
@@ -2560,7 +2562,7 @@ v.$watch('addnewservice1_bind', function(obj) {
 		//绑定列表
 		var obj_b6b = $("#addnewservice1_id #b6b");
 		obj_b6b.empty();
-    obj_b6b.append("<option value='0'>请选择职业</option>");
+    obj_b6b.append("<option value=''>请选择职业</option>");
     $.ajax({
       url: url + 'serviceAssess/list?pageNum=0&pageSize=100000',
       type: 'GET',
