@@ -309,6 +309,48 @@
         adviser_id AS adviserId,
         region_id AS regionId
         FROM tb_user
-        WHERE auth_openid = #{Auth_openid};
+        WHERE  auth_type = 'WECHAT_WORK' and auth_openid = #{authOpenid};
     </select>
+
+    <update id="updateAuthopenidByPhone">
+        UPDATE tb_user
+        SET auth_openid = #{authOpenid} ,auth_type = 'WECHAT_WORK'
+        WHERE phone = #{phone};
+    </update>
+
+    <update id="updateByAuthopenid">
+        UPDATE tb_user
+        SET gmt_modify = now()
+        <if test='name != null and name != ""'>
+            , name = #{name, jdbcType=VARCHAR}
+        </if>
+        <if test='authNickname != null and authNickname != ""'>
+            , auth_nickname = #{authNickname, jdbcType=VARCHAR}
+        </if>
+        <if test='birthday != null'>
+            , birthday = #{birthday}
+        </if>
+        <if test='phone != null'>
+            , phone = #{phone}
+        </if>
+        <if test='areaCode != null'>
+            , area_code = #{areaCode}
+        </if>
+        <if test='wechatUsername != null and wechatUsername != ""'>
+            , wechat_username = #{wechatUsername}
+        </if>
+        <if test='firstControllerContents != null and firstControllerContents != ""'>
+            , first_controller_contents = #{firstControllerContents}
+        </if>
+        <if test='visaCode != null and visaCode != ""'>
+            , visa_code = #{visaCode}
+        </if>
+        <if test='visaExpirationDate != null'>
+            , visa_expiration_date = #{visaExpirationDate}
+        </if>
+        <if test='source != null and source != ""'>
+            , source = #{source}
+        </if>
+        WHERE auth_type = 'WECHAT_WORK' and auth_openid = #{authOpenid};
+    </update>
 </mapper>

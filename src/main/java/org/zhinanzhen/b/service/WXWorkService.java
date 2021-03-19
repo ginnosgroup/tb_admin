@@ -23,4 +23,9 @@ public interface WXWorkService {
     int add(UserDTO userDTO);
 
     void sendMsg(int id);
+
+    int updateByAuthopenid(UserDTO userDTO);
+
+    boolean updateAuthopenidByPhone(String authOpenid ,  String phone);
+
 }

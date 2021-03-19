@@ -283,6 +283,9 @@ public class ServiceOrderController extends BaseController {
 			serviceOrderDto.setHistory(isHistory != null && "true".equalsIgnoreCase(isHistory));
 			if (StringUtil.isNotEmpty(nutCloud))
 				serviceOrderDto.setNutCloud(nutCloud);
+			if (StringUtil.isEmpty(serviceAssessId) && serviceAssessService.seleteAssessByServiceId(serviceId).size() > 0) {
+				return new Response(1, "没有选择职业!");
+			}
 			if (StringUtil.isNotEmpty(serviceAssessId)) {
 				if ( !type.equalsIgnoreCase("SIV") && serviceAssessService.seleteAssessByServiceId(serviceId).size() == 0 )
 					return new Response(1, "当前服务编号不是评估(" + serviceId + ")，创建失败.", 0);

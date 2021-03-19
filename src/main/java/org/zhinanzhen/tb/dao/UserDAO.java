@@ -42,6 +42,10 @@ public interface UserDAO {
 
 	public List<UserDO> listUserByRecommendOpenId(String recommendOpenId);
 
-	public List<UserDO> getUserByAuth_openid(@Param("Auth_openid")String Auth_openid);
+	public List<UserDO> getUserByAuth_openid(@Param("authOpenid")String Auth_openid);
+
+	boolean updateAuthopenidByPhone(@Param("authOpenid")String authOpenid ,@Param("phone") String phone);
+
+	int updateByAuthopenid(UserDO userDo);
 
 }
