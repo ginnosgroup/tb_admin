@@ -264,8 +264,12 @@ public class ServiceOrderController extends BaseController {
 			if (StringUtil.isNotEmpty(userId))
 				if (userService.getUserById(StringUtil.toInt(userId)) == null)
 					return new Response<Integer>(1, "用户编号错误(" + userId + ")，创建失败.", 0);
-				else
-					serviceOrderDto.setUserId(StringUtil.toInt(userId));
+				else{
+					if (userService.getUserById(StringUtil.toInt(userId)).getPhone().equalsIgnoreCase("00000000000"))
+						return new Response<Integer>(1, "用户号码不合法(" + userService.getUserById(StringUtil.toInt(userId)).getPhone() + ")，创建失败.",0);
+					else
+						serviceOrderDto.setUserId(StringUtil.toInt(userId));
+				}
 			if (StringUtil.isNotEmpty(maraId) && !"SIV".equalsIgnoreCase(serviceOrderDto.getType())
 					&& !"MT".equalsIgnoreCase(serviceOrderDto.getType())) // SIV主订单和MT主订单不需要mara
 				serviceOrderDto.setMaraId(StringUtil.toInt(maraId));

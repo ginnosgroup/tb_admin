@@ -321,9 +321,6 @@
     <update id="updateByAuthopenid">
         UPDATE tb_user
         SET gmt_modify = now()
-        <if test='name != null and name != ""'>
-            , name = #{name, jdbcType=VARCHAR}
-        </if>
         <if test='authNickname != null and authNickname != ""'>
             , auth_nickname = #{authNickname, jdbcType=VARCHAR}
         </if>
