@@ -951,3 +951,41 @@ CREATE TABLE `b_finance_code` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 ALTER TABLE `b_finance_code` ADD INDEX index_name (order_id);
+
+-- ----------新学校数据----------
+
+CREATE TABLE `b_school_institution` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `code` varchar(32) DEFAULT NULL COMMENT '编码',
+  `name` varchar(255) DEFAULT NULL COMMENT '名称',
+  `institution_trading_name` varchar(255) DEFAULT NULL COMMENT '学校名称',
+  `institution_name` varchar(255) DEFAULT NULL COMMENT '学校名称',
+  `institution_type` varchar(255) DEFAULT NULL COMMENT '学校类型',
+  `institution_postal_address` varchar(512) DEFAULT NULL COMMENT '学校地址'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+CREATE TABLE `b_school_institution_location` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `name` varchar(255) DEFAULT NULL COMMENT '名称',
+  `state` varchar(8) DEFAULT NULL COMMENT '州',
+  `number_of_courses` int DEFAULT NULL COMMENT '课程数量',
+  `provider_id` int DEFAULT NULL COMMENT '学校编号',
+  `provider_code` varchar(32) DEFAULT NULL COMMENT '学校编码'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+CREATE TABLE `b_school_course` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `course_name` varchar(255) DEFAULT NULL COMMENT '课程名称',
+  `course_sector` varchar(255) DEFAULT NULL COMMENT '课程所属行业',
+  `course_level` varchar(255) DEFAULT NULL COMMENT '课程级别',
+  `provider_id` int DEFAULT NULL COMMENT '学校编号',
+  `provider_code` varchar(32) DEFAULT NULL COMMENT '学校编码'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+

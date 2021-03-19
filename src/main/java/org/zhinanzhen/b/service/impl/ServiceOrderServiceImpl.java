@@ -155,10 +155,12 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			ServiceOrderDO _serviceOrderDo = serviceOrderDao.getServiceOrderById(serviceOrderDto.getId());
 			ServiceOrderDO serviceOrderDo = mapper.map(serviceOrderDto, ServiceOrderDO.class);
 			int i = serviceOrderDao.updateServiceOrder(serviceOrderDo);
-			if (i > 0 && ((_serviceOrderDo.getMaraId() > 0 && serviceOrderDo.getMaraId() > 0
-					&& _serviceOrderDo.getMaraId() != serviceOrderDo.getMaraId())
-					|| (_serviceOrderDo.getOfficialId() > 0 && serviceOrderDo.getOfficialId() > 0
-							&& _serviceOrderDo.getOfficialId() != serviceOrderDo.getOfficialId())))
+			if (i > 0
+					&& ((_serviceOrderDo.getMaraId() > 0 && serviceOrderDo.getMaraId() > 0
+							&& _serviceOrderDo.getMaraId() != serviceOrderDo.getMaraId())
+							|| (_serviceOrderDo.getOfficialId() > 0 && serviceOrderDo.getOfficialId() > 0
+									&& _serviceOrderDo.getOfficialId() != serviceOrderDo.getOfficialId()))
+					&& !"PENDING".equalsIgnoreCase(serviceOrderDo.getState()))
 				sendEmailOfUpdateOfficial(serviceOrderDo, _serviceOrderDo);
 			return i;
 		} catch (Exception e) {
@@ -188,13 +190,15 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 						&& _serviceOrderDo.getMaraId() != serviceOrderDo.getMaraId()) {
 					MaraDO maraDo = maraDao.getMaraById(serviceOrderDo.getMaraId());
 					MaraDO _maraDo = maraDao.getMaraById(_serviceOrderDo.getMaraId());
-					SendEmailUtil.send(maraDo.getEmail(), "变更任务提醒:", StringUtil.merge("亲爱的:", maraDo.getName(), "<br/>",
-							"您的订单已经变更。", "<br>订单号:", serviceOrderDo.getId(), "<br/>服务类型:签证/客户名称:", user.getName(),
-							"/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(), "/MARA:", maraDo.getName(),
-							"<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
-							serviceOrderDo.getNutCloud(), "<br/>客户基本信息:", serviceOrderDo.getInformation(), "<br/>备注:",
-							serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>创建时间:",
-							date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
+					SendEmailUtil.send(maraDo.getEmail(), "新任务提醒:",
+							StringUtil.merge("亲爱的:", maraDo.getName(), "<br/>", "您有一条新的服务订单任务请及时处理。", "<br>订单号:",
+									serviceOrderDo.getId(), "<br/>服务类型:签证/客户名称:", user.getName(), "/顾问:",
+									adviserDo.getName(), "/文案:", officialDo.getName(), "/MARA:", maraDo.getName(),
+									"<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
+									serviceOrderDo.getNutCloud(), "<br/>客户基本信息:", serviceOrderDo.getInformation(),
+									"<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:",
+									serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date, "<br/>",
+									serviceOrderMailDetail.getServiceOrderUrl()));
 					SendEmailUtil.send(_maraDo.getEmail(), "变更任务提醒:", StringUtil.merge("亲爱的", _maraDo.getName(),
 							":<br/>", "您有的订单号:", serviceOrderDo.getId(), "已从您这更改为Mara:", maraDo.getName()));
 				}
