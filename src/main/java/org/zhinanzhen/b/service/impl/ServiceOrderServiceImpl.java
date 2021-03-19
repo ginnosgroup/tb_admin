@@ -267,8 +267,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, excludeState, stateList, auditingState,
 					reviewStateList, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
 					endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId, maraId,
-					adviserId, officialId, officialTagId, parentId, isNotApproved, pageNum * pageSize, pageSize,
-					serviceId, schoolId);
+					adviserId, officialId, officialTagId, parentId, isNotApproved, serviceId, schoolId,
+					pageNum * pageSize, pageSize);
 			if (serviceOrderDoList == null)
 				return null;
 		} catch (Exception e) {

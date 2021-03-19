@@ -42,8 +42,8 @@ public interface ServiceOrderDAO {
 										  @Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
 										  @Param("officialId") Integer officialId, @Param("officialTagId") Integer officialTagId,
 										  @Param("parentId") Integer parentId, @Param("isNotApproved") Boolean isNotApproved,
-										  @Param("offset") int offset, @Param("rows") int rows,
-										  @Param("serviceId") Integer serviceId, @Param("schoolId") Integer schoolId);
+										  @Param("serviceId") Integer serviceId, @Param("schoolId") Integer schoolId,
+										  @Param("offset") int offset, @Param("rows") int rows);
 
 	List<ServiceOrderDO> listByParentId(@Param("parentId") Integer parentId);
 
