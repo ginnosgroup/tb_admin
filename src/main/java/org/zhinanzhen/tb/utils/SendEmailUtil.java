@@ -7,8 +7,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SendEmailUtil {
 
-	private static SimpleSendEmailTool simpleSendEmailTool = new SimpleSendEmailTool("notice@zhinanzhen.org",
-			"EpibqJ2R6CFwvqiU", SimpleSendEmailTool.SmtpServerEnum.EXMAIL_QQ);
+//	private static SimpleSendEmailTool simpleSendEmailTool = new SimpleSendEmailTool("notice@zhinanzhen.org",
+//			"EpibqJ2R6CFwvqiU", SimpleSendEmailTool.SmtpServerEnum.EXMAIL_QQ);
+	private static SimpleSendEmailTool simpleSendEmailTool = new SimpleSendEmailTool("leisu@zhinanzhen.org",
+			"SuLei88", SimpleSendEmailTool.SmtpServerEnum.EXMAIL_QQ);
+	
+//	private static SimpleSendEmailTool gmailSendEmailTool = new SimpleSendEmailTool("zhinanzhen630@gmail.com",
+//			"Zhinanzhen630", SimpleSendEmailTool.SmtpServerEnum.GMAIL);
 
 	public static void send(String mail, String title, String text) {
 //		mail = "7311930@qq.com"; // 测试
