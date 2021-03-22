@@ -2,6 +2,7 @@ package org.zhinanzhen.b.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.ikasoa.core.utils.StringUtil;
 import org.apache.commons.lang.RandomStringUtils;
 import org.dozer.DozerBeanMapper;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import org.zhinanzhen.tb.utils.WXWorkAPI;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -165,5 +167,26 @@ public class WXWorkServiceImpl implements WXWorkService {
         HttpSession session=attr.getRequest().getSession(true);
         String token = (String) session.getAttribute("corpToken");
         JSONObject json =  WXWorkAPI.sendPostBody_Map(WXWorkAPI.SENDMESSAGE.replace("ACCESS_TOKEN",token),parm);
+    }
+
+    @Override
+    public int updateByAuthopenid(UserDTO userDTO) {
+        UserDO userDO = dozerBeanMapper.map(userDTO,UserDO.class);
+        if (!userDTO.getPhone().equalsIgnoreCase("00000000000")){
+            List<UserDO> userList = userDAO.listUser(null, null, null, userDTO.getPhone(), null, null, null, null, null, null, 0, 1);
+            if (userList.size() > 0 && userList.get(0).getId() != userDTO.getId()) { // 排除当前id
+                return -1;
+            }
+        }
+        return userDAO.updateByAuthopenid(userDO);
+    }
+
+    @Override
+    public boolean updateAuthopenidByPhone(String authOpenid ,  String phone) {
+        List<UserDO> userList = userDAO.listUser(null, null, null, phone, null, null, null, null, null, null, 0, 1);
+        if (userList.size() > 0 && StringUtil.isEmpty(userList.get(0).getAuthOpenid()) && userDAO.getUserByAuth_openid(authOpenid).size() == 0) { // 为空的时候写入
+            return userDAO.updateAuthopenidByPhone(authOpenid,phone);
+        }
+        return  false;
     }
 }

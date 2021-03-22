@@ -224,7 +224,8 @@ CREATE TABLE `b_visa` (
   `remarks` text DEFAULT NULL COMMENT '备注',
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消',
   `verify_code` varchar(64) DEFAULT NULL COMMENT '对账使用的code,顾问名称+地区+随机数',
-  `bank_date` datetime DEFAULT NULL COMMENT '入账时间,对应b_finance_code.bank_date'
+  `bank_date` datetime DEFAULT NULL COMMENT '入账时间,对应b_finance_code.bank_date',
+  `invoice_create` datetime DEFAULT NULL COMMENT '发票创建时间'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 ALTER TABLE `b_visa` ADD INDEX index_name (`user_id`, `adviser_id`, `mara_id`, `official_id`);
 
@@ -541,7 +542,8 @@ CREATE TABLE `b_commission_order` (
   `remarks` text DEFAULT NULL COMMENT '备注',
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消',
   `verify_code` varchar(64) DEFAULT NULL COMMENT '对账使用的code,顾问名称+地区+随机数',
-  `bank_date` datetime DEFAULT NULL COMMENT '入账时间,对应b_finance_code.bank_date'
+  `bank_date` datetime DEFAULT NULL COMMENT '入账时间,对应b_finance_code.bank_date',
+  `invoice_create` datetime DEFAULT NULL COMMENT '发票创建时间'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 ALTER TABLE `b_commission_order` ADD INDEX index_name (`code`, `school_id`, `user_id`, `adviser_id`, `official_id`);
 

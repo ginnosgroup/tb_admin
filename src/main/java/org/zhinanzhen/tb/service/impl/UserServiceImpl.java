@@ -250,12 +250,15 @@ public class UserServiceImpl extends BaseService implements UserService {
 			throw se;
 		}
 		UserDO userDo = userDao.getUserByThird(thirdType, thirdId);
-		UserDTO userDto = mapper.map(userDo, UserDTO.class);
-		if (userDto.getAdviserId() > 0) {
-			AdviserDTO adviserDto = adviserService.getAdviserById(userDto.getAdviserId());
-			userDto.setAdviserDto(adviserDto);
+		UserDTO userDto = null;
+		if (userDo != null){
+			userDto= mapper.map(userDo, UserDTO.class);
+			if (userDto.getAdviserId() > 0) {
+				AdviserDTO adviserDto = adviserService.getAdviserById(userDto.getAdviserId());
+				userDto.setAdviserDto(adviserDto);
+			}
+			userDto.setTagList(listTagByUserId(userDto.getId()));
 		}
-		userDto.setTagList(listTagByUserId(userDto.getId()));
 		return userDto;
 	}
 

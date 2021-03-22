@@ -123,4 +123,18 @@
             and state = #{state}
         </if>;
     </select>
+
+    <select id="listAdviserOperUserIdIsNull" resultType="org.zhinanzhen.tb.dao.pojo.AdviserDO">
+        SELECT
+        id,
+        gmt_create AS gmtCreate,
+        name,
+        phone,
+        email,
+        state,
+        image_url AS imageUrl,
+        region_id AS regionId ,
+        oper_userid AS operUserId
+        FROM tb_adviser WHERE oper_userid is not null;
+    </select>
 </mapper>
