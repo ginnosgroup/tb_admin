@@ -549,8 +549,8 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "coePaymentVoucherImageUrl5", required = false) String coePaymentVoucherImageUrl5,
 			@RequestParam(value = "visaVoucherImageUrl", required = false) String visaVoucherImageUrl,
 			HttpServletRequest request, HttpServletResponse response) {
-		if (getOfficialAdminId(request) != null)
-			return new Response<Integer>(1, "文案管理员不可操作服务订单.", 0);
+//		if (getOfficialAdminId(request) != null)
+//			return new Response<Integer>(1, "文案管理员不可操作服务订单.", 0);
 		try {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
@@ -589,8 +589,8 @@ public class ServiceOrderController extends BaseController {
 	public Response<Integer> updateRemarks(@RequestParam(value = "id") int id,
 			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
 			HttpServletResponse response) {
-		if (getOfficialAdminId(request) != null)
-			return new Response<Integer>(1, "文案管理员不可操作服务订单.", 0);
+//		if (getOfficialAdminId(request) != null)
+//			return new Response<Integer>(1, "文案管理员不可操作服务订单.", 0);
 		try {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
