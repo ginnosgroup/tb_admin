@@ -19,6 +19,7 @@ public class SendEmailUtil {
 				try {
 					simpleSendEmailTool.send(mail, title, text);
 				} catch (Exception e) {
+					log.error(e.getMessage());
 					e.printStackTrace();
 				}
 			}
