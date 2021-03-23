@@ -9,8 +9,14 @@ public class SendEmailUtil {
 
 //	private static SimpleSendEmailTool simpleSendEmailTool = new SimpleSendEmailTool("notice@zhinanzhen.org",
 //			"EpibqJ2R6CFwvqiU", SimpleSendEmailTool.SmtpServerEnum.EXMAIL_QQ);
-	private static SimpleSendEmailTool simpleSendEmailTool = new SimpleSendEmailTool("leisu@zhinanzhen.org",
-			"SuLei88", SimpleSendEmailTool.SmtpServerEnum.EXMAIL_QQ);
+	private static SimpleSendEmailTool txSendEmailTool = new SimpleSendEmailTool("leisu@zhinanzhen.org",
+			"SuLei888", SimpleSendEmailTool.SmtpServerEnum.EXMAIL_QQ);
+	private static SimpleSendEmailTool tx1SendEmailTool = new SimpleSendEmailTool("znznotice@zhinanzhen.org",
+			"Znz630!", SimpleSendEmailTool.SmtpServerEnum.EXMAIL_QQ);
+	private static SimpleSendEmailTool tx2SendEmailTool = new SimpleSendEmailTool("notice01@zhinanzhen.org",
+			"Znz630!", SimpleSendEmailTool.SmtpServerEnum.EXMAIL_QQ);
+	private static SimpleSendEmailTool tx3SendEmailTool = new SimpleSendEmailTool("tasknotice@zhinanzhen.org",
+			"Znz630!", SimpleSendEmailTool.SmtpServerEnum.EXMAIL_QQ);
 	
 //	private static SimpleSendEmailTool gmailSendEmailTool = new SimpleSendEmailTool("zhinanzhen630@gmail.com",
 //			"Zhinanzhen630", SimpleSendEmailTool.SmtpServerEnum.GMAIL);
@@ -22,10 +28,17 @@ public class SendEmailUtil {
 			@Override
 			public void run() {
 				try {
-					simpleSendEmailTool.send(mail, title, text);
+					tx1SendEmailTool.send(mail, title, text);
 				} catch (Exception e) {
 					log.error(e.getMessage());
 					e.printStackTrace();
+					log.info("Try send mail again!");
+					try {
+						tx3SendEmailTool.send(mail, title, text);
+					} catch (Exception e1) {
+						log.error(e1.getMessage());
+						e1.printStackTrace();
+					}
 				}
 			}
 		});
