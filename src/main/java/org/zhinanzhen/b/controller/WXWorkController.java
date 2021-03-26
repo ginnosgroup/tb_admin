@@ -12,6 +12,7 @@ import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserService;
+import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.utils.EmojiFilter;
@@ -57,8 +58,8 @@ public class WXWorkController extends  BaseController{
         super.setGetHeader(response);
         String str = "<script>setTimeout(self.close,7000)</script>";
         HttpSession session = request.getSession();
-        Integer adviserId = getAdviserId(request);
-        if (adviserId == null)
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo == null)
             return "<div style= 'color:#3c763d;'>未登录，授权失败 !</div>" + str;
 
         String corpToken = "";
@@ -70,17 +71,18 @@ public class WXWorkController extends  BaseController{
         if ((int) infoMap.get("errcode") != 0)
             return "<div style= 'color:#3c763d;'>系统出错,授权失败 !</div>" + str;
         String userId = (String) infoMap.get("UserId");
-        AdviserDTO adviserDTO =  adviserService.getAdviserById(adviserId);
-        if (adviserDTO != null ){
-            if (StringUtil.isNotEmpty(adviserDTO.getOperUserId()))
+        AdminUserDTO adminUser = adminUserService.getAdminUserByUsername(adminUserLoginInfo.getUsername());
+        if ( adminUser != null){
+            if (StringUtil.isNotEmpty(adminUser.getOperUserId()))
                 return "<div style= 'color:#3c763d;'>该用户已经授权了!</div>" + str;
-            if (StringUtil.isEmpty(adviserDTO.getOperUserId()))
-                adviserDTO.setOperUserId(userId);
+            if (adminUserService.updateOperUserId(adminUser.getId(),userId)){
+                if (adminUserLoginInfo.getApList().equalsIgnoreCase("GW"))
+                    return "<div style= 'color:#3c763d;'>授权成功，请在客户管理页面导入并编辑客户资料!</div>" + str;
+                else
+                    return "<div style= 'color:#3c763d;'>授权成功!</div>" + str;
+            }
         }
-        if (adviserService.updateAdviser(adviserDTO)>0){
-            return "<div style= 'color:#3c763d;'>授权成功，请在客户管理页面导入并编辑客户资料!</div>" + str;
-        }
-        return  "<div style= 'color:#3c763d;'>授权失败!</div>" + str;
+        return   "<div style= 'color:#3c763d;'>授权失败!</div>" + str;
     }
 
 
@@ -89,19 +91,22 @@ public class WXWorkController extends  BaseController{
     @Transactional
     public  Response getExternalContactList(HttpServletRequest request, HttpServletResponse response) throws ServiceException {
 
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo == null)
+            return  new Response(1,"未登录");
+        AdminUserDTO adminUser = adminUserService.getAdminUserByUsername(adminUserLoginInfo.getUsername());
         Integer adviserId =  getAdviserId(request);
         if (adviserId == null)
-            return  new Response(1,"adviserId is null");
+            return  new Response(1,"不是顾问!");
         HttpSession session = request.getSession();
         String customerToken = (String) session.getAttribute("customerToken");
         AdviserDTO adviserDTO =  adviserService.getAdviserById(adviserId);
         if (adviserDTO == null)
             return  new Response(1,"没有此顾问");
-
-        if (StringUtil.isEmpty(adviserDTO.getOperUserId()))
+        if (StringUtil.isEmpty(adminUser.getOperUserId()))
             return  new Response(1 ,"先授权登录");
 
-        String userId = adviserDTO.getOperUserId();
+        String userId = adminUser.getOperUserId();
         ArrayList phoneContainList = new ArrayList();
         boolean flag = true ;
         String cursor = "";

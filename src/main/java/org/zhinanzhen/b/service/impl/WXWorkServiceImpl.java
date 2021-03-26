@@ -11,6 +11,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.WXWorkService;
+import org.zhinanzhen.b.service.pojo.ChatDTO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.RegionDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
@@ -60,13 +61,16 @@ public class WXWorkServiceImpl implements WXWorkService {
     @Resource
     private SchoolDAO schoolDAO;
 
+    @Resource
+    private WXWorkDAO wxWorkDAO;
+
     private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
     @Override
     public String getWXWorkUrl() {
         String WXWORK_STRING_CODE = WXWorkAPI.WXWORK_STRING_CODE;
         WXWORK_STRING_CODE = WXWORK_STRING_CODE.replace("CORPID" ,WXWorkAPI .CORPID).replace("AGENTID",WXWorkAPI.AGENTID)
-                .replace("REDIRECT_URI","http://45.77.232.197:8080/admin/wxwork/userId").replace("STATE", RandomStringUtils.randomAlphanumeric(5));
+                .replace("REDIRECT_URI","http://127.0.0.1:8080/admin/wxwork/userId").replace("STATE", RandomStringUtils.randomAlphanumeric(5));
         return WXWORK_STRING_CODE;
     }
 
@@ -189,4 +193,21 @@ public class WXWorkServiceImpl implements WXWorkService {
         }
         return  false;
     }
+
+    @Override
+    public int addChat(ChatDTO chatDTO) {
+        ChatDO chatDO = dozerBeanMapper.map(chatDTO,ChatDO.class);
+        return wxWorkDAO.addChat(chatDO);
+    }
+
+    @Override
+    public ChatDO ChatDOByServiceOrderId(int serviceOrderId) {
+        return wxWorkDAO.ChatDOByServiceOrderId(serviceOrderId);
+    }
+
+    public Map JSONObjectToMap(JSONObject json){
+        Map<String, Object> map = JSON.parseObject(JSON.toJSONString(json), Map.class);
+        return map;
+    }
+
 }
