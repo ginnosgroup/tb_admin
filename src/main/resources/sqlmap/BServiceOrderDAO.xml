@@ -278,7 +278,9 @@
         <if test="nutCloud != null">
             , nut_cloud = #{nutCloud}
         </if>
+        <if test="serviceAssessId != null">
             , service_assess_id = #{serviceAssessId}
+        </if>
         <if test=" realPeopleNumber != null  and realPeopleNumber > 0 ">
             , real_People_Number = #{realPeopleNumber}
         </if>
