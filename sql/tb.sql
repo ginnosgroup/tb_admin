@@ -948,6 +948,7 @@ CREATE TABLE `b_finance_code` (
   `order_id` varchar(64) DEFAULT NULL COMMENT '对应b_commission_order.id/b_visa.id(CS/CV判断)',
   `comment` varchar(255) DEFAULT NULL COMMENT '银行备注',
   `amount` decimal(8,2) DEFAULT NULL COMMENT '佣金订单中的实收金额',
+  `code` varchar(64) DEFAULT NULL COMMENT '日期+入账金额+余额作为去重标识'
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 ALTER TABLE `b_finance_code` ADD INDEX index_name (order_id);

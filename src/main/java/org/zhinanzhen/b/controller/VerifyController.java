@@ -82,8 +82,8 @@ public class VerifyController {
                         financeCodeDO.setUserId(commissionOrderListDTO.getUserId());
                         financeCodeDO.setAmount(commissionOrderListDTO.getAmount());
                         financeCodeDO.setBusiness("留学-"+commissionOrderListDTO.getSchool().getName());
-                        if (commissionOrderListDTO.getBankDate()==null)
-                            commissionOrderListDTO.setBankDate(financeCodeDO.getBankDate());
+                        //if (commissionOrderListDTO.getBankDate()==null)
+                        commissionOrderListDTO.setBankDate(financeCodeDO.getBankDate());
                         if (commissionOrderListDTO.getAmount() == financeCodeDO.getMoney())
                             commissionOrderListDTO.setChecked(true);
                         if (StringUtil.isEmpty(commissionOrderListDTO.getBankCheck()))
@@ -100,8 +100,8 @@ public class VerifyController {
                         financeCodeDO.setAmount(visaDTO.getAmount());
                         ServiceOrderDTO serviceOrderDTO = serviceOrderService.getServiceOrderById(visaDTO.getServiceOrderId());
                         financeCodeDO.setBusiness(serviceOrderDTO.getService().getName()+"-"+serviceOrderDTO.getService().getCode());
-                        if (visaDTO.getBankDate()==null)
-                            visaDTO.setBankDate(financeCodeDO.getBankDate());
+                        //if (visaDTO.getBankDate()==null)
+                        visaDTO.setBankDate(financeCodeDO.getBankDate());
                         if (visaDTO.getAmount() == financeCodeDO.getMoney())
                             visaDTO.setChecked(true);
                         if (StringUtil.isEmpty(visaDTO.getBankCheck()))
@@ -111,13 +111,16 @@ public class VerifyController {
                 }
             financeCodeDO.setRegionId(regionId);
         }
+
         for (Iterator iterator = financeCodeDOS.listIterator(); iterator.hasNext();){
-                FinanceCodeDO financeCodeDO = (FinanceCodeDO) iterator.next();
-            if (StringUtil.isNotEmpty(financeCodeDO.getOrderId())){
-                FinanceCodeDTO financeCodeDTO =  verifyService.financeCodeByOrderId(financeCodeDO.getOrderId());
-                if (financeCodeDTO.getUser() != null & financeCodeDTO.getAdviser() != null){
-                    iterator.remove();
+            FinanceCodeDO financeCodeDO = (FinanceCodeDO) iterator.next();
+            FinanceCodeDTO financeCodeDTO =  verifyService.financeDTOByCode(financeCodeDO.getCode());
+            if (financeCodeDTO != null){
+                if (StringUtil.isNotEmpty(financeCodeDO.getOrderId()) && StringUtil.isEmpty(financeCodeDTO.getOrderId())){
+                    financeCodeDO.setId(financeCodeDTO.getId());
+                    verifyService.update(financeCodeDO);
                 }
+                iterator.remove();
             }
         }
         if (verifyService.add(financeCodeDOS) > 0)
