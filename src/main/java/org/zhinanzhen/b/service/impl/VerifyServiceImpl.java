@@ -116,7 +116,8 @@ public class VerifyServiceImpl implements VerifyService {
                 Object columnValue = null;
 
                 DecimalFormat df = new DecimalFormat("0.00");// 格式化 number
-                SimpleDateFormat sdfParse = new SimpleDateFormat("dd/MM/yyyy");// 格式化日期字符串
+                SimpleDateFormat sdfParse = new SimpleDateFormat("yy/MM/dd");// 格式化日期字符串
+                SimpleDateFormat dateFormatyyyyMMdd = new SimpleDateFormat("yyyy/MM/dd");// 格式化日期字符串
 
                 if (row.getCell(0) == null){
                     throw new Exception("入账日期有误,行数:"+r+1);
@@ -172,6 +173,7 @@ public class VerifyServiceImpl implements VerifyService {
                 }
                 //balance = financeCodeDO.getBalance()+balance;
                 //money = financeCodeDO.getMoney() + money;
+                financeCodeDO.setCode(dateFormatyyyyMMdd.format(financeCodeDO.getBankDate()) + "_" + financeCodeDO.getMoney() + "_" +  financeCodeDO.getBalance());
                 financeCodeDOS.add(financeCodeDO);
             }
 
@@ -343,6 +345,29 @@ public class VerifyServiceImpl implements VerifyService {
     public FinanceCodeDTO financeCodeByOrderId(String orderId) {
         List<FinanceCodeDO> financeCodeDOS = verifyDao.financeCodeByOrderId(orderId);
         FinanceCodeDTO financeCodeDTO = new FinanceCodeDTO();
+        if (financeCodeDOS .size() > 0){
+            FinanceCodeDO  financeCodeDO = financeCodeDOS.get(0);
+            financeCodeDTO = mapper.map(financeCodeDO,FinanceCodeDTO.class);
+            if (financeCodeDO != null) {
+                if (financeCodeDO.getAdviserId() > 0) {
+                    AdviserDO adviserDO = adviserDao.getAdviserById(financeCodeDTO.getAdviserId());
+                    if (adviserDO != null)
+                        financeCodeDTO.setAdviser(mapper.map(adviserDO, AdviserDTO.class));
+                }
+                if (financeCodeDO.getUserId() > 0) {
+                    UserDO userDO = userDAO.getUserById(financeCodeDTO.getUserId());
+                    if (userDO != null)
+                        financeCodeDTO.setUser(mapper.map(userDO, UserDTO.class));
+                }
+            }
+        }
+        return financeCodeDTO;
+    }
+
+    @Override
+    public FinanceCodeDTO financeDTOByCode(String code) {
+        List<FinanceCodeDO> financeCodeDOS = verifyDao.financeDOByCode(code);
+        FinanceCodeDTO financeCodeDTO = null;
         if (financeCodeDOS .size() > 0){
             FinanceCodeDO  financeCodeDO = financeCodeDOS.get(0);
             financeCodeDTO = mapper.map(financeCodeDO,FinanceCodeDTO.class);

@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.ikasoa.core.utils.StringUtil;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -49,6 +50,8 @@ public class AdminUserController extends BaseController {
 				}
 				loginInfo.setRegionId(adminUser.getRegionId());
 				loginInfo.setOfficialAdmin(adminUser.isOfficialAdmin());
+				if (StringUtil.isNotEmpty(adminUser.getOperUserId()))
+					loginInfo.setAuth(true);
 			}
 			session.removeAttribute("AdminUserLoginInfo");
 			session.setAttribute("AdminUserLoginInfo", loginInfo);

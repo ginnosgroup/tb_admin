@@ -28,5 +28,6 @@ public interface AdminUserDAO {
 	List<AdminUserDO> listAdminUserByAp(String ap);
 	
 	AdminUserDO getAdminUserByUsername(String username);
-	
+
+	boolean updateOperUserId(@Param("id")int id ,@Param("operUserId") String operUserId);
 }

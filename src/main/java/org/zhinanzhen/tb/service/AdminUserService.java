@@ -23,4 +23,5 @@ public interface AdminUserService {
 
 	boolean updateOfficialAdmin(int id, boolean isOfficialAdmin) throws ServiceException;
 
+	boolean updateOperUserId(int id ,String operUserId);
 }

@@ -50,4 +50,6 @@ public class FinanceCodeDO {
     private String comment;
 
     private int regionId;
+
+    private String code;
 }

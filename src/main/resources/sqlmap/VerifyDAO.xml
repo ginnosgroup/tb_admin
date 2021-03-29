@@ -3,11 +3,11 @@
 <mapper namespace="org.zhinanzhen.b.dao.VerifyDao">
     <insert id="add">
          <if test=" financeCodeDOS != null ">
-             insert into `b_finance_code` (gmt_create,gmt_modify,bank_date,user_id,is_income,money,balance,adviser_id,business,amount,order_id,comment,region_id)
+             insert into `b_finance_code` (gmt_create,gmt_modify,bank_date,user_id,is_income,money,balance,adviser_id,business,amount,order_id,comment,region_id,code)
               values
              <foreach collection="financeCodeDOS" item="tem" separator="," close=";"  index="index">
                  (now(),now(),#{tem.bankDate},#{tem.userId},#{tem.isIncome},#{tem.money},#{tem.balance},#{tem.adviserId},#{tem.business},
-                 #{tem.amount},#{tem.orderId},#{tem.comment},#{tem.regionId})
+                 #{tem.amount},#{tem.orderId},#{tem.comment},#{tem.regionId},#{tem.code})
              </foreach>
          </if>
     </insert>
@@ -68,6 +68,9 @@
         </if>
         <if test=" orderId != null ">
             , order_id = #{orderId}
+        </if>
+        <if test=' code != null  and code != ""'>
+            , code = #{code}
         </if>
         where id = #{id};
     </update>
@@ -134,6 +137,26 @@
         comment
         from `b_finance_code`
         where order_id = #{orderId};
+    </select>
+
+    <select id="financeDOByCode" resultType="org.zhinanzhen.b.dao.pojo.FinanceCodeDO">
+        select
+        id ,
+        gmt_create AS gmtCreate,
+        gmt_modify as gmtModify,
+        bank_date as bankDate,
+        user_id as userId,
+        is_income as isIncome,
+        money ,
+        balance ,
+        amount ,
+        adviser_id as adviserId,
+        business ,
+        order_id as orderId,
+        comment,
+        code
+        from `b_finance_code`
+        where code = #{code};
     </select>
 
     <select id="getFinanceBankById" resultType="org.zhinanzhen.b.dao.pojo.FinanceBankDO">
