@@ -116,7 +116,8 @@ public class VerifyServiceImpl implements VerifyService {
                 Object columnValue = null;
 
                 DecimalFormat df = new DecimalFormat("0.00");// 格式化 number
-                SimpleDateFormat sdfParse = new SimpleDateFormat("yy/MM/dd");// 格式化日期字符串
+                SimpleDateFormat sdfParsedmyy = new SimpleDateFormat("dd/MM/yy");// 格式化日期字符串
+                SimpleDateFormat sdfParsedmyyyy = new SimpleDateFormat("dd/MM/yyyy");// 格式化日期字符串
                 SimpleDateFormat dateFormatyyyyMMdd = new SimpleDateFormat("yyyy/MM/dd");// 格式化日期字符串
 
                 if (row.getCell(0) == null){
@@ -124,7 +125,17 @@ public class VerifyServiceImpl implements VerifyService {
                 }
                 if (StringUtil.isEmpty(dataFormatter.formatCellValue(row.getCell(0))))
                     continue;
-                financeCodeDO.setBankDate(sdfParse.parse(dataFormatter.formatCellValue(row.getCell(0))));
+                if ("d/mm/yyyy;@".equals(row.getCell(0).getCellStyle().getDataFormatString())
+                        || "d/m/yyyy;@".equals(row.getCell(0).getCellStyle().getDataFormatString())
+                        || "dd/mm/yyyy;@".equals(row.getCell(0).getCellStyle().getDataFormatString())){
+                    financeCodeDO.setBankDate(sdfParsedmyyyy.parse(dataFormatter.formatCellValue(row.getCell(0))));
+
+                }
+                if ("d/m/yy;@".equals(row.getCell(0).getCellStyle().getDataFormatString())
+                        || "dd/mm/yy;@".equals(row.getCell(0).getCellStyle().getDataFormatString())
+                        || "d/mm/yy;@".equals(row.getCell(0).getCellStyle().getDataFormatString())){
+                    financeCodeDO.setBankDate(sdfParsedmyy.parse(dataFormatter.formatCellValue(row.getCell(0))));
+                }
                 financeCodeDO.setIncome(row.getCell(1).getNumericCellValue() > 0);
                 financeCodeDO.setMoney(Double.parseDouble(df.format(row.getCell(1).getNumericCellValue())));
                 financeCodeDO.setComment(row.getCell(2).getStringCellValue());
