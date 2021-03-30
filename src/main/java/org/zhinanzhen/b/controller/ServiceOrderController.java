@@ -43,6 +43,7 @@ import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
+import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
 
 import com.ikasoa.core.ErrorCodeEnum;
@@ -765,6 +766,8 @@ public class ServiceOrderController extends BaseController {
 				Integer newAdviserId = getAdviserId(request);
 				if (newAdviserId != null)
 					adviserId = newAdviserId;
+				if (adminUserLoginInfo == null)
+					return new Response<Integer>(0, "No permission !", 0);
 			}
 
 			if (id != null && id > 0) {
@@ -850,6 +853,8 @@ public class ServiceOrderController extends BaseController {
 				Integer newAdviserId = getAdviserId(request);
 				if (newAdviserId != null)
 					adviserId = newAdviserId;
+				if (adminUserLoginInfo == null)
+					return new ListResponse<List<ServiceOrderDTO>>(false, pageSize, 0, null, "No permission !");
 			}
 
 			if (id != null && id > 0) {
