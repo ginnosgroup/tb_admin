@@ -208,4 +208,8 @@
         comment
         from `b_finance_code` where  order_id is null;
     </select>
+    <update id="deleteOrderId">
+        update `b_finance_code` set order_id = null , user_id = 0 ,adviser_id = 0,business = null,amount = 0
+        where  id = #{id};
+    </update>
 </mapper>

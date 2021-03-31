@@ -690,4 +690,8 @@
         FROM b_visa
         WHERE verify_code  = #{verifyCode};
     </select>
+    <update id="setBankDateNull">
+        update b_visa set bank_check = null,  is_checked = false , bank_date = null
+        where id = #{id};
+    </update>
 </mapper>

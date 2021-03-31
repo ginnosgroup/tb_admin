@@ -254,19 +254,32 @@ public class VerifyController {
     @Transactional
     public  Response update(@RequestParam(value = "orderId",required = true)String orderId,
                             @RequestParam(value = "id") Integer id) throws Exception {
-        String order = "";
-        Integer number = null;
-        try {
-            order = orderId.substring(0,2);
-            number = Integer.parseInt(orderId.substring(2));
-        }catch (Exception e){
-            throw new Exception("orderId error");
-        }
-        if (number <= 0 | id <= 0 )
-            throw new Exception("id or orderId error !");
+
+        if (id <= 0 )
+            throw new Exception("id  error !");
         FinanceCodeDO financeCodeDO = verifyService.financeCodeById(id);
         if (financeCodeDO==null)
-            return  new Response(0,"id is error");
+            return  new Response(1,"id error");
+        if (StringUtil.isEmpty(orderId)){
+            if (verifyService.deleteOrderId(financeCodeDO))
+                return new Response(0,"success");
+            return new Response(1,"删除失败!");
+        }
+        String order = "";
+        Integer number = 0;
+        if (StringUtil.isNotEmpty(orderId)){
+            try {
+                order = orderId.substring(0, 2);
+                number = Integer.parseInt(orderId.substring(2));
+            } catch (Exception e) {
+                throw new Exception("orderId error");
+            }
+            if (number <= 0)
+                throw new Exception("orderId error");
+            if (!orderId.equalsIgnoreCase(financeCodeDO.getOrderId())){
+                verifyService.deleteOrderId(financeCodeDO);
+            }
+        }
         financeCodeDO.setOrderId(orderId);
         if (order.equalsIgnoreCase("CS")){
             CommissionOrderListDTO commissionOrderListDTO = commissionOrderService.getCommissionOrderById(number);
