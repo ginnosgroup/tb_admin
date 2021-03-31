@@ -55,4 +55,6 @@ public interface VisaDAO {
     List<UserDTO> listVisaRemindDateDesc(@Param("adviserId")int adviserId,@Param("pageNum") int pageNum,@Param("pageSize") int  pageSize);
 
 	List<VisaDO> listVisaByVerifyCode(@Param("verifyCode") String verifyCode);
+
+	boolean setBankDateNull(String substring);
 }

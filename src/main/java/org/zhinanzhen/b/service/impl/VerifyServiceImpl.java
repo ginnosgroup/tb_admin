@@ -442,6 +442,19 @@ public class VerifyServiceImpl implements VerifyService {
         return verifyDao.financeCodeById(id);
     }
 
+    @Override
+    public boolean deleteOrderId(FinanceCodeDO financeCodeDO) {
+        if (StringUtil.isNotEmpty(financeCodeDO.getOrderId())) {
+            if (financeCodeDO.getOrderId().startsWith("CV")){
+                visaDAO.setBankDateNull(financeCodeDO.getOrderId().substring(2));
+            }
+            if (financeCodeDO.getOrderId().startsWith("CS")){
+                commissionOrderDAO.setBankDateNull(financeCodeDO.getOrderId().substring(2));
+            }
+        }
+        return verifyDao.deleteOrderId(financeCodeDO);
+    }
+
     public enum regionEnum {
         SYD("NSW & ACT"),BNE("QLD"),TAS("TAS"),MEL("VIC"),ADE("SA"),BJ("北京");
 

@@ -46,4 +46,6 @@ public interface VerifyDao {
     FinanceCodeDO financeCodeById(@Param("id") Integer id);
 
     List<FinanceCodeDO> getFinanceCodeOrderIdIsNull();
+
+    boolean deleteOrderId(FinanceCodeDO financeCodeDO);
 }
