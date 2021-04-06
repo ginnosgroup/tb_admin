@@ -463,7 +463,7 @@
 			</section>
 			<footer class="site-footer">
 				<div class="text-center">
-					2018 &copy; 佣金系统 by <span style="color:#2a8ba7;">GIG</span>.
+					2021 &copy; 佣金系统 by <span style="color:white;">Global Innovation Group</span>.
 					<a href="#" class="go-top">
 						<i class="fa fa-angle-up">
             </i>
@@ -887,7 +887,7 @@
 					var str_val = $(f+'#'+v.update_byid).val();
 					var field = v.update_field;
 					
-					if (str_val != '')
+					/*if (str_val != '')
 					{														
 							check_result = true;							
 					}else
@@ -896,7 +896,9 @@
 			    		$('#my_table #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
 			        $("#my_table #error_info").html('提示：字段必须填写或选择！');
 			    		return false;
-					}
+					}*/
+					check_result = true;
+					
 					if (check_result)
     			{    					
 			    		var str_url = url + "verify/update";
