@@ -179,8 +179,23 @@ public class VerifyController {
             WritableCellFormat cellFormat = new WritableCellFormat();
             int i = 1;
             for (FinanceCodeDTO financeCodeDTO:financeCodeDTOS){
-                if (financeCodeDTO.getOrderId() !=null)
+                if (financeCodeDTO.getOrderId() !=null){
                     sheet.addCell(new Label(0, i, financeCodeDTO.getOrderId() + "", cellFormat));
+                    if (financeCodeDTO.getOrderId().startsWith("CV")){
+                        VisaDTO visaDTO =  visaService.getVisaById(Integer.parseInt(financeCodeDTO.getOrderId().substring(2)));
+                        if ( visaDTO != null ){
+                            sheet.addCell(new Label(8, i, visaDTO.getPerAmount() + "", cellFormat));
+                            sheet.addCell(new Label(9, i, visaDTO.getAmount() + "", cellFormat));
+                        }
+                    }
+                    if (financeCodeDTO.getOrderId().startsWith("CS")){
+                        CommissionOrderListDTO commissionOrderListDTO = commissionOrderService.getCommissionOrderById(Integer.parseInt(financeCodeDTO.getOrderId().substring(2)));
+                        if (commissionOrderListDTO != null){
+                            sheet.addCell(new Label(8, i, commissionOrderListDTO.getPerAmount() + "", cellFormat));
+                            sheet.addCell(new Label(9, i, commissionOrderListDTO.getAmount() + "", cellFormat));
+                        }
+                    }
+                }
                 if (financeCodeDTO.getBankDate()!=null)
                     sheet.addCell(new Label(1, i, sdfbankDatein.format(financeCodeDTO.getBankDate()), cellFormat));
                 if (financeCodeDTO.getUser()!=null)
@@ -196,8 +211,8 @@ public class VerifyController {
                 sheet.addCell(new Label(6, i, financeCodeDTO.getMoney() + "", cellFormat));
                 sheet.addCell(new Label(7, i, financeCodeDTO.getBalance() + "", cellFormat));
                 if (financeCodeDTO.getAdviser()!=null){
-                    sheet.addCell(new Label(8, i, financeCodeDTO.getAdviser().getRegionName() + "", cellFormat));
-                    sheet.addCell(new Label(9, i, financeCodeDTO.getAdviser().getName() + "", cellFormat));
+                    sheet.addCell(new Label(10, i, financeCodeDTO.getAdviser().getRegionName() + "", cellFormat));
+                    sheet.addCell(new Label(11, i, financeCodeDTO.getAdviser().getName() + "", cellFormat));
                 }
 
 
