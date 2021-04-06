@@ -528,7 +528,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
 			Date date = serviceOrderDo.getGmtCreate();
 			if (adviserDo != null && officialDo != null) {
-				if ("REJECT".equals(state) || "WAIT".equals(state)) {
+//				if ("REJECT".equals(state) || "WAIT".equals(state)) {
+				if ("VISA".equalsIgnoreCase(serviceOrderDo.getType()) && "FINISH".equals(state)) {
 					String _title = StringUtil.merge("MARA审核通过提醒:", user.getName(), "/签证");
 					// 发送给顾问
 					SendEmailUtil.send(adviserDo.getEmail(), _title, StringUtil.merge("亲爱的:", adviserDo.getName(),
@@ -680,25 +681,25 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 								serviceOrderDo.getNutCloud(), "<br/>客户基本信息:", serviceOrderDo.getInformation(),
 								"<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(),
 								"<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
-					if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())) {
-						String _title = StringUtil.merge("MARA审核通过提醒:", user.getName(), "/签证");
-						// 发送给顾问
-						SendEmailUtil.send(adviserDo.getEmail(), _title, StringUtil.merge("亲爱的:", adviserDo.getName(),
-								"<br/>", "您的订单已经审核完成请查看并进行下一步操作。<br>订单号:", serviceOrderDo.getId(), "<br/>服务类型:签证/客户名称:",
-								user.getName(), "/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
-								getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
-								serviceOrderDo.getNutCloud(), "<br/>客户基本信息:", serviceOrderDo.getInformation(),
-								"<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(),
-								"<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
-						// 发送给文案
-						SendEmailUtil.send(officialDo.getEmail(), _title, StringUtil.merge("亲爱的:", officialDo.getName(),
-								"<br/>", "您的订单已经审核完成请查看并进行下一步操作。<br>订单号:", serviceOrderDo.getId(), "<br/>服务类型:签证/客户名称:",
-								user.getName(), "/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
-								getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
-								serviceOrderDo.getNutCloud(), "<br/>客户基本信息:", serviceOrderDo.getInformation(),
-								"<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(),
-								"<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
-					}
+				}
+				if ("VISA".equalsIgnoreCase(serviceOrderDo.getType()) && "FINISH".equals(maraState)) {
+					String _title = StringUtil.merge("MARA审核通过提醒:", user.getName(), "/签证");
+					// 发送给顾问
+					SendEmailUtil.send(adviserDo.getEmail(), _title, StringUtil.merge("亲爱的:", adviserDo.getName(),
+							"<br/>", "您的订单已经审核完成请查看并进行下一步操作。<br>订单号:", serviceOrderDo.getId(), "<br/>服务类型:签证/客户名称:",
+							user.getName(), "/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
+							getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
+							serviceOrderDo.getNutCloud(), "<br/>客户基本信息:", serviceOrderDo.getInformation(), "<br/>备注:",
+							serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>创建时间:",
+							date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
+					// 发送给文案
+					SendEmailUtil.send(officialDo.getEmail(), _title, StringUtil.merge("亲爱的:", officialDo.getName(),
+							"<br/>", "您的订单已经审核完成请查看并进行下一步操作。<br>订单号:", serviceOrderDo.getId(), "<br/>服务类型:签证/客户名称:",
+							user.getName(), "/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
+							getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
+							serviceOrderDo.getNutCloud(), "<br/>客户基本信息:", serviceOrderDo.getInformation(), "<br/>备注:",
+							serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>创建时间:",
+							date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
 					// 写入审核时间
 					if (serviceOrderDo.getMaraApprovalDate() == null)
 						serviceOrderDo.setMaraApprovalDate(new Date());
