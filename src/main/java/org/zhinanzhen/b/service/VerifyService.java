@@ -55,4 +55,5 @@ public interface VerifyService {
 
     FinanceCodeDO financeCodeById(Integer id);
 
+    boolean deleteOrderId(FinanceCodeDO financeCodeDO);
 }
