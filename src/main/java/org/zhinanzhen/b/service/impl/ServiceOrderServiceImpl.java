@@ -264,12 +264,19 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			pageNum = DEFAULT_PAGE_NUM;
 		if (pageSize < 0)
 			pageSize = DEFAULT_PAGE_SIZE;
+		String orderBy = "ORDER BY so.id DESC";
+		if (sorter != null) {
+			if (sorter.getId() != null)
+				orderBy = StringUtil.merge("ORDER BY ", sorter.getOrderBy("so.id", sorter.getId() + ""));
+			if (sorter.getAdviserName() != null)
+				orderBy = StringUtil.merge("ORDER BY ", sorter.getOrderBy("a.name", sorter.getAdviserName()));
+		}
 		try {
 			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, excludeState, stateList, auditingState,
 					reviewStateList, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
 					endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId, maraId,
 					adviserId, officialId, officialTagId, parentId, isNotApproved, serviceId, schoolId,
-					pageNum * pageSize, pageSize);
+					pageNum * pageSize, pageSize, orderBy);
 			if (serviceOrderDoList == null)
 				return null;
 		} catch (Exception e) {
