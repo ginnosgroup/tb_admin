@@ -866,7 +866,7 @@ public class ServiceOrderController extends BaseController {
 					auditingState, reviewStateList, startMaraApprovalDate, endMaraApprovalDate,
 					startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate,
 					regionIdList, userId, maraId, adviserId, officialId, officialTagId, 0,
-					isNotApproved != null ? isNotApproved : false, pageNum, pageSize, serviceId, schoolId);
+					isNotApproved != null ? isNotApproved : false, pageNum, pageSize, sorter, serviceId, schoolId);
 
 			if (newOfficialId != null)
 				for (ServiceOrderDTO so : serviceOrderList)
@@ -1485,7 +1485,7 @@ public class ServiceOrderController extends BaseController {
 						reviewStateList, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
 						endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId,
 						maraId, adviserId, officialId, officialTagId, 0, isNotApproved != null ? isNotApproved : false,
-						0, 9999, serviceId, schoolId);
+						0, 9999, null, serviceId, schoolId);
 
 				if (newOfficialId != null)
 					for (ServiceOrderDTO so : serviceOrderList)

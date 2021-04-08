@@ -24,7 +24,7 @@ public interface ServiceOrderService {
 										   String auditingState, List<String> reviewStateList, String startMaraApprovalDate,
 										   String endMaraApprovalDate, String startOfficialApprovalDate, String endOfficialApprovalDate,
 										   String startReadcommittedDate, String endReadcommittedDate, List<Integer> regionIdList, Integer userId, Integer maraId, Integer adviserId, Integer officialId,
-										   Integer officialTagId, int parentId, boolean isNotApproved, int pageNum, int pageSize, Integer serviceId, Integer schoolId, ServiceOrderSorter sorter)
+										   Integer officialTagId, int parentId, boolean isNotApproved, int pageNum, int pageSize, ServiceOrderSorter sorter, Integer serviceId, Integer schoolId)
 			throws ServiceException;
 
 	ServiceOrderDTO getServiceOrderById(int id) throws ServiceException;
