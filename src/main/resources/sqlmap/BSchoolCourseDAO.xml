@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.SchoolCourseDAO">
+    <select id="listSchoolCourse" resultType="org.zhinanzhen.b.dao.pojo.SchoolCourseDO">
+        SELECT id,
+        gmt_create AS gmtCreate,
+        gmt_modify AS gmtModify,
+        course_name AS courseName,
+        course_sector AS courseSector,
+        course_level AS courseLevel,
+        provider_id AS providerId,
+        provider_code AS providerCode
+        from b_school_course
+        <where>
+            <if test="providerId != null and providerId > 0 ">
+                and provider_id = #{providerId}
+            </if>
+            <if test='providerCode != null and providerCode != ""'>
+                and provider_code = #{providerCode}
+            </if>
+        </where>
+        <if test="offset != null  and rows != null ">
+            limit #{offset} ,#{rows}
+        </if>;
+    </select>
+
+    <select id="schoolCourseById" resultType="org.zhinanzhen.b.dao.pojo.SchoolCourseDO">
+        select
+        id,
+        gmt_create AS gmtCreate,
+        gmt_modify AS gmtModify,
+        course_name AS courseName,
+        course_sector AS courseSector,
+        course_level AS courseLevel,
+        provider_id AS providerId,
+        provider_code AS providerCode
+        from b_school_course where id = #{id};
+    </select>
+
+    <select id="count" resultType="int">
+        SELECT COUNT(id)
+        from b_school_course
+        <where>
+            <if test="providerId != null and providerId > 0 ">
+                and provider_id = #{providerId}
+            </if>
+            <if test='providerCode != null and providerCode != ""'>
+                and provider_code = #{providerCode}
+            </if>
+        </where>;
+    </select>
+
+    <delete id="delete">
+        DELETE FROM b_school_course WHERE  id = #{id};
+    </delete>
+
+    <insert id="add" parameterType="org.zhinanzhen.b.dao.pojo.SchoolCourseDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO b_school_course (
+        id,
+        gmt_create,
+        gmt_modify,
+        course_name,
+        course_sector,
+        course_level,
+        provider_id,
+        provider_code
+        ) VALUES (
+        #{id},
+        NOW(),
+        NOW(),
+        #{courseName},
+        #{courseSector},
+        #{courseLevel},
+        #{providerId},
+        #{providerCode}
+        )
+    </insert>
+
+    <update id="update" parameterType="org.zhinanzhen.b.dao.pojo.SchoolCourseDO">
+        UPDATE b_school_course
+        SET gmt_modify = NOW()
+        <if test=' courseName != null and courseName != ""'>
+            , course_name = #{courseName}
+        </if>
+        <if test=' courseSector != null and courseSector != ""'>
+            , course_sector = #{courseSector}
+        </if>
+        <if test=' courseLevel != null and courseLevel != ""'>
+            , course_level = #{courseLevel}
+        </if>
+        WHERE id = #{id};
+    </update>
+</mapper>
