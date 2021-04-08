@@ -10,6 +10,7 @@ import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.*;
+import org.zhinanzhen.b.service.pojo.ant.ServiceOrderSorter;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
@@ -255,7 +256,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			String endMaraApprovalDate, String startOfficialApprovalDate, String endOfficialApprovalDate,
 			String startReadcommittedDate, String endReadcommittedDate, List<Integer> regionIdList, Integer userId,
 			Integer maraId, Integer adviserId, Integer officialId, Integer officialTagId, int parentId,
-			boolean isNotApproved, int pageNum, int pageSize, Integer serviceId, Integer schoolId)
+			boolean isNotApproved, int pageNum, int pageSize, Integer serviceId, Integer schoolId, ServiceOrderSorter sorter)
 			throws ServiceException {
 		List<ServiceOrderDTO> serviceOrderDtoList = new ArrayList<ServiceOrderDTO>();
 		List<ServiceOrderDO> serviceOrderDoList = new ArrayList<ServiceOrderDO>();
