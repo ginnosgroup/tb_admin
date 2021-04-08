@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.SchoolInstitutionDAO">
+    <select id="listSchoolInstitutionDO" resultType="org.zhinanzhen.b.dao.pojo.SchoolInstitutionDO">
+        SELECT  id,
+        gmt_create AS gmtCreate,
+        gmt_modify AS gmtModify,
+        code,
+        name,
+        institution_trading_name AS institutionTradingName,
+        institution_name AS institutionName,
+        institution_type AS institutionType,
+        institution_postal_address AS institutionPostalAddress
+        from b_school_institution
+        <where>
+            <if test=' name != null and name != "" '>
+                and name like  "%"#{name}
+            </if>
+            <if test=' type != null and type != "" '>
+                and institution_type = #{type}
+            </if>
+        </where>
+        limit #{offset} , #{rows};
+    </select>
+    <select id="count" resultType="integer">
+        SELECT COUNT(id) from b_school_institution
+        <where>
+            <if test=' name != null and name != "" '>
+                and name like  "%"#{name}
+            </if>
+            <if test=' type != null and type != "" '>
+                and institution_type = #{type}
+            </if>
+        </where>;
+    </select>
+
+
+    <select id="getSchoolInstitutionById" resultType="org.zhinanzhen.b.dao.pojo.SchoolInstitutionDO">
+        SELECT  id,
+        gmt_create AS gmtCreate,
+        gmt_modify AS gmtModify,
+        code,
+        name,
+        institution_trading_name AS institutionTradingName,
+        institution_name AS institutionName,
+        institution_type AS institutionType,
+        institution_postal_address AS institutionPostalAddress
+        from b_school_institution where id = #{id}
+    </select>
+    <update id="update" parameterType="org.zhinanzhen.b.dao.pojo.SchoolInstitutionDO">
+        UPDATE b_school_institution bsi LEFT JOIN b_school_institution_location bsil ON bsi.id = bsil.provider_id  LEFT JOIN b_school_course bsc  ON bsi.id = bsc.provider_id
+        SET bsi.gmt_modify = NOW()
+            <if test=' code != null and code != ""'>
+                , bsi.code = #{code}
+                , bsil.provider_code = #{code} , bsil.gmt_modify = NOW()
+                , bsc.provider_code = #{code} , bsc.gmt_modify = NOW()
+            </if>
+            <if test=' name != null and name != ""'>
+                , bsi.name = #{name}
+            </if>
+            <if test=' institutionTradingName != null and institutionTradingName != ""'>
+                , bsi.institution_trading_name = #{institutionTradingName}
+            </if>
+            <if test=' institutionName != null and institutionName != ""'>
+                , bsi.institution_name = #{institutionName}
+            </if>
+            <if test=' institutionType != null and institutionType != ""'>
+                , bsi.institution_type = #{institutionType}
+            </if>
+            <if test=' institutionPostalAddress != null and institutionPostalAddress != "" '>
+                , bsi.institution_postal_address = #{institutionPostalAddress}
+            </if>
+        WHERE bsi.id = #{id};
+    </update>
+
+    <select id="getSchoolInstitutionByCode" resultType="org.zhinanzhen.b.dao.pojo.SchoolInstitutionDO">
+        SELECT  id,
+        gmt_create AS gmtCreate,
+        gmt_modify AS gmtModify,
+        code,
+        name,
+        institution_trading_name AS institutionTradingName,
+        institution_name AS institutionName,
+        institution_type AS institutionType,
+        institution_postal_address AS institutionPostalAddress
+        from b_school_institution where code = #{code}
+    </select>
+
+    <insert id="add" parameterType="org.zhinanzhen.b.dao.pojo.SchoolInstitutionDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO b_school_institution (
+        gmt_create,gmt_modify,code,name,institution_trading_name,institution_name,institution_type,institution_postal_address
+        ) VALUES (
+        NOW(),NOW(),#{code},#{name},#{institutionTradingName},#{institutionName},#{institutionType},#{institutionPostalAddress}
+        );
+    </insert>
+
+    <delete id="delete">
+        DELETE b_school_institution  , b_school_institution_location  , b_school_course
+        FROM b_school_institution
+        LEFT JOIN b_school_institution_location ON b_school_institution.id = b_school_institution_location.provider_id
+        LEFT JOIN b_school_course ON b_school_institution.id = b_school_course.provider_id
+        WHERE b_school_institution.id = #{id};
+    </delete>
+</mapper>
