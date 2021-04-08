@@ -39,7 +39,9 @@ public interface VerifyService {
 
     int bankUpdate(FinanceBankDO financeBankDO);
 
-    FinanceCodeDTO financeCodeByOrderId(@Param("orderId") String orderId);
+    FinanceCodeDTO financeCodeByOrderId(String orderId);
+
+    FinanceCodeDTO financeDTOByCode(String code);
 
     List<AdviserDTO> adviserList(Integer id);
 
@@ -52,4 +54,6 @@ public interface VerifyService {
     int addBank(FinanceBankDO financeBankDO);
 
     FinanceCodeDO financeCodeById(Integer id);
+
+    boolean deleteOrderId(FinanceCodeDO financeCodeDO);
 }

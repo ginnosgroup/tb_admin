@@ -71,4 +71,5 @@ public interface CommissionOrderDAO {
 
 	List<CommissionOrderDO> listCommissionOrderByVerifyCode(String verifyCode);
 
+    boolean setBankDateNull(String substring);
 }

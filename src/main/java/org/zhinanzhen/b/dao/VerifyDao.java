@@ -37,6 +37,8 @@ public interface VerifyDao {
 
     List<FinanceCodeDO> financeCodeByOrderId(@Param("orderId") String orderId);
 
+    List<FinanceCodeDO> financeDOByCode(@Param("code") String code);
+
     FinanceBankDO getFinanceBankById(@Param("financeBankId") int financeBankId);
 
     int addBank(FinanceBankDO financeBankDO);
@@ -44,4 +46,6 @@ public interface VerifyDao {
     FinanceCodeDO financeCodeById(@Param("id") Integer id);
 
     List<FinanceCodeDO> getFinanceCodeOrderIdIsNull();
+
+    boolean deleteOrderId(FinanceCodeDO financeCodeDO);
 }
