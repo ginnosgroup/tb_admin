@@ -45,6 +45,7 @@ import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
 
+import com.alibaba.fastjson.JSON;
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.core.utils.ObjectUtil;
@@ -803,7 +804,7 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "serviceId", required = false) Integer serviceId,
 			@RequestParam(value = "schoolId", required = false) Integer schoolId,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
-			@RequestParam(value = "sorter", required = false) ServiceOrderSorter sorter, HttpServletRequest request,
+			@RequestParam(value = "sorter", required = false) String sorter, HttpServletRequest request,
 			HttpServletResponse response) {
 		String excludeState = null;
 		List<String> stateList = null;
@@ -831,6 +832,10 @@ public class ServiceOrderController extends BaseController {
 		List<Integer> regionIdList = null;
 		if (regionId != null && regionId > 0)
 			regionIdList = ListUtil.buildArrayList(regionId);
+		
+		ServiceOrderSorter _sorter = null;
+		if (sorter != null)
+			_sorter = JSON.parseObject(sorter, ServiceOrderSorter.class);
 
 		try {
 			super.setGetHeader(response);
@@ -866,7 +871,7 @@ public class ServiceOrderController extends BaseController {
 					auditingState, reviewStateList, startMaraApprovalDate, endMaraApprovalDate,
 					startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate,
 					regionIdList, userId, maraId, adviserId, officialId, officialTagId, 0,
-					isNotApproved != null ? isNotApproved : false, pageNum, pageSize, sorter, serviceId, schoolId);
+					isNotApproved != null ? isNotApproved : false, pageNum, pageSize, _sorter, serviceId, schoolId);
 
 			if (newOfficialId != null)
 				for (ServiceOrderDTO so : serviceOrderList)
