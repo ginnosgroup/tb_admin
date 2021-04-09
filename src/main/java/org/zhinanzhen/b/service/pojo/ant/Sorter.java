@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class Sorter {
 
-	Integer id;
+	String id;
 
 	public String getOrderBy(String key, String value) {
 		if (StringUtil.isNotEmpty(key)) {
