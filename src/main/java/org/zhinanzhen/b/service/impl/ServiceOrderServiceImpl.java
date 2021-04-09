@@ -15,6 +15,7 @@ import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.*;
+import org.zhinanzhen.b.service.pojo.ant.ServiceOrderSorter;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
@@ -264,7 +265,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			String endMaraApprovalDate, String startOfficialApprovalDate, String endOfficialApprovalDate,
 			String startReadcommittedDate, String endReadcommittedDate, List<Integer> regionIdList, Integer userId,
 			Integer maraId, Integer adviserId, Integer officialId, Integer officialTagId, int parentId,
-			boolean isNotApproved, int pageNum, int pageSize, Integer serviceId, Integer schoolId)
+			boolean isNotApproved, int pageNum, int pageSize, ServiceOrderSorter sorter, Integer serviceId, Integer schoolId)
 			throws ServiceException {
 		List<ServiceOrderDTO> serviceOrderDtoList = new ArrayList<ServiceOrderDTO>();
 		List<ServiceOrderDO> serviceOrderDoList = new ArrayList<ServiceOrderDO>();
@@ -272,12 +273,19 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			pageNum = DEFAULT_PAGE_NUM;
 		if (pageSize < 0)
 			pageSize = DEFAULT_PAGE_SIZE;
+		String orderBy = "ORDER BY so.id DESC";
+		if (sorter != null) {
+			if (sorter.getId() != null)
+				orderBy = StringUtil.merge("ORDER BY ", sorter.getOrderBy("so.id", sorter.getId() + ""));
+			if (sorter.getAdviserName() != null)
+				orderBy = StringUtil.merge("ORDER BY ", sorter.getOrderBy("a.name", sorter.getAdviserName()));
+		}
 		try {
 			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, excludeState, stateList, auditingState,
 					reviewStateList, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
 					endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId, maraId,
 					adviserId, officialId, officialTagId, parentId, isNotApproved, serviceId, schoolId,
-					pageNum * pageSize, pageSize);
+					pageNum * pageSize, pageSize, orderBy);
 			if (serviceOrderDoList == null)
 				return null;
 		} catch (Exception e) {

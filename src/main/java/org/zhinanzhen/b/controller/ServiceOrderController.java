@@ -33,8 +33,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.controller.nodes.SONodeFactory;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderReadcommittedDateDO;
 import org.zhinanzhen.b.service.*;
-import org.zhinanzhen.b.service.impl.WXWorkServiceImpl;
 import org.zhinanzhen.b.service.pojo.*;
+import org.zhinanzhen.b.service.pojo.ant.ServiceOrderSorter;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
@@ -43,7 +43,6 @@ import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
-import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
 
 import com.ikasoa.core.ErrorCodeEnum;
@@ -811,7 +810,8 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "serviceId", required = false) Integer serviceId,
 			@RequestParam(value = "schoolId", required = false) Integer schoolId,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
-			HttpServletRequest request, HttpServletResponse response) {
+			@RequestParam(value = "sorter", required = false) ServiceOrderSorter sorter, HttpServletRequest request,
+			HttpServletResponse response) {
 		String excludeState = null;
 		List<String> stateList = null;
 		if (state != null && !"".equals(state))
@@ -873,7 +873,7 @@ public class ServiceOrderController extends BaseController {
 					auditingState, reviewStateList, startMaraApprovalDate, endMaraApprovalDate,
 					startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate,
 					regionIdList, userId, maraId, adviserId, officialId, officialTagId, 0,
-					isNotApproved != null ? isNotApproved : false, pageNum, pageSize, serviceId, schoolId);
+					isNotApproved != null ? isNotApproved : false, pageNum, pageSize, sorter, serviceId, schoolId);
 
 			if (newOfficialId != null)
 				for (ServiceOrderDTO so : serviceOrderList)
@@ -1492,7 +1492,7 @@ public class ServiceOrderController extends BaseController {
 						reviewStateList, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
 						endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId,
 						maraId, adviserId, officialId, officialTagId, 0, isNotApproved != null ? isNotApproved : false,
-						0, 9999, serviceId, schoolId);
+						0, 9999, null, serviceId, schoolId);
 
 				if (newOfficialId != null)
 					for (ServiceOrderDTO so : serviceOrderList)

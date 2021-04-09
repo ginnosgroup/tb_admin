@@ -149,8 +149,9 @@ public class UserController extends BaseController {
 			@RequestParam(value = "orderByField", required = false) String orderByField,
 			@RequestParam(value = "isDesc", required = false) String isDesc,
 			@RequestParam(value = "tagId", required = false) String tagId, @RequestParam(value = "pageNum") int pageNum,
-			@RequestParam(value = "pageSize") int pageSize, HttpServletRequest request, HttpServletResponse response) {
-		
+			@RequestParam(value = "pageSize") int pageSize, HttpServletRequest request,
+			HttpServletResponse response) {
+
 		List<Integer> regionIdList = null;
 		if (regionId != null && regionId > 0)
 			regionIdList = ListUtil.buildArrayList(regionId);

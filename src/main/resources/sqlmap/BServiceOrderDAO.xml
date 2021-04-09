@@ -501,7 +501,7 @@
         <if test="serviceId != null and  serviceId > 0">
             AND so.service_id = #{serviceId}
         </if>
-        ORDER BY so.id DESC
+        ${orderBy}
         LIMIT #{offset}, #{rows};
     </select>
     
