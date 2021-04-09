@@ -77,7 +77,7 @@
     </select>
     
     <delete id="clear">
-        <![CDATA[ delete from (select school_id,count(school_id) as c from b_school_setting group by school_id) bss where bss.c>1; ]]>
+        <![CDATA[ delete from b_school_setting where school_id in (select school_id from (select school_id,count(school_id) as c from b_school_setting group by school_id) bss where bss.c>1); ]]>
     </delete>
 
 </mapper>
