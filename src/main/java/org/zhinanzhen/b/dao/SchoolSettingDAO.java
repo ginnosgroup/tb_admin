@@ -19,6 +19,6 @@ public interface SchoolSettingDAO {
 
 	public SchoolSettingDO getBySchoolId(@Param("schoolId") int schoolId);
 	
-	public void clear();
+	public int clear();
 
 }
