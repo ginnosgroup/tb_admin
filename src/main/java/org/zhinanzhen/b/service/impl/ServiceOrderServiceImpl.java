@@ -525,7 +525,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	public ServiceOrderDTO approval(int id, int adminUserId, String adviserState, String maraState,
 			String officialState, String kjState) throws ServiceException {
 		sendRemind(id, adviserState, maraState, officialState);
-		createChat(id);
+		//createChat(id);
 		return review(id, adminUserId, adviserState, maraState, officialState, kjState, "APPROVAL");
 	}
 
