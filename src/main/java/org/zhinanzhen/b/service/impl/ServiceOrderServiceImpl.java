@@ -276,7 +276,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		String orderBy = "ORDER BY so.id DESC";
 		if (sorter != null) {
 			if (sorter.getId() != null)
-				orderBy = StringUtil.merge("ORDER BY ", sorter.getOrderBy("so.id", sorter.getId() + ""));
+				orderBy = StringUtil.merge("ORDER BY ", sorter.getOrderBy("so.id", sorter.getId()));
 			if (sorter.getAdviserName() != null)
 				orderBy = StringUtil.merge("ORDER BY ", sorter.getOrderBy("a.name", sorter.getAdviserName()));
 		}
