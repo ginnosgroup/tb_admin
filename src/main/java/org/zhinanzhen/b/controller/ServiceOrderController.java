@@ -34,7 +34,7 @@ import org.zhinanzhen.b.controller.nodes.SONodeFactory;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderReadcommittedDateDO;
 import org.zhinanzhen.b.service.*;
 import org.zhinanzhen.b.service.pojo.*;
-import org.zhinanzhen.b.service.pojo.ant.ServiceOrderSorter;
+import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
@@ -833,9 +833,9 @@ public class ServiceOrderController extends BaseController {
 		if (regionId != null && regionId > 0)
 			regionIdList = ListUtil.buildArrayList(regionId);
 		
-		ServiceOrderSorter _sorter = null;
+		Sorter _sorter = null;
 		if (sorter != null)
-			_sorter = JSON.parseObject(sorter, ServiceOrderSorter.class);
+			_sorter = JSON.parseObject(sorter, Sorter.class);
 
 		try {
 			super.setGetHeader(response);

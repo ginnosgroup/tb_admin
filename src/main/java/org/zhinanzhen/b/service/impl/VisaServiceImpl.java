@@ -15,6 +15,7 @@ import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
 import org.zhinanzhen.b.service.pojo.VisaCommentDTO;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
 import org.zhinanzhen.b.service.pojo.VisaReportDTO;
+import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
@@ -142,12 +143,21 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 	public List<VisaDTO> listVisa(Integer id, String keyword, String startHandlingDate, String endHandlingDate,
 								  List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
 								  String endKjApprovalDate, String startDate, String endDate, String startInvoiceCreate, String endInvoiceCreate, List<Integer> regionIdList, Integer adviserId,
-								  Integer userId, String state, int pageNum, int pageSize) throws ServiceException {
+								  Integer userId, String state, int pageNum, int pageSize, Sorter sorter) throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
 		}
 		if (pageSize < 0) {
 			pageSize = DEFAULT_PAGE_SIZE;
+		}
+		String orderBy = "ORDER BY bv.gmt_create DESC, bv.installment_num ASC";
+		if (sorter != null) {
+			if (sorter.getId() != null)
+				orderBy = StringUtil.merge("ORDER BY ", sorter.getOrderBy("bv.id", sorter.getId()));
+			if (sorter.getUserName() != null)
+				orderBy = StringUtil.merge("ORDER BY ", sorter.getOrderBy("tbu.name", sorter.getUserName()));
+			if (sorter.getAdviserName() != null)
+				orderBy = StringUtil.merge("ORDER BY ", sorter.getOrderBy("a.name", sorter.getAdviserName()));
 		}
 		List<VisaDTO> visaDtoList = new ArrayList<>();
 		List<VisaListDO> visaListDoList = new ArrayList<>();
@@ -156,7 +166,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 					stateList, commissionStateList, startKjApprovalDate, theDateTo23_59_59(endKjApprovalDate),
 					startDate, theDateTo23_59_59(endDate), startInvoiceCreate,theDateTo23_59_59(endInvoiceCreate),
 					regionIdList, adviserId, userId, state, pageNum * pageSize,
-					pageSize);
+					pageSize, orderBy);
 			if (visaListDoList == null)
 				return null;
 		} catch (Exception e) {

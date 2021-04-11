@@ -443,7 +443,7 @@
         <if test='isYzyAndYjy == true'>
             AND (co.commission_state = 'YZY' OR (co.commission_state = 'YJY' AND co.is_settle = false))
         </if>
-        ORDER BY co.gmt_create DESC, co.installment_num ASC
+        ${orderBy}
         LIMIT #{offset}, #{rows};
     </select>
 

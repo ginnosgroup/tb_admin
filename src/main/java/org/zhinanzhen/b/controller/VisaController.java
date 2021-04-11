@@ -29,12 +29,14 @@ import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.VisaCommentDTO;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
+import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
 
+import com.alibaba.fastjson.JSON;
 import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.core.utils.StringUtil;
 
@@ -585,9 +587,10 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "userId", required = false) Integer userId,
-			@RequestParam(value = "state",required = false) String state,
-			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
-			HttpServletRequest request, HttpServletResponse response) {
+			@RequestParam(value = "state", required = false) String state, @RequestParam(value = "pageNum") int pageNum,
+			@RequestParam(value = "pageSize") int pageSize,
+			@RequestParam(value = "sorter", required = false) String sorter, HttpServletRequest request,
+			HttpServletResponse response) {
 
 		// 会计角色过滤状态
 		List<String> stateList = null;
@@ -606,6 +609,10 @@ public class VisaController extends BaseCommissionOrderController {
 		List<Integer> regionIdList = null;
 		if (regionId != null && regionId > 0)
 			regionIdList = ListUtil.buildArrayList(regionId);
+		
+		Sorter _sorter = null;
+		if (sorter != null)
+			_sorter = JSON.parseObject(sorter, Sorter.class);
 		
 //		Date _startKjApprovalDate = null;
 //		if (startKjApprovalDate != null)
@@ -638,7 +645,7 @@ public class VisaController extends BaseCommissionOrderController {
 			List<VisaDTO> list = visaService.listVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate,
 					startInvoiceCreate,endInvoiceCreate,regionIdList,
-					adviserId, userId, state, pageNum, pageSize);
+					adviserId, userId, state, pageNum, pageSize, _sorter);
 			list.forEach(v -> {
 				if (v.getServiceOrderId() > 0)
 					try {
@@ -772,7 +779,7 @@ public class VisaController extends BaseCommissionOrderController {
 
 			List<VisaDTO> list = visaService.listVisa(id ,keyword, startHandlingDate, endHandlingDate, stateList,
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, startInvoiceCreate, endInvoiceCreate, regionIdList,
-					adviserId,userId, state,0, 9999);
+					adviserId,userId, state,0, 9999, null);
 
 			list.forEach(v -> {
 				if (v.getServiceOrderId() > 0)

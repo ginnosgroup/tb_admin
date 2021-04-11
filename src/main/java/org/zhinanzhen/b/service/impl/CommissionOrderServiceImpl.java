@@ -17,6 +17,7 @@ import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderReportDTO;
 import org.zhinanzhen.b.service.pojo.SchoolDTO;
 import org.zhinanzhen.b.service.pojo.SubagencyDTO;
+import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.b.service.pojo.ReceiveTypeDTO;
 import org.zhinanzhen.b.service.pojo.ServiceDTO;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
@@ -137,12 +138,21 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 															Integer schoolId, Boolean isSettle, List<String> stateList, List<String> commissionStateList,
 															String startKjApprovalDate, String endKjApprovalDate, String startInvoiceCreate, String endInvoiceCreate,
 															Boolean isYzyAndYjy, String applyState, int pageNum,
-															int pageSize) throws ServiceException {
+															int pageSize, Sorter sorter) throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
 		}
 		if (pageSize < 0) {
 			pageSize = DEFAULT_PAGE_SIZE;
+		}
+		String orderBy = "ORDER BY co.gmt_create DESC, co.installment_num ASC";
+		if (sorter != null) {
+			if (sorter.getId() != null)
+				orderBy = StringUtil.merge("ORDER BY ", sorter.getOrderBy("co.id", sorter.getId()));
+			if (sorter.getUserName() != null)
+				orderBy = StringUtil.merge("ORDER BY ", sorter.getOrderBy("u.name", sorter.getUserName()));
+			if (sorter.getAdviserName() != null)
+				orderBy = StringUtil.merge("ORDER BY ", sorter.getOrderBy("a.name", sorter.getAdviserName()));
 		}
 		List<CommissionOrderListDTO> commissionOrderListDtoList = new ArrayList<>();
 		List<CommissionOrderListDO> commissionOrderListDoList = new ArrayList<>();
@@ -151,7 +161,7 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 					officialId, userId, name, phone, wechatUsername, schoolId, isSettle, stateList,
 					commissionStateList,
 					startKjApprovalDate, theDateTo23_59_59(endKjApprovalDate), startInvoiceCreate, theDateTo23_59_59(endInvoiceCreate),
-					isYzyAndYjy, applyState,pageNum * pageSize, pageSize);
+					isYzyAndYjy, applyState,pageNum * pageSize, pageSize, orderBy);
 			if (commissionOrderListDoList == null)
 				return null;
 		} catch (Exception e) {
