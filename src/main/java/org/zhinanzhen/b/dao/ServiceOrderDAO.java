@@ -57,4 +57,6 @@ public interface ServiceOrderDAO {
 
 	List<EachRegionNumberDO> listServiceOrderGroupByForRegion(@Param("type") String type,@Param("startOfficialApprovalDate") String startOfficialApprovalDate,
 															  @Param("endOfficialApprovalDate") String endOfficialApprovalDate);
+
+	List<ServiceOrderDO> listByVerifyCode(@Param("verifyCode") String verifyCode);
 }

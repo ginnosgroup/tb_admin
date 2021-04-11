@@ -108,7 +108,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			List<CommissionOrderDO> commissionOrderDOS = commissionOrderDao
 					.listCommissionOrderByVerifyCode(serviceOrderDto.getVerifyCode());
 			List<VisaDO> visaDOS = visaDao.listVisaByVerifyCode(serviceOrderDto.getVerifyCode());
-			if (commissionOrderDOS.size() > 0 | visaDOS.size() > 0) {
+			if (commissionOrderDOS.size() > 0 | serviceOrderDao.listByVerifyCode(serviceOrderDto.getVerifyCode()).size() > 0 || visaDOS.size() > 0) {
 				ServiceException se = new ServiceException(
 						"对账code:" + serviceOrderDto.getVerifyCode() + "已经存在,请重新创建新的code!");
 				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
