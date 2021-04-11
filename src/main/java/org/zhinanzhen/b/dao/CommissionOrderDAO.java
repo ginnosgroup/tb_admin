@@ -38,7 +38,7 @@ public interface CommissionOrderDAO {
 														   @Param("startKjApprovalDate") String startKjApprovalDate,
 														   @Param("endKjApprovalDate") String endKjApprovalDate, @Param("startInvoiceCreate") String startInvoiceCreate,
 														   @Param("endInvoiceCreate") String endInvoiceCreate, @Param("isYzyAndYjy") Boolean isYzyAndYjy,
-														   @Param("applyState") String applyState, @Param("offset") int offset, @Param("rows") int rows);
+														   @Param("applyState") String applyState, @Param("offset") int offset, @Param("rows") int rows, @Param("orderBy") String orderBy);
 
 	public List<CommissionOrderDO> listCommissionOrderByCode(String code);
 
