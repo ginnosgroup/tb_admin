@@ -479,7 +479,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				serviceOrderDto.setChildrenServiceOrders(childrenServiceOrderList);
 			}
 			// 查询审核记录
-			putReviews(serviceOrderDto);
+//			putReviews(serviceOrderDto);
 
 			// 查询职业名称
 			ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDto.getServiceAssessId());
