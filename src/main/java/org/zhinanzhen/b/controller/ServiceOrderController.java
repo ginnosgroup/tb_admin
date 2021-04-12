@@ -1703,7 +1703,7 @@ public class ServiceOrderController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/next_flow", method = RequestMethod.GET)
+	@RequestMapping(value = "/next_flow", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<ServiceOrderDTO> approval(@RequestParam(value = "id") int id,
 			@RequestParam(value = "state") String state,
