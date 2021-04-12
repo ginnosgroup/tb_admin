@@ -62,7 +62,7 @@ public abstract class SONode extends AbstractNode {
 
 	protected int getServiceOrderId(Context context) {
 		Map<String, Object> parameters = context.getParameters();
-		if (!parameters.containsKey("serviceOrder")) {
+		if (!parameters.containsKey("serviceOrderId")) {
 			log.error("serviceOrder不存在!");
 			return 0;
 		}
