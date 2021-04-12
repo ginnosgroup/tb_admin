@@ -35,7 +35,7 @@ public class ServiceOrderPendingNode extends SONode {
 	
 	@Override
 	public String[] nextNodeNames() {
-		return null;
+		return new String[]{"REVIEW"};
 	}
 
 }
