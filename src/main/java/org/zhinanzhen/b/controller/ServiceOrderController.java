@@ -1705,9 +1705,9 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "refuseReason", required = false) String refuseReason,
 			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
 			HttpServletResponse response) {
-//		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-//		if (adminUserLoginInfo == null)
-//			return new Response<ServiceOrderDTO>(1, "请先登录.", null);
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo == null)
+			return new Response<ServiceOrderDTO>(1, "请先登录.", null);
 		if (id <= 0)
 			return new Response<ServiceOrderDTO>(1, "id不正确:" + id, null);
 		ServiceOrderDTO serviceOrderDto;
@@ -1725,8 +1725,8 @@ public class ServiceOrderController extends BaseController {
 			context.putParameter("closedReason", closedReason);
 			context.putParameter("refuseReason", refuseReason);
 			context.putParameter("remarks", remarks);
-//			context.putParameter("ap", adminUserLoginInfo.getApList());
-//			context.putParameter("adminUserId", adminUserLoginInfo.getId());
+			context.putParameter("ap", adminUserLoginInfo.getApList());
+			context.putParameter("adminUserId", adminUserLoginInfo.getId());
 			
 			String[] nextNodeNames = node.nextNodeNames();
 			if (nextNodeNames != null)
