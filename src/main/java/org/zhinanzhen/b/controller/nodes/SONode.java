@@ -66,8 +66,7 @@ public abstract class SONode extends AbstractNode {
 			log.error("serviceOrderId不存在!");
 			return 0;
 		}
-		log.info("serviceOrderId is " + parameters.get("serviceOrderId"));
-		return StringUtil.toInt((String) parameters.get("serviceOrderId"));
+		return StringUtil.toInt(parameters.get("serviceOrderId").toString());
 	}
 
 	protected String getClosedReason(Context context) {
