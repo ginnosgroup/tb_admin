@@ -370,7 +370,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			serviceOrderDto.setCIds(cIds);
 
 			// 查询审核记录
-			putReviews(serviceOrderDto);
+//			putReviews(serviceOrderDto);
 			serviceOrderDtoList.add(serviceOrderDto);
 
 			// 查询职业名称
