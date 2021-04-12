@@ -1729,14 +1729,12 @@ public class ServiceOrderController extends BaseController {
 //			context.putParameter("adminUserId", adminUserLoginInfo.getId());
 			
 			String[] nextNodeNames = node.nextNodeNames();
-System.out.println("......... nextNodeNames:" + nextNodeNames);
 			if (nextNodeNames != null)
 				if (Arrays.asList(nextNodeNames).contains(state))
 					node = soNodeFactory.getNode(state);
 				else
 					return new Response<ServiceOrderDTO>(1,
 							StringUtil.merge("状态:", state, "不是合法状态. (", Arrays.toString(nextNodeNames), ")"), null);
-System.out.println("......... nodeName:" + node.getName());
 
 			Workflow workflow = new Workflow("Service Order Work Flow", node, soNodeFactory);
 			
