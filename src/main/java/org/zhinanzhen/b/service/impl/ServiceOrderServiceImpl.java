@@ -1,10 +1,8 @@
 package org.zhinanzhen.b.service.impl;
 
 import java.util.*;
-
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.stereotype.Service;
@@ -27,10 +25,8 @@ import org.zhinanzhen.tb.service.impl.BaseService;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
-
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.StringUtil;
-
 import lombok.Data;
 import org.zhinanzhen.tb.utils.WXWorkAPI;
 
@@ -1154,7 +1150,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	public List<EachRegionNumberDTO> listServiceOrderGroupByForRegion(String type, String startOfficialApprovalDate,
 			String endOfficialApprovalDate) {
 		List<EachRegionNumberDO> eachRegionNumberDOS = serviceOrderDao.listServiceOrderGroupByForRegion(type,
-				startOfficialApprovalDate, endOfficialApprovalDate);
+				startOfficialApprovalDate, theDateTo23_59_59(endOfficialApprovalDate));
 		List<EachRegionNumberDTO> eachRegionNumberDTOS = new ArrayList<>();
 		Set<String> codeSet = new HashSet<>();
 		eachRegionNumberDOS.forEach(eachRegionNumberDO -> {
@@ -1206,6 +1202,34 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			}
 		});
 		return eachRegionNumberDTOS;
+	}
+
+	@Override
+	public List<EachSubjectCountDTO> eachSubjectCount(String startOfficialApprovalDate, String endOfficialApprovalDate) {
+		List<EachSubjectCountDO> eachSubjectCountDOList = serviceOrderDao.eachSubjectCount(startOfficialApprovalDate,theDateTo23_59_59(endOfficialApprovalDate));
+		List<EachSubjectCountDTO> subjectCountDTOList = new ArrayList<>();
+		HashSet<String> nameSet = new HashSet();
+		eachSubjectCountDOList.forEach(eachSubjectCountDO -> {
+			nameSet.add(eachSubjectCountDO.getName());
+		});
+		for (String name : nameSet){
+			EachSubjectCountDTO dTO = new EachSubjectCountDTO();
+			dTO.setName(name);
+			List<EachSubjectCountDTO.Subject> subjects = new ArrayList<>();
+
+			eachSubjectCountDOList.forEach(eachSubjectCountDO ->{
+				if (name.equalsIgnoreCase(eachSubjectCountDO.getName())){
+					dTO.setTotal(dTO.getTotal() + eachSubjectCountDO.getNumber());
+					EachSubjectCountDTO.Subject subject = dTO.new Subject();
+					subject.setNumber(eachSubjectCountDO.getNumber());
+					subject.setSubjectName(eachSubjectCountDO.getSubject());
+					subjects.add(subject);
+				}
+			});
+			dTO.setSubject(subjects);
+			subjectCountDTOList.add(dTO);
+		}
+		return  subjectCountDTOList;
 	}
 
 	public  void createChat(int serviceOrderId) {
