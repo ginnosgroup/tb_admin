@@ -49,6 +49,7 @@ public abstract class SODecisionNode extends AbstractDecisionNode {
 				log.error("服务类型错误:serviceOrderId=" + serviceOrderDto.getId() + ",type=" + type);
 				return false;
 			}
+			log.info("context:" + context);
 			serviceOrderDto.setState(getName());
 			if (context.getParameter("refuseReason") != null) {
 				serviceOrderDto.setRefuseReason(context.getParameter("refuseReason").toString());
