@@ -1703,7 +1703,8 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "subagencyId", required = false) String subagencyId,
 			@RequestParam(value = "closedReason", required = false) String closedReason,
 			@RequestParam(value = "refuseReason", required = false) String refuseReason,
-			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
+			@RequestParam(value = "remarks", required = false) String remarks,
+			@RequestParam(value = "stateMark", required = false) String stateMark, HttpServletRequest request,
 			HttpServletResponse response) {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo == null)
@@ -1716,7 +1717,7 @@ public class ServiceOrderController extends BaseController {
 			if (ObjectUtil.isNull(serviceOrderDto))
 				return new Response<ServiceOrderDTO>(1, "服务订单不存在:" + id, null);
 			Node node = soNodeFactory.getNode(serviceOrderDto.getState());
-			
+
 			Context context = new Context();
 			context.putParameter("serviceOrderId", id);
 			context.putParameter("type", serviceOrderDto.getType());
@@ -1725,6 +1726,7 @@ public class ServiceOrderController extends BaseController {
 			context.putParameter("closedReason", closedReason);
 			context.putParameter("refuseReason", refuseReason);
 			context.putParameter("remarks", remarks);
+			context.putParameter("stateMark", stateMark);
 			context.putParameter("ap", adminUserLoginInfo.getApList());
 			context.putParameter("adminUserId", adminUserLoginInfo.getId());
 			

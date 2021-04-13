@@ -62,6 +62,10 @@ public abstract class SODecisionNode extends AbstractDecisionNode {
 				serviceOrderDto.setRemarks(context.getParameter("remarks").toString());
 				log.info("写入remarks:" + serviceOrderDto.getRemarks());
 			}
+			if (context.getParameter("stateMark") != null) {
+				serviceOrderDto.setStateMark(context.getParameter("stateMark").toString());
+				log.info("写入stateMark:" + serviceOrderDto.getStateMark());
+			}
 			if (serviceOrderService.updateServiceOrder(serviceOrderDto) > 0)
 				log.info("保存流程状态成功:serviceOrderId=" + serviceOrderDto.getId() + ",state=" + getName());
 			else
