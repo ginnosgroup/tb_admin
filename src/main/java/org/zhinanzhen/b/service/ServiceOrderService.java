@@ -2,6 +2,7 @@ package org.zhinanzhen.b.service;
 
 import java.util.List;
 
+import org.zhinanzhen.b.dao.pojo.EachSubjectCountDO;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.ServiceOrderSorter;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -60,5 +61,7 @@ public interface ServiceOrderService {
 	int deleteServiceOrderOfficialRemarksDTO(int id) throws ServiceException;
 
 	List<EachRegionNumberDTO> listServiceOrderGroupByForRegion(String type, String startOfficialApprovalDate, String endOfficialApprovalDate);
+
+	List<EachSubjectCountDTO> eachSubjectCount(String startOfficialApprovalDate, String endOfficialApprovalDate);
 	
 }
