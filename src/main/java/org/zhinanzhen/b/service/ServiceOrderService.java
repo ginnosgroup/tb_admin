@@ -64,4 +64,5 @@ public interface ServiceOrderService {
 	List<EachRegionNumberDTO> listServiceOrderGroupByForRegion(String type, String startOfficialApprovalDate,
 			String endOfficialApprovalDate);
 
+	List<EachSubjectCountDTO> eachSubjectCount(String startOfficialApprovalDate, String endOfficialApprovalDate);
 }
