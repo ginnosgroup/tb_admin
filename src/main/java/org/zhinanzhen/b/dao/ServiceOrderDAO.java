@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
 import org.zhinanzhen.b.dao.pojo.EachRegionNumberDO;
+import org.zhinanzhen.b.dao.pojo.EachSubjectCountDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
 
 public interface ServiceOrderDAO {
@@ -59,4 +60,7 @@ public interface ServiceOrderDAO {
 															  @Param("endOfficialApprovalDate") String endOfficialApprovalDate);
 
 	List<ServiceOrderDO> listByVerifyCode(@Param("verifyCode") String verifyCode);
+
+	List<EachSubjectCountDO> eachSubjectCount(@Param("startOfficialApprovalDate") String startOfficialApprovalDate,
+										@Param("endOfficialApprovalDate") String endOfficialApprovalDate);
 }
