@@ -19,6 +19,7 @@
                 service_package_id,
                 school_id,
                 state,
+                state_mark,
                 mara_approval_date,
                 official_approval_date,
                 is_settle,
@@ -78,6 +79,7 @@
                 #{servicePackageId},
                 #{schoolId},
                 #{state},
+                #{stateMark},
                 NULL,
                 NULL,
                 #{isSettle},
@@ -154,6 +156,9 @@
         </if>
         <if test='state != null and state != ""'>
             , state = #{state}
+        </if>
+        <if test='stateMark != null and stateMark != ""'>
+            , state_mark = #{stateMark}
         </if>
         <if test='maraApprovalDate != null'>
             , mara_approval_date = #{maraApprovalDate}
@@ -388,6 +393,7 @@
             so.service_package_id AS servicePackageId,
             so.school_id AS schoolId,
             so.state AS state,
+            so.state_mark AS stateMark,
             so.mara_approval_date AS maraApprovalDate,
             so.official_approval_date AS officialApprovalDate,
             so.is_settle AS isSettle,
@@ -535,6 +541,7 @@
             service_package_id AS servicePackageId,
             school_id AS schoolId,
             state,
+            state_mark AS stateMark,
             mara_approval_date AS maraApprovalDate,
             official_approval_date AS officialApprovalDate,
             is_settle AS isSettle,
