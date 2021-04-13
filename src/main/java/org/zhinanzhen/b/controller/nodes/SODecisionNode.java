@@ -50,15 +50,15 @@ public abstract class SODecisionNode extends AbstractDecisionNode {
 				return false;
 			}
 			serviceOrderDto.setState(getName());
-			if (context.hasParameter("refuseReason")) {
+			if (context.getParameter("refuseReason") != null) {
 				serviceOrderDto.setRefuseReason(context.getParameter("refuseReason").toString());
 				log.info("写入refuseReason:" + serviceOrderDto.getRefuseReason());
 			}
-			if (context.hasParameter("closedReason")) {
+			if (context.getParameter("closedReason") != null) {
 				serviceOrderDto.setClosedReason(context.getParameter("closedReason").toString());
 				log.info("写入closedReason:" + serviceOrderDto.getClosedReason());
 			}
-			if (context.hasParameter("remarks")) {
+			if (context.getParameter("remarks") != null) {
 				serviceOrderDto.setRemarks(context.getParameter("remarks").toString());
 				log.info("写入remarks:" + serviceOrderDto.getRemarks());
 			}
