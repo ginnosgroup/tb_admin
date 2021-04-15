@@ -817,10 +817,15 @@ public class ServiceOrderController extends BaseController {
 		if (newMaraId != null) {
 			maraId = newMaraId;
 			excludeState = ReviewAdviserStateEnum.PENDING.toString();
-			reviewStateList = new ArrayList<>();
-			reviewStateList.add(ServiceOrderReviewStateEnum.ADVISER.toString());
-			reviewStateList.add(ServiceOrderReviewStateEnum.MARA.toString());
-			reviewStateList.add(ServiceOrderReviewStateEnum.OFFICIAL.toString());
+			stateList.add("WAIT");
+			stateList.add("FINISH");
+			stateList.add("APPLY");
+			stateList.add("COMPLETE");
+			stateList.add("CLOSE");
+//			reviewStateList = new ArrayList<>();
+//			reviewStateList.add(ServiceOrderReviewStateEnum.ADVISER.toString());
+//			reviewStateList.add(ServiceOrderReviewStateEnum.MARA.toString());
+//			reviewStateList.add(ServiceOrderReviewStateEnum.OFFICIAL.toString());
 		}
 		Integer newOfficialId = getOfficialId(request);
 		if (newOfficialId != null) {
