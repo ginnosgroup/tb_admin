@@ -68,6 +68,8 @@ public class UserController extends BaseController {
 				email = "";
 			if (regionId == null)
 				regionId = "0";
+			if (name != null)
+				name = name.trim().replace("  ", " "); // 处理多余空格问题
 			return new Response<Integer>(0,
 					userService.addUser(name, authNickname, new Date(Long.parseLong(birthday.trim())), areaCode, phone,
 							email, wechatUsername, firstControllerContents, visaCode,
@@ -223,6 +225,8 @@ public class UserController extends BaseController {
 		Date _visaExpirationDate = null;
 		if (visaExpirationDate != null)
 			_visaExpirationDate = new Date(Long.parseLong(visaExpirationDate.trim()));
+		if (name != null)
+			name = name.trim().replace("  ", " "); // 处理多余空格问题
 		return new Response<Boolean>(0, userService.update(id, name, authNickname, _birthday, phone, areaCode,
 				wechatUsername, firstControllerContents, visaCode, _visaExpirationDate, source));
 	}
