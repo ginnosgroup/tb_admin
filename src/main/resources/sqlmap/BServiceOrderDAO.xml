@@ -157,7 +157,7 @@
         <if test='state != null and state != ""'>
             , state = #{state}
         </if>
-        <if test='stateMark != null and stateMark != ""'>
+        <if test='stateMark != null'>
             , state_mark = #{stateMark}
         </if>
         <if test='maraApprovalDate != null'>

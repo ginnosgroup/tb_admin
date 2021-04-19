@@ -595,7 +595,6 @@ public class ServiceOrderController extends BaseController {
 			HttpServletResponse response) {
 //		if (getOfficialAdminId(request) != null)
 //			return new Response<Integer>(1, "文案管理员不可操作服务订单.", 0);
-System.out.println("=====remarks:" + remarks);
 		try {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
@@ -609,8 +608,8 @@ System.out.println("=====remarks:" + remarks);
 			if (getOfficialAdminId(request) != null && serviceOrderDto.getOfficialId() != getOfficialId(request))
 				return new Response<Integer>(1, "(文案管理员" + getOfficialId(request) + ")只能操作自己的服务订单,不可操作(文案"
 						+ serviceOrderDto.getOfficialId() + ")服务订单.", 0);
-			if (StringUtil.isNotEmpty(remarks))
-				serviceOrderDto.setRemarks(remarks);
+//			if (StringUtil.isNotEmpty(remarks))
+//				serviceOrderDto.setRemarks(remarks);
 			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
 			return i > 0 ? new Response<Integer>(0, i) : new Response<Integer>(1, "修改失败.", 0);
 		} catch (ServiceException e) {
