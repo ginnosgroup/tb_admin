@@ -27,7 +27,7 @@ public class ServiceOrderPaidNode extends SODecisionNode {
 			context.putParameter("response", new Response<ServiceOrderDTO>(1, "仅限文案操作!", null));
 			return null;
 		}
-		return null;
+		return SUSPEND_NODE;
 	}
 	
 	@Override

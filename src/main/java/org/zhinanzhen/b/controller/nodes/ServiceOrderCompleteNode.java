@@ -38,7 +38,7 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
 			return "PAID";
 		} catch (ServiceException e) {
 			context.putParameter("response", new Response<ServiceOrderDTO>(1, "服务订单执行异常:" + e.getMessage(), null));
-			return SUSPEND_NODE;
+			return null;
 		}
 	}
 	
