@@ -155,7 +155,6 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		try {
 			ServiceOrderDO _serviceOrderDo = serviceOrderDao.getServiceOrderById(serviceOrderDto.getId());
 			ServiceOrderDO serviceOrderDo = mapper.map(serviceOrderDto, ServiceOrderDO.class);
-System.out.println("======serviceOrderDo:" + serviceOrderDo);
 			int i = serviceOrderDao.updateServiceOrder(serviceOrderDo);
 			if (i > 0
 					&& ((_serviceOrderDo.getMaraId() > 0 && serviceOrderDo.getMaraId() > 0
