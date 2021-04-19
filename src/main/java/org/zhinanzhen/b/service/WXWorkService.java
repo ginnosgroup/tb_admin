@@ -1,5 +1,8 @@
 package org.zhinanzhen.b.service;
 
+import org.apache.ibatis.annotations.Param;
+import org.zhinanzhen.b.dao.pojo.ChatDO;
+import org.zhinanzhen.b.service.pojo.ChatDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 
 import java.util.Map;
@@ -23,4 +26,13 @@ public interface WXWorkService {
     int add(UserDTO userDTO);
 
     void sendMsg(int id);
+
+    int updateByAuthopenid(UserDTO userDTO);
+
+    boolean updateAuthopenidByPhone(String authOpenid ,  String phone);
+
+    int addChat(ChatDTO chatDTO);
+
+    ChatDO ChatDOByServiceOrderId(@Param("serviceOrderId") int serviceOrderId);
+
 }

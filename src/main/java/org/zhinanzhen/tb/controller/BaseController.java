@@ -250,5 +250,6 @@ public class BaseController {
 		private Integer kjId;
 		private Integer regionId;
 		private boolean isOfficialAdmin;
+		private boolean isAuth;
 	}
 }

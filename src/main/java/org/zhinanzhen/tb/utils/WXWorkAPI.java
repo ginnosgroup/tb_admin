@@ -52,6 +52,8 @@ public class WXWorkAPI {
 
     public  final  static  String SENDMESSAGE = "https://qyapi.weixin.qq.com/cgi-bin/appchat/send?access_token=ACCESS_TOKEN";
 
+    public final static  String CREATECHAT = "https://qyapi.weixin.qq.com/cgi-bin/appchat/create?access_token=ACCESS_TOKEN";
+
     //发送GET请求
     public static JSONObject sendGet(String url) {
 

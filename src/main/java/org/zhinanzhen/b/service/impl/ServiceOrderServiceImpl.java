@@ -1,11 +1,14 @@
 package org.zhinanzhen.b.service.impl;
 
 import java.util.*;
-
 import javax.annotation.Resource;
-
+import javax.servlet.http.HttpSession;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.ServiceOrderService;
@@ -22,11 +25,10 @@ import org.zhinanzhen.tb.service.impl.BaseService;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
-
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.StringUtil;
-
 import lombok.Data;
+import org.zhinanzhen.tb.utils.WXWorkAPI;
 
 @Service("ServiceOrderService")
 public class ServiceOrderServiceImpl extends BaseService implements ServiceOrderService {
@@ -88,6 +90,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	@Resource
 	private ServiceAssessDao serviceAssessDao;
 
+	@Resource
+	private WXWorkDAO wxWorkDAO;
+
 	@Override
 	public int addServiceOrder(ServiceOrderDTO serviceOrderDto) throws ServiceException {
 		if (serviceOrderDto == null) {
@@ -99,7 +104,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			List<CommissionOrderDO> commissionOrderDOS = commissionOrderDao
 					.listCommissionOrderByVerifyCode(serviceOrderDto.getVerifyCode());
 			List<VisaDO> visaDOS = visaDao.listVisaByVerifyCode(serviceOrderDto.getVerifyCode());
-			if (commissionOrderDOS.size() > 0 | visaDOS.size() > 0) {
+			if (commissionOrderDOS.size() > 0 | serviceOrderDao.listByVerifyCode(serviceOrderDto.getVerifyCode()).size() > 0 || visaDOS.size() > 0) {
 				ServiceException se = new ServiceException(
 						"对账code:" + serviceOrderDto.getVerifyCode() + "已经存在,请重新创建新的code!");
 				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -516,6 +521,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	public ServiceOrderDTO approval(int id, int adminUserId, String adviserState, String maraState,
 			String officialState, String kjState) throws ServiceException {
 		sendRemind(id, adviserState, maraState, officialState);
+		//createChat(id);
 		return review(id, adminUserId, adviserState, maraState, officialState, kjState, "APPROVAL");
 	}
 
@@ -1144,7 +1150,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	public List<EachRegionNumberDTO> listServiceOrderGroupByForRegion(String type, String startOfficialApprovalDate,
 			String endOfficialApprovalDate) {
 		List<EachRegionNumberDO> eachRegionNumberDOS = serviceOrderDao.listServiceOrderGroupByForRegion(type,
-				startOfficialApprovalDate, endOfficialApprovalDate);
+				startOfficialApprovalDate, theDateTo23_59_59(endOfficialApprovalDate));
 		List<EachRegionNumberDTO> eachRegionNumberDTOS = new ArrayList<>();
 		Set<String> codeSet = new HashSet<>();
 		eachRegionNumberDOS.forEach(eachRegionNumberDO -> {
@@ -1196,6 +1202,91 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			}
 		});
 		return eachRegionNumberDTOS;
+	}
+
+	@Override
+	public List<EachSubjectCountDTO> eachSubjectCount(String startOfficialApprovalDate, String endOfficialApprovalDate) {
+		List<EachSubjectCountDO> eachSubjectCountDOList = serviceOrderDao.eachSubjectCount(startOfficialApprovalDate,theDateTo23_59_59(endOfficialApprovalDate));
+		List<EachSubjectCountDTO> subjectCountDTOList = new ArrayList<>();
+		HashSet<String> nameSet = new HashSet();
+		eachSubjectCountDOList.forEach(eachSubjectCountDO -> {
+			nameSet.add(eachSubjectCountDO.getName());
+		});
+		for (String name : nameSet){
+			EachSubjectCountDTO dTO = new EachSubjectCountDTO();
+			dTO.setName(name);
+			List<EachSubjectCountDTO.Subject> subjects = new ArrayList<>();
+
+			eachSubjectCountDOList.forEach(eachSubjectCountDO ->{
+				if (name.equalsIgnoreCase(eachSubjectCountDO.getName())){
+					dTO.setTotal(dTO.getTotal() + eachSubjectCountDO.getNumber());
+					EachSubjectCountDTO.Subject subject = dTO.new Subject();
+					subject.setNumber(eachSubjectCountDO.getNumber());
+					subject.setSubjectName(eachSubjectCountDO.getSubject());
+					subjects.add(subject);
+				}
+			});
+			dTO.setSubject(subjects);
+			subjectCountDTOList.add(dTO);
+		}
+		return  subjectCountDTOList;
+	}
+
+	public  void createChat(int serviceOrderId) {
+		List<String> userList = new ArrayList<>();
+		JSONObject parm = new JSONObject();
+		ChatDO chatDO = new ChatDO();
+		ServiceOrderDO serviceOrderDO = serviceOrderDao.getServiceOrderById(serviceOrderId);
+		if (serviceOrderDO != null){
+			chatDO.setServiceOrderId(serviceOrderId);
+			chatDO.setUserId(serviceOrderDO.getUserId());
+			AdviserDO adviserDO =  adviserDao.getAdviserById(serviceOrderDO.getAdviserId());
+			if (adviserDO != null){
+				chatDO.setAdviserId(adviserDO.getId());
+				AdminUserDO adminUserDO =  adminUserDao.getAdminUserByUsername(adviserDO.getEmail());
+				if (adminUserDO != null)
+					if ( StringUtil.isNotEmpty(adminUserDO.getOperUserId())){
+						userList.add(adminUserDO.getOperUserId());
+						parm.put("owner",adminUserDO.getOperUserId());
+					}
+			}
+			OfficialDO officialDO =  officialDao.getOfficialById(serviceOrderDO.getOfficialId());
+			if (officialDO != null){
+				chatDO.setOfficialId(officialDO.getId());
+				AdminUserDO adminUserDO =  adminUserDao.getAdminUserByUsername(officialDO.getEmail());
+				if (adminUserDO != null)
+					if ( StringUtil.isNotEmpty(adminUserDO.getOperUserId()))
+						userList.add(adminUserDO.getOperUserId());
+			}
+			MaraDO maraDO =  maraDao.getMaraById(serviceOrderDO.getMaraId());
+			if (maraDO != null){
+				chatDO.setMaraId(maraDO.getId());
+				AdminUserDO adminUserDO =  adminUserDao.getAdminUserByUsername(maraDO.getEmail());
+				if (adminUserDO != null)
+					if ( StringUtil.isNotEmpty(adminUserDO.getOperUserId()) & serviceOrderDO.getType().equalsIgnoreCase("VISA"))
+						userList.add(adminUserDO.getOperUserId());
+			}
+			parm.put("userlist",userList);
+			parm.put("name","服务订单" + serviceOrderDO.getId() + "的群聊");
+			parm.put("chatid","ZNZ"+serviceOrderDO.getId());
+		}
+		ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+		HttpSession session=attr.getRequest().getSession(true);
+		String token = (String) session.getAttribute("corpToken");
+		JSONObject json =  WXWorkAPI.sendPostBody_Map(WXWorkAPI.CREATECHAT.replace("ACCESS_TOKEN",token),parm);
+		Map<String,Object> result = JSON.parseObject(JSON.toJSONString(json), Map.class);
+		if ((int)result.get("errcode") == 0){
+			chatDO.setChatId("ZNZ"+serviceOrderDO.getId());
+			int re = wxWorkDAO.addChat(chatDO);
+			JSONObject msgParm = new JSONObject();
+			JSONObject content = new JSONObject();
+			msgParm.put("chatid",result.get("chatid"));
+			msgParm.put("msgtype","text");
+			content.put("content","这里是订单编号为:" + serviceOrderDO.getId() + "的群聊");
+			msgParm.put("text",content);
+			msgParm.put("safe",0);
+			JSONObject sendFirstMsgResultJson =  WXWorkAPI.sendPostBody_Map(WXWorkAPI.SENDMESSAGE.replace("ACCESS_TOKEN",token),msgParm);
+		}
 	}
 
 	private String getPeopleTypeStr(String peopleType) {

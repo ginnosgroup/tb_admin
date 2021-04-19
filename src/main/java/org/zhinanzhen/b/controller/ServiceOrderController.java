@@ -265,8 +265,12 @@ public class ServiceOrderController extends BaseController {
 			if (StringUtil.isNotEmpty(userId))
 				if (userService.getUserById(StringUtil.toInt(userId)) == null)
 					return new Response<Integer>(1, "用户编号错误(" + userId + ")，创建失败.", 0);
-				else
-					serviceOrderDto.setUserId(StringUtil.toInt(userId));
+				else{
+					if (userService.getUserById(StringUtil.toInt(userId)).getPhone().equalsIgnoreCase("00000000000"))
+						return new Response<Integer>(1, "用户号码不合法(" + userService.getUserById(StringUtil.toInt(userId)).getPhone() + ")，创建失败.",0);
+					else
+						serviceOrderDto.setUserId(StringUtil.toInt(userId));
+				}
 			if (StringUtil.isNotEmpty(maraId) && !"SIV".equalsIgnoreCase(serviceOrderDto.getType())
 					&& !"MT".equalsIgnoreCase(serviceOrderDto.getType())) // SIV主订单和MT主订单不需要mara
 				serviceOrderDto.setMaraId(StringUtil.toInt(maraId));
@@ -284,6 +288,9 @@ public class ServiceOrderController extends BaseController {
 			serviceOrderDto.setHistory(isHistory != null && "true".equalsIgnoreCase(isHistory));
 			if (StringUtil.isNotEmpty(nutCloud))
 				serviceOrderDto.setNutCloud(nutCloud);
+			if (StringUtil.isEmpty(serviceAssessId) && serviceAssessService.seleteAssessByServiceId(serviceId).size() > 0) {
+				return new Response(1, "没有选择职业!");
+			}
 			if (StringUtil.isNotEmpty(serviceAssessId)) {
 				if ( !type.equalsIgnoreCase("SIV") && serviceAssessService.seleteAssessByServiceId(serviceId).size() == 0 )
 					return new Response(1, "当前服务编号不是评估(" + serviceId + ")，创建失败.", 0);
@@ -1625,15 +1632,69 @@ public class ServiceOrderController extends BaseController {
 
 	@RequestMapping(value = "/downExcel", method = RequestMethod.GET)
 	@ResponseBody
-	public void downExcel(@RequestParam(value = "type", required = false) String type,
+	public void downExcel(@RequestParam(value = "type") String type,
 			@RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
 			@RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
+			@RequestParam(value = "subject", required = false) String subject,
 			HttpServletRequest request, HttpServletResponse response) {
 
 		try {
 			super.setGetHeader(response);
-			List<EachRegionNumberDTO> eachRegionNumberDTOS = serviceOrderService.listServiceOrderGroupByForRegion(type,
-					startOfficialApprovalDate, endOfficialApprovalDate);
+			List<EachRegionNumberDTO> eachRegionNumberDTOS = new ArrayList<>();
+			if (StringUtil.isEmpty(subject))
+				eachRegionNumberDTOS = serviceOrderService.listServiceOrderGroupByForRegion(type, startOfficialApprovalDate, endOfficialApprovalDate);
+
+			if (StringUtil.isNotEmpty(subject)){
+				List<EachSubjectCountDTO> eachSubjectCountDTOS = serviceOrderService.eachSubjectCount(startOfficialApprovalDate,endOfficialApprovalDate);
+				response.reset();// 清空输出流
+				String tableName = "Subject";
+				response.setHeader("Content-disposition",
+						"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
+				response.setContentType("application/msexcel");
+
+				OutputStream os = response.getOutputStream();
+				jxl.Workbook wb;
+				InputStream is;
+				try {
+					is = this.getClass().getResourceAsStream("/SubjectTemplate.xls");
+				} catch (Exception e) {
+					throw new Exception("模版不存在");
+				}
+				try {
+					wb = Workbook.getWorkbook(is);
+				} catch (Exception e) {
+					throw new Exception("模版格式不支持");
+				}
+				WorkbookSettings settings = new WorkbookSettings();
+				settings.setWriteAccess(null);
+				jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
+
+				if (wbe == null) {
+					System.out.println("wbe is null !os=" + os + ",wb" + wb);
+				} else {
+					System.out.println("wbe not null !os=" + os + ",wb" + wb);
+				}
+				WritableSheet sheet = wbe.getSheet(0);
+				WritableCellFormat cellFormat = new WritableCellFormat();
+				int i = 0;
+				for (EachSubjectCountDTO each : eachSubjectCountDTOS){
+					sheet.addCell(new Label( 0 , i , " 学校名称 " , cellFormat));
+					sheet.addCell(new Label( 1 , i ,each.getName(),cellFormat));
+					sheet.addCell(new Label( 0 , i + 1 , " 申请数量 " , cellFormat));
+					sheet.addCell(new Label( 1 , i + 1 ,each.getTotal() + "",cellFormat));
+					List<EachSubjectCountDTO.Subject> subjects = each.getSubject();
+					int n = 2;
+					for (EachSubjectCountDTO.Subject sub : subjects){
+						sheet.addCell(new Label( n , i , sub.getSubjectName() , cellFormat));
+						sheet.addCell(new Label( n , i + 1 , sub.getNumber() + "",cellFormat));
+						n++;
+					}
+					i += 2;
+				}
+				wbe.write();
+				wbe.close();
+				return;
+			}
 
 			response.reset();// 清空输出流
 			String tableName = "Information";

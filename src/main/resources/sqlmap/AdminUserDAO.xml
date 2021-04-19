@@ -87,6 +87,12 @@
         WHERE id = #{id};
     </update>
 
+    <update id="updateOperUserId" parameterType="org.zhinanzhen.tb.dao.pojo.AdminUserDO">
+        UPDATE tb_admin_user
+        SET gmt_modify = now(), oper_userid = #{operUserId}
+        WHERE id = #{id};
+    </update>
+
     <select id="getAdminUserById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.tb.dao.pojo.AdminUserDO">
         SELECT
             id,
@@ -101,7 +107,8 @@
             session_id AS sessionId,
             gmt_login AS gmtLogin,
             login_ip AS loginIp,
-            status
+            status,
+            oper_userid AS operUserId
         FROM tb_admin_user WHERE id = #{id, jdbcType=INTEGER};
     </select>
     
@@ -137,7 +144,8 @@
             session_id AS sessionId,
             gmt_login AS gmtLogin,
             login_ip AS loginIp,
-            status
+            status,
+            oper_userid AS operUserId
         FROM tb_admin_user WHERE username = #{username};
     </select>
     

@@ -11,6 +11,8 @@ import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.ServiceException;
+import org.zhinanzhen.tb.service.UserService;
+import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.utils.EmojiFilter;
@@ -18,6 +20,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -37,6 +40,9 @@ public class WXWorkController extends  BaseController{
     @Resource
     private AdviserService adviserService;
 
+    @Resource
+    private UserService userService;
+
     @GetMapping(value = "/WXWorkCode")
     @ResponseBody
     public Response getWXWorkUrl() {
@@ -52,8 +58,8 @@ public class WXWorkController extends  BaseController{
         super.setGetHeader(response);
         String str = "<script>setTimeout(self.close,7000)</script>";
         HttpSession session = request.getSession();
-        Integer adviserId = getAdviserId(request);
-        if (adviserId == null)
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo == null)
             return "<div style= 'color:#3c763d;'>未登录，授权失败 !</div>" + str;
 
         String corpToken = "";
@@ -65,17 +71,18 @@ public class WXWorkController extends  BaseController{
         if ((int) infoMap.get("errcode") != 0)
             return "<div style= 'color:#3c763d;'>系统出错,授权失败 !</div>" + str;
         String userId = (String) infoMap.get("UserId");
-        AdviserDTO adviserDTO =  adviserService.getAdviserById(adviserId);
-        if (adviserDTO != null ){
-            if (StringUtil.isNotEmpty(adviserDTO.getOperUserId()))
+        AdminUserDTO adminUser = adminUserService.getAdminUserByUsername(adminUserLoginInfo.getUsername());
+        if ( adminUser != null){
+            if (StringUtil.isNotEmpty(adminUser.getOperUserId()))
                 return "<div style= 'color:#3c763d;'>该用户已经授权了!</div>" + str;
-            if (StringUtil.isEmpty(adviserDTO.getOperUserId()))
-                adviserDTO.setOperUserId(userId);
+            if (adminUserService.updateOperUserId(adminUser.getId(),userId)){
+                if (adminUserLoginInfo.getApList().equalsIgnoreCase("GW"))
+                    return "<div style= 'color:#3c763d;'>授权成功，请在客户管理页面导入并编辑客户资料!</div>" + str;
+                else
+                    return "<div style= 'color:#3c763d;'>授权成功!</div>" + str;
+            }
         }
-        if (adviserService.updateAdviser(adviserDTO)>0){
-            return "<div style= 'color:#3c763d;'>授权成功，请在客户管理页面导入并编辑客户资料!</div>" + str;
-        }
-        return  "<div style= 'color:#3c763d;'>授权失败!</div>" + str;
+        return   "<div style= 'color:#3c763d;'>授权失败!</div>" + str;
     }
 
 
@@ -84,19 +91,23 @@ public class WXWorkController extends  BaseController{
     @Transactional
     public  Response getExternalContactList(HttpServletRequest request, HttpServletResponse response) throws ServiceException {
 
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo == null)
+            return  new Response(1,"未登录");
+        AdminUserDTO adminUser = adminUserService.getAdminUserByUsername(adminUserLoginInfo.getUsername());
         Integer adviserId =  getAdviserId(request);
         if (adviserId == null)
-            return  new Response(1,"adviserId is null");
+            return  new Response(1,"不是顾问!");
         HttpSession session = request.getSession();
         String customerToken = (String) session.getAttribute("customerToken");
         AdviserDTO adviserDTO =  adviserService.getAdviserById(adviserId);
         if (adviserDTO == null)
             return  new Response(1,"没有此顾问");
-
-        if (StringUtil.isEmpty(adviserDTO.getOperUserId()))
+        if (StringUtil.isEmpty(adminUser.getOperUserId()))
             return  new Response(1 ,"先授权登录");
 
-        String userId = adviserDTO.getOperUserId();
+        String userId = adminUser.getOperUserId();
+        ArrayList phoneContainList = new ArrayList();
         boolean flag = true ;
         String cursor = "";
         while (flag) {
@@ -108,20 +119,21 @@ public class WXWorkController extends  BaseController{
                     JSONArray jsonArray = JSONArray.parseArray(JSON.toJSONString(externalContactListMap.get("external_contact_list")));
                     for (int i = 0; i < jsonArray.size(); i++) {
                         Map<String, Object> externalMap = JSON.parseObject(JSON.toJSONString(jsonArray.get(i)), Map.class);
-                        for (Map.Entry<String, Object> entry : externalMap.entrySet()) {
-                            System.out.println(entry.getKey() + "====" + entry.getValue());
-                        }
                         UserDTO userDTO = new UserDTO();
+                        boolean isContain = false;
                         if (externalMap.get("follow_info") != null) {
                             Map<String, Object> follow_info_Map = JSON.parseObject(JSON.toJSONString(externalMap.get("follow_info")), Map.class);
                             String remark =  follow_info_Map.get("remark").toString();
                             userDTO.setAuthNickname(EmojiFilter.filterEmoji(remark));
                             JSONArray jsonMobiles = JSONArray.parseArray(JSON.toJSONString(follow_info_Map.get("remark_mobiles")));
                             if (jsonMobiles.size() > 0 ){
-                                System.out.println(jsonMobiles.size());
                                 for (int n = 0 ; n < jsonMobiles.size() ; n++){
-                                    String mobiles = jsonMobiles.getString(0);
+                                    String mobiles = jsonMobiles.getString(n);
                                     userDTO.setPhone(mobiles);
+                                    if (StringUtil.isNotEmpty(mobiles) && userService.countUser(null, null, null, mobiles, null, 0, null, null) > 0){
+                                        isContain = true;
+                                        break;
+                                    }
                                 }
                             }else
                                 userDTO.setPhone("00000000000");
@@ -137,9 +149,20 @@ public class WXWorkController extends  BaseController{
                             String avatar =  external_contact_Map.get("avatar").toString();
                             userDTO.setAuthLogo(avatar);
                         }
+                        if (isContain){
+                            wxWorkService.updateAuthopenidByPhone(userDTO.getAuthOpenid(),userDTO.getPhone());
+                        }
                         userDTO.setAdviserId(adviserId);
                         userDTO.setRegionId(adviserDTO.getRegionId());
-                        wxWorkService.add(userDTO);
+                        UserDTO userDTOByAuthOpenid = userService.getUserByOpenId("WECHAT_WORK",userDTO.getAuthOpenid());
+                        if (userDTOByAuthOpenid != null){
+                            userDTO.setId(userDTOByAuthOpenid.getId());
+                            int result = wxWorkService.updateByAuthopenid(userDTO);
+                            if (result == -1)
+                                phoneContainList.add(userDTO.getPhone());
+                        }
+                        if (userDTOByAuthOpenid == null)
+                            wxWorkService.add(userDTO);
                     }
                 }
                 cursor = externalContactListMap.get("next_cursor").toString();
@@ -148,7 +171,7 @@ public class WXWorkController extends  BaseController{
                 }
             }
         }
-        return  new Response(0 ,"success");
+        return  new Response(0 ,"success",phoneContainList);
     }
 
 }
