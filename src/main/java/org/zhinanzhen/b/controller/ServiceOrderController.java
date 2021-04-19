@@ -595,7 +595,6 @@ public class ServiceOrderController extends BaseController {
 			HttpServletResponse response) {
 //		if (getOfficialAdminId(request) != null)
 //			return new Response<Integer>(1, "文案管理员不可操作服务订单.", 0);
-System.out.println("======remarks:" + remarks);
 		try {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
@@ -1708,9 +1707,9 @@ System.out.println("======remarks:" + remarks);
 			@RequestParam(value = "remarks", required = false) String remarks,
 			@RequestParam(value = "stateMark", required = false) String stateMark, HttpServletRequest request,
 			HttpServletResponse response) {
-		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-		if (adminUserLoginInfo == null)
-			return new Response<ServiceOrderDTO>(1, "请先登录.", null);
+//		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+//		if (adminUserLoginInfo == null)
+//			return new Response<ServiceOrderDTO>(1, "请先登录.", null);
 		if (id <= 0)
 			return new Response<ServiceOrderDTO>(1, "id不正确:" + id, null);
 		ServiceOrderDTO serviceOrderDto;
@@ -1729,8 +1728,8 @@ System.out.println("======remarks:" + remarks);
 			context.putParameter("refuseReason", refuseReason);
 			context.putParameter("remarks", remarks);
 			context.putParameter("stateMark", stateMark);
-			context.putParameter("ap", adminUserLoginInfo.getApList());
-			context.putParameter("adminUserId", adminUserLoginInfo.getId());
+//			context.putParameter("ap", adminUserLoginInfo.getApList());
+//			context.putParameter("adminUserId", adminUserLoginInfo.getId());
 			
 			String[] nextNodeNames = node.nextNodeNames();
 			if (nextNodeNames != null)
