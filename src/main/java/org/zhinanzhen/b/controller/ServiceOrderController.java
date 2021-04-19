@@ -595,6 +595,7 @@ public class ServiceOrderController extends BaseController {
 			HttpServletResponse response) {
 //		if (getOfficialAdminId(request) != null)
 //			return new Response<Integer>(1, "文案管理员不可操作服务订单.", 0);
+System.out.println("=====remarks:" + remarks);
 		try {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
