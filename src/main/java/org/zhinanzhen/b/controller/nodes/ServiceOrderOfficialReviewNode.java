@@ -26,8 +26,9 @@ public class ServiceOrderOfficialReviewNode extends SODecisionNode {
 	@Override
 	protected String decide(Context context) {
 		isSingleStep = true;
-		if (!"WA".equalsIgnoreCase(getAp(context))) {
-			context.putParameter("response", new Response<ServiceOrderDTO>(1, "仅限文案操作!", null));
+		String ap = getAp(context);
+		if (!"WA".equalsIgnoreCase(ap)) {
+			context.putParameter("response", new Response<ServiceOrderDTO>(1, "仅限文案操作! 当前角色为:" + ap, null));
 			return SUSPEND_NODE;
 		}
 		try {
