@@ -29,14 +29,14 @@ public class ServiceOrderOfficialReviewNode extends SODecisionNode {
 		String ap = getAp(context);
 		if (!"WA".equalsIgnoreCase(ap)) {
 			context.putParameter("response", new Response<ServiceOrderDTO>(1, "仅限文案操作! 当前角色为:" + ap, null));
-			return SUSPEND_NODE;
+			return null;
 		}
 		try {
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(getServiceOrderId(context));
 			if (serviceOrderDto == null) {
 				context.putParameter("response",
 						new Response<ServiceOrderDTO>(1, "服务订单不存在:" + getServiceOrderId(context), null));
-				return SUSPEND_NODE;
+				return null;
 			}
 //			if (serviceOrderDto.getParentId() == 0 && ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
 //					|| "MT".equalsIgnoreCase(serviceOrderDto.getType()))) {

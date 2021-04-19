@@ -27,13 +27,13 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
 	protected String decide(Context context) {
 		if (!"WA".equalsIgnoreCase(getAp(context))) {
 			context.putParameter("response", new Response<ServiceOrderDTO>(1, "仅限文案操作!", null));
-			return SUSPEND_NODE;
+			return null;
 		}
 		try {
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(getServiceOrderId(context));
 			String type = serviceOrderDto.getType();
 			if (!"OVST".equals(type))
-				return SUSPEND_NODE;
+				return null;
 			isSingleStep = true;
 			return "PAID";
 		} catch (ServiceException e) {
