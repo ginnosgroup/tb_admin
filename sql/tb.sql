@@ -175,7 +175,8 @@ CREATE TABLE `tb_admin_user` (
   `session_id` varchar(255) DEFAULT NULL COMMENT '当前session_id值',
   `gmt_login` datetime NOT NULL COMMENT '最后登录时间',
   `login_ip` varchar(50) NOT NULL COMMENT '最后登录IP',
-  `status` varchar(8) NOT NULL DEFAULT 'ENABLED' COMMENT '账户状态标识 (ENABLED:可用,DISABLED:不可用)'
+  `status` varchar(8) NOT NULL DEFAULT 'ENABLED' COMMENT '账户状态标识 (ENABLED:可用,DISABLED:不可用)',
+  `oper_userid` varchar(64) DEFAULT NULL COMMENT '企业微信的oper_userid'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 ALTER TABLE `tb_admin_user` ADD INDEX index_name (`username`, `adviser_id`, `mara_id`, `official_id`, `kj_id`, `region_id`);
 
@@ -224,7 +225,8 @@ CREATE TABLE `b_visa` (
   `remarks` text DEFAULT NULL COMMENT '备注',
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消',
   `verify_code` varchar(64) DEFAULT NULL COMMENT '对账使用的code,顾问名称+地区+随机数',
-  `bank_date` datetime DEFAULT NULL COMMENT '入账时间,对应b_finance_code.bank_date'
+  `bank_date` datetime DEFAULT NULL COMMENT '入账时间,对应b_finance_code.bank_date',
+  `invoice_create` datetime DEFAULT NULL COMMENT '发票创建时间'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 ALTER TABLE `b_visa` ADD INDEX index_name (`user_id`, `adviser_id`, `mara_id`, `official_id`);
 
@@ -541,7 +543,8 @@ CREATE TABLE `b_commission_order` (
   `remarks` text DEFAULT NULL COMMENT '备注',
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消',
   `verify_code` varchar(64) DEFAULT NULL COMMENT '对账使用的code,顾问名称+地区+随机数',
-  `bank_date` datetime DEFAULT NULL COMMENT '入账时间,对应b_finance_code.bank_date'
+  `bank_date` datetime DEFAULT NULL COMMENT '入账时间,对应b_finance_code.bank_date',
+  `invoice_create` datetime DEFAULT NULL COMMENT '发票创建时间'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 ALTER TABLE `b_commission_order` ADD INDEX index_name (`code`, `school_id`, `user_id`, `adviser_id`, `official_id`);
 
@@ -989,4 +992,18 @@ CREATE TABLE `b_school_course` (
   `provider_code` varchar(32) DEFAULT NULL COMMENT '学校编码'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
+---群聊id
+CREATE TABLE `b_chat` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `service_order_id` int(11) NOT NULL COMMENT '服务订单编号 (对应b_service_order.id)',
+  `chat_id` varchar(32) NOT NULL COMMENT '群聊id',
+  `user_id` int(11) NOT NULL COMMENT ' (tb_user.id)',
+  `mara_id` int(11) DEFAULT NULL COMMENT 'MARA (b_mara.id,MARA)',
+  `adviser_id` int(11) NOT NULL COMMENT ' (tb_adviser.id)',
+  `official_id` int(11) DEFAULT NULL COMMENT ' (b_official.id,)',
+  PRIMARY KEY (`id`),
+  KEY `service_order_id` (`service_order_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 

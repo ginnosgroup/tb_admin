@@ -172,4 +172,9 @@ public class AdminUserServiceImpl extends BaseService implements AdminUserServic
 		return adminUserDao.updateOfficialAdmin(id, isOfficialAdmin);
 	}
 
+	@Override
+	public boolean updateOperUserId(int id ,String operUserId) {
+		return adminUserDao.updateOperUserId(id , operUserId);
+	}
+
 }

@@ -20,4 +20,6 @@ public interface AdviserDAO {
 
 	List<AdviserDO> listAdviserByRegionId(@Param("regionId")Integer regionId,@Param("state")String state);
 
+	List<AdviserDO> listAdviserOperUserIdIsNull();
+
 }
