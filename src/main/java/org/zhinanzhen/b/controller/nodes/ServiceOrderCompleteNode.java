@@ -32,8 +32,8 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
 		try {
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(getServiceOrderId(context));
 			String type = serviceOrderDto.getType();
-			if (!"OVST".equals(type))
-				return null;
+//			if (!"OVST".equals(type))
+//				return null;
 			isSingleStep = true;
 			return "PAID";
 		} catch (ServiceException e) {
