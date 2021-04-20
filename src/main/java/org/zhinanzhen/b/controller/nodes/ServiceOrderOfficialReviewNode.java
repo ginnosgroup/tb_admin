@@ -27,8 +27,8 @@ public class ServiceOrderOfficialReviewNode extends SODecisionNode {
 	protected String decide(Context context) {
 		isSingleStep = true;
 		String ap = getAp(context);
-		if (!"WA".equalsIgnoreCase(ap)) {
-			context.putParameter("response", new Response<ServiceOrderDTO>(1, "仅限文案操作! 当前角色为:" + ap, null));
+		if (!"WA".equalsIgnoreCase(ap) && !"MA".equalsIgnoreCase(ap)) {
+			context.putParameter("response", new Response<ServiceOrderDTO>(1, "仅限文案或Mara操作! 当前角色为:" + ap, null));
 			return null;
 		}
 		try {
