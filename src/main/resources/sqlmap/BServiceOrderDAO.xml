@@ -729,4 +729,22 @@
             readcommitted_date AS readcommittedDate
         FROM b_service_order WHERE verify_code = #{verifyCode};
     </select>
+
+    <select id="eachSubjectCount" resultType="org.zhinanzhen.b.dao.pojo.EachSubjectCountDO">
+        SELECT
+        bs.`name`,
+        bs.`subject`,
+        COUNT( bso.id ) AS number
+        FROM
+        `b_service_order` bso,
+        b_school bs
+        WHERE
+        bso.school_id = bs.id
+        AND bso.type = 'OVST'
+        <if test='startOfficialApprovalDate != null and startOfficialApprovalDate != "" and endOfficialApprovalDate != null and endOfficialApprovalDate != ""'>
+            <![CDATA[ AND bso.official_approval_date > #{startOfficialApprovalDate} AND bso.official_approval_date < #{endOfficialApprovalDate} ]]>
+        </if>
+        GROUP BY
+        bs.id;
+    </select>
 </mapper>
