@@ -136,6 +136,7 @@
             <foreach collection="regionIdList" item="regionIdList" index="index" open="(" close=")" separator=",">
                 #{regionIdList}
             </foreach>
+            AND u.region_id = 0
         </if>
         <if test='tagId != null and tagId != ""'>
             AND ut.tag_id = #{tagId}
