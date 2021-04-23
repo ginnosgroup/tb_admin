@@ -55,6 +55,8 @@ public class SchoolController extends BaseController {
 					return new Response<Integer>(2, "该学校课程已存在,操作失败.", 0);
 				}
 			}
+			if (StringUtil.isEmpty(country))
+				country = "AUS";
 			SchoolDTO schoolDto = new SchoolDTO();
 			schoolDto.setName(name);
 			schoolDto.setSubject(subject);
