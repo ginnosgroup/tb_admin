@@ -300,13 +300,13 @@ public class UserServiceImpl extends BaseService implements UserService {
 			for (ServiceOrderDO serviceOrderDo : serviceOrderList) {
 				OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
 				if (officialDo != null)
-					SendEmailUtil.send(officialDo.getEmail(), "客户信息变更提醒", StringUtil.merge("亲爱的:", officialDo.getName(),
-							"<br/>", "您的订单的客户信息已变更。<br>服务订单号:", serviceOrderDo.getId()));
+					sendMail(officialDo.getEmail(), "客户信息变更提醒", StringUtil.merge("亲爱的:", officialDo.getName(), "<br/>",
+							"您的订单的客户信息已变更。<br>服务订单号:", serviceOrderDo.getId()));
 				if ("VISA".equals(serviceOrderDo.getType())) {
 					MaraDO maraDo = maraDao.getMaraById(serviceOrderDo.getMaraId());
 					if (officialDo != null)
-						SendEmailUtil.send(maraDo.getEmail(), "客户信息变更提醒", StringUtil.merge("亲爱的:", maraDo.getName(),
-								"<br/>", "您的订单的客户信息已变更。<br>服务订单号:", serviceOrderDo.getId()));
+						sendMail(maraDo.getEmail(), "客户信息变更提醒", StringUtil.merge("亲爱的:", maraDo.getName(), "<br/>",
+								"您的订单的客户信息已变更。<br>服务订单号:", serviceOrderDo.getId()));
 				}
 			}
 		}
