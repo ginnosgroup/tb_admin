@@ -1007,3 +1007,14 @@ CREATE TABLE `b_chat` (
   KEY `service_order_id` (`service_order_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
+--提醒邮件日志
+CREATE TABLE `b_mail_log` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `code` varchar(128) NOT NULL COMMENT '编码',
+  `mail` varchar(255) NOT NULL COMMENT '收件人邮箱',
+  `title` varchar(255) NOT NULL COMMENT '标题',
+  `content` text DEFAULT NULL COMMENT '内容'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+

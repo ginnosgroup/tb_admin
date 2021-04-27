@@ -21,26 +21,26 @@ public class SendEmailUtil {
 //	private static SimpleSendEmailTool gmailSendEmailTool = new SimpleSendEmailTool("zhinanzhen630@gmail.com",
 //			"Zhinanzhen630", SimpleSendEmailTool.SmtpServerEnum.GMAIL);
 
-	public static void send(String mail, String title, String text) {
+	public static void send(String mail, String title, String content) {
 //		mail = "7311930@qq.com"; // 测试
-		log.info("发送邮件:" + mail + " | " + title + "|" + text);
+		log.info("发送邮件:" + mail + " | " + title + "|" + content);
 		Thread thread = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					tx1SendEmailTool.send(mail, title, text);
+					tx1SendEmailTool.send(mail, title, content);
 				} catch (Exception e) {
 					log.error(e.getMessage());
 					e.printStackTrace();
 					log.info("Try send mail again!");
 					try {
-						tx3SendEmailTool.send(mail, title, text);
+						tx3SendEmailTool.send(mail, title, content);
 					} catch (Exception e1) {
 						log.error(e1.getMessage());
 						e1.printStackTrace();
 						log.info("Try send mail again! (2)");
 						try {
-							txSendEmailTool.send(mail, title, text);
+							txSendEmailTool.send(mail, title, content);
 						} catch (Exception e2) {
 							log.error(e2.getMessage());
 							e2.printStackTrace();
