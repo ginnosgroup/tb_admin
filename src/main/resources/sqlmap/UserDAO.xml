@@ -132,11 +132,11 @@
             AND u.adviser_id = #{adviserId}
         </if>
         <if test='regionIdList != null'>
-            AND u.region_id IN
+            AND (u.region_id IN
             <foreach collection="regionIdList" item="regionIdList" index="index" open="(" close=")" separator=",">
                 #{regionIdList}
             </foreach>
-            AND u.region_id = 0
+            OR u.region_id = 0)
         </if>
         <if test='tagId != null and tagId != ""'>
             AND ut.tag_id = #{tagId}
