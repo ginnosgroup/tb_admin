@@ -872,6 +872,7 @@ CREATE TABLE `b_invoice_school_description` (
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `invoice_no` varchar(64) DEFAULT NULL COMMENT '税务发票编号 （对应b_invoice_school表中的invoice_no）',
+  `non_tuitionfee` decimal(10,2) DEFAULT NULL COMMENT 'nonTuitionFee'
   KEY `invoice_no` (`invoice_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
