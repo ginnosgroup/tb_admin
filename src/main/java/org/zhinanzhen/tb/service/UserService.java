@@ -8,7 +8,7 @@ import org.zhinanzhen.tb.service.pojo.TagDTO;
 
 public interface UserService {
 
-	public int addUser(String name, String authNickname, Date birthday, String phone, String wechatUsername,
+	public int addUser(String name, String authNickname, Date birthday, String areaCode, String phone, String email, String wechatUsername,
 			String firstControllerContents, String visaCode, Date visaExpirationDate, String source, int adviserId,
 			int regionId) throws ServiceException;
 
@@ -37,9 +37,9 @@ public interface UserService {
 	 */
 	UserDTO getUserByOpenId(String thirdType, String thirdId) throws ServiceException;
 
-	boolean update(int id, String name, String authNickname, Date birthday, String phone, String wechatUsername,
-			String firstControllerContents, String visaCode, Date visaExpirationDate, String source)
-			throws ServiceException;
+	boolean update(int id, String name, String authNickname, Date birthday, String phone, String areaCode,
+			String wechatUsername, String firstControllerContents, String visaCode, Date visaExpirationDate,
+			String source) throws ServiceException;
 
 	/**
 	 * 用户重新绑定顾问

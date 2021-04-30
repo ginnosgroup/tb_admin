@@ -3,10 +3,11 @@
 <mapper namespace="org.zhinanzhen.b.dao.VerifyDao">
     <insert id="add">
          <if test=" financeCodeDOS != null ">
-             insert into `b_finance_code` (gmt_create,gmt_modify,bank_date,user_id,is_income,money,balance,adviser_id,business,amount,order_id,comment)
+             insert into `b_finance_code` (gmt_create,gmt_modify,bank_date,user_id,is_income,money,balance,adviser_id,business,amount,order_id,comment,region_id,code)
               values
              <foreach collection="financeCodeDOS" item="tem" separator="," close=";"  index="index">
-                 (now(),now(),#{tem.bankDate},#{tem.userId},#{tem.isIncome},#{tem.money},#{tem.balance},#{tem.adviserId},#{tem.business},#{tem.amount},#{tem.orderId},#{tem.comment})
+                 (now(),now(),#{tem.bankDate},#{tem.userId},#{tem.isIncome},#{tem.money},#{tem.balance},#{tem.adviserId},#{tem.business},
+                 #{tem.amount},#{tem.orderId},#{tem.comment},#{tem.regionId},#{tem.code})
              </foreach>
          </if>
     </insert>
@@ -16,6 +17,9 @@
         <where>
             <if test='bankDateStart != null and  bankDateStart!= "" and  bankDateEnd != null and bankDateEnd != ""'>
                 <![CDATA[ AND bank_date > #{bankDateStart} AND bank_date < #{bankDateEnd} ]]>
+            </if>
+            <if test="regionId != null and regionId > 0">
+                AND region_id = #{regionId}
             </if>
         </where>
     </select>
@@ -40,6 +44,9 @@
             <if test='bankDateStart != null and  bankDateStart!= "" and  bankDateEnd != null and bankDateEnd != ""'>
                  AND bank_date &gt; #{bankDateStart} AND bank_date  &lt;  #{bankDateEnd}
             </if>
+            <if test="regionId != null and regionId > 0">
+                AND region_id = #{regionId}
+            </if>
         </where>
         order by bank_date DESC limit #{pageNumber},#{pageSize} ;
     </select>
@@ -61,6 +68,9 @@
         </if>
         <if test=" orderId != null ">
             , order_id = #{orderId}
+        </if>
+        <if test=' code != null  and code != ""'>
+            , code = #{code}
         </if>
         where id = #{id};
     </update>
@@ -129,6 +139,26 @@
         where order_id = #{orderId};
     </select>
 
+    <select id="financeDOByCode" resultType="org.zhinanzhen.b.dao.pojo.FinanceCodeDO">
+        select
+        id ,
+        gmt_create AS gmtCreate,
+        gmt_modify as gmtModify,
+        bank_date as bankDate,
+        user_id as userId,
+        is_income as isIncome,
+        money ,
+        balance ,
+        amount ,
+        adviser_id as adviserId,
+        business ,
+        order_id as orderId,
+        comment,
+        code
+        from `b_finance_code`
+        where code = #{code};
+    </select>
+
     <select id="getFinanceBankById" resultType="org.zhinanzhen.b.dao.pojo.FinanceBankDO">
         select  id,
         bank ,
@@ -161,4 +191,25 @@
         comment
         from `b_finance_code` where  id = #{id};
     </select>
+
+    <select id="getFinanceCodeOrderIdIsNull" resultType="org.zhinanzhen.b.dao.pojo.FinanceCodeDO">
+        select id,
+        gmt_create AS gmtCreate,
+        gmt_modify AS gmtModify,
+        bank_date AS bankDate,
+        user_id AS userId,
+        is_income AS isIncome,
+        money,
+        balance,
+        amount ,
+        adviser_id AS adviserId,
+        business,
+        order_id AS orderId,
+        comment
+        from `b_finance_code` where  order_id is null;
+    </select>
+    <update id="deleteOrderId">
+        update `b_finance_code` set order_id = null , user_id = 0 ,adviser_id = 0,business = null,amount = 0
+        where  id = #{id};
+    </update>
 </mapper>

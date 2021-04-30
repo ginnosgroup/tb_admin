@@ -34,7 +34,9 @@ import org.zhinanzhen.b.controller.nodes.SONodeFactory;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderReadcommittedDateDO;
 import org.zhinanzhen.b.service.*;
 import org.zhinanzhen.b.service.pojo.*;
+import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.controller.BaseController;
+import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -43,6 +45,7 @@ import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
 
+import com.alibaba.fastjson.JSON;
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.core.utils.ObjectUtil;
@@ -85,6 +88,9 @@ public class ServiceOrderController extends BaseController {
 	
 	@Resource
 	SONodeFactory soNodeFactory;
+
+	@Resource
+	WXWorkService wxWorkService;
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -259,8 +265,12 @@ public class ServiceOrderController extends BaseController {
 			if (StringUtil.isNotEmpty(userId))
 				if (userService.getUserById(StringUtil.toInt(userId)) == null)
 					return new Response<Integer>(1, "用户编号错误(" + userId + ")，创建失败.", 0);
-				else
-					serviceOrderDto.setUserId(StringUtil.toInt(userId));
+				else{
+					if (userService.getUserById(StringUtil.toInt(userId)).getPhone().equalsIgnoreCase("00000000000"))
+						return new Response<Integer>(1, "用户号码不合法(" + userService.getUserById(StringUtil.toInt(userId)).getPhone() + ")，创建失败.",0);
+					else
+						serviceOrderDto.setUserId(StringUtil.toInt(userId));
+				}
 			if (StringUtil.isNotEmpty(maraId) && !"SIV".equalsIgnoreCase(serviceOrderDto.getType())
 					&& !"MT".equalsIgnoreCase(serviceOrderDto.getType())) // SIV主订单和MT主订单不需要mara
 				serviceOrderDto.setMaraId(StringUtil.toInt(maraId));
@@ -278,8 +288,11 @@ public class ServiceOrderController extends BaseController {
 			serviceOrderDto.setHistory(isHistory != null && "true".equalsIgnoreCase(isHistory));
 			if (StringUtil.isNotEmpty(nutCloud))
 				serviceOrderDto.setNutCloud(nutCloud);
+			if (StringUtil.isEmpty(serviceAssessId) && serviceAssessService.seleteAssessByServiceId(serviceId).size() > 0) {
+				return new Response(1, "没有选择职业!");
+			}
 			if (StringUtil.isNotEmpty(serviceAssessId)) {
-				if (serviceAssessService.seleteAssessByServiceId(serviceId).size() == 0)
+				if ( !type.equalsIgnoreCase("SIV") && serviceAssessService.seleteAssessByServiceId(serviceId).size() == 0 )
 					return new Response(1, "当前服务编号不是评估(" + serviceId + ")，创建失败.", 0);
 				serviceOrderDto.setServiceAssessId(serviceAssessId);
 			}
@@ -309,6 +322,7 @@ public class ServiceOrderController extends BaseController {
 						ServicePackageDTO servicePackageDto = servicePackageService.getById(id);
 						if (servicePackageDto == null)
 							return new Response<Integer>(1, "服务包不存在.", 0);
+						serviceOrderDto.setServiceAssessId("CA".equalsIgnoreCase(servicePackageDto.getType()) ? serviceAssessId : null);
 						serviceOrderDto.setType("VISA"); // 独立技术移民子订单为VISA
 						serviceOrderDto.setPay(false); // 独立技术移民子订单都未支付
 						if (StringUtil.isNotEmpty(maraId))
@@ -543,8 +557,8 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "coePaymentVoucherImageUrl5", required = false) String coePaymentVoucherImageUrl5,
 			@RequestParam(value = "visaVoucherImageUrl", required = false) String visaVoucherImageUrl,
 			HttpServletRequest request, HttpServletResponse response) {
-		if (getOfficialAdminId(request) != null)
-			return new Response<Integer>(1, "文案管理员不可操作服务订单.", 0);
+//		if (getOfficialAdminId(request) != null)
+//			return new Response<Integer>(1, "文案管理员不可操作服务订单.", 0);
 		try {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
@@ -555,6 +569,9 @@ public class ServiceOrderController extends BaseController {
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
 			if (serviceOrderDto == null)
 				return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
+			if (getOfficialAdminId(request) != null && serviceOrderDto.getOfficialId() != getOfficialId(request))
+				return new Response<Integer>(1, "(文案管理员" + getOfficialId(request) + ")只能操作自己的服务订单,不可操作(文案"
+						+ serviceOrderDto.getOfficialId() + ")服务订单.", 0);
 			if (StringUtil.isNotEmpty(coePaymentVoucherImageUrl1))
 				serviceOrderDto.setCoePaymentVoucherImageUrl1(coePaymentVoucherImageUrl1);
 			if (StringUtil.isNotEmpty(coePaymentVoucherImageUrl2))
@@ -583,8 +600,8 @@ public class ServiceOrderController extends BaseController {
 	public Response<Integer> updateRemarks(@RequestParam(value = "id") int id,
 			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
 			HttpServletResponse response) {
-		if (getOfficialAdminId(request) != null)
-			return new Response<Integer>(1, "文案管理员不可操作服务订单.", 0);
+//		if (getOfficialAdminId(request) != null)
+//			return new Response<Integer>(1, "文案管理员不可操作服务订单.", 0);
 		try {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
@@ -595,6 +612,9 @@ public class ServiceOrderController extends BaseController {
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
 			if (serviceOrderDto == null)
 				return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
+			if (getOfficialAdminId(request) != null && serviceOrderDto.getOfficialId() != getOfficialId(request))
+				return new Response<Integer>(1, "(文案管理员" + getOfficialId(request) + ")只能操作自己的服务订单,不可操作(文案"
+						+ serviceOrderDto.getOfficialId() + ")服务订单.", 0);
 			if (StringUtil.isNotEmpty(remarks))
 				serviceOrderDto.setRemarks(remarks);
 			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
@@ -681,6 +701,7 @@ public class ServiceOrderController extends BaseController {
 
 	@RequestMapping(value = "/count", method = RequestMethod.GET)
 	@ResponseBody
+	@Deprecated
 	public Response<Integer> countServiceOrder(@RequestParam(value = "id", required = false) Integer id,
 			@RequestParam(value = "type", required = false) String type,
 			@RequestParam(value = "state", required = false) String state,
@@ -745,6 +766,8 @@ public class ServiceOrderController extends BaseController {
 				Integer newAdviserId = getAdviserId(request);
 				if (newAdviserId != null)
 					adviserId = newAdviserId;
+				if (adminUserLoginInfo == null)
+					return new Response<Integer>(0, "No permission !", 0);
 			}
 
 			if (id != null && id > 0) {
@@ -767,7 +790,7 @@ public class ServiceOrderController extends BaseController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<ServiceOrderDTO>> listServiceOrder(@RequestParam(value = "id", required = false) Integer id,
+	public ListResponse<List<ServiceOrderDTO>> listServiceOrder(@RequestParam(value = "id", required = false) Integer id,
 			@RequestParam(value = "type", required = false) String type,
 			@RequestParam(value = "state", required = false) String state,
 			@RequestParam(value = "auditingState", required = false) String auditingState,
@@ -788,7 +811,8 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "serviceId", required = false) Integer serviceId,
 			@RequestParam(value = "schoolId", required = false) Integer schoolId,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
-			HttpServletRequest request, HttpServletResponse response) {
+			@RequestParam(value = "sorter", required = false) String sorter, HttpServletRequest request,
+			HttpServletResponse response) {
 		String excludeState = null;
 		List<String> stateList = null;
 		if (state != null && !"".equals(state))
@@ -815,6 +839,10 @@ public class ServiceOrderController extends BaseController {
 		List<Integer> regionIdList = null;
 		if (regionId != null && regionId > 0)
 			regionIdList = ListUtil.buildArrayList(regionId);
+		
+		Sorter _sorter = null;
+		if (sorter != null)
+			_sorter = JSON.parseObject(sorter, Sorter.class);
 
 		try {
 			super.setGetHeader(response);
@@ -830,6 +858,8 @@ public class ServiceOrderController extends BaseController {
 				Integer newAdviserId = getAdviserId(request);
 				if (newAdviserId != null)
 					adviserId = newAdviserId;
+				if (adminUserLoginInfo == null)
+					return new ListResponse<List<ServiceOrderDTO>>(false, pageSize, 0, null, "No permission !");
 			}
 
 			if (id != null && id > 0) {
@@ -837,20 +867,25 @@ public class ServiceOrderController extends BaseController {
 				ServiceOrderDTO serviceOrder = serviceOrderService.getServiceOrderById(id);
 				if (serviceOrder != null)
 					list.add(serviceOrder);
-				return new Response<List<ServiceOrderDTO>>(0, list);
+				return new ListResponse<List<ServiceOrderDTO>>(false, pageSize, 0, list, "");
 			}
+			int total = serviceOrderService.countServiceOrder(type, excludeState, stateList, auditingState,
+					reviewStateList, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
+					endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId, maraId,
+					adviserId, officialId, officialTagId, 0, isNotApproved != null ? isNotApproved : false, serviceId,
+					schoolId);
 			List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(type, excludeState, stateList,
 					auditingState, reviewStateList, startMaraApprovalDate, endMaraApprovalDate,
 					startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate,
 					regionIdList, userId, maraId, adviserId, officialId, officialTagId, 0,
-					isNotApproved != null ? isNotApproved : false, pageNum, pageSize, serviceId, schoolId);
+					isNotApproved != null ? isNotApproved : false, pageNum, pageSize, _sorter, serviceId, schoolId);
 
 			if (newOfficialId != null)
 				for (ServiceOrderDTO so : serviceOrderList)
 					so.setOfficialNotes(serviceOrderService.listOfficialRemarks(so.getId(), newOfficialId)); // 写入note
-			return new Response<List<ServiceOrderDTO>>(0, serviceOrderList);
+			return new ListResponse<List<ServiceOrderDTO>>(true, pageSize, total, serviceOrderList, "");
 		} catch (ServiceException e) {
-			return new Response<List<ServiceOrderDTO>>(1, e.getMessage(), null);
+			return new ListResponse<List<ServiceOrderDTO>>(false, pageSize, 0, null, e.getMessage());
 		}
 	}
 
@@ -955,8 +990,9 @@ public class ServiceOrderController extends BaseController {
 								// state.toUpperCase(), null, null, null);
 								// }
 							}
-							return new Response<ServiceOrderDTO>(0, serviceOrderService.approval(id,
-									adminUserLoginInfo.getId(), state.toUpperCase(), null, null, null));
+							ServiceOrderDTO serviceOrderDTO = serviceOrderService.approval(id, adminUserLoginInfo.getId(), state.toUpperCase(), null, null, null);
+							wxWorkService.sendMsg(serviceOrderDto.getId());
+							return new Response<ServiceOrderDTO>(0, serviceOrderDTO);
 						} else if (ReviewAdviserStateEnum.PAID.toString().equals(state.toUpperCase())) { // 顾问支付同时修改文案状态
 							serviceOrderService.finish(id);
 							return new Response<ServiceOrderDTO>(0,
@@ -1061,6 +1097,7 @@ public class ServiceOrderController extends BaseController {
 	@ResponseBody
 	public Response<ServiceOrderDTO> refuse(@RequestParam(value = "id") int id,
 			@RequestParam(value = "state") String state,
+			@RequestParam(value = "refuseReason", required = false) String refuseReason,
 			@RequestParam(value = "closedReason", required = false) String closedReason, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
@@ -1109,6 +1146,11 @@ public class ServiceOrderController extends BaseController {
 					if (!"VISA".equalsIgnoreCase(serviceOrderDto.getType()))
 						return new Response<ServiceOrderDTO>(1, "Mara审核仅限签证服务订单!", null);
 					if (ReviewMaraStateEnum.get(state) != null) {
+						// 更新驳回原因
+						if (StringUtil.isNotEmpty(refuseReason)) {
+							serviceOrderDto.setRefuseReason(refuseReason);
+							serviceOrderService.updateServiceOrder(serviceOrderDto);
+						}
 						if (ReviewMaraStateEnum.REVIEW.toString().equals(state.toUpperCase())) { // mara驳回同时修改顾问状态
 							serviceOrderService.updateServiceOrderRviewState(id, null);
 							return new Response<ServiceOrderDTO>(0,
@@ -1121,7 +1163,12 @@ public class ServiceOrderController extends BaseController {
 					} else
 						return new Response<ServiceOrderDTO>(1, "state错误!(" + state + ")", null);
 				} else if ("WA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
-					if (ReviewOfficialStateEnum.get(state) != null)
+					if (ReviewOfficialStateEnum.get(state) != null) {
+						// 更新驳回原因
+						if (StringUtil.isNotEmpty(refuseReason)) {
+							serviceOrderDto.setRefuseReason(refuseReason);
+							serviceOrderService.updateServiceOrder(serviceOrderDto);
+						}
 						if (ReviewOfficialStateEnum.CLOSE.toString().equals(state.toUpperCase())) { // 文案关闭同时修改顾问状态
 							serviceOrderService.finish(id);
 							// 更新关闭原因
@@ -1140,7 +1187,7 @@ public class ServiceOrderController extends BaseController {
 						else
 							return new Response<ServiceOrderDTO>(0, serviceOrderService.refuse(id,
 									adminUserLoginInfo.getId(), null, null, state.toUpperCase(), null));
-					else
+					} else
 						return new Response<ServiceOrderDTO>(1, "state错误!(" + state + ")", null);
 				} else
 					return new Response<ServiceOrderDTO>(1, "该用户无审核权限!", null);
@@ -1450,7 +1497,7 @@ public class ServiceOrderController extends BaseController {
 						reviewStateList, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
 						endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId,
 						maraId, adviserId, officialId, officialTagId, 0, isNotApproved != null ? isNotApproved : false,
-						0, 9999, serviceId, schoolId);
+						0, 9999, null, serviceId, schoolId);
 
 				if (newOfficialId != null)
 					for (ServiceOrderDTO so : serviceOrderList)
@@ -1584,15 +1631,69 @@ public class ServiceOrderController extends BaseController {
 
 	@RequestMapping(value = "/downExcel", method = RequestMethod.GET)
 	@ResponseBody
-	public void downExcel(@RequestParam(value = "type", required = false) String type,
+	public void downExcel(@RequestParam(value = "type") String type,
 			@RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
 			@RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
+			@RequestParam(value = "subject", required = false) String subject,
 			HttpServletRequest request, HttpServletResponse response) {
 
 		try {
 			super.setGetHeader(response);
-			List<EachRegionNumberDTO> eachRegionNumberDTOS = serviceOrderService.listServiceOrderGroupByForRegion(type,
-					startOfficialApprovalDate, endOfficialApprovalDate);
+			List<EachRegionNumberDTO> eachRegionNumberDTOS = new ArrayList<>();
+			if (StringUtil.isEmpty(subject))
+				eachRegionNumberDTOS = serviceOrderService.listServiceOrderGroupByForRegion(type, startOfficialApprovalDate, endOfficialApprovalDate);
+
+			if (StringUtil.isNotEmpty(subject)){
+				List<EachSubjectCountDTO> eachSubjectCountDTOS = serviceOrderService.eachSubjectCount(startOfficialApprovalDate,endOfficialApprovalDate);
+				response.reset();// 清空输出流
+				String tableName = "Subject";
+				response.setHeader("Content-disposition",
+						"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
+				response.setContentType("application/msexcel");
+
+				OutputStream os = response.getOutputStream();
+				jxl.Workbook wb;
+				InputStream is;
+				try {
+					is = this.getClass().getResourceAsStream("/SubjectTemplate.xls");
+				} catch (Exception e) {
+					throw new Exception("模版不存在");
+				}
+				try {
+					wb = Workbook.getWorkbook(is);
+				} catch (Exception e) {
+					throw new Exception("模版格式不支持");
+				}
+				WorkbookSettings settings = new WorkbookSettings();
+				settings.setWriteAccess(null);
+				jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
+
+				if (wbe == null) {
+					System.out.println("wbe is null !os=" + os + ",wb" + wb);
+				} else {
+					System.out.println("wbe not null !os=" + os + ",wb" + wb);
+				}
+				WritableSheet sheet = wbe.getSheet(0);
+				WritableCellFormat cellFormat = new WritableCellFormat();
+				int i = 0;
+				for (EachSubjectCountDTO each : eachSubjectCountDTOS){
+					sheet.addCell(new Label( 0 , i , " 学校名称 " , cellFormat));
+					sheet.addCell(new Label( 1 , i ,each.getName(),cellFormat));
+					sheet.addCell(new Label( 0 , i + 1 , " 申请数量 " , cellFormat));
+					sheet.addCell(new Label( 1 , i + 1 ,each.getTotal() + "",cellFormat));
+					List<EachSubjectCountDTO.Subject> subjects = each.getSubject();
+					int n = 2;
+					for (EachSubjectCountDTO.Subject sub : subjects){
+						sheet.addCell(new Label( n , i , sub.getSubjectName() , cellFormat));
+						sheet.addCell(new Label( n , i + 1 , sub.getNumber() + "",cellFormat));
+						n++;
+					}
+					i += 2;
+				}
+				wbe.write();
+				wbe.close();
+				return;
+			}
 
 			response.reset();// 清空输出流
 			String tableName = "Information";
@@ -1656,12 +1757,13 @@ public class ServiceOrderController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/next_flow", method = RequestMethod.GET)
+	@RequestMapping(value = "/next_flow", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<ServiceOrderDTO> approval(@RequestParam(value = "id") int id,
 			@RequestParam(value = "state") String state,
 			@RequestParam(value = "subagencyId", required = false) String subagencyId,
 			@RequestParam(value = "closedReason", required = false) String closedReason,
+			@RequestParam(value = "refuseReason", required = false) String refuseReason,
 			@RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
 			HttpServletResponse response) {
 //		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
@@ -1674,24 +1776,35 @@ public class ServiceOrderController extends BaseController {
 			serviceOrderDto = serviceOrderService.getServiceOrderById(id);
 			if (ObjectUtil.isNull(serviceOrderDto))
 				return new Response<ServiceOrderDTO>(1, "服务订单不存在:" + id, null);
-			Node currentNode = soNodeFactory.getNode(serviceOrderDto.getState());
-			Workflow workflow = new Workflow("Service Order Work Flow", currentNode, soNodeFactory);
+			Node node = soNodeFactory.getNode(serviceOrderDto.getState());
+			
 			Context context = new Context();
 			context.putParameter("serviceOrderId", id);
 			context.putParameter("type", serviceOrderDto.getType());
 			context.putParameter("state", state);
 			context.putParameter("subagencyId", subagencyId);
 			context.putParameter("closedReason", closedReason);
+			context.putParameter("refuseReason", refuseReason);
 			context.putParameter("remarks", remarks);
 //			context.putParameter("ap", adminUserLoginInfo.getApList());
 //			context.putParameter("adminUserId", adminUserLoginInfo.getId());
+			
+			String[] nextNodeNames = node.nextNodeNames();
+			if (nextNodeNames != null)
+				if (Arrays.asList(nextNodeNames).contains(state))
+					node = soNodeFactory.getNode(state);
+				else
+					return new Response<ServiceOrderDTO>(1,
+							StringUtil.merge("状态:", state, "不是合法状态. (", Arrays.toString(nextNodeNames), ")"), null);
+
+			Workflow workflow = new Workflow("Service Order Work Flow", node, soNodeFactory);
+			
 			context = workflowStarter.process(workflow, context);
 			return context.getParameter("response") != null
 					? (Response<ServiceOrderDTO>) context.getParameter("response")
-					: new Response<ServiceOrderDTO>(1, "异常:" + id, null);
+					: new Response<ServiceOrderDTO>(0, id + "", null);
 		} catch (ServiceException e) {
-			e.printStackTrace();
+			return new Response<ServiceOrderDTO>(1, "异常:" + e.getMessage(), null);
 		}
-		return null;
 	}
 }

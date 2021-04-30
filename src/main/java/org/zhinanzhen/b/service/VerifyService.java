@@ -25,9 +25,9 @@ public interface VerifyService {
 
     int add(List<FinanceCodeDO> financeCodeDOS);
 
-    int count(String bankDateStart, String bankDateEnd);
+    int count(String bankDateStart, String bankDateEnd, Integer regionId);
 
-    List<FinanceCodeDTO> list(String bankDateStart, String bankDateEnd, Integer pageSize, Integer pageNumber);
+    List<FinanceCodeDTO> list(String bankDateStart, String bankDateEnd, Integer regionId, Integer pageSize, Integer pageNumber);
 
     int update(FinanceCodeDO financeCodeDO);
 
@@ -39,7 +39,9 @@ public interface VerifyService {
 
     int bankUpdate(FinanceBankDO financeBankDO);
 
-    FinanceCodeDTO financeCodeByOrderId(@Param("orderId") String orderId);
+    FinanceCodeDTO financeCodeByOrderId(String orderId);
+
+    FinanceCodeDTO financeDTOByCode(String code);
 
     List<AdviserDTO> adviserList(Integer id);
 
@@ -52,4 +54,6 @@ public interface VerifyService {
     int addBank(FinanceBankDO financeBankDO);
 
     FinanceCodeDO financeCodeById(Integer id);
+
+    boolean deleteOrderId(FinanceCodeDO financeCodeDO);
 }

@@ -48,6 +48,9 @@
         <if test='regionId != null and regionId != ""'>
             , region_id = #{regionId}
         </if>
+        <if test='operUserId != null and operUserId != ""'>
+            , oper_userid = #{operUserId}
+        </if>
         WHERE id = #{id};
     </update>
 
@@ -100,7 +103,8 @@
             email,
             state,
             image_url AS imageUrl,
-            region_id AS regionId
+            region_id AS regionId,
+            oper_userid AS operUserId
         FROM tb_adviser WHERE id = #{id, jdbcType=INTEGER};
     </select>
 
@@ -118,5 +122,19 @@
         <if test="state!=null">
             and state = #{state}
         </if>;
+    </select>
+
+    <select id="listAdviserOperUserIdIsNull" resultType="org.zhinanzhen.tb.dao.pojo.AdviserDO">
+        SELECT
+        id,
+        gmt_create AS gmtCreate,
+        name,
+        phone,
+        email,
+        state,
+        image_url AS imageUrl,
+        region_id AS regionId ,
+        oper_userid AS operUserId
+        FROM tb_adviser WHERE oper_userid is not null;
     </select>
 </mapper>

@@ -31,4 +31,6 @@ public class AdminUserDTO {
 
 	private String status;
 
+	private String operUserId;
+
 }

@@ -21,13 +21,15 @@ public class InvoiceSchoolDescriptionDO {
 
     private Date  dob;
 
-    private int studentId;
+    private String studentId;
 
     private String course;
 
     private Date startDate;
 
     private String instalMent;
+
+    private BigDecimal nonTuitionFee;
 
     //学费
     private BigDecimal tuitionFee;

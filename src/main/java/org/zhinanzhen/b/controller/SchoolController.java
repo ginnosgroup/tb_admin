@@ -55,6 +55,8 @@ public class SchoolController extends BaseController {
 					return new Response<Integer>(2, "该学校课程已存在,操作失败.", 0);
 				}
 			}
+			if (StringUtil.isEmpty(country))
+				country = "AUS";
 			SchoolDTO schoolDto = new SchoolDTO();
 			schoolDto.setName(name);
 			schoolDto.setSubject(subject);
@@ -78,6 +80,8 @@ public class SchoolController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
+			if(StringUtil.isEmpty(name))
+				return new Response<SchoolDTO>(1, "学校名称不能为空!", null);
 			List<SchoolDTO> schoolDtoList = schoolService.list(name, subject, country);
 			for (SchoolDTO schoolDto : schoolDtoList) {
 				if (schoolDto.getName().equals(name) && (subject == null || subject.equals(schoolDto.getSubject()))
@@ -116,6 +120,8 @@ public class SchoolController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
+			if(StringUtil.isEmpty(name))
+				return new Response<String>(1, "学校名称不能为空!", null);
 			if (schoolService.updateSchoolAttachments(name, contractFile1, contractFile2, contractFile3, remarks) > 0) {
 				return new Response<String>(0, null, name);
 			} else {
@@ -133,6 +139,8 @@ public class SchoolController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
+			if(StringUtil.isEmpty(name))
+				return new Response<String>(1, "学校名称不能为空!", null);
 			if (schoolService.updateSchoolAttachments(name, null, null, null, remarks) > 0) {
 				return new Response<String>(0, null, name);
 			} else {

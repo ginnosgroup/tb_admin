@@ -102,6 +102,8 @@ public class CommissionOrderDTO {
 	private boolean isChecked;
 
 	private String remarks;
+	
+	private String refuseReason;
 
 	private boolean isClose;
 
@@ -110,5 +112,7 @@ public class CommissionOrderDTO {
 	private String verifyCode;
 
 	private Date bankDate;
+
+	private Date invoiceCreate;
 
 }

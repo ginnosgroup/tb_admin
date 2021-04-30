@@ -373,6 +373,9 @@
 													<input v-model.trim="bankDateStart" type="text" autocomplete="off" class="form-control default-date-picker" style="width:120px;" placeholder="时间(开始)">
 													<label>至</label>
 													<input v-model.trim="bankDateEnd" type="text"  autocomplete="off" class="form-control default-date-picker" style="width:120px;" placeholder="时间(结束)">
+													<label>选择地区</label>
+													<select v-model.trim="regionId" id="regionId1" class="form-control" style="width:130px;">
+													</select>
 											</div>
 											<div class="form-group">
 													<button @click="getSearch" type="button" class="btn btn-info">查询</button>
@@ -395,6 +398,7 @@
 														<th>余额</th>
 														<th>顾问名称</th>
 														<th>业务名称</th>
+														<th>本次实收金额</th>
 														<th>对应佣金订单ID (修改：请双击对应栏)</th>
 														<th>Bank statement(备注)</th>
 														<th>操作</th>
@@ -410,6 +414,7 @@
 														<td v-html="item.balance"></td>
 														<td v-html="item.adviserName"></td>
 														<td v-html="item.business"></td>
+														<td v-html="item.amount"></td>
 														<td @dblclick="table_edit($index,'orderId','t1')"><span v-html="item.orderId"></span></td>
 														<td v-html="item.comment"></td>
 														<td>
@@ -458,7 +463,7 @@
 			</section>
 			<footer class="site-footer">
 				<div class="text-center">
-					2018 &copy; 佣金系统 by <span style="color:#2a8ba7;">GIG</span>.
+					2021 &copy; 佣金系统 by <span style="color:white;">Global Innovation Group</span>.
 					<a href="#" class="go-top">
 						<i class="fa fa-angle-up">
             </i>
@@ -491,6 +496,13 @@
 								<label class="col-sm-3 control-label">请选择文件</label>
 								<div class="col-sm-8">
 									<input type="file" id="f2" accept=".xls,.xlsx" class="form-control" placeholder="请选择一个文件">
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">请选择地区</label>
+								<div class="col-sm-8">
+									<select id="regionId" class="form-control" style="width:130px;">
+									</select>
 								</div>
 							</div>
 							<div class="form-group">
@@ -559,6 +571,7 @@
 						$.get(url + "verify/count", {
 							bankDateStart: that.bankDateStart,
 							bankDateEnd: that.bankDateEnd,
+							regionId: that.regionId,
 						}, function(result) {
 							that.count = result.data;
 							that.allPage = Math.ceil(result.data / that.pageSize);
@@ -566,6 +579,7 @@
 						$.get(url + "verify/list", {
 							bankDateStart: that.bankDateStart,
 							bankDateEnd: that.bankDateEnd,
+							regionId: that.regionId,
 							pageNum: 0,
 							pageSize: that.pageSize
 						}, function(result) {
@@ -600,7 +614,14 @@
 						}else
 						{
 								down_url += "&bankDateEnd=";
-						}						
+						}
+						if (typeof(that.regionId) != "undefined")
+						{
+								down_url += "&regionId="+that.regionId;
+						}else
+						{
+								down_url += "&regionId=";
+						}					
 						console.log(down_url);
 						var a = document.createElement('a');
 						a.download = 'bankbill.xls';
@@ -646,6 +667,7 @@
 							$.get(url + "verify/list", {
 								bankDateStart: that.bankDateStart,
 								bankDateEnd: that.bankDateEnd,
+								regionId: that.regionId,
 								pageNum: 0,
 								pageSize: that.pageSize
 							}, function(result) {
@@ -661,6 +683,7 @@
 							$.get(url + "verify/list", {
 								bankDateStart: that.bankDateStart,
 								bankDateEnd: that.bankDateEnd,
+								regionId: that.regionId,
 								pageNum: that.pageNum,
 								pageSize: that.pageSize
 							}, function(result) {
@@ -675,6 +698,7 @@
 							$.get(url + "verify/list", {
 								bankDateStart: that.bankDateStart,
 								bankDateEnd: that.bankDateEnd,
+								regionId: that.regionId,
 								pageNum: that.pageNum,
 								pageSize: that.pageSize
 							}, function(result) {
@@ -688,6 +712,7 @@
 							$.get(url + "verify/list", {
 								bankDateStart: that.bankDateStart,
 								bankDateEnd: that.bankDateEnd,
+								regionId: that.regionId,
 								pageNum: that.allPage - 1,
 								pageSize: that.pageSize
 							}, function(result) {
@@ -772,7 +797,35 @@
 				  {
 				  		console.log(this.current_row);
 				  		$("#id").val(this.current_row.id);	  		
-				  }				      
+				  }	
+				  
+				  //绑定区域列表
+			    var obj_regionId = $("#regionId");
+			    var obj_regionId1 = $("#regionId1");
+			    $("#regionId").empty();
+			    $("#regionId1").empty();
+			    obj_regionId.append("<option value='0'>请选择</option>");
+			    obj_regionId1.append("<option value='0'>请选择</option>");
+			    $.ajax({
+	          url: url + 'region/list_all',
+	          type: 'GET',
+	          dataType: 'json'
+	        }).done(function(response) {
+	        	var region_data = response.data;
+	        	for (var item in region_data)
+	        	{
+	        			obj_regionId.append("<option value='"+region_data[item].id+"'>"+region_data[item].name+"</option>");
+	        			obj_regionId1.append("<option value='"+region_data[item].id+"'>"+region_data[item].name+"</option>");
+	        			var region_sub = region_data[item].regionList;
+	        			for (var itemsub in region_sub)
+	        			{
+	        					obj_regionId.append("<option value='"+region_sub[itemsub].id+"'>---"+region_sub[itemsub].name+"</option>");
+	        					obj_regionId1.append("<option value='"+region_sub[itemsub].id+"'>---"+region_sub[itemsub].name+"</option>");
+	        			}
+	        	}
+	        	obj_regionId.val('0');
+	        	obj_regionId1.val(v.regionId);
+	        });			      
 			});
 			
 			function uploadFile()
@@ -786,7 +839,13 @@
 					var formData = new FormData();					
 					formData.append("file",$("#f2")[0].files[0]);
 					$('#upload_id #show_message').html('');
-					if ($("#f2").val() == '') return;
+					if ($("#f2").val() == '' || $("#upload_id #regionId").val() == '0')
+					{
+							$('#upload_id #show_message').css("color","red");
+			        $('#upload_id #show_message').html('文件 / 地区都必须选择，请确认。');
+							return;
+					}
+					formData.append("regionId",$("#upload_id #regionId").val());
 					show_loading();
 					
 					$.ajax({
@@ -828,7 +887,7 @@
 					var str_val = $(f+'#'+v.update_byid).val();
 					var field = v.update_field;
 					
-					if (str_val != '')
+					/*if (str_val != '')
 					{														
 							check_result = true;							
 					}else
@@ -837,7 +896,9 @@
 			    		$('#my_table #alert_error').addClass('alert-danger').show().delay(3000).fadeOut();
 			        $("#my_table #error_info").html('提示：字段必须填写或选择！');
 			    		return false;
-					}
+					}*/
+					check_result = true;
+					
 					if (check_result)
     			{    					
 			    		var str_url = url + "verify/update";

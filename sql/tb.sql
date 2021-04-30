@@ -99,7 +99,8 @@ CREATE TABLE `tb_adviser` (
   `email` varchar(128) NOT NULL COMMENT '邮箱',
   `state` varchar(8) NOT NULL COMMENT '状态 (ENABLED:激活,DISABLED:禁止)',
   `image_url` varchar(128) DEFAULT NULL COMMENT '图片地址',
-  `region_id` int NOT NULL COMMENT '所属区域编号 (对应tb_region.id)'
+  `region_id` int NOT NULL COMMENT '所属区域编号 (对应tb_region.id)',
+  `oper_userid` varchar(64) DEFAULT NULL COMMENT '企业微信的oper_userid'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 ALTER TABLE `tb_adviser` ADD INDEX index_name (`state`);
 
@@ -117,7 +118,7 @@ CREATE TABLE `tb_user` (
   `visa_code` varchar(8) DEFAULT NULL COMMENT '签证编号',
   `visa_expiration_date` datetime DEFAULT NULL COMMENT '签证到期日期',
   `source` varchar(32) DEFAULT NULL COMMENT '客户来源',
-  `auth_type` varchar(16) NOT NULL COMMENT '登录授权分类 (WECHAT:微信,IOS_WECHAT:IOS微信,FACEBOOK:facebook,BROKERAGE:佣金系统用户,V:虚拟用户)',
+  `auth_type` varchar(16) NOT NULL COMMENT '登录授权分类 (WECHAT:微信,IOS_WECHAT:IOS微信,FACEBOOK:facebook,BROKERAGE:佣金系统用户,V:虚拟用户,WECHAT_WORK:企业微信)',
   `auth_openid` varchar(64) NOT NULL COMMENT '授权帐号编号',
   `auth_username` varchar(64) DEFAULT NULL COMMENT '授权帐号',
   `auth_nickname` varchar(128) DEFAULT NULL COMMENT '授权帐号用户昵称',
@@ -174,7 +175,8 @@ CREATE TABLE `tb_admin_user` (
   `session_id` varchar(255) DEFAULT NULL COMMENT '当前session_id值',
   `gmt_login` datetime NOT NULL COMMENT '最后登录时间',
   `login_ip` varchar(50) NOT NULL COMMENT '最后登录IP',
-  `status` varchar(8) NOT NULL DEFAULT 'ENABLED' COMMENT '账户状态标识 (ENABLED:可用,DISABLED:不可用)'
+  `status` varchar(8) NOT NULL DEFAULT 'ENABLED' COMMENT '账户状态标识 (ENABLED:可用,DISABLED:不可用)',
+  `oper_userid` varchar(64) DEFAULT NULL COMMENT '企业微信的oper_userid'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 ALTER TABLE `tb_admin_user` ADD INDEX index_name (`username`, `adviser_id`, `mara_id`, `official_id`, `kj_id`, `region_id`);
 
@@ -192,7 +194,7 @@ CREATE TABLE `b_visa` (
   `commission_state` varchar(8) NOT NULL COMMENT '佣金状态(DJY:待结佣, YJY:已结佣, DZY:待追佣, YZY:已追佣)',
   `kj_approval_date` datetime DEFAULT NULL COMMENT '财务审核时间',
   `receive_type_id` int NOT NULL COMMENT '收款方式编号(对应b_receive_type.id)',
-  `receive_date` datetime NOT NULL COMMENT '收款日期',
+  `receive_date` datetime DEFAULT NULL COMMENT '收款日期',
   `service_id` int NOT NULL COMMENT '移民-服务项目编号 (对应b_service.id)',
   `service_order_id` int NOT NULL COMMENT '服务订单编号 (对应b_service_order.id)',
   `installment_num` int NOT NULL COMMENT '本次分期付款次数',
@@ -223,7 +225,8 @@ CREATE TABLE `b_visa` (
   `remarks` text DEFAULT NULL COMMENT '备注',
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消',
   `verify_code` varchar(64) DEFAULT NULL COMMENT '对账使用的code,顾问名称+地区+随机数',
-  `bank_date` datetime DEFAULT NULL COMMENT '入账时间,对应b_finance_code.bank_date'
+  `bank_date` datetime DEFAULT NULL COMMENT '入账时间,对应b_finance_code.bank_date',
+  `invoice_create` datetime DEFAULT NULL COMMENT '发票创建时间'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 ALTER TABLE `b_visa` ADD INDEX index_name (`user_id`, `adviser_id`, `mara_id`, `official_id`);
 
@@ -343,7 +346,7 @@ CREATE TABLE `b_service` (
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `name` varchar(32) DEFAULT NULL COMMENT '项目名称',
-  `code` varchar(8) DEFAULT NULL COMMENT '项目编码',
+  `code` varchar(32) DEFAULT NULL COMMENT '项目编码',
   `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已删除'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
@@ -526,7 +529,7 @@ CREATE TABLE `b_commission_order` (
   `tuition_fee` decimal(8,2) NOT NULL COMMENT '总学费',
   `per_term_tuition_fee` decimal(8,2) NOT NULL COMMENT '每学期学费',
   `receive_type_id` int NOT NULL COMMENT '收款方式编号(对应b_receive_type.id)',
-  `receive_date` datetime NOT NULL COMMENT '收款日期',
+  `receive_date` datetime DEFAULT NULL COMMENT '收款日期',
   `per_amount` decimal(8,2) NOT NULL COMMENT '本次应收款',
   `amount` decimal(8,2) NOT NULL COMMENT '本次收款',
   `expect_amount` decimal(8,2) DEFAULT NULL COMMENT '预收业绩',
@@ -542,7 +545,8 @@ CREATE TABLE `b_commission_order` (
   `remarks` text DEFAULT NULL COMMENT '备注',
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消',
   `verify_code` varchar(64) DEFAULT NULL COMMENT '对账使用的code,顾问名称+地区+随机数',
-  `bank_date` datetime DEFAULT NULL COMMENT '入账时间,对应b_finance_code.bank_date'
+  `bank_date` datetime DEFAULT NULL COMMENT '入账时间,对应b_finance_code.bank_date',
+  `invoice_create` datetime DEFAULT NULL COMMENT '发票创建时间'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 ALTER TABLE `b_commission_order` ADD INDEX index_name (`code`, `school_id`, `user_id`, `adviser_id`, `official_id`);
 
@@ -789,7 +793,7 @@ DROP TABLE IF EXISTS `b_invoice_billto`;
 CREATE TABLE `b_invoice_billto` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
   `company` varchar(100) NOT NULL COMMENT 'company名字',
-  `abn` varchar(64) NOT NULL COMMENT 'ABN',
+  `abn` varchar(64) DEFAULT NULL COMMENT 'ABN',
   `address` varchar(100) NOT NULL COMMENT '地址',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
@@ -857,7 +861,7 @@ CREATE TABLE `b_invoice_school_description` (
   `id` int(11) unsigned NOT NULL COMMENT '主键',
   `studentname` varchar(50) NOT NULL COMMENT '学生姓名',
   `dob` datetime NOT NULL COMMENT '出生日期',
-  `student_id` int(11) NOT NULL COMMENT '对应学生ID',
+  `student_id` varchar(64) NOT NULL COMMENT '对应学生ID',
   `course` varchar(200) NOT NULL COMMENT '课程',
   `startDate` datetime NOT NULL COMMENT '课程开始时时间',
   `instalment` varchar(50) NOT NULL COMMENT '机构名称',
@@ -870,6 +874,7 @@ CREATE TABLE `b_invoice_school_description` (
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `invoice_no` varchar(64) DEFAULT NULL COMMENT '税务发票编号 （对应b_invoice_school表中的invoice_no）',
+  `non_tuitionfee` decimal(10,2) DEFAULT NULL COMMENT 'nonTuitionFee'
   KEY `invoice_no` (`invoice_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -948,6 +953,63 @@ CREATE TABLE `b_finance_code` (
   `business` varchar(255) DEFAULT NULL COMMENT '签证获取签证+类型；留学获取学校名称',
   `order_id` varchar(64) DEFAULT NULL COMMENT '对应b_commission_order.id/b_visa.id(CS/CV判断)',
   `comment` varchar(255) DEFAULT NULL COMMENT '银行备注',
+  `amount` decimal(8,2) DEFAULT NULL COMMENT '佣金订单中的实收金额',
+  `code` varchar(64) DEFAULT NULL COMMENT '日期+入账金额+余额作为去重标识'
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 ALTER TABLE `b_finance_code` ADD INDEX index_name (order_id);
+<<<<<<< HEAD
+=======
+
+-- ----------新学校数据----------
+
+CREATE TABLE `b_school_institution` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `code` varchar(32) DEFAULT NULL COMMENT '编码',
+  `name` varchar(255) DEFAULT NULL COMMENT '名称',
+  `institution_trading_name` varchar(255) DEFAULT NULL COMMENT '学校名称',
+  `institution_name` varchar(255) DEFAULT NULL COMMENT '学校名称',
+  `institution_type` varchar(255) DEFAULT NULL COMMENT '学校类型',
+  `institution_postal_address` varchar(512) DEFAULT NULL COMMENT '学校地址'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+CREATE TABLE `b_school_institution_location` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `name` varchar(255) DEFAULT NULL COMMENT '名称',
+  `state` varchar(8) DEFAULT NULL COMMENT '州',
+  `number_of_courses` int DEFAULT NULL COMMENT '课程数量',
+  `provider_id` int DEFAULT NULL COMMENT '学校编号',
+  `provider_code` varchar(32) DEFAULT NULL COMMENT '学校编码'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+CREATE TABLE `b_school_course` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `course_name` varchar(255) DEFAULT NULL COMMENT '课程名称',
+  `course_sector` varchar(255) DEFAULT NULL COMMENT '课程所属行业',
+  `course_level` varchar(255) DEFAULT NULL COMMENT '课程级别',
+  `provider_id` int DEFAULT NULL COMMENT '学校编号',
+  `provider_code` varchar(32) DEFAULT NULL COMMENT '学校编码'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+---群聊id
+CREATE TABLE `b_chat` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `service_order_id` int(11) NOT NULL COMMENT '服务订单编号 (对应b_service_order.id)',
+  `chat_id` varchar(32) NOT NULL COMMENT '群聊id',
+  `user_id` int(11) NOT NULL COMMENT ' (tb_user.id)',
+  `mara_id` int(11) DEFAULT NULL COMMENT 'MARA (b_mara.id,MARA)',
+  `adviser_id` int(11) NOT NULL COMMENT ' (tb_adviser.id)',
+  `official_id` int(11) DEFAULT NULL COMMENT ' (b_official.id,)',
+  PRIMARY KEY (`id`),
+  KEY `service_order_id` (`service_order_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
+>>>>>>> 93fa73ed0809a304602792abee4d58a6ebfefdac

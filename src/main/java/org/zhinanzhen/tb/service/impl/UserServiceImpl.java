@@ -1,5 +1,6 @@
 package org.zhinanzhen.tb.service.impl;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -8,7 +9,13 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.zhinanzhen.b.dao.MaraDAO;
+import org.zhinanzhen.b.dao.OfficialDAO;
+import org.zhinanzhen.b.dao.ServiceOrderDAO;
 import org.zhinanzhen.b.dao.TagDAO;
+import org.zhinanzhen.b.dao.pojo.MaraDO;
+import org.zhinanzhen.b.dao.pojo.OfficialDO;
+import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
 import org.zhinanzhen.b.dao.pojo.TagDO;
 import org.zhinanzhen.b.dao.pojo.UserTagDO;
 import org.zhinanzhen.tb.dao.UserDAO;
@@ -22,6 +29,7 @@ import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.service.pojo.TagDTO;
 import org.zhinanzhen.tb.utils.Base64Util;
+import org.zhinanzhen.tb.utils.SendEmailUtil;
 
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.StringUtil;
@@ -34,11 +42,19 @@ public class UserServiceImpl extends BaseService implements UserService {
 	private AdviserService adviserService;
 	@Resource
 	private TagDAO tagDao;
+	@Resource
+	private ServiceOrderDAO serviceOrderDao;
+	@Resource
+	private MaraDAO maraDao;
+	@Resource
+	private OfficialDAO officialDao;
+
+	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
 	@Override
-	public int addUser(String name, String authNickname, Date birthday, String phone, String wechatUsername,
-			String firstControllerContents, String visaCode, Date visaExpirationDate, String source, int adviserId,
-			int regionId) throws ServiceException {
+	public int addUser(String name, String authNickname, Date birthday, String areaCode, String phone, String email,
+			String wechatUsername, String firstControllerContents, String visaCode, Date visaExpirationDate,
+			String source, int adviserId, int regionId) throws ServiceException {
 		if (StringUtil.isEmpty(name)) {
 			ServiceException se = new ServiceException("name is null !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -65,8 +81,12 @@ public class UserServiceImpl extends BaseService implements UserService {
 		UserDO userDo = new UserDO();
 		userDo.setName(name);
 		userDo.setAuthNickname(authNickname);
+		userDo.setAuthType("BROKERAGE");
+		userDo.setAuthOpenid("");
 		userDo.setBirthday(birthday);
+		userDo.setAreaCode(areaCode);
 		userDo.setPhone(phone);
+		userDo.setEmail(email);
 		userDo.setWechatUsername(wechatUsername);
 		userDo.setFirstControllerContents(firstControllerContents);
 		userDo.setVisaCode(visaCode);
@@ -230,19 +250,22 @@ public class UserServiceImpl extends BaseService implements UserService {
 			throw se;
 		}
 		UserDO userDo = userDao.getUserByThird(thirdType, thirdId);
-		UserDTO userDto = mapper.map(userDo, UserDTO.class);
-		if (userDto.getAdviserId() > 0) {
-			AdviserDTO adviserDto = adviserService.getAdviserById(userDto.getAdviserId());
-			userDto.setAdviserDto(adviserDto);
+		UserDTO userDto = null;
+		if (userDo != null){
+			userDto= mapper.map(userDo, UserDTO.class);
+			if (userDto.getAdviserId() > 0) {
+				AdviserDTO adviserDto = adviserService.getAdviserById(userDto.getAdviserId());
+				userDto.setAdviserDto(adviserDto);
+			}
+			userDto.setTagList(listTagByUserId(userDto.getId()));
 		}
-		userDto.setTagList(listTagByUserId(userDto.getId()));
 		return userDto;
 	}
 
 	@Override
-	public boolean update(int id, String name, String authNickname, Date birthday, String phone, String wechatUsername,
-			String firstControllerContents, String visaCode, Date visaExpirationDate, String source)
-			throws ServiceException {
+	public boolean update(int id, String name, String authNickname, Date birthday, String phone, String areaCode,
+			String wechatUsername, String firstControllerContents, String visaCode, Date visaExpirationDate,
+			String source) throws ServiceException {
 		if (id <= 0) {
 			ServiceException se = new ServiceException("id error !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -256,8 +279,39 @@ public class UserServiceImpl extends BaseService implements UserService {
 				throw se;
 			}
 		}
-		return userDao.update(id, name, authNickname, birthday, phone, wechatUsername, firstControllerContents,
-				visaCode, visaExpirationDate, source);
+		UserDO _userDo = userDao.getUserById(id);
+		boolean isNameChange = name != null && !name.equalsIgnoreCase(_userDo.getName()); // 客户名称变化
+		boolean isBirthdayChange = birthday != null && _userDo.getBirthday() != null
+				&& !sdf.format(birthday).equals(sdf.format(_userDo.getBirthday())); // 客户生日变化
+		boolean isVisaExpirationDate = visaExpirationDate != null && _userDo.getVisaExpirationDate() != null
+				&& !sdf.format(visaExpirationDate).equals(sdf.format(_userDo.getVisaExpirationDate())); // 客户签证到期时间变化
+		// 如果客户信息变化,则发送邮件给文案和mara
+		if (isNameChange || isBirthdayChange || isVisaExpirationDate) {
+			List<String> stateList = new ArrayList<>();
+			stateList.add("PENDING");
+			stateList.add("OREVIEW");
+			stateList.add("REVIEW");
+			stateList.add("APPLY");
+			stateList.add("WAIT");
+			stateList.add("PAID");
+			List<ServiceOrderDO> serviceOrderList = serviceOrderDao.listServiceOrder(null, null, stateList, null, null,
+					null, null, null, null, null, null, null, id, null, null, null, null, null, null, null, null,
+					DEFAULT_PAGE_NUM, 100, null);
+			for (ServiceOrderDO serviceOrderDo : serviceOrderList) {
+				OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
+				if (officialDo != null)
+					SendEmailUtil.send(officialDo.getEmail(), "客户信息变更提醒", StringUtil.merge("亲爱的:", officialDo.getName(),
+							"<br/>", "您的订单的客户信息已变更。<br>服务订单号:", serviceOrderDo.getId()));
+				if ("VISA".equals(serviceOrderDo.getType())) {
+					MaraDO maraDo = maraDao.getMaraById(serviceOrderDo.getMaraId());
+					if (officialDo != null)
+						SendEmailUtil.send(maraDo.getEmail(), "客户信息变更提醒", StringUtil.merge("亲爱的:", maraDo.getName(),
+								"<br/>", "您的订单的客户信息已变更。<br>服务订单号:", serviceOrderDo.getId()));
+				}
+			}
+		}
+		return userDao.update(id, name, authNickname, birthday, phone, areaCode, wechatUsername,
+				firstControllerContents, visaCode, visaExpirationDate, source);
 	}
 
 	@Override
@@ -392,7 +446,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 	}
 
 	@Override
-	public int updateDOB(Date dob,int id) throws ServiceException {
+	public int updateDOB(Date dob, int id) throws ServiceException {
 		if (id <= 0) {
 			ServiceException se = new ServiceException("id error !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -400,10 +454,10 @@ public class UserServiceImpl extends BaseService implements UserService {
 		}
 		try {
 			UserDTO userDTO = getUserById(id);
-			if (userDTO.getBirthday().equals(dob)){
+			if (userDTO.getBirthday().equals(dob)) {
 				return 0;
-			}else{
-				return userDao.updateDOB(dob,id);
+			} else {
+				return userDao.updateDOB(dob, id);
 			}
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);

@@ -189,7 +189,7 @@
 				<h4 class="modal-title" id="myModalLabel">确认</h4>
 			</div>
 			<div class="modal-body">
-				<h2>请确认该订单属性：提交扣佣【<span id="confirm_issettle">null</span>】</h2>
+				<h2>请确认该订单属性：提前扣佣【<span id="confirm_issettle">null</span>】</h2>
 				注：追要佣金属性为【否】，提前扣佣属性为【是】。如客户已将学费交给学校，请选择【否】。
 			</div>
 			<div class="modal-footer">				
@@ -655,6 +655,9 @@ $('#ovst_id').on('show.bs.modal', function () {
 						var flist = $("#ovst_id #flist1").val();
 		       	if (flist != '')
 		   			{
+		   					var str_issettle = '否';
+		   					if ($('#ovst_id #c5a').val() == "1") str_issettle = '是';
+		    				$('#confirm_id #confirm_issettle').html(str_issettle);
 								$('#confirm_id').modal('show');
 						}else
 						{

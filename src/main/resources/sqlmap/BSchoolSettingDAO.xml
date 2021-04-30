@@ -75,5 +75,9 @@
         FROM b_school_setting ss, b_school s
         WHERE ss.school_id = s.id AND s.id = #{schoolId};
     </select>
+    
+    <delete id="clear">
+        <![CDATA[ delete from b_school_setting where school_id in (select school_id from (select school_id,count(school_id) as c from b_school_setting group by school_id) bss where bss.c>1); ]]>
+    </delete>
 
 </mapper>

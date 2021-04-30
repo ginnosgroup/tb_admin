@@ -32,10 +32,13 @@ import org.zhinanzhen.b.service.pojo.CommissionOrderCommentDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
+import org.zhinanzhen.b.service.pojo.ant.Sorter;
+import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 
+import com.alibaba.fastjson.JSON;
 import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.core.utils.StringUtil;
 
@@ -228,7 +231,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate1)));
 					commissionOrderDto.setState(ReviewKjStateEnum.REVIEW.toString()); // 第一笔单子直接进入财务审核状态
 					if (StringUtil.isNotEmpty(verifyCode))
-						commissionOrderDto.setVerifyCode(verifyCode.replace("$","").replace("#","").replace(" ",""));
+						commissionOrderDto.setVerifyCode(verifyCode.replace("$", "").replace("#", "").replace(" ", ""));
 					commissionOrderDto.setKjApprovalDate(new Date());
 				} else {
 					if (installmentNum == 2 && installmentDueDate2 != null) {
@@ -258,6 +261,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					commissionOrderDto.setState(ReviewKjStateEnum.PENDING.toString());
 					commissionOrderDto.setVerifyCode(null);
 					commissionOrderDto.setKjApprovalDate(null);
+					commissionOrderDto.setReceiveDate(null);
 					commissionOrderDto.setPaymentVoucherImageUrl1(null);
 					commissionOrderDto.setPaymentVoucherImageUrl2(null);
 					commissionOrderDto.setPaymentVoucherImageUrl3(null);
@@ -435,7 +439,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			if (StringUtil.isNotEmpty(remarks))
 				commissionOrderDto.setRemarks(remarks);
 			if (StringUtil.isNotEmpty(verifyCode))
-				commissionOrderDto.setVerifyCode(verifyCode.replace("$","").replace("#","").replace(" ",""));
+				commissionOrderDto.setVerifyCode(verifyCode.replace("$", "").replace("#", "").replace(" ", ""));
 			if (commissionOrderDto.getKjApprovalDate() == null || commissionOrderDto.getKjApprovalDate().getTime() == 0)
 				commissionOrderDto.setKjApprovalDate(new Date());
 
@@ -696,6 +700,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 	@RequestMapping(value = "/count", method = RequestMethod.GET)
 	@ResponseBody
+	@Deprecated
 	public Response<Integer> count(@RequestParam(value = "id", required = false) Integer id,
 			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "maraId", required = false) Integer maraId,
@@ -712,6 +717,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "commissionState", required = false) String commissionState,
 			@RequestParam(value = "startKjApprovalDate", required = false) String startKjApprovalDate,
 			@RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
+			@RequestParam(value = "startInvoiceCreate", required = false) String startInvoiceCreate,
+			@RequestParam(value = "endInvoiceCreate", required = false) String endInvoiceCreate,
 			HttpServletRequest request, HttpServletResponse response) {
 
 		Integer newMaraId = getMaraId(request);
@@ -772,7 +779,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			return new Response<Integer>(0,
 					commissionOrderService.countCommissionOrder(id, regionIdList, maraId, adviserId, officialId, userId,
 							name, phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
-							startKjApprovalDate, endKjApprovalDate, isYzyAndYjy, applyState));
+							startKjApprovalDate, endKjApprovalDate, startInvoiceCreate, endInvoiceCreate, isYzyAndYjy,
+							applyState));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -780,7 +788,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<CommissionOrderListDTO>> list(@RequestParam(value = "id", required = false) Integer id,
+	public ListResponse<List<CommissionOrderListDTO>> list(@RequestParam(value = "id", required = false) Integer id,
 			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "maraId", required = false) Integer maraId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
@@ -796,8 +804,11 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "commissionState", required = false) String commissionState,
 			@RequestParam(value = "startKjApprovalDate", required = false) String startKjApprovalDate,
 			@RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
+			@RequestParam(value = "startInvoiceCreate", required = false) String startInvoiceCreate,
+			@RequestParam(value = "endInvoiceCreate", required = false) String endInvoiceCreate,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
-			HttpServletRequest request, HttpServletResponse response) {
+			@RequestParam(value = "sorter", required = false) String sorter, HttpServletRequest request,
+			HttpServletResponse response) {
 
 		Integer newMaraId = getMaraId(request);
 		if (newMaraId != null)
@@ -831,6 +842,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		if (regionId != null && regionId > 0)
 			regionIdList = ListUtil.buildArrayList(regionId);
 
+		Sorter _sorter = null;
+		if (sorter != null)
+			_sorter = JSON.parseObject(sorter, Sorter.class);
+
 //		Date _startKjApprovalDate = null;
 //		if (startKjApprovalDate != null)
 //			_startKjApprovalDate = new Date(Long.parseLong(startKjApprovalDate));
@@ -854,12 +869,18 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					adviserId = newAdviserId;
 			}
 
-			return new Response<List<CommissionOrderListDTO>>(0,
+			int total = commissionOrderService.countCommissionOrder(id, regionIdList, maraId, adviserId, officialId,
+					userId, name, phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
+					startKjApprovalDate, endKjApprovalDate, startInvoiceCreate, endInvoiceCreate, isYzyAndYjy,
+					applyState);
+			return new ListResponse<List<CommissionOrderListDTO>>(true, pageSize, total,
 					commissionOrderService.listCommissionOrder(id, regionIdList, maraId, adviserId, officialId, userId,
 							name, phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
-							startKjApprovalDate, endKjApprovalDate, isYzyAndYjy, applyState, pageNum, pageSize));
+							startKjApprovalDate, endKjApprovalDate, startInvoiceCreate, endInvoiceCreate, isYzyAndYjy,
+							applyState, pageNum, pageSize, _sorter),
+					"");
 		} catch (ServiceException e) {
-			return new Response<List<CommissionOrderListDTO>>(1, e.getMessage(), null);
+			return new ListResponse<List<CommissionOrderListDTO>>(false, pageSize, 0, null, e.getMessage());
 		}
 	}
 
@@ -944,6 +965,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "commissionState", required = false) String commissionState,
 			@RequestParam(value = "startKjApprovalDate", required = false) String startKjApprovalDate,
 			@RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
+			@RequestParam(value = "startInvoiceCreate", required = false) String startInvoiceCreate,
+			@RequestParam(value = "endInvoiceCreate", required = false) String endInvoiceCreate,
 			HttpServletRequest request, HttpServletResponse response) {
 
 		Integer newMaraId = getMaraId(request);
@@ -1009,8 +1032,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 			List<CommissionOrderListDTO> commissionOrderList = commissionOrderService.listCommissionOrder(id,
 					regionIdList, maraId, adviserId, officialId, userId, name, phone, wechatUsername, schoolId,
-					isSettle, stateList, commissionStateList, startKjApprovalDate, endKjApprovalDate, isYzyAndYjy,
-					state, 0, 9999);
+					isSettle, stateList, commissionStateList, startKjApprovalDate, endKjApprovalDate,
+					startInvoiceCreate, endInvoiceCreate, isYzyAndYjy, state, 0, 9999, null);
 
 			OutputStream os = response.getOutputStream();
 			jxl.Workbook wb;
@@ -1039,14 +1062,15 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 			int i = 1;
 			for (CommissionOrderListDTO commissionOrderListDto : commissionOrderList) {
-				sheet.addCell(new Label(0, i, "CS"+commissionOrderListDto.getId(), cellFormat));
+				sheet.addCell(new Label(0, i, "CS" + commissionOrderListDto.getId(), cellFormat));
 				sheet.addCell(new Label(1, i, sdf.format(commissionOrderListDto.getGmtCreate()), cellFormat));
 				if (commissionOrderListDto.getReceiveDate() != null)
 					sheet.addCell(new Label(2, i, sdf.format(commissionOrderListDto.getReceiveDate()), cellFormat));
 				if (commissionOrderListDto.getUser() != null)
 					sheet.addCell(new Label(3, i, commissionOrderListDto.getUser().getName(), cellFormat));
 				sheet.addCell(new Label(4, i, commissionOrderListDto.getStudentCode(), cellFormat));
-				sheet.addCell(new Label(5, i, sdf.format(commissionOrderListDto.getBirthday()), cellFormat));
+				if (commissionOrderListDto.getBirthday() != null)
+					sheet.addCell(new Label(5, i, sdf.format(commissionOrderListDto.getBirthday()), cellFormat));
 				if (commissionOrderListDto.getReceiveType() != null)
 					sheet.addCell(new Label(6, i, commissionOrderListDto.getReceiveType().getName() + "", cellFormat));
 				if (commissionOrderListDto.getService() != null)
@@ -1098,8 +1122,12 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				if (commissionOrderListDto.getKjApprovalDate() != null)
 					sheet.addCell(new Label(35, i, sdf.format(commissionOrderListDto.getKjApprovalDate()), cellFormat));
 				sheet.addCell(new Label(36, i, commissionOrderListDto.getRemarks(), cellFormat));
-				ServiceOrderDTO serviceOrderDTO =  serviceOrderService.getServiceOrderById(commissionOrderListDto.getServiceOrderId());
-				sheet.addCell(new Label(37, i, serviceOrderDTO != null && serviceOrderDTO.getRemarks()!=null ? serviceOrderDTO.getRemarks(): "" , cellFormat));
+				ServiceOrderDTO serviceOrderDTO = serviceOrderService
+						.getServiceOrderById(commissionOrderListDto.getServiceOrderId());
+				sheet.addCell(new Label(37, i,
+						serviceOrderDTO != null && serviceOrderDTO.getRemarks() != null ? serviceOrderDTO.getRemarks()
+								: "",
+						cellFormat));
 				i++;
 			}
 			wbe.write();
@@ -1164,7 +1192,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/refuse", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<CommissionOrderListDTO> refuse(@RequestParam(value = "id") int id,
-			@RequestParam(value = "state") String state, HttpServletRequest request, HttpServletResponse response) {
+			@RequestParam(value = "state") String state,
+			@RequestParam(value = "refuseReason", required = false) String refuseReason, HttpServletRequest request,
+			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			if (ReviewKjStateEnum.COMPLETE.toString().equalsIgnoreCase(state)
@@ -1179,16 +1209,19 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				if ("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 						|| "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					if (ReviewKjStateEnum.get(state) != null) {
+
 						CommissionOrderListDTO commissionOrderListDto = commissionOrderService
 								.getCommissionOrderById(id);
 						if (commissionOrderListDto == null)
 							return new Response<CommissionOrderListDTO>(1, "佣金订单不存在!", null);
-//						serviceOrderService.refuse(id, adminUserLoginInfo.getId(), null, null, null,
-//								state.toUpperCase());
+						// 更新驳回原因
+						if (StringUtil.isNotEmpty(refuseReason))
+							commissionOrderListDto.setRefuseReason(refuseReason);
 						commissionOrderListDto.setState(state);
-						if (commissionOrderService.updateCommissionOrder(commissionOrderListDto) > 0)
+						if (commissionOrderService.updateCommissionOrder(commissionOrderListDto) > 0) {
+							commissionOrderService.sendRefuseEmail(id);
 							return new Response<CommissionOrderListDTO>(0, commissionOrderListDto);
-						else
+						} else
 							return new Response<CommissionOrderListDTO>(1, "修改操作异常!", null);
 					} else
 						return new Response<CommissionOrderListDTO>(1, "state错误!(" + state + ")", null);

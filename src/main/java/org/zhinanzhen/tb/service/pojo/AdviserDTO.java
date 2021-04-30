@@ -25,6 +25,8 @@ public class AdviserDTO {
 	private String imageUrl;
 
 	private int regionId;
+
+	private String operUserId;
 	
 	private String regionName;
 	

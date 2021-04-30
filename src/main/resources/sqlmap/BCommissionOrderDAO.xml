@@ -50,6 +50,7 @@
                 bonus_date,
                 zy_date,
                 remarks,
+                refuse_reason,
                 is_close,
                 verify_code)
             VALUES (
@@ -97,6 +98,7 @@
                 #{bonusDate},
                 #{zyDate},
                 #{remarks},
+                #{refuseReason},
                 0,
                 #{verifyCode});
     </insert>
@@ -221,6 +223,9 @@
         <if test='remarks != null and remarks != ""'>
             , remarks = #{remarks}
         </if>
+        <if test='refuseReason != null'>
+            , refuse_reason = #{refuseReason}
+        </if>
         <if test='verifyCode != null and verifyCode != ""'>
             , verify_code = #{verifyCode}
         </if>
@@ -290,6 +295,9 @@
         </if>
         <if test='startKjApprovalDate != null and startKjApprovalDate != "" and endKjApprovalDate != null and endKjApprovalDate != ""'>
             <![CDATA[ AND kj_approval_date > #{startKjApprovalDate} AND kj_approval_date < #{endKjApprovalDate} ]]>
+        </if>
+        <if test='startInvoiceCreate != null and startInvoiceCreate != "" and endInvoiceCreate != null and endInvoiceCreate != ""'>
+            <![CDATA[ AND invoice_create > #{startInvoiceCreate} AND invoice_create < #{endInvoiceCreate} ]]>
         </if>
         <if test='isYzyAndYjy == true'>
             AND (co.commission_state = 'YZY' OR (co.commission_state = 'YJY' AND co.is_settle = false))
@@ -361,9 +369,11 @@
             co.bank_check AS bankCheck,
             co.is_checked AS isChecked,
             co.remarks,
+            co.refuse_reason AS refuseReason,
             co.verify_code AS verifyCode,
             co.bank_date AS bankDate,
             co.is_close AS isClose,
+            co.invoice_create AS invoiceCreate,
             so.id AS serviceOrderId,
             so.gmt_create AS signingDate,
             so.subagency_id AS subagencyId,
@@ -427,10 +437,13 @@
         <if test='startKjApprovalDate != null and startKjApprovalDate != "" and endKjApprovalDate != null and endKjApprovalDate != ""'>
             <![CDATA[ AND co.kj_approval_date > #{startKjApprovalDate} AND co.kj_approval_date < #{endKjApprovalDate} ]]>
         </if>
+        <if test='startInvoiceCreate != null and startInvoiceCreate != "" and endInvoiceCreate != null and endInvoiceCreate != ""'>
+            <![CDATA[ AND invoice_create > #{startInvoiceCreate} AND invoice_create < #{endInvoiceCreate} ]]>
+        </if>
         <if test='isYzyAndYjy == true'>
             AND (co.commission_state = 'YZY' OR (co.commission_state = 'YJY' AND co.is_settle = false))
         </if>
-        ORDER BY co.gmt_create DESC, co.installment_num ASC
+        ${orderBy}
         LIMIT #{offset}, #{rows};
     </select>
 
@@ -483,9 +496,11 @@
             bank_check AS bankCheck,
             is_checked AS isChecked,
             remarks,
+            refuse_reason AS refuseReason,
             verify_code AS verifyCode,
             bank_date AS bankDate,
-            is_close AS isClose
+            is_close AS isClose,
+            invoice_create AS invoiceCreate
         FROM b_commission_order WHERE code = #{code};
     </select>
     
@@ -537,9 +552,11 @@
             bank_check AS bankCheck,
             is_checked AS isChecked,
             remarks,
+            refuse_reason AS refuseReason,
             verify_code AS verifyCode,
             bank_date AS bankDate,
-            is_close AS isClose
+            is_close AS isClose,
+            invoice_create AS invoiceCreate
         FROM b_commission_order WHERE service_order_id = #{serviceOrderId};
     </select>
     
@@ -591,9 +608,11 @@
             co.bank_check AS bankCheck,
             co.is_checked AS isChecked,
             co.remarks,
+            co.refuse_reason AS refuseReason,
             co.verify_code AS verifyCode,
             co.bank_date AS bankDate,
             co.is_close AS isClose,
+            co.invoice_create AS invoiceCreate,
             so.id AS serviceOrderId,
             so.gmt_create AS signingDate,
             so.subagency_id AS subagencyId,
@@ -657,9 +676,11 @@
             co.bank_check AS bankCheck,
             co.is_checked AS isChecked,
             co.remarks,
+            co.refuse_reason AS refuseReason,
             co.verify_code AS verifyCode,
             co.bank_date AS bankDate,
             co.is_close AS isClose,
+            co.invoice_create AS invoiceCreate,
             so.id AS serviceOrderId,
             so.gmt_create AS signingDate,
             so.subagency_id AS subagencyId,
@@ -780,9 +801,11 @@
             co.bank_check AS bankCheck,
             co.is_checked AS isChecked,
             co.remarks,
+            co.refuse_reason AS refuseReason,
             co.verify_code AS verifyCode,
             co.bank_date AS bankDate,
             co.is_close AS isClose,
+            co.invoice_create AS invoiceCreate,
             so.id AS serviceOrderId,
             so.gmt_create AS signingDate,
             so.subagency_id AS subagencyId,
@@ -839,9 +862,11 @@
             co.bank_check AS bankCheck,
             co.is_checked AS isChecked,
             co.remarks,
+            co.refuse_reason AS refuseReason,
             co.verify_code AS verifyCode,
             co.bank_date AS bankDate,
             co.is_close AS isClose,
+            co.invoice_create AS invoiceCreate,
             so.id AS serviceOrderId,
             so.gmt_create AS signingDate,
             so.subagency_id AS subagencyId,
@@ -898,9 +923,11 @@
             co.bank_check AS bankCheck,
             co.is_checked AS isChecked,
             co.remarks,
+            co.refuse_reason AS refuseReason,
             co.verify_code AS verifyCode,
             co.bank_date AS bankDate,
             co.is_close AS isClose,
+            co.invoice_create AS invoiceCreate,
             so.id AS serviceOrderId,
             so.gmt_create AS signingDate,
             so.subagency_id AS subagencyId,
@@ -971,9 +998,15 @@
             bank_check AS bankCheck,
             is_checked AS isChecked,
             remarks,
+            refuse_reason AS refuseReason,
             verify_code AS verifyCode,
             bank_date AS bankDate,
-            is_close AS isClose
+            is_close AS isClose,
+            invoice_create AS invoiceCreate
         FROM b_commission_order WHERE verify_code = #{verifyCode};
     </select>
+    <update id="setBankDateNull">
+        update b_commission_order set bank_check = null,  is_checked = false , bank_date = null
+        where id = #{id};
+    </update>
 </mapper>

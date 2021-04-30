@@ -48,4 +48,8 @@ public class FinanceCodeDO {
 
     //银行备注
     private String comment;
+
+    private int regionId;
+
+    private String code;
 }

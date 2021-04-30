@@ -103,6 +103,8 @@ public class CommissionOrderDO implements Serializable {
 	private boolean isChecked;
 
 	private String remarks;
+	
+	private String refuseReason;
 
 	private boolean isClose;
 
@@ -111,4 +113,6 @@ public class CommissionOrderDO implements Serializable {
 	private String verifyCode;
 
 	private Date bankDate;
+
+	private Date invoiceCreate;
 }

@@ -230,13 +230,14 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
     //导入数据的时候关联签证订单id
     @Override
     @Transactional
-    public int relationVisaOrder(String[] idList, String invoiceNo) {
+    public int relationVisaOrder(String[] idList, String invoiceNo, String invoiceDate) {
         List<Integer> visaIds = invoiceDAO.selectVisaId(idList,"SF");
         if (visaIds.size() != 0 ){
             return visaIds.get(0);
         }
         int resulti =  invoiceDAO.insertOrderIdInInvoice(StringUtils.join(idList, ",") , invoiceNo);
         int resultv = invoiceDAO.relationVisaOrder(idList , invoiceNo);
+        invoiceDAO.updateInvoiceCreate(idList,invoiceDate,"SF");
         if (resulti > 0 & resultv > 0 )
             return -1;
         else{
@@ -338,12 +339,13 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
     //关联留学订单id
     @Override
     @Transactional
-    public int relationCommissionOrder(String[] idList, String invoiceNo) {
+    public int relationCommissionOrder(String[] idList, String invoiceNo, String invoiceDate) {
         //b_invoce_school中插入order_id
         int resulti =  invoiceDAO.insertCommissionOrderIdInInvoice(StringUtils.join(idList, ",") , invoiceNo);
         //int resultin =  invoiceDAO.insertCommissionOrderIdInInvoice(StringUtils.join(idList, ",") , newInvoiceNo);
         //b_commission_order插入invoice_no
         int resultc = invoiceDAO.relationCommissionOrder(idList , invoiceNo);
+        invoiceDAO.updateInvoiceCreate(idList,invoiceDate,"SC");
 
         List<String> stateList = new ArrayList<>();
         stateList.add(BaseCommissionOrderController.ReviewKjStateEnum.REVIEW.toString());

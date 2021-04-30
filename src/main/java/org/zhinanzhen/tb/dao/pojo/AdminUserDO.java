@@ -33,4 +33,6 @@ public class AdminUserDO {
 
 	private String status;
 
+	private String operUserId;
+
 }

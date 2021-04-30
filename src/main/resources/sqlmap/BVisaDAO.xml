@@ -44,6 +44,7 @@
                 bank_check,
                 is_checked,
                 remarks,
+                refuse_reason,
                 is_close,
                 verify_code)
             VALUES (
@@ -85,6 +86,7 @@
                 NULL,
                 0,
                 #{remarks},
+                #{refuseReason},
                 0,
                 #{verifyCode});
     </insert>
@@ -188,6 +190,9 @@
         <if test='remarks != null and remarks != ""'>
             , remarks = #{remarks}
         </if>
+        <if test='refuseReason != null'>
+            , refuse_reason = #{refuseReason}
+        </if>
         <if test='verifyCode != null and verifyCode != ""'>
             , verify_code = #{verifyCode}
         </if>
@@ -237,6 +242,9 @@
         </if>
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
             <![CDATA[ AND bv.gmt_create > #{startDate} AND bv.gmt_create < #{endDate} ]]>
+        </if>
+        <if test='startInvoiceCreate != null and startInvoiceCreate != "" and endInvoiceCreate != null and endInvoiceCreate != ""'>
+            <![CDATA[ AND bv.invoice_create > #{startInvoiceCreate} AND bv.invoice_create < #{endInvoiceCreate} ]]>
         </if>
         <if test='regionIdList != null'>
             AND a.region_id IN
@@ -303,9 +311,11 @@
             bv.bank_check AS bankCheck,
             bv.is_checked AS isChecked,
             bv.remarks AS remarks,
+            bv.refuse_reason AS refuseReason,
             bv.verify_code AS verifyCode,
             bv.bank_date AS bankDate,
             bv.is_close AS isClose,
+            bv.invoice_create AS invoiceCreate,
             tbu.name AS userName,
             tbu.birthday AS birthday,
             tbu.phone AS phone
@@ -347,6 +357,9 @@
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
             <![CDATA[ AND bv.gmt_create > #{startDate} AND bv.gmt_create < #{endDate} ]]>
         </if>
+        <if test='startInvoiceCreate != null and startInvoiceCreate != "" and endInvoiceCreate != null and endInvoiceCreate != ""'>
+            <![CDATA[ AND bv.invoice_create > #{startInvoiceCreate} AND bv.invoice_create < #{endInvoiceCreate} ]]>
+        </if>
         <if test='regionIdList != null'>
             AND a.region_id IN
             <foreach collection="regionIdList" item="regionIdList" index="index" open="(" close=")" separator=",">
@@ -359,7 +372,7 @@
         <if test='userId != null and userId != ""'>
             AND bv.user_id = #{userId}
         </if>
-        ORDER BY bv.gmt_create DESC, bv.installment_num ASC
+        ${orderBy}
         LIMIT #{offset}, #{rows};
     </select>
     
@@ -403,9 +416,11 @@
             bank_check AS bankCheck,
             is_checked AS isChecked,
             remarks,
+            refuse_reason AS refuseReason,
             verify_code AS verifyCode,
             bank_date AS bankDate,
-            is_close AS isClose
+            is_close AS isClose,
+            invoice_create AS invoiceCreate
         FROM b_visa
         WHERE code = #{code};
     </select>
@@ -450,9 +465,11 @@
             bank_check AS bankCheck,
             is_checked AS isChecked,
             remarks,
+            refuse_reason AS refuseReason,
             verify_code AS verifyCode,
             bank_date AS bankDate,
-            is_close AS isClose
+            is_close AS isClose,
+            invoice_create AS invoiceCreate
         FROM b_visa WHERE service_order_id = #{serviceOrderId};
     </select>
     
@@ -548,9 +565,11 @@
             bank_check AS bankCheck,
             is_checked AS isChecked,
             remarks,
+            refuse_reason AS refuseReason,
             verify_code AS verifyCode,
             bank_date AS bankDate,
-            is_close AS isClose
+            is_close AS isClose,
+            invoice_create AS invoiceCreate
         FROM b_visa
         WHERE installment_num = 1 AND service_order_id = #{serviceOrderId};
     </select>
@@ -599,9 +618,11 @@
             bank_check AS bankCheck,
             is_checked AS isChecked,
             remarks,
+            refuse_reason AS refuseReason,
             verify_code AS verifyCode,
             bank_date AS bankDate,
-            is_close AS isClose
+            is_close AS isClose,
+            invoice_create AS invoiceCreate
         FROM b_visa WHERE id = #{id, jdbcType=INTEGER};
     </select>
     
@@ -661,10 +682,16 @@
             bank_check AS bankCheck,
             is_checked AS isChecked,
             remarks,
+            refuse_reason AS refuseReason,
             verify_code AS verifyCode,
             bank_date AS bankDate,
-            is_close AS isClose
+            is_close AS isClose,
+            invoice_create AS invoiceCreate
         FROM b_visa
         WHERE verify_code  = #{verifyCode};
     </select>
+    <update id="setBankDateNull">
+        update b_visa set bank_check = null,  is_checked = false , bank_date = null
+        where id = #{id};
+    </update>
 </mapper>

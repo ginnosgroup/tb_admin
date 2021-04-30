@@ -133,6 +133,8 @@ public class ServiceOrderDTO {
 	private OfficialDTO official;
 
 	private String remarks;
+	
+	private String refuseReason;
 
 	private String closedReason;
 
@@ -163,5 +165,7 @@ public class ServiceOrderDTO {
 	private List<ServiceOrderOfficialRemarksDTO> officialNotes;
 
 	private ServiceAssessDO serviceAssessDO;
+	
+	private List<Integer> cIds; // 佣金订单编号
 
 }

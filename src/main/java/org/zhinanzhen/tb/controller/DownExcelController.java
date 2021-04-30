@@ -5,7 +5,6 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.zhinanzhen.b.controller.BaseCommissionOrderController.ReviewKjStateEnum;
 import org.zhinanzhen.b.service.BrokerageSaService;
 import org.zhinanzhen.b.service.BrokerageService;
 import org.zhinanzhen.b.service.CommissionOrderService;
@@ -32,7 +30,6 @@ import org.zhinanzhen.b.service.pojo.BrokerageSaDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderReportDTO;
 import org.zhinanzhen.b.service.pojo.RefundDTO;
 import org.zhinanzhen.b.service.pojo.SchoolBrokerageSaDTO;
-import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
 import org.zhinanzhen.b.service.pojo.VisaReportDTO;
 import org.zhinanzhen.tb.service.AdviserService;
@@ -182,7 +179,7 @@ public class DownExcelController extends BaseController {
 		try {
 			super.setGetHeader(response);
 			List<VisaDTO> visaDtoList = visaService.listVisa(id , keyword, startHandlingDate, endHandlingDate, null, null,
-					null, null, startDate, endDate, null, adviserId, null, state,0, 9999);
+					null, null, startDate, endDate, null, null, null, adviserId, null, state,0, 9999, null);
 
 			OutputStream os = response.getOutputStream();
 			jxl.Workbook wb;
@@ -584,7 +581,7 @@ public class DownExcelController extends BaseController {
 
 			// 签证类
 			List<VisaDTO> visaDtoList = visaService.listVisa(id ,keyword, startHandlingDate, endHandlingDate, null, null,
-					null, null, startDate, endDate, null, adviserId, null,applyState, 0, 15);
+					null, null, startDate, endDate, null, null, null, adviserId, null,applyState, 0, 15, null);
 
 			// ?
 			// List<BrokerageDTO> brokerageDtoList =

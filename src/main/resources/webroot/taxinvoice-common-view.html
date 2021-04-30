@@ -347,9 +347,9 @@ var v_sub1_taxinvoice = new Vue({
 		data: {			
 			subject: [],
 			subject_normal: [],
-			subject_markteting: [],
+			subject_markteting: [],			
 			invoiceNo: '',											
-			invoiceIds: '',
+			invoiceIds: '',			
 		}
 });	
 
@@ -363,10 +363,12 @@ function invoice_view(invoiceNo,invoiceIds)
     }).done(function(response) {		        	
     	response = response.data;
     	console.log(response);
+    	//拼接发票ID
+    	if (invoiceIds.length == 2) invoiceIds += response.id;
     	v_sub1_taxinvoice.invoiceNo = invoiceNo;
-    	v_sub1_taxinvoice.invoiceIds = invoiceIds;
+    	v_sub1_taxinvoice.invoiceIds = invoiceIds;    	
     	if (invoiceIds.indexOf("SF") == '0')
-			{
+			{					
 		    	$('#show_addservicefee_id #b0').html(invoiceIds);
 		    	$('#show_addservicefee_id #b1').html(response.branch);
 		    	$('#show_addservicefee_id #b2').html(response.company);

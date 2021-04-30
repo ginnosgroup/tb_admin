@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
 import org.zhinanzhen.b.dao.pojo.EachRegionNumberDO;
+import org.zhinanzhen.b.dao.pojo.EachSubjectCountDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
 
 public interface ServiceOrderDAO {
@@ -42,8 +43,8 @@ public interface ServiceOrderDAO {
 										  @Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
 										  @Param("officialId") Integer officialId, @Param("officialTagId") Integer officialTagId,
 										  @Param("parentId") Integer parentId, @Param("isNotApproved") Boolean isNotApproved,
-										  @Param("offset") int offset, @Param("rows") int rows,
-										  @Param("serviceId") Integer serviceId, @Param("schoolId") Integer schoolId);
+										  @Param("serviceId") Integer serviceId, @Param("schoolId") Integer schoolId,
+										  @Param("offset") int offset, @Param("rows") int rows, @Param("orderBy") String orderBy);
 
 	List<ServiceOrderDO> listByParentId(@Param("parentId") Integer parentId);
 
@@ -57,4 +58,9 @@ public interface ServiceOrderDAO {
 
 	List<EachRegionNumberDO> listServiceOrderGroupByForRegion(@Param("type") String type,@Param("startOfficialApprovalDate") String startOfficialApprovalDate,
 															  @Param("endOfficialApprovalDate") String endOfficialApprovalDate);
+
+	List<ServiceOrderDO> listByVerifyCode(@Param("verifyCode") String verifyCode);
+
+	List<EachSubjectCountDO> eachSubjectCount(@Param("startOfficialApprovalDate") String startOfficialApprovalDate,
+										@Param("endOfficialApprovalDate") String endOfficialApprovalDate);
 }

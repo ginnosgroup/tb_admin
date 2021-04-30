@@ -66,7 +66,8 @@ public class VerifyController {
     @RequestMapping(value = "/uploadexcel",method = RequestMethod.POST)
     @ResponseBody
     @Transactional(rollbackFor = Exception.class)
-    public Response uploadExcel(@RequestParam("file") MultipartFile file) throws Exception {
+    public Response uploadExcel(@RequestParam("file") MultipartFile file,
+                                @RequestParam("regionId")Integer regionId) throws Exception {
         String fileName = file.getOriginalFilename();
         List<FinanceCodeDO> financeCodeDOS = verifyService.excelToList(file.getInputStream(), fileName);
 
@@ -81,14 +82,15 @@ public class VerifyController {
                         financeCodeDO.setUserId(commissionOrderListDTO.getUserId());
                         financeCodeDO.setAmount(commissionOrderListDTO.getAmount());
                         financeCodeDO.setBusiness("留学-"+commissionOrderListDTO.getSchool().getName());
-                        if (commissionOrderListDTO.getBankDate()==null)
-                            commissionOrderListDTO.setBankDate(financeCodeDO.getBankDate());
+                        //if (commissionOrderListDTO.getBankDate()==null)
+                        commissionOrderListDTO.setBankDate(financeCodeDO.getBankDate());
                         if (commissionOrderListDTO.getAmount() == financeCodeDO.getMoney())
                             commissionOrderListDTO.setChecked(true);
                         if (StringUtil.isEmpty(commissionOrderListDTO.getBankCheck()))
                             commissionOrderListDTO.setBankCheck("手工");
                         commissionOrderService.updateCommissionOrder(commissionOrderListDTO);
                     }
+
                 }
                 if (orderId != null && orderId.substring(0,2).equalsIgnoreCase("CV") ){
                     VisaDTO visaDTO =  visaService.getVisaById(Integer.parseInt(orderId.substring(2)));
@@ -98,8 +100,8 @@ public class VerifyController {
                         financeCodeDO.setAmount(visaDTO.getAmount());
                         ServiceOrderDTO serviceOrderDTO = serviceOrderService.getServiceOrderById(visaDTO.getServiceOrderId());
                         financeCodeDO.setBusiness(serviceOrderDTO.getService().getName()+"-"+serviceOrderDTO.getService().getCode());
-                        if (visaDTO.getBankDate()==null)
-                            visaDTO.setBankDate(financeCodeDO.getBankDate());
+                        //if (visaDTO.getBankDate()==null)
+                        visaDTO.setBankDate(financeCodeDO.getBankDate());
                         if (visaDTO.getAmount() == financeCodeDO.getMoney())
                             visaDTO.setChecked(true);
                         if (StringUtil.isEmpty(visaDTO.getBankCheck()))
@@ -107,17 +109,20 @@ public class VerifyController {
                         visaService.updateVisa(visaDTO);
                     }
                 }
+            financeCodeDO.setRegionId(regionId);
         }
+
         for (Iterator iterator = financeCodeDOS.listIterator(); iterator.hasNext();){
-                FinanceCodeDO financeCodeDO = (FinanceCodeDO) iterator.next();
-            if (StringUtil.isNotEmpty(financeCodeDO.getOrderId())){
-                FinanceCodeDTO financeCodeDTO =  verifyService.financeCodeByOrderId(financeCodeDO.getOrderId());
-                if (financeCodeDTO.getUser() != null & financeCodeDTO.getAdviser() != null){
-                    iterator.remove();
+            FinanceCodeDO financeCodeDO = (FinanceCodeDO) iterator.next();
+            FinanceCodeDTO financeCodeDTO =  verifyService.financeDTOByCode(financeCodeDO.getCode());
+            if (financeCodeDTO != null){
+                if (StringUtil.isNotEmpty(financeCodeDO.getOrderId()) && StringUtil.isEmpty(financeCodeDTO.getOrderId())){
+                    financeCodeDO.setId(financeCodeDTO.getId());
+                    verifyService.update(financeCodeDO);
                 }
+                iterator.remove();
             }
         }
-        //System.out.println(financeCodeDOS.size());
         if (verifyService.add(financeCodeDOS) > 0)
             return new Response(0,"success");
         return new Response(1,"fail");
@@ -128,6 +133,7 @@ public class VerifyController {
     @ResponseBody
     public  void down(@RequestParam(value = "bankDateStart",required = false) String bankDateStart,
                       @RequestParam(value = "bankDateEnd",required = false)String bankDateEnd,
+                      @RequestParam(value = "regionId",required = false) Integer regionId,
                       HttpServletRequest request, HttpServletResponse response){
 
         try {
@@ -138,7 +144,7 @@ public class VerifyController {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        List<FinanceCodeDTO> financeCodeDTOS = verifyService.list(bankDateStart,bankDateEnd+" 23:59:59",9999,0);
+        List<FinanceCodeDTO> financeCodeDTOS = verifyService.list(bankDateStart,bankDateEnd+" 23:59:59", regionId, 9999,0);
 
         try {
             response.reset();// 清空输出流
@@ -173,8 +179,23 @@ public class VerifyController {
             WritableCellFormat cellFormat = new WritableCellFormat();
             int i = 1;
             for (FinanceCodeDTO financeCodeDTO:financeCodeDTOS){
-                if (financeCodeDTO.getOrderId() !=null)
+                if (financeCodeDTO.getOrderId() !=null){
                     sheet.addCell(new Label(0, i, financeCodeDTO.getOrderId() + "", cellFormat));
+                    if (financeCodeDTO.getOrderId().startsWith("CV")){
+                        VisaDTO visaDTO =  visaService.getVisaById(Integer.parseInt(financeCodeDTO.getOrderId().substring(2)));
+                        if ( visaDTO != null ){
+                            sheet.addCell(new Label(8, i, visaDTO.getPerAmount() + "", cellFormat));
+                            sheet.addCell(new Label(9, i, visaDTO.getAmount() + "", cellFormat));
+                        }
+                    }
+                    if (financeCodeDTO.getOrderId().startsWith("CS")){
+                        CommissionOrderListDTO commissionOrderListDTO = commissionOrderService.getCommissionOrderById(Integer.parseInt(financeCodeDTO.getOrderId().substring(2)));
+                        if (commissionOrderListDTO != null){
+                            sheet.addCell(new Label(8, i, commissionOrderListDTO.getPerAmount() + "", cellFormat));
+                            sheet.addCell(new Label(9, i, commissionOrderListDTO.getAmount() + "", cellFormat));
+                        }
+                    }
+                }
                 if (financeCodeDTO.getBankDate()!=null)
                     sheet.addCell(new Label(1, i, sdfbankDatein.format(financeCodeDTO.getBankDate()), cellFormat));
                 if (financeCodeDTO.getUser()!=null)
@@ -190,8 +211,8 @@ public class VerifyController {
                 sheet.addCell(new Label(6, i, financeCodeDTO.getMoney() + "", cellFormat));
                 sheet.addCell(new Label(7, i, financeCodeDTO.getBalance() + "", cellFormat));
                 if (financeCodeDTO.getAdviser()!=null){
-                    sheet.addCell(new Label(8, i, financeCodeDTO.getAdviser().getRegionName() + "", cellFormat));
-                    sheet.addCell(new Label(9, i, financeCodeDTO.getAdviser().getName() + "", cellFormat));
+                    sheet.addCell(new Label(10, i, financeCodeDTO.getAdviser().getRegionName() + "", cellFormat));
+                    sheet.addCell(new Label(11, i, financeCodeDTO.getAdviser().getName() + "", cellFormat));
                 }
 
 
@@ -211,7 +232,8 @@ public class VerifyController {
     @GetMapping(value = "/count")
     @ResponseBody
     public  Response count(@RequestParam(value = "bankDateStart",required = false) String bankDateStart,
-                           @RequestParam(value = "bankDateEnd",required = false)String bankDateEnd){
+                           @RequestParam(value = "bankDateEnd",required = false)String bankDateEnd,
+                           @RequestParam(value = "regionId",required = false) Integer regionId){
         try {
             if (StringUtil.isNotEmpty(bankDateStart))
                 bankDateStart = sdfbankDateout.format(sdfbankDatein.parse(bankDateStart));
@@ -220,7 +242,7 @@ public class VerifyController {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        return  new Response(0,verifyService.count(bankDateStart,bankDateEnd+" 23:59:59"));
+        return  new Response(0,verifyService.count(bankDateStart,bankDateEnd+" 23:59:59",regionId));
     }
 
     @GetMapping(value = "/list")
@@ -228,6 +250,7 @@ public class VerifyController {
     public  Response list(@RequestParam(value = "id",required = false)Integer id,
                           @RequestParam(value = "bankDateStart",required = false) String bankDateStart,
                           @RequestParam(value = "bankDateEnd",required = false)String bankDateEnd,
+                          @RequestParam(value = "regionId",required = false)Integer regionId,
                           @RequestParam(value = "pageSize",required = true)Integer pageSize,
                           @RequestParam(value = "pageNum",required = true)Integer pageNumber){
         try {
@@ -238,7 +261,7 @@ public class VerifyController {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        return  new Response(0,verifyService.list(bankDateStart,bankDateEnd+" 23:59:59",pageSize,pageNumber));
+        return  new Response(0,verifyService.list(bankDateStart,bankDateEnd+" 23:59:59",regionId,pageSize,pageNumber));
     }
 
     @PostMapping(value = "/update")
@@ -246,19 +269,32 @@ public class VerifyController {
     @Transactional
     public  Response update(@RequestParam(value = "orderId",required = true)String orderId,
                             @RequestParam(value = "id") Integer id) throws Exception {
-        String order = "";
-        Integer number = null;
-        try {
-            order = orderId.substring(0,2);
-            number = Integer.parseInt(orderId.substring(2));
-        }catch (Exception e){
-            throw new Exception("orderId error");
-        }
-        if (number <= 0 | id <= 0 )
-            throw new Exception("id or orderId error !");
+
+        if (id <= 0 )
+            throw new Exception("id  error !");
         FinanceCodeDO financeCodeDO = verifyService.financeCodeById(id);
         if (financeCodeDO==null)
-            return  new Response(0,"id is error");
+            return  new Response(1,"id error");
+        if (StringUtil.isEmpty(orderId)){
+            if (verifyService.deleteOrderId(financeCodeDO))
+                return new Response(0,"success");
+            return new Response(1,"删除失败!");
+        }
+        String order = "";
+        Integer number = 0;
+        if (StringUtil.isNotEmpty(orderId)){
+            try {
+                order = orderId.substring(0, 2);
+                number = Integer.parseInt(orderId.substring(2));
+            } catch (Exception e) {
+                throw new Exception("orderId error");
+            }
+            if (number <= 0)
+                throw new Exception("orderId error");
+            if (!orderId.equalsIgnoreCase(financeCodeDO.getOrderId())){
+                verifyService.deleteOrderId(financeCodeDO);
+            }
+        }
         financeCodeDO.setOrderId(orderId);
         if (order.equalsIgnoreCase("CS")){
             CommissionOrderListDTO commissionOrderListDTO = commissionOrderService.getCommissionOrderById(number);

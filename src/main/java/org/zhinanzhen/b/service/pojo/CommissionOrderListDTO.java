@@ -57,5 +57,9 @@ public class CommissionOrderListDTO extends CommissionOrderDTO {
 	@Getter
 	@Setter
 	private double totalAmount;
+	
+	@Getter
+	@Setter
+	private String refuseReason;
 
 }

@@ -13,8 +13,9 @@ import org.zhinanzhen.b.service.pojo.InvoiceCompanyDTO;
 import org.zhinanzhen.b.service.pojo.InvoiceCompanyIdNameDTO;
 import org.zhinanzhen.b.service.pojo.InvoiceDTO;
 import org.zhinanzhen.tb.controller.BaseController;
+import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
-import org.zhinanzhen.tb.service.impl.BaseService;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -47,7 +48,7 @@ public class InvoiceController  extends BaseController {
     //查询invoice
     @RequestMapping(value = "/selectInvoice", method = RequestMethod.GET)
     @ResponseBody
-    public Response selectAllInvoice(
+    public ListResponse selectAllInvoice(
             @RequestParam(value = "invoice_no", required = false) String invoice_no,
             @RequestParam(value = "order_no", required = false) String order_id,
             @RequestParam(value = "create_start", required = false) String create_start,
@@ -67,7 +68,8 @@ public class InvoiceController  extends BaseController {
             pageNum = 10;
         state = state.toUpperCase();
         List<InvoiceDTO> invoiceDTOList = invoiceService.selectInvoice(invoice_no, order_id, create_start, create_end, kind, branch, pageNum, pageSize, state);
-        return new Response(0, invoiceDTOList);
+        int count = invoiceService.selectCount(invoice_no, order_id, create_start, create_end, kind, branch, state);
+        return new ListResponse(true,pageSize, count,invoiceDTOList,"ok");
     }
 
     @RequestMapping(value = "/count", method = RequestMethod.GET)
@@ -195,17 +197,6 @@ public class InvoiceController  extends BaseController {
         return new Response(0, "没有数据！");
     }
 
-    //addservicefee导入数据，关联订单id (已弃用)
-    @RequestMapping(value = "/relationVisaOrder", method = RequestMethod.POST)
-    @ResponseBody
-    public Response relationVisaOrder(@RequestParam(value = "idList", required = true) String[] idList,
-                                      @RequestParam(value = "invoiceNo", required = true) String invoiceNo) {
-        int result = invoiceService.relationVisaOrder(idList, invoiceNo);
-        if (result > 0) {
-            return new Response(0, "成功");
-        }
-        return new Response(1, "失败");
-    }
 
 
     //保存serviceFee invoice
@@ -232,12 +223,12 @@ public class InvoiceController  extends BaseController {
             if (invoiceService.selectInvoiceNo(invoiceNo, "b_invoice_servicefee"))
                 return new Response(1, "invoiceNo repeat!");
             if (idList != null & !idList.equals("")) {
-                int resultrela = invoiceService.relationVisaOrder(idList, invoiceNo);
+                int resultrela = invoiceService.relationVisaOrder(idList, invoiceNo, invoiceDate);
                 if (resultrela > 0) {
                     return new Response(1, resultrela + "订单已经关联！");
                 } else {
                     int result = invoiceService.saveServiceFeeInvoice(invoiceDate, email, company, abn, address, tel, invoiceNo,billTo, note, accountname, bsb, accountno, branch, invoiceServiceFeeDescriptionDOList);
-                    resultrela = invoiceService.relationVisaOrder(idList, invoiceNo);
+                    resultrela = invoiceService.relationVisaOrder(idList, invoiceNo,invoiceDate);
                     if (result > 0) {
                         return new Response(0, "success");
                     }
@@ -290,7 +281,7 @@ public class InvoiceController  extends BaseController {
     @RequestMapping(value = "/addBillTo", method = RequestMethod.POST)
     @ResponseBody
     public Response addBillTo(@RequestParam(value = "company", required = true) String company,
-                              @RequestParam(value = "abn", required = true) String abn,
+                              @RequestParam(value = "abn", required = false) String abn,
                               @RequestParam(value = "address", required = true) String address) {
         int result = invoiceService.addBillTo(company, abn, address);
         if (result == -1) {
@@ -360,6 +351,7 @@ public class InvoiceController  extends BaseController {
             String str = ((String) paramMap.get("idList"));
             String invoiceNo = (String) paramMap.get("invoiceNo");
             String flag = (String) paramMap.get("flag");
+            String invoiceDate = (String) paramMap.get("invoiceDate");
 
             String arr1 = str.substring(0, str.indexOf('#'));
             String arr2 = str.substring(str.indexOf('#') + 1);
@@ -384,12 +376,12 @@ public class InvoiceController  extends BaseController {
                     if (descriptionNormal.size() == 0) {
                         paramMap.put("flag", "M");
                         result = invoiceService.saveSchoolInvoice(paramMap, descriptionMarketing);
-                        resultrela = invoiceService.relationCommissionOrder(arr2.split(","), invoiceNo);
+                        resultrela = invoiceService.relationCommissionOrder(arr2.split(","), invoiceNo,invoiceDate);
 
                     } else if (descriptionMarketing.size() == 0) {
                         paramMap.put("flag", "N");
                         result = invoiceService.saveSchoolInvoice(paramMap, descriptionNormal);
-                        resultrela = invoiceService.relationCommissionOrder(arr1.split(","), invoiceNo);
+                        resultrela = invoiceService.relationCommissionOrder(arr1.split(","), invoiceNo,invoiceDate);
 
                     } else if (descriptionNormal.size() != 0 | descriptionMarketing.size() != 0) {
                         Integer newNum = Integer.parseInt(invoiceNo.substring(6, invoiceNo.length() - 1)) + 1;
@@ -399,8 +391,8 @@ public class InvoiceController  extends BaseController {
                         paramMap.put("invoiceNo", newInvoiceNo);
                         paramMap.put("flag", "M");
                         invoiceService.saveSchoolInvoice(paramMap, descriptionMarketing);
-                        resultrela = invoiceService.relationCommissionOrder(arr1.split(","), invoiceNo);
-                        invoiceService.relationCommissionOrder(arr2.split(","), newInvoiceNo);
+                        resultrela = invoiceService.relationCommissionOrder(arr1.split(","), invoiceNo ,invoiceDate);
+                        invoiceService.relationCommissionOrder(arr2.split(","), newInvoiceNo,invoiceDate);
                     }
 
 
@@ -411,10 +403,10 @@ public class InvoiceController  extends BaseController {
             }
             return new Response(1, "fail");
         } catch (DataAccessException ex) {
-            //System.out.println(ex);
+            ex.printStackTrace();
             return new Response(1, "参数错误");
         } catch (Exception ex) {
-            //System.out.println(ex);
+            ex.printStackTrace();
             return new Response(1, "系统错误，请联系管理员！");
         }
     }

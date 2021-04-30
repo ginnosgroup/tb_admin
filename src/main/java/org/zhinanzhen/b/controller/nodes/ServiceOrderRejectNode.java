@@ -15,5 +15,10 @@ public class ServiceOrderRejectNode extends ServiceOrderReviewNode {
 	public String getName() {
 		return "REJECT";
 	}
+	
+	@Override
+	public String[] nextNodeNames() {
+		return null;
+	}
 
 }

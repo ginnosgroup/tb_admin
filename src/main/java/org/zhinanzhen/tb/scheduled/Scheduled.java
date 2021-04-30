@@ -1,13 +1,38 @@
 package org.zhinanzhen.tb.scheduled;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.ikasoa.core.utils.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
+import org.zhinanzhen.b.controller.ServiceOrderController;
+import org.zhinanzhen.b.dao.CommissionOrderDAO;
+import org.zhinanzhen.b.dao.SchoolDAO;
+import org.zhinanzhen.b.dao.VerifyDao;
+import org.zhinanzhen.b.dao.VisaDAO;
+import org.zhinanzhen.b.dao.pojo.CommissionOrderDO;
+import org.zhinanzhen.b.dao.pojo.FinanceCodeDO;
+import org.zhinanzhen.b.dao.pojo.SchoolDO;
+import org.zhinanzhen.b.dao.pojo.VisaDO;
+import org.zhinanzhen.b.service.ServiceOrderService;
+import org.zhinanzhen.b.service.WXWorkService;
+import org.zhinanzhen.b.service.impl.VerifyServiceImpl;
 import org.zhinanzhen.b.service.pojo.DataDTO;
+import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
+import org.zhinanzhen.tb.dao.AdviserDAO;
+import org.zhinanzhen.tb.dao.pojo.AdviserDO;
+import org.zhinanzhen.tb.service.AdviserService;
+import org.zhinanzhen.tb.service.ServiceException;
+import org.zhinanzhen.tb.service.UserService;
+import org.zhinanzhen.tb.service.pojo.AdviserDTO;
+import org.zhinanzhen.tb.service.pojo.UserDTO;
+import org.zhinanzhen.tb.utils.EmojiFilter;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
-
-import javax.annotation.Resource;
+import org.zhinanzhen.tb.utils.WXWorkAPI;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -33,8 +58,37 @@ Hobart:lorrain.pan@zhinanzhen.org;jiaheng.xu@zhinanzhen.org
 @Lazy(false)
 public class Scheduled {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ServiceOrderController.class);
+
     @Autowired
     Data data;
+
+    @Autowired
+    private VerifyDao verifyDao;
+
+    @Autowired
+    private VisaDAO visaDAO;
+
+    @Autowired
+    private CommissionOrderDAO commissionOrderDAO;
+
+    @Autowired
+    private ServiceOrderService serviceOrderService;
+
+    @Autowired
+    private SchoolDAO schoolDAO;
+
+    @Autowired
+    private AdviserDAO adviserDAO;
+
+    @Autowired
+    private AdviserService adviserService;
+
+    @Autowired
+    private WXWorkService wxWorkService;
+
+    @Autowired
+    private UserService userService;
 
     private Calendar calendar ;
 
@@ -222,6 +276,148 @@ public class Scheduled {
         }
 
 
+    }
+
+    //每天凌晨触发
+    @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 0 * * ? ")
+    //@org.springframework.scheduling.annotation.Scheduled(cron = "0 45 10 * * ? ")
+    public void verifyCodeEveryDay(){
+        List<FinanceCodeDO> financeCodeDOS = verifyDao.getFinanceCodeOrderIdIsNull();
+        for (FinanceCodeDO financeCodeDO : financeCodeDOS){
+            if (StringUtil.isNotEmpty(VerifyServiceImpl.checkVerifyCode(financeCodeDO.getComment()))){
+                String comment = financeCodeDO.getComment();
+                //得到 verifyCode 并且字符全部转换成大写
+                String verifyCode = VerifyServiceImpl.checkVerifyCode(comment).toUpperCase();
+
+                List<VisaDO> visaDOS = visaDAO.listVisaByVerifyCode(verifyCode);
+                List<CommissionOrderDO> commissionOrderDOS = commissionOrderDAO.listCommissionOrderByVerifyCode(verifyCode);
+                if (visaDOS.size() > 0) { //visaDOS 判断list是否有数据
+                    VisaDO visaDO = visaDOS.get(0);
+                    if (visaDO != null) {
+                        visaDO.setBankDate(financeCodeDO.getBankDate());
+                        if (visaDO.getAmount()==financeCodeDO.getMoney())
+                            visaDO.setChecked(true);
+                        visaDO.setBankCheck("Code");
+                        if (visaDAO.updateVisa(visaDO) > 0){
+                            financeCodeDO.setOrderId("CV" + visaDO.getId());
+                            financeCodeDO.setAdviserId(visaDO.getAdviserId());
+                            financeCodeDO.setUserId(visaDO.getUserId());
+                            financeCodeDO.setAmount(visaDO.getAmount());
+                            if (visaDO.getServiceOrderId() > 0){
+                                try {
+                                    ServiceOrderDTO serviceOrderDTO = serviceOrderService.getServiceOrderById(visaDO.getServiceOrderId());
+                                    financeCodeDO.setBusiness(serviceOrderDTO.getService().getName()+"-"+serviceOrderDTO.getService().getCode());
+                                } catch (ServiceException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    }
+                }
+                if (commissionOrderDOS.size() > 0) { //commissionOrderDOS 判断list是否有数据
+                    CommissionOrderDO commissionOrderDO = commissionOrderDOS.get(0);
+                    if (commissionOrderDO != null) {
+                        commissionOrderDO.setBankDate(financeCodeDO.getBankDate());
+                        if (commissionOrderDO.getAmount()==financeCodeDO.getMoney())
+                            commissionOrderDO.setChecked(true);
+                        commissionOrderDO.setBankCheck("Code");
+                        if (commissionOrderDAO.updateCommissionOrder(commissionOrderDO) > 0){
+                            financeCodeDO.setOrderId("CS" + commissionOrderDO.getId());
+                            financeCodeDO.setAdviserId(commissionOrderDO.getAdviserId());
+                            financeCodeDO.setUserId(commissionOrderDO.getUserId());
+                            financeCodeDO.setAmount(commissionOrderDO.getAmount());
+                            if (commissionOrderDO.getSchoolId()>0) {
+                                SchoolDO schoolDO = schoolDAO.getSchoolById(commissionOrderDO.getSchoolId());
+                                 if (schoolDO != null)
+                                     //commissionOrderListDto.setSchool(mapper.map(schoolDo, SchoolDTO.class));
+                                     financeCodeDO.setBusiness("留学-"+schoolDO.getName());
+                                }
+                        }
+                    }
+                }
+            }
+            verifyDao.update(financeCodeDO);
+        }
+    }
+
+    //每天凌晨触发
+    @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 0 * * ? ")
+    public void updateCustomerEveryDay() throws ServiceException {
+        Map<String, Object> tokenMap = wxWorkService.getToken(WXWorkAPI.SECRET_CUSTOMER);
+        if ((int)tokenMap.get("errcode") != 0){
+            LOG.error(tokenMap.get("errmsg").toString());
+            throw  new RuntimeException( tokenMap.get("errmsg").toString());
+        }
+        String customerToken = (String) tokenMap.get("access_token");
+        List<AdviserDO> adviserDOList = adviserDAO.listAdviserOperUserIdIsNull();
+        for (AdviserDO adviserDO : adviserDOList){
+            AdviserDTO adviserDTO =  adviserService.getAdviserById(adviserDO.getId());
+            if (adviserDTO == null)
+                continue;
+            if (StringUtil.isEmpty(adviserDTO.getOperUserId()))
+                continue;
+            String userId = adviserDTO.getOperUserId();
+            boolean flag = true ;
+            String cursor = "";
+            while (flag) {
+                Map<String, Object> externalContactListMap = wxWorkService.getexternalContactList(customerToken, userId, cursor, 100);
+                if ((int) externalContactListMap.get("errcode") != 0)
+                    break;
+                else {
+                    if (externalContactListMap.get("external_contact_list") != null) {
+                        JSONArray jsonArray = JSONArray.parseArray(JSON.toJSONString(externalContactListMap.get("external_contact_list")));
+                        for (int i = 0; i < jsonArray.size(); i++) {
+                            Map<String, Object> externalMap = JSON.parseObject(JSON.toJSONString(jsonArray.get(i)), Map.class);
+                            UserDTO userDTO = new UserDTO();
+                            boolean isContain = false;
+                            if (externalMap.get("follow_info") != null) {
+                                Map<String, Object> follow_info_Map = JSON.parseObject(JSON.toJSONString(externalMap.get("follow_info")), Map.class);
+                                String remark =  follow_info_Map.get("remark").toString();
+                                userDTO.setAuthNickname(EmojiFilter.filterEmoji(remark));
+                                JSONArray jsonMobiles = JSONArray.parseArray(JSON.toJSONString(follow_info_Map.get("remark_mobiles")));
+                                if (jsonMobiles.size() > 0 ){
+                                    for (int n = 0 ; n < jsonMobiles.size() ; n++){
+                                        String mobiles = jsonMobiles.getString(n);
+                                        userDTO.setPhone(mobiles);
+                                        if (StringUtil.isNotEmpty(mobiles) && userService.countUser(null, null, null, mobiles, null, 0, null, null) > 0){
+                                            isContain = true;
+                                            break;
+                                        }
+                                    }
+                                }else
+                                    userDTO.setPhone("00000000000");
+                            }
+                            if (externalMap.get("external_contact") != null) {
+                                Map<String, Object> external_contact_Map = JSON.parseObject(JSON.toJSONString(externalMap.get("external_contact")), Map.class);
+                                String name = external_contact_Map.get("name").toString();
+                                userDTO.setName(EmojiFilter.filterEmoji(name));
+                                userDTO.setWechatUsername(EmojiFilter.filterEmoji(name));
+                                String external_userid = external_contact_Map.get("external_userid").toString();
+                                userDTO.setAuthOpenid(external_userid);
+                                String avatar =  external_contact_Map.get("avatar").toString();
+                                userDTO.setAuthLogo(avatar);
+                            }
+                            if (isContain){
+                                wxWorkService.updateAuthopenidByPhone(userDTO.getAuthOpenid(),userDTO.getPhone());
+                            }
+                            userDTO.setAdviserId(adviserDO.getId());
+                            userDTO.setRegionId(adviserDTO.getRegionId());
+                            UserDTO userDTOByAuthOpenid = userService.getUserByOpenId("WECHAT_WORK",userDTO.getAuthOpenid());
+                            if (userDTOByAuthOpenid != null){
+                                userDTO.setId(userDTOByAuthOpenid.getId());
+                                wxWorkService.updateByAuthopenid(userDTO);
+                            }
+                            if (userDTOByAuthOpenid == null)
+                                wxWorkService.add(userDTO);
+                        }
+                    }
+                    cursor = externalContactListMap.get("next_cursor").toString();
+                    if (StringUtil.isEmpty((String) externalContactListMap.get("next_cursor"))){
+                        flag = false;
+                    }
+                }
+            }
+        }
     }
 
 }

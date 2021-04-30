@@ -9,6 +9,7 @@
         gmt_modify,
         name,
         birthday,
+        area_code,
         phone,
         email,
         wechat_username,
@@ -29,15 +30,16 @@
         now(),
         #{name},
         #{birthday},
+        #{areaCode},
         #{phone},
-        "",
+        #{email},
         #{wechatUsername},
         #{firstControllerContents},
         #{visaCode},
         #{visaExpirationDate},
         #{source},
-        "BROKERAGE",
-        "",
+        #{authType},
+        #{authOpenid},
         "",
         #{authNickname},
         "",
@@ -104,6 +106,7 @@
         u.auth_type AS authType,
         u.auth_nickname AS authNickname,
         u.auth_username AS authUsername,
+        u.area_code AS areaCode,
         u.phone AS phone,
         u.balance AS balance,
         u.adviser_id AS adviserId,
@@ -129,10 +132,11 @@
             AND u.adviser_id = #{adviserId}
         </if>
         <if test='regionIdList != null'>
-            AND u.region_id IN
+            AND (u.region_id IN
             <foreach collection="regionIdList" item="regionIdList" index="index" open="(" close=")" separator=",">
                 #{regionIdList}
             </foreach>
+            OR u.region_id = 0)
         </if>
         <if test='tagId != null and tagId != ""'>
             AND ut.tag_id = #{tagId}
@@ -221,6 +225,9 @@
         <if test='phone != null'>
             , phone = #{phone}
         </if>
+        <if test='areaCode != null'>
+            , area_code = #{areaCode}
+        </if>
         <if test='wechatUsername != null and wechatUsername != ""'>
             , wechat_username = #{wechatUsername}
         </if>
@@ -278,5 +285,70 @@
         UPDATE tb_user
         SET gmt_modify = now() , birthday = #{dob}
         WHERE id = #{id};
+    </update>
+
+    <select id="getUserByAuth_openid" resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
+        SELECT
+        id,
+        gmt_create AS gmtCreate,
+        name,
+        birthday,
+        phone,
+        email,
+        wechat_username AS wechatUsername,
+        first_controller_contents AS firstControllerContents,
+        visa_code AS visaCode,
+        visa_expiration_date AS visaExpirationDate,
+        source,
+        auth_type AS authType,
+        auth_openid AS authOpenid,
+        auth_username AS
+        authUsername,
+        auth_nickname AS authNickname,
+        auth_logo AS authLogo,
+        balance,
+        adviser_id AS adviserId,
+        region_id AS regionId
+        FROM tb_user
+        WHERE  auth_type = 'WECHAT_WORK' and auth_openid = #{authOpenid};
+    </select>
+
+    <update id="updateAuthopenidByPhone">
+        UPDATE tb_user
+        SET auth_openid = #{authOpenid} ,auth_type = 'WECHAT_WORK'
+        WHERE phone = #{phone};
+    </update>
+
+    <update id="updateByAuthopenid">
+        UPDATE tb_user
+        SET gmt_modify = now()
+        <if test='authNickname != null and authNickname != ""'>
+            , auth_nickname = #{authNickname, jdbcType=VARCHAR}
+        </if>
+        <if test='birthday != null'>
+            , birthday = #{birthday}
+        </if>
+        <if test='phone != null'>
+            , phone = #{phone}
+        </if>
+        <if test='areaCode != null'>
+            , area_code = #{areaCode}
+        </if>
+        <if test='wechatUsername != null and wechatUsername != ""'>
+            , wechat_username = #{wechatUsername}
+        </if>
+        <if test='firstControllerContents != null and firstControllerContents != ""'>
+            , first_controller_contents = #{firstControllerContents}
+        </if>
+        <if test='visaCode != null and visaCode != ""'>
+            , visa_code = #{visaCode}
+        </if>
+        <if test='visaExpirationDate != null'>
+            , visa_expiration_date = #{visaExpirationDate}
+        </if>
+        <if test='source != null and source != ""'>
+            , source = #{source}
+        </if>
+        WHERE auth_type = 'WECHAT_WORK' and auth_openid = #{authOpenid};
     </update>
 </mapper>

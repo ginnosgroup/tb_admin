@@ -15,6 +15,7 @@ import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
 import org.zhinanzhen.b.service.pojo.VisaCommentDTO;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
 import org.zhinanzhen.b.service.pojo.VisaReportDTO;
+import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
@@ -23,6 +24,7 @@ import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
+import org.zhinanzhen.tb.utils.SendEmailUtil;
 
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.StringUtil;
@@ -50,6 +52,9 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 
 	@Resource
 	private UserDAO userDao;
+	
+	@Resource
+	private ServiceOrderDAO serviceOrderDao;
 
 	@Resource
 	private ServiceOrderReviewDAO serviceOrderReviewDao;
@@ -126,32 +131,42 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 
 	@Override
 	public int countVisa(Integer id, String keyword, String startHandlingDate, String endHandlingDate,
-			List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
-			String endKjApprovalDate, String startDate, String endDate, List<Integer> regionIdList, Integer adviserId,
-			Integer userId, String state) throws ServiceException {
+                         List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
+                         String endKjApprovalDate, String startDate, String endDate, String startInvoiceCreate, String endInvoiceCreate, List<Integer> regionIdList, Integer adviserId,
+                         Integer userId, String state) throws ServiceException {
 		return visaDao.countVisa(id, keyword, startHandlingDate, theDateTo23_59_59(endHandlingDate), stateList,
 				commissionStateList, startKjApprovalDate, theDateTo23_59_59(endKjApprovalDate), startDate,
-				theDateTo23_59_59(endDate), regionIdList, adviserId, userId, state);
+				theDateTo23_59_59(endDate), startInvoiceCreate,theDateTo23_59_59(endInvoiceCreate),regionIdList, adviserId, userId, state);
 	}
 
 	@Override
 	public List<VisaDTO> listVisa(Integer id, String keyword, String startHandlingDate, String endHandlingDate,
-			List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
-			String endKjApprovalDate, String startDate, String endDate, List<Integer> regionIdList, Integer adviserId,
-			Integer userId, String state, int pageNum, int pageSize) throws ServiceException {
+								  List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
+								  String endKjApprovalDate, String startDate, String endDate, String startInvoiceCreate, String endInvoiceCreate, List<Integer> regionIdList, Integer adviserId,
+								  Integer userId, String state, int pageNum, int pageSize, Sorter sorter) throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
 		}
 		if (pageSize < 0) {
 			pageSize = DEFAULT_PAGE_SIZE;
 		}
+		String orderBy = "ORDER BY bv.gmt_create DESC, bv.installment_num ASC";
+		if (sorter != null) {
+			if (sorter.getId() != null)
+				orderBy = StringUtil.merge("ORDER BY ", sorter.getOrderBy("bv.id", sorter.getId()));
+			if (sorter.getUserName() != null)
+				orderBy = StringUtil.merge("ORDER BY ", sorter.getOrderBy("tbu.name", sorter.getUserName()));
+			if (sorter.getAdviserName() != null)
+				orderBy = StringUtil.merge("ORDER BY ", sorter.getOrderBy("a.name", sorter.getAdviserName()));
+		}
 		List<VisaDTO> visaDtoList = new ArrayList<>();
 		List<VisaListDO> visaListDoList = new ArrayList<>();
 		try {
 			visaListDoList = visaDao.listVisa(id, keyword, startHandlingDate, theDateTo23_59_59(endHandlingDate),
 					stateList, commissionStateList, startKjApprovalDate, theDateTo23_59_59(endKjApprovalDate),
-					startDate, theDateTo23_59_59(endDate), regionIdList, adviserId, userId, state, pageNum * pageSize,
-					pageSize);
+					startDate, theDateTo23_59_59(endDate), startInvoiceCreate,theDateTo23_59_59(endInvoiceCreate),
+					regionIdList, adviserId, userId, state, pageNum * pageSize,
+					pageSize, orderBy);
 			if (visaListDoList == null)
 				return null;
 		} catch (Exception e) {
@@ -168,6 +183,9 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 				visaDto.setPhone(userDo.getPhone());
 				visaDto.setBirthday(userDo.getBirthday());
 			}
+//			ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(visaListDo.getServiceOrderId());
+//			if (serviceOrderDo != null && StringUtil.isNotEmpty(serviceOrderDo.getRefuseReason()))
+//				visaDto.setRefuseReason(serviceOrderDo.getRefuseReason());
 			AdviserDO adviserDo = adviserDao.getAdviserById(visaListDo.getAdviserId());
 			if (adviserDo != null) {
 				visaDto.setAdviserName(adviserDo.getName());
@@ -412,6 +430,19 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
 		}
+	}
+
+	@Override
+	public void sendRefuseEmail(int id) {
+		VisaDO visaDo = visaDao.getVisaById(id);
+		AdviserDO adviserDo = adviserDao.getAdviserById(visaDo.getAdviserId());
+//		OfficialDO officialDo = officialDao.getOfficialById(visaDo.getOfficialId());
+		// 发送给顾问
+		SendEmailUtil.send(adviserDo.getEmail(), "签证佣金订单驳回提醒", StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>",
+				"您的订单已被驳回。<br>订单号:", visaDo.getId(), "<br/>驳回原因:", visaDo.getRefuseReason()));
+		// 发送给文案
+//		SendEmailUtil.send(officialDo.getEmail(), "签证佣金订单驳回提醒", StringUtil.merge("亲爱的:", officialDo.getName(), "<br/>",
+//				"您的订单已被驳回。<br>订单号:", visaDo.getId(), "<br/>驳回原因:", visaDo.getRefuseReason()));
 	}
 
 }

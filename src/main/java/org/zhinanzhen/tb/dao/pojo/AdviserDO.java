@@ -26,4 +26,6 @@ public class AdviserDO implements Serializable {
 
 	private int regionId;
 
+	private String operUserId;
+
 }

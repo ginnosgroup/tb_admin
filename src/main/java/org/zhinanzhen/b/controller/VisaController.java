@@ -4,7 +4,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -27,15 +26,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.VisaService;
-import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.VisaCommentDTO;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
+import org.zhinanzhen.b.service.pojo.ant.Sorter;
+import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
 
+import com.alibaba.fastjson.JSON;
 import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.core.utils.StringUtil;
 
@@ -203,6 +204,7 @@ public class VisaController extends BaseCommissionOrderController {
 					visaDto.setState(ReviewKjStateEnum.PENDING.toString());
 					visaDto.setVerifyCode(null);//只给第一笔对账verifyCode
 					visaDto.setKjApprovalDate(null);
+					visaDto.setReceiveDate(null);
 					visaDto.setPerAmount(_receivable > _perAmount ? _receivable - _perAmount : 0.00); // 第二笔单子修改本次应收款
 //					if (_received > 0.00)
 //						visaDto.setAmount(_received > _amount ? _received - _amount : 0.00);
@@ -500,6 +502,7 @@ public class VisaController extends BaseCommissionOrderController {
 
 	@RequestMapping(value = "/count", method = RequestMethod.GET)
 	@ResponseBody
+	@Deprecated
 	public Response<Integer> countVisa(
 			@RequestParam(value = "id", required = false) Integer id,
 			@RequestParam(value = "keyword", required = false) String keyword,
@@ -510,6 +513,8 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
+			@RequestParam(value = "startInvoiceCreate", required = false) String startInvoiceCreate,
+			@RequestParam(value = "endInvoiceCreate", required = false) String endInvoiceCreate,
 			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "userId", required = false) Integer userId,
@@ -560,7 +565,7 @@ public class VisaController extends BaseCommissionOrderController {
 			
 			return new Response<Integer>(0,
 					visaService.countVisa(id , keyword, startHandlingDate, endHandlingDate, stateList, commissionStateList,
-							startKjApprovalDate, endKjApprovalDate, startDate, endDate, regionIdList, adviserId, userId,state));
+							startKjApprovalDate, endKjApprovalDate, startDate, endDate, startInvoiceCreate, endInvoiceCreate, regionIdList, adviserId, userId,state));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -568,7 +573,7 @@ public class VisaController extends BaseCommissionOrderController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<VisaDTO>> listVisa(@RequestParam(value = "id", required = false) Integer id,
+	public ListResponse<List<VisaDTO>> listVisa(@RequestParam(value = "id", required = false) Integer id,
 			@RequestParam(value = "keyword", required = false) String keyword,
 			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
 			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
@@ -577,12 +582,15 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
+			@RequestParam(value = "startInvoiceCreate", required = false) String startInvoiceCreate,
+			@RequestParam(value = "endInvoiceCreate", required = false) String endInvoiceCreate,
 			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "userId", required = false) Integer userId,
-			@RequestParam(value = "state",required = false) String state,
-			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
-			HttpServletRequest request, HttpServletResponse response) {
+			@RequestParam(value = "state", required = false) String state, @RequestParam(value = "pageNum") int pageNum,
+			@RequestParam(value = "pageSize") int pageSize,
+			@RequestParam(value = "sorter", required = false) String sorter, HttpServletRequest request,
+			HttpServletResponse response) {
 
 		// 会计角色过滤状态
 		List<String> stateList = null;
@@ -601,6 +609,10 @@ public class VisaController extends BaseCommissionOrderController {
 		List<Integer> regionIdList = null;
 		if (regionId != null && regionId > 0)
 			regionIdList = ListUtil.buildArrayList(regionId);
+		
+		Sorter _sorter = null;
+		if (sorter != null)
+			_sorter = JSON.parseObject(sorter, Sorter.class);
 		
 //		Date _startKjApprovalDate = null;
 //		if (startKjApprovalDate != null)
@@ -625,10 +637,15 @@ public class VisaController extends BaseCommissionOrderController {
 				if (newAdviserId != null)
 					adviserId = newAdviserId;
 			}
-			
+
+			int total = visaService.countVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
+					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate,
+					startInvoiceCreate,endInvoiceCreate,regionIdList,
+					adviserId, userId, state);
 			List<VisaDTO> list = visaService.listVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
-					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, regionIdList,
-					adviserId, userId, state, pageNum, pageSize);
+					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate,
+					startInvoiceCreate,endInvoiceCreate,regionIdList,
+					adviserId, userId, state, pageNum, pageSize, _sorter);
 			list.forEach(v -> {
 				if (v.getServiceOrderId() > 0)
 					try {
@@ -639,9 +656,9 @@ public class VisaController extends BaseCommissionOrderController {
 					} catch (ServiceException e) {
 					}
 			});
-			return new Response<List<VisaDTO>>(0, list);
+			return new ListResponse<List<VisaDTO>>(true, pageSize, total, list, "");
 		} catch (ServiceException e) {
-			return new Response<List<VisaDTO>>(1, e.getMessage(), null);
+			return new ListResponse<List<VisaDTO>>(false, pageSize, 0, null, e.getMessage());
 		}
 	}
 	
@@ -702,6 +719,8 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
+			@RequestParam(value = "startInvoiceCreate", required = false) String startInvoiceCreate,
+			@RequestParam(value = "endInvoiceCreate", required = false) String endInvoiceCreate,
 			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "userId", required = false) Integer userId,
@@ -759,8 +778,8 @@ public class VisaController extends BaseCommissionOrderController {
 //				_endKjApprovalDate = new Date(Long.parseLong(endKjApprovalDate));
 
 			List<VisaDTO> list = visaService.listVisa(id ,keyword, startHandlingDate, endHandlingDate, stateList,
-					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, regionIdList,
-					adviserId,userId, state,0, 9999);
+					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, startInvoiceCreate, endInvoiceCreate, regionIdList,
+					adviserId,userId, state,0, 9999, null);
 
 			list.forEach(v -> {
 				if (v.getServiceOrderId() > 0)
@@ -923,7 +942,8 @@ public class VisaController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/refuse", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<VisaDTO> refuse(@RequestParam(value = "id") int id, @RequestParam(value = "state") String state,
-			HttpServletRequest request, HttpServletResponse response) {
+			@RequestParam(value = "refuseReason", required = false) String refuseReason, HttpServletRequest request,
+			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			if (ReviewKjStateEnum.COMPLETE.toString().equalsIgnoreCase(state)
@@ -941,12 +961,14 @@ public class VisaController extends BaseCommissionOrderController {
 						VisaDTO visaDto = visaService.getVisaById(id);
 						if (visaDto == null)
 							return new Response<VisaDTO>(1, "佣金订单不存在!", null);
-//						serviceOrderService.refuse(id, adminUserLoginInfo.getId(), null, null, null,
-//								state.toUpperCase());
+						// 更新驳回原因
+						if (StringUtil.isNotEmpty(refuseReason))
+							visaDto.setRefuseReason(refuseReason);
 						visaDto.setState(state);
-						if (visaService.updateVisa(visaDto) > 0)
+						if (visaService.updateVisa(visaDto) > 0) {
+							visaService.sendRefuseEmail(id);
 							return new Response<VisaDTO>(0, visaDto);
-						else
+						} else
 							return new Response<VisaDTO>(1, "修改操作异常!", null);
 					} else
 						return new Response<VisaDTO>(1, "state错误!(" + state + ")", null);

@@ -582,7 +582,14 @@
 						<h4 class="modal-title" id="myModalLabel">操作提示</h4>
 					</div>
 					<div class="modal-body">
-						<strong>请注意，此操作不可逆。</strong>您确认执行此操作吗？
+						<div><strong>请注意，此操作不可逆。</strong>您确认执行此操作吗？</div>
+						<div id="refuse_remarks" class="form-group" style="display:none;width:100%;line-height:40px;">
+							<label class="control-label"><strong>驳回备注：</strong></label>
+							<textarea id="refuseRemarks" class="form-control" style="width:98%"></textarea>							
+						</div>
+						<div class="form-group">
+								<label class="col-sm-12 control-label" id="show_error_message" style="text-align: center;color:red;"></label>
+						</div>
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
@@ -887,6 +894,7 @@
 						var m2 = this.addZero(date1.getMinutes());
 						var s = this.addZero(date1.getSeconds());
 						//var date2 = y + "-" + m + "-" + d;
+						if (y == '1970') return '';
 						var date2 = d+"/"+m+"/"+y;
 						return date2;
 					},
@@ -1670,12 +1678,22 @@
       {
       		v.orderId = id;
       		v.set_state = va;
-      		v.set_type = par;      		
+      		v.set_type = par;
+      		$('#showconfirmbox_id #refuse_remarks').hide();
+      		if (v.ap_list == 'KJ' && va == 'WAIT' && par == '0') $('#showconfirmbox_id #refuse_remarks').show();      			
       		$('#showconfirmbox_id').modal('show');
       }
       
       function update_state()
-      {      		
+      {
+      		if (v.set_type == '0')
+      		{
+      				if ($('#showconfirmbox_id #refuseRemarks').val() == '')
+      				{
+      						$('#showconfirmbox_id #show_error_message').html('提示：必须填写驳回原因！');
+      						return false;
+      				}
+      		}
       		flowstep(v.set_state,v.set_type);
       		$('#showconfirmbox_id').modal('hide');
       }
@@ -1686,6 +1704,14 @@
       		if (par == '0' || va == 'CLOSE') str_url = url + "visa/refuse";
       		
       		var json = {};
+      		var refuseReason = '';
+      		if (v.ap_list == 'KJ' && va == 'WAIT' && par == '0')
+          {
+          		if ($('#showconfirmbox_id #refuseRemarks').val() != '') refuseReason = $('#showconfirmbox_id #refuseRemarks').val();
+          		json['refuseReason'] = refuseReason;
+          }
+          //alert(refuseReason);
+          //return false;
       		json['id'] = v.orderId;
           json['state'] = va;
           show_loading();          
@@ -1833,6 +1859,15 @@
 			    var   minute=now.getMinutes();     
 			    var   second=now.getSeconds();
 			    return   year+"-"+fixZero(month,2)+"-"+fixZero(date,2)+" "+fixZero(hour,2)+":"+fixZero(minute,2)+":"+fixZero(second,2); 
+			}
+			
+			function  formatDate2(str_date)
+			{
+			    var arr = str_date.split("/");
+			    var year = arr[2];
+			    var month = arr[1];
+			    var date = arr[0];
+			    return   year+"-"+fixZero(month,2)+"-"+fixZero(date,2)+" 00:00:00"; 
 			} 
 			
 			function fixZero(num,length)

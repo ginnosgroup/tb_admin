@@ -1,7 +1,6 @@
 package org.zhinanzhen.b.service.impl;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -18,10 +17,12 @@ import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderReportDTO;
 import org.zhinanzhen.b.service.pojo.SchoolDTO;
 import org.zhinanzhen.b.service.pojo.SubagencyDTO;
+import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.b.service.pojo.ReceiveTypeDTO;
 import org.zhinanzhen.b.service.pojo.ServiceDTO;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
+import org.zhinanzhen.tb.utils.SendEmailUtil;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
@@ -54,6 +55,9 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 
 	@Resource
 	private AdviserDAO adviserDao;
+	
+	@Resource
+	private OfficialDAO officialDao;
 
 	@Resource
 	private ReceiveTypeDAO receiveTypeDao;
@@ -119,25 +123,36 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 
 	@Override
 	public int countCommissionOrder(Integer id, List<Integer> regionIdList, Integer maraId, Integer adviserId,
-			Integer officialId, Integer userId, String name, String phone, String wechatUsername, Integer schoolId,
-			Boolean isSettle, List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
-			String endKjApprovalDate, Boolean isYzyAndYjy, String applyState) throws ServiceException {
+                                    Integer officialId, Integer userId, String name, String phone, String wechatUsername, Integer schoolId,
+                                    Boolean isSettle, List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
+                                    String endKjApprovalDate, String startInvoiceCreate, String endInvoiceCreate,
+									Boolean isYzyAndYjy, String applyState) throws ServiceException {
 		return commissionOrderDao.countCommissionOrder(id, regionIdList, maraId, adviserId, officialId, userId, name,
 				phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList, startKjApprovalDate,
-				theDateTo23_59_59(endKjApprovalDate), isYzyAndYjy, applyState);
+				theDateTo23_59_59(endKjApprovalDate),startInvoiceCreate, theDateTo23_59_59(endInvoiceCreate), isYzyAndYjy, applyState);
 	}
 
 	@Override
 	public List<CommissionOrderListDTO> listCommissionOrder(Integer id, List<Integer> regionIdList, Integer maraId,
-			Integer adviserId, Integer officialId, Integer userId, String name, String phone, String wechatUsername,
-			Integer schoolId, Boolean isSettle, List<String> stateList, List<String> commissionStateList,
-			String startKjApprovalDate, String endKjApprovalDate, Boolean isYzyAndYjy, String applyState, int pageNum,
-			int pageSize) throws ServiceException {
+															Integer adviserId, Integer officialId, Integer userId, String name, String phone, String wechatUsername,
+															Integer schoolId, Boolean isSettle, List<String> stateList, List<String> commissionStateList,
+															String startKjApprovalDate, String endKjApprovalDate, String startInvoiceCreate, String endInvoiceCreate,
+															Boolean isYzyAndYjy, String applyState, int pageNum,
+															int pageSize, Sorter sorter) throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
 		}
 		if (pageSize < 0) {
 			pageSize = DEFAULT_PAGE_SIZE;
+		}
+		String orderBy = "ORDER BY co.gmt_create DESC, co.installment_num ASC";
+		if (sorter != null) {
+			if (sorter.getId() != null)
+				orderBy = StringUtil.merge("ORDER BY ", sorter.getOrderBy("co.id", sorter.getId()));
+			if (sorter.getUserName() != null)
+				orderBy = StringUtil.merge("ORDER BY ", sorter.getOrderBy("u.name", sorter.getUserName()));
+			if (sorter.getAdviserName() != null)
+				orderBy = StringUtil.merge("ORDER BY ", sorter.getOrderBy("a.name", sorter.getAdviserName()));
 		}
 		List<CommissionOrderListDTO> commissionOrderListDtoList = new ArrayList<>();
 		List<CommissionOrderListDO> commissionOrderListDoList = new ArrayList<>();
@@ -145,8 +160,8 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			commissionOrderListDoList = commissionOrderDao.listCommissionOrder(id, regionIdList, maraId, adviserId,
 					officialId, userId, name, phone, wechatUsername, schoolId, isSettle, stateList,
 					commissionStateList,
-					startKjApprovalDate, theDateTo23_59_59(endKjApprovalDate), isYzyAndYjy, applyState,pageNum * pageSize,
-					pageSize);
+					startKjApprovalDate, theDateTo23_59_59(endKjApprovalDate), startInvoiceCreate, theDateTo23_59_59(endInvoiceCreate),
+					isYzyAndYjy, applyState,pageNum * pageSize, pageSize, orderBy);
 			if (commissionOrderListDoList == null)
 				return null;
 		} catch (Exception e) {
@@ -451,6 +466,19 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
 		}
+	}
+
+	@Override
+	public void sendRefuseEmail(int id) {
+		CommissionOrderDO commissionOrderDo = commissionOrderDao.getCommissionOrderById(id);
+		AdviserDO adviserDo = adviserDao.getAdviserById(commissionOrderDo.getAdviserId());
+//		OfficialDO officialDo = officialDao.getOfficialById(commissionOrderDo.getOfficialId());
+		// 发送给顾问
+		SendEmailUtil.send(adviserDo.getEmail(), "留学佣金订单驳回提醒", StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>",
+				"您的订单已被驳回。<br>订单号:", commissionOrderDo.getId(), "<br/>驳回原因:", commissionOrderDo.getRefuseReason()));
+		// 发送给文案
+//		SendEmailUtil.send(officialDo.getEmail(), "留学佣金订单驳回提醒", StringUtil.merge("亲爱的:", officialDo.getName(), "<br/>",
+//				"您的订单已被驳回。<br>订单号:", commissionOrderDo.getId(), "<br/>驳回原因:", commissionOrderDo.getRefuseReason()));
 	}
 
 }

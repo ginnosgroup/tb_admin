@@ -32,5 +32,10 @@ public class ServiceOrderPendingNode extends SONode {
 		isSingleStep = true;
 		return context;
 	}
+	
+	@Override
+	public String[] nextNodeNames() {
+		return new String[]{"REVIEW"};
+	}
 
 }

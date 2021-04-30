@@ -134,6 +134,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		List<SchoolDTO> schoolDtoList = new ArrayList<SchoolDTO>();
 		List<SchoolDO> schoolDoList = new ArrayList<SchoolDO>();
 		try {
+			schoolSettingDao.clear();
 			schoolDoList = schoolDao.list2(name, null);
 			if (schoolDoList == null)
 				return null;
@@ -157,6 +158,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		List<SchoolDTO> schoolDtoList = new ArrayList<SchoolDTO>();
 		List<SchoolDO> schoolDoList = new ArrayList<SchoolDO>();
 		try {
+			schoolSettingDao.clear();
 			schoolDoList = schoolDao.list(name, subject, country);
 			if (schoolDoList == null)
 				return null;
@@ -180,6 +182,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		List<SchoolDTO> schoolDtoList = new ArrayList<SchoolDTO>();
 		List<SchoolDO> schoolDoList = new ArrayList<SchoolDO>();
 		try {
+			schoolSettingDao.clear();
 			schoolDoList = schoolDao.listSchool(name, country);
 			if (schoolDoList == null) {
 				return null;
@@ -262,6 +265,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	public List<SchoolSettingDTO> listSchoolSetting(String schoolName, String subjectName) throws ServiceException {
 		List<SchoolDO> schoolDoList = null;
 		if (StringUtil.isEmpty(schoolName)) {
+			schoolSettingDao.clear();
 			buildSchoolSettingList(schoolDao.list2(null, null));
 			schoolDoList = schoolDao.listSchool(null, null); // 一级列表合并学校
 		} else

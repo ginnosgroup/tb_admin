@@ -29,7 +29,7 @@ public interface UserDAO {
 	UserDO getUserByThird(@Param("thirdType") String thirdType, @Param("thirdId") String thirdId);
 
 	boolean update(@Param("id") int id, @Param("name") String name, @Param("authNickname") String authNickname,
-			@Param("birthday") Date birthday, @Param("phone") String phone,
+			@Param("birthday") Date birthday, @Param("phone") String phone, @Param("areaCode") String areaCode,
 			@Param("wechatUsername") String wechatUsername,
 			@Param("firstControllerContents") String firstControllerContents, @Param("visaCode") String visaCode,
 			@Param("visaExpirationDate") Date visaExpirationDate, @Param("source") String source);
@@ -41,4 +41,11 @@ public interface UserDAO {
 	int updateDOB(@Param("dob") Date dob,@Param("id") int id);
 
 	public List<UserDO> listUserByRecommendOpenId(String recommendOpenId);
+
+	public List<UserDO> getUserByAuth_openid(@Param("authOpenid")String Auth_openid);
+
+	boolean updateAuthopenidByPhone(@Param("authOpenid")String authOpenid ,@Param("phone") String phone);
+
+	int updateByAuthopenid(UserDO userDo);
+
 }
