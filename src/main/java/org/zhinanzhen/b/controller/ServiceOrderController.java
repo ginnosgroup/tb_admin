@@ -52,6 +52,7 @@ import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import com.ikasoa.web.workflow.Context;
 import com.ikasoa.web.workflow.Node;
+import com.ikasoa.web.workflow.NodeProcessException;
 import com.ikasoa.web.workflow.Workflow;
 import com.ikasoa.web.workflow.WorkflowStarter;
 import com.ikasoa.web.workflow.impl.WorkflowStarterImpl;
@@ -1760,7 +1761,7 @@ public class ServiceOrderController extends BaseController {
 
 	@RequestMapping(value = "/next_flow", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<ServiceOrderDTO> approval(@RequestParam(value = "id") int id,
+	public Response<ServiceOrderDTO> nextFlow(@RequestParam(value = "id") int id,
 			@RequestParam(value = "state") String state,
 			@RequestParam(value = "subagencyId", required = false) String subagencyId,
 			@RequestParam(value = "closedReason", required = false) String closedReason,
@@ -1803,6 +1804,7 @@ public class ServiceOrderController extends BaseController {
 			Workflow workflow = new Workflow("Service Order Work Flow", node, soNodeFactory);
 			
 			context = workflowStarter.process(workflow, context);
+			serviceOrderService.sendRemind(id, state); // 发送提醒邮件
 			return context.getParameter("response") != null
 					? (Response<ServiceOrderDTO>) context.getParameter("response")
 					: new Response<ServiceOrderDTO>(0, id + "", null);
