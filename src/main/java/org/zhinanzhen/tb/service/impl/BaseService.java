@@ -8,10 +8,8 @@ import org.dozer.DozerBeanMapper;
 import org.dozer.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.zhinanzhen.b.dao.MailLogDAO;
-import org.zhinanzhen.b.dao.ServiceOrderDAO;
 import org.zhinanzhen.b.dao.pojo.MailLogDO;
 import org.zhinanzhen.tb.utils.MD5Util;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
@@ -70,6 +68,7 @@ public abstract class BaseService {
 		}
 		MailLogDO mailLogDo = mailLogDao.getMailLogByCode(code);
 		if (mailLogDo != null) { // 避免发送重复的邮件
+			mailLogDao.refresh(mailLogDo.getId());
 			LOG.warn(StringUtil.merge("该邮件已发送过了,code=", code, ",date=", mailLogDo.getGmtCreate()));
 			return;
 		}

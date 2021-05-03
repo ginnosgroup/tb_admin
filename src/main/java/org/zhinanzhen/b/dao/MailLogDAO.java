@@ -13,4 +13,6 @@ public interface MailLogDAO {
 
 	MailLogDO getMailLogByCode(@Param("code") String code);
 
+	void refresh(@Param("id") int id);
+
 }

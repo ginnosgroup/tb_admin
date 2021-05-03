@@ -44,5 +44,9 @@
             content
         FROM b_remind_logs WHERE code = #{code};
     </select>
+    
+    <update id="refresh" parameterType="java.lang.Integer">
+        UPDATE b_remind_logs SET gmt_modify = now() WHERE id = #{id};
+    </update>
 
 </mapper>
