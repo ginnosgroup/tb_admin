@@ -1802,12 +1802,15 @@ public class ServiceOrderController extends BaseController {
 							StringUtil.merge("状态:", state, "不是合法状态. (", Arrays.toString(nextNodeNames), ")"), null);
 
 			Workflow workflow = new Workflow("Service Order Work Flow", node, soNodeFactory);
-			
+
 			context = workflowStarter.process(workflow, context);
-			serviceOrderService.sendRemind(id, state); // 发送提醒邮件
-			return context.getParameter("response") != null
-					? (Response<ServiceOrderDTO>) context.getParameter("response")
-					: new Response<ServiceOrderDTO>(0, id + "", null);
+
+			if (context.getParameter("response") != null)
+				return (Response<ServiceOrderDTO>) context.getParameter("response");
+			else {
+				serviceOrderService.sendRemind(id, state); // 发送提醒邮件
+				new Response<ServiceOrderDTO>(0, id + "", null);
+			}
 		} catch (ServiceException e) {
 			return new Response<ServiceOrderDTO>(1, "异常:" + e.getMessage(), null);
 		}
