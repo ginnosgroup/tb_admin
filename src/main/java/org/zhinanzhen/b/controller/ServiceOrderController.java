@@ -1809,7 +1809,7 @@ public class ServiceOrderController extends BaseController {
 				return (Response<ServiceOrderDTO>) context.getParameter("response");
 			else {
 				serviceOrderService.sendRemind(id, state); // 发送提醒邮件
-				new Response<ServiceOrderDTO>(0, id + "", null);
+				return new Response<ServiceOrderDTO>(0, id + "", null);
 			}
 		} catch (ServiceException e) {
 			return new Response<ServiceOrderDTO>(1, "异常:" + e.getMessage(), null);
