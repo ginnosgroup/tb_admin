@@ -622,10 +622,10 @@ public class PrintPdfUtil {
             document.add(table9);
 
             //第10列
-            PdfPTable table10 = new PdfPTable(11);
+            PdfPTable table10 = new PdfPTable(12);
             List<InvoiceSchoolDescriptionDO> des = invoiceSchoolDTO.getInvoiceSchoolDescriptionDOS();
             PdfPCell cell10 ;
-            int width10[] = {5,10,10,9,9,10,9,9,9,10,10};
+            int width10[] = {5,10,8,9,9,8,9,9,9,9,10,5};
             for (int i = -1; i < des.size() ; i++) {
                 if (i == -1) {
                     cell10 = new PdfPCell(new Paragraph(" NO. ", FontChinese8));
@@ -645,6 +645,9 @@ public class PrintPdfUtil {
                     cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
                     table10.addCell(cell10);
                     cell10 = new PdfPCell(new Paragraph(" Start Date ", FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(" Non Tuition Fee ", FontChinese8));
                     cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
                     table10.addCell(cell10);
                     cell10 = new PdfPCell(new Paragraph(" Tuition Fee ", FontChinese8));
@@ -681,6 +684,9 @@ public class PrintPdfUtil {
                     cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
                     table10.addCell(cell10);
                     cell10 = new PdfPCell(new Paragraph(dobsdf.format(des.get(i).getStartDate()), FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(des.get(i).getNonTuitionFee().toString(), FontChinese8));
                     cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
                     table10.addCell(cell10);
                     cell10 = new PdfPCell(new Paragraph(des.get(i).getTuitionFee().toString(), FontChinese8));
@@ -1424,10 +1430,10 @@ public class PrintPdfUtil {
             document.add(table9);
 
             //第10列
-            PdfPTable table10 = new PdfPTable(11);
+            PdfPTable table10 = new PdfPTable(12);
             List<InvoiceSchoolDescriptionDO> des = invoiceSchoolDTO.getInvoiceSchoolDescriptionDOS();
             PdfPCell cell10 ;
-            int width10[] = {4,10,10,8,9,10,9,9,11,10,10};
+            int width10[] = {4,10,8,8,9,8,7,9,8,11,8,10};
             for (int i = -1; i < des.size() ; i++) {
                 if (i == -1) {
                     cell10 = new PdfPCell(new Paragraph("NO.", FontChinese8));
@@ -1450,6 +1456,9 @@ public class PrintPdfUtil {
                     cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
                     table10.addCell(cell10);
                     cell10 = new PdfPCell(new Paragraph(" Instalment ", FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(" Non Tuition Fee ", FontChinese8));
                     cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
                     table10.addCell(cell10);
                     cell10 = new PdfPCell(new Paragraph(" Tuition Fee ", FontChinese8));
@@ -1486,6 +1495,9 @@ public class PrintPdfUtil {
                     cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
                     table10.addCell(cell10);
                     cell10 = new PdfPCell(new Paragraph(des.get(i).getInstalMent(), FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(des.get(i).getNonTuitionFee().toString(), FontChinese8));
                     cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
                     table10.addCell(cell10);
                     cell10 = new PdfPCell(new Paragraph(des.get(i).getTuitionFee().toString(), FontChinese8));

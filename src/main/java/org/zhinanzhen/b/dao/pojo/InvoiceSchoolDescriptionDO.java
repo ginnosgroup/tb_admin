@@ -29,6 +29,8 @@ public class InvoiceSchoolDescriptionDO {
 
     private String instalMent;
 
+    private BigDecimal nonTuitionFee;
+
     //学费
     private BigDecimal tuitionFee;
 
