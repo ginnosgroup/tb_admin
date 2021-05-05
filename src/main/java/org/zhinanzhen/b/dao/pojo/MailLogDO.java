@@ -11,6 +11,8 @@ public class MailLogDO {
 
 	Date gmtCreate;
 
+	Date gmtModify;
+
 	String code;
 
 	String mail;

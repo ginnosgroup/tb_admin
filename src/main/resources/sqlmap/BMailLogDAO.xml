@@ -21,6 +21,10 @@
                 #{content});
     </insert>
     
+    <select id="countMailLog" resultType="org.zhinanzhen.b.dao.pojo.MailLogDO">
+        SELECT count(*) FROM b_mail_log;
+     </select>
+    
     <select id="listMailLog" resultType="org.zhinanzhen.b.dao.pojo.MailLogDO">
         SELECT
             id,
@@ -31,7 +35,8 @@
             title,
             content
         FROM b_mail_log
-        ORDER BY gmt_create DESC;
+        ORDER BY gmt_modify DESC
+        LIMIT #{offset}, #{rows};
      </select>
      
      <select id="getMailLogByCode" parameterType="java.lang.String" resultType="org.zhinanzhen.b.dao.pojo.MailLogDO">
