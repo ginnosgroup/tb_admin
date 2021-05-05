@@ -5,12 +5,14 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.MailLogDAO;
 import org.zhinanzhen.b.dao.pojo.MailLogDO;
 import org.zhinanzhen.b.service.MailLogService;
 import org.zhinanzhen.b.service.pojo.MailLogDTO;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
+@Service("MailLogService")
 public class MailLogServiceImpl extends BaseService implements MailLogService {
 
 	@Resource
