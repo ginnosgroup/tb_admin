@@ -21,7 +21,7 @@
                 #{content});
     </insert>
     
-    <select id="countMailLog" resultType="org.zhinanzhen.b.dao.pojo.MailLogDO">
+    <select id="countMailLog" resultType="java.lang.Integer">
         SELECT count(*) FROM b_mail_log;
      </select>
     

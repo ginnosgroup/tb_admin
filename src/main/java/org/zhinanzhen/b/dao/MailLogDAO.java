@@ -9,7 +9,7 @@ public interface MailLogDAO {
 
 	int addMailLog(MailLogDO mailLogDo);
 
-	public int countMailLog();
+	int countMailLog();
 
 	List<MailLogDO> listMailLog(@Param("offset") int offset, @Param("rows") int rows);
 
