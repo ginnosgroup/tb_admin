@@ -32,8 +32,9 @@ public class MailLogServiceImpl extends BaseService implements MailLogService {
 		List<MailLogDTO> mailLogDtoList = new ArrayList<>();
 		List<MailLogDO> mailLogDoList = mailLogDao.listMailLog(pageNum * pageSize, pageSize);
 		if (mailLogDoList != null)
-			for (MailLogDO mailLogDo : mailLogDoList)
+			mailLogDoList.forEach(mailLogDo -> {
 				mailLogDtoList.add(mapper.map(mailLogDo, MailLogDTO.class));
+			});
 		return mailLogDtoList;
 	}
 

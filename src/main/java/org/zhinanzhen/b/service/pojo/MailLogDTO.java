@@ -1,11 +1,36 @@
 package org.zhinanzhen.b.service.pojo;
 
-import org.zhinanzhen.b.dao.pojo.MailLogDO;
+import java.io.Serializable;
+import java.util.Date;
 
-public class MailLogDTO extends MailLogDO {
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+public class MailLogDTO implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	int id;
+
+	Date gmtCreate;
+
+	Date gmtModify;
+
+	String code;
+
+	String mail;
+
+	String title;
+
+	String content;
 
 	public MailLogDTO(String code, String mail, String title, String content) {
-		super(code, mail, title, content);
+		this.code = code;
+		this.mail = mail;
+		this.title = title;
+		this.content = content;
 	}
 
 }
