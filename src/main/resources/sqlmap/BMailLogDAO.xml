@@ -5,7 +5,7 @@
 
     <insert id="addMailLog" parameterType="org.zhinanzhen.b.dao.pojo.MailLogDO" useGeneratedKeys="true" keyProperty="id">
         INSERT
-            INTO b_remind_logs (
+            INTO b_mail_log (
                 gmt_create,
                 gmt_modify,
                 code,
@@ -30,7 +30,7 @@
             mail,
             title,
             content
-        FROM b_remind_logs
+        FROM b_mail_log
         ORDER BY gmt_create DESC;
      </select>
      
@@ -42,11 +42,11 @@
             mail,
             title,
             content
-        FROM b_remind_logs WHERE code = #{code};
+        FROM b_mail_log WHERE code = #{code};
     </select>
     
     <update id="refresh" parameterType="java.lang.Integer">
-        UPDATE b_remind_logs SET gmt_modify = now() WHERE id = #{id};
+        UPDATE b_mail_log SET gmt_modify = now() WHERE id = #{id};
     </update>
 
 </mapper>
