@@ -3,6 +3,7 @@ package org.zhinanzhen.b.controller;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
@@ -28,7 +29,10 @@ public class MailLogController extends BaseController {
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
 	public ListResponse<List<MailLogDTO>> list(@RequestParam(value = "pageNum") int pageNum,
-			@RequestParam(value = "pageSize") int pageSize, HttpServletResponse response) {
+			@RequestParam(value = "pageSize") int pageSize, HttpServletRequest request, HttpServletResponse response) {
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo == null || !"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList()))
+			return new ListResponse<List<MailLogDTO>>(false, pageSize, 0, null, "仅限超级管理员查阅!");
 		try {
 			super.setGetHeader(response);
 			return new ListResponse<List<MailLogDTO>>(true, pageSize, mailLogService.countMailLog(),
