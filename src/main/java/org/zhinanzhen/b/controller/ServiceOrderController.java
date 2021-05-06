@@ -1035,6 +1035,7 @@ public class ServiceOrderController extends BaseController {
 						} else if (ReviewOfficialStateEnum.APPLY.toString().equals(state.toUpperCase())) { // 文案申请同时修改顾问状态
 							// serviceOrderService.finish(id);
 							serviceOrderService.Readcommitted(id);
+							waUpdateSubagency(serviceOrderDto, subagencyId);
 							waUpdateRemarks(serviceOrderDto, remarks);
 							return new Response<ServiceOrderDTO>(0,
 									serviceOrderService.approval(id, adminUserLoginInfo.getId(),
