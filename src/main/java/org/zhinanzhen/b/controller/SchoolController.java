@@ -38,7 +38,7 @@ public class SchoolController extends BaseController {
 	public Response<String> uploadContractFile(@RequestParam MultipartFile file, HttpServletRequest request,
 			HttpServletResponse response) throws IllegalStateException, IOException {
 		super.setPostHeader(response);
-		return super.uploadPdf(file, request.getSession(), "/uploads/school_contract_files/");
+		return super.upload2(file, request.getSession(), "/uploads/school_contract_files/");
 	}
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
