@@ -452,8 +452,7 @@ public class ServiceOrderController extends BaseController {
 							null, null, null, null, null, null, null, null, null, null, id, false, 0, 100, null, null,
 							null);
 				cList.forEach(cServiceOrderDto -> {
-System.out.println("cServiceOrderDto:" + cServiceOrderDto);
-					if ("VISA".equalsIgnoreCase(serviceOrderDto.getType())) {
+					if ("VISA".equalsIgnoreCase(cServiceOrderDto.getType())) {
 						Response<Integer> cRes = updateOne(serviceOrderDto, null, peopleNumber, peopleType,
 								peopleRemarks, serviceId, schoolId, isSettle, isDepositUser, subagencyId, isPay,
 								receiveTypeId, receiveDate, receivable, discount, received, installment,
@@ -461,7 +460,6 @@ System.out.println("cServiceOrderDto:" + cServiceOrderDto);
 								paymentVoucherImageUrl4, paymentVoucherImageUrl5, perAmount, amount, expectAmount, gst,
 								deductGst, bonus, userId, maraId, adviserId, officialId, remarks, closedReason,
 								information, isHistory, nutCloud, serviceAssessId, verifyCode);
-System.out.println(":::" + cRes.getCode());
 						if (cRes.getCode() > 0)
 							res.setMessage(res.getMessage() + ";" + cRes.getMessage());
 					}
@@ -584,7 +582,6 @@ System.out.println(":::" + cRes.getCode());
 			if (StringUtil.isNotEmpty(verifyCode))
 				serviceOrderDto.setVerifyCode(verifyCode.replace("$", "").replace("#", "").replace(" ", ""));
 			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
-System.out.println(serviceOrderDto.getId() + "::" + serviceOrderDto.getPeopleType() + "===i:" + i);
 			if (i > 0) {
 				return new Response<Integer>(0, i);
 			} else {
