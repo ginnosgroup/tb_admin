@@ -576,6 +576,7 @@ System.out.println("cList:" + cList);
 			if (StringUtil.isNotEmpty(verifyCode))
 				serviceOrderDto.setVerifyCode(verifyCode.replace("$", "").replace("#", "").replace(" ", ""));
 			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
+System.out.println(serviceOrderDto.getId() + "::" + serviceOrderDto.getPeopleType() + "===i:" + i);
 			if (i > 0) {
 				return new Response<Integer>(0, i);
 			} else {
