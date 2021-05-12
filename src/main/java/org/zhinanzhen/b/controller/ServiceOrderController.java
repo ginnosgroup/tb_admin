@@ -453,7 +453,7 @@ public class ServiceOrderController extends BaseController {
 							null);
 				cList.forEach(cServiceOrderDto -> {
 					if ("VISA".equalsIgnoreCase(cServiceOrderDto.getType())) {
-						Response<Integer> cRes = updateOne(serviceOrderDto, null, peopleNumber, peopleType,
+						Response<Integer> cRes = updateOne(cServiceOrderDto, null, peopleNumber, peopleType,
 								peopleRemarks, serviceId, schoolId, isSettle, isDepositUser, subagencyId, isPay,
 								receiveTypeId, receiveDate, receivable, discount, received, installment,
 								paymentVoucherImageUrl1, paymentVoucherImageUrl2, paymentVoucherImageUrl3,
