@@ -447,20 +447,23 @@ public class ServiceOrderController extends BaseController {
 					information, isHistory, nutCloud, serviceAssessId, verifyCode);
 			if (res != null && res.getCode() == 0) {
 				List<ServiceOrderDTO> cList = new ArrayList<>();
-				if ("SIV".equalsIgnoreCase(serviceOrderDto.getType()) || serviceOrderDto.getParentId() > 0)
+				if ("SIV".equalsIgnoreCase(serviceOrderDto.getType()))
 					cList = serviceOrderService.listServiceOrder(receiveTypeId, null, null, null, null, null, null,
 							null, null, null, null, null, null, null, null, null, null, id, false, 0, 100, null, null,
 							null);
+System.out.println("cList:" + cList);
 				cList.forEach(cServiceOrderDto -> {
-					Response<Integer> cRes = updateOne(serviceOrderDto, type, peopleNumber, peopleType, peopleRemarks,
-							serviceId, schoolId, isSettle, isDepositUser, subagencyId, isPay, receiveTypeId,
-							receiveDate, receivable, discount, received, installment, paymentVoucherImageUrl1,
-							paymentVoucherImageUrl2, paymentVoucherImageUrl3, paymentVoucherImageUrl4,
-							paymentVoucherImageUrl5, perAmount, amount, expectAmount, gst, deductGst, bonus, userId,
-							maraId, adviserId, officialId, remarks, closedReason, information, isHistory, nutCloud,
-							serviceAssessId, verifyCode);
-					if (cRes.getCode() > 0)
-						res.setMessage(res.getMessage() + ";" + cRes.getMessage());
+					if ("VISA".equalsIgnoreCase(serviceOrderDto.getType())) {
+						Response<Integer> cRes = updateOne(serviceOrderDto, null, peopleNumber, peopleType,
+								peopleRemarks, serviceId, schoolId, isSettle, isDepositUser, subagencyId, isPay,
+								receiveTypeId, receiveDate, receivable, discount, received, installment,
+								paymentVoucherImageUrl1, paymentVoucherImageUrl2, paymentVoucherImageUrl3,
+								paymentVoucherImageUrl4, paymentVoucherImageUrl5, perAmount, amount, expectAmount, gst,
+								deductGst, bonus, userId, maraId, adviserId, officialId, remarks, closedReason,
+								information, isHistory, nutCloud, serviceAssessId, verifyCode);
+						if (cRes.getCode() > 0)
+							res.setMessage(res.getMessage() + ";" + cRes.getMessage());
+					}
 				});
 			}
 			return res;
