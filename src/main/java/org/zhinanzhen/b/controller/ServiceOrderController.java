@@ -451,8 +451,8 @@ public class ServiceOrderController extends BaseController {
 					cList = serviceOrderService.listServiceOrder(receiveTypeId, null, null, null, null, null, null,
 							null, null, null, null, null, null, null, null, null, null, id, false, 0, 100, null, null,
 							null);
-System.out.println("cList:" + cList);
 				cList.forEach(cServiceOrderDto -> {
+System.out.println("cServiceOrderDto:" + cServiceOrderDto);
 					if ("VISA".equalsIgnoreCase(serviceOrderDto.getType())) {
 						Response<Integer> cRes = updateOne(serviceOrderDto, null, peopleNumber, peopleType,
 								peopleRemarks, serviceId, schoolId, isSettle, isDepositUser, subagencyId, isPay,
@@ -461,6 +461,7 @@ System.out.println("cList:" + cList);
 								paymentVoucherImageUrl4, paymentVoucherImageUrl5, perAmount, amount, expectAmount, gst,
 								deductGst, bonus, userId, maraId, adviserId, officialId, remarks, closedReason,
 								information, isHistory, nutCloud, serviceAssessId, verifyCode);
+System.out.println(":::" + cRes.getCode());
 						if (cRes.getCode() > 0)
 							res.setMessage(res.getMessage() + ";" + cRes.getMessage());
 					}
