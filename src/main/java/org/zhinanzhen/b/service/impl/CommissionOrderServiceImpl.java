@@ -204,8 +204,7 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			CommissionOrderDO commissionOrderDo = mapper.map(commissionOrderDto, CommissionOrderDO.class);
 			// 同步修改同一批佣金订单的顾问和文案
 			if (commissionOrderDo.getAdviserId() > 0 || commissionOrderDo.getOfficialId() > 0) {
-				CommissionOrderListDO commissionOrderListDo = commissionOrderDao
-						.getCommissionOrderById(commissionOrderDo.getId());
+				CommissionOrderListDO commissionOrderListDo = commissionOrderDao.getCommissionOrderById(commissionOrderDo.getId());
 				if (commissionOrderListDo == null) {
 					ServiceException se = new ServiceException("佣金订单ID:" + commissionOrderDo.getId() + ",数据不正确或不存在!");
 					se.setCode(ErrorCodeEnum.DATA_ERROR.code());
@@ -479,6 +478,64 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 		// 发送给文案
 //		SendEmailUtil.send(officialDo.getEmail(), "留学佣金订单驳回提醒", StringUtil.merge("亲爱的:", officialDo.getName(), "<br/>",
 //				"您的订单已被驳回。<br>订单号:", commissionOrderDo.getId(), "<br/>驳回原因:", commissionOrderDo.getRefuseReason()));
+	}
+
+	@Override
+	public int updateCommissionOrderByServiceOrderId(CommissionOrderDTO commissionOrderDto) throws ServiceException {
+		if (commissionOrderDto == null) {
+			ServiceException se = new ServiceException("commissionOrderDto is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		if (commissionOrderDto.getVerifyCode() != null){
+			List<CommissionOrderDO> commissionOrderDOS = commissionOrderDao.listCommissionOrderByVerifyCode(commissionOrderDto.getVerifyCode());
+			List<VisaDO> visaDOS = visaDao.listVisaByVerifyCode(commissionOrderDto.getVerifyCode());
+			if ( visaDOS.size()> 0) {
+				ServiceException se = new ServiceException("对账code:"+commissionOrderDto.getVerifyCode()+"已经存在,请重新创建新的code!");
+				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+				throw se;
+			}
+			if (commissionOrderDOS.size()>0){
+				for (CommissionOrderDO commissionOrderDO : commissionOrderDOS){
+					if (commissionOrderDO.getId() != commissionOrderDto.getId()){
+						ServiceException se = new ServiceException("对账code:"+commissionOrderDto.getVerifyCode()+"已经存在,请重新创建新的code!");
+						se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+						throw se;
+					}
+				}
+			}
+		}
+		try {
+			CommissionOrderDO commissionOrderDo = mapper.map(commissionOrderDto, CommissionOrderDO.class);
+			/*
+			// 同步修改同一批佣金订单的顾问和文案
+			if (commissionOrderDo.getAdviserId() > 0 || commissionOrderDo.getOfficialId() > 0) {
+				CommissionOrderListDO commissionOrderListDo = commissionOrderDao.getCommissionOrderById(commissionOrderDo.getId());
+				if (commissionOrderListDo == null) {
+					ServiceException se = new ServiceException("佣金订单ID:" + commissionOrderDo.getId() + ",数据不正确或不存在!");
+					se.setCode(ErrorCodeEnum.DATA_ERROR.code());
+					throw se;
+				}
+				for (CommissionOrderDO _commissionOrderDo : commissionOrderDao
+						.listCommissionOrderByCode(commissionOrderListDo.getCode())) {
+					if (_commissionOrderDo.getId() != commissionOrderDo.getId() && (ReviewKjStateEnum.PENDING.toString()
+							.equalsIgnoreCase(_commissionOrderDo.getState())
+							|| ReviewKjStateEnum.REVIEW.toString().equalsIgnoreCase(_commissionOrderDo.getState())
+							|| ReviewKjStateEnum.WAIT.toString().equalsIgnoreCase(_commissionOrderDo.getState()))) {
+						_commissionOrderDo.setAdviserId(commissionOrderDo.getAdviserId());
+						_commissionOrderDo.setOfficialId(commissionOrderDo.getOfficialId());
+						commissionOrderDao.updateCommissionOrder(_commissionOrderDo);
+					}
+				}
+			}
+			 */
+			return commissionOrderDao.updateCommissionOrderByServiceOrderId(commissionOrderDo) > 0 ?
+					commissionOrderDo.getId() : 0 ;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
 	}
 
 }

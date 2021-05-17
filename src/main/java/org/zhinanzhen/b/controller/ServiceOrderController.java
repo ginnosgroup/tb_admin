@@ -155,6 +155,14 @@ public class ServiceOrderController extends BaseController {
 		return super.upload2(file, request.getSession(), "/uploads/visa_voucher_image_url/");
 	}
 
+	@RequestMapping(value = "/upload_invoice_voucher_img", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<String> uploadInvoiceVoucherImage(@RequestParam MultipartFile file, HttpServletRequest request,
+												   HttpServletResponse response) throws IllegalStateException, IOException {
+		super.setPostHeader(response);
+		return super.upload2(file, request.getSession(), "/uploads/invoice_voucher_image_url/");
+	}
+
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> addServiceOrder(@RequestParam(value = "type") String type,
@@ -415,6 +423,7 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
 			@RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
 			@RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
+			@RequestParam(value = "invoiceVoucherImageUrl" , required = false) String invoiceVoucherImageUrl,
 			@RequestParam(value = "perAmount", required = false) String perAmount,
 			@RequestParam(value = "amount", required = false) String amount,
 			@RequestParam(value = "expectAmount", required = false) String expectAmount,
@@ -483,6 +492,8 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl5))
 				serviceOrderDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
+			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl))
+				serviceOrderDto.setInvoiceVoucherImageUrl(invoiceVoucherImageUrl);
 			if (StringUtil.isNotEmpty(perAmount))
 				serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
 			if (StringUtil.isNotEmpty(amount))

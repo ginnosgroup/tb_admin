@@ -49,4 +49,6 @@ public interface CommissionOrderService {
 
 	void sendRefuseEmail(int id);
 
+	int updateCommissionOrderByServiceOrderId(CommissionOrderDTO commissionOrderDTO) throws ServiceException;
+
 }

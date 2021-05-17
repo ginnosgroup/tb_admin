@@ -232,6 +232,9 @@
         <if test='visaVoucherImageUrl != null'>
             , visa_voucher_image_url = #{visaVoucherImageUrl}
         </if>
+        <if test='invoiceVoucherImageUrl != null'>
+            , invoice_voucher_image_url = #{invoiceVoucherImageUrl}
+        </if>
         <if test='perAmount > 0'>
             , per_amount = #{perAmount}
         </if>

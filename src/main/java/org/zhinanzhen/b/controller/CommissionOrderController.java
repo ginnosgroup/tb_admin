@@ -1303,4 +1303,183 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		}
 	}
 
+	/*
+	*财务驳回状态为REFERED，顾问修改佣金信息之后再提交申请月奖
+	 */
+	@RequestMapping(value = "/updateSubmitted", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<List<CommissionOrderDTO>> updateSubmitted(@RequestParam(value = "serviceOrderId") Integer serviceOrderId,
+					//@RequestParam(value = "state", required = false) String state,
+					@RequestParam(value = "isSettle") Boolean isSettle,
+					@RequestParam(value = "isDepositUser") Boolean isDepositUser,
+					@RequestParam(value = "schoolId") Integer schoolId, @RequestParam(value = "studentCode") String studentCode,
+					@RequestParam(value = "userId") Integer userId, @RequestParam(value = "adviserId") Integer adviserId,
+					@RequestParam(value = "officialId") Integer officialId,
+					@RequestParam(value = "isStudying") Boolean isStudying,
+					@RequestParam(value = "installment") Integer installment,
+					@RequestParam(value = "installmentDueDate1") String installmentDueDate1,
+					@RequestParam(value = "installmentDueDate2", required = false) String installmentDueDate2,
+					@RequestParam(value = "installmentDueDate3", required = false) String installmentDueDate3,
+					@RequestParam(value = "installmentDueDate4", required = false) String installmentDueDate4,
+					@RequestParam(value = "installmentDueDate5", required = false) String installmentDueDate5,
+					@RequestParam(value = "installmentDueDate6", required = false) String installmentDueDate6,
+					@RequestParam(value = "installmentDueDate7", required = false) String installmentDueDate7,
+					@RequestParam(value = "installmentDueDate8", required = false) String installmentDueDate8,
+					@RequestParam(value = "installmentDueDate9", required = false) String installmentDueDate9,
+					@RequestParam(value = "installmentDueDate10", required = false) String installmentDueDate10,
+					@RequestParam(value = "installmentDueDate11", required = false) String installmentDueDate11,
+					@RequestParam(value = "installmentDueDate12", required = false) String installmentDueDate12,
+					@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
+					@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
+					@RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
+					@RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
+					@RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
+					@RequestParam(value = "dob") String dob, @RequestParam(value = "startDate") String startDate,
+					@RequestParam(value = "endDate") String endDate, @RequestParam(value = "tuitionFee") String tuitionFee,
+					@RequestParam(value = "perTermTuitionFee") String perTermTuitionFee,
+					@RequestParam(value = "receiveTypeId") Integer receiveTypeId,
+					@RequestParam(value = "receiveDate") String receiveDate,
+					@RequestParam(value = "perAmount") String perAmount, @RequestParam(value = "amount") String amount,
+					@RequestParam(value = "bonusDate", required = false) String bonusDate,
+					@RequestParam(value = "zyDate", required = false) String zyDate,
+					@RequestParam(value = "remarks", required = false) String remarks,
+					@RequestParam(value = "verifyCode", required = false) String verifyCode,
+					HttpServletRequest request, HttpServletResponse response){
+
+		try {
+			super.setPostHeader(response);
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+				return new Response<List<CommissionOrderDTO>>(1, "仅限顾问和超级管理员能修改佣金订单.", null);
+			ServiceOrderDTO serviceOrderDTO = serviceOrderService.getServiceOrderById(serviceOrderId);
+			if (serviceOrderDTO == null)
+				return new Response<List<CommissionOrderDTO>>(1, "服务订单(ID:" + serviceOrderId + ")不存在!", null);
+			if (serviceOrderDTO.getSubagencyId() <= 0)
+				return new Response<List<CommissionOrderDTO>>
+						(1, "SubagencyId(" + serviceOrderDTO.getSubagencyId() + ")不存在!", null);
+			//List<CommissionOrderListDTO> commissionOrderListDTOS= commissionOrderService.CommissionOrderListByServiceOrderId(serviceOrderId);
+			//if (commissionOrderListDTOS.size() == 0)
+			CommissionOrderListDTO commissionOrderListDTO = commissionOrderService.getFirstCommissionOrderByServiceOrderId(serviceOrderId);
+			if (commissionOrderListDTO == null)
+				return new Response<List<CommissionOrderDTO>>(1, "还未创建服务订单为:" + serviceOrderId + "的佣金订单", null);
+			//CommissionOrderDTO commissionOrderDto = new CommissionOrderDTO();
+			if (isSettle)
+				commissionOrderListDTO.setCommissionState(CommissionStateEnum.DJY.toString());
+			else
+				commissionOrderListDTO.setCommissionState(CommissionStateEnum.DZY.toString());
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
+				commissionOrderListDTO.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
+			else
+				commissionOrderListDTO.setPaymentVoucherImageUrl1(serviceOrderDTO.getPaymentVoucherImageUrl1());
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
+				commissionOrderListDTO.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
+			else
+				commissionOrderListDTO.setPaymentVoucherImageUrl2(serviceOrderDTO.getPaymentVoucherImageUrl2());
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl3))
+				commissionOrderListDTO.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
+			else
+				commissionOrderListDTO.setPaymentVoucherImageUrl3(serviceOrderDTO.getPaymentVoucherImageUrl3());
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl4))
+				commissionOrderListDTO.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
+			else
+				commissionOrderListDTO.setPaymentVoucherImageUrl4(serviceOrderDTO.getPaymentVoucherImageUrl4());
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl5))
+				commissionOrderListDTO.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
+			else
+				commissionOrderListDTO.setPaymentVoucherImageUrl5(serviceOrderDTO.getPaymentVoucherImageUrl5());
+			commissionOrderListDTO.setStudentCode(studentCode);
+			commissionOrderListDTO.setDob(new Date(Long.parseLong(dob)));
+			commissionOrderListDTO.setStartDate(new Date(Long.parseLong(startDate)));
+			commissionOrderListDTO.setEndDate(new Date(Long.parseLong(endDate)));
+			commissionOrderListDTO.setTuitionFee(Double.parseDouble(tuitionFee));
+			commissionOrderListDTO.setPerTermTuitionFee(Double.parseDouble(perTermTuitionFee));
+			commissionOrderListDTO.setReceiveTypeId(receiveTypeId);
+			commissionOrderListDTO.setReceiveDate(new Date(Long.parseLong(receiveDate)));
+			commissionOrderListDTO.setPerAmount(Double.parseDouble(perAmount));
+			commissionOrderListDTO.setAmount(Double.parseDouble(amount));
+			if (installment == null || installment != commissionOrderListDTO.getInstallment())
+				installment = commissionOrderListDTO.getInstallment();
+			if (commissionOrderListDTO.getPerAmount() < commissionOrderListDTO.getAmount())
+				return new Response<List<CommissionOrderDTO>>(1, "本次应收款(" + commissionOrderListDTO.getPerAmount()
+						+ ")不能小于本次已收款(" + commissionOrderListDTO.getAmount() + ")!", null);
+			commissionOrderListDTO.setDiscount(commissionOrderListDTO.getPerAmount() - commissionOrderListDTO.getAmount());
+			if (StringUtil.isNotEmpty(bonusDate))
+				commissionOrderListDTO.setBonusDate(new Date(Long.parseLong(bonusDate)));
+			if (StringUtil.isNotEmpty(zyDate))
+				commissionOrderListDTO.setZyDate(new Date(Long.parseLong(zyDate)));
+			if (StringUtil.isNotEmpty(remarks))
+				commissionOrderListDTO.setRemarks(remarks);
+
+			String msg = "";
+			for (int installmentNum = 1; installmentNum <= installment; installmentNum++) {
+				commissionOrderListDTO.setInstallmentNum(installmentNum);
+				if (installmentNum == 1 && installmentDueDate1 != null) {
+					commissionOrderListDTO.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate1)));
+					//commissionOrderListDTO.setState(ReviewKjStateEnum.REVIEW.toString()); // 第一笔单子直接进入财务审核状态
+					if (StringUtil.isNotEmpty(verifyCode))
+						commissionOrderListDTO.setVerifyCode(verifyCode.replace("$", "").replace("#", "").replace(" ", ""));
+					//commissionOrderListDTO.setKjApprovalDate(new Date());
+				} else {
+					if (installmentNum == 2 && installmentDueDate2 != null) {
+						commissionOrderListDTO.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate2)));
+					} else if (installmentNum == 3 && installmentDueDate3 != null) {
+						commissionOrderListDTO.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate3)));
+					} else if (installmentNum == 4 && installmentDueDate4 != null) {
+						commissionOrderListDTO.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate4)));
+					} else if (installmentNum == 5 && installmentDueDate5 != null) {
+						commissionOrderListDTO.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate5)));
+					} else if (installmentNum == 6 && installmentDueDate6 != null) {
+						commissionOrderListDTO.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate6)));
+					} else if (installmentNum == 7 && installmentDueDate7 != null) {
+						commissionOrderListDTO.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate7)));
+					} else if (installmentNum == 8 && installmentDueDate8 != null) {
+						commissionOrderListDTO.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate8)));
+					} else if (installmentNum == 9 && installmentDueDate9 != null) {
+						commissionOrderListDTO.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate9)));
+					} else if (installmentNum == 10 && installmentDueDate10 != null) {
+						commissionOrderListDTO.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate10)));
+					} else if (installmentNum == 11 && installmentDueDate11 != null) {
+						commissionOrderListDTO.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate11)));
+					} else if (installmentNum == 12 && installmentDueDate12 != null) {
+						commissionOrderListDTO.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate12)));
+					} else
+						break;
+					//commissionOrderListDTO.setState(ReviewKjStateEnum.PENDING.toString());
+					commissionOrderListDTO.setVerifyCode(null);
+					commissionOrderListDTO.setKjApprovalDate(null);
+					commissionOrderListDTO.setReceiveDate(null);
+					commissionOrderListDTO.setPaymentVoucherImageUrl1(null);
+					commissionOrderListDTO.setPaymentVoucherImageUrl2(null);
+					commissionOrderListDTO.setPaymentVoucherImageUrl3(null);
+					commissionOrderListDTO.setPaymentVoucherImageUrl4(null);
+					commissionOrderListDTO.setPaymentVoucherImageUrl5(null);
+				}
+				int id = commissionOrderService.updateCommissionOrderByServiceOrderId(commissionOrderListDTO);
+				if (id > 0) {
+					//serviceOrderDto.setSubmitted(true);
+					userService.updateDOB(new Date(Long.parseLong(dob)), userId);
+					//serviceOrderService.updateServiceOrder(serviceOrderDTO); // 同时更改服务订单状态
+					//commissionOrderDtoList.add(commissionOrderDto);
+					CommissionOrderListDTO commissionOrderListDto = commissionOrderService.getCommissionOrderById(id);
+					int i = schoolService.updateSchoolSetting(commissionOrderListDto); // 根据学校设置更新佣金值
+					if (i > 0) {
+					} else if (i == -1)
+						msg += id + "计算失败. (佣金记录不存在);";
+					else if (i == -2)
+						msg += id + "计算失败. (学校佣金设置不存在或不正确);";
+					else if (i == -3)
+						msg += id + "计算失败. (佣金办理时间不在设置合同时间范围内);";
+					else
+						msg += id + "计算失败. ;";
+				} else
+					msg += "佣金订单创建失败. (" + commissionOrderListDTO.toString() + ");";
+			}
+			return new Response<List<CommissionOrderDTO>>(0, msg, null);
+
+		} catch (ServiceException e) {
+			return new Response<List<CommissionOrderDTO>>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
 }
