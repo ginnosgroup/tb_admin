@@ -52,6 +52,7 @@ import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
 import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
+import org.zhinanzhen.tb.service.pojo.UserDTO;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -795,6 +796,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "officialId", required = false) Integer officialId,
 			@RequestParam(value = "userId", required = false) Integer userId,
 			@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "user", required = false) String user,
 			@RequestParam(value = "phone", required = false) String phone,
 			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
 			@RequestParam(value = "schoolId", required = false) Integer schoolId,
@@ -869,6 +871,18 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					adviserId = newAdviserId;
 			}
 
+			if (StringUtil.isNotEmpty(user)){
+				UserDTO userDTO =  JSON.parseObject(user, UserDTO.class);
+					if (StringUtil.isNotEmpty(userDTO.getName())){
+						List<UserDTO> userList = userService.listUser(userDTO.getName(), null, null, null, null,
+								StringUtil.toInt(null), null, StringUtil.toInt(null), null,
+								false, 0, 20);
+						if (userList.size() == 0)
+							return new ListResponse<List<CommissionOrderListDTO>>(true, pageSize, 0, null, "没有数据");
+						if (userId == null && userList.size() > 0)
+							userId = userList.get(0).getId();
+					}
+			}
 			int total = commissionOrderService.countCommissionOrder(id, regionIdList, maraId, adviserId, officialId,
 					userId, name, phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
 					startKjApprovalDate, endKjApprovalDate, startInvoiceCreate, endInvoiceCreate, isYzyAndYjy,

@@ -42,6 +42,7 @@ import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
+import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
 
@@ -52,7 +53,6 @@ import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import com.ikasoa.web.workflow.Context;
 import com.ikasoa.web.workflow.Node;
-import com.ikasoa.web.workflow.NodeProcessException;
 import com.ikasoa.web.workflow.Workflow;
 import com.ikasoa.web.workflow.WorkflowStarter;
 import com.ikasoa.web.workflow.impl.WorkflowStarterImpl;
@@ -849,6 +849,7 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "endReadcommittedDate", required = false) String endReadcommittedDate,
 			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "userId", required = false) Integer userId,
+			@RequestParam(value = "user", required = false) String user,
 			@RequestParam(value = "maraId", required = false) Integer maraId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "officialId", required = false) Integer officialId,
@@ -916,6 +917,19 @@ public class ServiceOrderController extends BaseController {
 					list.add(serviceOrder);
 				return new ListResponse<List<ServiceOrderDTO>>(false, pageSize, 0, list, "");
 			}
+			if (StringUtil.isNotEmpty(user)){
+				UserDTO userDTO =  JSON.parseObject(user, UserDTO.class);
+				if (StringUtil.isNotEmpty(userDTO.getName())){
+					List<UserDTO> userList = userService.listUser(userDTO.getName(), null, null, null, null,
+							StringUtil.toInt(null), null, StringUtil.toInt(null), null,
+							false, 0, 20);
+					if (userList.size() == 0)
+						return new ListResponse<List<ServiceOrderDTO>>(true, pageSize, 0, null, "没有数据");
+					if (userId == null && userList.size() > 0)
+						userId = userList.get(0).getId();
+				}
+			}
+
 			int total = serviceOrderService.countServiceOrder(type, excludeState, stateList, auditingState,
 					reviewStateList, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
 					endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId, maraId,
