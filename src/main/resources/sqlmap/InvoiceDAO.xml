@@ -208,7 +208,7 @@
         </choose>
         <where>
             <if test="simpleBranch != null and simpleBranch !='' ">
-                invoice_no like "%"#{simpleBranch}  and  DATE_FORMAT(gmt_create,'%Y')  =  DATE_FORMAT(CURDATE(),'%Y')
+                invoice_no like "%"#{simpleBranch}  and  DATE_FORMAT(gmt_create_1,'%Y%m')  =  DATE_FORMAT(CURDATE(),'%Y%m')
             </if>
         </where>
     </select>
@@ -386,8 +386,8 @@
 
     <!-- save srvicefee invoice-->
     <insert id="saveServiceFeeInvoice">
-        insert into `b_invoice_servicefee` (gmt_create,gmt_modify,email,company,abn,address,tel,invoice_no,bill_to,note,accountname,bsb,accountno,state,branch) values
-        (#{invoiceDate},now(),#{email},#{company},#{abn},#{address},#{tel},#{invoiceNo},#{billTo},#{note},#{accountname},#{bsb},#{accountno},"NORMAL",#{branch})
+        insert into `b_invoice_servicefee` (gmt_create,gmt_create_1,gmt_modify,email,company,abn,address,tel,invoice_no,bill_to,note,accountname,bsb,accountno,state,branch) values
+        (#{invoiceDate},now(),now(),#{email},#{company},#{abn},#{address},#{tel},#{invoiceNo},#{billTo},#{note},#{accountname},#{bsb},#{accountno},"NORMAL",#{branch})
     </insert>
     <!-- save srvicefeedescription invoice-->
     <insert id="saveServiceFeeDescription">
@@ -401,8 +401,8 @@
 
     <!-- save srvicefee invoice-->
     <insert id="saveSchoolInvoice" parameterType="java.util.Map">
-        insert  into `b_invoice_school` (gmt_create,gmt_modify,email,company_id,company,abn,address,tel,invoice_no,billto_id,note,accountname,bsb,accountno,state,branch,flag)
-        values (#{invoiceDate},now(),#{email},#{companyId},#{company},#{abn},#{address},#{tel},#{invoiceNo},#{billto_id},#{note},#{accountname},#{bsb},#{accountno},"NORMAL",#{branch},#{flag})
+        insert  into `b_invoice_school` (gmt_create,gmt_create_1,gmt_modify,email,company_id,company,abn,address,tel,invoice_no,billto_id,note,accountname,bsb,accountno,state,branch,flag)
+        values (#{invoiceDate},now(),now(),#{email},#{companyId},#{company},#{abn},#{address},#{tel},#{invoiceNo},#{billto_id},#{note},#{accountname},#{bsb},#{accountno},"NORMAL",#{branch},#{flag})
     </insert>
     <insert id="saveSchoolDescription">
         insert  into `b_invoice_school_description` (id,studentname,dob,student_id,course,startDate,instalment,tuitionfee,non_tuitionFee,bonus,commissionrate,commission,marketing_bonus,gmt_create,gmt_modify,invoice_no)
