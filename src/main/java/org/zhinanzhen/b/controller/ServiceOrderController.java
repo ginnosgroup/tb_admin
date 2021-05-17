@@ -889,7 +889,7 @@ public class ServiceOrderController extends BaseController {
 		
 		Sorter _sorter = null;
 		if (sorter != null)
-			_sorter = JSON.parseObject(sorter, Sorter.class);
+			_sorter = JSON.parseObject(sorter.replace("adviser,name", "adviserName"), Sorter.class);
 
 		try {
 			super.setGetHeader(response);
