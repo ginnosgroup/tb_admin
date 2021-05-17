@@ -208,7 +208,7 @@
         </choose>
         <where>
             <if test="simpleBranch != null and simpleBranch !='' ">
-                invoice_no like "%"#{simpleBranch}  and  DATE_FORMAT(gmt_create,'%Y%m')  =  DATE_FORMAT(CURDATE(),'%Y%m')
+                invoice_no like "%"#{simpleBranch}  and  DATE_FORMAT(gmt_create,'%Y')  =  DATE_FORMAT(CURDATE(),'%Y')
             </if>
         </where>
     </select>

@@ -388,6 +388,7 @@ CREATE TABLE `b_service_order` (
   `service_package_id` int DEFAULT NULL COMMENT '服务包编号 (对应b_service_package.id,仅子订单才有)',
   `school_id` int DEFAULT NULL COMMENT '学校编号 (对应b_school.id,留学服务专用字段)',
   `state` varchar(8) NOT NULL COMMENT '状态 (PENDING:待提交审核,REVIEW:审核中,APPLY:服务申请中,COMPLETE:服务申请完成,PAID:完成-支付成功,CLOSE:关闭)',
+`state_mark` text DEFAULT NULL COMMENT '状态标注',
   `review_state` varchar(8) DEFAULT NULL COMMENT '审批状态 (OFFICIAL:文案审批通过,MARA:Mara审批通过,KJ:财务审批通过)',
   `official_approval_date` datetime DEFAULT NULL COMMENT '文案审核时间',
   `mara_approval_date` datetime DEFAULT NULL COMMENT 'mara审核时间',
@@ -425,6 +426,7 @@ CREATE TABLE `b_service_order` (
   `adviser_id_2` int DEFAULT NULL COMMENT '第二顾问编号 (对应tb_adviser.id,曼拓专用字段)',
   `official_id` int DEFAULT NULL COMMENT '文案编号 (对应b_official.id,曼拓文案为空)',
   `remarks` text DEFAULT NULL COMMENT '备注',
+  `refuse_reason` varchar(255) DEFAULT NULL COMMENT '驳回原因',
   `closed_reason` varchar(255) DEFAULT NULL COMMENT '关闭原因',
   `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已删除',
   `information` varchar(128) DEFAULT NULL COMMENT '填写客户背景信息比如特殊要求、紧急程度、家庭背景等',
@@ -956,6 +958,8 @@ CREATE TABLE `b_finance_code` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 ALTER TABLE `b_finance_code` ADD INDEX index_name (order_id);
+<<<<<<< HEAD
+=======
 
 -- ----------新学校数据----------
 
@@ -1008,3 +1012,4 @@ CREATE TABLE `b_chat` (
   KEY `service_order_id` (`service_order_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
+>>>>>>> 93fa73ed0809a304602792abee4d58a6ebfefdac
