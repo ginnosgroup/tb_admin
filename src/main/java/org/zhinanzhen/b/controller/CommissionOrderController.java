@@ -844,7 +844,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 		Sorter _sorter = null;
 		if (sorter != null)
-			_sorter = JSON.parseObject(sorter, Sorter.class);
+			_sorter = JSON.parseObject(sorter.replace("adviser,name", "adviserName"), Sorter.class);
 
 //		Date _startKjApprovalDate = null;
 //		if (startKjApprovalDate != null)
