@@ -741,6 +741,7 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "userId", required = false) Integer userId,
+			@RequestParam(value = "userName",required = false) String userName,
 			@RequestParam(value = "state",required = false) String state,
 			HttpServletRequest request,
 			HttpServletResponse response) {
@@ -793,6 +794,18 @@ public class VisaController extends BaseCommissionOrderController {
 //			Date _endKjApprovalDate = null;
 //			if (endKjApprovalDate != null)
 //				_endKjApprovalDate = new Date(Long.parseLong(endKjApprovalDate));
+
+
+			if (StringUtil.isNotEmpty(userName)){
+				List<UserDTO> userList = userService.listUser(userName, null, null, null, null,
+						StringUtil.toInt(null), null, StringUtil.toInt(null), null,
+						false, 0, 20);
+				if (userList.size() == 0)
+					userId = 999999;
+				if ((userId == null || userId == 0) && userList.size() > 0)
+					userId = userList.get(0).getId();
+			}
+
 
 			List<VisaDTO> list = visaService.listVisa(id ,keyword, startHandlingDate, endHandlingDate, stateList,
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, startInvoiceCreate, endInvoiceCreate, regionIdList,

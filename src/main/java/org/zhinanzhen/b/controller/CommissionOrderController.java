@@ -971,6 +971,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "officialId", required = false) Integer officialId,
 			@RequestParam(value = "userId", required = false) Integer userId,
 			@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "userName",required = false) String userName,
 			@RequestParam(value = "phone", required = false) String phone,
 			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
 			@RequestParam(value = "schoolId", required = false) Integer schoolId,
@@ -1043,6 +1044,16 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 //			Date _endKjApprovalDate = null;
 //			if (endKjApprovalDate != null)
 //				_endKjApprovalDate = new Date(Long.parseLong(endKjApprovalDate));
+
+			if (StringUtil.isNotEmpty(userName)){
+				List<UserDTO> userList = userService.listUser(userName, null, null, null, null,
+						StringUtil.toInt(null), null, StringUtil.toInt(null), null,
+						false, 0, 20);
+				if (userList.size() == 0)
+					userId = 999999;
+				if ((userId == null || userId == 0) && userList.size() > 0)
+					userId = userList.get(0).getId();
+			}
 
 			List<CommissionOrderListDTO> commissionOrderList = commissionOrderService.listCommissionOrder(id,
 					regionIdList, maraId, adviserId, officialId, userId, name, phone, wechatUsername, schoolId,
