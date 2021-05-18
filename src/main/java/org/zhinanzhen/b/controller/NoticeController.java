@@ -76,7 +76,7 @@ public class NoticeController extends BaseController {
 			}
 
 			List<VisaDTO> allVisaList = visaService.listVisa(null, null, null, null, null, null, null, null, null, null,
-                    null, null, null, 0, 0, null, 0, 1000, null);
+                    null, null, null, 0, 0, null, null, 0, 1000, null);
 			for (VisaDTO visa : allVisaList) {
 				try {
 					ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(visa.getServiceOrderId());

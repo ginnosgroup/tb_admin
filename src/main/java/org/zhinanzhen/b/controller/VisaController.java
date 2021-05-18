@@ -645,16 +645,6 @@ public class VisaController extends BaseCommissionOrderController {
 					adviserId = newAdviserId;
 			}
 
-			if (StringUtil.isNotEmpty(userName)){
-				List<UserDTO> userList = userService.listUser(userName, null, null, null, null,
-						StringUtil.toInt(null), null, StringUtil.toInt(null), null,
-						false, 0, 20);
-				if (userList.size() == 0)
-					return new ListResponse<List<VisaDTO>>(true, pageSize, 0, null, "没有数据");
-				if (userId == null && userList.size() > 0)
-					userId = userList.get(0).getId();
-			}
-
 			int total = visaService.countVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate,
 					startInvoiceCreate,endInvoiceCreate,regionIdList,
@@ -662,7 +652,7 @@ public class VisaController extends BaseCommissionOrderController {
 			List<VisaDTO> list = visaService.listVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate,
 					startInvoiceCreate,endInvoiceCreate,regionIdList,
-					adviserId, userId, state, pageNum, pageSize, _sorter);
+					adviserId, userId, userName, state, pageNum, pageSize, _sorter);
 			list.forEach(v -> {
 				if (v.getServiceOrderId() > 0)
 					try {
@@ -796,20 +786,10 @@ public class VisaController extends BaseCommissionOrderController {
 //				_endKjApprovalDate = new Date(Long.parseLong(endKjApprovalDate));
 
 
-			if (StringUtil.isNotEmpty(userName)){
-				List<UserDTO> userList = userService.listUser(userName, null, null, null, null,
-						StringUtil.toInt(null), null, StringUtil.toInt(null), null,
-						false, 0, 20);
-				if (userList.size() == 0)
-					userId = 999999;
-				if ((userId == null || userId == 0) && userList.size() > 0)
-					userId = userList.get(0).getId();
-			}
-
 
 			List<VisaDTO> list = visaService.listVisa(id ,keyword, startHandlingDate, endHandlingDate, stateList,
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, startInvoiceCreate, endInvoiceCreate, regionIdList,
-					adviserId,userId, state,0, 9999, null);
+					adviserId,userId,userName, state,0, 9999, null);
 
 			list.forEach(v -> {
 				if (v.getServiceOrderId() > 0)
