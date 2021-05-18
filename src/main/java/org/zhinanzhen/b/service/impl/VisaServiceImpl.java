@@ -24,7 +24,6 @@ import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
-import org.zhinanzhen.tb.utils.SendEmailUtil;
 
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.StringUtil;
@@ -143,7 +142,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 	public List<VisaDTO> listVisa(Integer id, String keyword, String startHandlingDate, String endHandlingDate,
 								  List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
 								  String endKjApprovalDate, String startDate, String endDate, String startInvoiceCreate, String endInvoiceCreate, List<Integer> regionIdList, Integer adviserId,
-								  Integer userId, String state, int pageNum, int pageSize, Sorter sorter) throws ServiceException {
+								  Integer userId, String userName, String state, int pageNum, int pageSize, Sorter sorter) throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
 		}
@@ -165,7 +164,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			visaListDoList = visaDao.listVisa(id, keyword, startHandlingDate, theDateTo23_59_59(endHandlingDate),
 					stateList, commissionStateList, startKjApprovalDate, theDateTo23_59_59(endKjApprovalDate),
 					startDate, theDateTo23_59_59(endDate), startInvoiceCreate,theDateTo23_59_59(endInvoiceCreate),
-					regionIdList, adviserId, userId, state, pageNum * pageSize,
+					regionIdList, adviserId, userId, userName,state, pageNum * pageSize,
 					pageSize, orderBy);
 			if (visaListDoList == null)
 				return null;

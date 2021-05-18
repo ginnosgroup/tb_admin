@@ -33,7 +33,8 @@ public interface VisaDAO {
 									 @Param("endKjApprovalDate") String endKjApprovalDate, @Param("startDate") String startDate,
 									 @Param("endDate") String endDate, @Param("startInvoiceCreate") String startInvoiceCreate,
 									 @Param("endInvoiceCreate") String endInvoiceCreate, @Param("regionIdList") List<Integer> regionIdList,
-									 @Param("adviserId") Integer adviserId, @Param("userId") Integer userId, @Param("state") String state,
+									 @Param("adviserId") Integer adviserId, @Param("userId") Integer userId,
+									 @Param("userName") String userName, @Param("state") String state,
 									 @Param("offset") int offset, @Param("rows") int rows, @Param("orderBy") String orderBy);
 
 	List<VisaDO> listVisaByCode(@Param("code") String code);

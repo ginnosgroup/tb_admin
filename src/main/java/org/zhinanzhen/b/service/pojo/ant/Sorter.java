@@ -10,10 +10,10 @@ public class Sorter {
 
 	String id;
 
-	@JSONField(name = "user,name")
+	@JSONField(name = "userName")
 	String userName;
 
-	@JSONField(name = "adviser,name")
+	@JSONField(name = "adviserName")
 	String adviserName;
 
 	public String getOrderBy(String key, String value) {

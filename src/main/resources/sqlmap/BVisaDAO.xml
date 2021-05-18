@@ -372,6 +372,9 @@
         <if test='userId != null and userId != ""'>
             AND bv.user_id = #{userId}
         </if>
+        <if test='userName != null and userName != ""'>
+            AND tbu.name LIKE '%${userName}%'
+        </if>
         ${orderBy}
         LIMIT #{offset}, #{rows};
     </select>

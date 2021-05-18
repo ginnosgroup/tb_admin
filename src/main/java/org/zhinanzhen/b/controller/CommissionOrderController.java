@@ -52,6 +52,7 @@ import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
 import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
+import org.zhinanzhen.tb.service.pojo.UserDTO;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -795,6 +796,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "officialId", required = false) Integer officialId,
 			@RequestParam(value = "userId", required = false) Integer userId,
 			@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "userName", required = false) String userName,
 			@RequestParam(value = "phone", required = false) String phone,
 			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
 			@RequestParam(value = "schoolId", required = false) Integer schoolId,
@@ -844,7 +846,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 		Sorter _sorter = null;
 		if (sorter != null)
-			_sorter = JSON.parseObject(sorter, Sorter.class);
+			_sorter = JSON.parseObject(sorter.replace("adviser,name", "adviserName"), Sorter.class);
+
+		if (StringUtil.isNotEmpty(userName))
+			name = userName;
 
 //		Date _startKjApprovalDate = null;
 //		if (startKjApprovalDate != null)
@@ -956,7 +961,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "officialId", required = false) Integer officialId,
 			@RequestParam(value = "userId", required = false) Integer userId,
-			@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "userName", required = false) String name,
 			@RequestParam(value = "phone", required = false) String phone,
 			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
 			@RequestParam(value = "schoolId", required = false) Integer schoolId,

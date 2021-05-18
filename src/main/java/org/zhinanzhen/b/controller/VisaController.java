@@ -34,6 +34,7 @@ import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
+import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
 
 import com.alibaba.fastjson.JSON;
@@ -48,6 +49,7 @@ import jxl.read.biff.BiffException;
 import jxl.write.Label;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
+import org.zhinanzhen.tb.service.pojo.UserDTO;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -62,6 +64,9 @@ public class VisaController extends BaseCommissionOrderController {
 	
 	@Resource
 	RegionService regionService;
+
+	@Resource
+	UserService userService;
 	
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -587,6 +592,7 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "userId", required = false) Integer userId,
+			@RequestParam(value = "userName", required = false) String userName,
 			@RequestParam(value = "state", required = false) String state, @RequestParam(value = "pageNum") int pageNum,
 			@RequestParam(value = "pageSize") int pageSize,
 			@RequestParam(value = "sorter", required = false) String sorter, HttpServletRequest request,
@@ -613,6 +619,7 @@ public class VisaController extends BaseCommissionOrderController {
 		Sorter _sorter = null;
 		if (sorter != null)
 			_sorter = JSON.parseObject(sorter, Sorter.class);
+
 		
 //		Date _startKjApprovalDate = null;
 //		if (startKjApprovalDate != null)
@@ -645,7 +652,7 @@ public class VisaController extends BaseCommissionOrderController {
 			List<VisaDTO> list = visaService.listVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate,
 					startInvoiceCreate,endInvoiceCreate,regionIdList,
-					adviserId, userId, state, pageNum, pageSize, _sorter);
+					adviserId, userId, userName, state, pageNum, pageSize, _sorter);
 			list.forEach(v -> {
 				if (v.getServiceOrderId() > 0)
 					try {
@@ -724,6 +731,7 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "userId", required = false) Integer userId,
+			@RequestParam(value = "userName",required = false) String userName,
 			@RequestParam(value = "state",required = false) String state,
 			HttpServletRequest request,
 			HttpServletResponse response) {
@@ -777,9 +785,11 @@ public class VisaController extends BaseCommissionOrderController {
 //			if (endKjApprovalDate != null)
 //				_endKjApprovalDate = new Date(Long.parseLong(endKjApprovalDate));
 
+
+
 			List<VisaDTO> list = visaService.listVisa(id ,keyword, startHandlingDate, endHandlingDate, stateList,
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, startInvoiceCreate, endInvoiceCreate, regionIdList,
-					adviserId,userId, state,0, 9999, null);
+					adviserId,userId,userName, state,0, 9999, null);
 
 			list.forEach(v -> {
 				if (v.getServiceOrderId() > 0)

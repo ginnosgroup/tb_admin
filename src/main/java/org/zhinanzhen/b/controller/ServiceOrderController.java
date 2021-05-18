@@ -42,6 +42,7 @@ import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
+import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
 
@@ -52,7 +53,6 @@ import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import com.ikasoa.web.workflow.Context;
 import com.ikasoa.web.workflow.Node;
-import com.ikasoa.web.workflow.NodeProcessException;
 import com.ikasoa.web.workflow.Workflow;
 import com.ikasoa.web.workflow.WorkflowStarter;
 import com.ikasoa.web.workflow.impl.WorkflowStarterImpl;
@@ -443,11 +443,56 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "verifyCode", required = false) String verifyCode, HttpServletResponse response) {
 //		if (getOfficialAdminId(request) != null)
 //			return new Response<Integer>(1, "文案管理员不可操作服务订单.", 0);
+		super.setPostHeader(response);
+		ServiceOrderDTO serviceOrderDto;
 		try {
-			super.setPostHeader(response);
-			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
+			serviceOrderDto = serviceOrderService.getServiceOrderById(id);
 			if (serviceOrderDto == null)
 				return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
+			Response<Integer> res = updateOne(serviceOrderDto, type, peopleNumber, peopleType, peopleRemarks, serviceId,
+					schoolId, isSettle, isDepositUser, subagencyId, isPay, receiveTypeId, receiveDate, receivable,
+					discount, received, installment, paymentVoucherImageUrl1, paymentVoucherImageUrl2,
+					paymentVoucherImageUrl3, paymentVoucherImageUrl4, paymentVoucherImageUrl5, perAmount, amount,
+					expectAmount, gst, deductGst, bonus, userId, maraId, adviserId, officialId, remarks, closedReason,
+					information, isHistory, nutCloud, serviceAssessId, verifyCode);
+			if (res != null && res.getCode() == 0) {
+				List<ServiceOrderDTO> cList = new ArrayList<>();
+				if ("SIV".equalsIgnoreCase(serviceOrderDto.getType()))
+					cList = serviceOrderService.listServiceOrder(receiveTypeId, null, null, null, null, null, null,
+							null, null, null, null, null, null, null, null, null, null, id, false, 0, 100, null, null,
+							null);
+				cList.forEach(cServiceOrderDto -> {
+					if ("VISA".equalsIgnoreCase(cServiceOrderDto.getType())) {
+						Response<Integer> cRes = updateOne(cServiceOrderDto, null, peopleNumber, peopleType,
+								peopleRemarks, serviceId, schoolId, isSettle, isDepositUser, subagencyId, isPay,
+								receiveTypeId, receiveDate, receivable, discount, received, installment,
+								paymentVoucherImageUrl1, paymentVoucherImageUrl2, paymentVoucherImageUrl3,
+								paymentVoucherImageUrl4, paymentVoucherImageUrl5, perAmount, amount, expectAmount, gst,
+								deductGst, bonus, userId, maraId, adviserId, officialId, remarks, closedReason,
+								information, isHistory, nutCloud, serviceAssessId, verifyCode);
+						if (cRes.getCode() > 0)
+							res.setMessage(res.getMessage() + ";" + cRes.getMessage());
+					}
+				});
+			}
+			return res;
+		} catch (ServiceException e) {
+			return new Response<Integer>(e.getCode(), e.getMessage(), null);
+		}
+
+	}
+	
+	private Response<Integer> updateOne(ServiceOrderDTO serviceOrderDto, String type, Integer peopleNumber, String peopleType,
+			String peopleRemarks, String serviceId,String schoolId,String isSettle,String isDepositUser,
+			String subagencyId, String isPay, String receiveTypeId, String receiveDate,
+			String receivable, String discount, String received, Integer installment,
+			String paymentVoucherImageUrl1, String paymentVoucherImageUrl2, String paymentVoucherImageUrl3,
+			String paymentVoucherImageUrl4, String paymentVoucherImageUrl5, String perAmount,
+			String amount, String expectAmount, String gst, String deductGst,
+			String bonus, String userId, String maraId, String adviserId, String officialId,
+			String remarks,String closedReason, String information, String isHistory,
+			String nutCloud, String serviceAssessId, String verifyCode) {
+		try {
 			if (StringUtil.isNotEmpty(type))
 				serviceOrderDto.setType(type);
 			if (peopleNumber != null && peopleNumber > 0)
@@ -547,7 +592,7 @@ public class ServiceOrderController extends BaseController {
 			} else
 				serviceOrderDto.setServiceAssessId(null);
 			if (StringUtil.isNotEmpty(verifyCode))
-				serviceOrderDto.setVerifyCode(verifyCode.replace("$","").replace("#","").replace(" ",""));
+				serviceOrderDto.setVerifyCode(verifyCode.replace("$", "").replace("#", "").replace(" ", ""));
 			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
 			if (i > 0) {
 				return new Response<Integer>(0, i);
@@ -815,6 +860,7 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "endReadcommittedDate", required = false) String endReadcommittedDate,
 			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "userId", required = false) Integer userId,
+			@RequestParam(value = "user", required = false) String user,
 			@RequestParam(value = "maraId", required = false) Integer maraId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "officialId", required = false) Integer officialId,
@@ -855,7 +901,7 @@ public class ServiceOrderController extends BaseController {
 		
 		Sorter _sorter = null;
 		if (sorter != null)
-			_sorter = JSON.parseObject(sorter, Sorter.class);
+			_sorter = JSON.parseObject(sorter.replace("adviser,name", "adviserName"), Sorter.class);
 
 		try {
 			super.setGetHeader(response);
@@ -882,6 +928,19 @@ public class ServiceOrderController extends BaseController {
 					list.add(serviceOrder);
 				return new ListResponse<List<ServiceOrderDTO>>(false, pageSize, 0, list, "");
 			}
+			if (StringUtil.isNotEmpty(user)){
+				UserDTO userDTO =  JSON.parseObject(user, UserDTO.class);
+				if (StringUtil.isNotEmpty(userDTO.getName())){
+					List<UserDTO> userList = userService.listUser(userDTO.getName(), null, null, null, null,
+							StringUtil.toInt(null), null, StringUtil.toInt(null), null,
+							false, 0, 20);
+					if (userList.size() == 0)
+						return new ListResponse<List<ServiceOrderDTO>>(true, pageSize, 0, null, "没有数据");
+					if (userId == null && userList.size() > 0)
+						userId = userList.get(0).getId();
+				}
+			}
+
 			int total = serviceOrderService.countServiceOrder(type, excludeState, stateList, auditingState,
 					reviewStateList, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
 					endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId, maraId,
