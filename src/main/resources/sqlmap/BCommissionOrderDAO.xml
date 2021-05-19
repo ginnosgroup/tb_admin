@@ -296,6 +296,9 @@
         <if test='startKjApprovalDate != null and startKjApprovalDate != "" and endKjApprovalDate != null and endKjApprovalDate != ""'>
             <![CDATA[ AND kj_approval_date > #{startKjApprovalDate} AND kj_approval_date < #{endKjApprovalDate} ]]>
         </if>
+        <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+            <![CDATA[ AND co.gmt_create > #{startDate} AND co.gmt_create < #{endDate} ]]>
+        </if>
         <if test='startInvoiceCreate != null and startInvoiceCreate != "" and endInvoiceCreate != null and endInvoiceCreate != ""'>
             <![CDATA[ AND invoice_create > #{startInvoiceCreate} AND invoice_create < #{endInvoiceCreate} ]]>
         </if>
@@ -436,6 +439,9 @@
         </if>
         <if test='startKjApprovalDate != null and startKjApprovalDate != "" and endKjApprovalDate != null and endKjApprovalDate != ""'>
             <![CDATA[ AND co.kj_approval_date > #{startKjApprovalDate} AND co.kj_approval_date < #{endKjApprovalDate} ]]>
+        </if>
+        <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+            <![CDATA[ AND co.gmt_create > #{startDate} AND co.gmt_create < #{endDate} ]]>
         </if>
         <if test='startInvoiceCreate != null and startInvoiceCreate != "" and endInvoiceCreate != null and endInvoiceCreate != ""'>
             <![CDATA[ AND invoice_create > #{startInvoiceCreate} AND invoice_create < #{endInvoiceCreate} ]]>
