@@ -232,6 +232,7 @@
 				                   <th>Course</th>
 				                   <th>Start Date</th>
 				                   <th>Installment</th>
+				                   <th>Non Tuition</th>
 				                   <th>Tuition Fee</th>
 				                   <th>Commission Rate</th>
 				                   <th>Commission</th>
@@ -248,6 +249,7 @@
 														<td v-html="item.course"></td>
 														<td v-html="item.startDate"></td>
 														<td v-html="item.instalMent"></td>
+														<td v-html="item.nonTuitionFee"></td>
 														<td v-html="item.tuitionFee"></td>
 														<td v-html="item.commissionrate"></td>
 														<td v-html="item.commission"></td>
@@ -434,6 +436,7 @@ var v_sub_taxinvoice = new Vue({
 						course: '<textarea class="form-control" style="width:150px;" id="td"></textarea>',
 						startDate: '<input type="text" class="form-control small default-date-picker" style="width:110px;" id="te" value="">',
 						instalMent: '<select class="form-control small" style="width:80px;" id="tf"><option value=\'1\'>1</option><option value=\'2\'>2</option><option value=\'3\'>3</option><option value=\'4\'>4</option><option value=\'5\'>5</option><option value=\'6\'>6</option><option value=\'7\'>7</option><option value=\'8\'>8</option><option value=\'9\'>9</option><option value=\'10\'>10</option><option value=\'11\'>11</option><option value=\'12\'>12</option></select>',
+						nonTuitionFee: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="tk" value="">',
 						tuitionFee: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="tg" value="">',
 						commissionrate: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="th" value="">',
 						commission: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="ti" onkeyup="total_withgst_normal();" value="">',
@@ -740,6 +743,7 @@ function createOvstTable(nums,str)
 						course: '<textarea class="form-control" style="width:150px;" id="td">'+arr_sub[4]+'</textarea>',
 						startDate: '<input type="text" class="form-control small default-date-picker" style="width:110px;" id="te" value="'+arr_sub[5]+'">',
 						instalMent: '<input type="text" class="form-control small" style="width:80px;" id="tf" value="'+arr_sub[6]+'">',
+						nonTuitionFee: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="tk" value="">',
 						tuitionFee: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="tg" value="'+arr_sub[9]+'">',
 						commissionrate: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="th" value="'+commissionrate+'">',
 						commission: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="ti" onkeyup="total_withgst_normal();" value="'+arr_sub[8]+'">',
@@ -961,6 +965,7 @@ function invoice_edit(invoiceNo,invoiceIds)
 										course: '<textarea class="form-control" style="width:150px;" id="td">'+response.invoiceSchoolDescriptionDOS[i].course+'</textarea>',
 										startDate: '<input type="text" class="form-control small default-date-picker" style="width:110px;" id="te" value="'+v.getTime(response.invoiceSchoolDescriptionDOS[i].startDate)+'">',
 										instalMent: '<select class="form-control small" style="width:80px;" id="tf"><option value=\'1\'>1</option><option value=\'2\'>2</option><option value=\'3\'>3</option><option value=\'4\'>4</option><option value=\'5\'>5</option><option value=\'6\'>6</option><option value=\'7\'>7</option><option value=\'8\'>8</option><option value=\'9\'>9</option><option value=\'10\'>10</option><option value=\'11\'>11</option><option value=\'12\'>12</option></select>',
+										nonTuitionFee: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="tk" value="'+response.invoiceSchoolDescriptionDOS[i].nonTuitionFee+'">',
 										tuitionFee: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="tg" value="'+response.invoiceSchoolDescriptionDOS[i].tuitionFee+'">',
 										commissionrate: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="th" value="'+response.invoiceSchoolDescriptionDOS[i].commissionrate+'">',
 										commission: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="ti" onkeyup="total_withgst_normal();" value="'+response.invoiceSchoolDescriptionDOS[i].commission+'">',
@@ -1270,7 +1275,7 @@ function addovstSave()
 				//校验normal行是否有空				
 				for(var i=1;i<= v_sub_taxinvoice.row_nums_normal;i++)
        	{
-       			if ($(f+'#d'+i+' #ta').val() == '' || $(f+'#d'+i+' #tb').val() == '' || $(f+'#d'+i+' #tc').val() == '' || $(f+'#d'+i+' #td').val() == '' || $(f+'#d'+i+' #te').val() == '' || $(f+'#d'+i+' #tg').val() == '' || $(f+'#d'+i+' #th').val() == '' || $(f+'#d'+i+' #ti').val() == '' || $(f+'#d'+i+' #tj').val() == '') e_info += 'Normal 第'+i+'行有空字段！<br/>';       			
+       			if ($(f+'#d'+i+' #ta').val() == '' || $(f+'#d'+i+' #tb').val() == '' || $(f+'#d'+i+' #tc').val() == '' || $(f+'#d'+i+' #td').val() == '' || $(f+'#d'+i+' #te').val() == '' || $(f+'#d'+i+' #tg').val() == '' || $(f+'#d'+i+' #th').val() == '' || $(f+'#d'+i+' #ti').val() == '' || $(f+'#d'+i+' #tj').val() == '' || $(f+'#d'+i+' #tk').val() == '') e_info += 'Normal 第'+i+'行有空字段！<br/>';       			
        	}
        	//校验markteting行是否有空
 				for(var i=1;i<= v_sub_taxinvoice.row_nums_markteting;i++)
@@ -1362,6 +1367,7 @@ function addovstSave()
        			json['normal'][i]['course'] = $(f+"#d"+tindex+" #td").val();
        			json['normal'][i]['startDate'] = formatDate2($(f+"#d"+tindex+" #te").val());
        			json['normal'][i]['instalMent'] = $(f+"#d"+tindex+" #tf").val();
+       			json['normal'][i]['nonTuitionFee'] = $(f+"#d"+tindex+" #tk").val();
        			json['normal'][i]['tuitionFee'] = $(f+"#d"+tindex+" #tg").val();
        			json['normal'][i]['commissionrate'] = $(f+"#d"+tindex+" #th").val();
        			json['normal'][i]['commission'] = $(f+"#d"+tindex+" #ti").val();
@@ -1560,7 +1566,7 @@ function editovstSave()
 				//校验normal行是否有空				
 				for(var i=1;i<= v_sub_taxinvoice.row_nums_normal;i++)
        	{
-       			if ($(f+'#d'+i+' #ta').val() == '' || $(f+'#d'+i+' #tb').val() == '' || $(f+'#d'+i+' #tc').val() == '' || $(f+'#d'+i+' #td').val() == '' || $(f+'#d'+i+' #te').val() == '' || $(f+'#d'+i+' #tg').val() == '' || $(f+'#d'+i+' #th').val() == '' || $(f+'#d'+i+' #ti').val() == '' || $(f+'#d'+i+' #tj').val() == '') e_info += 'Normal 第'+i+'行有空字段！<br/>';       			
+       			if ($(f+'#d'+i+' #ta').val() == '' || $(f+'#d'+i+' #tb').val() == '' || $(f+'#d'+i+' #tc').val() == '' || $(f+'#d'+i+' #td').val() == '' || $(f+'#d'+i+' #te').val() == '' || $(f+'#d'+i+' #tg').val() == '' || $(f+'#d'+i+' #th').val() == '' || $(f+'#d'+i+' #ti').val() == '' || $(f+'#d'+i+' #tj').val() == '' || $(f+'#d'+i+' #tk').val() == '') e_info += 'Normal 第'+i+'行有空字段！<br/>';       			
        	}
        	//校验markteting行是否有空
 				for(var i=1;i<= v_sub_taxinvoice.row_nums_markteting;i++)
@@ -1643,6 +1649,7 @@ function editovstSave()
 		       			json['description'][i]['course'] = $(f+"#d"+tindex+" #td").val();
 		       			json['description'][i]['startDate'] = formatDate2($(f+"#d"+tindex+" #te").val());
 		       			json['description'][i]['instalMent'] = $(f+"#d"+tindex+" #tf").val();
+		       			json['description'][i]['nonTuitionFee'] = $(f+"#d"+tindex+" #tk").val();
 		       			json['description'][i]['tuitionFee'] = $(f+"#d"+tindex+" #tg").val();
 		       			json['description'][i]['commissionrate'] = $(f+"#d"+tindex+" #th").val();
 		       			json['description'][i]['commission'] = $(f+"#d"+tindex+" #ti").val();
