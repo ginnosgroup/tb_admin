@@ -326,6 +326,7 @@ public class ServiceOrderController extends BaseController {
 						serviceOrderDto.setServiceAssessId("CA".equalsIgnoreCase(servicePackageDto.getType()) ? serviceAssessId : null);
 						serviceOrderDto.setType("VISA"); // 独立技术移民子订单为VISA
 						serviceOrderDto.setPay(false); // 独立技术移民子订单都未支付
+						serviceOrderDto.setVerifyCode(null);// 独立技术移民子订单都没有对账Code
 						if (StringUtil.isNotEmpty(maraId))
 							serviceOrderDto.setMaraId(StringUtil.toInt(maraId)); // 独立技术移民子订单需要mara
 						if (StringUtil.isNotEmpty(officialId))
