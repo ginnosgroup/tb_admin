@@ -39,6 +39,6 @@ public interface VisaService {
 
 	int deleteComment(int id) throws ServiceException;
 	
-	void sendRefuseEmail(int id);
+	void sendRefuseEmail(VisaDTO visaDto);
 
 }

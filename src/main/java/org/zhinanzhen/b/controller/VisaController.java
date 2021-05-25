@@ -976,7 +976,7 @@ public class VisaController extends BaseCommissionOrderController {
 							visaDto.setRefuseReason(refuseReason);
 						visaDto.setState(state);
 						if (visaService.updateVisa(visaDto) > 0) {
-							visaService.sendRefuseEmail(id);
+							visaService.sendRefuseEmail(visaDto);
 							return new Response<VisaDTO>(0, visaDto);
 						} else
 							return new Response<VisaDTO>(1, "修改操作异常!", null);
