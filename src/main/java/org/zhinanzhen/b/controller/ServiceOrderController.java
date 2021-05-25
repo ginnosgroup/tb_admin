@@ -560,15 +560,15 @@ public class ServiceOrderController extends BaseController {
 					return new Response<Integer>(1, "服务包不存在:" + serviceOrderDto.getServicePackageId(), 0);
 				// if (serviceOrderDto.getOfficialId() <= 0 &&
 				// "SIV".equalsIgnoreCase(serviceOrderDto.getType()))
-				if (StringUtil.isEmpty(officialId)
-						&& ("SIV".equalsIgnoreCase(serviceOrderDto.getType()) || serviceOrderDto.getParentId() > 0))
-					return new Response<Integer>(1, "必须选择文案.", 0);
+//				if (StringUtil.isEmpty(officialId)
+//						&& ("SIV".equalsIgnoreCase(serviceOrderDto.getType()) || serviceOrderDto.getParentId() > 0))
+//					return new Response<Integer>(1, "必须选择文案.", 0);
 				// if (serviceOrderDto.getMaraId() <= 0 &&
 				// "SIV".equalsIgnoreCase(serviceOrderDto.getType())
-				if (StringUtil.isEmpty(maraId)
-						&& ("SIV".equalsIgnoreCase(serviceOrderDto.getType()) || serviceOrderDto.getParentId() > 0)
-						&& !"EOI".equalsIgnoreCase(servicePackageDto.getType()))
-					return new Response<Integer>(1, "必须选择Mara.", 0);
+//				if (StringUtil.isEmpty(maraId)
+//						&& ("SIV".equalsIgnoreCase(serviceOrderDto.getType()) || serviceOrderDto.getParentId() > 0)
+//						&& !"EOI".equalsIgnoreCase(servicePackageDto.getType()))
+//					return new Response<Integer>(1, "必须选择Mara.", 0);
 			}
 			if (StringUtil.isNotEmpty(information))
 				serviceOrderDto.setInformation(information);
