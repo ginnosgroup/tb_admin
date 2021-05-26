@@ -231,6 +231,7 @@
 				                   <th>Course</th>
 				                   <th>Start Date</th>
 				                   <th>Installment</th>
+				                   <th>Non Tuition</th>
 				                   <th>Tuition Fee</th>
 				                   <th>Commission Rate</th>
 				                   <th>Commission</th>
@@ -246,6 +247,7 @@
 														<td v-html="item.course"></td>
 														<td v-html="item.startDate"></td>
 														<td v-html="item.instalMent"></td>
+														<td v-html="item.nonTuitionFee"></td>
 														<td v-html="item.tuitionFee"></td>
 														<td v-html="item.commissionrate"></td>
 														<td v-html="item.commission"></td>
@@ -458,6 +460,7 @@ function invoice_view(invoiceNo,invoiceIds)
 										course: response.invoiceSchoolDescriptionDOS[i].course,
 										startDate: v.getTime(response.invoiceSchoolDescriptionDOS[i].startDate),
 										instalMent: response.invoiceSchoolDescriptionDOS[i].instalMent,								
+										nonTuitionFee: response.invoiceSchoolDescriptionDOS[i].nonTuitionFee,
 										tuitionFee: response.invoiceSchoolDescriptionDOS[i].tuitionFee,
 										commissionrate: response.invoiceSchoolDescriptionDOS[i].commissionrate,
 										commission: response.invoiceSchoolDescriptionDOS[i].commission,
