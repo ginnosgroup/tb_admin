@@ -82,13 +82,6 @@ public class PrintPdfUtil {
             file.getParentFile().mkdirs();
         }
 
-        System.out.println("path  "+path);
-
-        System.out.println("newPDFPath  "+PDFPath);//打印路径是不是正确的
-
-
-
-
         if (Model.equals("SF"))
             createServiceFeePdf((InvoiceServiceFeeDTO) response.getData() ,PDFPath ,realPath , canceled);
         else if (Model.equals("IES"))
@@ -98,7 +91,7 @@ public class PrintPdfUtil {
         else if (Model.equals("N"))
             createNorPdf((InvoiceSchoolDTO) response.getData() ,PDFPath ,realPath , canceled);
 
-        return "/statics"+uploadsPath+"/"+invoiceNo;
+        return uploadsPath + "/" + invoiceNo;
 
 
     }
