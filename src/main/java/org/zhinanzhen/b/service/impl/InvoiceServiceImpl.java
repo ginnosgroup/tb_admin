@@ -192,9 +192,16 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
     @Override
     public String selectInvoiceBySimple(String simpleBranch ,String flag) {
         List<String> invoiceNos = invoiceDAO.selectInvoiceBySimple(simpleBranch,flag);
+        List<String> _invoiceNos = new ArrayList<>();
+        invoiceNos.forEach(invoiceNo -> {
+            if (invoiceNo.startsWith("S") || invoiceNo.startsWith("V"))
+                _invoiceNos.add(invoiceNo.substring(1));
+            else
+                _invoiceNos.add(invoiceNo);
+        });
         List<Integer> invoiceNumber = new ArrayList<>();
-        if (invoiceNos != null & invoiceNos.size() != 0){
-            invoiceNos.forEach(invoiceNo->{
+        if (_invoiceNos != null & _invoiceNos.size() != 0){
+            _invoiceNos.forEach(invoiceNo->{
                 invoiceNumber.add(Integer.parseInt(invoiceNo.substring(0,invoiceNo.length()-1)));
             });
             String invoiceNumberMax = Collections.max(invoiceNumber).toString();
@@ -442,13 +449,18 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
     public Response pdfPrint(String invoiceNo, String invoiceIds, String realpath ,boolean canceled) {
 
         Response response = selectInvoiceByNo(invoiceNo, invoiceIds);
+        String result = "";
         if (response != null) {
+            Map<String,String> map = new HashMap<>();
+            map.put("invoiceNo",invoiceNo);
             if (invoiceIds.substring(0, 2).equals("SF")) {
                 InvoiceServiceFeeDTO invoiceServiceFeeDTO = (InvoiceServiceFeeDTO) response.getData();
                 if (invoiceServiceFeeDTO != null) {
                     //Map<String, Object> servicefeepdfMap = JSON.parseObject(JSON.toJSONString(invoiceServiceFeeDTO), Map.class);
-                    String result = PrintPdfUtil.pdfout(invoiceNo + "_SF" + invoiceServiceFeeDTO.getId(), response, "SF", realpath ,canceled);
-                    return new Response(0, result);
+                    //result = PrintPdfUtil.pdfout(invoiceNo + "_SF" + invoiceServiceFeeDTO.getId(), response, "SF", realpath ,canceled);
+                    result = PrintPdfUtil.pdfout("Tax Invoice " + invoiceNo , response, "SF", realpath ,canceled);
+                    map.put("type","SF");
+                    map.put("pdfUrl",result);
                 }
             }
             if (invoiceIds.substring(0, 2).equals("SC")) {
@@ -458,26 +470,28 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
                     return null;
                 int companyId = invoiceSchoolDTO.getCompanyId();
                 InvoiceCompanyDTO invoiceCompanyDTO = invoiceDAO.selectCompanyById(companyId);
-                if (invoiceCompanyDTO.getSimple().equals("IES")) {
-                    String result = PrintPdfUtil.pdfout(invoiceNo + "_SC" + invoiceSchoolDTO.getId(), response, "IES", realpath ,canceled);
-                    return new Response(0, result);
-                }else {
-                    if (invoiceSchoolDTO.getFlag().equals("M")) {
-                        String result = PrintPdfUtil.pdfout(invoiceNo + "_SC" + invoiceSchoolDTO.getId(), response, "M", realpath ,canceled);
-                        return new Response(0, result);
+                InvoiceBillToDO billToDO = invoiceSchoolDTO.getInvoiceBillToDO();
+                if (billToDO != null & invoiceCompanyDTO != null)
+                    if (invoiceCompanyDTO.getSimple().equals("IES")) {
+                        //result = PrintPdfUtil.pdfout(invoiceNo + "_SC" + invoiceSchoolDTO.getId(), response, "IES", realpath ,canceled);
+                        result = PrintPdfUtil.pdfout(billToDO.getCompany() + " " + invoiceNo, response, "IES", realpath, canceled);
+                        map.put("pdfUrl", result);
+                    } else {
+                        if (invoiceSchoolDTO.getFlag().equals("M")) {
+                            result = PrintPdfUtil.pdfout(billToDO.getCompany() + " " + invoiceNo, response, "M", realpath, canceled);
+                            map.put("pdfUrl", result);
+                        }
+                        if (invoiceSchoolDTO.getFlag().equals("N")) {
+                            result = PrintPdfUtil.pdfout(billToDO.getCompany() + " " + invoiceNo, response, "N", realpath, canceled);
+                            map.put("pdfUrl", result);
+                        }
                     }
-                    if (invoiceSchoolDTO.getFlag().equals("N")) {
-
-                        String result = PrintPdfUtil.pdfout(invoiceNo + "_SC" + invoiceSchoolDTO.getId(), response, "N", realpath ,canceled);
-                        return new Response(0, result);
-
-                    }
-
-                }
+                map.put("type","SC");
             }
+            if (invoiceDAO.updatePdfUrl(map))
+                return new Response(0, "/statics/" + result);
         }
-        return null;
-
+        return new Response(0, result);
     }
 
     @Override

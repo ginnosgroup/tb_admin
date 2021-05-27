@@ -48,6 +48,8 @@ public class InvoiceSchoolDO {
 
     private String flag;
 
+    private String pdfUrl;
+
     private List<InvoiceSchoolDescriptionDO> invoiceSchoolDescriptionDOS;
 
     private InvoiceBillToDO invoiceBillToDO;

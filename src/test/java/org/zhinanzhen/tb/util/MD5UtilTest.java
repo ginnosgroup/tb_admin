@@ -9,7 +9,7 @@ public class MD5UtilTest extends TestCase {
 	
 	@Test
 	public void testToMD5() throws Exception {
-		System.out.println(MD5Util.getMD5("Zhinanzhen3380"));
+		System.out.println(MD5Util.getMD5("1111"));
 //		assertEquals(MD5Util.getMD5("hello1234"), "9a1996efc97181f0aee18321aa3b3b12");
 	}
 
