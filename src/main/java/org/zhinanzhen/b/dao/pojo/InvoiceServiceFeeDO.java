@@ -47,5 +47,7 @@ public class InvoiceServiceFeeDO {
 
     private String billTo;
 
+    private String pdfUrl;
+
     private List<InvoiceServiceFeeDescriptionDO> invoiceServiceFeeDescriptionDOList;
 }
