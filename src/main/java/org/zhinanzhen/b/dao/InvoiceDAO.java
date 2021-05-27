@@ -110,4 +110,6 @@ public interface InvoiceDAO {
 
     int updateSCInvoice(Map paramMap);
 
+    boolean updatePdfUrl(Map map);
+
 }

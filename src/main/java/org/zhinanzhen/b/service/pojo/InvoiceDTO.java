@@ -36,4 +36,9 @@ public class InvoiceDTO {
     //税务发票状态
     private String state;
 
+    /**
+     * pdf地址
+     */
+    private String pdfUrl;
+
 }
