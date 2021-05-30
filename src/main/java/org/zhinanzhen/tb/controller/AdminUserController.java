@@ -69,11 +69,11 @@ public class AdminUserController extends BaseController {
 		super.setGetHeader(response);
 		if (session == null)
 			return new Response<Boolean>(0, true);
-		AdminUserLoginInfo loginInfo = (AdminUserLoginInfo) session.getAttribute("AdminUserLoginInfo");
+		AdminUserLoginInfo loginInfo = (AdminUserLoginInfo) session.getAttribute("AdminUserLoginInfo" + VERSION);
 		if (loginInfo == null)
 			return new Response<Boolean>(0, true);
 		if (adminUserService.updateSessionId(loginInfo.getId(), null))
-			session.removeAttribute("AdminUserLoginInfo");
+			session.removeAttribute("AdminUserLoginInfo" + VERSION);
 		else
 			return new Response<Boolean>(1, false);
 		return new Response<Boolean>(0, true);
@@ -87,7 +87,7 @@ public class AdminUserController extends BaseController {
 		if (session == null) {
 			return new Response<AdminUserLoginInfo>(1, "未登录", null);
 		}
-		AdminUserLoginInfo loginInfo = (AdminUserLoginInfo) session.getAttribute("AdminUserLoginInfo");
+		AdminUserLoginInfo loginInfo = (AdminUserLoginInfo) session.getAttribute("AdminUserLoginInfo" + VERSION);
 		if (loginInfo == null) {
 			return new Response<AdminUserLoginInfo>(1, "未登录", null);
 		}

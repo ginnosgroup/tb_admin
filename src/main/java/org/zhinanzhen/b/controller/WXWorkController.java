@@ -65,8 +65,8 @@ public class WXWorkController extends  BaseController{
         String corpToken = "";
         String customerToken = "";
 
-        corpToken = (String) session.getAttribute("corpToken");
-        customerToken = (String) session.getAttribute("customerToken");
+        corpToken = (String) session.getAttribute("corpToken" + VERSION);
+        customerToken = (String) session.getAttribute("customerToken" + VERSION);
         Map<String, Object> infoMap = wxWorkService.getUserInfo(corpToken, code);
         if ((int) infoMap.get("errcode") != 0)
             return "<div style= 'color:#3c763d;'>系统出错,授权失败 !</div>" + str;
@@ -99,7 +99,7 @@ public class WXWorkController extends  BaseController{
         if (adviserId == null)
             return  new Response(1,"不是顾问!");
         HttpSession session = request.getSession();
-        String customerToken = (String) session.getAttribute("customerToken");
+        String customerToken = (String) session.getAttribute("customerToken" + VERSION);
         AdviserDTO adviserDTO =  adviserService.getAdviserById(adviserId);
         if (adviserDTO == null)
             return  new Response(1,"没有此顾问");
