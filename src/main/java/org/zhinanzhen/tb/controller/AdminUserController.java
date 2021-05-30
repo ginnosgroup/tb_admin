@@ -53,8 +53,8 @@ public class AdminUserController extends BaseController {
 				if (StringUtil.isNotEmpty(adminUser.getOperUserId()))
 					loginInfo.setAuth(true);
 			}
-			session.removeAttribute("AdminUserLoginInfo");
-			session.setAttribute("AdminUserLoginInfo", loginInfo);
+			session.removeAttribute("AdminUserLoginInfo" + VERSION);
+			session.setAttribute("AdminUserLoginInfo" + VERSION, loginInfo);
 			return new Response<Boolean>(0, true);
 		} else {
 			return new Response<Boolean>(0, false);
