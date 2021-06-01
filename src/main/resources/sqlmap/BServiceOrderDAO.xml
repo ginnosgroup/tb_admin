@@ -309,8 +309,8 @@
     
     <select id="countServiceOrder" resultType="java.lang.Integer">
         SELECT count(*)
-        FROM tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON so.id=soot.service_order_id
-        WHERE so.is_delete = 0 AND a.id = so.adviser_id
+        FROM tb_user u, tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON so.id=soot.service_order_id
+        WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id
         <if test='type != null and type != ""'>
             AND so.type = #{type}
         </if>
@@ -377,6 +377,9 @@
         <if test='auditingState == "MAFINISH"'>
             <![CDATA[ AND (SELECT COUNT(id) FROM b_service_order_review WHERE service_order_id = so.id AND official_state="REVIEW" AND mara_state="FINISH") > 0 ]]>
         </if>
+        <if test='userName != null and userName != ""'>
+            AND u.name LIKE '%${userName}%'
+        </if>
         ;
     </select>
     
@@ -442,8 +445,8 @@
             so.real_people_number AS realPeopleNumber ,
             so.verify_code AS verifyCode ,
             so.readcommitted_date AS readcommittedDate
-        FROM tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON so.id=soot.service_order_id
-        WHERE so.is_delete = 0 AND a.id = so.adviser_id
+        FROM tb_user u, tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON so.id=soot.service_order_id
+        WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id
         <if test='type != null and type != ""'>
             AND so.type = #{type}
         </if>
@@ -509,6 +512,9 @@
         </if>
         <if test="serviceId != null and  serviceId > 0">
             AND so.service_id = #{serviceId}
+        </if>
+        <if test='userName != null and userName != ""'>
+            AND u.name LIKE '%${userName}%'
         </if>
         ${orderBy}
         LIMIT #{offset}, #{rows};

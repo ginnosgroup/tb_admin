@@ -61,7 +61,7 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 	
 	@Override
 	public String[] nextNodeNames() {
-		return new String[]{"REVIEW","PENDING", "OREVIEW", "WAIT", "CLOSE", "FINISH"}; // "PENDING"是驳回
+		return new String[]{"REVIEW","PENDING", "OREVIEW", "WAIT", "PAID", "CLOSE", "FINISH"}; // "PENDING"是驳回
 	}
 
 }

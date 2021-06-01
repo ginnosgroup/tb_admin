@@ -25,6 +25,7 @@ import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.ParseException;
@@ -146,6 +147,9 @@ public class VerifyController {
         }
         List<FinanceCodeDTO> financeCodeDTOS = verifyService.list(bankDateStart,bankDateEnd+" 23:59:59", regionId, 9999,0);
 
+        jxl.Workbook wb = null;
+        InputStream is = null;
+        OutputStream os = null;
         try {
             response.reset();// 清空输出流
             String tableName = "bankstatement";
@@ -153,9 +157,7 @@ public class VerifyController {
                     "attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
             response.setContentType("application/msexcel");
 
-            OutputStream os = response.getOutputStream();
-            jxl.Workbook wb;
-            InputStream is;
+            os = response.getOutputStream();
             try {
                 is = this.getClass().getResourceAsStream("/bankstatement.xls");
             } catch (Exception e) {
@@ -225,6 +227,26 @@ public class VerifyController {
             wbe.close();
         } catch (Exception e) {
             e.printStackTrace();
+        }finally {
+            try {
+                if (is != null)
+                    is.close();
+                System.out.println("is is close");
+            } catch (IOException e) {
+                System.out.println("is is close 出现 异常:");
+                e.printStackTrace();
+            }
+            try {
+                if (os != null)
+                    os.close();
+                System.out.println("os is close");
+            } catch (IOException e) {
+                System.out.println("os is close 出现 异常:");
+                e.printStackTrace();
+            }
+            if (wb != null)
+                wb.close();
+            System.out.println("wb is close");
         }
 
     }

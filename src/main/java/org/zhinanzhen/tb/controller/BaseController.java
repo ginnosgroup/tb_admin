@@ -22,6 +22,8 @@ import lombok.Data;
 public class BaseController {
 
 	private static final Logger LOG = LoggerFactory.getLogger(BaseController.class);
+	
+	public static final String VERSION = "2.1"; // TODO:Larry  版本号待移动到配置文件中
 
 	@Resource
 	protected AdminUserService adminUserService;
@@ -165,8 +167,8 @@ public class BaseController {
 	// 获取当前用户
 	protected AdminUserLoginInfo getAdminUserLoginInfo(HttpServletRequest request) {
 		HttpSession session = request.getSession();
-		if (session.getAttribute("AdminUserLoginInfo") != null) {
-			AdminUserLoginInfo adminUserLoginInfo = (AdminUserLoginInfo) session.getAttribute("AdminUserLoginInfo");
+		if (session.getAttribute("AdminUserLoginInfo" + VERSION) != null) {
+			AdminUserLoginInfo adminUserLoginInfo = (AdminUserLoginInfo) session.getAttribute("AdminUserLoginInfo" + VERSION);
 			if (adminUserLoginInfo != null)
 				return adminUserLoginInfo;
 		}

@@ -125,19 +125,19 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 	public int countCommissionOrder(Integer id, List<Integer> regionIdList, Integer maraId, Integer adviserId,
                                     Integer officialId, Integer userId, String name, String phone, String wechatUsername, Integer schoolId,
                                     Boolean isSettle, List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
-                                    String endKjApprovalDate, String startInvoiceCreate, String endInvoiceCreate,
+                                    String endKjApprovalDate,  String startDate,String endDate,String startInvoiceCreate, String endInvoiceCreate,
 									Boolean isYzyAndYjy, String applyState) throws ServiceException {
 		return commissionOrderDao.countCommissionOrder(id, regionIdList, maraId, adviserId, officialId, userId, name,
 				phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList, startKjApprovalDate,
-				theDateTo23_59_59(endKjApprovalDate),startInvoiceCreate, theDateTo23_59_59(endInvoiceCreate), isYzyAndYjy, applyState);
+				theDateTo23_59_59(endKjApprovalDate),startDate,endDate,startInvoiceCreate, theDateTo23_59_59(endInvoiceCreate), isYzyAndYjy, applyState);
 	}
 
 	@Override
 	public List<CommissionOrderListDTO> listCommissionOrder(Integer id, List<Integer> regionIdList, Integer maraId,
 															Integer adviserId, Integer officialId, Integer userId, String name, String phone, String wechatUsername,
 															Integer schoolId, Boolean isSettle, List<String> stateList, List<String> commissionStateList,
-															String startKjApprovalDate, String endKjApprovalDate, String startInvoiceCreate, String endInvoiceCreate,
-															Boolean isYzyAndYjy, String applyState, int pageNum,
+															String startKjApprovalDate, String endKjApprovalDate,  String startDate,String endDate,
+															String startInvoiceCreate, String endInvoiceCreate, Boolean isYzyAndYjy, String applyState, int pageNum,
 															int pageSize, Sorter sorter) throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
@@ -160,7 +160,7 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			commissionOrderListDoList = commissionOrderDao.listCommissionOrder(id, regionIdList, maraId, adviserId,
 					officialId, userId, name, phone, wechatUsername, schoolId, isSettle, stateList,
 					commissionStateList,
-					startKjApprovalDate, theDateTo23_59_59(endKjApprovalDate), startInvoiceCreate, theDateTo23_59_59(endInvoiceCreate),
+					startKjApprovalDate, theDateTo23_59_59(endKjApprovalDate),startDate,endDate, startInvoiceCreate, theDateTo23_59_59(endInvoiceCreate),
 					isYzyAndYjy, applyState,pageNum * pageSize, pageSize, orderBy);
 			if (commissionOrderListDoList == null)
 				return null;

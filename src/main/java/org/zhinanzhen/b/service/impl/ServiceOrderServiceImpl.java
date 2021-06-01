@@ -14,6 +14,7 @@ import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
+import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
@@ -244,12 +245,12 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	public int countServiceOrder(String type, String excludeState, List<String> stateList, String auditingState,
 			List<String> reviewStateList, String startMaraApprovalDate, String endMaraApprovalDate,
 			String startOfficialApprovalDate, String endOfficialApprovalDate, String startReadcommittedDate,
-			String endReadcommittedDate, List<Integer> regionIdList, Integer userId, Integer maraId, Integer adviserId,
+			String endReadcommittedDate, List<Integer> regionIdList, Integer userId,String userName,  Integer maraId, Integer adviserId,
 			Integer officialId, Integer officialTagId, int parentId, boolean isNotApproved, Integer serviceId,
 			Integer schoolId) throws ServiceException {
 		return serviceOrderDao.countServiceOrder(type, excludeState, stateList, auditingState, reviewStateList,
 				startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate,
-				startReadcommittedDate, endReadcommittedDate, regionIdList, userId, maraId, adviserId, officialId,
+				startReadcommittedDate, endReadcommittedDate, regionIdList, userId, userName,maraId, adviserId, officialId,
 				officialTagId, parentId, isNotApproved, serviceId, schoolId);
 	}
 
@@ -257,7 +258,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	public List<ServiceOrderDTO> listServiceOrder(String type, String excludeState, List<String> stateList,
 			String auditingState, List<String> reviewStateList, String startMaraApprovalDate,
 			String endMaraApprovalDate, String startOfficialApprovalDate, String endOfficialApprovalDate,
-			String startReadcommittedDate, String endReadcommittedDate, List<Integer> regionIdList, Integer userId,
+			String startReadcommittedDate, String endReadcommittedDate, List<Integer> regionIdList, Integer userId,String userName,
 			Integer maraId, Integer adviserId, Integer officialId, Integer officialTagId, int parentId,
 			boolean isNotApproved, int pageNum, int pageSize, Sorter sorter, Integer serviceId, Integer schoolId)
 			throws ServiceException {
@@ -277,7 +278,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		try {
 			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, excludeState, stateList, auditingState,
 					reviewStateList, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
-					endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId, maraId,
+					endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId, userName,maraId,
 					adviserId, officialId, officialTagId, parentId, isNotApproved, serviceId, schoolId,
 					pageNum * pageSize, pageSize, orderBy);
 			if (serviceOrderDoList == null)
@@ -1266,7 +1267,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		}
 		ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
 		HttpSession session=attr.getRequest().getSession(true);
-		String token = (String) session.getAttribute("corpToken");
+		String token = (String) session.getAttribute("corpToken" + BaseController.VERSION); // TODO:小包  不要在Service层依赖Session，有时间把这几行代码移到Controller层
 		JSONObject json =  WXWorkAPI.sendPostBody_Map(WXWorkAPI.CREATECHAT.replace("ACCESS_TOKEN",token),parm);
 		Map<String,Object> result = JSON.parseObject(JSON.toJSONString(json), Map.class);
 		if ((int)result.get("errcode") == 0){

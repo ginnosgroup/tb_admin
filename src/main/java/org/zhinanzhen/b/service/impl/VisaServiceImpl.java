@@ -28,6 +28,8 @@ import org.zhinanzhen.tb.service.impl.BaseService;
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.StringUtil;
 
+import lombok.Synchronized;
+
 @Service("VisaService")
 public class VisaServiceImpl extends BaseService implements VisaService {
 
@@ -432,16 +434,16 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 	}
 
 	@Override
-	public void sendRefuseEmail(int id) {
-		VisaDO visaDo = visaDao.getVisaById(id);
-		AdviserDO adviserDo = adviserDao.getAdviserById(visaDo.getAdviserId());
+	@Synchronized
+	public void sendRefuseEmail(VisaDTO visaDto) {
+		AdviserDO adviserDo = adviserDao.getAdviserById(visaDto.getAdviserId());
 //		OfficialDO officialDo = officialDao.getOfficialById(visaDo.getOfficialId());
 		// 发送给顾问
 		sendMail(adviserDo.getEmail(), "签证佣金订单驳回提醒", StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>",
-				"您的订单已被驳回。<br>订单号:", visaDo.getId(), "<br/>驳回原因:", visaDo.getRefuseReason()));
+				"您的订单已被驳回。<br>签证订单号:", visaDto.getId(), "<br/>驳回原因:", visaDto.getRefuseReason()));
 		// 发送给文案
-//		SendEmailUtil.send(officialDo.getEmail(), "签证佣金订单驳回提醒", StringUtil.merge("亲爱的:", officialDo.getName(), "<br/>",
-//				"您的订单已被驳回。<br>订单号:", visaDo.getId(), "<br/>驳回原因:", visaDo.getRefuseReason()));
+//		SendEmailUtil.send(officialDo.gemail(), "签证佣金订单驳回提醒", StringUtil.merge("亲爱的:", officialDo.getName(), "<br/>",
+//				"您的订单已被驳回。<br>签证订单号:", visaDo.getId(), "<br/>驳回原因:", visaDo.getRefuseReason()));
 	}
 
 }

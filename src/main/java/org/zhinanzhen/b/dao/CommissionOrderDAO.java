@@ -19,7 +19,9 @@ public interface CommissionOrderDAO {
                                     @Param("schoolId") Integer schoolId, @Param("isSettle") Boolean isSettle,
                                     @Param("stateList") List<String> stateList, @Param("commissionStateList") List<String> commissionStateList,
                                     @Param("startKjApprovalDate") String startKjApprovalDate,
-                                    @Param("endKjApprovalDate") String endKjApprovalDate, @Param("startInvoiceCreate") String startInvoiceCreate,
+                                    @Param("endKjApprovalDate") String endKjApprovalDate,
+									@Param("startDate") String startDate,@Param("endDate") String endDate,
+									@Param("startInvoiceCreate") String startInvoiceCreate,
 									@Param("endInvoiceCreate") String endInvoiceCreate, @Param("isYzyAndYjy") Boolean isYzyAndYjy,
                                     @Param("applyState") String applyState);
 
@@ -36,7 +38,9 @@ public interface CommissionOrderDAO {
 														   @Param("isSettle") Boolean isSettle, @Param("stateList") List<String> stateList,
 														   @Param("commissionStateList") List<String> commissionStateList,
 														   @Param("startKjApprovalDate") String startKjApprovalDate,
-														   @Param("endKjApprovalDate") String endKjApprovalDate, @Param("startInvoiceCreate") String startInvoiceCreate,
+														   @Param("endKjApprovalDate") String endKjApprovalDate,
+														   @Param("startDate") String startDate,@Param("endDate") String endDate,
+														   @Param("startInvoiceCreate") String startInvoiceCreate,
 														   @Param("endInvoiceCreate") String endInvoiceCreate, @Param("isYzyAndYjy") Boolean isYzyAndYjy,
 														   @Param("applyState") String applyState, @Param("offset") int offset, @Param("rows") int rows, @Param("orderBy") String orderBy);
 
