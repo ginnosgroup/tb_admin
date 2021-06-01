@@ -856,7 +856,8 @@ public class VisaController extends BaseCommissionOrderController {
 			}
 			wbe.write();
 			wbe.close();
-
+			if (is != null)
+				is.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 			return;
