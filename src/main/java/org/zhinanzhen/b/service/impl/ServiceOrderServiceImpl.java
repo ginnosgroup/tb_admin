@@ -245,12 +245,12 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	public int countServiceOrder(String type, String excludeState, List<String> stateList, String auditingState,
 			List<String> reviewStateList, String startMaraApprovalDate, String endMaraApprovalDate,
 			String startOfficialApprovalDate, String endOfficialApprovalDate, String startReadcommittedDate,
-			String endReadcommittedDate, List<Integer> regionIdList, Integer userId, Integer maraId, Integer adviserId,
+			String endReadcommittedDate, List<Integer> regionIdList, Integer userId,String userName,  Integer maraId, Integer adviserId,
 			Integer officialId, Integer officialTagId, int parentId, boolean isNotApproved, Integer serviceId,
 			Integer schoolId) throws ServiceException {
 		return serviceOrderDao.countServiceOrder(type, excludeState, stateList, auditingState, reviewStateList,
 				startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate,
-				startReadcommittedDate, endReadcommittedDate, regionIdList, userId, maraId, adviserId, officialId,
+				startReadcommittedDate, endReadcommittedDate, regionIdList, userId, userName,maraId, adviserId, officialId,
 				officialTagId, parentId, isNotApproved, serviceId, schoolId);
 	}
 
@@ -258,7 +258,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	public List<ServiceOrderDTO> listServiceOrder(String type, String excludeState, List<String> stateList,
 			String auditingState, List<String> reviewStateList, String startMaraApprovalDate,
 			String endMaraApprovalDate, String startOfficialApprovalDate, String endOfficialApprovalDate,
-			String startReadcommittedDate, String endReadcommittedDate, List<Integer> regionIdList, Integer userId,
+			String startReadcommittedDate, String endReadcommittedDate, List<Integer> regionIdList, Integer userId,String userName,
 			Integer maraId, Integer adviserId, Integer officialId, Integer officialTagId, int parentId,
 			boolean isNotApproved, int pageNum, int pageSize, Sorter sorter, Integer serviceId, Integer schoolId)
 			throws ServiceException {
@@ -278,7 +278,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		try {
 			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, excludeState, stateList, auditingState,
 					reviewStateList, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
-					endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId, maraId,
+					endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId, userName,maraId,
 					adviserId, officialId, officialTagId, parentId, isNotApproved, serviceId, schoolId,
 					pageNum * pageSize, pageSize, orderBy);
 			if (serviceOrderDoList == null)
