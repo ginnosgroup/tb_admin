@@ -1015,6 +1015,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		if (regionId != null && regionId > 0)
 			regionIdList = ListUtil.buildArrayList(regionId);
 
+		InputStream is = null;
+		OutputStream os = null;
+		jxl.Workbook wb = null;
 		try {
 
 			// 处理顾问管理员
@@ -1046,9 +1049,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					isSettle, stateList, commissionStateList, startKjApprovalDate, endKjApprovalDate,startDate,endDate,
 					startInvoiceCreate, endInvoiceCreate, isYzyAndYjy, state, 0, 9999, null);
 
-			OutputStream os = response.getOutputStream();
-			jxl.Workbook wb;
-			InputStream is;
+			os = response.getOutputStream();
 			try {
 				is = this.getClass().getResourceAsStream("/CommissionOrderTemplate.xls");
 			} catch (Exception e) {
@@ -1146,6 +1147,26 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return;
+		}finally{
+			try {
+				if (is != null)
+					is.close();
+				System.out.println("is is close");
+			} catch (IOException e) {
+				System.out.println("is is close 出现 异常:");
+				e.printStackTrace();
+			}
+			try {
+				if (os != null)
+					os.close();
+				System.out.println("os is close");
+			} catch (IOException e) {
+				System.out.println("os is close 出现 异常:");
+				e.printStackTrace();
+			}
+			if (wb != null)
+				wb.close();
+			System.out.println("wb is close");
 		}
 
 	}
