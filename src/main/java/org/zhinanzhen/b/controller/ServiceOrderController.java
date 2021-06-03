@@ -1857,6 +1857,10 @@ public class ServiceOrderController extends BaseController {
 
 			context = workflowStarter.process(workflow, context);
 
+			//发送消息到群聊PENGDING--->REVIEW
+			if ("GW".equalsIgnoreCase(adminUserLoginInfo.getApList()) && "REVIEW".equalsIgnoreCase(workflow.getCurrentNode().getName()))
+				wxWorkService.sendMsg(serviceOrderDto.getId());
+
 			if (context.getParameter("response") != null)
 				return (Response<ServiceOrderDTO>) context.getParameter("response");
 			else {
