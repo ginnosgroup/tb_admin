@@ -873,7 +873,8 @@ public class ServiceOrderController extends BaseController {
 		if (newMaraId != null) {
 			maraId = newMaraId;
 			excludeState = ReviewAdviserStateEnum.PENDING.toString();
-			stateList = ListUtil.buildArrayList("WAIT", "FINISH", "APPLY", "COMPLETE", "CLOSE");
+			if (stateList == null)
+				stateList = ListUtil.buildArrayList("WAIT", "FINISH", "APPLY", "COMPLETE", "CLOSE");
 //			reviewStateList = new ArrayList<>();
 //			reviewStateList.add(ServiceOrderReviewStateEnum.ADVISER.toString());
 //			reviewStateList.add(ServiceOrderReviewStateEnum.MARA.toString());
@@ -917,7 +918,7 @@ public class ServiceOrderController extends BaseController {
 				ServiceOrderDTO serviceOrder = serviceOrderService.getServiceOrderById(id);
 				if (serviceOrder != null)
 					list.add(serviceOrder);
-				return new ListResponse<List<ServiceOrderDTO>>(false, pageSize, 0, list, "");
+				return new ListResponse<List<ServiceOrderDTO>>(true, pageSize, 1, list, "");
 			}
 
 			int total = serviceOrderService.countServiceOrder(type, excludeState, stateList, auditingState,
@@ -1857,6 +1858,10 @@ public class ServiceOrderController extends BaseController {
 			Workflow workflow = new Workflow("Service Order Work Flow", node, soNodeFactory);
 
 			context = workflowStarter.process(workflow, context);
+
+			//发送消息到群聊PENGDING--->REVIEW
+			if ("GW".equalsIgnoreCase(adminUserLoginInfo.getApList()) && "REVIEW".equalsIgnoreCase(workflow.getCurrentNode().getName()))
+				wxWorkService.sendMsg(serviceOrderDto.getId());
 
 			if (context.getParameter("response") != null)
 				return (Response<ServiceOrderDTO>) context.getParameter("response");
