@@ -918,7 +918,7 @@ public class ServiceOrderController extends BaseController {
 				ServiceOrderDTO serviceOrder = serviceOrderService.getServiceOrderById(id);
 				if (serviceOrder != null)
 					list.add(serviceOrder);
-				return new ListResponse<List<ServiceOrderDTO>>(false, pageSize, 0, list, "");
+				return new ListResponse<List<ServiceOrderDTO>>(true, pageSize, 1, list, "");
 			}
 
 			int total = serviceOrderService.countServiceOrder(type, excludeState, stateList, auditingState,
