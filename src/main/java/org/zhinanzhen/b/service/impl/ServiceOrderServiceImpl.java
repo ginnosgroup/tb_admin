@@ -928,16 +928,18 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		UserDO user;
 	}
 
-//	@Override
-//	public List<ServiceOrderReviewDTO> reviews(int serviceOrderId) throws ServiceException {
-//		List<ServiceOrderReviewDTO> serviceOrderReviewDtoList = new ArrayList<>();
+	@Override
+	@Deprecated
+	public List<ServiceOrderReviewDTO> reviews(int serviceOrderId) throws ServiceException {
+		List<ServiceOrderReviewDTO> serviceOrderReviewDtoList = new ArrayList<>();
 //		List<ServiceOrderReviewDO> serviceOrderReviewDoList = serviceOrderReviewDao
 //				.listServiceOrderReview(serviceOrderId, null, null, null, null, null);
 //		serviceOrderReviewDoList.forEach(serviceOrderReviewDo -> serviceOrderReviewDtoList
 //				.add(mapper.map(serviceOrderReviewDo, ServiceOrderReviewDTO.class)));
-//		return serviceOrderReviewDtoList;
-//	}
+		return serviceOrderReviewDtoList;
+	}
 
+	@Deprecated
 	private void putReviews(ServiceOrderDTO serviceOrderDto) {
 //		List<ServiceOrderReviewDO> serviceOrderReviewDoList = serviceOrderReviewDao
 //				.listServiceOrderReview(serviceOrderDto.getId(), null, null, null, null, null);

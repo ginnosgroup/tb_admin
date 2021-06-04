@@ -357,6 +357,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 		}
 	}
 
+	@Deprecated
 	private void putReviews(VisaDTO visaDto) throws ServiceException {
 //		List<ServiceOrderReviewDO> serviceOrderReviewDoList = serviceOrderReviewDao
 //				.listServiceOrderReview(visaDto.getServiceOrderId(), null, null, null, null, null);

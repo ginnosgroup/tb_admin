@@ -45,6 +45,7 @@ public interface ServiceOrderService {
 
 	void sendRemind(int id, String state);
 
+	@Deprecated
 	List<ServiceOrderReviewDTO> reviews(int serviceOrderId) throws ServiceException;
 
 	int addComment(ServiceOrderCommentDTO serviceOrderCommentDto) throws ServiceException;
