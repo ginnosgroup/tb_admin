@@ -37,8 +37,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	@Resource
 	private ServiceOrderDAO serviceOrderDao;
 
-	@Resource
-	private ServiceOrderReviewDAO serviceOrderReviewDao;
+//	@Resource
+//	private ServiceOrderReviewDAO serviceOrderReviewDao;
 
 	@Resource
 	private SchoolDAO schoolDao;
@@ -928,30 +928,30 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		UserDO user;
 	}
 
-	@Override
-	public List<ServiceOrderReviewDTO> reviews(int serviceOrderId) throws ServiceException {
-		List<ServiceOrderReviewDTO> serviceOrderReviewDtoList = new ArrayList<>();
-		List<ServiceOrderReviewDO> serviceOrderReviewDoList = serviceOrderReviewDao
-				.listServiceOrderReview(serviceOrderId, null, null, null, null, null);
-		serviceOrderReviewDoList.forEach(serviceOrderReviewDo -> serviceOrderReviewDtoList
-				.add(mapper.map(serviceOrderReviewDo, ServiceOrderReviewDTO.class)));
-		return serviceOrderReviewDtoList;
-	}
+//	@Override
+//	public List<ServiceOrderReviewDTO> reviews(int serviceOrderId) throws ServiceException {
+//		List<ServiceOrderReviewDTO> serviceOrderReviewDtoList = new ArrayList<>();
+//		List<ServiceOrderReviewDO> serviceOrderReviewDoList = serviceOrderReviewDao
+//				.listServiceOrderReview(serviceOrderId, null, null, null, null, null);
+//		serviceOrderReviewDoList.forEach(serviceOrderReviewDo -> serviceOrderReviewDtoList
+//				.add(mapper.map(serviceOrderReviewDo, ServiceOrderReviewDTO.class)));
+//		return serviceOrderReviewDtoList;
+//	}
 
 	private void putReviews(ServiceOrderDTO serviceOrderDto) {
-		List<ServiceOrderReviewDO> serviceOrderReviewDoList = serviceOrderReviewDao
-				.listServiceOrderReview(serviceOrderDto.getId(), null, null, null, null, null);
-		List<ServiceOrderReviewDTO> serviceOrderReviewDtoList = new ArrayList<ServiceOrderReviewDTO>();
-		serviceOrderReviewDoList
-				.forEach(review -> serviceOrderReviewDtoList.add(mapper.map(review, ServiceOrderReviewDTO.class)));
-		serviceOrderDto.setReviews(serviceOrderReviewDtoList);
-		if (serviceOrderReviewDtoList != null && serviceOrderReviewDtoList.size() > 0)
-			serviceOrderDto.setReview(serviceOrderReviewDtoList.get(0));
-		if (serviceOrderDto.getReview() != null && serviceOrderDto.getReview().getAdviserState() != null) {
-			ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(serviceOrderDto.getId());
-			serviceOrderDo.setState(serviceOrderDto.getReview().getAdviserState());
-			serviceOrderDao.updateServiceOrder(serviceOrderDo);
-		}
+//		List<ServiceOrderReviewDO> serviceOrderReviewDoList = serviceOrderReviewDao
+//				.listServiceOrderReview(serviceOrderDto.getId(), null, null, null, null, null);
+//		List<ServiceOrderReviewDTO> serviceOrderReviewDtoList = new ArrayList<ServiceOrderReviewDTO>();
+//		serviceOrderReviewDoList
+//				.forEach(review -> serviceOrderReviewDtoList.add(mapper.map(review, ServiceOrderReviewDTO.class)));
+//		serviceOrderDto.setReviews(serviceOrderReviewDtoList);
+//		if (serviceOrderReviewDtoList != null && serviceOrderReviewDtoList.size() > 0)
+//			serviceOrderDto.setReview(serviceOrderReviewDtoList.get(0));
+//		if (serviceOrderDto.getReview() != null && serviceOrderDto.getReview().getAdviserState() != null) {
+//			ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(serviceOrderDto.getId());
+//			serviceOrderDo.setState(serviceOrderDto.getReview().getAdviserState());
+//			serviceOrderDao.updateServiceOrder(serviceOrderDo);
+//		}
 	}
 
 	private ServiceOrderDTO review(int id, int adminUserId, String adviserState, String maraState, String officialState,
@@ -996,7 +996,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		}
 		if (kjState != null)
 			serviceOrderReviewDo.setKjState(kjState);
-		serviceOrderReviewDao.addServiceOrderReview(serviceOrderReviewDo);
+//		serviceOrderReviewDao.addServiceOrderReview(serviceOrderReviewDo);
 		return getServiceOrderById(id);
 	}
 
