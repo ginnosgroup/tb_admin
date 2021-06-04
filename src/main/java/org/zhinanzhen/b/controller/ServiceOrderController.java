@@ -1843,7 +1843,9 @@ public class ServiceOrderController extends BaseController {
 			context.putParameter("stateMark", stateMark);
 			context.putParameter("ap", adminUserLoginInfo.getApList());
 			context.putParameter("adminUserId", adminUserLoginInfo.getId());
-			
+
+			LOG.info("Flow LOG : " + context.toString());
+
 			String[] nextNodeNames = node.nextNodeNames();
 			if (nextNodeNames != null)
 				if (Arrays.asList(nextNodeNames).contains(state))
