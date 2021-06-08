@@ -694,7 +694,7 @@
         FROM b_commission_order co, b_service_order so, b_school bs, tb_user tbu
         WHERE co.service_order_id = so.id AND co.school_id = bs.id AND co.user_id = tbu.id
         AND DATE_FORMAT(co.installment_due_date, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
-        AND co.bonus != 0.00
+        <!--  AND co.bonus != 0.00  -->
         <![CDATA[ AND (co.state="PENDING" OR co.state="WAIT") ]]>
         <if test='adviserId != null and adviserId > 0'>
             AND co.adviser_id = #{adviserId}

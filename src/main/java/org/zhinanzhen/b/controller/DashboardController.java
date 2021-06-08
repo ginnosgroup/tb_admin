@@ -33,6 +33,8 @@ public class DashboardController extends BaseController {
 	@ResponseBody
 	public Response<Double> getMonthExpectAmount(HttpServletRequest request, HttpServletResponse response) {
 		try {
+			if (getAdminUserLoginInfo(request) == null)
+				return new Response<Double>(1, "请先登录!", null);
 			return new Response<Double>(0, dashboardService.getThisMonthExpectAmount(getAdviserId(request)));
 		} catch (ServiceException e) {
 			return new Response<Double>(e.getCode(), e.getMessage(), null);

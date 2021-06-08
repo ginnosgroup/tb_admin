@@ -6,7 +6,7 @@
 
     <select id="getThisMonthVisaExpectAmount" resultType="java.lang.Double">
         select IFNULL(sum(expect_amount),0.00) FROM b_visa  where DATE_FORMAT(kj_approval_date, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
-        and is_close = 0 and state != 'PENDING'
+        and is_close = 0 and state != 'PENDING' and state != 'WAIT'
         <if test='adviserId != null'>
             AND adviser_id = #{adviserId}
         </if>
@@ -14,7 +14,7 @@
     </select>
     <select id="getThisMonthbCommissionOrderExpectAmountSBBTM" resultType="java.lang.Double">
         select IFNULL(sum(expect_amount),0.00) FROM b_commission_order  where DATE_FORMAT(kj_approval_date, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
-        and is_close = 0 and state != 'PENDING'
+        and is_close = 0 and state != 'PENDING' and state != 'WAIT'
         <if test='adviserId != null'>
             AND adviser_id = #{adviserId}
         </if>
