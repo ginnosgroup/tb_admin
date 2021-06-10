@@ -1229,6 +1229,113 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		return  subjectCountDTOList;
 	}
 
+	@Override
+	public List<ServiceOrderDTO> NotReviewedServiceOrder(Integer officialId,boolean thisMonth) {
+		List<ServiceOrderDO>  serviceOrderDOList = serviceOrderDao.NotReviewedServiceOrder(officialId,thisMonth);
+		List<ServiceOrderDTO> serviceOrderDTOList = new ArrayList<>();
+		copyServiceOrder(serviceOrderDOList,serviceOrderDTOList);
+		return  serviceOrderDTOList;
+	}
+
+	public void copyServiceOrder(List<ServiceOrderDO>  serviceOrderDOList ,List<ServiceOrderDTO> serviceOrderDTOList){
+		serviceOrderDOList.forEach(serviceOrderDo -> {
+			ServiceOrderDTO serviceOrderDto = mapper.map(serviceOrderDo, ServiceOrderDTO.class);
+			// 查询学校课程
+			if (serviceOrderDto.getSchoolId() > 0) {
+				SchoolDO schoolDo = schoolDao.getSchoolById(serviceOrderDto.getSchoolId());
+				if (schoolDo != null)
+					serviceOrderDto.setSchool(mapper.map(schoolDo, SchoolDTO.class));
+			}
+			// 查询Subagency
+			if (serviceOrderDto.getSubagencyId() > 0) {
+				SubagencyDO subagencyDo = subagencyDao.getSubagencyById(serviceOrderDto.getSubagencyId());
+				if (subagencyDo != null)
+					serviceOrderDto.setSubagency(mapper.map(subagencyDo, SubagencyDTO.class));
+			}
+			// 查询服务
+			ServiceDO serviceDo = serviceDao.getServiceById(serviceOrderDto.getServiceId());
+			if (serviceDo != null)
+				serviceOrderDto.setService(mapper.map(serviceDo, ServiceDTO.class));
+			// 查询服务包类型
+			if (serviceOrderDto.getServicePackageId() > 0) {
+				ServicePackageDO servicePackageDo = servicePackageDao.getById(serviceOrderDto.getServicePackageId());
+				if (servicePackageDo != null)
+					serviceOrderDto.setServicePackage(mapper.map(servicePackageDo, ServicePackageDTO.class));
+			}
+			// 查询收款方式
+			ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(serviceOrderDto.getReceiveTypeId());
+			if (receiveTypeDo != null)
+				serviceOrderDto.setReceiveType(mapper.map(receiveTypeDo, ReceiveTypeDTO.class));
+			// 查询用户
+			UserDO userDo = userDao.getUserById(serviceOrderDto.getUserId());
+			if (userDo != null)
+				serviceOrderDto.setUser(mapper.map(userDo, UserDTO.class));
+			// 查询Mara
+			MaraDO maraDo = maraDao.getMaraById(serviceOrderDto.getMaraId());
+			if (maraDo != null)
+				serviceOrderDto.setMara(mapper.map(maraDo, MaraDTO.class));
+			// 查询顾问
+			AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderDto.getAdviserId());
+			if (adviserDo != null)
+				serviceOrderDto.setAdviser(mapper.map(adviserDo, AdviserDTO.class));
+			// 查询顾问2
+			if (serviceOrderDto.getAdviserId2() > 0) {
+				AdviserDO adviserDo2 = adviserDao.getAdviserById(serviceOrderDto.getAdviserId2());
+				if (adviserDo2 != null)
+					serviceOrderDto.setAdviser2(mapper.map(adviserDo2, AdviserDTO.class));
+			}
+			// 查询文案
+			OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDto.getOfficialId());
+			if (officialDo != null)
+				serviceOrderDto.setOfficial(mapper.map(officialDo, OfficialDTO.class));
+			// 查询文案Tag
+			OfficialTagDO officialTagDo = officialTagDao.getOfficialTagByServiceOrderId(serviceOrderDto.getId());
+			if (officialTagDo != null)
+				serviceOrderDto.setOfficialTag(mapper.map(officialTagDo, OfficialTagDTO.class));
+			// 查询子服务
+			if (serviceOrderDto.getParentId() <= 0) {
+				List<ChildrenServiceOrderDTO> childrenServiceOrderList = new ArrayList<>();
+				List<ServiceOrderDO> list = serviceOrderDao.listByParentId(serviceOrderDto.getId());
+				list.forEach(serviceOrder -> {
+					ChildrenServiceOrderDTO childrenServiceOrderDto = mapper.map(serviceOrder,
+							ChildrenServiceOrderDTO.class);
+					ServicePackageDO servicePackageDo = servicePackageDao
+							.getById(childrenServiceOrderDto.getServicePackageId()); // TODO:
+					// 又偷懒了，性能比较差哦：）
+					if (servicePackageDo != null)
+						childrenServiceOrderDto.setServicePackageType(servicePackageDo.getType());
+					childrenServiceOrderList.add(childrenServiceOrderDto);
+				});
+				serviceOrderDto.setChildrenServiceOrders(childrenServiceOrderList);
+			}
+
+			List<Integer> cIds = new ArrayList<>();
+//			List<VisaDO> visaList = visaDao.listVisaByServiceOrderId(serviceOrderDo.getId());
+//			if (visaList != null && visaList.size() > 0) {
+//				for (VisaDO visaDo : visaList)
+//					cIds.add(visaDo.getId());
+//			}
+//			List<CommissionOrderDO> commissionOrderList = commissionOrderDao
+//					.listCommissionOrderByServiceOrderId(serviceOrderDto.getId());
+//			if (commissionOrderList != null && commissionOrderList.size() > 0) {
+//				for (CommissionOrderDO commissionOrderDo : commissionOrderList)
+//					cIds.add(commissionOrderDo.getId());
+//			}
+			serviceOrderDto.setCIds(cIds);
+
+			serviceOrderDTOList.add(serviceOrderDto);
+			// 查询职业名称
+			ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDto.getServiceAssessId());
+			if (serviceAssessDO != null)
+				serviceOrderDto.setServiceAssessDO(serviceAssessDO);
+		});
+	}
+
+	@Override
+	public Integer caseCount(Integer officialId, String days, String state) {
+		return serviceOrderDao.caseCount(officialId,days,state);
+	}
+
 	public  void createChat(int serviceOrderId) {
 		List<String> userList = new ArrayList<>();
 		JSONObject parm = new JSONObject();
@@ -1270,7 +1377,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
 		HttpSession session=attr.getRequest().getSession(true);
 		String token = (String) session.getAttribute("corpToken" + BaseController.VERSION); // TODO:小包  不要在Service层依赖Session，有时间把这几行代码移到Controller层
-		JSONObject json =  WXWorkAPI.sendPostBody_Map(WXWorkAPI.CREATECHAT.replace("ACCESS_TOKEN",token),parm);
+		JSONObject json =  WXWorkAPI.sendPostBody_Map(WXWorkAPI.CREATECHAT.replace("ACCESS_TOKEN",token),parm);// TODO:磊哥 好的，我的代码还有哪里不规范的，麻烦你帮我指出来
 		Map<String,Object> result = JSON.parseObject(JSON.toJSONString(json), Map.class);
 		if ((int)result.get("errcode") == 0){
 			chatDO.setChatId("ZNZ"+serviceOrderDO.getId());

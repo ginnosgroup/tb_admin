@@ -66,4 +66,8 @@ public interface ServiceOrderService {
 			String endOfficialApprovalDate);
 
 	List<EachSubjectCountDTO> eachSubjectCount(String startOfficialApprovalDate, String endOfficialApprovalDate);
+
+	List<ServiceOrderDTO> NotReviewedServiceOrder(Integer officialId,boolean thisMonth);
+
+	Integer caseCount(Integer officialId, String days,String state);
 }
