@@ -1336,7 +1336,11 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		return serviceOrderDao.caseCount(officialId,days,state);
 	}
 
-	public  void createChat(int serviceOrderId) {
+	/**
+	 * 这个方法
+	 * @param serviceOrderId
+	 */
+	public  void createChat(int serviceOrderId , String token) {
 		List<String> userList = new ArrayList<>();
 		JSONObject parm = new JSONObject();
 		ChatDO chatDO = new ChatDO();
@@ -1374,9 +1378,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			parm.put("name","服务订单" + serviceOrderDO.getId() + "的群聊");
 			parm.put("chatid","ZNZ"+serviceOrderDO.getId());
 		}
-		ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
-		HttpSession session=attr.getRequest().getSession(true);
-		String token = (String) session.getAttribute("corpToken" + BaseController.VERSION); // TODO:小包  不要在Service层依赖Session，有时间把这几行代码移到Controller层
+		//ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+		//HttpSession session=attr.getRequest().getSession(true);
+		//String token = (String) session.getAttribute("corpToken" + BaseController.VERSION); // TODO:小包  不要在Service层依赖Session，有时间把这几行代码移到Controller层
 		JSONObject json =  WXWorkAPI.sendPostBody_Map(WXWorkAPI.CREATECHAT.replace("ACCESS_TOKEN",token),parm);// TODO:磊哥 好的，我的代码还有哪里不规范的，麻烦你帮我指出来
 		Map<String,Object> result = JSON.parseObject(JSON.toJSONString(json), Map.class);
 		if ((int)result.get("errcode") == 0){

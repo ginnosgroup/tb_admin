@@ -1043,7 +1043,7 @@ public class ServiceOrderController extends BaseController {
 								// }
 							}
 							ServiceOrderDTO serviceOrderDTO = serviceOrderService.approval(id, adminUserLoginInfo.getId(), state.toUpperCase(), null, null, null);
-							wxWorkService.sendMsg(serviceOrderDto.getId());
+							//wxWorkService.sendMsg(serviceOrderDto.getId());
 							return new Response<ServiceOrderDTO>(0, serviceOrderDTO);
 						} else if (ReviewAdviserStateEnum.PAID.toString().equals(state.toUpperCase())) { // 顾问支付同时修改文案状态
 							serviceOrderService.finish(id);
@@ -1861,7 +1861,7 @@ public class ServiceOrderController extends BaseController {
 
 			//发送消息到群聊PENGDING--->REVIEW
 			if ("GW".equalsIgnoreCase(adminUserLoginInfo.getApList()) && "REVIEW".equalsIgnoreCase(workflow.getCurrentNode().getName())){
-				wxWorkService.sendMsg(serviceOrderDto.getId());
+				wxWorkService.sendMsg(serviceOrderDto.getId(),token(request,"corp"));
 			}
 
 			if (context.getParameter("response") != null)

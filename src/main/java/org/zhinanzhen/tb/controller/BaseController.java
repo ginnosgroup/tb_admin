@@ -240,6 +240,19 @@ public class BaseController {
 		return Boolean.FALSE;
 	}
 
+	//获取session中的token
+	protected String token(HttpServletRequest request , String type){
+		HttpSession session = request.getSession();
+		String token = "";
+		if (type.equalsIgnoreCase("corp")){
+			token = (String) session.getAttribute("corpToken" + BaseController.VERSION);
+		}
+		if (type.equalsIgnoreCase("cust")){
+			token = (String) session.getAttribute("customerToken" + BaseController.VERSION);
+		}
+		return token;
+	}
+
 	@Data
 	protected class AdminUserLoginInfo {
 		private int id;
