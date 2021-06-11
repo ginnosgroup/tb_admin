@@ -70,7 +70,7 @@ public class DashboardController extends BaseController {
 			if (getOfficialAdminId(request) == null) //不是文案管理员返回null
 				officialId = _OfficialId; //不是文案管理员则显示自己的服务订单
 		}
-		return  new Response(0 , serviceOrderService.NotReviewedServiceOrder(officialId,thisMonth).size() );
+		return  new Response(0 , serviceOrderService.NotReviewedServiceOrder(officialId,thisMonth));
 	}
 
 	@GetMapping(value = "/caseCount")
