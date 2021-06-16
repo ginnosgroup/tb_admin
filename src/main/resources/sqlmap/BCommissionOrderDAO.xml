@@ -703,7 +703,7 @@
             AND co.official_id = #{officialId}
         </if>
         ORDER BY co.installment_due_date
-        LIMIT 10;
+        ;
     </select>
     
     <select id="listCommissionOrderReport" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderReportDO">
