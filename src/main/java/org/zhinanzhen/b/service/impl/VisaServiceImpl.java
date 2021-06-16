@@ -57,8 +57,8 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 	@Resource
 	private ServiceOrderDAO serviceOrderDao;
 
-	@Resource
-	private ServiceOrderReviewDAO serviceOrderReviewDao;
+//	@Resource
+//	private ServiceOrderReviewDAO serviceOrderReviewDao;
 
 	@Resource
 	private VisaCommentDAO visaCommentDao;
@@ -357,19 +357,20 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 		}
 	}
 
+	@Deprecated
 	private void putReviews(VisaDTO visaDto) throws ServiceException {
-		List<ServiceOrderReviewDO> serviceOrderReviewDoList = serviceOrderReviewDao
-				.listServiceOrderReview(visaDto.getServiceOrderId(), null, null, null, null, null);
-		List<ServiceOrderReviewDTO> serviceOrderReviewDtoList = new ArrayList<ServiceOrderReviewDTO>();
-		serviceOrderReviewDoList
-				.forEach(review -> serviceOrderReviewDtoList.add(mapper.map(review, ServiceOrderReviewDTO.class)));
-		if (serviceOrderReviewDtoList != null && serviceOrderReviewDtoList.size() > 0)
-			for (ServiceOrderReviewDTO serviceOrderReviewDto : serviceOrderReviewDtoList)
-				if (serviceOrderReviewDto != null && StringUtil.isNotEmpty(serviceOrderReviewDto.getKjState())) {
-					visaDto.setState(serviceOrderReviewDto.getKjState());
-					visaDao.updateVisa(mapper.map(visaDto, VisaDO.class));
-					break;
-				}
+//		List<ServiceOrderReviewDO> serviceOrderReviewDoList = serviceOrderReviewDao
+//				.listServiceOrderReview(visaDto.getServiceOrderId(), null, null, null, null, null);
+//		List<ServiceOrderReviewDTO> serviceOrderReviewDtoList = new ArrayList<ServiceOrderReviewDTO>();
+//		serviceOrderReviewDoList
+//				.forEach(review -> serviceOrderReviewDtoList.add(mapper.map(review, ServiceOrderReviewDTO.class)));
+//		if (serviceOrderReviewDtoList != null && serviceOrderReviewDtoList.size() > 0)
+//			for (ServiceOrderReviewDTO serviceOrderReviewDto : serviceOrderReviewDtoList)
+//				if (serviceOrderReviewDto != null && StringUtil.isNotEmpty(serviceOrderReviewDto.getKjState())) {
+//					visaDto.setState(serviceOrderReviewDto.getKjState());
+//					visaDao.updateVisa(mapper.map(visaDto, VisaDO.class));
+//					break;
+//				}
 	}
 
 	@Override

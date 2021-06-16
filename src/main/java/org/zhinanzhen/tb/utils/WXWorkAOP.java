@@ -46,6 +46,11 @@ public class WXWorkAOP {
         setToken();
     }
 
+    @Before("execution(* org.zhinanzhen.b.controller.ServiceOrderController.nextFlow(..))")
+    public  void  beforeNextFlow(JoinPoint joinPoint) throws Exception {
+        setToken();
+    }
+
     private void setToken(){
         ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
         HttpSession session=attr.getRequest().getSession(true);

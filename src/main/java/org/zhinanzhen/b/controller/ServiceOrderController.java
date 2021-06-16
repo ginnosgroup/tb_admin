@@ -884,7 +884,8 @@ public class ServiceOrderController extends BaseController {
 		if (newMaraId != null) {
 			maraId = newMaraId;
 			excludeState = ReviewAdviserStateEnum.PENDING.toString();
-			stateList = ListUtil.buildArrayList("WAIT", "FINISH", "APPLY", "COMPLETE", "CLOSE");
+			if (stateList == null)
+				stateList = ListUtil.buildArrayList("WAIT", "FINISH", "APPLY", "COMPLETE", "CLOSE");
 //			reviewStateList = new ArrayList<>();
 //			reviewStateList.add(ServiceOrderReviewStateEnum.ADVISER.toString());
 //			reviewStateList.add(ServiceOrderReviewStateEnum.MARA.toString());
@@ -928,7 +929,7 @@ public class ServiceOrderController extends BaseController {
 				ServiceOrderDTO serviceOrder = serviceOrderService.getServiceOrderById(id);
 				if (serviceOrder != null)
 					list.add(serviceOrder);
-				return new ListResponse<List<ServiceOrderDTO>>(false, pageSize, 0, list, "");
+				return new ListResponse<List<ServiceOrderDTO>>(true, pageSize, 1, list, "");
 			}
 
 			int total = serviceOrderService.countServiceOrder(type, excludeState, stateList, auditingState,
@@ -1053,7 +1054,7 @@ public class ServiceOrderController extends BaseController {
 								// }
 							}
 							ServiceOrderDTO serviceOrderDTO = serviceOrderService.approval(id, adminUserLoginInfo.getId(), state.toUpperCase(), null, null, null);
-							wxWorkService.sendMsg(serviceOrderDto.getId());
+							//wxWorkService.sendMsg(serviceOrderDto.getId());
 							return new Response<ServiceOrderDTO>(0, serviceOrderDTO);
 						} else if (ReviewAdviserStateEnum.PAID.toString().equals(state.toUpperCase())) { // 顾问支付同时修改文案状态
 							serviceOrderService.finish(id);
@@ -1854,7 +1855,9 @@ public class ServiceOrderController extends BaseController {
 			context.putParameter("stateMark", stateMark);
 			context.putParameter("ap", adminUserLoginInfo.getApList());
 			context.putParameter("adminUserId", adminUserLoginInfo.getId());
-			
+
+			LOG.info("Flow API Log : " + context.toString());
+
 			String[] nextNodeNames = node.nextNodeNames();
 			if (nextNodeNames != null)
 				if (Arrays.asList(nextNodeNames).contains(state))
@@ -1866,6 +1869,11 @@ public class ServiceOrderController extends BaseController {
 			Workflow workflow = new Workflow("Service Order Work Flow", node, soNodeFactory);
 
 			context = workflowStarter.process(workflow, context);
+
+			//发送消息到群聊PENGDING--->REVIEW
+			if ("GW".equalsIgnoreCase(adminUserLoginInfo.getApList()) && "REVIEW".equalsIgnoreCase(workflow.getCurrentNode().getName())){
+				wxWorkService.sendMsg(serviceOrderDto.getId(),token(request,"corp"));
+			}
 
 			if (context.getParameter("response") != null)
 				return (Response<ServiceOrderDTO>) context.getParameter("response");

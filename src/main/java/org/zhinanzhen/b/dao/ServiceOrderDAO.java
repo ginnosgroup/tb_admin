@@ -65,4 +65,9 @@ public interface ServiceOrderDAO {
 
 	List<EachSubjectCountDO> eachSubjectCount(@Param("startOfficialApprovalDate") String startOfficialApprovalDate,
 										@Param("endOfficialApprovalDate") String endOfficialApprovalDate);
+
+	List<ServiceOrderDO> NotReviewedServiceOrder(@Param("officialId")Integer officialId, @Param("thisMonth") boolean thisMonth);
+
+	Integer caseCount(@Param("officialId") Integer officialId, @Param("days") String days,
+					  @Param("state")String state);
 }
