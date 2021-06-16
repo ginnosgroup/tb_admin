@@ -10,6 +10,9 @@ public interface UserDAO {
 
 	public int addUser(UserDO userDo);
 
+	public int addUserAdviser(@Param("userId") Integer userId, @Param("adviserId") Integer adviserId,
+			@Param("isCreater") Boolean isCreater);
+
 	public int countUser(@Param("name") String name, @Param("authType") String authType,
 			@Param("authNickname") String authNickname, @Param("phone") String phone,
 			@Param("wechatUsername") String wechatUsername, @Param("adviserId") Integer adviserId,
@@ -23,6 +26,8 @@ public interface UserDAO {
 			@Param("regionIdList") List<Integer> regionIdList, @Param("tagId") Integer tagId,
 			@Param("orderByField") String orderByField, @Param("isDesc") Boolean isDesc, @Param("offset") int offset,
 			@Param("rows") int rows);
+	
+	public int countUserAviser(@Param("userId") Integer userId);
 
 	public UserDO getUserById(int id);
 

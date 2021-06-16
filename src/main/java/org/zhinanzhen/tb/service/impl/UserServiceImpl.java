@@ -52,6 +52,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
 	@Override
+	@Transactional
 	public int addUser(String name, String authNickname, Date birthday, String areaCode, String phone, String email,
 			String wechatUsername, String firstControllerContents, String visaCode, Date visaExpirationDate,
 			String source, int adviserId, int regionId) throws ServiceException {
@@ -105,7 +106,11 @@ public class UserServiceImpl extends BaseService implements UserService {
 				throw se;
 			}
 		}
-		return userDao.addUser(userDo) > 0 ? userDo.getId() : 0;
+		if (userDao.addUser(userDo) > 0) {
+			userDao.addUserAdviser(userDo.getId(), adviserId, userDao.countUserAviser(userDo.getId()) == 0);
+			return userDo.getId();
+		} else
+			return 0;
 	}
 
 	@Override

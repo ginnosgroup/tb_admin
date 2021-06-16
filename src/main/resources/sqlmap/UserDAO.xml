@@ -47,6 +47,21 @@
         #{adviserId},
         #{regionId})
     </insert>
+    
+    <insert id="addUserAdviser" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into tb_user_adviser(
+        gmt_create,
+        gmt_modify,
+        user_id,
+        adviser_id,
+        is_creater)
+        values (
+        now(),
+        now(),
+        #{userId},
+        #{adviserId},
+        #{isCreater})
+    </insert>
 
     <select id="countUser" parameterType="org.zhinanzhen.tb.dao.pojo.UserDO"
         resultType="java.lang.Integer">
@@ -149,6 +164,13 @@
             </if>
         </if>
         LIMIT #{offset}, #{rows};
+    </select>
+    
+    <select id="countUserAviser" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM tb_user_adviser
+        WHERE user_id != #{userId}
+        ;
     </select>
 
     <select id="getUserById" parameterType="java.lang.Integer"
