@@ -833,6 +833,7 @@
         <if test="thisMonth != null and thisMonth == true">
             AND DATE_FORMAT(official_approval_date, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
         </if>
+        LIMIT 20;
     </select>
 
     <select id="caseCount" resultType="java.lang.Integer">
