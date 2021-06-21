@@ -166,8 +166,13 @@
         LIMIT #{offset}, #{rows};
     </select>
     
-    <select id="countUserAviser" resultType="java.lang.Integer">
-        SELECT count(*)
+    <select id="listUserAdviserByUserId" resultType="org.zhinanzhen.tb.dao.pojo.UserAdviserDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            user_id AS userId,
+            adviser_id AS adviserId,
+            is_creater AS isCreater
         FROM tb_user_adviser
         WHERE user_id != #{userId}
         ;

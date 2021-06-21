@@ -3,6 +3,7 @@ package org.zhinanzhen.tb.service.pojo;
 import java.util.Date;
 import java.util.List;
 
+import org.zhinanzhen.tb.dao.pojo.UserAdviserDO;
 import org.zhinanzhen.tb.service.UserAuthTypeEnum;
 
 import lombok.Data;
@@ -48,7 +49,7 @@ public class UserDTO {
 
 	private int regionId;
 
-	private int adviserId;
+//	private int adviserId;
 
 	private String recommendOpenid;
 
@@ -59,4 +60,7 @@ public class UserDTO {
 	private List<TagDTO> tagList;
 
 	private Date dob;
+	
+	private List<UserAdviserDTO> userAdviserList;
+	
 }

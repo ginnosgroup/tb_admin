@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
+import org.zhinanzhen.tb.dao.pojo.UserAdviserDO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
 
 public interface UserDAO {
@@ -27,7 +28,7 @@ public interface UserDAO {
 			@Param("orderByField") String orderByField, @Param("isDesc") Boolean isDesc, @Param("offset") int offset,
 			@Param("rows") int rows);
 	
-	public int countUserAviser(@Param("userId") Integer userId);
+	public List<UserAdviserDO> listUserAdviserByUserId(@Param("userId") Integer userId);
 
 	public UserDO getUserById(int id);
 

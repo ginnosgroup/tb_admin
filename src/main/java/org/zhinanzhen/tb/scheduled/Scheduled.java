@@ -400,7 +400,7 @@ public class Scheduled {
                             if (isContain){
                                 wxWorkService.updateAuthopenidByPhone(userDTO.getAuthOpenid(),userDTO.getPhone());
                             }
-                            userDTO.setAdviserId(adviserDO.getId());
+//                            userDTO.setAdviserId(adviserDO.getId()); // TODO: 小包
                             userDTO.setRegionId(adviserDTO.getRegionId());
                             UserDTO userDTOByAuthOpenid = userService.getUserByOpenId("WECHAT_WORK",userDTO.getAuthOpenid());
                             if (userDTOByAuthOpenid != null){
