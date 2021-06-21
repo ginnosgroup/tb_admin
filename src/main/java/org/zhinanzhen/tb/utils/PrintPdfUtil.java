@@ -698,7 +698,7 @@ public class PrintPdfUtil {
                     cell10 = new PdfPCell(new Paragraph(des.get(i).getCommission().toString(), FontChinese8));
                     cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
                     table10.addCell(cell10);
-                    cell10 = new PdfPCell(new Paragraph(des.get(i).getBonus().toString(), FontChinese8));
+                    cell10 = new PdfPCell(new Paragraph(des.get(i).getMarketing().toString(), FontChinese8));
                     cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
                     table10.addCell(cell10);
                     cell10 = new PdfPCell(new Paragraph(des.get(i).getInstalMent(), FontChinese8));
