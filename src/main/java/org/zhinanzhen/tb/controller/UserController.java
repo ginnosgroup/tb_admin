@@ -55,9 +55,15 @@ public class UserController extends BaseController {
 			@RequestParam(value = "regionId", required = false) String regionId, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			if (phone != null && !"".equals(phone)
-					&& userService.countUser(null, null, null, phone, null, 0, null, null) > 0)
-				return new Response<Integer>(1, "该电话号码已被使用,添加失败.", 0);
+			if (phone != null && !"".equals(phone)) {
+				List<UserDTO> _userList = userService.listUser(null, null, null, phone, null, 0, null, null, null, null,
+						0, 1);
+				if (_userList != null && _userList.size() > 0) {
+					UserDTO _user = _userList.get(0);
+					if (_user != null)
+						return new Response<Integer>(1, "该电话号码已被使用,添加失败.", _user.getId());
+				}
+			}
 			if (email != null && !"".equals(email) && !EMAIL_PATTERN.matcher(email).matches())
 				return new Response<Integer>(1, "邮箱地址格式不正确,添加失败.", 0);
 			if (areaCode == null)
