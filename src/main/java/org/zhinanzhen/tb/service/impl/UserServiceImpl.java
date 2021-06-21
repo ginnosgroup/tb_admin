@@ -499,7 +499,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 				userAdviserDtoList.add(userAdviserDto);
 			}
 		}
-		return null;
+		return userAdviserDtoList;
 	}
 
 }
