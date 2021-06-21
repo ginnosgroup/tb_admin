@@ -85,6 +85,18 @@ public class UserController extends BaseController {
 			return new Response<Integer>(1, e.getMessage(), -1);
 		}
 	}
+	
+	@RequestMapping(value = "/addUserAdviser", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> addUserAdviser(@RequestParam(value = "userId") String userId,
+			@RequestParam(value = "adviserId") String adviserId, HttpServletResponse response) {
+		try {
+			return new Response<Integer>(0,
+					userService.addUserAdviser(StringUtil.toInt(userId), StringUtil.toInt(adviserId)));
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), -1);
+		}
+	}
 
 	@RequestMapping(value = "/count", method = RequestMethod.GET)
 	@ResponseBody

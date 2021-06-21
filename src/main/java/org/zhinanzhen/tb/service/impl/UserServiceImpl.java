@@ -109,21 +109,26 @@ public class UserServiceImpl extends BaseService implements UserService {
 			}
 		}
 		if (userDao.addUser(userDo) > 0) {
-			List<UserAdviserDO> userAdviserList = userDao.listUserAdviserByUserId(userDo.getId());
-			if (userAdviserList == null || userAdviserList.size() == 0)
-				userDao.addUserAdviser(userDo.getId(), adviserId, true);
-			else
-				for (UserAdviserDO userAdviserDo : userAdviserList) {
-					if (userAdviserDo.getAdviserId() == adviserId) {
-						ServiceException se = new ServiceException("用户" + userDo.getId() + "已属于顾问" + adviserId + "!");
-						se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
-						throw se;
-					}
-					userDao.addUserAdviser(userDo.getId(), adviserId, false);
-				}
+			userDao.addUserAdviser(userDo.getId(), adviserId, true);
 			return userDo.getId();
 		} else
 			return 0;
+	}
+	
+	@Override
+	public int addUserAdviser(int userId, int adviserId) throws ServiceException {
+		List<UserAdviserDO> userAdviserList = userDao.listUserAdviserByUserId(userId);
+		if (userAdviserList == null || userAdviserList.size() == 0)
+			return userDao.addUserAdviser(userId, adviserId, true);
+		else
+			for (UserAdviserDO userAdviserDo : userAdviserList) {
+				if (userAdviserDo.getAdviserId() == adviserId) {
+					ServiceException se = new ServiceException("用户" + userId + "已属于顾问" + adviserId + "!");
+					se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+					throw se;
+				}
+			}
+		return userDao.addUserAdviser(userId, adviserId, false);
 	}
 
 	@Override
