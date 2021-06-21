@@ -110,7 +110,17 @@ public class UserServiceImpl extends BaseService implements UserService {
 		}
 		if (userDao.addUser(userDo) > 0) {
 			List<UserAdviserDO> userAdviserList = userDao.listUserAdviserByUserId(userDo.getId());
-			userDao.addUserAdviser(userDo.getId(), adviserId, (userAdviserList == null || userAdviserList.size() == 0));
+			if (userAdviserList == null || userAdviserList.size() == 0)
+				userDao.addUserAdviser(userDo.getId(), adviserId, true);
+			else
+				for (UserAdviserDO userAdviserDo : userAdviserList) {
+					if (userAdviserDo.getAdviserId() == adviserId) {
+						ServiceException se = new ServiceException("用户" + userDo.getId() + "已属于顾问" + adviserId + "!");
+						se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+						throw se;
+					}
+					userDao.addUserAdviser(userDo.getId(), adviserId, false);
+				}
 			return userDo.getId();
 		} else
 			return 0;
