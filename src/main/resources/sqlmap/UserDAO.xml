@@ -174,7 +174,7 @@
             adviser_id AS adviserId,
             is_creater AS isCreater
         FROM tb_user_adviser
-        WHERE user_id != #{userId}
+        WHERE user_id = #{userId}
         ;
     </select>
 
