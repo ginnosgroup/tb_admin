@@ -144,7 +144,7 @@
             AND u.wechat_username = #{wechatUsername}
         </if>
         <if test='adviserId != null and adviserId != ""'>
-            AND u.adviser_id = #{adviserId}
+            AND u.id in (SELECT user_id FROM tb_user_adviser WHERE adviser_id = #{adviserId})
         </if>
         <if test='regionIdList != null'>
             AND (u.region_id IN
