@@ -28,7 +28,7 @@
             content
         FROM b_commission_order_comment
         WHERE commission_order_id = #{commissionOrderId}
-        ORDER BY gmt_create ASC;
+        ORDER BY gmt_create DESC;
     </select>
     
     <delete id="delete" parameterType="java.lang.Integer">
