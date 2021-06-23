@@ -1296,8 +1296,9 @@ public class ServiceOrderController extends BaseController {
 						+ (serviceOrder.getUser() != null ? serviceOrder.getUser().getName() : "") + "<br/>订单ID:"
 						+ serviceOrder.getId() + "<br/>评论内容:" + serviceOrderCommentDto.getContent() + "<br/>评论时间:"
 						+ new Date()
-						+ "<br/><br/><a href='https://yongjinbiao.zhinanzhen.org/webroot/serviceorder-detail.html?id="
-						+ serviceOrder.getId() + "'>服务订单详情</a>";
+						//+ "<br/><br/><a href='https://yongjinbiao.zhinanzhen.org/webroot/serviceorder-detail.html?id="
+						//+ serviceOrder.getId() + "'>服务订单详情</a>"
+						;
 				String email = "";
 				if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					OfficialDTO official = serviceOrder.getOfficial();
