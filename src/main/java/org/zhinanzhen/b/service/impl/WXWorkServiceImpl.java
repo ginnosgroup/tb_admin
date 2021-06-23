@@ -147,6 +147,9 @@ public class WXWorkServiceImpl implements WXWorkService {
                         case "VA":
                             msg = msg + "-" + "签证申请";
                             break;
+                        case "ZDB":
+                            msg = msg + "-" + "州担保";
+                            break;
                     }
                 ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDO.getServiceAssessId());
                 if (serviceAssessDO != null)

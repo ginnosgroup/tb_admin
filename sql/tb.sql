@@ -365,7 +365,7 @@ CREATE TABLE `b_service_package` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
-  `type` varchar(4) NOT NULL COMMENT '服务包类型(CA:职业评估,EOI:EOI,SA:学校申请,VA:签证申请)',
+  `type` varchar(4) NOT NULL COMMENT '服务包类型(CA:职业评估,EOI:EOI,SA:学校申请,VA:签证申请,ZDB:州担保)',
   `service_id` int DEFAULT NULL COMMENT '服务项目编号 (对应b_service.id)',
   `num` int NOT NULL COMMENT '序号 (执行顺序)',
 `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已删除'
