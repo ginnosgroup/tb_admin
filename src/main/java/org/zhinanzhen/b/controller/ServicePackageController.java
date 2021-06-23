@@ -31,7 +31,7 @@ public class ServicePackageController extends BaseController {
 	ServicePackageService servicePackageService;
 
 	public enum TypeEnum {
-		CA, EOI, SA, VA, ZDB;
+		CA, EOI, SA, VA, ZD;
 		public static TypeEnum get(String name) {
 			for (TypeEnum e : TypeEnum.values())
 				if (e.toString().equals(name))
