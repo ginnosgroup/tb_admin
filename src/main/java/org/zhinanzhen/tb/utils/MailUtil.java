@@ -28,7 +28,7 @@ public class MailUtil {
 	public static boolean sendMail(String toMail, String subject, String content) {
 
 		Properties props = new Properties();
-		props.setProperty("mail.transport.protocol", "smtp");
+		props.setProperty("mail.transport.protocol", "SMTP");
 		props.setProperty("mail.smtp.host", SMTP_HOST);
 		props.setProperty("mail.smtp.auth", "true");
 
