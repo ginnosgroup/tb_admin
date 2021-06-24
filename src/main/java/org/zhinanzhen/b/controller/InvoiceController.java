@@ -186,7 +186,7 @@ public class InvoiceController  extends BaseController {
         if (number != null) {
             newNumber = Integer.valueOf(number) + 1;
         }
-        String invoiceNo = sdfNo.format(Calendar.getInstance().getTime()) + newNumber + simpleBranch;
+        String invoiceNo = "V" + sdfNo.format(Calendar.getInstance().getTime()) + newNumber + simpleBranch;
         String invoiceDate = sdfDate.format(Calendar.getInstance().getTime());
         invoiceCompanyDTO.setInvoiceNo(invoiceNo);
         invoiceCompanyDTO.setInvoiceDate(invoiceDate);
@@ -324,7 +324,7 @@ public class InvoiceController  extends BaseController {
         if (number != null) {
             newNumber = Integer.valueOf(number) + 1;
         }
-        String invoiceNo = sdfNo.format(Calendar.getInstance().getTime()) + newNumber + simpleBranch;
+        String invoiceNo = "S" + sdfNo.format(Calendar.getInstance().getTime()) + newNumber + simpleBranch;
         String invoiceDate = sdfDate.format(Calendar.getInstance().getTime());
 
         invoiceCompanyDTO.setInvoiceNo(invoiceNo);
