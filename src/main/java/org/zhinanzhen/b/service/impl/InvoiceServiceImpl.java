@@ -178,7 +178,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
                     return invoiceCompanyDTO;
                 }
             }
-            if (invoiceCompanyDTO.getSimple().equals("CS")) {
+            if ("CS,CIS".contains(invoiceCompanyDTO.getSimple())) {
                 InvoiceAddressDO invoiceAddressDO = invoiceDAO.selectAddressByBranch("SYD");
                 if (invoiceCompanyDTO != null & invoiceAddressDO != null) {
                     invoiceCompanyDTO.setAddress(invoiceAddressDO.getAddress());
