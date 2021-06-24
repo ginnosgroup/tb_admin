@@ -284,10 +284,10 @@ public class Scheduled {
     public void verifyCodeEveryDay(){
         List<FinanceCodeDO> financeCodeDOS = verifyDao.getFinanceCodeOrderIdIsNull();
         for (FinanceCodeDO financeCodeDO : financeCodeDOS){
-            if (StringUtil.isNotEmpty(VerifyServiceImpl.checkVerifyCode(financeCodeDO.getComment()))){
-                String comment = financeCodeDO.getComment();
+            String comment = StringUtil.isNotEmpty(financeCodeDO.getComment()) ? financeCodeDO.getComment() : "";
+            if (StringUtil.isNotEmpty(VerifyServiceImpl.checkVerifyCode(comment.toUpperCase()))){
                 //得到 verifyCode 并且字符全部转换成大写
-                String verifyCode = VerifyServiceImpl.checkVerifyCode(comment).toUpperCase();
+                String verifyCode = VerifyServiceImpl.checkVerifyCode(comment.toUpperCase());
 
                 List<VisaDO> visaDOS = visaDAO.listVisaByVerifyCode(verifyCode);
                 List<CommissionOrderDO> commissionOrderDOS = commissionOrderDAO.listCommissionOrderByVerifyCode(verifyCode);
