@@ -139,7 +139,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
             return  invoiceDAO.updateSFState(invoiceNo);
 
         }if (flag.equalsIgnoreCase("SC")){
-            invoiceDAO.updateCommissionOrderInvoiceNumberNull(invoiceNo);
+            invoiceDAO.removeInvoiceNumberInCommissionOrder(invoiceNo);
             return invoiceDAO.updateSCState(invoiceNo);
         }
         return 0;
@@ -337,7 +337,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
     public int selectReaplceOrderId(String[] idList, String invoiceNo) {
         List<Integer> visaIds = invoiceDAO.selectVisaId(idList,"SC");
         if (visaIds.size() != 0 ){
-            return visaIds.get(0);
+            //return visaIds.get(0);
         }
         return 0;
     }
@@ -527,12 +527,14 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
         List<InvoiceSchoolDescriptionDO> description = (List<InvoiceSchoolDescriptionDO>) paramMap.get("description");
         String invoiceDate = (String) paramMap.get("invoiceDate");
 
-        invoiceDAO.updateCommissionOrderInvoiceNumberNull(invoiceNo);
-        List<Integer> visaIds = invoiceDAO.selectVisaId(idList,"SC");
-        if (visaIds.size() != 0 ){
-            rollback();
-            return visaIds.get(0) + " 佣金订单已经关联！";
-        }
+        invoiceDAO.removeInvoiceNumberInCommissionOrder(invoiceNo);
+
+        //验证留学佣金订单是否已经绑定过发票
+        //List<Integer> visaIds = invoiceDAO.selectVisaId(idList,"SC");
+        //if (visaIds.size() != 0 ){
+        //    rollback();
+        //    return visaIds.get(0) + " 佣金订单已经关联！";
+        //}
 
 
         int resulti =  invoiceDAO.insertCommissionOrderIdInInvoice(StringUtils.join(idList, ",") , invoiceNo);
