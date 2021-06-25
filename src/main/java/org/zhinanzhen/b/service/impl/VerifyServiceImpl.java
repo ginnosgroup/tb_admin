@@ -199,7 +199,7 @@ public class VerifyServiceImpl implements VerifyService {
             return null;
         for (regionEnum e : regionEnum.values()){
             if (str.contains(e.toString()) && str.contains("ZNZ")){
-                return str.substring(str.indexOf(e.toString()),str.lastIndexOf("ZNZ")+3);
+                return str.substring(str.indexOf(e.toString()),str.indexOf("ZNZ")+3);
             }
         }
         if(str.contains("$$") & str.contains("#"))
