@@ -151,8 +151,17 @@
     <update id="updateSCState">
         update `b_invoice_school` set state ="CANCELED" , order_id = null where invoice_no = #{invoiceNo}
     </update>
-    <update id="updateCommissionOrderInvoiceNumberNull">
-        update `b_commission_order` set invoice_number = null , invoice_create = null where invoice_number = #{invoiceNo} ;
+    <update id="removeInvoiceNumberInCommissionOrder">
+        UPDATE b_commission_order
+        SET invoice_number =
+        IF
+        (
+            LENGTH( invoice_number ) &lt;= LENGTH( #{invoiceNo} ),
+            NULL,
+            REPLACE ( REPLACE ( invoice_number, #{invoiceNo}, ',' ), ",,", '' )
+        )
+        WHERE
+        invoice_number LIKE  "%"#{invoiceNo}"%";
     </update>
 
     <!-- 查询company表-->
@@ -344,7 +353,7 @@
         </foreach>
     </update>
     <update id="insertCommissionOrderIdInInvoice" >
-        update  `b_invoice_school` set order_id = #{idList}  where invoice_no = #{invoiceNo}
+        update  `b_invoice_school` set order_id =  #{idList}  where invoice_no = #{invoiceNo}
     </update>
     <update id="updateCommissionOrderZyDate">
         update `b_commission_order`
