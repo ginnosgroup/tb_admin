@@ -437,7 +437,9 @@ public class Scheduled {
                                 userDTO.getName() + sdf.format(userDTO.getVisa_expiration_date()) + " visa 即将到期提醒",
                                 adviserDTO.getName() + ": " + userDTO.getName() + userDTO.getId() + "," + sdf.format(userDTO.getVisa_expiration_date()) + ",7天内到期请注意提醒客户，如签证日期有变化请及时更新，如已更新请忽略该提醒.");
 
-                }else {
+                }
+                /*    TODO  这里先注释掉 .......
+                else {
                     UserDTO user = userService.getUserById(userDTO.getId());
                     user.getUserAdviserList().forEach(adviser -> {
                         AdviserDTO ad = adviser.getAdviserDto();
@@ -447,7 +449,7 @@ public class Scheduled {
                                     ad.getName() + ": " + userDTO.getName() + userDTO.getId() + "," + sdf.format(userDTO.getVisa_expiration_date()) + ",7天内到期请注意提醒客户，如签证日期有变化请及时更新，如已更新请忽略该提醒.");
                     });
                 }
-
+                 */
             } catch (ServiceException e) {
                 e.printStackTrace();
             }
