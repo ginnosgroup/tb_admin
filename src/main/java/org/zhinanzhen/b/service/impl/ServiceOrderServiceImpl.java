@@ -882,7 +882,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		String type = "";
 		String detail = "";
 		serviceOrderMailDetail.setServiceOrderUrl(
-				"<br/><a href='https://yongjinbiao.zhinanzhen.org/webroot/serviceorder-detail.html?id="
+				"<br/><a href='https://yongjinbiao.zhinanzhen.org/webroot_new/serviceorderdetail/id?"
 						+ serviceOrderDo.getId() + "'>服务订单详情</a>");
 		UserDO user = userDao.getUserById(serviceOrderDo.getUserId());
 		if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())) {
