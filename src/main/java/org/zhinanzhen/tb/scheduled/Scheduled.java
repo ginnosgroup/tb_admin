@@ -7,29 +7,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
 import org.zhinanzhen.b.controller.ServiceOrderController;
-import org.zhinanzhen.b.dao.CommissionOrderDAO;
-import org.zhinanzhen.b.dao.SchoolDAO;
-import org.zhinanzhen.b.dao.VerifyDao;
-import org.zhinanzhen.b.dao.VisaDAO;
-import org.zhinanzhen.b.dao.pojo.CommissionOrderDO;
-import org.zhinanzhen.b.dao.pojo.FinanceCodeDO;
-import org.zhinanzhen.b.dao.pojo.SchoolDO;
-import org.zhinanzhen.b.dao.pojo.VisaDO;
+import org.zhinanzhen.b.dao.*;
+import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.WXWorkService;
 import org.zhinanzhen.b.service.impl.VerifyServiceImpl;
 import org.zhinanzhen.b.service.pojo.DataDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
+import org.zhinanzhen.tb.dao.UserDAO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
+import org.zhinanzhen.tb.utils.CommonUtils;
 import org.zhinanzhen.tb.utils.EmojiFilter;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
 import org.zhinanzhen.tb.utils.WXWorkAPI;
@@ -89,6 +86,9 @@ public class Scheduled {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    MailRemindDAO mailRemindDAO;
 
     private Calendar calendar ;
 
@@ -419,5 +419,73 @@ public class Scheduled {
             }
         }
     }
+
+    /*
+    *每天10点发送签证或者留学的提醒邮件
+     */
+    @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 10 * * ? ")
+    public void autoSendMailRemind(){
+
+        //签证日期到期前提醒（自动提醒)
+        List<org.zhinanzhen.b.service.pojo.UserDTO> userList = visaDAO.listVisaExpirationDate();
+        userList.forEach(userDTO -> {
+            try {
+                if (userDTO.getAdviserId() != null){
+                    AdviserDTO adviserDTO = adviserService.getAdviserById(userDTO.getAdviserId());
+                    if (adviserDTO != null)
+                        SendEmailUtil.send(adviserDTO.getEmail(),
+                                userDTO.getName() + sdf.format(userDTO.getVisa_expiration_date()) + " visa 即将到期提醒",
+                                adviserDTO.getName() + ": " + userDTO.getName() + userDTO.getId() + "," + sdf.format(userDTO.getVisa_expiration_date()) + ",7天内到期请注意提醒客户，如签证日期有变化请及时更新，如已更新请忽略该提醒.");
+
+                }else {
+                    UserDTO user = userService.getUserById(userDTO.getId());
+                    user.getUserAdviserList().forEach(adviser -> {
+                        AdviserDTO ad = adviser.getAdviserDto();
+                        if (ad != null)
+                            SendEmailUtil.send(ad.getEmail(),
+                                    userDTO.getName() + sdf.format(userDTO.getVisa_expiration_date()) + " visa 即将到期提醒",
+                                    ad.getName() + ": " + userDTO.getName() + userDTO.getId() + "," + sdf.format(userDTO.getVisa_expiration_date()) + ",7天内到期请注意提醒客户，如签证日期有变化请及时更新，如已更新请忽略该提醒.");
+                    });
+                }
+
+            } catch (ServiceException e) {
+                e.printStackTrace();
+            }
+
+        });
+
+        //留学 due date日期提醒（自动提醒）
+        List<CommissionOrderDO> orderDOS = commissionOrderDAO.listCommissionOrderInstallmentDueDate();
+        orderDOS.forEach(commissionOrderDO -> {
+            try {
+                UserDTO userDTO = userService.getUserById(commissionOrderDO.getUserId());
+                AdviserDTO adviserDTO = adviserService.getAdviserById(commissionOrderDO.getAdviserId());
+                if (userDTO != null && adviserDTO != null){
+                    String message = "";
+                    message = adviserDTO.getName()+":"+userDTO.getName() + userDTO.getId() +","+sdf.format(commissionOrderDO.getInstallmentDueDate())+ ",距离due date还有 "
+                            +  CommonUtils.getDateDays(commissionOrderDO.getInstallmentDueDate(),new Date()) + " 天,请及时与学生沟通并申请月奖,如学生未就读请及时关闭订单,如已申请请忽略该提醒."
+                    + "<br/><br/><a href='https://yongjinbiao.zhinanzhen.org/webroot_new/commissionorderdetail/ovst/id?" + commissionOrderDO.getId() + "'>需要申请月奖的佣金订单链接</a>";
+                    SendEmailUtil.send(adviserDTO.getEmail(), userDTO.getName() + sdf.format(commissionOrderDO.getInstallmentDueDate())+ " 请及时申请月奖",message);
+                }
+            } catch (ServiceException e) {
+                e.printStackTrace();
+            }
+        });
+
+    }
+
+    /**
+     * 每小时触发一次(设置提醒)
+     */
+    //@org.springframework.scheduling.annotation.Scheduled(cron = "0 24 17 * * ? ")//每天九点
+    public void sendSetRemindMail(){
+        List<MailRemindDO> mailRemindDOS = mailRemindDAO.listBySendDate("H");
+        for (MailRemindDO mailRemindDO : mailRemindDOS){
+            SendEmailUtil.send(mailRemindDO.getMail(),mailRemindDO.getTitle(),mailRemindDO.getContent() + " 请及时处理。\n" +
+                    "如已处理完成请及时关闭提醒。");
+        }
+    }
+
+
 
 }

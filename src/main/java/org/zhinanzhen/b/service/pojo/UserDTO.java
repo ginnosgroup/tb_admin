@@ -13,4 +13,6 @@ public class UserDTO {
 
     private Date visa_expiration_date;
 
+    private Integer adviserId;
+
 }
