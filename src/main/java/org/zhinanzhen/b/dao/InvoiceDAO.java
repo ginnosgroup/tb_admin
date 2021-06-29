@@ -47,7 +47,7 @@ public interface InvoiceDAO {
 
     int updateSCState(@Param("invoiceNo")String invoiceNo);
 
-    int updateCommissionOrderInvoiceNumberNull(@Param("invoiceNo") String invoiceNo);
+    int removeInvoiceNumberInCommissionOrder(@Param("invoiceNo") String invoiceNo);
 
     List<InvoiceCompanyDO> selectCompany(@Param("flag") String flag);
 

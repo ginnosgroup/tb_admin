@@ -58,4 +58,6 @@ public interface VisaDAO {
 	List<VisaDO> listVisaByVerifyCode(@Param("verifyCode") String verifyCode);
 
 	boolean setBankDateNull(String substring);
+
+	List<UserDTO> listVisaExpirationDate();
 }

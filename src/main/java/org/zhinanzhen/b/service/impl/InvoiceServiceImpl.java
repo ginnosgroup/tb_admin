@@ -139,7 +139,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
             return  invoiceDAO.updateSFState(invoiceNo);
 
         }if (flag.equalsIgnoreCase("SC")){
-            invoiceDAO.updateCommissionOrderInvoiceNumberNull(invoiceNo);
+            invoiceDAO.removeInvoiceNumberInCommissionOrder(invoiceNo);
             return invoiceDAO.updateSCState(invoiceNo);
         }
         return 0;
@@ -167,7 +167,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
     @Override
     public InvoiceCompanyDTO addServiceFeeInvoice(String branch, String company) {
 
-        InvoiceCompanyDTO  invoiceCompanyDTO =  invoiceDAO.selectCompanyByName(company,"SF");
+        InvoiceCompanyDTO  invoiceCompanyDTO =  invoiceDAO.selectCompanyByName(company,typeEnum.SF.toString());
         if(invoiceCompanyDTO != null) {
             if (invoiceCompanyDTO.getSimple().equals("CEM")) {
                 InvoiceAddressDO invoiceAddressDO = invoiceDAO.selectAddressByBranch(branch);
@@ -178,7 +178,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
                     return invoiceCompanyDTO;
                 }
             }
-            if (invoiceCompanyDTO.getSimple().equals("CS")) {
+            if ("CS,CIS".contains(invoiceCompanyDTO.getSimple())) {
                 InvoiceAddressDO invoiceAddressDO = invoiceDAO.selectAddressByBranch("SYD");
                 if (invoiceCompanyDTO != null & invoiceAddressDO != null) {
                     invoiceCompanyDTO.setAddress(invoiceAddressDO.getAddress());
@@ -192,9 +192,16 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
     @Override
     public String selectInvoiceBySimple(String simpleBranch ,String flag) {
         List<String> invoiceNos = invoiceDAO.selectInvoiceBySimple(simpleBranch,flag);
+        List<String> _invoiceNos = new ArrayList<>();
+        invoiceNos.forEach(invoiceNo -> {
+            if (invoiceNo.startsWith("S") || invoiceNo.startsWith("V"))
+                _invoiceNos.add(invoiceNo.substring(1));
+            else
+                _invoiceNos.add(invoiceNo);
+        });
         List<Integer> invoiceNumber = new ArrayList<>();
-        if (invoiceNos != null & invoiceNos.size() != 0){
-            invoiceNos.forEach(invoiceNo->{
+        if (_invoiceNos != null & _invoiceNos.size() != 0){
+            _invoiceNos.forEach(invoiceNo->{
                 invoiceNumber.add(Integer.parseInt(invoiceNo.substring(0,invoiceNo.length()-1)));
             });
             String invoiceNumberMax = Collections.max(invoiceNumber).toString();
@@ -209,7 +216,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
     public InvoiceCompanyDTO addSchoolInvoice(String branch, String company) {
         InvoiceCompanyDTO  invoiceCompanyDTO = null;
         InvoiceAddressDO invoiceAddressDO = null;
-        invoiceCompanyDTO = invoiceDAO.selectCompanyByName(company,"SC");
+        invoiceCompanyDTO = invoiceDAO.selectCompanyByName(company,typeEnum.SC.toString());
         if (invoiceCompanyDTO!=null){
             if (invoiceCompanyDTO.getSimple().equals("CEM")){
                 invoiceAddressDO = invoiceDAO.selectAddressByBranch(branch);
@@ -330,7 +337,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
     public int selectReaplceOrderId(String[] idList, String invoiceNo) {
         List<Integer> visaIds = invoiceDAO.selectVisaId(idList,"SC");
         if (visaIds.size() != 0 ){
-            return visaIds.get(0);
+            //return visaIds.get(0);
         }
         return 0;
     }
@@ -513,12 +520,14 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
         List<InvoiceSchoolDescriptionDO> description = (List<InvoiceSchoolDescriptionDO>) paramMap.get("description");
         String invoiceDate = (String) paramMap.get("invoiceDate");
 
-        invoiceDAO.updateCommissionOrderInvoiceNumberNull(invoiceNo);
-        List<Integer> visaIds = invoiceDAO.selectVisaId(idList,"SC");
-        if (visaIds.size() != 0 ){
-            rollback();
-            return visaIds.get(0) + " 佣金订单已经关联！";
-        }
+        invoiceDAO.removeInvoiceNumberInCommissionOrder(invoiceNo);
+
+        //验证留学佣金订单是否已经绑定过发票
+        //List<Integer> visaIds = invoiceDAO.selectVisaId(idList,"SC");
+        //if (visaIds.size() != 0 ){
+        //    rollback();
+        //    return visaIds.get(0) + " 佣金订单已经关联！";
+        //}
 
 
         int resulti =  invoiceDAO.insertCommissionOrderIdInInvoice(StringUtils.join(idList, ",") , invoiceNo);
@@ -531,11 +540,20 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
         stateList.add(BaseCommissionOrderController.ReviewKjStateEnum.CLOSE.toString());
         int resultzydate = invoiceDAO.updateCommissionOrderZyDate(stateList,idList ,invoiceDate);
 
-        invoiceDAO.deleteDesc(invoiceNo,"SC");
+        invoiceDAO.deleteDesc(invoiceNo,typeEnum.SC.toString());
         invoiceDAO.saveSchoolDescription(description,invoiceNo);
         if (invoiceDAO.updateSCInvoice(paramMap)>0)
             return "sucess";
         return "fail";
     }
 
+    public enum typeEnum{
+        SC,SF;
+        public static typeEnum get(String name){
+            for (typeEnum e : typeEnum.values())
+            if (e.toString().equals(name))
+                return e;
+            return null;
+        }
+    }
 }
