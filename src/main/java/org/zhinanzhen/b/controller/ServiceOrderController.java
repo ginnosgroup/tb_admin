@@ -1790,6 +1790,10 @@ public class ServiceOrderController extends BaseController {
 					sheet.addCell(new Label(1, i, "留学学校", cellFormat));
 					i++;
 				}
+				if (i == 0 && type.equalsIgnoreCase("ZX")) {
+					sheet.addCell(new Label(1, i, "咨询服务", cellFormat));
+					i++;
+				}
 				sheet.addCell(new Label(0, i, i + "", cellFormat));
 				sheet.addCell(new Label(1, i, eo.getName(), cellFormat));
 				sheet.addCell(new Label(2, i, eo.getTotal() + "", cellFormat));

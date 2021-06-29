@@ -389,7 +389,7 @@ CREATE TABLE `b_service_order` (
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `code` varchar(64) DEFAULT NULL COMMENT '分组编码',
   `finish_date` datetime DEFAULT NULL COMMENT '办理完成时间',
-  `type` varchar(4) DEFAULT NULL COMMENT '服务类型(VISA:签证服务,OVST:留学服务,SIV:独立技术移民,MT:曼拓)',
+  `type` varchar(4) DEFAULT NULL COMMENT '服务类型(VISA:签证服务,OVST:留学服务,SIV:独立技术移民,MT:曼拓,ZX:咨询服务)',
   `people_number` int NOT NULL DEFAULT 1 COMMENT '人数',
   `people_type` varchar(4) NOT NULL DEFAULT '1A' COMMENT '人类型(1A:单人,1B:单人提配偶,2A:带配偶,XA:带孩子,XB:带配偶孩子,XC:其它)',
   `people_remarks` text DEFAULT NULL COMMENT '人备注',
