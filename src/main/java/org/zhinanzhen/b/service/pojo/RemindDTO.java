@@ -19,6 +19,4 @@ public class RemindDTO {
 
 	private String state;
 
-	private SchoolBrokerageSaDTO schoolBrokerageSa;
-
 }

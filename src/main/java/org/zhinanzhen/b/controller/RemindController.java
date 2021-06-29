@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.zhinanzhen.b.service.AbleStateEnum;
 import org.zhinanzhen.b.service.RemindService;
-import org.zhinanzhen.b.service.SchoolBrokerageSaService;
 import org.zhinanzhen.b.service.pojo.RemindDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
@@ -30,9 +29,6 @@ public class RemindController extends BaseController {
 
 	@Resource
 	RemindService remindService;
-
-	@Resource
-	SchoolBrokerageSaService schoolBrokerageSaService;
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
@@ -93,14 +89,14 @@ public class RemindController extends BaseController {
 			remindList = StringUtil.isEmpty(adviserId)
 					? remindService.listRemindByRemindDate(new Date(Long.parseLong(date)), 0)
 					: remindService.listRemindByRemindDate(new Date(Long.parseLong(date)), StringUtil.toInt(adviserId));
-			remindList.forEach(r -> {
-				try {
-					r.setSchoolBrokerageSa(
-							schoolBrokerageSaService.getSchoolBrokerageSaById(r.getSchoolBrokerageSaId()));
-				} catch (ServiceException e) {
-					r.setSchoolBrokerageSa(null);
-				}
-			});
+//			remindList.forEach(r -> {
+//				try {
+//					r.setSchoolBrokerageSa(
+//							schoolBrokerageSaService.getSchoolBrokerageSaById(r.getSchoolBrokerageSaId()));
+//				} catch (ServiceException e) {
+//					r.setSchoolBrokerageSa(null);
+//				}
+//			});
 			return new Response<List<RemindDTO>>(0, remindList);
 		} catch (ServiceException e) {
 			return new Response<List<RemindDTO>>(1, e.getMessage(), null);
