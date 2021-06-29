@@ -860,6 +860,7 @@ CREATE TABLE `b_invoice_school` (
   `state` varchar(10) NOT NULL COMMENT '状态 NORMAL:正常 CANCELED:取消',
   `branch` varchar(10) DEFAULT NULL COMMENT 'branch 地区',
   `flag` varchar(10) DEFAULT NULL COMMENT '标识是normal还是mark',
+  `pdf_url` varchar(150) DEFAULT NULL COMMENT '留学pdf地址'
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8 COMMENT='Service Fee 税务的模板';
 
@@ -906,6 +907,7 @@ CREATE TABLE `b_invoice_servicefee` (
   `order_id` varchar(20) DEFAULT NULL COMMENT '对应佣金订单id',
   `branch` varchar(10) DEFAULT NULL COMMENT 'branch 地区',
   `bill_to` varchar(64) DEFAULT NULL COMMENT '客户姓名',
+  `pdf_url` varchar(150) DEFAULT NULL COMMENT '留学pdf地址'
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='Service Fee 税务的模板';
 

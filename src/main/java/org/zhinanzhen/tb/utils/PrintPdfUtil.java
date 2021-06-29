@@ -24,13 +24,14 @@ import java.util.List;
 public class PrintPdfUtil {
 
 
-    static Font fontbule10 = FontFactory.getFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,10f, Font.NORMAL, BaseColor.BLUE);
-    static Font fontbule8 = FontFactory.getFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,8f, Font.NORMAL, BaseColor.BLUE);
-    static Font FontChinese12 = FontFactory.getFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,12f, Font.NORMAL, BaseColor.BLACK);
-    static Font FontChinese11Bold = FontFactory.getFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,11f, Font.BOLD, BaseColor.BLACK);
-    static Font FontChinese8 = FontFactory.getFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,8f, Font.NORMAL, BaseColor.BLACK);
-    static Font FontChinese8Bold = FontFactory.getFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,8f, Font.BOLD, BaseColor.BLACK);
-    static Font FontChinese10 = FontFactory.getFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,10f, Font.NORMAL, BaseColor.BLACK);
+    static Font fontbule10 = FontFactory.getFont("Arial", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,10f, Font.NORMAL, BaseColor.BLUE);
+    static Font fontbule8 = FontFactory.getFont("Arial", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,8f, Font.NORMAL, BaseColor.BLUE);
+    static Font FontChinese12 = FontFactory.getFont("Arial", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,12f, Font.NORMAL, BaseColor.BLACK);
+    static Font FontChinese11Bold = FontFactory.getFont("Arial", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,11f, Font.BOLD, BaseColor.BLACK);
+    static Font FontChinese8 = FontFactory.getFont("Arial", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,8f, Font.NORMAL, BaseColor.BLACK);
+    static Font FontChinese8Bold = FontFactory.getFont("Arial", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,8f, Font.BOLD, BaseColor.BLACK);
+    static Font FontChinese10 = FontFactory.getFont("Arial", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,10f, Font.NORMAL, BaseColor.BLACK);
+    //static Font FontChinese10 = FontFactory.getFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,10f, Font.NORMAL, BaseColor.BLACK);
     //static SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
     static SimpleDateFormat dobsdf = new SimpleDateFormat("dd/MM/yyyy ");
 
@@ -82,13 +83,6 @@ public class PrintPdfUtil {
             file.getParentFile().mkdirs();
         }
 
-        System.out.println("path  "+path);
-
-        System.out.println("newPDFPath  "+PDFPath);//打印路径是不是正确的
-
-
-
-
         if (Model.equals("SF"))
             createServiceFeePdf((InvoiceServiceFeeDTO) response.getData() ,PDFPath ,realPath , canceled);
         else if (Model.equals("IES"))
@@ -98,7 +92,7 @@ public class PrintPdfUtil {
         else if (Model.equals("N"))
             createNorPdf((InvoiceSchoolDTO) response.getData() ,PDFPath ,realPath , canceled);
 
-        return "/statics"+uploadsPath+"/"+invoiceNo;
+        return uploadsPath + "/" + invoiceNo;
 
 
     }
