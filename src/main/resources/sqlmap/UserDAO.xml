@@ -44,7 +44,7 @@
         #{authNickname},
         "",
         0,
-        #{adviserId},
+        0,
         #{regionId})
     </insert>
     
