@@ -327,7 +327,9 @@ public class UserServiceImpl extends BaseService implements UserService {
 			stateList.add("WAIT");
 			stateList.add("PAID");
 			List<ServiceOrderDO> serviceOrderList = serviceOrderDao.listServiceOrder(null, null, stateList, null, null,
-					null, null, null, null, null, null, null, id, null,null, null, null, null, null, null, null, null,
+					null, null, null, null, null,
+					null, null, id, null,null, null, null, null, null,
+					null, null, null,false,
 					DEFAULT_PAGE_NUM, 100, null);
 			for (ServiceOrderDO serviceOrderDo : serviceOrderList) {
 				OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
