@@ -30,7 +30,7 @@ public interface ServiceOrderDAO {
 						  @Param("officialId") Integer officialId, @Param("officialTagId") Integer officialTagId,
 						  @Param("parentId") Integer parentId, @Param("isNotApproved") Boolean isNotApproved,
 						  @Param("serviceId") Integer serviceId, @Param("schoolId") Integer schoolId,
-						  @Param("isPay")boolean isPay);
+						  @Param("isPay")Boolean isPay);
 
 	List<ServiceOrderDO> listServiceOrder(@Param("type") String type, @Param("excludeState") String excludeState,
 										  @Param("stateList") List<String> stateList, @Param("auditingState") String auditingState,
@@ -47,7 +47,7 @@ public interface ServiceOrderDAO {
 										  @Param("officialId") Integer officialId, @Param("officialTagId") Integer officialTagId,
 										  @Param("parentId") Integer parentId, @Param("isNotApproved") Boolean isNotApproved,
 										  @Param("serviceId") Integer serviceId, @Param("schoolId") Integer schoolId,
-										  @Param("isPay")boolean isPay,
+										  @Param("isPay")Boolean isPay,
 										  @Param("offset") int offset, @Param("rows") int rows, @Param("orderBy") String orderBy);
 
 	List<ServiceOrderDO> listByParentId(@Param("parentId") Integer parentId);
