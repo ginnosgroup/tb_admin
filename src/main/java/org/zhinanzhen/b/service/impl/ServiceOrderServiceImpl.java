@@ -450,9 +450,11 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			if ("OVST".equalsIgnoreCase(serviceOrderDto.getType()))
 				serviceOrderDto.setHasCommissionOrder(commissionOrderDao
 						.countCommissionOrderByServiceOrderIdAndExcludeCode(serviceOrderDto.getId(), null) > 0);
-			else
+			else if ("VISA".equalsIgnoreCase(serviceOrderDto.getType()))
 				serviceOrderDto.setHasCommissionOrder(
 						visaDao.countVisaByServiceOrderIdAndExcludeCode(serviceOrderDto.getId(), null) > 0);
+			else
+				serviceOrderDto.setHasCommissionOrder(false);
 			// 查询子服务
 			if (serviceOrderDto.getParentId() <= 0) {
 				List<ChildrenServiceOrderDTO> childrenServiceOrderList = new ArrayList<>();
@@ -905,6 +907,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			title += user.getName() + "/" + type;
 		} else if ("MT".equalsIgnoreCase(serviceOrderDo.getType())) {
 			type = "曼拓";
+			title += user.getName() + "/" + type;
+		} else if ("ZX".equalsIgnoreCase(serviceOrderDo.getType())) {
+			type = "咨询";
 			title += user.getName() + "/" + type;
 		}
 		serviceOrderMailDetail.setTitle(title);
