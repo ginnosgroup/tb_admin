@@ -446,7 +446,7 @@ public class ServiceOrderController extends BaseController {
 				if ("SIV".equalsIgnoreCase(serviceOrderDto.getType()))
 					cList = serviceOrderService.listServiceOrder(receiveTypeId, null, null, null, null, null, null,
 							null, null, null, null, null, null, null,null, null, null, null, id, false, 0, 100, null, null,
-							null,false);
+							null,null);
 				cList.forEach(cServiceOrderDto -> {
 					if ("VISA".equalsIgnoreCase(cServiceOrderDto.getType())) {
 						Response<Integer> cRes = updateOne(cServiceOrderDto, null, peopleNumber, peopleType,
@@ -824,7 +824,7 @@ public class ServiceOrderController extends BaseController {
 							startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
 							endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId,userName,
 							maraId, adviserId, officialId, officialTagId, 0,
-							isNotApproved != null ? isNotApproved : false, serviceId, schoolId,false));
+							isNotApproved != null ? isNotApproved : false, serviceId, schoolId,null));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -919,12 +919,12 @@ public class ServiceOrderController extends BaseController {
 					reviewStateList, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
 					endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId,userName, maraId,
 					adviserId, officialId, officialTagId, 0, isNotApproved != null ? isNotApproved : false, serviceId,
-					schoolId, false);
+					schoolId, null);
 			List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(type, excludeState, stateList,
 					auditingState, reviewStateList, startMaraApprovalDate, endMaraApprovalDate,
 					startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate,
 					regionIdList, userId,userName, maraId, adviserId, officialId, officialTagId, 0,
-					isNotApproved != null ? isNotApproved : false, pageNum, pageSize, _sorter, serviceId, schoolId, false);
+					isNotApproved != null ? isNotApproved : false, pageNum, pageSize, _sorter, serviceId, schoolId, null);
 
 			if (newOfficialId != null)
 				for (ServiceOrderDTO so : serviceOrderList)
@@ -1546,7 +1546,7 @@ public class ServiceOrderController extends BaseController {
 						reviewStateList, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
 						endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId,userName,
 						maraId, adviserId, officialId, officialTagId, 0, isNotApproved != null ? isNotApproved : false,
-						0, 9999, null, serviceId, schoolId,false);
+						0, 9999, null, serviceId, schoolId,null);
 
 				if (newOfficialId != null)
 					for (ServiceOrderDTO so : serviceOrderList)
@@ -1809,10 +1809,10 @@ public class ServiceOrderController extends BaseController {
 	}
 
 	@GetMapping(value = "/down1")
-	public void  down1(@RequestParam(value = "type")String type,
+	public void  down1(@RequestParam(value = "type",required = false)String type,
 					   @RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
 					   @RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
-					   @RequestParam(value = "isPay")boolean isPay,
+					   @RequestParam(value = "isPay",required = false,defaultValue = "false")boolean isPay,
 					   HttpServletRequest request, HttpServletResponse response) throws ServiceException {
 
 		OutputStream os = null;
