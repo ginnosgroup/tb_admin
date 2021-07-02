@@ -59,7 +59,7 @@ public class NoticeController extends BaseController {
 			List<ServiceOrderDTO> allServiceOrderList = serviceOrderService.listServiceOrder(null, null, null, null,
 					null, null, null, null, null,
 					null, null, null, 0, null,0, 0, 0,
-					0, 0, false, 0, 1000, null, 0, 0,false);
+					0, 0, false, 0, 1000, null, 0, 0,null);
 			for (ServiceOrderDTO serviceOrder : allServiceOrderList) {
 				int days = getDateDays(serviceOrder.getGmtModify(), new Date());
 				try {
