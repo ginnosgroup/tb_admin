@@ -3,6 +3,7 @@ package org.zhinanzhen.b.controller;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.Boolean;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -17,18 +18,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import jxl.Workbook;
 import jxl.WorkbookSettings;
-import jxl.write.Label;
-import jxl.write.WritableCellFormat;
-import jxl.write.WritableSheet;
+import jxl.write.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.controller.nodes.SONodeFactory;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderReadcommittedDateDO;
@@ -42,7 +37,6 @@ import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
-import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
 
@@ -452,7 +446,7 @@ public class ServiceOrderController extends BaseController {
 				if ("SIV".equalsIgnoreCase(serviceOrderDto.getType()))
 					cList = serviceOrderService.listServiceOrder(receiveTypeId, null, null, null, null, null, null,
 							null, null, null, null, null, null, null,null, null, null, null, id, false, 0, 100, null, null,
-							null);
+							null,false);
 				cList.forEach(cServiceOrderDto -> {
 					if ("VISA".equalsIgnoreCase(cServiceOrderDto.getType())) {
 						Response<Integer> cRes = updateOne(cServiceOrderDto, null, peopleNumber, peopleType,
@@ -830,7 +824,7 @@ public class ServiceOrderController extends BaseController {
 							startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
 							endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId,userName,
 							maraId, adviserId, officialId, officialTagId, 0,
-							isNotApproved != null ? isNotApproved : false, serviceId, schoolId));
+							isNotApproved != null ? isNotApproved : false, serviceId, schoolId,false));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -925,12 +919,12 @@ public class ServiceOrderController extends BaseController {
 					reviewStateList, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
 					endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId,userName, maraId,
 					adviserId, officialId, officialTagId, 0, isNotApproved != null ? isNotApproved : false, serviceId,
-					schoolId);
+					schoolId, false);
 			List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(type, excludeState, stateList,
 					auditingState, reviewStateList, startMaraApprovalDate, endMaraApprovalDate,
 					startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate,
 					regionIdList, userId,userName, maraId, adviserId, officialId, officialTagId, 0,
-					isNotApproved != null ? isNotApproved : false, pageNum, pageSize, _sorter, serviceId, schoolId);
+					isNotApproved != null ? isNotApproved : false, pageNum, pageSize, _sorter, serviceId, schoolId, false);
 
 			if (newOfficialId != null)
 				for (ServiceOrderDTO so : serviceOrderList)
@@ -1552,7 +1546,7 @@ public class ServiceOrderController extends BaseController {
 						reviewStateList, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
 						endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId,userName,
 						maraId, adviserId, officialId, officialTagId, 0, isNotApproved != null ? isNotApproved : false,
-						0, 9999, null, serviceId, schoolId);
+						0, 9999, null, serviceId, schoolId,false);
 
 				if (newOfficialId != null)
 					for (ServiceOrderDTO so : serviceOrderList)
@@ -1809,6 +1803,116 @@ public class ServiceOrderController extends BaseController {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return;
+		}finally {
+
+		}
+	}
+
+	@GetMapping(value = "/down1")
+	public void  down1(@RequestParam(value = "type")String type,
+					   @RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
+					   @RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
+					   @RequestParam(value = "isPay")boolean isPay,
+					   HttpServletRequest request, HttpServletResponse response) throws ServiceException {
+
+		OutputStream os = null;
+		jxl.Workbook wb = null;
+		InputStream is =null;
+		//jxl.write.WritableWorkbook wbe = null;
+
+		List<ServiceOrderDTO> serviceOrderDTOS = serviceOrderService.listServiceOrder(type, null, null, null,
+				null, null, null, startOfficialApprovalDate,
+				endOfficialApprovalDate, null, null, null, null,null,
+				null, null, null, null, 0, false,
+				0, 9999, null, null, null,isPay);
+		try {
+			super.setGetHeader(response);
+			response.reset();
+			String tableName = "serviceOrder_VISA";
+			response.setHeader("Content-disposition",
+					"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
+			response.setContentType("application/msexcel");
+
+			os = response.getOutputStream();
+			try {
+				is = this.getClass().getResourceAsStream("/blank.xls");
+			} catch (Exception e) {
+				throw new Exception("模版不存在");
+			}
+			try {
+				wb = Workbook.getWorkbook(is);
+			} catch (Exception e) {
+				throw new Exception("模版格式不支持");
+			}
+			WorkbookSettings settings = new WorkbookSettings();
+			settings.setWriteAccess(null);
+			jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
+
+			if (wbe == null) {
+				System.out.println("wbe is null !os=" + os + ",wb" + wb);
+			} else {
+				System.out.println("wbe not null !os=" + os + ",wb" + wb);
+			}
+			WritableSheet sheet = wbe.getSheet(0);
+			WritableCellFormat cellFormat = new WritableCellFormat();
+			int i = 0;
+			for (ServiceOrderDTO so : serviceOrderDTOS){
+				if (i == 0){
+					sheet.addCell(new Label(0, i, "提交审核时间", cellFormat));
+					sheet.addCell(new Label(1, i, "服务订单ID", cellFormat));
+					sheet.addCell(new Label(2, i, "服务项目", cellFormat));
+					sheet.addCell(new Label(3, i, "顾问名称", cellFormat));
+					sheet.addCell(new Label(4, i, "顾问地区", cellFormat));
+					sheet.addCell(new Label(5, i, "文案", cellFormat));
+					sheet.addCell(new Label(6, i, "MARA", cellFormat));
+					i++;
+				}
+				sheet.addCell(new Label(0, i, sdf.format(so.getOfficialApprovalDate()), cellFormat));
+				sheet.addCell(new Label(1, i, so.getId() + "", cellFormat));
+				String str = "";
+				if (so.getService() != null )
+					str = so.getService().getName() + so.getService().getCode();
+				if (so.getServicePackage() != null)
+					str = str + "-" +getTypeStrOfServicePackageDTO(so.getServicePackage().getType()) ;
+				if (so.getServiceAssessDO() != null)
+					str = str + "-" + so.getServiceAssessDO().getName();
+				sheet.addCell(new Label(2, i, str, cellFormat));
+				if (so.getAdviser() != null){
+					sheet.addCell(new Label(3, i, so.getAdviser().getName(), cellFormat));
+					sheet.addCell(new Label(4, i, so.getAdviser().getRegionName(), cellFormat));
+				}
+				if (so.getOfficial() != null)
+					sheet.addCell(new Label(5, i, so.getOfficial().getName(), cellFormat));
+				if (so.getMara() != null)
+					sheet.addCell(new Label(6, i, so.getMara().getName(), cellFormat));
+				i++;
+			}
+
+			wbe.write();
+			wbe.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return;
+		}finally {
+			if (os != null) {
+				try {
+					os.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+					System.out.println("os 关闭异常");
+				}
+			}
+			if (wb != null)
+				wb.close();
+			if (is != null) {
+				try {
+					is.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+					System.out.println("is 关闭异常");
+				}
+			}
+
 		}
 	}
 
@@ -1874,5 +1978,16 @@ public class ServiceOrderController extends BaseController {
 		} catch (ServiceException e) {
 			return new Response<ServiceOrderDTO>(1, "异常:" + e.getMessage(), null);
 		}
+	}
+
+	private String getTypeStrOfServicePackageDTO(String type){
+		if ("EOI".equalsIgnoreCase(type))
+			return "EOI";
+		else if ("CA".equalsIgnoreCase(type))
+			return "职业评估";
+		else if ("VA".equalsIgnoreCase(type))
+			return "签证申请";
+		else
+			return "";
 	}
 }

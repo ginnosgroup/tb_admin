@@ -19,14 +19,14 @@ public interface ServiceOrderService {
 			String startOfficialApprovalDate, String endOfficialApprovalDate, String startReadcommittedDate,
 			String endReadcommittedDate, List<Integer> regionIdList, Integer userId, String userName, Integer maraId, Integer adviserId,
 			Integer officialId, Integer officialTagId, int parentId, boolean isNotApproved, Integer serviceId,
-			Integer schoolId) throws ServiceException;
+			Integer schoolId, boolean isPay) throws ServiceException;
 
 	List<ServiceOrderDTO> listServiceOrder(String type, String excludeState, List<String> stateList,
 			String auditingState, List<String> reviewStateList, String startMaraApprovalDate,
 			String endMaraApprovalDate, String startOfficialApprovalDate, String endOfficialApprovalDate,
 			String startReadcommittedDate, String endReadcommittedDate, List<Integer> regionIdList, Integer userId,String userName,
 			Integer maraId, Integer adviserId, Integer officialId, Integer officialTagId, int parentId,
-			boolean isNotApproved, int pageNum, int pageSize, Sorter sorter, Integer serviceId, Integer schoolId)
+			boolean isNotApproved, int pageNum, int pageSize, Sorter sorter, Integer serviceId, Integer schoolId, boolean isPay)
 			throws ServiceException;
 
 	ServiceOrderDTO getServiceOrderById(int id) throws ServiceException;
