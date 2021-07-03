@@ -41,4 +41,5 @@ public interface SchoolService {
 
 	public int deleteSchoolByName(String name) throws ServiceException;
 
+	void refreshSchoolSetting() throws ServiceException;
 }
