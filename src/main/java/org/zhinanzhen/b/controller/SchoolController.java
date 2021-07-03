@@ -567,4 +567,16 @@ public class SchoolController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/refush", method = RequestMethod.POST)
+	@ResponseBody
+	public Response refush() throws Exception {
+		try {
+			schoolService.refreshSchoolSetting();
+			return new Response(0,"ok");
+		}catch (Exception e){
+			e.printStackTrace();
+			throw  new Exception("系统出错");
+		}
+
+	}
 }
