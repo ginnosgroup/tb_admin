@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
-import org.zhinanzhen.b.controller.ServiceOrderController;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.ServiceOrderService;
@@ -19,7 +18,6 @@ import org.zhinanzhen.b.service.impl.VerifyServiceImpl;
 import org.zhinanzhen.b.service.pojo.DataDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
-import org.zhinanzhen.tb.dao.UserDAO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -55,7 +53,7 @@ Hobart:lorrain.pan@zhinanzhen.org;jiaheng.xu@zhinanzhen.org
 @Lazy(false)
 public class Scheduled {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ServiceOrderController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Scheduled.class);
 
     @Autowired
     Data data;
@@ -280,14 +278,16 @@ public class Scheduled {
 
     //每天凌晨触发
     @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 0 * * ? ")
-    //@org.springframework.scheduling.annotation.Scheduled(cron = "0 45 10 * * ? ")
+    //@org.springframework.scheduling.annotation.Scheduled(cron = "0 27 16 * * ? ")
     public void verifyCodeEveryDay(){
         List<FinanceCodeDO> financeCodeDOS = verifyDao.getFinanceCodeOrderIdIsNull();
         for (FinanceCodeDO financeCodeDO : financeCodeDOS){
             String comment = StringUtil.isNotEmpty(financeCodeDO.getComment()) ? financeCodeDO.getComment() : "";
+            LOG.info(" FinanceCode ID : " + financeCodeDO.getId() + " COMMENT : " + comment );
             if (StringUtil.isNotEmpty(VerifyServiceImpl.checkVerifyCode(comment.toUpperCase()))){
                 //得到 verifyCode 并且字符全部转换成大写
                 String verifyCode = VerifyServiceImpl.checkVerifyCode(comment.toUpperCase());
+                LOG.info(" FinanceCode ID : " + financeCodeDO.getId() + " VerifyCode : " + verifyCode );
 
                 List<VisaDO> visaDOS = visaDAO.listVisaByVerifyCode(verifyCode);
                 List<CommissionOrderDO> commissionOrderDOS = commissionOrderDAO.listCommissionOrderByVerifyCode(verifyCode);
@@ -299,6 +299,7 @@ public class Scheduled {
                             visaDO.setChecked(true);
                         visaDO.setBankCheck("Code");
                         if (visaDAO.updateVisa(visaDO) > 0){
+                            LOG.info(" FinanceCode  ID : " + financeCodeDO.getId() + " VISA ID : " + visaDO.getId() + " OK ! " );
                             financeCodeDO.setOrderId("CV" + visaDO.getId());
                             financeCodeDO.setAdviserId(visaDO.getAdviserId());
                             financeCodeDO.setUserId(visaDO.getUserId());
@@ -336,7 +337,9 @@ public class Scheduled {
                     }
                 }
             }
-            verifyDao.update(financeCodeDO);
+            if (verifyDao.update(financeCodeDO) > 0 ){
+                LOG.info(" FinanceCode ID : " + financeCodeDO.getId() + " UPDATE order_id SUCCESS : " + financeCodeDO.getOrderId());
+            }
         }
     }
 
@@ -477,7 +480,7 @@ public class Scheduled {
     /**
      * 每小时触发一次(设置提醒)
      */
-    //@org.springframework.scheduling.annotation.Scheduled(cron = "0 24 17 * * ? ")//每天九点
+    //@org.springframework.scheduling.annotation.Scheduled(cron = "0 24 17 * * ? ")
     public void sendSetRemindMail(){
         List<MailRemindDO> mailRemindDOS = mailRemindDAO.listBySendDate("H");
         for (MailRemindDO mailRemindDO : mailRemindDOS){

@@ -377,6 +377,9 @@
         <if test='userName != null and userName != ""'>
             AND u.name LIKE '%${userName}%'
         </if>
+        <if test="isPay != null">
+            AND so.is_pay = #{isPay}
+        </if>
         ;
     </select>
     
@@ -512,6 +515,9 @@
         </if>
         <if test='userName != null and userName != ""'>
             AND u.name LIKE '%${userName}%'
+        </if>
+        <if test="isPay != null">
+            AND so.is_pay = #{isPay}
         </if>
         ${orderBy}
         LIMIT #{offset}, #{rows};
