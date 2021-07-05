@@ -59,7 +59,8 @@ public class MailRemindController extends BaseController {
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
     @GetMapping(value = "/list")
-    public Response<List<MailRemindDTO>> list(HttpServletRequest request, HttpServletResponse response){
+    public Response<List<MailRemindDTO>> list(@RequestParam(value = "isToday",required = false,defaultValue = "false") boolean isToday,
+                                              HttpServletRequest request, HttpServletResponse response){
         try {
             super.setGetHeader(response);
             if (getAdminUserLoginInfo(request) == null)
@@ -68,7 +69,7 @@ public class MailRemindController extends BaseController {
             Integer offcialId = getOfficialId(request);
 
             return new Response<List<MailRemindDTO>>(0, "",
-                    mailRemindService.list(adviserId, offcialId, null, null, null));
+                    mailRemindService.list(adviserId, offcialId, null, null, null,isToday));
         } catch (ServiceException e) {
             e.printStackTrace();
             return new Response<List<MailRemindDTO>>(e.getCode(), e.getMessage(), null);
