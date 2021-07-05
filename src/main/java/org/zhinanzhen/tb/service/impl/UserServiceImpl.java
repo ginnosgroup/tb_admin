@@ -202,10 +202,10 @@ public class UserServiceImpl extends BaseService implements UserService {
 			List<UserAdviserDTO> userAdviserList = listUserAdviserDto(userDo.getId());
 			if (userAdviserList != null && userAdviserList.size() > 0)
 				userDto.setUserAdviserList(userAdviserList);
-//			if (userDto.getAdviserId() > 0) {
-//				AdviserDTO adviserDto = adviserService.getAdviserById(userDto.getAdviserId());
-//				userDto.setAdviserDto(adviserDto);
-//			}
+			if (adviserId > 0) {
+				AdviserDTO adviserDto = adviserService.getAdviserById(adviserId);
+				userDto.setAdviserDto(adviserDto);
+			}
 			if (userDto.getRecommendOpenid() != null) {
 				UserDTO recommendUserDto = getUserByOpenId(UserAuthTypeEnum.WECHAT.toString(),
 						userDto.getRecommendOpenid());
