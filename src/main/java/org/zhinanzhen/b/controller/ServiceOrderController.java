@@ -866,7 +866,7 @@ public class ServiceOrderController extends BaseController {
 			reviewStateList = new ArrayList<>(Arrays.asList(reviewState.split(",")));
 		Integer newMaraId = getMaraId(request);
 		if (newMaraId != null) {
-			excludeTypeList = ListUtil.buildArrayList("ZD");
+			excludeTypeList = ListUtil.buildArrayList("ZX");
 			maraId = newMaraId;
 			excludeState = ReviewAdviserStateEnum.PENDING.toString();
 			if (stateList == null)
@@ -878,7 +878,7 @@ public class ServiceOrderController extends BaseController {
 		}
 		Integer newOfficialId = getOfficialId(request);
 		if (newOfficialId != null) {
-			excludeTypeList = ListUtil.buildArrayList("ZD");
+			excludeTypeList = ListUtil.buildArrayList("ZX");
 			if (getOfficialAdminId(request) == null)
 				officialId = newOfficialId; // 非文案管理员就只显示自己的单子
 			excludeState = ReviewAdviserStateEnum.PENDING.toString();
@@ -1504,7 +1504,7 @@ public class ServiceOrderController extends BaseController {
 			reviewStateList = new ArrayList<>(Arrays.asList(reviewState.split(",")));
 		Integer newMaraId = getMaraId(request);
 		if (newMaraId != null) {
-			excludeTypeList = ListUtil.buildArrayList("ZD");
+			excludeTypeList = ListUtil.buildArrayList("ZX");
 			maraId = newMaraId;
 			excludeState = ReviewAdviserStateEnum.PENDING.toString();
 			reviewStateList = new ArrayList<>();
@@ -1514,7 +1514,7 @@ public class ServiceOrderController extends BaseController {
 		}
 		Integer newOfficialId = getOfficialId(request);
 		if (newOfficialId != null) {
-			excludeTypeList = ListUtil.buildArrayList("ZD");
+			excludeTypeList = ListUtil.buildArrayList("ZX");
 			if (getOfficialAdminId(request) == null)
 				officialId = newOfficialId; // 非文案管理员就只显示自己的单子
 			excludeState = ReviewAdviserStateEnum.PENDING.toString();
