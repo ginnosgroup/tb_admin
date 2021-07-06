@@ -95,7 +95,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 		userDo.setVisaCode(visaCode);
 		userDo.setVisaExpirationDate(visaExpirationDate);
 		userDo.setSource(source);
-//		userDo.setAdviserId(adviserId);
+		userDo.setAdviserId(adviserId);
 		if (regionId > 0)
 			userDo.setRegionId(regionId);
 		else {
@@ -205,6 +205,9 @@ public class UserServiceImpl extends BaseService implements UserService {
 			if (adviserId > 0) {
 				AdviserDTO adviserDto = adviserService.getAdviserById(adviserId);
 				userDto.setAdviserDto(adviserDto);
+			} else if (userDto.getAdviserId() > 0) {
+				AdviserDTO adviserDto = adviserService.getAdviserById(userDto.getAdviserId());
+				userDto.setAdviserDto(adviserDto);
 			}
 			if (userDto.getRecommendOpenid() != null) {
 				UserDTO recommendUserDto = getUserByOpenId(UserAuthTypeEnum.WECHAT.toString(),
@@ -241,10 +244,10 @@ public class UserServiceImpl extends BaseService implements UserService {
 			List<UserAdviserDTO> userAdviserList = listUserAdviserDto(userDo.getId());
 			if (userAdviserList != null && userAdviserList.size() > 0)
 				userDto.setUserAdviserList(userAdviserList);
-//			if (userDto.getAdviserId() > 0) {
-//				AdviserDTO adviserDto = adviserService.getAdviserById(userDto.getAdviserId());
-//				userDto.setAdviserDto(adviserDto);
-//			}
+			if (userDto.getAdviserId() > 0) {
+				AdviserDTO adviserDto = adviserService.getAdviserById(userDto.getAdviserId());
+				userDto.setAdviserDto(adviserDto);
+			}
 			if (userDto.getRecommendOpenid() != null) {
 				UserDTO recommendUserDto = getUserByOpenId(UserAuthTypeEnum.WECHAT.toString(),
 						userDto.getRecommendOpenid());
@@ -285,10 +288,10 @@ public class UserServiceImpl extends BaseService implements UserService {
 			List<UserAdviserDTO> userAdviserList = listUserAdviserDto(userDo.getId());
 			if (userAdviserList != null && userAdviserList.size() > 0)
 				userDto.setUserAdviserList(userAdviserList);
-//			if (userDto.getAdviserId() > 0) {
-//				AdviserDTO adviserDto = adviserService.getAdviserById(userDto.getAdviserId());
-//				userDto.setAdviserDto(adviserDto);
-//			}
+			if (userDto.getAdviserId() > 0) {
+				AdviserDTO adviserDto = adviserService.getAdviserById(userDto.getAdviserId());
+				userDto.setAdviserDto(adviserDto);
+			}
 			userDto.setTagList(listTagByUserId(userDto.getId()));
 		}
 		return userDto;
@@ -405,10 +408,10 @@ public class UserServiceImpl extends BaseService implements UserService {
 			List<UserAdviserDTO> userAdviserList = listUserAdviserDto(userDo.getId());
 			if (userAdviserList != null && userAdviserList.size() > 0)
 				userDto.setUserAdviserList(userAdviserList);
-//			if (userDto.getAdviserId() > 0) {
-//				AdviserDTO adviserDto = adviserService.getAdviserById(userDto.getAdviserId());
-//				userDto.setAdviserDto(adviserDto);
-//			}
+			if (userDto.getAdviserId() > 0) {
+				AdviserDTO adviserDto = adviserService.getAdviserById(userDto.getAdviserId());
+				userDto.setAdviserDto(adviserDto);
+			}
 			if (userDto.getRecommendOpenid() != null) {
 				UserDTO recommendUserDto = getUserByOpenId(UserAuthTypeEnum.WECHAT.toString(),
 						userDto.getRecommendOpenid());

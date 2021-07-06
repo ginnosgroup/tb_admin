@@ -49,7 +49,7 @@ public class UserDTO {
 
 	private int regionId;
 
-//	private int adviserId;
+	private int adviserId;
 
 	private String recommendOpenid;
 
