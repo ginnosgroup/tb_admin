@@ -28,6 +28,8 @@ public class MailRemindDO {
 
     private Date sendDate;
 
+    private boolean isSend;
+
     private Integer serviceOrderId;
 
     private Integer visaId;
@@ -37,4 +39,6 @@ public class MailRemindDO {
     private Integer adviserId;
 
     private Integer offcialId;
+
+    private Integer userId;
 }
