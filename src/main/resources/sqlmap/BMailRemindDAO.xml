@@ -70,6 +70,9 @@
             <if test="commissionOrderId != null and commissionOrderId > 0">
                 AND commission_order_id = #{commissionOrderId}
             </if>
+            <if test="userId != null and userId > 0">
+                AND user_id = #{userId}
+            </if>
             <if test="isToday == true">
                 AND DATE_FORMAT(send_date,'%Y%m%d') = DATE_FORMAT(NOW(),'%Y%m%d')
             </if>

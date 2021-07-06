@@ -60,6 +60,10 @@ public class MailRemindController extends BaseController {
 
     @GetMapping(value = "/list")
     public Response<List<MailRemindDTO>> list(@RequestParam(value = "isToday",required = false,defaultValue = "false") boolean isToday,
+                                              @RequestParam(value = "serviceOrderId" , required = false)Integer serviceOrderId,
+                                              @RequestParam(value = "visaId" , required = false)Integer visaId,
+                                              @RequestParam(value = "commissionOrderId" , required = false)Integer commissionOrderId,
+                                              @RequestParam(value = "userId" , required = false)Integer userId,
                                               HttpServletRequest request, HttpServletResponse response){
         try {
             super.setGetHeader(response);
@@ -69,7 +73,7 @@ public class MailRemindController extends BaseController {
             Integer offcialId = getOfficialId(request);
 
             return new Response<List<MailRemindDTO>>(0, "",
-                    mailRemindService.list(adviserId, offcialId, null, null, null,isToday));
+                    mailRemindService.list(adviserId, offcialId, serviceOrderId, visaId, commissionOrderId,userId,isToday));
         } catch (ServiceException e) {
             e.printStackTrace();
             return new Response<List<MailRemindDTO>>(e.getCode(), e.getMessage(), null);

@@ -17,7 +17,8 @@ public interface MailRemindService {
 
     List<MailRemindDTO> list(Integer adviserId, Integer offcialId,
                              Integer serviceOrderId, Integer visaId,
-                             Integer commissionOrderId, boolean isToday) throws ServiceException;
+                             Integer commissionOrderId, Integer userId,
+                             boolean isToday) throws ServiceException;
 
     int delete(int id, Integer adviserId, Integer offcialId);
 
