@@ -486,6 +486,8 @@ public class Scheduled {
         for (MailRemindDO mailRemindDO : mailRemindDOS){
             SendEmailUtil.send(mailRemindDO.getMail(),mailRemindDO.getTitle(),mailRemindDO.getContent() + " 请及时处理。\n" +
                     "如已处理完成请及时关闭提醒。");
+            mailRemindDO.setSend(true);
+            mailRemindDAO.update(mailRemindDO);
         }
     }
 
