@@ -15,40 +15,37 @@ public interface ServiceOrderDAO {
 
 	int updateReviewState(@Param("id") Integer id, @Param("reviewState") String reviewState);
 
-	int countServiceOrder(@Param("type") String type, @Param("excludeState") String excludeState,
-						  @Param("stateList") List<String> stateList, @Param("auditingState") String auditingState,
-						  @Param("reviewStateList") List<String> reviewStateList,
-						  @Param("startMaraApprovalDate") String startMaraApprovalDate,
-						  @Param("endMaraApprovalDate") String endMaraApprovalDate,
-						  @Param("startOfficialApprovalDate") String startOfficialApprovalDate,
-						  @Param("endOfficialApprovalDate") String endOfficialApprovalDate,
-						  @Param("startReadcommittedDate") String startReadcommittedDate,
-						  @Param("endReadcommittedDate") String endReadcommittedDate,
-						  @Param("regionIdList") List<Integer> regionIdList, @Param("userId") Integer userId,
-						  @Param("userName") String userName,
-						  @Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
-						  @Param("officialId") Integer officialId, @Param("officialTagId") Integer officialTagId,
-						  @Param("parentId") Integer parentId, @Param("isNotApproved") Boolean isNotApproved,
-						  @Param("serviceId") Integer serviceId, @Param("schoolId") Integer schoolId,
-						  @Param("isPay")Boolean isPay);
+	int countServiceOrder(@Param("type") String type, @Param("excludeTypeList") List<String> excludeTypeList,
+			@Param("excludeState") String excludeState, @Param("stateList") List<String> stateList,
+			@Param("auditingState") String auditingState, @Param("reviewStateList") List<String> reviewStateList,
+			@Param("startMaraApprovalDate") String startMaraApprovalDate,
+			@Param("endMaraApprovalDate") String endMaraApprovalDate,
+			@Param("startOfficialApprovalDate") String startOfficialApprovalDate,
+			@Param("endOfficialApprovalDate") String endOfficialApprovalDate,
+			@Param("startReadcommittedDate") String startReadcommittedDate,
+			@Param("endReadcommittedDate") String endReadcommittedDate,
+			@Param("regionIdList") List<Integer> regionIdList, @Param("userId") Integer userId,
+			@Param("userName") String userName, @Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
+			@Param("officialId") Integer officialId, @Param("officialTagId") Integer officialTagId,
+			@Param("parentId") Integer parentId, @Param("isNotApproved") Boolean isNotApproved,
+			@Param("serviceId") Integer serviceId, @Param("schoolId") Integer schoolId, @Param("isPay") Boolean isPay);
 
-	List<ServiceOrderDO> listServiceOrder(@Param("type") String type, @Param("excludeState") String excludeState,
-										  @Param("stateList") List<String> stateList, @Param("auditingState") String auditingState,
-										  @Param("reviewStateList") List<String> reviewStateList,
-										  @Param("startMaraApprovalDate") String startMaraApprovalDate,
-										  @Param("endMaraApprovalDate") String endMaraApprovalDate,
-										  @Param("startOfficialApprovalDate") String startOfficialApprovalDate,
-										  @Param("endOfficialApprovalDate") String endOfficialApprovalDate,
-										  @Param("startReadcommittedDate") String startReadcommittedDate,
-										  @Param("endReadcommittedDate") String endReadcommittedDate,
-										  @Param("regionIdList") List<Integer> regionIdList, @Param("userId") Integer userId,
-										  @Param("userName") String userName,
-										  @Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
-										  @Param("officialId") Integer officialId, @Param("officialTagId") Integer officialTagId,
-										  @Param("parentId") Integer parentId, @Param("isNotApproved") Boolean isNotApproved,
-										  @Param("serviceId") Integer serviceId, @Param("schoolId") Integer schoolId,
-										  @Param("isPay")Boolean isPay,
-										  @Param("offset") int offset, @Param("rows") int rows, @Param("orderBy") String orderBy);
+	List<ServiceOrderDO> listServiceOrder(@Param("type") String type,
+			@Param("excludeTypeList") List<String> excludeTypeList, @Param("excludeState") String excludeState,
+			@Param("stateList") List<String> stateList, @Param("auditingState") String auditingState,
+			@Param("reviewStateList") List<String> reviewStateList,
+			@Param("startMaraApprovalDate") String startMaraApprovalDate,
+			@Param("endMaraApprovalDate") String endMaraApprovalDate,
+			@Param("startOfficialApprovalDate") String startOfficialApprovalDate,
+			@Param("endOfficialApprovalDate") String endOfficialApprovalDate,
+			@Param("startReadcommittedDate") String startReadcommittedDate,
+			@Param("endReadcommittedDate") String endReadcommittedDate,
+			@Param("regionIdList") List<Integer> regionIdList, @Param("userId") Integer userId,
+			@Param("userName") String userName, @Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
+			@Param("officialId") Integer officialId, @Param("officialTagId") Integer officialTagId,
+			@Param("parentId") Integer parentId, @Param("isNotApproved") Boolean isNotApproved,
+			@Param("serviceId") Integer serviceId, @Param("schoolId") Integer schoolId, @Param("isPay") Boolean isPay,
+			@Param("offset") int offset, @Param("rows") int rows, @Param("orderBy") String orderBy);
 
 	List<ServiceOrderDO> listByParentId(@Param("parentId") Integer parentId);
 
@@ -60,16 +57,18 @@ public interface ServiceOrderDAO {
 
 	int ReadcommittedServiceOrder(int id);
 
-	List<EachRegionNumberDO> listServiceOrderGroupByForRegion(@Param("type") String type,@Param("startOfficialApprovalDate") String startOfficialApprovalDate,
-															  @Param("endOfficialApprovalDate") String endOfficialApprovalDate);
+	List<EachRegionNumberDO> listServiceOrderGroupByForRegion(@Param("type") String type,
+			@Param("startOfficialApprovalDate") String startOfficialApprovalDate,
+			@Param("endOfficialApprovalDate") String endOfficialApprovalDate);
 
 	List<ServiceOrderDO> listByVerifyCode(@Param("verifyCode") String verifyCode);
 
 	List<EachSubjectCountDO> eachSubjectCount(@Param("startOfficialApprovalDate") String startOfficialApprovalDate,
-										@Param("endOfficialApprovalDate") String endOfficialApprovalDate);
+			@Param("endOfficialApprovalDate") String endOfficialApprovalDate);
 
-	List<ServiceOrderDO> NotReviewedServiceOrder(@Param("officialId")Integer officialId, @Param("thisMonth") boolean thisMonth);
+	List<ServiceOrderDO> NotReviewedServiceOrder(@Param("officialId") Integer officialId,
+			@Param("thisMonth") boolean thisMonth);
 
 	Integer caseCount(@Param("officialId") Integer officialId, @Param("days") String days,
-					  @Param("state")String state);
+			@Param("state") String state);
 }

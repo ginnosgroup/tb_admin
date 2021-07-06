@@ -242,26 +242,26 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	}
 
 	@Override
-	public int countServiceOrder(String type, String excludeState, List<String> stateList, String auditingState,
-			List<String> reviewStateList, String startMaraApprovalDate, String endMaraApprovalDate,
-			String startOfficialApprovalDate, String endOfficialApprovalDate, String startReadcommittedDate,
-			String endReadcommittedDate, List<Integer> regionIdList, Integer userId,String userName,  Integer maraId, Integer adviserId,
-			Integer officialId, Integer officialTagId, int parentId, boolean isNotApproved, Integer serviceId,
-			Integer schoolId, Boolean isPay) throws ServiceException {
-		return serviceOrderDao.countServiceOrder(type, excludeState, stateList, auditingState, reviewStateList,
-				startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate,
-				startReadcommittedDate, endReadcommittedDate, regionIdList, userId, userName,maraId, adviserId, officialId,
-				officialTagId, parentId, isNotApproved, serviceId, schoolId, isPay);
+	public int countServiceOrder(String type, List<String> excludeTypeList, String excludeState, List<String> stateList,
+			String auditingState, List<String> reviewStateList, String startMaraApprovalDate,
+			String endMaraApprovalDate, String startOfficialApprovalDate, String endOfficialApprovalDate,
+			String startReadcommittedDate, String endReadcommittedDate, List<Integer> regionIdList, Integer userId,
+			String userName, Integer maraId, Integer adviserId, Integer officialId, Integer officialTagId, int parentId,
+			boolean isNotApproved, Integer serviceId, Integer schoolId, Boolean isPay) throws ServiceException {
+		return serviceOrderDao.countServiceOrder(type, excludeTypeList, excludeState, stateList, auditingState,
+				reviewStateList, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
+				endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId, userName,
+				maraId, adviserId, officialId, officialTagId, parentId, isNotApproved, serviceId, schoolId, isPay);
 	}
 
 	@Override
-	public List<ServiceOrderDTO> listServiceOrder(String type, String excludeState, List<String> stateList,
-			String auditingState, List<String> reviewStateList, String startMaraApprovalDate,
+	public List<ServiceOrderDTO> listServiceOrder(String type, List<String> excludeTypeList, String excludeState,
+			List<String> stateList, String auditingState, List<String> reviewStateList, String startMaraApprovalDate,
 			String endMaraApprovalDate, String startOfficialApprovalDate, String endOfficialApprovalDate,
-			String startReadcommittedDate, String endReadcommittedDate, List<Integer> regionIdList, Integer userId,String userName,
-			Integer maraId, Integer adviserId, Integer officialId, Integer officialTagId, int parentId,
-			boolean isNotApproved, int pageNum, int pageSize, Sorter sorter, Integer serviceId, Integer schoolId, Boolean isPay)
-			throws ServiceException {
+			String startReadcommittedDate, String endReadcommittedDate, List<Integer> regionIdList, Integer userId,
+			String userName, Integer maraId, Integer adviserId, Integer officialId, Integer officialTagId, int parentId,
+			boolean isNotApproved, int pageNum, int pageSize, Sorter sorter, Integer serviceId, Integer schoolId,
+			Boolean isPay) throws ServiceException {
 		List<ServiceOrderDTO> serviceOrderDtoList = new ArrayList<ServiceOrderDTO>();
 		List<ServiceOrderDO> serviceOrderDoList = new ArrayList<ServiceOrderDO>();
 		if (pageNum < 0)
@@ -276,11 +276,11 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				orderBy = StringUtil.merge("ORDER BY ", sorter.getOrderBy("a.name", sorter.getAdviserName()));
 		}
 		try {
-			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, excludeState, stateList, auditingState,
-					reviewStateList, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
-					theDateTo23_59_59(endOfficialApprovalDate), startReadcommittedDate, endReadcommittedDate, regionIdList, userId, userName,maraId,
-					adviserId, officialId, officialTagId, parentId, isNotApproved, serviceId, schoolId, isPay,
-					pageNum * pageSize, pageSize, orderBy);
+			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, excludeTypeList, excludeState, stateList,
+					auditingState, reviewStateList, startMaraApprovalDate, endMaraApprovalDate,
+					startOfficialApprovalDate, theDateTo23_59_59(endOfficialApprovalDate), startReadcommittedDate,
+					endReadcommittedDate, regionIdList, userId, userName, maraId, adviserId, officialId, officialTagId,
+					parentId, isNotApproved, serviceId, schoolId, isPay, pageNum * pageSize, pageSize, orderBy);
 			if (serviceOrderDoList == null)
 				return null;
 		} catch (Exception e) {

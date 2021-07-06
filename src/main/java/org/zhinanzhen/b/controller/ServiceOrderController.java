@@ -445,8 +445,8 @@ public class ServiceOrderController extends BaseController {
 				List<ServiceOrderDTO> cList = new ArrayList<>();
 				if ("SIV".equalsIgnoreCase(serviceOrderDto.getType()))
 					cList = serviceOrderService.listServiceOrder(receiveTypeId, null, null, null, null, null, null,
-							null, null, null, null, null, null, null,null, null, null, null, id, false, 0, 100, null, null,
-							null,null);
+							null, null, null, null, null, null, null, null, null, null, null, null, id, false, 0, 100,
+							null, null, null, null);
 				cList.forEach(cServiceOrderDto -> {
 					if ("VISA".equalsIgnoreCase(cServiceOrderDto.getType())) {
 						Response<Integer> cRes = updateOne(cServiceOrderDto, null, peopleNumber, peopleType,
@@ -820,7 +820,7 @@ public class ServiceOrderController extends BaseController {
 			}
 
 			return new Response<Integer>(0,
-					serviceOrderService.countServiceOrder(type, excludeState, stateList, auditingState, reviewStateList,
+					serviceOrderService.countServiceOrder(type, null, excludeState, stateList, auditingState, reviewStateList,
 							startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
 							endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId,userName,
 							maraId, adviserId, officialId, officialTagId, 0,
@@ -856,6 +856,7 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
 			@RequestParam(value = "sorter", required = false) String sorter, HttpServletRequest request,
 			HttpServletResponse response) {
+		List<String> excludeTypeList = null;
 		String excludeState = null;
 		List<String> stateList = null;
 		if (state != null && !"".equals(state))
@@ -876,6 +877,7 @@ public class ServiceOrderController extends BaseController {
 		}
 		Integer newOfficialId = getOfficialId(request);
 		if (newOfficialId != null) {
+			excludeTypeList = ListUtil.buildArrayList("ZD");
 			if (getOfficialAdminId(request) == null)
 				officialId = newOfficialId; // 非文案管理员就只显示自己的单子
 			excludeState = ReviewAdviserStateEnum.PENDING.toString();
@@ -915,16 +917,17 @@ public class ServiceOrderController extends BaseController {
 				return new ListResponse<List<ServiceOrderDTO>>(true, pageSize, 1, list, "");
 			}
 
-			int total = serviceOrderService.countServiceOrder(type, excludeState, stateList, auditingState,
-					reviewStateList, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
-					endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId,userName, maraId,
-					adviserId, officialId, officialTagId, 0, isNotApproved != null ? isNotApproved : false, serviceId,
-					schoolId, null);
-			List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(type, excludeState, stateList,
+			int total = serviceOrderService.countServiceOrder(type, excludeTypeList, excludeState, stateList,
 					auditingState, reviewStateList, startMaraApprovalDate, endMaraApprovalDate,
 					startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate,
-					regionIdList, userId,userName, maraId, adviserId, officialId, officialTagId, 0,
-					isNotApproved != null ? isNotApproved : false, pageNum, pageSize, _sorter, serviceId, schoolId, null);
+					regionIdList, userId, userName, maraId, adviserId, officialId, officialTagId, 0,
+					isNotApproved != null ? isNotApproved : false, serviceId, schoolId, null);
+			List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(type, excludeTypeList,
+					excludeState, stateList, auditingState, reviewStateList, startMaraApprovalDate, endMaraApprovalDate,
+					startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate,
+					regionIdList, userId, userName, maraId, adviserId, officialId, officialTagId, 0,
+					isNotApproved != null ? isNotApproved : false, pageNum, pageSize, _sorter, serviceId, schoolId,
+					null);
 
 			if (newOfficialId != null)
 				for (ServiceOrderDTO so : serviceOrderList)
@@ -1490,7 +1493,7 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "serviceId", required = false) Integer serviceId,
 			@RequestParam(value = "schoolId", required = false) Integer schoolId, HttpServletRequest request,
 			HttpServletResponse response) {
-
+		List<String> excludeTypeList = null;
 		String excludeState = null;
 		List<String> stateList = null;
 		if (state != null && !"".equals(state))
@@ -1509,6 +1512,7 @@ public class ServiceOrderController extends BaseController {
 		}
 		Integer newOfficialId = getOfficialId(request);
 		if (newOfficialId != null) {
+			excludeTypeList = ListUtil.buildArrayList("ZD");
 			if (getOfficialAdminId(request) == null)
 				officialId = newOfficialId; // 非文案管理员就只显示自己的单子
 			excludeState = ReviewAdviserStateEnum.PENDING.toString();
@@ -1542,7 +1546,7 @@ public class ServiceOrderController extends BaseController {
 					serviceOrderList.add(serviceOrder);
 			}
 			if (id == null) {
-				serviceOrderList = serviceOrderService.listServiceOrder(type, excludeState, stateList, auditingState,
+				serviceOrderList = serviceOrderService.listServiceOrder(type, excludeTypeList, excludeState, stateList, auditingState,
 						reviewStateList, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
 						endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId,userName,
 						maraId, adviserId, officialId, officialTagId, 0, isNotApproved != null ? isNotApproved : false,
@@ -1821,12 +1825,12 @@ public class ServiceOrderController extends BaseController {
 
 		OutputStream os = null;
 		jxl.Workbook wb = null;
-		InputStream is =null;
-		//jxl.write.WritableWorkbook wbe = null;
+		InputStream is = null;
+		// jxl.write.WritableWorkbook wbe = null;
 
-		List<ServiceOrderDTO> serviceOrderDTOS = serviceOrderService.listServiceOrder(type, null, null, null,
-				null, null, null, startOfficialApprovalDate,
-				endOfficialApprovalDate, null, null, null, null,null,
+		List<ServiceOrderDTO> serviceOrderDTOS = serviceOrderService.listServiceOrder(type, null, null, null, null,
+				null, null, null, startOfficialApprovalDate, endOfficialApprovalDate, null, null, null, null,
+				null,
 				null, null, null, null, 0, false,
 				0, 9999, null, null, null,isPay);
 		try {
