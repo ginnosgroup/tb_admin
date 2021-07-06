@@ -221,6 +221,20 @@ public class UserController extends BaseController {
 			return new Response<UserDTO>(1, e.getMessage(), null);
 		}
 	}
+	
+	@RequestMapping(value = "/getByPhone", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<UserDTO> getByPhone(String phone, HttpServletResponse response) throws ServiceException {
+		if (phone == null) {
+			return new Response<UserDTO>(1, "参数错误.");
+		}
+		super.setGetHeader(response);
+		List<UserDTO> list = userService.listUser(null, null, null, phone, null, 0, null, 0, 1);
+		if (list != null && list.size() > 0)
+			return new Response<UserDTO>(0, list.get(0));
+		else
+			return new Response<UserDTO>(0, null, null);
+	}
 
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ResponseBody
