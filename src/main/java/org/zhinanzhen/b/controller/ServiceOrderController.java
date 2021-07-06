@@ -866,6 +866,7 @@ public class ServiceOrderController extends BaseController {
 			reviewStateList = new ArrayList<>(Arrays.asList(reviewState.split(",")));
 		Integer newMaraId = getMaraId(request);
 		if (newMaraId != null) {
+			excludeTypeList = ListUtil.buildArrayList("ZD");
 			maraId = newMaraId;
 			excludeState = ReviewAdviserStateEnum.PENDING.toString();
 			if (stateList == null)
@@ -1503,6 +1504,7 @@ public class ServiceOrderController extends BaseController {
 			reviewStateList = new ArrayList<>(Arrays.asList(reviewState.split(",")));
 		Integer newMaraId = getMaraId(request);
 		if (newMaraId != null) {
+			excludeTypeList = ListUtil.buildArrayList("ZD");
 			maraId = newMaraId;
 			excludeState = ReviewAdviserStateEnum.PENDING.toString();
 			reviewStateList = new ArrayList<>();
