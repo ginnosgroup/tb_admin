@@ -170,4 +170,6 @@ public class ServiceOrderDTO {
 	
 	private List<Integer> cIds; // 佣金订单编号
 
+	private List<MailRemindDTO> mailRemindDTOS;
+
 }

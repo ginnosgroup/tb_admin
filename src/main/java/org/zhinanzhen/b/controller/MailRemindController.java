@@ -159,12 +159,7 @@ public class MailRemindController extends BaseController {
             mailRemindDTO.setServiceOrderId(serviceOrderId);
             mailRemindDTO.setCommissionOrderId(commissionOrderId);
             mailRemindDTO.setUserId(userId);
-            try {
-                mailRemindDTO.setSendDate(sdf.parse(sendDate));
-            } catch (ParseException e) {
-                e.printStackTrace();
-                return  new Response(1,"时间格式错误.正确格式:日/月/年 时:分:秒");
-            }
+            mailRemindDTO.setSendDate(new Date(Long.parseLong(sendDate)));
             try {
                 mailRemindDTO.setCode(MD5Util.getMD5(content));
             } catch (Exception e) {
@@ -204,12 +199,8 @@ public class MailRemindController extends BaseController {
             MailRemindDTO mailRemindDTO = mailRemindService.getByid(id);
             if (mailRemindDTO == null)
                 return new Response(1, "提醒不存在,修改失败");
-            try {
-                if (StringUtil.isNotEmpty(sendDate)) {
-                    mailRemindDTO.setSendDate(sdf.parse(sendDate));
-                }
-            } catch (ParseException e) {
-                return new Response(1, "时间格式错误.正确格式:日/月/年 时:分:秒");
+            if (StringUtil.isNotEmpty(sendDate)) {
+                mailRemindDTO.setSendDate(new Date(Long.parseLong(sendDate)));
             }
 
             mailRemindDTO.setContent(content);

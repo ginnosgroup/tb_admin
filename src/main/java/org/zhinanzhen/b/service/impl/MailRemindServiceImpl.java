@@ -46,7 +46,7 @@ public class MailRemindServiceImpl extends BaseService implements MailRemindServ
         List<MailRemindDTO> MailRemindDTOList = new ArrayList<>();
         List<MailRemindDO> MailRemindDOList = null;
         try {
-            MailRemindDOList = mailRemindDAO.list(adviserId,offcialId,serviceOrderId,visaId,commissionOrderId, isToday);
+            MailRemindDOList = mailRemindDAO.list(adviserId,offcialId,serviceOrderId,visaId,commissionOrderId, isToday,true);
             if (MailRemindDOList == null)
                 return null;
         }catch (Exception e){

@@ -73,6 +73,9 @@
             <if test="isToday == true">
                 AND DATE_FORMAT(send_date,'%Y%m%d') = DATE_FORMAT(NOW(),'%Y%m%d')
             </if>
+            <if test="isAll == false">
+                AND send_date >= NOW()
+            </if>
         </where>
         ORDER BY send_date DESC LIMIT 10;
     </select>
