@@ -164,6 +164,7 @@ public class UserController extends BaseController {
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
 	public ListResponse<List<UserDTO>> listUser(@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "id", required = false) Integer id,
 			@RequestParam(value = "authType", required = false) String authType,
 			@RequestParam(value = "authNickname", required = false) String authNickname,
 			@RequestParam(value = "areaCode", required = false) String areaCode,
@@ -204,6 +205,15 @@ public class UserController extends BaseController {
 				if (StringUtil.isBlank(adviserId) && !isAdminUser(request))
 					return new ListResponse<List<UserDTO>>(false, pageSize, 0, null, "No permission !");
 			}
+
+			if (id != null && id > 0){
+				List<UserDTO> list = new ArrayList<>();
+				UserDTO userDTO = userService.getUserById(id);
+				userDTO.setMailRemindDTOS(mailRemindService.list(getAdviserId(request),null,null,null,null,id,false,false));
+				list.add(userDTO);
+				return  new ListResponse<List<UserDTO>>(true, pageSize, 1, list, "");
+			}
+
 			int total = userService.countUser(name, authTypeEnum, authNickname, phone, wechatUsername,
 					StringUtil.toInt(adviserId), regionIdList, StringUtil.toInt(tagId));
 			List<UserDTO> list = userService.listUser(name, authTypeEnum, authNickname, phone, wechatUsername,
