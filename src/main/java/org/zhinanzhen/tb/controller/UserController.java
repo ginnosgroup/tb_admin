@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.zhinanzhen.b.service.MailRemindService;
+import org.zhinanzhen.b.service.pojo.MailRemindDTO;
 import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserAuthTypeEnum;
@@ -38,6 +40,9 @@ public class UserController extends BaseController {
 	
 	@Resource
 	RegionService regionService;
+
+	@Resource
+	MailRemindService mailRemindService;
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
@@ -204,6 +209,10 @@ public class UserController extends BaseController {
 			List<UserDTO> list = userService.listUser(name, authTypeEnum, authNickname, phone, wechatUsername,
 					StringUtil.toInt(adviserId), regionIdList, StringUtil.toInt(tagId), orderByField,
 					Boolean.parseBoolean(StringUtil.isEmpty(isDesc) ? "false" : isDesc), pageNum, pageSize);
+			for (UserDTO user : list){
+				List<MailRemindDTO> mailRemindDTOS = mailRemindService.list(getAdviserId(request),null,null,null,null,user.getId(),false,false);
+				user.setMailRemindDTOS(mailRemindDTOS);
+			}
 			return new ListResponse<List<UserDTO>>(true, pageSize, total, list, "");
 		} catch (ServiceException e) {
 			return new ListResponse<List<UserDTO>>(false, pageSize, 0, null, e.getMessage());

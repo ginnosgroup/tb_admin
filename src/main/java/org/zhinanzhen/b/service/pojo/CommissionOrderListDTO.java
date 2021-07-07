@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.service.pojo;
 
 import java.util.Date;
+import java.util.List;
 
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
@@ -61,5 +62,9 @@ public class CommissionOrderListDTO extends CommissionOrderDTO {
 	@Getter
 	@Setter
 	private String refuseReason;
+
+	@Getter
+	@Setter
+	private List<MailRemindDTO> mailRemindDTOS;
 
 }

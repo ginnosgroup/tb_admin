@@ -73,7 +73,7 @@ public class MailRemindController extends BaseController {
             Integer offcialId = getOfficialId(request);
 
             return new Response<List<MailRemindDTO>>(0, "",
-                    mailRemindService.list(adviserId, offcialId, serviceOrderId, visaId, commissionOrderId,userId,isToday));
+                    mailRemindService.list(adviserId, offcialId, serviceOrderId, visaId, commissionOrderId,userId,isToday,Boolean.TRUE));
         } catch (ServiceException e) {
             e.printStackTrace();
             return new Response<List<MailRemindDTO>>(e.getCode(), e.getMessage(), null);

@@ -3,6 +3,7 @@ package org.zhinanzhen.tb.service.pojo;
 import java.util.Date;
 import java.util.List;
 
+import org.zhinanzhen.b.service.pojo.MailRemindDTO;
 import org.zhinanzhen.tb.dao.pojo.UserAdviserDO;
 import org.zhinanzhen.tb.service.UserAuthTypeEnum;
 
@@ -62,5 +63,7 @@ public class UserDTO {
 	private Date dob;
 	
 	private List<UserAdviserDTO> userAdviserList;
+
+	private List<MailRemindDTO> mailRemindDTOS;
 	
 }
