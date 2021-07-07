@@ -40,4 +40,6 @@ public class MailRemindDTO {
     private Integer offcialId;
 
     private Integer userId;
+
+    private String userName;
 }
