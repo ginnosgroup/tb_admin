@@ -185,7 +185,7 @@ public class MailRemindController extends BaseController {
                            HttpServletRequest request,HttpServletResponse response){
         if (getAdminUserLoginInfo(request) == null)
             return new Response(1,"先登录");
-        Integer adviserId = getOfficialId(request);
+        Integer adviserId = getAdviserId(request);
         Integer offcialId = getOfficialId(request);
         if (mailRemindService.delete(id,adviserId,offcialId) > 0)
             return new Response(0,"成功");
@@ -200,6 +200,8 @@ public class MailRemindController extends BaseController {
                            HttpServletRequest request, HttpServletResponse response) {
         try {
             super.setPostHeader(response);
+            if (getAdminUserLoginInfo(request) == null)
+                return new Response(1,"先登录");
             MailRemindDTO mailRemindDTO = mailRemindService.getByid(id);
             if (mailRemindDTO == null)
                 return new Response(1, "提醒不存在,修改失败");
