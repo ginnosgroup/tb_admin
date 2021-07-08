@@ -94,6 +94,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	@Resource
 	private RegionDAO regionDAO;
 
+	@Resource
+	private MailRemindDAO mailRemindDAO;
+
 	@Override
 	public int addServiceOrder(ServiceOrderDTO serviceOrderDto) throws ServiceException {
 		if (serviceOrderDto == null) {
@@ -603,6 +606,15 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDto.getServiceAssessId());
 		if (serviceAssessDO != null)
 			serviceOrderDto.setServiceAssessDO(serviceAssessDO);
+
+		List<MailRemindDO> mailRemindDOS = mailRemindDAO.list(null,null,serviceOrderDO.getId(),null,null,null,false,false);
+		if (mailRemindDOS.size() > 0){
+			List<MailRemindDTO> mailRemindDTOS = new ArrayList<>();
+			mailRemindDOS.forEach(mailRemindDO ->{
+				mailRemindDTOS.add(mapper.map(mailRemindDO,MailRemindDTO.class));
+			});
+			serviceOrderDto.setMailRemindDTOS(mailRemindDTOS);
+		}
 
 		return serviceOrderDto;
 	}

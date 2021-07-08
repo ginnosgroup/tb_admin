@@ -18,7 +18,8 @@ public interface MailRemindDAO {
 
     List<MailRemindDO> list(@Param("adviserId") Integer adviserId, @Param("offcialId") Integer offcialId,
                             @Param("serviceOrderId") Integer serviceOrderId, @Param("visaId") Integer visaId,
-                            @Param("commissionOrderId") Integer commissionOrderId, @Param("isToday")boolean isToday);
+                            @Param("commissionOrderId") Integer commissionOrderId, @Param("userId") Integer userId,
+                            @Param("isToday")boolean isToday, @Param("isAll")boolean isAll);
 
     int delete(@Param("id") int id,@Param("adviserId") Integer adviserId, @Param("offcialId") Integer offcialId);
 

@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.zhinanzhen.b.service.MailRemindService;
+import org.zhinanzhen.b.service.pojo.MailRemindDTO;
 import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserAuthTypeEnum;
@@ -38,6 +40,9 @@ public class UserController extends BaseController {
 	
 	@Resource
 	RegionService regionService;
+
+	@Resource
+	MailRemindService mailRemindService;
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
@@ -159,6 +164,7 @@ public class UserController extends BaseController {
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
 	public ListResponse<List<UserDTO>> listUser(@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "id", required = false) Integer id,
 			@RequestParam(value = "authType", required = false) String authType,
 			@RequestParam(value = "authNickname", required = false) String authNickname,
 			@RequestParam(value = "areaCode", required = false) String areaCode,
@@ -199,11 +205,24 @@ public class UserController extends BaseController {
 				if (StringUtil.isBlank(adviserId) && !isAdminUser(request))
 					return new ListResponse<List<UserDTO>>(false, pageSize, 0, null, "No permission !");
 			}
+
+			if (id != null && id > 0){
+				List<UserDTO> list = new ArrayList<>();
+				UserDTO userDTO = userService.getUserById(id);
+				userDTO.setMailRemindDTOS(mailRemindService.list(getAdviserId(request),null,null,null,null,id,false,false));
+				list.add(userDTO);
+				return  new ListResponse<List<UserDTO>>(true, pageSize, 1, list, "");
+			}
+
 			int total = userService.countUser(name, authTypeEnum, authNickname, phone, wechatUsername,
 					StringUtil.toInt(adviserId), regionIdList, StringUtil.toInt(tagId));
 			List<UserDTO> list = userService.listUser(name, authTypeEnum, authNickname, phone, wechatUsername,
 					StringUtil.toInt(adviserId), regionIdList, StringUtil.toInt(tagId), orderByField,
 					Boolean.parseBoolean(StringUtil.isEmpty(isDesc) ? "false" : isDesc), pageNum, pageSize);
+			for (UserDTO user : list){
+				List<MailRemindDTO> mailRemindDTOS = mailRemindService.list(getAdviserId(request),null,null,null,null,user.getId(),false,false);
+				user.setMailRemindDTOS(mailRemindDTOS);
+			}
 			return new ListResponse<List<UserDTO>>(true, pageSize, total, list, "");
 		} catch (ServiceException e) {
 			return new ListResponse<List<UserDTO>>(false, pageSize, 0, null, e.getMessage());

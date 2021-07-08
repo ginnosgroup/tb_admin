@@ -185,6 +185,7 @@
         gmt_create AS gmtCreate,
         name,
         birthday,
+        area_code AS areaCode,
         phone,
         email,
         wechat_username AS wechatUsername,
@@ -194,8 +195,7 @@
         source,
         auth_type AS authType,
         auth_openid AS authOpenid,
-        auth_username AS
-        authUsername,
+        auth_username AS authUsername,
         auth_nickname AS authNickname,
         auth_logo AS authLogo,
         balance,
