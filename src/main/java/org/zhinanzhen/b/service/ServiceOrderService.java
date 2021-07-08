@@ -15,19 +15,19 @@ public interface ServiceOrderService {
 	int updateServiceOrderRviewState(int id, String reviewState) throws ServiceException;
 
 	int countServiceOrder(String type, List<String> excludeTypeList, String excludeState, List<String> stateList,
-			String auditingState, List<String> reviewStateList, String startMaraApprovalDate,
+			String auditingState, List<String> reviewStateList, String urgentState, String startMaraApprovalDate,
 			String endMaraApprovalDate, String startOfficialApprovalDate, String endOfficialApprovalDate,
 			String startReadcommittedDate, String endReadcommittedDate, List<Integer> regionIdList, Integer userId,
 			String userName, Integer maraId, Integer adviserId, Integer officialId, Integer officialTagId, int parentId,
 			boolean isNotApproved, Integer serviceId, Integer schoolId, Boolean isPay) throws ServiceException;
 
 	List<ServiceOrderDTO> listServiceOrder(String type, List<String> excludeTypeList, String excludeState,
-			List<String> stateList, String auditingState, List<String> reviewStateList, String startMaraApprovalDate,
-			String endMaraApprovalDate, String startOfficialApprovalDate, String endOfficialApprovalDate,
-			String startReadcommittedDate, String endReadcommittedDate, List<Integer> regionIdList, Integer userId,
-			String userName, Integer maraId, Integer adviserId, Integer officialId, Integer officialTagId, int parentId,
-			boolean isNotApproved, int pageNum, int pageSize, Sorter sorter, Integer serviceId, Integer schoolId,
-			Boolean isPay) throws ServiceException;
+			List<String> stateList, String auditingState, List<String> reviewStateList, String urgentState,
+			String startMaraApprovalDate, String endMaraApprovalDate, String startOfficialApprovalDate,
+			String endOfficialApprovalDate, String startReadcommittedDate, String endReadcommittedDate,
+			List<Integer> regionIdList, Integer userId, String userName, Integer maraId, Integer adviserId,
+			Integer officialId, Integer officialTagId, int parentId, boolean isNotApproved, int pageNum, int pageSize,
+			Sorter sorter, Integer serviceId, Integer schoolId, Boolean isPay) throws ServiceException;
 
 	ServiceOrderDTO getServiceOrderById(int id) throws ServiceException;
 
@@ -67,7 +67,7 @@ public interface ServiceOrderService {
 
 	List<EachSubjectCountDTO> eachSubjectCount(String startOfficialApprovalDate, String endOfficialApprovalDate);
 
-	List<ServiceOrderDTO> NotReviewedServiceOrder(Integer officialId,boolean thisMonth);
+	List<ServiceOrderDTO> NotReviewedServiceOrder(Integer officialId, boolean thisMonth);
 
-	Integer caseCount(Integer officialId, String days,String state);
+	Integer caseCount(Integer officialId, String days, String state);
 }

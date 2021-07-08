@@ -20,6 +20,7 @@
                 school_id,
                 state,
                 state_mark,
+                urgent_state,
                 mara_approval_date,
                 official_approval_date,
                 is_settle,
@@ -80,6 +81,7 @@
                 #{schoolId},
                 #{state},
                 #{stateMark},
+                #{urgentState},
                 NULL,
                 NULL,
                 #{isSettle},
@@ -159,6 +161,9 @@
         </if>
         <if test='stateMark != null'>
             , state_mark = #{stateMark}
+        </if>
+        <if test='urgentState != null'>
+            , urgent_state = #{urgentState}
         </if>
         <if test='maraApprovalDate != null'>
             , mara_approval_date = #{maraApprovalDate}
@@ -326,6 +331,9 @@
                 #{reviewStateList}
             </foreach>
         </if>
+        <if test='urgentState != null and urgentState != ""'>
+            AND so.urgent_state != #{urgentState}
+        </if>
         <if test='startMaraApprovalDate != null and startMaraApprovalDate != "" and endMaraApprovalDate != null and endMaraApprovalDate != ""'>
             <![CDATA[ AND so.mara_approval_date > #{startMaraApprovalDate} AND so.mara_approval_date < #{endMaraApprovalDate} ]]>
         </if>
@@ -400,6 +408,7 @@
             so.school_id AS schoolId,
             so.state AS state,
             so.state_mark AS stateMark,
+            so.urgent_state AS urgentState,
             so.mara_approval_date AS maraApprovalDate,
             so.official_approval_date AS officialApprovalDate,
             so.is_settle AS isSettle,
@@ -464,6 +473,9 @@
             <foreach collection="reviewStateList" item="reviewStateList" index="index" open="(" close=")" separator=",">
                 #{reviewStateList}
             </foreach>
+        </if>
+        <if test='urgentState != null and urgentState != ""'>
+            AND so.urgent_state != #{urgentState}
         </if>
         <if test='startMaraApprovalDate != null and startMaraApprovalDate != "" and endMaraApprovalDate != null and endMaraApprovalDate != ""'>
             <![CDATA[ AND so.mara_approval_date > #{startMaraApprovalDate} AND so.mara_approval_date < #{endMaraApprovalDate} ]]>
@@ -554,6 +566,7 @@
             school_id AS schoolId,
             state,
             state_mark AS stateMark,
+            urgent_state AS urgentState,
             mara_approval_date AS maraApprovalDate,
             official_approval_date AS officialApprovalDate,
             is_settle AS isSettle,
@@ -701,6 +714,7 @@
             service_package_id AS servicePackageId,
             school_id AS schoolId,
             state,
+            urgent_state AS urgentState,
             mara_approval_date AS maraApprovalDate,
             official_approval_date AS officialApprovalDate,
             is_settle AS isSettle,
@@ -784,6 +798,7 @@
         so.school_id AS schoolId,
         so.state AS state,
         so.state_mark AS stateMark,
+        so.urgent_state AS urgentState,
         so.mara_approval_date AS maraApprovalDate,
         so.official_approval_date AS officialApprovalDate,
         so.is_settle AS isSettle,

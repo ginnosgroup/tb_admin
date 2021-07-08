@@ -45,6 +45,8 @@ public class ServiceOrderDO implements Serializable {
 	private String stateMark;
 	
 	private String auditingState;
+	
+	private String urgentState;
 
 	private Date maraApprovalDate;
 

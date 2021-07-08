@@ -399,6 +399,7 @@ CREATE TABLE `b_service_order` (
   `school_id` int DEFAULT NULL COMMENT '学校编号 (对应b_school.id,留学服务专用字段)',
   `state` varchar(8) NOT NULL COMMENT '状态 (PENDING:待提交审核,REVIEW:审核中,APPLY:服务申请中,COMPLETE:服务申请完成,PAID:完成-支付成功,CLOSE:关闭)',
   `review_state` varchar(8) DEFAULT NULL COMMENT '审批状态 (OFFICIAL:文案审批通过,MARA:Mara审批通过,KJ:财务审批通过)',
+`urgent_state` varchar(8) DEFAULT NULL COMMENT '加急状态(JJ:加急, TSJJ:特殊加急),仅限签证订单',
   `official_approval_date` datetime DEFAULT NULL COMMENT '文案审核时间',
   `mara_approval_date` datetime DEFAULT NULL COMMENT 'mara审核时间',
   `is_settle` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否提前扣佣 (留学服务专用字段)',
@@ -443,7 +444,8 @@ CREATE TABLE `b_service_order` (
   `service_assess_id` int(11) DEFAULT NULL COMMENT '签证职业评估编号(对应b_service_assess.id)',
   `real_people_number` int(11) NOT NULL DEFAULT '1' COMMENT '历史订单:0,不是历史订单:对应people_number(只文案可修改)',
   `verify_code` varchar(64) DEFAULT null COMMENT '对账使用的code,顾问名称+地区+随机数',
-  `readcommitted_date` datetime DEFAULT NULL COMMENT '已提交申请的时间'
+  `readcommitted_date` datetime DEFAULT NULL COMMENT '已提交申请的时间',
+`ref_no` varchar(32) DEFAULT null COMMENT 'Ref.No'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 ALTER TABLE `b_service_order` ADD INDEX index_name (`user_id`, `adviser_id`, `official_id`, `mara_id`, `state`, `service_id`, `parent_id`);
 

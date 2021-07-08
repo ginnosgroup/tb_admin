@@ -50,6 +50,8 @@ public class ServiceOrderDTO {
 	
 	private String auditingState;
 	
+	private String urgentState;
+	
 	private Date maraApprovalDate;
 
 	private Date officialApprovalDate;
