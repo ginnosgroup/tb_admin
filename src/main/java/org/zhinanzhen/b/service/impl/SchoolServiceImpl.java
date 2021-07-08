@@ -127,6 +127,33 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 						schoolSettingDao.add(setting1);
 					}
 				}
+				List<CommissionOrderListDO> commissionOrderListDOS =
+						commissionOrderDao.listCommissionOrderBySchool(null,null,schoolDO.getName());
+				for (CommissionOrderListDO commission : commissionOrderListDOS){
+					SchoolSettingDO schoolSettingDO = schoolSettingDao.getBySchoolId(commission.getSchoolId());
+					if (schoolSettingDO == null)
+						continue;
+					Date startDate = schoolSettingDO.getStartDate();
+					Date endDate = schoolSettingDO.getEndDate();
+					int type = schoolSettingDO.getType();
+					String parameters = schoolSettingDO.getParameters();
+					if (commission.getGmtCreate().before(startDate) || commission.getGmtCreate().after(endDate))
+						continue;
+					if (type == 1)
+						schoolSetting1(schoolSettingDO.getSchoolName(), startDate, endDate, parameters);
+					else if (type == 2)
+						schoolSetting2(schoolSettingDO.getSchoolName(), startDate, endDate, parameters);
+					else if (type == 3)
+						schoolSetting3(schoolSettingDO.getSchoolName(), startDate, endDate, parameters);
+					else if (type == 4)
+						schoolSetting4(schoolSettingDO.getSchoolName(), startDate, endDate, parameters);
+					else if (type == 5)
+						schoolSetting5(schoolSettingDO, startDate, endDate, parameters);
+					else if (type == 6)
+						schoolSetting6(schoolSettingDO, startDate, endDate, parameters);
+					else if (type == 7)
+						schoolSetting7(schoolSettingDO, startDate, endDate, parameters);
+				}
 			}
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
