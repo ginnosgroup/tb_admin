@@ -194,7 +194,8 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "isHistory", required = false) String isHistory,
 			@RequestParam(value = "nutCloud") String nutCloud,
 			@RequestParam(value = "serviceAssessId", required = false) String serviceAssessId,
-			@RequestParam(value = "verifyCode", required = false) String verifyCode, HttpServletRequest request,
+			@RequestParam(value = "verifyCode", required = false) String verifyCode,
+			@RequestParam(value = "refNo", required = false) String refNo, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -298,7 +299,9 @@ public class ServiceOrderController extends BaseController {
 			else
 				serviceOrderDto.setRealPeopleNumber(peopleNumber != null && peopleNumber > 0 ? peopleNumber : 1);
 			if (StringUtil.isNotEmpty(verifyCode))
-				serviceOrderDto.setVerifyCode(verifyCode.replace("$","").replace("#","").replace(" ",""));
+				serviceOrderDto.setVerifyCode(verifyCode.replace("$", "").replace("#", "").replace(" ", ""));
+			if (StringUtil.isNotEmpty(verifyCode))
+				serviceOrderDto.setRefNo(refNo);
 			if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
 				String msg = "";
 				if (adminUserLoginInfo != null)

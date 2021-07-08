@@ -140,5 +140,7 @@ public class ServiceOrderDO implements Serializable {
 	private String verifyCode;
 
 	private Date readcommittedDate;
+	
+	private String refNo;
 
 }

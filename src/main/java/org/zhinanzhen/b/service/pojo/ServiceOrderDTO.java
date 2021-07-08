@@ -155,6 +155,8 @@ public class ServiceOrderDTO {
 	private String verifyCode;//会计自动对账code
 
 	private Date readcommittedDate;
+	
+	private String refNo;
 
 	private boolean hasCommissionOrder = false;
 

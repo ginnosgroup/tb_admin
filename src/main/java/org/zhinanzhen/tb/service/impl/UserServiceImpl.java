@@ -18,10 +18,11 @@ import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
 import org.zhinanzhen.b.dao.pojo.TagDO;
 import org.zhinanzhen.b.dao.pojo.UserTagDO;
+import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
+import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.dao.pojo.UserAdviserDO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
-import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.AdviserStateEnum;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserAuthTypeEnum;
@@ -41,7 +42,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 	@Resource
 	private UserDAO userDao;
 	@Resource
-	private AdviserService adviserService;
+	private AdviserDAO adviserDao;
 	@Resource
 	private TagDAO tagDao;
 	@Resource
@@ -99,9 +100,9 @@ public class UserServiceImpl extends BaseService implements UserService {
 		if (regionId > 0)
 			userDo.setRegionId(regionId);
 		else {
-			AdviserDTO adviserDto = adviserService.getAdviserById(adviserId);
-			if (adviserDto != null)
-				userDo.setRegionId(adviserDto.getRegionId());
+			AdviserDO adviserDo = adviserDao.getAdviserById(adviserId);
+			if (adviserDo != null)
+				userDo.setRegionId(adviserDo.getRegionId());
 			else {
 				ServiceException se = new ServiceException("The adviser is not exist : " + adviserId);
 				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -123,9 +124,17 @@ public class UserServiceImpl extends BaseService implements UserService {
 		else
 			for (UserAdviserDO userAdviserDo : userAdviserList) {
 				if (userAdviserDo.getAdviserId() == adviserId) {
-					ServiceException se = new ServiceException("用户" + userId + "已属于顾问" + adviserId + "!");
-					se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
-					throw se;
+					AdviserDO adviserDo = adviserDao.getAdviserById(adviserId);
+					if (adviserDo != null) {
+						ServiceException se = new ServiceException(
+								"用户" + userId + "已属于顾问" + adviserDo.getName() + "(" + adviserId + ")!");
+						se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+						throw se;
+					} else {
+						ServiceException se = new ServiceException("顾问" + adviserId + "不存在!");
+						se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+						throw se;
+					}
 				}
 			}
 		return userDao.addUserAdviser(userId, adviserId, false);
@@ -202,13 +211,12 @@ public class UserServiceImpl extends BaseService implements UserService {
 			List<UserAdviserDTO> userAdviserList = listUserAdviserDto(userDo.getId());
 			if (userAdviserList != null && userAdviserList.size() > 0)
 				userDto.setUserAdviserList(userAdviserList);
-			if (adviserId > 0) {
-				AdviserDTO adviserDto = adviserService.getAdviserById(adviserId);
-				userDto.setAdviserDto(adviserDto);
-			} else if (userDto.getAdviserId() > 0) {
-				AdviserDTO adviserDto = adviserService.getAdviserById(userDto.getAdviserId());
-				userDto.setAdviserDto(adviserDto);
-			}
+			AdviserDO adviserDo = null;
+			if (adviserId > 0)
+				adviserDo = adviserDao.getAdviserById(adviserId);
+			else if (userDto.getAdviserId() > 0)
+				adviserDo = adviserDao.getAdviserById(userDto.getAdviserId());
+			userDto.setAdviserDto(mapper.map(adviserDo, AdviserDTO.class));
 			if (userDto.getRecommendOpenid() != null) {
 				UserDTO recommendUserDto = getUserByOpenId(UserAuthTypeEnum.WECHAT.toString(),
 						userDto.getRecommendOpenid());
@@ -245,8 +253,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 			if (userAdviserList != null && userAdviserList.size() > 0)
 				userDto.setUserAdviserList(userAdviserList);
 			if (userDto.getAdviserId() > 0) {
-				AdviserDTO adviserDto = adviserService.getAdviserById(userDto.getAdviserId());
-				userDto.setAdviserDto(adviserDto);
+				AdviserDO adviserDo = adviserDao.getAdviserById(userDto.getAdviserId());
+				userDto.setAdviserDto(mapper.map(adviserDo, AdviserDTO.class));
 			}
 			if (userDto.getRecommendOpenid() != null) {
 				UserDTO recommendUserDto = getUserByOpenId(UserAuthTypeEnum.WECHAT.toString(),
@@ -289,8 +297,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 			if (userAdviserList != null && userAdviserList.size() > 0)
 				userDto.setUserAdviserList(userAdviserList);
 			if (userDto.getAdviserId() > 0) {
-				AdviserDTO adviserDto = adviserService.getAdviserById(userDto.getAdviserId());
-				userDto.setAdviserDto(adviserDto);
+				AdviserDO adviserDo = adviserDao.getAdviserById(userDto.getAdviserId());
+				userDto.setAdviserDto(mapper.map(adviserDo, AdviserDTO.class));
 			}
 			userDto.setTagList(listTagByUserId(userDto.getId()));
 		}
@@ -369,13 +377,13 @@ public class UserServiceImpl extends BaseService implements UserService {
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
-		AdviserDTO adviserDto = adviserService.getAdviserById(adviserId);
-		if (adviserDto == null) {
+		AdviserDO adviserDo = adviserDao.getAdviserById(adviserId);
+		if (adviserDo == null) {
 			ServiceException se = new ServiceException("adviserDto not found ! adviserId = " + adviserId);
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
-		if (!AdviserStateEnum.ENABLED.equals(adviserDto.getState())) {
+		if (!AdviserStateEnum.ENABLED.toString().equals(adviserDo.getState())) {
 			ServiceException se = new ServiceException("adviserDto not ENABLED ! adviserId = " + adviserId);
 			se.setCode(ErrorCodeEnum.DATA_ERROR.code());
 			throw se;
@@ -409,8 +417,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 			if (userAdviserList != null && userAdviserList.size() > 0)
 				userDto.setUserAdviserList(userAdviserList);
 			if (userDto.getAdviserId() > 0) {
-				AdviserDTO adviserDto = adviserService.getAdviserById(userDto.getAdviserId());
-				userDto.setAdviserDto(adviserDto);
+				AdviserDO adviserDo = adviserDao.getAdviserById(userDto.getAdviserId());
+				userDto.setAdviserDto(mapper.map(adviserDo, AdviserDTO.class));
 			}
 			if (userDto.getRecommendOpenid() != null) {
 				UserDTO recommendUserDto = getUserByOpenId(UserAuthTypeEnum.WECHAT.toString(),
@@ -513,8 +521,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 			for (UserAdviserDO userAdviserDo : userAdviserList) {
 				UserAdviserDTO userAdviserDto = mapper.map(userAdviserDo, UserAdviserDTO.class);
 				if (userAdviserDto.getAdviserId() > 0) {
-					AdviserDTO adviserDto = adviserService.getAdviserById(userAdviserDto.getAdviserId());
-					userAdviserDto.setAdviserDto(adviserDto);
+					AdviserDO adviserDo = adviserDao.getAdviserById(userAdviserDto.getAdviserId());
+					userAdviserDto.setAdviserDto(mapper.map(adviserDo, AdviserDTO.class));
 				}
 				userAdviserDtoList.add(userAdviserDto);
 			}
