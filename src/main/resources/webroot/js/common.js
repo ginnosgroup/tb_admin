@@ -1,7 +1,7 @@
 //var url="https://47.91.42.245/admin/";
 //var url2="https://47.91.42.245/statics";
 //var url3="https://47.91.42.245/";
-var url="/admin/";
+var url="/admin_v2.1/";
 var url2="/statics";
 var url3="/";
 //var url = "https://tb.rj36.com/admin/";
