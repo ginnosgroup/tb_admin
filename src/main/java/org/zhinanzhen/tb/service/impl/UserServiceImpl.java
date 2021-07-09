@@ -217,7 +217,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 				adviserDo = adviserDao.getAdviserById(adviserId);
 			else if (userDto.getAdviserId() > 0)
 				adviserDo = adviserDao.getAdviserById(userDto.getAdviserId());
-			userDto.setAdviserDto(mapper.map(adviserDo, AdviserDTO.class));
+			if (adviserDo != null)
+				userDto.setAdviserDto(mapper.map(adviserDo, AdviserDTO.class));
 			if (userDto.getRecommendOpenid() != null) {
 				UserDTO recommendUserDto = getUserByOpenId(UserAuthTypeEnum.WECHAT.toString(),
 						userDto.getRecommendOpenid());
@@ -255,7 +256,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 				userDto.setUserAdviserList(userAdviserList);
 			if (userDto.getAdviserId() > 0) {
 				AdviserDO adviserDo = adviserDao.getAdviserById(userDto.getAdviserId());
-				userDto.setAdviserDto(mapper.map(adviserDo, AdviserDTO.class));
+				if (adviserDo != null)
+					userDto.setAdviserDto(mapper.map(adviserDo, AdviserDTO.class));
 			}
 			if (userDto.getRecommendOpenid() != null) {
 				UserDTO recommendUserDto = getUserByOpenId(UserAuthTypeEnum.WECHAT.toString(),
@@ -299,7 +301,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 				userDto.setUserAdviserList(userAdviserList);
 			if (userDto.getAdviserId() > 0) {
 				AdviserDO adviserDo = adviserDao.getAdviserById(userDto.getAdviserId());
-				userDto.setAdviserDto(mapper.map(adviserDo, AdviserDTO.class));
+				if (adviserDo != null)
+					userDto.setAdviserDto(mapper.map(adviserDo, AdviserDTO.class));
 			}
 			userDto.setTagList(listTagByUserId(userDto.getId()));
 		}
@@ -419,7 +422,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 				userDto.setUserAdviserList(userAdviserList);
 			if (userDto.getAdviserId() > 0) {
 				AdviserDO adviserDo = adviserDao.getAdviserById(userDto.getAdviserId());
-				userDto.setAdviserDto(mapper.map(adviserDo, AdviserDTO.class));
+				if (adviserDo != null)
+					userDto.setAdviserDto(mapper.map(adviserDo, AdviserDTO.class));
 			}
 			if (userDto.getRecommendOpenid() != null) {
 				UserDTO recommendUserDto = getUserByOpenId(UserAuthTypeEnum.WECHAT.toString(),
@@ -523,7 +527,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 				UserAdviserDTO userAdviserDto = mapper.map(userAdviserDo, UserAdviserDTO.class);
 				if (userAdviserDto.getAdviserId() > 0) {
 					AdviserDO adviserDo = adviserDao.getAdviserById(userAdviserDto.getAdviserId());
-					userAdviserDto.setAdviserDto(mapper.map(adviserDo, AdviserDTO.class));
+					if (adviserDo != null)
+						userAdviserDto.setAdviserDto(mapper.map(adviserDo, AdviserDTO.class));
 				}
 				userAdviserDtoList.add(userAdviserDto);
 			}
