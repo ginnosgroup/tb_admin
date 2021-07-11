@@ -1025,6 +1025,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				type += "(" + service.getCode() + ")";
 			}
 			title += user.getName() + "/" + type;
+			if (StringUtil.isNotEmpty(serviceOrderDo.getUrgentState()))
+				title += StringUtil.merge("[", getUrgentStateName(serviceOrderDo.getUrgentState()), "]");
 		} else if ("OVST".equalsIgnoreCase(serviceOrderDo.getType())) {
 			type = "留学";
 			if (user != null)
@@ -1545,6 +1547,14 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			return "其它";
 		else
 			return "未知";
+	}
+	
+	private String getUrgentStateName(String urgentState) {
+		if ("JJ".equalsIgnoreCase(urgentState))
+			return "加急";
+		if ("TSJJ".equalsIgnoreCase(urgentState))
+			return "特殊加急";
+		return "";
 	}
 
 }
