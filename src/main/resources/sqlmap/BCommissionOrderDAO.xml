@@ -1015,4 +1015,198 @@
         update b_commission_order set bank_check = null,  is_checked = false , bank_date = null
         where id = #{id};
     </update>
+
+    <select id="listCommissionOrderInstallmentDueDate"  resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderListDO">
+        SELECT
+            co.id,
+            co.gmt_create AS gmtCreate,
+            co.code,
+            co.service_order_id AS serviceOrderId,
+            co.state,
+            co.commission_state AS commissionState,
+            co.kj_approval_date AS kjApprovalDate,
+            co.is_settle AS isSettle,
+            co.is_deposit_user AS isDepositUser,
+            co.school_id AS schoolId,
+            co.student_code AS studentCode,
+            co.user_id AS userId,
+            co.adviser_id AS adviserId,
+            co.official_id AS officialId,
+            co.is_studying AS isStudying,
+            co.installment_num AS installmentNum,
+            co.installment,
+            co.installment_due_date AS installmentDueDate,
+            co.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+            co.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            co.payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+            co.payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+            co.payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+            co.school_payment_amount AS schoolPaymentAmount,
+            co.school_payment_date AS schoolPaymentDate,
+            co.invoice_number AS invoiceNumber,
+            co.start_date AS startDate,
+            co.end_date AS endDate,
+            co.commission,
+            co.tuition_fee AS tuitionFee,
+            co.per_term_tuition_fee AS perTermTuitionFee,
+            co.receive_type_id AS receiveTypeId,
+            co.receive_date AS receiveDate,
+            co.per_amount AS perAmount,
+            co.amount,
+            co.expect_amount AS expectAmount,
+            co.sure_expect_amount AS sureExpectAmount,
+            co.discount,
+            co.gst,
+            co.deduct_gst AS deductGst,
+            co.bonus,
+            co.bonus_date AS bonusDate,
+            co.zy_date AS zyDate,
+            co.bank_check AS bankCheck,
+            co.is_checked AS isChecked,
+            co.remarks,
+            co.refuse_reason AS refuseReason,
+            co.verify_code AS verifyCode,
+            co.bank_date AS bankDate,
+            co.is_close AS isClose,
+            co.invoice_create AS invoiceCreate,
+            so.id AS serviceOrderId,
+            so.gmt_create AS signingDate,
+            so.subagency_id AS subagencyId,
+            so.service_id AS serviceId
+        FROM b_commission_order co, b_service_order so, tb_user u
+        WHERE co.service_order_id = so.id AND co.user_id = u.id
+        AND DATEDIFF(installment_due_date,NOW()) IN (1,3,7);;
+    </select>
+
+    <update id="updateCommissionOrderByServiceOrderId">
+        UPDATE b_commission_order
+        SET gmt_modify = now()
+        <if test='state != null and state != ""'>
+            , state = #{state}
+        </if>
+        <if test='commissionState != null and commissionState != ""'>
+            , commission_state = #{commissionState}
+        </if>
+        <if test='kjApprovalDate != null'>
+            , kj_approval_date = #{kjApprovalDate}
+        </if>
+        <if test='isSettle != null'>
+            , is_settle = #{isSettle}
+        </if>
+        <if test='isDepositUser != null'>
+            , is_deposit_user = #{isDepositUser}
+        </if>
+        <if test='schoolId != null and schoolId > 0'>
+            , school_id = #{schoolId}
+        </if>
+        <if test='studentCode != null and studentCode != ""'>
+            , student_code = #{studentCode}
+        </if>
+        <if test='adviserId != null and adviserId > 0'>
+            , adviser_id = #{adviserId}
+        </if>
+        <if test='officialId != null and officialId > 0'>
+            , official_id = #{officialId}
+        </if>
+        <if test='isStudying != null'>
+            , is_studying = #{isStudying}
+        </if>
+        <if test='installmentDueDate != null'>
+            , installment_due_date = #{installmentDueDate}
+        </if>
+        <if test='paymentVoucherImageUrl1 != null'>
+            , payment_voucher_image_url_1 = #{paymentVoucherImageUrl1}
+        </if>
+        <if test='paymentVoucherImageUrl2 != null'>
+            , payment_voucher_image_url_2 = #{paymentVoucherImageUrl2}
+        </if>
+        <if test='paymentVoucherImageUrl3 != null'>
+            , payment_voucher_image_url_3 = #{paymentVoucherImageUrl3}
+        </if>
+        <if test='paymentVoucherImageUrl4 != null'>
+            , payment_voucher_image_url_4 = #{paymentVoucherImageUrl4}
+        </if>
+        <if test='paymentVoucherImageUrl5 != null'>
+            , payment_voucher_image_url_5 = #{paymentVoucherImageUrl5}
+        </if>
+        <if test='schoolPaymentAmount != null and schoolPaymentAmount != ""'>
+            , school_payment_amount = #{schoolPaymentAmount}
+        </if>
+        <if test='schoolPaymentDate != null'>
+            , school_payment_date = #{schoolPaymentDate}
+        </if>
+        <if test='invoiceNumber != null'>
+            , invoice_number = #{invoiceNumber}
+        </if>
+        <if test='startDate != null'>
+            , start_date = #{startDate}
+        </if>
+        <if test='endDate != null'>
+            , end_date = #{endDate}
+        </if>
+        <if test='commission != null and commission != ""'>
+            , commission = #{commission}
+        </if>
+        <if test='tuitionFee != null and tuitionFee != ""'>
+            , tuition_fee = #{tuitionFee}
+        </if>
+        <if test='perTermTuitionFee != null and perTermTuitionFee != ""'>
+            , per_term_tuition_fee = #{perTermTuitionFee}
+        </if>
+        <if test='receiveTypeId != null and receiveTypeId > 0'>
+            , receive_type_id = #{receiveTypeId}
+        </if>
+        <if test='receiveDate != null'>
+            , receive_date = #{receiveDate}
+        </if>
+        <if test='perAmount != null and perAmount > 0'>
+            , per_amount = #{perAmount}
+        </if>
+        <if test='amount != null and amount > 0'>
+            , amount = #{amount}
+        </if>
+        <if test='expectAmount != null and expectAmount > 0'>
+            , expect_amount = #{expectAmount}
+        </if>
+        <if test='sureExpectAmount != null and sureExpectAmount != ""'>
+            , sure_expect_amount = #{sureExpectAmount}
+        </if>
+        <if test='discount != null and discount > 0'>
+            , discount = #{discount}
+        </if>
+        <if test='gst != null and gst > 0'>
+            , gst = #{gst}
+        </if>
+        <if test='deductGst != null and deductGst > 0'>
+            , deduct_gst = #{deductGst}
+        </if>
+        <if test='bonus != null and bonus > 0'>
+            , bonus = #{bonus}
+        </if>
+        <if test='bonusDate != null'>
+            , bonus_date = #{bonusDate}
+        </if>
+        <if test='zyDate != null'>
+            , zy_date = #{zyDate}
+        </if>
+        <if test='bankCheck != null and bankCheck != ""'>
+            , bank_check = #{bankCheck}
+        </if>
+        <if test='isChecked != null'>
+            , is_checked = #{isChecked}
+        </if>
+        <if test='remarks != null and remarks != ""'>
+            , remarks = #{remarks}
+        </if>
+        <if test='refuseReason != null'>
+            , refuse_reason = #{refuseReason}
+        </if>
+        <if test='verifyCode != null and verifyCode != ""'>
+            , verify_code = #{verifyCode}
+        </if>
+        <if test='bankDate != null '>
+            , bank_date = #{bankDate}
+        </if>
+        WHERE service_order_id = #{serviceOrderId} AND installment_num = #{installmentNum};
+    </update>
 </mapper>

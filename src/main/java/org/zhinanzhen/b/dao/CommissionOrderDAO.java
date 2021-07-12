@@ -76,4 +76,8 @@ public interface CommissionOrderDAO {
 	List<CommissionOrderDO> listCommissionOrderByVerifyCode(String verifyCode);
 
     boolean setBankDateNull(String substring);
+
+	List<CommissionOrderDO> listCommissionOrderInstallmentDueDate();
+
+	int updateCommissionOrderByServiceOrderId(CommissionOrderDO commissionOrderDo);
 }

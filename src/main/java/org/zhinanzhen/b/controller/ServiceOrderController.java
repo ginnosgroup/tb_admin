@@ -452,7 +452,7 @@ public class ServiceOrderController extends BaseController {
 			Response<Integer> res = updateOne(serviceOrderDto, type, peopleNumber, peopleType, peopleRemarks, serviceId,
 					schoolId, isSettle, isDepositUser, subagencyId, isPay, receiveTypeId, receiveDate, receivable,
 					discount, received, installment, paymentVoucherImageUrl1, paymentVoucherImageUrl2,
-					paymentVoucherImageUrl3, paymentVoucherImageUrl4, paymentVoucherImageUrl5, perAmount, amount,
+					paymentVoucherImageUrl3, paymentVoucherImageUrl4, paymentVoucherImageUrl5, invoiceVoucherImageUrl,perAmount, amount,
 					expectAmount, gst, deductGst, bonus, userId, maraId, adviserId, officialId, remarks, closedReason,
 					information, isHistory, nutCloud, serviceAssessId, verifyCode);
 			if (res != null && res.getCode() == 0) {
@@ -467,7 +467,7 @@ public class ServiceOrderController extends BaseController {
 								peopleRemarks, serviceId, schoolId, isSettle, isDepositUser, subagencyId, isPay,
 								receiveTypeId, receiveDate, receivable, discount, received, installment,
 								paymentVoucherImageUrl1, paymentVoucherImageUrl2, paymentVoucherImageUrl3,
-								paymentVoucherImageUrl4, paymentVoucherImageUrl5, perAmount, amount, expectAmount, gst,
+								paymentVoucherImageUrl4, paymentVoucherImageUrl5,invoiceVoucherImageUrl, perAmount, amount, expectAmount, gst,
 								deductGst, bonus, userId, maraId, adviserId, officialId, remarks, closedReason,
 								information, isHistory, nutCloud, serviceAssessId, verifyCode);
 						if (cRes.getCode() > 0)
@@ -487,7 +487,7 @@ public class ServiceOrderController extends BaseController {
 			String subagencyId, String isPay, String receiveTypeId, String receiveDate,
 			String receivable, String discount, String received, Integer installment,
 			String paymentVoucherImageUrl1, String paymentVoucherImageUrl2, String paymentVoucherImageUrl3,
-			String paymentVoucherImageUrl4, String paymentVoucherImageUrl5, String perAmount,
+			String paymentVoucherImageUrl4, String paymentVoucherImageUrl5, String invoiceVoucherImageUrl,String perAmount,
 			String amount, String expectAmount, String gst, String deductGst,
 			String bonus, String userId, String maraId, String adviserId, String officialId,
 			String remarks,String closedReason, String information, String isHistory,
