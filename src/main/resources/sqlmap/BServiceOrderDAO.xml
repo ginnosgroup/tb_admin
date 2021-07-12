@@ -20,6 +20,7 @@
                 school_id,
                 state,
                 state_mark,
+                urgent_state,
                 mara_approval_date,
                 official_approval_date,
                 is_settle,
@@ -80,6 +81,7 @@
                 #{schoolId},
                 #{state},
                 #{stateMark},
+                #{urgentState},
                 NULL,
                 NULL,
                 #{isSettle},
@@ -159,6 +161,9 @@
         </if>
         <if test='stateMark != null'>
             , state_mark = #{stateMark}
+        </if>
+        <if test='urgentState != null'>
+            , urgent_state = #{urgentState}
         </if>
         <if test='maraApprovalDate != null'>
             , mara_approval_date = #{maraApprovalDate}
@@ -329,6 +334,9 @@
                 #{reviewStateList}
             </foreach>
         </if>
+        <if test='urgentState != null and urgentState != ""'>
+            AND so.urgent_state != #{urgentState}
+        </if>
         <if test='startMaraApprovalDate != null and startMaraApprovalDate != "" and endMaraApprovalDate != null and endMaraApprovalDate != ""'>
             <![CDATA[ AND so.mara_approval_date > #{startMaraApprovalDate} AND so.mara_approval_date < #{endMaraApprovalDate} ]]>
         </if>
@@ -380,6 +388,9 @@
         <if test='userName != null and userName != ""'>
             AND u.name LIKE '%${userName}%'
         </if>
+        <if test="isPay != null">
+            AND so.is_pay = #{isPay}
+        </if>
         ;
     </select>
     
@@ -400,6 +411,7 @@
             so.school_id AS schoolId,
             so.state AS state,
             so.state_mark AS stateMark,
+            so.urgent_state AS urgentState,
             so.mara_approval_date AS maraApprovalDate,
             so.official_approval_date AS officialApprovalDate,
             so.is_settle AS isSettle,
@@ -465,6 +477,9 @@
                 #{reviewStateList}
             </foreach>
         </if>
+        <if test='urgentState != null and urgentState != ""'>
+            AND so.urgent_state != #{urgentState}
+        </if>
         <if test='startMaraApprovalDate != null and startMaraApprovalDate != "" and endMaraApprovalDate != null and endMaraApprovalDate != ""'>
             <![CDATA[ AND so.mara_approval_date > #{startMaraApprovalDate} AND so.mara_approval_date < #{endMaraApprovalDate} ]]>
         </if>
@@ -516,6 +531,9 @@
         <if test='userName != null and userName != ""'>
             AND u.name LIKE '%${userName}%'
         </if>
+        <if test="isPay != null">
+            AND so.is_pay = #{isPay}
+        </if>
         ${orderBy}
         LIMIT #{offset}, #{rows};
     </select>
@@ -551,6 +569,7 @@
             school_id AS schoolId,
             state,
             state_mark AS stateMark,
+            urgent_state AS urgentState,
             mara_approval_date AS maraApprovalDate,
             official_approval_date AS officialApprovalDate,
             is_settle AS isSettle,
@@ -698,6 +717,7 @@
             service_package_id AS servicePackageId,
             school_id AS schoolId,
             state,
+            urgent_state AS urgentState,
             mara_approval_date AS maraApprovalDate,
             official_approval_date AS officialApprovalDate,
             is_settle AS isSettle,
@@ -781,6 +801,7 @@
         so.school_id AS schoolId,
         so.state AS state,
         so.state_mark AS stateMark,
+        so.urgent_state AS urgentState,
         so.mara_approval_date AS maraApprovalDate,
         so.official_approval_date AS officialApprovalDate,
         so.is_settle AS isSettle,
@@ -836,6 +857,10 @@
         <if test="thisMonth != null and thisMonth == true">
             AND DATE_FORMAT(official_approval_date, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
         </if>
+        <if test="thisMonth != null and thisMonth == false">
+            LIMIT 20
+        </if>
+        ;
     </select>
 
     <select id="caseCount" resultType="java.lang.Integer">

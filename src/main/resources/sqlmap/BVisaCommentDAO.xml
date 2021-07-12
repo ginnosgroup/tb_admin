@@ -28,7 +28,7 @@
             content
         FROM b_visa_comment
         WHERE visa_id = #{visaId}
-        ORDER BY gmt_create ASC;
+        ORDER BY gmt_create DESC;
     </select>
     
     <delete id="delete" parameterType="java.lang.Integer">

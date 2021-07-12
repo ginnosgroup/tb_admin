@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.controller.BaseCommissionOrderController.CommissionStateEnum;
@@ -89,6 +90,83 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
 		}
+	}
+
+	@Override
+	@Transactional
+	public  void refreshSchoolSetting() throws ServiceException {
+		try {
+
+			List<SchoolDO> schoolDOSNameGroup = schoolDao.listSchool(null, null);
+
+			for (SchoolDO schoolDO : schoolDOSNameGroup) {
+				//一个学校名字对应的	学校 + 专业集合
+				List<SchoolDO> schoolDOS = schoolDao.list2(schoolDO.getName(), null);
+
+				SchoolSettingDO setting1 = null; //用来 subject = null | subject = "" 的settingdo
+
+				//存setting表中没有记录的school.id
+				List<Integer> schoolIds = new ArrayList<>();
+
+				for (SchoolDO s1 : schoolDOS) {
+					SchoolSettingDO schoolSettingDO = schoolSettingDao.getBySchoolId(s1.getId());
+					//setting表中没有此记录并且是专业
+					if (schoolSettingDO == null && StringUtils.isNotEmpty(s1.getSubject())) {
+						schoolIds.add(s1.getId());
+						continue;
+					}
+
+					if (schoolSettingDO != null && StringUtils.isEmpty(schoolSettingDO.getSchoolSubject())) {
+						// 此记录是学校
+						setting1 = schoolSettingDO;
+					}
+				}
+				if (setting1 != null) {
+					for (Integer schoolId : schoolIds) {
+						setting1.setSchoolId(schoolId);
+						schoolSettingDao.add(setting1);
+					}
+				}
+				List<CommissionOrderListDO> commissionOrderListDOS =
+						commissionOrderDao.listCommissionOrderBySchool(null,null,schoolDO.getName());
+				for (CommissionOrderListDO commission : commissionOrderListDOS){
+					SchoolSettingDO schoolSettingDO = schoolSettingDao.getBySchoolId(commission.getSchoolId());
+					if (schoolSettingDO == null)
+						continue;
+					Date startDate = schoolSettingDO.getStartDate();
+					Date endDate = schoolSettingDO.getEndDate();
+					int type = schoolSettingDO.getType();
+					String parameters = schoolSettingDO.getParameters();
+					if (commission.getGmtCreate().before(startDate) || commission.getGmtCreate().after(endDate))
+						continue;
+					if (type == 1)
+						schoolSetting1(schoolSettingDO.getSchoolName(), startDate, endDate, parameters);
+					else if (type == 2)
+						schoolSetting2(schoolSettingDO.getSchoolName(), startDate, endDate, parameters);
+					else if (type == 3)
+						schoolSetting3(schoolSettingDO.getSchoolName(), startDate, endDate, parameters);
+					else if (type == 4)
+						schoolSetting4(schoolSettingDO.getSchoolName(), startDate, endDate, parameters);
+					else if (type == 5)
+						schoolSetting5(schoolSettingDO, startDate, endDate, parameters);
+					else if (type == 6)
+						schoolSetting6(schoolSettingDO, startDate, endDate, parameters);
+					else if (type == 7)
+						schoolSetting7(schoolSettingDO, startDate, endDate, parameters);
+				}
+			}
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+		/* 这个是我问许姐，许姐给我说的规则......，有点不知所以，结合你给我说的，写的这个方法，不晓得是不是这样
+		如果学校设置了规则，专业跟随学校规则。
+		专业可以单独设置规则。
+		如果学校没有设置规则，只是专业设置规则，学校规则保持为空。
+		如果学校设置了规则，在专业设置规则之后，其他没有设置规则的专业跟随学校规则
+		学校设置了规则，新增专业跟随学校规则。
+		*/
 	}
 
 	@Override

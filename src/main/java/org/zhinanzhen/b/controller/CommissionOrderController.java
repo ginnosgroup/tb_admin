@@ -164,7 +164,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
 				commissionOrderDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
 			else
-				commissionOrderDto.setPaymentVoucherImageUrl1(serviceOrderDto.getPaymentVoucherImageUrl1());
+				commissionOrderDto.setPaymentVoucherImageUrl1(serviceOrderDto.getPaymentVoucherImageUrl1()); // 许十一(2021-06-17)说非提前不需要引用服务订单的支付凭证!
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
 				commissionOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
 			else

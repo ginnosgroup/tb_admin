@@ -33,7 +33,7 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(getServiceOrderId(context));
 			String type = serviceOrderDto.getType();
 			if ("VISA".equals(type) && serviceOrderDto.getParentId() == 0) // 签证
-				return null;
+				return SUSPEND_NODE;
 			isSingleStep = true;
 			return "PAID";
 		} catch (ServiceException e) {

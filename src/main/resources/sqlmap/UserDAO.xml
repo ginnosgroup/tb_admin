@@ -47,6 +47,21 @@
         #{adviserId},
         #{regionId})
     </insert>
+    
+    <insert id="addUserAdviser" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into tb_user_adviser(
+        gmt_create,
+        gmt_modify,
+        user_id,
+        adviser_id,
+        is_creater)
+        values (
+        now(),
+        now(),
+        #{userId},
+        #{adviserId},
+        #{isCreater})
+    </insert>
 
     <select id="countUser" parameterType="org.zhinanzhen.tb.dao.pojo.UserDO"
         resultType="java.lang.Integer">
@@ -129,7 +144,7 @@
             AND u.wechat_username = #{wechatUsername}
         </if>
         <if test='adviserId != null and adviserId != ""'>
-            AND u.adviser_id = #{adviserId}
+            AND u.id in (SELECT user_id FROM tb_user_adviser WHERE adviser_id = #{adviserId})
         </if>
         <if test='regionIdList != null'>
             AND (u.region_id IN
@@ -150,6 +165,18 @@
         </if>
         LIMIT #{offset}, #{rows};
     </select>
+    
+    <select id="listUserAdviserByUserId" resultType="org.zhinanzhen.tb.dao.pojo.UserAdviserDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            user_id AS userId,
+            adviser_id AS adviserId,
+            is_creater AS isCreater
+        FROM tb_user_adviser
+        WHERE user_id = #{userId}
+        ;
+    </select>
 
     <select id="getUserById" parameterType="java.lang.Integer"
         resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
@@ -158,6 +185,7 @@
         gmt_create AS gmtCreate,
         name,
         birthday,
+        area_code AS areaCode,
         phone,
         email,
         wechat_username AS wechatUsername,
@@ -167,8 +195,7 @@
         source,
         auth_type AS authType,
         auth_openid AS authOpenid,
-        auth_username AS
-        authUsername,
+        auth_username AS authUsername,
         auth_nickname AS authNickname,
         auth_logo AS authLogo,
         balance,

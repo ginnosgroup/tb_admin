@@ -11,10 +11,7 @@ import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.AbleStateEnum;
 import org.zhinanzhen.b.service.VisaService;
-import org.zhinanzhen.b.service.pojo.ServiceOrderReviewDTO;
-import org.zhinanzhen.b.service.pojo.VisaCommentDTO;
-import org.zhinanzhen.b.service.pojo.VisaDTO;
-import org.zhinanzhen.b.service.pojo.VisaReportDTO;
+import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
@@ -68,6 +65,9 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 
 	@Resource
 	CommissionOrderDAO commissionOrderDAO;
+
+	@Resource
+	private MailRemindDAO mailRemindDAO;
 
 	@Override
 	public int addVisa(VisaDTO visaDto) throws ServiceException {
@@ -176,6 +176,8 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			throw se;
 		}
 		for (VisaDO visaListDo : visaListDoList) {
+			VisaDTO visaDto = putVisaDTO(visaListDo);
+			/*
 			VisaDTO visaDto = mapper.map(visaListDo, VisaDTO.class);
 			putReviews(visaDto);
 			if (visaDto.getUserId() > 0) {
@@ -202,7 +204,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			ServiceDO serviceDo = serviceDao.getServiceById(visaListDo.getServiceId());
 			if (serviceDo != null) {
 				visaDto.setServiceCode(serviceDo.getCode());
-			}
+			}*/
 			List<Date> remindDateList = new ArrayList<>();
 			List<RemindDO> remindDoList = remindDao.listRemindByVisaId(visaDto.getId(), adviserId,
 					AbleStateEnum.ENABLED.toString());
@@ -210,6 +212,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 				remindDateList.add(remindDo.getRemindDate());
 			}
 			visaDto.setRemindDateList(remindDateList);
+			/*
 			List<VisaDO> list = visaDao.listVisaByCode(visaDto.getCode());
 			if (list != null) {
 				double totalPerAmount = 0.00;
@@ -224,7 +227,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 				}
 				visaDto.setTotalPerAmount(totalPerAmount);
 				visaDto.setTotalAmount(totalAmount);
-			}
+			}*/
 			visaDtoList.add(visaDto);
 		}
 		return visaDtoList;
@@ -263,6 +266,8 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			if (visaDo == null) {
 				return null;
 			}
+			visaDto = putVisaDTO(visaDo);
+			/*
 			visaDto = mapper.map(visaDo, VisaDTO.class);
 			putReviews(visaDto);
 			if (visaDto.getUserId() > 0) {
@@ -288,11 +293,75 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 				visaDto.setTotalPerAmount(totalPerAmount);
 				visaDto.setTotalAmount(totalAmount);
 			}
+			*/
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
 		}
+		return visaDto;
+	}
+
+	public VisaDTO putVisaDTO(VisaDO visaListDo) throws ServiceException {
+		VisaDTO visaDto = mapper.map(visaListDo, VisaDTO.class);
+		putReviews(visaDto);
+		if (visaDto.getUserId() > 0) {
+			UserDO userDo = userDao.getUserById(visaDto.getUserId());
+			visaDto.setUserName(userDo.getName());
+			visaDto.setPhone(userDo.getPhone());
+			visaDto.setBirthday(userDo.getBirthday());
+		}
+//			ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(visaListDo.getServiceOrderId());
+//			if (serviceOrderDo != null && StringUtil.isNotEmpty(serviceOrderDo.getRefuseReason()))
+//				visaDto.setRefuseReason(serviceOrderDo.getRefuseReason());
+		AdviserDO adviserDo = adviserDao.getAdviserById(visaListDo.getAdviserId());
+		if (adviserDo != null) {
+			visaDto.setAdviserName(adviserDo.getName());
+		}
+		OfficialDO officialDo = officialDao.getOfficialById(visaListDo.getOfficialId());
+		if (officialDo != null) {
+			visaDto.setOfficialName(officialDo.getName());
+		}
+		ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(visaListDo.getReceiveTypeId());
+		if (receiveTypeDo != null) {
+			visaDto.setReceiveTypeName(receiveTypeDo.getName());
+		}
+		ServiceDO serviceDo = serviceDao.getServiceById(visaListDo.getServiceId());
+		if (serviceDo != null) {
+			visaDto.setServiceCode(serviceDo.getCode());
+		}
+		//List<Date> remindDateList = new ArrayList<>();
+		//List<RemindDO> remindDoList = remindDao.listRemindByVisaId(visaDto.getId(), adviserId,
+		//		AbleStateEnum.ENABLED.toString());
+		//for (RemindDO remindDo : remindDoList) {
+		//	remindDateList.add(remindDo.getRemindDate());
+		//}
+		//visaDto.setRemindDateList(remindDateList);
+		List<VisaDO> list = visaDao.listVisaByCode(visaDto.getCode());
+		if (list != null) {
+			double totalPerAmount = 0.00;
+			double totalAmount = 0.00;
+			for (VisaDO visaDo : list) {
+				totalPerAmount += visaDo.getPerAmount();
+				if (visaDo.getPaymentVoucherImageUrl1() != null || visaDo.getPaymentVoucherImageUrl2() != null
+						|| visaDo.getPaymentVoucherImageUrl3() != null
+						|| visaDo.getPaymentVoucherImageUrl4() != null
+						|| visaDo.getPaymentVoucherImageUrl5() != null)
+					totalAmount += visaDo.getAmount();
+			}
+			visaDto.setTotalPerAmount(totalPerAmount);
+			visaDto.setTotalAmount(totalAmount);
+		}
+
+		List<MailRemindDO> mailRemindDOS = mailRemindDAO.list(null,null,null,visaDto.getId(),null,null,false,false);
+		if (mailRemindDOS.size() > 0){
+			List<MailRemindDTO> mailRemindDTOS = new ArrayList<>();
+			mailRemindDOS.forEach(mailRemindDO ->{
+				mailRemindDTOS.add(mapper.map(mailRemindDO,MailRemindDTO.class));
+			});
+			visaDto.setMailRemindDTOS(mailRemindDTOS);
+		}
+
 		return visaDto;
 	}
 

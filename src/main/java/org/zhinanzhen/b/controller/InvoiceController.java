@@ -186,7 +186,7 @@ public class InvoiceController  extends BaseController {
         if (number != null) {
             newNumber = Integer.valueOf(number) + 1;
         }
-        String invoiceNo = sdfNo.format(Calendar.getInstance().getTime()) + newNumber + simpleBranch;
+        String invoiceNo = "V" + sdfNo.format(Calendar.getInstance().getTime()) + newNumber + simpleBranch;
         String invoiceDate = sdfDate.format(Calendar.getInstance().getTime());
         invoiceCompanyDTO.setInvoiceNo(invoiceNo);
         invoiceCompanyDTO.setInvoiceDate(invoiceDate);
@@ -324,7 +324,7 @@ public class InvoiceController  extends BaseController {
         if (number != null) {
             newNumber = Integer.valueOf(number) + 1;
         }
-        String invoiceNo = sdfNo.format(Calendar.getInstance().getTime()) + newNumber + simpleBranch;
+        String invoiceNo = "S" + sdfNo.format(Calendar.getInstance().getTime()) + newNumber + simpleBranch;
         String invoiceDate = sdfDate.format(Calendar.getInstance().getTime());
 
         invoiceCompanyDTO.setInvoiceNo(invoiceNo);
@@ -404,10 +404,10 @@ public class InvoiceController  extends BaseController {
             return new Response(1, "fail");
         } catch (DataAccessException ex) {
             ex.printStackTrace();
-            return new Response(1, "参数错误");
+            return new Response(1, "参数错误",ex.getMessage());
         } catch (Exception ex) {
             ex.printStackTrace();
-            return new Response(1, "系统错误，请联系管理员！");
+            return new Response(1, "系统错误，请联系管理员！",ex.getMessage());
         }
     }
 
@@ -423,7 +423,6 @@ public class InvoiceController  extends BaseController {
     ) throws FileNotFoundException {
 
         String fileName = ResourceUtils.getURL("classpath:").getPath();
-        System.out.println("fileName        " + fileName);
         Response response = invoiceService.pdfPrint(invoiceNo, invoiceIds, fileName, false);
 
         return response;

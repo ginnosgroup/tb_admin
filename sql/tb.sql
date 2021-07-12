@@ -130,6 +130,16 @@ CREATE TABLE `tb_user` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 ALTER TABLE `tb_user` ADD INDEX index_name (`region_id`);
 
+CREATE TABLE `tb_user_adviser` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `user_id` int NOT NULL COMMENT '所属顾客编号 (对应tb_user.id)',
+  `adviser_id` int NOT NULL COMMENT '所属顾问编号 (对应tb_adviser.id)',
+  `is_creater` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否为创建人'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+ALTER TABLE `tb_user_adviser` ADD INDEX index_name (`user_id`, `adviser_id`);
+
 /*
 CREATE TABLE `tb_user_auth` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
@@ -355,7 +365,7 @@ CREATE TABLE `b_service_package` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
-  `type` varchar(4) NOT NULL COMMENT '服务包类型(CA:职业评估,EOI:EOI,SA:学校申请,VA:签证申请)',
+  `type` varchar(4) NOT NULL COMMENT '服务包类型(CA:职业评估,EOI:EOI,SA:学校申请,VA:签证申请,ZD:州担)',
   `service_id` int DEFAULT NULL COMMENT '服务项目编号 (对应b_service.id)',
   `num` int NOT NULL COMMENT '序号 (执行顺序)',
 `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已删除'
@@ -379,7 +389,7 @@ CREATE TABLE `b_service_order` (
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `code` varchar(64) DEFAULT NULL COMMENT '分组编码',
   `finish_date` datetime DEFAULT NULL COMMENT '办理完成时间',
-  `type` varchar(4) DEFAULT NULL COMMENT '服务类型(VISA:签证服务,OVST:留学服务,SIV:独立技术移民,MT:曼拓)',
+  `type` varchar(4) DEFAULT NULL COMMENT '服务类型(VISA:签证服务,OVST:留学服务,SIV:独立技术移民,MT:曼拓,ZX:咨询服务)',
   `people_number` int NOT NULL DEFAULT 1 COMMENT '人数',
   `people_type` varchar(4) NOT NULL DEFAULT '1A' COMMENT '人类型(1A:单人,1B:单人提配偶,2A:带配偶,XA:带孩子,XB:带配偶孩子,XC:其它)',
   `people_remarks` text DEFAULT NULL COMMENT '人备注',
@@ -389,6 +399,7 @@ CREATE TABLE `b_service_order` (
   `school_id` int DEFAULT NULL COMMENT '学校编号 (对应b_school.id,留学服务专用字段)',
   `state` varchar(8) NOT NULL COMMENT '状态 (PENDING:待提交审核,REVIEW:审核中,APPLY:服务申请中,COMPLETE:服务申请完成,PAID:完成-支付成功,CLOSE:关闭)',
   `review_state` varchar(8) DEFAULT NULL COMMENT '审批状态 (OFFICIAL:文案审批通过,MARA:Mara审批通过,KJ:财务审批通过)',
+`urgent_state` varchar(8) DEFAULT NULL COMMENT '加急状态(JJ:加急, TSJJ:特殊加急),仅限签证订单',
   `official_approval_date` datetime DEFAULT NULL COMMENT '文案审核时间',
   `mara_approval_date` datetime DEFAULT NULL COMMENT 'mara审核时间',
   `is_settle` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否提前扣佣 (留学服务专用字段)',
@@ -434,7 +445,8 @@ CREATE TABLE `b_service_order` (
   `service_assess_id` int(11) DEFAULT NULL COMMENT '签证职业评估编号(对应b_service_assess.id)',
   `real_people_number` int(11) NOT NULL DEFAULT '1' COMMENT '历史订单:0,不是历史订单:对应people_number(只文案可修改)',
   `verify_code` varchar(64) DEFAULT null COMMENT '对账使用的code,顾问名称+地区+随机数',
-  `readcommitted_date` datetime DEFAULT NULL COMMENT '已提交申请的时间'
+  `readcommitted_date` datetime DEFAULT NULL COMMENT '已提交申请的时间',
+`ref_no` varchar(32) DEFAULT null COMMENT 'Ref.No'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 ALTER TABLE `b_service_order` ADD INDEX index_name (`user_id`, `adviser_id`, `official_id`, `mara_id`, `state`, `service_id`, `parent_id`);
 
@@ -851,6 +863,7 @@ CREATE TABLE `b_invoice_school` (
   `state` varchar(10) NOT NULL COMMENT '状态 NORMAL:正常 CANCELED:取消',
   `branch` varchar(10) DEFAULT NULL COMMENT 'branch 地区',
   `flag` varchar(10) DEFAULT NULL COMMENT '标识是normal还是mark',
+  `pdf_url` varchar(150) DEFAULT NULL COMMENT '留学pdf地址'
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8 COMMENT='Service Fee 税务的模板';
 
@@ -897,6 +910,7 @@ CREATE TABLE `b_invoice_servicefee` (
   `order_id` varchar(20) DEFAULT NULL COMMENT '对应佣金订单id',
   `branch` varchar(10) DEFAULT NULL COMMENT 'branch 地区',
   `bill_to` varchar(64) DEFAULT NULL COMMENT '客户姓名',
+  `pdf_url` varchar(150) DEFAULT NULL COMMENT '留学pdf地址'
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='Service Fee 税务的模板';
 
@@ -1020,3 +1034,22 @@ CREATE TABLE `b_mail_log` (
   `content` text DEFAULT NULL COMMENT '内容'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
+--设置提醒
+CREATE TABLE `b_mail_remind` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `code` varchar(128) NOT NULL COMMENT '编码',
+  `mail` varchar(255) NOT NULL COMMENT '收件人邮箱',
+  `title` varchar(255) DEFAULT NULL COMMENT '标题',
+  `content` text COMMENT '内容',
+  `send_date` datetime DEFAULT NULL COMMENT '设置的邮件发送时间',
+  `service_order_id` int(11) DEFAULT NULL COMMENT 'b_service_order.id',
+  `visa_id` int(11) DEFAULT NULL COMMENT 'b_visa.id',
+  `commission_order_id` int(11) DEFAULT NULL COMMENT 'b_commission_order.id',
+  `adviser_id` int(11) DEFAULT NULL COMMENT ' (tb_adviser.id)',
+  `offcial_id` int(11) DEFAULT NULL COMMENT ' (b_official.id,)',
+  `is_send` tinyint(1) DEFAULT '0' COMMENT '已经发送邮件',
+  `user_id` int(11) DEFAULT NULL COMMENT '所属顾问编号',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;

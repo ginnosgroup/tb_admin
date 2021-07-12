@@ -18,9 +18,11 @@ import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
 import org.zhinanzhen.b.dao.pojo.TagDO;
 import org.zhinanzhen.b.dao.pojo.UserTagDO;
+import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
+import org.zhinanzhen.tb.dao.pojo.AdviserDO;
+import org.zhinanzhen.tb.dao.pojo.UserAdviserDO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
-import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.AdviserStateEnum;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserAuthTypeEnum;
@@ -28,6 +30,7 @@ import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.service.pojo.TagDTO;
+import org.zhinanzhen.tb.service.pojo.UserAdviserDTO;
 import org.zhinanzhen.tb.utils.Base64Util;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
 
@@ -39,7 +42,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 	@Resource
 	private UserDAO userDao;
 	@Resource
-	private AdviserService adviserService;
+	private AdviserDAO adviserDao;
 	@Resource
 	private TagDAO tagDao;
 	@Resource
@@ -52,6 +55,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
 	@Override
+	@Transactional
 	public int addUser(String name, String authNickname, Date birthday, String areaCode, String phone, String email,
 			String wechatUsername, String firstControllerContents, String visaCode, Date visaExpirationDate,
 			String source, int adviserId, int regionId) throws ServiceException {
@@ -96,16 +100,45 @@ public class UserServiceImpl extends BaseService implements UserService {
 		if (regionId > 0)
 			userDo.setRegionId(regionId);
 		else {
-			AdviserDTO adviserDto = adviserService.getAdviserById(adviserId);
-			if (adviserDto != null)
-				userDo.setRegionId(adviserDto.getRegionId());
+			AdviserDO adviserDo = adviserDao.getAdviserById(adviserId);
+			if (adviserDo != null)
+				userDo.setRegionId(adviserDo.getRegionId());
 			else {
 				ServiceException se = new ServiceException("The adviser is not exist : " + adviserId);
 				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 				throw se;
 			}
 		}
-		return userDao.addUser(userDo) > 0 ? userDo.getId() : 0;
+		if (userDao.addUser(userDo) > 0) {
+			userDao.addUserAdviser(userDo.getId(), adviserId, true);
+			return userDo.getId();
+		} else
+			return 0;
+	}
+	
+	@Override
+	public int addUserAdviser(int userId, int adviserId) throws ServiceException {
+		List<UserAdviserDO> userAdviserList = userDao.listUserAdviserByUserId(userId);
+		if (userAdviserList == null || userAdviserList.size() == 0)
+			return userDao.addUserAdviser(userId, adviserId, true);
+		else
+			for (UserAdviserDO userAdviserDo : userAdviserList) {
+				if (userAdviserDo.getAdviserId() == adviserId) {
+					UserDO userDo = userDao.getUserById(userId);
+					AdviserDO adviserDo = adviserDao.getAdviserById(adviserId);
+					if (userDo != null && adviserDo != null) {
+						ServiceException se = new ServiceException("用户" + userDo.getName() + "(" + userId + ")已属于顾问"
+								+ adviserDo.getName() + "(" + adviserId + ")!");
+						se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+						throw se;
+					} else {
+						ServiceException se = new ServiceException("参数错误!");
+						se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+						throw se;
+					}
+				}
+			}
+		return userDao.addUserAdviser(userId, adviserId, false);
 	}
 
 	@Override
@@ -176,10 +209,17 @@ public class UserServiceImpl extends BaseService implements UserService {
 		}
 		for (UserDO userDo : userDoList) {
 			UserDTO userDto = mapper.map(userDo, UserDTO.class);
-			if (userDto.getAdviserId() > 0) {
-				AdviserDTO adviserDto = adviserService.getAdviserById(userDto.getAdviserId());
-				userDto.setAdviserDto(adviserDto);
-			}
+			List<UserAdviserDTO> userAdviserList = listUserAdviserDto(userDo.getId());
+			if (userAdviserList != null && userAdviserList.size() > 0)
+				userDto.setUserAdviserList(userAdviserList);
+			AdviserDO adviserDo = null;
+			if (adviserId > 0) {
+				userDto.setAdviserId(adviserId);
+				adviserDo = adviserDao.getAdviserById(adviserId);
+			} else if (userDto.getAdviserId() > 0)
+				adviserDo = adviserDao.getAdviserById(userDto.getAdviserId());
+			if (adviserDo != null)
+				userDto.setAdviserDto(mapper.map(adviserDo, AdviserDTO.class));
 			if (userDto.getRecommendOpenid() != null) {
 				UserDTO recommendUserDto = getUserByOpenId(UserAuthTypeEnum.WECHAT.toString(),
 						userDto.getRecommendOpenid());
@@ -212,9 +252,13 @@ public class UserServiceImpl extends BaseService implements UserService {
 				throw se;
 			}
 			userDto = mapper.map(userDo, UserDTO.class);
+			List<UserAdviserDTO> userAdviserList = listUserAdviserDto(userDo.getId());
+			if (userAdviserList != null && userAdviserList.size() > 0)
+				userDto.setUserAdviserList(userAdviserList);
 			if (userDto.getAdviserId() > 0) {
-				AdviserDTO adviserDto = adviserService.getAdviserById(userDto.getAdviserId());
-				userDto.setAdviserDto(adviserDto);
+				AdviserDO adviserDo = adviserDao.getAdviserById(userDto.getAdviserId());
+				if (adviserDo != null)
+					userDto.setAdviserDto(mapper.map(adviserDo, AdviserDTO.class));
 			}
 			if (userDto.getRecommendOpenid() != null) {
 				UserDTO recommendUserDto = getUserByOpenId(UserAuthTypeEnum.WECHAT.toString(),
@@ -251,11 +295,15 @@ public class UserServiceImpl extends BaseService implements UserService {
 		}
 		UserDO userDo = userDao.getUserByThird(thirdType, thirdId);
 		UserDTO userDto = null;
-		if (userDo != null){
-			userDto= mapper.map(userDo, UserDTO.class);
+		if (userDo != null) {
+			userDto = mapper.map(userDo, UserDTO.class);
+			List<UserAdviserDTO> userAdviserList = listUserAdviserDto(userDo.getId());
+			if (userAdviserList != null && userAdviserList.size() > 0)
+				userDto.setUserAdviserList(userAdviserList);
 			if (userDto.getAdviserId() > 0) {
-				AdviserDTO adviserDto = adviserService.getAdviserById(userDto.getAdviserId());
-				userDto.setAdviserDto(adviserDto);
+				AdviserDO adviserDo = adviserDao.getAdviserById(userDto.getAdviserId());
+				if (adviserDo != null)
+					userDto.setAdviserDto(mapper.map(adviserDo, AdviserDTO.class));
 			}
 			userDto.setTagList(listTagByUserId(userDto.getId()));
 		}
@@ -294,8 +342,10 @@ public class UserServiceImpl extends BaseService implements UserService {
 			stateList.add("APPLY");
 			stateList.add("WAIT");
 			stateList.add("PAID");
-			List<ServiceOrderDO> serviceOrderList = serviceOrderDao.listServiceOrder(null, null, stateList, null, null,
-					null, null, null, null, null, null, null, id, null,null, null, null, null, null, null, null, null,
+			List<ServiceOrderDO> serviceOrderList = serviceOrderDao.listServiceOrder(null, null, null, stateList, null,
+					null, null, null, null, null, null, null, null, null, id, null, null, null, null, null, null, null,
+					null,
+					null, false,
 					DEFAULT_PAGE_NUM, 100, null);
 			for (ServiceOrderDO serviceOrderDo : serviceOrderList) {
 				OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
@@ -332,13 +382,13 @@ public class UserServiceImpl extends BaseService implements UserService {
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
-		AdviserDTO adviserDto = adviserService.getAdviserById(adviserId);
-		if (adviserDto == null) {
+		AdviserDO adviserDo = adviserDao.getAdviserById(adviserId);
+		if (adviserDo == null) {
 			ServiceException se = new ServiceException("adviserDto not found ! adviserId = " + adviserId);
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
-		if (!AdviserStateEnum.ENABLED.equals(adviserDto.getState())) {
+		if (!AdviserStateEnum.ENABLED.toString().equals(adviserDo.getState())) {
 			ServiceException se = new ServiceException("adviserDto not ENABLED ! adviserId = " + adviserId);
 			se.setCode(ErrorCodeEnum.DATA_ERROR.code());
 			throw se;
@@ -368,9 +418,13 @@ public class UserServiceImpl extends BaseService implements UserService {
 		}
 		for (UserDO userDo : userDoList) {
 			UserDTO userDto = mapper.map(userDo, UserDTO.class);
+			List<UserAdviserDTO> userAdviserList = listUserAdviserDto(userDo.getId());
+			if (userAdviserList != null && userAdviserList.size() > 0)
+				userDto.setUserAdviserList(userAdviserList);
 			if (userDto.getAdviserId() > 0) {
-				AdviserDTO adviserDto = adviserService.getAdviserById(userDto.getAdviserId());
-				userDto.setAdviserDto(adviserDto);
+				AdviserDO adviserDo = adviserDao.getAdviserById(userDto.getAdviserId());
+				if (adviserDo != null)
+					userDto.setAdviserDto(mapper.map(adviserDo, AdviserDTO.class));
 			}
 			if (userDto.getRecommendOpenid() != null) {
 				UserDTO recommendUserDto = getUserByOpenId(UserAuthTypeEnum.WECHAT.toString(),
@@ -464,6 +518,23 @@ public class UserServiceImpl extends BaseService implements UserService {
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
 		}
+	}
+	
+	private List<UserAdviserDTO> listUserAdviserDto(int userId) throws ServiceException {
+		List<UserAdviserDTO> userAdviserDtoList = new ArrayList<>();
+		List<UserAdviserDO> userAdviserList = userDao.listUserAdviserByUserId(userId);
+		if (userAdviserList != null && userAdviserList.size() > 0) {
+			for (UserAdviserDO userAdviserDo : userAdviserList) {
+				UserAdviserDTO userAdviserDto = mapper.map(userAdviserDo, UserAdviserDTO.class);
+				if (userAdviserDto.getAdviserId() > 0) {
+					AdviserDO adviserDo = adviserDao.getAdviserById(userAdviserDto.getAdviserId());
+					if (adviserDo != null)
+						userAdviserDto.setAdviserDto(mapper.map(adviserDo, AdviserDTO.class));
+				}
+				userAdviserDtoList.add(userAdviserDto);
+			}
+		}
+		return userAdviserDtoList;
 	}
 
 }

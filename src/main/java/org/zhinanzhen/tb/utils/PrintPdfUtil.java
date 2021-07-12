@@ -24,13 +24,14 @@ import java.util.List;
 public class PrintPdfUtil {
 
 
-    static Font fontbule10 = FontFactory.getFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,10f, Font.NORMAL, BaseColor.BLUE);
-    static Font fontbule8 = FontFactory.getFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,8f, Font.NORMAL, BaseColor.BLUE);
-    static Font FontChinese12 = FontFactory.getFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,12f, Font.NORMAL, BaseColor.BLACK);
-    static Font FontChinese11Bold = FontFactory.getFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,11f, Font.BOLD, BaseColor.BLACK);
-    static Font FontChinese8 = FontFactory.getFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,8f, Font.NORMAL, BaseColor.BLACK);
-    static Font FontChinese8Bold = FontFactory.getFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,8f, Font.BOLD, BaseColor.BLACK);
-    static Font FontChinese10 = FontFactory.getFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,10f, Font.NORMAL, BaseColor.BLACK);
+    static Font fontbule10 = FontFactory.getFont("Arial", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,10f, Font.NORMAL, BaseColor.BLUE);
+    static Font fontbule8 = FontFactory.getFont("Arial", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,8f, Font.NORMAL, BaseColor.BLUE);
+    static Font FontChinese12 = FontFactory.getFont("Arial", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,12f, Font.NORMAL, BaseColor.BLACK);
+    static Font FontChinese11Bold = FontFactory.getFont("Arial", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,11f, Font.BOLD, BaseColor.BLACK);
+    static Font FontChinese8 = FontFactory.getFont("Arial", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,8f, Font.NORMAL, BaseColor.BLACK);
+    static Font FontChinese8Bold = FontFactory.getFont("Arial", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,8f, Font.BOLD, BaseColor.BLACK);
+    static Font FontChinese10 = FontFactory.getFont("Arial", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,10f, Font.NORMAL, BaseColor.BLACK);
+    //static Font FontChinese10 = FontFactory.getFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED,10f, Font.NORMAL, BaseColor.BLACK);
     //static SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
     static SimpleDateFormat dobsdf = new SimpleDateFormat("dd/MM/yyyy ");
 
@@ -82,13 +83,6 @@ public class PrintPdfUtil {
             file.getParentFile().mkdirs();
         }
 
-        System.out.println("path  "+path);
-
-        System.out.println("newPDFPath  "+PDFPath);//打印路径是不是正确的
-
-
-
-
         if (Model.equals("SF"))
             createServiceFeePdf((InvoiceServiceFeeDTO) response.getData() ,PDFPath ,realPath , canceled);
         else if (Model.equals("IES"))
@@ -98,7 +92,7 @@ public class PrintPdfUtil {
         else if (Model.equals("N"))
             createNorPdf((InvoiceSchoolDTO) response.getData() ,PDFPath ,realPath , canceled);
 
-        return "/statics"+uploadsPath+"/"+invoiceNo;
+        return uploadsPath + "/" + invoiceNo;
 
 
     }
@@ -622,97 +616,8 @@ public class PrintPdfUtil {
             document.add(table9);
 
             //第10列
-            PdfPTable table10 = new PdfPTable(12);
-            List<InvoiceSchoolDescriptionDO> des = invoiceSchoolDTO.getInvoiceSchoolDescriptionDOS();
-            PdfPCell cell10 ;
-            int width10[] = {5,10,8,9,9,8,9,9,9,9,10,5};
-            for (int i = -1; i < des.size() ; i++) {
-                if (i == -1) {
-                    cell10 = new PdfPCell(new Paragraph(" NO. ", FontChinese8));
-                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    cell10.setFixedHeight(15);
-                    table10.addCell(cell10);
-                    cell10 = new PdfPCell(new Paragraph(" Student Name ", FontChinese8));
-                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    table10.addCell(cell10);
-                    cell10 = new PdfPCell(new Paragraph(" DOB ", FontChinese8));
-                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    table10.addCell(cell10);
-                    cell10 = new PdfPCell(new Paragraph(" Student ID ", FontChinese8));
-                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    table10.addCell(cell10);
-                    cell10 = new PdfPCell(new Paragraph(" Course ", FontChinese8));
-                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    table10.addCell(cell10);
-                    cell10 = new PdfPCell(new Paragraph(" Start Date ", FontChinese8));
-                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    table10.addCell(cell10);
-                    cell10 = new PdfPCell(new Paragraph(" Non Tuition Fee ", FontChinese8));
-                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    table10.addCell(cell10);
-                    cell10 = new PdfPCell(new Paragraph(" Tuition Fee ", FontChinese8));
-                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    table10.addCell(cell10);
-                    cell10 = new PdfPCell(new Paragraph(" Commission Rate ", FontChinese8));
-                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    table10.addCell(cell10);
-                    cell10 = new PdfPCell(new Paragraph(" Commission ", FontChinese8));
-                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    table10.addCell(cell10);
-                    cell10 = new PdfPCell(new Paragraph(" Bonus Amount ", FontChinese8));
-                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    table10.addCell(cell10);
-                    cell10 = new PdfPCell(new Paragraph(" Instalment ", FontChinese8));
-                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    table10.addCell(cell10);
-                    table10.setHorizontalAlignment(Element.ALIGN_CENTER);
-                } else {
-                    cell10 = new PdfPCell(new Paragraph(des.get(i).getId()+"", FontChinese8));
-                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    cell10.setFixedHeight(15);
-                    table10.addCell(cell10);
-                    cell10 = new PdfPCell(new Paragraph(des.get(i).getStudentname(), FontChinese8));
-                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    table10.addCell(cell10);
-                    cell10 = new PdfPCell(new Paragraph(dobsdf.format(des.get(i).getDob()), FontChinese8));
-                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    table10.addCell(cell10);
-                    cell10 = new PdfPCell(new Paragraph(des.get(i).getStudentId()+"", FontChinese8));
-                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    table10.addCell(cell10);
-                    cell10 = new PdfPCell(new Paragraph(des.get(i).getCourse(), FontChinese8));
-                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    table10.addCell(cell10);
-                    cell10 = new PdfPCell(new Paragraph(dobsdf.format(des.get(i).getStartDate()), FontChinese8));
-                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    table10.addCell(cell10);
-                    cell10 = new PdfPCell(new Paragraph(des.get(i).getNonTuitionFee().toString(), FontChinese8));
-                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    table10.addCell(cell10);
-                    cell10 = new PdfPCell(new Paragraph(des.get(i).getTuitionFee().toString(), FontChinese8));
-                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    table10.addCell(cell10);
-                    cell10 = new PdfPCell(new Paragraph(des.get(i).getCommissionrate().toString(), FontChinese8));
-                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    table10.addCell(cell10);
-                    cell10 = new PdfPCell(new Paragraph(des.get(i).getCommission().toString(), FontChinese8));
-                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    table10.addCell(cell10);
-                    cell10 = new PdfPCell(new Paragraph(des.get(i).getBonus().toString(), FontChinese8));
-                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    table10.addCell(cell10);
-                    cell10 = new PdfPCell(new Paragraph(des.get(i).getInstalMent(), FontChinese8));
-                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    table10.addCell(cell10);
-                    table10.setHorizontalAlignment(Element.ALIGN_CENTER);
-                }
+            createTableforIES(document,invoiceSchoolDTO.getFlag(),invoiceSchoolDTO.getInvoiceSchoolDescriptionDOS());
 
-
-            }
-
-            table10.setWidths(width10);
-            table8.getDefaultCell().setBorder(0);
-            document.add(table10);
 
             //第11列
             PdfPTable table11 = new PdfPTable(2);
@@ -1655,6 +1560,170 @@ public class PrintPdfUtil {
             e.printStackTrace();
         }
 
+    }
+
+    public static void createTableforIES(Document document, String type, List<InvoiceSchoolDescriptionDO> des) throws DocumentException {
+        if (type.equalsIgnoreCase("N")) {
+            PdfPTable table10 = new PdfPTable(12);
+            PdfPCell cell10;
+            int width10[] = {5, 10, 8, 9, 9, 8, 9, 9, 9, 9, 10, 5};
+            for (int i = -1; i < des.size(); i++) {
+                if (i == -1) {
+                    cell10 = new PdfPCell(new Paragraph(" NO. ", FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    cell10.setFixedHeight(15);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(" Student Name ", FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(" DOB ", FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(" Student ID ", FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(" Course ", FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(" Start Date ", FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(" Non Tuition Fee ", FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(" Tuition Fee ", FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(" Commission Rate ", FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(" Commission ", FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(" Bonus Amount ", FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(" Instalment ", FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    table10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                } else {
+                    cell10 = new PdfPCell(new Paragraph(des.get(i).getId() + "", FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    cell10.setFixedHeight(15);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(des.get(i).getStudentname(), FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(dobsdf.format(des.get(i).getDob()), FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(des.get(i).getStudentId() + "", FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(des.get(i).getCourse(), FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(dobsdf.format(des.get(i).getStartDate()), FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(des.get(i).getNonTuitionFee().toString(), FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(des.get(i).getTuitionFee().toString(), FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(des.get(i).getCommissionrate().toString(), FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(des.get(i).getCommission().toString(), FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(des.get(i).getBonus().toString(), FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(des.get(i).getInstalMent(), FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    table10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                }
+
+
+            }
+
+            table10.setWidths(width10);
+            document.add(table10);
+        } else {
+            PdfPTable table10 = new PdfPTable(9);
+            PdfPCell cell10;
+            int width10[] = {4, 12, 12, 12, 12, 12, 12, 12, 12};
+            for (int i = -1; i < des.size(); i++) {
+                if (i == -1) {
+                    cell10 = new PdfPCell(new Paragraph(" NO. ", FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    cell10.setFixedHeight(15);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(" Student Name ", FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(" DOB ", FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(" Student ID ", FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(" Course ", FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(" Start Date ", FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(" Instalment ", FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(" Tuition Fee ", FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(" Marketing Bonus ", FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    table10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                } else {
+                    cell10 = new PdfPCell(new Paragraph(des.get(i).getId() + "", FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    cell10.setFixedHeight(10);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(des.get(i).getStudentname(), FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(dobsdf.format(des.get(i).getDob()), FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(des.get(i).getStudentId() + "", FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(des.get(i).getCourse(), FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(dobsdf.format(des.get(i).getStartDate()), FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(des.get(i).getInstalMent(), FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(des.get(i).getTuitionFee().toString(), FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    cell10 = new PdfPCell(new Paragraph(des.get(i).getMarketing().toString(), FontChinese8));
+                    cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table10.addCell(cell10);
+                    table10.setHorizontalAlignment(Element.ALIGN_CENTER);
+                }
+            }
+
+            table10.setWidths(width10);
+            document.add(table10);
+        }
     }
 
 }

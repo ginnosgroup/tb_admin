@@ -47,7 +47,7 @@ public interface InvoiceDAO {
 
     int updateSCState(@Param("invoiceNo")String invoiceNo);
 
-    int updateCommissionOrderInvoiceNumberNull(@Param("invoiceNo") String invoiceNo);
+    int removeInvoiceNumberInCommissionOrder(@Param("invoiceNo") String invoiceNo);
 
     List<InvoiceCompanyDO> selectCompany(@Param("flag") String flag);
 
@@ -109,5 +109,7 @@ public interface InvoiceDAO {
     int deleteDesc(@Param("invoiceNo") String invoiceNo, @Param("flag") String flag);
 
     int updateSCInvoice(Map paramMap);
+
+    boolean updatePdfUrl(Map map);
 
 }

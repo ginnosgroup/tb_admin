@@ -45,6 +45,8 @@ public class ServiceOrderDO implements Serializable {
 	private String stateMark;
 	
 	private String auditingState;
+	
+	private String urgentState;
 
 	private Date maraApprovalDate;
 
@@ -140,5 +142,7 @@ public class ServiceOrderDO implements Serializable {
 	private String verifyCode;
 
 	private Date readcommittedDate;
+	
+	private String refNo;
 
 }

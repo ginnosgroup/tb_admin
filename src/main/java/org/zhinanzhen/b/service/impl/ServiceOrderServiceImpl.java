@@ -2,30 +2,27 @@ package org.zhinanzhen.b.service.impl;
 
 import java.util.*;
 import javax.annotation.Resource;
-import javax.servlet.http.HttpSession;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
-import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
+import org.zhinanzhen.tb.dao.RegionDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
 import org.zhinanzhen.tb.dao.pojo.AdminUserDO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
+import org.zhinanzhen.tb.dao.pojo.RegionDO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
-import org.zhinanzhen.tb.utils.SendEmailUtil;
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.StringUtil;
 import lombok.Data;
@@ -93,6 +90,12 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
 	@Resource
 	private WXWorkDAO wxWorkDAO;
+
+	@Resource
+	private RegionDAO regionDAO;
+
+	@Resource
+	private MailRemindDAO mailRemindDAO;
 
 	@Override
 	public int addServiceOrder(ServiceOrderDTO serviceOrderDto) throws ServiceException {
@@ -242,26 +245,26 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	}
 
 	@Override
-	public int countServiceOrder(String type, String excludeState, List<String> stateList, String auditingState,
-			List<String> reviewStateList, String startMaraApprovalDate, String endMaraApprovalDate,
-			String startOfficialApprovalDate, String endOfficialApprovalDate, String startReadcommittedDate,
-			String endReadcommittedDate, List<Integer> regionIdList, Integer userId,String userName,  Integer maraId, Integer adviserId,
-			Integer officialId, Integer officialTagId, int parentId, boolean isNotApproved, Integer serviceId,
-			Integer schoolId) throws ServiceException {
-		return serviceOrderDao.countServiceOrder(type, excludeState, stateList, auditingState, reviewStateList,
-				startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate,
-				startReadcommittedDate, endReadcommittedDate, regionIdList, userId, userName,maraId, adviserId, officialId,
-				officialTagId, parentId, isNotApproved, serviceId, schoolId);
+	public int countServiceOrder(String type, List<String> excludeTypeList, String excludeState, List<String> stateList,
+			String auditingState, List<String> reviewStateList, String urgentState, String startMaraApprovalDate,
+			String endMaraApprovalDate, String startOfficialApprovalDate, String endOfficialApprovalDate,
+			String startReadcommittedDate, String endReadcommittedDate, List<Integer> regionIdList, Integer userId,
+			String userName, Integer maraId, Integer adviserId, Integer officialId, Integer officialTagId, int parentId,
+			boolean isNotApproved, Integer serviceId, Integer schoolId, Boolean isPay) throws ServiceException {
+		return serviceOrderDao.countServiceOrder(type, excludeTypeList, excludeState, stateList, auditingState,
+				reviewStateList, urgentState, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
+				endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId, userName,
+				maraId, adviserId, officialId, officialTagId, parentId, isNotApproved, serviceId, schoolId, isPay);
 	}
 
 	@Override
-	public List<ServiceOrderDTO> listServiceOrder(String type, String excludeState, List<String> stateList,
-			String auditingState, List<String> reviewStateList, String startMaraApprovalDate,
-			String endMaraApprovalDate, String startOfficialApprovalDate, String endOfficialApprovalDate,
-			String startReadcommittedDate, String endReadcommittedDate, List<Integer> regionIdList, Integer userId,String userName,
-			Integer maraId, Integer adviserId, Integer officialId, Integer officialTagId, int parentId,
-			boolean isNotApproved, int pageNum, int pageSize, Sorter sorter, Integer serviceId, Integer schoolId)
-			throws ServiceException {
+	public List<ServiceOrderDTO> listServiceOrder(String type, List<String> excludeTypeList, String excludeState,
+			List<String> stateList, String auditingState, List<String> reviewStateList, String urgentState,
+			String startMaraApprovalDate, String endMaraApprovalDate, String startOfficialApprovalDate,
+			String endOfficialApprovalDate, String startReadcommittedDate, String endReadcommittedDate,
+			List<Integer> regionIdList, Integer userId, String userName, Integer maraId, Integer adviserId,
+			Integer officialId, Integer officialTagId, int parentId, boolean isNotApproved, int pageNum, int pageSize,
+			Sorter sorter, Integer serviceId, Integer schoolId, Boolean isPay) throws ServiceException {
 		List<ServiceOrderDTO> serviceOrderDtoList = new ArrayList<ServiceOrderDTO>();
 		List<ServiceOrderDO> serviceOrderDoList = new ArrayList<ServiceOrderDO>();
 		if (pageNum < 0)
@@ -276,11 +279,11 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				orderBy = StringUtil.merge("ORDER BY ", sorter.getOrderBy("a.name", sorter.getAdviserName()));
 		}
 		try {
-			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, excludeState, stateList, auditingState,
-					reviewStateList, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
-					endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId, userName,maraId,
-					adviserId, officialId, officialTagId, parentId, isNotApproved, serviceId, schoolId,
-					pageNum * pageSize, pageSize, orderBy);
+			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, excludeTypeList, excludeState, stateList,
+					auditingState, reviewStateList, urgentState, startMaraApprovalDate, endMaraApprovalDate,
+					startOfficialApprovalDate, theDateTo23_59_59(endOfficialApprovalDate), startReadcommittedDate,
+					endReadcommittedDate, regionIdList, userId, userName, maraId, adviserId, officialId, officialTagId,
+					parentId, isNotApproved, serviceId, schoolId, isPay, pageNum * pageSize, pageSize, orderBy);
 			if (serviceOrderDoList == null)
 				return null;
 		} catch (Exception e) {
@@ -289,6 +292,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			throw se;
 		}
 		for (ServiceOrderDO serviceOrderDo : serviceOrderDoList) {
+			/*
 			ServiceOrderDTO serviceOrderDto = mapper.map(serviceOrderDo, ServiceOrderDTO.class);
 			// 查询学校课程
 			if (serviceOrderDto.getSchoolId() > 0) {
@@ -326,8 +330,13 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				serviceOrderDto.setMara(mapper.map(maraDo, MaraDTO.class));
 			// 查询顾问
 			AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderDto.getAdviserId());
-			if (adviserDo != null)
+			if (adviserDo != null){
+				RegionDO regionDO = regionDAO.getRegionById(adviserDo.getRegionId());
 				serviceOrderDto.setAdviser(mapper.map(adviserDo, AdviserDTO.class));
+				if (regionDO != null)
+					serviceOrderDto.getAdviser().setRegionName(regionDO.getName());
+				serviceOrderDto.getAdviser().setRegionDo(regionDO);
+			}
 			// 查询顾问2
 			if (serviceOrderDto.getAdviserId2() > 0) {
 				AdviserDO adviserDo2 = adviserDao.getAdviserById(serviceOrderDto.getAdviserId2());
@@ -381,7 +390,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDto.getServiceAssessId());
 			if (serviceAssessDO != null)
 				serviceOrderDto.setServiceAssessDO(serviceAssessDO);
-
+			*/
+			serviceOrderDtoList.add(putServiceOrderDTO(serviceOrderDo));
 		}
 		return serviceOrderDtoList;
 	}
@@ -395,9 +405,14 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		}
 		ServiceOrderDTO serviceOrderDto = null;
 		try {
+
+
+
 			ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(id);
 			if (serviceOrderDo == null)
 				return null;
+			serviceOrderDto = putServiceOrderDTO(serviceOrderDo);
+			/*
 			serviceOrderDto = mapper.map(serviceOrderDo, ServiceOrderDTO.class);
 			// 查询学校课程
 			if (serviceOrderDto.getSchoolId() > 0) {
@@ -451,13 +466,17 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			OfficialTagDO officialTagDo = officialTagDao.getOfficialTagByServiceOrderId(serviceOrderDto.getId());
 			if (officialTagDo != null)
 				serviceOrderDto.setOfficialTag(mapper.map(officialTagDo, OfficialTagDTO.class));
+			*/
 			// 是否有创建过佣金订单
 			if ("OVST".equalsIgnoreCase(serviceOrderDto.getType()))
 				serviceOrderDto.setHasCommissionOrder(commissionOrderDao
 						.countCommissionOrderByServiceOrderIdAndExcludeCode(serviceOrderDto.getId(), null) > 0);
-			else
+			else if ("VISA".equalsIgnoreCase(serviceOrderDto.getType()))
 				serviceOrderDto.setHasCommissionOrder(
 						visaDao.countVisaByServiceOrderIdAndExcludeCode(serviceOrderDto.getId(), null) > 0);
+			else
+				serviceOrderDto.setHasCommissionOrder(false);
+			/*
 			// 查询子服务
 			if (serviceOrderDto.getParentId() <= 0) {
 				List<ChildrenServiceOrderDTO> childrenServiceOrderList = new ArrayList<>();
@@ -480,12 +499,123 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDto.getServiceAssessId());
 			if (serviceAssessDO != null)
 				serviceOrderDto.setServiceAssessDO(serviceAssessDO);
-
+			*/
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
 		}
+		return serviceOrderDto;
+	}
+
+	public ServiceOrderDTO putServiceOrderDTO(ServiceOrderDO serviceOrderDO){
+		ServiceOrderDTO serviceOrderDto = mapper.map(serviceOrderDO, ServiceOrderDTO.class);
+		// 查询学校课程
+		if (serviceOrderDto.getSchoolId() > 0) {
+			SchoolDO schoolDo = schoolDao.getSchoolById(serviceOrderDto.getSchoolId());
+			if (schoolDo != null)
+				serviceOrderDto.setSchool(mapper.map(schoolDo, SchoolDTO.class));
+		}
+		// 查询Subagency
+		if (serviceOrderDto.getSubagencyId() > 0) {
+			SubagencyDO subagencyDo = subagencyDao.getSubagencyById(serviceOrderDto.getSubagencyId());
+			if (subagencyDo != null)
+				serviceOrderDto.setSubagency(mapper.map(subagencyDo, SubagencyDTO.class));
+		}
+		// 查询服务
+		ServiceDO serviceDo = serviceDao.getServiceById(serviceOrderDto.getServiceId());
+		if (serviceDo != null)
+			serviceOrderDto.setService(mapper.map(serviceDo, ServiceDTO.class));
+		// 查询服务包类型
+		if (serviceOrderDto.getServicePackageId() > 0) {
+			ServicePackageDO servicePackageDo = servicePackageDao.getById(serviceOrderDto.getServicePackageId());
+			if (servicePackageDo != null)
+				serviceOrderDto.setServicePackage(mapper.map(servicePackageDo, ServicePackageDTO.class));
+		}
+		// 查询收款方式
+		ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(serviceOrderDto.getReceiveTypeId());
+		if (receiveTypeDo != null)
+			serviceOrderDto.setReceiveType(mapper.map(receiveTypeDo, ReceiveTypeDTO.class));
+		// 查询用户
+		UserDO userDo = userDao.getUserById(serviceOrderDto.getUserId());
+		if (userDo != null)
+			serviceOrderDto.setUser(mapper.map(userDo, UserDTO.class));
+		// 查询Mara
+		MaraDO maraDo = maraDao.getMaraById(serviceOrderDto.getMaraId());
+		if (maraDo != null)
+			serviceOrderDto.setMara(mapper.map(maraDo, MaraDTO.class));
+		// 查询顾问
+		AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderDto.getAdviserId());
+		if (adviserDo != null){
+			RegionDO regionDO = regionDAO.getRegionById(adviserDo.getRegionId());
+			serviceOrderDto.setAdviser(mapper.map(adviserDo, AdviserDTO.class));
+			if (regionDO != null)
+				serviceOrderDto.getAdviser().setRegionName(regionDO.getName());
+			serviceOrderDto.getAdviser().setRegionDo(regionDO);
+		}
+		// 查询顾问2
+		if (serviceOrderDto.getAdviserId2() > 0) {
+			AdviserDO adviserDo2 = adviserDao.getAdviserById(serviceOrderDto.getAdviserId2());
+			if (adviserDo2 != null)
+				serviceOrderDto.setAdviser2(mapper.map(adviserDo2, AdviserDTO.class));
+		}
+		// 查询文案
+		OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDto.getOfficialId());
+		if (officialDo != null)
+			serviceOrderDto.setOfficial(mapper.map(officialDo, OfficialDTO.class));
+		// 查询文案Tag
+		OfficialTagDO officialTagDo = officialTagDao.getOfficialTagByServiceOrderId(serviceOrderDto.getId());
+		if (officialTagDo != null)
+			serviceOrderDto.setOfficialTag(mapper.map(officialTagDo, OfficialTagDTO.class));
+		// 查询子服务
+		if (serviceOrderDto.getParentId() <= 0) {
+			List<ChildrenServiceOrderDTO> childrenServiceOrderList = new ArrayList<>();
+			List<ServiceOrderDO> list = serviceOrderDao.listByParentId(serviceOrderDto.getId());
+			list.forEach(serviceOrder -> {
+				ChildrenServiceOrderDTO childrenServiceOrderDto = mapper.map(serviceOrder,
+						ChildrenServiceOrderDTO.class);
+				ServicePackageDO servicePackageDo = servicePackageDao
+						.getById(childrenServiceOrderDto.getServicePackageId()); // TODO:
+				// 又偷懒了，性能比较差哦：）
+				if (servicePackageDo != null)
+					childrenServiceOrderDto.setServicePackageType(servicePackageDo.getType());
+				childrenServiceOrderList.add(childrenServiceOrderDto);
+			});
+			serviceOrderDto.setChildrenServiceOrders(childrenServiceOrderList);
+		}
+
+		List<Integer> cIds = new ArrayList<>();
+//			List<VisaDO> visaList = visaDao.listVisaByServiceOrderId(serviceOrderDo.getId());
+//			if (visaList != null && visaList.size() > 0) {
+//				for (VisaDO visaDo : visaList)
+//					cIds.add(visaDo.getId());
+//			}
+//			List<CommissionOrderDO> commissionOrderList = commissionOrderDao
+//					.listCommissionOrderByServiceOrderId(serviceOrderDto.getId());
+//			if (commissionOrderList != null && commissionOrderList.size() > 0) {
+//				for (CommissionOrderDO commissionOrderDo : commissionOrderList)
+//					cIds.add(commissionOrderDo.getId());
+//			}
+		serviceOrderDto.setCIds(cIds);
+
+		// 查询审核记录
+		//putReviews(serviceOrderDto);
+		//serviceOrderDtoList.add(serviceOrderDto);
+
+		// 查询职业名称
+		ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDto.getServiceAssessId());
+		if (serviceAssessDO != null)
+			serviceOrderDto.setServiceAssessDO(serviceAssessDO);
+
+		List<MailRemindDO> mailRemindDOS = mailRemindDAO.list(null,null,serviceOrderDO.getId(),null,null,null,false,false);
+		if (mailRemindDOS.size() > 0){
+			List<MailRemindDTO> mailRemindDTOS = new ArrayList<>();
+			mailRemindDOS.forEach(mailRemindDO ->{
+				mailRemindDTOS.add(mapper.map(mailRemindDO,MailRemindDTO.class));
+			});
+			serviceOrderDto.setMailRemindDTOS(mailRemindDTOS);
+		}
+
 		return serviceOrderDto;
 	}
 
@@ -882,7 +1012,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		String type = "";
 		String detail = "";
 		serviceOrderMailDetail.setServiceOrderUrl(
-				"<br/><a href='https://yongjinbiao.zhinanzhen.org/webroot/serviceorder-detail.html?id="
+				"<br/><a href='https://yongjinbiao.zhinanzhen.org/webroot_new/serviceorderdetail/id?"
 						+ serviceOrderDo.getId() + "'>服务订单详情</a>");
 		UserDO user = userDao.getUserById(serviceOrderDo.getUserId());
 		if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())) {
@@ -895,6 +1025,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				type += "(" + service.getCode() + ")";
 			}
 			title += user.getName() + "/" + type;
+			if (StringUtil.isNotEmpty(serviceOrderDo.getUrgentState()))
+				title += StringUtil.merge("[", getUrgentStateName(serviceOrderDo.getUrgentState()), "]");
 		} else if ("OVST".equalsIgnoreCase(serviceOrderDo.getType())) {
 			type = "留学";
 			if (user != null)
@@ -910,6 +1042,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			title += user.getName() + "/" + type;
 		} else if ("MT".equalsIgnoreCase(serviceOrderDo.getType())) {
 			type = "曼拓";
+			title += user.getName() + "/" + type;
+		} else if ("ZX".equalsIgnoreCase(serviceOrderDo.getType())) {
+			type = "咨询";
 			title += user.getName() + "/" + type;
 		}
 		serviceOrderMailDetail.setTitle(title);
@@ -1412,6 +1547,14 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			return "其它";
 		else
 			return "未知";
+	}
+	
+	private String getUrgentStateName(String urgentState) {
+		if ("JJ".equalsIgnoreCase(urgentState))
+			return "加急";
+		if ("TSJJ".equalsIgnoreCase(urgentState))
+			return "特殊加急";
+		return "";
 	}
 
 }

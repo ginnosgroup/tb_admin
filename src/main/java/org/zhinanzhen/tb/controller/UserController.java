@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.zhinanzhen.b.service.MailRemindService;
+import org.zhinanzhen.b.service.pojo.MailRemindDTO;
 import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserAuthTypeEnum;
@@ -39,6 +41,9 @@ public class UserController extends BaseController {
 	@Resource
 	RegionService regionService;
 
+	@Resource
+	MailRemindService mailRemindService;
+
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> addUser(@RequestParam(value = "name") String name,
@@ -55,9 +60,15 @@ public class UserController extends BaseController {
 			@RequestParam(value = "regionId", required = false) String regionId, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			if (phone != null && !"".equals(phone)
-					&& userService.countUser(null, null, null, phone, null, 0, null, null) > 0)
-				return new Response<Integer>(1, "该电话号码已被使用,添加失败.", 0);
+			if (phone != null && !"".equals(phone)) {
+				List<UserDTO> _userList = userService.listUser(null, null, null, phone, null, 0, null, null, null, null,
+						0, 1);
+				if (_userList != null && _userList.size() > 0) {
+					UserDTO _user = _userList.get(0);
+					if (_user != null)
+						return new Response<Integer>(1, "该电话号码已被使用,添加失败.", _user.getId());
+				}
+			}
 			if (email != null && !"".equals(email) && !EMAIL_PATTERN.matcher(email).matches())
 				return new Response<Integer>(1, "邮箱地址格式不正确,添加失败.", 0);
 			if (areaCode == null)
@@ -75,6 +86,18 @@ public class UserController extends BaseController {
 							email, wechatUsername, firstControllerContents, visaCode,
 							new Date(Long.parseLong(visaExpirationDate)), source, StringUtil.toInt(adviserId),
 							StringUtil.toInt(regionId)));
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), -1);
+		}
+	}
+	
+	@RequestMapping(value = "/addUserAdviser", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> addUserAdviser(@RequestParam(value = "userId") String userId,
+			@RequestParam(value = "adviserId") String adviserId, HttpServletResponse response) {
+		try {
+			return new Response<Integer>(0,
+					userService.addUserAdviser(StringUtil.toInt(userId), StringUtil.toInt(adviserId)));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), -1);
 		}
@@ -141,6 +164,7 @@ public class UserController extends BaseController {
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
 	public ListResponse<List<UserDTO>> listUser(@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "id", required = false) Integer id,
 			@RequestParam(value = "authType", required = false) String authType,
 			@RequestParam(value = "authNickname", required = false) String authNickname,
 			@RequestParam(value = "areaCode", required = false) String areaCode,
@@ -181,11 +205,24 @@ public class UserController extends BaseController {
 				if (StringUtil.isBlank(adviserId) && !isAdminUser(request))
 					return new ListResponse<List<UserDTO>>(false, pageSize, 0, null, "No permission !");
 			}
+
+			if (id != null && id > 0){
+				List<UserDTO> list = new ArrayList<>();
+				UserDTO userDTO = userService.getUserById(id);
+				userDTO.setMailRemindDTOS(mailRemindService.list(getAdviserId(request),null,null,null,null,id,false,false));
+				list.add(userDTO);
+				return  new ListResponse<List<UserDTO>>(true, pageSize, 1, list, "");
+			}
+
 			int total = userService.countUser(name, authTypeEnum, authNickname, phone, wechatUsername,
 					StringUtil.toInt(adviserId), regionIdList, StringUtil.toInt(tagId));
 			List<UserDTO> list = userService.listUser(name, authTypeEnum, authNickname, phone, wechatUsername,
 					StringUtil.toInt(adviserId), regionIdList, StringUtil.toInt(tagId), orderByField,
 					Boolean.parseBoolean(StringUtil.isEmpty(isDesc) ? "false" : isDesc), pageNum, pageSize);
+			for (UserDTO user : list){
+				List<MailRemindDTO> mailRemindDTOS = mailRemindService.list(getAdviserId(request),null,null,null,null,user.getId(),false,false);
+				user.setMailRemindDTOS(mailRemindDTOS);
+			}
 			return new ListResponse<List<UserDTO>>(true, pageSize, total, list, "");
 		} catch (ServiceException e) {
 			return new ListResponse<List<UserDTO>>(false, pageSize, 0, null, e.getMessage());
@@ -202,6 +239,20 @@ public class UserController extends BaseController {
 		} catch (ServiceException e) {
 			return new Response<UserDTO>(1, e.getMessage(), null);
 		}
+	}
+	
+	@RequestMapping(value = "/getByPhone", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<UserDTO> getByPhone(String phone, HttpServletResponse response) throws ServiceException {
+		if (phone == null) {
+			return new Response<UserDTO>(1, "参数错误.");
+		}
+		super.setGetHeader(response);
+		List<UserDTO> list = userService.listUser(null, null, null, phone, null, 0, null, 0, 1);
+		if (list != null && list.size() > 0)
+			return new Response<UserDTO>(0, list.get(0));
+		else
+			return new Response<UserDTO>(0, null, null);
 	}
 
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
