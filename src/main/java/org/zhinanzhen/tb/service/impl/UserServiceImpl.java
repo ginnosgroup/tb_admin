@@ -213,9 +213,10 @@ public class UserServiceImpl extends BaseService implements UserService {
 			if (userAdviserList != null && userAdviserList.size() > 0)
 				userDto.setUserAdviserList(userAdviserList);
 			AdviserDO adviserDo = null;
-			if (adviserId > 0)
+			if (adviserId > 0) {
+				userDto.setAdviserId(adviserId);
 				adviserDo = adviserDao.getAdviserById(adviserId);
-			else if (userDto.getAdviserId() > 0)
+			} else if (userDto.getAdviserId() > 0)
 				adviserDo = adviserDao.getAdviserById(userDto.getAdviserId());
 			if (adviserDo != null)
 				userDto.setAdviserDto(mapper.map(adviserDo, AdviserDTO.class));
