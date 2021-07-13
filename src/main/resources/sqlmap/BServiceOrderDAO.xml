@@ -66,7 +66,7 @@
                 service_assess_id,
                 real_people_number,
                 verify_code,
-                ref_no,)
+                ref_no)
             VALUES (
                 now(),
                 now(),
