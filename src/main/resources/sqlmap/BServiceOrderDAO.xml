@@ -65,7 +65,8 @@
                 nut_cloud,
                 service_assess_id,
                 real_people_number,
-                verify_code )
+                verify_code,
+                ref_no,)
             VALUES (
                 now(),
                 now(),
@@ -126,7 +127,8 @@
                 #{nutCloud},
                 #{serviceAssessId},
                 #{realPeopleNumber},
-                #{verifyCode});
+                #{verifyCode},
+                #{refNo});
     </insert>
     
     <update id="updateServiceOrder" parameterType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
@@ -300,6 +302,9 @@
         <if test="readcommittedDate != null">
             ,readcommitted_date = #{readcommittedDate}
         </if>
+        <if test="refNo != null">
+            ,ref_no = #{refNo}
+        </if>
         WHERE id = #{id};
     </update>
     
@@ -453,7 +458,8 @@
             so.service_assess_id AS serviceAssessId ,
             so.real_people_number AS realPeopleNumber ,
             so.verify_code AS verifyCode ,
-            so.readcommitted_date AS readcommittedDate
+            so.readcommitted_date AS readcommittedDate,
+            so.ref_no AS refNo
         FROM tb_user u, tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON so.id=soot.service_order_id
         WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id
         <if test='type != null and type != ""'>
@@ -611,7 +617,8 @@
             service_assess_id AS serviceAssessId ,
             real_people_number AS realPeopleNumber ,
             verify_code AS verifyCode ,
-            readcommitted_date AS readcommittedDate
+            readcommitted_date AS readcommittedDate,
+            ref_no AS refNo
         FROM b_service_order WHERE id = #{id, jdbcType=INTEGER};
     </select>
     
@@ -759,7 +766,8 @@
             service_assess_id AS serviceAssessId ,
             real_people_number AS realPeopleNumber ,
             verify_code AS verifyCode ,
-            readcommitted_date AS readcommittedDate
+            readcommitted_date AS readcommittedDate,
+            ref_no AS refNo
         FROM b_service_order WHERE verify_code = #{verifyCode};
     </select>
 
@@ -843,7 +851,8 @@
         so.service_assess_id AS serviceAssessId ,
         so.real_people_number AS realPeopleNumber ,
         so.verify_code AS verifyCode ,
-        so.readcommitted_date AS readcommittedDate
+        so.readcommitted_date AS readcommittedDate,
+        so.ref_no AS refNo
         FROM tb_user u, tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON so.id=soot.service_order_id
         WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id AND so.type != 'SIV'
         AND so.state = 'REVIEW'
