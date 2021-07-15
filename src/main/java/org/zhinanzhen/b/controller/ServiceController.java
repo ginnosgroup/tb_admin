@@ -29,13 +29,15 @@ public class ServiceController extends BaseController {
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> addService(@RequestParam(value = "code") String code,
-			@RequestParam(value = "name", required = false) String name, HttpServletRequest request,
-			HttpServletResponse response) {
+			@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "role",required = false)String role,
+			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			ServiceDTO serviceDto = new ServiceDTO();
 			serviceDto.setName(name);
 			serviceDto.setCode(code);
+			serviceDto.setRole(role);
 			if (serviceService.addService(serviceDto) > 0) {
 				return new Response<Integer>(0, serviceDto.getId());
 			} else {

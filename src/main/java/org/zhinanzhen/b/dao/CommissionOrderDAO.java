@@ -46,6 +46,8 @@ public interface CommissionOrderDAO {
 
 	public List<CommissionOrderDO> listCommissionOrderByCode(String code);
 
+	public List<CommissionOrderDO> listCommissionOrderBySchoolId(Integer schoolId);
+
 	public List<CommissionOrderDO> listCommissionOrderByServiceOrderId(Integer serviceOrderId);
 
 	List<CommissionOrderListDO> listCommissionOrderBySchool(@Param("startDate") Date startDate,
