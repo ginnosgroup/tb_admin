@@ -11,12 +11,14 @@
                 gmt_create,
                 gmt_modify,
                 name,
-                code)
+                code,
+                role)
             VALUES (
                 now(),
                 now(),
                 #{name},
-                #{code});
+                #{code},
+                #{role});
     </insert>
     
     <update id="updateService" parameterType="org.zhinanzhen.b.dao.pojo.ServiceDO">
@@ -28,6 +30,9 @@
         <if test='code != null and code != ""'>
             , code = #{code}
         </if>
+        <if test='role != null and role != ""'>
+            , role = #{role}
+        </if>
         WHERE id = #{id};
     </update>
     
@@ -36,7 +41,8 @@
             id,
             gmt_create AS GmtCreate,
             name,
-            code
+            code,
+            role
         FROM b_service
         WHERE is_delete = 0
         <if test='name != null and name != ""'>
@@ -50,7 +56,8 @@
             id,
             gmt_create AS GmtCreate,
             name,
-            code
+            code,
+            role
         FROM b_service WHERE id = #{id, jdbcType=INTEGER};
     </select>
     

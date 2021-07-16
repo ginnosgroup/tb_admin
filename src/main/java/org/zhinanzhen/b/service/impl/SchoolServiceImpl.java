@@ -16,12 +16,7 @@ import org.zhinanzhen.b.dao.SchoolDAO;
 import org.zhinanzhen.b.dao.SchoolSettingDAO;
 import org.zhinanzhen.b.dao.SubagencyDAO;
 import org.zhinanzhen.b.dao.SubjectSettingDAO;
-import org.zhinanzhen.b.dao.pojo.CommissionOrderListDO;
-import org.zhinanzhen.b.dao.pojo.SchoolAttachmentsDO;
-import org.zhinanzhen.b.dao.pojo.SchoolDO;
-import org.zhinanzhen.b.dao.pojo.SchoolSettingDO;
-import org.zhinanzhen.b.dao.pojo.SubagencyDO;
-import org.zhinanzhen.b.dao.pojo.SubjectSettingDO;
+import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.SchoolService;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.b.service.pojo.SchoolAttachmentsDTO;
@@ -93,7 +88,11 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	}
 
 	@Override
+<<<<<<< HEAD
 	@Transactional(rollbackFor = ServiceException.class)
+=======
+	@Transactional(rollbackFor = Exception.class)
+>>>>>>> f4812354fa2cd393d7fad31c67b27d65c41827af
 	public  void refreshSchoolSetting() throws ServiceException {
 		try {
 
@@ -103,64 +102,68 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 				//一个学校名字对应的	学校 + 专业集合
 				List<SchoolDO> schoolDOS = schoolDao.list2(schoolDO.getName(), null);
 
-				SchoolSettingDO setting1 = null; //用来 subject = null | subject = "" 的settingdo
+				SchoolSettingDO setting1 = null; //学校规则settingdo
+				SchoolDO school = null;//学校
+				List<Integer> _schoolIds = new ArrayList<>();
 
-				//存setting表中没有记录的school.id
-				List<Integer> schoolIds = new ArrayList<>();
+				//学校
+				for (SchoolDO s1 : schoolDOS){
+					if (StringUtils.isEmpty(s1.getSubject())){
+						school = s1;
+						break;
+					}
+				}
+				if (school == null)
+					continue;
+				setting1 = schoolSettingDao.getBySchoolId(school.getId());
+				if (setting1 == null)
+					continue;
 
+				//更新专业规则，跟随学校的规则，如果专业已经有规则，就不更新
 				for (SchoolDO s1 : schoolDOS) {
 					SchoolSettingDO schoolSettingDO = schoolSettingDao.getBySchoolId(s1.getId());
-					//setting表中没有此记录并且是专业
-					if (schoolSettingDO == null && StringUtils.isNotEmpty(s1.getSubject())) {
-						schoolIds.add(s1.getId());
-						continue;
+					if (schoolSettingDO != null && StringUtils.isEmpty(schoolSettingDO.getParameters()) && schoolSettingDO.getType() == 0){
+						schoolSettingDO.setType(setting1.getType());
+						schoolSettingDO.setParameters(setting1.getParameters());
+						schoolSettingDao.update(schoolSettingDO.getId(),schoolSettingDO.getType(),
+								schoolSettingDO.getStartDate(),schoolSettingDO.getEndDate(),schoolSettingDO.getParameters());
+						_schoolIds.add(s1.getId());
 					}
+				}
 
-					if (schoolSettingDO != null && StringUtils.isEmpty(schoolSettingDO.getSchoolSubject())) {
-						// 此记录是学校
-						setting1 = schoolSettingDO;
+				for (Integer id : _schoolIds){
+					List<CommissionOrderDO> commissionOrderDOS = commissionOrderDao.listCommissionOrderBySchoolId(id);
+					Date startDate = setting1.getStartDate();
+					Date endDate = setting1.getEndDate();
+					int type = setting1.getType();
+					String parameters = setting1.getParameters();
+					for (CommissionOrderDO commission : commissionOrderDOS){
+						if (commission.getGmtCreate().before(startDate) || commission.getGmtCreate().after(endDate))
+							continue;
+						if (type == 1)
+							schoolSetting1(setting1.getSchoolName(), startDate, endDate, parameters);
+						else if (type == 2)
+							schoolSetting2(setting1.getSchoolName(), startDate, endDate, parameters);
+						else if (type == 3)
+							schoolSetting3(setting1.getSchoolName(), startDate, endDate, parameters);
+						else if (type == 4)
+							schoolSetting4(setting1.getSchoolName(), startDate, endDate, parameters);
+						else if (type == 5)
+							schoolSetting5(setting1, startDate, endDate, parameters);
+						else if (type == 6)
+							schoolSetting6(setting1, startDate, endDate, parameters);
+						else if (type == 7)
+							schoolSetting7(setting1, startDate, endDate, parameters);
 					}
-				}
-				if (setting1 != null) {
-					for (Integer schoolId : schoolIds) {
-						setting1.setSchoolId(schoolId);
-						schoolSettingDao.add(setting1);
-					}
-				}
-				List<CommissionOrderListDO> commissionOrderListDOS =
-						commissionOrderDao.listCommissionOrderBySchool(null,null,schoolDO.getName());
-				for (CommissionOrderListDO commission : commissionOrderListDOS){
-					SchoolSettingDO schoolSettingDO = schoolSettingDao.getBySchoolId(commission.getSchoolId());
-					if (schoolSettingDO == null)
-						continue;
-					Date startDate = schoolSettingDO.getStartDate();
-					Date endDate = schoolSettingDO.getEndDate();
-					int type = schoolSettingDO.getType();
-					String parameters = schoolSettingDO.getParameters();
-					if (commission.getGmtCreate().before(startDate) || commission.getGmtCreate().after(endDate))
-						continue;
-					if (type == 1)
-						schoolSetting1(schoolSettingDO.getSchoolName(), startDate, endDate, parameters);
-					else if (type == 2)
-						schoolSetting2(schoolSettingDO.getSchoolName(), startDate, endDate, parameters);
-					else if (type == 3)
-						schoolSetting3(schoolSettingDO.getSchoolName(), startDate, endDate, parameters);
-					else if (type == 4)
-						schoolSetting4(schoolSettingDO.getSchoolName(), startDate, endDate, parameters);
-					else if (type == 5)
-						schoolSetting5(schoolSettingDO, startDate, endDate, parameters);
-					else if (type == 6)
-						schoolSetting6(schoolSettingDO, startDate, endDate, parameters);
-					else if (type == 7)
-						schoolSetting7(schoolSettingDO, startDate, endDate, parameters);
 				}
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
 		}
-		/* 这个是我问许姐，许姐给我说的规则......，有点不知所以，结合你给我说的，写的这个方法，不晓得是不是这样
+		/*
 		如果学校设置了规则，专业跟随学校规则。
 		专业可以单独设置规则。
 		如果学校没有设置规则，只是专业设置规则，学校规则保持为空。
