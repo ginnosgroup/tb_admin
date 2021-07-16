@@ -56,7 +56,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	private SubagencyDAO subagencyDao;
 
 	@Override
-	@Transactional
+	@Transactional(rollbackFor = ServiceException.class)
 	public int addSchool(SchoolDTO schoolDto) throws ServiceException {
 		if (schoolDto == null) {
 			ServiceException se = new ServiceException("schoolDto is null !");
@@ -93,7 +93,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	}
 
 	@Override
-	@Transactional
+	@Transactional(rollbackFor = ServiceException.class)
 	public  void refreshSchoolSetting() throws ServiceException {
 		try {
 

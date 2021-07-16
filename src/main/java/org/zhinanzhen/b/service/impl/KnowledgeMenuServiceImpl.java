@@ -112,7 +112,7 @@ public class KnowledgeMenuServiceImpl extends BaseService implements KnowledgeMe
 	}
 
 	@Override
-	@Transactional
+	@Transactional(rollbackFor = ServiceException.class)
 	public int deleteKnowledgeMenu(int id) throws ServiceException {
 		if (id <= 0) {
 			ServiceException se = new ServiceException("id error !");

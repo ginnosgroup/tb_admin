@@ -718,7 +718,7 @@ public class ServiceOrderController extends BaseController {
 
 	@RequestMapping(value = "/updateReadcommittedDate", method = RequestMethod.POST)
 	@ResponseBody
-	@Transactional
+	@Transactional(rollbackFor = ServiceException.class)
 	public Response<Integer> updateReadcommittedDate(@RequestParam(value = "id") int id,
 			@RequestParam(value = "readcommittedDate") String readcommittedDate, HttpServletRequest request,
 			HttpServletResponse response) {

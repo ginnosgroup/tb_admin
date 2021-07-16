@@ -71,7 +71,7 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 	private MailRemindDAO mailRemindDAO;
 
 	@Override
-	@Transactional
+	@Transactional(rollbackFor = ServiceException.class)
 	public int addCommissionOrder(CommissionOrderDTO commissionOrderDto) throws ServiceException {
 		if (commissionOrderDto == null) {
 			ServiceException se = new ServiceException("commissionOrderDto is null !");
@@ -171,7 +171,7 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 	}
 
 	@Override
-	@Transactional
+	@Transactional(rollbackFor = ServiceException.class)
 	public int updateCommissionOrder(CommissionOrderDTO commissionOrderDto) throws ServiceException {
 		if (commissionOrderDto == null) {
 			ServiceException se = new ServiceException("commissionOrderDto is null !");
