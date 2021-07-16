@@ -88,11 +88,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	}
 
 	@Override
-<<<<<<< HEAD
-	@Transactional(rollbackFor = ServiceException.class)
-=======
 	@Transactional(rollbackFor = Exception.class)
->>>>>>> f4812354fa2cd393d7fad31c67b27d65c41827af
 	public  void refreshSchoolSetting() throws ServiceException {
 		try {
 
