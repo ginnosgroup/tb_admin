@@ -1992,7 +1992,8 @@ public class ServiceOrderController extends BaseController {
 			if (context.getParameter("response") != null)
 				return (Response<ServiceOrderDTO>) context.getParameter("response");
 			else {
-				serviceOrderService.sendRemind(id, state); // 发送提醒邮件
+				if (!"ZX".equals(serviceOrderDto.getType()))//咨询服务不用发邮件提醒
+					serviceOrderService.sendRemind(id, state); // 发送提醒邮件
 				return new Response<ServiceOrderDTO>(0, id + "", null);
 			}
 		} catch (ServiceException e) {
