@@ -28,6 +28,8 @@ import org.zhinanzhen.tb.service.pojo.UserDTO;
 import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.core.utils.StringUtil;
 
+import lombok.SneakyThrows;
+
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/user")
@@ -231,14 +233,15 @@ public class UserController extends BaseController {
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
 	@ResponseBody
+	@SneakyThrows
 	public Response<UserDTO> getUser(@RequestParam(value = "id") int id, HttpServletResponse response) {
-		try {
+//		try {
 			super.setGetHeader(response);
 			UserDTO user = userService.getUserById(id);
 			return new Response<UserDTO>(0, user);
-		} catch (ServiceException e) {
-			return new Response<UserDTO>(1, e.getMessage(), null);
-		}
+//		} catch (ServiceException e) {
+//			return new Response<UserDTO>(1, e.getMessage(), null);
+//		}
 	}
 	
 	@RequestMapping(value = "/getByPhone", method = RequestMethod.GET)

@@ -288,7 +288,7 @@ public class VerifyController {
 
     @PostMapping(value = "/update")
     @ResponseBody
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public  Response update(@RequestParam(value = "orderId",required = true)String orderId,
                             @RequestParam(value = "id") Integer id) throws Exception {
 

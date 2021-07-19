@@ -646,7 +646,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	}
 
 	@Override
-	@Transactional
+	@Transactional(rollbackFor = ServiceException.class)
 	public ServiceOrderDTO approval(int id, int adminUserId, String adviserState, String maraState,
 			String officialState, String kjState) throws ServiceException {
 		sendRemind(id, adviserState, maraState, officialState);

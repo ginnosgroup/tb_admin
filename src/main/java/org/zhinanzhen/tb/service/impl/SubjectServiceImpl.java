@@ -47,7 +47,7 @@ public class SubjectServiceImpl extends BaseService implements SubjectService {
     AdviserDAO adviserDao;
 
 	@Override
-	@Transactional
+	@Transactional(rollbackFor = ServiceException.class)
 	public int addSubject(SubjectDTO subjectDto) throws ServiceException {
 		if (subjectDto == null) {
 			ServiceException se = new ServiceException("subjectDto is null !");
@@ -103,7 +103,7 @@ public class SubjectServiceImpl extends BaseService implements SubjectService {
 	}
 
 	@Override
-	@Transactional
+	@Transactional(rollbackFor = ServiceException.class)
 	public int updateSubject(SubjectDTO subjectDto) throws ServiceException {
 		if (subjectDto == null) {
 			ServiceException se = new ServiceException("subjectDto is null !");

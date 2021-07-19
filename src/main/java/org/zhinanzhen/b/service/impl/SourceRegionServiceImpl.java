@@ -90,7 +90,7 @@ public class SourceRegionServiceImpl extends BaseService implements SourceRegion
 	}
 
 	@Override
-	@Transactional
+	@Transactional(rollbackFor = ServiceException.class)
 	public int deleteSourceRegion(int id) throws ServiceException {
 		if (id <= 0) {
 			ServiceException se = new ServiceException("id error !");
