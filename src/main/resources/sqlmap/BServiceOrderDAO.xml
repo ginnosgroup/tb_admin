@@ -167,6 +167,9 @@
         <if test='urgentState != null'>
             , urgent_state = #{urgentState}
         </if>
+        <if test='urgentState == ""'>
+            , urgent_state = NULL
+        </if>
         <if test='maraApprovalDate != null'>
             , mara_approval_date = #{maraApprovalDate}
         </if>
