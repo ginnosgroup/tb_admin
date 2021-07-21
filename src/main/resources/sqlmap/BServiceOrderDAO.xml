@@ -552,7 +552,7 @@
         <if test='parentId != null and parentId > 0'>
             AND parent_id = #{parentId}
         </if>
-        ORDER BY gmt_create DESC;
+        ORDER BY urgent_state DESC, gmt_create DESC;
     </select>
     
     <select id="getServiceOrderById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
