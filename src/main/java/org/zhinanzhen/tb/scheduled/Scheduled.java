@@ -484,8 +484,10 @@ public class Scheduled {
     public void sendSetRemindMail(){
         List<MailRemindDO> mailRemindDOS = mailRemindDAO.listBySendDate("H");
         for (MailRemindDO mailRemindDO : mailRemindDOS){
-            SendEmailUtil.send(mailRemindDO.getMail(),mailRemindDO.getTitle(),mailRemindDO.getContent() + " 请及时处理。\n" +
-                    "如已处理完成请及时关闭提醒。");
+            String sendMsg = mailRemindDO.getContent() + " 请及时处理。如已处理完成请及时关闭提醒。" ;
+            if (mailRemindDO.getUserId() != null && mailRemindDO.getAdviserId() != null)
+                StringUtil.merge(sendMsg,"<br/><a href='https://yongjinbiao.zhinanzhen.org/webroot_new/userdetail/id/?" + mailRemindDO.getUserId() + "'>点击即可进入客户详情页</a>");
+            SendEmailUtil.send(mailRemindDO.getMail(),mailRemindDO.getTitle(),sendMsg);
             mailRemindDO.setSend(true);
             mailRemindDAO.update(mailRemindDO);
         }
