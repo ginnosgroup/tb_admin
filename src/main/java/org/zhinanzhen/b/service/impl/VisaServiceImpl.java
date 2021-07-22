@@ -24,10 +24,11 @@ import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
-import org.zhinanzhen.tb.utils.SendEmailUtil;
 
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.StringUtil;
+
+import lombok.Synchronized;
 
 @Service("VisaService")
 public class VisaServiceImpl extends BaseService implements VisaService {
@@ -56,8 +57,8 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 	@Resource
 	private ServiceOrderDAO serviceOrderDao;
 
-	@Resource
-	private ServiceOrderReviewDAO serviceOrderReviewDao;
+//	@Resource
+//	private ServiceOrderReviewDAO serviceOrderReviewDao;
 
 	@Resource
 	private VisaCommentDAO visaCommentDao;
@@ -143,7 +144,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 	public List<VisaDTO> listVisa(Integer id, String keyword, String startHandlingDate, String endHandlingDate,
 								  List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
 								  String endKjApprovalDate, String startDate, String endDate, String startInvoiceCreate, String endInvoiceCreate, List<Integer> regionIdList, Integer adviserId,
-								  Integer userId, String state, int pageNum, int pageSize, Sorter sorter) throws ServiceException {
+								  Integer userId, String userName, String state, int pageNum, int pageSize, Sorter sorter) throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
 		}
@@ -165,7 +166,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			visaListDoList = visaDao.listVisa(id, keyword, startHandlingDate, theDateTo23_59_59(endHandlingDate),
 					stateList, commissionStateList, startKjApprovalDate, theDateTo23_59_59(endKjApprovalDate),
 					startDate, theDateTo23_59_59(endDate), startInvoiceCreate,theDateTo23_59_59(endInvoiceCreate),
-					regionIdList, adviserId, userId, state, pageNum * pageSize,
+					regionIdList, adviserId, userId, userName,state, pageNum * pageSize,
 					pageSize, orderBy);
 			if (visaListDoList == null)
 				return null;
@@ -356,19 +357,20 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 		}
 	}
 
+	@Deprecated
 	private void putReviews(VisaDTO visaDto) throws ServiceException {
-		List<ServiceOrderReviewDO> serviceOrderReviewDoList = serviceOrderReviewDao
-				.listServiceOrderReview(visaDto.getServiceOrderId(), null, null, null, null, null);
-		List<ServiceOrderReviewDTO> serviceOrderReviewDtoList = new ArrayList<ServiceOrderReviewDTO>();
-		serviceOrderReviewDoList
-				.forEach(review -> serviceOrderReviewDtoList.add(mapper.map(review, ServiceOrderReviewDTO.class)));
-		if (serviceOrderReviewDtoList != null && serviceOrderReviewDtoList.size() > 0)
-			for (ServiceOrderReviewDTO serviceOrderReviewDto : serviceOrderReviewDtoList)
-				if (serviceOrderReviewDto != null && StringUtil.isNotEmpty(serviceOrderReviewDto.getKjState())) {
-					visaDto.setState(serviceOrderReviewDto.getKjState());
-					visaDao.updateVisa(mapper.map(visaDto, VisaDO.class));
-					break;
-				}
+//		List<ServiceOrderReviewDO> serviceOrderReviewDoList = serviceOrderReviewDao
+//				.listServiceOrderReview(visaDto.getServiceOrderId(), null, null, null, null, null);
+//		List<ServiceOrderReviewDTO> serviceOrderReviewDtoList = new ArrayList<ServiceOrderReviewDTO>();
+//		serviceOrderReviewDoList
+//				.forEach(review -> serviceOrderReviewDtoList.add(mapper.map(review, ServiceOrderReviewDTO.class)));
+//		if (serviceOrderReviewDtoList != null && serviceOrderReviewDtoList.size() > 0)
+//			for (ServiceOrderReviewDTO serviceOrderReviewDto : serviceOrderReviewDtoList)
+//				if (serviceOrderReviewDto != null && StringUtil.isNotEmpty(serviceOrderReviewDto.getKjState())) {
+//					visaDto.setState(serviceOrderReviewDto.getKjState());
+//					visaDao.updateVisa(mapper.map(visaDto, VisaDO.class));
+//					break;
+//				}
 	}
 
 	@Override
@@ -433,16 +435,16 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 	}
 
 	@Override
-	public void sendRefuseEmail(int id) {
-		VisaDO visaDo = visaDao.getVisaById(id);
-		AdviserDO adviserDo = adviserDao.getAdviserById(visaDo.getAdviserId());
+	@Synchronized
+	public void sendRefuseEmail(VisaDTO visaDto) {
+		AdviserDO adviserDo = adviserDao.getAdviserById(visaDto.getAdviserId());
 //		OfficialDO officialDo = officialDao.getOfficialById(visaDo.getOfficialId());
 		// 发送给顾问
-		SendEmailUtil.send(adviserDo.getEmail(), "签证佣金订单驳回提醒", StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>",
-				"您的订单已被驳回。<br>订单号:", visaDo.getId(), "<br/>驳回原因:", visaDo.getRefuseReason()));
+		sendMail(adviserDo.getEmail(), "签证佣金订单驳回提醒", StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>",
+				"您的订单已被驳回。<br>签证订单号:", visaDto.getId(), "<br/>驳回原因:", visaDto.getRefuseReason()));
 		// 发送给文案
-//		SendEmailUtil.send(officialDo.getEmail(), "签证佣金订单驳回提醒", StringUtil.merge("亲爱的:", officialDo.getName(), "<br/>",
-//				"您的订单已被驳回。<br>订单号:", visaDo.getId(), "<br/>驳回原因:", visaDo.getRefuseReason()));
+//		SendEmailUtil.send(officialDo.gemail(), "签证佣金订单驳回提醒", StringUtil.merge("亲爱的:", officialDo.getName(), "<br/>",
+//				"您的订单已被驳回。<br>签证订单号:", visaDo.getId(), "<br/>驳回原因:", visaDo.getRefuseReason()));
 	}
 
 }

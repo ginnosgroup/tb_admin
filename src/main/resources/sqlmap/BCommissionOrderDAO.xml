@@ -296,6 +296,9 @@
         <if test='startKjApprovalDate != null and startKjApprovalDate != "" and endKjApprovalDate != null and endKjApprovalDate != ""'>
             <![CDATA[ AND kj_approval_date > #{startKjApprovalDate} AND kj_approval_date < #{endKjApprovalDate} ]]>
         </if>
+        <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+            <![CDATA[ AND co.gmt_create > #{startDate} AND co.gmt_create < #{endDate} ]]>
+        </if>
         <if test='startInvoiceCreate != null and startInvoiceCreate != "" and endInvoiceCreate != null and endInvoiceCreate != ""'>
             <![CDATA[ AND invoice_create > #{startInvoiceCreate} AND invoice_create < #{endInvoiceCreate} ]]>
         </if>
@@ -437,6 +440,9 @@
         <if test='startKjApprovalDate != null and startKjApprovalDate != "" and endKjApprovalDate != null and endKjApprovalDate != ""'>
             <![CDATA[ AND co.kj_approval_date > #{startKjApprovalDate} AND co.kj_approval_date < #{endKjApprovalDate} ]]>
         </if>
+        <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+            <![CDATA[ AND co.gmt_create > #{startDate} AND co.gmt_create < #{endDate} ]]>
+        </if>
         <if test='startInvoiceCreate != null and startInvoiceCreate != "" and endInvoiceCreate != null and endInvoiceCreate != ""'>
             <![CDATA[ AND invoice_create > #{startInvoiceCreate} AND invoice_create < #{endInvoiceCreate} ]]>
         </if>
@@ -502,6 +508,62 @@
             is_close AS isClose,
             invoice_create AS invoiceCreate
         FROM b_commission_order WHERE code = #{code};
+    </select>
+
+    <select id="listCommissionOrderBySchoolId" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            code,
+            service_order_id AS serviceOrderId,
+            state,
+            commission_state AS commissionState,
+            kj_approval_date AS kjApprovalDate,
+            is_settle AS isSettle,
+            is_deposit_user AS isDepositUser,
+            school_id AS schoolId,
+            student_code AS studentCode,
+            user_id AS userId,
+            adviser_id AS adviserId,
+            official_id AS officialId,
+            is_studying AS isStudying,
+            installment_num AS installmentNum,
+            installment,
+            installment_due_date AS installmentDueDate,
+            payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+            payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+            payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+            payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+            school_payment_amount AS schoolPaymentAmount,
+            school_payment_date AS schoolPaymentDate,
+            invoice_number AS invoiceNumber,
+            start_date AS startDate,
+            end_date AS endDate,
+            commission,
+            tuition_fee AS tuitionFee,
+            per_term_tuition_fee AS perTermTuitionFee,
+            receive_type_id AS receiveTypeId,
+            receive_date AS receiveDate,
+            per_amount AS perAmount,
+            amount,
+            expect_amount AS expectAmount,
+            sure_expect_amount AS sureExpectAmount,
+            discount,
+            gst,
+            deduct_gst AS deductGst,
+            bonus,
+            bonus_date AS bonusDate,
+            zy_date AS zyDate,
+            bank_check AS bankCheck,
+            is_checked AS isChecked,
+            remarks,
+            refuse_reason AS refuseReason,
+            verify_code AS verifyCode,
+            bank_date AS bankDate,
+            is_close AS isClose,
+            invoice_create AS invoiceCreate
+        FROM b_commission_order WHERE school_id = #{schoolId};
     </select>
     
     <select id="listCommissionOrderByServiceOrderId" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderDO">
@@ -688,8 +750,8 @@
         FROM b_commission_order co, b_service_order so, b_school bs, tb_user tbu
         WHERE co.service_order_id = so.id AND co.school_id = bs.id AND co.user_id = tbu.id
         AND DATE_FORMAT(co.installment_due_date, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
-        AND co.bonus != 0.00
-        AND co.state = 'PENDING'
+        <!--  AND co.bonus != 0.00  -->
+        <![CDATA[ AND (co.state="PENDING" OR co.state="WAIT") ]]>
         <if test='adviserId != null and adviserId > 0'>
             AND co.adviser_id = #{adviserId}
         </if>
@@ -697,7 +759,7 @@
             AND co.official_id = #{officialId}
         </if>
         ORDER BY co.installment_due_date
-        LIMIT 10;
+        ;
     </select>
     
     <select id="listCommissionOrderReport" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderReportDO">
@@ -1009,4 +1071,66 @@
         update b_commission_order set bank_check = null,  is_checked = false , bank_date = null
         where id = #{id};
     </update>
+
+    <select id="listCommissionOrderInstallmentDueDate"  resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderListDO">
+        SELECT
+            co.id,
+            co.gmt_create AS gmtCreate,
+            co.code,
+            co.service_order_id AS serviceOrderId,
+            co.state,
+            co.commission_state AS commissionState,
+            co.kj_approval_date AS kjApprovalDate,
+            co.is_settle AS isSettle,
+            co.is_deposit_user AS isDepositUser,
+            co.school_id AS schoolId,
+            co.student_code AS studentCode,
+            co.user_id AS userId,
+            co.adviser_id AS adviserId,
+            co.official_id AS officialId,
+            co.is_studying AS isStudying,
+            co.installment_num AS installmentNum,
+            co.installment,
+            co.installment_due_date AS installmentDueDate,
+            co.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+            co.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            co.payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+            co.payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+            co.payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+            co.school_payment_amount AS schoolPaymentAmount,
+            co.school_payment_date AS schoolPaymentDate,
+            co.invoice_number AS invoiceNumber,
+            co.start_date AS startDate,
+            co.end_date AS endDate,
+            co.commission,
+            co.tuition_fee AS tuitionFee,
+            co.per_term_tuition_fee AS perTermTuitionFee,
+            co.receive_type_id AS receiveTypeId,
+            co.receive_date AS receiveDate,
+            co.per_amount AS perAmount,
+            co.amount,
+            co.expect_amount AS expectAmount,
+            co.sure_expect_amount AS sureExpectAmount,
+            co.discount,
+            co.gst,
+            co.deduct_gst AS deductGst,
+            co.bonus,
+            co.bonus_date AS bonusDate,
+            co.zy_date AS zyDate,
+            co.bank_check AS bankCheck,
+            co.is_checked AS isChecked,
+            co.remarks,
+            co.refuse_reason AS refuseReason,
+            co.verify_code AS verifyCode,
+            co.bank_date AS bankDate,
+            co.is_close AS isClose,
+            co.invoice_create AS invoiceCreate,
+            so.id AS serviceOrderId,
+            so.gmt_create AS signingDate,
+            so.subagency_id AS subagencyId,
+            so.service_id AS serviceId
+        FROM b_commission_order co, b_service_order so, tb_user u
+        WHERE co.service_order_id = so.id AND co.user_id = u.id
+        AND DATEDIFF(installment_due_date,NOW()) IN (1,3,7);;
+    </select>
 </mapper>

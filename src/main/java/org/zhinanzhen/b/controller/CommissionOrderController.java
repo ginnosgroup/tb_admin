@@ -52,6 +52,7 @@ import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
 import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
+import org.zhinanzhen.tb.service.pojo.UserDTO;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -163,7 +164,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
 				commissionOrderDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
 			else
-				commissionOrderDto.setPaymentVoucherImageUrl1(serviceOrderDto.getPaymentVoucherImageUrl1());
+				commissionOrderDto.setPaymentVoucherImageUrl1(serviceOrderDto.getPaymentVoucherImageUrl1()); // 许十一(2021-06-17)说非提前不需要引用服务订单的支付凭证!
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
 				commissionOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
 			else
@@ -717,6 +718,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "commissionState", required = false) String commissionState,
 			@RequestParam(value = "startKjApprovalDate", required = false) String startKjApprovalDate,
 			@RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
+			@RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "startInvoiceCreate", required = false) String startInvoiceCreate,
 			@RequestParam(value = "endInvoiceCreate", required = false) String endInvoiceCreate,
 			HttpServletRequest request, HttpServletResponse response) {
@@ -779,7 +782,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			return new Response<Integer>(0,
 					commissionOrderService.countCommissionOrder(id, regionIdList, maraId, adviserId, officialId, userId,
 							name, phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
-							startKjApprovalDate, endKjApprovalDate, startInvoiceCreate, endInvoiceCreate, isYzyAndYjy,
+							startKjApprovalDate, endKjApprovalDate,startDate,endDate, startInvoiceCreate, endInvoiceCreate, isYzyAndYjy,
 							applyState));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
@@ -795,6 +798,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "officialId", required = false) Integer officialId,
 			@RequestParam(value = "userId", required = false) Integer userId,
 			@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "userName", required = false) String userName,
 			@RequestParam(value = "phone", required = false) String phone,
 			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
 			@RequestParam(value = "schoolId", required = false) Integer schoolId,
@@ -804,6 +808,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "commissionState", required = false) String commissionState,
 			@RequestParam(value = "startKjApprovalDate", required = false) String startKjApprovalDate,
 			@RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
+			@RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "startInvoiceCreate", required = false) String startInvoiceCreate,
 			@RequestParam(value = "endInvoiceCreate", required = false) String endInvoiceCreate,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
@@ -844,7 +850,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 		Sorter _sorter = null;
 		if (sorter != null)
-			_sorter = JSON.parseObject(sorter, Sorter.class);
+			_sorter = JSON.parseObject(sorter.replace("adviser,name", "adviserName"), Sorter.class);
+
+		if (StringUtil.isNotEmpty(userName))
+			name = userName;
 
 //		Date _startKjApprovalDate = null;
 //		if (startKjApprovalDate != null)
@@ -871,12 +880,12 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 			int total = commissionOrderService.countCommissionOrder(id, regionIdList, maraId, adviserId, officialId,
 					userId, name, phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
-					startKjApprovalDate, endKjApprovalDate, startInvoiceCreate, endInvoiceCreate, isYzyAndYjy,
+					startKjApprovalDate, endKjApprovalDate, startDate,endDate,startInvoiceCreate, endInvoiceCreate, isYzyAndYjy,
 					applyState);
 			return new ListResponse<List<CommissionOrderListDTO>>(true, pageSize, total,
 					commissionOrderService.listCommissionOrder(id, regionIdList, maraId, adviserId, officialId, userId,
 							name, phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
-							startKjApprovalDate, endKjApprovalDate, startInvoiceCreate, endInvoiceCreate, isYzyAndYjy,
+							startKjApprovalDate, endKjApprovalDate, startDate,endDate,startInvoiceCreate, endInvoiceCreate, isYzyAndYjy,
 							applyState, pageNum, pageSize, _sorter),
 					"");
 		} catch (ServiceException e) {
@@ -956,7 +965,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "officialId", required = false) Integer officialId,
 			@RequestParam(value = "userId", required = false) Integer userId,
-			@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "userName", required = false) String name,
 			@RequestParam(value = "phone", required = false) String phone,
 			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
 			@RequestParam(value = "schoolId", required = false) Integer schoolId,
@@ -965,6 +974,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "commissionState", required = false) String commissionState,
 			@RequestParam(value = "startKjApprovalDate", required = false) String startKjApprovalDate,
 			@RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
+			@RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "startInvoiceCreate", required = false) String startInvoiceCreate,
 			@RequestParam(value = "endInvoiceCreate", required = false) String endInvoiceCreate,
 			HttpServletRequest request, HttpServletResponse response) {
@@ -1006,6 +1017,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 		InputStream is = null;
 		OutputStream os = null;
+		jxl.Workbook wb = null;
 		try {
 
 			// 处理顾问管理员
@@ -1034,11 +1046,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 			List<CommissionOrderListDTO> commissionOrderList = commissionOrderService.listCommissionOrder(id,
 					regionIdList, maraId, adviserId, officialId, userId, name, phone, wechatUsername, schoolId,
-					isSettle, stateList, commissionStateList, startKjApprovalDate, endKjApprovalDate,
+					isSettle, stateList, commissionStateList, startKjApprovalDate, endKjApprovalDate,startDate,endDate,
 					startInvoiceCreate, endInvoiceCreate, isYzyAndYjy, state, 0, 9999, null);
 
 			os = response.getOutputStream();
-			jxl.Workbook wb;
 			try {
 				is = this.getClass().getResourceAsStream("/CommissionOrderTemplate.xls");
 			} catch (Exception e) {
@@ -1136,7 +1147,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return;
-		}finally {
+		}finally{
 			try {
 				if (is != null)
 					is.close();
@@ -1153,6 +1164,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				System.out.println("os is close 出现 异常:");
 				e.printStackTrace();
 			}
+			if (wb != null)
+				wb.close();
+			System.out.println("wb is close");
 		}
 
 	}

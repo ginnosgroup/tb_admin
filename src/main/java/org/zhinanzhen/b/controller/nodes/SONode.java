@@ -47,14 +47,33 @@ public abstract class SONode extends AbstractNode {
 				return false;
 			}
 			serviceOrderDto.setState(getName());
-			serviceOrderService.updateServiceOrder(serviceOrderDto);
+			if (context.getParameter("refuseReason") != null) {
+				serviceOrderDto.setRefuseReason(context.getParameter("refuseReason").toString());
+				log.info("写入refuseReason:" + serviceOrderDto.getRefuseReason());
+			}
+			if (context.getParameter("closedReason") != null) {
+				serviceOrderDto.setClosedReason(context.getParameter("closedReason").toString());
+				log.info("写入closedReason:" + serviceOrderDto.getClosedReason());
+			}
+			if (context.getParameter("remarks") != null) {
+				serviceOrderDto.setRemarks(context.getParameter("remarks").toString());
+				log.info("写入remarks:" + serviceOrderDto.getRemarks());
+			}
+			if (context.getParameter("stateMark") != null) {
+				serviceOrderDto.setStateMark(context.getParameter("stateMark").toString());
+				log.info("写入stateMark:" + serviceOrderDto.getStateMark());
+			}
+			if (serviceOrderService.updateServiceOrder(serviceOrderDto) > 0)
+				log.info("保存流程状态成功:serviceOrderId=" + serviceOrderDto.getId() + ",state=" + getName());
+			else
+				log.info("保存流程状态失败:serviceOrderId=" + serviceOrderDto.getId() + ",state=" + getName());
 		} catch (ServiceException e) {
 			log.error("流程节点更新失败:" + e.getMessage());
 			return false;
 		}
 		return true;
 	}
-	
+
 	@Override
 	public String[] nextNodeNames() {
 		return null;

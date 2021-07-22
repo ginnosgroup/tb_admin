@@ -25,14 +25,14 @@ public class ServiceOrderPaidNode extends SODecisionNode {
 		isSingleStep = true;
 		if (!"WA".equalsIgnoreCase(getAp(context))) {
 			context.putParameter("response", new Response<ServiceOrderDTO>(1, "仅限文案操作!", null));
-			return SUSPEND_NODE;
+			return null;
 		}
-		return null;
+		return SUSPEND_NODE;
 	}
 	
 	@Override
 	public String[] nextNodeNames() {
-		return null;
+		return new String[]{"CLOSE"};
 	}
 
 }

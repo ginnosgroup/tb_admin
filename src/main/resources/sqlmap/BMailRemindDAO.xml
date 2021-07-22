@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.MailRemindDAO">
+
+    <cache eviction="LRU" flushInterval="60000" readOnly="true" size="1024"></cache>
+
+    <insert id="add" parameterType="org.zhinanzhen.b.dao.pojo.MailRemindDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO `b_mail_remind`
+        (gmt_create,
+        gmt_modify,
+        code,
+        mail,
+        title,
+        content,
+        send_date,
+        service_order_id,
+        visa_id,
+        commission_order_id,
+        adviser_id,
+        offcial_id
+        ) VALUES (
+        NOW(),
+        NOW(),
+        #{code},
+        #{mail},
+        #{title},
+        #{content},
+        #{sendDate},
+        #{serviceOrderId},
+        #{visaId},
+        #{commissionOrderId},
+        #{adviserId},
+        #{offcialId}
+        );
+    </insert>
+
+    <select id="list" resultType="org.zhinanzhen.b.dao.pojo.MailRemindDO">
+        SELECT
+        id,
+        gmt_create AS gmtCreate,
+        gmt_modify AS gmtModify,
+        code ,
+        mail,
+        title,
+        content,
+        send_date AS sendDate,
+        service_order_id AS serviceOrderId,
+        visa_id AS visaId,
+        commission_order_id AS commissionOrderId,
+        adviser_id AS adviserId,
+        offcial_id AS offcialId
+        from b_mail_remind
+        <where>
+            <if test="adviserId != null and adviserId > 0">
+                AND adviser_id = #{adviserId}
+            </if>
+            <if test="offcialId != null and offcialId > 0">
+                AND offcial_id = #{offcialId}
+            </if>
+            <if test="serviceOrderId != null and serviceOrderId > 0">
+                AND service_order_id = #{serviceOrderId}
+            </if>
+            <if test="visaId != null and visaId > 0">
+                AND visa_id = #{visaId}
+            </if>
+            <if test="commissionOrderId != null and commissionOrderId > 0">
+                AND commission_order_id = #{commissionOrderId}
+            </if>
+            <if test="isToday == true">
+                AND DATE_FORMAT(send_date,'%Y%m%d') = DATE_FORMAT(NOW(),'%Y%m%d')
+            </if>
+        </where>
+        ORDER BY send_date DESC LIMIT 10;
+    </select>
+
+    <delete id="delete" parameterType="java.lang.Integer">
+        DELETE FROM b_mail_remind WHERE id = #{id}
+        <if test="adviserId != null and adviserId > 0">
+            AND  adviser_id = #{adviserId}
+        </if>
+        <if test="offcialId != null and offcialId > 0">
+            AND  offcial_id = #{offcialId}
+        </if>
+        ;
+    </delete>
+    <select id="getByid" resultType="org.zhinanzhen.b.dao.pojo.MailRemindDO">
+        SELECT
+        id,
+        gmt_create AS gmtCreate,
+        gmt_modify AS gmtModify,
+        code ,
+        mail,
+        title,
+        content,
+        send_date AS sendDate,
+        service_order_id AS serviceOrderId,
+        visa_id AS visaId,
+        commission_order_id AS commissionOrderId,
+        adviser_id AS adviserId,
+        offcial_id AS offcialId
+        from b_mail_remind
+        WHERE id = #{id};
+    </select>
+
+    <update id="update" parameterType="org.zhinanzhen.b.dao.pojo.MailRemindDO">
+        UPDATE b_mail_remind
+        SET gmt_modify = NOW()
+        <if test="sendDate != null">
+            , send_date = #{sendDate}
+        </if>
+        <if test="content != null">
+            , content = #{content}
+        </if>
+        WHERE id = #{id};
+    </update>
+
+    <select id="listBySendDate" resultType="org.zhinanzhen.b.dao.pojo.MailRemindDO">
+        SELECT
+        id,
+        gmt_create AS gmtCreate,
+        gmt_modify AS gmtModify,
+        code ,
+        mail,
+        title,
+        content,
+        send_date AS sendDate,
+        service_order_id AS serviceOrderId,
+        visa_id AS visaId,
+        commission_order_id AS commissionOrderId,
+        adviser_id AS adviserId,
+        offcial_id AS offcialId
+        FROM b_mail_remind
+        <choose>
+            <when test='type == "H"'>
+                WHERE DATE_FORMAT(send_date,'%Y%m%d-%H') = DATE_FORMAT(NOW(),'%Y%m%d-%H')
+            </when>
+            <when test='type == "D"'>
+                WHERE DATE_FORMAT(send_date,'%Y%m%d') = DATE_FORMAT(NOW(),'%Y%m%d')
+                AND offcial_id IS NOT NULL
+            </when>
+        </choose>
+        ORDER BY send_date ASC;
+    </select>
+</mapper>

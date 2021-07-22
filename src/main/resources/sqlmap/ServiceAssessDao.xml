@@ -5,8 +5,9 @@
     <select id="list" resultType="org.zhinanzhen.b.dao.pojo.ServiceAssessDO">
         select id,name,service_id as serviceId from `b_service_assess` where  is_delete = 0
         <if test=" serviceId != null ">
-            and service_id = #{serviceId} ;
+            and service_id = #{serviceId}
         </if>
+        ORDER BY LEFT(name,6) ;
     </select>
 
     <insert id="add">

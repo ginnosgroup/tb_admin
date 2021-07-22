@@ -26,16 +26,17 @@ public class ServiceOrderOfficialReviewNode extends SODecisionNode {
 	@Override
 	protected String decide(Context context) {
 		isSingleStep = true;
-//		if (!"WA".equalsIgnoreCase(getAp(context))) {
-//			context.putParameter("response", new Response<ServiceOrderDTO>(1, "仅限文案操作!", null));
-//			return SUSPEND_NODE;
-//		}
+		String ap = getAp(context);
+		if (!"WA".equalsIgnoreCase(ap) && !"MA".equalsIgnoreCase(ap)) {
+			context.putParameter("response", new Response<ServiceOrderDTO>(1, "仅限文案或Mara操作! 当前角色为:" + ap, null));
+			return null;
+		}
 		try {
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(getServiceOrderId(context));
 			if (serviceOrderDto == null) {
 				context.putParameter("response",
 						new Response<ServiceOrderDTO>(1, "服务订单不存在:" + getServiceOrderId(context), null));
-				return SUSPEND_NODE;
+				return null;
 			}
 //			if (serviceOrderDto.getParentId() == 0 && ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
 //					|| "MT".equalsIgnoreCase(serviceOrderDto.getType()))) {
@@ -61,7 +62,7 @@ public class ServiceOrderOfficialReviewNode extends SODecisionNode {
 	
 	@Override
 	public String[] nextNodeNames() {
-		return new String[]{"WAIT", "CLOSE", "FINISH"};
+		return new String[]{"WAIT", "COMPLETE", "CLOSE", "FINISH"};
 	}
 
 }

@@ -25,10 +25,12 @@ public interface ServiceOrderDAO {
 						  @Param("startReadcommittedDate") String startReadcommittedDate,
 						  @Param("endReadcommittedDate") String endReadcommittedDate,
 						  @Param("regionIdList") List<Integer> regionIdList, @Param("userId") Integer userId,
+						  @Param("userName") String userName,
 						  @Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
 						  @Param("officialId") Integer officialId, @Param("officialTagId") Integer officialTagId,
 						  @Param("parentId") Integer parentId, @Param("isNotApproved") Boolean isNotApproved,
-						  @Param("serviceId") Integer serviceId, @Param("schoolId") Integer schoolId);
+						  @Param("serviceId") Integer serviceId, @Param("schoolId") Integer schoolId,
+						  @Param("isPay")Boolean isPay);
 
 	List<ServiceOrderDO> listServiceOrder(@Param("type") String type, @Param("excludeState") String excludeState,
 										  @Param("stateList") List<String> stateList, @Param("auditingState") String auditingState,
@@ -40,10 +42,12 @@ public interface ServiceOrderDAO {
 										  @Param("startReadcommittedDate") String startReadcommittedDate,
 										  @Param("endReadcommittedDate") String endReadcommittedDate,
 										  @Param("regionIdList") List<Integer> regionIdList, @Param("userId") Integer userId,
+										  @Param("userName") String userName,
 										  @Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
 										  @Param("officialId") Integer officialId, @Param("officialTagId") Integer officialTagId,
 										  @Param("parentId") Integer parentId, @Param("isNotApproved") Boolean isNotApproved,
 										  @Param("serviceId") Integer serviceId, @Param("schoolId") Integer schoolId,
+										  @Param("isPay")Boolean isPay,
 										  @Param("offset") int offset, @Param("rows") int rows, @Param("orderBy") String orderBy);
 
 	List<ServiceOrderDO> listByParentId(@Param("parentId") Integer parentId);
@@ -63,4 +67,9 @@ public interface ServiceOrderDAO {
 
 	List<EachSubjectCountDO> eachSubjectCount(@Param("startOfficialApprovalDate") String startOfficialApprovalDate,
 										@Param("endOfficialApprovalDate") String endOfficialApprovalDate);
+
+	List<ServiceOrderDO> NotReviewedServiceOrder(@Param("officialId")Integer officialId, @Param("thisMonth") boolean thisMonth);
+
+	Integer caseCount(@Param("officialId") Integer officialId, @Param("days") String days,
+					  @Param("state")String state);
 }

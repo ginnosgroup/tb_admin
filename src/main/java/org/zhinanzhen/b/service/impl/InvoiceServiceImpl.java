@@ -167,7 +167,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
     @Override
     public InvoiceCompanyDTO addServiceFeeInvoice(String branch, String company) {
 
-        InvoiceCompanyDTO  invoiceCompanyDTO =  invoiceDAO.selectCompanyByName(company,"SF");
+        InvoiceCompanyDTO  invoiceCompanyDTO =  invoiceDAO.selectCompanyByName(company,typeEnum.SF.toString());
         if(invoiceCompanyDTO != null) {
             if (invoiceCompanyDTO.getSimple().equals("CEM")) {
                 InvoiceAddressDO invoiceAddressDO = invoiceDAO.selectAddressByBranch(branch);
@@ -216,7 +216,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
     public InvoiceCompanyDTO addSchoolInvoice(String branch, String company) {
         InvoiceCompanyDTO  invoiceCompanyDTO = null;
         InvoiceAddressDO invoiceAddressDO = null;
-        invoiceCompanyDTO = invoiceDAO.selectCompanyByName(company,"SC");
+        invoiceCompanyDTO = invoiceDAO.selectCompanyByName(company,typeEnum.SC.toString());
         if (invoiceCompanyDTO!=null){
             if (invoiceCompanyDTO.getSimple().equals("CEM")){
                 invoiceAddressDO = invoiceDAO.selectAddressByBranch(branch);
@@ -547,11 +547,20 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
         stateList.add(BaseCommissionOrderController.ReviewKjStateEnum.CLOSE.toString());
         int resultzydate = invoiceDAO.updateCommissionOrderZyDate(stateList,idList ,invoiceDate);
 
-        invoiceDAO.deleteDesc(invoiceNo,"SC");
+        invoiceDAO.deleteDesc(invoiceNo,typeEnum.SC.toString());
         invoiceDAO.saveSchoolDescription(description,invoiceNo);
         if (invoiceDAO.updateSCInvoice(paramMap)>0)
             return "sucess";
         return "fail";
     }
 
+    public enum typeEnum{
+        SC,SF;
+        public static typeEnum get(String name){
+            for (typeEnum e : typeEnum.values())
+            if (e.toString().equals(name))
+                return e;
+            return null;
+        }
+    }
 }

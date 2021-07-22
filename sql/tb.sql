@@ -960,8 +960,6 @@ CREATE TABLE `b_finance_code` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 ALTER TABLE `b_finance_code` ADD INDEX index_name (order_id);
-<<<<<<< HEAD
-=======
 
 -- ----------新学校数据----------
 
@@ -1014,4 +1012,32 @@ CREATE TABLE `b_chat` (
   KEY `service_order_id` (`service_order_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
->>>>>>> 93fa73ed0809a304602792abee4d58a6ebfefdac
+-- 提醒邮件日志
+CREATE TABLE `b_mail_log` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `code` varchar(128) NOT NULL COMMENT '编码',
+  `mail` varchar(255) NOT NULL COMMENT '收件人邮箱',
+  `title` varchar(255) NOT NULL COMMENT '标题',
+  `content` text DEFAULT NULL COMMENT '内容'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+--设置提醒
+CREATE TABLE `b_mail_remind` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `code` varchar(128) NOT NULL COMMENT '编码',
+  `mail` varchar(255) NOT NULL COMMENT '收件人邮箱',
+  `title` varchar(255) DEFAULT NULL COMMENT '标题',
+  `content` text COMMENT '内容',
+  `send_date` datetime DEFAULT NULL COMMENT '设置的邮件发送时间',
+  `service_order_id` int(11) DEFAULT NULL COMMENT 'b_service_order.id',
+  `visa_id` int(11) DEFAULT NULL COMMENT 'b_visa.id',
+  `commission_order_id` int(11) DEFAULT NULL COMMENT 'b_commission_order.id',
+  `adviser_id` int(11) DEFAULT NULL COMMENT ' (tb_adviser.id)',
+  `offcial_id` int(11) DEFAULT NULL COMMENT ' (b_official.id,)',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+

@@ -147,7 +147,7 @@ public class VerifyController {
         }
         List<FinanceCodeDTO> financeCodeDTOS = verifyService.list(bankDateStart,bankDateEnd+" 23:59:59", regionId, 9999,0);
 
-        jxl.Workbook wb;
+        jxl.Workbook wb = null;
         InputStream is = null;
         OutputStream os = null;
         try {
@@ -243,6 +243,9 @@ public class VerifyController {
                 System.out.println("os is close 出现 异常:");
                 e.printStackTrace();
             }
+            if (wb != null)
+                wb.close();
+            System.out.println("wb is close");
         }
 
     }

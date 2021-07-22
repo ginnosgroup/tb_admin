@@ -12,6 +12,7 @@ import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.WXWorkService;
 import org.zhinanzhen.b.service.pojo.ChatDTO;
+import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.RegionDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
@@ -116,7 +117,7 @@ public class WXWorkServiceImpl implements WXWorkService {
     }
 
     @Override
-    public  void sendMsg(int id){
+    public  void sendMsg(int id,String token){
         JSONObject parm = new JSONObject();
         JSONObject content = new JSONObject();
         String msg = "";
@@ -167,9 +168,9 @@ public class WXWorkServiceImpl implements WXWorkService {
         parm.put("text",content);
         parm.put("safe",0);
 
-        ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
-        HttpSession session=attr.getRequest().getSession(true);
-        String token = (String) session.getAttribute("corpToken");
+        //ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+        //HttpSession session=attr.getRequest().getSession(true);
+        //String token = (String) session.getAttribute("corpToken" + BaseController.VERSION); // TODO:小包  不要在Service层依赖Session，有时间把这几行代码移到Controller层
         JSONObject json =  WXWorkAPI.sendPostBody_Map(WXWorkAPI.SENDMESSAGE.replace("ACCESS_TOKEN",token),parm);
     }
 

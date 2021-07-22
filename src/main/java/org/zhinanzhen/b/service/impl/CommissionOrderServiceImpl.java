@@ -47,8 +47,8 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 	@Resource
 	private CommissionOrderDAO commissionOrderDao;
 
-	@Resource
-	private ServiceOrderReviewDAO serviceOrderReviewDao;
+//	@Resource
+//	private ServiceOrderReviewDAO serviceOrderReviewDao;
 
 	@Resource
 	private SubagencyDAO subagencyDao;
@@ -93,13 +93,13 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 		}
 		try {
 			CommissionOrderDO commissionOrderDo = mapper.map(commissionOrderDto, CommissionOrderDO.class);
-			List<ServiceOrderReviewDO> serviceOrderReviews = serviceOrderReviewDao
-					.listServiceOrderReview(commissionOrderDo.getServiceOrderId(), null, null, null, null, null);
-			if (serviceOrderReviews == null || serviceOrderReviews.size() == 0) {
-				ServiceException se = new ServiceException("服务订单需要审核后才能创建佣金订单!");
-				se.setCode(ErrorCodeEnum.DATA_ERROR.code());
-				throw se;
-			}
+//			List<ServiceOrderReviewDO> serviceOrderReviews = serviceOrderReviewDao
+//					.listServiceOrderReview(commissionOrderDo.getServiceOrderId(), null, null, null, null, null);
+//			if (serviceOrderReviews == null || serviceOrderReviews.size() == 0) {
+//				ServiceException se = new ServiceException("服务订单需要审核后才能创建佣金订单!");
+//				se.setCode(ErrorCodeEnum.DATA_ERROR.code());
+//				throw se;
+//			}
 			if (commissionOrderDao.countCommissionOrderByServiceOrderIdAndExcludeCode(
 					commissionOrderDo.getServiceOrderId(), commissionOrderDo.getCode()) > 0) {
 				ServiceException se = new ServiceException("已创建过佣金订单,不能重复创建!");
@@ -108,9 +108,9 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			}
 			if (commissionOrderDao.addCommissionOrder(commissionOrderDo) > 0) {
 				commissionOrderDto.setId(commissionOrderDo.getId());
-				ServiceOrderReviewDO serviceOrderReviewDo = serviceOrderReviews.get(0);
-				serviceOrderReviewDo.setCommissionOrderId(commissionOrderDo.getId());
-				serviceOrderReviewDao.addServiceOrderReview(serviceOrderReviewDo);
+//				ServiceOrderReviewDO serviceOrderReviewDo = serviceOrderReviews.get(0);
+//				serviceOrderReviewDo.setCommissionOrderId(commissionOrderDo.getId());
+//				serviceOrderReviewDao.addServiceOrderReview(serviceOrderReviewDo);
 				return commissionOrderDo.getId();
 			} else
 				return 0;
@@ -125,19 +125,19 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 	public int countCommissionOrder(Integer id, List<Integer> regionIdList, Integer maraId, Integer adviserId,
                                     Integer officialId, Integer userId, String name, String phone, String wechatUsername, Integer schoolId,
                                     Boolean isSettle, List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
-                                    String endKjApprovalDate, String startInvoiceCreate, String endInvoiceCreate,
+                                    String endKjApprovalDate,  String startDate,String endDate,String startInvoiceCreate, String endInvoiceCreate,
 									Boolean isYzyAndYjy, String applyState) throws ServiceException {
 		return commissionOrderDao.countCommissionOrder(id, regionIdList, maraId, adviserId, officialId, userId, name,
 				phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList, startKjApprovalDate,
-				theDateTo23_59_59(endKjApprovalDate),startInvoiceCreate, theDateTo23_59_59(endInvoiceCreate), isYzyAndYjy, applyState);
+				theDateTo23_59_59(endKjApprovalDate),startDate,endDate,startInvoiceCreate, theDateTo23_59_59(endInvoiceCreate), isYzyAndYjy, applyState);
 	}
 
 	@Override
 	public List<CommissionOrderListDTO> listCommissionOrder(Integer id, List<Integer> regionIdList, Integer maraId,
 															Integer adviserId, Integer officialId, Integer userId, String name, String phone, String wechatUsername,
 															Integer schoolId, Boolean isSettle, List<String> stateList, List<String> commissionStateList,
-															String startKjApprovalDate, String endKjApprovalDate, String startInvoiceCreate, String endInvoiceCreate,
-															Boolean isYzyAndYjy, String applyState, int pageNum,
+															String startKjApprovalDate, String endKjApprovalDate,  String startDate,String endDate,
+															String startInvoiceCreate, String endInvoiceCreate, Boolean isYzyAndYjy, String applyState, int pageNum,
 															int pageSize, Sorter sorter) throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
@@ -160,7 +160,7 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			commissionOrderListDoList = commissionOrderDao.listCommissionOrder(id, regionIdList, maraId, adviserId,
 					officialId, userId, name, phone, wechatUsername, schoolId, isSettle, stateList,
 					commissionStateList,
-					startKjApprovalDate, theDateTo23_59_59(endKjApprovalDate), startInvoiceCreate, theDateTo23_59_59(endInvoiceCreate),
+					startKjApprovalDate, theDateTo23_59_59(endKjApprovalDate),startDate,endDate, startInvoiceCreate, theDateTo23_59_59(endInvoiceCreate),
 					isYzyAndYjy, applyState,pageNum * pageSize, pageSize, orderBy);
 			if (commissionOrderListDoList == null)
 				return null;
@@ -474,7 +474,7 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 		AdviserDO adviserDo = adviserDao.getAdviserById(commissionOrderDo.getAdviserId());
 //		OfficialDO officialDo = officialDao.getOfficialById(commissionOrderDo.getOfficialId());
 		// 发送给顾问
-		SendEmailUtil.send(adviserDo.getEmail(), "留学佣金订单驳回提醒", StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>",
+		sendMail(adviserDo.getEmail(), "留学佣金订单驳回提醒", StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>",
 				"您的订单已被驳回。<br>订单号:", commissionOrderDo.getId(), "<br/>驳回原因:", commissionOrderDo.getRefuseReason()));
 		// 发送给文案
 //		SendEmailUtil.send(officialDo.getEmail(), "留学佣金订单驳回提醒", StringUtil.merge("亲爱的:", officialDo.getName(), "<br/>",

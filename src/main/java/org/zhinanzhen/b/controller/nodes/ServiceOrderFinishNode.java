@@ -32,7 +32,7 @@ public class ServiceOrderFinishNode extends SODecisionNode {
 			if (serviceOrderDto == null) {
 				context.putParameter("response",
 						new Response<ServiceOrderDTO>(1, "服务订单不存在:" + getServiceOrderId(context), null));
-				return SUSPEND_NODE;
+				return null;
 			}
 //			if (!"MA".equalsIgnoreCase(getAp(context)) || !"VISA".equalsIgnoreCase(serviceOrderDto.getType())) {
 //				context.putParameter("response", new Response<ServiceOrderDTO>(1, "Mara审核仅限签证服务订单!", null));
@@ -40,7 +40,7 @@ public class ServiceOrderFinishNode extends SODecisionNode {
 //			}
 		} catch (ServiceException e) {
 			context.putParameter("response", new Response<ServiceOrderDTO>(1, "服务订单执行异常:" + e.getMessage(), null));
-			return SUSPEND_NODE;
+			return null;
 		}
 		return SUSPEND_NODE;
 //		String state = getNextState(context);

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.zhinanzhen.b.service.WXWorkService;
+import org.zhinanzhen.tb.controller.BaseController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
@@ -45,21 +46,26 @@ public class WXWorkAOP {
         setToken();
     }
 
+    @Before("execution(* org.zhinanzhen.b.controller.ServiceOrderController.nextFlow(..))")
+    public  void  beforeNextFlow(JoinPoint joinPoint) throws Exception {
+        setToken();
+    }
+
     private void setToken(){
         ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
         HttpSession session=attr.getRequest().getSession(true);
-        if (session.getAttribute("corpToken") == null) {
+        if (session.getAttribute("corpToken" + BaseController.VERSION) == null) {
             Map<String, Object> tokenMap = wxWorkService.getToken(WXWorkAPI.SECRET_CORP);
             if ((int)tokenMap.get("errcode") != 0)
                 throw  new RuntimeException( tokenMap.get("errmsg").toString());
-            session.setAttribute("corpToken",tokenMap.get("access_token"));
+            session.setAttribute("corpToken" + BaseController.VERSION,tokenMap.get("access_token"));
             session.setMaxInactiveInterval((Integer) tokenMap.get("expires_in"));
         }
-        if (session.getAttribute("customerToken") == null) {
+        if (session.getAttribute("customerToken" + BaseController.VERSION) == null) {
             Map<String, Object> tokenMap = wxWorkService.getToken(WXWorkAPI.SECRET_CUSTOMER);
             if ((int)tokenMap.get("errcode") != 0)
                 throw  new RuntimeException( tokenMap.get("errmsg").toString());
-            session.setAttribute("customerToken",tokenMap.get("access_token"));
+            session.setAttribute("customerToken" + BaseController.VERSION,tokenMap.get("access_token"));
             session.setMaxInactiveInterval((Integer) tokenMap.get("expires_in"));
         }
     }

@@ -17,16 +17,16 @@ public interface ServiceOrderService {
 	int countServiceOrder(String type, String excludeState, List<String> stateList, String auditingState,
 			List<String> reviewStateList, String startMaraApprovalDate, String endMaraApprovalDate,
 			String startOfficialApprovalDate, String endOfficialApprovalDate, String startReadcommittedDate,
-			String endReadcommittedDate, List<Integer> regionIdList, Integer userId, Integer maraId, Integer adviserId,
+			String endReadcommittedDate, List<Integer> regionIdList, Integer userId, String userName, Integer maraId, Integer adviserId,
 			Integer officialId, Integer officialTagId, int parentId, boolean isNotApproved, Integer serviceId,
-			Integer schoolId) throws ServiceException;
+			Integer schoolId, Boolean isPay) throws ServiceException;
 
 	List<ServiceOrderDTO> listServiceOrder(String type, String excludeState, List<String> stateList,
 			String auditingState, List<String> reviewStateList, String startMaraApprovalDate,
 			String endMaraApprovalDate, String startOfficialApprovalDate, String endOfficialApprovalDate,
-			String startReadcommittedDate, String endReadcommittedDate, List<Integer> regionIdList, Integer userId,
+			String startReadcommittedDate, String endReadcommittedDate, List<Integer> regionIdList, Integer userId,String userName,
 			Integer maraId, Integer adviserId, Integer officialId, Integer officialTagId, int parentId,
-			boolean isNotApproved, int pageNum, int pageSize, Sorter sorter, Integer serviceId, Integer schoolId)
+			boolean isNotApproved, int pageNum, int pageSize, Sorter sorter, Integer serviceId, Integer schoolId, Boolean isPay)
 			throws ServiceException;
 
 	ServiceOrderDTO getServiceOrderById(int id) throws ServiceException;
@@ -45,6 +45,7 @@ public interface ServiceOrderService {
 
 	void sendRemind(int id, String state);
 
+	@Deprecated
 	List<ServiceOrderReviewDTO> reviews(int serviceOrderId) throws ServiceException;
 
 	int addComment(ServiceOrderCommentDTO serviceOrderCommentDto) throws ServiceException;
@@ -65,4 +66,8 @@ public interface ServiceOrderService {
 			String endOfficialApprovalDate);
 
 	List<EachSubjectCountDTO> eachSubjectCount(String startOfficialApprovalDate, String endOfficialApprovalDate);
+
+	List<ServiceOrderDTO> NotReviewedServiceOrder(Integer officialId,boolean thisMonth);
+
+	Integer caseCount(Integer officialId, String days,String state);
 }

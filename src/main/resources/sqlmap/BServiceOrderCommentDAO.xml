@@ -28,7 +28,7 @@
             content
         FROM b_service_order_comment
         WHERE service_order_id = #{serviceOrderId}
-        ORDER BY gmt_create ASC;
+        ORDER BY gmt_create DESC;
     </select>
     
     <delete id="delete" parameterType="java.lang.Integer">

@@ -19,6 +19,7 @@
                 service_package_id,
                 school_id,
                 state,
+                state_mark,
                 mara_approval_date,
                 official_approval_date,
                 is_settle,
@@ -78,6 +79,7 @@
                 #{servicePackageId},
                 #{schoolId},
                 #{state},
+                #{stateMark},
                 NULL,
                 NULL,
                 #{isSettle},
@@ -154,6 +156,9 @@
         </if>
         <if test='state != null and state != ""'>
             , state = #{state}
+        </if>
+        <if test='stateMark != null'>
+            , state_mark = #{stateMark}
         </if>
         <if test='maraApprovalDate != null'>
             , mara_approval_date = #{maraApprovalDate}
@@ -301,8 +306,8 @@
     
     <select id="countServiceOrder" resultType="java.lang.Integer">
         SELECT count(*)
-        FROM tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON so.id=soot.service_order_id
-        WHERE so.is_delete = 0 AND a.id = so.adviser_id
+        FROM tb_user u, tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON so.id=soot.service_order_id
+        WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id
         <if test='type != null and type != ""'>
             AND so.type = #{type}
         </if>
@@ -369,6 +374,12 @@
         <if test='auditingState == "MAFINISH"'>
             <![CDATA[ AND (SELECT COUNT(id) FROM b_service_order_review WHERE service_order_id = so.id AND official_state="REVIEW" AND mara_state="FINISH") > 0 ]]>
         </if>
+        <if test='userName != null and userName != ""'>
+            AND u.name LIKE '%${userName}%'
+        </if>
+        <if test="isPay != null">
+            AND so.is_pay = #{isPay}
+        </if>
         ;
     </select>
     
@@ -388,6 +399,7 @@
             so.service_package_id AS servicePackageId,
             so.school_id AS schoolId,
             so.state AS state,
+            so.state_mark AS stateMark,
             so.mara_approval_date AS maraApprovalDate,
             so.official_approval_date AS officialApprovalDate,
             so.is_settle AS isSettle,
@@ -433,8 +445,8 @@
             so.real_people_number AS realPeopleNumber ,
             so.verify_code AS verifyCode ,
             so.readcommitted_date AS readcommittedDate
-        FROM tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON so.id=soot.service_order_id
-        WHERE so.is_delete = 0 AND a.id = so.adviser_id
+        FROM tb_user u, tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON so.id=soot.service_order_id
+        WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id
         <if test='type != null and type != ""'>
             AND so.type = #{type}
         </if>
@@ -501,6 +513,12 @@
         <if test="serviceId != null and  serviceId > 0">
             AND so.service_id = #{serviceId}
         </if>
+        <if test='userName != null and userName != ""'>
+            AND u.name LIKE '%${userName}%'
+        </if>
+        <if test="isPay != null">
+            AND so.is_pay = #{isPay}
+        </if>
         ${orderBy}
         LIMIT #{offset}, #{rows};
     </select>
@@ -535,6 +553,7 @@
             service_package_id AS servicePackageId,
             school_id AS schoolId,
             state,
+            state_mark AS stateMark,
             mara_approval_date AS maraApprovalDate,
             official_approval_date AS officialApprovalDate,
             is_settle AS isSettle,
@@ -746,5 +765,104 @@
         </if>
         GROUP BY
         bs.id;
+    </select>
+
+    <select id="NotReviewedServiceOrder" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
+        SELECT
+        so.id AS id,
+        so.gmt_create AS gmtCreate,
+        so.gmt_modify AS gmtModify,
+        so.code AS code,
+        so.finish_date AS finishDate,
+        so.type AS type,
+        so.people_number AS peopleNumber,
+        so.people_type AS peopleType,
+        so.people_remarks AS peopleRemarks,
+        so.service_id AS serviceId,
+        so.parent_id AS parentId,
+        so.service_package_id AS servicePackageId,
+        so.school_id AS schoolId,
+        so.state AS state,
+        so.state_mark AS stateMark,
+        so.mara_approval_date AS maraApprovalDate,
+        so.official_approval_date AS officialApprovalDate,
+        so.is_settle AS isSettle,
+        so.is_deposit_user AS isDepositUser,
+        so.is_submitted AS isSubmitted,
+        so.subagency_id AS subagencyId,
+        so.is_pay AS isPay,
+        so.receive_type_id AS receiveTypeId,
+        so.receive_date AS receiveDate,
+        so.receivable AS receivable,
+        so.discount AS discount,
+        so.received AS received,
+        so.installment AS installment,
+        so.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+        so.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+        so.payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+        so.payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+        so.payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+        so.coe_payment_voucher_image_url_1 AS coePaymentVoucherImageUrl1,
+        so.coe_payment_voucher_image_url_2 AS coePaymentVoucherImageUrl2,
+        so.coe_payment_voucher_image_url_3 AS coePaymentVoucherImageUrl3,
+        so.coe_payment_voucher_image_url_4 AS coePaymentVoucherImageUrl4,
+        so.coe_payment_voucher_image_url_5 AS coePaymentVoucherImageUrl5,
+        so.visa_voucher_image_url AS visaVoucherImageUrl,
+        so.per_amount AS perAmount,
+        so.amount AS amount,
+        so.expect_amount AS expectAmount,
+        so.gst AS gst,
+        so.deduct_gst AS deductGst,
+        so.bonus AS bonus,
+        so.user_id AS userId,
+        so.mara_id AS maraId,
+        so.adviser_id AS adviserId,
+        so.adviser_id_2 AS adviserId2,
+        so.official_id AS officialId,
+        so.remarks AS remarks,
+        so.refuse_reason AS refuseReason,
+        so.closed_reason AS closedReason,
+        so.information AS information ,
+        so.is_history AS isHistory,
+        so.nut_cloud AS nutCloud,
+        so.service_assess_id AS serviceAssessId ,
+        so.real_people_number AS realPeopleNumber ,
+        so.verify_code AS verifyCode ,
+        so.readcommitted_date AS readcommittedDate
+        FROM tb_user u, tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON so.id=soot.service_order_id
+        WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id
+        AND so.state = 'PENDING'
+        <![CDATA[ AND DATE_SUB(NOW(),INTERVAL 1 day)  >  official_approval_date ]]>
+        <if test="officialId != null and officialId > 0">
+            AND so.official_id = #{officialId}
+        </if>
+        <if test="thisMonth != null and thisMonth == true">
+            AND DATE_FORMAT(official_approval_date, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
+        </if>
+    </select>
+
+    <select id="caseCount" resultType="java.lang.Integer">
+        SELECT
+        count(so.id)
+        FROM tb_user u, tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON so.id=soot.service_order_id
+        WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id
+        <if test="officialId != null and officialId > 0">
+            AND so.official_id = #{officialId}
+        </if>
+        <choose>
+            <when test='days != null and days == "M"'>
+                AND DATE_FORMAT(official_approval_date, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
+            </when>
+            <when test='days != null and days == "W"'>
+                AND YEARWEEK(official_approval_date,1) = YEARWEEK(NOW(),1)
+            </when>
+        </choose>
+        <if test='state != null and state == "OREVIEW"'>
+            AND so.state != 'PENDING'
+        </if>
+        <if test='state != null and state == "COMPLETE"'>
+            AND so.state = 'COMPLETE'
+        </if>
+        ;
     </select>
 </mapper>

@@ -167,8 +167,8 @@ public class InvoiceController  extends BaseController {
         String simpleBranch = "";
         InvoiceCompanyDTO invoiceCompanyDTO = invoiceService.addServiceFeeInvoice(branch, company);
 
-        //HttpSession session = request.getSession();
-        //List<BranchDO> branchDOS = (List<BranchDO>) session.getAttribute("branchDOS");
+//        HttpSession session = request.getSession();
+//        List<BranchDO> branchDOS = (List<BranchDO>) session.getAttribute("branchDOS" + VERSION);
         List<InvoiceBranchDO> branchDOS = invoiceService.selectBranch();
         if (branchDOS != null) {
             for (InvoiceBranchDO branchDO : branchDOS) {

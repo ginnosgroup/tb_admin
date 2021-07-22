@@ -39,7 +39,7 @@ public class ServiceOrderCloseNode extends SONode {
 			if (serviceOrderDto == null) {
 				context.putParameter("response",
 						new Response<ServiceOrderDTO>(1, "服务订单不存在:" + getServiceOrderId(context), null));
-				exce(context);
+				return null;
 			}
 			String closedReason = getClosedReason(context);
 			if (StringUtil.isNotEmpty(closedReason)) {
