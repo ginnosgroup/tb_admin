@@ -125,8 +125,8 @@
         u.phone AS phone,
         u.balance AS balance,
         u.adviser_id AS adviserId,
-        u.region_id AS regionId
-        FROM tb_user u LEFT JOIN b_user_tag ut ON u.id = ut.user_id
+        a.region_id AS regionId
+        FROM tb_user u LEFT JOIN b_user_tag ut ON u.id = ut.user_id LEFT JOIN tb_adviser a ON u.adviser_id = a.id
         WHERE u.auth_type != 'V'
         <if test='name != null and name != ""'>
             AND u.name LIKE '%${name}%'
@@ -147,11 +147,11 @@
             AND u.id in (SELECT user_id FROM tb_user_adviser WHERE adviser_id = #{adviserId})
         </if>
         <if test='regionIdList != null'>
-            AND (u.region_id IN
+            AND (a.region_id IN
             <foreach collection="regionIdList" item="regionIdList" index="index" open="(" close=")" separator=",">
                 #{regionIdList}
             </foreach>
-            OR u.region_id = 0)
+            OR a.region_id = 0)
         </if>
         <if test='tagId != null and tagId != ""'>
             AND ut.tag_id = #{tagId}
