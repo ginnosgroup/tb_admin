@@ -126,7 +126,16 @@
         u.balance AS balance,
         u.adviser_id AS adviserId,
         a.region_id AS regionId
-        FROM tb_user u LEFT JOIN b_user_tag ut ON u.id = ut.user_id LEFT JOIN tb_adviser a ON u.adviser_id = a.id
+        FROM tb_user u
+            LEFT JOIN b_user_tag ut ON u.id = ut.user_id
+            LEFT JOIN tb_user_adviser ua ON u.id=ua.user_id
+            <if test='adviserId != null and adviserId != ""'>
+                AND ua.adviser_id = #{adviserId}
+            </if>
+            <if test='adviserId == null or adviserId == ""'>
+                AND ua.is_creater = 1
+            </if>
+            LEFT JOIN tb_adviser a ON a.id=ua.adviser_id
         WHERE u.auth_type != 'V'
         <if test='name != null and name != ""'>
             AND u.name LIKE '%${name}%'
@@ -142,9 +151,6 @@
         </if>
         <if test='wechatUsername != null and wechatUsername != ""'>
             AND u.wechat_username = #{wechatUsername}
-        </if>
-        <if test='adviserId != null and adviserId != ""'>
-            AND u.id in (SELECT user_id FROM tb_user_adviser WHERE adviser_id = #{adviserId})
         </if>
         <if test='regionIdList != null'>
             AND (a.region_id IN
