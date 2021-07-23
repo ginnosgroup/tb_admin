@@ -12,6 +12,8 @@ public interface UserService {
 			String firstControllerContents, String visaCode, Date visaExpirationDate, String source, int adviserId,
 			int regionId) throws ServiceException;
 
+	public int addUserAdviser(int userId, int adviserId) throws ServiceException;
+
 	public int countUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
 			String wechatUsername, int adviserId, List<Integer> regionIdList, Integer tagId) throws ServiceException;
 

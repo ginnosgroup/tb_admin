@@ -18,7 +18,8 @@
         visa_id,
         commission_order_id,
         adviser_id,
-        offcial_id
+        offcial_id,
+        user_id
         ) VALUES (
         NOW(),
         NOW(),
@@ -31,7 +32,8 @@
         #{visaId},
         #{commissionOrderId},
         #{adviserId},
-        #{offcialId}
+        #{offcialId},
+        #{userId}
         );
     </insert>
 
@@ -49,7 +51,8 @@
         visa_id AS visaId,
         commission_order_id AS commissionOrderId,
         adviser_id AS adviserId,
-        offcial_id AS offcialId
+        offcial_id AS offcialId,
+        user_id AS userId
         from b_mail_remind
         <where>
             <if test="adviserId != null and adviserId > 0">
@@ -67,8 +70,14 @@
             <if test="commissionOrderId != null and commissionOrderId > 0">
                 AND commission_order_id = #{commissionOrderId}
             </if>
+            <if test="userId != null and userId > 0">
+                AND user_id = #{userId}
+            </if>
             <if test="isToday == true">
                 AND DATE_FORMAT(send_date,'%Y%m%d') = DATE_FORMAT(NOW(),'%Y%m%d')
+            </if>
+            <if test="isAll == false">
+                AND send_date >= NOW()
             </if>
         </where>
         ORDER BY send_date DESC LIMIT 10;
@@ -98,7 +107,8 @@
         visa_id AS visaId,
         commission_order_id AS commissionOrderId,
         adviser_id AS adviserId,
-        offcial_id AS offcialId
+        offcial_id AS offcialId,
+        user_id AS userId
         from b_mail_remind
         WHERE id = #{id};
     </select>
@@ -111,6 +121,9 @@
         </if>
         <if test="content != null">
             , content = #{content}
+        </if>
+        <if test="isSend != null">
+            , is_send = #{isSend}
         </if>
         WHERE id = #{id};
     </update>
@@ -129,14 +142,15 @@
         visa_id AS visaId,
         commission_order_id AS commissionOrderId,
         adviser_id AS adviserId,
-        offcial_id AS offcialId
-        FROM b_mail_remind
+        offcial_id AS offcialId,
+        user_id AS userId
+        FROM b_mail_remind WHERE  is_send = 0
         <choose>
             <when test='type == "H"'>
-                WHERE DATE_FORMAT(send_date,'%Y%m%d-%H') = DATE_FORMAT(NOW(),'%Y%m%d-%H')
+                AND DATE_FORMAT(send_date,'%Y%m%d-%H') = DATE_FORMAT(NOW(),'%Y%m%d-%H')
             </when>
             <when test='type == "D"'>
-                WHERE DATE_FORMAT(send_date,'%Y%m%d') = DATE_FORMAT(NOW(),'%Y%m%d')
+                AND DATE_FORMAT(send_date,'%Y%m%d') = DATE_FORMAT(NOW(),'%Y%m%d')
                 AND offcial_id IS NOT NULL
             </when>
         </choose>

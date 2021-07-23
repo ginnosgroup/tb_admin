@@ -313,6 +313,11 @@
 										知识库菜单
 									</a>
 								</li>
+								<li>
+									<a href="http://question.zhinanzhen.org/api/users/znz/{{admin}}" target="_blank">
+										指南针问答
+									</a>
+								</li>
 							</ul>
 						</li>
 					</ul>
@@ -412,7 +417,7 @@
 			</section>
 			<footer class="site-footer">
 				<div class="text-center">
-					2018 &copy; 佣金系统 by <span style="color:#2a8ba7;">GIG</span>.
+					2021 &copy; 佣金系统 by <span style="color:white;">Xueblock</span>.
 					<a href="#" class="go-top">
 						<i class="fa fa-angle-up">
             </i>
@@ -687,6 +692,9 @@
 						case 'VA':
 								str = '签证申请';
 						break;
+						case 'ZD':
+								str = '州担';
+						break;
 				}
 				return str;
 			}
@@ -748,6 +756,7 @@
 			    obj_type.append("<option value='EOI'>EOI</option>");
 			    obj_type.append("<option value='SA'>学校</option>");
 			    obj_type.append("<option value='VA'>签证</option>");
+			    obj_type.append("<option value='ZD'>州担</option>");
 			    obj_type.val(type_val);
 			    //绑定服务项目列表
 			    var obj_serviceId = $("#t1");

@@ -78,7 +78,7 @@ public class OfficialTagServiceImpl extends BaseService implements OfficialTagSe
 	}
 
 	@Override
-	@Transactional
+	@Transactional(rollbackFor = ServiceException.class)
 	public int delete(int id) throws ServiceException {
 		if (id <= 0) {
 			ServiceException se = new ServiceException("id error !");

@@ -27,6 +27,8 @@ public class MailRemindDTO {
 
     private Date sendDate;
 
+    private boolean isSend;
+
     private Integer serviceOrderId;
 
     private Integer visaId;
@@ -38,4 +40,6 @@ public class MailRemindDTO {
     private Integer offcialId;
 
     private Integer userId;
+
+    private String userName;
 }

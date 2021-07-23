@@ -46,7 +46,7 @@ public class UserDO implements Serializable {
 
 	private double balance;
 
-	private int regionId;
+	private int regionId; // 即将废弃
 
 	private int adviserId;
 

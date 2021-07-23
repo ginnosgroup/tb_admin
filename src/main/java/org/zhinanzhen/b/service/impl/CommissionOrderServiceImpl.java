@@ -11,15 +11,8 @@ import org.zhinanzhen.b.controller.BaseCommissionOrderController.ReviewKjStateEn
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.CommissionOrderService;
-import org.zhinanzhen.b.service.pojo.CommissionOrderCommentDTO;
-import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
-import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
-import org.zhinanzhen.b.service.pojo.CommissionOrderReportDTO;
-import org.zhinanzhen.b.service.pojo.SchoolDTO;
-import org.zhinanzhen.b.service.pojo.SubagencyDTO;
+import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
-import org.zhinanzhen.b.service.pojo.ReceiveTypeDTO;
-import org.zhinanzhen.b.service.pojo.ServiceDTO;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
@@ -74,8 +67,11 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 	@Resource
 	private VisaDAO visaDao;
 
+	@Resource
+	private MailRemindDAO mailRemindDAO;
+
 	@Override
-	@Transactional
+	@Transactional(rollbackFor = ServiceException.class)
 	public int addCommissionOrder(CommissionOrderDTO commissionOrderDto) throws ServiceException {
 		if (commissionOrderDto == null) {
 			ServiceException se = new ServiceException("commissionOrderDto is null !");
@@ -175,7 +171,7 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 	}
 
 	@Override
-	@Transactional
+	@Transactional(rollbackFor = ServiceException.class)
 	public int updateCommissionOrder(CommissionOrderDTO commissionOrderDto) throws ServiceException {
 		if (commissionOrderDto == null) {
 			ServiceException se = new ServiceException("commissionOrderDto is null !");
@@ -385,6 +381,15 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			}
 			commissionOrderListDto.setTotalPerAmount(totalPerAmount);
 			commissionOrderListDto.setTotalAmount(totalAmount);
+		}
+
+		List<MailRemindDO> mailRemindDOS = mailRemindDAO.list(null,null,null,null,commissionOrderListDo.getId(),null,false,true);
+		if (mailRemindDOS.size() > 0){
+			List<MailRemindDTO> mailRemindDTOS = new ArrayList<>();
+			mailRemindDOS.forEach(mailRemindDO ->{
+				mailRemindDTOS.add(mapper.map(mailRemindDO,MailRemindDTO.class));
+			});
+			commissionOrderListDto.setMailRemindDTOS(mailRemindDTOS);
 		}
 		return commissionOrderListDto;
 	}

@@ -152,7 +152,7 @@ public class WXWorkController extends  BaseController{
                         if (isContain){
                             wxWorkService.updateAuthopenidByPhone(userDTO.getAuthOpenid(),userDTO.getPhone());
                         }
-                        userDTO.setAdviserId(adviserId);
+//                        userDTO.setAdviserId(adviserId); // TODO: 小包
                         userDTO.setRegionId(adviserDTO.getRegionId());
                         UserDTO userDTOByAuthOpenid = userService.getUserByOpenId("WECHAT_WORK",userDTO.getAuthOpenid());
                         if (userDTOByAuthOpenid != null){

@@ -20,6 +20,7 @@
                 school_id,
                 state,
                 state_mark,
+                urgent_state,
                 mara_approval_date,
                 official_approval_date,
                 is_settle,
@@ -64,7 +65,8 @@
                 nut_cloud,
                 service_assess_id,
                 real_people_number,
-                verify_code )
+                verify_code,
+                ref_no)
             VALUES (
                 now(),
                 now(),
@@ -80,6 +82,7 @@
                 #{schoolId},
                 #{state},
                 #{stateMark},
+                #{urgentState},
                 NULL,
                 NULL,
                 #{isSettle},
@@ -124,7 +127,8 @@
                 #{nutCloud},
                 #{serviceAssessId},
                 #{realPeopleNumber},
-                #{verifyCode});
+                #{verifyCode},
+                #{refNo});
     </insert>
     
     <update id="updateServiceOrder" parameterType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
@@ -159,6 +163,12 @@
         </if>
         <if test='stateMark != null'>
             , state_mark = #{stateMark}
+        </if>
+        <if test='urgentState != null and urgentState != ""'>
+            , urgent_state = #{urgentState}
+        </if>
+        <if test='urgentState == ""'>
+            , urgent_state = NULL
         </if>
         <if test='maraApprovalDate != null'>
             , mara_approval_date = #{maraApprovalDate}
@@ -295,6 +305,9 @@
         <if test="readcommittedDate != null">
             ,readcommitted_date = #{readcommittedDate}
         </if>
+        <if test="refNo != null">
+            ,ref_no = #{refNo}
+        </if>
         WHERE id = #{id};
     </update>
     
@@ -325,6 +338,9 @@
             <foreach collection="reviewStateList" item="reviewStateList" index="index" open="(" close=")" separator=",">
                 #{reviewStateList}
             </foreach>
+        </if>
+        <if test='urgentState != null and urgentState != ""'>
+            AND so.urgent_state != #{urgentState}
         </if>
         <if test='startMaraApprovalDate != null and startMaraApprovalDate != "" and endMaraApprovalDate != null and endMaraApprovalDate != ""'>
             <![CDATA[ AND so.mara_approval_date > #{startMaraApprovalDate} AND so.mara_approval_date < #{endMaraApprovalDate} ]]>
@@ -400,6 +416,7 @@
             so.school_id AS schoolId,
             so.state AS state,
             so.state_mark AS stateMark,
+            so.urgent_state AS urgentState,
             so.mara_approval_date AS maraApprovalDate,
             so.official_approval_date AS officialApprovalDate,
             so.is_settle AS isSettle,
@@ -444,7 +461,8 @@
             so.service_assess_id AS serviceAssessId ,
             so.real_people_number AS realPeopleNumber ,
             so.verify_code AS verifyCode ,
-            so.readcommitted_date AS readcommittedDate
+            so.readcommitted_date AS readcommittedDate,
+            so.ref_no AS refNo
         FROM tb_user u, tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON so.id=soot.service_order_id
         WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id
         <if test='type != null and type != ""'>
@@ -464,6 +482,9 @@
             <foreach collection="reviewStateList" item="reviewStateList" index="index" open="(" close=")" separator=",">
                 #{reviewStateList}
             </foreach>
+        </if>
+        <if test='urgentState != null and urgentState != ""'>
+            AND so.urgent_state != #{urgentState}
         </if>
         <if test='startMaraApprovalDate != null and startMaraApprovalDate != "" and endMaraApprovalDate != null and endMaraApprovalDate != ""'>
             <![CDATA[ AND so.mara_approval_date > #{startMaraApprovalDate} AND so.mara_approval_date < #{endMaraApprovalDate} ]]>
@@ -534,7 +555,7 @@
         <if test='parentId != null and parentId > 0'>
             AND parent_id = #{parentId}
         </if>
-        ORDER BY gmt_create DESC;
+        ORDER BY urgent_state DESC, gmt_create DESC;
     </select>
     
     <select id="getServiceOrderById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
@@ -554,6 +575,7 @@
             school_id AS schoolId,
             state,
             state_mark AS stateMark,
+            urgent_state AS urgentState,
             mara_approval_date AS maraApprovalDate,
             official_approval_date AS officialApprovalDate,
             is_settle AS isSettle,
@@ -598,7 +620,8 @@
             service_assess_id AS serviceAssessId ,
             real_people_number AS realPeopleNumber ,
             verify_code AS verifyCode ,
-            readcommitted_date AS readcommittedDate
+            readcommitted_date AS readcommittedDate,
+            ref_no AS refNo
         FROM b_service_order WHERE id = #{id, jdbcType=INTEGER};
     </select>
     
@@ -701,6 +724,7 @@
             service_package_id AS servicePackageId,
             school_id AS schoolId,
             state,
+            urgent_state AS urgentState,
             mara_approval_date AS maraApprovalDate,
             official_approval_date AS officialApprovalDate,
             is_settle AS isSettle,
@@ -745,7 +769,8 @@
             service_assess_id AS serviceAssessId ,
             real_people_number AS realPeopleNumber ,
             verify_code AS verifyCode ,
-            readcommitted_date AS readcommittedDate
+            readcommitted_date AS readcommittedDate,
+            ref_no AS refNo
         FROM b_service_order WHERE verify_code = #{verifyCode};
     </select>
 
@@ -784,6 +809,7 @@
         so.school_id AS schoolId,
         so.state AS state,
         so.state_mark AS stateMark,
+        so.urgent_state AS urgentState,
         so.mara_approval_date AS maraApprovalDate,
         so.official_approval_date AS officialApprovalDate,
         so.is_settle AS isSettle,
@@ -828,10 +854,11 @@
         so.service_assess_id AS serviceAssessId ,
         so.real_people_number AS realPeopleNumber ,
         so.verify_code AS verifyCode ,
-        so.readcommitted_date AS readcommittedDate
+        so.readcommitted_date AS readcommittedDate,
+        so.ref_no AS refNo
         FROM tb_user u, tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON so.id=soot.service_order_id
-        WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id
-        AND so.state = 'PENDING'
+        WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id AND so.type != 'SIV'
+        AND so.state = 'REVIEW'
         <![CDATA[ AND DATE_SUB(NOW(),INTERVAL 1 day)  >  official_approval_date ]]>
         <if test="officialId != null and officialId > 0">
             AND so.official_id = #{officialId}
@@ -839,6 +866,10 @@
         <if test="thisMonth != null and thisMonth == true">
             AND DATE_FORMAT(official_approval_date, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
         </if>
+        <if test="thisMonth != null and thisMonth == false">
+            LIMIT 20
+        </if>
+        ;
     </select>
 
     <select id="caseCount" resultType="java.lang.Integer">

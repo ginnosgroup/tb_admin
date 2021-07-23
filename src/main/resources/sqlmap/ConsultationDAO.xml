@@ -64,7 +64,7 @@
         FROM tb_consultation c, tb_user u
         WHERE state = 'ENABLED' AND c.user_id = u.id AND <![CDATA[ c.remind_date < #{date} ]]>
         <if test='adviserId != null'>
-            AND u.adviser_id = #{adviserId}
+            AND u.id in (SELECT user_id FROM tb_user_adviser WHERE adviser_id = #{adviserId})
         </if>
         ORDER BY c.gmt_create DESC;
     </select>

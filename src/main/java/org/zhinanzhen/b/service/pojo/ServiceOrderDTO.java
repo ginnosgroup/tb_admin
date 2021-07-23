@@ -50,6 +50,8 @@ public class ServiceOrderDTO {
 	
 	private String auditingState;
 	
+	private String urgentState;
+	
 	private Date maraApprovalDate;
 
 	private Date officialApprovalDate;
@@ -153,6 +155,8 @@ public class ServiceOrderDTO {
 	private String verifyCode;//会计自动对账code
 
 	private Date readcommittedDate;
+	
+	private String refNo;
 
 	private boolean hasCommissionOrder = false;
 
@@ -169,5 +173,7 @@ public class ServiceOrderDTO {
 	private ServiceAssessDO serviceAssessDO;
 	
 	private List<Integer> cIds; // 佣金订单编号
+
+	private List<MailRemindDTO> mailRemindDTOS;
 
 }

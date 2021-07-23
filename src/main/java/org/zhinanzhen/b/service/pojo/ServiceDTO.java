@@ -11,4 +11,5 @@ public class ServiceDTO {
 
 	private String code;
 
+	private String role;
 }

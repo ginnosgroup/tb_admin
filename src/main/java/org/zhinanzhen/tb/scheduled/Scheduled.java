@@ -403,7 +403,7 @@ public class Scheduled {
                             if (isContain){
                                 wxWorkService.updateAuthopenidByPhone(userDTO.getAuthOpenid(),userDTO.getPhone());
                             }
-                            userDTO.setAdviserId(adviserDO.getId());
+//                            userDTO.setAdviserId(adviserDO.getId()); // TODO: 小包
                             userDTO.setRegionId(adviserDTO.getRegionId());
                             UserDTO userDTOByAuthOpenid = userService.getUserByOpenId("WECHAT_WORK",userDTO.getAuthOpenid());
                             if (userDTOByAuthOpenid != null){
@@ -440,9 +440,7 @@ public class Scheduled {
                                 userDTO.getName() + sdf.format(userDTO.getVisa_expiration_date()) + " visa 即将到期提醒",
                                 adviserDTO.getName() + ": " + userDTO.getName() + userDTO.getId() + "," + sdf.format(userDTO.getVisa_expiration_date()) + ",7天内到期请注意提醒客户，如签证日期有变化请及时更新，如已更新请忽略该提醒.");
 
-                }
-                /*    TODO  这里先注释掉 .......
-                else {
+                }else {
                     UserDTO user = userService.getUserById(userDTO.getId());
                     user.getUserAdviserList().forEach(adviser -> {
                         AdviserDTO ad = adviser.getAdviserDto();
@@ -452,7 +450,7 @@ public class Scheduled {
                                     ad.getName() + ": " + userDTO.getName() + userDTO.getId() + "," + sdf.format(userDTO.getVisa_expiration_date()) + ",7天内到期请注意提醒客户，如签证日期有变化请及时更新，如已更新请忽略该提醒.");
                     });
                 }
-                 */
+
             } catch (ServiceException e) {
                 e.printStackTrace();
             }
@@ -486,8 +484,12 @@ public class Scheduled {
     public void sendSetRemindMail(){
         List<MailRemindDO> mailRemindDOS = mailRemindDAO.listBySendDate("H");
         for (MailRemindDO mailRemindDO : mailRemindDOS){
-            SendEmailUtil.send(mailRemindDO.getMail(),mailRemindDO.getTitle(),mailRemindDO.getContent() + " 请及时处理。\n" +
-                    "如已处理完成请及时关闭提醒。");
+            String sendMsg = mailRemindDO.getContent() + " 请及时处理。如已处理完成请及时关闭提醒。" ;
+            if (mailRemindDO.getUserId() != null && mailRemindDO.getAdviserId() != null)
+                StringUtil.merge(sendMsg,"<br/><a href='https://yongjinbiao.zhinanzhen.org/webroot_new/userdetail/id/?" + mailRemindDO.getUserId() + "'>点击即可进入客户详情页</a>");
+            SendEmailUtil.send(mailRemindDO.getMail(),mailRemindDO.getTitle(),sendMsg);
+            mailRemindDO.setSend(true);
+            mailRemindDAO.update(mailRemindDO);
         }
     }
 

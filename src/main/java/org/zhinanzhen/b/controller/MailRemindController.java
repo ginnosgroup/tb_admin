@@ -60,6 +60,10 @@ public class MailRemindController extends BaseController {
 
     @GetMapping(value = "/list")
     public Response<List<MailRemindDTO>> list(@RequestParam(value = "isToday",required = false,defaultValue = "false") boolean isToday,
+                                              @RequestParam(value = "serviceOrderId" , required = false)Integer serviceOrderId,
+                                              @RequestParam(value = "visaId" , required = false)Integer visaId,
+                                              @RequestParam(value = "commissionOrderId" , required = false)Integer commissionOrderId,
+                                              @RequestParam(value = "userId" , required = false)Integer userId,
                                               HttpServletRequest request, HttpServletResponse response){
         try {
             super.setGetHeader(response);
@@ -69,7 +73,7 @@ public class MailRemindController extends BaseController {
             Integer offcialId = getOfficialId(request);
 
             return new Response<List<MailRemindDTO>>(0, "",
-                    mailRemindService.list(adviserId, offcialId, null, null, null,isToday));
+                    mailRemindService.list(adviserId, offcialId, serviceOrderId, visaId, commissionOrderId,userId,isToday,Boolean.TRUE));
         } catch (ServiceException e) {
             e.printStackTrace();
             return new Response<List<MailRemindDTO>>(e.getCode(), e.getMessage(), null);
@@ -159,12 +163,7 @@ public class MailRemindController extends BaseController {
             mailRemindDTO.setServiceOrderId(serviceOrderId);
             mailRemindDTO.setCommissionOrderId(commissionOrderId);
             mailRemindDTO.setUserId(userId);
-            try {
-                mailRemindDTO.setSendDate(sdf.parse(sendDate));
-            } catch (ParseException e) {
-                e.printStackTrace();
-                return  new Response(1,"时间格式错误.正确格式:日/月/年 时:分:秒");
-            }
+            mailRemindDTO.setSendDate(new Date(Long.parseLong(sendDate)));
             try {
                 mailRemindDTO.setCode(MD5Util.getMD5(content));
             } catch (Exception e) {
@@ -186,7 +185,7 @@ public class MailRemindController extends BaseController {
                            HttpServletRequest request,HttpServletResponse response){
         if (getAdminUserLoginInfo(request) == null)
             return new Response(1,"先登录");
-        Integer adviserId = getOfficialId(request);
+        Integer adviserId = getAdviserId(request);
         Integer offcialId = getOfficialId(request);
         if (mailRemindService.delete(id,adviserId,offcialId) > 0)
             return new Response(0,"成功");
@@ -201,15 +200,13 @@ public class MailRemindController extends BaseController {
                            HttpServletRequest request, HttpServletResponse response) {
         try {
             super.setPostHeader(response);
+            if (getAdminUserLoginInfo(request) == null)
+                return new Response(1,"先登录");
             MailRemindDTO mailRemindDTO = mailRemindService.getByid(id);
             if (mailRemindDTO == null)
                 return new Response(1, "提醒不存在,修改失败");
-            try {
-                if (StringUtil.isNotEmpty(sendDate)) {
-                    mailRemindDTO.setSendDate(sdf.parse(sendDate));
-                }
-            } catch (ParseException e) {
-                return new Response(1, "时间格式错误.正确格式:日/月/年 时:分:秒");
+            if (StringUtil.isNotEmpty(sendDate)) {
+                mailRemindDTO.setSendDate(new Date(Long.parseLong(sendDate)));
             }
 
             mailRemindDTO.setContent(content);

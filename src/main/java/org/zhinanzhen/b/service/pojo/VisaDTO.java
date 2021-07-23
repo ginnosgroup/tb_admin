@@ -116,4 +116,6 @@ public class VisaDTO {
 
 	private Date invoiceCreate;
 
+	private List<MailRemindDTO> mailRemindDTOS;
+
 }
