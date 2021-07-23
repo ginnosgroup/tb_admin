@@ -480,7 +480,7 @@ public class Scheduled {
     /**
      * 每小时触发一次(设置提醒)
      */
-    //@org.springframework.scheduling.annotation.Scheduled(cron = "0 24 17 * * ? ")
+    @org.springframework.scheduling.annotation.Scheduled(cron = "0 10 * * * ? ")
     public void sendSetRemindMail(){
         List<MailRemindDO> mailRemindDOS = mailRemindDAO.listBySendDate("H");
         for (MailRemindDO mailRemindDO : mailRemindDOS){
