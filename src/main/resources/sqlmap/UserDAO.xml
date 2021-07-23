@@ -162,6 +162,9 @@
         <if test='tagId != null and tagId != ""'>
             AND ut.tag_id = #{tagId}
         </if>
+        <if test='adviserId != null and adviserId != ""'>
+            AND u.adviser_id = #{adviserId}
+        </if>
         GROUP BY u.id
         <if test='orderByField != null and orderByField != ""'>
             ORDER BY u.${orderByField}
