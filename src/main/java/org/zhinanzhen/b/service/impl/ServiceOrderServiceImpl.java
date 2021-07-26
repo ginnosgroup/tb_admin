@@ -607,7 +607,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		if (serviceAssessDO != null)
 			serviceOrderDto.setServiceAssessDO(serviceAssessDO);
 
-		List<MailRemindDO> mailRemindDOS = mailRemindDAO.list(null,null,serviceOrderDO.getId(),null,null,null,false,false);
+		List<MailRemindDO> mailRemindDOS = mailRemindDAO.list(null,null,serviceOrderDO.getId(),null,null,null,false,true);
 		if (mailRemindDOS.size() > 0){
 			List<MailRemindDTO> mailRemindDTOS = new ArrayList<>();
 			mailRemindDOS.forEach(mailRemindDO ->{
