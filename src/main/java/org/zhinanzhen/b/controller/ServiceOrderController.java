@@ -931,9 +931,9 @@ public class ServiceOrderController extends BaseController {
 			if (id != null && id > 0) {
 				List<ServiceOrderDTO> list = new ArrayList<ServiceOrderDTO>();
 				ServiceOrderDTO serviceOrder = serviceOrderService.getServiceOrderById(id);
-				if (serviceOrder != null)
+				if (serviceOrder != null && serviceOrder.getAdviserId() == adviserId)
 					list.add(serviceOrder);
-				return new ListResponse<List<ServiceOrderDTO>>(true, pageSize, 1, list, "");
+				return new ListResponse<List<ServiceOrderDTO>>(true, pageSize, list.size(), list, "");
 			}
 
 			int total = serviceOrderService.countServiceOrder(type, excludeTypeList, excludeState, stateList,

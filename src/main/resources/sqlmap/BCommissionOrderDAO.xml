@@ -1131,7 +1131,8 @@
             so.service_id AS serviceId
         FROM b_commission_order co, b_service_order so, tb_user u
         WHERE co.service_order_id = so.id AND co.user_id = u.id
-        AND DATEDIFF(installment_due_date,NOW()) IN (1,3,7);;
+        AND DATEDIFF(installment_due_date,NOW()) IN (1,3,7)
+        AND co.state = 'PENDING';
     </select>
 
     <update id="updateCommissionOrderByServiceOrderId">

@@ -164,8 +164,11 @@
         <if test='stateMark != null'>
             , state_mark = #{stateMark}
         </if>
-        <if test='urgentState != null'>
+        <if test='urgentState != null and urgentState != ""'>
             , urgent_state = #{urgentState}
+        </if>
+        <if test='urgentState == ""'>
+            , urgent_state = NULL
         </if>
         <if test='maraApprovalDate != null'>
             , mara_approval_date = #{maraApprovalDate}
@@ -555,7 +558,7 @@
         <if test='parentId != null and parentId > 0'>
             AND parent_id = #{parentId}
         </if>
-        ORDER BY gmt_create DESC;
+        ORDER BY urgent_state DESC, gmt_create DESC;
     </select>
     
     <select id="getServiceOrderById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
