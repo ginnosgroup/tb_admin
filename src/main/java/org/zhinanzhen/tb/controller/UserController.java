@@ -23,6 +23,7 @@ import org.zhinanzhen.tb.service.UserAuthTypeEnum;
 import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
 import org.zhinanzhen.tb.service.pojo.TagDTO;
+import org.zhinanzhen.tb.service.pojo.UserAdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 
 import com.ikasoa.core.utils.ListUtil;
@@ -243,18 +244,27 @@ public class UserController extends BaseController {
 //			return new Response<UserDTO>(1, e.getMessage(), null);
 //		}
 	}
-	
+
 	@RequestMapping(value = "/getByPhone", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<UserDTO> getByPhone(String phone, HttpServletResponse response) throws ServiceException {
+	public Response<UserDTO> getByPhone(String phone,HttpServletRequest request, HttpServletResponse response) throws ServiceException {
 		if (phone == null) {
 			return new Response<UserDTO>(1, "参数错误.");
 		}
 		super.setGetHeader(response);
 		List<UserDTO> list = userService.listUser(null, null, null, phone, null, 0, null, 0, 1);
-		if (list != null && list.size() > 0)
-			return new Response<UserDTO>(0, list.get(0));
-		else
+		if (list != null && list.size() > 0) {
+			UserDTO user = list.get(0);
+			List<UserAdviserDTO> userAdviserList = user.getUserAdviserList();
+			if (userAdviserList != null && userAdviserList.size() > 0) {
+				Integer adviserId = getAdviserId(request);
+				for (UserAdviserDTO userAdviserDto : userAdviserList)
+					if (userAdviserDto.getAdviserId() > 0 && adviserId != null
+							&& userAdviserDto.getAdviserId() == adviserId)
+						return new Response<UserDTO>(0, "该手机号所属客户属于该顾问.", null);
+			}
+			return new Response<UserDTO>(0, user);
+		} else
 			return new Response<UserDTO>(0, null, null);
 	}
 
