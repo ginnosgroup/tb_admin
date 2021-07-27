@@ -261,7 +261,7 @@ public class UserController extends BaseController {
 				for (UserAdviserDTO userAdviserDto : userAdviserList)
 					if (userAdviserDto.getAdviserId() > 0 && adviserId != null
 							&& userAdviserDto.getAdviserId() == adviserId)
-						return new Response<UserDTO>(0, "该手机号所属客户属于该顾问.", null);
+						return new Response<UserDTO>(0, "该手机号所属客户属于该顾问.", user);
 			}
 			return new Response<UserDTO>(0, user);
 		} else
