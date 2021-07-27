@@ -244,7 +244,7 @@ public class BaseController {
 	protected Boolean isSuperAdminUser(HttpServletRequest request) {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo != null)
-			return adminUserLoginInfo.getApList() == null;
+			return adminUserLoginInfo.getApList() == null || "SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList());
 		return Boolean.FALSE;
 	}
 
