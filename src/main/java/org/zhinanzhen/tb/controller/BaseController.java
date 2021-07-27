@@ -243,8 +243,10 @@ public class BaseController {
 	// 获取用户是不是超级管理员
 	protected Boolean isSuperAdminUser(HttpServletRequest request) {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-		if (adminUserLoginInfo != null)
-			return adminUserLoginInfo.getApList() == null || "SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList());
+		if (adminUserLoginInfo != null) {
+			String ap = adminUserLoginInfo.getApList();
+			return ap == null || (ap != null && ap.contains("SUPERAD"));
+		}
 		return Boolean.FALSE;
 	}
 
