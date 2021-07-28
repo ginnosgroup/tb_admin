@@ -275,6 +275,7 @@ public class UserController extends BaseController {
 			@RequestParam(value = "authNickname", required = false) String authNickname,
 			@RequestParam(value = "birthday", required = false) String birthday,
 			@RequestParam(value = "phone", required = false) String phone,
+			@RequestParam(value = "email", required = false) String email,
 			@RequestParam(value = "areaCode", required = false) String areaCode,
 			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
 			@RequestParam(value = "firstControllerContents", required = false) String firstControllerContents,
@@ -291,7 +292,7 @@ public class UserController extends BaseController {
 			_visaExpirationDate = new Date(Long.parseLong(visaExpirationDate.trim()));
 		if (name != null)
 			name = name.trim().replace("  ", " "); // 处理多余空格问题
-		return new Response<Boolean>(0, userService.update(id, name, authNickname, _birthday, phone, areaCode,
+		return new Response<Boolean>(0, userService.update(id, name, authNickname, _birthday, phone, email, areaCode,
 				wechatUsername, firstControllerContents, visaCode, _visaExpirationDate, source));
 	}
 

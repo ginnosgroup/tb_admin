@@ -27,7 +27,7 @@ public interface UserDAO {
 			@Param("regionIdList") List<Integer> regionIdList, @Param("tagId") Integer tagId,
 			@Param("orderByField") String orderByField, @Param("isDesc") Boolean isDesc, @Param("offset") int offset,
 			@Param("rows") int rows);
-	
+
 	public List<UserAdviserDO> listUserAdviserByUserId(@Param("userId") Integer userId);
 
 	public UserDO getUserById(int id);
@@ -35,8 +35,8 @@ public interface UserDAO {
 	UserDO getUserByThird(@Param("thirdType") String thirdType, @Param("thirdId") String thirdId);
 
 	boolean update(@Param("id") int id, @Param("name") String name, @Param("authNickname") String authNickname,
-			@Param("birthday") Date birthday, @Param("phone") String phone, @Param("areaCode") String areaCode,
-			@Param("wechatUsername") String wechatUsername,
+			@Param("birthday") Date birthday, @Param("phone") String phone, @Param("email") String email,
+			@Param("areaCode") String areaCode, @Param("wechatUsername") String wechatUsername,
 			@Param("firstControllerContents") String firstControllerContents, @Param("visaCode") String visaCode,
 			@Param("visaExpirationDate") Date visaExpirationDate, @Param("source") String source);
 
