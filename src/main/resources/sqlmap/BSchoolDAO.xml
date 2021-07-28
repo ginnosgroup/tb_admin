@@ -45,7 +45,7 @@
         FROM b_school
         WHERE is_delete = 0
         <if test='name != null and name != ""'>
-            AND name LIKE '%${name}%'
+            AND name LIKE "%${name}%"
         </if>
         <if test='subject != null and subject != ""'>
             AND subject LIKE '%${subject}%'
@@ -81,7 +81,7 @@
         FROM b_school
         WHERE is_delete = 0
         <if test='name != null and name != ""'>
-            AND name LIKE '%${name}%'
+            AND name LIKE "%${name}%"
         </if>
         <if test='country != null and country != ""'>
             AND country = #{country}
