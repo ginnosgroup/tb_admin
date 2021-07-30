@@ -240,6 +240,16 @@ public class BaseController {
 		return Boolean.FALSE;
 	}
 
+	// 获取用户是不是超级管理员
+	protected Boolean isSuperAdminUser(HttpServletRequest request) {
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo != null) {
+			String ap = adminUserLoginInfo.getApList();
+			return ap == null || (ap != null && ap.contains("SUPERAD"));
+		}
+		return Boolean.FALSE;
+	}
+
 	//获取session中的token
 	protected String token(HttpServletRequest request , String type){
 		HttpSession session = request.getSession();
