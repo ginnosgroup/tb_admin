@@ -899,4 +899,39 @@
         </if>
         ;
     </select>
+
+    <select id="listServiceOrderToAnalysis" resultType="org.zhinanzhen.b.dao.pojo.AdviserServiceCountDO">
+        SELECT
+            count( so.id ) AS count,
+            type,
+            service_id AS serviceId,
+            school_id  AS schoolId,
+            service_package_id AS servicePackageId ,
+            so.adviser_id AS adviserId
+        FROM
+            b_service_order so,tb_adviser a,tb_region r
+        WHERE
+            so.is_delete = 0 AND a.id = so.adviser_id AND a.state = 'ENABLED' AND a.region_id = r.id
+        <if test="typeList != null">
+            AND so.type IN
+            <foreach collection="typeList" index="index" open="(" close=")" separator="," item="type">
+                #{type}
+            </foreach>
+        </if>
+        <if test="month != null">
+            AND DATE_FORMAT(so.official_approval_date,'%Y%c') = CONCAT(DATE_FORMAT(NOW(),'%Y'),#{month})
+        </if>
+        <if test="regionIdList != null">
+            AND r.id IN
+            <foreach collection="regionIdList" item="regionId" separator="," close=")" open="(" index="index">
+                #{regionId}
+            </foreach>
+        </if>
+        GROUP BY
+        so.adviser_id,
+        service_id,
+        school_id,
+        service_package_id
+        ;
+    </select>
 </mapper>

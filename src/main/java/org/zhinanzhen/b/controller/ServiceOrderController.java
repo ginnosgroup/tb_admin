@@ -1946,6 +1946,89 @@ public class ServiceOrderController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/downAdviserOfRegionCaseCount")
+	public void downAdviserOfRegionCaseCount(@RequestParam(value = "month",defaultValue = "1")int month ,
+											 @RequestParam(value = "regionIds",required = false)String regionIds,
+											 HttpServletRequest request,HttpServletResponse response){
+		super.setGetHeader(response);
+		List<String> typeList = ListUtil.buildArrayList("VISA","OVST","ZX") ;
+		List<String> regionIdList = null;
+		if (StringUtil.isNotEmpty(regionIds))
+			regionIdList = Arrays.asList(regionIds.split(","));
+		List<AdviserServiceCountDTO> adviserServiceCountTs = serviceOrderService.listServiceOrderToAnalysis(typeList,month,regionIdList);
+
+		jxl.Workbook wb = null;
+		InputStream is = null ;
+		OutputStream os = null;
+		try {
+			response.reset();// 清空输出流
+			String tableName = "Information";
+			response.setHeader("Content-disposition",
+					"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
+			response.setContentType("application/msexcel");
+
+			os = response.getOutputStream();
+			try {
+				is = this.getClass().getResourceAsStream("/blank.xls");
+			} catch (Exception e) {
+				throw new Exception("模版不存在");
+			}
+			try {
+				wb = Workbook.getWorkbook(is);
+			} catch (Exception e) {
+				throw new Exception("模版格式不支持");
+			}
+			WorkbookSettings settings = new WorkbookSettings();
+			settings.setWriteAccess(null);
+			jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
+
+			if (wbe == null) {
+				System.out.println("wbe is null !os=" + os + ",wb" + wb);
+			} else {
+				System.out.println("wbe not null !os=" + os + ",wb" + wb);
+			}
+			WritableSheet sheet = wbe.getSheet(0);
+			WritableCellFormat cellFormat = new WritableCellFormat();
+			int i = 0;
+			for (AdviserServiceCountDTO ascd : adviserServiceCountTs){
+				sheet.addCell(new Label(0, i, ascd.getAdviserName(), cellFormat));
+				sheet.addCell(new Label(0, i+1, "数量", cellFormat));
+				int j = 1;
+				for (AdviserServiceDetail detail : ascd.getDetails()){
+					sheet.addCell(new Label(j, i, detail.getServiceName(), cellFormat));
+					sheet.addCell(new Label(j, i+1, String.valueOf(detail.getCount()), cellFormat));
+					j++;
+				}
+				i += 2;
+			}
+			wbe.write();
+			wbe.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return;
+		}
+		finally {
+				if (os != null) {
+					try {
+						os.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+						System.out.println("os 关闭异常");
+					}
+				}
+				if (wb != null)
+					wb.close();
+				if (is != null) {
+					try {
+						is.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+						System.out.println("is 关闭异常");
+					}
+				}
+		}
+	}
+
 	@RequestMapping(value = "/next_flow", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<ServiceOrderDTO> nextFlow(@RequestParam(value = "id") int id,
