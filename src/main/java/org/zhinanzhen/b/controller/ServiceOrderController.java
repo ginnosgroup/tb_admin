@@ -1943,7 +1943,9 @@ public class ServiceOrderController extends BaseController {
 											 HttpServletRequest request,HttpServletResponse response){
 		super.setGetHeader(response);
 		List<String> typeList = ListUtil.buildArrayList("VISA","OVST","ZX") ;
-		List<String> regionIdList = Arrays.asList(regionIds.split(","));
+		List<String> regionIdList = null;
+		if (StringUtil.isNotEmpty(regionIds))
+			regionIdList = Arrays.asList(regionIds.split(","));
 		List<AdviserServiceCountDTO> adviserServiceCountTs = serviceOrderService.listServiceOrderToAnalysis(typeList,month,regionIdList);
 
 		jxl.Workbook wb = null;
