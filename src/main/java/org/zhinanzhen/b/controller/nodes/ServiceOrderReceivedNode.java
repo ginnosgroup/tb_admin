@@ -9,17 +9,17 @@ import org.zhinanzhen.tb.controller.Response;
 /**
  * Created with IntelliJ IDEA.
  * Date: 2021/05/11 12:00
- * Description:已收款凭证已提交:  REFERED
+ * Description:已收款凭证已提交:  RECEIVED
  * 顾问操作
- * 提前扣拥类型：MOVEING ---->REFERED
+ * 提前扣拥类型：WAITFD ---->RECEIVED
  * Version: V1.0
  */
 @Component
-public class ServiceOrderReferedNode extends SODecisionNode{
+public class ServiceOrderReceivedNode extends SODecisionNode{
 
     //顾问
 
-    public ServiceOrderReferedNode(ServiceOrderService serviceOrderService){
+    public ServiceOrderReceivedNode(ServiceOrderService serviceOrderService){
         super.serviceOrderService = serviceOrderService;
     }
 
@@ -36,11 +36,11 @@ public class ServiceOrderReferedNode extends SODecisionNode{
 
     @Override
     public String getName() {
-        return "REFERED";
+        return "RECEIVED";
     }
 
     @Override
     public String[] nextNodeNames() {
-        return new String[]{"MOVED","MOVING","CLOSE","REFERED"};//MOVING 表示会计驳回  REFERED->MOVING
+        return new String[]{"COMPLETEFD","WAITFD","CLOSE","RECEIVED"};//MOVING 表示会计驳回  REFERED->MOVING
     }
 }

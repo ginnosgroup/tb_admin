@@ -28,9 +28,9 @@ public class SONodeFactory implements NodeFactory {
 			new ServiceOrderFinishNode(serviceOrderService),
 			new ServiceOrderCompleteNode(serviceOrderService),
 			new ServiceOrderPaidNode(serviceOrderService),
-			new ServiceOrderMovingNode(serviceOrderService),
-			new ServiceOrderMovedNode(serviceOrderService),
-			new ServiceOrderReferedNode(serviceOrderService),
+			new ServiceOrderWaitFdNode(serviceOrderService),
+			new ServiceOrderCompleteFdNode(serviceOrderService),
+			new ServiceOrderReceivedNode(serviceOrderService),
 			new SuspendNode());
 
 	public Node getNode(String name) {

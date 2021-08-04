@@ -10,17 +10,17 @@ import org.zhinanzhen.tb.service.ServiceException;
 /**
  * Created with IntelliJ IDEA.
  * Date: 2021/05/10 18:28
- * Description:财务转账完成状态:    MOVED
+ * Description:财务转账完成状态:    COMPLETEFD
  * 文案操作
- * 提前扣拥类型：MOVEING ---->REFERED
+ * 提前扣拥类型：RECEIVED ---->COMPLETEFD
  * Version: V1.0
  */
 @Component
-public class ServiceOrderMovedNode extends  SODecisionNode{
+public class ServiceOrderCompleteFdNode extends  SODecisionNode{
 
     //文案
 
-    public ServiceOrderMovedNode(ServiceOrderService serviceOrderService){
+    public ServiceOrderCompleteFdNode(ServiceOrderService serviceOrderService){
         super.serviceOrderService = serviceOrderService;
     }
 
@@ -36,7 +36,7 @@ public class ServiceOrderMovedNode extends  SODecisionNode{
 
     @Override
     public String getName() {
-        return "MOVED";
+        return "COMPLETEFD";
     }
 
     @Override

@@ -10,17 +10,17 @@ import org.zhinanzhen.tb.service.ServiceException;
 /**
  * Created with IntelliJ IDEA.
  * Date: 2021/05/10 16:56
- * Description:等待财务转账状态 MOVING
- * 提前扣拥类型：COMPLETE---->MOVING
+ * Description:等待财务转账状态 WAITFD
+ * 提前扣拥类型：COMPLETE---->WAITFD
  * Version: V1.0
  */
 
 @Component
-public class ServiceOrderMovingNode extends  SODecisionNode{
+public class ServiceOrderWaitFdNode extends  SODecisionNode{
 
     //文案
 
-    public ServiceOrderMovingNode(ServiceOrderService serviceOrderService){
+    public ServiceOrderWaitFdNode(ServiceOrderService serviceOrderService){
         super.serviceOrderService = serviceOrderService;
     }
 
@@ -36,7 +36,7 @@ public class ServiceOrderMovingNode extends  SODecisionNode{
             if ("VISA".equals(type) && serviceOrderDto.getParentId() == 0) // 签证
                 return null;
             isSingleStep = true;
-            return "REFERED";
+            return "RECEIVED";
         } catch (ServiceException e) {
             context.putParameter("response", new Response<ServiceOrderDTO>(1, "服务订单执行异常:" + e.getMessage(), null));
             return null;
@@ -45,11 +45,11 @@ public class ServiceOrderMovingNode extends  SODecisionNode{
 
     @Override
     public String getName() {
-        return "MOVING";
+        return "WAITFD";
     }
 
     @Override
     public String[] nextNodeNames() {
-        return new String[]{"REFERED", "CLOSE"};
+        return new String[]{"RECEIVED", "CLOSE"};
     }
 }
