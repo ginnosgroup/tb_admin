@@ -48,6 +48,7 @@ public class SchoolController extends BaseController {
 			@RequestParam(value = "country") String country, HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
+			name = name.replace("'", " ");
 			List<SchoolDTO> schoolDtoList = schoolService.list(name, subject, country);
 			for (SchoolDTO schoolDto : schoolDtoList) {
 				if (schoolDto.getName().equals(name) && (subject == null || subject.equals(schoolDto.getSubject()))
