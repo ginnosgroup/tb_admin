@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.service.impl;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
+import org.zhinanzhen.b.dao.pojo.AdviserServiceCountDO;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
@@ -1471,6 +1473,49 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		return serviceOrderDao.caseCount(officialId,days,state);
 	}
 
+	@Override
+	public List<AdviserServiceCountDTO> listServiceOrderToAnalysis(List<String> typeList, int month ,List<String> regionIdList) {
+		List<AdviserServiceCountDO> adviserServiceCounts = serviceOrderDao.listServiceOrderToAnalysis(typeList,month,regionIdList);
+		List<AdviserServiceCountDTO> adviserServiceCountTs = new ArrayList<>();
+		Set<Integer> adviserIdSet = adviserServiceCounts.stream().map(AdviserServiceCountDO::getAdviserId).collect(Collectors.toSet());
+
+		adviserIdSet.forEach(id -> {
+			AdviserServiceCountDTO adviserServiceCountDTO = new AdviserServiceCountDTO();
+			AdviserDO adviserDO =  adviserDao.getAdviserById(id);
+			if (adviserDO != null)
+				adviserServiceCountDTO.setAdviserName(adviserDO.getName());
+			List<AdviserServiceDetail> details = new ArrayList<>();
+			for (AdviserServiceCountDO adviserServiceCountDO : adviserServiceCounts){
+				if (adviserServiceCountDO.getAdviserId() == id){
+					AdviserServiceDetail adviserServiceDetail = new AdviserServiceDetail(adviserServiceCountDO.getCount());
+					if (adviserServiceCountDO.getSchoolId() > 0){	//留学
+						SchoolDO schoolDO =  schoolDao.getSchoolById(adviserServiceCountDO.getSchoolId());
+						adviserServiceDetail.setServiceName("留学-" + schoolDO != null ? schoolDO.getName() : "");
+					}
+					if (adviserServiceCountDO.getServiceId() > 0) {    //独立技术子项目
+						String str = "";
+						ServiceDO serviceDO =  serviceDao.getServiceById(adviserServiceCountDO.getServiceId());
+						str = serviceDO != null ? (serviceDO.getName() + "-" + serviceDO.getCode()) : "";
+						if (adviserServiceCountDO.getServicePackageId() > 0){
+							ServicePackageDO servicePackageDO =  servicePackageDao.getById(adviserServiceCountDO.getServicePackageId());
+							str = str + "-" + (servicePackageDO != null ? getTypeStrOfServicePackageDTO(servicePackageDO.getType()) : "");
+						}
+						adviserServiceDetail.setServiceName(str);
+					}
+					if ("ZX".equals(adviserServiceCountDO.getType())){
+						ServiceDO serviceDO =  serviceDao.getServiceById(adviserServiceCountDO.getServiceId());
+						adviserServiceDetail.setServiceName(serviceDO != null ? "咨询" + serviceDO.getCode() : "");
+					}
+
+					details.add(adviserServiceDetail);
+				}
+			}
+			adviserServiceCountDTO.setDetails(details);
+			adviserServiceCountTs.add(adviserServiceCountDTO);
+		});
+		return adviserServiceCountTs;
+	}
+
 	/**
 	 * 这个方法
 	 * @param serviceOrderId
@@ -1555,6 +1600,17 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		if ("TSJJ".equalsIgnoreCase(urgentState))
 			return "特殊加急";
 		return "";
+	}
+
+	private String getTypeStrOfServicePackageDTO(String type){
+		if ("EOI".equalsIgnoreCase(type))
+			return "EOI";
+		else if ("CA".equalsIgnoreCase(type))
+			return "职业评估";
+		else if ("VA".equalsIgnoreCase(type))
+			return "签证申请";
+		else
+			return "";
 	}
 
 }

@@ -3,6 +3,7 @@ package org.zhinanzhen.b.dao;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
+import org.zhinanzhen.b.dao.pojo.AdviserServiceCountDO;
 import org.zhinanzhen.b.dao.pojo.EachRegionNumberDO;
 import org.zhinanzhen.b.dao.pojo.EachSubjectCountDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
@@ -71,4 +72,7 @@ public interface ServiceOrderDAO {
 
 	Integer caseCount(@Param("officialId") Integer officialId, @Param("days") String days,
 			@Param("state") String state);
+
+	List<AdviserServiceCountDO> listServiceOrderToAnalysis(@Param("typeList") List<String> typeList, @Param("month")int month ,
+														   @Param("regionIdList") List<String> regionIdList);
 }

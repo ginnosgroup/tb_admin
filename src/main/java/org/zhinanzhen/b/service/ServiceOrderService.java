@@ -70,4 +70,6 @@ public interface ServiceOrderService {
 	List<ServiceOrderDTO> NotReviewedServiceOrder(Integer officialId, boolean thisMonth);
 
 	Integer caseCount(Integer officialId, String days, String state);
+
+	List<AdviserServiceCountDTO> listServiceOrderToAnalysis(List<String> typeList,int month,List<String> regionIdList);
 }
