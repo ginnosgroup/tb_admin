@@ -12,13 +12,15 @@
                 gmt_modify,
                 name,
                 code,
-                role)
+                role,
+                is_zx)
             VALUES (
                 now(),
                 now(),
                 #{name},
                 #{code},
-                #{role});
+                #{role},
+                #{isZx});
     </insert>
     
     <update id="updateService" parameterType="org.zhinanzhen.b.dao.pojo.ServiceDO">
@@ -44,10 +46,17 @@
             code,
             role
         FROM b_service
-        WHERE is_delete = 0
-        <if test='name != null and name != ""'>
-            AND name = #{name}
-        </if>
+        <where>
+            <if test='name != null and name != ""'>
+                AND name = #{name}
+            </if>
+            <if test="isZx == true">
+                AND is_zx = #{isZx}
+            </if>
+            <if test="isZx == false">
+                AND is_delete = 0
+            </if>
+        </where>
         ORDER BY code;
     </select>
     
@@ -57,13 +66,17 @@
             gmt_create AS GmtCreate,
             name,
             code,
-            role
+            role,
+            is_zx AS isZx
         FROM b_service WHERE id = #{id, jdbcType=INTEGER};
     </select>
     
     <update id="deleteServiceById" parameterType="java.lang.Integer">
         UPDATE b_service 
         SET gmt_modify = now(), is_delete = 1
+        <if test="isZx == true">
+            , is_zx = 0
+        </if>
         WHERE id = #{id, jdbcType=INTEGER};
     </update>
 

@@ -11,10 +11,10 @@ public interface ServiceDAO {
 
 	public int updateService(@Param("id") int id, @Param("name") String name, @Param("code") String code);
 
-	public List<ServiceDO> listService(@Param("name") String name);
+	public List<ServiceDO> listService(@Param("name") String name, @Param("isZx")boolean isZx);
 
 	public ServiceDO getServiceById(int id);
 
-	public int deleteServiceById(int id);
+	public int deleteServiceById(@Param("id") int id, @Param("isZx")boolean isZx);
 
 }

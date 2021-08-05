@@ -55,11 +55,11 @@ public class ServiceServiceImpl extends BaseService implements ServiceService {
 	}
 
 	@Override
-	public List<ServiceDTO> listService(String name) throws ServiceException {
+	public List<ServiceDTO> listService(String name, boolean isZx) throws ServiceException {
 		List<ServiceDTO> serviceDtoList = new ArrayList<ServiceDTO>();
 		List<ServiceDO> serviceDoList = new ArrayList<ServiceDO>();
 		try {
-			serviceDoList = serviceDao.listService(name);
+			serviceDoList = serviceDao.listService(name,isZx);
 			if (serviceDoList == null)
 				return null;
 		} catch (Exception e) {
@@ -96,14 +96,14 @@ public class ServiceServiceImpl extends BaseService implements ServiceService {
 	}
 
 	@Override
-	public int deleteServiceById(int id) throws ServiceException {
+	public int deleteServiceById(int id, boolean isZx) throws ServiceException {
 		if (id <= 0) {
 			ServiceException se = new ServiceException("id error !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
 		try {
-			return serviceDao.deleteServiceById(id);
+			return serviceDao.deleteServiceById(id, isZx);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());

@@ -16,4 +16,6 @@ public class ServiceDO implements Serializable {
 	private String code;
 
 	private String role;
+
+	private boolean isZx;
 }

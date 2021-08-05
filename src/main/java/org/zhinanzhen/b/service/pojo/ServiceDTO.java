@@ -12,4 +12,6 @@ public class ServiceDTO {
 	private String code;
 
 	private String role;
+
+	private boolean isZx;
 }

@@ -31,6 +31,7 @@ public class ServiceController extends BaseController {
 	public Response<Integer> addService(@RequestParam(value = "code") String code,
 			@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "role",required = false)String role,
+			@RequestParam(value = "isZx",required = false)String isZx,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -38,6 +39,7 @@ public class ServiceController extends BaseController {
 			serviceDto.setName(name);
 			serviceDto.setCode(code);
 			serviceDto.setRole(role);
+			serviceDto.setZx(isZx != null && "true".equalsIgnoreCase(isZx));
 			if (serviceService.addService(serviceDto) > 0) {
 				return new Response<Integer>(0, serviceDto.getId());
 			} else {
@@ -52,8 +54,8 @@ public class ServiceController extends BaseController {
 	@ResponseBody
 	public Response<Integer> updateService(@RequestParam(value = "id") int id,
 			@RequestParam(value = "name", required = false) String name,
-			@RequestParam(value = "code", required = false) String code, HttpServletRequest request,
-			HttpServletResponse response) {
+			@RequestParam(value = "code", required = false) String code,
+			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			int i = serviceService.updateService(id, name, code);
@@ -70,10 +72,11 @@ public class ServiceController extends BaseController {
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<List<ServiceDTO>> listService(@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "isZx",required = false)String isZx,
 			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<List<ServiceDTO>>(0, serviceService.listService(name));
+			return new Response<List<ServiceDTO>>(0, serviceService.listService(name,isZx != null && "true".equalsIgnoreCase(isZx)));
 		} catch (ServiceException e) {
 			return new Response<List<ServiceDTO>>(1, e.getMessage(), null);
 		}
@@ -92,10 +95,12 @@ public class ServiceController extends BaseController {
 
 	@RequestMapping(value = "/delete", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<Integer> deleteService(@RequestParam(value = "id") int id, HttpServletResponse response) {
+	public Response<Integer> deleteService(@RequestParam(value = "id") int id,
+										   @RequestParam(value = "isZx",required = false)String isZx,
+										   HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<Integer>(0, serviceService.deleteServiceById(id));
+			return new Response<Integer>(0, serviceService.deleteServiceById(id, isZx != null && "true".equalsIgnoreCase(isZx)));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), 0);
 		}

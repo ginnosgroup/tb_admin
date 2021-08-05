@@ -11,10 +11,10 @@ public interface ServiceService {
 
 	public int updateService(int id, String name, String code) throws ServiceException;
 
-	public List<ServiceDTO> listService(String name) throws ServiceException;
+	public List<ServiceDTO> listService(String name, boolean isZx) throws ServiceException;
 
 	public ServiceDTO getServiceById(int id) throws ServiceException;
 
-	public int deleteServiceById(int id) throws ServiceException;
+	public int deleteServiceById(int id, boolean isZx) throws ServiceException;
 
 }
