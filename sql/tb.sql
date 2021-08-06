@@ -357,7 +357,9 @@ CREATE TABLE `b_service` (
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `name` varchar(32) DEFAULT NULL COMMENT '项目名称',
   `code` varchar(32) DEFAULT NULL COMMENT '项目编码',
-  `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已删除'
+  `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已删除',
+  `role` varchar(32) DEFAULT NULL COMMENT '参与角色',
+  `is_zx` tinyint(1) NOT NULL DEFAULT '1' COMMENT '咨询服务'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
 -- 服务包
@@ -397,7 +399,7 @@ CREATE TABLE `b_service_order` (
   `parent_id` int DEFAULT NULL COMMENT '父服务订单编号 (对应b_service_order.id)',
   `service_package_id` int DEFAULT NULL COMMENT '服务包编号 (对应b_service_package.id,仅子订单才有)',
   `school_id` int DEFAULT NULL COMMENT '学校编号 (对应b_school.id,留学服务专用字段)',
-  `state` varchar(8) NOT NULL COMMENT '状态 (PENDING:待提交审核,REVIEW:审核中,APPLY:服务申请中,COMPLETE:服务申请完成,PAID:完成-支付成功,CLOSE:关闭)',
+  `state` varchar(20) NOT NULL COMMENT '状态 (PENDING:待提交审核,REVIEW:审核中,APPLY:服务申请中,COMPLETE:服务申请完成,PAID:完成-支付成功,CLOSE:关闭)',
   `review_state` varchar(8) DEFAULT NULL COMMENT '审批状态 (OFFICIAL:文案审批通过,MARA:Mara审批通过,KJ:财务审批通过)',
 `urgent_state` varchar(8) DEFAULT NULL COMMENT '加急状态(JJ:加急, TSJJ:特殊加急),仅限签证订单',
   `official_approval_date` datetime DEFAULT NULL COMMENT '文案审核时间',
