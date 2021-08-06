@@ -1310,9 +1310,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 					} else if (eachRegionNumberDO.getName().equalsIgnoreCase("canberra")) {
 						eachRegionNumberDTO
 								.setCanberra(eachRegionNumberDO.getCount() + eachRegionNumberDTO.getCanberra());
-					} else if (eachRegionNumberDO.getName().equalsIgnoreCase("sydney2")) {
+					} else if (eachRegionNumberDO.getName().equalsIgnoreCase("攻坚部")) {
 						eachRegionNumberDTO
-								.setSydney2(eachRegionNumberDO.getCount() + eachRegionNumberDTO.getSydney2());
+								.setCrucial(eachRegionNumberDO.getCount() + eachRegionNumberDTO.getCrucial());
 					} else
 						eachRegionNumberDTO.setOther(eachRegionNumberDO.getCount() + eachRegionNumberDTO.getOther());
 				}
@@ -1320,7 +1320,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			eachRegionNumberDTO.setTotal(eachRegionNumberDTO.getAdelaide() + eachRegionNumberDTO.getSydney()
 					+ eachRegionNumberDTO.getBrisbane() + eachRegionNumberDTO.getCanberra()
 					+ eachRegionNumberDTO.getHobart() + eachRegionNumberDTO.getMelbourne()
-					+ eachRegionNumberDTO.getSydney2() + eachRegionNumberDTO.getOther());
+					+ eachRegionNumberDTO.getCrucial() + eachRegionNumberDTO.getOther());
 			eachRegionNumberDTO.setName(code);
 			eachRegionNumberDTOS.add(eachRegionNumberDTO);
 		}

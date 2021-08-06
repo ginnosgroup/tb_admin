@@ -29,5 +29,10 @@ public class EachRegionNumberDTO {
 
     private int sydney2;
 
+    /**
+     * 攻坚部
+     */
+    private int crucial;
+
     private int other;
 }
