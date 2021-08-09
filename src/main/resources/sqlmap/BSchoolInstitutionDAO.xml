@@ -11,7 +11,10 @@
         institution_trading_name AS institutionTradingName,
         institution_name AS institutionName,
         institution_type AS institutionType,
-        institution_postal_address AS institutionPostalAddress
+        institution_postal_address AS institutionPostalAddress,
+        website ,
+        is_freeze AS isFreeze ,
+        summary
         from b_school_institution
         <where>
             <if test=' name != null and name != "" '>
@@ -20,6 +23,7 @@
             <if test=' type != null and type != "" '>
                 and institution_type = #{type}
             </if>
+            AND is_freeze = 0
         </where>
         limit #{offset} , #{rows};
     </select>
@@ -32,6 +36,7 @@
             <if test=' type != null and type != "" '>
                 and institution_type = #{type}
             </if>
+            AND is_freeze = 0
         </where>;
     </select>
 
@@ -45,7 +50,10 @@
         institution_trading_name AS institutionTradingName,
         institution_name AS institutionName,
         institution_type AS institutionType,
-        institution_postal_address AS institutionPostalAddress
+        institution_postal_address AS institutionPostalAddress,
+        website ,
+        is_freeze AS isFreeze ,
+        summary
         from b_school_institution where id = #{id}
     </select>
     <update id="update" parameterType="org.zhinanzhen.b.dao.pojo.SchoolInstitutionDO">
@@ -71,6 +79,15 @@
             <if test=' institutionPostalAddress != null and institutionPostalAddress != "" '>
                 , bsi.institution_postal_address = #{institutionPostalAddress}
             </if>
+            <if test=' website != null'>
+                , bsi.website = #{website}
+            </if>
+            <if test="summary != null">
+                , bsi.summary = #{summary}
+            </if>
+            <if test="isFreeze != null">
+                , bsi.is_freeze = #{isFreeze}
+            </if>
         WHERE bsi.id = #{id};
     </update>
 
@@ -83,15 +100,20 @@
         institution_trading_name AS institutionTradingName,
         institution_name AS institutionName,
         institution_type AS institutionType,
-        institution_postal_address AS institutionPostalAddress
+        institution_postal_address AS institutionPostalAddress,
+        website ,
+        is_freeze AS isFreeze ,
+        summary
         from b_school_institution where code = #{code}
     </select>
 
     <insert id="add" parameterType="org.zhinanzhen.b.dao.pojo.SchoolInstitutionDO" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO b_school_institution (
-        gmt_create,gmt_modify,code,name,institution_trading_name,institution_name,institution_type,institution_postal_address
+        gmt_create,gmt_modify,code,name,institution_trading_name,institution_name,institution_type,institution_postal_address,
+        website,is_freeze,summary
         ) VALUES (
-        NOW(),NOW(),#{code},#{name},#{institutionTradingName},#{institutionName},#{institutionType},#{institutionPostalAddress}
+        NOW(),NOW(),#{code},#{name},#{institutionTradingName},#{institutionName},#{institutionType},#{institutionPostalAddress},
+        #{website},#{isFreeze},#{summary}
         );
     </insert>
 

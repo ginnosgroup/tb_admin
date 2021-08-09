@@ -32,6 +32,12 @@ public class SchoolInstitutionDTO {
 
     private String institutionPostalAddress;
 
+    private String website;
+
+    private String summary;
+
+    private boolean isFreeze;
+
     private List<SchoolCourseDTO> schoolCourseDTOS;
 
     private List<SchoolInstitutionLocationDTO> schoolInstitutionLocationDTOS;

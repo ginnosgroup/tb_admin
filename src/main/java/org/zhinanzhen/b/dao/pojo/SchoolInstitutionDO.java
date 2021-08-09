@@ -30,4 +30,10 @@ public class SchoolInstitutionDO {
     private String institutionType;
 
     private String institutionPostalAddress;
+
+    private String website;
+
+    private String summary;
+
+    private boolean isFreeze;
 }
