@@ -47,7 +47,7 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
             return null;
         for (SchoolInstitutionDO si : schoolInstitutionDOS){
             SchoolInstitutionDTO schoolInstitutionDTO = mapper.map(si,SchoolInstitutionDTO.class);
-            schoolInstitutionDTO = putSchoolInfo(schoolInstitutionDTO,si.getId(),null);
+            //schoolInstitutionDTO = putSchoolInfo(schoolInstitutionDTO,si.getId(),null);
             schoolInstitutionDTOS.add(schoolInstitutionDTO);
         }
         return schoolInstitutionDTOS;
