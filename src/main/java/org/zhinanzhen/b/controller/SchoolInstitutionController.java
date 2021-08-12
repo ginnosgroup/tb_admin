@@ -1,5 +1,7 @@
 package org.zhinanzhen.b.controller;
 
+import javax.servlet.http.HttpServletResponse;
+
 import com.ikasoa.core.utils.StringUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -63,7 +65,8 @@ public class SchoolInstitutionController extends BaseController {
 
     @RequestMapping(value = "/add" ,method = RequestMethod.POST)
     @ResponseBody
-    public Response add(SchoolInstitutionDTO schoolInstitutionDTO){
+    public Response add(@RequestBody SchoolInstitutionDTO schoolInstitutionDTO, HttpServletResponse response){
+        super.setPostHeader(response); 
         List<SchoolInstitutionDTO> listSchoolInstitutionDTO = schoolInstitutionService.listSchoolInstitutionDTO(schoolInstitutionDTO.getName(),null,0,9999);
         if (listSchoolInstitutionDTO.size() > 0 )
             return new Response(1,"学校名字已经存在");
