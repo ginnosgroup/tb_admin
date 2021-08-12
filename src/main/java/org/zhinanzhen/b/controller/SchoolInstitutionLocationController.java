@@ -5,8 +5,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.zhinanzhen.b.service.SchoolInstitutionLocationService;
 import org.zhinanzhen.b.service.pojo.SchoolInstitutionLocationDTO;
+import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Created with IntelliJ IDEA.
@@ -17,7 +19,7 @@ import javax.annotation.Resource;
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping(value = "/schoolInstitutionLocation")
-public class SchoolInstitutionLocationController {
+public class SchoolInstitutionLocationController extends BaseController {
 
     @Resource
     private SchoolInstitutionLocationService schoolInstitutionLocationService;
@@ -41,7 +43,8 @@ public class SchoolInstitutionLocationController {
 
     @RequestMapping(value = "/add",method = RequestMethod.POST)
     @ResponseBody
-    public Response add(SchoolInstitutionLocationDTO schoolInstitutionLocationDTO){
+    public Response add(@RequestBody SchoolInstitutionLocationDTO schoolInstitutionLocationDTO, HttpServletResponse response){
+        super.setPostHeader(response);
         if (schoolInstitutionLocationService.add(schoolInstitutionLocationDTO) > 0 )
             return new Response(0,"success",schoolInstitutionLocationDTO);
         else

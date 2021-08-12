@@ -48,7 +48,8 @@ public class SchoolInstitutionController extends BaseController {
 
     @RequestMapping(value = "/update" ,method =  RequestMethod.POST)
     @ResponseBody
-    public Response update(SchoolInstitutionDTO schoolInstitutionDTO){
+    public Response update(@RequestBody SchoolInstitutionDTO schoolInstitutionDTO ,HttpServletResponse response){
+        super.setPostHeader(response);
         if (StringUtil.isEmpty(schoolInstitutionDTO.getName()))
             return new Response<SchoolDTO>(1, "学校名称不能为空!", null);
         List<SchoolInstitutionDTO> listSchoolInstitutionDTO = schoolInstitutionService.listSchoolInstitutionDTO(schoolInstitutionDTO.getName(),null,0,9999);
