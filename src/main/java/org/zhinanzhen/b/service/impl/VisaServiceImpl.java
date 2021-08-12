@@ -235,12 +235,12 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 
 	@Override
 	public List<VisaReportDTO> listVisaReport(String startDate, String endDate, String dateType, String dateMethod,
-			Integer regionId, Integer adviserId) throws ServiceException {
+			Integer regionId, Integer adviserId, List<String> adviserIdList) throws ServiceException {
 		List<VisaReportDO> visaReportDoList = new ArrayList<>();
 		List<VisaReportDTO> visaReportDtoList = new ArrayList<>();
 		try {
 			visaReportDoList = visaDao.listVisaReport(startDate, theDateTo23_59_59(endDate), dateType, dateMethod,
-					regionId, adviserId);
+					regionId, adviserId, adviserIdList);
 			if (visaReportDoList == null)
 				return null;
 			visaReportDoList

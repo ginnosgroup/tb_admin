@@ -293,12 +293,12 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 
 	@Override
 	public List<CommissionOrderReportDTO> listCommissionOrderReport(String startDate, String endDate, String dateType,
-			String dateMethod, Integer regionId, Integer adviserId) throws ServiceException {
+			String dateMethod, Integer regionId, Integer adviserId, List<String> adviserIdList) throws ServiceException {
 		List<CommissionOrderReportDO> commissionOrderReportDoList = new ArrayList<>();
 		List<CommissionOrderReportDTO> commissionOrderReportDtoList = new ArrayList<>();
 		try {
 			commissionOrderReportDoList = commissionOrderDao.listCommissionOrderReport(startDate,
-					theDateTo23_59_59(endDate), dateType, dateMethod, regionId, adviserId);
+					theDateTo23_59_59(endDate), dateType, dateMethod, regionId, adviserId, adviserIdList);
 			if (commissionOrderReportDoList == null)
 				return null;
 			commissionOrderReportDoList.forEach(commissionOrderReportDo -> commissionOrderReportDtoList
