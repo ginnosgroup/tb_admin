@@ -25,6 +25,7 @@
             </if>
             AND is_freeze = 0
         </where>
+        ORDER BY gmt_create DESC
         limit #{offset} , #{rows};
     </select>
     <select id="count" resultType="integer">
