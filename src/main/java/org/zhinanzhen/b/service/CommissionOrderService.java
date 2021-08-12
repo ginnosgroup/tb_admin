@@ -31,7 +31,7 @@ public interface CommissionOrderService {
 			throws ServiceException;
 
 	List<CommissionOrderReportDTO> listCommissionOrderReport(String startDate, String endDate, String dateType,
-			String dateMethod, Integer regionId, Integer adviserId) throws ServiceException;
+			String dateMethod, Integer regionId, Integer adviserId, List<String> adviserIdList) throws ServiceException;
 
 	CommissionOrderListDTO getCommissionOrderById(int id) throws ServiceException;
 

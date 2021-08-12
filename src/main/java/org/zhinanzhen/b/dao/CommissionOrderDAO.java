@@ -59,7 +59,7 @@ public interface CommissionOrderDAO {
 	List<CommissionOrderReportDO> listCommissionOrderReport(@Param("startDate") String startDate,
 			@Param("endDate") String endDate, @Param("dateType") String dateType,
 			@Param("dateMethod") String dateMethod, @Param("regionId") Integer regionId,
-			@Param("adviserId") Integer adviserId);
+			@Param("adviserId") Integer adviserId,@Param("adviserIdList") List<String> adviserIdList);
 
 	int updateCommissionOrder(CommissionOrderDO commissionOrderDo);
 

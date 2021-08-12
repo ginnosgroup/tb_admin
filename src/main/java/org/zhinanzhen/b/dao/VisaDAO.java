@@ -43,7 +43,8 @@ public interface VisaDAO {
 
 	List<VisaReportDO> listVisaReport(@Param("startDate") String startDate, @Param("endDate") String endDate,
 			@Param("dateType") String dateType, @Param("dateMethod") String dateMethod,
-			@Param("regionId") Integer regionId, @Param("adviserId") Integer adviserId);
+			@Param("regionId") Integer regionId, @Param("adviserId") Integer adviserId,
+			@Param("adviserIdList") List<String> adviserIdList);
 
 	VisaDO getFirstVisaByServiceOrderId(int serviceOrderId);
 
