@@ -509,6 +509,12 @@
         <if test='adviserId != null and adviserId != ""'>
             AND a.id = #{adviserId}
         </if>
+        <if test="adviserIdList != null">
+            AND a.id IN
+            <foreach collection="adviserIdList" index="index" open="(" close=")" separator="," item="aid">
+                #{aid}
+            </foreach>
+        </if>
         GROUP BY
             <choose>
                 <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "M"'>

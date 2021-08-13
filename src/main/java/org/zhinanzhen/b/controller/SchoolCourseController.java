@@ -4,9 +4,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.zhinanzhen.b.service.SchoolCourseService;
 import org.zhinanzhen.b.service.pojo.SchoolCourseDTO;
+import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 
 
 /**
@@ -18,7 +20,7 @@ import javax.annotation.Resource;
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping(value = "/schoolCourse")
-public class SchoolCourseController {
+public class SchoolCourseController extends BaseController {
 
     @Resource
     private SchoolCourseService schoolCourseService;
@@ -49,7 +51,8 @@ public class SchoolCourseController {
 
     @RequestMapping(value = "/add",method = RequestMethod.POST)
     @ResponseBody
-    public Response add(SchoolCourseDTO schoolCourseDTO){
+    public Response add(@RequestBody SchoolCourseDTO schoolCourseDTO, HttpServletResponse response){
+        super.setPostHeader(response);
         if (schoolCourseService.add(schoolCourseDTO) > 0)
             return new Response(0,"success",schoolCourseDTO);
         else
@@ -58,7 +61,8 @@ public class SchoolCourseController {
 
     @RequestMapping(value = "/update",method = RequestMethod.POST)
     @ResponseBody
-    public Response update(SchoolCourseDTO schoolCourseDTO){
+    public Response update(@RequestBody SchoolCourseDTO schoolCourseDTO, HttpServletResponse response){
+        super.setPostHeader(response);
         if (schoolCourseService.update(schoolCourseDTO))
             return new Response(0,"success",schoolCourseDTO);
         else

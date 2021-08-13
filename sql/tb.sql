@@ -985,7 +985,12 @@ CREATE TABLE `b_school_institution` (
   `institution_trading_name` varchar(255) DEFAULT NULL COMMENT '学校名称',
   `institution_name` varchar(255) DEFAULT NULL COMMENT '学校名称',
   `institution_type` varchar(255) DEFAULT NULL COMMENT '学校类型',
-  `institution_postal_address` varchar(512) DEFAULT NULL COMMENT '学校地址'
+  `institution_postal_address` varchar(512) DEFAULT NULL COMMENT '学校地址',
+  `website` varchar(128) DEFAULT NULL COMMENT '学校网站',
+  `is_freeze` tinyint(1) NOT NULL DEFAULT '0' COMMENT '冻结',
+  `summary` text COMMENT '概述',
+  PRIMARY KEY (`id`),
+  KEY `name` (`name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `b_school_institution_location` (

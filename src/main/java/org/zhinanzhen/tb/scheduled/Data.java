@@ -38,8 +38,8 @@ public class Data extends BaseService {
             List<DataDTO> areaDataList = new ArrayList<DataDTO>();//area的数据
             //List<DataDTO> areaRankDataList = new ArrayList<DataDTO>();//area排名的数据
 
-            List<CommissionOrderReportDTO> commissionOrderReportDtoList= commissionOrderService.listCommissionOrderReport(startDate,endDate,"A","M",0,0);
-            List<VisaReportDTO> VisaReportList = visaService.listVisaReport(startDate,endDate,"A","M",0,0);
+            List<CommissionOrderReportDTO> commissionOrderReportDtoList= commissionOrderService.listCommissionOrderReport(startDate,endDate,"A","M",0,0,null);
+            List<VisaReportDTO> VisaReportList = visaService.listVisaReport(startDate,endDate,"A","M",0,0,null);
 
             if (commissionOrderReportDtoList != null) {
                 commissionOrderReportDtoList.forEach(commissionOrderReportDto -> dataDTOList
