@@ -907,7 +907,8 @@
             service_id AS serviceId,
             school_id  AS schoolId,
             service_package_id AS servicePackageId ,
-            so.adviser_id AS adviserId
+            so.adviser_id AS adviserId ,
+            r.name AS regionName
         FROM
             b_service_order so,tb_adviser a,tb_region r
         WHERE

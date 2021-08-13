@@ -27,5 +27,7 @@ public class AdviserServiceCountDTO {
 
     private String adviserName;
 
+    private String regionName;
+
     private List<AdviserServiceDetail> details;
 }

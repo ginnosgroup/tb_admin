@@ -22,4 +22,6 @@ public class AdviserServiceCountDO {
     private int servicePackageId;
 
     private int adviserId;
+
+    private String regionName;
 }
