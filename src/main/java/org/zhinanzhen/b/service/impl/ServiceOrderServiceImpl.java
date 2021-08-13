@@ -1486,6 +1486,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				adviserServiceCountDTO.setAdviserName(adviserDO.getName());
 			List<AdviserServiceDetail> details = new ArrayList<>();
 			for (AdviserServiceCountDO adviserServiceCountDO : adviserServiceCounts){
+				adviserServiceCountDTO.setRegionName(adviserServiceCountDO.getRegionName());
 				if (adviserServiceCountDO.getAdviserId() == id){
 					AdviserServiceDetail adviserServiceDetail = new AdviserServiceDetail(adviserServiceCountDO.getCount());
 					if (adviserServiceCountDO.getSchoolId() > 0){	//留学

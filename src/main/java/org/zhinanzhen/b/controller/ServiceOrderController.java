@@ -11,6 +11,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -19,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import jxl.Workbook;
 import jxl.WorkbookSettings;
 import jxl.write.*;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -1952,72 +1955,90 @@ public class ServiceOrderController extends BaseController {
 
 	@RequestMapping(value = "/downAdviserOfRegionCaseCount")
 	public void downAdviserOfRegionCaseCount(@RequestParam(value = "month",defaultValue = "1")int month ,
-											 @RequestParam(value = "regionIds",required = false)String regionIds,
+											 @RequestParam(value = "regionIds")String regionIds,
 											 HttpServletRequest request,HttpServletResponse response){
 		super.setGetHeader(response);
 		List<String> typeList = ListUtil.buildArrayList("VISA","OVST","ZX") ;
 		List<String> regionIdList = null;
-		if (StringUtil.isNotEmpty(regionIds))
+		if (StringUtils.isNotEmpty(regionIds))
 			regionIdList = Arrays.asList(regionIds.split(","));
-		List<AdviserServiceCountDTO> adviserServiceCountTs = serviceOrderService.listServiceOrderToAnalysis(typeList,month,regionIdList);
+
+		if (regionIdList == null)
+			return;
+
+		List<String> _regionIdList = new ArrayList<>();
 
 		jxl.Workbook wb = null;
 		InputStream is = null ;
-		OutputStream os = null;
+		ZipOutputStream zipos = null;
 		try {
 			response.reset();// 清空输出流
 			String tableName = "Information";
 			response.setHeader("Content-disposition",
-					"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
-			response.setContentType("application/msexcel");
+					"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".zip");
+			response.setContentType("application/zip");
 
-			os = response.getOutputStream();
-			try {
-				is = this.getClass().getResourceAsStream("/blank.xls");
-			} catch (Exception e) {
-				throw new Exception("模版不存在");
-			}
-			try {
-				wb = Workbook.getWorkbook(is);
-			} catch (Exception e) {
-				throw new Exception("模版格式不支持");
-			}
-			WorkbookSettings settings = new WorkbookSettings();
-			settings.setWriteAccess(null);
-			jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
+			zipos = new ZipOutputStream(response.getOutputStream());
 
-			if (wbe == null) {
-				System.out.println("wbe is null !os=" + os + ",wb" + wb);
-			} else {
-				System.out.println("wbe not null !os=" + os + ",wb" + wb);
-			}
-			WritableSheet sheet = wbe.getSheet(0);
-			WritableCellFormat cellFormat = new WritableCellFormat();
-			int i = 0;
-			for (AdviserServiceCountDTO ascd : adviserServiceCountTs){
-				sheet.addCell(new Label(0, i, ascd.getAdviserName(), cellFormat));
-				sheet.addCell(new Label(0, i+1, "数量", cellFormat));
-				int j = 1;
-				for (AdviserServiceDetail detail : ascd.getDetails()){
-					sheet.addCell(new Label(j, i, detail.getServiceName(), cellFormat));
-					sheet.addCell(new Label(j, i+1, String.valueOf(detail.getCount()), cellFormat));
-					j++;
+			for (String regionId : regionIdList){
+
+				_regionIdList.add(regionId);
+				List<AdviserServiceCountDTO> adviserServiceCountTs = serviceOrderService.listServiceOrderToAnalysis(typeList,month,_regionIdList);
+
+				ZipEntry zipEntryXtv = new ZipEntry(adviserServiceCountTs.get(0).getRegionName() + ".xls");
+				zipos.putNextEntry(zipEntryXtv);
+				try {
+					is = this.getClass().getResourceAsStream("/blank.xls");
+				} catch (Exception e) {
+					throw new Exception("模版不存在");
 				}
-				i += 2;
+				try {
+					wb = Workbook.getWorkbook(is);
+				} catch (Exception e) {
+					throw new Exception("模版格式不支持");
+				}
+				WorkbookSettings settings = new WorkbookSettings();
+				settings.setWriteAccess(null);
+				jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(zipos, wb, settings);
+
+				if (wbe == null) {
+					System.out.println("wbe is null !os=" + zipos + ",wb" + wb);
+				} else {
+					System.out.println("wbe not null !os=" + zipos + ",wb" + wb);
+				}
+				WritableSheet sheet = wbe.getSheet(0);
+				WritableCellFormat cellFormat = new WritableCellFormat();
+				int i = 0;
+				for (AdviserServiceCountDTO ascd : adviserServiceCountTs){
+					sheet.addCell(new Label(0, i, ascd.getAdviserName(), cellFormat));
+					sheet.addCell(new Label(0, i+1, "数量", cellFormat));
+					int j = 1;
+					for (AdviserServiceDetail detail : ascd.getDetails()){
+						sheet.addCell(new Label(j, i, detail.getServiceName(), cellFormat));
+						sheet.addCell(new Label(j, i+1, String.valueOf(detail.getCount()), cellFormat));
+						j++;
+					}
+					i += 2;
+				}
+				wbe.write();
+				wbe.close();
+
+				_regionIdList.clear();//清空list
 			}
-			wbe.write();
-			wbe.close();
+
+			zipos.flush();
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			return;
 		}
 		finally {
-				if (os != null) {
+				if (zipos != null) {
 					try {
-						os.close();
+						zipos.close();
 					} catch (IOException e) {
 						e.printStackTrace();
-						System.out.println("os 关闭异常");
+						System.out.println("zipos 关闭异常");
 					}
 				}
 				if (wb != null)
