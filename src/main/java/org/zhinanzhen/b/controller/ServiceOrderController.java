@@ -440,7 +440,8 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "isHistory", required = false) String isHistory,
 			@RequestParam(value = "nutCloud", required = false) String nutCloud,
 			@RequestParam(value = "serviceAssessId", required = false) String serviceAssessId,
-			@RequestParam(value = "verifyCode", required = false) String verifyCode, HttpServletResponse response) {
+			@RequestParam(value = "verifyCode", required = false) String verifyCode,
+			@RequestParam(value = "refNo", required = false) String refNo, HttpServletResponse response) {
 //		if (getOfficialAdminId(request) != null)
 //			return new Response<Integer>(1, "文案管理员不可操作服务订单.", 0);
 		super.setPostHeader(response);
@@ -454,7 +455,7 @@ public class ServiceOrderController extends BaseController {
 					discount, received, installment, paymentVoucherImageUrl1, paymentVoucherImageUrl2,
 					paymentVoucherImageUrl3, paymentVoucherImageUrl4, paymentVoucherImageUrl5, invoiceVoucherImageUrl,perAmount, amount,
 					expectAmount, gst, deductGst, bonus, userId, maraId, adviserId, officialId, remarks, closedReason,
-					information, isHistory, nutCloud, serviceAssessId, verifyCode);
+					information, isHistory, nutCloud, serviceAssessId, verifyCode, refNo);
 			if (res != null && res.getCode() == 0) {
 				List<ServiceOrderDTO> cList = new ArrayList<>();
 				if ("SIV".equalsIgnoreCase(serviceOrderDto.getType()))
@@ -467,9 +468,10 @@ public class ServiceOrderController extends BaseController {
 								peopleRemarks, serviceId, schoolId, isSettle, isDepositUser, subagencyId, isPay,
 								receiveTypeId, receiveDate, receivable, discount, received, installment,
 								paymentVoucherImageUrl1, paymentVoucherImageUrl2, paymentVoucherImageUrl3,
-								paymentVoucherImageUrl4, paymentVoucherImageUrl5,invoiceVoucherImageUrl, perAmount, amount, expectAmount, gst,
-								deductGst, bonus, userId, maraId, adviserId, officialId, remarks, closedReason,
-								information, isHistory, nutCloud, serviceAssessId, verifyCode);
+								paymentVoucherImageUrl4, paymentVoucherImageUrl5, invoiceVoucherImageUrl, perAmount,
+								amount, expectAmount, gst, deductGst, bonus, userId, maraId, adviserId, officialId,
+								remarks, closedReason, information, isHistory, nutCloud, serviceAssessId, verifyCode,
+								refNo);
 						if (cRes.getCode() > 0)
 							res.setMessage(res.getMessage() + ";" + cRes.getMessage());
 					}
@@ -490,8 +492,8 @@ public class ServiceOrderController extends BaseController {
 			String paymentVoucherImageUrl4, String paymentVoucherImageUrl5, String invoiceVoucherImageUrl,String perAmount,
 			String amount, String expectAmount, String gst, String deductGst,
 			String bonus, String userId, String maraId, String adviserId, String officialId,
-			String remarks,String closedReason, String information, String isHistory,
-			String nutCloud, String serviceAssessId, String verifyCode) {
+			String remarks, String closedReason, String information, String isHistory, String nutCloud,
+			String serviceAssessId, String verifyCode, String refNo) {
 		try {
 			if (StringUtil.isNotEmpty(type))
 				serviceOrderDto.setType(type);
@@ -593,6 +595,8 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setServiceAssessId(null);
 			if (StringUtil.isNotEmpty(verifyCode))
 				serviceOrderDto.setVerifyCode(verifyCode.replace("$", "").replace("#", "").replace(" ", ""));
+			if (StringUtil.isNotEmpty(refNo))
+				serviceOrderDto.setRefNo(refNo);
 			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
 			if (i > 0) {
 				return new Response<Integer>(0, i);
