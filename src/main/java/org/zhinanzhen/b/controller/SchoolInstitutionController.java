@@ -50,12 +50,12 @@ public class SchoolInstitutionController extends BaseController {
     @ResponseBody
     public Response update(@RequestBody SchoolInstitutionDTO schoolInstitutionDTO ,HttpServletResponse response){
         super.setPostHeader(response);
-        if (StringUtil.isEmpty(schoolInstitutionDTO.getName()))
-            return new Response<SchoolDTO>(1, "学校名称不能为空!", null);
-        List<SchoolInstitutionDTO> listSchoolInstitutionDTO = schoolInstitutionService.listSchoolInstitutionDTO(schoolInstitutionDTO.getName(),null,0,9999);
-        for (SchoolInstitutionDTO si : listSchoolInstitutionDTO){
-            if (si.getId() != schoolInstitutionDTO.getId())
-                return new Response(1,"名称重复!");
+        if (StringUtil.isNotEmpty(schoolInstitutionDTO.getName())){
+            List<SchoolInstitutionDTO> listSchoolInstitutionDTO = schoolInstitutionService.listSchoolInstitutionDTO(schoolInstitutionDTO.getName(),null,0,9999);
+            for (SchoolInstitutionDTO si : listSchoolInstitutionDTO){
+                if (si.getId() != schoolInstitutionDTO.getId())
+                    return new Response(1,"名称重复!");
+            }
         }
         if (schoolInstitutionService.update(schoolInstitutionDTO))
             return new Response(0,schoolInstitutionDTO);
