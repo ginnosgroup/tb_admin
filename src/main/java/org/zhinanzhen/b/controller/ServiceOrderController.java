@@ -1920,7 +1920,8 @@ public class ServiceOrderController extends BaseController {
 					str = "咨询 - " + so.getService().getCode();
 				}
 				if ("OVST".equalsIgnoreCase(so.getType())){
-					str = "留学 - " + so.getSchool().getName();
+					//str = "留学 - " + so.getSchool().getName();
+					continue;
 				}
 				sheet.addCell(new Label(2, i, str, cellFormat));
 				if (so.getAdviser() != null){
