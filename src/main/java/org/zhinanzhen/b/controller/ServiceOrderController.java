@@ -1904,15 +1904,29 @@ public class ServiceOrderController extends BaseController {
 					sheet.addCell(new Label(6, i, "MARA", cellFormat));
 					i++;
 				}
+				if (so.getParentId() > 0){
+					ServiceOrderDTO serviceOrderParent =  serviceOrderService.getServiceOrderById(so.getParentId());
+					if (serviceOrderParent.isPay())
+						continue;
+				}
 				sheet.addCell(new Label(0, i, sdf.format(so.getOfficialApprovalDate()), cellFormat));
 				sheet.addCell(new Label(1, i, so.getId() + "", cellFormat));
 				String str = "";
-				if (so.getService() != null )
-					str = so.getService().getName() + so.getService().getCode();
-				if (so.getServicePackage() != null)
-					str = str + "-" +getTypeStrOfServicePackageDTO(so.getServicePackage().getType()) ;
-				if (so.getServiceAssessDO() != null)
-					str = str + "-" + so.getServiceAssessDO().getName();
+				if ("VISA".equalsIgnoreCase(so.getType())){
+					if (so.getService() != null )
+						str = so.getService().getName() + so.getService().getCode();
+					if (so.getServicePackage() != null)
+						str = str + "-" +getTypeStrOfServicePackageDTO(so.getServicePackage().getType()) ;
+					if (so.getServiceAssessDO() != null)
+						str = str + "-" + so.getServiceAssessDO().getName();
+				}
+				if ("ZX".equalsIgnoreCase(so.getType())){
+					str = "咨询 - " + so.getService().getCode();
+				}
+				if ("OVST".equalsIgnoreCase(so.getType())){
+					//str = "留学 - " + so.getSchool().getName();
+					continue;
+				}
 				sheet.addCell(new Label(2, i, str, cellFormat));
 				if (so.getAdviser() != null){
 					sheet.addCell(new Label(3, i, so.getAdviser().getName(), cellFormat));
