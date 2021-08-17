@@ -940,7 +940,8 @@ public class ServiceOrderController extends BaseController {
 				ServiceOrderDTO serviceOrder = serviceOrderService.getServiceOrderById(id);
 				if ((serviceOrder != null && (adviserId != null && serviceOrder.getAdviserId() == adviserId))
 						|| isSuperAdminUser(request) || getOfficialAdminId(request) != null)
-					list.add(serviceOrder);
+					if (serviceOrder != null)
+						list.add(serviceOrder);
 				return new ListResponse<List<ServiceOrderDTO>>(true, pageSize, list.size(), list, "");
 			}
 
