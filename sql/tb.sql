@@ -1009,6 +1009,7 @@ CREATE TABLE `b_school_course` (
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `course_name` varchar(255) DEFAULT NULL COMMENT '课程名称',
+  `course_code` varchar(32) DEFAULT NULL COMMENT '课程编码',
   `course_sector` varchar(255) DEFAULT NULL COMMENT '课程所属行业',
   `course_level` varchar(255) DEFAULT NULL COMMENT '课程级别',
   `provider_id` int DEFAULT NULL COMMENT '学校编号',
