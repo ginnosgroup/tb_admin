@@ -28,4 +28,8 @@ public class SchoolCourseDTO {
     private int providerId;
 
     private String providerCode;
+
+    private String courseCode;
+
+    private boolean isFreeze;
 }
