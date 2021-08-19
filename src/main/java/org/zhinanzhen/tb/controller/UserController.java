@@ -82,8 +82,10 @@ public class UserController extends BaseController {
 				email = "";
 			if (regionId == null)
 				regionId = "0";
-			if (name != null)
-				name = name.trim().replace("  ", " "); // 处理多余空格问题
+			if (name != null){
+				while (name.contains("  "))
+					name = name.trim().replace("  ", " "); // 处理多余空格问题
+			}
 			return new Response<Integer>(0,
 					userService.addUser(name, authNickname, new Date(Long.parseLong(birthday.trim())), areaCode, phone,
 							email, wechatUsername, firstControllerContents, visaCode,
