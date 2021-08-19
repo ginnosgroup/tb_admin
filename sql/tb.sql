@@ -1001,7 +1001,8 @@ CREATE TABLE `b_school_institution_location` (
   `state` varchar(8) DEFAULT NULL COMMENT '州',
   `number_of_courses` int DEFAULT NULL COMMENT '课程数量',
   `provider_id` int DEFAULT NULL COMMENT '学校编号',
-  `provider_code` varchar(32) DEFAULT NULL COMMENT '学校编码'
+  `provider_code` varchar(32) DEFAULT NULL COMMENT '学校编码',
+  `is_freeze` tinyint(1) NOT NULL DEFAULT '0' COMMENT '冻结',
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `b_school_course` (

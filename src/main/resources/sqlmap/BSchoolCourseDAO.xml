@@ -55,6 +55,10 @@
         DELETE FROM b_school_course WHERE  id = #{id};
     </delete>
 
+    <delete id="freeze">
+        UPDATE b_school_course SET is_freeze = IF(is_freeze = FALSE,TRUE,FALSE) WHERE id = #{id};
+    </delete>
+
     <insert id="add" parameterType="org.zhinanzhen.b.dao.pojo.SchoolCourseDO" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO b_school_course (
         id,

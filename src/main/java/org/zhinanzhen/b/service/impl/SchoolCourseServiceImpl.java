@@ -52,7 +52,7 @@ public class SchoolCourseServiceImpl extends BaseService implements SchoolCourse
 
     @Override
     public boolean delete(int id) {
-        return schoolCourseDAO.delete(id);
+        return schoolCourseDAO.freeze(id);
     }
 
     @Override

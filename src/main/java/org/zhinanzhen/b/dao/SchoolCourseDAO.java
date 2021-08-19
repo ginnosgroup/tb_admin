@@ -22,6 +22,8 @@ public interface SchoolCourseDAO {
 
     boolean delete(int id);
 
+    boolean freeze(int id);
+
     int add(SchoolCourseDO schoolCourseDO);
 
     boolean update(SchoolCourseDO schoolCourseDO);
