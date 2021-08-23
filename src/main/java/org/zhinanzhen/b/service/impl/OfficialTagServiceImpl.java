@@ -146,7 +146,7 @@ public class OfficialTagServiceImpl extends BaseService implements OfficialTagSe
 	@Override
 	public int deleteServiceOrderOfficialTagByTagIdAndServiceOrderId(int id, int serviceOrderId)
 			throws ServiceException {
-		if (id <= 0) {
+		if (id < 0) {
 			ServiceException se = new ServiceException("id error !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
