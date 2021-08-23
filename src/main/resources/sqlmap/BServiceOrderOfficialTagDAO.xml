@@ -34,7 +34,15 @@
     
     <delete id="deleteServiceOrderOfficialTagByTagIdAndServiceOrderId">
         DELETE FROM b_service_order_official_tag
-        WHERE official_tag_id = #{officialTagId, jdbcType=INTEGER} AND service_order_id = #{serviceOrderId, jdbcType=INTEGER};
+        <where>
+            <if test="officialTagId != null and officialTagId > 0">
+                AND official_tag_id = #{officialTagId, jdbcType=INTEGER}
+            </if>
+            <if test=" serviceOrderId != null and serviceOrderId > 0">
+                AND service_order_id = #{serviceOrderId, jdbcType=INTEGER}
+            </if>
+        </where>
+        ;
     </delete>
     
     <delete id="deleteServiceOrderOfficialTagByOfficialTagId" parameterType="java.lang.Integer">

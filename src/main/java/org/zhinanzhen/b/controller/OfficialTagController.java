@@ -152,7 +152,9 @@ public class OfficialTagController extends BaseController {
 				return new Response<Integer>(1, "仅限文案和管理员操作.", null);
 		try {
 			super.setPostHeader(response);
-			if (officialTagService.updateServiceOrderOfficialTag(id, serviceOrderId) > 0)
+			if (id == 0 && officialTagService.deleteServiceOrderOfficialTagByTagIdAndServiceOrderId(id, serviceOrderId) > 0)
+				return new Response<Integer>(0, id);
+			else if (id > 0 && officialTagService.updateServiceOrderOfficialTag(id, serviceOrderId) > 0)
 				return new Response<Integer>(0, id);
 			else
 				return new Response<Integer>(1, "修改失败.", 0);
