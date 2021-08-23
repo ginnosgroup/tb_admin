@@ -23,7 +23,7 @@
             <if test=' type != null and type != "" '>
                 and institution_type = #{type}
             </if>
-            AND is_freeze = 0
+            <!--  AND is_freeze = 0  -->
         </where>
         ORDER BY gmt_create DESC
         limit #{offset} , #{rows};
@@ -37,7 +37,7 @@
             <if test=' type != null and type != "" '>
                 and institution_type = #{type}
             </if>
-            AND is_freeze = 0
+            <!--  AND is_freeze = 0  -->
         </where>;
     </select>
 

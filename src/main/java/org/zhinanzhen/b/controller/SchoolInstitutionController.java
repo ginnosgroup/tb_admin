@@ -49,6 +49,7 @@ public class SchoolInstitutionController extends BaseController {
     @RequestMapping(value = "/update" ,method =  RequestMethod.POST)
     @ResponseBody
     public Response update(@RequestBody SchoolInstitutionDTO schoolInstitutionDTO ,HttpServletResponse response){
+        //TODO 需要设置权限，顾问只能查看不能修改
         super.setPostHeader(response);
         if (StringUtil.isNotEmpty(schoolInstitutionDTO.getName())){
             List<SchoolInstitutionDTO> listSchoolInstitutionDTO = schoolInstitutionService.listSchoolInstitutionDTO(schoolInstitutionDTO.getName(),null,0,9999);
