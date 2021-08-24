@@ -40,10 +40,10 @@ public class SchoolCourseController extends BaseController {
 
     @RequestMapping(value = "/delete",method = RequestMethod.POST)
     @ResponseBody
-    public Response delete(@RequestParam(value = "id")int id){
-        if ( id <= 0)
+    public Response delete(@RequestBody SchoolCourseDTO schoolCourseDTO){
+        if ( schoolCourseDTO.getId() <= 0)
             return new Response(1,"id error");
-        if (schoolCourseService.delete(id))
+        if (schoolCourseService.delete(schoolCourseDTO.getId()))
             return new Response(0,"success");
         else
             return new Response(1,"fail");
