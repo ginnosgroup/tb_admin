@@ -1,6 +1,8 @@
 package org.zhinanzhen.tb.scheduled;
 
 import org.zhinanzhen.b.service.pojo.DataDTO;
+import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
+import org.zhinanzhen.tb.utils.CommonUtils;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -189,5 +191,51 @@ public class EmailModel {
         content.append("<td  style=\"background-color: #FDF3D7; color:#000000\">" + df.format(deductionCommission+ claimCommission + claimedCommission + serviceFee) +"</td>");
         return content;
     }
+
+    /**
+     * 导出服务订单中未支付的服务类型的信息
+     * @param list
+     * @return content
+     */
+    public  static StringBuilder officialApprovalServicecAndIsPayModule(List<ServiceOrderDTO> list){
+        StringBuilder content = new StringBuilder();
+        content.append("<table border='1' style='border:solid 1px #E8F2F9;font-size=14px;;font-size:18px;'>");
+        content.append("<tr style='background-color: #428BCA; color:#ffffff'><th>提交审核时间</th><th>服务订单ID</th><th>服务项目</th><th>顾问名称</th><th>顾问地区</th><th>文案</th><th>MARA</th></tr>");
+        for (ServiceOrderDTO so : list){
+            String str = "";
+            if ("VISA".equalsIgnoreCase(so.getType())){
+                if (so.getService() != null )
+                    str = so.getService().getName() + so.getService().getCode();
+                if (so.getServicePackage() != null)
+                    str = str + "-" + CommonUtils.getTypeStrOfServicePackageDTO(so.getServicePackage().getType()) ;
+                if (so.getServiceAssessDO() != null)
+                    str = str + "-" + so.getServiceAssessDO().getName();
+            }
+            if ("ZX".equalsIgnoreCase(so.getType())){
+                str = "咨询 - " + so.getService().getCode();
+            }
+            if ("OVST".equalsIgnoreCase(so.getType())){
+                //str = "留学 - " + so.getSchool().getName();
+                continue;
+            }
+            content.append("<tr>");
+            content.append("<td>" + CommonUtils.sdf.format(so.getOfficialApprovalDate()) + "</td>");
+            content.append("<td>" + so.getId() + "</td>");
+            content.append("<td>" + str + "</td>");
+            if (so.getAdviser() != null){
+                content.append("<td>" + so.getAdviser().getName() + "</td>");
+                content.append("<td>" + so.getAdviser().getRegionName() + "</td>");
+            }
+            if (so.getOfficial() != null)
+                content.append("<td>" + so.getOfficial().getName() + "</td>");
+            if (so.getMara() != null)
+                content.append("<td>" + so.getMara().getName() + "</td>");
+
+            content.append("</tr>");
+        }
+        content.append("</table>");
+        return content;
+    }
+
 
 }
