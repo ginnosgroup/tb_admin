@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
 import org.zhinanzhen.b.dao.*;
@@ -98,7 +97,7 @@ public class Scheduled {
     //String lastSaturdayDate = "2020-09-19";
     //String endDate = "2020-09-25";
 
-    //    1-25号
+    //本月1号-本周五   上周六-本周五
     @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 9 ?  *  SAT")
     public void everyWeek(){
 
@@ -134,7 +133,43 @@ public class Scheduled {
             SendEmailUtil.send("paul@zhinanzhen.org","全澳的 Data Report",content.toString());
             SendEmailUtil.send("elvin@zhinanzhen.org","全澳的 Data Report",content.toString());
             SendEmailUtil.send("jiaheng.xu@zhinanzhen.org","全澳的 Data Report",content.toString());
+            //SendEmailUtil.send("815124560@qq.com","全澳的 Data Report", content.toString());
+
         }
+
+        {
+            List<ServiceOrderDTO> serviceOrderDTOS = null;
+            try {
+                serviceOrderDTOS = serviceOrderService.listServiceOrder(null, null, null, null, null,
+                        null, null, null, null, lastSaturdayDate, endDate, null, null, null, null,
+                        null, null, null, null, null, 0, false,
+                        0, 9999, null, null, null,false);
+                for (Iterator iterator = serviceOrderDTOS.iterator() ; iterator.hasNext() ; ){
+                    ServiceOrderDTO so = (ServiceOrderDTO) iterator.next();
+                    if (so.getParentId() > 0){
+                        ServiceOrderDTO serviceOrderParent =  serviceOrderService.getServiceOrderById(so.getParentId());
+                        if (serviceOrderParent.isPay())
+                            iterator.remove();
+                    }
+                }
+            } catch (ServiceException e) {
+                e.printStackTrace();
+                return;
+            }
+            content = EmailModel.start();
+
+            content.append( lastSaturdayDate + "  至  " + endDate + " 的未支付的服务订单服务订单");
+            content .append(EmailModel.officialApprovalServicecAndIsPayModule(serviceOrderDTOS));
+
+            content .append( EmailModel.end());
+
+            SendEmailUtil.send("paul@zhinanzhen.org","未支付的服务订单",content.toString());
+            SendEmailUtil.send("elvin@zhinanzhen.org","未支付的服务订单",content.toString());
+            SendEmailUtil.send("jiaheng.xu@zhinanzhen.org","未支付的服务订单",content.toString());
+            //SendEmailUtil.send("815124560@qq.com","数据", content.toString());
+        }
+
+
 
         {   //发送给每个Manager的总数据
             for(DataDTO area : areaTodayDataList){
@@ -170,7 +205,7 @@ public class Scheduled {
                     SendEmailUtil.send("juntao@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
                     SendEmailUtil.send("jiaheng.xu@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
                 }
-                if (area.getArea() .equalsIgnoreCase("Sydney2")){
+                if (area.getArea() .equalsIgnoreCase("攻坚部")){
                     SendEmailUtil.send("kevin@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
                     SendEmailUtil.send("jiaheng.xu@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
                 }
@@ -192,7 +227,6 @@ public class Scheduled {
                 }
             }
         }
-
 
     }
 
@@ -249,7 +283,7 @@ public class Scheduled {
                     SendEmailUtil.send("juntao@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
                     SendEmailUtil.send("jiaheng.xu@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
                 }
-                if (area.getArea() .equalsIgnoreCase("Sydney2")){
+                if (area.getArea() .equalsIgnoreCase("攻坚部")){
                     SendEmailUtil.send("kevin@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
                     SendEmailUtil.send("jiaheng.xu@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
                 }
@@ -493,6 +527,43 @@ public class Scheduled {
         }
     }
 
+    /*
+    @org.springframework.scheduling.annotation.Scheduled(cron = "0 56 * * * ? ")
+    public void t() throws Exception {
+        String startDate = DateClass.thisMonthFirstDay(Calendar.getInstance());   //本月一号的时间
+        String lastSaturdayDate = DateClass.lastSaturday(Calendar.getInstance()); //上周六
+        String endDate = DateClass.thisMonthFriday(Calendar.getInstance());            //也就是当前时间
 
+        List<ServiceOrderDTO> serviceOrderDTOS = serviceOrderService.listServiceOrder(null, null, null, null, null,
+                null, null, null, null, "2021-06-1 20:50:58", "2021-08-29 20:50:58", null, null, null, null,
+                null, null, null, null, null, 0, false,
+                0, 9999, null, null, null,false);
+        for (Iterator iterator = serviceOrderDTOS.iterator() ; iterator.hasNext() ; ){
+            ServiceOrderDTO so = (ServiceOrderDTO) iterator.next();
+            if (so.getParentId() > 0){
+                ServiceOrderDTO serviceOrderParent =  serviceOrderService.getServiceOrderById(so.getParentId());
+                if (serviceOrderParent.isPay())
+                    iterator.remove();
+            }
+        }
+
+        content = EmailModel.start();
+        content .append(EmailModel.officialApprovalServicecAndIsPayModule(serviceOrderDTOS));
+        content .append( EmailModel.end());
+        
+        SendEmailUtil.send("815124560@qq.com","数据", content.toString());
+    }
+    */
+
+    public enum regionEnum{
+        Sydney, Canberra, 攻坚部, Melbourne, Brisbane, Adelaide, Hobart ;
+
+        public static regionEnum get(String name){
+            for (regionEnum e : regionEnum.values())
+                if (e.toString().equals(name))
+                    return e;
+            return null;
+        }
+    }
 
 }
