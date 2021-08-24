@@ -2116,7 +2116,11 @@ public class ServiceOrderController extends BaseController {
 			//发送消息到群聊PENGDING--->REVIEW
 			if ("GW".equalsIgnoreCase(adminUserLoginInfo.getApList()) && !"ZX".equals(serviceOrderDto.getType())
 					&& "REVIEW".equalsIgnoreCase(state)){//咨询不发群聊消息
-				wxWorkService.sendMsg(serviceOrderDto.getId(),token(request,"corp"));
+				String token = token(request,"corp");
+				LOG.info("发送群聊订单:" + serviceOrderDto.getId() + " . ACCESS_TOKEN: " + token );
+				if (wxWorkService.sendMsg(serviceOrderDto.getId(),token)){
+					LOG.info(serviceOrderDto.getId() + " 订单群聊消息发送成功 . ACCESS_TOKEN:" + token);
+				}
 			}
 
 			if (context.getParameter("response") != null)
