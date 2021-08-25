@@ -10,6 +10,7 @@
         invoice_no,
         branch,
         state,
+        note,
         pdf_url AS pdfUrl
         from `b_invoice_servicefee`
         <where>
@@ -42,6 +43,7 @@
         invoice_no,
         branch,
         state,
+        note,
         pdf_url AS pdfUrl
         from `b_invoice_school`
         <where>
