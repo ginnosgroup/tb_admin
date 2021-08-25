@@ -13,6 +13,7 @@ import java.util.List;
 public interface SchoolInstitutionDAO {
 
     List<SchoolInstitutionDO> listSchoolInstitutionDO(@Param("name") String name, @Param("type") String type,
+                                                      @Param("code") String code,
                                                       @Param("offset") int offset, @Param("rows") int rows);
 
     SchoolInstitutionDO getSchoolInstitutionById(@Param("id") Integer id);

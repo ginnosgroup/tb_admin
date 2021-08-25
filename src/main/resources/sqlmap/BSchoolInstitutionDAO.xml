@@ -23,6 +23,9 @@
             <if test=' type != null and type != "" '>
                 and institution_type = #{type}
             </if>
+            <if test=' code != null and code != "" '>
+                and code = #{code}
+            </if>
             <!--  AND is_freeze = 0  -->
         </where>
         ORDER BY gmt_create DESC

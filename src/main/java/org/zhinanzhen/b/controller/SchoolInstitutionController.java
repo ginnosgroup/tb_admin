@@ -31,12 +31,12 @@ public class SchoolInstitutionController extends BaseController {
     @RequestMapping(value = "/list",method = RequestMethod.GET)
     @ResponseBody
     public ListResponse list(@RequestParam(value = "id",required = false ) Integer id, @RequestParam(value = "name" ,required =  false) String name,
-                             @RequestParam(value = "type",required = false) String type,
+                             @RequestParam(value = "type",required = false) String type,@RequestParam(value = "code",required = false) String code,
                              @RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize){
         if ( id != null && id > 0)
             return  new ListResponse(true , pageSize,1,schoolInstitutionService.getSchoolInstitutionById(id),"ok");
         int total =  schoolInstitutionService.count(name,type);
-        return  new ListResponse(true , pageSize,total,schoolInstitutionService.listSchoolInstitutionDTO(name,type,pageNum,pageSize),"ok");
+        return  new ListResponse(true , pageSize,total,schoolInstitutionService.listSchoolInstitutionDTO(name,type,code, pageNum,pageSize),"ok");
     }
 
     @RequestMapping(value = "/get",method = RequestMethod.GET)
@@ -52,7 +52,7 @@ public class SchoolInstitutionController extends BaseController {
         //TODO 需要设置权限，顾问只能查看不能修改
         super.setPostHeader(response);
         if (StringUtil.isNotEmpty(schoolInstitutionDTO.getName())){
-            List<SchoolInstitutionDTO> listSchoolInstitutionDTO = schoolInstitutionService.listSchoolInstitutionDTO(schoolInstitutionDTO.getName(),null,0,9999);
+            List<SchoolInstitutionDTO> listSchoolInstitutionDTO = schoolInstitutionService.listSchoolInstitutionDTO(schoolInstitutionDTO.getName(),null,null,0,9999);
             for (SchoolInstitutionDTO si : listSchoolInstitutionDTO){
                 if (si.getId() != schoolInstitutionDTO.getId())
                     return new Response(1,"名称重复!");
@@ -69,7 +69,7 @@ public class SchoolInstitutionController extends BaseController {
     @ResponseBody
     public Response add(@RequestBody SchoolInstitutionDTO schoolInstitutionDTO, HttpServletResponse response){
         super.setPostHeader(response); 
-        List<SchoolInstitutionDTO> listSchoolInstitutionDTO = schoolInstitutionService.listSchoolInstitutionDTO(schoolInstitutionDTO.getName(),null,0,9999);
+        List<SchoolInstitutionDTO> listSchoolInstitutionDTO = schoolInstitutionService.listSchoolInstitutionDTO(schoolInstitutionDTO.getName(),null, null, 0,9999);
         if (listSchoolInstitutionDTO.size() > 0 )
             return new Response(1,"学校名字已经存在");
         if (schoolInstitutionService.getSchoolInstitutionByCode(schoolInstitutionDTO.getCode()) != null)
