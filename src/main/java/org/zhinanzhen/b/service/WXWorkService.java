@@ -25,7 +25,7 @@ public interface WXWorkService {
 
     int add(UserDTO userDTO);
 
-    void sendMsg(int id, String token);
+    boolean sendMsg(int id, String token);
 
     int updateByAuthopenid(UserDTO userDTO);
 

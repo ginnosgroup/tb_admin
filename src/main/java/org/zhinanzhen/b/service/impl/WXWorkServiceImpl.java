@@ -117,7 +117,7 @@ public class WXWorkServiceImpl implements WXWorkService {
     }
 
     @Override
-    public  void sendMsg(int id,String token){
+    public  boolean sendMsg(int id,String token){
         JSONObject parm = new JSONObject();
         JSONObject content = new JSONObject();
         String msg = "";
@@ -174,7 +174,14 @@ public class WXWorkServiceImpl implements WXWorkService {
         //ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
         //HttpSession session=attr.getRequest().getSession(true);
         //String token = (String) session.getAttribute("corpToken" + BaseController.VERSION); // TODO:小包  不要在Service层依赖Session，有时间把这几行代码移到Controller层
+
         JSONObject json =  WXWorkAPI.sendPostBody_Map(WXWorkAPI.SENDMESSAGE.replace("ACCESS_TOKEN",token),parm);
+        Map<String,Object> resultMap = json.getInnerMap();//getInnerMap()方法得到Map结构
+        if ((int)resultMap.get("errcode") == 0){
+            return true;
+        }
+
+        return false;
     }
 
     @Override
