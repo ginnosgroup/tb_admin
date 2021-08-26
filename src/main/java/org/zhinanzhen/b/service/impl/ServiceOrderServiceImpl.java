@@ -191,7 +191,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		Date date = serviceOrderDo.getGmtCreate();
 		sendMail(adviserDo.getEmail(), "变更任务提醒:",
 				StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>", "您的订单已经变更。", "<br>订单号:", serviceOrderDo.getId(),
-						"<br/>客户名称:", user.getName(), "/顾问:", "/文案:", officialDo.getName(), adviserDo.getName(),
+						"<br/>客户名称:", user.getName(), "<br/>顾问:", adviserDo.getName(), "<br/>文案:", officialDo.getName(),
 						"<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
 						serviceOrderDo.getNutCloud(), "<br/>客户基本信息:", serviceOrderDo.getInformation(), "<br/>备注:",
 						serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date,
