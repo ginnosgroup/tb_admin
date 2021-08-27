@@ -41,7 +41,7 @@ public class SchoolCourseController extends BaseController {
     @RequestMapping(value = "/delete",method = RequestMethod.POST)
     @ResponseBody
     public Response delete(@RequestBody SchoolCourseDTO schoolCourseDTO){
-        if ( schoolCourseDTO.getId() <= 0)
+        if ( schoolCourseDTO.getId() <= 0 || schoolCourseService.schoolCourseById(schoolCourseDTO.getId()) == null)
             return new Response(1,"id error");
         if (schoolCourseService.delete(schoolCourseDTO.getId()))
             return new Response(0,"success");
@@ -63,6 +63,8 @@ public class SchoolCourseController extends BaseController {
     @ResponseBody
     public Response update(@RequestBody SchoolCourseDTO schoolCourseDTO, HttpServletResponse response){
         super.setPostHeader(response);
+        if (schoolCourseService.schoolCourseById(schoolCourseDTO.getId()) == null)
+            return new Response(1,"没有此课程");
         if (schoolCourseService.update(schoolCourseDTO))
             return new Response(0,"success",schoolCourseDTO);
         else

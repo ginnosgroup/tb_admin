@@ -101,6 +101,9 @@
         <if test=' courseLevel != null and courseLevel != ""'>
             , course_level = #{courseLevel}
         </if>
+        <if test=' courseCode != null and courseCode != ""'>
+            , course_code = #{courseCode}
+        </if>
         WHERE id = #{id};
     </update>
 </mapper>
