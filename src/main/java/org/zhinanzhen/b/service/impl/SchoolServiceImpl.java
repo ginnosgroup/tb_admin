@@ -448,6 +448,27 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		}
 	}
 
+	@Override
+	public String getByCommissionOrderId(int id) {
+		CommissionOrderListDO commissionOrderListDO = commissionOrderDao.getCommissionOrderById(id);
+		if (commissionOrderListDO != null){
+			SchoolSettingDO schoolSettingDO = schoolSettingDao.getBySchoolId(commissionOrderListDO.getSchoolId());
+			if (schoolSettingDO != null){
+				int type = schoolSettingDO.getType();
+				String parameters = schoolSettingDO.getParameters();
+				if (type == 1 || type == 2){
+					String[] _parameters = parameters.split("[|]");
+					return _parameters[0] + "%";
+				}
+				if (type == 4){
+					String[] _parameters = parameters.split("[|]");
+					return _parameters[1].split("/")[0] + "%";
+				}
+			}
+		}
+		return null;
+	}
+
 	private List<SchoolSettingDTO> buildSchoolSettingList(List<SchoolDO> schoolDoList) {
 		List<SchoolSettingDTO> schoolSettingDtoList = new ArrayList<SchoolSettingDTO>();
 		if (schoolDoList == null || schoolDoList.size() == 0)

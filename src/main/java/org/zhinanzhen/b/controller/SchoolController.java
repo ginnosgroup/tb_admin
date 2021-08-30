@@ -580,4 +580,15 @@ public class SchoolController extends BaseController {
 		}
 
 	}
+
+	@RequestMapping(value = "/getRateByCommissionOrderId", method = RequestMethod.GET)
+	@ResponseBody
+	public Response getByCommissionOrderId(@RequestParam(value = "id") int id){
+		try {
+			return  new Response(0,schoolService.getByCommissionOrderId(id));
+		}catch (Exception e){
+			return new Response<Integer>(1, e.getMessage(), 0);
+		}
+	}
+
 }
