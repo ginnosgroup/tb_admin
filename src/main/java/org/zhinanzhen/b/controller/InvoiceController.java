@@ -15,6 +15,7 @@ import org.zhinanzhen.b.service.pojo.InvoiceDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
+import org.zhinanzhen.tb.service.ServiceException;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -405,7 +406,10 @@ public class InvoiceController  extends BaseController {
         } catch (DataAccessException ex) {
             ex.printStackTrace();
             return new Response(1, "参数错误",ex.getMessage());
-        } catch (Exception ex) {
+        } catch (ServiceException ex) {
+            ex.printStackTrace();
+            return new Response(1,ex.getMessage());
+        }catch (Exception ex) {
             ex.printStackTrace();
             return new Response(1, "系统错误，请联系管理员！",ex.getMessage());
         }
@@ -444,8 +448,11 @@ public class InvoiceController  extends BaseController {
                 return new Response(0, invoiceService.updateSFInvoice(paramMap));
             }
             return new Response(0, "fail");
+        }catch (ServiceException e){
+            return new Response(1, e.getMessage());
         }catch (Exception e){
-            return new Response(0, "系统错误！");
+            e.printStackTrace();
+            return new Response(1, "系统错误！");
         }
     }
 
