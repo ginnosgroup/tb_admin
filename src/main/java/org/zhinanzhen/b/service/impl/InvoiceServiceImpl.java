@@ -1,5 +1,7 @@
 package org.zhinanzhen.b.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +14,7 @@ import org.zhinanzhen.b.service.pojo.InvoiceDTO;
 import org.zhinanzhen.b.service.pojo.InvoiceSchoolDTO;
 import org.zhinanzhen.b.service.pojo.InvoiceServiceFeeDTO;
 import org.zhinanzhen.tb.controller.Response;
+import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 import org.zhinanzhen.tb.utils.PrintPdfUtil;
 import javax.annotation.Resource;
@@ -34,6 +37,9 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
 
     private static  SimpleDateFormat sdfdob = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
     private static  SimpleDateFormat sdfolddob = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+    private static  SimpleDateFormat ymdsdf = new SimpleDateFormat("yyyy-MM-dd");
+
+    private static final String STR1900 = "1900-00-00" ;
 
     //查询invoice
     @Override
@@ -167,7 +173,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
     @Override
     public InvoiceCompanyDTO addServiceFeeInvoice(String branch, String company) {
 
-        InvoiceCompanyDTO  invoiceCompanyDTO =  invoiceDAO.selectCompanyByName(company,typeEnum.SF.toString());
+        InvoiceCompanyDTO  invoiceCompanyDTO =  invoiceDAO.selectCompanyByName(company,"SF");
         if(invoiceCompanyDTO != null) {
             if (invoiceCompanyDTO.getSimple().equals("CEM")) {
                 InvoiceAddressDO invoiceAddressDO = invoiceDAO.selectAddressByBranch(branch);
@@ -216,7 +222,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
     public InvoiceCompanyDTO addSchoolInvoice(String branch, String company) {
         InvoiceCompanyDTO  invoiceCompanyDTO = null;
         InvoiceAddressDO invoiceAddressDO = null;
-        invoiceCompanyDTO = invoiceDAO.selectCompanyByName(company,typeEnum.SC.toString());
+        invoiceCompanyDTO = invoiceDAO.selectCompanyByName(company,"SC");
         if (invoiceCompanyDTO!=null){
             if (invoiceCompanyDTO.getSimple().equals("CEM")){
                 invoiceAddressDO = invoiceDAO.selectAddressByBranch(branch);
@@ -422,6 +428,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
      * @return
      */
     @Override
+    @Deprecated
     @Transactional
     public int saveSchoolInvoice(Map paramMap) {
         List<InvoiceSchoolDescriptionDO> description = (List<InvoiceSchoolDescriptionDO>) paramMap .get("description");
@@ -435,7 +442,8 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
 
     @Override
     @Transactional
-    public int saveSchoolInvoice(Map paramMap, List<InvoiceSchoolDescriptionDO> des) {
+    public int saveSchoolInvoice(Map paramMap, List<InvoiceSchoolDescriptionDO> des) throws ServiceException {
+        checkSchoolDescriptionInstallmentDueDate(des);
         if(  invoiceDAO.saveSchoolInvoice(paramMap) && invoiceDAO.saveSchoolDescription(des, paramMap.get("invoiceNo"))) {
             return 1;
         } else{
@@ -521,10 +529,11 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
 
     @Override
     @Transactional
-    public String updateSCInvoice(Map paramMap) {
+    public String updateSCInvoice(Map paramMap) throws ServiceException {
         String invoiceNo = (String) paramMap.get("invoiceNo");
         String idList [] =  ((String) paramMap.get("idList")).split(",");
         List<InvoiceSchoolDescriptionDO> description = (List<InvoiceSchoolDescriptionDO>) paramMap.get("description");
+        checkSchoolDescriptionInstallmentDueDate(description);
         String invoiceDate = (String) paramMap.get("invoiceDate");
 
         invoiceDAO.removeInvoiceNumberInCommissionOrder(invoiceNo);
@@ -547,19 +556,32 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
         stateList.add(BaseCommissionOrderController.ReviewKjStateEnum.CLOSE.toString());
         int resultzydate = invoiceDAO.updateCommissionOrderZyDate(stateList,idList ,invoiceDate);
 
-        invoiceDAO.deleteDesc(invoiceNo,typeEnum.SC.toString());
+        invoiceDAO.deleteDesc(invoiceNo,"SC");
         invoiceDAO.saveSchoolDescription(description,invoiceNo);
         if (invoiceDAO.updateSCInvoice(paramMap)>0)
             return "sucess";
         return "fail";
     }
 
+    private void checkSchoolDescriptionInstallmentDueDate(List<InvoiceSchoolDescriptionDO> description) throws ServiceException {
+        JSONArray jsonArray = JSONArray.parseArray(JSON.toJSONString(description));
+        List<InvoiceSchoolDescriptionDO> _description = new ArrayList<>();
+        for (int i = 0 ; i < jsonArray.size() ; i++ ){
+            _description.add(JSON.parseObject(JSON.toJSONString(jsonArray.get(i)),InvoiceSchoolDescriptionDO.class));
+        }
+        for (InvoiceSchoolDescriptionDO invoiceSchoolDescriptionDO : _description)  {
+            if (invoiceSchoolDescriptionDO.getInstallmentDueDate() == null || ymdsdf.format(invoiceSchoolDescriptionDO.getInstallmentDueDate()).equalsIgnoreCase(STR1900)){
+                throw  new ServiceException("installment due date 时间错误!") ;
+            }
+        }
+    }
+
     public enum typeEnum{
         SC,SF;
         public static typeEnum get(String name){
             for (typeEnum e : typeEnum.values())
-            if (e.toString().equals(name))
-                return e;
+                if (e.toString().equals(name))
+                    return e;
             return null;
         }
     }
