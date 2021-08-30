@@ -862,10 +862,10 @@ CREATE TABLE `b_invoice_school_description` (
   `id` int(11) unsigned NOT NULL COMMENT '主键',
   `studentname` varchar(50) NOT NULL COMMENT '学生姓名',
   `dob` datetime NOT NULL COMMENT '出生日期',
-  `student_id` varchar(64) NOT NULL COMMENT '对应学生ID',
+  `student_id` varchar(64) DEFAULT NULL COMMENT '对应学生ID',
   `course` varchar(200) NOT NULL COMMENT '课程',
   `startDate` datetime NOT NULL COMMENT '课程开始时时间',
-  `instalment` varchar(50) NOT NULL COMMENT '机构名称',
+  `instalment` varchar(50) DEFAULT NULL COMMENT '第几期',
   `tuitionfee` decimal(10,2) DEFAULT '0.00' COMMENT '学费',
   `bonus` decimal(10,2) DEFAULT '0.00' COMMENT '奖金',
   `commissionrate` varchar(10) DEFAULT '0' COMMENT '佣金率',
@@ -875,7 +875,9 @@ CREATE TABLE `b_invoice_school_description` (
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `invoice_no` varchar(64) DEFAULT NULL COMMENT '税务发票编号 （对应b_invoice_school表中的invoice_no）',
-  `non_tuitionfee` decimal(10,2) DEFAULT NULL COMMENT 'nonTuitionFee'
+  `non_tuitionfee` decimal(10,2) DEFAULT NULL COMMENT 'nonTuitionFee',
+  `commission_order_id` int(11) DEFAULT NULL COMMENT '留学佣金订单b_commission_order.id',
+  `installment_due_date` datetime DEFAULT '1900-00-00 00:00:00' COMMENT 'installment due date',
   KEY `invoice_no` (`invoice_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

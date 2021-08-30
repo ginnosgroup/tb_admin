@@ -4,6 +4,8 @@ import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.pojo.InvoiceCompanyDTO;
 import org.zhinanzhen.b.service.pojo.InvoiceDTO;
 import org.zhinanzhen.tb.controller.Response;
+import org.zhinanzhen.tb.service.ServiceException;
+
 import java.util.List;
 import java.util.Map;
 
@@ -52,7 +54,7 @@ public interface InvoiceService {
 
     int saveSchoolInvoice(Map paramMap);
 
-    int saveSchoolInvoice(Map paramMap ,List<InvoiceSchoolDescriptionDO> des);
+    int saveSchoolInvoice(Map paramMap ,List<InvoiceSchoolDescriptionDO> des) throws ServiceException;
 
     List<InvoiceBillToDO> billToList();
 
@@ -60,5 +62,5 @@ public interface InvoiceService {
 
     String updateSFInvoice(Map paramMap);
 
-    String updateSCInvoice(Map paramMap);
+    String updateSCInvoice(Map paramMap) throws ServiceException;
 }

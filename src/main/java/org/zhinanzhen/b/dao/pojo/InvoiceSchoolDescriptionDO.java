@@ -45,4 +45,8 @@ public class InvoiceSchoolDescriptionDO {
 
     //专属市场bonus
     private BigDecimal marketing;
+
+    private Date installmentDueDate;
+
+    private int commissionOrderId;
 }
