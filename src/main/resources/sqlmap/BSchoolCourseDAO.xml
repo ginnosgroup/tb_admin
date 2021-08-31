@@ -21,6 +21,9 @@
             <if test='providerCode != null and providerCode != ""'>
                 and provider_code = #{providerCode}
             </if>
+            <if test="isFreeze != null">
+                AND is_freeze = #{isFreeze}
+            </if>
         </where>
         <if test="offset != null  and rows != null ">
             limit #{offset} ,#{rows}
@@ -51,6 +54,9 @@
             </if>
             <if test='providerCode != null and providerCode != ""'>
                 and provider_code = #{providerCode}
+            </if>
+            <if test="isFreeze != null">
+                AND is_freeze = #{isFreeze}
             </if>
         </where>;
     </select>

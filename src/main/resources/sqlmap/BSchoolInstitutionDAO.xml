@@ -26,6 +26,9 @@
             <if test=' code != null and code != "" '>
                 and code = #{code}
             </if>
+            <if test="isFreeze != null">
+                AND is_freeze = #{isFreeze}
+            </if>
             <!--  AND is_freeze = 0  -->
         </where>
         ORDER BY gmt_create DESC
@@ -39,6 +42,9 @@
             </if>
             <if test=' type != null and type != "" '>
                 and institution_type = #{type}
+            </if>
+            <if test="isFreeze != null">
+                AND is_freeze = #{isFreeze}
             </if>
             <!--  AND is_freeze = 0  -->
         </where>;

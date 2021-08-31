@@ -22,12 +22,12 @@ public class SchoolCourseServiceImpl extends BaseService implements SchoolCourse
     private SchoolCourseDAO schoolCourseDAO;
 
     @Override
-    public List<SchoolCourseDTO> list(Integer providerId, String providerCode, int pageNum, int pageSize) {
+    public List<SchoolCourseDTO> list(Integer providerId, String providerCode,Boolean isFreeze, int pageNum, int pageSize) {
         if (pageNum < 0 )
             pageNum = DEFAULT_PAGE_NUM;
         if (pageSize < 0 )
             pageSize = DEFAULT_PAGE_SIZE;
-        List<SchoolCourseDO>  schoolCourseDOList = schoolCourseDAO.listSchoolCourse(providerId,providerCode,pageNum*pageSize,pageSize);
+        List<SchoolCourseDO>  schoolCourseDOList = schoolCourseDAO.listSchoolCourse(providerId,providerCode,isFreeze,pageNum*pageSize,pageSize);
         List<SchoolCourseDTO> schoolCourseDTOList = new ArrayList<>();
         if (schoolCourseDOList.size() > 0 )
             schoolCourseDOList.forEach(schoolCourseDO -> {
@@ -37,8 +37,8 @@ public class SchoolCourseServiceImpl extends BaseService implements SchoolCourse
     }
 
     @Override
-    public int count(Integer providerId, String providerCode) {
-        return schoolCourseDAO.count(providerId,providerCode);
+    public int count(Integer providerId, String providerCode, Boolean isFreeze) {
+        return schoolCourseDAO.count(providerId,providerCode, isFreeze);
     }
 
     @Override

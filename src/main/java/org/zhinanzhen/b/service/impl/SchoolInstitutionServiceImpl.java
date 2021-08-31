@@ -36,12 +36,12 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
     private SchoolCourseDAO schoolCourseDAO;
 
     @Override
-    public List<SchoolInstitutionDTO> listSchoolInstitutionDTO(String name, String type, String code, int pageNum, int pageSize) {
+    public List<SchoolInstitutionDTO> listSchoolInstitutionDTO(String name, String type, String code, Boolean isFreeze, int pageNum, int pageSize) {
         if ( pageNum < 0 )
             pageNum = DEFAULT_PAGE_NUM;
         if ( pageSize < 0 )
             pageSize = DEFAULT_PAGE_SIZE;
-        List<SchoolInstitutionDO> schoolInstitutionDOS = schoolInstitutionDAO.listSchoolInstitutionDO(name,type, code, pageNum * pageSize, pageSize);
+        List<SchoolInstitutionDO> schoolInstitutionDOS = schoolInstitutionDAO.listSchoolInstitutionDO(name,type, code, isFreeze, pageNum * pageSize, pageSize);
         List<SchoolInstitutionDTO> schoolInstitutionDTOS = new ArrayList<>();
         if (schoolInstitutionDOS == null)
             return null;
@@ -74,8 +74,8 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
     }
 
     @Override
-    public int count(String name, String type) {
-        return schoolInstitutionDAO.count(name,type);
+    public int count(String name, String type, Boolean isFreeze) {
+        return schoolInstitutionDAO.count(name,type,isFreeze);
     }
 
     @Override
@@ -98,7 +98,7 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
     }
 
     public SchoolInstitutionDTO putSchoolInfo(SchoolInstitutionDTO schoolInstitutionDTO ,int providerId,String providerCode){
-        List<SchoolCourseDO> listSchoolCourse = schoolCourseDAO.listSchoolCourse(providerId,providerCode,null,null);
+        List<SchoolCourseDO> listSchoolCourse = schoolCourseDAO.listSchoolCourse(providerId,providerCode,null,null,null);
         if (listSchoolCourse.size() > 0){
             List<SchoolCourseDTO> schoolCourseDTOS = new ArrayList<>();
             for (SchoolCourseDO sc : listSchoolCourse){

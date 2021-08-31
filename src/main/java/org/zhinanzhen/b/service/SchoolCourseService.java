@@ -13,9 +13,9 @@ import java.util.List;
  */
 public interface SchoolCourseService {
 
-    List<SchoolCourseDTO> list(Integer providerId, String providerCode, int pageNum, int pageSize);
+    List<SchoolCourseDTO> list(Integer providerId, String providerCode,Boolean isFreeze, int pageNum, int pageSize);
 
-    int count(Integer providerId, String providerCode);
+    int count(Integer providerId, String providerCode, Boolean isFreeze);
 
     SchoolCourseDTO schoolCourseById(int id);
 

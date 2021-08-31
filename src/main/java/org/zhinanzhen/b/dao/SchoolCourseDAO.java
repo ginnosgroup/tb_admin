@@ -14,11 +14,12 @@ import java.util.List;
 public interface SchoolCourseDAO {
 
     List<SchoolCourseDO> listSchoolCourse(@Param("providerId") Integer providerId,@Param("providerCode") String providerCode,
+                                          @Param("isFreeze") Boolean isFreeze,
                                           @Param("offset") Integer offset,@Param("rows") Integer rows);
 
     SchoolCourseDO schoolCourseById(int id);
 
-    int count(@Param("providerId") Integer providerId,@Param("providerCode") String providerCode);
+    int count(@Param("providerId") Integer providerId,@Param("providerCode") String providerCode ,@Param("isFreeze") Boolean isFreeze);
 
     boolean delete(int id);
 

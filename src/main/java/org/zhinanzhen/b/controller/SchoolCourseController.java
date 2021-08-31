@@ -30,12 +30,13 @@ public class SchoolCourseController extends BaseController {
     public ListResponse list(@RequestParam(value = "id",required = false) Integer id,
                          @RequestParam(value = "providerId",required = false) Integer providerId,
                          @RequestParam(value = "providerCode",required = false) String providerCode,
+                         @RequestParam(value = "isFreeze",required = false) Boolean isFreeze,
                          @RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize){
         if (id != null && id > 0 ) {
             return new ListResponse(true, pageSize, 1, schoolCourseService.schoolCourseById(id), "ok");
         }
-        int total = schoolCourseService.count(providerId,providerCode);
-        return  new ListResponse(true,pageSize,total,schoolCourseService.list(providerId,providerCode,pageNum,pageSize),"ok");
+        int total = schoolCourseService.count(providerId,providerCode,isFreeze);
+        return  new ListResponse(true,pageSize,total,schoolCourseService.list(providerId,providerCode, isFreeze,pageNum,pageSize),"ok");
     }
 
     @RequestMapping(value = "/delete",method = RequestMethod.POST)

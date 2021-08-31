@@ -12,13 +12,13 @@ import java.util.List;
  */
 public interface SchoolInstitutionService {
 
-    List<SchoolInstitutionDTO> listSchoolInstitutionDTO(String name, String type, String code,  int pageNum, int pageSize);
+    List<SchoolInstitutionDTO> listSchoolInstitutionDTO(String name, String type, String code, Boolean isFreeze, int pageNum, int pageSize);
 
     SchoolInstitutionDTO getSchoolInstitutionById(Integer id);
 
     SchoolInstitutionDTO getSchoolInstitutionByCode(String code);
 
-    int count(String name, String type);
+    int count(String name, String type, Boolean isFreeze);
 
     boolean update(SchoolInstitutionDTO schoolInstitutionDTO);
 

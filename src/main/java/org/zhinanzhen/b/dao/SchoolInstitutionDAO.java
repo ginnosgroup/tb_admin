@@ -13,12 +13,12 @@ import java.util.List;
 public interface SchoolInstitutionDAO {
 
     List<SchoolInstitutionDO> listSchoolInstitutionDO(@Param("name") String name, @Param("type") String type,
-                                                      @Param("code") String code,
+                                                      @Param("code") String code, @Param("isFreeze") Boolean isFreeze,
                                                       @Param("offset") int offset, @Param("rows") int rows);
 
     SchoolInstitutionDO getSchoolInstitutionById(@Param("id") Integer id);
 
-    int count(@Param("name") String name, @Param("type") String type);
+    int count(@Param("name") String name, @Param("type") String type,  @Param("isFreeze") Boolean isFreeze);
 
     boolean update(SchoolInstitutionDO schoolInstitutionDO);
 

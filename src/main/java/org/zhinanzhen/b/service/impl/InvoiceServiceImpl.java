@@ -2,10 +2,12 @@ package org.zhinanzhen.b.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.ikasoa.core.utils.StringUtil;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.controller.BaseCommissionOrderController;
+import org.zhinanzhen.b.dao.CommissionOrderDAO;
 import org.zhinanzhen.b.dao.InvoiceDAO;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.InvoiceService;
@@ -34,6 +36,9 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
 
     @Resource
     private InvoiceDAO invoiceDAO;
+
+    @Resource
+    CommissionOrderDAO commissionOrderDAO;
 
     private static  SimpleDateFormat sdfdob = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
     private static  SimpleDateFormat sdfolddob = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
@@ -535,6 +540,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
         List<InvoiceSchoolDescriptionDO> description = (List<InvoiceSchoolDescriptionDO>) paramMap.get("description");
         checkSchoolDescriptionInstallmentDueDate(description);
         String invoiceDate = (String) paramMap.get("invoiceDate");
+        boolean isContainsCommissionOrder = true;
 
         invoiceDAO.removeInvoiceNumberInCommissionOrder(invoiceNo);
 
@@ -545,21 +551,29 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
         //    return visaIds.get(0) + " 佣金订单已经关联！";
         //}
 
+        for (String id : idList){
+            if (commissionOrderDAO.getCommissionOrderById(StringUtil.toInt(id)) == null){
+                isContainsCommissionOrder = false;
+                break;
+            }
+        }
+        if (isContainsCommissionOrder){
+            int resulti =  invoiceDAO.insertCommissionOrderIdInInvoice(StringUtils.join(idList, ",") , invoiceNo);
+            int resultc = invoiceDAO.relationCommissionOrder(idList , invoiceNo);
 
-        int resulti =  invoiceDAO.insertCommissionOrderIdInInvoice(StringUtils.join(idList, ",") , invoiceNo);
-        int resultc = invoiceDAO.relationCommissionOrder(idList , invoiceNo);
+            List<String> stateList = new ArrayList<>();
+            stateList.add(BaseCommissionOrderController.ReviewKjStateEnum.REVIEW.toString());
+            stateList.add(BaseCommissionOrderController.ReviewKjStateEnum.FINISH.toString());
+            stateList.add(BaseCommissionOrderController.ReviewKjStateEnum.COMPLETE.toString());
+            stateList.add(BaseCommissionOrderController.ReviewKjStateEnum.CLOSE.toString());
+            int resultzydate = invoiceDAO.updateCommissionOrderZyDate(stateList,idList ,invoiceDate);
 
-        List<String> stateList = new ArrayList<>();
-        stateList.add(BaseCommissionOrderController.ReviewKjStateEnum.REVIEW.toString());
-        stateList.add(BaseCommissionOrderController.ReviewKjStateEnum.FINISH.toString());
-        stateList.add(BaseCommissionOrderController.ReviewKjStateEnum.COMPLETE.toString());
-        stateList.add(BaseCommissionOrderController.ReviewKjStateEnum.CLOSE.toString());
-        int resultzydate = invoiceDAO.updateCommissionOrderZyDate(stateList,idList ,invoiceDate);
+            invoiceDAO.deleteDesc(invoiceNo,"SC");
+            invoiceDAO.saveSchoolDescription(description,invoiceNo);
+            if (invoiceDAO.updateSCInvoice(paramMap)>0)
+                return "sucess";
+        }
 
-        invoiceDAO.deleteDesc(invoiceNo,"SC");
-        invoiceDAO.saveSchoolDescription(description,invoiceNo);
-        if (invoiceDAO.updateSCInvoice(paramMap)>0)
-            return "sucess";
         return "fail";
     }
 
