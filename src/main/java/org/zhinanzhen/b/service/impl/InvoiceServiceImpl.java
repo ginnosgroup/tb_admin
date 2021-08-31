@@ -542,7 +542,6 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
         String invoiceDate = (String) paramMap.get("invoiceDate");
         boolean isContainsCommissionOrder = true;
 
-        invoiceDAO.removeInvoiceNumberInCommissionOrder(invoiceNo);
 
         //验证留学佣金订单是否已经绑定过发票
         //List<Integer> visaIds = invoiceDAO.selectVisaId(idList,"SC");
@@ -558,6 +557,8 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
             }
         }
         if (isContainsCommissionOrder){
+            invoiceDAO.removeInvoiceNumberInCommissionOrder(invoiceNo);
+
             int resulti =  invoiceDAO.insertCommissionOrderIdInInvoice(StringUtils.join(idList, ",") , invoiceNo);
             int resultc = invoiceDAO.relationCommissionOrder(idList , invoiceNo);
 
