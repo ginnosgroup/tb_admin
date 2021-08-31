@@ -964,7 +964,8 @@ function invoice_edit(invoiceNo,invoiceIds)
 										studentId: '<input type="text" class="form-control small" style="width:80px;" id="tc" value="'+response.invoiceSchoolDescriptionDOS[i].studentId+'">',
 										course: '<textarea class="form-control" style="width:150px;" id="td">'+response.invoiceSchoolDescriptionDOS[i].course+'</textarea>',
 										startDate: '<input type="text" class="form-control small default-date-picker" style="width:110px;" id="te" value="'+v.getTime(response.invoiceSchoolDescriptionDOS[i].startDate)+'">',
-										instalMent: '<select class="form-control small" style="width:80px;" id="tf"><option value=\'1\'>1</option><option value=\'2\'>2</option><option value=\'3\'>3</option><option value=\'4\'>4</option><option value=\'5\'>5</option><option value=\'6\'>6</option><option value=\'7\'>7</option><option value=\'8\'>8</option><option value=\'9\'>9</option><option value=\'10\'>10</option><option value=\'11\'>11</option><option value=\'12\'>12</option></select>',
+										//instalMent: '<select class="form-control small" style="width:80px;" id="tf"><option value=\'1\'>1</option><option value=\'2\'>2</option><option value=\'3\'>3</option><option value=\'4\'>4</option><option value=\'5\'>5</option><option value=\'6\'>6</option><option value=\'7\'>7</option><option value=\'8\'>8</option><option value=\'9\'>9</option><option value=\'10\'>10</option><option value=\'11\'>11</option><option value=\'12\'>12</option></select>',
+										instalMent: setInstalMent(response.invoiceSchoolDescriptionDOS[i].instalMent),
 										nonTuitionFee: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="tk" value="'+response.invoiceSchoolDescriptionDOS[i].nonTuitionFee+'">',
 										tuitionFee: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="tg" value="'+response.invoiceSchoolDescriptionDOS[i].tuitionFee+'">',
 										commissionrate: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="th" value="'+response.invoiceSchoolDescriptionDOS[i].commissionrate+'">',
@@ -972,7 +973,7 @@ function invoice_edit(invoiceNo,invoiceIds)
 										bonus: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="tj" onkeyup="total_withgst_normal();" value="'+response.invoiceSchoolDescriptionDOS[i].bonus+'">',										
 									});
 									//选中quantity
-									$("#addovst_id #d"+tindex+" #tf").val(response.invoiceSchoolDescriptionDOS[i].instalMent);
+									//$("#addovst_id #d"+tindex+" #tf").val(response.invoiceSchoolDescriptionDOS[i].instalMent);
 									v_sub_taxinvoice.row_nums_normal++;													
 				    	}
 				    	v_sub_taxinvoice.bind_total_normal = 1;
@@ -997,12 +998,13 @@ function invoice_edit(invoiceNo,invoiceIds)
 										studentId: '<input type="text" class="form-control small" style="width:80px;" id="tc" value="'+response.invoiceSchoolDescriptionDOS[i].studentId+'">',
 										course: '<textarea class="form-control" style="width:150px;" id="td">'+response.invoiceSchoolDescriptionDOS[i].course+'</textarea>',
 										startDate: '<input type="text" class="form-control small default-date-picker" style="width:110px;" id="te" value="'+v.getTime(response.invoiceSchoolDescriptionDOS[i].startDate)+'">',
-										instalMent: '<select class="form-control small" style="width:80px;" id="tf"><option value=\'1\'>1</option><option value=\'2\'>2</option><option value=\'3\'>3</option><option value=\'4\'>4</option><option value=\'5\'>5</option><option value=\'6\'>6</option><option value=\'7\'>7</option><option value=\'8\'>8</option><option value=\'9\'>9</option><option value=\'10\'>10</option><option value=\'11\'>11</option><option value=\'12\'>12</option></select>',
+										//instalMent: '<select class="form-control small" style="width:80px;" id="tf"><option value=\'1\'>1</option><option value=\'2\'>2</option><option value=\'3\'>3</option><option value=\'4\'>4</option><option value=\'5\'>5</option><option value=\'6\'>6</option><option value=\'7\'>7</option><option value=\'8\'>8</option><option value=\'9\'>9</option><option value=\'10\'>10</option><option value=\'11\'>11</option><option value=\'12\'>12</option></select>',
+										instalMent: setInstalMent(response.invoiceSchoolDescriptionDOS[i].instalMent),
 										tuitionFee: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="tg" value="'+response.invoiceSchoolDescriptionDOS[i].tuitionFee+'">',						
 										marketing: '<input type="text" autocomplete="off" class="form-control small" style="width:100px;" id="th" onkeyup="total_withgst_markteting()" value="'+response.invoiceSchoolDescriptionDOS[i].marketing+'">',								
 									});
 									//选中quantity
-									$("#addovst_id #d"+tindex+" #tf").val(response.invoiceSchoolDescriptionDOS[i].instalMent);
+									//$("#addovst_id #d"+tindex+" #tf").val(response.invoiceSchoolDescriptionDOS[i].instalMent);
 									v_sub_taxinvoice.row_nums_markteting++;
 				    	}
 				    	v_sub_taxinvoice.bind_total_markteting = 1;
@@ -1010,6 +1012,49 @@ function invoice_edit(invoiceNo,invoiceIds)
     			$('#addovst_id').modal('show');
     	}
     });		
+}
+
+function setInstalMent(val)
+{
+		var str_html = '<select class="form-control small" style="width:80px;" id="tf">';
+		str_html += '<option';
+		if (val == '1') str_html += ' SELECTED ';
+		str_html += 'value=\'1\'>1</option>';
+		str_html += '<option';
+		if (val == '2') str_html += ' SELECTED ';
+		str_html += 'value=\'2\'>2</option>';
+		str_html += '<option';
+		if (val == '3') str_html += ' SELECTED ';
+		str_html += 'value=\'3\'>3</option>';
+		str_html += '<option';
+		if (val == '4') str_html += ' SELECTED ';
+		str_html += 'value=\'4\'>4</option>';
+		str_html += '<option';
+		if (val == '5') str_html += ' SELECTED ';
+		str_html += 'value=\'5\'>5</option>';
+		str_html += '<option';
+		if (val == '6') str_html += ' SELECTED ';
+		str_html += 'value=\'6\'>6</option>';
+		str_html += '<option';
+		if (val == '7') str_html += ' SELECTED ';
+		str_html += 'value=\'7\'>7</option>';
+		str_html += '<option';
+		if (val == '8') str_html += ' SELECTED ';
+		str_html += 'value=\'8\'>8</option>';
+		str_html += '<option';
+		if (val == '9') str_html += ' SELECTED ';
+		str_html += 'value=\'9\'>9</option>';
+		str_html += '<option';
+		if (val == '10') str_html += ' SELECTED ';
+		str_html += 'value=\'10\'>10</option>';
+		str_html += '<option';
+		if (val == '11') str_html += ' SELECTED ';
+		str_html += 'value=\'11\'>11</option>';
+		str_html += '<option';
+		if (val == '12') str_html += ' SELECTED ';
+		str_html += 'value=\'12\'>12</option>';
+		str_html += '</select>';
+		return str_html;				
 }
 
 v_sub_taxinvoice.$watch('addservicefee_id', function(obj) {
