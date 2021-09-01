@@ -6,11 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -826,6 +822,7 @@ public class VisaController extends BaseCommissionOrderController {
 			}
 			WritableSheet sheet = wbe.getSheet(0);
 			WritableCellFormat cellFormat = new WritableCellFormat();
+			sdf.setTimeZone(TimeZone.getTimeZone("GMT+10:00"));
 
 			int i = 1;
 			for (VisaDTO visaDto : list) {
