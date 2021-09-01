@@ -755,6 +755,8 @@ public class VisaController extends BaseCommissionOrderController {
 		if (regionId != null && regionId > 0)
 			regionIdList = ListUtil.buildArrayList(regionId);
 
+		sdf.setTimeZone(TimeZone.getTimeZone("GMT+10:00"));
+
 		try {
 
 			// 处理顾问管理员
@@ -822,7 +824,6 @@ public class VisaController extends BaseCommissionOrderController {
 			}
 			WritableSheet sheet = wbe.getSheet(0);
 			WritableCellFormat cellFormat = new WritableCellFormat();
-			sdf.setTimeZone(TimeZone.getTimeZone("GMT+10:00"));
 
 			int i = 1;
 			for (VisaDTO visaDto : list) {
