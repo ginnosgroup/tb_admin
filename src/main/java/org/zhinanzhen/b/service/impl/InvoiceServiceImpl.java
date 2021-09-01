@@ -586,7 +586,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
         }
         for (InvoiceSchoolDescriptionDO invoiceSchoolDescriptionDO : _description)  {
             if (invoiceSchoolDescriptionDO.getInstallmentDueDate() == null || ymdsdf.format(invoiceSchoolDescriptionDO.getInstallmentDueDate()).equalsIgnoreCase(STR1900)){
-                throw  new ServiceException("installment due date 时间错误!") ;
+                //throw  new ServiceException("installment due date 时间错误!") ;
             }
         }
     }
