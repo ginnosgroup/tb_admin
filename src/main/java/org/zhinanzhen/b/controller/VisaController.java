@@ -877,6 +877,22 @@ public class VisaController extends BaseCommissionOrderController {
 		}
 	}
 
+	@RequestMapping(value = "/get2", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<VisaDTO>> getVisa2(@RequestParam(value = "idList") String idList, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			List<VisaDTO> visaList = new ArrayList<>();
+			String [] idArr = idList.split(",");
+			for (String id : idArr){
+				visaList.add(visaService.getVisaById(StringUtil.toInt(id)));
+			}
+			return new Response<List<VisaDTO>>(0, visaList);
+		} catch (ServiceException e) {
+			return new Response<List<VisaDTO>>(1, e.getMessage(), null);
+		}
+	}
+
 	@RequestMapping(value = "/close", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<Integer> closeVisa(@RequestParam(value = "id") int id, HttpServletResponse response) {
