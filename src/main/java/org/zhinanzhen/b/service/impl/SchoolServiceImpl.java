@@ -458,11 +458,14 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 				String parameters = schoolSettingDO.getParameters();
 				if (type == 1 || type == 2){
 					String[] _parameters = parameters.split("[|]");
-					return _parameters[0] + "%";
+					return "0." + _parameters[0];
 				}
 				if (type == 4){
 					String[] _parameters = parameters.split("[|]");
-					return _parameters[1].split("/")[0] + "%";
+					return "0." + _parameters[1].split("/")[0] ;
+				}
+				if (type == 7){
+					return parameters ;
 				}
 			}
 		}
