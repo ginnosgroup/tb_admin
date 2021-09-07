@@ -1182,6 +1182,24 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		}
 	}
 
+	@RequestMapping(value = "/get2", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<CommissionOrderListDTO>> get2(@RequestParam(value = "idList") String idList [], HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			List<CommissionOrderListDTO> commissionOrderListDTOList = new ArrayList<>();
+			for (String id : idList ){
+				CommissionOrderListDTO commissionOrderListDTO = commissionOrderService.getCommissionOrderById(StringUtil.toInt(id));
+				if (commissionOrderListDTO == null)
+					return new Response<List<CommissionOrderListDTO>>(1,"佣金订单不存在 id : " + id, null);
+				commissionOrderListDTOList.add(commissionOrderListDTO);
+			}
+			return new Response<List<CommissionOrderListDTO>>(0, commissionOrderListDTOList );
+		} catch (ServiceException e) {
+			return new Response<List<CommissionOrderListDTO>>(1, e.getMessage(), null);
+		}
+	}
+
 	@RequestMapping(value = "/approval", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<CommissionOrderListDTO> approval(@RequestParam(value = "id") int id,
