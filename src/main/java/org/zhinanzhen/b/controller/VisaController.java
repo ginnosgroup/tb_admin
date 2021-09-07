@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.VisaService;
+import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.VisaCommentDTO;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
@@ -879,13 +880,15 @@ public class VisaController extends BaseCommissionOrderController {
 
 	@RequestMapping(value = "/get2", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<VisaDTO>> getVisa2(@RequestParam(value = "idList") String idList, HttpServletResponse response) {
+	public Response<List<VisaDTO>> getVisa2(@RequestParam(value = "idList") String idList [], HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
 			List<VisaDTO> visaList = new ArrayList<>();
-			String [] idArr = idList.split(",");
-			for (String id : idArr){
-				visaList.add(visaService.getVisaById(StringUtil.toInt(id)));
+			for (String id : idList){
+				VisaDTO visaDTO = visaService.getVisaById(StringUtil.toInt(id));
+				if (visaDTO == null)
+					return new Response<List<VisaDTO>>(1,"佣金订单不存在 id : " + id, null);
+				visaList.add(visaDTO);
 			}
 			return new Response<List<VisaDTO>>(0, visaList);
 		} catch (ServiceException e) {
