@@ -21,4 +21,6 @@ public class SchoolAttachmentsDO implements Serializable {
 
 	private String remarks = "";
 
+	private int providerId;
+
 }

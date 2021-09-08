@@ -14,4 +14,5 @@ public interface SchoolAttachmentsDAO {
 	
 	int deleteBySchoolName(String schoolName);
 
+    List<SchoolAttachmentsDO> listByProviderId(int providerId);
 }

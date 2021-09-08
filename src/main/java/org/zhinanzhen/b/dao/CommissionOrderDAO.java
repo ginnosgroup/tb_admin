@@ -82,4 +82,8 @@ public interface CommissionOrderDAO {
 	List<CommissionOrderDO> listCommissionOrderInstallmentDueDate();
 
 	int updateCommissionOrderByServiceOrderId(CommissionOrderDO commissionOrderDo);
+
+	List<CommissionOrderListDO> listCommissionOrderByCourse(@Param("providerId") Integer providerId, @Param("courseLevel") String courseLevel ,
+														@Param("courseId") Integer courseId,
+														@Param("startDate") Date startDate, @Param("endDate") Date endDate);
 }

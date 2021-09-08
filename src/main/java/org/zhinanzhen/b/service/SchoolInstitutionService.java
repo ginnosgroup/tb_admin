@@ -1,6 +1,9 @@
 package org.zhinanzhen.b.service;
 
+import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.b.service.pojo.SchoolInstitutionDTO;
+import org.zhinanzhen.b.service.pojo.SchoolSettingNewDTO;
+import org.zhinanzhen.tb.service.ServiceException;
 
 import java.util.List;
 
@@ -25,4 +28,16 @@ public interface SchoolInstitutionService {
     int add(SchoolInstitutionDTO schoolInstitutionDTO);
 
     boolean delete(int id);
+
+    int addSetting(SchoolSettingNewDTO schoolSettingNewDTO);
+
+    SchoolSettingNewDTO getByProviderIdAndLevel(int providerId, Integer level, String courseLevel, Integer courseId);
+
+    int updateSetting(SchoolSettingNewDTO schoolSettingNewDTO) throws ServiceException;
+
+    int deleteSetting(int id) throws ServiceException;
+
+    int updateSchoolAttachments(int providerId, String contractFile1, String contractFile2, String contractFile3, String remarks) throws ServiceException;
+
+    public int updateSchoolSetting(CommissionOrderListDTO commissionOrderListDto) throws ServiceException;
 }

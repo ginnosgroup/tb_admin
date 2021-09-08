@@ -24,10 +24,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import org.zhinanzhen.b.service.CommissionOrderService;
-import org.zhinanzhen.b.service.SchoolService;
-import org.zhinanzhen.b.service.ServiceOrderService;
-import org.zhinanzhen.b.service.SubagencyService;
+import org.zhinanzhen.b.service.*;
 import org.zhinanzhen.b.service.pojo.CommissionOrderCommentDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
@@ -76,6 +73,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 	@Resource
 	RegionService regionService;
+
+	@Resource
+	SchoolInstitutionService schoolInstitutionService;
 
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -276,7 +276,11 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					serviceOrderService.updateServiceOrder(serviceOrderDto); // 同时更改服务订单状态
 					commissionOrderDtoList.add(commissionOrderDto);
 					CommissionOrderListDTO commissionOrderListDto = commissionOrderService.getCommissionOrderById(id);
-					int i = schoolService.updateSchoolSetting(commissionOrderListDto); // 根据学校设置更新佣金值
+					int i = 0;
+					if (commissionOrderListDto.getSchoolId() > 0)
+						i = schoolService.updateSchoolSetting(commissionOrderListDto); // 根据学校设置更新佣金值
+					else
+						i = schoolInstitutionService.updateSchoolSetting(commissionOrderListDto);
 					if (i > 0) {
 					} else if (i == -1)
 						msg += id + "计算失败. (佣金记录不存在);";

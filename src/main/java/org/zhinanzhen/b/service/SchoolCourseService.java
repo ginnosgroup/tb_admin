@@ -13,7 +13,8 @@ import java.util.List;
  */
 public interface SchoolCourseService {
 
-    List<SchoolCourseDTO> list(Integer providerId, String providerCode,Boolean isFreeze, int pageNum, int pageSize);
+    List<SchoolCourseDTO> list(Integer providerId, String providerCode,Boolean isFreeze,
+                               String courseLevel, String courseCode, int pageNum, int pageSize);
 
     int count(Integer providerId, String providerCode, Boolean isFreeze);
 

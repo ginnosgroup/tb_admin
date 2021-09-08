@@ -2,6 +2,7 @@ package org.zhinanzhen.b.service.pojo;
 
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -41,4 +42,10 @@ public class SchoolInstitutionDTO {
     private List<SchoolCourseDTO> schoolCourseDTOS;
 
     private List<SchoolInstitutionLocationDTO> schoolInstitutionLocationDTOS;
+
+    private SchoolAttachmentsDTO schoolAttachments ;
+
+    private List<SchoolSettingNewDTO> schoolSettingList = new ArrayList<>();
+
+    private List<SchoolSettingNewDTO> historySchoolSettingList = new ArrayList<>();
 }

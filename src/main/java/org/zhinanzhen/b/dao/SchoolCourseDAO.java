@@ -15,6 +15,7 @@ public interface SchoolCourseDAO {
 
     List<SchoolCourseDO> listSchoolCourse(@Param("providerId") Integer providerId,@Param("providerCode") String providerCode,
                                           @Param("isFreeze") Boolean isFreeze,
+                                          @Param("courseLevel") String courseLevel, @Param("courseCode") String courseCode,
                                           @Param("offset") Integer offset,@Param("rows") Integer rows);
 
     SchoolCourseDO schoolCourseById(int id);

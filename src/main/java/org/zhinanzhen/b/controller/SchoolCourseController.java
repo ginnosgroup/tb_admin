@@ -36,7 +36,8 @@ public class SchoolCourseController extends BaseController {
             return new ListResponse(true, pageSize, 1, schoolCourseService.schoolCourseById(id), "ok");
         }
         int total = schoolCourseService.count(providerId,providerCode,isFreeze);
-        return  new ListResponse(true,pageSize,total,schoolCourseService.list(providerId,providerCode, isFreeze,pageNum,pageSize),"ok");
+        return  new ListResponse(true,pageSize,total,schoolCourseService.list(providerId,providerCode, isFreeze,
+                null, null, pageNum,pageSize),"ok");
     }
 
     @RequestMapping(value = "/delete",method = RequestMethod.POST)

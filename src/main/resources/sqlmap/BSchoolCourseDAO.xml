@@ -21,6 +21,12 @@
             <if test='providerCode != null and providerCode != ""'>
                 and provider_code = #{providerCode}
             </if>
+            <if test='courseLevel != null and courseLevel != ""'>
+                AND course_level = #{courseLevel}
+            </if>
+            <if test='courseCode != null and courseCode != ""'>
+                AND course_code = #{courseCode}
+            </if>
             <if test="isFreeze != null">
                 AND is_freeze = #{isFreeze}
             </if>

@@ -29,6 +29,8 @@ public class CommissionOrderDTO {
 
 	private int schoolId;
 
+	private int courseId;
+
 	private String studentCode;
 
 	private int userId;

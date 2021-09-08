@@ -30,6 +30,8 @@ public class CommissionOrderDO implements Serializable {
 
 	private int schoolId;
 
+	private int courseId;
+
 	private String studentCode;
 
 	private int userId;
