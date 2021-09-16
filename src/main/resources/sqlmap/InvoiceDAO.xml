@@ -33,7 +33,7 @@
                 and state  like  "%"#{state}
 
         </where>
-        order by gmt_create desc  limit #{pageNum} ,#{pageSize} ;
+        order by gmt_create_1 desc  limit #{pageNum} ,#{pageSize} ;
     </select>
     <select id="selectScoolInvoice" resultType="org.zhinanzhen.b.service.pojo.InvoiceDTO">
         select
@@ -64,7 +64,7 @@
             </if>
             and state  like  "%"#{state}
         </where>
-        order by gmt_create desc  limit #{pageNum} ,#{pageSize} ;
+        order by gmt_create_1 desc  limit #{pageNum} ,#{pageSize} ;
     </select>
 
     <select id="selectSFCount" resultType="java.lang.Integer">

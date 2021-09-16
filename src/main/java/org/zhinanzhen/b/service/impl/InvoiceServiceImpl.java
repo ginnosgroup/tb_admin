@@ -2,6 +2,9 @@ package org.zhinanzhen.b.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
+import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.StringUtil;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
@@ -581,8 +584,18 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
     private void checkSchoolDescriptionInstallmentDueDate(List<InvoiceSchoolDescriptionDO> description) throws ServiceException {
         JSONArray jsonArray = JSONArray.parseArray(JSON.toJSONString(description));
         List<InvoiceSchoolDescriptionDO> _description = new ArrayList<>();
-        for (int i = 0 ; i < jsonArray.size() ; i++ ){
-            _description.add(JSON.parseObject(JSON.toJSONString(jsonArray.get(i)),InvoiceSchoolDescriptionDO.class));
+        int num = jsonArray.size();
+        for (int i = 0 ; i < num ; i++ ){
+            JSONObject jsonObject = JSONObject.parseObject(JSON.toJSONString(jsonArray.get(i)));
+            if (String.valueOf(jsonObject.get("dob")).equals(" 00:00:00"))
+                throw  new ServiceException("dob 时间错误," + jsonObject.get("dob")) ;
+            try {
+                _description.add(JSON.parseObject(JSON.toJSONString(jsonArray.get(i)),InvoiceSchoolDescriptionDO.class));
+            }catch (JSONException e){
+                ServiceException se = new ServiceException("Description 栏 时间输入错误:" + e.getMessage());
+                se.setCode(ErrorCodeEnum.DATA_ERROR.code());
+                throw  se ;
+            }
         }
         for (InvoiceSchoolDescriptionDO invoiceSchoolDescriptionDO : _description)  {
             if (invoiceSchoolDescriptionDO.getInstallmentDueDate() == null || ymdsdf.format(invoiceSchoolDescriptionDO.getInstallmentDueDate()).equalsIgnoreCase(STR1900)){
