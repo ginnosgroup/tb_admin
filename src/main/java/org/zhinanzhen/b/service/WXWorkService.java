@@ -35,4 +35,6 @@ public interface WXWorkService {
 
     ChatDO ChatDOByServiceOrderId(@Param("serviceOrderId") int serviceOrderId);
 
+    void createChat(int serviceOrderId , String token);
+
 }

@@ -6,24 +6,23 @@ import com.ikasoa.core.utils.StringUtil;
 import org.apache.commons.lang.RandomStringUtils;
 import org.dozer.DozerBeanMapper;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.WXWorkService;
 import org.zhinanzhen.b.service.pojo.ChatDTO;
-import org.zhinanzhen.tb.controller.BaseController;
+import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.RegionDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
+import org.zhinanzhen.tb.dao.pojo.AdminUserDO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.dao.pojo.RegionDO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.utils.WXWorkAPI;
 import javax.annotation.Resource;
-import javax.servlet.http.HttpSession;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -64,6 +63,16 @@ public class WXWorkServiceImpl implements WXWorkService {
 
     @Resource
     private WXWorkDAO wxWorkDAO;
+
+    @Resource
+    private AdminUserDAO adminUserDao;
+
+    @Resource
+    private MaraDAO maraDao;
+
+    @Resource
+    private OfficialDAO officialDao;
+
 
     private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
@@ -219,6 +228,70 @@ public class WXWorkServiceImpl implements WXWorkService {
     public Map JSONObjectToMap(JSONObject json){
         Map<String, Object> map = JSON.parseObject(JSON.toJSONString(json), Map.class);
         return map;
+    }
+
+    /**
+     * 这个方法
+     * @param serviceOrderId
+     */
+    public  void createChat(int serviceOrderId , String token) {
+        List<String> userList = new ArrayList<>();
+        JSONObject parm = new JSONObject();
+        ChatDO chatDO = new ChatDO();
+        ServiceOrderDO serviceOrderDO = serviceOrderDAO.getServiceOrderById(serviceOrderId);
+        if (serviceOrderDO != null){
+            chatDO.setServiceOrderId(serviceOrderDO.getParentId() > 0 ? serviceOrderDO.getParentId() : serviceOrderId);//SIV子订单，存SIV的id
+            chatDO.setUserId(serviceOrderDO.getUserId());
+            AdviserDO adviserDO =  adviserDAO.getAdviserById(serviceOrderDO.getAdviserId());
+            if (adviserDO != null){
+                chatDO.setAdviserId(adviserDO.getId());
+                AdminUserDO adminUserDO =  adminUserDao.getAdminUserByUsername(adviserDO.getEmail());
+                if (adminUserDO != null)
+                    if ( StringUtil.isNotEmpty(adminUserDO.getOperUserId())){
+                        userList.add(adminUserDO.getOperUserId());
+                        parm.put("owner",adminUserDO.getOperUserId());
+                    }
+            }
+            OfficialDO officialDO =  officialDao.getOfficialById(serviceOrderDO.getOfficialId());
+            if (officialDO != null){
+                chatDO.setOfficialId(officialDO.getId());
+                AdminUserDO adminUserDO =  adminUserDao.getAdminUserByUsername(officialDO.getEmail());
+                if (adminUserDO != null)
+                    if ( StringUtil.isNotEmpty(adminUserDO.getOperUserId()))
+                        userList.add(adminUserDO.getOperUserId());
+            }
+            MaraDO maraDO =  maraDao.getMaraById(serviceOrderDO.getMaraId());
+            if (maraDO != null){
+                chatDO.setMaraId(maraDO.getId());
+                AdminUserDO adminUserDO =  adminUserDao.getAdminUserByUsername(maraDO.getEmail());
+                if (adminUserDO != null)
+                    if ( StringUtil.isNotEmpty(adminUserDO.getOperUserId()) & serviceOrderDO.getType().equalsIgnoreCase("VISA"))
+                        userList.add(adminUserDO.getOperUserId());
+            }
+            ServiceDO serviceDO = serviceDAO.getServiceById(serviceOrderDO.getServiceId());
+            if (serviceDO != null)
+                parm.put("name",StringUtil.merge("服务订单",chatDO.getServiceOrderId(),"服务项目:",serviceDO.getName(),"-",serviceDO.getCode()) );
+            userList.add("elvinhe");
+            userList.add("paul");
+            parm.put("userlist",userList);
+            parm.put("chatid","ZNZ"+serviceOrderDO.getId());
+        }
+        JSONObject json =  WXWorkAPI.sendPostBody_Map(WXWorkAPI.CREATECHAT.replace("ACCESS_TOKEN",token),parm);
+        System.out.println(parm.get("chatid") + "群聊创建返回信息：" + json);
+        Map<String,Object> result = JSON.parseObject(JSON.toJSONString(json), Map.class);
+        if ((int)result.get("errcode") == 0){	//群聊创建成功之后，发送第一条消息
+            chatDO.setChatId("ZNZ" + serviceOrderDO.getId());
+            int re = wxWorkDAO.addChat(chatDO);
+            JSONObject msgParm = new JSONObject();
+            JSONObject content = new JSONObject();
+            msgParm.put("chatid",result.get("chatid"));
+            msgParm.put("msgtype","text");
+            content.put("content","这里是订单编号为:" + chatDO.getServiceOrderId() + "的群聊,请顾问拉客户进群，进群后接下来请文案对接资料。");
+            msgParm.put("text",content);
+            msgParm.put("safe",0);
+            JSONObject sendFirstMsgResultJson =  WXWorkAPI.sendPostBody_Map(WXWorkAPI.SENDMESSAGE.replace("ACCESS_TOKEN",token),msgParm);
+            System.out.println(chatDO.getChatId() + "发送第一条消息返回信息:" + sendFirstMsgResultJson);
+        }
     }
 
 }

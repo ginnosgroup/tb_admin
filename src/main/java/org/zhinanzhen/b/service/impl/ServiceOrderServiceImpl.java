@@ -1517,66 +1517,6 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		return adviserServiceCountTs;
 	}
 
-	/**
-	 * 这个方法
-	 * @param serviceOrderId
-	 */
-	public  void createChat(int serviceOrderId , String token) {
-		List<String> userList = new ArrayList<>();
-		JSONObject parm = new JSONObject();
-		ChatDO chatDO = new ChatDO();
-		ServiceOrderDO serviceOrderDO = serviceOrderDao.getServiceOrderById(serviceOrderId);
-		if (serviceOrderDO != null){
-			chatDO.setServiceOrderId(serviceOrderId);
-			chatDO.setUserId(serviceOrderDO.getUserId());
-			AdviserDO adviserDO =  adviserDao.getAdviserById(serviceOrderDO.getAdviserId());
-			if (adviserDO != null){
-				chatDO.setAdviserId(adviserDO.getId());
-				AdminUserDO adminUserDO =  adminUserDao.getAdminUserByUsername(adviserDO.getEmail());
-				if (adminUserDO != null)
-					if ( StringUtil.isNotEmpty(adminUserDO.getOperUserId())){
-						userList.add(adminUserDO.getOperUserId());
-						parm.put("owner",adminUserDO.getOperUserId());
-					}
-			}
-			OfficialDO officialDO =  officialDao.getOfficialById(serviceOrderDO.getOfficialId());
-			if (officialDO != null){
-				chatDO.setOfficialId(officialDO.getId());
-				AdminUserDO adminUserDO =  adminUserDao.getAdminUserByUsername(officialDO.getEmail());
-				if (adminUserDO != null)
-					if ( StringUtil.isNotEmpty(adminUserDO.getOperUserId()))
-						userList.add(adminUserDO.getOperUserId());
-			}
-			MaraDO maraDO =  maraDao.getMaraById(serviceOrderDO.getMaraId());
-			if (maraDO != null){
-				chatDO.setMaraId(maraDO.getId());
-				AdminUserDO adminUserDO =  adminUserDao.getAdminUserByUsername(maraDO.getEmail());
-				if (adminUserDO != null)
-					if ( StringUtil.isNotEmpty(adminUserDO.getOperUserId()) & serviceOrderDO.getType().equalsIgnoreCase("VISA"))
-						userList.add(adminUserDO.getOperUserId());
-			}
-			parm.put("userlist",userList);
-			parm.put("name","服务订单" + serviceOrderDO.getId() + "的群聊");
-			parm.put("chatid","ZNZ"+serviceOrderDO.getId());
-		}
-		//ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
-		//HttpSession session=attr.getRequest().getSession(true);
-		//String token = (String) session.getAttribute("corpToken" + BaseController.VERSION); // TODO:小包  不要在Service层依赖Session，有时间把这几行代码移到Controller层
-		JSONObject json =  WXWorkAPI.sendPostBody_Map(WXWorkAPI.CREATECHAT.replace("ACCESS_TOKEN",token),parm);// TODO:磊哥 好的，我的代码还有哪里不规范的，麻烦你帮我指出来
-		Map<String,Object> result = JSON.parseObject(JSON.toJSONString(json), Map.class);
-		if ((int)result.get("errcode") == 0){
-			chatDO.setChatId("ZNZ"+serviceOrderDO.getId());
-			int re = wxWorkDAO.addChat(chatDO);
-			JSONObject msgParm = new JSONObject();
-			JSONObject content = new JSONObject();
-			msgParm.put("chatid",result.get("chatid"));
-			msgParm.put("msgtype","text");
-			content.put("content","这里是订单编号为:" + serviceOrderDO.getId() + "的群聊");
-			msgParm.put("text",content);
-			msgParm.put("safe",0);
-			JSONObject sendFirstMsgResultJson =  WXWorkAPI.sendPostBody_Map(WXWorkAPI.SENDMESSAGE.replace("ACCESS_TOKEN",token),msgParm);
-		}
-	}
 
 	private String getPeopleTypeStr(String peopleType) {
 		if ("1A".equalsIgnoreCase(peopleType))
