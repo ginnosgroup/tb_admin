@@ -14,8 +14,8 @@ import java.util.List;
 public interface SchoolCourseDAO {
 
     List<SchoolCourseDO> listSchoolCourse(@Param("providerId") Integer providerId,@Param("providerCode") String providerCode,
-                                          @Param("isFreeze") Boolean isFreeze,
-                                          @Param("courseLevel") String courseLevel, @Param("courseCode") String courseCode,
+                                          @Param("isFreeze") Boolean isFreeze, @Param("courseLevel") String courseLevel,
+                                          @Param("courseName") String courseName,@Param("courseCode") String courseCode,
                                           @Param("offset") Integer offset,@Param("rows") Integer rows);
 
     SchoolCourseDO schoolCourseById(int id);
@@ -29,4 +29,6 @@ public interface SchoolCourseDAO {
     int add(SchoolCourseDO schoolCourseDO);
 
     boolean update(SchoolCourseDO schoolCourseDO);
+
+    List<String> getCourseLevelList(int providerId);
 }

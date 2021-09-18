@@ -24,6 +24,9 @@
             <if test='courseLevel != null and courseLevel != ""'>
                 AND course_level = #{courseLevel}
             </if>
+            <if test='courseName != null and courseName != ""'>
+                AND course_name LIKE  "%"#{courseName}"%"
+            </if>
             <if test='courseCode != null and courseCode != ""'>
                 AND course_code = #{courseCode}
             </if>
@@ -118,4 +121,11 @@
         </if>
         WHERE id = #{id};
     </update>
+
+    <select id="getCourseLevelList" resultType="java.lang.String">
+        SELECT
+        course_level
+        FROM
+        b_school_course WHERE provider_id = #{providerId} GROUP BY course_level;
+    </select>
 </mapper>

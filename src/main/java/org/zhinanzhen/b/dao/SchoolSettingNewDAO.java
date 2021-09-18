@@ -21,4 +21,6 @@ public interface SchoolSettingNewDAO {
                                                @Param("isDelete")Boolean isDelete);
 
     int delete(int id);
+
+    SchoolSettingNewDO getSchoolSettingNewById(int id);
 }

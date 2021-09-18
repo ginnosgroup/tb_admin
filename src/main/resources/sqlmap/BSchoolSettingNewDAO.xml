@@ -108,4 +108,25 @@
         UPDATE b_school_setting_new SET is_delete = true WHERE id = #{id};
     </update>
 
+    <select id="getSchoolSettingNewById" resultType="org.zhinanzhen.b.dao.pojo.SchoolSettingNewDO">
+        SELECT id,
+        gmt_create AS gmtCreate,
+        gmt_modify AS gmtModify,
+        type,
+        start_date AS startCreate,
+        end_date AS endCreate,
+        parameters,
+        level,
+        first_register AS firstRegister,
+        register_fee AS registerFee,
+        book_fee AS bookFee,
+        first_book AS firstBook,
+        provider_id AS providerId,
+        course_level AS courseLevel,
+        course_id AS courseId,
+        is_delete AS isDelete
+        FROM b_school_setting_new
+        WHERE is_delete = false AND id = #{id};
+    </select>
+
 </mapper>

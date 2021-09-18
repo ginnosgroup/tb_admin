@@ -166,6 +166,8 @@ public class SchoolInstitutionController extends BaseController {
         } else if (schoolSettingNewDTO.getLevel() == 3){
             if (schoolSettingNewDTO.getCourseId() == null)
                 return new Response(1, "设置专业级别RATE,Course Id 不能为空");
+            if (schoolInstitutionService.getSchoolSettingNewById(schoolSettingNewDTO.getId()) == null)
+                return new Response(1, "没有这个佣金规则 id :" + schoolSettingNewDTO.getId());
             if (schoolCourseService.schoolCourseById(schoolSettingNewDTO.getCourseId()) == null)
                 return new Response(1, "不存在此专业或者此专业被冻结：" + schoolSettingNewDTO.getCourseId());
             _schoolSettingNewDTO = schoolInstitutionService.getByProviderIdAndLevel(schoolSettingNewDTO.getProviderId(), 3 , null , schoolSettingNewDTO.getCourseId());
@@ -241,10 +243,7 @@ public class SchoolInstitutionController extends BaseController {
         Response rs;
         if ((  rs = lookschoolSettingLevel(schoolSettingNewDTO)) != null)
             return rs;
-        if (schoolInstitutionService.addSetting(schoolSettingNewDTO) > 0)
-            return new Response(0, "success");
         return new Response(1, "fail");
-
     }
 
     // 固定比例-每人补贴
@@ -294,8 +293,6 @@ public class SchoolInstitutionController extends BaseController {
         Response rs;
         if ((  rs = lookschoolSettingLevel(schoolSettingNewDTO)) != null)
             return rs;
-        if (schoolInstitutionService.addSetting(schoolSettingNewDTO) > 0)
-            return new Response(0, "success");
         return new Response(1, "fail");
     }
 
@@ -330,9 +327,7 @@ public class SchoolInstitutionController extends BaseController {
         Response rs;
         if ((  rs = lookschoolSettingLevel(schoolSettingNewDTO)) != null)
             return rs;
-        if (schoolInstitutionService.addSetting(schoolSettingNewDTO) > 0)
-            return new Response(0, "success");
-        return new Response(1,"fail");
+        return new Response(1, "fail");
     }
 
     // 固定底价-无额外补贴
@@ -346,9 +341,7 @@ public class SchoolInstitutionController extends BaseController {
         Response rs;
         if ((  rs = lookschoolSettingLevel(schoolSettingNewDTO)) != null)
             return rs;
-        if (schoolInstitutionService.addSetting(schoolSettingNewDTO) > 0)
-            return new Response(0, "success");
-        return new Response(1,"fail");
+        return new Response(1, "fail");
     }
 
     /**
@@ -389,15 +382,32 @@ public class SchoolInstitutionController extends BaseController {
                 return new Response(1, "学校已存在全部级别的RATE");
             schoolSettingNewDTO.setCourseLevel(null);
             schoolSettingNewDTO.setCourseId(null);
+            if (schoolInstitutionService.addSetting(schoolSettingNewDTO) > 0)
+                return new Response(0, "success");
         }
         if (schoolSettingNewDTO.getLevel() == 2) {  //2级是学历级别
             if (StringUtil.isEmpty(schoolSettingNewDTO.getCourseLevel()))
                 return new Response(1, "设置学历级别RATE,Course Level 不能为空");
-            if (schoolCourseService.list(schoolSettingNewDTO.getProviderId(),null,false,schoolSettingNewDTO.getCourseLevel(),null,0,1).size() == 0)
-                return new Response(1, "不存在此学历：" + schoolSettingNewDTO.getCourseLevel());
-            if (schoolInstitutionService.getByProviderIdAndLevel(schoolSettingNewDTO.getProviderId(), 2 , schoolSettingNewDTO.getCourseLevel(), null) != null)
-                return new Response(1, "学校已存在这个学历级别的RATE");
+            String [] courseLevelArr = schoolSettingNewDTO.getCourseLevel().split(",");
+            for (String courseLevel : courseLevelArr) {
+                if (schoolCourseService.list(schoolSettingNewDTO.getProviderId(), null, false, courseLevel, null, 0, 1).size() == 0)
+                    return new Response(1, "不存在此学历：" + courseLevel);
+                if (schoolInstitutionService.getByProviderIdAndLevel(schoolSettingNewDTO.getProviderId(), 2, courseLevel, null) != null)
+                    return new Response(1, "学校已存在这个学历级别的RATE");
+            }
             schoolSettingNewDTO.setCourseId(null);
+            String str = "";
+            int num = 0;
+            for (String courseLevel : courseLevelArr){
+                schoolSettingNewDTO.setCourseLevel(courseLevel);
+                if (schoolInstitutionService.addSetting(schoolSettingNewDTO) > 0)
+                    num += 1;
+                else
+                    str = str + courseLevel + " 添加 Setting 失败 ,";
+            }
+            if (num == courseLevelArr.length)
+                return new Response(0, "success");
+            return new Response(1, "fail", str );
         }
         if (schoolSettingNewDTO.getLevel() == 3) {  //3级是专业级别
             if (schoolSettingNewDTO.getCourseId() == null)
@@ -407,6 +417,8 @@ public class SchoolInstitutionController extends BaseController {
             if (schoolInstitutionService.getByProviderIdAndLevel(schoolSettingNewDTO.getProviderId(), 3 , null , schoolSettingNewDTO.getCourseId()) != null)
                 return new Response(1, "学校已存在这个专业级别的RATE");
             schoolSettingNewDTO.setCourseLevel(null);
+            if (schoolInstitutionService.addSetting(schoolSettingNewDTO) > 0)
+                return new Response(0, "success");
         }
         return null;
     }

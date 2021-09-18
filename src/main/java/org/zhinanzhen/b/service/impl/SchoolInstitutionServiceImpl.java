@@ -264,6 +264,15 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
         return 1;
     }
 
+    @Override
+    public SchoolSettingNewDTO getSchoolSettingNewById(int id) {
+        SchoolSettingNewDO schoolSettingNewDO = schoolSettingNewDAO.getSchoolSettingNewById(id);
+        SchoolSettingNewDTO schoolSettingNewDTO = null;
+        if (schoolSettingNewDO != null)
+            schoolSettingNewDTO = mapper.map(schoolSettingNewDO,SchoolSettingNewDTO.class);
+        return schoolSettingNewDTO;
+    }
+
     /**
      * 通过 courseId 返回该专业所属的setting
      * 如果没有返回 null
@@ -292,7 +301,7 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
 
     //查询学校对应的课程和校区
     public SchoolInstitutionDTO putSchoolInfo(SchoolInstitutionDTO schoolInstitutionDTO ,int providerId,String providerCode){
-        List<SchoolCourseDO> listSchoolCourse = schoolCourseDAO.listSchoolCourse(providerId,providerCode,null,null,null, null, null);
+        List<SchoolCourseDO> listSchoolCourse = schoolCourseDAO.listSchoolCourse(providerId,providerCode,null,null,null, null,null, null);
         if (listSchoolCourse.size() > 0){
             List<SchoolCourseDTO> schoolCourseDTOS = new ArrayList<>();
             for (SchoolCourseDO sc : listSchoolCourse){

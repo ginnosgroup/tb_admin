@@ -32,4 +32,6 @@ public class SchoolCourseDTO {
     private String courseCode;
 
     private boolean isFreeze;
+
+    private SchoolSettingNewDTO schoolSettingNewDTO;
 }

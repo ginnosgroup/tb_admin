@@ -1,9 +1,12 @@
 package org.zhinanzhen.b.service.impl;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.SchoolCourseDAO;
+import org.zhinanzhen.b.dao.SchoolSettingNewDAO;
 import org.zhinanzhen.b.dao.pojo.SchoolCourseDO;
+import org.zhinanzhen.b.dao.pojo.SchoolSettingNewDO;
 import org.zhinanzhen.b.service.SchoolCourseService;
 import org.zhinanzhen.b.service.pojo.SchoolCourseDTO;
+import org.zhinanzhen.b.service.pojo.SchoolSettingNewDTO;
 import org.zhinanzhen.tb.service.impl.BaseService;
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -21,13 +24,16 @@ public class SchoolCourseServiceImpl extends BaseService implements SchoolCourse
     @Resource
     private SchoolCourseDAO schoolCourseDAO;
 
+    @Resource
+    private SchoolSettingNewDAO schoolSettingNewDAO;
+
     @Override
     public List<SchoolCourseDTO> list(Integer providerId, String providerCode,Boolean isFreeze, String courseLevel, String courseCode, int pageNum, int pageSize) {
         if (pageNum < 0 )
             pageNum = DEFAULT_PAGE_NUM;
         if (pageSize < 0 )
             pageSize = DEFAULT_PAGE_SIZE;
-        List<SchoolCourseDO>  schoolCourseDOList = schoolCourseDAO.listSchoolCourse(providerId,providerCode,isFreeze,courseLevel, courseCode,
+        List<SchoolCourseDO>  schoolCourseDOList = schoolCourseDAO.listSchoolCourse(providerId,providerCode,isFreeze,courseLevel, null,courseCode,
                 pageNum*pageSize, pageSize);
         List<SchoolCourseDTO> schoolCourseDTOList = new ArrayList<>();
         if (schoolCourseDOList.size() > 0 )
@@ -75,5 +81,50 @@ public class SchoolCourseServiceImpl extends BaseService implements SchoolCourse
             return schoolCourseDAO.update(schoolCourseDO);
         }
         return false;
+    }
+
+    @Override
+    public List<String> getCourseLevelList(int providerId) {
+        return schoolCourseDAO.getCourseLevelList(providerId);
+    }
+
+    @Override
+    public List<SchoolCourseDTO> getCourseToSetting(int providerId, String courseLevel, String courseName, String courseCode, int pageNum, int pageSize) {
+        if (pageNum < 0 )
+            pageNum = DEFAULT_PAGE_NUM;
+        if (pageSize < 0 )
+            pageSize = DEFAULT_PAGE_SIZE;
+        List<SchoolCourseDO> schoolCourseDOlist = schoolCourseDAO.listSchoolCourse(providerId,null,false,courseLevel, courseName,courseCode,
+                pageNum*pageSize, pageSize);
+        List<SchoolCourseDTO> schoolCourseDTOlist = new ArrayList<>();
+        schoolCourseDOlist.forEach(schoolCourseDO -> {
+            SchoolCourseDTO schoolCourseDTO = mapper.map(schoolCourseDO, SchoolCourseDTO.class);
+            SchoolSettingNewDO schoolSettingNewDO = returnSetting(schoolCourseDO);
+
+            if (schoolSettingNewDO != null)
+                schoolCourseDTO.setSchoolSettingNewDTO(mapper.map(schoolSettingNewDO, SchoolSettingNewDTO.class));
+
+            schoolCourseDTOlist.add(schoolCourseDTO);
+        });
+        return schoolCourseDTOlist;
+    }
+
+    public SchoolSettingNewDO returnSetting(SchoolCourseDO schoolCourseDO){
+        SchoolSettingNewDO schoolSettingNewDO = null;
+        if (schoolCourseDO != null){
+            schoolSettingNewDO = schoolSettingNewDAO.getByProviderIdAndLevel(schoolCourseDO.getProviderId(),
+                    3,null,schoolCourseDO.getId(), false);
+            if (schoolSettingNewDO != null)
+                return schoolSettingNewDO;
+            schoolSettingNewDO = schoolSettingNewDAO.getByProviderIdAndLevel(schoolCourseDO.getProviderId(),
+                    2,schoolCourseDO.getCourseLevel(),null, false);
+            if (schoolSettingNewDO != null && schoolSettingNewDO.getCourseLevel().equalsIgnoreCase(schoolCourseDO.getCourseLevel()))
+                return schoolSettingNewDO;
+            schoolSettingNewDO = schoolSettingNewDAO.getByProviderIdAndLevel(schoolCourseDO.getProviderId(),
+                    1,null,null, false);
+            if (schoolSettingNewDO != null)
+                return schoolSettingNewDO;
+        }
+        return schoolSettingNewDO;
     }
 }

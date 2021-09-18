@@ -40,4 +40,6 @@ public interface SchoolInstitutionService {
     int updateSchoolAttachments(int providerId, String contractFile1, String contractFile2, String contractFile3, String remarks) throws ServiceException;
 
     public int updateSchoolSetting(CommissionOrderListDTO commissionOrderListDto) throws ServiceException;
+
+    SchoolSettingNewDTO getSchoolSettingNewById(int id);
 }

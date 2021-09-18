@@ -1,7 +1,6 @@
 package org.zhinanzhen.b.service;
 
 
-import org.zhinanzhen.b.dao.pojo.SchoolCourseDO;
 import org.zhinanzhen.b.service.pojo.SchoolCourseDTO;
 import java.util.List;
 
@@ -25,4 +24,8 @@ public interface SchoolCourseService {
     int add(SchoolCourseDTO schoolCourseDTO);
 
     boolean update(SchoolCourseDTO schoolCourseDTO);
+
+    List<String> getCourseLevelList(int providerId);
+
+    List<SchoolCourseDTO> getCourseToSetting(int providerId, String courseLevel, String courseName, String courseCode, int pageNum, int pageSize);
 }

@@ -7,8 +7,11 @@ import org.zhinanzhen.b.service.pojo.SchoolCourseDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
+import org.zhinanzhen.tb.service.ServiceException;
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 
 /**
@@ -73,4 +76,50 @@ public class SchoolCourseController extends BaseController {
             return new Response(1,"fail");
 
     }
+
+    /**
+     * @param providerId
+     * @param request
+     * @param response
+     * @throws ServiceException
+     * 通过学校id获取学校的专业list
+     */
+    @GetMapping(value = "/getCourseLevel")
+    @ResponseBody
+    public Response<List<String>> getCourseLevel(@RequestParam("providerId") int providerId,
+                                                 HttpServletRequest request, HttpServletResponse response) throws ServiceException {
+        super.setGetHeader(response);
+        if (providerId <= 0)
+            return new Response<List<String>>(1,"id error",null);
+        return  new Response<List<String>>(0,"success",schoolCourseService.getCourseLevelList(providerId));
+    }
+
+    /**
+     * 通过学校id可以筛选查询专业,专业中携带 佣金规则
+     * @param providerId
+     * @param courseLevel
+     * @param courseName
+     * @param courseCode
+     * @param pageNum
+     * @param pageSize
+     * @param request
+     * @param response
+     * @return
+     */
+    @GetMapping(value = "/getCourseToSetSetting")
+    @ResponseBody
+    public Response getCourseToSetting(@RequestParam(value = "providerId")int providerId,
+                                       @RequestParam(value = "courseLevel", required = false) String courseLevel,
+                                       @RequestParam(value = "courseName", required = false) String courseName,
+                                       @RequestParam(value = "courseCode", required = false) String courseCode,
+                                       @RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
+                                       HttpServletRequest request, HttpServletResponse response){
+        super.setGetHeader(response);
+        if (providerId <= 0)
+            return new Response(1,"providerId error !");
+        List<SchoolCourseDTO> schoolCourseDTOS = schoolCourseService.getCourseToSetting(providerId,courseLevel,courseName,courseCode,
+                pageNum,pageSize);
+        return new Response(0,"success",schoolCourseDTOS);
+    }
+
 }
