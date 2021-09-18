@@ -24,6 +24,7 @@ import org.zhinanzhen.tb.service.impl.BaseService;
 import org.zhinanzhen.tb.utils.PrintPdfUtil;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -451,7 +452,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
     @Override
     @Transactional
     public int saveSchoolInvoice(Map paramMap, List<InvoiceSchoolDescriptionDO> des) throws ServiceException {
-        checkSchoolDescriptionInstallmentDueDate(des);
+        des = checkSchoolDescriptionInstallmentDueDate(des);
         if(  invoiceDAO.saveSchoolInvoice(paramMap) && invoiceDAO.saveSchoolDescription(des, paramMap.get("invoiceNo"))) {
             return 1;
         } else{
@@ -581,16 +582,31 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
         return "fail";
     }
 
-    private void checkSchoolDescriptionInstallmentDueDate(List<InvoiceSchoolDescriptionDO> description) throws ServiceException {
+    private List<InvoiceSchoolDescriptionDO> checkSchoolDescriptionInstallmentDueDate(List<InvoiceSchoolDescriptionDO> description) throws ServiceException {
         JSONArray jsonArray = JSONArray.parseArray(JSON.toJSONString(description));
         List<InvoiceSchoolDescriptionDO> _description = new ArrayList<>();
         int num = jsonArray.size();
         for (int i = 0 ; i < num ; i++ ){
             JSONObject jsonObject = JSONObject.parseObject(JSON.toJSONString(jsonArray.get(i)));
-            if (String.valueOf(jsonObject.get("dob")).equals(" 00:00:00"))
-                throw  new ServiceException("dob 时间错误," + jsonObject.get("dob")) ;
+            //if (String.valueOf(jsonObject.get("dob")).equals(" 00:00:00"))
+            //    throw  new ServiceException("dob 时间错误," + jsonObject.get("dob")) ;
             try {
-                _description.add(JSON.parseObject(JSON.toJSONString(jsonArray.get(i)),InvoiceSchoolDescriptionDO.class));
+                Date dateDob = ymdsdf.parse(String.valueOf(jsonObject.get("dob")));
+            } catch (ParseException e) {
+                jsonObject.put("dob",new Date());
+            }
+            try {
+                Date dateStartDate = ymdsdf.parse(String.valueOf(jsonObject.get("startDate")));
+            } catch (ParseException e) {
+                jsonObject.put("startDate",new Date());
+            }
+            try {
+                Date dateInstallmentDueDate = ymdsdf.parse(String.valueOf(jsonObject.get("installmentDueDate")));
+            } catch (ParseException e) {
+                jsonObject.put("installmentDueDate",new Date());
+            }
+            try {
+                _description.add(JSON.parseObject(JSON.toJSONString(jsonObject),InvoiceSchoolDescriptionDO.class));
             }catch (JSONException e){
                 ServiceException se = new ServiceException("Description 栏 时间输入错误:" + e.getMessage());
                 se.setCode(ErrorCodeEnum.DATA_ERROR.code());
@@ -602,6 +618,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
                 //throw  new ServiceException("installment due date 时间错误!") ;
             }
         }
+        return _description;
     }
 
     public enum typeEnum{
