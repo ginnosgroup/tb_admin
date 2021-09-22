@@ -206,7 +206,7 @@ public class Scheduled {
                     SendEmailUtil.send("jiaheng.xu@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
                 }
                 if (area.getArea() .equalsIgnoreCase("攻坚部")){
-                    SendEmailUtil.send("kevin@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
+                    SendEmailUtil.send("kevin.fan@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
                     SendEmailUtil.send("jiaheng.xu@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
                 }
                 if (area.getArea() .equals("Melbourne")){
