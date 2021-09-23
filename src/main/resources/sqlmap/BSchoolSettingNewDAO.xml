@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="org.zhinanzhen.b.dao.SchoolSettingNewDAO">
 
-    <cache eviction="LRU" flushInterval="60000" readOnly="false" size="1024"></cache>
+    <cache eviction="LRU" flushInterval="30000" readOnly="false" size="1024"></cache>
 
     <select id="list" resultType="org.zhinanzhen.b.dao.pojo.SchoolSettingNewDO">
         SELECT id,
@@ -66,13 +66,47 @@
         );
     </insert>
 
+    <insert id="add1" parameterType="org.zhinanzhen.b.dao.pojo.SchoolSettingNewDO">
+        INSERT INTO b_school_setting_new (
+        gmt_create ,
+        gmt_modify ,
+        type ,
+        start_date ,
+        end_date ,
+        parameters ,
+        level ,
+        first_register ,
+        register_fee ,
+        book_fee ,
+        first_book ,
+        provider_id ,
+        course_level ,
+        course_id
+        ) VALUES (
+        #{gmtCreate},
+        #{gmtModify},
+        #{type},
+        #{startDate},
+        #{endDate},
+        #{parameters},
+        #{level},
+        #{firstRegister},
+        #{registerFee},
+        #{bookFee},
+        #{firstBook},
+        #{providerId},
+        #{courseLevel},
+        #{courseId}
+        );
+    </insert>
+
     <select id="getByProviderIdAndLevel" resultType="org.zhinanzhen.b.dao.pojo.SchoolSettingNewDO">
         SELECT id,
         gmt_create AS gmtCreate,
         gmt_modify AS gmtModify,
         type,
-        start_date AS startCreate,
-        end_date AS endCreate,
+        start_date AS startDate,
+        end_date AS endDate,
         parameters,
         level,
         first_register AS firstRegister,
@@ -101,7 +135,7 @@
                 AND is_delete = #{isDelete}
             </if>
         </where>
-        ;
+        ORDER BY gmt_create DESC;
     </select>
 
     <update id="delete">

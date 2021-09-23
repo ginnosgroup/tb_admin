@@ -2,6 +2,8 @@ package org.zhinanzhen.b.dao;
 
 import org.apache.ibatis.annotations.Param;
 import org.zhinanzhen.b.dao.pojo.SchoolSettingNewDO;
+
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -14,9 +16,21 @@ public interface SchoolSettingNewDAO {
 
     List<SchoolSettingNewDO> list(@Param("providerId")int providerId , @Param("isDelete")Boolean isDelete);
 
+    /**
+     * 添加的记录中 gmt_create 字段是 NOW()
+     * @param schoolSettingNewDO
+     * @return
+     */
     int add(SchoolSettingNewDO schoolSettingNewDO);
 
-    SchoolSettingNewDO getByProviderIdAndLevel(@Param("providerId")int providerId, @Param("level")Integer level,
+    /**
+     * 添加的记录中 gmt_create 字段不是 NOW()
+     * @param schoolSettingNewDO
+     * @return
+     */
+    int add1(SchoolSettingNewDO schoolSettingNewDO);
+
+    List<SchoolSettingNewDO> getByProviderIdAndLevel(@Param("providerId")int providerId, @Param("level")Integer level,
                                                @Param("courseLevel")String courseLevel, @Param("courseId")Integer courseId,
                                                @Param("isDelete")Boolean isDelete);
 

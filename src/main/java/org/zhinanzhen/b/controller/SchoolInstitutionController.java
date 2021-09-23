@@ -17,6 +17,7 @@ import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -147,11 +148,15 @@ public class SchoolInstitutionController extends BaseController {
                                   HttpServletRequest request, HttpServletResponse response) throws ServiceException {
         super.setPostHeader(response);
         SchoolSettingNewDTO schoolSettingNewDTO = schoolSettingNewOfType(paramMap);
-        SchoolSettingNewDTO _schoolSettingNewDTO = null;
+        SchoolSettingNewDTO _schoolSettingNewDTO = schoolInstitutionService.getSchoolSettingNewById(schoolSettingNewDTO.getId());
+        if ( _schoolSettingNewDTO == null)
+            return new Response(1, "没有这个佣金规则 id :" + schoolSettingNewDTO.getId());
+        schoolSettingNewDTO.setGmtCreate(_schoolSettingNewDTO.getGmtCreate());
+        schoolSettingNewDTO.setGmtModify(_schoolSettingNewDTO.getGmtModify());
         if (schoolSettingNewDTO.getLevel() == 1){
-            _schoolSettingNewDTO = schoolInstitutionService.getByProviderIdAndLevel(schoolSettingNewDTO.getProviderId(), 1 , null, null);
-            if (_schoolSettingNewDTO != null && _schoolSettingNewDTO.getId() != schoolSettingNewDTO.getId()) //存在全部RATE时，验证id；不存在时，直接添加
-                return new Response(1,"学校已存在全部级别的RATE,id :" + _schoolSettingNewDTO.getId(),_schoolSettingNewDTO);
+            //_schoolSettingNewDTO = schoolInstitutionService.getByProviderIdAndLevel(schoolSettingNewDTO.getProviderId(), 1 , null, null);
+            //if (_schoolSettingNewDTO != null && _schoolSettingNewDTO.getId() != schoolSettingNewDTO.getId()) //存在全部RATE时，验证id；不存在时，直接添加
+            //   return new Response(1,"学校已存在全部级别的RATE,id :" + _schoolSettingNewDTO.getId(),_schoolSettingNewDTO);
             schoolSettingNewDTO.setCourseId(null);
             schoolSettingNewDTO.setCourseLevel(null);
         } else if (schoolSettingNewDTO.getLevel() == 2){
@@ -159,25 +164,30 @@ public class SchoolInstitutionController extends BaseController {
                 return new Response(1, "设置学历级别RATE,Course Level 不能为空");
             if (schoolCourseService.list(schoolSettingNewDTO.getProviderId(),null,false,schoolSettingNewDTO.getCourseLevel(),null,0,1).size() == 0)
                 return new Response(1, "不存在此学历：" + schoolSettingNewDTO.getCourseLevel());
-            _schoolSettingNewDTO = schoolInstitutionService.getByProviderIdAndLevel(schoolSettingNewDTO.getProviderId(), 2 , schoolSettingNewDTO.getCourseLevel(), null);
-            if ( _schoolSettingNewDTO != null &&  _schoolSettingNewDTO.getId() != schoolSettingNewDTO.getId())//存在学历RATE时，验证id；不存在时，直接添加
-                return new Response(1, "学校已存在这个学历级别的RATE,id : "+ _schoolSettingNewDTO.getId(),_schoolSettingNewDTO);
+            //_schoolSettingNewDTO = schoolInstitutionService.getByProviderIdAndLevel(schoolSettingNewDTO.getProviderId(), 2 , schoolSettingNewDTO.getCourseLevel(), null);
+            //if ( _schoolSettingNewDTO != null &&  _schoolSettingNewDTO.getId() != schoolSettingNewDTO.getId())//存在学历RATE时，验证id；不存在时，直接添加
+            //   return new Response(1, "学校已存在这个学历级别的RATE,id : "+ _schoolSettingNewDTO.getId(),_schoolSettingNewDTO);
+            //if (schoolInstitutionService.getSchoolSettingNewById(schoolSettingNewDTO.getId()) == null)
+            //    return new Response(1, "没有这个佣金规则 id :" + schoolSettingNewDTO.getId());
             schoolSettingNewDTO.setCourseId(null);
         } else if (schoolSettingNewDTO.getLevel() == 3){
             if (schoolSettingNewDTO.getCourseId() == null)
                 return new Response(1, "设置专业级别RATE,Course Id 不能为空");
-            if (schoolInstitutionService.getSchoolSettingNewById(schoolSettingNewDTO.getId()) == null)
-                return new Response(1, "没有这个佣金规则 id :" + schoolSettingNewDTO.getId());
             if (schoolCourseService.schoolCourseById(schoolSettingNewDTO.getCourseId()) == null)
                 return new Response(1, "不存在此专业或者此专业被冻结：" + schoolSettingNewDTO.getCourseId());
-            _schoolSettingNewDTO = schoolInstitutionService.getByProviderIdAndLevel(schoolSettingNewDTO.getProviderId(), 3 , null , schoolSettingNewDTO.getCourseId());
-            if (_schoolSettingNewDTO != null && _schoolSettingNewDTO.getId() != schoolSettingNewDTO.getId())//存在专业RATE时，验证id；不存在时，直接添加
-                return new Response(1, "学校已存在这个专业级别的RATE,不能再修改成这个专业的RATE,id : " + _schoolSettingNewDTO.getId(),_schoolSettingNewDTO);
+            //if (schoolInstitutionService.getSchoolSettingNewById(schoolSettingNewDTO.getId()) == null)
+            //   return new Response(1, "没有这个佣金规则 id :" + schoolSettingNewDTO.getId());
+            //_schoolSettingNewDTO = schoolInstitutionService.getByProviderIdAndLevel(schoolSettingNewDTO.getProviderId(), 3 , null , schoolSettingNewDTO.getCourseId());
+            //if (_schoolSettingNewDTO != null && _schoolSettingNewDTO.getId() != schoolSettingNewDTO.getId())//存在专业RATE时，验证id；不存在时，直接添加
+            //    return new Response(1, "学校已存在这个专业级别的RATE,不能再修改成这个专业的RATE,id : " + _schoolSettingNewDTO.getId(),_schoolSettingNewDTO);
             schoolSettingNewDTO.setCourseLevel(null);
         }else
             return new Response(1, "level error");
-        if (schoolInstitutionService.updateSetting(schoolSettingNewDTO) > 0)
+        int i = schoolInstitutionService.updateSetting(schoolSettingNewDTO);
+        if (i > 0)
             return new Response(0, "success");
+        else if (i == -1)
+            return new Response(1, "佣金规则 type 值错误:" + schoolSettingNewDTO.getType());
         return new Response(1, "fail");
 
     }
@@ -378,8 +388,23 @@ public class SchoolInstitutionController extends BaseController {
         if (schoolSettingNewDTO.getLevel() < 0 || schoolSettingNewDTO.getLevel() > 3)
             return new Response(1, "Level 错误");
         if (schoolSettingNewDTO.getLevel() == 1) {  //1级是学校级别(全部)
-            if (schoolInstitutionService.getByProviderIdAndLevel(schoolSettingNewDTO.getProviderId(), 1 , null, null) != null)
-                return new Response(1, "学校已存在全部级别的RATE");
+            /*
+            if (schoolInstitutionService.getByProviderIdAndLevel(schoolSettingNewDTO.getProviderId(), 1 , null, null, schoolSettingNewDTO.getStartDate()) != null)
+                return new Response(1, "创建新规则的开始时间只能在已有规则的结束时间之后");
+            List<SchoolSettingNewDTO> settingList = schoolInstitutionService.getByProviderIdAndLevel(schoolSettingNewDTO.getProviderId(), 1 , null, null);
+            Date startDate = schoolSettingNewDTO.getStartDate();
+            Date endDate = schoolSettingNewDTO.getEndDate();
+            for (SchoolSettingNewDTO setting : settingList){
+                if (startDate.after(setting.getEndDate()))
+                    continue;
+                if (startDate.before(setting.getEndDate()) && startDate.after(setting.getStartDate())){
+                    setting.setEndDate(startDate);
+                }
+                if (startDate.before(setting.getStartDate()))
+                    setting.setEndDate(startDate);
+            }
+             */
+
             schoolSettingNewDTO.setCourseLevel(null);
             schoolSettingNewDTO.setCourseId(null);
             if (schoolInstitutionService.addSetting(schoolSettingNewDTO) > 0)
@@ -392,8 +417,15 @@ public class SchoolInstitutionController extends BaseController {
             for (String courseLevel : courseLevelArr) {
                 if (schoolCourseService.list(schoolSettingNewDTO.getProviderId(), null, false, courseLevel, null, 0, 1).size() == 0)
                     return new Response(1, "不存在此学历：" + courseLevel);
-                if (schoolInstitutionService.getByProviderIdAndLevel(schoolSettingNewDTO.getProviderId(), 2, courseLevel, null) != null)
-                    return new Response(1, "学校已存在这个学历级别的RATE");
+                //if (schoolInstitutionService.getByProviderIdAndLevel(schoolSettingNewDTO.getProviderId(), 2, courseLevel, null) != null)
+                //   return new Response(1, "学校已存在这个学历级别的RATE");
+                /*List<SchoolSettingNewDTO> settingList = schoolInstitutionService.getByProviderIdAndLevel(schoolSettingNewDTO.getProviderId(), 2, courseLevel, null);
+                for (SchoolSettingNewDTO setting : settingList){
+                    if (setting.getEndDate().after(schoolSettingNewDTO.getStartDate()))
+                        return new Response(1,"创建新规则的开始时间只能在已有规则的结束时间之后");
+                }
+                 */
+
             }
             schoolSettingNewDTO.setCourseId(null);
             String str = "";
@@ -414,8 +446,15 @@ public class SchoolInstitutionController extends BaseController {
                 return new Response(1, "设置专业级别RATE,Course Id 不能为空");
             if (schoolCourseService.schoolCourseById(schoolSettingNewDTO.getCourseId()) == null)
                 return new Response(1, "不存在此专业或者此专业被冻结：" + schoolSettingNewDTO.getCourseId());
-            if (schoolInstitutionService.getByProviderIdAndLevel(schoolSettingNewDTO.getProviderId(), 3 , null , schoolSettingNewDTO.getCourseId()) != null)
-                return new Response(1, "学校已存在这个专业级别的RATE");
+            //if (schoolInstitutionService.getByProviderIdAndLevel(schoolSettingNewDTO.getProviderId(), 3 , null , schoolSettingNewDTO.getCourseId()) != null)
+            //    return new Response(1, "学校已存在这个专业级别的RATE");
+            /*List<SchoolSettingNewDTO> settingList = schoolInstitutionService.getByProviderIdAndLevel(schoolSettingNewDTO.getProviderId(), 3 , null , schoolSettingNewDTO.getCourseId());
+            for (SchoolSettingNewDTO setting : settingList){
+                if (setting.getEndDate().after(schoolSettingNewDTO.getStartDate()))
+                    return new Response(1,"创建新规则的开始时间只能在已有规则的结束时间之后");
+            }
+             */
+
             schoolSettingNewDTO.setCourseLevel(null);
             if (schoolInstitutionService.addSetting(schoolSettingNewDTO) > 0)
                 return new Response(0, "success");

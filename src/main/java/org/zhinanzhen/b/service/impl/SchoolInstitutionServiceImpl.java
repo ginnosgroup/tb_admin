@@ -117,7 +117,7 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int addSetting(SchoolSettingNewDTO schoolSettingNewDTO) {
         Date startDate = schoolSettingNewDTO.getStartDate();
         Date endDate = schoolSettingNewDTO.getEndDate();
@@ -127,14 +127,30 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
         Integer courseId = schoolSettingNewDTO.getCourseId();
         int level = schoolSettingNewDTO.getLevel();
         if (schoolSettingNewDAO.add(mapper.map(schoolSettingNewDTO,SchoolSettingNewDO.class)) > 0){
+            /*
             if (schoolSettingNewDTO.getType() == 1)
-                schoolSetting1(providerId, courseLevel, courseId,level, startDate, endDate , Parameters , schoolSettingNewDTO.getRegisterFee(),schoolSettingNewDTO.getBookFee());
+                schoolSetting1(providerId, courseLevel, courseId,level, startDate, endDate, Parameters );
             if (schoolSettingNewDTO.getType() == 2)
                 schoolSetting2(providerId, courseLevel, courseId, level,startDate, endDate , Parameters ,schoolSettingNewDTO.getRegisterFee(),schoolSettingNewDTO.getBookFee());
             if (schoolSettingNewDTO.getType() == 4)
                 schoolSetting4(providerId, courseLevel, courseId,level, startDate, endDate , Parameters ,schoolSettingNewDTO.getRegisterFee(),schoolSettingNewDTO.getBookFee());
             if (schoolSettingNewDTO.getType() == 7)
                 schoolSetting7(providerId, courseLevel, courseId,level, startDate, endDate , Parameters ,schoolSettingNewDTO.getRegisterFee(),schoolSettingNewDTO.getBookFee());
+             */
+            List<CommissionOrderListDO> list = commissionOrderDao.listCommissionOrderByCourse(providerId, courseLevel , courseId,startDate, endDate);
+            for(CommissionOrderListDO co : list) {
+                SchoolSettingNewDO schoolSettingNewDO = returnSetting(co.getCourseId(),co.getGmtCreate());
+                if (schoolSettingNewDO == null)
+                    continue;
+                if (schoolSettingNewDTO.getType() == 1)
+                    schoolSetting1(co, schoolSettingNewDO);
+                if (schoolSettingNewDTO.getType() == 2)
+                    schoolSetting2(co, schoolSettingNewDO, list.size());
+                if (schoolSettingNewDTO.getType() == 4)
+                    schoolSetting4(co, schoolSettingNewDO, list.size());
+                if (schoolSettingNewDTO.getType() == 7)
+                    schoolSetting7(co, schoolSettingNewDO);
+            }
             return 1;
         }else
             return -1;
@@ -153,10 +169,14 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
      */
     @Override
     public SchoolSettingNewDTO getByProviderIdAndLevel(int providerId, Integer level, String courseLevel, Integer courseId) {
-        SchoolSettingNewDO schoolSettingNewDO = schoolSettingNewDAO.getByProviderIdAndLevel(providerId, level, courseLevel, courseId,false);
-        if (schoolSettingNewDO != null)
-            return mapper.map(schoolSettingNewDO,SchoolSettingNewDTO.class);
-        return null;
+        List<SchoolSettingNewDO> schoolSettingNewDOs = schoolSettingNewDAO.getByProviderIdAndLevel(providerId, level, courseLevel, courseId,false);
+        List<SchoolSettingNewDTO> schoolSettingNewDTOS = new ArrayList<>();
+        //if (schoolSettingNewDO != null)
+        //   return mapper.map(schoolSettingNewDO,SchoolSettingNewDTO.class);
+        schoolSettingNewDOs.forEach(schoolSettingNewDO -> {
+            schoolSettingNewDTOS.add(mapper.map(schoolSettingNewDO,SchoolSettingNewDTO.class));
+        });
+        return schoolSettingNewDTOS.get(1);
     }
 
     @Override
@@ -165,7 +185,7 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
         if (schoolSettingNewDTO == null)
             throw new ServiceException(" SchoolSettingNewDTO is null");
         SchoolSettingNewDO schoolSettingNewDO = mapper.map(schoolSettingNewDTO,SchoolSettingNewDO.class);
-        if (schoolSettingNewDAO.delete(schoolSettingNewDTO.getId()) > 0 && schoolSettingNewDAO.add(schoolSettingNewDO) > 0){
+        if (schoolSettingNewDAO.delete(schoolSettingNewDTO.getId()) > 0 && schoolSettingNewDAO.add1(schoolSettingNewDO) > 0){
             Date startDate = schoolSettingNewDTO.getStartDate();
             Date endDate = schoolSettingNewDTO.getEndDate();
             String Parameters = schoolSettingNewDTO.getParameters();
@@ -173,14 +193,32 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
             String courseLevel = schoolSettingNewDTO.getCourseLevel();
             Integer courseId = schoolSettingNewDTO.getCourseId();
             int level = schoolSettingNewDTO.getLevel();
+            /*
             if (schoolSettingNewDTO.getType() == 1)
-                schoolSetting1(providerId, courseLevel, courseId,level, startDate, endDate , Parameters , schoolSettingNewDTO.getRegisterFee(),schoolSettingNewDTO.getBookFee());
+                schoolSetting1(providerId, courseLevel, courseId,level, startDate, endDate, Parameters);
             else if (schoolSettingNewDTO.getType() == 2)
                 schoolSetting2(providerId, courseLevel, courseId, level,startDate, endDate , Parameters ,schoolSettingNewDTO.getRegisterFee(),schoolSettingNewDTO.getBookFee());
             else if (schoolSettingNewDTO.getType() == 4)
                 schoolSetting4(providerId, courseLevel, courseId,level, startDate, endDate , Parameters ,schoolSettingNewDTO.getRegisterFee(),schoolSettingNewDTO.getBookFee());
             else if (schoolSettingNewDTO.getType() == 7)
                 schoolSetting7(providerId, courseLevel, courseId,level, startDate, endDate , Parameters ,schoolSettingNewDTO.getRegisterFee(),schoolSettingNewDTO.getBookFee());
+            else
+                return -1;
+             */
+            List<CommissionOrderListDO> list = commissionOrderDao.listCommissionOrderByCourse(providerId, courseLevel , courseId,startDate, endDate);
+            for(CommissionOrderListDO co : list) {
+                SchoolSettingNewDO _schoolSettingNewDO = returnSetting(co.getCourseId(),co.getGmtCreate());
+                if (_schoolSettingNewDO == null)
+                    continue;
+                if (_schoolSettingNewDO.getType() == 1)
+                    schoolSetting1(co, _schoolSettingNewDO);
+                if (_schoolSettingNewDO.getType() == 2)
+                    schoolSetting2(co, _schoolSettingNewDO, list.size());
+                if (_schoolSettingNewDO.getType() == 4)
+                    schoolSetting4(co, _schoolSettingNewDO, list.size());
+                if (_schoolSettingNewDO.getType() == 7)
+                    schoolSetting7(co, _schoolSettingNewDO);
+            }
             return 1;
         }
         return 0;
@@ -221,9 +259,9 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
 
     @Override
     public int updateSchoolSetting(CommissionOrderListDTO commissionOrderListDto) throws ServiceException {
-        if (commissionOrderListDto == null || commissionOrderListDto.getSchool() == null)
+        if (commissionOrderListDto == null || commissionOrderListDto.getCourseId() == 0)
             return -1;
-        SchoolSettingNewDO schoolSettingNewDO = returnSetting(commissionOrderListDto.getCourseId());
+        SchoolSettingNewDO schoolSettingNewDO = returnSetting(commissionOrderListDto.getCourseId(),commissionOrderListDto.getGmtCreate());
         if (schoolSettingNewDO == null)
             return -2;
         Date startDate = schoolSettingNewDO.getStartDate();
@@ -238,18 +276,25 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
         if (commissionOrderListDto.getGmtCreate().before(startDate)
                 || commissionOrderListDto.getGmtCreate().after(endDate))
             return -3;
-        if (type == 1)
-            schoolSetting1(providerId, courseLevel, courseId,level, startDate, endDate , parameters ,
-                    schoolSettingNewDO.getRegisterFee().doubleValue(),schoolSettingNewDO.getBookFee().doubleValue());
-        else if (type == 2)
-            schoolSetting2(providerId, courseLevel, courseId,level, startDate, endDate , parameters ,
-                    schoolSettingNewDO.getRegisterFee().doubleValue(),schoolSettingNewDO.getBookFee().doubleValue());
+
+        List<CommissionOrderListDO> list = commissionOrderDao.listCommissionOrderByCourse(providerId, courseLevel , courseId,startDate, endDate);
+        CommissionOrderListDO co = mapper.map(commissionOrderListDto,CommissionOrderListDO.class);
+        if (type == 1){
+            //schoolSetting1(providerId, courseLevel, courseId,level, startDate, endDate, parameters);
+            schoolSetting1(co, schoolSettingNewDO);
+        }
+        else if (type == 2){
+            //schoolSetting2(providerId, courseLevel, courseId,level, startDate, endDate , parameters ,
+            //       schoolSettingNewDO.getRegisterFee().doubleValue(),schoolSettingNewDO.getBookFee().doubleValue());
+            schoolSetting2(co, schoolSettingNewDO, list.size());
+        }
         else if (type == 3){
             //schoolSetting3(schoolSettingDo.getSchoolName(), startDate, endDate, parameters);
         }
         else if (type == 4){
-            schoolSetting4(providerId, courseLevel, courseId,level, startDate, endDate , parameters ,
-                    schoolSettingNewDO.getRegisterFee().doubleValue(),schoolSettingNewDO.getBookFee().doubleValue());
+            //schoolSetting4(providerId, courseLevel, courseId,level, startDate, endDate , parameters ,
+            //        schoolSettingNewDO.getRegisterFee().doubleValue(),schoolSettingNewDO.getBookFee().doubleValue());
+            schoolSetting4(co, schoolSettingNewDO, list.size());
         }
 
         else if (type == 5){
@@ -258,9 +303,11 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
         else if (type == 6){
             //schoolSetting6(schoolSettingDo, startDate, endDate, parameters);
         }
-        else if (type == 7)
-            schoolSetting7(providerId, courseLevel, courseId,level, startDate, endDate , parameters ,
-                    schoolSettingNewDO.getRegisterFee().doubleValue(),schoolSettingNewDO.getBookFee().doubleValue());
+        else if (type == 7){
+            //schoolSetting7(providerId, courseLevel, courseId,level, startDate, endDate , parameters ,
+             //       schoolSettingNewDO.getRegisterFee().doubleValue(),schoolSettingNewDO.getBookFee().doubleValue());
+            schoolSetting7(co, schoolSettingNewDO);
+        }
         return 1;
     }
 
@@ -274,25 +321,47 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
     }
 
     /**
-     * 通过 courseId 返回该专业所属的setting
+     * 通过 courseId 和 佣金订单创建时间返回该专业所属的setting
      * 如果没有返回 null
      * @param courseId
+     * @param gmtCreate
      * @return
      */
-    public SchoolSettingNewDO returnSetting(int courseId){
+    public SchoolSettingNewDO returnSetting(int courseId, Date gmtCreate){
         SchoolCourseDO schoolCourseDO =  schoolCourseDAO.schoolCourseById(courseId);
-        SchoolSettingNewDO schoolSettingNewDO;
+        SchoolSettingNewDO schoolSettingNewDO = null;
+        List<SchoolSettingNewDO> schoolSettingNewDOList = new ArrayList<>();
         if (schoolCourseDO != null){
-            schoolSettingNewDO = schoolSettingNewDAO.getByProviderIdAndLevel(schoolCourseDO.getProviderId(),
+            schoolSettingNewDOList = schoolSettingNewDAO.getByProviderIdAndLevel(schoolCourseDO.getProviderId(),
                     3,null,courseId, false);
+            for (SchoolSettingNewDO setting : schoolSettingNewDOList){
+                if (setting.getStartDate().before(gmtCreate) && setting.getEndDate().after(gmtCreate)){
+                    schoolSettingNewDO = setting;
+                    break;
+                }
+            }
             if (schoolSettingNewDO != null)
                 return schoolSettingNewDO;
-            schoolSettingNewDO = schoolSettingNewDAO.getByProviderIdAndLevel(schoolCourseDO.getProviderId(),
+
+            schoolSettingNewDOList = schoolSettingNewDAO.getByProviderIdAndLevel(schoolCourseDO.getProviderId(),
                     2,schoolCourseDO.getCourseLevel(),null, false);
+            for (SchoolSettingNewDO setting : schoolSettingNewDOList){
+                if (setting.getStartDate().before(gmtCreate) && setting.getEndDate().after(gmtCreate)){
+                    schoolSettingNewDO = setting;
+                    break;
+                }
+            }
             if (schoolSettingNewDO != null && schoolSettingNewDO.getCourseLevel().equalsIgnoreCase(schoolCourseDO.getCourseLevel()))
                 return schoolSettingNewDO;
-            schoolSettingNewDO = schoolSettingNewDAO.getByProviderIdAndLevel(schoolCourseDO.getProviderId(),
+
+            schoolSettingNewDOList = schoolSettingNewDAO.getByProviderIdAndLevel(schoolCourseDO.getProviderId(),
                     1,null,null, false);
+            for (SchoolSettingNewDO setting : schoolSettingNewDOList){
+                if (setting.getStartDate().before(gmtCreate) && setting.getEndDate().after(gmtCreate)){
+                    schoolSettingNewDO = setting;
+                    break;
+                }
+            }
             if (schoolSettingNewDO != null)
                 return schoolSettingNewDO;
         }
@@ -345,28 +414,45 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
 
     }
 
-    private void schoolSetting1(int providerId, String courseLevel, Integer courseId,Integer level, Date startDate, Date endDate, String parameters,
-                                double registerFee, double bookFee) {
+    @Deprecated
+    private void schoolSetting1(int providerId, String courseLevel, Integer courseId,Integer level, Date startDate, Date endDate, String parameters) {
         List<CommissionOrderListDO> list = commissionOrderDao.listCommissionOrderByCourse(providerId, courseLevel , courseId,startDate, endDate);
-        list.forEach(co -> {
-            SchoolSettingNewDO schoolSettingNewDO = returnSetting(co.getCourseId());
-            if (schoolSettingNewDO == null || schoolSettingNewDO.getLevel() == level){
+        for(CommissionOrderListDO co : list) {
+            SchoolSettingNewDO schoolSettingNewDO = returnSetting(co.getCourseId(), co.getGmtCreate());
+            if (schoolSettingNewDO != null){
+                parameters = schoolSettingNewDO.getParameters();
                 double fee = co.getAmount();//本次收款
                 co.setCommission(fee * (Double.parseDouble(parameters.trim()) * 0.01));//佣金
                 System.out.println(co.getId() + "学校设置计算:本次收款金额[" + fee + "]*设置参数[" + parameters + "]*0.01=" + co.getCommission());
-                updateGST(co, registerFee , bookFee);
+                updateGST(co, schoolSettingNewDO.getRegisterFee().doubleValue() , schoolSettingNewDO.getBookFee().doubleValue());
                 commissionOrderDao.updateCommissionOrder(co);
             }
-        });
+        }
     }
 
+    private void schoolSetting1(CommissionOrderListDO co, SchoolSettingNewDO schoolSettingNewDO) {
+        //List<CommissionOrderListDO> list = commissionOrderDao.listCommissionOrderByCourse(providerId, courseLevel , courseId,startDate, endDate);
+        //for(CommissionOrderListDO co : list) {
+        //   SchoolSettingNewDO schoolSettingNewDO = returnSetting(co.getCourseId(), co.getGmtCreate());
+            if (schoolSettingNewDO != null){
+                String parameters = schoolSettingNewDO.getParameters();
+                double fee = co.getAmount();//本次收款
+                co.setCommission(fee * (Double.parseDouble(parameters.trim()) * 0.01));//佣金
+                System.out.println(co.getId() + "学校设置计算:本次收款金额[" + fee + "]*设置参数[" + parameters + "]*0.01=" + co.getCommission());
+                updateGST(co, schoolSettingNewDO.getRegisterFee().doubleValue() , schoolSettingNewDO.getBookFee().doubleValue());
+                commissionOrderDao.updateCommissionOrder(co);
+            }
+        //}
+    }
+
+    @Deprecated
     private void schoolSetting2(int providerId, String courseLevel,Integer courseId,Integer level,Date startDate, Date endDate, String parameters,
                                 double registerFee, double bookFee) {
         if (StringUtil.isEmpty(parameters))
             return;
         String[] _parameters = parameters.split("[|]");
         if (_parameters.length == 1) {
-            schoolSetting1(providerId, courseLevel , courseId,level, startDate, endDate, _parameters[0],registerFee, bookFee);
+            schoolSetting1(providerId, courseLevel , courseId,level, startDate, endDate, _parameters[0]);
             return;
         }
         double proportion = Double.parseDouble(_parameters[0].trim());
@@ -380,7 +466,7 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
                 if (list.size() >= min && list.size() <= max) {
                     double _fee = Double.parseDouble(_parameter[0]);
                     list.forEach(co -> {
-                        SchoolSettingNewDO schoolSettingNewDO = returnSetting(co.getCourseId());
+                        SchoolSettingNewDO schoolSettingNewDO = returnSetting(co.getCourseId(), co.getGmtCreate());
                         if (schoolSettingNewDO == null || schoolSettingNewDO.getLevel() == level) {
                             double fee = co.getAmount();
                             co.setCommission(fee * (proportion * 0.01) + _fee);
@@ -399,6 +485,47 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
         }
     }
 
+    private void schoolSetting2(CommissionOrderListDO co, SchoolSettingNewDO schoolSettingNewDO ,int size) {
+        if (schoolSettingNewDO == null)
+            return;
+        String parameters = schoolSettingNewDO.getParameters();
+        if (StringUtil.isEmpty(parameters))
+            return;
+        String[] _parameters = parameters.split("[|]");
+        if (_parameters.length == 1) {
+            schoolSetting1(co , schoolSettingNewDO);
+            return;
+        }
+        double proportion = Double.parseDouble(_parameters[0].trim());
+        //List<CommissionOrderListDO> list = commissionOrderDao.listCommissionOrderByCourse(providerId, courseLevel , courseId,startDate, endDate);
+
+        for (int i = 1; i < _parameters.length; i++) {
+            String[] _parameter = _parameters[i].split("/");
+            if (_parameter.length == 3) {
+                int min = Integer.parseInt(_parameter[1].trim());
+                int max = Integer.parseInt(_parameter[2].trim());
+                if (size >= min && size <= max) {
+                    double _fee = Double.parseDouble(_parameter[0]);
+                    //list.forEach(co -> {
+                    //   SchoolSettingNewDO schoolSettingNewDO = returnSetting(co.getCourseId(), co.getGmtCreate());
+                            double fee = co.getAmount();
+                            co.setCommission(fee * (proportion * 0.01) + _fee);
+                            // System.out.print(bs.getId() + " : " + fee + " * ( 1 -
+                            // " + proportion + " * 0.01 ) + " + _fee + " = " +
+                            // bs.getCommission());
+                            System.out.println(co.getId() + "学校设置计算=本次收款金额[" + fee + "]*(设置比例[" + proportion + "]*0.01)+设置金额[" + _fee
+                                    + "]=" + co.getCommission());
+                            updateGST(co, schoolSettingNewDO.getRegisterFee().doubleValue() , schoolSettingNewDO.getBookFee().doubleValue());
+                            commissionOrderDao.updateCommissionOrder(co);
+
+                    //});
+                    break;
+                }
+            }
+        }
+    }
+
+    @Deprecated
     private void schoolSetting4(int providerId, String courseLevel,Integer courseId,Integer level, Date startDate, Date endDate, String parameters, double registerFee, double bookFee) {
         if (StringUtil.isEmpty(parameters))
             return;
@@ -413,7 +540,7 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
                 if (list.size() >= number) {
                     double proportion = Double.parseDouble(_parameter[0].trim());
                     list.forEach(co -> {
-                        SchoolSettingNewDO schoolSettingNewDO = returnSetting(co.getCourseId());
+                        SchoolSettingNewDO schoolSettingNewDO = returnSetting(co.getCourseId(), co.getGmtCreate());
                         if (schoolSettingNewDO == null || schoolSettingNewDO.getLevel() == level) {
                             double fee = co.getAmount();
                             co.setCommission(fee * (proportion * 0.01));
@@ -429,6 +556,38 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
         }
     }
 
+    private void schoolSetting4(CommissionOrderListDO co, SchoolSettingNewDO schoolSettingNewDO ,int size) {
+        if (schoolSettingNewDO == null )
+            return;
+        String parameters = schoolSettingNewDO.getParameters();
+        if (StringUtil.isEmpty(parameters))
+            return;
+        String[] _parameters = parameters.split("[|]");
+        if (_parameters.length == 1)
+            return;
+        //List<CommissionOrderListDO> list = commissionOrderDao.listCommissionOrderByCourse(providerId, courseLevel , courseId,startDate, endDate);
+        for (int i = 1; i < _parameters.length; i++) {
+            String[] _parameter = _parameters[i].split("/");
+            if (_parameter.length == 2) {
+                int number = Integer.parseInt(_parameter[1].trim());
+                if (size >= number) {
+                    double proportion = Double.parseDouble(_parameter[0].trim());
+                    //list.forEach(co -> {
+                        //SchoolSettingNewDO schoolSettingNewDO = returnSetting(co.getCourseId(), co.getGmtCreate());
+                            double fee = co.getAmount();
+                            co.setCommission(fee * (proportion * 0.01));
+                            System.out.println(co.getId() + "学校设置计算=本次收款金额[" + fee + "]*(设置比例[" + proportion + "]*0.01)="
+                                    + co.getCommission());
+                            updateGST(co, schoolSettingNewDO.getRegisterFee().doubleValue() , schoolSettingNewDO.getBookFee().doubleValue());
+                            commissionOrderDao.updateCommissionOrder(co);
+                    //});
+                    break;
+                }
+            }
+        }
+    }
+
+    @Deprecated
     private void schoolSetting7(int providerId, String courseLevel,Integer courseId, Integer level,Date startDate, Date endDate, String parameters,
                                 double registerFee, double bookFee) {
         List<CommissionOrderListDO> list = commissionOrderDao.listCommissionOrderByCourse(providerId, courseLevel , courseId,startDate, endDate);
@@ -439,7 +598,7 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
 //				co.setCommission(subjectSettingDo.getPrice());
 //				System.out.println(
 //						co.getId() + "学校设置计算=学校设置金额[" + subjectSettingDo.getPrice() + "]=" + co.getCommission());
-            SchoolSettingNewDO schoolSettingNewDO = returnSetting(co.getCourseId());
+            SchoolSettingNewDO schoolSettingNewDO = returnSetting(co.getCourseId(), co.getGmtCreate());
             if (schoolSettingNewDO == null || schoolSettingNewDO.getLevel() == level) {
                 if (parameters != null) {
                     co.setCommission(co.getAmount() - Double.parseDouble(parameters.trim()));
@@ -453,6 +612,33 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
                 commissionOrderDao.updateCommissionOrder(co);
             }
         });
+    }
+
+    private void schoolSetting7(CommissionOrderListDO co, SchoolSettingNewDO schoolSettingNewDO ) {
+
+        //List<CommissionOrderListDO> list = commissionOrderDao.listCommissionOrderByCourse(providerId, courseLevel , courseId,startDate, endDate);
+        //list.forEach(co -> {
+//			SubjectSettingDO subjectSettingDo = subjectSettingDao.get(schoolSetting.getId(),
+//					schoolSetting.getSchoolName());
+//			if (subjectSettingDo != null) {
+//				co.setCommission(subjectSettingDo.getPrice());
+//				System.out.println(
+//						co.getId() + "学校设置计算=学校设置金额[" + subjectSettingDo.getPrice() + "]=" + co.getCommission());
+            //SchoolSettingNewDO schoolSettingNewDO = returnSetting(co.getCourseId(), co.getGmtCreate());
+            if (schoolSettingNewDO != null) {
+                String parameters = schoolSettingNewDO.getParameters();
+                if (parameters != null) {
+                    co.setCommission(co.getAmount() - Double.parseDouble(parameters.trim()));
+                    System.out.println(co.getId() + "学校设置计算=本次收款金额[" + co.getAmount() + "]-学校设置金额[" + Double.parseDouble(parameters.trim()) + "]="
+                            + co.getCommission());
+                } else {
+                    co.setCommission(co.getAmount()); // 正常情况下是不会执行到这里的
+                    System.out.println(co.getId() + "学校设置计算=本次收款金额[" + co.getAmount() + "]=" + co.getCommission());
+                }
+                updateGST(co, schoolSettingNewDO.getRegisterFee().doubleValue() , schoolSettingNewDO.getBookFee().doubleValue());
+                commissionOrderDao.updateCommissionOrder(co);
+            }
+        //});
     }
 
     private void updateGST(CommissionOrderListDO co , double registerFee, double bookFee) {

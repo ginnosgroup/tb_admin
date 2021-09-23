@@ -124,6 +124,9 @@
         <if test='schoolId != null and schoolId > 0'>
             , school_id = #{schoolId}
         </if>
+        <if test="courseId != null and courseId > 0">
+            , course_id = #{courseId}
+        </if>
         <if test='studentCode != null and studentCode != ""'>
             , student_code = #{studentCode}
         </if>
@@ -336,6 +339,7 @@
             co.is_settle AS isSettle,
             co.is_deposit_user AS isDepositUser,
             co.school_id AS schoolId,
+            co.course_id AS courseId,
             co.student_code AS studentCode,
             co.user_id AS userId,
             co.adviser_id AS adviserId,
@@ -466,6 +470,7 @@
             is_settle AS isSettle,
             is_deposit_user AS isDepositUser,
             school_id AS schoolId,
+            course_id AS courseId,
             student_code AS studentCode,
             user_id AS userId,
             adviser_id AS adviserId,
@@ -522,6 +527,7 @@
             is_settle AS isSettle,
             is_deposit_user AS isDepositUser,
             school_id AS schoolId,
+            course_id AS courseId,
             student_code AS studentCode,
             user_id AS userId,
             adviser_id AS adviserId,
@@ -578,6 +584,7 @@
             is_settle AS isSettle,
             is_deposit_user AS isDepositUser,
             school_id AS schoolId,
+            course_id AS courseId,
             student_code AS studentCode,
             user_id AS userId,
             adviser_id AS adviserId,
@@ -634,6 +641,7 @@
             co.is_settle AS isSettle,
             co.is_deposit_user AS isDepositUser,
             co.school_id AS schoolId,
+            co.course_id AS courseId,
             co.student_code AS studentCode,
             co.user_id AS userId,
             co.adviser_id AS adviserId,
@@ -702,6 +710,7 @@
             co.is_settle AS isSettle,
             co.is_deposit_user AS isDepositUser,
             co.school_id AS schoolId,
+            co.course_id AS courseId,
             co.student_code AS studentCode,
             co.user_id AS userId,
             co.adviser_id AS adviserId,
@@ -833,6 +842,7 @@
             co.is_settle AS isSettle,
             co.is_deposit_user AS isDepositUser,
             co.school_id AS schoolId,
+            co.course_id AS courseId,
             co.student_code AS studentCode,
             co.user_id AS userId,
             co.adviser_id AS adviserId,
@@ -894,6 +904,7 @@
             co.is_settle AS isSettle,
             co.is_deposit_user AS isDepositUser,
             co.school_id AS schoolId,
+            co.course_id AS courseId,
             co.student_code AS studentCode,
             co.user_id AS userId,
             co.adviser_id AS adviserId,
@@ -955,6 +966,7 @@
             co.is_settle AS isSettle,
             co.is_deposit_user AS isDepositUser,
             co.school_id AS schoolId,
+            co.course_id AS courseId,
             co.student_code AS studentCode,
             co.user_id AS userId,
             co.adviser_id AS adviserId,
@@ -1030,6 +1042,7 @@
             is_settle AS isSettle,
             is_deposit_user AS isDepositUser,
             school_id AS schoolId,
+            course_id AS courseId,
             student_code AS studentCode,
             user_id AS userId,
             adviser_id AS adviserId,
@@ -1090,6 +1103,7 @@
             co.is_settle AS isSettle,
             co.is_deposit_user AS isDepositUser,
             co.school_id AS schoolId,
+            co.course_id AS courseId,
             co.student_code AS studentCode,
             co.user_id AS userId,
             co.adviser_id AS adviserId,

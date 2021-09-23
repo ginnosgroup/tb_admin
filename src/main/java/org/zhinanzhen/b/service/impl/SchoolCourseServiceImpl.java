@@ -10,6 +10,7 @@ import org.zhinanzhen.b.service.pojo.SchoolSettingNewDTO;
 import org.zhinanzhen.tb.service.impl.BaseService;
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -111,16 +112,17 @@ public class SchoolCourseServiceImpl extends BaseService implements SchoolCourse
 
     public SchoolSettingNewDO returnSetting(SchoolCourseDO schoolCourseDO){
         SchoolSettingNewDO schoolSettingNewDO = null;
+        List<SchoolSettingNewDO> schoolSettingNewDOList = new ArrayList<>();
         if (schoolCourseDO != null){
-            schoolSettingNewDO = schoolSettingNewDAO.getByProviderIdAndLevel(schoolCourseDO.getProviderId(),
+            schoolSettingNewDOList = schoolSettingNewDAO.getByProviderIdAndLevel(schoolCourseDO.getProviderId(),
                     3,null,schoolCourseDO.getId(), false);
             if (schoolSettingNewDO != null)
                 return schoolSettingNewDO;
-            schoolSettingNewDO = schoolSettingNewDAO.getByProviderIdAndLevel(schoolCourseDO.getProviderId(),
+            schoolSettingNewDOList = schoolSettingNewDAO.getByProviderIdAndLevel(schoolCourseDO.getProviderId(),
                     2,schoolCourseDO.getCourseLevel(),null, false);
             if (schoolSettingNewDO != null && schoolSettingNewDO.getCourseLevel().equalsIgnoreCase(schoolCourseDO.getCourseLevel()))
                 return schoolSettingNewDO;
-            schoolSettingNewDO = schoolSettingNewDAO.getByProviderIdAndLevel(schoolCourseDO.getProviderId(),
+            schoolSettingNewDOList = schoolSettingNewDAO.getByProviderIdAndLevel(schoolCourseDO.getProviderId(),
                     1,null,null, false);
             if (schoolSettingNewDO != null)
                 return schoolSettingNewDO;
