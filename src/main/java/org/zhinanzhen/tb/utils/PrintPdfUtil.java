@@ -994,8 +994,8 @@ public class PrintPdfUtil {
                     cell10 = new PdfPCell(new Paragraph(dobsdf.format(des.get(i).getStartDate()), FontChinese8));
                     cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
                     table10.addCell(cell10);
-                    //cell10 = new PdfPCell(new Paragraph(dobsdf.format(des.get(i).getInstallmentDueDate()), FontChinese8));
-                    cell10 = new PdfPCell(new Paragraph(des.get(i).getInstalMent(), FontChinese8));
+                    cell10 = new PdfPCell(new Paragraph(dobsdf.format(des.get(i).getInstallmentDueDate()), FontChinese8));
+                    //cell10 = new PdfPCell(new Paragraph(des.get(i).getInstalMent(), FontChinese8));
                     cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
                     table10.addCell(cell10);
                     cell10 = new PdfPCell(new Paragraph(des.get(i).getTuitionFee().toString(), FontChinese8));
@@ -1400,8 +1400,8 @@ public class PrintPdfUtil {
                     cell10 = new PdfPCell(new Paragraph(dobsdf.format(des.get(i).getStartDate()), FontChinese8));
                     cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
                     table10.addCell(cell10);
-                    //cell10 = new PdfPCell(new Paragraph(dobsdf.format(des.get(i).getInstallmentDueDate()), FontChinese8));
-                    cell10 = new PdfPCell(new Paragraph(des.get(i).getInstalMent(), FontChinese8));
+                    cell10 = new PdfPCell(new Paragraph(dobsdf.format(des.get(i).getInstallmentDueDate()), FontChinese8));
+                    //cell10 = new PdfPCell(new Paragraph(des.get(i).getInstalMent(), FontChinese8));
                     cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
                     table10.addCell(cell10);
                     cell10 = new PdfPCell(new Paragraph(des.get(i).getNonTuitionFee().toString(), FontChinese8));
@@ -1644,8 +1644,8 @@ public class PrintPdfUtil {
                     cell10 = new PdfPCell(new Paragraph(des.get(i).getBonus().toString(), FontChinese8));
                     cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
                     table10.addCell(cell10);
-                    //cell10 = new PdfPCell(new Paragraph(dobsdf.format(des.get(i).getInstallmentDueDate()), FontChinese8));
-                    cell10 = new PdfPCell(new Paragraph(des.get(i).getInstalMent(), FontChinese8));
+                    cell10 = new PdfPCell(new Paragraph(dobsdf.format(des.get(i).getInstallmentDueDate()), FontChinese8));
+                    //cell10 = new PdfPCell(new Paragraph(des.get(i).getInstalMent(), FontChinese8));
                     cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
                     table10.addCell(cell10);
                     table10.setHorizontalAlignment(Element.ALIGN_CENTER);
@@ -1711,8 +1711,8 @@ public class PrintPdfUtil {
                     cell10 = new PdfPCell(new Paragraph(dobsdf.format(des.get(i).getStartDate()), FontChinese8));
                     cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
                     table10.addCell(cell10);
-                    //cell10 = new PdfPCell(new Paragraph(dobsdf.format(des.get(i).getInstallmentDueDate()), FontChinese8));
-                    cell10 = new PdfPCell(new Paragraph(des.get(i).getInstalMent(), FontChinese8));
+                    cell10 = new PdfPCell(new Paragraph(dobsdf.format(des.get(i).getInstallmentDueDate()), FontChinese8));
+                    //cell10 = new PdfPCell(new Paragraph(des.get(i).getInstalMent(), FontChinese8));
                     cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
                     table10.addCell(cell10);
                     cell10 = new PdfPCell(new Paragraph(des.get(i).getTuitionFee().toString(), FontChinese8));
