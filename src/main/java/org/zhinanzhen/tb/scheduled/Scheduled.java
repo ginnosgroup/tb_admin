@@ -466,12 +466,13 @@ public class Scheduled {
         //签证日期到期前提醒（自动提醒)
         List<org.zhinanzhen.b.service.pojo.UserDTO> userList = visaDAO.listVisaExpirationDate();
         userList.forEach(userDTO -> {
+            LOG.info(userDTO.toString());
             try {
                 if (userDTO.getAdviserId() != null){
                     AdviserDTO adviserDTO = adviserService.getAdviserById(userDTO.getAdviserId());
                     if (adviserDTO != null)
                         SendEmailUtil.send(adviserDTO.getEmail(),
-                                userDTO.getName() + sdf.format(userDTO.getVisa_expiration_date()) + " visa 即将到期提醒",
+                                userDTO.getName() + sdf.format(userDTO.getVisa_expiration_date()) + " visa 即将到期提醒 !",
                                 adviserDTO.getName() + ": " + userDTO.getName() + userDTO.getId() + "," + sdf.format(userDTO.getVisa_expiration_date()) + ",7天内到期请注意提醒客户，如签证日期有变化请及时更新，如已更新请忽略该提醒.");
 
                 }else {
@@ -480,7 +481,7 @@ public class Scheduled {
                         AdviserDTO ad = adviser.getAdviserDto();
                         if (ad != null)
                             SendEmailUtil.send(ad.getEmail(),
-                                    userDTO.getName() + sdf.format(userDTO.getVisa_expiration_date()) + " visa 即将到期提醒",
+                                    userDTO.getName() + sdf.format(userDTO.getVisa_expiration_date()) + " visa 即将到期提醒 !",
                                     ad.getName() + ": " + userDTO.getName() + userDTO.getId() + "," + sdf.format(userDTO.getVisa_expiration_date()) + ",7天内到期请注意提醒客户，如签证日期有变化请及时更新，如已更新请忽略该提醒.");
                     });
                 }
