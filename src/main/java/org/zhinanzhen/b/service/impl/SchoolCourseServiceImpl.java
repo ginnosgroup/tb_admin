@@ -116,14 +116,34 @@ public class SchoolCourseServiceImpl extends BaseService implements SchoolCourse
         if (schoolCourseDO != null){
             schoolSettingNewDOList = schoolSettingNewDAO.getByProviderIdAndLevel(schoolCourseDO.getProviderId(),
                     3,null,schoolCourseDO.getId(), false);
+            for (SchoolSettingNewDO setting : schoolSettingNewDOList){
+                if (setting.getStartDate().before(new Date()) && setting.getEndDate().after(new Date())){
+                    schoolSettingNewDO = setting;
+                    break;
+                }
+            }
             if (schoolSettingNewDO != null)
                 return schoolSettingNewDO;
+
             schoolSettingNewDOList = schoolSettingNewDAO.getByProviderIdAndLevel(schoolCourseDO.getProviderId(),
                     2,schoolCourseDO.getCourseLevel(),null, false);
+            for (SchoolSettingNewDO setting : schoolSettingNewDOList){
+                if (setting.getStartDate().before(new Date()) && setting.getEndDate().after(new Date())){
+                    schoolSettingNewDO = setting;
+                    break;
+                }
+            }
             if (schoolSettingNewDO != null && schoolSettingNewDO.getCourseLevel().equalsIgnoreCase(schoolCourseDO.getCourseLevel()))
                 return schoolSettingNewDO;
+
             schoolSettingNewDOList = schoolSettingNewDAO.getByProviderIdAndLevel(schoolCourseDO.getProviderId(),
                     1,null,null, false);
+            for (SchoolSettingNewDO setting : schoolSettingNewDOList){
+                if (setting.getStartDate().before(new Date()) && setting.getEndDate().after(new Date())){
+                    schoolSettingNewDO = setting;
+                    break;
+                }
+            }
             if (schoolSettingNewDO != null)
                 return schoolSettingNewDO;
         }
