@@ -15,7 +15,9 @@
                 email,
                 state,
                 image_url,
-                region_id)
+                region_id,
+                specialty,
+                work_state)
             VALUES (
                 now(),
                 now(),
@@ -24,7 +26,9 @@
                 #{email},
                 'ENABLED',
                 #{imageUrl},
-                #{regionId});
+                #{regionId},
+                #{specialty},
+                #{workState});
     </insert>
 
     <update id="updateOfficial" parameterType="org.zhinanzhen.b.dao.pojo.OfficialDO">
@@ -47,6 +51,12 @@
         </if>
         <if test='regionId != null and regionId != ""'>
             , region_id = #{regionId}
+        </if>
+        <if test=' specialty != null and specialty != "" '>
+            , specialty = #{specialty}
+        </if>
+        <if test=' workState != null and workState != "" '>
+            , work_state = #{workState}
         </if>
         WHERE id = #{id};
     </update>
@@ -72,7 +82,9 @@
             email,
             state,
             image_url AS imageUrl,
-            region_id AS regionId
+            region_id AS regionId,
+            specialty AS specialty,
+            work_state AS workState
         FROM b_official
         WHERE 1 = 1
         <if test='name != null and name != ""'>
@@ -94,7 +106,9 @@
             email,
             state,
             image_url AS imageUrl,
-            region_id AS regionId
+            region_id AS regionId,
+            specialty AS specialty,
+            work_state AS workState
         FROM b_official WHERE id = #{id, jdbcType=INTEGER};
     </select>
 

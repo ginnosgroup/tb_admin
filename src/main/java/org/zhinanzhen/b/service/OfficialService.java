@@ -18,4 +18,5 @@ public interface OfficialService {
 
 	public OfficialDTO getOfficialById(int id) throws ServiceException;
 
+	int updateWorkState(OfficialDTO officialDTO) throws ServiceException;
 }

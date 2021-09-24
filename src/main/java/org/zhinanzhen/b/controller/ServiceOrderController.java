@@ -2150,6 +2150,81 @@ public class ServiceOrderController extends BaseController {
 		}
 	}
 
+	/**
+	 * MARA 批量审核
+	 * 暂且只能	MARA,SUPER
+	 * @param idList
+	 * @param state
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/next_flow2", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<ServiceOrderDTO> next_flow2(@RequestParam(value = "idList") int idList [],
+												@RequestParam(value = "state") String state,
+												//@RequestParam(value = "subagencyId", required = false) String subagencyId,
+												//@RequestParam(value = "closedReason", required = false) String closedReason,
+												//@RequestParam(value = "refuseReason", required = false) String refuseReason,
+												//@RequestParam(value = "remarks", required = false) String remarks,
+												//@RequestParam(value = "stateMark", required = false) String stateMark,
+												HttpServletRequest request, HttpServletResponse response) {
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo == null || !"MA,SUPER".contains(adminUserLoginInfo.getApList()))
+			return new Response<ServiceOrderDTO>(1, "No permission !", null);
+		ServiceOrderDTO serviceOrderDto;
+		try {
+			for (int id : idList) {
+				serviceOrderDto = serviceOrderService.getServiceOrderById(id);
+				if (ObjectUtil.isNull(serviceOrderDto))
+					return new Response<ServiceOrderDTO>(1, "服务订单不存在:" + id, null);
+				Node node = soNodeFactory.getNode(serviceOrderDto.getState());
+
+				Context context = new Context();
+				context.putParameter("serviceOrderId", id);
+				context.putParameter("type", serviceOrderDto.getType());
+				context.putParameter("state", state);
+				context.putParameter("adminUserId", adminUserLoginInfo.getId());
+
+				LOG.info("Flow API Log : " + context.toString());
+
+				String[] nextNodeNames = node.nextNodeNames();
+				if (nextNodeNames != null)
+					if (Arrays.asList(nextNodeNames).contains(state))
+						node = soNodeFactory.getNode(state);
+					else
+						return new Response<ServiceOrderDTO>(1,
+								StringUtil.merge("佣金：",id," ,状态:", state, ",不是合法状态. (", Arrays.toString(nextNodeNames), ")"), null);
+
+				Workflow workflow = new Workflow("Service Order Work Flow", node, soNodeFactory);
+
+				context = workflowStarter.process(workflow, context);
+
+				//发送消息到群聊PENGDING--->REVIEW
+				if ("GW".equalsIgnoreCase(adminUserLoginInfo.getApList()) && !"ZX".equals(serviceOrderDto.getType())
+						&& "REVIEW".equalsIgnoreCase(state)) {//咨询不发群聊消息
+					String token = token(request, "corp");
+					LOG.info("发送群聊订单:" + serviceOrderDto.getId() + " . ACCESS_TOKEN: " + token);
+					if (wxWorkService.sendMsg(serviceOrderDto.getId(),token)){
+						LOG.info(serviceOrderDto.getId() + " 订单群聊消息发送成功 . ACCESS_TOKEN:" + token);
+					}
+				}
+
+				if (context.getParameter("response") != null)
+					return (Response<ServiceOrderDTO>) context.getParameter("response");
+				else {
+					if (!"ZX".equals(serviceOrderDto.getType()))//咨询服务不用发邮件提醒
+						serviceOrderService.sendRemind(id, state); // 发送提醒邮件
+				}
+			}
+		} catch (ServiceException e) {
+			return new Response<ServiceOrderDTO>(1, "异常:" + e.getMessage(), null);
+		}
+		return new Response<ServiceOrderDTO>(0,  "success", null);
+
+
+	}
+
 	private String getTypeStrOfServicePackageDTO(String type){
 		if ("EOI".equalsIgnoreCase(type))
 			return "EOI";

@@ -32,6 +32,22 @@ public class OfficialController extends BaseController {
 	@Resource
 	OfficialService officialService;
 
+	public enum OfficialWorkStateEnum{
+		NORMAL ("正常"), BUSY ("忙碌");
+		private String comment;
+		private OfficialWorkStateEnum(String comment){
+			this.comment = comment;
+		}
+		public static OfficialWorkStateEnum get (String name){
+			for(OfficialWorkStateEnum e : OfficialWorkStateEnum.values()){
+				if (name.equalsIgnoreCase(e.toString())){
+					return e;
+				}
+			}
+			return OfficialWorkStateEnum.NORMAL;
+		}
+	}
+
 	@RequestMapping(value = "/upload_img", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<String> uploadLogo(@RequestParam MultipartFile file, HttpServletRequest request,
@@ -49,6 +65,7 @@ public class OfficialController extends BaseController {
 			@RequestParam(value = "phone") String phone, @RequestParam(value = "email") String email,
 			@RequestParam(value = "password", required = false) String password,
 			@RequestParam(value = "imageUrl") String imageUrl, @RequestParam(value = "regionId") Integer regionId,
+			@RequestParam(value = "specialty",required = false) String specialty,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -69,6 +86,8 @@ public class OfficialController extends BaseController {
 			officialDto.setEmail(email);
 			officialDto.setImageUrl(imageUrl);
 			officialDto.setRegionId(regionId);
+			officialDto.setSpecialty(specialty);
+			officialDto.setWorkState(OfficialWorkStateEnum.NORMAL.toString());
 			if (officialService.addOfficial(officialDto) > 0) {
 				if (password == null)
 					password = email; // 如果没有传入密码,则密码和email相同
@@ -92,11 +111,17 @@ public class OfficialController extends BaseController {
 			@RequestParam(value = "imageUrl", required = false) String imageUrl,
 			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "isOfficialAdmin", required = false) Boolean isOfficialAdmin,
+			@RequestParam(value = "specialty", required = false) String specialty,
+			@RequestParam(value = "workState", required = false) String workState,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			if (id <= 0)
 				return new Response<OfficialDTO>(1, "请输入有效id.", null);
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo == null || (adminUserLoginInfo != null && !
+					(adminUserLoginInfo.isOfficialAdmin() || "SUPER".equals(adminUserLoginInfo.getApList()))) )
+				return new Response(1,"No permission !");
 			OfficialDTO officialDto = officialService.getOfficialById(id);
 			if (StringUtil.isNotEmpty(name)) {
 				officialDto.setName(name);
@@ -116,6 +141,9 @@ public class OfficialController extends BaseController {
 			if (regionId != null && regionId > 0) {
 				officialDto.setRegionId(regionId);
 			}
+			if (StringUtil.isNotEmpty(specialty)) {
+				officialDto.setSpecialty(specialty);
+			}
 			if (isOfficialAdmin != null) {
 				AdminUserDTO adminUser = adminUserService.getAdminUserByUsername(officialDto.getEmail());
 				if (adminUser != null && isOfficialAdmin != null)
@@ -123,6 +151,8 @@ public class OfficialController extends BaseController {
 				else
 					return new Response<OfficialDTO>(0, "文案管理员修改失败.", officialDto);
 			}
+			if (StringUtil.isNotEmpty(workState) && workState.equals(OfficialWorkStateEnum.get(workState).toString()))
+				officialDto.setWorkState(OfficialWorkStateEnum.get(workState).toString());
 			if (officialService.updateOfficial(officialDto) > 0)
 				return new Response<OfficialDTO>(0, officialDto);
 			else
@@ -190,5 +220,29 @@ public class OfficialController extends BaseController {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
 	}
+
+	/**
+	 * 文案管理员 可以修改文案的工作状态 忙碌/正常
+	 * @return
+	 */
+	@RequestMapping(value = "/updateWorkState" , method = RequestMethod.POST)
+	@ResponseBody
+	public Response<String> updateWorkState(@RequestParam(value = "id") int id,
+											@RequestParam(value = "workState") String workState,
+											HttpServletRequest request, HttpServletResponse response) throws ServiceException {
+		super.setPostHeader(response);
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo == null || (adminUserLoginInfo != null && ! adminUserLoginInfo.isOfficialAdmin()) )
+			return new Response(1,"No permission !");
+		OfficialDTO officialDTO = officialService.getOfficialById(id);
+		if (officialDTO == null)
+			return new Response<>(0,"修改工作状态失败!");
+		if (StringUtil.isNotEmpty(workState) && workState.equals(OfficialWorkStateEnum.get(workState).toString()))
+			officialDTO.setWorkState(OfficialWorkStateEnum.get(workState).toString());
+		if (officialService.updateWorkState(officialDTO) > 0)
+			return new Response<>(0,"success");
+		return  new Response<>(0,"fail");
+	}
+
 
 }

@@ -145,4 +145,25 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 		}
 		return officialDto;
 	}
+
+	@Override
+	public int updateWorkState(OfficialDTO officialDTO) throws ServiceException {
+		if (officialDTO == null){
+			ServiceException se = new ServiceException("officialDto is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			OfficialDO officialDo = mapper.map(officialDTO, OfficialDO.class);
+			if (StringUtil.isNotEmpty(officialDo.getWorkState())) {
+				ServiceException se = new ServiceException("workState is null !");
+				throw se;
+			}
+			return officialDao.updateOfficial(officialDo);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
 }

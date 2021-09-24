@@ -26,4 +26,8 @@ public class OfficialDO implements Serializable {
 
 	private int regionId;
 
+	private String specialty;
+
+	private String workState;
+
 }

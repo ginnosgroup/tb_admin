@@ -26,6 +26,10 @@ public class OfficialDTO {
 
 	private int regionId;
 
+	private String specialty;
+
+	private String workState;
+
 	private String regionName;
 
 	private RegionDO regionDo;
