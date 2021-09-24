@@ -64,7 +64,7 @@
     <select id="listByProviderId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.SchoolAttachmentsDO">
         SELECT
             id,
-            provider_id AS provider_id,
+            provider_id AS providerId,
             contract_file_1 AS contractFile1,
             contract_file_2 AS contractFile2,
             contract_file_3 AS contractFile3,

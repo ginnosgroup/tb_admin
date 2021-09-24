@@ -18,7 +18,7 @@
         from b_school_institution
         <where>
             <if test=' name != null and name != "" '>
-                and name like  "%"#{name}
+                and name like  "%"#{name}"%"
             </if>
             <if test=' type != null and type != "" '>
                 and institution_type = #{type}
