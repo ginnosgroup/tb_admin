@@ -485,7 +485,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				if (commissionOrderListDto.getCourseId() == 0)
 					i = schoolService.updateSchoolSetting(commissionOrderListDto); // 根据学校设置更新佣金值
 				else
-					i = schoolInstitutionService.updateSchoolSetting(commissionOrderListDto);
+					i = schoolInstitutionService.updateSchoolSetting(_commissionOrderListDto);
 				if (i > 0) {
 				} else if (i == -1)
 					msg += id + "计算失败. (佣金记录不存在);";
