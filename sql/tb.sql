@@ -618,7 +618,9 @@ CREATE TABLE `b_official` (
   `email` varchar(128) NOT NULL COMMENT '邮箱',
   `state` varchar(8) NOT NULL COMMENT '状态 (ENABLED:激活,DISABLED:禁止)',
   `image_url` varchar(128) DEFAULT NULL COMMENT '图片地址',
-  `region_id` int NOT NULL COMMENT '所属区域编号 (对应tb_region.id)'
+  `region_id` int NOT NULL COMMENT '所属区域编号 (对应tb_region.id)',
+  `specialty` varchar(128) DEFAULT NULL COMMENT '文案标签描述',
+  `work_state` varchar(20) DEFAULT NULL COMMENT '文案工作状态,NORMAL:正常/BUSY:忙碌'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
 -- MARA
