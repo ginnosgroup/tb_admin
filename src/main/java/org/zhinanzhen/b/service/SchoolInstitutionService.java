@@ -22,7 +22,7 @@ public interface SchoolInstitutionService {
 
     SchoolInstitutionDTO getSchoolInstitutionByCode(String code);
 
-    int count(String name, String type, Boolean isFreeze);
+    int count(String name, String type, String code, Boolean isFreeze);
 
     boolean update(SchoolInstitutionDTO schoolInstitutionDTO);
 

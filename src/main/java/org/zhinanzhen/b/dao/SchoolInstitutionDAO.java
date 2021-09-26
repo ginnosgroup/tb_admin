@@ -18,7 +18,7 @@ public interface SchoolInstitutionDAO {
 
     SchoolInstitutionDO getSchoolInstitutionById(@Param("id") Integer id);
 
-    int count(@Param("name") String name, @Param("type") String type,  @Param("isFreeze") Boolean isFreeze);
+    int count(@Param("name") String name, @Param("type") String type,  @Param("code") String code, @Param("isFreeze") Boolean isFreeze);
 
     boolean update(SchoolInstitutionDO schoolInstitutionDO);
 

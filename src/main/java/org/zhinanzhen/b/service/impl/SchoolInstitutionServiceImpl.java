@@ -93,8 +93,8 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
     }
 
     @Override
-    public int count(String name, String type, Boolean isFreeze) {
-        return schoolInstitutionDAO.count(name,type,isFreeze);
+    public int count(String name, String type,String code,  Boolean isFreeze) {
+        return schoolInstitutionDAO.count(name,type,code,isFreeze);
     }
 
     @Override

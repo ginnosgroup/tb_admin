@@ -77,7 +77,7 @@ public class SchoolInstitutionController extends BaseController {
                              @RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize){
         if ( id != null && id > 0)
             return  new ListResponse(true , pageSize,1,schoolInstitutionService.getSchoolInstitutionById(id),"ok");
-        int total =  schoolInstitutionService.count(name,type,isFreeze);
+        int total =  schoolInstitutionService.count(name,type,code,isFreeze);
         return  new ListResponse(true , pageSize,total,schoolInstitutionService.listSchoolInstitutionDTO(name,type,code, isFreeze, pageNum,pageSize),"ok");
     }
 

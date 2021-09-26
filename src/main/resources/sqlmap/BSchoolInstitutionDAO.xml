@@ -38,10 +38,13 @@
         SELECT COUNT(id) from b_school_institution
         <where>
             <if test=' name != null and name != "" '>
-                and name like  "%"#{name}
+                and name like  "%"#{name}"%"
             </if>
             <if test=' type != null and type != "" '>
                 and institution_type = #{type}
+            </if>
+            <if test=' code != null and code != "" '>
+                and code = #{code}
             </if>
             <if test="isFreeze != null">
                 AND is_freeze = #{isFreeze}
