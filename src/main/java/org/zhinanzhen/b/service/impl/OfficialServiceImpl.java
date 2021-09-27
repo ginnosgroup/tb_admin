@@ -155,7 +155,7 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 		}
 		try {
 			OfficialDO officialDo = mapper.map(officialDTO, OfficialDO.class);
-			if (StringUtil.isNotEmpty(officialDo.getWorkState())) {
+			if (StringUtil.isEmpty(officialDo.getWorkState())) {
 				ServiceException se = new ServiceException("workState is null !");
 				throw se;
 			}

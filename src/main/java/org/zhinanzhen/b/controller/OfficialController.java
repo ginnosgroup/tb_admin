@@ -237,8 +237,9 @@ public class OfficialController extends BaseController {
 		OfficialDTO officialDTO = officialService.getOfficialById(id);
 		if (officialDTO == null)
 			return new Response<>(0,"修改工作状态失败!");
-		if (StringUtil.isNotEmpty(workState) && workState.equals(OfficialWorkStateEnum.get(workState).toString()))
-			officialDTO.setWorkState(OfficialWorkStateEnum.get(workState).toString());
+		if (StringUtil.isNotEmpty(workState) && ! workState.equals(OfficialWorkStateEnum.get(workState).toString()))
+			return new Response(1,"状态参数: workState error : " + workState);
+		officialDTO.setWorkState(OfficialWorkStateEnum.get(workState).toString());
 		if (officialService.updateWorkState(officialDTO) > 0)
 			return new Response<>(0,"success");
 		return  new Response<>(0,"fail");
