@@ -36,7 +36,7 @@
                 AND (end_date &gt;= NOW() AND start_date &lt;= NOW() ) )
             </if>
         </where>
-        ;
+        ORDER BY gmt_create DESC;
     </select>
     <insert id="add" parameterType="org.zhinanzhen.b.dao.pojo.SchoolSettingNewDO">
         INSERT INTO b_school_setting_new (
