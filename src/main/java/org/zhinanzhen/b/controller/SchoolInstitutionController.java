@@ -49,14 +49,20 @@ public class SchoolInstitutionController extends BaseController {
 
     @RequestMapping(value = "/updateSchoolAttachments", method = RequestMethod.POST)
     @ResponseBody
-    public Response<String> updateSchoolAttachments(@RequestParam(value = "providerId") int providerId,
-                                                    @RequestParam(value = "contractFile1", required = false) String contractFile1,
-                                                    @RequestParam(value = "contractFile2", required = false) String contractFile2,
-                                                    @RequestParam(value = "contractFile3", required = false) String contractFile3,
-                                                    @RequestParam(value = "remarks", required = false) String remarks, HttpServletRequest request,
-                                                    HttpServletResponse response) {
+    public Response<String> updateSchoolAttachments(//@RequestParam(value = "providerId") int providerId,
+                                                    //@RequestParam(value = "contractFile1", required = false) String contractFile1,
+                                                    //@RequestParam(value = "contractFile2", required = false) String contractFile2,
+                                                    //@RequestParam(value = "contractFile3", required = false) String contractFile3,
+                                                    //@RequestParam(value = "remarks", required = false) String remarks,
+                                                    @RequestBody Map<String,String> param,
+                                                    HttpServletRequest request, HttpServletResponse response) {
+        super.setPostHeader(response);
+        int providerId = StringUtil.toInt(param.get("providerId"));
+        String contractFile1 = param.get("contractFile1");
+        String contractFile2 = param.get("contractFile2");
+        String contractFile3 = param.get("contractFile3");
+        String remarks = param.get("remarks");
         try {
-            super.setPostHeader(response);
             if(providerId <= 0 )
                 return new Response<String>(1, "provider error !", providerId + "");
             if (schoolInstitutionService.updateSchoolAttachments(providerId, contractFile1, contractFile2, contractFile3, remarks) > 0) {
