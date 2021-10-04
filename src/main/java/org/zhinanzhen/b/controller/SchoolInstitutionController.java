@@ -75,6 +75,20 @@ public class SchoolInstitutionController extends BaseController {
         }
     }
 
+    @RequestMapping(value = "/deleteSchoolAttachments", method = RequestMethod.GET)
+    @ResponseBody
+    public Response deleteSchoolAttachments(@RequestParam(value = "providerId")int providerId,
+                                            @RequestParam(value = "isDeleteFile1", required = false, defaultValue = "false")boolean isDeleteFile1,
+                                            @RequestParam(value = "isDeleteFile2", required = false, defaultValue = "false")boolean isDeleteFile2,
+                                            @RequestParam(value = "isDeleteFile3", required = false, defaultValue = "false")boolean isDeleteFile3,
+                                            HttpServletRequest request, HttpServletResponse response) throws ServiceException {
+        super.setGetHeader(response);
+        if (schoolInstitutionService.deleteSchoolAttachments(providerId,isDeleteFile1,isDeleteFile2,isDeleteFile3) > 0)
+            return new Response(0,"success");
+        else
+            return new Response(1,"fail");
+    }
+
     @RequestMapping(value = "/list",method = RequestMethod.GET)
     @ResponseBody
     public ListResponse list(@RequestParam(value = "id",required = false ) Integer id, @RequestParam(value = "name" ,required =  false) String name,

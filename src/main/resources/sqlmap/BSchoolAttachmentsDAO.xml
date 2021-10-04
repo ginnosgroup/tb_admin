@@ -30,13 +30,13 @@
     <update id="updateSchoolAttachments" parameterType="org.zhinanzhen.b.dao.pojo.SchoolAttachmentsDO">
         UPDATE b_school_attachments 
         SET gmt_modify = now()
-        <if test=' contractFile1 != ""'>
+        <if test='contractFile1 != null and contractFile1 != ""'>
             , contract_file_1 = #{contractFile1}
         </if>
-        <if test=' contractFile2 != ""'>
+        <if test='contractFile2 != null and contractFile2 != ""'>
             , contract_file_2 = #{contractFile2}
         </if>
-        <if test=' contractFile3 != ""'>
+        <if test='contractFile3 != null and contractFile3 != ""'>
             , contract_file_3 = #{contractFile3}
         </if>
         <if test='remarks != null and remarks != ""'>
@@ -72,4 +72,18 @@
         FROM b_school_attachments WHERE provider_id = #{providerId};
     </select>
 
+    <update id="deleteSchoolAttachments">
+        UPDATE b_school_attachments
+        SET gmt_modify = now()
+        <if test="isDeleteFile1 != null and isDeleteFile1 == true">
+            , contract_file_1 = NULL
+        </if>
+        <if test="isDeleteFile2 != null and isDeleteFile2 == true">
+            , contract_file_2 = NULL
+        </if>
+        <if test="isDeleteFile3 != null and isDeleteFile3 == true">
+            , contract_file_3 = NULL
+        </if>
+        WHERE provider_id = #{providerId};
+    </update>
 </mapper>

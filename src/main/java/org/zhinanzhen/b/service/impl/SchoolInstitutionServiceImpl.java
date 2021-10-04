@@ -320,6 +320,22 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
         return schoolSettingNewDTO;
     }
 
+    @Override
+    public int deleteSchoolAttachments(int providerId, boolean isDeleteFile1, boolean isDeleteFile2, boolean isDeleteFile3) throws ServiceException {
+        if (providerId <= 0) {
+            ServiceException se = new ServiceException("providerId error !");
+            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+            throw se;
+        }
+        try {
+            return schoolAttachmentsDao.deleteSchoolAttachments(providerId,isDeleteFile1,isDeleteFile2,isDeleteFile3);
+        } catch (Exception e) {
+            ServiceException se = new ServiceException(e);
+            se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+            throw se;
+        }
+    }
+
     /**
      * 通过 courseId 和 佣金订单创建时间返回该专业所属的setting
      * 如果没有返回 null
