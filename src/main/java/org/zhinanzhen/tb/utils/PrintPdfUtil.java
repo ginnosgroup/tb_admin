@@ -1339,14 +1339,14 @@ public class PrintPdfUtil {
             PdfPTable table10 = new PdfPTable(12);
             List<InvoiceSchoolDescriptionDO> des = invoiceSchoolDTO.getInvoiceSchoolDescriptionDOS();
             PdfPCell cell10 ;
-            int width10[] = {4,10,8,8,9,8,7,9,8,11,8,10};
+            int width10[] = {4,9,8,8,9,8,8,9,8,10,9,10};
             for (int i = -1; i < des.size() ; i++) {
                 if (i == -1) {
                     cell10 = new PdfPCell(new Paragraph("NO.", FontChinese8));
                     cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
                     cell10.setFixedHeight(15);
                     table10.addCell(cell10);
-                    cell10 = new PdfPCell(new Paragraph(" Student Name ", FontChinese8));
+                    cell10 = new PdfPCell(new Paragraph("Student Name", FontChinese8));
                     cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
                     table10.addCell(cell10);
                     cell10 = new PdfPCell(new Paragraph(" DOB ", FontChinese8));
@@ -1370,7 +1370,7 @@ public class PrintPdfUtil {
                     cell10 = new PdfPCell(new Paragraph(" Tuition Fee ", FontChinese8));
                     cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
                     table10.addCell(cell10);
-                    cell10 = new PdfPCell(new Paragraph(" Commission Rate ", FontChinese8));
+                    cell10 = new PdfPCell(new Paragraph("Commission Rate", FontChinese8));
                     cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
                     table10.addCell(cell10);
                     cell10 = new PdfPCell(new Paragraph(" Commission ", FontChinese8));
@@ -1568,7 +1568,7 @@ public class PrintPdfUtil {
         if (type.equalsIgnoreCase("N")) {
             PdfPTable table10 = new PdfPTable(12);
             PdfPCell cell10;
-            int width10[] = {5, 10, 8, 9, 9, 8, 9, 9, 9, 9, 10, 5};
+            int width10[] = {5, 10, 8, 8, 9, 8, 9, 9, 9, 9, 10, 6};
             for (int i = -1; i < des.size(); i++) {
                 if (i == -1) {
                     cell10 = new PdfPCell(new Paragraph(" NO. ", FontChinese8));
@@ -1605,7 +1605,7 @@ public class PrintPdfUtil {
                     cell10 = new PdfPCell(new Paragraph(" Bonus Amount ", FontChinese8));
                     cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
                     table10.addCell(cell10);
-                    cell10 = new PdfPCell(new Paragraph(" Instalment ", FontChinese8));
+                    cell10 = new PdfPCell(new Paragraph("Instalment", FontChinese8));
                     cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
                     table10.addCell(cell10);
                     table10.setHorizontalAlignment(Element.ALIGN_CENTER);
