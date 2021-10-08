@@ -582,6 +582,11 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
         return "fail";
     }
 
+    @Override
+    public List<InvoiceBillToDO> billByName(String name) {
+        return invoiceDAO.billByName(name);
+    }
+
     private List<InvoiceSchoolDescriptionDO> checkSchoolDescriptionInstallmentDueDate(List<InvoiceSchoolDescriptionDO> description) throws ServiceException {
         JSONArray jsonArray = JSONArray.parseArray(JSON.toJSONString(description));
         List<InvoiceSchoolDescriptionDO> _description = new ArrayList<>();

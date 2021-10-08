@@ -63,4 +63,11 @@ public interface InvoiceService {
     String updateSFInvoice(Map paramMap);
 
     String updateSCInvoice(Map paramMap) throws ServiceException;
+
+    /**
+     * 名字模糊查询bill
+     * @param name
+     * @return
+     */
+    List<InvoiceBillToDO> billByName(String name);
 }

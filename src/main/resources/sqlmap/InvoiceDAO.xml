@@ -495,4 +495,19 @@
         </if>
         WHERE  invoice_no = #{invoiceNo};
     </update>
+
+    <select id="billByName" resultType="org.zhinanzhen.b.dao.pojo.InvoiceBillToDO">
+        SELECT
+        id,
+        company,
+        abn,
+        address
+        FROM `b_invoice_billto`
+        <where>
+            <if test=' name != null and name != "" '>
+                 company LIKE "%"#{name}"%"
+            </if>
+        </where>
+        ;
+    </select>
 </mapper>
