@@ -74,7 +74,7 @@ public class VerifyController {
 
         for (FinanceCodeDO financeCodeDO : financeCodeDOS) {
             String orderId = financeCodeDO.getOrderId();
-                if (orderId != null && orderId.substring(0,2).equalsIgnoreCase("CS")) {
+                if (StringUtil.isNotBlank(orderId)  && orderId.substring(0,2).equalsIgnoreCase("CS")) {
                     CommissionOrderListDTO commissionOrderListDTO = commissionOrderService.getCommissionOrderById(Integer.parseInt(orderId.substring(2)));
                     if (commissionOrderListDTO!=null){
                         //financeCodeDO.setAdviser(commissionOrderListDTO.getAdviser().getName());
@@ -93,7 +93,7 @@ public class VerifyController {
                     }
 
                 }
-                if (orderId != null && orderId.substring(0,2).equalsIgnoreCase("CV") ){
+                if (StringUtil.isNotBlank(orderId) && orderId.substring(0,2).equalsIgnoreCase("CV") ){
                     VisaDTO visaDTO =  visaService.getVisaById(Integer.parseInt(orderId.substring(2)));
                     if (visaDTO!=null){
                         financeCodeDO.setAdviserId(visaDTO.getAdviserId());
