@@ -1568,14 +1568,14 @@ public class PrintPdfUtil {
         if (type.equalsIgnoreCase("N")) {
             PdfPTable table10 = new PdfPTable(12);
             PdfPCell cell10;
-            int width10[] = {5, 10, 8, 8, 9, 8, 9, 9, 9, 9, 10, 6};
+            int width10[] = {4, 9, 8, 8, 9, 8, 9, 9, 9, 9, 10, 8};
             for (int i = -1; i < des.size(); i++) {
                 if (i == -1) {
-                    cell10 = new PdfPCell(new Paragraph(" NO. ", FontChinese8));
+                    cell10 = new PdfPCell(new Paragraph("NO.", FontChinese8));
                     cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
                     cell10.setFixedHeight(15);
                     table10.addCell(cell10);
-                    cell10 = new PdfPCell(new Paragraph(" Student Name ", FontChinese8));
+                    cell10 = new PdfPCell(new Paragraph("Student Name", FontChinese8));
                     cell10.setHorizontalAlignment(Element.ALIGN_CENTER);
                     table10.addCell(cell10);
                     cell10 = new PdfPCell(new Paragraph(" DOB ", FontChinese8));
