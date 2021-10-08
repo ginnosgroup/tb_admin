@@ -26,6 +26,7 @@ public class ExceptionHandlerAll {
     @ResponseBody
     public Response handlerException(Exception ex){
         //Response result = new Response(0," 系统出现错误，请联系管理员! ");
+        ex.printStackTrace();
         Response result = new Response(1,ex.getMessage());
         return  result;
     }
