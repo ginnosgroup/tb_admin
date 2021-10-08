@@ -395,6 +395,23 @@ public class SchoolInstitutionController extends BaseController {
     }
 
     /**
+     * id 查询 规则记录
+     * @param id
+     * @param request
+     * @param response
+     * @return
+     */
+    @GetMapping(value = "/getSetting")
+    @ResponseBody
+    public Response<SchoolSettingNewDTO> getSetting(@RequestParam(value = "id")int id,
+                               HttpServletRequest request, HttpServletResponse response){
+        super.setGetHeader(response);
+        if ( id <= 0 )
+            return new Response(1," id error");
+        return new Response(0,schoolInstitutionService.getSchoolSettingNewById(id));
+    }
+
+    /**
      * Level：1 表示学校（全部）级别RATE，2表示学历级别RATE，3表示专业级别RATE
      * Level = 1  CourseLevel 和 CourseId 设置为null
      * Level = 2  CourseId      设置为null
