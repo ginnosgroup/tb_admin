@@ -112,10 +112,4 @@ public interface InvoiceDAO {
 
     boolean updatePdfUrl(Map map);
 
-    /**
-     * 名字模糊查询bill
-     * @param name
-     * @return
-     */
-    List<InvoiceBillToDO> billByName(@Param("name") String name);
 }

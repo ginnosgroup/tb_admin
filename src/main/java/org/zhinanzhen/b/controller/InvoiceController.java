@@ -456,19 +456,5 @@ public class InvoiceController  extends BaseController {
         }
     }
 
-    /**
-     * 名字模糊查询bill
-     * @param name
-     * @param request
-     * @param response
-     * @return
-     */
-    @GetMapping(value = "/billByName")
-    @ResponseBody
-    public Response billByName(@RequestParam(value = "name",required = false)String name,
-                               HttpServletRequest request, HttpServletResponse response){
-        super.setGetHeader(response);
-        return new Response(0,"success", invoiceService.billByName(name));
-    }
 
 }
