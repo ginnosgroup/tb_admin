@@ -56,7 +56,7 @@ public interface InvoiceService {
 
     int saveSchoolInvoice(Map paramMap ,List<InvoiceSchoolDescriptionDO> des) throws ServiceException;
 
-    List<InvoiceBillToDO> billToList();
+    List<InvoiceBillToDO> billToList(String name);
 
     Response pdfPrint(String invoiceNo, String invoiceIds, String realpath,boolean canceled);
 

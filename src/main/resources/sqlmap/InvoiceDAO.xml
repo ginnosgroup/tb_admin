@@ -394,6 +394,12 @@
 
     <select id="billToList" resultType="org.zhinanzhen.b.dao.pojo.InvoiceBillToDO">
         select id,company,abn,address from `b_invoice_billto`
+        <where>
+            <if test=' name != null and name != "" '>
+                company LIKE "%"#{name}"%"
+            </if>
+        </where>
+        ;
     </select>
 
     <!-- 选择bill to company 添加company-->

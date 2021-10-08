@@ -267,8 +267,8 @@ public class InvoiceController  extends BaseController {
      */
     @RequestMapping(value = "/selectBillTo", method = RequestMethod.GET)
     @ResponseBody
-    public Response billToList() {
-        return new Response(0, invoiceService.billToList());
+    public Response billToList(@RequestParam(value = "name",required = false)String name) {
+        return new Response(0, invoiceService.billToList(name));
     }
 
     /**
