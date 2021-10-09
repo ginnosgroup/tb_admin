@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.controller.nodes;
 
+import java.util.Date;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -72,6 +73,8 @@ public abstract class SODecisionNode extends AbstractDecisionNode {
 				serviceOrderDto.setStateMark(context.getParameter("stateMark").toString());
 				log.info("写入stateMark:" + serviceOrderDto.getStateMark());
 			}
+			if ("APPLY".contains(getName()))
+				serviceOrderDto.setReadcommittedDate(new Date());
 			if (serviceOrderService.updateServiceOrder(serviceOrderDto) > 0)
 				log.info("保存流程状态成功:serviceOrderId=" + serviceOrderDto.getId() + ",state=" + getName());
 			else

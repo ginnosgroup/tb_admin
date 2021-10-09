@@ -732,6 +732,14 @@ public class ServiceOrderController extends BaseController {
 		}
 	}
 
+	/**
+	 * 更新服务订单已提交申请时间,readcommitted_date字段
+	 * @param id
+	 * @param readcommittedDate
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	@RequestMapping(value = "/updateReadcommittedDate", method = RequestMethod.POST)
 	@ResponseBody
 	@Transactional(rollbackFor = ServiceException.class)
