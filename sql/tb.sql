@@ -399,6 +399,7 @@ CREATE TABLE `b_service_order` (
   `parent_id` int DEFAULT NULL COMMENT '父服务订单编号 (对应b_service_order.id)',
   `service_package_id` int DEFAULT NULL COMMENT '服务包编号 (对应b_service_package.id,仅子订单才有)',
   `school_id` int DEFAULT NULL COMMENT '学校编号 (对应b_school.id,留学服务专用字段)',
+  `course_id` int(11) DEFAULT NULL COMMENT 'b_school_course.id',
   `state` varchar(20) NOT NULL COMMENT '状态 (PENDING:待提交审核,REVIEW:审核中,APPLY:服务申请中,COMPLETE:服务申请完成,PAID:完成-支付成功,CLOSE:关闭)',
   `review_state` varchar(8) DEFAULT NULL COMMENT '审批状态 (OFFICIAL:文案审批通过,MARA:Mara审批通过,KJ:财务审批通过)',
 `urgent_state` varchar(8) DEFAULT NULL COMMENT '加急状态(JJ:加急, TSJJ:特殊加急),仅限签证订单',
@@ -519,7 +520,8 @@ CREATE TABLE `b_commission_order` (
   `kj_approval_date` datetime DEFAULT NULL COMMENT '财务审核时间',
   `is_settle` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否提前扣佣',
   `is_deposit_user` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否为保证金用户',
-  `school_id` int NOT NULL COMMENT '学校编号 (对应b_school.id)',
+  `school_id` int DEFAULT NULL COMMENT '学校编号 (对应b_school.id)',
+  `course_id` int(11) DEFAULT NULL COMMENT 'b_school_course.id',
   `student_code` varchar(32) NOT NULL COMMENT '学号',
   `user_id` int NOT NULL COMMENT '用户编号 (对应tb_user.id)',
   `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
@@ -590,11 +592,12 @@ CREATE TABLE `b_school_attachments` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
-  `school_name` varchar(128) NOT NULL COMMENT '学校名称',
+  `school_name` varchar(128) DEFAULT NULL COMMENT '学校名称',
   `contract_file_1` varchar(128) DEFAULT NULL COMMENT '合同地址1',
   `contract_file_2` varchar(128) DEFAULT NULL COMMENT '合同地址2',
   `contract_file_3` varchar(128) DEFAULT NULL COMMENT '合同地址3',
-  `remarks` text DEFAULT NULL COMMENT '备注'
+  `remarks` text DEFAULT NULL COMMENT '备注',
+  `provider_id` int(11) DEFAULT NULL COMMENT 'b_school_institution.id',
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
 -- Subagency
@@ -1066,4 +1069,26 @@ CREATE TABLE `b_mail_remind` (
   `is_send` tinyint(1) DEFAULT '0' COMMENT '已经发送邮件',
   `user_id` int(11) DEFAULT NULL COMMENT '所属顾问编号',
   PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
+-- 新学校库 Setting
+CREATE TABLE `b_school_setting_new` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `type` int(11) DEFAULT NULL COMMENT '设置类型 (0:未选,1:固定比例-无额外补贴,2:固定比例-每人补贴,3:固定比例-一次性补贴,4:变动比例,5:固定底价-无额外补贴,6:固定底价-每人补贴,7:固定底价-一次性补贴)',
+  `start_date` datetime NOT NULL COMMENT '合同开始时间',
+  `end_date` datetime NOT NULL COMMENT '合同结束时间',
+  `parameters` varchar(255) DEFAULT NULL COMMENT '参数',
+  `level` int(1) DEFAULT NULL COMMENT 'setting级别:1/全部；2/学历级别；3/专业级别',
+  `first_register` tinyint(1) DEFAULT NULL COMMENT '是否首次注册费',
+  `register_fee` decimal(6,2) DEFAULT NULL COMMENT '注册费',
+  `first_book` tinyint(1) DEFAULT NULL COMMENT '是否首次书本费',
+  `book_fee` decimal(6,2) DEFAULT NULL COMMENT '书本费',
+  `provider_id` int(11) NOT NULL COMMENT ' (b_school_institution.id)',
+  `course_level` varchar(255) DEFAULT NULL COMMENT '学历级别',
+  `course_id` varchar(255) DEFAULT NULL COMMENT 'b_school_course.id',
+  `is_delete` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否删除，如果删除，可作为历史setting',
+  PRIMARY KEY (`id`),
+  KEY `index` (`provider_id`,`course_level`,`course_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
