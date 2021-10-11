@@ -1022,6 +1022,7 @@ CREATE TABLE `b_school_course` (
   `course_level` varchar(255) DEFAULT NULL COMMENT '课程级别',
   `provider_id` int DEFAULT NULL COMMENT '学校编号',
   `provider_code` varchar(32) DEFAULT NULL COMMENT '学校编码',
+  `course_code` varchar(32) DEFAULT NULL COMMENT '专业编码',
   `is_freeze` tinyint(1) NOT NULL DEFAULT '0' COMMENT '冻结'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
