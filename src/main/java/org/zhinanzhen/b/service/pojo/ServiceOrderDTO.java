@@ -160,6 +160,8 @@ public class ServiceOrderDTO {
 	
 	private String refNo;
 
+	private Date submitMaraApprovalDate;
+
 	private boolean hasCommissionOrder = false;
 
 	private ServiceOrderReviewDTO review;

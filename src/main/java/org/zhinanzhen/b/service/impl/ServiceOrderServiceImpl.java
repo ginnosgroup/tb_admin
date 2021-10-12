@@ -692,10 +692,10 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 							serviceOrderDo.getNutCloud(), "<br/>客户基本信息:", serviceOrderDo.getInformation(), "<br/>备注:",
 							serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>创建时间:",
 							date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
+					// 写入审核时间
+					if (serviceOrderDo.getMaraApprovalDate() == null)
+						serviceOrderDo.setMaraApprovalDate(new Date());
 				}
-				// 写入审核时间
-				if (serviceOrderDo.getMaraApprovalDate() == null)
-					serviceOrderDo.setMaraApprovalDate(new Date());
 			}
 			if ("REVIEW".equals(state)) { // 给文案发邮件提醒，这时adviserState为REVIEW,officialState为NULL
 				sendMail(officialDo.getEmail() + ",maggie@zhinanzhen.org", serviceOrderMailDetail.getTitle(),
@@ -720,6 +720,11 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 								"<br/>客户基本信息:", serviceOrderDo.getInformation(), "<br/>备注:",
 								serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>",
 								serviceOrderMailDetail.getServiceOrderUrl()));
+			}
+			if ("VISA".equalsIgnoreCase(serviceOrderDo.getType()) && "WAIT".equals(state)){
+				// 写入文案提交Mara审核时间
+				if (serviceOrderDo.getSubmitMaraApprovalDate() == null)
+					serviceOrderDo.setSubmitMaraApprovalDate(new Date());
 			}
 			if ("COMPLETE".equals(state)) {
 				if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())) {

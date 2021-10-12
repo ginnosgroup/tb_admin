@@ -145,4 +145,6 @@ public class ServiceOrderDO implements Serializable {
 	
 	private String refNo;
 
+	private Date submitMaraApprovalDate;
+
 }

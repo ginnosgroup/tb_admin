@@ -173,6 +173,9 @@
         <if test='maraApprovalDate != null'>
             , mara_approval_date = #{maraApprovalDate}
         </if>
+        <if test='submitMaraApprovalDate != null'>
+            , submit_mara_approval_date = #{submitMaraApprovalDate}
+        </if>
         <if test='officialApprovalDate != null'>
             , official_approval_date = #{officialApprovalDate}
         </if>
@@ -421,6 +424,7 @@
             so.state_mark AS stateMark,
             so.urgent_state AS urgentState,
             so.mara_approval_date AS maraApprovalDate,
+            so.submit_mara_approval_date AS submitMaraApprovalDate,
             so.official_approval_date AS officialApprovalDate,
             so.is_settle AS isSettle,
             so.is_deposit_user AS isDepositUser,
@@ -580,6 +584,7 @@
             state_mark AS stateMark,
             urgent_state AS urgentState,
             mara_approval_date AS maraApprovalDate,
+            submit_mara_approval_date AS submitMaraApprovalDate,
             official_approval_date AS officialApprovalDate,
             is_settle AS isSettle,
             is_deposit_user AS isDepositUser,
@@ -729,6 +734,7 @@
             state,
             urgent_state AS urgentState,
             mara_approval_date AS maraApprovalDate,
+            submit_mara_approval_date AS submitMaraApprovalDate,
             official_approval_date AS officialApprovalDate,
             is_settle AS isSettle,
             is_deposit_user AS isDepositUser,
@@ -814,6 +820,7 @@
         so.state_mark AS stateMark,
         so.urgent_state AS urgentState,
         so.mara_approval_date AS maraApprovalDate,
+        so.submit_mara_approval_date AS submitMaraApprovalDate,
         so.official_approval_date AS officialApprovalDate,
         so.is_settle AS isSettle,
         so.is_deposit_user AS isDepositUser,
