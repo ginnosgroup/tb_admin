@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.OfficialService;
 import org.zhinanzhen.b.service.OfficialStateEnum;
 import org.zhinanzhen.tb.controller.BaseController;
+import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
@@ -176,15 +177,16 @@ public class OfficialController extends BaseController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<OfficialDTO>> listOfficial(@RequestParam(value = "name", required = false) String name,
-			@RequestParam(value = "regionId", required = false) Integer regionId,
-			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
-			HttpServletResponse response) {
+	public ListResponse<List<OfficialDTO>> listOfficial(@RequestParam(value = "name", required = false) String name,
+														@RequestParam(value = "regionId", required = false) Integer regionId,
+														@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
+														HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<List<OfficialDTO>>(0, officialService.listOfficial(name, regionId, pageNum, pageSize));
+			int total = officialService.countOfficial(name, regionId);
+			return new ListResponse<List<OfficialDTO>>(true,pageSize, total,officialService.listOfficial(name, regionId, pageNum, pageSize), "success");
 		} catch (ServiceException e) {
-			return new Response<List<OfficialDTO>>(1, e.getMessage(), null);
+			return new ListResponse<List<OfficialDTO>>(false, pageSize, 0, null, e.getMessage());
 		}
 	}
 
