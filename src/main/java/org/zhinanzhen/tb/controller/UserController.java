@@ -214,7 +214,7 @@ public class UserController extends BaseController {
 			if (id != null && id > 0){
 				List<UserDTO> list = new ArrayList<>();
 				UserDTO userDTO = userService.getUserById(id);
-				userDTO.setMailRemindDTOS(mailRemindService.list(getAdviserId(request),null,null,null,null,id,false,false));
+				userDTO.setMailRemindDTOS(mailRemindService.list(getAdviserId(request),null,null,null,null,null,id,false,false));
 				list.add(userDTO);
 				return  new ListResponse<List<UserDTO>>(true, pageSize, 1, list, "");
 			}
@@ -225,7 +225,7 @@ public class UserController extends BaseController {
 					StringUtil.toInt(adviserId), regionIdList, StringUtil.toInt(tagId), orderByField,
 					Boolean.parseBoolean(StringUtil.isEmpty(isDesc) ? "false" : isDesc), pageNum, pageSize);
 			for (UserDTO user : list){
-				List<MailRemindDTO> mailRemindDTOS = mailRemindService.list(getAdviserId(request),null,null,null,null,user.getId(),false,true);
+				List<MailRemindDTO> mailRemindDTOS = mailRemindService.list(getAdviserId(request),null,null,null,null,null,user.getId(),false,true);
 				user.setMailRemindDTOS(mailRemindDTOS);
 			}
 			return new ListResponse<List<UserDTO>>(true, pageSize, total, list, "");

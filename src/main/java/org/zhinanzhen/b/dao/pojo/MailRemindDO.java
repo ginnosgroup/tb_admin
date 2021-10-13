@@ -41,4 +41,6 @@ public class MailRemindDO {
     private Integer offcialId;
 
     private Integer userId;
+
+    private Integer kjId;
 }

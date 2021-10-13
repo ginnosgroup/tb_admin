@@ -353,7 +353,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			visaDto.setTotalAmount(totalAmount);
 		}
 
-		List<MailRemindDO> mailRemindDOS = mailRemindDAO.list(null,null,null,visaDto.getId(),null,null,false,true);
+		List<MailRemindDO> mailRemindDOS = mailRemindDAO.list(null,null,null,null,visaDto.getId(),null,null,false,true);
 		if (mailRemindDOS.size() > 0){
 			List<MailRemindDTO> mailRemindDTOS = new ArrayList<>();
 			mailRemindDOS.forEach(mailRemindDO ->{

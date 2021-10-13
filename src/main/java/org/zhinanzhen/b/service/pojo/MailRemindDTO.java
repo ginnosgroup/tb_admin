@@ -41,5 +41,7 @@ public class MailRemindDTO {
 
     private Integer userId;
 
+    private Integer kjId;
+
     private String userName;
 }

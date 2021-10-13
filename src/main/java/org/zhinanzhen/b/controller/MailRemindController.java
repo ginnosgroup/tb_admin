@@ -47,6 +47,9 @@ public class MailRemindController extends BaseController {
     OfficialService officialService;
 
     @Resource
+    KjService kjService;
+
+    @Resource
     CommissionOrderService commissionOrderService;
 
     @Resource
@@ -71,9 +74,10 @@ public class MailRemindController extends BaseController {
                 return new Response(1, "先登录");
             Integer adviserId = getAdviserId(request);
             Integer offcialId = getOfficialId(request);
+            Integer kjId = getKjId(request);
 
             return new Response<List<MailRemindDTO>>(0, "",
-                    mailRemindService.list(adviserId, offcialId, serviceOrderId, visaId, commissionOrderId,userId,isToday,Boolean.TRUE));
+                    mailRemindService.list(adviserId, offcialId, kjId,serviceOrderId, visaId, commissionOrderId,userId,isToday,Boolean.TRUE));
         } catch (ServiceException e) {
             e.printStackTrace();
             return new Response<List<MailRemindDTO>>(e.getCode(), e.getMessage(), null);
@@ -85,6 +89,7 @@ public class MailRemindController extends BaseController {
                         @RequestParam(value = "content")String content,
                         @RequestParam(value = "adviserId" , required = false)Integer adviserId,
                         @RequestParam(value = "offcialId" , required = false)Integer offcialId,
+                        @RequestParam(value = "kjId" , required = false)Integer kjId,
                         @RequestParam(value = "serviceOrderId" , required = false)Integer serviceOrderId,
                         @RequestParam(value = "visaId" , required = false)Integer visaId,
                         @RequestParam(value = "commissionOrderId" , required = false)Integer commissionOrderId,
@@ -96,8 +101,6 @@ public class MailRemindController extends BaseController {
             if (getAdminUserLoginInfo(request) == null)
                 return new Response(1,"先登录");
 
-            if (serviceOrderId == null && visaId == null && commissionOrderId == null && userId == null)
-                return new Response(1,"至少传一个:服务,佣金订单,用户id !");
 
             MailRemindDTO mailRemindDTO = new MailRemindDTO();
             Integer _adviserId = getAdviserId(request);
@@ -120,6 +123,20 @@ public class MailRemindController extends BaseController {
                 }
             }else
                 offcialId = null;
+
+            Integer _kjlId = getKjId(request);
+            if (_kjlId != null) {
+                kjId = _kjlId;
+                KjDTO kjDTO = kjService.getKjById(kjId);
+                if (kjDTO != null){
+                    mailRemindDTO.setMail(kjDTO.getEmail());
+                }
+            }else
+                kjId = null;
+
+            //kj 可以设置的提醒不关联佣金订单
+            if (serviceOrderId == null && visaId == null && commissionOrderId == null && userId == null && kjId == null)
+                return new Response(1,"至少传一个:服务,佣金订单,用户id !");
 
             if (serviceOrderId != null && serviceOrderId > 0) {
                 String str = "";
@@ -154,10 +171,13 @@ public class MailRemindController extends BaseController {
                 UserDTO userDTO = userService.getUserById(userId);
                 if (userDTO != null)
                     mailRemindDTO.setTitle("客户提醒:客户姓名" + userDTO.getName() + userDTO.getId() + " 今日有一个提醒待处理");
-            }
+            }else
+                mailRemindDTO.setTitle("您有一个新提醒待处理");
+
 
             mailRemindDTO.setAdviserId(adviserId);
             mailRemindDTO.setOffcialId(offcialId);
+            mailRemindDTO.setKjId(kjId);
             mailRemindDTO.setContent(content);
             mailRemindDTO.setVisaId(visaId);
             mailRemindDTO.setServiceOrderId(serviceOrderId);

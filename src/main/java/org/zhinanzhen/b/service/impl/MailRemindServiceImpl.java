@@ -45,13 +45,13 @@ public class MailRemindServiceImpl extends BaseService implements MailRemindServ
     }
 
     @Override
-    public List<MailRemindDTO> list(Integer adviserId, Integer offcialId, Integer serviceOrderId,
+    public List<MailRemindDTO> list(Integer adviserId, Integer offcialId, Integer kjId,Integer serviceOrderId,
                                     Integer visaId, Integer commissionOrderId,  Integer userId, boolean isToday, boolean isAll) throws ServiceException {
 
         List<MailRemindDTO> MailRemindDTOList = new ArrayList<>();
         List<MailRemindDO> MailRemindDOList = null;
         try {
-            MailRemindDOList = mailRemindDAO.list(adviserId,offcialId,serviceOrderId,visaId,commissionOrderId, userId,isToday,isAll);
+            MailRemindDOList = mailRemindDAO.list(adviserId,offcialId,kjId,serviceOrderId,visaId,commissionOrderId, userId,isToday,isAll);
             if (MailRemindDOList == null)
                 return null;
         }catch (Exception e){

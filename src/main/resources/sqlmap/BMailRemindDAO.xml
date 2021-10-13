@@ -19,7 +19,8 @@
         commission_order_id,
         adviser_id,
         offcial_id,
-        user_id
+        user_id,
+        kj_id
         ) VALUES (
         NOW(),
         NOW(),
@@ -33,7 +34,8 @@
         #{commissionOrderId},
         #{adviserId},
         #{offcialId},
-        #{userId}
+        #{userId},
+        #{kjId}
         );
     </insert>
 
@@ -52,6 +54,7 @@
         commission_order_id AS commissionOrderId,
         adviser_id AS adviserId,
         offcial_id AS offcialId,
+        kj_id AS kjId,
         user_id AS userId
         from b_mail_remind
         <where>
@@ -60,6 +63,9 @@
             </if>
             <if test="offcialId != null and offcialId > 0">
                 AND offcial_id = #{offcialId}
+            </if>
+            <if test="kjId != null and kjId > 0">
+                AND kj_id = #{kjId}
             </if>
             <if test="serviceOrderId != null and serviceOrderId > 0">
                 AND service_order_id = #{serviceOrderId}
@@ -108,6 +114,7 @@
         commission_order_id AS commissionOrderId,
         adviser_id AS adviserId,
         offcial_id AS offcialId,
+        kj_id AS kjId,
         user_id AS userId
         from b_mail_remind
         WHERE id = #{id};
@@ -143,6 +150,7 @@
         commission_order_id AS commissionOrderId,
         adviser_id AS adviserId,
         offcial_id AS offcialId,
+        kj_id AS kjId,
         user_id AS userId
         FROM b_mail_remind WHERE  is_send = 0
         <choose>

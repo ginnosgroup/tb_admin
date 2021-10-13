@@ -1068,9 +1068,11 @@ CREATE TABLE `b_mail_remind` (
   `commission_order_id` int(11) DEFAULT NULL COMMENT 'b_commission_order.id',
   `adviser_id` int(11) DEFAULT NULL COMMENT ' (tb_adviser.id)',
   `offcial_id` int(11) DEFAULT NULL COMMENT ' (b_official.id,)',
+  `kj_id` int(11) DEFAULT NULL COMMENT 'kj编号',
   `is_send` tinyint(1) DEFAULT '0' COMMENT '已经发送邮件',
   `user_id` int(11) DEFAULT NULL COMMENT '所属顾问编号',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `index` (`kj_id`,`send_date`,`service_order_id`,`visa_id`,`commission_order_id`,`adviser_id`,`offcial_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 -- 新学校库 Setting
