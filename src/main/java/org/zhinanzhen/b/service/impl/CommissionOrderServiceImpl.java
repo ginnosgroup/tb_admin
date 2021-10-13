@@ -382,14 +382,14 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			commissionOrderListDto.setTotalAmount(totalAmount);
 		}
 
-		List<MailRemindDO> mailRemindDOS = mailRemindDAO.list(null,null,null,null,null,commissionOrderListDo.getId(),null,false,true);
-		if (mailRemindDOS.size() > 0){
-			List<MailRemindDTO> mailRemindDTOS = new ArrayList<>();
-			mailRemindDOS.forEach(mailRemindDO ->{
-				mailRemindDTOS.add(mapper.map(mailRemindDO,MailRemindDTO.class));
-			});
-			commissionOrderListDto.setMailRemindDTOS(mailRemindDTOS);
-		}
+		//List<MailRemindDO> mailRemindDOS = mailRemindDAO.list(null,null,null,null,null,commissionOrderListDo.getId(),null,false,true);
+		//if (mailRemindDOS.size() > 0){
+		//	List<MailRemindDTO> mailRemindDTOS = new ArrayList<>();
+		//	mailRemindDOS.forEach(mailRemindDO ->{
+		//		mailRemindDTOS.add(mapper.map(mailRemindDO,MailRemindDTO.class));
+		//	});
+		//	commissionOrderListDto.setMailRemindDTOS(mailRemindDTOS);
+		//}
 		return commissionOrderListDto;
 	}
 

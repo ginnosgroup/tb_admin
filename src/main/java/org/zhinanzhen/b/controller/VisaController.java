@@ -24,12 +24,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.zhinanzhen.b.service.MailRemindService;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.VisaService;
-import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
-import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
-import org.zhinanzhen.b.service.pojo.VisaCommentDTO;
-import org.zhinanzhen.b.service.pojo.VisaDTO;
+import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
@@ -68,6 +66,9 @@ public class VisaController extends BaseCommissionOrderController {
 
 	@Resource
 	UserService userService;
+
+	@Resource
+	MailRemindService mailRemindService;
 	
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -663,6 +664,13 @@ public class VisaController extends BaseCommissionOrderController {
 							v.setServiceOrder(serviceOrderDto);
 					} catch (ServiceException e) {
 					}
+				try {
+					List<MailRemindDTO> mailRemindDTOS = mailRemindService.list(getAdviserId(request),getOfficialId(request),
+							getKjId(request),null,v.getId(),null,null,false,true);
+					v.setMailRemindDTOS(mailRemindDTOS);
+				} catch (ServiceException serviceException) {
+					serviceException.printStackTrace();
+				}
 			});
 			return new ListResponse<List<VisaDTO>>(true, pageSize, total, list, "");
 		} catch (ServiceException e) {

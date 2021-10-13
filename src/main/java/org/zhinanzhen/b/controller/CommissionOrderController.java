@@ -25,10 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.*;
-import org.zhinanzhen.b.service.pojo.CommissionOrderCommentDTO;
-import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
-import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
-import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
+import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
@@ -76,6 +73,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 	@Resource
 	SchoolInstitutionService schoolInstitutionService;
+
+	@Resource
+	MailRemindService mailRemindService;
 
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -890,12 +890,20 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					userId, name, phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
 					startKjApprovalDate, endKjApprovalDate, startDate,endDate,startInvoiceCreate, endInvoiceCreate, isYzyAndYjy,
 					applyState);
-			return new ListResponse<List<CommissionOrderListDTO>>(true, pageSize, total,
-					commissionOrderService.listCommissionOrder(id, regionIdList, maraId, adviserId, officialId, userId,
-							name, phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
-							startKjApprovalDate, endKjApprovalDate, startDate,endDate,startInvoiceCreate, endInvoiceCreate, isYzyAndYjy,
-							applyState, pageNum, pageSize, _sorter),
-					"");
+			List<CommissionOrderListDTO> list = commissionOrderService.listCommissionOrder(id, regionIdList, maraId, adviserId, officialId, userId,
+					name, phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
+					startKjApprovalDate, endKjApprovalDate, startDate,endDate,startInvoiceCreate, endInvoiceCreate, isYzyAndYjy,
+					applyState, pageNum, pageSize, _sorter);
+			list.forEach(co -> {
+				try {
+					List<MailRemindDTO> mailRemindDTOS = mailRemindService.list(getAdviserId(request),newOfficialId,getKjId(request),
+							null,null,co.getId(),null,false,true);
+					co.setMailRemindDTOS(mailRemindDTOS);
+				} catch (ServiceException se) {
+					se.printStackTrace();
+				}
+			});
+			return new ListResponse<List<CommissionOrderListDTO>>(true, pageSize, total, list, "");
 		} catch (ServiceException e) {
 			return new ListResponse<List<CommissionOrderListDTO>>(false, pageSize, 0, null, e.getMessage());
 		}
