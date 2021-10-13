@@ -438,8 +438,27 @@ public class VerifyServiceImpl implements VerifyService {
     }
 
     @Override
-    public FinanceCodeDO financeCodeById(Integer id) {
-        return verifyDao.financeCodeById(id);
+    public FinanceCodeDTO financeCodeById(Integer id) {
+        FinanceCodeDO financeCodeDO = verifyDao.financeCodeById(id);
+        FinanceCodeDTO financeCodeDTO = null;
+        if (financeCodeDO != null){
+            financeCodeDTO = mapper.map(financeCodeDO,FinanceCodeDTO.class);
+            if (financeCodeDTO.getAdviserId() > 0 ){
+                AdviserDO adviserDO = adviserDao.getAdviserById(financeCodeDTO.getAdviserId());
+                if (adviserDO!= null){
+                    financeCodeDTO.setAdviser(mapper.map(adviserDO,AdviserDTO.class));
+                    RegionDO regionDO = regionDAO.getRegionById(adviserDO.getRegionId());
+                    if (regionDO!=null)
+                        financeCodeDTO.getAdviser().setRegionName(regionDO.getName());
+                }
+            }
+            if (financeCodeDTO.getUserId() > 0 ){
+                UserDO userDO = userDAO.getUserById(financeCodeDTO.getUserId());
+                if (userDO!=null)
+                    financeCodeDTO.setUser(mapper.map(userDO,UserDTO.class));
+            }
+        }
+        return financeCodeDTO;
     }
 
     @Override

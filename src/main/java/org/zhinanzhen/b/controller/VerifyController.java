@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.controller;
 
+import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import jxl.Workbook;
 import jxl.WorkbookSettings;
@@ -17,6 +18,7 @@ import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.VerifyService;
 import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.b.service.pojo.*;
+import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -30,6 +32,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -269,12 +272,12 @@ public class VerifyController {
 
     @GetMapping(value = "/list")
     @ResponseBody
-    public  Response list(@RequestParam(value = "id",required = false)Integer id,
-                          @RequestParam(value = "bankDateStart",required = false) String bankDateStart,
-                          @RequestParam(value = "bankDateEnd",required = false)String bankDateEnd,
-                          @RequestParam(value = "regionId",required = false)Integer regionId,
-                          @RequestParam(value = "pageSize",required = true)Integer pageSize,
-                          @RequestParam(value = "pageNum",required = true)Integer pageNumber){
+    public ListResponse list(@RequestParam(value = "id",required = false)Integer id,
+                             @RequestParam(value = "bankDateStart",required = false) String bankDateStart,
+                             @RequestParam(value = "bankDateEnd",required = false)String bankDateEnd,
+                             @RequestParam(value = "regionId",required = false)Integer regionId,
+                             @RequestParam(value = "pageSize",required = true)Integer pageSize,
+                             @RequestParam(value = "pageNum",required = true)Integer pageNumber){
         try {
             if (StringUtil.isNotEmpty(bankDateStart))
                 bankDateStart = sdfbankDateout.format(sdfbankDatein.parse(bankDateStart));
@@ -283,7 +286,16 @@ public class VerifyController {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        return  new Response(0,verifyService.list(bankDateStart,bankDateEnd+" 23:59:59",regionId,pageSize,pageNumber));
+        if (ObjectUtil.isNotNull(id) && id > 0 ){
+            List<FinanceCodeDTO> list = new ArrayList<>();
+            FinanceCodeDTO financeCodeDTO;
+            if ( (financeCodeDTO = verifyService.financeCodeById(id)) != null){
+                list.add(financeCodeDTO);
+            }
+            return new ListResponse(true,pageSize,list.size(),list,"");
+        }
+        int total = verifyService.count(bankDateStart,bankDateEnd+" 23:59:59",regionId);
+        return  new ListResponse(true,pageSize,total,verifyService.list(bankDateStart,bankDateEnd+" 23:59:59",regionId,pageSize,pageNumber),"");
     }
 
     @PostMapping(value = "/update")
