@@ -53,7 +53,7 @@ public interface VerifyService {
 
     int addBank(FinanceBankDO financeBankDO);
 
-    FinanceCodeDO financeCodeById(Integer id);
+    FinanceCodeDTO financeCodeById(Integer id);
 
     boolean deleteOrderId(FinanceCodeDO financeCodeDO);
 }
