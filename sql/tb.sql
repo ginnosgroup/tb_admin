@@ -1027,6 +1027,21 @@ CREATE TABLE `b_school_course` (
   `is_freeze` tinyint(1) NOT NULL DEFAULT '0' COMMENT '冻结'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
+----学校评论----
+CREATE TABLE `b_school_institution_comment` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '评论id',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '修改时间',
+  `school_institution_id` int(11) NOT NULL COMMENT 'b_school_institution.id',
+  `username` varchar(64) NOT NULL COMMENT ' (tb_admin_user.id)发表用户id',
+  `content` text NOT NULL COMMENT '评论内容',
+  `parent_id` int(11) DEFAULT NULL COMMENT '父级评论id',
+  `to_username` varchar(64) DEFAULT NULL COMMENT '回复给',
+  PRIMARY KEY (`id`),
+  KEY `index` (`school_institution_id`,`parent_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
+
+
 ---群聊id
 CREATE TABLE `b_chat` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '编号',

@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.service;
 
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
+import org.zhinanzhen.b.service.pojo.SchoolInstitutionCommentDTO;
 import org.zhinanzhen.b.service.pojo.SchoolInstitutionDTO;
 import org.zhinanzhen.b.service.pojo.SchoolSettingNewDTO;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -45,4 +46,12 @@ public interface SchoolInstitutionService {
     SchoolSettingNewDTO getSchoolSettingNewById(int id);
 
     int deleteSchoolAttachments(int providerId, boolean isDeleteFile1, boolean isDeleteFile2, boolean isDeleteFile3) throws ServiceException;
+
+    int addComment(SchoolInstitutionCommentDTO commentDTO) throws ServiceException;
+
+    List<SchoolInstitutionCommentDTO> listComment(int schoolInstitutionId) throws ServiceException;
+
+    int deleteComment(int id) throws ServiceException;
+
+    SchoolInstitutionCommentDTO getCommentById(int id) throws ServiceException;
 }

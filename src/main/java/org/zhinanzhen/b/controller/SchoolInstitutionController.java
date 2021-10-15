@@ -3,12 +3,14 @@ package org.zhinanzhen.b.controller;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.ikasoa.core.utils.StringUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.SchoolCourseService;
 import org.zhinanzhen.b.service.SchoolInstitutionService;
+import org.zhinanzhen.b.service.pojo.SchoolInstitutionCommentDTO;
 import org.zhinanzhen.b.service.pojo.SchoolInstitutionDTO;
 import org.zhinanzhen.b.service.pojo.SchoolSettingNewDTO;
 import org.zhinanzhen.tb.controller.BaseController;
@@ -410,6 +412,50 @@ public class SchoolInstitutionController extends BaseController {
             return new Response(1," id error");
         return new Response(0,schoolInstitutionService.getSchoolSettingNewById(id));
     }
+
+    @PostMapping(value = "/addComment")
+    @ResponseBody
+    public Response addComment(@RequestBody JSONObject jsonObject,
+            HttpServletRequest request, HttpServletResponse response) throws ServiceException {
+        super.setHeader(response);
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        SchoolInstitutionCommentDTO commentDTO =  JSON.parseObject(JSON.toJSONString(jsonObject), SchoolInstitutionCommentDTO.class);
+        if (adminUserLoginInfo != null)
+            commentDTO.setUserName(adminUserLoginInfo.getUsername());
+        if (commentDTO.getParentId() > 0){
+            if (StringUtil.isBlank(commentDTO.getToUserName()))
+                return new Response(1,"toUserName is null");
+        }else
+            commentDTO.setToUserName(null);
+        if (schoolInstitutionService.addComment(commentDTO) > 0)
+            return new Response(0,"添加成功",commentDTO.getId());
+        return new Response(1,"添加失败", 0);
+    }
+
+    @GetMapping(value = "/listComment")
+    @ResponseBody
+    public ListResponse<List<SchoolInstitutionCommentDTO>> listComment(@RequestParam(value = "schoolInstitutionId") int schoolInstitutionId,
+                                                                   HttpServletRequest request, HttpServletResponse response) throws ServiceException {
+        super.setGetHeader(response);
+        List<SchoolInstitutionCommentDTO> list = schoolInstitutionService.listComment(schoolInstitutionId);
+        return new ListResponse<>(true,list.size(),list.size(),list,"");
+    }
+
+    @GetMapping(value = "/deleteComment")
+    @ResponseBody
+    public Response deleteComment(@RequestParam(value = "id") int id,
+                                  HttpServletRequest request, HttpServletResponse response) throws ServiceException {
+        super.setGetHeader(response);
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo == null)
+            return new Response(1,"没有登录");
+        SchoolInstitutionCommentDTO commentDTO = schoolInstitutionService.getCommentById(id);
+        if (commentDTO.getUserName().equals(adminUserLoginInfo.getUsername()))
+            if (schoolInstitutionService.deleteComment(id) > 0)
+                return new Response(0,id);
+        return new Response(1,"删除评论失败");
+    }
+
 
     /**
      * Level：1 表示学校（全部）级别RATE，2表示学历级别RATE，3表示专业级别RATE

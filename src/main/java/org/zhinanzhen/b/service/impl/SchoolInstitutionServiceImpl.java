@@ -48,6 +48,9 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
     @Resource
     private SchoolAttachmentsDAO schoolAttachmentsDao;
 
+    @Resource
+    private SchoolInstitutionCommentDAO schoolInstitutionCommentDAO;
+
     @Override
     public List<SchoolInstitutionDTO> listSchoolInstitutionDTO(String name, String type, String code, Boolean isFreeze, int pageNum, int pageSize) {
         if ( pageNum < 0 )
@@ -329,6 +332,88 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
         }
         try {
             return schoolAttachmentsDao.deleteSchoolAttachments(providerId,isDeleteFile1,isDeleteFile2,isDeleteFile3);
+        } catch (Exception e) {
+            ServiceException se = new ServiceException(e);
+            se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+            throw se;
+        }
+    }
+
+    @Override
+    public int addComment(SchoolInstitutionCommentDTO commentDTO) throws ServiceException {
+        if (commentDTO == null){
+            ServiceException se = new ServiceException("SchoolInstitutionCommentDTO is null !");
+            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+            throw se;
+        }
+        try {
+            SchoolInstitutionCommentDO commentDO = mapper.map(commentDTO,SchoolInstitutionCommentDO.class);
+            if (schoolInstitutionCommentDAO.addComment(commentDO) > 0){
+                commentDTO.setId(commentDO.getId());
+                return commentDO.getId();
+            }
+            return 0;
+        }catch (Exception e){
+            ServiceException se = new ServiceException(e);
+            se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+            throw se;
+        }
+    }
+
+    @Override
+    public List<SchoolInstitutionCommentDTO> listComment(int schoolInstitutionId) throws ServiceException {
+        if (schoolInstitutionId <= 0) {
+            ServiceException se = new ServiceException("id error !");
+            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+            throw se;
+        }
+        try {
+            List<SchoolInstitutionCommentDO> comments = schoolInstitutionCommentDAO.list(schoolInstitutionId,0);//查询父级评论
+
+            //List<SchoolInstitutionCommentDO> commentdos = new ArrayList<>();
+            List<SchoolInstitutionCommentDTO> commentdtos = new ArrayList<>();
+            comments.forEach(comment->{
+                SchoolInstitutionCommentDTO commentDTO = mapper.map(comment,SchoolInstitutionCommentDTO.class);
+                List<SchoolInstitutionCommentDO> childComment = schoolInstitutionCommentDAO.list(schoolInstitutionId,comment.getId());
+                commentDTO.getCommentdos().addAll(childComment);
+                commentdtos.add(commentDTO);
+            });
+            return commentdtos;
+        } catch (Exception e) {
+            ServiceException se = new ServiceException(e);
+            se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+            throw se;
+        }
+    }
+
+    @Override
+    public int deleteComment(int id) throws ServiceException {
+        if (id <= 0) {
+            ServiceException se = new ServiceException("id error !");
+            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+            throw se;
+        }
+        try {
+            return schoolInstitutionCommentDAO.delete(id);
+        } catch (Exception e) {
+            ServiceException se = new ServiceException(e);
+            se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+            throw se;
+        }
+    }
+
+    @Override
+    public SchoolInstitutionCommentDTO getCommentById(int id) throws ServiceException {
+        if (id <= 0) {
+            ServiceException se = new ServiceException("id error !");
+            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+            throw se;
+        }
+        try {
+            SchoolInstitutionCommentDO commentdo = schoolInstitutionCommentDAO.getCommentById(id);
+            if (commentdo != null)
+                return mapper.map(commentdo,SchoolInstitutionCommentDTO.class);
+            return null;
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
