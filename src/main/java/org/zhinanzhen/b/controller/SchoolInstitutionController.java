@@ -419,9 +419,10 @@ public class SchoolInstitutionController extends BaseController {
             HttpServletRequest request, HttpServletResponse response) throws ServiceException {
         super.setHeader(response);
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo == null)
+            return new Response(1,"请登录");
         SchoolInstitutionCommentDTO commentDTO =  JSON.parseObject(JSON.toJSONString(jsonObject), SchoolInstitutionCommentDTO.class);
-        if (adminUserLoginInfo != null)
-            commentDTO.setUserName(adminUserLoginInfo.getUsername());
+        commentDTO.setUserName(adminUserLoginInfo.getUsername());
         if (commentDTO.getParentId() > 0){
             if (StringUtil.isBlank(commentDTO.getToUserName()))
                 return new Response(1,"toUserName is null");

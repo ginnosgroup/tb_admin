@@ -34,7 +34,7 @@
             <if test="schoolInstitutionId != null and schoolInstitutionId > 0 ">
                 AND school_institution_id = #{schoolInstitutionId}
             </if>
-            <if test="parentId != null and parentId > 0 ">
+            <if test="parentId != null">
                 AND parent_id = #{parentId}
             </if>
         </where>
