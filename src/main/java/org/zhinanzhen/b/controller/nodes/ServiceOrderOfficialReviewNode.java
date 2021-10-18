@@ -62,7 +62,7 @@ public class ServiceOrderOfficialReviewNode extends SODecisionNode {
 	
 	@Override
 	public String[] nextNodeNames() {
-		return new String[]{"WAIT", "COMPLETE", "CLOSE", "FINISH"};
+		return new String[]{"WAIT", "COMPLETE", "CLOSE", "FINISH", "APPLY_FAILED"};
 	}
 
 }

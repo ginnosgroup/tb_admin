@@ -48,7 +48,7 @@ public class ServiceOrderApplyNode extends SODecisionNode {
 
 	@Override
 	public String[] nextNodeNames() {
-		return new String[]{"COMPLETE", "CLOSE"};
+		return new String[]{"COMPLETE", "CLOSE", "APPLY_FAILED"};
 	}
 
 }
