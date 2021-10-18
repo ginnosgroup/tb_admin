@@ -24,6 +24,8 @@
 
     <select id="list" resultType="org.zhinanzhen.b.dao.pojo.SchoolInstitutionCommentDO">
         SELECT id,
+        gmt_create AS gmtCreate,
+        gmt_modify AS gmtModify,
         school_institution_id AS schoolInstitutionId,
         username AS userName,
         content AS content,
@@ -47,6 +49,8 @@
 
     <select id="getCommentById" resultType="org.zhinanzhen.b.dao.pojo.SchoolInstitutionCommentDO">
         SELECT id,
+        gmt_create AS gmtCreate,
+        gmt_modify AS gmtModify,
         school_institution_id AS schoolInstitutionId,
         username AS userName,
         content AS content,
