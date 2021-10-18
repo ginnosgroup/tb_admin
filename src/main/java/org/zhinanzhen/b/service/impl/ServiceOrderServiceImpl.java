@@ -252,11 +252,11 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			String endMaraApprovalDate, String startOfficialApprovalDate, String endOfficialApprovalDate,
 			String startReadcommittedDate, String endReadcommittedDate, List<Integer> regionIdList, Integer userId,
 			String userName, Integer maraId, Integer adviserId, Integer officialId, Integer officialTagId, int parentId,
-			boolean isNotApproved, Integer serviceId, Integer schoolId, Boolean isPay) throws ServiceException {
+			boolean isNotApproved, Integer serviceId, Integer schoolId, Boolean isPay, Boolean isSettle) throws ServiceException {
 		return serviceOrderDao.countServiceOrder(type, excludeTypeList, excludeState, stateList, auditingState,
 				reviewStateList, urgentState, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
 				endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId, userName,
-				maraId, adviserId, officialId, officialTagId, parentId, isNotApproved, serviceId, schoolId, isPay);
+				maraId, adviserId, officialId, officialTagId, parentId, isNotApproved, serviceId, schoolId, isPay, isSettle);
 	}
 
 	@Override
@@ -266,7 +266,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			String endOfficialApprovalDate, String startReadcommittedDate, String endReadcommittedDate,
 			List<Integer> regionIdList, Integer userId, String userName, Integer maraId, Integer adviserId,
 			Integer officialId, Integer officialTagId, int parentId, boolean isNotApproved, int pageNum, int pageSize,
-			Sorter sorter, Integer serviceId, Integer schoolId, Boolean isPay) throws ServiceException {
+			Sorter sorter, Integer serviceId, Integer schoolId, Boolean isPay, Boolean isSettle) throws ServiceException {
 		List<ServiceOrderDTO> serviceOrderDtoList = new ArrayList<ServiceOrderDTO>();
 		List<ServiceOrderDO> serviceOrderDoList = new ArrayList<ServiceOrderDO>();
 		if (pageNum < 0)
@@ -285,7 +285,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 					auditingState, reviewStateList, urgentState, startMaraApprovalDate, endMaraApprovalDate,
 					startOfficialApprovalDate, theDateTo23_59_59(endOfficialApprovalDate), startReadcommittedDate,
 					endReadcommittedDate, regionIdList, userId, userName, maraId, adviserId, officialId, officialTagId,
-					parentId, isNotApproved, serviceId, schoolId, isPay, pageNum * pageSize, pageSize, orderBy);
+					parentId, isNotApproved, serviceId, schoolId, isPay, isSettle, pageNum * pageSize, pageSize, orderBy);
 			if (serviceOrderDoList == null)
 				return null;
 		} catch (Exception e) {

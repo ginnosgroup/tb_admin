@@ -464,7 +464,7 @@ public class ServiceOrderController extends BaseController {
 				if ("SIV".equalsIgnoreCase(serviceOrderDto.getType()))
 					cList = serviceOrderService.listServiceOrder(receiveTypeId, null, null, null, null, null, null,
 							null, null, null, null, null, null, null, null, null, null, null, null, null, id, false, 0,
-							100, null, null, null, null);
+							100, null, null, null, null,null);
 				cList.forEach(cServiceOrderDto -> {
 					if ("VISA".equalsIgnoreCase(cServiceOrderDto.getType())) {
 						Response<Integer> cRes = updateOne(cServiceOrderDto, null, peopleNumber, peopleType,
@@ -856,7 +856,7 @@ public class ServiceOrderController extends BaseController {
 					startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate,
 					regionIdList, userId, userName, maraId, adviserId, officialId, officialTagId,
 					0,
-							isNotApproved != null ? isNotApproved : false, serviceId, schoolId,null));
+							isNotApproved != null ? isNotApproved : false, serviceId, schoolId,null,null));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -886,6 +886,7 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "isNotApproved", required = false) Boolean isNotApproved,
 			@RequestParam(value = "serviceId", required = false) Integer serviceId,
 			@RequestParam(value = "schoolId", required = false) Integer schoolId,
+			@RequestParam(value = "isSettle", required = false) Boolean isSettle,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
 			@RequestParam(value = "sorter", required = false) String sorter, HttpServletRequest request,
 			HttpServletResponse response) {
@@ -958,14 +959,14 @@ public class ServiceOrderController extends BaseController {
 					auditingState, reviewStateList, urgentState, startMaraApprovalDate, endMaraApprovalDate,
 					startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate,
 					regionIdList, userId, userName, maraId, adviserId, officialId, officialTagId, 0,
-					isNotApproved != null ? isNotApproved : false, serviceId, schoolId, null);
+					isNotApproved != null ? isNotApproved : false, serviceId, schoolId, null,isSettle);
 			List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(type, excludeTypeList,
 					excludeState, stateList, auditingState, reviewStateList, urgentState, startMaraApprovalDate,
 					endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate,
 					endReadcommittedDate, regionIdList, userId, userName, maraId, adviserId, officialId, officialTagId,
 					0, isNotApproved != null ? isNotApproved : false, pageNum,
 					pageSize, _sorter, serviceId, schoolId,
-					null);
+					null,isSettle);
 
 			if (newOfficialId != null)
 				for (ServiceOrderDTO so : serviceOrderList)
@@ -1590,7 +1591,7 @@ public class ServiceOrderController extends BaseController {
 						reviewStateList, urgentState, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
 						endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId,userName,
 						maraId, adviserId, officialId, officialTagId, 0, isNotApproved != null ? isNotApproved : false,
-						0, 9999, null, serviceId, schoolId,null);
+						0, 9999, null, serviceId, schoolId,null,null);
 
 				if (newOfficialId != null)
 					for (ServiceOrderDTO so : serviceOrderList)
@@ -1871,7 +1872,7 @@ public class ServiceOrderController extends BaseController {
 		List<ServiceOrderDTO> serviceOrderDTOS = serviceOrderService.listServiceOrder(type, null, null, null, null,
 				null, null, null, null, startOfficialApprovalDate, endOfficialApprovalDate, null, null, null, null,
 				null, null, null, null, null, 0, false,
-				0, 9999, null, null, null,isPay);
+				0, 9999, null, null, null,isPay,null);
 		try {
 			super.setGetHeader(response);
 			response.reset();

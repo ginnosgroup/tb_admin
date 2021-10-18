@@ -402,6 +402,9 @@
         <if test="isPay != null">
             AND so.is_pay = #{isPay}
         </if>
+        <if test="isSettle != null">
+            AND so.is_settle = #{isSettle}
+        </if>
         ;
     </select>
     
@@ -546,6 +549,9 @@
         </if>
         <if test="isPay != null">
             AND so.is_pay = #{isPay}
+        </if>
+        <if test="isSettle != null">
+            AND so.is_settle = #{isSettle}
         </if>
         ${orderBy}
         LIMIT #{offset}, #{rows};
