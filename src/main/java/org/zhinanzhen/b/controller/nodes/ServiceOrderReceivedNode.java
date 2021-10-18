@@ -41,6 +41,6 @@ public class ServiceOrderReceivedNode extends SODecisionNode{
 
     @Override
     public String[] nextNodeNames() {
-        return new String[]{"COMPLETEFD","WAITFD","CLOSE","RECEIVED"};//MOVING 表示会计驳回  REFERED->MOVING
+        return new String[]{"COMPLETE_FD","WAIT_FD","CLOSE","RECEIVED"};//MOVING 表示会计驳回  WAIT_FD->RECEIVED
     }
 }

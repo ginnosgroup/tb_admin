@@ -10,9 +10,9 @@ import org.zhinanzhen.tb.service.ServiceException;
 /**
  * Created with IntelliJ IDEA.
  * Date: 2021/05/10 18:28
- * Description:财务转账完成状态:    COMPLETEFD
+ * Description:财务转账完成状态:    COMPLETE_FD
  * 文案操作
- * 提前扣拥类型：RECEIVED ---->COMPLETEFD
+ * 提前扣拥类型：RECEIVED ---->COMPLETE_FD
  * Version: V1.0
  */
 @Component
@@ -36,7 +36,7 @@ public class ServiceOrderCompleteFdNode extends  SODecisionNode{
 
     @Override
     public String getName() {
-        return "COMPLETEFD";
+        return "COMPLETE_FD";
     }
 
     @Override

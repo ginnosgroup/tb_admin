@@ -52,7 +52,7 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
 	
 	@Override
 	public String[] nextNodeNames() {
-		return new String[]{"PAID", "CLOSE"};
+		return new String[]{"PAID", "CLOSE","WAIT_FD"};
 	}
 
 }

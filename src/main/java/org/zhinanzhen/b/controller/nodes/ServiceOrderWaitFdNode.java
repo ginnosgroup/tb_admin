@@ -10,8 +10,8 @@ import org.zhinanzhen.tb.service.ServiceException;
 /**
  * Created with IntelliJ IDEA.
  * Date: 2021/05/10 16:56
- * Description:等待财务转账状态 WAITFD
- * 提前扣拥类型：COMPLETE---->WAITFD
+ * Description:等待财务转账状态 WAIT_FD
+ * 提前扣拥类型：COMPLETE---->WAIT_FD
  * Version: V1.0
  */
 
@@ -45,7 +45,7 @@ public class ServiceOrderWaitFdNode extends  SODecisionNode{
 
     @Override
     public String getName() {
-        return "WAITFD";
+        return "WAIT_FD";
     }
 
     @Override
