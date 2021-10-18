@@ -104,7 +104,15 @@ public class ServiceOrderDTO {
 
 	private String visaVoucherImageUrl;
 
-	private String invoiceVoucherImageUrl;
+	private String invoiceVoucherImageUrl1;
+
+	private String invoiceVoucherImageUrl2;
+
+	private String invoiceVoucherImageUrl3;
+
+	private String invoiceVoucherImageUrl4;
+
+	private String invoiceVoucherImageUrl5;
 
 	private double perAmount;
 

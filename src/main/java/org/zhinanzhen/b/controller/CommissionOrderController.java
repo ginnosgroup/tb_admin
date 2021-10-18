@@ -115,6 +115,11 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
 			@RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
 			@RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
+			@RequestParam(value = "invoiceVoucherImageUrl1", required = false) String invoiceVoucherImageUrl1,
+			@RequestParam(value = "invoiceVoucherImageUrl2", required = false) String invoiceVoucherImageUrl2,
+			@RequestParam(value = "invoiceVoucherImageUrl3", required = false) String invoiceVoucherImageUrl3,
+			@RequestParam(value = "invoiceVoucherImageUrl4", required = false) String invoiceVoucherImageUrl4,
+			@RequestParam(value = "invoiceVoucherImageUrl5", required = false) String invoiceVoucherImageUrl5,
 			@RequestParam(value = "dob") String dob, @RequestParam(value = "startDate") String startDate,
 			@RequestParam(value = "endDate") String endDate, @RequestParam(value = "tuitionFee") String tuitionFee,
 			@RequestParam(value = "perTermTuitionFee") String perTermTuitionFee,
@@ -200,6 +205,25 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				commissionOrderDto.setZyDate(new Date(Long.parseLong(zyDate)));
 			if (StringUtil.isNotEmpty(remarks))
 				commissionOrderDto.setRemarks(remarks);
+			if (serviceOrderDto.isSettle() == true && (
+					StringUtil.isNotEmpty(invoiceVoucherImageUrl1) || StringUtil.isNotEmpty(invoiceVoucherImageUrl2)
+					|| StringUtil.isNotEmpty(invoiceVoucherImageUrl3) || StringUtil.isNotEmpty(invoiceVoucherImageUrl4)
+					|| StringUtil.isNotEmpty(invoiceVoucherImageUrl5)) ){
+				/*
+				杜大哥（2021-10-18）说：【提前扣拥】在上传【invoice凭证】之后，申请月奖直接将服务订单状态改成【RECEIVED】(已收款凭证已提交)
+				 */
+				serviceOrderDto.setState("RECEIVED");
+			}
+			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl1))
+				serviceOrderDto.setInvoiceVoucherImageUrl1(invoiceVoucherImageUrl1);
+			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl2))
+				serviceOrderDto.setInvoiceVoucherImageUrl1(invoiceVoucherImageUrl2);
+			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl3))
+				serviceOrderDto.setInvoiceVoucherImageUrl1(invoiceVoucherImageUrl3);
+			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl4))
+				serviceOrderDto.setInvoiceVoucherImageUrl1(invoiceVoucherImageUrl4);
+			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl5))
+				serviceOrderDto.setInvoiceVoucherImageUrl1(invoiceVoucherImageUrl5);
 
 			// SubagencyDTO subagencyDto =
 			// subagencyService.getSubagencyById(serviceOrderDto.getSubagencyId());

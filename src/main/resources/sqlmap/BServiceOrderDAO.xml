@@ -245,8 +245,20 @@
         <if test='visaVoucherImageUrl != null'>
             , visa_voucher_image_url = #{visaVoucherImageUrl}
         </if>
-        <if test='invoiceVoucherImageUrl != null'>
-            , invoice_voucher_image_url = #{invoiceVoucherImageUrl}
+        <if test='invoiceVoucherImageUrl1 != null'>
+            , invoice_voucher_image_url1 = #{invoiceVoucherImageUrl1}
+        </if>
+        <if test='invoiceVoucherImageUrl2 != null'>
+            , invoice_voucher_image_url2 = #{invoiceVoucherImageUrl2}
+        </if>
+        <if test='invoiceVoucherImageUrl3 != null'>
+            , invoice_voucher_image_url3 = #{invoiceVoucherImageUrl3}
+        </if>
+        <if test='invoiceVoucherImageUrl4 != null'>
+            , invoice_voucher_image_url4 = #{invoiceVoucherImageUrl4}
+        </if>
+        <if test='invoiceVoucherImageUrl5 != null'>
+            , invoice_voucher_image_url5 = #{invoiceVoucherImageUrl5}
         </if>
         <if test='perAmount > 0'>
             , per_amount = #{perAmount}
@@ -451,6 +463,11 @@
             so.coe_payment_voucher_image_url_4 AS coePaymentVoucherImageUrl4,
             so.coe_payment_voucher_image_url_5 AS coePaymentVoucherImageUrl5,
             so.visa_voucher_image_url AS visaVoucherImageUrl,
+            so.invoice_voucher_image_url1 AS invoiceVoucherImageUrl1,
+            so.invoice_voucher_image_url2 AS invoiceVoucherImageUrl2,
+            so.invoice_voucher_image_url3 AS invoiceVoucherImageUrl3,
+            so.invoice_voucher_image_url4 AS invoiceVoucherImageUrl4,
+            so.invoice_voucher_image_url5 AS invoiceVoucherImageUrl5,
             so.per_amount AS perAmount,
             so.amount AS amount,
             so.expect_amount AS expectAmount,
@@ -613,6 +630,11 @@
             coe_payment_voucher_image_url_3 AS coePaymentVoucherImageUrl3,
             coe_payment_voucher_image_url_4 AS coePaymentVoucherImageUrl4,
             coe_payment_voucher_image_url_5 AS coePaymentVoucherImageUrl5,
+            invoice_voucher_image_url1 AS invoiceVoucherImageUrl1,
+            invoice_voucher_image_url2 AS invoiceVoucherImageUrl2,
+            invoice_voucher_image_url3 AS invoiceVoucherImageUrl3,
+            invoice_voucher_image_url4 AS invoiceVoucherImageUrl4,
+            invoice_voucher_image_url5 AS invoiceVoucherImageUrl5,
             visa_voucher_image_url AS visaVoucherImageUrl,
             per_amount AS perAmount,
             amount,
@@ -764,6 +786,11 @@
             coe_payment_voucher_image_url_4 AS coePaymentVoucherImageUrl4,
             coe_payment_voucher_image_url_5 AS coePaymentVoucherImageUrl5,
             visa_voucher_image_url AS visaVoucherImageUrl,
+            invoice_voucher_image_url1 AS invoiceVoucherImageUrl1,
+            invoice_voucher_image_url2 AS invoiceVoucherImageUrl2,
+            invoice_voucher_image_url3 AS invoiceVoucherImageUrl3,
+            invoice_voucher_image_url4 AS invoiceVoucherImageUrl4,
+            invoice_voucher_image_url5 AS invoiceVoucherImageUrl5,
             per_amount AS perAmount,
             amount,
             expect_amount AS expectAmount,
@@ -850,6 +877,11 @@
         so.coe_payment_voucher_image_url_4 AS coePaymentVoucherImageUrl4,
         so.coe_payment_voucher_image_url_5 AS coePaymentVoucherImageUrl5,
         so.visa_voucher_image_url AS visaVoucherImageUrl,
+        so.invoice_voucher_image_url1 AS invoiceVoucherImageUrl1,
+        so.invoice_voucher_image_url2 AS invoiceVoucherImageUrl2,
+        so.invoice_voucher_image_url3 AS invoiceVoucherImageUrl3,
+        so.invoice_voucher_image_url4 AS invoiceVoucherImageUrl4,
+        so.invoice_voucher_image_url5 AS invoiceVoucherImageUrl5,
         so.per_amount AS perAmount,
         so.amount AS amount,
         so.expect_amount AS expectAmount,
