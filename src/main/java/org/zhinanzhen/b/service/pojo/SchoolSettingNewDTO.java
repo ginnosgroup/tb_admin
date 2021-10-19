@@ -42,4 +42,6 @@ public class SchoolSettingNewDTO {
     private String courseLevel;
 
     private Integer courseId;
+
+    private String courseName;
 }

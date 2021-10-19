@@ -504,13 +504,23 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
         List<SchoolSettingNewDO> historySchoolSettingS = schoolSettingNewDAO.list(schoolInstitutionDTO.getId(),true);
         //List<SchoolSettingNewDTO> historySchoolSettingDtos = new ArrayList<>();
         for (SchoolSettingNewDO ssdo : historySchoolSettingS){
-            schoolInstitutionDTO.getHistorySchoolSettingList().add(mapper.map(ssdo,SchoolSettingNewDTO.class));
+            SchoolSettingNewDTO schoolSettingNewDTO = mapper.map(ssdo,SchoolSettingNewDTO.class);
+            //if (ssdo.getCourseId() > 0){
+            //    SchoolCourseDO courseDO = schoolCourseDAO.schoolCourseById(ssdo.getCourseId());
+            //    schoolSettingNewDTO.setCourseName(courseDO != null ? courseDO.getCourseName() : null);
+            //}
+            schoolInstitutionDTO.getHistorySchoolSettingList().add(schoolSettingNewDTO);
         }
 
         //查询Setting
         List<SchoolSettingNewDO> schoolSettingS = schoolSettingNewDAO.list(schoolInstitutionDTO.getId(),false);
         schoolSettingS.forEach(ssdo -> {
-            schoolInstitutionDTO.getSchoolSettingList().add(mapper.map(ssdo,SchoolSettingNewDTO.class));
+            SchoolSettingNewDTO schoolSettingNewDTO = mapper.map(ssdo,SchoolSettingNewDTO.class);
+            if (ssdo.getCourseId() != null && ssdo.getCourseId() > 0){
+                SchoolCourseDO courseDO = schoolCourseDAO.schoolCourseById(ssdo.getCourseId());
+                schoolSettingNewDTO.setCourseName(courseDO != null ? courseDO.getCourseName() : null);
+            }
+            schoolInstitutionDTO.getSchoolSettingList().add(schoolSettingNewDTO);
         });
 
     }
