@@ -217,13 +217,13 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl1))
 				serviceOrderDto.setInvoiceVoucherImageUrl1(invoiceVoucherImageUrl1);
 			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl2))
-				serviceOrderDto.setInvoiceVoucherImageUrl1(invoiceVoucherImageUrl2);
+				serviceOrderDto.setInvoiceVoucherImageUrl2(invoiceVoucherImageUrl2);
 			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl3))
-				serviceOrderDto.setInvoiceVoucherImageUrl1(invoiceVoucherImageUrl3);
+				serviceOrderDto.setInvoiceVoucherImageUrl3(invoiceVoucherImageUrl3);
 			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl4))
-				serviceOrderDto.setInvoiceVoucherImageUrl1(invoiceVoucherImageUrl4);
+				serviceOrderDto.setInvoiceVoucherImageUrl4(invoiceVoucherImageUrl4);
 			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl5))
-				serviceOrderDto.setInvoiceVoucherImageUrl1(invoiceVoucherImageUrl5);
+				serviceOrderDto.setInvoiceVoucherImageUrl5(invoiceVoucherImageUrl5);
 
 			// SubagencyDTO subagencyDto =
 			// subagencyService.getSubagencyById(serviceOrderDto.getSubagencyId());
