@@ -41,6 +41,6 @@ public class ServiceOrderReceivedNode extends SODecisionNode{
 
     @Override
     public String[] nextNodeNames() {
-        return new String[]{"COMPLETE_FD","WAIT_FD","CLOSE"};//WAIT_FD 表示会计驳回。  WAIT_FD->RECEIVED
+        return new String[]{"COMPLETE_FD","WAIT_FD","CLOSE","COMPLETE"};//COMPLETE 表示会计驳回(WAIT_FD状态可能要废弃)。  WAIT_FD->RECEIVED
     }
 }

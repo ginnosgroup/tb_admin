@@ -12,6 +12,7 @@ import org.zhinanzhen.tb.service.ServiceException;
  * Date: 2021/05/10 16:56
  * Description:等待财务转账状态 WAIT_FD
  * 提前扣拥类型：COMPLETE---->WAIT_FD
+ * 这个状态，杜大哥又说废掉了....。还没出生就胎死腹中。。。。
  * Version: V1.0
  */
 
