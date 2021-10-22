@@ -10,6 +10,7 @@ import org.dozer.Mapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.CommissionOrderDAO;
+import org.zhinanzhen.b.dao.CommissionOrderTempDAO;
 import org.zhinanzhen.b.dao.VerifyDao;
 import org.zhinanzhen.b.dao.VisaDAO;
 import org.zhinanzhen.b.dao.pojo.CommissionOrderDO;
@@ -72,6 +73,9 @@ public class VerifyServiceImpl implements VerifyService {
 
     @Resource
     private AdminUserDAO adminUserDAO;
+
+    @Resource
+    private CommissionOrderTempDAO commissionOrderTempDao;
 
     private  DataFormatter dataFormatter = new DataFormatter();
 
@@ -335,7 +339,9 @@ public class VerifyServiceImpl implements VerifyService {
                         String adviserName = adviserDO.getName();
                         code= code + (adviserName.contains(".")? adviserName.substring(0,adviserName.indexOf(".")) : adviserName ) +  RandomStringUtils.randomAlphanumeric(6) + "ZNZ";
                         code = code.toUpperCase();
-                        if (commissionOrderDAO.listCommissionOrderByVerifyCode(code).size()==0 && visaDAO.listVisaByVerifyCode(code).size()==0){
+                        if (commissionOrderDAO.listCommissionOrderByVerifyCode(code).size()==0
+                                && visaDAO.listVisaByVerifyCode(code).size()==0
+                                && commissionOrderTempDao.getCommissionOrderTempByVerifyCode(code).size()==0 ){
                             flag = false;
                         }
                     }

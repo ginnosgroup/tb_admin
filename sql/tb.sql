@@ -581,6 +581,48 @@ CREATE TABLE `b_commission_order_comment` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 ALTER TABLE `b_commission_order_comment` ADD INDEX index_name (`admin_user_id`, `commission_order_id`);
 
+--(留学)顾问还没创建佣金订单时，填写数据暂存，用于创建佣金订单
+CREATE TABLE `b_commission_order_temp` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `service_order_id` int(11) NOT NULL COMMENT '服务订单编号 (对应b_service_order.id)',
+  `student_code` varchar(32) NOT NULL COMMENT '学号',
+  `dob` datetime DEFAULT NULL COMMENT '生日',
+  `start_date` datetime NOT NULL COMMENT '开课日期',
+  `end_date` datetime NOT NULL COMMENT '结束日期',
+  `installment` int(11) NOT NULL COMMENT '分期付款次数',
+  `installment_due_date1` datetime DEFAULT NULL COMMENT '分期付款截止日期1',
+  `installment_due_date2` datetime DEFAULT NULL COMMENT '分期付款截止日期2',
+  `installment_due_date3` datetime DEFAULT NULL COMMENT '分期付款截止日期3',
+  `installment_due_date4` datetime DEFAULT NULL COMMENT '分期付款截止日期4',
+  `installment_due_date5` datetime DEFAULT NULL COMMENT '分期付款截止日期5',
+  `installment_due_date6` datetime DEFAULT NULL COMMENT '分期付款截止日期6',
+  `installment_due_date7` datetime DEFAULT NULL COMMENT '分期付款截止日期7',
+  `installment_due_date8` datetime DEFAULT NULL COMMENT '分期付款截止日期8',
+  `installment_due_date9` datetime DEFAULT NULL COMMENT '分期付款截止日期9',
+  `installment_due_date10` datetime DEFAULT NULL COMMENT '分期付款截止日期10',
+  `installment_due_date11` datetime DEFAULT NULL COMMENT '分期付款截止日期11',
+  `installment_due_date12` datetime DEFAULT NULL COMMENT '分期付款截止日期12',
+  `tuition_fee` decimal(8,2) NOT NULL COMMENT '学费总金额',
+  `per_term_tuition_fee` decimal(8,2) NOT NULL COMMENT '每学期学费',
+  `receive_date` datetime DEFAULT NULL COMMENT '本次收款日期',
+  `receive_type_id` int(11) NOT NULL COMMENT '收款方式编号(对应b_receive_type.id)',
+  `per_amount` decimal(8,2) NOT NULL COMMENT '本次应收款',
+  `amount` decimal(8,2) NOT NULL COMMENT '本次实收',
+  `discount` decimal(8,2) NOT NULL COMMENT '折扣',
+  `verify_code` varchar(64) DEFAULT NULL COMMENT '对账使用的code,顾问名称+地区+随机数',
+  `expect_amount` decimal(8,2) DEFAULT NULL COMMENT '预收业绩',
+  `remarks` varchar(255) DEFAULT NULL COMMENT '备注',
+  `payment_voucher_image_url_1` varchar(128) DEFAULT NULL COMMENT '支付凭证图片地址1',
+  `payment_voucher_image_url_2` varchar(128) DEFAULT NULL COMMENT '支付凭证图片地址2',
+  `payment_voucher_image_url_3` varchar(128) DEFAULT NULL COMMENT '支付凭证图片地址3',
+  `payment_voucher_image_url_4` varchar(128) DEFAULT NULL COMMENT '支付凭证图片地址4',
+  `payment_voucher_image_url_5` varchar(128) DEFAULT NULL COMMENT '支付凭证图片地址5',
+  PRIMARY KEY (`id`),
+  KEY `index` (`service_order_id`,`verify_code`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
+
 -- 留学-学校
 CREATE TABLE `b_school` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',

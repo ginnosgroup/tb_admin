@@ -17,12 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.*;
 import org.zhinanzhen.b.service.pojo.*;
@@ -46,7 +41,6 @@ import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
 import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
-import org.zhinanzhen.tb.service.pojo.UserDTO;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -205,26 +199,29 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				commissionOrderDto.setZyDate(new Date(Long.parseLong(zyDate)));
 			if (StringUtil.isNotEmpty(remarks))
 				commissionOrderDto.setRemarks(remarks);
-			if (serviceOrderDto.isSettle() == true && (
-					StringUtil.isNotEmpty(invoiceVoucherImageUrl1) || StringUtil.isNotEmpty(invoiceVoucherImageUrl2)
-					|| StringUtil.isNotEmpty(invoiceVoucherImageUrl3) || StringUtil.isNotEmpty(invoiceVoucherImageUrl4)
-					|| StringUtil.isNotEmpty(invoiceVoucherImageUrl5)) ){
+
+			//if (serviceOrderDto.isSettle() == true && (
+			//		StringUtil.isNotEmpty(invoiceVoucherImageUrl1) || StringUtil.isNotEmpty(invoiceVoucherImageUrl2)
+			//		|| StringUtil.isNotEmpty(invoiceVoucherImageUrl3) || StringUtil.isNotEmpty(invoiceVoucherImageUrl4)
+			//		|| StringUtil.isNotEmpty(invoiceVoucherImageUrl5)) ){
 				/*
 				杜大哥（2021-10-18）说：【提前扣拥】在上传【invoice凭证】之后，申请月奖直接将服务订单状态改成【RECEIVED】(已收款凭证已提交)
 				 */
-				serviceOrderDto.setState("RECEIVED");
-			}
-			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl1))
-				serviceOrderDto.setInvoiceVoucherImageUrl1(invoiceVoucherImageUrl1);
-			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl2))
-				serviceOrderDto.setInvoiceVoucherImageUrl2(invoiceVoucherImageUrl2);
-			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl3))
-				serviceOrderDto.setInvoiceVoucherImageUrl3(invoiceVoucherImageUrl3);
-			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl4))
-				serviceOrderDto.setInvoiceVoucherImageUrl4(invoiceVoucherImageUrl4);
-			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl5))
-				serviceOrderDto.setInvoiceVoucherImageUrl5(invoiceVoucherImageUrl5);
+			//	serviceOrderDto.setState("RECEIVED");
+			//}
+			//if (StringUtil.isNotEmpty(invoiceVoucherImageUrl1))
+			//	serviceOrderDto.setInvoiceVoucherImageUrl1(invoiceVoucherImageUrl1);
+			//if (StringUtil.isNotEmpty(invoiceVoucherImageUrl2))
+			//	serviceOrderDto.setInvoiceVoucherImageUrl2(invoiceVoucherImageUrl2);
+			//if (StringUtil.isNotEmpty(invoiceVoucherImageUrl3))
+			//	serviceOrderDto.setInvoiceVoucherImageUrl3(invoiceVoucherImageUrl3);
+			//if (StringUtil.isNotEmpty(invoiceVoucherImageUrl4))
+			//	serviceOrderDto.setInvoiceVoucherImageUrl4(invoiceVoucherImageUrl4);
+			//if (StringUtil.isNotEmpty(invoiceVoucherImageUrl5))
+			//	serviceOrderDto.setInvoiceVoucherImageUrl5(invoiceVoucherImageUrl5);
 
+
+			
 			// SubagencyDTO subagencyDto =
 			// subagencyService.getSubagencyById(serviceOrderDto.getSubagencyId());
 			// if (subagencyDto == null)
@@ -1572,4 +1569,346 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		}
 	}
 
+	/**
+	 * 提前扣拥留学：顾问填写申请月奖的数据，暂存到b_commission_order_temp表中，等财务通过之后，获取
+	 * 数据再创建佣金订单
+	 * @return
+	 */
+	@PostMapping(value = "/addCommissionOrderTemp")
+	@ResponseBody
+	public Response addCommissionOrderTemp(@RequestParam(value = "installment") Integer installment,
+		   @RequestParam(value = "installmentDueDate1") String installmentDueDate1,
+		   @RequestParam(value = "installmentDueDate2", required = false) String installmentDueDate2,
+		   @RequestParam(value = "installmentDueDate3", required = false) String installmentDueDate3,
+		   @RequestParam(value = "installmentDueDate4", required = false) String installmentDueDate4,
+		   @RequestParam(value = "installmentDueDate5", required = false) String installmentDueDate5,
+		   @RequestParam(value = "installmentDueDate6", required = false) String installmentDueDate6,
+		   @RequestParam(value = "installmentDueDate7", required = false) String installmentDueDate7,
+		   @RequestParam(value = "installmentDueDate8", required = false) String installmentDueDate8,
+		   @RequestParam(value = "installmentDueDate9", required = false) String installmentDueDate9,
+		   @RequestParam(value = "installmentDueDate10", required = false) String installmentDueDate10,
+		   @RequestParam(value = "installmentDueDate11", required = false) String installmentDueDate11,
+		   @RequestParam(value = "installmentDueDate12", required = false) String installmentDueDate12,
+		   @RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
+		   @RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
+		   @RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
+		   @RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
+		   @RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
+		   @RequestParam(value = "invoiceVoucherImageUrl1", required = false) String invoiceVoucherImageUrl1,
+		   @RequestParam(value = "invoiceVoucherImageUrl2", required = false) String invoiceVoucherImageUrl2,
+		   @RequestParam(value = "invoiceVoucherImageUrl3", required = false) String invoiceVoucherImageUrl3,
+		   @RequestParam(value = "invoiceVoucherImageUrl4", required = false) String invoiceVoucherImageUrl4,
+		   @RequestParam(value = "invoiceVoucherImageUrl5", required = false) String invoiceVoucherImageUrl5,
+		   @RequestParam(value = "dob") String dob, @RequestParam(value = "startDate") String startDate,
+		   @RequestParam(value = "endDate") String endDate, @RequestParam(value = "tuitionFee") String tuitionFee,
+		   @RequestParam(value = "perTermTuitionFee") String perTermTuitionFee,
+		   @RequestParam(value = "receiveTypeId") Integer receiveTypeId,
+		   @RequestParam(value = "receiveDate") String receiveDate,
+		   @RequestParam(value = "perAmount") String perAmount, @RequestParam(value = "amount") String amount,
+		   @RequestParam(value = "remarks", required = false) String remarks,
+		   @RequestParam(value = "studentCode") String studentCode,
+		   @RequestParam(value = "serviceOrderId")int serviceOrderId,
+		   @RequestParam(value = "expectAmount")String expectAmount,
+		   @RequestParam(value = "verifyCode", required = false) String verifyCode,
+			HttpServletRequest request, HttpServletResponse response
+										   ){
+		try {
+			super.setPostHeader(response);
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+				return new Response(1, "仅限顾问和超级管理员能创建.", null);
+			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(serviceOrderId);
+			if (serviceOrderDto == null)
+				return new Response(1, "服务订单(ID:" + serviceOrderId + ")不存在!", null);
+
+			CommissionOrderTempDTO _tempDTO = commissionOrderService.getCommissionOrderTempByServiceOrderId(serviceOrderId);
+			if (_tempDTO != null)
+				return new Response(1,"已经创建:",_tempDTO);
+
+			if (serviceOrderDto.getSubagencyId() <= 0)
+				return new Response(1,
+						"SubagencyId(" + serviceOrderDto.getSubagencyId() + ")不存在!", null);
+			CommissionOrderTempDTO tempDTO = new CommissionOrderTempDTO();
+			tempDTO.setServiceOrderId(serviceOrderId);
+			tempDTO.setStudentCode(studentCode);
+			tempDTO.setDob(new Date(Long.parseLong(dob)));
+			tempDTO.setStartDate(new Date(Long.parseLong(startDate)));
+			tempDTO.setEndDate(new Date(Long.parseLong(endDate)));
+			tempDTO.setTuitionFee(Double.parseDouble(tuitionFee));
+			tempDTO.setPerTermTuitionFee(Double.parseDouble(perTermTuitionFee));
+			tempDTO.setReceiveTypeId(receiveTypeId);
+			tempDTO.setReceiveDate(new Date(Long.parseLong(receiveDate)));
+			tempDTO.setPerAmount(Double.parseDouble(perAmount));
+			tempDTO.setAmount(Double.parseDouble(amount));
+			tempDTO.setExpectAmount(Double.parseDouble(expectAmount));
+			if (tempDTO.getPerAmount() < tempDTO.getAmount())
+				return new Response(1, "本次应收款(" + tempDTO.getPerAmount()
+						+ ")不能小于本次已收款(" + tempDTO.getAmount() + ")!", null);
+			tempDTO.setDiscount(tempDTO.getPerAmount() - tempDTO.getAmount());
+			if (StringUtil.isNotEmpty(verifyCode))
+				tempDTO.setVerifyCode(verifyCode);
+			if (StringUtil.isNotEmpty(remarks))
+				tempDTO.setRemarks(remarks);
+			if (installment == null || installment <= 0 || installment > 12)
+				return new Response(1,"installment = " + installment);
+			tempDTO.setInstallment(installment);
+			if (StringUtil.isNotEmpty(installmentDueDate1))
+				tempDTO.setInstallmentDueDate1(new Date(Long.parseLong(installmentDueDate1)));
+			if (StringUtil.isNotEmpty(installmentDueDate2))
+				tempDTO.setInstallmentDueDate2(new Date(Long.parseLong(installmentDueDate2)));
+			if (StringUtil.isNotEmpty(installmentDueDate3))
+				tempDTO.setInstallmentDueDate3(new Date(Long.parseLong(installmentDueDate3)));
+			if (StringUtil.isNotEmpty(installmentDueDate4))
+				tempDTO.setInstallmentDueDate4(new Date(Long.parseLong(installmentDueDate4)));
+			if (StringUtil.isNotEmpty(installmentDueDate5))
+				tempDTO.setInstallmentDueDate5(new Date(Long.parseLong(installmentDueDate5)));
+			if (StringUtil.isNotEmpty(installmentDueDate6))
+				tempDTO.setInstallmentDueDate6(new Date(Long.parseLong(installmentDueDate6)));
+			if (StringUtil.isNotEmpty(installmentDueDate7))
+				tempDTO.setInstallmentDueDate7(new Date(Long.parseLong(installmentDueDate7)));
+			if (StringUtil.isNotEmpty(installmentDueDate8))
+				tempDTO.setInstallmentDueDate8(new Date(Long.parseLong(installmentDueDate8)));
+			if (StringUtil.isNotEmpty(installmentDueDate9))
+				tempDTO.setInstallmentDueDate9(new Date(Long.parseLong(installmentDueDate9)));
+			if (StringUtil.isNotEmpty(installmentDueDate10))
+				tempDTO.setInstallmentDueDate10(new Date(Long.parseLong(installmentDueDate10)));
+			if (StringUtil.isNotEmpty(installmentDueDate11))
+				tempDTO.setInstallmentDueDate11(new Date(Long.parseLong(installmentDueDate11)));
+			if (StringUtil.isNotEmpty(installmentDueDate12))
+				tempDTO.setInstallmentDueDate12(new Date(Long.parseLong(installmentDueDate12)));
+			
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
+				tempDTO.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
+				tempDTO.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl3))
+				tempDTO.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl4))
+				tempDTO.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl5))
+				tempDTO.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
+
+
+			if (serviceOrderDto.isSettle() == true && (
+					StringUtil.isNotEmpty(invoiceVoucherImageUrl1) || StringUtil.isNotEmpty(invoiceVoucherImageUrl2)
+							|| StringUtil.isNotEmpty(invoiceVoucherImageUrl3) || StringUtil.isNotEmpty(invoiceVoucherImageUrl4)
+							|| StringUtil.isNotEmpty(invoiceVoucherImageUrl5)) ){
+				/*
+				杜大哥（2021-10-18）说：【提前扣拥】在上传【invoice凭证】之后，申请月奖直接将服务订单状态改成【RECEIVED】(已收款凭证已提交)
+				 */
+				serviceOrderDto.setState("RECEIVED");
+			}
+			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl1))
+				serviceOrderDto.setInvoiceVoucherImageUrl1(invoiceVoucherImageUrl1);
+			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl2))
+				serviceOrderDto.setInvoiceVoucherImageUrl2(invoiceVoucherImageUrl2);
+			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl3))
+				serviceOrderDto.setInvoiceVoucherImageUrl3(invoiceVoucherImageUrl3);
+			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl4))
+				serviceOrderDto.setInvoiceVoucherImageUrl4(invoiceVoucherImageUrl4);
+			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl5))
+				serviceOrderDto.setInvoiceVoucherImageUrl5(invoiceVoucherImageUrl5);
+			
+			if(commissionOrderService.addCommissionOrderTemp(tempDTO) > 0){
+				if (serviceOrderService.updateServiceOrder(serviceOrderDto) > 0) // 同时更改服务订单状态
+					return new Response(0, "success", tempDTO);
+			}
+			return new Response(1, "失败");
+		} catch (ServiceException e) {
+			return new Response(e.getCode(), e.getMessage(), null);
+		}
+	}
+
+	@GetMapping(value = "/getCommissionOrderTempByServiceOrderId")
+	@ResponseBody
+	public Response getCommissionOrderTempByServiceOrderId(int id){
+		try {
+			return  new Response(0,"", commissionOrderService.getCommissionOrderTempByServiceOrderId(id));
+		}catch (ServiceException e){
+			return new Response(e.getCode(), e.getMessage(), null);
+		}
+	}
+
+	@PostMapping(value = "/updateCommissionOrderTemp")
+	@ResponseBody
+	public Response updateCommissionOrderTemp(
+			//@RequestParam(value = "id")int id,
+			@RequestParam(value = "installment") Integer installment,
+			@RequestParam(value = "installmentDueDate1") String installmentDueDate1,
+			@RequestParam(value = "installmentDueDate2", required = false) String installmentDueDate2,
+			@RequestParam(value = "installmentDueDate3", required = false) String installmentDueDate3,
+			@RequestParam(value = "installmentDueDate4", required = false) String installmentDueDate4,
+			@RequestParam(value = "installmentDueDate5", required = false) String installmentDueDate5,
+			@RequestParam(value = "installmentDueDate6", required = false) String installmentDueDate6,
+			@RequestParam(value = "installmentDueDate7", required = false) String installmentDueDate7,
+			@RequestParam(value = "installmentDueDate8", required = false) String installmentDueDate8,
+			@RequestParam(value = "installmentDueDate9", required = false) String installmentDueDate9,
+			@RequestParam(value = "installmentDueDate10", required = false) String installmentDueDate10,
+			@RequestParam(value = "installmentDueDate11", required = false) String installmentDueDate11,
+			@RequestParam(value = "installmentDueDate12", required = false) String installmentDueDate12,
+			@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
+			@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
+			@RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
+			@RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
+			@RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
+			@RequestParam(value = "invoiceVoucherImageUrl1", required = false) String invoiceVoucherImageUrl1,
+			@RequestParam(value = "invoiceVoucherImageUrl2", required = false) String invoiceVoucherImageUrl2,
+			@RequestParam(value = "invoiceVoucherImageUrl3", required = false) String invoiceVoucherImageUrl3,
+			@RequestParam(value = "invoiceVoucherImageUrl4", required = false) String invoiceVoucherImageUrl4,
+			@RequestParam(value = "invoiceVoucherImageUrl5", required = false) String invoiceVoucherImageUrl5,
+			@RequestParam(value = "dob",required = false) String dob, @RequestParam(value = "startDate",required = false) String startDate,
+			@RequestParam(value = "endDate",required = false) String endDate, @RequestParam(value = "tuitionFee",required = false) String tuitionFee,
+			@RequestParam(value = "perTermTuitionFee",required = false) String perTermTuitionFee,
+			@RequestParam(value = "receiveTypeId",required = false) Integer receiveTypeId,
+			@RequestParam(value = "receiveDate",required = false) String receiveDate,
+			@RequestParam(value = "perAmount",required = false) String perAmount, @RequestParam(value = "amount",required = false) String amount,
+			@RequestParam(value = "remarks", required = false) String remarks,
+			@RequestParam(value = "studentCode",required = false) String studentCode,
+			@RequestParam(value = "serviceOrderId")int serviceOrderId,
+			@RequestParam(value = "expectAmount",required = false)String expectAmount,
+			@RequestParam(value = "verifyCode", required = false) String verifyCode,
+			HttpServletRequest request, HttpServletResponse response
+	){
+		try {
+			super.setPostHeader(response);
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+				return new Response(1, "仅限顾问和超级管理员能修改.", null);
+			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(serviceOrderId);
+			if (serviceOrderDto == null)
+				return new Response(1, "服务订单(ID:" + serviceOrderId + ")不存在!", null);
+
+			CommissionOrderTempDTO tempDTO = commissionOrderService.getCommissionOrderTempByServiceOrderId(serviceOrderId);
+			if (tempDTO == null)
+				return new Response(1,"此条记录不存在，修改失败");
+
+			if (serviceOrderDto.getSubagencyId() <= 0)
+				return new Response(1,
+						"SubagencyId(" + serviceOrderDto.getSubagencyId() + ")不存在!", null);
+
+			if (StringUtil.isNotEmpty(studentCode))
+				tempDTO.setStudentCode(studentCode);
+			if (StringUtil.isNotEmpty(dob))
+				tempDTO.setDob(new Date(Long.parseLong(dob)));
+			if (StringUtil.isNotEmpty(startDate))
+				tempDTO.setStartDate(new Date(Long.parseLong(startDate)));
+			if (StringUtil.isNotEmpty(endDate))
+				tempDTO.setEndDate(new Date(Long.parseLong(endDate)));
+			if (StringUtil.isNotEmpty(tuitionFee))
+				tempDTO.setTuitionFee(Double.parseDouble(tuitionFee));
+			if (StringUtil.isNotEmpty(perTermTuitionFee))
+				tempDTO.setPerTermTuitionFee(Double.parseDouble(perTermTuitionFee));
+			if (receiveTypeId != null)
+				tempDTO.setReceiveTypeId(receiveTypeId);
+			if (StringUtil.isNotEmpty(receiveDate))
+				tempDTO.setReceiveDate(new Date(Long.parseLong(receiveDate)));
+			if (StringUtil.isNotEmpty(perAmount))
+				tempDTO.setPerAmount(Double.parseDouble(perAmount));
+			if (StringUtil.isNotEmpty(amount))
+				tempDTO.setAmount(Double.parseDouble(amount));
+			if (StringUtil.isNotEmpty(expectAmount))
+				tempDTO.setExpectAmount(Double.parseDouble(expectAmount));
+			if (tempDTO.getPerAmount() < tempDTO.getAmount())
+				return new Response(1, "本次应收款(" + tempDTO.getPerAmount()
+						+ ")不能小于本次已收款(" + tempDTO.getAmount() + ")!", null);
+			tempDTO.setDiscount(tempDTO.getPerAmount() - tempDTO.getAmount());
+			if (StringUtil.isNotEmpty(verifyCode))
+				tempDTO.setVerifyCode(verifyCode);
+			if (StringUtil.isNotEmpty(remarks))
+				tempDTO.setRemarks(remarks);
+
+			if (installment != null && installment > 0)
+				tempDTO.setInstallment(installment);
+
+			if (StringUtil.isNotEmpty(installmentDueDate1))
+				tempDTO.setInstallmentDueDate1(new Date(Long.parseLong(installmentDueDate1)));
+			if (StringUtil.isNotEmpty(installmentDueDate2))
+				tempDTO.setInstallmentDueDate2(new Date(Long.parseLong(installmentDueDate2)));
+			else
+				tempDTO.setInstallmentDueDate2(null);
+			if (StringUtil.isNotEmpty(installmentDueDate3))
+				tempDTO.setInstallmentDueDate3(new Date(Long.parseLong(installmentDueDate3)));
+			else
+				tempDTO.setInstallmentDueDate3(null);
+			if (StringUtil.isNotEmpty(installmentDueDate4))
+				tempDTO.setInstallmentDueDate4(new Date(Long.parseLong(installmentDueDate4)));
+			else
+				tempDTO.setInstallmentDueDate4(null);
+			if (StringUtil.isNotEmpty(installmentDueDate5))
+				tempDTO.setInstallmentDueDate5(new Date(Long.parseLong(installmentDueDate5)));
+			else
+				tempDTO.setInstallmentDueDate5(null);
+			if (StringUtil.isNotEmpty(installmentDueDate6))
+				tempDTO.setInstallmentDueDate6(new Date(Long.parseLong(installmentDueDate6)));
+			else
+				tempDTO.setInstallmentDueDate6(null);
+			if (StringUtil.isNotEmpty(installmentDueDate7))
+				tempDTO.setInstallmentDueDate7(new Date(Long.parseLong(installmentDueDate7)));
+			else
+				tempDTO.setInstallmentDueDate7(null);
+			if (StringUtil.isNotEmpty(installmentDueDate8))
+				tempDTO.setInstallmentDueDate8(new Date(Long.parseLong(installmentDueDate8)));
+			else
+				tempDTO.setInstallmentDueDate8(null);
+			if (StringUtil.isNotEmpty(installmentDueDate9))
+				tempDTO.setInstallmentDueDate9(new Date(Long.parseLong(installmentDueDate9)));
+			else
+				tempDTO.setInstallmentDueDate9(null);
+			if (StringUtil.isNotEmpty(installmentDueDate10))
+				tempDTO.setInstallmentDueDate10(new Date(Long.parseLong(installmentDueDate10)));
+			else
+				tempDTO.setInstallmentDueDate10(null);
+			if (StringUtil.isNotEmpty(installmentDueDate11))
+				tempDTO.setInstallmentDueDate11(new Date(Long.parseLong(installmentDueDate11)));
+			else
+				tempDTO.setInstallmentDueDate11(null);
+			if (StringUtil.isNotEmpty(installmentDueDate12))
+				tempDTO.setInstallmentDueDate12(new Date(Long.parseLong(installmentDueDate12)));
+			else
+				tempDTO.setInstallmentDueDate12(null);
+
+
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
+				tempDTO.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
+				tempDTO.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl3))
+				tempDTO.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl4))
+				tempDTO.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl5))
+				tempDTO.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
+
+			if (serviceOrderDto.isSettle() == true && (
+					StringUtil.isNotEmpty(invoiceVoucherImageUrl1) || StringUtil.isNotEmpty(invoiceVoucherImageUrl2)
+							|| StringUtil.isNotEmpty(invoiceVoucherImageUrl3) || StringUtil.isNotEmpty(invoiceVoucherImageUrl4)
+							|| StringUtil.isNotEmpty(invoiceVoucherImageUrl5)) ){
+				/*
+				杜大哥（2021-10-18）说：【提前扣拥】在上传【invoice凭证】之后，申请月奖直接将服务订单状态改成【RECEIVED】(已收款凭证已提交)
+				 */
+				serviceOrderDto.setState("RECEIVED");
+			}
+			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl1))
+				serviceOrderDto.setInvoiceVoucherImageUrl1(invoiceVoucherImageUrl1);
+			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl2))
+				serviceOrderDto.setInvoiceVoucherImageUrl2(invoiceVoucherImageUrl2);
+			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl3))
+				serviceOrderDto.setInvoiceVoucherImageUrl3(invoiceVoucherImageUrl3);
+			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl4))
+				serviceOrderDto.setInvoiceVoucherImageUrl4(invoiceVoucherImageUrl4);
+			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl5))
+				serviceOrderDto.setInvoiceVoucherImageUrl5(invoiceVoucherImageUrl5);
+
+			if (commissionOrderService.updateCommissionOrderTemp(tempDTO) > 0){
+				if (serviceOrderService.updateServiceOrder(serviceOrderDto) > 0 )
+					return new Response(0,"success",tempDTO);
+			}
+			return new Response(1,"更新失败");
+		}catch (ServiceException e) {
+			return new Response(e.getCode(), e.getMessage(), null);
+		}
+
+	}
 }

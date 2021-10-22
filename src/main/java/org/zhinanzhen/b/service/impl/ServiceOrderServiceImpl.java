@@ -99,6 +99,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	@Resource
 	private MailRemindDAO mailRemindDAO;
 
+	@Resource
+	private CommissionOrderTempDAO commissionOrderTempDao;
+
 	@Override
 	public int addServiceOrder(ServiceOrderDTO serviceOrderDto) throws ServiceException {
 		if (serviceOrderDto == null) {
@@ -110,7 +113,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			List<CommissionOrderDO> commissionOrderDOS = commissionOrderDao
 					.listCommissionOrderByVerifyCode(serviceOrderDto.getVerifyCode());
 			List<VisaDO> visaDOS = visaDao.listVisaByVerifyCode(serviceOrderDto.getVerifyCode());
-			if (commissionOrderDOS.size() > 0 | serviceOrderDao.listByVerifyCode(serviceOrderDto.getVerifyCode()).size() > 0 || visaDOS.size() > 0) {
+			List<CommissionOrderTempDO> list = commissionOrderTempDao.getCommissionOrderTempByVerifyCode(serviceOrderDto.getVerifyCode());
+			if (commissionOrderDOS.size() > 0 || serviceOrderDao.listByVerifyCode(serviceOrderDto.getVerifyCode()).size() > 0
+					|| visaDOS.size() > 0 || list.size() > 0) {
 				ServiceException se = new ServiceException(
 						"对账code:" + serviceOrderDto.getVerifyCode() + "已经存在,请重新创建新的code!");
 				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -148,7 +153,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			List<CommissionOrderDO> commissionOrderDOS = commissionOrderDao
 					.listCommissionOrderByVerifyCode(serviceOrderDto.getVerifyCode());
 			List<VisaDO> visaDOS = visaDao.listVisaByVerifyCode(serviceOrderDto.getVerifyCode());
-			if (commissionOrderDOS.size() > 0) {
+			List<CommissionOrderTempDO> list = commissionOrderTempDao.getCommissionOrderTempByVerifyCode(serviceOrderDto.getVerifyCode());
+			if (commissionOrderDOS.size() > 0 || list.size() > 0) {
 				ServiceException se = new ServiceException(
 						"对账code:" + serviceOrderDto.getVerifyCode() + "已经存在,请重新创建新的code!");
 				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());

@@ -70,6 +70,9 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 	@Resource
 	private MailRemindDAO mailRemindDAO;
 
+	@Resource
+	private CommissionOrderTempDAO commissionOrderTempDao;
+
 	@Override
 	@Transactional(rollbackFor = ServiceException.class)
 	public int addCommissionOrder(CommissionOrderDTO commissionOrderDto) throws ServiceException {
@@ -79,12 +82,22 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			throw se;
 		}
 		if (commissionOrderDto.getVerifyCode() != null){
+			List<CommissionOrderTempDO> list = commissionOrderTempDao.getCommissionOrderTempByVerifyCode(commissionOrderDto.getVerifyCode());
 			List<CommissionOrderDO> commissionOrderDOS = commissionOrderDao.listCommissionOrderByVerifyCode(commissionOrderDto.getVerifyCode());
 			List<VisaDO> visaDOS = visaDao.listVisaByVerifyCode(commissionOrderDto.getVerifyCode());
-			if (commissionOrderDOS.size() > 0 | visaDOS.size()> 0) {
+			if (commissionOrderDOS.size() > 0 || visaDOS.size() > 0 ) {
 				ServiceException se = new ServiceException("对账code:"+commissionOrderDto.getVerifyCode()+"已经存在,请重新创建新的code!");
 				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 				throw se;
+			}
+			if (list.size() > 0){
+				for (CommissionOrderTempDO temp : list){
+					if (temp.getServiceOrderId() != commissionOrderDto.getServiceOrderId()){
+						ServiceException se = new ServiceException("对账code:"+commissionOrderDto.getVerifyCode()+"已经存在,请重新创建新的code!");
+						se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+						throw se;
+					}
+				}
 			}
 		}
 		try {
@@ -179,9 +192,10 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			throw se;
 		}
 		if (commissionOrderDto.getVerifyCode() != null){
+			List<CommissionOrderTempDO> list = commissionOrderTempDao.getCommissionOrderTempByVerifyCode(commissionOrderDto.getVerifyCode());
 			List<CommissionOrderDO> commissionOrderDOS = commissionOrderDao.listCommissionOrderByVerifyCode(commissionOrderDto.getVerifyCode());
 			List<VisaDO> visaDOS = visaDao.listVisaByVerifyCode(commissionOrderDto.getVerifyCode());
-			if ( visaDOS.size()> 0) {
+			if ( visaDOS.size() > 0) {
 				ServiceException se = new ServiceException("对账code:"+commissionOrderDto.getVerifyCode()+"已经存在,请重新创建新的code!");
 				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 				throw se;
@@ -189,6 +203,15 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			if (commissionOrderDOS.size()>0){
 				for (CommissionOrderDO commissionOrderDO : commissionOrderDOS){
 					if (commissionOrderDO.getId() != commissionOrderDto.getId()){
+						ServiceException se = new ServiceException("对账code:"+commissionOrderDto.getVerifyCode()+"已经存在,请重新创建新的code!");
+						se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+						throw se;
+					}
+				}
+			}
+			if (list.size() > 0){
+				for (CommissionOrderTempDO temp : list){
+					if (temp.getServiceOrderId() != commissionOrderDto.getServiceOrderId()){
 						ServiceException se = new ServiceException("对账code:"+commissionOrderDto.getVerifyCode()+"已经存在,请重新创建新的code!");
 						se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 						throw se;
@@ -493,9 +516,10 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			throw se;
 		}
 		if (commissionOrderDto.getVerifyCode() != null){
+			List<CommissionOrderTempDO> list = commissionOrderTempDao.getCommissionOrderTempByVerifyCode(commissionOrderDto.getVerifyCode());
 			List<CommissionOrderDO> commissionOrderDOS = commissionOrderDao.listCommissionOrderByVerifyCode(commissionOrderDto.getVerifyCode());
 			List<VisaDO> visaDOS = visaDao.listVisaByVerifyCode(commissionOrderDto.getVerifyCode());
-			if ( visaDOS.size()> 0) {
+			if ( visaDOS.size()> 0 ) {
 				ServiceException se = new ServiceException("对账code:"+commissionOrderDto.getVerifyCode()+"已经存在,请重新创建新的code!");
 				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 				throw se;
@@ -503,6 +527,15 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			if (commissionOrderDOS.size()>0){
 				for (CommissionOrderDO commissionOrderDO : commissionOrderDOS){
 					if (commissionOrderDO.getId() != commissionOrderDto.getId()){
+						ServiceException se = new ServiceException("对账code:"+commissionOrderDto.getVerifyCode()+"已经存在,请重新创建新的code!");
+						se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+						throw se;
+					}
+				}
+			}
+			if (list.size() > 0){
+				for (CommissionOrderTempDO temp : list){
+					if (temp.getServiceOrderId() != commissionOrderDto.getServiceOrderId()){
 						ServiceException se = new ServiceException("对账code:"+commissionOrderDto.getVerifyCode()+"已经存在,请重新创建新的code!");
 						se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 						throw se;
@@ -543,4 +576,89 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 		}
 	}
 
+	@Override
+	public int addCommissionOrderTemp(CommissionOrderTempDTO commissionOrderTempDTO) throws ServiceException {
+		if (commissionOrderTempDTO == null) {
+			ServiceException se = new ServiceException("commissionOrderTempDTO is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		if (StringUtil.isNotBlank(commissionOrderTempDTO.getVerifyCode())){
+			List<CommissionOrderTempDO> list = commissionOrderTempDao.getCommissionOrderTempByVerifyCode(commissionOrderTempDTO.getVerifyCode());
+			List<CommissionOrderDO> commissionOrderDOS = commissionOrderDao.listCommissionOrderByVerifyCode(commissionOrderTempDTO.getVerifyCode());
+			List<VisaDO> visaDOS = visaDao.listVisaByVerifyCode(commissionOrderTempDTO.getVerifyCode());
+			if (commissionOrderDOS.size() > 0 || visaDOS.size()> 0 || list.size() > 0) {
+				ServiceException se = new ServiceException("对账code:"+commissionOrderTempDTO.getVerifyCode()+"已经存在,请重新创建新的code!");
+				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+				throw se;
+			}
+		}
+		try {
+			CommissionOrderTempDO commissionOrderTempDO = mapper.map(commissionOrderTempDTO,CommissionOrderTempDO.class);
+			int i = commissionOrderTempDao.addCommissionOrderTemp(commissionOrderTempDO);
+			if (i > 0){
+				return commissionOrderTempDTO.getId();
+			}
+			return 0;
+		}catch (Exception e){
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
+	public CommissionOrderTempDTO getCommissionOrderTempByServiceOrderId(int id) throws ServiceException {
+		if (id <= 0) {
+			ServiceException se = new ServiceException("id is error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			CommissionOrderTempDO commissionOrderTempDO = commissionOrderTempDao.getCommissionOrderTempByServiceOrderId(id);
+			if (commissionOrderTempDO == null)
+				return null;
+			CommissionOrderTempDTO commissionOrderTempDTO = mapper.map(commissionOrderTempDO,CommissionOrderTempDTO.class);
+			return commissionOrderTempDTO;
+		}catch (Exception e){
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
+	public int updateCommissionOrderTemp(CommissionOrderTempDTO tempDTO) throws ServiceException {
+		if (tempDTO == null) {
+			ServiceException se = new ServiceException("CommissionOrderTempDTO is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		if (StringUtil.isNotBlank(tempDTO.getVerifyCode())){
+			List<CommissionOrderTempDO> list = commissionOrderTempDao.getCommissionOrderTempByVerifyCode(tempDTO.getVerifyCode());
+			List<CommissionOrderDO> commissionOrderDOS = commissionOrderDao.listCommissionOrderByVerifyCode(tempDTO.getVerifyCode());
+			List<VisaDO> visaDOS = visaDao.listVisaByVerifyCode(tempDTO.getVerifyCode());
+			if (commissionOrderDOS.size() > 0 || visaDOS.size() > 0 ) {
+				ServiceException se = new ServiceException("对账code:"+tempDTO.getVerifyCode()+"已经存在,请重新创建新的code!");
+				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+				throw se;
+			}
+			if (list.size() > 0)
+				if (list.get(0).getId() != tempDTO.getId()){//理论上如果存在的话，只会有一个
+					ServiceException se = new ServiceException("对账code:"+tempDTO.getVerifyCode()+"已经存在,请重新创建新的code!");
+					se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+					throw se;
+				}
+
+		}
+		try {
+
+			CommissionOrderTempDO commissionOrderTempDO = mapper.map(tempDTO,CommissionOrderTempDO.class);
+			return commissionOrderTempDao.update(commissionOrderTempDO);
+		}catch (Exception e){
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
 }

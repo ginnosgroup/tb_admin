@@ -69,6 +69,9 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 	@Resource
 	private MailRemindDAO mailRemindDAO;
 
+	@Resource
+	private CommissionOrderTempDAO commissionOrderTempDao;
+
 	@Override
 	public int addVisa(VisaDTO visaDto) throws ServiceException {
 		if (visaDto == null) {
@@ -106,7 +109,8 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 		if (visaDto.getVerifyCode() != null){
 			List<CommissionOrderDO> commissionOrderDOS = commissionOrderDAO.listCommissionOrderByVerifyCode(visaDto.getVerifyCode());
 			List<VisaDO> visaDOS = visaDao.listVisaByVerifyCode(visaDto.getVerifyCode());
-			if (commissionOrderDOS.size() > 0) {
+			List<CommissionOrderTempDO> list = commissionOrderTempDao.getCommissionOrderTempByVerifyCode(visaDto.getVerifyCode());
+			if (commissionOrderDOS.size() > 0 || list.size() > 0) {
 				ServiceException se = new ServiceException("对账code:"+visaDto.getVerifyCode()+"已经存在,请重新创建新的code!");
 				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 				throw se;
