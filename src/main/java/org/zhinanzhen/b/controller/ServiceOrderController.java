@@ -417,6 +417,7 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "peopleRemarks", required = false) String peopleRemarks,
 			@RequestParam(value = "serviceId", required = false) String serviceId,
 			@RequestParam(value = "schoolId", required = false) String schoolId,
+			@RequestParam(value = "urgentState", required = false) String urgentState,
 			@RequestParam(value = "isSettle", required = false) String isSettle,
 			@RequestParam(value = "isDepositUser", required = false) String isDepositUser,
 			@RequestParam(value = "subagencyId", required = false) String subagencyId,
@@ -467,7 +468,7 @@ public class ServiceOrderController extends BaseController {
 			if (serviceOrderDto == null)
 				return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
 			Response<Integer> res = updateOne(serviceOrderDto, type, peopleNumber, peopleType, peopleRemarks, serviceId,
-					schoolId, isSettle, isDepositUser, subagencyId, isPay, receiveTypeId, receiveDate, receivable,
+					schoolId, urgentState, isSettle, isDepositUser, subagencyId, isPay, receiveTypeId, receiveDate, receivable,
 					discount, received, installment, paymentVoucherImageUrl1, paymentVoucherImageUrl2,
 					paymentVoucherImageUrl3, paymentVoucherImageUrl4, paymentVoucherImageUrl5, invoiceVoucherImageUrl1,
 					invoiceVoucherImageUrl2,invoiceVoucherImageUrl3,invoiceVoucherImageUrl4,invoiceVoucherImageUrl5,perAmount, amount,
@@ -482,7 +483,7 @@ public class ServiceOrderController extends BaseController {
 				cList.forEach(cServiceOrderDto -> {
 					if ("VISA".equalsIgnoreCase(cServiceOrderDto.getType())) {
 						Response<Integer> cRes = updateOne(cServiceOrderDto, null, peopleNumber, peopleType,
-								peopleRemarks, serviceId, schoolId, isSettle, isDepositUser, subagencyId, isPay,
+								peopleRemarks, serviceId, schoolId, urgentState, isSettle, isDepositUser, subagencyId, isPay,
 								receiveTypeId, receiveDate, receivable, discount, received, installment,
 								paymentVoucherImageUrl1, paymentVoucherImageUrl2, paymentVoucherImageUrl3,
 								paymentVoucherImageUrl4, paymentVoucherImageUrl5, invoiceVoucherImageUrl1,
@@ -503,7 +504,7 @@ public class ServiceOrderController extends BaseController {
 	}
 	
 	private Response<Integer> updateOne(ServiceOrderDTO serviceOrderDto, String type, Integer peopleNumber, String peopleType,
-			String peopleRemarks, String serviceId,String schoolId,String isSettle,String isDepositUser,
+			String peopleRemarks, String serviceId,String schoolId,String urgentState,String isSettle,String isDepositUser,
 			String subagencyId, String isPay, String receiveTypeId, String receiveDate,
 			String receivable, String discount, String received, Integer installment,
 			String paymentVoucherImageUrl1, String paymentVoucherImageUrl2, String paymentVoucherImageUrl3,
@@ -527,6 +528,8 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setServiceId(StringUtil.toInt(serviceId));
 			if (StringUtil.isNotEmpty(schoolId))
 				serviceOrderDto.setSchoolId(StringUtil.toInt(schoolId));
+			if (StringUtil.isNotEmpty(urgentState))
+				serviceOrderDto.setUrgentState(urgentState);
 			if (isSettle != null)
 				serviceOrderDto.setSettle("true".equalsIgnoreCase(isSettle));
 			if (isDepositUser != null)
