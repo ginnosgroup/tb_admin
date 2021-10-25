@@ -528,8 +528,7 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setServiceId(StringUtil.toInt(serviceId));
 			if (StringUtil.isNotEmpty(schoolId))
 				serviceOrderDto.setSchoolId(StringUtil.toInt(schoolId));
-			if (StringUtil.isNotEmpty(urgentState))
-				serviceOrderDto.setUrgentState(urgentState);
+			serviceOrderDto.setUrgentState(urgentState);
 			if (isSettle != null)
 				serviceOrderDto.setSettle("true".equalsIgnoreCase(isSettle));
 			if (isDepositUser != null)
