@@ -3,8 +3,6 @@ package org.zhinanzhen.b.service.impl;
 import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.*;
@@ -28,7 +26,6 @@ import org.zhinanzhen.tb.service.pojo.UserDTO;
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.StringUtil;
 import lombok.Data;
-import org.zhinanzhen.tb.utils.WXWorkAPI;
 
 @Service("ServiceOrderService")
 public class ServiceOrderServiceImpl extends BaseService implements ServiceOrderService {
@@ -101,6 +98,15 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
 	@Resource
 	private CommissionOrderTempDAO commissionOrderTempDao;
+
+	@Resource
+	private SchoolCourseDAO schoolCourseDAO;
+
+	@Resource
+	private SchoolInstitutionDAO schoolInstitutionDAO;
+
+	@Resource
+	private SchoolInstitutionLocationDAO schoolInstitutionLocationDAO;
 
 	@Override
 	public int addServiceOrder(ServiceOrderDTO serviceOrderDto) throws ServiceException {
@@ -622,6 +628,21 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				mailRemindDTOS.add(mapper.map(mailRemindDO,MailRemindDTO.class));
 			});
 			serviceOrderDto.setMailRemindDTOS(mailRemindDTOS);
+		}
+
+		if (serviceOrderDto.getCourseId() > 0) {
+			SchoolCourseDO schoolCourseDO = schoolCourseDAO.schoolCourseById(serviceOrderDto.getCourseId());
+			if (schoolCourseDO != null){
+				SchoolInstitutionDO schoolInstitutionDO = schoolInstitutionDAO.getSchoolInstitutionById(schoolCourseDO.getProviderId());
+				if (schoolInstitutionDO != null)
+					serviceOrderDto.setSchoolInstitutionListDTO(mapper.map(schoolInstitutionDO,SchoolInstitutionListDTO.class));
+				serviceOrderDto.getSchoolInstitutionListDTO().setSchoolCourseDO(schoolCourseDO);
+			}
+		}
+
+		if (serviceOrderDto.getSchoolInstitutionLocationId() > 0){
+			SchoolInstitutionLocationDO schoolInstitutionLocationDO = schoolInstitutionLocationDAO.getById(serviceOrderDto.getSchoolInstitutionLocationId());
+			serviceOrderDto.getSchoolInstitutionListDTO().setSchoolInstitutionLocationDO(schoolInstitutionLocationDO);
 		}
 
 		return serviceOrderDto;

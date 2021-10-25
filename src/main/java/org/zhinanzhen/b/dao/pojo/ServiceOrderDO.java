@@ -155,4 +155,8 @@ public class ServiceOrderDO implements Serializable {
 
 	private Date submitMaraApprovalDate;
 
+	private int courseId;//新学校库专业id
+
+	private int schoolInstitutionLocationId;//新学校库校区id
+
 }

@@ -400,6 +400,7 @@ CREATE TABLE `b_service_order` (
   `service_package_id` int DEFAULT NULL COMMENT '服务包编号 (对应b_service_package.id,仅子订单才有)',
   `school_id` int DEFAULT NULL COMMENT '学校编号 (对应b_school.id,留学服务专用字段)',
   `course_id` int(11) DEFAULT NULL COMMENT 'b_school_course.id',
+  `school_institution_location_id` int(11) DEFAULT NULL COMMENT '学校校区id',
   `state` varchar(20) NOT NULL COMMENT '状态 (PENDING:待提交审核,REVIEW:审核中,APPLY:服务申请中,COMPLETE:服务申请完成,PAID:完成-支付成功,CLOSE:关闭)',
   `review_state` varchar(8) DEFAULT NULL COMMENT '审批状态 (OFFICIAL:文案审批通过,MARA:Mara审批通过,KJ:财务审批通过)',
 `urgent_state` varchar(8) DEFAULT NULL COMMENT '加急状态(JJ:加急, TSJJ:特殊加急),仅限签证订单',

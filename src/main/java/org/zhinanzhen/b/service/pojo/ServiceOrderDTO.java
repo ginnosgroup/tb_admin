@@ -170,6 +170,10 @@ public class ServiceOrderDTO {
 
 	private Date submitMaraApprovalDate;
 
+	private int courseId;//新学校库专业id
+
+	private int schoolInstitutionLocationId;//新学校库校区id
+
 	private boolean hasCommissionOrder = false;
 
 	private ServiceOrderReviewDTO review;
@@ -187,5 +191,7 @@ public class ServiceOrderDTO {
 	private List<Integer> cIds; // 佣金订单编号
 
 	private List<MailRemindDTO> mailRemindDTOS;
+
+	private SchoolInstitutionListDTO schoolInstitutionListDTO ;
 
 }

@@ -18,6 +18,8 @@
                 parent_id,
                 service_package_id,
                 school_id,
+                course_id,
+                school_institution_location_id,
                 state,
                 state_mark,
                 urgent_state,
@@ -80,6 +82,8 @@
                 #{parentId},
                 #{servicePackageId},
                 #{schoolId},
+                #{courseId},
+                #{schoolInstitutionLocationId},
                 #{state},
                 #{stateMark},
                 #{urgentState},
@@ -157,6 +161,12 @@
         </if>
         <if test='schoolId != null and schoolId > 0'>
             , school_id = #{schoolId}
+        </if>
+        <if test="courseId != null and courseId > 0">
+            , course_id = #{courseId}
+        </if>
+        <if test="schoolInstitutionLocationId != null and schoolInstitutionLocationId > 0">
+            , school_institution_location_id = #{schoolInstitutionLocationId}
         </if>
         <if test='state != null and state != ""'>
             , state = #{state}
@@ -435,6 +445,8 @@
             so.parent_id AS parentId,
             so.service_package_id AS servicePackageId,
             so.school_id AS schoolId,
+            so.course_id AS courseId,
+            so.school_institution_location_id AS schoolInstitutionLocationId,
             so.state AS state,
             so.state_mark AS stateMark,
             so.urgent_state AS urgentState,
@@ -603,6 +615,8 @@
             parent_id AS parentId,
             service_package_id AS servicePackageId,
             school_id AS schoolId,
+            course_id AS courseId,
+            school_institution_location_id AS schoolInstitutionLocationId,
             state,
             state_mark AS stateMark,
             urgent_state AS urgentState,
@@ -759,6 +773,8 @@
             parent_id AS parentId,
             service_package_id AS servicePackageId,
             school_id AS schoolId,
+            course_id AS courseId,
+            school_institution_location_id AS schoolInstitutionLocationId,
             state,
             urgent_state AS urgentState,
             mara_approval_date AS maraApprovalDate,
@@ -849,6 +865,8 @@
         so.parent_id AS parentId,
         so.service_package_id AS servicePackageId,
         so.school_id AS schoolId,
+        so.course_id AS courseId,
+        so.school_institution_location_id AS schoolInstitutionLocationId,
         so.state AS state,
         so.state_mark AS stateMark,
         so.urgent_state AS urgentState,
