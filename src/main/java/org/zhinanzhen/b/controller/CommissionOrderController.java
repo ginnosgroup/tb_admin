@@ -1622,14 +1622,19 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			if (serviceOrderDto == null)
 				return new Response(1, "服务订单(ID:" + serviceOrderId + ")不存在!", null);
 
-			CommissionOrderTempDTO _tempDTO = commissionOrderService.getCommissionOrderTempByServiceOrderId(serviceOrderId);
-			if (_tempDTO != null)
-				return new Response(1,"已经创建:",_tempDTO);
-
 			if (serviceOrderDto.getSubagencyId() <= 0)
 				return new Response(1,
 						"SubagencyId(" + serviceOrderDto.getSubagencyId() + ")不存在!", null);
-			CommissionOrderTempDTO tempDTO = new CommissionOrderTempDTO();
+			CommissionOrderTempDTO tempDTO = commissionOrderService.getCommissionOrderTempByServiceOrderId(serviceOrderId);
+			if (tempDTO != null) {
+				return updateCommissionOrderTemp(installment,installmentDueDate1,installmentDueDate2,installmentDueDate3,installmentDueDate4,
+						installmentDueDate5,installmentDueDate6,installmentDueDate7,installmentDueDate8,installmentDueDate9,installmentDueDate10,
+						installmentDueDate11,installmentDueDate12,paymentVoucherImageUrl1,paymentVoucherImageUrl2,paymentVoucherImageUrl3,
+						paymentVoucherImageUrl4,paymentVoucherImageUrl5,invoiceVoucherImageUrl1,invoiceVoucherImageUrl2,invoiceVoucherImageUrl3,
+						invoiceVoucherImageUrl4,invoiceVoucherImageUrl5,dob, startDate,endDate, tuitionFee,perTermTuitionFee,receiveTypeId,
+						receiveDate,perAmount, amount,remarks,studentCode,serviceOrderId,expectAmount,verifyCode,tempDTO,serviceOrderDto);
+			}
+			tempDTO = new CommissionOrderTempDTO();
 			tempDTO.setServiceOrderId(serviceOrderId);
 			tempDTO.setStudentCode(studentCode);
 			tempDTO.setDob(new Date(Long.parseLong(dob)));
@@ -1730,9 +1735,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		}
 	}
 
-	@PostMapping(value = "/updateCommissionOrderTemp")
-	@ResponseBody
+
 	public Response updateCommissionOrderTemp(
+			/*
 			//@RequestParam(value = "id")int id,
 			@RequestParam(value = "installment") Integer installment,
 			@RequestParam(value = "installmentDueDate1") String installmentDueDate1,
@@ -1769,8 +1774,19 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "expectAmount",required = false)String expectAmount,
 			@RequestParam(value = "verifyCode", required = false) String verifyCode,
 			HttpServletRequest request, HttpServletResponse response
+			 */
+			Integer installment, String installmentDueDate1, String installmentDueDate2, String installmentDueDate3,
+			String installmentDueDate4, String installmentDueDate5, String installmentDueDate6, String installmentDueDate7,
+			String installmentDueDate8, String installmentDueDate9, String installmentDueDate10, String installmentDueDate11,
+			String installmentDueDate12, String paymentVoucherImageUrl1, String paymentVoucherImageUrl2,
+			String paymentVoucherImageUrl3, String paymentVoucherImageUrl4, String paymentVoucherImageUrl5, String invoiceVoucherImageUrl1,
+			String invoiceVoucherImageUrl2, String invoiceVoucherImageUrl3, String invoiceVoucherImageUrl4, String invoiceVoucherImageUrl5,
+			String dob, String startDate, String endDate, String tuitionFee, String perTermTuitionFee, Integer receiveTypeId,
+			String receiveDate, String perAmount, String amount, String remarks, String studentCode, int serviceOrderId,
+			String expectAmount, String verifyCode,CommissionOrderTempDTO tempDTO,ServiceOrderDTO serviceOrderDto
 	){
 		try {
+			/*
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
@@ -1787,6 +1803,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			if (serviceOrderDto.getSubagencyId() <= 0)
 				return new Response(1,
 						"SubagencyId(" + serviceOrderDto.getSubagencyId() + ")不存在!", null);
+			 */
 
 			if (StringUtil.isNotEmpty(studentCode))
 				tempDTO.setStudentCode(studentCode);

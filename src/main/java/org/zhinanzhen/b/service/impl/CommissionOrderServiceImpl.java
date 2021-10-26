@@ -597,6 +597,7 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			CommissionOrderTempDO commissionOrderTempDO = mapper.map(commissionOrderTempDTO,CommissionOrderTempDO.class);
 			int i = commissionOrderTempDao.addCommissionOrderTemp(commissionOrderTempDO);
 			if (i > 0){
+				commissionOrderTempDTO.setId(commissionOrderTempDO.getId());
 				return commissionOrderTempDTO.getId();
 			}
 			return 0;
