@@ -32,7 +32,7 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
 		try {
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(getServiceOrderId(context));
 			String type = serviceOrderDto.getType();
-			if (!"ZX".equals(type) && !"WA".equalsIgnoreCase(getAp(context))){ //咨询不用判断文案权限
+			if (!"ZX".equals(type) && !serviceOrderDto.isSettle() && !"WA".equalsIgnoreCase(getAp(context))){ //咨询不用判断文案权限,扣拥留学不用判断
 				context.putParameter("response", new Response<ServiceOrderDTO>(1, "仅限文案操作!", null));
 					return null;
 			}
