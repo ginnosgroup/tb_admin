@@ -73,6 +73,9 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 	@Resource
 	private CommissionOrderTempDAO commissionOrderTempDao;
 
+	@Resource
+	private SchoolCourseDAO schoolCourseDAO;
+
 	@Override
 	@Transactional(rollbackFor = ServiceException.class)
 	public int addCommissionOrder(CommissionOrderDTO commissionOrderDto) throws ServiceException {
@@ -413,6 +416,12 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 		//	});
 		//	commissionOrderListDto.setMailRemindDTOS(mailRemindDTOS);
 		//}
+
+		if (commissionOrderListDo.getCourseId() > 0){
+			SchoolInstitutionListDTO schoolInstitutionInfo = schoolCourseDAO.getSchoolInstitutionInfoByCourseId(commissionOrderListDo.getCourseId());
+			commissionOrderListDto.setSchoolInstitutionListDTO(schoolInstitutionInfo);
+		}
+
 		return commissionOrderListDto;
 	}
 

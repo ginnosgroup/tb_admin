@@ -2,6 +2,7 @@ package org.zhinanzhen.b.dao;
 
 import org.apache.ibatis.annotations.Param;
 import org.zhinanzhen.b.dao.pojo.SchoolCourseDO;
+import org.zhinanzhen.b.service.pojo.SchoolInstitutionListDTO;
 
 import java.util.List;
 
@@ -31,4 +32,6 @@ public interface SchoolCourseDAO {
     boolean update(SchoolCourseDO schoolCourseDO);
 
     List<String> getCourseLevelList(int providerId);
+
+    SchoolInstitutionListDTO getSchoolInstitutionInfoByCourseId(int courseId);
 }

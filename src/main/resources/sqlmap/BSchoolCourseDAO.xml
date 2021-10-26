@@ -128,4 +128,54 @@
         FROM
         b_school_course WHERE provider_id = #{providerId} GROUP BY course_level;
     </select>
+
+    <select id="getSchoolInstitutionInfoByCourseId" resultMap="SchoolInstitutionListDTO">
+        SELECT
+        bsc.id AS bscid,
+        bsc.gmt_create AS bscgmtCreate,
+        bsc.gmt_modify AS bscgmtModify,
+        bsc.course_name AS bsccourseName,
+        bsc.course_sector AS bsccourseSector,
+        bsc.course_level AS bsccourseLevel,
+        bsc.provider_id AS bscproviderId,
+        bsc.provider_code AS bscproviderCode,
+        bsc.course_code AS bsccourseCode,
+        bsi.id AS bsiid,
+        bsi.gmt_create AS bsigmtCreate,
+        bsi.gmt_modify AS bsigmtModify,
+        bsi.code AS bsicode,
+        bsi.name AS bsiname,
+        bsi.institution_trading_name AS bsiinstitutionTradingName,
+        bsi.institution_name AS bsiinstitutionName,
+        bsi.institution_type AS bsiinstitutionType,
+        bsi.institution_postal_address AS bsiinstitutionPostalAddress,
+        bsi.website AS bsiwebsite,
+        bsi.summary AS bsisummary
+        FROM b_school_course AS bsc , b_school_institution bsi
+        WHERE bsc.provider_id = bsi.id AND bsc.id = #{id}
+    </select>
+    <resultMap id="SchoolInstitutionListDTO" type="org.zhinanzhen.b.service.pojo.SchoolInstitutionListDTO">
+        <id column="bsiid" property="id"></id>
+        <result column="bsigmtCreate" property="gmtCreate"></result>
+        <result column="bsigmtModify" property="gmtModify"></result>
+        <result column="bsicode" property="code"></result>
+        <result column="bsiname" property="name"></result>
+        <result column="bsiinstitutionTradingName" property="institutionTradingName"></result>
+        <result column="bsiinstitutionName" property="institutionName"></result>
+        <result column="bsiinstitutionType" property="institutionType"></result>
+        <result column="bsiinstitutionPostalAddress" property="institutionPostalAddress"></result>
+        <result column="bsiwebsite" property="website"></result>
+        <result column="bsisummary" property="summary"></result>
+        <association property="schoolCourseDO" javaType="org.zhinanzhen.b.dao.pojo.SchoolCourseDO">
+            <id column="bscid" property="id"></id>
+            <result column="bscgmtCreate" property="gmtCreate"></result>
+            <result column="bscgmtModify" property="gmtModify"></result>
+            <result column="bsccourseName" property="courseName"></result>
+            <result column="bsccourseSector" property="courseSector"></result>
+            <result column="bsccourseLevel" property="courseLevel"></result>
+            <result column="bscproviderId" property="providerId"></result>
+            <result column="bscproviderCode" property="providerCode"></result>
+            <result column="bsccourseCode" property="courseCode"></result>
+        </association>
+    </resultMap>
 </mapper>

@@ -87,7 +87,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "state", required = false) String state,
 			@RequestParam(value = "isSettle") Boolean isSettle,
 			@RequestParam(value = "isDepositUser") Boolean isDepositUser,
-			@RequestParam(value = "schoolId") Integer schoolId, @RequestParam(value = "studentCode") String studentCode,
+			@RequestParam(value = "schoolId") Integer schoolId, @RequestParam(value = "courseId") Integer courseId,
+			@RequestParam(value = "studentCode") String studentCode,
 			@RequestParam(value = "userId") Integer userId, @RequestParam(value = "adviserId") Integer adviserId,
 			@RequestParam(value = "officialId") Integer officialId,
 			@RequestParam(value = "isStudying") Boolean isStudying,
@@ -154,6 +155,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			commissionOrderDto.setSettle(isSettle);
 			commissionOrderDto.setDepositUser(isDepositUser);
 			commissionOrderDto.setSchoolId(schoolId);
+			commissionOrderDto.setCourseId(courseId);
 			commissionOrderDto.setStudentCode(studentCode);
 			commissionOrderDto.setUserId(userId);
 			commissionOrderDto.setAdviserId(adviserId);
@@ -1393,6 +1395,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	/*
 	*财务驳回状态为REFERED，顾问修改佣金信息之后再提交申请月奖
 	 */
+	@Deprecated
 	@RequestMapping(value = "/updateSubmitted", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<List<CommissionOrderDTO>> updateSubmitted(@RequestParam(value = "serviceOrderId") Integer serviceOrderId,

@@ -67,4 +67,8 @@ public class CommissionOrderListDTO extends CommissionOrderDTO {
 	@Setter
 	private List<MailRemindDTO> mailRemindDTOS;
 
+	@Getter
+	@Setter
+	private SchoolInstitutionListDTO schoolInstitutionListDTO;
+
 }
