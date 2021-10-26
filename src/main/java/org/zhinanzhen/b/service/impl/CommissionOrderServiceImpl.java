@@ -629,6 +629,11 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			if (commissionOrderTempDO == null)
 				return null;
 			CommissionOrderTempDTO commissionOrderTempDTO = mapper.map(commissionOrderTempDO,CommissionOrderTempDTO.class);
+
+			ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(commissionOrderTempDO.getReceiveTypeId());
+			if (receiveTypeDo != null)
+				commissionOrderTempDTO.setReceiveType(mapper.map(receiveTypeDo, ReceiveTypeDTO.class));
+
 			return commissionOrderTempDTO;
 		}catch (Exception e){
 			ServiceException se = new ServiceException(e);

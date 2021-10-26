@@ -70,6 +70,8 @@ public class CommissionOrderTempDTO {
 
     private int receiveTypeId;
 
+    private ReceiveTypeDTO receiveType;
+
     private Date receiveDate;//本次收款日期
 
     private double perAmount;//本次应收
