@@ -76,6 +76,9 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 	@Resource
 	private SchoolCourseDAO schoolCourseDAO;
 
+	@Resource
+	private SchoolInstitutionLocationDAO schoolInstitutionLocationDAO;
+
 	@Override
 	@Transactional(rollbackFor = ServiceException.class)
 	public int addCommissionOrder(CommissionOrderDTO commissionOrderDto) throws ServiceException {
@@ -417,9 +420,14 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 		//	commissionOrderListDto.setMailRemindDTOS(mailRemindDTOS);
 		//}
 
+		//添加新学校相关
 		if (commissionOrderListDo.getCourseId() > 0){
 			SchoolInstitutionListDTO schoolInstitutionInfo = schoolCourseDAO.getSchoolInstitutionInfoByCourseId(commissionOrderListDo.getCourseId());
 			commissionOrderListDto.setSchoolInstitutionListDTO(schoolInstitutionInfo);
+			if (commissionOrderListDo.getSchoolInstitutionLocationId() > 0 && schoolInstitutionInfo != null){
+				SchoolInstitutionLocationDO schoolInstitutionLocationDO = schoolInstitutionLocationDAO.getById(commissionOrderListDo.getSchoolInstitutionLocationId());
+				schoolInstitutionInfo.setSchoolInstitutionLocationDO(schoolInstitutionLocationDO);
+			}
 		}
 
 		return commissionOrderListDto;

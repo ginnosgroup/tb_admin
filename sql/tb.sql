@@ -528,6 +528,7 @@ CREATE TABLE `b_commission_order` (
   `is_deposit_user` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否为保证金用户',
   `school_id` int DEFAULT NULL COMMENT '学校编号 (对应b_school.id)',
   `course_id` int(11) DEFAULT NULL COMMENT 'b_school_course.id',
+  `school_institution_location_id` int(11) DEFAULT NULL COMMENT '学校校区id,b_school_institution_location.id',
   `student_code` varchar(32) NOT NULL COMMENT '学号',
   `user_id` int NOT NULL COMMENT '用户编号 (对应tb_user.id)',
   `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',

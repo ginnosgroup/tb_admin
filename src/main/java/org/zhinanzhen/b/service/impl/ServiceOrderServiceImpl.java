@@ -630,6 +630,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			serviceOrderDto.setMailRemindDTOS(mailRemindDTOS);
 		}
 
+		//添加新学校相关
 		if (serviceOrderDto.getCourseId() > 0) {
 			SchoolCourseDO schoolCourseDO = schoolCourseDAO.schoolCourseById(serviceOrderDto.getCourseId());
 			if (schoolCourseDO != null){
@@ -637,12 +638,11 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				if (schoolInstitutionDO != null)
 					serviceOrderDto.setSchoolInstitutionListDTO(mapper.map(schoolInstitutionDO,SchoolInstitutionListDTO.class));
 				serviceOrderDto.getSchoolInstitutionListDTO().setSchoolCourseDO(schoolCourseDO);
+				if (serviceOrderDto.getSchoolInstitutionLocationId() > 0){
+					SchoolInstitutionLocationDO schoolInstitutionLocationDO = schoolInstitutionLocationDAO.getById(serviceOrderDto.getSchoolInstitutionLocationId());
+					serviceOrderDto.getSchoolInstitutionListDTO().setSchoolInstitutionLocationDO(schoolInstitutionLocationDO);
+				}
 			}
-		}
-
-		if (serviceOrderDto.getSchoolInstitutionLocationId() > 0){
-			SchoolInstitutionLocationDO schoolInstitutionLocationDO = schoolInstitutionLocationDAO.getById(serviceOrderDto.getSchoolInstitutionLocationId());
-			serviceOrderDto.getSchoolInstitutionListDTO().setSchoolInstitutionLocationDO(schoolInstitutionLocationDO);
 		}
 
 		return serviceOrderDto;
