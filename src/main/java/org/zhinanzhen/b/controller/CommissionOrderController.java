@@ -134,7 +134,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
-				return new Response<List<CommissionOrderDTO>>(1, "仅限顾问和超级管理员能创建佣金订单.", null);
+				if (!"WA".equalsIgnoreCase(adminUserLoginInfo.getApList()) || !isSettle )
+					return new Response<List<CommissionOrderDTO>>(1, "仅限顾问和超级管理员能创建佣金订单.", null);
 			List<CommissionOrderDTO> commissionOrderDtoList = new ArrayList<>();
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(serviceOrderId);
 			if (serviceOrderDto == null)
@@ -156,9 +157,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				commissionOrderDto.setCommissionState(CommissionStateEnum.DZY.toString());
 			commissionOrderDto.setSettle(isSettle);
 			commissionOrderDto.setDepositUser(isDepositUser);
-			commissionOrderDto.setSchoolId(schoolId);
-			commissionOrderDto.setCourseId(courseId);
-			commissionOrderDto.setSchoolInstitutionLocationId(schoolInstitutionLocationId);
+			commissionOrderDto.setSchoolId(schoolId == null ? 0 : schoolId);
+			commissionOrderDto.setCourseId(courseId == null ? 0 : courseId);
+			commissionOrderDto.setSchoolInstitutionLocationId(schoolInstitutionLocationId == null ? 0 : schoolInstitutionLocationId);
 			commissionOrderDto.setStudentCode(studentCode);
 			commissionOrderDto.setUserId(userId);
 			commissionOrderDto.setAdviserId(adviserId);
