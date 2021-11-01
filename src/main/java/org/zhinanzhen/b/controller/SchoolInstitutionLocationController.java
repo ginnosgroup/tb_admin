@@ -53,19 +53,18 @@ public class SchoolInstitutionLocationController extends BaseController {
 
     @RequestMapping(value = "/update",method = RequestMethod.POST)
     @ResponseBody
-    public  Response update(@RequestParam("id") int id,
-                            @RequestParam(value = "name",required = false)String name,
-                            @RequestParam(value = "state",required = false)String state,
-                            @RequestParam(value = "numberOfCourses",required = false)String numberOfCourses){
-        SchoolInstitutionLocationDTO schoolInstitutionLocationDTO = schoolInstitutionLocationService.getById(id);
+    public  Response update(@RequestBody SchoolInstitutionLocationDTO _schoolInstitutionLocationDTO){
+        SchoolInstitutionLocationDTO schoolInstitutionLocationDTO = schoolInstitutionLocationService.getById(_schoolInstitutionLocationDTO.getId());
         if (schoolInstitutionLocationDTO == null)
             return new Response(1,"没有此记录");
-        if (StringUtil.isNotEmpty(name))
-            schoolInstitutionLocationDTO.setName(name);
-        if (StringUtil.isNotEmpty(state))
-            schoolInstitutionLocationDTO.setState(state);
-        if (StringUtil.isNotEmpty(numberOfCourses))
-            schoolInstitutionLocationDTO.setNumberOfCourses(StringUtil.toInt(numberOfCourses));
+        if (StringUtil.isNotEmpty(_schoolInstitutionLocationDTO.getName()))
+            schoolInstitutionLocationDTO.setName(_schoolInstitutionLocationDTO.getName());
+        if (StringUtil.isNotEmpty(_schoolInstitutionLocationDTO.getState()))
+            schoolInstitutionLocationDTO.setState(_schoolInstitutionLocationDTO.getState());
+        if (_schoolInstitutionLocationDTO.getNumberOfCourses() > 0)
+            schoolInstitutionLocationDTO.setNumberOfCourses(_schoolInstitutionLocationDTO.getNumberOfCourses());
+        if (StringUtil.isNotEmpty(_schoolInstitutionLocationDTO.getPhone()))
+            schoolInstitutionLocationDTO.setPhone(_schoolInstitutionLocationDTO.getPhone());
         if (schoolInstitutionLocationService.update(schoolInstitutionLocationDTO))
             return new Response(0,"success");
         else

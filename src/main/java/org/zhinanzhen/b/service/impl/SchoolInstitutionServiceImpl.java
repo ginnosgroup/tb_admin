@@ -2,6 +2,10 @@ package org.zhinanzhen.b.service.impl;
 
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.StringUtil;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.controller.BaseCommissionOrderController;
@@ -13,7 +17,6 @@ import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
 import javax.annotation.Resource;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -50,6 +53,9 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
 
     @Resource
     private SchoolInstitutionCommentDAO schoolInstitutionCommentDAO;
+
+    @Autowired
+    private SqlSessionFactory sqlSessionFactory;
 
     @Override
     public List<SchoolInstitutionDTO> listSchoolInstitutionDTO(String name, String type, String code, Boolean isFreeze, int pageNum, int pageSize) {
@@ -101,17 +107,73 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
     }
 
     @Override
-    public boolean update(SchoolInstitutionDTO schoolInstitutionDTO) {
-        SchoolInstitutionDO schoolInstitutionDO = mapper.map(schoolInstitutionDTO,SchoolInstitutionDO.class);
-        return schoolInstitutionDAO.update(schoolInstitutionDO);
+    @Transactional(rollbackFor = Exception.class)
+    public boolean update(SchoolInstitutionDTO schoolInstitutionDTO) throws ServiceException {
+        if (schoolInstitutionDTO == null){
+            ServiceException se = new ServiceException("SchoolInstitutionDTO is null !");
+            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+            throw se;
+        }
+        try {
+            SchoolInstitutionDO schoolInstitutionDO = mapper.map(schoolInstitutionDTO,SchoolInstitutionDO.class);
+            if (schoolInstitutionDAO.update(schoolInstitutionDO)){
+                List<SchoolInstitutionLocationDTO> schoolInstitutionLocationDTOS =  schoolInstitutionDTO.getSchoolInstitutionLocationDTOS();
+                SqlSession session = sqlSessionFactory.openSession(ExecutorType.BATCH,false);
+                SchoolInstitutionLocationDAO institutionLocationMapper = session.getMapper(SchoolInstitutionLocationDAO.class);
+                if (schoolInstitutionLocationDTOS == null)
+                    return true;
+                int size = schoolInstitutionLocationDTOS.size();
+                for (int i = 0 ; i < size ; i++) {
+                    SchoolInstitutionLocationDO institutionLocation = mapper.map(schoolInstitutionLocationDTOS.get(i),SchoolInstitutionLocationDO.class);
+                    institutionLocation.setProviderCode(schoolInstitutionDO.getCode());
+                    institutionLocation.setProviderId(schoolInstitutionDO.getId());
+                    institutionLocationMapper.add(institutionLocation);
+                }
+                session.commit();
+                session.clearCache();
+                return true;
+            }
+            return false;
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new ServiceException(e);
+        }
+
     }
 
     @Override
-    public int add(SchoolInstitutionDTO schoolInstitutionDTO) {
-        SchoolInstitutionDO schoolInstitutionDO = mapper.map(schoolInstitutionDTO,SchoolInstitutionDO.class);
-        if (schoolInstitutionDAO.add(schoolInstitutionDO) > 0)
-            schoolInstitutionDTO.setId(schoolInstitutionDO.getId());
-        return schoolInstitutionDTO.getId();
+    @Transactional(rollbackFor = Exception.class)
+    public int add(SchoolInstitutionDTO schoolInstitutionDTO) throws ServiceException {
+        if (schoolInstitutionDTO == null){
+            ServiceException se = new ServiceException("SchoolInstitutionDTO is null !");
+            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+            throw se;
+        }
+        try {
+            SchoolInstitutionDO schoolInstitutionDO = mapper.map(schoolInstitutionDTO,SchoolInstitutionDO.class);
+            if (schoolInstitutionDAO.add(schoolInstitutionDO) > 0){
+                schoolInstitutionDTO.setId(schoolInstitutionDO.getId());
+                List<SchoolInstitutionLocationDTO> schoolInstitutionLocationDTOS =  schoolInstitutionDTO.getSchoolInstitutionLocationDTOS();
+                SqlSession session = sqlSessionFactory.openSession(ExecutorType.BATCH,false);
+                SchoolInstitutionLocationDAO institutionLocationMapper = session.getMapper(SchoolInstitutionLocationDAO.class);
+                if (schoolInstitutionLocationDTOS == null)
+                    return schoolInstitutionDTO.getId();
+                int size = schoolInstitutionLocationDTOS.size();
+                for (int i = 0 ; i < size ; i++) {
+                    SchoolInstitutionLocationDO institutionLocation = mapper.map(schoolInstitutionLocationDTOS.get(i),SchoolInstitutionLocationDO.class);
+                    institutionLocation.setProviderCode(schoolInstitutionDO.getCode());
+                    institutionLocation.setProviderId(schoolInstitutionDO.getId());
+                    institutionLocationMapper.add(institutionLocation);
+                }
+                session.commit();
+                session.clearCache();
+                return schoolInstitutionDTO.getId();
+            }
+            return 0;
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new ServiceException(e);
+        }
     }
 
     @Override

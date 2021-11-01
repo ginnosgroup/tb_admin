@@ -112,7 +112,8 @@ public class SchoolInstitutionController extends BaseController {
 
     @RequestMapping(value = "/update" ,method =  RequestMethod.POST)
     @ResponseBody
-    public Response update(@RequestBody SchoolInstitutionDTO schoolInstitutionDTO ,HttpServletResponse response){
+    public Response update(@RequestBody SchoolInstitutionDTO schoolInstitutionDTO ,
+                           HttpServletRequest request,HttpServletResponse response) throws ServiceException {
         //TODO 需要设置权限，顾问只能查看不能修改
         super.setPostHeader(response);
         if (StringUtil.isNotEmpty(schoolInstitutionDTO.getName())){
@@ -131,7 +132,7 @@ public class SchoolInstitutionController extends BaseController {
 
     @RequestMapping(value = "/add" ,method = RequestMethod.POST)
     @ResponseBody
-    public Response add(@RequestBody SchoolInstitutionDTO schoolInstitutionDTO, HttpServletResponse response){
+    public Response add(@RequestBody SchoolInstitutionDTO schoolInstitutionDTO, HttpServletResponse response) throws ServiceException {
         super.setPostHeader(response); 
         List<SchoolInstitutionDTO> listSchoolInstitutionDTO = schoolInstitutionService.listSchoolInstitutionDTO(schoolInstitutionDTO.getName(),null, null,null ,0,9999);
         if (listSchoolInstitutionDTO.size() > 0 )

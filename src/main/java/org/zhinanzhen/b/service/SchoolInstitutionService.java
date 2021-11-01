@@ -25,9 +25,9 @@ public interface SchoolInstitutionService {
 
     int count(String name, String type, String code, Boolean isFreeze);
 
-    boolean update(SchoolInstitutionDTO schoolInstitutionDTO);
+    boolean update(SchoolInstitutionDTO schoolInstitutionDTO) throws ServiceException;
 
-    int add(SchoolInstitutionDTO schoolInstitutionDTO);
+    int add(SchoolInstitutionDTO schoolInstitutionDTO) throws ServiceException;
 
     boolean delete(int id);
 

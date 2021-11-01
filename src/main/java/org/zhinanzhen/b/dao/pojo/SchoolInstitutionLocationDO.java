@@ -28,4 +28,6 @@ public class SchoolInstitutionLocationDO {
     private int providerId;
 
     private String providerCode;
+
+    private String phone;
 }

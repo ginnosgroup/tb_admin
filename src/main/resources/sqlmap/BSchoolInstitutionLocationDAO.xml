@@ -10,7 +10,8 @@
         state,
         number_of_courses AS numberOfCourses,
         provider_id AS providerId,
-        provider_code AS providerCode
+        provider_code AS providerCode,
+        phone
         from b_school_institution_location
         <where>
             <if test=" providerId !=null and providerId > 0">
@@ -31,30 +32,31 @@
         state,
         number_of_courses AS numberOfCourses,
         provider_id AS providerId,
-        provider_code AS providerCode
+        provider_code AS providerCode,
+        phone
         from b_school_institution_location
         WHERE id = #{id};
     </select>
 
     <insert id="add" parameterType="org.zhinanzhen.b.dao.pojo.SchoolInstitutionLocationDO" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO b_school_institution_location(
-        id,
         gmt_create,
         gmt_modify,
         name,
         state,
         number_of_courses,
         provider_id,
-        provider_code
+        provider_code,
+        phone
         ) VALUES (
-        #{id},
         NOW(),
         NOW(),
         #{name},
         #{state},
         #{numberOfCourses},
         #{providerId},
-        #{providerCode}
+        #{providerCode},
+        #{phone}
         )
     </insert>
 
@@ -73,6 +75,9 @@
         </if>
         <if test=" numberOfCourses != null and numberOfCourses > 0 ">
             , number_of_courses = #{numberOfCourses}
+        </if>
+        <if test='phone != null and phone != ""'>
+            , phone = #{phone}
         </if>
         WHERE id = #{id};
     </update>
