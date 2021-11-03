@@ -1709,15 +1709,18 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				tempDTO.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
 
 
-			if (serviceOrderDto.isSettle() == true && (
-					StringUtil.isNotEmpty(invoiceVoucherImageUrl1) || StringUtil.isNotEmpty(invoiceVoucherImageUrl2)
-							|| StringUtil.isNotEmpty(invoiceVoucherImageUrl3) || StringUtil.isNotEmpty(invoiceVoucherImageUrl4)
-							|| StringUtil.isNotEmpty(invoiceVoucherImageUrl5)) ){
+			if (serviceOrderDto.isSettle()){
+				if (StringUtil.isNotEmpty(invoiceVoucherImageUrl1) || StringUtil.isNotEmpty(invoiceVoucherImageUrl2)
+						|| StringUtil.isNotEmpty(invoiceVoucherImageUrl3) || StringUtil.isNotEmpty(invoiceVoucherImageUrl4)
+						|| StringUtil.isNotEmpty(invoiceVoucherImageUrl5)) {
 				/*
 				杜大哥（2021-10-18）说：【提前扣拥】在上传【invoice凭证】之后，申请月奖直接将服务订单状态改成【RECEIVED】(已收款凭证已提交)
 				 */
-				serviceOrderDto.setState("RECEIVED");
-			}
+					serviceOrderDto.setState("RECEIVED");
+				} else
+					return new Response(1, "请上传发票凭证");
+			}else
+				return new Response(1, "服务订单不是提前扣拥:" + serviceOrderDto.getId());
 			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl1))
 				serviceOrderDto.setInvoiceVoucherImageUrl1(invoiceVoucherImageUrl1);
 			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl2))
@@ -1912,15 +1915,18 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl5))
 				tempDTO.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
 
-			if (serviceOrderDto.isSettle() == true && (
-					StringUtil.isNotEmpty(invoiceVoucherImageUrl1) || StringUtil.isNotEmpty(invoiceVoucherImageUrl2)
-							|| StringUtil.isNotEmpty(invoiceVoucherImageUrl3) || StringUtil.isNotEmpty(invoiceVoucherImageUrl4)
-							|| StringUtil.isNotEmpty(invoiceVoucherImageUrl5)) ){
+			if (serviceOrderDto.isSettle()){
+				if (StringUtil.isNotEmpty(invoiceVoucherImageUrl1) || StringUtil.isNotEmpty(invoiceVoucherImageUrl2)
+						|| StringUtil.isNotEmpty(invoiceVoucherImageUrl3) || StringUtil.isNotEmpty(invoiceVoucherImageUrl4)
+						|| StringUtil.isNotEmpty(invoiceVoucherImageUrl5)) {
 				/*
 				杜大哥（2021-10-18）说：【提前扣拥】在上传【invoice凭证】之后，申请月奖直接将服务订单状态改成【RECEIVED】(已收款凭证已提交)
 				 */
-				serviceOrderDto.setState("RECEIVED");
-			}
+					serviceOrderDto.setState("RECEIVED");
+				} else
+					return new Response(1, "请上传发票凭证");
+			}else
+				return new Response(1, "服务订单不是提前扣拥:" + serviceOrderDto.getId());
 			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl1))
 				serviceOrderDto.setInvoiceVoucherImageUrl1(invoiceVoucherImageUrl1);
 			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl2))
