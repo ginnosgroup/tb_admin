@@ -209,6 +209,14 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "refNo", required = false) String refNo,
 			@RequestParam(value = "courseId", required = false)Integer courseId,
 			@RequestParam(value = "schoolInstitutionLocationId", required = false)Integer schoolInstitutionLocationId,
+			@RequestParam(value = "courseId2", required = false)Integer courseId2,
+			@RequestParam(value = "schoolInstitutionLocationId2", required = false)Integer schoolInstitutionLocationId2,
+			@RequestParam(value = "courseId3", required = false)Integer courseId3,
+			@RequestParam(value = "schoolInstitutionLocationId3", required = false)Integer schoolInstitutionLocationId3,
+			@RequestParam(value = "courseId4", required = false)Integer courseId4,
+			@RequestParam(value = "schoolInstitutionLocationId4", required = false)Integer schoolInstitutionLocationId4,
+			@RequestParam(value = "courseId5", required = false)Integer courseId5,
+			@RequestParam(value = "schoolInstitutionLocationId5", required = false)Integer schoolInstitutionLocationId5,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -226,8 +234,12 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setPeopleRemarks(peopleRemarks);
 			if (StringUtil.isNotEmpty(serviceId))
 				serviceOrderDto.setServiceId(StringUtil.toInt(serviceId));
-			if ("OVST".equalsIgnoreCase(type) && (schoolId == null || schoolId <= 0))
+			if ("OVST".equalsIgnoreCase(type) && ((schoolId == null || schoolId <= 0)
+					&& (courseId == null || courseId <= 0 )))
 				return new Response<Integer>(1, "创建留学服务订单必须选择一个学校.", 0);
+			if ("OVST".equalsIgnoreCase(type) && (schoolId == null || schoolId <= 0)
+					&& (schoolInstitutionLocationId == null || schoolInstitutionLocationId <= 0))//排除原来的留学
+				return new Response<Integer>(1, "创建留学服务订单必须选择一个校区.", 0);
 			if (schoolId != null && schoolId > 0)
 				serviceOrderDto.setSchoolId(schoolId);
 			serviceOrderDto.setState(ReviewAdviserStateEnum.PENDING.toString());
@@ -354,9 +366,15 @@ public class ServiceOrderController extends BaseController {
 							msg += "子服务订单创建失败(" + serviceOrderDto + "). ";
 					}
 				}
-				if (schoolId2 != null && schoolId2 > 0 && "OVST".equalsIgnoreCase(type)) {
+				if ("OVST".equalsIgnoreCase(type) && (schoolId2 != null && schoolId2 > 0)
+						|| (courseId2 != null && courseId2 > 0 && schoolInstitutionLocationId2 != null && schoolInstitutionLocationId2 > 0) ){
 					serviceOrderDto.setId(0);
-					serviceOrderDto.setSchoolId(schoolId2);
+					if (schoolId2 != null && schoolId2 > 0)
+						serviceOrderDto.setSchoolId(schoolId2);
+					else if (courseId2 != null && courseId2 > 0 && schoolInstitutionLocationId2 != null && schoolInstitutionLocationId2 > 0){
+						serviceOrderDto.setCourseId(courseId2);
+						serviceOrderDto.setSchoolInstitutionLocationId(schoolInstitutionLocationId2);
+					}
 					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
 						if (adminUserLoginInfo != null)
 							serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
@@ -367,9 +385,15 @@ public class ServiceOrderController extends BaseController {
 					else
 						msg += "创建第二学校服务订单失败(第二学校编号:" + schoolId2 + "). ";
 				}
-				if (schoolId3 != null && schoolId3 > 0 && "OVST".equalsIgnoreCase(type)) {
+				if ( "OVST".equalsIgnoreCase(type) && (schoolId3 != null && schoolId3 > 0)
+						|| (courseId3 != null && courseId3 > 0 && schoolInstitutionLocationId3 != null && schoolInstitutionLocationId3 > 0)) {
 					serviceOrderDto.setId(0);
-					serviceOrderDto.setSchoolId(schoolId3);
+					if (schoolId3 != null && schoolId3 > 0)
+						serviceOrderDto.setSchoolId(schoolId3);
+					else if (courseId3 != null && courseId3 > 0 && schoolInstitutionLocationId3 != null && schoolInstitutionLocationId3 > 0){
+						serviceOrderDto.setCourseId(courseId3);
+						serviceOrderDto.setSchoolInstitutionLocationId(schoolInstitutionLocationId3);
+					}
 					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
 						if (adminUserLoginInfo != null)
 							serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
@@ -378,9 +402,15 @@ public class ServiceOrderController extends BaseController {
 					} else
 						msg += "创建第三学校服务订单失败(第三学校编号:" + schoolId3 + "). ";
 				}
-				if (schoolId4 != null && schoolId4 > 0 && "OVST".equalsIgnoreCase(type)) {
+				if ( "OVST".equalsIgnoreCase(type) && (schoolId4 != null && schoolId4 > 0)
+						|| (courseId4 != null && courseId4 > 0 && schoolInstitutionLocationId4 != null && schoolInstitutionLocationId4 > 0)) {
 					serviceOrderDto.setId(0);
-					serviceOrderDto.setSchoolId(schoolId4);
+					if (schoolId4 != null && schoolId4 > 0 )
+						serviceOrderDto.setSchoolId(schoolId4);
+					else if (courseId4 != null && courseId4 > 0 && schoolInstitutionLocationId4 != null && schoolInstitutionLocationId4 > 0){
+						serviceOrderDto.setCourseId(courseId4);
+						serviceOrderDto.setSchoolInstitutionLocationId(schoolInstitutionLocationId4);
+					}
 					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
 						if (adminUserLoginInfo != null)
 							serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
@@ -389,9 +419,15 @@ public class ServiceOrderController extends BaseController {
 					} else
 						msg += "创建第四学校服务订单失败(第四学校编号:" + schoolId4 + "). ";
 				}
-				if (schoolId5 != null && schoolId5 > 0 && "OVST".equalsIgnoreCase(type)) {
+				if ( "OVST".equalsIgnoreCase(type) && (schoolId5 != null && schoolId5 > 0)
+						|| (courseId5 != null && courseId5 > 0 && schoolInstitutionLocationId5 != null && schoolInstitutionLocationId5 > 0)) {
 					serviceOrderDto.setId(0);
-					serviceOrderDto.setSchoolId(schoolId5);
+					if (schoolId5 != null && schoolId5 > 0)
+						serviceOrderDto.setSchoolId(schoolId5);
+					else if (courseId5 != null && courseId5 > 0 && schoolInstitutionLocationId5 != null && schoolInstitutionLocationId5 > 0){
+						serviceOrderDto.setCourseId(courseId5);
+						serviceOrderDto.setSchoolInstitutionLocationId(schoolInstitutionLocationId5);
+					}
 					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
 						if (adminUserLoginInfo != null)
 							serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
