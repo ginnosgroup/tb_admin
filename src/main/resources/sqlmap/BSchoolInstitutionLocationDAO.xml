@@ -81,4 +81,10 @@
         </if>
         WHERE id = #{id};
     </update>
+
+    <select id="getState" resultType="string">
+        SELECT state
+        FROM b_school_institution_location
+        GROUP BY state;
+    </select>
 </mapper>
