@@ -30,4 +30,6 @@ public class SchoolInstitutionLocationDTO {
     private String providerCode;
 
     private String phone;
+
+    private String address;
 }
