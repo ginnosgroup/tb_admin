@@ -376,7 +376,7 @@ public class ServiceOrderController extends BaseController {
 						serviceOrderDto.setCourseId(0);
 						serviceOrderDto.setSchoolInstitutionLocationId(0);
 					}
-					else if (courseId2 != null && courseId2 > 0 && schoolInstitutionLocationId2 != null && schoolInstitutionLocationId2 > 0){
+					if (courseId2 != null && courseId2 > 0 && schoolInstitutionLocationId2 != null && schoolInstitutionLocationId2 > 0){
 						serviceOrderDto.setCourseId(courseId2);
 						serviceOrderDto.setSchoolInstitutionLocationId(schoolInstitutionLocationId2);
 						serviceOrderDto.setSchoolId(0);
@@ -399,7 +399,7 @@ public class ServiceOrderController extends BaseController {
 						serviceOrderDto.setCourseId(0);
 						serviceOrderDto.setSchoolInstitutionLocationId(0);
 					}
-					else if (courseId3 != null && courseId3 > 0 && schoolInstitutionLocationId3 != null && schoolInstitutionLocationId3 > 0){
+					if (courseId3 != null && courseId3 > 0 && schoolInstitutionLocationId3 != null && schoolInstitutionLocationId3 > 0){
 						serviceOrderDto.setCourseId(courseId3);
 						serviceOrderDto.setSchoolInstitutionLocationId(schoolInstitutionLocationId3);
 						serviceOrderDto.setSchoolId(0);
@@ -420,7 +420,7 @@ public class ServiceOrderController extends BaseController {
 						serviceOrderDto.setCourseId(0);
 						serviceOrderDto.setSchoolInstitutionLocationId(0);
 					}
-					else if (courseId4 != null && courseId4 > 0 && schoolInstitutionLocationId4 != null && schoolInstitutionLocationId4 > 0){
+					if (courseId4 != null && courseId4 > 0 && schoolInstitutionLocationId4 != null && schoolInstitutionLocationId4 > 0){
 						serviceOrderDto.setCourseId(courseId4);
 						serviceOrderDto.setSchoolInstitutionLocationId(schoolInstitutionLocationId4);
 						serviceOrderDto.setSchoolId(0);
@@ -441,7 +441,7 @@ public class ServiceOrderController extends BaseController {
 						serviceOrderDto.setCourseId(0);
 						serviceOrderDto.setSchoolInstitutionLocationId(0);
 					}
-					else if (courseId5 != null && courseId5 > 0 && schoolInstitutionLocationId5 != null && schoolInstitutionLocationId5 > 0){
+					if (courseId5 != null && courseId5 > 0 && schoolInstitutionLocationId5 != null && schoolInstitutionLocationId5 > 0){
 						serviceOrderDto.setCourseId(courseId5);
 						serviceOrderDto.setSchoolInstitutionLocationId(schoolInstitutionLocationId5);
 						serviceOrderDto.setSchoolId(0);
