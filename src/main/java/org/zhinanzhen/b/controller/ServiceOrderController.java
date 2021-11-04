@@ -327,8 +327,10 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setVerifyCode(verifyCode.replace("$", "").replace("#", "").replace(" ", ""));
 			if (StringUtil.isNotEmpty(verifyCode))
 				serviceOrderDto.setRefNo(refNo);
-			if (courseId != null && courseId > 0)
+			if (courseId != null && courseId > 0){
 				serviceOrderDto.setCourseId(courseId);
+				serviceOrderDto.setSchoolId(0);
+			}
 			if (schoolInstitutionLocationId != null && schoolInstitutionLocationId > 0)
 				serviceOrderDto.setSchoolInstitutionLocationId(schoolInstitutionLocationId);
 			if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
@@ -369,11 +371,15 @@ public class ServiceOrderController extends BaseController {
 				if ("OVST".equalsIgnoreCase(type) && (schoolId2 != null && schoolId2 > 0)
 						|| (courseId2 != null && courseId2 > 0 && schoolInstitutionLocationId2 != null && schoolInstitutionLocationId2 > 0) ){
 					serviceOrderDto.setId(0);
-					if (schoolId2 != null && schoolId2 > 0)
+					if (schoolId2 != null && schoolId2 > 0){
 						serviceOrderDto.setSchoolId(schoolId2);
+						serviceOrderDto.setCourseId(0);
+						serviceOrderDto.setSchoolInstitutionLocationId(0);
+					}
 					else if (courseId2 != null && courseId2 > 0 && schoolInstitutionLocationId2 != null && schoolInstitutionLocationId2 > 0){
 						serviceOrderDto.setCourseId(courseId2);
 						serviceOrderDto.setSchoolInstitutionLocationId(schoolInstitutionLocationId2);
+						serviceOrderDto.setSchoolId(0);
 					}
 					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
 						if (adminUserLoginInfo != null)
@@ -388,11 +394,15 @@ public class ServiceOrderController extends BaseController {
 				if ( "OVST".equalsIgnoreCase(type) && (schoolId3 != null && schoolId3 > 0)
 						|| (courseId3 != null && courseId3 > 0 && schoolInstitutionLocationId3 != null && schoolInstitutionLocationId3 > 0)) {
 					serviceOrderDto.setId(0);
-					if (schoolId3 != null && schoolId3 > 0)
+					if (schoolId3 != null && schoolId3 > 0){
 						serviceOrderDto.setSchoolId(schoolId3);
+						serviceOrderDto.setCourseId(0);
+						serviceOrderDto.setSchoolInstitutionLocationId(0);
+					}
 					else if (courseId3 != null && courseId3 > 0 && schoolInstitutionLocationId3 != null && schoolInstitutionLocationId3 > 0){
 						serviceOrderDto.setCourseId(courseId3);
 						serviceOrderDto.setSchoolInstitutionLocationId(schoolInstitutionLocationId3);
+						serviceOrderDto.setSchoolId(0);
 					}
 					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
 						if (adminUserLoginInfo != null)
@@ -405,11 +415,15 @@ public class ServiceOrderController extends BaseController {
 				if ( "OVST".equalsIgnoreCase(type) && (schoolId4 != null && schoolId4 > 0)
 						|| (courseId4 != null && courseId4 > 0 && schoolInstitutionLocationId4 != null && schoolInstitutionLocationId4 > 0)) {
 					serviceOrderDto.setId(0);
-					if (schoolId4 != null && schoolId4 > 0 )
+					if (schoolId4 != null && schoolId4 > 0 ){
 						serviceOrderDto.setSchoolId(schoolId4);
+						serviceOrderDto.setCourseId(0);
+						serviceOrderDto.setSchoolInstitutionLocationId(0);
+					}
 					else if (courseId4 != null && courseId4 > 0 && schoolInstitutionLocationId4 != null && schoolInstitutionLocationId4 > 0){
 						serviceOrderDto.setCourseId(courseId4);
 						serviceOrderDto.setSchoolInstitutionLocationId(schoolInstitutionLocationId4);
+						serviceOrderDto.setSchoolId(0);
 					}
 					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
 						if (adminUserLoginInfo != null)
@@ -422,11 +436,15 @@ public class ServiceOrderController extends BaseController {
 				if ( "OVST".equalsIgnoreCase(type) && (schoolId5 != null && schoolId5 > 0)
 						|| (courseId5 != null && courseId5 > 0 && schoolInstitutionLocationId5 != null && schoolInstitutionLocationId5 > 0)) {
 					serviceOrderDto.setId(0);
-					if (schoolId5 != null && schoolId5 > 0)
+					if (schoolId5 != null && schoolId5 > 0){
 						serviceOrderDto.setSchoolId(schoolId5);
+						serviceOrderDto.setCourseId(0);
+						serviceOrderDto.setSchoolInstitutionLocationId(0);
+					}
 					else if (courseId5 != null && courseId5 > 0 && schoolInstitutionLocationId5 != null && schoolInstitutionLocationId5 > 0){
 						serviceOrderDto.setCourseId(courseId5);
 						serviceOrderDto.setSchoolInstitutionLocationId(schoolInstitutionLocationId5);
+						serviceOrderDto.setSchoolId(0);
 					}
 					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
 						if (adminUserLoginInfo != null)
