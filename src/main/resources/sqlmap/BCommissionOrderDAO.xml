@@ -131,7 +131,7 @@
         <if test="courseId != null and courseId > 0">
             , course_id = #{courseId}
         </if>
-        <if test="schoolInstitutionLocationId ! = null and schoolInstitutionLocationId > 0">
+        <if test="schoolInstitutionLocationId != null and schoolInstitutionLocationId > 0">
             , school_institution_location_id = #{schoolInstitutionLocationId}
         </if>
         <if test='studentCode != null and studentCode != ""'>
@@ -1197,7 +1197,7 @@
         <if test="courseId != null and courseId > 0">
             , course_id = #{courseId}
         </if>
-        <if test="schoolInstitutionLocationId ! = null and schoolInstitutionLocationId > 0">
+        <if test="schoolInstitutionLocationId != null and schoolInstitutionLocationId > 0">
             , school_institution_location_id = #{schoolInstitutionLocationId}
         </if>
         <if test='studentCode != null and studentCode != ""'>
