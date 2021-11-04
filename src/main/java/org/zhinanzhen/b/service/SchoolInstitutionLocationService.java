@@ -21,4 +21,6 @@ public interface SchoolInstitutionLocationService {
     boolean update(SchoolInstitutionLocationDTO schoolInstitutionLocationDTO);
 
     boolean delete(int id);
+
+    List<String> getState();
 }

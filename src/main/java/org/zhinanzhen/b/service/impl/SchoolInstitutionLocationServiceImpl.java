@@ -66,4 +66,9 @@ public class SchoolInstitutionLocationServiceImpl extends BaseService implements
     public boolean delete(int id) {
         return schoolInstitutionLocationDAO.delete(id);
     }
+
+    @Override
+    public List<String> getState() {
+        return schoolInstitutionLocationDAO.getState();
+    }
 }

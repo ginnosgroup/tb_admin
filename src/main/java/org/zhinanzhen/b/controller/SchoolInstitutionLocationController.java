@@ -8,7 +8,9 @@ import org.zhinanzhen.b.service.pojo.SchoolInstitutionLocationDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -79,4 +81,13 @@ public class SchoolInstitutionLocationController extends BaseController {
         else
             return new Response(1,"fail");
     }
+
+    @GetMapping(value = "/getState")
+    @ResponseBody
+    public Response<List<String>> getState(HttpServletRequest request,
+                                           HttpServletResponse response){
+        super.setGetHeader(response);
+        return new Response<List<String>>(0,schoolInstitutionLocationService.getState());
+    }
+
 }

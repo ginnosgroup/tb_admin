@@ -23,4 +23,6 @@ public interface SchoolInstitutionLocationDAO {
     boolean delete(int id);
 
     boolean update(SchoolInstitutionLocationDO schoolInstitutionLocationDO);
+
+    List<String> getState();
 }
