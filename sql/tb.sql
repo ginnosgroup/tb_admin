@@ -1060,6 +1060,7 @@ CREATE TABLE `b_school_institution_location` (
   `provider_id` int DEFAULT NULL COMMENT '学校编号',
   `provider_code` varchar(32) DEFAULT NULL COMMENT '学校编码',
   `phone` varchar(16) DEFAULT NULL COMMENT '校区电话号码',
+  `address` varchar(512) DEFAULT NULL COMMENT '校区地址',
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `b_school_course` (

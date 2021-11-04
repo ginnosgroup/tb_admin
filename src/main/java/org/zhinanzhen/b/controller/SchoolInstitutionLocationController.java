@@ -67,6 +67,8 @@ public class SchoolInstitutionLocationController extends BaseController {
             schoolInstitutionLocationDTO.setNumberOfCourses(_schoolInstitutionLocationDTO.getNumberOfCourses());
         if (StringUtil.isNotEmpty(_schoolInstitutionLocationDTO.getPhone()))
             schoolInstitutionLocationDTO.setPhone(_schoolInstitutionLocationDTO.getPhone());
+        if (StringUtil.isNotEmpty(_schoolInstitutionLocationDTO.getAddress()))
+            schoolInstitutionLocationDTO.setAddress(_schoolInstitutionLocationDTO.getAddress());
         if (schoolInstitutionLocationService.update(schoolInstitutionLocationDTO))
             return new Response(0,"success");
         else
