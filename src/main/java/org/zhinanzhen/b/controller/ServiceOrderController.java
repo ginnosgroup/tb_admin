@@ -493,8 +493,8 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "invoiceVoucherImageUrl3" , required = false) String invoiceVoucherImageUrl3,
 			@RequestParam(value = "invoiceVoucherImageUrl4" , required = false) String invoiceVoucherImageUrl4,
 			@RequestParam(value = "invoiceVoucherImageUrl5" , required = false) String invoiceVoucherImageUrl5,
-			@RequestParam(value = "officialPaymentImageUrl1" ,required = false) String officialPaymentImageUrl1,
-			@RequestParam(value = "officialPaymentImageUrl2" ,required = false) String officialPaymentImageUrl2,
+			@RequestParam(value = "kjPaymentImageUrl1" ,required = false) String kjPaymentImageUrl1,
+			@RequestParam(value = "kjPaymentImageUrl2" ,required = false) String kjPaymentImageUrl2,
 			@RequestParam(value = "perAmount", required = false) String perAmount,
 			@RequestParam(value = "amount", required = false) String amount,
 			@RequestParam(value = "expectAmount", required = false) String expectAmount,
@@ -529,7 +529,7 @@ public class ServiceOrderController extends BaseController {
 					discount, received, installment, paymentVoucherImageUrl1, paymentVoucherImageUrl2,
 					paymentVoucherImageUrl3, paymentVoucherImageUrl4, paymentVoucherImageUrl5, invoiceVoucherImageUrl1,
 					invoiceVoucherImageUrl2,invoiceVoucherImageUrl3,invoiceVoucherImageUrl4,invoiceVoucherImageUrl5,
-					officialPaymentImageUrl1,officialPaymentImageUrl2,perAmount, amount,
+					kjPaymentImageUrl1, kjPaymentImageUrl2,perAmount, amount,
 					expectAmount, gst, deductGst, bonus, userId, maraId, adviserId, officialId, remarks, closedReason,
 					information, isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId);
 			if (res != null && res.getCode() == 0) {
@@ -546,7 +546,7 @@ public class ServiceOrderController extends BaseController {
 								paymentVoucherImageUrl1, paymentVoucherImageUrl2, paymentVoucherImageUrl3,
 								paymentVoucherImageUrl4, paymentVoucherImageUrl5, invoiceVoucherImageUrl1,
 								invoiceVoucherImageUrl2,invoiceVoucherImageUrl3,invoiceVoucherImageUrl4,invoiceVoucherImageUrl5,
-								officialPaymentImageUrl1, officialPaymentImageUrl2, perAmount,
+								kjPaymentImageUrl1, kjPaymentImageUrl2, perAmount,
 								amount, expectAmount, gst, deductGst, bonus, userId, maraId, adviserId, officialId,
 								remarks, closedReason, information, isHistory, nutCloud, serviceAssessId, verifyCode,
 								refNo, courseId, schoolInstitutionLocationId);
@@ -569,7 +569,7 @@ public class ServiceOrderController extends BaseController {
 			String paymentVoucherImageUrl1, String paymentVoucherImageUrl2, String paymentVoucherImageUrl3,
 			String paymentVoucherImageUrl4, String paymentVoucherImageUrl5, String invoiceVoucherImageUrl1,
 			String invoiceVoucherImageUrl2, String invoiceVoucherImageUrl3, String invoiceVoucherImageUrl4,
-			String invoiceVoucherImageUrl5, String officialPaymentImageUrl1, String officialPaymentImageUrl2,String perAmount,
+			String invoiceVoucherImageUrl5, String kjPaymentImageUrl1, String kjPaymentImageUrl2,String perAmount,
 			String amount, String expectAmount, String gst, String deductGst,
 			String bonus, String userId, String maraId, String adviserId, String officialId,
 			String remarks, String closedReason, String information, String isHistory, String nutCloud,
@@ -630,10 +630,10 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setInvoiceVoucherImageUrl4(invoiceVoucherImageUrl4);
 			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl5))
 				serviceOrderDto.setInvoiceVoucherImageUrl5(invoiceVoucherImageUrl5);
-			if (StringUtil.isNotEmpty(officialPaymentImageUrl1))
-				serviceOrderDto.setOfficialPaymentImageUrl1(officialPaymentImageUrl1);
-			if (StringUtil.isNotEmpty(officialPaymentImageUrl2))
-				serviceOrderDto.setOfficialPaymentImageUrl2(officialPaymentImageUrl2);
+			if (StringUtil.isNotEmpty(kjPaymentImageUrl1))
+				serviceOrderDto.setKjPaymentImageUrl1(kjPaymentImageUrl1);
+			if (StringUtil.isNotEmpty(kjPaymentImageUrl2))
+				serviceOrderDto.setKjPaymentImageUrl2(kjPaymentImageUrl2);
 			//if (serviceOrderDto.isSettle() && "RECEIVED".equalsIgnoreCase(serviceOrderDto.getState())){
 			//	if (StringUtil.isBlank(invoiceVoucherImageUrl1) || StringUtil.isBlank(invoiceVoucherImageUrl2)
 			//			|| StringUtil.isBlank(invoiceVoucherImageUrl3) || StringUtil.isBlank(invoiceVoucherImageUrl4)

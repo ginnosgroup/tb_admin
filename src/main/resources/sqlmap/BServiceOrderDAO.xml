@@ -270,11 +270,11 @@
         <if test='invoiceVoucherImageUrl5 != null'>
             , invoice_voucher_image_url5 = #{invoiceVoucherImageUrl5}
         </if>
-        <if test='officialPaymentImageUrl1 != null'>
-            , official_payment_image_url1 = #{officialPaymentImageUrl1}
+        <if test='kjPaymentImageUrl1 != null'>
+            , kj_payment_image_url1 = #{kjPaymentImageUrl1}
         </if>
-        <if test='officialPaymentImageUrl2 != null'>
-            , official_payment_image_url2 = #{officialPaymentImageUrl2}
+        <if test='kjPaymentImageUrl2 != null'>
+            , kj_payment_image_url2 = #{kjPaymentImageUrl2}
         </if>
         <if test='perAmount > 0'>
             , per_amount = #{perAmount}
@@ -486,8 +486,8 @@
             so.invoice_voucher_image_url3 AS invoiceVoucherImageUrl3,
             so.invoice_voucher_image_url4 AS invoiceVoucherImageUrl4,
             so.invoice_voucher_image_url5 AS invoiceVoucherImageUrl5,
-            so.official_payment_image_url1 AS officialPaymentImageUrl1,
-            so.official_payment_image_url2 AS officialPaymentImageUrl2,
+            so.kj_payment_image_url1 AS kjPaymentImageUrl1,
+            so.kj_payment_image_url2 AS kjPaymentImageUrl2,
             so.per_amount AS perAmount,
             so.amount AS amount,
             so.expect_amount AS expectAmount,
@@ -658,8 +658,8 @@
             invoice_voucher_image_url4 AS invoiceVoucherImageUrl4,
             invoice_voucher_image_url5 AS invoiceVoucherImageUrl5,
             visa_voucher_image_url AS visaVoucherImageUrl,
-            official_payment_image_url1 AS officialPaymentImageUrl1,
-            official_payment_image_url2 AS officialPaymentImageUrl2,
+            kj_payment_image_url1 AS kjPaymentImageUrl1,
+            kj_payment_image_url2 AS kjPaymentImageUrl2,
             per_amount AS perAmount,
             amount,
             expect_amount AS expectAmount,
@@ -817,8 +817,8 @@
             invoice_voucher_image_url3 AS invoiceVoucherImageUrl3,
             invoice_voucher_image_url4 AS invoiceVoucherImageUrl4,
             invoice_voucher_image_url5 AS invoiceVoucherImageUrl5,
-            official_payment_image_url1 AS officialPaymentImageUrl1,
-            official_payment_image_url2 AS officialPaymentImageUrl2,
+            kj_payment_image_url1 AS kjPaymentImageUrl1,
+            kj_payment_image_url2 AS kjPaymentImageUrl2,
             per_amount AS perAmount,
             amount,
             expect_amount AS expectAmount,
@@ -912,8 +912,8 @@
         so.invoice_voucher_image_url3 AS invoiceVoucherImageUrl3,
         so.invoice_voucher_image_url4 AS invoiceVoucherImageUrl4,
         so.invoice_voucher_image_url5 AS invoiceVoucherImageUrl5,
-        so.official_payment_image_url1 AS officialPaymentImageUrl1,
-        so.official_payment_image_url2 AS officialPaymentImageUrl2,
+        so.kj_payment_image_url1 AS kjPaymentImageUrl1,
+        so.kj_payment_image_url2 AS kjPaymentImageUrl2,
         so.per_amount AS perAmount,
         so.amount AS amount,
         so.expect_amount AS expectAmount,
