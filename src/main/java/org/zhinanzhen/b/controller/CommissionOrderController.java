@@ -1697,40 +1697,52 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			if (StringUtil.isNotEmpty(installmentDueDate12))
 				tempDTO.setInstallmentDueDate12(new Date(Long.parseLong(installmentDueDate12)));
 			
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1)){
 				tempDTO.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
+				serviceOrderDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
+			}
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2)){
 				tempDTO.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl3))
+				serviceOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
+			}
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl3)){
 				tempDTO.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl4))
+				serviceOrderDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
+			}
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl4)){
 				tempDTO.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl5))
+				serviceOrderDto.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
+			}
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl5)){
 				tempDTO.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
+				serviceOrderDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
+			}
 
 
 			if (serviceOrderDto.isSettle()){
-				if (StringUtil.isNotEmpty(invoiceVoucherImageUrl1) || StringUtil.isNotEmpty(invoiceVoucherImageUrl2)
-						|| StringUtil.isNotEmpty(invoiceVoucherImageUrl3) || StringUtil.isNotEmpty(invoiceVoucherImageUrl4)
-						|| StringUtil.isNotEmpty(invoiceVoucherImageUrl5)) {
+				if (StringUtil.isNotEmpty(paymentVoucherImageUrl1) || StringUtil.isNotEmpty(paymentVoucherImageUrl2)
+						|| StringUtil.isNotEmpty(paymentVoucherImageUrl3) || StringUtil.isNotEmpty(paymentVoucherImageUrl4)
+						|| StringUtil.isNotEmpty(paymentVoucherImageUrl5)) {
 				/*
 				杜大哥（2021-10-18）说：【提前扣拥】在上传【invoice凭证】之后，申请月奖直接将服务订单状态改成【RECEIVED】(已收款凭证已提交)
 				 */
 					serviceOrderDto.setState("RECEIVED");
 				} else
-					return new Response(1, "请上传发票凭证");
+					return new Response(1, "请上传支付凭证");
 			}else
 				return new Response(1, "服务订单不是提前扣拥:" + serviceOrderDto.getId());
-			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl1))
-				serviceOrderDto.setInvoiceVoucherImageUrl1(invoiceVoucherImageUrl1);
-			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl2))
-				serviceOrderDto.setInvoiceVoucherImageUrl2(invoiceVoucherImageUrl2);
-			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl3))
-				serviceOrderDto.setInvoiceVoucherImageUrl3(invoiceVoucherImageUrl3);
-			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl4))
-				serviceOrderDto.setInvoiceVoucherImageUrl4(invoiceVoucherImageUrl4);
-			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl5))
-				serviceOrderDto.setInvoiceVoucherImageUrl5(invoiceVoucherImageUrl5);
+
+			//顾问在留学提前扣拥状态为COMPLETE时，不用上传发票凭证
+			//if (StringUtil.isNotEmpty(invoiceVoucherImageUrl1))
+			//	serviceOrderDto.setInvoiceVoucherImageUrl1(invoiceVoucherImageUrl1);
+			//if (StringUtil.isNotEmpty(invoiceVoucherImageUrl2))
+			//	serviceOrderDto.setInvoiceVoucherImageUrl2(invoiceVoucherImageUrl2);
+			//if (StringUtil.isNotEmpty(invoiceVoucherImageUrl3))
+			//	serviceOrderDto.setInvoiceVoucherImageUrl3(invoiceVoucherImageUrl3);
+			//if (StringUtil.isNotEmpty(invoiceVoucherImageUrl4))
+			//	serviceOrderDto.setInvoiceVoucherImageUrl4(invoiceVoucherImageUrl4);
+			//if (StringUtil.isNotEmpty(invoiceVoucherImageUrl5))
+			//	serviceOrderDto.setInvoiceVoucherImageUrl5(invoiceVoucherImageUrl5);
 			
 			if(commissionOrderService.addCommissionOrderTemp(tempDTO) > 0){
 				if (serviceOrderService.updateServiceOrder(serviceOrderDto) > 0) // 同时更改服务订单状态
@@ -1916,27 +1928,29 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				tempDTO.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
 
 			if (serviceOrderDto.isSettle()){
-				if (StringUtil.isNotEmpty(invoiceVoucherImageUrl1) || StringUtil.isNotEmpty(invoiceVoucherImageUrl2)
-						|| StringUtil.isNotEmpty(invoiceVoucherImageUrl3) || StringUtil.isNotEmpty(invoiceVoucherImageUrl4)
-						|| StringUtil.isNotEmpty(invoiceVoucherImageUrl5)) {
+				if (StringUtil.isNotEmpty(paymentVoucherImageUrl1) || StringUtil.isNotEmpty(paymentVoucherImageUrl2)
+						|| StringUtil.isNotEmpty(paymentVoucherImageUrl3) || StringUtil.isNotEmpty(paymentVoucherImageUrl4)
+						|| StringUtil.isNotEmpty(paymentVoucherImageUrl5)) {
 				/*
 				杜大哥（2021-10-18）说：【提前扣拥】在上传【invoice凭证】之后，申请月奖直接将服务订单状态改成【RECEIVED】(已收款凭证已提交)
 				 */
 					serviceOrderDto.setState("RECEIVED");
 				} else
-					return new Response(1, "请上传发票凭证");
+					return new Response(1, "请上传支付凭证");
 			}else
 				return new Response(1, "服务订单不是提前扣拥:" + serviceOrderDto.getId());
-			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl1))
-				serviceOrderDto.setInvoiceVoucherImageUrl1(invoiceVoucherImageUrl1);
-			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl2))
-				serviceOrderDto.setInvoiceVoucherImageUrl2(invoiceVoucherImageUrl2);
-			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl3))
-				serviceOrderDto.setInvoiceVoucherImageUrl3(invoiceVoucherImageUrl3);
-			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl4))
-				serviceOrderDto.setInvoiceVoucherImageUrl4(invoiceVoucherImageUrl4);
-			if (StringUtil.isNotEmpty(invoiceVoucherImageUrl5))
-				serviceOrderDto.setInvoiceVoucherImageUrl5(invoiceVoucherImageUrl5);
+
+			//顾问在留学提前扣拥状态为COMPLETE时，不用上传发票凭证
+			//if (StringUtil.isNotEmpty(invoiceVoucherImageUrl1))
+			//	serviceOrderDto.setInvoiceVoucherImageUrl1(invoiceVoucherImageUrl1);
+			//if (StringUtil.isNotEmpty(invoiceVoucherImageUrl2))
+			//	serviceOrderDto.setInvoiceVoucherImageUrl2(invoiceVoucherImageUrl2);
+			//if (StringUtil.isNotEmpty(invoiceVoucherImageUrl3))
+			//	serviceOrderDto.setInvoiceVoucherImageUrl3(invoiceVoucherImageUrl3);
+			//if (StringUtil.isNotEmpty(invoiceVoucherImageUrl4))
+			//	serviceOrderDto.setInvoiceVoucherImageUrl4(invoiceVoucherImageUrl4);
+			//if (StringUtil.isNotEmpty(invoiceVoucherImageUrl5))
+			//	serviceOrderDto.setInvoiceVoucherImageUrl5(invoiceVoucherImageUrl5);
 
 			if (commissionOrderService.updateCommissionOrderTemp(tempDTO) > 0){
 				if (serviceOrderService.updateServiceOrder(serviceOrderDto) > 0 )

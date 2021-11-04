@@ -108,6 +108,10 @@ public class ServiceOrderDO implements Serializable {
 
 	private String invoiceVoucherImageUrl5;
 
+	private String officialPaymentImageUrl1;
+
+	private String officialPaymentImageUrl2;
+
 	private double perAmount;
 
 	private double amount;
