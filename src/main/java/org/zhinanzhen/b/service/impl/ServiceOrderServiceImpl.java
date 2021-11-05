@@ -782,7 +782,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 					String _title = StringUtil.merge("审核完成提醒:", user.getName(), "/留学");
 					// 发送给顾问
 					SchoolDO schoolDo = schoolDao.getSchoolById(serviceOrderDo.getSchoolId());
-					if (schoolDo != null)
+					if (schoolDo != null){
 						sendMail(adviserDo.getEmail(), _title, StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>",
 								"您的订单已经申请成功等待coe支付，请检查并进行下一步操作。<br>订单号:", serviceOrderDo.getId(), "<br/>服务类型:留学/客户名称:",
 								user.getName(), "/学校:", schoolDo.getName(), "/专业:", schoolDo.getSubject(), "/顾问:",
@@ -791,8 +791,51 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 								serviceOrderDo.getNutCloud(), "<br/>客户基本信息:", serviceOrderDo.getInformation(),
 								"<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(),
 								"<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
+					}else if (serviceOrderDo.getCourseId() > 0){
+						SchoolInstitutionListDTO institution = schoolCourseDAO.getSchoolInstitutionInfoByCourseId(serviceOrderDo.getCourseId());
+						if (institution != null)
+							sendMail(adviserDo.getEmail(), _title, StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>",
+									"您的订单已经申请成功等待coe支付，请检查并进行下一步操作。<br>订单号:", serviceOrderDo.getId(), "<br/>服务类型:留学/客户名称:",
+									user.getName(), "/学校:", institution.getName(), "/专业:", institution.getSchoolCourseDO().getCourseName(), "/顾问:",
+									adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
+									getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
+									serviceOrderDo.getNutCloud(), "<br/>客户基本信息:", serviceOrderDo.getInformation(),
+									"<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(),
+									"<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
+					}
 				}
 
+			}
+			if ("COMPLETE_FD".equals(state)){
+				//提前扣拥 财务转账完成 状态
+				String _title = StringUtil.merge("财务审核通过提醒:", user.getName(), "/留学[提前扣拥]");
+				if ("OVST".equalsIgnoreCase(serviceOrderDo.getType())){
+					if (officialDo != null){
+						if (serviceOrderDo.getSchoolId() > 0){
+							SchoolDO schoolDo = schoolDao.getSchoolById(serviceOrderDo.getSchoolId());
+							if (schoolDo != null)
+								sendMail(officialDo.getEmail(), _title, StringUtil.merge("亲爱的:", officialDo.getName(), "<br/>",
+										"您有一条服务订单任务财务审核通过请及时处理。<br>订单号:", serviceOrderDo.getId(), "<br/>服务类型:留学/客户名称:",
+										user.getName(), "/学校:", schoolDo.getName(), "/专业:", schoolDo.getSubject(), "/顾问:",
+										adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
+										getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
+										serviceOrderDo.getNutCloud(), "<br/>客户基本信息:", serviceOrderDo.getInformation(),
+										"<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(),
+										"<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
+						}else if (serviceOrderDo.getCourseId() > 0){
+							SchoolInstitutionListDTO institution = schoolCourseDAO.getSchoolInstitutionInfoByCourseId(serviceOrderDo.getCourseId());
+							if (institution != null)
+								sendMail(officialDo.getEmail(), _title, StringUtil.merge("亲爱的:", officialDo.getName(), "<br/>",
+										"您有一条服务订单任务财务审核通过请及时处理。<br>订单号:", serviceOrderDo.getId(), "<br/>服务类型:留学/客户名称:",
+										user.getName(), "/学校:", institution.getName(), "/专业:", institution.getSchoolCourseDO().getCourseName(), "/顾问:",
+										adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
+										getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
+										serviceOrderDo.getNutCloud(), "<br/>客户基本信息:", serviceOrderDo.getInformation(),
+										"<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(),
+										"<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
+						}
+					}
+				}
 			}
 			if ("PAID".equals(state)) {
 				// 写入会计审核时间
@@ -816,7 +859,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 						String _title = StringUtil.merge("审核完成提醒:", user.getName(), "/留学");
 						// 发送给顾问
 						SchoolDO schoolDo = schoolDao.getSchoolById(serviceOrderDo.getSchoolId());
-						if (schoolDo != null)
+						if (schoolDo != null){
 							sendMail(adviserDo.getEmail(), _title, StringUtil.merge("亲爱的:", adviserDo.getName(),
 									"<br/>", "您的订单已经申请成功coe支付成功，请检查并进行下一步操作。<br>订单号:", serviceOrderDo.getId(),
 									"<br/>服务类型:留学/客户名称:", user.getName(), "/学校:", schoolDo.getName(), "/专业:",
@@ -826,6 +869,18 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 									"<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:",
 									serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date, "<br/>",
 									serviceOrderMailDetail.getServiceOrderUrl()));
+						} else if (serviceOrderDo.getCourseId() > 0){
+							SchoolInstitutionListDTO institution = schoolCourseDAO.getSchoolInstitutionInfoByCourseId(serviceOrderDo.getCourseId());
+							if (institution != null)
+								sendMail(adviserDo.getEmail(), _title, StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>",
+										"您的订单已经申请成功coe支付成功，请检查并进行下一步操作。<br>订单号:", serviceOrderDo.getId(),
+										"<br/>服务类型:留学/客户名称:", user.getName(), "/学校:", institution.getName(), "/专业:",
+										institution.getSchoolCourseDO().getCourseName(), "/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(),
+										"<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
+										serviceOrderDo.getNutCloud(), "<br/>客户基本信息:", serviceOrderDo.getInformation(),
+										"<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(),
+										"<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
+						}
 					}
 				}
 			}
