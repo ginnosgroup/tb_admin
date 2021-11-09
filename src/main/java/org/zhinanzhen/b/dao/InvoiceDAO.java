@@ -33,7 +33,7 @@ public interface InvoiceDAO {
     Integer selectSCCount(@Param("invoice_no")String invoice_no, @Param("order_id")String order_id, @Param("create_start")String create_start,
                       @Param("create_end")String create_end, @Param("kind")String kind,@Param("branch") String branch ,@Param("state") String state);
 
-    InvoiceDTO selectCommissionOrder(@Param("order_id") String order_id);
+    List<InvoiceDTO> selectCommissionOrder(@Param("order_id") String order_id);
 
     int selectCommissionOrderCount(@Param("order_id") String order_id);
 

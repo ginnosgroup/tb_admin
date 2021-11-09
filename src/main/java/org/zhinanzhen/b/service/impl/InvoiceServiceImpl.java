@@ -84,30 +84,35 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
         }else {
             List<InvoiceDTO> list = new ArrayList<>();
             if (kind == null) {
-                InvoiceDTO invoiceSC = invoiceDAO.selectCommissionOrder(order_id);
-                if(invoiceSC != null){
-                    invoiceSC.setIds("SC" + invoiceSC.getId());
-                    list.add(invoiceSC);
-                }
+                //InvoiceDTO invoiceSC = invoiceDAO.selectCommissionOrder(order_id);
+                //if(invoiceSC != null){
+                //    invoiceSC.setIds("SC" + invoiceSC.getId());
+                //    list.add(invoiceSC);
+                //}
+                //InvoiceDTO invoiceSF = invoiceDAO.selectVisaOrder(order_id);
+                //if(invoiceSF != null){
+                //    invoiceSF.setIds("SF" + invoiceSF.getId());
+                //    list.add(invoiceSF);
+                //}
+                return  list;
+            }
+            if (kind.equals("SC")) {
+                List<InvoiceDTO> invoiceSCList = invoiceDAO.selectCommissionOrder(order_id);
+                //if(invoiceSC != null)
+                invoiceSCList.forEach(invoiceDTO -> {
+                    invoiceDTO.setIds("SC" + invoiceDTO.getId());
+                    list.add(invoiceDTO);
+                });
+                //invoiceSC.setIds("SC" + invoiceSC.getId());
+                //list.add(invoiceSC);
+                return list;
+            }
+            if (kind.equals("SF")) {
                 InvoiceDTO invoiceSF = invoiceDAO.selectVisaOrder(order_id);
                 if(invoiceSF != null){
                     invoiceSF.setIds("SF" + invoiceSF.getId());
                     list.add(invoiceSF);
                 }
-                return  list;
-            }
-            if (kind.equals("SC")) {
-                InvoiceDTO invoiceSC = invoiceDAO.selectCommissionOrder(order_id);
-                if(invoiceSC != null)
-                invoiceSC.setIds("SC" + invoiceSC.getId());
-                list.add(invoiceSC);
-                return list;
-            }
-            if (kind.equals("SF")) {
-                InvoiceDTO invoiceSF = invoiceDAO.selectVisaOrder(order_id);
-                if(invoiceSF != null)
-                invoiceSF.setIds("SF" + invoiceSF.getId());
-                list.add(invoiceSF);
                 return list;
             }
         }

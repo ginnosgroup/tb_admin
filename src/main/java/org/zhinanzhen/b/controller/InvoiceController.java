@@ -51,7 +51,7 @@ public class InvoiceController  extends BaseController {
     @ResponseBody
     public ListResponse selectAllInvoice(
             @RequestParam(value = "invoice_no", required = false) String invoice_no,
-            @RequestParam(value = "order_no", required = false) String order_id,
+            @RequestParam(value = "order_id", required = false) String order_id,
             @RequestParam(value = "create_start", required = false) String create_start,
             @RequestParam(value = "create_end", required = false) String create_end,
             @RequestParam(value = "kind", required = false) String kind,
