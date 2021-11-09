@@ -124,7 +124,7 @@
         bc.branch,
         bc.state,
         bc.pdf_url AS pdfUrl
-        from `b_invoice_school` as bc   WHERE bc.invoice_no = (select DISTINCT bo.invoice_number from  `b_commission_order` as bo WHERE bo.id = #{order_id})
+        from `b_invoice_school` as bc   WHERE FIND_IN_SET(bc.invoice_no , (select  bo.invoice_number from  `b_commission_order` as bo WHERE bo.id = #{order_id}));
     </select>
     <select id="selectVisaOrder" resultType="org.zhinanzhen.b.service.pojo.InvoiceDTO">
         select bf.id,
@@ -139,7 +139,7 @@
 
     <select id="selectCommissionOrderCount" resultType="java.lang.Integer">
         select count(bc.id)
-        from `b_invoice_school` as bc   WHERE bc.invoice_no = (select DISTINCT bo.invoice_number from  `b_commission_order` as bo WHERE bo.id = #{order_id})
+        from `b_invoice_school` as bc   WHERE FIND_IN_SET(bc.invoice_no , (select  bo.invoice_number from  `b_commission_order` as bo WHERE bo.id = #{order_id}));
     </select>
     <select id="selectVisaOrderCount" resultType="java.lang.Integer">
         select count(bf.id)
