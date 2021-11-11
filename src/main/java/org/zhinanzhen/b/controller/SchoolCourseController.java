@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.controller;
 
+import com.ikasoa.core.utils.StringUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.zhinanzhen.b.service.SchoolCourseService;
@@ -58,10 +59,27 @@ public class SchoolCourseController extends BaseController {
     @ResponseBody
     public Response add(@RequestBody SchoolCourseDTO schoolCourseDTO, HttpServletResponse response){
         super.setPostHeader(response);
-        if (schoolCourseService.add(schoolCourseDTO) > 0)
-            return new Response(0,"success",schoolCourseDTO);
-        else
-            return new Response(1,"fail");
+        Response res = new Response(0, "success");
+        if (StringUtil.isBlank(schoolCourseDTO.getCourseCode()) || StringUtil.isBlank(schoolCourseDTO.getCourseSector())
+                || StringUtil.isBlank(schoolCourseDTO.getCourseName())){
+            res.setCode(1);
+            res.setMessage("专业编码或专业所属领域或专业名字不能为空!");
+            return res;
+        }
+        if (schoolCourseService.list(null,null, null,
+                null, schoolCourseDTO.getCourseCode(), 0,1).size() > 0){
+            res.setCode(1);
+            res.setMessage("专业编码已经存在!" + schoolCourseDTO.getCourseCode());
+            return res;
+        }
+        if (schoolCourseService.add(schoolCourseDTO) > 0){ ;
+            res.setData(schoolCourseDTO);
+            return res;
+        } else{
+            res.setCode(1);
+            res.setMessage("fail");
+            return res;
+        }
     }
 
     @RequestMapping(value = "/update",method = RequestMethod.POST)
