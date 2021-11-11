@@ -137,6 +137,20 @@ public class ServiceOrderController extends BaseController {
 		}
 	}
 
+	public enum ServiceOrderTypeEnum {
+		OVST("留学"), VISA("签证"), SIV("独立技术移民"), ZX("咨询");
+		private String meaning;
+		ServiceOrderTypeEnum(String meaning){
+			this.meaning = meaning;
+		}
+		public static ServiceOrderTypeEnum get(String name) {
+			for (ServiceOrderTypeEnum e : ServiceOrderTypeEnum.values())
+				if (e.toString().equals(name))
+					return e;
+			return null;
+		}
+	}
+
 	@RequestMapping(value = "/upload_img", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<String> uploadImage(@RequestParam MultipartFile file, HttpServletRequest request,
@@ -244,6 +258,10 @@ public class ServiceOrderController extends BaseController {
 			if (schoolId != null && schoolId > 0)
 				serviceOrderDto.setSchoolId(schoolId);
 			serviceOrderDto.setState(ReviewAdviserStateEnum.PENDING.toString());
+			if (ServiceOrderTypeEnum.ZX.toString().equalsIgnoreCase(type) && StringUtil.isNotEmpty(officialId)){
+				if (StringUtil.toInt(officialId) == 0)//没有文案的咨询直接订单完成
+					serviceOrderDto.setState(ReviewAdviserStateEnum.COMPLETE.toString());
+			}
 			serviceOrderDto.setSettle(isSettle != null && "true".equalsIgnoreCase(isSettle));
 			serviceOrderDto.setUrgentState(urgentState);
 			serviceOrderDto.setDepositUser(isDepositUser != null && "true".equalsIgnoreCase(isDepositUser));
