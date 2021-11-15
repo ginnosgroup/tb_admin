@@ -10,6 +10,7 @@ import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.WXWorkService;
 import org.zhinanzhen.b.service.pojo.ChatDTO;
+import org.zhinanzhen.b.service.pojo.SchoolInstitutionListDTO;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.RegionDAO;
@@ -72,6 +73,9 @@ public class WXWorkServiceImpl implements WXWorkService {
 
     @Resource
     private OfficialDAO officialDao;
+
+    @Resource
+    private SchoolCourseDAO schoolCourseDAO;
 
 
     private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
@@ -167,9 +171,18 @@ public class WXWorkServiceImpl implements WXWorkService {
             }
             if (serviceOrderDO.getType().equalsIgnoreCase("OVST")){
                 SchoolDO schoolDO =  schoolDAO.getSchoolById(serviceOrderDO.getSchoolId());
-                if (schoolDO != null )
+                if (schoolDO != null ){
                     msg = msg
                             + "[ 留学 - " + schoolDO.getName() + "      专业 : " + schoolDO.getSubject() +  " ] . \n";
+                } else {
+                    if (serviceOrderDO.getCourseId() > 0){
+                        SchoolInstitutionListDTO schoolInstitutionInfo = schoolCourseDAO.getSchoolInstitutionInfoByCourseId(serviceOrderDO.getCourseId());
+                        if (schoolInstitutionInfo != null)
+                            msg = msg
+                                    + "[ 留学 - " + schoolInstitutionInfo.getInstitutionName() + "      专业 : "
+                                    + schoolInstitutionInfo.getSchoolCourseDO().getCourseName() +  " ] . \n";
+                    }
+                }
             }
             msg = msg + "各地区加油\n\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F";
         }
