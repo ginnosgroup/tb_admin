@@ -45,8 +45,13 @@ public class SchoolInstitutionLocationController extends BaseController {
 
     @RequestMapping(value = "/add",method = RequestMethod.POST)
     @ResponseBody
-    public Response add(@RequestBody SchoolInstitutionLocationDTO schoolInstitutionLocationDTO, HttpServletResponse response){
+    public Response add(@RequestBody SchoolInstitutionLocationDTO schoolInstitutionLocationDTO,
+                        HttpServletRequest request, HttpServletResponse response){
         super.setPostHeader(response);
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo == null ||
+                (adminUserLoginInfo.getApList().equalsIgnoreCase("GW") && adminUserLoginInfo.getRegionId() == null))//除顾问的其他角色可以修改
+            return new Response(1,"No permission !");
         if (schoolInstitutionLocationService.add(schoolInstitutionLocationDTO) > 0 )
             return new Response(0,"success",schoolInstitutionLocationDTO);
         else
@@ -55,7 +60,13 @@ public class SchoolInstitutionLocationController extends BaseController {
 
     @RequestMapping(value = "/update",method = RequestMethod.POST)
     @ResponseBody
-    public  Response update(@RequestBody SchoolInstitutionLocationDTO _schoolInstitutionLocationDTO){
+    public  Response update(@RequestBody SchoolInstitutionLocationDTO _schoolInstitutionLocationDTO,
+                            HttpServletRequest request, HttpServletResponse response){
+        super.setPostHeader(response);
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo == null ||
+                (adminUserLoginInfo.getApList().equalsIgnoreCase("GW") && adminUserLoginInfo.getRegionId() == null))//除顾问的其他角色可以修改
+            return new Response(1,"No permission !");
         SchoolInstitutionLocationDTO schoolInstitutionLocationDTO = schoolInstitutionLocationService.getById(_schoolInstitutionLocationDTO.getId());
         if (schoolInstitutionLocationDTO == null)
             return new Response(1,"没有此记录");
@@ -77,7 +88,13 @@ public class SchoolInstitutionLocationController extends BaseController {
 
     @RequestMapping(value = "/delete",method = RequestMethod.POST)
     @ResponseBody
-    public Response delete(@RequestParam(value = "id")int id){
+    public Response delete(@RequestParam(value = "id")int id,
+                           HttpServletRequest request, HttpServletResponse response){
+        super.setPostHeader(response);
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo == null ||
+                (adminUserLoginInfo.getApList().equalsIgnoreCase("GW") && adminUserLoginInfo.getRegionId() == null))//除顾问的其他角色可以修改
+            return new Response(1,"No permission !");
         if (schoolInstitutionLocationService.delete(id))
             return new Response(0,"success");
         else

@@ -46,7 +46,13 @@ public class SchoolCourseController extends BaseController {
 
     @RequestMapping(value = "/delete",method = RequestMethod.POST)
     @ResponseBody
-    public Response delete(@RequestBody SchoolCourseDTO schoolCourseDTO){
+    public Response delete(@RequestBody SchoolCourseDTO schoolCourseDTO,
+                           HttpServletRequest request, HttpServletResponse response){
+        super.setPostHeader(response);
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo == null ||
+                (adminUserLoginInfo.getApList().equalsIgnoreCase("GW") && adminUserLoginInfo.getRegionId() == null))//除顾问的其他角色可以修改
+            return new Response(1,"No permission !");
         if ( schoolCourseDTO.getId() <= 0 || schoolCourseService.schoolCourseById(schoolCourseDTO.getId()) == null)
             return new Response(1,"id error");
         if (schoolCourseService.delete(schoolCourseDTO.getId()))
@@ -57,8 +63,13 @@ public class SchoolCourseController extends BaseController {
 
     @RequestMapping(value = "/add",method = RequestMethod.POST)
     @ResponseBody
-    public Response add(@RequestBody SchoolCourseDTO schoolCourseDTO, HttpServletResponse response){
+    public Response add(@RequestBody SchoolCourseDTO schoolCourseDTO,
+                        HttpServletRequest request, HttpServletResponse response){
         super.setPostHeader(response);
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo == null ||
+                (adminUserLoginInfo.getApList().equalsIgnoreCase("GW") && adminUserLoginInfo.getRegionId() == null))//除顾问的其他角色可以修改
+            return new Response(1,"No permission !");
         Response res = new Response(0, "success");
         if (StringUtil.isBlank(schoolCourseDTO.getCourseCode()) || StringUtil.isBlank(schoolCourseDTO.getCourseSector())
                 || StringUtil.isBlank(schoolCourseDTO.getCourseName())){
@@ -84,8 +95,13 @@ public class SchoolCourseController extends BaseController {
 
     @RequestMapping(value = "/update",method = RequestMethod.POST)
     @ResponseBody
-    public Response update(@RequestBody SchoolCourseDTO schoolCourseDTO, HttpServletResponse response){
+    public Response update(@RequestBody SchoolCourseDTO schoolCourseDTO,
+                           HttpServletRequest request, HttpServletResponse response){
         super.setPostHeader(response);
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo == null ||
+                (adminUserLoginInfo.getApList().equalsIgnoreCase("GW") && adminUserLoginInfo.getRegionId() == null))//除顾问的其他角色可以修改
+            return new Response(1,"No permission !");
         if (schoolCourseService.schoolCourseById(schoolCourseDTO.getId()) == null)
             return new Response(1,"没有此课程");
         if (schoolCourseService.update(schoolCourseDTO))

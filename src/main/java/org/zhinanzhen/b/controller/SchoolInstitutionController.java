@@ -59,6 +59,10 @@ public class SchoolInstitutionController extends BaseController {
                                                     @RequestBody Map<String,String> param,
                                                     HttpServletRequest request, HttpServletResponse response) {
         super.setPostHeader(response);
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo == null ||
+                (adminUserLoginInfo.getApList().equalsIgnoreCase("GW") && adminUserLoginInfo.getRegionId() == null))//除顾问的其他角色可以修改
+            return new Response(1,"No permission !");
         int providerId = StringUtil.toInt(param.get("providerId"));
         String contractFile1 = param.get("contractFile1");
         String contractFile2 = param.get("contractFile2");
@@ -85,6 +89,10 @@ public class SchoolInstitutionController extends BaseController {
                                             @RequestParam(value = "isDeleteFile3", required = false, defaultValue = "false")boolean isDeleteFile3,
                                             HttpServletRequest request, HttpServletResponse response) throws ServiceException {
         super.setGetHeader(response);
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo == null ||
+                (adminUserLoginInfo.getApList().equalsIgnoreCase("GW") && adminUserLoginInfo.getRegionId() == null))//除顾问的其他角色可以修改
+            return new Response(1,"No permission !");
         if (schoolInstitutionService.deleteSchoolAttachments(providerId,isDeleteFile1,isDeleteFile2,isDeleteFile3) > 0)
             return new Response(0,"success");
         else
@@ -120,6 +128,10 @@ public class SchoolInstitutionController extends BaseController {
                            HttpServletRequest request,HttpServletResponse response) throws ServiceException {
         //TODO 需要设置权限，顾问只能查看不能修改
         super.setPostHeader(response);
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo == null ||
+                (adminUserLoginInfo.getApList().equalsIgnoreCase("GW") && adminUserLoginInfo.getRegionId() == null))//除顾问的其他角色可以修改
+            return new Response(1,"No permission !");
         if (StringUtil.isNotEmpty(schoolInstitutionDTO.getName())){
             List<SchoolInstitutionDTO> listSchoolInstitutionDTO = schoolInstitutionService.listSchoolInstitutionDTO(schoolInstitutionDTO.getName(),
                     null,null,null,0,9999,null);
@@ -137,8 +149,13 @@ public class SchoolInstitutionController extends BaseController {
 
     @RequestMapping(value = "/add" ,method = RequestMethod.POST)
     @ResponseBody
-    public Response add(@RequestBody SchoolInstitutionDTO schoolInstitutionDTO, HttpServletResponse response) throws ServiceException {
-        super.setPostHeader(response); 
+    public Response add(@RequestBody SchoolInstitutionDTO schoolInstitutionDTO,
+                        HttpServletRequest request, HttpServletResponse response) throws ServiceException {
+        super.setPostHeader(response);
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo == null ||
+                (adminUserLoginInfo.getApList().equalsIgnoreCase("GW") && adminUserLoginInfo.getRegionId() == null))
+            return new Response(1,"No permission !");
         List<SchoolInstitutionDTO> listSchoolInstitutionDTO = schoolInstitutionService.listSchoolInstitutionDTO(schoolInstitutionDTO.getName(),
                 null, null,null ,0,9999,null);
         if (listSchoolInstitutionDTO.size() > 0 )
@@ -155,7 +172,12 @@ public class SchoolInstitutionController extends BaseController {
 
     @RequestMapping(value = "/delete",method = RequestMethod.GET)
     @ResponseBody
-    public Response delete(@RequestParam(value = "id",defaultValue = "0") int id){
+    public Response delete(@RequestParam(value = "id",defaultValue = "0") int id,
+                           HttpServletRequest request, HttpServletResponse response){
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo == null ||
+                (adminUserLoginInfo.getApList().equalsIgnoreCase("GW") && adminUserLoginInfo.getRegionId() == null))//除顾问的其他角色可以修改
+            return new Response(1,"No permission !");
         if (schoolInstitutionService.delete(id))
             return new Response(0,id + "删除成功");
         else
@@ -176,6 +198,10 @@ public class SchoolInstitutionController extends BaseController {
     public Response updateSetting(@RequestBody Map<String,String> paramMap,
                                   HttpServletRequest request, HttpServletResponse response) throws ServiceException {
         super.setPostHeader(response);
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo == null ||
+                (adminUserLoginInfo.getApList().equalsIgnoreCase("GW") && adminUserLoginInfo.getRegionId() == null))//除顾问的其他角色可以修改
+            return new Response(1,"No permission !");
         SchoolSettingNewDTO schoolSettingNewDTO = schoolSettingNewOfType(paramMap);
         SchoolSettingNewDTO _schoolSettingNewDTO = schoolInstitutionService.getSchoolSettingNewById(schoolSettingNewDTO.getId());
         if ( _schoolSettingNewDTO == null)
@@ -277,6 +303,10 @@ public class SchoolInstitutionController extends BaseController {
     public Response addSetting1(@RequestBody SchoolSettingNewDTO schoolSettingNewDTO,
                                 HttpServletRequest request, HttpServletResponse response) {
         super.setPostHeader(response);
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo == null ||
+                (adminUserLoginInfo.getApList().equalsIgnoreCase("GW") && adminUserLoginInfo.getRegionId() == null))//除顾问的其他角色可以修改
+            return new Response(1,"No permission !");
         if (schoolSettingNewDTO.getType() != 1)
             return new Response(1,"RATE类型值错误：" + schoolSettingNewDTO.getType());
         Response rs;
@@ -304,6 +334,10 @@ public class SchoolInstitutionController extends BaseController {
                                 @RequestBody Map<String, String> paramMap,
                                 HttpServletRequest request, HttpServletResponse response) {
         super.setPostHeader(response);
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo == null ||
+                (adminUserLoginInfo.getApList().equalsIgnoreCase("GW") && adminUserLoginInfo.getRegionId() == null))//除顾问的其他角色可以修改
+            return new Response(1,"No permission !");
         SchoolSettingNewDTO schoolSettingNewDTO = JSON.parseObject(JSON.toJSONString(paramMap), SchoolSettingNewDTO.class);
         if (schoolSettingNewDTO.getType() != 2)
             return new Response(1,"RATE类型值错误：" + schoolSettingNewDTO.getType());
@@ -342,6 +376,10 @@ public class SchoolInstitutionController extends BaseController {
                                 @RequestBody Map<String, String> parammMap,
                                 HttpServletRequest request, HttpServletResponse response){
         super.setPostHeader(response);
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo == null ||
+                (adminUserLoginInfo.getApList().equalsIgnoreCase("GW") && adminUserLoginInfo.getRegionId() == null))//除顾问的其他角色可以修改
+            return new Response(1,"No permission !");
         SchoolSettingNewDTO schoolSettingNewDTO = JSON.parseObject(JSON.toJSONString(parammMap), SchoolSettingNewDTO.class);
         String parameters = "";
         if (schoolSettingNewDTO.getType() != 4)
@@ -375,6 +413,10 @@ public class SchoolInstitutionController extends BaseController {
     public Response addSchoolSetting7(@RequestBody SchoolSettingNewDTO schoolSettingNewDTO,
                                       HttpServletRequest request, HttpServletResponse response){
         super.setPostHeader(response);
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo == null ||
+                (adminUserLoginInfo.getApList().equalsIgnoreCase("GW") && adminUserLoginInfo.getRegionId() == null))//除顾问的其他角色可以修改
+            return new Response(1,"No permission !");
         if (schoolSettingNewDTO.getType() != 7)
             return new Response(1,"RATE类型值错误：" + schoolSettingNewDTO.getType());
         Response rs;
@@ -396,6 +438,10 @@ public class SchoolInstitutionController extends BaseController {
     public Response deleteSetting(@RequestBody Map<String,String> paramMap,
                                   HttpServletRequest request, HttpServletResponse response) throws ServiceException {
         super.setPostHeader(response);
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo == null ||
+                (adminUserLoginInfo.getApList().equalsIgnoreCase("GW") && adminUserLoginInfo.getRegionId() == null))//除顾问的其他角色可以修改
+            return new Response(1,"No permission !");
         int id = StringUtil.toInt(paramMap.get("id"));
         if (schoolInstitutionService.deleteSetting(id) > 0)
             return new Response(0, "success");
@@ -415,6 +461,10 @@ public class SchoolInstitutionController extends BaseController {
     public Response<SchoolSettingNewDTO> getSetting(@RequestParam(value = "id")int id,
                                HttpServletRequest request, HttpServletResponse response){
         super.setGetHeader(response);
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo == null ||
+                (adminUserLoginInfo.getApList().equalsIgnoreCase("GW") && adminUserLoginInfo.getRegionId() == null))//除顾问的其他角色可以修改
+            return new Response(1,"No permission !");
         if ( id <= 0 )
             return new Response(1," id error");
         return new Response(0,schoolInstitutionService.getSchoolSettingNewById(id));
