@@ -14,7 +14,8 @@ public interface SchoolInstitutionDAO {
 
     List<SchoolInstitutionDO> listSchoolInstitutionDO(@Param("name") String name, @Param("type") String type,
                                                       @Param("code") String code, @Param("isFreeze") Boolean isFreeze,
-                                                      @Param("offset") int offset, @Param("rows") int rows);
+                                                      @Param("offset") int offset, @Param("rows") int rows,
+                                                      @Param("orderBy") String orderBy);
 
     SchoolInstitutionDO getSchoolInstitutionById(@Param("id") Integer id);
 

@@ -31,7 +31,7 @@
             </if>
             <!--  AND is_freeze = 0  -->
         </where>
-        ORDER BY gmt_create DESC
+        ${orderBy}
         limit #{offset} , #{rows};
     </select>
     <select id="count" resultType="integer">
