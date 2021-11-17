@@ -10,12 +10,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.controller.BaseCommissionOrderController.CommissionStateEnum;
-import org.zhinanzhen.b.dao.CommissionOrderDAO;
-import org.zhinanzhen.b.dao.SchoolAttachmentsDAO;
-import org.zhinanzhen.b.dao.SchoolDAO;
-import org.zhinanzhen.b.dao.SchoolSettingDAO;
-import org.zhinanzhen.b.dao.SubagencyDAO;
-import org.zhinanzhen.b.dao.SubjectSettingDAO;
+import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.SchoolService;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
@@ -49,6 +44,12 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 
 	@Resource
 	private SubagencyDAO subagencyDao;
+
+	@Resource
+	private SchoolCourseDAO schoolCourseDAO;
+
+	@Resource
+	private SchoolSettingNewDAO schoolSettingNewDAO;
 
 	@Override
 	@Transactional(rollbackFor = ServiceException.class)
@@ -452,20 +453,42 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	public String getByCommissionOrderId(int id) {
 		CommissionOrderListDO commissionOrderListDO = commissionOrderDao.getCommissionOrderById(id);
 		if (commissionOrderListDO != null){
-			SchoolSettingDO schoolSettingDO = schoolSettingDao.getBySchoolId(commissionOrderListDO.getSchoolId());
-			if (schoolSettingDO != null){
-				int type = schoolSettingDO.getType();
-				String parameters = schoolSettingDO.getParameters();
-				if (type == 1 || type == 2){
-					String[] _parameters = parameters.split("[|]");
-					return "0." + _parameters[0];
+			if (commissionOrderListDO.getSchoolId() > 0){
+				SchoolSettingDO schoolSettingDO = schoolSettingDao.getBySchoolId(commissionOrderListDO.getSchoolId());
+				if (schoolSettingDO != null){
+					int type = schoolSettingDO.getType();
+					String parameters = schoolSettingDO.getParameters();
+					if (type == 1 || type == 2){
+						String[] _parameters = parameters.split("[|]");
+						return "0." + _parameters[0];
+					}
+					if (type == 4){
+						String[] _parameters = parameters.split("[|]");
+						return "0." + _parameters[1].split("/")[0] ;
+					}
+					if (type == 7){
+						return parameters ;
+					}
 				}
-				if (type == 4){
-					String[] _parameters = parameters.split("[|]");
-					return "0." + _parameters[1].split("/")[0] ;
-				}
-				if (type == 7){
-					return parameters ;
+			}else if (commissionOrderListDO.getCourseId() > 0){
+				SchoolCourseDO schoolCourseDO = schoolCourseDAO.schoolCourseById(commissionOrderListDO.getCourseId());
+				if (schoolCourseDO != null){
+					SchoolSettingNewDO schoolSettingNewDO = returnSetting(schoolCourseDO);
+					if (schoolSettingNewDO != null){
+						int type = schoolSettingNewDO.getType();
+						String parameters = schoolSettingNewDO.getParameters();
+						if (type == 1 || type == 2){
+							String[] _parameters = parameters.split("[|]");
+							return "0." + _parameters[0];
+						}
+						if (type == 4){
+							String[] _parameters = parameters.split("[|]");
+							return "0." + _parameters[1].split("/")[0] ;
+						}
+						if (type == 7){
+							return parameters ;
+						}
+					}
 				}
 			}
 		}
@@ -764,6 +787,51 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 			co.setBonus(co.getDeductGst() * 0.1);
 			System.out.println(co.getId() + "月奖=DeductGST[" + co.getDeductGst() + "]*0.1=" + co.getBonus());
 		}
+	}
+
+	/**
+	 * 通过courseId返回rate设置发票
+	 * @param schoolCourseDO
+	 * @return
+	 */
+	public SchoolSettingNewDO returnSetting(SchoolCourseDO schoolCourseDO){
+		SchoolSettingNewDO schoolSettingNewDO = null;
+		List<SchoolSettingNewDO> schoolSettingNewDOList = new ArrayList<>();
+		if (schoolCourseDO != null){
+			schoolSettingNewDOList = schoolSettingNewDAO.getByProviderIdAndLevel(schoolCourseDO.getProviderId(),
+					3,null,schoolCourseDO.getId(), false);
+			for (SchoolSettingNewDO setting : schoolSettingNewDOList){
+				if (setting.getStartDate().before(new Date()) && setting.getEndDate().after(new Date())){
+					schoolSettingNewDO = setting;
+					break;
+				}
+			}
+			if (schoolSettingNewDO != null)
+				return schoolSettingNewDO;
+
+			schoolSettingNewDOList = schoolSettingNewDAO.getByProviderIdAndLevel(schoolCourseDO.getProviderId(),
+					2,schoolCourseDO.getCourseLevel(),null, false);
+			for (SchoolSettingNewDO setting : schoolSettingNewDOList){
+				if (setting.getStartDate().before(new Date()) && setting.getEndDate().after(new Date())){
+					schoolSettingNewDO = setting;
+					break;
+				}
+			}
+			if (schoolSettingNewDO != null && schoolSettingNewDO.getCourseLevel().equalsIgnoreCase(schoolCourseDO.getCourseLevel()))
+				return schoolSettingNewDO;
+
+			schoolSettingNewDOList = schoolSettingNewDAO.getByProviderIdAndLevel(schoolCourseDO.getProviderId(),
+					1,null,null, false);
+			for (SchoolSettingNewDO setting : schoolSettingNewDOList){
+				if (setting.getStartDate().before(new Date()) && setting.getEndDate().after(new Date())){
+					schoolSettingNewDO = setting;
+					break;
+				}
+			}
+			if (schoolSettingNewDO != null)
+				return schoolSettingNewDO;
+		}
+		return schoolSettingNewDO;
 	}
 
 }
