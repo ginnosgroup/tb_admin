@@ -50,8 +50,9 @@ public class SchoolCourseController extends BaseController {
                            HttpServletRequest request, HttpServletResponse response){
         super.setPostHeader(response);
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-        if (adminUserLoginInfo == null ||
-                (adminUserLoginInfo.getApList().equalsIgnoreCase("GW") && adminUserLoginInfo.getRegionId() == null))//除顾问的其他角色可以修改
+        //if (adminUserLoginInfo == null ||
+        //        (adminUserLoginInfo.getApList().equalsIgnoreCase("GW") && adminUserLoginInfo.getRegionId() == null))//除顾问的其他角色可以修改
+        if (adminUserLoginInfo == null)
             return new Response(1,"No permission !");
         if ( schoolCourseDTO.getId() <= 0 || schoolCourseService.schoolCourseById(schoolCourseDTO.getId()) == null)
             return new Response(1,"id error");
@@ -67,8 +68,9 @@ public class SchoolCourseController extends BaseController {
                         HttpServletRequest request, HttpServletResponse response){
         super.setPostHeader(response);
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-        if (adminUserLoginInfo == null ||
-                (adminUserLoginInfo.getApList().equalsIgnoreCase("GW") && adminUserLoginInfo.getRegionId() == null))//除顾问的其他角色可以修改
+        //if (adminUserLoginInfo == null ||
+        //        (adminUserLoginInfo.getApList().equalsIgnoreCase("GW") && adminUserLoginInfo.getRegionId() == null))//除顾问的其他角色可以修改
+        if (adminUserLoginInfo == null)
             return new Response(1,"No permission !");
         Response res = new Response(0, "success");
         if (StringUtil.isBlank(schoolCourseDTO.getCourseCode()) || StringUtil.isBlank(schoolCourseDTO.getCourseSector())
@@ -99,8 +101,9 @@ public class SchoolCourseController extends BaseController {
                            HttpServletRequest request, HttpServletResponse response){
         super.setPostHeader(response);
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-        if (adminUserLoginInfo == null ||
-                (adminUserLoginInfo.getApList().equalsIgnoreCase("GW") && adminUserLoginInfo.getRegionId() == null))//除顾问的其他角色可以修改
+        //if (adminUserLoginInfo == null ||
+        //        (adminUserLoginInfo.getApList().equalsIgnoreCase("GW") && adminUserLoginInfo.getRegionId() == null))//除顾问的其他角色可以修改
+        if (adminUserLoginInfo == null)
             return new Response(1,"No permission !");
         if (schoolCourseService.schoolCourseById(schoolCourseDTO.getId()) == null)
             return new Response(1,"没有此课程");
