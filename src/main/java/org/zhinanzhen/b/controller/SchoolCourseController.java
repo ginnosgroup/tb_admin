@@ -73,10 +73,9 @@ public class SchoolCourseController extends BaseController {
         if (adminUserLoginInfo == null)
             return new Response(1,"No permission !");
         Response res = new Response(0, "success");
-        if (StringUtil.isBlank(schoolCourseDTO.getCourseCode()) || StringUtil.isBlank(schoolCourseDTO.getCourseSector())
-                || StringUtil.isBlank(schoolCourseDTO.getCourseName())){
+        if (StringUtil.isBlank(schoolCourseDTO.getCourseCode()) || StringUtil.isBlank(schoolCourseDTO.getCourseName())){
             res.setCode(1);
-            res.setMessage("专业编码或专业所属领域或专业名字不能为空!");
+            res.setMessage("专业编码或专业名字不能为空!");
             return res;
         }
         if (schoolCourseService.list(null,null, null,
