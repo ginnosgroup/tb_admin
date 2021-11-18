@@ -1133,7 +1133,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				sheet.addCell(new Label(8, i, commissionOrderListDto.isSettle() + "", cellFormat));
 				if (commissionOrderListDto.getSchool() != null) {
 					sheet.addCell(new Label(9, i, commissionOrderListDto.getSchool().getName() + "", cellFormat));
-					sheet.addCell(new Label(11, i, commissionOrderListDto.getSchool().getSubject() + "", cellFormat));
+					sheet.addCell(new Label(10, i, commissionOrderListDto.getSchool().getSubject() + "", cellFormat));
 				}
 				if (commissionOrderListDto.getSchoolInstitutionListDTO() != null){
 					sheet.addCell(new Label(9, i, commissionOrderListDto.getSchoolInstitutionListDTO().getInstitutionName() , cellFormat));
