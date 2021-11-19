@@ -33,6 +33,9 @@
             <if test="isFreeze != null">
                 AND is_freeze = #{isFreeze}
             </if>
+            <if test='keywords != null and keywords != ""'>
+                AND (course_code LIKE "%"#{keywords}"%" OR course_name LIKE  "%"#{keywords}"%")
+            </if>
         </where>
         <if test="offset != null  and rows != null ">
             limit #{offset} ,#{rows}

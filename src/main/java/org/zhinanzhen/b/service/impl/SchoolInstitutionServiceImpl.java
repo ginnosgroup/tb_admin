@@ -58,7 +58,8 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
     private SqlSessionFactory sqlSessionFactory;
 
     @Override
-    public List<SchoolInstitutionDTO> listSchoolInstitutionDTO(String name, String type, String code, Boolean isFreeze, int pageNum, int pageSize, String orderBy) {
+    public List<SchoolInstitutionDTO> listSchoolInstitutionDTO(String name, String type, String code, Boolean isFreeze,
+            int pageNum, int pageSize, String orderBy, String keyword) {
         if ( pageNum < 0 )
             pageNum = DEFAULT_PAGE_NUM;
         if ( pageSize < 0 )
@@ -68,7 +69,7 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
         }else
             orderBy = "ORDER BY institution_trading_name ASC, institution_name ASC";
         List<SchoolInstitutionDO> schoolInstitutionDOS = schoolInstitutionDAO.listSchoolInstitutionDO(name,type, code, isFreeze,
-                pageNum * pageSize, pageSize,orderBy);
+                pageNum * pageSize, pageSize,orderBy,keyword);
         List<SchoolInstitutionDTO> schoolInstitutionDTOS = new ArrayList<>();
         if (schoolInstitutionDOS == null)
             return null;
@@ -538,7 +539,8 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
 
     //查询学校对应的课程和校区
     public SchoolInstitutionDTO putSchoolInfo(SchoolInstitutionDTO schoolInstitutionDTO ,int providerId,String providerCode){
-        List<SchoolCourseDO> listSchoolCourse = schoolCourseDAO.listSchoolCourse(providerId,providerCode,null,null,null, null,null, null);
+        List<SchoolCourseDO> listSchoolCourse = schoolCourseDAO.listSchoolCourse(providerId,providerCode,null,null,
+                null, null,null,null, null);
         if (listSchoolCourse.size() > 0){
             List<SchoolCourseDTO> schoolCourseDTOS = new ArrayList<>();
             for (SchoolCourseDO sc : listSchoolCourse){

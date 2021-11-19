@@ -258,10 +258,10 @@ public class ServiceOrderController extends BaseController {
 			if (schoolId != null && schoolId > 0)
 				serviceOrderDto.setSchoolId(schoolId);
 			serviceOrderDto.setState(ReviewAdviserStateEnum.PENDING.toString());
-			if (ServiceOrderTypeEnum.ZX.toString().equalsIgnoreCase(type) && StringUtil.isNotEmpty(officialId)){
-				if (StringUtil.toInt(officialId) == 0)//没有文案的咨询直接订单完成
-					serviceOrderDto.setState(ReviewAdviserStateEnum.COMPLETE.toString());
-			}
+			//if (ServiceOrderTypeEnum.ZX.toString().equalsIgnoreCase(type) && StringUtil.isNotEmpty(officialId)){
+			//	if (StringUtil.toInt(officialId) == 0)//没有文案的咨询直接订单完成
+			//		serviceOrderDto.setState(ReviewAdviserStateEnum.COMPLETE.toString());
+			//}
 			serviceOrderDto.setSettle(isSettle != null && "true".equalsIgnoreCase(isSettle));
 			serviceOrderDto.setUrgentState(urgentState);
 			serviceOrderDto.setDepositUser(isDepositUser != null && "true".equalsIgnoreCase(isDepositUser));
