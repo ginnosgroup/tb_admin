@@ -27,5 +27,6 @@ public interface SchoolCourseService {
 
     List<String> getCourseLevelList(int providerId);
 
-    List<SchoolCourseDTO> getCourseToSetting(int providerId, String courseLevel, String courseName, String courseCode, int pageNum, int pageSize);
+    List<SchoolCourseDTO> getCourseToSetting(int providerId, String courseLevel, String courseName, String courseCode,
+                                             String keywords, int pageNum, int pageSize);
 }

@@ -148,13 +148,14 @@ public class SchoolCourseController extends BaseController {
                                        @RequestParam(value = "courseLevel", required = false) String courseLevel,
                                        @RequestParam(value = "courseName", required = false) String courseName,
                                        @RequestParam(value = "courseCode", required = false) String courseCode,
+                                       @RequestParam(value = "keyword", required = false) String keywords,
                                        @RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
                                        HttpServletRequest request, HttpServletResponse response){
         super.setGetHeader(response);
         if (providerId <= 0)
             return new Response(1,"providerId error !");
         List<SchoolCourseDTO> schoolCourseDTOS = schoolCourseService.getCourseToSetting(providerId,courseLevel,courseName,courseCode,
-                pageNum,pageSize);
+                keywords,pageNum,pageSize);
         return new Response(0,"success",schoolCourseDTOS);
     }
 

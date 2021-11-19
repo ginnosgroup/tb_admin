@@ -30,6 +30,9 @@
                 AND is_freeze = #{isFreeze}
             </if>
             <!--  AND is_freeze = 0  -->
+            <if test=' keyword != null and keyword != "" '>
+                AND (institution_trading_name LIKE "%"#{keyword}"%" OR institution_name LIKE "%"#{keyword}"%" OR code LIKE "%"#{keyword}"%")
+            </if>
         </where>
         ${orderBy}
         limit #{offset} , #{rows};

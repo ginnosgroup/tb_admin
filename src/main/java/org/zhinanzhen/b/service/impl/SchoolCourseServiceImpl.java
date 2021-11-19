@@ -35,7 +35,7 @@ public class SchoolCourseServiceImpl extends BaseService implements SchoolCourse
         if (pageSize < 0 )
             pageSize = DEFAULT_PAGE_SIZE;
         List<SchoolCourseDO>  schoolCourseDOList = schoolCourseDAO.listSchoolCourse(providerId,providerCode,isFreeze,courseLevel, null,courseCode,
-                pageNum*pageSize, pageSize);
+                null,pageNum*pageSize, pageSize);
         List<SchoolCourseDTO> schoolCourseDTOList = new ArrayList<>();
         if (schoolCourseDOList.size() > 0 )
             schoolCourseDOList.forEach(schoolCourseDO -> {
@@ -90,13 +90,14 @@ public class SchoolCourseServiceImpl extends BaseService implements SchoolCourse
     }
 
     @Override
-    public List<SchoolCourseDTO> getCourseToSetting(int providerId, String courseLevel, String courseName, String courseCode, int pageNum, int pageSize) {
+    public List<SchoolCourseDTO> getCourseToSetting(int providerId, String courseLevel, String courseName, String courseCode,
+                                                    String keywords, int pageNum, int pageSize) {
         if (pageNum < 0 )
             pageNum = DEFAULT_PAGE_NUM;
         if (pageSize < 0 )
             pageSize = DEFAULT_PAGE_SIZE;
         List<SchoolCourseDO> schoolCourseDOlist = schoolCourseDAO.listSchoolCourse(providerId,null,false,courseLevel, courseName,courseCode,
-                pageNum*pageSize, pageSize);
+                keywords,pageNum*pageSize, pageSize);
         List<SchoolCourseDTO> schoolCourseDTOlist = new ArrayList<>();
         schoolCourseDOlist.forEach(schoolCourseDO -> {
             SchoolCourseDTO schoolCourseDTO = mapper.map(schoolCourseDO, SchoolCourseDTO.class);

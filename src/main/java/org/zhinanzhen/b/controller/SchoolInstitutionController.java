@@ -106,13 +106,14 @@ public class SchoolInstitutionController extends BaseController {
                              @RequestParam(value = "isFreeze",required = false) Boolean isFreeze,
                              @RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
                              @RequestParam(value = "orderBy",required = false)String orderBy,
+                             @RequestParam(value = "keyword",required = false)String keyword,
                              HttpServletRequest request,HttpServletResponse response){
         super.setGetHeader(response);
         if ( id != null && id > 0)
             return  new ListResponse(true , pageSize,1,schoolInstitutionService.getSchoolInstitutionById(id),"ok");
         int total =  schoolInstitutionService.count(name,type,code,isFreeze);
         return  new ListResponse(true , pageSize,total,schoolInstitutionService.listSchoolInstitutionDTO(name,type,code, isFreeze,
-                pageNum,pageSize,orderBy),"ok");
+                pageNum,pageSize,orderBy,keyword),"ok");
     }
 
     @RequestMapping(value = "/get",method = RequestMethod.GET)
@@ -134,7 +135,7 @@ public class SchoolInstitutionController extends BaseController {
             return new Response(1,"No permission !");
         if (StringUtil.isNotEmpty(schoolInstitutionDTO.getName())){
             List<SchoolInstitutionDTO> listSchoolInstitutionDTO = schoolInstitutionService.listSchoolInstitutionDTO(schoolInstitutionDTO.getName(),
-                    null,null,null,0,9999,null);
+                    null,null,null,0,9999,null,null);
             for (SchoolInstitutionDTO si : listSchoolInstitutionDTO){
                 if (si.getId() != schoolInstitutionDTO.getId())
                     return new Response(1,"名称重复!");
@@ -157,7 +158,7 @@ public class SchoolInstitutionController extends BaseController {
                 (adminUserLoginInfo.getApList().equalsIgnoreCase("GW") && adminUserLoginInfo.getRegionId() == null))
             return new Response(1,"No permission !");
         List<SchoolInstitutionDTO> listSchoolInstitutionDTO = schoolInstitutionService.listSchoolInstitutionDTO(schoolInstitutionDTO.getName(),
-                null, null,null ,0,9999,null);
+                null, null,null ,0,9999,null,null);
         if (listSchoolInstitutionDTO.size() > 0 )
             return new Response(1,"学校名字已经存在");
         if (schoolInstitutionService.getSchoolInstitutionByCode(schoolInstitutionDTO.getCode()) != null)
