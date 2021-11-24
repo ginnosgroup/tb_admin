@@ -1946,7 +1946,17 @@ public class ServiceOrderController extends BaseController {
 					i++;
 				}
 				if (i == 0 && type.equalsIgnoreCase("OVST")) {
-					sheet.addCell(new Label(1, i, "留学学校", cellFormat));
+					sheet.addCell(new Label(1, i, "Institution Trading Name", cellFormat));
+					sheet.addCell(new Label(2, i, "Institution Name", cellFormat));
+					sheet.addCell(new Label(3, i, "总数", cellFormat));
+					sheet.addCell(new Label(4, i, "Sydney", cellFormat));
+					sheet.addCell(new Label(5, i, "Melbourne", cellFormat));
+					sheet.addCell(new Label(6, i, "Brisbane", cellFormat));
+					sheet.addCell(new Label(7, i, "Adelaide", cellFormat));
+					sheet.addCell(new Label(8, i, "Hobart", cellFormat));
+					sheet.addCell(new Label(9, i, "Canberra", cellFormat));
+					sheet.addCell(new Label(10, i, "攻坚部", cellFormat));
+					sheet.addCell(new Label(11, i, "other", cellFormat));
 					i++;
 				}
 				if (i == 0 && type.equalsIgnoreCase("ZX")) {
@@ -1955,15 +1965,16 @@ public class ServiceOrderController extends BaseController {
 				}
 				sheet.addCell(new Label(0, i, i + "", cellFormat));
 				sheet.addCell(new Label(1, i, eo.getName(), cellFormat));
-				sheet.addCell(new Label(2, i, eo.getTotal() + "", cellFormat));
-				sheet.addCell(new Label(3, i, eo.getSydney() + "", cellFormat));
-				sheet.addCell(new Label(4, i, eo.getMelbourne() + "", cellFormat));
-				sheet.addCell(new Label(5, i, eo.getBrisbane() + "", cellFormat));
-				sheet.addCell(new Label(6, i, eo.getAdelaide() + "", cellFormat));
-				sheet.addCell(new Label(7, i, eo.getHobart() + "", cellFormat));
-				sheet.addCell(new Label(8, i, eo.getCanberra() + "", cellFormat));
-				sheet.addCell(new Label(9, i, eo.getCrucial() + "", cellFormat));
-				sheet.addCell(new Label(10, i, eo.getOther() + "", cellFormat));
+				sheet.addCell(new Label(2, i, eo.getInstitutionName(), cellFormat));
+				sheet.addCell(new Label(3, i, eo.getTotal() + "", cellFormat));
+				sheet.addCell(new Label(4, i, eo.getSydney() + "", cellFormat));
+				sheet.addCell(new Label(5, i, eo.getMelbourne() + "", cellFormat));
+				sheet.addCell(new Label(6, i, eo.getBrisbane() + "", cellFormat));
+				sheet.addCell(new Label(7, i, eo.getAdelaide() + "", cellFormat));
+				sheet.addCell(new Label(8, i, eo.getHobart() + "", cellFormat));
+				sheet.addCell(new Label(9, i, eo.getCanberra() + "", cellFormat));
+				sheet.addCell(new Label(10, i, eo.getCrucial() + "", cellFormat));
+				sheet.addCell(new Label(11, i, eo.getOther() + "", cellFormat));
 				i++;
 			}
 			wbe.write();

@@ -77,4 +77,10 @@ public interface ServiceOrderDAO {
 
 	List<AdviserServiceCountDO> listServiceOrderToAnalysis(@Param("typeList") List<String> typeList, @Param("month")int month ,
 														   @Param("regionIdList") List<String> regionIdList);
+
+	/**
+	 *服务订单按照顾问地区,新学校库专业分组
+	 */
+	List<EachRegionNumberDO> listOvstServiceOrderGroupByForRegion(@Param("startOfficialApprovalDate") String startOfficialApprovalDate,
+															   @Param("endOfficialApprovalDate") String endOfficialApprovalDate);
 }

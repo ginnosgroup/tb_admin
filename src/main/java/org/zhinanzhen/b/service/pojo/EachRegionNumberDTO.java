@@ -13,6 +13,8 @@ public class EachRegionNumberDTO {
 
     private  String name;
 
+    private  String institutionName;
+
     private int total;
 
     private int sydney;

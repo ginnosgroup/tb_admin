@@ -1372,8 +1372,31 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			String endOfficialApprovalDate) {
 		List<EachRegionNumberDO> eachRegionNumberDOS = serviceOrderDao.listServiceOrderGroupByForRegion(type,
 				startOfficialApprovalDate, theDateTo23_59_59(endOfficialApprovalDate));
+		if (type.equalsIgnoreCase("OVST")){//留学匹配新老学校名字
+			List<EachRegionNumberDO> newSchoolEachRegionNumberList = serviceOrderDao.listOvstServiceOrderGroupByForRegion(
+					startOfficialApprovalDate, theDateTo23_59_59(endOfficialApprovalDate));
+			List<EachRegionNumberDO> _list = new ArrayList<>();
+			newSchoolEachRegionNumberList.forEach(numberDo ->{
+				boolean contain = false;
+				for (EachRegionNumberDO eachRegionNumberDO : eachRegionNumberDOS){
+					if (numberDo.getName().equalsIgnoreCase(eachRegionNumberDO.getName()) &&
+							(numberDo.getInstiName().equalsIgnoreCase(eachRegionNumberDO.getCode())
+							|| numberDo.getInstitutionName().equalsIgnoreCase(eachRegionNumberDO.getCode())
+							|| numberDo.getInstitutionTradingName().equalsIgnoreCase(eachRegionNumberDO.getCode()))){
+						eachRegionNumberDO.setCount(eachRegionNumberDO.getCount() + numberDo.getCount() );
+						contain = true;
+						break;
+					}
+				}
+				if (!contain)
+					_list.add(numberDo);
+			});
+			if (_list.size() > 0)
+				eachRegionNumberDOS.addAll(_list);
+		}
 		List<EachRegionNumberDTO> eachRegionNumberDTOS = new ArrayList<>();
-		Set<String> codeSet = new HashSet<>();
+		/*
+		Set<String> codeSet = new HashSet<>();//统计一个学校下的不同专业
 		eachRegionNumberDOS.forEach(eachRegionNumberDO -> {
 			codeSet.add(eachRegionNumberDO.getCode());
 		});
@@ -1410,7 +1433,40 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 					+ eachRegionNumberDTO.getCrucial() + eachRegionNumberDTO.getOther());
 			eachRegionNumberDTO.setName(code);
 			eachRegionNumberDTOS.add(eachRegionNumberDTO);
-		}
+		} */
+		eachRegionNumberDOS.forEach(eachRegionNumberDO -> {
+			EachRegionNumberDTO eachRegionNumberDTO = new EachRegionNumberDTO();
+			if (eachRegionNumberDO.getName().equalsIgnoreCase("sydney")) {
+				eachRegionNumberDTO.setSydney(eachRegionNumberDO.getCount() + eachRegionNumberDTO.getSydney());
+			} else if (eachRegionNumberDO.getName().equalsIgnoreCase("melbourne")) {
+				eachRegionNumberDTO
+						.setMelbourne(eachRegionNumberDO.getCount() + eachRegionNumberDTO.getMelbourne());
+			} else if (eachRegionNumberDO.getName().equalsIgnoreCase("brisbane")) {
+				eachRegionNumberDTO
+						.setBrisbane(eachRegionNumberDO.getCount() + eachRegionNumberDTO.getBrisbane());
+			} else if (eachRegionNumberDO.getName().equalsIgnoreCase("adelaide")) {
+				eachRegionNumberDTO
+						.setAdelaide(eachRegionNumberDO.getCount() + eachRegionNumberDTO.getAdelaide());
+			} else if (eachRegionNumberDO.getName().equalsIgnoreCase("hobart")) {
+				eachRegionNumberDTO.setHobart(eachRegionNumberDO.getCount() + eachRegionNumberDTO.getHobart());
+			} else if (eachRegionNumberDO.getName().equalsIgnoreCase("canberra")) {
+				eachRegionNumberDTO
+						.setCanberra(eachRegionNumberDO.getCount() + eachRegionNumberDTO.getCanberra());
+			} else if (eachRegionNumberDO.getName().equalsIgnoreCase("攻坚部")) {
+				eachRegionNumberDTO
+						.setCrucial(eachRegionNumberDO.getCount() + eachRegionNumberDTO.getCrucial());
+			} else
+				eachRegionNumberDTO.setOther(eachRegionNumberDO.getCount() + eachRegionNumberDTO.getOther());
+			eachRegionNumberDTO.setTotal(eachRegionNumberDTO.getAdelaide() + eachRegionNumberDTO.getSydney()
+					+ eachRegionNumberDTO.getBrisbane() + eachRegionNumberDTO.getCanberra()
+					+ eachRegionNumberDTO.getHobart() + eachRegionNumberDTO.getMelbourne()
+					+ eachRegionNumberDTO.getCrucial() + eachRegionNumberDTO.getOther());
+			eachRegionNumberDTO.setName(StringUtil.isNotEmpty(eachRegionNumberDO.getCode()) ? eachRegionNumberDO.getCode()
+					: eachRegionNumberDO.getInstitutionTradingName());
+			eachRegionNumberDTO.setInstitutionName(eachRegionNumberDO.getInstitutionName());
+			eachRegionNumberDTOS.add(eachRegionNumberDTO);
+		});
+
 		Collections.sort(eachRegionNumberDTOS, new Comparator<EachRegionNumberDTO>() {
 			@Override
 			public int compare(EachRegionNumberDTO o1, EachRegionNumberDTO o2) {
