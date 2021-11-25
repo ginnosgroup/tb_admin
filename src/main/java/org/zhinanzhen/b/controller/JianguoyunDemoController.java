@@ -28,7 +28,7 @@ public class JianguoyunDemoController extends BaseController {
 	public Response<String> uploadImage(@RequestParam MultipartFile file, HttpServletRequest request,
 			HttpServletResponse response) throws IllegalStateException, IOException {
 		super.setPostHeader(response);
-		return super.upload2(file, request.getSession(), "/uploads/jianguoyun_webdev/userfiles/");
+		return super.upload2(file, request.getSession(), "/jianguoyun_webdev/userfiles/");
 	}
 
 }
