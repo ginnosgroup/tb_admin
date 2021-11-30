@@ -34,13 +34,14 @@ public class DataDTO {
         this.serviceFee = serviceFee;
     }
 
-    public DataDTO(String date, String area, double serviceFee,double deductionCommission, double claimCommission, double claimedCommission) {
+    public DataDTO(String date, int regionId, String area, double serviceFee,double deductionCommission, double claimCommission, double claimedCommission) {
         this.date = date;
         this.area = area;
         this.deductionCommission = deductionCommission;
         this.claimCommission = claimCommission;
         this.claimedCommission = claimedCommission;
         this.serviceFee = serviceFee;
+        this.regionId = regionId;
     }
 
     public DataDTO() {

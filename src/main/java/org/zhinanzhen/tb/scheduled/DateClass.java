@@ -92,5 +92,21 @@ public class DateClass {
         return sdf.format(instance.getTime());
     }
 
+    public static String lastLastSaturday() {
+        // 上上周六
+        Calendar instance = Calendar.getInstance();
+        instance.set(Calendar.DAY_OF_WEEK,7);
+        instance.add(Calendar.DAY_OF_MONTH, -14);
+        System.out.println(sdf.format(instance.getTime()));
+        return sdf.format(instance.getTime());
+    }
 
+    public static String lastFriday() {
+        // 上周五
+        Calendar instance = Calendar.getInstance();
+        instance.set(Calendar.DAY_OF_WEEK,6);
+        instance.add(Calendar.DAY_OF_MONTH, -7);
+        System.out.println(sdf.format(instance.getTime()));
+        return sdf.format(instance.getTime());
+    }
 }
