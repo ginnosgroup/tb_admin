@@ -83,6 +83,7 @@ public class Data extends BaseService {
                 double deductionCommission = 0;
                 double claimCommission = 0;
                 double claimedCommission = 0;
+                int regionId = 0;
                 for( int index = 0 ;index < dataDTOList.size(); index++){
                     if(dataDTOList.get(index).getArea().equals(area)){
                         serviceFee = serviceFee +dataDTOList.get(index).getServiceFee();
@@ -90,9 +91,10 @@ public class Data extends BaseService {
                         claimCommission = claimCommission +dataDTOList.get(index).getClaimCommission();
                         claimedCommission = claimedCommission +dataDTOList.get(index).getClaimedCommission();
                         date = dataDTOList.get(index).getDate();
+                        regionId = dataDTOList.get(index).getRegionId();
                     }
                 }
-                areaDataList.add(new DataDTO(date, (String) area,serviceFee,deductionCommission,claimCommission,claimedCommission));
+                areaDataList.add(new DataDTO(date,regionId, (String) area,serviceFee,deductionCommission,claimCommission,claimedCommission));
             });
 
             //计算dataDTOList每一行的total值
