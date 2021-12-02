@@ -175,7 +175,7 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			commissionOrderListDoList = commissionOrderDao.listCommissionOrder(id, regionIdList, maraId, adviserId,
 					officialId, userId, name, phone, wechatUsername, schoolId, isSettle, stateList,
 					commissionStateList,
-					startKjApprovalDate, theDateTo23_59_59(endKjApprovalDate),startDate,endDate, startInvoiceCreate, theDateTo23_59_59(endInvoiceCreate),
+					theDateTo00_00_00(startKjApprovalDate), theDateTo23_59_59(endKjApprovalDate),startDate,endDate, startInvoiceCreate, theDateTo23_59_59(endInvoiceCreate),
 					isYzyAndYjy, applyState,pageNum * pageSize, pageSize, orderBy);
 			if (commissionOrderListDoList == null)
 				return null;
