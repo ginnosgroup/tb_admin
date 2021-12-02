@@ -54,6 +54,10 @@ public abstract class BaseService {
 		return StringUtil.isNotEmpty(date) ? date.split(" ")[0] + " 23:59:59" : date;
 	}
 
+	protected String theDateTo00_00_00(String date) {
+		return StringUtil.isNotEmpty(date) ? date.split(" ")[0] + " 00:00:00" : date;
+	}
+
 	protected void sendMail(String mail, String title, String content) {
 		if (StringUtil.isEmpty(mail) || StringUtil.isEmpty(title)) {
 			LOG.error("参数错误!");
