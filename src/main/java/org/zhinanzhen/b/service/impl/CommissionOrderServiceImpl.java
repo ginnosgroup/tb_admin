@@ -143,7 +143,7 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
                                     String endKjApprovalDate,  String startDate,String endDate,String startInvoiceCreate, String endInvoiceCreate,
 									Boolean isYzyAndYjy, String applyState) throws ServiceException {
 		return commissionOrderDao.countCommissionOrder(id, regionIdList, maraId, adviserId, officialId, userId, name,
-				phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList, startKjApprovalDate,
+				phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList, theDateTo00_00_00(startKjApprovalDate),
 				theDateTo23_59_59(endKjApprovalDate),startDate,endDate,startInvoiceCreate, theDateTo23_59_59(endInvoiceCreate), isYzyAndYjy, applyState);
 	}
 
