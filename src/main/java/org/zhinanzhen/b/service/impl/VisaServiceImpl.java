@@ -140,7 +140,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
                          String endKjApprovalDate, String startDate, String endDate, String startInvoiceCreate, String endInvoiceCreate, List<Integer> regionIdList, Integer adviserId,
                          Integer userId, String state) throws ServiceException {
 		return visaDao.countVisa(id, keyword, startHandlingDate, theDateTo23_59_59(endHandlingDate), stateList,
-				commissionStateList, startKjApprovalDate, theDateTo23_59_59(endKjApprovalDate), startDate,
+				commissionStateList, theDateTo00_00_00(startKjApprovalDate), theDateTo23_59_59(endKjApprovalDate), startDate,
 				theDateTo23_59_59(endDate), startInvoiceCreate,theDateTo23_59_59(endInvoiceCreate),regionIdList, adviserId, userId, state);
 	}
 
@@ -168,7 +168,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 		List<VisaListDO> visaListDoList = new ArrayList<>();
 		try {
 			visaListDoList = visaDao.listVisa(id, keyword, startHandlingDate, theDateTo23_59_59(endHandlingDate),
-					stateList, commissionStateList, startKjApprovalDate, theDateTo23_59_59(endKjApprovalDate),
+					stateList, commissionStateList, theDateTo00_00_00(startKjApprovalDate), theDateTo23_59_59(endKjApprovalDate),
 					startDate, theDateTo23_59_59(endDate), startInvoiceCreate,theDateTo23_59_59(endInvoiceCreate),
 					regionIdList, adviserId, userId, userName,state, pageNum * pageSize,
 					pageSize, orderBy);
