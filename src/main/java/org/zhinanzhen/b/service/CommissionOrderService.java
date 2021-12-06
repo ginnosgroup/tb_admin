@@ -53,4 +53,6 @@ public interface CommissionOrderService {
 	CommissionOrderTempDTO getCommissionOrderTempByServiceOrderId(int id) throws ServiceException;
 
 	int updateCommissionOrderTemp(CommissionOrderTempDTO tempDTO) throws ServiceException;
+
+	CommissionOrderTempDTO getCommissionOrderTempById(int id) throws ServiceException;
 }

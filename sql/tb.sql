@@ -623,6 +623,7 @@ CREATE TABLE `b_commission_order_temp` (
   `payment_voucher_image_url_3` varchar(128) DEFAULT NULL COMMENT '支付凭证图片地址3',
   `payment_voucher_image_url_4` varchar(128) DEFAULT NULL COMMENT '支付凭证图片地址4',
   `payment_voucher_image_url_5` varchar(128) DEFAULT NULL COMMENT '支付凭证图片地址5',
+  `invoice_number` varchar(64) DEFAULT NULL COMMENT 'InvoiceNo.暂存发票号,创建佣金订单之后发票号绑定到第一笔留学佣金',
   PRIMARY KEY (`id`),
   KEY `index` (`service_order_id`,`verify_code`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;

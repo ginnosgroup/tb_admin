@@ -501,4 +501,13 @@
         </if>
         WHERE  invoice_no = #{invoiceNo};
     </update>
+
+    <update id="updateScDescCommissionOrderByInvoiceNo">
+        UPDATE b_invoice_school_description
+        SET gmt_modify = NOW()
+        <if test="commissionOrderId != null and commissionOrderId > 0">
+            , commission_order_id = #{commissionOrderId}
+        </if>
+        WHERE invoice_no = #{invoiceNo} AND id = 1;
+    </update>
 </mapper>

@@ -43,5 +43,5 @@ public interface SchoolService {
 
 	void refreshSchoolSetting() throws ServiceException;
 
-	String getByCommissionOrderId(int id);
+	String getByCommissionOrderId(Integer id, Integer serviceOrderId);
 }
