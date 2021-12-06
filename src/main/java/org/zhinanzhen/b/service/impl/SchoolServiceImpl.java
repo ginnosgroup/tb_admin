@@ -51,6 +51,9 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	@Resource
 	private SchoolSettingNewDAO schoolSettingNewDAO;
 
+	@Resource
+	private ServiceOrderDAO serviceOrderDAO;
+
 	@Override
 	@Transactional(rollbackFor = ServiceException.class)
 	public int addSchool(SchoolDTO schoolDto) throws ServiceException {
@@ -450,44 +453,59 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	}
 
 	@Override
-	public String getByCommissionOrderId(int id) {
-		CommissionOrderListDO commissionOrderListDO = commissionOrderDao.getCommissionOrderById(id);
-		if (commissionOrderListDO != null){
-			if (commissionOrderListDO.getSchoolId() > 0){
-				SchoolSettingDO schoolSettingDO = schoolSettingDao.getBySchoolId(commissionOrderListDO.getSchoolId());
-				if (schoolSettingDO != null){
-					int type = schoolSettingDO.getType();
-					String parameters = schoolSettingDO.getParameters();
-					if (type == 1 || type == 2){
+	public String getByCommissionOrderId(Integer id, Integer serviceOrderId) {
+		CommissionOrderListDO commissionOrderListDO;
+		ServiceOrderDO serviceOrderDO;
+		int schoolId = 0, courseId = 0;
+		if (id != null && id > 0) {
+			commissionOrderListDO = commissionOrderDao.getCommissionOrderById(id);
+			if (commissionOrderListDO != null) {
+				schoolId = commissionOrderListDO.getSchoolId();
+				courseId = commissionOrderListDO.getCourseId();
+			}
+		} else if (serviceOrderId != null && serviceOrderId > 0) {
+			serviceOrderDO = serviceOrderDAO.getServiceOrderById(serviceOrderId);
+			if (serviceOrderDO != null) {
+				schoolId = serviceOrderDO.getSchoolId();
+				courseId = serviceOrderDO.getCourseId();
+			}
+
+		}
+
+		if (schoolId > 0) {
+			SchoolSettingDO schoolSettingDO = schoolSettingDao.getBySchoolId(schoolId);
+			if (schoolSettingDO != null) {
+				int type = schoolSettingDO.getType();
+				String parameters = schoolSettingDO.getParameters();
+				if (type == 1 || type == 2) {
+					String[] _parameters = parameters.split("[|]");
+					return "0." + _parameters[0];
+				}
+				if (type == 4) {
+					String[] _parameters = parameters.split("[|]");
+					return "0." + _parameters[1].split("/")[0];
+				}
+				if (type == 7) {
+					return parameters;
+				}
+			}
+		} else if (courseId > 0) {
+			SchoolCourseDO schoolCourseDO = schoolCourseDAO.schoolCourseById(courseId);
+			if (schoolCourseDO != null) {
+				SchoolSettingNewDO schoolSettingNewDO = returnSetting(schoolCourseDO);
+				if (schoolSettingNewDO != null) {
+					int type = schoolSettingNewDO.getType();
+					String parameters = schoolSettingNewDO.getParameters();
+					if (type == 1 || type == 2) {
 						String[] _parameters = parameters.split("[|]");
 						return "0." + _parameters[0];
 					}
-					if (type == 4){
+					if (type == 4) {
 						String[] _parameters = parameters.split("[|]");
-						return "0." + _parameters[1].split("/")[0] ;
+						return "0." + _parameters[1].split("/")[0];
 					}
-					if (type == 7){
-						return parameters ;
-					}
-				}
-			}else if (commissionOrderListDO.getCourseId() > 0){
-				SchoolCourseDO schoolCourseDO = schoolCourseDAO.schoolCourseById(commissionOrderListDO.getCourseId());
-				if (schoolCourseDO != null){
-					SchoolSettingNewDO schoolSettingNewDO = returnSetting(schoolCourseDO);
-					if (schoolSettingNewDO != null){
-						int type = schoolSettingNewDO.getType();
-						String parameters = schoolSettingNewDO.getParameters();
-						if (type == 1 || type == 2){
-							String[] _parameters = parameters.split("[|]");
-							return "0." + _parameters[0];
-						}
-						if (type == 4){
-							String[] _parameters = parameters.split("[|]");
-							return "0." + _parameters[1].split("/")[0] ;
-						}
-						if (type == 7){
-							return parameters ;
-						}
+					if (type == 7) {
+						return parameters;
 					}
 				}
 			}

@@ -11,13 +11,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.controller.BaseCommissionOrderController;
 import org.zhinanzhen.b.dao.CommissionOrderDAO;
+import org.zhinanzhen.b.dao.CommissionOrderTempDAO;
 import org.zhinanzhen.b.dao.InvoiceDAO;
+import org.zhinanzhen.b.dao.ServiceOrderDAO;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.InvoiceService;
-import org.zhinanzhen.b.service.pojo.InvoiceCompanyDTO;
-import org.zhinanzhen.b.service.pojo.InvoiceDTO;
-import org.zhinanzhen.b.service.pojo.InvoiceSchoolDTO;
-import org.zhinanzhen.b.service.pojo.InvoiceServiceFeeDTO;
+import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
@@ -43,6 +42,12 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
 
     @Resource
     CommissionOrderDAO commissionOrderDAO;
+
+    @Resource
+    CommissionOrderTempDAO commissionOrderTempDAO;
+
+    @Resource
+    ServiceOrderDAO serviceOrderDAO;
 
     private static  SimpleDateFormat sdfdob = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
     private static  SimpleDateFormat sdfolddob = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
@@ -510,8 +515,27 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
                     }
                 map.put("type","SC");
             }
+
+            //提前扣拥留学  发票地址写入服务订单上
+            CommissionOrderTempDO comtemp = commissionOrderTempDAO.getCommissionOrderTempByInvoiceNumber(invoiceNo);
+            if (comtemp != null) {
+                ServiceOrderDO serviceOrder = serviceOrderDAO.getServiceOrderById(comtemp.getServiceOrderId());
+                if (StringUtil.isNotEmpty(result) && serviceOrder != null) {
+                    if (StringUtil.isEmpty(serviceOrder.getInvoiceVoucherImageUrl1()) || serviceOrder.getInvoiceVoucherImageUrl1().contains(invoiceNo))
+                        serviceOrder.setInvoiceVoucherImageUrl1(result);
+                    else if (StringUtil.isEmpty(serviceOrder.getInvoiceVoucherImageUrl2()) || serviceOrder.getInvoiceVoucherImageUrl2().contains(invoiceNo))
+                        serviceOrder.setInvoiceVoucherImageUrl2(result);
+                    else if (StringUtil.isEmpty(serviceOrder.getInvoiceVoucherImageUrl3()) || serviceOrder.getInvoiceVoucherImageUrl3().contains(invoiceNo))
+                        serviceOrder.setInvoiceVoucherImageUrl3(result);
+                    else if (StringUtil.isEmpty(serviceOrder.getInvoiceVoucherImageUrl4()) || serviceOrder.getInvoiceVoucherImageUrl4().contains(invoiceNo))
+                        serviceOrder.setInvoiceVoucherImageUrl4(result);
+                    else if (StringUtil.isEmpty(serviceOrder.getInvoiceVoucherImageUrl5()) || serviceOrder.getInvoiceVoucherImageUrl5().contains(invoiceNo))
+                        serviceOrder.setInvoiceVoucherImageUrl5(result);
+                    serviceOrderDAO.updateServiceOrder(serviceOrder);
+                }
+            }
             if (invoiceDAO.updatePdfUrl(map))
-                return new Response(0, "/statics/" + result);
+                return new Response(0, result);
         }
         return new Response(0, result);
     }
@@ -566,9 +590,10 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
             }
         }
         if (isContainsCommissionOrder){
-            invoiceDAO.removeInvoiceNumberInCommissionOrder(invoiceNo);
-
+            invoiceDAO.removeInvoiceNumberInCommissionOrder(invoiceNo);//解绑佣金订单上的发票号
+            //写入发票上的order_id字段
             int resulti =  invoiceDAO.insertCommissionOrderIdInInvoice(StringUtils.join(idList, ",") , invoiceNo);
+            //发票号写入佣金订单
             int resultc = invoiceDAO.relationCommissionOrder(idList , invoiceNo);
 
             List<String> stateList = new ArrayList<>();

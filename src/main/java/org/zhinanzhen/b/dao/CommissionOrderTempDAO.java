@@ -20,4 +20,8 @@ public interface CommissionOrderTempDAO {
     List<CommissionOrderTempDO> getCommissionOrderTempByVerifyCode(String verifyCode);
 
     int update(CommissionOrderTempDO commissionOrderTempDO);
+
+    CommissionOrderTempDO getCommissionOrderTempById(int id);
+
+    CommissionOrderTempDO getCommissionOrderTempByInvoiceNumber(String invoiceNumber);
 }

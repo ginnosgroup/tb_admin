@@ -583,9 +583,10 @@ public class SchoolController extends BaseController {
 
 	@RequestMapping(value = "/getRateByCommissionOrderId", method = RequestMethod.GET)
 	@ResponseBody
-	public Response getByCommissionOrderId(@RequestParam(value = "id") int id){
+	public Response getByCommissionOrderId(@RequestParam(value = "id", required = false) Integer id,
+										   @RequestParam(value = "serviceOrderId", required =  false) Integer serviceOrderId){
 		try {
-			return  new Response(0,"success",schoolService.getByCommissionOrderId(id));
+			return  new Response(0,"success",schoolService.getByCommissionOrderId(id, serviceOrderId));
 		}catch (Exception e){
 			return new Response<Integer>(1, e.getMessage(), 0);
 		}

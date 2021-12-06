@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.controller.BaseCommissionOrderController.ReviewKjStateEnum;
@@ -79,6 +80,9 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 	@Resource
 	private SchoolInstitutionLocationDAO schoolInstitutionLocationDAO;
 
+	@Resource
+	private InvoiceDAO invoiceDAO;
+
 	@Override
 	@Transactional(rollbackFor = ServiceException.class)
 	public int addCommissionOrder(CommissionOrderDTO commissionOrderDto) throws ServiceException {
@@ -123,9 +127,15 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			}
 			if (commissionOrderDao.addCommissionOrder(commissionOrderDo) > 0) {
 				commissionOrderDto.setId(commissionOrderDo.getId());
+				String invoiceNumber = commissionOrderDo.getInvoiceNumber();
 //				ServiceOrderReviewDO serviceOrderReviewDo = serviceOrderReviews.get(0);
 //				serviceOrderReviewDo.setCommissionOrderId(commissionOrderDo.getId());
 //				serviceOrderReviewDao.addServiceOrderReview(serviceOrderReviewDo);
+				if (commissionOrderDo.isSettle() && StringUtil.isNotEmpty(invoiceNumber)
+						&& commissionOrderDo.getInstallmentNum() == 1){// 提前扣拥的第一笔单子可能需要绑定一下发票
+					invoiceDAO.insertCommissionOrderIdInInvoice(String.valueOf(commissionOrderDo.getId()), invoiceNumber);
+					invoiceDAO.updateScDescCommissionOrderByInvoiceNo(invoiceNumber,commissionOrderDo.getId());
+				}
 				return commissionOrderDo.getId();
 			} else
 				return 0;
@@ -678,6 +688,31 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 
 			CommissionOrderTempDO commissionOrderTempDO = mapper.map(tempDTO,CommissionOrderTempDO.class);
 			return commissionOrderTempDao.update(commissionOrderTempDO);
+		}catch (Exception e){
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
+	public CommissionOrderTempDTO getCommissionOrderTempById(int id) throws ServiceException {
+		if (id <= 0) {
+			ServiceException se = new ServiceException("id is error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			CommissionOrderTempDO commissionOrderTempDO = commissionOrderTempDao.getCommissionOrderTempById(id);
+			if (commissionOrderTempDO == null)
+				return null;
+			CommissionOrderTempDTO commissionOrderTempDTO = mapper.map(commissionOrderTempDO,CommissionOrderTempDTO.class);
+
+			ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(commissionOrderTempDO.getReceiveTypeId());
+			if (receiveTypeDo != null)
+				commissionOrderTempDTO.setReceiveType(mapper.map(receiveTypeDo, ReceiveTypeDTO.class));
+
+			return commissionOrderTempDTO;
 		}catch (Exception e){
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());

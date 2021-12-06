@@ -261,6 +261,13 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					if (StringUtil.isNotEmpty(verifyCode))
 						commissionOrderDto.setVerifyCode(verifyCode.replace("$", "").replace("#", "").replace(" ", ""));
 					commissionOrderDto.setKjApprovalDate(new Date());
+					//  提前扣拥会将创建的invoice发票凭证的invoiceNo暂存到佣金临时表中，创建佣金的时候写入第一笔单子
+					if (isSettle){
+						CommissionOrderTempDTO comTemp = commissionOrderService.getCommissionOrderTempByServiceOrderId(serviceOrderId);
+						if (comTemp != null){
+							commissionOrderDto.setInvoiceNumber(comTemp.getInvoiceNumber());
+						}
+					}
 				} else {
 					if (installmentNum == 2 && installmentDueDate2 != null) {
 						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate2)));
@@ -295,6 +302,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					commissionOrderDto.setPaymentVoucherImageUrl3(null);
 					commissionOrderDto.setPaymentVoucherImageUrl4(null);
 					commissionOrderDto.setPaymentVoucherImageUrl5(null);
+					commissionOrderDto.setInvoiceNumber(null);
 				}
 				int id = commissionOrderService.addCommissionOrder(commissionOrderDto);
 				if (id > 0) {
@@ -303,6 +311,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					serviceOrderService.updateServiceOrder(serviceOrderDto); // 同时更改服务订单状态
 					commissionOrderDtoList.add(commissionOrderDto);
 					CommissionOrderListDTO commissionOrderListDto = commissionOrderService.getCommissionOrderById(id);
+					if (isSettle){
+
+					}
 					int i = 0;
 					if (commissionOrderListDto.getSchoolId() > 0)
 						i = schoolService.updateSchoolSetting(commissionOrderListDto); // 根据学校设置更新佣金值

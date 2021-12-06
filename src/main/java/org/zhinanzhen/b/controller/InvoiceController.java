@@ -8,15 +8,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.*;
 import org.zhinanzhen.b.dao.pojo.*;
+import org.zhinanzhen.b.service.CommissionOrderService;
 import org.zhinanzhen.b.service.InvoiceService;
-import org.zhinanzhen.b.service.pojo.InvoiceCompanyDTO;
-import org.zhinanzhen.b.service.pojo.InvoiceCompanyIdNameDTO;
-import org.zhinanzhen.b.service.pojo.InvoiceDTO;
+import org.zhinanzhen.b.service.ServiceOrderService;
+import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
-
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -41,6 +40,12 @@ public class InvoiceController  extends BaseController {
 
     @Resource
     private InvoiceService invoiceService;
+
+    @Resource
+    CommissionOrderService commissionOrderService;
+
+    @Resource
+    ServiceOrderService serviceOrderService;
 
     private SimpleDateFormat sdfNo = new SimpleDateFormat("yyyyMM");
 
@@ -353,6 +358,7 @@ public class InvoiceController  extends BaseController {
             String invoiceNo = (String) paramMap.get("invoiceNo");
             String flag = (String) paramMap.get("flag");
             String invoiceDate = (String) paramMap.get("invoiceDate");
+            String commissionOrderTempId = (String) paramMap.get("commissionOrderTempId");
 
             String arr1 = str.substring(0, str.indexOf('#'));
             String arr2 = str.substring(str.indexOf('#') + 1);
@@ -395,10 +401,15 @@ public class InvoiceController  extends BaseController {
                         resultrela = invoiceService.relationCommissionOrder(arr1.split(","), invoiceNo ,invoiceDate);
                         invoiceService.relationCommissionOrder(arr2.split(","), newInvoiceNo,invoiceDate);
                     }
-
-
+                    if (StringUtil.isNotEmpty(commissionOrderTempId)){//提前扣拥会在没创建佣金订单的时候创建发票，先把invoiceNo写在临时表上
+                        CommissionOrderTempDTO comtemp = commissionOrderService.getCommissionOrderTempById(StringUtil.toInt(commissionOrderTempId));
+                        if (comtemp != null)
+                            comtemp.setInvoiceNumber(invoiceNo);
+                        commissionOrderService.updateCommissionOrderTemp(comtemp);
+                    }
                     if (result > 0) {
-                        return new Response(0, "success", newInvoiceNo);
+                        return new Response(0, "success",
+                                invoiceNo + (StringUtil.isEmpty(newInvoiceNo) ? "" : "," + newInvoiceNo));
                     }
                 }
             }
@@ -423,15 +434,14 @@ public class InvoiceController  extends BaseController {
             @RequestParam(value = "invoiceNo", required = true) String invoiceNo,
             @RequestParam(value = "invoiceIds", required = true) String invoiceIds,
             @RequestParam(value = "marketing", required = false) String marketing,
-            HttpServletRequest req, HttpServletResponse resp
-    ) throws FileNotFoundException {
+            HttpServletRequest req, HttpServletResponse resp) throws FileNotFoundException, ServiceException {
 
+        super.setGetHeader(resp);
         String fileName = ResourceUtils.getURL("classpath:").getPath();
         Response response = invoiceService.pdfPrint(invoiceNo, invoiceIds, fileName, false);
-
+        if (StringUtil.isNotEmpty(response.getMessage()))
+            response.setMessage("/statics" + response.getMessage());
         return response;
-
-
     }
 
     //更改invoice

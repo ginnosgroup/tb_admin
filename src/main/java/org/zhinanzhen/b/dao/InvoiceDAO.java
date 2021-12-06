@@ -112,4 +112,11 @@ public interface InvoiceDAO {
 
     boolean updatePdfUrl(Map map);
 
+    /**
+     * 提前扣拥将第一期的单子的佣金id写入发票Desc的第一行
+     * @param invoiceNumber
+     * @param commissionOrderId
+     * @return
+     */
+    int updateScDescCommissionOrderByInvoiceNo(@Param("invoiceNumber") String invoiceNumber, @Param("commissionOrderId") int commissionOrderId);
 }

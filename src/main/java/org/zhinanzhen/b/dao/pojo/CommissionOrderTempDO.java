@@ -83,4 +83,6 @@ public class CommissionOrderTempDO {
 
     private String remarks;
 
+    private String invoiceNumber;
+
 }
