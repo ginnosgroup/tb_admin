@@ -1780,8 +1780,43 @@ public class ServiceOrderController extends BaseController {
 				if (so.getSchool() != null) {
 					sheet.addCell(new Label(11, i, " 留学 ", cellFormat));
 					sheet.addCell(new Label(12, i, so.getSchool().getName(), cellFormat));
+				}else if (so.getSchoolInstitutionListDTO() != null){
+					sheet.addCell(new Label(11, i, " 留学 ", cellFormat));
+					sheet.addCell(new Label(12, i, so.getSchoolInstitutionListDTO().getName() +
+							"-" + so.getSchoolInstitutionListDTO().getSchoolCourseDO().getCourseName(), cellFormat));
+				}
+				if ("ZX".equalsIgnoreCase(so.getType())){
+					sheet.addCell(new Label(11, i, " 咨询 ", cellFormat));
+					sheet.addCell(new Label(12, i, so.getService().getCode(), cellFormat));
 				}
 
+				if (so.getState().equalsIgnoreCase("PENDING"))
+					sheet.addCell(new Label(13, i, "待提交审核", cellFormat));
+				else if (so.getState().equalsIgnoreCase("REVIEW"))
+					sheet.addCell(new Label(13, i, "资料待审核", cellFormat));
+				else if (so.getState().equalsIgnoreCase("OREVIEW"))
+					sheet.addCell(new Label(13, i, "资料审核中", cellFormat));
+				else if (so.getState().equalsIgnoreCase("FINISH"))
+					sheet.addCell(new Label(13, i, "资料已审核", cellFormat));
+				else if (so.getState().equalsIgnoreCase("APPLY"))
+					sheet.addCell(new Label(13, i, "服务申请中", cellFormat));
+				else if (so.getState().equalsIgnoreCase("APPLY_FAILED"))
+					sheet.addCell(new Label(13, i, "申请失败", cellFormat));
+				else if (so.getState().equalsIgnoreCase("COMPLETE")){
+					sheet.addCell(new Label(13, i, "申请成功", cellFormat));
+					if (so.getType().equalsIgnoreCase("ZX"))
+						sheet.addCell(new Label(13, i, "订单完成", cellFormat));
+					if (so.getType().equalsIgnoreCase("OVST") && so.isSettle())
+						sheet.addCell(new Label(13, i, "等待财务转账", cellFormat));
+				}
+				else if (so.getState().equalsIgnoreCase("RECEIVED"))
+					sheet.addCell(new Label(13, i, "已收款凭证已提交", cellFormat));
+				else if (so.getState().equalsIgnoreCase("COMPLETE_FD"))
+					sheet.addCell(new Label(13, i, "财务转账完成", cellFormat));
+				else if (so.getState().equalsIgnoreCase("PAID"))
+					sheet.addCell(new Label(13, i, "COE已下", cellFormat));
+				/*
+				//旧系统状态废除
 				if (so.getReview() != null) {
 					if (so.getState().equalsIgnoreCase("PENDING"))
 						sheet.addCell(new Label(13, i, "待提交审核", cellFormat));
@@ -1830,6 +1865,7 @@ public class ServiceOrderController extends BaseController {
 					}
 
 				}
+				 */
 				sheet.addCell(new Label(14, i, so.getRealPeopleNumber() + "", cellFormat));
 				sheet.addCell(new Label(15, i, so.getRemarks(), cellFormat));
 				i++;
