@@ -77,7 +77,8 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
             SchoolInstitutionDTO schoolInstitutionDTO = mapper.map(si,SchoolInstitutionDTO.class);
             //schoolInstitutionDTO = putSchoolInfo(schoolInstitutionDTO,si.getId(),null);//学校课程和校区
 
-            putAttachmentsSettingInfo(schoolInstitutionDTO);//添加合同，历史setting，setting
+            //先把这里注释掉，list速度比较慢
+            //putAttachmentsSettingInfo(schoolInstitutionDTO);//添加合同，历史setting，setting
 
             schoolInstitutionDTOS.add(schoolInstitutionDTO);
         }

@@ -2,6 +2,7 @@ package org.zhinanzhen.b.dao.pojo;
 
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -11,7 +12,7 @@ import java.util.Date;
  * Version: V1.0
  */
 @Data
-public class SchoolInstitutionDO {
+public class SchoolInstitutionDO implements Serializable {
 
     private int id;
 
