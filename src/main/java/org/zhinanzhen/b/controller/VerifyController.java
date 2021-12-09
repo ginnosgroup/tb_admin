@@ -340,7 +340,10 @@ public class VerifyController {
             financeCodeDO.setAdviserId(commissionOrderListDTO.getAdviserId());
             financeCodeDO.setUserId(commissionOrderListDTO.getUserId());
             financeCodeDO.setAmount(commissionOrderListDTO.getAmount());
-            financeCodeDO.setBusiness("留学-"+commissionOrderListDTO.getSchool().getName());
+            if (commissionOrderListDTO.getSchool() != null)
+                financeCodeDO.setBusiness("留学-"+commissionOrderListDTO.getSchool().getName());
+            else if (commissionOrderListDTO.getSchoolInstitutionListDTO() != null)
+                financeCodeDO.setBusiness("留学-"+commissionOrderListDTO.getSchoolInstitutionListDTO().getInstitutionName());
             commissionOrderListDTO.setBankDate(financeCodeDO.getBankDate());
             if (financeCodeDO.getMoney() == commissionOrderListDTO.getAmount())
                 commissionOrderListDTO.setChecked(true);
