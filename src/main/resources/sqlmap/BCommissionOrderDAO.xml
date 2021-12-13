@@ -54,8 +54,7 @@
                 remarks,
                 refuse_reason,
                 is_close,
-                verify_code,
-                invoice_number)
+                verify_code)
             VALUES (
                 now(),
                 now(),
@@ -84,7 +83,7 @@
                 #{paymentVoucherImageUrl5},
                 NULL,
                 NULL,
-                NULL,
+                #{invoiceNumber},
                 #{startDate,jdbcType=TIMESTAMP},
                 #{endDate,jdbcType=TIMESTAMP},
                 #{commission},
@@ -105,8 +104,7 @@
                 #{remarks},
                 #{refuseReason},
                 0,
-                #{verifyCode},
-                #{invoiceNumber});
+                #{verifyCode});
     </insert>
     
     <update id="updateCommissionOrder" parameterType="org.zhinanzhen.b.dao.pojo.CommissionOrderDO">
