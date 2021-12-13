@@ -48,27 +48,27 @@ public class MailRemindServiceImpl extends BaseService implements MailRemindServ
     public List<MailRemindDTO> list(Integer adviserId, Integer offcialId, Integer kjId,Integer serviceOrderId,
                                     Integer visaId, Integer commissionOrderId,  Integer userId, boolean isToday, boolean isAll) throws ServiceException {
 
-        List<MailRemindDTO> MailRemindDTOList = new ArrayList<>();
-        List<MailRemindDO> MailRemindDOList = null;
+        List<MailRemindDTO> mailRemindDTOList = new ArrayList<>();
+        List<MailRemindDO> mailRemindDOList = null;
         try {
-            MailRemindDOList = mailRemindDAO.list(adviserId,offcialId,kjId,serviceOrderId,visaId,commissionOrderId, userId,isToday,isAll);
-            if (MailRemindDOList == null)
+            mailRemindDOList = mailRemindDAO.list(adviserId,offcialId,kjId,serviceOrderId,visaId,commissionOrderId, userId,isToday,isAll);
+            if (mailRemindDOList == null)
                 return null;
         }catch (Exception e){
             ServiceException se = new ServiceException(e);
             se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
             throw se;
         }
-        for (MailRemindDO mailRemindDO: MailRemindDOList){
+        for (MailRemindDO mailRemindDO: mailRemindDOList){
             MailRemindDTO mailRemindDTO = mapper.map(mailRemindDO,MailRemindDTO.class);
             Integer _userId = mailRemindDO.getUserId();
             if (_userId != null && _userId > 0){
                 UserDO userDO =  userDAO.getUserById(_userId);
                 mailRemindDTO.setUserName(userDO != null ? userDO.getName(): null);
             }
-            MailRemindDTOList.add(mailRemindDTO);
+            mailRemindDTOList.add(mailRemindDTO);
         }
-        return MailRemindDTOList;
+        return mailRemindDTOList;
     }
 
     @Override
