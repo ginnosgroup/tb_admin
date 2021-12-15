@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.OrderRefundDAO;
 import org.zhinanzhen.b.dao.pojo.OrderRefundDO;
 import org.zhinanzhen.b.service.OrderRefundService;
@@ -14,6 +15,7 @@ import org.zhinanzhen.tb.service.impl.BaseService;
 
 import com.ikasoa.core.ErrorCodeEnum;
 
+@Service
 public class OrderRefundServiceImpl extends BaseService implements OrderRefundService {
 
 	@Resource
