@@ -403,7 +403,7 @@ CREATE TABLE `b_service_order` (
   `school_institution_location_id` int(11) DEFAULT NULL COMMENT '学校校区id',
   `state` varchar(20) NOT NULL COMMENT '状态 (PENDING:待提交审核,REVIEW:审核中,APPLY:服务申请中,COMPLETE:服务申请完成,PAID:完成-支付成功,CLOSE:关闭)',
   `review_state` varchar(8) DEFAULT NULL COMMENT '审批状态 (OFFICIAL:文案审批通过,MARA:Mara审批通过,KJ:财务审批通过)',
-`urgent_state` varchar(8) DEFAULT NULL COMMENT '加急状态(JJ:加急, TSJJ:特殊加急),仅限签证订单',
+  `urgent_state` varchar(8) DEFAULT NULL COMMENT '加急状态(JJ:加急, TSJJ:特殊加急),仅限签证订单',
   `official_approval_date` datetime DEFAULT NULL COMMENT '文案审核时间',
   `mara_approval_date` datetime DEFAULT NULL COMMENT 'mara审核通过时间',
   `submit_mara_approval_date` datetime DEFAULT NULL COMMENT '文案提交mara审核时间',
@@ -1164,3 +1164,53 @@ CREATE TABLE `b_school_setting_new` (
   PRIMARY KEY (`id`),
   KEY `index` (`provider_id`,`course_level`,`course_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
+--订单退款
+CREATE TABLE `b_order_refund` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `state` varchar(8) NOT NULL COMMENT '状态',
+  `type` varchar(4) DEFAULT NULL COMMENT '服务类型(VISA:签证服务,OVST:留学服务)',
+  `visa_id` int DEFAULT NULL COMMENT '签证佣金订单编号 (对应b_visa.id)',
+  `commission_order_id` int DEFAULT NULL COMMENT '佣金订单编号 (对应b_commission_order.id)',
+  `receive_date` datetime DEFAULT NULL COMMENT '收款日期',
+  `received` decimal(8,2) DEFAULT NULL COMMENT '实付金额',
+  `payment_voucher_image_url` varchar(128) DEFAULT NULL COMMENT '付款凭证图片地址',
+  `refund_voucher_image_url` varchar(128) DEFAULT NULL COMMENT '退款凭证图片地址',
+  `refund_detail_id` int NOT NULL COMMENT '退款原因编号 (1:业务未成功办理，客户要求退款,2:客户取消业务,3:押金退款,4:referfee,5:Subagent结算,6:返佣,7:客户转错钱,全款退还,99:其它)',
+  `refund_detail` varchar(255) DEFAULT NULL COMMENT '退款原因说明 (退款原因为其它时必填)',
+  `currency_type` varchar(4) NOT NULL COMMENT '货币类型 (RMB:人民币,AUD:澳币)',
+  `amount_name` varchar(32) NOT NULL COMMENT '银行账户名称',
+  `bank_name` varchar(32) NOT NULL COMMENT '银行名称',
+  `bsb` varchar(32) NOT NULL COMMENT 'BSB',
+  `remarks` varchar(255) DEFAULT NULL COMMENT '备注'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+ALTER TABLE `b_order_refund` ADD INDEX index_name (`type`);
+
+--人工退款
+CREATE TABLE `b_manual_refund` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `state` varchar(8) NOT NULL COMMENT '状态',
+  `type` varchar(4) DEFAULT NULL COMMENT '服务类型(VISA:签证服务,OVST:留学服务)',
+  `user_id` int NOT NULL COMMENT '所属顾客编号 (对应tb_user.id)',
+  `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
+  `mara_id` int DEFAULT NULL COMMENT '所属MARA编号 (对应b_mara.id,曼拓和留学服务MARA为空)',
+  `official_id` int DEFAULT NULL COMMENT '文案编号 (对应b_official.id,曼拓文案为空)',
+  `school_id` int DEFAULT NULL COMMENT '学校编号 (对应b_school.id,留学服务专用字段)',
+  `course_id` int(11) DEFAULT NULL COMMENT 'b_school_course.id',
+  `receive_date` datetime DEFAULT NULL COMMENT '收款日期',
+  `received` decimal(8,2) DEFAULT NULL COMMENT '实付金额',
+  `payment_voucher_image_url` varchar(128) DEFAULT NULL COMMENT '付款凭证图片地址',
+  `refund_voucher_image_url` varchar(128) DEFAULT NULL COMMENT '退款凭证图片地址',
+  `refund_detail_id` int NOT NULL COMMENT '退款原因编号 (1:业务未成功办理，客户要求退款,2:客户取消业务,3:押金退款,4:referfee,5:Subagent结算,6:返佣,7:客户转错钱,全款退还,99:其它)',
+  `refund_detail` varchar(255) DEFAULT NULL COMMENT '退款原因说明 (退款原因为其它时必填)',
+  `currency_type` varchar(4) NOT NULL COMMENT '货币类型 (RMB:人民币,AUD:澳币)',
+  `amount_name` varchar(32) NOT NULL COMMENT '银行账户名称',
+  `bank_name` varchar(32) NOT NULL COMMENT '银行名称',
+  `bsb` varchar(32) NOT NULL COMMENT 'BSB',
+  `remarks` varchar(255) DEFAULT NULL COMMENT '备注'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
