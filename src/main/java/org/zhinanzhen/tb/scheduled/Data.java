@@ -32,14 +32,14 @@ public class Data extends BaseService {
     @Autowired
     private  VisaService visaService ;
 
-    public  List<DataDTO> dataReport(String startDate,String endDate,String opt){
+    public  List<DataDTO> dataReport(String startDate,String endDate,String opt,String dateMethod){
         try {
             List<DataDTO> dataDTOList = new ArrayList<DataDTO>();//数据
             List<DataDTO> areaDataList = new ArrayList<DataDTO>();//area的数据
             //List<DataDTO> areaRankDataList = new ArrayList<DataDTO>();//area排名的数据
 
-            List<CommissionOrderReportDTO> commissionOrderReportDtoList= commissionOrderService.listCommissionOrderReport(startDate,endDate,"A","M",0,0,null);
-            List<VisaReportDTO> VisaReportList = visaService.listVisaReport(startDate,endDate,"A","M",0,0,null);
+            List<CommissionOrderReportDTO> commissionOrderReportDtoList= commissionOrderService.listCommissionOrderReport(startDate,endDate,"A",dateMethod == null?"M":"Y",0,0,null);
+            List<VisaReportDTO> VisaReportList = visaService.listVisaReport(startDate,endDate,"A", dateMethod == null?"M":"Y",0,0,null);
 
             if (commissionOrderReportDtoList != null) {
                 commissionOrderReportDtoList.forEach(commissionOrderReportDto -> dataDTOList
@@ -60,7 +60,7 @@ public class Data extends BaseService {
             VisaReportList.forEach(visaReport ->{
                 boolean flag = false;
                 for(int index = 0 ;index < commissionOrderReportDtoList.size() ; index ++){
-                    if (visaReport.getAdviserId() == commissionOrderReportDtoList.get(index).getAdviserId()){
+                    if (visaReport.getDate().equals(commissionOrderReportDtoList.get(index).getDate()) && visaReport.getAdviserId() == commissionOrderReportDtoList.get(index).getAdviserId()){
                         flag = true;
                     }
                 }
@@ -83,6 +83,7 @@ public class Data extends BaseService {
                 double deductionCommission = 0;
                 double claimCommission = 0;
                 double claimedCommission = 0;
+                double adjustments = 0;
                 int regionId = 0;
                 for( int index = 0 ;index < dataDTOList.size(); index++){
                     if(dataDTOList.get(index).getArea().equals(area)){
@@ -90,16 +91,17 @@ public class Data extends BaseService {
                         deductionCommission = deductionCommission +dataDTOList.get(index).getDeductionCommission();
                         claimCommission = claimCommission +dataDTOList.get(index).getClaimCommission();
                         claimedCommission = claimedCommission +dataDTOList.get(index).getClaimedCommission();
+                        adjustments = adjustments +dataDTOList.get(index).getAdjustments();
                         date = dataDTOList.get(index).getDate();
                         regionId = dataDTOList.get(index).getRegionId();
                     }
                 }
-                areaDataList.add(new DataDTO(date,regionId, (String) area,serviceFee,deductionCommission,claimCommission,claimedCommission));
+                areaDataList.add(new DataDTO(date,regionId, (String) area,serviceFee,deductionCommission,claimCommission,claimedCommission,adjustments));
             });
 
             //计算dataDTOList每一行的total值
             dataDTOList.forEach(dataDTO -> {
-                dataDTO.setTotal(dataDTO.getServiceFee()+dataDTO.getClaimCommission()+dataDTO.getDeductionCommission());
+                dataDTO.setTotal(dataDTO.getServiceFee()+dataDTO.getClaimCommission()+dataDTO.getDeductionCommission()+dataDTO.getAdjustments());
             });
 
             //开始计算全地区的顾问total排名    ---->dataDTOList
@@ -119,7 +121,7 @@ public class Data extends BaseService {
 
             //计算areaDataList每一行的total值
             areaDataList.forEach(area->{
-                area.setTotal(area.getServiceFee()+area.getClaimCommission()+area.getDeductionCommission());
+                area.setTotal(area.getServiceFee()+area.getClaimCommission()+area.getDeductionCommission()+area.getAdjustments());
             });
 
 

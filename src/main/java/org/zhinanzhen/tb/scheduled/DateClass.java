@@ -109,4 +109,37 @@ public class DateClass {
         System.out.println(sdf.format(instance.getTime()));
         return sdf.format(instance.getTime());
     }
+
+    public static String today() {
+        // 今天,因为今天时分秒是 00:00:00,表示截止到昨天
+        Calendar instance = Calendar.getInstance();
+        return sdf.format(instance.getTime());
+    }
+
+    public static String lastYearThisMonthFirstDay(Calendar calendar){
+        // 去年的同月1号
+        //calendar.add(Calendar.MONTH, - 1);
+        calendar.add(Calendar.YEAR, - 1);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        System.out.println("去年上月第一天"+sdf.format(calendar.getTime()));
+        return sdf.format(calendar.getTime());
+    }
+
+    public static String lastYearThisMonthLastDay(){
+        Calendar calendar=Calendar.getInstance();
+        int month=calendar.get(Calendar.MONTH);
+        //calendar.set(Calendar.MONTH, month-1);
+        calendar.add(Calendar.YEAR, -1);
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+        System.out.println("去年同月最后一天"+sdf.format(calendar.getTime()));
+        return sdf.format(calendar.getTime());
+    }
+
+    public static String thisYearFirstDay(){
+        Calendar calendar=Calendar.getInstance();
+        calendar.set(Calendar.MONTH,0);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        System.out.println("今年第一天"+sdf.format(calendar.getTime()));
+        return sdf.format(calendar.getTime());
+    }
 }
