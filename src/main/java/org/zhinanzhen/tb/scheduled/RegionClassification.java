@@ -35,4 +35,38 @@ public class RegionClassification {
         }
         return  regionList;
     }
+
+    /**
+     * 返回data中regionId存在于regionIdList的数据
+     * @param data
+     * @param regionIdList
+     * @return
+     */
+    public  static List<DataDTO> dataSplitByRegionId (List<DataDTO> data, List<Integer> regionIdList){
+        if (regionIdList.size() == 0)
+            return data;
+        List<DataDTO> resultList = new ArrayList<>();
+        data.forEach(_data ->{
+            if (regionIdList.contains(_data.getRegionId())){
+                resultList.add(_data);
+            }
+        });
+        return resultList;
+    }
+
+    public  static DataDTO adviserDateByAdviserId (List<DataDTO> data, Integer adviserId){
+        if (adviserId == 0)
+            return null;
+        DataDTO resultData = new DataDTO();
+        data.forEach(_data ->{
+            if (_data.getAdviserId() == adviserId){
+                resultData.setServiceFee(resultData.getServiceFee() + _data.getServiceFee());
+                resultData.setDeductionCommission(resultData.getDeductionCommission() + _data.getDeductionCommission());
+                resultData.setClaimCommission(resultData.getClaimCommission() + _data.getClaimCommission());
+                resultData.setClaimedCommission(resultData.getClaimedCommission() + _data.getClaimedCommission());
+            }
+        });
+        return resultData;
+    }
+
 }
