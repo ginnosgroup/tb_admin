@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.service.impl;
 
 import com.ikasoa.core.ErrorCodeEnum;
+import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.core.utils.StringUtil;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -79,6 +80,12 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
 
             //先把这里注释掉，list速度比较慢
             //putAttachmentsSettingInfo(schoolInstitutionDTO);//添加合同，历史setting，setting
+
+            String tradingName = si.getInstitutionTradingName();
+            if (tradingName != null && tradingName.contains(","))
+                schoolInstitutionDTO.setInstitutionTradingNameSplit(ListUtil.buildArrayList(tradingName.split(",")));
+            else if (tradingName != null && tradingName.contains(";"))
+                schoolInstitutionDTO.setInstitutionTradingNameSplit(ListUtil.buildArrayList(tradingName.split(";")));
 
             schoolInstitutionDTOS.add(schoolInstitutionDTO);
         }

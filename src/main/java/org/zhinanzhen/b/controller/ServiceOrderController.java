@@ -29,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.controller.nodes.SONodeFactory;
-import org.zhinanzhen.b.controller.nodes.ServiceOrderReceivedNode;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderReadcommittedDateDO;
 import org.zhinanzhen.b.service.*;
 import org.zhinanzhen.b.service.pojo.*;
@@ -232,6 +231,11 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "schoolInstitutionLocationId4", required = false)Integer schoolInstitutionLocationId4,
 			@RequestParam(value = "courseId5", required = false)Integer courseId5,
 			@RequestParam(value = "schoolInstitutionLocationId5", required = false)Integer schoolInstitutionLocationId5,
+			@RequestParam(value = "institutionTradingName", required = false)String institutionTradingName,
+			@RequestParam(value = "institutionTradingName2", required = false)String institutionTradingName2,
+			@RequestParam(value = "institutionTradingName3", required = false)String institutionTradingName3,
+			@RequestParam(value = "institutionTradingName4", required = false)String institutionTradingName4,
+			@RequestParam(value = "institutionTradingName5", required = false)String institutionTradingName5,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -349,6 +353,8 @@ public class ServiceOrderController extends BaseController {
 			if (courseId != null && courseId > 0){
 				serviceOrderDto.setCourseId(courseId);
 				serviceOrderDto.setSchoolId(0);
+				if (StringUtil.isNotEmpty(institutionTradingName))
+					serviceOrderDto.setInstitutionTradingName(institutionTradingName);
 			}
 			if (schoolInstitutionLocationId != null && schoolInstitutionLocationId > 0)
 				serviceOrderDto.setSchoolInstitutionLocationId(schoolInstitutionLocationId);
@@ -399,6 +405,8 @@ public class ServiceOrderController extends BaseController {
 						serviceOrderDto.setCourseId(courseId2);
 						serviceOrderDto.setSchoolInstitutionLocationId(schoolInstitutionLocationId2);
 						serviceOrderDto.setSchoolId(0);
+						if (StringUtil.isNotEmpty(institutionTradingName2))
+							serviceOrderDto.setInstitutionTradingName(institutionTradingName2);
 					}
 					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
 						if (adminUserLoginInfo != null)
@@ -422,6 +430,8 @@ public class ServiceOrderController extends BaseController {
 						serviceOrderDto.setCourseId(courseId3);
 						serviceOrderDto.setSchoolInstitutionLocationId(schoolInstitutionLocationId3);
 						serviceOrderDto.setSchoolId(0);
+						if (StringUtil.isNotEmpty(institutionTradingName3))
+							serviceOrderDto.setInstitutionTradingName(institutionTradingName3);
 					}
 					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
 						if (adminUserLoginInfo != null)
@@ -443,6 +453,8 @@ public class ServiceOrderController extends BaseController {
 						serviceOrderDto.setCourseId(courseId4);
 						serviceOrderDto.setSchoolInstitutionLocationId(schoolInstitutionLocationId4);
 						serviceOrderDto.setSchoolId(0);
+						if (StringUtil.isNotEmpty(institutionTradingName4))
+							serviceOrderDto.setInstitutionTradingName(institutionTradingName4);
 					}
 					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
 						if (adminUserLoginInfo != null)
@@ -464,6 +476,8 @@ public class ServiceOrderController extends BaseController {
 						serviceOrderDto.setCourseId(courseId5);
 						serviceOrderDto.setSchoolInstitutionLocationId(schoolInstitutionLocationId5);
 						serviceOrderDto.setSchoolId(0);
+						if (StringUtil.isNotEmpty(institutionTradingName5))
+							serviceOrderDto.setInstitutionTradingName(institutionTradingName5);
 					}
 					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
 						if (adminUserLoginInfo != null)
@@ -533,6 +547,7 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "refNo", required = false) String refNo,
 			@RequestParam(value = "courseId", required = false)Integer courseId,
 			@RequestParam(value = "schoolInstitutionLocationId", required = false)Integer schoolInstitutionLocationId,
+			@RequestParam(value = "institutionTradingName", required = false)String institutionTradingName,
 			HttpServletResponse response) {
 //		if (getOfficialAdminId(request) != null)
 //			return new Response<Integer>(1, "文案管理员不可操作服务订单.", 0);
@@ -549,7 +564,8 @@ public class ServiceOrderController extends BaseController {
 					invoiceVoucherImageUrl2,invoiceVoucherImageUrl3,invoiceVoucherImageUrl4,invoiceVoucherImageUrl5,
 					kjPaymentImageUrl1, kjPaymentImageUrl2,perAmount, amount,
 					expectAmount, gst, deductGst, bonus, userId, maraId, adviserId, officialId, remarks, closedReason,
-					information, isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId);
+					information, isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
+					institutionTradingName);
 			if (res != null && res.getCode() == 0) {
 				List<ServiceOrderDTO> cList = new ArrayList<>();
 				if ("SIV".equalsIgnoreCase(serviceOrderDto.getType()))
@@ -567,7 +583,7 @@ public class ServiceOrderController extends BaseController {
 								kjPaymentImageUrl1, kjPaymentImageUrl2, perAmount,
 								amount, expectAmount, gst, deductGst, bonus, userId, maraId, adviserId, officialId,
 								remarks, closedReason, information, isHistory, nutCloud, serviceAssessId, verifyCode,
-								refNo, courseId, schoolInstitutionLocationId);
+								refNo, courseId, schoolInstitutionLocationId, institutionTradingName);
 						if (cRes.getCode() > 0)
 							res.setMessage(res.getMessage() + ";" + cRes.getMessage());
 					}
@@ -581,17 +597,18 @@ public class ServiceOrderController extends BaseController {
 	}
 	
 	private Response<Integer> updateOne(ServiceOrderDTO serviceOrderDto, String type, Integer peopleNumber, String peopleType,
-			String peopleRemarks, String serviceId,String schoolId,String urgentState,String isSettle,String isDepositUser,
-			String subagencyId, String isPay, String receiveTypeId, String receiveDate,
-			String receivable, String discount, String received, Integer installment,
-			String paymentVoucherImageUrl1, String paymentVoucherImageUrl2, String paymentVoucherImageUrl3,
-			String paymentVoucherImageUrl4, String paymentVoucherImageUrl5, String invoiceVoucherImageUrl1,
-			String invoiceVoucherImageUrl2, String invoiceVoucherImageUrl3, String invoiceVoucherImageUrl4,
-			String invoiceVoucherImageUrl5, String kjPaymentImageUrl1, String kjPaymentImageUrl2,String perAmount,
-			String amount, String expectAmount, String gst, String deductGst,
-			String bonus, String userId, String maraId, String adviserId, String officialId,
-			String remarks, String closedReason, String information, String isHistory, String nutCloud,
-			String serviceAssessId, String verifyCode, String refNo, Integer courseId, Integer schoolInstitutionLocationId) {
+										String peopleRemarks, String serviceId, String schoolId, String urgentState, String isSettle, String isDepositUser,
+										String subagencyId, String isPay, String receiveTypeId, String receiveDate,
+										String receivable, String discount, String received, Integer installment,
+										String paymentVoucherImageUrl1, String paymentVoucherImageUrl2, String paymentVoucherImageUrl3,
+										String paymentVoucherImageUrl4, String paymentVoucherImageUrl5, String invoiceVoucherImageUrl1,
+										String invoiceVoucherImageUrl2, String invoiceVoucherImageUrl3, String invoiceVoucherImageUrl4,
+										String invoiceVoucherImageUrl5, String kjPaymentImageUrl1, String kjPaymentImageUrl2, String perAmount,
+										String amount, String expectAmount, String gst, String deductGst,
+										String bonus, String userId, String maraId, String adviserId, String officialId,
+										String remarks, String closedReason, String information, String isHistory, String nutCloud,
+										String serviceAssessId, String verifyCode, String refNo, Integer courseId, Integer schoolInstitutionLocationId,
+										String institutionTradingName) {
 		try {
 			if (StringUtil.isNotEmpty(type))
 				serviceOrderDto.setType(type);
@@ -720,6 +737,8 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setCourseId(courseId);
 			if (schoolInstitutionLocationId != null && schoolInstitutionLocationId > 0)
 				serviceOrderDto.setSchoolInstitutionLocationId(schoolInstitutionLocationId);
+			if (StringUtil.isNotEmpty(institutionTradingName))
+				serviceOrderDto.setInstitutionTradingName(institutionTradingName);
 			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
 			if (i > 0) {
 				return new Response<Integer>(0, i);

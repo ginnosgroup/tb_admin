@@ -48,4 +48,6 @@ public class SchoolInstitutionDTO {
     private List<SchoolSettingNewDTO> schoolSettingList = new ArrayList<>();
 
     private List<SchoolSettingNewDTO> historySchoolSettingList = new ArrayList<>();
+
+    private List<String> institutionTradingNameSplit;
 }

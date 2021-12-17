@@ -163,4 +163,6 @@ public class ServiceOrderDO implements Serializable {
 
 	private int schoolInstitutionLocationId;//新学校库校区id
 
+	private String institutionTradingName;//记录一下培训机构的名字
+
 }
