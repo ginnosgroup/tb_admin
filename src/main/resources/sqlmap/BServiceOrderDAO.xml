@@ -20,6 +20,7 @@
                 school_id,
                 course_id,
                 school_institution_location_id,
+                institution_trading_name,
                 state,
                 state_mark,
                 urgent_state,
@@ -84,6 +85,7 @@
                 #{schoolId},
                 #{courseId},
                 #{schoolInstitutionLocationId},
+                #{institutionTradingName},
                 #{state},
                 #{stateMark},
                 #{urgentState},
@@ -167,6 +169,9 @@
         </if>
         <if test="schoolInstitutionLocationId != null and schoolInstitutionLocationId > 0">
             , school_institution_location_id = #{schoolInstitutionLocationId}
+        </if>
+        <if test='institutionTradingName != null and institutionTradingName != ""'>
+            , institution_trading_name = #{institutionTradingName}
         </if>
         <if test='state != null and state != ""'>
             , state = #{state}
@@ -453,6 +458,7 @@
             so.school_id AS schoolId,
             so.course_id AS courseId,
             so.school_institution_location_id AS schoolInstitutionLocationId,
+            so.institution_trading_name AS institutionTradingName,
             so.state AS state,
             so.state_mark AS stateMark,
             so.urgent_state AS urgentState,
@@ -625,6 +631,7 @@
             school_id AS schoolId,
             course_id AS courseId,
             school_institution_location_id AS schoolInstitutionLocationId,
+            institution_trading_name AS institutionTradingName,
             state,
             state_mark AS stateMark,
             urgent_state AS urgentState,
@@ -785,6 +792,7 @@
             school_id AS schoolId,
             course_id AS courseId,
             school_institution_location_id AS schoolInstitutionLocationId,
+            institution_trading_name AS institutionTradingName,
             state,
             urgent_state AS urgentState,
             mara_approval_date AS maraApprovalDate,
@@ -879,6 +887,7 @@
         so.school_id AS schoolId,
         so.course_id AS courseId,
         so.school_institution_location_id AS schoolInstitutionLocationId,
+        so.institution_trading_name AS institutionTradingName,
         so.state AS state,
         so.state_mark AS stateMark,
         so.urgent_state AS urgentState,
