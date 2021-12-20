@@ -1815,6 +1815,8 @@ public class ServiceOrderController extends BaseController {
 					sheet.addCell(new Label(13, i, "财务转账完成", cellFormat));
 				else if (so.getState().equalsIgnoreCase("PAID"))
 					sheet.addCell(new Label(13, i, "COE已下", cellFormat));
+				else if (so.getState().equalsIgnoreCase("CLOSE"))
+					sheet.addCell(new Label(13, i, "已关闭", cellFormat));
 				/*
 				//旧系统状态废除
 				if (so.getReview() != null) {
@@ -1868,6 +1870,8 @@ public class ServiceOrderController extends BaseController {
 				 */
 				sheet.addCell(new Label(14, i, so.getRealPeopleNumber() + "", cellFormat));
 				sheet.addCell(new Label(15, i, so.getRemarks(), cellFormat));
+				if (so.getReadcommittedDate() != null)
+					sheet.addCell(new Label(16, i, sdf.format(so.getReadcommittedDate()), cellFormat));
 				i++;
 			}
 			wbe.write();

@@ -266,8 +266,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			String userName, Integer maraId, Integer adviserId, Integer officialId, Integer officialTagId, int parentId,
 			boolean isNotApproved, Integer serviceId, Integer schoolId, Boolean isPay, Boolean isSettle) throws ServiceException {
 		return serviceOrderDao.countServiceOrder(type, excludeTypeList, excludeState, stateList, auditingState,
-				reviewStateList, urgentState, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
-				endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId, userName,
+				reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate), theDateTo23_59_59(endMaraApprovalDate),
+				theDateTo00_00_00(startOfficialApprovalDate), theDateTo23_59_59(endOfficialApprovalDate),
+				theDateTo00_00_00(startReadcommittedDate), theDateTo23_59_59(endReadcommittedDate), regionIdList, userId, userName,
 				maraId, adviserId, officialId, officialTagId, parentId, isNotApproved, serviceId, schoolId, isPay, isSettle);
 	}
 
@@ -294,9 +295,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		}
 		try {
 			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, excludeTypeList, excludeState, stateList,
-					auditingState, reviewStateList, urgentState, startMaraApprovalDate, endMaraApprovalDate,
-					startOfficialApprovalDate, theDateTo23_59_59(endOfficialApprovalDate), startReadcommittedDate,
-					endReadcommittedDate, regionIdList, userId, userName, maraId, adviserId, officialId, officialTagId,
+					auditingState, reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate), theDateTo23_59_59(endMaraApprovalDate),
+					theDateTo00_00_00(startOfficialApprovalDate), theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),
+					theDateTo23_59_59(endReadcommittedDate), regionIdList, userId, userName, maraId, adviserId, officialId, officialTagId,
 					parentId, isNotApproved, serviceId, schoolId, isPay, isSettle, pageNum * pageSize, pageSize, orderBy);
 			if (serviceOrderDoList == null)
 				return null;
