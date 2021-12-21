@@ -5,18 +5,30 @@
     <cache eviction="LRU" flushInterval="120000" readOnly="false" size="100"></cache>
 
     <select id="getThisMonthVisaExpectAmount" resultType="java.lang.Double">
-        select IFNULL(sum(expect_amount),0.00) FROM b_visa  where DATE_FORMAT(kj_approval_date, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
-        and is_close = 0 and state != 'PENDING' and state != 'WAIT'
+        select IFNULL(sum(expect_amount),0.00) FROM b_visa bv, tb_adviser tba where DATE_FORMAT(kj_approval_date, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
+        and is_close = 0 and bv.state != 'PENDING' and bv.state != 'WAIT' AND tba.id = bv.adviser_id
         <if test='adviserId != null'>
-            AND adviser_id = #{adviserId}
+            AND bv.adviser_id = #{adviserId}
+        </if>
+        <if test='regionIdList != null'>
+            AND tba.region_id IN
+            <foreach collection="regionIdList" item="regionIdList" index="index" open="(" close=")" separator=",">
+                #{regionIdList}
+            </foreach>
         </if>
         ;
     </select>
     <select id="getThisMonthbCommissionOrderExpectAmountSBBTM" resultType="java.lang.Double">
-        select IFNULL(sum(expect_amount),0.00) FROM b_commission_order  where DATE_FORMAT(kj_approval_date, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
-        and is_close = 0 and state != 'PENDING' and state != 'WAIT'
+        select IFNULL(sum(expect_amount),0.00) FROM b_commission_order bco , tb_adviser tba  where DATE_FORMAT(kj_approval_date, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
+        and is_close = 0 and bco.state != 'PENDING' and bco.state != 'WAIT'
         <if test='adviserId != null'>
-            AND adviser_id = #{adviserId}
+            AND bco.adviser_id = #{adviserId}
+        </if>
+        <if test='regionIdList != null'>
+            AND tba.region_id IN
+            <foreach collection="regionIdList" item="regionIdList" index="index" open="(" close=")" separator=",">
+                #{regionIdList}
+            </foreach>
         </if>
         ;
     </select>

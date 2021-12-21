@@ -17,7 +17,7 @@ public interface UserService {
 	public int countUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
 			String wechatUsername, int adviserId, List<Integer> regionIdList, Integer tagId) throws ServiceException;
 
-	public int countUserByThisMonth(Integer adviserId) throws ServiceException;
+	public int countUserByThisMonth(Integer adviserId, List<Integer> regionIdList) throws ServiceException;
 
 	public List<UserDTO> listUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
 			String wechatUsername, int adviserId, List<Integer> regionIdList, int pageNum, int pageSize)

@@ -1,15 +1,14 @@
 package org.zhinanzhen.b.controller;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.ikasoa.core.utils.ListUtil;
+import com.ikasoa.core.utils.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +27,7 @@ import org.zhinanzhen.tb.scheduled.RegionClassification;
 import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
+import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
 
@@ -54,13 +54,16 @@ public class DashboardController extends BaseController {
 	@Resource
 	private AdviserService adviserService;
 
+	@Resource
+	private UserService userService;
+
 	@RequestMapping(value = "/getMonthExpectAmount", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<Double> getMonthExpectAmount(HttpServletRequest request, HttpServletResponse response) {
 		try {
 			if (getAdminUserLoginInfo(request) == null)
 				return new Response<Double>(1, "请先登录!", null);
-			return new Response<Double>(0, dashboardService.getThisMonthExpectAmount(getAdviserId(request)));
+			return new Response<Double>(0, dashboardService.getThisMonthExpectAmount(getAdviserId(request), null));
 		} catch (ServiceException e) {
 			return new Response<Double>(e.getCode(), e.getMessage(), null);
 		}
@@ -410,5 +413,125 @@ public class DashboardController extends BaseController {
 		String today = DateClass.today();
 		List<DataDTO> dataList = data.dataReport(thisYearFirstDay,today,"R","Y");
 		return new DashboardResponse(0,"success", dataList, thisYearFirstDay, today);
+	}
+
+	/**
+	 * SUPER:全澳全年业绩总和
+	 * MANAGER：本地区全年业绩总和
+	 * GW：自己全年业绩总和
+	 * @return
+	 * @throws ServiceException
+	 */
+	@GetMapping(value = "/allYearPerformanceTotal")
+	@ResponseBody
+	public Response allYearPerformanceTotal(HttpServletRequest request, HttpServletResponse response) throws ServiceException {
+		super.setGetHeader(response);
+		AdminUserLoginInfo loginInfo = getAdminUserLoginInfo(request);
+		if (loginInfo == null)
+			return  new Response(1,"未登录");
+		String thisYearFirstDay = DateClass.thisYearFirstDay();
+		String today = DateClass.today();
+		List<DataDTO> dataList = data.dataReport(thisYearFirstDay,today,"R","Y");
+		List<Integer> regionIdList = new ArrayList<>();
+		double total = 0;
+		if ("SUPER".equalsIgnoreCase(loginInfo.getApList())){
+			for (DataDTO dataDTO : dataList){
+				total = dataDTO.getTotal() + total;
+			}
+			return new Response(0,"全澳全年业绩总和", total);
+		}else if ("GW".equalsIgnoreCase(loginInfo.getApList())){
+			if (loginInfo.getRegionId() != null && loginInfo.getRegionId() > 0){//顾问管理员
+				Integer adviserId = loginInfo.getAdviserId();
+				double _total = 0;
+				List<RegionDTO> _regionList = regionService.listRegion(loginInfo.getRegionId());
+				regionIdList.add(loginInfo.getRegionId());
+				for (RegionDTO region : _regionList)
+					regionIdList.add(region.getId());
+				List<DataDTO> _list = RegionClassification.dataSplitByRegionId(dataList,regionIdList);
+				for (DataDTO dataDTO : _list){
+					total = dataDTO.getTotal() + total;
+					if (dataDTO.getAdviserId() == adviserId)
+						_total = dataDTO.getTotal();
+				}
+				Map map = new HashMap();
+				map.put("total", total);
+				map.put("managerTotal", _total);
+				return new Response(0,"本地区全年累计业绩总和/MANAGER自己全年业绩总和", map);
+			}else {
+				Integer adviserId = loginInfo.getAdviserId();
+				int i = 0, size = dataList.size();
+				for ( ; i < size ; i++ ){
+					if (adviserId == dataList.get(i).getAdviserId())
+						total = dataList.get(i).getTotal();
+				}
+				Map map = new HashMap();
+				map.put("total", total);
+				map.put("RANK", i+1);
+				return new Response(0,"顾问全年业绩总和", map);
+			}
+		}
+		return  new Response(0,"");
+	}
+
+	/**
+	 * user/count 接口在顾问管理员是返回本地区所有顾问下的所有客户总和
+	 * 此接口返回顾问管理员自己的客户总数
+	 * @return
+	 */
+	@GetMapping(value = "/countUser")
+	@ResponseBody
+	public Response countUser(HttpServletRequest request, HttpServletResponse response) throws ServiceException {
+		super.setGetHeader(response);
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
+				&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
+			Integer adviserId = adminUserLoginInfo.getAdviserId();
+			int count = userService.countUser(null, null, null, null, null,
+					adviserId, null, 0);
+			return new Response(0, count);
+		}
+		return new Response(0, "");
+	}
+
+	/**
+	 * /user/countMonth 返回顾问或者顾问管理员自己本月新客户
+	 * 此接口返回顾问管理员地区下所有顾问的本月新增客户总数
+	 * @throws ServiceException
+	 */
+	@GetMapping(value = "/countMonth")
+	@ResponseBody
+	public Response countMonth(HttpServletRequest request, HttpServletResponse response) throws ServiceException {
+		super.setGetHeader(response);
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
+				&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
+			List<Integer> regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
+			List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
+			for (RegionDTO region : regionList)
+				regionIdList.add(region.getId());
+			return new Response(0, userService.countUserByThisMonth(null, regionIdList));
+		}
+		return new Response(0, 0);
+	}
+
+	/**
+	 * /dashboard/getMonthExpectAmount 返回顾问管理员/顾问自己的本月预收业绩
+	 * 此接口返回顾问管理员地区下所有顾问的本月预收业绩
+	 * @throws ServiceException
+	 */
+	@GetMapping(value = "/getMonthExpectAmount2")
+	@ResponseBody
+	public Response getMonthExpectAmount2(HttpServletRequest request, HttpServletResponse response) throws ServiceException {
+		super.setGetHeader(response);
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
+				&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
+			List<Integer> regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
+			List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
+			for (RegionDTO region : regionList)
+				regionIdList.add(region.getId());
+			return new Response(0, dashboardService.getThisMonthExpectAmount(null, regionIdList));
+		}
+		return new Response(0, 0);
 	}
 }

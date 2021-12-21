@@ -19,7 +19,7 @@ public interface UserDAO {
 			@Param("wechatUsername") String wechatUsername, @Param("adviserId") Integer adviserId,
 			@Param("regionIdList") List<Integer> regionIdList, @Param("tagId") Integer tagId);
 
-	public int countUserByThisMonth(@Param("adviserId") Integer adviserId);
+	public int countUserByThisMonth(@Param("adviserId") Integer adviserId, @Param("regionIdList") List<Integer> regionIdList);
 
 	public List<UserDO> listUser(@Param("name") String name, @Param("authType") String authType,
 			@Param("authNickname") String authNickname, @Param("phone") String phone,
