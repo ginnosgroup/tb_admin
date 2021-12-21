@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.zhinanzhen.b.dao.ManualRefundDAO">
+<mapper namespace="org.zhinanzhen.b.dao.RefundDAO">
 
-    <insert id="addManualRefund" parameterType="org.zhinanzhen.b.dao.pojo.ManualRefundDO" useGeneratedKeys="true" keyProperty="id">
+    <insert id="addRefund" parameterType="org.zhinanzhen.b.dao.pojo.RefundDO" useGeneratedKeys="true" keyProperty="id">
         INSERT
-            INTO b_manual_refund (
+            INTO b_refund (
                 gmt_create,
                 gmt_modify,
                 state
                 type,
+                visa_id,
+                commission_order_id,
                 user_id,
                 adviser_id,
                 mara_id,
@@ -32,6 +34,8 @@
                 now(),
                 #{state},
                 #{type},
+                #{visaId},
+                #{commissionOrderId},
                 #{userId},
                 #{adviserId},
                 #{maraId},
@@ -51,13 +55,15 @@
                 #{remarks});
     </insert>
     
-    <select id="listManualRefund" resultType="org.zhinanzhen.b.dao.pojo.ManualRefundDO">
+    <select id="listRefund" resultType="org.zhinanzhen.b.dao.pojo.RefundDO">
         SELECT
             id,
             gmt_create AS gmtCreate,
             gmt_modify AS gmtModify,
             state,
             type,
+            visa_id AS visaId,
+            commission_order_id AS commissionOrderId,
             user_id AS userId,
             adviser_id AS adviserId,
             mara_id AS maraId,
@@ -75,7 +81,7 @@
             bank_name AS bankName,
             bsb,
             remarks
-        FROM b_manual_refund
+        FROM b_refund
         WHERE 1=1
         <if test='type != null and type != ""'>
 			AND type = #{type}
@@ -86,13 +92,15 @@
         ORDER BY gmt_create DESC;
     </select>
     
-    <select id="getManualRefundById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.ManualRefundDO">
+    <select id="getRefundById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.RefundDO">
          SELECT
             id,
             gmt_create AS gmtCreate,
             gmt_modify AS gmtModify,
             state,
             type,
+            visa_id AS visaId,
+            commission_order_id AS commissionOrderId,
             user_id AS userId,
             adviser_id AS adviserId,
             mara_id AS maraId,
@@ -110,11 +118,11 @@
             bank_name AS bankName,
             bsb,
             remarks
-        FROM b_manual_refund WHERE id = #{id, jdbcType=INTEGER};
+        FROM b_refund WHERE id = #{id, jdbcType=INTEGER};
     </select>
     
-    <update id="updateManualRefund" parameterType="org.zhinanzhen.b.dao.pojo.ManualRefundDO">
-        UPDATE b_manual_refund 
+    <update id="updateRefund" parameterType="org.zhinanzhen.b.dao.pojo.RefundDO">
+        UPDATE b_refund 
         SET gmt_modify = now()
         <if test='state != null and state != ""'>
             , state = #{state}
@@ -173,8 +181,8 @@
         WHERE id = #{id};
     </update>
     
-    <delete id="deleteManualRefundById" parameterType="java.lang.Integer">
-        DELETE FROM b_manual_refund
+    <delete id="deleteRefundById" parameterType="java.lang.Integer">
+        DELETE FROM b_refund
         WHERE id =#{id, jdbcType=INTEGER};
     </delete>
     

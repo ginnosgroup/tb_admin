@@ -6,33 +6,33 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
-import org.zhinanzhen.b.dao.ManualRefundDAO;
-import org.zhinanzhen.b.dao.pojo.ManualRefundDO;
-import org.zhinanzhen.b.service.ManualRefundService;
-import org.zhinanzhen.b.service.pojo.ManualRefundDTO;
+import org.zhinanzhen.b.dao.RefundDAO;
+import org.zhinanzhen.b.dao.pojo.RefundDO;
+import org.zhinanzhen.b.service.RefundService;
+import org.zhinanzhen.b.service.pojo.RefundDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
 import com.ikasoa.core.ErrorCodeEnum;
 
 @Service
-public class ManualRefundServiceImpl extends BaseService implements ManualRefundService {
+public class RefundServiceImpl extends BaseService implements RefundService {
 
 	@Resource
-	ManualRefundDAO manualRefundDao;
+	RefundDAO refundDao;
 
 	@Override
-	public int addManualRefund(ManualRefundDTO manualRefundDto) throws ServiceException {
-		if (manualRefundDto == null) {
-			ServiceException se = new ServiceException("manualRefundDto is null !");
+	public int addRefund(RefundDTO refundDto) throws ServiceException {
+		if (refundDto == null) {
+			ServiceException se = new ServiceException("refundDto is null !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
 		try {
-			ManualRefundDO manualRefundDo = mapper.map(manualRefundDto, ManualRefundDO.class);
-			if (manualRefundDao.addManualRefund(manualRefundDo) > 0) {
-				manualRefundDto.setId(manualRefundDo.getId());
-				return manualRefundDo.getId();
+			RefundDO refundDo = mapper.map(refundDto, RefundDO.class);
+			if (refundDao.addRefund(refundDo) > 0) {
+				refundDto.setId(refundDo.getId());
+				return refundDo.getId();
 			} else {
 				return 0;
 			}
@@ -44,50 +44,50 @@ public class ManualRefundServiceImpl extends BaseService implements ManualRefund
 	}
 
 	@Override
-	public List<ManualRefundDTO> listManualRefund(String type, String state) throws ServiceException {
-		List<ManualRefundDTO> manualRefundDtoList = new ArrayList<>();
-		List<ManualRefundDO> manualRefundDoList = null;
+	public List<RefundDTO> listRefund(String type, String state) throws ServiceException {
+		List<RefundDTO> refundDtoList = new ArrayList<>();
+		List<RefundDO> refundDoList = null;
 		try {
-			manualRefundDoList = manualRefundDao.listManualRefund(type, state);
-			if (manualRefundDoList == null)
+			refundDoList = refundDao.listRefund(type, state);
+			if (refundDoList == null)
 				return null;
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
 			throw se;
 		}
-		for (ManualRefundDO manualRefundDo : manualRefundDoList) {
-			ManualRefundDTO manualRefundDto = mapper.map(manualRefundDo, ManualRefundDTO.class);
-			manualRefundDtoList.add(manualRefundDto);
+		for (RefundDO refundDo : refundDoList) {
+			RefundDTO refundDto = mapper.map(refundDo, RefundDTO.class);
+			refundDtoList.add(refundDto);
 		}
-		return manualRefundDtoList;
-	}
-	
-	@Override
-	public ManualRefundDTO getManualRefundById(int id) throws ServiceException {
-		ManualRefundDO manualRefundDo = null;
-		try {
-			manualRefundDo = manualRefundDao.getManualRefundById(id);
-			if (manualRefundDo == null)
-				return null;
-		} catch (Exception e) {
-			ServiceException se = new ServiceException(e);
-			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
-			throw se;
-		}
-		return mapper.map(manualRefundDo, ManualRefundDTO.class);
+		return refundDtoList;
 	}
 
 	@Override
-	public int updateManualRefund(ManualRefundDTO manualRefundDto) throws ServiceException {
-		if (manualRefundDto == null) {
-			ServiceException se = new ServiceException("manualRefundDto is null !");
+	public RefundDTO getRefundById(int id) throws ServiceException {
+		RefundDO refundDo = null;
+		try {
+			refundDo = refundDao.getRefundById(id);
+			if (refundDo == null)
+				return null;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+		return mapper.map(refundDo, RefundDTO.class);
+	}
+
+	@Override
+	public int updateRefund(RefundDTO refundDto) throws ServiceException {
+		if (refundDto == null) {
+			ServiceException se = new ServiceException("refundDto is null !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
 		try {
-			ManualRefundDO manualRefundDo = mapper.map(manualRefundDto, ManualRefundDO.class);
-			return manualRefundDao.updateManualRefund(manualRefundDo);
+			RefundDO refundDo = mapper.map(refundDto, RefundDO.class);
+			return refundDao.updateRefund(refundDo);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
@@ -96,14 +96,14 @@ public class ManualRefundServiceImpl extends BaseService implements ManualRefund
 	}
 
 	@Override
-	public int deleteManualRefundById(int id) throws ServiceException {
+	public int deleteRefundById(int id) throws ServiceException {
 		if (id <= 0) {
 			ServiceException se = new ServiceException("id error !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
 		try {
-			return manualRefundDao.deleteManualRefundById(id);
+			return refundDao.deleteRefundById(id);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());

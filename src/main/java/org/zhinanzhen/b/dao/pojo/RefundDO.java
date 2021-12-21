@@ -6,7 +6,7 @@ import java.util.Date;
 import lombok.Data;
 
 @Data
-public class ManualRefundDO implements Serializable {
+public class RefundDO implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -15,6 +15,10 @@ public class ManualRefundDO implements Serializable {
 	private String state;
 
 	private String type;
+	
+	private Integer visaId;
+
+	private Integer commissionOrderId;
 
 	private int userId;
 

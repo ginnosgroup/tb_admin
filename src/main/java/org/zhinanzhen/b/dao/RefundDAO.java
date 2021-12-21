@@ -3,18 +3,18 @@ package org.zhinanzhen.b.dao;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
-import org.zhinanzhen.b.dao.pojo.ManualRefundDO;
+import org.zhinanzhen.b.dao.pojo.RefundDO;
 
-public interface ManualRefundDAO {
+public interface RefundDAO {
 
-	int addManualRefund(ManualRefundDO manualRefundDo);
+	int addRefund(RefundDO refundDo);
 
-	List<ManualRefundDO> listManualRefund(@Param("type") String type, @Param("state") String state);
+	List<RefundDO> listRefund(@Param("type") String type, @Param("state") String state);
 	
-	ManualRefundDO getManualRefundById(int id);
+	RefundDO getRefundById(int id);
 
-	int updateManualRefund(ManualRefundDO manualRefundDo);
+	int updateRefund(RefundDO refundDo);
 	
-	int deleteManualRefundById(int id);
+	int deleteRefundById(int id);
 
 }
