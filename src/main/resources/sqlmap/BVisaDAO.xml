@@ -488,6 +488,9 @@
                 <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "M"'>
                     DATE_FORMAT(v.kj_approval_date, '%Y-%m') AS date,
                 </when>
+                <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "Y"'>
+                    DATE_FORMAT(v.kj_approval_date, '%Y') AS date,
+                </when>
                 <otherwise>
                     DATE_FORMAT(v.kj_approval_date, '%Y-%m-%d') AS date,
                 </otherwise>
@@ -525,6 +528,9 @@
                 </when>
                 <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "M"'>
                     DATE_FORMAT(v.kj_approval_date, '%Y-%m'),
+                </when>
+                <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "Y"'>
+                    DATE_FORMAT(v.kj_approval_date, '%Y'),
                 </when>
                 <otherwise>
                     DATE_FORMAT(v.kj_approval_date, '%Y-%m-%d'),

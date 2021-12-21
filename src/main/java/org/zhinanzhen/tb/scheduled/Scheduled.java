@@ -108,11 +108,11 @@ public class Scheduled {
 
 
         //月初截止到本周五的
-        List<DataDTO> areaTodayDataList = data.dataReport(startDate,endDate,"A"); //   A  全area地区的area数据   数据
-        List<DataDTO> dataTOdayDTOList = data.dataReport(startDate,endDate,"R"); //  R 全area顾问倒序排名的数据  顾问
+        List<DataDTO> areaTodayDataList = data.dataReport(startDate,endDate,"A",null); //   A  全area地区的area数据   数据
+        List<DataDTO> dataTOdayDTOList = data.dataReport(startDate,endDate,"R",null); //  R 全area顾问倒序排名的数据  顾问
 
         //上周六截止到到本周五的数据
-        List<DataDTO> lastWeekAreaDataList = data.dataReport(lastSaturdayDate,endDate,"A"); //   A  地区的数据
+        List<DataDTO> lastWeekAreaDataList = data.dataReport(lastSaturdayDate,endDate,"A",null); //   A  地区的数据
 
         //所有顾问按照地区分类（已经排好名次）
         List<List<DataDTO>> regionList = RegionClassification.classification(dataTOdayDTOList);//  按照地区将顾问进行分组(顾问排名是1-当前日期)
@@ -238,8 +238,8 @@ public class Scheduled {
         String endDate = DateClass.lastMonthLastDay(Calendar.getInstance());     //上个月最后一天
 
         //下面的数据是上月初到上月末的
-        List<DataDTO> areaTodayDataList = data.dataReport(startDate,endDate,"A"); //   A  全area地区的area数据   数据
-        List<DataDTO> dataTOdayDTOList = data.dataReport(startDate,endDate,"R"); //  R 全area顾问倒序排名的数据  顾问
+        List<DataDTO> areaTodayDataList = data.dataReport(startDate,endDate,"A",null); //   A  全area地区的area数据   数据
+        List<DataDTO> dataTOdayDTOList = data.dataReport(startDate,endDate,"R",null); //  R 全area顾问倒序排名的数据  顾问
         List<List<DataDTO>> regionList = RegionClassification.classification(dataTOdayDTOList);//  按照地区将顾问进行分组
 
         {

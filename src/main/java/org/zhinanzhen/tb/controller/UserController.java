@@ -160,7 +160,7 @@ public class UserController extends BaseController {
 	public Response<Integer> countUserByThisMonth(HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<Integer>(0, userService.countUserByThisMonth(getAdviserId(request)));
+			return new Response<Integer>(0, userService.countUserByThisMonth(getAdviserId(request), null));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), -1);
 		}
