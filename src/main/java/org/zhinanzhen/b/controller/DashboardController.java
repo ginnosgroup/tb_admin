@@ -129,7 +129,7 @@ public class DashboardController extends BaseController {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		//List<Integer> regionIdList = new ArrayList<>();
 		if (adminUserLoginInfo == null || !("GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
-				|| "SUPER".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+				|| "SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 			return new DashboardResponse(1,"No permission");
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 		String startDate = DateClass.thisMonthFirstDay(Calendar.getInstance());
@@ -161,14 +161,14 @@ public class DashboardController extends BaseController {
 		super.setGetHeader(response);
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo == null || !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
-				|| !"SUPER".equalsIgnoreCase(adminUserLoginInfo.getApList()))
+				|| !"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList()))
 			return new DashboardResponse(1,"No permission");
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 		List<Integer> regionIdList = new ArrayList<>();
 		String startDate = DateClass.thisMonthFirstDay(Calendar.getInstance());
 		String endDate = sdf.format(Calendar.getInstance().getTime());
 		List<DataDTO> dataList = data.dataReport(startDate,endDate,"R",null); //  R 全area顾问倒序排名的数据  顾问
-		if ("SUPER".equalsIgnoreCase(adminUserLoginInfo.getApList())){
+		if ("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())){
 			return new DashboardResponse(0, "success", dataList, startDate, endDate);
 		}else {
 			if (adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0){//顾问管理员显示管理区域
@@ -233,7 +233,7 @@ public class DashboardController extends BaseController {
 				DataDTO dto = RegionClassification.adviserDateByAdviserId(dataList, adviserId);
 				return new DashboardResponse(0,"自己上周业绩组成",dto, startDate, endDate);
 			}
-		}else if(adminUserLoginInfo != null && "SUPER".equalsIgnoreCase(adminUserLoginInfo.getApList())){
+		}else if(adminUserLoginInfo != null && "SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())){
 			return new DashboardResponse(0,"全澳-上周业绩组成",areaDataList, startDate, endDate);
 		}
 		return  new DashboardResponse(0,"",null,startDate,endDate);
@@ -283,7 +283,7 @@ public class DashboardController extends BaseController {
 				DataDTO dto = RegionClassification.adviserDateByAdviserId(dataList, adviserId);
 				return new DashboardResponse(0,"自己本月业绩组成",dto, startDate, endDate);
 			}
-		} else if (adminUserLoginInfo != null && "SUPER".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+		} else if (adminUserLoginInfo != null && "SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 			return new DashboardResponse(0, "全澳-本月业绩组成", areaDataList, startDate, endDate);
 		}
 		return new DashboardResponse(0, "", null, startDate, endDate);
@@ -380,7 +380,7 @@ public class DashboardController extends BaseController {
 		String today = DateClass.today();
 		List<DataDTO> dataList = data.dataReport(thisYearFirstDay,today,"R","Y");
 		List<Integer> regionIdList = new ArrayList<>();
-		if ("SUPER".equalsIgnoreCase(loginInfo.getApList())){
+		if ("SUPERAD".equalsIgnoreCase(loginInfo.getApList())){
 			return new DashboardResponse(0,"success",dataList, thisYearFirstDay, today);
 		}else if ("GW".equalsIgnoreCase(loginInfo.getApList())){
 			if (loginInfo.getRegionId() != null && loginInfo.getRegionId() > 0){//顾问管理员
@@ -434,7 +434,7 @@ public class DashboardController extends BaseController {
 		List<DataDTO> dataList = data.dataReport(thisYearFirstDay,today,"R","Y");
 		List<Integer> regionIdList = new ArrayList<>();
 		double total = 0;
-		if ("SUPER".equalsIgnoreCase(loginInfo.getApList())){
+		if ("SUPERAD".equalsIgnoreCase(loginInfo.getApList())){
 			for (DataDTO dataDTO : dataList){
 				total = dataDTO.getTotal() + total;
 			}
@@ -474,8 +474,8 @@ public class DashboardController extends BaseController {
 	}
 
 	/**
-	 * user/count 接口在顾问管理员是返回本地区所有顾问下的所有客户总和
-	 * 此接口返回顾问管理员自己的客户总数
+	 * user/count 接口在顾问管理员是返回本地区所有顾问下的所有客户总和/顾问返回自己的客户总和
+	 * 此接口返回：顾问管理员自己的客户总数/superad返回所有客户总数
 	 * @return
 	 */
 	@GetMapping(value = "/countUser")
@@ -490,12 +490,17 @@ public class DashboardController extends BaseController {
 					adviserId, null, 0);
 			return new Response(0, count);
 		}
-		return new Response(0, "");
+		if (adminUserLoginInfo != null && "SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())){
+			int count = userService.countUser(null, null, null, null, null,
+					0, null, 0);
+			return new Response(0, count);
+		}
+		return new Response(0, 0);
 	}
 
 	/**
 	 * /user/countMonth 返回顾问或者顾问管理员自己本月新客户
-	 * 此接口返回顾问管理员地区下所有顾问的本月新增客户总数
+	 * 此接口返回：顾问管理员地区下所有顾问的本月新增客户总数/superad返回本月所有顾问新增客户总数
 	 * @throws ServiceException
 	 */
 	@GetMapping(value = "/countMonth")
@@ -511,12 +516,16 @@ public class DashboardController extends BaseController {
 				regionIdList.add(region.getId());
 			return new Response(0, userService.countUserByThisMonth(null, regionIdList));
 		}
+		if (adminUserLoginInfo != null && "SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())){
+			int count = userService.countUserByThisMonth(null, null);
+			return new Response(0, count);
+		}
 		return new Response(0, 0);
 	}
 
 	/**
 	 * /dashboard/getMonthExpectAmount 返回顾问管理员/顾问自己的本月预收业绩
-	 * 此接口返回顾问管理员地区下所有顾问的本月预收业绩
+	 * 此接口返回：顾问管理员地区下所有顾问的本月预收业绩/superad返回所有顾问本月预收业绩
 	 * @throws ServiceException
 	 */
 	@GetMapping(value = "/getMonthExpectAmount2")
@@ -531,6 +540,9 @@ public class DashboardController extends BaseController {
 			for (RegionDTO region : regionList)
 				regionIdList.add(region.getId());
 			return new Response(0, dashboardService.getThisMonthExpectAmount(null, regionIdList));
+		}
+		if (adminUserLoginInfo != null && "SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())){
+			return new Response(0, dashboardService.getThisMonthExpectAmount(null, null));
 		}
 		return new Response(0, 0);
 	}
