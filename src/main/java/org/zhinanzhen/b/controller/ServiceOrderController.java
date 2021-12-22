@@ -2117,7 +2117,7 @@ public class ServiceOrderController extends BaseController {
 					if (so.getService() != null )
 						str = so.getService().getName() + so.getService().getCode();
 					if (so.getServicePackage() != null)
-						str = str + "-" +getTypeStrOfServicePackageDTO(so.getServicePackage().getType()) ;
+						str = str + "-" + ServicePackageTypeEnum.getServicePackageTypeComment(so.getServicePackage().getType()) ;
 					if (so.getServiceAssessDO() != null)
 						str = str + "-" + so.getServiceAssessDO().getName();
 				}

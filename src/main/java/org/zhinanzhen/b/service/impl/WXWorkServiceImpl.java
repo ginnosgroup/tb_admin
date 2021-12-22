@@ -8,6 +8,7 @@ import org.dozer.DozerBeanMapper;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
+import org.zhinanzhen.b.service.ServicePackageTypeEnum;
 import org.zhinanzhen.b.service.WXWorkService;
 import org.zhinanzhen.b.service.pojo.ChatDTO;
 import org.zhinanzhen.b.service.pojo.SchoolInstitutionListDTO;
@@ -150,20 +151,21 @@ public class WXWorkServiceImpl implements WXWorkService {
                             + "[ " + serviceDO.getName() + "-" + serviceDO.getCode();
                 ServicePackageDO servicePackageDO = servicePackageDAO.getById(serviceOrderDO.getServicePackageId());
                 if (servicePackageDO != null)
-                    switch (servicePackageDO.getType()) {
-                        case "CA":
-                            msg = msg + "-" + "职业评估";
-                            break;
-                        case "EOI":
-                            msg = msg + "-" + "EOI";
-                            break;
-                        case "VA":
-                            msg = msg + "-" + "签证申请";
-                            break;
-                        case "ZD":
-                            msg = msg + "-" + "州担";
-                            break;
-                    }
+                    msg = msg + "-" + ServicePackageTypeEnum.getServicePackageTypeComment(servicePackageDO.getType());
+                    //switch (servicePackageDO.getType()) {
+                    //    case "CA":
+                    //        msg = msg + "-" + "职业评估";
+                    //        break;
+                    //    case "EOI":
+                    //        msg = msg + "-" + "EOI";
+                    //        break;
+                    //    case "VA":
+                    //        msg = msg + "-" + "签证申请";
+                    //        break;
+                    //   case "ZD":
+                    //        msg = msg + "-" + "州担";
+                    //        break;
+                    //}
                 ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDO.getServiceAssessId());
                 if (serviceAssessDO != null)
                     msg = msg + "-" + serviceAssessDO.getName();
