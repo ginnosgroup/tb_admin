@@ -131,7 +131,7 @@ public class DashboardController extends BaseController {
 		if (adminUserLoginInfo == null || !("GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
 				|| "SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 			return new DashboardResponse(1,"No permission");
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		String startDate = DateClass.thisMonthFirstDay(Calendar.getInstance());
 		String endDate = sdf.format(Calendar.getInstance().getTime());
 
@@ -163,7 +163,7 @@ public class DashboardController extends BaseController {
 		if (adminUserLoginInfo == null || !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
 				|| !"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList()))
 			return new DashboardResponse(1,"No permission");
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		List<Integer> regionIdList = new ArrayList<>();
 		String startDate = DateClass.thisMonthFirstDay(Calendar.getInstance());
 		String endDate = sdf.format(Calendar.getInstance().getTime());
@@ -253,7 +253,7 @@ public class DashboardController extends BaseController {
 	@ResponseBody
 	public DashboardResponse thisMonthPerformance(HttpServletRequest request, HttpServletResponse response) throws ServiceException {
 		super.setGetHeader(response);
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		List<Integer> regionIdList = new ArrayList<>();
 		String startDate = DateClass.thisMonthFirstDay(Calendar.getInstance());
@@ -301,8 +301,9 @@ public class DashboardController extends BaseController {
 		List<DataDTO> dataListThisMonth = data.dataReport(thisMonthFirstDay,today,"R",null);
 		List<DataDTO> resultList = new ArrayList<>();
 		DataDTO thisMonthData = new DataDTO();
+		thisMonthData.setDate(today.substring(0,7));
 		dataListThisMonth.forEach(dataDTO -> {
-			thisMonthData.setDate(dataDTO.getDate());
+			//thisMonthData.setDate(dataDTO.getDate());
 			thisMonthData.setServiceFee(thisMonthData.getServiceFee() + dataDTO.getServiceFee());
 			thisMonthData.setClaimedCommission(thisMonthData.getClaimedCommission() + dataDTO.getClaimedCommission());
 			thisMonthData.setClaimCommission(thisMonthData.getClaimCommission() + dataDTO.getClaimCommission());
@@ -312,6 +313,7 @@ public class DashboardController extends BaseController {
 		String lastMonthEndDay = DateClass.lastMonthLastDay(Calendar.getInstance());
 		List<DataDTO> dataListLastMonth = data.dataReport(lastMonthFirstDay,lastMonthEndDay,"R",null);
 		DataDTO lastMonthData = new DataDTO();
+		thisMonthData.setDate(lastMonthEndDay.substring(0,7));
 		dataListLastMonth.forEach(dataDTO -> {
 			lastMonthData.setDate(dataDTO.getDate());
 			lastMonthData.setServiceFee(lastMonthData.getServiceFee() + dataDTO.getServiceFee());
@@ -337,6 +339,7 @@ public class DashboardController extends BaseController {
 		List<DataDTO> dataListThisMonth = data.dataReport(thisMonthFirstDay,today,"R",null);
 		List<DataDTO> resultList = new ArrayList<>();
 		DataDTO thisMonthData = new DataDTO();
+		thisMonthData.setDate(today.substring(0,7));
 		dataListThisMonth.forEach(dataDTO -> {
 			thisMonthData.setDate(dataDTO.getDate());
 			thisMonthData.setServiceFee(thisMonthData.getServiceFee() + dataDTO.getServiceFee());
@@ -348,6 +351,7 @@ public class DashboardController extends BaseController {
 		String lastYearThisMonthLastDay = DateClass.lastYearThisMonthLastDay();
 		List<DataDTO> dataListLastMonth = data.dataReport(lastYearThisMonthFirstDay,lastYearThisMonthLastDay,"R",null);
 		DataDTO lastYearThisMonthData = new DataDTO();
+		lastYearThisMonthData.setDate(lastYearThisMonthLastDay.substring(0,7));
 		dataListLastMonth.forEach(dataDTO -> {
 			lastYearThisMonthData.setDate(dataDTO.getDate());
 			lastYearThisMonthData.setServiceFee(lastYearThisMonthData.getServiceFee() + dataDTO.getServiceFee());
