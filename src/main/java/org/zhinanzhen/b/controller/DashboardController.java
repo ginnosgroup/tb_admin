@@ -313,7 +313,7 @@ public class DashboardController extends BaseController {
 		String lastMonthEndDay = DateClass.lastMonthLastDay(Calendar.getInstance());
 		List<DataDTO> dataListLastMonth = data.dataReport(lastMonthFirstDay,lastMonthEndDay,"R",null);
 		DataDTO lastMonthData = new DataDTO();
-		thisMonthData.setDate(lastMonthEndDay.substring(0,7));
+		lastMonthData.setDate(lastMonthEndDay.substring(0,7));
 		dataListLastMonth.forEach(dataDTO -> {
 			lastMonthData.setDate(dataDTO.getDate());
 			lastMonthData.setServiceFee(lastMonthData.getServiceFee() + dataDTO.getServiceFee());
