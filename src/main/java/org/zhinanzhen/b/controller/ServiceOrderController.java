@@ -1894,7 +1894,7 @@ public class ServiceOrderController extends BaseController {
 		try {
 			super.setGetHeader(response);
 			List<EachRegionNumberDTO> eachRegionNumberDTOS = new ArrayList<>();
-			if (StringUtil.isEmpty(subject))
+			if (StringUtil.isEmpty(subject))//导出签证/留学各个项目各个地区的个数
 				eachRegionNumberDTOS = serviceOrderService.listServiceOrderGroupByForRegion(type, startOfficialApprovalDate, endOfficialApprovalDate);
 
 			if (StringUtil.isNotEmpty(subject)){
