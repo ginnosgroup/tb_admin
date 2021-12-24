@@ -17,6 +17,7 @@ import org.zhinanzhen.b.service.DashboardService;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.b.service.pojo.DataDTO;
+import org.zhinanzhen.b.service.pojo.DataRankDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.DashboardResponse;
@@ -124,7 +125,7 @@ public class DashboardController extends BaseController {
 	 */
 	@GetMapping(value = "/thisMonthPerformanceRank")
 	@ResponseBody
-	public DashboardResponse thisMonthPerformanceRank(HttpServletRequest request, HttpServletResponse response) throws ServiceException {
+	public DashboardResponse thisMonthPerformanceRank(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		super.setGetHeader(response);
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		//List<Integer> regionIdList = new ArrayList<>();
@@ -143,7 +144,7 @@ public class DashboardController extends BaseController {
 		// 一个area实例中包含此area所有顾问的数据,和areaTodayDataList是和并成一条记录
 		//List<List<DataDTO>> regionList = RegionClassification.classification(dataList);//  按照地区将顾问进行分组
 
-		return  new DashboardResponse(0,"全澳本月累计业绩排名",dataList, startDate, endDate);
+		return  new DashboardResponse(0,"全澳本月累计业绩排名",RegionClassification.dataSplitByRegionId(dataList,null), startDate, endDate);
 	}
 
 	/**
@@ -157,11 +158,11 @@ public class DashboardController extends BaseController {
 	 */
 	@GetMapping(value = "/thisMonthPerformanceRankDiffAp")
 	@ResponseBody
-	public DashboardResponse thisMonthPerformanceRankDiffAp(HttpServletRequest request, HttpServletResponse response) throws ServiceException {
+	public DashboardResponse thisMonthPerformanceRankDiffAp(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		super.setGetHeader(response);
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-		if (adminUserLoginInfo == null || !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
-				|| !"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList()))
+		if (adminUserLoginInfo == null || !("GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
+				|| "SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 			return new DashboardResponse(1,"No permission");
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		List<Integer> regionIdList = new ArrayList<>();
@@ -169,23 +170,23 @@ public class DashboardController extends BaseController {
 		String endDate = sdf.format(Calendar.getInstance().getTime());
 		List<DataDTO> dataList = data.dataReport(startDate,endDate,"R",null); //  R 全area顾问倒序排名的数据  顾问
 		if ("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())){
-			return new DashboardResponse(0, "success", dataList, startDate, endDate);
+			return new DashboardResponse(0, "success", RegionClassification.dataSplitByRegionId(dataList,regionIdList), startDate, endDate);
 		}else {
 			if (adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0){//顾问管理员显示管理区域
 				List<RegionDTO> _regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
 				regionIdList.add(adminUserLoginInfo.getRegionId());
 				for (RegionDTO region : _regionList)
 					regionIdList.add(region.getId());
-				List<DataDTO> _list = RegionClassification.dataSplitByRegionId(dataList,regionIdList);
+				List<DataRankDTO> _list = RegionClassification.dataSplitByRegionId(dataList,regionIdList);
 				return new DashboardResponse(0,"顾问管理员", _list, startDate, endDate);
 			}else {//顾问显示自己区域排名
 				AdviserDTO adviserDTO = adviserService.getAdviserById(adminUserLoginInfo.getAdviserId());
 				if (adviserDTO != null)
 					regionIdList.add(adviserDTO.getRegionId());
-				List<DataDTO> _list = RegionClassification.dataSplitByRegionId(dataList,regionIdList);
+				List<DataRankDTO> _list = RegionClassification.dataSplitByRegionId(dataList,regionIdList);
+				return new DashboardResponse(0,"顾问", _list, startDate, endDate);
 			}
 		}
-		return new DashboardResponse(0,"",null,startDate,endDate);
 	}
 
 	/**
@@ -324,7 +325,9 @@ public class DashboardController extends BaseController {
 		//dashboardService.thisMonthRingRatio();
 		resultList.add(thisMonthData);
 		resultList.add(lastMonthData);
-		return new DashboardResponse(0,"success", resultList, lastMonthFirstDay.substring(0,7), thisMonthFirstDay.substring(0,7));
+		return new DashboardResponse(0,"success", resultList,
+				StringUtil.toInt(thisMonthFirstDay.substring(5,7)) > 10 ? thisMonthFirstDay.substring(5,7) : thisMonthFirstDay.substring(6,7),
+				StringUtil.toInt(lastMonthFirstDay.substring(5,7)) > 10 ? lastMonthFirstDay.substring(5,7) : lastMonthFirstDay.substring(6,7));
 	}
 
 	/**
@@ -362,7 +365,10 @@ public class DashboardController extends BaseController {
 		//dashboardService.thisMonthRingRatio();
 		resultList.add(thisMonthData);
 		resultList.add(lastYearThisMonthData);
-		return new DashboardResponse(0,"success", resultList, lastYearThisMonthFirstDay.substring(0,7), thisMonthFirstDay.substring(0,7));
+		return new DashboardResponse(0,"success", resultList,
+				StringUtil.toInt(thisMonthFirstDay.substring(5,7)) > 10 ? thisMonthFirstDay.substring(5,7) : thisMonthFirstDay.substring(6,7),
+				StringUtil.toInt(lastYearThisMonthFirstDay.substring(5,7)) > 10 ?
+						lastYearThisMonthFirstDay.substring(5,7) : lastYearThisMonthFirstDay.substring(6,7));
 	}
 
 	/**
@@ -375,7 +381,7 @@ public class DashboardController extends BaseController {
 	 */
 	@GetMapping(value = "/allYearPerformanceRankDiffAp")
 	@ResponseBody
-	public DashboardResponse allYearPerformanceRankDiffAp(HttpServletRequest request, HttpServletResponse response) throws ServiceException {
+	public DashboardResponse allYearPerformanceRankDiffAp(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		super.setGetHeader(response);
 		AdminUserLoginInfo loginInfo = getAdminUserLoginInfo(request);
 		if (loginInfo == null)
@@ -385,20 +391,20 @@ public class DashboardController extends BaseController {
 		List<DataDTO> dataList = data.dataReport(thisYearFirstDay,today,"R","Y");
 		List<Integer> regionIdList = new ArrayList<>();
 		if ("SUPERAD".equalsIgnoreCase(loginInfo.getApList())){
-			return new DashboardResponse(0,"success",dataList, thisYearFirstDay, today);
+			return new DashboardResponse(0,"success",RegionClassification.dataSplitByRegionId(dataList,regionIdList), thisYearFirstDay, today);
 		}else if ("GW".equalsIgnoreCase(loginInfo.getApList())){
 			if (loginInfo.getRegionId() != null && loginInfo.getRegionId() > 0){//顾问管理员
 				List<RegionDTO> _regionList = regionService.listRegion(loginInfo.getRegionId());
 				regionIdList.add(loginInfo.getRegionId());
 				for (RegionDTO region : _regionList)
 					regionIdList.add(region.getId());
-				List<DataDTO> _list = RegionClassification.dataSplitByRegionId(dataList,regionIdList);
+				List<DataRankDTO> _list = RegionClassification.dataSplitByRegionId(dataList,regionIdList);
 				return new DashboardResponse(0,"顾问管理区域排名", _list, thisYearFirstDay, today);
 			}else {
 				AdviserDTO adviserDTO = adviserService.getAdviserById(loginInfo.getAdviserId());
 				if (adviserDTO != null)
 					regionIdList.add(adviserDTO.getRegionId());
-				List<DataDTO> _list = RegionClassification.dataSplitByRegionId(dataList,regionIdList);
+				List<DataRankDTO> _list = RegionClassification.dataSplitByRegionId(dataList,regionIdList);
 				return new DashboardResponse(0,"顾问所属区域排名", _list, thisYearFirstDay, today);
 			}
 		}
@@ -411,12 +417,12 @@ public class DashboardController extends BaseController {
 	 */
 	@GetMapping(value = "/allYearPerformanceRank")
 	@ResponseBody
-	public DashboardResponse allYearPerformanceRank(HttpServletRequest request, HttpServletResponse response) throws ServiceException {
+	public DashboardResponse allYearPerformanceRank(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		super.setGetHeader(response);
 		String thisYearFirstDay = DateClass.thisYearFirstDay();
 		String today = DateClass.today();
 		List<DataDTO> dataList = data.dataReport(thisYearFirstDay,today,"R","Y");
-		return new DashboardResponse(0,"success", dataList, thisYearFirstDay, today);
+		return new DashboardResponse(0,"success", RegionClassification.dataSplitByRegionId(dataList,null), thisYearFirstDay, today);
 	}
 
 	/**
@@ -428,7 +434,7 @@ public class DashboardController extends BaseController {
 	 */
 	@GetMapping(value = "/allYearPerformanceTotal")
 	@ResponseBody
-	public Response allYearPerformanceTotal(HttpServletRequest request, HttpServletResponse response) throws ServiceException {
+	public Response allYearPerformanceTotal(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		super.setGetHeader(response);
 		AdminUserLoginInfo loginInfo = getAdminUserLoginInfo(request);
 		if (loginInfo == null)
@@ -451,7 +457,7 @@ public class DashboardController extends BaseController {
 				regionIdList.add(loginInfo.getRegionId());
 				for (RegionDTO region : _regionList)
 					regionIdList.add(region.getId());
-				List<DataDTO> _list = RegionClassification.dataSplitByRegionId(dataList,regionIdList);
+				List<DataRankDTO> _list = RegionClassification.dataSplitByRegionId(dataList,regionIdList);
 				for (DataDTO dataDTO : _list){
 					total = dataDTO.getTotal() + total;
 					if (dataDTO.getAdviserId() == adviserId)
@@ -465,8 +471,10 @@ public class DashboardController extends BaseController {
 				Integer adviserId = loginInfo.getAdviserId();
 				int i = 0, size = dataList.size();
 				for ( ; i < size ; i++ ){
-					if (adviserId == dataList.get(i).getAdviserId())
+					if (adviserId == dataList.get(i).getAdviserId()){
 						total = dataList.get(i).getTotal();
+						break;
+					}
 				}
 				Map map = new HashMap();
 				map.put("total", total);

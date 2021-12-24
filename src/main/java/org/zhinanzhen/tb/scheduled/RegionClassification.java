@@ -1,7 +1,10 @@
 package org.zhinanzhen.tb.scheduled;
 
 import org.zhinanzhen.b.service.pojo.DataDTO;
+import org.zhinanzhen.b.service.pojo.DataRankDTO;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -37,20 +40,31 @@ public class RegionClassification {
     }
 
     /**
-     * 返回data中regionId存在于regionIdList的数据
+     * 返回data中regionId存在于regionIdList的数据,并且赋值Rank排名
      * @param data
      * @param regionIdList
      * @return
      */
-    public  static List<DataDTO> dataSplitByRegionId (List<DataDTO> data, List<Integer> regionIdList){
-        if (regionIdList.size() == 0)
-            return data;
-        List<DataDTO> resultList = new ArrayList<>();
-        data.forEach(_data ->{
-            if (regionIdList.contains(_data.getRegionId())){
-                resultList.add(_data);
+    public  static List<DataRankDTO> dataSplitByRegionId (List<DataDTO> data, List<Integer> regionIdList) throws Exception {
+        int i = 0;
+        List<DataRankDTO> resultList = new ArrayList<>();
+        if (regionIdList == null || regionIdList.size() == 0){
+            for (DataDTO _data : data){
+                DataRankDTO dataRankDTO = new DataRankDTO();
+                fatherCopyFieldToChild(_data, dataRankDTO);
+                dataRankDTO.setRank( ++i );
+                resultList.add(dataRankDTO);
             }
-        });
+            return resultList;
+        }
+        for (DataDTO _data : data){
+            if (regionIdList.contains(_data.getRegionId())){
+                DataRankDTO dataRankDTO = new DataRankDTO();
+                fatherCopyFieldToChild(_data, dataRankDTO);
+                dataRankDTO.setRank( ++i );
+                resultList.add(dataRankDTO);
+            }
+        }
         return resultList;
     }
 
@@ -68,5 +82,28 @@ public class RegionClassification {
         });
         return resultData;
     }
+
+    public static <T>void fatherCopyFieldToChild(T father,T child) throws Exception {
+        if (child.getClass().getSuperclass()!=father.getClass()){
+            throw new Exception("child 不是 father 的子类");
+        }
+        Class<?> fatherClass = father.getClass();
+        Field[] declaredFields = fatherClass.getDeclaredFields();
+        for (int i = 0; i < declaredFields.length; i++) {
+            Field field=declaredFields[i];
+            Method method=fatherClass.getDeclaredMethod("get"+upperHeadChar(field.getName()));
+            Object obj = method.invoke(father);
+            field.setAccessible(true);
+            field.set(child,obj);
+        }
+
+    }
+
+    public static String upperHeadChar(String in) {
+        String head = in.substring(0, 1);
+        String out = head.toUpperCase() + in.substring(1, in.length());
+        return out;
+    }
+
 
 }
