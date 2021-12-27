@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.zhinanzhen.b.service.ServicePackageService;
+import org.zhinanzhen.b.service.ServicePackageTypeEnum;
 import org.zhinanzhen.b.service.ServiceService;
 import org.zhinanzhen.b.service.pojo.ServicePackageDTO;
 import org.zhinanzhen.tb.controller.BaseController;
@@ -31,7 +32,7 @@ public class ServicePackageController extends BaseController {
 	ServicePackageService servicePackageService;
 
 	public enum TypeEnum {
-		CA, EOI, SA, VA, ZD;
+		CA, EOI, SA, VA, ZD, TM, DB;
 		public static TypeEnum get(String name) {
 			for (TypeEnum e : TypeEnum.values())
 				if (e.toString().equals(name))
@@ -46,7 +47,7 @@ public class ServicePackageController extends BaseController {
 			@RequestParam(value = "serviceId") int serviceId, @RequestParam(value = "num") int num,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
-			if (TypeEnum.get(type) == null)
+			if (ServicePackageTypeEnum.getServicePackageTypeEnum(type) == null)
 				return new Response<Integer>(1, "服务包类型错误(" + type + ")!", 0);
 			super.setPostHeader(response);
 			if (serviceService.getServiceById(serviceId) == null)
