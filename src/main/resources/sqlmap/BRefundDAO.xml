@@ -57,39 +57,42 @@
     
     <select id="listRefund" resultType="org.zhinanzhen.b.dao.pojo.RefundDO">
         SELECT
-            id,
-            gmt_create AS gmtCreate,
-            gmt_modify AS gmtModify,
-            state,
-            type,
-            visa_id AS visaId,
-            commission_order_id AS commissionOrderId,
-            user_id AS userId,
-            adviser_id AS adviserId,
-            mara_id AS maraId,
-            official_id AS officialId,
-            school_id AS schoolId,
-            course_id AS courseId,
-            receive_date AS receiveDate,
-            received,
-            payment_voucher_image_url AS paymentVoucherImageUrl,
-            refund_voucher_image_url AS refundVoucherImageUrl,
-            refund_detail_id AS refundDetailId,
-            refund_detail AS refundDetail,
-            currency_type AS currencyType,
-            amount_name AS amountName,
-            bank_name AS bankName,
-            bsb,
-            remarks
-        FROM b_refund
-        WHERE 1=1
+            r.id,
+            r.gmt_create AS gmtCreate,
+            r.gmt_modify AS gmtModify,
+            r.state,
+            r.type,
+            r.visa_id AS visaId,
+            r.commission_order_id AS commissionOrderId,
+            r.user_id AS userId,
+            u.name AS userName,
+            r.adviser_id AS adviserId,
+            a.name AS adviserName,
+            r.mara_id AS maraId,
+            r.official_id AS officialId,
+            o.name AS officialName,
+            r.school_id AS schoolId,
+            r.course_id AS courseId,
+            r.receive_date AS receiveDate,
+            r.received,
+            r.payment_voucher_image_url AS paymentVoucherImageUrl,
+            r.refund_voucher_image_url AS refundVoucherImageUrl,
+            r.refund_detail_id AS refundDetailId,
+            r.refund_detail AS refundDetail,
+            r.currency_type AS currencyType,
+            r.amount_name AS amountName,
+            r.bank_name AS bankName,
+            r.bsb,
+            r.remarks
+        FROM b_refund r, tb_user u, tb_adviser a, b_official o
+        WHERE r.user_id = u.id AND r.adviser_id = a.id AND r.b_official = o.id
         <if test='type != null and type != ""'>
-			AND type = #{type}
+			AND r.type = #{type}
 		</if>
 		<if test='state != null and state != ""'>
-			AND state = #{state}
+			AND r.state = #{state}
 		</if>
-        ORDER BY gmt_create DESC;
+        ORDER BY r.gmt_create DESC;
     </select>
     
     <select id="getRefundById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.RefundDO">

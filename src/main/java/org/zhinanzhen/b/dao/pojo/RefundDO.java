@@ -21,12 +21,18 @@ public class RefundDO implements Serializable {
 	private Integer commissionOrderId;
 
 	private int userId;
+	
+	private String userName;
 
 	private int adviserId;
+	
+	private String adviserName;
 
 	private int maraId;
 
 	private int officialId;
+	
+	private String officialName;
 
 	private int schoolId;
 

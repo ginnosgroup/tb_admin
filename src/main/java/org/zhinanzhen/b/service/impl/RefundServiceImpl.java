@@ -7,9 +7,13 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.RefundDAO;
+import org.zhinanzhen.b.dao.SchoolCourseDAO;
+import org.zhinanzhen.b.dao.SchoolInstitutionDAO;
 import org.zhinanzhen.b.dao.pojo.RefundDO;
+import org.zhinanzhen.b.dao.pojo.SchoolInstitutionDO;
 import org.zhinanzhen.b.service.RefundService;
 import org.zhinanzhen.b.service.pojo.RefundDTO;
+import org.zhinanzhen.b.service.pojo.SchoolInstitutionListDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
@@ -20,6 +24,12 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 
 	@Resource
 	RefundDAO refundDao;
+
+	@Resource
+	SchoolInstitutionDAO schoolInstitutionDao;
+
+	@Resource
+	SchoolCourseDAO schoolCourseDao;
 
 	@Override
 	public int addRefund(RefundDTO refundDto) throws ServiceException {
@@ -58,6 +68,19 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 		}
 		for (RefundDO refundDo : refundDoList) {
 			RefundDTO refundDto = mapper.map(refundDo, RefundDTO.class);
+			if (refundDto != null && "OVST".equalsIgnoreCase(refundDto.getType())) {
+				if (refundDto.getSchoolId() > 0) {
+					SchoolInstitutionDO schoolInstitutionDo = schoolInstitutionDao
+							.getSchoolInstitutionById(refundDto.getSchoolId());
+					refundDto.setSchoolName(schoolInstitutionDo.getInstitutionTradingName());
+					refundDto.setInstitutionName(schoolInstitutionDo.getInstitutionName());
+				}
+				if (refundDto.getCourseId() > 0) {
+					SchoolInstitutionListDTO schoolInstitutionListDto = schoolCourseDao
+							.getSchoolInstitutionInfoByCourseId(refundDto.getCourseId());
+					refundDto.setCourseName(schoolInstitutionListDto.getName());
+				}
+			}
 			refundDtoList.add(refundDto);
 		}
 		return refundDtoList;
