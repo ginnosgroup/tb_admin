@@ -14,6 +14,7 @@ import org.zhinanzhen.tb.service.impl.BaseService;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -121,7 +122,13 @@ public class Data extends BaseService {
 
             //计算areaDataList每一行的total值
             areaDataList.forEach(area->{
-                area.setTotal(area.getServiceFee()+area.getClaimCommission()+area.getDeductionCommission()+area.getAdjustments());
+                area.setServiceFee(new BigDecimal(area.getServiceFee()).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+                area.setDeductionCommission(new  BigDecimal(area.getDeductionCommission()).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+                area.setClaimCommission(new BigDecimal(area.getClaimCommission()).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+                area.setClaimedCommission(new BigDecimal(area.getClaimedCommission()).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+                area.setAdjustments(new BigDecimal(area.getAdjustments()).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+                area.setTotal(new BigDecimal(area.getServiceFee()+area.getClaimCommission()+area.getDeductionCommission()+area.getAdjustments())
+                        .setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
             });
 
 
