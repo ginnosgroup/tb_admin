@@ -5,6 +5,7 @@ import org.zhinanzhen.b.service.pojo.DataRankDTO;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -52,6 +53,12 @@ public class RegionClassification {
             for (DataDTO _data : data){
                 DataRankDTO dataRankDTO = new DataRankDTO();
                 fatherCopyFieldToChild(_data, dataRankDTO);
+                dataRankDTO.setAdjustments(new BigDecimal(dataRankDTO.getAdjustments()).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+                dataRankDTO.setClaimCommission(new BigDecimal(dataRankDTO.getClaimCommission()).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+                dataRankDTO.setClaimedCommission(new BigDecimal(dataRankDTO.getClaimedCommission()).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+                dataRankDTO.setDeductionCommission(new BigDecimal(dataRankDTO.getDeductionCommission()).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+                dataRankDTO.setServiceFee(new BigDecimal(dataRankDTO.getServiceFee()).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+                dataRankDTO.setTotal(new BigDecimal(dataRankDTO.getTotal()).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
                 dataRankDTO.setRank( ++i );
                 resultList.add(dataRankDTO);
             }
@@ -61,6 +68,12 @@ public class RegionClassification {
             if (regionIdList.contains(_data.getRegionId())){
                 DataRankDTO dataRankDTO = new DataRankDTO();
                 fatherCopyFieldToChild(_data, dataRankDTO);
+                dataRankDTO.setAdjustments(new BigDecimal(dataRankDTO.getAdjustments()).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+                dataRankDTO.setClaimCommission(new BigDecimal(dataRankDTO.getClaimCommission()).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+                dataRankDTO.setClaimedCommission(new BigDecimal(dataRankDTO.getClaimedCommission()).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+                dataRankDTO.setDeductionCommission(new BigDecimal(dataRankDTO.getDeductionCommission()).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+                dataRankDTO.setServiceFee(new BigDecimal(dataRankDTO.getServiceFee()).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+                dataRankDTO.setTotal(new BigDecimal(dataRankDTO.getTotal()).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
                 dataRankDTO.setRank( ++i );
                 resultList.add(dataRankDTO);
             }
@@ -74,10 +87,16 @@ public class RegionClassification {
         DataDTO resultData = new DataDTO();
         data.forEach(_data ->{
             if (_data.getAdviserId() == adviserId){
-                resultData.setServiceFee(resultData.getServiceFee() + _data.getServiceFee());
-                resultData.setDeductionCommission(resultData.getDeductionCommission() + _data.getDeductionCommission());
-                resultData.setClaimCommission(resultData.getClaimCommission() + _data.getClaimCommission());
-                resultData.setClaimedCommission(resultData.getClaimedCommission() + _data.getClaimedCommission());
+                resultData.setServiceFee(new BigDecimal(resultData.getServiceFee() + _data.getServiceFee())
+                        .setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+                resultData.setDeductionCommission(new BigDecimal(resultData.getDeductionCommission() + _data.getDeductionCommission())
+                        .setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+                resultData.setClaimCommission(new BigDecimal(resultData.getClaimCommission() + _data.getClaimCommission())
+                        .setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+                resultData.setClaimedCommission(new BigDecimal(resultData.getClaimedCommission() + _data.getClaimedCommission())
+                        .setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+                resultData.setTotal(new BigDecimal(resultData.getTotal() + _data.getTotal())
+                        .setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
             }
         });
         return resultData;
