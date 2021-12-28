@@ -41,6 +41,8 @@ public class RefundDO implements Serializable {
 	private Date receiveDate;
 
 	private double received;
+	
+	private double amount;
 
 	private String paymentVoucherImageUrl;
 
@@ -52,7 +54,7 @@ public class RefundDO implements Serializable {
 
 	private String currencyType;
 
-	private String amountName;
+	private String accountName;
 
 	private String bankName;
 

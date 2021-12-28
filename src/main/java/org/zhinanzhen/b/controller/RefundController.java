@@ -63,12 +63,12 @@ public class RefundController extends BaseController {
 			@RequestParam(value = "maraId") Integer maraId, @RequestParam(value = "officialId") Integer officialId,
 			@RequestParam(value = "schoolId", required = false) Integer schoolId,
 			@RequestParam(value = "courseId", required = false) Integer courseId,
-			@RequestParam(value = "receiveDate") String receiveDate, @RequestParam(value = "received") String received,
+			@RequestParam(value = "receiveDate") String receiveDate, @RequestParam(value = "received") String received,@RequestParam(value = "amount") Double amount,
 			@RequestParam(value = "paymentVoucherImageUrl", required = false) String paymentVoucherImageUrl,
 			@RequestParam(value = "refundDetailId") Integer refundDetailId,
 			@RequestParam(value = "refundDetail") String refundDetail,
 			@RequestParam(value = "currencyType") String currencyType,
-			@RequestParam(value = "amountName") String amountName, @RequestParam(value = "bankName") String bankName,
+			@RequestParam(value = "accountName") String accountName, @RequestParam(value = "bankName") String bankName,
 			@RequestParam(value = "bsb") String bsb, @RequestParam(value = "remarks") String remarks,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
@@ -86,12 +86,13 @@ public class RefundController extends BaseController {
 				refundDto.setCourseId(courseId);
 			refundDto.setReceiveDate(new Date(Long.parseLong(receiveDate)));
 			refundDto.setReceived(Double.parseDouble(received));
+			refundDto.setAmount(amount);
 			if (paymentVoucherImageUrl != null)
 				refundDto.setPaymentVoucherImageUrl(paymentVoucherImageUrl);
 			refundDto.setRefundDetailId(refundDetailId);
 			refundDto.setRefundDetail(refundDetail);
 			refundDto.setCurrencyType(currencyType);
-			refundDto.setAmountName(amountName);
+			refundDto.setAccountName(accountName);
 			refundDto.setBankName(bankName);
 			refundDto.setBsb(bsb);
 			refundDto.setRemarks(remarks);
@@ -129,12 +130,13 @@ public class RefundController extends BaseController {
 			@RequestParam(value = "courseId", required = false) Integer courseId,
 			@RequestParam(value = "receiveDate", required = false) String receiveDate,
 			@RequestParam(value = "received", required = false) String received,
+			@RequestParam(value = "amount", required = false) Double amount,
 			@RequestParam(value = "paymentVoucherImageUrl", required = false) String paymentVoucherImageUrl,
 			@RequestParam(value = "refundVoucherImageUrl", required = false) String refundVoucherImageUrl,
 			@RequestParam(value = "refundDetailId", required = false) Integer refundDetailId,
 			@RequestParam(value = "refundDetail", required = false) String refundDetail,
 			@RequestParam(value = "currencyType", required = false) String currencyType,
-			@RequestParam(value = "amountName", required = false) String amountName,
+			@RequestParam(value = "accountName", required = false) String accountName,
 			@RequestParam(value = "bankName", required = false) String bankName,
 			@RequestParam(value = "bsb", required = false) String bsb,
 			@RequestParam(value = "remarks", required = false) String remarks, HttpServletResponse response) {
@@ -161,6 +163,8 @@ public class RefundController extends BaseController {
 				refundDto.setReceiveDate(new Date(Long.parseLong(receiveDate)));
 			if (received != null)
 				refundDto.setReceived(Double.parseDouble(received));
+			if (amount != null)
+				refundDto.setAmount(amount);
 			if (paymentVoucherImageUrl != null)
 				refundDto.setPaymentVoucherImageUrl(paymentVoucherImageUrl);
 			if (refundVoucherImageUrl != null)
@@ -171,8 +175,8 @@ public class RefundController extends BaseController {
 				refundDto.setRefundDetail(refundDetail);
 			if (currencyType != null)
 				refundDto.setCurrencyType(currencyType);
-			if (amountName != null)
-				refundDto.setAmountName(amountName);
+			if (accountName != null)
+				refundDto.setAccountName(accountName);
 			if (bankName != null)
 				refundDto.setBankName(bankName);
 			if (bsb != null)

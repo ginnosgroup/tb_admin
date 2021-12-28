@@ -20,12 +20,13 @@
                 course_id,
                 receive_date,
                 received,
+                amount,
                 payment_voucher_image_url,
                 refund_voucher_image_url,
                 refund_detail_id,
                 refund_detail,
                 currency_type,
-                amount_name,
+                account_name,
                 bank_name,
                 bsb,
                 remarks)
@@ -44,12 +45,13 @@
                 #{courseId},
                 #{receiveDate},
                 #{received},
+                #{amount},
                 #{paymentVoucherImageUrl},
                 #{refundVoucherImageUrl},
                 #{refundDetailId},
                 #{refundDetail},
                 #{currencyType},
-                #{amountName},
+                #{accountName},
                 #{bankName},
                 #{bsb},
                 #{remarks});
@@ -75,12 +77,13 @@
             r.course_id AS courseId,
             r.receive_date AS receiveDate,
             r.received,
+            r.amount,
             r.payment_voucher_image_url AS paymentVoucherImageUrl,
             r.refund_voucher_image_url AS refundVoucherImageUrl,
             r.refund_detail_id AS refundDetailId,
             r.refund_detail AS refundDetail,
             r.currency_type AS currencyType,
-            r.amount_name AS amountName,
+            r.account_name AS account_name,
             r.bank_name AS bankName,
             r.bsb,
             r.remarks
@@ -112,12 +115,13 @@
             course_id AS courseId,
             receive_date AS receiveDate,
             received,
+            amount,
             payment_voucher_image_url AS paymentVoucherImageUrl,
             refund_voucher_image_url AS refundVoucherImageUrl,
             refund_detail_id AS refundDetailId,
             refund_detail AS refundDetail,
             currency_type AS currencyType,
-            amount_name AS amountName,
+            account_name AS account_name,
             bank_name AS bankName,
             bsb,
             remarks
@@ -154,6 +158,9 @@
         <if test='received != null'>
             , received = #{received}
         </if>
+        <if test='amount != null'>
+            , amount = #{amount}
+        </if>
         <if test='paymentVoucherImageUrl != null and paymentVoucherImageUrl != ""'>
             , payment_voucher_image_url = #{paymentVoucherImageUrl}
         </if>
@@ -170,7 +177,7 @@
             , currency_type = #{currencyType}
         </if>
         <if test='amountName != null and amountName != ""'>
-            , amount_name = #{amountName}
+            , account_name = #{accountName}
         </if>
         <if test='bankName != null and bankName != ""'>
             , bank_name = #{bankName}
