@@ -6,9 +6,11 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.zhinanzhen.b.dao.MaraDAO;
 import org.zhinanzhen.b.dao.RefundDAO;
 import org.zhinanzhen.b.dao.SchoolCourseDAO;
 import org.zhinanzhen.b.dao.SchoolInstitutionDAO;
+import org.zhinanzhen.b.dao.pojo.MaraDO;
 import org.zhinanzhen.b.dao.pojo.RefundDO;
 import org.zhinanzhen.b.dao.pojo.SchoolInstitutionDO;
 import org.zhinanzhen.b.service.RefundService;
@@ -30,6 +32,9 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 
 	@Resource
 	SchoolCourseDAO schoolCourseDao;
+
+	@Resource
+	MaraDAO maraDao;
 
 	@Override
 	public int addRefund(RefundDTO refundDto) throws ServiceException {
@@ -80,6 +85,10 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 							.getSchoolInstitutionInfoByCourseId(refundDto.getCourseId());
 					refundDto.setCourseName(schoolInstitutionListDto.getName());
 				}
+			}
+			if (refundDto != null && refundDto.getMaraId() > 0) {
+				MaraDO maraDo = maraDao.getMaraById(refundDto.getMaraId());
+				refundDto.setMaraName(maraDo.getName());
 			}
 			refundDtoList.add(refundDto);
 		}

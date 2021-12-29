@@ -20,5 +20,9 @@ public class RefundDTO extends RefundDO {
 	@Getter
 	@Setter
 	private String courseName;
+	
+	@Getter
+	@Setter
+	private String maraName;
 
 }
