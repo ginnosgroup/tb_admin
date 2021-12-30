@@ -123,6 +123,19 @@ public class SchoolInstitutionController extends BaseController {
         return new Response<SchoolInstitutionDTO>( 0 ,schoolInstitutionDTO);
     }
 
+    /**
+     * 通过学校id返回tradingName的list
+     * @param id
+     * @return
+     */
+    @RequestMapping(value = "/getTradingNamesById",method = RequestMethod.GET)
+    @ResponseBody
+    public Response<List<String>> getTradingNamesById(@RequestParam(value = "id")int id,
+                  HttpServletRequest request, HttpServletResponse response){
+        super.setGetHeader(response);
+        return new Response<List<String>>( 0 ,schoolInstitutionService.getTradingNamesById(id));
+    }
+
     @RequestMapping(value = "/update" ,method =  RequestMethod.POST)
     @ResponseBody
     public Response update(@RequestBody SchoolInstitutionDTO schoolInstitutionDTO ,

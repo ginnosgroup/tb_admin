@@ -28,4 +28,6 @@ public interface SchoolInstitutionDAO {
     int add(SchoolInstitutionDO schoolInstitutionDO);
 
     boolean delete(@Param("id") int id);
+
+    String getTradingNameById(@Param("id") Integer id);
 }

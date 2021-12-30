@@ -141,4 +141,10 @@
         LEFT JOIN b_school_course ON b_school_institution.id = b_school_course.provider_id
         WHERE b_school_institution.id = #{id};
     </delete>
+
+    <select id="getTradingNameById" resultType="string">
+        SELECT institution_trading_name
+        FROM b_school_institution
+        WHERE id = #{id};
+    </select>
 </mapper>
