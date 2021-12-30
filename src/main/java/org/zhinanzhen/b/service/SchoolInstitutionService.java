@@ -22,6 +22,8 @@ public interface SchoolInstitutionService {
 
     SchoolInstitutionDTO getSchoolInstitutionById(Integer id);
 
+    List<String> getTradingNamesById(Integer id);
+
     SchoolInstitutionDTO getSchoolInstitutionByCode(String code);
 
     int count(String name, String type, String code, Boolean isFreeze);
