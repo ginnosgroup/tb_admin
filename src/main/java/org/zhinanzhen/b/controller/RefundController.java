@@ -1,7 +1,6 @@
 package org.zhinanzhen.b.controller;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -10,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -58,44 +58,10 @@ public class RefundController extends BaseController {
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<Integer> add(@RequestParam(value = "state") String state, @RequestParam(value = "type") String type,
-			@RequestParam(value = "userId") Integer userId, @RequestParam(value = "adviserId") Integer adviserId,
-			@RequestParam(value = "maraId") Integer maraId, @RequestParam(value = "officialId") Integer officialId,
-			@RequestParam(value = "schoolId", required = false) Integer schoolId,
-			@RequestParam(value = "courseId", required = false) Integer courseId,
-			@RequestParam(value = "receiveDate") String receiveDate, @RequestParam(value = "received") String received,@RequestParam(value = "amount") Double amount,
-			@RequestParam(value = "paymentVoucherImageUrl", required = false) String paymentVoucherImageUrl,
-			@RequestParam(value = "refundDetailId") Integer refundDetailId,
-			@RequestParam(value = "refundDetail") String refundDetail,
-			@RequestParam(value = "currencyType") String currencyType,
-			@RequestParam(value = "accountName") String accountName, @RequestParam(value = "bankName") String bankName,
-			@RequestParam(value = "bsb") String bsb, @RequestParam(value = "remarks") String remarks,
-			HttpServletRequest request, HttpServletResponse response) {
+	public Response<Integer> add(@RequestBody RefundDTO refundDto, HttpServletRequest request,
+			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			RefundDTO refundDto = new RefundDTO();
-			refundDto.setState(state);
-			refundDto.setType(type);
-			refundDto.setUserId(userId);
-			refundDto.setAdviserId(adviserId);
-			refundDto.setMaraId(maraId);
-			refundDto.setOfficialId(officialId);
-			if (schoolId != null && schoolId > 0)
-				refundDto.setSchoolId(schoolId);
-			if (courseId != null && courseId > 0)
-				refundDto.setCourseId(courseId);
-			refundDto.setReceiveDate(new Date(Long.parseLong(receiveDate)));
-			refundDto.setReceived(Double.parseDouble(received));
-			refundDto.setAmount(amount);
-			if (paymentVoucherImageUrl != null)
-				refundDto.setPaymentVoucherImageUrl(paymentVoucherImageUrl);
-			refundDto.setRefundDetailId(refundDetailId);
-			refundDto.setRefundDetail(refundDetail);
-			refundDto.setCurrencyType(currencyType);
-			refundDto.setAccountName(accountName);
-			refundDto.setBankName(bankName);
-			refundDto.setBsb(bsb);
-			refundDto.setRemarks(remarks);
 			if (refundService.addRefund(refundDto) > 0) {
 				return new Response<Integer>(0, refundDto.getId());
 			} else {
@@ -121,25 +87,7 @@ public class RefundController extends BaseController {
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> update(@RequestParam(value = "id") int id,
-			@RequestParam(value = "state", required = false) String state,
-			@RequestParam(value = "userId", required = false) Integer userId,
-			@RequestParam(value = "adviserId", required = false) Integer adviserId,
-			@RequestParam(value = "maraId") Integer maraId,
-			@RequestParam(value = "officialId", required = false) Integer officialId,
-			@RequestParam(value = "schoolId", required = false) Integer schoolId,
-			@RequestParam(value = "courseId", required = false) Integer courseId,
-			@RequestParam(value = "receiveDate", required = false) String receiveDate,
-			@RequestParam(value = "received", required = false) String received,
-			@RequestParam(value = "amount", required = false) Double amount,
-			@RequestParam(value = "paymentVoucherImageUrl", required = false) String paymentVoucherImageUrl,
-			@RequestParam(value = "refundVoucherImageUrl", required = false) String refundVoucherImageUrl,
-			@RequestParam(value = "refundDetailId", required = false) Integer refundDetailId,
-			@RequestParam(value = "refundDetail", required = false) String refundDetail,
-			@RequestParam(value = "currencyType", required = false) String currencyType,
-			@RequestParam(value = "accountName", required = false) String accountName,
-			@RequestParam(value = "bankName", required = false) String bankName,
-			@RequestParam(value = "bsb", required = false) String bsb,
-			@RequestParam(value = "remarks", required = false) String remarks, HttpServletResponse response) {
+			@RequestParam(value = "state", required = false) String state, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			if (id <= 0)
@@ -147,42 +95,6 @@ public class RefundController extends BaseController {
 			RefundDTO refundDto = refundService.getRefundById(id);
 			if (state != null)
 				refundDto.setState(state);
-			if (userId != null && userId > 0)
-				refundDto.setUserId(userId);
-			if (adviserId != null && adviserId > 0)
-				refundDto.setAdviserId(adviserId);
-			if (maraId != null && maraId > 0)
-				refundDto.setMaraId(maraId);
-			if (officialId != null && officialId > 0)
-				refundDto.setOfficialId(officialId);
-			if (schoolId != null && schoolId > 0)
-				refundDto.setSchoolId(schoolId);
-			if (courseId != null && courseId > 0)
-				refundDto.setCourseId(courseId);
-			if (receiveDate != null)
-				refundDto.setReceiveDate(new Date(Long.parseLong(receiveDate)));
-			if (received != null)
-				refundDto.setReceived(Double.parseDouble(received));
-			if (amount != null)
-				refundDto.setAmount(amount);
-			if (paymentVoucherImageUrl != null)
-				refundDto.setPaymentVoucherImageUrl(paymentVoucherImageUrl);
-			if (refundVoucherImageUrl != null)
-				refundDto.setRefundVoucherImageUrl(refundVoucherImageUrl);
-			if (refundDetailId != null && refundDetailId > 0)
-				refundDto.setRefundDetailId(refundDetailId);
-			if (refundDetail != null)
-				refundDto.setRefundDetail(refundDetail);
-			if (currencyType != null)
-				refundDto.setCurrencyType(currencyType);
-			if (accountName != null)
-				refundDto.setAccountName(accountName);
-			if (bankName != null)
-				refundDto.setBankName(bankName);
-			if (bsb != null)
-				refundDto.setBsb(bsb);
-			if (remarks != null)
-				refundDto.setRemarks(remarks);
 			if (refundService.updateRefund(refundDto) > 0) {
 				return new Response<Integer>(0, refundDto.getId());
 			} else {
