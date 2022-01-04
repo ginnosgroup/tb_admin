@@ -75,4 +75,11 @@ public class CommissionOrderListDTO extends CommissionOrderDTO {
 	@Setter
 	private SchoolInstitutionListDTO schoolInstitutionListDTO;
 
+	/*
+	 * 记录培训学校的名字
+	 */
+	@Getter
+	@Setter
+	private String institutionTradingName;
+
 }
