@@ -396,6 +396,11 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			if (adviserDo != null)
 				commissionOrderListDto.setAdviser(mapper.map(adviserDo, AdviserDTO.class));
 		}
+		if (commissionOrderListDo.getOfficialId() > 0) {
+			OfficialDO officialDo = officialDao.getOfficialById(commissionOrderListDo.getOfficialId());
+			if (officialDo != null)
+				commissionOrderListDto.setOfficial(mapper.map(officialDo, OfficialDTO.class));
+		}
 		if (commissionOrderListDo.getReceiveTypeId() > 0) {
 			ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(commissionOrderListDo.getReceiveTypeId());
 			if (receiveTypeDo != null)

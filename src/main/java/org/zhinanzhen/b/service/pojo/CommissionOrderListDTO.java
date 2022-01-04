@@ -38,6 +38,10 @@ public class CommissionOrderListDTO extends CommissionOrderDTO {
 	@Getter
 	@Setter
 	private AdviserDTO adviser;
+	
+	@Getter
+	@Setter
+	private OfficialDTO official;
 
 	@Getter
 	@Setter
