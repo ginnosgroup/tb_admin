@@ -82,10 +82,10 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
             //putAttachmentsSettingInfo(schoolInstitutionDTO);//添加合同，历史setting，setting
 
             String tradingName = si.getInstitutionTradingName();
-            if (tradingName != null && tradingName.contains(","))
-                schoolInstitutionDTO.setInstitutionTradingNameSplit(ListUtil.buildArrayList(tradingName.split(",")));
-            else if (tradingName != null && tradingName.contains(";"))
-                schoolInstitutionDTO.setInstitutionTradingNameSplit(ListUtil.buildArrayList(tradingName.split(";")));
+            if (tradingName != null && tradingName.contains(";"))
+                schoolInstitutionDTO.setInstitutionTradingName(tradingName.replaceAll("; ","/"));
+            else if (tradingName != null && tradingName.contains(","))
+                schoolInstitutionDTO.setInstitutionTradingName(tradingName.replaceAll(", ","/"));
 
             schoolInstitutionDTOS.add(schoolInstitutionDTO);
         }
