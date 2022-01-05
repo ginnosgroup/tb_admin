@@ -29,6 +29,7 @@
                 account_name,
                 bank_name,
                 bsb,
+                rmb_remarks,
                 remarks)
             VALUES (
                 now(),
@@ -54,6 +55,7 @@
                 #{accountName},
                 #{bankName},
                 #{bsb},
+                #{rmbRemarks},
                 #{remarks});
     </insert>
     
@@ -86,6 +88,7 @@
             r.account_name AS account_name,
             r.bank_name AS bankName,
             r.bsb,
+            r.rmb_remarks AS rmbRemarks,
             r.remarks
         FROM b_refund r, tb_user u, tb_adviser a, b_official o
         WHERE r.user_id = u.id AND r.adviser_id = a.id AND r.official_id = o.id
@@ -124,6 +127,7 @@
             account_name AS account_name,
             bank_name AS bankName,
             bsb,
+            rmb_remarks AS rmbRemarks,
             remarks
         FROM b_refund WHERE id = #{id, jdbcType=INTEGER};
     </select>
@@ -184,6 +188,9 @@
         </if>
         <if test='bsb != null and bsb != ""'>
             , bsb = #{bsb}
+        </if>
+        <if test='rmbRemarks != null and rmbRemarks != ""'>
+            , rmb_remarks = #{rmbRemarks}
         </if>
         <if test='remarks != null and remarks != ""'>
             , remarks = #{remarks}
