@@ -451,7 +451,7 @@ public class DashboardController extends BaseController {
 		AdminUserLoginInfo loginInfo = getAdminUserLoginInfo(request);
 		if (loginInfo == null)
 			return  new DashboardResponse(1,"未登录");
-		String thisYearFirstDay = DateClass.thisYearFirstDay();
+		String thisYearFirstDay = DateClass._7_1();
 		String today = DateClass.today();
 		List<DataDTO> dataList = data.dataReport(thisYearFirstDay,today,"R","Y");
 		List<Integer> regionIdList = new ArrayList<>();
@@ -484,9 +484,9 @@ public class DashboardController extends BaseController {
 	@ResponseBody
 	public DashboardResponse allYearPerformanceRank(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		super.setGetHeader(response);
-		String thisYearFirstDay = DateClass.thisYearFirstDay();
+		String thisYearFirstDay = DateClass._7_1();
 		String today = DateClass.today();
-		List<DataDTO> dataList = data.dataReport(thisYearFirstDay,today,"R","Y");
+		List<DataDTO> dataList = data.dataReport(thisYearFirstDay,today,"R",null);
 		return new DashboardResponse(0,"success", RegionClassification.dataSplitByRegionId(dataList,null), thisYearFirstDay, today);
 	}
 
@@ -504,7 +504,7 @@ public class DashboardController extends BaseController {
 		AdminUserLoginInfo loginInfo = getAdminUserLoginInfo(request);
 		if (loginInfo == null)
 			return  new Response(1,"未登录");
-		String thisYearFirstDay = DateClass.thisYearFirstDay();
+		String thisYearFirstDay = DateClass._7_1();
 		String today = DateClass.today();
 		List<DataDTO> dataList = data.dataReport(thisYearFirstDay,today,"R","Y");
 		List<Integer> regionIdList = new ArrayList<>();
