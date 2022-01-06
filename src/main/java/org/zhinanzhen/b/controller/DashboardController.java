@@ -262,7 +262,11 @@ public class DashboardController extends BaseController {
 		String startDate = DateClass.lastLastSaturday();//上上周六
 		String endDate = DateClass.lastFriday();//上周五
 		List<DataDTO> areaDataList = data.dataReport(startDate,endDate,"A",null); //全area地区的area数据
-		return new DashboardResponse(0,"全澳-上周业绩组成", areaDataList, startDate, endDate);
+		double total = 0;
+		for (DataDTO data : areaDataList){
+			total = roundHalfUp(total + data.getTotal());
+		}
+		return new DashboardResponse(0,"全澳-上周业绩组成", areaDataList, startDate, endDate, total);
 	}
 
 	/**
@@ -340,7 +344,11 @@ public class DashboardController extends BaseController {
 		String startDate = DateClass.thisMonthFirstDay(Calendar.getInstance());
 		String endDate = DateClass.today();
 		List<DataDTO> areaDataList = data.dataReport(startDate,endDate,"A",null); //全area地区的area数据
-		return new DashboardResponse(0,"全澳-上周业绩组成", areaDataList, startDate, endDate);
+		double total = 0;
+		for (DataDTO data : areaDataList){
+			total = roundHalfUp(total + data.getTotal());
+		}
+		return new DashboardResponse(0,"全澳-本月业绩组成", areaDataList, startDate, endDate, total);
 	}
 
 	/**
