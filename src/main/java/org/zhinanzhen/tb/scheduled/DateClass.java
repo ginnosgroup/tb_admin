@@ -142,4 +142,25 @@ public class DateClass {
         System.out.println("今年第一天"+sdf.format(calendar.getTime()));
         return sdf.format(calendar.getTime());
     }
+
+    public static String _7_1(){
+        Calendar calendar = Calendar.getInstance();
+        long time1 = calendar.getTimeInMillis();
+
+        //6月最后一天
+        calendar.set(Calendar.MONTH, 6);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        long time2 = calendar.getTimeInMillis();
+
+        if (time1 < time2){
+            calendar.add(Calendar.YEAR, -1);
+            return sdf.format(new Date(calendar.getTimeInMillis()));
+        }
+
+        return sdf.format(new Date(time2));
+    }
 }

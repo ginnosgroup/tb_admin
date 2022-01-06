@@ -37,19 +37,20 @@ public class Data extends BaseService {
         try {
             List<DataDTO> dataDTOList = new ArrayList<DataDTO>();//数据
             List<DataDTO> areaDataList = new ArrayList<DataDTO>();//area的数据
+            List<DataDTO> _dataDTOList = new ArrayList<DataDTO>();
             //List<DataDTO> areaRankDataList = new ArrayList<DataDTO>();//area排名的数据
 
             List<CommissionOrderReportDTO> commissionOrderReportDtoList= commissionOrderService.listCommissionOrderReport(startDate,endDate,"A",dateMethod == null?"M":"Y",0,0,null);
             List<VisaReportDTO> VisaReportList = visaService.listVisaReport(startDate,endDate,"A", dateMethod == null?"M":"Y",0,0,null);
 
             if (commissionOrderReportDtoList != null) {
-                commissionOrderReportDtoList.forEach(commissionOrderReportDto -> dataDTOList
+                commissionOrderReportDtoList.forEach(commissionOrderReportDto -> _dataDTOList
                         .add(mapper.map(commissionOrderReportDto, DataDTO.class)));
 
             }
 
             //赋值ServiceFee
-            dataDTOList.forEach(result -> {
+            _dataDTOList.forEach(result -> {
                 VisaReportList.forEach(visaReport ->{
                     if(result.getDate() !=null && result.getDate().equals(visaReport.getDate()) && result.getAdviserId() == visaReport.getAdviserId()){
                         result.setServiceFee(visaReport.getServiceFee()+result.getServiceFee());
@@ -67,17 +68,46 @@ public class Data extends BaseService {
                 }
                 if(flag == false){
                     DataDTO dto = new DataDTO(visaReport.getDate(),visaReport.getRegionId(),visaReport.getArea(),visaReport.getAdviserId(),visaReport.getConsultant(),visaReport.getServiceFee());
-                    dataDTOList.add(dto);
+                    _dataDTOList.add(dto);
                 }
             });
+
+            HashSet<Integer> adviserIdSet = new HashSet();
+            HashSet areaset = new HashSet();
+            _dataDTOList.forEach(dataDTO -> {
+                areaset.add(dataDTO.getArea());
+                adviserIdSet.add(dataDTO.getAdviserId());
+            });
+
+            // _dataDTOList 数据中可能有相同顾问 但是date不同的。 合并
+            adviserIdSet.forEach(adviserId ->{
+                double serviceFee = 0;
+                double deductionCommission = 0;
+                double claimCommission = 0;
+                double claimedCommission = 0;
+                double adjustments = 0;
+                int regionId = 0;
+                String area = "";
+                String consultant = "";
+                for (DataDTO dataDTO : _dataDTOList){
+                    if (adviserId == dataDTO.getAdviserId()){
+                        serviceFee = serviceFee + dataDTO.getServiceFee();
+                        deductionCommission = deductionCommission + dataDTO.getDeductionCommission();
+                        claimCommission = claimCommission + dataDTO.getClaimCommission();
+                        claimedCommission = claimedCommission + dataDTO.getClaimedCommission();
+                        adjustments = adjustments + dataDTO.getAdjustments();
+                        regionId = dataDTO.getRegionId();
+                        area = dataDTO.getArea();
+                        consultant = dataDTO.getConsultant();
+                    }
+                }
+                dataDTOList.add(new DataDTO(null,regionId,area,adviserId,consultant,serviceFee,deductionCommission,claimCommission,claimedCommission,adjustments));
+            });
+
 
 
 
             //每一个area的数据
-            HashSet areaset = new HashSet();
-            dataDTOList.forEach(dataDTO -> {
-                areaset.add(dataDTO.getArea());
-            });
             areaset.forEach(area -> {
                 String date = "";
                 double serviceFee = 0;
