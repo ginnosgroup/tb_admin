@@ -12,6 +12,7 @@ import org.zhinanzhen.b.dao.SchoolCourseDAO;
 import org.zhinanzhen.b.dao.SchoolInstitutionDAO;
 import org.zhinanzhen.b.dao.pojo.MaraDO;
 import org.zhinanzhen.b.dao.pojo.RefundDO;
+import org.zhinanzhen.b.dao.pojo.SchoolCourseDO;
 import org.zhinanzhen.b.dao.pojo.SchoolInstitutionDO;
 import org.zhinanzhen.b.service.RefundService;
 import org.zhinanzhen.b.service.pojo.RefundDTO;
@@ -81,9 +82,8 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 					refundDto.setInstitutionName(schoolInstitutionDo.getInstitutionName());
 				}
 				if (refundDto.getCourseId() > 0) {
-					SchoolInstitutionListDTO schoolInstitutionListDto = schoolCourseDao
-							.getSchoolInstitutionInfoByCourseId(refundDto.getCourseId());
-					refundDto.setCourseName(schoolInstitutionListDto.getName());
+					SchoolCourseDO schoolCourseDo = schoolCourseDao.schoolCourseById(refundDto.getCourseId());
+					refundDto.setCourseName(schoolCourseDo.getCourseName());
 				}
 			}
 			if (refundDto != null && refundDto.getMaraId() > 0) {
