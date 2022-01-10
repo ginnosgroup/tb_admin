@@ -35,6 +35,11 @@ public class DashboardResponse<T> {
      */
     private String dateTwo;
 
+    /**
+     * 补充数据
+     */
+    private T supplyData;
+
     public DashboardResponse(int code, String message, T data, String dateOne, String dateTwo) {
         this.code = code;
         this.message = message;
@@ -52,5 +57,14 @@ public class DashboardResponse<T> {
     public DashboardResponse(int code, String message) {
         this.code = code;
         this.message = message;
+    }
+
+    public DashboardResponse(int code, String message, T data, String dateOne, String dateTwo, T supplyData) {
+        this.code = code;
+        this.message = message;
+        this.data = data;
+        this.dateOne = dateOne;
+        this.dateTwo = dateTwo;
+        this.supplyData = supplyData;
     }
 }

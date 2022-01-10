@@ -190,7 +190,7 @@ public class DashboardController extends BaseController {
 
 	/**
 	 * 上周业绩组成
-	 * SUPER：全澳上周业绩组成
+	 * SUPER：全澳上周业绩组成,总的serviceFee ,......
 	 * MANAGER：管理区域上周业绩组成
 	 * GW：上周自己的业绩组成
 	 * @param request
@@ -234,14 +234,44 @@ public class DashboardController extends BaseController {
 				return new DashboardResponse(0,"自己上周业绩组成",dto, startDate, endDate);
 			}
 		}else if(adminUserLoginInfo != null && "SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())){
-			return new DashboardResponse(0,"全澳-上周业绩组成",areaDataList, startDate, endDate);
+			DataDTO _dto = new DataDTO();
+			areaDataList.forEach(dto -> {
+				_dto.setServiceFee(roundHalfUp(dto.getServiceFee() + _dto.getServiceFee()));
+				_dto.setDeductionCommission(roundHalfUp(dto.getDeductionCommission() + _dto.getDeductionCommission()));
+				_dto.setClaimCommission(roundHalfUp(dto.getClaimCommission() + _dto.getClaimCommission()));
+				_dto.setClaimedCommission(roundHalfUp(dto.getClaimedCommission() + _dto.getClaimedCommission()));
+				_dto.setTotal(roundHalfUp(dto.getTotal() + _dto.getTotal()));
+			});
+			return new DashboardResponse(0,"全澳-上周业绩组成",_dto, startDate, endDate);
 		}
 		return  new DashboardResponse(0,"",null,startDate,endDate);
 	}
 
 	/**
+	 *SUPERAD 则返回上周每个region的servicefee,DeductionCommission........
+	 * @return
+	 * @throws ServiceException
+	 */
+	@GetMapping(value = "/lastWeekPerformanceDiffRegion")
+	@ResponseBody
+	public DashboardResponse lastWeekPerformanceDiffRegion(HttpServletRequest request, HttpServletResponse response) throws ServiceException {
+		super.setGetHeader(response);
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo == null || !"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList()))
+			return  new DashboardResponse(1,"没有权限",null);
+		String startDate = DateClass.lastLastSaturday();//上上周六
+		String endDate = DateClass.lastFriday();//上周五
+		List<DataDTO> areaDataList = data.dataReport(startDate,endDate,"A",null); //全area地区的area数据
+		double total = 0;
+		for (DataDTO data : areaDataList){
+			total = roundHalfUp(total + data.getTotal());
+		}
+		return new DashboardResponse(0,"全澳-上周业绩组成", areaDataList, startDate, endDate, total);
+	}
+
+	/**
 	 * 本月业绩组成
-	 * SUPER：全澳本月业绩组成
+	 * SUPER：全澳本月业绩组成,总的serviceFee ,......
 	 * MANAGER：管理区域本月业绩组成
 	 * GW：本月自己的业绩组成
 	 * @param request
@@ -284,9 +314,41 @@ public class DashboardController extends BaseController {
 				return new DashboardResponse(0,"自己本月业绩组成",dto, startDate, endDate);
 			}
 		} else if (adminUserLoginInfo != null && "SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
-			return new DashboardResponse(0, "全澳-本月业绩组成", areaDataList, startDate, endDate);
+			DataDTO _dto = new DataDTO();
+			areaDataList.forEach(dto -> {
+				_dto.setServiceFee(roundHalfUp(dto.getServiceFee() + _dto.getServiceFee()));
+				_dto.setDeductionCommission(roundHalfUp(dto.getDeductionCommission() + _dto.getDeductionCommission()));
+				_dto.setClaimCommission(roundHalfUp(dto.getClaimCommission() + _dto.getClaimCommission()));
+				_dto.setClaimedCommission(roundHalfUp(dto.getClaimedCommission() + _dto.getClaimedCommission()));
+				_dto.setTotal(roundHalfUp(dto.getTotal() + _dto.getTotal()));
+			});
+			return new DashboardResponse(0, "全澳-本月业绩组成", _dto, startDate, endDate);
 		}
 		return new DashboardResponse(0, "", null, startDate, endDate);
+	}
+
+	/**
+	 * SUPERAD 则返回这月每个Region的serviceFee,DeductionCommission
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws ServiceException
+	 */
+	@GetMapping(value = "/thisMonthPerformanceDiffRegion")
+	@ResponseBody
+	public DashboardResponse thisMonthPerformanceDiffRegion(HttpServletRequest request, HttpServletResponse response) throws ServiceException {
+		super.setGetHeader(response);
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo == null || !"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList()))
+			return  new DashboardResponse(1,"没有权限",null);
+		String startDate = DateClass.thisMonthFirstDay(Calendar.getInstance());
+		String endDate = DateClass.today();
+		List<DataDTO> areaDataList = data.dataReport(startDate,endDate,"A",null); //全area地区的area数据
+		double total = 0;
+		for (DataDTO data : areaDataList){
+			total = roundHalfUp(total + data.getTotal());
+		}
+		return new DashboardResponse(0,"全澳-本月业绩组成", areaDataList, startDate, endDate, total);
 	}
 
 	/**
@@ -397,7 +459,7 @@ public class DashboardController extends BaseController {
 		AdminUserLoginInfo loginInfo = getAdminUserLoginInfo(request);
 		if (loginInfo == null)
 			return  new DashboardResponse(1,"未登录");
-		String thisYearFirstDay = DateClass.thisYearFirstDay();
+		String thisYearFirstDay = DateClass._7_1();
 		String today = DateClass.today();
 		List<DataDTO> dataList = data.dataReport(thisYearFirstDay,today,"R","Y");
 		List<Integer> regionIdList = new ArrayList<>();
@@ -430,9 +492,9 @@ public class DashboardController extends BaseController {
 	@ResponseBody
 	public DashboardResponse allYearPerformanceRank(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		super.setGetHeader(response);
-		String thisYearFirstDay = DateClass.thisYearFirstDay();
+		String thisYearFirstDay = DateClass._7_1();
 		String today = DateClass.today();
-		List<DataDTO> dataList = data.dataReport(thisYearFirstDay,today,"R","Y");
+		List<DataDTO> dataList = data.dataReport(thisYearFirstDay,today,"R",null);
 		return new DashboardResponse(0,"success", RegionClassification.dataSplitByRegionId(dataList,null), thisYearFirstDay, today);
 	}
 
@@ -450,7 +512,7 @@ public class DashboardController extends BaseController {
 		AdminUserLoginInfo loginInfo = getAdminUserLoginInfo(request);
 		if (loginInfo == null)
 			return  new Response(1,"未登录");
-		String thisYearFirstDay = DateClass.thisYearFirstDay();
+		String thisYearFirstDay = DateClass._7_1();
 		String today = DateClass.today();
 		List<DataDTO> dataList = data.dataReport(thisYearFirstDay,today,"R","Y");
 		List<Integer> regionIdList = new ArrayList<>();
