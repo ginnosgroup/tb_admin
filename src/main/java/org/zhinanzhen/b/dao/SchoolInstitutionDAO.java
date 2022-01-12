@@ -29,5 +29,5 @@ public interface SchoolInstitutionDAO {
 
     boolean delete(@Param("id") int id);
 
-    String getTradingNameById(@Param("id") Integer id);
+    SchoolInstitutionDO getTradingNameById(@Param("id") Integer id);
 }

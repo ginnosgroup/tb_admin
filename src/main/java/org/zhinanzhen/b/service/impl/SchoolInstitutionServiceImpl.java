@@ -108,11 +108,14 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
     @Override
     public List<String> getTradingNamesById(Integer id) {
         List<String> tradingNames = new ArrayList<>();
-        String tradingName = schoolInstitutionDAO.getTradingNameById(id);
+        SchoolInstitutionDO schoolInstitutionDO = schoolInstitutionDAO.getTradingNameById(id);
+        String tradingName = schoolInstitutionDO.getInstitutionTradingName();
         if (StringUtil.isNotEmpty(tradingName) && tradingName.contains(";"))
             tradingNames = ListUtil.buildArrayList(tradingName.split(";"));
         else if (StringUtil.isNotEmpty(tradingName) && tradingName.contains(","))
             tradingNames = ListUtil.buildArrayList(tradingName.split(","));
+        else if (StringUtil.isEmpty(tradingName) || "null".equalsIgnoreCase(tradingName))
+            tradingNames.add(schoolInstitutionDO.getInstitutionName());
         else
             tradingNames.add(tradingName);
         for (int i = 0 ; i < tradingNames.size() ; i++){

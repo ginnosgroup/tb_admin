@@ -142,8 +142,10 @@
         WHERE b_school_institution.id = #{id};
     </delete>
 
-    <select id="getTradingNameById" resultType="string">
-        SELECT institution_trading_name
+    <select id="getTradingNameById" resultType="org.zhinanzhen.b.dao.pojo.SchoolInstitutionDO">
+        SELECT
+        institution_trading_name AS institutionTradingName,
+        institution_name AS institutionName
         FROM b_school_institution
         WHERE id = #{id};
     </select>
