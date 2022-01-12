@@ -16,7 +16,6 @@ import org.zhinanzhen.b.dao.pojo.SchoolCourseDO;
 import org.zhinanzhen.b.dao.pojo.SchoolInstitutionDO;
 import org.zhinanzhen.b.service.RefundService;
 import org.zhinanzhen.b.service.pojo.RefundDTO;
-import org.zhinanzhen.b.service.pojo.SchoolInstitutionListDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 

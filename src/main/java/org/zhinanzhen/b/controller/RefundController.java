@@ -83,6 +83,17 @@ public class RefundController extends BaseController {
 			return new Response<List<RefundDTO>>(1, e.getMessage(), null);
 		}
 	}
+	
+	@RequestMapping(value = "/get", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<RefundDTO> getRefund(@RequestParam(value = "id") int id, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<RefundDTO>(0, refundService.getRefundById(id));
+		} catch (ServiceException e) {
+			return new Response<RefundDTO>(1, e.getMessage(), null);
+		}
+	}
 
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ResponseBody
