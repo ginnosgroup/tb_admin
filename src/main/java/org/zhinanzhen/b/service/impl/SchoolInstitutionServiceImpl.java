@@ -114,6 +114,8 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
             tradingNames = ListUtil.buildArrayList(tradingName.split(";"));
         else if (StringUtil.isNotEmpty(tradingName) && tradingName.contains(","))
             tradingNames = ListUtil.buildArrayList(tradingName.split(","));
+        else if (StringUtil.isNotEmpty(tradingName) && tradingName.contains("/"))
+            tradingNames = ListUtil.buildArrayList(tradingName.split("/"));
         else if (StringUtil.isEmpty(tradingName) || "null".equalsIgnoreCase(tradingName))
             tradingNames.add(schoolInstitutionDO.getInstitutionName());
         else
