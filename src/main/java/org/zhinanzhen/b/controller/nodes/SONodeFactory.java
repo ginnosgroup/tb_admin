@@ -18,7 +18,7 @@ public class SONodeFactory implements NodeFactory {
 	
 	private ServiceOrderService serviceOrderService;
 
-	public List<Node> nodeList = ListUtil.buildArrayList(
+	private List<Node> nodeList = ListUtil.buildArrayList(
 			new ServiceOrderPendingNode(serviceOrderService),
 			new ServiceOrderReviewNode(serviceOrderService), 
 			new ServiceOrderOfficialReviewNode(serviceOrderService), 

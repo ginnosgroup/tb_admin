@@ -21,7 +21,7 @@ import org.zhinanzhen.tb.service.impl.BaseService;
 
 import com.ikasoa.core.ErrorCodeEnum;
 
-@Service
+@Service("RefundService")
 public class RefundServiceImpl extends BaseService implements RefundService {
 
 	@Resource

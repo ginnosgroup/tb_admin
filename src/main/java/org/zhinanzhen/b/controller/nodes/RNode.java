@@ -44,9 +44,9 @@ public abstract class RNode extends AbstractNode {
 				log.info("写入paymentVoucherImageUrl:" + refundDto.getPaymentVoucherImageUrl());
 			}
 			if (refundService.updateRefund(refundDto) > 0)
-				log.info("保存流程状态成功:serviceOrderId=" + refundDto.getId() + ",state=" + getName());
+				log.info("保存流程状态成功:refundId=" + refundDto.getId() + ",state=" + getName());
 			else
-				log.info("保存流程状态失败:serviceOrderId=" + refundDto.getId() + ",state=" + getName());
+				log.info("保存流程状态失败:refundId=" + refundDto.getId() + ",state=" + getName());
 		} catch (ServiceException e) {
 			log.error("流程节点更新失败:" + e.getMessage());
 			return false;

@@ -37,17 +37,17 @@ import com.ikasoa.web.workflow.impl.WorkflowStarterImpl;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/refund")
 public class RefundController extends BaseController {
-	
+
 	private static final Logger LOG = LoggerFactory.getLogger(RefundController.class);
-	
+
 	private static WorkflowStarter workflowStarter = new WorkflowStarterImpl();
 
 	@Resource
 	RefundService refundService;
-	
+
 	@Resource
 	RNodeFactory rNodeFactory;
-	
+
 	public enum RefundStateEnum {
 		PENDING, REVIEW, APPLY, CLOSE;
 
@@ -102,7 +102,7 @@ public class RefundController extends BaseController {
 			return new Response<List<RefundDTO>>(1, e.getMessage(), null);
 		}
 	}
-	
+
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<RefundDTO> getRefund(@RequestParam(value = "id") int id, HttpServletResponse response) {
@@ -145,55 +145,46 @@ public class RefundController extends BaseController {
 			return new Response<Integer>(1, e.getMessage(), 0);
 		}
 	}
-	
+
 	@RequestMapping(value = "/next_flow", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<RefundDTO> nextFlow(@RequestParam(value = "id") int id,
-			@RequestParam(value = "state") String state,
-			@RequestParam(value = "reason", required = false) String reason,
-			@RequestParam(value = "paymentVoucherImageUrl", required = false) String paymentVoucherImageUrl,
-			HttpServletRequest request, HttpServletResponse response) {
+	public Response<RefundDTO> nextFlow(@RequestBody RefundDTO refundDto, HttpServletRequest request,
+			HttpServletResponse response) {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo == null)
 			return new Response<RefundDTO>(1, "请先登录.", null);
-		if (id <= 0)
-			return new Response<RefundDTO>(1, "id不正确:" + id, null);
-		RefundDTO refundDto;
-		try {
-			refundDto = refundService.getRefundById(id);
-			if (ObjectUtil.isNull(refundDto))
-				return new Response<RefundDTO>(1, "退款单不存在:" + id, null);
-			Node node = rNodeFactory.getNode(refundDto.getState());
+		if (refundDto.getId() <= 0)
+			return new Response<RefundDTO>(1, "id不正确:" + refundDto.getId(), null);
+		if (ObjectUtil.isNull(refundDto))
+			return new Response<RefundDTO>(1, "退款单不存在:" + refundDto.getId(), null);
+		Node node = rNodeFactory.getNode(refundDto.getState());
 
-			Context context = new Context();
-			context.putParameter("serviceOrderId", id);
-			context.putParameter("type", refundDto.getType());
-			context.putParameter("state", state);
-			context.putParameter("reason", reason);
-			context.putParameter("paymentVoucherImageUrl", paymentVoucherImageUrl);
-			context.putParameter("ap", adminUserLoginInfo.getApList());
-			context.putParameter("adminUserId", adminUserLoginInfo.getId());
+		Context context = new Context();
+		context.putParameter("refundId", refundDto.getId());
+		context.putParameter("type", refundDto.getType());
+		context.putParameter("state", refundDto.getState());
+		context.putParameter("reason", refundDto.getReason());
+		context.putParameter("paymentVoucherImageUrl", refundDto.getPaymentVoucherImageUrl());
+		context.putParameter("ap", adminUserLoginInfo.getApList());
+		context.putParameter("adminUserId", adminUserLoginInfo.getId());
 
-			LOG.info("Flow API Log : " + context.toString());
+		LOG.info("Flow API Log : " + context.toString());
 
-			String[] nextNodeNames = node.nextNodeNames();
-			if (nextNodeNames != null)
-				if (Arrays.asList(nextNodeNames).contains(state))
-					node = rNodeFactory.getNode(state);
-				else
-					return new Response<RefundDTO>(1,
-							StringUtil.merge("状态:", state, "不是合法状态. (", Arrays.toString(nextNodeNames), ")"), null);
+		String[] nextNodeNames = node.nextNodeNames();
+		if (nextNodeNames != null)
+			if (Arrays.asList(nextNodeNames).contains(refundDto.getState()))
+				node = rNodeFactory.getNode(refundDto.getState());
+			else
+				return new Response<RefundDTO>(1,
+						StringUtil.merge("状态:", refundDto.getState(), "不是合法状态. (", Arrays.toString(nextNodeNames), ")"),
+						null);
 
-			Workflow workflow = new Workflow("Refund Work Flow", node, rNodeFactory);
+		Workflow workflow = new Workflow("Refund Work Flow", node, rNodeFactory);
 
-			context = workflowStarter.process(workflow, context);
+		context = workflowStarter.process(workflow, context);
 
-			return context.getParameter("response") != null ? (Response<RefundDTO>) context.getParameter("response")
-					: new Response<RefundDTO>(0, id + "", null);
-
-		} catch (ServiceException e) {
-			return new Response<RefundDTO>(1, "异常:" + e.getMessage(), null);
-		}
+		return context.getParameter("response") != null ? (Response<RefundDTO>) context.getParameter("response")
+				: new Response<RefundDTO>(0, refundDto.getId() + "", null);
 	}
 
 }

@@ -184,7 +184,7 @@
         <if test='currencyType != null and currencyType != ""'>
             , currency_type = #{currencyType}
         </if>
-        <if test='amountName != null and amountName != ""'>
+        <if test='accountName != null and accountName != ""'>
             , account_name = #{accountName}
         </if>
         <if test='bankName != null and bankName != ""'>
