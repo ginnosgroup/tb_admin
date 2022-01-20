@@ -22,10 +22,9 @@ public class RNodeFactory implements NodeFactory {
 			new SuspendNode());
 
 	public Node getNode(String name) {
-		for (Node node : nodeList) {
+		for (Node node : nodeList)
 			if (name.equals(node.getName()))
 				return node;
-		}
 		return null;
 	}
 
