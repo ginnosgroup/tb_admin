@@ -81,6 +81,10 @@ public class RefundController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+				return new Response<Integer>(1, "仅限顾问和超级管理员能创建退款单.", 0);
 			if (refundService.addRefund(refundDto) > 0) {
 				return new Response<Integer>(0, refundDto.getId());
 			} else {
@@ -117,9 +121,13 @@ public class RefundController extends BaseController {
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> update(@RequestParam(value = "id") int id,
-			@RequestParam(value = "state", required = false) String state, HttpServletResponse response) {
+			@RequestParam(value = "state", required = false) String state, HttpServletRequest request,
+			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo == null || !"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList()))
+				return new Response<Integer>(1, "仅限超级管理员能修改退款单.", 0);
 			if (id <= 0)
 				return new Response<Integer>(1, "id不正确.", 0);
 			RefundDTO refundDto = refundService.getRefundById(id);
@@ -137,9 +145,13 @@ public class RefundController extends BaseController {
 
 	@RequestMapping(value = "/deleteRefundById", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<Integer> deleteRefundById(@RequestParam(value = "id") int id, HttpServletResponse response) {
+	public Response<Integer> deleteRefundById(@RequestParam(value = "id") int id, HttpServletRequest request,
+			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo == null || !"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList()))
+				return new Response<Integer>(1, "仅限超级管理员能删除退款单.", 0);
 			return new Response<Integer>(0, refundService.deleteRefundById(id));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), 0);
