@@ -35,7 +35,7 @@
             VALUES (
                 now(),
                 now(),
-                #{state},
+                'PENDING',
                 #{type},
                 #{visaId},
                 #{commissionOrderId},
