@@ -30,6 +30,7 @@
                 bank_name,
                 bsb,
                 rmb_remarks,
+                reason,
                 remarks)
             VALUES (
                 now(),
@@ -56,6 +57,7 @@
                 #{bankName},
                 #{bsb},
                 #{rmbRemarks},
+                #{reason},
                 #{remarks});
     </insert>
     
@@ -89,6 +91,7 @@
             r.bank_name AS bankName,
             r.bsb,
             r.rmb_remarks AS rmbRemarks,
+            r.reason AS reason,
             r.remarks
         FROM b_refund r, tb_user u, tb_adviser a, b_official o
         WHERE r.user_id = u.id AND r.adviser_id = a.id AND r.official_id = o.id
@@ -128,6 +131,7 @@
             bank_name AS bankName,
             bsb,
             rmb_remarks AS rmbRemarks,
+            reason AS reason,
             remarks
         FROM b_refund WHERE id = #{id, jdbcType=INTEGER};
     </select>
@@ -191,6 +195,9 @@
         </if>
         <if test='rmbRemarks != null and rmbRemarks != ""'>
             , rmb_remarks = #{rmbRemarks}
+        </if>
+        <if test='reason != null and reason != ""'>
+            , reason = #{reason}
         </if>
         <if test='remarks != null and remarks != ""'>
             , remarks = #{remarks}

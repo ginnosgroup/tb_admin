@@ -1193,6 +1193,7 @@ CREATE TABLE `b_refund` (
   `bank_name` varchar(32) DEFAULT NULL COMMENT '银行名称',
   `bsb` varchar(32) DEFAULT NULL COMMENT 'BSB',
   `rmb_remarks` varchar(255) DEFAULT NULL COMMENT '人民币退款信息',
+  `reason` varchar(255) DEFAULT NULL COMMENT '驳回原因',
   `remarks` varchar(255) DEFAULT NULL COMMENT '备注'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 

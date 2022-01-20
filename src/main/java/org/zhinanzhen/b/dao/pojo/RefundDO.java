@@ -61,6 +61,8 @@ public class RefundDO implements Serializable {
 	private String bsb;
 	
 	private String rmbRemarks;
+	
+	private String reason;
 
 	private String remarks;
 
