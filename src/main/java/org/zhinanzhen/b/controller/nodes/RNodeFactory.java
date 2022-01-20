@@ -2,6 +2,7 @@ package org.zhinanzhen.b.controller.nodes;
 
 import java.util.List;
 
+import org.springframework.stereotype.Component;
 import org.zhinanzhen.b.service.RefundService;
 
 import com.ikasoa.core.utils.ListUtil;
@@ -9,6 +10,10 @@ import com.ikasoa.web.workflow.Node;
 import com.ikasoa.web.workflow.NodeFactory;
 import com.ikasoa.web.workflow.nodes.SuspendNode;
 
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor
+@Component
 public class RNodeFactory implements NodeFactory {
 	
 	private RefundService refundService;
