@@ -82,4 +82,8 @@ public class CommissionOrderListDTO extends CommissionOrderDTO {
 	@Setter
 	private String institutionTradingName;
 
+	@Getter
+	@Setter
+	private boolean isRefunded = false;
+
 }

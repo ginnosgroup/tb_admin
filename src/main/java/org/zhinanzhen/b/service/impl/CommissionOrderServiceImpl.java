@@ -40,6 +40,9 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 
 	@Resource
 	private CommissionOrderDAO commissionOrderDao;
+	
+	@Resource
+	private RefundDAO refundDao;
 
 //	@Resource
 //	private ServiceOrderReviewDAO serviceOrderReviewDao;
@@ -444,6 +447,10 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 				schoolInstitutionInfo.setSchoolInstitutionLocationDO(schoolInstitutionLocationDO);
 			}
 		}
+
+		// 是否退款
+		RefundDO refundDo = refundDao.getRefundByCommissionOrderId(commissionOrderListDo.getId());
+		commissionOrderListDto.setRefunded(refundDo != null && StringUtil.equals("PAID", refundDo.getState()));
 
 		return commissionOrderListDto;
 	}

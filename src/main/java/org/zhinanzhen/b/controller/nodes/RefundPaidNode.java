@@ -32,7 +32,7 @@ public class RefundPaidNode extends RDecisionNode {
 
 	@Override
 	public String[] nextNodeNames() {
-		return new String[] { "CLOSE" };
+		return new String[] { "PAID", "CLOSE" };
 	}
 
 }

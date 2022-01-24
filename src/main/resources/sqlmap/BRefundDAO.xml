@@ -136,6 +136,70 @@
         FROM b_refund WHERE id = #{id, jdbcType=INTEGER};
     </select>
     
+    <select id="getRefundByCommissionOrderId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.RefundDO">
+         SELECT
+            id,
+            gmt_create AS gmtCreate,
+            gmt_modify AS gmtModify,
+            state,
+            type,
+            visa_id AS visaId,
+            commission_order_id AS commissionOrderId,
+            user_id AS userId,
+            adviser_id AS adviserId,
+            mara_id AS maraId,
+            official_id AS officialId,
+            school_id AS schoolId,
+            course_id AS courseId,
+            receive_date AS receiveDate,
+            received,
+            amount,
+            payment_voucher_image_url AS paymentVoucherImageUrl,
+            refund_voucher_image_url AS refundVoucherImageUrl,
+            refund_detail_id AS refundDetailId,
+            refund_detail AS refundDetail,
+            currency_type AS currencyType,
+            account_name AS account_name,
+            bank_name AS bankName,
+            bsb,
+            rmb_remarks AS rmbRemarks,
+            reason AS reason,
+            remarks
+        FROM b_refund WHERE commission_order_id = #{commissionOrderId, jdbcType=INTEGER};
+    </select>
+    
+    <select id="getRefundByVisaId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.RefundDO">
+         SELECT
+            id,
+            gmt_create AS gmtCreate,
+            gmt_modify AS gmtModify,
+            state,
+            type,
+            visa_id AS visaId,
+            commission_order_id AS commissionOrderId,
+            user_id AS userId,
+            adviser_id AS adviserId,
+            mara_id AS maraId,
+            official_id AS officialId,
+            school_id AS schoolId,
+            course_id AS courseId,
+            receive_date AS receiveDate,
+            received,
+            amount,
+            payment_voucher_image_url AS paymentVoucherImageUrl,
+            refund_voucher_image_url AS refundVoucherImageUrl,
+            refund_detail_id AS refundDetailId,
+            refund_detail AS refundDetail,
+            currency_type AS currencyType,
+            account_name AS account_name,
+            bank_name AS bankName,
+            bsb,
+            rmb_remarks AS rmbRemarks,
+            reason AS reason,
+            remarks
+        FROM b_refund WHERE visa_id = #{visaId, jdbcType=INTEGER};
+    </select>
+    
     <update id="updateRefund" parameterType="org.zhinanzhen.b.dao.pojo.RefundDO">
         UPDATE b_refund 
         SET gmt_modify = now()

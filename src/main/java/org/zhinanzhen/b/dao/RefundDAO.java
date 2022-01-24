@@ -12,6 +12,10 @@ public interface RefundDAO {
 	List<RefundDO> listRefund(@Param("type") String type, @Param("state") String state);
 	
 	RefundDO getRefundById(int id);
+	
+	RefundDO getRefundByCommissionOrderId(int commissionOrderId);
+	
+	RefundDO getRefundByVisaId(int visaId);
 
 	int updateRefund(RefundDO refundDo);
 	

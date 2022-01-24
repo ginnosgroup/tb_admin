@@ -32,6 +32,9 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 
 	@Resource
 	private VisaDAO visaDao;
+	
+	@Resource
+	private RefundDAO refundDao;
 
 	@Resource
 	private AdviserDAO adviserDao;
@@ -365,6 +368,10 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 		//	});
 		//	visaDto.setMailRemindDTOS(mailRemindDTOS);
 		//}
+		
+		// 是否退款
+		RefundDO refundDo = refundDao.getRefundByVisaId(visaListDo.getId());
+		visaDto.setRefunded(refundDo != null && StringUtil.equals("PAID", refundDo.getState()));
 
 		return visaDto;
 	}
