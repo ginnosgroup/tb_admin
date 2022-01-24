@@ -20,6 +20,8 @@ import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
 import com.ikasoa.core.ErrorCodeEnum;
+import com.ikasoa.core.utils.ObjectUtil;
+import com.ikasoa.core.utils.StringUtil;
 
 @Service("RefundService")
 public class RefundServiceImpl extends BaseService implements RefundService {
@@ -38,13 +40,25 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 
 	@Override
 	public int addRefund(RefundDTO refundDto) throws ServiceException {
-		if (refundDto == null) {
+		if (ObjectUtil.isNull(refundDto)) {
 			ServiceException se = new ServiceException("refundDto is null !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
 		try {
 			RefundDO refundDo = mapper.map(refundDto, RefundDO.class);
+			if (StringUtil.equals("OVST", refundDo.getType()) && ObjectUtil.isNotNull(refundDo.getCommissionOrderId())
+					&& ObjectUtil.isNotNull(refundDao.getRefundByCommissionOrderId(refundDo.getCommissionOrderId()))) {
+				ServiceException se = new ServiceException("不能重复创建留学佣金订单退款单!");
+				se.setCode(ErrorCodeEnum.DATA_ERROR.code());
+				throw se;
+			}
+			if (StringUtil.equals("VISA", refundDo.getType()) && ObjectUtil.isNotNull(refundDo.getVisaId())
+					&& ObjectUtil.isNotNull(refundDao.getRefundByVisaId(refundDo.getVisaId()))) {
+				ServiceException se = new ServiceException("不能重复创建签证佣金订单退款单!");
+				se.setCode(ErrorCodeEnum.DATA_ERROR.code());
+				throw se;
+			}
 			if (refundDao.addRefund(refundDo) > 0) {
 				refundDto.setId(refundDo.getId());
 				return refundDo.getId();
@@ -64,7 +78,7 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 		List<RefundDO> refundDoList = null;
 		try {
 			refundDoList = refundDao.listRefund(type, state);
-			if (refundDoList == null)
+			if (ObjectUtil.isNull(refundDoList))
 				return null;
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
@@ -99,7 +113,7 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 		RefundDO refundDo = null;
 		try {
 			refundDo = refundDao.getRefundById(id);
-			if (refundDo == null)
+			if (ObjectUtil.isNull(refundDo))
 				return null;
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
