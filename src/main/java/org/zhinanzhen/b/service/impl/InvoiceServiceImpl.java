@@ -583,13 +583,13 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
         //    return visaIds.get(0) + " 佣金订单已经关联！";
         //}
 
-        for (String id : idList){
-            if (commissionOrderDAO.getCommissionOrderById(StringUtil.toInt(id)) == null){
-                isContainsCommissionOrder = false;
-                break;
-            }
-        }
-        if (isContainsCommissionOrder){
+        //for (String id : idList){
+        //    if (commissionOrderDAO.getCommissionOrderById(StringUtil.toInt(id)) == null){
+        //        isContainsCommissionOrder = false;
+        //        break;
+        //    }
+        //}
+        //if (isContainsCommissionOrder){
             invoiceDAO.removeInvoiceNumberInCommissionOrder(invoiceNo);//解绑佣金订单上的发票号
             //写入发票上的order_id字段
             int resulti =  invoiceDAO.insertCommissionOrderIdInInvoice(StringUtils.join(idList, ",") , invoiceNo);
@@ -607,7 +607,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
             invoiceDAO.saveSchoolDescription(description,invoiceNo);
             if (invoiceDAO.updateSCInvoice(paramMap)>0)
                 return "sucess";
-        }
+        //}
 
         return "fail";
     }
