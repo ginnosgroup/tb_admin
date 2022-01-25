@@ -121,8 +121,10 @@ public class RefundController extends BaseController {
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> update(@RequestParam(value = "id") int id,
-			@RequestParam(value = "state", required = false) String state, HttpServletRequest request,
-			HttpServletResponse response) {
+			@RequestParam(value = "state", required = false) String state,
+			@RequestParam(value = "paymentVoucherImageUrl", required = false) String paymentVoucherImageUrl,
+			@RequestParam(value = "refundVoucherImageUrl", required = false) String refundVoucherImageUrl,
+			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
@@ -133,6 +135,10 @@ public class RefundController extends BaseController {
 			RefundDTO refundDto = refundService.getRefundById(id);
 			if (state != null)
 				refundDto.setState(state);
+			if (paymentVoucherImageUrl != null)
+				refundDto.setPaymentVoucherImageUrl(paymentVoucherImageUrl);
+			if (refundVoucherImageUrl != null)
+				refundDto.setRefundVoucherImageUrl(refundVoucherImageUrl);
 			if (refundService.updateRefund(refundDto) > 0) {
 				return new Response<Integer>(0, refundDto.getId());
 			} else {
