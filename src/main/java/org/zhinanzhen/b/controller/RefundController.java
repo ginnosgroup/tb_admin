@@ -122,27 +122,24 @@ public class RefundController extends BaseController {
 
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<Integer> update(@RequestParam(value = "id") int id,
-			@RequestParam(value = "state", required = false) String state,
-			@RequestParam(value = "paymentVoucherImageUrl", required = false) String paymentVoucherImageUrl,
-			@RequestParam(value = "refundVoucherImageUrl", required = false) String refundVoucherImageUrl,
+	public Response<Integer> update(@RequestBody RefundDTO refundDto,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			if (adminUserLoginInfo == null || !"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList()))
 				return new Response<Integer>(1, "仅限超级管理员能修改退款单.", 0);
-			if (id <= 0)
+			if (refundDto.getId() <= 0)
 				return new Response<Integer>(1, "id不正确.", 0);
-			RefundDTO refundDto = refundService.getRefundById(id);
-			if (state != null)
-				refundDto.setState(state);
-			if (paymentVoucherImageUrl != null)
-				refundDto.setPaymentVoucherImageUrl(paymentVoucherImageUrl);
-			if (refundVoucherImageUrl != null)
-				refundDto.setRefundVoucherImageUrl(refundVoucherImageUrl);
-			if (refundService.updateRefund(refundDto) > 0) {
-				return new Response<Integer>(0, refundDto.getId());
+			RefundDTO _refundDto = refundService.getRefundById(refundDto.getId());
+			if (refundDto.getState() != null)
+				_refundDto.setState(refundDto.getState());
+			if (refundDto.getPaymentVoucherImageUrl() != null)
+				_refundDto.setPaymentVoucherImageUrl(refundDto.getPaymentVoucherImageUrl());
+			if (refundDto.getRefundVoucherImageUrl() != null)
+				_refundDto.setRefundVoucherImageUrl(refundDto.getRefundVoucherImageUrl());
+			if (refundService.updateRefund(_refundDto) > 0) {
+				return new Response<Integer>(0, _refundDto.getId());
 			} else {
 				return new Response<Integer>(0, "修改失败.", 0);
 			}
