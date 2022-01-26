@@ -127,8 +127,9 @@ public class RefundController extends BaseController {
 		try {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			if (adminUserLoginInfo == null || !"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList()))
-				return new Response<Integer>(1, "仅限超级管理员能修改退款单.", 0);
+			if (adminUserLoginInfo == null || !"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					|| !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList()))
+				return new Response<Integer>(1, "仅限财务和超级管理员能修改退款单.", 0);
 			if (refundDto.getId() <= 0)
 				return new Response<Integer>(1, "id不正确.", 0);
 			RefundDTO _refundDto = refundService.getRefundById(refundDto.getId());
