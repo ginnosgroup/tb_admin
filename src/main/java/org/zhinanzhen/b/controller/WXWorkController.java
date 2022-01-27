@@ -2,11 +2,18 @@ package org.zhinanzhen.b.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.ikasoa.core.utils.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import org.zhinanzhen.b.service.WXWorkService;
+import org.zhinanzhen.b.service.pojo.BehaviorDataDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.AdviserService;
@@ -16,12 +23,15 @@ import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.utils.EmojiFilter;
+import org.zhinanzhen.tb.utils.WXWorkAPI;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
-import java.util.Map;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -34,6 +44,8 @@ import java.util.Map;
 @RequestMapping("/wxwork")
 public class WXWorkController extends  BaseController{
 
+    private static final Logger LOG = LoggerFactory.getLogger(WXWorkController.class);
+
     @Resource
     private WXWorkService wxWorkService;
 
@@ -42,6 +54,23 @@ public class WXWorkController extends  BaseController{
 
     @Resource
     private UserService userService;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @Value("${weiban.crop_id}")
+    private String weibanCropId;
+
+    @Value("${weiban.secret}")
+    private String weibanSecret;
+
+    public enum AccessTokenType{
+        corp("企微自建应用SECRET"), cust("企微客户联系SECRET");
+        private String val;
+        AccessTokenType(String val){
+            this.val = val;
+        }
+    }
 
     @GetMapping(value = "/WXWorkCode")
     @ResponseBody
@@ -172,6 +201,201 @@ public class WXWorkController extends  BaseController{
             }
         }
         return  new Response(0 ,"success",phoneContainList);
+    }
+
+    @GetMapping(value = "/customerstatistics")
+    @ResponseBody
+    public Response customerStatistics(//@RequestParam(value = "id")int id,
+            HttpServletRequest request, HttpServletResponse response) throws ServiceException, UnsupportedEncodingException {
+        super.setGetHeader(response);
+
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo == null)
+            return  new Response(1,"未登录");
+        AdminUserDTO adminUser = adminUserService.getAdminUserByUsername(adminUserLoginInfo.getUsername());
+        Integer adviserId =  getAdviserId(request);
+        if (adviserId == null)
+            return  new Response(1,"不是顾问!");
+        HttpSession session = request.getSession();
+        String customerToken = (String) session.getAttribute("customerToken" + VERSION);
+        AdviserDTO adviserDTO =  adviserService.getAdviserById(adviserId);
+        if (adviserDTO == null)
+            return  new Response(1,"没有此顾问");
+        if (StringUtil.isEmpty(adminUser.getOperUserId()))
+            return  new Response(1 ,"先授权登录");
+
+
+        //HttpHeaders httpHeaders = new HttpHeaders();
+        //MediaType type=MediaType.parseMediaType("application/json;charset=UTF-8");
+        //httpHeaders.setContentType(type);
+
+        int customerTotal = 0, todayAddCustomer = 0, todayLoseCustomer = 0, LoseCustomerTotal = 0, sendMsgTotal = 0 ;
+
+        Map uriVariablesMap = new HashMap<String, Object>();
+        Calendar calendar = Calendar.getInstance();
+        JSONObject jsonObject = null;
+        uriVariablesMap.put("userid", Arrays.asList(adminUser.getOperUserId()));
+        //uriVariablesMap.put("partyid");
+        for (int i = 0 ; i < 6; i ++){
+            long endTime = calendar.getTimeInMillis() / 1000;
+            uriVariablesMap.put("end_time", endTime);
+            calendar.add(Calendar.DAY_OF_MONTH, -29);
+            long startTime = calendar.getTimeInMillis() / 1000;
+            uriVariablesMap.put("start_time", startTime);
+            //开始时间和结束时间跨度最大为30天
+            jsonObject =  restTemplate.postForObject(StringUtil.merge(WXWorkAPI.BEHAVIOR_DATA, customerToken), uriVariablesMap, JSONObject.class);
+
+            JSONArray jsonList =  jsonObject.getJSONArray("behavior_data");
+            int size = jsonList.size();
+            for (int j = 0 ; j < size ; j ++) {
+                BehaviorDataDTO behaviorDataDto = JSON.parseObject(JSON.toJSONString(jsonList.get(j)), BehaviorDataDTO.class);
+                if ( i == 0 && j == 29){
+                    todayAddCustomer = behaviorDataDto.getNewContactCnt();
+                    todayLoseCustomer = behaviorDataDto.getNegativeFeedbackCnt();
+                }
+                LoseCustomerTotal = behaviorDataDto.getNegativeFeedbackCnt() + LoseCustomerTotal;
+                sendMsgTotal = behaviorDataDto.getMessageCnt() + sendMsgTotal;
+            }
+            //System.out.println(jsonObject.toJSONString());
+        }
+        String url = WXWorkAPI.CUSTOMERLIST.replace("ACCESS_TOKEN", customerToken)
+                .replace("USERID", URLEncoder.encode(adminUser.getOperUserId(),"UTF-8"));
+        URI uri = URI.create(url);
+        JSONObject customerListJson = restTemplate.getForObject(uri, JSONObject.class);
+
+        if ((int)customerListJson.get("errcode") == 0){
+            customerTotal = customerListJson.getJSONArray("external_userid").size();
+        }
+        //System.out.println(customerListJson.toJSONString());
+
+        Map responseMap = new HashMap();
+        responseMap.put("customerTotal", customerTotal);
+        responseMap.put("todayAddCustomer", todayAddCustomer);
+        responseMap.put("todayLoseCustomer", todayLoseCustomer);
+        responseMap.put("LoseCustomerTotal", LoseCustomerTotal);
+        responseMap.put("sendMsgTotal", sendMsgTotal);
+
+        return new Response(0, responseMap);
+    }
+
+    @GetMapping(value = "/customerstatisticslist")
+    @ResponseBody
+    public Response customerStatisticsList(
+            @RequestParam(value = "startTime", required = false) String startTime,
+            @RequestParam(value = "endTime", required = false) String endTime,
+            HttpServletRequest request, HttpServletResponse response) throws ServiceException {
+        super.setGetHeader(response);
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo == null)
+            return  new Response(1,"未登录");
+        AdminUserDTO adminUser = adminUserService.getAdminUserByUsername(adminUserLoginInfo.getUsername());
+        Integer adviserId =  getAdviserId(request);
+        if (adviserId == null)
+            return  new Response(1,"不是顾问!");
+        AdviserDTO adviserDTO =  adviserService.getAdviserById(adviserId);
+        if (adviserDTO == null)
+            return  new Response(1,"没有此顾问");
+        if (StringUtil.isEmpty(adminUser.getOperUserId()))
+            return  new Response(1 ,"先授权登录");
+
+        if (StringUtil.isEmpty(startTime) || StringUtil.isEmpty(endTime)){
+            Calendar calendar = Calendar.getInstance();
+            endTime = calendar.getTimeInMillis() / 1000 + "";
+            calendar.add(Calendar.DAY_OF_MONTH, -10);
+            startTime = calendar.getTimeInMillis() / 1000 + "";
+        }
+
+        Map uriVariablesMap = new HashMap<String, Object>();
+        uriVariablesMap.put("userid", Arrays.asList(adminUser.getOperUserId()));
+        //uriVariablesMap.put("partyid"); //这个参数可以不用要
+        uriVariablesMap.put("start_time", startTime);
+        uriVariablesMap.put("end_time", endTime);
+
+        LOG.info("startTime / endTime = " + startTime + "/" + endTime);
+        LOG.info(" userid : " + Arrays.asList(adminUser.getOperUserId()));
+
+        String customerToken = token(request, AccessTokenType.cust.toString());
+        JSONObject jsonObject =
+                restTemplate.postForObject(StringUtil.merge(WXWorkAPI.BEHAVIOR_DATA, customerToken), uriVariablesMap, JSONObject.class);
+
+        if ((int)jsonObject.get("errcode") == 0){
+            List<BehaviorDataDTO> behaviors = new ArrayList<>();
+            JSONArray jsonList =  jsonObject.getJSONArray("behavior_data");
+            for (Object o : jsonList) {
+                BehaviorDataDTO behaviorDataDto = JSON.parseObject(JSON.toJSONString(o), BehaviorDataDTO.class);
+                behaviors.add(behaviorDataDto);
+            }
+            return new Response(0, "ok", behaviors);
+        }
+        LOG.info(" get_user_behavior_data api errmsg :" + jsonObject.get("errmsg"));
+        return new Response(1, "fail", jsonObject.get("errmsg"));
+    }
+
+    @GetMapping(value = "/contactwaylist")
+    @ResponseBody
+    public Response contactWayList(
+            @RequestParam(value = "pageSize", required = false)int pageSize,
+            @RequestParam(value = "pageNum", required = false)int pageNum,
+            @RequestParam(value = "startTime", required = false) String startTime,
+            @RequestParam(value = "endTime", required = false) String endTime,
+            HttpServletRequest request, HttpServletResponse response) throws ServiceException {
+        super.setGetHeader(response);
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo == null)
+            return  new Response(1,"未登录");
+        AdminUserDTO adminUser = adminUserService.getAdminUserByUsername(adminUserLoginInfo.getUsername());
+        Integer adviserId =  getAdviserId(request);
+        if (adviserId == null)
+            return  new Response(1,"不是顾问!");
+        AdviserDTO adviserDTO =  adviserService.getAdviserById(adviserId);
+        if (adviserDTO == null)
+            return  new Response(1,"没有此顾问");
+        if (StringUtil.isEmpty(adminUser.getOperUserId()))
+            return  new Response(1 ,"先授权登录");
+
+
+
+        String url = "https://open.weibanzhushou.com/open-api/access_token/get";
+        HashMap uriVariablesMap = new HashMap();
+        uriVariablesMap.put("corp_id", weibanCropId);
+        uriVariablesMap.put("secret", weibanSecret);
+        JSONObject weibanTokenJsonObject = restTemplate.postForObject(url, uriVariablesMap, JSONObject.class);
+        if ((int)weibanTokenJsonObject.get("errcode") != 0){
+            return new Response(1, weibanTokenJsonObject.get("errmsg"));
+        }
+
+        String url2 = StringUtil.merge("https://open.weibanzhushou.com/open-api/contact_way/list?", "access_token={access_token}"
+                , "&staff_id={staff_id}", "&limit={limit}&offset={offset}");
+        uriVariablesMap.put("access_token", weibanTokenJsonObject.get("access_token"));
+        uriVariablesMap.put("limit", pageSize);
+        uriVariablesMap.put("offset", pageNum);
+        uriVariablesMap.put("staff_id", adminUser.getOperUserId());//  这里是企业微信的userid
+        JSONObject contactWayListJsonObject = restTemplate.getForObject(url2, JSONObject.class, uriVariablesMap);
+        //System.out.println(weibanTokenJsonObject);
+        System.out.println(contactWayListJsonObject);
+        if (StringUtil.isNotEmpty(startTime) && StringUtil.isNotEmpty(endTime)){
+            Date _start = new Date(Long.parseLong(startTime));
+            Date _end = new Date(Long.parseLong(endTime));
+            Date _createAt = null;
+            JSONArray _jsonArray = new JSONArray();
+            for ( ; contactWayListJsonObject.getJSONArray("contact_way_list").size() > 0 ; ){
+                JSONArray jsonArray = contactWayListJsonObject.getJSONArray("contact_way_list");
+                int size = jsonArray.size();
+                for (int i = 0; i < size ; i++){
+                    String createdAt =  JSON.toJSONString(((JSONObject) jsonArray.get(i)).get("created_at"));
+                    _createAt = new Date(Long.parseLong(createdAt));
+                    if (_start.before(_createAt) &&_end.after(_createAt))
+                        _jsonArray.add(jsonArray.get(i));
+                }
+                uriVariablesMap.put("offset", ++pageNum * pageSize);
+                contactWayListJsonObject = restTemplate.getForObject(url2, JSONObject.class, uriVariablesMap);
+            }
+            return new Response(0, "success", _jsonArray);
+        }
+        if((int)contactWayListJsonObject.get("errcode") == 0){
+            return new Response(0, "success", contactWayListJsonObject.get("contact_way_list"));
+        }
+        return new Response(1, contactWayListJsonObject.get("errmsg"));
     }
 
 }

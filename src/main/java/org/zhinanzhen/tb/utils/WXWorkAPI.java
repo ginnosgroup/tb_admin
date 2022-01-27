@@ -54,6 +54,12 @@ public class WXWorkAPI {
 
     public final static  String CREATECHAT = "https://qyapi.weixin.qq.com/cgi-bin/appchat/create?access_token=ACCESS_TOKEN";
 
+    //统计管理里面获取客户统计数据
+    public final static String BEHAVIOR_DATA = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_user_behavior_data?access_token=";
+
+    //获取客户列表，List里面只有客户的userid
+    public final static String CUSTOMERLIST = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/list?access_token=ACCESS_TOKEN&userid=USERID";
+
     //发送GET请求
     public static JSONObject sendGet(String url) {
 
