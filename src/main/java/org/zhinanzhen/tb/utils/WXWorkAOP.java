@@ -26,15 +26,15 @@ public class WXWorkAOP {
     @Resource
     private WXWorkService wxWorkService;
 
-    @Before("execution(* org.zhinanzhen.b.controller.WXWorkController.getExternalContactList(..))")
+    @Before("execution(* org.zhinanzhen.b.controller.WXWorkController.*(..))")
     public  void  beforeGetExternalContactList(JoinPoint joinPoint){
        setToken();
     }
 
-    @Before("execution(* org.zhinanzhen.b.controller.WXWorkController.getUserId(..))")
-    public  void  beforegetUserId(JoinPoint joinPoint) throws Exception {
-        setToken();
-    }
+    //@Before("execution(* org.zhinanzhen.b.controller.WXWorkController.getUserId(..))")
+    //public  void  beforegetUserId(JoinPoint joinPoint) throws Exception {
+    //    setToken();
+    //}
 
     @Before("execution(* org.zhinanzhen.b.service.impl.WXWorkServiceImpl.sendMsg(..))")
     public  void  beforeSendMsg(JoinPoint joinPoint) throws Exception {
