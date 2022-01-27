@@ -171,10 +171,10 @@ public class RefundController extends BaseController {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo == null)
 			return new Response<RefundDTO>(1, "请先登录.", null);
+		if (ObjectUtil.isNull(refundDto))
+			return new Response<RefundDTO>(1, "退款单不存在!", null);
 		if (refundDto.getId() <= 0)
 			return new Response<RefundDTO>(1, "id不正确:" + refundDto.getId(), null);
-		if (ObjectUtil.isNull(refundDto))
-			return new Response<RefundDTO>(1, "退款单不存在:" + refundDto.getId(), null);
 		Node node = rNodeFactory.getNode(refundDto.getState());
 
 		Context context = new Context();

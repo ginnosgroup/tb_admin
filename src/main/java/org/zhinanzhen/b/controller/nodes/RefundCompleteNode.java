@@ -30,8 +30,8 @@ public class RefundCompleteNode extends RDecisionNode {
 			isSingleStep = true;
 			RefundDTO refundDto = refundService.getRefundById(getRefundId(context));
 			if (refundDto == null) {
-				context.putParameter("response",
-						new Response<ServiceOrderDTO>(1, "退款单不存在:" + getRefundId(context), null));
+//				context.putParameter("response",
+//						new Response<ServiceOrderDTO>(1, "退款单不存在:" + getRefundId(context), null));
 				return null;
 			}
 			if (!"KJ".equalsIgnoreCase(getAp(context))) {
