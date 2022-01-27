@@ -1,7 +1,5 @@
 package org.zhinanzhen.b.controller.nodes;
 
-import java.util.List;
-
 import org.springframework.stereotype.Component;
 import org.zhinanzhen.b.service.ServiceOrderService;
 
@@ -15,27 +13,25 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 @Component
 public class SONodeFactory implements NodeFactory {
-	
+
 	private ServiceOrderService serviceOrderService;
 
-	private List<Node> nodeList = ListUtil.buildArrayList(
-			new ServiceOrderPendingNode(serviceOrderService),
-			new ServiceOrderReviewNode(serviceOrderService), 
-			new ServiceOrderOfficialReviewNode(serviceOrderService), 
-			new ServiceOrderWaitNode(serviceOrderService),
-			new ServiceOrderRejectNode(serviceOrderService),
-			new ServiceOrderCloseNode(serviceOrderService),
-			new ServiceOrderFinishNode(serviceOrderService),
-			new ServiceOrderCompleteNode(serviceOrderService),
-			new ServiceOrderPaidNode(serviceOrderService),
-			new ServiceOrderWaitFdNode(serviceOrderService),
-			new ServiceOrderCompleteFdNode(serviceOrderService),
-			new ServiceOrderReceivedNode(serviceOrderService),
-			new ServiceOrderApplyFailedNode(serviceOrderService),
-			new SuspendNode());
-
 	public Node getNode(String name) {
-		for (Node node : nodeList) {
+		for (Node node : ListUtil.buildArrayList(
+				new ServiceOrderPendingNode(serviceOrderService),
+				new ServiceOrderReviewNode(serviceOrderService),
+				new ServiceOrderOfficialReviewNode(serviceOrderService), 
+				new ServiceOrderWaitNode(serviceOrderService),
+				new ServiceOrderRejectNode(serviceOrderService), 
+				new ServiceOrderCloseNode(serviceOrderService),
+				new ServiceOrderFinishNode(serviceOrderService), 
+				new ServiceOrderCompleteNode(serviceOrderService),
+				new ServiceOrderPaidNode(serviceOrderService), 
+				new ServiceOrderWaitFdNode(serviceOrderService),
+				new ServiceOrderCompleteFdNode(serviceOrderService), 
+				new ServiceOrderReceivedNode(serviceOrderService),
+				new ServiceOrderApplyFailedNode(serviceOrderService), 
+				new SuspendNode())) {
 			if (name.equals(node.getName()))
 				return node;
 		}
