@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.controller.nodes;
 
 import org.springframework.stereotype.Component;
+import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -12,6 +13,10 @@ import com.ikasoa.web.workflow.Context;
 public class ServiceOrderApplyNode extends SODecisionNode {
 
 	// 文案
+
+	public ServiceOrderApplyNode(ServiceOrderService serviceOrderService) {
+		super.serviceOrderService = serviceOrderService;
+	}
 
 	@Override
 	public String getName() {
