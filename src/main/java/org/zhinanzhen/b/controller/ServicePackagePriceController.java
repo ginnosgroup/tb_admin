@@ -1,5 +1,7 @@
 package org.zhinanzhen.b.controller;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -49,6 +51,32 @@ public class ServicePackagePriceController extends BaseController {
 				return new Response<Integer>(1, "创建失败.", 0);
 		} catch (ServiceException e) {
 			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
+		}
+	}
+
+	@RequestMapping(value = "/list", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<ServicePackagePriceDTO>> list(
+			@RequestParam(value = "sourceRegionId", required = false) Integer servicePackageId,
+			HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<List<ServicePackagePriceDTO>>(0,
+					servicePackagePriceService.listServicePackagePrice(servicePackageId));
+		} catch (ServiceException e) {
+			return new Response<List<ServicePackagePriceDTO>>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/delete", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> delete(@RequestParam(value = "id") int id, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			servicePackagePriceService.deleteById(id);
+			return new Response<Integer>(0);
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), 0);
 		}
 	}
 
