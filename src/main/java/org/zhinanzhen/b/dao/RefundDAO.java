@@ -3,6 +3,7 @@ package org.zhinanzhen.b.dao;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
+import org.zhinanzhen.b.dao.pojo.RefoundReportDO;
 import org.zhinanzhen.b.dao.pojo.RefundDO;
 
 public interface RefundDAO {
@@ -21,4 +22,8 @@ public interface RefundDAO {
 	
 	int deleteRefundById(int id);
 
+    List<RefoundReportDO> listRefundReport(@Param("startDate") String startDate, @Param("endDate") String endDate,
+										   @Param("dateType")String dateType, @Param("dateMethod")String dateMethod,
+										   @Param("regionId")Integer regionId, @Param("adviserId")Integer adviserId,
+										   @Param("adviserIdList")List<String> adviserIdList);
 }
