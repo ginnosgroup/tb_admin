@@ -100,10 +100,11 @@ public class RefundController extends BaseController {
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<List<RefundDTO>> list(@RequestParam(value = "type", required = false) String type,
-			@RequestParam(value = "state", required = false) String state, HttpServletResponse response) {
+			@RequestParam(value = "state", required = false) String state, HttpServletRequest request,
+			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<List<RefundDTO>>(0, refundService.listRefund(type, state));
+			return new Response<List<RefundDTO>>(0, refundService.listRefund(getAdviserId(request), type, state));
 		} catch (ServiceException e) {
 			return new Response<List<RefundDTO>>(1, e.getMessage(), null);
 		}

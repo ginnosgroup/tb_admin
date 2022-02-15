@@ -95,6 +95,9 @@
             r.remarks
         FROM tb_user u, tb_adviser a, b_refund r left join b_official o ON r.official_id = o.id
         WHERE r.user_id = u.id AND r.adviser_id = a.id
+        <if test='adviserId != null and adviserId > 0'>
+			AND r.adviser_id = #{adviserId}
+		</if>
         <if test='type != null and type != ""'>
 			AND r.type = #{type}
 		</if>
