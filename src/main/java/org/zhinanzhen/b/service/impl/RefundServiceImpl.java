@@ -10,11 +10,9 @@ import org.zhinanzhen.b.dao.MaraDAO;
 import org.zhinanzhen.b.dao.RefundDAO;
 import org.zhinanzhen.b.dao.SchoolCourseDAO;
 import org.zhinanzhen.b.dao.SchoolInstitutionDAO;
-import org.zhinanzhen.b.dao.pojo.MaraDO;
-import org.zhinanzhen.b.dao.pojo.RefundDO;
-import org.zhinanzhen.b.dao.pojo.SchoolCourseDO;
-import org.zhinanzhen.b.dao.pojo.SchoolInstitutionDO;
+import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.RefundService;
+import org.zhinanzhen.b.service.pojo.RefoundReportDTO;
 import org.zhinanzhen.b.service.pojo.RefundDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
@@ -152,6 +150,26 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
+	public List<RefoundReportDTO> listRefundReport(String startDate, String endDate, String dateType,
+												   String dateMethod, Integer regionId, Integer adviserId, List<String> adviserIdList) throws ServiceException {
+		List<RefoundReportDTO> refoundReportDtoList = new ArrayList<>();
+		List<RefoundReportDO> refoundReportDoList = new ArrayList<>();
+		try {
+			refoundReportDoList = refundDao.listRefundReport(startDate,
+					theDateTo23_59_59(endDate), dateType, dateMethod, regionId, adviserId, adviserIdList);
+			if (refoundReportDoList == null)
+				return null;
+			refoundReportDoList.forEach(refoundReportDO -> refoundReportDtoList
+					.add(mapper.map(refoundReportDO, RefoundReportDTO.class)));
+			return refoundReportDtoList;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
 			throw se;
 		}
 	}

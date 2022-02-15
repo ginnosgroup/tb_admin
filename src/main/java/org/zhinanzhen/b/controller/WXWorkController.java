@@ -31,6 +31,8 @@ import javax.servlet.http.HttpSession;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -45,6 +47,8 @@ import java.util.*;
 public class WXWorkController extends  BaseController{
 
     private static final Logger LOG = LoggerFactory.getLogger(WXWorkController.class);
+
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @Resource
     private WXWorkService wxWorkService;
@@ -283,7 +287,7 @@ public class WXWorkController extends  BaseController{
     public Response customerStatisticsList(
             @RequestParam(value = "startTime", required = false) String startTime,
             @RequestParam(value = "endTime", required = false) String endTime,
-            HttpServletRequest request, HttpServletResponse response) throws ServiceException {
+            HttpServletRequest request, HttpServletResponse response) throws ServiceException, ParseException {
         super.setGetHeader(response);
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
         if (adminUserLoginInfo == null)
@@ -303,6 +307,9 @@ public class WXWorkController extends  BaseController{
             endTime = calendar.getTimeInMillis() / 1000 + "";
             calendar.add(Calendar.DAY_OF_MONTH, -10);
             startTime = calendar.getTimeInMillis() / 1000 + "";
+        }else {
+            startTime = sdf.parse(startTime).getTime() / 1000 + "";
+            endTime = sdf.parse(endTime).getTime() / 1000 + "";
         }
 
         Map uriVariablesMap = new HashMap<String, Object>();
@@ -321,8 +328,9 @@ public class WXWorkController extends  BaseController{
         if ((int)jsonObject.get("errcode") == 0){
             List<BehaviorDataDTO> behaviors = new ArrayList<>();
             JSONArray jsonList =  jsonObject.getJSONArray("behavior_data");
-            for (Object o : jsonList) {
-                BehaviorDataDTO behaviorDataDto = JSON.parseObject(JSON.toJSONString(o), BehaviorDataDTO.class);
+            int size = jsonList.size();
+            for (int index = size - 1 ; index >= 0 ; index --) {
+                BehaviorDataDTO behaviorDataDto = JSON.parseObject(JSON.toJSONString(jsonList.get(index)), BehaviorDataDTO.class);
                 behaviors.add(behaviorDataDto);
             }
             return new Response(0, "ok", behaviors);
@@ -338,7 +346,7 @@ public class WXWorkController extends  BaseController{
             @RequestParam(value = "pageNum", required = false)int pageNum,
             @RequestParam(value = "startTime", required = false) String startTime,
             @RequestParam(value = "endTime", required = false) String endTime,
-            HttpServletRequest request, HttpServletResponse response) throws ServiceException {
+            HttpServletRequest request, HttpServletResponse response) throws ServiceException, ParseException {
         super.setGetHeader(response);
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
         if (adminUserLoginInfo == null)
@@ -374,8 +382,8 @@ public class WXWorkController extends  BaseController{
         //System.out.println(weibanTokenJsonObject);
         System.out.println(contactWayListJsonObject);
         if (StringUtil.isNotEmpty(startTime) && StringUtil.isNotEmpty(endTime)){
-            Date _start = new Date(Long.parseLong(startTime));
-            Date _end = new Date(Long.parseLong(endTime));
+            Date _start = sdf.parse(startTime);
+            Date _end = sdf.parse(endTime);
             Date _createAt = null;
             JSONArray _jsonArray = new JSONArray();
             for ( ; contactWayListJsonObject.getJSONArray("contact_way_list").size() > 0 ; ){

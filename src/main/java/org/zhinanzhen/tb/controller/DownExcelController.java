@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.zhinanzhen.b.service.CommissionOrderService;
+import org.zhinanzhen.b.service.RefundService;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.b.service.pojo.*;
@@ -66,6 +67,9 @@ public class DownExcelController extends BaseController {
 
 	@Resource
 	ServiceOrderService serviceOrderService;
+
+	@Resource
+	RefundService refundService;
 
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -407,7 +411,8 @@ public class DownExcelController extends BaseController {
 					if (v.getDate() != null)
 						crMap.put(v.getDate() + "-" + v.getRegionId() + "-" + v.getConsultant(),
 								new CommissionReport(v.getDate(), v.getRegionId(), v.getArea(), v.getAdviserId(),
-										v.getConsultant(), v.getCommission(), v.getServiceFee(), 0, 0, 0));
+										v.getConsultant(), v.getCommission(), v.getServiceFee(), 0, 0, 0
+								, 0, 0, 0));
 				});
 			List<CommissionOrderReportDTO> commissionOrderReportList = commissionOrderService
 					.listCommissionOrderReport(startDate, endDate, dateType, dateMethod, regionId, adviserId, adviserIdList);
@@ -424,10 +429,30 @@ public class DownExcelController extends BaseController {
 							crMap.put(c.getDate() + "-" + c.getRegionId() + "-" + c.getConsultant(),
 									new CommissionReport(c.getDate(), c.getRegionId(), c.getArea(), c.getAdviserId(),
 											c.getConsultant(), 0, 0, c.getDeductionCommission(), c.getClaimCommission(),
-											c.getClaimedCommission()));
+											c.getClaimedCommission(), c.getAdjustments(), 0, 0));
 					}
 				});
 
+			List<RefoundReportDTO> refoundReportList = refundService
+					.listRefundReport(startDate, endDate, dateType, dateMethod, regionId, adviserId, adviserIdList);
+			if (refoundReportList != null)
+				refoundReportList.forEach(r ->{
+					if (r.getDate() != null){
+						CommissionReport cr = crMap.get(r.getDate() + "-" + r.getRegionId() + "-" + r.getConsultant());
+						if (cr != null){
+							cr.setRefunded(r.getRefunded());
+							cr.setRefunding(r.getRefunding());
+							crMap.put(r.getDate() + "-" + r.getRegionId() + "-" + r.getConsultant(), cr);
+						}else
+							crMap.put(r.getDate() + "-" + r.getRegionId() + "-" + r.getConsultant(),
+									new CommissionReport(r.getDate(), r.getRegionId(), r.getArea(), r.getAdviserId(),
+											r.getConsultant(), 0, 0, 0, 0,
+											0, 0, r.getRefunded(), r.getRefunding()));
+					}
+				});
+
+
+			//crMap 顾问分组
 			Map<String,List<CommissionReport>> crListMap = new HashMap<>();
 			for (Map.Entry<String, CommissionReport> entry : crMap.entrySet()){
 				String entryKey = entry.getKey();
@@ -498,14 +523,20 @@ public class DownExcelController extends BaseController {
 				WritableSheet _sheet = wbe.getSheet(0);
 
 				for (CommissionReport commissionReport : commissionReportList){
+					double performanceIndex = commissionReport.getServiceFee() + commissionReport.getDeductionCommission()
+							+ commissionReport.getClaimCommission() + commissionReport.getAdjustments() + commissionReport.getRefunding();
 					_sheet.addCell(new Label(0, i, commissionReport.getDate(), cellFormat));
 					_sheet.addCell(new Label(1, i, commissionReport.getArea(), cellFormat));
 					_sheet.addCell(new Label(2, i, commissionReport.getConsultant(), cellFormat));
-					_sheet.addCell(new Label(3, i, commissionReport.getCommission() + "", cellFormat));
-					_sheet.addCell(new Label(4, i, commissionReport.getServiceFee() + "", cellFormat));
-					_sheet.addCell(new Label(5, i, commissionReport.getDeductionCommission() + "", cellFormat));
-					_sheet.addCell(new Label(6, i, commissionReport.getClaimCommission() + "", cellFormat));
-					_sheet.addCell(new Label(7, i, commissionReport.getClaimedCommission() + "", cellFormat));
+					_sheet.addCell(new Label(3, i, new BigDecimal(performanceIndex).setScale(2,BigDecimal.ROUND_HALF_UP)
+							.doubleValue() + "", cellFormat));
+					_sheet.addCell(new Label(4, i, commissionReport.getCommission() + "", cellFormat));
+					_sheet.addCell(new Label(5, i, commissionReport.getServiceFee() + "", cellFormat));
+					_sheet.addCell(new Label(6, i, commissionReport.getDeductionCommission() + "", cellFormat));
+					_sheet.addCell(new Label(7, i, commissionReport.getClaimCommission() + "", cellFormat));
+					_sheet.addCell(new Label(8, i, commissionReport.getClaimedCommission() + "", cellFormat));
+					_sheet.addCell(new Label(9, i, commissionReport.getRefunding() + "", cellFormat));
+					_sheet.addCell(new Label(10, i, commissionReport.getRefunded() + "", cellFormat));
 					i++;
 				}
 
@@ -714,6 +745,12 @@ public class DownExcelController extends BaseController {
 		private double claimCommission;
 
 		private double claimedCommission;
+
+		private double adjustments;
+
+		private double refunded;
+
+		private double refunding;
 	}
 
 	protected String getStateStr(String state) {
