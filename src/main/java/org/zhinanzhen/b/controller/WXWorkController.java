@@ -109,6 +109,11 @@ public class WXWorkController extends  BaseController{
             if (StringUtil.isNotEmpty(adminUser.getOperUserId()))
                 return "<div style= 'color:#3c763d;'>该用户已经授权了!</div>" + str;
             if (adminUserService.updateOperUserId(adminUser.getId(),userId)){
+                AdminUserLoginInfo loginInfo = (AdminUserLoginInfo) session.getAttribute("AdminUserLoginInfo" + VERSION);
+                if (loginInfo != null)
+                    loginInfo.setAuth(true);
+                session.removeAttribute("AdminUserLoginInfo" + VERSION);
+                session.setAttribute("AdminUserLoginInfo" + VERSION, loginInfo);
                 if (adminUserLoginInfo.getApList().equalsIgnoreCase("GW"))
                     return "<div style= 'color:#3c763d;'>授权成功，请在客户管理页面导入并编辑客户资料!</div>" + str;
                 else
@@ -325,8 +330,8 @@ public class WXWorkController extends  BaseController{
         JSONObject jsonObject =
                 restTemplate.postForObject(StringUtil.merge(WXWorkAPI.BEHAVIOR_DATA, customerToken), uriVariablesMap, JSONObject.class);
 
+        List<BehaviorDataDTO> behaviors = new ArrayList<>();
         if ((int)jsonObject.get("errcode") == 0){
-            List<BehaviorDataDTO> behaviors = new ArrayList<>();
             JSONArray jsonList =  jsonObject.getJSONArray("behavior_data");
             int size = jsonList.size();
             for (int index = size - 1 ; index >= 0 ; index --) {
@@ -336,7 +341,7 @@ public class WXWorkController extends  BaseController{
             return new Response(0, "ok", behaviors);
         }
         LOG.info(" get_user_behavior_data api errmsg :" + jsonObject.get("errmsg"));
-        return new Response(1, "fail", jsonObject.get("errmsg"));
+        return new Response(1, jsonObject.get("errmsg").toString(), behaviors);
     }
 
     @GetMapping(value = "/contactwaylist")
