@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.ikasoa.core.utils.StringUtil;
 import org.apache.commons.lang.RandomStringUtils;
 import org.dozer.DozerBeanMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
@@ -78,6 +79,8 @@ public class WXWorkServiceImpl implements WXWorkService {
     @Resource
     private SchoolCourseDAO schoolCourseDAO;
 
+    @Value("${qywxcallBackUrl}")
+    private String callBackUrl;
 
     private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
@@ -85,7 +88,7 @@ public class WXWorkServiceImpl implements WXWorkService {
     public String getWXWorkUrl() {
         String WXWORK_STRING_CODE = WXWorkAPI.WXWORK_STRING_CODE;
         WXWORK_STRING_CODE = WXWORK_STRING_CODE.replace("CORPID" ,WXWorkAPI .CORPID).replace("AGENTID",WXWorkAPI.AGENTID)
-                .replace("REDIRECT_URI","http://127.0.0.1:8080/admin_v2.1/wxwork/userId").replace("STATE", RandomStringUtils.randomAlphanumeric(5));
+                .replace("REDIRECT_URI", callBackUrl + "/admin_v2.1/wxwork/userId").replace("STATE", RandomStringUtils.randomAlphanumeric(5));
         return WXWORK_STRING_CODE;
     }
 
