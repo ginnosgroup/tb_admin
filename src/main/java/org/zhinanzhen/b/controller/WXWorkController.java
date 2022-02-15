@@ -68,6 +68,9 @@ public class WXWorkController extends  BaseController{
     @Value("${weiban.secret}")
     private String weibanSecret;
 
+    @Value("${qywxcallBackUrl}")
+    private String callBackUrl;
+
     public enum AccessTokenType{
         corp("企微自建应用SECRET"), cust("企微客户联系SECRET");
         private String val;
@@ -115,7 +118,9 @@ public class WXWorkController extends  BaseController{
                 session.removeAttribute("AdminUserLoginInfo" + VERSION);
                 session.setAttribute("AdminUserLoginInfo" + VERSION, loginInfo);
                 if (adminUserLoginInfo.getApList().equalsIgnoreCase("GW"))
-                    return "<div style= 'color:#3c763d;'>授权成功，请在客户管理页面导入并编辑客户资料!</div>" + str;
+                    return "<div style= 'color:#3c763d;text-align:center;margin-top:15%;'>授权成功，请在客户管理页面导入并编辑客户资!3秒以后自动跳转...</div>" +
+                            "<script>setTimeout('gotoUrl()', 3000);function gotoUrl(){window.location='" + callBackUrl +
+                            "/webroot_new/weibanzhushou/list/ContactWay'}</script>";
                 else
                     return "<div style= 'color:#3c763d;'>授权成功!</div>" + str;
             }
