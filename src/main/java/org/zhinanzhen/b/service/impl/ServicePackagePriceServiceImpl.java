@@ -66,7 +66,7 @@ public class ServicePackagePriceServiceImpl extends BaseService implements Servi
 		List<ServicePackagePriceDTO> servicePackagePriceDtoList = new ArrayList<>();
 		List<ServicePackagePriceDO> servicePackagePriceDoList = new ArrayList<>();
 		try {
-			servicePackagePriceDoList = servicePackagePriceDao.listByServicePackageId(servicePackageId);
+			servicePackagePriceDoList = servicePackagePriceDao.list(servicePackageId);
 			if (servicePackagePriceDoList == null)
 				return null;
 		} catch (Exception e) {
