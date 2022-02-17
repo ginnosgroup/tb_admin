@@ -17,12 +17,15 @@ import jxl.format.Alignment;
 import jxl.format.Border;
 import jxl.format.BorderLineStyle;
 import jxl.format.Colour;
+import jxl.write.WriteException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.zhinanzhen.b.controller.RefundController;
+import org.zhinanzhen.b.controller.nodes.RefundCompleteNode;
 import org.zhinanzhen.b.service.CommissionOrderService;
 import org.zhinanzhen.b.service.RefundService;
 import org.zhinanzhen.b.service.ServiceOrderService;
@@ -565,6 +568,24 @@ public class DownExcelController extends BaseController {
 
 				outPutCsToSheet(sheet, cellFormat,cellGreen, cellYellow, i += 3, commissionOrderList);
 
+				WritableSheet refundingSheet = wbe.getSheet(2);//refunding	excel表写
+				i = 1;
+				List<RefundDTO> ovstRefundingList = refundService.listRefund("OVST", RefundController.RefundStateEnum.COMPLETE.toString(),
+						commissionReportList.get(0).getAdviserId(), startDate, endDate);
+				List<RefundDTO> visaRefundingList = refundService.listRefund("VISA", RefundController.RefundStateEnum.COMPLETE.toString(),
+						commissionReportList.get(0).getAdviserId(), startDate, endDate);
+				i = outPutVisaToRefundSheet(refundingSheet, cellFormat, i, visaRefundingList);
+				outPutOvstToRefundSheet(refundingSheet, cellFormat, cellGreen, i += 3, ovstRefundingList);
+
+				WritableSheet refundedSheet = wbe.getSheet(3);//refunded	excel表写
+				i = 1;
+				List<RefundDTO> ovstRefundedList = refundService.listRefund("OVST", RefundController.RefundStateEnum.PAID.toString(),
+						commissionReportList.get(0).getAdviserId(), startDate, endDate);
+				List<RefundDTO> visaRefundedList = refundService.listRefund("VISA", RefundController.RefundStateEnum.PAID.toString(),
+						commissionReportList.get(0).getAdviserId(), startDate, endDate);
+				i = outPutVisaToRefundSheet(refundedSheet, cellFormat, i, visaRefundedList);
+				outPutOvstToRefundSheet(refundedSheet, cellFormat, cellGreen, i += 3, ovstRefundedList);
+
 				wbe.write();
 				//zipos.closeEntry();
 				wbe.close();
@@ -720,6 +741,68 @@ public class DownExcelController extends BaseController {
 		sheet.addCell(new Label(19, i,  "total", cellYellow));
 		sheet.addCell(new Label(20, i,  commissionTotal.setScale(2,BigDecimal.ROUND_HALF_UP).toString(), cellYellow));
 		sheet.addCell(new Label(21, i,  sureExpectAmountTotal.setScale(2,BigDecimal.ROUND_HALF_UP).toString(), cellYellow));
+	}
+
+	public int outPutVisaToRefundSheet(WritableSheet sheet, WritableCellFormat cellFormat, int i , List<RefundDTO> list) throws Exception {
+		for (RefundDTO refundDTO : list){
+			sheet.addCell(new Label(0, i,sdf.format(refundDTO.getGmtCreate()) , cellFormat));
+			sheet.addCell(new Label(1, i,refundDTO.getId() + "" , cellFormat));
+			sheet.addCell(new Label(2, i,refundDTO.getVisaId() + "" , cellFormat));
+			sheet.addCell(new Label(3, i, refundDTO.getUserName() , cellFormat));
+			sheet.addCell(new Label(4, i,refundDTO.getUserId() + "" , cellFormat));
+			sheet.addCell(new Label(5, i,refundDTO.getAdviserRegionName() + "" , cellFormat));
+			sheet.addCell(new Label(6, i,"签证" , cellFormat));
+			sheet.addCell(new Label(7, i, refundDTO.getServiceName() , cellFormat));
+			sheet.addCell(new Label(8, i, refundDTO.getReceived() + "" , cellFormat));
+			sheet.addCell(new Label(9, i, refundDTO.getOfficialName() , cellFormat));
+			sheet.addCell(new Label(10, i, refundDTO.getMaraName() , cellFormat));
+			sheet.addCell(new Label(11, i, refundDTO.getAdviserName() , cellFormat));
+			sheet.addCell(new Label(12, i, refundDTO.getAmount() + "" , cellFormat));
+			sheet.addCell(new Label(13, i, refundDTO.getBankName() , cellFormat));
+			sheet.addCell(new Label(14, i, refundDTO.getBsb() , cellFormat));
+			sheet.addCell(new Label(15, i, refundDTO.getKjApprovalDate() == null ? "" : sdf.format(refundDTO.getKjApprovalDate()) , cellFormat));
+			sheet.addCell(new Label(16, i, refundDTO.getRefundDetail() , cellFormat));
+			sheet.addCell(new Label(17, i, refundDTO.getRemarks() , cellFormat));
+			sheet.addCell(new Label(18, i, refundDTO.getState() , cellFormat));
+			i++;
+		}
+		return i;
+	}
+
+	public void outPutOvstToRefundSheet(WritableSheet sheet, WritableCellFormat cellFormat, WritableCellFormat cellGreen,
+			int i , List<RefundDTO> list) throws Exception {
+
+		String title = "退款申请时间,ID,原佣金订单ID,Client Name 客户姓名,客户ID,Branch,项目类型,学校名称 Institution Trading Name," +
+				"Institution Name,Course Name,实付金额,文案,顾问,Amount 申请退款金额," +
+				"Bank Name,BSB,提交佣金审核时间(佣金月份),Refund Details 退款原因,备注,状态";
+		String [] titleArr = title.split(",");
+		for (int ti = 0 ; ti < titleArr.length ; ti ++){
+			sheet.addCell(new Label(ti, i, titleArr[ti] , cellGreen));
+		}
+		i++;
+		for (RefundDTO refundDTO : list){
+			sheet.addCell(new Label(0, i,sdf.format(refundDTO.getGmtCreate()) , cellFormat));
+			sheet.addCell(new Label(1, i,refundDTO.getId() + "" , cellFormat));
+			sheet.addCell(new Label(2, i,refundDTO.getCommissionOrderId() + "" , cellFormat));
+			sheet.addCell(new Label(3, i, refundDTO.getUserName() , cellFormat));
+			sheet.addCell(new Label(4, i,refundDTO.getUserId() + "" , cellFormat));
+			sheet.addCell(new Label(5, i,refundDTO.getAdviserRegionName() + "" , cellFormat));
+			sheet.addCell(new Label(6, i,"留学" , cellFormat));
+			sheet.addCell(new Label(7, i, refundDTO.getSchoolName() , cellFormat));
+			sheet.addCell(new Label(8, i, refundDTO.getInstitutionName() + "" , cellFormat));
+			sheet.addCell(new Label(9, i, refundDTO.getCourseName() , cellFormat));
+			sheet.addCell(new Label(10, i, refundDTO.getReceived() + "", cellFormat));
+			sheet.addCell(new Label(11, i, refundDTO.getOfficialName() , cellFormat));
+			sheet.addCell(new Label(12, i, refundDTO.getAdviserName() , cellFormat));
+			sheet.addCell(new Label(13, i, refundDTO.getAmount() + "" , cellFormat));
+			sheet.addCell(new Label(14, i, refundDTO.getBankName() , cellFormat));
+			sheet.addCell(new Label(15, i, refundDTO.getBsb() , cellFormat));
+			sheet.addCell(new Label(16, i, refundDTO.getKjApprovalDate() == null ? "" : sdf.format(refundDTO.getKjApprovalDate()) , cellFormat));
+			sheet.addCell(new Label(17, i, refundDTO.getRefundDetail() , cellFormat));
+			sheet.addCell(new Label(18, i, refundDTO.getRemarks() , cellFormat));
+			sheet.addCell(new Label(19, i, refundDTO.getState() , cellFormat));
+			i++;
+		}
 	}
 
 	@AllArgsConstructor

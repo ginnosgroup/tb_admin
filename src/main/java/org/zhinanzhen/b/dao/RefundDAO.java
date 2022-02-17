@@ -10,7 +10,9 @@ public interface RefundDAO {
 
 	int addRefund(RefundDO refundDo);
 
-	List<RefundDO> listRefund(@Param("type") String type, @Param("state") String state);
+	List<RefundDO> listRefund(@Param("type") String type, @Param("state") String state,
+							  @Param("adviserId") Integer adviserId, @Param("startDate") String startDate,
+							  @Param("endDate") String endDate);
 	
 	RefundDO getRefundById(int id);
 	

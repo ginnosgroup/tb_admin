@@ -6,10 +6,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
-import org.zhinanzhen.b.dao.MaraDAO;
-import org.zhinanzhen.b.dao.RefundDAO;
-import org.zhinanzhen.b.dao.SchoolCourseDAO;
-import org.zhinanzhen.b.dao.SchoolInstitutionDAO;
+import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.RefundService;
 import org.zhinanzhen.b.service.pojo.RefoundReportDTO;
@@ -35,6 +32,12 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 
 	@Resource
 	MaraDAO maraDao;
+
+	@Resource
+	VisaDAO visaDao;
+
+	@Resource
+	ServiceDAO serviceDao;
 
 	@Override
 	public int addRefund(RefundDTO refundDto) throws ServiceException {
@@ -71,11 +74,11 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 	}
 
 	@Override
-	public List<RefundDTO> listRefund(String type, String state) throws ServiceException {
+	public List<RefundDTO> listRefund(String type, String state, Integer adviserId, String startDate, String endDate) throws ServiceException {
 		List<RefundDTO> refundDtoList = new ArrayList<>();
 		List<RefundDO> refundDoList = null;
 		try {
-			refundDoList = refundDao.listRefund(type, state);
+			refundDoList = refundDao.listRefund(type, state, adviserId, startDate, endDate);
 			if (ObjectUtil.isNull(refundDoList))
 				return null;
 		} catch (Exception e) {
@@ -100,6 +103,12 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 			if (refundDto != null && refundDto.getMaraId() > 0) {
 				MaraDO maraDo = maraDao.getMaraById(refundDto.getMaraId());
 				refundDto.setMaraName(maraDo.getName());
+			}
+			if (refundDto != null && refundDto.getVisaId() != null) {
+				VisaDO visaDO = visaDao.getVisaById(refundDto.getVisaId());
+				ServiceDO serviceDO = serviceDao.getServiceById(visaDO.getServiceId());
+				refundDto.setServiceName(StringUtil.merge(serviceDO.getName(),  "-" , serviceDO.getCode()));
+				refundDto.setKjApprovalDate(visaDO.getKjApprovalDate());
 			}
 			refundDtoList.add(refundDto);
 		}

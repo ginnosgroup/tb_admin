@@ -571,7 +571,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
         String invoiceNo = (String) paramMap.get("invoiceNo");
         String idList [] =  ((String) paramMap.get("idList")).split(",");
         List<InvoiceSchoolDescriptionDO> description = (List<InvoiceSchoolDescriptionDO>) paramMap.get("description");
-        checkSchoolDescriptionInstallmentDueDate(description);
+        description = checkSchoolDescriptionInstallmentDueDate(description);
         String invoiceDate = (String) paramMap.get("invoiceDate");
         boolean isContainsCommissionOrder = true;
 

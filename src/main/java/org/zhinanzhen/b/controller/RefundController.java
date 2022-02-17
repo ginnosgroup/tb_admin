@@ -49,7 +49,7 @@ public class RefundController extends BaseController {
 	RNodeFactory rNodeFactory;
 
 	public enum RefundStateEnum {
-		PENDING, REVIEW, APPLY, CLOSE;
+		PENDING, REVIEW, COMPLETE, PAID, CLOSE;
 
 		public static RefundStateEnum get(String name) {
 			for (RefundStateEnum e : RefundStateEnum.values())
@@ -103,7 +103,7 @@ public class RefundController extends BaseController {
 			@RequestParam(value = "state", required = false) String state, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<List<RefundDTO>>(0, refundService.listRefund(type, state));
+			return new Response<List<RefundDTO>>(0, refundService.listRefund(type, state, null,null, null));
 		} catch (ServiceException e) {
 			return new Response<List<RefundDTO>>(1, e.getMessage(), null);
 		}

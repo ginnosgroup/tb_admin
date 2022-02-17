@@ -12,6 +12,8 @@ public class RefundDO implements Serializable {
 
 	private int id;
 
+	private Date gmtCreate;
+
 	private String state;
 
 	private String type;
@@ -27,6 +29,8 @@ public class RefundDO implements Serializable {
 	private int adviserId;
 	
 	private String adviserName;
+
+	private String adviserRegionName;
 
 	private int maraId;
 
