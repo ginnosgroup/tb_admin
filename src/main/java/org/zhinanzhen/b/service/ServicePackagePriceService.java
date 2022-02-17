@@ -11,7 +11,7 @@ public interface ServicePackagePriceService {
 
 	int updateServicePackagePrice(ServicePackagePriceDTO servicePackagePriceDto) throws ServiceException;
 
-	List<ServicePackagePriceDTO> listServicePackagePrice(int servicePackageId) throws ServiceException;
+	List<ServicePackagePriceDTO> listServicePackagePrice(int servicePackageId, int regionId) throws ServiceException;
 
 	ServicePackagePriceDTO getServicePackagePriceById(int id) throws ServiceException;
 

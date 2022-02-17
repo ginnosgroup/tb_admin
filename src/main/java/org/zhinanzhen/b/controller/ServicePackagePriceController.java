@@ -40,6 +40,10 @@ public class ServicePackagePriceController extends BaseController {
 			super.setPostHeader(response);
 			if (servicePackageService.getById(servicePackageId) == null)
 				return new Response<Integer>(1, "服务包不存在(" + servicePackageId + ")!", 0);
+			List<ServicePackagePriceDTO> list = servicePackagePriceService.listServicePackagePrice(servicePackageId,
+					regionId);
+			if (list != null && list.size() > 0)
+				return new Response<Integer>(1, "服务包价格已存在!", 0);
 			ServicePackagePriceDTO servicePackagePriceDto = new ServicePackagePriceDTO();
 			servicePackagePriceDto.setMinPrice(minPrice);
 			servicePackagePriceDto.setMaxPrice(maxPrice);
@@ -62,7 +66,7 @@ public class ServicePackagePriceController extends BaseController {
 		try {
 			super.setGetHeader(response);
 			return new Response<List<ServicePackagePriceDTO>>(0,
-					servicePackagePriceService.listServicePackagePrice(servicePackageId));
+					servicePackagePriceService.listServicePackagePrice(servicePackageId, 0));
 		} catch (ServiceException e) {
 			return new Response<List<ServicePackagePriceDTO>>(1, e.getMessage(), null);
 		}

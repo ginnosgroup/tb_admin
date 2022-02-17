@@ -12,10 +12,10 @@ public interface ServicePackagePriceDAO {
 	int update(@Param("id") int id, @Param("minPrice") Double minPrice, @Param("maxPrice") Double maxPrice,
 			@Param("servicePackageId") Integer servicePackageId, @Param("regionId") Integer regionId);
 
-	List<ServicePackagePriceDO> list(@Param("servicePackageId") Integer servicePackageId);
+	List<ServicePackagePriceDO> list(@Param("servicePackageId") Integer servicePackageId, @Param("regionId") Integer regionId);
 
-	ServicePackagePriceDO getById(Integer id);
+	ServicePackagePriceDO getById(int id);
 
-	int delete(int id);
+	void delete(int id);
 
 }

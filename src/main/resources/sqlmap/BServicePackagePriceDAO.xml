@@ -44,6 +44,9 @@
             service_package_id AS servicePackageId,
             region_id AS regionId
         FROM b_service_package_price WHERE service_package_id = #{servicePackageId, jdbcType=INTEGER}
+        <if test='regionId != null and regionId > 0'>
+            AND region_id = #{regionId}
+        </if>
         ORDER BY gmt_create ASC;
     </select>
     

@@ -62,11 +62,11 @@ public class ServicePackagePriceServiceImpl extends BaseService implements Servi
 	}
 
 	@Override
-	public List<ServicePackagePriceDTO> listServicePackagePrice(int servicePackageId) throws ServiceException {
+	public List<ServicePackagePriceDTO> listServicePackagePrice(int servicePackageId, int regionId) throws ServiceException {
 		List<ServicePackagePriceDTO> servicePackagePriceDtoList = new ArrayList<>();
 		List<ServicePackagePriceDO> servicePackagePriceDoList = new ArrayList<>();
 		try {
-			servicePackagePriceDoList = servicePackagePriceDao.list(servicePackageId);
+			servicePackagePriceDoList = servicePackagePriceDao.list(servicePackageId, regionId);
 			if (servicePackagePriceDoList == null)
 				return null;
 		} catch (Exception e) {
