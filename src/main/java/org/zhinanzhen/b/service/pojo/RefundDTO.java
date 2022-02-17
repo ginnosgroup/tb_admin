@@ -5,6 +5,8 @@ import org.zhinanzhen.b.dao.pojo.RefundDO;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Date;
+
 public class RefundDTO extends RefundDO {
 
 	private static final long serialVersionUID = 1L;
@@ -24,5 +26,13 @@ public class RefundDTO extends RefundDO {
 	@Getter
 	@Setter
 	private String maraName;
+
+	@Getter
+	@Setter
+	private String serviceName;
+
+	@Getter
+	@Setter
+	private Date kjApprovalDate;
 
 }

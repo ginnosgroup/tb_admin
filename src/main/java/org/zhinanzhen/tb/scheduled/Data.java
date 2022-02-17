@@ -165,8 +165,8 @@ public class Data extends BaseService {
 
 
             //输出查看
-            VisaReportList.forEach(aa -> System.out.println(aa.toString()));
-            commissionOrderReportDtoList.forEach(aa -> System.out.println(aa.toString()));
+            //VisaReportList.forEach(aa -> System.out.println(aa.toString()));
+            //commissionOrderReportDtoList.forEach(aa -> System.out.println(aa.toString()));
 
             if(opt.equals("A")){
                 return areaDataList;
