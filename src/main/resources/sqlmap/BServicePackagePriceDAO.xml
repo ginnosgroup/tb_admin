@@ -43,7 +43,7 @@
             max_price AS maxPrice,
             service_package_id AS servicePackageId,
             region_id AS regionId
-        FROM b_service_package_price WHERE service_package_id = #{servicePackageId, jdbcType=INTEGER};
+        FROM b_service_package_price WHERE service_package_id = #{servicePackageId, jdbcType=INTEGER}
         ORDER BY gmt_create ASC;
     </select>
     
