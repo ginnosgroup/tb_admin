@@ -373,7 +373,7 @@ CREATE TABLE `b_service_package` (
   `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已删除'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
--- 服务包价格*
+-- 服务包价格
 CREATE TABLE `b_service_package_price` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',

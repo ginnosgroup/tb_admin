@@ -705,7 +705,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		try {
 			super.setPostHeader(response);
 			CommissionOrderListDTO commissionOrderListDto = commissionOrderService.getCommissionOrderById(id);
-			int i = schoolService.updateSchoolSetting(commissionOrderListDto); // 根据学校设置更新佣金值
+			int i = schoolInstitutionService.updateSchoolSetting(commissionOrderListDto); // 根据学校设置更新佣金值
 			if (i > 0)
 				return new Response<CommissionOrderDTO>(0, "计算成功.", commissionOrderListDto);
 			else if (i == -1)
