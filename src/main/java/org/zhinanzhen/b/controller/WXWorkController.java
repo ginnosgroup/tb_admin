@@ -68,6 +68,9 @@ public class WXWorkController extends  BaseController{
     @Value("${weiban.secret}")
     private String weibanSecret;
 
+    @Value("${qywxcallBackUrl}")
+    private String callBackUrl;
+
     public enum AccessTokenType{
         corp("企微自建应用SECRET"), cust("企微客户联系SECRET");
         private String val;
@@ -109,8 +112,15 @@ public class WXWorkController extends  BaseController{
             if (StringUtil.isNotEmpty(adminUser.getOperUserId()))
                 return "<div style= 'color:#3c763d;'>该用户已经授权了!</div>" + str;
             if (adminUserService.updateOperUserId(adminUser.getId(),userId)){
+                AdminUserLoginInfo loginInfo = (AdminUserLoginInfo) session.getAttribute("AdminUserLoginInfo" + VERSION);
+                if (loginInfo != null)
+                    loginInfo.setAuth(true);
+                session.removeAttribute("AdminUserLoginInfo" + VERSION);
+                session.setAttribute("AdminUserLoginInfo" + VERSION, loginInfo);
                 if (adminUserLoginInfo.getApList().equalsIgnoreCase("GW"))
-                    return "<div style= 'color:#3c763d;'>授权成功，请在客户管理页面导入并编辑客户资料!</div>" + str;
+                    return "<div style= 'color:#3c763d;text-align:center;margin-top:15%;'>授权成功，请在客户管理页面导入并编辑客户资!3秒以后自动跳转...</div>" +
+                            "<script>setTimeout('gotoUrl()', 3000);function gotoUrl(){window.location='" + callBackUrl +
+                            "/webroot_new/weibanzhushou/list/ContactWay'}</script>";
                 else
                     return "<div style= 'color:#3c763d;'>授权成功!</div>" + str;
             }
@@ -325,8 +335,8 @@ public class WXWorkController extends  BaseController{
         JSONObject jsonObject =
                 restTemplate.postForObject(StringUtil.merge(WXWorkAPI.BEHAVIOR_DATA, customerToken), uriVariablesMap, JSONObject.class);
 
+        List<BehaviorDataDTO> behaviors = new ArrayList<>();
         if ((int)jsonObject.get("errcode") == 0){
-            List<BehaviorDataDTO> behaviors = new ArrayList<>();
             JSONArray jsonList =  jsonObject.getJSONArray("behavior_data");
             int size = jsonList.size();
             for (int index = size - 1 ; index >= 0 ; index --) {
@@ -336,7 +346,7 @@ public class WXWorkController extends  BaseController{
             return new Response(0, "ok", behaviors);
         }
         LOG.info(" get_user_behavior_data api errmsg :" + jsonObject.get("errmsg"));
-        return new Response(1, "fail", jsonObject.get("errmsg"));
+        return new Response(1, jsonObject.get("errmsg").toString(), behaviors);
     }
 
     @GetMapping(value = "/contactwaylist")
