@@ -57,7 +57,7 @@ public class ServicePackagePriceController extends BaseController {
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<List<ServicePackagePriceDTO>> list(
-			@RequestParam(value = "sourceRegionId", required = false) Integer servicePackageId,
+			@RequestParam(value = "servicePackageId", required = false) Integer servicePackageId,
 			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
