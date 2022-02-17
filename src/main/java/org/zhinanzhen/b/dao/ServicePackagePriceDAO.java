@@ -14,7 +14,7 @@ public interface ServicePackagePriceDAO {
 
 	List<ServicePackagePriceDO> list(@Param("servicePackageId") Integer servicePackageId);
 
-	ServicePackagePriceDO getById(int id);
+	ServicePackagePriceDO getById(Integer id);
 
 	int delete(int id);
 
