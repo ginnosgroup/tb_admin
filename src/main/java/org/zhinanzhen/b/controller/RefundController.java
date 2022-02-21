@@ -104,7 +104,15 @@ public class RefundController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<List<RefundDTO>>(0, refundService.listRefund(type, state, getAdviserId(request),null, null));
+			if (getKjId(request) != null) {
+				if (state == null)
+					state = "REVIEW";
+				return new Response<List<RefundDTO>>(0, refundService.listRefund(type, state, null, null, null));
+			}
+			if (getAdviserId(request) != null)
+				return new Response<List<RefundDTO>>(0,
+						refundService.listRefund(type, state, getAdviserId(request), null, null));
+			return new Response<List<RefundDTO>>(1, "仅顾问和会计才有权限查看退款单!", null);
 		} catch (ServiceException e) {
 			return new Response<List<RefundDTO>>(1, e.getMessage(), null);
 		}
@@ -123,8 +131,8 @@ public class RefundController extends BaseController {
 
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<Integer> update(@RequestBody RefundDTO refundDto,
-			HttpServletRequest request, HttpServletResponse response) {
+	public Response<Integer> update(@RequestBody RefundDTO refundDto, HttpServletRequest request,
+			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
