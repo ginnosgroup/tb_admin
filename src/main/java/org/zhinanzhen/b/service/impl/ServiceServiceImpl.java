@@ -68,10 +68,10 @@ public class ServiceServiceImpl extends BaseService implements ServiceService {
 			throw se;
 		}
 		for (ServiceDO serviceDo : serviceDoList) {
-			if (!"190,491".contains(serviceDo.getCode())){
+//			if (!"190,491".contains(serviceDo.getCode())){
 				ServiceDTO serviceDto = mapper.map(serviceDo, ServiceDTO.class);
 				serviceDtoList.add(serviceDto);
-			}
+//			}
 		}
 		return serviceDtoList;
 	}
