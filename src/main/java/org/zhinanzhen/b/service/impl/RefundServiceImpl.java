@@ -74,7 +74,8 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 	}
 
 	@Override
-	public List<RefundDTO> listRefund(String type, String state, Integer adviserId, String startDate, String endDate) throws ServiceException {
+	public List<RefundDTO> listRefund(String type, String state, Integer adviserId, String startDate, String endDate)
+			throws ServiceException {
 		List<RefundDTO> refundDtoList = new ArrayList<>();
 		List<RefundDO> refundDoList = null;
 		try {
@@ -88,28 +89,7 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 		}
 		for (RefundDO refundDo : refundDoList) {
 			RefundDTO refundDto = mapper.map(refundDo, RefundDTO.class);
-			if (refundDto != null && "OVST".equalsIgnoreCase(refundDto.getType())) {
-				if (refundDto.getSchoolId() > 0) {
-					SchoolInstitutionDO schoolInstitutionDo = schoolInstitutionDao
-							.getSchoolInstitutionById(refundDto.getSchoolId());
-					refundDto.setSchoolName(schoolInstitutionDo.getInstitutionTradingName());
-					refundDto.setInstitutionName(schoolInstitutionDo.getInstitutionName());
-				}
-				if (refundDto.getCourseId() > 0) {
-					SchoolCourseDO schoolCourseDo = schoolCourseDao.schoolCourseById(refundDto.getCourseId());
-					refundDto.setCourseName(schoolCourseDo.getCourseName());
-				}
-			}
-			if (refundDto != null && refundDto.getMaraId() > 0) {
-				MaraDO maraDo = maraDao.getMaraById(refundDto.getMaraId());
-				refundDto.setMaraName(maraDo.getName());
-			}
-			if (refundDto != null && refundDto.getVisaId() != null) {
-				VisaDO visaDO = visaDao.getVisaById(refundDto.getVisaId());
-				ServiceDO serviceDO = serviceDao.getServiceById(visaDO.getServiceId());
-				refundDto.setServiceName(StringUtil.merge(serviceDO.getName(),  "-" , serviceDO.getCode()));
-				refundDto.setKjApprovalDate(visaDO.getKjApprovalDate());
-			}
+			buildAttr(refundDto);
 			refundDtoList.add(refundDto);
 		}
 		return refundDtoList;
@@ -127,7 +107,9 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
 			throw se;
 		}
-		return mapper.map(refundDo, RefundDTO.class);
+		RefundDTO refundDto = mapper.map(refundDo, RefundDTO.class);
+		buildAttr(refundDto);
+		return refundDto;
 	}
 
 	@Override
@@ -180,6 +162,32 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
 			throw se;
+		}
+	}
+	
+	private void buildAttr(RefundDTO refundDto) {
+		if (refundDto != null && "OVST".equalsIgnoreCase(refundDto.getType())) {
+			if (refundDto.getSchoolId() > 0) {
+				SchoolInstitutionDO schoolInstitutionDo = schoolInstitutionDao
+						.getSchoolInstitutionById(refundDto.getSchoolId());
+				refundDto.setSchoolName(schoolInstitutionDo.getInstitutionTradingName());
+				refundDto.setInstitutionName(schoolInstitutionDo.getInstitutionName());
+				refundDto.setInstitutionTradingName(schoolInstitutionDo.getInstitutionTradingName());
+			}
+			if (refundDto.getCourseId() > 0) {
+				SchoolCourseDO schoolCourseDo = schoolCourseDao.schoolCourseById(refundDto.getCourseId());
+				refundDto.setCourseName(schoolCourseDo.getCourseName());
+			}
+		}
+		if (refundDto != null && refundDto.getMaraId() > 0) {
+			MaraDO maraDo = maraDao.getMaraById(refundDto.getMaraId());
+			refundDto.setMaraName(maraDo.getName());
+		}
+		if (refundDto != null && refundDto.getVisaId() != null) {
+			VisaDO visaDO = visaDao.getVisaById(refundDto.getVisaId());
+			ServiceDO serviceDO = serviceDao.getServiceById(visaDO.getServiceId());
+			refundDto.setServiceName(StringUtil.merge(serviceDO.getName(),  "-" , serviceDO.getCode()));
+			refundDto.setKjApprovalDate(visaDO.getKjApprovalDate());
 		}
 	}
 

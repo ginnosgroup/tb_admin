@@ -18,6 +18,10 @@ public class RefundDTO extends RefundDO {
 	@Getter
 	@Setter
 	private String institutionName;
+	
+	@Getter
+	@Setter
+	private String institutionTradingName;
 
 	@Getter
 	@Setter

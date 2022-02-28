@@ -151,7 +151,35 @@ public class RefundController extends BaseController {
 			if (refundService.updateRefund(_refundDto) > 0) {
 				return new Response<Integer>(0, _refundDto.getId());
 			} else {
-				return new Response<Integer>(0, "修改失败.", 0);
+				return new Response<Integer>(1, "修改失败.", 0);
+			}
+		} catch (ServiceException e) {
+			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
+		}
+	}
+
+	@RequestMapping(value = "/update1", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> update1(@RequestBody RefundDTO refundDto, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+				return new Response<Integer>(1, "仅限顾问和超级管理员能修改退款单.", 0);
+			if (refundDto.getId() <= 0)
+				return new Response<Integer>(1, "id不正确.", 0);
+			RefundDTO _refundDto = refundService.getRefundById(refundDto.getId());
+			if (_refundDto.getAdviserId() != super.getAdviserId(request))
+				return new Response<Integer>(1, "不属于该退款单顾问不能修改.", 0);
+			refundDto.setState(null);
+			if (refundDto.getReceived() > 0 && refundDto.getAmount() > refundDto.getReceived())
+				return new Response<Integer>(1, "退款金额不能大于实付金额.", 0);
+			if (refundService.updateRefund(refundDto) > 0) {
+				return new Response<Integer>(0, "修改成功.");
+			} else {
+				return new Response<Integer>(1, "修改失败.", 0);
 			}
 		} catch (ServiceException e) {
 			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
