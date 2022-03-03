@@ -961,6 +961,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			Sheet sheet = wb.getSheet(0);
 			for (int i = 1; i < sheet.getRows(); i++) {
 				Cell[] cells = sheet.getRow(i);
+System.out.println(i + "cells.length:" + cells.length);
+System.out.println(i + "cells[0]:" + cells[0]);
 				String _id = cells[0].getContents();
 				String _schoolPaymentAmount = cells[24].getContents();
 				String _schoolPaymentDate = cells[25].getContents();
