@@ -961,8 +961,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			Sheet sheet = wb.getSheet(0);
 			for (int i = 1; i < sheet.getRows(); i++) {
 				Cell[] cells = sheet.getRow(i);
-System.out.println(i + "cells.length:" + cells.length);
-System.out.println(i + "cells[0]:" + cells[0]);
+				if (cells == null || cells.length == 0)
+					continue;
 				String _id = cells[0].getContents();
 				String _schoolPaymentAmount = cells[24].getContents();
 				String _schoolPaymentDate = cells[25].getContents();
@@ -1006,6 +1006,7 @@ System.out.println(i + "cells[0]:" + cells[0]);
 				} catch (NumberFormatException | ServiceException | ParseException e) {
 					message += "[" + _id + "]" + e.getMessage() + ";";
 				}
+System.out.println("导入" + _id + "日志 : " + message);
 			}
 		} catch (BiffException | IOException e) {
 			return new Response<Integer>(1, "上传失败:" + e.getMessage(), 0);
