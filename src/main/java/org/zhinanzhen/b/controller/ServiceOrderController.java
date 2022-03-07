@@ -1467,7 +1467,7 @@ public class ServiceOrderController extends BaseController {
 				else if ("MT".equalsIgnoreCase(serviceOrder.getType()))
 					serviceType = "曼拓";
 				String title = "您的" + serviceType + "订单" + serviceOrder.getId() + "有最新评论";
-				String message = "您的服务订单有一条新的评论，请及时查看．<br/>服务订单类型:" + serviceType + "<br/>客户:"
+				String message = "您的服务订单有一条新的评论，请及时查看．<br/>服务订单类型:" + serviceType + "<br/>申请人:"
 						+ (serviceOrder.getUser() != null ? serviceOrder.getUser().getName() : "") + "<br/>订单ID:"
 						+ serviceOrder.getId() + "<br/>评论内容:" + serviceOrderCommentDto.getContent() + "<br/>评论时间:"
 						+ new Date()

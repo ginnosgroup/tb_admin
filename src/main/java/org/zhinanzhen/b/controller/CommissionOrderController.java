@@ -1006,7 +1006,6 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				} catch (NumberFormatException | ServiceException | ParseException e) {
 					message += "[" + _id + "]" + e.getMessage() + ";";
 				}
-System.out.println("导入" + _id + "日志 : " + message);
 			}
 		} catch (BiffException | IOException e) {
 			return new Response<Integer>(1, "上传失败:" + e.getMessage(), 0);
