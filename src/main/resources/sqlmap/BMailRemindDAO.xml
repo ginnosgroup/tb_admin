@@ -86,7 +86,7 @@
                 AND send_date >= NOW()
             </if>
         </where>
-        ORDER BY send_date DESC LIMIT 20;
+        ORDER BY send_date DESC LIMIT 100;
     </select>
 
     <delete id="delete" parameterType="java.lang.Integer">
