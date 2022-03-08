@@ -72,7 +72,7 @@ public class RefundController extends BaseController {
 	public Response<String> uploadImage2(@RequestParam MultipartFile file, HttpServletRequest request,
 			HttpServletResponse response) throws IllegalStateException, IOException {
 		super.setPostHeader(response);
-		return super.upload2(file, request.getSession(), "/uploads/payment_voucher_image_url_r/");
+		return super.upload2(file, request.getSession(), "/uploads/refund_voucher_image_url/");
 	}
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
