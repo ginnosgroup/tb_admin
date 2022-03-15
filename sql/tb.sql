@@ -325,31 +325,6 @@ CREATE TABLE `b_school_brokerage_sa` (
   `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
--- 退款
-CREATE TABLE `b_refund` (
-  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
-  `gmt_create` datetime NOT NULL COMMENT '创建时间',
-  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
-  `handling_date` datetime NOT NULL COMMENT '办理日期',
-  `user_id` int NOT NULL COMMENT '用户编号 (对应tb_user.id)',
-  `name` varchar(32) NOT NULL COMMENT '项目名称',
-  `receive_type_id` int NOT NULL COMMENT '收款方式编号(对应b_receive_type.id)',
-  `amount` decimal(8,2) NOT NULL COMMENT '已收款金额',
-  `pre_refund_amount` decimal(8,2) NOT NULL COMMENT '申请退款金额',
-  `bank_name` varchar(32) DEFAULT NULL COMMENT '银行名称',
-  `bank_account` varchar(32) DEFAULT NULL COMMENT '银行帐号',
-  `bsb` varchar(8) DEFAULT NULL COMMENT 'Bank, State & Branch Code (Australia)',
-  `refund_date` datetime DEFAULT NULL COMMENT '实际退款时间',
-  `refund_amount` decimal(8,2) DEFAULT NULL COMMENT '已退款金额',
-  `gst` decimal(8,2) NOT NULL COMMENT 'GST',
-  `deduct_gst` decimal(8,2) NOT NULL COMMENT 'Deduct GST',
-  `refund` decimal(8,2) NOT NULL COMMENT 'Refund',
-  `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
-  `official_id` int NOT NULL COMMENT '文案编号 (对应b_official.id)',
-  `remarks` text DEFAULT NULL COMMENT '备注',
-  `is_close` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已取消'
-) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
-
 -- 服务项目
 CREATE TABLE `b_service` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
