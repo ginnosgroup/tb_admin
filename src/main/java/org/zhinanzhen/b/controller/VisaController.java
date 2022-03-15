@@ -911,6 +911,7 @@ public class VisaController extends BaseCommissionOrderController {
 			super.setGetHeader(response);
 			VisaDTO visaDto = visaService.getVisaById(id);
 			visaDto.setClose(true);
+			visaDto.setInvoiceNumber(null); // close后把invoice清空
 			return new Response<Integer>(0, visaService.updateVisa(visaDto));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), 0);

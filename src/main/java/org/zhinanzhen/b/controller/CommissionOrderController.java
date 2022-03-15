@@ -733,6 +733,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			if (commissionOrderDto == null)
 				return new Response<CommissionOrderDTO>(1, "佣金订单不存在,修改失败.", null);
 			commissionOrderDto.setState(ReviewKjStateEnum.CLOSE.toString());
+			commissionOrderDto.setClose(true);
+			commissionOrderDto.setInvoiceNumber(null); // close后把invoice清空
 			if (isStudying != null)
 				commissionOrderDto.setStudying(isStudying);
 			if (StringUtil.isNotEmpty(remarks))
