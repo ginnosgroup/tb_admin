@@ -50,7 +50,7 @@ public class AdviserDataController extends BaseController {
 			List<AdviserUserDTO> userList = adviserDataService.listUser(adviserId);
 
 			response.reset();// 清空输出流
-			String tableName = "ServiceOrderInformation";
+			String tableName = "AdviserData-" + adviserId;
 			response.setHeader("Content-disposition",
 					"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
 			response.setContentType("application/msexcel");
