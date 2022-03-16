@@ -32,6 +32,9 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 
 	@Resource
 	MaraDAO maraDao;
+	
+	@Resource
+	CommissionOrderDAO commissionOrderDao;
 
 	@Resource
 	VisaDAO visaDao;
@@ -59,6 +62,12 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 				ServiceException se = new ServiceException("不能重复创建签证佣金订单退款单!");
 				se.setCode(ErrorCodeEnum.DATA_ERROR.code());
 				throw se;
+			}
+			if (StringUtil.equals("OVST", refundDo.getType()) && refundDo.getCommissionOrderId() != null) {
+				CommissionOrderListDO commissionOrderListDo = commissionOrderDao
+						.getCommissionOrderById(refundDo.getCommissionOrderId());
+				if (commissionOrderListDo != null)
+					refundDo.setCourseId(commissionOrderListDo.getCourseId());
 			}
 			if (refundDao.addRefund(refundDo) > 0) {
 				refundDto.setId(refundDo.getId());
@@ -167,16 +176,16 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 	
 	private void buildAttr(RefundDTO refundDto) {
 		if (refundDto != null && "OVST".equalsIgnoreCase(refundDto.getType())) {
-			if (refundDto.getSchoolId() > 0) {
-				SchoolInstitutionDO schoolInstitutionDo = schoolInstitutionDao
-						.getSchoolInstitutionById(refundDto.getSchoolId());
-				refundDto.setSchoolName(schoolInstitutionDo.getInstitutionTradingName());
-				refundDto.setInstitutionName(schoolInstitutionDo.getInstitutionName());
-				refundDto.setInstitutionTradingName(schoolInstitutionDo.getInstitutionTradingName());
-			}
 			if (refundDto.getCourseId() > 0) {
 				SchoolCourseDO schoolCourseDo = schoolCourseDao.schoolCourseById(refundDto.getCourseId());
 				refundDto.setCourseName(schoolCourseDo.getCourseName());
+				if (schoolCourseDo.getProviderId() > 0) {
+					SchoolInstitutionDO schoolInstitutionDo = schoolInstitutionDao
+							.getSchoolInstitutionById(schoolCourseDo.getProviderId());
+					refundDto.setSchoolName(schoolInstitutionDo.getInstitutionTradingName());
+					refundDto.setInstitutionName(schoolInstitutionDo.getInstitutionName());
+					refundDto.setInstitutionTradingName(schoolInstitutionDo.getInstitutionTradingName());
+				}
 			}
 		}
 		if (refundDto != null && refundDto.getMaraId() > 0) {
