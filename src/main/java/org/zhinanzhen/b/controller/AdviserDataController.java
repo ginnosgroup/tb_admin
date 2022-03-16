@@ -2,7 +2,6 @@ package org.zhinanzhen.b.controller;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -32,8 +31,6 @@ import jxl.write.WritableSheet;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/adviserData")
 public class AdviserDataController extends BaseController {
-
-	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	@Resource
 	AdviserDataService adviserDataService;
@@ -82,8 +79,7 @@ public class AdviserDataController extends BaseController {
 			int i = 1;
 			for (AdviserServiceOrderDTO so : serviceOrderList) {
 				sheet0.addCell(new Label(0, i, so.getId() + "", cellFormat));
-				if (so.getGmtCreate() != null)
-					sheet0.addCell(new Label(1, i, sdf.format(so.getGmtCreate()), cellFormat));
+				sheet0.addCell(new Label(1, i, so.getGmtCreate(), cellFormat));
 				sheet0.addCell(new Label(2, i, so.getType(), cellFormat));
 				sheet0.addCell(new Label(3, i, so.getUserName(), cellFormat));
 				sheet0.addCell(new Label(4, i, so.getMaraName(), cellFormat));
@@ -102,8 +98,7 @@ public class AdviserDataController extends BaseController {
 			int j = 1;
 			for (AdviserVisaDTO v : visaList) {
 				sheet1.addCell(new Label(0, j, v.getId() + "", cellFormat));
-				if (v.getGmtCreate() != null)
-					sheet1.addCell(new Label(1, j, sdf.format(v.getGmtCreate()), cellFormat));
+				sheet1.addCell(new Label(1, j, v.getGmtCreate(), cellFormat));
 				sheet1.addCell(new Label(2, j, v.getServiceOrderId(), cellFormat));
 				sheet1.addCell(new Label(3, j, v.getUserName(), cellFormat));
 				sheet1.addCell(new Label(4, j, v.getMaraName(), cellFormat));
@@ -123,8 +118,7 @@ public class AdviserDataController extends BaseController {
 			int k = 1;
 			for (AdviserCommissionOrderDTO c : commissionOrderList) {
 				sheet2.addCell(new Label(0, k, c.getId() + "", cellFormat));
-				if (c.getGmtCreate() != null)
-					sheet2.addCell(new Label(1, k, sdf.format(c.getGmtCreate()), cellFormat));
+				sheet2.addCell(new Label(1, k, c.getGmtCreate(), cellFormat));
 				sheet2.addCell(new Label(2, k, c.getServiceOrderId(), cellFormat));
 				sheet2.addCell(new Label(3, k, c.getUserName(), cellFormat));
 				sheet2.addCell(new Label(4, k, c.getOfficialName(), cellFormat));
