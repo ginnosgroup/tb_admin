@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.AdviserDataDAO">
+    
+    <select id="listServiceOrder" resultType="org.zhinanzhen.b.dao.pojo.AdviserServiceOrderDO">
+        select
+          so.id as id,
+          so.gmt_create as gmtCreate,
+          IF(so.type='VISA','签证',IF(so.type='OVST','留学',IF(so.type='SIV','独立技术移民',IF(so.type='ZX','咨询服务','未知')))) as type,
+          u.name as userName,
+          m.name as maraName,
+          o.name as officialName,
+          rt.name as receiveTypeName,
+          so.receive_date as serviceOrderReceiveDate,
+          IF(so.state='PENDING','待提交审核',IF(so.state='REVIEW','资料待审核',IF(so.state='OREVIEW','资料待审核',IF(so.state='WAIT','已提交Mara审核',IF(so.state='FINISH','资料审核完成',IF(so.state='APPLY','服务申请中',IF(so.state='COMPLETE','申请成功',IF(so.state='COE_COMPLETE','申请成功COE待支付',IF(so.state='PAID','COE支付成功',IF(so.state='CLOSE','已关闭',so.state)))))))))) as serviceOrderState,
+          so.is_settle as isSettle,
+          so.per_amount as perAmount,
+          so.amount as amount,
+          so.expect_amount as expectAmount,
+          so.remarks as remarks
+        from b_service_order so, b_receive_type rt, tb_user u, b_official o, b_mara m 
+        where rt.id=so.receive_type_id and u.id=so.user_id and so.official_id=o.id and so.mara_id=m.id and so.adviser_id=#{adviserId};
+    </select>
+    
+    <select id="listVisa" resultType="org.zhinanzhen.b.dao.pojo.AdviserVisaDO">
+        select
+          v.id as id,
+          v.gmt_create as gmtCreate,
+          v.service_order_id as serviceOrderId,
+          u.name as userName,
+          m.name as maraName,
+          o.name as officialName,
+          v.kj_approval_date as kjApprovalDate,
+          rt.name as receiveTypeName,
+          v.receive_date as receiveDate,
+          s.name as serviceName,
+          v.gst as gst,
+          v.bonus as bonus,
+          v.bonus_date as bonusDate,
+          IF(v.commission_state='DJY','待结佣',IF(v.commission_state='YJY','已结佣',IF(v.commission_state='DZY','待追佣',IF(v.commission_state='YZY','已追佣',v.commission_state)))) as commissionState,
+          v.remarks as remarks
+        from b_visa v,tb_user u,b_receive_type rt,b_service s, b_official o, b_mara m
+        where v.user_id=u.id and rt.id=v.receive_type_id and v.service_id=s.id and v.official_id=o.id and v.mara_id=m.id and v.adviser_id=#{adviserId};
+    </select>
+    
+    <select id="listCommissionOrder" resultType="org.zhinanzhen.b.dao.pojo.AdviserCommissionOrderDO">
+        select
+          co.id as id,
+          co.gmt_create as gmtCreate,
+          co.service_order_id as serviceOrderId,
+          u.name as userName,
+          o.name as officialName,
+          co.kj_approval_date as kjApprovalDate,
+          co.is_settle as isSettle,
+          co.student_code as studentCode,
+          co.school_payment_amount as schoolPaymentAmount,
+          co.school_payment_date as schoolPaymentDate,
+          co.tuition_fee as tuitionFee,
+          co.per_term_tuition_fee as perTermTuitionFee,
+          rt.name as receiveTypeName,
+          co.receive_date as receiveDate,
+          co.per_amount as perAmount,
+          co.amount as amount,
+          co.expect_amount as expectAmount,
+          co.sure_expect_amount as sureExpectAmount,
+          co.gst as gst,
+          co.bonus as bonus,
+          co.bonus_date as bonusDate,
+          IF(co.commission_state='DJY','待结佣',IF(co.commission_state='YJY','已结佣',IF(co.commission_state='DZY','待追佣',IF(co.commission_state='YZY','已追佣',co.commission_state)))) as commissionState,
+          co.remarks as remarks
+        from b_commission_order co,tb_user u,b_receive_type rt, b_official o
+        where co.user_id=u.id and rt.id=co.receive_type_id and co.official_id=o.id and co.adviser_id=#{adviserId};
+    </select>
+    
+    <select id="listUser" resultType="org.zhinanzhen.b.dao.pojo.AdviserUserDO">
+        select
+          u.id as id,
+          u.name as name,
+          IF(u.birthday='1970-01-01 00:00:00','unknown',IF(u.birthday='1970-01-01 08:00:00','unknown',u.birthday)) as birthday,
+          u.phone as phone,
+          u.email as email,
+          ua.is_creater as isCreater
+        from tb_user u, tb_user_adviser ua
+        where ua.user_id=u.id and ua.adviser_id=#{adviserId};
+    </select>
+
+</mapper>
