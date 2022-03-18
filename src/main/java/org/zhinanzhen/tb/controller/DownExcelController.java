@@ -538,8 +538,9 @@ public class DownExcelController extends BaseController {
 					_sheet.addCell(new Label(6, i, commissionReport.getDeductionCommission() + "", cellFormat));
 					_sheet.addCell(new Label(7, i, commissionReport.getClaimCommission() + "", cellFormat));
 					_sheet.addCell(new Label(8, i, commissionReport.getClaimedCommission() + "", cellFormat));
-					_sheet.addCell(new Label(9, i, commissionReport.getRefunding() + "", cellFormat));
-					_sheet.addCell(new Label(10, i, commissionReport.getRefunded() + "", cellFormat));
+					_sheet.addCell(new Label(9, i, commissionReport.getAdjustments() + "", cellFormat));
+					_sheet.addCell(new Label(10, i, commissionReport.getRefunding() + "", cellFormat));
+					_sheet.addCell(new Label(11, i, commissionReport.getRefunded() + "", cellFormat));
 					i++;
 				}
 
