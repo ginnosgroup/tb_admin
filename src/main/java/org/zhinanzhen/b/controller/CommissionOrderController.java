@@ -966,13 +966,13 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				if (cells == null || cells.length == 0)
 					continue;
 				String _id = cells[0].getContents();
-				String _schoolPaymentAmount = cells[24].getContents();
-				String _schoolPaymentDate = cells[25].getContents();
-				String _invoiceNumber = cells[26].getContents();
-				String _zyDate = cells[27].getContents();
-				String _sureExpectAmount = cells[21].getContents();
-				String _bonus = cells[29].getContents();
-				String _bonusDate = cells[30].getContents();
+				String _schoolPaymentAmount = cells[27].getContents();
+				String _schoolPaymentDate = cells[28].getContents();
+				String _invoiceNumber = cells[29].getContents();
+				String _zyDate = cells[30].getContents();
+				String _sureExpectAmount = cells[24].getContents();
+				String _bonus = cells[32].getContents();
+				String _bonusDate = cells[33].getContents();
 				try {
 					CommissionOrderListDTO commissionOrderListDto = commissionOrderService
 							.getCommissionOrderById(Integer.parseInt(_id));
