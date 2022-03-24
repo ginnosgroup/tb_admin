@@ -611,15 +611,16 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
         }
 
         //查询Setting
-        List<SchoolSettingNewDO> schoolSettingS = schoolSettingNewDAO.list(schoolInstitutionDTO.getId(),false);
-        schoolSettingS.forEach(ssdo -> {
-            SchoolSettingNewDTO schoolSettingNewDTO = mapper.map(ssdo,SchoolSettingNewDTO.class);
-            if (ssdo.getCourseId() != null && ssdo.getCourseId() > 0){
-                SchoolCourseDO courseDO = schoolCourseDAO.schoolCourseById(ssdo.getCourseId());
-                schoolSettingNewDTO.setCourseName(courseDO != null ? courseDO.getCourseName() : null);
-            }
-            schoolInstitutionDTO.getSchoolSettingList().add(schoolSettingNewDTO);
-        });
+		List<SchoolSettingNewDO> schoolSettingS = schoolSettingNewDAO.list(schoolInstitutionDTO.getId(), false);
+		if (schoolSettingS != null)
+			schoolSettingS.forEach(ssdo -> {
+				SchoolSettingNewDTO schoolSettingNewDTO = mapper.map(ssdo, SchoolSettingNewDTO.class);
+				if (ssdo.getCourseId() != null && ssdo.getCourseId() > 0) {
+					SchoolCourseDO courseDO = schoolCourseDAO.schoolCourseById(ssdo.getCourseId());
+					schoolSettingNewDTO.setCourseName(courseDO != null ? courseDO.getCourseName() : null);
+				}
+				schoolInstitutionDTO.getSchoolSettingList().add(schoolSettingNewDTO);
+			});
 
     }
 
