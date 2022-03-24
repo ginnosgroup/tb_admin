@@ -634,7 +634,10 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
                 double fee = co.getAmount();//本次收款
                 co.setCommission(fee * (Double.parseDouble(parameters.trim()) * 0.01));//佣金
                 System.out.println(co.getId() + "学校设置计算:本次收款金额[" + fee + "]*设置参数[" + parameters + "]*0.01=" + co.getCommission());
-                updateGST(co, schoolSettingNewDO.getRegisterFee().doubleValue() , schoolSettingNewDO.getBookFee().doubleValue());
+                updateGST(co,
+						schoolSettingNewDO.getRegisterFee() != null ? schoolSettingNewDO.getRegisterFee().doubleValue()
+								: 0.00,
+						schoolSettingNewDO.getBookFee() != null ? schoolSettingNewDO.getBookFee().doubleValue() : 0.00);
                 commissionOrderDao.updateCommissionOrder(co);
             }
         }
@@ -648,9 +651,13 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
                 String parameters = schoolSettingNewDO.getParameters();
                 double fee = co.getAmount();//本次收款
                 co.setCommission(fee * (Double.parseDouble(parameters.trim()) * 0.01));//佣金
-                System.out.println(co.getId() + "学校设置计算:本次收款金额[" + fee + "]*设置参数[" + parameters + "]*0.01=" + co.getCommission());
-                updateGST(co, schoolSettingNewDO.getRegisterFee().doubleValue() , schoolSettingNewDO.getBookFee().doubleValue());
-                commissionOrderDao.updateCommissionOrder(co);
+				System.out.println(
+						co.getId() + "学校设置计算:本次收款金额[" + fee + "]*设置参数[" + parameters + "]*0.01=" + co.getCommission());
+				updateGST(co,
+						schoolSettingNewDO.getRegisterFee() != null ? schoolSettingNewDO.getRegisterFee().doubleValue()
+								: 0.00,
+						schoolSettingNewDO.getBookFee() != null ? schoolSettingNewDO.getBookFee().doubleValue() : 0.00);
+				commissionOrderDao.updateCommissionOrder(co);
             }
         //}
     }
@@ -725,7 +732,10 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
                             // bs.getCommission());
                             System.out.println(co.getId() + "学校设置计算=本次收款金额[" + fee + "]*(设置比例[" + proportion + "]*0.01)+设置金额[" + _fee
                                     + "]=" + co.getCommission());
-                            updateGST(co, schoolSettingNewDO.getRegisterFee().doubleValue() , schoolSettingNewDO.getBookFee().doubleValue());
+                            updateGST(co,
+            						schoolSettingNewDO.getRegisterFee() != null ? schoolSettingNewDO.getRegisterFee().doubleValue()
+            								: 0.00,
+            						schoolSettingNewDO.getBookFee() != null ? schoolSettingNewDO.getBookFee().doubleValue() : 0.00);
                             commissionOrderDao.updateCommissionOrder(co);
 
                     //});
@@ -788,7 +798,10 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
                             co.setCommission(fee * (proportion * 0.01));
                             System.out.println(co.getId() + "学校设置计算=本次收款金额[" + fee + "]*(设置比例[" + proportion + "]*0.01)="
                                     + co.getCommission());
-                            updateGST(co, schoolSettingNewDO.getRegisterFee().doubleValue() , schoolSettingNewDO.getBookFee().doubleValue());
+                            updateGST(co,
+            						schoolSettingNewDO.getRegisterFee() != null ? schoolSettingNewDO.getRegisterFee().doubleValue()
+            								: 0.00,
+            						schoolSettingNewDO.getBookFee() != null ? schoolSettingNewDO.getBookFee().doubleValue() : 0.00);
                             commissionOrderDao.updateCommissionOrder(co);
                     //});
                     break;
@@ -845,7 +858,10 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
                     co.setCommission(co.getAmount()); // 正常情况下是不会执行到这里的
                     System.out.println(co.getId() + "学校设置计算=本次收款金额[" + co.getAmount() + "]=" + co.getCommission());
                 }
-                updateGST(co, schoolSettingNewDO.getRegisterFee().doubleValue() , schoolSettingNewDO.getBookFee().doubleValue());
+                updateGST(co,
+						schoolSettingNewDO.getRegisterFee() != null ? schoolSettingNewDO.getRegisterFee().doubleValue()
+								: 0.00,
+						schoolSettingNewDO.getBookFee() != null ? schoolSettingNewDO.getBookFee().doubleValue() : 0.00);
                 commissionOrderDao.updateCommissionOrder(co);
             }
         //});
