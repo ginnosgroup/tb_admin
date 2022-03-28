@@ -5,6 +5,7 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.service.DashboardService;
+import org.zhinanzhen.b.service.pojo.DashboardAmountSummaryDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
@@ -47,6 +48,28 @@ public class DashboardServiceImpl extends BaseService implements DashboardServic
 	@Override
 	public double getCommissionOrderSettleUnassignedBonusAmount() throws ServiceException {
 		return dashboardDAO.getCommissionOrderSettleUnassignedBonusAmount();
+	}
+
+	@Override
+	public DashboardAmountSummaryDTO summaryVisaUnassignedBonusAmount() throws ServiceException {
+		return mapper.map(dashboardDAO.summaryVisaUnassignedBonusAmount(), DashboardAmountSummaryDTO.class);
+	}
+
+	@Override
+	public DashboardAmountSummaryDTO summaryCommissionOrderUnassignedBonusAmount() throws ServiceException {
+		return mapper.map(dashboardDAO.summaryCommissionOrderUnassignedBonusAmount(), DashboardAmountSummaryDTO.class);
+	}
+
+	@Override
+	public DashboardAmountSummaryDTO summaryCommissionOrderDZYUnassignedBonusAmount() throws ServiceException {
+		return mapper.map(dashboardDAO.summaryCommissionOrderDZYUnassignedBonusAmount(),
+				DashboardAmountSummaryDTO.class);
+	}
+
+	@Override
+	public DashboardAmountSummaryDTO summaryCommissionOrderSettleUnassignedBonusAmount() throws ServiceException {
+		return mapper.map(dashboardDAO.summaryCommissionOrderSettleUnassignedBonusAmount(),
+				DashboardAmountSummaryDTO.class);
 	}
 
 }

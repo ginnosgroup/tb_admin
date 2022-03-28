@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.dao;
 
 import org.apache.ibatis.annotations.Param;
+import org.zhinanzhen.b.dao.pojo.DashboardAmountSummaryDO;
 
 import java.util.List;
 
@@ -19,5 +20,13 @@ public interface DashboardDAO {
     Double getCommissionOrderDZYUnassignedBonusAmount();
     
     Double getCommissionOrderSettleUnassignedBonusAmount();
+    
+    DashboardAmountSummaryDO summaryVisaUnassignedBonusAmount();
+    
+    DashboardAmountSummaryDO summaryCommissionOrderUnassignedBonusAmount();
+    
+    DashboardAmountSummaryDO summaryCommissionOrderDZYUnassignedBonusAmount();
+    
+    DashboardAmountSummaryDO summaryCommissionOrderSettleUnassignedBonusAmount();
 
 }
