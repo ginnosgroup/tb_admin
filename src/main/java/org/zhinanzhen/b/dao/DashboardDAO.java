@@ -28,5 +28,9 @@ public interface DashboardDAO {
     DashboardAmountSummaryDO summaryCommissionOrderDZYUnassignedBonusAmount();
     
     DashboardAmountSummaryDO summaryCommissionOrderSettleUnassignedBonusAmount();
+    
+    DashboardAmountSummaryDO summaryCommissionOrderDZYUnassignedBonusAmountGroupBySchool();
+    
+    DashboardAmountSummaryDO summaryCommissionOrderSettleUnassignedBonusAmountGroupBySchool();
 
 }

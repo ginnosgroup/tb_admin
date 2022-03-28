@@ -7,7 +7,9 @@ public class DashboardAmountSummaryDO {
 
 	private int id;
 
-	private String name;
+	private String name1;
+	
+	private String name2;
 
 	private int total;
 

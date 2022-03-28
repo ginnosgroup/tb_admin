@@ -72,4 +72,18 @@ public class DashboardServiceImpl extends BaseService implements DashboardServic
 				DashboardAmountSummaryDTO.class);
 	}
 
+	@Override
+	public DashboardAmountSummaryDTO summaryCommissionOrderDZYUnassignedBonusAmountGroupBySchool()
+			throws ServiceException {
+		return mapper.map(dashboardDAO.summaryCommissionOrderDZYUnassignedBonusAmountGroupBySchool(),
+				DashboardAmountSummaryDTO.class);
+	}
+
+	@Override
+	public DashboardAmountSummaryDTO summaryCommissionOrderSettleUnassignedBonusAmountGroupBySchool()
+			throws ServiceException {
+		return mapper.map(dashboardDAO.summaryCommissionOrderSettleUnassignedBonusAmountGroupBySchool(),
+				DashboardAmountSummaryDTO.class);
+	}
+
 }

@@ -16,13 +16,17 @@ public interface DashboardService {
 	double getCommissionOrderDZYUnassignedBonusAmount() throws ServiceException;
 
 	double getCommissionOrderSettleUnassignedBonusAmount() throws ServiceException;
-	
+
 	DashboardAmountSummaryDTO summaryVisaUnassignedBonusAmount() throws ServiceException;
-	
+
 	DashboardAmountSummaryDTO summaryCommissionOrderUnassignedBonusAmount() throws ServiceException;
-	
+
 	DashboardAmountSummaryDTO summaryCommissionOrderDZYUnassignedBonusAmount() throws ServiceException;
-	
+
 	DashboardAmountSummaryDTO summaryCommissionOrderSettleUnassignedBonusAmount() throws ServiceException;
+
+	DashboardAmountSummaryDTO summaryCommissionOrderDZYUnassignedBonusAmountGroupBySchool() throws ServiceException;
+
+	DashboardAmountSummaryDTO summaryCommissionOrderSettleUnassignedBonusAmountGroupBySchool() throws ServiceException;
 
 }

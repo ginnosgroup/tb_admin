@@ -762,6 +762,38 @@ public class DashboardController extends BaseController {
 			return new Response<DashboardAmountSummaryDTO>(1, "获取失败.", null);
 	}
 
+	// 留学(追要)待申请月奖按学校统计
+	@GetMapping(value = "/summaryCommissionOrderDZYUnassignedBonusAmountGroupBySchool")
+	@ResponseBody
+	public Response<DashboardAmountSummaryDTO> summaryCommissionOrderDZYUnassignedBonusAmountGroupBySchool(
+			HttpServletRequest request, HttpServletResponse response) throws ServiceException {
+		super.setGetHeader(response);
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo != null) {
+			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+				return new Response<DashboardAmountSummaryDTO>(1, "仅限会计获取.", null);
+			return new Response(0, dashboardService.summaryCommissionOrderDZYUnassignedBonusAmountGroupBySchool());
+		} else
+			return new Response<DashboardAmountSummaryDTO>(1, "获取失败.", null);
+	}
+
+	// 留学(提前扣佣)待申请月奖按学校统计
+	@GetMapping(value = "/summaryCommissionOrderSettleUnassignedBonusAmountGroupBySchool")
+	@ResponseBody
+	public Response<DashboardAmountSummaryDTO> summaryCommissionOrderSettleUnassignedBonusAmountGroupBySchool(
+			HttpServletRequest request, HttpServletResponse response) throws ServiceException {
+		super.setGetHeader(response);
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo != null) {
+			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+				return new Response<DashboardAmountSummaryDTO>(1, "仅限会计获取.", null);
+			return new Response(0, dashboardService.summaryCommissionOrderSettleUnassignedBonusAmountGroupBySchool());
+		} else
+			return new Response<DashboardAmountSummaryDTO>(1, "获取失败.", null);
+	}
+
 	private double roundHalfUp(double val){
 		return new BigDecimal(val).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
 	}
