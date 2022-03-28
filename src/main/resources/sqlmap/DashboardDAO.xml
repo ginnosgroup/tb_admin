@@ -32,4 +32,18 @@
         </if>
         ;
     </select>
+    
+    <select id="getVisaUnassignedBonusAmount" resultType="java.lang.Double">
+        SELECT IFNULL(sum(bonus),0.00) FROM b_visa WHERE state!='CLOSE' AND bonus_date IS NULL;
+    </select>
+    <select id="getCommissionOrderUnassignedBonusAmount" resultType="java.lang.Double">
+        SELECT IFNULL(sum(bonus),0.00) FROM b_commission_order WHERE state!='CLOSE' AND bonus_date IS NULL;
+    </select>
+    <select id="getCommissionOrderDZYUnassignedBonusAmount" resultType="java.lang.Double">
+        SELECT IFNULL(sum(bonus),0.00) FROM b_commission_order WHERE state!='CLOSE' AND commission_state='DZY' AND bonus_date IS NULL;
+    </select>
+    <select id="getCommissionOrderSettleUnassignedBonusAmount" resultType="java.lang.Double">
+        SELECT IFNULL(sum(co.bonus),0.00) FROM b_commission_order co, b_service_order so WHERE co.service_order_id=so.id AND co.state!='CLOSE' AND so.is_settle=1 AND co.bonus_date IS NULL;
+    </select>
+    
 </mapper>

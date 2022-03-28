@@ -22,11 +22,31 @@ public class DashboardServiceImpl extends BaseService implements DashboardServic
 	@Override
 	public double getThisMonthExpectAmount(Integer adviserId, List<Integer> regionIdList) throws ServiceException {
 		Double visaExpectAmountSBBTM = dashboardDAO.getThisMonthVisaExpectAmount(adviserId, regionIdList);
-		Double bCommissionOrderExpectAmountSBBTM = dashboardDAO.getThisMonthbCommissionOrderExpectAmountSBBTM(adviserId, regionIdList);
+		Double bCommissionOrderExpectAmountSBBTM = dashboardDAO.getThisMonthbCommissionOrderExpectAmountSBBTM(adviserId,
+				regionIdList);
 
+		return (visaExpectAmountSBBTM == null ? 0.00 : visaExpectAmountSBBTM)
+				+ (bCommissionOrderExpectAmountSBBTM == null ? 0.00 : bCommissionOrderExpectAmountSBBTM);
+	}
 
-		return (visaExpectAmountSBBTM == null ? 0.00 : visaExpectAmountSBBTM) +
-				(bCommissionOrderExpectAmountSBBTM == null ? 0.00 : bCommissionOrderExpectAmountSBBTM);
+	@Override
+	public double getVisaUnassignedBonusAmount() throws ServiceException {
+		return dashboardDAO.getVisaUnassignedBonusAmount();
+	}
+
+	@Override
+	public double getCommissionOrderUnassignedBonusAmount() throws ServiceException {
+		return dashboardDAO.getCommissionOrderUnassignedBonusAmount();
+	}
+
+	@Override
+	public double getCommissionOrderDZYUnassignedBonusAmount() throws ServiceException {
+		return dashboardDAO.getCommissionOrderDZYUnassignedBonusAmount();
+	}
+
+	@Override
+	public double getCommissionOrderSettleUnassignedBonusAmount() throws ServiceException {
+		return dashboardDAO.getCommissionOrderSettleUnassignedBonusAmount();
 	}
 
 }

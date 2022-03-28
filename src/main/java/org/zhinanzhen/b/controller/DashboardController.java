@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.zhinanzhen.b.service.CommissionOrderService;
 import org.zhinanzhen.b.service.DashboardService;
 import org.zhinanzhen.b.service.ServiceOrderService;
+import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.b.service.pojo.DataDTO;
 import org.zhinanzhen.b.service.pojo.DataRankDTO;
@@ -631,8 +632,72 @@ public class DashboardController extends BaseController {
 		}
 		return new Response(0, 0);
 	}
+	
+	// 签证待申请月奖金额
+	@GetMapping(value = "/getVisaUnassignedBonusAmount")
+	@ResponseBody
+	public Response<Double> getVisaUnassignedBonusAmount(HttpServletRequest request, HttpServletResponse response)
+			throws ServiceException {
+		super.setGetHeader(response);
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo != null) {
+			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+				return new Response<Double>(1, "仅限会计获取.", null);
+			return new Response(0, dashboardService.getVisaUnassignedBonusAmount());
+		} else
+			return new Response<Double>(1, "获取失败.", null);
+	}
+	
+	// 留学待申请月奖金额
+	@GetMapping(value = "/getCommissionOrderUnassignedBonusAmount")
+	@ResponseBody
+	public Response<Double> getCommissionOrderUnassignedBonusAmount(HttpServletRequest request,
+			HttpServletResponse response) throws ServiceException {
+		super.setGetHeader(response);
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo != null) {
+			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+				return new Response<Double>(1, "仅限会计获取.", null);
+			return new Response(0, dashboardService.getCommissionOrderUnassignedBonusAmount());
+		} else
+			return new Response<Double>(1, "获取失败.", null);
+	}
+	
+	// 留学(追要)待申请月奖金额
+	@GetMapping(value = "/getCommissionOrderDZYUnassignedBonusAmount")
+	@ResponseBody
+	public Response<Double> getCommissionOrderDZYUnassignedBonusAmount(HttpServletRequest request,
+			HttpServletResponse response) throws ServiceException {
+		super.setGetHeader(response);
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo != null) {
+			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+				return new Response<Double>(1, "仅限会计获取.", null);
+			return new Response(0, dashboardService.getCommissionOrderDZYUnassignedBonusAmount());
+		} else
+			return new Response<Double>(1, "获取失败.", null);
+	}
 
-	public double roundHalfUp(double val){
+	// 留学(提前扣佣)待申请月奖金额
+	@GetMapping(value = "/getCommissionOrderSettleUnassignedBonusAmount")
+	@ResponseBody
+	public Response<Double> getCommissionOrderSettleUnassignedBonusAmount(HttpServletRequest request,
+			HttpServletResponse response) throws ServiceException {
+		super.setGetHeader(response);
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo != null) {
+			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+				return new Response<Double>(1, "仅限会计获取.", null);
+			return new Response(0, dashboardService.getCommissionOrderSettleUnassignedBonusAmount());
+		} else
+			return new Response<Double>(1, "获取失败.", null);
+	}
+
+	private double roundHalfUp(double val){
 		return new BigDecimal(val).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
 	}
 }
