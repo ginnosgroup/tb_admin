@@ -45,32 +45,32 @@
     <select id="getCommissionOrderSettleUnassignedBonusAmount" resultType="java.lang.Double">
         SELECT IFNULL(sum(co.bonus),0.00) FROM b_commission_order co, b_service_order so WHERE co.service_order_id=so.id AND co.state!='CLOSE' AND so.is_settle=1 AND co.bonus_date IS NULL;
     </select>
-    <select id="summaryVisaUnassignedBonusAmount" resultType="org.zhinanzhen.tb.dao.pojo.DashboardAmountSummaryDO">
+    <select id="summaryVisaUnassignedBonusAmount" resultType="org.zhinanzhen.b.dao.pojo.DashboardAmountSummaryDO">
         SELECT r.id, r.name AS name1, count(v.id) AS total, IFNULL(sum(v.bonus),0.00) AS amount
         FROM b_visa v, tb_user u, tb_region r
         WHERE v.user_id=u.id AND u.region_id=r.id AND u.region_id>0 AND v.state!='CLOSE' AND v.bonus_date IS NULL GROUP BY r.id;
     </select>
-    <select id="summaryCommissionOrderUnassignedBonusAmount" resultType="org.zhinanzhen.tb.dao.pojo.DashboardAmountSummaryDO">
+    <select id="summaryCommissionOrderUnassignedBonusAmount" resultType="org.zhinanzhen.b.dao.pojo.DashboardAmountSummaryDO">
         SELECT r.id, r.name AS name1, count(co.id) AS total, IFNULL(sum(co.bonus),0.00) AS amount
         FROM b_commission_order co, tb_user u, tb_region r
         WHERE co.user_id=u.id AND u.region_id=r.id AND u.region_id>0 AND co.state!='CLOSE' AND co.bonus_date IS NULL GROUP BY r.id;
     </select>
-    <select id="summaryCommissionOrderDZYUnassignedBonusAmount" resultType="org.zhinanzhen.tb.dao.pojo.DashboardAmountSummaryDO">
+    <select id="summaryCommissionOrderDZYUnassignedBonusAmount" resultType="org.zhinanzhen.b.dao.pojo.DashboardAmountSummaryDO">
         SELECT r.id, r.name AS name1, count(co.id) AS total, IFNULL(sum(co.bonus),0.00) AS amount
         FROM b_commission_order co, tb_user u, tb_region r
         WHERE co.user_id=u.id AND u.region_id=r.id AND u.region_id>0 AND co.state!='CLOSE' AND co.commission_state='DZY' AND co.bonus_date IS NULL GROUP BY r.id;
     </select>
-    <select id="summaryCommissionOrderSettleUnassignedBonusAmount" resultType="org.zhinanzhen.tb.dao.pojo.DashboardAmountSummaryDO">
+    <select id="summaryCommissionOrderSettleUnassignedBonusAmount" resultType="org.zhinanzhen.b.dao.pojo.DashboardAmountSummaryDO">
         SELECT r.id, r.name AS name1, count(co.id) AS total, IFNULL(sum(co.bonus),0.00) AS amount
         FROM b_commission_order co, tb_user u, tb_region r, b_service_order so
         WHERE co.service_order_id=so.id AND co.user_id=u.id AND u.region_id=r.id AND u.region_id>0 AND co.state!='CLOSE' AND so.is_settle=1 AND co.bonus_date IS NULL GROUP BY r.id;
     </select>
-    <select id="summaryCommissionOrderDZYUnassignedBonusAmountGroupBySchool" resultType="org.zhinanzhen.tb.dao.pojo.DashboardAmountSummaryDO">
+    <select id="summaryCommissionOrderDZYUnassignedBonusAmountGroupBySchool" resultType="org.zhinanzhen.b.dao.pojo.DashboardAmountSummaryDO">
         SELECT si.id, si.institution_trading_name AS name1, si.institution_name AS name2, count(co.id) AS total, IFNULL(sum(co.bonus),0.00) AS amount
         FROM b_commission_order co, b_school_course sc, b_school_institution si
         WHERE co.course_id=sc.id AND sc.provider_id=si.id AND co.state!='CLOSE' AND co.commission_state='DZY' AND co.bonus_date IS NULL GROUP BY si.id;
     </select>
-    <select id="summaryCommissionOrderSettleUnassignedBonusAmountGroupBySchool" resultType="org.zhinanzhen.tb.dao.pojo.DashboardAmountSummaryDO">
+    <select id="summaryCommissionOrderSettleUnassignedBonusAmountGroupBySchool" resultType="org.zhinanzhen.b.dao.pojo.DashboardAmountSummaryDO">
         SELECT si.id, si.institution_trading_name AS name1, si.institution_name AS name2, count(co.id) AS total, IFNULL(sum(co.bonus),0.00) AS amount
         FROM b_commission_order co, b_school_course sc, b_school_institution si, b_service_order so
         WHERE co.service_order_id=so.id AND co.course_id=sc.id AND sc.provider_id=si.id AND co.state!='CLOSE' AND so.is_settle=1 AND co.bonus_date IS NULL GROUP BY si.id;
