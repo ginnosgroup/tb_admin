@@ -162,7 +162,7 @@ System.out.println("=cell4:" + row.getCell(4));
                     String comment = financeCodeDO.getComment();
                     //得到 verifyCode 并且字符全部转换成大写
                     String verifyCode = checkVerifyCode(comment).toUpperCase();
-System.out.println("=verifyCode:" + verifyCode);
+
                     List<VisaDO> visaDOS = visaDAO.listVisaByVerifyCode(verifyCode);
                     List<CommissionOrderDO> commissionOrderDOS = commissionOrderDAO.listCommissionOrderByVerifyCode(verifyCode);
                     if (visaDOS.size() > 1 | commissionOrderDOS.size() > 1)

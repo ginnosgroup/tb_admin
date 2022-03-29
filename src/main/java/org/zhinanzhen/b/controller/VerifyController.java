@@ -74,10 +74,8 @@ public class VerifyController {
                                 @RequestParam("regionId")Integer regionId) throws Exception {
         String fileName = file.getOriginalFilename();
         List<FinanceCodeDO> financeCodeDOS = verifyService.excelToList(file.getInputStream(), fileName);
-System.out.println("=financeCodeDOS:" + financeCodeDOS);
         for (FinanceCodeDO financeCodeDO : financeCodeDOS) {
             String orderId = financeCodeDO.getOrderId();
-System.out.println("=-----orderId:" + orderId);
                 if (StringUtil.isNotBlank(orderId)  && orderId.substring(0,2).equalsIgnoreCase("CS")) {
                     CommissionOrderListDTO commissionOrderListDTO = commissionOrderService.getCommissionOrderById(Integer.parseInt(orderId.substring(2)));
                     if (commissionOrderListDTO!=null){
@@ -123,7 +121,9 @@ System.out.println("=-----orderId:" + orderId);
         for (Iterator iterator = financeCodeDOS.listIterator(); iterator.hasNext();){
             FinanceCodeDO financeCodeDO = (FinanceCodeDO) iterator.next();
             FinanceCodeDTO financeCodeDTO =  verifyService.financeDTOByCode(financeCodeDO.getCode());
+System.out.println("=-----financeCodeDO.getCode():" + financeCodeDO.getCode());
             if (financeCodeDTO != null){
+System.out.println("=-----financeCodeDTO:" + financeCodeDTO);
                 if (StringUtil.isNotEmpty(financeCodeDO.getOrderId()) && StringUtil.isEmpty(financeCodeDTO.getOrderId())){
                     financeCodeDO.setId(financeCodeDTO.getId());
                     verifyService.update(financeCodeDO);
@@ -131,6 +131,7 @@ System.out.println("=-----orderId:" + orderId);
                 iterator.remove();
             }
         }
+System.out.println("=financeCodeDOS:" + financeCodeDOS);
         if (verifyService.add(financeCodeDOS) > 0)
             return new Response(0,"success");
         return new Response(1,"fail");
