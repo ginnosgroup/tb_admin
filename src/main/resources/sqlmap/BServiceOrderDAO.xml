@@ -311,7 +311,7 @@
         <if test='adviserId2 != null and adviserId2 > 0'>
             , adviser_id_2 = #{adviserId2}
         </if>
-        <if test='officialId != null and officialId > 0'>
+        <if test='officialId != null'>
             , official_id = #{officialId}
         </if>
         <if test='remarks != null'>

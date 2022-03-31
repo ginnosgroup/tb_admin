@@ -144,10 +144,6 @@ public class VerifyServiceImpl implements VerifyService {
                 financeCodeDO.setMoney(Double.parseDouble(df.format(row.getCell(1).getNumericCellValue())));
                 financeCodeDO.setComment(row.getCell(2).getStringCellValue());
                 financeCodeDO.setBalance(Double.parseDouble(df.format(row.getCell(3).getNumericCellValue())));
-System.out.println("=cell1:" + row.getCell(1));
-System.out.println("=cell2:" + row.getCell(2));
-System.out.println("=cell3:" + row.getCell(3));
-System.out.println("=cell4:" + row.getCell(4));
 
                 if (row.getCell(4) != null && StringUtil.isNotEmpty(row.getCell(4).getStringCellValue())) {
                     String orderId = row.getCell(4).getStringCellValue();
