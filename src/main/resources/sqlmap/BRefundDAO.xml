@@ -177,7 +177,8 @@
             rmb_remarks AS rmbRemarks,
             reason AS reason,
             remarks
-        FROM b_refund WHERE commission_order_id = #{commissionOrderId, jdbcType=INTEGER};
+        FROM b_refund
+        WHERE state != 'CLOSE' AND commission_order_id = #{commissionOrderId, jdbcType=INTEGER};
     </select>
     
     <select id="getRefundByVisaId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.RefundDO">
@@ -209,7 +210,8 @@
             rmb_remarks AS rmbRemarks,
             reason AS reason,
             remarks
-        FROM b_refund WHERE visa_id = #{visaId, jdbcType=INTEGER};
+        FROM b_refund
+        WHERE state != 'CLOSE' AND visa_id = #{visaId, jdbcType=INTEGER};
     </select>
     
     <update id="updateRefund" parameterType="org.zhinanzhen.b.dao.pojo.RefundDO">
