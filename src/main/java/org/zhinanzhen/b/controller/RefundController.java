@@ -88,8 +88,7 @@ public class RefundController extends BaseController {
 			if (refundDto.getReceived() > 0 && refundDto.getAmount() > refundDto.getReceived())
 				return new Response<Integer>(1, "退款金额不能大于实付金额.", 0);
 			if (refundDto.getAdviserId() <= 0 && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList()))
-				refundDto.setAdviserId(adminUserLoginInfo.getAdviserId());
-System.out.println("refundDto:" + refundDto);
+				refundDto.setAdviserId(getAdviserId(request));
 			if (refundService.addRefund(refundDto) > 0) {
 				return new Response<Integer>(0, refundDto.getId());
 			} else {
