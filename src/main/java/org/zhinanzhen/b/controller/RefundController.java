@@ -87,6 +87,8 @@ public class RefundController extends BaseController {
 				return new Response<Integer>(1, "仅限顾问和超级管理员能创建退款单.", 0);
 			if (refundDto.getReceived() > 0 && refundDto.getAmount() > refundDto.getReceived())
 				return new Response<Integer>(1, "退款金额不能大于实付金额.", 0);
+			if (refundDto.getAdviserId() <= 0 && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList()))
+				refundDto.setAdviserId(adminUserLoginInfo.getAdviserId());
 			if (refundService.addRefund(refundDto) > 0) {
 				return new Response<Integer>(0, refundDto.getId());
 			} else {
