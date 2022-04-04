@@ -86,7 +86,7 @@ public class AdviserDataController extends BaseController {
 				sheet0.addCell(new Label(5, i, so.getOfficialName(), cellFormat));
 				sheet0.addCell(new Label(6, i, so.getReceiveTypeName(), cellFormat));
 				sheet0.addCell(new Label(7, i, so.getServiceOrderReceiveDate(), cellFormat));
-				sheet0.addCell(new Label(8, i, so.getServiceName(), cellFormat));
+				sheet0.addCell(new Label(8, i, so.getServiceCode(), cellFormat));
 				sheet0.addCell(new Label(9, i, so.getServiceOrderState(), cellFormat));
 				sheet0.addCell(new Label(10, i, so.getIsSettle(), cellFormat));
 				sheet0.addCell(new Label(11, i, so.getPerAmount(), cellFormat));
