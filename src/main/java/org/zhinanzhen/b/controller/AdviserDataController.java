@@ -86,12 +86,13 @@ public class AdviserDataController extends BaseController {
 				sheet0.addCell(new Label(5, i, so.getOfficialName(), cellFormat));
 				sheet0.addCell(new Label(6, i, so.getReceiveTypeName(), cellFormat));
 				sheet0.addCell(new Label(7, i, so.getServiceOrderReceiveDate(), cellFormat));
-				sheet0.addCell(new Label(8, i, so.getServiceOrderState(), cellFormat));
-				sheet0.addCell(new Label(9, i, so.getIsSettle(), cellFormat));
-				sheet0.addCell(new Label(10, i, so.getPerAmount(), cellFormat));
-				sheet0.addCell(new Label(11, i, so.getAmount(), cellFormat));
-				sheet0.addCell(new Label(12, i, so.getExpectAmount(), cellFormat));
-				sheet0.addCell(new Label(13, i, so.getRemarks(), cellFormat));
+				sheet0.addCell(new Label(8, i, so.getServiceName(), cellFormat));
+				sheet0.addCell(new Label(9, i, so.getServiceOrderState(), cellFormat));
+				sheet0.addCell(new Label(10, i, so.getIsSettle(), cellFormat));
+				sheet0.addCell(new Label(11, i, so.getPerAmount(), cellFormat));
+				sheet0.addCell(new Label(12, i, so.getAmount(), cellFormat));
+				sheet0.addCell(new Label(13, i, so.getExpectAmount(), cellFormat));
+				sheet0.addCell(new Label(14, i, so.getRemarks(), cellFormat));
 				i++;
 			}
 			WritableSheet sheet1 = wbe.getSheet(1);
@@ -130,15 +131,16 @@ public class AdviserDataController extends BaseController {
 				sheet2.addCell(new Label(10, k, c.getPerTermTuitionFee(), cellFormat));
 				sheet2.addCell(new Label(11, k, c.getReceiveTypeName(), cellFormat));
 				sheet2.addCell(new Label(12, k, c.getReceiveDate(), cellFormat));
-				sheet2.addCell(new Label(13, k, c.getPerAmount(), cellFormat));
-				sheet2.addCell(new Label(14, k, c.getAmount(), cellFormat));
-				sheet2.addCell(new Label(15, k, c.getExpectAmount(), cellFormat));
-				sheet2.addCell(new Label(16, k, c.getSureExpectAmount(), cellFormat));
-				sheet2.addCell(new Label(17, k, c.getGst(), cellFormat));
-				sheet2.addCell(new Label(18, k, c.getBonus(), cellFormat));
-				sheet2.addCell(new Label(19, k, c.getBonusDate(), cellFormat));
-				sheet2.addCell(new Label(20, k, c.getCommissionState(), cellFormat));
-				sheet2.addCell(new Label(21, k, c.getRemarks(), cellFormat));
+				sheet2.addCell(new Label(13, k, c.getServiceName(), cellFormat));
+				sheet2.addCell(new Label(14, k, c.getPerAmount(), cellFormat));
+				sheet2.addCell(new Label(15, k, c.getAmount(), cellFormat));
+				sheet2.addCell(new Label(16, k, c.getExpectAmount(), cellFormat));
+				sheet2.addCell(new Label(17, k, c.getSureExpectAmount(), cellFormat));
+				sheet2.addCell(new Label(18, k, c.getGst(), cellFormat));
+				sheet2.addCell(new Label(19, k, c.getBonus(), cellFormat));
+				sheet2.addCell(new Label(20, k, c.getBonusDate(), cellFormat));
+				sheet2.addCell(new Label(21, k, c.getCommissionState(), cellFormat));
+				sheet2.addCell(new Label(22, k, c.getRemarks(), cellFormat));
 				k++;
 			}
 			WritableSheet sheet3 = wbe.getSheet(3);

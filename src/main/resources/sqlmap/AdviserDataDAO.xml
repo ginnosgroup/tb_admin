@@ -13,14 +13,15 @@
           o.name as officialName,
           rt.name as receiveTypeName,
           so.receive_date as serviceOrderReceiveDate,
+          s.name as serviceName,
           IF(so.state='PENDING','待提交审核',IF(so.state='REVIEW','资料待审核',IF(so.state='OREVIEW','资料待审核',IF(so.state='WAIT','已提交Mara审核',IF(so.state='FINISH','资料审核完成',IF(so.state='APPLY','服务申请中',IF(so.state='COMPLETE','申请成功',IF(so.state='COE_COMPLETE','申请成功COE待支付',IF(so.state='PAID','COE支付成功',IF(so.state='CLOSE','已关闭',so.state)))))))))) as serviceOrderState,
           so.is_settle as isSettle,
           so.per_amount as perAmount,
           so.amount as amount,
           so.expect_amount as expectAmount,
           so.remarks as remarks
-        from b_receive_type rt, tb_user u, b_official o, b_service_order so left join b_mara m on so.mara_id=m.id
-        where rt.id=so.receive_type_id and u.id=so.user_id and so.official_id=o.id and so.adviser_id=#{adviserId};
+        from b_receive_type rt, b_service s, tb_user u, b_official o, b_service_order so left join b_mara m on so.mara_id=m.id
+        where rt.id=so.receive_type_id and so.service_id=s.id and u.id=so.user_id and so.official_id=o.id and so.adviser_id=#{adviserId};
     </select>
     
     <select id="listVisa" resultType="org.zhinanzhen.b.dao.pojo.AdviserVisaDO">
@@ -60,6 +61,7 @@
           co.per_term_tuition_fee as perTermTuitionFee,
           rt.name as receiveTypeName,
           co.receive_date as receiveDate,
+          s.name as serviceName,
           co.per_amount as perAmount,
           co.amount as amount,
           co.expect_amount as expectAmount,
@@ -69,8 +71,8 @@
           co.bonus_date as bonusDate,
           IF(co.commission_state='DJY','待结佣',IF(co.commission_state='YJY','已结佣',IF(co.commission_state='DZY','待追佣',IF(co.commission_state='YZY','已追佣',co.commission_state)))) as commissionState,
           co.remarks as remarks
-        from b_commission_order co,tb_user u,b_receive_type rt, b_official o
-        where co.user_id=u.id and rt.id=co.receive_type_id and co.official_id=o.id and co.adviser_id=#{adviserId};
+        from b_commission_order co,tb_user u,b_receive_type rt, b_service s, b_official o
+        where co.user_id=u.id and rt.id=co.receive_type_id and co.service_id=s.id and co.official_id=o.id and co.adviser_id=#{adviserId};
     </select>
     
     <select id="listUser" resultType="org.zhinanzhen.b.dao.pojo.AdviserUserDO">

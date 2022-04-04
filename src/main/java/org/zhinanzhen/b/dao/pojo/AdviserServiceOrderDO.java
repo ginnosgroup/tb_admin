@@ -20,6 +20,8 @@ public class AdviserServiceOrderDO {
 	private String receiveTypeName;
 
 	private String serviceOrderReceiveDate;
+	
+	private String serviceName;
 
 	private String serviceOrderState;
 
