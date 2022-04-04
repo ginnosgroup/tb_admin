@@ -61,7 +61,6 @@
           co.per_term_tuition_fee as perTermTuitionFee,
           rt.name as receiveTypeName,
           co.receive_date as receiveDate,
-          s.name as serviceName,
           co.per_amount as perAmount,
           co.amount as amount,
           co.expect_amount as expectAmount,
@@ -71,8 +70,8 @@
           co.bonus_date as bonusDate,
           IF(co.commission_state='DJY','待结佣',IF(co.commission_state='YJY','已结佣',IF(co.commission_state='DZY','待追佣',IF(co.commission_state='YZY','已追佣',co.commission_state)))) as commissionState,
           co.remarks as remarks
-        from b_commission_order co,tb_user u,b_receive_type rt, b_service s, b_official o
-        where co.user_id=u.id and rt.id=co.receive_type_id and co.service_id=s.id and co.official_id=o.id and co.adviser_id=#{adviserId};
+        from b_commission_order co,tb_user u,b_receive_type rt, b_official o
+        where co.user_id=u.id and rt.id=co.receive_type_id and co.official_id=o.id and co.adviser_id=#{adviserId};
     </select>
     
     <select id="listUser" resultType="org.zhinanzhen.b.dao.pojo.AdviserUserDO">

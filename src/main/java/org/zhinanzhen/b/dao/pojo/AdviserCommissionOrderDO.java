@@ -32,8 +32,6 @@ public class AdviserCommissionOrderDO {
 	private String receiveTypeName;
 
 	private String receiveDate;
-	
-	private String serviceName;
 
 	private String perAmount;
 
