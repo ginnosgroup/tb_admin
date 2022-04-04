@@ -23,7 +23,7 @@ public class AdviserVisaDO {
 
 	private String receiveDate;
 
-	private String serviceName;
+	private String serviceCode;
 
 	private String gst;
 

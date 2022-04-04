@@ -35,7 +35,7 @@
           v.kj_approval_date as kjApprovalDate,
           rt.name as receiveTypeName,
           v.receive_date as receiveDate,
-          s.name as serviceName,
+          s.code as serviceCode,
           v.gst as gst,
           v.bonus as bonus,
           v.bonus_date as bonusDate,
