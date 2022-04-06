@@ -57,6 +57,40 @@ public class ServicePackagePriceController extends BaseController {
 			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
 		}
 	}
+	
+	@RequestMapping(value = "/update", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> update(@RequestParam(value = "id") int id,
+			@RequestParam(value = "minPrice", required = false) Double minPrice,
+			@RequestParam(value = "maxPrice", required = false) Double maxPrice,
+			@RequestParam(value = "servicePackageId", required = false) int servicePackageId,
+			@RequestParam(value = "regionId", required = false) int regionId, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			if (servicePackageService.getById(servicePackageId) == null)
+				return new Response<Integer>(1, "服务包不存在(" + servicePackageId + ")!", 0);
+			List<ServicePackagePriceDTO> list = servicePackagePriceService.listServicePackagePrice(servicePackageId,
+					regionId);
+			if (list != null && list.size() > 0)
+				return new Response<Integer>(1, "服务包价格已存在!", 0);
+			ServicePackagePriceDTO servicePackagePriceDto = servicePackagePriceService.getServicePackagePriceById(id);
+			if (minPrice != null)
+				servicePackagePriceDto.setMinPrice(minPrice);
+			if (maxPrice != null)
+				servicePackagePriceDto.setMaxPrice(maxPrice);
+			if (servicePackageId > 0)
+				servicePackagePriceDto.setServicePackageId(servicePackageId);
+			if (regionId > 0)
+				servicePackagePriceDto.setRegionId(regionId);
+			if (servicePackagePriceService.updateServicePackagePrice(servicePackagePriceDto) > 0)
+				return new Response<Integer>(0, servicePackagePriceDto.getId());
+			else
+				return new Response<Integer>(1, "修改失败.", 0);
+		} catch (ServiceException e) {
+			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
+		}
+	}
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
