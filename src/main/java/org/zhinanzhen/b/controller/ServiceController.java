@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.zhinanzhen.b.service.ServiceService;
 import org.zhinanzhen.b.service.pojo.ServiceDTO;
 import org.zhinanzhen.tb.controller.BaseController;
+import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 
@@ -55,10 +56,11 @@ public class ServiceController extends BaseController {
 	public Response<Integer> updateService(@RequestParam(value = "id") int id,
 			@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "code", required = false) String code,
-			HttpServletRequest request, HttpServletResponse response) {
+			@RequestParam(value = "role", required = false) String role, HttpServletRequest request,
+			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			int i = serviceService.updateService(id, name, code);
+			int i = serviceService.updateService(id, name, code, role);
 			if (i > 0) {
 				return new Response<Integer>(0, i);
 			} else {
@@ -71,14 +73,17 @@ public class ServiceController extends BaseController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<ServiceDTO>> listService(@RequestParam(value = "name", required = false) String name,
-			@RequestParam(value = "isZx",required = false)String isZx,
-			HttpServletResponse response) {
+	public ListResponse<List<ServiceDTO>> listService(@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "isZx", required = false) String isZx, @RequestParam(value = "pageNum") int pageNum,
+			@RequestParam(value = "pageSize") int pageSize, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<List<ServiceDTO>>(0, serviceService.listService(name,isZx != null && "true".equalsIgnoreCase(isZx)));
+			return new ListResponse<List<ServiceDTO>>(true, pageSize,
+					serviceService.countService(name, isZx != null && "true".equalsIgnoreCase(isZx)),
+					serviceService.listService(name, isZx != null && "true".equalsIgnoreCase(isZx), pageNum, pageSize),
+					"");
 		} catch (ServiceException e) {
-			return new Response<List<ServiceDTO>>(1, e.getMessage(), null);
+			return new ListResponse<List<ServiceDTO>>(false, pageSize, 0, null, e.getMessage());
 		}
 	}
 

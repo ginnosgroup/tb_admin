@@ -38,6 +38,23 @@
         WHERE id = #{id};
     </update>
     
+    <select id="countService" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM b_service
+        <where>
+            <if test='name != null and name != ""'>
+                AND name = #{name}
+            </if>
+            <if test="isZx == true">
+                AND is_zx = #{isZx}
+            </if>
+            <if test="isZx == false">
+                AND is_delete = 0 AND is_zx = FALSE
+            </if>
+        </where>
+        ;
+    </select>
+    
     <select id="listService" resultType="org.zhinanzhen.b.dao.pojo.ServiceDO">
         SELECT
             id,
@@ -57,7 +74,8 @@
                 AND is_delete = 0 AND is_zx = FALSE
             </if>
         </where>
-        ORDER BY code;
+        ORDER BY code
+        LIMIT #{offset}, #{rows};
     </select>
     
     <select id="getServiceById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.ServiceDO">
