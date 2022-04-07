@@ -48,6 +48,33 @@ public class ServicePackageServiceImpl extends BaseService implements ServicePac
 			throw se;
 		}
 	}
+	
+	@Override
+	public int update(ServicePackageDTO servicePackageDto) throws ServiceException {
+		if (servicePackageDto == null) {
+			ServiceException se = new ServiceException("servicePackageDto is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		if (servicePackageDto.getId() <= 0) {
+			ServiceException se = new ServiceException("id is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			ServicePackageDO servicePackageDo = mapper.map(servicePackageDto, ServicePackageDO.class);
+			if (servicePackageDao.update(servicePackageDo.getId(), servicePackageDo.getType(),
+					servicePackageDo.getServiceId(), servicePackageDo.getNum()) > 0) {
+				return servicePackageDo.getId();
+			} else {
+				return 0;
+			}
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
 
 	@Override
 	public List<ServicePackageDTO> list(Integer serviceId) throws ServiceException {

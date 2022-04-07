@@ -65,6 +65,38 @@ public class ServicePackageController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/update", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> update(@RequestParam(value = "id") int id,
+			@RequestParam(value = "type", required = false) String type,
+			@RequestParam(value = "serviceId", required = false) int serviceId,
+			@RequestParam(value = "num", required = false) int num, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			ServicePackageDTO servicePackageDto = new ServicePackageDTO();
+			servicePackageDto.setId(id);
+			if (type != null) {
+				if (ServicePackageTypeEnum.getServicePackageTypeEnum(type) == null)
+					return new Response<Integer>(1, "服务包类型错误(" + type + ")!", 0);
+				servicePackageDto.setType(type);
+			}
+			if (serviceId >= 0) {
+				if (serviceService.getServiceById(serviceId) == null)
+					return new Response<Integer>(1, "服务项目不存在(" + serviceId + ")!", 0);
+				servicePackageDto.setServiceId(serviceId);
+			}
+			if (num >= 0)
+				servicePackageDto.setNum(num);
+			if (servicePackageService.update(servicePackageDto) > 0)
+				return new Response<Integer>(0, servicePackageDto.getId());
+			else
+				return new Response<Integer>(1, "修改失败.", 0);
+		} catch (ServiceException e) {
+			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
+		}
+	}
+
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<List<ServicePackageDTO>> list(
