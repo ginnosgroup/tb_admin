@@ -417,7 +417,7 @@ public class DownExcelController extends BaseController {
 										v.getConsultant(), v.getCommission(), v.getServiceFee(), 0, 0, 0
 								, 0, 0, 0));
 				});
-System.out.println("crMap1="+crMap);
+			
 			List<CommissionOrderReportDTO> commissionOrderReportList = commissionOrderService
 					.listCommissionOrderReport(startDate, endDate, dateType, dateMethod, regionId, adviserId, adviserIdList);
 			if (commissionOrderReportList != null)
@@ -436,7 +436,6 @@ System.out.println("crMap1="+crMap);
 											c.getClaimedCommission(), c.getAdjustments(), 0, 0));
 					}
 				});
-System.out.println("crMap2="+crMap);
 
 			List<RefoundReportDTO> refoundReportList = refundService
 					.listRefundReport(startDate, endDate, dateType, dateMethod, regionId, adviserId, adviserIdList);
@@ -455,7 +454,6 @@ System.out.println("crMap2="+crMap);
 											0, 0, r.getRefunded(), r.getRefunding()));
 					}
 				});
-System.out.println("crMap3="+crMap);
 
 
 			//crMap 顾问分组
@@ -496,8 +494,6 @@ System.out.println("crMap3="+crMap);
 			//	System.out.println("wbe not null !os=" + zipos + ",wb" + wb);
 			//}
 			//WritableSheet sheet = wbe.getSheet(0);
-
-System.out.println("crListMap= " + crListMap);
 
 			for (Map.Entry<String, List<CommissionReport>> entry : crListMap.entrySet()) {
 				int i = 1;
@@ -554,6 +550,7 @@ System.out.println("commissionReportList(0)= " + commissionReportList.get(0).toS
 				List<VisaDTO> list = visaService.listVisa(null ,null, null, null, null,
 						null, startDate, endDate, null, null, null, null, null,
 						commissionReportList.get(0).getAdviserId(),null,null, null,0, 9999, null);
+System.out.println("visaList= " + list);
 				list.forEach(v -> {
 					if (v.getServiceOrderId() > 0)
 						try {
@@ -571,6 +568,7 @@ System.out.println("commissionReportList(0)= " + commissionReportList.get(0).toS
 						null, null, commissionReportList.get(0).getAdviserId(), null, null, null, null, null, null,
 						null, null, null, startDate, endDate,null,null,
 						null, null, null, null, 0, 9999, null);
+System.out.println("commissionOrderList= " + commissionOrderList);
 
 				outPutCsToSheet(sheet, cellFormat,cellGreen, cellYellow, i += 3, commissionOrderList);
 
@@ -578,8 +576,10 @@ System.out.println("commissionReportList(0)= " + commissionReportList.get(0).toS
 				i = 1;
 				List<RefundDTO> ovstRefundingList = refundService.listRefund("OVST", RefundController.RefundStateEnum.COMPLETE.toString(),
 						commissionReportList.get(0).getAdviserId(), startDate, endDate);
+System.out.println("ovstRefundingList= " + ovstRefundingList);
 				List<RefundDTO> visaRefundingList = refundService.listRefund("VISA", RefundController.RefundStateEnum.COMPLETE.toString(),
 						commissionReportList.get(0).getAdviserId(), startDate, endDate);
+System.out.println("visaRefundingList= " + visaRefundingList);
 				i = outPutVisaToRefundSheet(refundingSheet, cellFormat, i, visaRefundingList);
 				outPutOvstToRefundSheet(refundingSheet, cellFormat, cellGreen, i += 3, ovstRefundingList);
 
@@ -587,8 +587,10 @@ System.out.println("commissionReportList(0)= " + commissionReportList.get(0).toS
 				i = 1;
 				List<RefundDTO> ovstRefundedList = refundService.listRefund("OVST", RefundController.RefundStateEnum.PAID.toString(),
 						commissionReportList.get(0).getAdviserId(), startDate, endDate);
+System.out.println("ovstRefundedList= " + ovstRefundedList);
 				List<RefundDTO> visaRefundedList = refundService.listRefund("VISA", RefundController.RefundStateEnum.PAID.toString(),
 						commissionReportList.get(0).getAdviserId(), startDate, endDate);
+System.out.println("visaRefundedList= " + visaRefundedList);
 				i = outPutVisaToRefundSheet(refundedSheet, cellFormat, i, visaRefundedList);
 				outPutOvstToRefundSheet(refundedSheet, cellFormat, cellGreen, i += 3, ovstRefundedList);
 
