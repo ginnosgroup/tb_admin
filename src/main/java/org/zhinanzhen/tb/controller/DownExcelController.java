@@ -494,15 +494,10 @@ public class DownExcelController extends BaseController {
 			//	System.out.println("wbe not null !os=" + zipos + ",wb" + wb);
 			//}
 			//WritableSheet sheet = wbe.getSheet(0);
-
-			
-System.out.println("crListMap.size= " + crListMap.size());
 			
 			for (Map.Entry<String, List<CommissionReport>> entry : crListMap.entrySet()) {
 				int i = 1;
 				List<CommissionReport> commissionReportList = entry.getValue();
-System.out.println("commissionReportList.size= " + commissionReportList.size());
-System.out.println("commissionReportList(0)= " + commissionReportList.get(0).toString());
 				
 				ZipEntry zipEntryXtv = new ZipEntry(entry.getKey() +".xls");
 				zipos.putNextEntry(zipEntryXtv);
@@ -553,7 +548,6 @@ System.out.println("commissionReportList(0)= " + commissionReportList.get(0).toS
 				List<VisaDTO> list = visaService.listVisa(null ,null, null, null, null,
 						null, startDate, endDate, null, null, null, null, null,
 						commissionReportList.get(0).getAdviserId(),null,null, null,0, 9999, null);
-System.out.println("visaList= " + list);
 				list.forEach(v -> {
 					if (v.getServiceOrderId() > 0)
 						try {
@@ -571,7 +565,6 @@ System.out.println("visaList= " + list);
 						null, null, commissionReportList.get(0).getAdviserId(), null, null, null, null, null, null,
 						null, null, null, startDate, endDate,null,null,
 						null, null, null, null, 0, 9999, null);
-System.out.println("commissionOrderList= " + commissionOrderList);
 
 				outPutCsToSheet(sheet, cellFormat,cellGreen, cellYellow, i += 3, commissionOrderList);
 
@@ -579,10 +572,8 @@ System.out.println("commissionOrderList= " + commissionOrderList);
 				i = 1;
 				List<RefundDTO> ovstRefundingList = refundService.listRefund("OVST", RefundController.RefundStateEnum.COMPLETE.toString(),
 						commissionReportList.get(0).getAdviserId(), startDate, endDate);
-System.out.println("ovstRefundingList= " + ovstRefundingList);
 				List<RefundDTO> visaRefundingList = refundService.listRefund("VISA", RefundController.RefundStateEnum.COMPLETE.toString(),
 						commissionReportList.get(0).getAdviserId(), startDate, endDate);
-System.out.println("visaRefundingList= " + visaRefundingList);
 				i = outPutVisaToRefundSheet(refundingSheet, cellFormat, i, visaRefundingList);
 				outPutOvstToRefundSheet(refundingSheet, cellFormat, cellGreen, i += 3, ovstRefundingList);
 
@@ -590,15 +581,13 @@ System.out.println("visaRefundingList= " + visaRefundingList);
 				i = 1;
 				List<RefundDTO> ovstRefundedList = refundService.listRefund("OVST", RefundController.RefundStateEnum.PAID.toString(),
 						commissionReportList.get(0).getAdviserId(), startDate, endDate);
-System.out.println("ovstRefundedList= " + ovstRefundedList);
 				List<RefundDTO> visaRefundedList = refundService.listRefund("VISA", RefundController.RefundStateEnum.PAID.toString(),
 						commissionReportList.get(0).getAdviserId(), startDate, endDate);
-System.out.println("visaRefundedList= " + visaRefundedList);
 				i = outPutVisaToRefundSheet(refundedSheet, cellFormat, i, visaRefundedList);
 				outPutOvstToRefundSheet(refundedSheet, cellFormat, cellGreen, i += 3, ovstRefundedList);
 
 				wbe.write();
-				//zipos.closeEntry();
+				zipos.closeEntry();
 				wbe.close();
 			}
 
