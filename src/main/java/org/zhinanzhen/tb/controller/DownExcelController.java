@@ -403,7 +403,7 @@ public class DownExcelController extends BaseController {
 //			response.setContentType("application/msexcel");
 			String tableName = "压缩包";
 			response.setHeader("Content-disposition",
-					"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".zip");
+					"attachment; filename=" + tableName + ".zip");
 			response.setContentType("application/zip");
 
 			Map<String, CommissionReport> crMap = new HashMap<>();
@@ -587,7 +587,7 @@ public class DownExcelController extends BaseController {
 				outPutOvstToRefundSheet(refundedSheet, cellFormat, cellGreen, i += 3, ovstRefundedList);
 
 				wbe.write();
-				zipos.closeEntry();
+//				zipos.closeEntry();
 				wbe.close();
 			}
 
