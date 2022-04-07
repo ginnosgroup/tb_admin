@@ -503,6 +503,7 @@ System.out.println("crListMap= " + crListMap);
 				int i = 1;
 				List<CommissionReport> commissionReportList = entry.getValue();
 System.out.println("commissionReportList.size= " + commissionReportList.size());
+System.out.println("commissionReportList(0)= " + commissionReportList.get(0).toString());
 				
 				ZipEntry zipEntryXtv = new ZipEntry(entry.getKey() +".xls");
 				zipos.putNextEntry(zipEntryXtv);
