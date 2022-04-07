@@ -417,6 +417,7 @@ public class DownExcelController extends BaseController {
 										v.getConsultant(), v.getCommission(), v.getServiceFee(), 0, 0, 0
 								, 0, 0, 0));
 				});
+System.out.println("crMap1="+crMap);
 			List<CommissionOrderReportDTO> commissionOrderReportList = commissionOrderService
 					.listCommissionOrderReport(startDate, endDate, dateType, dateMethod, regionId, adviserId, adviserIdList);
 			if (commissionOrderReportList != null)
@@ -435,6 +436,7 @@ public class DownExcelController extends BaseController {
 											c.getClaimedCommission(), c.getAdjustments(), 0, 0));
 					}
 				});
+System.out.println("crMap2="+crMap);
 
 			List<RefoundReportDTO> refoundReportList = refundService
 					.listRefundReport(startDate, endDate, dateType, dateMethod, regionId, adviserId, adviserIdList);
@@ -453,6 +455,7 @@ public class DownExcelController extends BaseController {
 											0, 0, r.getRefunded(), r.getRefunding()));
 					}
 				});
+System.out.println("crMap3="+crMap);
 
 
 			//crMap 顾问分组
@@ -494,12 +497,13 @@ public class DownExcelController extends BaseController {
 			//}
 			//WritableSheet sheet = wbe.getSheet(0);
 
-
+System.out.println("crListMap= " + crListMap);
 
 			for (Map.Entry<String, List<CommissionReport>> entry : crListMap.entrySet()) {
 				int i = 1;
 				List<CommissionReport> commissionReportList = entry.getValue();
-
+System.out.println("commissionReportList.size= " + commissionReportList.size());
+				
 				ZipEntry zipEntryXtv = new ZipEntry(entry.getKey() +".xls");
 				zipos.putNextEntry(zipEntryXtv);
 				try {
