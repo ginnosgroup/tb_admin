@@ -397,14 +397,14 @@ public class DownExcelController extends BaseController {
 				adviserIdList = Arrays.asList(adviserIds.split(","));
 
 			response.reset();// 清空输出流
-			String tableName = "commission_report_information";
-			response.setHeader("Content-disposition",
-					"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
-			response.setContentType("application/msexcel");
-//			String tableName = "压缩包";
+//			String tableName = "commission_report_information";
 //			response.setHeader("Content-disposition",
-//					"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".zip");
-//			response.setContentType("application/zip");
+//					"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
+//			response.setContentType("application/msexcel");
+			String tableName = "压缩包";
+			response.setHeader("Content-disposition",
+					"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".zip");
+			response.setContentType("application/zip");
 
 			Map<String, CommissionReport> crMap = new HashMap<>();
 			List<VisaReportDTO> visaReportList = visaService.listVisaReport(startDate, endDate, dateType, dateMethod,
@@ -495,6 +495,9 @@ public class DownExcelController extends BaseController {
 			//}
 			//WritableSheet sheet = wbe.getSheet(0);
 
+			
+System.out.println("crListMap.size= " + crListMap.size());
+			
 			for (Map.Entry<String, List<CommissionReport>> entry : crListMap.entrySet()) {
 				int i = 1;
 				List<CommissionReport> commissionReportList = entry.getValue();
