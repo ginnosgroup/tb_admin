@@ -17,6 +17,7 @@ import org.zhinanzhen.b.service.ServicePackageTypeEnum;
 import org.zhinanzhen.b.service.ServiceService;
 import org.zhinanzhen.b.service.pojo.ServicePackageDTO;
 import org.zhinanzhen.tb.controller.BaseController;
+import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 
@@ -99,13 +100,16 @@ public class ServicePackageController extends BaseController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<ServicePackageDTO>> list(
-			@RequestParam(value = "serviceId", required = false) Integer serviceId, HttpServletResponse response) {
+	public ListResponse<List<ServicePackageDTO>> list(
+			@RequestParam(value = "serviceId", required = false) Integer serviceId,
+			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
+			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<List<ServicePackageDTO>>(0, servicePackageService.list(serviceId));
+			return new ListResponse<List<ServicePackageDTO>>(true, pageSize, servicePackageService.count(serviceId),
+					servicePackageService.list(serviceId, pageNum, pageSize), "");
 		} catch (ServiceException e) {
-			return new Response<List<ServicePackageDTO>>(1, e.getMessage(), null);
+			return new ListResponse<List<ServicePackageDTO>>(false, pageSize, 0, null, e.getMessage());
 		}
 	}
 

@@ -10,8 +10,10 @@ public interface ServicePackageService {
 	int add(ServicePackageDTO servicePackageDto) throws ServiceException;
 	
 	int update(ServicePackageDTO servicePackageDto) throws ServiceException;
+	
+	int count(Integer serviceId) throws ServiceException;
 
-	List<ServicePackageDTO> list(Integer serviceId) throws ServiceException;
+	List<ServicePackageDTO> list(Integer serviceId, int pageNum, int pageSize) throws ServiceException;
 
 	ServicePackageDTO getById(int id) throws ServiceException;
 

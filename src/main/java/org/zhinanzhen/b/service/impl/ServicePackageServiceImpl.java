@@ -75,13 +75,22 @@ public class ServicePackageServiceImpl extends BaseService implements ServicePac
 			throw se;
 		}
 	}
+	
+	@Override
+	public int count(Integer serviceId) throws ServiceException {
+		return servicePackageDao.count(serviceId);
+	}
 
 	@Override
-	public List<ServicePackageDTO> list(Integer serviceId) throws ServiceException {
+	public List<ServicePackageDTO> list(Integer serviceId, int pageNum, int pageSize) throws ServiceException {
+		if (pageNum < 0)
+			pageNum = DEFAULT_PAGE_NUM;
+		if (pageSize < 0)
+			pageSize = DEFAULT_PAGE_SIZE;
 		List<ServicePackageDTO> servicePackageDtoList = new ArrayList<>();
 		List<ServicePackageListDO> servicePackageListDoList = new ArrayList<>();
 		try {
-			servicePackageListDoList = servicePackageDao.list(serviceId);
+			servicePackageListDoList = servicePackageDao.list(serviceId, pageNum * pageSize, pageSize);
 			if (servicePackageListDoList == null)
 				return null;
 		} catch (Exception e) {

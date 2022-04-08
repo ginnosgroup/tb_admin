@@ -12,8 +12,11 @@ public interface ServicePackageDAO {
 
 	int update(@Param("id") int id, @Param("type") String type, @Param("serviceId") Integer serviceId,
 			@Param("num") Integer num);
+	
+	int count(@Param("serviceId") Integer serviceId);
 
-	public List<ServicePackageListDO> list(@Param("serviceId") Integer serviceId);
+	public List<ServicePackageListDO> list(@Param("serviceId") Integer serviceId, @Param("offset") int offset,
+			@Param("rows") int rows);
 
 	public ServicePackageDO getById(int id);
 

@@ -36,6 +36,16 @@
         WHERE id = #{id};
     </update>
     
+    <select id="count" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM b_service_package sp, b_service s
+        WHERE sp.service_id = s.id AND sp.is_delete = 0 AND s.is_delete = 0
+        <if test='serviceId != null'>
+            AND sp.service_id = #{serviceId}
+        </if>
+        ;
+    </select>
+    
     <select id="list" resultType="org.zhinanzhen.b.dao.pojo.ServicePackageListDO">
         SELECT
             sp.id,
@@ -49,7 +59,8 @@
         <if test='serviceId != null'>
             AND sp.service_id = #{serviceId}
         </if>
-        ORDER BY sp.num ASC;
+        ORDER BY sp.num ASC
+        LIMIT #{offset}, #{rows};
     </select>
     
     <select id="getById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.ServicePackageDO">
