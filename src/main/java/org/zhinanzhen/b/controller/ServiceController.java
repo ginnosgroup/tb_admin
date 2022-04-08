@@ -71,19 +71,32 @@ public class ServiceController extends BaseController {
 		}
 	}
 
+//	@RequestMapping(value = "/list", method = RequestMethod.GET)
+//	@ResponseBody
+//	public ListResponse<List<ServiceDTO>> listService(@RequestParam(value = "name", required = false) String name,
+//			@RequestParam(value = "isZx", required = false) String isZx, @RequestParam(value = "pageNum") int pageNum,
+//			@RequestParam(value = "pageSize") int pageSize, HttpServletResponse response) {
+//		try {
+//			super.setGetHeader(response);
+//			return new ListResponse<List<ServiceDTO>>(true, pageSize,
+//					serviceService.countService(name, isZx != null && "true".equalsIgnoreCase(isZx)),
+//					serviceService.listService(name, isZx != null && "true".equalsIgnoreCase(isZx), pageNum, pageSize),
+//					"");
+//		} catch (ServiceException e) {
+//			return new ListResponse<List<ServiceDTO>>(false, pageSize, 0, null, e.getMessage());
+//		}
+//	}
+	
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public ListResponse<List<ServiceDTO>> listService(@RequestParam(value = "name", required = false) String name,
-			@RequestParam(value = "isZx", required = false) String isZx, @RequestParam(value = "pageNum") int pageNum,
-			@RequestParam(value = "pageSize") int pageSize, HttpServletResponse response) {
+	public Response<List<ServiceDTO>> listService(@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "isZx",required = false)String isZx,
+			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new ListResponse<List<ServiceDTO>>(true, pageSize,
-					serviceService.countService(name, isZx != null && "true".equalsIgnoreCase(isZx)),
-					serviceService.listService(name, isZx != null && "true".equalsIgnoreCase(isZx), pageNum, pageSize),
-					"");
+			return new Response<List<ServiceDTO>>(0, serviceService.listService(name,isZx != null && "true".equalsIgnoreCase(isZx), 0, 9999));
 		} catch (ServiceException e) {
-			return new ListResponse<List<ServiceDTO>>(false, pageSize, 0, null, e.getMessage());
+			return new Response<List<ServiceDTO>>(1, e.getMessage(), null);
 		}
 	}
 
