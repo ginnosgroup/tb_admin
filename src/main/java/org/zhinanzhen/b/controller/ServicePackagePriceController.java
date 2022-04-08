@@ -16,6 +16,7 @@ import org.zhinanzhen.b.service.ServicePackagePriceService;
 import org.zhinanzhen.b.service.ServicePackageService;
 import org.zhinanzhen.b.service.pojo.ServicePackagePriceDTO;
 import org.zhinanzhen.tb.controller.BaseController;
+import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 
@@ -41,7 +42,7 @@ public class ServicePackagePriceController extends BaseController {
 			if (servicePackageService.getById(servicePackageId) == null)
 				return new Response<Integer>(1, "服务包不存在(" + servicePackageId + ")!", 0);
 			List<ServicePackagePriceDTO> list = servicePackagePriceService.listServicePackagePrice(servicePackageId,
-					regionId);
+					regionId, 0, 1);
 			if (list != null && list.size() > 0)
 				return new Response<Integer>(1, "服务包价格已存在!", 0);
 			ServicePackagePriceDTO servicePackagePriceDto = new ServicePackagePriceDTO();
@@ -71,7 +72,7 @@ public class ServicePackagePriceController extends BaseController {
 			if (servicePackageService.getById(servicePackageId) == null)
 				return new Response<Integer>(1, "服务包不存在(" + servicePackageId + ")!", 0);
 			List<ServicePackagePriceDTO> list = servicePackagePriceService.listServicePackagePrice(servicePackageId,
-					regionId);
+					regionId, 0, 1);
 			if (list != null && list.size() > 0)
 				return new Response<Integer>(1, "服务包价格已存在!", 0);
 			ServicePackagePriceDTO servicePackagePriceDto = servicePackagePriceService.getServicePackagePriceById(id);
@@ -94,15 +95,17 @@ public class ServicePackagePriceController extends BaseController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<ServicePackagePriceDTO>> list(
+	public ListResponse<List<ServicePackagePriceDTO>> list(
 			@RequestParam(value = "servicePackageId", required = false) Integer servicePackageId,
+			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
 			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<List<ServicePackagePriceDTO>>(0,
-					servicePackagePriceService.listServicePackagePrice(servicePackageId, 0));
+			return new ListResponse<List<ServicePackagePriceDTO>>(true, pageSize,
+					servicePackagePriceService.countServicePackagePrice(servicePackageId, 0),
+					servicePackagePriceService.listServicePackagePrice(servicePackageId, 0, pageNum, pageSize), "");
 		} catch (ServiceException e) {
-			return new Response<List<ServicePackagePriceDTO>>(1, e.getMessage(), null);
+			return new ListResponse<List<ServicePackagePriceDTO>>(false, pageSize, 0, null, e.getMessage());
 		}
 	}
 

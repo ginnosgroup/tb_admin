@@ -60,13 +60,20 @@ public class ServicePackagePriceServiceImpl extends BaseService implements Servi
 				servicePackagePriceDto.getMaxPrice(), servicePackagePriceDto.getServicePackageId(),
 				servicePackagePriceDto.getRegionId()) > 0 ? servicePackagePriceDto.getId() : 0;
 	}
+	
+	@Override
+	public int countServicePackagePrice(int servicePackageId, int regionId) throws ServiceException {
+		return servicePackagePriceDao.count(servicePackageId, regionId);
+	}
 
 	@Override
-	public List<ServicePackagePriceDTO> listServicePackagePrice(int servicePackageId, int regionId) throws ServiceException {
+	public List<ServicePackagePriceDTO> listServicePackagePrice(int servicePackageId, int regionId, int pageNum,
+			int pageSize) throws ServiceException {
 		List<ServicePackagePriceDTO> servicePackagePriceDtoList = new ArrayList<>();
 		List<ServicePackagePriceDO> servicePackagePriceDoList = new ArrayList<>();
 		try {
-			servicePackagePriceDoList = servicePackagePriceDao.list(servicePackageId, regionId);
+			servicePackagePriceDoList = servicePackagePriceDao.list(servicePackageId, regionId, pageNum * pageSize,
+					pageSize);
 			if (servicePackagePriceDoList == null)
 				return null;
 		} catch (Exception e) {

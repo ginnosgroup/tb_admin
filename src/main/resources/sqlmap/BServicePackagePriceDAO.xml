@@ -36,6 +36,15 @@
         WHERE id = #{id};
     </update>
     
+    <select id="count" resultType="org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO">
+        SELECT count(*)
+        FROM b_service_package_price WHERE service_package_id = #{servicePackageId, jdbcType=INTEGER}
+        <if test='regionId != null and regionId > 0'>
+            AND region_id = #{regionId}
+        </if>
+        ;
+    </select>
+    
     <select id="list" resultType="org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO">
         SELECT
             id,
@@ -47,7 +56,8 @@
         <if test='regionId != null and regionId > 0'>
             AND region_id = #{regionId}
         </if>
-        ORDER BY gmt_create ASC;
+        ORDER BY gmt_create ASC
+        LIMIT #{offset}, #{rows};
     </select>
     
     <select id="getById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO">
