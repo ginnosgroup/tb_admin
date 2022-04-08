@@ -423,6 +423,7 @@ CREATE TABLE `b_service_order` (
   `invoice_voucher_image_url5` varchar(128) DEFAULT NULL COMMENT '发票invoice凭证地址5',
   `kj_payment_image_url1` varchar(128) DEFAULT NULL COMMENT '文案转账凭证1',
   `kj_payment_image_url2` varchar(128) DEFAULT NULL COMMENT '文案转账凭证2',
+  `low_price_image_url` varchar(128) DEFAULT NULL COMMENT '低价审核账凭证',
   `per_amount` decimal(8,2) NOT NULL COMMENT '本次应收款',
   `amount` decimal(8,2) DEFAULT NULL COMMENT '本次收款',
   `expect_amount` decimal(8,2) DEFAULT NULL COMMENT '预收业绩',

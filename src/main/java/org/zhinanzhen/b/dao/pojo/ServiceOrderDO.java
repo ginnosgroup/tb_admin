@@ -111,6 +111,8 @@ public class ServiceOrderDO implements Serializable {
 	private String kjPaymentImageUrl1;
 
 	private String kjPaymentImageUrl2;
+	
+	private String lowPriceImageUrl;
 
 	private double perAmount;
 

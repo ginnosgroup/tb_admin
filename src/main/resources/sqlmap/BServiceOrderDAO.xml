@@ -48,6 +48,7 @@
                 coe_payment_voucher_image_url_4,
                 coe_payment_voucher_image_url_5,
                 visa_voucher_image_url,
+                low_price_image_url,
                 per_amount,
                 amount,
                 expect_amount,
@@ -113,6 +114,7 @@
                 #{coePaymentVoucherImageUrl4},
                 #{coePaymentVoucherImageUrl5},
                 #{visaVoucherImageUrl},
+                #{lowPriceImageUrl},
                 #{perAmount},
                 #{amount},
                 #{expectAmount},
@@ -280,6 +282,9 @@
         </if>
         <if test='kjPaymentImageUrl2 != null'>
             , kj_payment_image_url2 = #{kjPaymentImageUrl2}
+        </if>
+        <if test='lowPriceImageUrl != null'>
+            , low_price_image_url = #{lowPriceImageUrl}
         </if>
         <if test='perAmount > 0'>
             , per_amount = #{perAmount}
@@ -494,6 +499,7 @@
             so.invoice_voucher_image_url5 AS invoiceVoucherImageUrl5,
             so.kj_payment_image_url1 AS kjPaymentImageUrl1,
             so.kj_payment_image_url2 AS kjPaymentImageUrl2,
+            so.low_price_image_url AS lowPriceImageUrl,
             so.per_amount AS perAmount,
             so.amount AS amount,
             so.expect_amount AS expectAmount,
@@ -667,6 +673,7 @@
             visa_voucher_image_url AS visaVoucherImageUrl,
             kj_payment_image_url1 AS kjPaymentImageUrl1,
             kj_payment_image_url2 AS kjPaymentImageUrl2,
+            low_price_image_url AS lowPriceImageUrl,
             per_amount AS perAmount,
             amount,
             expect_amount AS expectAmount,
@@ -827,6 +834,7 @@
             invoice_voucher_image_url5 AS invoiceVoucherImageUrl5,
             kj_payment_image_url1 AS kjPaymentImageUrl1,
             kj_payment_image_url2 AS kjPaymentImageUrl2,
+            low_price_image_url AS lowPriceImageUrl,
             per_amount AS perAmount,
             amount,
             expect_amount AS expectAmount,
@@ -923,6 +931,7 @@
         so.invoice_voucher_image_url5 AS invoiceVoucherImageUrl5,
         so.kj_payment_image_url1 AS kjPaymentImageUrl1,
         so.kj_payment_image_url2 AS kjPaymentImageUrl2,
+        so.low_price_image_url AS lowPriceImageUrl,
         so.per_amount AS perAmount,
         so.amount AS amount,
         so.expect_amount AS expectAmount,

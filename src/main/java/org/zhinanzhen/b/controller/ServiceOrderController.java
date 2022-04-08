@@ -173,6 +173,14 @@ public class ServiceOrderController extends BaseController {
 		super.setPostHeader(response);
 		return super.upload2(file, request.getSession(), "/uploads/invoice_voucher_image_url/");
 	}
+	
+	@RequestMapping(value = "/upload_low_price_img", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<String> uploadLowPriceImage(@RequestParam MultipartFile file, HttpServletRequest request,
+			HttpServletResponse response) throws IllegalStateException, IOException {
+		super.setPostHeader(response);
+		return super.upload2(file, request.getSession(), "/uploads/low_price_image_url/");
+	}
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
@@ -203,6 +211,7 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
 			@RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
 			@RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
+			@RequestParam(value = "lowPriceImageUrl", required = false) String lowPriceImageUrl,
 			@RequestParam(value = "perAmount", required = false) String perAmount,
 			@RequestParam(value = "amount", required = false) String amount,
 			@RequestParam(value = "expectAmount", required = false) String expectAmount,
@@ -296,6 +305,8 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl5))
 				serviceOrderDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
+			if (StringUtil.isNotEmpty(lowPriceImageUrl))
+				serviceOrderDto.setLowPriceImageUrl(lowPriceImageUrl);
 			if (StringUtil.isNotEmpty(perAmount))
 				serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
 			if (StringUtil.isNotEmpty(amount))
@@ -527,6 +538,7 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "invoiceVoucherImageUrl5" , required = false) String invoiceVoucherImageUrl5,
 			@RequestParam(value = "kjPaymentImageUrl1" ,required = false) String kjPaymentImageUrl1,
 			@RequestParam(value = "kjPaymentImageUrl2" ,required = false) String kjPaymentImageUrl2,
+			@RequestParam(value = "lowPriceImageUrl" ,required = false) String lowPriceImageUrl,
 			@RequestParam(value = "perAmount", required = false) String perAmount,
 			@RequestParam(value = "amount", required = false) String amount,
 			@RequestParam(value = "expectAmount", required = false) String expectAmount,
@@ -562,7 +574,7 @@ public class ServiceOrderController extends BaseController {
 					discount, received, installment, paymentVoucherImageUrl1, paymentVoucherImageUrl2,
 					paymentVoucherImageUrl3, paymentVoucherImageUrl4, paymentVoucherImageUrl5, invoiceVoucherImageUrl1,
 					invoiceVoucherImageUrl2,invoiceVoucherImageUrl3,invoiceVoucherImageUrl4,invoiceVoucherImageUrl5,
-					kjPaymentImageUrl1, kjPaymentImageUrl2,perAmount, amount,
+					kjPaymentImageUrl1, kjPaymentImageUrl2, lowPriceImageUrl, perAmount, amount,
 					expectAmount, gst, deductGst, bonus, userId, maraId, adviserId, officialId, remarks, closedReason,
 					information, isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
 					institutionTradingName);
@@ -579,8 +591,8 @@ public class ServiceOrderController extends BaseController {
 								receiveTypeId, receiveDate, receivable, discount, received, installment,
 								paymentVoucherImageUrl1, paymentVoucherImageUrl2, paymentVoucherImageUrl3,
 								paymentVoucherImageUrl4, paymentVoucherImageUrl5, invoiceVoucherImageUrl1,
-								invoiceVoucherImageUrl2,invoiceVoucherImageUrl3,invoiceVoucherImageUrl4,invoiceVoucherImageUrl5,
-								kjPaymentImageUrl1, kjPaymentImageUrl2, perAmount,
+								invoiceVoucherImageUrl2,invoiceVoucherImageUrl3,invoiceVoucherImageUrl4, invoiceVoucherImageUrl5,
+								kjPaymentImageUrl1, kjPaymentImageUrl2, lowPriceImageUrl, perAmount,
 								amount, expectAmount, gst, deductGst, bonus, userId, maraId, adviserId, officialId,
 								remarks, closedReason, information, isHistory, nutCloud, serviceAssessId, verifyCode,
 								refNo, courseId, schoolInstitutionLocationId, institutionTradingName);
@@ -603,7 +615,7 @@ public class ServiceOrderController extends BaseController {
 										String paymentVoucherImageUrl1, String paymentVoucherImageUrl2, String paymentVoucherImageUrl3,
 										String paymentVoucherImageUrl4, String paymentVoucherImageUrl5, String invoiceVoucherImageUrl1,
 										String invoiceVoucherImageUrl2, String invoiceVoucherImageUrl3, String invoiceVoucherImageUrl4,
-										String invoiceVoucherImageUrl5, String kjPaymentImageUrl1, String kjPaymentImageUrl2, String perAmount,
+										String invoiceVoucherImageUrl5, String kjPaymentImageUrl1, String kjPaymentImageUrl2, String lowPriceImageUrl, String perAmount,
 										String amount, String expectAmount, String gst, String deductGst,
 										String bonus, String userId, String maraId, String adviserId, String officialId,
 										String remarks, String closedReason, String information, String isHistory, String nutCloud,
@@ -677,6 +689,8 @@ public class ServiceOrderController extends BaseController {
 			//	if (StringUtil.isBlank(officialPaymentImageUrl1) || StringUtil.isBlank(officialPaymentImageUrl2))
 			//		return new Response<Integer>(1, "文案需要上传转账凭证!", 0);
 			//}
+			if(StringUtil.isNotEmpty(lowPriceImageUrl))
+				serviceOrderDto.setLowPriceImageUrl(lowPriceImageUrl);
 			if (StringUtil.isNotEmpty(perAmount))
 				serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
 			if (StringUtil.isNotEmpty(amount))
