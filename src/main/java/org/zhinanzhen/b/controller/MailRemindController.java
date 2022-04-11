@@ -61,28 +61,30 @@ public class MailRemindController extends BaseController {
 
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
-    @GetMapping(value = "/list")
-    public Response<List<MailRemindDTO>> list(@RequestParam(value = "isToday",required = false,defaultValue = "false") boolean isToday,
-                                              @RequestParam(value = "serviceOrderId" , required = false)Integer serviceOrderId,
-                                              @RequestParam(value = "visaId" , required = false)Integer visaId,
-                                              @RequestParam(value = "commissionOrderId" , required = false)Integer commissionOrderId,
-                                              @RequestParam(value = "userId" , required = false)Integer userId,
-                                              HttpServletRequest request, HttpServletResponse response){
-        try {
-            super.setGetHeader(response);
-            if (getAdminUserLoginInfo(request) == null)
-                return new Response(1, "先登录");
-            Integer adviserId = getAdviserId(request);
-            Integer offcialId = getOfficialId(request);
-            Integer kjId = getKjId(request);
+	@GetMapping(value = "/list")
+	public Response<List<MailRemindDTO>> list(
+			@RequestParam(value = "isToday", required = false, defaultValue = "false") boolean isToday,
+			@RequestParam(value = "isAll", required = false, defaultValue = "true") boolean isAll,
+			@RequestParam(value = "serviceOrderId", required = false) Integer serviceOrderId,
+			@RequestParam(value = "visaId", required = false) Integer visaId,
+			@RequestParam(value = "commissionOrderId", required = false) Integer commissionOrderId,
+			@RequestParam(value = "userId", required = false) Integer userId, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			if (getAdminUserLoginInfo(request) == null)
+				return new Response(1, "先登录");
+			Integer adviserId = getAdviserId(request);
+			Integer offcialId = getOfficialId(request);
+			Integer kjId = getKjId(request);
 
-            return new Response<List<MailRemindDTO>>(0, "",
-                    mailRemindService.list(adviserId, offcialId, kjId,serviceOrderId, visaId, commissionOrderId,userId,isToday,Boolean.TRUE));
-        } catch (ServiceException e) {
-            e.printStackTrace();
-            return new Response<List<MailRemindDTO>>(e.getCode(), e.getMessage(), null);
-        }
-    }
+			return new Response<List<MailRemindDTO>>(0, "", mailRemindService.list(adviserId, offcialId, kjId,
+					serviceOrderId, visaId, commissionOrderId, userId, isToday, isAll));
+		} catch (ServiceException e) {
+			e.printStackTrace();
+			return new Response<List<MailRemindDTO>>(e.getCode(), e.getMessage(), null);
+		}
+	}
 
     @PostMapping(value = "/add")
     public Response add(@RequestParam(value = "sendDate") String sendDate,
