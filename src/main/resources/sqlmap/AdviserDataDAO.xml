@@ -20,8 +20,8 @@
           so.amount as amount,
           so.expect_amount as expectAmount,
           so.remarks as remarks
-        from b_receive_type rt, b_service s, tb_user u, b_official o, b_service_order so left join b_mara m on so.mara_id=m.id
-        where rt.id=so.receive_type_id and so.service_id=s.id and u.id=so.user_id and so.official_id=o.id and so.adviser_id=#{adviserId};
+        from tb_user u, b_service_order so left join b_mara m on so.mara_id=m.id left join b_official o on so.official_id=o.id left join b_service s on so.service_id=s.id left join b_receive_type rt on so.receive_type_id=rt.id
+        where u.id=so.user_id and so.adviser_id=#{adviserId};
     </select>
     
     <select id="listVisa" resultType="org.zhinanzhen.b.dao.pojo.AdviserVisaDO">
