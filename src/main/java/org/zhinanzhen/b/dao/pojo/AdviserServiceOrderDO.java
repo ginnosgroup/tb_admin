@@ -22,6 +22,8 @@ public class AdviserServiceOrderDO {
 	private String serviceOrderReceiveDate;
 	
 	private String serviceCode;
+	
+	private String institutionTradingName;
 
 	private String serviceOrderState;
 
