@@ -87,12 +87,13 @@ public class AdviserDataController extends BaseController {
 				sheet0.addCell(new Label(6, i, so.getReceiveTypeName(), cellFormat));
 				sheet0.addCell(new Label(7, i, so.getServiceOrderReceiveDate(), cellFormat));
 				sheet0.addCell(new Label(8, i, so.getServiceCode(), cellFormat));
-				sheet0.addCell(new Label(9, i, so.getServiceOrderState(), cellFormat));
-				sheet0.addCell(new Label(10, i, so.getIsSettle(), cellFormat));
-				sheet0.addCell(new Label(11, i, so.getPerAmount(), cellFormat));
-				sheet0.addCell(new Label(12, i, so.getAmount(), cellFormat));
-				sheet0.addCell(new Label(13, i, so.getExpectAmount(), cellFormat));
-				sheet0.addCell(new Label(14, i, so.getRemarks(), cellFormat));
+				sheet0.addCell(new Label(9, i, so.getInstitutionTradingName(), cellFormat));
+				sheet0.addCell(new Label(10, i, so.getServiceOrderState(), cellFormat));
+				sheet0.addCell(new Label(11, i, so.getIsSettle(), cellFormat));
+				sheet0.addCell(new Label(12, i, so.getPerAmount(), cellFormat));
+				sheet0.addCell(new Label(13, i, so.getAmount(), cellFormat));
+				sheet0.addCell(new Label(14, i, so.getExpectAmount(), cellFormat));
+				sheet0.addCell(new Label(15, i, so.getRemarks(), cellFormat));
 				i++;
 			}
 			WritableSheet sheet1 = wbe.getSheet(1);
