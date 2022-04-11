@@ -8,11 +8,14 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.ServiceDAO;
 import org.zhinanzhen.b.dao.ServicePackageDAO;
+import org.zhinanzhen.b.dao.ServicePackagePriceDAO;
 import org.zhinanzhen.b.dao.pojo.ServiceDO;
 import org.zhinanzhen.b.dao.pojo.ServicePackageDO;
 import org.zhinanzhen.b.dao.pojo.ServicePackageListDO;
+import org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO;
 import org.zhinanzhen.b.service.ServicePackageService;
 import org.zhinanzhen.b.service.pojo.ServicePackageDTO;
+import org.zhinanzhen.b.service.pojo.ServicePackagePriceDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
@@ -26,6 +29,9 @@ public class ServicePackageServiceImpl extends BaseService implements ServicePac
 
 	@Resource
 	private ServicePackageDAO servicePackageDao;
+	
+	@Resource
+	private ServicePackagePriceDAO servicePackagePriceDao;
 
 	@Override
 	public int add(ServicePackageDTO servicePackageDto) throws ServiceException {
@@ -103,6 +109,15 @@ public class ServicePackageServiceImpl extends BaseService implements ServicePac
 			ServiceDO serviceDo = serviceDao.getServiceById(servicePackageDto.getServiceId());
 			if (serviceDo != null)
 				servicePackageDto.setServiceCode(serviceDo.getCode());
+			List<ServicePackagePriceDO> servicePackagePriceList = servicePackagePriceDao.list(servicePackageDto.getId(),
+					0, 0, 999);
+			if (servicePackagePriceList != null) {
+				List<ServicePackagePriceDTO> servicePackagePriceDtoList = new ArrayList<>();
+				servicePackagePriceList.forEach(servicePackagePriceDo -> {
+					servicePackagePriceDtoList.add(mapper.map(servicePackagePriceDo, ServicePackagePriceDTO.class));
+				});
+				servicePackageDto.setServicePackagePirceList(servicePackagePriceDtoList);
+			}
 			servicePackageDtoList.add(servicePackageDto);
 		}
 		return servicePackageDtoList;
@@ -121,6 +136,15 @@ public class ServicePackageServiceImpl extends BaseService implements ServicePac
 			if (servicePackageDo == null)
 				return null;
 			servicePackageDto = mapper.map(servicePackageDo, ServicePackageDTO.class);
+			List<ServicePackagePriceDO> servicePackagePriceList = servicePackagePriceDao.list(servicePackageDto.getId(),
+					0, 0, 999);
+			if (servicePackagePriceList != null) {
+				List<ServicePackagePriceDTO> servicePackagePriceDtoList = new ArrayList<>();
+				servicePackagePriceList.forEach(servicePackagePriceDo -> {
+					servicePackagePriceDtoList.add(mapper.map(servicePackagePriceDo, ServicePackagePriceDTO.class));
+				});
+				servicePackageDto.setServicePackagePirceList(servicePackagePriceDtoList);
+			}
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
