@@ -90,7 +90,7 @@ public class ServicePackagePriceController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			if (servicePackageService.getById(servicePackageId) == null)
+			if (servicePackageId > 0 && servicePackageService.getById(servicePackageId) == null)
 				return new Response<String>(1, "服务包不存在(" + servicePackageId + ")!", null);
 			String[] regionIds = regionId.split(",");
 			String msg = "";
