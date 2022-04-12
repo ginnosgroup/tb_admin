@@ -36,7 +36,7 @@
         WHERE id = #{id};
     </update>
     
-    <select id="count" resultType="org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO">
+    <select id="count" resultType="java.lang.Integer">
         SELECT count(*)
         FROM b_service_package_price WHERE service_package_id = #{servicePackageId, jdbcType=INTEGER}
         <if test='regionId != null and regionId > 0'>
