@@ -61,12 +61,23 @@ public class ServicePackagePriceController extends BaseController {
 			for (String regionIdStr : regionIds) {
 				if (StringUtil.isEmpty(regionIdStr))
 					continue;
-				List<ServicePackagePriceDTO> list = servicePackagePriceService.listServicePackagePrice(servicePackageId,
-						serviceId, Integer.parseInt(regionIdStr.trim()), 0, 1);
-				if (list != null && list.size() > 0) {
-					msg += "(地区ID:" + regionId + ",服务包ID:" + servicePackageId + ")已存在!; ";
-					isFail = true;
-					continue;
+				if (servicePackageId != null && servicePackageId > 0) {
+					List<ServicePackagePriceDTO> list = servicePackagePriceService
+							.listServicePackagePrice(servicePackageId, 0, Integer.parseInt(regionIdStr.trim()), 0, 1);
+					if (list != null && list.size() > 0) {
+						msg += "(地区ID:" + regionId + ",服务包ID:" + servicePackageId + ")已存在!; ";
+						isFail = true;
+						continue;
+					}
+				}
+				if (serviceId != null && serviceId > 0) {
+					List<ServicePackagePriceDTO> list = servicePackagePriceService.listServicePackagePrice(0, serviceId,
+							Integer.parseInt(regionIdStr.trim()), 0, 1);
+					if (list != null && list.size() > 0) {
+						msg += "(地区ID:" + regionId + ",服务项目ID:" + serviceId + ")已存在!; ";
+						isFail = true;
+						continue;
+					}
 				}
 				ServicePackagePriceDTO servicePackagePriceDto = new ServicePackagePriceDTO();
 				servicePackagePriceDto.setMinPrice(minPrice);
@@ -77,10 +88,10 @@ public class ServicePackagePriceController extends BaseController {
 					servicePackagePriceDto.setServiceId(serviceId);
 				servicePackagePriceDto.setRegionId(Integer.parseInt(regionIdStr.trim()));
 				if (servicePackagePriceService.addServicePackagePrice(servicePackagePriceDto) > 0) {
-					msg += "(地区ID:" + regionId + ",服务包ID:" + servicePackageId + ")创建成功!; ";
+					msg += "(地区ID:" + regionId + ")创建成功!; ";
 					ids += servicePackagePriceDto.getId() + ",";
 				} else {
-					msg += "(地区ID:" + regionId + ",服务包ID:" + servicePackageId + ")创建失败!; ";
+					msg += "(地区ID:" + regionId + ")创建失败!; ";
 					isFail = true;
 				}
 			}
@@ -127,10 +138,10 @@ public class ServicePackagePriceController extends BaseController {
 				if (StringUtil.isNotEmpty(regionIdStr))
 					servicePackagePriceDto.setRegionId(Integer.parseInt(regionIdStr.trim()));
 				if (servicePackagePriceService.updateServicePackagePrice(servicePackagePriceDto) > 0) {
-					msg += "(地区ID:" + regionId + ",服务包ID:" + servicePackageId + ")修改成功!; ";
+					msg += "(地区ID:" + regionId + ")修改成功!; ";
 					ids += servicePackagePriceDto.getId() + ",";
 				} else {
-					msg += "(地区ID:" + regionId + ",服务包ID:" + servicePackageId + ")修改失败!; ";
+					msg += "(地区ID:" + regionId + ")修改失败!; ";
 					isFail = true;
 				}
 			}
