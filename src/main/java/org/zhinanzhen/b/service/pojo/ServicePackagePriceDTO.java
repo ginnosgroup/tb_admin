@@ -12,6 +12,8 @@ public class ServicePackagePriceDTO {
 	private double maxPrice;
 
 	private Integer servicePackageId;
+	
+	private Integer serviceId;
 
 	private int regionId;
 	

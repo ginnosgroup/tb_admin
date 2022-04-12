@@ -355,7 +355,8 @@ CREATE TABLE `b_service_package_price` (
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
   `min_price` decimal(8,2) NOT NULL DEFAULT '0.00' COMMENT '最低价格',
   `max_price` decimal(8,2) NOT NULL DEFAULT '0.00' COMMENT '最高价格',
-  `service_package_id` int NOT NULL COMMENT '服务包编号 (对应b_service_package.id)',
+  `service_package_id` int DEFAULT NULL COMMENT '服务包编号 (对应b_service_package.id)',
+  `service_id` int DEFAULT NULL COMMENT '服务项目编号 (对应b_service.id)',
   `region_id` int DEFAULT NULL COMMENT '所属区域编号 (对应tb_region.id)'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 

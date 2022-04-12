@@ -110,7 +110,7 @@ public class ServicePackageServiceImpl extends BaseService implements ServicePac
 			if (serviceDo != null)
 				servicePackageDto.setServiceCode(serviceDo.getCode());
 			List<ServicePackagePriceDO> servicePackagePriceList = servicePackagePriceDao.list(servicePackageDto.getId(),
-					0, 0, 999);
+					0, 0, 0, 999);
 			if (servicePackagePriceList != null) {
 				List<ServicePackagePriceDTO> servicePackagePriceDtoList = new ArrayList<>();
 				servicePackagePriceList.forEach(servicePackagePriceDo -> {
@@ -137,7 +137,7 @@ public class ServicePackageServiceImpl extends BaseService implements ServicePac
 				return null;
 			servicePackageDto = mapper.map(servicePackageDo, ServicePackageDTO.class);
 			List<ServicePackagePriceDO> servicePackagePriceList = servicePackagePriceDao.list(servicePackageDto.getId(),
-					0, 0, 999);
+					0, 0, 0, 999);
 			if (servicePackagePriceList != null) {
 				List<ServicePackagePriceDTO> servicePackagePriceDtoList = new ArrayList<>();
 				servicePackagePriceList.forEach(servicePackagePriceDo -> {

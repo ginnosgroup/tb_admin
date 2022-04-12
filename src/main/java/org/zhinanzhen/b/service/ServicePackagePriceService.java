@@ -11,10 +11,10 @@ public interface ServicePackagePriceService {
 
 	int updateServicePackagePrice(ServicePackagePriceDTO servicePackagePriceDto) throws ServiceException;
 
-	int countServicePackagePrice(int servicePackageId, int regionId) throws ServiceException;
+	int countServicePackagePrice(int servicePackageId, int serviceId, int regionId) throws ServiceException;
 
-	List<ServicePackagePriceDTO> listServicePackagePrice(int servicePackageId, int regionId, int pageNum, int pageSize)
-			throws ServiceException;
+	List<ServicePackagePriceDTO> listServicePackagePrice(int servicePackageId, int serviceId, int regionId, int pageNum,
+			int pageSize) throws ServiceException;
 
 	ServicePackagePriceDTO getServicePackagePriceById(int id) throws ServiceException;
 

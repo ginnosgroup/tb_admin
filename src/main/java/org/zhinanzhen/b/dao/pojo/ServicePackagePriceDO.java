@@ -16,6 +16,8 @@ public class ServicePackagePriceDO implements Serializable {
 	private double maxPrice;
 
 	private Integer servicePackageId;
+	
+	private Integer serviceId;
 
 	private int regionId;
 

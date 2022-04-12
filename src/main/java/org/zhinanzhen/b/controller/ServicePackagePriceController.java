@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.zhinanzhen.b.service.ServicePackagePriceService;
 import org.zhinanzhen.b.service.ServicePackageService;
+import org.zhinanzhen.b.service.ServiceService;
 import org.zhinanzhen.b.service.pojo.ServicePackagePriceDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.ListResponse;
@@ -31,19 +32,26 @@ public class ServicePackagePriceController extends BaseController {
 	ServicePackageService servicePackageService;
 
 	@Resource
+	ServiceService serviceService;
+
+	@Resource
 	ServicePackagePriceService servicePackagePriceService;
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<String> add(@RequestParam(value = "minPrice") Double minPrice,
 			@RequestParam(value = "maxPrice") Double maxPrice,
-			@RequestParam(value = "servicePackageId") int servicePackageId,
+			@RequestParam(value = "servicePackageId", required = false) Integer servicePackageId,
+			@RequestParam(value = "serviceId", required = false) Integer serviceId,
 			@RequestParam(value = "regionId") String regionId, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			if (servicePackageService.getById(servicePackageId) == null)
+			if (servicePackageId != null && servicePackageId > 0
+					&& servicePackageService.getById(servicePackageId) == null)
 				return new Response<String>(1, "服务包不存在(" + servicePackageId + ")!", null);
+			if (serviceId != null && serviceId > 0 && serviceService.getServiceById(serviceId) == null)
+				return new Response<String>(1, "服务项目不存在(" + serviceId + ")!", null);
 			String[] regionIds = regionId.split(",");
 			String msg = "";
 			String ids = "";
@@ -52,7 +60,7 @@ public class ServicePackagePriceController extends BaseController {
 				if (StringUtil.isEmpty(regionIdStr))
 					continue;
 				List<ServicePackagePriceDTO> list = servicePackagePriceService.listServicePackagePrice(servicePackageId,
-						Integer.parseInt(regionIdStr.trim()), 0, 1);
+						serviceId, Integer.parseInt(regionIdStr.trim()), 0, 1);
 				if (list != null && list.size() > 0) {
 					msg += "(地区ID:" + regionId + ",服务包ID:" + servicePackageId + ")已存在!; ";
 					isFail = true;
@@ -61,7 +69,10 @@ public class ServicePackagePriceController extends BaseController {
 				ServicePackagePriceDTO servicePackagePriceDto = new ServicePackagePriceDTO();
 				servicePackagePriceDto.setMinPrice(minPrice);
 				servicePackagePriceDto.setMaxPrice(maxPrice);
-				servicePackagePriceDto.setServicePackageId(servicePackageId);
+				if (servicePackageId != null && servicePackageId > 0)
+					servicePackagePriceDto.setServicePackageId(servicePackageId);
+				if (serviceId != null && serviceId > 0)
+					servicePackagePriceDto.setServiceId(serviceId);
 				servicePackagePriceDto.setRegionId(Integer.parseInt(regionIdStr.trim()));
 				if (servicePackagePriceService.addServicePackagePrice(servicePackagePriceDto) > 0) {
 					msg += "(地区ID:" + regionId + ",服务包ID:" + servicePackageId + ")创建成功!; ";
@@ -79,19 +90,23 @@ public class ServicePackagePriceController extends BaseController {
 			return new Response<String>(e.getCode(), e.getMessage(), null);
 		}
 	}
-	
+
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<String> update(@RequestParam(value = "id") int id,
 			@RequestParam(value = "minPrice", required = false) Double minPrice,
 			@RequestParam(value = "maxPrice", required = false) Double maxPrice,
 			@RequestParam(value = "servicePackageId", required = false) Integer servicePackageId,
+			@RequestParam(value = "serviceId", required = false) Integer serviceId,
 			@RequestParam(value = "regionId", required = false) String regionId, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			if (servicePackageId != null && servicePackageId > 0 && servicePackageService.getById(servicePackageId) == null)
+			if (servicePackageId != null && servicePackageId > 0
+					&& servicePackageService.getById(servicePackageId) == null)
 				return new Response<String>(1, "服务包不存在(" + servicePackageId + ")!", null);
+			if (serviceId != null && serviceId > 0 && serviceService.getServiceById(serviceId) == null)
+				return new Response<String>(1, "服务项目不存在(" + serviceId + ")!", null);
 			String[] regionIds = regionId.split(",");
 			String msg = "";
 			String ids = "";
@@ -105,6 +120,8 @@ public class ServicePackagePriceController extends BaseController {
 					servicePackagePriceDto.setMaxPrice(maxPrice);
 				if (servicePackageId != null && servicePackageId > 0)
 					servicePackagePriceDto.setServicePackageId(servicePackageId);
+				if (serviceId != null && serviceId > 0)
+					servicePackagePriceDto.setServiceId(serviceId);
 				if (StringUtil.isNotEmpty(regionIdStr))
 					servicePackagePriceDto.setRegionId(Integer.parseInt(regionIdStr.trim()));
 				if (servicePackagePriceService.updateServicePackagePrice(servicePackagePriceDto) > 0) {
@@ -128,13 +145,16 @@ public class ServicePackagePriceController extends BaseController {
 	@ResponseBody
 	public ListResponse<List<ServicePackagePriceDTO>> list(
 			@RequestParam(value = "servicePackageId", required = false) Integer servicePackageId,
+			@RequestParam(value = "serviceId", required = false) Integer serviceId,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
 			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
 			return new ListResponse<List<ServicePackagePriceDTO>>(true, pageSize,
-					servicePackagePriceService.countServicePackagePrice(servicePackageId, 0),
-					servicePackagePriceService.listServicePackagePrice(servicePackageId, 0, pageNum, pageSize), "");
+					servicePackagePriceService.countServicePackagePrice(servicePackageId, serviceId, 0),
+					servicePackagePriceService.listServicePackagePrice(servicePackageId, serviceId, 0, pageNum,
+							pageSize),
+					"");
 		} catch (ServiceException e) {
 			return new ListResponse<List<ServicePackagePriceDTO>>(false, pageSize, 0, null, e.getMessage());
 		}
