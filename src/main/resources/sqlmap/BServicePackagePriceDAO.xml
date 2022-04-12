@@ -30,6 +30,9 @@
         <if test='maxPrice != null and maxPrice > 0'>
             , max_price = #{maxPrice}
         </if>
+        <if test='servicePackageId != null and servicePackageId > 0'>
+            , service_package_id = #{servicePackageId}
+        </if>
         <if test='regionId != null and regionId > 0'>
             , region_id = #{regionId}
         </if>

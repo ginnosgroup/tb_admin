@@ -85,12 +85,12 @@ public class ServicePackagePriceController extends BaseController {
 	public Response<String> update(@RequestParam(value = "id") int id,
 			@RequestParam(value = "minPrice", required = false) Double minPrice,
 			@RequestParam(value = "maxPrice", required = false) Double maxPrice,
-			@RequestParam(value = "servicePackageId", required = false) int servicePackageId,
+			@RequestParam(value = "servicePackageId", required = false) Integer servicePackageId,
 			@RequestParam(value = "regionId", required = false) String regionId, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			if (servicePackageId > 0 && servicePackageService.getById(servicePackageId) == null)
+			if (servicePackageId != null && servicePackageId > 0 && servicePackageService.getById(servicePackageId) == null)
 				return new Response<String>(1, "服务包不存在(" + servicePackageId + ")!", null);
 			String[] regionIds = regionId.split(",");
 			String msg = "";
@@ -103,7 +103,7 @@ public class ServicePackagePriceController extends BaseController {
 					servicePackagePriceDto.setMinPrice(minPrice);
 				if (maxPrice != null)
 					servicePackagePriceDto.setMaxPrice(maxPrice);
-				if (servicePackageId > 0)
+				if (servicePackageId != null && servicePackageId > 0)
 					servicePackagePriceDto.setServicePackageId(servicePackageId);
 				if (StringUtil.isNotEmpty(regionIdStr))
 					servicePackagePriceDto.setRegionId(Integer.parseInt(regionIdStr.trim()));
