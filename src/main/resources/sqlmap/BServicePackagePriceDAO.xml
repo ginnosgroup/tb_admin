@@ -72,7 +72,7 @@
             spp.service_package_id AS servicePackageId,
             spp.region_id AS regionId,
             r.name AS regionName
-        FROM b_service_package_price spp left join tb_region r on spp.region_id=r.id WHERE id = #{id, jdbcType=INTEGER};
+        FROM b_service_package_price spp left join tb_region r on spp.region_id=r.id WHERE spp.id = #{id, jdbcType=INTEGER};
     </select>
     
     <select id="delete" parameterType="java.lang.Integer">
