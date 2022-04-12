@@ -57,7 +57,7 @@
         <if test='regionId != null and regionId > 0'>
             AND spp.region_id = #{regionId}
         </if>
-        ORDER BY gmt_create ASC
+        ORDER BY spp.gmt_create ASC
         LIMIT #{offset}, #{rows};
     </select>
     

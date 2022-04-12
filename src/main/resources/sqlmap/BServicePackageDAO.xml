@@ -49,6 +49,7 @@
     <select id="list" resultType="org.zhinanzhen.b.dao.pojo.ServicePackageListDO">
         SELECT
             sp.id,
+            sp.gmt_create AS GmtCreate,
             sp.type AS type,
             sp.service_id AS serviceId,
             s.name AS serviceName,
@@ -65,6 +66,7 @@
     <select id="getById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.ServicePackageDO">
         SELECT
             id,
+            gmt_create AS GmtCreate,
             type,
             service_id AS serviceId,
             num
