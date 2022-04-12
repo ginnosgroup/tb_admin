@@ -14,5 +14,7 @@ public class ServicePackagePriceDTO {
 	private int servicePackageId;
 
 	private int regionId;
+	
+	private String regionName;
 
 }

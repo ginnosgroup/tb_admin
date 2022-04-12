@@ -47,14 +47,15 @@
     
     <select id="list" resultType="org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO">
         SELECT
-            id,
-            min_price AS minPrice,
-            max_price AS maxPrice,
-            service_package_id AS servicePackageId,
-            region_id AS regionId
-        FROM b_service_package_price WHERE service_package_id = #{servicePackageId, jdbcType=INTEGER}
+            spp.id AS id,
+            spp.min_price AS minPrice,
+            spp.max_price AS maxPrice,
+            spp.service_package_id AS servicePackageId,
+            spp.region_id AS regionId,
+            r.name AS regionName
+        FROM b_service_package_price spp left join tb_region r on spp.region_id=r.id WHERE spp.service_package_id = #{servicePackageId, jdbcType=INTEGER}
         <if test='regionId != null and regionId > 0'>
-            AND region_id = #{regionId}
+            AND spp.region_id = #{regionId}
         </if>
         ORDER BY gmt_create ASC
         LIMIT #{offset}, #{rows};
@@ -62,12 +63,13 @@
     
     <select id="getById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO">
         SELECT
-            id,
-            min_price AS minPrice,
-            max_price AS maxPrice,
-            service_package_id AS servicePackageId,
-            region_id AS regionId
-        FROM b_service_package_price WHERE id = #{id, jdbcType=INTEGER};
+            spp.id,
+            spp.min_price AS minPrice,
+            spp.max_price AS maxPrice,
+            spp.service_package_id AS servicePackageId,
+            spp.region_id AS regionId,
+            r.name AS regionName
+        FROM b_service_package_price spp left join tb_region r on spp.region_id=r.id WHERE id = #{id, jdbcType=INTEGER};
     </select>
     
     <select id="delete" parameterType="java.lang.Integer">

@@ -20,6 +20,8 @@ import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 
+import com.ikasoa.core.utils.StringUtil;
+
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/servicePackagePrice")
@@ -33,63 +35,92 @@ public class ServicePackagePriceController extends BaseController {
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<Integer> add(@RequestParam(value = "minPrice") Double minPrice,
+	public Response<String> add(@RequestParam(value = "minPrice") Double minPrice,
 			@RequestParam(value = "maxPrice") Double maxPrice,
 			@RequestParam(value = "servicePackageId") int servicePackageId,
-			@RequestParam(value = "regionId") int regionId, HttpServletRequest request, HttpServletResponse response) {
+			@RequestParam(value = "regionId") String regionId, HttpServletRequest request,
+			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			if (servicePackageService.getById(servicePackageId) == null)
-				return new Response<Integer>(1, "服务包不存在(" + servicePackageId + ")!", 0);
-			List<ServicePackagePriceDTO> list = servicePackagePriceService.listServicePackagePrice(servicePackageId,
-					regionId, 0, 1);
-			if (list != null && list.size() > 0)
-				return new Response<Integer>(1, "服务包价格已存在!", 0);
-			ServicePackagePriceDTO servicePackagePriceDto = new ServicePackagePriceDTO();
-			servicePackagePriceDto.setMinPrice(minPrice);
-			servicePackagePriceDto.setMaxPrice(maxPrice);
-			servicePackagePriceDto.setServicePackageId(servicePackageId);
-			servicePackagePriceDto.setRegionId(regionId);
-			if (servicePackagePriceService.addServicePackagePrice(servicePackagePriceDto) > 0)
-				return new Response<Integer>(0, servicePackagePriceDto.getId());
+				return new Response<String>(1, "服务包不存在(" + servicePackageId + ")!", null);
+			String[] regionIds = regionId.split(",");
+			String msg = "";
+			String ids = "";
+			boolean isFail = false;
+			for (String regionIdStr : regionIds) {
+				if (StringUtil.isEmpty(regionIdStr))
+					continue;
+				List<ServicePackagePriceDTO> list = servicePackagePriceService.listServicePackagePrice(servicePackageId,
+						Integer.parseInt(regionIdStr.trim()), 0, 1);
+				if (list != null && list.size() > 0) {
+					msg += "(地区ID:" + regionId + ",服务包ID:" + servicePackageId + ")已存在!; ";
+					isFail = true;
+					continue;
+				}
+				ServicePackagePriceDTO servicePackagePriceDto = new ServicePackagePriceDTO();
+				servicePackagePriceDto.setMinPrice(minPrice);
+				servicePackagePriceDto.setMaxPrice(maxPrice);
+				servicePackagePriceDto.setServicePackageId(servicePackageId);
+				servicePackagePriceDto.setRegionId(Integer.parseInt(regionIdStr.trim()));
+				if (servicePackagePriceService.addServicePackagePrice(servicePackagePriceDto) > 0) {
+					msg += "(地区ID:" + regionId + ",服务包ID:" + servicePackageId + ")创建成功!; ";
+					ids += servicePackagePriceDto.getId() + ",";
+				} else {
+					msg += "(地区ID:" + regionId + ",服务包ID:" + servicePackageId + ")创建失败!; ";
+					isFail = true;
+				}
+			}
+			if (isFail)
+				return new Response<String>(1, "[服务包价格创建失败] " + msg, null);
 			else
-				return new Response<Integer>(1, "创建失败.", 0);
+				return new Response<String>(0, "[服务包价格创建成功] " + msg, ids);
 		} catch (ServiceException e) {
-			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
+			return new Response<String>(e.getCode(), e.getMessage(), null);
 		}
 	}
 	
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<Integer> update(@RequestParam(value = "id") int id,
+	public Response<String> update(@RequestParam(value = "id") int id,
 			@RequestParam(value = "minPrice", required = false) Double minPrice,
 			@RequestParam(value = "maxPrice", required = false) Double maxPrice,
 			@RequestParam(value = "servicePackageId", required = false) int servicePackageId,
-			@RequestParam(value = "regionId", required = false) int regionId, HttpServletRequest request,
+			@RequestParam(value = "regionId", required = false) String regionId, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			if (servicePackageService.getById(servicePackageId) == null)
-				return new Response<Integer>(1, "服务包不存在(" + servicePackageId + ")!", 0);
-			List<ServicePackagePriceDTO> list = servicePackagePriceService.listServicePackagePrice(servicePackageId,
-					regionId, 0, 1);
-			if (list != null && list.size() > 0)
-				return new Response<Integer>(1, "服务包价格已存在!", 0);
-			ServicePackagePriceDTO servicePackagePriceDto = servicePackagePriceService.getServicePackagePriceById(id);
-			if (minPrice != null)
-				servicePackagePriceDto.setMinPrice(minPrice);
-			if (maxPrice != null)
-				servicePackagePriceDto.setMaxPrice(maxPrice);
-			if (servicePackageId > 0)
-				servicePackagePriceDto.setServicePackageId(servicePackageId);
-			if (regionId > 0)
-				servicePackagePriceDto.setRegionId(regionId);
-			if (servicePackagePriceService.updateServicePackagePrice(servicePackagePriceDto) > 0)
-				return new Response<Integer>(0, servicePackagePriceDto.getId());
+				return new Response<String>(1, "服务包不存在(" + servicePackageId + ")!", null);
+			String[] regionIds = regionId.split(",");
+			String msg = "";
+			String ids = "";
+			boolean isFail = false;
+			for (String regionIdStr : regionIds) {
+				ServicePackagePriceDTO servicePackagePriceDto = servicePackagePriceService
+						.getServicePackagePriceById(id);
+				if (minPrice != null)
+					servicePackagePriceDto.setMinPrice(minPrice);
+				if (maxPrice != null)
+					servicePackagePriceDto.setMaxPrice(maxPrice);
+				if (servicePackageId > 0)
+					servicePackagePriceDto.setServicePackageId(servicePackageId);
+				if (StringUtil.isNotEmpty(regionIdStr))
+					servicePackagePriceDto.setRegionId(Integer.parseInt(regionIdStr.trim()));
+				if (servicePackagePriceService.updateServicePackagePrice(servicePackagePriceDto) > 0) {
+					msg += "(地区ID:" + regionId + ",服务包ID:" + servicePackageId + ")修改成功!; ";
+					ids += servicePackagePriceDto.getId() + ",";
+				} else {
+					msg += "(地区ID:" + regionId + ",服务包ID:" + servicePackageId + ")修改失败!; ";
+					isFail = true;
+				}
+			}
+			if (isFail)
+				return new Response<String>(1, "[服务包价格修改失败] " + msg, null);
 			else
-				return new Response<Integer>(1, "修改失败.", 0);
+				return new Response<String>(0, "[服务包价格修改成功] " + msg, ids);
 		} catch (ServiceException e) {
-			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
+			return new Response<String>(e.getCode(), e.getMessage(), null);
 		}
 	}
 
