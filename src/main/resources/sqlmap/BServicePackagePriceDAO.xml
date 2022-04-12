@@ -53,7 +53,6 @@
             spp.id AS id,
             spp.min_price AS minPrice,
             spp.max_price AS maxPrice,
-            spp.service_package_id AS servicePackageId,
             spp.service_id AS serviceId,
             spp.region_id AS regionId,
             r.name AS regionName
