@@ -47,6 +47,8 @@ public class ServicePackagePriceController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
+			if ((servicePackageId == null || servicePackageId <= 0) && (serviceId == null || serviceId <= 0))
+				return new Response<String>(1, "服务项目和服务包至少要传一个编号!", null);
 			if (servicePackageId != null && servicePackageId > 0
 					&& servicePackageService.getById(servicePackageId) == null)
 				return new Response<String>(1, "服务包不存在(" + servicePackageId + ")!", null);
@@ -150,6 +152,8 @@ public class ServicePackagePriceController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
+			if ((servicePackageId == null || servicePackageId <= 0) && (serviceId == null || serviceId <= 0))
+				return new ListResponse<List<ServicePackagePriceDTO>>(false, pageSize, 0, null, "服务项目和服务包至少要传一个编号!");
 			return new ListResponse<List<ServicePackagePriceDTO>>(true, pageSize,
 					servicePackagePriceService.countServicePackagePrice(servicePackageId, serviceId, 0),
 					servicePackagePriceService.listServicePackagePrice(servicePackageId, serviceId, 0, pageNum,
