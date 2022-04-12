@@ -10,7 +10,6 @@
                 gmt_modify,
                 min_price,
                 max_price,
-                service_package_id,
                 service_id,
                 region_id)
             VALUES (
@@ -18,7 +17,6 @@
                 now(),
                 #{minPrice},
                 #{maxPrice},
-                #{servicePackageId},
                 #{serviceId},
                 #{regionId});
     </insert>
@@ -32,9 +30,6 @@
         <if test='maxPrice != null and maxPrice > 0'>
             , max_price = #{maxPrice}
         </if>
-        <if test='servicePackageId != null and servicePackageId > 0'>
-            , service_package_id = #{servicePackageId}
-        </if>
         <if test='serviceId != null and serviceId > 0'>
             , service_id = #{serviceId}
         </if>
@@ -46,7 +41,7 @@
     
     <select id="count" resultType="java.lang.Integer">
         SELECT count(*)
-        FROM b_service_package_price WHERE service_package_id = #{servicePackageId, jdbcType=INTEGER}
+        FROM b_service_package_price WHERE service_id = #{serviceId, jdbcType=INTEGER}
         <if test='regionId != null and regionId > 0'>
             AND region_id = #{regionId}
         </if>
@@ -63,13 +58,7 @@
             spp.region_id AS regionId,
             r.name AS regionName
         FROM b_service_package_price spp left join tb_region r on spp.region_id=r.id
-        WHERE 1=1
-        <if test='servicePackageId != null and servicePackageId > 0'>
-            AND spp.service_package_id = #{servicePackageId, jdbcType=INTEGER}
-        </if>
-        <if test='serviceId != null and serviceId > 0'>
-            AND spp.service_id = #{serviceId, jdbcType=INTEGER}
-        </if>
+        WHERE spp.service_id = #{serviceId, jdbcType=INTEGER}
         <if test='regionId != null and regionId > 0'>
             AND spp.region_id = #{regionId}
         </if>
@@ -82,7 +71,6 @@
             spp.id,
             spp.min_price AS minPrice,
             spp.max_price AS maxPrice,
-            spp.service_package_id AS servicePackageId,
             spp.service_id AS serviceId,
             spp.region_id AS regionId,
             r.name AS regionName

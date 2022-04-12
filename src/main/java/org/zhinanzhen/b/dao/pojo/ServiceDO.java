@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.dao.pojo;
 
 import java.io.Serializable;
+import java.util.List;
 
 import lombok.Data;
 
@@ -18,4 +19,6 @@ public class ServiceDO implements Serializable {
 	private String role;
 
 	private boolean isZx;
+	
+	private List<ServicePackagePriceDO> ServicePackagePirceList;
 }

@@ -57,24 +57,24 @@ public class ServicePackagePriceServiceImpl extends BaseService implements Servi
 			throw se;
 		}
 		return servicePackagePriceDao.update(servicePackagePriceDto.getId(), servicePackagePriceDto.getMinPrice(),
-				servicePackagePriceDto.getMaxPrice(), servicePackagePriceDto.getServicePackageId(),
-				servicePackagePriceDto.getServiceId(), servicePackagePriceDto.getRegionId()) > 0
+				servicePackagePriceDto.getMaxPrice(), servicePackagePriceDto.getServiceId(),
+				servicePackagePriceDto.getRegionId()) > 0
 						? servicePackagePriceDto.getId()
 						: 0;
 	}
 
 	@Override
-	public int countServicePackagePrice(int servicePackageId, int serviceId, int regionId) throws ServiceException {
-		return servicePackagePriceDao.count(servicePackageId, serviceId, regionId);
+	public int countServicePackagePrice(int serviceId, int regionId) throws ServiceException {
+		return servicePackagePriceDao.count(serviceId, regionId);
 	}
 
 	@Override
-	public List<ServicePackagePriceDTO> listServicePackagePrice(int servicePackageId, int serviceId, int regionId,
+	public List<ServicePackagePriceDTO> listServicePackagePrice(int serviceId, int regionId,
 			int pageNum, int pageSize) throws ServiceException {
 		List<ServicePackagePriceDTO> servicePackagePriceDtoList = new ArrayList<>();
 		List<ServicePackagePriceDO> servicePackagePriceDoList = new ArrayList<>();
 		try {
-			servicePackagePriceDoList = servicePackagePriceDao.list(servicePackageId, serviceId, regionId,
+			servicePackagePriceDoList = servicePackagePriceDao.list(serviceId, regionId,
 					pageNum * pageSize, pageSize);
 			if (servicePackagePriceDoList == null)
 				return null;

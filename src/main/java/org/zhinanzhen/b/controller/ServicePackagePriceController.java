@@ -41,17 +41,11 @@ public class ServicePackagePriceController extends BaseController {
 	@ResponseBody
 	public Response<String> add(@RequestParam(value = "minPrice") Double minPrice,
 			@RequestParam(value = "maxPrice") Double maxPrice,
-			@RequestParam(value = "servicePackageId", required = false) Integer servicePackageId,
-			@RequestParam(value = "serviceId", required = false) Integer serviceId,
+			@RequestParam(value = "serviceId") Integer serviceId,
 			@RequestParam(value = "regionId") String regionId, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			if ((servicePackageId == null || servicePackageId <= 0) && (serviceId == null || serviceId <= 0))
-				return new Response<String>(1, "服务项目和服务包至少要传一个编号!", null);
-			if (servicePackageId != null && servicePackageId > 0
-					&& servicePackageService.getById(servicePackageId) == null)
-				return new Response<String>(1, "服务包不存在(" + servicePackageId + ")!", null);
 			if (serviceId != null && serviceId > 0 && serviceService.getServiceById(serviceId) == null)
 				return new Response<String>(1, "服务项目不存在(" + serviceId + ")!", null);
 			String[] regionIds = regionId.split(",");
@@ -61,31 +55,17 @@ public class ServicePackagePriceController extends BaseController {
 			for (String regionIdStr : regionIds) {
 				if (StringUtil.isEmpty(regionIdStr))
 					continue;
-				if (servicePackageId != null && servicePackageId > 0) {
-					List<ServicePackagePriceDTO> list = servicePackagePriceService
-							.listServicePackagePrice(servicePackageId, 0, Integer.parseInt(regionIdStr.trim()), 0, 1);
-					if (list != null && list.size() > 0) {
-						msg += "(地区ID:" + regionId + ",服务包ID:" + servicePackageId + ")已存在!; ";
-						isFail = true;
-						continue;
-					}
-				}
-				if (serviceId != null && serviceId > 0) {
-					List<ServicePackagePriceDTO> list = servicePackagePriceService.listServicePackagePrice(0, serviceId,
-							Integer.parseInt(regionIdStr.trim()), 0, 1);
-					if (list != null && list.size() > 0) {
-						msg += "(地区ID:" + regionId + ",服务项目ID:" + serviceId + ")已存在!; ";
-						isFail = true;
-						continue;
-					}
+				List<ServicePackagePriceDTO> list = servicePackagePriceService.listServicePackagePrice(serviceId,
+						Integer.parseInt(regionIdStr.trim()), 0, 1);
+				if (list != null && list.size() > 0) {
+					msg += "(地区ID:" + regionId + ",服务项目ID:" + serviceId + ")已存在!; ";
+					isFail = true;
+					continue;
 				}
 				ServicePackagePriceDTO servicePackagePriceDto = new ServicePackagePriceDTO();
 				servicePackagePriceDto.setMinPrice(minPrice);
 				servicePackagePriceDto.setMaxPrice(maxPrice);
-				if (servicePackageId != null && servicePackageId > 0)
-					servicePackagePriceDto.setServicePackageId(servicePackageId);
-				if (serviceId != null && serviceId > 0)
-					servicePackagePriceDto.setServiceId(serviceId);
+				servicePackagePriceDto.setServiceId(serviceId);
 				servicePackagePriceDto.setRegionId(Integer.parseInt(regionIdStr.trim()));
 				if (servicePackagePriceService.addServicePackagePrice(servicePackagePriceDto) > 0) {
 					msg += "(地区ID:" + regionId + ")创建成功!; ";
@@ -109,15 +89,11 @@ public class ServicePackagePriceController extends BaseController {
 	public Response<String> update(@RequestParam(value = "id") int id,
 			@RequestParam(value = "minPrice", required = false) Double minPrice,
 			@RequestParam(value = "maxPrice", required = false) Double maxPrice,
-			@RequestParam(value = "servicePackageId", required = false) Integer servicePackageId,
 			@RequestParam(value = "serviceId", required = false) Integer serviceId,
 			@RequestParam(value = "regionId", required = false) String regionId, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			if (servicePackageId != null && servicePackageId > 0
-					&& servicePackageService.getById(servicePackageId) == null)
-				return new Response<String>(1, "服务包不存在(" + servicePackageId + ")!", null);
 			if (serviceId != null && serviceId > 0 && serviceService.getServiceById(serviceId) == null)
 				return new Response<String>(1, "服务项目不存在(" + serviceId + ")!", null);
 			String[] regionIds = regionId.split(",");
@@ -131,8 +107,6 @@ public class ServicePackagePriceController extends BaseController {
 					servicePackagePriceDto.setMinPrice(minPrice);
 				if (maxPrice != null)
 					servicePackagePriceDto.setMaxPrice(maxPrice);
-				if (servicePackageId != null && servicePackageId > 0)
-					servicePackagePriceDto.setServicePackageId(servicePackageId);
 				if (serviceId != null && serviceId > 0)
 					servicePackagePriceDto.setServiceId(serviceId);
 				if (StringUtil.isNotEmpty(regionIdStr))
@@ -157,19 +131,14 @@ public class ServicePackagePriceController extends BaseController {
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
 	public ListResponse<List<ServicePackagePriceDTO>> list(
-			@RequestParam(value = "servicePackageId", required = false) Integer servicePackageId,
-			@RequestParam(value = "serviceId", required = false) Integer serviceId,
+			@RequestParam(value = "serviceId") Integer serviceId,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
 			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			if ((servicePackageId == null || servicePackageId <= 0) && (serviceId == null || serviceId <= 0))
-				return new ListResponse<List<ServicePackagePriceDTO>>(false, pageSize, 0, null, "服务项目和服务包至少要传一个编号!");
 			return new ListResponse<List<ServicePackagePriceDTO>>(true, pageSize,
-					servicePackagePriceService.countServicePackagePrice(servicePackageId, serviceId, 0),
-					servicePackagePriceService.listServicePackagePrice(servicePackageId, serviceId, 0, pageNum,
-							pageSize),
-					"");
+					servicePackagePriceService.countServicePackagePrice(serviceId, 0),
+					servicePackagePriceService.listServicePackagePrice(serviceId, 0, pageNum, pageSize), "");
 		} catch (ServiceException e) {
 			return new ListResponse<List<ServicePackagePriceDTO>>(false, pageSize, 0, null, e.getMessage());
 		}

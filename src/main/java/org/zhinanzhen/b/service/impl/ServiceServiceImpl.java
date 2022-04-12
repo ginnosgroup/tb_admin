@@ -7,9 +7,12 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.ServiceDAO;
+import org.zhinanzhen.b.dao.ServicePackagePriceDAO;
 import org.zhinanzhen.b.dao.pojo.ServiceDO;
+import org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO;
 import org.zhinanzhen.b.service.ServiceService;
 import org.zhinanzhen.b.service.pojo.ServiceDTO;
+import org.zhinanzhen.b.service.pojo.ServicePackagePriceDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
@@ -20,6 +23,9 @@ public class ServiceServiceImpl extends BaseService implements ServiceService {
 
 	@Resource
 	private ServiceDAO serviceDao;
+	
+	@Resource
+	private ServicePackagePriceDAO servicePackagePriceDao;
 
 	@Override
 	public int addService(ServiceDTO serviceDto) throws ServiceException {
@@ -71,16 +77,23 @@ public class ServiceServiceImpl extends BaseService implements ServiceService {
 			serviceDoList = serviceDao.listService(name, isZx, pageNum * pageSize, pageSize);
 			if (serviceDoList == null)
 				return null;
+			for (ServiceDO serviceDo : serviceDoList) {
+				ServiceDTO serviceDto = mapper.map(serviceDo, ServiceDTO.class);
+				List<ServicePackagePriceDO> servicePackagePriceDoList = servicePackagePriceDao.list(serviceDto.getId(),
+						0, 0, 999);
+				if (servicePackagePriceDoList != null) {
+					List<ServicePackagePriceDTO> servicePackagePriceDtoList = new ArrayList<>();
+					servicePackagePriceDoList.forEach(servicePackagePriceDo -> {
+						servicePackagePriceDtoList.add(mapper.map(servicePackagePriceDo, ServicePackagePriceDTO.class));
+					});
+					serviceDto.setServicePackagePirceList(servicePackagePriceDtoList);
+				}
+				serviceDtoList.add(serviceDto);
+			}
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
 			throw se;
-		}
-		for (ServiceDO serviceDo : serviceDoList) {
-//			if (!"190,491".contains(serviceDo.getCode())){
-				ServiceDTO serviceDto = mapper.map(serviceDo, ServiceDTO.class);
-				serviceDtoList.add(serviceDto);
-//			}
 		}
 		return serviceDtoList;
 	}
@@ -98,6 +111,15 @@ public class ServiceServiceImpl extends BaseService implements ServiceService {
 			if (serviceDo == null)
 				return null;
 			serviceDto = mapper.map(serviceDo, ServiceDTO.class);
+			List<ServicePackagePriceDO> servicePackagePriceDoList = servicePackagePriceDao.list(serviceDto.getId(),
+					0, 0, 999);
+			if (servicePackagePriceDoList != null) {
+				List<ServicePackagePriceDTO> servicePackagePriceDtoList = new ArrayList<>();
+				servicePackagePriceDoList.forEach(servicePackagePriceDo -> {
+					servicePackagePriceDtoList.add(mapper.map(servicePackagePriceDo, ServicePackagePriceDTO.class));
+				});
+				serviceDto.setServicePackagePirceList(servicePackagePriceDtoList);
+			}
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());

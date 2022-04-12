@@ -1,5 +1,7 @@
 package org.zhinanzhen.b.service.pojo;
 
+import java.util.List;
+
 import lombok.Data;
 
 @Data
@@ -14,4 +16,6 @@ public class ServiceDTO {
 	private String role;
 
 	private boolean isZx;
+
+	private List<ServicePackagePriceDTO> ServicePackagePirceList;
 }
