@@ -798,9 +798,9 @@ public class DownExcelController extends BaseController {
 			sheet.addCell(new Label(14, i, refundDTO.getBankName() , cellFormat));
 			sheet.addCell(new Label(15, i, refundDTO.getBsb() , cellFormat));
 			sheet.addCell(new Label(16, i, refundDTO.getKjApprovalDate() == null ? "" : sdf.format(refundDTO.getKjApprovalDate()) , cellFormat));
-			sheet.addCell(new Label(17, i, refundDTO.getRefundDetail() , cellFormat));
-			sheet.addCell(new Label(18, i, refundDTO.getRemarks() , cellFormat));
-			sheet.addCell(new Label(19, i, refundDTO.getState() , cellFormat));
+			sheet.addCell(new Label(17, i, getRefundDetail(refundDTO), cellFormat));
+			sheet.addCell(new Label(18, i, refundDTO.getRemarks(), cellFormat));
+			sheet.addCell(new Label(19, i, refundDTO.getState(), cellFormat));
 			i++;
 		}
 	}
@@ -848,6 +848,28 @@ public class DownExcelController extends BaseController {
 		if ("CLOSE".equalsIgnoreCase(state))
 			return "已关闭";
 		return "";
+	}
+	
+	private String getRefundDetail(RefundDTO refundDTO) {
+		if (refundDTO.getRefundDetailId() == 1)
+			return "业务未成功办理，客户要求退款";
+		else if (refundDTO.getRefundDetailId() == 2)
+			return "客户取消业务";
+		else if (refundDTO.getRefundDetailId() == 3)
+			return "押金退款";
+		else if (refundDTO.getRefundDetailId() == 4)
+			return "referfee";
+		else if (refundDTO.getRefundDetailId() == 5)
+			return "Subagent结算";
+		else if (refundDTO.getRefundDetailId() == 6)
+			return "返佣";
+		else if (refundDTO.getRefundDetailId() == 7)
+			return "客户转错钱,全款退还";
+		else if (refundDTO.getRefundDetailId() == 8)
+			return "赔偿";
+		else if (refundDTO.getRefundDetailId() == 99)
+			return "其它:" + refundDTO.getRefundDetail();
+		return null;
 	}
 
 }
