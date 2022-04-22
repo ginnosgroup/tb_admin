@@ -924,6 +924,11 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				Integer newAdviserId = getAdviserId(request);
 				if (newAdviserId != null)
 					adviserId = newAdviserId;
+				if (adminUserLoginInfo == null)
+					return new ListResponse<List<CommissionOrderListDTO>>(false, pageSize, 0, null, "No permission !");
+				if ("GW".equalsIgnoreCase(adminUserLoginInfo.getApList()) && adviserId == null)
+					return new ListResponse<List<CommissionOrderListDTO>>(false, pageSize, 0, null,
+							"无法获取顾问编号，请退出重新登录后再尝试．");
 			}
 
 			int total = commissionOrderService.countCommissionOrder(id, regionIdList, maraId, adviserId, officialId,
