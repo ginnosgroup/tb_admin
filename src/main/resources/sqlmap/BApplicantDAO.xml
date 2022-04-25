@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.ApplicantDAO">
+
+    <insert id="add" parameterType="org.zhinanzhen.b.dao.pojo.ApplicantDO" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into b_applicant(
+        gmt_create,
+        gmt_modify,
+        surname,
+        firstname,
+        birthday,
+        type,
+        visa_code,
+        visa_expiration_date,
+        nut_cloud,
+        file_url,
+        first_controller_contents,
+        user_id)
+        values (
+        now(),
+        now(),
+        #{surname},
+        #{firstname},
+        #{birthday},
+        #{type},
+        #{visaCode},
+        #{visaExpirationDate},
+        #{nutCloud},
+        #{fileUrl},
+        #{firstControllerContents},
+        #{userId})
+    </insert>
+
+    <select id="count" parameterType="org.zhinanzhen.b.dao.pojo.ApplicantDO"
+        resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM b_applicant
+        WHERE user_id = #{userId}
+        ;
+    </select>
+
+    <select id="list" resultType="org.zhinanzhen.b.dao.pojo.ApplicantDO">
+        SELECT
+        id,
+        gmt_create AS gmtCreate,
+        gmt_modify AS gmtModify,
+        surname,
+        firstname,
+        birthday,
+        type,
+        visa_code AS visaCode,
+        visa_expiration_date AS visaExpirationDate,
+        nut_cloud AS nutCloud,
+        file_url AS fileUrl,
+        first_controller_contents AS firstControllerContents,
+        user_id AS userId
+        FROM b_applicant
+        WHERE user_id = #{userId}
+        GROUP BY id
+        LIMIT #{offset}, #{rows};
+    </select>
+
+    <select id="getById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.ApplicantDO">
+        SELECT
+        id,
+        gmt_create AS gmtCreate,
+        gmt_modify AS gmtModify,
+        surname,
+        firstname,
+        birthday,
+        type,
+        visa_code AS visaCode,
+        visa_expiration_date AS visaExpirationDate,
+        nut_cloud AS nutCloud,
+        file_url AS fileUrl,
+        first_controller_contents AS firstControllerContents,
+        user_id AS userId
+        FROM b_applicant
+        WHERE id = #{id, jdbcType=INTEGER};
+    </select>
+    
+    <update id="update">
+        UPDATE b_applicant
+        SET gmt_modify = now()
+        <if test='surname != null and surname != ""'>
+            , surname = #{surname, jdbcType=VARCHAR}
+        </if>
+        <if test='firstname != null and firstname != ""'>
+            , firstname = #{firstname, jdbcType=VARCHAR}
+        </if>
+        <if test='birthday != null'>
+            , birthday = #{birthday}
+        </if>
+        <if test='type != null'>
+            , type = #{type}
+        </if>
+        <if test='visaCode != null and visaCode != ""'>
+            , visa_code = #{visaCode}
+        </if>
+        <if test='visaExpirationDate != null'>
+            , visa_expiration_date = #{visaExpirationDate}
+        </if>
+        <if test='nutCloud != null and nutCloud != ""'>
+            , nut_cloud = #{nutCloud}
+        </if>
+        <if test='fileUrl != null and fileUrl != ""'>
+            , file_url = #{fileUrl}
+        </if>
+        <if test='firstControllerContents != null and firstControllerContents != ""'>
+            , first_controller_contents = #{firstControllerContents}
+        </if>
+        <if test='userId != null'>
+            , user_id = #{userId}
+        </if>
+        WHERE id = #{id};
+    </update>
+    
+    <delete id="deleteById" parameterType="java.lang.Integer">
+		DELETE FROM b_applicant WHERE id = #{id, jdbcType=INTEGER}
+	</delete>
+	
+</mapper>
