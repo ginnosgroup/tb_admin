@@ -697,104 +697,104 @@ public class DashboardController extends BaseController {
 		} else
 			return new Response<Double>(1, "获取失败.", null);
 	}
-	
+
 	// 签证待申请月奖统计
 	@GetMapping(value = "/summaryVisaUnassignedBonusAmount")
 	@ResponseBody
-	public Response<DashboardAmountSummaryDTO> summaryVisaUnassignedBonusAmount(HttpServletRequest request,
+	public Response<List<DashboardAmountSummaryDTO>> summaryVisaUnassignedBonusAmount(HttpServletRequest request,
 			HttpServletResponse response) throws ServiceException {
 		super.setGetHeader(response);
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo != null) {
 			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
-				return new Response<DashboardAmountSummaryDTO>(1, "仅限会计获取.", null);
+				return new Response<List<DashboardAmountSummaryDTO>>(1, "仅限会计获取.", null);
 			return new Response(0, dashboardService.summaryVisaUnassignedBonusAmount());
 		} else
-			return new Response<DashboardAmountSummaryDTO>(1, "获取失败.", null);
+			return new Response<List<DashboardAmountSummaryDTO>>(1, "获取失败.", null);
 	}
 
 	// 留学待申请月奖统计
 	@GetMapping(value = "/summaryCommissionOrderUnassignedBonusAmount")
 	@ResponseBody
-	public Response<DashboardAmountSummaryDTO> summaryCommissionOrderUnassignedBonusAmount(HttpServletRequest request,
-			HttpServletResponse response) throws ServiceException {
+	public Response<List<DashboardAmountSummaryDTO>> summaryCommissionOrderUnassignedBonusAmount(
+			HttpServletRequest request, HttpServletResponse response) throws ServiceException {
 		super.setGetHeader(response);
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo != null) {
 			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
-				return new Response<DashboardAmountSummaryDTO>(1, "仅限会计获取.", null);
+				return new Response<List<DashboardAmountSummaryDTO>>(1, "仅限会计获取.", null);
 			return new Response(0, dashboardService.summaryCommissionOrderUnassignedBonusAmount());
 		} else
-			return new Response<DashboardAmountSummaryDTO>(1, "获取失败.", null);
+			return new Response<List<DashboardAmountSummaryDTO>>(1, "获取失败.", null);
 	}
 
 	// 留学(追要)待申请月奖统计
 	@GetMapping(value = "/summaryCommissionOrderDZYUnassignedBonusAmount")
 	@ResponseBody
-	public Response<DashboardAmountSummaryDTO> summaryCommissionOrderDZYUnassignedBonusAmount(
+	public Response<List<DashboardAmountSummaryDTO>> summaryCommissionOrderDZYUnassignedBonusAmount(
 			HttpServletRequest request, HttpServletResponse response) throws ServiceException {
 		super.setGetHeader(response);
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo != null) {
 			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
-				return new Response<DashboardAmountSummaryDTO>(1, "仅限会计获取.", null);
+				return new Response<List<DashboardAmountSummaryDTO>>(1, "仅限会计获取.", null);
 			return new Response(0, dashboardService.summaryCommissionOrderDZYUnassignedBonusAmount());
 		} else
-			return new Response<DashboardAmountSummaryDTO>(1, "获取失败.", null);
+			return new Response<List<DashboardAmountSummaryDTO>>(1, "获取失败.", null);
 	}
 
 	// 留学(提前扣佣)待申请月奖统计
 	@GetMapping(value = "/summaryCommissionOrderSettleUnassignedBonusAmount")
 	@ResponseBody
-	public Response<DashboardAmountSummaryDTO> summaryCommissionOrderSettleUnassignedBonusAmount(
+	public Response<List<DashboardAmountSummaryDTO>> summaryCommissionOrderSettleUnassignedBonusAmount(
 			HttpServletRequest request, HttpServletResponse response) throws ServiceException {
 		super.setGetHeader(response);
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo != null) {
 			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
-				return new Response<DashboardAmountSummaryDTO>(1, "仅限会计获取.", null);
+				return new Response<List<DashboardAmountSummaryDTO>>(1, "仅限会计获取.", null);
 			return new Response(0, dashboardService.summaryCommissionOrderSettleUnassignedBonusAmount());
 		} else
-			return new Response<DashboardAmountSummaryDTO>(1, "获取失败.", null);
+			return new Response<List<DashboardAmountSummaryDTO>>(1, "获取失败.", null);
 	}
 
 	// 留学(追要)待申请月奖按学校统计
 	@GetMapping(value = "/summaryCommissionOrderDZYUnassignedBonusAmountGroupBySchool")
 	@ResponseBody
-	public Response<DashboardAmountSummaryDTO> summaryCommissionOrderDZYUnassignedBonusAmountGroupBySchool(
+	public Response<List<DashboardAmountSummaryDTO>> summaryCommissionOrderDZYUnassignedBonusAmountGroupBySchool(
 			HttpServletRequest request, HttpServletResponse response) throws ServiceException {
 		super.setGetHeader(response);
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo != null) {
 			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
-				return new Response<DashboardAmountSummaryDTO>(1, "仅限会计获取.", null);
+				return new Response<List<DashboardAmountSummaryDTO>>(1, "仅限会计获取.", null);
 			return new Response(0, dashboardService.summaryCommissionOrderDZYUnassignedBonusAmountGroupBySchool());
 		} else
-			return new Response<DashboardAmountSummaryDTO>(1, "获取失败.", null);
+			return new Response<List<DashboardAmountSummaryDTO>>(1, "获取失败.", null);
 	}
 
 	// 留学(提前扣佣)待申请月奖按学校统计
 	@GetMapping(value = "/summaryCommissionOrderSettleUnassignedBonusAmountGroupBySchool")
 	@ResponseBody
-	public Response<DashboardAmountSummaryDTO> summaryCommissionOrderSettleUnassignedBonusAmountGroupBySchool(
+	public Response<List<DashboardAmountSummaryDTO>> summaryCommissionOrderSettleUnassignedBonusAmountGroupBySchool(
 			HttpServletRequest request, HttpServletResponse response) throws ServiceException {
 		super.setGetHeader(response);
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo != null) {
 			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
-				return new Response<DashboardAmountSummaryDTO>(1, "仅限会计获取.", null);
+				return new Response<List<DashboardAmountSummaryDTO>>(1, "仅限会计获取.", null);
 			return new Response(0, dashboardService.summaryCommissionOrderSettleUnassignedBonusAmountGroupBySchool());
 		} else
-			return new Response<DashboardAmountSummaryDTO>(1, "获取失败.", null);
+			return new Response<List<DashboardAmountSummaryDTO>>(1, "获取失败.", null);
 	}
 
-	private double roundHalfUp(double val){
-		return new BigDecimal(val).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
+	private double roundHalfUp(double val) {
+		return new BigDecimal(val).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
 	}
 }

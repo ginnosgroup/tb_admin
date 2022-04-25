@@ -4,10 +4,13 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.*;
+import org.zhinanzhen.b.dao.pojo.DashboardAmountSummaryDO;
 import org.zhinanzhen.b.service.DashboardService;
 import org.zhinanzhen.b.service.pojo.DashboardAmountSummaryDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
+
+import com.ikasoa.core.utils.ListUtil;
 
 import java.util.List;
 
@@ -51,39 +54,82 @@ public class DashboardServiceImpl extends BaseService implements DashboardServic
 	}
 
 	@Override
-	public DashboardAmountSummaryDTO summaryVisaUnassignedBonusAmount() throws ServiceException {
-		return mapper.map(dashboardDAO.summaryVisaUnassignedBonusAmount(), DashboardAmountSummaryDTO.class);
+	public List<DashboardAmountSummaryDTO> summaryVisaUnassignedBonusAmount() throws ServiceException {
+		List<DashboardAmountSummaryDTO> dashboardAmountSummaryDtoList = ListUtil.newArrayList();
+		List<DashboardAmountSummaryDO> dashboardAmountSummaryDoList = dashboardDAO.summaryVisaUnassignedBonusAmount();
+		if (!ListUtil.isEmpty(dashboardAmountSummaryDoList))
+			dashboardAmountSummaryDoList.forEach(dashboardAmountSummaryDo -> {
+				dashboardAmountSummaryDtoList
+						.add(mapper.map(dashboardAmountSummaryDo, DashboardAmountSummaryDTO.class));
+			});
+		return dashboardAmountSummaryDtoList;
 	}
 
 	@Override
-	public DashboardAmountSummaryDTO summaryCommissionOrderUnassignedBonusAmount() throws ServiceException {
-		return mapper.map(dashboardDAO.summaryCommissionOrderUnassignedBonusAmount(), DashboardAmountSummaryDTO.class);
+	public List<DashboardAmountSummaryDTO> summaryCommissionOrderUnassignedBonusAmount() throws ServiceException {
+		List<DashboardAmountSummaryDTO> dashboardAmountSummaryDtoList = ListUtil.newArrayList();
+		List<DashboardAmountSummaryDO> dashboardAmountSummaryDoList = dashboardDAO
+				.summaryCommissionOrderUnassignedBonusAmount();
+		if (!ListUtil.isEmpty(dashboardAmountSummaryDoList))
+			dashboardAmountSummaryDoList.forEach(dashboardAmountSummaryDo -> {
+				dashboardAmountSummaryDtoList
+						.add(mapper.map(dashboardAmountSummaryDo, DashboardAmountSummaryDTO.class));
+			});
+		return dashboardAmountSummaryDtoList;
 	}
 
 	@Override
-	public DashboardAmountSummaryDTO summaryCommissionOrderDZYUnassignedBonusAmount() throws ServiceException {
-		return mapper.map(dashboardDAO.summaryCommissionOrderDZYUnassignedBonusAmount(),
-				DashboardAmountSummaryDTO.class);
+	public List<DashboardAmountSummaryDTO> summaryCommissionOrderDZYUnassignedBonusAmount() throws ServiceException {
+		List<DashboardAmountSummaryDTO> dashboardAmountSummaryDtoList = ListUtil.newArrayList();
+		List<DashboardAmountSummaryDO> dashboardAmountSummaryDoList = dashboardDAO
+				.summaryCommissionOrderDZYUnassignedBonusAmount();
+		if (!ListUtil.isEmpty(dashboardAmountSummaryDoList))
+			dashboardAmountSummaryDoList.forEach(dashboardAmountSummaryDo -> {
+				dashboardAmountSummaryDtoList
+						.add(mapper.map(dashboardAmountSummaryDo, DashboardAmountSummaryDTO.class));
+			});
+		return dashboardAmountSummaryDtoList;
 	}
 
 	@Override
-	public DashboardAmountSummaryDTO summaryCommissionOrderSettleUnassignedBonusAmount() throws ServiceException {
-		return mapper.map(dashboardDAO.summaryCommissionOrderSettleUnassignedBonusAmount(),
-				DashboardAmountSummaryDTO.class);
+	public List<DashboardAmountSummaryDTO> summaryCommissionOrderSettleUnassignedBonusAmount() throws ServiceException {
+		List<DashboardAmountSummaryDTO> dashboardAmountSummaryDtoList = ListUtil.newArrayList();
+		List<DashboardAmountSummaryDO> dashboardAmountSummaryDoList = dashboardDAO
+				.summaryCommissionOrderSettleUnassignedBonusAmount();
+		if (!ListUtil.isEmpty(dashboardAmountSummaryDoList))
+			dashboardAmountSummaryDoList.forEach(dashboardAmountSummaryDo -> {
+				dashboardAmountSummaryDtoList
+						.add(mapper.map(dashboardAmountSummaryDo, DashboardAmountSummaryDTO.class));
+			});
+		return dashboardAmountSummaryDtoList;
 	}
 
 	@Override
-	public DashboardAmountSummaryDTO summaryCommissionOrderDZYUnassignedBonusAmountGroupBySchool()
+	public List<DashboardAmountSummaryDTO> summaryCommissionOrderDZYUnassignedBonusAmountGroupBySchool()
 			throws ServiceException {
-		return mapper.map(dashboardDAO.summaryCommissionOrderDZYUnassignedBonusAmountGroupBySchool(),
-				DashboardAmountSummaryDTO.class);
+		List<DashboardAmountSummaryDTO> dashboardAmountSummaryDtoList = ListUtil.newArrayList();
+		List<DashboardAmountSummaryDO> dashboardAmountSummaryDoList = dashboardDAO
+				.summaryCommissionOrderDZYUnassignedBonusAmountGroupBySchool();
+		if (!ListUtil.isEmpty(dashboardAmountSummaryDoList))
+			dashboardAmountSummaryDoList.forEach(dashboardAmountSummaryDo -> {
+				dashboardAmountSummaryDtoList
+						.add(mapper.map(dashboardAmountSummaryDo, DashboardAmountSummaryDTO.class));
+			});
+		return dashboardAmountSummaryDtoList;
 	}
 
 	@Override
-	public DashboardAmountSummaryDTO summaryCommissionOrderSettleUnassignedBonusAmountGroupBySchool()
+	public List<DashboardAmountSummaryDTO> summaryCommissionOrderSettleUnassignedBonusAmountGroupBySchool()
 			throws ServiceException {
-		return mapper.map(dashboardDAO.summaryCommissionOrderSettleUnassignedBonusAmountGroupBySchool(),
-				DashboardAmountSummaryDTO.class);
+		List<DashboardAmountSummaryDTO> dashboardAmountSummaryDtoList = ListUtil.newArrayList();
+		List<DashboardAmountSummaryDO> dashboardAmountSummaryDoList = dashboardDAO
+				.summaryCommissionOrderSettleUnassignedBonusAmountGroupBySchool();
+		if (!ListUtil.isEmpty(dashboardAmountSummaryDoList))
+			dashboardAmountSummaryDoList.forEach(dashboardAmountSummaryDo -> {
+				dashboardAmountSummaryDtoList
+						.add(mapper.map(dashboardAmountSummaryDo, DashboardAmountSummaryDTO.class));
+			});
+		return dashboardAmountSummaryDtoList;
 	}
 
 }
