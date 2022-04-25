@@ -11,7 +11,7 @@ public interface ApplicantService {
 
 	int count(int userId) throws ServiceException;
 
-	List<ApplicantDTO> list(int userId) throws ServiceException;
+	List<ApplicantDTO> list(int userId, int pageNum, int pageSize) throws ServiceException;
 
 	ApplicantDTO getById(int id) throws ServiceException;
 
