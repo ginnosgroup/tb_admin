@@ -55,7 +55,7 @@ public class ApplicantController extends BaseController {
 			ApplicantDTO applicantDto = new ApplicantDTO();
 			applicantDto.setSurname(surname);
 			applicantDto.setFirstname(firstname);
-			applicantDto.setBirthday(new Date(Integer.parseInt(birthday.trim())));
+			applicantDto.setBirthday(new Date(Long.parseLong(birthday.trim())));
 			applicantDto.setType(type);
 			applicantDto.setVisaCode(visaCode);
 			applicantDto.setVisaExpirationDate(new Date(Long.parseLong(visaExpirationDate)));
@@ -98,7 +98,7 @@ public class ApplicantController extends BaseController {
 			if (StringUtil.isNotEmpty(firstname))
 				applicantDto.setFirstname(firstname);
 			if (StringUtil.isNotEmpty(birthday))
-				applicantDto.setBirthday(new Date(Integer.parseInt(birthday.trim())));
+				applicantDto.setBirthday(new Date(Long.parseLong(birthday.trim())));
 			if (StringUtil.isNotEmpty(type))
 				applicantDto.setType(type);
 			if (StringUtil.isNotEmpty(visaCode))
