@@ -9,15 +9,18 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.zhinanzhen.b.dao.ApplicantDAO;
 import org.zhinanzhen.b.dao.MaraDAO;
 import org.zhinanzhen.b.dao.OfficialDAO;
 import org.zhinanzhen.b.dao.ServiceOrderDAO;
 import org.zhinanzhen.b.dao.TagDAO;
+import org.zhinanzhen.b.dao.pojo.ApplicantDO;
 import org.zhinanzhen.b.dao.pojo.MaraDO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
 import org.zhinanzhen.b.dao.pojo.TagDO;
 import org.zhinanzhen.b.dao.pojo.UserTagDO;
+import org.zhinanzhen.b.service.pojo.ApplicantDTO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
@@ -32,7 +35,6 @@ import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.service.pojo.TagDTO;
 import org.zhinanzhen.tb.service.pojo.UserAdviserDTO;
 import org.zhinanzhen.tb.utils.Base64Util;
-import org.zhinanzhen.tb.utils.SendEmailUtil;
 
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.StringUtil;
@@ -43,6 +45,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 	private UserDAO userDao;
 	@Resource
 	private AdviserDAO adviserDao;
+	@Resource
+	private ApplicantDAO applicantDao;
 	@Resource
 	private TagDAO tagDao;
 	@Resource
@@ -115,7 +119,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 		} else
 			return 0;
 	}
-	
+
 	@Override
 	public int addUserAdviser(int userId, int adviserId) throws ServiceException {
 		List<UserAdviserDO> userAdviserList = userDao.listUserAdviserByUserId(userId);
@@ -212,6 +216,9 @@ public class UserServiceImpl extends BaseService implements UserService {
 			List<UserAdviserDTO> userAdviserList = listUserAdviserDto(userDo.getId());
 			if (userAdviserList != null && userAdviserList.size() > 0)
 				userDto.setUserAdviserList(userAdviserList);
+			List<ApplicantDTO> applicantList = listApplicantDto(userDo.getId());
+			if (applicantList != null && applicantList.size() < 0)
+				userDto.setApplicantList(applicantList);
 			AdviserDO adviserDo = null;
 			if (adviserId > 0) {
 				userDto.setAdviserId(adviserId);
@@ -255,6 +262,9 @@ public class UserServiceImpl extends BaseService implements UserService {
 			List<UserAdviserDTO> userAdviserList = listUserAdviserDto(userDo.getId());
 			if (userAdviserList != null && userAdviserList.size() > 0)
 				userDto.setUserAdviserList(userAdviserList);
+			List<ApplicantDTO> applicantList = listApplicantDto(userDo.getId());
+			if (applicantList != null && applicantList.size() < 0)
+				userDto.setApplicantList(applicantList);
 			if (userDto.getAdviserId() > 0) {
 				AdviserDO adviserDo = adviserDao.getAdviserById(userDto.getAdviserId());
 				if (adviserDo != null)
@@ -344,9 +354,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 			stateList.add("PAID");
 			List<ServiceOrderDO> serviceOrderList = serviceOrderDao.listServiceOrder(null, null, null, stateList, null,
 					null, null, null, null, null, null, null, null, null, id, null, null, null, null, null, null, null,
-					null,
-					null, false,null,
-					DEFAULT_PAGE_NUM, 100, null);
+					null, null, false, null, DEFAULT_PAGE_NUM, 100, null);
 			for (ServiceOrderDO serviceOrderDo : serviceOrderList) {
 				OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
 				if (officialDo != null)
@@ -519,7 +527,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 			throw se;
 		}
 	}
-	
+
 	private List<UserAdviserDTO> listUserAdviserDto(int userId) throws ServiceException {
 		List<UserAdviserDTO> userAdviserDtoList = new ArrayList<>();
 		List<UserAdviserDO> userAdviserList = userDao.listUserAdviserByUserId(userId);
@@ -535,6 +543,15 @@ public class UserServiceImpl extends BaseService implements UserService {
 			}
 		}
 		return userAdviserDtoList;
+	}
+
+	private List<ApplicantDTO> listApplicantDto(int userId) throws ServiceException {
+		List<ApplicantDTO> applicantDtoList = new ArrayList<>();
+		List<ApplicantDO> applicantList = applicantDao.list(userId, 0, 999);
+		if (applicantList != null && applicantList.size() > 0)
+			for (ApplicantDO applicantDo : applicantList)
+				applicantDtoList.add(mapper.map(applicantDo, ApplicantDTO.class));
+		return applicantDtoList;
 	}
 
 }
