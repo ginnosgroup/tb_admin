@@ -197,6 +197,8 @@ public class ServiceOrderDTO {
 	private ServiceAssessDO serviceAssessDO;
 	
 	private List<Integer> cIds; // 佣金订单编号
+	
+	private List<ApplicantDTO> applicantList;
 
 	private List<MailRemindDTO> mailRemindDTOS;
 

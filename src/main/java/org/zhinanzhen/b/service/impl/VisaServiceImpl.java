@@ -55,6 +55,9 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 	private UserDAO userDao;
 	
 	@Resource
+	private ApplicantDAO applicantDao;
+	
+	@Resource
 	private ServiceOrderDAO serviceOrderDao;
 
 //	@Resource
@@ -317,6 +320,13 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			visaDto.setUserName(userDo.getName());
 			visaDto.setPhone(userDo.getPhone());
 			visaDto.setBirthday(userDo.getBirthday());
+			List<ApplicantDO> applicantDoList = applicantDao.list(visaDto.getUserId(), 0, 999);
+			List<ApplicantDTO> applicantDtoList = new ArrayList<>();
+			if (applicantDoList != null && applicantDoList.size() > 0)
+				applicantDoList.forEach(applicantDo -> {
+					applicantDtoList.add(mapper.map(applicantDo, ApplicantDTO.class));
+				});
+			visaDto.setApplicantList(applicantDtoList);
 		}
 //			ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(visaListDo.getServiceOrderId());
 //			if (serviceOrderDo != null && StringUtil.isNotEmpty(serviceOrderDo.getRefuseReason()))

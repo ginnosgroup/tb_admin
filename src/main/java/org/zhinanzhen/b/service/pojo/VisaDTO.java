@@ -117,6 +117,8 @@ public class VisaDTO {
 	private Date invoiceCreate;
 	
 	private boolean isRefunded = false;
+	
+	private List<ApplicantDTO> applicantList;
 
 	private List<MailRemindDTO> mailRemindDTOS;
 

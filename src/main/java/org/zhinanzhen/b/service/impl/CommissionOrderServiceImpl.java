@@ -34,6 +34,9 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 
 	@Resource
 	private UserDAO userDao;
+	
+	@Resource
+	private ApplicantDAO applicantDao;
 
 	@Resource
 	private SchoolDAO schoolDao;
@@ -383,6 +386,13 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 				commissionOrderListDto.setUser(mapper.map(userDo, UserDTO.class));
 				commissionOrderListDto.setBirthday(userDo.getBirthday());
 			}
+			List<ApplicantDO> applicantDoList = applicantDao.list(commissionOrderListDto.getUserId(), 0, 999);
+			List<ApplicantDTO> applicantDtoList = new ArrayList<>();
+			if (applicantDoList != null && applicantDoList.size() > 0)
+				applicantDoList.forEach(applicantDo -> {
+					applicantDtoList.add(mapper.map(applicantDo, ApplicantDTO.class));
+				});
+			commissionOrderListDto.setApplicantList(applicantDtoList);
 		}
 		if (commissionOrderListDo.getSchoolId() > 0) {
 			SchoolDO schoolDo = schoolDao.getSchoolById(commissionOrderListDo.getSchoolId());

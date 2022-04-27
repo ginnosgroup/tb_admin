@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.service.pojo;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.Data;
 import lombok.ToString;
@@ -118,5 +119,7 @@ public class CommissionOrderDTO {
 	private Date bankDate;
 
 	private Date invoiceCreate;
+	
+	private List<ApplicantDTO> applicantList;
 
 }

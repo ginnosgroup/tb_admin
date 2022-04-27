@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
-import org.zhinanzhen.b.dao.pojo.AdviserServiceCountDO;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
@@ -50,6 +49,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
 	@Resource
 	private UserDAO userDao;
+	
+	@Resource
+	private ApplicantDAO applicantDao;
 
 	@Resource
 	private MaraDAO maraDao;
@@ -420,9 +422,6 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		}
 		ServiceOrderDTO serviceOrderDto = null;
 		try {
-
-
-
 			ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(id);
 			if (serviceOrderDo == null)
 				return null;
@@ -553,8 +552,16 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			serviceOrderDto.setReceiveType(mapper.map(receiveTypeDo, ReceiveTypeDTO.class));
 		// 查询用户
 		UserDO userDo = userDao.getUserById(serviceOrderDto.getUserId());
-		if (userDo != null)
+		if (userDo != null) {
 			serviceOrderDto.setUser(mapper.map(userDo, UserDTO.class));
+			List<ApplicantDO> applicantDoList = applicantDao.list(serviceOrderDto.getUserId(), 0, 999);
+			List<ApplicantDTO> applicantDtoList = new ArrayList<>();
+			if (applicantDoList != null && applicantDoList.size() > 0)
+				applicantDoList.forEach(applicantDo -> {
+					applicantDtoList.add(mapper.map(applicantDo, ApplicantDTO.class));
+				});
+			serviceOrderDto.setApplicantList(applicantDtoList);
+		}
 		// 查询Mara
 		MaraDO maraDo = maraDao.getMaraById(serviceOrderDto.getMaraId());
 		if (maraDo != null)
