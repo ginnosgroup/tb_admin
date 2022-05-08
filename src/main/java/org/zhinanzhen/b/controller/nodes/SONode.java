@@ -42,6 +42,7 @@ public abstract class SONode extends AbstractNode {
 					return false;
 				}
 			} else if ("SIV".equals(type)) { // 独立技术移民
+			} else if ("NSV".equals(type)) {
 			} else if ("ZX".equals(type)) { // 咨询服务
 			} else {
 				log.error("服务类型错误:serviceOrderId=" + serviceOrderDto.getId() + ",type=" + type);

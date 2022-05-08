@@ -46,6 +46,7 @@ public abstract class SODecisionNode extends AbstractDecisionNode {
 					return false;
 				}
 			} else if ("SIV".equals(type)) { // 独立技术移民
+			} else if ("NSV".equals(type)) {
 			} else if ("ZX".equals(type)) { // 咨询服务
 				if (!"REVIEW,COMPLETE".contains(getName())){
 					log.error("咨询服务订单没有此文案审核流程!");

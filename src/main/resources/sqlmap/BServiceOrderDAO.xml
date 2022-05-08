@@ -955,7 +955,7 @@
         so.readcommitted_date AS readcommittedDate,
         so.ref_no AS refNo
         FROM tb_user u, tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON so.id=soot.service_order_id
-        WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id AND so.type != 'SIV'
+        WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id AND so.type != 'SIV' AND so.type != 'NSV'
         AND so.state = 'REVIEW'
         <![CDATA[ AND DATE_SUB(NOW(),INTERVAL 1 day)  >  official_approval_date ]]>
         <if test="officialId != null and officialId > 0">

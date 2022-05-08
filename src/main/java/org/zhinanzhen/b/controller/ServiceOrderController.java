@@ -137,7 +137,7 @@ public class ServiceOrderController extends BaseController {
 	}
 
 	public enum ServiceOrderTypeEnum {
-		OVST("留学"), VISA("签证"), SIV("独立技术移民"), ZX("咨询");
+		OVST("留学"), VISA("签证"), SIV("独立技术移民"), NSV("雇主担保"), ZX("咨询");
 		private String meaning;
 		ServiceOrderTypeEnum(String meaning){
 			this.meaning = meaning;
@@ -329,11 +329,13 @@ public class ServiceOrderController extends BaseController {
 						serviceOrderDto.setUserId(StringUtil.toInt(userId));
 				}
 			if (StringUtil.isNotEmpty(maraId) && !"SIV".equalsIgnoreCase(serviceOrderDto.getType())
+					&& !"NSV".equalsIgnoreCase(serviceOrderDto.getType())
 					&& !"MT".equalsIgnoreCase(serviceOrderDto.getType())) // SIV主订单和MT主订单不需要mara
 				serviceOrderDto.setMaraId(StringUtil.toInt(maraId));
 			if (StringUtil.isNotEmpty(adviserId))
 				serviceOrderDto.setAdviserId(StringUtil.toInt(adviserId));
 			if (StringUtil.isNotEmpty(officialId) && !"SIV".equalsIgnoreCase(serviceOrderDto.getType())
+					&& !"NSV".equalsIgnoreCase(serviceOrderDto.getType())
 					&& !"MT".equalsIgnoreCase(serviceOrderDto.getType())) // SIV主订单和MT主订单不需要文案
 				serviceOrderDto.setOfficialId(StringUtil.toInt(officialId));
 			if (StringUtil.isNotEmpty(remarks))
@@ -349,7 +351,8 @@ public class ServiceOrderController extends BaseController {
 				return new Response(1, "没有选择职业!");
 			}
 			if (StringUtil.isNotEmpty(serviceAssessId)) {
-				if ( !type.equalsIgnoreCase("SIV") && serviceAssessService.seleteAssessByServiceId(serviceId).size() == 0 )
+				if ((!type.equalsIgnoreCase("SIV") || !type.equalsIgnoreCase("NSV"))
+						&& serviceAssessService.seleteAssessByServiceId(serviceId).size() == 0)
 					return new Response(1, "当前服务编号不是评估(" + serviceId + ")，创建失败.", 0);
 				serviceOrderDto.setServiceAssessId(serviceAssessId);
 			}
@@ -580,10 +583,11 @@ public class ServiceOrderController extends BaseController {
 					institutionTradingName);
 			if (res != null && res.getCode() == 0) {
 				List<ServiceOrderDTO> cList = new ArrayList<>();
-				if ("SIV".equalsIgnoreCase(serviceOrderDto.getType()))
+				if ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
+						|| "NSV".equalsIgnoreCase(serviceOrderDto.getType()))
 					cList = serviceOrderService.listServiceOrder(receiveTypeId, null, null, null, null, null, null,
 							null, null, null, null, null, null, null, null, null, null, null, null, null, id, false, 0,
-							100, null, null, null, null,null);
+							100, null, null, null, null, null);
 				cList.forEach(cServiceOrderDto -> {
 					if ("VISA".equalsIgnoreCase(cServiceOrderDto.getType())) {
 						Response<Integer> cRes = updateOne(cServiceOrderDto, null, peopleNumber, peopleType,
@@ -1208,6 +1212,7 @@ public class ServiceOrderController extends BaseController {
 					if (ReviewAdviserStateEnum.get(state) != null)
 						if (ReviewAdviserStateEnum.REVIEW.toString().equals(state.toUpperCase())) { // 顾问审核
 							if (serviceOrderDto.getParentId() == 0 && ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
+									|| "NSV".equalsIgnoreCase(serviceOrderDto.getType())
 									|| "MT".equalsIgnoreCase(serviceOrderDto.getType()))) {
 								return new Response<ServiceOrderDTO>(1, "该订单不支持审核.", serviceOrderDto);
 								// List<ServiceOrderDTO> serviceOrderList =
@@ -1478,6 +1483,8 @@ public class ServiceOrderController extends BaseController {
 					serviceType = "留学";
 				else if ("SIV".equalsIgnoreCase(serviceOrder.getType()))
 					serviceType = "独立技术移民";
+				else if ("NSV".equalsIgnoreCase(serviceOrder.getType()))
+					serviceType = "雇主担保";
 				else if ("MT".equalsIgnoreCase(serviceOrder.getType()))
 					serviceType = "曼拓";
 				String title = "您的" + serviceType + "订单" + serviceOrder.getId() + "有最新评论";

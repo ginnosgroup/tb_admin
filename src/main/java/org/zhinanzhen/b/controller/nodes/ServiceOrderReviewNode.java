@@ -38,6 +38,7 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 				return null;
 			}
 			if (serviceOrderDto.getParentId() == 0 && ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
+					|| "NSV".equalsIgnoreCase(serviceOrderDto.getType())
 					|| "MT".equalsIgnoreCase(serviceOrderDto.getType()))) {
 				context.putParameter("response", new Response<ServiceOrderDTO>(1, "该订单不支持审核.", serviceOrderDto));
 				return null;

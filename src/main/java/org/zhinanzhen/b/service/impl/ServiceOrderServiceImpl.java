@@ -848,7 +848,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			if ("PAID".equals(state)) {
 				// 写入会计审核时间
 				if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())
-						|| "SIV".equalsIgnoreCase(serviceOrderDo.getType()))
+						|| "SIV".equalsIgnoreCase(serviceOrderDo.getType())
+						|| "NSV".equalsIgnoreCase(serviceOrderDo.getType()))
 					visaDao.listVisaByServiceOrderId(serviceOrderDo.getId()).forEach(visaDo -> {
 						if (visaDo.getKjApprovalDate() == null) {
 							visaDo.setKjApprovalDate(new Date());
@@ -1016,7 +1017,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				if ("PAID".equals(adviserState)) {
 					// 写入会计审核时间
 					if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())
-							|| "SIV".equalsIgnoreCase(serviceOrderDo.getType()))
+							|| "SIV".equalsIgnoreCase(serviceOrderDo.getType())
+							|| "NSV".equalsIgnoreCase(serviceOrderDo.getType()))
 						visaDao.listVisaByServiceOrderId(serviceOrderDo.getId()).forEach(visaDo -> {
 							if (visaDo.getKjApprovalDate() == null) {
 								visaDo.setKjApprovalDate(new Date());
@@ -1136,6 +1138,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			title += user.getName() + "/" + type;
 		} else if ("SIV".equalsIgnoreCase(serviceOrderDo.getType())) {
 			type = "独立技术移民";
+			title += user.getName() + "/" + type;
+		} else if ("NSV".equalsIgnoreCase(serviceOrderDo.getType())) {
+			type = "雇主担保";
 			title += user.getName() + "/" + type;
 		} else if ("MT".equalsIgnoreCase(serviceOrderDo.getType())) {
 			type = "曼拓";

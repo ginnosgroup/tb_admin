@@ -7,7 +7,7 @@
         select
           so.id as id,
           so.gmt_create as gmtCreate,
-          IF(so.type='VISA','签证',IF(so.type='OVST','留学',IF(so.type='SIV','独立技术移民',IF(so.type='ZX','咨询服务','未知')))) as type,
+          IF(so.type='VISA','签证',IF(so.type='OVST','留学',IF(so.type='SIV','独立技术移民',IF(so.type='NSV','雇主担保',IF(so.type='ZX','咨询服务','未知'))))) as type,
           u.name as userName,
           m.name as maraName,
           o.name as officialName,
