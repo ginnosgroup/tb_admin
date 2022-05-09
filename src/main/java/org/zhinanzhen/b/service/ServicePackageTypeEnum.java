@@ -6,8 +6,7 @@ package org.zhinanzhen.b.service;
  */
 public enum ServicePackageTypeEnum {
 
-	CA("职业评估"), EOI("EOI"), SA("学校申请"), VA("签证申请"), ZD("州担"), TM("提名"), DB("担保"), MAT("Matrix"), ROI("ROI"), SBO("SBO"),
-	NOMN("提名"), SPOP("担保");
+	CA("职业评估"), EOI("EOI"), SA("学校申请"), VA("签证申请"), ZD("州担"), TM("提名"), DB("担保"), MAT("Matrix"), ROI("ROI"), SBO("SBO");
 
 	private String comment;
 
