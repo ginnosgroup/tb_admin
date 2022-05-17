@@ -74,10 +74,13 @@ public class VerifyController {
                                 @RequestParam("regionId")Integer regionId) throws Exception {
         String fileName = file.getOriginalFilename();
         List<FinanceCodeDO> financeCodeDOS = verifyService.excelToList(file.getInputStream(), fileName);
+System.out.println("debug=-----financeCodeDOS.size():" + financeCodeDOS.size());
         for (FinanceCodeDO financeCodeDO : financeCodeDOS) {
             String orderId = financeCodeDO.getOrderId();
+System.out.println("debug=-----orderId:" + orderId);
                 if (StringUtil.isNotBlank(orderId)  && orderId.substring(0,2).equalsIgnoreCase("CS")) {
                     CommissionOrderListDTO commissionOrderListDTO = commissionOrderService.getCommissionOrderById(Integer.parseInt(orderId.substring(2)));
+System.out.println("debug=-----commissionOrderListDTO:" + commissionOrderListDTO);
                     if (commissionOrderListDTO!=null){
                         //financeCodeDO.setAdviser(commissionOrderListDTO.getAdviser().getName());
                         financeCodeDO.setAdviserId(commissionOrderListDTO.getAdviserId());
@@ -100,6 +103,7 @@ public class VerifyController {
                 }
                 if (StringUtil.isNotBlank(orderId) && orderId.substring(0,2).equalsIgnoreCase("CV") ){
                     VisaDTO visaDTO =  visaService.getVisaById(Integer.parseInt(orderId.substring(2)));
+System.out.println("debug=-----visaDTO:" + visaDTO);
                     if (visaDTO!=null){
                         financeCodeDO.setAdviserId(visaDTO.getAdviserId());
                         financeCodeDO.setUserId(visaDTO.getUserId());
