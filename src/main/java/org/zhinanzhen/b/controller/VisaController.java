@@ -601,17 +601,14 @@ public class VisaController extends BaseCommissionOrderController {
 			HttpServletResponse response) {
 
 		// 会计角色过滤状态
-		List<String> stateList = new ArrayList<>();
-		if (state == null && getKjId(request) != null) {
+		List<String> stateList = null;
+		if (getKjId(request) != null) {
 			stateList = new ArrayList<>();
 			stateList.add(ReviewKjStateEnum.REVIEW.toString());
 			stateList.add(ReviewKjStateEnum.FINISH.toString());
 			stateList.add(ReviewKjStateEnum.COMPLETE.toString());
 			stateList.add(ReviewKjStateEnum.CLOSE.toString());
-		} else if (state == null)
-			stateList = null;
-		else
-			stateList.add(state);
+		}
 
 		List<String> commissionStateList = null;
 		if (StringUtil.isNotEmpty(commissionState))
