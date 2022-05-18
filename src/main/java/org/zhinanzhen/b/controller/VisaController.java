@@ -610,8 +610,6 @@ public class VisaController extends BaseCommissionOrderController {
 			stateList.add(ReviewKjStateEnum.CLOSE.toString());
 		} else if (state == null)
 			stateList = null;
-		else
-			stateList.add(state);
 
 		List<String> commissionStateList = null;
 		if (StringUtil.isNotEmpty(commissionState))
