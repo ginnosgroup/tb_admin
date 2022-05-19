@@ -21,7 +21,7 @@ public class CommissionOrderDTO {
 	private String state;
 
 	private String commissionState;
-	
+
 	private Date kjApprovalDate;
 
 	private boolean isSettle;
@@ -37,6 +37,10 @@ public class CommissionOrderDTO {
 	private String studentCode;
 
 	private int userId;
+
+	private String applicantIds;
+
+	private List<ApplicantDTO> applicantList;
 
 	private int adviserId;
 
@@ -87,7 +91,7 @@ public class CommissionOrderDTO {
 	private double amount;
 
 	private double expectAmount;
-	
+
 	private double sureExpectAmount = 0.00;
 
 	private double discount;
@@ -107,7 +111,7 @@ public class CommissionOrderDTO {
 	private boolean isChecked;
 
 	private String remarks;
-	
+
 	private String refuseReason;
 
 	private boolean isClose;
@@ -119,7 +123,5 @@ public class CommissionOrderDTO {
 	private Date bankDate;
 
 	private Date invoiceCreate;
-	
-	private List<ApplicantDTO> applicantList;
 
 }

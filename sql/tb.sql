@@ -450,6 +450,7 @@ CREATE TABLE `b_service_order` (
   `deduct_gst` decimal(8,2) DEFAULT NULL COMMENT 'Deduct GST',
   `bonus` decimal(8,2) DEFAULT NULL COMMENT '月奖金',
   `user_id` int NOT NULL COMMENT '所属顾客编号 (对应tb_user.id)',
+`applicant_ids` varchar(255) DEFAULT NULL COMMENT '申请人编号(逗号分隔)',
   `mara_id` int DEFAULT NULL COMMENT '所属MARA编号 (对应b_mara.id,曼拓和留学服务MARA为空)',
   `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
   `adviser_id_2` int DEFAULT NULL COMMENT '第二顾问编号 (对应tb_adviser.id,曼拓专用字段)',

@@ -554,13 +554,18 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		UserDO userDo = userDao.getUserById(serviceOrderDto.getUserId());
 		if (userDo != null) {
 			serviceOrderDto.setUser(mapper.map(userDo, UserDTO.class));
-			List<ApplicantDO> applicantDoList = applicantDao.list(serviceOrderDto.getUserId(), 0, 999);
-			List<ApplicantDTO> applicantDtoList = new ArrayList<>();
-			if (applicantDoList != null && applicantDoList.size() > 0)
-				applicantDoList.forEach(applicantDo -> {
-					applicantDtoList.add(mapper.map(applicantDo, ApplicantDTO.class));
-				});
-			serviceOrderDto.setApplicantList(applicantDtoList);
+			String applicantIds = serviceOrderDto.getApplicantIds();
+			if (StringUtil.isNotEmpty(applicantIds)) {
+				List<ApplicantDO> applicantDoList = applicantDao.list(serviceOrderDto.getUserId(), 0, 999);
+				List<ApplicantDTO> applicantDtoList = new ArrayList<>();
+				if (applicantDoList != null && applicantDoList.size() > 0)
+					applicantDoList.forEach(applicantDo -> {
+						if (applicantIds.indexOf(applicantDo.getId() + "") > -1)
+							applicantDtoList.add(mapper.map(applicantDo, ApplicantDTO.class));
+					});
+				serviceOrderDto.setApplicantList(applicantDtoList);
+			}
+			
 		}
 		// 查询Mara
 		MaraDO maraDo = maraDao.getMaraById(serviceOrderDto.getMaraId());

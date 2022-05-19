@@ -18,6 +18,10 @@ public class VisaDTO {
 
 	private int userId;
 
+	private String applicantIds;
+
+	private List<ApplicantDTO> applicantList;
+
 	private String state;
 
 	private String commissionState;
@@ -73,7 +77,7 @@ public class VisaDTO {
 	private double sureExpectAmount;
 
 	private double discount;
-	
+
 	private String invoiceNumber;
 
 	private double gst;
@@ -99,7 +103,7 @@ public class VisaDTO {
 	private boolean isChecked;
 
 	private String remarks;
-	
+
 	private String refuseReason;
 
 	private String verifyCode;
@@ -115,10 +119,8 @@ public class VisaDTO {
 	private double totalAmount;
 
 	private Date invoiceCreate;
-	
+
 	private boolean isRefunded = false;
-	
-	private List<ApplicantDTO> applicantList;
 
 	private List<MailRemindDTO> mailRemindDTOS;
 

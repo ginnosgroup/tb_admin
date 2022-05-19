@@ -11,6 +11,7 @@
                 code,
                 handling_date,
                 user_id,
+                applicant_ids,
                 state,
                 commission_state,
                 kj_approval_date,
@@ -53,6 +54,7 @@
                 #{code},
                 #{handlingDate,jdbcType=TIMESTAMP},
                 #{userId},
+                #{applicantIds},
                 #{state},
                 'DJY',
                 #{kjApprovalDate},
@@ -99,6 +101,9 @@
         </if>
         <if test='userId != null and userId != ""'>
             , user_id = #{userId}
+        </if>
+        <if test='applicantIds != null and applicantIds != ""'>
+            , applicant_ids = #{applicantIds}
         </if>
         <if test='state != null and state != ""'>
             , state = #{state}
@@ -278,6 +283,7 @@
             bv.code AS code,
             bv.handling_date AS handlingDate,
             bv.user_id AS userId,
+            bv.applicant_ids AS applicantIds,
             bv.state AS state,
             bv.commission_state AS commissionState,
             bv.kj_approval_date AS kjApprovalDate,
@@ -386,6 +392,7 @@
             code,
             handling_date AS handlingDate,
             user_id AS userId,
+            applicant_ids AS applicantIds,
             state,
             commission_state AS commissionState,
             kj_approval_date AS kjApprovalDate,
@@ -435,6 +442,7 @@
             code,
             handling_date AS handlingDate,
             user_id AS userId,
+            applicant_ids AS applicantIds,
             state,
             commission_state AS commissionState,
             kj_approval_date AS kjApprovalDate,
@@ -547,6 +555,7 @@
             code,
             handling_date AS handlingDate,
             user_id AS userId,
+            applicant_ids AS applicantIds,
             state,
             commission_state AS commissionState,
             kj_approval_date AS kjApprovalDate,
@@ -600,6 +609,7 @@
             code,
             handling_date AS handlingDate,
             user_id AS userId,
+            applicant_ids AS applicantIds,
             state,
             commission_state AS commissionState,
             kj_approval_date AS kjApprovalDate,
@@ -664,6 +674,7 @@
             code,
             handling_date AS handlingDate,
             user_id AS userId,
+            applicant_ids AS applicantIds,
             state,
             commission_state AS commissionState,
             kj_approval_date AS kjApprovalDate,

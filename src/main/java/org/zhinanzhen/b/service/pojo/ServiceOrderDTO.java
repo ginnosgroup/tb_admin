@@ -135,6 +135,10 @@ public class ServiceOrderDTO {
 	private int userId;
 
 	private UserDTO user;
+	
+	private String applicantIds;
+	
+	private List<ApplicantDTO> applicantList;
 
 	private int maraId;
 
@@ -197,8 +201,6 @@ public class ServiceOrderDTO {
 	private ServiceAssessDO serviceAssessDO;
 	
 	private List<Integer> cIds; // 佣金订单编号
-	
-	private List<ApplicantDTO> applicantList;
 
 	private List<MailRemindDTO> mailRemindDTOS;
 

@@ -56,6 +56,7 @@
                 deduct_gst,
                 bonus,
                 user_id,
+                applicant_ids,
                 mara_id,
                 adviser_id,
                 adviser_id_2,
@@ -122,6 +123,7 @@
                 #{deductGst},
                 #{bonus},
                 #{userId},
+                #{applicantIds},
                 #{maraId},
                 #{adviserId},
                 #{adviserId2},
@@ -306,6 +308,9 @@
         </if>
         <if test='userId != null and userId > 0'>
             , user_id = #{userId}
+        </if>
+        <if test='applicantIds != null and applicantIds > 0'>
+            , applicant_ids = #{applicantIds}
         </if>
         <if test='maraId != null and maraId > 0'>
             , mara_id = #{maraId}
@@ -507,6 +512,7 @@
             so.deduct_gst AS deductGst,
             so.bonus AS bonus,
             so.user_id AS userId,
+            so.applicant_ids AS applicantIds,
             so.mara_id AS maraId,
             so.adviser_id AS adviserId,
             so.adviser_id_2 AS adviserId2,
@@ -681,6 +687,7 @@
             deduct_gst AS deductGst,
             bonus,
             user_id AS userId,
+            applicant_ids AS applicantIds,
             mara_id AS maraId,
             adviser_id AS adviserId,
             adviser_id_2 AS adviserId2,
@@ -842,6 +849,7 @@
             deduct_gst AS deductGst,
             bonus,
             user_id AS userId,
+            applicant_ids AS applicantIds,
             mara_id AS maraId,
             adviser_id AS adviserId,
             adviser_id_2 AS adviserId2,
@@ -939,6 +947,7 @@
         so.deduct_gst AS deductGst,
         so.bonus AS bonus,
         so.user_id AS userId,
+        so.applicant_ids AS applicantIds,
         so.mara_id AS maraId,
         so.adviser_id AS adviserId,
         so.adviser_id_2 AS adviserId2,

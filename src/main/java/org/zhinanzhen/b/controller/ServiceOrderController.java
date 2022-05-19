@@ -219,6 +219,7 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "deductGst", required = false) String deductGst,
 			@RequestParam(value = "bonus", required = false) String bonus,
 			@RequestParam(value = "userId") String userId,
+			@RequestParam(value = "applicantIds", required = false) String applicantIds,
 			@RequestParam(value = "maraId", required = false) String maraId,
 			@RequestParam(value = "adviserId") String adviserId,
 			@RequestParam(value = "officialId", required = false) String officialId,
@@ -328,6 +329,8 @@ public class ServiceOrderController extends BaseController {
 					else
 						serviceOrderDto.setUserId(StringUtil.toInt(userId));
 				}
+			if (StringUtil.isNotEmpty(applicantIds))
+				serviceOrderDto.setApplicantIds(applicantIds);
 			if (StringUtil.isNotEmpty(maraId) && !"SIV".equalsIgnoreCase(serviceOrderDto.getType())
 					&& !"NSV".equalsIgnoreCase(serviceOrderDto.getType())
 					&& !"MT".equalsIgnoreCase(serviceOrderDto.getType())) // SIV主订单和MT主订单不需要mara
@@ -549,6 +552,7 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "deductGst", required = false) String deductGst,
 			@RequestParam(value = "bonus", required = false) String bonus,
 			@RequestParam(value = "userId", required = false) String userId,
+			@RequestParam(value = "applicantIds", required = false) String applicantIds,
 			@RequestParam(value = "maraId", required = false) String maraId,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
 			@RequestParam(value = "officialId", required = false) String officialId,
@@ -578,7 +582,7 @@ public class ServiceOrderController extends BaseController {
 					paymentVoucherImageUrl3, paymentVoucherImageUrl4, paymentVoucherImageUrl5, invoiceVoucherImageUrl1,
 					invoiceVoucherImageUrl2,invoiceVoucherImageUrl3,invoiceVoucherImageUrl4,invoiceVoucherImageUrl5,
 					kjPaymentImageUrl1, kjPaymentImageUrl2, lowPriceImageUrl, perAmount, amount,
-					expectAmount, gst, deductGst, bonus, userId, maraId, adviserId, officialId, remarks, closedReason,
+					expectAmount, gst, deductGst, bonus, userId, applicantIds, maraId, adviserId, officialId, remarks, closedReason,
 					information, isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
 					institutionTradingName);
 			if (res != null && res.getCode() == 0) {
@@ -597,7 +601,7 @@ public class ServiceOrderController extends BaseController {
 								paymentVoucherImageUrl4, paymentVoucherImageUrl5, invoiceVoucherImageUrl1,
 								invoiceVoucherImageUrl2,invoiceVoucherImageUrl3,invoiceVoucherImageUrl4, invoiceVoucherImageUrl5,
 								kjPaymentImageUrl1, kjPaymentImageUrl2, lowPriceImageUrl, perAmount,
-								amount, expectAmount, gst, deductGst, bonus, userId, maraId, adviserId, officialId,
+								amount, expectAmount, gst, deductGst, bonus, userId, applicantIds, maraId, adviserId, officialId,
 								remarks, closedReason, information, isHistory, nutCloud, serviceAssessId, verifyCode,
 								refNo, courseId, schoolInstitutionLocationId, institutionTradingName);
 						if (cRes.getCode() > 0)
@@ -621,7 +625,7 @@ public class ServiceOrderController extends BaseController {
 										String invoiceVoucherImageUrl2, String invoiceVoucherImageUrl3, String invoiceVoucherImageUrl4,
 										String invoiceVoucherImageUrl5, String kjPaymentImageUrl1, String kjPaymentImageUrl2, String lowPriceImageUrl, String perAmount,
 										String amount, String expectAmount, String gst, String deductGst,
-										String bonus, String userId, String maraId, String adviserId, String officialId,
+										String bonus, String userId, String applicantIds, String maraId, String adviserId, String officialId,
 										String remarks, String closedReason, String information, String isHistory, String nutCloud,
 										String serviceAssessId, String verifyCode, String refNo, Integer courseId, Integer schoolInstitutionLocationId,
 										String institutionTradingName) {
@@ -709,6 +713,8 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setBonus(Double.parseDouble(bonus));
 			if (StringUtil.isNotEmpty(userId))
 				serviceOrderDto.setUserId(StringUtil.toInt(userId));
+			if (StringUtil.isNotEmpty(applicantIds))
+				serviceOrderDto.setApplicantIds(applicantIds);
 			if (StringUtil.isNotEmpty(maraId))
 				serviceOrderDto.setMaraId(StringUtil.toInt(maraId));
 			if (StringUtil.isNotEmpty(adviserId))

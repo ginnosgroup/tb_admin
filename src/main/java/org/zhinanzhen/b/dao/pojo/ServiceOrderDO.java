@@ -127,6 +127,8 @@ public class ServiceOrderDO implements Serializable {
 	private double bonus;
 
 	private int userId;
+	
+	private String applicantIds;
 
 	private int maraId;
 
