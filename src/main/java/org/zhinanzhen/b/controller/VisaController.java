@@ -83,6 +83,7 @@ public class VisaController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<List<VisaDTO>> addVisa(@RequestParam(value = "userId", required = false) String userId,
+			@RequestParam(value = "applicantIds", required = false) String applicantIds,
 			@RequestParam(value = "handlingDate") String handlingDate,
 			@RequestParam(value = "receiveTypeId") String receiveTypeId,
 			@RequestParam(value = "receiveDate") String receiveDate,
@@ -132,6 +133,8 @@ public class VisaController extends BaseCommissionOrderController {
 			visaDto.setState(ReviewKjStateEnum.PENDING.toString());
 			if (StringUtil.isNotEmpty(userId))
 				visaDto.setUserId(Integer.parseInt(userId));
+			if (StringUtil.isNotEmpty(applicantIds))
+				visaDto.setApplicantIds(applicantIds);
 			visaDto.setCode(UUID.randomUUID().toString());
 			if (StringUtil.isNotEmpty(handlingDate))
 				visaDto.setHandlingDate(new Date(Long.parseLong(handlingDate)));
@@ -251,6 +254,7 @@ public class VisaController extends BaseCommissionOrderController {
 	public Response<VisaDTO> update(@RequestParam(value = "id") int id,
 			@RequestParam(value = "state", required = false) String state,
 			@RequestParam(value = "userId", required = false) String userId,
+			@RequestParam(value = "applicantIds", required = false) String applicantIds,
 			@RequestParam(value = "commissionState", required = false) String commissionState,
 			@RequestParam(value = "handlingDate", required = false) String handlingDate,
 			@RequestParam(value = "receiveTypeId", required = false) String receiveTypeId,
@@ -296,6 +300,9 @@ public class VisaController extends BaseCommissionOrderController {
 			}
 			if (StringUtil.isNotEmpty(userId)) {
 				visaDto.setUserId(Integer.parseInt(userId));
+			}
+			if (StringUtil.isNotEmpty(applicantIds)) {
+				visaDto.setApplicantIds(applicantIds);
 			}
 			if (StringUtil.isNotEmpty(receiveTypeId)) {
 				visaDto.setReceiveTypeId(Integer.parseInt(receiveTypeId));
