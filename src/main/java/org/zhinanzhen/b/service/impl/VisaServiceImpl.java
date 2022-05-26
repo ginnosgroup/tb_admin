@@ -185,7 +185,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
 			throw se;
 		}
-		for (VisaDO visaListDo : visaListDoList) {
+		for (VisaListDO visaListDo : visaListDoList) {
 			VisaDTO visaDto = putVisaDTO(visaListDo);
 			/*
 			VisaDTO visaDto = mapper.map(visaListDo, VisaDTO.class);
@@ -312,6 +312,19 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 		return visaDto;
 	}
 
+	public VisaDTO putVisaDTO(VisaListDO visaListDo) throws ServiceException {
+		VisaDTO visaDto = putVisaDTO((VisaDO) visaListDo);
+		if (visaListDo.getUserId() > 0 && visaListDo.getApplicantId() >= 0) {
+			List<ApplicantDO> applicantDoList = applicantDao.list(visaListDo.getUserId(), 0, 999);
+			if (applicantDoList != null && applicantDoList.size() > 0)
+				applicantDoList.forEach(applicantDo -> {
+					if (visaListDo.getApplicantId() == applicantDo.getId())
+						visaDto.setApplicant(mapper.map(applicantDo, ApplicantDTO.class));
+				});
+		}
+		return visaDto;
+	}
+
 	public VisaDTO putVisaDTO(VisaDO visaListDo) throws ServiceException {
 		VisaDTO visaDto = mapper.map(visaListDo, VisaDTO.class);
 		putReviews(visaDto);
@@ -320,17 +333,6 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			visaDto.setUserName(userDo.getName());
 			visaDto.setPhone(userDo.getPhone());
 			visaDto.setBirthday(userDo.getBirthday());
-			String applicantIds = visaDto.getApplicantIds();
-			if (StringUtil.isNotEmpty(applicantIds)) {
-				List<ApplicantDO> applicantDoList = applicantDao.list(visaDto.getUserId(), 0, 999);
-				List<ApplicantDTO> applicantDtoList = new ArrayList<>();
-				if (applicantDoList != null && applicantDoList.size() > 0)
-					applicantDoList.forEach(applicantDo -> {
-						if (applicantIds.indexOf(applicantDo.getId() + "") > -1)
-							applicantDtoList.add(mapper.map(applicantDo, ApplicantDTO.class));
-					});
-				visaDto.setApplicantList(applicantDtoList);
-			}
 		}
 //			ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(visaListDo.getServiceOrderId());
 //			if (serviceOrderDo != null && StringUtil.isNotEmpty(serviceOrderDo.getRefuseReason()))

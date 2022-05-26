@@ -34,6 +34,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
 //	@Resource
 //	private ServiceOrderReviewDAO serviceOrderReviewDao;
+	
+	@Resource
+	private ServiceOrderApplicantDAO serviceOrderApplicantDao;
 
 	@Resource
 	private SchoolDAO schoolDao;
@@ -554,18 +557,22 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		UserDO userDo = userDao.getUserById(serviceOrderDto.getUserId());
 		if (userDo != null) {
 			serviceOrderDto.setUser(mapper.map(userDo, UserDTO.class));
-			String applicantIds = serviceOrderDto.getApplicantIds();
-			if (StringUtil.isNotEmpty(applicantIds)) {
+			if (serviceOrderDto.getUserId() > 0 && serviceOrderDto.getApplicantId() >= 0) {
 				List<ApplicantDO> applicantDoList = applicantDao.list(serviceOrderDto.getUserId(), 0, 999);
-				List<ApplicantDTO> applicantDtoList = new ArrayList<>();
 				if (applicantDoList != null && applicantDoList.size() > 0)
 					applicantDoList.forEach(applicantDo -> {
-						if (applicantIds.indexOf(applicantDo.getId() + "") > -1)
-							applicantDtoList.add(mapper.map(applicantDo, ApplicantDTO.class));
+						if (serviceOrderDto.getApplicantId() == applicantDo.getId()) {
+							ApplicantDTO applicantDto = mapper.map(applicantDo, ApplicantDTO.class);
+							List<ServiceOrderApplicantDO> serviceOrderApplicantDoList = serviceOrderApplicantDao
+									.list(serviceOrderDO.getId(), applicantDo.getId());
+							if (serviceOrderApplicantDoList.get(0) != null) {
+								applicantDto.setUrl(serviceOrderApplicantDoList.get(0).getUrl());
+								applicantDto.setMessage(serviceOrderApplicantDoList.get(0).getMessage());
+							}
+							serviceOrderDto.setApplicant(applicantDto);
+						}
 					});
-				serviceOrderDto.setApplicantList(applicantDtoList);
 			}
-			
 		}
 		// 查询Mara
 		MaraDO maraDo = maraDao.getMaraById(serviceOrderDto.getMaraId());

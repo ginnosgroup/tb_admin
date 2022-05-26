@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.controller.BaseCommissionOrderController.ReviewKjStateEnum;
@@ -386,16 +385,13 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 				commissionOrderListDto.setUser(mapper.map(userDo, UserDTO.class));
 				commissionOrderListDto.setBirthday(userDo.getBirthday());
 			}
-			String applicantIds = commissionOrderListDto.getApplicantIds();
-			if (StringUtil.isNotEmpty(applicantIds)) {
+			if (commissionOrderListDo.getUserId() > 0 && commissionOrderListDo.getApplicantId() >= 0) {
 				List<ApplicantDO> applicantDoList = applicantDao.list(commissionOrderListDto.getUserId(), 0, 999);
-				List<ApplicantDTO> applicantDtoList = new ArrayList<>();
 				if (applicantDoList != null && applicantDoList.size() > 0)
 					applicantDoList.forEach(applicantDo -> {
-						if (applicantIds.indexOf(applicantDo.getId() + "") > -1)
-							applicantDtoList.add(mapper.map(applicantDo, ApplicantDTO.class));
+						if (commissionOrderListDo.getApplicantId() == applicantDo.getId())
+							commissionOrderListDto.setApplicant(mapper.map(applicantDo, ApplicantDTO.class));
 					});
-				commissionOrderListDto.setApplicantList(applicantDtoList);
 			}
 		}
 		if (commissionOrderListDo.getSchoolId() > 0) {
@@ -443,21 +439,24 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			commissionOrderListDto.setTotalAmount(totalAmount);
 		}
 
-		//List<MailRemindDO> mailRemindDOS = mailRemindDAO.list(null,null,null,null,null,commissionOrderListDo.getId(),null,false,true);
-		//if (mailRemindDOS.size() > 0){
-		//	List<MailRemindDTO> mailRemindDTOS = new ArrayList<>();
-		//	mailRemindDOS.forEach(mailRemindDO ->{
-		//		mailRemindDTOS.add(mapper.map(mailRemindDO,MailRemindDTO.class));
-		//	});
-		//	commissionOrderListDto.setMailRemindDTOS(mailRemindDTOS);
-		//}
+		// List<MailRemindDO> mailRemindDOS =
+		// mailRemindDAO.list(null,null,null,null,null,commissionOrderListDo.getId(),null,false,true);
+		// if (mailRemindDOS.size() > 0){
+		// List<MailRemindDTO> mailRemindDTOS = new ArrayList<>();
+		// mailRemindDOS.forEach(mailRemindDO ->{
+		// mailRemindDTOS.add(mapper.map(mailRemindDO,MailRemindDTO.class));
+		// });
+		// commissionOrderListDto.setMailRemindDTOS(mailRemindDTOS);
+		// }
 
-		//添加新学校相关
-		if (commissionOrderListDo.getCourseId() > 0){
-			SchoolInstitutionListDTO schoolInstitutionInfo = schoolCourseDAO.getSchoolInstitutionInfoByCourseId(commissionOrderListDo.getCourseId());
+		// 添加新学校相关
+		if (commissionOrderListDo.getCourseId() > 0) {
+			SchoolInstitutionListDTO schoolInstitutionInfo = schoolCourseDAO
+					.getSchoolInstitutionInfoByCourseId(commissionOrderListDo.getCourseId());
 			commissionOrderListDto.setSchoolInstitutionListDTO(schoolInstitutionInfo);
-			if (commissionOrderListDo.getSchoolInstitutionLocationId() > 0 && schoolInstitutionInfo != null){
-				SchoolInstitutionLocationDO schoolInstitutionLocationDO = schoolInstitutionLocationDAO.getById(commissionOrderListDo.getSchoolInstitutionLocationId());
+			if (commissionOrderListDo.getSchoolInstitutionLocationId() > 0 && schoolInstitutionInfo != null) {
+				SchoolInstitutionLocationDO schoolInstitutionLocationDO = schoolInstitutionLocationDAO
+						.getById(commissionOrderListDo.getSchoolInstitutionLocationId());
 				schoolInstitutionInfo.setSchoolInstitutionLocationDO(schoolInstitutionLocationDO);
 			}
 		}

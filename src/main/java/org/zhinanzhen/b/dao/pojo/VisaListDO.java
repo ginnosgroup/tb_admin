@@ -20,5 +20,9 @@ public class VisaListDO extends VisaDO {
 	@Getter
 	@Setter
 	private String phone;
+	
+	@Getter
+	@Setter
+	private int applicantId;
 
 }

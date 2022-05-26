@@ -65,6 +65,9 @@ public class ServiceOrderController extends BaseController {
 
 	@Resource
 	ServiceOrderService serviceOrderService;
+	
+	@Resource
+	ServiceOrderApplicantService serviceOrderApplicantService;
 
 	@Resource
 	UserService userService;
@@ -219,7 +222,7 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "deductGst", required = false) String deductGst,
 			@RequestParam(value = "bonus", required = false) String bonus,
 			@RequestParam(value = "userId") String userId,
-			@RequestParam(value = "applicantIds", required = false) String applicantIds,
+			@RequestParam(value = "serviceOrderApplicantList", required = false) List<ServiceOrderApplicantDTO> serviceOrderApplicantList,
 			@RequestParam(value = "maraId", required = false) String maraId,
 			@RequestParam(value = "adviserId") String adviserId,
 			@RequestParam(value = "officialId", required = false) String officialId,
@@ -379,10 +382,11 @@ public class ServiceOrderController extends BaseController {
 					serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
 							serviceOrderDto.getState(), null, null, null);
 				// 虽然设计了可以逗号分割保存多个申请人ID，但后来讨论需求后要求如果有多个申请人则创建多条子订单
-				if (StringUtil.isNotEmpty(applicantIds)) {
-					List<String> applicantIdList = Arrays.asList(applicantIds.split(","));
-					for (String applicantId : applicantIdList) {
-						serviceOrderDto.setApplicantIds(applicantId);
+				if (!ListUtil.isEmpty(serviceOrderApplicantList)) {
+					for (ServiceOrderApplicantDTO serviceOrderApplicantDto : serviceOrderApplicantList) {
+						if (serviceOrderApplicantDto.getApplicantId() <= 0)
+							continue;
+						serviceOrderDto.setApplicantId(serviceOrderApplicantDto.getApplicantId());
 						// 创建子服务订单
 						if (StringUtil.isNotEmpty(servicePackageIds)) {
 							List<String> servicePackageIdList = Arrays.asList(servicePackageIds.split(","));
@@ -408,17 +412,22 @@ public class ServiceOrderController extends BaseController {
 								if (StringUtil.isNotEmpty(officialId))
 									serviceOrderDto.setOfficialId(StringUtil.toInt(officialId)); // 独立技术移民子订单需要文案
 								if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0
-										&& adminUserLoginInfo != null)
+										&& adminUserLoginInfo != null) {
 									serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
 											ReviewAdviserStateEnum.PENDING.toString(), null, null, null);
-								else
+									serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
+									// ...
+								} else
 									msg += "子服务订单创建失败(" + serviceOrderDto + "). ";
 							}
 						} else {
-							if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null)
+							if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0
+									&& adminUserLoginInfo != null) {
 								serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
 										ReviewAdviserStateEnum.PENDING.toString(), null, null, null);
-							else
+								serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
+								// ...
+							} else
 								msg += "申请人子服务订单创建失败(" + serviceOrderDto + "). ";
 						}
 					}
@@ -639,7 +648,7 @@ public class ServiceOrderController extends BaseController {
 										String invoiceVoucherImageUrl2, String invoiceVoucherImageUrl3, String invoiceVoucherImageUrl4,
 										String invoiceVoucherImageUrl5, String kjPaymentImageUrl1, String kjPaymentImageUrl2, String lowPriceImageUrl, String perAmount,
 										String amount, String expectAmount, String gst, String deductGst,
-										String bonus, String userId, String applicantIds, String maraId, String adviserId, String officialId,
+										String bonus, String userId, String applicantId, String maraId, String adviserId, String officialId,
 										String remarks, String closedReason, String information, String isHistory, String nutCloud,
 										String serviceAssessId, String verifyCode, String refNo, Integer courseId, Integer schoolInstitutionLocationId,
 										String institutionTradingName) {
@@ -727,8 +736,8 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setBonus(Double.parseDouble(bonus));
 			if (StringUtil.isNotEmpty(userId))
 				serviceOrderDto.setUserId(StringUtil.toInt(userId));
-			if (StringUtil.isNotEmpty(applicantIds))
-				serviceOrderDto.setApplicantIds(applicantIds);
+			if (StringUtil.isNotEmpty(applicantId))
+				serviceOrderDto.setApplicantId(StringUtil.toInt(applicantId));
 			if (StringUtil.isNotEmpty(maraId))
 				serviceOrderDto.setMaraId(StringUtil.toInt(maraId));
 			if (StringUtil.isNotEmpty(adviserId))

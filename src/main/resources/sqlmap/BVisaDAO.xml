@@ -11,7 +11,6 @@
                 code,
                 handling_date,
                 user_id,
-                applicant_ids,
                 state,
                 commission_state,
                 kj_approval_date,
@@ -54,7 +53,6 @@
                 #{code},
                 #{handlingDate,jdbcType=TIMESTAMP},
                 #{userId},
-                #{applicantIds},
                 #{state},
                 'DJY',
                 #{kjApprovalDate},
@@ -101,9 +99,6 @@
         </if>
         <if test='userId != null and userId != ""'>
             , user_id = #{userId}
-        </if>
-        <if test='applicantIds != null and applicantIds != ""'>
-            , applicant_ids = #{applicantIds}
         </if>
         <if test='state != null and state != ""'>
             , state = #{state}
@@ -283,7 +278,6 @@
             bv.code AS code,
             bv.handling_date AS handlingDate,
             bv.user_id AS userId,
-            bv.applicant_ids AS applicantIds,
             bv.state AS state,
             bv.commission_state AS commissionState,
             bv.kj_approval_date AS kjApprovalDate,
@@ -324,9 +318,10 @@
             bv.invoice_create AS invoiceCreate,
             tbu.name AS userName,
             tbu.birthday AS birthday,
-            tbu.phone AS phone
-        FROM b_visa bv, tb_user tbu, tb_adviser a
-        WHERE bv.user_id = tbu.id AND a.id = bv.adviser_id
+            tbu.phone AS phone,
+            so.applicant_id AS applicantId
+        FROM b_visa bv, tb_user tbu, tb_adviser a, b_service_order so
+        WHERE bv.user_id = tbu.id AND a.id = bv.adviser_id AND bv.service_order_id = so.id
         <if test='id != null and id > 0'>
             AND bv.id = #{id}
         </if>
@@ -385,14 +380,13 @@
         LIMIT #{offset}, #{rows};
     </select>
     
-    <select id="listVisaByCode" resultType="org.zhinanzhen.b.dao.pojo.VisaListDO">
+    <select id="listVisaByCode" resultType="org.zhinanzhen.b.dao.pojo.VisaDO">
         SELECT
             id,
             gmt_create AS gmtCreate,
             code,
             handling_date AS handlingDate,
             user_id AS userId,
-            applicant_ids AS applicantIds,
             state,
             commission_state AS commissionState,
             kj_approval_date AS kjApprovalDate,
@@ -435,14 +429,13 @@
         WHERE code = #{code};
     </select>
     
-    <select id="listVisaByServiceOrderId" resultType="org.zhinanzhen.b.dao.pojo.VisaListDO">
+    <select id="listVisaByServiceOrderId" resultType="org.zhinanzhen.b.dao.pojo.VisaDO">
         SELECT
             id,
             gmt_create AS gmtCreate,
             code,
             handling_date AS handlingDate,
             user_id AS userId,
-            applicant_ids AS applicantIds,
             state,
             commission_state AS commissionState,
             kj_approval_date AS kjApprovalDate,
@@ -555,7 +548,6 @@
             code,
             handling_date AS handlingDate,
             user_id AS userId,
-            applicant_ids AS applicantIds,
             state,
             commission_state AS commissionState,
             kj_approval_date AS kjApprovalDate,
@@ -609,7 +601,6 @@
             code,
             handling_date AS handlingDate,
             user_id AS userId,
-            applicant_ids AS applicantIds,
             state,
             commission_state AS commissionState,
             kj_approval_date AS kjApprovalDate,
@@ -667,14 +658,13 @@
         ORDER BY visa_expiration_date ASC limit #{pageNum},#{pageSize} ;
     </select>
 
-    <select id="listVisaByVerifyCode" resultType="org.zhinanzhen.b.dao.pojo.VisaListDO">
+    <select id="listVisaByVerifyCode" resultType="org.zhinanzhen.b.dao.pojo.VisaDO">
         SELECT
             id,
             gmt_create AS gmtCreate,
             code,
             handling_date AS handlingDate,
             user_id AS userId,
-            applicant_ids AS applicantIds,
             state,
             commission_state AS commissionState,
             kj_approval_date AS kjApprovalDate,

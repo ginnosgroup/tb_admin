@@ -1,7 +1,6 @@
 package org.zhinanzhen.b.service.pojo;
 
 import java.util.Date;
-import java.util.List;
 
 import lombok.Data;
 import lombok.ToString;
@@ -38,9 +37,7 @@ public class CommissionOrderDTO {
 
 	private int userId;
 
-	private String applicantIds;
-
-	private List<ApplicantDTO> applicantList;
+	private ApplicantDTO applicant;
 
 	private int adviserId;
 

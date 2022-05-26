@@ -136,9 +136,9 @@ public class ServiceOrderDTO {
 
 	private UserDTO user;
 	
-	private String applicantIds;
+	private int applicantId;
 	
-	private List<ApplicantDTO> applicantList;
+	private ApplicantDTO applicant;
 
 	private int maraId;
 

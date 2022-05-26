@@ -128,7 +128,7 @@ public class ServiceOrderDO implements Serializable {
 
 	private int userId;
 	
-	private String applicantIds;
+	private int applicantId;
 
 	private int maraId;
 

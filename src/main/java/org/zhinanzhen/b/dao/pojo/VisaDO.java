@@ -19,8 +19,6 @@ public class VisaDO implements Serializable {
 	private Date handlingDate;
 
 	private int userId;
-	
-	private String applicantIds;
 
 	private String state;
 

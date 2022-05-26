@@ -92,7 +92,6 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "schoolInstitutionLocationId", required = false)Integer schoolInstitutionLocationId,
 			@RequestParam(value = "studentCode") String studentCode,
 			@RequestParam(value = "userId") Integer userId,
-			@RequestParam(value = "applicantIds", required = false) String applicantIds,
 			@RequestParam(value = "adviserId") Integer adviserId,
 			@RequestParam(value = "officialId") Integer officialId,
 			@RequestParam(value = "isStudying") Boolean isStudying,
@@ -164,8 +163,6 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			commissionOrderDto.setSchoolInstitutionLocationId(schoolInstitutionLocationId == null ? 0 : schoolInstitutionLocationId);
 			commissionOrderDto.setStudentCode(studentCode);
 			commissionOrderDto.setUserId(userId);
-			if (StringUtil.isNotEmpty(applicantIds))
-				commissionOrderDto.setApplicantIds(applicantIds);
 			commissionOrderDto.setAdviserId(adviserId);
 			commissionOrderDto.setOfficialId(officialId);
 			commissionOrderDto.setStudying(isStudying);

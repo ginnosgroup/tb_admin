@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.ServiceOrderApplicantDAO">
+
+    <insert id="add" parameterType="org.zhinanzhen.b.dao.pojo.ServiceOrderApplicantDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+            INTO b_service_order_applicant (
+                gmt_create,
+                gmt_modify,
+                service_order_id,
+                applicant_id,
+                url,
+                message)
+            VALUES (
+                now(),
+                now(),
+                #{serviceOrderId},
+                #{applicantId},
+                #{url},
+                #{message});
+    </insert>
+    
+    <select id="list" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderApplicantDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            service_order_id AS serviceOrderId,
+            applicant_id AS applicantId,
+            url,
+            message
+        FROM b_service_order_applicant
+        WHERE 1=1
+        <if test='serviceOrderId != null and serviceOrderId > 0'>
+            AND service_order_id = #{serviceOrderId}
+        </if>
+        <if test='applicantId != null and applicantId > 0'>
+            AND applicant_id == #{applicantId}
+        </if>
+        ORDER BY gmt_create DESC;
+    </select>
+    
+    <delete id="delete" parameterType="java.lang.Integer">
+		DELETE FROM b_service_order_applicant WHERE id = #{id, jdbcType=INTEGER}
+	</delete>
+
+</mapper>
