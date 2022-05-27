@@ -44,6 +44,7 @@ import org.zhinanzhen.tb.service.pojo.RegionDTO;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.core.utils.ObjectUtil;
@@ -225,7 +226,7 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "deductGst", required = false) String deductGst,
 			@RequestParam(value = "bonus", required = false) String bonus,
 			@RequestParam(value = "userId") String userId,
-			@RequestParam(value = "serviceOrderApplicantList", required = false) List<ServiceOrderApplicantDTO> serviceOrderApplicantList,
+			@RequestParam(value = "serviceOrderApplicantList", required = false) String serviceOrderApplicantListJson,
 			@RequestParam(value = "maraId", required = false) String maraId,
 			@RequestParam(value = "adviserId") String adviserId,
 			@RequestParam(value = "officialId", required = false) String officialId,
@@ -385,7 +386,9 @@ public class ServiceOrderController extends BaseController {
 					serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
 							serviceOrderDto.getState(), null, null, null);
 				// 虽然设计了可以逗号分割保存多个申请人ID，但后来讨论需求后要求如果有多个申请人则创建多条子订单
-				if (!ListUtil.isEmpty(serviceOrderApplicantList)) {
+				if (StringUtil.isNotEmpty(serviceOrderApplicantListJson)) {
+					List<ServiceOrderApplicantDTO> serviceOrderApplicantList = JSONObject
+							.parseArray(serviceOrderApplicantListJson, ServiceOrderApplicantDTO.class);
 					for (ServiceOrderApplicantDTO serviceOrderApplicantDto : serviceOrderApplicantList) {
 						if (serviceOrderApplicantDto.getApplicantId() <= 0)
 							continue;
