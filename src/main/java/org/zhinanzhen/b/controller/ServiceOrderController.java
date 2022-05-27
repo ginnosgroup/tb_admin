@@ -67,6 +67,9 @@ public class ServiceOrderController extends BaseController {
 	ServiceOrderService serviceOrderService;
 	
 	@Resource
+	ApplicantService applicantService;
+	
+	@Resource
 	ServiceOrderApplicantService serviceOrderApplicantService;
 
 	@Resource
@@ -575,7 +578,8 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "deductGst", required = false) String deductGst,
 			@RequestParam(value = "bonus", required = false) String bonus,
 			@RequestParam(value = "userId", required = false) String userId,
-			@RequestParam(value = "applicantIds", required = false) String applicantIds,
+			@RequestParam(value = "applicantId", required = false) String applicantId,
+			@RequestParam(value = "applicantBirthday", required = false) String applicantBirthday,
 			@RequestParam(value = "maraId", required = false) String maraId,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
 			@RequestParam(value = "officialId", required = false) String officialId,
@@ -605,7 +609,7 @@ public class ServiceOrderController extends BaseController {
 					paymentVoucherImageUrl3, paymentVoucherImageUrl4, paymentVoucherImageUrl5, invoiceVoucherImageUrl1,
 					invoiceVoucherImageUrl2,invoiceVoucherImageUrl3,invoiceVoucherImageUrl4,invoiceVoucherImageUrl5,
 					kjPaymentImageUrl1, kjPaymentImageUrl2, lowPriceImageUrl, perAmount, amount,
-					expectAmount, gst, deductGst, bonus, userId, applicantIds, maraId, adviserId, officialId, remarks, closedReason,
+					expectAmount, gst, deductGst, bonus, userId, applicantId, applicantBirthday, maraId, adviserId, officialId, remarks, closedReason,
 					information, isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
 					institutionTradingName);
 			if (res != null && res.getCode() == 0) {
@@ -624,7 +628,7 @@ public class ServiceOrderController extends BaseController {
 								paymentVoucherImageUrl4, paymentVoucherImageUrl5, invoiceVoucherImageUrl1,
 								invoiceVoucherImageUrl2,invoiceVoucherImageUrl3,invoiceVoucherImageUrl4, invoiceVoucherImageUrl5,
 								kjPaymentImageUrl1, kjPaymentImageUrl2, lowPriceImageUrl, perAmount,
-								amount, expectAmount, gst, deductGst, bonus, userId, applicantIds, maraId, adviserId, officialId,
+								amount, expectAmount, gst, deductGst, bonus, userId, applicantId, null, maraId, adviserId, officialId,
 								remarks, closedReason, information, isHistory, nutCloud, serviceAssessId, verifyCode,
 								refNo, courseId, schoolInstitutionLocationId, institutionTradingName);
 						if (cRes.getCode() > 0)
@@ -638,20 +642,20 @@ public class ServiceOrderController extends BaseController {
 		}
 
 	}
-	
-	private Response<Integer> updateOne(ServiceOrderDTO serviceOrderDto, String type, Integer peopleNumber, String peopleType,
-										String peopleRemarks, String serviceId, String schoolId, String urgentState, String isSettle, String isDepositUser,
-										String subagencyId, String isPay, String receiveTypeId, String receiveDate,
-										String receivable, String discount, String received, Integer installment,
-										String paymentVoucherImageUrl1, String paymentVoucherImageUrl2, String paymentVoucherImageUrl3,
-										String paymentVoucherImageUrl4, String paymentVoucherImageUrl5, String invoiceVoucherImageUrl1,
-										String invoiceVoucherImageUrl2, String invoiceVoucherImageUrl3, String invoiceVoucherImageUrl4,
-										String invoiceVoucherImageUrl5, String kjPaymentImageUrl1, String kjPaymentImageUrl2, String lowPriceImageUrl, String perAmount,
-										String amount, String expectAmount, String gst, String deductGst,
-										String bonus, String userId, String applicantId, String maraId, String adviserId, String officialId,
-										String remarks, String closedReason, String information, String isHistory, String nutCloud,
-										String serviceAssessId, String verifyCode, String refNo, Integer courseId, Integer schoolInstitutionLocationId,
-										String institutionTradingName) {
+
+	private Response<Integer> updateOne(ServiceOrderDTO serviceOrderDto, String type, Integer peopleNumber,
+			String peopleType, String peopleRemarks, String serviceId, String schoolId, String urgentState,
+			String isSettle, String isDepositUser, String subagencyId, String isPay, String receiveTypeId,
+			String receiveDate, String receivable, String discount, String received, Integer installment,
+			String paymentVoucherImageUrl1, String paymentVoucherImageUrl2, String paymentVoucherImageUrl3,
+			String paymentVoucherImageUrl4, String paymentVoucherImageUrl5, String invoiceVoucherImageUrl1,
+			String invoiceVoucherImageUrl2, String invoiceVoucherImageUrl3, String invoiceVoucherImageUrl4,
+			String invoiceVoucherImageUrl5, String kjPaymentImageUrl1, String kjPaymentImageUrl2,
+			String lowPriceImageUrl, String perAmount, String amount, String expectAmount, String gst, String deductGst,
+			String bonus, String userId, String applicantId, String applicantBirthday, String maraId, String adviserId,
+			String officialId, String remarks, String closedReason, String information, String isHistory,
+			String nutCloud, String serviceAssessId, String verifyCode, String refNo, Integer courseId,
+			Integer schoolInstitutionLocationId, String institutionTradingName) {
 		try {
 			if (StringUtil.isNotEmpty(type))
 				serviceOrderDto.setType(type);
@@ -788,6 +792,16 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setInstitutionTradingName(institutionTradingName);
 			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
 			if (i > 0) {
+				ApplicantDTO applicantDto = serviceOrderDto.getApplicant();
+				if (applicantDto != null && applicantBirthday != null) {
+					applicantDto.setBirthday(new Date(Long.parseLong(applicantBirthday)));
+					if (applicantService.update(applicantDto) <= 0)
+						LOG.error("申请人生日修改失败! (serviceOrderId:" + serviceOrderDto.getId() + ", applicantId:"
+								+ applicantDto.getId() + ", applicantBirthday:" + applicantDto.getBirthday() + ")");
+					else
+						LOG.info("申请人生日修改成功. (serviceOrderId:" + serviceOrderDto.getId() + ", applicantId:"
+								+ applicantDto.getId() + ", applicantBirthday:" + applicantDto.getBirthday() + ")");
+				}
 				return new Response<Integer>(0, i);
 			} else {
 				return new Response<Integer>(1, "修改失败.", 0);
