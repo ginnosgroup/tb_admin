@@ -234,7 +234,7 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "closedReason", required = false) String closedReason,
 			@RequestParam(value = "information", required = false) String information,
 			@RequestParam(value = "isHistory", required = false) String isHistory,
-			@RequestParam(value = "nutCloud") String nutCloud,
+			@RequestParam(value = "nutCloud", required = false) String nutCloud,
 			@RequestParam(value = "serviceAssessId", required = false) String serviceAssessId,
 			@RequestParam(value = "verifyCode", required = false) String verifyCode,
 			@RequestParam(value = "refNo", required = false) String refNo,
