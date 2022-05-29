@@ -380,6 +380,12 @@ public class ServiceOrderController extends BaseController {
 			}
 			if (schoolInstitutionLocationId != null && schoolInstitutionLocationId > 0)
 				serviceOrderDto.setSchoolInstitutionLocationId(schoolInstitutionLocationId);
+			if (StringUtil.isNotEmpty(serviceOrderApplicantListJson)) {
+				List<ServiceOrderApplicantDTO> serviceOrderApplicantList = JSONObject
+						.parseArray(serviceOrderApplicantListJson, ServiceOrderApplicantDTO.class);
+				if (!ListUtil.isEmpty(serviceOrderApplicantList) && serviceOrderApplicantList.size() == 1)
+					serviceOrderDto.setApplicantId(serviceOrderApplicantList.get(0).getApplicantId());
+			}
 			if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
 				String msg = "";
 				if (adminUserLoginInfo != null)
@@ -426,7 +432,11 @@ public class ServiceOrderController extends BaseController {
 								} else
 									msg += "子服务订单创建失败(" + serviceOrderDto + "). ";
 							}
-						} else {
+							if(serviceOrderApplicantList.size() == 1)
+								continue;
+						} else if (serviceOrderApplicantList.size() > 1) {
+							serviceOrderDto.setParentId(serviceOrderDto.getId());
+							serviceOrderDto.setId(0);
 							if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0
 									&& adminUserLoginInfo != null) {
 								serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
