@@ -433,7 +433,7 @@ public class ServiceOrderController extends BaseController {
 									msg += "子服务订单创建失败(" + serviceOrderDto + "). ";
 							}
 							if(serviceOrderApplicantList.size() == 1)
-								continue;
+								break;
 						} else if (serviceOrderApplicantList.size() > 1) {
 							serviceOrderDto.setParentId(serviceOrderDto.getId());
 							serviceOrderDto.setId(0);
