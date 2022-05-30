@@ -385,58 +385,44 @@ public class ServiceOrderController extends BaseController {
 						.parseArray(serviceOrderApplicantListJson, ServiceOrderApplicantDTO.class);
 				if (!ListUtil.isEmpty(serviceOrderApplicantList) && serviceOrderApplicantList.size() == 1)
 					serviceOrderDto.setApplicantId(serviceOrderApplicantList.get(0).getApplicantId());
-			}
+			} else
+				return new Response<Integer>(1, "请选择申请人.", null);
 			if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
 				String msg = "";
 				if (adminUserLoginInfo != null)
 					serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
 							serviceOrderDto.getState(), null, null, null);
 				// 虽然设计了可以逗号分割保存多个申请人ID，但后来讨论需求后要求如果有多个申请人则创建多条子订单
-				if (StringUtil.isNotEmpty(serviceOrderApplicantListJson)) {
-					List<ServiceOrderApplicantDTO> serviceOrderApplicantList = JSONObject
-							.parseArray(serviceOrderApplicantListJson, ServiceOrderApplicantDTO.class);
-					for (ServiceOrderApplicantDTO serviceOrderApplicantDto : serviceOrderApplicantList) {
-						if (serviceOrderApplicantDto.getApplicantId() <= 0)
-							continue;
-						serviceOrderDto.setApplicantId(serviceOrderApplicantDto.getApplicantId());
-						// 创建子服务订单
-						if (StringUtil.isNotEmpty(servicePackageIds)) {
-							List<String> servicePackageIdList = Arrays.asList(servicePackageIds.split(","));
-							serviceOrderDto.setParentId(serviceOrderDto.getId());
-							serviceOrderDto.setId(0);
-							for (String servicePackageId : servicePackageIdList) {
-								int id = StringUtil.toInt(servicePackageId);
-								if (servicePackageService.getById(id) == null) {
-									msg += "服务包不存在(" + id + "),请检查参数. ";
-									continue;
-								}
-								serviceOrderDto.setServicePackageId(id);
-								ServicePackageDTO servicePackageDto = servicePackageService.getById(id);
-								if (servicePackageDto == null)
-									return new Response<Integer>(1, "服务包不存在.", null);
-								serviceOrderDto.setServiceAssessId(
-										"CA".equalsIgnoreCase(servicePackageDto.getType()) ? serviceAssessId : null);
-								serviceOrderDto.setType("VISA"); // 独立技术移民子订单为VISA
-								serviceOrderDto.setPay(false); // 独立技术移民子订单都未支付
-								serviceOrderDto.setVerifyCode(null);// 独立技术移民子订单都没有对账Code
-								if (StringUtil.isNotEmpty(maraId))
-									serviceOrderDto.setMaraId(StringUtil.toInt(maraId)); // 独立技术移民子订单需要mara
-								if (StringUtil.isNotEmpty(officialId))
-									serviceOrderDto.setOfficialId(StringUtil.toInt(officialId)); // 独立技术移民子订单需要文案
-								if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0
-										&& adminUserLoginInfo != null) {
-									serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
-											ReviewAdviserStateEnum.PENDING.toString(), null, null, null);
-									serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
-									// ...
-								} else
-									msg += "子服务订单创建失败(" + serviceOrderDto + "). ";
+				List<ServiceOrderApplicantDTO> serviceOrderApplicantList = JSONObject
+						.parseArray(serviceOrderApplicantListJson, ServiceOrderApplicantDTO.class);
+				for (ServiceOrderApplicantDTO serviceOrderApplicantDto : serviceOrderApplicantList) {
+					if (serviceOrderApplicantDto.getApplicantId() <= 0)
+						continue;
+					serviceOrderDto.setApplicantId(serviceOrderApplicantDto.getApplicantId());
+					// 创建子服务订单
+					if (StringUtil.isNotEmpty(servicePackageIds)) {
+						List<String> servicePackageIdList = Arrays.asList(servicePackageIds.split(","));
+						serviceOrderDto.setParentId(serviceOrderDto.getId());
+						serviceOrderDto.setId(0);
+						for (String servicePackageId : servicePackageIdList) {
+							int id = StringUtil.toInt(servicePackageId);
+							if (servicePackageService.getById(id) == null) {
+								msg += "服务包不存在(" + id + "),请检查参数. ";
+								continue;
 							}
-							if(serviceOrderApplicantList.size() == 1)
-								break;
-						} else if (serviceOrderApplicantList.size() > 1) {
-							serviceOrderDto.setParentId(serviceOrderDto.getId());
-							serviceOrderDto.setId(0);
+							serviceOrderDto.setServicePackageId(id);
+							ServicePackageDTO servicePackageDto = servicePackageService.getById(id);
+							if (servicePackageDto == null)
+								return new Response<Integer>(1, "服务包不存在.", null);
+							serviceOrderDto.setServiceAssessId(
+									"CA".equalsIgnoreCase(servicePackageDto.getType()) ? serviceAssessId : null);
+							serviceOrderDto.setType("VISA"); // 独立技术移民子订单为VISA
+							serviceOrderDto.setPay(false); // 独立技术移民子订单都未支付
+							serviceOrderDto.setVerifyCode(null);// 独立技术移民子订单都没有对账Code
+							if (StringUtil.isNotEmpty(maraId))
+								serviceOrderDto.setMaraId(StringUtil.toInt(maraId)); // 独立技术移民子订单需要mara
+							if (StringUtil.isNotEmpty(officialId))
+								serviceOrderDto.setOfficialId(StringUtil.toInt(officialId)); // 独立技术移民子订单需要文案
 							if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0
 									&& adminUserLoginInfo != null) {
 								serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
@@ -444,13 +430,24 @@ public class ServiceOrderController extends BaseController {
 								serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
 								// ...
 							} else
-								msg += "申请人子服务订单创建失败(" + serviceOrderDto + "). ";
+								msg += "子服务订单创建失败(" + serviceOrderDto + "). ";
 						}
+						if (serviceOrderApplicantList.size() == 1)
+							break;
+					} else if (serviceOrderApplicantList.size() > 1) {
+						serviceOrderDto.setParentId(serviceOrderDto.getId());
+						serviceOrderDto.setId(0);
+						if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null) {
+							serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
+									ReviewAdviserStateEnum.PENDING.toString(), null, null, null);
+							serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
+							// ...
+						} else
+							msg += "申请人子服务订单创建失败(" + serviceOrderDto + "). ";
 					}
-				} else
-					return new Response<Integer>(1, "请选择申请人.", null);
-				if ("OVST".equalsIgnoreCase(type) && (schoolId2 != null && schoolId2 > 0)
-						|| (courseId2 != null && courseId2 > 0 && schoolInstitutionLocationId2 != null && schoolInstitutionLocationId2 > 0) ){
+				}
+				if ("OVST".equalsIgnoreCase(type) && (schoolId2 != null && schoolId2 > 0) || (courseId2 != null
+						&& courseId2 > 0 && schoolInstitutionLocationId2 != null && schoolInstitutionLocationId2 > 0)) {
 					serviceOrderDto.setId(0);
 					if (schoolId2 != null && schoolId2 > 0){
 						serviceOrderDto.setSchoolId(schoolId2);
