@@ -428,7 +428,9 @@ public class ServiceOrderController extends BaseController {
 								serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
 										ReviewAdviserStateEnum.PENDING.toString(), null, null, null);
 								serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
-								// ...
+								if (serviceOrderApplicantService
+										.addServiceOrderApplicant(serviceOrderApplicantDto) == 0)
+									msg += "申请人子服务订单创建失败(" + serviceOrderApplicantDto + "). ";
 							} else
 								msg += "子服务订单创建失败(" + serviceOrderDto + "). ";
 						}
@@ -440,9 +442,10 @@ public class ServiceOrderController extends BaseController {
 							serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
 									ReviewAdviserStateEnum.PENDING.toString(), null, null, null);
 							serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
-							// ...
+							if (serviceOrderApplicantService.addServiceOrderApplicant(serviceOrderApplicantDto) == 0)
+								msg += "申请人子服务订单创建失败(" + serviceOrderApplicantDto + "). ";
 						} else
-							msg += "申请人子服务订单创建失败(" + serviceOrderDto + "). ";
+							msg += "服务订单创建失败(" + serviceOrderDto + "). ";
 					}
 				}
 				if ("OVST".equalsIgnoreCase(type) && (schoolId2 != null && schoolId2 > 0) || (courseId2 != null
