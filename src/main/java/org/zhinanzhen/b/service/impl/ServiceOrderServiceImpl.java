@@ -573,7 +573,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				ApplicantDTO applicantDto = mapper.map(applicantDo, ApplicantDTO.class);
 				List<ServiceOrderApplicantDO> serviceOrderApplicantDoList = serviceOrderApplicantDao
 						.list(serviceOrderDO.getId(), applicantDo.getId());
-				if (serviceOrderApplicantDoList != null && serviceOrderApplicantDoList.get(0) != null) {
+				if (serviceOrderApplicantDoList != null && serviceOrderApplicantDoList.size() > 0
+						&& serviceOrderApplicantDoList.get(0) != null) {
 					applicantDto.setUrl(serviceOrderApplicantDoList.get(0).getUrl());
 					applicantDto.setMessage(serviceOrderApplicantDoList.get(0).getMessage());
 				}
