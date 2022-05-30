@@ -56,7 +56,7 @@
                 deduct_gst,
                 bonus,
                 user_id,
-                applicant_ids,
+                applicant_id,
                 mara_id,
                 adviser_id,
                 adviser_id_2,
