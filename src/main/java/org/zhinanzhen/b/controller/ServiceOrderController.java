@@ -435,7 +435,6 @@ public class ServiceOrderController extends BaseController {
 						if (serviceOrderApplicantList.size() == 1)
 							break;
 					} else if (serviceOrderApplicantList.size() > 1) {
-						serviceOrderDto.setParentId(serviceOrderDto.getId());
 						serviceOrderDto.setId(0);
 						if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null) {
 							serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
