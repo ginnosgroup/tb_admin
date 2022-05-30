@@ -555,8 +555,18 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			serviceOrderDto.setReceiveType(mapper.map(receiveTypeDo, ReceiveTypeDTO.class));
 		// 查询用户
 		UserDO userDo = userDao.getUserById(serviceOrderDto.getUserId());
-		if (userDo != null)
-			serviceOrderDto.setUser(mapper.map(userDo, UserDTO.class));
+		if (userDo != null) {
+			UserDTO userDto = mapper.map(userDo, UserDTO.class);
+			if (serviceOrderDto.getUserId() > 0 && serviceOrderDto.getApplicantId() >= 0) {
+				List<ApplicantDO> applicantDoList = applicantDao.list(serviceOrderDto.getUserId(), 0, 999);
+				List<ApplicantDTO> applicantDtoList = new ArrayList<>();
+				applicantDoList.forEach(applicantDo -> {
+					applicantDtoList.add(mapper.map(applicantDo, ApplicantDTO.class));
+				});
+				userDto.setApplicantList(applicantDtoList);
+			}
+			serviceOrderDto.setUser(userDto);
+		}
 		if (serviceOrderDto.getApplicantId() >= 0) {
 			ApplicantDO applicantDo = applicantDao.getById(serviceOrderDto.getApplicantId());
 			if (applicantDo != null) {
