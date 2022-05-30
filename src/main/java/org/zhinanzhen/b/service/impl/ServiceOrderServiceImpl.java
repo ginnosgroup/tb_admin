@@ -555,24 +555,12 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			serviceOrderDto.setReceiveType(mapper.map(receiveTypeDo, ReceiveTypeDTO.class));
 		// 查询用户
 		UserDO userDo = userDao.getUserById(serviceOrderDto.getUserId());
-		if (userDo != null) {
+		if (userDo != null)
 			serviceOrderDto.setUser(mapper.map(userDo, UserDTO.class));
-			if (serviceOrderDto.getUserId() > 0 && serviceOrderDto.getApplicantId() >= 0) {
-				List<ApplicantDO> applicantDoList = applicantDao.list(serviceOrderDto.getUserId(), 0, 999);
-				if (applicantDoList != null && applicantDoList.size() > 0)
-					applicantDoList.forEach(applicantDo -> {
-						if (serviceOrderDto.getApplicantId() == applicantDo.getId()) {
-							ApplicantDTO applicantDto = mapper.map(applicantDo, ApplicantDTO.class);
-							List<ServiceOrderApplicantDO> serviceOrderApplicantDoList = serviceOrderApplicantDao
-									.list(serviceOrderDO.getId(), applicantDo.getId());
-							if (serviceOrderApplicantDoList.get(0) != null) {
-								applicantDto.setUrl(serviceOrderApplicantDoList.get(0).getUrl());
-								applicantDto.setMessage(serviceOrderApplicantDoList.get(0).getMessage());
-							}
-							serviceOrderDto.setApplicant(applicantDto);
-						}
-					});
-			}
+		if (serviceOrderDto.getApplicantId() >= 0) {
+			ApplicantDO applicantDo = applicantDao.getById(serviceOrderDto.getApplicantId());
+			if (applicantDo != null)
+				serviceOrderDto.setApplicant(mapper.map(applicantDo, ApplicantDTO.class));
 		}
 		// 查询Mara
 		MaraDO maraDo = maraDao.getMaraById(serviceOrderDto.getMaraId());
