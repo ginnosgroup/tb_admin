@@ -35,7 +35,7 @@
             AND service_order_id = #{serviceOrderId}
         </if>
         <if test='applicantId != null and applicantId > 0'>
-            AND applicant_id == #{applicantId}
+            AND applicant_id = #{applicantId}
         </if>
         ORDER BY gmt_create DESC;
     </select>
