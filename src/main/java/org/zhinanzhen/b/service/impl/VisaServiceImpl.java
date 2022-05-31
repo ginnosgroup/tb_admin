@@ -314,14 +314,8 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 
 	public VisaDTO putVisaDTO(VisaListDO visaListDo) throws ServiceException {
 		VisaDTO visaDto = putVisaDTO((VisaDO) visaListDo);
-		if (visaListDo.getUserId() > 0 && visaListDo.getApplicantId() >= 0) {
-			List<ApplicantDO> applicantDoList = applicantDao.list(visaListDo.getUserId(), 0, 999);
-			if (applicantDoList != null && applicantDoList.size() > 0)
-				applicantDoList.forEach(applicantDo -> {
-					if (visaListDo.getApplicantId() == applicantDo.getId())
-						visaDto.setApplicant(mapper.map(applicantDo, ApplicantDTO.class));
-				});
-		}
+		if (visaListDo.getApplicantId() > 0)
+			visaDto.setApplicant(mapper.map(applicantDao.getById(visaListDo.getApplicantId()), ApplicantDTO.class));
 		return visaDto;
 	}
 
