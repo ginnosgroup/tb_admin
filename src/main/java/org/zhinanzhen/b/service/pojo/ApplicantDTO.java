@@ -13,6 +13,6 @@ public class ApplicantDTO extends ApplicantDO {
 
 	@Getter
 	@Setter
-	private String message;
+	private String content;
 
 }

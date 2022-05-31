@@ -11,14 +11,14 @@
                 service_order_id,
                 applicant_id,
                 url,
-                message)
+                content)
             VALUES (
                 now(),
                 now(),
                 #{serviceOrderId},
                 #{applicantId},
                 #{url},
-                #{message});
+                #{content});
     </insert>
     
     <select id="list" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderApplicantDO">
@@ -28,7 +28,7 @@
             service_order_id AS serviceOrderId,
             applicant_id AS applicantId,
             url,
-            message
+            content
         FROM b_service_order_applicant
         WHERE 1=1
         <if test='serviceOrderId != null and serviceOrderId > 0'>

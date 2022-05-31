@@ -576,7 +576,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				if (serviceOrderApplicantDoList != null && serviceOrderApplicantDoList.size() > 0
 						&& serviceOrderApplicantDoList.get(0) != null) {
 					applicantDto.setUrl(serviceOrderApplicantDoList.get(0).getUrl());
-					applicantDto.setMessage(serviceOrderApplicantDoList.get(0).getMessage());
+					applicantDto.setContent(serviceOrderApplicantDoList.get(0).getContent());
 				}
 				serviceOrderDto.setApplicant(applicantDto);
 			}

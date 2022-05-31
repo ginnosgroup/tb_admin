@@ -19,6 +19,6 @@ public class ServiceOrderApplicantDTO {
 	
 	private String url;
 	
-	private String message;
+	private String content;
 
 }
