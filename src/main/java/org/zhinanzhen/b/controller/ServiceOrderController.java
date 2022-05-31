@@ -404,6 +404,7 @@ public class ServiceOrderController extends BaseController {
 					if (serviceOrderApplicantDto.getApplicantId() <= 0)
 						continue;
 					serviceOrderDto.setApplicantId(serviceOrderApplicantDto.getApplicantId());
+					serviceOrderDto.setApplicantParentId(serviceOrderDto.getId());
 					// 创建子服务订单
 					if (StringUtil.isNotEmpty(servicePackageIds)) {
 						List<String> servicePackageIdList = Arrays.asList(servicePackageIds.split(","));
@@ -621,33 +622,34 @@ public class ServiceOrderController extends BaseController {
 			if (serviceOrderDto == null)
 				return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
 			Response<Integer> res = updateOne(serviceOrderDto, type, peopleNumber, peopleType, peopleRemarks, serviceId,
-					schoolId, urgentState, isSettle, isDepositUser, subagencyId, isPay, receiveTypeId, receiveDate, receivable,
-					discount, received, installment, paymentVoucherImageUrl1, paymentVoucherImageUrl2,
+					schoolId, urgentState, isSettle, isDepositUser, subagencyId, isPay, receiveTypeId, receiveDate,
+					receivable, discount, received, installment, paymentVoucherImageUrl1, paymentVoucherImageUrl2,
 					paymentVoucherImageUrl3, paymentVoucherImageUrl4, paymentVoucherImageUrl5, invoiceVoucherImageUrl1,
-					invoiceVoucherImageUrl2,invoiceVoucherImageUrl3,invoiceVoucherImageUrl4,invoiceVoucherImageUrl5,
-					kjPaymentImageUrl1, kjPaymentImageUrl2, lowPriceImageUrl, perAmount, amount,
-					expectAmount, gst, deductGst, bonus, userId, applicantId, applicantBirthday, maraId, adviserId, officialId, remarks, closedReason,
-					information, isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
-					institutionTradingName);
+					invoiceVoucherImageUrl2, invoiceVoucherImageUrl3, invoiceVoucherImageUrl4, invoiceVoucherImageUrl5,
+					kjPaymentImageUrl1, kjPaymentImageUrl2, lowPriceImageUrl, perAmount, amount, expectAmount, gst,
+					deductGst, bonus, userId, applicantId, applicantBirthday, maraId, adviserId, officialId, remarks,
+					closedReason, information, isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId,
+					schoolInstitutionLocationId, institutionTradingName);
 			if (res != null && res.getCode() == 0) {
 				List<ServiceOrderDTO> cList = new ArrayList<>();
 				if ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
 						|| "NSV".equalsIgnoreCase(serviceOrderDto.getType()))
 					cList = serviceOrderService.listServiceOrder(receiveTypeId, null, null, null, null, null, null,
-							null, null, null, null, null, null, null, null, null, null, null, null, null, id, false, 0,
-							100, null, null, null, null, null);
+							null, null, null, null, null, null, null, null, null, null, null, null, null, id, id, false,
+							0, 100, null, null, null, null, null);
 				cList.forEach(cServiceOrderDto -> {
 					if ("VISA".equalsIgnoreCase(cServiceOrderDto.getType())) {
 						Response<Integer> cRes = updateOne(cServiceOrderDto, null, peopleNumber, peopleType,
-								peopleRemarks, serviceId, schoolId, urgentState, isSettle, isDepositUser, subagencyId, isPay,
-								receiveTypeId, receiveDate, receivable, discount, received, installment,
+								peopleRemarks, serviceId, schoolId, urgentState, isSettle, isDepositUser, subagencyId,
+								isPay, receiveTypeId, receiveDate, receivable, discount, received, installment,
 								paymentVoucherImageUrl1, paymentVoucherImageUrl2, paymentVoucherImageUrl3,
 								paymentVoucherImageUrl4, paymentVoucherImageUrl5, invoiceVoucherImageUrl1,
-								invoiceVoucherImageUrl2,invoiceVoucherImageUrl3,invoiceVoucherImageUrl4, invoiceVoucherImageUrl5,
-								kjPaymentImageUrl1, kjPaymentImageUrl2, lowPriceImageUrl, perAmount,
-								amount, expectAmount, gst, deductGst, bonus, userId, applicantId, null, maraId, adviserId, officialId,
-								remarks, closedReason, information, isHistory, nutCloud, serviceAssessId, verifyCode,
-								refNo, courseId, schoolInstitutionLocationId, institutionTradingName);
+								invoiceVoucherImageUrl2, invoiceVoucherImageUrl3, invoiceVoucherImageUrl4,
+								invoiceVoucherImageUrl5, kjPaymentImageUrl1, kjPaymentImageUrl2, lowPriceImageUrl,
+								perAmount, amount, expectAmount, gst, deductGst, bonus, userId, applicantId, null,
+								maraId, adviserId, officialId, remarks, closedReason, information, isHistory, nutCloud,
+								serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
+								institutionTradingName);
 						if (cRes.getCode() > 0)
 							res.setMessage(res.getMessage() + ";" + cRes.getMessage());
 					}
@@ -1071,9 +1073,8 @@ public class ServiceOrderController extends BaseController {
 			return new Response<Integer>(0, serviceOrderService.countServiceOrder(type, null, excludeState, stateList,
 					auditingState, reviewStateList, urgentState, startMaraApprovalDate, endMaraApprovalDate,
 					startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate,
-					regionIdList, userId, userName, maraId, adviserId, officialId, officialTagId,
-					0,
-							isNotApproved != null ? isNotApproved : false, serviceId, schoolId,null,null));
+					regionIdList, userId, userName, maraId, adviserId, officialId, officialTagId, 0, 0,
+					isNotApproved != null ? isNotApproved : false, serviceId, schoolId, null, null));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -1175,15 +1176,14 @@ public class ServiceOrderController extends BaseController {
 			int total = serviceOrderService.countServiceOrder(type, excludeTypeList, excludeState, stateList,
 					auditingState, reviewStateList, urgentState, startMaraApprovalDate, endMaraApprovalDate,
 					startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate,
-					regionIdList, userId, userName, maraId, adviserId, officialId, officialTagId, 0,
-					isNotApproved != null ? isNotApproved : false, serviceId, schoolId, null,isSettle);
+					regionIdList, userId, userName, maraId, adviserId, officialId, officialTagId, 0, 0,
+					isNotApproved != null ? isNotApproved : false, serviceId, schoolId, null, isSettle);
 			List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(type, excludeTypeList,
 					excludeState, stateList, auditingState, reviewStateList, urgentState, startMaraApprovalDate,
 					endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate,
 					endReadcommittedDate, regionIdList, userId, userName, maraId, adviserId, officialId, officialTagId,
-					0, isNotApproved != null ? isNotApproved : false, pageNum,
-					pageSize, _sorter, serviceId, schoolId,
-					null,isSettle);
+					0, 0, isNotApproved != null ? isNotApproved : false, pageNum, pageSize, _sorter, serviceId,
+					schoolId, null, isSettle);
 
 			if (newOfficialId != null)
 				for (ServiceOrderDTO so : serviceOrderList)
@@ -1807,11 +1807,12 @@ public class ServiceOrderController extends BaseController {
 					serviceOrderList.add(serviceOrder);
 			}
 			if (id == null) {
-				serviceOrderList = serviceOrderService.listServiceOrder(type, excludeTypeList, excludeState, stateList, auditingState,
-						reviewStateList, urgentState, startMaraApprovalDate, endMaraApprovalDate, startOfficialApprovalDate,
-						endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionIdList, userId,userName,
-						maraId, adviserId, officialId, officialTagId, 0, isNotApproved != null ? isNotApproved : false,
-						0, 9999, null, serviceId, schoolId,null,null);
+				serviceOrderList = serviceOrderService.listServiceOrder(type, excludeTypeList, excludeState, stateList,
+						auditingState, reviewStateList, urgentState, startMaraApprovalDate, endMaraApprovalDate,
+						startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate,
+						endReadcommittedDate, regionIdList, userId, userName, maraId, adviserId, officialId,
+						officialTagId, 0, 0, isNotApproved != null ? isNotApproved : false, 0, 9999, null, serviceId,
+						schoolId, null, null);
 
 				if (newOfficialId != null)
 					for (ServiceOrderDTO so : serviceOrderList)
@@ -2142,8 +2143,7 @@ public class ServiceOrderController extends BaseController {
 
 		List<ServiceOrderDTO> serviceOrderDTOS = serviceOrderService.listServiceOrder(type, null, null, null, null,
 				null, null, null, null, startOfficialApprovalDate, endOfficialApprovalDate, null, null, null, null,
-				null, null, null, null, null, 0, false,
-				0, 9999, null, null, null,isPay,null);
+				null, null, null, null, null, 0, 0, false, 0, 9999, null, null, null, isPay, null);
 		try {
 			super.setGetHeader(response);
 			response.reset();

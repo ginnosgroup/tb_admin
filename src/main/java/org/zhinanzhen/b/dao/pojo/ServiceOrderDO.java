@@ -35,6 +35,8 @@ public class ServiceOrderDO implements Serializable {
 	private ServiceDTO service;
 
 	private int parentId;
+	
+	private int applicantParentId;
 
 	private int servicePackageId;
 

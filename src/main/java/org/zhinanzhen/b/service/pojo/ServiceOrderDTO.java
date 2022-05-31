@@ -35,6 +35,8 @@ public class ServiceOrderDTO {
 	private ServiceDTO service;
 
 	private int parentId;
+	
+	private int applicantParentId;
 
 	private int servicePackageId;
 

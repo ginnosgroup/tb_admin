@@ -16,6 +16,7 @@
                 people_remarks,
                 service_id,
                 parent_id,
+                applicant_parent_id,
                 service_package_id,
                 school_id,
                 course_id,
@@ -83,6 +84,7 @@
                 #{peopleRemarks},
                 #{serviceId},
                 #{parentId},
+                #{applicantParentId},
                 #{servicePackageId},
                 #{schoolId},
                 #{courseId},
@@ -161,6 +163,9 @@
         </if>
         <if test='parentId != null and parentId > 0'>
             , parent_id = #{parentId}
+        </if>
+        <if test='applicantParentId != null and applicantParentId > 0'>
+            , applicant_parent_id = #{applicantParentId}
         </if>
         <if test='servicePackageId != null and servicePackageId > 0'>
             , service_package_id = #{servicePackageId}
@@ -424,6 +429,9 @@
         <if test='parentId != null and parentId > 0'>
             AND so.parent_id = #{parentId}
         </if>
+        <if test='applicantParentId != null and applicantParentId > 0'>
+            AND so.applicant_parent_id = #{applicantParentId}
+        </if>
         <if test='serviceId != null and serviceId > 0'>
             AND so.service_id = #{serviceId}
         </if>
@@ -464,6 +472,7 @@
             so.people_remarks AS peopleRemarks,
             so.service_id AS serviceId,
             so.parent_id AS parentId,
+            so.applicant_parent_id AS applicantParentId,
             so.service_package_id AS servicePackageId,
             so.school_id AS schoolId,
             so.course_id AS courseId,
@@ -584,6 +593,9 @@
         <if test='parentId != null and parentId > 0'>
             AND so.parent_id = #{parentId}
         </if>
+        <if test='applicantParentId != null and applicantParentId > 0'>
+            AND so.applicant_parent_id = #{applicantParentId}
+        </if>
         <if test='isNotApproved == true'>
             <![CDATA[ AND (SELECT COUNT(id) FROM b_service_order_review WHERE service_order_id = so.id AND official_state IS NOT NULL) <= 0 ]]>
         </if>
@@ -639,6 +651,7 @@
             people_remarks AS peopleRemarks,
             service_id AS serviceId,
             parent_id AS parentId,
+            applicant_parent_id AS applicantParentId,
             service_package_id AS servicePackageId,
             school_id AS schoolId,
             course_id AS courseId,
@@ -802,6 +815,7 @@
             people_remarks AS peopleRemarks,
             service_id AS serviceId,
             parent_id AS parentId,
+            applicant_parent_id AS applicantParentId,
             service_package_id AS servicePackageId,
             school_id AS schoolId,
             course_id AS courseId,
@@ -899,6 +913,7 @@
         so.people_remarks AS peopleRemarks,
         so.service_id AS serviceId,
         so.parent_id AS parentId,
+        so.applicant_parent_id AS applicantParentId,
         so.service_package_id AS servicePackageId,
         so.school_id AS schoolId,
         so.course_id AS courseId,

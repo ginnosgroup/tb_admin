@@ -28,9 +28,9 @@ public interface ServiceOrderDAO {
 			@Param("regionIdList") List<Integer> regionIdList, @Param("userId") Integer userId,
 			@Param("userName") String userName, @Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
 			@Param("officialId") Integer officialId, @Param("officialTagId") Integer officialTagId,
-			@Param("parentId") Integer parentId, @Param("isNotApproved") Boolean isNotApproved,
-			@Param("serviceId") Integer serviceId, @Param("schoolId") Integer schoolId,
-			@Param("isPay") Boolean isPay, @Param("isSettle") Boolean isSettle);
+			@Param("parentId") Integer parentId, @Param("applicantParentId") Integer applicantParentId,
+			@Param("isNotApproved") Boolean isNotApproved, @Param("serviceId") Integer serviceId,
+			@Param("schoolId") Integer schoolId, @Param("isPay") Boolean isPay, @Param("isSettle") Boolean isSettle);
 
 	List<ServiceOrderDO> listServiceOrder(@Param("type") String type,
 			@Param("excludeTypeList") List<String> excludeTypeList, @Param("excludeState") String excludeState,
@@ -45,9 +45,9 @@ public interface ServiceOrderDAO {
 			@Param("regionIdList") List<Integer> regionIdList, @Param("userId") Integer userId,
 			@Param("userName") String userName, @Param("maraId") Integer maraId, @Param("adviserId") Integer adviserId,
 			@Param("officialId") Integer officialId, @Param("officialTagId") Integer officialTagId,
-			@Param("parentId") Integer parentId, @Param("isNotApproved") Boolean isNotApproved,
-			@Param("serviceId") Integer serviceId, @Param("schoolId") Integer schoolId,
-			@Param("isPay") Boolean isPay,  @Param("isSettle") Boolean isSettle,
+			@Param("parentId") Integer parentId, @Param("applicantParentId") Integer applicantParentId,
+			@Param("isNotApproved") Boolean isNotApproved, @Param("serviceId") Integer serviceId,
+			@Param("schoolId") Integer schoolId, @Param("isPay") Boolean isPay, @Param("isSettle") Boolean isSettle,
 			@Param("offset") int offset, @Param("rows") int rows, @Param("orderBy") String orderBy);
 
 	List<ServiceOrderDO> listByParentId(@Param("parentId") Integer parentId);
