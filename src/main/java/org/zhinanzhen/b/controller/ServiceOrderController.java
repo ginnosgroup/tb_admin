@@ -395,8 +395,11 @@ public class ServiceOrderController extends BaseController {
 				// 虽然设计了可以逗号分割保存多个申请人ID，但后来讨论需求后要求如果有多个申请人则创建多条子订单
 				List<ServiceOrderApplicantDTO> serviceOrderApplicantList = JSONObject
 						.parseArray(serviceOrderApplicantListJson, ServiceOrderApplicantDTO.class);
-				if (serviceOrderApplicantList != null && serviceOrderApplicantList.size() > 0)
-					serviceOrderApplicantService.addServiceOrderApplicant(serviceOrderApplicantList.get(0));
+				if (!ListUtil.isEmpty(serviceOrderApplicantList) && serviceOrderApplicantList.size() == 1) {
+					ServiceOrderApplicantDTO serviceOrderApplicantDto = serviceOrderApplicantList.get(0);
+					serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
+					serviceOrderApplicantService.addServiceOrderApplicant(serviceOrderApplicantDto);
+				}
 				for (ServiceOrderApplicantDTO serviceOrderApplicantDto : serviceOrderApplicantList) {
 					if (serviceOrderApplicantDto.getApplicantId() <= 0)
 						continue;
