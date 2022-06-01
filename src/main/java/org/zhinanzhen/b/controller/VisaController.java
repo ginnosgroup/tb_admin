@@ -267,6 +267,7 @@ public class VisaController extends BaseCommissionOrderController {
 	public Response<VisaDTO> update(@RequestParam(value = "id") int id,
 			@RequestParam(value = "state", required = false) String state,
 			@RequestParam(value = "userId", required = false) String userId,
+			@RequestParam(value = "applicantBirthday", required = false) String applicantBirthday,
 			@RequestParam(value = "commissionState", required = false) String commissionState,
 			@RequestParam(value = "handlingDate", required = false) String handlingDate,
 			@RequestParam(value = "receiveTypeId", required = false) String receiveTypeId,
@@ -405,7 +406,18 @@ public class VisaController extends BaseCommissionOrderController {
 				serviceOrderDto.setReceivable(_visaDTO.getTotalPerAmount());
 				serviceOrderDto.setReceived(_visaDTO.getTotalAmount());
 				serviceOrderService.updateServiceOrder(serviceOrderDto); // 同步修改服务订单
-				return new Response<VisaDTO>(0, visaDto);
+				ApplicantDTO applicantDto = serviceOrderDto.getApplicant();
+				String msg = "";
+				if (applicantDto != null && applicantBirthday != null) {
+					applicantDto.setBirthday(new Date(Long.parseLong(applicantBirthday)));
+					if (applicantService.update(applicantDto) <= 0)
+						msg += "申请人生日修改失败! (serviceOrderId:" + serviceOrderDto.getId() + ", applicantId:"
+								+ applicantDto.getId() + ", applicantBirthday:" + applicantDto.getBirthday() + ");";
+					else
+						msg += "申请人生日修改成功. (serviceOrderId:" + serviceOrderDto.getId() + ", applicantId:"
+								+ applicantDto.getId() + ", applicantBirthday:" + applicantDto.getBirthday() + ");";
+				}
+				return new Response<VisaDTO>(0, msg, visaDto);
 			} else {
 				return new Response<VisaDTO>(1, "修改失败.", null);
 			}

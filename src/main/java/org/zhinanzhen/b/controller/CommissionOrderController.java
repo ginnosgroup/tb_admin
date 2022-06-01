@@ -386,8 +386,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "bankCheck", required = false) String bankCheck,
 			@RequestParam(value = "isChecked", required = false) String isChecked,
 			@RequestParam(value = "remarks", required = false) String remarks,
-			@RequestParam(value = "verifyCode", required = false) String verifyCode, HttpServletRequest request,
-			HttpServletResponse response) {
+			@RequestParam(value = "verifyCode", required = false) String verifyCode,
+			@RequestParam(value = "applicantBirthday", required = false) String applicantBirthday,
+			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
@@ -533,6 +534,16 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				serviceOrderDto.setReceivable(_commissionOrderListDto.getTotalPerAmount());
 				serviceOrderDto.setReceived(_commissionOrderListDto.getTotalAmount());
 				serviceOrderService.updateServiceOrder(serviceOrderDto); // 同步修改服务订单
+				ApplicantDTO applicantDto = serviceOrderDto.getApplicant();
+				if (applicantDto != null && applicantBirthday != null) {
+					applicantDto.setBirthday(new Date(Long.parseLong(applicantBirthday)));
+					if (applicantService.update(applicantDto) <= 0)
+						msg += "申请人生日修改失败! (serviceOrderId:" + serviceOrderDto.getId() + ", applicantId:"
+								+ applicantDto.getId() + ", applicantBirthday:" + applicantDto.getBirthday() + ");";
+					else
+						msg += "申请人生日修改成功. (serviceOrderId:" + serviceOrderDto.getId() + ", applicantId:"
+								+ applicantDto.getId() + ", applicantBirthday:" + applicantDto.getBirthday() + ");";
+				}
 				userService.updateDOB(new Date(Long.parseLong(dob)), commissionOrderListDto.getUserId());
 				int i = 0;
 				if (commissionOrderListDto.getCourseId() == 0)
