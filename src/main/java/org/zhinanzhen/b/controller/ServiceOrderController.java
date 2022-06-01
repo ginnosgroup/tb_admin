@@ -596,6 +596,8 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "deductGst", required = false) String deductGst,
 			@RequestParam(value = "bonus", required = false) String bonus,
 			@RequestParam(value = "userId", required = false) String userId,
+			@RequestParam(value = "applicantId", required = false) String applicantId,
+			@RequestParam(value = "applicantBirthday", required = false) String applicantBirthday,
 			@RequestParam(value = "serviceOrderApplicantList", required = false) String serviceOrderApplicantListJson,
 			@RequestParam(value = "maraId", required = false) String maraId,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
@@ -621,21 +623,18 @@ public class ServiceOrderController extends BaseController {
 			if (serviceOrderDto == null)
 				return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
 			List<ServiceOrderApplicantDTO> serviceOrderApplicantList = null;
-			if (StringUtil.isNotEmpty(serviceOrderApplicantListJson)) {
+			if (StringUtil.isNotEmpty(serviceOrderApplicantListJson))
 				serviceOrderApplicantList = JSONObject.parseArray(serviceOrderApplicantListJson,
 						ServiceOrderApplicantDTO.class);
-				if (!ListUtil.isEmpty(serviceOrderApplicantList) && serviceOrderApplicantList.size() == 1)
-					serviceOrderDto.setApplicantId(serviceOrderApplicantList.get(0).getApplicantId());
-			}
 			Response<Integer> res = updateOne(serviceOrderDto, type, peopleNumber, peopleType, peopleRemarks, serviceId,
 					schoolId, urgentState, isSettle, isDepositUser, subagencyId, isPay, receiveTypeId, receiveDate,
 					receivable, discount, received, installment, paymentVoucherImageUrl1, paymentVoucherImageUrl2,
 					paymentVoucherImageUrl3, paymentVoucherImageUrl4, paymentVoucherImageUrl5, invoiceVoucherImageUrl1,
 					invoiceVoucherImageUrl2, invoiceVoucherImageUrl3, invoiceVoucherImageUrl4, invoiceVoucherImageUrl5,
 					kjPaymentImageUrl1, kjPaymentImageUrl2, lowPriceImageUrl, perAmount, amount, expectAmount, gst,
-					deductGst, bonus, userId, serviceOrderApplicantList, maraId, adviserId, officialId, remarks,
-					closedReason, information, isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId,
-					schoolInstitutionLocationId, institutionTradingName);
+					deductGst, bonus, userId, applicantId, applicantBirthday, serviceOrderApplicantList, maraId,
+					adviserId, officialId, remarks, closedReason, information, isHistory, nutCloud, serviceAssessId,
+					verifyCode, refNo, courseId, schoolInstitutionLocationId, institutionTradingName);
 			if (res != null && res.getCode() == 0) {
 				List<ServiceOrderDTO> cList = new ArrayList<>();
 				if ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
@@ -652,9 +651,10 @@ public class ServiceOrderController extends BaseController {
 								paymentVoucherImageUrl4, paymentVoucherImageUrl5, invoiceVoucherImageUrl1,
 								invoiceVoucherImageUrl2, invoiceVoucherImageUrl3, invoiceVoucherImageUrl4,
 								invoiceVoucherImageUrl5, kjPaymentImageUrl1, kjPaymentImageUrl2, lowPriceImageUrl,
-								perAmount, amount, expectAmount, gst, deductGst, bonus, userId, null, maraId, adviserId,
-								officialId, remarks, closedReason, information, isHistory, nutCloud, serviceAssessId,
-								verifyCode, refNo, courseId, schoolInstitutionLocationId, institutionTradingName);
+								perAmount, amount, expectAmount, gst, deductGst, bonus, userId, null, null, null,
+								maraId, adviserId, officialId, remarks, closedReason, information, isHistory, nutCloud,
+								serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
+								institutionTradingName);
 						if (cRes.getCode() > 0)
 							res.setMessage(res.getMessage() + ";" + cRes.getMessage());
 					}
@@ -676,10 +676,11 @@ public class ServiceOrderController extends BaseController {
 			String invoiceVoucherImageUrl2, String invoiceVoucherImageUrl3, String invoiceVoucherImageUrl4,
 			String invoiceVoucherImageUrl5, String kjPaymentImageUrl1, String kjPaymentImageUrl2,
 			String lowPriceImageUrl, String perAmount, String amount, String expectAmount, String gst, String deductGst,
-			String bonus, String userId, List<ServiceOrderApplicantDTO> serviceOrderApplicantList, String maraId,
-			String adviserId, String officialId, String remarks, String closedReason, String information,
-			String isHistory, String nutCloud, String serviceAssessId, String verifyCode, String refNo,
-			Integer courseId, Integer schoolInstitutionLocationId, String institutionTradingName) {
+			String bonus, String userId, String applicantId, String applicantBirthday,
+			List<ServiceOrderApplicantDTO> serviceOrderApplicantList, String maraId, String adviserId,
+			String officialId, String remarks, String closedReason, String information, String isHistory,
+			String nutCloud, String serviceAssessId, String verifyCode, String refNo, Integer courseId,
+			Integer schoolInstitutionLocationId, String institutionTradingName) {
 		try {
 			if (StringUtil.isNotEmpty(type))
 				serviceOrderDto.setType(type);
@@ -764,6 +765,8 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setBonus(Double.parseDouble(bonus));
 			if (StringUtil.isNotEmpty(userId))
 				serviceOrderDto.setUserId(StringUtil.toInt(userId));
+			if (StringUtil.isNotEmpty(applicantId))
+				serviceOrderDto.setApplicantId(StringUtil.toInt(applicantId));
 			if (StringUtil.isNotEmpty(maraId))
 				serviceOrderDto.setMaraId(StringUtil.toInt(maraId));
 			if (StringUtil.isNotEmpty(adviserId))
@@ -814,6 +817,16 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setInstitutionTradingName(institutionTradingName);
 			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
 			if (i > 0) {
+				ApplicantDTO applicantDto = serviceOrderDto.getApplicant();
+				if (applicantDto != null && applicantBirthday != null) {
+					applicantDto.setBirthday(new Date(Long.parseLong(applicantBirthday)));
+					if (applicantService.update(applicantDto) <= 0)
+						LOG.error("申请人生日修改失败! (serviceOrderId:" + serviceOrderDto.getId() + ", applicantId:"
+								+ applicantDto.getId() + ", applicantBirthday:" + applicantDto.getBirthday() + ")");
+					else
+						LOG.info("申请人生日修改成功. (serviceOrderId:" + serviceOrderDto.getId() + ", applicantId:"
+								+ applicantDto.getId() + ", applicantBirthday:" + applicantDto.getBirthday() + ")");
+				}
 				if (serviceOrderApplicantList != null)
 					for (ServiceOrderApplicantDTO serviceOrderApplicantDto : serviceOrderApplicantList)
 						if (serviceOrderApplicantService.updateServiceOrderApplicant(serviceOrderApplicantDto) <= 0)
