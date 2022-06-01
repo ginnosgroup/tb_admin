@@ -40,6 +40,18 @@
         ORDER BY gmt_create DESC;
     </select>
     
+    <update id="update" parameterType="org.zhinanzhen.b.dao.pojo.ServiceOrderApplicantDO">
+        UPDATE b_service_order_applicant 
+        SET gmt_modify = now()
+        <if test='url != null and url != ""'>
+            , url = #{url}
+        </if>
+        <if test='content != null and content != ""'>
+            , content = #{content}
+        </if>
+        WHERE id = #{id};
+    </update>
+    
     <delete id="delete" parameterType="java.lang.Integer">
 		DELETE FROM b_service_order_applicant WHERE id = #{id, jdbcType=INTEGER}
 	</delete>

@@ -12,6 +12,8 @@ public interface ServiceOrderApplicantDAO {
 	List<ServiceOrderApplicantDO> list(@Param("serviceOrderId") Integer serviceOrderId,
 			@Param("applicantId") Integer applicantId);
 
+	int update(ServiceOrderApplicantDO serviceOrderApplicantDo);
+
 	int delete(@Param("id") Integer id);
 
 }

@@ -9,7 +9,9 @@ public interface ServiceOrderApplicantService {
 	
 	int addServiceOrderApplicant(ServiceOrderApplicantDTO serviceOrderApplicantDto) throws ServiceException;
 	
-	List<ServiceOrderApplicantDTO> listServiceOrderApplicantDTO(Integer serviceOrderId, Integer applicantId) throws ServiceException;
+	List<ServiceOrderApplicantDTO> listServiceOrderApplicant(Integer serviceOrderId, Integer applicantId) throws ServiceException;
+	
+	int updateServiceOrderApplicant(ServiceOrderApplicantDTO serviceOrderApplicantDto) throws ServiceException;
 	
 	int deleteServiceOrderApplicant(Integer id) throws ServiceException;
 

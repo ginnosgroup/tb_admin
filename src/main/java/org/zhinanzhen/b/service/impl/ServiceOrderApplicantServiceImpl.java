@@ -29,7 +29,8 @@ public class ServiceOrderApplicantServiceImpl extends BaseService implements Ser
 			throw se;
 		}
 		try {
-			ServiceOrderApplicantDO serviceOrderApplicantDo = mapper.map(serviceOrderApplicantDto, ServiceOrderApplicantDO.class);
+			ServiceOrderApplicantDO serviceOrderApplicantDo = mapper.map(serviceOrderApplicantDto,
+					ServiceOrderApplicantDO.class);
 			if (serviceOrderApplicantDao.add(serviceOrderApplicantDo) > 0) {
 				serviceOrderApplicantDto.setId(serviceOrderApplicantDo.getId());
 				return serviceOrderApplicantDo.getId();
@@ -44,7 +45,8 @@ public class ServiceOrderApplicantServiceImpl extends BaseService implements Ser
 	}
 
 	@Override
-	public List<ServiceOrderApplicantDTO> listServiceOrderApplicantDTO(Integer serviceOrderId, Integer applicantId) throws ServiceException {
+	public List<ServiceOrderApplicantDTO> listServiceOrderApplicant(Integer serviceOrderId, Integer applicantId)
+			throws ServiceException {
 		List<ServiceOrderApplicantDTO> serviceOrderApplicantDtoList = new ArrayList<>();
 		List<ServiceOrderApplicantDO> serviceOrderApplicantDoList = new ArrayList<>();
 		try {
@@ -62,6 +64,29 @@ public class ServiceOrderApplicantServiceImpl extends BaseService implements Ser
 			throw se;
 		}
 		return serviceOrderApplicantDtoList;
+	}
+
+	@Override
+	public int updateServiceOrderApplicant(ServiceOrderApplicantDTO serviceOrderApplicantDto) throws ServiceException {
+		if (serviceOrderApplicantDto == null) {
+			ServiceException se = new ServiceException("serviceOrderApplicantDto is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		if (serviceOrderApplicantDto.getId() <= 0) {
+			ServiceException se = new ServiceException("id is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			int i = serviceOrderApplicantDao
+					.update(mapper.map(serviceOrderApplicantDto, ServiceOrderApplicantDO.class));
+			return i;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
 	}
 
 	@Override
