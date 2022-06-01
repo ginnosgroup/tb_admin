@@ -828,11 +828,13 @@ public class ServiceOrderController extends BaseController {
 								+ applicantDto.getId() + ", applicantBirthday:" + applicantDto.getBirthday() + ")");
 				}
 				if (serviceOrderApplicantList != null)
-					for (ServiceOrderApplicantDTO serviceOrderApplicantDto : serviceOrderApplicantList)
+					for (ServiceOrderApplicantDTO serviceOrderApplicantDto : serviceOrderApplicantList) {
+						serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
 						if (serviceOrderApplicantService.updateServiceOrderApplicant(serviceOrderApplicantDto) <= 0)
 							LOG.error("申请人信息修改失败! (serviceOrderId:" + serviceOrderDto.getId() + ")");
 						else
 							LOG.info("申请人信息修改失败. (serviceOrderId:" + serviceOrderDto.getId() + ")");
+					}
 				return new Response<Integer>(0, i);
 			} else
 				return new Response<Integer>(1, "修改失败.", 0);

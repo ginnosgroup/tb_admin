@@ -49,7 +49,17 @@
         <if test='content != null and content != ""'>
             , content = #{content}
         </if>
-        WHERE id = #{id};
+        WHERE 1=1
+        <if test='id != null and id > 0'>
+            AND id = #{id}
+        </if>
+        <if test='serviceOrderId != null and serviceOrderId > 0'>
+            AND service_order_id = #{serviceOrderId}
+        </if>
+        <if test='applicantId != null and applicantId > 0'>
+            AND applicant_id = #{applicantId}
+        </if>
+        ;
     </update>
     
     <delete id="delete" parameterType="java.lang.Integer">
