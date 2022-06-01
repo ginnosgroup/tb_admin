@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.zhinanzhen.b.service.ApplicantService;
 import org.zhinanzhen.b.service.MailRemindService;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.VisaService;
@@ -62,6 +63,9 @@ public class VisaController extends BaseCommissionOrderController {
 	ServiceOrderService serviceOrderService;
 	
 	@Resource
+	ApplicantService applicantService;
+	
+	@Resource
 	RegionService regionService;
 
 	@Resource
@@ -83,6 +87,7 @@ public class VisaController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<List<VisaDTO>> addVisa(@RequestParam(value = "userId", required = false) String userId,
+			@RequestParam(value = "applicantBirthday", required = false) String applicantBirthday,
 			@RequestParam(value = "handlingDate") String handlingDate,
 			@RequestParam(value = "receiveTypeId") String receiveTypeId,
 			@RequestParam(value = "receiveDate") String receiveDate,
@@ -240,7 +245,18 @@ public class VisaController extends BaseCommissionOrderController {
 					serviceOrderService.updateServiceOrder(_serviceOrderDto);
 				}
 			}
-			return new Response<List<VisaDTO>>(0, visaDtoList);
+			ApplicantDTO applicantDto = serviceOrderDto.getApplicant();
+			String msg = "";
+			if (applicantDto != null && applicantBirthday != null) {
+				applicantDto.setBirthday(new Date(Long.parseLong(applicantBirthday)));
+				if (applicantService.update(applicantDto) <= 0)
+					msg += "申请人生日修改失败! (serviceOrderId:" + serviceOrderDto.getId() + ", applicantId:"
+							+ applicantDto.getId() + ", applicantBirthday:" + applicantDto.getBirthday() + ");";
+				else
+					msg += "申请人生日修改成功. (serviceOrderId:" + serviceOrderDto.getId() + ", applicantId:"
+							+ applicantDto.getId() + ", applicantBirthday:" + applicantDto.getBirthday() + ");";
+			}
+			return new Response<List<VisaDTO>>(0, msg, visaDtoList);
 		} catch (ServiceException e) {
 			return new Response<List<VisaDTO>>(e.getCode(), e.getMessage(), null);
 		}

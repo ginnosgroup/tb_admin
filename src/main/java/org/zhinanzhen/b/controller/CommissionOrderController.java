@@ -61,6 +61,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 	@Resource
 	ServiceOrderService serviceOrderService;
+	
+	@Resource
+	ApplicantService applicantService;
 
 	@Resource
 	RegionService regionService;
@@ -92,6 +95,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "schoolInstitutionLocationId", required = false)Integer schoolInstitutionLocationId,
 			@RequestParam(value = "studentCode") String studentCode,
 			@RequestParam(value = "userId") Integer userId,
+			@RequestParam(value = "applicantBirthday", required = false) String applicantBirthday,
 			@RequestParam(value = "adviserId") Integer adviserId,
 			@RequestParam(value = "officialId") Integer officialId,
 			@RequestParam(value = "isStudying") Boolean isStudying,
@@ -141,7 +145,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(serviceOrderId);
 			if (serviceOrderDto == null)
 				return new Response<List<CommissionOrderDTO>>(1, "服务订单(ID:" + serviceOrderId + ")不存在!", null);
-
+			
 			if (serviceOrderDto.getSubagencyId() <= 0)
 				return new Response<List<CommissionOrderDTO>>(1,
 						"SubagencyId(" + serviceOrderDto.getSubagencyId() + ")不存在!", null);
@@ -310,6 +314,16 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					serviceOrderDto.setSubmitted(true);
 					userService.updateDOB(new Date(Long.parseLong(dob)), userId);
 					serviceOrderService.updateServiceOrder(serviceOrderDto); // 同时更改服务订单状态
+					ApplicantDTO applicantDto = serviceOrderDto.getApplicant();
+					if (applicantDto != null && applicantBirthday != null) {
+						applicantDto.setBirthday(new Date(Long.parseLong(applicantBirthday)));
+						if (applicantService.update(applicantDto) <= 0)
+							msg += "申请人生日修改失败! (serviceOrderId:" + serviceOrderDto.getId() + ", applicantId:"
+									+ applicantDto.getId() + ", applicantBirthday:" + applicantDto.getBirthday() + ");";
+						else
+							msg += "申请人生日修改成功. (serviceOrderId:" + serviceOrderDto.getId() + ", applicantId:"
+									+ applicantDto.getId() + ", applicantBirthday:" + applicantDto.getBirthday() + ");";
+					}
 					commissionOrderDtoList.add(commissionOrderDto);
 					CommissionOrderListDTO commissionOrderListDto = commissionOrderService.getCommissionOrderById(id);
 					if (isSettle){
