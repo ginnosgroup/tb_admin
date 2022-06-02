@@ -157,7 +157,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		}
 LOG.info("2=====serviceOrderDto:" + serviceOrderDto);
 LOG.info("3=====serviceOrderDto.getId():" + serviceOrderDto.getId());
-LOG.info("4=====serviceOrderDto.getId() <= 0:" + serviceOrderDto.getId() <= 0);
+LOG.info("4=====serviceOrderDto.getId() <= 0:" + (serviceOrderDto.getId() <= 0));
 		if (serviceOrderDto.getId() <= 0) {
 			ServiceException se = new ServiceException("id is null !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
