@@ -49,7 +49,6 @@ import jxl.read.biff.BiffException;
 import jxl.write.Label;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
-import org.zhinanzhen.tb.service.pojo.UserDTO;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)

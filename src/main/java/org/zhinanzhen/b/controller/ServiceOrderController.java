@@ -622,6 +622,7 @@ public class ServiceOrderController extends BaseController {
 			serviceOrderDto = serviceOrderService.getServiceOrderById(id);
 			if (serviceOrderDto == null)
 				return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
+LOG.info("1=====serviceOrderDto:" + serviceOrderDto);
 			List<ServiceOrderApplicantDTO> serviceOrderApplicantList = null;
 			if (StringUtil.isNotEmpty(serviceOrderApplicantListJson))
 				serviceOrderApplicantList = JSONObject.parseArray(serviceOrderApplicantListJson,
