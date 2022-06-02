@@ -829,9 +829,7 @@ public class ServiceOrderController extends BaseController {
 				}
 				if (serviceOrderApplicantList != null)
 					for (ServiceOrderApplicantDTO serviceOrderApplicantDto : serviceOrderApplicantList) {
-System.out.println("0==========serviceOrderDto.getId():" + serviceOrderDto.getId());
 						serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
-System.out.println("1==========serviceOrderApplicantDto:" + serviceOrderApplicantDto);
 						if (serviceOrderApplicantService.updateServiceOrderApplicant(serviceOrderApplicantDto) <= 0)
 							LOG.error("申请人信息修改失败! (serviceOrderId:" + serviceOrderDto.getId() + ")");
 						else
