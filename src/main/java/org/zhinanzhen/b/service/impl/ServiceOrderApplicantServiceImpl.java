@@ -73,6 +73,7 @@ public class ServiceOrderApplicantServiceImpl extends BaseService implements Ser
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
+System.out.println("2==========serviceOrderApplicantDto.getServiceOrderId():" + serviceOrderApplicantDto.getServiceOrderId());
 		if (serviceOrderApplicantDto.getId() <= 0 || (serviceOrderApplicantDto.getApplicantId() <= 0
 				&& serviceOrderApplicantDto.getServiceOrderId() <= 0)) {
 			ServiceException se = new ServiceException("applicant key is null !");
