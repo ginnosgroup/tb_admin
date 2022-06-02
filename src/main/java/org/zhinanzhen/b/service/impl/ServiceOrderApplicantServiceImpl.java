@@ -73,11 +73,6 @@ public class ServiceOrderApplicantServiceImpl extends BaseService implements Ser
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
-		if (serviceOrderApplicantDto.getId() <= 0) {
-			ServiceException se = new ServiceException("id is null !");
-			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
-			throw se;
-		}
 		try {
 			int i = serviceOrderApplicantDao
 					.update(mapper.map(serviceOrderApplicantDto, ServiceOrderApplicantDO.class));
@@ -92,7 +87,7 @@ public class ServiceOrderApplicantServiceImpl extends BaseService implements Ser
 	@Override
 	public int deleteServiceOrderApplicant(Integer id) throws ServiceException {
 		if (id == null || id <= 0) {
-			ServiceException se = new ServiceException("id is null !");
+			ServiceException se = new ServiceException("applicant id is null !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
