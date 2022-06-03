@@ -815,6 +815,17 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setSchoolInstitutionLocationId(schoolInstitutionLocationId);
 			if (StringUtil.isNotEmpty(institutionTradingName))
 				serviceOrderDto.setInstitutionTradingName(institutionTradingName);
+			if (serviceOrderApplicantList != null && serviceOrderApplicantList.size() > 0) {
+				for (ServiceOrderApplicantDTO serviceOrderApplicantDto : serviceOrderApplicantList) {
+					serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
+					if (serviceOrderApplicantService.updateServiceOrderApplicant(serviceOrderApplicantDto) <= 0)
+						LOG.error("申请人信息修改失败! (serviceOrderApplicantId:" + serviceOrderApplicantDto.getId() + ")");
+					else
+						LOG.info("申请人信息修改成功. (serviceOrderApplicantId:" + serviceOrderApplicantDto.getId() + ")");
+				}
+				if (serviceOrderApplicantList.get(0) != null && StringUtil.isEmpty(applicantId))
+					serviceOrderDto.setApplicantId(serviceOrderApplicantList.get(0).getApplicantId());
+			}
 			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
 			if (i > 0) {
 				ApplicantDTO applicantDto = serviceOrderDto.getApplicant();
@@ -827,14 +838,6 @@ public class ServiceOrderController extends BaseController {
 						LOG.info("申请人生日修改成功. (serviceOrderId:" + serviceOrderDto.getId() + ", applicantId:"
 								+ applicantDto.getId() + ", applicantBirthday:" + applicantDto.getBirthday() + ")");
 				}
-				if (serviceOrderApplicantList != null)
-					for (ServiceOrderApplicantDTO serviceOrderApplicantDto : serviceOrderApplicantList) {
-						serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
-						if (serviceOrderApplicantService.updateServiceOrderApplicant(serviceOrderApplicantDto) <= 0)
-							LOG.error("申请人信息修改失败! (serviceOrderId:" + serviceOrderDto.getId() + ")");
-						else
-							LOG.info("申请人信息修改失败. (serviceOrderId:" + serviceOrderDto.getId() + ")");
-					}
 				return new Response<Integer>(0, i);
 			} else
 				return new Response<Integer>(1, "修改失败.", 0);
