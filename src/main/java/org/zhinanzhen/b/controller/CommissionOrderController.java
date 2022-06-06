@@ -535,6 +535,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				serviceOrderDto.setReceived(_commissionOrderListDto.getTotalAmount());
 				serviceOrderService.updateServiceOrder(serviceOrderDto); // 同步修改服务订单
 				ApplicantDTO applicantDto = serviceOrderDto.getApplicant();
+				if (StringUtil.isEmpty(applicantBirthday))
+					applicantBirthday = dob;
 				if (applicantDto != null && applicantBirthday != null) {
 					applicantDto.setBirthday(new Date(Long.parseLong(applicantBirthday)));
 					if (applicantService.update(applicantDto) <= 0)
