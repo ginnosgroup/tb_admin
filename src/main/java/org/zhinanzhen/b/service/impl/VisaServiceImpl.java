@@ -314,8 +314,10 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 
 	public VisaDTO putVisaDTO(VisaListDO visaListDo) throws ServiceException {
 		VisaDTO visaDto = putVisaDTO((VisaDO) visaListDo);
-		if (visaListDo.getApplicantId() > 0)
+		if (visaListDo.getApplicantId() > 0) {
 			visaDto.setApplicant(mapper.map(applicantDao.getById(visaListDo.getApplicantId()), ApplicantDTO.class));
+			visaDto.setApplicantId(visaListDo.getApplicantId());
+		}
 		return visaDto;
 	}
 

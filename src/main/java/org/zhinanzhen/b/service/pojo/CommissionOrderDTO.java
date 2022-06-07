@@ -36,6 +36,8 @@ public class CommissionOrderDTO {
 	private String studentCode;
 
 	private int userId;
+	
+	private int applicantId;
 
 	private ApplicantDTO applicant;
 

@@ -17,6 +17,8 @@ public class VisaDTO {
 	private Date handlingDate;
 
 	private int userId;
+	
+	private int applicantId;
 
 	private ApplicantDTO applicant;
 
