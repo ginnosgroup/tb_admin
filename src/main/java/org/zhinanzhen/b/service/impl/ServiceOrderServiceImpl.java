@@ -578,7 +578,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 					applicantDto.setUrl(serviceOrderApplicantDoList.get(0).getUrl());
 					applicantDto.setContent(serviceOrderApplicantDoList.get(0).getContent());
 				}
-				serviceOrderDto.setApplicantId(serviceOrderDto.getId());
+				serviceOrderDto.setApplicantId(applicantDto.getId());
 				serviceOrderDto.setApplicant(applicantDto);
 			}
 		}
