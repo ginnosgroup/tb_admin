@@ -261,7 +261,6 @@
         <if test='applicantName != null and applicantName != ""'>
             AND (ap.surname LIKE '%${applicantName}%' OR ap.firstname LIKE '%${applicantName}%')
         </if>
-        applicantName
         ;
     </select>
     
