@@ -268,13 +268,15 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			String auditingState, List<String> reviewStateList, String urgentState, String startMaraApprovalDate,
 			String endMaraApprovalDate, String startOfficialApprovalDate, String endOfficialApprovalDate,
 			String startReadcommittedDate, String endReadcommittedDate, List<Integer> regionIdList, Integer userId,
-			String userName, Integer maraId, Integer adviserId, Integer officialId, Integer officialTagId, int parentId, int applicantParentId,
-			boolean isNotApproved, Integer serviceId, Integer schoolId, Boolean isPay, Boolean isSettle) throws ServiceException {
+			String userName, String applicantName, Integer maraId, Integer adviserId, Integer officialId,
+			Integer officialTagId, int parentId, int applicantParentId, boolean isNotApproved, Integer serviceId,
+			Integer schoolId, Boolean isPay, Boolean isSettle) throws ServiceException {
 		return serviceOrderDao.countServiceOrder(type, excludeTypeList, excludeState, stateList, auditingState,
-				reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate), theDateTo23_59_59(endMaraApprovalDate),
-				theDateTo00_00_00(startOfficialApprovalDate), theDateTo23_59_59(endOfficialApprovalDate),
-				theDateTo00_00_00(startReadcommittedDate), theDateTo23_59_59(endReadcommittedDate), regionIdList, userId, userName,
-				maraId, adviserId, officialId, officialTagId, parentId, applicantParentId, isNotApproved, serviceId, schoolId, isPay, isSettle);
+				reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate),
+				theDateTo23_59_59(endMaraApprovalDate), theDateTo00_00_00(startOfficialApprovalDate),
+				theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),
+				theDateTo23_59_59(endReadcommittedDate), regionIdList, userId, userName, applicantName, maraId, adviserId, officialId,
+				officialTagId, parentId, applicantParentId, isNotApproved, serviceId, schoolId, isPay, isSettle);
 	}
 
 	@Override
@@ -282,9 +284,10 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			List<String> stateList, String auditingState, List<String> reviewStateList, String urgentState,
 			String startMaraApprovalDate, String endMaraApprovalDate, String startOfficialApprovalDate,
 			String endOfficialApprovalDate, String startReadcommittedDate, String endReadcommittedDate,
-			List<Integer> regionIdList, Integer userId, String userName, Integer maraId, Integer adviserId,
-			Integer officialId, Integer officialTagId, int parentId, int applicantParentId, boolean isNotApproved, int pageNum, int pageSize,
-			Sorter sorter, Integer serviceId, Integer schoolId, Boolean isPay, Boolean isSettle) throws ServiceException {
+			List<Integer> regionIdList, Integer userId, String userName, String applicantName, Integer maraId,
+			Integer adviserId, Integer officialId, Integer officialTagId, int parentId, int applicantParentId,
+			boolean isNotApproved, int pageNum, int pageSize, Sorter sorter, Integer serviceId, Integer schoolId,
+			Boolean isPay, Boolean isSettle) throws ServiceException {
 		List<ServiceOrderDTO> serviceOrderDtoList = new ArrayList<ServiceOrderDTO>();
 		List<ServiceOrderDO> serviceOrderDoList = new ArrayList<ServiceOrderDO>();
 		if (pageNum < 0)
@@ -302,7 +305,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			serviceOrderDoList = serviceOrderDao.listServiceOrder(type, excludeTypeList, excludeState, stateList,
 					auditingState, reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate), theDateTo23_59_59(endMaraApprovalDate),
 					theDateTo00_00_00(startOfficialApprovalDate), theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),
-					theDateTo23_59_59(endReadcommittedDate), regionIdList, userId, userName, maraId, adviserId, officialId, officialTagId,
+					theDateTo23_59_59(endReadcommittedDate), regionIdList, userId, userName, applicantName, maraId, adviserId, officialId, officialTagId,
 					parentId, applicantParentId, isNotApproved, serviceId, schoolId, isPay, isSettle, pageNum * pageSize, pageSize, orderBy);
 			if (serviceOrderDoList == null)
 				return null;

@@ -373,8 +373,8 @@
     
     <select id="countServiceOrder" resultType="java.lang.Integer">
         SELECT count(*)
-        FROM tb_user u, tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON so.id=soot.service_order_id
-        WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id
+        FROM tb_user u, tb_adviser a, b_applicant ap, b_service_order so LEFT JOIN b_service_order_official_tag soot ON so.id=soot.service_order_id
+        WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id AND ap.id = so.applicant_id
         <if test='type != null and type != ""'>
             AND so.type = #{type}
         </if>
@@ -449,6 +449,9 @@
         </if>
         <if test='userName != null and userName != ""'>
             AND u.name LIKE '%${userName}%'
+        </if>
+        <if test='applicantName != null and applicantName != ""'>
+            AND (ap.surname LIKE '%${applicantName}%' OR ap.firstname LIKE '%${applicantName}%')
         </if>
         <if test="isPay != null">
             AND so.is_pay = #{isPay}
@@ -537,8 +540,8 @@
             so.verify_code AS verifyCode ,
             so.readcommitted_date AS readcommittedDate,
             so.ref_no AS refNo
-        FROM tb_user u, tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON so.id=soot.service_order_id
-        WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id
+        FROM tb_user u, tb_adviser a, b_applicant ap, b_service_order so LEFT JOIN b_service_order_official_tag soot ON so.id=soot.service_order_id
+        WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id AND ap.id = so.applicant_id
         <if test='type != null and type != ""'>
             AND so.type = #{type}
         </if>
@@ -613,6 +616,9 @@
         </if>
         <if test='userName != null and userName != ""'>
             AND u.name LIKE '%${userName}%'
+        </if>
+        <if test='applicantName != null and applicantName != ""'>
+            AND (ap.surname LIKE '%${applicantName}%' OR ap.firstname LIKE '%${applicantName}%')
         </if>
         <if test="isPay != null">
             AND so.is_pay = #{isPay}

@@ -15,27 +15,28 @@ public interface VisaDAO {
 	public int updateVisa(VisaDO visaDo);
 
 	public int countVisa(@Param("id") Integer id, @Param("keyword") String keyword,
-                         @Param("startHandlingDate") String startHandlingDate, @Param("endHandlingDate") String endHandlingDate,
-                         @Param("stateList") List<String> stateList, @Param("commissionStateList") List<String> commissionStateList,
-                         @Param("startKjApprovalDate") String startKjApprovalDate,
-                         @Param("endKjApprovalDate") String endKjApprovalDate, @Param("startDate") String startDate,
-                         @Param("endDate") String endDate, @Param("startInvoiceCreate") String startInvoiceCreate,
-						 @Param("endInvoiceCreate") String endInvoiceCreate, @Param("regionIdList") List<Integer> regionIdList,
-                         @Param("adviserId") Integer adviserId, @Param("userId") Integer userId, @Param("state") String state);
+			@Param("startHandlingDate") String startHandlingDate, @Param("endHandlingDate") String endHandlingDate,
+			@Param("stateList") List<String> stateList, @Param("commissionStateList") List<String> commissionStateList,
+			@Param("startKjApprovalDate") String startKjApprovalDate,
+			@Param("endKjApprovalDate") String endKjApprovalDate, @Param("startDate") String startDate,
+			@Param("endDate") String endDate, @Param("startInvoiceCreate") String startInvoiceCreate,
+			@Param("endInvoiceCreate") String endInvoiceCreate, @Param("regionIdList") List<Integer> regionIdList,
+			@Param("adviserId") Integer adviserId, @Param("userId") Integer userId,
+			@Param("applicantName") String applicantName, @Param("state") String state);
 
 	public int countVisaByServiceOrderIdAndExcludeCode(@Param("serviceOrderId") Integer serviceOrderId,
 			@Param("code") String code);
 
 	public List<VisaListDO> listVisa(@Param("id") Integer id, @Param("keyword") String keyword,
-									 @Param("startHandlingDate") String startHandlingDate, @Param("endHandlingDate") String endHandlingDate,
-									 @Param("stateList") List<String> stateList, @Param("commissionStateList") List<String> commissionStateList,
-									 @Param("startKjApprovalDate") String startKjApprovalDate,
-									 @Param("endKjApprovalDate") String endKjApprovalDate, @Param("startDate") String startDate,
-									 @Param("endDate") String endDate, @Param("startInvoiceCreate") String startInvoiceCreate,
-									 @Param("endInvoiceCreate") String endInvoiceCreate, @Param("regionIdList") List<Integer> regionIdList,
-									 @Param("adviserId") Integer adviserId, @Param("userId") Integer userId,
-									 @Param("userName") String userName, @Param("state") String state,
-									 @Param("offset") int offset, @Param("rows") int rows, @Param("orderBy") String orderBy);
+			@Param("startHandlingDate") String startHandlingDate, @Param("endHandlingDate") String endHandlingDate,
+			@Param("stateList") List<String> stateList, @Param("commissionStateList") List<String> commissionStateList,
+			@Param("startKjApprovalDate") String startKjApprovalDate,
+			@Param("endKjApprovalDate") String endKjApprovalDate, @Param("startDate") String startDate,
+			@Param("endDate") String endDate, @Param("startInvoiceCreate") String startInvoiceCreate,
+			@Param("endInvoiceCreate") String endInvoiceCreate, @Param("regionIdList") List<Integer> regionIdList,
+			@Param("adviserId") Integer adviserId, @Param("userId") Integer userId, @Param("userName") String userName,
+			@Param("applicantName") String applicantName, @Param("state") String state, @Param("offset") int offset,
+			@Param("rows") int rows, @Param("orderBy") String orderBy);
 
 	List<VisaDO> listVisaByCode(@Param("code") String code);
 

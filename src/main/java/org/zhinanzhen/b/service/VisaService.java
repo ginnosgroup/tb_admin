@@ -15,14 +15,16 @@ public interface VisaService {
 	public int updateVisa(VisaDTO visaDto) throws ServiceException;
 
 	public int countVisa(Integer id, String keyword, String startHandlingDate, String endHandlingDate,
-                         List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
-                         String endKjApprovalDate, String startDate, String endDate, String startInvoiceCreate, String endInvoiceCreate, List<Integer> regionIdList, Integer adviserId,
-                         Integer userId, String state) throws ServiceException;
+			List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
+			String endKjApprovalDate, String startDate, String endDate, String startInvoiceCreate,
+			String endInvoiceCreate, List<Integer> regionIdList, Integer adviserId, Integer userId,
+			String applicantName, String state) throws ServiceException;
 
 	public List<VisaDTO> listVisa(Integer id, String keyword, String startHandlingDate, String endHandlingDate,
-								  List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
-								  String endKjApprovalDate, String startDate, String endDate, String startInvoiceCreate, String endInvoiceCreate, List<Integer> regionIdList, Integer adviserId,
-								  Integer userId, String userName, String state, int pageNum, int pageSize, Sorter sorter) throws ServiceException;
+			List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
+			String endKjApprovalDate, String startDate, String endDate, String startInvoiceCreate,
+			String endInvoiceCreate, List<Integer> regionIdList, Integer adviserId, Integer userId, String userName,
+			String applicantName, String state, int pageNum, int pageSize, Sorter sorter) throws ServiceException;
 
 	public List<VisaReportDTO> listVisaReport(String startDate, String endDate, String dateType, String dateMethod,
 			Integer regionId, Integer adviserId, List<String> adviserIdList) throws ServiceException;

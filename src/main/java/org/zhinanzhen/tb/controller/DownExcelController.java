@@ -172,7 +172,7 @@ public class DownExcelController extends BaseController {
 		try {
 			super.setGetHeader(response);
 			List<VisaDTO> visaDtoList = visaService.listVisa(id , keyword, startHandlingDate, endHandlingDate, null, null,
-					null, null, startDate, endDate, null, null, null, adviserId, null, userName, state,0, 9999, null);
+					null, null, startDate, endDate, null, null, null, adviserId, null, userName, null, state,0, 9999, null);
 
 			OutputStream os = response.getOutputStream();
 			jxl.Workbook wb;
@@ -547,7 +547,7 @@ public class DownExcelController extends BaseController {
 				i = 1 ;
 				List<VisaDTO> list = visaService.listVisa(null ,null, null, null, null,
 						null, startDate, endDate, null, null, null, null, null,
-						commissionReportList.get(0).getAdviserId(),null,null, null,0, 9999, null);
+						commissionReportList.get(0).getAdviserId(),null,null, null, null,0, 9999, null);
 				list.forEach(v -> {
 					if (v.getServiceOrderId() > 0)
 						try {
@@ -563,8 +563,7 @@ public class DownExcelController extends BaseController {
 
 				List<CommissionOrderListDTO> commissionOrderList = commissionOrderService.listCommissionOrder(null,
 						null, null, commissionReportList.get(0).getAdviserId(), null, null, null, null, null, null,
-						null, null, null, startDate, endDate,null,null,
-						null, null, null, null, 0, 9999, null);
+						null, null, null, null, startDate, endDate, null, null, null, null, null, null, 0, 9999, null);
 
 				outPutCsToSheet(sheet, cellFormat,cellGreen, cellYellow, i += 3, commissionOrderList);
 

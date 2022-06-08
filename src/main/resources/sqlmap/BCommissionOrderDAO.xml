@@ -247,8 +247,8 @@
     
     <select id="countCommissionOrder" resultType="java.lang.Integer">
         SELECT count(*)
-        FROM b_commission_order co, b_service_order so, tb_user u, tb_adviser a
-        WHERE co.service_order_id = so.id AND co.user_id = u.id AND a.id = co.adviser_id
+        FROM b_commission_order co, b_service_order so, tb_user u, tb_adviser a, b_applicant ap
+        WHERE co.service_order_id = so.id AND co.user_id = u.id AND a.id = co.adviser_id AND ap.id = so.applicant_id
         <if test='id != null and id > 0'>
             AND co.id = #{id}
         </if>
@@ -272,6 +272,9 @@
         </if>
         <if test='name != null and name != ""'>
             AND u.name LIKE '%${name}%'
+        </if>
+        <if test='applicantName != null and applicantName != ""'>
+            AND (ap.surname LIKE '%${applicantName}%' OR ap.firstname LIKE '%${applicantName}%')
         </if>
         <if test='applyState == "PENDING" or applyState == "WAIT"'>
             <![CDATA[ AND (co.state="PENDING" OR co.state="WAIT") ]]>
@@ -395,8 +398,8 @@
             so.service_id AS serviceId,
             so.institution_trading_name AS institutionTradingName,
             so.applicant_id AS applicantId
-        FROM b_commission_order co, b_service_order so, tb_user u, tb_adviser a
-        WHERE co.service_order_id = so.id AND co.user_id = u.id AND a.id = co.adviser_id
+        FROM b_commission_order co, b_service_order so, tb_user u, tb_adviser a, b_applicant ap
+        WHERE co.service_order_id = so.id AND co.user_id = u.id AND a.id = co.adviser_id AND ap.id = so.applicant_id
         <if test='id != null and id > 0'>
             AND co.id = #{id}
         </if>
@@ -420,6 +423,9 @@
         </if>
         <if test='name != null and name != ""'>
             AND u.name LIKE '%${name}%'
+        </if>
+        <if test='applicantName != null and applicantName != ""'>
+            AND (ap.surname LIKE '%${applicantName}%' OR ap.firstname LIKE '%${applicantName}%')
         </if>
         <if test='phone != null and phone != ""'>
             AND u.phone = #{phone}

@@ -785,6 +785,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "officialId", required = false) Integer officialId,
 			@RequestParam(value = "userId", required = false) Integer userId,
 			@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "applicantName", required = false) String applicantName,
 			@RequestParam(value = "phone", required = false) String phone,
 			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
 			@RequestParam(value = "schoolId", required = false) Integer schoolId,
@@ -857,7 +858,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 			return new Response<Integer>(0,
 					commissionOrderService.countCommissionOrder(id, regionIdList, maraId, adviserId, officialId, userId,
-							name, phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
+							name, applicantName, phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
 							startKjApprovalDate, endKjApprovalDate,startDate,endDate, startInvoiceCreate, endInvoiceCreate, isYzyAndYjy,
 							applyState));
 		} catch (ServiceException e) {
@@ -875,6 +876,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "userId", required = false) Integer userId,
 			@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "userName", required = false) String userName,
+			@RequestParam(value = "applicantName", required = false) String applicantName,
 			@RequestParam(value = "phone", required = false) String phone,
 			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
 			@RequestParam(value = "schoolId", required = false) Integer schoolId,
@@ -960,13 +962,13 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			}
 
 			int total = commissionOrderService.countCommissionOrder(id, regionIdList, maraId, adviserId, officialId,
-					userId, name, phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
-					startKjApprovalDate, endKjApprovalDate, startDate,endDate,startInvoiceCreate, endInvoiceCreate, isYzyAndYjy,
-					applyState);
-			List<CommissionOrderListDTO> list = commissionOrderService.listCommissionOrder(id, regionIdList, maraId, adviserId, officialId, userId,
-					name, phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
-					startKjApprovalDate, endKjApprovalDate, startDate,endDate,startInvoiceCreate, endInvoiceCreate, isYzyAndYjy,
-					applyState, pageNum, pageSize, _sorter);
+					userId, name, applicantName, phone, wechatUsername, schoolId, isSettle, stateList,
+					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, startInvoiceCreate,
+					endInvoiceCreate, isYzyAndYjy, applyState);
+			List<CommissionOrderListDTO> list = commissionOrderService.listCommissionOrder(id, regionIdList, maraId,
+					adviserId, officialId, userId, name, applicantName, phone, wechatUsername, schoolId, isSettle,
+					stateList, commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate,
+					startInvoiceCreate, endInvoiceCreate, isYzyAndYjy, applyState, pageNum, pageSize, _sorter);
 			list.forEach(co -> {
 				try {
 					List<MailRemindDTO> mailRemindDTOS = mailRemindService.list(getAdviserId(request),newOfficialId,getKjId(request),
@@ -1057,6 +1059,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "officialId", required = false) Integer officialId,
 			@RequestParam(value = "userId", required = false) Integer userId,
 			@RequestParam(value = "userName", required = false) String name,
+			@RequestParam(value = "applicantName", required = false) String applicantName,
 			@RequestParam(value = "phone", required = false) String phone,
 			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
 			@RequestParam(value = "schoolId", required = false) Integer schoolId,
@@ -1136,7 +1139,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 //				_endKjApprovalDate = new Date(Long.parseLong(endKjApprovalDate));
 
 			List<CommissionOrderListDTO> commissionOrderList = commissionOrderService.listCommissionOrder(id,
-					regionIdList, maraId, adviserId, officialId, userId, name, phone, wechatUsername, schoolId,
+					regionIdList, maraId, adviserId, officialId, userId, name, applicantName, phone, wechatUsername, schoolId,
 					isSettle, stateList, commissionStateList, startKjApprovalDate, endKjApprovalDate,startDate,endDate,
 					startInvoiceCreate, endInvoiceCreate, isYzyAndYjy, state, 0, 9999, null);
 

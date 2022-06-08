@@ -153,22 +153,24 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 
 	@Override
 	public int countCommissionOrder(Integer id, List<Integer> regionIdList, Integer maraId, Integer adviserId,
-                                    Integer officialId, Integer userId, String name, String phone, String wechatUsername, Integer schoolId,
-                                    Boolean isSettle, List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
-                                    String endKjApprovalDate,  String startDate,String endDate,String startInvoiceCreate, String endInvoiceCreate,
-									Boolean isYzyAndYjy, String applyState) throws ServiceException {
-		return commissionOrderDao.countCommissionOrder(id, regionIdList, maraId, adviserId, officialId, userId, name,
-				phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList, theDateTo00_00_00(startKjApprovalDate),
-				theDateTo23_59_59(endKjApprovalDate),startDate,endDate,startInvoiceCreate, theDateTo23_59_59(endInvoiceCreate), isYzyAndYjy, applyState);
+			Integer officialId, Integer userId, String name, String applicantName, String phone, String wechatUsername,
+			Integer schoolId, Boolean isSettle, List<String> stateList, List<String> commissionStateList,
+			String startKjApprovalDate, String endKjApprovalDate, String startDate, String endDate,
+			String startInvoiceCreate, String endInvoiceCreate, Boolean isYzyAndYjy, String applyState)
+			throws ServiceException {
+		return commissionOrderDao.countCommissionOrder(id, regionIdList, maraId, adviserId, officialId, userId, name, applicantName,
+				phone, wechatUsername, schoolId, isSettle, stateList, commissionStateList,
+				theDateTo00_00_00(startKjApprovalDate), theDateTo23_59_59(endKjApprovalDate), startDate, endDate,
+				startInvoiceCreate, theDateTo23_59_59(endInvoiceCreate), isYzyAndYjy, applyState);
 	}
 
 	@Override
 	public List<CommissionOrderListDTO> listCommissionOrder(Integer id, List<Integer> regionIdList, Integer maraId,
-															Integer adviserId, Integer officialId, Integer userId, String name, String phone, String wechatUsername,
-															Integer schoolId, Boolean isSettle, List<String> stateList, List<String> commissionStateList,
-															String startKjApprovalDate, String endKjApprovalDate,  String startDate,String endDate,
-															String startInvoiceCreate, String endInvoiceCreate, Boolean isYzyAndYjy, String applyState, int pageNum,
-															int pageSize, Sorter sorter) throws ServiceException {
+			Integer adviserId, Integer officialId, Integer userId, String name, String applicantName, String phone,
+			String wechatUsername, Integer schoolId, Boolean isSettle, List<String> stateList,
+			List<String> commissionStateList, String startKjApprovalDate, String endKjApprovalDate, String startDate,
+			String endDate, String startInvoiceCreate, String endInvoiceCreate, Boolean isYzyAndYjy, String applyState,
+			int pageNum, int pageSize, Sorter sorter) throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
 		}
@@ -188,10 +190,10 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 		List<CommissionOrderListDO> commissionOrderListDoList = new ArrayList<>();
 		try {
 			commissionOrderListDoList = commissionOrderDao.listCommissionOrder(id, regionIdList, maraId, adviserId,
-					officialId, userId, name, phone, wechatUsername, schoolId, isSettle, stateList,
-					commissionStateList,
-					theDateTo00_00_00(startKjApprovalDate), theDateTo23_59_59(endKjApprovalDate),startDate,endDate, startInvoiceCreate, theDateTo23_59_59(endInvoiceCreate),
-					isYzyAndYjy, applyState,pageNum * pageSize, pageSize, orderBy);
+					officialId, userId, name, applicantName, phone, wechatUsername, schoolId, isSettle, stateList,
+					commissionStateList, theDateTo00_00_00(startKjApprovalDate), theDateTo23_59_59(endKjApprovalDate),
+					startDate, endDate, startInvoiceCreate, theDateTo23_59_59(endInvoiceCreate), isYzyAndYjy,
+					applyState, pageNum * pageSize, pageSize, orderBy);
 			if (commissionOrderListDoList == null)
 				return null;
 		} catch (Exception e) {
