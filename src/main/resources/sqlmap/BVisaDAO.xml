@@ -259,7 +259,7 @@
             AND bv.user_id = #{userId}
         </if>
         <if test='applicantName != null and applicantName != ""'>
-            AND (ap.surname LIKE '%${applicantName}%' OR ap.firstname LIKE '%${applicantName}%')
+            AND (ap.surname LIKE '%${applicantName}%' OR ap.firstname LIKE '%${applicantName}%' OR CONCAT(ap.firstname, ' ', ap.surname) = ${applicantName})
         </if>
         ;
     </select>
@@ -380,7 +380,7 @@
             AND tbu.name LIKE '%${userName}%'
         </if>
         <if test='applicantName != null and applicantName != ""'>
-            AND (ap.surname LIKE '%${applicantName}%' OR ap.firstname LIKE '%${applicantName}%')
+            AND (ap.surname LIKE '%${applicantName}%' OR ap.firstname LIKE '%${applicantName}%' OR CONCAT(ap.firstname, ' ', ap.surname) = ${applicantName})
         </if>
         ${orderBy}
         LIMIT #{offset}, #{rows};
