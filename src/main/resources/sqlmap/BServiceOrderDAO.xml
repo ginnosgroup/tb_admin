@@ -451,7 +451,7 @@
             AND u.name LIKE '%${userName}%'
         </if>
         <if test='applicantName != null and applicantName != ""'>
-            AND (ap.surname LIKE '%${applicantName}%' OR ap.firstname LIKE '%${applicantName}%' OR CONCAT(ap.firstname, ' ', ap.surname) = ${applicantName})
+            AND (ap.surname LIKE '%${applicantName}%' OR ap.firstname LIKE '%${applicantName}%' OR CONCAT(ap.firstname, ' ', ap.surname) = #{applicantName})
         </if>
         <if test="isPay != null">
             AND so.is_pay = #{isPay}
@@ -618,7 +618,7 @@
             AND u.name LIKE '%${userName}%'
         </if>
         <if test='applicantName != null and applicantName != ""'>
-            AND (ap.surname LIKE '%${applicantName}%' OR ap.firstname LIKE '%${applicantName}%' OR CONCAT(ap.firstname, ' ', ap.surname) = ${applicantName})
+            AND (ap.surname LIKE '%${applicantName}%' OR ap.firstname LIKE '%${applicantName}%' OR CONCAT(ap.firstname, ' ', ap.surname) = #{applicantName})
         </if>
         <if test="isPay != null">
             AND so.is_pay = #{isPay}

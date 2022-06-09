@@ -274,7 +274,7 @@
             AND u.name LIKE '%${name}%'
         </if>
         <if test='applicantName != null and applicantName != ""'>
-            AND (ap.surname LIKE '%${applicantName}%' OR ap.firstname LIKE '%${applicantName}%' OR CONCAT(ap.firstname, ' ', ap.surname) = ${applicantName})
+            AND (ap.surname LIKE '%${applicantName}%' OR ap.firstname LIKE '%${applicantName}%' OR CONCAT(ap.firstname, ' ', ap.surname) = #{applicantName})
         </if>
         <if test='applyState == "PENDING" or applyState == "WAIT"'>
             <![CDATA[ AND (co.state="PENDING" OR co.state="WAIT") ]]>
@@ -425,7 +425,7 @@
             AND u.name LIKE '%${name}%'
         </if>
         <if test='applicantName != null and applicantName != ""'>
-            AND (ap.surname LIKE '%${applicantName}%' OR ap.firstname LIKE '%${applicantName}%' OR CONCAT(ap.firstname, ' ', ap.surname) = ${applicantName})
+            AND (ap.surname LIKE '%${applicantName}%' OR ap.firstname LIKE '%${applicantName}%' OR CONCAT(ap.firstname, ' ', ap.surname) = #{applicantName})
         </if>
         <if test='phone != null and phone != ""'>
             AND u.phone = #{phone}
