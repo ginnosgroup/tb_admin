@@ -53,6 +53,9 @@ public class ApplicantController extends BaseController {
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
+			Integer newAdviserId = getAdviserId(request);
+			if (newAdviserId != null)
+				adviserId = newAdviserId;
 			ApplicantDTO applicantDto = new ApplicantDTO();
 			applicantDto.setSurname(surname);
 			applicantDto.setFirstname(firstname);
