@@ -820,9 +820,9 @@ public class ServiceOrderController extends BaseController {
 				for (ServiceOrderApplicantDTO serviceOrderApplicantDto : serviceOrderApplicantList) {
 					serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
 					if (serviceOrderApplicantService.updateServiceOrderApplicant(serviceOrderApplicantDto) <= 0)
-						LOG.error("申请人信息修改失败! (serviceOrderApplicantId:" + serviceOrderApplicantDto.getId() + ")");
+						LOG.warn("申请人信息修改失败! (serviceOrderApplicantId:" + serviceOrderApplicantDto.getId() + ")");
 					else
-						LOG.info("申请人信息修改成功. (serviceOrderApplicantId:" + serviceOrderApplicantDto.getId() + ")");
+						LOG.warn("申请人信息修改成功. (serviceOrderApplicantId:" + serviceOrderApplicantDto.getId() + ")");
 				}
 				if (serviceOrderApplicantList.get(0) != null && StringUtil.isEmpty(applicantId))
 					serviceOrderDto.setApplicantId(serviceOrderApplicantList.get(0).getApplicantId());
