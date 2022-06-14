@@ -44,12 +44,12 @@ public class ApplicantServiceImpl extends BaseService implements ApplicantServic
 	}
 
 	@Override
-	public int count(int userId) throws ServiceException {
-		return applicantDao.count(userId);
+	public int count(int userId, int adviserId) throws ServiceException {
+		return applicantDao.count(userId, adviserId);
 	}
 
 	@Override
-	public List<ApplicantDTO> list(int userId, int pageNum, int pageSize) throws ServiceException {
+	public List<ApplicantDTO> list(int userId, int adviserId, int pageNum, int pageSize) throws ServiceException {
 		if (pageNum < 0)
 			pageNum = DEFAULT_PAGE_NUM;
 		if (pageSize < 0)
@@ -57,7 +57,7 @@ public class ApplicantServiceImpl extends BaseService implements ApplicantServic
 		List<ApplicantDTO> applicantDtoList = new ArrayList<ApplicantDTO>();
 		List<ApplicantDO> applicantDoList = new ArrayList<ApplicantDO>();
 		try {
-			applicantDoList = applicantDao.list(userId, pageNum * pageSize, pageSize);
+			applicantDoList = applicantDao.list(userId, adviserId, pageNum * pageSize, pageSize);
 			if (applicantDoList == null)
 				return null;
 			for (ApplicantDO applicantDo : applicantDoList) {

@@ -155,7 +155,8 @@ CREATE TABLE `b_applicant` (
   `nut_cloud` varchar(128) DEFAULT NULL COMMENT '坚果云地址',
   `file_url` varchar(128) DEFAULT NULL COMMENT '申请人资料表格',
   `first_controller_contents` varchar(255) DEFAULT NULL COMMENT '初次咨询记录',
-  `user_id` int NOT NULL COMMENT '所属客户编号 (对应tb_user.id)'
+  `user_id` int NOT NULL COMMENT '所属客户编号 (对应tb_user.id)',
+`adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 ALTER TABLE `b_applicant` ADD INDEX index_name (`user_id`);
 

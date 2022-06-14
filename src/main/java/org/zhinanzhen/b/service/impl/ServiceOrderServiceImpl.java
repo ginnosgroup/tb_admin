@@ -561,7 +561,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		if (userDo != null) {
 			UserDTO userDto = mapper.map(userDo, UserDTO.class);
 			if (serviceOrderDto.getUserId() > 0 && serviceOrderDto.getApplicantId() >= 0) {
-				List<ApplicantDO> applicantDoList = applicantDao.list(serviceOrderDto.getUserId(), 0, 999);
+				List<ApplicantDO> applicantDoList = applicantDao.list(serviceOrderDto.getUserId(),
+						serviceOrderDto.getAdviserId(), 0, 999);
 				List<ApplicantDTO> applicantDtoList = new ArrayList<>();
 				applicantDoList.forEach(applicantDo -> {
 					applicantDtoList.add(mapper.map(applicantDo, ApplicantDTO.class));

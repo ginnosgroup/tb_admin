@@ -213,7 +213,7 @@ public class UserController extends BaseController {
 
 			if (id != null && id > 0){
 				List<UserDTO> list = new ArrayList<>();
-				UserDTO userDTO = userService.getUserById(id);
+				UserDTO userDTO = userService.getUser(id, StringUtil.toInt(adviserId));
 				userDTO.setMailRemindDTOS(mailRemindService.list(getAdviserId(request),null,null,null,null,null,id,false,false));
 				list.add(userDTO);
 				return  new ListResponse<List<UserDTO>>(true, pageSize, 1, list, "");
@@ -237,10 +237,10 @@ public class UserController extends BaseController {
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
 	@ResponseBody
 	@SneakyThrows
-	public Response<UserDTO> getUser(@RequestParam(value = "id") int id, HttpServletResponse response) {
+	public Response<UserDTO> getUser(@RequestParam(value = "id") int id, HttpServletRequest request, HttpServletResponse response) {
 //		try {
 			super.setGetHeader(response);
-			UserDTO user = userService.getUserById(id);
+			UserDTO user = userService.getUser(id, getAdviserId(request));
 			return new Response<UserDTO>(0, user);
 //		} catch (ServiceException e) {
 //			return new Response<UserDTO>(1, e.getMessage(), null);

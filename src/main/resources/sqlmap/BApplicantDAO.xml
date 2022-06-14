@@ -16,7 +16,8 @@
         nut_cloud,
         file_url,
         first_controller_contents,
-        user_id)
+        user_id,
+        adviser_id)
         values (
         now(),
         now(),
@@ -29,7 +30,8 @@
         #{nutCloud},
         #{fileUrl},
         #{firstControllerContents},
-        #{userId})
+        #{userId},
+        #{adviserId})
     </insert>
 
     <select id="count" parameterType="org.zhinanzhen.b.dao.pojo.ApplicantDO"
@@ -37,6 +39,9 @@
         SELECT count(*)
         FROM b_applicant
         WHERE user_id = #{userId}
+        <if test='adviserId != null and adviserId > 0'>
+            AND adviser_id = #{adviserId}
+        </if>
         ;
     </select>
 
@@ -54,9 +59,13 @@
         nut_cloud AS nutCloud,
         file_url AS fileUrl,
         first_controller_contents AS firstControllerContents,
-        user_id AS userId
+        user_id AS userId,
+        adviser_id AS adviserId
         FROM b_applicant
         WHERE user_id = #{userId}
+        <if test='adviserId != null and adviserId > 0'>
+            AND adviser_id = #{adviserId}
+        </if>
         GROUP BY id
         LIMIT #{offset}, #{rows};
     </select>
@@ -75,7 +84,8 @@
         nut_cloud AS nutCloud,
         file_url AS fileUrl,
         first_controller_contents AS firstControllerContents,
-        user_id AS userId
+        user_id AS userId,
+        adviser_id AS adviserId
         FROM b_applicant
         WHERE id = #{id, jdbcType=INTEGER};
     </select>

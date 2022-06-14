@@ -32,5 +32,7 @@ public class ApplicantDO {
 	private String firstControllerContents;
 
 	private int userId;
+	
+	private int adviserId;
 
 }

@@ -216,7 +216,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 			List<UserAdviserDTO> userAdviserList = listUserAdviserDto(userDo.getId());
 			if (userAdviserList != null && userAdviserList.size() > 0)
 				userDto.setUserAdviserList(userAdviserList);
-			List<ApplicantDTO> applicantList = listApplicantDto(userDo.getId());
+			List<ApplicantDTO> applicantList = listApplicantDto(userDo.getId(), adviserId);
 			if (applicantList != null && applicantList.size() < 0)
 				userDto.setApplicantList(applicantList);
 			AdviserDO adviserDo = null;
@@ -245,6 +245,11 @@ public class UserServiceImpl extends BaseService implements UserService {
 
 	@Override
 	public UserDTO getUserById(int id) throws ServiceException {
+		return getUser(id, 0);
+	}
+
+	@Override
+	public UserDTO getUser(int id, int adviserId) throws ServiceException {
 		if (id <= 0) {
 			ServiceException se = new ServiceException("id error !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -262,7 +267,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 			List<UserAdviserDTO> userAdviserList = listUserAdviserDto(userDo.getId());
 			if (userAdviserList != null && userAdviserList.size() > 0)
 				userDto.setUserAdviserList(userAdviserList);
-			List<ApplicantDTO> applicantList = listApplicantDto(userDo.getId());
+			List<ApplicantDTO> applicantList = listApplicantDto(userDo.getId(), adviserId);
 			if (applicantList != null && applicantList.size() < 0)
 				userDto.setApplicantList(applicantList);
 			if (userDto.getAdviserId() > 0) {
@@ -545,9 +550,9 @@ public class UserServiceImpl extends BaseService implements UserService {
 		return userAdviserDtoList;
 	}
 
-	private List<ApplicantDTO> listApplicantDto(int userId) throws ServiceException {
+	private List<ApplicantDTO> listApplicantDto(int userId, int adviserId) throws ServiceException {
 		List<ApplicantDTO> applicantDtoList = new ArrayList<>();
-		List<ApplicantDO> applicantList = applicantDao.list(userId, 0, 999);
+		List<ApplicantDO> applicantList = applicantDao.list(userId, adviserId, 0, 999);
 		if (applicantList != null && applicantList.size() > 0)
 			for (ApplicantDO applicantDo : applicantList)
 				applicantDtoList.add(mapper.map(applicantDo, ApplicantDTO.class));

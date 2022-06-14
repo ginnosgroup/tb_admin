@@ -9,9 +9,10 @@ public interface ApplicantDAO {
 
 	int add(ApplicantDO applicantDo);
 
-	int count(int userId);
+	int count(@Param("userId") int userId, @Param("adviserId") int adviserId);
 
-	List<ApplicantDO> list(@Param("userId") int userId, @Param("offset") int offset, @Param("rows") int rows);
+	List<ApplicantDO> list(@Param("userId") int userId, @Param("adviserId") int adviserId, @Param("offset") int offset,
+			@Param("rows") int rows);
 
 	ApplicantDO getById(int id);
 

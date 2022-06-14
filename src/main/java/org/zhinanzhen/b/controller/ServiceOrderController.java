@@ -388,6 +388,7 @@ public class ServiceOrderController extends BaseController {
 			} else
 				return new Response<Integer>(1, "请选择申请人.", null);
 			if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
+				int serviceOrderId = serviceOrderDto.getId();
 				String msg = "";
 				if (adminUserLoginInfo != null)
 					serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
@@ -404,7 +405,7 @@ public class ServiceOrderController extends BaseController {
 					if (serviceOrderApplicantDto.getApplicantId() <= 0)
 						continue;
 					serviceOrderDto.setApplicantId(serviceOrderApplicantDto.getApplicantId());
-					serviceOrderDto.setApplicantParentId(serviceOrderDto.getId());
+					serviceOrderDto.setApplicantParentId(serviceOrderId);
 					// 创建子服务订单
 					if (StringUtil.isNotEmpty(servicePackageIds)) {
 						List<String> servicePackageIdList = Arrays.asList(servicePackageIds.split(","));

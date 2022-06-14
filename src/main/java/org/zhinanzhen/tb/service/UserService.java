@@ -26,8 +26,10 @@ public interface UserService {
 	public List<UserDTO> listUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
 			String wechatUsername, int adviserId, List<Integer> regionIdList, Integer tagId, String orderByField,
 			Boolean isDesc, int pageNum, int pageSize) throws ServiceException;
-
+	
 	public UserDTO getUserById(int id) throws ServiceException;
+
+	public UserDTO getUser(int id, int adviserId) throws ServiceException;
 
 	/**
 	 * 根据openId获取用户信息
