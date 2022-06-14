@@ -74,11 +74,8 @@ public class ServiceOrderApplicantServiceImpl extends BaseService implements Ser
 			throw se;
 		}
 		if (serviceOrderApplicantDto.getId() <= 0 && (serviceOrderApplicantDto.getApplicantId() <= 0
-				|| serviceOrderApplicantDto.getServiceOrderId() <= 0)) {
-			ServiceException se = new ServiceException("applicant key is null !");
-			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
-			throw se;
-		}
+				|| serviceOrderApplicantDto.getServiceOrderId() <= 0))
+			return 0;
 		try {
 			int i = serviceOrderApplicantDao
 					.update(mapper.map(serviceOrderApplicantDto, ServiceOrderApplicantDO.class));
