@@ -117,7 +117,7 @@ public class UserController extends BaseController {
 			@RequestParam(value = "phone", required = false) String phone,
 			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
-			@RequestParam(value = "applicantName") String applicantName,
+			@RequestParam(value = "applicantName", required = false) String applicantName,
 			@RequestParam(value = "regionId", required = false) Integer regionId, HttpServletRequest request,
 			@RequestParam(value = "tagId", required = false) String tagId, HttpServletResponse response) {
 		
@@ -177,7 +177,7 @@ public class UserController extends BaseController {
 			@RequestParam(value = "phone", required = false) String phone,
 			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
-			@RequestParam(value = "applicantName") String applicantName,
+			@RequestParam(value = "applicantName", required = false) String applicantName,
 			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "orderByField", required = false) String orderByField,
 			@RequestParam(value = "isDesc", required = false) String isDesc,
