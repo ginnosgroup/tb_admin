@@ -49,8 +49,9 @@ public class ApplicantController extends BaseController {
 			@RequestParam(value = "nutCloud", required = false) String nutCloud,
 			@RequestParam(value = "fileUrl", required = false) String fileUrl,
 			@RequestParam(value = "firstControllerContents", required = false) String firstControllerContents,
-			@RequestParam(value = "userId") Integer userId, @RequestParam(value = "adviserId") Integer adviserId,
-			HttpServletRequest request, HttpServletResponse response) {
+			@RequestParam(value = "userId") Integer userId,
+			@RequestParam(value = "adviserId", required = false) Integer adviserId, HttpServletRequest request,
+			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			Integer newAdviserId = getAdviserId(request);
