@@ -17,16 +17,18 @@ public interface UserDAO {
 	public int countUser(@Param("name") String name, @Param("authType") String authType,
 			@Param("authNickname") String authNickname, @Param("phone") String phone,
 			@Param("wechatUsername") String wechatUsername, @Param("adviserId") Integer adviserId,
-			@Param("regionIdList") List<Integer> regionIdList, @Param("tagId") Integer tagId);
+			@Param("applicantName") String applicantName, @Param("regionIdList") List<Integer> regionIdList,
+			@Param("tagId") Integer tagId);
 
-	public int countUserByThisMonth(@Param("adviserId") Integer adviserId, @Param("regionIdList") List<Integer> regionIdList);
+	public int countUserByThisMonth(@Param("adviserId") Integer adviserId,
+			@Param("regionIdList") List<Integer> regionIdList);
 
 	public List<UserDO> listUser(@Param("name") String name, @Param("authType") String authType,
 			@Param("authNickname") String authNickname, @Param("phone") String phone,
 			@Param("wechatUsername") String wechatUsername, @Param("adviserId") Integer adviserId,
-			@Param("regionIdList") List<Integer> regionIdList, @Param("tagId") Integer tagId,
-			@Param("orderByField") String orderByField, @Param("isDesc") Boolean isDesc, @Param("offset") int offset,
-			@Param("rows") int rows);
+			@Param("applicantName") String applicantName, @Param("regionIdList") List<Integer> regionIdList,
+			@Param("tagId") Integer tagId, @Param("orderByField") String orderByField, @Param("isDesc") Boolean isDesc,
+			@Param("offset") int offset, @Param("rows") int rows);
 
 	public List<UserAdviserDO> listUserAdviserByUserId(@Param("userId") Integer userId);
 

@@ -573,13 +573,11 @@ public class DashboardController extends BaseController {
 		if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
 				&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
 			Integer adviserId = adminUserLoginInfo.getAdviserId();
-			int count = userService.countUser(null, null, null, null, null,
-					adviserId, null, 0);
+			int count = userService.countUser(null, null, null, null, null, adviserId, null, null, 0);
 			return new Response(0, count);
 		}
-		if (adminUserLoginInfo != null && "SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())){
-			int count = userService.countUser(null, null, null, null, null,
-					0, null, 0);
+		if (adminUserLoginInfo != null && "SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+			int count = userService.countUser(null, null, null, null, null, 0, null, null, 0);
 			return new Response(0, count);
 		}
 		return new Response(0, 0);

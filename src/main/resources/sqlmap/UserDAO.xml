@@ -66,34 +66,39 @@
     <select id="countUser" parameterType="org.zhinanzhen.tb.dao.pojo.UserDO"
         resultType="java.lang.Integer">
         SELECT count(*)
-        FROM tb_user
-        WHERE auth_type != 'V'
+        FROM tb_user u
+            LEFT JOIN b_user_tag ut ON u.id = ut.user_id
+            LEFT JOIN b_applicant ap ON ap.user_id = u.id
+        WHERE u.auth_type != 'V'
         <if test='name != null and name != ""'>
-            AND name LIKE '%${name}%'
+            AND u.name LIKE '%${name}%'
         </if>
         <if test='authType != null and authType != ""'>
-            AND auth_type = #{authType}
+            AND u.auth_type = #{authType}
         </if>
         <if test='authNickname != null and authNickname != ""'>
-            AND auth_nickname = #{authNickname}
+            AND u.auth_nickname = #{authNickname}
         </if>
         <if test='phone != null and phone != ""'>
-            AND phone = #{phone}
+            AND u.phone = #{phone}
         </if>
         <if test='wechatUsername != null and wechatUsername != ""'>
-            AND wechat_username = #{wechatUsername}
+            AND u.wechat_username = #{wechatUsername}
         </if>
         <if test='adviserId != null'>
-            AND adviser_id = #{adviserId}
+            AND u.adviser_id = #{adviserId}
         </if>
         <if test='regionIdList != null'>
-            AND region_id IN
+            AND u.region_id IN
             <foreach collection="regionIdList" item="regionIdList" index="index" open="(" close=")" separator=",">
                 #{regionIdList}
             </foreach>
         </if>
         <if test='tagId != null and tagId != ""'>
             AND ut.tag_id = #{tagId}
+        </if>
+        <if test='applicantName != null and applicantName != ""'>
+            AND (ap.surname LIKE '%${applicantName}%' OR ap.firstname LIKE '%${applicantName}%' OR CONCAT(ap.firstname, ' ', ap.surname) = #{applicantName})
         </if>
         ;
     </select>
@@ -136,6 +141,7 @@
             LEFT JOIN b_user_tag ut ON u.id = ut.user_id
             LEFT JOIN tb_user_adviser ua ON u.id=ua.user_id
             LEFT JOIN tb_adviser a ON a.id=ua.adviser_id
+            LEFT JOIN b_applicant ap ON ap.user_id = u.id
         WHERE u.auth_type != 'V'
         <if test='name != null and name != ""'>
             AND u.name LIKE '%${name}%'
@@ -167,6 +173,9 @@
         </if>
         <if test='adviserId == null or adviserId == ""'>
             AND ua.is_creater = 1
+        </if>
+        <if test='applicantName != null and applicantName != ""'>
+            AND (ap.surname LIKE '%${applicantName}%' OR ap.firstname LIKE '%${applicantName}%' OR CONCAT(ap.firstname, ' ', ap.surname) = #{applicantName})
         </if>
         GROUP BY u.id
         <if test='orderByField != null and orderByField != ""'>

@@ -413,10 +413,11 @@ public class Scheduled {
                                 JSONArray jsonMobiles = JSONArray.parseArray(JSON.toJSONString(follow_info_Map.get("remark_mobiles")));
                                 if (jsonMobiles.size() > 0 ){
                                     for (int n = 0 ; n < jsonMobiles.size() ; n++){
-                                        String mobiles = jsonMobiles.getString(n);
-                                        userDTO.setPhone(mobiles);
-                                        if (StringUtil.isNotEmpty(mobiles) && userService.countUser(null, null, null, mobiles, null, 0, null, null) > 0){
-                                            isContain = true;
+										String mobiles = jsonMobiles.getString(n);
+										userDTO.setPhone(mobiles);
+										if (StringUtil.isNotEmpty(mobiles) && userService.countUser(null, null, null,
+												mobiles, null, 0, null, null, null) > 0) {
+											isContain = true;
                                             break;
                                         }
                                     }
