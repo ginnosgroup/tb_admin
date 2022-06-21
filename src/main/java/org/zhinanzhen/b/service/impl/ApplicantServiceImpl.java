@@ -54,7 +54,6 @@ public class ApplicantServiceImpl extends BaseService implements ApplicantServic
 		try {
 			return applicantDao.count(id, name, userId, adviserId);
 		} catch (Exception e) {
-e.printStackTrace();
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
 			throw se;
@@ -77,14 +76,13 @@ e.printStackTrace();
 			for (ApplicantDO applicantDo : applicantDoList) {
 				ApplicantDTO applicantDto = mapper.map(applicantDo, ApplicantDTO.class);
 				if (applicantDto.getUserId() > 0) {
-					UserDO userDo = userDao.getUserById(userId);
+					UserDO userDo = userDao.getUserById(applicantDto.getUserId());
 					if (userDo != null)
 						applicantDto.setUserDto(mapper.map(userDo, UserDTO.class));
 				}
 				applicantDtoList.add(applicantDto);
 			}
 		} catch (Exception e) {
-e.printStackTrace();
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
 			throw se;
