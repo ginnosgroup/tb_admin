@@ -75,7 +75,7 @@ public class ApplicantServiceImpl extends BaseService implements ApplicantServic
 				return null;
 			for (ApplicantDO applicantDo : applicantDoList) {
 				ApplicantDTO applicantDto = mapper.map(applicantDo, ApplicantDTO.class);
-				if(userId != null && userId > 0) {
+				if (applicantDto.getUserId() > 0) {
 					UserDO userDo = userDao.getUserById(userId);
 					if (userDo != null)
 						applicantDto.setUserDto(mapper.map(userDo, UserDTO.class));
