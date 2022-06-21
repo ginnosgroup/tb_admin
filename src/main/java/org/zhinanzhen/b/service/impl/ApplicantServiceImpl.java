@@ -54,6 +54,7 @@ public class ApplicantServiceImpl extends BaseService implements ApplicantServic
 		try {
 			return applicantDao.count(id, name, userId, adviserId);
 		} catch (Exception e) {
+e.printStackTrace();
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
 			throw se;
@@ -83,6 +84,7 @@ public class ApplicantServiceImpl extends BaseService implements ApplicantServic
 				applicantDtoList.add(applicantDto);
 			}
 		} catch (Exception e) {
+e.printStackTrace();
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
 			throw se;
