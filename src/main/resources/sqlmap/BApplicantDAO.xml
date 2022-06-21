@@ -39,6 +39,12 @@
         SELECT count(*)
         FROM b_applicant
         WHERE user_id = #{userId}
+        <if test='id != null and id > 0'>
+            AND id = #{id}
+        </if>
+        <if test='name != null and name != ""'>
+            AND (surname LIKE '%${name}%' OR firstname LIKE '%${name}%' OR CONCAT(firstname, ' ', surname) = #{name})
+        </if>
         <if test='adviserId != null and adviserId > 0'>
             AND adviser_id = #{adviserId}
         </if>
@@ -63,6 +69,12 @@
         adviser_id AS adviserId
         FROM b_applicant
         WHERE user_id = #{userId}
+        <if test='id != null and id > 0'>
+            AND id = #{id}
+        </if>
+        <if test='name != null and name != ""'>
+            AND (surname LIKE '%${name}%' OR firstname LIKE '%${name}%' OR CONCAT(firstname, ' ', surname) = #{name})
+        </if>
         <if test='adviserId != null and adviserId > 0'>
             AND adviser_id = #{adviserId}
         </if>

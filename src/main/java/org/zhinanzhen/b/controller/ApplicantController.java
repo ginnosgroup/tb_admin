@@ -134,14 +134,15 @@ public class ApplicantController extends BaseController {
 
 	@RequestMapping(value = "/count", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<Integer> count(@RequestParam(value = "userId") Integer userId,
+	public Response<Integer> count(@RequestParam(value = "id") Integer id, @RequestParam(value = "name") String name,
+			@RequestParam(value = "userId") Integer userId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			Integer newAdviserId = getAdviserId(request);
 			if (newAdviserId != null)
 				adviserId = newAdviserId;
-			return new Response<Integer>(0, applicantService.count(userId, adviserId));
+			return new Response<Integer>(0, applicantService.count(id, name, userId, adviserId));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -149,7 +150,8 @@ public class ApplicantController extends BaseController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public ListResponse<List<ApplicantDTO>> list(@RequestParam(value = "userId") Integer userId,
+	public ListResponse<List<ApplicantDTO>> list(@RequestParam(value = "id") Integer id,
+			@RequestParam(value = "name") String name, @RequestParam(value = "userId") Integer userId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
 			HttpServletRequest request, HttpServletResponse response) {
@@ -157,8 +159,8 @@ public class ApplicantController extends BaseController {
 			Integer newAdviserId = getAdviserId(request);
 			if (newAdviserId != null)
 				adviserId = newAdviserId;
-			int total = applicantService.count(userId, adviserId);
-			List<ApplicantDTO> list = applicantService.list(userId, adviserId, pageNum, pageSize);
+			int total = applicantService.count(id, name, userId, adviserId);
+			List<ApplicantDTO> list = applicantService.list(id, name, userId, adviserId, pageNum, pageSize);
 			return new ListResponse<List<ApplicantDTO>>(true, pageSize, total, list, "");
 		} catch (ServiceException e) {
 			return new ListResponse<List<ApplicantDTO>>(false, pageSize, 0, null, e.getMessage());

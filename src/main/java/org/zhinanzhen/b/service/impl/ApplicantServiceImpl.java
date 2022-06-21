@@ -10,6 +10,9 @@ import org.zhinanzhen.b.dao.ApplicantDAO;
 import org.zhinanzhen.b.dao.pojo.ApplicantDO;
 import org.zhinanzhen.b.service.ApplicantService;
 import org.zhinanzhen.b.service.pojo.ApplicantDTO;
+import org.zhinanzhen.b.service.pojo.UserDTO;
+import org.zhinanzhen.tb.dao.UserDAO;
+import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
@@ -20,6 +23,9 @@ public class ApplicantServiceImpl extends BaseService implements ApplicantServic
 	
 	@Resource
 	private ApplicantDAO applicantDao;
+	
+	@Resource
+	private UserDAO userDao;
 
 	@Override
 	public int add(ApplicantDTO applicantDto) throws ServiceException {
@@ -44,12 +50,12 @@ public class ApplicantServiceImpl extends BaseService implements ApplicantServic
 	}
 
 	@Override
-	public int count(int userId, int adviserId) throws ServiceException {
-		return applicantDao.count(userId, adviserId);
+	public int count(int id, String name, int userId, int adviserId) throws ServiceException {
+		return applicantDao.count(id, name, userId, adviserId);
 	}
 
 	@Override
-	public List<ApplicantDTO> list(int userId, int adviserId, int pageNum, int pageSize) throws ServiceException {
+	public List<ApplicantDTO> list(int id, String name, int userId, int adviserId, int pageNum, int pageSize) throws ServiceException {
 		if (pageNum < 0)
 			pageNum = DEFAULT_PAGE_NUM;
 		if (pageSize < 0)
@@ -57,11 +63,14 @@ public class ApplicantServiceImpl extends BaseService implements ApplicantServic
 		List<ApplicantDTO> applicantDtoList = new ArrayList<ApplicantDTO>();
 		List<ApplicantDO> applicantDoList = new ArrayList<ApplicantDO>();
 		try {
-			applicantDoList = applicantDao.list(userId, adviserId, pageNum * pageSize, pageSize);
+			applicantDoList = applicantDao.list(id, name, userId, adviserId, pageNum * pageSize, pageSize);
 			if (applicantDoList == null)
 				return null;
 			for (ApplicantDO applicantDo : applicantDoList) {
 				ApplicantDTO applicantDto = mapper.map(applicantDo, ApplicantDTO.class);
+				UserDO userDo = userDao.getUserById(userId);
+				if (userDo != null)
+					applicantDto.setUserDto(mapper.map(userDo, UserDTO.class));
 				applicantDtoList.add(applicantDto);
 			}
 		} catch (Exception e) {

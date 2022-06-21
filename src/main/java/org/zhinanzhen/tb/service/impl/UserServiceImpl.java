@@ -555,7 +555,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 
 	private List<ApplicantDTO> listApplicantDto(int userId, int adviserId) throws ServiceException {
 		List<ApplicantDTO> applicantDtoList = new ArrayList<>();
-		List<ApplicantDO> applicantList = applicantDao.list(userId, adviserId, 0, 999);
+		List<ApplicantDO> applicantList = applicantDao.list(0, null, userId, adviserId, 0, 999);
 		if (applicantList != null && applicantList.size() > 0)
 			for (ApplicantDO applicantDo : applicantList)
 				applicantDtoList.add(mapper.map(applicantDo, ApplicantDTO.class));

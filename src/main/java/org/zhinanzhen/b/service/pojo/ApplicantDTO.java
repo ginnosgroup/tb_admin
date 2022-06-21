@@ -14,5 +14,9 @@ public class ApplicantDTO extends ApplicantDO {
 	@Getter
 	@Setter
 	private String content;
+	
+	@Getter
+	@Setter
+	private UserDTO userDto;
 
 }
