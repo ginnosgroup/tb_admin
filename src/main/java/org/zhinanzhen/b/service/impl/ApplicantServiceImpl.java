@@ -51,7 +51,13 @@ public class ApplicantServiceImpl extends BaseService implements ApplicantServic
 
 	@Override
 	public int count(int id, String name, int userId, int adviserId) throws ServiceException {
-		return applicantDao.count(id, name, userId, adviserId);
+		try {
+			return applicantDao.count(id, name, userId, adviserId);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
 	}
 
 	@Override
