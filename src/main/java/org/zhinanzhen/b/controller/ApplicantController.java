@@ -142,6 +142,11 @@ public class ApplicantController extends BaseController {
 			Integer newAdviserId = getAdviserId(request);
 			if (newAdviserId != null)
 				adviserId = newAdviserId;
+System.out.println("id="+id);
+System.out.println("name="+name);
+System.out.println("userId="+userId);
+System.out.println("adviserId="+adviserId);
+System.out.println("applicantService.count(id, name, userId, adviserId)="+applicantService.count(id, name, userId, adviserId));
 			return new Response<Integer>(0, applicantService.count(id, name, userId, adviserId));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
