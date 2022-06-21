@@ -50,7 +50,7 @@ public class ApplicantServiceImpl extends BaseService implements ApplicantServic
 	}
 
 	@Override
-	public int count(int id, String name, int userId, int adviserId) throws ServiceException {
+	public int count(Integer id, String name, int userId, int adviserId) throws ServiceException {
 		try {
 			return applicantDao.count(id, name, userId, adviserId);
 		} catch (Exception e) {
@@ -61,7 +61,7 @@ public class ApplicantServiceImpl extends BaseService implements ApplicantServic
 	}
 
 	@Override
-	public List<ApplicantDTO> list(int id, String name, int userId, int adviserId, int pageNum, int pageSize) throws ServiceException {
+	public List<ApplicantDTO> list(Integer id, String name, int userId, int adviserId, int pageNum, int pageSize) throws ServiceException {
 		if (pageNum < 0)
 			pageNum = DEFAULT_PAGE_NUM;
 		if (pageSize < 0)

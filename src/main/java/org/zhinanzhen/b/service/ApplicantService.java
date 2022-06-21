@@ -9,9 +9,9 @@ public interface ApplicantService {
 
 	int add(ApplicantDTO applicantDto) throws ServiceException;
 
-	int count(int id, String name, int userId, int adviserId) throws ServiceException;
+	int count(Integer id, String name, int userId, int adviserId) throws ServiceException;
 
-	List<ApplicantDTO> list(int id, String name, int userId, int adviserId, int pageNum, int pageSize)
+	List<ApplicantDTO> list(Integer id, String name, int userId, int adviserId, int pageNum, int pageSize)
 			throws ServiceException;
 
 	ApplicantDTO getById(int id) throws ServiceException;
