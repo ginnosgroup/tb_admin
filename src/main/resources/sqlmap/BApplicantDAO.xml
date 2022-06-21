@@ -38,7 +38,10 @@
         resultType="java.lang.Integer">
         SELECT count(*)
         FROM b_applicant
-        WHERE user_id = #{userId}
+        WHERE 1=1
+        <if test='userId != null and userId > 0'>
+            AND user_id = #{userId}
+        </if>
         <if test='id != null and id > 0'>
             AND id = #{id}
         </if>
@@ -68,7 +71,10 @@
         user_id AS userId,
         adviser_id AS adviserId
         FROM b_applicant
-        WHERE user_id = #{userId}
+        WHERE 1=1
+        <if test='userId != null and userId > 0'>
+            AND user_id = #{userId}
+        </if>
         <if test='id != null and id > 0'>
             AND id = #{id}
         </if>

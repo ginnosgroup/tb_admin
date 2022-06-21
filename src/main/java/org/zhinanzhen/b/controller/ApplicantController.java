@@ -135,7 +135,8 @@ public class ApplicantController extends BaseController {
 	@RequestMapping(value = "/count", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<Integer> count(@RequestParam(value = "id", required = false) Integer id,
-			@RequestParam(value = "name", required = false) String name, @RequestParam(value = "userId") Integer userId,
+			@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "userId", required = false) Integer userId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
@@ -151,9 +152,11 @@ public class ApplicantController extends BaseController {
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
 	public ListResponse<List<ApplicantDTO>> list(@RequestParam(value = "id", required = false) Integer id,
-			@RequestParam(value = "name", required = false) String name, @RequestParam(value = "userId") Integer userId,
+			@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "userId", required = false) Integer userId,
 			@RequestParam(value = "adviserId", required = false) Integer adviserId,
-			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
+			@RequestParam(value = "pageNum") int pageNum,
+			@RequestParam(value = "pageSize") int pageSize,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			Integer newAdviserId = getAdviserId(request);
