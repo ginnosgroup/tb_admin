@@ -162,11 +162,6 @@ public class ApplicantController extends BaseController {
 			Integer newAdviserId = getAdviserId(request);
 			if (newAdviserId != null)
 				adviserId = newAdviserId;
-System.out.println("id="+id);
-System.out.println("name="+name);
-System.out.println("userId="+userId);
-System.out.println("adviserId="+adviserId);
-System.out.println("applicantService.count(id, name, userId, adviserId)="+applicantService.count(id, name, userId, adviserId));
 			int total = applicantService.count(id, name, userId, adviserId);
 			List<ApplicantDTO> list = applicantService.list(id, name, userId, adviserId, pageNum, pageSize);
 			return new ListResponse<List<ApplicantDTO>>(true, pageSize, total, list, "");
