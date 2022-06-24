@@ -21,12 +21,12 @@ public interface UserService {
 	public int countUserByThisMonth(Integer adviserId, List<Integer> regionIdList) throws ServiceException;
 
 	public List<UserDTO> listUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
-			String wechatUsername, int adviserId, String applicantName, List<Integer> regionIdList, int pageNum,
-			int pageSize) throws ServiceException;
+			String email, String wechatUsername, int adviserId, String applicantName, List<Integer> regionIdList,
+			int pageNum, int pageSize) throws ServiceException;
 
 	public List<UserDTO> listUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
-			String wechatUsername, int adviserId, String applicantName, List<Integer> regionIdList, Integer tagId,
-			String orderByField, Boolean isDesc, int pageNum, int pageSize) throws ServiceException;
+			String email, String wechatUsername, int adviserId, String applicantName, List<Integer> regionIdList,
+			Integer tagId, String orderByField, Boolean isDesc, int pageNum, int pageSize) throws ServiceException;
 
 	public UserDTO getUserById(int id) throws ServiceException;
 

@@ -24,9 +24,10 @@ public interface UserDAO {
 			@Param("regionIdList") List<Integer> regionIdList);
 
 	public List<UserDO> listUser(@Param("name") String name, @Param("authType") String authType,
-			@Param("authNickname") String authNickname, @Param("phone") String phone,
+			@Param("authNickname") String authNickname, @Param("phone") String phone, @Param("email") String email,
 			@Param("wechatUsername") String wechatUsername, @Param("adviserId") Integer adviserId,
-			@Param("applicantName") String applicantName, @Param("regionIdList") List<Integer> regionIdList,
+			@Param("applicantName") String applicantName,
+			@Param("regionIdList") List<Integer> regionIdList,
 			@Param("tagId") Integer tagId, @Param("orderByField") String orderByField, @Param("isDesc") Boolean isDesc,
 			@Param("offset") int offset, @Param("rows") int rows);
 

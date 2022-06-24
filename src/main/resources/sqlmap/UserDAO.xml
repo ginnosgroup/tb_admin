@@ -155,6 +155,9 @@
         <if test='phone != null and phone != ""'>
             AND u.phone = #{phone}
         </if>
+        <if test='email != null and email != ""'>
+            AND u.email = #{email}
+        </if>
         <if test='wechatUsername != null and wechatUsername != ""'>
             AND u.wechat_username = #{wechatUsername}
         </if>

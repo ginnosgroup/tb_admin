@@ -1886,113 +1886,118 @@ public class ServiceOrderController extends BaseController {
 					sheet.addCell(new Label(7, i, sdf.format(so.getUser().getBirthday()), cellFormat));
 					sheet.addCell(new Label(8, i, so.getUser().getPhone(), cellFormat));
 				}
+				if (so.getApplicant() != null) {
+					sheet.addCell(new Label(9, i, so.getApplicantId() + "", cellFormat));
+					sheet.addCell(new Label(10, i,
+							so.getApplicant().getSurname() + " " + so.getApplicant().getFirstname(), cellFormat));
+				}
 				if (so.getAdviser() != null)
-					sheet.addCell(new Label(9, i, so.getAdviser().getName(), cellFormat));
+					sheet.addCell(new Label(11, i, so.getAdviser().getName(), cellFormat));
 				if (so.getMara() != null)
-					sheet.addCell(new Label(10, i, so.getMara().getName(), cellFormat));
+					sheet.addCell(new Label(12, i, so.getMara().getName(), cellFormat));
 				if (so.getOfficial() != null)
-					sheet.addCell(new Label(11, i, so.getOfficial().getName(), cellFormat));
+					sheet.addCell(new Label(13, i, so.getOfficial().getName(), cellFormat));
 
 				if (so.getService() != null) {
-					sheet.addCell(new Label(12, i, so.getService().getName(), cellFormat));
-					sheet.addCell(new Label(13, i, so.getService().getCode(), cellFormat));
+					sheet.addCell(new Label(14, i, so.getService().getName(), cellFormat));
+					sheet.addCell(new Label(15, i, so.getService().getCode(), cellFormat));
 					if (so.getServiceAssessDO() != null)
-						sheet.addCell(new Label(13, i,
+						sheet.addCell(new Label(14, i,
 								so.getService().getCode() + " - " + so.getServiceAssessDO().getName(), cellFormat));
 				}
 				if (so.getSchool() != null) {
-					sheet.addCell(new Label(12, i, " 留学 ", cellFormat));
-					sheet.addCell(new Label(13, i, so.getSchool().getName(), cellFormat));
+					sheet.addCell(new Label(14, i, " 留学 ", cellFormat));
+					sheet.addCell(new Label(15, i, so.getSchool().getName(), cellFormat));
 				}else if (so.getSchoolInstitutionListDTO() != null){
-					sheet.addCell(new Label(12, i, " 留学 ", cellFormat));
-					sheet.addCell(new Label(13, i, so.getSchoolInstitutionListDTO().getName() +
+					sheet.addCell(new Label(14, i, " 留学 ", cellFormat));
+					sheet.addCell(new Label(15, i, so.getSchoolInstitutionListDTO().getName() +
 							"-" + so.getSchoolInstitutionListDTO().getSchoolCourseDO().getCourseName(), cellFormat));
 				}
 				if ("ZX".equalsIgnoreCase(so.getType())){
-					sheet.addCell(new Label(12, i, " 咨询 ", cellFormat));
-					sheet.addCell(new Label(13, i, so.getService().getCode(), cellFormat));
+					sheet.addCell(new Label(14, i, " 咨询 ", cellFormat));
+					sheet.addCell(new Label(15, i, so.getService().getCode(), cellFormat));
 				}
 
 				if (so.getState().equalsIgnoreCase("PENDING"))
-					sheet.addCell(new Label(14, i, "待提交审核", cellFormat));
+					sheet.addCell(new Label(16, i, "待提交审核", cellFormat));
 				else if (so.getState().equalsIgnoreCase("REVIEW"))
-					sheet.addCell(new Label(14, i, "资料待审核", cellFormat));
+					sheet.addCell(new Label(16, i, "资料待审核", cellFormat));
 				else if (so.getState().equalsIgnoreCase("OREVIEW"))
-					sheet.addCell(new Label(14, i, "资料审核中", cellFormat));
+					sheet.addCell(new Label(16, i, "资料审核中", cellFormat));
 				else if (so.getState().equalsIgnoreCase("FINISH"))
-					sheet.addCell(new Label(14, i, "资料已审核", cellFormat));
+					sheet.addCell(new Label(16, i, "资料已审核", cellFormat));
 				else if (so.getState().equalsIgnoreCase("APPLY"))
-					sheet.addCell(new Label(14, i, "服务申请中", cellFormat));
+					sheet.addCell(new Label(16, i, "服务申请中", cellFormat));
 				else if (so.getState().equalsIgnoreCase("APPLY_FAILED"))
-					sheet.addCell(new Label(14, i, "申请失败", cellFormat));
+					sheet.addCell(new Label(16, i, "申请失败", cellFormat));
 				else if (so.getState().equalsIgnoreCase("COMPLETE")){
-					sheet.addCell(new Label(14, i, "申请成功", cellFormat));
+					sheet.addCell(new Label(16, i, "申请成功", cellFormat));
 					if (so.getType().equalsIgnoreCase("ZX"))
-						sheet.addCell(new Label(14, i, "订单完成", cellFormat));
+						sheet.addCell(new Label(16, i, "订单完成", cellFormat));
 					if (so.getType().equalsIgnoreCase("OVST") && so.isSettle())
-						sheet.addCell(new Label(14, i, "等待财务转账", cellFormat));
+						sheet.addCell(new Label(16, i, "等待财务转账", cellFormat));
 				}
 				else if (so.getState().equalsIgnoreCase("RECEIVED"))
-					sheet.addCell(new Label(14, i, "已收款凭证已提交", cellFormat));
+					sheet.addCell(new Label(16, i, "已收款凭证已提交", cellFormat));
 				else if (so.getState().equalsIgnoreCase("COMPLETE_FD"))
-					sheet.addCell(new Label(14, i, "财务转账完成", cellFormat));
+					sheet.addCell(new Label(16, i, "财务转账完成", cellFormat));
 				else if (so.getState().equalsIgnoreCase("PAID"))
-					sheet.addCell(new Label(14, i, "COE已下", cellFormat));
+					sheet.addCell(new Label(16, i, "COE已下", cellFormat));
 				else if (so.getState().equalsIgnoreCase("CLOSE"))
-					sheet.addCell(new Label(14, i, "已关闭", cellFormat));
+					sheet.addCell(new Label(16, i, "已关闭", cellFormat));
 				/*
 				//旧系统状态废除
 				if (so.getReview() != null) {
 					if (so.getState().equalsIgnoreCase("PENDING"))
-						sheet.addCell(new Label(13, i, "待提交审核", cellFormat));
+						sheet.addCell(new Label(15, i, "待提交审核", cellFormat));
 					else {
 						if (so.getReview().getType().equalsIgnoreCase("APPROVAL")) {
 							if (StringUtil.isEmpty(so.getReview().getOfficialState()))
-								sheet.addCell(new Label(13, i, "资料待审核", cellFormat));
+								sheet.addCell(new Label(15, i, "资料待审核", cellFormat));
 							if (StringUtil.isNotEmpty(so.getReview().getOfficialState())) {
 								if (so.getReview().getOfficialState().equalsIgnoreCase("REVIEW")) {
-									sheet.addCell(new Label(13, i, "资料审核中", cellFormat));
+									sheet.addCell(new Label(15, i, "资料审核中", cellFormat));
 									if (StringUtil.isNotBlank(so.getReview().getMaraState())
 											&& so.getReview().getMaraState().equalsIgnoreCase("FINISH"))
-										sheet.addCell(new Label(13, i, "资料审核完成", cellFormat));
+										sheet.addCell(new Label(15, i, "资料审核完成", cellFormat));
 								}
 
 								if (so.getReview().getOfficialState().equalsIgnoreCase("WAIT")) {
 									if (StringUtil.isNotBlank(so.getReview().getMaraState())
 											&& so.getReview().getMaraState().equalsIgnoreCase("WAIT"))
-										sheet.addCell(new Label(13, i, "已提交Mara审核", cellFormat));
+										sheet.addCell(new Label(15, i, "已提交Mara审核", cellFormat));
 								}
 								if (so.getReview().getOfficialState().equalsIgnoreCase("APPLY"))
-									sheet.addCell(new Label(13, i, "服务申请中", cellFormat));
+									sheet.addCell(new Label(15, i, "服务申请中", cellFormat));
 								if (so.getReview().getOfficialState().equalsIgnoreCase("COMPLETE"))
-									sheet.addCell(new Label(13, i, "申请成功", cellFormat));
+									sheet.addCell(new Label(15, i, "申请成功", cellFormat));
 								if (so.getReview().getOfficialState().equalsIgnoreCase("PAID")) {
-									sheet.addCell(new Label(13, i, "支付成功", cellFormat));
+									sheet.addCell(new Label(15, i, "支付成功", cellFormat));
 									if (so.getType().equalsIgnoreCase("OVST"))
 										if (so.isSubmitted())
-											sheet.addCell(new Label(13, i, "支付成功,月奖已申请", cellFormat));
+											sheet.addCell(new Label(15, i, "支付成功,月奖已申请", cellFormat));
 										else
-											sheet.addCell(new Label(13, i, "支付成功,月奖未申请", cellFormat));
+											sheet.addCell(new Label(15, i, "支付成功,月奖未申请", cellFormat));
 								}
 								if (so.getReview().getOfficialState().equalsIgnoreCase("CLOSE"))
-									sheet.addCell(new Label(13, i, "已关闭", cellFormat));
+									sheet.addCell(new Label(15, i, "已关闭", cellFormat));
 							}
 						}
 						if (so.getReview().getType().equalsIgnoreCase("REFUSE")
 								& StringUtil.isNotBlank(so.getReview().getOfficialState())) {
 							if (so.getReview().getOfficialState().equalsIgnoreCase("PENDING"))
-								sheet.addCell(new Label(13, i, "待提交审核,文案已驳回", cellFormat));
+								sheet.addCell(new Label(15, i, "待提交审核,文案已驳回", cellFormat));
 							if (so.getReview().getOfficialState().equalsIgnoreCase("REVIEW"))
-								sheet.addCell(new Label(13, i, "资料审核中,已驳回", cellFormat));
+								sheet.addCell(new Label(15, i, "资料审核中,已驳回", cellFormat));
 							if (so.getReview().getOfficialState().equalsIgnoreCase("CLOSE"))
-								sheet.addCell(new Label(13, i, "已关闭", cellFormat));
+								sheet.addCell(new Label(15, i, "已关闭", cellFormat));
 						}
 					}
 
 				}
 				 */
-				sheet.addCell(new Label(15, i, so.getRealPeopleNumber() + "", cellFormat));
-				sheet.addCell(new Label(16, i, so.getRemarks(), cellFormat));
+				sheet.addCell(new Label(17, i, so.getRealPeopleNumber() + "", cellFormat));
+				sheet.addCell(new Label(18, i, so.getRemarks(), cellFormat));
 				i++;
 			}
 			wbe.write();

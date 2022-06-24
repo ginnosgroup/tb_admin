@@ -89,7 +89,7 @@ public class NoticeController extends BaseController {
 					int days = getDateDays(visaExpirationDate, new Date());
 					if (days == 0 || days == 1 || days == 2 || days == 3 || days == 7 || days == 15 || days == 30)
 						SendEmailUtil.send(adviserDto.getEmail(), title,
-								"亲爱的" + adviserDto.getName() + ":<br/>您客户" + userDto.getName() + "，签证日期还有" + days
+								"亲爱的" + adviserDto.getName() + ":<br/>您的客户" + userDto.getName() + "，签证日期还有" + days
 										+ "天到期，请尽快联系客户，如已重新申请签证为保证下次提醒请更新签证时间。<br/>客户ID:" + visa.getUserId() + "/签证日期:"
 										+ visaExpirationDate);
 				} catch (Exception e) {

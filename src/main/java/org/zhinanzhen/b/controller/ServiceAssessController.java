@@ -21,7 +21,7 @@ import java.util.List;
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/serviceAssess")
-public class ServiceAssessCntroller {
+public class ServiceAssessController {
 
 
     @Resource

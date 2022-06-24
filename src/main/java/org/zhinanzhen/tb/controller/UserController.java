@@ -63,17 +63,17 @@ public class UserController extends BaseController {
 			@RequestParam(value = "regionId", required = false) String regionId, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
+			if (email != null && !"".equals(email) && !EMAIL_PATTERN.matcher(email).matches())
+				return new Response<Integer>(1, "邮箱地址格式不正确,添加失败.", 0);
 			if (phone != null && !"".equals(phone)) {
-				List<UserDTO> _userList = userService.listUser(null, null, null, phone, null, 0, null, null, null, null,
-						null, 0, 1);
+				List<UserDTO> _userList = userService.listUser(null, null, null, phone, null, null, 0, null, null,
+						null, null, null, 0, 1);
 				if (_userList != null && _userList.size() > 0) {
 					UserDTO _user = _userList.get(0);
 					if (_user != null)
 						return new Response<Integer>(1, "该电话号码已被使用,添加失败.", _user.getId());
 				}
 			}
-			if (email != null && !"".equals(email) && !EMAIL_PATTERN.matcher(email).matches())
-				return new Response<Integer>(1, "邮箱地址格式不正确,添加失败.", 0);
 			if (areaCode == null)
 				areaCode = "";
 			if (phone == null)
@@ -175,6 +175,7 @@ public class UserController extends BaseController {
 			@RequestParam(value = "authNickname", required = false) String authNickname,
 			@RequestParam(value = "areaCode", required = false) String areaCode,
 			@RequestParam(value = "phone", required = false) String phone,
+			@RequestParam(value = "email", required = false) String email,
 			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
 			@RequestParam(value = "applicantName", required = false) String applicantName,
@@ -216,17 +217,18 @@ public class UserController extends BaseController {
 			if (id != null && id > 0){
 				List<UserDTO> list = new ArrayList<>();
 				UserDTO userDTO = userService.getUser(id, StringUtil.toInt(adviserId));
-				userDTO.setMailRemindDTOS(mailRemindService.list(getAdviserId(request),null,null,null,null,null,id,false,false));
+				userDTO.setMailRemindDTOS(
+						mailRemindService.list(getAdviserId(request), null, null, null, null, null, id, false, false));
 				list.add(userDTO);
-				return  new ListResponse<List<UserDTO>>(true, pageSize, 1, list, "");
+				return new ListResponse<List<UserDTO>>(true, pageSize, 1, list, "");
 			}
 
 			int total = userService.countUser(name, authTypeEnum, authNickname, phone, wechatUsername,
 					StringUtil.toInt(adviserId), applicantName, regionIdList, StringUtil.toInt(tagId));
-			List<UserDTO> list = userService.listUser(name, authTypeEnum, authNickname, phone, wechatUsername,
+			List<UserDTO> list = userService.listUser(name, authTypeEnum, authNickname, phone, email, wechatUsername,
 					StringUtil.toInt(adviserId), applicantName, regionIdList, StringUtil.toInt(tagId), orderByField,
 					Boolean.parseBoolean(StringUtil.isEmpty(isDesc) ? "false" : isDesc), pageNum, pageSize);
-			for (UserDTO user : list){
+			for (UserDTO user : list) {
 				List<MailRemindDTO> mailRemindDTOS = mailRemindService.list(getAdviserId(request),null,null,null,null,null,user.getId(),false,true);
 				user.setMailRemindDTOS(mailRemindDTOS);
 			}
@@ -256,7 +258,7 @@ public class UserController extends BaseController {
 			return new Response<UserDTO>(1, "参数错误.");
 		}
 		super.setGetHeader(response);
-		List<UserDTO> list = userService.listUser(null, null, null, phone, null, 0, null, null, 0, 1);
+		List<UserDTO> list = userService.listUser(null, null, null, phone, null, null, 0, null, null, 0, 1);
 		if (list != null && list.size() > 0) {
 			UserDTO user = list.get(0);
 			List<UserAdviserDTO> userAdviserList = user.getUserAdviserList();
@@ -436,7 +438,7 @@ public class UserController extends BaseController {
 				if (StringUtil.isBlank(adviserId) && !isAdminUser(request))
 					return new Response<List<UserDTO>>(1, "No permission !", null);
 			}
-			List<UserDTO> list = userService.listUser(null, null, null, null, null, StringUtil.toInt(adviserId), null,
+			List<UserDTO> list = userService.listUser(null, null, null, null, null, null, StringUtil.toInt(adviserId), null,
 					regionIdList, null, null, false, 0, 9999);
 			List<UserDTO> _list = new ArrayList<UserDTO>();
 			for (UserDTO user : list) {
@@ -482,7 +484,7 @@ public class UserController extends BaseController {
 				if (StringUtil.isBlank(adviserId) && !isAdminUser(request))
 					return new Response<Integer>(1, "No permission !", null);
 			}
-			List<UserDTO> list = userService.listUser(null, null, null, null, null, StringUtil.toInt(adviserId), null,
+			List<UserDTO> list = userService.listUser(null, null, null, null, null, null, StringUtil.toInt(adviserId), null,
 					regionIdList, null, null, false, 0, 9999);
 			Integer count = 0;
 			for (UserDTO user : list) {
