@@ -24,6 +24,8 @@ public class RefundDO implements Serializable {
 
 	private int userId;
 	
+	private int applicantId;
+	
 	private String userName;
 
 	private int adviserId;

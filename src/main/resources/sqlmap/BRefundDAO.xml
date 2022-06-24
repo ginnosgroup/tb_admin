@@ -13,6 +13,7 @@
                 visa_id,
                 commission_order_id,
                 user_id,
+                applicant_id,
                 adviser_id,
                 mara_id,
                 official_id,
@@ -40,6 +41,7 @@
                 #{visaId},
                 #{commissionOrderId},
                 #{userId},
+                #{applicantId},
                 #{adviserId},
                 #{maraId},
                 #{officialId},
@@ -71,6 +73,7 @@
             r.visa_id AS visaId,
             r.commission_order_id AS commissionOrderId,
             r.user_id AS userId,
+            r.applicant_id AS applicantId,
             u.name AS userName,
             r.adviser_id AS adviserId,
             a.name AS adviserName,
@@ -121,6 +124,7 @@
             r.visa_id AS visaId,
             r.commission_order_id AS commissionOrderId,
             r.user_id AS userId,
+            r.applicant_id AS applicantId,
             u.name AS userName,
             r.adviser_id AS adviserId,
             a.name AS adviserName,
@@ -158,6 +162,7 @@
             visa_id AS visaId,
             commission_order_id AS commissionOrderId,
             user_id AS userId,
+            applicant_id AS applicantId,
             adviser_id AS adviserId,
             mara_id AS maraId,
             official_id AS officialId,
@@ -191,6 +196,7 @@
             visa_id AS visaId,
             commission_order_id AS commissionOrderId,
             user_id AS userId,
+            applicant_id AS applicantId,
             adviser_id AS adviserId,
             mara_id AS maraId,
             official_id AS officialId,
@@ -222,6 +228,9 @@
         </if>
         <if test='userId != null and userId > 0'>
             , user_id = #{userId}
+        </if>
+        <if test='applicantId != null and applicantId > 0'>
+            , applicant_id = #{applicantId}
         </if>
         <if test='adviserId != null and adviserId > 0'>
             , adviser_id = #{adviserId}

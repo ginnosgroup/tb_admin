@@ -1196,6 +1196,7 @@ CREATE TABLE `b_refund` (
   `visa_id` int DEFAULT NULL COMMENT '签证佣金订单编号 (对应b_visa.id,如果visa_id和commission_order_id都为0则为手工退款)',
   `commission_order_id` int DEFAULT NULL COMMENT '佣金订单编号 (对应b_commission_order.id,如果visa_id和commission_order_id都为0则为手工退款)',
   `user_id` int NOT NULL COMMENT '所属顾客编号 (对应tb_user.id)',
+`applicant_id` int NOT NULL COMMENT '所属申请人编号 (对应b_applicant.id)',
   `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
   `mara_id` int DEFAULT NULL COMMENT '所属MARA编号 (对应b_mara.id,曼拓和留学服务MARA为空)',
   `official_id` int DEFAULT NULL COMMENT '文案编号 (对应b_official.id,曼拓文案为空)',
