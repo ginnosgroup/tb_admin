@@ -18,6 +18,8 @@ public class VisaDTO {
 
 	private int userId;
 	
+	private UserDTO user;
+	
 	private int applicantId;
 
 	private ApplicantDTO applicant;
