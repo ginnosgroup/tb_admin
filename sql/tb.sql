@@ -252,6 +252,8 @@ CREATE TABLE `b_visa` (
   `amount` decimal(8,2) NOT NULL COMMENT '本次收款',
   `expect_amount` decimal(8,2) DEFAULT NULL COMMENT '预收业绩',
   `sure_expect_amount` decimal(8,2) DEFAULT NULL COMMENT '确认预收业绩',
+`currency` varchar(4) NOT NULL DEFAULT 'AUD' COMMENT '币种(AUD:澳币,CNY:人民币)',
+`exchange_rate` decimal(6,4) NOT NULL DEFAULT 1 COMMENT '人民币兑换澳币汇率',
   `discount` decimal(8,2) NOT NULL DEFAULT 0 COMMENT '折扣',
   `gst` decimal(8,2) NOT NULL COMMENT 'GST',
   `deduct_gst` decimal(8,2) NOT NULL COMMENT 'Deduct GST',
@@ -414,7 +416,7 @@ CREATE TABLE `b_service_order` (
   `people_remarks` text DEFAULT NULL COMMENT '人备注',
   `service_id` int NOT NULL COMMENT '服务项目编号 (对应b_service.id)',
   `parent_id` int DEFAULT NULL COMMENT '独立技术移民父服务订单编号 (对应b_service_order.id)',
-`applicant_parent_id` int DEFAULT NULL COMMENT '申请人父服务订单编号 (对应b_service_order.id)',
+  `applicant_parent_id` int DEFAULT NULL COMMENT '申请人父服务订单编号 (对应b_service_order.id)',
   `service_package_id` int DEFAULT NULL COMMENT '服务包编号 (对应b_service_package.id,仅子订单才有)',
   `school_id` int DEFAULT NULL COMMENT '学校编号 (对应b_school.id,留学服务专用字段)',
   `course_id` int(11) DEFAULT NULL COMMENT 'b_school_course.id',
@@ -463,7 +465,7 @@ CREATE TABLE `b_service_order` (
   `deduct_gst` decimal(8,2) DEFAULT NULL COMMENT 'Deduct GST',
   `bonus` decimal(8,2) DEFAULT NULL COMMENT '月奖金',
   `user_id` int NOT NULL COMMENT '所属顾客编号 (对应tb_user.id)',
-`applicant_id` int DEFAULT NULL COMMENT '申请人编号(逗号分隔)',
+  `applicant_id` int DEFAULT NULL COMMENT '申请人编号(逗号分隔)',
   `mara_id` int DEFAULT NULL COMMENT '所属MARA编号 (对应b_mara.id,曼拓和留学服务MARA为空)',
   `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
   `adviser_id_2` int DEFAULT NULL COMMENT '第二顾问编号 (对应tb_adviser.id,曼拓专用字段)',
@@ -579,6 +581,8 @@ CREATE TABLE `b_commission_order` (
   `amount` decimal(8,2) NOT NULL COMMENT '本次收款',
   `expect_amount` decimal(8,2) DEFAULT NULL COMMENT '预收业绩',
   `sure_expect_amount` decimal(8,2) DEFAULT NULL COMMENT '确认预收业绩',
+`currency` varchar(4) NOT NULL DEFAULT 'AUD' COMMENT '币种(AUD:澳币,CNY:人民币)',
+`exchange_rate` decimal(6,4) NOT NULL DEFAULT 1 COMMENT '人民币兑换澳币汇率',
   `discount` decimal(8,2) NOT NULL DEFAULT 0 COMMENT '折扣',
   `gst` decimal(8,2) NOT NULL COMMENT 'GST',
   `deduct_gst` decimal(8,2) NOT NULL COMMENT 'Deduct GST',
@@ -1196,7 +1200,7 @@ CREATE TABLE `b_refund` (
   `visa_id` int DEFAULT NULL COMMENT '签证佣金订单编号 (对应b_visa.id,如果visa_id和commission_order_id都为0则为手工退款)',
   `commission_order_id` int DEFAULT NULL COMMENT '佣金订单编号 (对应b_commission_order.id,如果visa_id和commission_order_id都为0则为手工退款)',
   `user_id` int NOT NULL COMMENT '所属顾客编号 (对应tb_user.id)',
-`applicant_id` int NOT NULL COMMENT '所属申请人编号 (对应b_applicant.id)',
+  `applicant_id` int NOT NULL COMMENT '所属申请人编号 (对应b_applicant.id)',
   `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)',
   `mara_id` int DEFAULT NULL COMMENT '所属MARA编号 (对应b_mara.id,曼拓和留学服务MARA为空)',
   `official_id` int DEFAULT NULL COMMENT '文案编号 (对应b_official.id,曼拓文案为空)',
@@ -1216,5 +1220,17 @@ CREATE TABLE `b_refund` (
   `rmb_remarks` varchar(255) DEFAULT NULL COMMENT '人民币退款信息',
   `reason` varchar(255) DEFAULT NULL COMMENT '驳回原因',
   `remarks` varchar(255) DEFAULT NULL COMMENT '备注'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+--汇率
+
+CREATE TABLE `b_everyday_exchange_rate` (
+  id int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  gmt_create datetime NOT NULL COMMENT '创建时间',
+  gmt_modify datetime NOT NULL COMMENT '最后修改时间',
+  currency varchar(4) NOT NULL COMMENT '币种(AUD:澳币,CNY:人民币)',
+  original_exchange_rate decimal(6,4) NOT NULL DEFAULT 1 COMMENT '原始汇率',
+  znz_exchange_rate decimal(6,4) NOT NULL DEFAULT 1 COMMENT '指南针汇率',
+　　update_time datetime NOT NULL COMMENT '汇率时间'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
