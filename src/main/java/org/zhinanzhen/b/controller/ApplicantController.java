@@ -186,7 +186,10 @@ public class ApplicantController extends BaseController {
 	public Response<Integer> delete(@RequestParam(value = "id") int id, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<Integer>(0, applicantService.deleteById(id));
+			int i = applicantService.deleteById(id);
+			if (i == -1)
+				return new Response<Integer>(1, "该申请人已创建服务订单，删除失败！", 0);
+			return new Response<Integer>(0, i);
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), 0);
 		}

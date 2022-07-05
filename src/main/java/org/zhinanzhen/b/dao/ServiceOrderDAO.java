@@ -55,6 +55,8 @@ public interface ServiceOrderDAO {
 	List<ServiceOrderDO> listByParentId(@Param("parentId") Integer parentId);
 
 	ServiceOrderDO getServiceOrderById(int id);
+	
+	ServiceOrderDO getServiceOrderByApplicantId(int applicantId);
 
 	int deleteServiceOrderById(int id);
 

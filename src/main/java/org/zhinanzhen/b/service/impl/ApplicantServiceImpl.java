@@ -7,6 +7,7 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.ApplicantDAO;
+import org.zhinanzhen.b.dao.ServiceOrderDAO;
 import org.zhinanzhen.b.dao.pojo.ApplicantDO;
 import org.zhinanzhen.b.service.ApplicantService;
 import org.zhinanzhen.b.service.pojo.ApplicantDTO;
@@ -20,6 +21,9 @@ import com.ikasoa.core.ErrorCodeEnum;
 
 @Service("ApplicantService")
 public class ApplicantServiceImpl extends BaseService implements ApplicantService {
+	
+	@Resource
+	private ServiceOrderDAO serviceOrderDao;
 	
 	@Resource
 	private ApplicantDAO applicantDao;
@@ -135,7 +139,10 @@ public class ApplicantServiceImpl extends BaseService implements ApplicantServic
 			throw se;
 		}
 		try {
-			return applicantDao.deleteById(id);
+			if (serviceOrderDao.getServiceOrderByApplicantId(id) != null)
+				return -1; // 已存在服务订单，不允许删除
+			else
+				return applicantDao.deleteById(id);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
