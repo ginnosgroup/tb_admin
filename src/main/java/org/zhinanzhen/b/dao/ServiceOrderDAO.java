@@ -56,7 +56,7 @@ public interface ServiceOrderDAO {
 
 	ServiceOrderDO getServiceOrderById(int id);
 	
-	ServiceOrderDO getServiceOrderByApplicantId(int applicantId);
+	int countServiceOrderByApplicantId(int applicantId);
 
 	int deleteServiceOrderById(int id);
 

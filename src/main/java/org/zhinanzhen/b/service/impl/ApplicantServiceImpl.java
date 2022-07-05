@@ -139,7 +139,7 @@ public class ApplicantServiceImpl extends BaseService implements ApplicantServic
 			throw se;
 		}
 		try {
-			if (serviceOrderDao.getServiceOrderByApplicantId(id) != null)
+			if (serviceOrderDao.countServiceOrderByApplicantId(id) > 0)
 				return -1; // 已存在服务订单，不允许删除
 			else
 				return applicantDao.deleteById(id);
