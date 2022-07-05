@@ -128,6 +128,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "receiveTypeId") Integer receiveTypeId,
 			@RequestParam(value = "receiveDate") String receiveDate,
 			@RequestParam(value = "perAmount") String perAmount, @RequestParam(value = "amount") String amount,
+			@RequestParam(value = "currency", required = false) String currency,
+			@RequestParam(value = "exchangeRate", required = false) String exchangeRate,
 			@RequestParam(value = "bonusDate", required = false) String bonusDate,
 			@RequestParam(value = "zyDate", required = false) String zyDate,
 			@RequestParam(value = "remarks", required = false) String remarks,
@@ -203,6 +205,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			if (commissionOrderDto.getPerAmount() < commissionOrderDto.getAmount())
 				return new Response<List<CommissionOrderDTO>>(1, "本次应收款(" + commissionOrderDto.getPerAmount()
 						+ ")不能小于本次已收款(" + commissionOrderDto.getAmount() + ")!", null);
+			if (StringUtil.isNotEmpty(currency))
+				commissionOrderDto.setCurrency(currency);
+			if (StringUtil.isNotEmpty(exchangeRate))
+				commissionOrderDto.setExchangeRate(Double.parseDouble(exchangeRate));
 			commissionOrderDto.setDiscount(commissionOrderDto.getPerAmount() - commissionOrderDto.getAmount());
 			if (StringUtil.isNotEmpty(bonusDate))
 				commissionOrderDto.setBonusDate(new Date(Long.parseLong(bonusDate)));
@@ -381,6 +387,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "perAmount", required = false) String perAmount,
 			@RequestParam(value = "amount", required = false) String amount,
 			@RequestParam(value = "sureExpectAmount", required = false) Double sureExpectAmount,
+			@RequestParam(value = "currency", required = false) String currency,
+			@RequestParam(value = "exchangeRate", required = false) String exchangeRate,
 			@RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
 			@RequestParam(value = "zyDate", required = false) String zyDate,
 			@RequestParam(value = "bankCheck", required = false) String bankCheck,
@@ -488,6 +496,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			commissionOrderDto.setDiscount(_perAmount - commissionOrderDto.getAmount());
 			if (sureExpectAmount != null)
 				commissionOrderDto.setSureExpectAmount(sureExpectAmount);
+			if (StringUtil.isNotEmpty(currency))
+				commissionOrderDto.setCurrency(currency);
+			if (StringUtil.isNotEmpty(exchangeRate))
+				commissionOrderDto.setExchangeRate(Double.parseDouble(exchangeRate));
 			if (StringUtil.isNotEmpty(invoiceNumber))
 				commissionOrderDto.setInvoiceNumber(invoiceNumber);
 			if (StringUtil.isNotEmpty(zyDate))

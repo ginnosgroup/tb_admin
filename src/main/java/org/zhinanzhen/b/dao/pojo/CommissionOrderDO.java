@@ -89,6 +89,10 @@ public class CommissionOrderDO implements Serializable {
 	private double expectAmount;
 	
 	private double sureExpectAmount;
+	
+	private String currency;
+	
+	private double exchangeRate;
 
 	private double discount;
 

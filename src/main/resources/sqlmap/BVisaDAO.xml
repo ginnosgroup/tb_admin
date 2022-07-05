@@ -32,6 +32,8 @@
                 amount,
                 expect_amount,
                 sure_expect_amount,
+                currency,
+                exchange_rate,
                 discount,
                 invoice_number,
                 gst,
@@ -74,6 +76,8 @@
                 #{amount},
                 #{expectAmount},
                 #{sureExpectAmount},
+                #{currency},
+                #{exchangeRate},
                 #{discount},
                 #{invoiceNumber},
                 #{gst},
@@ -156,6 +160,12 @@
         </if>
         <if test='sureExpectAmount != null and sureExpectAmount != ""'>
             , sure_expect_amount = #{sureExpectAmount}
+        </if>
+        <if test='currency != null and currency != ""'>
+            , currency = #{currency}
+        </if>
+        <if test='exchangeRate != null and exchangeRate != ""'>
+            , exchange_rate = #{exchangeRate}
         </if>
         <if test='invoiceNumber != null and invoiceNumber != ""'>
             , invoice_number = #{invoiceNumber}
@@ -302,6 +312,8 @@
             bv.amount AS amount,
             bv.expect_amount AS expectAmount,
             bv.sure_expect_amount AS sureExpectAmount,
+            bv.currency,
+            bv.exchange_rate AS exchangeRate,
             bv.discount AS discount,
             bv.invoice_number AS invoiceNumber,
             bv.gst AS gst,
@@ -414,6 +426,8 @@
             amount,
             expect_amount AS expectAmount,
             sure_expect_amount AS sureExpectAmount,
+            currency,
+            exchange_rate AS exchangeRate,
             discount,
             invoice_number AS invoiceNumber,
             gst,
@@ -463,6 +477,8 @@
             amount,
             expect_amount AS expectAmount,
             sure_expect_amount AS sureExpectAmount,
+            currency,
+            exchange_rate AS exchangeRate,
             discount,
             invoice_number AS invoiceNumber,
             gst,
@@ -575,6 +591,8 @@
             amount,
             expect_amount AS expectAmount,
             sure_expect_amount AS sureExpectAmount,
+            currency,
+            exchange_rate AS exchangeRate,
             discount,
             invoice_number AS invoiceNumber,
             gst,
@@ -628,6 +646,8 @@
             amount,
             expect_amount AS expectAmount,
             sure_expect_amount AS sureExpectAmount,
+            currency,
+            exchange_rate AS exchangeRate,
             discount,
             invoice_number AS invoiceNumber,
             gst,
@@ -692,6 +712,8 @@
             amount,
             expect_amount AS expectAmount,
             sure_expect_amount AS sureExpectAmount,
+            currency,
+            exchange_rate AS exchangeRate,
             discount,
             invoice_number AS invoiceNumber,
             gst,

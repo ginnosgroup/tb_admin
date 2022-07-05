@@ -102,6 +102,8 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "receivable") String receivable,
 			@RequestParam(value = "received", required = false) String received,
 			@RequestParam(value = "perAmount") String perAmount, @RequestParam(value = "amount") String amount,
+			@RequestParam(value = "currency", required = false) String currency,
+			@RequestParam(value = "exchangeRate", required = false) String exchangeRate,
 			@RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
 			@RequestParam(value = "adviserId") String adviserId, @RequestParam(value = "maraId") String maraId,
 			@RequestParam(value = "officialId") String officialId,
@@ -183,6 +185,10 @@ public class VisaController extends BaseCommissionOrderController {
 			if (visaDto.getPerAmount() < visaDto.getAmount())
 				return new Response<List<VisaDTO>>(1,
 						"本次应收款(" + visaDto.getPerAmount() + ")不能小于本次已收款(" + visaDto.getAmount() + ")!", null);
+			if (StringUtil.isNotEmpty(currency))
+				visaDto.setCurrency(currency);
+			if (StringUtil.isNotEmpty(exchangeRate))
+				visaDto.setExchangeRate(Double.parseDouble(exchangeRate));
 			visaDto.setDiscount(visaDto.getPerAmount() - visaDto.getAmount());
 			if (StringUtil.isNotEmpty(invoiceNumber))
 				visaDto.setInvoiceNumber(invoiceNumber);
@@ -284,6 +290,8 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value = "perAmount", required = false) String perAmount,
 			@RequestParam(value = "amount", required = false) String amount,
 			@RequestParam(value = "sureExpectAmount", required = false) Double sureExpectAmount,
+			@RequestParam(value = "currency", required = false) String currency,
+			@RequestParam(value = "exchangeRate", required = false) String exchangeRate,
 			@RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
 			@RequestParam(value = "maraId", required = false) String maraId,
@@ -366,6 +374,10 @@ public class VisaController extends BaseCommissionOrderController {
 			}
 			if (sureExpectAmount != null)
 				visaDto.setSureExpectAmount(sureExpectAmount);
+			if (StringUtil.isNotEmpty(currency))
+				visaDto.setCurrency(currency);
+			if (StringUtil.isNotEmpty(exchangeRate))
+				visaDto.setExchangeRate(Double.parseDouble(exchangeRate));
 			double _perAmount = _visaDto.getPerAmount();
 			if (visaDto.getPerAmount() > 0)
 				_perAmount = visaDto.getPerAmount();

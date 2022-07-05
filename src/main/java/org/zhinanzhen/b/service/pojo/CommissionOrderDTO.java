@@ -92,6 +92,10 @@ public class CommissionOrderDTO {
 	private double expectAmount;
 
 	private double sureExpectAmount = 0.00;
+	
+	private String currency;
+	
+	private double exchangeRate;
 
 	private double discount;
 

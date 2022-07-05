@@ -45,6 +45,8 @@
                 amount,
                 expect_amount,
                 sure_expect_amount,
+                currency,
+                exchange_rate,
                 discount,
                 gst,
                 deduct_gst,
@@ -95,6 +97,8 @@
                 #{amount},
                 #{expectAmount},
                 #{sureExpectAmount},
+                #{currency},
+                #{exchangeRate},
                 #{discount},
                 #{gst},
                 #{deductGst},
@@ -205,6 +209,12 @@
         </if>
         <if test='sureExpectAmount != null and sureExpectAmount != ""'>
             , sure_expect_amount = #{sureExpectAmount}
+        </if>
+        <if test='currency != null and currency != ""'>
+            , currency = #{currency}
+        </if>
+        <if test='exchangeRate != null and exchangeRate != ""'>
+            , exchange_rate = #{exchangeRate}
         </if>
         <if test='discount != null and discount > 0'>
             , discount = #{discount}
@@ -378,6 +388,8 @@
             co.amount,
             co.expect_amount AS expectAmount,
             co.sure_expect_amount AS sureExpectAmount,
+            co.currency,
+            co.exchange_rate AS exchangeRate,
             co.discount,
             co.gst,
             co.deduct_gst AS deductGst,
@@ -515,6 +527,8 @@
             amount,
             expect_amount AS expectAmount,
             sure_expect_amount AS sureExpectAmount,
+            currency,
+            exchange_rate AS exchangeRate,
             discount,
             gst,
             deduct_gst AS deductGst,
@@ -573,6 +587,8 @@
             amount,
             expect_amount AS expectAmount,
             sure_expect_amount AS sureExpectAmount,
+            currency,
+            exchange_rate AS exchangeRate,
             discount,
             gst,
             deduct_gst AS deductGst,
@@ -631,6 +647,8 @@
             amount,
             expect_amount AS expectAmount,
             sure_expect_amount AS sureExpectAmount,
+            currency,
+            exchange_rate AS exchangeRate,
             discount,
             gst,
             deduct_gst AS deductGst,
@@ -689,6 +707,8 @@
             co.amount,
             co.expect_amount AS expectAmount,
             co.sure_expect_amount AS sureExpectAmount,
+            co.currency,
+            co.exchange_rate AS exchangeRate,
             co.discount,
             co.gst,
             co.deduct_gst AS deductGst,
@@ -761,6 +781,8 @@
             co.amount,
             co.expect_amount AS expectAmount,
             co.sure_expect_amount AS sureExpectAmount,
+            co.currency,
+            co.exchange_rate AS exchangeRate,
             co.discount,
             co.gst,
             co.deduct_gst AS deductGst,
@@ -903,6 +925,8 @@
             co.amount,
             co.expect_amount AS expectAmount,
             co.sure_expect_amount AS sureExpectAmount,
+            co.currency,
+            co.exchange_rate AS exchangeRate,
             co.discount,
             co.gst,
             co.deduct_gst AS deductGst,
@@ -968,6 +992,8 @@
             co.amount,
             co.expect_amount AS expectAmount,
             co.sure_expect_amount AS sureExpectAmount,
+            co.currency,
+            co.exchange_rate AS exchangeRate,
             co.discount,
             co.gst,
             co.deduct_gst AS deductGst,
@@ -1033,6 +1059,8 @@
             co.amount,
             co.expect_amount AS expectAmount,
             co.sure_expect_amount AS sureExpectAmount,
+            co.currency,
+            co.exchange_rate AS exchangeRate,
             co.discount,
             co.gst,
             co.deduct_gst AS deductGst,
@@ -1112,6 +1140,8 @@
             amount,
             expect_amount AS expectAmount,
             sure_expect_amount AS sureExpectAmount,
+            currency,
+            exchange_rate AS exchangeRate,
             discount,
             gst,
             deduct_gst AS deductGst,
@@ -1174,6 +1204,8 @@
             co.amount,
             co.expect_amount AS expectAmount,
             co.sure_expect_amount AS sureExpectAmount,
+            co.currency,
+            co.exchange_rate AS exchangeRate,
             co.discount,
             co.gst,
             co.deduct_gst AS deductGst,
@@ -1379,6 +1411,8 @@
         co.amount,
         co.expect_amount AS expectAmount,
         co.sure_expect_amount AS sureExpectAmount,
+        co.currency,
+        co.exchange_rate AS exchangeRate,
         co.discount,
         co.gst,
         co.deduct_gst AS deductGst,
