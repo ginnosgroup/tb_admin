@@ -470,10 +470,15 @@ public class ServiceOrderController extends BaseController {
 						if (StringUtil.isNotEmpty(institutionTradingName2))
 							serviceOrderDto.setInstitutionTradingName(institutionTradingName2);
 					}
-					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
-						if (adminUserLoginInfo != null)
-							serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
-									serviceOrderDto.getState(), null, null, null);
+					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null) {
+						serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
+								serviceOrderDto.getState(), null, null, null);
+						if (serviceOrderApplicantList.size() > 0) {
+							ServiceOrderApplicantDTO serviceOrderApplicantDto = serviceOrderApplicantList.get(0);
+							serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
+							if (serviceOrderApplicantService.addServiceOrderApplicant(serviceOrderApplicantDto) == 0)
+								msg += "申请人子服务订单2创建失败(" + serviceOrderApplicantDto + "). ";
+						}
 						msg += "创建第二学校服务订单成功(第二服务订单编号:" + serviceOrderDto.getId() + "). ";
 					}
 
@@ -495,10 +500,15 @@ public class ServiceOrderController extends BaseController {
 						if (StringUtil.isNotEmpty(institutionTradingName3))
 							serviceOrderDto.setInstitutionTradingName(institutionTradingName3);
 					}
-					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
-						if (adminUserLoginInfo != null)
-							serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
-									serviceOrderDto.getState(), null, null, null);
+					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null) {
+						serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
+								serviceOrderDto.getState(), null, null, null);
+						if (serviceOrderApplicantList.size() > 0) {
+							ServiceOrderApplicantDTO serviceOrderApplicantDto = serviceOrderApplicantList.get(0);
+							serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
+							if (serviceOrderApplicantService.addServiceOrderApplicant(serviceOrderApplicantDto) == 0)
+								msg += "申请人子服务订单3创建失败(" + serviceOrderApplicantDto + "). ";
+						}
 						msg += "创建第三学校服务订单成功(第三服务订单编号:" + serviceOrderDto.getId() + "). ";
 					} else
 						msg += "创建第三学校服务订单失败(第三学校编号:" + schoolId3 + "). ";
@@ -518,10 +528,15 @@ public class ServiceOrderController extends BaseController {
 						if (StringUtil.isNotEmpty(institutionTradingName4))
 							serviceOrderDto.setInstitutionTradingName(institutionTradingName4);
 					}
-					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
-						if (adminUserLoginInfo != null)
-							serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
-									serviceOrderDto.getState(), null, null, null);
+					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null) {
+						serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
+								serviceOrderDto.getState(), null, null, null);
+						if (serviceOrderApplicantList.size() > 0) {
+							ServiceOrderApplicantDTO serviceOrderApplicantDto = serviceOrderApplicantList.get(0);
+							serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
+							if (serviceOrderApplicantService.addServiceOrderApplicant(serviceOrderApplicantDto) == 0)
+								msg += "申请人子服务订单4创建失败(" + serviceOrderApplicantDto + "). ";
+						}
 						msg += "创建第四学校服务订单成功(第四服务订单编号:" + serviceOrderDto.getId() + "). ";
 					} else
 						msg += "创建第四学校服务订单失败(第四学校编号:" + schoolId4 + "). ";
@@ -541,10 +556,15 @@ public class ServiceOrderController extends BaseController {
 						if (StringUtil.isNotEmpty(institutionTradingName5))
 							serviceOrderDto.setInstitutionTradingName(institutionTradingName5);
 					}
-					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
-						if (adminUserLoginInfo != null)
-							serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
-									serviceOrderDto.getState(), null, null, null);
+					if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null) {
+						serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
+								serviceOrderDto.getState(), null, null, null);
+						if (serviceOrderApplicantList.size() > 0) {
+							ServiceOrderApplicantDTO serviceOrderApplicantDto = serviceOrderApplicantList.get(0);
+							serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
+							if (serviceOrderApplicantService.addServiceOrderApplicant(serviceOrderApplicantDto) == 0)
+								msg += "申请人子服务订单5创建失败(" + serviceOrderApplicantDto + "). ";
+						}
 						msg += "创建第五学校服务订单成功(第五服务订单编号:" + serviceOrderDto.getId() + "). ";
 					} else
 						msg += "创建第五学校服务订单失败(第五学校编号:" + schoolId5 + "). ";
