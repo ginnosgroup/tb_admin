@@ -93,9 +93,9 @@ public class CommissionOrderDTO {
 
 	private double sureExpectAmount = 0.00;
 	
-	private String currency;
+	private String currency = "AUD";
 	
-	private double exchangeRate;
+	private double exchangeRate = 1.00;
 
 	private double discount;
 
