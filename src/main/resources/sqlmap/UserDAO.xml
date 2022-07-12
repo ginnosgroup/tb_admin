@@ -83,7 +83,7 @@
             AND u.phone = #{phone}
         </if>
         <if test='areaCode != null and areaCode != ""'>
-            AND u.area_code = #{areaCode}
+            AND u.area_code like '%${areaCode}%'
         </if>
         <if test='wechatUsername != null and wechatUsername != ""'>
             AND u.wechat_username = #{wechatUsername}
@@ -159,7 +159,7 @@
             AND u.phone = #{phone}
         </if>
         <if test='areaCode != null and areaCode != ""'>
-            AND u.area_code = #{areaCode}
+            AND u.area_code like '%${areaCode}%'
         </if>
         <if test='email != null and email != ""'>
             AND u.email = #{email}
