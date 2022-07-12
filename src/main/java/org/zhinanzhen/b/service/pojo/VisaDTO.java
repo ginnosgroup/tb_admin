@@ -78,9 +78,9 @@ public class VisaDTO {
 
 	private double sureExpectAmount;
 	
-	private String currency = "AUD";
+	private String currency;
 	
-	private double exchangeRate = 1.00;
+	private double exchangeRate;
 
 	private double discount;
 

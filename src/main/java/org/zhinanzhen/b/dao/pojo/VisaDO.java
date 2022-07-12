@@ -62,9 +62,9 @@ public class VisaDO implements Serializable {
 
 	private double sureExpectAmount;
 	
-	private String currency;
+	private String currency = "AUD";
 	
-	private double exchangeRate;
+	private double exchangeRate = 1.00;
 
 	private double discount;
 	
