@@ -58,6 +58,9 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 	private ApplicantDAO applicantDao;
 	
 	@Resource
+	private ServiceOrderApplicantDAO serviceOrderApplicantDao;
+	
+	@Resource
 	private ServiceOrderDAO serviceOrderDao;
 
 //	@Resource
@@ -315,7 +318,19 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 	public VisaDTO putVisaDTO(VisaListDO visaListDo) throws ServiceException {
 		VisaDTO visaDto = putVisaDTO((VisaDO) visaListDo);
 		if (visaListDo.getApplicantId() > 0) {
-			visaDto.setApplicant(mapper.map(applicantDao.getById(visaListDo.getApplicantId()), ApplicantDTO.class));
+
+			ApplicantDTO applicantDto = mapper.map(applicantDao.getById(visaListDo.getApplicantId()),
+					ApplicantDTO.class);
+
+			List<ServiceOrderApplicantDO> serviceOrderApplicantDoList = serviceOrderApplicantDao
+					.list(visaListDo.getServiceOrderId(), visaListDo.getApplicantId());
+			if (serviceOrderApplicantDoList != null && serviceOrderApplicantDoList.size() > 0
+					&& serviceOrderApplicantDoList.get(0) != null) {
+				applicantDto.setUrl(serviceOrderApplicantDoList.get(0).getUrl());
+				applicantDto.setContent(serviceOrderApplicantDoList.get(0).getContent());
+			}
+
+			visaDto.setApplicant(applicantDto);
 			visaDto.setApplicantId(visaListDo.getApplicantId());
 		}
 		return visaDto;
