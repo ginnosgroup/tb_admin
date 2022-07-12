@@ -982,6 +982,22 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					stateList, commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate,
 					startInvoiceCreate, endInvoiceCreate, isYzyAndYjy, applyState, pageNum, pageSize, _sorter);
 			list.forEach(co -> {
+				if (co.getServiceOrderId() > 0)
+					try {
+						ServiceOrderDTO serviceOrderDto = serviceOrderService
+								.getServiceOrderById(co.getServiceOrderId());
+						if (serviceOrderDto != null) {
+							ApplicantDTO applicantDto = co.getApplicant();
+							if (applicantDto != null) {
+								if (StringUtil.isEmpty(applicantDto.getUrl()))
+									applicantDto.setUrl(serviceOrderDto.getNutCloud());
+								if (StringUtil.isEmpty(applicantDto.getContent()))
+									applicantDto.setContent(serviceOrderDto.getInformation());
+								co.setApplicant(applicantDto);
+							}
+						}
+					} catch (ServiceException e) {
+					}
 				try {
 					List<MailRemindDTO> mailRemindDTOS = mailRemindService.list(getAdviserId(request),newOfficialId,getKjId(request),
 							null,null,co.getId(),null,false,true);
