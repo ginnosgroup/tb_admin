@@ -195,6 +195,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 //			System.out.println(("昵称转码失败"));
 		}
 		try {
+System.out.println("=======phone:" + phone);
+System.out.println("=======areaCode:" + areaCode);
 			if (authType == null) {
 				userDoList = userDao.listUser(name, null, authNickname, phone, areaCode, email, wechatUsername,
 						adviserId <= 0 ? null : adviserId, applicantName, regionIdList, tagId, orderByField, isDesc,
@@ -207,6 +209,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 			if (userDoList == null) {
 				return null;
 			}
+System.out.println("=======userDoList:" + userDoList);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
