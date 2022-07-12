@@ -29,7 +29,7 @@ public interface WXWorkService {
 
     int updateByAuthopenid(UserDTO userDTO);
 
-    boolean updateAuthopenidByPhone(String authOpenid ,  String phone);
+    boolean updateAuthopenidByPhone(String authOpenid ,  String phone, String areaCode);
 
     int addChat(ChatDTO chatDTO);
 

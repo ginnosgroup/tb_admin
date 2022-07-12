@@ -146,14 +146,14 @@ public class UserServiceImpl extends BaseService implements UserService {
 	}
 
 	@Override
-	public int countUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
+	public int countUser(String name, UserAuthTypeEnum authType, String authNickname, String phone, String areaCode,
 			String wechatUsername, int adviserId, String applicantName, List<Integer> regionIdList, Integer tagId)
 			throws ServiceException {
 		if (authType == null) {
-			return userDao.countUser(name, null, authNickname, phone, wechatUsername, adviserId <= 0 ? null : adviserId,
-					applicantName, regionIdList, tagId);
+			return userDao.countUser(name, null, authNickname, phone, areaCode, wechatUsername,
+					adviserId <= 0 ? null : adviserId, applicantName, regionIdList, tagId);
 		} else {
-			return userDao.countUser(name, authType.toString(), authNickname, phone, wechatUsername,
+			return userDao.countUser(name, authType.toString(), authNickname, phone, areaCode, wechatUsername,
 					adviserId <= 0 ? null : adviserId, applicantName, regionIdList, tagId);
 		}
 	}
@@ -165,14 +165,14 @@ public class UserServiceImpl extends BaseService implements UserService {
 
 	@Override
 	public List<UserDTO> listUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
-			String email, String wechatUsername, int adviserId, String applicantName, List<Integer> regionIdList,
-			int pageNum, int pageSize) throws ServiceException {
-		return listUser(name, authType, authNickname, phone, email, wechatUsername, adviserId, applicantName,
+			String areaCode, String email, String wechatUsername, int adviserId, String applicantName,
+			List<Integer> regionIdList, int pageNum, int pageSize) throws ServiceException {
+		return listUser(name, authType, authNickname, phone, areaCode, email, wechatUsername, adviserId, applicantName,
 				regionIdList, null, "gmt_create", true, pageNum, pageSize);
 	}
 
 	@Override
-	public List<UserDTO> listUser(String name, UserAuthTypeEnum authType, String authNickname, String phone,
+	public List<UserDTO> listUser(String name, UserAuthTypeEnum authType, String authNickname, String phone, String areaCode,
 			String email, String wechatUsername, int adviserId, String applicantName, List<Integer> regionIdList,
 			Integer tagId, String orderByField, Boolean isDesc, int pageNum, int pageSize) throws ServiceException {
 		if (pageNum < 0) {
@@ -196,11 +196,11 @@ public class UserServiceImpl extends BaseService implements UserService {
 		}
 		try {
 			if (authType == null) {
-				userDoList = userDao.listUser(name, null, authNickname, phone, email, wechatUsername,
+				userDoList = userDao.listUser(name, null, authNickname, phone, areaCode, email, wechatUsername,
 						adviserId <= 0 ? null : adviserId, applicantName, regionIdList, tagId, orderByField, isDesc,
 						pageNum * pageSize, pageSize);
 			} else {
-				userDoList = userDao.listUser(name, authType.toString(), authNickname, phone, email, wechatUsername,
+				userDoList = userDao.listUser(name, authType.toString(), authNickname, phone, areaCode, email, wechatUsername,
 						adviserId <= 0 ? null : adviserId, applicantName, regionIdList, tagId, orderByField, isDesc,
 						pageNum * pageSize, pageSize);
 			}
@@ -336,8 +336,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 			throw se;
 		}
 		if (StringUtil.isNotEmpty(phone)
-				&& userDao.countUser(null, null, null, phone, null, null, null, null, null) > 0) {
-			List<UserDO> userList = userDao.listUser(null, null, null, phone, null, null, null, null, null, null, null,
+				&& userDao.countUser(null, null, null, phone, areaCode, null, null, null, null, null) > 0) {
+			List<UserDO> userList = userDao.listUser(null, null, null, phone, areaCode, null, null, null, null, null, null, null,
 					null, 0, 1);
 			if (userList.size() > 0 && userList.get(0).getId() != id) { // 排除当前id
 				ServiceException se = new ServiceException("The phone is already existed !");

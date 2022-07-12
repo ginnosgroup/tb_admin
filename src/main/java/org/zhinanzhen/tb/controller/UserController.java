@@ -66,8 +66,8 @@ public class UserController extends BaseController {
 			if (email != null && !"".equals(email) && !EMAIL_PATTERN.matcher(email).matches())
 				return new Response<Integer>(1, "邮箱地址格式不正确,添加失败.", 0);
 			if (phone != null && !"".equals(phone)) {
-				List<UserDTO> _userList = userService.listUser(null, null, null, phone, null, null, 0, null, null,
-						null, null, null, 0, 1);
+				List<UserDTO> _userList = userService.listUser(null, null, null, phone, areaCode, null, null, 0, null,
+						null, null, null, null, 0, 1);
 				if (_userList != null && _userList.size() > 0) {
 					UserDTO _user = _userList.get(0);
 					if (_user != null)
@@ -115,6 +115,7 @@ public class UserController extends BaseController {
 			@RequestParam(value = "authType", required = false) String authType,
 			@RequestParam(value = "authNickname", required = false) String authNickname,
 			@RequestParam(value = "phone", required = false) String phone,
+			@RequestParam(value = "phone", required = false) String areaCode,
 			@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
 			@RequestParam(value = "applicantName", required = false) String applicantName,
@@ -148,7 +149,7 @@ public class UserController extends BaseController {
 				if (StringUtil.isBlank(adviserId) && !isAdminUser(request))
 					return new Response<Integer>(1, "No permission !", -1);
 			}
-			int count = userService.countUser(name, authTypeEnum, authNickname, phone, wechatUsername,
+			int count = userService.countUser(name, authTypeEnum, authNickname, phone, areaCode, wechatUsername,
 					StringUtil.toInt(adviserId), applicantName, regionIdList, StringUtil.toInt(tagId));
 			return new Response<Integer>(0, count);
 		} catch (ServiceException e) {
@@ -223,11 +224,12 @@ public class UserController extends BaseController {
 				return new ListResponse<List<UserDTO>>(true, pageSize, 1, list, "");
 			}
 
-			int total = userService.countUser(name, authTypeEnum, authNickname, phone, wechatUsername,
+			int total = userService.countUser(name, authTypeEnum, authNickname, phone, areaCode, wechatUsername,
 					StringUtil.toInt(adviserId), applicantName, regionIdList, StringUtil.toInt(tagId));
-			List<UserDTO> list = userService.listUser(name, authTypeEnum, authNickname, phone, email, wechatUsername,
-					StringUtil.toInt(adviserId), applicantName, regionIdList, StringUtil.toInt(tagId), orderByField,
-					Boolean.parseBoolean(StringUtil.isEmpty(isDesc) ? "false" : isDesc), pageNum, pageSize);
+			List<UserDTO> list = userService.listUser(name, authTypeEnum, authNickname, phone, areaCode, email,
+					wechatUsername, StringUtil.toInt(adviserId), applicantName, regionIdList, StringUtil.toInt(tagId),
+					orderByField, Boolean.parseBoolean(StringUtil.isEmpty(isDesc) ? "false" : isDesc), pageNum,
+					pageSize);
 			for (UserDTO user : list) {
 				List<MailRemindDTO> mailRemindDTOS = mailRemindService.list(getAdviserId(request),null,null,null,null,null,user.getId(),false,true);
 				user.setMailRemindDTOS(mailRemindDTOS);
@@ -253,12 +255,14 @@ public class UserController extends BaseController {
 
 	@RequestMapping(value = "/getByPhone", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<UserDTO> getByPhone(String phone,HttpServletRequest request, HttpServletResponse response) throws ServiceException {
+	public Response<UserDTO> getByPhone(@RequestParam(value = "phone") String phone,
+			@RequestParam(value = "areaCode", required = false) String areaCode, HttpServletRequest request,
+			HttpServletResponse response) throws ServiceException {
 		if (phone == null) {
 			return new Response<UserDTO>(1, "参数错误.");
 		}
 		super.setGetHeader(response);
-		List<UserDTO> list = userService.listUser(null, null, null, phone, null, null, 0, null, null, 0, 1);
+		List<UserDTO> list = userService.listUser(null, null, null, phone, areaCode, null, null, 0, null, null, 0, 1);
 		if (list != null && list.size() > 0) {
 			UserDTO user = list.get(0);
 			List<UserAdviserDTO> userAdviserList = user.getUserAdviserList();
@@ -438,7 +442,7 @@ public class UserController extends BaseController {
 				if (StringUtil.isBlank(adviserId) && !isAdminUser(request))
 					return new Response<List<UserDTO>>(1, "No permission !", null);
 			}
-			List<UserDTO> list = userService.listUser(null, null, null, null, null, null, StringUtil.toInt(adviserId), null,
+			List<UserDTO> list = userService.listUser(null, null, null, null, null, null, null, StringUtil.toInt(adviserId), null,
 					regionIdList, null, null, false, 0, 9999);
 			List<UserDTO> _list = new ArrayList<UserDTO>();
 			for (UserDTO user : list) {
@@ -484,7 +488,7 @@ public class UserController extends BaseController {
 				if (StringUtil.isBlank(adviserId) && !isAdminUser(request))
 					return new Response<Integer>(1, "No permission !", null);
 			}
-			List<UserDTO> list = userService.listUser(null, null, null, null, null, null, StringUtil.toInt(adviserId), null,
+			List<UserDTO> list = userService.listUser(null, null, null, null, null, null, null, StringUtil.toInt(adviserId), null,
 					regionIdList, null, null, false, 0, 9999);
 			Integer count = 0;
 			for (UserDTO user : list) {

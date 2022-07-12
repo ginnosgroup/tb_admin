@@ -416,7 +416,7 @@ public class Scheduled {
 										String mobiles = jsonMobiles.getString(n);
 										userDTO.setPhone(mobiles);
 										if (StringUtil.isNotEmpty(mobiles) && userService.countUser(null, null, null,
-												mobiles, null, 0, null, null, null) > 0) {
+												mobiles, null, null, 0, null, null, null) > 0) {
 											isContain = true;
                                             break;
                                         }
@@ -435,7 +435,7 @@ public class Scheduled {
                                 userDTO.setAuthLogo(avatar);
                             }
                             if (isContain){
-                                wxWorkService.updateAuthopenidByPhone(userDTO.getAuthOpenid(),userDTO.getPhone());
+                                wxWorkService.updateAuthopenidByPhone(userDTO.getAuthOpenid(),userDTO.getPhone(),userDTO.getAreaCode());
                             }
 //                            userDTO.setAdviserId(adviserDO.getId()); // TODO: 小包
                             userDTO.setRegionId(adviserDTO.getRegionId());

@@ -16,15 +16,16 @@ public interface UserDAO {
 
 	public int countUser(@Param("name") String name, @Param("authType") String authType,
 			@Param("authNickname") String authNickname, @Param("phone") String phone,
-			@Param("wechatUsername") String wechatUsername, @Param("adviserId") Integer adviserId,
-			@Param("applicantName") String applicantName, @Param("regionIdList") List<Integer> regionIdList,
-			@Param("tagId") Integer tagId);
+			@Param("areaCode") String areaCode, @Param("wechatUsername") String wechatUsername,
+			@Param("adviserId") Integer adviserId, @Param("applicantName") String applicantName,
+			@Param("regionIdList") List<Integer> regionIdList, @Param("tagId") Integer tagId);
 
 	public int countUserByThisMonth(@Param("adviserId") Integer adviserId,
 			@Param("regionIdList") List<Integer> regionIdList);
 
 	public List<UserDO> listUser(@Param("name") String name, @Param("authType") String authType,
-			@Param("authNickname") String authNickname, @Param("phone") String phone, @Param("email") String email,
+			@Param("authNickname") String authNickname, @Param("phone") String phone,
+			@Param("areaCode") String areaCode, @Param("email") String email,
 			@Param("wechatUsername") String wechatUsername, @Param("adviserId") Integer adviserId,
 			@Param("applicantName") String applicantName,
 			@Param("regionIdList") List<Integer> regionIdList,
