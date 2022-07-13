@@ -12,6 +12,8 @@ public class AdviserServiceOrderDO {
 	private String type;
 
 	private String userName;
+	
+	private String applicantName;
 
 	private String maraName;
 

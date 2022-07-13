@@ -8,6 +8,10 @@ public class AdviserUserDO {
 	private int id;
 
 	private String name;
+	
+	private int applicantId;
+	
+	private String applicantName;
 
 	private String birthday;
 

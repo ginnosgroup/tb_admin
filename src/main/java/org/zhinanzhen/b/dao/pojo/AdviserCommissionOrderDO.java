@@ -12,6 +12,8 @@ public class AdviserCommissionOrderDO {
 	private String serviceOrderId;
 
 	private String userName;
+	
+	private String applicantName;
 
 	private String officialName;
 

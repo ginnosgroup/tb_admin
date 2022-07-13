@@ -12,6 +12,8 @@ public class AdviserVisaDO {
 	private String serviceOrderId;
 
 	private String userName;
+	
+	private String applicantName;
 
 	private String maraName;
 
