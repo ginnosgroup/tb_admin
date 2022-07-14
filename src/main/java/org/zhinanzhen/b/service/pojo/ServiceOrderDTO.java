@@ -128,6 +128,10 @@ public class ServiceOrderDTO {
 
 	private double expectAmount;
 
+	private String currency;
+
+	private double exchangeRate;
+
 	private double gst;
 
 	private double deductGst;

@@ -53,6 +53,8 @@
                 per_amount,
                 amount,
                 expect_amount,
+                currency,
+                exchange_rate,
                 gst,
                 deduct_gst,
                 bonus,
@@ -121,6 +123,8 @@
                 #{perAmount},
                 #{amount},
                 #{expectAmount},
+                #{currency},
+                #{exchangeRate},
                 #{gst},
                 #{deductGst},
                 #{bonus},
@@ -301,6 +305,12 @@
         </if>
         <if test='expectAmount > 0'>
             , expect_amount = #{expectAmount}
+        </if>
+        <if test='currency != null and currency != ""'>
+            , currency = #{currency}
+        </if>
+        <if test='exchangeRate != null and exchangeRate != ""'>
+            , exchange_rate = #{exchangeRate}
         </if>
         <if test='gst != null'>
             , gst = #{gst}
@@ -520,6 +530,8 @@
             so.per_amount AS perAmount,
             so.amount AS amount,
             so.expect_amount AS expectAmount,
+            so.currency,
+            so.exchange_rate AS exchangeRate,
             so.gst AS gst,
             so.deduct_gst AS deductGst,
             so.bonus AS bonus,
@@ -702,6 +714,8 @@
             per_amount AS perAmount,
             amount,
             expect_amount AS expectAmount,
+            currency,
+            exchange_rate AS exchangeRate,
             gst,
             deduct_gst AS deductGst,
             bonus,
@@ -870,6 +884,8 @@
             per_amount AS perAmount,
             amount,
             expect_amount AS expectAmount,
+            currency,
+            exchange_rate AS exchangeRate,
             gst,
             deduct_gst AS deductGst,
             bonus,
@@ -969,6 +985,8 @@
         so.per_amount AS perAmount,
         so.amount AS amount,
         so.expect_amount AS expectAmount,
+        so.currency,
+        so.exchange_rate AS exchangeRate,
         so.gst AS gst,
         so.deduct_gst AS deductGst,
         so.bonus AS bonus,

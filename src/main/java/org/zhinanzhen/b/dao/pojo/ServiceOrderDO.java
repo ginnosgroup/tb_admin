@@ -121,6 +121,10 @@ public class ServiceOrderDO implements Serializable {
 	private double amount;
 
 	private double expectAmount;
+	
+	private String currency = "AUD";
+	
+	private double exchangeRate = 1.00;
 
 	private double gst;
 

@@ -461,6 +461,8 @@ CREATE TABLE `b_service_order` (
   `per_amount` decimal(8,2) NOT NULL COMMENT '本次应收款',
   `amount` decimal(8,2) DEFAULT NULL COMMENT '本次收款',
   `expect_amount` decimal(8,2) DEFAULT NULL COMMENT '预收业绩',
+  `currency` varchar(4) NOT NULL DEFAULT 'AUD' COMMENT '币种(AUD:澳币,CNY:人民币)',
+  `exchange_rate` decimal(6,4) NOT NULL DEFAULT 1 COMMENT '人民币兑换澳币汇率',
   `gst` decimal(8,2) DEFAULT NULL COMMENT 'GST',
   `deduct_gst` decimal(8,2) DEFAULT NULL COMMENT 'Deduct GST',
   `bonus` decimal(8,2) DEFAULT NULL COMMENT '月奖金',

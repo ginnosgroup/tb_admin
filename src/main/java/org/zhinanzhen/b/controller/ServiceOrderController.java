@@ -222,6 +222,8 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "perAmount", required = false) String perAmount,
 			@RequestParam(value = "amount", required = false) String amount,
 			@RequestParam(value = "expectAmount", required = false) String expectAmount,
+			@RequestParam(value = "currency", required = false) String currency,
+			@RequestParam(value = "exchangeRate", required = false) String exchangeRate,
 			@RequestParam(value = "gst", required = false) String gst,
 			@RequestParam(value = "deductGst", required = false) String deductGst,
 			@RequestParam(value = "bonus", required = false) String bonus,
@@ -321,6 +323,10 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setAmount(Double.parseDouble(amount));
 			if (StringUtil.isNotEmpty(expectAmount))
 				serviceOrderDto.setExpectAmount(Double.parseDouble(expectAmount));
+			if (StringUtil.isNotEmpty(currency))
+				serviceOrderDto.setCurrency(currency);
+			if (StringUtil.isNotEmpty(exchangeRate))
+				serviceOrderDto.setExchangeRate(Double.parseDouble(exchangeRate));
 			if (StringUtil.isNotEmpty(gst))
 				serviceOrderDto.setGst(Double.parseDouble(gst));
 			if (StringUtil.isNotEmpty(deductGst))
@@ -613,6 +619,8 @@ public class ServiceOrderController extends BaseController {
 			@RequestParam(value = "perAmount", required = false) String perAmount,
 			@RequestParam(value = "amount", required = false) String amount,
 			@RequestParam(value = "expectAmount", required = false) String expectAmount,
+			@RequestParam(value = "currency", required = false) String currency,
+			@RequestParam(value = "exchangeRate", required = false) String exchangeRate,
 			@RequestParam(value = "gst", required = false) String gst,
 			@RequestParam(value = "deductGst", required = false) String deductGst,
 			@RequestParam(value = "bonus", required = false) String bonus,
@@ -652,10 +660,11 @@ public class ServiceOrderController extends BaseController {
 					receivable, discount, received, installment, paymentVoucherImageUrl1, paymentVoucherImageUrl2,
 					paymentVoucherImageUrl3, paymentVoucherImageUrl4, paymentVoucherImageUrl5, invoiceVoucherImageUrl1,
 					invoiceVoucherImageUrl2, invoiceVoucherImageUrl3, invoiceVoucherImageUrl4, invoiceVoucherImageUrl5,
-					kjPaymentImageUrl1, kjPaymentImageUrl2, lowPriceImageUrl, perAmount, amount, expectAmount, gst,
-					deductGst, bonus, userId, applicantId, applicantBirthday, serviceOrderApplicantList, maraId,
-					adviserId, officialId, remarks, closedReason, information, isHistory, nutCloud, serviceAssessId,
-					verifyCode, refNo, courseId, schoolInstitutionLocationId, institutionTradingName);
+					kjPaymentImageUrl1, kjPaymentImageUrl2, lowPriceImageUrl, perAmount, amount, expectAmount, currency,
+					exchangeRate, gst, deductGst, bonus, userId, applicantId, applicantBirthday,
+					serviceOrderApplicantList, maraId, adviserId, officialId, remarks, closedReason, information,
+					isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
+					institutionTradingName);
 			if (res != null && res.getCode() == 0) {
 				List<ServiceOrderDTO> cList = new ArrayList<>();
 				if ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
@@ -672,10 +681,10 @@ public class ServiceOrderController extends BaseController {
 								paymentVoucherImageUrl4, paymentVoucherImageUrl5, invoiceVoucherImageUrl1,
 								invoiceVoucherImageUrl2, invoiceVoucherImageUrl3, invoiceVoucherImageUrl4,
 								invoiceVoucherImageUrl5, kjPaymentImageUrl1, kjPaymentImageUrl2, lowPriceImageUrl,
-								perAmount, amount, expectAmount, gst, deductGst, bonus, userId, null, null, null,
-								maraId, adviserId, officialId, remarks, closedReason, information, isHistory, nutCloud,
-								serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
-								institutionTradingName);
+								perAmount, amount, expectAmount, currency, exchangeRate, gst, deductGst, bonus, userId,
+								null, null, null, maraId, adviserId, officialId, remarks, closedReason, information,
+								isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId,
+								schoolInstitutionLocationId, institutionTradingName);
 						if (cRes.getCode() > 0)
 							res.setMessage(res.getMessage() + ";" + cRes.getMessage());
 					}
@@ -696,12 +705,12 @@ public class ServiceOrderController extends BaseController {
 			String paymentVoucherImageUrl4, String paymentVoucherImageUrl5, String invoiceVoucherImageUrl1,
 			String invoiceVoucherImageUrl2, String invoiceVoucherImageUrl3, String invoiceVoucherImageUrl4,
 			String invoiceVoucherImageUrl5, String kjPaymentImageUrl1, String kjPaymentImageUrl2,
-			String lowPriceImageUrl, String perAmount, String amount, String expectAmount, String gst, String deductGst,
-			String bonus, String userId, String applicantId, String applicantBirthday,
-			List<ServiceOrderApplicantDTO> serviceOrderApplicantList, String maraId, String adviserId,
-			String officialId, String remarks, String closedReason, String information, String isHistory,
-			String nutCloud, String serviceAssessId, String verifyCode, String refNo, Integer courseId,
-			Integer schoolInstitutionLocationId, String institutionTradingName) {
+			String lowPriceImageUrl, String perAmount, String amount, String expectAmount, String currency,
+			String exchangeRate, String gst, String deductGst, String bonus, String userId, String applicantId,
+			String applicantBirthday, List<ServiceOrderApplicantDTO> serviceOrderApplicantList, String maraId,
+			String adviserId, String officialId, String remarks, String closedReason, String information,
+			String isHistory, String nutCloud, String serviceAssessId, String verifyCode, String refNo,
+			Integer courseId, Integer schoolInstitutionLocationId, String institutionTradingName) {
 		try {
 			if (StringUtil.isNotEmpty(type))
 				serviceOrderDto.setType(type);
@@ -778,6 +787,10 @@ public class ServiceOrderController extends BaseController {
 				serviceOrderDto.setAmount(Double.parseDouble(amount));
 			if (StringUtil.isNotEmpty(expectAmount))
 				serviceOrderDto.setExpectAmount(Double.parseDouble(expectAmount));
+			if (StringUtil.isNotEmpty(currency))
+				serviceOrderDto.setCurrency(currency);
+			if (StringUtil.isNotEmpty(exchangeRate))
+				serviceOrderDto.setExchangeRate(Double.parseDouble(exchangeRate));
 			if (StringUtil.isNotEmpty(gst))
 				serviceOrderDto.setGst(Double.parseDouble(gst));
 			if (StringUtil.isNotEmpty(deductGst))
