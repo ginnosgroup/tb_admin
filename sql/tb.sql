@@ -252,7 +252,7 @@ CREATE TABLE `b_visa` (
   `amount` decimal(8,2) NOT NULL COMMENT '本次收款',
   `expect_amount` decimal(8,2) DEFAULT NULL COMMENT '预收业绩',
   `sure_expect_amount` decimal(8,2) DEFAULT NULL COMMENT '确认预收业绩',
-`currency` varchar(4) NOT NULL DEFAULT 'AUD' COMMENT '币种(AUD:澳币,CNY:人民币)',
+`currency` varchar(4) DEFAULT 'AUD' COMMENT '币种(AUD:澳币,CNY:人民币)',
 `exchange_rate` decimal(6,4) NOT NULL DEFAULT 1 COMMENT '人民币兑换澳币汇率',
   `discount` decimal(8,2) NOT NULL DEFAULT 0 COMMENT '折扣',
   `gst` decimal(8,2) NOT NULL COMMENT 'GST',
@@ -461,7 +461,7 @@ CREATE TABLE `b_service_order` (
   `per_amount` decimal(8,2) NOT NULL COMMENT '本次应收款',
   `amount` decimal(8,2) DEFAULT NULL COMMENT '本次收款',
   `expect_amount` decimal(8,2) DEFAULT NULL COMMENT '预收业绩',
-  `currency` varchar(4) NOT NULL DEFAULT 'AUD' COMMENT '币种(AUD:澳币,CNY:人民币)',
+  `currency` varchar(4) DEFAULT 'AUD' COMMENT '币种(AUD:澳币,CNY:人民币)',
   `exchange_rate` decimal(6,4) NOT NULL DEFAULT 1 COMMENT '人民币兑换澳币汇率',
   `gst` decimal(8,2) DEFAULT NULL COMMENT 'GST',
   `deduct_gst` decimal(8,2) DEFAULT NULL COMMENT 'Deduct GST',
@@ -482,7 +482,7 @@ CREATE TABLE `b_service_order` (
   `real_people_number` int(11) NOT NULL DEFAULT '1' COMMENT '历史订单:0,不是历史订单:对应people_number(只文案可修改)',
   `verify_code` varchar(64) DEFAULT null COMMENT '对账使用的code,顾问名称+地区+随机数',
   `readcommitted_date` datetime DEFAULT NULL COMMENT '已提交申请的时间',
-`ref_no` varchar(32) DEFAULT null COMMENT 'Ref.No'
+  `ref_no` varchar(32) DEFAULT null COMMENT 'Ref.No'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 ALTER TABLE `b_service_order` ADD INDEX index_name (`user_id`, `adviser_id`, `official_id`, `mara_id`, `state`, `service_id`, `parent_id`);
 
@@ -583,8 +583,8 @@ CREATE TABLE `b_commission_order` (
   `amount` decimal(8,2) NOT NULL COMMENT '本次收款',
   `expect_amount` decimal(8,2) DEFAULT NULL COMMENT '预收业绩',
   `sure_expect_amount` decimal(8,2) DEFAULT NULL COMMENT '确认预收业绩',
-`currency` varchar(4) NOT NULL DEFAULT 'AUD' COMMENT '币种(AUD:澳币,CNY:人民币)',
-`exchange_rate` decimal(6,4) NOT NULL DEFAULT 1 COMMENT '人民币兑换澳币汇率',
+  `currency` varchar(4) DEFAULT 'AUD' COMMENT '币种(AUD:澳币,CNY:人民币)',
+  `exchange_rate` decimal(6,4) NOT NULL DEFAULT 1 COMMENT '人民币兑换澳币汇率',
   `discount` decimal(8,2) NOT NULL DEFAULT 0 COMMENT '折扣',
   `gst` decimal(8,2) NOT NULL COMMENT 'GST',
   `deduct_gst` decimal(8,2) NOT NULL COMMENT 'Deduct GST',
