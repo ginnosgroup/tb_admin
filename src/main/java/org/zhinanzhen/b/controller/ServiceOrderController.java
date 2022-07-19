@@ -386,13 +386,16 @@ public class ServiceOrderController extends BaseController {
 			}
 			if (schoolInstitutionLocationId != null && schoolInstitutionLocationId > 0)
 				serviceOrderDto.setSchoolInstitutionLocationId(schoolInstitutionLocationId);
+			List<ServiceOrderApplicantDTO> serviceOrderApplicantList = null;
 			if (StringUtil.isNotEmpty(serviceOrderApplicantListJson)) {
-				List<ServiceOrderApplicantDTO> serviceOrderApplicantList = JSONObject
-						.parseArray(serviceOrderApplicantListJson, ServiceOrderApplicantDTO.class);
+				serviceOrderApplicantList = JSONObject.parseArray(serviceOrderApplicantListJson,
+						ServiceOrderApplicantDTO.class);
 				if (!ListUtil.isEmpty(serviceOrderApplicantList) && serviceOrderApplicantList.size() == 1)
 					serviceOrderDto.setApplicantId(serviceOrderApplicantList.get(0).getApplicantId());
+				else
+					return new Response<Integer>(1, "请选择申请人.", null);
 			} else
-				return new Response<Integer>(1, "请选择申请人.", null);
+				return new Response<Integer>(1, "申请人参数错误.", null);
 			if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
 				int serviceOrderId = serviceOrderDto.getId();
 				String msg = "";
@@ -400,12 +403,16 @@ public class ServiceOrderController extends BaseController {
 					serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
 							serviceOrderDto.getState(), null, null, null);
 				// 虽然设计了可以逗号分割保存多个申请人ID，但后来讨论需求后要求如果有多个申请人则创建多条子订单
-				List<ServiceOrderApplicantDTO> serviceOrderApplicantList = JSONObject
-						.parseArray(serviceOrderApplicantListJson, ServiceOrderApplicantDTO.class);
 				if (!ListUtil.isEmpty(serviceOrderApplicantList) && serviceOrderApplicantList.size() == 1) {
 					ServiceOrderApplicantDTO serviceOrderApplicantDto = serviceOrderApplicantList.get(0);
 					serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
-					serviceOrderApplicantService.addServiceOrderApplicant(serviceOrderApplicantDto);
+					if (serviceOrderApplicantService.addServiceOrderApplicant(serviceOrderApplicantDto) <= 0) {
+						serviceOrderService.deleteServiceOrderById(serviceOrderDto.getId());
+						return new Response<Integer>(1, "申请人关联失败.", null);
+					}
+				} else {
+					serviceOrderService.deleteServiceOrderById(serviceOrderDto.getId());
+					return new Response<Integer>(1, "申请人参数错误.", null);
 				}
 				for (ServiceOrderApplicantDTO serviceOrderApplicantDto : serviceOrderApplicantList) {
 					if (serviceOrderApplicantDto.getApplicantId() <= 0)

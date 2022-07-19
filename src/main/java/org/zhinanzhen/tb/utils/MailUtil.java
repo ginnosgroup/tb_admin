@@ -24,8 +24,14 @@ public class MailUtil {
 	private static final String USERNAME = "system@zhinanzhen.org";
 
 	private static final String PASSWORD = "Znz2017";
-
+	
 	public static boolean sendMail(String toMail, String subject, String content) {
+		String[] to = new String[1];
+		to[0] = toMail;
+		return sendMail(to, subject, content);
+	}
+
+	public static boolean sendMail(String[] toMail, String subject, String content) {
 
 		Properties props = new Properties();
 		props.setProperty("mail.transport.protocol", "SMTP");
@@ -51,7 +57,10 @@ public class MailUtil {
 
 		try {
 			message.setFrom(new InternetAddress(USERNAME, "System", "UTF-8"));
-			message.setRecipient(MimeMessage.RecipientType.TO, new InternetAddress(toMail, "", "UTF-8"));
+			InternetAddress[] addresses = new InternetAddress[toMail.length];
+			for (int i = 0; i < toMail.length; i++)
+				addresses[i] = new InternetAddress(toMail[i], "", "UTF-8");
+			message.setRecipients(MimeMessage.RecipientType.TO, addresses);
 			// message.setRecipient(MimeMessage.RecipientType.BCC, new
 			// InternetAddress("leisu@zhinanzhen.org", "", "UTF-8"));
 			message.setSubject(subject, "UTF-8");
