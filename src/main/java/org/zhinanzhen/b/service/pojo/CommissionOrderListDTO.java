@@ -57,11 +57,27 @@ public class CommissionOrderListDTO extends CommissionOrderDTO {
 
 	@Getter
 	@Setter
-	private double totalPerAmount;
+	private double totalPerAmount; // 总计应收
+	
+	@Getter
+	@Setter
+	private double totalPerAmountAUD; // 总计应收(澳币)
+	
+	@Getter
+	@Setter
+	private double totalPerAmountCNY; // 总计应收(人民币)
 
 	@Getter
 	@Setter
-	private double totalAmount;
+	private double totalAmount; // 总计收款
+	
+	@Getter
+	@Setter
+	private double totalAmountAUD; // 总计收款(澳币)
+	
+	@Getter
+	@Setter
+	private double totalAmountCNY; // 总计收款(人民币)
 	
 	@Getter
 	@Setter

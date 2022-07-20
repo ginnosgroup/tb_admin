@@ -400,6 +400,29 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 		// 是否退款
 		RefundDO refundDo = refundDao.getRefundByVisaId(visaListDo.getId());
 		visaDto.setRefunded(refundDo != null && StringUtil.equals("PAID", refundDo.getState()));
+		
+		// 汇率币种计算金额
+		Double exchangeRate = visaDto.getExchangeRate();
+		if ("AUD".equalsIgnoreCase(visaDto.getCurrency())) {
+			visaDto.setAmountAUD(visaDto.getAmount());
+			visaDto.setAmountCNY(visaDto.getAmount() * exchangeRate);
+			visaDto.setPerAmountAUD(visaDto.getPerAmount());
+			visaDto.setPerAmountCNY(visaDto.getPerAmount() * exchangeRate);
+			visaDto.setTotalAmountAUD(visaDto.getAmountAUD());
+			visaDto.setTotalAmountCNY(visaDto.getAmountAUD() * exchangeRate);
+			visaDto.setTotalPerAmountAUD(visaDto.getTotalPerAmount());
+			visaDto.setTotalPerAmountCNY(visaDto.getTotalPerAmount() * exchangeRate);
+		}
+		if ("CNY".equalsIgnoreCase(visaDto.getCurrency())) {
+			visaDto.setAmountAUD(visaDto.getAmount() / exchangeRate);
+			visaDto.setAmountCNY(visaDto.getAmount());
+			visaDto.setPerAmountAUD(visaDto.getPerAmount() / exchangeRate);
+			visaDto.setPerAmountCNY(visaDto.getPerAmount());
+			visaDto.setTotalAmountAUD(visaDto.getAmount() / exchangeRate);
+			visaDto.setTotalAmountCNY(visaDto.getAmount());
+			visaDto.setTotalPerAmountAUD(visaDto.getTotalPerAmount() / exchangeRate);
+			visaDto.setTotalPerAmountCNY(visaDto.getTotalPerAmount());
+		}
 
 		return visaDto;
 	}

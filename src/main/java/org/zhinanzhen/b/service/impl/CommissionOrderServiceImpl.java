@@ -477,6 +477,29 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 		// 是否退款
 		RefundDO refundDo = refundDao.getRefundByCommissionOrderId(commissionOrderListDo.getId());
 		commissionOrderListDto.setRefunded(refundDo != null && StringUtil.equals("PAID", refundDo.getState()));
+		
+		// 汇率币种计算金额
+		Double exchangeRate = commissionOrderListDo.getExchangeRate();
+		if ("AUD".equalsIgnoreCase(commissionOrderListDo.getCurrency())) {
+			commissionOrderListDto.setAmountAUD(commissionOrderListDto.getAmount());
+			commissionOrderListDto.setAmountCNY(commissionOrderListDto.getAmount() * exchangeRate);
+			commissionOrderListDto.setPerAmountAUD(commissionOrderListDto.getPerAmount());
+			commissionOrderListDto.setPerAmountCNY(commissionOrderListDto.getPerAmount() * exchangeRate);
+			commissionOrderListDto.setTotalAmountAUD(commissionOrderListDto.getAmountAUD());
+			commissionOrderListDto.setTotalAmountCNY(commissionOrderListDto.getAmountAUD() * exchangeRate);
+			commissionOrderListDto.setTotalPerAmountAUD(commissionOrderListDto.getTotalPerAmount());
+			commissionOrderListDto.setTotalPerAmountCNY(commissionOrderListDto.getTotalPerAmount() * exchangeRate);
+		}
+		if ("CNY".equalsIgnoreCase(commissionOrderListDo.getCurrency())) {
+			commissionOrderListDto.setAmountAUD(commissionOrderListDto.getAmount() / exchangeRate);
+			commissionOrderListDto.setAmountCNY(commissionOrderListDto.getAmount());
+			commissionOrderListDto.setPerAmountAUD(commissionOrderListDto.getPerAmount() / exchangeRate);
+			commissionOrderListDto.setPerAmountCNY(commissionOrderListDto.getPerAmount());
+			commissionOrderListDto.setTotalAmountAUD(commissionOrderListDto.getAmount() / exchangeRate);
+			commissionOrderListDto.setTotalAmountCNY(commissionOrderListDto.getAmount());
+			commissionOrderListDto.setTotalPerAmountAUD(commissionOrderListDto.getTotalPerAmount() / exchangeRate);
+			commissionOrderListDto.setTotalPerAmountCNY(commissionOrderListDto.getTotalPerAmount());
+		}
 
 		return commissionOrderListDto;
 	}

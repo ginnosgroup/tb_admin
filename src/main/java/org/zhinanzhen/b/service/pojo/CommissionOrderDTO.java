@@ -85,9 +85,17 @@ public class CommissionOrderDTO {
 
 	private Date receiveDate;
 
-	private double perAmount;
+	private double perAmount; // 本次应收
+	
+	private double perAmountAUD; // 本次应收(澳币)
+	
+	private double perAmountCNY; // 本次应收(人民币)
 
-	private double amount;
+	private double amount; // 本次收款
+	
+	private double amountAUD; // 本次收款(澳币)
+	
+	private double amountCNY; // 本次收款(人民币)
 
 	private double expectAmount;
 

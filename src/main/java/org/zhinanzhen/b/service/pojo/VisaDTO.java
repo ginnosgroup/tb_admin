@@ -66,13 +66,21 @@ public class VisaDTO {
 
 	private String visaVoucherImageUrl;
 
-	private double receivable; // TODO: 准备废弃
+	private double receivable; // TODO:sulei 准备废弃
 
-	private double received; // TODO: 准备废弃
+	private double received; // TODO:sulei 准备废弃
 
-	private double perAmount;
+	private double perAmount; // 本次应收
 
-	private double amount;
+	private double perAmountAUD; // 本次应收(澳币)
+
+	private double perAmountCNY; // 本次应收(人民币)
+
+	private double amount; // 本次收款
+
+	private double amountAUD; // 本次收款(澳币)
+
+	private double amountCNY; // 本次收款(人民币)
 
 	private double expectAmount;
 
@@ -122,7 +130,15 @@ public class VisaDTO {
 
 	private double totalPerAmount;
 
+	private double totalPerAmountAUD;
+
+	private double totalPerAmountCNY;
+
 	private double totalAmount;
+
+	private double totalAmountAUD;
+
+	private double totalAmountCNY;
 
 	private Date invoiceCreate;
 
