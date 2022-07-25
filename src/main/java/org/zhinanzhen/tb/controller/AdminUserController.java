@@ -49,6 +49,11 @@ public class AdminUserController extends BaseController {
 						loginInfo.setKjId(adminUser.getKjId());
 				}
 				loginInfo.setRegionId(adminUser.getRegionId());
+				if (adminUser.getRegionId() != null
+						&& (adminUser.getRegionId() == 52000 || adminUser.getRegionId() == 1000025))
+					loginInfo.setCountry("CN");
+				else
+					loginInfo.setCountry("AU");
 				loginInfo.setOfficialAdmin(adminUser.isOfficialAdmin());
 				if (StringUtil.isNotEmpty(adminUser.getOperUserId()))
 					loginInfo.setAuth(true);

@@ -7,6 +7,8 @@ import jxl.WorkbookSettings;
 import jxl.write.Label;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
+import jxl.write.WriteException;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -162,6 +164,7 @@ System.out.println("=financeCodeDOS:" + financeCodeDOS);
         jxl.Workbook wb = null;
         InputStream is = null;
         OutputStream os = null;
+        jxl.write.WritableWorkbook wbe = null;
         try {
             response.reset();// 清空输出流
             String tableName = "bankstatement";
@@ -182,7 +185,7 @@ System.out.println("=financeCodeDOS:" + financeCodeDOS);
             }
             WorkbookSettings settings = new WorkbookSettings();
             settings.setWriteAccess(null);
-            jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
+            wbe = Workbook.createWorkbook(os, wb, settings);
 
             if (wbe == null) {
                 System.out.println("wbe is null !os=" + os + ",wb" + wb);
@@ -236,10 +239,15 @@ System.out.println("=financeCodeDOS:" + financeCodeDOS);
             }
 
             wbe.write();
-            wbe.close();
         } catch (Exception e) {
             e.printStackTrace();
         }finally {
+			try {
+				if (wbe != null)
+					wbe.close();
+			} catch (WriteException|IOException e) {
+				e.printStackTrace();
+			}
             try {
                 if (is != null)
                     is.close();

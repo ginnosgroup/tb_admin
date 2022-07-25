@@ -274,6 +274,7 @@ public class BaseController {
 		private Integer officialId;
 		private Integer kjId;
 		private Integer regionId;
+		private String country; // CN or AU
 		private boolean isOfficialAdmin;
 		private boolean isAuth;
 	}
