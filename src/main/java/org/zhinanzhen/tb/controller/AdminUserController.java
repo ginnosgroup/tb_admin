@@ -1,5 +1,6 @@
 package org.zhinanzhen.tb.controller;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -12,13 +13,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
+import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/admin_user")
 public class AdminUserController extends BaseController {
+	
+	@Resource
+	AdviserService adviserService;
 
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	@ResponseBody
@@ -49,8 +55,13 @@ public class AdminUserController extends BaseController {
 						loginInfo.setKjId(adminUser.getKjId());
 				}
 				loginInfo.setRegionId(adminUser.getRegionId());
-				if (adminUser.getRegionId() != null
-						&& (adminUser.getRegionId() == 52000 || adminUser.getRegionId() == 1000025))
+				if (loginInfo.getRegionId() == null && loginInfo.getAdviserId() != null && ap.contains("GW")) {
+					AdviserDTO adviserDto = adviserService.getAdviserById(loginInfo.getAdviserId());
+					if (adviserDto != null)
+						loginInfo.setRegionId(adviserDto.getRegionId());
+				}
+				if (loginInfo.getRegionId() != null
+						&& (loginInfo.getRegionId() == 52000 || loginInfo.getRegionId() == 1000025))
 					loginInfo.setCountry("CN");
 				else
 					loginInfo.setCountry("AU");
