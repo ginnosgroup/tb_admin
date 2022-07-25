@@ -677,6 +677,27 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				}
 			}
 		}
+		
+		// 汇率币种计算金额
+		Double exchangeRate = serviceOrderDto.getExchangeRate();
+		if ("AUD".equalsIgnoreCase(serviceOrderDto.getCurrency())) {
+			serviceOrderDto.setAmountAUD(serviceOrderDto.getAmount());
+			serviceOrderDto.setAmountCNY(serviceOrderDto.getAmount() * exchangeRate);
+			serviceOrderDto.setPerAmountAUD(serviceOrderDto.getPerAmount());
+			serviceOrderDto.setPerAmountCNY(serviceOrderDto.getPerAmount() * exchangeRate);
+			serviceOrderDto.setGstAUD(serviceOrderDto.getGst());
+			serviceOrderDto.setDeductGstAUD(serviceOrderDto.getDeductGst());
+			serviceOrderDto.setBonusAUD(serviceOrderDto.getBonus());
+		}
+		if ("CNY".equalsIgnoreCase(serviceOrderDto.getCurrency())) {
+			serviceOrderDto.setAmountAUD(serviceOrderDto.getAmount() / exchangeRate);
+			serviceOrderDto.setAmountCNY(serviceOrderDto.getAmount());
+			serviceOrderDto.setPerAmountAUD(serviceOrderDto.getPerAmount() / exchangeRate);
+			serviceOrderDto.setPerAmountCNY(serviceOrderDto.getPerAmount());
+			serviceOrderDto.setGstAUD(serviceOrderDto.getGst() / exchangeRate);
+			serviceOrderDto.setDeductGstAUD(serviceOrderDto.getDeductGst() / exchangeRate);
+			serviceOrderDto.setBonusAUD(serviceOrderDto.getBonus() / exchangeRate);
+		}
 
 		return serviceOrderDto;
 	}

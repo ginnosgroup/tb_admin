@@ -123,8 +123,16 @@ public class ServiceOrderDTO {
 	private String lowPriceImageUrl;
 
 	private double perAmount;
+	
+	private double perAmountAUD; // 本次应收(澳币)
+
+	private double perAmountCNY; // 本次应收(人民币)
 
 	private double amount;
+	
+	private double amountAUD; // 本次收款(澳币)
+
+	private double amountCNY; // 本次收款(人民币)
 
 	private double expectAmount;
 
@@ -133,10 +141,16 @@ public class ServiceOrderDTO {
 	private double exchangeRate;
 
 	private double gst;
+	
+	private double gstAUD;
 
 	private double deductGst;
+	
+	private double deductGstAUD;
 
 	private double bonus;
+	
+	private double bonusAUD;
 
 	private int userId;
 
