@@ -412,6 +412,9 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			visaDto.setTotalAmountCNY(visaDto.getAmountAUD() * exchangeRate);
 			visaDto.setTotalPerAmountAUD(visaDto.getTotalPerAmount());
 			visaDto.setTotalPerAmountCNY(visaDto.getTotalPerAmount() * exchangeRate);
+			visaDto.setGstAUD(visaDto.getGst());
+			visaDto.setDeductGstAUD(visaDto.getDeductGst());
+			visaDto.setBonusAUD(visaDto.getBonus());
 		}
 		if ("CNY".equalsIgnoreCase(visaDto.getCurrency())) {
 			visaDto.setAmountAUD(visaDto.getAmount() / exchangeRate);
@@ -422,6 +425,9 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			visaDto.setTotalAmountCNY(visaDto.getAmount());
 			visaDto.setTotalPerAmountAUD(visaDto.getTotalPerAmount() / exchangeRate);
 			visaDto.setTotalPerAmountCNY(visaDto.getTotalPerAmount());
+			visaDto.setGstAUD(visaDto.getGst() / exchangeRate);
+			visaDto.setDeductGstAUD(visaDto.getDeductGst() / exchangeRate);
+			visaDto.setBonusAUD(visaDto.getBonus() / exchangeRate);
 		}
 
 		return visaDto;

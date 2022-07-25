@@ -95,10 +95,16 @@ public class VisaDTO {
 	private String invoiceNumber;
 
 	private double gst;
+	
+	private double gstAUD;
 
 	private double deductGst;
+	
+	private double deductGstAUD;
 
 	private double bonus;
+	
+	private double bonusAUD;
 
 	private Date bonusDate;
 

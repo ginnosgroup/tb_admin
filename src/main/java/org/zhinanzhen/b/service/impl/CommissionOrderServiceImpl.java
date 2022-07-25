@@ -489,6 +489,9 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			commissionOrderListDto.setTotalAmountCNY(commissionOrderListDto.getAmountAUD() * exchangeRate);
 			commissionOrderListDto.setTotalPerAmountAUD(commissionOrderListDto.getTotalPerAmount());
 			commissionOrderListDto.setTotalPerAmountCNY(commissionOrderListDto.getTotalPerAmount() * exchangeRate);
+			commissionOrderListDto.setGstAUD(commissionOrderListDto.getGst());
+			commissionOrderListDto.setDeductGstAUD(commissionOrderListDto.getDeductGst());
+			commissionOrderListDto.setBonusAUD(commissionOrderListDto.getBonus());
 		}
 		if ("CNY".equalsIgnoreCase(commissionOrderListDo.getCurrency())) {
 			commissionOrderListDto.setAmountAUD(commissionOrderListDto.getAmount() / exchangeRate);
@@ -499,6 +502,9 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			commissionOrderListDto.setTotalAmountCNY(commissionOrderListDto.getAmount());
 			commissionOrderListDto.setTotalPerAmountAUD(commissionOrderListDto.getTotalPerAmount() / exchangeRate);
 			commissionOrderListDto.setTotalPerAmountCNY(commissionOrderListDto.getTotalPerAmount());
+			commissionOrderListDto.setGstAUD(commissionOrderListDto.getGst() / exchangeRate);
+			commissionOrderListDto.setDeductGstAUD(commissionOrderListDto.getDeductGst() / exchangeRate);
+			commissionOrderListDto.setBonusAUD(commissionOrderListDto.getBonus() / exchangeRate);
 		}
 
 		return commissionOrderListDto;

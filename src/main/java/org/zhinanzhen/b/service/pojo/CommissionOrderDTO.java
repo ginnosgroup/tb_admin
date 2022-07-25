@@ -108,10 +108,16 @@ public class CommissionOrderDTO {
 	private double discount;
 
 	private double gst;
+	
+	private double gstAUD;
 
 	private double deductGst;
+	
+	private double deductGstAUD;
 
 	private double bonus;
+	
+	private double bonusAUD;
 
 	private Date bonusDate;
 
