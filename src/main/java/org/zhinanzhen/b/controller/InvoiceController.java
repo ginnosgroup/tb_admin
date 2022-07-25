@@ -325,7 +325,7 @@ public class InvoiceController  extends BaseController {
         if (invoiceCompanyDTO == null)
             return new Response(1, "company error or NO data!");
 
-        String number = invoiceService.selectInvoiceBySimple(simpleBranch, "SC");
+		String number = invoiceService.selectInvoiceBySimple(simpleBranch.substring(simpleBranch.length() - 1), "SC"); // 2022-07-25 bugfix
         Integer newNumber = 0;
         if (number != null) {
             newNumber = Integer.valueOf(number) + 1;
