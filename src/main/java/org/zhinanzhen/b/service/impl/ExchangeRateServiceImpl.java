@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 
 import javax.annotation.Resource;
 
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.EverydayExchangeRateDAO;
 import org.zhinanzhen.b.dao.pojo.EverydayExchangeRateDO;
@@ -23,6 +24,7 @@ import com.ikasoa.core.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 
 @Service("ExchangeRateService")
+@EnableScheduling
 @Slf4j
 public class ExchangeRateServiceImpl extends BaseService implements ExchangeRateService {
 
@@ -38,7 +40,7 @@ public class ExchangeRateServiceImpl extends BaseService implements ExchangeRate
 		return null;
 	}
 	
-	@org.springframework.scheduling.annotation.Scheduled(cron = "0 0 8 * * ?")
+	@org.springframework.scheduling.annotation.Scheduled(cron = "0 0 12 * * ?")
 	public void everyDayTask(){
 		try {
 			JSONObject jsonObject = getJsonObject("http://web.juhe.cn/finance/exchange/rmbquot?key=459f1492038689af44230eb125de38c7");
