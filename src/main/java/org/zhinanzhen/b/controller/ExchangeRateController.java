@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -12,8 +13,11 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.zhinanzhen.b.service.ExchangeRateService;
+import org.zhinanzhen.b.service.pojo.ExchangeRateDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
+import org.zhinanzhen.tb.service.ServiceException;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,9 +27,21 @@ import lombok.Data;
 @RequestMapping("/exchangeRate")
 public class ExchangeRateController extends BaseController {
 
+	@Resource
+	ExchangeRateService exchangeRateService;
+
 	@RequestMapping(value = "/getDailyCNYExchangeRate", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<ExchangeRateData> getDailyExchangeRate(HttpServletRequest request, HttpServletResponse response) {
+//		try {
+//			ExchangeRateDTO exchangeRateDto = exchangeRateService.getExchangeRate();
+//			if (exchangeRateDto == null)
+//				return new Response<ExchangeRateData>(1, "汇率获取失败!", null);
+//			return new Response<ExchangeRateData>(0, null,
+//					new ExchangeRateData(exchangeRateDto.getRate(), exchangeRateDto.getUpdateDate(), new Date()));
+//		} catch (ServiceException e) {
+//			return new Response<ExchangeRateData>(1, e.getMessage(), null);
+//		}
 		try {
 			return new Response<ExchangeRateData>(0, null, new ExchangeRateData(4.58,
 					new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2022-07-11 10:33:00"), new Date()));

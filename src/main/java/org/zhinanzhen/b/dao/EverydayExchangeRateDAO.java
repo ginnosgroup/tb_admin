@@ -6,6 +6,6 @@ public interface EverydayExchangeRateDAO {
 
 	int add(EverydayExchangeRateDO everydayExchangeRateDo);
 
-	EverydayExchangeRateDO getById(int id);
+	EverydayExchangeRateDO getLastOne();
 
 }
