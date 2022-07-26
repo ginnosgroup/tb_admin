@@ -1,16 +1,24 @@
 package org.zhinanzhen.b.controller.nodes;
 
+import javax.annotation.Resource;
+
 import org.springframework.stereotype.Component;
+import org.zhinanzhen.b.service.ExchangeRateService;
 import org.zhinanzhen.b.service.ServiceOrderService;
+import org.zhinanzhen.b.service.pojo.ExchangeRateDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 
+import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.web.workflow.Context;
 
 // 文案审核
 @Component
 public class ServiceOrderReviewNode extends SODecisionNode {
+	
+	@Resource
+	ExchangeRateService exchangeRateService;
 
 	// 顾问,文案
 	
@@ -43,6 +51,10 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 				context.putParameter("response", new Response<ServiceOrderDTO>(1, "该订单不支持审核.", serviceOrderDto));
 				return null;
 			}
+			// 提交审核时更新汇率
+			ExchangeRateDTO rate = exchangeRateService.getExchangeRate();
+			if (ObjectUtil.isNotNull(rate) && rate.getRate() > 0)
+				serviceOrderDto.setExchangeRate(rate.getRate());
 		} catch (ServiceException e) {
 			context.putParameter("response", new Response<ServiceOrderDTO>(1, "服务订单执行异常:" + e.getMessage(), null));
 			return null;
@@ -57,6 +69,8 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 			context.putParameter("response", new Response<ServiceOrderDTO>(1, "状态值不能为空.", null));
 			return null;
 		}
+		
+		
 		return state;
 	}
 	
