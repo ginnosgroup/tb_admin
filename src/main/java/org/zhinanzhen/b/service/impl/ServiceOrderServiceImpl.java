@@ -1788,6 +1788,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	
 	private ApplicantDTO buildApplicant(ApplicantDTO applicantDto, Integer serviceOrderId, String notCloud,
 			String information) {
+		if (applicantDto == null)
+			return applicantDto;
 		List<ServiceOrderApplicantDO> serviceOrderApplicantDoList = serviceOrderApplicantDao.list(serviceOrderId,
 				applicantDto.getId());
 		if (serviceOrderApplicantDoList != null && serviceOrderApplicantDoList.size() > 0
