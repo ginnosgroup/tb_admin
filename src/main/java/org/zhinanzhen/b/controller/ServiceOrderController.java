@@ -390,12 +390,10 @@ public class ServiceOrderController extends BaseController {
 			if (StringUtil.isNotEmpty(serviceOrderApplicantListJson)) {
 				serviceOrderApplicantList = JSONObject.parseArray(serviceOrderApplicantListJson,
 						ServiceOrderApplicantDTO.class);
-				if (!ListUtil.isEmpty(serviceOrderApplicantList) && serviceOrderApplicantList.size() >= 1)
+				if (!ListUtil.isEmpty(serviceOrderApplicantList) && serviceOrderApplicantList.size() == 1)
 					serviceOrderDto.setApplicantId(serviceOrderApplicantList.get(0).getApplicantId());
-				else
-					return new Response<Integer>(1, "请选择申请人.", null);
 			} else
-				return new Response<Integer>(1, "申请人参数错误.", null);
+				return new Response<Integer>(1, "请选择申请人.", null);
 			if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
 				int serviceOrderId = serviceOrderDto.getId();
 				String msg = "";

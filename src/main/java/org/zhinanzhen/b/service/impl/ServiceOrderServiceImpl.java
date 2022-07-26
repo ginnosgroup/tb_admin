@@ -208,7 +208,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderDo.getAdviserId());
 		OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
 		OfficialDO _officialDo = officialDao.getOfficialById(_serviceOrderDo.getOfficialId());
-		ApplicantDTO applicantDto = mapper.map(applicantDao.getById(serviceOrderDo.getApplicantId()), ApplicantDTO.class);
+		ApplicantDTO applicantDto = null;
+		if (serviceOrderDo.getApplicantId() > 0)
+			applicantDto = mapper.map(applicantDao.getById(serviceOrderDo.getApplicantId()), ApplicantDTO.class);
 		applicantDto = buildApplicant(applicantDto, serviceOrderDo.getId(), serviceOrderDo.getNutCloud(),
 				serviceOrderDo.getInformation());
 		Date date = serviceOrderDo.getGmtCreate();
@@ -577,7 +579,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			}
 			serviceOrderDto.setUser(userDto);
 		}
-		if (serviceOrderDto.getApplicantId() >= 0) {
+		if (serviceOrderDto.getApplicantId() > 0) {
 			ApplicantDO applicantDo = applicantDao.getById(serviceOrderDto.getApplicantId());
 			if (applicantDo != null) {
 				ApplicantDTO applicantDto = mapper.map(applicantDo, ApplicantDTO.class);
@@ -752,7 +754,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			UserDO user = serviceOrderMailDetail.getUser();
 			AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderDo.getAdviserId());
 			OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
-			ApplicantDTO applicantDto = mapper.map(applicantDao.getById(serviceOrderDo.getApplicantId()), ApplicantDTO.class);
+			ApplicantDTO applicantDto = null;
+			if (serviceOrderDo.getApplicantId() > 0)
+				applicantDto = mapper.map(applicantDao.getById(serviceOrderDo.getApplicantId()), ApplicantDTO.class);
 			applicantDto = buildApplicant(applicantDto, serviceOrderDo.getId(), serviceOrderDo.getNutCloud(),
 					serviceOrderDo.getInformation());
 			Date date = serviceOrderDo.getGmtCreate();
@@ -956,7 +960,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			UserDO user = serviceOrderMailDetail.getUser();
 			AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderDo.getAdviserId());
 			OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
-			ApplicantDTO applicantDto = mapper.map(applicantDao.getById(serviceOrderDo.getApplicantId()), ApplicantDTO.class);
+			ApplicantDTO applicantDto = null;
+			if (serviceOrderDo.getApplicantId() > 0)
+				applicantDto = mapper.map(applicantDao.getById(serviceOrderDo.getApplicantId()), ApplicantDTO.class);
 			applicantDto = buildApplicant(applicantDto, serviceOrderDo.getId(), serviceOrderDo.getNutCloud(),
 					serviceOrderDo.getInformation());
 			Date date = serviceOrderDo.getGmtCreate();
@@ -1118,7 +1124,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			UserDO user = serviceOrderMailDetail.getUser();
 			AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderDo.getAdviserId());
 			OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
-			ApplicantDTO applicantDto = mapper.map(applicantDao.getById(serviceOrderDo.getApplicantId()), ApplicantDTO.class);
+			ApplicantDTO applicantDto = null;
+			if (serviceOrderDo.getApplicantId() > 0)
+				applicantDto = mapper.map(applicantDao.getById(serviceOrderDo.getApplicantId()), ApplicantDTO.class);
 			applicantDto = buildApplicant(applicantDto, serviceOrderDo.getId(), serviceOrderDo.getNutCloud(),
 					serviceOrderDo.getInformation());
 			Date date = serviceOrderDo.getGmtCreate();
@@ -1171,7 +1179,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				"<br/><a href='https://yongjinbiao.zhinanzhen.org/webroot_new/serviceorderdetail/id?"
 						+ serviceOrderDo.getId() + "'>服务订单详情</a>");
 		UserDO user = userDao.getUserById(serviceOrderDo.getUserId());
-		ApplicantDTO applicantDto = mapper.map(applicantDao.getById(serviceOrderDo.getApplicantId()), ApplicantDTO.class);
+		ApplicantDTO applicantDto = null;
+		if (serviceOrderDo.getApplicantId() > 0)
+			applicantDto = mapper.map(applicantDao.getById(serviceOrderDo.getApplicantId()), ApplicantDTO.class);
 		if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())) {
 			type = "签证";
 			if (applicantDto != null)
@@ -1271,7 +1281,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				String serviceOrderUrl = "<br/><a href='https://yongjinbiao.zhinanzhen.org/webroot/serviceorder-detail.html?id="
 						+ serviceOrderDo.getId() + "'>服务订单详情</a>";
 				UserDO user = userDao.getUserById(serviceOrderDo.getUserId());
-				ApplicantDTO applicantDto = mapper.map(applicantDao.getById(serviceOrderDo.getApplicantId()), ApplicantDTO.class);
+				ApplicantDTO applicantDto = null;
+				if (serviceOrderDo.getApplicantId() > 0)
+					applicantDto = mapper.map(applicantDao.getById(serviceOrderDo.getApplicantId()), ApplicantDTO.class);
 				if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())) {
 					String _title = StringUtil.merge("审核完成提醒:", getApplicantName(applicantDto), "/签证");
 					// 发送给顾问
