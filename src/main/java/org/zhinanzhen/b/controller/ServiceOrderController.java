@@ -390,7 +390,7 @@ public class ServiceOrderController extends BaseController {
 			if (StringUtil.isNotEmpty(serviceOrderApplicantListJson)) {
 				serviceOrderApplicantList = JSONObject.parseArray(serviceOrderApplicantListJson,
 						ServiceOrderApplicantDTO.class);
-				if (!ListUtil.isEmpty(serviceOrderApplicantList) && serviceOrderApplicantList.size() == 1)
+				if (!ListUtil.isEmpty(serviceOrderApplicantList) && serviceOrderApplicantList.size() >= 1)
 					serviceOrderDto.setApplicantId(serviceOrderApplicantList.get(0).getApplicantId());
 				else
 					return new Response<Integer>(1, "请选择申请人.", null);
@@ -403,7 +403,7 @@ public class ServiceOrderController extends BaseController {
 					serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
 							serviceOrderDto.getState(), null, null, null);
 				// 虽然设计了可以逗号分割保存多个申请人ID，但后来讨论需求后要求如果有多个申请人则创建多条子订单
-				if (!ListUtil.isEmpty(serviceOrderApplicantList) && serviceOrderApplicantList.size() == 1) {
+				if (!ListUtil.isEmpty(serviceOrderApplicantList) && serviceOrderApplicantList.size() >= 1) {
 					ServiceOrderApplicantDTO serviceOrderApplicantDto = serviceOrderApplicantList.get(0);
 					serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
 					if (serviceOrderApplicantService.addServiceOrderApplicant(serviceOrderApplicantDto) <= 0) {
