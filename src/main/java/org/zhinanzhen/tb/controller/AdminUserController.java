@@ -55,16 +55,14 @@ public class AdminUserController extends BaseController {
 						loginInfo.setKjId(adminUser.getKjId());
 				}
 				loginInfo.setRegionId(adminUser.getRegionId());
-				if (loginInfo.getRegionId() == null && loginInfo.getAdviserId() != null && ap.contains("GW")) {
+				if (loginInfo.getAdviserId() != null && ap.contains("GW")) {
 					AdviserDTO adviserDto = adviserService.getAdviserById(loginInfo.getAdviserId());
-					if (adviserDto != null)
-						loginInfo.setRegionId(adviserDto.getRegionId());
+					if (adviserDto.getRegionId() == 52000 || adviserDto.getRegionId() == 1000025)
+						loginInfo.setCountry("CN");
+					else
+						loginInfo.setCountry("AU");
 				}
-				if (loginInfo.getRegionId() != null
-						&& (loginInfo.getRegionId() == 52000 || loginInfo.getRegionId() == 1000025))
-					loginInfo.setCountry("CN");
-				else
-					loginInfo.setCountry("AU");
+				
 				loginInfo.setOfficialAdmin(adminUser.isOfficialAdmin());
 				if (StringUtil.isNotEmpty(adminUser.getOperUserId()))
 					loginInfo.setAuth(true);
