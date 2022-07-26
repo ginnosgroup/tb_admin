@@ -52,9 +52,11 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 				return null;
 			}
 			// 提交审核时更新汇率
-			ExchangeRateDTO rate = exchangeRateService.getExchangeRate();
-			if (ObjectUtil.isNotNull(rate) && rate.getRate() > 0)
-				serviceOrderDto.setExchangeRate(rate.getRate());
+			if (exchangeRateService != null) {
+				ExchangeRateDTO rate = exchangeRateService.getExchangeRate();
+				if (ObjectUtil.isNotNull(rate) && rate.getRate() > 0)
+					serviceOrderDto.setExchangeRate(rate.getRate());
+			}
 		} catch (ServiceException e) {
 			context.putParameter("response", new Response<ServiceOrderDTO>(1, "服务订单执行异常:" + e.getMessage(), null));
 			return null;
