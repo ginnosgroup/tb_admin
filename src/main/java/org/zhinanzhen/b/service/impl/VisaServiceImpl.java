@@ -412,6 +412,10 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			visaDto.setTotalAmountCNY(visaDto.getAmountAUD() * exchangeRate);
 			visaDto.setTotalPerAmountAUD(visaDto.getTotalPerAmount());
 			visaDto.setTotalPerAmountCNY(visaDto.getTotalPerAmount() * exchangeRate);
+			visaDto.setExpectAmountAUD(visaDto.getExpectAmount());
+			visaDto.setExpectAmountCNY(visaDto.getExpectAmount() * exchangeRate);
+			visaDto.setSureExpectAmountAUD(visaDto.getSureExpectAmount());
+			visaDto.setSureExpectAmountCNY(visaDto.getSureExpectAmount() * exchangeRate);
 			visaDto.setGstAUD(visaDto.getGst());
 			visaDto.setDeductGstAUD(visaDto.getDeductGst());
 			visaDto.setBonusAUD(visaDto.getBonus());
@@ -425,6 +429,10 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			visaDto.setTotalAmountCNY(visaDto.getAmount());
 			visaDto.setTotalPerAmountAUD(visaDto.getTotalPerAmount() / exchangeRate);
 			visaDto.setTotalPerAmountCNY(visaDto.getTotalPerAmount());
+			visaDto.setExpectAmountAUD(visaDto.getExpectAmount() / exchangeRate);
+			visaDto.setExpectAmountCNY(visaDto.getExpectAmount());
+			visaDto.setSureExpectAmountAUD(visaDto.getSureExpectAmount() / exchangeRate);
+			visaDto.setSureExpectAmountCNY(visaDto.getSureExpectAmount());
 			visaDto.setGstAUD(visaDto.getGst() / exchangeRate);
 			visaDto.setDeductGstAUD(visaDto.getDeductGst() / exchangeRate);
 			visaDto.setBonusAUD(visaDto.getBonus() / exchangeRate);

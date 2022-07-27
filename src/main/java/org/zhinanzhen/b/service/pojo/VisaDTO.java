@@ -84,7 +84,15 @@ public class VisaDTO {
 
 	private double expectAmount;
 
-	private double sureExpectAmount;
+	private double expectAmountAUD;
+
+	private double expectAmountCNY;
+
+	private double sureExpectAmount = 0.00;
+
+	private double sureExpectAmountAUD;
+
+	private double sureExpectAmountCNY;
 	
 	private String currency;
 	
