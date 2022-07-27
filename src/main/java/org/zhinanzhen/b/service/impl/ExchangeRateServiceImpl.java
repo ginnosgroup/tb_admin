@@ -40,7 +40,7 @@ public class ExchangeRateServiceImpl extends BaseService implements ExchangeRate
 		return null;
 	}
 	
-	@org.springframework.scheduling.annotation.Scheduled(cron = "0 */5 * * * ?")
+	@org.springframework.scheduling.annotation.Scheduled(cron = "0 0 8 * * ?")
 	public void everyDayTask(){
 		try {
 			JSONObject jsonObject = getJsonObject("http://web.juhe.cn/finance/exchange/rmbquot?key=459f1492038689af44230eb125de38c7");
