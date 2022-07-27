@@ -28,7 +28,7 @@
             original_exchange_rate AS originalExchangeRate,
             znz_exchange_rate AS znzExchangeRate,
             update_time AS updateTime
-        FROM b_everyday_exchange_rate ORDER BY update_time ASC LIMIT 1;
+        FROM b_everyday_exchange_rate ORDER BY update_time DESC LIMIT 1;
     </select>
 
 </mapper>
