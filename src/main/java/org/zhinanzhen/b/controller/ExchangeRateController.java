@@ -33,19 +33,14 @@ public class ExchangeRateController extends BaseController {
 	@RequestMapping(value = "/getDailyCNYExchangeRate", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<ExchangeRateData> getDailyExchangeRate(HttpServletRequest request, HttpServletResponse response) {
-//		try {
-//			ExchangeRateDTO exchangeRateDto = exchangeRateService.getExchangeRate();
-//			if (exchangeRateDto == null)
-//				return new Response<ExchangeRateData>(1, "汇率获取失败!", null);
-//			return new Response<ExchangeRateData>(0, null,
-//					new ExchangeRateData(exchangeRateDto.getRate(), exchangeRateDto.getUpdateDate(), new Date()));
-//		} catch (ServiceException e) {
-//			return new Response<ExchangeRateData>(1, e.getMessage(), null);
-//		}
 		try {
-			return new Response<ExchangeRateData>(0, null, new ExchangeRateData(4.58,
-					new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2022-07-11 10:33:00"), new Date()));
-		} catch (ParseException e) {
+			ExchangeRateDTO exchangeRateDto = exchangeRateService.getExchangeRate();
+			if (exchangeRateDto == null)
+				return new Response<ExchangeRateData>(0, null, new ExchangeRateData(4.58,
+						new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2022-07-11 10:33:00"), new Date())); // 如果获取汇率失败就用默认汇率
+			return new Response<ExchangeRateData>(0, null,
+					new ExchangeRateData(exchangeRateDto.getRate(), exchangeRateDto.getUpdateDate(), new Date()));
+		} catch (ServiceException | ParseException e) {
 			return new Response<ExchangeRateData>(1, e.getMessage(), null);
 		}
 	}
