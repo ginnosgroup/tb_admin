@@ -50,7 +50,7 @@ public class ExchangeRateServiceImpl extends BaseService implements ExchangeRate
 			Double fSellPri = data6.getDoubleValue("fSellPri") / 100;
 
 			EverydayExchangeRateDO everydayExchangeRateDo = new EverydayExchangeRateDO();
-			everydayExchangeRateDo.setCurrency("AUD");
+			everydayExchangeRateDo.setCurrency("CNY");
 			everydayExchangeRateDo.setOriginalExchangeRate(fSellPri);
 			everydayExchangeRateDo.setZnzExchangeRate(fSellPri + 0.1);
 			everydayExchangeRateDo.setUpdateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
