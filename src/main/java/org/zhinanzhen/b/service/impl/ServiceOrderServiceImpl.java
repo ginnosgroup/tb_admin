@@ -245,8 +245,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 							serviceOrderDo.getId(), "<br/>服务类型:", serviceOrderMailDetail.getType(),
 							serviceOrderMailDetail.getDetail(), "/顾问:", adviserDo.getName(), "/文案:",
 							officialDo.getName(), "<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()),
-							"<br/>坚果云资料地址:", serviceOrderDo.getNutCloud(), "<br/>客户基本信息:",
-							serviceOrderDo.getInformation(), "<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:",
+							"<br/>坚果云资料地址:", applicantDto.getUrl(), "<br/>客户基本信息:",
+							applicantDto.getContent(), "<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:",
 							serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date, "<br/>",
 							serviceOrderMailDetail.getServiceOrderUrl()));
 			sendMail(_officialDo.getEmail() + ",maggie@zhinanzhen.org", "变更任务提醒:",
@@ -791,7 +791,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 								"<br/>服务类型:", serviceOrderMailDetail.getType(), serviceOrderMailDetail.getDetail(),
 								"/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
 								getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
-								serviceOrderDo.getNutCloud(), "<br/>客户基本信息:", serviceOrderDo.getInformation(),
+								applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(),
 								"<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(),
 								"<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
 				// 写入文案审核时间
@@ -804,8 +804,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 								serviceOrderMailDetail.getType(), serviceOrderMailDetail.getDetail(), "/顾问:",
 								adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>创建时间:", date, "<br/>属性:",
 								getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
-								serviceOrderDo.getNutCloud(), "<br/>坚果云资料地址:", serviceOrderDo.getNutCloud(),
-								"<br/>客户基本信息:", serviceOrderDo.getInformation(), "<br/>备注:",
+								applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(),
+								"<br/>备注:",
 								serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>",
 								serviceOrderMailDetail.getServiceOrderUrl()));
 			}
