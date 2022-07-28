@@ -500,6 +500,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				commissionOrderDto.setCurrency(currency);
 			if (StringUtil.isNotEmpty(exchangeRate))
 				commissionOrderDto.setExchangeRate(Double.parseDouble(exchangeRate));
+			Double rate = getRate();
+			if (rate != null && rate > 0)
+				commissionOrderDto.setExchangeRate(rate);
 			if (StringUtil.isNotEmpty(invoiceNumber))
 				commissionOrderDto.setInvoiceNumber(invoiceNumber);
 			if (StringUtil.isNotEmpty(zyDate))

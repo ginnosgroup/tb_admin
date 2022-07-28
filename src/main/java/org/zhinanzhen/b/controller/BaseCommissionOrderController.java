@@ -2,17 +2,26 @@ package org.zhinanzhen.b.controller;
 
 import javax.annotation.Resource;
 
+import org.zhinanzhen.b.service.ExchangeRateService;
 import org.zhinanzhen.b.service.ServiceOrderService;
+import org.zhinanzhen.b.service.pojo.ExchangeRateDTO;
 import org.zhinanzhen.tb.controller.BaseController;
+import org.zhinanzhen.tb.service.ServiceException;
+
+import com.ikasoa.core.utils.ObjectUtil;
 
 public class BaseCommissionOrderController extends BaseController {
 
 	@Resource
 	protected ServiceOrderService serviceOrderService;
+	
+	@Resource
+	ExchangeRateService exchangeRateService;
 
 	public enum ReviewKjStateEnum {
 		PENDING, WAIT, REVIEW, FINISH, COMPLETE, CLOSE;
-
+		@Resource
+		ExchangeRateService exchangeRateService;
 		public static ReviewKjStateEnum get(String name) {
 			for (ReviewKjStateEnum e : ReviewKjStateEnum.values())
 				if (e.toString().equals(name))
@@ -56,6 +65,16 @@ public class BaseCommissionOrderController extends BaseController {
 		if ("CLOSE".equalsIgnoreCase(state))
 			return "已关闭";
 		return "";
+	}
+	
+	protected Double getRate() throws ServiceException {
+		// 提交审核时更新汇率
+		if (exchangeRateService != null) {
+			ExchangeRateDTO rate = exchangeRateService.getExchangeRate();
+			if (ObjectUtil.isNotNull(rate) && rate.getRate() > 0)
+				return rate.getRate();
+		}
+		return null;
 	}
 
 }

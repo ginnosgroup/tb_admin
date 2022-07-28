@@ -374,6 +374,9 @@ public class VisaController extends BaseCommissionOrderController {
 			}
 			if (sureExpectAmount != null)
 				visaDto.setSureExpectAmount(sureExpectAmount);
+			Double rate = getRate();
+			if (rate != null && rate > 0)
+				visaDto.setExchangeRate(rate);
 			if (StringUtil.isNotEmpty(currency))
 				visaDto.setCurrency(currency);
 			if (StringUtil.isNotEmpty(exchangeRate))
