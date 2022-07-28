@@ -493,6 +493,7 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			commissionOrderListDto.setExpectAmountCNY(commissionOrderListDto.getExpectAmount() * exchangeRate);
 			commissionOrderListDto.setSureExpectAmountAUD(commissionOrderListDto.getSureExpectAmount());
 			commissionOrderListDto.setSureExpectAmountCNY(commissionOrderListDto.getSureExpectAmount() * exchangeRate);
+			commissionOrderListDto.setDiscountAUD(commissionOrderListDto.getDiscount());
 			commissionOrderListDto.setGstAUD(commissionOrderListDto.getGst());
 			commissionOrderListDto.setDeductGstAUD(commissionOrderListDto.getDeductGst());
 			commissionOrderListDto.setBonusAUD(commissionOrderListDto.getBonus());
@@ -510,6 +511,7 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			commissionOrderListDto.setExpectAmountCNY(commissionOrderListDto.getExpectAmount());
 			commissionOrderListDto.setSureExpectAmountAUD(commissionOrderListDto.getSureExpectAmount() / exchangeRate);
 			commissionOrderListDto.setSureExpectAmountCNY(commissionOrderListDto.getSureExpectAmount());
+			commissionOrderListDto.setDiscountAUD(commissionOrderListDto.getDiscount() / exchangeRate);
 			commissionOrderListDto.setGstAUD(commissionOrderListDto.getGst() / exchangeRate);
 			commissionOrderListDto.setDeductGstAUD(commissionOrderListDto.getDeductGst() / exchangeRate);
 			commissionOrderListDto.setBonusAUD(commissionOrderListDto.getBonus() / exchangeRate);

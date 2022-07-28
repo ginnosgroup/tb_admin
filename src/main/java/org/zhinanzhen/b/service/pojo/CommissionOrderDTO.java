@@ -114,6 +114,8 @@ public class CommissionOrderDTO {
 	private double exchangeRate;
 
 	private double discount;
+	
+	private double discountAUD;
 
 	private double gst;
 	

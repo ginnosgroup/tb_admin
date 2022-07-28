@@ -99,6 +99,8 @@ public class VisaDTO {
 	private double exchangeRate;
 
 	private double discount;
+	
+	private double discountAUD;
 
 	private String invoiceNumber;
 

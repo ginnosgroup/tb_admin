@@ -4,7 +4,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 
-import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.*;
@@ -687,6 +686,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			serviceOrderDto.setAmountCNY(serviceOrderDto.getAmount() * exchangeRate);
 			serviceOrderDto.setPerAmountAUD(serviceOrderDto.getPerAmount());
 			serviceOrderDto.setPerAmountCNY(serviceOrderDto.getPerAmount() * exchangeRate);
+			serviceOrderDto.setExpectAmountAUD(serviceOrderDto.getExpectAmount());
+			serviceOrderDto.setExpectAmountCNY(serviceOrderDto.getExpectAmount() * exchangeRate);
+			serviceOrderDto.setDiscountAUD(serviceOrderDto.getDiscount());
 			serviceOrderDto.setGstAUD(serviceOrderDto.getGst());
 			serviceOrderDto.setDeductGstAUD(serviceOrderDto.getDeductGst());
 			serviceOrderDto.setBonusAUD(serviceOrderDto.getBonus());
@@ -696,6 +698,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			serviceOrderDto.setAmountCNY(serviceOrderDto.getAmount());
 			serviceOrderDto.setPerAmountAUD(serviceOrderDto.getPerAmount() / exchangeRate);
 			serviceOrderDto.setPerAmountCNY(serviceOrderDto.getPerAmount());
+			serviceOrderDto.setExpectAmountAUD(serviceOrderDto.getExpectAmount() / exchangeRate);
+			serviceOrderDto.setExpectAmountCNY(serviceOrderDto.getExpectAmount());
+			serviceOrderDto.setDiscountAUD(serviceOrderDto.getDiscount() / exchangeRate);
 			serviceOrderDto.setGstAUD(serviceOrderDto.getGst() / exchangeRate);
 			serviceOrderDto.setDeductGstAUD(serviceOrderDto.getDeductGst() / exchangeRate);
 			serviceOrderDto.setBonusAUD(serviceOrderDto.getBonus() / exchangeRate);

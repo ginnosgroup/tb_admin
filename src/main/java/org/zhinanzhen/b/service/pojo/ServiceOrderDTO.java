@@ -79,6 +79,8 @@ public class ServiceOrderDTO {
 	private double receivable;
 
 	private double discount;
+	
+	private double discountAUD;
 
 	private double received;
 
@@ -135,6 +137,10 @@ public class ServiceOrderDTO {
 	private double amountCNY; // 本次收款(人民币)
 
 	private double expectAmount;
+	
+	private double expectAmountAUD;
+
+	private double expectAmountCNY;
 
 	private String currency;
 
