@@ -77,6 +77,10 @@ public class ServiceOrderDTO {
 	private Date receiveDate;
 
 	private double receivable;
+	
+	private double receivableAUD;
+	
+	private double receivableCNY;
 
 	private double discount;
 	

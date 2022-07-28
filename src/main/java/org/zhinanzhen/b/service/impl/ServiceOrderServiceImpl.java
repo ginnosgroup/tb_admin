@@ -688,6 +688,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			serviceOrderDto.setPerAmountCNY(serviceOrderDto.getPerAmount() * exchangeRate);
 			serviceOrderDto.setExpectAmountAUD(serviceOrderDto.getExpectAmount());
 			serviceOrderDto.setExpectAmountCNY(serviceOrderDto.getExpectAmount() * exchangeRate);
+			serviceOrderDto.setReceivableAUD(serviceOrderDto.getReceivable());
+			serviceOrderDto.setReceivableCNY(serviceOrderDto.getReceivable() * exchangeRate);
 			serviceOrderDto.setDiscountAUD(serviceOrderDto.getDiscount());
 			serviceOrderDto.setGstAUD(serviceOrderDto.getGst());
 			serviceOrderDto.setDeductGstAUD(serviceOrderDto.getDeductGst());
@@ -700,6 +702,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			serviceOrderDto.setPerAmountCNY(serviceOrderDto.getPerAmount());
 			serviceOrderDto.setExpectAmountAUD(serviceOrderDto.getExpectAmount() / exchangeRate);
 			serviceOrderDto.setExpectAmountCNY(serviceOrderDto.getExpectAmount());
+			serviceOrderDto.setReceivableAUD(serviceOrderDto.getReceivable() / exchangeRate);
+			serviceOrderDto.setReceivableCNY(serviceOrderDto.getReceivable());
 			serviceOrderDto.setDiscountAUD(serviceOrderDto.getDiscount() / exchangeRate);
 			serviceOrderDto.setGstAUD(serviceOrderDto.getGst() / exchangeRate);
 			serviceOrderDto.setDeductGstAUD(serviceOrderDto.getDeductGst() / exchangeRate);
