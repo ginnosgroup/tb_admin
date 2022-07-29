@@ -54,7 +54,7 @@ public class AdminUserController extends BaseController {
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Boolean> login(@RequestParam(value = "username") String username,
-			@RequestParam(value = "password") String password, @RequestParam(value = "captcha") String captcha,
+			@RequestParam(value = "password") String password, @RequestParam(value = "captcha", required = false) String captcha,
 			HttpServletRequest request, HttpServletResponse response) throws ServiceException {
 		super.setPostHeader(response);
 		HttpSession session = request.getSession();
