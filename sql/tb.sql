@@ -253,7 +253,7 @@ CREATE TABLE `b_visa` (
   `expect_amount` decimal(8,2) DEFAULT NULL COMMENT '预收业绩',
   `sure_expect_amount` decimal(8,2) DEFAULT NULL COMMENT '确认预收业绩',
 `currency` varchar(4) DEFAULT 'AUD' COMMENT '币种(AUD:澳币,CNY:人民币)',
-`exchange_rate` decimal(6,4) NOT NULL DEFAULT 1 COMMENT '人民币兑换澳币汇率',
+`exchange_rate` decimal(6,4) NOT NULL COMMENT '人民币兑换澳币汇率',
   `discount` decimal(8,2) NOT NULL DEFAULT 0 COMMENT '折扣',
   `gst` decimal(8,2) NOT NULL COMMENT 'GST',
   `deduct_gst` decimal(8,2) NOT NULL COMMENT 'Deduct GST',
@@ -462,7 +462,7 @@ CREATE TABLE `b_service_order` (
   `amount` decimal(8,2) DEFAULT NULL COMMENT '本次收款',
   `expect_amount` decimal(8,2) DEFAULT NULL COMMENT '预收业绩',
   `currency` varchar(4) DEFAULT 'AUD' COMMENT '币种(AUD:澳币,CNY:人民币)',
-  `exchange_rate` decimal(6,4) NOT NULL DEFAULT 1 COMMENT '人民币兑换澳币汇率',
+  `exchange_rate` decimal(6,4) NOT NULL COMMENT '人民币兑换澳币汇率',
   `gst` decimal(8,2) DEFAULT NULL COMMENT 'GST',
   `deduct_gst` decimal(8,2) DEFAULT NULL COMMENT 'Deduct GST',
   `bonus` decimal(8,2) DEFAULT NULL COMMENT '月奖金',
@@ -584,7 +584,7 @@ CREATE TABLE `b_commission_order` (
   `expect_amount` decimal(8,2) DEFAULT NULL COMMENT '预收业绩',
   `sure_expect_amount` decimal(8,2) DEFAULT NULL COMMENT '确认预收业绩',
   `currency` varchar(4) DEFAULT 'AUD' COMMENT '币种(AUD:澳币,CNY:人民币)',
-  `exchange_rate` decimal(6,4) NOT NULL DEFAULT 1 COMMENT '人民币兑换澳币汇率',
+  `exchange_rate` decimal(6,4) NOT NULL COMMENT '人民币兑换澳币汇率',
   `discount` decimal(8,2) NOT NULL DEFAULT 0 COMMENT '折扣',
   `gst` decimal(8,2) NOT NULL COMMENT 'GST',
   `deduct_gst` decimal(8,2) NOT NULL COMMENT 'Deduct GST',
@@ -1231,8 +1231,8 @@ CREATE TABLE `b_everyday_exchange_rate` (
   gmt_create datetime NOT NULL COMMENT '创建时间',
   gmt_modify datetime NOT NULL COMMENT '最后修改时间',
   currency varchar(4) NOT NULL COMMENT '币种(AUD:澳币,CNY:人民币)',
-  original_exchange_rate decimal(6,4) NOT NULL DEFAULT 1 COMMENT '原始汇率',
-  znz_exchange_rate decimal(6,4) NOT NULL DEFAULT 1 COMMENT '指南针汇率',
+  original_exchange_rate decimal(6,4) NOT NULL COMMENT '原始汇率',
+  znz_exchange_rate decimal(6,4) NOT NULL COMMENT '指南针汇率',
 　　update_time datetime NOT NULL COMMENT '汇率时间'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 

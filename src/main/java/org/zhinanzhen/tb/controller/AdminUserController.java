@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import com.ikasoa.web.utils.ImageCaptchaUtil;
 import com.ikasoa.web.utils.ImageCaptchaUtil.ImageCode;
@@ -58,6 +59,12 @@ public class AdminUserController extends BaseController {
 			HttpServletRequest request, HttpServletResponse response) throws ServiceException {
 		super.setPostHeader(response);
 		HttpSession session = request.getSession();
+//		if(StringUtil.isEmpty(captcha))
+//			return new Response<Boolean>(0, "请输入验证码.", false);
+//		if(ObjectUtil.isNull(session.getAttribute("captcha")))
+//			return new Response<Boolean>(0, "验证码获取异常,请刷新页面后重试.", false);
+//		if(!captcha.equalsIgnoreCase(session.getAttribute("captcha").toString()))
+//			return new Response<Boolean>(0, "验证码错误,登录失败.", false);
 System.out.println("===== captcha is " + session.getAttribute("captcha") + " and " + captcha);
 		int id = adminUserService.login(username, password);
 		String sessionId = session.getId();
