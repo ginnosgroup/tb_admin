@@ -27,6 +27,7 @@ import org.zhinanzhen.tb.service.pojo.UserAdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 
 import com.ikasoa.core.utils.ListUtil;
+import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 
 import lombok.SneakyThrows;
@@ -243,14 +244,14 @@ public class UserController extends BaseController {
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
 	@ResponseBody
 	@SneakyThrows
-	public Response<UserDTO> getUser(@RequestParam(value = "id") int id, HttpServletRequest request, HttpServletResponse response) {
-//		try {
-			super.setGetHeader(response);
-			UserDTO user = userService.getUser(id, getAdviserId(request));
-			return new Response<UserDTO>(0, user);
-//		} catch (ServiceException e) {
-//			return new Response<UserDTO>(1, e.getMessage(), null);
-//		}
+	public Response<UserDTO> getUser(@RequestParam(value = "id") int id, HttpServletRequest request,
+			HttpServletResponse response) {
+		super.setGetHeader(response);
+		Integer adviserId = getAdviserId(request);
+		if (ObjectUtil.isNull(adviserId) && !isAdminUser(request) && !isSuperAdminUser(request))
+			return new Response<UserDTO>(0, "No permission !", null);
+		UserDTO user = userService.getUser(id, adviserId);
+		return new Response<UserDTO>(0, user);
 	}
 
 	@RequestMapping(value = "/getByPhone", method = RequestMethod.GET)
@@ -261,13 +262,15 @@ public class UserController extends BaseController {
 		if (phone == null) {
 			return new Response<UserDTO>(1, "参数错误.");
 		}
+		Integer adviserId = getAdviserId(request);
+		if (ObjectUtil.isNull(adviserId) && !isAdminUser(request) && !isSuperAdminUser(request))
+			return new Response<UserDTO>(0, "No permission !", null);
 		super.setGetHeader(response);
 		List<UserDTO> list = userService.listUser(null, null, null, phone, areaCode, null, null, 0, null, null, 0, 1);
 		if (list != null && list.size() > 0) {
 			UserDTO user = list.get(0);
 			List<UserAdviserDTO> userAdviserList = user.getUserAdviserList();
 			if (userAdviserList != null && userAdviserList.size() > 0) {
-				Integer adviserId = getAdviserId(request);
 				for (UserAdviserDTO userAdviserDto : userAdviserList)
 					if (userAdviserDto.getAdviserId() > 0 && adviserId != null
 							&& userAdviserDto.getAdviserId() == adviserId)
