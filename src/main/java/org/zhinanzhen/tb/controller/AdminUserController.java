@@ -1,11 +1,17 @@
 package org.zhinanzhen.tb.controller;
 
+import java.io.IOException;
+
 import javax.annotation.Resource;
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.ikasoa.core.utils.StringUtil;
+import com.ikasoa.web.utils.ImageCaptchaUtil;
+import com.ikasoa.web.utils.ImageCaptchaUtil.ImageCode;
+
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -25,6 +31,25 @@ public class AdminUserController extends BaseController {
 	
 	@Resource
 	AdviserService adviserService;
+	
+	@RequestMapping(value = "/captcha")
+	public void getCaptcha(HttpServletRequest request, HttpServletResponse response) {
+		response.setContentType("image/jpeg");
+		response.setHeader("Pragma", "No-cache");
+		response.setHeader("Cache-Control", "no-cache");
+		response.setDateHeader("Expire", 0);
+		ImageCode imageCode = ImageCaptchaUtil.getImageCode();
+		if(imageCode != null) {
+			HttpSession session = request.getSession();
+			session.removeAttribute("captcha");
+			session.setAttribute("captcha", imageCode.getValue());
+			try {
+				ImageIO.write(imageCode.getImage(), "JPEG", response.getOutputStream());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	@ResponseBody
