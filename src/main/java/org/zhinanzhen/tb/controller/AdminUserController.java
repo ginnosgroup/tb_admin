@@ -54,10 +54,11 @@ public class AdminUserController extends BaseController {
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Boolean> login(@RequestParam(value = "username") String username,
-			@RequestParam(value = "password") String password, HttpServletRequest request, HttpServletResponse response)
-			throws ServiceException {
+			@RequestParam(value = "password") String password, @RequestParam(value = "captcha") String captcha,
+			HttpServletRequest request, HttpServletResponse response) throws ServiceException {
 		super.setPostHeader(response);
 		HttpSession session = request.getSession();
+System.out.println("===== captcha is " + session.getAttribute("captcha") + " and " + captcha);
 		int id = adminUserService.login(username, password);
 		String sessionId = session.getId();
 		if (id > 0 && adminUserService.updateSessionId(id, sessionId)) {
