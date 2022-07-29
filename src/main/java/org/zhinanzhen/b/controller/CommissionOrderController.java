@@ -138,11 +138,11 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 		try {
 			super.setPostHeader(response);
-//			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-//			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
-//					&& !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
-//				if (!"WA".equalsIgnoreCase(adminUserLoginInfo.getApList()) || !isSettle )
-//					return new Response<List<CommissionOrderDTO>>(1, "仅限顾问和超级管理员能创建佣金订单.", null);
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+				if (!"WA".equalsIgnoreCase(adminUserLoginInfo.getApList()) || !isSettle )
+					return new Response<List<CommissionOrderDTO>>(1, "仅限顾问和超级管理员能创建佣金订单.", null);
 			List<CommissionOrderDTO> commissionOrderDtoList = new ArrayList<>();
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(serviceOrderId);
 			if (serviceOrderDto == null)

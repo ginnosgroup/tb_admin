@@ -92,7 +92,7 @@ public class CommissionOrderDO implements Serializable {
 	
 	private String currency = "AUD";
 	
-	private double exchangeRate = 1.00;
+	private double exchangeRate = 4.80;
 
 	private double discount;
 
