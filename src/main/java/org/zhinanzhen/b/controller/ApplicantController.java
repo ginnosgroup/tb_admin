@@ -21,7 +21,9 @@ import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
+import org.zhinanzhen.tb.service.pojo.UserDTO;
 
+import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 
 @Controller
@@ -159,6 +161,8 @@ public class ApplicantController extends BaseController {
 			@RequestParam(value = "pageSize") int pageSize,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
+			if (ObjectUtil.isNull(getAdminUserLoginInfo(request)))
+				return new ListResponse<List<ApplicantDTO>>(false, pageSize, 0, null, "No permission !");
 			Integer newAdviserId = getAdviserId(request);
 			if (newAdviserId != null)
 				adviserId = newAdviserId;
@@ -172,9 +176,12 @@ public class ApplicantController extends BaseController {
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<ApplicantDTO> get(@RequestParam(value = "id") int id, HttpServletResponse response) {
+	public Response<ApplicantDTO> get(@RequestParam(value = "id") int id, HttpServletRequest request,
+			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
+			if (ObjectUtil.isNull(getAdminUserLoginInfo(request)))
+				return new Response<ApplicantDTO>(1, "No permission !", null);
 			return new Response<ApplicantDTO>(0, applicantService.getById(id));
 		} catch (ServiceException e) {
 			return new Response<ApplicantDTO>(1, e.getMessage(), null);
@@ -183,9 +190,12 @@ public class ApplicantController extends BaseController {
 
 	@RequestMapping(value = "/delete", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<Integer> delete(@RequestParam(value = "id") int id, HttpServletResponse response) {
+	public Response<Integer> delete(@RequestParam(value = "id") int id, HttpServletRequest request,
+			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
+			if (ObjectUtil.isNull(getAdminUserLoginInfo(request)))
+				return new Response<Integer>(1);
 			int i = applicantService.deleteById(id);
 			if (i == -1)
 				return new Response<Integer>(1, "该申请人已创建服务订单，删除失败！", 0);

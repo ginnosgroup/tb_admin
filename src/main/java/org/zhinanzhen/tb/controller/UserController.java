@@ -96,12 +96,15 @@ public class UserController extends BaseController {
 			return new Response<Integer>(1, e.getMessage(), -1);
 		}
 	}
-	
+
 	@RequestMapping(value = "/addUserAdviser", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> addUserAdviser(@RequestParam(value = "userId") String userId,
-			@RequestParam(value = "adviserId") String adviserId, HttpServletResponse response) {
+			@RequestParam(value = "adviserId") String adviserId, HttpServletRequest request,
+			HttpServletResponse response) {
 		try {
+			if (ObjectUtil.isNull(getAdminUserLoginInfo(request)))
+				return new Response<Integer>(1, "No permission !", null);
 			return new Response<Integer>(0,
 					userService.addUserAdviser(StringUtil.toInt(userId), StringUtil.toInt(adviserId)));
 		} catch (ServiceException e) {
@@ -135,7 +138,9 @@ public class UserController extends BaseController {
 			}
 			// 处理顾问管理员
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
+			if (ObjectUtil.isNull(adminUserLoginInfo))
+				return new Response<Integer>(1, "No permission !", null);
+			if ("GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
 				if (regionIdList == null) {
 					List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
@@ -200,8 +205,10 @@ public class UserController extends BaseController {
 			}
 			// 处理顾问管理员
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
-					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
+			if (ObjectUtil.isNull(adminUserLoginInfo))
+				return new ListResponse<List<UserDTO>>(false, pageSize, 0, null, "No permission !");
+			if ("GW".equalsIgnoreCase(adminUserLoginInfo.getApList()) && adminUserLoginInfo.getRegionId() != null
+					&& adminUserLoginInfo.getRegionId() > 0) {
 				if (regionIdList == null) {
 					List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
 					regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
@@ -249,7 +256,7 @@ public class UserController extends BaseController {
 		super.setGetHeader(response);
 		Integer adviserId = getAdviserId(request);
 		if (ObjectUtil.isNull(adviserId) && !isAdminUser(request) && !isSuperAdminUser(request))
-			return new Response<UserDTO>(0, "No permission !", null);
+			return new Response<UserDTO>(1, "No permission !", null);
 		UserDTO user = userService.getUser(id, adviserId);
 		return new Response<UserDTO>(0, user);
 	}
@@ -264,7 +271,7 @@ public class UserController extends BaseController {
 		}
 		Integer adviserId = getAdviserId(request);
 		if (ObjectUtil.isNull(adviserId) && !isAdminUser(request) && !isSuperAdminUser(request))
-			return new Response<UserDTO>(0, "No permission !", null);
+			return new Response<UserDTO>(1, "No permission !", null);
 		super.setGetHeader(response);
 		List<UserDTO> list = userService.listUser(null, null, null, phone, areaCode, null, null, 0, null, null, 0, 1);
 		if (list != null && list.size() > 0) {
@@ -294,9 +301,11 @@ public class UserController extends BaseController {
 			@RequestParam(value = "firstControllerContents", required = false) String firstControllerContents,
 			@RequestParam(value = "visaCode", required = false) String visaCode,
 			@RequestParam(value = "visaExpirationDate", required = false) String visaExpirationDate,
-			@RequestParam(value = "source", required = false) String source, HttpServletResponse response)
-			throws ServiceException {
+			@RequestParam(value = "source", required = false) String source, HttpServletRequest request,
+			HttpServletResponse response) throws ServiceException {
 		super.setPostHeader(response);
+		if (ObjectUtil.isNull(getAdminUserLoginInfo(request)))
+			return new Response<Boolean>(1, "No permission !", false);
 		Date _birthday = null;
 		if (birthday != null)
 			_birthday = new Date(Long.parseLong(birthday.trim()));
@@ -312,20 +321,26 @@ public class UserController extends BaseController {
 	@RequestMapping(value = "/updateAdviser", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Boolean> updateAdviserId(@RequestParam(value = "id") int id,
-			@RequestParam(value = "adviserId") int adviserId, HttpServletResponse response) throws ServiceException {
+			@RequestParam(value = "adviserId") int adviserId, HttpServletRequest request, HttpServletResponse response)
+			throws ServiceException {
 		super.setPostHeader(response);
 		if (id <= 0 || adviserId <= 0)
 			return new Response<Boolean>(1, "请检查参数!");
 		// TODO: 这里或许要判断一下顾问管理员
+		if (ObjectUtil.isNull(getAdminUserLoginInfo(request)))
+			return new Response<Boolean>(1, "No permission !", false);
 		return new Response<Boolean>(0, userService.updateAdviserId(adviserId, id));
 	}
 
 	@RequestMapping(value = "/listByRecommendUserId", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<UserDTO>> ListByRecommendOpenId(int userId) throws ServiceException {
+	public Response<List<UserDTO>> ListByRecommendOpenId(int userId, HttpServletRequest request)
+			throws ServiceException {
 		if (userId <= 0) {
 			return new Response<List<UserDTO>>(2, "userId错误");
 		}
+		if (ObjectUtil.isNull(getAdminUserLoginInfo(request)))
+			return new Response<List<UserDTO>>(1, "No permission !", null);
 		UserDTO userDto = userService.getUserById(userId);
 		if (userDto == null) {
 			return new Response<List<UserDTO>>(2, "顾客未找到, userId = " + userId);
@@ -337,10 +352,13 @@ public class UserController extends BaseController {
 
 	@RequestMapping(value = "/listByRecommendUserIdCount", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<Integer> ListByRecommendOpenIdCount(int userId) throws ServiceException {
+	public Response<Integer> ListByRecommendOpenIdCount(int userId, HttpServletRequest request)
+			throws ServiceException {
 		if (userId <= 0) {
 			return new Response<Integer>(2, "userId错误");
 		}
+		if (ObjectUtil.isNull(getAdminUserLoginInfo(request)))
+			return new Response<Integer>(1, "No permission !", null);
 		UserDTO userDto = userService.getUserById(userId);
 		if (userDto == null) {
 			return new Response<Integer>(2, "顾客未找到, userId = " + userId);

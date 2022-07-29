@@ -8,10 +8,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.ikasoa.core.loadbalance.impl.PollingLoadBalanceImpl;
 import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import com.ikasoa.web.utils.ImageCaptchaUtil;
 import com.ikasoa.web.utils.ImageCaptchaUtil.ImageCode;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.stereotype.Controller;
@@ -28,6 +31,7 @@ import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/admin_user")
+@Slf4j
 public class AdminUserController extends BaseController {
 	
 	@Resource
@@ -57,6 +61,7 @@ public class AdminUserController extends BaseController {
 	public Response<Boolean> login(@RequestParam(value = "username") String username,
 			@RequestParam(value = "password") String password, @RequestParam(value = "captcha", required = false) String captcha,
 			HttpServletRequest request, HttpServletResponse response) throws ServiceException {
+		log.info("["+username + "]正在尝试登录系统!");
 		super.setPostHeader(response);
 		HttpSession session = request.getSession();
 //		if(StringUtil.isEmpty(captcha))
@@ -102,8 +107,10 @@ System.out.println("===== captcha is " + session.getAttribute("captcha") + " and
 			}
 			session.removeAttribute("AdminUserLoginInfo" + VERSION);
 			session.setAttribute("AdminUserLoginInfo" + VERSION, loginInfo);
+			log.info("["+username + "]登录系统成功!");
 			return new Response<Boolean>(0, true);
 		} else {
+			log.info("["+username + "]登录系统失败!");
 			return new Response<Boolean>(0, false);
 		}
 	}
