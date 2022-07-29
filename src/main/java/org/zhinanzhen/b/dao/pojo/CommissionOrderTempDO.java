@@ -74,6 +74,10 @@ public class CommissionOrderTempDO {
     private double perAmount;//本次应收
 
     private double amount;//本次实收
+    
+    private String currency;
+	
+	private double exchangeRate;
 
     private double discount;//折扣
 

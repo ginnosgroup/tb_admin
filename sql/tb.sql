@@ -644,6 +644,8 @@ CREATE TABLE `b_commission_order_temp` (
   `discount` decimal(8,2) NOT NULL COMMENT '折扣',
   `verify_code` varchar(64) DEFAULT NULL COMMENT '对账使用的code,顾问名称+地区+随机数',
   `expect_amount` decimal(8,2) DEFAULT NULL COMMENT '预收业绩',
+  `currency` varchar(4) DEFAULT 'AUD' COMMENT '币种(AUD:澳币,CNY:人民币)',
+  `exchange_rate` decimal(6,4) NOT NULL COMMENT '人民币兑换澳币汇率',
   `remarks` varchar(255) DEFAULT NULL COMMENT '备注',
   `payment_voucher_image_url_1` varchar(128) DEFAULT NULL COMMENT '支付凭证图片地址1',
   `payment_voucher_image_url_2` varchar(128) DEFAULT NULL COMMENT '支付凭证图片地址2',

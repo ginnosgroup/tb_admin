@@ -679,6 +679,8 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			throw se;
 		}
 	}
+	
+	// temp
 
 	@Override
 	public int addCommissionOrderTemp(CommissionOrderTempDTO commissionOrderTempDTO) throws ServiceException {
@@ -729,7 +731,7 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			if (receiveTypeDo != null)
 				commissionOrderTempDTO.setReceiveType(mapper.map(receiveTypeDo, ReceiveTypeDTO.class));
 
-			return commissionOrderTempDTO;
+			return putCurrencyDataByCommissionOrderTempDTO(commissionOrderTempDTO);
 		}catch (Exception e){
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
@@ -789,11 +791,36 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			if (receiveTypeDo != null)
 				commissionOrderTempDTO.setReceiveType(mapper.map(receiveTypeDo, ReceiveTypeDTO.class));
 
-			return commissionOrderTempDTO;
+			return putCurrencyDataByCommissionOrderTempDTO(commissionOrderTempDTO);
 		}catch (Exception e){
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
 		}
+	}
+	
+	private CommissionOrderTempDTO putCurrencyDataByCommissionOrderTempDTO(
+			CommissionOrderTempDTO commissionOrderTempDto) {
+		// 汇率币种计算金额
+		Double exchangeRate = commissionOrderTempDto.getExchangeRate();
+		if ("AUD".equalsIgnoreCase(commissionOrderTempDto.getCurrency())) {
+			commissionOrderTempDto.setAmountAUD(commissionOrderTempDto.getAmount());
+			commissionOrderTempDto.setAmountCNY(commissionOrderTempDto.getAmount() * exchangeRate);
+			commissionOrderTempDto.setPerAmountAUD(commissionOrderTempDto.getPerAmount());
+			commissionOrderTempDto.setPerAmountCNY(commissionOrderTempDto.getPerAmount() * exchangeRate);
+			commissionOrderTempDto.setExpectAmountAUD(commissionOrderTempDto.getExpectAmount());
+			commissionOrderTempDto.setExpectAmountCNY(commissionOrderTempDto.getExpectAmount() * exchangeRate);
+			commissionOrderTempDto.setDiscountAUD(commissionOrderTempDto.getDiscount());
+		}
+		if ("CNY".equalsIgnoreCase(commissionOrderTempDto.getCurrency())) {
+			commissionOrderTempDto.setAmountAUD(commissionOrderTempDto.getAmount() / exchangeRate);
+			commissionOrderTempDto.setAmountCNY(commissionOrderTempDto.getAmount());
+			commissionOrderTempDto.setPerAmountAUD(commissionOrderTempDto.getPerAmount() / exchangeRate);
+			commissionOrderTempDto.setPerAmountCNY(commissionOrderTempDto.getPerAmount());
+			commissionOrderTempDto.setExpectAmountAUD(commissionOrderTempDto.getExpectAmount() / exchangeRate);
+			commissionOrderTempDto.setExpectAmountCNY(commissionOrderTempDto.getExpectAmount());
+			commissionOrderTempDto.setDiscountAUD(commissionOrderTempDto.getDiscount() / exchangeRate);
+		}
+		return commissionOrderTempDto;
 	}
 }

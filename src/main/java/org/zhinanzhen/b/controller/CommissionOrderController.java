@@ -1709,6 +1709,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		   @RequestParam(value = "studentCode") String studentCode,
 		   @RequestParam(value = "serviceOrderId")int serviceOrderId,
 		   @RequestParam(value = "expectAmount")String expectAmount,
+			@RequestParam(value = "currency", required = false) String currency,
+			@RequestParam(value = "exchangeRate", required = false) String exchangeRate,
 		   @RequestParam(value = "verifyCode", required = false) String verifyCode,
 			HttpServletRequest request, HttpServletResponse response
 										   ){
@@ -1732,7 +1734,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 						installmentDueDate11,installmentDueDate12,paymentVoucherImageUrl1,paymentVoucherImageUrl2,paymentVoucherImageUrl3,
 						paymentVoucherImageUrl4,paymentVoucherImageUrl5,invoiceVoucherImageUrl1,invoiceVoucherImageUrl2,invoiceVoucherImageUrl3,
 						invoiceVoucherImageUrl4,invoiceVoucherImageUrl5,dob, startDate,endDate, tuitionFee,perTermTuitionFee,receiveTypeId,
-						receiveDate,perAmount, amount,remarks,studentCode,serviceOrderId,expectAmount,verifyCode,tempDTO,serviceOrderDto);
+						receiveDate,perAmount, amount,remarks,studentCode,serviceOrderId,expectAmount, currency, exchangeRate,verifyCode,tempDTO,serviceOrderDto);
 			}
 			tempDTO = new CommissionOrderTempDTO();
 			tempDTO.setServiceOrderId(serviceOrderId);
@@ -1747,6 +1749,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			tempDTO.setPerAmount(Double.parseDouble(perAmount));
 			tempDTO.setAmount(Double.parseDouble(amount));
 			tempDTO.setExpectAmount(Double.parseDouble(expectAmount));
+			if (StringUtil.isNotEmpty(currency))
+				tempDTO.setCurrency(currency);
+			if (StringUtil.isNotEmpty(exchangeRate))
+				tempDTO.setExchangeRate(Double.parseDouble(exchangeRate));
 			if (tempDTO.getPerAmount() < tempDTO.getAmount())
 				return new Response(1, "本次应收款(" + tempDTO.getPerAmount()
 						+ ")不能小于本次已收款(" + tempDTO.getAmount() + ")!", null);
@@ -1898,7 +1904,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			String invoiceVoucherImageUrl2, String invoiceVoucherImageUrl3, String invoiceVoucherImageUrl4, String invoiceVoucherImageUrl5,
 			String dob, String startDate, String endDate, String tuitionFee, String perTermTuitionFee, Integer receiveTypeId,
 			String receiveDate, String perAmount, String amount, String remarks, String studentCode, int serviceOrderId,
-			String expectAmount, String verifyCode,CommissionOrderTempDTO tempDTO,ServiceOrderDTO serviceOrderDto
+			String expectAmount, String currency, String exchangeRate, String verifyCode,CommissionOrderTempDTO tempDTO,ServiceOrderDTO serviceOrderDto
 	){
 		try {
 			/*
