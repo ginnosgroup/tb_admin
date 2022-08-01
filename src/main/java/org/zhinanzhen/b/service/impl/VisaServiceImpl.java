@@ -405,39 +405,39 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 		Double exchangeRate = visaDto.getExchangeRate();
 		if ("AUD".equalsIgnoreCase(visaDto.getCurrency())) {
 			visaDto.setAmountAUD(visaDto.getAmount());
-			visaDto.setAmountCNY(visaDto.getAmount() * exchangeRate);
+			visaDto.setAmountCNY(roundHalfUp2(visaDto.getAmount() * exchangeRate));
 			visaDto.setPerAmountAUD(visaDto.getPerAmount());
-			visaDto.setPerAmountCNY(visaDto.getPerAmount() * exchangeRate);
+			visaDto.setPerAmountCNY(roundHalfUp2(visaDto.getPerAmount() * exchangeRate));
 			visaDto.setTotalAmountAUD(visaDto.getAmountAUD());
-			visaDto.setTotalAmountCNY(visaDto.getAmountAUD() * exchangeRate);
+			visaDto.setTotalAmountCNY(roundHalfUp2(visaDto.getAmountAUD() * exchangeRate));
 			visaDto.setTotalPerAmountAUD(visaDto.getTotalPerAmount());
-			visaDto.setTotalPerAmountCNY(visaDto.getTotalPerAmount() * exchangeRate);
+			visaDto.setTotalPerAmountCNY(roundHalfUp2(visaDto.getTotalPerAmount() * exchangeRate));
 			visaDto.setExpectAmountAUD(visaDto.getExpectAmount());
-			visaDto.setExpectAmountCNY(visaDto.getExpectAmount() * exchangeRate);
+			visaDto.setExpectAmountCNY(roundHalfUp2(visaDto.getExpectAmount() * exchangeRate));
 			visaDto.setSureExpectAmountAUD(visaDto.getSureExpectAmount());
-			visaDto.setSureExpectAmountCNY(visaDto.getSureExpectAmount() * exchangeRate);
+			visaDto.setSureExpectAmountCNY(roundHalfUp2(visaDto.getSureExpectAmount() * exchangeRate));
 			visaDto.setDiscountAUD(visaDto.getDiscount());
 			visaDto.setGstAUD(visaDto.getGst());
 			visaDto.setDeductGstAUD(visaDto.getDeductGst());
 			visaDto.setBonusAUD(visaDto.getBonus());
 		}
 		if ("CNY".equalsIgnoreCase(visaDto.getCurrency())) {
-			visaDto.setAmountAUD(visaDto.getAmount() / exchangeRate);
+			visaDto.setAmountAUD(roundHalfUp2(visaDto.getAmount() / exchangeRate));
 			visaDto.setAmountCNY(visaDto.getAmount());
-			visaDto.setPerAmountAUD(visaDto.getPerAmount() / exchangeRate);
+			visaDto.setPerAmountAUD(roundHalfUp2(visaDto.getPerAmount() / exchangeRate));
 			visaDto.setPerAmountCNY(visaDto.getPerAmount());
-			visaDto.setTotalAmountAUD(visaDto.getAmount() / exchangeRate);
+			visaDto.setTotalAmountAUD(roundHalfUp2(visaDto.getAmount() / exchangeRate));
 			visaDto.setTotalAmountCNY(visaDto.getAmount());
-			visaDto.setTotalPerAmountAUD(visaDto.getTotalPerAmount() / exchangeRate);
+			visaDto.setTotalPerAmountAUD(roundHalfUp2(visaDto.getTotalPerAmount() / exchangeRate));
 			visaDto.setTotalPerAmountCNY(visaDto.getTotalPerAmount());
-			visaDto.setExpectAmountAUD(visaDto.getExpectAmount() / exchangeRate);
+			visaDto.setExpectAmountAUD(roundHalfUp2(visaDto.getExpectAmount() / exchangeRate));
 			visaDto.setExpectAmountCNY(visaDto.getExpectAmount());
-			visaDto.setSureExpectAmountAUD(visaDto.getSureExpectAmount() / exchangeRate);
+			visaDto.setSureExpectAmountAUD(roundHalfUp2(visaDto.getSureExpectAmount() / exchangeRate));
 			visaDto.setSureExpectAmountCNY(visaDto.getSureExpectAmount());
-			visaDto.setDiscountAUD(visaDto.getDiscount() / exchangeRate);
-			visaDto.setGstAUD(visaDto.getGst() / exchangeRate);
-			visaDto.setDeductGstAUD(visaDto.getDeductGst() / exchangeRate);
-			visaDto.setBonusAUD(visaDto.getBonus() / exchangeRate);
+			visaDto.setDiscountAUD(roundHalfUp2(visaDto.getDiscount() / exchangeRate));
+			visaDto.setGstAUD(roundHalfUp2(visaDto.getGst() / exchangeRate));
+			visaDto.setDeductGstAUD(roundHalfUp2(visaDto.getDeductGst() / exchangeRate));
+			visaDto.setBonusAUD(roundHalfUp2(visaDto.getBonus() / exchangeRate));
 		}
 
 		return visaDto;

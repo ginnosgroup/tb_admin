@@ -678,36 +678,36 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				}
 			}
 		}
-		
+
 		// 汇率币种计算金额
 		Double exchangeRate = serviceOrderDto.getExchangeRate();
 		if ("AUD".equalsIgnoreCase(serviceOrderDto.getCurrency())) {
 			serviceOrderDto.setAmountAUD(serviceOrderDto.getAmount());
-			serviceOrderDto.setAmountCNY(serviceOrderDto.getAmount() * exchangeRate);
+			serviceOrderDto.setAmountCNY(roundHalfUp2(serviceOrderDto.getAmount() * exchangeRate));
 			serviceOrderDto.setPerAmountAUD(serviceOrderDto.getPerAmount());
-			serviceOrderDto.setPerAmountCNY(serviceOrderDto.getPerAmount() * exchangeRate);
+			serviceOrderDto.setPerAmountCNY(roundHalfUp2(serviceOrderDto.getPerAmount() * exchangeRate));
 			serviceOrderDto.setExpectAmountAUD(serviceOrderDto.getExpectAmount());
-			serviceOrderDto.setExpectAmountCNY(serviceOrderDto.getExpectAmount() * exchangeRate);
+			serviceOrderDto.setExpectAmountCNY(roundHalfUp2(serviceOrderDto.getExpectAmount() * exchangeRate));
 			serviceOrderDto.setReceivableAUD(serviceOrderDto.getReceivable());
-			serviceOrderDto.setReceivableCNY(serviceOrderDto.getReceivable() * exchangeRate);
+			serviceOrderDto.setReceivableCNY(roundHalfUp2(serviceOrderDto.getReceivable() * exchangeRate));
 			serviceOrderDto.setDiscountAUD(serviceOrderDto.getDiscount());
 			serviceOrderDto.setGstAUD(serviceOrderDto.getGst());
 			serviceOrderDto.setDeductGstAUD(serviceOrderDto.getDeductGst());
 			serviceOrderDto.setBonusAUD(serviceOrderDto.getBonus());
 		}
 		if ("CNY".equalsIgnoreCase(serviceOrderDto.getCurrency())) {
-			serviceOrderDto.setAmountAUD(serviceOrderDto.getAmount() / exchangeRate);
+			serviceOrderDto.setAmountAUD(roundHalfUp2(serviceOrderDto.getAmount() / exchangeRate));
 			serviceOrderDto.setAmountCNY(serviceOrderDto.getAmount());
-			serviceOrderDto.setPerAmountAUD(serviceOrderDto.getPerAmount() / exchangeRate);
+			serviceOrderDto.setPerAmountAUD(roundHalfUp2(serviceOrderDto.getPerAmount() / exchangeRate));
 			serviceOrderDto.setPerAmountCNY(serviceOrderDto.getPerAmount());
-			serviceOrderDto.setExpectAmountAUD(serviceOrderDto.getExpectAmount() / exchangeRate);
+			serviceOrderDto.setExpectAmountAUD(roundHalfUp2(serviceOrderDto.getExpectAmount() / exchangeRate));
 			serviceOrderDto.setExpectAmountCNY(serviceOrderDto.getExpectAmount());
-			serviceOrderDto.setReceivableAUD(serviceOrderDto.getReceivable() / exchangeRate);
+			serviceOrderDto.setReceivableAUD(roundHalfUp2(serviceOrderDto.getReceivable() / exchangeRate));
 			serviceOrderDto.setReceivableCNY(serviceOrderDto.getReceivable());
-			serviceOrderDto.setDiscountAUD(serviceOrderDto.getDiscount() / exchangeRate);
-			serviceOrderDto.setGstAUD(serviceOrderDto.getGst() / exchangeRate);
-			serviceOrderDto.setDeductGstAUD(serviceOrderDto.getDeductGst() / exchangeRate);
-			serviceOrderDto.setBonusAUD(serviceOrderDto.getBonus() / exchangeRate);
+			serviceOrderDto.setDiscountAUD(roundHalfUp2(serviceOrderDto.getDiscount() / exchangeRate));
+			serviceOrderDto.setGstAUD(roundHalfUp2(serviceOrderDto.getGst() / exchangeRate));
+			serviceOrderDto.setDeductGstAUD(roundHalfUp2(serviceOrderDto.getDeductGst() / exchangeRate));
+			serviceOrderDto.setBonusAUD(roundHalfUp2(serviceOrderDto.getBonus() / exchangeRate));
 		}
 
 		return serviceOrderDto;

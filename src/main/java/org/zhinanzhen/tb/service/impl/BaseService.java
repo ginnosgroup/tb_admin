@@ -1,5 +1,6 @@
 package org.zhinanzhen.tb.service.impl;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 
 import javax.annotation.Resource;
@@ -56,6 +57,10 @@ public abstract class BaseService {
 
 	protected String theDateTo00_00_00(String date) {
 		return StringUtil.isNotEmpty(date) ? date.split(" ")[0] + " 00:00:00" : date;
+	}
+	
+	protected double roundHalfUp2(double d) {
+		return new BigDecimal(d).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
 	}
 
 	protected void sendMail(String mail, String title, String content) {
