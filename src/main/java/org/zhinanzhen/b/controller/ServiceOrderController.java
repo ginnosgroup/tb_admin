@@ -402,11 +402,13 @@ public class ServiceOrderController extends BaseController {
 							serviceOrderDto.getState(), null, null, null);
 				// 虽然设计了可以逗号分割保存多个申请人ID，但后来讨论需求后要求如果有多个申请人则创建多条子订单
 				if (!ListUtil.isEmpty(serviceOrderApplicantList) && serviceOrderApplicantList.size() >= 1) {
-					ServiceOrderApplicantDTO serviceOrderApplicantDto = serviceOrderApplicantList.get(0);
-					serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
-					if (serviceOrderApplicantService.addServiceOrderApplicant(serviceOrderApplicantDto) <= 0) {
-						serviceOrderService.deleteServiceOrderById(serviceOrderDto.getId());
-						return new Response<Integer>(1, "申请人关联失败.", null);
+					for (ServiceOrderApplicantDTO serviceOrderApplicantDto : serviceOrderApplicantList) {
+//					ServiceOrderApplicantDTO serviceOrderApplicantDto = serviceOrderApplicantList.get(0);
+						serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
+						if (serviceOrderApplicantService.addServiceOrderApplicant(serviceOrderApplicantDto) <= 0) {
+							serviceOrderService.deleteServiceOrderById(serviceOrderDto.getId());
+							return new Response<Integer>(1, "申请人关联失败.", null);
+						}
 					}
 				} else {
 					serviceOrderService.deleteServiceOrderById(serviceOrderDto.getId());
