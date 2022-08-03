@@ -438,7 +438,7 @@ public class ServiceOrderController extends BaseController {
 									"CA".equalsIgnoreCase(servicePackageDto.getType()) ? serviceAssessId : null);
 							serviceOrderDto.setType("VISA"); // 独立技术移民子订单为VISA
 							serviceOrderDto.setPay(false); // 独立技术移民子订单都未支付
-							serviceOrderDto.setVerifyCode(null);// 独立技术移民子订单都没有对账Code
+							serviceOrderDto.setVerifyCode(null); // 独立技术移民子订单都没有对账Code
 							if (StringUtil.isNotEmpty(maraId))
 								serviceOrderDto.setMaraId(StringUtil.toInt(maraId)); // 独立技术移民子订单需要mara
 							if (StringUtil.isNotEmpty(officialId))
@@ -458,6 +458,7 @@ public class ServiceOrderController extends BaseController {
 							break;
 					} else if (serviceOrderApplicantList.size() > 1) {
 						serviceOrderDto.setId(0);
+						serviceOrderDto.setVerifyCode(null);
 						if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null) {
 							serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
 									ReviewAdviserStateEnum.PENDING.toString(), null, null, null);
