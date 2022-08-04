@@ -95,7 +95,8 @@ System.out.println("===== captcha is " + session.getAttribute("captcha") + " and
 				loginInfo.setRegionId(adminUser.getRegionId());
 				if (loginInfo.getAdviserId() != null && ap.contains("GW")) {
 					AdviserDTO adviserDto = adviserService.getAdviserById(loginInfo.getAdviserId());
-					if (adviserDto.getRegionId() == 52000 || adviserDto.getRegionId() == 1000025)
+					if (adviserDto.getRegionId() == 52000 || adviserDto.getRegionId() == 1000025
+							|| adviserDto.getRegionId() == 1000030 || adviserDto.getRegionId() == 1000032)
 						loginInfo.setCountry("CN");
 					else
 						loginInfo.setCountry("AU");
