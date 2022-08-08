@@ -1,6 +1,9 @@
 package org.zhinanzhen.b.controller;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 
@@ -33,6 +36,12 @@ import com.ikasoa.web.workflow.Workflow;
 import com.ikasoa.web.workflow.WorkflowStarter;
 import com.ikasoa.web.workflow.impl.WorkflowStarterImpl;
 
+import jxl.Workbook;
+import jxl.WorkbookSettings;
+import jxl.write.Label;
+import jxl.write.WritableCellFormat;
+import jxl.write.WritableSheet;
+
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/refund")
@@ -47,6 +56,8 @@ public class RefundController extends BaseController {
 
 	@Resource
 	RNodeFactory rNodeFactory;
+	
+	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	public enum RefundStateEnum {
 		PENDING, REVIEW, COMPLETE, PAID, CLOSE;
@@ -117,6 +128,101 @@ public class RefundController extends BaseController {
 			return new Response<List<RefundDTO>>(1, "仅顾问和会计才有权限查看退款单!", null);
 		} catch (ServiceException e) {
 			return new Response<List<RefundDTO>>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/down", method = RequestMethod.GET)
+	@ResponseBody
+	public void down(@RequestParam(value = "type", required = false) String type,
+			@RequestParam(value = "state", required = false) String state, HttpServletRequest request,
+			HttpServletResponse response) {
+		List<RefundDTO> list = null;
+		try {
+			if (getKjId(request) != null) {
+				if (state == null)
+					state = "REVIEW";
+				list = refundService.listRefund(type, state, null, null, null);
+			}
+			if (getAdviserId(request) != null)
+				list = refundService.listRefund(type, state, getAdviserId(request), null, null);
+		} catch (ServiceException e) {
+			e.printStackTrace();
+			return;
+		}
+		if(list == null) {
+			LOG.error("仅顾问和会计才有权限查看退款单!");
+			return;
+		}
+		InputStream is = null;
+		OutputStream os = null;
+		jxl.Workbook wb = null;
+		try {
+			os = response.getOutputStream();
+			try {
+				is = this.getClass().getResourceAsStream("/RefundOrderList.xls");
+			} catch (Exception e) {
+				throw new Exception("模版不存在");
+			}
+			try {
+				wb = Workbook.getWorkbook(is);
+			} catch (Exception e) {
+				throw new Exception("模版格式不支持");
+			}
+			WorkbookSettings settings = new WorkbookSettings();
+			settings.setWriteAccess(null);
+			jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
+
+			if (wbe == null) {
+				System.out.println("wbe is null !os=" + os + ",wb" + wb);
+			} else {
+				System.out.println("wbe not null !os=" + os + ",wb" + wb);
+			}
+			WritableSheet sheet = wbe.getSheet(0);
+			WritableCellFormat cellFormat = new WritableCellFormat();
+			int i = 1;
+			for (RefundDTO refundDto : list) {
+				sheet.addCell(new Label(0, i, refundDto.getId() + "", cellFormat));
+				sheet.addCell(new Label(1, i, sdf.format(refundDto.getGmtCreate()), cellFormat));
+				sheet.addCell(new Label(2, i, refundDto.getCommissionOrderId() + "", cellFormat));
+				sheet.addCell(new Label(3, i, refundDto.getUserName(), cellFormat));
+				sheet.addCell(new Label(4, i, refundDto.getType(), cellFormat));
+				sheet.addCell(new Label(5, i, refundDto.getSchoolName(), cellFormat));
+				sheet.addCell(new Label(6, i, refundDto.getInstitutionName(), cellFormat));
+				sheet.addCell(new Label(7, i, refundDto.getCourseName(), cellFormat));
+				sheet.addCell(new Label(8, i, refundDto.getReceived() + "", cellFormat));
+				sheet.addCell(new Label(9, i, refundDto.getOfficialName(), cellFormat));
+				sheet.addCell(new Label(10, i, refundDto.getAdviserName(), cellFormat));
+				sheet.addCell(new Label(11, i, refundDto.getAmount() + "", cellFormat));
+				sheet.addCell(new Label(12, i, refundDto.getAccountName(), cellFormat));
+				sheet.addCell(new Label(13, i, refundDto.getBsb(), cellFormat));
+				sheet.addCell(new Label(14, i, refundDto.getBankName(), cellFormat));
+				sheet.addCell(new Label(15, i, refundDto.getRmbRemarks(), cellFormat));
+				sheet.addCell(new Label(16, i, refundDto.getRefundDetail(), cellFormat));
+				sheet.addCell(new Label(17, i, sdf.format(refundDto.getReceiveDate()), cellFormat));
+				sheet.addCell(new Label(18, i, refundDto.getState(), cellFormat));
+				sheet.addCell(new Label(19, i, refundDto.getRemarks(), cellFormat));
+			}
+		} catch (Exception e) {
+		} finally {
+			try {
+				if (is != null)
+					is.close();
+				System.out.println("is is close");
+			} catch (IOException e) {
+				System.out.println("is is close 出现 异常:");
+				e.printStackTrace();
+			}
+			try {
+				if (os != null)
+					os.close();
+				System.out.println("os is close");
+			} catch (IOException e) {
+				System.out.println("os is close 出现 异常:");
+				e.printStackTrace();
+			}
+			if (wb != null)
+				wb.close();
+			System.out.println("wb is close");
 		}
 	}
 
