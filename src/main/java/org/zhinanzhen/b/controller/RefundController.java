@@ -173,9 +173,9 @@ public class RefundController extends BaseController {
 			jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
 
 			if (wbe == null) {
-				System.out.println("wbe is null !os=" + os + ",wb" + wb);
+				LOG.debug("wbe is null !os=" + os + ",wb" + wb);
 			} else {
-				System.out.println("wbe not null !os=" + os + ",wb" + wb);
+				LOG.debug("wbe not null !os=" + os + ",wb" + wb);
 			}
 			WritableSheet sheet = wbe.getSheet(0);
 			WritableCellFormat cellFormat = new WritableCellFormat();
@@ -201,28 +201,33 @@ public class RefundController extends BaseController {
 				sheet.addCell(new Label(17, i, sdf.format(refundDto.getReceiveDate()), cellFormat));
 				sheet.addCell(new Label(18, i, refundDto.getState(), cellFormat));
 				sheet.addCell(new Label(19, i, refundDto.getRemarks(), cellFormat));
+				i++;
 			}
+			wbe.write();
+			wbe.close();
 		} catch (Exception e) {
+			e.printStackTrace();
+			return;
 		} finally {
 			try {
 				if (is != null)
 					is.close();
-				System.out.println("is is close");
+				LOG.debug("is is close");
 			} catch (IOException e) {
-				System.out.println("is is close 出现 异常:");
+				LOG.error("is is close 出现 异常:");
 				e.printStackTrace();
 			}
 			try {
 				if (os != null)
 					os.close();
-				System.out.println("os is close");
+				LOG.debug("os is close");
 			} catch (IOException e) {
-				System.out.println("os is close 出现 异常:");
+				LOG.error("os is close 出现 异常:");
 				e.printStackTrace();
 			}
 			if (wb != null)
 				wb.close();
-			System.out.println("wb is close");
+			LOG.debug("wb is close");
 		}
 	}
 
