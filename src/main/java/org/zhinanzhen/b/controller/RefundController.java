@@ -182,7 +182,8 @@ public class RefundController extends BaseController {
 			int i = 1;
 			for (RefundDTO refundDto : list) {
 				sheet.addCell(new Label(0, i, refundDto.getId() + "", cellFormat));
-				sheet.addCell(new Label(1, i, sdf.format(refundDto.getGmtCreate()), cellFormat));
+				if (refundDto.getGmtCreate() != null)
+					sheet.addCell(new Label(1, i, sdf.format(refundDto.getGmtCreate()), cellFormat));
 				sheet.addCell(new Label(2, i, refundDto.getCommissionOrderId() + "", cellFormat));
 				sheet.addCell(new Label(3, i, refundDto.getUserName(), cellFormat));
 				sheet.addCell(new Label(4, i, refundDto.getType(), cellFormat));
@@ -198,7 +199,8 @@ public class RefundController extends BaseController {
 				sheet.addCell(new Label(14, i, refundDto.getBankName(), cellFormat));
 				sheet.addCell(new Label(15, i, refundDto.getRmbRemarks(), cellFormat));
 				sheet.addCell(new Label(16, i, refundDto.getRefundDetail(), cellFormat));
-				sheet.addCell(new Label(17, i, sdf.format(refundDto.getReceiveDate()), cellFormat));
+				if (refundDto.getReceiveDate() != null)
+					sheet.addCell(new Label(17, i, sdf.format(refundDto.getReceiveDate()), cellFormat));
 				sheet.addCell(new Label(18, i, refundDto.getState(), cellFormat));
 				sheet.addCell(new Label(19, i, refundDto.getRemarks(), cellFormat));
 				i++;
