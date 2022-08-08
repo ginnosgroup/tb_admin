@@ -157,6 +157,11 @@ public class RefundController extends BaseController {
 		OutputStream os = null;
 		jxl.Workbook wb = null;
 		try {
+			response.reset();
+			String tableName = "refund_order_list";
+			response.setHeader("Content-disposition",
+					"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
+			response.setContentType("application/msexcel");
 			os = response.getOutputStream();
 			try {
 				is = this.getClass().getResourceAsStream("/RefundOrderList.xls");
