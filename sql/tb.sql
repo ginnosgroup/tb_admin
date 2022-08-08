@@ -1235,6 +1235,6 @@ CREATE TABLE `b_everyday_exchange_rate` (
   currency varchar(4) NOT NULL COMMENT '币种(AUD:澳币,CNY:人民币)',
   original_exchange_rate decimal(6,4) NOT NULL COMMENT '原始汇率',
   znz_exchange_rate decimal(6,4) NOT NULL COMMENT '指南针汇率',
-　　update_time datetime NOT NULL COMMENT '汇率时间'
+  update_time datetime NOT NULL COMMENT '汇率时间'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
