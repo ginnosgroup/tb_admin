@@ -206,7 +206,21 @@ public class RefundController extends BaseController {
 				sheet.addCell(new Label(16, i, refundDto.getRefundDetail(), cellFormat));
 				if (refundDto.getReceiveDate() != null)
 					sheet.addCell(new Label(17, i, sdf.format(refundDto.getReceiveDate()), cellFormat));
-				sheet.addCell(new Label(18, i, refundDto.getState(), cellFormat));
+				if ("PENDING".equalsIgnoreCase(refundDto.getState()))
+					if (StringUtil.isEmpty(refundDto.getReason()))
+						sheet.addCell(new Label(18, i, "已驳回-" + refundDto.getReason(), cellFormat));
+					else
+						sheet.addCell(new Label(18, i, "待提交", cellFormat));
+				else if ("REVIEW".equalsIgnoreCase(refundDto.getState()))
+					sheet.addCell(new Label(18, i, "审核中", cellFormat));
+				else if ("COMPLETE".equalsIgnoreCase(refundDto.getState()))
+					sheet.addCell(new Label(18, i, "已通过", cellFormat));
+				else if ("PAID".equalsIgnoreCase(refundDto.getState()))
+					sheet.addCell(new Label(18, i, "退款完成", cellFormat));
+				else if ("CLOSE".equalsIgnoreCase(refundDto.getState()))
+					sheet.addCell(new Label(18, i, "已关闭", cellFormat));
+				else
+					sheet.addCell(new Label(18, i, "未知状态", cellFormat));
 				sheet.addCell(new Label(19, i, refundDto.getRemarks(), cellFormat));
 				i++;
 			}
