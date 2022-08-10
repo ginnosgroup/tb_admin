@@ -83,12 +83,12 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 	}
 
 	@Override
-	public List<RefundDTO> listRefund(String type, String state, Integer adviserId, String startDate, String endDate)
+	public List<RefundDTO> listRefund(String type, String state, Integer adviserId, String startDate, String endDate, int pageNum, int pageSize)
 			throws ServiceException {
 		List<RefundDTO> refundDtoList = new ArrayList<>();
 		List<RefundDO> refundDoList = null;
 		try {
-			refundDoList = refundDao.listRefund(type, state, adviserId, startDate, endDate);
+			refundDoList = refundDao.listRefund(type, state, adviserId, startDate, endDate, pageNum * pageSize, pageSize);
 			if (ObjectUtil.isNull(refundDoList))
 				return null;
 		} catch (Exception e) {

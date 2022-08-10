@@ -570,18 +570,18 @@ public class DownExcelController extends BaseController {
 				WritableSheet refundingSheet = wbe.getSheet(2);//refunding	excel表写
 				i = 1;
 				List<RefundDTO> ovstRefundingList = refundService.listRefund("OVST", RefundController.RefundStateEnum.COMPLETE.toString(),
-						commissionReportList.get(0).getAdviserId(), startDate, endDate);
+						commissionReportList.get(0).getAdviserId(), startDate, endDate, 0, 9999);
 				List<RefundDTO> visaRefundingList = refundService.listRefund("VISA", RefundController.RefundStateEnum.COMPLETE.toString(),
-						commissionReportList.get(0).getAdviserId(), startDate, endDate);
+						commissionReportList.get(0).getAdviserId(), startDate, endDate, 0, 9999);
 				i = outPutVisaToRefundSheet(refundingSheet, cellFormat, i, visaRefundingList);
 				outPutOvstToRefundSheet(refundingSheet, cellFormat, cellGreen, i += 3, ovstRefundingList);
 
 				WritableSheet refundedSheet = wbe.getSheet(3);//refunded	excel表写
 				i = 1;
 				List<RefundDTO> ovstRefundedList = refundService.listRefund("OVST", RefundController.RefundStateEnum.PAID.toString(),
-						commissionReportList.get(0).getAdviserId(), startDate, endDate);
+						commissionReportList.get(0).getAdviserId(), startDate, endDate, 0, 9999);
 				List<RefundDTO> visaRefundedList = refundService.listRefund("VISA", RefundController.RefundStateEnum.PAID.toString(),
-						commissionReportList.get(0).getAdviserId(), startDate, endDate);
+						commissionReportList.get(0).getAdviserId(), startDate, endDate, 0, 9999);
 				i = outPutVisaToRefundSheet(refundedSheet, cellFormat, i, visaRefundedList);
 				outPutOvstToRefundSheet(refundedSheet, cellFormat, cellGreen, i += 3, ovstRefundedList);
 

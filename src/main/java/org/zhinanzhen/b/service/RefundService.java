@@ -10,7 +10,7 @@ public interface RefundService {
 
 	int addRefund(RefundDTO refundDto) throws ServiceException;
 
-	List<RefundDTO> listRefund(String type, String state, Integer adviserId, String startDate, String endDate) throws ServiceException;
+	List<RefundDTO> listRefund(String type, String state, Integer adviserId, String startDate, String endDate, int pageNum, int pageSize) throws ServiceException;
 
 	RefundDTO getRefundById(int id) throws ServiceException;
 

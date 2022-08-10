@@ -113,18 +113,18 @@ public class RefundController extends BaseController {
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<List<RefundDTO>> list(@RequestParam(value = "type", required = false) String type,
-			@RequestParam(value = "state", required = false) String state, HttpServletRequest request,
-			HttpServletResponse response) {
+			@RequestParam(value = "state", required = false) String state, @RequestParam(value = "pageNum") int pageNum,
+			@RequestParam(value = "pageSize") int pageSize, HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
 			if (getKjId(request) != null) {
 				if (state == null)
 					state = "REVIEW";
-				return new Response<List<RefundDTO>>(0, refundService.listRefund(type, state, null, null, null));
+				return new Response<List<RefundDTO>>(0, refundService.listRefund(type, state, null, null, null, pageNum, pageSize));
 			}
 			if (getAdviserId(request) != null)
 				return new Response<List<RefundDTO>>(0,
-						refundService.listRefund(type, state, getAdviserId(request), null, null));
+						refundService.listRefund(type, state, getAdviserId(request), null, null, pageNum, pageSize));
 			return new Response<List<RefundDTO>>(1, "仅顾问和会计才有权限查看退款单!", null);
 		} catch (ServiceException e) {
 			return new Response<List<RefundDTO>>(1, e.getMessage(), null);
@@ -141,10 +141,10 @@ public class RefundController extends BaseController {
 			if (getKjId(request) != null) {
 				if (state == null)
 					state = "REVIEW";
-				list = refundService.listRefund(type, state, null, null, null);
+				list = refundService.listRefund(type, state, null, null, null, 0, 9999);
 			}
 			if (getAdviserId(request) != null)
-				list = refundService.listRefund(type, state, getAdviserId(request), null, null);
+				list = refundService.listRefund(type, state, getAdviserId(request), null, null, 0, 9999);
 		} catch (ServiceException e) {
 			e.printStackTrace();
 			return;

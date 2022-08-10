@@ -12,7 +12,8 @@ public interface RefundDAO {
 
 	List<RefundDO> listRefund(@Param("type") String type, @Param("state") String state,
 							  @Param("adviserId") Integer adviserId, @Param("startDate") String startDate,
-							  @Param("endDate") String endDate);
+							  @Param("endDate") String endDate, @Param("offset") int offset,
+								@Param("rows") int rows);
 	
 	RefundDO getRefundById(int id);
 	

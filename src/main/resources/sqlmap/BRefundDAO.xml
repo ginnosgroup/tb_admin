@@ -111,7 +111,8 @@
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
             <![CDATA[ AND r.gmt_create > #{startDate} AND r.gmt_create < #{endDate} ]]>
         </if>
-        ORDER BY r.gmt_create DESC;
+        ORDER BY r.gmt_create DESC
+        LIMIT #{offset}, #{rows};
     </select>
     
     <select id="getRefundById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.RefundDO">
