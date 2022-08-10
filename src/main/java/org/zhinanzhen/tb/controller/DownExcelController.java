@@ -602,9 +602,11 @@ public class DownExcelController extends BaseController {
 
 	public int outPutCvToSheet(WritableSheet sheet, WritableCellFormat cellFormat,WritableCellFormat cellGreen,WritableCellFormat cellYellow , int i , List<VisaDTO> list) throws Exception {
 		BigDecimal expectAmountTotal = new BigDecimal("0.00");
+		BigDecimal amountTotal = new BigDecimal("0.00");
 		BigDecimal bonusTotal = new BigDecimal("0.00");
 		for (VisaDTO visaDto : list) {
 			bonusTotal = bonusTotal.add(new BigDecimal(visaDto.getBonus()));
+			amountTotal = expectAmountTotal.add(new BigDecimal(visaDto.getAmount()));
 			expectAmountTotal = expectAmountTotal.add(new BigDecimal(visaDto.getExpectAmount()));
 			sheet.addCell(new Label(0, i, "CV" + visaDto.getId() , cellFormat));
 			sheet.addCell(new Label(1, i, sdf.format(visaDto.getGmtCreate()), cellFormat));
@@ -613,28 +615,35 @@ public class DownExcelController extends BaseController {
 			sheet.addCell(new Label(3, i, visaDto.getUserName(), cellFormat));
 			sheet.addCell(new Label(4, i, visaDto.getReceiveTypeName(), cellFormat));
 			sheet.addCell(new Label(5, i, visaDto.getServiceCode(), cellFormat));
-			sheet.addCell(new Label(6, i, visaDto.getTotalPerAmount() + "", cellFormat));
-			sheet.addCell(new Label(7, i, visaDto.getTotalAmount() + "", cellFormat));
-			sheet.addCell(new Label(8, i, visaDto.getAmount() + "", cellFormat));
-			sheet.addCell(new Label(9, i, visaDto.getExpectAmount() + "", cellFormat));
-			sheet.addCell(new Label(10, i, visaDto.getExpectAmount() + "", cellFormat));
-			sheet.addCell(new Label(11, i, visaDto.getBonus() + "", cellFormat));
+			
+			sheet.addCell(new Label(6, i, visaDto.getCurrency(), cellFormat));
+			sheet.addCell(new Label(7, i, visaDto.getExchangeRate() + "", cellFormat));
+			sheet.addCell(new Label(8, i, visaDto.getTotalPerAmountCNY() + "", cellFormat));
+			sheet.addCell(new Label(9, i, visaDto.getTotalPerAmountAUD() + "", cellFormat));
+			sheet.addCell(new Label(10, i, visaDto.getTotalAmountCNY() + "", cellFormat));
+			sheet.addCell(new Label(11, i, visaDto.getTotalAmountAUD() + "", cellFormat));
+			sheet.addCell(new Label(12, i, visaDto.getAmountCNY() + "", cellFormat));
+			sheet.addCell(new Label(13, i, visaDto.getAmountAUD() + "", cellFormat));
+			
+			sheet.addCell(new Label(14, i, visaDto.getExpectAmount() + "", cellFormat));
+			sheet.addCell(new Label(15, i, visaDto.getExpectAmount() + "", cellFormat));
+			sheet.addCell(new Label(16, i, visaDto.getBonus() + "", cellFormat));
 			if (visaDto.getBonusDate() != null)
-				sheet.addCell(new Label(12, i, sdf.format(visaDto.getBonusDate()), cellFormat));
-			sheet.addCell(new Label(13, i, visaDto.getBankCheck(), cellFormat));
-			sheet.addCell(new Label(14, i, visaDto.isChecked() + "", cellFormat));
-			sheet.addCell(new Label(15, i, visaDto.getAdviserName(), cellFormat));
+				sheet.addCell(new Label(17, i, sdf.format(visaDto.getBonusDate()), cellFormat));
+			sheet.addCell(new Label(18, i, visaDto.getBankCheck(), cellFormat));
+			sheet.addCell(new Label(19, i, visaDto.isChecked() + "", cellFormat));
+			sheet.addCell(new Label(20, i, visaDto.getAdviserName(), cellFormat));
 			if (visaDto.getState() != null)
-				sheet.addCell(new Label(16, i, getStateStr(visaDto.getState()), cellFormat));
+				sheet.addCell(new Label(21, i, getStateStr(visaDto.getState()), cellFormat));
 			if (visaDto.getKjApprovalDate() != null)
-				sheet.addCell(new Label(17, i, sdf.format(visaDto.getKjApprovalDate()), cellFormat));
-			sheet.addCell(new Label(18, i, visaDto.getRemarks(), cellFormat));
+				sheet.addCell(new Label(22, i, sdf.format(visaDto.getKjApprovalDate()), cellFormat));
+			sheet.addCell(new Label(23, i, visaDto.getRemarks(), cellFormat));
 			i++;
 		}
-		sheet.addCell(new Label(8, i,  "total", cellYellow));
-		sheet.addCell(new Label(9, i,  expectAmountTotal.setScale(2,BigDecimal.ROUND_HALF_UP).toString(), cellYellow));
-		sheet.addCell(new Label(10, i,  expectAmountTotal.setScale(2,BigDecimal.ROUND_HALF_UP).toString(), cellYellow));
-		sheet.addCell(new Label(11, i,  bonusTotal.setScale(2,BigDecimal.ROUND_HALF_UP).toString(), cellYellow));
+//		sheet.addCell(new Label(8, i,  "total", cellYellow));
+//		sheet.addCell(new Label(9, i,  amountTotal.setScale(2,BigDecimal.ROUND_HALF_UP).toString(), cellYellow));
+//		sheet.addCell(new Label(10, i,  expectAmountTotal.setScale(2,BigDecimal.ROUND_HALF_UP).toString(), cellYellow));
+//		sheet.addCell(new Label(11, i,  bonusTotal.setScale(2,BigDecimal.ROUND_HALF_UP).toString(), cellYellow));
 		return i++;
 	}
 
@@ -642,7 +651,8 @@ public class DownExcelController extends BaseController {
 		String title = "订单ID,佣金订单创建日期,客户支付日期,Student Name,Student ID,生日,收款方式,服务项目,是否提前扣佣,Institute/Institution Trading Name," +
 				"Institution Name,Location Name,State,Course Name," +
 				"Course Start Date,Course End Date,Installment Due Date,收款方式,Total Tuition Fee,Per Tuition Fee per Installment," +
-				"总计应收,总计已收,本次收款,Commission,确认预收业绩,GST,Deduct GST,学校支付金额,学校支付时间,Invoice NO.,追佣时间,Subagency,月奖," +
+				"支付币种,创建订单时汇率,总计应收人民币,总计应收澳币,总计收款人民币,总计收款澳币,本次收款人民币,本次收款澳币," +
+				"Commission,确认预收业绩,GST,Deduct GST,学校支付金额,学校支付时间,Invoice NO.,追佣时间,Subagency,月奖," +
 				"月奖支付时间,银行对账字段,是否自动对账,顾问,状态,财务审核时间,佣金备注,服务备注";
 		String [] titleArr = title.split(",");
 		for (int ti = 0 ; ti < titleArr.length ; ti ++){
@@ -694,52 +704,59 @@ public class DownExcelController extends BaseController {
 				sheet.addCell(new Label(17, i, commissionOrderListDto.getReceiveType().getName() + "", cellFormat));
 			sheet.addCell(new Label(18, i, commissionOrderListDto.getTuitionFee() + "", cellFormat));
 			sheet.addCell(new Label(19, i, commissionOrderListDto.getPerAmount() + "", cellFormat)); // .getPerTermTuitionFee()
-			sheet.addCell(new Label(20, i, commissionOrderListDto.getTotalPerAmount() + "", cellFormat));
-			sheet.addCell(new Label(21, i, commissionOrderListDto.getTotalAmount() + "", cellFormat));
-			sheet.addCell(new Label(22, i, commissionOrderListDto.getAmount() + "", cellFormat));
-			sheet.addCell(new Label(23, i, commissionOrderListDto.getExpectAmount() + "", cellFormat));
+			
+			sheet.addCell(new Label(20, i, commissionOrderListDto.getCurrency(), cellFormat));
+			sheet.addCell(new Label(21, i, commissionOrderListDto.getExchangeRate() + "", cellFormat));
+			sheet.addCell(new Label(22, i, commissionOrderListDto.getTotalPerAmountCNY() + "", cellFormat));
+			sheet.addCell(new Label(23, i, commissionOrderListDto.getTotalPerAmountAUD() + "", cellFormat));
+			sheet.addCell(new Label(24, i, commissionOrderListDto.getTotalAmountCNY() + "", cellFormat));
+			sheet.addCell(new Label(25, i, commissionOrderListDto.getTotalAmountAUD() + "", cellFormat));
+			sheet.addCell(new Label(26, i, commissionOrderListDto.getAmountCNY() + "", cellFormat));
+			sheet.addCell(new Label(27, i, commissionOrderListDto.getAmountAUD() + "", cellFormat));
+			
+			sheet.addCell(new Label(28, i, commissionOrderListDto.getExpectAmount() + "", cellFormat));
 			if (commissionOrderListDto.isSettle()){
-				sheet.addCell(new Label(24, i, commissionOrderListDto.getExpectAmount() + "", cellFormat));
+				sheet.addCell(new Label(29, i, commissionOrderListDto.getExpectAmount() + "", cellFormat));
 				sureExpectAmountTotal = sureExpectAmountTotal.add(new BigDecimal(commissionOrderListDto.getExpectAmount()));
 			}
 			else{
-				sheet.addCell(new Label(24, i, commissionOrderListDto.getSureExpectAmount() + "", cellFormat));
+				sheet.addCell(new Label(29, i, commissionOrderListDto.getSureExpectAmount() + "", cellFormat));
 				sureExpectAmountTotal = sureExpectAmountTotal.add(new BigDecimal(commissionOrderListDto.getSureExpectAmount()));
 			}
-			sheet.addCell(new Label(25, i, commissionOrderListDto.getGst() + "", cellFormat));
-			sheet.addCell(new Label(26, i, commissionOrderListDto.getDeductGst() + "", cellFormat));
-			sheet.addCell(new Label(27, i, commissionOrderListDto.getSchoolPaymentAmount() + "", cellFormat));
+			sheet.addCell(new Label(30, i, commissionOrderListDto.getGst() + "", cellFormat));
+			sheet.addCell(new Label(31, i, commissionOrderListDto.getDeductGst() + "", cellFormat));
+			sheet.addCell(new Label(32, i, commissionOrderListDto.getSchoolPaymentAmount() + "", cellFormat));
 			if (commissionOrderListDto.getSchoolPaymentDate() != null)
 				sheet.addCell(
-						new Label(28, i, sdf.format(commissionOrderListDto.getSchoolPaymentDate()), cellFormat));
-			sheet.addCell(new Label(28, i, commissionOrderListDto.getInvoiceNumber(), cellFormat));
+						new Label(33, i, sdf.format(commissionOrderListDto.getSchoolPaymentDate()), cellFormat));
+			sheet.addCell(new Label(34, i, commissionOrderListDto.getInvoiceNumber(), cellFormat));
 			if (commissionOrderListDto.getZyDate() != null)
-				sheet.addCell(new Label(30, i, sdf.format(commissionOrderListDto.getZyDate()), cellFormat));
+				sheet.addCell(new Label(35, i, sdf.format(commissionOrderListDto.getZyDate()), cellFormat));
 			if (commissionOrderListDto.getSubagency() != null)
-				sheet.addCell(new Label(31, i, commissionOrderListDto.getSubagency().getName(), cellFormat));
-			sheet.addCell(new Label(32, i, commissionOrderListDto.getBonus() + "", cellFormat));
+				sheet.addCell(new Label(36, i, commissionOrderListDto.getSubagency().getName(), cellFormat));
+			sheet.addCell(new Label(37, i, commissionOrderListDto.getBonus() + "", cellFormat));
 			if (commissionOrderListDto.getBonusDate() != null)
-				sheet.addCell(new Label(33, i, sdf.format(commissionOrderListDto.getBonusDate()), cellFormat));
-			sheet.addCell(new Label(34, i, commissionOrderListDto.getBankCheck(), cellFormat));
-			sheet.addCell(new Label(35, i, commissionOrderListDto.isChecked() + "", cellFormat));
+				sheet.addCell(new Label(38, i, sdf.format(commissionOrderListDto.getBonusDate()), cellFormat));
+			sheet.addCell(new Label(39, i, commissionOrderListDto.getBankCheck(), cellFormat));
+			sheet.addCell(new Label(40, i, commissionOrderListDto.isChecked() + "", cellFormat));
 			if (commissionOrderListDto.getAdviser() != null)
-				sheet.addCell(new Label(36, i, commissionOrderListDto.getAdviser().getName(), cellFormat));
+				sheet.addCell(new Label(41, i, commissionOrderListDto.getAdviser().getName(), cellFormat));
 			if (commissionOrderListDto.getState() != null)
-				sheet.addCell(new Label(37, i, getStateStr(commissionOrderListDto.getState()), cellFormat));
+				sheet.addCell(new Label(42, i, getStateStr(commissionOrderListDto.getState()), cellFormat));
 			if (commissionOrderListDto.getKjApprovalDate() != null)
-				sheet.addCell(new Label(38, i, sdf.format(commissionOrderListDto.getKjApprovalDate()), cellFormat));
-			sheet.addCell(new Label(39, i, commissionOrderListDto.getRemarks(), cellFormat));
+				sheet.addCell(new Label(43, i, sdf.format(commissionOrderListDto.getKjApprovalDate()), cellFormat));
+			sheet.addCell(new Label(44, i, commissionOrderListDto.getRemarks(), cellFormat));
 			ServiceOrderDTO serviceOrderDTO = serviceOrderService
 					.getServiceOrderById(commissionOrderListDto.getServiceOrderId());
-			sheet.addCell(new Label(40, i,
+			sheet.addCell(new Label(45, i,
 					serviceOrderDTO != null && serviceOrderDTO.getRemarks() != null ? serviceOrderDTO.getRemarks()
 							: "",
 					cellFormat));
 			i++;
 		}
-		sheet.addCell(new Label(19, i,  "total", cellYellow));
-		sheet.addCell(new Label(20, i,  commissionTotal.setScale(2,BigDecimal.ROUND_HALF_UP).toString(), cellYellow));
-		sheet.addCell(new Label(21, i,  sureExpectAmountTotal.setScale(2,BigDecimal.ROUND_HALF_UP).toString(), cellYellow));
+//		sheet.addCell(new Label(27, i,  "total", cellYellow));
+//		sheet.addCell(new Label(28, i,  commissionTotal.setScale(2,BigDecimal.ROUND_HALF_UP).toString(), cellYellow));
+//		sheet.addCell(new Label(29, i,  sureExpectAmountTotal.setScale(2,BigDecimal.ROUND_HALF_UP).toString(), cellYellow));
 	}
 
 	public int outPutVisaToRefundSheet(WritableSheet sheet, WritableCellFormat cellFormat, int i , List<RefundDTO> list) throws Exception {
