@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.core.utils.StringUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -83,7 +84,7 @@ public class SchoolInstitutionController extends BaseController {
 
     @RequestMapping(value = "/deleteSchoolAttachments", method = RequestMethod.GET)
     @ResponseBody
-    public Response deleteSchoolAttachments(@RequestParam(value = "providerId")int providerId,
+    public Response<Integer> deleteSchoolAttachments(@RequestParam(value = "providerId")int providerId,
                                             @RequestParam(value = "isDeleteFile1", required = false, defaultValue = "false")boolean isDeleteFile1,
                                             @RequestParam(value = "isDeleteFile2", required = false, defaultValue = "false")boolean isDeleteFile2,
                                             @RequestParam(value = "isDeleteFile3", required = false, defaultValue = "false")boolean isDeleteFile3,
@@ -92,29 +93,32 @@ public class SchoolInstitutionController extends BaseController {
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
         if (adminUserLoginInfo == null ||
                 (adminUserLoginInfo.getApList().equalsIgnoreCase("GW") && adminUserLoginInfo.getRegionId() == null))//除顾问的其他角色可以修改
-            return new Response(1,"No permission !");
+            return new Response<Integer>(1,"No permission !");
         if (schoolInstitutionService.deleteSchoolAttachments(providerId,isDeleteFile1,isDeleteFile2,isDeleteFile3) > 0)
-            return new Response(0,"success");
+            return new Response<Integer>(0,"success");
         else
-            return new Response(1,"fail");
+            return new Response<Integer>(1,"fail");
     }
 
-    @RequestMapping(value = "/list",method = RequestMethod.GET)
-    @ResponseBody
-    public ListResponse list(@RequestParam(value = "id",required = false ) Integer id, @RequestParam(value = "name" ,required =  false) String name,
-                             @RequestParam(value = "type",required = false) String type,@RequestParam(value = "code",required = false) String code,
-                             @RequestParam(value = "isFreeze",required = false) Boolean isFreeze,
-                             @RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
-                             @RequestParam(value = "orderBy",required = false)String orderBy,
-                             @RequestParam(value = "keyword",required = false)String keyword,
-                             HttpServletRequest request,HttpServletResponse response){
-        super.setGetHeader(response);
-        if ( id != null && id > 0)
-            return  new ListResponse(true , pageSize,1,schoolInstitutionService.getSchoolInstitutionById(id),"ok");
-        int total =  schoolInstitutionService.count(name,type,code,isFreeze);
-        return  new ListResponse(true , pageSize,total,schoolInstitutionService.listSchoolInstitutionDTO(name,type,code, isFreeze,
-                pageNum,pageSize,orderBy,keyword),"ok");
-    }
+	@RequestMapping(value = "/list", method = RequestMethod.GET)
+	@ResponseBody
+	public ListResponse<List<SchoolInstitutionDTO>> list(@RequestParam(value = "id", required = false) Integer id,
+			@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "type", required = false) String type,
+			@RequestParam(value = "code", required = false) String code,
+			@RequestParam(value = "isFreeze", required = false) Boolean isFreeze,
+			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
+			@RequestParam(value = "orderBy", required = false) String orderBy,
+			@RequestParam(value = "keyword", required = false) String keyword, HttpServletRequest request,
+			HttpServletResponse response) {
+		super.setGetHeader(response);
+		if (id != null && id > 0)
+			return new ListResponse(true, pageSize, 1,
+					ListUtil.buildArrayList(schoolInstitutionService.getSchoolInstitutionById(id)), "ok");
+		int total = schoolInstitutionService.count(name, type, code, isFreeze, keyword);
+		return new ListResponse<List<SchoolInstitutionDTO>>(true, pageSize, total, schoolInstitutionService
+				.listSchoolInstitutionDTO(name, type, code, isFreeze, pageNum, pageSize, orderBy, keyword), "ok");
+	}
 
     @RequestMapping(value = "/get",method = RequestMethod.GET)
     @ResponseBody
