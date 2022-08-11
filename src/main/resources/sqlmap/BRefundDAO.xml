@@ -63,6 +63,26 @@
                 #{remarks});
     </insert>
     
+    <select id="countRefund" resultType="java.lang.Integer">
+        SELECT
+            count(*)
+        FROM tb_user u, tb_adviser a, tb_region re, b_refund r 
+        WHERE r.user_id = u.id AND r.adviser_id = a.id AND re.id = a.region_id
+        <if test='type != null and type != ""'>
+			AND r.type = #{type}
+		</if>
+		<if test='state != null and state != ""'>
+			AND r.state = #{state}
+		</if>
+		<if test="adviserId != null and adviserId > 0">
+            AND r.adviser_id = #{adviserId}
+        </if>
+        <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+            <![CDATA[ AND r.gmt_create > #{startDate} AND r.gmt_create < #{endDate} ]]>
+        </if>
+        ;
+    </select>
+    
     <select id="listRefund" resultType="org.zhinanzhen.b.dao.pojo.RefundDO">
         SELECT
             r.id,

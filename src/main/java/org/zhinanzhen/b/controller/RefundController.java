@@ -25,6 +25,7 @@ import org.zhinanzhen.b.controller.nodes.RNodeFactory;
 import org.zhinanzhen.b.service.RefundService;
 import org.zhinanzhen.b.service.pojo.RefundDTO;
 import org.zhinanzhen.tb.controller.BaseController;
+import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 
@@ -112,7 +113,7 @@ public class RefundController extends BaseController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<RefundDTO>> list(@RequestParam(value = "type", required = false) String type,
+	public ListResponse<List<RefundDTO>> list(@RequestParam(value = "type", required = false) String type,
 			@RequestParam(value = "state", required = false) String state, @RequestParam(value = "pageNum") int pageNum,
 			@RequestParam(value = "pageSize") int pageSize, HttpServletRequest request, HttpServletResponse response) {
 		try {
@@ -120,14 +121,18 @@ public class RefundController extends BaseController {
 			if (getKjId(request) != null) {
 				if (state == null)
 					state = "REVIEW";
-				return new Response<List<RefundDTO>>(0, refundService.listRefund(type, state, null, null, null, pageNum, pageSize));
+				return new ListResponse<List<RefundDTO>>(true, pageSize,
+						refundService.countRefund(type, state, null, null, null),
+						refundService.listRefund(type, state, null, null, null, pageNum, pageSize), null);
 			}
 			if (getAdviserId(request) != null)
-				return new Response<List<RefundDTO>>(0,
-						refundService.listRefund(type, state, getAdviserId(request), null, null, pageNum, pageSize));
-			return new Response<List<RefundDTO>>(1, "仅顾问和会计才有权限查看退款单!", null);
+				return new ListResponse<List<RefundDTO>>(true, pageSize,
+						refundService.countRefund(type, state, getAdviserId(request), null, null),
+						refundService.listRefund(type, state, getAdviserId(request), null, null, pageNum, pageSize),
+						null);
+			return new ListResponse<List<RefundDTO>>(false, pageSize, 0, null, "仅顾问和会计才有权限查看退款单!");
 		} catch (ServiceException e) {
-			return new Response<List<RefundDTO>>(1, e.getMessage(), null);
+			return new ListResponse<List<RefundDTO>>(false, pageSize, 0, null, e.getMessage());
 		}
 	}
 

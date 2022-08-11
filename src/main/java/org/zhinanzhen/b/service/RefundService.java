@@ -9,6 +9,8 @@ import org.zhinanzhen.tb.service.ServiceException;
 public interface RefundService {
 
 	int addRefund(RefundDTO refundDto) throws ServiceException;
+	
+	int countRefund(String type, String state, Integer adviserId, String startDate, String endDate) throws ServiceException;
 
 	List<RefundDTO> listRefund(String type, String state, Integer adviserId, String startDate, String endDate, int pageNum, int pageSize) throws ServiceException;
 

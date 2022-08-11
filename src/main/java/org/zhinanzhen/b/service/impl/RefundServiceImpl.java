@@ -81,6 +81,12 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 			throw se;
 		}
 	}
+	
+	@Override
+	public int countRefund(String type, String state, Integer adviserId, String startDate, String endDate)
+			throws ServiceException {
+		return refundDao.countRefund(type, state, adviserId, startDate, theDateTo23_59_59(endDate));
+	}
 
 	@Override
 	public List<RefundDTO> listRefund(String type, String state, Integer adviserId, String startDate, String endDate, int pageNum, int pageSize)
