@@ -30,5 +30,16 @@
             update_time AS updateTime
         FROM b_everyday_exchange_rate ORDER BY update_time DESC LIMIT 1;
     </select>
+    
+    <select id="list" resultType="org.zhinanzhen.b.dao.pojo.EverydayExchangeRateDO">
+        SELECT
+            id,
+            currency,
+            original_exchange_rate AS originalExchangeRate,
+            znz_exchange_rate AS znzExchangeRate,
+            update_time AS updateTime
+        FROM b_everyday_exchange_rate
+        ORDER BY update_time DESC;
+    </select>
 
 </mapper>

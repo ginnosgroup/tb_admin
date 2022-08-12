@@ -3,6 +3,7 @@ package org.zhinanzhen.b.controller;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -42,6 +43,20 @@ public class ExchangeRateController extends BaseController {
 					new ExchangeRateData(exchangeRateDto.getRate(), exchangeRateDto.getUpdateDate(), new Date()));
 		} catch (ServiceException | ParseException e) {
 			return new Response<ExchangeRateData>(1, e.getMessage(), null);
+		}
+	}
+	
+	@RequestMapping(value = "/listDailyCNYExchangeRate", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<ExchangeRateDTO>> listDailyExchangeRate(HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			List<ExchangeRateDTO> list = exchangeRateService.listExchangeRate();
+			if (list == null)
+				return new Response<List<ExchangeRateDTO>>(1, "查询汇率失败!");
+			return new Response<List<ExchangeRateDTO>>(0, list);
+		} catch (ServiceException e) {
+			return new Response<List<ExchangeRateDTO>>(1, e.getMessage(), null);
 		}
 	}
 
