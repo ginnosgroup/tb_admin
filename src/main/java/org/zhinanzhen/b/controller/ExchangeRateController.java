@@ -57,7 +57,7 @@ public class ExchangeRateController extends BaseController {
 				return new Response<String>(1, "", null);
 			String s = "";
 			for (ExchangeRateDTO r : list) {
-				s += r.getRate() + "|" + sdf.format(r.getUpdateDate()) + ";\n";
+				s += r.getRate() + "|" + sdf.format(r.getUpdateDate()) + ";";
 			}
 			return new Response<String>(0, "", s);
 		} catch (ServiceException e) {
