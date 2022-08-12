@@ -38,7 +38,7 @@ public class ExchangeRateServiceImpl extends BaseService implements ExchangeRate
 			list = everydayExchangeRateDao.list();
 			if (list == null)
 				return null;
-			list.forEach(v -> dtoList.add(mapper.map(v, ExchangeRateDTO.class)));
+			list.forEach(v -> dtoList.add(new ExchangeRateDTO(v.getZnzExchangeRate(), v.getUpdateTime())));
 			return dtoList;
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
