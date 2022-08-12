@@ -48,15 +48,19 @@ public class ExchangeRateController extends BaseController {
 	
 	@RequestMapping(value = "/listDailyCNYExchangeRate", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<ExchangeRateDTO>> listDailyExchangeRate(HttpServletRequest request,
+	public Response<String> listDailyExchangeRate(HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			List<ExchangeRateDTO> list = exchangeRateService.listExchangeRate();
 			if (list == null)
-				return new Response<List<ExchangeRateDTO>>(1, "查询汇率失败!");
-			return new Response<List<ExchangeRateDTO>>(0, list);
+				return new Response<String>(1, "", null);
+			String s = "";
+			for (ExchangeRateDTO r : list) {
+				s += r.getRate() + "|" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(r.getUpdateDate()) + ";\n";
+			}
+			return new Response<String>(0, "", s);
 		} catch (ServiceException e) {
-			return new Response<List<ExchangeRateDTO>>(1, e.getMessage(), null);
+			return new Response<String>(1, e.getMessage(), null);
 		}
 	}
 
