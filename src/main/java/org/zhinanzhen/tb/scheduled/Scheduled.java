@@ -2,7 +2,11 @@ package org.zhinanzhen.tb.scheduled;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.ikasoa.core.utils.StringUtil;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +17,7 @@ import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.WXWorkService;
+import org.zhinanzhen.b.service.impl.ExchangeRateServiceImpl;
 import org.zhinanzhen.b.service.impl.VerifyServiceImpl;
 import org.zhinanzhen.b.service.pojo.DataDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
@@ -27,8 +32,15 @@ import org.zhinanzhen.tb.utils.CommonUtils;
 import org.zhinanzhen.tb.utils.EmojiFilter;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
 import org.zhinanzhen.tb.utils.WXWorkAPI;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.*;
+
+import javax.annotation.Resource;
 
 /**
  * Created with IntelliJ IDEA.
@@ -49,6 +61,7 @@ Hobart:lorrain.pan@zhinanzhen.org;jiaheng.xu@zhinanzhen.org
  */
 @Component
 @EnableScheduling
+@Slf4j
 @Lazy(false)
 public class Scheduled {
 
@@ -86,6 +99,9 @@ public class Scheduled {
 
     @Autowired
     MailRemindDAO mailRemindDAO;
+    
+    @Autowired
+	private EverydayExchangeRateDAO everydayExchangeRateDao;
 
     private Calendar calendar ;
 
@@ -555,6 +571,54 @@ public class Scheduled {
         SendEmailUtil.send("815124560@qq.com","数据", content.toString());
     }
     */
+    
+    @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 8 * * ?")
+	public void updateRateEveryDay(){
+		try {
+			JSONObject jsonObject = getJsonObject("http://web.juhe.cn/finance/exchange/rmbquot?key=459f1492038689af44230eb125de38c7");
+			JSONArray resultArray = jsonObject.getJSONArray("result");
+			JSONObject result = (JSONObject) resultArray.get(0);
+			JSONObject data6 = (JSONObject) result.get("data6");
+			Double fSellPri = data6.getDoubleValue("fSellPri") / 100;
+
+			EverydayExchangeRateDO everydayExchangeRateDo = new EverydayExchangeRateDO();
+			everydayExchangeRateDo.setCurrency("CNY");
+			everydayExchangeRateDo.setOriginalExchangeRate(fSellPri);
+			everydayExchangeRateDo.setZnzExchangeRate(fSellPri + 0.1);
+			everydayExchangeRateDo.setUpdateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+					.parse(StringUtil.merge(data6.getString("date"), " ", data6.getString("time"))));
+			log.info("获取实时汇率:" + everydayExchangeRateDo);
+			everydayExchangeRateDao.add(everydayExchangeRateDo);
+		} catch (Exception e) {
+			log.error("获取实时汇率异常:" + e.getMessage());
+		}
+	}
+	
+	private static JSONObject getJsonObject(String url) {
+		JSONObject json = null;
+		BufferedReader in = null;
+		try {
+			URL realUrl = new URL(url);
+			URLConnection connection = realUrl.openConnection();
+			connection.setRequestProperty("accept", "*/*");
+			connection.setRequestProperty("connection", "Keep-Alive");
+			connection.connect();
+			in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			String line;
+			while ((line = in.readLine()) != null)
+				json = com.alibaba.fastjson.JSONObject.parseObject(line);
+		} catch (Exception e) {
+			log.error("发送GET请求出现异常！" + e.getMessage());
+		} finally {
+			try {
+				if (in != null)
+					in.close();
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
+		return json;
+	}
 
     public enum regionEnum{
         Sydney, Canberra, 攻坚部, Melbourne, Brisbane, Adelaide, Hobart ;
