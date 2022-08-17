@@ -262,6 +262,10 @@ public class BaseController {
 		}
 		return token;
 	}
+	
+	protected boolean isCN(Integer regionId) {
+		return regionId == 52000 || regionId == 1000025 || regionId == 1000030 || regionId == 1000032;
+	}
 
 	@Data
 	protected class AdminUserLoginInfo {

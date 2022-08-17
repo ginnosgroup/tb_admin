@@ -406,6 +406,7 @@ public class DownExcelController extends BaseController {
 					"attachment; filename=" + tableName + ".zip");
 			response.setContentType("application/zip");
 
+			// AUD
 			Map<String, CommissionReport> crMap = new HashMap<>();
 			List<VisaReportDTO> visaReportList = visaService.listVisaReport(startDate, endDate, dateType, dateMethod,
 					regionId, adviserId, adviserIdList);
@@ -418,10 +419,10 @@ public class DownExcelController extends BaseController {
 								, 0, 0, 0));
 				});
 			
-			List<CommissionOrderReportDTO> commissionOrderReportList = commissionOrderService
+			List<CommissionOrderReportDTO> commissionOrderReportAUDList = commissionOrderService
 					.listCommissionOrderReport(startDate, endDate, dateType, dateMethod, regionId, adviserId, adviserIdList);
-			if (commissionOrderReportList != null)
-				commissionOrderReportList.forEach(c -> {
+			if (commissionOrderReportAUDList != null)
+				commissionOrderReportAUDList.forEach(c -> {
 					if (c.getDate() != null) {
 						CommissionReport cr = crMap.get(c.getDate() + "-" + c.getRegionId() + "-" + c.getConsultant());
 						if (cr != null) {
@@ -436,7 +437,7 @@ public class DownExcelController extends BaseController {
 											c.getClaimedCommission(), c.getAdjustments(), 0, 0));
 					}
 				});
-
+			
 			List<RefoundReportDTO> refoundReportList = refundService
 					.listRefundReport(startDate, endDate, dateType, dateMethod, regionId, adviserId, adviserIdList);
 			if (refoundReportList != null)
@@ -454,7 +455,6 @@ public class DownExcelController extends BaseController {
 											0, 0, r.getRefunded(), r.getRefunding()));
 					}
 				});
-
 
 			//crMap 顾问分组
 			Map<String,List<CommissionReport>> crListMap = new HashMap<>();
@@ -477,7 +477,6 @@ public class DownExcelController extends BaseController {
 				}
 			}
 
-
 			//OutputStream os = response.getOutputStream();
 			ZipOutputStream zipos = new ZipOutputStream(response.getOutputStream());
 			jxl.Workbook wb;
@@ -495,99 +494,183 @@ public class DownExcelController extends BaseController {
 			//}
 			//WritableSheet sheet = wbe.getSheet(0);
 			
-			for (Map.Entry<String, List<CommissionReport>> entry : crListMap.entrySet()) {
-				int i = 1;
-				List<CommissionReport> commissionReportList = entry.getValue();
+			
+			if (isCN(regionId)) {
 				
-				ZipEntry zipEntryXtv = new ZipEntry(entry.getKey() +".xls");
-				zipos.putNextEntry(zipEntryXtv);
-				try {
-					is = this.getClass().getResourceAsStream("/CommissionReportTemplate.xls");
-				} catch (Exception e) {
-					throw new Exception("模版不存在");
+				// CNY
+				for (Map.Entry<String, List<CommissionReport>> entry : crListMap.entrySet()) {
+					int i = 1;
+					List<CommissionReport> commissionReportList = entry.getValue();
+					
+					ZipEntry zipEntryXtv = new ZipEntry(entry.getKey() +".xls");
+					zipos.putNextEntry(zipEntryXtv);
+					try {
+						is = this.getClass().getResourceAsStream("/CommissionReportTemplateCNY.xls");
+					} catch (Exception e) {
+						throw new Exception("模版不存在");
+					}
+					try {
+						wb = Workbook.getWorkbook(is);
+					} catch (Exception e) {
+						throw new Exception("模版格式不支持");
+					}
+					jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(zipos, wb, settings);
+
+					WritableCellFormat cellFormat = new WritableCellFormat();
+					WritableCellFormat cellGreen = new WritableCellFormat();
+					cellGreen.setBackground(Colour.LIGHT_GREEN);
+					cellGreen.setAlignment(Alignment.CENTRE); // 设置对齐方式
+					cellGreen.setBorder(Border.ALL, BorderLineStyle.THIN);
+
+					WritableCellFormat cellYellow = new WritableCellFormat();
+					cellYellow.setBackground(Colour.YELLOW);
+
+					WritableSheet _sheet = wbe.getSheet(0); // summary(非澳洲)
+
+					for (CommissionReport commissionReport : commissionReportList){
+						double performanceIndex = commissionReport.getServiceFee() + commissionReport.getDeductionCommission()
+								+ commissionReport.getClaimCommission() + commissionReport.getAdjustments() + commissionReport.getRefunding();
+						_sheet.addCell(new Label(0, i, commissionReport.getDate(), cellFormat));
+						_sheet.addCell(new Label(1, i, commissionReport.getArea(), cellFormat));
+						_sheet.addCell(new Label(2, i, commissionReport.getConsultant(), cellFormat));
+						_sheet.addCell(new Label(3, i, new BigDecimal(performanceIndex).setScale(2,BigDecimal.ROUND_HALF_UP)
+								.doubleValue() + "", cellFormat));
+						_sheet.addCell(new Label(4, i, commissionReport.getCommission() + "", cellFormat));
+						_sheet.addCell(new Label(5, i, commissionReport.getServiceFee() + "", cellFormat));
+						_sheet.addCell(new Label(6, i, commissionReport.getDeductionCommission() + "", cellFormat));
+						_sheet.addCell(new Label(7, i, commissionReport.getClaimCommission() + "", cellFormat));
+						_sheet.addCell(new Label(8, i, commissionReport.getClaimedCommission() + "", cellFormat));
+						_sheet.addCell(new Label(9, i, commissionReport.getAdjustments() + "", cellFormat));
+						_sheet.addCell(new Label(11, i, commissionReport.getRefunded() + "", cellFormat));
+						i++;
+					}
+
+					WritableSheet sheet = wbe.getSheet(1); // detail(非澳洲)
+					i = 1 ;
+					List<VisaDTO> list = visaService.listVisa(null ,null, null, null, null,
+							null, startDate, endDate, null, null, null, null, null,
+							commissionReportList.get(0).getAdviserId(),null,null, null, null,0, 9999, null);
+					list.forEach(v -> {
+						if (v.getServiceOrderId() > 0)
+							try {
+								ServiceOrderDTO serviceOrderDto = serviceOrderService
+										.getServiceOrderById(v.getServiceOrderId());
+								if (serviceOrderDto != null)
+									v.setServiceOrder(serviceOrderDto);
+							} catch (ServiceException e) {
+							}
+					});
+
+					i = outPutCvToSheet(sheet, cellFormat, cellGreen, cellYellow, i, list, "CNY");
+
+					List<CommissionOrderListDTO> commissionOrderList = commissionOrderService.listCommissionOrder(null,
+							null, null, commissionReportList.get(0).getAdviserId(), null, null, null, null, null, null,
+							null, null, null, null, startDate, endDate, null, null, null, null, null, null, 0, 9999, null);
+
+					outPutCsToSheet(sheet, cellFormat,cellGreen, cellYellow, i += 3, commissionOrderList, "CNY");
+
+					wbe.write();
+//					zipos.closeEntry();
+					wbe.close();
 				}
-				try {
-					wb = Workbook.getWorkbook(is);
-				} catch (Exception e) {
-					throw new Exception("模版格式不支持");
+				
+			} else {
+				
+				// AUD
+				for (Map.Entry<String, List<CommissionReport>> entry : crListMap.entrySet()) {
+					int i = 1;
+					List<CommissionReport> commissionReportList = entry.getValue();
+					
+					ZipEntry zipEntryXtv = new ZipEntry(entry.getKey() +".xls");
+					zipos.putNextEntry(zipEntryXtv);
+					try {
+						is = this.getClass().getResourceAsStream("/CommissionReportTemplate.xls");
+					} catch (Exception e) {
+						throw new Exception("模版不存在");
+					}
+					try {
+						wb = Workbook.getWorkbook(is);
+					} catch (Exception e) {
+						throw new Exception("模版格式不支持");
+					}
+					jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(zipos, wb, settings);
+
+					WritableCellFormat cellFormat = new WritableCellFormat();
+					WritableCellFormat cellGreen = new WritableCellFormat();
+					cellGreen.setBackground(Colour.LIGHT_GREEN);
+					cellGreen.setAlignment(Alignment.CENTRE); // 设置对齐方式
+					cellGreen.setBorder(Border.ALL, BorderLineStyle.THIN);
+
+					WritableCellFormat cellYellow = new WritableCellFormat();
+					cellYellow.setBackground(Colour.YELLOW);
+
+					WritableSheet _sheet = wbe.getSheet(0); // summary(澳洲)
+
+					for (CommissionReport commissionReport : commissionReportList){
+						double performanceIndex = commissionReport.getServiceFee() + commissionReport.getDeductionCommission()
+								+ commissionReport.getClaimCommission() + commissionReport.getAdjustments() + commissionReport.getRefunding();
+						_sheet.addCell(new Label(0, i, commissionReport.getDate(), cellFormat));
+						_sheet.addCell(new Label(1, i, commissionReport.getArea(), cellFormat));
+						_sheet.addCell(new Label(2, i, commissionReport.getConsultant(), cellFormat));
+						_sheet.addCell(new Label(3, i, new BigDecimal(performanceIndex).setScale(2,BigDecimal.ROUND_HALF_UP)
+								.doubleValue() + "", cellFormat));
+						_sheet.addCell(new Label(4, i, commissionReport.getCommission() + "", cellFormat));
+						_sheet.addCell(new Label(5, i, commissionReport.getServiceFee() + "", cellFormat));
+						_sheet.addCell(new Label(6, i, commissionReport.getDeductionCommission() + "", cellFormat));
+						_sheet.addCell(new Label(7, i, commissionReport.getClaimCommission() + "", cellFormat));
+						_sheet.addCell(new Label(8, i, commissionReport.getClaimedCommission() + "", cellFormat));
+						_sheet.addCell(new Label(9, i, commissionReport.getAdjustments() + "", cellFormat));
+						_sheet.addCell(new Label(11, i, commissionReport.getRefunded() + "", cellFormat));
+						i++;
+					}
+
+					WritableSheet sheet = wbe.getSheet(1); // detail(澳洲)
+					i = 1 ;
+					List<VisaDTO> list = visaService.listVisa(null ,null, null, null, null,
+							null, startDate, endDate, null, null, null, null, null,
+							commissionReportList.get(0).getAdviserId(),null,null, null, null,0, 9999, null);
+					list.forEach(v -> {
+						if (v.getServiceOrderId() > 0)
+							try {
+								ServiceOrderDTO serviceOrderDto = serviceOrderService
+										.getServiceOrderById(v.getServiceOrderId());
+								if (serviceOrderDto != null)
+									v.setServiceOrder(serviceOrderDto);
+							} catch (ServiceException e) {
+							}
+					});
+
+					i = outPutCvToSheet(sheet, cellFormat, cellGreen, cellYellow, i, list, "AUD");
+
+					List<CommissionOrderListDTO> commissionOrderList = commissionOrderService.listCommissionOrder(null,
+							null, null, commissionReportList.get(0).getAdviserId(), null, null, null, null, null, null,
+							null, null, null, null, startDate, endDate, null, null, null, null, null, null, 0, 9999, null);
+
+					outPutCsToSheet(sheet, cellFormat,cellGreen, cellYellow, i += 3, commissionOrderList, "AUD");
+
+//					WritableSheet refundingSheet = wbe.getSheet(2);//refunding	excel表写
+//					i = 1;
+//					List<RefundDTO> ovstRefundingList = refundService.listRefund("OVST", RefundController.RefundStateEnum.COMPLETE.toString(),
+//							commissionReportList.get(0).getAdviserId(), startDate, endDate, 0, 9999);
+//					List<RefundDTO> visaRefundingList = refundService.listRefund("VISA", RefundController.RefundStateEnum.COMPLETE.toString(),
+//							commissionReportList.get(0).getAdviserId(), startDate, endDate, 0, 9999);
+//					i = outPutVisaToRefundSheet(refundingSheet, cellFormat, i, visaRefundingList);
+//					outPutOvstToRefundSheet(refundingSheet, cellFormat, cellGreen, i += 3, ovstRefundingList);
+
+					WritableSheet refundedSheet = wbe.getSheet(2);//refunded	excel表写
+					i = 1;
+					List<RefundDTO> ovstRefundedList = refundService.listRefund("OVST", RefundController.RefundStateEnum.PAID.toString(),
+							commissionReportList.get(0).getAdviserId(), startDate, endDate, 0, 9999);
+					List<RefundDTO> visaRefundedList = refundService.listRefund("VISA", RefundController.RefundStateEnum.PAID.toString(),
+							commissionReportList.get(0).getAdviserId(), startDate, endDate, 0, 9999);
+					i = outPutVisaToRefundSheet(refundedSheet, cellFormat, i, visaRefundedList);
+					outPutOvstToRefundSheet(refundedSheet, cellFormat, cellGreen, i += 3, ovstRefundedList);
+
+					wbe.write();
+//					zipos.closeEntry();
+					wbe.close();
 				}
-				jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(zipos, wb, settings);
-
-				WritableCellFormat cellFormat = new WritableCellFormat();
-				WritableCellFormat cellGreen = new WritableCellFormat();
-				cellGreen.setBackground(Colour.LIGHT_GREEN);
-				cellGreen.setAlignment(Alignment.CENTRE); // 设置对齐方式
-				cellGreen.setBorder(Border.ALL, BorderLineStyle.THIN);
-
-				WritableCellFormat cellYellow = new WritableCellFormat();
-				cellYellow.setBackground(Colour.YELLOW);
-
-				WritableSheet _sheet = wbe.getSheet(0);
-
-				for (CommissionReport commissionReport : commissionReportList){
-					double performanceIndex = commissionReport.getServiceFee() + commissionReport.getDeductionCommission()
-							+ commissionReport.getClaimCommission() + commissionReport.getAdjustments() + commissionReport.getRefunding();
-					_sheet.addCell(new Label(0, i, commissionReport.getDate(), cellFormat));
-					_sheet.addCell(new Label(1, i, commissionReport.getArea(), cellFormat));
-					_sheet.addCell(new Label(2, i, commissionReport.getConsultant(), cellFormat));
-					_sheet.addCell(new Label(3, i, new BigDecimal(performanceIndex).setScale(2,BigDecimal.ROUND_HALF_UP)
-							.doubleValue() + "", cellFormat));
-					_sheet.addCell(new Label(4, i, commissionReport.getCommission() + "", cellFormat));
-					_sheet.addCell(new Label(5, i, commissionReport.getServiceFee() + "", cellFormat));
-					_sheet.addCell(new Label(6, i, commissionReport.getDeductionCommission() + "", cellFormat));
-					_sheet.addCell(new Label(7, i, commissionReport.getClaimCommission() + "", cellFormat));
-					_sheet.addCell(new Label(8, i, commissionReport.getClaimedCommission() + "", cellFormat));
-					_sheet.addCell(new Label(9, i, commissionReport.getAdjustments() + "", cellFormat));
-					_sheet.addCell(new Label(10, i, commissionReport.getRefunding() + "", cellFormat));
-					_sheet.addCell(new Label(11, i, commissionReport.getRefunded() + "", cellFormat));
-					i++;
-				}
-
-				WritableSheet sheet = wbe.getSheet(1);
-				i = 1 ;
-				List<VisaDTO> list = visaService.listVisa(null ,null, null, null, null,
-						null, startDate, endDate, null, null, null, null, null,
-						commissionReportList.get(0).getAdviserId(),null,null, null, null,0, 9999, null);
-				list.forEach(v -> {
-					if (v.getServiceOrderId() > 0)
-						try {
-							ServiceOrderDTO serviceOrderDto = serviceOrderService
-									.getServiceOrderById(v.getServiceOrderId());
-							if (serviceOrderDto != null)
-								v.setServiceOrder(serviceOrderDto);
-						} catch (ServiceException e) {
-						}
-				});
-
-				i = outPutCvToSheet(sheet, cellFormat, cellGreen, cellYellow, i, list);
-
-				List<CommissionOrderListDTO> commissionOrderList = commissionOrderService.listCommissionOrder(null,
-						null, null, commissionReportList.get(0).getAdviserId(), null, null, null, null, null, null,
-						null, null, null, null, startDate, endDate, null, null, null, null, null, null, 0, 9999, null);
-
-				outPutCsToSheet(sheet, cellFormat,cellGreen, cellYellow, i += 3, commissionOrderList);
-
-				WritableSheet refundingSheet = wbe.getSheet(2);//refunding	excel表写
-				i = 1;
-				List<RefundDTO> ovstRefundingList = refundService.listRefund("OVST", RefundController.RefundStateEnum.COMPLETE.toString(),
-						commissionReportList.get(0).getAdviserId(), startDate, endDate, 0, 9999);
-				List<RefundDTO> visaRefundingList = refundService.listRefund("VISA", RefundController.RefundStateEnum.COMPLETE.toString(),
-						commissionReportList.get(0).getAdviserId(), startDate, endDate, 0, 9999);
-				i = outPutVisaToRefundSheet(refundingSheet, cellFormat, i, visaRefundingList);
-				outPutOvstToRefundSheet(refundingSheet, cellFormat, cellGreen, i += 3, ovstRefundingList);
-
-				WritableSheet refundedSheet = wbe.getSheet(3);//refunded	excel表写
-				i = 1;
-				List<RefundDTO> ovstRefundedList = refundService.listRefund("OVST", RefundController.RefundStateEnum.PAID.toString(),
-						commissionReportList.get(0).getAdviserId(), startDate, endDate, 0, 9999);
-				List<RefundDTO> visaRefundedList = refundService.listRefund("VISA", RefundController.RefundStateEnum.PAID.toString(),
-						commissionReportList.get(0).getAdviserId(), startDate, endDate, 0, 9999);
-				i = outPutVisaToRefundSheet(refundedSheet, cellFormat, i, visaRefundedList);
-				outPutOvstToRefundSheet(refundedSheet, cellFormat, cellGreen, i += 3, ovstRefundedList);
-
-				wbe.write();
-//				zipos.closeEntry();
-				wbe.close();
+				
 			}
 
 			zipos.flush();
@@ -600,10 +683,13 @@ public class DownExcelController extends BaseController {
 		}
 	}
 
-	public int outPutCvToSheet(WritableSheet sheet, WritableCellFormat cellFormat,WritableCellFormat cellGreen,WritableCellFormat cellYellow , int i , List<VisaDTO> list) throws Exception {
-		BigDecimal expectAmountTotal = new BigDecimal("0.00");
+	public int outPutCvToSheet(WritableSheet sheet, WritableCellFormat cellFormat,WritableCellFormat cellGreen,WritableCellFormat cellYellow , int i , List<VisaDTO> list, String currency) throws Exception {
 		BigDecimal amountTotal = new BigDecimal("0.00");
+		BigDecimal gstTotal = new BigDecimal("0.00");
+		BigDecimal deductGstTotal = new BigDecimal("0.00");
+		BigDecimal expectAmountTotal = new BigDecimal("0.00");
 		BigDecimal bonusTotal = new BigDecimal("0.00");
+		int j = 12;
 		for (VisaDTO visaDto : list) {
 			bonusTotal = bonusTotal.add(new BigDecimal(visaDto.getBonus()));
 			amountTotal = expectAmountTotal.add(new BigDecimal(visaDto.getAmount()));
@@ -616,44 +702,66 @@ public class DownExcelController extends BaseController {
 			sheet.addCell(new Label(4, i, visaDto.getReceiveTypeName(), cellFormat));
 			sheet.addCell(new Label(5, i, visaDto.getServiceCode(), cellFormat));
 			
-			sheet.addCell(new Label(6, i, visaDto.getCurrency(), cellFormat));
-			sheet.addCell(new Label(7, i, visaDto.getExchangeRate() + "", cellFormat));
-			sheet.addCell(new Label(8, i, visaDto.getTotalPerAmountCNY() + "", cellFormat));
-			sheet.addCell(new Label(9, i, visaDto.getTotalPerAmountAUD() + "", cellFormat));
-			sheet.addCell(new Label(10, i, visaDto.getTotalAmountCNY() + "", cellFormat));
-			sheet.addCell(new Label(11, i, visaDto.getTotalAmountAUD() + "", cellFormat));
-			sheet.addCell(new Label(12, i, visaDto.getAmountCNY() + "", cellFormat));
-			sheet.addCell(new Label(13, i, visaDto.getAmountAUD() + "", cellFormat));
+			if ("CNY".equalsIgnoreCase(currency)) {
+				sheet.addCell(new Label(6, i, visaDto.getTotalPerAmountCNY() + "", cellFormat));
+				sheet.addCell(new Label(7, i, visaDto.getTotalAmountCNY() + "", cellFormat));
+				sheet.addCell(new Label(8, i, visaDto.getCurrency(), cellFormat));
+				sheet.addCell(new Label(9, i, visaDto.getExchangeRate() + "", cellFormat));
+				sheet.addCell(new Label(10, i, visaDto.getAmountCNY() + "", cellFormat));
+				j = 10;
+			} else {
+				sheet.addCell(new Label(6, i, visaDto.getTotalPerAmountAUD() + "", cellFormat));
+				sheet.addCell(new Label(7, i, visaDto.getTotalAmountAUD() + "", cellFormat));
+				sheet.addCell(new Label(8, i, visaDto.getCurrency(), cellFormat));
+				sheet.addCell(new Label(9, i, visaDto.getExchangeRate() + "", cellFormat));
+				sheet.addCell(new Label(10, i, visaDto.getAmountAUD() + "", cellFormat));
+				sheet.addCell(new Label(11, i, visaDto.getGstAUD() + "", cellFormat));
+				sheet.addCell(new Label(12, i, visaDto.getDeductGstAUD() + "", cellFormat));
+				j = 12;
+			}
 			
-			sheet.addCell(new Label(14, i, visaDto.getExpectAmount() + "", cellFormat));
-			sheet.addCell(new Label(15, i, visaDto.getExpectAmount() + "", cellFormat));
-			sheet.addCell(new Label(16, i, visaDto.getBonus() + "", cellFormat));
+			sheet.addCell(new Label(j+1, i, visaDto.getExpectAmount() + "", cellFormat));
+			sheet.addCell(new Label(j+2, i, visaDto.getExpectAmount() + "", cellFormat));
+			sheet.addCell(new Label(j+3, i, visaDto.getBonus() + "", cellFormat));
 			if (visaDto.getBonusDate() != null)
-				sheet.addCell(new Label(17, i, sdf.format(visaDto.getBonusDate()), cellFormat));
-			sheet.addCell(new Label(18, i, visaDto.getBankCheck(), cellFormat));
-			sheet.addCell(new Label(19, i, visaDto.isChecked() + "", cellFormat));
-			sheet.addCell(new Label(20, i, visaDto.getAdviserName(), cellFormat));
+				sheet.addCell(new Label(j+4, i, sdf.format(visaDto.getBonusDate()), cellFormat));
+			sheet.addCell(new Label(j+5, i, visaDto.getBankCheck(), cellFormat));
+			sheet.addCell(new Label(j+6, i, visaDto.isChecked() + "", cellFormat));
+			sheet.addCell(new Label(j+7, i, visaDto.getAdviserName(), cellFormat));
 			if (visaDto.getState() != null)
-				sheet.addCell(new Label(21, i, getStateStr(visaDto.getState()), cellFormat));
+				sheet.addCell(new Label(j+8, i, getStateStr(visaDto.getState()), cellFormat));
 			if (visaDto.getKjApprovalDate() != null)
-				sheet.addCell(new Label(22, i, sdf.format(visaDto.getKjApprovalDate()), cellFormat));
-			sheet.addCell(new Label(23, i, visaDto.getRemarks(), cellFormat));
+				sheet.addCell(new Label(j+9, i, sdf.format(visaDto.getKjApprovalDate()), cellFormat));
+			sheet.addCell(new Label(j+10, i, visaDto.getRemarks(), cellFormat));
 			i++;
 		}
-//		sheet.addCell(new Label(8, i,  "total", cellYellow));
-//		sheet.addCell(new Label(9, i,  amountTotal.setScale(2,BigDecimal.ROUND_HALF_UP).toString(), cellYellow));
-//		sheet.addCell(new Label(10, i,  expectAmountTotal.setScale(2,BigDecimal.ROUND_HALF_UP).toString(), cellYellow));
-//		sheet.addCell(new Label(11, i,  bonusTotal.setScale(2,BigDecimal.ROUND_HALF_UP).toString(), cellYellow));
+		sheet.addCell(new Label(9, i,  "total", cellYellow));
+		sheet.addCell(new Label(10, i,  amountTotal.setScale(2,BigDecimal.ROUND_HALF_UP).toString(), cellYellow));
+		sheet.addCell(new Label(11, i,  gstTotal.setScale(2,BigDecimal.ROUND_HALF_UP).toString(), cellYellow));
+		sheet.addCell(new Label(12, i,  deductGstTotal.setScale(2,BigDecimal.ROUND_HALF_UP).toString(), cellYellow));
+		sheet.addCell(new Label(j+1, i,  expectAmountTotal.setScale(2,BigDecimal.ROUND_HALF_UP).toString(), cellYellow));
+		sheet.addCell(new Label(j+2, i,  expectAmountTotal.setScale(2,BigDecimal.ROUND_HALF_UP).toString(), cellYellow));
+		sheet.addCell(new Label(j+3, i,  bonusTotal.setScale(2,BigDecimal.ROUND_HALF_UP).toString(), cellYellow));
 		return i++;
 	}
 
-	public void outPutCsToSheet(WritableSheet sheet, WritableCellFormat cellFormat, WritableCellFormat cellGreen,WritableCellFormat cellYellow , int i , List<CommissionOrderListDTO> commissionOrderList) throws Exception {
-		String title = "订单ID,佣金订单创建日期,客户支付日期,Student Name,Student ID,生日,收款方式,服务项目,是否提前扣佣,Institute/Institution Trading Name," +
+	public void outPutCsToSheet(WritableSheet sheet, WritableCellFormat cellFormat, WritableCellFormat cellGreen,
+			WritableCellFormat cellYellow, int i, List<CommissionOrderListDTO> commissionOrderList, String currency)
+			throws Exception {
+		String title = "订单ID,佣金订单创建日期,客户支付日期,Student Name,Student ID,生日,收款方式,服务项目,是否提前扣佣,Institute/Institution Trading Name,"
+				+
 				"Institution Name,Location Name,State,Course Name," +
 				"Course Start Date,Course End Date,Installment Due Date,收款方式,Total Tuition Fee,Per Tuition Fee per Installment," +
-				"支付币种,创建订单时汇率,总计应收人民币,总计应收澳币,总计收款人民币,总计收款澳币,本次收款人民币,本次收款澳币," +
+				"总计应收澳币,总计收款澳币,创建订单时汇率,本次支付币种,本次收款澳币," +
 				"Commission,确认预收业绩,GST,Deduct GST,学校支付金额,学校支付时间,Invoice NO.,追佣时间,Subagency,月奖," +
 				"月奖支付时间,银行对账字段,是否自动对账,顾问,状态,财务审核时间,佣金备注,服务备注";
+		if("CNY".equalsIgnoreCase(currency))
+			title = "订单ID,佣金订单创建日期,客户支付日期,Student Name,Student ID,生日,收款方式,服务项目,是否提前扣佣,Institute/Institution Trading Name," +
+					"Institution Name,Location Name,State,Course Name," +
+					"Course Start Date,Course End Date,Installment Due Date,收款方式,Total Tuition Fee,Per Tuition Fee per Installment," +
+					"总计应收人民币,总计收款人民币,创建订单时汇率,本次支付币种,本次收款人民币," +
+					"Commission,确认预收业绩,GST,Deduct GST,学校支付金额,学校支付时间,Invoice NO.,追佣时间,Subagency,月奖," +
+					"月奖支付时间,银行对账字段,是否自动对账,顾问,状态,财务审核时间,佣金备注,服务备注";
 		String [] titleArr = title.split(",");
 		for (int ti = 0 ; ti < titleArr.length ; ti ++){
 			sheet.addCell(new Label(ti, i, titleArr[ti] , cellGreen));
@@ -705,50 +813,55 @@ public class DownExcelController extends BaseController {
 			sheet.addCell(new Label(18, i, commissionOrderListDto.getTuitionFee() + "", cellFormat));
 			sheet.addCell(new Label(19, i, commissionOrderListDto.getPerAmount() + "", cellFormat)); // .getPerTermTuitionFee()
 			
-			sheet.addCell(new Label(20, i, commissionOrderListDto.getCurrency(), cellFormat));
-			sheet.addCell(new Label(21, i, commissionOrderListDto.getExchangeRate() + "", cellFormat));
-			sheet.addCell(new Label(22, i, commissionOrderListDto.getTotalPerAmountCNY() + "", cellFormat));
-			sheet.addCell(new Label(23, i, commissionOrderListDto.getTotalPerAmountAUD() + "", cellFormat));
-			sheet.addCell(new Label(24, i, commissionOrderListDto.getTotalAmountCNY() + "", cellFormat));
-			sheet.addCell(new Label(25, i, commissionOrderListDto.getTotalAmountAUD() + "", cellFormat));
-			sheet.addCell(new Label(26, i, commissionOrderListDto.getAmountCNY() + "", cellFormat));
-			sheet.addCell(new Label(27, i, commissionOrderListDto.getAmountAUD() + "", cellFormat));
+			if("CNY".equalsIgnoreCase(currency)) {
+				sheet.addCell(new Label(20, i, commissionOrderListDto.getTotalPerAmountCNY() + "", cellFormat));
+				sheet.addCell(new Label(21, i, commissionOrderListDto.getTotalAmountCNY() + "", cellFormat));
+				sheet.addCell(new Label(22, i, commissionOrderListDto.getExchangeRate() + "", cellFormat));
+				sheet.addCell(new Label(23, i, commissionOrderListDto.getCurrency() + "", cellFormat));
+				sheet.addCell(new Label(24, i, commissionOrderListDto.getAmountCNY() + "", cellFormat));
+			} else {
+				sheet.addCell(new Label(20, i, commissionOrderListDto.getTotalPerAmountAUD() + "", cellFormat));
+				sheet.addCell(new Label(21, i, commissionOrderListDto.getTotalAmountAUD() + "", cellFormat));
+				sheet.addCell(new Label(22, i, commissionOrderListDto.getExchangeRate() + "", cellFormat));
+				sheet.addCell(new Label(23, i, commissionOrderListDto.getCurrency() + "", cellFormat));
+				sheet.addCell(new Label(24, i, commissionOrderListDto.getAmountAUD() + "", cellFormat));
+			}
 			
-			sheet.addCell(new Label(28, i, commissionOrderListDto.getExpectAmount() + "", cellFormat));
+			sheet.addCell(new Label(25, i, commissionOrderListDto.getExpectAmount() + "", cellFormat));
 			if (commissionOrderListDto.isSettle()){
-				sheet.addCell(new Label(29, i, commissionOrderListDto.getExpectAmount() + "", cellFormat));
+				sheet.addCell(new Label(26, i, commissionOrderListDto.getExpectAmount() + "", cellFormat));
 				sureExpectAmountTotal = sureExpectAmountTotal.add(new BigDecimal(commissionOrderListDto.getExpectAmount()));
 			}
 			else{
-				sheet.addCell(new Label(29, i, commissionOrderListDto.getSureExpectAmount() + "", cellFormat));
+				sheet.addCell(new Label(26, i, commissionOrderListDto.getSureExpectAmount() + "", cellFormat));
 				sureExpectAmountTotal = sureExpectAmountTotal.add(new BigDecimal(commissionOrderListDto.getSureExpectAmount()));
 			}
-			sheet.addCell(new Label(30, i, commissionOrderListDto.getGst() + "", cellFormat));
-			sheet.addCell(new Label(31, i, commissionOrderListDto.getDeductGst() + "", cellFormat));
-			sheet.addCell(new Label(32, i, commissionOrderListDto.getSchoolPaymentAmount() + "", cellFormat));
+			sheet.addCell(new Label(27, i, commissionOrderListDto.getGst() + "", cellFormat));
+			sheet.addCell(new Label(28, i, commissionOrderListDto.getDeductGst() + "", cellFormat));
+			sheet.addCell(new Label(29, i, commissionOrderListDto.getSchoolPaymentAmount() + "", cellFormat));
 			if (commissionOrderListDto.getSchoolPaymentDate() != null)
 				sheet.addCell(
-						new Label(33, i, sdf.format(commissionOrderListDto.getSchoolPaymentDate()), cellFormat));
-			sheet.addCell(new Label(34, i, commissionOrderListDto.getInvoiceNumber(), cellFormat));
+						new Label(30, i, sdf.format(commissionOrderListDto.getSchoolPaymentDate()), cellFormat));
+			sheet.addCell(new Label(31, i, commissionOrderListDto.getInvoiceNumber(), cellFormat));
 			if (commissionOrderListDto.getZyDate() != null)
-				sheet.addCell(new Label(35, i, sdf.format(commissionOrderListDto.getZyDate()), cellFormat));
+				sheet.addCell(new Label(32, i, sdf.format(commissionOrderListDto.getZyDate()), cellFormat));
 			if (commissionOrderListDto.getSubagency() != null)
-				sheet.addCell(new Label(36, i, commissionOrderListDto.getSubagency().getName(), cellFormat));
-			sheet.addCell(new Label(37, i, commissionOrderListDto.getBonus() + "", cellFormat));
+				sheet.addCell(new Label(33, i, commissionOrderListDto.getSubagency().getName(), cellFormat));
+			sheet.addCell(new Label(34, i, commissionOrderListDto.getBonus() + "", cellFormat));
 			if (commissionOrderListDto.getBonusDate() != null)
-				sheet.addCell(new Label(38, i, sdf.format(commissionOrderListDto.getBonusDate()), cellFormat));
-			sheet.addCell(new Label(39, i, commissionOrderListDto.getBankCheck(), cellFormat));
-			sheet.addCell(new Label(40, i, commissionOrderListDto.isChecked() + "", cellFormat));
+				sheet.addCell(new Label(35, i, sdf.format(commissionOrderListDto.getBonusDate()), cellFormat));
+			sheet.addCell(new Label(36, i, commissionOrderListDto.getBankCheck(), cellFormat));
+			sheet.addCell(new Label(37, i, commissionOrderListDto.isChecked() + "", cellFormat));
 			if (commissionOrderListDto.getAdviser() != null)
-				sheet.addCell(new Label(41, i, commissionOrderListDto.getAdviser().getName(), cellFormat));
+				sheet.addCell(new Label(38, i, commissionOrderListDto.getAdviser().getName(), cellFormat));
 			if (commissionOrderListDto.getState() != null)
-				sheet.addCell(new Label(42, i, getStateStr(commissionOrderListDto.getState()), cellFormat));
+				sheet.addCell(new Label(39, i, getStateStr(commissionOrderListDto.getState()), cellFormat));
 			if (commissionOrderListDto.getKjApprovalDate() != null)
-				sheet.addCell(new Label(43, i, sdf.format(commissionOrderListDto.getKjApprovalDate()), cellFormat));
-			sheet.addCell(new Label(44, i, commissionOrderListDto.getRemarks(), cellFormat));
+				sheet.addCell(new Label(40, i, sdf.format(commissionOrderListDto.getKjApprovalDate()), cellFormat));
+			sheet.addCell(new Label(41, i, commissionOrderListDto.getRemarks(), cellFormat));
 			ServiceOrderDTO serviceOrderDTO = serviceOrderService
 					.getServiceOrderById(commissionOrderListDto.getServiceOrderId());
-			sheet.addCell(new Label(45, i,
+			sheet.addCell(new Label(42, i,
 					serviceOrderDTO != null && serviceOrderDTO.getRemarks() != null ? serviceOrderDTO.getRemarks()
 							: "",
 					cellFormat));

@@ -194,9 +194,15 @@ public class RefundController extends BaseController {
 				sheet.addCell(new Label(0, i, refundDto.getId() + "", cellFormat));
 				if (refundDto.getGmtCreate() != null)
 					sheet.addCell(new Label(1, i, sdf.format(refundDto.getGmtCreate()), cellFormat));
-				sheet.addCell(new Label(2, i, refundDto.getCommissionOrderId() + "", cellFormat));
+				if ("VISA".equalsIgnoreCase(refundDto.getType()))
+					sheet.addCell(new Label(2, i, refundDto.getVisaId() + "", cellFormat));
+				else if ("OVST".equalsIgnoreCase(refundDto.getType()))
+					sheet.addCell(new Label(2, i, refundDto.getCommissionOrderId() + "", cellFormat));
 				sheet.addCell(new Label(3, i, refundDto.getUserName(), cellFormat));
-				sheet.addCell(new Label(4, i, refundDto.getType(), cellFormat));
+				if ("VISA".equalsIgnoreCase(refundDto.getType()))
+					sheet.addCell(new Label(4, i, "签证", cellFormat));
+				else if ("OVST".equalsIgnoreCase(refundDto.getType()))
+					sheet.addCell(new Label(4, i, "留学", cellFormat));
 				sheet.addCell(new Label(5, i, refundDto.getSchoolName(), cellFormat));
 				sheet.addCell(new Label(6, i, refundDto.getInstitutionName(), cellFormat));
 				sheet.addCell(new Label(7, i, refundDto.getCourseName(), cellFormat));

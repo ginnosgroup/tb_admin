@@ -245,7 +245,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 		}
 		return visaDtoList;
 	}
-
+	
 	@Override
 	public List<VisaReportDTO> listVisaReport(String startDate, String endDate, String dateType, String dateMethod,
 			Integer regionId, Integer adviserId, List<String> adviserIdList) throws ServiceException {

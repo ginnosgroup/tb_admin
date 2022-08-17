@@ -70,7 +70,6 @@ public class AdminUserController extends BaseController {
 //			return new Response<Boolean>(0, "验证码获取异常,请刷新页面后重试.", false);
 //		if(!captcha.equalsIgnoreCase(session.getAttribute("captcha").toString()))
 //			return new Response<Boolean>(0, "验证码错误,登录失败.", false);
-System.out.println("===== captcha is " + session.getAttribute("captcha") + " and " + captcha);
 		int id = adminUserService.login(username, password);
 		String sessionId = session.getId();
 		if (id > 0 && adminUserService.updateSessionId(id, sessionId)) {
@@ -95,8 +94,7 @@ System.out.println("===== captcha is " + session.getAttribute("captcha") + " and
 				loginInfo.setRegionId(adminUser.getRegionId());
 				if (loginInfo.getAdviserId() != null && ap.contains("GW")) {
 					AdviserDTO adviserDto = adviserService.getAdviserById(loginInfo.getAdviserId());
-					if (adviserDto.getRegionId() == 52000 || adviserDto.getRegionId() == 1000025
-							|| adviserDto.getRegionId() == 1000030 || adviserDto.getRegionId() == 1000032)
+					if (isCN(adviserDto.getRegionId()))
 						loginInfo.setCountry("CN");
 					else
 						loginInfo.setCountry("AU");

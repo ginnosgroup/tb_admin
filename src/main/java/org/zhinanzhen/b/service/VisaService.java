@@ -28,7 +28,6 @@ public interface VisaService {
 
 	public List<VisaReportDTO> listVisaReport(String startDate, String endDate, String dateType, String dateMethod,
 			Integer regionId, Integer adviserId, List<String> adviserIdList) throws ServiceException;
-
 	public VisaDTO getVisaById(int id) throws ServiceException;
 
 	public VisaDTO getFirstVisaByServiceOrderId(int serviceOrderId) throws ServiceException;
