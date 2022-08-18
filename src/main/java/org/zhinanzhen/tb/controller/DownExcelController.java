@@ -215,11 +215,11 @@ public class DownExcelController extends BaseController {
 						new Label(9, i, visaDto.getInstallmentNum() + "/" + visaDto.getInstallment(), cellFormat));
 				sheet.addCell(new Label(10, i, visaDto.getReceivable() + "", cellFormat));
 				sheet.addCell(new Label(11, i, visaDto.getReceived() + "", cellFormat));
-				sheet.addCell(new Label(12, i, visaDto.getPerAmount() + "", cellFormat));
-				sheet.addCell(new Label(13, i, visaDto.getAmount() + "", cellFormat));
-				sheet.addCell(new Label(14, i, visaDto.getExpectAmount() + "", cellFormat));
-				sheet.addCell(new Label(15, i, visaDto.getGst() + "", cellFormat));
-				sheet.addCell(new Label(16, i, visaDto.getDeductGst() + "", cellFormat));
+				sheet.addCell(new Label(12, i, visaDto.getPerAmountAUD() + "", cellFormat));
+				sheet.addCell(new Label(13, i, visaDto.getAmountAUD() + "", cellFormat));
+				sheet.addCell(new Label(14, i, visaDto.getExpectAmountAUD() + "", cellFormat));
+				sheet.addCell(new Label(15, i, visaDto.getGstAUD() + "", cellFormat));
+				sheet.addCell(new Label(16, i, visaDto.getDeductGstAUD() + "", cellFormat));
 				sheet.addCell(new Label(17, i, visaDto.getBonus() + "", cellFormat));
 				sheet.addCell(new Label(18, i, visaDto.getAdviserName(), cellFormat));
 				sheet.addCell(new Label(19, i, visaDto.getOfficialName(), cellFormat));

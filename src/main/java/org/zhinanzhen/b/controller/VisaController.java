@@ -862,69 +862,137 @@ public class VisaController extends BaseCommissionOrderController {
 					}
 			});
 
-			OutputStream os = response.getOutputStream();
-			jxl.Workbook wb;
-			InputStream is;
-			try {
-				is = this.getClass().getResourceAsStream("/VisaTemplate.xls");
-			} catch (Exception e) {
-				throw new Exception("模版不存在");
-			}
-			try {
-				wb = Workbook.getWorkbook(is);
-			} catch (Exception e) {
-				throw new Exception("模版格式不支持");
-			}
-			WorkbookSettings settings = new WorkbookSettings();
-			settings.setWriteAccess(null);
-			jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
+			if (isCN(regionId)) {
+				
+				OutputStream os = response.getOutputStream();
+				jxl.Workbook wb;
+				InputStream is;
+				try {
+					is = this.getClass().getResourceAsStream("/VisaTemplateCNY.xls");
+				} catch (Exception e) {
+					throw new Exception("模版不存在");
+				}
+				try {
+					wb = Workbook.getWorkbook(is);
+				} catch (Exception e) {
+					throw new Exception("模版格式不支持");
+				}
+				WorkbookSettings settings = new WorkbookSettings();
+				settings.setWriteAccess(null);
+				jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
 
-			if (wbe == null) {
-				System.out.println("wbe is null !os=" + os + ",wb" + wb);
+				if (wbe == null) {
+					System.out.println("wbe is null !os=" + os + ",wb" + wb);
+				} else {
+					System.out.println("wbe not null !os=" + os + ",wb" + wb);
+				}
+				WritableSheet sheet = wbe.getSheet(0);
+				WritableCellFormat cellFormat = new WritableCellFormat();
+
+				int i = 1;
+				for (VisaDTO visaDto : list) {
+					sheet.addCell(new Label(0, i, "CV" + visaDto.getId(), cellFormat));
+					sheet.addCell(new Label(1, i, sdf.format(visaDto.getGmtCreate()), cellFormat));
+					if (visaDto.getReceiveDate() != null)
+						sheet.addCell(new Label(2, i, sdf.format(visaDto.getReceiveDate()), cellFormat));
+					sheet.addCell(new Label(3, i, visaDto.getUserName(), cellFormat));
+					sheet.addCell(new Label(4, i, visaDto.getReceiveTypeName(), cellFormat));
+					sheet.addCell(new Label(5, i, visaDto.getServiceCode(), cellFormat));
+					sheet.addCell(new Label(6, i, visaDto.getTotalAmountCNY() + "", cellFormat));
+					sheet.addCell(new Label(7, i, visaDto.getTotalAmountCNY() + "", cellFormat));
+					sheet.addCell(new Label(8, i, visaDto.getCurrency(), cellFormat));
+					sheet.addCell(new Label(9, i, visaDto.getExchangeRate() + "", cellFormat));
+					sheet.addCell(new Label(10, i, visaDto.getAmountCNY() + "", cellFormat));
+					sheet.addCell(new Label(11, i, visaDto.getExpectAmount() + "", cellFormat));
+					sheet.addCell(new Label(12, i, visaDto.getExpectAmount() + "", cellFormat));
+					sheet.addCell(new Label(13, i, visaDto.getBonus() + "", cellFormat));
+					if (visaDto.getBonusDate() != null)
+						sheet.addCell(new Label(14, i, sdf.format(visaDto.getBonusDate()), cellFormat));
+					sheet.addCell(new Label(15, i, visaDto.getBankCheck(), cellFormat));
+					sheet.addCell(new Label(16, i, visaDto.isChecked() + "", cellFormat));
+					sheet.addCell(new Label(17, i, visaDto.getAdviserName(), cellFormat));
+					if (visaDto.getState() != null)
+						sheet.addCell(new Label(18, i, getStateStr(visaDto.getState()), cellFormat));
+					if (visaDto.getKjApprovalDate() != null)
+						sheet.addCell(new Label(19, i, sdf.format(visaDto.getKjApprovalDate()), cellFormat));
+					sheet.addCell(new Label(20, i, visaDto.getRemarks(), cellFormat));
+					i++;
+				}
+				wbe.write();
+				wbe.close();
+				if (is != null)
+					is.close();
+				if (os != null)
+					os.close();
+			
 			} else {
-				System.out.println("wbe not null !os=" + os + ",wb" + wb);
-			}
-			WritableSheet sheet = wbe.getSheet(0);
-			WritableCellFormat cellFormat = new WritableCellFormat();
+				
+				//AUD
+				
+				OutputStream os = response.getOutputStream();
+				jxl.Workbook wb;
+				InputStream is;
+				try {
+					is = this.getClass().getResourceAsStream("/VisaTemplate.xls");
+				} catch (Exception e) {
+					throw new Exception("模版不存在");
+				}
+				try {
+					wb = Workbook.getWorkbook(is);
+				} catch (Exception e) {
+					throw new Exception("模版格式不支持");
+				}
+				WorkbookSettings settings = new WorkbookSettings();
+				settings.setWriteAccess(null);
+				jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
 
-			int i = 1;
-			for (VisaDTO visaDto : list) {
-				sheet.addCell(new Label(0, i, "CV" + visaDto.getId(), cellFormat));
-				sheet.addCell(new Label(1, i, sdf.format(visaDto.getGmtCreate()), cellFormat));
-				if (visaDto.getReceiveDate() != null)
-					sheet.addCell(new Label(2, i, sdf.format(visaDto.getReceiveDate()), cellFormat));
-				sheet.addCell(new Label(3, i, visaDto.getUserName(), cellFormat));
-				sheet.addCell(new Label(4, i, visaDto.getReceiveTypeName(), cellFormat));
-				sheet.addCell(new Label(5, i, visaDto.getServiceCode(), cellFormat));
-				sheet.addCell(new Label(6, i, visaDto.getCurrency(), cellFormat));
-				sheet.addCell(new Label(7, i, visaDto.getExchangeRate() + "", cellFormat));
-				sheet.addCell(new Label(8, i, visaDto.getTotalAmountCNY() + "", cellFormat));
-				sheet.addCell(new Label(9, i, visaDto.getTotalAmountAUD() + "", cellFormat));
-				sheet.addCell(new Label(10, i, visaDto.getTotalAmountCNY() + "", cellFormat));
-				sheet.addCell(new Label(11, i, visaDto.getTotalAmountAUD() + "", cellFormat));
-				sheet.addCell(new Label(12, i, visaDto.getAmountCNY() + "", cellFormat));
-				sheet.addCell(new Label(13, i, visaDto.getAmountAUD() + "", cellFormat));
-				sheet.addCell(new Label(14, i, visaDto.getExpectAmount() + "", cellFormat));
-				sheet.addCell(new Label(15, i, visaDto.getExpectAmount() + "", cellFormat));
-				sheet.addCell(new Label(16, i, visaDto.getBonus() + "", cellFormat));
-				if (visaDto.getBonusDate() != null)
-					sheet.addCell(new Label(17, i, sdf.format(visaDto.getBonusDate()), cellFormat));
-				sheet.addCell(new Label(18, i, visaDto.getBankCheck(), cellFormat));
-				sheet.addCell(new Label(19, i, visaDto.isChecked() + "", cellFormat));
-				sheet.addCell(new Label(20, i, visaDto.getAdviserName(), cellFormat));
-				if (visaDto.getState() != null)
-					sheet.addCell(new Label(21, i, getStateStr(visaDto.getState()), cellFormat));
-				if (visaDto.getKjApprovalDate() != null)
-					sheet.addCell(new Label(22, i, sdf.format(visaDto.getKjApprovalDate()), cellFormat));
-				sheet.addCell(new Label(23, i, visaDto.getRemarks(), cellFormat));
-				i++;
+				if (wbe == null) {
+					System.out.println("wbe is null !os=" + os + ",wb" + wb);
+				} else {
+					System.out.println("wbe not null !os=" + os + ",wb" + wb);
+				}
+				WritableSheet sheet = wbe.getSheet(0);
+				WritableCellFormat cellFormat = new WritableCellFormat();
+
+				int i = 1;
+				for (VisaDTO visaDto : list) {
+					sheet.addCell(new Label(0, i, "CV" + visaDto.getId(), cellFormat));
+					sheet.addCell(new Label(1, i, sdf.format(visaDto.getGmtCreate()), cellFormat));
+					if (visaDto.getReceiveDate() != null)
+						sheet.addCell(new Label(2, i, sdf.format(visaDto.getReceiveDate()), cellFormat));
+					sheet.addCell(new Label(3, i, visaDto.getUserName(), cellFormat));
+					sheet.addCell(new Label(4, i, visaDto.getReceiveTypeName(), cellFormat));
+					sheet.addCell(new Label(5, i, visaDto.getServiceCode(), cellFormat));
+					sheet.addCell(new Label(6, i, visaDto.getTotalAmountAUD() + "", cellFormat));
+					sheet.addCell(new Label(7, i, visaDto.getTotalAmountAUD() + "", cellFormat));
+					sheet.addCell(new Label(8, i, visaDto.getCurrency(), cellFormat));
+					sheet.addCell(new Label(9, i, visaDto.getExchangeRate() + "", cellFormat));
+					sheet.addCell(new Label(10, i, visaDto.getAmountAUD() + "", cellFormat));
+					sheet.addCell(new Label(11, i, visaDto.getGstAUD() + "", cellFormat));
+					sheet.addCell(new Label(12, i, visaDto.getDeductGstAUD() + "", cellFormat));
+					sheet.addCell(new Label(13, i, visaDto.getExpectAmount() + "", cellFormat));
+					sheet.addCell(new Label(14, i, visaDto.getExpectAmount() + "", cellFormat));
+					sheet.addCell(new Label(15, i, visaDto.getBonus() + "", cellFormat));
+					if (visaDto.getBonusDate() != null)
+						sheet.addCell(new Label(16, i, sdf.format(visaDto.getBonusDate()), cellFormat));
+					sheet.addCell(new Label(17, i, visaDto.getBankCheck(), cellFormat));
+					sheet.addCell(new Label(18, i, visaDto.isChecked() + "", cellFormat));
+					sheet.addCell(new Label(19, i, visaDto.getAdviserName(), cellFormat));
+					if (visaDto.getState() != null)
+						sheet.addCell(new Label(20, i, getStateStr(visaDto.getState()), cellFormat));
+					if (visaDto.getKjApprovalDate() != null)
+						sheet.addCell(new Label(21, i, sdf.format(visaDto.getKjApprovalDate()), cellFormat));
+					sheet.addCell(new Label(22, i, visaDto.getRemarks(), cellFormat));
+					i++;
+				}
+				wbe.write();
+				wbe.close();
+				if (is != null)
+					is.close();
+				if (os != null)
+					os.close();
+				
 			}
-			wbe.write();
-			wbe.close();
-			if (is != null)
-				is.close();
-			if (os != null)
-				os.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 			return;
