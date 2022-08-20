@@ -2162,7 +2162,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			//if (StringUtil.isNotEmpty(invoiceVoucherImageUrl5))
 			//	serviceOrderDto.setInvoiceVoucherImageUrl5(invoiceVoucherImageUrl5);
 
+System.out.println("-------tempDTO:" + tempDTO);
+			
 			if (commissionOrderService.updateCommissionOrderTemp(tempDTO) > 0){
+System.out.println("-------serviceOrderDto:" + serviceOrderDto);
 				if (serviceOrderService.updateServiceOrder(serviceOrderDto) > 0 )
 					return new Response(0,"success",tempDTO);
 			}
