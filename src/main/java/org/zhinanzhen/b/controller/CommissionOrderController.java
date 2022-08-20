@@ -2124,18 +2124,27 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				tempDTO.setInstallmentDueDate12(new Date(Long.parseLong(installmentDueDate12)));
 			else
 				tempDTO.setInstallmentDueDate12(null);
-
-
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
+			
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1)){
 				tempDTO.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
+				serviceOrderDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
+			}
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2)){
 				tempDTO.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl3))
+				serviceOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
+			}
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl3)){
 				tempDTO.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl4))
+				serviceOrderDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
+			}
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl4)){
 				tempDTO.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl5))
+				serviceOrderDto.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
+			}
+			if (StringUtil.isNotEmpty(paymentVoucherImageUrl5)){
 				tempDTO.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
+				serviceOrderDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
+			}
 
 			if (serviceOrderDto.isSettle()){
 				if (StringUtil.isNotEmpty(paymentVoucherImageUrl1) || StringUtil.isNotEmpty(paymentVoucherImageUrl2)
@@ -2161,11 +2170,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			//	serviceOrderDto.setInvoiceVoucherImageUrl4(invoiceVoucherImageUrl4);
 			//if (StringUtil.isNotEmpty(invoiceVoucherImageUrl5))
 			//	serviceOrderDto.setInvoiceVoucherImageUrl5(invoiceVoucherImageUrl5);
-
-System.out.println("-------tempDTO:" + tempDTO);
 			
 			if (commissionOrderService.updateCommissionOrderTemp(tempDTO) > 0){
-System.out.println("-------serviceOrderDto:" + serviceOrderDto);
 				if (serviceOrderService.updateServiceOrder(serviceOrderDto) > 0 )
 					return new Response(0,"success",tempDTO);
 			}
