@@ -43,7 +43,7 @@
         SELECT IFNULL(sum(IF(currency='CNY',bonus*exchange_rate,bonus)),0.00) FROM b_commission_order WHERE state!='CLOSE' AND commission_state='DZY' AND bonus_date IS NULL;
     </select>
     <select id="getCommissionOrderSettleUnassignedBonusAmount" resultType="java.lang.Double">
-        SELECT IFNULL(sum(IF(co.currency='CNY',co.bonus*exchange_rate,co.bonus)),0.00) FROM b_commission_order co, b_service_order so WHERE co.service_order_id=so.id AND co.state!='CLOSE' AND so.is_settle=1 AND co.bonus_date IS NULL;
+        SELECT IFNULL(sum(IF(co.currency='CNY',co.bonus*co.exchange_rate,co.bonus)),0.00) FROM b_commission_order co, b_service_order so WHERE co.service_order_id=so.id AND co.state!='CLOSE' AND so.is_settle=1 AND co.bonus_date IS NULL;
     </select>
     <select id="summaryVisaUnassignedBonusAmount" resultType="org.zhinanzhen.b.dao.pojo.DashboardAmountSummaryDO">
         SELECT r.id, r.name AS name1, count(v.id) AS total, IFNULL(sum(IF(v.currency='CNY',v.bonus*v.exchange_rate,v.bonus)),0.00) AS amount
