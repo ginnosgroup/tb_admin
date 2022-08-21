@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.tb.service.AdminUserService;
 
+import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 
 import lombok.Data;
@@ -264,7 +265,8 @@ public class BaseController {
 	}
 	
 	protected boolean isCN(Integer regionId) {
-		return regionId == 52000 || regionId == 1000025 || regionId == 1000030 || regionId == 1000032;
+		return ObjectUtil.isNotNull(regionId)
+				&& (regionId == 52000 || regionId == 1000025 || regionId == 1000030 || regionId == 1000032);
 	}
 
 	@Data
