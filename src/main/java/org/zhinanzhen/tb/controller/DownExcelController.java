@@ -692,7 +692,7 @@ public class DownExcelController extends BaseController {
 		int j = 12;
 		for (VisaDTO visaDto : list) {
 			bonusTotal = bonusTotal.add(new BigDecimal(visaDto.getBonus()));
-			amountTotal = expectAmountTotal.add(new BigDecimal(visaDto.getAmount()));
+			amountTotal = amountTotal.add(new BigDecimal(visaDto.getAmount()));
 			expectAmountTotal = expectAmountTotal.add(new BigDecimal(visaDto.getExpectAmount()));
 			sheet.addCell(new Label(0, i, "CV" + visaDto.getId() , cellFormat));
 			sheet.addCell(new Label(1, i, sdf.format(visaDto.getGmtCreate()), cellFormat));
