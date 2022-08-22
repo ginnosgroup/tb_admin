@@ -269,6 +269,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 			List<ApplicantDTO> applicantList = listApplicantDto(userDo.getId(), adviserId);
 			if (applicantList != null && applicantList.size() < 0)
 				userDto.setApplicantList(applicantList);
+System.out.println("+userDto.getAdviserId()1:" + userDto.getAdviserId());
 			if (userDto.getAdviserId() > 0) {
 				AdviserDO adviserDo = adviserDao.getAdviserById(userDto.getAdviserId());
 				if (adviserDo != null)
@@ -537,7 +538,10 @@ public class UserServiceImpl extends BaseService implements UserService {
 		List<UserAdviserDO> userAdviserList = userDao.listUserAdviserByUserId(userDto.getId());
 		boolean isBelongToThisAdviser = false;
 		if (userAdviserList != null && userAdviserList.size() > 0) {
+System.out.println("+userAdviserList:" + userAdviserList);
 			for (UserAdviserDO userAdviserDo : userAdviserList) {
+System.out.println("+userAdviserDo.getAdviserId():" + userAdviserDo.getAdviserId());
+System.out.println("+adviserId == userAdviserDo.getAdviserId():" + (adviserId == userAdviserDo.getAdviserId()));
 				if (adviserId == userAdviserDo.getAdviserId()) {
 					isBelongToThisAdviser = true;
 					userDto.setAdviserId(userAdviserDo.getAdviserId());
