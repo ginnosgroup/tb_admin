@@ -232,8 +232,10 @@ public class UserController extends BaseController {
 				return new ListResponse<List<UserDTO>>(true, pageSize, 1, list, "");
 			}
 
-			int total = userService.countUser(name, authTypeEnum, authNickname, phone, areaCode, wechatUsername,
-					StringUtil.toInt(adviserId), applicantName, regionIdList, StringUtil.toInt(tagId));
+			List<UserDTO> _list = userService.listUser(name, authTypeEnum, authNickname, phone, areaCode, email,
+					wechatUsername, StringUtil.toInt(adviserId), applicantName, regionIdList, StringUtil.toInt(tagId),
+					orderByField, Boolean.parseBoolean(StringUtil.isEmpty(isDesc) ? "false" : isDesc), 0, 99999);
+			int total = _list.size();
 			List<UserDTO> list = userService.listUser(name, authTypeEnum, authNickname, phone, areaCode, email,
 					wechatUsername, StringUtil.toInt(adviserId), applicantName, regionIdList, StringUtil.toInt(tagId),
 					orderByField, Boolean.parseBoolean(StringUtil.isEmpty(isDesc) ? "false" : isDesc), pageNum,

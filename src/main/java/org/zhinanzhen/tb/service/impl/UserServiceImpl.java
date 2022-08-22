@@ -216,7 +216,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 		}
 		for (UserDO userDo : userDoList) {
 			UserDTO userDto = mapper.map(userDo, UserDTO.class);
-			buildUserAdviserDto(userDto, adviserId);
+			if(!buildUserAdviserDto(userDto, adviserId))
+				continue;
 			List<ApplicantDTO> applicantList = listApplicantDto(userDo.getId(), adviserId);
 			if (applicantList != null && applicantList.size() < 0)
 				userDto.setApplicantList(applicantList);
@@ -265,11 +266,11 @@ public class UserServiceImpl extends BaseService implements UserService {
 				throw se;
 			}
 			userDto = mapper.map(userDo, UserDTO.class);
-			buildUserAdviserDto(userDto, adviserId);
+			if(!buildUserAdviserDto(userDto, adviserId))
+				return userDto;
 			List<ApplicantDTO> applicantList = listApplicantDto(userDo.getId(), adviserId);
 			if (applicantList != null && applicantList.size() < 0)
 				userDto.setApplicantList(applicantList);
-System.out.println("+userDto.getAdviserId()1:" + userDto.getAdviserId());
 			if (userDto.getAdviserId() > 0) {
 				AdviserDO adviserDo = adviserDao.getAdviserById(userDto.getAdviserId());
 				if (adviserDo != null)
@@ -312,7 +313,8 @@ System.out.println("+userDto.getAdviserId()1:" + userDto.getAdviserId());
 		UserDTO userDto = null;
 		if (userDo != null) {
 			userDto = mapper.map(userDo, UserDTO.class);
-			buildUserAdviserDto(userDto, userDto.getAdviserId());
+			if(!buildUserAdviserDto(userDto, userDto.getAdviserId()))
+				return userDto;
 			if (userDto.getAdviserId() > 0) {
 				AdviserDO adviserDo = adviserDao.getAdviserById(userDto.getAdviserId());
 				if (adviserDo != null)
@@ -431,7 +433,8 @@ System.out.println("+userDto.getAdviserId()1:" + userDto.getAdviserId());
 		}
 		for (UserDO userDo : userDoList) {
 			UserDTO userDto = mapper.map(userDo, UserDTO.class);
-			buildUserAdviserDto(userDto, userDo.getAdviserId());
+			if(!buildUserAdviserDto(userDto, userDo.getAdviserId()))
+				continue;
 			if (userDto.getAdviserId() > 0) {
 				AdviserDO adviserDo = adviserDao.getAdviserById(userDto.getAdviserId());
 				if (adviserDo != null)
@@ -531,17 +534,14 @@ System.out.println("+userDto.getAdviserId()1:" + userDto.getAdviserId());
 		}
 	}
 
-	private void buildUserAdviserDto(UserDTO userDto, int adviserId) throws ServiceException {
+	private boolean buildUserAdviserDto(UserDTO userDto, int adviserId) throws ServiceException {
+		boolean isBelongToThisAdviser = false;
 		if (ObjectUtil.isNull(userDto))
-			return;
+			return isBelongToThisAdviser;
 		List<UserAdviserDTO> userAdviserDtoList = ListUtil.newArrayList();
 		List<UserAdviserDO> userAdviserList = userDao.listUserAdviserByUserId(userDto.getId());
-		boolean isBelongToThisAdviser = false;
 		if (userAdviserList != null && userAdviserList.size() > 0) {
-System.out.println("+userAdviserList:" + userAdviserList);
 			for (UserAdviserDO userAdviserDo : userAdviserList) {
-System.out.println("+userAdviserDo.getAdviserId():" + userAdviserDo.getAdviserId());
-System.out.println("+adviserId == userAdviserDo.getAdviserId():" + (adviserId == userAdviserDo.getAdviserId()));
 				if (adviserId == userAdviserDo.getAdviserId()) {
 					isBelongToThisAdviser = true;
 					userDto.setAdviserId(userAdviserDo.getAdviserId());
@@ -557,6 +557,7 @@ System.out.println("+adviserId == userAdviserDo.getAdviserId():" + (adviserId ==
 		}
 		if (isBelongToThisAdviser && userAdviserDtoList != null && userAdviserDtoList.size() > 0)
 			userDto.setUserAdviserList(userAdviserDtoList);
+		return isBelongToThisAdviser;
 	}
 
 	private List<ApplicantDTO> listApplicantDto(int userId, int adviserId) throws ServiceException {
