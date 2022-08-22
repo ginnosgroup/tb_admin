@@ -37,6 +37,8 @@ import org.zhinanzhen.tb.service.pojo.UserAdviserDTO;
 import org.zhinanzhen.tb.utils.Base64Util;
 
 import com.ikasoa.core.ErrorCodeEnum;
+import com.ikasoa.core.utils.ListUtil;
+import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 
 @Service("userService")
@@ -214,9 +216,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 		}
 		for (UserDO userDo : userDoList) {
 			UserDTO userDto = mapper.map(userDo, UserDTO.class);
-			List<UserAdviserDTO> userAdviserList = listUserAdviserDto(userDo.getId());
-			if (userAdviserList != null && userAdviserList.size() > 0)
-				userDto.setUserAdviserList(userAdviserList);
+			buildUserAdviserDto(userDto, adviserId);
 			List<ApplicantDTO> applicantList = listApplicantDto(userDo.getId(), adviserId);
 			if (applicantList != null && applicantList.size() < 0)
 				userDto.setApplicantList(applicantList);
@@ -265,9 +265,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 				throw se;
 			}
 			userDto = mapper.map(userDo, UserDTO.class);
-			List<UserAdviserDTO> userAdviserList = listUserAdviserDto(userDo.getId());
-			if (userAdviserList != null && userAdviserList.size() > 0)
-				userDto.setUserAdviserList(userAdviserList);
+			buildUserAdviserDto(userDto, adviserId);
 			List<ApplicantDTO> applicantList = listApplicantDto(userDo.getId(), adviserId);
 			if (applicantList != null && applicantList.size() < 0)
 				userDto.setApplicantList(applicantList);
@@ -313,9 +311,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 		UserDTO userDto = null;
 		if (userDo != null) {
 			userDto = mapper.map(userDo, UserDTO.class);
-			List<UserAdviserDTO> userAdviserList = listUserAdviserDto(userDo.getId());
-			if (userAdviserList != null && userAdviserList.size() > 0)
-				userDto.setUserAdviserList(userAdviserList);
+			buildUserAdviserDto(userDto, userDto.getAdviserId());
 			if (userDto.getAdviserId() > 0) {
 				AdviserDO adviserDo = adviserDao.getAdviserById(userDto.getAdviserId());
 				if (adviserDo != null)
@@ -434,9 +430,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 		}
 		for (UserDO userDo : userDoList) {
 			UserDTO userDto = mapper.map(userDo, UserDTO.class);
-			List<UserAdviserDTO> userAdviserList = listUserAdviserDto(userDo.getId());
-			if (userAdviserList != null && userAdviserList.size() > 0)
-				userDto.setUserAdviserList(userAdviserList);
+			buildUserAdviserDto(userDto, userDo.getAdviserId());
 			if (userDto.getAdviserId() > 0) {
 				AdviserDO adviserDo = adviserDao.getAdviserById(userDto.getAdviserId());
 				if (adviserDo != null)
@@ -536,11 +530,18 @@ public class UserServiceImpl extends BaseService implements UserService {
 		}
 	}
 
-	private List<UserAdviserDTO> listUserAdviserDto(int userId) throws ServiceException {
-		List<UserAdviserDTO> userAdviserDtoList = new ArrayList<>();
-		List<UserAdviserDO> userAdviserList = userDao.listUserAdviserByUserId(userId);
+	private void buildUserAdviserDto(UserDTO userDto, int adviserId) throws ServiceException {
+		if (ObjectUtil.isNull(userDto))
+			return;
+		List<UserAdviserDTO> userAdviserDtoList = ListUtil.newArrayList();
+		List<UserAdviserDO> userAdviserList = userDao.listUserAdviserByUserId(userDto.getId());
+		boolean isBelongToThisAdviser = false;
 		if (userAdviserList != null && userAdviserList.size() > 0) {
 			for (UserAdviserDO userAdviserDo : userAdviserList) {
+				if (adviserId == userAdviserDo.getAdviserId()) {
+					isBelongToThisAdviser = true;
+					userDto.setAdviserId(userAdviserDo.getAdviserId());
+				}
 				UserAdviserDTO userAdviserDto = mapper.map(userAdviserDo, UserAdviserDTO.class);
 				if (userAdviserDto.getAdviserId() > 0) {
 					AdviserDO adviserDo = adviserDao.getAdviserById(userAdviserDto.getAdviserId());
@@ -550,7 +551,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 				userAdviserDtoList.add(userAdviserDto);
 			}
 		}
-		return userAdviserDtoList;
+		if (isBelongToThisAdviser && userAdviserDtoList != null && userAdviserDtoList.size() > 0)
+			userDto.setUserAdviserList(userAdviserDtoList);
 	}
 
 	private List<ApplicantDTO> listApplicantDto(int userId, int adviserId) throws ServiceException {
