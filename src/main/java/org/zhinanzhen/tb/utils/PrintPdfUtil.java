@@ -435,7 +435,6 @@ public class PrintPdfUtil {
 
         } catch (DocumentException e) {
             e.printStackTrace();
-            System.out.println();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {

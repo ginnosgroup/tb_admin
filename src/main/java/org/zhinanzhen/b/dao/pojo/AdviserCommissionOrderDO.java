@@ -16,6 +16,10 @@ public class AdviserCommissionOrderDO {
 	private String applicantName;
 
 	private String officialName;
+	
+	private String currency;
+
+	private double exchangeRate;
 
 	private String kjApprovalDate;
 

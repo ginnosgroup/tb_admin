@@ -28,7 +28,6 @@ public class CommonUtils {
             LOG.debug("时间转换出现异常");
             e.printStackTrace();
         }
-        System.out.println(date1.getTime());
         return (int) ((date1.getTime() - date2.getTime()) / (3600 * 24 * 1000));
     }
 
