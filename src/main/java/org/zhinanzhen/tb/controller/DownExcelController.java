@@ -691,9 +691,11 @@ public class DownExcelController extends BaseController {
 		BigDecimal bonusTotal = new BigDecimal("0.00");
 		int j = 12;
 		for (VisaDTO visaDto : list) {
-			bonusTotal = bonusTotal.add(new BigDecimal(visaDto.getBonus()));
-			amountTotal = amountTotal.add(new BigDecimal(visaDto.getAmount()));
-			expectAmountTotal = expectAmountTotal.add(new BigDecimal(visaDto.getExpectAmount()));
+			bonusTotal = bonusTotal.add(new BigDecimal(visaDto.getBonusAUD()));
+			amountTotal = amountTotal.add(new BigDecimal(visaDto.getAmountAUD()));
+			gstTotal = amountTotal.add(new BigDecimal(visaDto.getGstAUD()));
+			deductGstTotal = amountTotal.add(new BigDecimal(visaDto.getDeductGstAUD()));
+			expectAmountTotal = expectAmountTotal.add(new BigDecimal(visaDto.getExpectAmountAUD()));
 			sheet.addCell(new Label(0, i, "CV" + visaDto.getId() , cellFormat));
 			sheet.addCell(new Label(1, i, sdf.format(visaDto.getGmtCreate()), cellFormat));
 			if (visaDto.getReceiveDate() != null)
@@ -739,9 +741,9 @@ public class DownExcelController extends BaseController {
 		sheet.addCell(new Label(10, i,  amountTotal.setScale(2,BigDecimal.ROUND_HALF_UP).toString(), cellYellow));
 		sheet.addCell(new Label(11, i,  gstTotal.setScale(2,BigDecimal.ROUND_HALF_UP).toString(), cellYellow));
 		sheet.addCell(new Label(12, i,  deductGstTotal.setScale(2,BigDecimal.ROUND_HALF_UP).toString(), cellYellow));
-		sheet.addCell(new Label(j+1, i,  expectAmountTotal.setScale(2,BigDecimal.ROUND_HALF_UP).toString(), cellYellow));
-		sheet.addCell(new Label(j+2, i,  expectAmountTotal.setScale(2,BigDecimal.ROUND_HALF_UP).toString(), cellYellow));
-		sheet.addCell(new Label(j+3, i,  bonusTotal.setScale(2,BigDecimal.ROUND_HALF_UP).toString(), cellYellow));
+//		sheet.addCell(new Label(j+1, i,  expectAmountTotal.setScale(2,BigDecimal.ROUND_HALF_UP).toString(), cellYellow));
+//		sheet.addCell(new Label(j+2, i,  expectAmountTotal.setScale(2,BigDecimal.ROUND_HALF_UP).toString(), cellYellow));
+//		sheet.addCell(new Label(j+3, i,  bonusTotal.setScale(2,BigDecimal.ROUND_HALF_UP).toString(), cellYellow));
 		return i++;
 	}
 
