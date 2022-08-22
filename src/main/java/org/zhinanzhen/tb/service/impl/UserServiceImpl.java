@@ -542,7 +542,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 		List<UserAdviserDO> userAdviserList = userDao.listUserAdviserByUserId(userDto.getId());
 		if (userAdviserList != null && userAdviserList.size() > 0) {
 			for (UserAdviserDO userAdviserDo : userAdviserList) {
-				if (adviserId == userAdviserDo.getAdviserId()) {
+				if (adviserId == 0 || adviserId == userAdviserDo.getAdviserId()) {
 					isBelongToThisAdviser = true;
 					userDto.setAdviserId(userAdviserDo.getAdviserId());
 				}
