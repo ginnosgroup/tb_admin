@@ -6,6 +6,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.ApplicantDAO;
 import org.zhinanzhen.b.dao.ServiceOrderDAO;
 import org.zhinanzhen.b.dao.pojo.ApplicantDO;
@@ -13,6 +14,7 @@ import org.zhinanzhen.b.service.ApplicantService;
 import org.zhinanzhen.b.service.pojo.ApplicantDTO;
 import org.zhinanzhen.b.service.pojo.UserDTO;
 import org.zhinanzhen.tb.dao.UserDAO;
+import org.zhinanzhen.tb.dao.pojo.UserAdviserDO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
@@ -32,6 +34,7 @@ public class ApplicantServiceImpl extends BaseService implements ApplicantServic
 	private UserDAO userDao;
 
 	@Override
+	@Transactional(rollbackFor = ServiceException.class)
 	public int add(ApplicantDTO applicantDto) throws ServiceException {
 		if (applicantDto == null) {
 			ServiceException se = new ServiceException("applicantDto is null !");
@@ -39,6 +42,17 @@ public class ApplicantServiceImpl extends BaseService implements ApplicantServic
 			throw se;
 		}
 		try {
+			List<UserAdviserDO> userAdviserList = userDao.listUserAdviserByUserId(applicantDto.getUserId());
+			if (userAdviserList == null || userAdviserList.size() == 0)
+				userDao.addUserAdviser(applicantDto.getUserId(), applicantDto.getAdviserId(), true);
+			else {
+				boolean isExists = false;
+				for (UserAdviserDO userAdviserDo : userAdviserList)
+					if (userAdviserDo.getAdviserId() == applicantDto.getAdviserId())
+						isExists = true;
+				if (!isExists)
+					userDao.addUserAdviser(applicantDto.getUserId(), applicantDto.getAdviserId(), false);
+			}
 			ApplicantDO applicantDo = mapper.map(applicantDto, ApplicantDO.class);
 			if (applicantDao.add(applicantDo) > 0) {
 				applicantDto.setId(applicantDo.getId());
