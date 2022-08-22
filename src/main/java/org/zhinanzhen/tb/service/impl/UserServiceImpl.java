@@ -267,7 +267,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 			}
 			userDto = mapper.map(userDo, UserDTO.class);
 			if(!buildUserAdviserDto(userDto, adviserId))
-				return userDto;
+				return null;
 			List<ApplicantDTO> applicantList = listApplicantDto(userDo.getId(), adviserId);
 			if (applicantList != null && applicantList.size() < 0)
 				userDto.setApplicantList(applicantList);
