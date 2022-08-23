@@ -55,11 +55,11 @@ public class ExchangeRateController extends BaseController {
 			List<ExchangeRateDTO> list = exchangeRateService.listExchangeRate();
 			if (list == null)
 				return "汇率查询失败!";
-			String html = "<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8' /><title>ZNZ实时查询历史记录</title></head><body><table width='50%' border='1' cellpadding='1' cellspacing='1'><tr><td><b>ZNZ汇率</b></td> <td><b>更新时间</b></td></tr><tr>";
+			String html = "<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8' /><title>ZNZ实时查询历史记录</title></head><body><table width='50%' border='1' cellpadding='1' cellspacing='1'><tr><td><b>ZNZ汇率</b></td> <td><b>更新时间</b></td></tr>";
 			for (ExchangeRateDTO r : list) {
-				html += "<td>" + r.getRate() + "</td><td>" + sdf.format(r.getUpdateDate()) + "</td>";
+				html += "<tr><td>" + r.getRate() + "</td><td>" + sdf.format(r.getUpdateDate()) + "</td></tr>";
 			}
-			return html + "</tr></table></body></html>";
+			return html + "</table></body></html>";
 		} catch (ServiceException e) {
 			return "汇率查询异常:" + e.getMessage();
 		}
