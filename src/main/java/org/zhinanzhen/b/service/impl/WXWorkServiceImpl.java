@@ -87,7 +87,6 @@ public class WXWorkServiceImpl implements WXWorkService {
     @Override
     public String getWXWorkUrl() {
         String WXWORK_STRING_CODE = WXWorkAPI.WXWORK_STRING_CODE;
-        System.out.println(callBackUrl);
         WXWORK_STRING_CODE = WXWORK_STRING_CODE.replace("CORPID" ,WXWorkAPI .CORPID).replace("AGENTID",WXWorkAPI.AGENTID)
                 .replace("REDIRECT_URI", callBackUrl + "/admin_v2.1/wxwork/userId").replace("STATE", RandomStringUtils.randomAlphanumeric(5));
         return WXWORK_STRING_CODE;

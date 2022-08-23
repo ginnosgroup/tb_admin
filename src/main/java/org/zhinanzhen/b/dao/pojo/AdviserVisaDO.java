@@ -12,12 +12,16 @@ public class AdviserVisaDO {
 	private String serviceOrderId;
 
 	private String userName;
-	
+
 	private String applicantName;
 
 	private String maraName;
 
 	private String officialName;
+
+	private String currency;
+
+	private double exchangeRate;
 
 	private String kjApprovalDate;
 

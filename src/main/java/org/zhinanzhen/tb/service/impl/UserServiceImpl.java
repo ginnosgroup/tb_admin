@@ -282,13 +282,11 @@ public class UserServiceImpl extends BaseService implements UserService {
 				userDto.setRecommendUserDto(recommendUserDto);
 			}
 			userDto.setTagList(listTagByUserId(userDto.getId()));
-			System.out.println("old:" + userDto.getAuthNickname());
 			try {
 				userDto.setAuthNickname(new String(Base64Util.decodeBase64(userDto.getAuthNickname()), "utf-8"));
 			} catch (Exception e) {
 //				System.out.println(("昵称转码失败 userId = " + userDto.getId()));
 			}
-			System.out.println("new:" + userDto.getAuthNickname());
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());

@@ -48,20 +48,20 @@ public class ExchangeRateController extends BaseController {
 	
 	@RequestMapping(value = "/listDailyCNYExchangeRate", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<String> listDailyExchangeRate(HttpServletRequest request,
+	public String listDailyExchangeRate(HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			List<ExchangeRateDTO> list = exchangeRateService.listExchangeRate();
 			if (list == null)
-				return new Response<String>(1, "", null);
-			String s = "";
+				return "汇率查询失败!";
+			String html = "<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8' /><title>ZNZ实时查询历史记录</title></head><body><table width='50%' border='1' cellpadding='1' cellspacing='1'><tr><td><b>ZNZ汇率</b></td> <td><b>更新时间</b></td></tr>";
 			for (ExchangeRateDTO r : list) {
-				s += r.getRate() + "," + sdf.format(r.getUpdateDate()) + " | ";
+				html += "<tr><td>" + r.getRate() + "</td><td>" + sdf.format(r.getUpdateDate()) + "</td></tr>";
 			}
-			return new Response<String>(0, "", s);
+			return html + "</table></body></html>";
 		} catch (ServiceException e) {
-			return new Response<String>(1, e.getMessage(), null);
+			return "汇率查询异常:" + e.getMessage();
 		}
 	}
 

@@ -18,6 +18,10 @@ public class AdviserServiceOrderDO {
 	private String maraName;
 
 	private String officialName;
+	
+	private String currency;
+	
+	private double exchangeRate;
 
 	private String receiveTypeName;
 

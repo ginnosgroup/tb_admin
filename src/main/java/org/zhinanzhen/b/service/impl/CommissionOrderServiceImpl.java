@@ -446,7 +446,7 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 				// if (commissionOrderDo.getBonus() > 0)
 				if (commissionOrderDo.getPaymentVoucherImageUrl1() != null
 						|| commissionOrderDo.getPaymentVoucherImageUrl2() != null)
-					totalAmount += commissionOrderDo.getAmount();
+					totalAmount += commissionOrderDo.getAmount(); // TODO: sulei
 			}
 			commissionOrderListDto.setTotalPerAmount(totalPerAmount);
 			commissionOrderListDto.setTotalAmount(totalAmount);
