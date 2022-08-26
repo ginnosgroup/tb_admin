@@ -13,6 +13,10 @@ public class RefundDO implements Serializable {
 	private int id;
 
 	private Date gmtCreate;
+	
+	private Date reviewedDate;
+	
+	private Date completedDate;
 
 	private String state;
 
@@ -51,6 +55,14 @@ public class RefundDO implements Serializable {
 	private double amount;
 
 	private String paymentVoucherImageUrl;
+	
+	private String paymentVoucherImageUrl2;
+	
+	private String paymentVoucherImageUrl3;
+	
+	private String paymentVoucherImageUrl4;
+	
+	private String paymentVoucherImageUrl5;
 
 	private String refundVoucherImageUrl;
 
@@ -71,5 +83,7 @@ public class RefundDO implements Serializable {
 	private String reason;
 
 	private String remarks;
+	
+	private String note;
 
 }

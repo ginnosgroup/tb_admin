@@ -291,6 +291,14 @@ public class RefundController extends BaseController {
 				_refundDto.setState(refundDto.getState());
 			if (refundDto.getPaymentVoucherImageUrl() != null)
 				_refundDto.setPaymentVoucherImageUrl(refundDto.getPaymentVoucherImageUrl());
+			if (refundDto.getPaymentVoucherImageUrl2() != null)
+				_refundDto.setPaymentVoucherImageUrl(refundDto.getPaymentVoucherImageUrl2());
+			if (refundDto.getPaymentVoucherImageUrl3() != null)
+				_refundDto.setPaymentVoucherImageUrl(refundDto.getPaymentVoucherImageUrl3());
+			if (refundDto.getPaymentVoucherImageUrl4() != null)
+				_refundDto.setPaymentVoucherImageUrl(refundDto.getPaymentVoucherImageUrl4());
+			if (refundDto.getPaymentVoucherImageUrl5() != null)
+				_refundDto.setPaymentVoucherImageUrl(refundDto.getPaymentVoucherImageUrl5());
 			if (refundDto.getRefundVoucherImageUrl() != null)
 				_refundDto.setRefundVoucherImageUrl(refundDto.getRefundVoucherImageUrl());
 			if (refundService.updateRefund(_refundDto) > 0) {
