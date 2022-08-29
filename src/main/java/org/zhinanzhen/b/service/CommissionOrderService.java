@@ -1,7 +1,9 @@
 package org.zhinanzhen.b.service;
 
+import java.util.Date;
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -10,7 +12,13 @@ public interface CommissionOrderService {
 
 	int addCommissionOrder(CommissionOrderDTO commissionOrderDto) throws ServiceException;
 
+	Integer addCommissionInfoById(int id) throws ServiceException;
+
 	int updateCommissionOrder(CommissionOrderDTO commissionOrderDto) throws ServiceException;
+
+	int setinstallmentById(int id,int installment) throws ServiceException;
+
+	int setinstallmentDueDateById(int id, int installment_num,Date installmentDueDate)throws ServiceException;
 
 	public int countCommissionOrder(Integer id, List<Integer> regionIdList, Integer maraId, Integer adviserId,
 			Integer officialId, Integer userId, String name, String applicantName, String phone, String wechatUsername,
@@ -34,6 +42,8 @@ public interface CommissionOrderService {
 
 	CommissionOrderListDTO getCommissionOrderById(int id) throws ServiceException;
 
+	List<CommissionInfoDTO> getCommissionInfoById(int id) throws ServiceException;
+
 	CommissionOrderListDTO getFirstCommissionOrderByServiceOrderId(int serviceOrderId) throws ServiceException;
 
 	List<CommissionOrderListDTO> listCommissionOrderByInvoiceNumber(String invoiceNumber) throws ServiceException;
@@ -45,6 +55,8 @@ public interface CommissionOrderService {
 	int deleteComment(int id) throws ServiceException;
 
 	int deleteCommissionOrder(int id) throws ServiceException;
+
+	int deleteCommissionOrderInfoById(int serviceOrderId, int installmentNum) throws ServiceException;
 
 	void sendRefuseEmail(int id);
 
