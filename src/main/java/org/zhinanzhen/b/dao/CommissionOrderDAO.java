@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
+import org.zhinanzhen.b.dao.pojo.CommissionInfoDO;
 import org.zhinanzhen.b.dao.pojo.CommissionOrderDO;
 import org.zhinanzhen.b.dao.pojo.CommissionOrderListDO;
 import org.zhinanzhen.b.dao.pojo.CommissionOrderReportDO;
@@ -65,6 +66,8 @@ public interface CommissionOrderDAO {
 
 	CommissionOrderListDO getCommissionOrderById(int id);
 
+	List<CommissionInfoDO> getCommissionInfoById(int id);
+
 	List<CommissionOrderListDO> listCommissionOrderByInvoiceNumber(String invoiceNumber);
 
 	CommissionOrderListDO getFirstCommissionOrderByServiceOrderId(int serviceOrderId);
@@ -86,4 +89,14 @@ public interface CommissionOrderDAO {
 	List<CommissionOrderListDO> listCommissionOrderByCourse(@Param("providerId") Integer providerId, @Param("courseLevel") String courseLevel ,
 														@Param("courseId") Integer courseId,
 														@Param("startDate") Date startDate, @Param("endDate") Date endDate);
+
+	int deleteCommissionOrderInfoById(@Param("id")int serviceOrderId ,@Param("installmentNum") int installmentNum) ;
+
+	int setinstallmentById(@Param("id") Integer serviceOrderId,
+						   @Param("installment") Integer installment);
+	int setinstallmentDueDateById(@Param("id") Integer serviceOrderId,
+								  @Param("installmentNum") Integer installmentNum,
+								  @Param("installmentDueDate") Date installmentDueDate);
+
+	int addCommissionInfoById(int id);
 }
