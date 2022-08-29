@@ -748,7 +748,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	@Override
 	@Transactional(rollbackFor = ServiceException.class)
 	public ServiceOrderDTO approval(int id, int adminUserId, String adviserState, String maraState,
-			String officialState, String kjState) throws ServiceException {
+									String officialState, String kjState) throws ServiceException {
 		sendRemind(id, adviserState, maraState, officialState);
 		//createChat(id);
 		return review(id, adminUserId, adviserState, maraState, officialState, kjState, "APPROVAL");
@@ -756,7 +756,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
 	@Override
 	public ServiceOrderDTO refuse(int id, int adminUserId, String adviserState, String maraState, String officialState,
-			String kjState) throws ServiceException {
+								  String kjState) throws ServiceException {
 		sendRemind2(id, adviserState, maraState, officialState);
 		return review(id, adminUserId, adviserState, maraState, officialState, kjState, "REFUSE");
 	}
@@ -764,6 +764,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	@Override
 	public void sendRemind(int id, String state) {
 		ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(id);
+		ServiceAssessDO assessDO = serviceAssessDao.seleteAssessById(serviceOrderDo.getServiceAssessId());
 		if (serviceOrderDo != null) {
 			ServiceOrderMailDetail serviceOrderMailDetail = getServiceOrderMailDetail(serviceOrderDo, "新任务提醒:");
 			UserDO user = serviceOrderMailDetail.getUser();
@@ -801,7 +802,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				}
 			}
 			if ("REVIEW".equals(state)) { // 给文案发邮件提醒，这时adviserState为REVIEW,officialState为NULL
-				sendMail(officialDo.getEmail() + ",maggie@zhinanzhen.org", serviceOrderMailDetail.getTitle(),
+				String title = ("VISA".equalsIgnoreCase(serviceOrderDo.getType())&&assessDO!=null)?StringUtil.merge
+						(serviceOrderMailDetail.getTitle()," -",assessDO.getName()):serviceOrderMailDetail.getTitle();
+				sendMail(officialDo.getEmail() + ",maggie@zhinanzhen.org", title,
 						StringUtil.merge("亲爱的", officialDo.getName(), ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:", id,
 								"<br/>服务类型:", serviceOrderMailDetail.getType(), serviceOrderMailDetail.getDetail(),
 								"/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
@@ -855,12 +858,12 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				}
 
 				if ("OVST".equalsIgnoreCase(serviceOrderDo.getType())) {
-					String _title = StringUtil.merge("审核完成提醒:", getApplicantName(applicantDto), "/留学");
+					String _title = StringUtil.merge("提前扣佣留学佣金订单驳回:", getApplicantName(applicantDto), "/留学");
 					// 发送给顾问
 					SchoolDO schoolDo = schoolDao.getSchoolById(serviceOrderDo.getSchoolId());
 					if (schoolDo != null){
 						sendMail(adviserDo.getEmail(), _title, StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>",
-								"您的订单已经申请成功等待coe支付，请检查并进行下一步操作。<br>订单号:", serviceOrderDo.getId(), "<br/>服务类型:留学/申请人名称:",
+								"您的订单已被驳回。<br>订单号:", serviceOrderDo.getId(), "<br/>服务类型:留学/申请人名称:",
 								getApplicantName(applicantDto), "/学校:", schoolDo.getName(), "/专业:", schoolDo.getSubject(), "/顾问:",
 								adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
 								getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
@@ -871,7 +874,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 						SchoolInstitutionListDTO institution = schoolCourseDAO.getSchoolInstitutionInfoByCourseId(serviceOrderDo.getCourseId());
 						if (institution != null)
 							sendMail(adviserDo.getEmail(), _title, StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>",
-									"您的订单已经申请成功等待coe支付，请检查并进行下一步操作。<br>订单号:", serviceOrderDo.getId(), "<br/>服务类型:留学/申请人名称:",
+									"您的订单已被驳回。<br>订单号:", serviceOrderDo.getId(), "<br/>服务类型:留学/申请人名称:",
 									getApplicantName(applicantDto), "/学校:", institution.getName(), "/专业:", institution.getSchoolCourseDO().getCourseName(), "/顾问:",
 									adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
 									getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
@@ -970,6 +973,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	@Deprecated
 	public void sendRemind(int id, String adviserState, String maraState, String officialState) {
 		ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(id);
+		ServiceAssessDO assessDO = serviceAssessDao.seleteAssessById(serviceOrderDo.getServiceAssessId());
 		if (serviceOrderDo != null) {
 			ServiceOrderMailDetail serviceOrderMailDetail = getServiceOrderMailDetail(serviceOrderDo, "新任务提醒:");
 			UserDO user = serviceOrderMailDetail.getUser();
@@ -1017,8 +1021,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 						serviceOrderDo.setMaraApprovalDate(new Date());
 				}
 				if ("REVIEW".equals(adviserState)) { // 给文案发邮件提醒，这时adviserState为REVIEW,officialState为NULL
-					sendMail(officialDo.getEmail() + ",maggie@zhinanzhen.org",
-							serviceOrderMailDetail.getTitle(),
+					String title = ("VISA".equalsIgnoreCase(serviceOrderDo.getType())&&assessDO!=null)?StringUtil.merge
+							(serviceOrderMailDetail.getTitle()," -",assessDO.getName()):serviceOrderMailDetail.getTitle();
+					sendMail(officialDo.getEmail() + ",maggie@zhinanzhen.org", title,
 							StringUtil.merge("亲爱的", officialDo.getName(), ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:", id,
 									"<br/>服务类型:", serviceOrderMailDetail.getType(), serviceOrderMailDetail.getDetail(),
 									"/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
