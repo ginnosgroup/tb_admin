@@ -220,6 +220,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
         List<String> _invoiceNos = new ArrayList<>();
         invoiceNos.forEach(invoiceNo -> {
         	invoiceNo = invoiceNo.replace("BJ", "J"); // 2022-07-25 bugfix
+        	invoiceNo = invoiceNo.replace("QD", "D");
             if (invoiceNo.startsWith("S") || invoiceNo.startsWith("V"))
                 _invoiceNos.add(invoiceNo.substring(1));
             else
