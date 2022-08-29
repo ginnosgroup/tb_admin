@@ -269,7 +269,7 @@ public class KjController extends BaseController {
 					} else
 						checkOrderList.add(new CheckOrderDTO(-1, null, "S", _id, _amount, false, "请加上前缀(" + _id + ")"));
 				} else if (array2.length == 1 && (s.indexOf("S") != -1 || s.indexOf("M") != -1 || s.indexOf("T") != -1
-						|| s.indexOf("B") != -1 || s.indexOf("A") != -1 || s.indexOf("BJ") != -1)) { // 留学订单(非提前扣佣,仅匹配invoice)
+						|| s.indexOf("B") != -1 || s.indexOf("A") != -1 || s.indexOf("BJ") != -1 || s.indexOf("QD") != -1)) { // 留学订单(非提前扣佣,仅匹配invoice)
 					String invoiceNo = s.trim();
 					List<CommissionOrderListDTO> commissionOrderListDtoList = commissionOrderService
 							.listCommissionOrderByInvoiceNumber(invoiceNo);
