@@ -1,5 +1,7 @@
 package org.zhinanzhen.b.controller.nodes;
 
+import java.util.Date;
+
 import org.springframework.stereotype.Component;
 import org.zhinanzhen.b.service.RefundService;
 import org.zhinanzhen.b.service.pojo.RefundDTO;
@@ -38,6 +40,8 @@ public class RefundCompleteNode extends RDecisionNode {
 				context.putParameter("response", new Response<ServiceOrderDTO>(1, "仅限财务操作!", null));
 				return null;
 			}
+			refundDto.setReviewedDate(new Date()); // 审核完成时间
+			refundService.updateRefund(refundDto);
 			return getNextState(context);
 		} catch (ServiceException e) {
 			context.putParameter("response", new Response<ServiceOrderDTO>(1, "退款单执行异常:" + e.getMessage(), null));
