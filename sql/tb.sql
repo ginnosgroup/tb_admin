@@ -252,8 +252,8 @@ CREATE TABLE `b_visa` (
   `amount` decimal(8,2) NOT NULL COMMENT '本次收款',
   `expect_amount` decimal(8,2) DEFAULT NULL COMMENT '预收业绩',
   `sure_expect_amount` decimal(8,2) DEFAULT NULL COMMENT '确认预收业绩',
-`currency` varchar(4) DEFAULT 'AUD' COMMENT '币种(AUD:澳币,CNY:人民币)',
-`exchange_rate` decimal(6,4) NOT NULL COMMENT '人民币兑换澳币汇率',
+  `currency` varchar(4) DEFAULT 'AUD' COMMENT '币种(AUD:澳币,CNY:人民币)',
+  `exchange_rate` decimal(6,4) NOT NULL COMMENT '人民币兑换澳币汇率',
   `discount` decimal(8,2) NOT NULL DEFAULT 0 COMMENT '折扣',
   `gst` decimal(8,2) NOT NULL COMMENT 'GST',
   `deduct_gst` decimal(8,2) NOT NULL COMMENT 'Deduct GST',
@@ -1199,6 +1199,8 @@ CREATE TABLE `b_refund` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+`reviewed_date` datetime DEFAULT NULL COMMENT '审核完成时间',
+`completed_date` datetime DEFAULT NULL COMMENT '退款完成时间',
   `state` varchar(8) NOT NULL COMMENT '状态',
   `type` varchar(4) NOT NULL COMMENT '服务类型(VISA:签证服务,OVST:留学服务)',
   `visa_id` int DEFAULT NULL COMMENT '签证佣金订单编号 (对应b_visa.id,如果visa_id和commission_order_id都为0则为手工退款)',
@@ -1214,6 +1216,10 @@ CREATE TABLE `b_refund` (
   `received` decimal(8,2) DEFAULT NULL COMMENT '实付金额',
   `amount` decimal(8,2) DEFAULT NULL COMMENT '退款金额',
   `payment_voucher_image_url` varchar(128) DEFAULT NULL COMMENT '付款凭证图片地址',
+`payment_voucher_image_url_2` varchar(128) DEFAULT NULL COMMENT '付款凭证图片地址2',
+`payment_voucher_image_url_3` varchar(128) DEFAULT NULL COMMENT '付款凭证图片地址3',
+`payment_voucher_image_url_4` varchar(128) DEFAULT NULL COMMENT '付款凭证图片地址4',
+`payment_voucher_image_url_5` varchar(128) DEFAULT NULL COMMENT '付款凭证图片地址5',
   `refund_voucher_image_url` varchar(128) DEFAULT NULL COMMENT '退款凭证图片地址',
   `refund_detail_id` int NOT NULL COMMENT '退款原因编号 (1:业务未成功办理，客户要求退款,2:客户取消业务,3:押金退款,4:referfee,5:Subagent结算,6:返佣,7:客户转错钱,全款退还,99:其它)',
   `refund_detail` varchar(255) DEFAULT NULL COMMENT '退款原因说明 (退款原因为其它时必填)',
@@ -1223,7 +1229,8 @@ CREATE TABLE `b_refund` (
   `bsb` varchar(32) DEFAULT NULL COMMENT 'BSB',
   `rmb_remarks` varchar(255) DEFAULT NULL COMMENT '人民币退款信息',
   `reason` varchar(255) DEFAULT NULL COMMENT '驳回原因',
-  `remarks` varchar(255) DEFAULT NULL COMMENT '备注'
+  `remarks` varchar(255) DEFAULT NULL COMMENT '备注',
+`note` varchar(255) DEFAULT NULL COMMENT '财务note'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
 --汇率

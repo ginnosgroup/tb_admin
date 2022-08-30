@@ -291,6 +291,14 @@ public class RefundController extends BaseController {
 				_refundDto.setState(refundDto.getState());
 			if (refundDto.getPaymentVoucherImageUrl() != null)
 				_refundDto.setPaymentVoucherImageUrl(refundDto.getPaymentVoucherImageUrl());
+			if (refundDto.getPaymentVoucherImageUrl2() != null)
+				_refundDto.setPaymentVoucherImageUrl(refundDto.getPaymentVoucherImageUrl2());
+			if (refundDto.getPaymentVoucherImageUrl3() != null)
+				_refundDto.setPaymentVoucherImageUrl(refundDto.getPaymentVoucherImageUrl3());
+			if (refundDto.getPaymentVoucherImageUrl4() != null)
+				_refundDto.setPaymentVoucherImageUrl(refundDto.getPaymentVoucherImageUrl4());
+			if (refundDto.getPaymentVoucherImageUrl5() != null)
+				_refundDto.setPaymentVoucherImageUrl(refundDto.getPaymentVoucherImageUrl5());
 			if (refundDto.getRefundVoucherImageUrl() != null)
 				_refundDto.setRefundVoucherImageUrl(refundDto.getRefundVoucherImageUrl());
 			if (refundService.updateRefund(_refundDto) > 0) {
@@ -365,6 +373,11 @@ public class RefundController extends BaseController {
 		context.putParameter("state", refundDto.getState());
 		context.putParameter("reason", refundDto.getReason());
 		context.putParameter("paymentVoucherImageUrl", refundDto.getPaymentVoucherImageUrl());
+		context.putParameter("paymentVoucherImageUrl2", refundDto.getPaymentVoucherImageUrl2());
+		context.putParameter("paymentVoucherImageUrl3", refundDto.getPaymentVoucherImageUrl3());
+		context.putParameter("paymentVoucherImageUrl4", refundDto.getPaymentVoucherImageUrl4());
+		context.putParameter("paymentVoucherImageUrl5", refundDto.getPaymentVoucherImageUrl5());
+		context.putParameter("note", refundDto.getNote());
 		context.putParameter("ap", adminUserLoginInfo.getApList());
 		context.putParameter("adminUserId", adminUserLoginInfo.getId());
 
