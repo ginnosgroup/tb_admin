@@ -44,6 +44,26 @@ public abstract class RDecisionNode extends AbstractDecisionNode {
 				refundDto.setPaymentVoucherImageUrl(context.getParameter("paymentVoucherImageUrl").toString());
 				log.info("写入paymentVoucherImageUrl:" + refundDto.getPaymentVoucherImageUrl());
 			}
+			if (context.getParameter("paymentVoucherImageUrl2") != null) {
+				refundDto.setPaymentVoucherImageUrl2(context.getParameter("paymentVoucherImageUrl2").toString());
+				log.info("写入paymentVoucherImageUrl2:" + refundDto.getPaymentVoucherImageUrl2());
+			}
+			if (context.getParameter("paymentVoucherImageUrl3") != null) {
+				refundDto.setPaymentVoucherImageUrl3(context.getParameter("paymentVoucherImageUrl3").toString());
+				log.info("写入paymentVoucherImageUrl3:" + refundDto.getPaymentVoucherImageUrl3());
+			}
+			if (context.getParameter("paymentVoucherImageUrl4") != null) {
+				refundDto.setPaymentVoucherImageUrl4(context.getParameter("paymentVoucherImageUrl4").toString());
+				log.info("写入paymentVoucherImageUrl4:" + refundDto.getPaymentVoucherImageUrl4());
+			}
+			if (context.getParameter("paymentVoucherImageUrl5") != null) {
+				refundDto.setPaymentVoucherImageUrl5(context.getParameter("paymentVoucherImageUrl5").toString());
+				log.info("写入paymentVoucherImageUrl5:" + refundDto.getPaymentVoucherImageUrl5());
+			}
+			if (context.getParameter("note") != null) {
+				refundDto.setNote(context.getParameter("note").toString());
+				log.info("写入note:" + refundDto.getNote());
+			}
 			if (refundService.updateRefund(refundDto) > 0)
 				log.info("保存流程状态成功:refundId=" + refundDto.getId() + ",state=" + getName());
 			else
