@@ -329,16 +329,16 @@
             , payment_voucher_image_url = #{paymentVoucherImageUrl}
         </if>
         <if test='paymentVoucherImageUrl2 != null and paymentVoucherImageUrl2 != ""'>
-            , payment_voucher_image_url2 = #{paymentVoucherImageUrl2}
+            , payment_voucher_image_url_2 = #{paymentVoucherImageUrl2}
         </if>
         <if test='paymentVoucherImageUrl3 != null and paymentVoucherImageUrl3 != ""'>
-            , payment_voucher_image_url3 = #{paymentVoucherImageUrl3}
+            , payment_voucher_image_url_3 = #{paymentVoucherImageUrl3}
         </if>
         <if test='paymentVoucherImageUrl4 != null and paymentVoucherImageUrl4 != ""'>
-            , payment_voucher_image_url4 = #{paymentVoucherImageUrl4}
+            , payment_voucher_image_url_4 = #{paymentVoucherImageUrl4}
         </if>
         <if test='paymentVoucherImageUrl5 != null and paymentVoucherImageUrl5 != ""'>
-            , payment_voucher_image_url5 = #{paymentVoucherImageUrl5}
+            , payment_voucher_image_url_5 = #{paymentVoucherImageUrl5}
         </if>
         <if test='refundVoucherImageUrl != null and refundVoucherImageUrl != ""'>
             , refund_voucher_image_url = #{refundVoucherImageUrl}
