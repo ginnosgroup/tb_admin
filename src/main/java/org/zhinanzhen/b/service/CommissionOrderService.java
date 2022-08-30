@@ -42,7 +42,7 @@ public interface CommissionOrderService {
 
 	CommissionOrderListDTO getCommissionOrderById(int id) throws ServiceException;
 
-	List<CommissionInfoDTO> getCommissionInfoById(int id) throws ServiceException;
+	List<CommissionInfoDTO> getCommissionInfoById(int id,int adviserId) throws ServiceException;
 
 	CommissionOrderListDTO getFirstCommissionOrderByServiceOrderId(int serviceOrderId) throws ServiceException;
 

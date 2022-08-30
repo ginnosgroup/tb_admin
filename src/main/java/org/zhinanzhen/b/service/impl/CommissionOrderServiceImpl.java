@@ -317,7 +317,7 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 	}
 
 	@Override
-	public List<CommissionInfoDTO> getCommissionInfoById(int id) throws ServiceException {
+	public List<CommissionInfoDTO> getCommissionInfoById(int id,int adviserId) throws ServiceException {
 		if (id <= 0) {
 			ServiceException se = new ServiceException("id error !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -325,9 +325,12 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 		}
 		List<CommissionInfoDTO> commissionInfoDTOS = null;
 		try {
-			List<CommissionInfoDO> commissionInfoDOList = commissionOrderDao.getCommissionInfoById(id);
-			if (commissionInfoDOList == null)
-				return null;
+			List<CommissionInfoDO> commissionInfoDOList = commissionOrderDao.getCommissionInfoById(id,adviserId);
+			if (commissionInfoDOList == null){
+				ServiceException se = new ServiceException("没有找到相应的佣金记录");
+				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+				throw se;
+			}
 			commissionInfoDTOS = buildCommissionInfoDto(commissionInfoDOList);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);

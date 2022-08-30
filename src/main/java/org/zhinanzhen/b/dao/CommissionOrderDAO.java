@@ -66,7 +66,8 @@ public interface CommissionOrderDAO {
 
 	CommissionOrderListDO getCommissionOrderById(int id);
 
-	List<CommissionInfoDO> getCommissionInfoById(int id);
+	List<CommissionInfoDO> getCommissionInfoById(@Param("id") Integer id,
+												 @Param("adviserId") Integer adviserId);
 
 	List<CommissionOrderListDO> listCommissionOrderByInvoiceNumber(String invoiceNumber);
 
