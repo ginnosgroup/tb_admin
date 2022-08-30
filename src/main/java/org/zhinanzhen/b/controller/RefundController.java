@@ -373,6 +373,11 @@ public class RefundController extends BaseController {
 		context.putParameter("state", refundDto.getState());
 		context.putParameter("reason", refundDto.getReason());
 		context.putParameter("paymentVoucherImageUrl", refundDto.getPaymentVoucherImageUrl());
+		context.putParameter("paymentVoucherImageUrl2", refundDto.getPaymentVoucherImageUrl2());
+		context.putParameter("paymentVoucherImageUrl3", refundDto.getPaymentVoucherImageUrl3());
+		context.putParameter("paymentVoucherImageUrl4", refundDto.getPaymentVoucherImageUrl4());
+		context.putParameter("paymentVoucherImageUrl5", refundDto.getPaymentVoucherImageUrl5());
+		context.putParameter("note", refundDto.getNote());
 		context.putParameter("ap", adminUserLoginInfo.getApList());
 		context.putParameter("adminUserId", adminUserLoginInfo.getId());
 
