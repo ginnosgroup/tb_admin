@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.service.impl;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -347,16 +348,17 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 		int installment = commissionInfoDO.get(0).getInstallment();
 		for (int i = 0; i < installment; i++) {
 			commissionInfoDTO = new CommissionInfoDTO();
+			DecimalFormat df = new DecimalFormat("0.00");
 			commissionInfoDTO.setServiceOrderId(commissionInfoDO.get(i).getServiceOrderId());
-			commissionInfoDTO.setCommissionorderid(commissionInfoDO.get(i).getServiceOrderId() + "-" + commissionInfoDO.get(i).getInstallmentNum());
+			commissionInfoDTO.setCommissionorderid(commissionInfoDO.get(i).getId());
 			commissionInfoDTO.setState(commissionInfoDO.get(i).getState());
 			commissionInfoDTO.setInstallment(commissionInfoDO.get(i).getInstallment());
 			commissionInfoDTO.setInstallmentNum(commissionInfoDO.get(i).getInstallmentNum());
 			commissionInfoDTO.setState(commissionInfoDO.get(i).getState());
 			commissionInfoDTO.setStartDate(commissionInfoDO.get(i).getStartDate());
 			commissionInfoDTO.setEndDate(commissionInfoDO.get(i).getEndDate());
-			commissionInfoDTO.setTuitionFee(commissionInfoDO.get(i).getTuitionFee());
-			commissionInfoDTO.setPerTermTuitionFee(commissionInfoDO.get(i).getPerTermTuitionFee());
+			commissionInfoDTO.setTuitionFee(df.format(commissionInfoDO.get(i).getTuitionFee()));
+			commissionInfoDTO.setPerTermTuitionFee(df.format(commissionInfoDO.get(i).getPerTermTuitionFee()));
 			commissionInfoDTO.setInstallmentDueDate(commissionInfoDO.get(i).getInstallmentDueDate());
 			commissionInfoDTO.setStudentCode(commissionInfoDO.get(i).getStudentCode());
 			commissionInfoDTOList.add(commissionInfoDTO);
