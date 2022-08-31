@@ -1115,7 +1115,7 @@
             co.is_close AS isClose,
             co.invoice_create AS invoiceCreate
         FROM b_commission_order co
-        WHERE co.service_order_id = #{id, jdbcType=INTEGER} and co.adviserId=#{adviserId, jdbcType=INTEGER};
+        WHERE co.service_order_id = #{id, jdbcType=INTEGER} and co.adviser_id=#{adviserId, jdbcType=INTEGER};
     </select>
 
     <select id="listCommissionOrderByInvoiceNumber" parameterType="java.lang.String"
