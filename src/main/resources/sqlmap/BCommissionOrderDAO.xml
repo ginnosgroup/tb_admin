@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.zhinanzhen.b.dao.CommissionOrderDAO">
 
-    <insert id="addCommissionOrder" parameterType="org.zhinanzhen.b.dao.pojo.CommissionOrderDO" useGeneratedKeys="true" keyProperty="id">
+    <insert id="addCommissionOrder" parameterType="org.zhinanzhen.b.dao.pojo.CommissionOrderDO" useGeneratedKeys="true"
+            keyProperty="id">
         INSERT
             INTO b_commission_order (
                 gmt_create,
@@ -110,9 +111,110 @@
                 0,
                 #{verifyCode});
     </insert>
-    
+    <insert id="addCommissionInfoById" parameterType="java.lang.Integer" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT
+            INTO b_commission_order (
+                gmt_create,
+                gmt_modify,
+                code,
+                service_order_id,
+                state,
+                commission_state,
+                kj_approval_date,
+                is_settle,
+                is_deposit_user,
+                school_id,
+                student_code,
+                user_id,
+                adviser_id,
+                official_id,
+                is_studying,
+                installment_num,
+                installment,
+                installment_due_date,
+                payment_voucher_image_url_1,
+                payment_voucher_image_url_2,
+                payment_voucher_image_url_3,
+                payment_voucher_image_url_4,
+                payment_voucher_image_url_5,
+                school_payment_amount,
+                school_payment_date,
+                invoice_number,
+                start_date,
+                end_date,
+                commission,
+                tuition_fee,
+                per_term_tuition_fee,
+                receive_type_id,
+                receive_date,
+                per_amount,
+                amount,
+                expect_amount,
+                sure_expect_amount,
+                discount,
+                gst,
+                deduct_gst,
+                bonus,
+                bonus_date,
+                zy_date,
+                remarks,
+                refuse_reason,
+                is_close,
+                verify_code)
+           SELECT gmt_create,
+                now(),
+                code,
+                service_order_id,
+                state,
+                commission_state,
+                kj_approval_date,
+                is_settle,
+                is_deposit_user,
+                school_id,
+                student_code,
+                user_id,
+                adviser_id,
+                official_id,
+                is_studying,
+                installment_num+1,
+                installment,
+                installment_due_date,
+                payment_voucher_image_url_1,
+                payment_voucher_image_url_2,
+                payment_voucher_image_url_3,
+                payment_voucher_image_url_4,
+                payment_voucher_image_url_5,
+                school_payment_amount,
+                school_payment_date,
+                invoice_number,
+                start_date,
+                end_date,
+                commission,
+                tuition_fee,
+                per_term_tuition_fee,
+                receive_type_id,
+                receive_date,
+                per_amount,
+                amount,
+                expect_amount,
+                sure_expect_amount,
+                discount,
+                gst,
+                deduct_gst,
+                bonus,
+                bonus_date,
+                zy_date,
+                remarks,
+                refuse_reason,
+                is_close,
+                verify_code
+			FROM b_commission_order WHERE installment_num =(SELECT MAX(installment_num)
+			FROM b_commission_order WHERE service_order_id =#{id}) AND service_order_id=#{id}
+    </insert>
+
     <update id="updateCommissionOrder" parameterType="org.zhinanzhen.b.dao.pojo.CommissionOrderDO">
-        UPDATE b_commission_order 
+        UPDATE b_commission_order
         SET gmt_modify = now()
         <if test='state != null and state != ""'>
             , state = #{state}
@@ -254,7 +356,7 @@
         </if>
         WHERE id = #{id};
     </update>
-    
+
     <select id="countCommissionOrder" resultType="java.lang.Integer">
         SELECT count(*)
         FROM b_commission_order co, b_service_order so, tb_user u, tb_adviser a, b_applicant ap
@@ -284,7 +386,8 @@
             AND u.name LIKE '%${name}%'
         </if>
         <if test='applicantName != null and applicantName != ""'>
-            AND (ap.surname LIKE '%${applicantName}%' OR ap.firstname LIKE '%${applicantName}%' OR CONCAT(ap.firstname, ' ', ap.surname) = #{applicantName})
+            AND (ap.surname LIKE '%${applicantName}%' OR ap.firstname LIKE '%${applicantName}%' OR CONCAT(ap.firstname,
+            ' ', ap.surname) = #{applicantName})
         </if>
         <if test='applyState == "PENDING" or applyState == "WAIT"'>
             <![CDATA[ AND (co.state="PENDING" OR co.state="WAIT") ]]>
@@ -299,7 +402,8 @@
             AND u.wechat_username = #{wechatUsername}
         </if>
         <if test='schoolId != null and schoolId > 0'>
-            AND co.school_id IN (SELECT id FROM b_school WHERE name IN (SELECT name FROM b_school WHERE id = #{schoolId}))
+            AND co.school_id IN (SELECT id FROM b_school WHERE name IN (SELECT name FROM b_school WHERE id =
+            #{schoolId}))
         </if>
         <if test='isSettle != null'>
             AND co.is_settle = #{isSettle}
@@ -312,7 +416,8 @@
         </if>
         <if test='commissionStateList != null'>
             AND co.commission_state IN
-            <foreach collection="commissionStateList" item="commissionStateList" index="index" open="(" close=")" separator=",">
+            <foreach collection="commissionStateList" item="commissionStateList" index="index" open="(" close=")"
+                     separator=",">
                 #{commissionStateList}
             </foreach>
         </if>
@@ -330,13 +435,13 @@
         </if>
         ;
     </select>
-    
+
     <select id="countCommissionOrderBySchoolId" resultType="java.lang.Integer">
         SELECT count(*)
         FROM b_commission_order
         WHERE school_id = #{schoolId};
     </select>
-    
+
     <select id="countCommissionOrderByServiceOrderIdAndExcludeCode" resultType="java.lang.Integer">
         SELECT count(*)
         FROM b_commission_order
@@ -346,70 +451,70 @@
         </if>
         ;
     </select>
-    
+
     <select id="listCommissionOrder" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderListDO">
         SELECT
-            co.id,
-            co.gmt_create AS gmtCreate,
-            co.code,
-            co.service_order_id AS serviceOrderId,
-            co.state,
-            co.commission_state AS commissionState,
-            co.kj_approval_date AS kjApprovalDate,
-            co.is_settle AS isSettle,
-            co.is_deposit_user AS isDepositUser,
-            co.school_id AS schoolId,
-            co.course_id AS courseId,
-            co.school_institution_location_id AS schoolInstitutionLocationId,
-            co.student_code AS studentCode,
-            co.user_id AS userId,
-            co.adviser_id AS adviserId,
-            co.official_id AS officialId,
-            co.is_studying AS isStudying,
-            co.installment_num AS installmentNum,
-            co.installment,
-            co.installment_due_date AS installmentDueDate,
-            co.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
-            co.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
-            co.payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
-            co.payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
-            co.payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
-            co.school_payment_amount AS schoolPaymentAmount,
-            co.school_payment_date AS schoolPaymentDate,
-            co.invoice_number AS invoiceNumber,
-            co.start_date AS startDate,
-            co.end_date AS endDate,
-            co.commission,
-            co.tuition_fee AS tuitionFee,
-            co.per_term_tuition_fee AS perTermTuitionFee,
-            co.receive_type_id AS receiveTypeId,
-            co.receive_date AS receiveDate,
-            co.per_amount AS perAmount,
-            co.amount,
-            co.expect_amount AS expectAmount,
-            co.sure_expect_amount AS sureExpectAmount,
-            co.currency,
-            co.exchange_rate AS exchangeRate,
-            co.discount,
-            co.gst,
-            co.deduct_gst AS deductGst,
-            co.bonus,
-            co.bonus_date AS bonusDate,
-            co.zy_date AS zyDate,
-            co.bank_check AS bankCheck,
-            co.is_checked AS isChecked,
-            co.remarks,
-            co.refuse_reason AS refuseReason,
-            co.verify_code AS verifyCode,
-            co.bank_date AS bankDate,
-            co.is_close AS isClose,
-            co.invoice_create AS invoiceCreate,
-            so.id AS serviceOrderId,
-            so.gmt_create AS signingDate,
-            so.subagency_id AS subagencyId,
-            so.service_id AS serviceId,
-            so.institution_trading_name AS institutionTradingName,
-            so.applicant_id AS applicantId
+        co.id,
+        co.gmt_create AS gmtCreate,
+        co.code,
+        co.service_order_id AS serviceOrderId,
+        co.state,
+        co.commission_state AS commissionState,
+        co.kj_approval_date AS kjApprovalDate,
+        co.is_settle AS isSettle,
+        co.is_deposit_user AS isDepositUser,
+        co.school_id AS schoolId,
+        co.course_id AS courseId,
+        co.school_institution_location_id AS schoolInstitutionLocationId,
+        co.student_code AS studentCode,
+        co.user_id AS userId,
+        co.adviser_id AS adviserId,
+        co.official_id AS officialId,
+        co.is_studying AS isStudying,
+        co.installment_num AS installmentNum,
+        co.installment,
+        co.installment_due_date AS installmentDueDate,
+        co.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+        co.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+        co.payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+        co.payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+        co.payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+        co.school_payment_amount AS schoolPaymentAmount,
+        co.school_payment_date AS schoolPaymentDate,
+        co.invoice_number AS invoiceNumber,
+        co.start_date AS startDate,
+        co.end_date AS endDate,
+        co.commission,
+        co.tuition_fee AS tuitionFee,
+        co.per_term_tuition_fee AS perTermTuitionFee,
+        co.receive_type_id AS receiveTypeId,
+        co.receive_date AS receiveDate,
+        co.per_amount AS perAmount,
+        co.amount,
+        co.expect_amount AS expectAmount,
+        co.sure_expect_amount AS sureExpectAmount,
+        co.currency,
+        co.exchange_rate AS exchangeRate,
+        co.discount,
+        co.gst,
+        co.deduct_gst AS deductGst,
+        co.bonus,
+        co.bonus_date AS bonusDate,
+        co.zy_date AS zyDate,
+        co.bank_check AS bankCheck,
+        co.is_checked AS isChecked,
+        co.remarks,
+        co.refuse_reason AS refuseReason,
+        co.verify_code AS verifyCode,
+        co.bank_date AS bankDate,
+        co.is_close AS isClose,
+        co.invoice_create AS invoiceCreate,
+        so.id AS serviceOrderId,
+        so.gmt_create AS signingDate,
+        so.subagency_id AS subagencyId,
+        so.service_id AS serviceId,
+        so.institution_trading_name AS institutionTradingName,
+        so.applicant_id AS applicantId
         FROM b_commission_order co, b_service_order so, tb_user u, tb_adviser a, b_applicant ap
         WHERE co.service_order_id = so.id AND co.user_id = u.id AND a.id = co.adviser_id AND ap.id = so.applicant_id
         <if test='id != null and id > 0'>
@@ -437,7 +542,8 @@
             AND u.name LIKE '%${name}%'
         </if>
         <if test='applicantName != null and applicantName != ""'>
-            AND (ap.surname LIKE '%${applicantName}%' OR ap.firstname LIKE '%${applicantName}%' OR CONCAT(ap.firstname, ' ', ap.surname) = #{applicantName})
+            AND (ap.surname LIKE '%${applicantName}%' OR ap.firstname LIKE '%${applicantName}%' OR CONCAT(ap.firstname,
+            ' ', ap.surname) = #{applicantName})
         </if>
         <if test='phone != null and phone != ""'>
             AND u.phone = #{phone}
@@ -446,7 +552,8 @@
             AND u.wechat_username = #{wechatUsername}
         </if>
         <if test='schoolId != null and schoolId > 0'>
-            AND co.school_id IN (SELECT id FROM b_school WHERE name IN (SELECT name FROM b_school WHERE id = #{schoolId}))
+            AND co.school_id IN (SELECT id FROM b_school WHERE name IN (SELECT name FROM b_school WHERE id =
+            #{schoolId}))
         </if>
         <if test='isSettle != null'>
             AND co.is_settle = #{isSettle}
@@ -465,7 +572,8 @@
         </if>
         <if test='commissionStateList != null'>
             AND co.commission_state IN
-            <foreach collection="commissionStateList" item="commissionStateList" index="index" open="(" close=")" separator=",">
+            <foreach collection="commissionStateList" item="commissionStateList" index="index" open="(" close=")"
+                     separator=",">
                 #{commissionStateList}
             </foreach>
         </if>
@@ -605,7 +713,7 @@
             invoice_create AS invoiceCreate
         FROM b_commission_order WHERE school_id = #{schoolId};
     </select>
-    
+
     <select id="listCommissionOrderByServiceOrderId" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderDO">
         SELECT
             id,
@@ -665,70 +773,70 @@
             invoice_create AS invoiceCreate
         FROM b_commission_order WHERE service_order_id = #{serviceOrderId};
     </select>
-    
+
     <select id="listCommissionOrderBySchool" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderListDO">
         SELECT
-            co.id,
-            co.gmt_create AS gmtCreate,
-            co.code,
-            co.service_order_id AS serviceOrderId,
-            co.state,
-            co.commission_state AS commissionState,
-            co.kj_approval_date AS kjApprovalDate,
-            co.is_settle AS isSettle,
-            co.is_deposit_user AS isDepositUser,
-            co.school_id AS schoolId,
-            co.course_id AS courseId,
-            co.school_institution_location_id AS schoolInstitutionLocationId,
-            co.student_code AS studentCode,
-            co.user_id AS userId,
-            co.adviser_id AS adviserId,
-            co.official_id AS officialId,
-            co.is_studying AS isStudying,
-            co.installment_num AS installmentNum,
-            co.installment,
-            co.installment_due_date AS installmentDueDate,
-            co.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
-            co.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
-            co.payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
-            co.payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
-            co.payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
-            co.school_payment_amount AS schoolPaymentAmount,
-            co.school_payment_date AS schoolPaymentDate,
-            co.invoice_number AS invoiceNumber,
-            co.start_date AS startDate,
-            co.end_date AS endDate,
-            co.commission,
-            co.tuition_fee AS tuitionFee,
-            co.per_term_tuition_fee AS perTermTuitionFee,
-            co.receive_type_id AS receiveTypeId,
-            co.receive_date AS receiveDate,
-            co.per_amount AS perAmount,
-            co.amount,
-            co.expect_amount AS expectAmount,
-            co.sure_expect_amount AS sureExpectAmount,
-            co.currency,
-            co.exchange_rate AS exchangeRate,
-            co.discount,
-            co.gst,
-            co.deduct_gst AS deductGst,
-            co.bonus,
-            co.bonus_date AS bonusDate,
-            co.zy_date AS zyDate,
-            co.bank_check AS bankCheck,
-            co.is_checked AS isChecked,
-            co.remarks,
-            co.refuse_reason AS refuseReason,
-            co.verify_code AS verifyCode,
-            co.bank_date AS bankDate,
-            co.is_close AS isClose,
-            co.invoice_create AS invoiceCreate,
-            so.id AS serviceOrderId,
-            so.gmt_create AS signingDate,
-            so.subagency_id AS subagencyId,
-            so.service_id AS serviceId,
-            so.institution_trading_name AS institutionTradingName,
-            so.applicant_id AS applicantId
+        co.id,
+        co.gmt_create AS gmtCreate,
+        co.code,
+        co.service_order_id AS serviceOrderId,
+        co.state,
+        co.commission_state AS commissionState,
+        co.kj_approval_date AS kjApprovalDate,
+        co.is_settle AS isSettle,
+        co.is_deposit_user AS isDepositUser,
+        co.school_id AS schoolId,
+        co.course_id AS courseId,
+        co.school_institution_location_id AS schoolInstitutionLocationId,
+        co.student_code AS studentCode,
+        co.user_id AS userId,
+        co.adviser_id AS adviserId,
+        co.official_id AS officialId,
+        co.is_studying AS isStudying,
+        co.installment_num AS installmentNum,
+        co.installment,
+        co.installment_due_date AS installmentDueDate,
+        co.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+        co.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+        co.payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+        co.payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+        co.payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+        co.school_payment_amount AS schoolPaymentAmount,
+        co.school_payment_date AS schoolPaymentDate,
+        co.invoice_number AS invoiceNumber,
+        co.start_date AS startDate,
+        co.end_date AS endDate,
+        co.commission,
+        co.tuition_fee AS tuitionFee,
+        co.per_term_tuition_fee AS perTermTuitionFee,
+        co.receive_type_id AS receiveTypeId,
+        co.receive_date AS receiveDate,
+        co.per_amount AS perAmount,
+        co.amount,
+        co.expect_amount AS expectAmount,
+        co.sure_expect_amount AS sureExpectAmount,
+        co.currency,
+        co.exchange_rate AS exchangeRate,
+        co.discount,
+        co.gst,
+        co.deduct_gst AS deductGst,
+        co.bonus,
+        co.bonus_date AS bonusDate,
+        co.zy_date AS zyDate,
+        co.bank_check AS bankCheck,
+        co.is_checked AS isChecked,
+        co.remarks,
+        co.refuse_reason AS refuseReason,
+        co.verify_code AS verifyCode,
+        co.bank_date AS bankDate,
+        co.is_close AS isClose,
+        co.invoice_create AS invoiceCreate,
+        so.id AS serviceOrderId,
+        so.gmt_create AS signingDate,
+        so.subagency_id AS subagencyId,
+        so.service_id AS serviceId,
+        so.institution_trading_name AS institutionTradingName,
+        so.applicant_id AS applicantId
         FROM b_commission_order co, b_service_order so, b_school bs, tb_user tbu
         WHERE co.service_order_id = so.id AND co.school_id = bs.id AND co.user_id = tbu.id
         <if test='startDate != null and endDate != null'>
@@ -739,70 +847,70 @@
         </if>
         ORDER BY co.gmt_create DESC;
     </select>
-    
+
     <select id="listThisMonthCommissionOrderAtDashboard" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderListDO">
         SELECT
-            co.id,
-            co.gmt_create AS gmtCreate,
-            co.code,
-            co.service_order_id AS serviceOrderId,
-            co.state,
-            co.commission_state AS commissionState,
-            co.kj_approval_date AS kjApprovalDate,
-            co.is_settle AS isSettle,
-            co.is_deposit_user AS isDepositUser,
-            co.school_id AS schoolId,
-            co.course_id AS courseId,
-            co.school_institution_location_id AS schoolInstitutionLocationId,
-            co.student_code AS studentCode,
-            co.user_id AS userId,
-            co.adviser_id AS adviserId,
-            co.official_id AS officialId,
-            co.is_studying AS isStudying,
-            co.installment_num AS installmentNum,
-            co.installment,
-            co.installment_due_date AS installmentDueDate,
-            co.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
-            co.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
-            co.payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
-            co.payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
-            co.payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
-            co.school_payment_amount AS schoolPaymentAmount,
-            co.school_payment_date AS schoolPaymentDate,
-            co.invoice_number AS invoiceNumber,
-            co.start_date AS startDate,
-            co.end_date AS endDate,
-            co.commission,
-            co.tuition_fee AS tuitionFee,
-            co.per_term_tuition_fee AS perTermTuitionFee,
-            co.receive_type_id AS receiveTypeId,
-            co.receive_date AS receiveDate,
-            co.per_amount AS perAmount,
-            co.amount,
-            co.expect_amount AS expectAmount,
-            co.sure_expect_amount AS sureExpectAmount,
-            co.currency,
-            co.exchange_rate AS exchangeRate,
-            co.discount,
-            co.gst,
-            co.deduct_gst AS deductGst,
-            co.bonus,
-            co.bonus_date AS bonusDate,
-            co.zy_date AS zyDate,
-            co.bank_check AS bankCheck,
-            co.is_checked AS isChecked,
-            co.remarks,
-            co.refuse_reason AS refuseReason,
-            co.verify_code AS verifyCode,
-            co.bank_date AS bankDate,
-            co.is_close AS isClose,
-            co.invoice_create AS invoiceCreate,
-            so.id AS serviceOrderId,
-            so.gmt_create AS signingDate,
-            so.subagency_id AS subagencyId,
-            so.service_id AS serviceId,
-            so.institution_trading_name AS institutionTradingName,
-            so.applicant_id AS applicantId
+        co.id,
+        co.gmt_create AS gmtCreate,
+        co.code,
+        co.service_order_id AS serviceOrderId,
+        co.state,
+        co.commission_state AS commissionState,
+        co.kj_approval_date AS kjApprovalDate,
+        co.is_settle AS isSettle,
+        co.is_deposit_user AS isDepositUser,
+        co.school_id AS schoolId,
+        co.course_id AS courseId,
+        co.school_institution_location_id AS schoolInstitutionLocationId,
+        co.student_code AS studentCode,
+        co.user_id AS userId,
+        co.adviser_id AS adviserId,
+        co.official_id AS officialId,
+        co.is_studying AS isStudying,
+        co.installment_num AS installmentNum,
+        co.installment,
+        co.installment_due_date AS installmentDueDate,
+        co.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+        co.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+        co.payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+        co.payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+        co.payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+        co.school_payment_amount AS schoolPaymentAmount,
+        co.school_payment_date AS schoolPaymentDate,
+        co.invoice_number AS invoiceNumber,
+        co.start_date AS startDate,
+        co.end_date AS endDate,
+        co.commission,
+        co.tuition_fee AS tuitionFee,
+        co.per_term_tuition_fee AS perTermTuitionFee,
+        co.receive_type_id AS receiveTypeId,
+        co.receive_date AS receiveDate,
+        co.per_amount AS perAmount,
+        co.amount,
+        co.expect_amount AS expectAmount,
+        co.sure_expect_amount AS sureExpectAmount,
+        co.currency,
+        co.exchange_rate AS exchangeRate,
+        co.discount,
+        co.gst,
+        co.deduct_gst AS deductGst,
+        co.bonus,
+        co.bonus_date AS bonusDate,
+        co.zy_date AS zyDate,
+        co.bank_check AS bankCheck,
+        co.is_checked AS isChecked,
+        co.remarks,
+        co.refuse_reason AS refuseReason,
+        co.verify_code AS verifyCode,
+        co.bank_date AS bankDate,
+        co.is_close AS isClose,
+        co.invoice_create AS invoiceCreate,
+        so.id AS serviceOrderId,
+        so.gmt_create AS signingDate,
+        so.subagency_id AS subagencyId,
+        so.service_id AS serviceId,
+        so.institution_trading_name AS institutionTradingName,
+        so.applicant_id AS applicantId
         FROM b_commission_order co, b_service_order so, b_school bs, tb_user tbu
         WHERE co.service_order_id = so.id AND co.school_id = bs.id AND co.user_id = tbu.id
         AND DATE_FORMAT(co.installment_due_date, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
@@ -817,34 +925,35 @@
         ORDER BY co.installment_due_date
         ;
     </select>
-    
+
     <select id="listCommissionOrderReport" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderReportDO">
         SELECT
-            <choose>
-                <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "M"'>
-                    DATE_FORMAT(co.school_payment_date, '%Y-%m') AS date,
-                </when>
-                <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "D"'>
-                    DATE_FORMAT(co.school_payment_date, '%Y-%m-%d') AS date,
-                </when>
-                <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "M"'>
-                    DATE_FORMAT(co.kj_approval_date, '%Y-%m') AS date,
-                </when>
-                <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "Y"'>
-                    DATE_FORMAT(co.kj_approval_date, '%Y') AS date,
-                </when>
-                <otherwise>
-                    DATE_FORMAT(co.kj_approval_date, '%Y-%m-%d') AS date,
-                </otherwise>
-            </choose>
-            r.id AS regionId,
-            r.name AS area,
-            a.id AS adviserId,
-            a.name AS consultant,
-            SUM(IF(co.is_settle = true, CASE IFNULL(co.sure_expect_amount, 0) WHEN 0 THEN IFNULL(co.expect_amount, 0) END, 0)) AS deductionCommission,
-            SUM(IF(co.is_settle = false, co.expect_amount, 0)) AS claimCommission,
-            SUM(IF(co.commission_state = 'YZY', co.expect_amount, 0)) AS claimedCommission,
-            SUM(IF(co.is_settle, 0 , IFNULL(co.school_payment_amount , 0) - IFNULL(co.expect_amount , 0))) AS adjustments
+        <choose>
+            <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "M"'>
+                DATE_FORMAT(co.school_payment_date, '%Y-%m') AS date,
+            </when>
+            <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "D"'>
+                DATE_FORMAT(co.school_payment_date, '%Y-%m-%d') AS date,
+            </when>
+            <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "M"'>
+                DATE_FORMAT(co.kj_approval_date, '%Y-%m') AS date,
+            </when>
+            <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "Y"'>
+                DATE_FORMAT(co.kj_approval_date, '%Y') AS date,
+            </when>
+            <otherwise>
+                DATE_FORMAT(co.kj_approval_date, '%Y-%m-%d') AS date,
+            </otherwise>
+        </choose>
+        r.id AS regionId,
+        r.name AS area,
+        a.id AS adviserId,
+        a.name AS consultant,
+        SUM(IF(co.is_settle = true, CASE IFNULL(co.sure_expect_amount, 0) WHEN 0 THEN IFNULL(co.expect_amount, 0) END,
+        0)) AS deductionCommission,
+        SUM(IF(co.is_settle = false, co.expect_amount, 0)) AS claimCommission,
+        SUM(IF(co.commission_state = 'YZY', co.expect_amount, 0)) AS claimedCommission,
+        SUM(IF(co.is_settle, 0 , IFNULL(co.school_payment_amount , 0) - IFNULL(co.expect_amount , 0))) AS adjustments
         FROM b_commission_order co, tb_adviser a, tb_region r
         WHERE a.region_id = r.id AND co.adviser_id = a.id AND co.state IN ('REVIEW', 'FINISH', 'COMPLETE', 'CLOSE')
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
@@ -863,28 +972,29 @@
             </foreach>
         </if>
         GROUP BY
-            <choose>
-                <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "M"'>
-                    DATE_FORMAT(co.school_payment_date, '%Y-%m'),
-                </when>
-                <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "D"'>
-                    DATE_FORMAT(co.school_payment_date, '%Y-%m-%d'),
-                </when>
-                <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "M"'>
-                    DATE_FORMAT(co.kj_approval_date, '%Y-%m'),
-                </when>
-                <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "Y"'>
-                    DATE_FORMAT(co.kj_approval_date, '%Y'),
-                </when>
-                <otherwise>
-                    DATE_FORMAT(co.kj_approval_date, '%Y-%m-%d'),
-                </otherwise>
-            </choose>
-            adviser_id
+        <choose>
+            <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "M"'>
+                DATE_FORMAT(co.school_payment_date, '%Y-%m'),
+            </when>
+            <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "D"'>
+                DATE_FORMAT(co.school_payment_date, '%Y-%m-%d'),
+            </when>
+            <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "M"'>
+                DATE_FORMAT(co.kj_approval_date, '%Y-%m'),
+            </when>
+            <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "Y"'>
+                DATE_FORMAT(co.kj_approval_date, '%Y'),
+            </when>
+            <otherwise>
+                DATE_FORMAT(co.kj_approval_date, '%Y-%m-%d'),
+            </otherwise>
+        </choose>
+        adviser_id
         ORDER BY co.kj_approval_date DESC;
     </select>
-    
-    <select id="getCommissionOrderById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderListDO">
+
+    <select id="getCommissionOrderById" parameterType="java.lang.Integer"
+            resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderListDO">
         SELECT
             co.id,
             co.gmt_create AS gmtCreate,
@@ -950,8 +1060,66 @@
         FROM b_commission_order co, b_service_order so, tb_user u
         WHERE co.service_order_id = so.id AND co.user_id = u.id and co.id = #{id, jdbcType=INTEGER}  ;
     </select>
-    
-    <select id="listCommissionOrderByInvoiceNumber" parameterType="java.lang.String" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderListDO">
+    <select id="getCommissionInfoById" parameterType="java.lang.Integer"
+            resultType="org.zhinanzhen.b.dao.pojo.CommissionInfoDO">
+        SELECT
+            co.id,
+            co.gmt_create AS gmtCreate,
+            co.code,
+            co.service_order_id AS serviceOrderId,
+            co.state,
+            co.commission_state AS commissionState,
+            co.kj_approval_date AS kjApprovalDate,
+            co.is_settle AS isSettle,
+            co.is_deposit_user AS isDepositUser,
+            co.school_id AS schoolId,
+            co.student_code AS studentCode,
+            co.user_id AS userId,
+            co.adviser_id AS adviserId,
+            co.official_id AS officialId,
+            co.is_studying AS isStudying,
+            co.installment_num AS installmentNum,
+            co.installment,
+            co.installment_due_date AS installmentDueDate,
+            co.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+            co.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            co.payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+            co.payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+            co.payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+            co.school_payment_amount AS schoolPaymentAmount,
+            co.school_payment_date AS schoolPaymentDate,
+            co.invoice_number AS invoiceNumber,
+            co.start_date AS startDate,
+            co.end_date AS endDate,
+            co.commission,
+            co.tuition_fee AS tuitionFee,
+            co.per_term_tuition_fee AS perTermTuitionFee,
+            co.receive_type_id AS receiveTypeId,
+            co.receive_date AS receiveDate,
+            co.per_amount AS perAmount,
+            co.amount,
+            co.expect_amount AS expectAmount,
+            co.sure_expect_amount AS sureExpectAmount,
+            co.discount,
+            co.gst,
+            co.deduct_gst AS deductGst,
+            co.bonus,
+            co.bonus_date AS bonusDate,
+            co.zy_date AS zyDate,
+            co.bank_check AS bankCheck,
+            co.is_checked AS isChecked,
+            co.remarks,
+            co.refuse_reason AS refuseReason,
+            co.verify_code AS verifyCode,
+            co.bank_date AS bankDate,
+            co.is_close AS isClose,
+            co.invoice_create AS invoiceCreate
+        FROM b_commission_order co
+        WHERE co.service_order_id = #{id, jdbcType=INTEGER} and co.adviser_id=#{adviserId, jdbcType=INTEGER};
+    </select>
+
+    <select id="listCommissionOrderByInvoiceNumber" parameterType="java.lang.String"
+            resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderListDO">
         SELECT
             co.id,
             co.gmt_create AS gmtCreate,
@@ -1017,8 +1185,9 @@
         FROM b_commission_order co, b_service_order so, tb_user u
         WHERE co.service_order_id = so.id AND co.user_id = u.id and co.invoice_number = #{invoiceNumber};
     </select>
-    
-    <select id="getFirstCommissionOrderByServiceOrderId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderListDO">
+
+    <select id="getFirstCommissionOrderByServiceOrderId" parameterType="java.lang.Integer"
+            resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderListDO">
         SELECT
             co.id,
             co.gmt_create AS gmtCreate,
@@ -1085,7 +1254,7 @@
         WHERE co.service_order_id = so.id AND co.user_id = u.id
             AND co.installment_num = 1 AND co.service_order_id = #{serviceOrderId, jdbcType=INTEGER};
     </select>
-    
+
     <select id="sumTuitionFeeBySchoolId" resultType="java.lang.Double">
         SELECT sum(tuition_fee)
         FROM b_commission_order
@@ -1097,6 +1266,12 @@
         from b_commission_order
         left join b_commission_order_comment on b_commission_order.id = b_commission_order_comment.commission_order_id
         where b_commission_order.id =#{id, jdbcType=INTEGER};
+    </delete>
+
+    <delete id="deleteCommissionOrderInfoById" parameterType="java.lang.Integer">
+        delete b_commission_order
+        from b_commission_order
+        where b_commission_order.service_order_id =#{id, jdbcType=INTEGER} and b_commission_order.installment_num=#{installmentNum, jdbcType=INTEGER};
     </delete>
 
     <select id="listCommissionOrderByVerifyCode" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderDO">
@@ -1163,7 +1338,16 @@
         where id = #{id};
     </update>
 
-    <select id="listCommissionOrderInstallmentDueDate"  resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderListDO">
+    <update id="setinstallmentById">
+        update b_commission_order set installment=#{installment}
+        where  service_order_id = #{id}
+    </update>
+    <update id="setinstallmentDueDateById">
+        update b_commission_order set installment_due_date=#{installmentDueDate}
+        where  service_order_id = #{id} and installment_num=#{installmentNum}
+    </update>
+
+    <select id="listCommissionOrderInstallmentDueDate" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderListDO">
         SELECT
             co.id,
             co.gmt_create AS gmtCreate,

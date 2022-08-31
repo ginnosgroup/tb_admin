@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.zhinanzhen.b.dao.pojo.CommissionInfoDO;
 import org.zhinanzhen.b.service.*;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
@@ -1025,7 +1026,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		int n = 0;
 		Response<String> r = super.upload2(file, request.getSession(), "/tmp/");
 		try (InputStream is = new FileInputStream("/data" + r.getData())) {
-			jxl.Workbook wb = jxl.Workbook.getWorkbook(is);
+			Workbook wb = Workbook.getWorkbook(is);
 			Sheet sheet = wb.getSheet(0);
 			for (int i = 1; i < sheet.getRows(); i++) {
 				Cell[] cells = sheet.getRow(i);
@@ -1142,7 +1143,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 		InputStream is = null;
 		OutputStream os = null;
-		jxl.Workbook wb = null;
+		Workbook wb = null;
 		try {
 
 			// 处理顾问管理员
@@ -1453,6 +1454,18 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			return new Response<List<CommissionOrderListDTO>>(1, e.getMessage(), null);
 		}
 	}
+	@RequestMapping(value = "/getInfo", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<CommissionInfoDTO>> getInfo(@RequestParam(value = "id") int id,HttpServletRequest request, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			Integer adviserId = getAdviserId(request);
+			return new Response<List<CommissionInfoDTO>>(0, commissionOrderService.getCommissionInfoById(id,adviserId));
+		}
+		catch (ServiceException e) {
+			return new Response<List<CommissionInfoDTO>>(1, e.getMessage(), null);
+		}
+	}
 
 	@RequestMapping(value = "/approval", method = RequestMethod.POST)
 	@ResponseBody
@@ -1558,6 +1571,161 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		} catch (ServiceException e) {
 			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
 		}
+	}
+
+	@RequestMapping(value = "/updateInfo",method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> updateInfo (@RequestParam(value = "serviceorderid",required = false)Integer serviceorderid,
+									     @RequestParam(value = "installment",required = false)Integer installment,
+										 @RequestParam(value = "installmentDueDate1",required = false) String installmentDueDate1,
+										 @RequestParam(value = "installmentDueDate2", required = false) String installmentDueDate2,
+										 @RequestParam(value = "installmentDueDate3", required = false) String installmentDueDate3,
+										 @RequestParam(value = "installmentDueDate4", required = false) String installmentDueDate4,
+										 @RequestParam(value = "installmentDueDate5", required = false) String installmentDueDate5,
+										 @RequestParam(value = "installmentDueDate6", required = false) String installmentDueDate6,
+										 @RequestParam(value = "installmentDueDate7", required = false) String installmentDueDate7,
+										 @RequestParam(value = "installmentDueDate8", required = false) String installmentDueDate8,
+										 @RequestParam(value = "installmentDueDate9", required = false) String installmentDueDate9,
+										 @RequestParam(value = "installmentDueDate10", required = false) String installmentDueDate10,
+										 @RequestParam(value = "installmentDueDate11", required = false) String installmentDueDate11,
+										 @RequestParam(value = "installmentDueDate12", required = false) String installmentDueDate12,
+									  HttpServletRequest request, HttpServletResponse response)
+	{
+		try {
+			super.setPostHeader(response);
+			Integer adviserId = getAdviserId(request);
+			List<CommissionInfoDTO> info = commissionOrderService.getCommissionInfoById(serviceorderid,adviserId);
+			if (info.size()>installment){
+				for (CommissionInfoDTO commissionInfoDTO : info) {
+					if (commissionInfoDTO.getInstallmentNum()>installment && commissionInfoDTO.getState().equals("PENDING")){
+						commissionOrderService.deleteCommissionOrderInfoById(serviceorderid,commissionInfoDTO.getInstallmentNum());
+					}
+				}
+				commissionOrderService.setinstallmentById(serviceorderid,installment);
+				if (installmentDueDate1!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,1,new Date(Long.parseLong(installmentDueDate1)));
+				}
+				if (installmentDueDate2!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,2,new Date(Long.parseLong(installmentDueDate2)));
+				}
+				if (installmentDueDate3!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,3,new Date(Long.parseLong(installmentDueDate3)));
+				}
+				if (installmentDueDate4!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,4,new Date(Long.parseLong(installmentDueDate4)));
+				}
+				if (installmentDueDate5!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,5,new Date(Long.parseLong(installmentDueDate5)));
+				}
+				if (installmentDueDate6!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,6,new Date(Long.parseLong(installmentDueDate6)));
+				}
+				if (installmentDueDate7!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,7,new Date(Long.parseLong(installmentDueDate7)));
+				}
+				if (installmentDueDate8!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,8,new Date(Long.parseLong(installmentDueDate8)));
+				}
+				if (installmentDueDate9!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,9,new Date(Long.parseLong(installmentDueDate9)));
+				}
+				if (installmentDueDate10!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,10,new Date(Long.parseLong(installmentDueDate10)));
+				}
+				if (installmentDueDate11!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,11,new Date(Long.parseLong(installmentDueDate11)));
+				}
+				if (installmentDueDate12!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,12,new Date(Long.parseLong(installmentDueDate12)));
+				}
+			}
+			if (info.size()<installment){
+				int num = installment-info.size();
+				for (int i = 0; i < num; i++) {
+					commissionOrderService.addCommissionInfoById(serviceorderid);
+				}
+				commissionOrderService.setinstallmentById(serviceorderid,installment);
+				if (installmentDueDate1!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,1,new Date(Long.parseLong(installmentDueDate1)));
+				}
+				if (installmentDueDate2!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,2,new Date(Long.parseLong(installmentDueDate2)));
+				}
+				if (installmentDueDate3!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,3,new Date(Long.parseLong(installmentDueDate3)));
+				}
+				if (installmentDueDate4!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,4,new Date(Long.parseLong(installmentDueDate4)));
+				}
+				if (installmentDueDate5!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,5,new Date(Long.parseLong(installmentDueDate5)));
+				}
+				if (installmentDueDate6!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,6,new Date(Long.parseLong(installmentDueDate6)));
+				}
+				if (installmentDueDate7!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,7,new Date(Long.parseLong(installmentDueDate7)));
+				}
+				if (installmentDueDate8!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,8,new Date(Long.parseLong(installmentDueDate8)));
+				}
+				if (installmentDueDate9!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,9,new Date(Long.parseLong(installmentDueDate9)));
+				}
+				if (installmentDueDate10!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,10,new Date(Long.parseLong(installmentDueDate10)));
+				}
+				if (installmentDueDate11!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,11,new Date(Long.parseLong(installmentDueDate11)));
+				}
+				if (installmentDueDate12!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,12,new Date(Long.parseLong(installmentDueDate12)));
+				}
+
+			}
+			if (info.size()==installment){
+				if (installmentDueDate1!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,1,new Date(Long.parseLong(installmentDueDate1)));
+				}
+				if (installmentDueDate2!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,2,new Date(Long.parseLong(installmentDueDate2)));
+				}
+				if (installmentDueDate3!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,3,new Date(Long.parseLong(installmentDueDate3)));
+				}
+				if (installmentDueDate4!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,4,new Date(Long.parseLong(installmentDueDate4)));
+				}
+				if (installmentDueDate5!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,5,new Date(Long.parseLong(installmentDueDate5)));
+				}
+				if (installmentDueDate6!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,6,new Date(Long.parseLong(installmentDueDate6)));
+				}
+				if (installmentDueDate7!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,7,new Date(Long.parseLong(installmentDueDate7)));
+				}
+				if (installmentDueDate8!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,8,new Date(Long.parseLong(installmentDueDate8)));
+				}
+				if (installmentDueDate9!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,9,new Date(Long.parseLong(installmentDueDate9)));
+				}
+				if (installmentDueDate10!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,10,new Date(Long.parseLong(installmentDueDate10)));
+				}
+				if (installmentDueDate11!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,11,new Date(Long.parseLong(installmentDueDate11)));
+				}
+				if (installmentDueDate12!=null){
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,12,new Date(Long.parseLong(installmentDueDate12)));
+				}
+			}
+			return new Response<Integer>(0,"修改成功",0);
+		} catch (ServiceException e) {
+			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
+		}
+
 	}
 
 	@RequestMapping(value = "/countComment", method = RequestMethod.GET)
