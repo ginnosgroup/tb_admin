@@ -1456,11 +1456,13 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	}
 	@RequestMapping(value = "/getInfo", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<CommissionInfoDTO>> getInfo(@RequestParam(value = "id") int id, HttpServletResponse response) {
+	public Response<List<CommissionInfoDTO>> getInfo(@RequestParam(value = "id") int id,HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<List<CommissionInfoDTO>>(0, commissionOrderService.getCommissionInfoById(id));
-		} catch (ServiceException e) {
+			Integer adviserId = getAdviserId(request);
+			return new Response<List<CommissionInfoDTO>>(0, commissionOrderService.getCommissionInfoById(id,adviserId));
+		}
+		catch (ServiceException e) {
 			return new Response<List<CommissionInfoDTO>>(1, e.getMessage(), null);
 		}
 	}
@@ -1591,7 +1593,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	{
 		try {
 			super.setPostHeader(response);
-			List<CommissionInfoDTO> info = commissionOrderService.getCommissionInfoById(serviceorderid);
+			Integer adviserId = getAdviserId(request);
+			List<CommissionInfoDTO> info = commissionOrderService.getCommissionInfoById(serviceorderid,adviserId);
 			if (info.size()>installment){
 				for (CommissionInfoDTO commissionInfoDTO : info) {
 					if (commissionInfoDTO.getInstallmentNum()>installment && commissionInfoDTO.getState().equals("PENDING")){
@@ -1639,7 +1642,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			if (info.size()<installment){
 				int num = installment-info.size();
 				for (int i = 0; i < num; i++) {
-					commissionOrderService.addCommissionInfoById(serviceorderid);
+					commissionOrderService.addCommissionInfoById(serviceorderid,info.size()+i+1);
 				}
 				commissionOrderService.setinstallmentById(serviceorderid,installment);
 				if (installmentDueDate1!=null){

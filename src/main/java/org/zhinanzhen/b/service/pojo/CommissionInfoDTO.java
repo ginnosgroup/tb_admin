@@ -12,7 +12,7 @@ public class CommissionInfoDTO  {
 
     @Getter
     @Setter
-    private String commissionorderid;
+    private int commissionorderid;
 
 
     @Getter
@@ -49,10 +49,10 @@ public class CommissionInfoDTO  {
 
     @Getter
     @Setter
-    private double tuitionFee;
+    private String tuitionFee;
 
     @Getter
     @Setter
-    private double perTermTuitionFee;
+    private String perTermTuitionFee;
 
 }
