@@ -12,7 +12,7 @@ public interface CommissionOrderService {
 
 	int addCommissionOrder(CommissionOrderDTO commissionOrderDto) throws ServiceException;
 
-	Integer addCommissionInfoById(int id) throws ServiceException;
+	Integer addCommissionInfoById(int id,int installment_num) throws ServiceException;
 
 	int updateCommissionOrder(CommissionOrderDTO commissionOrderDto) throws ServiceException;
 

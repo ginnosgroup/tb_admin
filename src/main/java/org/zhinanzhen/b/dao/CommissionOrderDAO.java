@@ -95,9 +95,14 @@ public interface CommissionOrderDAO {
 
 	int setinstallmentById(@Param("id") Integer serviceOrderId,
 						   @Param("installment") Integer installment);
+
 	int setinstallmentDueDateById(@Param("id") Integer serviceOrderId,
 								  @Param("installmentNum") Integer installmentNum,
 								  @Param("installmentDueDate") Date installmentDueDate);
 
 	int addCommissionInfoById(int id);
+
+	CommissionInfoDO getCommissionStateById(@Param("id") Integer serviceOrderId,
+								  @Param("installmentNum") Integer installmentNum);
+	int updateState(int id);
 }

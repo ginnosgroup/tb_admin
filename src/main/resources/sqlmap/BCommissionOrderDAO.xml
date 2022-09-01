@@ -1633,5 +1633,63 @@
         </if>
         ORDER BY co.gmt_create DESC;
     </select>
-
+    <update id="updateState" parameterType="java.lang.Integer">
+        UPDATE b_commission_order SET state='PENDING' WHERE id=#{id, jdbcType=INTEGER}
+    </update>
+    <select id="getCommissionStateById" parameterType="java.lang.Integer"
+            resultType="org.zhinanzhen.b.dao.pojo.CommissionInfoDO">
+        SELECT
+            co.id,
+            co.gmt_create AS gmtCreate,
+            co.code,
+            co.service_order_id AS serviceOrderId,
+            co.state,
+            co.commission_state AS commissionState,
+            co.kj_approval_date AS kjApprovalDate,
+            co.is_settle AS isSettle,
+            co.is_deposit_user AS isDepositUser,
+            co.school_id AS schoolId,
+            co.student_code AS studentCode,
+            co.user_id AS userId,
+            co.adviser_id AS adviserId,
+            co.official_id AS officialId,
+            co.is_studying AS isStudying,
+            co.installment_num AS installmentNum,
+            co.installment,
+            co.installment_due_date AS installmentDueDate,
+            co.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+            co.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            co.payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+            co.payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+            co.payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+            co.school_payment_amount AS schoolPaymentAmount,
+            co.school_payment_date AS schoolPaymentDate,
+            co.invoice_number AS invoiceNumber,
+            co.start_date AS startDate,
+            co.end_date AS endDate,
+            co.commission,
+            co.tuition_fee AS tuitionFee,
+            co.per_term_tuition_fee AS perTermTuitionFee,
+            co.receive_type_id AS receiveTypeId,
+            co.receive_date AS receiveDate,
+            co.per_amount AS perAmount,
+            co.amount,
+            co.expect_amount AS expectAmount,
+            co.sure_expect_amount AS sureExpectAmount,
+            co.discount,
+            co.gst,
+            co.deduct_gst AS deductGst,
+            co.bonus,
+            co.bonus_date AS bonusDate,
+            co.zy_date AS zyDate,
+            co.bank_check AS bankCheck,
+            co.is_checked AS isChecked,
+            co.remarks,
+            co.refuse_reason AS refuseReason,
+            co.verify_code AS verifyCode,
+            co.bank_date AS bankDate,
+            co.is_close AS isClose,
+            co.invoice_create AS invoiceCreate
+            FROM b_commission_order co WHERE co.service_order_id=#{id, jdbcType=INTEGER} AND co.installment_num=#{installmentNum, jdbcType=INTEGER}
+    </select>
 </mapper>

@@ -1642,7 +1642,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			if (info.size()<installment){
 				int num = installment-info.size();
 				for (int i = 0; i < num; i++) {
-					commissionOrderService.addCommissionInfoById(serviceorderid);
+					commissionOrderService.addCommissionInfoById(serviceorderid,info.size()+i+1);
 				}
 				commissionOrderService.setinstallmentById(serviceorderid,installment);
 				if (installmentDueDate1!=null){
