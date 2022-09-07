@@ -837,7 +837,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 									"<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl());
 					}
 				}
-				sendMail("officialDo.getEmail()" + ",maggie@zhinanzhen.org", title,
+				sendMail(officialDo.getEmail() + ",maggie@zhinanzhen.org", title,
 						content);
 				// 写入文案审核时间
 				if (serviceOrderDo.getOfficialApprovalDate() == null)
