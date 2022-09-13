@@ -5,8 +5,10 @@ import org.springframework.social.connect.ConnectionKey;
 import org.springframework.social.connect.web.SignInAdapter;
 import org.springframework.social.wechat.api.User;
 import org.springframework.social.wechat.api.Wecom;
+import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.NativeWebRequest;
 
+@Component
 public class WecomSignInAdapter implements SignInAdapter {
 
 	@Override
