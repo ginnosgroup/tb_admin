@@ -11,4 +11,6 @@ public interface OfficialGradeService {
     List<OfficialGradeDTO> getOfficialGrade() throws ServiceException;
 
     int addOfficialGrade(OfficialGradeDTO officialGradeDtO) throws ServiceException;
+
+    OfficialGradeDTO getOfficialGradeByGrade(int grade) throws ServiceException;
 }

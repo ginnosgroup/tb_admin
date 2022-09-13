@@ -10,4 +10,6 @@ public interface OfficialGradeDao {
 
     int addOfficialGrade(OfficialGradeDO officialGradeDO);
 
+    OfficialGradeDO getOfficialGradeByGrade(int grade);
+
 }

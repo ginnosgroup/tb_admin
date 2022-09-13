@@ -16,6 +16,21 @@
 		GROUP BY
 			bg.grade;
     </select>
+	<select id="getOfficialGradeByGrade" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.OfficialGradeDO">
+    	SELECT
+			bg.id,
+			bg.gmt_create,
+			bg.gmt_modify,
+			bg.grade,
+			bg.rate,
+			bg.ruler
+		FROM
+			b_official_grade bg
+		INNER JOIN ( SELECT MAX( b_official_grade.gmt_create ) AS newdate FROM b_official_grade GROUP BY b_official_grade.grade ) AS b ON bg.gmt_create = b.newdate
+		GROUP BY
+			bg.grade
+			HAVING bg.grade=#{grade,jdbcType=INTEGER};
+    </select>
 
     <insert id="addOfficialGrade" parameterType="org.zhinanzhen.b.dao.pojo.OfficialGradeDO" useGeneratedKeys="true"
             keyProperty="id">

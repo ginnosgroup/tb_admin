@@ -17,7 +17,8 @@
                 image_url,
                 region_id,
                 specialty,
-                work_state)
+                work_state,
+                grade_id)
             VALUES (
                 now(),
                 now(),
@@ -28,7 +29,8 @@
                 #{imageUrl},
                 #{regionId},
                 #{specialty},
-                #{workState});
+                #{workState},
+                #{gradeId});
     </insert>
 
     <update id="updateOfficial" parameterType="org.zhinanzhen.b.dao.pojo.OfficialDO">
@@ -58,6 +60,9 @@
         <if test=' workState != null and workState != "" '>
             , work_state = #{workState}
         </if>
+        <if test='gradeId != null and gradeId != ""'>
+            , grade_id = #{gradeId}
+        </if>
         WHERE id = #{id};
     </update>
 
@@ -84,7 +89,8 @@
             image_url AS imageUrl,
             region_id AS regionId,
             specialty AS specialty,
-            work_state AS workState
+            work_state AS workState,
+            grade_id AS gradeId
         FROM b_official
         WHERE 1 = 1
         <if test='name != null and name != ""'>
@@ -108,7 +114,8 @@
             image_url AS imageUrl,
             region_id AS regionId,
             specialty AS specialty,
-            work_state AS workState
+            work_state AS workState,
+            grade_id AS gradeId
         FROM b_official WHERE id = #{id, jdbcType=INTEGER};
     </select>
 

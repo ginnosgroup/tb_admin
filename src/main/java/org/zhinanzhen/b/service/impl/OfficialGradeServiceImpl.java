@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.service.impl;
 
 import com.ikasoa.core.ErrorCodeEnum;
+import org.dozer.MappingException;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.OfficialGradeDao;
 import org.zhinanzhen.b.dao.pojo.OfficialGradeDO;
@@ -50,5 +51,28 @@ public class OfficialGradeServiceImpl extends BaseService implements OfficialGra
         OfficialGradeDO officialGradeDO = mapper.map(officialGradeDtO, OfficialGradeDO.class);
         return officialGradeDao.addOfficialGrade(officialGradeDO) > 0 ? officialGradeDO.getId() : 0;
 
+    }
+
+    @Override
+    public OfficialGradeDTO getOfficialGradeByGrade(int grade) throws ServiceException {
+        if (grade < 0) {
+            ServiceException se = new ServiceException("grade error !");
+            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+            throw se;
+        }
+        OfficialGradeDTO officialGradeDTO = new OfficialGradeDTO();
+        try {
+            OfficialGradeDO officialGradeByGrade = officialGradeDao.getOfficialGradeByGrade(grade);
+            if (officialGradeByGrade==null){
+                return null;
+            }
+            officialGradeDTO = mapper.map(officialGradeByGrade,OfficialGradeDTO.class);
+
+        } catch (Exception e) {
+            ServiceException se = new ServiceException(e);
+            se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+            throw se;
+        }
+        return officialGradeDTO;
     }
 }
