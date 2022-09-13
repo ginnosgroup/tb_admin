@@ -43,7 +43,9 @@ public class Application extends WebMvcConfigurerAdapter {
 			UsersConnectionRepository usersConnectionRepository, WecomSignInAdapter wecomSignInAdapter) {
 		((InMemoryUsersConnectionRepository) usersConnectionRepository)
 				.setConnectionSignUp((Connection<?> connection) -> connection.getKey().getProviderUserId());
-		return new ProviderSignInController(connectionFactoryLocator, usersConnectionRepository, wecomSignInAdapter);
+		ProviderSignInController psc = new ProviderSignInController(connectionFactoryLocator, usersConnectionRepository, wecomSignInAdapter);
+		psc.setApplicationUrl("http://yongjinbiao.zhinanzhen.org/admin_v2.1/signin/wecom");
+		return psc;
 	}
 
 }
