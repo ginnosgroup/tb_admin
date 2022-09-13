@@ -121,7 +121,7 @@ public class AdminUserController extends BaseController {
 	@ResponseBody
 	public String scanLogin(HttpServletRequest request,
 			HttpServletResponse response) {
-		return "<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8' /><title>扫码登录测试</title></head><body><form action='/signin/wecom' target='_blank' method='POST'><button type='submit'>企业微信登录(扫码登录)</button></form></body></html>";
+		return "<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8' /><title>扫码登录测试</title></head><body><form action='/admin_v2.1/signin/wecom' target='_blank' method='POST'><button type='submit'>企业微信登录(扫码登录)</button></form></body></html>";
 	}
 
 	@RequestMapping(value = "/out", method = RequestMethod.GET)

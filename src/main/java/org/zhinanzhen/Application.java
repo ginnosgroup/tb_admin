@@ -21,7 +21,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @EnableAutoConfiguration
 @EnableSocial
 @MapperScan({ "org.zhinanzhen.tb.dao", "org.zhinanzhen.b.dao" })
-@Import({ WecomAutoConfiguration.class })
+@Import(WecomAutoConfiguration.class)
 public class Application extends WebMvcConfigurerAdapter {
 
 	public static void main(String[] args) throws Exception {
@@ -40,10 +40,10 @@ public class Application extends WebMvcConfigurerAdapter {
 	
 	@Bean
 	public ProviderSignInController providerSignInController(ConnectionFactoryLocator connectionFactoryLocator,
-			UsersConnectionRepository usersConnectionRepository, WecomSignInAdapter wechatSignInAdapter) {
+			UsersConnectionRepository usersConnectionRepository, WecomSignInAdapter wecomSignInAdapter) {
 		((InMemoryUsersConnectionRepository) usersConnectionRepository)
 				.setConnectionSignUp((Connection<?> connection) -> connection.getKey().getProviderUserId());
-		return new ProviderSignInController(connectionFactoryLocator, usersConnectionRepository, wechatSignInAdapter);
+		return new ProviderSignInController(connectionFactoryLocator, usersConnectionRepository, wecomSignInAdapter);
 	}
 
 }
