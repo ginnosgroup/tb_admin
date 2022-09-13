@@ -1,6 +1,8 @@
 package org.zhinanzhen.tb.controller;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.List;
 
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.zhinanzhen.b.service.pojo.ExchangeRateDTO;
 import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
@@ -112,6 +115,13 @@ public class AdminUserController extends BaseController {
 			log.info("["+username + "]登录系统失败!");
 			return new Response<Boolean>(0, false);
 		}
+	}
+	
+	@RequestMapping(value = "/scanLogin", method = RequestMethod.GET)
+	@ResponseBody
+	public String scanLogin(HttpServletRequest request,
+			HttpServletResponse response) {
+		return "<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8' /><title>扫码登录测试</title></head><body><form action='/signin/wecom' target='_blank' method='POST'><button type='submit'>企业微信登录(扫码登录)</button></form></body></html>";
 	}
 
 	@RequestMapping(value = "/out", method = RequestMethod.GET)
