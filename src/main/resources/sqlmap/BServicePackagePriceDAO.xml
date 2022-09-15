@@ -11,14 +11,23 @@
                 min_price,
                 max_price,
                 service_id,
-                region_id)
+                region_id,
+                cost_prince,
+                third_prince,
+                ruler,
+                amount)
             VALUES (
                 now(),
                 now(),
                 #{minPrice},
                 #{maxPrice},
                 #{serviceId},
-                #{regionId});
+                #{regionId},
+                #{costPrince},
+                #{thirdPrince},
+                #{ruler},
+                #{amount})
+                ;
     </insert>
     
     <update id="update" parameterType="org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO">
@@ -35,6 +44,18 @@
         </if>
         <if test='regionId != null and regionId > 0'>
             , region_id = #{regionId}
+        </if>
+        <if test='costPrince != null and costPrince >= 0'>
+            , cost_prince = #{costPrince}
+        </if>
+        <if test='thirdPrince != null and thirdPrince >= 0'>
+            , third_prince = #{thirdPrince}
+        </if>
+        <if test='ruler != null and ruler >= 0'>
+            , ruler = #{ruler}
+        </if>
+        <if test='amount != null and amount > 0'>
+            , amount = #{amount}
         </if>
         WHERE id = #{id};
     </update>
