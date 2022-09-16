@@ -1,6 +1,8 @@
 package org.zhinanzhen.tb.controller;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.List;
 
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.zhinanzhen.b.service.pojo.ExchangeRateDTO;
 import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.AdminUserDTO;

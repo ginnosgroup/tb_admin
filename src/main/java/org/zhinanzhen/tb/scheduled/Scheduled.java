@@ -584,7 +584,7 @@ public class Scheduled {
 			EverydayExchangeRateDO everydayExchangeRateDo = new EverydayExchangeRateDO();
 			everydayExchangeRateDo.setCurrency("CNY");
 			everydayExchangeRateDo.setOriginalExchangeRate(fSellPri);
-			everydayExchangeRateDo.setZnzExchangeRate(fSellPri + 0.1);
+			everydayExchangeRateDo.setZnzExchangeRate(fSellPri + 0.15); // ZNZ汇率差
 			everydayExchangeRateDo.setUpdateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 					.parse(StringUtil.merge(data6.getString("date"), " ", data6.getString("time"))));
 			log.info("获取实时汇率:" + everydayExchangeRateDo);
