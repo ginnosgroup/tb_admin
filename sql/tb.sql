@@ -391,6 +391,10 @@ CREATE TABLE `b_service_package_price` (
   `service_id` int DEFAULT NULL COMMENT '服务项目编号 (对应b_service.id)',
   `region_id` int DEFAULT NULL COMMENT '所属区域编号 (对应tb_region.id)'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+ALTER TABLE b_service_package_price ADD cost_prince decimal(8,2) NOT NULL DEFAULT '0.00' COMMENT '成本价格';
+ALTER TABLE b_service_package_price ADD third_prince decimal(8,2) NOT NULL DEFAULT '0.00' COMMENT '第三方成本价格';
+ALTER TABLE b_service_package_price ADD ruler int(11) NOT NULL COMMENT '文案佣金规则（0：固定rate，1：固定金额）';
+ALTER TABLE b_service_package_price ADD amount decimal(8,2) NOT NULL DEFAULT '0.00' COMMENT '佣金金额';
 
 -- 签证  评估的职业
 CREATE TABLE `b_service_assess` (
@@ -706,6 +710,7 @@ CREATE TABLE `b_official` (
   `specialty` varchar(128) DEFAULT NULL COMMENT '文案标签描述',
   `work_state` varchar(20) DEFAULT NULL COMMENT '文案工作状态,NORMAL:正常/BUSY:忙碌'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+ALTER TABLE b_official ADD grade_id int(11) DEFAULT NULL COMMENT '等级id';
 
 -- MARA
 CREATE TABLE `b_mara` (
@@ -1244,4 +1249,16 @@ CREATE TABLE `b_everyday_exchange_rate` (
   znz_exchange_rate decimal(6,4) NOT NULL COMMENT '指南针汇率',
   update_time datetime NOT NULL COMMENT '汇率时间'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+--文案等级
+
+CREATE TABLE `b_official_grade` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `grade` int(11) NOT NULL COMMENT '等级（0：资深，1：高级，2：专家）',
+  `rate` decimal(2,2) NOT NULL COMMENT 'rate',
+  `ruler` int(11) NOT NULL COMMENT '佣金规则（0：固定rate）',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=100000 DEFAULT CHARSET=utf8;
 
