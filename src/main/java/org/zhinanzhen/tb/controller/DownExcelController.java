@@ -611,8 +611,8 @@ public class DownExcelController extends BaseController {
 				HSSFRow row = sheet2.createRow(i);
 				bonusTotal = bonusTotal.add(new BigDecimal(visaDto.getBonusAUD()));
 				amountTotal = amountTotal.add(new BigDecimal(visaDto.getAmountAUD()));
-				gstTotal = amountTotal.add(new BigDecimal(visaDto.getGstAUD()));
-				deductGstTotal = amountTotal.add(new BigDecimal(visaDto.getDeductGstAUD()));
+				gstTotal = gstTotal.add(new BigDecimal(visaDto.getGstAUD()));
+				deductGstTotal = deductGstTotal.add(new BigDecimal(visaDto.getDeductGstAUD()));
 				expectAmountTotal = expectAmountTotal.add(new BigDecimal(visaDto.getExpectAmountAUD()));
 				row.createCell(0).setCellValue("CV" + visaDto.getId());
 				row.createCell(1).setCellValue(sdf.format(visaDto.getGmtCreate()));
@@ -826,6 +826,7 @@ public class DownExcelController extends BaseController {
 				row1.createCell(16).setCellValue( refundDTO.getRefundDetail());
 				row1.createCell(17).setCellValue( refundDTO.getRemarks());
 				row1.createCell(18).setCellValue( refundDTO.getState());
+				row1.createCell(19).setCellValue( refundDTO.getNote());
 				i++;
 			}
 			i +=3;
