@@ -6,6 +6,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.RegionDAO;
@@ -51,6 +52,7 @@ public class AdviserServiceImpl extends BaseService implements AdviserService {
 		}
 	}
 	@Override
+	@Transactional
 	public int updateAdviser(AdviserDTO adviserDto) throws ServiceException {
 		if (adviserDto == null) {
 			ServiceException se = new ServiceException("adviserDto is null !");
@@ -60,6 +62,7 @@ public class AdviserServiceImpl extends BaseService implements AdviserService {
 		try {
 			AdviserDO adviserDo = mapper.map(adviserDto, AdviserDO.class);
 			if (adviserDto.getState() != null) {
+				adminUserDao.updateState(adviserDto.getId(), adviserDto.getState().toString());
 				adviserDo.setState(adviserDto.getState().toString());
 			}
 			return adviserDao.updateAdviser(adviserDo);

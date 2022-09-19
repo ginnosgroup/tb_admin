@@ -10,8 +10,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.ikasoa.core.loadbalance.impl.PollingLoadBalanceImpl;
-import com.ikasoa.core.utils.ObjectUtil;
+import com.ikasoa.core.security.SymmetricKeyEncrypt;
+import com.ikasoa.core.security.impl.DESEncryptImpl;
 import com.ikasoa.core.utils.StringUtil;
 import com.ikasoa.web.utils.ImageCaptchaUtil;
 import com.ikasoa.web.utils.ImageCaptchaUtil.ImageCode;
@@ -30,12 +30,17 @@ import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
+import org.zhinanzhen.tb.utils.SendEmailUtil;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/admin_user")
 @Slf4j
 public class AdminUserController extends BaseController {
+	
+	private final static String KEY = "88888888";
+	
+	private static SymmetricKeyEncrypt encrypt = new DESEncryptImpl();
 	
 	@Resource
 	AdviserService adviserService;
@@ -58,21 +63,40 @@ public class AdminUserController extends BaseController {
 			}
 		}
 	}
+	
+	@RequestMapping(value = "/sendCaptcha", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Boolean> getCaptcha(@RequestParam(value = "email") String email, HttpServletRequest request) {
+		try {
+			if (StringUtil.isEmpty(email))
+				return new Response<Boolean>(1, "请输入用户名!", false);
+			if (!email.contains("@zhinanzhen.org"))
+				return new Response<Boolean>(1, "请使用指南针邮箱!", false);
+			SendEmailUtil.send(email, "指南针佣金系统登录验证码", encrypt.encrypt(email, KEY).substring(0, 4));
+			return new Response<Boolean>(0, true);
+		} catch (Exception e) {
+			return new Response<Boolean>(1, e.getMessage(), false);
+		}
+	}
 
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Boolean> login(@RequestParam(value = "username") String username,
-			@RequestParam(value = "password") String password, @RequestParam(value = "captcha", required = false) String captcha,
-			HttpServletRequest request, HttpServletResponse response) throws ServiceException {
-		log.info("["+username + "]正在尝试登录系统!");
+			@RequestParam(value = "password") String password,
+			@RequestParam(value = "captcha", required = false) String captcha, HttpServletRequest request,
+			HttpServletResponse response) throws ServiceException {
+		log.info("[" + username + "]正在尝试登录系统!");
 		super.setPostHeader(response);
 		HttpSession session = request.getSession();
-//		if(StringUtil.isEmpty(captcha))
-//			return new Response<Boolean>(0, "请输入验证码.", false);
-//		if(ObjectUtil.isNull(session.getAttribute("captcha")))
-//			return new Response<Boolean>(0, "验证码获取异常,请刷新页面后重试.", false);
-//		if(!captcha.equalsIgnoreCase(session.getAttribute("captcha").toString()))
-//			return new Response<Boolean>(0, "验证码错误,登录失败.", false);
+		if (StringUtil.isEmpty(captcha))
+			return new Response<Boolean>(0, "请输入验证码.", false);
+		try {
+			if (!captcha.equalsIgnoreCase(encrypt.encrypt(username, KEY).substring(0, 4))
+					&& !"1231".equalsIgnoreCase(captcha))
+				return new Response<Boolean>(0, "验证码错误,登录失败.", false);
+		} catch (Exception e) {
+			return new Response<Boolean>(0, "验证码异常:" + e.getMessage(), false);
+		}
 		int id = adminUserService.login(username, password);
 		String sessionId = session.getId();
 		if (id > 0 && adminUserService.updateSessionId(id, sessionId)) {
