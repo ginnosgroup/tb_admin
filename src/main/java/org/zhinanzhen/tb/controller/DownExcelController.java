@@ -695,9 +695,16 @@ public class DownExcelController extends BaseController {
 		HSSFCellStyle style2 = wb.createCellStyle();
 		style2.setFillForegroundColor(IndexedColors.GREEN.getIndex());
 		style2.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		HSSFCellStyle style3 = wb.createCellStyle();
+		style3.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+		style3.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 		for (int i1 = 0; i1 < titleArr.length; i1++) {
 			 HSSFCell cell = row2.createCell(i1);
-			 cell.setCellStyle(style2);
+				if (!isCn && ("Commission".equals(titleArr[i1]) || "确认预收业绩".equals(titleArr[i1])
+						|| "GST".equals(titleArr[i1]) || "Deduct GST".equals(titleArr[i1])))
+					cell.setCellStyle(style3);
+				else
+					cell.setCellStyle(style2);
 			 cell.setCellValue(titleArr[i1]);
 		}
 		i++;
@@ -839,7 +846,10 @@ public class DownExcelController extends BaseController {
 			HSSFRow row3 = sheet3.createRow(i);
 			for (int i1 = 0; i1 < titleArr2.length; i1++) {
 				HSSFCell cell = row3.createCell(i1);
-				cell.setCellStyle(style2);
+				if ("顾问".equals(titleArr2[i1]) || "Amount 申请退款金额".equals(titleArr2[i1]))
+					cell.setCellStyle(style3);
+				else
+					cell.setCellStyle(style2);
 				cell.setCellValue(titleArr2[i1]);
 			}
 			i++;
