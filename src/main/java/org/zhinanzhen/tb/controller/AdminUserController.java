@@ -73,7 +73,7 @@ public class AdminUserController extends BaseController {
 			HttpSession session = request.getSession();
 			session.removeAttribute("captcha");
 			session.setAttribute("captcha", i);
-			SendEmailUtil.send(email, "指南针佣金系统登录验证码", i + "");
+			SendEmailUtil.send(email, "ZNZ Captcha", i + "");
 			return new Response<Boolean>(0, true);
 		} catch (Exception e) {
 			return new Response<Boolean>(1, e.getMessage(), false);
