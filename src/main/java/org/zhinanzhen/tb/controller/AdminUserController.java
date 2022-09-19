@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.ikasoa.core.security.SymmetricKeyEncrypt;
+import com.ikasoa.core.security.impl.DESEncryptImpl;
 import com.ikasoa.core.utils.StringUtil;
 import com.ikasoa.web.utils.ImageCaptchaUtil;
 import com.ikasoa.web.utils.ImageCaptchaUtil.ImageCode;
@@ -38,6 +40,10 @@ import org.zhinanzhen.tb.utils.SendEmailUtil;
 public class AdminUserController extends BaseController {
 	
 	private final static ThreadLocalRandom RANDOM = ThreadLocalRandom.current();
+	
+	private final static String KEY = "88888888";
+	
+	private static SymmetricKeyEncrypt encrypt = new DESEncryptImpl();
 	
 	@Resource
 	AdviserService adviserService;
@@ -70,10 +76,11 @@ public class AdminUserController extends BaseController {
 			if (!email.contains("@zhinanzhen.org"))
 				return new Response<Boolean>(1, "请使用指南针邮箱!", false);
 			int i = getRandomInt(1000, 9999);
+			String e = encrypt.encrypt(email, KEY).substring(0, 4) + i;
 			HttpSession session = request.getSession();
 			session.removeAttribute("captcha");
 			session.setAttribute("captcha", i);
-			SendEmailUtil.send(email, "ZNZ Captcha", i + "");
+			SendEmailUtil.send(email, "ZNZ Captcha", e);
 			return new Response<Boolean>(0, true);
 		} catch (Exception e) {
 			return new Response<Boolean>(1, e.getMessage(), false);
@@ -92,8 +99,9 @@ public class AdminUserController extends BaseController {
 		if (StringUtil.isEmpty(captcha))
 			return new Response<Boolean>(0, "请输入验证码.", false);
 		try {
-			if (!captcha.equalsIgnoreCase((String) session.getAttribute("captcha"))
-					&& !"1231".equalsIgnoreCase(captcha))
+			String i = (String) session.getAttribute("captcha");
+			String e = encrypt.encrypt(username, KEY).substring(0, 4) + i;
+			if (!captcha.equalsIgnoreCase(e) && !"1231".equalsIgnoreCase(captcha))
 				return new Response<Boolean>(0, "验证码错误,登录失败.", false);
 		} catch (Exception e) {
 			return new Response<Boolean>(0, "验证码异常:" + e.getMessage(), false);
