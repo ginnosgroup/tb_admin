@@ -808,31 +808,33 @@ public class DownExcelController extends BaseController {
 			for (RefundDTO refundDTO : visaRefundedList) {
 				HSSFRow row1 = sheet3.createRow(i);
 				row1.createCell(0).setCellValue( sdf.format(refundDTO.getGmtCreate()));
-				row1.createCell(1).setCellValue( refundDTO.getId() + "");
-				row1.createCell(2).setCellValue( refundDTO.getVisaId() + "");
-				row1.createCell(3).setCellValue( refundDTO.getUserName());
-				row1.createCell(4).setCellValue( refundDTO.getUserId() + "");
-				row1.createCell(5).setCellValue( refundDTO.getAdviserRegionName() + "");
-				row1.createCell(6).setCellValue( "签证");
-				row1.createCell(7).setCellValue( refundDTO.getServiceName());
-				row1.createCell(8).setCellValue( refundDTO.getReceived() + "");
-				row1.createCell(9).setCellValue( refundDTO.getOfficialName());
-				row1.createCell(10).setCellValue( refundDTO.getMaraName());
-				row1.createCell(11).setCellValue( refundDTO.getAdviserName());
-				row1.createCell(12).setCellValue( refundDTO.getAmount() + "");
-				row1.createCell(13).setCellValue( refundDTO.getBankName());
-				row1.createCell(14).setCellValue( refundDTO.getBsb());
-				row1.createCell(15).setCellValue( refundDTO.getKjApprovalDate() == null ? "" : sdf.format(refundDTO.getKjApprovalDate()));
-				row1.createCell(16).setCellValue( refundDTO.getRefundDetail());
-				row1.createCell(17).setCellValue( refundDTO.getRemarks());
-				row1.createCell(18).setCellValue( refundDTO.getState());
-				row1.createCell(19).setCellValue( refundDTO.getNote());
+				row1.createCell(1).setCellValue( sdf.format(refundDTO.getCompletedDate()));
+				row1.createCell(2).setCellValue( refundDTO.getId() + "");
+				row1.createCell(3).setCellValue( refundDTO.getVisaId() + "");
+				row1.createCell(4).setCellValue( refundDTO.getUserName());
+				row1.createCell(5).setCellValue( refundDTO.getUserId() + "");
+				row1.createCell(6).setCellValue( refundDTO.getAdviserRegionName() + "");
+				row1.createCell(7).setCellValue( "签证");
+				row1.createCell(8).setCellValue( refundDTO.getServiceName());
+				row1.createCell(9).setCellValue( refundDTO.getReceived() + "");
+				row1.createCell(10).setCellValue( refundDTO.getOfficialName());
+				row1.createCell(11).setCellValue( refundDTO.getMaraName());
+				row1.createCell(12).setCellValue( refundDTO.getAdviserName());
+				row1.createCell(13).setCellValue( refundDTO.getAmount() + "");
+				row1.createCell(14).setCellValue( refundDTO.getBankName());
+				row1.createCell(15).setCellValue( refundDTO.getAccountName());
+				row1.createCell(16).setCellValue( refundDTO.getBsb());
+				row1.createCell(17).setCellValue( refundDTO.getKjApprovalDate() == null ? "" : sdf.format(refundDTO.getKjApprovalDate()));
+				row1.createCell(18).setCellValue( refundDTO.getRefundDetail());
+				row1.createCell(19).setCellValue( refundDTO.getRemarks());
+				row1.createCell(20).setCellValue( refundDTO.getNote());
+				row1.createCell(21).setCellValue( refundDTO.getState());
 				i++;
 			}
 			i +=3;
-			String title2 = "退款申请时间,ID,原佣金订单ID,Client Name 客户姓名,客户ID,Branch,项目类型,学校名称 Institution Trading Name," +
+			String title2 = "退款申请时间,已完成退款时间,ID,原佣金订单ID,Client Name 客户姓名,客户ID,Branch,项目类型,学校名称 Institution Trading Name," +
 					"Institution Name,Course Name,实付金额,文案,顾问,Amount 申请退款金额," +
-					"Bank Name,BSB,提交佣金审核时间(佣金月份),Refund Details 退款原因,备注,状态";
+					"Bank Name,Bank account,BSB,提交佣金审核时间(佣金月份),Refund Details 退款原因,备注,财务note,状态";
 			String[] titleArr2 = title2.split(",");
 			HSSFRow row3 = sheet3.createRow(i);
 			for (int i1 = 0; i1 < titleArr2.length; i1++) {
@@ -844,25 +846,28 @@ public class DownExcelController extends BaseController {
 			for (RefundDTO refundDTO : ovstRefundedList) {
 				HSSFRow row4 = sheet3.createRow(i);
 				row4.createCell(0).setCellValue( sdf.format(refundDTO.getGmtCreate()));
-				row4.createCell(1).setCellValue( refundDTO.getId() + "");
-				row4.createCell(2).setCellValue( refundDTO.getCommissionOrderId() + "");
-				row4.createCell(3).setCellValue( refundDTO.getUserName());
-				row4.createCell(4).setCellValue( refundDTO.getUserId() + "");
-				row4.createCell(5).setCellValue( refundDTO.getAdviserRegionName() + "");
-				row4.createCell(6).setCellValue( "留学");
-				row4.createCell(7).setCellValue( refundDTO.getSchoolName());
-				row4.createCell(8).setCellValue( refundDTO.getInstitutionName() + "");
-				row4.createCell(9).setCellValue( refundDTO.getCourseName());
-				row4.createCell(10).setCellValue( refundDTO.getReceived() + "");
-				row4.createCell(11).setCellValue( refundDTO.getOfficialName());
-				row4.createCell(12).setCellValue( refundDTO.getAdviserName());
-				row4.createCell(13).setCellValue( refundDTO.getAmount() + "");
-				row4.createCell(14).setCellValue( refundDTO.getBankName());
-				row4.createCell(15).setCellValue( refundDTO.getBsb());
-				row4.createCell(16).setCellValue( refundDTO.getKjApprovalDate() == null ? "" : sdf.format(refundDTO.getKjApprovalDate()));
-				row4.createCell(17).setCellValue( getRefundDetail(refundDTO));
-				row4.createCell(18).setCellValue( refundDTO.getRemarks());
-				row4.createCell(19).setCellValue( refundDTO.getState());
+				row4.createCell(1).setCellValue( sdf.format(refundDTO.getCompletedDate()));
+				row4.createCell(2).setCellValue( refundDTO.getId() + "");
+				row4.createCell(3).setCellValue( refundDTO.getCommissionOrderId() + "");
+				row4.createCell(4).setCellValue( refundDTO.getUserName());
+				row4.createCell(5).setCellValue( refundDTO.getUserId() + "");
+				row4.createCell(6).setCellValue( refundDTO.getAdviserRegionName() + "");
+				row4.createCell(7).setCellValue( "留学");
+				row4.createCell(8).setCellValue( refundDTO.getSchoolName());
+				row4.createCell(9).setCellValue( refundDTO.getInstitutionName() + "");
+				row4.createCell(10).setCellValue( refundDTO.getCourseName());
+				row4.createCell(11).setCellValue( refundDTO.getReceived() + "");
+				row4.createCell(12).setCellValue( refundDTO.getOfficialName());
+				row4.createCell(13).setCellValue( refundDTO.getAdviserName());
+				row4.createCell(14).setCellValue( refundDTO.getAmount() + "");
+				row4.createCell(15).setCellValue( refundDTO.getBankName());
+				row4.createCell(16).setCellValue( refundDTO.getAccountName());
+				row4.createCell(17).setCellValue( refundDTO.getBsb());
+				row4.createCell(18).setCellValue( refundDTO.getKjApprovalDate() == null ? "" : sdf.format(refundDTO.getKjApprovalDate()));
+				row4.createCell(19).setCellValue( getRefundDetail(refundDTO));
+				row4.createCell(10).setCellValue( refundDTO.getRemarks());
+				row4.createCell(21).setCellValue( refundDTO.getNote());
+				row4.createCell(22).setCellValue( refundDTO.getState());
 				i++;
 			}
 		}
