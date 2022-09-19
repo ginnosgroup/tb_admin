@@ -11,8 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.ikasoa.core.security.SymmetricKeyEncrypt;
-import com.ikasoa.core.security.impl.DESEncryptImpl;
 import com.ikasoa.core.utils.StringUtil;
 import com.ikasoa.web.utils.ImageCaptchaUtil;
 import com.ikasoa.web.utils.ImageCaptchaUtil.ImageCode;
@@ -40,10 +38,6 @@ import org.zhinanzhen.tb.utils.SendEmailUtil;
 public class AdminUserController extends BaseController {
 	
 	private final static ThreadLocalRandom RANDOM = ThreadLocalRandom.current();
-	
-	private final static String KEY = "88888888";
-	
-	private static SymmetricKeyEncrypt encrypt = new DESEncryptImpl();
 	
 	@Resource
 	AdviserService adviserService;
