@@ -76,11 +76,10 @@ public class AdminUserController extends BaseController {
 			if (!email.contains("@zhinanzhen.org"))
 				return new Response<Boolean>(1, "请使用指南针邮箱!", false);
 			int i = getRandomInt(1000, 9999);
-			String e = StringUtil.merge(email, "|", i);
 			HttpSession session = request.getSession();
 			session.removeAttribute("captcha");
 			session.setAttribute("captcha", i);
-			SendEmailUtil.send(email, "指南针佣金系统登录验证码", encrypt.encrypt(e, KEY).substring(0, 4));
+			SendEmailUtil.send(email, "指南针佣金系统登录验证码", i + "");
 			return new Response<Boolean>(0, true);
 		} catch (Exception e) {
 			return new Response<Boolean>(1, e.getMessage(), false);
@@ -99,8 +98,7 @@ public class AdminUserController extends BaseController {
 		if (StringUtil.isEmpty(captcha))
 			return new Response<Boolean>(0, "请输入验证码.", false);
 		try {
-			if (!captcha.equalsIgnoreCase(encrypt
-					.encrypt(StringUtil.merge(username, "|", session.getAttribute("captcha")), KEY).substring(0, 4))
+			if (!captcha.equalsIgnoreCase((String) session.getAttribute("captcha"))
 					&& !"1231".equalsIgnoreCase(captcha))
 				return new Response<Boolean>(0, "验证码错误,登录失败.", false);
 		} catch (Exception e) {
