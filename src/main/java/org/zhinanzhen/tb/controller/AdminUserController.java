@@ -3,6 +3,7 @@ package org.zhinanzhen.tb.controller;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
@@ -38,6 +39,8 @@ import org.zhinanzhen.tb.utils.SendEmailUtil;
 @Slf4j
 public class AdminUserController extends BaseController {
 	
+	private final static ThreadLocalRandom RANDOM = ThreadLocalRandom.current();
+	
 	private final static String KEY = "88888888";
 	
 	private static SymmetricKeyEncrypt encrypt = new DESEncryptImpl();
@@ -72,7 +75,12 @@ public class AdminUserController extends BaseController {
 				return new Response<Boolean>(1, "请输入用户名!", false);
 			if (!email.contains("@zhinanzhen.org"))
 				return new Response<Boolean>(1, "请使用指南针邮箱!", false);
-			SendEmailUtil.send(email, "指南针佣金系统登录验证码", encrypt.encrypt(email, KEY).substring(0, 4));
+			int i = getRandomInt(1000, 9999);
+			String e = StringUtil.merge(email, "|", i);
+			HttpSession session = request.getSession();
+			session.removeAttribute("captcha");
+			session.setAttribute("captcha", i);
+			SendEmailUtil.send(email, "指南针佣金系统登录验证码", encrypt.encrypt(e, KEY).substring(0, 4));
 			return new Response<Boolean>(0, true);
 		} catch (Exception e) {
 			return new Response<Boolean>(1, e.getMessage(), false);
@@ -91,7 +99,8 @@ public class AdminUserController extends BaseController {
 		if (StringUtil.isEmpty(captcha))
 			return new Response<Boolean>(0, "请输入验证码.", false);
 		try {
-			if (!captcha.equalsIgnoreCase(encrypt.encrypt(username, KEY).substring(0, 4))
+			if (!captcha.equalsIgnoreCase(encrypt
+					.encrypt(StringUtil.merge(username, "|", session.getAttribute("captcha")), KEY).substring(0, 4))
 					&& !"1231".equalsIgnoreCase(captcha))
 				return new Response<Boolean>(0, "验证码错误,登录失败.", false);
 		} catch (Exception e) {
@@ -200,5 +209,9 @@ public class AdminUserController extends BaseController {
 				return new Response<String>(1, "重置密码失败", null);
 		}
 		return new Response<String>(1, "需要超级管理员权限", null);
+	}
+	
+	private static int getRandomInt(int min, int max) {
+		return RANDOM.nextInt(max) % (max - min + 1) + min;
 	}
 }
