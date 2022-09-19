@@ -142,17 +142,19 @@ public class RefundController extends BaseController {
 	@RequestMapping(value = "/down", method = RequestMethod.GET)
 	@ResponseBody
 	public void down(@RequestParam(value = "type", required = false) String type,
-			@RequestParam(value = "state", required = false) String state, HttpServletRequest request,
+			@RequestParam(value = "state", required = false) String state,
+			@RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = "endDate", required = false) String endDate, HttpServletRequest request,
 			HttpServletResponse response) {
 		List<RefundDTO> list = null;
 		try {
 			if (getKjId(request) != null) {
 				if (state == null)
 					state = "REVIEW";
-				list = refundService.listRefund(type, state, null, null, null, 0, 9999);
+				list = refundService.listRefund(type, state, null, startDate, endDate, 0, 9999);
 			}
 			if (getAdviserId(request) != null)
-				list = refundService.listRefund(type, state, getAdviserId(request), null, null, 0, 9999);
+				list = refundService.listRefund(type, state, getAdviserId(request), startDate, endDate, 0, 9999);
 		} catch (ServiceException e) {
 			e.printStackTrace();
 			return;
@@ -197,45 +199,49 @@ public class RefundController extends BaseController {
 				sheet.addCell(new Label(0, i, refundDto.getId() + "", cellFormat));
 				if (refundDto.getGmtCreate() != null)
 					sheet.addCell(new Label(1, i, sdf.format(refundDto.getGmtCreate()), cellFormat));
-				if ("VISA".equalsIgnoreCase(refundDto.getType()))
-					sheet.addCell(new Label(2, i, refundDto.getVisaId() + "", cellFormat));
-				else if ("OVST".equalsIgnoreCase(refundDto.getType()))
-					sheet.addCell(new Label(2, i, refundDto.getCommissionOrderId() + "", cellFormat));
-				sheet.addCell(new Label(3, i, refundDto.getUserName(), cellFormat));
-				if ("VISA".equalsIgnoreCase(refundDto.getType()))
-					sheet.addCell(new Label(4, i, "签证", cellFormat));
-				else if ("OVST".equalsIgnoreCase(refundDto.getType()))
-					sheet.addCell(new Label(4, i, "留学", cellFormat));
-				sheet.addCell(new Label(5, i, refundDto.getSchoolName(), cellFormat));
-				sheet.addCell(new Label(6, i, refundDto.getInstitutionName(), cellFormat));
-				sheet.addCell(new Label(7, i, refundDto.getCourseName(), cellFormat));
-				sheet.addCell(new Label(8, i, refundDto.getReceived() + "", cellFormat));
-				sheet.addCell(new Label(9, i, refundDto.getOfficialName(), cellFormat));
-				sheet.addCell(new Label(10, i, refundDto.getAdviserName(), cellFormat));
-				sheet.addCell(new Label(11, i, refundDto.getAmount() + "", cellFormat));
-				sheet.addCell(new Label(12, i, refundDto.getAccountName(), cellFormat));
-				sheet.addCell(new Label(13, i, refundDto.getBsb(), cellFormat));
-				sheet.addCell(new Label(14, i, refundDto.getBankName(), cellFormat));
-				sheet.addCell(new Label(15, i, refundDto.getRmbRemarks(), cellFormat));
-				sheet.addCell(new Label(16, i, refundDto.getRefundDetail(), cellFormat));
 				if (refundDto.getReceiveDate() != null)
-					sheet.addCell(new Label(17, i, sdf.format(refundDto.getReceiveDate()), cellFormat));
+					sheet.addCell(new Label(2, i, sdf.format(refundDto.getReceiveDate()), cellFormat));
+				if (refundDto.getCompletedDate() != null)
+					sheet.addCell(new Label(3, i, sdf.format(refundDto.getCompletedDate()), cellFormat));
+				if ("VISA".equalsIgnoreCase(refundDto.getType()))
+					sheet.addCell(new Label(4, i, refundDto.getVisaId() + "", cellFormat));
+				else if ("OVST".equalsIgnoreCase(refundDto.getType()))
+					sheet.addCell(new Label(4, i, refundDto.getCommissionOrderId() + "", cellFormat));
+				sheet.addCell(new Label(5, i, refundDto.getUserName(), cellFormat));
+				if ("VISA".equalsIgnoreCase(refundDto.getType()))
+					sheet.addCell(new Label(6, i, "签证", cellFormat));
+				else if ("OVST".equalsIgnoreCase(refundDto.getType()))
+					sheet.addCell(new Label(6, i, "留学", cellFormat));
+				sheet.addCell(new Label(7, i, refundDto.getSchoolName(), cellFormat));
+				sheet.addCell(new Label(8, i, refundDto.getInstitutionName(), cellFormat));
+				sheet.addCell(new Label(9, i, refundDto.getCourseName(), cellFormat));
+				sheet.addCell(new Label(10, i, refundDto.getReceived() + "", cellFormat));
+				sheet.addCell(new Label(11, i, refundDto.getOfficialName(), cellFormat));
+				sheet.addCell(new Label(12, i, refundDto.getAdviserName(), cellFormat));
+				sheet.addCell(new Label(13, i, refundDto.getAmount() + "", cellFormat));
+				sheet.addCell(new Label(14, i, refundDto.getAccountName(), cellFormat));
+				sheet.addCell(new Label(15, i, refundDto.getBsb(), cellFormat));
+				sheet.addCell(new Label(16, i, refundDto.getBankName(), cellFormat));
+				sheet.addCell(new Label(17, i, refundDto.getRmbRemarks(), cellFormat));
+				sheet.addCell(new Label(18, i, refundDto.getRefundDetail(), cellFormat));
+				if (refundDto.getReceiveDate() != null)
+					sheet.addCell(new Label(19, i, sdf.format(refundDto.getReceiveDate()), cellFormat));
 				if ("PENDING".equalsIgnoreCase(refundDto.getState()))
 					if (StringUtil.isEmpty(refundDto.getReason()))
-						sheet.addCell(new Label(18, i, "已驳回-" + refundDto.getReason(), cellFormat));
+						sheet.addCell(new Label(20, i, "已驳回-" + refundDto.getReason(), cellFormat));
 					else
-						sheet.addCell(new Label(18, i, "待提交", cellFormat));
+						sheet.addCell(new Label(20, i, "待提交", cellFormat));
 				else if ("REVIEW".equalsIgnoreCase(refundDto.getState()))
-					sheet.addCell(new Label(18, i, "审核中", cellFormat));
+					sheet.addCell(new Label(20, i, "审核中", cellFormat));
 				else if ("COMPLETE".equalsIgnoreCase(refundDto.getState()))
-					sheet.addCell(new Label(18, i, "已通过", cellFormat));
+					sheet.addCell(new Label(20, i, "已通过", cellFormat));
 				else if ("PAID".equalsIgnoreCase(refundDto.getState()))
-					sheet.addCell(new Label(18, i, "退款完成", cellFormat));
+					sheet.addCell(new Label(20, i, "退款完成", cellFormat));
 				else if ("CLOSE".equalsIgnoreCase(refundDto.getState()))
-					sheet.addCell(new Label(18, i, "已关闭", cellFormat));
+					sheet.addCell(new Label(20, i, "已关闭", cellFormat));
 				else
-					sheet.addCell(new Label(18, i, "未知状态", cellFormat));
-				sheet.addCell(new Label(19, i, refundDto.getRemarks(), cellFormat));
+					sheet.addCell(new Label(20, i, "未知状态", cellFormat));
+				sheet.addCell(new Label(21, i, refundDto.getRemarks(), cellFormat));
 				i++;
 			}
 			wbe.write();
