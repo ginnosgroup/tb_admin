@@ -30,4 +30,6 @@ public class OfficialDO implements Serializable {
 
 	private String workState;
 
+	private int gradeId;
+
 }

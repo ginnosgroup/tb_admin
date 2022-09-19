@@ -6,7 +6,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
-import org.zhinanzhen.b.dao.ServicePackagePriceDAO;
+import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO;
 import org.zhinanzhen.b.service.ServicePackagePriceService;
 import org.zhinanzhen.b.service.pojo.ServicePackagePriceDTO;
@@ -20,6 +20,21 @@ public class ServicePackagePriceServiceImpl extends BaseService implements Servi
 
 	@Resource
 	private ServicePackagePriceDAO servicePackagePriceDao;
+
+	@Resource
+	private OfficialGradeDao officialGradeDao;
+
+	@Resource
+	private ServiceDAO serviceDAO;
+
+	@Resource
+	private ServiceOrderDAO serviceOrderDAO;
+
+	@Resource
+	private OfficialDAO officialDAO;
+
+	@Resource
+	private ServiceOrderOfficialRemarksDAO serviceOrderOfficialRemarksDAO;
 
 	@Override
 	public int addServicePackagePrice(ServicePackagePriceDTO servicePackagePriceDto) throws ServiceException {
@@ -58,7 +73,8 @@ public class ServicePackagePriceServiceImpl extends BaseService implements Servi
 		}
 		return servicePackagePriceDao.update(servicePackagePriceDto.getId(), servicePackagePriceDto.getMinPrice(),
 				servicePackagePriceDto.getMaxPrice(), servicePackagePriceDto.getServiceId(),
-				servicePackagePriceDto.getRegionId()) > 0
+				servicePackagePriceDto.getRegionId(),servicePackagePriceDto.getCostPrince(),servicePackagePriceDto.getThirdPrince(),
+				servicePackagePriceDto.getRuler(),servicePackagePriceDto.getAmount()) > 0
 						? servicePackagePriceDto.getId()
 						: 0;
 	}

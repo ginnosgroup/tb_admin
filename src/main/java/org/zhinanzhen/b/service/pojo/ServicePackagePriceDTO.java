@@ -17,4 +17,12 @@ public class ServicePackagePriceDTO {
 	
 	private String regionName;
 
+	private double costPrince;
+
+	private double thirdPrince;
+
+	private Integer ruler;
+
+	private double amount;
+
 }

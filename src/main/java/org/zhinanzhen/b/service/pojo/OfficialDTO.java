@@ -30,6 +30,8 @@ public class OfficialDTO {
 
 	private String workState;
 
+	private int gradeId;
+
 	private String regionName;
 
 	private RegionDO regionDo;

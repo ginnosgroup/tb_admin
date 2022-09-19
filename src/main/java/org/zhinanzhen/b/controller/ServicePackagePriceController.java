@@ -42,8 +42,12 @@ public class ServicePackagePriceController extends BaseController {
 	public Response<String> add(@RequestParam(value = "minPrice") Double minPrice,
 			@RequestParam(value = "maxPrice") Double maxPrice,
 			@RequestParam(value = "serviceId") Integer serviceId,
-			@RequestParam(value = "regionId") String regionId, HttpServletRequest request,
-			HttpServletResponse response) {
+			@RequestParam(value = "regionId") String regionId,
+			@RequestParam(value = "costPrince") Double costPrince,
+			@RequestParam(value = "thirdPrince") Double thirdPrince,
+			@RequestParam(value = "ruler") Integer ruler,
+			@RequestParam(value = "amount") Double amount,
+			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			if (serviceId != null && serviceId > 0 && serviceService.getServiceById(serviceId) == null)
@@ -67,6 +71,12 @@ public class ServicePackagePriceController extends BaseController {
 				servicePackagePriceDto.setMaxPrice(maxPrice);
 				servicePackagePriceDto.setServiceId(serviceId);
 				servicePackagePriceDto.setRegionId(Integer.parseInt(regionIdStr.trim()));
+				servicePackagePriceDto.setCostPrince(costPrince);
+				servicePackagePriceDto.setThirdPrince(thirdPrince);
+				servicePackagePriceDto.setRuler(ruler);
+				if (amount != null){
+				servicePackagePriceDto.setAmount(amount);
+				}else servicePackagePriceDto.setAmount(0.00);
 				if (servicePackagePriceService.addServicePackagePrice(servicePackagePriceDto) > 0) {
 					msg += "(地区ID:" + regionId + ")创建成功!; ";
 					ids += servicePackagePriceDto.getId() + ",";
@@ -90,8 +100,12 @@ public class ServicePackagePriceController extends BaseController {
 			@RequestParam(value = "minPrice", required = false) Double minPrice,
 			@RequestParam(value = "maxPrice", required = false) Double maxPrice,
 			@RequestParam(value = "serviceId", required = false) Integer serviceId,
-			@RequestParam(value = "regionId", required = false) String regionId, HttpServletRequest request,
-			HttpServletResponse response) {
+			@RequestParam(value = "regionId", required = false) String regionId,
+			@RequestParam(value = "costPrince") Double costPrince,
+			@RequestParam(value = "thirdPrince") Double thirdPrince,
+			@RequestParam(value = "ruler") Integer ruler,
+			@RequestParam(value = "amount") Double amount,
+			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			if (serviceId != null && serviceId > 0 && serviceService.getServiceById(serviceId) == null)
@@ -111,6 +125,14 @@ public class ServicePackagePriceController extends BaseController {
 					servicePackagePriceDto.setServiceId(serviceId);
 				if (StringUtil.isNotEmpty(regionIdStr))
 					servicePackagePriceDto.setRegionId(Integer.parseInt(regionIdStr.trim()));
+				if (costPrince != null)
+					servicePackagePriceDto.setCostPrince(costPrince);
+				if (thirdPrince != null)
+					servicePackagePriceDto.setThirdPrince(thirdPrince);
+				if (ruler != null && ruler >= 0)
+					servicePackagePriceDto.setRuler(ruler);
+				if (amount != null )
+					servicePackagePriceDto.setAmount(amount);
 				if (servicePackagePriceService.updateServicePackagePrice(servicePackagePriceDto) > 0) {
 					msg += "(地区ID:" + regionId + ")修改成功!; ";
 					ids += servicePackagePriceDto.getId() + ",";

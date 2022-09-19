@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.OfficialGradeDao">
+    <select id="getOfficialGrade" resultType="org.zhinanzhen.b.dao.pojo.OfficialGradeDO">
+    	SELECT
+			bg.id,
+			bg.gmt_create,
+			bg.gmt_modify,
+			bg.grade,
+			bg.rate,
+			bg.ruler
+		FROM
+			b_official_grade bg
+		INNER JOIN ( SELECT MAX( b_official_grade.gmt_create ) AS newdate FROM b_official_grade GROUP BY b_official_grade.grade ) AS b ON bg.gmt_create = b.newdate
+		GROUP BY
+			bg.grade;
+    </select>
+	<select id="getOfficialGradeByGrade" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.OfficialGradeDO">
+    	SELECT
+			bg.id,
+			bg.gmt_create,
+			bg.gmt_modify,
+			bg.grade,
+			bg.rate,
+			bg.ruler
+		FROM
+			b_official_grade bg
+		INNER JOIN ( SELECT MAX( b_official_grade.gmt_create ) AS newdate FROM b_official_grade GROUP BY b_official_grade.grade ) AS b ON bg.gmt_create = b.newdate
+		GROUP BY
+			bg.grade
+			HAVING bg.grade=#{grade,jdbcType=INTEGER};
+    </select>
+
+    <insert id="addOfficialGrade" parameterType="org.zhinanzhen.b.dao.pojo.OfficialGradeDO" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT
+        	INTO b_official_grade (
+        	gmt_create,
+        	gmt_modify,
+        	grade,
+        	rate,
+        	ruler )
+			VALUES(
+			NOW(),
+			NOW(),
+			#{grade},
+			#{rate},
+			#{ruler});
+    </insert>
+
+</mapper>

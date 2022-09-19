@@ -10,7 +10,8 @@ public interface ServicePackagePriceDAO {
 	int add(ServicePackagePriceDO servicePackagePriceDO);
 
 	int update(@Param("id") int id, @Param("minPrice") Double minPrice, @Param("maxPrice") Double maxPrice,
-			@Param("serviceId") Integer serviceId, @Param("regionId") Integer regionId);
+			@Param("serviceId") Integer serviceId, @Param("regionId") Integer regionId,
+			   @Param("costPrince") Double costPrince,@Param("thirdPrince") Double thirdPrince,@Param("ruler") Integer ruler, @Param("amount") Double amount);
 
 	int count(@Param("serviceId") Integer serviceId, @Param("regionId") Integer regionId);
 
