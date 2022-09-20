@@ -593,5 +593,44 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 //		SendEmailUtil.send(officialDo.gemail(), "签证佣金订单驳回提醒", StringUtil.merge("亲爱的:", officialDo.getName(), "<br/>",
 //				"您的订单已被驳回。<br>签证订单号:", visaDo.getId(), "<br/>驳回原因:", visaDo.getRefuseReason()));
 	}
+	@Override
+	public List<VisaDTO> getCommissionOrderByAdviserId(Integer officialId, Integer id,  String commissionState, String startKjApprovalDate, String endKjApprovalDate, String startDate, String endDate, int pageNum, int pageSize) {
+		if (pageNum < 0) {
+			pageNum = DEFAULT_PAGE_NUM;
+		}
+		if (pageSize < 0) {
+			pageSize = DEFAULT_PAGE_SIZE;
+		}
+		List<VisaListDO> list = visaDao.get(officialId, id,  commissionState, theDateTo00_00_00(startKjApprovalDate), theDateTo23_59_59(endKjApprovalDate), theDateTo00_00_00(startDate),
+				theDateTo23_59_59(endDate), pageNum * pageSize, pageSize);
+		List<VisaDTO> visaDtoList = new ArrayList<>();
+		if(list==null||list.size()==0){
+			return null;
+		}
+		for (VisaListDO visaListDo : list) {
+			VisaDTO visaDto = null;
+			try {
+				visaDto = putVisaDTO(visaListDo);
+			} catch (ServiceException e) {
+				e.printStackTrace();
+			}
+
+			List<Date> remindDateList = new ArrayList<>();
+			List<RemindDO> remindDoList = remindDao.listRemindByVisaId(visaDto.getId(), officialId,
+					AbleStateEnum.ENABLED.toString());
+			for (RemindDO remindDo : remindDoList) {
+				remindDateList.add(remindDo.getRemindDate());
+			}
+			visaDto.setRemindDateList(remindDateList);
+			visaDtoList.add(visaDto);
+		}
+		return visaDtoList;
+	}
+
+	@Override
+	public int count(Integer officialId, Integer id, String commissionState, String startSubmitIbDate, String endSubmitIbDate, String startDate, String endDate) {
+
+		return visaDao.count(officialId,id,commissionState,startSubmitIbDate,endSubmitIbDate,startDate,endDate);
+	}
 
 }

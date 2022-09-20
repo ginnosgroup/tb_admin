@@ -41,5 +41,7 @@ public interface VisaService {
 	int deleteComment(int id) throws ServiceException;
 	
 	void sendRefuseEmail(VisaDTO visaDto);
+	List<VisaDTO> getCommissionOrderByAdviserId(Integer officialId, Integer id, String commissionState, String startKjApprovalDate, String endKjApprovalDate, String startDate, String endDate, int pageNum, int pageSize);
+	int count(Integer officialId, Integer id,  String commissionState, String startKjApprovalDate, String endKjApprovalDate, String startDate, String endDate) throws ServiceException;
 
 }

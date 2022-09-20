@@ -3,6 +3,7 @@ package org.zhinanzhen.b.service.pojo;
 import java.util.Date;
 import java.util.List;
 
+import org.zhinanzhen.b.dao.pojo.CommissionOrderDO;
 import org.zhinanzhen.b.dao.pojo.ServiceAssessDO;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
@@ -235,5 +236,7 @@ public class ServiceOrderDTO {
 	private List<MailRemindDTO> mailRemindDTOS;
 
 	private SchoolInstitutionListDTO schoolInstitutionListDTO ;
+
+	private List<CommissionOrderDO> commissionOrderDTOList;
 
 }

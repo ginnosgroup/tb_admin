@@ -2,6 +2,7 @@ package org.zhinanzhen.b.service;
 
 import java.util.List;
 
+import org.zhinanzhen.b.dao.pojo.CommissionOrderDO;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -74,4 +75,7 @@ public interface ServiceOrderService {
 	Integer caseCount(Integer officialId, String days, String state);
 
 	List<AdviserServiceCountDTO> listServiceOrderToAnalysis(List<String> typeList,int month,List<String> regionIdList);
+	List<CommissionOrderDO> getCommissionOrderList(int id,int newOfficialId);
+
+    void update(Integer id, String submitIbDate, Double commissionAmount)throws ServiceException;
 }

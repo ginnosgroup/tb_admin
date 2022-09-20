@@ -105,4 +105,21 @@ public interface CommissionOrderDAO {
 	CommissionInfoDO getCommissionStateById(@Param("id") Integer serviceOrderId,
 								  @Param("installmentNum") Integer installmentNum);
 	int updateState(int id);
+
+	List<CommissionOrderListDO> get(@Param("officialId")Integer officialId,
+									@Param("id")Integer id,
+									@Param("commissionState")String commissionState,
+									@Param("startSubmitIbDate")String startSubmitIbDate,
+									@Param("endSubmitIbDate")String endSubmitIbDate,
+									@Param("startDate")String startDate,
+									@Param("endDate")String endDate,
+									@Param("offset")int offset,
+									@Param("pageSize")int pageSize);
+	int count(@Param("officialId")Integer officialId,
+			  @Param("id")Integer id,
+			  @Param("commissionState")String commissionState,
+			  @Param("startSubmitIbDate")String startKjApprovalDate,
+			  @Param("endSubmitIbDate")String endKjApprovalDate,
+			  @Param("startDate")String startDate,
+			  @Param("endDate")String endDate);
 }

@@ -4,6 +4,8 @@ import java.util.Date;
 
 import lombok.Data;
 import lombok.ToString;
+import org.zhinanzhen.b.dao.pojo.MaraDO;
+import org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO;
 
 @Data
 @ToString
@@ -150,5 +152,19 @@ public class CommissionOrderDTO {
 	private Date bankDate;
 
 	private Date invoiceCreate;
+
+	private Date submitIbDate;//提交移民局时间
+
+	private Double commissionAmount; //计入佣金提点金额(确认)
+
+	private Double expectCommissionAmount;//预计计入佣金提点金额
+
+	private Double estimatedCommission; //预估佣金
+
+	private double refund;//退款
+
+	private double rate;
+
+	private ServicePackagePriceDO servicePackagePriceDO;
 
 }

@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -15,11 +16,13 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
+import org.dozer.DozerBeanMapper;
+import org.dozer.Mapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.zhinanzhen.b.dao.pojo.CommissionInfoDO;
+import org.zhinanzhen.b.dao.OfficialDAO;
+import org.zhinanzhen.b.dao.pojo.CommissionOrderListDO;
 import org.zhinanzhen.b.service.*;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
@@ -41,12 +44,14 @@ import jxl.write.Label;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
 import org.zhinanzhen.tb.service.UserService;
+import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/commissionOrder")
 public class CommissionOrderController extends BaseCommissionOrderController {
+	protected Mapper mapper = new DozerBeanMapper();
 
 	@Resource
 	CommissionOrderService commissionOrderService;
@@ -56,6 +61,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 	@Resource
 	SchoolService schoolService;
+
+	@Resource
+	private OfficialDAO officialDao;
 
 	@Resource
 	UserService userService;
@@ -74,6 +82,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 	@Resource
 	MailRemindService mailRemindService;
+	@Resource
+	ServicePackagePriceService servicePackagePriceService;
 
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -880,6 +890,85 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
+	}
+
+	@RequestMapping(value = "/getCommissionOrder", method = RequestMethod.GET)
+	@ResponseBody
+	public ListResponse<List<CommissionOrderListDO>> getServiceOrderByAdviserId(
+			@RequestParam(value = "id", required = false) Integer id,
+			@RequestParam(value = "commissionState", required = false) String commissionState,
+			@RequestParam(value = "startSubmitIbDate", required = false) String startSubmitIbDate,
+			@RequestParam(value = "endSubmitIbDate", required = false) String endSubmitIbDate,
+			@RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = "endDate", required = false) String endDate,
+			@RequestParam(value = "pageNum") int pageNum,
+			@RequestParam(value = "officialId", required = false) Integer officialId,
+			@RequestParam(value = "pageSize") int pageSize, HttpServletResponse response,
+			HttpServletRequest request) {
+		super.setGetHeader(response);
+		// 获取文案信息
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		String apList = adminUserLoginInfo.getApList();
+		List<CommissionOrderListDTO> list ;
+		if (apList.equalsIgnoreCase("WA")){
+			officialId = adminUserLoginInfo.getOfficialId();
+			list = commissionOrderService.getCommissionOrderByOfficialId(officialId, id,  commissionState, startSubmitIbDate,
+					endSubmitIbDate, startDate, endDate, pageNum, pageSize);
+		}else
+		if(apList.equalsIgnoreCase("KJ")){
+			list = commissionOrderService.getCommissionOrderByOfficialId(officialId, id,  commissionState, startSubmitIbDate,
+					endSubmitIbDate, startDate, endDate, pageNum, pageSize);
+		}else {
+			return new ListResponse(false, pageSize, 0, null, "角色没有权限");
+		}
+		int count = 0;
+		try {
+			count = commissionOrderService.count(officialId, id, commissionState, startSubmitIbDate,
+					endSubmitIbDate, startDate, endDate);
+		} catch (ServiceException e) {
+			e.printStackTrace();
+		}
+		list.forEach(s-> {
+			try {
+				s.setServicePackagePriceDO(servicePackagePriceService.getServicePackagePriceByServiceId(s.getServiceId()));
+				s.setOfficial(mapper.map(officialDao.getOfficialById(s.getOfficialId()), OfficialDTO.class));
+			} catch (ServiceException e) {
+				e.printStackTrace();
+			}
+		});
+		for (CommissionOrderListDTO adviserRateCommissionOrderDO : list) {
+			Double commissionAmount = adviserRateCommissionOrderDO.getCommissionAmount();
+			if (commissionAmount == null) {
+				BigDecimal receivedAUD = BigDecimal.valueOf(adviserRateCommissionOrderDO.getTotalAmountAUD());//总计实收澳币
+				BigDecimal refund = BigDecimal.valueOf(adviserRateCommissionOrderDO.getRefund());//退款
+				//第三方费用
+				BigDecimal third_prince = BigDecimal.valueOf(adviserRateCommissionOrderDO.getServicePackagePriceDO().getThird_prince());
+				//预计计入佣金金额 总计实收-退款-第三方费用
+				BigDecimal amount = receivedAUD.subtract(refund).subtract(third_prince);
+				//预计文案佣金 预计计入佣金金额*rate
+				BigDecimal estimatedCommission = amount.multiply(new BigDecimal(adviserRateCommissionOrderDO.getRate()));
+				double estimatedAmount = estimatedCommission.doubleValue();
+				double receivedAUDDouble = receivedAUD.doubleValue();
+				double amountDouble = amount.doubleValue();
+				if (receivedAUDDouble == 0 || amountDouble < 0) {
+					amount = new BigDecimal(adviserRateCommissionOrderDO.getServicePackagePriceDO().getMinPrice()).
+							subtract(new BigDecimal(adviserRateCommissionOrderDO.getServicePackagePriceDO().getCost_prince()));
+					amountDouble = amount.doubleValue();
+					estimatedAmount = amount.multiply(new BigDecimal(adviserRateCommissionOrderDO.getRate())).doubleValue();
+				}
+				adviserRateCommissionOrderDO.setExpectCommissionAmount(amountDouble);
+				if(adviserRateCommissionOrderDO.getServicePackagePriceDO().getRuler()==1){
+					adviserRateCommissionOrderDO.setEstimatedCommission(adviserRateCommissionOrderDO.getServicePackagePriceDO().getAmount());
+				}else {
+					adviserRateCommissionOrderDO.setEstimatedCommission(estimatedAmount);
+				}
+
+			}
+		}
+
+
+
+		return new ListResponse(true, pageSize, count, list, "查询成功");
 	}
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)

@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 import lombok.Data;
+import org.zhinanzhen.b.service.pojo.ReceiveTypeDTO;
 
 @Data
 public class VisaDO implements Serializable {
@@ -99,5 +100,15 @@ public class VisaDO implements Serializable {
 	private boolean isClose;
 
 	private Date invoiceCreate;
+
+	private ReceiveTypeDTO receiveTypeDTO;
+
+	private double rate; //文案等级
+
+	private Date submitIbDate;//提交移民局时间
+
+	private Double commissionAmount; //计入佣金提点金额(确认)
+
+	private double refund;//退款
 
 }

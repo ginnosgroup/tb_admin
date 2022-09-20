@@ -1692,4 +1692,139 @@
             co.invoice_create AS invoiceCreate
             FROM b_commission_order co WHERE co.service_order_id=#{id, jdbcType=INTEGER} AND co.installment_num=#{installmentNum, jdbcType=INTEGER}
     </select>
+
+    <select id="count" resultType="java.lang.Integer">
+        select count(*)
+        from b_commission_order co
+        WHERE
+        1 = 1
+        <if test='officialId !=null and  officialId !=""'>
+            and co.official_id = #{officialId}
+        </if>
+
+        <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+            <![CDATA[ AND co.gmt_create > #{startDate} AND co.gmt_create < #{endDate} ]]>
+        </if>
+        <if test='startSubmitIbDate != null and startSubmitIbDate != "" and endSubmitIbDate != null and endSubmitIbDate != ""'>
+            <![CDATA[ AND co.kj_approval_date > #{startSubmitIbDate} AND co.kj_approval_date < #{endSubmitIbDate} ]]>
+        </if>
+        <if test="id !=null">
+            and co.id = #{id}
+        </if>
+        <if test='commissionState =="REVIEW"'>
+            and co.state in("REVIEW","PENDING")
+        </if>
+        <if test='commissionState =="COMPLETE"'>
+            and co.state ="COMPLETE"
+        </if>
+
+    </select>
+
+    <select id="get" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderListDO">
+        SELECT
+        co.id,
+        co.gmt_create AS gmtCreate,
+        co.code,
+        co.service_order_id AS serviceOrderId,
+        co.state,
+        co.commission_state AS commissionState,
+        co.kj_approval_date AS kjApprovalDate,
+        co.is_settle AS isSettle,
+        co.is_deposit_user AS isDepositUser,
+        co.school_id AS schoolId,
+        co.course_id AS courseId,
+        co.school_institution_location_id AS schoolInstitutionLocationId,
+        co.student_code AS studentCode,
+        co.user_id AS userId,
+        co.adviser_id AS adviserId,
+        co.official_id AS officialId,
+        co.is_studying AS isStudying,
+        co.installment_num AS installmentNum,
+        co.installment,
+        co.installment_due_date AS installmentDueDate,
+        co.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+        co.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+        co.payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+        co.payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+        co.payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+        co.school_payment_amount AS schoolPaymentAmount,
+        co.school_payment_date AS schoolPaymentDate,
+        co.invoice_number AS invoiceNumber,
+        co.start_date AS startDate,
+        co.end_date AS endDate,
+        co.commission,
+        co.tuition_fee AS tuitionFee,
+        co.per_term_tuition_fee AS perTermTuitionFee,
+        co.receive_type_id AS receiveTypeId,
+        co.receive_date AS receiveDate,
+        co.per_amount AS perAmount,
+        co.amount,
+        co.expect_amount AS expectAmount,
+        co.sure_expect_amount AS sureExpectAmount,
+        co.currency,
+        co.exchange_rate AS exchangeRate,
+        co.discount,
+        co.gst,
+        so.submitIbDate as submitIbDate,
+        co.deduct_gst AS deductGst,
+        co.bonus,
+        co.bonus_date AS bonusDate,
+        co.zy_date AS zyDate,
+        co.bank_check AS bankCheck,
+        co.is_checked AS isChecked,
+        co.remarks,
+        so.commissionAmount,
+        ifnull(br.amount,0) as refund,
+        co.refuse_reason AS refuseReason,
+        co.verify_code AS verifyCode,
+        co.bank_date AS bankDate,
+        co.is_close AS isClose,
+        co.invoice_create AS invoiceCreate,
+        so.id AS serviceOrderId,
+        so.gmt_create AS signingDate,
+        so.subagency_id AS subagencyId,
+        so.service_id AS serviceId,
+        so.institution_trading_name AS institutionTradingName,
+        so.applicant_id AS applicantId,
+        bog.rate rate
+        from
+        b_commission_order co
+        JOIN b_service_order so ON co.service_order_id = so.id
+        JOIN tb_user tu ON co.user_id = tu.id
+        JOIN b_applicant ba ON so.applicant_id = ba.id
+        left JOIN b_receive_type brt ON brt.id = so.receive_type_id
+        join tb_adviser ta on ta.id = co.adviser_id
+        left join b_refund br on br.commission_order_id = co.id
+        join b_official bo on bo.id = co.official_id
+        left join b_official_grade bog on bog.id = bo.grade_id
+        left join b_service bs on bs.id = so.service_id
+        WHERE
+        1 = 1
+        <if test='officialId !=null and  officialId !=""'>
+            and co.official_id = #{officialId}
+        </if>
+
+        <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+            <![CDATA[ AND co.gmt_create > #{startDate} AND co.gmt_create < #{endDate} ]]>
+        </if>
+        <if test='startSubmitIbDate != null and startSubmitIbDate != "" and endSubmitIbDate != null and endSubmitIbDate != ""'>
+            <![CDATA[ AND co.kj_approval_date > #{startSubmitIbDate} AND co.kj_approval_date < #{endSubmitIbDate} ]]>
+        </if>
+        <if test='commissionState =="REVIEW"'>
+            and co.state in("REVIEW ","PENDING")
+        </if>
+        <if test='commissionState =="COMPLETE"'>
+            and co.state ="COMPLETE"
+        </if>
+        <if test="id !=null">
+            and co.id = #{id}
+        </if>
+        limit #{offset} ,#{pageSize}
+
+
+
+
+    </select>
+
+
 </mapper>
