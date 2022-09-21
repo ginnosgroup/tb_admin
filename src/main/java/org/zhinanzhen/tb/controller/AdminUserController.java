@@ -79,7 +79,7 @@ public class AdminUserController extends BaseController {
 			String e = encrypt.encrypt(email, KEY).substring(0, 4) + i;
 			HttpSession session = request.getSession();
 			session.removeAttribute("captcha");
-			session.setAttribute("captcha", i);
+			session.setAttribute("captcha", i + "");
 			SendEmailUtil.send(email, "ZNZ Captcha", e);
 			return new Response<Boolean>(0, true);
 		} catch (Exception e) {
@@ -101,6 +101,7 @@ public class AdminUserController extends BaseController {
 		try {
 			String i = (String) session.getAttribute("captcha");
 			String e = encrypt.encrypt(username, KEY).substring(0, 4) + i;
+System.out.println("e=" + e);
 			if (!captcha.equalsIgnoreCase(e) && !"1231".equalsIgnoreCase(captcha))
 				return new Response<Boolean>(0, "验证码错误,登录失败.", false);
 		} catch (Exception e) {
