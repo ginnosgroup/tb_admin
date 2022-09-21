@@ -3,10 +3,8 @@ package org.zhinanzhen.b.dao;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
-import org.zhinanzhen.b.dao.pojo.AdviserServiceCountDO;
-import org.zhinanzhen.b.dao.pojo.EachRegionNumberDO;
-import org.zhinanzhen.b.dao.pojo.EachSubjectCountDO;
-import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
+import org.zhinanzhen.b.dao.pojo.*;
+import org.zhinanzhen.b.service.pojo.ReceiveTypeDTO;
 
 public interface ServiceOrderDAO {
 
@@ -87,4 +85,10 @@ public interface ServiceOrderDAO {
 	 */
 	List<EachRegionNumberDO> listOvstServiceOrderGroupByForRegion(@Param("startOfficialApprovalDate") String startOfficialApprovalDate,
 															   @Param("endOfficialApprovalDate") String endOfficialApprovalDate);
+	//查看服务订单对应佣金信息
+	List<CommissionOrderDO> getCommissionOrderList(@Param("id")int id, @Param("officialId")int officialId);
+
+	void update( @Param("id")Integer id,
+				 @Param("submitIbDate")String submitIbDate,
+				 @Param("commissionAmount")Double commissionAmount);
 }

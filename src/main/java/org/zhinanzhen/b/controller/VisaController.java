@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,10 +25,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import org.zhinanzhen.b.service.ApplicantService;
-import org.zhinanzhen.b.service.MailRemindService;
-import org.zhinanzhen.b.service.ServiceOrderService;
-import org.zhinanzhen.b.service.VisaService;
+import org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO;
+import org.zhinanzhen.b.service.*;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.controller.ListResponse;
@@ -54,7 +53,8 @@ import jxl.write.WritableSheet;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/visa")
 public class VisaController extends BaseCommissionOrderController {
-
+	@Resource
+	MaraService maraService;
 	@Resource
 	VisaService visaService;
 
@@ -72,6 +72,9 @@ public class VisaController extends BaseCommissionOrderController {
 
 	@Resource
 	MailRemindService mailRemindService;
+
+	@Resource
+	ServicePackagePriceService servicePackagePriceService;
 
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -619,6 +622,94 @@ public class VisaController extends BaseCommissionOrderController {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
 	}
+	@RequestMapping(value = "/getCommissionOrder", method = RequestMethod.GET)
+	@ResponseBody
+	public ListResponse<List<VisaDTO>> getServiceOrderByAdviserId(
+			@RequestParam(value = "id", required = false) Integer id,
+			@RequestParam(value = "commissionState", required = false) String commissionState,
+			@RequestParam(value = "startSubmitIbDate", required = false) String startSubmitIbDate,
+			@RequestParam(value = "endSubmitIbDate", required = false) String endSubmitIbDate,
+			@RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = "endDate", required = false) String endDate,
+			@RequestParam(value = "officialId" ,required = false) Integer officialId,
+			@RequestParam(value = "pageNum") int pageNum,
+			@RequestParam(value = "pageSize") int pageSize, HttpServletResponse response,
+			HttpServletRequest request) {
+		super.setGetHeader(response);
+		// 获取文案信息
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if(adminUserLoginInfo==null){
+			return  new ListResponse(false, pageSize, 0, null, "请登录");
+		}
+		String apList = adminUserLoginInfo.getApList();
+		List<VisaDTO> list ;
+		if (apList.equalsIgnoreCase("WA")){
+			officialId = adminUserLoginInfo.getOfficialId();
+		 list = visaService.getCommissionOrderByAdviserId(officialId, id,  commissionState, startSubmitIbDate,
+				endSubmitIbDate, startDate, endDate, pageNum, pageSize);
+		}else
+		if(apList.equalsIgnoreCase("KJ")){
+			list = visaService.getCommissionOrderByAdviserId(officialId, id,  commissionState, startSubmitIbDate,
+					endSubmitIbDate, startDate, endDate, pageNum, pageSize);
+		}else {
+			return new ListResponse(false, pageSize, 0, null, "角色没有权限");
+		}
+		int count = 0;
+		try {
+			count = visaService.count(officialId, id, commissionState, startSubmitIbDate,
+					endSubmitIbDate, startDate, endDate);
+		} catch (ServiceException e) {
+			e.printStackTrace();
+		}
+		list.forEach(s-> {
+			try {
+				s.setServicePackagePriceDO(servicePackagePriceService.getServicePackagePriceByServiceId(s.getServiceId()));
+				s.setMaraDTO(maraService.getMaraById(s.getMaraId()));
+			} catch (ServiceException e) {
+				e.printStackTrace();
+			}
+		});
+		for (VisaDTO adviserRateCommissionOrderDO : list) {
+			Double commissionAmount = adviserRateCommissionOrderDO.getCommissionAmount();
+			//第三方费用
+			Double third_prince1;
+			if (commissionAmount == null) {
+				BigDecimal receivedAUD = BigDecimal.valueOf(adviserRateCommissionOrderDO.getTotalAmountAUD());//总计实收澳币
+				BigDecimal refund = BigDecimal.valueOf(adviserRateCommissionOrderDO.getRefund());//退款
+				ServicePackagePriceDO servicePackagePriceDO = adviserRateCommissionOrderDO.getServicePackagePriceDO();
+				if(servicePackagePriceDO==null){
+					return new ListResponse<>(false, pageSize, count, list, "无法找到服务套餐．");
+				}else {
+					third_prince1 = servicePackagePriceDO.getThird_prince()==null?0.0:servicePackagePriceDO.getThird_prince();
+				}
+				BigDecimal third_prince = BigDecimal.valueOf(third_prince1);
+				//预计计入佣金金额 总计实收-退款-第三方费用
+				BigDecimal amount = receivedAUD.subtract(refund).subtract(third_prince);
+				//预计文案佣金 预计计入佣金金额*rate
+				BigDecimal estimatedCommission = amount.multiply(new BigDecimal(adviserRateCommissionOrderDO.getRate()));
+				double estimatedAmount = estimatedCommission.doubleValue();
+				double receivedAUDDouble = receivedAUD.doubleValue();
+				double amountDouble = amount.doubleValue();
+				if (receivedAUDDouble == 0 || amountDouble < 0) {
+					amount = new BigDecimal(adviserRateCommissionOrderDO.getServicePackagePriceDO().getMinPrice()).
+							subtract(new BigDecimal(adviserRateCommissionOrderDO.getServicePackagePriceDO().getCost_prince()));
+					amountDouble = amount.doubleValue();
+					estimatedAmount = amount.multiply(new BigDecimal(adviserRateCommissionOrderDO.getRate())).doubleValue();
+				}
+				adviserRateCommissionOrderDO.setExpectCommissionAmount(amountDouble);
+				if(adviserRateCommissionOrderDO.getServicePackagePriceDO().getRuler()==1){
+					adviserRateCommissionOrderDO.setEstimatedCommission(adviserRateCommissionOrderDO.getServicePackagePriceDO().getAmount());
+				}else {
+					adviserRateCommissionOrderDO.setEstimatedCommission(estimatedAmount);
+				}
+
+			}
+		}
+
+
+
+		return new ListResponse(true, pageSize, count, list, "查询成功");
+	}
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
@@ -724,7 +815,19 @@ public class VisaController extends BaseCommissionOrderController {
 				} catch (ServiceException serviceException) {
 					serviceException.printStackTrace();
 				}
+				try{
+					 ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceService.getServicePackagePriceByServiceId(v.getServiceId());
+					if(servicePackagePriceDO!=null) {
+						double thirdPrince =  servicePackagePriceDO.getThird_prince();
+						BigDecimal third_prince = BigDecimal.valueOf(thirdPrince);
+						double expectAmountAUD = new BigDecimal(v.getAmountAUD()).subtract(third_prince).doubleValue();
+						v.setExpectAmount(expectAmountAUD > 0.0 ? expectAmountAUD : 0.0);
+					}
+				}catch (ServiceException serviceException){
+					serviceException.printStackTrace();
+				}
 			});
+
 			return new ListResponse<List<VisaDTO>>(true, pageSize, total, list, "");
 		} catch (ServiceException e) {
 			return new ListResponse<List<VisaDTO>>(false, pageSize, 0, null, e.getMessage());

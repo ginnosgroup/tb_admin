@@ -3,7 +3,8 @@ package org.zhinanzhen.b.service;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.ibatis.annotations.Param;
+
+
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -69,4 +70,7 @@ public interface CommissionOrderService {
 	int updateCommissionOrderTemp(CommissionOrderTempDTO tempDTO) throws ServiceException;
 
 	CommissionOrderTempDTO getCommissionOrderTempById(int id) throws ServiceException;
+
+	List<CommissionOrderListDTO> getCommissionOrderByOfficialId(Integer adviserId, Integer id, String commissionState, String startKjApprovalDate, String endKjApprovalDate, String startDate, String endDate, int pageNum, int pageSize);
+	int count(Integer adviserId, Integer id,  String commissionState, String startKjApprovalDate, String endKjApprovalDate, String startDate, String endDate) throws ServiceException;
 }

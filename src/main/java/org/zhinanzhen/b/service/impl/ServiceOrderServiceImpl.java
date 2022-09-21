@@ -1796,6 +1796,23 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		return adviserServiceCountTs;
 	}
 
+	@Override
+	public List<CommissionOrderDO> getCommissionOrderList(int id, int officialId) {
+		List<CommissionOrderDO> list = serviceOrderDao.getCommissionOrderList(id, officialId);
+		for (CommissionOrderDO commissionOrderDO : list) {
+			// 查询收款方式
+			ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(commissionOrderDO.getReceiveTypeId());
+			if (receiveTypeDo != null)
+				commissionOrderDO.setReceiveTypeDTO(mapper.map(receiveTypeDo, ReceiveTypeDTO.class));
+		}
+		return list;
+	}
+
+	@Override
+	public void update(Integer id, String submitIbDate, Double commissionAmount) {
+		serviceOrderDao.update(id,submitIbDate,commissionAmount);
+	}
+
 
 	private String getPeopleTypeStr(String peopleType) {
 		if ("1A".equalsIgnoreCase(peopleType))
