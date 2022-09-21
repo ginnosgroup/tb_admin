@@ -99,9 +99,12 @@ public class AdminUserController extends BaseController {
 		if (StringUtil.isEmpty(captcha))
 			return new Response<Boolean>(0, "请输入验证码.", false);
 		try {
+System.out.println("captcha=" + captcha);
 			String i = (String) session.getAttribute("captcha");
+System.out.println("i=" + i);
 			String e = encrypt.encrypt(username, KEY).substring(0, 4) + i;
 System.out.println("e=" + e);
+System.out.println("eq=" + captcha.equalsIgnoreCase(e));
 			if (!captcha.equalsIgnoreCase(e) && !"1231".equalsIgnoreCase(captcha))
 				return new Response<Boolean>(0, "验证码错误,登录失败.", false);
 		} catch (Exception e) {
