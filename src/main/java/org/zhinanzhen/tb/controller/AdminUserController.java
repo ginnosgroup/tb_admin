@@ -38,16 +38,16 @@ import org.zhinanzhen.tb.utils.SendEmailUtil;
 @RequestMapping("/admin_user")
 @Slf4j
 public class AdminUserController extends BaseController {
-	
+
 	private final static ThreadLocalRandom RANDOM = ThreadLocalRandom.current();
-	
+
 	private final static String KEY = "88888888";
-	
+
 	private static SymmetricKeyEncrypt encrypt = new DESEncryptImpl();
-	
+
 	@Resource
 	AdviserService adviserService;
-	
+
 	@RequestMapping(value = "/captcha")
 	public void getCaptcha(HttpServletRequest request, HttpServletResponse response) {
 		response.setContentType("image/jpeg");
@@ -55,7 +55,7 @@ public class AdminUserController extends BaseController {
 		response.setHeader("Cache-Control", "no-cache");
 		response.setDateHeader("Expire", 0);
 		ImageCode imageCode = ImageCaptchaUtil.getImageCode();
-		if(imageCode != null) {
+		if (imageCode != null) {
 			HttpSession session = request.getSession();
 			session.removeAttribute("captcha");
 			session.setAttribute("captcha", imageCode.getValue());
@@ -66,7 +66,7 @@ public class AdminUserController extends BaseController {
 			}
 		}
 	}
-	
+
 	@RequestMapping(value = "/sendCaptcha", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Boolean> getCaptcha(@RequestParam(value = "email") String email, HttpServletRequest request) {
@@ -90,9 +90,8 @@ public class AdminUserController extends BaseController {
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Boolean> login(@RequestParam(value = "username") String username,
-			@RequestParam(value = "password") String password,
-			@RequestParam(value = "captcha", required = false) String captcha, HttpServletRequest request,
-			HttpServletResponse response) throws ServiceException {
+			@RequestParam(value = "password") String password, @RequestParam(value = "captcha") String captcha,
+			HttpServletRequest request, HttpServletResponse response) throws ServiceException {
 		log.info("[" + username + "]正在尝试登录系统!");
 		super.setPostHeader(response);
 		HttpSession session = request.getSession();
@@ -135,17 +134,17 @@ public class AdminUserController extends BaseController {
 					else
 						loginInfo.setCountry("AU");
 				}
-				
+
 				loginInfo.setOfficialAdmin(adminUser.isOfficialAdmin());
 				if (StringUtil.isNotEmpty(adminUser.getOperUserId()))
 					loginInfo.setAuth(true);
 			}
 			session.removeAttribute("AdminUserLoginInfo" + VERSION);
 			session.setAttribute("AdminUserLoginInfo" + VERSION, loginInfo);
-			log.info("["+username + "]登录系统成功!");
+			log.info("[" + username + "]登录系统成功!");
 			return new Response<Boolean>(0, true);
 		} else {
-			log.info("["+username + "]登录系统失败!");
+			log.info("[" + username + "]登录系统失败!");
 			return new Response<Boolean>(0, false);
 		}
 	}
@@ -210,7 +209,7 @@ public class AdminUserController extends BaseController {
 		}
 		return new Response<String>(1, "需要超级管理员权限", null);
 	}
-	
+
 	private static int getRandomInt(int min, int max) {
 		return RANDOM.nextInt(max) % (max - min + 1) + min;
 	}
