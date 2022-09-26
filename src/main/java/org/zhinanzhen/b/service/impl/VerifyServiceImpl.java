@@ -129,6 +129,7 @@ public class VerifyServiceImpl implements VerifyService {
                 }
                 if (StringUtil.isEmpty(dataFormatter.formatCellValue(row.getCell(0))))
                     continue;
+System.out.println("===row.getCell(0).getCellStyle().getDataFormatString():" + row.getCell(0).getCellStyle().getDataFormatString());
                 if ("d/mm/yyyy;@".equals(row.getCell(0).getCellStyle().getDataFormatString())
                         || "d/m/yyyy;@".equals(row.getCell(0).getCellStyle().getDataFormatString())
                         || "dd/mm/yyyy;@".equals(row.getCell(0).getCellStyle().getDataFormatString())){
