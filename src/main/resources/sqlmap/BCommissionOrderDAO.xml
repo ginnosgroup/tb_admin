@@ -1717,6 +1717,9 @@
         <if test='commissionState =="COMPLETE"'>
             and co.state ="COMPLETE"
         </if>
+        <if test='regionId!=null and regionId!=""'>
+            and bo.region_id = #{regionId}
+        </if>
 
     </select>
 
@@ -1819,11 +1822,10 @@
         <if test="id !=null">
             and co.id = #{id}
         </if>
+        <if test='regionId!=null and regionId!=""'>
+            and bo.region_id = #{regionId}
+        </if>
         limit #{offset} ,#{pageSize}
-
-
-
-
     </select>
 
 

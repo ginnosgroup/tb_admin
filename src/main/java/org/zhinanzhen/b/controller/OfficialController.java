@@ -1,7 +1,10 @@
 package org.zhinanzhen.b.controller;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -14,10 +17,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
 import org.zhinanzhen.b.service.OfficialGradeService;
 import org.zhinanzhen.b.service.OfficialService;
 import org.zhinanzhen.b.service.OfficialStateEnum;
+import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.OfficialGradeDTO;
+import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
@@ -37,6 +43,9 @@ public class OfficialController extends BaseController {
 
 	@Resource
 	OfficialGradeService officialGradeService;
+
+	@Resource
+	ServiceOrderService serviceOrderService;
 
 	public enum OfficialWorkStateEnum{
 		NORMAL ("正常"), BUSY ("忙碌");
@@ -270,5 +279,51 @@ public class OfficialController extends BaseController {
 		return  new Response<>(0,"fail");
 	}
 
+	//文案交接
+	@RequestMapping(value = "/officialHandover", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<String> officialHandover(@RequestParam(value = "officialId") Integer officialId,
+											 @RequestParam(value = "newOfficialId") Integer newOfficialId,
+											 HttpServletRequest request, HttpServletResponse response) {
+		if(officialId.equals(newOfficialId)){
+			return new Response<>(0, "交接文案不能相同");
+		}
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo == null ){
+			return new Response(1,"No permission !");
+		}
+		try {
+			//纯签证类
+			List<ServiceOrderDTO> serviceOrderVisa = serviceOrderService.OfficialHandoverServiceOrder(officialId,false);
+			serviceOrderVisa.forEach(s -> {
+				s.setOfficialId(newOfficialId);
+				try {
+					serviceOrderService.updateOfficial(s.getId(),s,officialId);
+				} catch (ServiceException e) {
+					e.printStackTrace();
+				}
+			});
+			//打包服务
+			List<ServiceOrderDTO> serviceOrderPackageList = serviceOrderService.OfficialHandoverServiceOrder(officialId,true);
+			//按打包服务分类
+			Map<String, List<ServiceOrderDTO>> listMap = serviceOrderPackageList.stream().collect(Collectors.groupingBy(ServiceOrderDTO::getCode));
+			for (List<ServiceOrderDTO> list : listMap.values()) {
+				for (ServiceOrderDTO s : list) {
+					s.setOfficialId(newOfficialId);
+					try {
+						serviceOrderService.updateOfficial(s.getId(),s,officialId);
+					} catch (ServiceException e) {
+						return new Response<>(0, e.getMessage());
 
+					}
+				}
+			}
+
+		} catch (ServiceException e) {
+			return new Response<>(0, "fail");
+
+
+		}
+		return new Response<>(0, "success");
+	}
 }

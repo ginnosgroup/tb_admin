@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.zhinanzhen.b.dao.OfficialHandoverLogDao">
+
+    <insert id="add">
+        INSERT INTO b_official_handover_log
+        SET gmt_create = now(),
+            gmt_modify = now(),
+            official_id = #{officialId},
+            new_official_id =#{newOfficialId}
+    <if test='serviceOrderId !=null and serviceOrderId !=""'>
+        ,service_order_id=#{serviceOrderId}
+    </if>
+
+
+
+    </insert>
+</mapper>

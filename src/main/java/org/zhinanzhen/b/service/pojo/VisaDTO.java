@@ -170,7 +170,7 @@ public class VisaDTO {
 
 	private Double expectCommissionAmount;//预计计入佣金提点金额
 
-	private Double estimatedCommission; //预估佣金
+	private Double predictCommission; //预估佣金
 
 	private double refund;//退款
 

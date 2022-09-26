@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.pojo.ReceiveTypeDTO;
+import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 
 public interface ServiceOrderDAO {
 
@@ -90,5 +91,10 @@ public interface ServiceOrderDAO {
 
 	void update( @Param("id")Integer id,
 				 @Param("submitIbDate")String submitIbDate,
-				 @Param("commissionAmount")Double commissionAmount);
+				 @Param("commissionAmount")Double commissionAmount,
+				 @Param("predictCommission") Double predictCommission
+	);
+
+	List<ServiceOrderDO> OfficialHandoverServiceOrder(@Param("officialId")Integer officialId,
+													  @Param("isPackage") boolean isPackage);
 }

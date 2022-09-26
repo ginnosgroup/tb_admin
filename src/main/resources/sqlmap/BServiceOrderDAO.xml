@@ -735,7 +735,9 @@
             real_people_number AS realPeopleNumber ,
             verify_code AS verifyCode ,
             readcommitted_date AS readcommittedDate,
-            ref_no AS refNo
+            ref_no AS refNo,
+            submitIbDate,
+            commissionAmount
         FROM b_service_order WHERE id = #{id, jdbcType=INTEGER};
     </select>
     
@@ -775,6 +777,9 @@
         </if>
         <if test='commissionAmount !=null and commissionAmount !="" or commissionAmount ==0.0'>
             , commissionAmount = #{commissionAmount}
+        </if>
+        <if test='predictCommission !=null and predictCommission !="" or predictCommission ==0.0'>
+            , predict_commission = #{predictCommission}
         </if>
         where id = #{id}
 
@@ -1181,6 +1186,24 @@
 
 
 
+    </select>
+    <select id="OfficialHandoverServiceOrder" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
+        SELECT
+            id,
+            code,
+        service_package_id servicePackageId
+        FROM
+            b_service_order
+        WHERE
+            official_id = #{officialId}
+          AND state in ('PENDING','REVIEW' ,'OREVIEW' ,'WAIT' ,'FINISH')
+          and type = 'VISA'
+          <if test="isPackage ==true">
+              and service_package_id !=0
+          </if>
+        <if test="isPackage ==false">
+            and service_package_id =0
+        </if>
     </select>
 
 </mapper>

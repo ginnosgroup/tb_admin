@@ -1,9 +1,11 @@
 package org.zhinanzhen.b.service.impl;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.*;
@@ -39,6 +41,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	
 	@Resource
 	private ServiceOrderApplicantDAO serviceOrderApplicantDao;
+
+	@Resource
+	OfficialHandoverLogDao officialHandoverLogDao;
 
 	@Resource
 	private SchoolDAO schoolDao;
@@ -1810,7 +1815,39 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
 	@Override
 	public void update(Integer id, String submitIbDate, Double commissionAmount) {
-		serviceOrderDao.update(id,submitIbDate,commissionAmount);
+
+		VisaListDO visaListDO = visaDao.getOne(id);
+		//预估佣金
+		Double predictCommission = visaListDO.getPredictCommission();
+		//文案等级
+		Double rate = visaListDO.getRate();
+		if(rate!=null &&commissionAmount!=null){
+			predictCommission =BigDecimal.valueOf(commissionAmount).multiply(BigDecimal.valueOf(rate)).doubleValue();
+		}
+		serviceOrderDao.update(id,submitIbDate,commissionAmount,predictCommission);
+	}
+
+	@Override
+	public List<ServiceOrderDTO> OfficialHandoverServiceOrder(Integer officialId,boolean isPackage) {
+		List<ServiceOrderDO> list = serviceOrderDao.OfficialHandoverServiceOrder(officialId, isPackage);
+		List<ServiceOrderDTO> servicePackageDTOArrayList = new ArrayList<>();
+		list.forEach(s->{
+			ServiceOrderDTO serviceOrderDTO = mapper.map(s, ServiceOrderDTO.class);
+			if (s.getServicePackageId() > 0) {
+				ServicePackageDO servicePackageDo = servicePackageDao.getById(s.getServicePackageId());
+				if (servicePackageDo != null)
+				serviceOrderDTO.setServicePackage(mapper.map(servicePackageDo, ServicePackageDTO.class));
+			}
+			servicePackageDTOArrayList.add(serviceOrderDTO);
+		});
+
+		return servicePackageDTOArrayList;
+	}
+
+	@Override
+	public void updateOfficial(Integer serviceOrderId,  ServiceOrderDTO s, Integer officialId) {
+		serviceOrderDao.updateServiceOrder(mapper.map(s,ServiceOrderDO.class));
+		officialHandoverLogDao.add(serviceOrderId,s.getOfficialId(),officialId);
 	}
 
 

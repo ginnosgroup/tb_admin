@@ -1261,7 +1261,7 @@ public class ServiceOrderController extends BaseController {
 			return new ListResponse<List<ServiceOrderDTO>>(false, pageSize, 0, null, e.getMessage());
 		}
 	}
-	@RequestMapping(value = "/updateCommission", method = RequestMethod.PUT)
+	@RequestMapping(value = "/updateOfficialCommission", method = RequestMethod.PUT)
 	@ResponseBody
 	public Response<String> update(
 			@RequestParam(value = "id") Integer id,
@@ -1278,7 +1278,7 @@ public class ServiceOrderController extends BaseController {
 					return new Response<>(0,"修改成功");
 				}
 				if(adminUserLoginInfo.getApList().equalsIgnoreCase("WA")){
-					if(commissionAmount!=0){
+					if(commissionAmount!=null){
 						return new Response<>(1,"修改失败仅限财务修改");
 					}
 					serviceOrderService.update(id,submitIbDate,commissionAmount);
