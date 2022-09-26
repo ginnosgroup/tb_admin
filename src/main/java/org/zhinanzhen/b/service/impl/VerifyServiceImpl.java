@@ -129,7 +129,6 @@ public class VerifyServiceImpl implements VerifyService {
                 }
                 if (StringUtil.isEmpty(dataFormatter.formatCellValue(row.getCell(0))))
                     continue;
-System.out.println("===row.getCell(0).getCellStyle().getDataFormatString():" + row.getCell(0).getCellStyle().getDataFormatString());
                 if ("d/mm/yyyy;@".equals(row.getCell(0).getCellStyle().getDataFormatString())
                         || "d/m/yyyy;@".equals(row.getCell(0).getCellStyle().getDataFormatString())
                         || "dd/mm/yyyy;@".equals(row.getCell(0).getCellStyle().getDataFormatString())){
@@ -187,8 +186,6 @@ System.out.println("===row.getCell(0).getCellStyle().getDataFormatString():" + r
                         }
                     }
                 }
-System.out.println("===financeCodeDO:" + financeCodeDO);
-System.out.println("===financeCodeDO.getBankDate():" + financeCodeDO.getBankDate());
                 //balance = financeCodeDO.getBalance()+balance;
                 //money = financeCodeDO.getMoney() + money;
                 financeCodeDO.setCode(dateFormatyyyyMMdd.format(financeCodeDO.getBankDate()) + "_" + financeCodeDO.getMoney() + "_" +  financeCodeDO.getBalance());
