@@ -107,6 +107,7 @@ public interface CommissionOrderDAO {
 	int updateState(int id);
 
 	List<CommissionOrderListDO> get(@Param("officialId")Integer officialId,
+									@Param("regionId")Integer regionId,
 									@Param("id")Integer id,
 									@Param("commissionState")String commissionState,
 									@Param("startSubmitIbDate")String startSubmitIbDate,
@@ -116,6 +117,7 @@ public interface CommissionOrderDAO {
 									@Param("offset")int offset,
 									@Param("pageSize")int pageSize);
 	int count(@Param("officialId")Integer officialId,
+			  @Param("regionId")Integer regionId,
 			  @Param("id")Integer id,
 			  @Param("commissionState")String commissionState,
 			  @Param("startSubmitIbDate")String startKjApprovalDate,

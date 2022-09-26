@@ -17,6 +17,9 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -622,90 +625,56 @@ public class VisaController extends BaseCommissionOrderController {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
 	}
-	@RequestMapping(value = "/getCommissionOrder", method = RequestMethod.GET)
+	@RequestMapping(value = "/listCommissionOrder", method = RequestMethod.GET)
 	@ResponseBody
-	public ListResponse<List<VisaDTO>> getServiceOrderByAdviserId(
+	public ListResponse<List<VisaDTO>> getServiceOrder(
 			@RequestParam(value = "id", required = false) Integer id,
 			@RequestParam(value = "commissionState", required = false) String commissionState,
 			@RequestParam(value = "startSubmitIbDate", required = false) String startSubmitIbDate,
 			@RequestParam(value = "endSubmitIbDate", required = false) String endSubmitIbDate,
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
+			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
+			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
+			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "officialId" ,required = false) Integer officialId,
-			@RequestParam(value = "pageNum") int pageNum,
-			@RequestParam(value = "pageSize") int pageSize, HttpServletResponse response,
+			@RequestParam(value ="userName" ,required = false) String userName,
+			@RequestParam(value ="applicantName" ,required = false) String applicantName,
+			@RequestParam(value = "pageNum",required = false) Integer pageNum,
+			@RequestParam(value = "pageSize",required = false) Integer pageSize, HttpServletResponse response,
 			HttpServletRequest request) {
 		super.setGetHeader(response);
 		// 获取文案信息
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if(adminUserLoginInfo==null){
-			return  new ListResponse(false, pageSize, 0, null, "请登录");
+			return  new ListResponse(false, 0, 0, null, "请登录");
 		}
 		String apList = adminUserLoginInfo.getApList();
 		List<VisaDTO> list ;
 		if (apList.equalsIgnoreCase("WA")){
 			officialId = adminUserLoginInfo.getOfficialId();
-		 list = visaService.getCommissionOrderByAdviserId(officialId, id,  commissionState, startSubmitIbDate,
-				endSubmitIbDate, startDate, endDate, pageNum, pageSize);
+		 list = visaService.getCommissionOrder(officialId,regionId, id, startHandlingDate,endHandlingDate, commissionState, startSubmitIbDate,
+				endSubmitIbDate, startDate, endDate,userName,applicantName, pageNum, pageSize);
 		}else
 		if(apList.equalsIgnoreCase("KJ")){
-			list = visaService.getCommissionOrderByAdviserId(officialId, id,  commissionState, startSubmitIbDate,
-					endSubmitIbDate, startDate, endDate, pageNum, pageSize);
+			list = visaService.getCommissionOrder(officialId,regionId, id, startHandlingDate,endHandlingDate, commissionState, startSubmitIbDate,
+					endSubmitIbDate, startDate, endDate,userName,applicantName, pageNum, pageSize);
 		}else {
 			return new ListResponse(false, pageSize, 0, null, "角色没有权限");
 		}
 		int count = 0;
 		try {
-			count = visaService.count(officialId, id, commissionState, startSubmitIbDate,
-					endSubmitIbDate, startDate, endDate);
+			count = visaService.count(officialId,regionId, id,startHandlingDate,endHandlingDate, commissionState, startSubmitIbDate,
+					endSubmitIbDate, startDate, endDate,userName,applicantName);
 		} catch (ServiceException e) {
 			e.printStackTrace();
 		}
-		list.forEach(s-> {
-			try {
-				s.setServicePackagePriceDO(servicePackagePriceService.getServicePackagePriceByServiceId(s.getServiceId()));
-				s.setMaraDTO(maraService.getMaraById(s.getMaraId()));
-			} catch (ServiceException e) {
-				e.printStackTrace();
-			}
-		});
-		for (VisaDTO adviserRateCommissionOrderDO : list) {
-			Double commissionAmount = adviserRateCommissionOrderDO.getCommissionAmount();
-			//第三方费用
-			Double third_prince1;
-			if (commissionAmount == null) {
-				BigDecimal receivedAUD = BigDecimal.valueOf(adviserRateCommissionOrderDO.getTotalAmountAUD());//总计实收澳币
-				BigDecimal refund = BigDecimal.valueOf(adviserRateCommissionOrderDO.getRefund());//退款
-				ServicePackagePriceDO servicePackagePriceDO = adviserRateCommissionOrderDO.getServicePackagePriceDO();
-				if(servicePackagePriceDO==null){
-					return new ListResponse<>(false, pageSize, count, list, "无法找到服务套餐．");
-				}else {
-					third_prince1 = servicePackagePriceDO.getThird_prince()==null?0.0:servicePackagePriceDO.getThird_prince();
-				}
-				BigDecimal third_prince = BigDecimal.valueOf(third_prince1);
-				//预计计入佣金金额 总计实收-退款-第三方费用
-				BigDecimal amount = receivedAUD.subtract(refund).subtract(third_prince);
-				//预计文案佣金 预计计入佣金金额*rate
-				BigDecimal estimatedCommission = amount.multiply(new BigDecimal(adviserRateCommissionOrderDO.getRate()));
-				double estimatedAmount = estimatedCommission.doubleValue();
-				double receivedAUDDouble = receivedAUD.doubleValue();
-				double amountDouble = amount.doubleValue();
-				if (receivedAUDDouble == 0 || amountDouble < 0) {
-					amount = new BigDecimal(adviserRateCommissionOrderDO.getServicePackagePriceDO().getMinPrice()).
-							subtract(new BigDecimal(adviserRateCommissionOrderDO.getServicePackagePriceDO().getCost_prince()));
-					amountDouble = amount.doubleValue();
-					estimatedAmount = amount.multiply(new BigDecimal(adviserRateCommissionOrderDO.getRate())).doubleValue();
-				}
-				adviserRateCommissionOrderDO.setExpectCommissionAmount(amountDouble);
-				if(adviserRateCommissionOrderDO.getServicePackagePriceDO().getRuler()==1){
-					adviserRateCommissionOrderDO.setEstimatedCommission(adviserRateCommissionOrderDO.getServicePackagePriceDO().getAmount());
-				}else {
-					adviserRateCommissionOrderDO.setEstimatedCommission(estimatedAmount);
-				}
-
-			}
+		if(count==0||list.isEmpty()){
+			return new  ListResponse(true, pageSize, 0, null, "未查询到数据");
 		}
+		list.forEach(s-> {
 
+		});
 
 
 		return new ListResponse(true, pageSize, count, list, "查询成功");
@@ -1100,6 +1069,110 @@ public class VisaController extends BaseCommissionOrderController {
 			e.printStackTrace();
 			return;
 		}
+	}
+	@RequestMapping(value = "/downOfficialCommission", method = RequestMethod.GET)
+	@ResponseBody
+	public void downOfficialCommission(
+			@RequestParam(value = "id", required = false) Integer id,
+			@RequestParam(value = "commissionState", required = false) String commissionState,
+			@RequestParam(value = "startSubmitIbDate", required = false) String startSubmitIbDate,
+			@RequestParam(value = "endSubmitIbDate", required = false) String endSubmitIbDate,
+			@RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = "endDate", required = false) String endDate,
+			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
+			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
+			@RequestParam(value = "regionId", required = false) Integer regionId,
+			@RequestParam(value = "officialId" ,required = false) Integer officialId,
+			@RequestParam(value ="userName" ,required = false) String userName,
+			@RequestParam(value ="applicantName" ,required = false) String applicantName,
+			HttpServletRequest request,HttpServletResponse response){
+		try {
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+
+				List<VisaDTO> commissionOrderList = visaService.getCommissionOrder(officialId, regionId, id, startHandlingDate, endHandlingDate, commissionState, startSubmitIbDate,
+						endSubmitIbDate, startDate, endDate, userName, applicantName, null, null);
+				response.reset();// 清空输出流
+				String tableName = "official_Visa_commission";
+				response.setHeader("Content-disposition",
+						"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
+				response.setContentType("application/msexcel");
+				int i = 1;
+				OutputStream os = response.getOutputStream();
+				//获取模板
+				InputStream is = this.getClass().getResourceAsStream("/officialVisa.xls");
+				HSSFWorkbook wb = new HSSFWorkbook(is);
+				HSSFSheet sheet = wb.getSheetAt(0);
+				for (VisaDTO visaDTO : commissionOrderList) {
+					HSSFRow row = sheet.createRow(i);
+					row.createCell(0).setCellValue(visaDTO.getId());
+					row.createCell(1).setCellValue(visaDTO.getServiceOrderId());
+					row.createCell(2).setCellValue(visaDTO.getSubmitIbDate()==null?"":sdf.format(visaDTO.getSubmitIbDate()));
+					row.createCell(3).setCellValue(sdf.format(visaDTO.getServiceOrder().getGmtCreate()));
+					row.createCell(4).setCellValue(visaDTO.getUserName());
+					row.createCell(5).setCellValue(StringUtil.merge(visaDTO.getApplicant().getFirstname()," ",visaDTO.getApplicant().getSurname()));
+					row.createCell(6).setCellValue(visaDTO.getReceiveDate()==null?"":sdf.format(visaDTO.getReceiveDate()));
+					row.createCell(7).setCellValue(visaDTO.getCurrency());
+					row.createCell(8).setCellValue(visaDTO.getExchangeRate());
+					row.createCell(9).setCellValue(visaDTO.getReceiveTypeName());
+					row.createCell(10).setCellValue(StringUtil.merge(visaDTO.getServiceOrder().getService().getName(),"-",visaDTO.getServiceCode()));
+					row.createCell(11).setCellValue(visaDTO.getAdviserName());
+					row.createCell(12).setCellValue(visaDTO.getOfficialName());
+					row.createCell(13).setCellValue(visaDTO.getMaraDTO().getName());
+					row.createCell(14).setCellValue(visaDTO.getTotalPerAmountAUD());
+					row.createCell(15).setCellValue(visaDTO.getTotalAmountAUD());
+					row.createCell(16).setCellValue(visaDTO.getExpectCommissionAmount()==null?"":visaDTO.getExpectCommissionAmount()+"");
+					row.createCell(17).setCellValue(visaDTO.getCommissionAmount()==null?"":visaDTO.getCommissionAmount()+"");
+					row.createCell(18).setCellValue(visaDTO.getPredictCommission()==null?"":visaDTO.getPredictCommission()+"");
+					row.createCell(19).setCellValue(visaDTO.getState()==null?"":visaDTO.getState());
+					i++;
+				}
+				wb.write(os);
+				os.flush();
+				os.close();
+
+		}catch (Exception e){
+			e.printStackTrace();
+			return;
+		}
+	}
+
+	@RequestMapping(value = "/uploadOfficialCommission", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> uploadOfficialCommission(@RequestParam MultipartFile file, HttpServletRequest request,
+									HttpServletResponse response) throws IllegalStateException, IOException {
+		super.setPostHeader(response);
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		String message = "";
+		int n = 0;
+		Response<String> r = super.upload2(file, request.getSession(), "/tmp/");
+		try (InputStream is = new FileInputStream("/data" + r.getData())) {
+			jxl.Workbook wb = jxl.Workbook.getWorkbook(is);
+			Sheet sheet = wb.getSheet(0);
+			for (int i = 1; i < sheet.getRows(); i++) {
+				Cell[] cells = sheet.getRow(i);
+				String _id = cells[1].getContents();
+				String submitIbDate = cells[2].getContents();
+				Double commissionAmount = Double.valueOf(cells[17].getContents());
+				try {
+					ServiceOrderDTO order = serviceOrderService.getServiceOrderById(Integer.parseInt(_id));
+					if (order == null) {
+						message += "[" + _id + "]佣金订单不存在;";
+						continue;
+					}
+					try {
+						serviceOrderService.update(Integer.valueOf(_id),StringUtil.isEmpty(submitIbDate) ? null
+								: simpleDateFormat.parse(submitIbDate.trim()).getTime() + "",commissionAmount);
+					}catch (ServiceException s){
+						message += "[" + _id +"修改失败";
+					}
+				} catch (NumberFormatException | ServiceException | ParseException e) {
+					message += "[" + _id + "]" + e.getMessage() + ";";
+				}
+			}
+		} catch (BiffException | IOException e) {
+			return new Response<Integer>(1, "上传失败:" + e.getMessage(), 0);
+		}
+		return new Response<Integer>(0, message, n);
 	}
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)

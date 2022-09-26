@@ -111,4 +111,6 @@ public class VisaDO implements Serializable {
 
 	private double refund;//退款
 
+	private Double predictCommission;//预估佣金
+
 }

@@ -63,19 +63,29 @@ public interface VisaDAO {
 
 	List<UserDTO> listVisaExpirationDate();
 	List<VisaListDO> get(@Param("officialId")Integer officialId,
-										   @Param("id")Integer id,
-										   @Param("commissionState")String commissionState,
-										   @Param("startSubmitIbDate")String startSubmitIbDate,
-										   @Param("endSubmitIbDate")String endSubmitIbDate,
-										   @Param("startDate")String startDate,
-										   @Param("endDate")String endDate,
-										   @Param("offset")int offset,
-										   @Param("pageSize")int pageSize);
+						 @Param("regionId")Integer regionId,
+						 @Param("id")Integer id,
+						 @Param("startHandlingDate") String startHandlingDate, @Param("endHandlingDate") String endHandlingDate,
+						 @Param("commissionState")String commissionState,
+						 @Param("startSubmitIbDate")String startSubmitIbDate,
+						 @Param("endSubmitIbDate")String endSubmitIbDate,
+						 @Param("startDate")String startDate,
+						 @Param("endDate")String endDate,
+						 @Param("userName")String userName,
+						 @Param("applicantName")String applicantName,
+						 @Param("offset")Integer offset,
+						 @Param("pageSize")Integer pageSize);
 	int count(@Param("officialId")Integer officialId,
+			  @Param("regionId")Integer regionId,
 			  @Param("id")Integer id,
+			  @Param("startHandlingDate") String startHandlingDate, @Param("endHandlingDate") String endHandlingDate,
 			  @Param("commissionState")String commissionState,
 			  @Param("startSubmitIbDate")String startKjApprovalDate,
 			  @Param("endSubmitIbDate")String endKjApprovalDate,
 			  @Param("startDate")String startDate,
-			  @Param("endDate")String endDate);
+			  @Param("endDate")String endDate,
+	          @Param("userName")String userName,
+	          @Param("applicantName")String applicantName);
+	VisaListDO getOne(@Param("id")Integer id
+						 );
 }

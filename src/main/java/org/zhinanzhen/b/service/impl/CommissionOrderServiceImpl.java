@@ -855,32 +855,6 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
         }
     }
 
-    @Override
-    public List<CommissionOrderListDTO> getCommissionOrderByOfficialId(Integer officialId, Integer id,  String commissionState, String startKjApprovalDate, String endKjApprovalDate, String startDate, String endDate, int pageNum, int pageSize) {
-        List<CommissionOrderListDTO> commissionOrderListDtoList = new ArrayList<>();
-        if (pageNum < 0) {
-            pageNum = DEFAULT_PAGE_NUM;
-        }
-        if (pageSize < 0) {
-            pageSize = DEFAULT_PAGE_SIZE;
-        }
-        List<CommissionOrderListDO> list = commissionOrderDao.get(officialId,  id,  commissionState, theDateTo00_00_00(startKjApprovalDate), theDateTo23_59_59(endKjApprovalDate), theDateTo00_00_00(startDate),
-                theDateTo23_59_59(endDate), pageNum * pageSize, pageSize);
-        list.forEach(commissionOrderListDo -> commissionOrderListDtoList
-                .add(buildCommissionOrderListDto(commissionOrderListDo)));
-
-
-        return commissionOrderListDtoList;
-
-    }
-
-    @Override
-    public int count(Integer officialId, Integer id, String commissionState, String startSubmitIbDate, String endSubmitIbDate, String startDate, String endDate) {
-
-        return commissionOrderDao.count(officialId, id,commissionState,startSubmitIbDate,endSubmitIbDate,startDate,endDate);
-    }
-
-
 
     private CommissionOrderTempDTO putCurrencyDataByCommissionOrderTempDTO(
             CommissionOrderTempDTO commissionOrderTempDto) {
