@@ -76,10 +76,13 @@ public class VerifyController {
                                 @RequestParam("regionId")Integer regionId) throws Exception {
         String fileName = file.getOriginalFilename();
         List<FinanceCodeDO> financeCodeDOS = verifyService.excelToList(file.getInputStream(), fileName);
+System.out.println("===financeCodeDOS:" + financeCodeDOS);
         for (FinanceCodeDO financeCodeDO : financeCodeDOS) {
             String orderId = financeCodeDO.getOrderId();
+System.out.println("===orderId:" + orderId);
                 if (StringUtil.isNotBlank(orderId)  && orderId.substring(0,2).equalsIgnoreCase("CS")) {
                     CommissionOrderListDTO commissionOrderListDTO = commissionOrderService.getCommissionOrderById(Integer.parseInt(orderId.substring(2)));
+System.out.println("===commissionOrderListDTO:" + commissionOrderListDTO);
                     if (commissionOrderListDTO!=null){
                         //financeCodeDO.setAdviser(commissionOrderListDTO.getAdviser().getName());
                         financeCodeDO.setAdviserId(commissionOrderListDTO.getAdviserId());
@@ -102,6 +105,7 @@ public class VerifyController {
                 }
                 if (StringUtil.isNotBlank(orderId) && orderId.substring(0,2).equalsIgnoreCase("CV") ){
                     VisaDTO visaDTO =  visaService.getVisaById(Integer.parseInt(orderId.substring(2)));
+System.out.println("===visaDTO:" + visaDTO);
                     if (visaDTO!=null){
                         financeCodeDO.setAdviserId(visaDTO.getAdviserId());
                         financeCodeDO.setUserId(visaDTO.getUserId());
@@ -119,7 +123,7 @@ public class VerifyController {
                 }
             financeCodeDO.setRegionId(regionId);
         }
-
+System.out.println("===financeCodeDOS:" + financeCodeDOS);
         for (Iterator iterator = financeCodeDOS.listIterator(); iterator.hasNext();){
             FinanceCodeDO financeCodeDO = (FinanceCodeDO) iterator.next();
             FinanceCodeDTO financeCodeDTO =  verifyService.financeDTOByCode(financeCodeDO.getCode());
