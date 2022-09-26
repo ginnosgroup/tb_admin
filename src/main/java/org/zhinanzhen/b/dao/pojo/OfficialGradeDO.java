@@ -15,7 +15,7 @@ public class OfficialGradeDO implements Serializable {
 
     private Date gmt_modify;
 
-    private int grade;
+    private String grade;
 
     private Double rate;
 

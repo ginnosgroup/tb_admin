@@ -21,10 +21,16 @@ public class OfficialGradeServiceImpl extends BaseService implements OfficialGra
     private OfficialGradeDao officialGradeDao;
 
     @Override
-    public List<OfficialGradeDTO> getOfficialGrade() throws ServiceException {
+    public List<OfficialGradeDTO> listOfficialGrade(int pageNum, int pageSize) throws ServiceException {
+        if (pageNum < 0) {
+            pageNum = DEFAULT_PAGE_NUM;
+        }
+        if (pageSize < 0) {
+            pageSize = DEFAULT_PAGE_SIZE;
+        }
         List<OfficialGradeDTO> officialGradeDTOList =new ArrayList<>();
         try {
-            List<OfficialGradeDO> officialGradeDOList = officialGradeDao.getOfficialGrade();
+            List<OfficialGradeDO> officialGradeDOList = officialGradeDao.listOfficialGrade(pageNum * pageSize, pageSize);
             if (officialGradeDOList == null)
                 return null;
             officialGradeDOList.forEach(
@@ -44,7 +50,7 @@ public class OfficialGradeServiceImpl extends BaseService implements OfficialGra
     @Override
     public int addOfficialGrade(OfficialGradeDTO officialGradeDtO) throws ServiceException {
         if (officialGradeDtO == null) {
-            ServiceException se = new ServiceException("officialTagDto is null !");
+            ServiceException se = new ServiceException("officialGradeDto is null !");
             se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
             throw se;
         }
@@ -54,12 +60,12 @@ public class OfficialGradeServiceImpl extends BaseService implements OfficialGra
     }
 
     @Override
-    public OfficialGradeDTO getOfficialGradeByGrade(int grade) throws ServiceException {
-        if (grade < 0) {
-            ServiceException se = new ServiceException("grade error !");
-            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
-            throw se;
-        }
+    public OfficialGradeDTO getOfficialGradeByGrade(String grade) throws ServiceException {
+//        if (grade < 0) {
+//            ServiceException se = new ServiceException("grade error !");
+//            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+//            throw se;
+//        }
         OfficialGradeDTO officialGradeDTO = new OfficialGradeDTO();
         try {
             OfficialGradeDO officialGradeByGrade = officialGradeDao.getOfficialGradeByGrade(grade);
