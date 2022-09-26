@@ -280,7 +280,7 @@ public class OfficialController extends BaseController {
 	}
 
 	//文案交接
-	@RequestMapping(value = "/officialHandover", method = RequestMethod.POST)
+	@RequestMapping(value = "/officialHandover", method = RequestMethod.PUT)
 	@ResponseBody
 	public Response<String> officialHandover(@RequestParam(value = "officialId") Integer officialId,
 											 @RequestParam(value = "newOfficialId") Integer newOfficialId,
