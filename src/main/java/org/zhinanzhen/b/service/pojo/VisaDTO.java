@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 
 import lombok.Data;
+import org.eclipse.core.internal.resources.MarkerAttributeMap;
+import org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO;
 
 @Data
 public class VisaDTO {
@@ -161,5 +163,24 @@ public class VisaDTO {
 	private boolean isRefunded = false;
 
 	private List<MailRemindDTO> mailRemindDTOS;
+
+	private Date submitIbDate;//提交移民局时间
+
+	private Double commissionAmount; //计入佣金提点金额(确认)
+
+	private Double expectCommissionAmount;//预计计入佣金提点金额
+
+	private Double predictCommission; //预估佣金
+
+	private double refund;//退款
+
+	private double rate;
+
+	private ServicePackagePriceDO servicePackagePriceDO;
+
+	private MaraDTO maraDTO;
+
+
+
 
 }

@@ -100,5 +100,10 @@
     <select id="delete" parameterType="java.lang.Integer">
         DELETE FROM b_service_package_price WHERE id = #{id, jdbcType=INTEGER};
     </select>
+    <select id="getByServiceId" resultType="org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO">
+        select id ,min_price minPrice, max_price maxPrice,service_id serviceId,region_id regionId,cost_prince,ifnull(third_prince,0.00) third_prince ,ruler,amount
+        from b_service_package_price where service_id = #{id}
+
+    </select>
 
 </mapper>

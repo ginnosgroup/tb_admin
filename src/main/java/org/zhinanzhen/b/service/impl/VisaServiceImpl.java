@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.service.impl;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -10,9 +11,12 @@ import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.AbleStateEnum;
+import org.zhinanzhen.b.service.MaraService;
+import org.zhinanzhen.b.service.ServicePackagePriceService;
 import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
+import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
@@ -80,6 +84,12 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 
 	@Resource
 	private CommissionOrderTempDAO commissionOrderTempDao;
+
+	@Resource
+	private ServicePackagePriceDAO servicePackagePriceDAO;
+
+	@Resource
+	private MaraDAO maraDAO;
 
 	@Override
 	public int addVisa(VisaDTO visaDto) throws ServiceException {
@@ -592,6 +602,77 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 		// 发送给文案
 //		SendEmailUtil.send(officialDo.gemail(), "签证佣金订单驳回提醒", StringUtil.merge("亲爱的:", officialDo.getName(), "<br/>",
 //				"您的订单已被驳回。<br>签证订单号:", visaDo.getId(), "<br/>驳回原因:", visaDo.getRefuseReason()));
+	}
+	@Override
+	public List<VisaDTO> getCommissionOrder(Integer officialId,Integer regionId, Integer id,String startHandlingDate,String endHandlingDate,  String commissionState, String startSubmitIbDate, String endSubmitIbDate, String startDate, String endDate, String userName,String applicantName,Integer pageNum, Integer pageSize) {
+		if (pageNum!=null&&pageNum < 0) {
+			pageNum = DEFAULT_PAGE_NUM;
+		}
+		if (pageSize!=null&&pageSize < 0) {
+			pageSize = DEFAULT_PAGE_SIZE;
+		}
+		Integer offset = null ;
+		if(pageNum!=null&&pageSize!=null){
+			offset = pageNum * pageSize;
+		}
+
+		List<VisaListDO> list = visaDao.get(officialId,regionId, id, startHandlingDate,endHandlingDate, commissionState, theDateTo00_00_00(startSubmitIbDate), theDateTo23_59_59(endSubmitIbDate), theDateTo00_00_00(startDate),
+				theDateTo23_59_59(endDate),userName, applicantName,offset, pageSize);
+		List<VisaDTO> visaDtoList = new ArrayList<>();
+		if(list==null||list.size()==0){
+			return null;
+		}
+		for (VisaListDO visaListDo : list) {
+			VisaDTO visaDto = null;
+			try {
+				visaDto = putVisaDTO(visaListDo);
+			} catch (ServiceException e) {
+				e.printStackTrace();
+			}
+
+			List<Date> remindDateList = new ArrayList<>();
+			List<RemindDO> remindDoList = remindDao.listRemindByVisaId(visaDto.getId(), officialId,
+					AbleStateEnum.ENABLED.toString());
+			ServiceOrderDO serviceOrderDO = serviceOrderDao.getServiceOrderById(visaDto.getServiceOrderId());
+			serviceOrderDO.setService(mapper.map(serviceDao.getServiceById(serviceOrderDO.getServiceId()),ServiceDTO.class));
+			visaDto.setServiceOrder(mapper.map(serviceOrderDO,ServiceOrderDTO.class));
+			visaDto.setServicePackagePriceDO(servicePackagePriceDAO.getByServiceId(visaDto.getServiceId()));
+			visaDto.setMaraDTO(mapper.map(maraDAO.getMaraById(visaDto.getMaraId()),MaraDTO.class));
+			for (RemindDO remindDo : remindDoList) {
+				remindDateList.add(remindDo.getRemindDate());
+			}
+			visaDto.setRemindDateList(remindDateList);
+			visaDtoList.add(visaDto);
+		}
+		for (VisaDTO adviserRateCommissionOrderDO : visaDtoList) {
+			BigDecimal receivedAUD = BigDecimal.valueOf(adviserRateCommissionOrderDO.getTotalAmountAUD());//总计实收澳币
+			BigDecimal refund = BigDecimal.valueOf(adviserRateCommissionOrderDO.getRefund());//退款
+			ServicePackagePriceDO servicePackagePriceDO = adviserRateCommissionOrderDO.getServicePackagePriceDO();
+			if(servicePackagePriceDO!=null){
+				//第三方费用
+				Double third_prince1 = servicePackagePriceDO.getThird_prince()==null?0.0:servicePackagePriceDO.getThird_prince();
+				BigDecimal third_prince = BigDecimal.valueOf(third_prince1);
+				//预计计入佣金金额 总计实收-退款-第三方费用
+				BigDecimal amount = receivedAUD.subtract(refund).subtract(third_prince);
+				double receivedAUDDouble = receivedAUD.doubleValue();
+				double amountDouble = amount.doubleValue();
+				if (receivedAUDDouble == 0 || amountDouble < 0) {
+					amount = new BigDecimal(adviserRateCommissionOrderDO.getServicePackagePriceDO().getMinPrice()).
+							subtract(new BigDecimal(adviserRateCommissionOrderDO.getServicePackagePriceDO().getCost_prince()));
+					amountDouble = amount.doubleValue();
+				}
+				adviserRateCommissionOrderDO.setExpectCommissionAmount(amountDouble);
+			}
+
+		}
+
+		return visaDtoList;
+	}
+
+	@Override
+	public int count(Integer officialId,Integer regionId, Integer id,String startHandlingDate,String endHandlingDate, String commissionState, String startSubmitIbDate, String endSubmitIbDate, String startDate, String endDate,String userName,String applicantName) {
+
+		return visaDao.count(officialId,regionId,id,startHandlingDate,endHandlingDate,commissionState,startSubmitIbDate,endSubmitIbDate,startDate,endDate, userName, applicantName);
 	}
 
 }

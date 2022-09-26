@@ -1,12 +1,7 @@
 package org.zhinanzhen.b.service.impl;
 
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.annotation.Resource;
-
+import com.ikasoa.core.ErrorCodeEnum;
+import com.ikasoa.core.utils.StringUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.controller.BaseCommissionOrderController.ReviewKjStateEnum;
@@ -15,8 +10,6 @@ import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.CommissionOrderService;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
-import org.zhinanzhen.tb.service.pojo.AdviserDTO;
-import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
@@ -25,9 +18,14 @@ import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
+import org.zhinanzhen.tb.service.pojo.AdviserDTO;
+import org.zhinanzhen.tb.service.pojo.UserDTO;
 
-import com.ikasoa.core.ErrorCodeEnum;
-import com.ikasoa.core.utils.StringUtil;
+import javax.annotation.Resource;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Service("CommissionOrderService")
 public class CommissionOrderServiceImpl extends BaseService implements CommissionOrderService {
@@ -856,6 +854,7 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
             throw se;
         }
     }
+
 
     private CommissionOrderTempDTO putCurrencyDataByCommissionOrderTempDTO(
             CommissionOrderTempDTO commissionOrderTempDto) {

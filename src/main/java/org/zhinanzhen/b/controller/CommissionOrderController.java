@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -15,11 +16,13 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
+import org.dozer.DozerBeanMapper;
+import org.dozer.Mapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.zhinanzhen.b.dao.pojo.CommissionInfoDO;
+import org.zhinanzhen.b.dao.OfficialDAO;
+import org.zhinanzhen.b.dao.pojo.CommissionOrderListDO;
 import org.zhinanzhen.b.service.*;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
@@ -41,12 +44,14 @@ import jxl.write.Label;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
 import org.zhinanzhen.tb.service.UserService;
+import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/commissionOrder")
 public class CommissionOrderController extends BaseCommissionOrderController {
+	protected Mapper mapper = new DozerBeanMapper();
 
 	@Resource
 	CommissionOrderService commissionOrderService;
@@ -58,11 +63,14 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	SchoolService schoolService;
 
 	@Resource
+	private OfficialDAO officialDao;
+
+	@Resource
 	UserService userService;
 
 	@Resource
 	ServiceOrderService serviceOrderService;
-	
+
 	@Resource
 	ApplicantService applicantService;
 
@@ -74,6 +82,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 	@Resource
 	MailRemindService mailRemindService;
+	@Resource
+	ServicePackagePriceService servicePackagePriceService;
 
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -148,7 +158,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(serviceOrderId);
 			if (serviceOrderDto == null)
 				return new Response<List<CommissionOrderDTO>>(1, "服务订单(ID:" + serviceOrderId + ")不存在!", null);
-			
+
 			if (serviceOrderDto.getSubagencyId() <= 0)
 				return new Response<List<CommissionOrderDTO>>(1,
 						"SubagencyId(" + serviceOrderDto.getSubagencyId() + ")不存在!", null);
@@ -239,7 +249,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			//	serviceOrderDto.setInvoiceVoucherImageUrl5(invoiceVoucherImageUrl5);
 
 
-			
+
 			// SubagencyDTO subagencyDto =
 			// subagencyService.getSubagencyById(serviceOrderDto.getSubagencyId());
 			// if (subagencyDto == null)
@@ -881,6 +891,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
 	}
+
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody

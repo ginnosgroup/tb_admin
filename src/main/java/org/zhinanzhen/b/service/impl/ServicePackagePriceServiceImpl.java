@@ -126,6 +126,11 @@ public class ServicePackagePriceServiceImpl extends BaseService implements Servi
 	}
 
 	@Override
+	public ServicePackagePriceDO getServicePackagePriceByServiceId(int id)  {
+		return servicePackagePriceDao.getByServiceId(id);
+	}
+
+	@Override
 	public void deleteById(int id) throws ServiceException {
 		if (id <= 0) {
 			ServiceException se = new ServiceException("id error !");
