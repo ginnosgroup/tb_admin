@@ -87,4 +87,8 @@
 		WHERE id = #{id};
 	</update>
 
+	<delete id="deleteOfficialGradeById" parameterType="java.lang.Integer">
+		DELETE FROM b_official_grade WHERE id = #{id, jdbcType=INTEGER}
+	</delete>
+
 </mapper>

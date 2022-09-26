@@ -19,4 +19,5 @@ public interface OfficialGradeDao {
 
     int updateOfficialGradeNameById(@Param("grade") String grade,@Param("id") int id);
 
+    int deleteOfficialGradeById(@Param("id") Integer id);
 }

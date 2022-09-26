@@ -15,4 +15,6 @@ public interface OfficialGradeService {
     OfficialGradeDTO getOfficialGradeByGrade(String grade) throws ServiceException;
 
     int updateOfficialGradeById(OfficialGradeDTO officialGradeDTO) throws ServiceException;
+
+    int deleteOfficialGradeById(int id)  throws ServiceException;
 }

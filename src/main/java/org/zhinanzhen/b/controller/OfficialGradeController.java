@@ -93,6 +93,25 @@ public class OfficialGradeController extends BaseController {
         }
     }
 
+    @RequestMapping(value = "/delete", method = RequestMethod.GET)
+    @ResponseBody
+    public Response<Boolean> deleteOfficialGrade(@RequestParam(value = "id") Integer id, HttpServletRequest request,
+                                               HttpServletResponse response) {
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo!=null)
+            if (adminUserLoginInfo == null || !isSuperAdminUser(request))
+                return new Response<Boolean>(1, "仅限管理员操作.", null);
+        try {
+            super.setPostHeader(response);
+            if (officialGradeService.deleteOfficialGradeById(id) > 0)
+                return new Response<Boolean>(0, "删除成功",true);
+            else
+                return new Response<Boolean>(1, "删除失败.", false);
+        } catch (ServiceException e) {
+            return new Response<Boolean>(e.getCode(), e.getMessage(), false);
+        }
+    }
+
 
 
 }

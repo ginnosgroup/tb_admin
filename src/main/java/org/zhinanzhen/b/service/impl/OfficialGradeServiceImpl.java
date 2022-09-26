@@ -3,6 +3,7 @@ package org.zhinanzhen.b.service.impl;
 import com.ikasoa.core.ErrorCodeEnum;
 import org.dozer.MappingException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.OfficialDAO;
 import org.zhinanzhen.b.dao.OfficialGradeDao;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
@@ -108,5 +109,32 @@ public class OfficialGradeServiceImpl extends BaseService implements OfficialGra
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
             throw se;
         }
+    }
+
+    @Override
+    @Transactional(rollbackFor = ServiceException.class)
+    public int deleteOfficialGradeById(int id) throws ServiceException {
+        if (id <= 0) {
+            ServiceException se = new ServiceException("id error !");
+            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+            throw se;
+        }
+        try{
+            OfficialDO officialDO = officialDAO.getOfficialByGradeId(id);
+            if (officialDO == null){
+                return officialGradeDao.deleteOfficialGradeById(id);
+            }
+            else {
+                ServiceException se = new ServiceException("删除失败，该等级已被绑定");
+                se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+                throw se;
+            }
+        } catch (Exception e) {
+            ServiceException se = new ServiceException(e);
+            se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+            throw se;
+        }
+
+
     }
 }
