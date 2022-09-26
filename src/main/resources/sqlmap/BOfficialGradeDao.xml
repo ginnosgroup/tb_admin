@@ -63,4 +63,28 @@
 			where bg.id=#{id, jdbcType=INTEGER};
 	</select>
 
+	<update id="updateOfficialGradeById" parameterType="org.zhinanzhen.b.dao.pojo.OfficialGradeDO">
+		update b_official_grade
+		set gmt_modify = now()
+		<if test='grade != null and grade != ""'>
+			, grade = #{grade}
+		</if>
+		<if test='rate != null and rate != ""'>
+			, rate = #{rate}
+		</if>
+		<if test='ruler != null and ruler != ""'>
+			, ruler = #{ruler}
+		</if>
+		WHERE id = #{id};
+	</update>
+
+	<update id="updateOfficialGradeNameById" >
+		update b_official_grade
+		set gmt_modify = now()
+		<if test='grade != null and grade != ""'>
+			, grade = #{grade}
+		</if>
+		WHERE id = #{id};
+	</update>
+
 </mapper>

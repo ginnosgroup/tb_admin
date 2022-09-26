@@ -3,7 +3,9 @@ package org.zhinanzhen.b.service.impl;
 import com.ikasoa.core.ErrorCodeEnum;
 import org.dozer.MappingException;
 import org.springframework.stereotype.Service;
+import org.zhinanzhen.b.dao.OfficialDAO;
 import org.zhinanzhen.b.dao.OfficialGradeDao;
+import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.OfficialGradeDO;
 import org.zhinanzhen.b.service.OfficialGradeService;
 import org.zhinanzhen.b.service.pojo.OfficialGradeDTO;
@@ -19,6 +21,9 @@ public class OfficialGradeServiceImpl extends BaseService implements OfficialGra
 
     @Resource
     private OfficialGradeDao officialGradeDao;
+
+    @Resource
+    private OfficialDAO officialDAO;
 
     @Override
     public List<OfficialGradeDTO> listOfficialGrade(int pageNum, int pageSize) throws ServiceException {
@@ -80,5 +85,28 @@ public class OfficialGradeServiceImpl extends BaseService implements OfficialGra
             throw se;
         }
         return officialGradeDTO;
+    }
+
+    @Override
+    public int updateOfficialGradeById(OfficialGradeDTO officialGradeDTO) throws ServiceException {
+        if (officialGradeDTO == null) {
+            ServiceException se = new ServiceException("officialGradeDTO is null !");
+            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+            throw se;
+        }
+        try {
+            OfficialGradeDO officialGradeDO=mapper.map(officialGradeDTO,OfficialGradeDO.class);
+            OfficialDO officialDO = officialDAO.getOfficialByGradeId(officialGradeDO.getId());
+            if (officialDO == null){
+               return officialGradeDao.updateOfficialGradeById(officialGradeDO);
+            }
+            else {
+               return officialGradeDao.updateOfficialGradeNameById(officialGradeDO.getGrade(),officialGradeDO.getId());
+            }
+        } catch (Exception e) {
+            ServiceException se = new ServiceException(e);
+            se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+            throw se;
+        }
     }
 }
