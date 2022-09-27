@@ -88,8 +88,20 @@
 		<if test='state != null and state != ""'>
 			AND r.state = #{state}
 		</if>
-		<if test="adviserId != null and adviserId > 0">
+		<if test="visaId != null and visaId > 0">
+            AND r.visa_id = #{visaId}
+        </if>
+		<if test="commissionOrderId != null and commissionOrderId > 0">
+            AND r.commission_order_id = #{commissionOrderId}
+        </if>
+        <if test="regionId != null and regionId > 0">
+            AND re.id = #{regionId}
+        </if>
+        <if test="adviserId != null and adviserId > 0">
             AND r.adviser_id = #{adviserId}
+        </if>
+        <if test='adviserName != null and adviserName != ""'>
+            AND a.name like '%${adviserName}%'
         </if>
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
             <![CDATA[ AND r.gmt_create > #{startDate} AND r.gmt_create < #{endDate} ]]>
@@ -146,8 +158,20 @@
 		<if test='state != null and state != ""'>
 			AND r.state = #{state}
 		</if>
-		<if test="adviserId != null and adviserId > 0">
+		<if test="visaId != null and visaId > 0">
+            AND r.visa_id = #{visaId}
+        </if>
+        <if test="commissionOrderId != null and commissionOrderId > 0">
+            AND r.commission_order_id = #{commissionOrderId}
+        </if>
+        <if test="regionId != null and regionId > 0">
+            AND re.id = #{regionId}
+        </if>
+        <if test="adviserId != null and adviserId > 0">
             AND r.adviser_id = #{adviserId}
+        </if>
+        <if test='adviserName != null and adviserName != ""'>
+            AND a.name like '%${adviserName}%'
         </if>
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
             <![CDATA[ AND r.gmt_create > #{startDate} AND r.gmt_create < #{endDate} ]]>

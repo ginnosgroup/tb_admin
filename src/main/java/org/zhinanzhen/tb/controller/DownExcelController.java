@@ -808,11 +808,11 @@ public class DownExcelController extends BaseController {
 		i = 1;
 		if (!isCn) {
 			List<RefundDTO> ovstRefundedList = refundService.listRefund("OVST",
-					RefundController.RefundStateEnum.PAID.toString(), null, null,
+					RefundController.RefundStateEnum.PAID.toString(), null, null, null,
 					commissionReportList.get(0).getAdviserId(), null, startDate, endDate, null, null, null, null, 0,
 					9999);
 			List<RefundDTO> visaRefundedList = refundService.listRefund("VISA",
-					RefundController.RefundStateEnum.PAID.toString(), null, null,
+					RefundController.RefundStateEnum.PAID.toString(), null, null, null,
 					commissionReportList.get(0).getAdviserId(), null, startDate, endDate, null, null, null, null, 0,
 					9999);
 			HSSFSheet sheet3 = wb.getSheetAt(2);
