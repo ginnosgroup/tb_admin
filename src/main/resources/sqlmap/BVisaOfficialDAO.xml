@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.VisaOfficialDao">
+    <insert id="addVisa" parameterType="org.zhinanzhen.b.dao.pojo.VisaOfficialDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+        INTO b_visa_official (
+            gmt_create,
+            gmt_modify,
+            code,
+            handling_date,
+            user_id,
+            state,
+            commission_state,
+            kj_approval_date,
+            receive_type_id,
+            receive_date,
+            service_id,
+            service_order_id,
+            installment_num,
+            installment,
+            payment_voucher_image_url_1,
+            payment_voucher_image_url_2,
+            payment_voucher_image_url_3,
+            payment_voucher_image_url_4,
+            payment_voucher_image_url_5,
+            visa_voucher_image_url,
+            receivable,
+            received,
+            per_amount,
+            amount,
+            expect_amount,
+            sure_expect_amount,
+            currency,
+            exchange_rate,
+            discount,
+            invoice_number,
+            gst,
+            deduct_gst,
+            bonus,
+            bonus_date,
+            adviser_id,
+            mara_id,
+            official_id,
+            bank_check,
+            is_checked,
+            remarks,
+            refuse_reason,
+            is_close,
+            verify_code)
+        VALUES (
+                   now(),
+                   now(),
+                   #{code},
+                   #{handlingDate,jdbcType=TIMESTAMP},
+                   #{userId},
+                   #{state},
+                   'DJY',
+                   #{kjApprovalDate},
+                   #{receiveTypeId},
+                   #{receiveDate,jdbcType=TIMESTAMP},
+                   #{serviceId},
+                   #{serviceOrderId},
+                   #{installmentNum},
+                   #{installment},
+                   #{paymentVoucherImageUrl1},
+                   #{paymentVoucherImageUrl2},
+                   #{paymentVoucherImageUrl3},
+                   #{paymentVoucherImageUrl4},
+                   #{paymentVoucherImageUrl5},
+                   #{visaVoucherImageUrl},
+                   #{receivable},
+                   #{received},
+                   #{perAmount},
+                   #{amount},
+                   #{expectAmount},
+                   #{sureExpectAmount},
+                   #{currency},
+                   #{exchangeRate},
+                   #{discount},
+                   #{invoiceNumber},
+                   #{gst},
+                   #{deductGst},
+                   #{bonus},
+                   #{bonusDate},
+                   #{adviserId},
+                   #{maraId},
+                   #{officialId},
+                   NULL,
+                   0,
+                   #{remarks},
+                   #{refuseReason},
+                   0,
+                   #{verifyCode});
+    </insert>
+
+    <select id="countVisaByServiceOrderIdAndExcludeCode" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM b_visa_official
+        WHERE service_order_id = #{serviceOrderId}
+        <if test='code != null'>
+            AND code != #{code}
+        </if>
+        ;
+    </select>
+</mapper>
