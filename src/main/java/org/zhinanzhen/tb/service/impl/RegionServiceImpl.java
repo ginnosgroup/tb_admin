@@ -37,6 +37,19 @@ public class RegionServiceImpl extends BaseService implements RegionService {
 	}
 	
 	@Override
+	public List<RegionDTO> listChildrenRegion() throws ServiceException {
+		List<RegionDO> regionDoList = regionDao.regionList();
+		List<RegionDTO> regionDtoList = new ArrayList<RegionDTO>();
+		for (RegionDO regionDo : regionDoList) {
+			if (regionDo == null) {
+				continue;
+			}
+			regionDtoList.add(mapper.map(regionDo, RegionDTO.class));
+		}
+		return regionDtoList;
+	}
+	
+	@Override
 	public List<RegionDTO> listRegion(Integer parentId) throws ServiceException {
 		List<RegionDO> regionDoList = regionDao.selectByParentId(parentId);
 		List<RegionDTO> regionDtoList = new ArrayList<RegionDTO>();

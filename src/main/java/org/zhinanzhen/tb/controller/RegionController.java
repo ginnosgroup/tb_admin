@@ -30,6 +30,15 @@ public class RegionController extends BaseController {
 		return new Response<List<RegionDTO>>(0, list);
 
 	}
+	
+	@RequestMapping(value = "/list", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<RegionDTO>> listRegion(HttpServletResponse response) throws ServiceException {
+		super.setGetHeader(response);
+		List<RegionDTO> list = regionService.listChildrenRegion();
+		return new Response<List<RegionDTO>>(0, list);
+
+	}
 
 	@RequestMapping(value = "/addRegion", method = RequestMethod.GET)
 	@ResponseBody
