@@ -32,6 +32,8 @@ public class OfficialDTO {
 
 	private int gradeId;
 
+	private String grade;
+
 	private String regionName;
 
 	private RegionDO regionDo;

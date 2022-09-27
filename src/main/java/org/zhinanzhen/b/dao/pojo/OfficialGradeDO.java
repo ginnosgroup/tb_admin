@@ -21,4 +21,5 @@ public class OfficialGradeDO implements Serializable {
 
     private int ruler;
 
+    private int flag;
 }

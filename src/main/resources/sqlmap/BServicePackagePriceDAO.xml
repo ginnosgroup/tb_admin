@@ -76,6 +76,10 @@
             spp.max_price AS maxPrice,
             spp.service_id AS serviceId,
             spp.region_id AS regionId,
+            spp.cost_prince AS costPrince,
+            spp.third_prince AS thirdPrince,
+            spp.ruler AS ruler,
+            spp.amount AS amount,
             r.name AS regionName
         FROM b_service_package_price spp left join tb_region r on spp.region_id=r.id
         WHERE spp.service_id = #{serviceId, jdbcType=INTEGER}
@@ -93,6 +97,10 @@
             spp.max_price AS maxPrice,
             spp.service_id AS serviceId,
             spp.region_id AS regionId,
+            spp.cost_prince AS costPrince,
+            spp.third_prince AS thirdPrince,
+            spp.ruler AS ruler,
+            spp.amount AS amount,
             r.name AS regionName
         FROM b_service_package_price spp left join tb_region r on spp.region_id=r.id WHERE spp.id = #{id, jdbcType=INTEGER};
     </select>

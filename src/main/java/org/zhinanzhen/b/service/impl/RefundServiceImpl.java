@@ -83,18 +83,23 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 	}
 	
 	@Override
-	public int countRefund(String type, String state, Integer adviserId, String startDate, String endDate)
-			throws ServiceException {
-		return refundDao.countRefund(type, state, adviserId, startDate, theDateTo23_59_59(endDate));
+	public int countRefund(String type, String state, Integer visaId, Integer commissionOrderId, Integer regionId,
+			Integer adviserId, String adviserName, String startDate, String endDate, String startReviewedDate,
+			String endReviewedDate, String startCompletedDate, String endCompletedDate) throws ServiceException {
+		return refundDao.countRefund(type, state, visaId, commissionOrderId, regionId, adviserId, adviserName,
+				startDate, theDateTo23_59_59(endDate));
 	}
 
 	@Override
-	public List<RefundDTO> listRefund(String type, String state, Integer adviserId, String startDate, String endDate, int pageNum, int pageSize)
-			throws ServiceException {
+	public List<RefundDTO> listRefund(String type, String state, Integer visaId, Integer commissionOrderId,
+			Integer regionId, Integer adviserId, String adviserName, String startDate, String endDate,
+			String startReviewedDate, String endReviewedDate, String startCompletedDate, String endCompletedDate,
+			int pageNum, int pageSize) throws ServiceException {
 		List<RefundDTO> refundDtoList = new ArrayList<>();
 		List<RefundDO> refundDoList = null;
 		try {
-			refundDoList = refundDao.listRefund(type, state, adviserId, startDate, endDate, pageNum * pageSize, pageSize);
+			refundDoList = refundDao.listRefund(type, state, visaId, commissionOrderId, regionId, adviserId,
+					adviserName, startDate, endDate, pageNum * pageSize, pageSize);
 			if (ObjectUtil.isNull(refundDoList))
 				return null;
 		} catch (Exception e) {
