@@ -637,7 +637,10 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			serviceOrderDO.setService(mapper.map(serviceDao.getServiceById(serviceOrderDO.getServiceId()),ServiceDTO.class));
 			visaDto.setServiceOrder(mapper.map(serviceOrderDO,ServiceOrderDTO.class));
 			visaDto.setServicePackagePriceDO(servicePackagePriceDAO.getByServiceId(visaDto.getServiceId()));
+			MaraDO mara = maraDAO.getMaraById(visaDto.getMaraId());
+			if(mara!=null){
 			visaDto.setMaraDTO(mapper.map(maraDAO.getMaraById(visaDto.getMaraId()),MaraDTO.class));
+			}
 			for (RemindDO remindDo : remindDoList) {
 				remindDateList.add(remindDo.getRemindDate());
 			}

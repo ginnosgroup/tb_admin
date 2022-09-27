@@ -81,7 +81,7 @@ public class OfficialController extends BaseController {
 			@RequestParam(value = "password", required = false) String password,
 			@RequestParam(value = "imageUrl") String imageUrl, @RequestParam(value = "regionId") Integer regionId,
 			@RequestParam(value = "specialty",required = false) String specialty,
-			@RequestParam(value = "grade",required = false)Integer grade,
+			@RequestParam(value = "grade",required = false)String grade,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -110,7 +110,7 @@ public class OfficialController extends BaseController {
 				officialDto.setGradeId(gradeId);
 			}
 			else
-				return new Response<Integer>(0,"没有找到对应等级",grade);
+				return new Response<Integer>(0,"没有找到对应等级",0);
 			if (officialService.addOfficial(officialDto) > 0) {
 				if (password == null)
 					password = email; // 如果没有传入密码,则密码和email相同
@@ -136,7 +136,7 @@ public class OfficialController extends BaseController {
 			@RequestParam(value = "isOfficialAdmin", required = false) Boolean isOfficialAdmin,
 			@RequestParam(value = "specialty", required = false) String specialty,
 			@RequestParam(value = "workState", required = false) String workState,
-			@RequestParam(value = "grade",required = false)Integer grade,
+			@RequestParam(value = "grade",required = false)String grade,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -168,7 +168,7 @@ public class OfficialController extends BaseController {
 			if (StringUtil.isNotEmpty(specialty)) {
 				officialDto.setSpecialty(specialty);
 			}
-			if (grade != null && grade >= 0) {
+			if (StringUtil.isNotEmpty(grade)) {
 				OfficialGradeDTO officialGradeDTO = officialGradeService.getOfficialGradeByGrade(grade);
 				if (officialGradeDTO!=null){
 				int gradeId = officialGradeDTO.getId();

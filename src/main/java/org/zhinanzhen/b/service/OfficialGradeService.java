@@ -8,9 +8,13 @@ import java.util.List;
 
 public interface OfficialGradeService {
 
-    List<OfficialGradeDTO> getOfficialGrade() throws ServiceException;
+    List<OfficialGradeDTO> listOfficialGrade(int pageNum,int pageSize) throws ServiceException;
 
     int addOfficialGrade(OfficialGradeDTO officialGradeDtO) throws ServiceException;
 
-    OfficialGradeDTO getOfficialGradeByGrade(int grade) throws ServiceException;
+    OfficialGradeDTO getOfficialGradeByGrade(String grade) throws ServiceException;
+
+    int updateOfficialGradeById(OfficialGradeDTO officialGradeDTO) throws ServiceException;
+
+    int deleteOfficialGradeById(int id)  throws ServiceException;
 }

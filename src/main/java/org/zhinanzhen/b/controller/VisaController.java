@@ -627,7 +627,7 @@ public class VisaController extends BaseCommissionOrderController {
 	}
 	@RequestMapping(value = "/listCommissionOrder", method = RequestMethod.GET)
 	@ResponseBody
-	public ListResponse<List<VisaDTO>> getServiceOrder(
+	public ListResponse<List<VisaDTO>> listVisaOrder(
 			@RequestParam(value = "id", required = false) Integer id,
 			@RequestParam(value = "commissionState", required = false) String commissionState,
 			@RequestParam(value = "startSubmitIbDate", required = false) String startSubmitIbDate,
@@ -669,13 +669,9 @@ public class VisaController extends BaseCommissionOrderController {
 		} catch (ServiceException e) {
 			e.printStackTrace();
 		}
-		if(count==0||list.isEmpty()){
+		if(count==0||list==null){
 			return new  ListResponse(true, pageSize, 0, null, "未查询到数据");
 		}
-		list.forEach(s-> {
-
-		});
-
 
 		return new ListResponse(true, pageSize, count, list, "查询成功");
 	}
@@ -1087,7 +1083,6 @@ public class VisaController extends BaseCommissionOrderController {
 			@RequestParam(value ="applicantName" ,required = false) String applicantName,
 			HttpServletRequest request,HttpServletResponse response){
 		try {
-			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 
 				List<VisaDTO> commissionOrderList = visaService.getCommissionOrder(officialId, regionId, id, startHandlingDate, endHandlingDate, commissionState, startSubmitIbDate,
 						endSubmitIbDate, startDate, endDate, userName, applicantName, null, null);
@@ -1117,7 +1112,7 @@ public class VisaController extends BaseCommissionOrderController {
 					row.createCell(10).setCellValue(StringUtil.merge(visaDTO.getServiceOrder().getService().getName(),"-",visaDTO.getServiceCode()));
 					row.createCell(11).setCellValue(visaDTO.getAdviserName());
 					row.createCell(12).setCellValue(visaDTO.getOfficialName());
-					row.createCell(13).setCellValue(visaDTO.getMaraDTO().getName());
+					row.createCell(13).setCellValue(visaDTO.getMaraDTO()==null||visaDTO.getMaraDTO().getName()==null?"":visaDTO.getMaraDTO().getName());
 					row.createCell(14).setCellValue(visaDTO.getTotalPerAmountAUD());
 					row.createCell(15).setCellValue(visaDTO.getTotalAmountAUD());
 					row.createCell(16).setCellValue(visaDTO.getExpectCommissionAmount()==null?"":visaDTO.getExpectCommissionAmount()+"");

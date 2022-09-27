@@ -20,7 +20,7 @@ public interface ServicePackagePriceDAO {
 
 	ServicePackagePriceDO getById(int id);
 
-	void delete(int id);
+	ServicePackagePriceDO getByServiceId(int serviceId);
 
-    ServicePackagePriceDO getByServiceId(int id);
+	void delete(int id);
 }
