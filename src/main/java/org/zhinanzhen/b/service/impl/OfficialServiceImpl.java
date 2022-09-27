@@ -7,6 +7,7 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.OfficialDAO;
+import org.zhinanzhen.b.dao.OfficialGradeDao;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.service.OfficialService;
 import org.zhinanzhen.b.service.OfficialStateEnum;
@@ -28,6 +29,8 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 	private RegionDAO regionDao;
 	@Resource
 	private AdminUserDAO adminUserDao;
+	@Resource
+	private OfficialGradeDao officialGradeDao;
 
 	@Override
 	public int addOfficial(OfficialDTO officialDto) throws ServiceException {
@@ -115,6 +118,7 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 				officialDto.setIsOfficialAdmin(adminUserDo.isOfficialAdmin());
 			else
 				officialDto.setIsOfficialAdmin(false);
+			officialDto.setGrade(officialGradeDao.getOfficialGradeById(officialDo.getGradeId()).getGrade());
 			officialDtoList.add(officialDto);
 		}
 		return officialDtoList;

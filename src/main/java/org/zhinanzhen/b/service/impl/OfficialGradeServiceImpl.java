@@ -39,11 +39,12 @@ public class OfficialGradeServiceImpl extends BaseService implements OfficialGra
             List<OfficialGradeDO> officialGradeDOList = officialGradeDao.listOfficialGrade(pageNum * pageSize, pageSize);
             if (officialGradeDOList == null)
                 return null;
-            officialGradeDOList.forEach(
-                    officialGradeDO -> officialGradeDTOList.add(mapper.map(officialGradeDO,OfficialGradeDTO.class))
-            );
-
-
+            for (OfficialGradeDO officialGradeDO : officialGradeDOList) {
+                OfficialDO officialDO = officialDAO.getOfficialByGradeId(officialGradeDO.getId());
+                if (officialDO == null) officialGradeDO.setFlag(0);
+                else officialGradeDO.setFlag(1);
+                officialGradeDTOList.add(mapper.map(officialGradeDO,OfficialGradeDTO.class));
+            }
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
