@@ -867,10 +867,10 @@
             <![CDATA[ AND so.submitIbDate > #{startSubmitIbDate} AND so.submitIbDate < #{endSubmitIbDate} ]]>
         </if>
         <if test='commissionState =="REVIEW"'>
-            and so.commissionAmount is null
+            and bv.state = "PENDING"
         </if>
         <if test='commissionState =="COMPLETE"'>
-            and so.commissionAmount is not null
+            and bv.state = "COMPLETE"
         </if>
         <if test="id !=null">
             and bv.id = #{id}
