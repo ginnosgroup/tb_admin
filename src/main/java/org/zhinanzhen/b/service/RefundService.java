@@ -9,10 +9,15 @@ import org.zhinanzhen.tb.service.ServiceException;
 public interface RefundService {
 
 	int addRefund(RefundDTO refundDto) throws ServiceException;
-	
-	int countRefund(String type, String state, Integer adviserId, String startDate, String endDate) throws ServiceException;
 
-	List<RefundDTO> listRefund(String type, String state, Integer adviserId, String startDate, String endDate, int pageNum, int pageSize) throws ServiceException;
+	int countRefund(String type, String state, Integer visaId, Integer commissionOrderId, Integer regionId,
+			Integer adviserId, String adviserName, String startDate, String endDate, String startReviewedDate,
+			String endReviewedDate, String startCompletedDate, String endCompletedDate) throws ServiceException;
+
+	List<RefundDTO> listRefund(String type, String state, Integer visaId, Integer commissionOrderId, Integer regionId,
+			Integer adviserId, String adviserName, String startDate, String endDate, String startReviewedDate,
+			String endReviewedDate, String startCompletedDate, String endCompletedDate, int pageNum, int pageSize)
+			throws ServiceException;
 
 	RefundDTO getRefundById(int id) throws ServiceException;
 
@@ -20,7 +25,7 @@ public interface RefundService {
 
 	int deleteRefundById(int id) throws ServiceException;
 
-	List<RefoundReportDTO> listRefundReport(String startDate, String endDate, String dateType,
-			String dateMethod, Integer regionId, Integer adviserId, List<String> adviserIdList) throws ServiceException;
+	List<RefoundReportDTO> listRefundReport(String startDate, String endDate, String dateType, String dateMethod,
+			Integer regionId, Integer adviserId, List<String> adviserIdList) throws ServiceException;
 
 }

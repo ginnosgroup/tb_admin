@@ -9,26 +9,30 @@ import org.zhinanzhen.b.dao.pojo.RefundDO;
 public interface RefundDAO {
 
 	int addRefund(RefundDO refundDo);
-	
-	int countRefund(@Param("type") String type, @Param("state") String state, @Param("adviserId") Integer adviserId,
+
+	int countRefund(@Param("type") String type, @Param("state") String state, @Param("visaId") Integer visaId,
+			@Param("commissionOrderId") Integer commissionOrderId, @Param("regionId") Integer regionId,
+			@Param("adviserId") Integer adviserId, @Param("adviserName") String adviserName,
 			@Param("startDate") String startDate, @Param("endDate") String endDate);
 
-	List<RefundDO> listRefund(@Param("type") String type, @Param("state") String state,
-			@Param("adviserId") Integer adviserId, @Param("startDate") String startDate,
-			@Param("endDate") String endDate, @Param("offset") int offset, @Param("rows") int rows);
-	
+	List<RefundDO> listRefund(@Param("type") String type, @Param("state") String state, @Param("visaId") Integer visaId,
+			@Param("commissionOrderId") Integer commissionOrderId, @Param("regionId") Integer regionId,
+			@Param("adviserId") Integer adviserId, @Param("adviserName") String adviserName,
+			@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("offset") int offset,
+			@Param("rows") int rows);
+
 	RefundDO getRefundById(int id);
-	
+
 	RefundDO getRefundByCommissionOrderId(int commissionOrderId);
-	
+
 	RefundDO getRefundByVisaId(int visaId);
 
 	int updateRefund(RefundDO refundDo);
-	
+
 	int deleteRefundById(int id);
 
-    List<RefoundReportDO> listRefundReport(@Param("startDate") String startDate, @Param("endDate") String endDate,
-										   @Param("dateType")String dateType, @Param("dateMethod")String dateMethod,
-										   @Param("regionId")Integer regionId, @Param("adviserId")Integer adviserId,
-										   @Param("adviserIdList")List<String> adviserIdList);
+	List<RefoundReportDO> listRefundReport(@Param("startDate") String startDate, @Param("endDate") String endDate,
+			@Param("dateType") String dateType, @Param("dateMethod") String dateMethod,
+			@Param("regionId") Integer regionId, @Param("adviserId") Integer adviserId,
+			@Param("adviserIdList") List<String> adviserIdList);
 }
