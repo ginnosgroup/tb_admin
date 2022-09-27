@@ -13,4 +13,8 @@ public interface OfficialGradeService {
     int addOfficialGrade(OfficialGradeDTO officialGradeDtO) throws ServiceException;
 
     OfficialGradeDTO getOfficialGradeByGrade(String grade) throws ServiceException;
+
+    int updateOfficialGradeById(OfficialGradeDTO officialGradeDTO) throws ServiceException;
+
+    int deleteOfficialGradeById(int id)  throws ServiceException;
 }

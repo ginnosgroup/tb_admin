@@ -55,6 +55,35 @@ public class OfficialGradeController extends BaseController {
             officialGradeDTO.setRate(Double.parseDouble(rate));
             officialGradeDTO.setRuler(ruler);
             if (officialGradeService.addOfficialGrade(officialGradeDTO) > 0)
+                return new Response<Integer>(0, "添加成功",0);
+            else
+                return new Response<Integer>(1, "添加失败.", 0);
+
+        }catch (ServiceException e) {
+            return new Response<Integer>(e.getCode(), e.getMessage(), null);
+        }
+    }
+
+    @RequestMapping(value = "/update",method = RequestMethod.POST)
+    @ResponseBody
+    public Response<Integer> updateGrade(
+            @RequestParam(value = "id") Integer id,
+            @RequestParam(value = "grade") String grade,
+            @RequestParam(value = "rate") String rate,
+            @RequestParam(value = "ruler") Integer ruler,
+            HttpServletRequest request, HttpServletResponse response) {
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo!=null)
+            if (adminUserLoginInfo == null || !isSuperAdminUser(request))
+                return new Response<Integer>(1, "仅限管理员操作.", null);
+        try {
+            super.setPostHeader(response);
+            OfficialGradeDTO officialGradeDTO = new OfficialGradeDTO();
+            officialGradeDTO.setId(id);
+            officialGradeDTO.setGrade(grade);
+            officialGradeDTO.setRate(Double.parseDouble(rate));
+            officialGradeDTO.setRuler(ruler);
+            if (officialGradeService.updateOfficialGradeById(officialGradeDTO) > 0)
                 return new Response<Integer>(0, "修改成功",0);
             else
                 return new Response<Integer>(1, "修改失败.", 0);
@@ -63,5 +92,27 @@ public class OfficialGradeController extends BaseController {
             return new Response<Integer>(e.getCode(), e.getMessage(), null);
         }
     }
+
+    @RequestMapping(value = "/delete", method = RequestMethod.GET)
+    @ResponseBody
+    public Response<Boolean> deleteOfficialGrade(@RequestParam(value = "id") Integer id, HttpServletRequest request,
+                                               HttpServletResponse response) {
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo!=null)
+            if (adminUserLoginInfo == null || !isSuperAdminUser(request))
+                return new Response<Boolean>(1, "仅限管理员操作.", null);
+        try {
+            super.setPostHeader(response);
+            if (officialGradeService.deleteOfficialGradeById(id) > 0)
+                return new Response<Boolean>(0, "删除成功",true);
+            else
+                return new Response<Boolean>(1, "删除失败.", false);
+        } catch (ServiceException e) {
+            return new Response<Boolean>(e.getCode(), e.getMessage(), false);
+        }
+    }
+
+
+
 }
 
