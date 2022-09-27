@@ -1191,7 +1191,7 @@
         SELECT
             id,
             code,
-        service_package_id servicePackageId
+            service_package_id servicePackageId
         FROM
             b_service_order
         WHERE
