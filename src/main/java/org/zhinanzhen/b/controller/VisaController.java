@@ -730,17 +730,6 @@ public class VisaController extends BaseCommissionOrderController {
 				} catch (ServiceException serviceException) {
 					serviceException.printStackTrace();
 				}
-				try{
-					 ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceService.getServicePackagePriceByServiceId(v.getServiceId());
-					if(servicePackagePriceDO!=null) {
-						double thirdPrince =  servicePackagePriceDO.getThird_prince();
-						BigDecimal third_prince = BigDecimal.valueOf(thirdPrince);
-						double expectAmountAUD = new BigDecimal(v.getAmountAUD()).subtract(third_prince).doubleValue();
-						v.setExpectAmount(expectAmountAUD > 0.0 ? expectAmountAUD : 0.0);
-					}
-				}catch (ServiceException serviceException){
-					serviceException.printStackTrace();
-				}
 			});
 
 			return new ListResponse<List<VisaDTO>>(true, pageSize, total, list, "");
