@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.OfficialDAO;
 import org.zhinanzhen.b.dao.OfficialGradeDao;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
+import org.zhinanzhen.b.dao.pojo.OfficialGradeDO;
 import org.zhinanzhen.b.service.OfficialService;
 import org.zhinanzhen.b.service.OfficialStateEnum;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
@@ -118,7 +119,9 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 				officialDto.setIsOfficialAdmin(adminUserDo.isOfficialAdmin());
 			else
 				officialDto.setIsOfficialAdmin(false);
-			officialDto.setGrade(officialGradeDao.getOfficialGradeById(officialDo.getGradeId()).getGrade());
+			OfficialGradeDO grade = officialGradeDao.getOfficialGradeById(officialDo.getGradeId());
+			if (grade!=null)
+				officialDto.setGrade(grade.getGrade());
 			officialDtoList.add(officialDto);
 		}
 		return officialDtoList;
