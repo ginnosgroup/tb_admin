@@ -7,7 +7,9 @@ import org.zhinanzhen.b.service.ApplicantService;
 import org.zhinanzhen.b.service.VisaOfficialService;
 import org.zhinanzhen.b.service.pojo.ApplicantDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
+import org.zhinanzhen.b.service.pojo.VisaDTO;
 import org.zhinanzhen.b.service.pojo.VisaOfficialDTO;
+import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 
@@ -30,31 +32,32 @@ public class VisaOfficialController extends BaseCommissionOrderController {
     ApplicantService applicantService;
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
-    public Response<List<VisaOfficialDTO>> add(@RequestParam(value = "userId", required = false) String userId,
-                                                   @RequestParam(value = "applicantBirthday", required = false) String applicantBirthday,
-                                                   @RequestParam(value = "handlingDate") String handlingDate,
-                                                   @RequestParam(value = "receiveTypeId") String receiveTypeId,
-                                                   @RequestParam(value = "receiveDate") String receiveDate,
-                                                   @RequestParam(value = "serviceId") String serviceId,
-                                                   @RequestParam(value = "serviceOrderId") Integer serviceOrderId,
-                                                   @RequestParam(value = "installment") Integer installment,
-                                                   @RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
-                                                   @RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
-                                                   @RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
-                                                   @RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
-                                                   @RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
-                                                   @RequestParam(value = "visaVoucherImageUrl", required = false) String visaVoucherImageUrl,
-                                                   @RequestParam(value = "receivable") String receivable,
-                                                   @RequestParam(value = "received", required = false) String received,
-                                                   @RequestParam(value = "perAmount") String perAmount, @RequestParam(value = "amount") String amount,
-                                                   @RequestParam(value = "currency", required = false) String currency,
-                                                   @RequestParam(value = "exchangeRate", required = false) String exchangeRate,
-                                                   @RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
-                                                   @RequestParam(value = "adviserId") String adviserId, @RequestParam(value = "maraId") String maraId,
-                                                   @RequestParam(value = "officialId") String officialId,
-                                                   @RequestParam(value = "remarks", required = false) String remarks,
-                                                   @RequestParam(value = "verifyCode", required = false) String verifyCode, HttpServletRequest request,
-                                                   HttpServletResponse response) {
+    public Response<List<VisaOfficialDTO>> add(
+            @RequestParam(value = "userId", required = false) String userId,
+            @RequestParam(value = "applicantBirthday", required = false) String applicantBirthday,
+            @RequestParam(value = "handlingDate") String handlingDate,
+            @RequestParam(value = "receiveTypeId") String receiveTypeId,
+            @RequestParam(value = "receiveDate") String receiveDate,
+            @RequestParam(value = "serviceId") String serviceId,
+            @RequestParam(value = "serviceOrderId") Integer serviceOrderId,
+            @RequestParam(value = "installment") Integer installment,
+            @RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
+            @RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
+            @RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
+            @RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
+            @RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
+            @RequestParam(value = "visaVoucherImageUrl", required = false) String visaVoucherImageUrl,
+            @RequestParam(value = "receivable") String receivable,
+            @RequestParam(value = "received", required = false) String received,
+            @RequestParam(value = "perAmount") String perAmount, @RequestParam(value = "amount") String amount,
+            @RequestParam(value = "currency", required = false) String currency,
+            @RequestParam(value = "exchangeRate", required = false) String exchangeRate,
+            @RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
+            @RequestParam(value = "adviserId") String adviserId, @RequestParam(value = "maraId") String maraId,
+            @RequestParam(value = "officialId") String officialId,
+            @RequestParam(value = "remarks", required = false) String remarks,
+            @RequestParam(value = "verifyCode", required = false) String verifyCode, HttpServletRequest request,
+            HttpServletResponse response) {
 
         // 更改当前顾问编号
         Integer newAdviserId = getAdviserId(request);
@@ -198,6 +201,65 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         } catch (ServiceException e) {
             return new Response<>(e.getCode(), e.getMessage(), null);
         }
+    }
+
+    @RequestMapping(value = "/listVisaOfficial", method = RequestMethod.GET)
+    @ResponseBody
+    public ListResponse<List<VisaOfficialDTO>> listVisaOrder(
+            @RequestParam(value = "id", required = false) Integer id,
+            @RequestParam(value = "commissionState", required = false) String commissionState,
+            @RequestParam(value = "startSubmitIbDate", required = false) String startSubmitIbDate,
+            @RequestParam(value = "endSubmitIbDate", required = false) String endSubmitIbDate,
+            @RequestParam(value = "startDate", required = false) String startDate,
+            @RequestParam(value = "endDate", required = false) String endDate,
+            @RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
+            @RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
+            @RequestParam(value = "regionId", required = false) Integer regionId,
+            @RequestParam(value = "officialId" ,required = false) Integer officialId,
+            @RequestParam(value ="userName" ,required = false) String userName,
+            @RequestParam(value ="applicantName" ,required = false) String applicantName,
+            @RequestParam(value = "pageNum") Integer pageNum,
+            @RequestParam(value = "pageSize") Integer pageSize, HttpServletResponse response,
+            HttpServletRequest request) {
+        super.setGetHeader(response);
+        // 获取登录信息
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if(adminUserLoginInfo==null){
+            return  new ListResponse(false, 0, 0, null, "请登录");
+        }
+        String apList = adminUserLoginInfo.getApList();
+        List<VisaOfficialDTO> list = null;
+        if (apList.equalsIgnoreCase("WA")){
+            officialId = adminUserLoginInfo.getOfficialId();
+            try {
+                list = visaOfficialService.getVisaOfficialOrder(officialId,regionId, id, startHandlingDate,endHandlingDate, commissionState, startSubmitIbDate,
+                        endSubmitIbDate, startDate, endDate,userName,applicantName, pageNum, pageSize);
+            } catch (ServiceException e) {
+                e.printStackTrace();
+            }
+        }else
+        if(apList.equalsIgnoreCase("KJ")){
+            try {
+                list = visaOfficialService.getVisaOfficialOrder(officialId,regionId, id, startHandlingDate,endHandlingDate, commissionState, startSubmitIbDate,
+                        endSubmitIbDate, startDate, endDate,userName,applicantName, pageNum, pageSize);
+            } catch (ServiceException e) {
+                e.printStackTrace();
+            }
+        }else {
+            return new ListResponse(false, pageSize, 0, null, "角色没有权限");
+        }
+        int count = 0;
+        try {
+            count = visaOfficialService.count(officialId,regionId, id,startHandlingDate,endHandlingDate, commissionState, startSubmitIbDate,
+                    endSubmitIbDate, startDate, endDate,userName,applicantName);
+        } catch (ServiceException e) {
+            e.printStackTrace();
+        }
+        if(count==0||list==null){
+            return new  ListResponse(true, pageSize, 0, null, "未查询到数据");
+        }
+
+        return new ListResponse(true, pageSize, count, list, "查询成功");
     }
 
 
