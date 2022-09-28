@@ -162,13 +162,9 @@
         from b_visa_official bv
         JOIN b_service_order so ON bv.service_order_id = so.id
         left JOIN tb_user tu ON bv.user_id = tu.id
-        left JOIN b_applicant ba ON so.applicant_id = ba.id
-        left JOIN b_receive_type brt ON brt.id = so.receive_type_id
-        left join tb_adviser ta on ta.id = bv.adviser_id
-        left join b_refund br on br.commission_order_id = bv.id
+        left join b_refund br on br.visa_id= bv.id
         left join b_official bo on bo.id = bv.official_id
         left join b_official_grade bog on bog.id = bo.grade_id
-        left join b_service bs on bs.id = so.service_id
 
         WHERE 1=1
         <if test='officialId !=null and  officialId !=""'>
