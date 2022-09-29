@@ -625,56 +625,6 @@ public class VisaController extends BaseCommissionOrderController {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
 	}
-	@RequestMapping(value = "/listCommissionOrder", method = RequestMethod.GET)
-	@ResponseBody
-	public ListResponse<List<VisaDTO>> listVisaOrder(
-			@RequestParam(value = "id", required = false) Integer id,
-			@RequestParam(value = "commissionState", required = false) String commissionState,
-			@RequestParam(value = "startSubmitIbDate", required = false) String startSubmitIbDate,
-			@RequestParam(value = "endSubmitIbDate", required = false) String endSubmitIbDate,
-			@RequestParam(value = "startDate", required = false) String startDate,
-			@RequestParam(value = "endDate", required = false) String endDate,
-			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
-			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
-			@RequestParam(value = "regionId", required = false) Integer regionId,
-			@RequestParam(value = "officialId" ,required = false) Integer officialId,
-			@RequestParam(value ="userName" ,required = false) String userName,
-			@RequestParam(value ="applicantName" ,required = false) String applicantName,
-			@RequestParam(value = "pageNum",required = false) Integer pageNum,
-			@RequestParam(value = "pageSize",required = false) Integer pageSize, HttpServletResponse response,
-			HttpServletRequest request) {
-		super.setGetHeader(response);
-		// 获取文案信息
-		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-		if(adminUserLoginInfo==null){
-			return  new ListResponse(false, 0, 0, null, "请登录");
-		}
-		String apList = adminUserLoginInfo.getApList();
-		List<VisaDTO> list ;
-		if (apList.equalsIgnoreCase("WA")){
-			officialId = adminUserLoginInfo.getOfficialId();
-		 list = visaService.getCommissionOrder(officialId,regionId, id, startHandlingDate,endHandlingDate, commissionState, startSubmitIbDate,
-				endSubmitIbDate, startDate, endDate,userName,applicantName, pageNum, pageSize);
-		}else
-		if(apList.equalsIgnoreCase("KJ")){
-			list = visaService.getCommissionOrder(officialId,regionId, id, startHandlingDate,endHandlingDate, commissionState, startSubmitIbDate,
-					endSubmitIbDate, startDate, endDate,userName,applicantName, pageNum, pageSize);
-		}else {
-			return new ListResponse(false, pageSize, 0, null, "角色没有权限");
-		}
-		int count = 0;
-		try {
-			count = visaService.count(officialId,regionId, id,startHandlingDate,endHandlingDate, commissionState, startSubmitIbDate,
-					endSubmitIbDate, startDate, endDate,userName,applicantName);
-		} catch (ServiceException e) {
-			e.printStackTrace();
-		}
-		if(count==0||list==null){
-			return new  ListResponse(true, pageSize, 0, null, "未查询到数据");
-		}
-
-		return new ListResponse(true, pageSize, count, list, "查询成功");
-	}
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
@@ -778,17 +728,6 @@ public class VisaController extends BaseCommissionOrderController {
 							getOfficialId(request), getKjId(request), null, v.getId(), null, null, false, true);
 					v.setMailRemindDTOS(mailRemindDTOS);
 				} catch (ServiceException serviceException) {
-					serviceException.printStackTrace();
-				}
-				try{
-					 ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceService.getServicePackagePriceByServiceId(v.getServiceId());
-					if(servicePackagePriceDO!=null) {
-						double thirdPrince =  servicePackagePriceDO.getThird_prince();
-						BigDecimal third_prince = BigDecimal.valueOf(thirdPrince);
-						double expectAmountAUD = new BigDecimal(v.getAmountAUD()).subtract(third_prince).doubleValue();
-						v.setExpectAmount(expectAmountAUD > 0.0 ? expectAmountAUD : 0.0);
-					}
-				}catch (ServiceException serviceException){
 					serviceException.printStackTrace();
 				}
 			});
