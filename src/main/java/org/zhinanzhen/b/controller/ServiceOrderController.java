@@ -1695,7 +1695,7 @@ public class ServiceOrderController extends BaseController {
 			return new Response<List<ServiceOrderCommentDTO>>(1, e.getMessage(), null);
 		}
 	}
-	@RequestMapping(value = "/listCommissionOrder", method = RequestMethod.GET)
+	@RequestMapping(value = "/listAdviserVisa", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<List<CommissionOrderDO>> getCommissionOrderList(@RequestParam(value = "id") int id) {
 		try {
