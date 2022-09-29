@@ -317,6 +317,114 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             return new Response<>(1,"修改失败"+e.getMessage());
         }
     }
+    @RequestMapping(value = "/downOfficialCommission", method = RequestMethod.GET)
+    @ResponseBody
+    public void downOfficialCommission(
+            @RequestParam(value = "id", required = false) Integer id,
+            @RequestParam(value = "state", required = false) String state,
+            @RequestParam(value = "startSubmitIbDate", required = false) String startSubmitIbDate,
+            @RequestParam(value = "endSubmitIbDate", required = false) String endSubmitIbDate,
+            @RequestParam(value = "startDate", required = false) String startDate,
+            @RequestParam(value = "endDate", required = false) String endDate,
+            @RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
+            @RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
+            @RequestParam(value = "regionId", required = false) Integer regionId,
+            @RequestParam(value = "officialId" ,required = false) Integer officialId,
+            @RequestParam(value ="userName" ,required = false) String userName,
+            @RequestParam(value ="applicantName" ,required = false) String applicantName,
+            HttpServletRequest request,HttpServletResponse response){
+        try {
+
+            List<VisaOfficialDTO> officialList = visaOfficialService.getVisaOfficialOrder(officialId, null, id, startHandlingDate, endHandlingDate, state, startSubmitIbDate,
+                    endSubmitIbDate, startDate, endDate, userName, applicantName, null, null, null);
+            response.reset();// 清空输出流
+            String tableName = "official_Visa_commission";
+            response.setHeader("Content-disposition",
+                    "attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
+            response.setContentType("application/msexcel");
+            int i = 1;
+            OutputStream os = response.getOutputStream();
+            //获取模板
+            InputStream is = this.getClass().getResourceAsStream("/officialVisa.xls");
+            HSSFWorkbook wb = new HSSFWorkbook(is);
+            HSSFSheet sheet = wb.getSheetAt(0);
+            for (VisaOfficialDTO visaDTO : officialList) {
+                HSSFRow row = sheet.createRow(i);
+                row.createCell(0).setCellValue(visaDTO.getId());
+                row.createCell(1).setCellValue(visaDTO.getServiceOrderId());
+                row.createCell(2).setCellValue(visaDTO.getSubmitIbDate()==null?"":sdf.format(visaDTO.getSubmitIbDate()));
+                row.createCell(3).setCellValue(sdf.format(visaDTO.getServiceOrder().getGmtCreate()));
+                row.createCell(4).setCellValue(visaDTO.getUserName());
+                row.createCell(5).setCellValue(StringUtil.merge(visaDTO.getApplicant().getFirstname()," ",visaDTO.getApplicant().getSurname()));
+                row.createCell(6).setCellValue(visaDTO.getReceiveDate()==null?"":sdf.format(visaDTO.getReceiveDate()));
+                row.createCell(7).setCellValue(visaDTO.getCurrency());
+                row.createCell(8).setCellValue(visaDTO.getExchangeRate());
+                row.createCell(9).setCellValue(visaDTO.getReceiveTypeName());
+                row.createCell(10).setCellValue(StringUtil.merge(visaDTO.getServiceOrder().getService().getName(),"-",visaDTO.getServiceCode()));
+                row.createCell(11).setCellValue(visaDTO.getAdviserName());
+                row.createCell(12).setCellValue(visaDTO.getOfficialName());
+                row.createCell(13).setCellValue(visaDTO.getMaraDTO()==null||visaDTO.getMaraDTO().getName()==null?"":visaDTO.getMaraDTO().getName());
+                row.createCell(14).setCellValue(visaDTO.getTotalPerAmountAUD());
+                row.createCell(15).setCellValue(visaDTO.getTotalAmountAUD());
+                row.createCell(16).setCellValue(visaDTO.getExpectCommissionAmount()==null?"":visaDTO.getExpectCommissionAmount()+"");
+                row.createCell(17).setCellValue(visaDTO.getCommissionAmount()==null?"":visaDTO.getCommissionAmount()+"");
+                row.createCell(18).setCellValue(visaDTO.getPredictCommission()==null?"":visaDTO.getPredictCommission()+"");
+                String states = visaDTO.getState()==null?"":visaDTO.getState();
+                if (states.equalsIgnoreCase("REVIEW"))
+                    states = "待确认";
+                row.createCell(19).setCellValue(states.equalsIgnoreCase("COMPLETE")?"已确认":states);
+                i++;
+            }
+            wb.write(os);
+            os.flush();
+            os.close();
+
+        }catch (Exception e){
+            e.printStackTrace();
+            return;
+        }
+    }
+
+    @RequestMapping(value = "/uploadOfficialCommission", method = RequestMethod.POST)
+    @ResponseBody
+    public Response<Integer> uploadOfficialCommission(@RequestParam MultipartFile file, HttpServletRequest request,
+                                                      HttpServletResponse response) throws IllegalStateException, IOException {
+        super.setPostHeader(response);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String message = "";
+        int n = 0;
+        Response<String> r = super.upload2(file, request.getSession(), "/tmp/");
+        try (InputStream is = new FileInputStream("/data" + r.getData())) {
+            jxl.Workbook wb = jxl.Workbook.getWorkbook(is);
+            Sheet sheet = wb.getSheet(0);
+            for (int i = 1; i < sheet.getRows(); i++) {
+                Cell[] cells = sheet.getRow(i);
+                String _id = cells[1].getContents();
+                String submitIbDate = cells[2].getContents();
+                Double commissionAmount = Double.valueOf(cells[17].getContents());
+                try {
+                    ServiceOrderDTO order = serviceOrderService.getServiceOrderById(Integer.parseInt(_id));
+                    if (order == null) {
+                        message += "[" + _id + "]佣金订单不存在;";
+                        continue;
+                    }
+                    try {
+
+                        visaOfficialService.update(Integer.valueOf(_id),StringUtil.isEmpty(submitIbDate) ? null
+                                : simpleDateFormat.parse(submitIbDate.trim()).getTime() + "",commissionAmount,null);
+                    }catch (ServiceException s){
+                        message += "[" + _id +"修改失败";
+                    }
+                } catch (NumberFormatException | ServiceException | ParseException e) {
+                    message += "[" + _id + "]" + e.getMessage() + ";";
+                }
+            }
+        } catch (BiffException | IOException e) {
+            return new Response<Integer>(1, "上传失败:" + e.getMessage(), 0);
+        }
+        return new Response<Integer>(0, message, n);
+    }
+
 
 
 }
