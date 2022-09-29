@@ -11,7 +11,6 @@ import com.ikasoa.web.workflow.Context;
 // 文案已提交申请
 @Component
 public class ServiceOrderApplyNode extends SODecisionNode {
-
 	// 文案
 
 	public ServiceOrderApplyNode(ServiceOrderService serviceOrderService) {
@@ -50,7 +49,6 @@ public class ServiceOrderApplyNode extends SODecisionNode {
 //		}
 //		return state;
 	}
-
 	@Override
 	public String[] nextNodeNames() {
 		return new String[]{"COMPLETE", "CLOSE", "APPLY_FAILED"};

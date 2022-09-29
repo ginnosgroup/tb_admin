@@ -182,6 +182,8 @@ public class VisaOfficialDTO {
 
     private double rate;
 
+    private String calculation;//计算规则
+
     private ServicePackagePriceDO servicePackagePriceDO;
 
     private MaraDTO maraDTO;

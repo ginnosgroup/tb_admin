@@ -120,6 +120,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	@Resource
 	private SchoolInstitutionLocationDAO schoolInstitutionLocationDAO;
 
+
 	@Override
 	public int addServiceOrder(ServiceOrderDTO serviceOrderDto) throws ServiceException {
 		if (serviceOrderDto == null) {
@@ -198,6 +199,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 									&& _serviceOrderDo.getOfficialId() != serviceOrderDo.getOfficialId()))
 					&& !"PENDING".equalsIgnoreCase(serviceOrderDo.getState()))
 				sendEmailOfUpdateOfficial(serviceOrderDo, _serviceOrderDo);
+
 			return i;
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
@@ -1907,5 +1909,4 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			applicantDto.setContent(information);
 		return applicantDto;
 	}
-
 }

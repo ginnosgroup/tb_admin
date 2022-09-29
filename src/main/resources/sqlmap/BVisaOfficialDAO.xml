@@ -47,12 +47,15 @@
             remarks,
             refuse_reason,
             is_close,
+            predict_commission,
+            commissionAmount,
+            calculation,
             verify_code)
         VALUES (
                    now(),
                    now(),
                    #{code},
-                   #{handlingDate,jdbcType=TIMESTAMP},
+                   now(),
                    #{userId},
                    #{state},
                    'DJY',
@@ -91,6 +94,9 @@
                    #{remarks},
                    #{refuseReason},
                    0,
+                   #{predictCommission},
+                   #{commissionAmount},
+                   #{calculation},
                    #{verifyCode});
     </insert>
     <update id="update">

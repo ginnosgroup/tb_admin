@@ -93,6 +93,8 @@
     <select id="getById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO">
         SELECT
             spp.id,
+            spp.gmt_create as gmtCreate,
+	        spp.gmt_modify as gmtModify,
             spp.min_price AS minPrice,
             spp.max_price AS maxPrice,
             spp.service_id AS serviceId,
@@ -112,6 +114,8 @@
     <select id="getByServiceId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO">
         SELECT
 	        id,
+	        gmt_create as gmtCreate,
+	        gmt_modify as gmtModify,
 	        min_price as minPrice,
 	        max_price as maxPrice,
 	        service_id as serviceId,
