@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.dao.pojo;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import lombok.Data;
 
@@ -10,6 +11,10 @@ public class ServicePackagePriceDO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private int id;
+
+    private Date gmtCreate;
+
+    private Date gmtModify;
 
     private double minPrice;
 
@@ -24,11 +29,6 @@ public class ServicePackagePriceDO implements Serializable {
     private double costPrince;
 
     private double thirdPrince;
-
-
-	private double cost_prince;
-
-	private Double third_prince;
 
 	private  int ruler;
 

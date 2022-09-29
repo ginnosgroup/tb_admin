@@ -76,9 +76,8 @@ public interface ServiceOrderService {
 	Integer caseCount(Integer officialId, String days, String state);
 
 	List<AdviserServiceCountDTO> listServiceOrderToAnalysis(List<String> typeList,int month,List<String> regionIdList);
-	List<CommissionOrderDO> getCommissionOrderList(int id,int newOfficialId);
 
-    void update(Integer id, String submitIbDate, Double commissionAmount)throws ServiceException;
+	List<CommissionOrderDO> getCommissionOrderList(int id) throws ServiceException ;
 
 	List<ServiceOrderDTO> OfficialHandoverServiceOrder(Integer officialId,boolean isPackage)throws ServiceException;
 

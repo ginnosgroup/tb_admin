@@ -134,6 +134,16 @@
             grade_id AS gradeId
         FROM b_official WHERE grade_id = #{gradeId, jdbcType=INTEGER};
     </select>
+    <select id="getOfficialAdmin" resultType="java.lang.Integer">
+        SELECT
+            count(*)
+        FROM
+            tb_admin_user
+        WHERE
+            is_official_admin = 1
+          and official_id = #{id, jdbcType=INTEGER};
+
+    </select>
 
 
 </mapper>

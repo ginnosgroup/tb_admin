@@ -49,6 +49,8 @@ public interface VisaDAO {
 
 	VisaDO getFirstVisaByServiceOrderId(int serviceOrderId);
 
+	VisaDO getSecondVisaByServiceOrderId(int serviceOrderId);
+
 	public double sumBonusByThisMonth();
 
 	public VisaDO getVisaById(int id);

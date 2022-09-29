@@ -2,6 +2,7 @@ package org.zhinanzhen.b.service.pojo;
 
 import lombok.Data;
 import org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO;
+import org.zhinanzhen.b.dao.pojo.VisaDO;
 
 import java.util.Date;
 import java.util.List;
@@ -180,6 +181,8 @@ public class VisaOfficialDTO {
     private double refund;//退款
 
     private double rate;
+
+    private String calculation;//计算规则
 
     private ServicePackagePriceDO servicePackagePriceDO;
 

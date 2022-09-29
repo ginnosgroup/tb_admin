@@ -120,6 +120,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	@Resource
 	private SchoolInstitutionLocationDAO schoolInstitutionLocationDAO;
 
+
 	@Override
 	public int addServiceOrder(ServiceOrderDTO serviceOrderDto) throws ServiceException {
 		if (serviceOrderDto == null) {
@@ -198,6 +199,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 									&& _serviceOrderDo.getOfficialId() != serviceOrderDo.getOfficialId()))
 					&& !"PENDING".equalsIgnoreCase(serviceOrderDo.getState()))
 				sendEmailOfUpdateOfficial(serviceOrderDo, _serviceOrderDo);
+
 			return i;
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
@@ -1813,8 +1815,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	}
 
 	@Override
-	public List<CommissionOrderDO> getCommissionOrderList(int id, int officialId) {
-		List<CommissionOrderDO> list = serviceOrderDao.getCommissionOrderList(id, officialId);
+	public List<CommissionOrderDO> getCommissionOrderList(int id) {
+		List<CommissionOrderDO> list = serviceOrderDao.getCommissionOrderList(id);
 		for (CommissionOrderDO commissionOrderDO : list) {
 			// 查询收款方式
 			ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(commissionOrderDO.getReceiveTypeId());
@@ -1824,19 +1826,6 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		return list;
 	}
 
-	@Override
-	public void update(Integer id, String submitIbDate, Double commissionAmount) {
-
-		VisaListDO visaListDO = visaDao.getOne(id);
-		//预估佣金
-		Double predictCommission = visaListDO.getPredictCommission();
-		//文案等级
-		Double rate = visaListDO.getRate();
-		if(rate!=null &&commissionAmount!=null){
-			predictCommission =BigDecimal.valueOf(commissionAmount).multiply(BigDecimal.valueOf(rate)).doubleValue();
-		}
-		serviceOrderDao.update(id,submitIbDate,commissionAmount,predictCommission);
-	}
 
 	@Override
 	public List<ServiceOrderDTO> OfficialHandoverServiceOrder(Integer officialId,boolean isPackage) {
@@ -1920,5 +1909,4 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			applicantDto.setContent(information);
 		return applicantDto;
 	}
-
 }

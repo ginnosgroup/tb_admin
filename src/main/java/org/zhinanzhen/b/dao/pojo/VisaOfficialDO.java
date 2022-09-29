@@ -117,4 +117,6 @@ public class VisaOfficialDO {
 
     private Double predictCommission;//预估佣金
 
+    private String calculation;//计算规则
+
 }

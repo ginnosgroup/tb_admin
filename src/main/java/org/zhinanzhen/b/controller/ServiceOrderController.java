@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.controller.nodes.SONodeFactory;
+import org.zhinanzhen.b.dao.pojo.CommissionOrderDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderReadcommittedDateDO;
 import org.zhinanzhen.b.service.*;
 import org.zhinanzhen.b.service.pojo.*;
@@ -1230,9 +1231,7 @@ public class ServiceOrderController extends BaseController {
 						|| isSuperAdminUser(request) || getOfficialAdminId(request) != null || getKjId(request) != null)
 					if (serviceOrder != null)
 						list.add(serviceOrder);
-				if (newOfficialId != null){
-					serviceOrder.setCommissionOrderDTOList(serviceOrderService.getCommissionOrderList(serviceOrder.getId(),newOfficialId));
-				}
+					/*serviceOrder.setCommissionOrderDTOList(serviceOrderService.getCommissionOrderList(id));*/
 				return new ListResponse<List<ServiceOrderDTO>>(true, pageSize, list.size(), list, "");
 			}
 
@@ -1251,45 +1250,17 @@ public class ServiceOrderController extends BaseController {
 			if (newOfficialId != null)
 				for (ServiceOrderDTO so : serviceOrderList)
 					so.setOfficialNotes(serviceOrderService.listOfficialRemarks(so.getId(), newOfficialId)); // 写入note
-			if (newOfficialId != null){
+			/*if (newOfficialId != null){
 				for (ServiceOrderDTO so : serviceOrderList) {
-					so.setCommissionOrderDTOList(serviceOrderService.getCommissionOrderList(so.getId(),newOfficialId));
+					so.setCommissionOrderDTOList(serviceOrderService.getCommissionOrderList(so.getId()));
 				}
-			}
+			}*/
 			return new ListResponse<List<ServiceOrderDTO>>(true, pageSize, total, serviceOrderList, "");
 		} catch (ServiceException e) {
 			return new ListResponse<List<ServiceOrderDTO>>(false, pageSize, 0, null, e.getMessage());
 		}
 	}
-	@RequestMapping(value = "/updateOfficialCommission", method = RequestMethod.PUT)
-	@ResponseBody
-	public Response<String> update(
-			@RequestParam(value = "id") Integer id,
-			@RequestParam(value = "submitIbDate", required = false) String submitIbDate,
-			@RequestParam(value = "commissionAmount", required = false) Double commissionAmount,
-			HttpServletResponse response,HttpServletRequest request){
-		super.setGetHeader(response);
-		// 获取文案信息
-		try {
-			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			if(adminUserLoginInfo!=null){
-				if(adminUserLoginInfo.getApList().equalsIgnoreCase("KJ")){
-					serviceOrderService.update(id,submitIbDate,commissionAmount);
-					return new Response<>(0,"修改成功");
-				}
-				if(adminUserLoginInfo.getApList().equalsIgnoreCase("WA")){
-					if(commissionAmount!=null){
-						return new Response<>(1,"修改失败仅限财务修改");
-					}
-					serviceOrderService.update(id,submitIbDate,commissionAmount);
-					return new Response<>(0,"修改成功");
-				}
-			}
-			return new Response<>(1,"修改失败");
-		}catch (ServiceException e){
-			return new Response<>(1,"修改失败");
-		}
-	}
+
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
 	@ResponseBody
@@ -1723,6 +1694,17 @@ public class ServiceOrderController extends BaseController {
 		} catch (ServiceException e) {
 			return new Response<List<ServiceOrderCommentDTO>>(1, e.getMessage(), null);
 		}
+	}
+	@RequestMapping(value = "/listAdviserVisa", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<CommissionOrderDO>> getCommissionOrderList(@RequestParam(value = "id") int id) {
+		try {
+			List<CommissionOrderDO> commissionOrderList = serviceOrderService.getCommissionOrderList(id);
+			return new Response<>(0,commissionOrderList);
+		} catch (ServiceException e) {
+			return new Response<>(1, e.getMessage(), null);
+		}
+
 	}
 
 	@RequestMapping(value = "/deleteComment", method = RequestMethod.GET)

@@ -84,7 +84,7 @@ public class VisaController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/upload_img", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<String> uploadImage(@RequestParam MultipartFile file, HttpServletRequest request,
-			HttpServletResponse response) throws IllegalStateException, IOException {
+										HttpServletResponse response) throws IllegalStateException, IOException {
 		super.setPostHeader(response);
 		return super.upload2(file, request.getSession(), "/uploads/payment_voucher_image_url_v/");
 	}
@@ -92,30 +92,30 @@ public class VisaController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<List<VisaDTO>> addVisa(@RequestParam(value = "userId", required = false) String userId,
-			@RequestParam(value = "applicantBirthday", required = false) String applicantBirthday,
-			@RequestParam(value = "handlingDate") String handlingDate,
-			@RequestParam(value = "receiveTypeId") String receiveTypeId,
-			@RequestParam(value = "receiveDate") String receiveDate,
-			@RequestParam(value = "serviceId") String serviceId,
-			@RequestParam(value = "serviceOrderId") Integer serviceOrderId,
-			@RequestParam(value = "installment") Integer installment,
-			@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
-			@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
-			@RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
-			@RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
-			@RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
-			@RequestParam(value = "visaVoucherImageUrl", required = false) String visaVoucherImageUrl,
-			@RequestParam(value = "receivable") String receivable,
-			@RequestParam(value = "received", required = false) String received,
-			@RequestParam(value = "perAmount") String perAmount, @RequestParam(value = "amount") String amount,
-			@RequestParam(value = "currency", required = false) String currency,
-			@RequestParam(value = "exchangeRate", required = false) String exchangeRate,
-			@RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
-			@RequestParam(value = "adviserId") String adviserId, @RequestParam(value = "maraId") String maraId,
-			@RequestParam(value = "officialId") String officialId,
-			@RequestParam(value = "remarks", required = false) String remarks,
-			@RequestParam(value = "verifyCode", required = false) String verifyCode, HttpServletRequest request,
-			HttpServletResponse response) {
+										   @RequestParam(value = "applicantBirthday", required = false) String applicantBirthday,
+										   @RequestParam(value = "handlingDate") String handlingDate,
+										   @RequestParam(value = "receiveTypeId") String receiveTypeId,
+										   @RequestParam(value = "receiveDate") String receiveDate,
+										   @RequestParam(value = "serviceId") String serviceId,
+										   @RequestParam(value = "serviceOrderId") Integer serviceOrderId,
+										   @RequestParam(value = "installment") Integer installment,
+										   @RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
+										   @RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
+										   @RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
+										   @RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
+										   @RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
+										   @RequestParam(value = "visaVoucherImageUrl", required = false) String visaVoucherImageUrl,
+										   @RequestParam(value = "receivable") String receivable,
+										   @RequestParam(value = "received", required = false) String received,
+										   @RequestParam(value = "perAmount") String perAmount, @RequestParam(value = "amount") String amount,
+										   @RequestParam(value = "currency", required = false) String currency,
+										   @RequestParam(value = "exchangeRate", required = false) String exchangeRate,
+										   @RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
+										   @RequestParam(value = "adviserId") String adviserId, @RequestParam(value = "maraId") String maraId,
+										   @RequestParam(value = "officialId") String officialId,
+										   @RequestParam(value = "remarks", required = false) String remarks,
+										   @RequestParam(value = "verifyCode", required = false) String verifyCode, HttpServletRequest request,
+										   HttpServletResponse response) {
 
 		// 更改当前顾问编号
 		Integer newAdviserId = getAdviserId(request);
@@ -276,37 +276,37 @@ public class VisaController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<VisaDTO> update(@RequestParam(value = "id") int id,
-			@RequestParam(value = "state", required = false) String state,
-			@RequestParam(value = "userId", required = false) String userId,
-			@RequestParam(value = "applicantBirthday", required = false) String applicantBirthday,
-			@RequestParam(value = "commissionState", required = false) String commissionState,
-			@RequestParam(value = "handlingDate", required = false) String handlingDate,
-			@RequestParam(value = "receiveTypeId", required = false) String receiveTypeId,
-			@RequestParam(value = "receiveDate", required = false) String receiveDate,
-			@RequestParam(value = "serviceId", required = false) String serviceId,
-			@RequestParam(value = "serviceOrderId", required = false) Integer serviceOrderId,
-			@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
-			@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
-			@RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
-			@RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
-			@RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
-			@RequestParam(value = "visaVoucherImageUrl", required = false) String visaVoucherImageUrl,
-			@RequestParam(value = "receivable", required = false) String receivable,
-			@RequestParam(value = "received", required = false) String received,
-			@RequestParam(value = "perAmount", required = false) String perAmount,
-			@RequestParam(value = "amount", required = false) String amount,
-			@RequestParam(value = "sureExpectAmount", required = false) Double sureExpectAmount,
-			@RequestParam(value = "currency", required = false) String currency,
-			@RequestParam(value = "exchangeRate", required = false) String exchangeRate,
-			@RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
-			@RequestParam(value = "adviserId", required = false) String adviserId,
-			@RequestParam(value = "maraId", required = false) String maraId,
-			@RequestParam(value = "officialId", required = false) String officialId,
-			@RequestParam(value = "bankCheck", required = false) String bankCheck,
-			@RequestParam(value = "isChecked", required = false) String isChecked,
-			@RequestParam(value = "remarks", required = false) String remarks,
-			@RequestParam(value = "verifyCode", required = false) String verifyCode, HttpServletRequest request,
-			HttpServletResponse response) {
+									@RequestParam(value = "state", required = false) String state,
+									@RequestParam(value = "userId", required = false) String userId,
+									@RequestParam(value = "applicantBirthday", required = false) String applicantBirthday,
+									@RequestParam(value = "commissionState", required = false) String commissionState,
+									@RequestParam(value = "handlingDate", required = false) String handlingDate,
+									@RequestParam(value = "receiveTypeId", required = false) String receiveTypeId,
+									@RequestParam(value = "receiveDate", required = false) String receiveDate,
+									@RequestParam(value = "serviceId", required = false) String serviceId,
+									@RequestParam(value = "serviceOrderId", required = false) Integer serviceOrderId,
+									@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
+									@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
+									@RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
+									@RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
+									@RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
+									@RequestParam(value = "visaVoucherImageUrl", required = false) String visaVoucherImageUrl,
+									@RequestParam(value = "receivable", required = false) String receivable,
+									@RequestParam(value = "received", required = false) String received,
+									@RequestParam(value = "perAmount", required = false) String perAmount,
+									@RequestParam(value = "amount", required = false) String amount,
+									@RequestParam(value = "sureExpectAmount", required = false) Double sureExpectAmount,
+									@RequestParam(value = "currency", required = false) String currency,
+									@RequestParam(value = "exchangeRate", required = false) String exchangeRate,
+									@RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
+									@RequestParam(value = "adviserId", required = false) String adviserId,
+									@RequestParam(value = "maraId", required = false) String maraId,
+									@RequestParam(value = "officialId", required = false) String officialId,
+									@RequestParam(value = "bankCheck", required = false) String bankCheck,
+									@RequestParam(value = "isChecked", required = false) String isChecked,
+									@RequestParam(value = "remarks", required = false) String remarks,
+									@RequestParam(value = "verifyCode", required = false) String verifyCode, HttpServletRequest request,
+									HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
@@ -449,10 +449,10 @@ public class VisaController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/kjUpdate", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<VisaDTO> kjUpdate(@RequestParam(value = "id") int id,
-			@RequestParam(value = "sureExpectAmount", required = false) Double sureExpectAmount,
-			@RequestParam(value = "bonus", required = false) Double bonus,
-			@RequestParam(value = "bonusDate", required = false) String bonusDate, HttpServletRequest request,
-			HttpServletResponse response) {
+									  @RequestParam(value = "sureExpectAmount", required = false) Double sureExpectAmount,
+									  @RequestParam(value = "bonus", required = false) Double bonus,
+									  @RequestParam(value = "bonusDate", required = false) String bonusDate, HttpServletRequest request,
+									  HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
@@ -469,8 +469,8 @@ public class VisaController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/updateKjApprovalDate", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<VisaDTO> updateKjApprovalDate(@RequestParam(value = "id") int id,
-			@RequestParam(value = "kjApprovalDate") String kjApprovalDate, HttpServletRequest request,
-			HttpServletResponse response) {
+												  @RequestParam(value = "kjApprovalDate") String kjApprovalDate, HttpServletRequest request,
+												  HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
@@ -494,7 +494,7 @@ public class VisaController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/update", method = RequestMethod.PUT)
 	@ResponseBody
 	public Response<Integer> update(@RequestBody List<BatchUpdateVisa> batchUpdateList, HttpServletRequest request,
-			HttpServletResponse response) {
+									HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
@@ -511,7 +511,7 @@ public class VisaController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/kjUpdate", method = RequestMethod.PUT)
 	@ResponseBody
 	public Response<Integer> kjUpdate(@RequestBody List<BatchUpdateVisa> batchUpdateList, HttpServletRequest request,
-			HttpServletResponse response) {
+									  HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
@@ -537,7 +537,7 @@ public class VisaController extends BaseCommissionOrderController {
 	}
 
 	private Response<VisaDTO> updateOne(int id, Double sureExpectAmount, Double bonus, String bonusDate,
-			boolean isChangeState) throws ServiceException {
+										boolean isChangeState) throws ServiceException {
 		VisaDTO visaDto = visaService.getVisaById(id);
 		if (visaDto == null)
 			return new Response<VisaDTO>(1, "签证佣金订单订单(ID:" + id + ")不存在!", null);
@@ -559,22 +559,22 @@ public class VisaController extends BaseCommissionOrderController {
 	@ResponseBody
 	@Deprecated
 	public Response<Integer> countVisa(@RequestParam(value = "id", required = false) Integer id,
-			@RequestParam(value = "keyword", required = false) String keyword,
-			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
-			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
-			@RequestParam(value = "commissionState", required = false) String commissionState,
-			@RequestParam(value = "startKjApprovalDate", required = false) String startKjApprovalDate,
-			@RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
-			@RequestParam(value = "startDate", required = false) String startDate,
-			@RequestParam(value = "endDate", required = false) String endDate,
-			@RequestParam(value = "startInvoiceCreate", required = false) String startInvoiceCreate,
-			@RequestParam(value = "endInvoiceCreate", required = false) String endInvoiceCreate,
-			@RequestParam(value = "regionId", required = false) Integer regionId,
-			@RequestParam(value = "adviserId", required = false) Integer adviserId,
-			@RequestParam(value = "userId", required = false) Integer userId,
-			@RequestParam(value = "applicantName", required = false) String applicantName,
-			@RequestParam(value = "state", required = false) String state, HttpServletRequest request,
-			HttpServletResponse response) {
+									   @RequestParam(value = "keyword", required = false) String keyword,
+									   @RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
+									   @RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
+									   @RequestParam(value = "commissionState", required = false) String commissionState,
+									   @RequestParam(value = "startKjApprovalDate", required = false) String startKjApprovalDate,
+									   @RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
+									   @RequestParam(value = "startDate", required = false) String startDate,
+									   @RequestParam(value = "endDate", required = false) String endDate,
+									   @RequestParam(value = "startInvoiceCreate", required = false) String startInvoiceCreate,
+									   @RequestParam(value = "endInvoiceCreate", required = false) String endInvoiceCreate,
+									   @RequestParam(value = "regionId", required = false) Integer regionId,
+									   @RequestParam(value = "adviserId", required = false) Integer adviserId,
+									   @RequestParam(value = "userId", required = false) Integer userId,
+									   @RequestParam(value = "applicantName", required = false) String applicantName,
+									   @RequestParam(value = "state", required = false) String state, HttpServletRequest request,
+									   HttpServletResponse response) {
 
 		// 会计角色过滤状态
 		List<String> stateList = null;
@@ -629,25 +629,25 @@ public class VisaController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
 	public ListResponse<List<VisaDTO>> listVisa(@RequestParam(value = "id", required = false) Integer id,
-			@RequestParam(value = "keyword", required = false) String keyword,
-			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
-			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
-			@RequestParam(value = "commissionState", required = false) String commissionState,
-			@RequestParam(value = "startKjApprovalDate", required = false) String startKjApprovalDate,
-			@RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
-			@RequestParam(value = "startDate", required = false) String startDate,
-			@RequestParam(value = "endDate", required = false) String endDate,
-			@RequestParam(value = "startInvoiceCreate", required = false) String startInvoiceCreate,
-			@RequestParam(value = "endInvoiceCreate", required = false) String endInvoiceCreate,
-			@RequestParam(value = "regionId", required = false) Integer regionId,
-			@RequestParam(value = "adviserId", required = false) Integer adviserId,
-			@RequestParam(value = "userId", required = false) Integer userId,
-			@RequestParam(value = "userName", required = false) String userName,
-			@RequestParam(value = "applicantName", required = false) String applicantName,
-			@RequestParam(value = "state", required = false) String state, @RequestParam(value = "pageNum") int pageNum,
-			@RequestParam(value = "pageSize") int pageSize,
-			@RequestParam(value = "sorter", required = false) String sorter, HttpServletRequest request,
-			HttpServletResponse response) {
+												@RequestParam(value = "keyword", required = false) String keyword,
+												@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
+												@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
+												@RequestParam(value = "commissionState", required = false) String commissionState,
+												@RequestParam(value = "startKjApprovalDate", required = false) String startKjApprovalDate,
+												@RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
+												@RequestParam(value = "startDate", required = false) String startDate,
+												@RequestParam(value = "endDate", required = false) String endDate,
+												@RequestParam(value = "startInvoiceCreate", required = false) String startInvoiceCreate,
+												@RequestParam(value = "endInvoiceCreate", required = false) String endInvoiceCreate,
+												@RequestParam(value = "regionId", required = false) Integer regionId,
+												@RequestParam(value = "adviserId", required = false) Integer adviserId,
+												@RequestParam(value = "userId", required = false) Integer userId,
+												@RequestParam(value = "userName", required = false) String userName,
+												@RequestParam(value = "applicantName", required = false) String applicantName,
+												@RequestParam(value = "state", required = false) String state, @RequestParam(value = "pageNum") int pageNum,
+												@RequestParam(value = "pageSize") int pageSize,
+												@RequestParam(value = "sorter", required = false) String sorter, HttpServletRequest request,
+												HttpServletResponse response) {
 
 		// 会计角色过滤状态
 		List<String> stateList = null;
@@ -730,6 +730,17 @@ public class VisaController extends BaseCommissionOrderController {
 				} catch (ServiceException serviceException) {
 					serviceException.printStackTrace();
 				}
+				try{
+					ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceService.getServicePackagePriceByServiceId(v.getServiceId());
+					if(servicePackagePriceDO!=null) {
+						double thirdPrince =  servicePackagePriceDO.getThirdPrince();
+						BigDecimal third_prince = BigDecimal.valueOf(thirdPrince);
+						double expectAmountAUD = new BigDecimal(v.getAmountAUD()).subtract(third_prince).doubleValue();
+						v.setExpectAmount(expectAmountAUD > 0.0 ? expectAmountAUD : 0.0);
+					}
+				}catch (ServiceException serviceException){
+					serviceException.printStackTrace();
+				}
 			});
 
 			return new ListResponse<List<VisaDTO>>(true, pageSize, total, list, "");
@@ -741,7 +752,7 @@ public class VisaController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/upload", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> upload(@RequestParam MultipartFile file, HttpServletRequest request,
-			HttpServletResponse response) throws IllegalStateException, IOException {
+									HttpServletResponse response) throws IllegalStateException, IOException {
 		super.setPostHeader(response);
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		String message = "";
@@ -787,23 +798,23 @@ public class VisaController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/down", method = RequestMethod.GET)
 	@ResponseBody
 	public void down(@RequestParam(value = "id", required = false) Integer id,
-			@RequestParam(value = "keyword", required = false) String keyword,
-			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
-			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
-			@RequestParam(value = "commissionState", required = false) String commissionState,
-			@RequestParam(value = "startKjApprovalDate", required = false) String startKjApprovalDate,
-			@RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
-			@RequestParam(value = "startDate", required = false) String startDate,
-			@RequestParam(value = "endDate", required = false) String endDate,
-			@RequestParam(value = "startInvoiceCreate", required = false) String startInvoiceCreate,
-			@RequestParam(value = "endInvoiceCreate", required = false) String endInvoiceCreate,
-			@RequestParam(value = "regionId", required = false) Integer regionId,
-			@RequestParam(value = "adviserId", required = false) Integer adviserId,
-			@RequestParam(value = "userId", required = false) Integer userId,
-			@RequestParam(value = "userName", required = false) String userName,
-			@RequestParam(value = "applicantName", required = false) String applicantName,
-			@RequestParam(value = "state", required = false) String state, HttpServletRequest request,
-			HttpServletResponse response) {
+					 @RequestParam(value = "keyword", required = false) String keyword,
+					 @RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
+					 @RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
+					 @RequestParam(value = "commissionState", required = false) String commissionState,
+					 @RequestParam(value = "startKjApprovalDate", required = false) String startKjApprovalDate,
+					 @RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
+					 @RequestParam(value = "startDate", required = false) String startDate,
+					 @RequestParam(value = "endDate", required = false) String endDate,
+					 @RequestParam(value = "startInvoiceCreate", required = false) String startInvoiceCreate,
+					 @RequestParam(value = "endInvoiceCreate", required = false) String endInvoiceCreate,
+					 @RequestParam(value = "regionId", required = false) Integer regionId,
+					 @RequestParam(value = "adviserId", required = false) Integer adviserId,
+					 @RequestParam(value = "userId", required = false) Integer userId,
+					 @RequestParam(value = "userName", required = false) String userName,
+					 @RequestParam(value = "applicantName", required = false) String applicantName,
+					 @RequestParam(value = "state", required = false) String state, HttpServletRequest request,
+					 HttpServletResponse response) {
 
 		// 更改当前顾问编号
 		Integer newAdviserId = getAdviserId(request);
@@ -870,7 +881,7 @@ public class VisaController extends BaseCommissionOrderController {
 			});
 
 			if (isCN(regionId)) {
-				
+
 				OutputStream os = response.getOutputStream();
 				jxl.Workbook wb;
 				InputStream is;
@@ -931,11 +942,11 @@ public class VisaController extends BaseCommissionOrderController {
 					is.close();
 				if (os != null)
 					os.close();
-			
+
 			} else {
-				
+
 				//AUD
-				
+
 				OutputStream os = response.getOutputStream();
 				jxl.Workbook wb;
 				InputStream is;
@@ -998,115 +1009,12 @@ public class VisaController extends BaseCommissionOrderController {
 					is.close();
 				if (os != null)
 					os.close();
-				
+
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			return;
 		}
-	}
-	@RequestMapping(value = "/downOfficialCommission", method = RequestMethod.GET)
-	@ResponseBody
-	public void downOfficialCommission(
-			@RequestParam(value = "id", required = false) Integer id,
-			@RequestParam(value = "commissionState", required = false) String commissionState,
-			@RequestParam(value = "startSubmitIbDate", required = false) String startSubmitIbDate,
-			@RequestParam(value = "endSubmitIbDate", required = false) String endSubmitIbDate,
-			@RequestParam(value = "startDate", required = false) String startDate,
-			@RequestParam(value = "endDate", required = false) String endDate,
-			@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
-			@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
-			@RequestParam(value = "regionId", required = false) Integer regionId,
-			@RequestParam(value = "officialId" ,required = false) Integer officialId,
-			@RequestParam(value ="userName" ,required = false) String userName,
-			@RequestParam(value ="applicantName" ,required = false) String applicantName,
-			HttpServletRequest request,HttpServletResponse response){
-		try {
-
-				List<VisaDTO> commissionOrderList = visaService.getCommissionOrder(officialId, regionId, id, startHandlingDate, endHandlingDate, commissionState, startSubmitIbDate,
-						endSubmitIbDate, startDate, endDate, userName, applicantName, null, null);
-				response.reset();// 清空输出流
-				String tableName = "official_Visa_commission";
-				response.setHeader("Content-disposition",
-						"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
-				response.setContentType("application/msexcel");
-				int i = 1;
-				OutputStream os = response.getOutputStream();
-				//获取模板
-				InputStream is = this.getClass().getResourceAsStream("/officialVisa.xls");
-				HSSFWorkbook wb = new HSSFWorkbook(is);
-				HSSFSheet sheet = wb.getSheetAt(0);
-				for (VisaDTO visaDTO : commissionOrderList) {
-					HSSFRow row = sheet.createRow(i);
-					row.createCell(0).setCellValue(visaDTO.getId());
-					row.createCell(1).setCellValue(visaDTO.getServiceOrderId());
-					row.createCell(2).setCellValue(visaDTO.getSubmitIbDate()==null?"":sdf.format(visaDTO.getSubmitIbDate()));
-					row.createCell(3).setCellValue(sdf.format(visaDTO.getServiceOrder().getGmtCreate()));
-					row.createCell(4).setCellValue(visaDTO.getUserName());
-					row.createCell(5).setCellValue(StringUtil.merge(visaDTO.getApplicant().getFirstname()," ",visaDTO.getApplicant().getSurname()));
-					row.createCell(6).setCellValue(visaDTO.getReceiveDate()==null?"":sdf.format(visaDTO.getReceiveDate()));
-					row.createCell(7).setCellValue(visaDTO.getCurrency());
-					row.createCell(8).setCellValue(visaDTO.getExchangeRate());
-					row.createCell(9).setCellValue(visaDTO.getReceiveTypeName());
-					row.createCell(10).setCellValue(StringUtil.merge(visaDTO.getServiceOrder().getService().getName(),"-",visaDTO.getServiceCode()));
-					row.createCell(11).setCellValue(visaDTO.getAdviserName());
-					row.createCell(12).setCellValue(visaDTO.getOfficialName());
-					row.createCell(13).setCellValue(visaDTO.getMaraDTO()==null||visaDTO.getMaraDTO().getName()==null?"":visaDTO.getMaraDTO().getName());
-					row.createCell(14).setCellValue(visaDTO.getTotalPerAmountAUD());
-					row.createCell(15).setCellValue(visaDTO.getTotalAmountAUD());
-					row.createCell(16).setCellValue(visaDTO.getExpectCommissionAmount()==null?"":visaDTO.getExpectCommissionAmount()+"");
-					row.createCell(17).setCellValue(visaDTO.getCommissionAmount()==null?"":visaDTO.getCommissionAmount()+"");
-					row.createCell(18).setCellValue(visaDTO.getPredictCommission()==null?"":visaDTO.getPredictCommission()+"");
-					row.createCell(19).setCellValue(visaDTO.getState()==null?"":visaDTO.getState());
-					i++;
-				}
-				wb.write(os);
-				os.flush();
-				os.close();
-
-		}catch (Exception e){
-			e.printStackTrace();
-			return;
-		}
-	}
-
-	@RequestMapping(value = "/uploadOfficialCommission", method = RequestMethod.POST)
-	@ResponseBody
-	public Response<Integer> uploadOfficialCommission(@RequestParam MultipartFile file, HttpServletRequest request,
-									HttpServletResponse response) throws IllegalStateException, IOException {
-		super.setPostHeader(response);
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		String message = "";
-		int n = 0;
-		Response<String> r = super.upload2(file, request.getSession(), "/tmp/");
-		try (InputStream is = new FileInputStream("/data" + r.getData())) {
-			jxl.Workbook wb = jxl.Workbook.getWorkbook(is);
-			Sheet sheet = wb.getSheet(0);
-			for (int i = 1; i < sheet.getRows(); i++) {
-				Cell[] cells = sheet.getRow(i);
-				String _id = cells[1].getContents();
-				String submitIbDate = cells[2].getContents();
-				Double commissionAmount = Double.valueOf(cells[17].getContents());
-				try {
-					ServiceOrderDTO order = serviceOrderService.getServiceOrderById(Integer.parseInt(_id));
-					if (order == null) {
-						message += "[" + _id + "]佣金订单不存在;";
-						continue;
-					}
-					try {
-						serviceOrderService.update(Integer.valueOf(_id),StringUtil.isEmpty(submitIbDate) ? null
-								: simpleDateFormat.parse(submitIbDate.trim()).getTime() + "",commissionAmount);
-					}catch (ServiceException s){
-						message += "[" + _id +"修改失败";
-					}
-				} catch (NumberFormatException | ServiceException | ParseException e) {
-					message += "[" + _id + "]" + e.getMessage() + ";";
-				}
-			}
-		} catch (BiffException | IOException e) {
-			return new Response<Integer>(1, "上传失败:" + e.getMessage(), 0);
-		}
-		return new Response<Integer>(0, message, n);
 	}
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
@@ -1123,7 +1031,7 @@ public class VisaController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/get2", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<List<VisaDTO>> getVisa2(@RequestParam(value = "idList") String idList[],
-			HttpServletResponse response) {
+											HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
 			List<VisaDTO> visaList = new ArrayList<>();
@@ -1180,7 +1088,7 @@ public class VisaController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/approval", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<VisaDTO> approval(@RequestParam(value = "id") int id, @RequestParam(value = "state") String state,
-			HttpServletRequest request, HttpServletResponse response) {
+									  HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			if (ReviewKjStateEnum.CLOSE.toString().equalsIgnoreCase(state))
@@ -1218,8 +1126,8 @@ public class VisaController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/refuse", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<VisaDTO> refuse(@RequestParam(value = "id") int id, @RequestParam(value = "state") String state,
-			@RequestParam(value = "refuseReason", required = false) String refuseReason, HttpServletRequest request,
-			HttpServletResponse response) {
+									@RequestParam(value = "refuseReason", required = false) String refuseReason, HttpServletRequest request,
+									HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			if (ReviewKjStateEnum.COMPLETE.toString().equalsIgnoreCase(state)
@@ -1260,8 +1168,8 @@ public class VisaController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/addComment", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> addComment(@RequestParam(value = "adminUserId", required = false) Integer adminUserId,
-			@RequestParam(value = "visaId", required = false) Integer visaId,
-			@RequestParam(value = "content") String content, HttpServletRequest request, HttpServletResponse response) {
+										@RequestParam(value = "visaId", required = false) Integer visaId,
+										@RequestParam(value = "content") String content, HttpServletRequest request, HttpServletResponse response) {
 		try {
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			super.setPostHeader(response);
@@ -1281,7 +1189,7 @@ public class VisaController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/countComment", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<Integer> countComment(@RequestParam(value = "visaId") Integer visaId,
-			HttpServletResponse response) {
+										  HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
 			return new Response<Integer>(0, visaService.listComment(visaId).size());
@@ -1293,7 +1201,7 @@ public class VisaController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/listComment", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<List<VisaCommentDTO>> listComment(@RequestParam(value = "visaId") Integer visaId,
-			HttpServletResponse response) {
+													  HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
 			return new Response<List<VisaCommentDTO>>(0, visaService.listComment(visaId));

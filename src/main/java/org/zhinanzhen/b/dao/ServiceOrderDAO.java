@@ -13,6 +13,8 @@ public interface ServiceOrderDAO {
 
 	int updateServiceOrder(ServiceOrderDO serviceOrderDo);
 
+	int setCommission(@Param("id") Integer id, @Param("commissionAmount") Double commissionAmount,@Param("predictCommission") Double predictCommission,@Param("predictCommission1") Double predictCommission1);
+
 	int updateReviewState(@Param("id") Integer id, @Param("reviewState") String reviewState);
 
 	int countServiceOrder(@Param("type") String type, @Param("excludeTypeList") List<String> excludeTypeList,
@@ -87,13 +89,7 @@ public interface ServiceOrderDAO {
 	List<EachRegionNumberDO> listOvstServiceOrderGroupByForRegion(@Param("startOfficialApprovalDate") String startOfficialApprovalDate,
 															   @Param("endOfficialApprovalDate") String endOfficialApprovalDate);
 	//查看服务订单对应佣金信息
-	List<CommissionOrderDO> getCommissionOrderList(@Param("id")int id, @Param("officialId")int officialId);
-
-	void update( @Param("id")Integer id,
-				 @Param("submitIbDate")String submitIbDate,
-				 @Param("commissionAmount")Double commissionAmount,
-				 @Param("predictCommission") Double predictCommission
-	);
+	List<CommissionOrderDO> getCommissionOrderList(@Param("id")int id);
 
 	List<ServiceOrderDO> OfficialHandoverServiceOrder(@Param("officialId")Integer officialId,
 													  @Param("isPackage") boolean isPackage);

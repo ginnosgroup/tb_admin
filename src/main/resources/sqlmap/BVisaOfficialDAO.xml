@@ -47,12 +47,15 @@
             remarks,
             refuse_reason,
             is_close,
+            predict_commission,
+            commissionAmount,
+            calculation,
             verify_code)
         VALUES (
                    now(),
                    now(),
                    #{code},
-                   #{handlingDate,jdbcType=TIMESTAMP},
+                   now(),
                    #{userId},
                    #{state},
                    'DJY',
@@ -91,8 +94,27 @@
                    #{remarks},
                    #{refuseReason},
                    0,
+                   #{predictCommission},
+                   #{commissionAmount},
+                   #{calculation},
                    #{verifyCode});
     </insert>
+    <update id="update">
+        UPDATE b_service_order so
+            JOIN b_visa_official bv ON so.id = bv.service_order_id
+        SET bv.gmt_modify = now()
+        <if test='submitIbDate !=null and submitIbDate != ""'>
+            , so.submitIbDate = #{submitIbDate}
+        </if>
+        <if test='commissionAmount !=null and commissionAmount !="" or commissionAmount ==0.0'>
+            , so.commissionAmount = #{commissionAmount}
+        </if>
+        <if test='state!=null and state !=""'>
+            , bv.state = #{state}
+        </if>
+        where bv.id = #{id}
+
+    </update>
 
     <select id="countVisaByServiceOrderIdAndExcludeCode" resultType="java.lang.Integer">
         SELECT count(*)
@@ -176,17 +198,20 @@
         <if test='startSubmitIbDate != null and startSubmitIbDate != "" and endSubmitIbDate != null and endSubmitIbDate != ""'>
             <![CDATA[ AND so.submitIbDate > #{startSubmitIbDate} AND so.submitIbDate < #{endSubmitIbDate} ]]>
         </if>
-        <if test='commissionState =="REVIEW"'>
-            and bv.state = "PENDING"
+        <if test='state =="REVIEW"'>
+            and bv.state = "REVIEW"
         </if>
-        <if test='commissionState =="COMPLETE"'>
+        <if test='state =="COMPLETE"'>
             and bv.state = "COMPLETE"
         </if>
         <if test="id !=null">
             and bv.id = #{id}
         </if>
-        <if test='regionId!=null and regionId!=""'>
-            and bo.region_id = #{regionId}
+        <if test='regionIdList != null'>
+            AND bo.region_id IN
+            <foreach collection="regionIdList" item="regionIdList" index="index" open="(" close=")" separator=",">
+                #{regionIdList}
+            </foreach>
         </if>
         <if test='userName!=null and userName!=""'>
             and tu.name = #{userName}
@@ -197,6 +222,7 @@
         <if test='startHandlingDate != null and startHandlingDate != "" and endHandlingDate != null and endHandlingDate != ""'>
             <![CDATA[ AND bv.handling_date > #{startHandlingDate} AND bv.handling_date < #{endHandlingDate} ]]>
         </if>
+        ${orderBy}
         <if test="offset !=null and pageSize!=null">
             limit #{offset} ,#{pageSize}
         </if>
@@ -204,12 +230,14 @@
 
     </select>
     <select id="count" resultType="java.lang.Integer">
-        select count(*)
-        from b_visa_official co
+        SELECT
+        count(*)
+        FROM
+        b_visa_official co
         JOIN b_service_order so ON co.service_order_id = so.id
-        JOIN tb_user tu ON co.user_id = tu.id
-        JOIN b_applicant ba ON so.applicant_id = ba.id
-        join b_official bo on bo.id = co.official_id
+        LEFT JOIN tb_user tu ON co.user_id = tu.id
+        LEFT JOIN b_applicant ba ON so.applicant_id = ba.id
+        LEFT JOIN b_official bo ON bo.id = co.official_id
         WHERE 1=1
         <if test='officialId !=null and  officialId !=""'>
             and co.official_id = #{officialId}
@@ -224,15 +252,13 @@
         <if test="id !=null">
             and co.id = #{id}
         </if>
-        <if test='commissionState =="REVIEW"'>
-            and so.commissionAmount is null
+        <if test='state =="REVIEW"'>
+            and co.state="REVIEW"
         </if>
-        <if test='commissionState =="COMPLETE"'>
-            and so.commissionAmount is not  null
+        <if test='state =="COMPLETE"'>
+            and co.state="COMPLETE"
         </if>
-        <if test='regionId!=null and regionId!=""'>
-            and bo.region_id = #{regionId}
-        </if>
+
         <if test='userName!=null and userName!=""'>
             and tu.name = #{userName}
         </if>
@@ -242,6 +268,12 @@
 
         <if test='startHandlingDate != null and startHandlingDate != "" and endHandlingDate != null and endHandlingDate != ""'>
             <![CDATA[ AND co.handling_date > #{startHandlingDate} AND co.handling_date < #{endHandlingDate} ]]>
+        </if>
+        <if test='regionIdList != null'>
+            AND bo.region_id IN
+            <foreach collection="regionIdList" item="regionIdList" index="index" open="(" close=")" separator=",">
+                #{regionIdList}
+            </foreach>
         </if>
 
     </select>

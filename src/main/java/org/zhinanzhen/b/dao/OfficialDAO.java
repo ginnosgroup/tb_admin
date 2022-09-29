@@ -19,4 +19,5 @@ public interface OfficialDAO {
 	public OfficialDO getOfficialById(int id);
 
 	OfficialDO getOfficialByGradeId(int gradeId);
+	Integer getOfficialAdmin (int id);
 }

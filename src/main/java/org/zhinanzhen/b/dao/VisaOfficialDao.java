@@ -15,10 +15,10 @@ public interface VisaOfficialDao {
     int addVisa(VisaOfficialDO visaOfficialDO);
 
     List<VisaOfficialListDO> get(@Param("officialId")Integer officialId,
-                                 @Param("regionId")Integer regionId,
+                                 @Param("regionIdList")List<Integer> regionIdList,
                                  @Param("id")Integer id,
                                  @Param("startHandlingDate") String startHandlingDate, @Param("endHandlingDate") String endHandlingDate,
-                                 @Param("commissionState")String commissionState,
+                                 @Param("state")String state,
                                  @Param("startSubmitIbDate")String startSubmitIbDate,
                                  @Param("endSubmitIbDate")String endSubmitIbDate,
                                  @Param("startDate")String startDate,
@@ -26,13 +26,14 @@ public interface VisaOfficialDao {
                                  @Param("userName")String userName,
                                  @Param("applicantName")String applicantName,
                                  @Param("offset")Integer offset,
-                                 @Param("pageSize")Integer pageSize);
+                                 @Param("pageSize")Integer pageSize,
+                                 @Param("orderBy") String orderBy);
 
     int count(@Param("officialId")Integer officialId,
-              @Param("regionId")Integer regionId,
+              @Param("regionIdList")List<Integer> regionIdList,
               @Param("id")Integer id,
               @Param("startHandlingDate") String startHandlingDate, @Param("endHandlingDate") String endHandlingDate,
-              @Param("commissionState")String commissionState,
+              @Param("state")String state,
               @Param("startSubmitIbDate")String startKjApprovalDate,
               @Param("endSubmitIbDate")String endKjApprovalDate,
               @Param("startDate")String startDate,
@@ -43,4 +44,9 @@ public interface VisaOfficialDao {
     );
 
     List<VisaOfficialDO> listVisaByCode(@Param("code") String code);
+
+    void update(@Param("id")Integer id,
+                @Param("submitIbDate")String submitIbDate,
+                @Param("commissionAmount") Double commissionAmount,
+                @Param("state") String state);
 }
