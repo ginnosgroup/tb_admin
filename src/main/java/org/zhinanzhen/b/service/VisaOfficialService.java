@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface VisaOfficialService {
     int addVisa(VisaOfficialDTO visaOfficialDto) throws ServiceException;
-    List<VisaOfficialDTO> getVisaOfficialOrder(Integer officialId, Integer regionId, Integer id, String startHandlingDate, String endHandlingDate, String commissionState, String startSubmitIbDate, String endSubmitIbDate, String startDate, String endDate, String userName, String applicantName, Integer pageNum, Integer pageSize, Sorter sorter)throws ServiceException;
+    List<VisaOfficialDTO> getVisaOfficialOrder(Integer officialId, Integer regionId, Integer id, String startHandlingDate, String endHandlingDate, String state, String startSubmitIbDate, String endSubmitIbDate, String startDate, String endDate, String userName, String applicantName, Integer pageNum, Integer pageSize, Sorter sorter)throws ServiceException;
     int count(Integer officialId,Integer regionId, Integer id,String startHandlingDate,String endHandlingDate,  String commissionState, String startSubmitIbDate, String endSubmitIbDate, String startDate, String endDate ,String userName,String applicantName) throws ServiceException;
 
     void update(Integer id,String submitIbDate,Double commissionAmount,String state) throws ServiceException;

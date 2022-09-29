@@ -2,6 +2,7 @@ package org.zhinanzhen.b.service.pojo;
 
 import lombok.Data;
 import org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO;
+import org.zhinanzhen.b.dao.pojo.VisaDO;
 
 import java.util.Date;
 import java.util.List;

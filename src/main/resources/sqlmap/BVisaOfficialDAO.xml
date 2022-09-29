@@ -192,10 +192,10 @@
         <if test='startSubmitIbDate != null and startSubmitIbDate != "" and endSubmitIbDate != null and endSubmitIbDate != ""'>
             <![CDATA[ AND so.submitIbDate > #{startSubmitIbDate} AND so.submitIbDate < #{endSubmitIbDate} ]]>
         </if>
-        <if test='commissionState =="REVIEW"'>
+        <if test='state =="REVIEW"'>
             and bv.state = "REVIEW"
         </if>
-        <if test='commissionState =="COMPLETE"'>
+        <if test='state =="COMPLETE"'>
             and bv.state = "COMPLETE"
         </if>
         <if test="id !=null">
@@ -243,10 +243,10 @@
         <if test="id !=null">
             and co.id = #{id}
         </if>
-        <if test='commissionState =="REVIEW"'>
+        <if test='state =="REVIEW"'>
             and co.state="REVIEW"
         </if>
-        <if test='commissionState =="COMPLETE"'>
+        <if test='state =="COMPLETE"'>
             and co.state="COMPLETE"
         </if>
         <if test='regionId!=null and regionId!=""'>

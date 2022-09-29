@@ -77,7 +77,7 @@ public interface ServiceOrderService {
 
 	List<AdviserServiceCountDTO> listServiceOrderToAnalysis(List<String> typeList,int month,List<String> regionIdList);
 
-	List<CommissionOrderDO> getCommissionOrderList(int id,int newOfficialId);
+	List<CommissionOrderDO> getCommissionOrderList(int id) throws ServiceException ;
 
 	List<ServiceOrderDTO> OfficialHandoverServiceOrder(Integer officialId,boolean isPackage)throws ServiceException;
 

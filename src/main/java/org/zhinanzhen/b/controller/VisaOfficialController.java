@@ -216,7 +216,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
     @ResponseBody
     public ListResponse<List<VisaOfficialDTO>> listVisaOrder(
             @RequestParam(value = "id", required = false) Integer id,
-            @RequestParam(value = "commissionState", required = false) String commissionState,
+            @RequestParam(value = "state", required = false) String state,
             @RequestParam(value = "startSubmitIbDate", required = false) String startSubmitIbDate,
             @RequestParam(value = "endSubmitIbDate", required = false) String endSubmitIbDate,
             @RequestParam(value = "startDate", required = false) String startDate,
@@ -245,7 +245,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         if (apList.equalsIgnoreCase("WA")){
             officialId = adminUserLoginInfo.getOfficialId();
             try {
-                list = visaOfficialService.getVisaOfficialOrder(officialId,regionId, id, startHandlingDate,endHandlingDate, commissionState, startSubmitIbDate,
+                list = visaOfficialService.getVisaOfficialOrder(officialId,regionId, id, startHandlingDate,endHandlingDate, state, startSubmitIbDate,
                         endSubmitIbDate, startDate, endDate,userName,applicantName, pageNum, pageSize,_sorter);
             } catch (ServiceException e) {
                 e.printStackTrace();
@@ -253,7 +253,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         }else
         if(apList.equalsIgnoreCase("KJ")){
             try {
-                list = visaOfficialService.getVisaOfficialOrder(officialId,regionId, id, startHandlingDate,endHandlingDate, commissionState, startSubmitIbDate,
+                list = visaOfficialService.getVisaOfficialOrder(officialId,regionId, id, startHandlingDate,endHandlingDate, state, startSubmitIbDate,
                         endSubmitIbDate, startDate, endDate,userName,applicantName, pageNum, pageSize,_sorter);
             } catch (ServiceException e) {
                 e.printStackTrace();
@@ -263,7 +263,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         }
         int count = 0;
         try {
-            count = visaOfficialService.count(officialId,regionId, id,startHandlingDate,endHandlingDate, commissionState, startSubmitIbDate,
+            count = visaOfficialService.count(officialId,regionId, id,startHandlingDate,endHandlingDate, state, startSubmitIbDate,
                     endSubmitIbDate, startDate, endDate,userName,applicantName);
         } catch (ServiceException e) {
             e.printStackTrace();

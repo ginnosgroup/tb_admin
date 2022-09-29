@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.controller.nodes.SONodeFactory;
+import org.zhinanzhen.b.dao.pojo.CommissionOrderDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderReadcommittedDateDO;
 import org.zhinanzhen.b.service.*;
 import org.zhinanzhen.b.service.pojo.*;
@@ -1230,9 +1231,7 @@ public class ServiceOrderController extends BaseController {
 						|| isSuperAdminUser(request) || getOfficialAdminId(request) != null || getKjId(request) != null)
 					if (serviceOrder != null)
 						list.add(serviceOrder);
-				/*if (newOfficialId != null){
-					serviceOrder.setCommissionOrderDTOList(serviceOrderService.getCommissionOrderList(serviceOrder.getId(),newOfficialId));
-				}*/
+					/*serviceOrder.setCommissionOrderDTOList(serviceOrderService.getCommissionOrderList(id));*/
 				return new ListResponse<List<ServiceOrderDTO>>(true, pageSize, list.size(), list, "");
 			}
 
@@ -1253,7 +1252,7 @@ public class ServiceOrderController extends BaseController {
 					so.setOfficialNotes(serviceOrderService.listOfficialRemarks(so.getId(), newOfficialId)); // 写入note
 			/*if (newOfficialId != null){
 				for (ServiceOrderDTO so : serviceOrderList) {
-					so.setCommissionOrderDTOList(serviceOrderService.getCommissionOrderList(so.getId(),newOfficialId));
+					so.setCommissionOrderDTOList(serviceOrderService.getCommissionOrderList(so.getId()));
 				}
 			}*/
 			return new ListResponse<List<ServiceOrderDTO>>(true, pageSize, total, serviceOrderList, "");
@@ -1695,6 +1694,17 @@ public class ServiceOrderController extends BaseController {
 		} catch (ServiceException e) {
 			return new Response<List<ServiceOrderCommentDTO>>(1, e.getMessage(), null);
 		}
+	}
+	@RequestMapping(value = "/listCommissionOrder", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<CommissionOrderDO>> getCommissionOrderList(@RequestParam(value = "id") int id) {
+		try {
+			List<CommissionOrderDO> commissionOrderList = serviceOrderService.getCommissionOrderList(id);
+			return new Response<>(0,commissionOrderList);
+		} catch (ServiceException e) {
+			return new Response<>(1, e.getMessage(), null);
+		}
+
 	}
 
 	@RequestMapping(value = "/deleteComment", method = RequestMethod.GET)
