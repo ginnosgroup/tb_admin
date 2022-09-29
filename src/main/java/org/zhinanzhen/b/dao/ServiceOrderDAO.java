@@ -89,12 +89,6 @@ public interface ServiceOrderDAO {
 	//查看服务订单对应佣金信息
 	List<CommissionOrderDO> getCommissionOrderList(@Param("id")int id, @Param("officialId")int officialId);
 
-	void update( @Param("id")Integer id,
-				 @Param("submitIbDate")String submitIbDate,
-				 @Param("commissionAmount")Double commissionAmount,
-				 @Param("predictCommission") Double predictCommission
-	);
-
 	List<ServiceOrderDO> OfficialHandoverServiceOrder(@Param("officialId")Integer officialId,
 													  @Param("isPackage") boolean isPackage);
 }

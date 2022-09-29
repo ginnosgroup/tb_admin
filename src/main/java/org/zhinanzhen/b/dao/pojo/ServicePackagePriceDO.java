@@ -25,11 +25,6 @@ public class ServicePackagePriceDO implements Serializable {
 
     private double thirdPrince;
 
-
-	private double cost_prince;
-
-	private Double third_prince;
-
 	private  int ruler;
 
 	private double amount;

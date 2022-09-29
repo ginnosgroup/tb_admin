@@ -9,6 +9,7 @@ import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.AbleStateEnum;
 import org.zhinanzhen.b.service.VisaOfficialService;
 import org.zhinanzhen.b.service.pojo.*;
+import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
@@ -198,7 +199,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
     }
 
     @Override
-    public List<VisaOfficialDTO> getVisaOfficialOrder(Integer officialId, Integer regionId, Integer id, String startHandlingDate, String endHandlingDate, String commissionState, String startSubmitIbDate, String endSubmitIbDate, String startDate, String endDate, String userName, String applicantName, Integer pageNum, Integer pageSize) throws ServiceException {
+    public List<VisaOfficialDTO> getVisaOfficialOrder(Integer officialId, Integer regionId, Integer id, String startHandlingDate, String endHandlingDate, String commissionState, String startSubmitIbDate, String endSubmitIbDate, String startDate, String endDate, String userName, String applicantName, Integer pageNum, Integer pageSize, Sorter sorter) throws ServiceException {
 
             if (pageNum!=null&&pageNum < 0) {
                 pageNum = DEFAULT_PAGE_NUM;
@@ -210,9 +211,18 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             if(pageNum!=null&&pageSize!=null){
                 offset = pageNum * pageSize;
             }
+        String orderBy = "ORDER BY bv.gmt_create DESC, bv.installment_num ASC";
+        if (sorter != null) {
+            if (sorter.getId() != null)
+                orderBy = StringUtil.merge("ORDER BY ", sorter.getOrderBy("bv.id", sorter.getId()));
+            if (sorter.getUserName() != null)
+                orderBy = StringUtil.merge("ORDER BY ", sorter.getOrderBy("tbu.name", sorter.getUserName()));
+            if (sorter.getAdviserName() != null)
+                orderBy = StringUtil.merge("ORDER BY ", sorter.getOrderBy("a.name", sorter.getAdviserName()));
+        }
 
             List<VisaOfficialListDO> list = visaOfficialDao.get(officialId,regionId, id, startHandlingDate,endHandlingDate, commissionState, theDateTo00_00_00(startSubmitIbDate), theDateTo23_59_59(endSubmitIbDate), theDateTo00_00_00(startDate),
-                    theDateTo23_59_59(endDate),userName, applicantName,offset, pageSize);
+                    theDateTo23_59_59(endDate),userName, applicantName,offset, pageSize,orderBy);
             List<VisaOfficialDTO> visaOfficialDtoList = new ArrayList<>();
             if(list==null||list.size()==0){
                 return null;
@@ -248,7 +258,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 ServicePackagePriceDO servicePackagePriceDO = adviserRateCommissionOrderDO.getServicePackagePriceDO();
                 if(servicePackagePriceDO!=null){
                     //第三方费用
-                    Double third_prince1 = servicePackagePriceDO.getThird_prince()==null?0.0:servicePackagePriceDO.getThird_prince();
+                    double third_prince1 = servicePackagePriceDO.getThirdPrince();
                     BigDecimal third_prince = BigDecimal.valueOf(third_prince1);
                     //预计计入佣金金额 总计实收-退款-第三方费用
                     BigDecimal amount = receivedAUD.subtract(refund).subtract(third_prince);
@@ -256,7 +266,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                     double amountDouble = amount.doubleValue();
                     if (receivedAUDDouble == 0 || amountDouble < 0) {
                         amount = new BigDecimal(adviserRateCommissionOrderDO.getServicePackagePriceDO().getMinPrice()).
-                                subtract(new BigDecimal(adviserRateCommissionOrderDO.getServicePackagePriceDO().getCost_prince()));
+                                subtract(new BigDecimal(adviserRateCommissionOrderDO.getServicePackagePriceDO().getCostPrince()));
                         amountDouble = amount.doubleValue();
                     }
                     adviserRateCommissionOrderDO.setExpectCommissionAmount(amountDouble);
@@ -272,6 +282,11 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         return visaOfficialDao.count(officialId,regionId,id,startHandlingDate,endHandlingDate,commissionState,startSubmitIbDate,endSubmitIbDate,startDate,endDate, userName, applicantName);
     }
 
+    @Override
+    public void update(Integer id, String submitIbDate, Double commissionAmount, String state) {
+        visaOfficialDao.update( id,  submitIbDate,  commissionAmount,  state);
+
+    }
 
 
 }

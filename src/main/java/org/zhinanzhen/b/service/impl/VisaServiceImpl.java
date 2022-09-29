@@ -184,7 +184,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 				orderBy = StringUtil.merge("ORDER BY ", sorter.getOrderBy("a.name", sorter.getAdviserName()));
 		}
 		List<VisaDTO> visaDtoList = new ArrayList<>();
-		List<VisaListDO> visaListDoList = new ArrayList<>();
+		List<VisaListDO> visaListDoList;
 		try {
 			visaListDoList = visaDao.listVisa(id, keyword, startHandlingDate, theDateTo23_59_59(endHandlingDate),
 					stateList, commissionStateList, theDateTo00_00_00(startKjApprovalDate),
@@ -653,7 +653,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			ServicePackagePriceDO servicePackagePriceDO = adviserRateCommissionOrderDO.getServicePackagePriceDO();
 			if(servicePackagePriceDO!=null){
 				//第三方费用
-				Double third_prince1 = servicePackagePriceDO.getThird_prince()==null?0.0:servicePackagePriceDO.getThird_prince();
+				double third_prince1 = servicePackagePriceDO.getThirdPrince();
 				BigDecimal third_prince = BigDecimal.valueOf(third_prince1);
 				//预计计入佣金金额 总计实收-退款-第三方费用
 				BigDecimal amount = receivedAUD.subtract(refund).subtract(third_prince);
@@ -661,7 +661,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 				double amountDouble = amount.doubleValue();
 				if (receivedAUDDouble == 0 || amountDouble < 0) {
 					amount = new BigDecimal(adviserRateCommissionOrderDO.getServicePackagePriceDO().getMinPrice()).
-							subtract(new BigDecimal(adviserRateCommissionOrderDO.getServicePackagePriceDO().getCost_prince()));
+							subtract(new BigDecimal(adviserRateCommissionOrderDO.getServicePackagePriceDO().getCostPrince()));
 					amountDouble = amount.doubleValue();
 				}
 				adviserRateCommissionOrderDO.setExpectCommissionAmount(amountDouble);

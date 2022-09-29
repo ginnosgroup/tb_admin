@@ -769,22 +769,6 @@
         SET gmt_modify = now(), readcommitted_date = now()
         WHERE id = #{id, jdbcType=INTEGER};
     </update>
-    <update id="update" >
-        update b_service_order
-        SET gmt_modify = now()
-        <if test='submitIbDate !=null and submitIbDate != ""'>
-            , submitIbDate = #{submitIbDate}
-        </if>
-        <if test='commissionAmount !=null and commissionAmount !="" or commissionAmount ==0.0'>
-            , commissionAmount = #{commissionAmount}
-        </if>
-        <if test='predictCommission !=null and predictCommission !="" or predictCommission ==0.0'>
-            , predict_commission = #{predictCommission}
-        </if>
-        where id = #{id}
-
-    </update>
-
 
     <select id="listServiceOrderGroupByForRegion" resultType="org.zhinanzhen.b.dao.pojo.EachRegionNumberDO">
         SELECT

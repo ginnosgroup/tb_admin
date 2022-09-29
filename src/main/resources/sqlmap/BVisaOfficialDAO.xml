@@ -93,6 +93,22 @@
                    0,
                    #{verifyCode});
     </insert>
+    <update id="update">
+        UPDATE b_service_order so
+            JOIN b_visa_official bv ON so.id = bv.service_order_id
+        SET bv.gmt_modify = now()
+        <if test='submitIbDate !=null and submitIbDate != ""'>
+            , so.submitIbDate = #{submitIbDate}
+        </if>
+        <if test='commissionAmount !=null and commissionAmount !="" or commissionAmount ==0.0'>
+            , so.commissionAmount = #{commissionAmount}
+        </if>
+        <if test='state!=null and state !=""'>
+            , bv.state = #{state}
+        </if>
+        where bv.id = #{id}
+
+    </update>
 
     <select id="countVisaByServiceOrderIdAndExcludeCode" resultType="java.lang.Integer">
         SELECT count(*)

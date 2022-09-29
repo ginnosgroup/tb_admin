@@ -730,6 +730,17 @@ public class VisaController extends BaseCommissionOrderController {
 				} catch (ServiceException serviceException) {
 					serviceException.printStackTrace();
 				}
+				try{
+					 ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceService.getServicePackagePriceByServiceId(v.getServiceId());
+					if(servicePackagePriceDO!=null) {
+						double thirdPrince =  servicePackagePriceDO.getThirdPrince();
+						BigDecimal third_prince = BigDecimal.valueOf(thirdPrince);
+						double expectAmountAUD = new BigDecimal(v.getAmountAUD()).subtract(third_prince).doubleValue();
+						v.setExpectAmount(expectAmountAUD > 0.0 ? expectAmountAUD : 0.0);
+					}
+				}catch (ServiceException serviceException){
+					serviceException.printStackTrace();
+				}
 			});
 
 			return new ListResponse<List<VisaDTO>>(true, pageSize, total, list, "");
@@ -1070,7 +1081,7 @@ public class VisaController extends BaseCommissionOrderController {
 		}
 	}
 
-	@RequestMapping(value = "/uploadOfficialCommission", method = RequestMethod.POST)
+	/*@RequestMapping(value = "/uploadOfficialCommission", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> uploadOfficialCommission(@RequestParam MultipartFile file, HttpServletRequest request,
 									HttpServletResponse response) throws IllegalStateException, IOException {
@@ -1107,7 +1118,7 @@ public class VisaController extends BaseCommissionOrderController {
 			return new Response<Integer>(1, "上传失败:" + e.getMessage(), 0);
 		}
 		return new Response<Integer>(0, message, n);
-	}
+	}*/
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
 	@ResponseBody

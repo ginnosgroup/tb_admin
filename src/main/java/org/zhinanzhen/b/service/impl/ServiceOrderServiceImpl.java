@@ -1824,19 +1824,6 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		return list;
 	}
 
-	@Override
-	public void update(Integer id, String submitIbDate, Double commissionAmount) {
-
-		VisaListDO visaListDO = visaDao.getOne(id);
-		//预估佣金
-		Double predictCommission = visaListDO.getPredictCommission();
-		//文案等级
-		Double rate = visaListDO.getRate();
-		if(rate!=null &&commissionAmount!=null){
-			predictCommission =BigDecimal.valueOf(commissionAmount).multiply(BigDecimal.valueOf(rate)).doubleValue();
-		}
-		serviceOrderDao.update(id,submitIbDate,commissionAmount,predictCommission);
-	}
 
 	@Override
 	public List<ServiceOrderDTO> OfficialHandoverServiceOrder(Integer officialId,boolean isPackage) {
