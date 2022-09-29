@@ -161,7 +161,7 @@ public class AdviserController extends BaseController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<AdviserDTO>> listAdviser(@RequestParam(value = "name", required = false) String name,
+	public ListResponse<List<AdviserDTO>> listAdviser(@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "regionId", required = false) Integer regionId,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
 			HttpServletResponse response) {
@@ -175,10 +175,11 @@ public class AdviserController extends BaseController {
 				for (RegionDTO region : regionList)
 					regionIdList.add(region.getId());
 			}
-			
-			return new Response<List<AdviserDTO>>(0, adviserService.listAdviser(name, regionIdList, pageNum, pageSize));
+			int total = adviserService.countAdviser(name, regionIdList);
+			List<AdviserDTO> list = adviserService.listAdviser(name, regionIdList, pageNum, pageSize);
+			return new ListResponse<List<AdviserDTO>>(true, pageSize, total, list, null);
 		} catch (ServiceException e) {
-			return new Response<List<AdviserDTO>>(1, e.getMessage(), null);
+			return new ListResponse<List<AdviserDTO>>(false, pageSize, 0, null, e.getMessage());
 		}
 	}
 

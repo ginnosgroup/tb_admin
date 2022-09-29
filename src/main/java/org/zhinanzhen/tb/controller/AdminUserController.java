@@ -73,7 +73,7 @@ public class AdminUserController extends BaseController {
 		try {
 			if (StringUtil.isEmpty(email))
 				return new Response<Boolean>(1, "请输入用户名!", false);
-			if (!email.contains("@zhinanzhen.org"))
+			if (!email.contains("@zhinanzhen.org") && !email.contains("@iessydney.com"))
 				return new Response<Boolean>(1, "请使用指南针邮箱!", false);
 			int i = getRandomInt(1000, 9999);
 			String e = encrypt.encrypt(email, KEY).substring(0, 4) + i;
