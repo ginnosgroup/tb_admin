@@ -199,7 +199,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
     }
 
     @Override
-    public List<VisaOfficialDTO> getVisaOfficialOrder(Integer officialId, Integer regionId, Integer id, String startHandlingDate, String endHandlingDate, String state, String startSubmitIbDate, String endSubmitIbDate, String startDate, String endDate, String userName, String applicantName, Integer pageNum, Integer pageSize, Sorter sorter) throws ServiceException {
+    public List<VisaOfficialDTO> getVisaOfficialOrder(Integer officialId, List<Integer> regionIdList, Integer id, String startHandlingDate, String endHandlingDate, String state, String startSubmitIbDate, String endSubmitIbDate, String startDate, String endDate, String userName, String applicantName, Integer pageNum, Integer pageSize, Sorter sorter) throws ServiceException {
 
             if (pageNum!=null&&pageNum < 0) {
                 pageNum = DEFAULT_PAGE_NUM;
@@ -221,7 +221,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 orderBy = StringUtil.merge("ORDER BY ", sorter.getOrderBy("a.name", sorter.getAdviserName()));
         }
 
-            List<VisaOfficialListDO> list = visaOfficialDao.get(officialId,regionId, id, startHandlingDate,endHandlingDate, state, theDateTo00_00_00(startSubmitIbDate), theDateTo23_59_59(endSubmitIbDate), theDateTo00_00_00(startDate),
+            List<VisaOfficialListDO> list = visaOfficialDao.get(officialId,regionIdList, id, startHandlingDate,endHandlingDate, state, theDateTo00_00_00(startSubmitIbDate), theDateTo23_59_59(endSubmitIbDate), theDateTo00_00_00(startDate),
                     theDateTo23_59_59(endDate),userName, applicantName,offset, pageSize,orderBy);
             List<VisaOfficialDTO> visaOfficialDtoList = new ArrayList<>();
             if(list==null||list.size()==0){
@@ -278,8 +278,8 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         }
 
     @Override
-    public int count(Integer officialId, Integer regionId, Integer id, String startHandlingDate, String endHandlingDate, String state, String startSubmitIbDate, String endSubmitIbDate, String startDate, String endDate, String userName, String applicantName) throws ServiceException {
-        return visaOfficialDao.count(officialId,regionId,id,startHandlingDate,endHandlingDate,state,startSubmitIbDate,endSubmitIbDate,startDate,endDate, userName, applicantName);
+    public int count(Integer officialId, List<Integer> regionIdList, Integer id, String startHandlingDate, String endHandlingDate, String state, String startSubmitIbDate, String endSubmitIbDate, String startDate, String endDate, String userName, String applicantName) throws ServiceException {
+        return visaOfficialDao.count(officialId,regionIdList,id,startHandlingDate,endHandlingDate,state,startSubmitIbDate,endSubmitIbDate,startDate,endDate, userName, applicantName);
     }
 
     @Override

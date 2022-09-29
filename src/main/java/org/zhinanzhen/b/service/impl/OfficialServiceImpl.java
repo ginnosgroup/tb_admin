@@ -145,6 +145,7 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 				return null;
 			}
 			officialDto = mapper.map(officialDo, OfficialDTO.class);
+			officialDto.setIsOfficialAdmin(officialDao.getOfficialAdmin(id)>0?true:false);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());

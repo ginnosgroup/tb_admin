@@ -15,7 +15,7 @@ public interface VisaOfficialDao {
     int addVisa(VisaOfficialDO visaOfficialDO);
 
     List<VisaOfficialListDO> get(@Param("officialId")Integer officialId,
-                                 @Param("regionId")Integer regionId,
+                                 @Param("regionIdList")List<Integer> regionIdList,
                                  @Param("id")Integer id,
                                  @Param("startHandlingDate") String startHandlingDate, @Param("endHandlingDate") String endHandlingDate,
                                  @Param("state")String state,
@@ -30,7 +30,7 @@ public interface VisaOfficialDao {
                                  @Param("orderBy") String orderBy);
 
     int count(@Param("officialId")Integer officialId,
-              @Param("regionId")Integer regionId,
+              @Param("regionIdList")List<Integer> regionIdList,
               @Param("id")Integer id,
               @Param("startHandlingDate") String startHandlingDate, @Param("endHandlingDate") String endHandlingDate,
               @Param("state")String state,

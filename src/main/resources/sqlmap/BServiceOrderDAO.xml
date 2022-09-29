@@ -1157,6 +1157,7 @@
         WHERE bv.user_id = tbu.id AND a.id = bv.adviser_id AND bv.service_order_id = so.id
         and
             so.id = #{id}
+        and bv.state !="PENDING"
 
 
     </select>

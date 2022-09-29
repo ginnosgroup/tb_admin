@@ -201,8 +201,11 @@
         <if test="id !=null">
             and bv.id = #{id}
         </if>
-        <if test='regionId!=null and regionId!=""'>
-            and bo.region_id = #{regionId}
+        <if test='regionIdList != null'>
+            AND bo.region_id IN
+            <foreach collection="regionIdList" item="regionIdList" index="index" open="(" close=")" separator=",">
+                #{regionIdList}
+            </foreach>
         </if>
         <if test='userName!=null and userName!=""'>
             and tu.name = #{userName}
@@ -249,9 +252,7 @@
         <if test='state =="COMPLETE"'>
             and co.state="COMPLETE"
         </if>
-        <if test='regionId!=null and regionId!=""'>
-            and bo.region_id = #{regionId}
-        </if>
+
         <if test='userName!=null and userName!=""'>
             and tu.name = #{userName}
         </if>
@@ -261,6 +262,12 @@
 
         <if test='startHandlingDate != null and startHandlingDate != "" and endHandlingDate != null and endHandlingDate != ""'>
             <![CDATA[ AND co.handling_date > #{startHandlingDate} AND co.handling_date < #{endHandlingDate} ]]>
+        </if>
+        <if test='regionIdList != null'>
+            AND bo.region_id IN
+            <foreach collection="regionIdList" item="regionIdList" index="index" open="(" close=")" separator=",">
+                #{regionIdList}
+            </foreach>
         </if>
 
     </select>
