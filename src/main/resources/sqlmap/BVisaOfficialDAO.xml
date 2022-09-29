@@ -221,12 +221,14 @@
 
     </select>
     <select id="count" resultType="java.lang.Integer">
-        select count(*)
-        from b_visa_official co
+        SELECT
+        count(*)
+        FROM
+        b_visa_official co
         JOIN b_service_order so ON co.service_order_id = so.id
-        JOIN tb_user tu ON co.user_id = tu.id
-        JOIN b_applicant ba ON so.applicant_id = ba.id
-        join b_official bo on bo.id = co.official_id
+        LEFT JOIN tb_user tu ON co.user_id = tu.id
+        LEFT JOIN b_applicant ba ON so.applicant_id = ba.id
+        LEFT JOIN b_official bo ON bo.id = co.official_id
         WHERE 1=1
         <if test='officialId !=null and  officialId !=""'>
             and co.official_id = #{officialId}
@@ -242,10 +244,10 @@
             and co.id = #{id}
         </if>
         <if test='commissionState =="REVIEW"'>
-            and so.commissionAmount is null
+            and co.state="REVIEW"
         </if>
         <if test='commissionState =="COMPLETE"'>
-            and so.commissionAmount is not  null
+            and co.state="COMPLETE"
         </if>
         <if test='regionId!=null and regionId!=""'>
             and bo.region_id = #{regionId}
