@@ -214,19 +214,14 @@ public class AdminUserController extends BaseController {
 	@ResponseBody
 	public Response<Boolean> sendNewPassword(@RequestParam(value = "username") String username,
 			HttpServletRequest request, HttpServletResponse response) throws ServiceException {
-		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-		if (adminUserLoginInfo != null && ("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
-				|| "AD".equalsIgnoreCase(adminUserLoginInfo.getApList()))) {
-			if (!checkZnzEmail(username))
-				return new Response<Boolean>(1, "请使用指南针邮箱!", false);
-			String newPassword = RandomStringUtils.randomAlphanumeric(8);
-			if (adminUserService.updatePassword(username, newPassword)) {
-				SendEmailUtil.send(username, "ZNZ Password Renew", "Your new password is " + newPassword);
-				return new Response<Boolean>(0, "新密码已发送,请查看邮箱.", true);
-			} else
-				return new Response<Boolean>(1, "重置密码失败", false);
-		}
-		return new Response<Boolean>(1, "需要超级管理员权限", false);
+		if (!checkZnzEmail(username))
+			return new Response<Boolean>(1, "请使用指南针邮箱!", false);
+		String newPassword = RandomStringUtils.randomAlphanumeric(8);
+		if (adminUserService.updatePassword(username, newPassword)) {
+			SendEmailUtil.send(username, "ZNZ Password Renew", "Your new password is " + newPassword);
+			return new Response<Boolean>(0, "新密码已发送,请查看邮箱.", true);
+		} else
+			return new Response<Boolean>(1, "重置密码失败,请联系管理员.", false);
 	}
 	
 	private static boolean checkZnzEmail(String email) {
