@@ -234,8 +234,9 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
 //            }
             //常规计算
             ServiceOrderDO serviceOrderDO = serviceOrderDao.getServiceOrderById(visaOfficialDTO.getServiceOrderId());
-            List<ServiceOrderDO> listByParentId = serviceOrderDao.listByParentId(serviceOrderDO.getId());
-            if (serviceOrderDO.getParentId() == 0 && listByParentId ==null) {
+            List<ServiceOrderDO> list = new ArrayList<>();
+            list = serviceOrderDao.listByParentId(serviceOrderDO.getId());
+            if (serviceOrderDO.getParentId() == 0 && list.size() == 0) {
                 CommissionAmountDTO commissionAmountDTO = calculationCommissionAmount(serviceOrderDO.getId());
                 visaOfficialDO.setCommissionAmount(commissionAmountDTO.getCommissionAmount());
                 visaOfficialDO.setPredictCommission(commissionAmountDTO.getCommission());
@@ -277,9 +278,10 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                             calculation = "0" + "|" + commissionAmountDTO.getThirdPrince() + "|" + dateFormat.format(servicePackagePriceDO.getGmtModify()) + "|" + grade.getGrade() + "," + grade.getRate() + "," + dateFormat.format(grade.getGmt_modify());
                             commissionAmountDTO.setCalculation(calculation);
                         } else {
+                            commissionAmountDTO.setThirdPrince(servicePackagePriceDO.getThirdPrince());
                             commissionAmountDTO.setCommission(servicePackagePriceDO.getAmount());
                             String calculation = new String();
-                            calculation="1"+"|"+commissionAmountDTO.getThirdPrince() + ","+servicePackagePriceDO.getAmount()+"|" + dateFormat.format(servicePackagePriceDO.getGmtModify());
+                            calculation = "1" + "|" + commissionAmountDTO.getThirdPrince() + "," + servicePackagePriceDO.getAmount() + "|" + dateFormat.format(servicePackagePriceDO.getGmtModify());
                             commissionAmountDTO.setCalculation(calculation);
                         }
                     }
@@ -291,7 +293,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 visaOfficialDTO.setPredictCommission(visaOfficialDO.getPredictCommission());
                 visaOfficialDTO.setCalculation(visaOfficialDO.getCalculation());
                 return visaOfficialDO.getId();
-            }else {
+            } else {
                 return 0;
             }
         } catch (Exception e) {
@@ -304,14 +306,14 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
     @Override
     public List<VisaOfficialDTO> getVisaOfficialOrder(Integer officialId, List<Integer> regionIdList, Integer id, String startHandlingDate, String endHandlingDate, String state, String startDate, String endDate, String userName, String applicantName, Integer pageNum, Integer pageSize, Sorter sorter) throws ServiceException {
 
-        if (pageNum!=null&&pageNum < 0) {
+        if (pageNum != null && pageNum < 0) {
             pageNum = DEFAULT_PAGE_NUM;
         }
-        if (pageSize!=null&&pageSize < 0) {
+        if (pageSize != null && pageSize < 0) {
             pageSize = DEFAULT_PAGE_SIZE;
         }
-        Integer offset = null ;
-        if(pageNum!=null&&pageSize!=null){
+        Integer offset = null;
+        if (pageNum != null && pageSize != null) {
             offset = pageNum * pageSize;
         }
         String orderBy = "ORDER BY bv.gmt_create DESC, bv.installment_num ASC";
@@ -324,10 +326,10 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 orderBy = StringUtil.merge("ORDER BY ", sorter.getOrderBy("a.name", sorter.getAdviserName()));
         }
 
-        List<VisaOfficialListDO> list = visaOfficialDao.get(officialId,regionIdList, id, startHandlingDate,endHandlingDate, state,  theDateTo00_00_00(startDate),
-                theDateTo23_59_59(endDate),userName, applicantName,offset, pageSize,orderBy);
+        List<VisaOfficialListDO> list = visaOfficialDao.get(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, theDateTo00_00_00(startDate),
+                theDateTo23_59_59(endDate), userName, applicantName, offset, pageSize, orderBy);
         List<VisaOfficialDTO> visaOfficialDtoList = new ArrayList<>();
-        if(list==null||list.size()==0){
+        if (list == null || list.size() == 0) {
             return null;
         }
         for (VisaOfficialListDO visaListDo : list) {
@@ -346,7 +348,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             visaOfficialDto.setServiceOrder(mapper.map(serviceOrderDO, ServiceOrderDTO.class));
             visaOfficialDto.setServicePackagePriceDO(servicePackagePriceDAO.getByServiceId(visaOfficialDto.getServiceId()));
             MaraDO mara = maraDAO.getMaraById(visaOfficialDto.getMaraId());
-            if(mara!=null){
+            if (mara != null) {
                 visaOfficialDto.setMaraDTO(mapper.map(mara, MaraDTO.class));
             }
             for (RemindDO remindDo : remindDoList) {
@@ -359,13 +361,13 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
     }
 
     @Override
-    public int count(Integer officialId, List<Integer> regionIdList, Integer id, String startHandlingDate, String endHandlingDate, String state,  String startDate, String endDate, String userName, String applicantName) throws ServiceException {
-        return visaOfficialDao.count(officialId,regionIdList,id,startHandlingDate,endHandlingDate,state,startDate,endDate, userName, applicantName);
+    public int count(Integer officialId, List<Integer> regionIdList, Integer id, String startHandlingDate, String endHandlingDate, String state, String startDate, String endDate, String userName, String applicantName) throws ServiceException {
+        return visaOfficialDao.count(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, startDate, endDate, userName, applicantName);
     }
 
     @Override
     public void update(Integer id, String submitIbDate, Double handling_date, String state) {
-        visaOfficialDao.update( id,  submitIbDate,  handling_date,  state);
+        visaOfficialDao.update(id, submitIbDate, handling_date, state);
 
     }
 
@@ -401,7 +403,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         } else {
             commissionAmountDTO.setCommission(servicePackagePriceDO.getAmount());
             String calculation = new String();
-            calculation="1"+"|"+commissionAmountDTO.getThirdPrince() + ","+servicePackagePriceDO.getAmount()+"|" + dateFormat.format(servicePackagePriceDO.getGmtModify());
+            calculation = "1" + "|" + commissionAmountDTO.getThirdPrince() + "," + servicePackagePriceDO.getAmount() + "|" + dateFormat.format(servicePackagePriceDO.getGmtModify());
             commissionAmountDTO.setCalculation(calculation);
         }
 
