@@ -235,7 +235,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             //常规计算
             ServiceOrderDO serviceOrderDO = serviceOrderDao.getServiceOrderById(visaOfficialDTO.getServiceOrderId());
             List<ServiceOrderDO> listByParentId = serviceOrderDao.listByParentId(serviceOrderDO.getId());
-            if (serviceOrderDO.getParentId() == 0 && listByParentId.size() == 0) {
+            if (serviceOrderDO.getParentId() == 0 && listByParentId ==null) {
                 CommissionAmountDTO commissionAmountDTO = calculationCommissionAmount(serviceOrderDO.getId());
                 visaOfficialDO.setPredictCommissionAmount(commissionAmountDTO.getPredictCommissionAmount());
                 visaOfficialDO.setCommissionAmount(commissionAmountDTO.getCommissionAmount());
