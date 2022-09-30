@@ -34,16 +34,16 @@ public class OfficialGradeServiceImpl extends BaseService implements OfficialGra
         if (pageSize < 0) {
             pageSize = DEFAULT_PAGE_SIZE;
         }
-        List<OfficialGradeDTO> officialGradeDTOList =new ArrayList<>();
+        List<OfficialGradeDTO> officialGradeDTOList = new ArrayList<>();
         try {
             List<OfficialGradeDO> officialGradeDOList = officialGradeDao.listOfficialGrade(pageNum * pageSize, pageSize);
             if (officialGradeDOList == null)
                 return null;
             for (OfficialGradeDO officialGradeDO : officialGradeDOList) {
-                OfficialDO officialDO = officialDAO.getOfficialByGradeId(officialGradeDO.getId());
-                if (officialDO == null) officialGradeDO.setFlag(0);
+                List<OfficialDO> official = officialDAO.getOfficialByGradeId(officialGradeDO.getId());
+                if (official.size() == 0) officialGradeDO.setFlag(0);
                 else officialGradeDO.setFlag(1);
-                officialGradeDTOList.add(mapper.map(officialGradeDO,OfficialGradeDTO.class));
+                officialGradeDTOList.add(mapper.map(officialGradeDO, OfficialGradeDTO.class));
             }
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
@@ -76,10 +76,10 @@ public class OfficialGradeServiceImpl extends BaseService implements OfficialGra
         OfficialGradeDTO officialGradeDTO = new OfficialGradeDTO();
         try {
             OfficialGradeDO officialGradeByGrade = officialGradeDao.getOfficialGradeByGrade(grade);
-            if (officialGradeByGrade==null){
+            if (officialGradeByGrade == null) {
                 return null;
             }
-            officialGradeDTO = mapper.map(officialGradeByGrade,OfficialGradeDTO.class);
+            officialGradeDTO = mapper.map(officialGradeByGrade, OfficialGradeDTO.class);
 
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
@@ -97,13 +97,12 @@ public class OfficialGradeServiceImpl extends BaseService implements OfficialGra
             throw se;
         }
         try {
-            OfficialGradeDO officialGradeDO=mapper.map(officialGradeDTO,OfficialGradeDO.class);
-            OfficialDO officialDO = officialDAO.getOfficialByGradeId(officialGradeDO.getId());
-            if (officialDO == null){
-               return officialGradeDao.updateOfficialGradeById(officialGradeDO);
-            }
-            else {
-               return officialGradeDao.updateOfficialGradeNameById(officialGradeDO.getGrade(),officialGradeDO.getId());
+            OfficialGradeDO officialGradeDO = mapper.map(officialGradeDTO, OfficialGradeDO.class);
+            List<OfficialDO> officialDOList = officialDAO.getOfficialByGradeId(officialGradeDO.getId());
+            if (officialDOList.size() == 0) {
+                return officialGradeDao.updateOfficialGradeById(officialGradeDO);
+            } else {
+                return officialGradeDao.updateOfficialGradeNameById(officialGradeDO.getGrade(), officialGradeDO.getId());
             }
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
@@ -120,12 +119,11 @@ public class OfficialGradeServiceImpl extends BaseService implements OfficialGra
             se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
             throw se;
         }
-        try{
-            OfficialDO officialDO = officialDAO.getOfficialByGradeId(id);
-            if (officialDO == null){
+        try {
+            List<OfficialDO> officialDOList = officialDAO.getOfficialByGradeId(id);
+            if (officialDOList.size() == 0) {
                 return officialGradeDao.deleteOfficialGradeById(id);
-            }
-            else {
+            } else {
                 ServiceException se = new ServiceException("删除失败，该等级已被绑定");
                 se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
                 throw se;
