@@ -19,8 +19,6 @@ public interface VisaOfficialDao {
                                  @Param("id")Integer id,
                                  @Param("startHandlingDate") String startHandlingDate, @Param("endHandlingDate") String endHandlingDate,
                                  @Param("state")String state,
-                                 @Param("startSubmitIbDate")String startSubmitIbDate,
-                                 @Param("endSubmitIbDate")String endSubmitIbDate,
                                  @Param("startDate")String startDate,
                                  @Param("endDate")String endDate,
                                  @Param("userName")String userName,
@@ -34,8 +32,7 @@ public interface VisaOfficialDao {
               @Param("id")Integer id,
               @Param("startHandlingDate") String startHandlingDate, @Param("endHandlingDate") String endHandlingDate,
               @Param("state")String state,
-              @Param("startSubmitIbDate")String startKjApprovalDate,
-              @Param("endSubmitIbDate")String endKjApprovalDate,
+
               @Param("startDate")String startDate,
               @Param("endDate")String endDate,
               @Param("userName")String userName,
@@ -46,7 +43,7 @@ public interface VisaOfficialDao {
     List<VisaOfficialDO> listVisaByCode(@Param("code") String code);
 
     void update(@Param("id")Integer id,
-                @Param("submitIbDate")String submitIbDate,
+                @Param("handling_date")String handling_date,
                 @Param("commissionAmount") Double commissionAmount,
                 @Param("state") String state);
 }

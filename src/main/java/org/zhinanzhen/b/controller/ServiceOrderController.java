@@ -31,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.controller.nodes.SONodeFactory;
 import org.zhinanzhen.b.dao.pojo.CommissionOrderDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderReadcommittedDateDO;
+import org.zhinanzhen.b.dao.pojo.VisaDO;
 import org.zhinanzhen.b.service.*;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
@@ -97,6 +98,9 @@ public class ServiceOrderController extends BaseController {
 
 	@Resource
 	WXWorkService wxWorkService;
+
+	@Resource
+	OfficialService officialService;
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -1697,9 +1701,9 @@ public class ServiceOrderController extends BaseController {
 	}
 	@RequestMapping(value = "/listAdviserVisa", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<CommissionOrderDO>> getCommissionOrderList(@RequestParam(value = "id") int id) {
+	public Response<List<VisaDO>> getCommissionOrderList(@RequestParam(value = "id") int id,HttpServletRequest request) {
 		try {
-			List<CommissionOrderDO> commissionOrderList = serviceOrderService.getCommissionOrderList(id);
+			List<VisaDO> commissionOrderList = serviceOrderService.getCommissionOrderList(id);
 			return new Response<>(0,commissionOrderList);
 		} catch (ServiceException e) {
 			return new Response<>(1, e.getMessage(), null);

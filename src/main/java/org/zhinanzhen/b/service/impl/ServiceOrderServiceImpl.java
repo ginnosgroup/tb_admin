@@ -1815,13 +1815,13 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	}
 
 	@Override
-	public List<CommissionOrderDO> getCommissionOrderList(int id) {
-		List<CommissionOrderDO> list = serviceOrderDao.getCommissionOrderList(id);
-		for (CommissionOrderDO commissionOrderDO : list) {
+	public List<VisaDO> getCommissionOrderList(int id) {
+		List<VisaDO> list = serviceOrderDao.getCommissionOrderList(id);
+		for (VisaDO visa : list) {
 			// 查询收款方式
-			ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(commissionOrderDO.getReceiveTypeId());
+			ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(visa.getReceiveTypeId());
 			if (receiveTypeDo != null)
-				commissionOrderDO.setReceiveTypeDTO(mapper.map(receiveTypeDo, ReceiveTypeDTO.class));
+				visa.setReceiveTypeDTO(mapper.map(receiveTypeDo, ReceiveTypeDTO.class));
 		}
 		return list;
 	}
