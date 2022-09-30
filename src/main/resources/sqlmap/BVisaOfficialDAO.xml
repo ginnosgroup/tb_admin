@@ -50,6 +50,7 @@
             predict_commission,
             commissionAmount,
             calculation,
+            predict_commissionAmount,
             verify_code)
         VALUES (
                    now(),
@@ -97,6 +98,7 @@
                    #{predictCommission},
                    #{commissionAmount},
                    #{calculation},
+                   #{predictCommissionAmount},
                    #{verifyCode});
     </insert>
     <update id="update">
