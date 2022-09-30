@@ -1124,7 +1124,7 @@
         </if>
         GROUP BY bsi.id , tr.`name`;
     </select>
-    <select id="getCommissionOrderList" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderDO">
+    <select id="getCommissionOrderList" resultType="org.zhinanzhen.b.dao.pojo.VisaDO">
         SELECT
             bv.id AS id,
             bv.gmt_create AS gmtCreate,
