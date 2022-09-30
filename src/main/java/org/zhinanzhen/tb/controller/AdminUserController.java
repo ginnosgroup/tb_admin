@@ -201,7 +201,7 @@ public class AdminUserController extends BaseController {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo != null && ("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 				|| "AD".equalsIgnoreCase(adminUserLoginInfo.getApList()))) {
-			String newPassword = RandomStringUtils.randomAlphanumeric(4);
+			String newPassword = RandomStringUtils.randomAlphanumeric(8);
 			if (adminUserService.updatePassword(username, newPassword))
 				return new Response<String>(0, "", newPassword);
 			else
