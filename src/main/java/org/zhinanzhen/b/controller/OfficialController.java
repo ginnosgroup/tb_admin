@@ -144,7 +144,7 @@ public class OfficialController extends BaseController {
 				return new Response<OfficialDTO>(1, "请输入有效id.", null);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			if (adminUserLoginInfo == null || (adminUserLoginInfo != null && !
-					(adminUserLoginInfo.isOfficialAdmin() || "SUPER".equals(adminUserLoginInfo.getApList()))) )
+					(adminUserLoginInfo.isOfficialAdmin() || "SUPERAD".equals(adminUserLoginInfo.getApList()))) )
 				return new Response(1,"No permission !");
 			OfficialDTO officialDto = officialService.getOfficialById(id);
 			if (StringUtil.isNotEmpty(name)) {
