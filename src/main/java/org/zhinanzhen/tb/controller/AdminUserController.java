@@ -73,7 +73,7 @@ public class AdminUserController extends BaseController {
 		try {
 			if (StringUtil.isEmpty(email))
 				return new Response<Boolean>(1, "请输入用户名!", false);
-			if (!email.contains("@zhinanzhen.org") && !email.contains("@iessydney.com"))
+			if (!checkZnzEmail(email))
 				return new Response<Boolean>(1, "请使用指南针邮箱!", false);
 			int i = getRandomInt(1000, 9999);
 			String e = encrypt.encrypt(email, KEY).substring(0, 4) + i;
@@ -208,6 +208,29 @@ public class AdminUserController extends BaseController {
 				return new Response<String>(1, "重置密码失败", null);
 		}
 		return new Response<String>(1, "需要超级管理员权限", null);
+	}
+	
+	@RequestMapping(value = "/sendNewPassword", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Boolean> sendNewPassword(@RequestParam(value = "username") String username,
+			HttpServletRequest request, HttpServletResponse response) throws ServiceException {
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo != null && ("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+				|| "AD".equalsIgnoreCase(adminUserLoginInfo.getApList()))) {
+			if (!checkZnzEmail(username))
+				return new Response<Boolean>(1, "请使用指南针邮箱!", false);
+			String newPassword = RandomStringUtils.randomAlphanumeric(8);
+			if (adminUserService.updatePassword(username, newPassword)) {
+				SendEmailUtil.send(username, "ZNZ Password Renew", "Your new password is " + newPassword);
+				return new Response<Boolean>(0, "新密码已发送,请查看邮箱.", true);
+			} else
+				return new Response<Boolean>(1, "重置密码失败", false);
+		}
+		return new Response<Boolean>(1, "需要超级管理员权限", false);
+	}
+	
+	private static boolean checkZnzEmail(String email) {
+		return email.contains("@zhinanzhen.org") || email.contains("@iessydney.com");
 	}
 
 	private static int getRandomInt(int min, int max) {
