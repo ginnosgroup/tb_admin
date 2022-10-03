@@ -219,7 +219,7 @@ public class AdminUserController extends BaseController {
 		String newPassword = RandomStringUtils.randomAlphanumeric(8);
 		if (adminUserService.updatePassword(username, newPassword)) {
 			SendEmailUtil.send(username, "ZNZ Password Renew", "Your new password is " + newPassword);
-			return new Response<Boolean>(0, "新密码已发送,请查看邮箱.", true);
+			return new Response<Boolean>(0, StringUtil.merge("新密码已发送到", username, ",请查看邮箱."), true);
 		} else
 			return new Response<Boolean>(1, "重置密码失败,请联系管理员.", false);
 	}
