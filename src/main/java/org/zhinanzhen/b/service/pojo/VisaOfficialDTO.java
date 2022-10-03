@@ -184,6 +184,8 @@ public class VisaOfficialDTO {
 
     private String calculation;//计算规则
 
+    private double predictCommissionAmount;//计入佣金提点金额(预估)
+
     private ServicePackagePriceDO servicePackagePriceDO;
 
     private MaraDTO maraDTO;

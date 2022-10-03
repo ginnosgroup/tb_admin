@@ -89,7 +89,8 @@ public interface ServiceOrderDAO {
 	List<EachRegionNumberDO> listOvstServiceOrderGroupByForRegion(@Param("startOfficialApprovalDate") String startOfficialApprovalDate,
 															   @Param("endOfficialApprovalDate") String endOfficialApprovalDate);
 	//查看服务订单对应佣金信息
-	List<CommissionOrderDO> getCommissionOrderList(@Param("id")int id);
+	List<VisaDO> getCommissionOrderList(@Param("id")int id
+			                            );
 
 	List<ServiceOrderDO> OfficialHandoverServiceOrder(@Param("officialId")Integer officialId,
 													  @Param("isPackage") boolean isPackage);

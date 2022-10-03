@@ -50,6 +50,7 @@
             predict_commission,
             commissionAmount,
             calculation,
+            predict_commissionAmount,
             verify_code)
         VALUES (
                    now(),
@@ -97,22 +98,22 @@
                    #{predictCommission},
                    #{commissionAmount},
                    #{calculation},
+                   #{predictCommissionAmount},
                    #{verifyCode});
     </insert>
     <update id="update">
-        UPDATE b_service_order so
-            JOIN b_visa_official bv ON so.id = bv.service_order_id
-        SET bv.gmt_modify = now()
-        <if test='submitIbDate !=null and submitIbDate != ""'>
-            , so.submitIbDate = #{submitIbDate}
+        UPDATE b_visa_official
+        SET gmt_modify = now()
+        <if test='handling_date !=null and handling_date != ""'>
+            , handling_date = #{handling_date}
         </if>
         <if test='commissionAmount !=null and commissionAmount !="" or commissionAmount ==0.0'>
-            , so.commissionAmount = #{commissionAmount}
+            , commissionAmount = #{commissionAmount}
         </if>
         <if test='state!=null and state !=""'>
-            , bv.state = #{state}
+            , state = #{state}
         </if>
-        where bv.id = #{id}
+        where id = #{id}
 
     </update>
 
@@ -176,17 +177,17 @@
         tu.birthday AS birthday,
         tu.phone AS phone,
         so.applicant_id AS applicantId,
-        so.commissionAmount,
-        so.predict_commission predictCommission,
+        bv.commissionAmount,
+        bv.predict_commission predictCommission,
         ifnull(br.amount,0.0) as refund,
         so.submitIbDate as submitIbDate,
-        bog.rate rate
+        bv.calculation,
+        bv.predict_commissionAmount  as predictCommissionAmount
         from b_visa_official bv
         JOIN b_service_order so ON bv.service_order_id = so.id
         left JOIN tb_user tu ON bv.user_id = tu.id
         left join b_refund br on br.visa_id= bv.id
         left join b_official bo on bo.id = bv.official_id
-        left join b_official_grade bog on bog.id = bo.grade_id
 
         WHERE 1=1
         <if test='officialId !=null and  officialId !=""'>
@@ -194,9 +195,6 @@
         </if>
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
             <![CDATA[ AND bv.gmt_create > #{startDate} AND bv.gmt_create < #{endDate} ]]>
-        </if>
-        <if test='startSubmitIbDate != null and startSubmitIbDate != "" and endSubmitIbDate != null and endSubmitIbDate != ""'>
-            <![CDATA[ AND so.submitIbDate > #{startSubmitIbDate} AND so.submitIbDate < #{endSubmitIbDate} ]]>
         </if>
         <if test='state =="REVIEW"'>
             and bv.state = "REVIEW"
@@ -246,9 +244,7 @@
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
             <![CDATA[ AND co.gmt_create > #{startDate} AND co.gmt_create < #{endDate} ]]>
         </if>
-        <if test='startSubmitIbDate != null and startSubmitIbDate != "" and endSubmitIbDate != null and endSubmitIbDate != ""'>
-            <![CDATA[ AND co.submitIbDate > #{startSubmitIbDate} AND co.submitIbDate < #{endSubmitIbDate} ]]>
-        </if>
+
         <if test="id !=null">
             and co.id = #{id}
         </if>

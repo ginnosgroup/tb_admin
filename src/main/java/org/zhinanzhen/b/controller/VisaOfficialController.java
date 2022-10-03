@@ -234,8 +234,6 @@ public class VisaOfficialController extends BaseCommissionOrderController {
     public ListResponse<List<VisaOfficialDTO>> listVisaOrder(
             @RequestParam(value = "id", required = false) Integer id,
             @RequestParam(value = "state", required = false) String state,
-            @RequestParam(value = "startSubmitIbDate", required = false) String startSubmitIbDate,
-            @RequestParam(value = "endSubmitIbDate", required = false) String endSubmitIbDate,
             @RequestParam(value = "startDate", required = false) String startDate,
             @RequestParam(value = "endDate", required = false) String endDate,
             @RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
@@ -261,6 +259,8 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             super.setGetHeader(response);
             // 处理文案管理员
             AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+            if (adminUserLoginInfo == null)
+                return new ListResponse<>(false, pageSize, 0, null, "No permission !");
             if ("WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
                     &&officialService.getOfficialById(newOfficialId).getIsOfficialAdmin() ) {
                 List<RegionDTO> regionList = regionService.listRegion(officialService.getOfficialById(newOfficialId).getRegionId());
@@ -271,13 +271,11 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 // 更改当前文案编号
                 if (newOfficialId != null)
                     officialId = newOfficialId;
-                if (adminUserLoginInfo == null)
-                    return new ListResponse<>(false, pageSize, 0, null, "No permission !");
                 if ("WA".equalsIgnoreCase(adminUserLoginInfo.getApList()) && officialId == null)
                     return new ListResponse<>(false, pageSize, 0, null, "无法获取文案编号，请退出重新登录后再尝试．");
             }
-            int count = visaOfficialService.count(officialId,regionIdList,id,startHandlingDate,endHandlingDate,state,startSubmitIbDate,endSubmitIbDate,startDate,endDate, userName, applicantName);
-            final List<VisaOfficialDTO> officialDTOList = visaOfficialService.getVisaOfficialOrder(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, startSubmitIbDate, endSubmitIbDate, startDate,
+            int count = visaOfficialService.count(officialId,regionIdList,id,startHandlingDate,endHandlingDate,state,startDate,endDate, userName, applicantName);
+            List<VisaOfficialDTO> officialDTOList = visaOfficialService.getVisaOfficialOrder(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state,  startDate,
                     endDate, userName, applicantName, pageNum, pageSize, _sorter);
 
 
@@ -291,7 +289,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
     @ResponseBody
     public Response<String> update(
             @RequestParam(value = "id") Integer id,
-            @RequestParam(value = "submitIbDate", required = false) String submitIbDate,
+            @RequestParam(value = "handlingDate", required = false) String handlingDate,
             @RequestParam(value = "commissionAmount", required = false) Double commissionAmount,
             @RequestParam(value="state",required = false) String state,
             HttpServletResponse response,HttpServletRequest request){
@@ -301,14 +299,14 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
             if(adminUserLoginInfo!=null){
                 if(adminUserLoginInfo.getApList().equalsIgnoreCase("KJ")){
-                    visaOfficialService.update(id,submitIbDate,commissionAmount,state);
+                    visaOfficialService.update(id,handlingDate,commissionAmount,state);
                     return new Response<>(0,"修改成功");
                 }
-                if(adminUserLoginInfo.getApList().equalsIgnoreCase("WA")){
+                if(adminUserLoginInfo.getApList().equalsIgnoreCase("WA")&&officialService.getOfficialById(getOfficialId(request)).getIsOfficialAdmin() ){
                     if(commissionAmount!=null||StringUtil.isNotEmpty(state)){
-                        return new Response<>(1,"修改失败仅限财务修改");
+                        return new Response<>(1,"修改失败没有权限");
                     }
-                    visaOfficialService.update(id,submitIbDate,commissionAmount,state);
+                    visaOfficialService.update(id,handlingDate,commissionAmount,state);
                     return new Response<>(0,"修改成功");
                 }
             }
@@ -322,21 +320,23 @@ public class VisaOfficialController extends BaseCommissionOrderController {
     public void downOfficialCommission(
             @RequestParam(value = "id", required = false) Integer id,
             @RequestParam(value = "state", required = false) String state,
-            @RequestParam(value = "startSubmitIbDate", required = false) String startSubmitIbDate,
-            @RequestParam(value = "endSubmitIbDate", required = false) String endSubmitIbDate,
             @RequestParam(value = "startDate", required = false) String startDate,
             @RequestParam(value = "endDate", required = false) String endDate,
             @RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
             @RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
             @RequestParam(value = "regionId", required = false) Integer regionId,
-            @RequestParam(value = "officialId" ,required = false) Integer officialId,
-            @RequestParam(value ="userName" ,required = false) String userName,
-            @RequestParam(value ="applicantName" ,required = false) String applicantName,
-            HttpServletRequest request,HttpServletResponse response){
+            @RequestParam(value = "officialId", required = false) Integer officialId,
+            @RequestParam(value = "userName", required = false) String userName,
+            @RequestParam(value = "applicantName", required = false) String applicantName,
+            HttpServletResponse response){
         try {
-
-            List<VisaOfficialDTO> officialList = visaOfficialService.getVisaOfficialOrder(officialId, null, id, startHandlingDate, endHandlingDate, state, startSubmitIbDate,
-                    endSubmitIbDate, startDate, endDate, userName, applicantName, null, null, null);
+            List<Integer> regionList = null;
+            if(regionId!=null){
+                regionList = new ArrayList<>();
+                regionList.add(regionId);
+            }
+            List<VisaOfficialDTO> officialList = visaOfficialService.getVisaOfficialOrder(officialId, regionList, id, startHandlingDate, endHandlingDate, state,
+                    startDate, endDate, userName, applicantName, null, null, null);
             response.reset();// 清空输出流
             String tableName = "official_Visa_commission";
             response.setHeader("Content-disposition",
@@ -366,7 +366,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 row.createCell(13).setCellValue(visaDTO.getMaraDTO()==null||visaDTO.getMaraDTO().getName()==null?"":visaDTO.getMaraDTO().getName());
                 row.createCell(14).setCellValue(visaDTO.getTotalPerAmountAUD());
                 row.createCell(15).setCellValue(visaDTO.getTotalAmountAUD());
-                row.createCell(16).setCellValue(visaDTO.getExpectCommissionAmount()==null?"":visaDTO.getExpectCommissionAmount()+"");
+                row.createCell(16).setCellValue(visaDTO.getPredictCommissionAmount()+"");
                 row.createCell(17).setCellValue(visaDTO.getCommissionAmount()==null?"":visaDTO.getCommissionAmount()+"");
                 row.createCell(18).setCellValue(visaDTO.getPredictCommission()==null?"":visaDTO.getPredictCommission()+"");
                 String states = visaDTO.getState()==null?"":visaDTO.getState();
