@@ -11,9 +11,11 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.zhinanzhen.b.service.ApplicantService;
 import org.zhinanzhen.b.service.CommissionOrderService;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.VisaService;
+import org.zhinanzhen.b.service.pojo.ApplicantDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.VisaDTO;
@@ -25,6 +27,8 @@ import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
+
+import com.ikasoa.core.utils.StringUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -45,6 +49,9 @@ public class NoticeController extends BaseController {
 
 	@Resource
 	UserService userService;
+	
+	@Resource
+	ApplicantService applicantService;
 
 	@Resource
 	AdviserService adviserService;
@@ -84,14 +91,16 @@ public class NoticeController extends BaseController {
 					if (serviceOrderDto == null || !"REVIEW".equalsIgnoreCase(serviceOrderDto.getState()))
 						continue;
 					AdviserDTO adviserDto = adviserService.getAdviserById(visa.getAdviserId());
-					UserDTO userDto = userService.getUserById(visa.getUserId());
-					Date visaExpirationDate = userDto.getVisaExpirationDate();
+//					UserDTO userDto = userService.getUserById(visa.getUserId());
+//					Date visaExpirationDate = userDto.getVisaExpirationDate();
+					ApplicantDTO applicantDto = applicantService.getById(visa.getApplicantId());
+					Date visaExpirationDate = applicantDto.getVisaExpirationDate();
 					int days = getDateDays(visaExpirationDate, new Date());
 					if (days == 0 || days == 1 || days == 2 || days == 3 || days == 7 || days == 15 || days == 30)
 						SendEmailUtil.send(adviserDto.getEmail(), title,
-								"亲爱的" + adviserDto.getName() + ":<br/>您的客户" + userDto.getName() + "，签证日期还有" + days
-										+ "天到期，请尽快联系客户，如已重新申请签证为保证下次提醒请更新签证时间。<br/>客户ID:" + visa.getUserId() + "/签证日期:"
-										+ visaExpirationDate);
+								StringUtil.merge("亲爱的", adviserDto.getName(), ":<br/>您的申请人",
+										applicantDto.getFirstname(), " ", applicantDto.getSurname(), "，签证日期还有", days,
+										visaExpirationDate));
 				} catch (Exception e) {
 					log.error("提醒邮件发送异常:" + e.getMessage());
 					continue;
@@ -105,7 +114,8 @@ public class NoticeController extends BaseController {
 				try {
 					ServiceOrderDTO serviceOrderDto = serviceOrderService
 							.getServiceOrderById(commissionOrderListDto.getServiceOrderId());
-					if (serviceOrderDto == null || !"REVIEW".equalsIgnoreCase(serviceOrderDto.getState()))
+					if (serviceOrderDto == null || !"REVIEW".equalsIgnoreCase(serviceOrderDto.getState())
+							|| commissionOrderListDto.getBonusDate() != null)
 						continue;
 					AdviserDTO adviserDto = adviserService.getAdviserById(commissionOrderListDto.getAdviserId());
 					Date installmentDueDate = commissionOrderListDto.getInstallmentDueDate();
