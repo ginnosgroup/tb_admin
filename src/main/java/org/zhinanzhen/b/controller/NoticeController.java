@@ -114,7 +114,8 @@ public class NoticeController extends BaseController {
 				try {
 					ServiceOrderDTO serviceOrderDto = serviceOrderService
 							.getServiceOrderById(commissionOrderListDto.getServiceOrderId());
-					if (serviceOrderDto == null || !"REVIEW".equalsIgnoreCase(serviceOrderDto.getState()))
+					if (serviceOrderDto == null || !"REVIEW".equalsIgnoreCase(serviceOrderDto.getState())
+							|| commissionOrderListDto.getBonusDate() != null)
 						continue;
 					AdviserDTO adviserDto = adviserService.getAdviserById(commissionOrderListDto.getAdviserId());
 					Date installmentDueDate = commissionOrderListDto.getInstallmentDueDate();
