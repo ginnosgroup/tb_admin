@@ -53,7 +53,7 @@ public class AdviserController extends BaseController {
 	public Response<Integer> addAdviser(@RequestParam(value = "name") String name,
 			@RequestParam(value = "phone") String phone, @RequestParam(value = "email") String email,
 			@RequestParam(value = "password", required = false) String password,
-			@RequestParam(value = "imageUrl") String imageUrl, @RequestParam(value = "regionId") Integer regionId,
+			@RequestParam(value = "imageUrl", required = false) String imageUrl, @RequestParam(value = "regionId") Integer regionId,
 			@RequestParam(value = "adminRegionId", required = false) Integer adminRegionId, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
