@@ -218,8 +218,9 @@ public class AdminUserController extends BaseController {
 			return new Response<Boolean>(1, "请使用指南针邮箱!", false);
 		String newPassword = RandomStringUtils.randomAlphanumeric(8);
 		if (adminUserService.updatePassword(username, newPassword)) {
-			SendEmailUtil.send(username, "ZNZ Password Renew", "Your new password is " + newPassword);
-			return new Response<Boolean>(0, "新密码已发送,请查看邮箱.", true);
+			SendEmailUtil.send(username, "ZNZ Password Renew", StringUtil.merge("Your new password is ", newPassword,
+					" . Please change your password after login.<br/>https://yongjinbiao.zhinanzhen.org/webroot_new/changePassword"));
+			return new Response<Boolean>(0, StringUtil.merge("新密码已发送到", username, ",请查看邮箱."), true);
 		} else
 			return new Response<Boolean>(1, "重置密码失败,请联系管理员.", false);
 	}
