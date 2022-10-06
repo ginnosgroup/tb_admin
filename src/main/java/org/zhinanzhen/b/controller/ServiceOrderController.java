@@ -915,9 +915,9 @@ public class ServiceOrderController extends BaseController {
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
 			if (serviceOrderDto == null)
 				return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
-			if (getOfficialAdminId(request) != null && serviceOrderDto.getOfficialId() != getOfficialId(request))
-				return new Response<Integer>(1, "(文案管理员" + getOfficialId(request) + ")只能操作自己的服务订单,不可操作(文案"
-						+ serviceOrderDto.getOfficialId() + ")服务订单.", 0);
+//			if (getOfficialAdminId(request) != null && serviceOrderDto.getOfficialId() != getOfficialId(request))
+//				return new Response<Integer>(1, "(文案管理员" + getOfficialId(request) + ")只能操作自己的服务订单,不可操作(文案"
+//						+ serviceOrderDto.getOfficialId() + ")服务订单.", 0);
 			if (StringUtil.isNotEmpty(coePaymentVoucherImageUrl1))
 				serviceOrderDto.setCoePaymentVoucherImageUrl1(coePaymentVoucherImageUrl1);
 			if (StringUtil.isNotEmpty(coePaymentVoucherImageUrl2))
@@ -958,9 +958,9 @@ public class ServiceOrderController extends BaseController {
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
 			if (serviceOrderDto == null)
 				return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
-			if (getOfficialAdminId(request) != null && serviceOrderDto.getOfficialId() != getOfficialId(request))
-				return new Response<Integer>(1, "(文案管理员" + getOfficialId(request) + ")只能操作自己的服务订单,不可操作(文案"
-						+ serviceOrderDto.getOfficialId() + ")服务订单.", 0);
+//			if (getOfficialAdminId(request) != null && serviceOrderDto.getOfficialId() != getOfficialId(request))
+//				return new Response<Integer>(1, "(文案管理员" + getOfficialId(request) + ")只能操作自己的服务订单,不可操作(文案"
+//						+ serviceOrderDto.getOfficialId() + ")服务订单.", 0);
 			if (StringUtil.isNotEmpty(remarks))
 				serviceOrderDto.setRemarks(remarks);
 			int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
