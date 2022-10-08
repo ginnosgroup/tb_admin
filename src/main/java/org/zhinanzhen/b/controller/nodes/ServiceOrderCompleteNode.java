@@ -12,6 +12,7 @@ import org.zhinanzhen.tb.service.ServiceException;
 import com.ikasoa.web.workflow.Context;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 //申请成功
 @Component
@@ -41,6 +42,9 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
 
 	@Resource
 	private ServiceDAO serviceDAO;
+
+	@Resource
+	private VisaOfficialDao visaOfficialDao;
 
 
 	// 文案
@@ -73,31 +77,14 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
 				isSingleStep = true;
 				return SUSPEND_NODE;
 			}
-//			String a []={"103","143","173","864","835","838"};//todo
-//			for (String s : a) {
-//				if (s.equals(serviceDAO.getServiceById(serviceOrderDto.getServiceId()).getCode())){
-//					VisaDO visaDO = new VisaDO();
-//					CommissionAmountDTO commissionAmountDTO = new CommissionAmountDTO();
-//					visaDO = visaDAO.getSecondVisaByServiceOrderId(serviceOrderDto.getId());
-//					RefundDO refund = refundDAO.getRefundByVisaId(visaDO.getId());
-//					if (refund==null){
-//						commissionAmountDTO.setRefund(0.00);
-//					}
-//					else{
-//						commissionAmountDTO.setRefund(refund.getAmount());
-//					}
-//					ServiceOrderOfficialRemarksDO serviceOrderOfficialRemarksDO = serviceOrderOfficialRemarksDAO.getByServiceOrderId(serviceOrderDto.getId());
-//					OfficialDO official = officialDAO.getOfficialById(serviceOrderOfficialRemarksDO.getOfficialId());
-//					OfficialGradeDO grade = officialGradeDao.getOfficialGradeById(official.getGradeId());
-//					ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDAO.getByServiceId(serviceOrderDto.getServiceId());
-//					commissionAmountDTO.setThirdPrince(servicePackagePriceDO.getThirdPrince());
-//					commissionAmountDTO.setCommissionAmount(serviceOrderDto.getAmount()-commissionAmountDTO.getRefund()-commissionAmountDTO.getThirdPrince());
-//					if (commissionAmountDTO.getCommissionAmount()<=0)
-//						commissionAmountDTO.setCommissionAmount(0.00);
-//					commissionAmountDTO.setCommission(commissionAmountDTO.getCommissionAmount()*grade.getRate()*0.5);
-//					serviceOrderDao.setCommission(serviceOrderDto.getId(),0.00,commissionAmountDTO.getCommissionAmount(),commissionAmountDTO.getCommission());
-//				}
-//			}
+			String a []={"103","143","173","864","835","838"};//todo
+			for (String s : a) {
+				if (s.equals(serviceDAO.getServiceById(serviceOrderDto.getServiceId()).getCode())){
+					VisaOfficialDO visaOfficialDO = visaOfficialDao.listByServiceOrderId(serviceOrderDto.getId());
+					visaOfficialDO.setInstallmentNum(2);
+					visaOfficialDao.addVisa(visaOfficialDO);
+				}
+			}
 			isSingleStep = true;
 			return "PAID";
 		} catch (ServiceException e) {

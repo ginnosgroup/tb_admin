@@ -42,6 +42,8 @@ public interface VisaOfficialDao {
 
     List<VisaOfficialDO> listVisaByCode(@Param("code") String code);
 
+    VisaOfficialDO listByServiceOrderId(@Param("serviceOrderId") int serviceOrderId);
+
     void update(@Param("id")Integer id,
                 @Param("handling_date")String handling_date,
                 @Param("commissionAmount") Double commissionAmount,
