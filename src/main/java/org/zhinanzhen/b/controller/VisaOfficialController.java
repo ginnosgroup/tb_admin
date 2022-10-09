@@ -338,7 +338,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             List<VisaOfficialDTO> officialList = visaOfficialService.getVisaOfficialOrder(officialId, regionList, id, startHandlingDate, endHandlingDate, state,
                     startDate, endDate, userName, applicantName, null, null, null);
             response.reset();// 清空输出流
-            String tableName = "official_Visa_commission";
+            String tableName = "official_visa_commission";
             response.setHeader("Content-disposition",
                     "attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
             response.setContentType("application/msexcel");
@@ -352,7 +352,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 HSSFRow row = sheet.createRow(i);
                 row.createCell(0).setCellValue(visaDTO.getId());
                 row.createCell(1).setCellValue(visaDTO.getServiceOrderId());
-                row.createCell(2).setCellValue(visaDTO.getSubmitIbDate()==null?"":sdf.format(visaDTO.getSubmitIbDate()));
+                row.createCell(2).setCellValue(visaDTO.getHandlingDate()==null?"":sdf.format(visaDTO.getHandlingDate()));
                 row.createCell(3).setCellValue(sdf.format(visaDTO.getServiceOrder().getGmtCreate()));
                 row.createCell(4).setCellValue(visaDTO.getUserName());
                 row.createCell(5).setCellValue(StringUtil.merge(visaDTO.getApplicant().getFirstname()," ",visaDTO.getApplicant().getSurname()));
