@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.zhinanzhen.b.dao.pojo.CommissionOrderDO;
 import org.zhinanzhen.b.dao.pojo.ServiceAssessDO;
+import org.zhinanzhen.b.dao.pojo.VisaDO;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 
@@ -232,6 +233,8 @@ public class ServiceOrderDTO {
 	private ServiceAssessDO serviceAssessDO;
 	
 	private List<Integer> cIds; // 佣金订单编号
+
+	private List<VisaDO> visaDOList;
 
 	private List<MailRemindDTO> mailRemindDTOS;
 
