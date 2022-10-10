@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.controller.nodes;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
@@ -11,6 +12,7 @@ import org.zhinanzhen.tb.service.ServiceException;
 
 import com.ikasoa.web.workflow.Context;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,41 +20,21 @@ import java.util.List;
 //申请成功
 @Component
 public class ServiceOrderCompleteNode extends SODecisionNode {
-
-    @Resource
-    private ServicePackagePriceDAO servicePackagePriceDAO;
-
-    @Resource
-    private RefundDAO refundDAO;
-
-    @Resource
-    private OfficialDAO officialDAO;
-
-    @Resource
-    private OfficialGradeDao officialGradeDao;
-
-
-    @Resource
-    private ServiceOrderDAO serviceOrderDao;
-
-    @Resource
-    private VisaDAO visaDAO;
-
-    @Resource
-    private ServiceOrderOfficialRemarksDAO serviceOrderOfficialRemarksDAO;
-
-    @Resource
-    private ServiceDAO serviceDAO;
-
-    @Resource
-    private VisaOfficialDao visaOfficialDao;
-
-
     // 文案
+
+    @Autowired
+    private VisaOfficialDao visaOfficialDao;
+    public static ServiceOrderCompleteNode serviceOrderCompleteNode;
+    @PostConstruct
+    public void init(){
+        serviceOrderCompleteNode=this;
+        serviceOrderCompleteNode.visaOfficialDao=this.visaOfficialDao;
+    }
 
     public ServiceOrderCompleteNode(ServiceOrderService serviceOrderService) {
         super.serviceOrderService = serviceOrderService;
     }
+
 
     @Override
     public String getName() {
@@ -73,27 +55,30 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
                 return null;
             }
             if ("VISA".equals(type) && serviceOrderDto.getParentId() == 0) // 签证
+            {
+                List<String> arrayList = new ArrayList<String>() {
+                    {
+                        this.add("103");
+                        this.add("143");
+                        this.add("173");
+                        this.add("864");
+                        this.add("835");
+                        this.add("838");
+                    }
+                };
+                if (arrayList.contains(serviceOrderDto.getService().getCode())) {
+                    VisaOfficialDO visaOfficialDO = new VisaOfficialDO();
+                    visaOfficialDO = serviceOrderCompleteNode.visaOfficialDao.listByServiceOrderId(serviceOrderDto.getId());
+                    visaOfficialDO.setInstallmentNum(2);
+                    serviceOrderCompleteNode.visaOfficialDao.addVisa(visaOfficialDO);
+
+                }
                 return SUSPEND_NODE;
+            }
+
             if ("ZX".equals(type)) {//咨询
                 isSingleStep = true;
                 return SUSPEND_NODE;
-            }
-            List<String> arrayList = new ArrayList<String>() {
-                {
-                    this.add("103");
-                    this.add("143");
-                    this.add("173");
-                    this.add("864");
-                    this.add("835");
-                    this.add("838");
-                }
-            };
-            if (arrayList.contains(serviceDAO.getServiceById(serviceOrderDto.getServiceId()).getCode())) {
-
-                VisaOfficialDO visaOfficialDO = visaOfficialDao.listByServiceOrderId(serviceOrderDto.getId());
-                visaOfficialDO.setInstallmentNum(2);
-                visaOfficialDao.addVisa(visaOfficialDO);
-
             }
             isSingleStep = true;
             return "PAID";

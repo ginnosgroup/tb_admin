@@ -440,11 +440,11 @@
             verify_code AS verifyCode,
             bank_date AS bankDate,
             is_close AS isClose,
-            invoice_create AS invoiceCreate
+            invoice_create AS invoiceCreate,
             predict_commission AS predictCommission,
             commissionAmount,
             calculation,
-            predict_commissionAmount AS predictCommissionAmount,
+            predict_commissionAmount AS predictCommissionAmount
         FROM b_visa_official
         WHERE service_order_id = #{serviceOrderId};
     </select>
