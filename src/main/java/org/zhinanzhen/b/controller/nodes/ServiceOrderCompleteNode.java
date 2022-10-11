@@ -72,11 +72,13 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
                     visaOfficialDO = serviceOrderCompleteNode.visaOfficialDao.listByServiceOrderId(serviceOrderDto.getId());
                     visaOfficialDO.setInstallmentNum(2);
                     visaOfficialDO.setInstallment(2);
+                    visaOfficialDO.setKjApprovalDate(null);
                     visaOfficialDO1.setId(visaOfficialDO.getId());
                     visaOfficialDO1.setCommissionState("YJY");
                     visaOfficialDO1.setInstallmentNum(1);
                     visaOfficialDO1.setInstallment(2);
                     serviceOrderCompleteNode.visaOfficialDao.addVisa(visaOfficialDO);
+                    serviceOrderCompleteNode.visaOfficialDao.updateHandlingDate(visaOfficialDO.getId(),visaOfficialDO.getHandlingDate());
                     serviceOrderCompleteNode.visaOfficialDao.updateVisaOfficial(visaOfficialDO1);
                 }
                 return SUSPEND_NODE;

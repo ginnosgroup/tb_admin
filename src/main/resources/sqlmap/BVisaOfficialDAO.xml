@@ -116,6 +116,14 @@
         where id = #{id}
 
     </update>
+    <update id="updateHandlingDate">
+        UPDATE b_visa_official
+        SET gmt_modify = now()
+        <if test='handlingDate !=null'>
+            , handling_date = #{handlingDate}
+        </if>
+        where id = #{id}
+    </update>
 
     <select id="countVisaByServiceOrderIdAndExcludeCode" resultType="java.lang.Integer">
         SELECT count(*)
