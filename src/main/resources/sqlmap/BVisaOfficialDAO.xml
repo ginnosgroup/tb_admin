@@ -103,7 +103,8 @@
     </insert>
     <update id="update">
         UPDATE b_visa_official
-        SET gmt_modify = now()
+        SET gmt_modify = now(),
+        kj_approval_date = now()
         <if test='handling_date !=null and handling_date != ""'>
             , handling_date = #{handling_date}
         </if>
