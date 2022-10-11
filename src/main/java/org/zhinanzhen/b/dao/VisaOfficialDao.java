@@ -48,4 +48,6 @@ public interface VisaOfficialDao {
                 @Param("handling_date")String handling_date,
                 @Param("commissionAmount") Double commissionAmount,
                 @Param("state") String state);
+
+    int updateVisaOfficial(VisaOfficialDO visaOfficialDO);
 }
