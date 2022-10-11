@@ -214,7 +214,7 @@
             </foreach>
         </if>
         <if test='userName!=null and userName!=""'>
-            and tu.name = #{userName}
+            and tu.name LIKE '%${userName}%'
         </if>
         <if test='applicantName!=null and applicantName!=""'>
             AND (ba.surname LIKE '%${applicantName}%' OR ba.firstname LIKE '%${applicantName}%' OR CONCAT(ba.firstname, ' ', ba.surname) LIKE '%${applicantName}%')
