@@ -103,7 +103,8 @@
     </insert>
     <update id="update">
         UPDATE b_visa_official
-        SET gmt_modify = now()
+        SET gmt_modify = now(),
+        kj_approval_date = now()
         <if test='handling_date !=null and handling_date != ""'>
             , handling_date = #{handling_date}
         </if>
@@ -221,7 +222,7 @@
             </foreach>
         </if>
         <if test='userName!=null and userName!=""'>
-            and tu.name = #{userName}
+            and tu.name LIKE '%${userName}%'
         </if>
         <if test='applicantName!=null and applicantName!=""'>
             AND (ba.surname LIKE '%${applicantName}%' OR ba.firstname LIKE '%${applicantName}%' OR CONCAT(ba.firstname, ' ', ba.surname) LIKE '%${applicantName}%')
