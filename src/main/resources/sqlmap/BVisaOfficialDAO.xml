@@ -449,4 +449,127 @@
         FROM b_visa_official
         WHERE service_order_id = #{serviceOrderId};
     </select>
+
+    <update id="updateVisaOfficial" parameterType="org.zhinanzhen.b.dao.pojo.VisaOfficialDO">
+        UPDATE b_visa_official
+        SET gmt_modify = now()
+        <if test='userId != null and userId != ""'>
+            , user_id = #{userId}
+        </if>
+        <if test='state != null and state != ""'>
+            , state = #{state}
+        </if>
+        <if test='commissionState != null and commissionState != ""'>
+            , commission_state = #{commissionState}
+        </if>
+        <if test='kjApprovalDate != null'>
+            , kj_approval_date = #{kjApprovalDate}
+        </if>
+        <if test='receiveTypeId != null and receiveTypeId != ""'>
+            , receive_type_id = #{receiveTypeId}
+        </if>
+        <if test='receiveDate != null'>
+            , receive_date = #{receiveDate}
+        </if>
+        <if test='serviceId != null and serviceId != ""'>
+            , service_id = #{serviceId}
+        </if>
+        <if test='serviceOrderId != null and serviceOrderId != ""'>
+            , service_order_id = #{serviceOrderId}
+        </if>
+        <if test='paymentVoucherImageUrl1 != null'>
+            , payment_voucher_image_url_1 = #{paymentVoucherImageUrl1}
+        </if>
+        <if test='paymentVoucherImageUrl2 != null'>
+            , payment_voucher_image_url_2 = #{paymentVoucherImageUrl2}
+        </if>
+        <if test='paymentVoucherImageUrl3 != null'>
+            , payment_voucher_image_url_3 = #{paymentVoucherImageUrl3}
+        </if>
+        <if test='paymentVoucherImageUrl4 != null'>
+            , payment_voucher_image_url_4 = #{paymentVoucherImageUrl4}
+        </if>
+        <if test='paymentVoucherImageUrl5 != null'>
+            , payment_voucher_image_url_5 = #{paymentVoucherImageUrl5}
+        </if>
+        <if test='visaVoucherImageUrl != null'>
+            , visa_voucher_image_url = #{visaVoucherImageUrl}
+        </if>
+        <if test='receivable != null and receivable != ""'>
+            , receivable = #{receivable}
+        </if>
+        <if test='received != null and received != ""'>
+            , received = #{received}
+        </if>
+        <if test='perAmount != null and perAmount != ""'>
+            , per_amount = #{perAmount}
+        </if>
+        <if test='amount != null and amount != ""'>
+            , amount = #{amount}
+        </if>
+        <if test='expectAmount != null and expectAmount != ""'>
+            , expect_amount = #{expectAmount}
+        </if>
+        <if test='sureExpectAmount != null and sureExpectAmount != ""'>
+            , sure_expect_amount = #{sureExpectAmount}
+        </if>
+        <if test='currency != null and currency != ""'>
+            , currency = #{currency}
+        </if>
+        <if test='exchangeRate != null and exchangeRate != ""'>
+            , exchange_rate = #{exchangeRate}
+        </if>
+        <if test='invoiceNumber != null and invoiceNumber != ""'>
+            , invoice_number = #{invoiceNumber}
+        </if>
+        <if test='gst != null and gst != ""'>
+            , gst = #{gst}
+        </if>
+        <if test='deductGst != null and deductGst != ""'>
+            , deduct_gst = #{deductGst}
+        </if>
+        <if test='bonus != null and bonus != ""'>
+            , bonus = #{bonus}
+        </if>
+        <if test='bonusDate != null'>
+            , bonus_date = #{bonusDate}
+        </if>
+        <if test='adviserId != null and adviserId != ""'>
+            , adviser_id = #{adviserId}
+        </if>
+        <if test='maraId != null and maraId != ""'>
+            , mara_id = #{maraId}
+        </if>
+        <if test='officialId != null and officialId != ""'>
+            , official_id = #{officialId}
+        </if>
+        <if test='bankCheck != null and bankCheck != ""'>
+            , bank_check = #{bankCheck}
+        </if>
+        <if test='isChecked != null'>
+            , is_checked = #{isChecked}
+        </if>
+        <if test='remarks != null and remarks != ""'>
+            , remarks = #{remarks}
+        </if>
+        <if test='refuseReason != null'>
+            , refuse_reason = #{refuseReason}
+        </if>
+        <if test='verifyCode != null and verifyCode != ""'>
+            , verify_code = #{verifyCode}
+        </if>
+        <if test='bankDate != null'>
+            , bank_date = #{bankDate}
+        </if>
+        <if test='isClose != null'>
+            , is_close = #{isClose}
+        </if>
+        <if test='installment != null'>
+            , installment = #{installment}
+        </if>
+        <if test='installmentNum != null'>
+            , installment_num = #{installmentNum}
+        </if>
+        WHERE id = #{id};
+    </update>
 </mapper>

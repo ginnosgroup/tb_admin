@@ -68,10 +68,16 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
                 };
                 if (arrayList.contains(serviceOrderDto.getService().getCode())) {
                     VisaOfficialDO visaOfficialDO = new VisaOfficialDO();
+                    VisaOfficialDO visaOfficialDO1=new VisaOfficialDO();
                     visaOfficialDO = serviceOrderCompleteNode.visaOfficialDao.listByServiceOrderId(serviceOrderDto.getId());
                     visaOfficialDO.setInstallmentNum(2);
+                    visaOfficialDO.setInstallment(2);
+                    visaOfficialDO1.setId(visaOfficialDO.getId());
+                    visaOfficialDO1.setCommissionState("YJY");
+                    visaOfficialDO1.setInstallmentNum(1);
+                    visaOfficialDO1.setInstallment(2);
                     serviceOrderCompleteNode.visaOfficialDao.addVisa(visaOfficialDO);
-
+                    serviceOrderCompleteNode.visaOfficialDao.updateVisaOfficial(visaOfficialDO1);
                 }
                 return SUSPEND_NODE;
             }
