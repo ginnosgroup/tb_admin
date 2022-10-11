@@ -1828,8 +1828,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
 
 	@Override
-	public List<ServiceOrderDTO> OfficialHandoverServiceOrder(Integer officialId,boolean isPackage) {
-		List<ServiceOrderDO> list = serviceOrderDao.OfficialHandoverServiceOrder(officialId, isPackage);
+	public List<ServiceOrderDTO> OfficialHandoverServiceOrder(Integer officialId) {
+		List<ServiceOrderDO> list = serviceOrderDao.OfficialHandoverServiceOrder(officialId);
 		List<ServiceOrderDTO> servicePackageDTOArrayList = new ArrayList<>();
 		list.forEach(s->{
 			ServiceOrderDTO serviceOrderDTO = mapper.map(s, ServiceOrderDTO.class);
@@ -1845,9 +1845,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	}
 
 	@Override
-	public void updateOfficial(Integer serviceOrderId,  ServiceOrderDTO s, Integer officialId) {
-		serviceOrderDao.updateServiceOrder(mapper.map(s,ServiceOrderDO.class));
-		officialHandoverLogDao.add(serviceOrderId,s.getOfficialId(),officialId);
+	public void updateOfficial(Integer serviceOrderId,  Integer officialId,Integer newOfficialId) {
+		serviceOrderDao.updateOffice(newOfficialId,serviceOrderId);
+		officialHandoverLogDao.add(serviceOrderId,officialId,newOfficialId);
 	}
 
 

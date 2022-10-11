@@ -91,7 +91,10 @@ public interface ServiceOrderDAO {
 	//查看服务订单对应佣金信息
 	List<VisaDO> getCommissionOrderList(@Param("id")int id
 			                            );
+   //查看离职文案需交接订单
+	List<ServiceOrderDO> OfficialHandoverServiceOrder(@Param("officialId")Integer officialId
+													 );
 
-	List<ServiceOrderDO> OfficialHandoverServiceOrder(@Param("officialId")Integer officialId,
-													  @Param("isPackage") boolean isPackage);
+	int updateOffice(@Param("officialId")Integer officialId,
+					 @Param("id")Integer id);
 }

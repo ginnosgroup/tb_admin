@@ -80,7 +80,7 @@ public interface ServiceOrderService {
 
 	List<VisaDO> getCommissionOrderList(int id) throws ServiceException ;
 
-	List<ServiceOrderDTO> OfficialHandoverServiceOrder(Integer officialId,boolean isPackage)throws ServiceException;
+	List<ServiceOrderDTO> OfficialHandoverServiceOrder(Integer officialId)throws ServiceException;
 
-	void updateOfficial(Integer serviceOrderId,  ServiceOrderDTO s,Integer officialId)throws ServiceException;
+	void updateOfficial(Integer serviceOrderId,  Integer officialId,Integer newOfficialId)throws ServiceException;
 }

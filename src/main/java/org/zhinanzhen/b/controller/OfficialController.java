@@ -284,7 +284,7 @@ public class OfficialController extends BaseController {
 	@ResponseBody
 	public Response<String> officialHandover(@RequestParam(value = "officialId") Integer officialId,
 											 @RequestParam(value = "newOfficialId") Integer newOfficialId,
-											 HttpServletRequest request, HttpServletResponse response) {
+											 HttpServletRequest request) {
 		if(officialId.equals(newOfficialId)){
 			return new Response<>(0, "交接文案不能相同");
 		}
@@ -293,36 +293,14 @@ public class OfficialController extends BaseController {
 			return new Response(1,"No permission !");
 		}
 		try {
-			//纯签证类
-			List<ServiceOrderDTO> serviceOrderVisa = serviceOrderService.OfficialHandoverServiceOrder(officialId,false);
-			serviceOrderVisa.forEach(s -> {
+			List<ServiceOrderDTO> serviceOrderLongVisa = serviceOrderService.OfficialHandoverServiceOrder(officialId);
+			for (ServiceOrderDTO s : serviceOrderLongVisa) {
 				s.setOfficialId(newOfficialId);
-				try {
-					serviceOrderService.updateOfficial(s.getId(),s,officialId);
-				} catch (ServiceException e) {
-					e.printStackTrace();
-				}
-			});
-			//打包服务
-			List<ServiceOrderDTO> serviceOrderPackageList = serviceOrderService.OfficialHandoverServiceOrder(officialId,true);
-			//按打包服务分类
-			Map<String, List<ServiceOrderDTO>> listMap = serviceOrderPackageList.stream().collect(Collectors.groupingBy(ServiceOrderDTO::getCode));
-			for (List<ServiceOrderDTO> list : listMap.values()) {
-				for (ServiceOrderDTO s : list) {
-					s.setOfficialId(newOfficialId);
-					try {
-						serviceOrderService.updateOfficial(s.getId(),s,officialId);
-					} catch (ServiceException e) {
-						return new Response<>(0, e.getMessage());
-
-					}
-				}
+				serviceOrderService.updateOfficial(s.getId(),officialId,newOfficialId);
 			}
 
 		} catch (ServiceException e) {
 			return new Response<>(0, "fail");
-
-
 		}
 		return new Response<>(0, "success");
 	}
