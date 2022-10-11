@@ -400,7 +400,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             for (int i = 1; i < sheet.getRows(); i++) {
                 Cell[] cells = sheet.getRow(i);
                 String _id = cells[1].getContents();
-                String submitIbDate = cells[2].getContents();
+                String handling_date = cells[2].getContents();
                 Double commissionAmount = Double.valueOf(cells[17].getContents());
                 try {
                     ServiceOrderDTO order = serviceOrderService.getServiceOrderById(Integer.parseInt(_id));
@@ -410,8 +410,8 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                     }
                     try {
 
-                        visaOfficialService.update(Integer.valueOf(_id),StringUtil.isEmpty(submitIbDate) ? null
-                                : simpleDateFormat.parse(submitIbDate.trim()).getTime() + "",commissionAmount,null);
+                        visaOfficialService.update(Integer.valueOf(_id),StringUtil.isEmpty(handling_date) ? null
+                                : simpleDateFormat.parse(handling_date.trim()).getTime() + "",commissionAmount,null);
                     }catch (ServiceException s){
                         message += "[" + _id +"修改失败";
                     }

@@ -7,10 +7,9 @@
         SET gmt_create = now(),
             gmt_modify = now(),
             official_id = #{officialId},
-            new_official_id =#{newOfficialId}
-    <if test='serviceOrderId !=null and serviceOrderId !=""'>
-        ,service_order_id=#{serviceOrderId}
-    </if>
+            new_official_id =#{newOfficialId},
+            service_order_id=#{serviceOrderId}
+
 
 
 
