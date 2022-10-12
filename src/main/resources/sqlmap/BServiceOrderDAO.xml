@@ -791,6 +791,13 @@
         SET gmt_modify = now(), submitIbDate = now(),commissionAmount=#{commissionAmount},predict_commission = #{predictCommission},predict_commission_1=#{predictCommission1}
         WHERE id = #{id, jdbcType=INTEGER};
     </update>
+    <update id="updateOffice">
+        UPDATE b_service_order
+        SET gmt_modify = now(),
+            official_id= #{officialId}
+        where id = #{id}
+
+    </update>
 
     <select id="listServiceOrderGroupByForRegion" resultType="org.zhinanzhen.b.dao.pojo.EachRegionNumberDO">
         SELECT
@@ -1185,21 +1192,13 @@
     </select>
     <select id="OfficialHandoverServiceOrder" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
         SELECT
-            id,
-            code,
-            service_package_id servicePackageId
+            id
         FROM
-            b_service_order
+            `b_service_order`
         WHERE
             official_id = #{officialId}
-          AND state in ('PENDING','REVIEW' ,'OREVIEW' ,'WAIT' ,'FINISH')
-          and type = 'VISA'
-          <if test="isPackage ==true">
-              and service_package_id !=0
-          </if>
-        <if test="isPackage ==false">
-            and service_package_id =0
-        </if>
+          AND type = 'VISA'
+          AND state NOT IN ('COMPLETE','PAID','COMPLETE_FD','CLOSE')
     </select>
 
 </mapper>

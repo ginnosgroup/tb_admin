@@ -1263,8 +1263,8 @@ CREATE TABLE `b_official_grade` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
-  `grade` int(11) NOT NULL COMMENT '等级（0：资深，1：高级，2：专家）',
-  `rate` decimal(2,2) NOT NULL COMMENT 'rate',
+  `grade` varchar(32) NOT NULL COMMENT '等级',
+  `rate` decimal(8,2) NOT NULL COMMENT 'rate',
   `ruler` int(11) NOT NULL COMMENT '佣金规则（0：固定rate）',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=100000 DEFAULT CHARSET=utf8;
@@ -1317,8 +1317,24 @@ CREATE TABLE `b_visa_official` (
   `invoice_create` datetime DEFAULT NULL COMMENT '发票创建时间',
   `currency` varchar(4) DEFAULT 'AUD' COMMENT '(AUD:,CNY:)',
   `exchange_rate` decimal(6,4) NOT NULL DEFAULT '4.8000',
+  `applicant_ids` varchar(255) DEFAULT NULL COMMENT '申请人编号(逗号分隔)',
+  `predict_commission` decimal(8,2) DEFAULT NULL COMMENT '预估佣金',
+  `commissionAmount` decimal(8,2) DEFAULT NULL COMMENT '计入佣金提点金额',
+  `calculation` varchar(128) DEFAULT NULL COMMENT '计算规则',
+  `predict_commissionAmount` decimal(8,2) DEFAULT NULL COMMENT '预估计入佣金提点金额',
   PRIMARY KEY (`id`),
   KEY `index_name` (`user_id`,`adviser_id`,`mara_id`,`official_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1000004 DEFAULT CHARSET=utf8;
+
+--文案交接记录
+CREATE TABLE `b_official_handover_log` (
+`id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
+`gmt_create` datetime NOT NULL COMMENT '创建时间',
+`gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+`official_id` int(11) NOT NULL COMMENT '文案id',
+`new_official_id` int(11) NOT NULL COMMENT '新文案id',
+`service_order_id` int(11) NOT NULL COMMENT '服务订单id',
+PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=100000 DEFAULT CHARSET=utf8;
 
 

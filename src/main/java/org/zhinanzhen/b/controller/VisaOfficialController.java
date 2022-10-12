@@ -338,7 +338,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             List<VisaOfficialDTO> officialList = visaOfficialService.getVisaOfficialOrder(officialId, regionList, id, startHandlingDate, endHandlingDate, state,
                     startDate, endDate, userName, applicantName, null, null, null);
             response.reset();// 清空输出流
-            String tableName = "official_Visa_commission";
+            String tableName = "official_visa_commission";
             response.setHeader("Content-disposition",
                     "attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
             response.setContentType("application/msexcel");
@@ -352,7 +352,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 HSSFRow row = sheet.createRow(i);
                 row.createCell(0).setCellValue(visaDTO.getId());
                 row.createCell(1).setCellValue(visaDTO.getServiceOrderId());
-                row.createCell(2).setCellValue(visaDTO.getSubmitIbDate()==null?"":sdf.format(visaDTO.getSubmitIbDate()));
+                row.createCell(2).setCellValue(visaDTO.getHandlingDate()==null?"":sdf.format(visaDTO.getHandlingDate()));
                 row.createCell(3).setCellValue(sdf.format(visaDTO.getServiceOrder().getGmtCreate()));
                 row.createCell(4).setCellValue(visaDTO.getUserName());
                 row.createCell(5).setCellValue(StringUtil.merge(visaDTO.getApplicant().getFirstname()," ",visaDTO.getApplicant().getSurname()));
@@ -400,7 +400,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             for (int i = 1; i < sheet.getRows(); i++) {
                 Cell[] cells = sheet.getRow(i);
                 String _id = cells[1].getContents();
-                String submitIbDate = cells[2].getContents();
+                String handling_date = cells[2].getContents();
                 Double commissionAmount = Double.valueOf(cells[17].getContents());
                 try {
                     ServiceOrderDTO order = serviceOrderService.getServiceOrderById(Integer.parseInt(_id));
@@ -410,8 +410,8 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                     }
                     try {
 
-                        visaOfficialService.update(Integer.valueOf(_id),StringUtil.isEmpty(submitIbDate) ? null
-                                : simpleDateFormat.parse(submitIbDate.trim()).getTime() + "",commissionAmount,null);
+                        visaOfficialService.update(Integer.valueOf(_id),StringUtil.isEmpty(handling_date) ? null
+                                : simpleDateFormat.parse(handling_date.trim()).getTime() + "",commissionAmount,null);
                     }catch (ServiceException s){
                         message += "[" + _id +"修改失败";
                     }

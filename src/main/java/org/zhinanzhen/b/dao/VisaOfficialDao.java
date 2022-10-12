@@ -6,6 +6,7 @@ import org.zhinanzhen.b.dao.pojo.VisaListDO;
 import org.zhinanzhen.b.dao.pojo.VisaOfficialDO;
 import org.zhinanzhen.b.dao.pojo.VisaOfficialListDO;
 
+import java.util.Date;
 import java.util.List;
 
 public interface VisaOfficialDao {
@@ -42,8 +43,15 @@ public interface VisaOfficialDao {
 
     List<VisaOfficialDO> listVisaByCode(@Param("code") String code);
 
+    VisaOfficialDO listByServiceOrderId(@Param("serviceOrderId") int serviceOrderId);
+
     void update(@Param("id")Integer id,
                 @Param("handling_date")String handling_date,
                 @Param("commissionAmount") Double commissionAmount,
                 @Param("state") String state);
+
+    int updateVisaOfficial(VisaOfficialDO visaOfficialDO);
+
+    int updateHandlingDate(@Param("id")Integer id,
+                           @Param("handlingDate") Date handlingDate);
 }

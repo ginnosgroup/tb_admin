@@ -646,17 +646,18 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		}
 
 		List<Integer> cIds = new ArrayList<>();
-//			List<VisaDO> visaList = visaDao.listVisaByServiceOrderId(serviceOrderDo.getId());
-//			if (visaList != null && visaList.size() > 0) {
-//				for (VisaDO visaDo : visaList)
-//					cIds.add(visaDo.getId());
-//			}
+			List<VisaDO> visaList = visaDao.listVisaByServiceOrderId(serviceOrderDO.getId());
+			if (visaList != null && visaList.size() > 0) {
+				for (VisaDO visaDo : visaList)
+					cIds.add(visaDo.getId());
+			}
 //			List<CommissionOrderDO> commissionOrderList = commissionOrderDao
 //					.listCommissionOrderByServiceOrderId(serviceOrderDto.getId());
 //			if (commissionOrderList != null && commissionOrderList.size() > 0) {
 //				for (CommissionOrderDO commissionOrderDo : commissionOrderList)
 //					cIds.add(commissionOrderDo.getId());
 //			}
+		serviceOrderDto.setVisaDOList(visaList);
 		serviceOrderDto.setCIds(cIds);
 
 		// 查询审核记录
@@ -1756,7 +1757,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 //					cIds.add(commissionOrderDo.getId());
 //			}
 			serviceOrderDto.setCIds(cIds);
-
+//			serviceOrderDto.setVisaDOList(visaList);
 			serviceOrderDTOList.add(serviceOrderDto);
 			// 查询职业名称
 			ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDto.getServiceAssessId());
@@ -1828,8 +1829,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
 
 	@Override
-	public List<ServiceOrderDTO> OfficialHandoverServiceOrder(Integer officialId,boolean isPackage) {
-		List<ServiceOrderDO> list = serviceOrderDao.OfficialHandoverServiceOrder(officialId, isPackage);
+	public List<ServiceOrderDTO> OfficialHandoverServiceOrder(Integer officialId) {
+		List<ServiceOrderDO> list = serviceOrderDao.OfficialHandoverServiceOrder(officialId);
 		List<ServiceOrderDTO> servicePackageDTOArrayList = new ArrayList<>();
 		list.forEach(s->{
 			ServiceOrderDTO serviceOrderDTO = mapper.map(s, ServiceOrderDTO.class);
@@ -1845,9 +1846,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 	}
 
 	@Override
-	public void updateOfficial(Integer serviceOrderId,  ServiceOrderDTO s, Integer officialId) {
-		serviceOrderDao.updateServiceOrder(mapper.map(s,ServiceOrderDO.class));
-		officialHandoverLogDao.add(serviceOrderId,s.getOfficialId(),officialId);
+	public void updateOfficial(Integer serviceOrderId,  Integer officialId,Integer newOfficialId) {
+		serviceOrderDao.updateOffice(newOfficialId,serviceOrderId);
+		officialHandoverLogDao.add(serviceOrderId,officialId,newOfficialId);
 	}
 
 
