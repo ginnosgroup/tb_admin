@@ -14,4 +14,16 @@
 
 
     </insert>
+    <select id="getOldOfficial" resultType="java.lang.Integer">
+        SELECT
+            official_id
+        FROM
+            b_official_handover_log
+        WHERE
+            service_order_id = #{serviceOrderId}
+        ORDER BY gmt_modify desc
+        limit 1
+
+    </select>
+
 </mapper>

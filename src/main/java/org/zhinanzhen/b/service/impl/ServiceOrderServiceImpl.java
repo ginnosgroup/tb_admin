@@ -544,6 +544,11 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
 	public ServiceOrderDTO putServiceOrderDTO(ServiceOrderDO serviceOrderDO){
 		ServiceOrderDTO serviceOrderDto = mapper.map(serviceOrderDO, ServiceOrderDTO.class);
+		//获取旧文案信息
+		Integer oldOfficialId = officialHandoverLogDao.getOldOfficial(serviceOrderDto.getId());
+		if(oldOfficialId!=null){
+			serviceOrderDto.setOldOfficial(officialDao.getOfficialById(oldOfficialId));
+		}
 		// 查询学校课程
 		if (serviceOrderDto.getSchoolId() > 0) {
 			SchoolDO schoolDo = schoolDao.getSchoolById(serviceOrderDto.getSchoolId());

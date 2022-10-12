@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.zhinanzhen.b.dao.pojo.CommissionOrderDO;
+import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.ServiceAssessDO;
 import org.zhinanzhen.b.dao.pojo.VisaDO;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
@@ -241,5 +242,7 @@ public class ServiceOrderDTO {
 	private SchoolInstitutionListDTO schoolInstitutionListDTO ;
 
 	private List<CommissionOrderDO> commissionOrderDTOList;
+
+	private OfficialDO oldOfficial;
 
 }
