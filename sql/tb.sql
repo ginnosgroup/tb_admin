@@ -1263,8 +1263,8 @@ CREATE TABLE `b_official_grade` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
-  `grade` int(11) NOT NULL COMMENT '等级（0：资深，1：高级，2：专家）',
-  `rate` decimal(2,2) NOT NULL COMMENT 'rate',
+  `grade` varchar(32) NOT NULL COMMENT '等级',
+  `rate` decimal(8,2) NOT NULL COMMENT 'rate',
   `ruler` int(11) NOT NULL COMMENT '佣金规则（0：固定rate）',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=100000 DEFAULT CHARSET=utf8;
