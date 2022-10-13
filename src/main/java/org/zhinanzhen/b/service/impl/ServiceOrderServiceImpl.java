@@ -820,14 +820,23 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             }
             if ("VISA".equalsIgnoreCase(serviceOrderDo.getType()) && "WAIT".equals(state)) {
                 String _title = StringUtil.merge("已提交MARA申请提醒:", getApplicantName(applicantDto), "/签证");
-                // 发送给文案
-                sendMail(officialDo.getEmail(), _title, StringUtil.merge("亲爱的:", officialDo.getName(), "<br/>",
-                        "您的服务订单已经提交mara申请，如有分期支付请及时联系客户进行补齐尾款。<br>订单号:", serviceOrderDo.getId(), "<br/>服务类型:签证/申请人名称:",
-                        getApplicantName(applicantDto), "/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
-                        getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
-                        applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
-                        serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>创建时间:",
-                        date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
+				sendMail(adviserDo.getEmail(), _title, StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>",
+						"您的服务订单已经提交mara申请，如有分期支付请及时联系客户进行补齐尾款。<br>订单号:", serviceOrderDo.getId(), "<br/>服务类型:签证/申请人名称:",
+						getApplicantName(applicantDto), "/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(),
+						"<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
+						applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
+						serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date,
+						"<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
+            }
+            if ("VISA".equalsIgnoreCase(serviceOrderDo.getType()) && "APPLY".equals(state)) {
+                String _title = StringUtil.merge("已提交移民局申请提醒:", getApplicantName(applicantDto), "/签证");
+				sendMail(adviserDo.getEmail(), _title, StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>",
+						"您的服务订单已经提交移民局申请。<br>订单号:", serviceOrderDo.getId(), "<br/>服务类型:签证/申请人名称:",
+						getApplicantName(applicantDto), "/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(),
+						"<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
+						applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
+						serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date,
+						"<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
             }
             if ("REVIEW".equals(state)) { // 给文案发邮件提醒，这时adviserState为REVIEW,officialState为NULL
                 String title = ("VISA".equalsIgnoreCase(serviceOrderDo.getType()) && assessDO != null) ? StringUtil.merge
