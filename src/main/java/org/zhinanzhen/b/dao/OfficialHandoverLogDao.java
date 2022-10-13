@@ -8,5 +8,5 @@ public interface OfficialHandoverLogDao {
              @Param("officialId") Integer officialId,
              @Param("newOfficialId") Integer newOfficialId
              );
-
+    Integer getOldOfficial(@Param("serviceOrderId") Integer serviceOrderId);
 }

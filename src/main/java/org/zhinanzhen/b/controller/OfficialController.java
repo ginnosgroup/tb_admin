@@ -298,7 +298,11 @@ public class OfficialController extends BaseController {
 				s.setOfficialId(newOfficialId);
 				serviceOrderService.updateOfficial(s.getId(),officialId,newOfficialId);
 			}
-
+			OfficialDTO officialDTO = new OfficialDTO();
+			officialDTO.setWorkState("BUSY");
+			officialDTO.setSpecialty("已离职交接给"+officialService.getOfficialById(newOfficialId).getName());
+			officialDTO.setId(officialId);
+			officialService.updateOfficial(officialDTO);
 		} catch (ServiceException e) {
 			return new Response<>(0, "fail");
 		}
