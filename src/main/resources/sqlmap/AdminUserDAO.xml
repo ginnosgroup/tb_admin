@@ -95,7 +95,7 @@
     
     <update id="updateState" parameterType="org.zhinanzhen.tb.dao.pojo.AdminUserDO">
         UPDATE tb_admin_user
-        SET gmt_modify = now(), state = #{state}
+        SET gmt_modify = now(), status = #{state}
         WHERE id = #{id};
     </update>
 
