@@ -30,7 +30,8 @@ public class ScanSignInAdapter extends BaseController implements SignInAdapter {
 		if (key != null && "wecom".equalsIgnoreCase(key.getProviderId())) {
 			String userId = ((Wecom) connection.getApi()).userOperations().getUserId(code);
 			if (StringUtil.isEmpty(userId))
-				return StringUtil.merge(Application.DOMAIN, "/webroot_new/user/login#扫码失败!请重试.");
+				return StringUtil.merge(Application.DOMAIN,
+						"/webroot_new/user/login#Scan QR code failed! Please try again.");
 			try {
 				HttpSession session = request.getNativeRequest(HttpServletRequest.class).getSession();
 				AdminUserDTO adminUserDto = adminUserService.getAdminUserByOpenUserId(userId);
@@ -38,7 +39,7 @@ public class ScanSignInAdapter extends BaseController implements SignInAdapter {
 					session.removeAttribute("uid");
 					session.setAttribute("uid", userId);
 					return StringUtil.merge(Application.DOMAIN,
-							"/webroot_new/user/login#扫码登录失败!您还未绑定企业微信号,请使用账户密码登录后自动绑定.");
+							"/webroot_new/user/login#Login failed! Your WeCom account has not been bound. Automatically bind after login with password.");
 				}
 				AdminUserLoginInfo loginInfo = getLoginInfoAndUpdateSession(session, adminUserDto.getId());
 				if (loginInfo != null) {
@@ -49,15 +50,16 @@ public class ScanSignInAdapter extends BaseController implements SignInAdapter {
 					}
 					return StringUtil.merge(Application.DOMAIN, "/webroot_new/welcome");
 				} else
-					StringUtil.merge(Application.DOMAIN, "/webroot_new/user/login#登录失败!请联系管理员.");
+					StringUtil.merge(Application.DOMAIN,
+							"/webroot_new/user/login#Login failed! Unable to get user information.");
 			} catch (ServiceException e) {
-				return StringUtil.merge(Application.DOMAIN, "/webroot_new/user/login#登录失败:", e.getMessage());
+				return StringUtil.merge(Application.DOMAIN, "/webroot_new/user/login#Login failed: ", e.getMessage());
 			}
 		} else if (key != null) {
-			return StringUtil.merge(Application.DOMAIN, "/webroot_new/user/login#扫码失败!ProviderID错误:",
-					key.getProviderId());
+			return StringUtil.merge(Application.DOMAIN,
+					"/webroot_new/user/login#Scan QR code failed! ProviderID error: ", key.getProviderId());
 		}
-		return StringUtil.merge(Application.DOMAIN, "/webroot_new/user/login#扫码失败!无法获取Key.");
+		return StringUtil.merge(Application.DOMAIN, "/webroot_new/user/login#Scan QR code failed! Unable to get key.");
 	}
 
 }
