@@ -56,6 +56,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
 
     @Resource
     OfficialService officialService;
+
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
     public Response<List<VisaOfficialDTO>> add(
@@ -175,55 +176,28 @@ public class VisaOfficialController extends BaseCommissionOrderController {
 
             double _perAmount = 0.00;
             double _amount = 0.00;
-            for (int installmentNum = 1; installmentNum <= installment; installmentNum++) {
-                visaDto.setInstallmentNum(installmentNum);
-                if (installmentNum > 1) { // 只给第一个添加支付凭证
-                    visaDto.setPaymentVoucherImageUrl1(null);
-                    visaDto.setPaymentVoucherImageUrl2(null);
-                    visaDto.setPaymentVoucherImageUrl3(null);
-                    visaDto.setPaymentVoucherImageUrl4(null);
-                    visaDto.setPaymentVoucherImageUrl5(null);
-                    visaDto.setState(ReviewKjStateEnum.PENDING.toString());
-                    visaDto.setVerifyCode(null);// 只给第一笔对账verifyCode
-                    visaDto.setKjApprovalDate(null);
-                    visaDto.setReceiveDate(null);
-                    visaDto.setPerAmount(_receivable > _perAmount ? _receivable - _perAmount : 0.00); // 第二笔单子修改本次应收款
-                    visaDto.setAmount(visaDto.getPerAmount());
-                    visaDto.setDiscount(0.00);
-                } else {
-                    visaDto.setState(ReviewKjStateEnum.REVIEW.toString()); // 第一笔单子直接进入财务审核状态
-                    if (StringUtil.isNotEmpty(verifyCode))// 只给第一笔赋值verifyCode
-                        visaDto.setVerifyCode(verifyCode.replace("$", "").replace("#", "").replace(" ", ""));
-                    visaDto.setKjApprovalDate(new Date());
-                }
-                if (visaOfficialService.addVisa(visaDto) > 0)
-                    visaOfficialDTOList.add(visaDto);
-                _perAmount += visaDto.getPerAmount();
-                _amount += visaDto.getAmount();
-            }
-            serviceOrderDto.setOfficialApprovalDate(new Date());
-            serviceOrderDto.setSubmitted(true);
-            serviceOrderService.updateServiceOrder(serviceOrderDto);
-            if (serviceOrderDto.getParentId() > 0) {
-                ServiceOrderDTO _serviceOrderDto = serviceOrderService
-                        .getServiceOrderById(serviceOrderDto.getParentId());
-                if (_serviceOrderDto != null && !_serviceOrderDto.isSubmitted()) {
-                    _serviceOrderDto.setSubmitted(true);
-                    serviceOrderService.updateServiceOrder(_serviceOrderDto);
-                }
-            }
-            ApplicantDTO applicantDto = serviceOrderDto.getApplicant();
-            String msg = "";
-            if (applicantDto != null && applicantBirthday != null) {
-                applicantDto.setBirthday(new Date(Long.parseLong(applicantBirthday)));
-                if (applicantService.update(applicantDto) <= 0)
-                    msg += "申请人生日修改失败! (serviceOrderId:" + serviceOrderDto.getId() + ", applicantId:"
-                            + applicantDto.getId() + ", applicantBirthday:" + applicantDto.getBirthday() + ");";
-                else
-                    msg += "申请人生日修改成功. (serviceOrderId:" + serviceOrderDto.getId() + ", applicantId:"
-                            + applicantDto.getId() + ", applicantBirthday:" + applicantDto.getBirthday() + ");";
-            }
-            return new Response<>(0, msg, visaOfficialDTOList);
+            visaDto.setState(ReviewKjStateEnum.REVIEW.toString()); // 第一笔单子直接进入财务审核状态
+            if (StringUtil.isNotEmpty(verifyCode))// 只给第一笔赋值verifyCode
+                visaDto.setVerifyCode(verifyCode.replace("$", "").replace("#", "").replace(" ", ""));
+            visaDto.setKjApprovalDate(new Date());
+
+            if (visaOfficialService.addVisa(visaDto) > 0)
+                visaOfficialDTOList.add(visaDto);
+            _perAmount += visaDto.getPerAmount();
+            _amount += visaDto.getAmount();
+
+//            serviceOrderDto.setOfficialApprovalDate(new Date());
+//            serviceOrderDto.setSubmitted(true);
+//            serviceOrderService.updateServiceOrder(serviceOrderDto);
+//            if (serviceOrderDto.getParentId() > 0) {
+//                ServiceOrderDTO _serviceOrderDto = serviceOrderService
+//                        .getServiceOrderById(serviceOrderDto.getParentId());
+//                if (_serviceOrderDto != null && !_serviceOrderDto.isSubmitted()) {
+//                    _serviceOrderDto.setSubmitted(true);
+//                    serviceOrderService.updateServiceOrder(_serviceOrderDto);
+//                }
+//            }
+            return new Response<>(0, "", visaOfficialDTOList);
         } catch (ServiceException e) {
             return new Response<>(e.getCode(), e.getMessage(), null);
         }
@@ -239,12 +213,12 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             @RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
             @RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
             @RequestParam(value = "regionId", required = false) Integer regionId,
-            @RequestParam(value = "officialId" ,required = false) Integer officialId,
-            @RequestParam(value ="userName" ,required = false) String userName,
-            @RequestParam(value ="applicantName" ,required = false) String applicantName,
+            @RequestParam(value = "officialId", required = false) Integer officialId,
+            @RequestParam(value = "userName", required = false) String userName,
+            @RequestParam(value = "applicantName", required = false) String applicantName,
             @RequestParam(value = "pageNum") Integer pageNum,
             @RequestParam(value = "pageSize") Integer pageSize,
-            @RequestParam(value = "sorter", required = false) String sorter,HttpServletResponse response,
+            @RequestParam(value = "sorter", required = false) String sorter, HttpServletResponse response,
             HttpServletRequest request) {
         super.setGetHeader(response);
 
@@ -262,7 +236,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             if (adminUserLoginInfo == null)
                 return new ListResponse<>(false, pageSize, 0, null, "No permission !");
             if ("WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
-                    &&officialService.getOfficialById(newOfficialId).getIsOfficialAdmin() ) {
+                    && officialService.getOfficialById(newOfficialId).getIsOfficialAdmin()) {
                 List<RegionDTO> regionList = regionService.listRegion(officialService.getOfficialById(newOfficialId).getRegionId());
                 regionIdList = ListUtil.buildArrayList(officialService.getOfficialById(newOfficialId).getRegionId());
                 for (RegionDTO region : regionList)
@@ -274,13 +248,13 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 if ("WA".equalsIgnoreCase(adminUserLoginInfo.getApList()) && officialId == null)
                     return new ListResponse<>(false, pageSize, 0, null, "无法获取文案编号，请退出重新登录后再尝试．");
             }
-            int count = visaOfficialService.count(officialId,regionIdList,id,startHandlingDate,endHandlingDate,state,startDate,endDate, userName, applicantName);
-            List<VisaOfficialDTO> officialDTOList = visaOfficialService.getVisaOfficialOrder(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state,  startDate,
+            int count = visaOfficialService.count(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, startDate, endDate, userName, applicantName);
+            List<VisaOfficialDTO> officialDTOList = visaOfficialService.getVisaOfficialOrder(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, startDate,
                     endDate, userName, applicantName, pageNum, pageSize, _sorter);
 
 
             return new ListResponse(true, pageSize, count, officialDTOList, "查询成功");
-        }catch (ServiceException e) {
+        } catch (ServiceException e) {
             return new ListResponse<>(false, pageSize, 0, null, e.getMessage());
         }
     }
@@ -291,30 +265,31 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             @RequestParam(value = "id") Integer id,
             @RequestParam(value = "handlingDate", required = false) String handlingDate,
             @RequestParam(value = "commissionAmount", required = false) Double commissionAmount,
-            @RequestParam(value="state",required = false) String state,
-            HttpServletResponse response,HttpServletRequest request){
+            @RequestParam(value = "state", required = false) String state,
+            HttpServletResponse response, HttpServletRequest request) {
         super.setGetHeader(response);
         // 获取用户信息
         try {
             AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-            if(adminUserLoginInfo!=null){
-                if(adminUserLoginInfo.getApList().equalsIgnoreCase("KJ")){
-                    visaOfficialService.update(id,handlingDate,commissionAmount,state);
-                    return new Response<>(0,"修改成功");
+            if (adminUserLoginInfo != null) {
+                if (adminUserLoginInfo.getApList().equalsIgnoreCase("KJ")) {
+                    visaOfficialService.update(id, handlingDate, commissionAmount, state);
+                    return new Response<>(0, "修改成功");
                 }
-                if(adminUserLoginInfo.getApList().equalsIgnoreCase("WA")&&officialService.getOfficialById(getOfficialId(request)).getIsOfficialAdmin() ){
-                    if(commissionAmount!=null||StringUtil.isNotEmpty(state)){
-                        return new Response<>(1,"修改失败没有权限");
+                if (adminUserLoginInfo.getApList().equalsIgnoreCase("WA") && officialService.getOfficialById(getOfficialId(request)).getIsOfficialAdmin()) {
+                    if (commissionAmount != null || StringUtil.isNotEmpty(state)) {
+                        return new Response<>(1, "修改失败没有权限");
                     }
-                    visaOfficialService.update(id,handlingDate,commissionAmount,state);
-                    return new Response<>(0,"修改成功");
+                    visaOfficialService.update(id, handlingDate, commissionAmount, state);
+                    return new Response<>(0, "修改成功");
                 }
             }
-            return new Response<>(1,"修改失败,请登录");
-        }catch (ServiceException e){
-            return new Response<>(1,"修改失败"+e.getMessage());
+            return new Response<>(1, "修改失败,请登录");
+        } catch (ServiceException e) {
+            return new Response<>(1, "修改失败" + e.getMessage());
         }
     }
+
     @RequestMapping(value = "/downOfficialCommission", method = RequestMethod.GET)
     @ResponseBody
     public void downOfficialCommission(
@@ -328,10 +303,10 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             @RequestParam(value = "officialId", required = false) Integer officialId,
             @RequestParam(value = "userName", required = false) String userName,
             @RequestParam(value = "applicantName", required = false) String applicantName,
-            HttpServletResponse response){
+            HttpServletResponse response) {
         try {
             List<Integer> regionList = null;
-            if(regionId!=null){
+            if (regionId != null) {
                 regionList = new ArrayList<>();
                 regionList.add(regionId);
             }
@@ -352,34 +327,34 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 HSSFRow row = sheet.createRow(i);
                 row.createCell(0).setCellValue(visaDTO.getId());
                 row.createCell(1).setCellValue(visaDTO.getServiceOrderId());
-                row.createCell(2).setCellValue(visaDTO.getHandlingDate()==null?"":sdf.format(visaDTO.getHandlingDate()));
+                row.createCell(2).setCellValue(visaDTO.getHandlingDate() == null ? "" : sdf.format(visaDTO.getHandlingDate()));
                 row.createCell(3).setCellValue(sdf.format(visaDTO.getServiceOrder().getGmtCreate()));
                 row.createCell(4).setCellValue(visaDTO.getUserName());
-                row.createCell(5).setCellValue(StringUtil.merge(visaDTO.getApplicant().getFirstname()," ",visaDTO.getApplicant().getSurname()));
-                row.createCell(6).setCellValue(visaDTO.getReceiveDate()==null?"":sdf.format(visaDTO.getReceiveDate()));
+                row.createCell(5).setCellValue(StringUtil.merge(visaDTO.getApplicant().getFirstname(), " ", visaDTO.getApplicant().getSurname()));
+                row.createCell(6).setCellValue(visaDTO.getReceiveDate() == null ? "" : sdf.format(visaDTO.getReceiveDate()));
                 row.createCell(7).setCellValue(visaDTO.getCurrency());
                 row.createCell(8).setCellValue(visaDTO.getExchangeRate());
                 row.createCell(9).setCellValue(visaDTO.getReceiveTypeName());
-                row.createCell(10).setCellValue(StringUtil.merge(visaDTO.getServiceOrder().getService().getName(),"-",visaDTO.getServiceCode()));
+                row.createCell(10).setCellValue(StringUtil.merge(visaDTO.getServiceOrder().getService().getName(), "-", visaDTO.getServiceCode()));
                 row.createCell(11).setCellValue(visaDTO.getAdviserName());
                 row.createCell(12).setCellValue(visaDTO.getOfficialName());
-                row.createCell(13).setCellValue(visaDTO.getMaraDTO()==null||visaDTO.getMaraDTO().getName()==null?"":visaDTO.getMaraDTO().getName());
+                row.createCell(13).setCellValue(visaDTO.getMaraDTO() == null || visaDTO.getMaraDTO().getName() == null ? "" : visaDTO.getMaraDTO().getName());
                 row.createCell(14).setCellValue(visaDTO.getTotalPerAmountAUD());
                 row.createCell(15).setCellValue(visaDTO.getTotalAmountAUD());
-                row.createCell(16).setCellValue(visaDTO.getPredictCommissionAmount()+"");
-                row.createCell(17).setCellValue(visaDTO.getCommissionAmount()==null?"":visaDTO.getCommissionAmount()+"");
-                row.createCell(18).setCellValue(visaDTO.getPredictCommission()==null?"":visaDTO.getPredictCommission()+"");
-                String states = visaDTO.getState()==null?"":visaDTO.getState();
+                row.createCell(16).setCellValue(visaDTO.getPredictCommissionAmount() + "");
+                row.createCell(17).setCellValue(visaDTO.getCommissionAmount() == null ? "" : visaDTO.getCommissionAmount() + "");
+                row.createCell(18).setCellValue(visaDTO.getPredictCommission() == null ? "" : visaDTO.getPredictCommission() + "");
+                String states = visaDTO.getState() == null ? "" : visaDTO.getState();
                 if (states.equalsIgnoreCase("REVIEW"))
                     states = "待确认";
-                row.createCell(19).setCellValue(states.equalsIgnoreCase("COMPLETE")?"已确认":states);
+                row.createCell(19).setCellValue(states.equalsIgnoreCase("COMPLETE") ? "已确认" : states);
                 i++;
             }
             wb.write(os);
             os.flush();
             os.close();
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return;
         }
@@ -410,10 +385,10 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                     }
                     try {
 
-                        visaOfficialService.update(Integer.valueOf(_id),StringUtil.isEmpty(handling_date) ? null
-                                : simpleDateFormat.parse(handling_date.trim()).getTime() + "",commissionAmount,null);
-                    }catch (ServiceException s){
-                        message += "[" + _id +"修改失败";
+                        visaOfficialService.update(Integer.valueOf(_id), StringUtil.isEmpty(handling_date) ? null
+                                : simpleDateFormat.parse(handling_date.trim()).getTime() + "", commissionAmount, null);
+                    } catch (ServiceException s) {
+                        message += "[" + _id + "修改失败";
                     }
                 } catch (NumberFormatException | ServiceException | ParseException e) {
                     message += "[" + _id + "]" + e.getMessage() + ";";
@@ -424,7 +399,6 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         }
         return new Response<Integer>(0, message, n);
     }
-
 
 
 }
