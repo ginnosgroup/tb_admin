@@ -153,11 +153,8 @@ public class AdminUserServiceImpl extends BaseService implements AdminUserServic
 		AdminUserDTO adminUserDto = null;
 		try {
 			AdminUserDO adminUserDo = adminUserDao.getAdminUserByOpenUserId(openUserId);
-			if (adminUserDo == null) {
-				ServiceException se = new ServiceException("the administrator is't exist .");
-				se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
-				throw se;
-			}
+			if (adminUserDo == null)
+				return null;
 			adminUserDto = mapper.map(adminUserDo, AdminUserDTO.class);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
