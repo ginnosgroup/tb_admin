@@ -39,7 +39,7 @@ public class ScanSignInAdapter extends BaseController implements SignInAdapter {
 					session.removeAttribute("uid");
 					session.setAttribute("uid", userId);
 					return StringUtil.merge(Application.DOMAIN,
-							"/webroot_new/user/login#Login failed! Your WeCom account has not been bound. Automatically bind after login with password.");
+							"/webroot_new/user/login#Failed! Your WeCom account has not been bound. Automatically bind after login with password.");
 				}
 				AdminUserLoginInfo loginInfo = getLoginInfoAndUpdateSession(session, adminUserDto.getId());
 				if (loginInfo != null) {
@@ -53,7 +53,7 @@ public class ScanSignInAdapter extends BaseController implements SignInAdapter {
 					StringUtil.merge(Application.DOMAIN,
 							"/webroot_new/user/login#Login failed! Unable to get user information.");
 			} catch (ServiceException e) {
-				return StringUtil.merge(Application.DOMAIN, "/webroot_new/user/login#Login failed: ", e.getMessage());
+				return StringUtil.merge(Application.DOMAIN, "/webroot_new/user/login#Failed: ", e.getMessage());
 			}
 		} else if (key != null) {
 			return StringUtil.merge(Application.DOMAIN,
