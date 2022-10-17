@@ -30,6 +30,8 @@ public interface AdminUserDAO {
 	List<AdminUserDO> listAdminUserByAp(String ap);
 	
 	AdminUserDO getAdminUserByUsername(String username);
+	
+	AdminUserDO getAdminUserByOpenUserId(String openUserId); // 我猜是把open拼错成oper, 所以在添加这个接口时我更正成open了
 
 	boolean updateOperUserId(@Param("id")int id ,@Param("operUserId") String operUserId);
 }
