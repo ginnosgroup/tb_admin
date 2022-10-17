@@ -142,6 +142,27 @@ public class AdminUserServiceImpl extends BaseService implements AdminUserServic
 		}
 		return adminUserDto;
 	}
+	
+	@Override
+	public AdminUserDTO getAdminUserByOpenUserId(String openUserId) throws ServiceException {
+		if (StringUtil.isEmpty(openUserId)) {
+			ServiceException se = new ServiceException("openUserId error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		AdminUserDTO adminUserDto = null;
+		try {
+			AdminUserDO adminUserDo = adminUserDao.getAdminUserByOpenUserId(openUserId);
+			if (adminUserDo == null)
+				return null;
+			adminUserDto = mapper.map(adminUserDo, AdminUserDTO.class);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+		return adminUserDto;
+	}
 
 	@Override
 	public boolean updatePassword(String username, String newPassword) throws ServiceException {
