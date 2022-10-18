@@ -13,7 +13,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.zhinanzhen.tb.controller.BaseController.AdminUserLoginInfo;
 import org.zhinanzhen.tb.service.AdminUserService;
+import org.zhinanzhen.tb.service.ServiceException;
+import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
+import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 
 import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
@@ -163,6 +167,43 @@ public class BaseController {
 		} else {
 			return new Response<String>(3, "文件为空.", null);
 		}
+	}
+	
+	protected AdminUserLoginInfo getLoginInfoAndUpdateSession(HttpSession session, int id) throws ServiceException {
+		String sessionId = session.getId();
+		if (id > 0 && adminUserService.updateSessionId(id, sessionId))
+			return getLoginInfoAndUpdateSession(session, adminUserService.getAdminUserById(id));
+		else
+			return null;
+	}
+	
+	protected AdminUserLoginInfo getLoginInfoAndUpdateSession(HttpSession session, AdminUserDTO adminUser) throws ServiceException {
+		String sessionId = session.getId();
+			AdminUserLoginInfo loginInfo = new AdminUserLoginInfo();
+			loginInfo.setId(adminUser.getId());
+			loginInfo.setUsername(adminUser.getUsername());
+			loginInfo.setSessionId(sessionId);
+			if (adminUser != null) {
+				String ap = adminUser.getApList();
+				if (ap != null) {
+					loginInfo.setApList(ap);
+					if (ap.contains("GW"))
+						loginInfo.setAdviserId(adminUser.getAdviserId());
+					if (ap.contains("MA"))
+						loginInfo.setMaraId(adminUser.getMaraId());
+					if (ap.contains("WA"))
+						loginInfo.setOfficialId(adminUser.getOfficialId());
+					if (ap.contains("KJ"))
+						loginInfo.setKjId(adminUser.getKjId());
+				}
+				loginInfo.setRegionId(adminUser.getRegionId());
+				loginInfo.setOfficialAdmin(adminUser.isOfficialAdmin());
+				if (StringUtil.isNotEmpty(adminUser.getOperUserId()))
+					loginInfo.setAuth(true);
+			}
+			session.removeAttribute("AdminUserLoginInfo" + VERSION);
+			session.setAttribute("AdminUserLoginInfo" + VERSION, loginInfo);
+			return loginInfo;
 	}
 
 	// 获取当前用户

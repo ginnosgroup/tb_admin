@@ -1,8 +1,6 @@
 package org.zhinanzhen.tb.controller;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import javax.annotation.Resource;
@@ -26,10 +24,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.zhinanzhen.b.service.pojo.ExchangeRateDTO;
 import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.ServiceException;
-import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
 
@@ -106,47 +102,21 @@ public class AdminUserController extends BaseController {
 			return new Response<Boolean>(0, "验证码异常:" + e.getMessage(), false);
 		}
 		int id = adminUserService.login(username, password);
-		String sessionId = session.getId();
-		if (id > 0 && adminUserService.updateSessionId(id, sessionId)) {
-			AdminUserLoginInfo loginInfo = new AdminUserLoginInfo();
-			loginInfo.setId(id);
-			loginInfo.setUsername(username);
-			loginInfo.setSessionId(sessionId);
-			AdminUserDTO adminUser = adminUserService.getAdminUserById(id);
-			if (adminUser != null) {
-				String ap = adminUser.getApList();
-				if (ap != null) {
-					loginInfo.setApList(ap);
-					if (ap.contains("GW"))
-						loginInfo.setAdviserId(adminUser.getAdviserId());
-					if (ap.contains("MA"))
-						loginInfo.setMaraId(adminUser.getMaraId());
-					if (ap.contains("WA"))
-						loginInfo.setOfficialId(adminUser.getOfficialId());
-					if (ap.contains("KJ"))
-						loginInfo.setKjId(adminUser.getKjId());
-				}
-				loginInfo.setRegionId(adminUser.getRegionId());
-				if (loginInfo.getAdviserId() != null && ap.contains("GW")) {
-					AdviserDTO adviserDto = adviserService.getAdviserById(loginInfo.getAdviserId());
-					if (isCN(adviserDto.getRegionId()))
-						loginInfo.setCountry("CN");
-					else
-						loginInfo.setCountry("AU");
-				}
-
-				loginInfo.setOfficialAdmin(adminUser.isOfficialAdmin());
-				if (StringUtil.isNotEmpty(adminUser.getOperUserId()))
-					loginInfo.setAuth(true);
-			}
-			session.removeAttribute("AdminUserLoginInfo" + VERSION);
-			session.setAttribute("AdminUserLoginInfo" + VERSION, loginInfo);
-			log.info("[" + username + "]登录系统成功!");
-			return new Response<Boolean>(0, true);
-		} else {
-			log.info("[" + username + "]登录系统失败!");
-			return new Response<Boolean>(0, false);
+		String uid = (String) session.getAttribute("uid");
+		if (StringUtil.isNotEmpty(uid) && adminUserService.getAdminUserByOpenUserId(uid) == null) {
+			adminUserService.updateOperUserId(id, uid); // 绑定企业微信号
+			session.removeAttribute("uid");
 		}
+		if (id > 0 && adminUserService.updateSessionId(id, session.getId())) {
+			AdminUserLoginInfo loginInfo = getLoginInfoAndUpdateSession(session, adminUserService.getAdminUserById(id));
+			if (loginInfo.getAdviserId() != null) {
+				AdviserDTO adviserDto = adviserService.getAdviserById(loginInfo.getAdviserId());
+				if (adviserDto != null)
+					loginInfo.setCountry(isCN(adviserDto.getRegionId()) ? "CN" : "AU");
+			}
+			return new Response<Boolean>(0, true);
+		}
+		return new Response<Boolean>(0, false);
 	}
 
 	@RequestMapping(value = "/out", method = RequestMethod.GET)
@@ -218,8 +188,8 @@ public class AdminUserController extends BaseController {
 			return new Response<Boolean>(1, "请使用指南针邮箱!", false);
 		String newPassword = RandomStringUtils.randomAlphanumeric(8);
 		if (adminUserService.updatePassword(username, newPassword)) {
-			SendEmailUtil.send(username, "ZNZ Password Renew", StringUtil.merge("Your new password is ", newPassword,
-					" . Please change your password after login.<br/>https://yongjinbiao.zhinanzhen.org/webroot_new/changePassword"));
+			SendEmailUtil.send(username, "ZNZ Password Renew", StringUtil.merge("Your new password is <b>", newPassword,
+					"</b>. Please change your password after login.<br/>https://yongjinbiao.zhinanzhen.org/webroot_new/changePassword"));
 			return new Response<Boolean>(0, StringUtil.merge("新密码已发送到", username, ",请查看邮箱."), true);
 		} else
 			return new Response<Boolean>(1, "重置密码失败,请联系管理员.", false);
