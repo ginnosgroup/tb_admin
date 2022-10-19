@@ -325,6 +325,8 @@ public class RefundController extends BaseController {
 			RefundDTO _refundDto = refundService.getRefundById(refundDto.getId());
 			if (refundDto.getState() != null)
 				_refundDto.setState(refundDto.getState());
+			if (refundDto.getCompletedDate() != null)
+				_refundDto.setCompletedDate(refundDto.getCompletedDate());
 			if (refundDto.getPaymentVoucherImageUrl() != null)
 				_refundDto.setPaymentVoucherImageUrl(refundDto.getPaymentVoucherImageUrl());
 			if (refundDto.getPaymentVoucherImageUrl2() != null)
