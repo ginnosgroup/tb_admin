@@ -17,6 +17,8 @@ public class CommissionAmountDTO {
 
     private String calculation;
 
+    private int ruler;
+
     private double predictCommissionAmount;//计入佣金提点金额(预估)
 
 
