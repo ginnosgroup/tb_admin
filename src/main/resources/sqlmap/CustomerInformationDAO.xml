@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.zhinanzhen.b.dao.CustomerInformationDAO" >
+
+
+  <insert id="insert" parameterType="org.zhinanzhen.b.dao.pojo.customer.CustomerInformationDTO" >
+    insert into b_customer_information ( gmt_create, gmt_modify,
+      service_order_id, main_information, past_information_list,
+      chinese_commercial_code, contact_details,
+      citizenship_details,
+      ident_ification_number_list, education_list,
+      language_skills, addresses, postal_address_list,
+      health_questions, character_issues)
+    values (now(), now(),
+      #{serviceOrderId,jdbcType=INTEGER}, #{mainInformation,jdbcType=VARCHAR}, #{ pastInformationList,jdbcType=VARCHAR},
+      #{chineseCommercialCode,jdbcType=VARCHAR}, #{contactDetails,jdbcType=VARCHAR}, 
+      #{citizenshipDetails,jdbcType=VARCHAR},
+      #{identificationNumberList,jdbcType=VARCHAR}, #{educationList,jdbcType=VARCHAR},
+      #{languageSkills,jdbcType=VARCHAR}, #{addresses,jdbcType=VARCHAR}, #{postalAddressList,jdbcType=VARCHAR},
+      #{healthQuestions,jdbcType=VARCHAR}, #{characterIssues,jdbcType=VARCHAR})
+  </insert>
+    <update id="update">
+      update b_customer_information
+      <set >
+          gmt_modify = now(),
+        <if test="mainInformation != null" >
+          main_information = #{mainInformation,jdbcType=VARCHAR},
+        </if>
+        <if test="pastInformationList != null" >
+          past_information_list = #{pastInformationList,jdbcType=VARCHAR},
+        </if>
+        <if test="chineseCommercialCode != null" >
+          chinese_commercial_code = #{chineseCommercialCode,jdbcType=VARCHAR},
+        </if>
+        <if test="contactDetails != null" >
+          contact_details = #{contactDetails,jdbcType=VARCHAR},
+        </if>
+        <if test="citizenshipDetails != null" >
+          citizenship_details = #{citizenshipDetails,jdbcType=VARCHAR},
+        </if>
+        <if test="identificationNumberList != null" >
+          ident_ification_number_list = #{identificationNumberList,jdbcType=VARCHAR},
+        </if>
+        <if test="educationList != null" >
+          education_list = #{educationList,jdbcType=VARCHAR},
+        </if>
+        <if test="languageSkills != null" >
+          language_skills = #{languageSkills,jdbcType=VARCHAR},
+        </if>
+        <if test="addresses != null" >
+          addresses = #{addresses,jdbcType=VARCHAR},
+        </if>
+        <if test="postalAddressList != null" >
+          postal_address_list = #{postalAddressList,jdbcType=VARCHAR},
+        </if>
+        <if test="healthQuestions != null" >
+          health_questions = #{healthQuestions,jdbcType=VARCHAR},
+        </if>
+        <if test="characterIssues != null" >
+          character_issues = #{characterIssues,jdbcType=VARCHAR},
+        </if>
+      </set>
+      where id = #{id,jdbcType=INTEGER}
+
+    </update>
+  <delete id="delete">
+    delete
+    FROM
+      b_customer_information
+    where id = #{id}
+  </delete>
+  <select id="get" resultType="org.zhinanzhen.b.dao.pojo.customer.CustomerInformationDTO">
+    SELECT
+      *
+    FROM
+      b_customer_information
+          where id = #{id}
+  </select>
+</mapper>

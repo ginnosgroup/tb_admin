@@ -103,7 +103,7 @@ public class AdminUserController extends BaseController {
 		}
 		int id = adminUserService.login(username, password);
 		String uid = (String) session.getAttribute("uid");
-		if (StringUtil.isNotEmpty(uid)) {
+		if (StringUtil.isNotEmpty(uid) && adminUserService.getAdminUserByOpenUserId(uid) == null) {
 			adminUserService.updateOperUserId(id, uid); // 绑定企业微信号
 			session.removeAttribute("uid");
 		}
