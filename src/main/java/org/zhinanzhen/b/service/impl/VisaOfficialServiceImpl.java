@@ -396,19 +396,9 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 return 0;
             }
         } catch (Exception e) {
-            System.out.println("测试直接getMessage是否能打印异常: " + e.getMessage());
-            System.out.println("==分割线==");
-            StringWriter stringWriter = new StringWriter();
-            PrintWriter writer = new PrintWriter(stringWriter);
-            e.printStackTrace(writer);
-            StringBuffer buffer = stringWriter.getBuffer();
-            // 截取前200长度的报错信息
-            String error = buffer.toString().substring(0, 200);
-            System.out.println("测试Buffer能否打印异常 " + error);
-            // printStackTrace()是指将异常本身和异常信息输出到标准的错误流
-            System.out.println("e.printStackTrace: ");
-            e.printStackTrace();
-            throw e;
+            ServiceException se = new ServiceException(e);
+            se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+            throw se;
         }
     }
 
