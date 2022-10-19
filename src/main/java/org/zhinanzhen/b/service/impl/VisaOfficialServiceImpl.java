@@ -282,7 +282,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             }
             //打包服务计算
             else if (serviceOrderDO.getServicePackageId() != 0) {
-                ServicePackageDO packageDO = servicePackageDAO.getById(serviceOrderDO.getId());
+                ServicePackageDO packageDO = servicePackageDAO.getById(serviceOrderDO.getServicePackageId());
                 //eoi计算
                 if (packageDO.getType().equals("EOI")) {
                     VisaDO visaDO = new VisaDO();
