@@ -5,8 +5,8 @@
     <select id="listOfficialGrade" resultType="org.zhinanzhen.b.dao.pojo.OfficialGradeDO">
     	SELECT
 			bg.id,
-			bg.gmt_create,
-			bg.gmt_modify,
+			bg.gmt_create as gmtCreate,
+			bg.gmt_modify as gmtModify,
 			bg.grade,
 			bg.rate,
 			bg.ruler
@@ -20,8 +20,8 @@
 	<select id="getOfficialGradeByGrade"  resultType="org.zhinanzhen.b.dao.pojo.OfficialGradeDO">
     	SELECT
 			bg.id,
-			bg.gmt_create,
-			bg.gmt_modify,
+			bg.gmt_create as gmtCreate,
+			bg.gmt_modify as gmtModify,
 			bg.grade,
 			bg.rate,
 			bg.ruler
@@ -53,8 +53,8 @@
 	<select id="getOfficialGradeById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.OfficialGradeDO">
 		SELECT
 			bg.id,
-			bg.gmt_create,
-			bg.gmt_modify,
+			bg.gmt_create as gmtCreate,
+			bg.gmt_modify as gmtModify,
 			bg.grade,
 			bg.rate,
 			bg.ruler
