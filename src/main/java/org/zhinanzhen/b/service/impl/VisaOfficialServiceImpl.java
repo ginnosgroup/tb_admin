@@ -397,6 +397,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             }
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
+            se.setStackTrace(e.getStackTrace());
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
             throw se;
         }
