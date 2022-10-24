@@ -11,9 +11,9 @@ public class OfficialGradeDO implements Serializable {
 
     private int id;
 
-    private Date gmt_create;
+    private Date gmtCreate;
 
-    private Date gmt_modify;
+    private Date gmtModify;
 
     private String grade;
 
