@@ -729,7 +729,7 @@
     <select id="listVisaRemindDateDesc" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.service.pojo.UserDTO">
         select a.visa_expiration_date,concat(a.firstname, ' ', a.surname),u.id from tb_user u, b_applicant a where u.id=a.user_id and
         <if test="adviserId != 0">
-             adviser_id = #{adviserId} and
+             a.adviser_id = #{adviserId} and
         </if>
         DATE_FORMAT(a.visa_expiration_date,'%Y') != DATE_FORMAT('1970-01-01','%Y')
         ORDER BY a.visa_expiration_date ASC limit #{pageNum},#{pageSize} ;
