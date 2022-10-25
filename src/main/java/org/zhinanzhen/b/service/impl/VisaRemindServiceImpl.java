@@ -1,5 +1,7 @@
 package org.zhinanzhen.b.service.impl;
 
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -7,6 +9,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.RemindDAO;
 import org.zhinanzhen.b.dao.VisaDAO;
@@ -117,8 +120,11 @@ public class VisaRemindServiceImpl extends BaseService implements VisaRemindServ
 		if(adviserId!=null){
 			newAdviserId = Integer.parseInt(adviserId);
 		}
-System.out.println(visaDao.listVisaRemindDateDesc(newAdviserId,Integer.parseInt(pageNum)-1,Integer.parseInt(pageSize)));
-		return visaDao.listVisaRemindDateDesc(newAdviserId,Integer.parseInt(pageNum)-1,Integer.parseInt(pageSize));
+		List<UserDTO> list = visaDao.listVisaRemindDateDesc(newAdviserId,Integer.parseInt(pageNum)-1,Integer.parseInt(pageSize));
+		list.forEach(u -> {
+			u.setVisa_expiration_date(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(u.getVisaExpirationDate(), new ParsePosition(0)));
+		});
+		return list;
 	}
 
 
