@@ -196,13 +196,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
 //            }
             return new Response<>(0, "", visaOfficialDTOList);
         } catch (ServiceException e) {
-            StringWriter stringWriter= new StringWriter();
-            PrintWriter writer= new PrintWriter(stringWriter);
-            e.printStackTrace(writer);
-            StringBuffer buffer= stringWriter.getBuffer();
-            // 截取前200长度的报错信息
-            String error = buffer.toString().substring(0, 200);
-            return new Response<>(e.getCode(), error, null);
+            return new Response<>(e.getCode(), e.getMessage(), null);
         }
     }
 
