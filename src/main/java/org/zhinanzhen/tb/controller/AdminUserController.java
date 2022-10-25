@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.zhinanzhen.b.service.pojo.ExchangeRateDTO;
 import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
@@ -179,7 +180,7 @@ public class AdminUserController extends BaseController {
 		}
 		return new Response<String>(1, "需要超级管理员权限", null);
 	}
-	
+
 	@RequestMapping(value = "/sendNewPassword", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Boolean> sendNewPassword(@RequestParam(value = "username") String username,
@@ -194,7 +195,7 @@ public class AdminUserController extends BaseController {
 		} else
 			return new Response<Boolean>(1, "重置密码失败,请联系管理员.", false);
 	}
-	
+
 	private static boolean checkZnzEmail(String email) {
 		return email.contains("@zhinanzhen.org") || email.contains("@iessydney.com");
 	}
