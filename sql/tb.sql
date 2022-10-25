@@ -489,10 +489,7 @@ CREATE TABLE `b_service_order` (
   `applicant_id` int(11) DEFAULT NULL COMMENT '申请人编号',
   `applicant_parent_id` int(11) DEFAULT NULL COMMENT ' (b_service_order.id)',
   `currency` varchar(4) DEFAULT 'AUD' COMMENT '(AUD:,CNY:)',
-  `exchange_rate` decimal(6,4) NOT NULL DEFAULT '4.8000',
-  `submitIbDate` datetime DEFAULT NULL COMMENT '提交移民局时间',
-  `commissionAmount` decimal(8,2) DEFAULT NULL COMMENT '计入佣金提点金额',
-  `predict_commission` decimal(8,2) DEFAULT NULL COMMENT '预估佣金',
+  `exchange_rate` decimal(6,4) NOT NULL DEFAULT '4.8000'
   PRIMARY KEY (`id`) USING BTREE,
   KEY `index_name` (`user_id`,`adviser_id`,`official_id`,`mara_id`,`state`,`service_id`,`parent_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
@@ -1337,4 +1334,24 @@ CREATE TABLE `b_official_handover_log` (
 PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=100000 DEFAULT CHARSET=utf8;
 
+--客户资料表
+CREATE TABLE `b_customer_information` (
+`id` int(11) NOT NULL AUTO_INCREMENT COMMENT '编号',
+`gmt_create` datetime DEFAULT NULL COMMENT '创建时间',
+`gmt_modify` datetime DEFAULT NULL COMMENT '最后修改时间',
+`service_order_id` int(11) DEFAULT NULL COMMENT '服务订单编号 (对应b_service_order.id)',
+`main_information` varchar(2000) DEFAULT NULL COMMENT '基本信息',
+`past_information_list` varchar(1000) DEFAULT NULL COMMENT '曾用信息',
+`chinese_commercial_code` varchar(100) DEFAULT NULL COMMENT '中文电码',
+`contact_details` varchar(1000) DEFAULT NULL COMMENT '联系信息列表',
+`citizenship_details` varchar(1000) DEFAULT NULL COMMENT '公民身份详情列表',
+`ident_ification_number_list` varchar(1000) DEFAULT NULL COMMENT '护照,旅行证件详细信息',
+`education_list` varchar(1000) DEFAULT NULL COMMENT '教育信息',
+`language_skills` varchar(1000) DEFAULT NULL COMMENT '语言能力',
+`addresses` varchar(1000) DEFAULT NULL COMMENT '地址信息',
+`postal_address_list` varchar(1000) DEFAULT NULL COMMENT '邮件地址信息',
+`health_questions` varchar(2000) DEFAULT NULL COMMENT '健康信息',
+`character_issues` varchar(5000) DEFAULT NULL COMMENT '性格信息',
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 

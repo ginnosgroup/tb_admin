@@ -735,9 +735,7 @@
             real_people_number AS realPeopleNumber ,
             verify_code AS verifyCode ,
             readcommitted_date AS readcommittedDate,
-            ref_no AS refNo,
-            submitIbDate,
-            commissionAmount
+            ref_no AS refNo
         FROM b_service_order WHERE id = #{id, jdbcType=INTEGER};
     </select>
     
@@ -770,27 +768,7 @@
         WHERE id = #{id, jdbcType=INTEGER};
     </update>
 
-    <update id="update" >
-        update b_service_order
-        SET gmt_modify = now()
-        <if test='submitIbDate !=null and submitIbDate != ""'>
-            , submitIbDate = #{submitIbDate}
-        </if>
-        <if test='commissionAmount !=null and commissionAmount !="" or commissionAmount ==0.0'>
-            , commissionAmount = #{commissionAmount}
-        </if>
-        <if test='predictCommission !=null and predictCommission !="" or predictCommission ==0.0'>
-            , predict_commission = #{predictCommission}
-        </if>
-        where id = #{id}
 
-    </update>
-
-    <update id="setCommission">
-        UPDATE b_service_order
-        SET gmt_modify = now(), submitIbDate = now(),commissionAmount=#{commissionAmount},predict_commission = #{predictCommission},predict_commission_1=#{predictCommission1}
-        WHERE id = #{id, jdbcType=INTEGER};
-    </update>
     <update id="updateOffice">
         UPDATE b_service_order
         SET gmt_modify = now(),
