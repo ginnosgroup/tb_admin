@@ -117,7 +117,7 @@ public class VisaRemindServiceImpl extends BaseService implements VisaRemindServ
 		if(adviserId!=null){
 			newAdviserId = Integer.parseInt(adviserId);
 		}
-System.out.println(visaDao.listVisaRemindDateDesc(newAdviserId,Integer.parseInt(pageNum)-1,Integer.parseInt(pageSize)));
+
 		return visaDao.listVisaRemindDateDesc(newAdviserId,Integer.parseInt(pageNum)-1,Integer.parseInt(pageSize));
 	}
 
