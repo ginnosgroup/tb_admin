@@ -727,7 +727,7 @@
     </delete>
 
     <select id="listVisaRemindDateDesc" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.service.pojo.UserDTO">
-        select a.visa_expiration_date,concat(a.firstname, ' ', a.surname) as name,u.id, a.adviser_id as adviserId from tb_user u, b_applicant a where u.id=a.user_id and
+        select a.visa_expiration_date AS visaExpirationDate,concat(a.firstname, ' ', a.surname) as name,u.id, a.adviser_id as adviserId from tb_user u, b_applicant a where u.id=a.user_id and
         <if test="adviserId != 0">
              a.adviser_id = #{adviserId} and
         </if>

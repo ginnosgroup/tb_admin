@@ -12,6 +12,8 @@ public class UserDTO {
     private String name;
 
     private Date visa_expiration_date;
+    
+    private String visaExpirationDate;
 
     private Integer adviserId;
 
