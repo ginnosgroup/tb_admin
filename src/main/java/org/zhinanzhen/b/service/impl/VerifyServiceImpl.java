@@ -129,21 +129,17 @@ public class VerifyServiceImpl implements VerifyService {
                 }
                 if (StringUtil.isEmpty(dataFormatter.formatCellValue(row.getCell(0))))
                     continue;
+System.out.println("row.getCell(0)===" + row.getCell(0));
+System.out.println("getDataFormatString===" + row.getCell(0).getCellStyle().getDataFormatString());
                 if ("d/mm/yyyy;@".equals(row.getCell(0).getCellStyle().getDataFormatString())
                         || "d/m/yyyy;@".equals(row.getCell(0).getCellStyle().getDataFormatString())
                         || "dd/mm/yyyy;@".equals(row.getCell(0).getCellStyle().getDataFormatString())){
-System.out.println("row.getCell(0)1===" + row.getCell(0));
-System.out.println("dataFormatter1===" + dataFormatter.formatCellValue(row.getCell(0)));
-System.out.println("sdfParsedmyyyy1===" + sdfParsedmyyyy.parse(dataFormatter.formatCellValue(row.getCell(0))));
                     financeCodeDO.setBankDate(sdfParsedmyyyy.parse(dataFormatter.formatCellValue(row.getCell(0))));
 
                 }
                 if ("d/m/yy;@".equals(row.getCell(0).getCellStyle().getDataFormatString())
                         || "dd/mm/yy;@".equals(row.getCell(0).getCellStyle().getDataFormatString())
                         || "d/mm/yy;@".equals(row.getCell(0).getCellStyle().getDataFormatString())){
-System.out.println("row.getCell(0)2===" + row.getCell(0));
-System.out.println("dataFormatter2===" + dataFormatter.formatCellValue(row.getCell(0)));
-System.out.println("sdfParsedmyy2===" + sdfParsedmyy.parse(dataFormatter.formatCellValue(row.getCell(0))));
                     financeCodeDO.setBankDate(sdfParsedmyy.parse(dataFormatter.formatCellValue(row.getCell(0))));
                 }
                 financeCodeDO.setIncome(row.getCell(1).getNumericCellValue() > 0);
