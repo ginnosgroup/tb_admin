@@ -791,11 +791,9 @@
     </update>
 
     <select id="listVisaExpirationDate"  resultType="org.zhinanzhen.b.service.pojo.UserDTO">
-        SELECT visa_expiration_date,`name`,id ,
-        adviser_id AS adviserId
-        from tb_user where
-        DATE_FORMAT(visa_expiration_date,'%Y') != DATE_FORMAT('1970-01-01','%Y')
-        AND DATEDIFF(visa_expiration_date,NOW()) IN (-1,-3,-7,0,3,7);
+        select a.visa_expiration_date,concat(a.firstname, ' ', a.surname) as name,u.id, a.adviser_id as adviserId from tb_user u, b_applicant a where u.id=a.user_id and
+        DATE_FORMAT(a.visa_expiration_date,'%Y') != DATE_FORMAT('1970-01-01','%Y')
+        AND DATEDIFF(a.visa_expiration_date,NOW()) IN (-1,-3,-7,0,3,7);
     </select>
     <select id="count" resultType="java.lang.Integer">
         select count(*)
