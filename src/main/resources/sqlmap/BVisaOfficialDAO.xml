@@ -189,7 +189,6 @@
         bv.commissionAmount,
         bv.predict_commission predictCommission,
         ifnull(br.amount,0.0) as refund,
-        so.submitIbDate as submitIbDate,
         bv.calculation,
         bv.predict_commissionAmount  as predictCommissionAmount
         from b_visa_official bv
@@ -337,7 +336,6 @@
             so.commissionAmount,
             so.predict_commission predictCommission,
             ifnull(br.amount,0) as refund,
-            so.submitIbDate as submitIbDate,
             so.predict_commission as predictCommission,
             bog.rate rate
         from b_visa_official bv
