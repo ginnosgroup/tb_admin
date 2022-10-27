@@ -98,6 +98,12 @@
         SET gmt_modify = now(), status = #{state}
         WHERE id = #{id};
     </update>
+    
+    <update id="updateUsername" parameterType="org.zhinanzhen.tb.dao.pojo.AdminUserDO">
+        UPDATE tb_admin_user
+        SET gmt_modify = now(), username = #{username}
+        WHERE id = #{id};
+    </update>
 
     <select id="getAdminUserById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.tb.dao.pojo.AdminUserDO">
         SELECT

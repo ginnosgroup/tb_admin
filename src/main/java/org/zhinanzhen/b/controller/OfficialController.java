@@ -179,9 +179,11 @@ public class OfficialController extends BaseController {
 			}
 			if (isOfficialAdmin != null) {
 				AdminUserDTO adminUser = adminUserService.getAdminUserByUsername(officialDto.getEmail());
-				if (adminUser != null && isOfficialAdmin != null)
+				if (adminUser != null && isOfficialAdmin != null) {
 					adminUserService.updateOfficialAdmin(adminUser.getId(), isOfficialAdmin);
-				else
+					if (StringUtil.isNotEmpty(email) && !email.equalsIgnoreCase(adminUser.getUsername()))
+						adminUserService.updateUsername(id, email);
+				} else
 					return new Response<OfficialDTO>(0, "文案管理员修改失败.", officialDto);
 			}
 			if (StringUtil.isNotEmpty(workState) && workState.equals(OfficialWorkStateEnum.get(workState).toString()))

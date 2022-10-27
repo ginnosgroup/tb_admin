@@ -97,6 +97,16 @@ public class AdminUserServiceImpl extends BaseService implements AdminUserServic
 		}
 		return adminUserDao.updateRegionId(id, regionId);
 	}
+	
+	@Override
+	public boolean updateUsername(int id, String username) throws ServiceException {
+		if (id <= 0) {
+			ServiceException se = new ServiceException("id error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		return adminUserDao.updateUsername(id, username);
+	}
 
 	@Override
 	public AdminUserDTO getAdminUserById(int id) throws ServiceException {
