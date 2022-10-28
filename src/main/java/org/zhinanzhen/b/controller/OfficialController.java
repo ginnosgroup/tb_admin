@@ -147,6 +147,7 @@ public class OfficialController extends BaseController {
 					(adminUserLoginInfo.isOfficialAdmin() || "SUPERAD".equals(adminUserLoginInfo.getApList()))) )
 				return new Response(1,"No permission !");
 			OfficialDTO officialDto = officialService.getOfficialById(id);
+			String _email = officialDto.getEmail();
 			if (StringUtil.isNotEmpty(name)) {
 				officialDto.setName(name);
 			}
@@ -175,22 +176,22 @@ public class OfficialController extends BaseController {
 				officialDto.setGradeId(gradeId);
 				}
 				else
-					return new Response<OfficialDTO>(0,"没有找到对应等级",null);
+					return new Response<OfficialDTO>(0, "没有找到对应等级", null);
 			}
+			AdminUserDTO adminUser = adminUserService.getAdminUserByUsername(_email);
 			if (isOfficialAdmin != null) {
-				AdminUserDTO adminUser = adminUserService.getAdminUserByUsername(officialDto.getEmail());
-				if (adminUser != null && isOfficialAdmin != null) {
+				if (adminUser != null && isOfficialAdmin != null)
 					adminUserService.updateOfficialAdmin(adminUser.getId(), isOfficialAdmin);
-					if (StringUtil.isNotEmpty(email) && !email.equalsIgnoreCase(adminUser.getUsername()))
-						adminUserService.updateUsername(id, email);
-				} else
+				else
 					return new Response<OfficialDTO>(0, "文案管理员修改失败.", officialDto);
 			}
 			if (StringUtil.isNotEmpty(workState) && workState.equals(OfficialWorkStateEnum.get(workState).toString()))
 				officialDto.setWorkState(OfficialWorkStateEnum.get(workState).toString());
-			if (officialService.updateOfficial(officialDto) > 0)
+			if (officialService.updateOfficial(officialDto) > 0) {
+				if (StringUtil.isNotEmpty(email) && !email.equalsIgnoreCase(adminUser.getUsername()))
+					adminUserService.updateUsername(adminUser.getId(), email);
 				return new Response<OfficialDTO>(0, officialDto);
-			else
+			} else
 				return new Response<OfficialDTO>(1, "修改失败.", null);
 		} catch (ServiceException e) {
 			return new Response<OfficialDTO>(e.getCode(), e.getMessage(), null);
