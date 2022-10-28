@@ -175,8 +175,4 @@ public class ServiceOrderDO implements Serializable {
 
 	private String institutionTradingName;//记录一下培训机构的名字
 
-	private Double commissionAmount; //计入佣金提点金额(确认)
-
-	private Double predictCommission; //预估佣金
-
 }
