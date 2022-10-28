@@ -121,9 +121,11 @@ public class KjController extends BaseController {
 				kjDto.setImageUrl(imageUrl);
 			if (regionId != null && regionId > 0)
 				kjDto.setRegionId(regionId);
-			if (kjService.updateKj(kjDto) > 0)
+			if (kjService.updateKj(kjDto) > 0) {
+				if (StringUtil.isNotEmpty(email))
+					adminUserService.updateUsername(id, email);
 				return new Response<KjDTO>(0, kjDto);
-			else
+			} else
 				return new Response<KjDTO>(0, "修改失败.", null);
 		} catch (ServiceException e) {
 			return new Response<KjDTO>(e.getCode(), e.getMessage(), null);

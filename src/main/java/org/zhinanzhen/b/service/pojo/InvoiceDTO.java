@@ -22,13 +22,13 @@ public class InvoiceDTO {
     private String ids;
 
     //佣金订单id
-    private String order_id;
+    private String orderId;
 
     //创建时间
-    private Date gmt_create;
+    private Date gmtCreate;
 
     //税务发票编号
-    private String invoice_no;
+    private String invoiceNo;
 
     //地区
     private String  branch;

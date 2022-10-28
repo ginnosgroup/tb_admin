@@ -124,9 +124,11 @@ public class AdviserController extends BaseController {
 			}
 			if (adviserService.updateAdviser(adviserDto) > 0) {
 				AdminUserDTO adminUser = adminUserService.getAdminUserByUsername(adviserDto.getEmail());
-				if (adminUser != null)
+				if (adminUser != null) {
 					adminUserService.updateRegionId(adminUser.getId(), adminRegionId);
-				else
+					if (StringUtil.isNotEmpty(email) && !email.equalsIgnoreCase(adminUser.getUsername()))
+						adminUserService.updateUsername(id, email);
+				} else
 					return new Response<AdviserDTO>(0, "顾问修改成功,但修改顾问管理员区域失败.(没有找到管理员帐号:" + adviserDto.getEmail() + ")",
 							null);
 				return new Response<AdviserDTO>(0, adviserDto);

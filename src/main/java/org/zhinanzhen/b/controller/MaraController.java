@@ -111,6 +111,8 @@ public class MaraController extends BaseController {
 				maraDto.setRegionId(regionId);
 			}
 			if (maraService.updateMara(maraDto) > 0) {
+				if (StringUtil.isNotEmpty(email))
+					adminUserService.updateUsername(id, email);
 				return new Response<MaraDTO>(0, maraDto);
 			} else {
 				return new Response<MaraDTO>(0, "修改失败.", null);

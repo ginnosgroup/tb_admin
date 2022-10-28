@@ -26,7 +26,7 @@ import com.ikasoa.core.utils.StringUtil;
 @Import(WecomAutoConfiguration.class)
 public class Application extends WebMvcConfigurerAdapter {
 
-	public final static String DOMAIN = "http://yongjinbiao.znzaus.com";
+	public final static String DOMAIN = "https://yongjinbiao.zhinanzhen.org";
 
 	public static void main(String[] args) throws Exception {
 		SpringApplication.run(Application.class, args);
