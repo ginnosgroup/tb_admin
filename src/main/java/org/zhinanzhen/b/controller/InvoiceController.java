@@ -55,10 +55,10 @@ public class InvoiceController  extends BaseController {
     @RequestMapping(value = "/selectInvoice", method = RequestMethod.GET)
     @ResponseBody
     public ListResponse selectAllInvoice(
-            @RequestParam(value = "invoice_no", required = false) String invoice_no,
-            @RequestParam(value = "order_id", required = false) String order_id,
-            @RequestParam(value = "create_start", required = false) String create_start,
-            @RequestParam(value = "create_end", required = false) String create_end,
+            @RequestParam(value = "invoiceNo", required = false) String invoiceNo,
+            @RequestParam(value = "orderId", required = false) String orderId,
+            @RequestParam(value = "createStart", required = false) String createStart,
+            @RequestParam(value = "createEnd", required = false) String createEnd,
             @RequestParam(value = "kind", required = false) String kind,
             @RequestParam(value = "branch", required = false) String branch,
             @RequestParam(value = "state", required = false) String state,
@@ -73,18 +73,18 @@ public class InvoiceController  extends BaseController {
         if (pageSize <= 0)
             pageNum = 10;
         state = state.toUpperCase();
-        List<InvoiceDTO> invoiceDTOList = invoiceService.selectInvoice(invoice_no, order_id, create_start, create_end, kind, branch, pageNum, pageSize, state);
-        int count = invoiceService.selectCount(invoice_no, order_id, create_start, create_end, kind, branch, state);
+        List<InvoiceDTO> invoiceDTOList = invoiceService.selectInvoice(invoiceNo, orderId, createStart, createEnd, kind, branch, pageNum, pageSize, state);
+        int count = invoiceService.selectCount(invoiceNo, orderId, createStart, createEnd, kind, branch, state);
         return new ListResponse(true,pageSize, count,invoiceDTOList,"ok");
     }
 
     @RequestMapping(value = "/count", method = RequestMethod.GET)
     @ResponseBody
     public Response count(
-            @RequestParam(value = "invoice_no", required = false) String invoice_no,
-            @RequestParam(value = "order_no", required = false) String order_id,
-            @RequestParam(value = "create_start", required = false) String create_start,
-            @RequestParam(value = "create_end", required = false) String create_end,
+            @RequestParam(value = "invoiceNo", required = false) String invoiceNo,
+            @RequestParam(value = "orderId", required = false) String orderId,
+            @RequestParam(value = "createStart", required = false) String createStart,
+            @RequestParam(value = "createEnd", required = false) String createEnd,
             @RequestParam(value = "kind", required = false) String kind,
             @RequestParam(value = "branch", required = false) String branch,
             @RequestParam(value = "state", required = false) String state
@@ -93,7 +93,7 @@ public class InvoiceController  extends BaseController {
             state = "";
         }
         state = state.toUpperCase();
-        int count = invoiceService.selectCount(invoice_no, order_id, create_start, create_end, kind, branch, state);
+        int count = invoiceService.selectCount(invoiceNo, orderId, createStart, createEnd, kind, branch, state);
         return new Response(0, count);
     }
 
