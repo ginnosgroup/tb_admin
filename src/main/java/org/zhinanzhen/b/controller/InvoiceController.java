@@ -104,13 +104,13 @@ public class InvoiceController  extends BaseController {
 
         int result = invoiceService.updateState(invoiceNo, invoiceIds);
         String fileName = null;
-        try {
-            fileName = ResourceUtils.getURL("classpath:").getPath();
+//        try {
+//            fileName = ResourceUtils.getURL("classpath:").getPath();
             invoiceService.pdfPrint(invoiceNo, invoiceIds, fileName, true);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            return new Response(1, "error");
-        }
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//            return new Response(1, "error");
+//        }
         if (result > 0) {
             return new Response(0, "success");
         }
@@ -437,7 +437,8 @@ public class InvoiceController  extends BaseController {
             HttpServletRequest req, HttpServletResponse resp) throws FileNotFoundException, ServiceException {
 
         super.setGetHeader(resp);
-        String fileName = ResourceUtils.getURL("classpath:").getPath();
+//        String fileName = ResourceUtils.getURL("classpath:").getPath();
+        String fileName = null;
         Response response = invoiceService.pdfPrint(invoiceNo, invoiceIds, fileName, false);
         if (StringUtil.isNotEmpty(response.getMessage()))
             response.setMessage("/statics" + response.getMessage());
