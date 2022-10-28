@@ -127,19 +127,24 @@ public class VerifyServiceImpl implements VerifyService {
                 if (row.getCell(0) == null){
                     throw new Exception("入账日期有误,行数:"+r+1);
                 }
-                if (StringUtil.isEmpty(dataFormatter.formatCellValue(row.getCell(0))))
-                    continue;
-System.out.println("row.getCell(0).getCellStyle().getDataFormatString():" + row.getCell(0).getCellStyle().getDataFormatString());
-                if ("d/mm/yyyy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
-                        || "d/m/yyyy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
-                        || "dd/mm/yyyy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())){
-                    financeCodeDO.setBankDate(sdfParsedmyyyy.parse(dataFormatter.formatCellValue(row.getCell(0))));
+				if (StringUtil.isEmpty(dataFormatter.formatCellValue(row.getCell(0))))
+					continue;
+				if ("d/mm/yyyy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
+						|| "d/m/yyyy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
+						|| "dd/mm/yyyy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
+						|| "d/mm/yyyy".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
+						|| "d/m/yyyy".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
+						|| "dd/mm/yyyy".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())) {
+					financeCodeDO.setBankDate(sdfParsedmyyyy.parse(dataFormatter.formatCellValue(row.getCell(0))));
 
-                }
-                if ("d/m/yy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
-                        || "dd/mm/yy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
-                        || "d/mm/yy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())){
-                    financeCodeDO.setBankDate(sdfParsedmyy.parse(dataFormatter.formatCellValue(row.getCell(0))));
+				}
+				if ("d/m/yy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
+						|| "dd/mm/yy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
+						|| "d/mm/yy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
+						|| "d/m/yy".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
+						|| "dd/mm/yy".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
+						|| "d/mm/yy".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())) {
+					financeCodeDO.setBankDate(sdfParsedmyy.parse(dataFormatter.formatCellValue(row.getCell(0))));
                 }
                 financeCodeDO.setIncome(row.getCell(1).getNumericCellValue() > 0);
                 financeCodeDO.setMoney(Double.parseDouble(df.format(row.getCell(1).getNumericCellValue())));
