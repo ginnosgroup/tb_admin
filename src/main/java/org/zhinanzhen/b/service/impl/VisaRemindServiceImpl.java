@@ -121,9 +121,9 @@ public class VisaRemindServiceImpl extends BaseService implements VisaRemindServ
 			newAdviserId = Integer.parseInt(adviserId);
 		}
 		List<UserDTO> list = visaDao.listVisaRemindDateDesc(newAdviserId,Integer.parseInt(pageNum)-1,Integer.parseInt(pageSize));
-		list.forEach(u -> {
-			u.setVisa_expiration_date(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(u.getVisaExpirationDate(), new ParsePosition(0)));
-		});
+//		list.forEach(u -> {
+//			u.setVisa_expiration_date(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(u.getVisaExpirationDate(), new ParsePosition(0)));
+//		});
 		return list;
 	}
 
