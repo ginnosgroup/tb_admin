@@ -38,9 +38,9 @@
     <select id="selectScoolInvoice" resultType="org.zhinanzhen.b.service.pojo.InvoiceDTO">
         select
         id,
-        order_id,
-        gmt_create ,
-        invoice_no,
+        order_id AS orderId,
+        gmt_create AS gmtCreate,
+        invoice_no AS invoiceNo,
         branch,
         state,
         note,
