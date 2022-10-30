@@ -147,11 +147,14 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			putReviews(visaDto);
 			VisaDO visaDo = mapper.map(visaDto, VisaDO.class);
 			int i = visaDao.updateVisa(visaDo);
+System.out.println("===i:" + i);
 			if (i > 0) {
 				// 给文案发送尾款支付提醒邮件
 				boolean isAllReview = true;
+System.out.println("===visaDo.getServiceOrderId():" + visaDo.getServiceOrderId());
 				if (visaDo.getServiceOrderId() > 0) {
 					List<VisaDO> list = visaDao.listVisaByServiceOrderId(visaDo.getServiceOrderId());
+System.out.println("===list:" + list);
 					if (list != null && list.size() > 0)
 						for (VisaDO v : list) {
 							if (!"REVIEW".equals(v.getState()))
@@ -161,6 +164,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 						isAllReview = false;
 				} else
 					isAllReview = false;
+System.out.println("===isAllReview:" + isAllReview);
 				if (isAllReview && visaDo.getServiceOrderId() > 0 && visaDo.getOfficialId() > 0) {
 					ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(visaDo.getServiceOrderId());
 					OfficialDO officialDo = officialDao.getOfficialById(visaDo.getOfficialId());
