@@ -147,13 +147,14 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			putReviews(visaDto);
 			VisaDO visaDo = mapper.map(visaDto, VisaDO.class);
 			int i = visaDao.updateVisa(visaDo);
+System.out.println("===visaDto:" + visaDto);
 System.out.println("===i:" + i);
 			if (i > 0) {
 				// 给文案发送尾款支付提醒邮件
 				boolean isAllReview = true;
-System.out.println("===visaDo.getServiceOrderId():" + visaDo.getServiceOrderId());
-				if (visaDo.getServiceOrderId() > 0) {
-					List<VisaDO> list = visaDao.listVisaByServiceOrderId(visaDo.getServiceOrderId());
+System.out.println("===visaDto.getServiceOrderId():" + visaDto.getServiceOrderId());
+				if (visaDto.getServiceOrderId() > 0) {
+					List<VisaDO> list = visaDao.listVisaByServiceOrderId(visaDto.getServiceOrderId());
 System.out.println("===list:" + list);
 					if (list != null && list.size() > 0)
 						for (VisaDO v : list) {
@@ -165,10 +166,10 @@ System.out.println("===list:" + list);
 				} else
 					isAllReview = false;
 System.out.println("===isAllReview:" + isAllReview);
-				if (isAllReview && visaDo.getServiceOrderId() > 0 && visaDo.getOfficialId() > 0) {
-					ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(visaDo.getServiceOrderId());
-					OfficialDO officialDo = officialDao.getOfficialById(visaDo.getOfficialId());
-					AdviserDO adviserDo = adviserDao.getAdviserById(visaDo.getAdviserId());
+				if (isAllReview && visaDto.getServiceOrderId() > 0 && visaDto.getOfficialId() > 0) {
+					ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(visaDto.getServiceOrderId());
+					OfficialDO officialDo = officialDao.getOfficialById(visaDto.getOfficialId());
+					AdviserDO adviserDo = adviserDao.getAdviserById(visaDto.getAdviserId());
 					if (!ObjectUtil.orIsNull(serviceOrderDo, officialDo, adviserDo)) {
 						ApplicantDTO applicantDto = null;
 						if (serviceOrderDo.getApplicantId() > 0)
@@ -176,7 +177,7 @@ System.out.println("===isAllReview:" + isAllReview);
 									ApplicantDTO.class);
 						Date date = serviceOrderDo.getGmtCreate();
 						sendMail(officialDo.getEmail(), "尾款支付完成提醒", StringUtil.merge("亲爱的:", officialDo.getName(),
-								"<br/>", "您的服务订单已经完成尾款支付，请及时提交移民局申请。<br>订单号:", visaDo.getServiceOrderId(),
+								"<br/>", "您的服务订单已经完成尾款支付，请及时提交移民局申请。<br>订单号:", visaDto.getServiceOrderId(),
 								"<br/>服务类型:签证<br/>申请人名称:", getApplicantName(applicantDto), "/顾问:", adviserDo.getName(),
 								"/文案:", officialDo.getName(), "<br/>坚果云资料地址:", applicantDto.getUrl(), "<br/>客户基本信息:",
 								applicantDto.getContent(), "<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:",

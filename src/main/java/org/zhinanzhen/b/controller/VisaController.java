@@ -539,6 +539,7 @@ public class VisaController extends BaseCommissionOrderController {
 	private Response<VisaDTO> updateOne(int id, Double sureExpectAmount, Double bonus, String bonusDate,
 										boolean isChangeState) throws ServiceException {
 		VisaDTO visaDto = visaService.getVisaById(id);
+System.out.println("0===visaDto:" + visaDto);
 		if (visaDto == null)
 			return new Response<VisaDTO>(1, "签证佣金订单订单(ID:" + id + ")不存在!", null);
 		if (sureExpectAmount != null)
