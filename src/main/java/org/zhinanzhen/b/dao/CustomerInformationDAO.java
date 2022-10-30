@@ -1,14 +1,14 @@
 package org.zhinanzhen.b.dao;
 
-import org.zhinanzhen.b.dao.pojo.customer.CustomerInformationDTO;
+import org.zhinanzhen.b.dao.pojo.customer.CustomerInformationDO;
 
 public interface CustomerInformationDAO {
 
-    int insert(CustomerInformationDTO record);
+    int insert(CustomerInformationDO record);
 
-    CustomerInformationDTO get(int id);
+    CustomerInformationDO get(int id);
 
-    void update(CustomerInformationDTO record);
+    void update(CustomerInformationDO record);
 
     void delete(int id);
 }
