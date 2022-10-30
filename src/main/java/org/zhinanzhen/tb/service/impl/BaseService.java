@@ -12,9 +12,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.zhinanzhen.b.dao.MailLogDAO;
 import org.zhinanzhen.b.dao.pojo.MailLogDO;
+import org.zhinanzhen.b.service.pojo.ApplicantDTO;
 import org.zhinanzhen.tb.utils.MD5Util;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
 
+import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 
 /**
@@ -84,5 +86,10 @@ public abstract class BaseService {
 		if (mailLogDao.addMailLog(new MailLogDO(code, mail, title, content)) > 0)
 			SendEmailUtil.send(mail, title, content);
 	}
+	
+	protected String getApplicantName(ApplicantDTO applicantDto) {
+        return ObjectUtil.isNotNull(applicantDto) ? applicantDto.getSurname() + " " + applicantDto.getFirstname()
+                : "unknown";
+    }
 
 }

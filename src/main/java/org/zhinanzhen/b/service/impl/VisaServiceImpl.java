@@ -27,6 +27,7 @@ import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
 import com.ikasoa.core.ErrorCodeEnum;
+import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 
 import lombok.Synchronized;
@@ -145,7 +146,41 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 		try {
 			putReviews(visaDto);
 			VisaDO visaDo = mapper.map(visaDto, VisaDO.class);
-			return visaDao.updateVisa(visaDo);
+			int i = visaDao.updateVisa(visaDo);
+			if (i > 0) {
+				// 给文案发送尾款支付提醒邮件
+				boolean isAllReview = true;
+				if (visaDo.getServiceOrderId() > 0) {
+					List<VisaDO> list = visaDao.listVisaByServiceOrderId(visaDo.getServiceOrderId());
+					if (list != null && list.size() > 0)
+						for (VisaDO v : list) {
+							if (!"REVIEW".equals(v.getState()))
+								isAllReview = false;
+						}
+					else
+						isAllReview = false;
+				} else
+					isAllReview = false;
+				if (isAllReview && visaDo.getServiceOrderId() > 0 && visaDo.getOfficialId() > 0) {
+					ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(visaDo.getServiceOrderId());
+					OfficialDO officialDo = officialDao.getOfficialById(visaDo.getOfficialId());
+					AdviserDO adviserDo = adviserDao.getAdviserById(visaDo.getAdviserId());
+					if (!ObjectUtil.orIsNull(serviceOrderDo, officialDo, adviserDo)) {
+						ApplicantDTO applicantDto = null;
+						if (serviceOrderDo.getApplicantId() > 0)
+							applicantDto = mapper.map(applicantDao.getById(serviceOrderDo.getApplicantId()),
+									ApplicantDTO.class);
+						Date date = serviceOrderDo.getGmtCreate();
+						sendMail(officialDo.getEmail(), "尾款支付完成提醒", StringUtil.merge("亲爱的:", officialDo.getName(),
+								"<br/>", "您的服务订单已经完成尾款支付，请及时提交移民局申请。<br>订单号:", visaDo.getServiceOrderId(),
+								"<br/>服务类型:签证<br/>申请人名称:", getApplicantName(applicantDto), "/顾问:", adviserDo.getName(),
+								"/文案:", officialDo.getName(), "<br/>坚果云资料地址:", applicantDto.getUrl(), "<br/>客户基本信息:",
+								applicantDto.getContent(), "<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:",
+								serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date));
+					}
+				}
+			}
+			return i;
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());

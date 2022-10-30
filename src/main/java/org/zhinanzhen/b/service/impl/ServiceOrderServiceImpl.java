@@ -819,11 +819,13 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 }
             }
             if ("VISA".equalsIgnoreCase(serviceOrderDo.getType()) && "WAIT".equals(state)) {
-                String _title = StringUtil.merge("已提交MARA申请提醒:", getApplicantName(applicantDto), "/签证");
+				String _title = StringUtil.merge("已提交MARA申请提醒:", getApplicantName(applicantDto), "/签证");
 				sendMail(adviserDo.getEmail(), _title, StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>",
-						"您的服务订单已经提交mara申请，如有分期支付请及时联系客户进行补齐尾款。<br>订单号:", serviceOrderDo.getId(), "<br/>服务类型:签证/申请人名称:",
-						getApplicantName(applicantDto), "/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(),
-						"<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
+						"您的服务订单已经提交mara申请，如有分期支付请及时联系客户进行补齐尾款。<br/>如订单未完成支付，文案无法提交移民局申请．请及时处理，避免造成延误！<br/>订单号:",
+						serviceOrderDo.getId(), "<br/>服务类型:签证/申请人名称:", getApplicantName(applicantDto), "/顾问:",
+						adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
+						getPeopleTypeStr(serviceOrderDo.getPeopleType()),
+						"<br/>坚果云资料地址:",
 						applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
 						serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date,
 						"<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
@@ -1904,11 +1906,6 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             return "签证申请";
         else
             return "";
-    }
-
-    private String getApplicantName(ApplicantDTO applicantDto) {
-        return ObjectUtil.isNotNull(applicantDto) ? applicantDto.getSurname() + " " + applicantDto.getFirstname()
-                : "unknown";
     }
 
     private ApplicantDTO buildApplicant(ApplicantDTO applicantDto, Integer serviceOrderId, String notCloud,
