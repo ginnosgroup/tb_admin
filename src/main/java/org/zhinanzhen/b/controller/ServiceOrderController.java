@@ -54,7 +54,7 @@ import java.util.zip.ZipOutputStream;
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/serviceOrder")
-public class ServiceOrderController extends BaseController {
+public class  ServiceOrderController extends BaseController {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ServiceOrderController.class);
 
@@ -1324,10 +1324,8 @@ public class ServiceOrderController extends BaseController {
 				throw se;
 			}
 			if (!"OVST".equals(serviceOrderDto.getType()) && serviceOrderDto.isPay()
-					&& ObjectUtil.andIsNull(serviceOrderDto.getPaymentVoucherImageUrl1(),
-							serviceOrderDto.getPaymentVoucherImageUrl2(), serviceOrderDto.getPaymentVoucherImageUrl3(),
-							serviceOrderDto.getPaymentVoucherImageUrl4(),
-							serviceOrderDto.getPaymentVoucherImageUrl5())) {
+					&& serviceOrderDto.getPaymentVoucherImageUrl1() == null
+					&& serviceOrderDto.getPaymentVoucherImageUrl2() == null) {
 				ServiceException se = new ServiceException("支付凭证不能为空!");
 				se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 				throw se;
