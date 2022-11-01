@@ -18,11 +18,9 @@ import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
 import javax.annotation.Resource;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -207,10 +205,22 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             throw se;
         }
         try {
+            Calendar calendar = Calendar.getInstance();
+            Double rate = 0.00;
             VisaOfficialDO visaOfficialDO = mapper.map(visaOfficialDTO, VisaOfficialDO.class);
             ServiceOrderDO serviceOrderDO = serviceOrderDao.getServiceOrderById(visaOfficialDTO.getServiceOrderId());
             List<ServiceOrderDO> list = new ArrayList<>();
             list = serviceOrderDao.listByParentId(serviceOrderDO.getId());
+            List<Integer> monthlist = new ArrayList<Integer>() {
+                {
+                    this.add(1);
+                    this.add(2);
+                    this.add(3);
+                    this.add(7);
+                    this.add(8);
+                    this.add(9);
+                }
+            };
             //长期签证计算
             List<String> arrayList = new ArrayList<String>() {
                 {
@@ -243,6 +253,11 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                     se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
                     throw se;
                 }
+                if (monthlist.contains(calendar.get(Calendar.MONTH) + 1)) {
+                    rate = grade.getRate() + 3;
+                } else {
+                    rate = grade.getRate();
+                }
                 ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId());
                 if (servicePackagePriceDO == null) {
                     commissionAmountDTO.setThirdPrince(0.00);
@@ -257,9 +272,9 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                     if (commissionAmountDTO.getPredictCommissionAmount() <= 0)
                         commissionAmountDTO.setPredictCommissionAmount(0.00);
                     commissionAmountDTO.setCommissionAmount(commissionAmountDTO.getPredictCommissionAmount());
-                    commissionAmountDTO.setCommission(commissionAmountDTO.getPredictCommissionAmount() * (grade.getRate() / 100));
+                    commissionAmountDTO.setCommission(commissionAmountDTO.getPredictCommissionAmount() * (rate / 100));
                     String calculation = new String();
-                    calculation = "0" + "|" + commissionAmountDTO.getThirdPrince() + "|" + dateFormat.format(servicePackagePriceDO == null ? System.currentTimeMillis() : servicePackagePriceDO.getGmtModify()) + "|" + grade.getGrade() + "," + grade.getRate() + "%" + "," + dateFormat.format(grade.getGmtModify());
+                    calculation = "0" + "|" + commissionAmountDTO.getThirdPrince() + "|" + dateFormat.format(servicePackagePriceDO == null ? System.currentTimeMillis() : servicePackagePriceDO.getGmtModify()) + "|" + grade.getGrade() + "," + rate + "%" + "," + dateFormat.format(grade.getGmtModify());
                     commissionAmountDTO.setCalculation(calculation);
                 } else {
                     commissionAmountDTO.setCommission(servicePackagePriceDO.getAmount());
@@ -271,6 +286,8 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 visaOfficialDO.setPredictCommissionAmount(commissionAmountDTO.getPredictCommissionAmount());
                 visaOfficialDO.setCommissionAmount(commissionAmountDTO.getCommissionAmount());
                 visaOfficialDO.setPredictCommission(commissionAmountDTO.getCommission());
+
+
                 visaOfficialDO.setCalculation(commissionAmountDTO.getCalculation());
             }
 
@@ -303,6 +320,11 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                         se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
                         throw se;
                     }
+                    if (monthlist.contains(calendar.get(Calendar.MONTH) + 1)) {
+                        rate = grade.getRate() + 3;
+                    } else {
+                        rate = grade.getRate();
+                    }
                     ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId());
                     if (servicePackagePriceDO == null) {
                         commissionAmountDTO.setThirdPrince(0.00);
@@ -317,9 +339,9 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                         if (commissionAmountDTO.getPredictCommissionAmount() <= 0)
                             commissionAmountDTO.setPredictCommissionAmount(0.00);
                         commissionAmountDTO.setCommissionAmount(commissionAmountDTO.getPredictCommissionAmount());
-                        commissionAmountDTO.setCommission(commissionAmountDTO.getPredictCommissionAmount() * (grade.getRate() / 100));
+                        commissionAmountDTO.setCommission(commissionAmountDTO.getPredictCommissionAmount() * (rate / 100));
                         String calculation = new String();
-                        calculation = "0" + "|" + commissionAmountDTO.getThirdPrince() + "|" + dateFormat.format(servicePackagePriceDO == null ? System.currentTimeMillis() : servicePackagePriceDO.getGmtModify()) + "|" + grade.getGrade() + "," + grade.getRate() + "%" + "," + dateFormat.format(grade.getGmtModify());
+                        calculation = "0" + "|" + commissionAmountDTO.getThirdPrince() + "|" + dateFormat.format(servicePackagePriceDO == null ? System.currentTimeMillis() : servicePackagePriceDO.getGmtModify()) + "|" + grade.getGrade() + "," + rate + "%" + "," + dateFormat.format(grade.getGmtModify());
                         commissionAmountDTO.setCalculation(calculation);
                     } else {
                         commissionAmountDTO.setCommission(servicePackagePriceDO.getAmount());
@@ -352,6 +374,11 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
                             throw se;
                         }
+                        if (monthlist.contains(calendar.get(Calendar.MONTH) + 1)) {
+                            rate = grade.getRate() + 3;
+                        } else {
+                            rate = grade.getRate();
+                        }
                         ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId());
                         if (servicePackagePriceDO == null) {
                             commissionAmountDTO.setThirdPrince(0.00);
@@ -366,9 +393,65 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                             if (commissionAmountDTO.getPredictCommissionAmount() <= 0)
                                 commissionAmountDTO.setPredictCommissionAmount(0.00);
                             commissionAmountDTO.setCommissionAmount(commissionAmountDTO.getPredictCommissionAmount());
-                            commissionAmountDTO.setCommission(commissionAmountDTO.getPredictCommissionAmount() * (grade.getRate() / 100));
+                            commissionAmountDTO.setCommission(commissionAmountDTO.getPredictCommissionAmount() * (rate / 100));
                             String calculation = new String();
-                            calculation = "0" + "|" + commissionAmountDTO.getThirdPrince() + "|" + dateFormat.format(servicePackagePriceDO == null ? System.currentTimeMillis() : servicePackagePriceDO.getGmtModify()) + "|" + grade.getGrade() + "," + grade.getRate() + "%" + "," + dateFormat.format(grade.getGmtModify());
+                            calculation = "0" + "|" + commissionAmountDTO.getThirdPrince() + "|" + dateFormat.format(servicePackagePriceDO == null ? System.currentTimeMillis() : servicePackagePriceDO.getGmtModify()) + "|" + grade.getGrade() + "," + rate + "%" + "," + dateFormat.format(grade.getGmtModify());
+                            commissionAmountDTO.setCalculation(calculation);
+                        } else {
+                            commissionAmountDTO.setCommission(servicePackagePriceDO.getAmount());
+                            commissionAmountDTO.setThirdPrince(servicePackagePriceDO.getThirdPrince());
+                            String calculation = new String();
+                            calculation = "1" + "|" + commissionAmountDTO.getThirdPrince() + "," + servicePackagePriceDO.getAmount() + "|" + dateFormat.format(servicePackagePriceDO.getGmtModify());
+                            commissionAmountDTO.setCalculation(calculation);
+                        }
+                        visaOfficialDO.setPredictCommissionAmount(commissionAmountDTO.getPredictCommissionAmount());
+                        visaOfficialDO.setCommissionAmount(commissionAmountDTO.getCommissionAmount());
+                        visaOfficialDO.setPredictCommission(commissionAmountDTO.getCommission());
+                        visaOfficialDO.setCalculation(commissionAmountDTO.getCalculation());
+                    }
+
+                }
+                //雇主提名
+                if (packageDO.getType().equals("TM")) {
+                    if (serviceOrderDao.getServiceOrderById(serviceOrderDO.getParentId()).isPay()) {
+                        VisaDO visaDO = new VisaDO();
+                        CommissionAmountDTO commissionAmountDTO = new CommissionAmountDTO();
+                        visaDO = visaDAO.getFirstVisaByServiceOrderId(serviceOrderDO.getParentId());
+                        RefundDO refund = refundDAO.getRefundByVisaId(visaDO.getId());
+                        if (refund == null) {
+                            commissionAmountDTO.setRefund(0.00);
+                        } else {
+                            commissionAmountDTO.setRefund(refund.getAmount());
+                        }
+                        OfficialDO official = officialDAO.getOfficialById(serviceOrderDO.getOfficialId());
+                        OfficialGradeDO grade = officialGradeDao.getOfficialGradeById(official.getGradeId());
+                        if (grade == null) {
+                            ServiceException se = new ServiceException("请绑定文案等级 !");
+                            se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+                            throw se;
+                        }
+                        if (monthlist.contains(calendar.get(Calendar.MONTH) + 1)) {
+                            rate = grade.getRate() + 3;
+                        } else {
+                            rate = grade.getRate();
+                        }
+                        ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId());
+                        if (servicePackagePriceDO == null) {
+                            commissionAmountDTO.setThirdPrince(0.00);
+                            commissionAmountDTO.setRuler(0);
+                        } else {
+                            commissionAmountDTO.setThirdPrince(servicePackagePriceDO.getThirdPrince());
+                            commissionAmountDTO.setRuler(servicePackagePriceDO.getRuler());
+                        }
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        if (commissionAmountDTO.getRuler() == 0) {
+                            commissionAmountDTO.setPredictCommissionAmount(visaDO.getAmount() - commissionAmountDTO.getRefund() - commissionAmountDTO.getThirdPrince());
+                            if (commissionAmountDTO.getPredictCommissionAmount() <= 0)
+                                commissionAmountDTO.setPredictCommissionAmount(0.00);
+                            commissionAmountDTO.setCommissionAmount(commissionAmountDTO.getPredictCommissionAmount());
+                            commissionAmountDTO.setCommission(commissionAmountDTO.getPredictCommissionAmount() * (rate / 100));
+                            String calculation = new String();
+                            calculation = "0" + "|" + commissionAmountDTO.getThirdPrince() + "|" + dateFormat.format(servicePackagePriceDO == null ? System.currentTimeMillis() : servicePackagePriceDO.getGmtModify()) + "|" + grade.getGrade() + "," + rate + "%" + "," + dateFormat.format(grade.getGmtModify());
                             commissionAmountDTO.setCalculation(calculation);
                         } else {
                             commissionAmountDTO.setCommission(servicePackagePriceDO.getAmount());
@@ -474,8 +557,20 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
     private CommissionAmountDTO calculationCommissionAmount(int serviceOrderId) throws ServiceException {
         ServiceOrderDO serviceOrderDO = serviceOrderDao.getServiceOrderById(serviceOrderId);
         VisaDO visaDO = new VisaDO();
+        Calendar calendar = Calendar.getInstance();
+        List<Integer> monthlist = new ArrayList<Integer>() {
+            {
+                this.add(1);
+                this.add(2);
+                this.add(3);
+                this.add(7);
+                this.add(8);
+                this.add(9);
+            }
+        };
         CommissionAmountDTO commissionAmountDTO = new CommissionAmountDTO();
         double amount = 0.00;
+        double rate = 0.00;
         if (serviceOrderDO.getParentId() == 0) {
             visaDO = visaDAO.getFirstVisaByServiceOrderId(serviceOrderDO.getId());
             VisaDO visaDO1 = visaDAO.getSecondVisaByServiceOrderId(serviceOrderDO.getId());
@@ -508,6 +603,11 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
             throw se;
         }
+        if (monthlist.contains(calendar.get(Calendar.MONTH) + 1)) {
+            rate = grade.getRate() + 3;
+        } else {
+            rate = grade.getRate();
+        }
         ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId());
         if (servicePackagePriceDO == null) {
             commissionAmountDTO.setThirdPrince(0.00);
@@ -522,9 +622,9 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             if (commissionAmountDTO.getPredictCommissionAmount() <= 0)
                 commissionAmountDTO.setPredictCommissionAmount(0.00);
             commissionAmountDTO.setCommissionAmount(commissionAmountDTO.getPredictCommissionAmount());
-            commissionAmountDTO.setCommission(commissionAmountDTO.getPredictCommissionAmount() * (grade.getRate() / 100));
+            commissionAmountDTO.setCommission(commissionAmountDTO.getPredictCommissionAmount() * (rate / 100));
             String calculation = new String();
-            calculation = "0" + "|" + commissionAmountDTO.getThirdPrince() + "|" + dateFormat.format(servicePackagePriceDO == null ? System.currentTimeMillis() : servicePackagePriceDO.getGmtModify()) + "|" + grade.getGrade() + "," + grade.getRate() + "%" + "," + dateFormat.format(grade.getGmtModify());
+            calculation = "0" + "|" + commissionAmountDTO.getThirdPrince() + "|" + dateFormat.format(servicePackagePriceDO == null ? System.currentTimeMillis() : servicePackagePriceDO.getGmtModify()) + "|" + grade.getGrade() + "," + rate + "%" + "," + dateFormat.format(grade.getGmtModify());
             commissionAmountDTO.setCalculation(calculation);
         } else {
             commissionAmountDTO.setCommission(servicePackagePriceDO.getAmount());

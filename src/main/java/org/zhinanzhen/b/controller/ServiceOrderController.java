@@ -1,26 +1,21 @@
 package org.zhinanzhen.b.controller;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.Boolean;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.ikasoa.core.ErrorCodeEnum;
+import com.ikasoa.core.utils.ListUtil;
+import com.ikasoa.core.utils.ObjectUtil;
+import com.ikasoa.core.utils.StringUtil;
+import com.ikasoa.web.workflow.Context;
+import com.ikasoa.web.workflow.Node;
+import com.ikasoa.web.workflow.Workflow;
+import com.ikasoa.web.workflow.WorkflowStarter;
+import com.ikasoa.web.workflow.impl.WorkflowStarterImpl;
 import jxl.Workbook;
 import jxl.WorkbookSettings;
-import jxl.write.*;
+import jxl.write.Label;
+import jxl.write.WritableCellFormat;
+import jxl.write.WritableSheet;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.controller.nodes.SONodeFactory;
-import org.zhinanzhen.b.dao.pojo.CommissionOrderDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderReadcommittedDateDO;
 import org.zhinanzhen.b.dao.pojo.VisaDO;
 import org.zhinanzhen.b.service.*;
@@ -45,17 +39,17 @@ import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.ikasoa.core.ErrorCodeEnum;
-import com.ikasoa.core.utils.ListUtil;
-import com.ikasoa.core.utils.ObjectUtil;
-import com.ikasoa.core.utils.StringUtil;
-import com.ikasoa.web.workflow.Context;
-import com.ikasoa.web.workflow.Node;
-import com.ikasoa.web.workflow.Workflow;
-import com.ikasoa.web.workflow.WorkflowStarter;
-import com.ikasoa.web.workflow.impl.WorkflowStarterImpl;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
