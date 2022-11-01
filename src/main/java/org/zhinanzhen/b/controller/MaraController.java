@@ -92,7 +92,7 @@ public class MaraController extends BaseController {
 		try {
 			super.setPostHeader(response);
 			MaraDTO maraDto = maraService.getMaraById(id);
-			String _email = maraDto.getEmail();
+			AdminUserDTO adminUser = adminUserService.getAdminUserByUsername(maraDto.getEmail());
 			if (StringUtil.isNotEmpty(name)) {
 				maraDto.setName(name);
 			}
@@ -112,15 +112,11 @@ public class MaraController extends BaseController {
 				maraDto.setRegionId(regionId);
 			}
 			if (maraService.updateMara(maraDto) > 0) {
-				if (StringUtil.isNotEmpty(email)) {
-					AdminUserDTO adminUser = adminUserService.getAdminUserByUsername(_email);
-					if (adminUser != null)
-						adminUserService.updateUsername(id, email);
-				}
+				if (StringUtil.isNotEmpty(email) && adminUser != null)
+					adminUserService.updateUsername(adminUser.getId(), email);
 				return new Response<MaraDTO>(0, maraDto);
-			} else {
+			} else
 				return new Response<MaraDTO>(0, "修改失败.", null);
-			}
 		} catch (ServiceException e) {
 			return new Response<MaraDTO>(e.getCode(), e.getMessage(), null);
 		}
