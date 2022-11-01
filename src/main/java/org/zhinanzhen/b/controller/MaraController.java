@@ -20,6 +20,7 @@ import org.zhinanzhen.b.service.pojo.MaraDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
+import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
 
 import com.ikasoa.core.utils.StringUtil;
 
@@ -90,8 +91,8 @@ public class MaraController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			MaraDTO maraDto = new MaraDTO();
-			maraDto.setId(id);
+			MaraDTO maraDto = maraService.getMaraById(id);
+			String _email = maraDto.getEmail();
 			if (StringUtil.isNotEmpty(name)) {
 				maraDto.setName(name);
 			}
@@ -111,6 +112,11 @@ public class MaraController extends BaseController {
 				maraDto.setRegionId(regionId);
 			}
 			if (maraService.updateMara(maraDto) > 0) {
+				if (StringUtil.isNotEmpty(email)) {
+					AdminUserDTO adminUser = adminUserService.getAdminUserByUsername(_email);
+					if (adminUser != null)
+						adminUserService.updateUsername(id, email);
+				}
 				return new Response<MaraDTO>(0, maraDto);
 			} else {
 				return new Response<MaraDTO>(0, "修改失败.", null);

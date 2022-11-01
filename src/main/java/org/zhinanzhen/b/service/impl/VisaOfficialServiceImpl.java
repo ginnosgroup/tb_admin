@@ -84,6 +84,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
     @Resource
     private ServicePackageDAO servicePackageDAO;
 
+
     public VisaOfficialDTO putVisaOfficialDTO(VisaOfficialListDO visaListDo) throws ServiceException {
         VisaOfficialDTO visaOfficialDto = putVisaOfficialDTO((VisaOfficialDO) visaListDo);
         if (visaListDo.getApplicantId() > 0) {
@@ -526,9 +527,22 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             List<RemindDO> remindDoList = remindDao.listRemindByVisaOfficialId(visaOfficialDto.getId(), officialId,
                     AbleStateEnum.ENABLED.toString());
             ServiceOrderDO serviceOrderDO = serviceOrderDao.getServiceOrderById(visaOfficialDto.getServiceOrderId());
-            serviceOrderDO.setService(mapper.map(serviceDao.getServiceById(serviceOrderDO.getServiceId()), ServiceDTO.class));
-            visaOfficialDto.setServiceOrder(mapper.map(serviceOrderDO, ServiceOrderDTO.class));
-            visaOfficialDto.setServicePackagePriceDO(servicePackagePriceDAO.getByServiceId(visaOfficialDto.getServiceId()));
+            ServiceOrderDTO serviceOrderDto = mapper.map(serviceOrderDO, ServiceOrderDTO.class);
+            ServiceDO serviceDo = serviceDao.getServiceById(serviceOrderDO.getServiceId());
+            if (serviceDo != null) {
+                serviceOrderDto.setService(mapper.map(serviceDo, ServiceDTO.class));
+            }
+            // 查询服务包类型
+            if (serviceOrderDto.getServicePackageId() > 0) {
+                ServicePackageDO servicePackageDo = servicePackageDAO.getById(serviceOrderDto.getServicePackageId());
+                if (servicePackageDo != null)
+                    serviceOrderDto.setServicePackage(mapper.map(servicePackageDo, ServicePackageDTO.class));
+            }
+            visaOfficialDto.setServiceOrder(serviceOrderDto);
+            ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDAO.getByServiceId(visaOfficialDto.getServiceId());
+            if(servicePackagePriceDO!=null) {
+                visaOfficialDto.setServicePackagePriceDO(servicePackagePriceDO);
+            }
             MaraDO mara = maraDAO.getMaraById(visaOfficialDto.getMaraId());
             if (mara != null) {
                 visaOfficialDto.setMaraDTO(mapper.map(mara, MaraDTO.class));

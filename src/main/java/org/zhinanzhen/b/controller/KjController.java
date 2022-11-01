@@ -24,6 +24,7 @@ import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
+import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
 import org.zhinanzhen.b.service.pojo.KjDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
@@ -107,8 +108,8 @@ public class KjController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			KjDTO kjDto = new KjDTO();
-			kjDto.setId(id);
+			KjDTO kjDto = kjService.getKjById(id);
+			String _email = kjDto.getEmail();
 			if (StringUtil.isNotEmpty(name))
 				kjDto.setName(name);
 			if (StringUtil.isNotEmpty(phone))
@@ -121,9 +122,14 @@ public class KjController extends BaseController {
 				kjDto.setImageUrl(imageUrl);
 			if (regionId != null && regionId > 0)
 				kjDto.setRegionId(regionId);
-			if (kjService.updateKj(kjDto) > 0)
+			if (kjService.updateKj(kjDto) > 0) {
+				if (StringUtil.isNotEmpty(email)) {
+					AdminUserDTO adminUser = adminUserService.getAdminUserByUsername(_email);
+					if (adminUser != null)
+						adminUserService.updateUsername(adminUser.getId(), email);
+				}
 				return new Response<KjDTO>(0, kjDto);
-			else
+			} else
 				return new Response<KjDTO>(0, "修改失败.", null);
 		} catch (ServiceException e) {
 			return new Response<KjDTO>(e.getCode(), e.getMessage(), null);

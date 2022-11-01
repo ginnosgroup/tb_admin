@@ -22,6 +22,8 @@ public interface AdminUserDAO {
 	boolean updateRegionId(@Param("id") int id, @Param("regionId") int regionId);
 	
 	boolean updateState(@Param("id") int id, @Param("state") String state);
+	
+	boolean updateUsername(@Param("id") int id, @Param("username") String username);
 
 	public AdminUserDO getAdminUserById(int id);
 	

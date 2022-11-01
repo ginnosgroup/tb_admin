@@ -123,24 +123,37 @@ public class VerifyServiceImpl implements VerifyService {
                 SimpleDateFormat sdfParsedmyy = new SimpleDateFormat("dd/MM/yy");// 格式化日期字符串
                 SimpleDateFormat sdfParsedmyyyy = new SimpleDateFormat("dd/MM/yyyy");// 格式化日期字符串
                 SimpleDateFormat dateFormatyyyyMMdd = new SimpleDateFormat("yyyy/MM/dd");// 格式化日期字符串
+                SimpleDateFormat sdfParsemdyy = new SimpleDateFormat("m/d/yy");// 格式化日期字符串
 
-                if (row.getCell(0) == null){
-                    throw new Exception("入账日期有误,行数:"+r+1);
-                }
-                if (StringUtil.isEmpty(dataFormatter.formatCellValue(row.getCell(0))))
-                    continue;
-                if ("d/mm/yyyy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
-                        || "d/m/yyyy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
-                        || "dd/mm/yyyy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())){
-                    financeCodeDO.setBankDate(sdfParsedmyyyy.parse(dataFormatter.formatCellValue(row.getCell(0))));
+				if (row.getCell(0) == null) {
+					throw new Exception("入账日期有误,行数:" + r + 1);
+				}
+				if (StringUtil.isEmpty(dataFormatter.formatCellValue(row.getCell(0))))
+					continue;
+System.out.println("===row.getCell(0).getCellStyle().getDataFormatString(): " + row.getCell(0).getCellStyle().getDataFormatString());
+System.out.println("===dataFormatter.formatCellValue(row.getCell(0)): " + dataFormatter.formatCellValue(row.getCell(0)));
+				if ("d/mm/yyyy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
+						|| "d/m/yyyy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
+						|| "dd/mm/yyyy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
+						|| "d/mm/yyyy".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
+						|| "d/m/yyyy".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
+						|| "dd/mm/yyyy".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())) {
+					financeCodeDO.setBankDate(sdfParsedmyyyy.parse(dataFormatter.formatCellValue(row.getCell(0))));
 
-                }
-                if ("d/m/yy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
-                        || "dd/mm/yy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
-                        || "d/mm/yy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())){
-                    financeCodeDO.setBankDate(sdfParsedmyy.parse(dataFormatter.formatCellValue(row.getCell(0))));
-                }
-                financeCodeDO.setIncome(row.getCell(1).getNumericCellValue() > 0);
+				}
+				if ("d/m/yy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
+						|| "dd/mm/yy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
+						|| "d/mm/yy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
+						|| "d/m/yy".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
+						|| "dd/mm/yy".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
+						|| "d/mm/yy".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())) {
+					financeCodeDO.setBankDate(sdfParsedmyy.parse(dataFormatter.formatCellValue(row.getCell(0))));
+				}
+				if ("m/d/yy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
+						|| "m/d/yy".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())) {
+					financeCodeDO.setBankDate(sdfParsemdyy.parse(dataFormatter.formatCellValue(row.getCell(0))));
+				}
+				financeCodeDO.setIncome(row.getCell(1).getNumericCellValue() > 0);
                 financeCodeDO.setMoney(Double.parseDouble(df.format(row.getCell(1).getNumericCellValue())));
                 financeCodeDO.setComment(row.getCell(2).getStringCellValue());
                 financeCodeDO.setBalance(Double.parseDouble(df.format(row.getCell(3).getNumericCellValue())));

@@ -3,7 +3,7 @@
 <mapper namespace="org.zhinanzhen.b.dao.CustomerInformationDAO" >
 
 
-  <insert id="insert" parameterType="org.zhinanzhen.b.dao.pojo.customer.CustomerInformationDTO" >
+  <insert id="insert" parameterType="org.zhinanzhen.b.dao.pojo.customer.CustomerInformationDO" >
     insert into b_customer_information ( gmt_create, gmt_modify,
       service_order_id, main_information, past_information_list,
       chinese_commercial_code, contact_details,
@@ -12,52 +12,59 @@
       language_skills, addresses, postal_address_list,
       health_questions, character_issues)
     values (now(), now(),
-      #{serviceOrderId,jdbcType=INTEGER}, #{mainInformation,jdbcType=VARCHAR}, #{ pastInformationList,jdbcType=VARCHAR},
-      #{chineseCommercialCode,jdbcType=VARCHAR}, #{contactDetails,jdbcType=VARCHAR}, 
-      #{citizenshipDetails,jdbcType=VARCHAR},
-      #{identificationNumberList,jdbcType=VARCHAR}, #{educationList,jdbcType=VARCHAR},
-      #{languageSkills,jdbcType=VARCHAR}, #{addresses,jdbcType=VARCHAR}, #{postalAddressList,jdbcType=VARCHAR},
-      #{healthQuestions,jdbcType=VARCHAR}, #{characterIssues,jdbcType=VARCHAR})
+      #{serviceOrderId,jdbcType=INTEGER,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
+      #{mainInformation,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
+      #{ pastInformationList,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
+      #{chineseCommercialCode,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
+      #{contactDetails,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
+      #{citizenshipDetails,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
+      #{identificationNumberList,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
+      #{educationList,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
+      #{languageSkills,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
+      #{addresses,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
+      #{postalAddressList,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
+      #{healthQuestions,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
+      #{characterIssues,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler})
   </insert>
     <update id="update">
       update b_customer_information
       <set >
           gmt_modify = now(),
         <if test="mainInformation != null" >
-          main_information = #{mainInformation,jdbcType=VARCHAR},
+          main_information = #{mainInformation,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
         </if>
         <if test="pastInformationList != null" >
-          past_information_list = #{pastInformationList,jdbcType=VARCHAR},
+          past_information_list = #{pastInformationList,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
         </if>
         <if test="chineseCommercialCode != null" >
-          chinese_commercial_code = #{chineseCommercialCode,jdbcType=VARCHAR},
+          chinese_commercial_code = #{chineseCommercialCode,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
         </if>
         <if test="contactDetails != null" >
-          contact_details = #{contactDetails,jdbcType=VARCHAR},
+          contact_details = #{contactDetails,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
         </if>
         <if test="citizenshipDetails != null" >
-          citizenship_details = #{citizenshipDetails,jdbcType=VARCHAR},
+          citizenship_details = #{citizenshipDetails,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
         </if>
         <if test="identificationNumberList != null" >
-          ident_ification_number_list = #{identificationNumberList,jdbcType=VARCHAR},
+          ident_ification_number_list = #{identificationNumberList,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
         </if>
         <if test="educationList != null" >
-          education_list = #{educationList,jdbcType=VARCHAR},
+          education_list = #{educationList,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
         </if>
         <if test="languageSkills != null" >
-          language_skills = #{languageSkills,jdbcType=VARCHAR},
+          language_skills = #{languageSkills,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
         </if>
         <if test="addresses != null" >
-          addresses = #{addresses,jdbcType=VARCHAR},
+          addresses = #{addresses,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
         </if>
         <if test="postalAddressList != null" >
-          postal_address_list = #{postalAddressList,jdbcType=VARCHAR},
+          postal_address_list = #{postalAddressList,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
         </if>
         <if test="healthQuestions != null" >
-          health_questions = #{healthQuestions,jdbcType=VARCHAR},
+          health_questions = #{healthQuestions,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
         </if>
         <if test="characterIssues != null" >
-          character_issues = #{characterIssues,jdbcType=VARCHAR},
+          character_issues = #{characterIssues,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
         </if>
       </set>
       where id = #{id,jdbcType=INTEGER}
@@ -69,7 +76,25 @@
       b_customer_information
     where id = #{id}
   </delete>
-  <select id="get" resultType="org.zhinanzhen.b.dao.pojo.customer.CustomerInformationDTO">
+  <resultMap id="BaseResultMap" type="org.zhinanzhen.b.dao.pojo.customer.CustomerInformationDO">
+    <id column="id" javaType="INTEGER" property="id"/>
+    <id column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate" />
+    <id column="gmt_modify" jdbcType="VARCHAR" property="gmtModify"  />
+    <id column="main_information" jdbcType="VARCHAR" property="mainInformation" typeHandler="org.zhinanzhen.tb.utils.JsonTypeHandler" />
+    <id column="service_order_id" jdbcType="INTEGER" property="serviceOrderId" typeHandler="org.zhinanzhen.tb.utils.JsonTypeHandler" />
+    <id column="past_information_list" jdbcType="VARCHAR" property="pastInformationList" typeHandler="org.zhinanzhen.tb.utils.JsonTypeHandler" />
+    <id column="chinese_commercial_code" jdbcType="VARCHAR" property="chineseCommercialCode" typeHandler="org.zhinanzhen.tb.utils.JsonTypeHandler" />
+    <id column="contact_details" jdbcType="VARCHAR" property="contactDetails" typeHandler="org.zhinanzhen.tb.utils.JsonTypeHandler" />
+    <id column="citizenship_details" jdbcType="VARCHAR" property="citizenshipDetails" typeHandler="org.zhinanzhen.tb.utils.JsonTypeHandler" />
+    <id column="ident_ification_number_list" jdbcType="VARCHAR" property="identificationNumberList" typeHandler="org.zhinanzhen.tb.utils.JsonTypeHandler" />
+    <id column="education_list" jdbcType="VARCHAR" property="educationList" typeHandler="org.zhinanzhen.tb.utils.JsonTypeHandler" />
+    <id column="language_skills" jdbcType="VARCHAR" property="languageSkills" typeHandler="org.zhinanzhen.tb.utils.JsonTypeHandler" />
+    <id column="addresses" jdbcType="VARCHAR" property="addresses" typeHandler="org.zhinanzhen.tb.utils.JsonTypeHandler" />
+    <id column="postal_address_list" jdbcType="VARCHAR" property="postalAddressList" typeHandler="org.zhinanzhen.tb.utils.JsonTypeHandler" />
+    <id column="health_questions" jdbcType="VARCHAR" property="healthQuestions" typeHandler="org.zhinanzhen.tb.utils.JsonTypeHandler" />
+    <id column="character_issues" jdbcType="VARCHAR" property="characterIssues" typeHandler="org.zhinanzhen.tb.utils.JsonTypeHandler" />
+  </resultMap>
+  <select id="get" resultType="org.zhinanzhen.b.dao.pojo.customer.CustomerInformationDO" resultMap="BaseResultMap">
     SELECT
       *
     FROM
