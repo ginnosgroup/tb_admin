@@ -1,6 +1,7 @@
 package org.zhinanzhen;
 
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -27,6 +28,9 @@ import com.ikasoa.core.utils.StringUtil;
 public class Application extends WebMvcConfigurerAdapter {
 
 	public final static String DOMAIN = "https://yongjinbiao.zhinanzhen.org";
+	
+	@Value("${server.context-path}")
+	private String contextPath;
 
 	public static void main(String[] args) throws Exception {
 		SpringApplication.run(Application.class, args);
@@ -49,7 +53,7 @@ public class Application extends WebMvcConfigurerAdapter {
 				.setConnectionSignUp((Connection<?> connection) -> connection.getKey().getProviderUserId());
 		ProviderSignInController psc = new ProviderSignInController(connectionFactoryLocator, usersConnectionRepository,
 				scanSignInAdapter);
-		psc.setApplicationUrl(StringUtil.merge(DOMAIN, "/admin_v2.1"));
+		psc.setApplicationUrl(StringUtil.merge(DOMAIN, contextPath));
 		return psc;
 	}
 
