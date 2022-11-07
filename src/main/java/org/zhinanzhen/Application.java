@@ -51,6 +51,7 @@ public class Application extends WebMvcConfigurerAdapter {
 			UsersConnectionRepository usersConnectionRepository, ScanSignInAdapter scanSignInAdapter) {
 		((InMemoryUsersConnectionRepository) usersConnectionRepository)
 				.setConnectionSignUp((Connection<?> connection) -> connection.getKey().getProviderUserId());
+System.out.println("connectionFactoryLocator.registeredProviderIds():" + connectionFactoryLocator.registeredProviderIds());
 		ProviderSignInController psc = new ProviderSignInController(connectionFactoryLocator, usersConnectionRepository,
 				scanSignInAdapter);
 		psc.setApplicationUrl(StringUtil.merge(DOMAIN, contextPath));
