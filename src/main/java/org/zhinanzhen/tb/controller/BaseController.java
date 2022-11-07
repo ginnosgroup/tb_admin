@@ -203,6 +203,7 @@ public class BaseController {
 			}
 			session.removeAttribute("AdminUserLoginInfo" + VERSION);
 			session.setAttribute("AdminUserLoginInfo" + VERSION, loginInfo);
+			session.setMaxInactiveInterval(4 * 60 * 60);
 			return loginInfo;
 	}
 
