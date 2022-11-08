@@ -109,7 +109,7 @@ public class KjController extends BaseController {
 		try {
 			super.setPostHeader(response);
 			KjDTO kjDto = kjService.getKjById(id);
-			String _email = kjDto.getEmail();
+			AdminUserDTO adminUser = adminUserService.getAdminUserByUsername(kjDto.getEmail());
 			if (StringUtil.isNotEmpty(name))
 				kjDto.setName(name);
 			if (StringUtil.isNotEmpty(phone))
@@ -123,11 +123,8 @@ public class KjController extends BaseController {
 			if (regionId != null && regionId > 0)
 				kjDto.setRegionId(regionId);
 			if (kjService.updateKj(kjDto) > 0) {
-				if (StringUtil.isNotEmpty(email)) {
-					AdminUserDTO adminUser = adminUserService.getAdminUserByUsername(_email);
-					if (adminUser != null)
-						adminUserService.updateUsername(adminUser.getId(), email);
-				}
+				if (StringUtil.isNotEmpty(email) && adminUser != null)
+					adminUserService.updateUsername(adminUser.getId(), email);
 				return new Response<KjDTO>(0, kjDto);
 			} else
 				return new Response<KjDTO>(0, "修改失败.", null);

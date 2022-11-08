@@ -39,7 +39,7 @@ public class ScanSignInAdapter extends BaseController implements SignInAdapter {
 					session.removeAttribute("uid");
 					session.setAttribute("uid", userId);
 					return StringUtil.merge(Application.DOMAIN,
-							"/webroot_new/user/login#Failed! Your WeCom account has not been bound. Automatically bind after login with password.");
+							"/webroot_new/user/login#NotBound");
 				}
 				AdminUserLoginInfo loginInfo = getLoginInfoAndUpdateSession(session, adminUserDto.getId());
 				if (loginInfo != null) {

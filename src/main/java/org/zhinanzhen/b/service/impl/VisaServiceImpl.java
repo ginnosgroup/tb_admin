@@ -149,21 +149,17 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			int i = visaDao.updateVisa(visaDo);
 			if (i > 0) {
 				// 给文案发送尾款支付提醒邮件
-				boolean isAllReview = true;
+				boolean canRimd = false;
 				VisaDO _visaDo = visaDao.getVisaById(visaDto.getId());
-                int serviceOrderId = _visaDo.getServiceOrderId();
+				int serviceOrderId = _visaDo.getServiceOrderId();
 				if (_visaDo.getServiceOrderId() > 0) {
 					List<VisaDO> list = visaDao.listVisaByServiceOrderId(serviceOrderId);
-					if (list != null && list.size() > 0)
-						for (VisaDO v : list) {
-							if (!"REVIEW".equals(v.getState()))
-								isAllReview = false;
-						}
-					else
-						isAllReview = false;
-				} else
-					isAllReview = false;
-				if (isAllReview && serviceOrderId > 0 && _visaDo.getOfficialId() > 0) {
+					if (list != null && list.size() > 1)
+						for (VisaDO v : list)
+							if (v.getInstallmentNum() == 2 && "REVIEW".equals(v.getState())) // 签证第二笔提交审核就发送提醒邮件
+								canRimd = true;
+				}
+				if (canRimd && serviceOrderId > 0 && _visaDo.getOfficialId() > 0) {
 					ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(serviceOrderId);
 					OfficialDO officialDo = officialDao.getOfficialById(_visaDo.getOfficialId());
 					AdviserDO adviserDo = adviserDao.getAdviserById(_visaDo.getAdviserId());

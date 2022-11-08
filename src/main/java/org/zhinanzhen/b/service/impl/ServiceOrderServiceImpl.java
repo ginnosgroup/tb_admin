@@ -1071,11 +1071,12 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 }
                 if ("VISA".equalsIgnoreCase(serviceOrderDo.getType()) && "FINISH".equals(maraState)) {
                     String _title = StringUtil.merge("MARA审核通过提醒:", getApplicantName(applicantDto), "/签证");
-                    // 发送给顾问
-                    sendMail(adviserDo.getEmail(), _title, StringUtil.merge("亲爱的:", adviserDo.getName(),
-                            "<br/>", "您的订单已经审核完成请查看并进行下一步操作。<br>订单号:", serviceOrderDo.getId(), "<br/>服务类型:签证/申请人名称:",
-                            getApplicantName(applicantDto), "/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
-                            getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
+					// 发送给顾问
+					sendMail(adviserDo.getEmail(), _title, StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>",
+							"您的订单已经审核完成请查看并进行下一步操作。<br/>如有尾款请联系客户立即支付，避免影响文案提交申请。<br/>订单号:", serviceOrderDo.getId(),
+							"<br/>服务类型:签证/申请人名称:", getApplicantName(applicantDto), "/顾问:", adviserDo.getName(), "/文案:",
+							officialDo.getName(), "<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()),
+							"<br/>坚果云资料地址:",
                             applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
                             serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>创建时间:",
                             date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
