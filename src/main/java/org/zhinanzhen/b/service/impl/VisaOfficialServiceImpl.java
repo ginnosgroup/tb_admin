@@ -220,7 +220,6 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                     this.add(7);
                     this.add(8);
                     this.add(9);
-                    this.add(11);
                 }
             };
             //长期签证计算
@@ -581,7 +580,6 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 this.add(7);
                 this.add(8);
                 this.add(9);
-                this.add(11);
             }
         };
         CommissionAmountDTO commissionAmountDTO = new CommissionAmountDTO();
