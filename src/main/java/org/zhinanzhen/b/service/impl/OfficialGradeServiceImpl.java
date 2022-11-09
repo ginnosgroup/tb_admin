@@ -98,12 +98,7 @@ public class OfficialGradeServiceImpl extends BaseService implements OfficialGra
         }
         try {
             OfficialGradeDO officialGradeDO = mapper.map(officialGradeDTO, OfficialGradeDO.class);
-            List<OfficialDO> officialDOList = officialDAO.getOfficialByGradeId(officialGradeDO.getId());
-            if (officialDOList.size() == 0) {
-                return officialGradeDao.updateOfficialGradeById(officialGradeDO);
-            } else {
-                return officialGradeDao.updateOfficialGradeNameById(officialGradeDO.getGrade(), officialGradeDO.getId());
-            }
+            return officialGradeDao.updateOfficialGradeById(officialGradeDO);
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
