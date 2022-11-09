@@ -49,6 +49,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             customerInformationDAO.insert(customerInformationDO);
             sendRemind(customerInformationDO.getServiceOrderId());
         } catch (Exception e) {
+            e.printStackTrace();
             ServiceException se = new ServiceException(e);
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
             throw se;
@@ -106,7 +107,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
 
         sendMail(official.getEmail(), "你有一条新的客户资料更新请及时处理。",
                 StringUtil.merge("订单号:", id, "<br/>", "服务类型:", type, "/申请人名称:", ObjectUtil.isNotNull(applicantDto) ? applicantDto.getSurname() + " " + applicantDto.getFirstname()
-                                : "unknown", "/类型:", ObjectUtil.isNotNull(applicantDto) ? service.getName() + "(" + service.getCode() + ")" : "unknown", "/顾问:", adviserDao.getAdviserById(serviceOrderDo.getAdviserId()).getName(),
+                                : "unknown", "/类型:", ObjectUtil.isNotNull(applicantDto)&&ObjectUtil.isNotNull(service) ? service.getName() + "(" + service.getCode() + ")" : "unknown", "/顾问:", adviserDao.getAdviserById(serviceOrderDo.getAdviserId()).getName(),
                         "/文案:", officialDAO.getOfficialById(serviceOrderDo.getOfficialId()).getName(), "<br/>", "属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
                         applicantDto.getUrl(), "<br/>在线资料地址:", applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:", serviceOrderDo.getRemarks(),
                         "<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>创建时间:", serviceOrderDo.getGmtCreate(), "<br/><br/><a href='https://yongjinbiao.zhinanzhen.org/webroot_new/serviceorderdetail/id?"
