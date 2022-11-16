@@ -65,7 +65,7 @@ public class VerifyController {
     @Resource
     ServiceOrderService serviceOrderService;
 
-    private  SimpleDateFormat  sdfbankDatein = new SimpleDateFormat("dd/MM/yyyy");
+    private  SimpleDateFormat  sdfbankDatein = new SimpleDateFormat("yyyy-MM-dd");
 
     private  SimpleDateFormat  sdfbankDateout = new SimpleDateFormat("yyyy-MM-dd");
 
