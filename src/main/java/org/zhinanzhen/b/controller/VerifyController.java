@@ -290,9 +290,9 @@ public class VerifyController {
                              @RequestParam(value = "pageNum",required = true)Integer pageNumber){
         try {
             if (StringUtil.isNotEmpty(bankDateStart))
-                bankDateStart = sdfbankDateout.format(sdfbankDatein.parse(bankDateStart));
+                bankDateStart = sdfbankDateout.parse(bankDateStart).toString();
             if (StringUtil.isNotEmpty(bankDateEnd))
-                bankDateEnd = sdfbankDateout.format(sdfbankDatein.parse(bankDateEnd));
+                bankDateEnd = sdfbankDateout.parse(bankDateEnd).toString() +" 23:59:59";
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -304,8 +304,8 @@ public class VerifyController {
             }
             return new ListResponse(true,pageSize,list.size(),list,"");
         }
-        int total = verifyService.count(bankDateStart,bankDateEnd+" 23:59:59",regionId);
-        return  new ListResponse(true,pageSize,total,verifyService.list(bankDateStart,bankDateEnd+" 23:59:59",regionId,pageSize,pageNumber),"");
+        int total = verifyService.count(bankDateStart,bankDateEnd,regionId);
+        return  new ListResponse(true,pageSize,total,verifyService.list(bankDateStart,bankDateEnd,regionId,pageSize,pageNumber),"");
     }
 
     @PostMapping(value = "/update")
