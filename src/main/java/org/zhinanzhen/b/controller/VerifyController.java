@@ -65,7 +65,7 @@ public class VerifyController {
     @Resource
     ServiceOrderService serviceOrderService;
 
-    private  SimpleDateFormat  sdfbankDatein = new SimpleDateFormat("yyyy-MM-dd");
+    private  SimpleDateFormat  sdfbankDatein = new SimpleDateFormat("dd/MM/yyyy");
 
     private  SimpleDateFormat  sdfbankDateout = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -290,9 +290,9 @@ public class VerifyController {
                              @RequestParam(value = "pageNum",required = true)Integer pageNumber){
         try {
             if (StringUtil.isNotEmpty(bankDateStart))
-                bankDateStart = sdfbankDateout.parse(bankDateStart).toString();
+                bankDateStart = sdfbankDateout.format(sdfbankDatein.parse(bankDateStart));
             if (StringUtil.isNotEmpty(bankDateEnd))
-                bankDateEnd = sdfbankDateout.parse(bankDateEnd).toString() +" 23:59:59";
+                bankDateEnd = sdfbankDateout.format(sdfbankDatein.parse(bankDateEnd));
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -304,8 +304,8 @@ public class VerifyController {
             }
             return new ListResponse(true,pageSize,list.size(),list,"");
         }
-        int total = verifyService.count(bankDateStart,bankDateEnd,regionId);
-        return  new ListResponse(true,pageSize,total,verifyService.list(bankDateStart,bankDateEnd,regionId,pageSize,pageNumber),"");
+        int total = verifyService.count(bankDateStart,bankDateEnd+" 23:59:59",regionId);
+        return  new ListResponse(true,pageSize,total,verifyService.list(bankDateStart,bankDateEnd+" 23:59:59",regionId,pageSize,pageNumber),"");
     }
 
     @PostMapping(value = "/update")
