@@ -146,9 +146,9 @@ public class VerifyController {
 
         try {
             if (StringUtil.isNotEmpty(bankDateStart))
-                bankDateStart = sdfbankDateout.format(sdfbankDatein.parse(bankDateStart));
+                bankDateStart = sdfbankDateout.format(sdfbankDateout.parse(bankDateStart));
             if (StringUtil.isNotEmpty(bankDateEnd))
-                bankDateEnd = sdfbankDateout.format(sdfbankDatein.parse(bankDateEnd));
+                bankDateEnd = sdfbankDateout.format(sdfbankDateout.parse(bankDateEnd));
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -271,9 +271,9 @@ public class VerifyController {
                            @RequestParam(value = "regionId",required = false) Integer regionId){
         try {
             if (StringUtil.isNotEmpty(bankDateStart))
-                bankDateStart = sdfbankDateout.format(sdfbankDatein.parse(bankDateStart));
+                bankDateStart = sdfbankDateout.format(sdfbankDateout.parse(bankDateStart));
             if (StringUtil.isNotEmpty(bankDateEnd))
-                bankDateEnd = sdfbankDateout.format(sdfbankDatein.parse(bankDateEnd));
+                bankDateEnd = sdfbankDateout.format(sdfbankDateout.parse(bankDateEnd));
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -290,9 +290,9 @@ public class VerifyController {
                              @RequestParam(value = "pageNum",required = true)Integer pageNumber){
         try {
             if (StringUtil.isNotEmpty(bankDateStart))
-                bankDateStart = sdfbankDateout.format(sdfbankDatein.parse(bankDateStart));
+                bankDateStart = sdfbankDateout.format(sdfbankDateout.parse(bankDateStart));
             if (StringUtil.isNotEmpty(bankDateEnd))
-                bankDateEnd = sdfbankDateout.format(sdfbankDatein.parse(bankDateEnd));
+                bankDateEnd = sdfbankDateout.format(sdfbankDateout.parse(bankDateEnd));
         } catch (ParseException e) {
             e.printStackTrace();
         }
