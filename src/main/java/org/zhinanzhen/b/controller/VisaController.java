@@ -651,7 +651,7 @@ public class VisaController extends BaseCommissionOrderController {
 
 		// 会计角色过滤状态
 		List<String> stateList = null;
-		if (getKjId(request) != null) {
+		if (state == null && getKjId(request) != null) {
 			stateList = new ArrayList<>();
 			stateList.add(ReviewKjStateEnum.REVIEW.toString());
 			stateList.add(ReviewKjStateEnum.FINISH.toString());
