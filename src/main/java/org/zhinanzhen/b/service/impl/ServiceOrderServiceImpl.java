@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 
 import org.apache.ibatis.annotations.Param;
+import org.dozer.util.MappingUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.*;
@@ -26,6 +27,8 @@ import org.zhinanzhen.tb.service.impl.BaseService;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 import com.ikasoa.core.ErrorCodeEnum;
+import com.ikasoa.core.utils.ListUtil;
+import com.ikasoa.core.utils.MapUtil;
 import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import lombok.Data;
@@ -1610,8 +1613,13 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			eachRegionNumberDTO.setName(code);
 			eachRegionNumberDTOS.add(eachRegionNumberDTO);
 		} */
+        Map<String, EachRegionNumberDTO> map = MapUtil.newHashMap();
         eachRegionNumberDOS.forEach(eachRegionNumberDO -> {
+        	String name = StringUtil.isNotEmpty(eachRegionNumberDO.getCode()) ? eachRegionNumberDO.getCode()
+                    : eachRegionNumberDO.getInstitutionTradingName();
             EachRegionNumberDTO eachRegionNumberDTO = new EachRegionNumberDTO();
+            if(map.containsKey(name))
+            	eachRegionNumberDTO = map.get(name);
             if (eachRegionNumberDO.getName().equalsIgnoreCase("sydney")) {
                 eachRegionNumberDTO.setSydney(eachRegionNumberDO.getCount() + eachRegionNumberDTO.getSydney());
             } else if (eachRegionNumberDO.getName().equalsIgnoreCase("melbourne")) {
@@ -1637,11 +1645,11 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     + eachRegionNumberDTO.getBrisbane() + eachRegionNumberDTO.getCanberra()
                     + eachRegionNumberDTO.getHobart() + eachRegionNumberDTO.getMelbourne()
                     + eachRegionNumberDTO.getCrucial() + eachRegionNumberDTO.getOther());
-            eachRegionNumberDTO.setName(StringUtil.isNotEmpty(eachRegionNumberDO.getCode()) ? eachRegionNumberDO.getCode()
-                    : eachRegionNumberDO.getInstitutionTradingName());
+            eachRegionNumberDTO.setName(name);
             eachRegionNumberDTO.setInstitutionName(eachRegionNumberDO.getInstitutionName());
-            eachRegionNumberDTOS.add(eachRegionNumberDTO);
+            map.put(name, eachRegionNumberDTO);
         });
+        eachRegionNumberDTOS.addAll(map.values());
 
         Collections.sort(eachRegionNumberDTOS, new Comparator<EachRegionNumberDTO>() {
             @Override

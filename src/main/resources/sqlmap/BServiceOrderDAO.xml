@@ -799,7 +799,7 @@
                 b_school bsc
             </when>
             <when test=" type!=null and type!='' and type == 'VISA' ">
-                bs.`code` AS code,
+                CONCAT(bs.`code`, ' - ', bs.`name`) AS code,
                 service_id AS serviceId
                 FROM
                 tb_adviser a,
