@@ -28,6 +28,8 @@ public class EachRegionNumberDO {
      * OVST:旧学校库存学校id,新学校库存课程id  VISA:b_service.id
      */
     private String serviceId;
+    
+    private Integer servicePackageId;
 
     /**
      * 下面这三个Name意思是新学校库学校name

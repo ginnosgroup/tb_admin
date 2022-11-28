@@ -799,6 +799,7 @@
                 b_school bsc
             </when>
             <when test=" type!=null and type!='' and type == 'VISA' ">
+                so.service_package_id AS servicePackageId,
                 CONCAT(bs.`code`, ' - ', bs.`name`) AS code,
                 service_id AS serviceId
                 FROM
@@ -814,7 +815,9 @@
         <if test=" type != null and type != ''">
             AND type = #{type}
         </if>
-        AND so.parent_id = 0
+        <if test=" type!=null and type!='' and type == 'OVST' ">
+            AND so.parent_id = 0
+        </if>
         AND so.state != 'PENDING'
         AND tr.id = a.region_id
         <choose>
@@ -837,6 +840,7 @@
             <when test=" type!=null and type!='' and type == 'VISA' ">
                 GROUP BY
                 service_id,
+                so.service_package_id,
                 tr.`name`
             </when>
         </choose>

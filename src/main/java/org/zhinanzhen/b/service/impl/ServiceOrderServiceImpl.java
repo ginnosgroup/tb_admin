@@ -1617,6 +1617,26 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         eachRegionNumberDOS.forEach(eachRegionNumberDO -> {
         	String name = StringUtil.isNotEmpty(eachRegionNumberDO.getCode()) ? eachRegionNumberDO.getCode()
                     : eachRegionNumberDO.getInstitutionTradingName();
+        	if(eachRegionNumberDO.getServicePackageId() != null && eachRegionNumberDO.getServicePackageId() > 0) {
+        		ServicePackageDO servicePackageDo = servicePackageDao.getById(eachRegionNumberDO.getServicePackageId());
+				if (servicePackageDo != null) {
+					String _type = servicePackageDo.getType();
+					if ("CA".equals(_type))
+						name += " - 职业评估";
+					if ("EOI".equals(_type))
+						name += " - EOI";
+					if ("SA".equals(_type))
+						name += " - 学校申请";
+					if ("VA".equals(_type))
+						name += " - 签证申请";
+					if ("ZD".equals(_type))
+						name += " - 州担";
+					if ("TM".equals(_type))
+						name += " - 提名";
+					if ("DB".equals(_type))
+						name += " - 担保";
+				}
+        	}
             EachRegionNumberDTO eachRegionNumberDTO = new EachRegionNumberDTO();
             if(map.containsKey(name))
             	eachRegionNumberDTO = map.get(name);
