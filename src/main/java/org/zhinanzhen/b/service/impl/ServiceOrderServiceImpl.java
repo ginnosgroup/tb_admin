@@ -195,13 +195,14 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             ServiceOrderDO _serviceOrderDo = serviceOrderDao.getServiceOrderById(serviceOrderDto.getId());
             ServiceOrderDO serviceOrderDo = mapper.map(serviceOrderDto, ServiceOrderDO.class);
             int i = serviceOrderDao.updateServiceOrder(serviceOrderDo);
-            if (i > 0
-                    && ((_serviceOrderDo.getMaraId() > 0 && serviceOrderDo.getMaraId() > 0
-                    && _serviceOrderDo.getMaraId() != serviceOrderDo.getMaraId())
-                    || (_serviceOrderDo.getOfficialId() > 0 && serviceOrderDo.getOfficialId() > 0
-                    && _serviceOrderDo.getOfficialId() != serviceOrderDo.getOfficialId()))
-                    && !"PENDING".equalsIgnoreCase(serviceOrderDo.getState()))
-                sendEmailOfUpdateOfficial(serviceOrderDo, _serviceOrderDo);
+			if (i > 0
+					&& ((_serviceOrderDo.getMaraId() > 0 && serviceOrderDo.getMaraId() > 0
+							&& _serviceOrderDo.getMaraId() != serviceOrderDo.getMaraId())
+							|| (_serviceOrderDo.getOfficialId() > 0 && serviceOrderDo.getOfficialId() > 0
+									&& _serviceOrderDo.getOfficialId() != serviceOrderDo.getOfficialId()))
+					&& (!"PENDING".equalsIgnoreCase(serviceOrderDo.getState())
+							|| StringUtil.equals("Submitted", serviceOrderDo.getStateMark())))
+				sendEmailOfUpdateOfficial(serviceOrderDo, _serviceOrderDo);
 
             return i;
         } catch (Exception e) {
@@ -254,13 +255,22 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                             serviceOrderDo.getId(), "<br/>服务类型:", serviceOrderMailDetail.getType(),
                             serviceOrderMailDetail.getDetail(), "/顾问:", adviserDo.getName(), "/文案:",
                             officialDo.getName(), "<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()),
-                            "<br/>坚果云资料地址:", applicantDto.getUrl(), "<br/>客户基本信息:",
+                            "<br/>坚果云资料地址:", applicantDto.getUrl(), "<br/>申请人基本信息:",
                             applicantDto.getContent(), "<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:",
                             serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date, "<br/>",
                             serviceOrderMailDetail.getServiceOrderUrl()));
-            sendMail(_officialDo.getEmail() + ",maggie@zhinanzhen.org", "变更任务提醒:",
-                    StringUtil.merge("亲爱的", _officialDo.getName(), ":<br/>", "您有的订单号:", serviceOrderDo.getId(),
-                            "已从您这更改为文案:", officialDo.getName()));
+			if (StringUtil.equals("Submitted", serviceOrderDo.getStateMark())) // 顾问提交审核后又撤回，提醒文案不同
+				sendMail(_officialDo.getEmail() + ",maggie@zhinanzhen.org", "服务被撤回提醒:",
+						StringUtil.merge("亲爱的", _officialDo.getName(), ":<br/>您有一条服务订单已被撤回,如有服务相关问题请及时与顾问沟通<br/>订单号:",
+								serviceOrderDo.getId(), "<br/>服务类型:", serviceOrderMailDetail.getType(),
+								serviceOrderMailDetail.getDetail(), "<br/>顾问:", adviserDo.getName(), "<br/>申请人基本信息:",
+								applicantDto.getContent(), "<br/>坚果云资料地址:", applicantDto.getUrl(), "<br/>备注:",
+								serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(),
+								"<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
+			else
+				sendMail(_officialDo.getEmail() + ",maggie@zhinanzhen.org", "变更任务提醒:",
+						StringUtil.merge("亲爱的", _officialDo.getName(), ":<br/>", "您有的订单号:", serviceOrderDo.getId(),
+								"已从您这更改为文案:", officialDo.getName()));
         }
     }
 
@@ -1899,7 +1909,6 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         serviceOrderDao.updateOffice(newOfficialId, serviceOrderId);
         officialHandoverLogDao.add(serviceOrderId, officialId, newOfficialId);
     }
-
 
     private String getPeopleTypeStr(String peopleType) {
         if ("1A".equalsIgnoreCase(peopleType))

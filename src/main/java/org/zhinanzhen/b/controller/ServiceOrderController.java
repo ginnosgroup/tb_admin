@@ -54,7 +54,7 @@ import java.util.zip.ZipOutputStream;
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/serviceOrder")
-public class  ServiceOrderController extends BaseController {
+public class ServiceOrderController extends BaseController {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ServiceOrderController.class);
 
@@ -62,10 +62,10 @@ public class  ServiceOrderController extends BaseController {
 
 	@Resource
 	ServiceOrderService serviceOrderService;
-	
+
 	@Resource
 	ApplicantService applicantService;
-	
+
 	@Resource
 	ServiceOrderApplicantService serviceOrderApplicantService;
 
@@ -86,7 +86,7 @@ public class  ServiceOrderController extends BaseController {
 
 	@Resource
 	ServiceOrderReadcommittedDateService serviceOrderReadcommittedDateService;
-	
+
 	@Resource
 	SONodeFactory soNodeFactory;
 
@@ -144,10 +144,13 @@ public class  ServiceOrderController extends BaseController {
 
 	public enum ServiceOrderTypeEnum {
 		OVST("留学"), VISA("签证"), SIV("独立技术移民"), NSV("雇主担保"), ZX("咨询");
+
 		private String meaning;
-		ServiceOrderTypeEnum(String meaning){
+
+		ServiceOrderTypeEnum(String meaning) {
 			this.meaning = meaning;
 		}
+
 		public static ServiceOrderTypeEnum get(String name) {
 			for (ServiceOrderTypeEnum e : ServiceOrderTypeEnum.values())
 				if (e.toString().equals(name))
@@ -175,11 +178,11 @@ public class  ServiceOrderController extends BaseController {
 	@RequestMapping(value = "/upload_invoice_voucher_img", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<String> uploadInvoiceVoucherImage(@RequestParam MultipartFile file, HttpServletRequest request,
-												   HttpServletResponse response) throws IllegalStateException, IOException {
+			HttpServletResponse response) throws IllegalStateException, IOException {
 		super.setPostHeader(response);
 		return super.upload2(file, request.getSession(), "/uploads/invoice_voucher_image_url/");
 	}
-	
+
 	@RequestMapping(value = "/upload_low_price_img", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<String> uploadLowPriceImage(@RequestParam MultipartFile file, HttpServletRequest request,
@@ -239,21 +242,21 @@ public class  ServiceOrderController extends BaseController {
 			@RequestParam(value = "serviceAssessId", required = false) String serviceAssessId,
 			@RequestParam(value = "verifyCode", required = false) String verifyCode,
 			@RequestParam(value = "refNo", required = false) String refNo,
-			@RequestParam(value = "courseId", required = false)Integer courseId,
-			@RequestParam(value = "schoolInstitutionLocationId", required = false)Integer schoolInstitutionLocationId,
-			@RequestParam(value = "courseId2", required = false)Integer courseId2,
-			@RequestParam(value = "schoolInstitutionLocationId2", required = false)Integer schoolInstitutionLocationId2,
-			@RequestParam(value = "courseId3", required = false)Integer courseId3,
-			@RequestParam(value = "schoolInstitutionLocationId3", required = false)Integer schoolInstitutionLocationId3,
-			@RequestParam(value = "courseId4", required = false)Integer courseId4,
-			@RequestParam(value = "schoolInstitutionLocationId4", required = false)Integer schoolInstitutionLocationId4,
-			@RequestParam(value = "courseId5", required = false)Integer courseId5,
-			@RequestParam(value = "schoolInstitutionLocationId5", required = false)Integer schoolInstitutionLocationId5,
-			@RequestParam(value = "institutionTradingName", required = false)String institutionTradingName,
-			@RequestParam(value = "institutionTradingName2", required = false)String institutionTradingName2,
-			@RequestParam(value = "institutionTradingName3", required = false)String institutionTradingName3,
-			@RequestParam(value = "institutionTradingName4", required = false)String institutionTradingName4,
-			@RequestParam(value = "institutionTradingName5", required = false)String institutionTradingName5,
+			@RequestParam(value = "courseId", required = false) Integer courseId,
+			@RequestParam(value = "schoolInstitutionLocationId", required = false) Integer schoolInstitutionLocationId,
+			@RequestParam(value = "courseId2", required = false) Integer courseId2,
+			@RequestParam(value = "schoolInstitutionLocationId2", required = false) Integer schoolInstitutionLocationId2,
+			@RequestParam(value = "courseId3", required = false) Integer courseId3,
+			@RequestParam(value = "schoolInstitutionLocationId3", required = false) Integer schoolInstitutionLocationId3,
+			@RequestParam(value = "courseId4", required = false) Integer courseId4,
+			@RequestParam(value = "schoolInstitutionLocationId4", required = false) Integer schoolInstitutionLocationId4,
+			@RequestParam(value = "courseId5", required = false) Integer courseId5,
+			@RequestParam(value = "schoolInstitutionLocationId5", required = false) Integer schoolInstitutionLocationId5,
+			@RequestParam(value = "institutionTradingName", required = false) String institutionTradingName,
+			@RequestParam(value = "institutionTradingName2", required = false) String institutionTradingName2,
+			@RequestParam(value = "institutionTradingName3", required = false) String institutionTradingName3,
+			@RequestParam(value = "institutionTradingName4", required = false) String institutionTradingName4,
+			@RequestParam(value = "institutionTradingName5", required = false) String institutionTradingName5,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -271,19 +274,20 @@ public class  ServiceOrderController extends BaseController {
 				serviceOrderDto.setPeopleRemarks(peopleRemarks);
 			if (StringUtil.isNotEmpty(serviceId))
 				serviceOrderDto.setServiceId(StringUtil.toInt(serviceId));
-			if ("OVST".equalsIgnoreCase(type) && ((schoolId == null || schoolId <= 0)
-					&& (courseId == null || courseId <= 0 )))
+			if ("OVST".equalsIgnoreCase(type)
+					&& ((schoolId == null || schoolId <= 0) && (courseId == null || courseId <= 0)))
 				return new Response<Integer>(1, "创建留学服务订单必须选择一个学校.", 0);
 			if ("OVST".equalsIgnoreCase(type) && (schoolId == null || schoolId <= 0)
-					&& (schoolInstitutionLocationId == null || schoolInstitutionLocationId <= 0))//排除原来的留学
+					&& (schoolInstitutionLocationId == null || schoolInstitutionLocationId <= 0))// 排除原来的留学
 				return new Response<Integer>(1, "创建留学服务订单必须选择一个校区.", 0);
 			if (schoolId != null && schoolId > 0)
 				serviceOrderDto.setSchoolId(schoolId);
 			serviceOrderDto.setState(ReviewAdviserStateEnum.PENDING.toString());
-			//if (ServiceOrderTypeEnum.ZX.toString().equalsIgnoreCase(type) && StringUtil.isNotEmpty(officialId)){
-			//	if (StringUtil.toInt(officialId) == 0)//没有文案的咨询直接订单完成
-			//		serviceOrderDto.setState(ReviewAdviserStateEnum.COMPLETE.toString());
-			//}
+			// if (ServiceOrderTypeEnum.ZX.toString().equalsIgnoreCase(type) &&
+			// StringUtil.isNotEmpty(officialId)){
+			// if (StringUtil.toInt(officialId) == 0)//没有文案的咨询直接订单完成
+			// serviceOrderDto.setState(ReviewAdviserStateEnum.COMPLETE.toString());
+			// }
 			serviceOrderDto.setSettle(isSettle != null && "true".equalsIgnoreCase(isSettle));
 			serviceOrderDto.setUrgentState(urgentState);
 			serviceOrderDto.setDepositUser(isDepositUser != null && "true".equalsIgnoreCase(isDepositUser));
@@ -335,9 +339,11 @@ public class  ServiceOrderController extends BaseController {
 			if (StringUtil.isNotEmpty(userId))
 				if (userService.getUserById(StringUtil.toInt(userId)) == null)
 					return new Response<Integer>(1, "用户编号错误(" + userId + ")，创建失败.", 0);
-				else{
+				else {
 					if (userService.getUserById(StringUtil.toInt(userId)).getPhone().equalsIgnoreCase("00000000000"))
-						return new Response<Integer>(1, "用户号码不合法(" + userService.getUserById(StringUtil.toInt(userId)).getPhone() + ")，创建失败.",0);
+						return new Response<Integer>(1,
+								"用户号码不合法(" + userService.getUserById(StringUtil.toInt(userId)).getPhone() + ")，创建失败.",
+								0);
 					else
 						serviceOrderDto.setUserId(StringUtil.toInt(userId));
 				}
@@ -360,7 +366,8 @@ public class  ServiceOrderController extends BaseController {
 			serviceOrderDto.setHistory(isHistory != null && "true".equalsIgnoreCase(isHistory));
 			if (StringUtil.isNotEmpty(nutCloud))
 				serviceOrderDto.setNutCloud(nutCloud);
-			if (StringUtil.isEmpty(serviceAssessId) && serviceAssessService.seleteAssessByServiceId(serviceId).size() > 0) {
+			if (StringUtil.isEmpty(serviceAssessId)
+					&& serviceAssessService.seleteAssessByServiceId(serviceId).size() > 0) {
 				return new Response(1, "没有选择职业!");
 			}
 			if (StringUtil.isNotEmpty(serviceAssessId)) {
@@ -377,7 +384,7 @@ public class  ServiceOrderController extends BaseController {
 				serviceOrderDto.setVerifyCode(verifyCode.replace("$", "").replace("#", "").replace(" ", ""));
 			if (StringUtil.isNotEmpty(verifyCode))
 				serviceOrderDto.setRefNo(refNo);
-			if (courseId != null && courseId > 0){
+			if (courseId != null && courseId > 0) {
 				serviceOrderDto.setCourseId(courseId);
 				serviceOrderDto.setSchoolId(0);
 				if (StringUtil.isNotEmpty(institutionTradingName))
@@ -471,12 +478,13 @@ public class  ServiceOrderController extends BaseController {
 				if ("OVST".equalsIgnoreCase(type) && (schoolId2 != null && schoolId2 > 0) || (courseId2 != null
 						&& courseId2 > 0 && schoolInstitutionLocationId2 != null && schoolInstitutionLocationId2 > 0)) {
 					serviceOrderDto.setId(0);
-					if (schoolId2 != null && schoolId2 > 0){
+					if (schoolId2 != null && schoolId2 > 0) {
 						serviceOrderDto.setSchoolId(schoolId2);
 						serviceOrderDto.setCourseId(0);
 						serviceOrderDto.setSchoolInstitutionLocationId(0);
 					}
-					if (courseId2 != null && courseId2 > 0 && schoolInstitutionLocationId2 != null && schoolInstitutionLocationId2 > 0){
+					if (courseId2 != null && courseId2 > 0 && schoolInstitutionLocationId2 != null
+							&& schoolInstitutionLocationId2 > 0) {
 						serviceOrderDto.setCourseId(courseId2);
 						serviceOrderDto.setSchoolInstitutionLocationId(schoolInstitutionLocationId2);
 						serviceOrderDto.setSchoolId(0);
@@ -498,15 +506,16 @@ public class  ServiceOrderController extends BaseController {
 					else
 						msg += "创建第二学校服务订单失败(第二学校编号:" + schoolId2 + "). ";
 				}
-				if ( "OVST".equalsIgnoreCase(type) && (schoolId3 != null && schoolId3 > 0)
-						|| (courseId3 != null && courseId3 > 0 && schoolInstitutionLocationId3 != null && schoolInstitutionLocationId3 > 0)) {
+				if ("OVST".equalsIgnoreCase(type) && (schoolId3 != null && schoolId3 > 0) || (courseId3 != null
+						&& courseId3 > 0 && schoolInstitutionLocationId3 != null && schoolInstitutionLocationId3 > 0)) {
 					serviceOrderDto.setId(0);
-					if (schoolId3 != null && schoolId3 > 0){
+					if (schoolId3 != null && schoolId3 > 0) {
 						serviceOrderDto.setSchoolId(schoolId3);
 						serviceOrderDto.setCourseId(0);
 						serviceOrderDto.setSchoolInstitutionLocationId(0);
 					}
-					if (courseId3 != null && courseId3 > 0 && schoolInstitutionLocationId3 != null && schoolInstitutionLocationId3 > 0){
+					if (courseId3 != null && courseId3 > 0 && schoolInstitutionLocationId3 != null
+							&& schoolInstitutionLocationId3 > 0) {
 						serviceOrderDto.setCourseId(courseId3);
 						serviceOrderDto.setSchoolInstitutionLocationId(schoolInstitutionLocationId3);
 						serviceOrderDto.setSchoolId(0);
@@ -526,15 +535,16 @@ public class  ServiceOrderController extends BaseController {
 					} else
 						msg += "创建第三学校服务订单失败(第三学校编号:" + schoolId3 + "). ";
 				}
-				if ( "OVST".equalsIgnoreCase(type) && (schoolId4 != null && schoolId4 > 0)
-						|| (courseId4 != null && courseId4 > 0 && schoolInstitutionLocationId4 != null && schoolInstitutionLocationId4 > 0)) {
+				if ("OVST".equalsIgnoreCase(type) && (schoolId4 != null && schoolId4 > 0) || (courseId4 != null
+						&& courseId4 > 0 && schoolInstitutionLocationId4 != null && schoolInstitutionLocationId4 > 0)) {
 					serviceOrderDto.setId(0);
-					if (schoolId4 != null && schoolId4 > 0 ){
+					if (schoolId4 != null && schoolId4 > 0) {
 						serviceOrderDto.setSchoolId(schoolId4);
 						serviceOrderDto.setCourseId(0);
 						serviceOrderDto.setSchoolInstitutionLocationId(0);
 					}
-					if (courseId4 != null && courseId4 > 0 && schoolInstitutionLocationId4 != null && schoolInstitutionLocationId4 > 0){
+					if (courseId4 != null && courseId4 > 0 && schoolInstitutionLocationId4 != null
+							&& schoolInstitutionLocationId4 > 0) {
 						serviceOrderDto.setCourseId(courseId4);
 						serviceOrderDto.setSchoolInstitutionLocationId(schoolInstitutionLocationId4);
 						serviceOrderDto.setSchoolId(0);
@@ -554,15 +564,16 @@ public class  ServiceOrderController extends BaseController {
 					} else
 						msg += "创建第四学校服务订单失败(第四学校编号:" + schoolId4 + "). ";
 				}
-				if ( "OVST".equalsIgnoreCase(type) && (schoolId5 != null && schoolId5 > 0)
-						|| (courseId5 != null && courseId5 > 0 && schoolInstitutionLocationId5 != null && schoolInstitutionLocationId5 > 0)) {
+				if ("OVST".equalsIgnoreCase(type) && (schoolId5 != null && schoolId5 > 0) || (courseId5 != null
+						&& courseId5 > 0 && schoolInstitutionLocationId5 != null && schoolInstitutionLocationId5 > 0)) {
 					serviceOrderDto.setId(0);
-					if (schoolId5 != null && schoolId5 > 0){
+					if (schoolId5 != null && schoolId5 > 0) {
 						serviceOrderDto.setSchoolId(schoolId5);
 						serviceOrderDto.setCourseId(0);
 						serviceOrderDto.setSchoolInstitutionLocationId(0);
 					}
-					if (courseId5 != null && courseId5 > 0 && schoolInstitutionLocationId5 != null && schoolInstitutionLocationId5 > 0){
+					if (courseId5 != null && courseId5 > 0 && schoolInstitutionLocationId5 != null
+							&& schoolInstitutionLocationId5 > 0) {
 						serviceOrderDto.setCourseId(courseId5);
 						serviceOrderDto.setSchoolInstitutionLocationId(schoolInstitutionLocationId5);
 						serviceOrderDto.setSchoolId(0);
@@ -615,14 +626,14 @@ public class  ServiceOrderController extends BaseController {
 			@RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
 			@RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
 			@RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
-			@RequestParam(value = "invoiceVoucherImageUrl1" , required = false) String invoiceVoucherImageUrl1,
-			@RequestParam(value = "invoiceVoucherImageUrl2" , required = false) String invoiceVoucherImageUrl2,
-			@RequestParam(value = "invoiceVoucherImageUrl3" , required = false) String invoiceVoucherImageUrl3,
-			@RequestParam(value = "invoiceVoucherImageUrl4" , required = false) String invoiceVoucherImageUrl4,
-			@RequestParam(value = "invoiceVoucherImageUrl5" , required = false) String invoiceVoucherImageUrl5,
-			@RequestParam(value = "kjPaymentImageUrl1" ,required = false) String kjPaymentImageUrl1,
-			@RequestParam(value = "kjPaymentImageUrl2" ,required = false) String kjPaymentImageUrl2,
-			@RequestParam(value = "lowPriceImageUrl" ,required = false) String lowPriceImageUrl,
+			@RequestParam(value = "invoiceVoucherImageUrl1", required = false) String invoiceVoucherImageUrl1,
+			@RequestParam(value = "invoiceVoucherImageUrl2", required = false) String invoiceVoucherImageUrl2,
+			@RequestParam(value = "invoiceVoucherImageUrl3", required = false) String invoiceVoucherImageUrl3,
+			@RequestParam(value = "invoiceVoucherImageUrl4", required = false) String invoiceVoucherImageUrl4,
+			@RequestParam(value = "invoiceVoucherImageUrl5", required = false) String invoiceVoucherImageUrl5,
+			@RequestParam(value = "kjPaymentImageUrl1", required = false) String kjPaymentImageUrl1,
+			@RequestParam(value = "kjPaymentImageUrl2", required = false) String kjPaymentImageUrl2,
+			@RequestParam(value = "lowPriceImageUrl", required = false) String lowPriceImageUrl,
 			@RequestParam(value = "perAmount", required = false) String perAmount,
 			@RequestParam(value = "amount", required = false) String amount,
 			@RequestParam(value = "expectAmount", required = false) String expectAmount,
@@ -646,9 +657,9 @@ public class  ServiceOrderController extends BaseController {
 			@RequestParam(value = "serviceAssessId", required = false) String serviceAssessId,
 			@RequestParam(value = "verifyCode", required = false) String verifyCode,
 			@RequestParam(value = "refNo", required = false) String refNo,
-			@RequestParam(value = "courseId", required = false)Integer courseId,
-			@RequestParam(value = "schoolInstitutionLocationId", required = false)Integer schoolInstitutionLocationId,
-			@RequestParam(value = "institutionTradingName", required = false)String institutionTradingName,
+			@RequestParam(value = "courseId", required = false) Integer courseId,
+			@RequestParam(value = "schoolInstitutionLocationId", required = false) Integer schoolInstitutionLocationId,
+			@RequestParam(value = "institutionTradingName", required = false) String institutionTradingName,
 			HttpServletResponse response) {
 //		if (getOfficialAdminId(request) != null)
 //			return new Response<Integer>(1, "文案管理员不可操作服务订单.", 0);
@@ -778,15 +789,19 @@ public class  ServiceOrderController extends BaseController {
 				serviceOrderDto.setKjPaymentImageUrl1(kjPaymentImageUrl1);
 			if (StringUtil.isNotEmpty(kjPaymentImageUrl2))
 				serviceOrderDto.setKjPaymentImageUrl2(kjPaymentImageUrl2);
-			//if (serviceOrderDto.isSettle() && "RECEIVED".equalsIgnoreCase(serviceOrderDto.getState())){
-			//	if (StringUtil.isBlank(invoiceVoucherImageUrl1) || StringUtil.isBlank(invoiceVoucherImageUrl2)
-			//			|| StringUtil.isBlank(invoiceVoucherImageUrl3) || StringUtil.isBlank(invoiceVoucherImageUrl4)
-			//			|| StringUtil.isBlank(invoiceVoucherImageUrl5))
-			//		return new Response<Integer>(1, "提前扣拥必须上传发票凭证!", 0);
-			//	if (StringUtil.isBlank(officialPaymentImageUrl1) || StringUtil.isBlank(officialPaymentImageUrl2))
-			//		return new Response<Integer>(1, "文案需要上传转账凭证!", 0);
-			//}
-			if(StringUtil.isNotEmpty(lowPriceImageUrl))
+			// if (serviceOrderDto.isSettle() &&
+			// "RECEIVED".equalsIgnoreCase(serviceOrderDto.getState())){
+			// if (StringUtil.isBlank(invoiceVoucherImageUrl1) ||
+			// StringUtil.isBlank(invoiceVoucherImageUrl2)
+			// || StringUtil.isBlank(invoiceVoucherImageUrl3) ||
+			// StringUtil.isBlank(invoiceVoucherImageUrl4)
+			// || StringUtil.isBlank(invoiceVoucherImageUrl5))
+			// return new Response<Integer>(1, "提前扣拥必须上传发票凭证!", 0);
+			// if (StringUtil.isBlank(officialPaymentImageUrl1) ||
+			// StringUtil.isBlank(officialPaymentImageUrl2))
+			// return new Response<Integer>(1, "文案需要上传转账凭证!", 0);
+			// }
+			if (StringUtil.isNotEmpty(lowPriceImageUrl))
 				serviceOrderDto.setLowPriceImageUrl(lowPriceImageUrl);
 			if (StringUtil.isNotEmpty(perAmount))
 				serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
@@ -1010,6 +1025,7 @@ public class  ServiceOrderController extends BaseController {
 
 	/**
 	 * 更新服务订单已提交申请时间,readcommitted_date字段
+	 * 
 	 * @param id
 	 * @param readcommittedDate
 	 * @param request
@@ -1140,7 +1156,8 @@ public class  ServiceOrderController extends BaseController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public ListResponse<List<ServiceOrderDTO>> listServiceOrder(@RequestParam(value = "id", required = false) Integer id,
+	public ListResponse<List<ServiceOrderDTO>> listServiceOrder(
+			@RequestParam(value = "id", required = false) Integer id,
 			@RequestParam(value = "type", required = false) String type,
 			@RequestParam(value = "state", required = false) String state,
 			@RequestParam(value = "auditingState", required = false) String auditingState,
@@ -1198,7 +1215,7 @@ public class  ServiceOrderController extends BaseController {
 		List<Integer> regionIdList = null;
 		if (regionId != null && regionId > 0)
 			regionIdList = ListUtil.buildArrayList(regionId);
-		
+
 		Sorter _sorter = null;
 		if (sorter != null)
 			_sorter = JSON.parseObject(sorter.replace("adviser,name", "adviserName"), Sorter.class);
@@ -1224,12 +1241,15 @@ public class  ServiceOrderController extends BaseController {
 			if (id != null && id > 0) {
 				List<ServiceOrderDTO> list = new ArrayList<ServiceOrderDTO>();
 				ServiceOrderDTO serviceOrder = serviceOrderService.getServiceOrderById(id);
-				if ((serviceOrder != null &&
-						((adviserId != null && serviceOrder.getAdviserId() == adviserId) || (officialId != null && serviceOrder.getOfficialId() == officialId)))
+				if ((serviceOrder != null && ((adviserId != null && serviceOrder.getAdviserId() == adviserId)
+						|| (officialId != null && serviceOrder.getOfficialId() == officialId)))
 						|| isSuperAdminUser(request) || getOfficialAdminId(request) != null || getKjId(request) != null)
 					if (serviceOrder != null)
 						list.add(serviceOrder);
-					/*serviceOrder.setCommissionOrderDTOList(serviceOrderService.getCommissionOrderList(id));*/
+				/*
+				 * serviceOrder.setCommissionOrderDTOList(serviceOrderService.
+				 * getCommissionOrderList(id));
+				 */
 				return new ListResponse<List<ServiceOrderDTO>>(true, pageSize, list.size(), list, "");
 			}
 
@@ -1248,17 +1268,16 @@ public class  ServiceOrderController extends BaseController {
 			if (newOfficialId != null)
 				for (ServiceOrderDTO so : serviceOrderList)
 					so.setOfficialNotes(serviceOrderService.listOfficialRemarks(so.getId(), newOfficialId)); // 写入note
-			/*if (newOfficialId != null){
-				for (ServiceOrderDTO so : serviceOrderList) {
-					so.setCommissionOrderDTOList(serviceOrderService.getCommissionOrderList(so.getId()));
-				}
-			}*/
+			/*
+			 * if (newOfficialId != null){ for (ServiceOrderDTO so : serviceOrderList) {
+			 * so.setCommissionOrderDTOList(serviceOrderService.getCommissionOrderList(so.
+			 * getId())); } }
+			 */
 			return new ListResponse<List<ServiceOrderDTO>>(true, pageSize, total, serviceOrderList, "");
 		} catch (ServiceException e) {
 			return new ListResponse<List<ServiceOrderDTO>>(false, pageSize, 0, null, e.getMessage());
 		}
 	}
-
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
 	@ResponseBody
@@ -1362,8 +1381,9 @@ public class  ServiceOrderController extends BaseController {
 								// state.toUpperCase(), null, null, null);
 								// }
 							}
-							ServiceOrderDTO serviceOrderDTO = serviceOrderService.approval(id, adminUserLoginInfo.getId(), state.toUpperCase(), null, null, null);
-							//wxWorkService.sendMsg(serviceOrderDto.getId());
+							ServiceOrderDTO serviceOrderDTO = serviceOrderService.approval(id,
+									adminUserLoginInfo.getId(), state.toUpperCase(), null, null, null);
+							// wxWorkService.sendMsg(serviceOrderDto.getId());
 							return new Response<ServiceOrderDTO>(0, serviceOrderDTO);
 						} else if (ReviewAdviserStateEnum.PAID.toString().equals(state.toUpperCase())) { // 顾问支付同时修改文案状态
 							serviceOrderService.finish(id);
@@ -1619,8 +1639,7 @@ public class  ServiceOrderController extends BaseController {
 						+ serviceOrder.getId() + "<br/>评论内容:" + serviceOrderCommentDto.getContent() + "<br/>评论时间:"
 						+ new Date()
 						+ "<br/><br/><a href='https://yongjinbiao.zhinanzhen.org/webroot_new/serviceorderdetail/id?"
-						+ serviceOrder.getId() + "'>服务订单详情</a>"
-						;
+						+ serviceOrder.getId() + "'>服务订单详情</a>";
 				String email = "";
 				if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 					OfficialDTO official = serviceOrder.getOfficial();
@@ -1693,12 +1712,14 @@ public class  ServiceOrderController extends BaseController {
 			return new Response<List<ServiceOrderCommentDTO>>(1, e.getMessage(), null);
 		}
 	}
+
 	@RequestMapping(value = "/listAdviserVisa", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<VisaDO>> getCommissionOrderList(@RequestParam(value = "id") int id,HttpServletRequest request) {
+	public Response<List<VisaDO>> getCommissionOrderList(@RequestParam(value = "id") int id,
+			HttpServletRequest request) {
 		try {
 			List<VisaDO> commissionOrderList = serviceOrderService.getCommissionOrderList(id);
-			return new Response<>(0,commissionOrderList);
+			return new Response<>(0, commissionOrderList);
 		} catch (ServiceException e) {
 			return new Response<>(1, e.getMessage(), null);
 		}
@@ -1966,12 +1987,14 @@ public class  ServiceOrderController extends BaseController {
 				if (so.getSchool() != null) {
 					sheet.addCell(new Label(14, i, " 留学 ", cellFormat));
 					sheet.addCell(new Label(15, i, so.getSchool().getName(), cellFormat));
-				}else if (so.getSchoolInstitutionListDTO() != null){
+				} else if (so.getSchoolInstitutionListDTO() != null) {
 					sheet.addCell(new Label(14, i, " 留学 ", cellFormat));
-					sheet.addCell(new Label(15, i, so.getSchoolInstitutionListDTO().getName() +
-							"-" + so.getSchoolInstitutionListDTO().getSchoolCourseDO().getCourseName(), cellFormat));
+					sheet.addCell(new Label(15, i,
+							so.getSchoolInstitutionListDTO().getName() + "-"
+									+ so.getSchoolInstitutionListDTO().getSchoolCourseDO().getCourseName(),
+							cellFormat));
 				}
-				if ("ZX".equalsIgnoreCase(so.getType())){
+				if ("ZX".equalsIgnoreCase(so.getType())) {
 					sheet.addCell(new Label(14, i, " 咨询 ", cellFormat));
 					sheet.addCell(new Label(15, i, so.getService().getCode(), cellFormat));
 				}
@@ -1988,14 +2011,13 @@ public class  ServiceOrderController extends BaseController {
 					sheet.addCell(new Label(16, i, "服务申请中", cellFormat));
 				else if (so.getState().equalsIgnoreCase("APPLY_FAILED"))
 					sheet.addCell(new Label(16, i, "申请失败", cellFormat));
-				else if (so.getState().equalsIgnoreCase("COMPLETE")){
+				else if (so.getState().equalsIgnoreCase("COMPLETE")) {
 					sheet.addCell(new Label(16, i, "申请成功", cellFormat));
 					if (so.getType().equalsIgnoreCase("ZX"))
 						sheet.addCell(new Label(16, i, "订单完成", cellFormat));
 					if (so.getType().equalsIgnoreCase("OVST") && so.isSettle())
 						sheet.addCell(new Label(16, i, "等待财务转账", cellFormat));
-				}
-				else if (so.getState().equalsIgnoreCase("RECEIVED"))
+				} else if (so.getState().equalsIgnoreCase("RECEIVED"))
 					sheet.addCell(new Label(16, i, "已收款凭证已提交", cellFormat));
 				else if (so.getState().equalsIgnoreCase("COMPLETE_FD"))
 					sheet.addCell(new Label(16, i, "财务转账完成", cellFormat));
@@ -2004,55 +2026,44 @@ public class  ServiceOrderController extends BaseController {
 				else if (so.getState().equalsIgnoreCase("CLOSE"))
 					sheet.addCell(new Label(16, i, "已关闭", cellFormat));
 				/*
-				//旧系统状态废除
-				if (so.getReview() != null) {
-					if (so.getState().equalsIgnoreCase("PENDING"))
-						sheet.addCell(new Label(15, i, "待提交审核", cellFormat));
-					else {
-						if (so.getReview().getType().equalsIgnoreCase("APPROVAL")) {
-							if (StringUtil.isEmpty(so.getReview().getOfficialState()))
-								sheet.addCell(new Label(15, i, "资料待审核", cellFormat));
-							if (StringUtil.isNotEmpty(so.getReview().getOfficialState())) {
-								if (so.getReview().getOfficialState().equalsIgnoreCase("REVIEW")) {
-									sheet.addCell(new Label(15, i, "资料审核中", cellFormat));
-									if (StringUtil.isNotBlank(so.getReview().getMaraState())
-											&& so.getReview().getMaraState().equalsIgnoreCase("FINISH"))
-										sheet.addCell(new Label(15, i, "资料审核完成", cellFormat));
-								}
-
-								if (so.getReview().getOfficialState().equalsIgnoreCase("WAIT")) {
-									if (StringUtil.isNotBlank(so.getReview().getMaraState())
-											&& so.getReview().getMaraState().equalsIgnoreCase("WAIT"))
-										sheet.addCell(new Label(15, i, "已提交Mara审核", cellFormat));
-								}
-								if (so.getReview().getOfficialState().equalsIgnoreCase("APPLY"))
-									sheet.addCell(new Label(15, i, "服务申请中", cellFormat));
-								if (so.getReview().getOfficialState().equalsIgnoreCase("COMPLETE"))
-									sheet.addCell(new Label(15, i, "申请成功", cellFormat));
-								if (so.getReview().getOfficialState().equalsIgnoreCase("PAID")) {
-									sheet.addCell(new Label(15, i, "支付成功", cellFormat));
-									if (so.getType().equalsIgnoreCase("OVST"))
-										if (so.isSubmitted())
-											sheet.addCell(new Label(15, i, "支付成功,月奖已申请", cellFormat));
-										else
-											sheet.addCell(new Label(15, i, "支付成功,月奖未申请", cellFormat));
-								}
-								if (so.getReview().getOfficialState().equalsIgnoreCase("CLOSE"))
-									sheet.addCell(new Label(15, i, "已关闭", cellFormat));
-							}
-						}
-						if (so.getReview().getType().equalsIgnoreCase("REFUSE")
-								& StringUtil.isNotBlank(so.getReview().getOfficialState())) {
-							if (so.getReview().getOfficialState().equalsIgnoreCase("PENDING"))
-								sheet.addCell(new Label(15, i, "待提交审核,文案已驳回", cellFormat));
-							if (so.getReview().getOfficialState().equalsIgnoreCase("REVIEW"))
-								sheet.addCell(new Label(15, i, "资料审核中,已驳回", cellFormat));
-							if (so.getReview().getOfficialState().equalsIgnoreCase("CLOSE"))
-								sheet.addCell(new Label(15, i, "已关闭", cellFormat));
-						}
-					}
-
-				}
+				 * //旧系统状态废除 if (so.getReview() != null) { if
+				 * (so.getState().equalsIgnoreCase("PENDING")) sheet.addCell(new Label(15, i,
+				 * "待提交审核", cellFormat)); else { if
+				 * (so.getReview().getType().equalsIgnoreCase("APPROVAL")) { if
+				 * (StringUtil.isEmpty(so.getReview().getOfficialState())) sheet.addCell(new
+				 * Label(15, i, "资料待审核", cellFormat)); if
+				 * (StringUtil.isNotEmpty(so.getReview().getOfficialState())) { if
+				 * (so.getReview().getOfficialState().equalsIgnoreCase("REVIEW")) {
+				 * sheet.addCell(new Label(15, i, "资料审核中", cellFormat)); if
+				 * (StringUtil.isNotBlank(so.getReview().getMaraState()) &&
+				 * so.getReview().getMaraState().equalsIgnoreCase("FINISH")) sheet.addCell(new
+				 * Label(15, i, "资料审核完成", cellFormat)); }
+				 * 
+				 * if (so.getReview().getOfficialState().equalsIgnoreCase("WAIT")) { if
+				 * (StringUtil.isNotBlank(so.getReview().getMaraState()) &&
+				 * so.getReview().getMaraState().equalsIgnoreCase("WAIT")) sheet.addCell(new
+				 * Label(15, i, "已提交Mara审核", cellFormat)); } if
+				 * (so.getReview().getOfficialState().equalsIgnoreCase("APPLY"))
+				 * sheet.addCell(new Label(15, i, "服务申请中", cellFormat)); if
+				 * (so.getReview().getOfficialState().equalsIgnoreCase("COMPLETE"))
+				 * sheet.addCell(new Label(15, i, "申请成功", cellFormat)); if
+				 * (so.getReview().getOfficialState().equalsIgnoreCase("PAID")) {
+				 * sheet.addCell(new Label(15, i, "支付成功", cellFormat)); if
+				 * (so.getType().equalsIgnoreCase("OVST")) if (so.isSubmitted())
+				 * sheet.addCell(new Label(15, i, "支付成功,月奖已申请", cellFormat)); else
+				 * sheet.addCell(new Label(15, i, "支付成功,月奖未申请", cellFormat)); } if
+				 * (so.getReview().getOfficialState().equalsIgnoreCase("CLOSE"))
+				 * sheet.addCell(new Label(15, i, "已关闭", cellFormat)); } } if
+				 * (so.getReview().getType().equalsIgnoreCase("REFUSE") &
+				 * StringUtil.isNotBlank(so.getReview().getOfficialState())) { if
+				 * (so.getReview().getOfficialState().equalsIgnoreCase("PENDING"))
+				 * sheet.addCell(new Label(15, i, "待提交审核,文案已驳回", cellFormat)); if
+				 * (so.getReview().getOfficialState().equalsIgnoreCase("REVIEW"))
+				 * sheet.addCell(new Label(15, i, "资料审核中,已驳回", cellFormat)); if
+				 * (so.getReview().getOfficialState().equalsIgnoreCase("CLOSE"))
+				 * sheet.addCell(new Label(15, i, "已关闭", cellFormat)); } }
+				 * 
+				 * }
 				 */
 				sheet.addCell(new Label(17, i, so.getRealPeopleNumber() + "", cellFormat));
 				sheet.addCell(new Label(18, i, so.getRemarks(), cellFormat));
@@ -2072,17 +2083,19 @@ public class  ServiceOrderController extends BaseController {
 	public void downExcel(@RequestParam(value = "type") String type,
 			@RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
 			@RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
-			@RequestParam(value = "subject", required = false) String subject,
-			HttpServletRequest request, HttpServletResponse response) {
+			@RequestParam(value = "subject", required = false) String subject, HttpServletRequest request,
+			HttpServletResponse response) {
 
 		try {
 			super.setGetHeader(response);
 			List<EachRegionNumberDTO> eachRegionNumberDTOS = new ArrayList<>();
-			if (StringUtil.isEmpty(subject))//导出签证/留学各个项目各个地区的个数
-				eachRegionNumberDTOS = serviceOrderService.listServiceOrderGroupByForRegion(type, startOfficialApprovalDate, endOfficialApprovalDate);
+			if (StringUtil.isEmpty(subject))// 导出签证/留学各个项目各个地区的个数
+				eachRegionNumberDTOS = serviceOrderService.listServiceOrderGroupByForRegion(type,
+						startOfficialApprovalDate, endOfficialApprovalDate);
 
-			if (StringUtil.isNotEmpty(subject)){
-				List<EachSubjectCountDTO> eachSubjectCountDTOS = serviceOrderService.eachSubjectCount(startOfficialApprovalDate,endOfficialApprovalDate);
+			if (StringUtil.isNotEmpty(subject)) {
+				List<EachSubjectCountDTO> eachSubjectCountDTOS = serviceOrderService
+						.eachSubjectCount(startOfficialApprovalDate, endOfficialApprovalDate);
 				response.reset();// 清空输出流
 				String tableName = "Subject";
 				response.setHeader("Content-disposition",
@@ -2114,16 +2127,16 @@ public class  ServiceOrderController extends BaseController {
 				WritableSheet sheet = wbe.getSheet(0);
 				WritableCellFormat cellFormat = new WritableCellFormat();
 				int i = 0;
-				for (EachSubjectCountDTO each : eachSubjectCountDTOS){
-					sheet.addCell(new Label( 0 , i , " 学校名称 " , cellFormat));
-					sheet.addCell(new Label( 1 , i ,each.getName(),cellFormat));
-					sheet.addCell(new Label( 0 , i + 1 , " 申请数量 " , cellFormat));
-					sheet.addCell(new Label( 1 , i + 1 ,each.getTotal() + "",cellFormat));
+				for (EachSubjectCountDTO each : eachSubjectCountDTOS) {
+					sheet.addCell(new Label(0, i, " 学校名称 ", cellFormat));
+					sheet.addCell(new Label(1, i, each.getName(), cellFormat));
+					sheet.addCell(new Label(0, i + 1, " 申请数量 ", cellFormat));
+					sheet.addCell(new Label(1, i + 1, each.getTotal() + "", cellFormat));
 					List<EachSubjectCountDTO.Subject> subjects = each.getSubject();
 					int n = 2;
-					for (EachSubjectCountDTO.Subject sub : subjects){
-						sheet.addCell(new Label( n , i , sub.getSubjectName() , cellFormat));
-						sheet.addCell(new Label( n , i + 1 , sub.getNumber() + "",cellFormat));
+					for (EachSubjectCountDTO.Subject sub : subjects) {
+						sheet.addCell(new Label(n, i, sub.getSubjectName(), cellFormat));
+						sheet.addCell(new Label(n, i + 1, sub.getNumber() + "", cellFormat));
 						n++;
 					}
 					i += 2;
@@ -2207,17 +2220,17 @@ public class  ServiceOrderController extends BaseController {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return;
-		}finally {
+		} finally {
 
 		}
 	}
 
 	@GetMapping(value = "/down1")
-	public void  down1(@RequestParam(value = "type",required = false)String type,
-					   @RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
-					   @RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
-					   @RequestParam(value = "isPay",required = false,defaultValue = "false")boolean isPay,
-					   HttpServletRequest request, HttpServletResponse response) throws ServiceException {
+	public void down1(@RequestParam(value = "type", required = false) String type,
+			@RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
+			@RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
+			@RequestParam(value = "isPay", required = false, defaultValue = "false") boolean isPay,
+			HttpServletRequest request, HttpServletResponse response) throws ServiceException {
 
 		OutputStream os = null;
 		jxl.Workbook wb = null;
@@ -2258,8 +2271,8 @@ public class  ServiceOrderController extends BaseController {
 			WritableSheet sheet = wbe.getSheet(0);
 			WritableCellFormat cellFormat = new WritableCellFormat();
 			int i = 0;
-			for (ServiceOrderDTO so : serviceOrderDTOS){
-				if (i == 0){
+			for (ServiceOrderDTO so : serviceOrderDTOS) {
+				if (i == 0) {
 					sheet.addCell(new Label(0, i, "提交审核时间", cellFormat));
 					sheet.addCell(new Label(1, i, "服务订单ID", cellFormat));
 					sheet.addCell(new Label(2, i, "服务项目", cellFormat));
@@ -2269,31 +2282,32 @@ public class  ServiceOrderController extends BaseController {
 					sheet.addCell(new Label(6, i, "MARA", cellFormat));
 					i++;
 				}
-				if (so.getParentId() > 0){
-					ServiceOrderDTO serviceOrderParent =  serviceOrderService.getServiceOrderById(so.getParentId());
+				if (so.getParentId() > 0) {
+					ServiceOrderDTO serviceOrderParent = serviceOrderService.getServiceOrderById(so.getParentId());
 					if (serviceOrderParent.isPay())
 						continue;
 				}
 				sheet.addCell(new Label(0, i, sdf.format(so.getOfficialApprovalDate()), cellFormat));
 				sheet.addCell(new Label(1, i, so.getId() + "", cellFormat));
 				String str = "";
-				if ("VISA".equalsIgnoreCase(so.getType())){
-					if (so.getService() != null )
+				if ("VISA".equalsIgnoreCase(so.getType())) {
+					if (so.getService() != null)
 						str = so.getService().getName() + so.getService().getCode();
 					if (so.getServicePackage() != null)
-						str = str + "-" + ServicePackageTypeEnum.getServicePackageTypeComment(so.getServicePackage().getType()) ;
+						str = str + "-"
+								+ ServicePackageTypeEnum.getServicePackageTypeComment(so.getServicePackage().getType());
 					if (so.getServiceAssessDO() != null)
 						str = str + "-" + so.getServiceAssessDO().getName();
 				}
-				if ("ZX".equalsIgnoreCase(so.getType())){
+				if ("ZX".equalsIgnoreCase(so.getType())) {
 					str = "咨询 - " + so.getService().getCode();
 				}
-				if ("OVST".equalsIgnoreCase(so.getType())){
-					//str = "留学 - " + so.getSchool().getName();
+				if ("OVST".equalsIgnoreCase(so.getType())) {
+					// str = "留学 - " + so.getSchool().getName();
 					continue;
 				}
 				sheet.addCell(new Label(2, i, str, cellFormat));
-				if (so.getAdviser() != null){
+				if (so.getAdviser() != null) {
 					sheet.addCell(new Label(3, i, so.getAdviser().getName(), cellFormat));
 					sheet.addCell(new Label(4, i, so.getAdviser().getRegionName(), cellFormat));
 				}
@@ -2309,7 +2323,7 @@ public class  ServiceOrderController extends BaseController {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return;
-		}finally {
+		} finally {
 			if (os != null) {
 				try {
 					os.close();
@@ -2333,11 +2347,11 @@ public class  ServiceOrderController extends BaseController {
 	}
 
 	@RequestMapping(value = "/downAdviserOfRegionCaseCount")
-	public void downAdviserOfRegionCaseCount(@RequestParam(value = "month",defaultValue = "1")int month ,
-											 @RequestParam(value = "regionIds")String regionIds,
-											 HttpServletRequest request,HttpServletResponse response){
+	public void downAdviserOfRegionCaseCount(@RequestParam(value = "month", defaultValue = "1") int month,
+			@RequestParam(value = "regionIds") String regionIds, HttpServletRequest request,
+			HttpServletResponse response) {
 		super.setGetHeader(response);
-		List<String> typeList = ListUtil.buildArrayList("VISA","OVST","ZX") ;
+		List<String> typeList = ListUtil.buildArrayList("VISA", "OVST", "ZX");
 		List<String> regionIdList = null;
 		if (StringUtils.isNotEmpty(regionIds))
 			regionIdList = Arrays.asList(regionIds.split(","));
@@ -2348,7 +2362,7 @@ public class  ServiceOrderController extends BaseController {
 		List<String> _regionIdList = new ArrayList<>();
 
 		jxl.Workbook wb = null;
-		InputStream is = null ;
+		InputStream is = null;
 		ZipOutputStream zipos = null;
 		try {
 			response.reset();// 清空输出流
@@ -2359,10 +2373,11 @@ public class  ServiceOrderController extends BaseController {
 
 			zipos = new ZipOutputStream(response.getOutputStream());
 
-			for (String regionId : regionIdList){
+			for (String regionId : regionIdList) {
 
 				_regionIdList.add(regionId);
-				List<AdviserServiceCountDTO> adviserServiceCountTs = serviceOrderService.listServiceOrderToAnalysis(typeList,month,_regionIdList);
+				List<AdviserServiceCountDTO> adviserServiceCountTs = serviceOrderService
+						.listServiceOrderToAnalysis(typeList, month, _regionIdList);
 
 				ZipEntry zipEntryXtv = new ZipEntry(adviserServiceCountTs.get(0).getRegionName() + ".xls");
 				zipos.putNextEntry(zipEntryXtv);
@@ -2388,13 +2403,13 @@ public class  ServiceOrderController extends BaseController {
 				WritableSheet sheet = wbe.getSheet(0);
 				WritableCellFormat cellFormat = new WritableCellFormat();
 				int i = 0;
-				for (AdviserServiceCountDTO ascd : adviserServiceCountTs){
+				for (AdviserServiceCountDTO ascd : adviserServiceCountTs) {
 					sheet.addCell(new Label(0, i, ascd.getAdviserName(), cellFormat));
-					sheet.addCell(new Label(0, i+1, "数量", cellFormat));
+					sheet.addCell(new Label(0, i + 1, "数量", cellFormat));
 					int j = 1;
-					for (AdviserServiceDetail detail : ascd.getDetails()){
+					for (AdviserServiceDetail detail : ascd.getDetails()) {
 						sheet.addCell(new Label(j, i, detail.getServiceName(), cellFormat));
-						sheet.addCell(new Label(j, i+1, String.valueOf(detail.getCount()), cellFormat));
+						sheet.addCell(new Label(j, i + 1, String.valueOf(detail.getCount()), cellFormat));
 						j++;
 					}
 					i += 2;
@@ -2402,7 +2417,7 @@ public class  ServiceOrderController extends BaseController {
 				wbe.write();
 				wbe.close();
 
-				_regionIdList.clear();//清空list
+				_regionIdList.clear();// 清空list
 			}
 
 			zipos.flush();
@@ -2410,26 +2425,25 @@ public class  ServiceOrderController extends BaseController {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return;
-		}
-		finally {
-				if (zipos != null) {
-					try {
-						zipos.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-						System.out.println("zipos 关闭异常");
-					}
+		} finally {
+			if (zipos != null) {
+				try {
+					zipos.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+					System.out.println("zipos 关闭异常");
 				}
-				if (wb != null)
-					wb.close();
-				if (is != null) {
-					try {
-						is.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-						System.out.println("is 关闭异常");
-					}
+			}
+			if (wb != null)
+				wb.close();
+			if (is != null) {
+				try {
+					is.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+					System.out.println("is 关闭异常");
 				}
+			}
 		}
 	}
 
@@ -2481,22 +2495,22 @@ public class  ServiceOrderController extends BaseController {
 
 			context = workflowStarter.process(workflow, context);
 
-			//发送消息到群聊PENGDING--->REVIEW
+			// 发送消息到群聊PENGDING--->REVIEW
 			if ("GW".equalsIgnoreCase(adminUserLoginInfo.getApList()) && !"ZX".equals(serviceOrderDto.getType())
-					&& "REVIEW".equalsIgnoreCase(state)){//咨询不发群聊消息
-				String token = token(request,"corp");
-				LOG.info("发送群聊订单:" + serviceOrderDto.getId() + " . ACCESS_TOKEN: " + token );
-				if (wxWorkService.sendMsg(serviceOrderDto.getId(),token)){
+					&& "REVIEW".equalsIgnoreCase(state)) {// 咨询不发群聊消息
+				String token = token(request, "corp");
+				LOG.info("发送群聊订单:" + serviceOrderDto.getId() + " . ACCESS_TOKEN: " + token);
+				if (wxWorkService.sendMsg(serviceOrderDto.getId(), token)) {
 					LOG.info(serviceOrderDto.getId() + " 订单群聊消息发送成功 . ACCESS_TOKEN:" + token);
 				}
 
-				if ("VISA".equals(serviceOrderDto.getType())) {//签证创建群聊
+				if ("VISA".equals(serviceOrderDto.getType())) {// 签证创建群聊
 					if (serviceOrderDto.getParentId() > 0) {
-						if (wxWorkService.ChatDOByServiceOrderId(serviceOrderDto.getParentId()) == null){
-							//wxWorkService.createChat(id,token);//SIV，按照主订单创建
+						if (wxWorkService.ChatDOByServiceOrderId(serviceOrderDto.getParentId()) == null) {
+							// wxWorkService.createChat(id,token);//SIV，按照主订单创建
 						}
-					} else if (wxWorkService.ChatDOByServiceOrderId(id) == null){
-						//wxWorkService.createChat(id,token);//普通VISA，直接创建
+					} else if (wxWorkService.ChatDOByServiceOrderId(id) == null) {
+						// wxWorkService.createChat(id,token);//普通VISA，直接创建
 					}
 				}
 			}
@@ -2504,7 +2518,7 @@ public class  ServiceOrderController extends BaseController {
 			if (context.getParameter("response") != null)
 				return (Response<ServiceOrderDTO>) context.getParameter("response");
 			else {
-				if (!"ZX".equals(serviceOrderDto.getType()))//咨询服务不用发邮件提醒
+				if (!"ZX".equals(serviceOrderDto.getType()))// 咨询服务不用发邮件提醒
 					serviceOrderService.sendRemind(id, state); // 发送提醒邮件
 				return new Response<ServiceOrderDTO>(0, id + "", null);
 			}
@@ -2514,8 +2528,8 @@ public class  ServiceOrderController extends BaseController {
 	}
 
 	/**
-	 * MARA 批量审核
-	 * 暂且只能	MARA,SUPER
+	 * MARA 批量审核 暂且只能 MARA,SUPER
+	 * 
 	 * @param idList
 	 * @param state
 	 * @param request
@@ -2524,14 +2538,14 @@ public class  ServiceOrderController extends BaseController {
 	 */
 	@RequestMapping(value = "/next_flow2", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<ServiceOrderDTO> next_flow2(@RequestParam(value = "idList") int idList [],
-												@RequestParam(value = "state") String state,
-												//@RequestParam(value = "subagencyId", required = false) String subagencyId,
-												//@RequestParam(value = "closedReason", required = false) String closedReason,
-												//@RequestParam(value = "refuseReason", required = false) String refuseReason,
-												//@RequestParam(value = "remarks", required = false) String remarks,
-												//@RequestParam(value = "stateMark", required = false) String stateMark,
-												HttpServletRequest request, HttpServletResponse response) {
+	public Response<ServiceOrderDTO> next_flow2(@RequestParam(value = "idList") int idList[],
+			@RequestParam(value = "state") String state,
+			// @RequestParam(value = "subagencyId", required = false) String subagencyId,
+			// @RequestParam(value = "closedReason", required = false) String closedReason,
+			// @RequestParam(value = "refuseReason", required = false) String refuseReason,
+			// @RequestParam(value = "remarks", required = false) String remarks,
+			// @RequestParam(value = "stateMark", required = false) String stateMark,
+			HttpServletRequest request, HttpServletResponse response) {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo == null || !"MA,SUPER".contains(adminUserLoginInfo.getApList()))
 			return new Response<ServiceOrderDTO>(1, "No permission !", null);
@@ -2556,19 +2570,19 @@ public class  ServiceOrderController extends BaseController {
 					if (Arrays.asList(nextNodeNames).contains(state))
 						node = soNodeFactory.getNode(state);
 					else
-						return new Response<ServiceOrderDTO>(1,
-								StringUtil.merge("佣金：",id," ,状态:", state, ",不是合法状态. (", Arrays.toString(nextNodeNames), ")"), null);
+						return new Response<ServiceOrderDTO>(1, StringUtil.merge("佣金：", id, " ,状态:", state,
+								",不是合法状态. (", Arrays.toString(nextNodeNames), ")"), null);
 
 				Workflow workflow = new Workflow("Service Order Work Flow", node, soNodeFactory);
 
 				context = workflowStarter.process(workflow, context);
 
-				//发送消息到群聊PENGDING--->REVIEW
+				// 发送消息到群聊PENGDING--->REVIEW
 				if ("GW".equalsIgnoreCase(adminUserLoginInfo.getApList()) && !"ZX".equals(serviceOrderDto.getType())
-						&& "REVIEW".equalsIgnoreCase(state)) {//咨询不发群聊消息
+						&& "REVIEW".equalsIgnoreCase(state)) {// 咨询不发群聊消息
 					String token = token(request, "corp");
 					LOG.info("发送群聊订单:" + serviceOrderDto.getId() + " . ACCESS_TOKEN: " + token);
-					if (wxWorkService.sendMsg(serviceOrderDto.getId(),token)){
+					if (wxWorkService.sendMsg(serviceOrderDto.getId(), token)) {
 						LOG.info(serviceOrderDto.getId() + " 订单群聊消息发送成功 . ACCESS_TOKEN:" + token);
 					}
 				}
@@ -2576,19 +2590,18 @@ public class  ServiceOrderController extends BaseController {
 				if (context.getParameter("response") != null)
 					return (Response<ServiceOrderDTO>) context.getParameter("response");
 				else {
-					if (!"ZX".equals(serviceOrderDto.getType()))//咨询服务不用发邮件提醒
+					if (!"ZX".equals(serviceOrderDto.getType()))// 咨询服务不用发邮件提醒
 						serviceOrderService.sendRemind(id, state); // 发送提醒邮件
 				}
 			}
 		} catch (ServiceException e) {
 			return new Response<ServiceOrderDTO>(1, "异常:" + e.getMessage(), null);
 		}
-		return new Response<ServiceOrderDTO>(0,  "success", null);
-
+		return new Response<ServiceOrderDTO>(0, "success", null);
 
 	}
 
-	private String getTypeStrOfServicePackageDTO(String type){
+	private String getTypeStrOfServicePackageDTO(String type) {
 		if ("EOI".equalsIgnoreCase(type))
 			return "EOI";
 		else if ("CA".equalsIgnoreCase(type))

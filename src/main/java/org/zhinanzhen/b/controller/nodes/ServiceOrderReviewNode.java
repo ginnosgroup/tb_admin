@@ -11,6 +11,7 @@ import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 
 import com.ikasoa.core.utils.ObjectUtil;
+import com.ikasoa.core.utils.StringUtil;
 import com.ikasoa.web.workflow.Context;
 
 // 文案审核
@@ -67,11 +68,12 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 			context.putParameter("response", new Response<ServiceOrderDTO>(1, "只有签证类才能进行mara审核流程.", null));
 			return null;
 		}
+		
 		if (state == null && context.getParameter("state") == null) {
 			context.putParameter("response", new Response<ServiceOrderDTO>(1, "状态值不能为空.", null));
 			return null;
 		}
-		
+		context.putParameter("stateMark", "Submitted");
 		
 		return state;
 	}
