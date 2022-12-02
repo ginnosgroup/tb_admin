@@ -195,8 +195,6 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			ServiceOrderDO _serviceOrderDo = serviceOrderDao.getServiceOrderById(serviceOrderDto.getId());
 			ServiceOrderDO serviceOrderDo = mapper.map(serviceOrderDto, ServiceOrderDO.class);
 			int i = serviceOrderDao.updateServiceOrder(serviceOrderDo);
-System.out.println("===updateServiceOrder1:" + serviceOrderDo);
-System.out.println("===updateServiceOrder2:" + _serviceOrderDo);
 			if (i > 0
 					&& ((_serviceOrderDo.getMaraId() > 0 && serviceOrderDo.getMaraId() > 0
 							&& _serviceOrderDo.getMaraId() != serviceOrderDo.getMaraId())
@@ -221,8 +219,6 @@ System.out.println("===updateServiceOrder2:" + _serviceOrderDo);
     }
 
 	private void sendEmailOfUpdateOfficial(ServiceOrderDO serviceOrderDo, ServiceOrderDO _serviceOrderDo) {
-System.out.println("===sendEmailOfUpdateOfficial1:" + serviceOrderDo);
-System.out.println("===sendEmailOfUpdateOfficial2:" + _serviceOrderDo);
 		ServiceOrderMailDetail serviceOrderMailDetail = getServiceOrderMailDetail(serviceOrderDo, "任务提醒:");
 		AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderDo.getAdviserId());
 		OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
@@ -283,8 +279,6 @@ System.out.println("===sendEmailOfUpdateOfficial2:" + _serviceOrderDo);
 	}
     
     private void sendEmailOfUpdateServiceId(ServiceOrderDO serviceOrderDo, ServiceOrderDO _serviceOrderDo) {
-System.out.println("===sendEmailOfUpdateServiceId1:" + serviceOrderDo);
-System.out.println("===sendEmailOfUpdateServiceId2:" + _serviceOrderDo);
         ServiceOrderMailDetail serviceOrderMailDetail = getServiceOrderMailDetail(serviceOrderDo, "任务提醒:");
         AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderDo.getAdviserId());
         OfficialDO _officialDo = officialDao.getOfficialById(_serviceOrderDo.getOfficialId());
@@ -298,7 +292,6 @@ System.out.println("===sendEmailOfUpdateServiceId2:" + _serviceOrderDo);
                 && _serviceOrderDo.getServiceId() != serviceOrderDo.getServiceId()) {
         	if (StringUtil.equals("Retracted", serviceOrderDo.getStateMark()) && serviceOrderDo.isSubmitted()) { // 给会计发邮件
 				int regionId = adviserDo.getRegionId();
-System.out.println("===sendEmailOfUpdateServiceId.regionId:" + regionId);
 				if (regionId > 0) {
 					List<KjDO> kjList = kjDao.listKjByRegionId(regionId);
 					if (kjList != null && kjList.size() > 0) {
