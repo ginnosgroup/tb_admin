@@ -73,7 +73,6 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 			context.putParameter("response", new Response<ServiceOrderDTO>(1, "状态值不能为空.", null));
 			return null;
 		}
-		context.putParameter("stateMark", "Submitted");
 		
 		return state;
 	}

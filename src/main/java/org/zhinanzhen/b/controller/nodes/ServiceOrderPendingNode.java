@@ -30,6 +30,7 @@ public class ServiceOrderPendingNode extends SONode {
 	@Override
 	public Context processNode(Context context) {
 		isSingleStep = true;
+		context.putParameter("stateMark", "Retracted");
 		return context;
 	}
 	

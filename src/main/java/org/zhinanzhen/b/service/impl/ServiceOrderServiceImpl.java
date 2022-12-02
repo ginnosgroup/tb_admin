@@ -203,13 +203,13 @@ System.out.println("===updateServiceOrder2:" + _serviceOrderDo);
 							|| (_serviceOrderDo.getOfficialId() > 0 && serviceOrderDo.getOfficialId() > 0
 									&& _serviceOrderDo.getOfficialId() != serviceOrderDo.getOfficialId()))
 					&& (!"PENDING".equalsIgnoreCase(serviceOrderDo.getState())
-							|| StringUtil.equals("Submitted", serviceOrderDo.getStateMark())))
+							|| StringUtil.equals("Retracted", serviceOrderDo.getStateMark())))
 				sendEmailOfUpdateOfficial(serviceOrderDo, _serviceOrderDo);
 			if (i > 0
 					&& ((_serviceOrderDo.getServiceId() > 0 && serviceOrderDo.getServiceId() > 0
 							&& _serviceOrderDo.getServiceId() != serviceOrderDo.getServiceId()))
 					&& (!"PENDING".equalsIgnoreCase(serviceOrderDo.getState())
-							|| StringUtil.equals("Submitted", serviceOrderDo.getStateMark())))
+							|| StringUtil.equals("Retracted", serviceOrderDo.getStateMark())))
 				sendEmailOfUpdateServiceId(serviceOrderDo, _serviceOrderDo);
 
             return i;
@@ -267,7 +267,7 @@ System.out.println("===sendEmailOfUpdateOfficial2:" + _serviceOrderDo);
 							"<br/>坚果云资料地址:", applicantDto.getUrl(), "<br/>申请人基本信息:", applicantDto.getContent(),
 							"<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(),
 							"<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
-			if (StringUtil.equals("Submitted", serviceOrderDo.getStateMark())) // 顾问提交审核后又撤回，提醒文案不同
+			if (StringUtil.equals("Retracted", serviceOrderDo.getStateMark())) // 顾问提交审核后又撤回，提醒文案不同
 				sendMail(_officialDo.getEmail() + ",maggie@zhinanzhen.org", "服务被撤回提醒:",
 						StringUtil.merge("亲爱的", _officialDo.getName(), ":<br/>您有一条服务订单已被撤回,如有服务相关问题请及时与顾问沟通<br/>订单号:",
 								serviceOrderDo.getId(), "<br/>服务类型:", serviceOrderMailDetail.getType(),
@@ -296,7 +296,7 @@ System.out.println("===sendEmailOfUpdateServiceId2:" + _serviceOrderDo);
         Date date = serviceOrderDo.getGmtCreate();
         if (_serviceOrderDo.getServiceId() > 0 && serviceOrderDo.getServiceId() > 0
                 && _serviceOrderDo.getServiceId() != serviceOrderDo.getServiceId()) {
-        	if (StringUtil.equals("Submitted", serviceOrderDo.getStateMark()) && serviceOrderDo.isSubmitted()) { // 给会计发邮件
+        	if (StringUtil.equals("Retracted", serviceOrderDo.getStateMark()) && serviceOrderDo.isSubmitted()) { // 给会计发邮件
 				int regionId = adviserDo.getRegionId();
 System.out.println("===sendEmailOfUpdateServiceId.regionId:" + regionId);
 				if (regionId > 0) {
