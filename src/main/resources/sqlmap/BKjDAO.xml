@@ -82,6 +82,19 @@
         ORDER BY name
         LIMIT #{offset}, #{rows};
     </select>
+    
+    <select id="listKjByRegionId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.KjDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            name,
+            phone,
+            email,
+            state,
+            image_url AS imageUrl,
+            region_id AS regionId
+        FROM b_kj WHERE region_id = #{regionId, jdbcType=INTEGER};
+    </select>
 
     <select id="getKjById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.KjDO">
         SELECT

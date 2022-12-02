@@ -15,6 +15,8 @@ public interface KjDAO {
 
 	public List<KjDO> listKj(@Param("name") String name, @Param("regionId") Integer regionId,
 			@Param("offset") int offset, @Param("rows") int rows);
+	
+	public List<KjDO> listKjByRegionId(int id);
 
 	public KjDO getKjById(int id);
 
