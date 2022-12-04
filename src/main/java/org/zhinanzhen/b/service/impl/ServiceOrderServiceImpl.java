@@ -229,14 +229,17 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		applicantDto = buildApplicant(applicantDto, serviceOrderDo.getId(), serviceOrderDo.getNutCloud(),
 				serviceOrderDo.getInformation());
 		Date date = serviceOrderDo.getGmtCreate();
-		sendMail(adviserDo.getEmail(), "变更任务提醒:",
-				StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>", "您的订单已经变更。", "<br>订单号:", serviceOrderDo.getId(),
-						"<br/>申请人名称:", getApplicantName(applicantDto), "<br/>顾问:", adviserDo.getName(), "<br/>文案:",
-						officialDo.getName(), "<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()),
-						"<br/>坚果云资料地址:", applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
-						serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date,
-						"<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
-		if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())) {
+		if (!"PENDING".equalsIgnoreCase(serviceOrderDo.getState()))
+			sendMail(adviserDo.getEmail(), "变更任务提醒:",
+					StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>", "您的订单已经变更。", "<br>订单号:",
+							serviceOrderDo.getId(), "<br/>申请人名称:", getApplicantName(applicantDto), "<br/>顾问:",
+							adviserDo.getName(), "<br/>文案:", officialDo.getName(), "<br/>属性:",
+							getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:", applicantDto.getUrl(),
+							"<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:", serviceOrderDo.getRemarks(),
+							"<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date, "<br/>",
+							serviceOrderMailDetail.getServiceOrderUrl()));
+		if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())
+				&& !"PENDING".equalsIgnoreCase(serviceOrderDo.getState())) {
 			if (_serviceOrderDo.getMaraId() > 0 && serviceOrderDo.getMaraId() > 0
 					&& _serviceOrderDo.getMaraId() != serviceOrderDo.getMaraId()) {
 				MaraDO maraDo = maraDao.getMaraById(serviceOrderDo.getMaraId());
@@ -255,14 +258,15 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		}
 		if (_serviceOrderDo.getOfficialId() > 0 && serviceOrderDo.getOfficialId() > 0
 				&& _serviceOrderDo.getOfficialId() != serviceOrderDo.getOfficialId()) {
-			sendMail(officialDo.getEmail() + ",maggie@zhinanzhen.org", "新任务提醒:",
-					StringUtil.merge("亲爱的", officialDo.getName(), ":<br/>", "您有一条新的服务订单任务请及时处理。", "<br/>订单号:",
-							serviceOrderDo.getId(), "<br/>服务类型:", serviceOrderMailDetail.getType(),
-							serviceOrderMailDetail.getDetail(), "/顾问:", adviserDo.getName(), "/文案:",
-							officialDo.getName(), "<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()),
-							"<br/>坚果云资料地址:", applicantDto.getUrl(), "<br/>申请人基本信息:", applicantDto.getContent(),
-							"<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(),
-							"<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
+			if (!"PENDING".equalsIgnoreCase(serviceOrderDo.getState()))
+				sendMail(officialDo.getEmail() + ",maggie@zhinanzhen.org", "新任务提醒:",
+						StringUtil.merge("亲爱的", officialDo.getName(), ":<br/>", "您有一条新的服务订单任务请及时处理。", "<br/>订单号:",
+								serviceOrderDo.getId(), "<br/>服务类型:", serviceOrderMailDetail.getType(),
+								serviceOrderMailDetail.getDetail(), "/顾问:", adviserDo.getName(), "/文案:",
+								officialDo.getName(), "<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()),
+								"<br/>坚果云资料地址:", applicantDto.getUrl(), "<br/>申请人基本信息:", applicantDto.getContent(),
+								"<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(),
+								"<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
 			if (StringUtil.equals("Retracted", serviceOrderDo.getStateMark())) // 顾问提交审核后又撤回，提醒文案不同
 				sendMail(_officialDo.getEmail() + ",maggie@zhinanzhen.org", "服务被撤回提醒:",
 						StringUtil.merge("亲爱的", _officialDo.getName(), ":<br/>您有一条服务订单已被撤回,如有服务相关问题请及时与顾问沟通<br/>订单号:",
@@ -271,7 +275,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 								applicantDto.getContent(), "<br/>坚果云资料地址:", applicantDto.getUrl(), "<br/>备注:",
 								serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(),
 								"<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
-			else
+			else if (!"PENDING".equalsIgnoreCase(serviceOrderDo.getState()))
 				sendMail(_officialDo.getEmail() + ",maggie@zhinanzhen.org", "变更任务提醒:",
 						StringUtil.merge("亲爱的", _officialDo.getName(), ":<br/>", "您有的订单号:", serviceOrderDo.getId(),
 								"已从您这更改为文案:", officialDo.getName()));
