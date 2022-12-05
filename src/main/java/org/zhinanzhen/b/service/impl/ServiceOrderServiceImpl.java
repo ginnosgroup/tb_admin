@@ -223,6 +223,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderDo.getAdviserId());
 		OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
 		OfficialDO _officialDo = officialDao.getOfficialById(_serviceOrderDo.getOfficialId());
+		if (ObjectUtil.orIsNull(adviserDo, officialDo, _officialDo))
+			return;
 		ApplicantDTO applicantDto = null;
 		if (serviceOrderDo.getApplicantId() > 0)
 			applicantDto = mapper.map(applicantDao.getById(serviceOrderDo.getApplicantId()), ApplicantDTO.class);
