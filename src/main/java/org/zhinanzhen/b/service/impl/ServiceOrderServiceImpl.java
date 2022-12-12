@@ -1361,6 +1361,33 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             if (service != null) {
                 detail += "/类型:" + service.getName() + "(" + service.getCode() + ")";
                 type += "(" + service.getCode() + ")";
+                
+				if (serviceOrderDo.getServicePackageId() > 0) {
+					ServicePackageDO servicePackageDo = servicePackageDao.getById(serviceOrderDo.getServicePackageId());
+					if (servicePackageDo != null) {
+						String _type = servicePackageDo.getType();
+						if ("CA".equals(_type))
+							detail += " - 职业评估";
+						if ("EOI".equals(_type))
+							detail += " - EOI";
+						if ("SA".equals(_type))
+							detail += " - 学校申请";
+						if ("VA".equals(_type))
+							detail += " - 签证申请";
+						if ("ZD".equals(_type))
+							detail += " - 州担";
+						if ("TM".equals(_type))
+							detail += " - 提名";
+						if ("DB".equals(_type))
+							detail += " - 担保";
+					}
+				}
+				if (StringUtil.isNotEmpty(serviceOrderDo.getServiceAssessId())) {
+					ServiceAssessDO serviceAssessDo = serviceAssessDao
+							.seleteAssessById(serviceOrderDo.getServiceAssessId());
+					if (serviceAssessDo != null)
+						detail = StringUtil.merge(detail, " - ", serviceAssessDo.getName());
+				}
             }
             title += getApplicantName(applicantDto) + "/" + type;
             if (StringUtil.isNotEmpty(serviceOrderDo.getUrgentState()))
