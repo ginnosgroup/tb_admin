@@ -3,6 +3,8 @@ package org.zhinanzhen.b.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.ikasoa.core.utils.MapUtil;
+import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +16,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.zhinanzhen.b.service.WXWorkService;
 import org.zhinanzhen.b.service.pojo.BehaviorDataDTO;
+import org.zhinanzhen.b.service.pojo.ExternalUserDTO;
 import org.zhinanzhen.tb.controller.BaseController;
+import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -128,6 +132,77 @@ public class WXWorkController extends  BaseController{
         return   "<div style= 'color:#3c763d;'>授权失败!</div>" + str;
     }
 
+    @GetMapping(value = "/getExternalUserList")
+    @ResponseBody
+	public ListResponse<List<ExternalUserDTO>> getExternalUserList(HttpServletRequest request, HttpServletResponse response)
+			throws ServiceException {
+    	List<ExternalUserDTO> externalUserList = new ArrayList<ExternalUserDTO>();
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (ObjectUtil.isNull(adminUserLoginInfo))
+			return new ListResponse(false, 0, 0, null, "未登录!");
+		AdminUserDTO adminUser = adminUserService.getAdminUserByUsername(adminUserLoginInfo.getUsername());
+		if (ObjectUtil.isNull(adminUser))
+			return new ListResponse(false, 0, 0, null, "帐号异常!");
+		Integer adviserId = getAdviserId(request);
+		if (ObjectUtil.isNotNull(adviserId))
+			return new ListResponse(false, 0, 0, null, "仅限顾问调用!");
+		String customerToken = token(request, AccessTokenType.cust.toString());
+		if (StringUtil.isEmpty(customerToken))
+			return new ListResponse(false, 0, 0, null, "Token获取失败!");
+		String userId = adminUser.getOperUserId();
+		if (StringUtil.isEmpty(userId))
+			return new ListResponse(false, 0, 0, null, "OperUserId为空,请扫码授权!");
+		Map<String, Object> externalContactListMap = wxWorkService.getexternalContactList(customerToken, userId, "",
+				1000);
+		if (MapUtil.isEmpty(externalContactListMap))
+			return new ListResponse(false, 0, 0, null, "调用企业微信API异常!");
+		if ((int) externalContactListMap.get("errcode") != 0)
+			return new ListResponse(false, 0, 0, null,
+					StringUtil.merge("调用企业微信API异常:", externalContactListMap.get("errmsg")));
+		if (externalContactListMap.get("external_contact_list") != null) {
+			JSONArray jsonArray = JSONArray.parseArray(JSON.toJSONString(externalContactListMap.get("external_contact_list")));
+			for (int i = 0; i < jsonArray.size(); i++) {
+				Map<String, Object> externalMap = JSON.parseObject(JSON.toJSONString(jsonArray.get(i)), Map.class);
+				ExternalUserDTO externalUserDto = new ExternalUserDTO();
+				if (externalMap.get("follow_info") != null) {
+					Map<String, Object> followInfoMap = JSON.parseObject(JSON.toJSONString(externalMap.get("follow_info")), Map.class);
+					// userid
+					externalUserDto.setUserId(followInfoMap.get("userid").toString());
+					// remark
+					String remark =  followInfoMap.get("remark").toString();
+					externalUserDto.setRemark(EmojiFilter.filterEmoji(remark));
+					// description
+					externalUserDto.setDescription(followInfoMap.get("description").toString());
+					// createtime
+					externalUserDto.setCreatetime(new Date((Long) followInfoMap.get("createtime")));
+					// tag id
+					// remark mobiles
+					// addWay
+					externalUserDto.setAddWay((int)followInfoMap.get("add_way"));
+					// operUserid
+					externalUserDto.setOperUserid(followInfoMap.get("oper_userid").toString());
+				}
+				if (externalMap.get("external_contact") != null) {
+					Map<String, Object> externalContactMap = JSON
+							.parseObject(JSON.toJSONString(externalMap.get("external_contact")), Map.class);
+					// externalUserid
+					externalUserDto.setExternalUserid(externalContactMap.get("external_userid").toString());
+					// name
+					externalUserDto.setName(externalContactMap.get("name").toString());
+					// type
+					externalUserDto.setType((int) externalContactMap.get("type"));
+					// avatar
+					externalUserDto.setAvatar(externalContactMap.get("avatar").toString());
+					// gender
+					externalUserDto.setType((int) externalContactMap.get("gender"));
+					// unionid
+					externalUserDto.setAvatar(externalContactMap.get("unionid").toString());
+				}
+				externalUserList.add(externalUserDto);
+			}
+		}
+		return new ListResponse<List<ExternalUserDTO>>(true, 1, externalUserList.size(), externalUserList, "");
+	}
 
     @GetMapping(value = "/getexternalcontactlist")
     @ResponseBody
