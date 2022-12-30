@@ -194,9 +194,9 @@ public class WXWorkController extends  BaseController{
 					// avatar
 					externalUserDto.setAvatar(externalContactMap.get("avatar").toString());
 					// gender
-					externalUserDto.setType((int) externalContactMap.get("gender"));
+					externalUserDto.setGender((int) externalContactMap.get("gender"));
 					// unionid
-					externalUserDto.setAvatar(externalContactMap.get("unionid").toString());
+					externalUserDto.setUnionid(externalContactMap.get("unionid").toString());
 				}
 				externalUserList.add(externalUserDto);
 			}
