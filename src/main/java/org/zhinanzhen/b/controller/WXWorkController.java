@@ -174,7 +174,7 @@ public class WXWorkController extends  BaseController{
 					// description
 					externalUserDto.setDescription(followInfoMap.get("description").toString());
 					// createtime
-					externalUserDto.setCreatetime(new Date((Long) followInfoMap.get("createtime")));
+					externalUserDto.setCreatetime(new Date(Long.parseLong(followInfoMap.get("createtime").toString())));
 					// tag id
 					// remark mobiles
 					// addWay
