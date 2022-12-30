@@ -144,7 +144,7 @@ public class WXWorkController extends  BaseController{
 		if (ObjectUtil.isNull(adminUser))
 			return new ListResponse(false, 0, 0, null, "帐号异常!");
 		Integer adviserId = getAdviserId(request);
-		if (ObjectUtil.isNotNull(adviserId))
+		if (ObjectUtil.isNull(adviserId))
 			return new ListResponse(false, 0, 0, null, "仅限顾问调用!");
 		String customerToken = token(request, AccessTokenType.cust.toString());
 		if (StringUtil.isEmpty(customerToken))
