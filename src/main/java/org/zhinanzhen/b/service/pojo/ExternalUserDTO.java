@@ -36,7 +36,7 @@ public class ExternalUserDTO {
 	
 	private String avatar;
 	
-	private String gender;
+	private int gender;
 	
 	private String unionid;
 
