@@ -156,7 +156,7 @@ CREATE TABLE `b_applicant` (
   `file_url` varchar(255) DEFAULT NULL COMMENT '申请人资料表格',
   `first_controller_contents` varchar(255) DEFAULT NULL COMMENT '初次咨询记录',
   `user_id` int NOT NULL COMMENT '所属客户编号 (对应tb_user.id)',
-`adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)'
+  `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 ALTER TABLE `b_applicant` ADD INDEX index_name (`user_id`);
 
@@ -169,6 +169,36 @@ CREATE TABLE `b_service_order_applicant` (
   `applicant_id` int NOT NULL COMMENT '申请人编号 (对应b_applicant.id)',
   `url` varchar(255) DEFAULT NULL COMMENT 'URL地址',
   `message` varchar(255) DEFAULT NULL COMMENT '信息'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+-- 企业微信外部客户
+CREATE TABLE `b_qywx_external_user` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `name` varchar(32) NOT NULL COMMENT '外部联系人的名称',
+  `gender` int NOT NULL COMMENT '外部联系人性别 0-未知 1-男性 2-女性。',
+  `type` int NOT NULL COMMENT '外部联系人的类型，1表示该外部联系人是微信用户，2表示该外部联系人是企业微信用户',
+  `avatar` varchar(128) DEFAULT NULL COMMENT '头像',
+  `external_userid` varchar(64) DEFAULT NULL COMMENT '外部联系人的userid',
+  `state` varchar(8) NOT NULL COMMENT '状态(WBD:已存在未绑定,YBD:已存在已绑定,WCZ:未存在)',
+  `user_id` int NOT NULL COMMENT '用户编号 (对应tb_user.id)',
+  `applicant_id` int NOT NULL COMMENT '申请人编号 (对应b_applicant.id)',
+  `phone` varchar(16) DEFAULT NULL COMMENT '电话号码',
+  `email` varchar(128) DEFAULT NULL COMMENT '邮箱',
+  `wechat_username` varchar(64) DEFAULT NULL COMMENT '微信帐号',
+  `weibo_username` varchar(64) DEFAULT NULL COMMENT '微博帐号',
+  `qq` varchar(16) DEFAULT NULL COMMENT 'QQ帐号'
+) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+-- 企业微信外部客户详情
+CREATE TABLE `b_qywx_external_user_description` (
+  `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `qywx_external_user_id` int NOT NULL COMMENT '企业微信外部客户编号 (对应b_qywx_external_user.id)',
+  `key` varchar(32) NOT NULL COMMENT '外部联系人详情名称',
+  `value` varchar(255) DEFAULT NULL COMMENT '外部联系人详情值'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
 /*
