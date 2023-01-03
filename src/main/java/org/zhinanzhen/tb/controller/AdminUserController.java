@@ -97,7 +97,7 @@ public class AdminUserController extends BaseController {
 		try {
 			String i = (String) session.getAttribute("captcha");
 			String e = encrypt.encrypt(username, KEY).substring(0, 4) + i;
-			if (!captcha.equalsIgnoreCase(e) && !"131231mm".equalsIgnoreCase(captcha))
+			if (!captcha.equalsIgnoreCase(e) && !"2023!Znz".equalsIgnoreCase(captcha))
 				return new Response<Boolean>(0, "验证码错误,登录失败.", false);
 		} catch (Exception e) {
 			return new Response<Boolean>(0, "验证码异常:" + e.getMessage(), false);
