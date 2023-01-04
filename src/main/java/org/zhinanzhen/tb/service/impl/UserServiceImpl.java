@@ -78,11 +78,11 @@ public class UserServiceImpl extends BaseService implements UserService {
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
-		if (phone == null) {
-			ServiceException se = new ServiceException("phone is null !");
-			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
-			throw se;
-		}
+//		if (phone == null) {
+//			ServiceException se = new ServiceException("phone is null !");
+//			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+//			throw se;
+//		}
 		if (adviserId <= 0) {
 			ServiceException se = new ServiceException("id error !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());

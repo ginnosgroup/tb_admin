@@ -64,6 +64,8 @@ public class UserController extends BaseController {
 			@RequestParam(value = "regionId", required = false) String regionId, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
+			if (ObjectUtil.andIsNull(phone, email, wechatUsername))
+				return new Response<Integer>(1, "电话号码/邮箱地址/微信号,必须至少填写一项.", 0);
 			if (email != null && !"".equals(email) && !EMAIL_PATTERN.matcher(email).matches())
 				return new Response<Integer>(1, "邮箱地址格式不正确,添加失败.", 0);
 			if (phone != null && !"".equals(phone)) {

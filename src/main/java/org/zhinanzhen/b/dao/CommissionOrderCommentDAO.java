@@ -2,7 +2,6 @@ package org.zhinanzhen.b.dao;
 
 import org.apache.ibatis.annotations.Param;
 import org.zhinanzhen.b.dao.pojo.CommissionOrderCommentDO;
-import org.zhinanzhen.b.dao.pojo.CommissionOrderListDO;
 
 import java.util.List;
 

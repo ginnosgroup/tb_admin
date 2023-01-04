@@ -303,6 +303,7 @@ public class BaseController {
 		if (type.equalsIgnoreCase("cust")){
 			token = (String) session.getAttribute("customerToken" + BaseController.VERSION);
 		}
+		LOG.info("Token : " + token);
 		return token;
 	}
 	

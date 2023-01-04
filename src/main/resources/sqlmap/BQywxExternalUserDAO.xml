@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.BQywxExternalUserDAO">
+
+    <insert id="add" parameterType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+            INTO b_qywx_external_user (
+                gmt_create,
+                gmt_modify,
+                name,
+                gender,
+                type,
+                avatar,
+                external_userid,
+                state,
+                user_id,
+                applicant_id,
+                phone,
+                email,
+                wechat_username,
+                weibo_username,
+                qq)
+            VALUES (
+                now(),
+                now(),
+                #{name},
+                #{gender},
+                #{type},
+                #{avatar},
+                #{externalUserid},
+                #{state},
+                #{userId},
+                #{applicantId},
+                #{phone},
+                #{email},
+                #{wechatUsername},
+                #{weiboUsername},
+                #{qq});
+    </insert>
+    
+    <select id="count" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM b_qywx_external_user
+        WHERE 1 = 1
+        <if test='gmtCreate != null and gmtCreate != ""'>
+            AND gmt_create = #{gmtCreate}
+        </if>
+        <if test='state != null and state != ""'>
+            AND state = #{state}
+        </if>
+        ;
+    </select>
+    
+    <select id="list" resultType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDO">
+        SELECT
+            gmt_create AS gmtCreate,
+            name,
+            gender,
+            type,
+            avatar,
+            external_userid AS externalUserid,
+            state,
+            user_id AS userId,
+            applicant_id AS applicantId,
+            phone,
+            email,
+            wechat_username AS wechatUsername,
+            weibo_username AS weiboUsername,
+            qq
+        FROM b_qywx_external_user
+        WHERE 1 = 1
+        <if test='gmtCreate != null and gmtCreate != ""'>
+            AND gmt_create = #{gmtCreate}
+        </if>
+        <if test='state != null and state != ""'>
+            AND state = #{state}
+        </if>
+        ORDER BY gmt_create DESC
+        LIMIT #{offset}, #{rows};
+    </select>
+    
+    <insert id="addDesc" parameterType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDescriptionDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+            INTO b_qywx_external_user (
+                gmt_create,
+                gmt_modify,
+                external_userid,
+                key,
+                value)
+            VALUES (
+                now(),
+                now(),
+                #{externalUserid},
+                #{key},
+                #{value});
+    </insert>
+    
+    <select id="listDesc" resultType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDescriptionDO">
+        SELECT
+            external_userid AS externalUserid,
+            key,
+            value
+        FROM b_qywx_external_user_description
+        WHERE 1 = 1
+        <if test='externalUserid > 0'>
+            AND external_userid = #{externalUserid}
+        </if>
+        <if test='key != null and key != ""'>
+            AND key = #{key}
+        </if>
+        ;
+    </select>
+    
+</mapper>
