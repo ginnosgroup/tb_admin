@@ -46,10 +46,10 @@ public class CustomerInformationController extends BaseController {
 public Response<Integer> add(@RequestBody String json,HttpServletRequest request,
                                  HttpServletResponse response){
 
-    AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-    if (adminUserLoginInfo == null ){
-        return new Response(1,"No permission !");
-    }
+//    AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+//    if (adminUserLoginInfo == null ){
+//        return new Response(1,"No permission !");
+//    }
   try {
         super.setPostHeader(response);
         CustomerInformationDO customerInformationDO = JSONObject.parseObject(json, CustomerInformationDO.class);
