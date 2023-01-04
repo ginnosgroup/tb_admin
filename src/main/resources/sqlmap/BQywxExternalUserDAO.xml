@@ -45,11 +45,14 @@
         SELECT count(*)
         FROM b_qywx_external_user
         WHERE 1 = 1
-        <if test='gmtCreate != null and gmtCreate != ""'>
-            AND gmt_create = #{gmtCreate}
+        <if test='adviserId != null and adviserId > 0'>
+            AND adviser_id = #{adviserId}
         </if>
         <if test='state != null and state != ""'>
             AND state = #{state}
+        </if>
+        <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+            <![CDATA[ AND gmt_create > #{startDate} AND gmt_create < #{endDate} ]]>
         </if>
         ;
     </select>
@@ -73,11 +76,14 @@
             qq
         FROM b_qywx_external_user
         WHERE 1 = 1
-        <if test='gmtCreate != null and gmtCreate != ""'>
-            AND gmt_create = #{gmtCreate}
+        <if test='adviserId != null and adviserId > 0'>
+            AND adviser_id = #{adviserId}
         </if>
         <if test='state != null and state != ""'>
             AND state = #{state}
+        </if>
+        <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+            <![CDATA[ AND gmt_create > #{startDate} AND gmt_create < #{endDate} ]]>
         </if>
         ORDER BY gmt_create DESC
         LIMIT #{offset}, #{rows};

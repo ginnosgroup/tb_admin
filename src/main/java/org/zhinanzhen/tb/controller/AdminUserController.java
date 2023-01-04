@@ -168,6 +168,8 @@ public class AdminUserController extends BaseController {
 									qywxExternalUserDto.setGender((int) externalContactMap.get("gender"));
 									// adviserId
 									qywxExternalUserDto.setAdviserId(loginInfo.getAdviserId());
+									// state
+									qywxExternalUserDto.setState("WCZ");
 									qywxExternalUserService.add(qywxExternalUserDto);
 								}
 							}
