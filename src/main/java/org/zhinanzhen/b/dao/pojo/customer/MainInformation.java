@@ -7,7 +7,7 @@ public class MainInformation {
 
     private String prefixTitle;//称呼
 
-    private int gender;//性别
+    private String gender;//性别
 
     private String givenName;//名字拼音
 
