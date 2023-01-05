@@ -91,6 +91,17 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
         }
     }
 
+    @Override
+    public CustomerInformationDO getByServiceOrderId(int serviceOrderId) throws ServiceException {
+        try {
+            return customerInformationDAO.getByServiceOrderId(serviceOrderId);
+        } catch (Exception e) {
+            ServiceException se = new ServiceException(e);
+            se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+            throw se;
+        }
+    }
+
 
     public void sendRemind(int id) {
         ServiceOrderDO serviceOrderDo = serviceOrderDAO.getServiceOrderById(id);

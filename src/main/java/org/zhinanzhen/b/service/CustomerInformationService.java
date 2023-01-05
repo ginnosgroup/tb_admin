@@ -12,4 +12,7 @@ public interface CustomerInformationService {
     void update(CustomerInformationDO record)throws ServiceException;
 
     void delete(int id)throws ServiceException;
+
+    CustomerInformationDO getByServiceOrderId(int serviceOrderId)throws ServiceException;
+
 }
