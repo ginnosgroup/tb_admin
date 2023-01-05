@@ -11,4 +11,7 @@ public interface CustomerInformationDAO {
     void update(CustomerInformationDO record);
 
     void delete(int id);
+
+    CustomerInformationDO getByServiceOrderId(int serviceOrderId);
+
 }

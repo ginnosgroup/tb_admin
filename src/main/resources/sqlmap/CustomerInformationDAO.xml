@@ -14,7 +14,7 @@
     values (now(), now(),
       #{serviceOrderId,jdbcType=INTEGER,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
       #{mainInformation,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
-      #{ pastInformationList,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
+      #{pastInformationList,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
       #{chineseCommercialCode,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
       #{contactDetails,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
       #{citizenshipDetails,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
@@ -101,4 +101,13 @@
       b_customer_information
           where id = #{id}
   </select>
+
+  <select id="getByServiceOrderId" resultType="org.zhinanzhen.b.dao.pojo.customer.CustomerInformationDO" resultMap="BaseResultMap">
+    SELECT
+      *
+    FROM
+      b_customer_information
+          where service_order_id = #{serviceOrderId}
+  </select>
+
 </mapper>
