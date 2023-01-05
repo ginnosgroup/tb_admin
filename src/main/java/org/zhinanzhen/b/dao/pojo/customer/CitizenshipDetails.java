@@ -25,6 +25,10 @@ public class CitizenshipDetails {
 
     private int isHold;
 
+    private String ceasedDate;
+
+    private String ceaseReason;
+
     private int isHeldPassport;
 
     private List<PassportsOrTravelDocuments> list;
