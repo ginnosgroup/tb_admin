@@ -41,6 +41,33 @@
                 #{qq});
     </insert>
     
+    <update id="update" parameterType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDO">
+        UPDATE b_qywx_external_user 
+        SET gmt_modify = now()
+        <if test='state != null and state != ""'>
+            , state = #{state}
+        </if>
+        <if test='userId != null and userId > 0'>
+            , user_id = #{userId}
+        </if>
+        <if test='applicantId != null and applicantId > 0'>
+            , applicant_id = #{applicantId}
+        </if>
+        <if test='phone != null and phone != ""'>
+            , phone = #{phone}
+        </if>
+        <if test='email != null and email != ""'>
+            , email = #{email}
+        </if>
+        <if test='wechatUsername != null and wechatUsername != ""'>
+            , wechat_username = #{wechatUsername}
+        </if>
+        <if test='qq != null and qq != ""'>
+            , qq = #{qq}
+        </if>
+        WHERE id = #{id};
+    </update>
+    
     <select id="count" resultType="java.lang.Integer">
         SELECT count(*)
         FROM b_qywx_external_user
@@ -125,6 +152,15 @@
                 #{value});
     </insert>
     
+    <update id="updateDesc" parameterType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDescriptionDO">
+        UPDATE b_qywx_external_user_description 
+        SET gmt_modify = now()
+        <if test='value != null and value != ""'>
+            , value = #{value}
+        </if>
+        WHERE id = #{id};
+    </update>
+    
     <select id="listDesc" resultType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDescriptionDO">
         SELECT
             external_userid AS externalUserid,
@@ -134,9 +170,6 @@
         WHERE 1 = 1
         <if test='externalUserid != null and externalUserid != ""'>
             AND external_userid = #{externalUserid}
-        </if>
-        <if test='key != null and key != ""'>
-            AND key = #{key}
         </if>
         ;
     </select>
