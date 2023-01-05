@@ -572,6 +572,7 @@ public class Scheduled {
     }
     */
     
+    // 每日更新汇率
     @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 6 * * ?")
 	public void updateRateEveryDay(){
 		try {

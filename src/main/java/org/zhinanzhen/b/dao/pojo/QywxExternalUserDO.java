@@ -11,6 +11,8 @@ public class QywxExternalUserDO {
 	
 	private Date gmtCreate;
 	
+	private int adviserId;
+	
 	private String name;
 	
 	private int gender;

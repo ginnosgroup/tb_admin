@@ -1,6 +1,8 @@
 package org.zhinanzhen.tb.controller;
 
 import java.io.IOException;
+import java.util.Date;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 import javax.annotation.Resource;
@@ -9,8 +11,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.ikasoa.core.security.SymmetricKeyEncrypt;
 import com.ikasoa.core.security.impl.DESEncryptImpl;
+import com.ikasoa.core.utils.MapUtil;
+import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import com.ikasoa.web.utils.ImageCaptchaUtil;
 import com.ikasoa.web.utils.ImageCaptchaUtil.ImageCode;
@@ -24,10 +30,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.zhinanzhen.b.service.pojo.ExchangeRateDTO;
+import org.zhinanzhen.b.controller.WXWorkController.AccessTokenType;
+import org.zhinanzhen.b.service.QywxExternalUserService;
+import org.zhinanzhen.b.service.WXWorkService;
+import org.zhinanzhen.b.service.pojo.ExternalUserDTO;
+import org.zhinanzhen.b.service.pojo.QywxExternalUserDTO;
 import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
+import org.zhinanzhen.tb.utils.EmojiFilter;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
 
 @Controller
@@ -44,6 +55,12 @@ public class AdminUserController extends BaseController {
 
 	@Resource
 	AdviserService adviserService;
+
+	@Resource
+	private WXWorkService wxWorkService;
+
+	@Resource
+	private QywxExternalUserService qywxExternalUserService;
 
 	@RequestMapping(value = "/captcha")
 	public void getCaptcha(HttpServletRequest request, HttpServletResponse response) {
@@ -110,10 +127,55 @@ public class AdminUserController extends BaseController {
 		}
 		if (id > 0 && adminUserService.updateSessionId(id, session.getId())) {
 			AdminUserLoginInfo loginInfo = getLoginInfoAndUpdateSession(session, adminUserService.getAdminUserById(id));
+			// 写入国家数据
 			if (loginInfo.getAdviserId() != null) {
 				AdviserDTO adviserDto = adviserService.getAdviserById(loginInfo.getAdviserId());
 				if (adviserDto != null)
 					loginInfo.setCountry(isCN(adviserDto.getRegionId()) ? "CN" : "AU");
+			}
+			// 同步企业微信客户数据
+			if (loginInfo.getApList() != null && loginInfo.getApList().contains("GW")
+					&& StringUtil.isNotEmpty(loginInfo.getOperUserid()) && loginInfo.getAdviserId() != null) {
+				String customerToken = token(request, AccessTokenType.cust.toString());
+				if (StringUtil.isNotEmpty(customerToken)) {
+					Map<String, Object> externalContactListMap = wxWorkService.getexternalContactList(customerToken,
+							loginInfo.getOperUserid(), "", 1000);
+					if (!MapUtil.isEmpty(externalContactListMap)) {
+						if (externalContactListMap.get("external_contact_list") != null) {
+							JSONArray jsonArray = JSONArray
+									.parseArray(JSON.toJSONString(externalContactListMap.get("external_contact_list")));
+							for (int i = 0; i < jsonArray.size(); i++) {
+								Map<String, Object> externalMap = JSON.parseObject(JSON.toJSONString(jsonArray.get(i)),
+										Map.class);
+								if (externalMap.get("external_contact") != null) {
+									Map<String, Object> externalContactMap = JSON.parseObject(
+											JSON.toJSONString(externalMap.get("external_contact")), Map.class);
+									// externalUserid
+									String externalUserid = externalContactMap.get("external_userid").toString();
+									QywxExternalUserDTO qywxExternalUserDto = qywxExternalUserService
+											.getByExternalUserid(externalUserid);
+									if (ObjectUtil.isNull(qywxExternalUserDto)) {
+										qywxExternalUserDto = new QywxExternalUserDTO();
+										qywxExternalUserDto.setExternalUserid(externalUserid);
+									}
+									// name
+									qywxExternalUserDto.setName(externalContactMap.get("name").toString());
+									// type
+									qywxExternalUserDto.setType((int) externalContactMap.get("type"));
+									// avatar
+									qywxExternalUserDto.setAvatar(externalContactMap.get("avatar").toString());
+									// gender
+									qywxExternalUserDto.setGender((int) externalContactMap.get("gender"));
+									// adviserId
+									qywxExternalUserDto.setAdviserId(loginInfo.getAdviserId());
+									// state
+									qywxExternalUserDto.setState("WCZ");
+									qywxExternalUserService.add(qywxExternalUserDto);
+								}
+							}
+						}
+					}
+				}
 			}
 			return new Response<Boolean>(0, true);
 		}

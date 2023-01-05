@@ -13,11 +13,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import org.zhinanzhen.tb.controller.BaseController.AdminUserLoginInfo;
 import org.zhinanzhen.tb.service.AdminUserService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
-import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 
 import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
@@ -182,6 +180,7 @@ public class BaseController {
 			AdminUserLoginInfo loginInfo = new AdminUserLoginInfo();
 			loginInfo.setId(adminUser.getId());
 			loginInfo.setUsername(adminUser.getUsername());
+			loginInfo.setOperUserid(adminUser.getOperUserId());
 			loginInfo.setSessionId(sessionId);
 			if (adminUser != null) {
 				String ap = adminUser.getApList();
@@ -323,6 +322,7 @@ public class BaseController {
 		private Integer officialId;
 		private Integer kjId;
 		private Integer regionId;
+		private String operUserid;
 		private String country; // CN or AU
 		private boolean isOfficialAdmin;
 		private boolean isAuth;

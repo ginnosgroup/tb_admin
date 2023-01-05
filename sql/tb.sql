@@ -176,6 +176,7 @@ CREATE TABLE `b_qywx_external_user` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `adviser_id` int DEFAULT NULL COMMENT '所属顾问编号 (对应tb_adviser.id)',
   `name` varchar(32) NOT NULL COMMENT '外部联系人的名称',
   `gender` int NOT NULL COMMENT '外部联系人性别 0-未知 1-男性 2-女性。',
   `type` int NOT NULL COMMENT '外部联系人的类型，1表示该外部联系人是微信用户，2表示该外部联系人是企业微信用户',

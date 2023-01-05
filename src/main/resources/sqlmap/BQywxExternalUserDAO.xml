@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.zhinanzhen.b.dao.BQywxExternalUserDAO">
+<mapper namespace="org.zhinanzhen.b.dao.QywxExternalUserDAO">
 
     <insert id="add" parameterType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDO" useGeneratedKeys="true" keyProperty="id">
         INSERT
             INTO b_qywx_external_user (
                 gmt_create,
                 gmt_modify,
+                adviser_id
                 name,
                 gender,
                 type,
@@ -25,6 +26,7 @@
                 now(),
                 now(),
                 #{name},
+                #{adviserId},
                 #{gender},
                 #{type},
                 #{avatar},
@@ -43,11 +45,14 @@
         SELECT count(*)
         FROM b_qywx_external_user
         WHERE 1 = 1
-        <if test='gmtCreate != null and gmtCreate != ""'>
-            AND gmt_create = #{gmtCreate}
+        <if test='adviserId != null and adviserId > 0'>
+            AND adviser_id = #{adviserId}
         </if>
         <if test='state != null and state != ""'>
             AND state = #{state}
+        </if>
+        <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+            <![CDATA[ AND gmt_create > #{startDate} AND gmt_create < #{endDate} ]]>
         </if>
         ;
     </select>
@@ -55,6 +60,7 @@
     <select id="list" resultType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDO">
         SELECT
             gmt_create AS gmtCreate,
+            adviser_id AS adviserId,
             name,
             gender,
             type,
@@ -70,14 +76,37 @@
             qq
         FROM b_qywx_external_user
         WHERE 1 = 1
-        <if test='gmtCreate != null and gmtCreate != ""'>
-            AND gmt_create = #{gmtCreate}
+        <if test='adviserId != null and adviserId > 0'>
+            AND adviser_id = #{adviserId}
         </if>
         <if test='state != null and state != ""'>
             AND state = #{state}
         </if>
+        <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+            <![CDATA[ AND gmt_create > #{startDate} AND gmt_create < #{endDate} ]]>
+        </if>
         ORDER BY gmt_create DESC
         LIMIT #{offset}, #{rows};
+    </select>
+    
+    <select id="getByExternalUserid" parameterType="java.lang.String" resultType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDO">
+        SELECT
+            gmt_create AS gmtCreate,
+            adviser_id AS adviserId,
+            name,
+            gender,
+            type,
+            avatar,
+            external_userid AS externalUserid,
+            state,
+            user_id AS userId,
+            applicant_id AS applicantId,
+            phone,
+            email,
+            wechat_username AS wechatUsername,
+            weibo_username AS weiboUsername,
+            qq
+        FROM b_qywx_external_user WHERE external_userid = #{externalUserid};
     </select>
     
     <insert id="addDesc" parameterType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDescriptionDO" useGeneratedKeys="true" keyProperty="id">
@@ -103,7 +132,7 @@
             value
         FROM b_qywx_external_user_description
         WHERE 1 = 1
-        <if test='externalUserid > 0'>
+        <if test='externalUserid != null and externalUserid != ""'>
             AND external_userid = #{externalUserid}
         </if>
         <if test='key != null and key != ""'>
