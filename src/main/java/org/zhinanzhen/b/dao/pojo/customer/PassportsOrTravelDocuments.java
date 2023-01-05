@@ -13,7 +13,7 @@ public class PassportsOrTravelDocuments {
 
     private String givenName;
 
-    private int isListedOn;
+    private String isListedOn;
 
     private String issueDate;
 
