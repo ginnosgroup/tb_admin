@@ -203,11 +203,15 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
                     return invoiceCompanyDTO;
                 }
             }
-            if ("CS,CIS".contains(invoiceCompanyDTO.getSimple())) {
+            if ("CS".contains(invoiceCompanyDTO.getSimple())) {
                 InvoiceAddressDO invoiceAddressDO = invoiceDAO.selectAddressByBranch("SYD");
                 if (invoiceCompanyDTO != null & invoiceAddressDO != null) {
                     invoiceCompanyDTO.setAddress(invoiceAddressDO.getAddress());
                 }
+                return invoiceCompanyDTO;
+            }
+            if ("CIS".contains(invoiceCompanyDTO.getSimple())) {
+            	invoiceCompanyDTO.setAddress("SHOP 4/255 ANZAC PARADE, KINGSFORD, NSW, 2032"); // TODO:Larry 地址没有按公司区分，只能暂时这么改．
                 return invoiceCompanyDTO;
             }
         }

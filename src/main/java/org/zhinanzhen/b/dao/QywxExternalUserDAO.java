@@ -10,6 +10,8 @@ public interface QywxExternalUserDAO {
 
 	int add(QywxExternalUserDO qywxExternalUserDo);
 
+	int update(QywxExternalUserDO qywxExternalUserDo);
+
 	int count(@Param("adviserId") Integer adviserId, @Param("state") String state, @Param("startDate") String startDate,
 			@Param("endDate") String endDate);
 
@@ -21,7 +23,8 @@ public interface QywxExternalUserDAO {
 
 	int addDesc(QywxExternalUserDescriptionDO qywxExternalUserDescriptionDo);
 
-	List<QywxExternalUserDescriptionDO> listDesc(@Param("externalUserid") String externalUserid,
-			@Param("key") String key);
+	int updateDesc(QywxExternalUserDescriptionDO qywxExternalUserDescriptionDo); // 仅更新value
+
+	List<QywxExternalUserDescriptionDO> listDesc(@Param("externalUserid") String externalUserid);
 
 }

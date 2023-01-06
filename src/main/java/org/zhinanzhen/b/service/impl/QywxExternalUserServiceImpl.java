@@ -8,8 +8,10 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.QywxExternalUserDAO;
 import org.zhinanzhen.b.dao.pojo.QywxExternalUserDO;
+import org.zhinanzhen.b.dao.pojo.QywxExternalUserDescriptionDO;
 import org.zhinanzhen.b.service.QywxExternalUserService;
 import org.zhinanzhen.b.service.pojo.QywxExternalUserDTO;
+import org.zhinanzhen.b.service.pojo.QywxExternalUserDescriptionDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
@@ -35,6 +37,23 @@ public class QywxExternalUserServiceImpl extends BaseService implements QywxExte
 				return qywxExternalUserDo.getId();
 			else
 				return 0;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
+	public int update(QywxExternalUserDTO qywxExternalUserDto) throws ServiceException {
+		if (qywxExternalUserDto == null) {
+			ServiceException se = new ServiceException("qywxExternalUserDto is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			QywxExternalUserDO qywxExternalUserDo = mapper.map(qywxExternalUserDto, QywxExternalUserDO.class);
+			return qywxExternalUserDao.update(qywxExternalUserDo);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
@@ -82,6 +101,45 @@ public class QywxExternalUserServiceImpl extends BaseService implements QywxExte
 			throw se;
 		}
 		return mapper.map(qywxExternalUserDo, QywxExternalUserDTO.class);
+	}
+
+	@Override
+	public int updateDesc(QywxExternalUserDescriptionDTO qywxExternalUserDescriptionDto) throws ServiceException {
+		if (qywxExternalUserDescriptionDto == null) {
+			ServiceException se = new ServiceException("qywxExternalUserDescriptionDto is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			QywxExternalUserDescriptionDO qywxExternalUserDescriptionDo = mapper.map(qywxExternalUserDescriptionDto,
+					QywxExternalUserDescriptionDO.class);
+			return qywxExternalUserDao.updateDesc(qywxExternalUserDescriptionDo);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
+	public List<QywxExternalUserDescriptionDTO> listDesc(String externalUserid) throws ServiceException {
+		List<QywxExternalUserDescriptionDTO> qywxExternalUserDescriptionDtoList = new ArrayList<>();
+		List<QywxExternalUserDescriptionDO> qywxExternalUserDescriptionDoList = null;
+		try {
+			qywxExternalUserDescriptionDoList = qywxExternalUserDao.listDesc(externalUserid);
+			if (ObjectUtil.isNull(qywxExternalUserDescriptionDoList))
+				return null;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+		for (QywxExternalUserDescriptionDO qywxExternalUserDescriptionDo : qywxExternalUserDescriptionDoList) {
+			QywxExternalUserDescriptionDTO qywxExternalUserDescriptionDto = mapper.map(qywxExternalUserDescriptionDo,
+					QywxExternalUserDescriptionDTO.class);
+			qywxExternalUserDescriptionDtoList.add(qywxExternalUserDescriptionDto);
+		}
+		return qywxExternalUserDescriptionDtoList;
 	}
 
 }
