@@ -3,7 +3,7 @@ package org.zhinanzhen.b.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.ikasoa.core.utils.MapUtil;
+import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import org.slf4j.Logger;
@@ -14,9 +14,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import org.zhinanzhen.b.service.QywxExternalUserService;
 import org.zhinanzhen.b.service.WXWorkService;
 import org.zhinanzhen.b.service.pojo.BehaviorDataDTO;
-import org.zhinanzhen.b.service.pojo.ExternalUserDTO;
+import org.zhinanzhen.b.service.pojo.QywxExternalUserDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
@@ -57,20 +58,17 @@ public class WXWorkController extends  BaseController{
     @Resource
     private WXWorkService wxWorkService;
 
-    @Resource
-    private AdviserService adviserService;
+	@Resource
+	private AdviserService adviserService;
 
-    @Resource
-    private UserService userService;
+	@Resource
+	private UserService userService;
+
+	@Resource
+	private QywxExternalUserService qywxExternalUserService;
 
     @Autowired
     private RestTemplate restTemplate;
-
-    @Value("${weiban.crop_id}")
-    private String weibanCropId;
-
-    @Value("${weiban.secret}")
-    private String weibanSecret;
 
     @Value("${qywxcallBackUrl}")
     private String callBackUrl;
@@ -132,11 +130,14 @@ public class WXWorkController extends  BaseController{
         return   "<div style= 'color:#3c763d;'>授权失败!</div>" + str;
     }
 
-    @GetMapping(value = "/getExternalUserList")
-    @ResponseBody
-	public ListResponse<List<ExternalUserDTO>> getExternalUserList(HttpServletRequest request, HttpServletResponse response)
-			throws ServiceException {
-    	List<ExternalUserDTO> externalUserList = new ArrayList<ExternalUserDTO>();
+	@GetMapping(value = "/getWeibanUserList")
+	@ResponseBody
+	public ListResponse<List<QywxExternalUserDTO>> getWeibanUserList(
+			@RequestParam(value = "startTime", required = false) int startTime,
+			@RequestParam(value = "endTime", required = false) int endTime,
+			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
+			HttpServletRequest request, HttpServletResponse response) throws ServiceException {
+    	List<QywxExternalUserDTO> externalUserList = new ArrayList<QywxExternalUserDTO>();
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (ObjectUtil.isNull(adminUserLoginInfo))
 			return new ListResponse(false, 0, 0, null, "未登录!");
@@ -146,62 +147,53 @@ public class WXWorkController extends  BaseController{
 		Integer adviserId = getAdviserId(request);
 		if (ObjectUtil.isNull(adviserId))
 			return new ListResponse(false, 0, 0, null, "仅限顾问调用!");
-		String customerToken = token(request, AccessTokenType.cust.toString());
+		String customerToken = getWeibanToken();
 		if (StringUtil.isEmpty(customerToken))
 			return new ListResponse(false, 0, 0, null, "Token获取失败!");
-		String userId = adminUser.getOperUserId();
-		if (StringUtil.isEmpty(userId))
+		String operUserId = adminUser.getOperUserId();
+		if (StringUtil.isEmpty(operUserId))
 			return new ListResponse(false, 0, 0, null, "OperUserId为空,请扫码授权!");
-		Map<String, Object> externalContactListMap = wxWorkService.getexternalContactList(customerToken, userId, "",
-				1000);
-		if (MapUtil.isEmpty(externalContactListMap))
-			return new ListResponse(false, 0, 0, null, "调用企业微信API异常!");
-		if ((int) externalContactListMap.get("errcode") != 0)
-			return new ListResponse(false, 0, 0, null,
-					StringUtil.merge("调用企业微信API异常:", externalContactListMap.get("errmsg")));
-		if (externalContactListMap.get("external_contact_list") != null) {
-			JSONArray jsonArray = JSONArray.parseArray(JSON.toJSONString(externalContactListMap.get("external_contact_list")));
+		
+		HashMap<String, Object> paramMap = new HashMap<>();
+		String url = StringUtil.merge(" https://open.weibanzhushou.com/open-api/external_user/list?",
+				"access_token={access_token}", "&staff_id={staff_id}", "&limit={limit}&offset={offset}",
+				"&start_time={startTime}&end_time={endTime}");
+		paramMap.put("access_token", customerToken);
+		paramMap.put("limit", pageSize);
+		paramMap.put("offset", pageNum);
+		paramMap.put("staff_id", adminUser.getOperUserId());
+		paramMap.put("start_time", startTime);
+		paramMap.put("end_time", endTime);
+		JSONObject weibanUserListJsonObject = restTemplate.getForObject(url, JSONObject.class, paramMap);
+		if ((int) weibanUserListJsonObject.get("errcode") == 0)
+			return new ListResponse(false, 0, 0, null, "调用微伴API异常!");
+		JSONArray jsonArray = weibanUserListJsonObject.getJSONArray("external_user_list");
+		if (jsonArray.size() > 0) {
 			for (int i = 0; i < jsonArray.size(); i++) {
 				Map<String, Object> externalMap = JSON.parseObject(JSON.toJSONString(jsonArray.get(i)), Map.class);
-				ExternalUserDTO externalUserDto = new ExternalUserDTO();
-				if (externalMap.get("follow_info") != null) {
-					Map<String, Object> followInfoMap = JSON.parseObject(JSON.toJSONString(externalMap.get("follow_info")), Map.class);
-					// userid
-					externalUserDto.setUserId(followInfoMap.get("userid").toString());
-					// remark
-					String remark =  followInfoMap.get("remark").toString();
-					externalUserDto.setRemark(EmojiFilter.filterEmoji(remark));
-					// description
-					externalUserDto.setDescription(followInfoMap.get("description").toString());
-					// createtime
-					externalUserDto.setCreatetime(new Date(Long.parseLong(followInfoMap.get("createtime").toString())));
-					// tag id
-					// remark mobiles
-					// addWay
-					externalUserDto.setAddWay((int)followInfoMap.get("add_way"));
-					// operUserid
-					externalUserDto.setOperUserid(followInfoMap.get("oper_userid").toString());
-				}
-				if (externalMap.get("external_contact") != null) {
-					Map<String, Object> externalContactMap = JSON
-							.parseObject(JSON.toJSONString(externalMap.get("external_contact")), Map.class);
-					// externalUserid
-					externalUserDto.setExternalUserid(externalContactMap.get("external_userid").toString());
-					// name
-					externalUserDto.setName(externalContactMap.get("name").toString());
-					// type
-					externalUserDto.setType((int) externalContactMap.get("type"));
-					// avatar
-					externalUserDto.setAvatar(externalContactMap.get("avatar").toString());
-					// gender
-					externalUserDto.setGender((int) externalContactMap.get("gender"));
-					// unionid
-					externalUserDto.setUnionid(externalContactMap.get("unionid").toString());
-				}
-				externalUserList.add(externalUserDto);
+				QywxExternalUserDTO externalUserDto = new QywxExternalUserDTO();
+				// createtime
+				externalUserDto.setCreateTime((int) externalMap.get("created_at"));
+				// adviserId
+				externalUserDto.setAdviserId(adviserId);
+				// externalUserid
+				externalUserDto.setExternalUserid(externalMap.get("id").toString());
+				// name
+				externalUserDto.setName(externalMap.get("name").toString());
+				// type
+				externalUserDto.setType((int) externalMap.get("type"));
+				// avatar
+				externalUserDto.setAvatar(externalMap.get("avatar").toString());
+				// gender
+				externalUserDto.setGender((int) externalMap.get("gender"));
+				// unionid
+				externalUserDto.setUnionId(externalMap.get("unionid").toString());
+				
+//				if (qywxExternalUserService.add(externalUserDto) > 0)
+					externalUserList.add(externalUserDto);
 			}
 		}
-		return new ListResponse<List<ExternalUserDTO>>(true, 1, externalUserList.size(), externalUserList, "");
+		return new ListResponse<List<QywxExternalUserDTO>>(true, 1, externalUserList.size(), externalUserList, "");
 	}
 
     @GetMapping(value = "/getexternalcontactlist")
@@ -447,20 +439,11 @@ public class WXWorkController extends  BaseController{
         if (StringUtil.isEmpty(adminUser.getOperUserId()))
             return  new Response(1 ,"先授权登录");
 
-
-
-        String url = "https://open.weibanzhushou.com/open-api/access_token/get";
         HashMap uriVariablesMap = new HashMap();
-        uriVariablesMap.put("corp_id", weibanCropId);
-        uriVariablesMap.put("secret", weibanSecret);
-        JSONObject weibanTokenJsonObject = restTemplate.postForObject(url, uriVariablesMap, JSONObject.class);
-        if ((int)weibanTokenJsonObject.get("errcode") != 0){
-            return new Response(1, weibanTokenJsonObject.get("errmsg"));
-        }
 
         String url2 = StringUtil.merge("https://open.weibanzhushou.com/open-api/contact_way/list?", "access_token={access_token}"
                 , "&staff_id={staff_id}", "&limit={limit}&offset={offset}");
-        uriVariablesMap.put("access_token", weibanTokenJsonObject.get("access_token"));
+        uriVariablesMap.put("access_token", getWeibanToken());
         uriVariablesMap.put("limit", pageSize);
         uriVariablesMap.put("offset", pageNum);
         uriVariablesMap.put("staff_id", adminUser.getOperUserId());//  这里是企业微信的userid

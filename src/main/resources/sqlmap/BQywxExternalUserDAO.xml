@@ -8,6 +8,8 @@
             INTO b_qywx_external_user (
                 gmt_create,
                 gmt_modify,
+                union_id,
+                create_time,
                 adviser_id
                 name,
                 gender,
@@ -26,6 +28,8 @@
                 now(),
                 now(),
                 #{name},
+                #{unionId},
+                #{createTime},
                 #{adviserId},
                 #{gender},
                 #{type},
@@ -87,6 +91,8 @@
     <select id="list" resultType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDO">
         SELECT
             gmt_create AS gmtCreate,
+            union_id AS unionId,
+            create_time AS createTime,
             adviser_id AS adviserId,
             name,
             gender,
@@ -119,6 +125,8 @@
     <select id="getByExternalUserid" parameterType="java.lang.String" resultType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDO">
         SELECT
             gmt_create AS gmtCreate,
+            union_id AS unionId,
+            create_time AS createTime,
             adviser_id AS adviserId,
             name,
             gender,
@@ -168,8 +176,11 @@
             value
         FROM b_qywx_external_user_description
         WHERE 1 = 1
-        <if test='externalUserid != null and externalUserid != ""'>
+        <if test='externalUserid != null and externalUserid > 0'>
             AND external_userid = #{externalUserid}
+        </if>
+        <if test='key != null and key != ""'>
+            AND key = #{key}
         </if>
         ;
     </select>

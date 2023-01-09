@@ -11,6 +11,10 @@ public class QywxExternalUserDO {
 	
 	private Date gmtCreate;
 	
+	private int createTime;
+	
+	private String unionId;
+	
 	private int adviserId;
 	
 	private String name;

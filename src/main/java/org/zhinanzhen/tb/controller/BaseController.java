@@ -2,6 +2,7 @@ package org.zhinanzhen.tb.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -10,13 +11,18 @@ import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.tb.service.AdminUserService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
 
+import com.alibaba.fastjson.JSONObject;
+import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 
@@ -30,6 +36,15 @@ public class BaseController {
 
 	@Resource
 	protected AdminUserService adminUserService;
+	
+	@Autowired
+    private RestTemplate restTemplate;
+
+    @Value("${weiban.crop_id}")
+    private String weibanCropId;
+
+    @Value("${weiban.secret}")
+    private String weibanSecret;
 
 	@ExceptionHandler(Exception.class)
 	@ResponseBody
@@ -304,6 +319,20 @@ public class BaseController {
 		}
 		LOG.info("Token : " + token);
 		return token;
+	}
+	
+	protected String getWeibanToken() throws ServiceException {
+		String url = "https://open.weibanzhushou.com/open-api/access_token/get";
+		HashMap<String, String> uriVariablesMap = new HashMap<>();
+		uriVariablesMap.put("corp_id", weibanCropId);
+		uriVariablesMap.put("secret", weibanSecret);
+		JSONObject weibanTokenJsonObject = restTemplate.postForObject(url, uriVariablesMap, JSONObject.class);
+		if ((int) weibanTokenJsonObject.get("errcode") != 0) {
+			ServiceException se = new ServiceException(weibanTokenJsonObject.get("errmsg").toString());
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+		return weibanTokenJsonObject.get("access_token").toString();
 	}
 	
 	protected boolean isCN(Integer regionId) {
