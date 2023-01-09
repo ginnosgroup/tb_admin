@@ -46,5 +46,5 @@ public class LanguageSkills {
 
     private String LevelOfProficiency;
 
-    private int isMainLanguages;
+    private String isMainLanguages;
 }

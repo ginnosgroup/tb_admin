@@ -13,6 +13,8 @@ public class IdentificationNumber {
 
     private String givenName;
 
+    private int isFullName;
+
     private String issueDate;
 
     private String expiryDate;
