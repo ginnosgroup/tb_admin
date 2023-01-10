@@ -102,6 +102,27 @@ public class QywxExternalUserServiceImpl extends BaseService implements QywxExte
 		}
 		return mapper.map(qywxExternalUserDo, QywxExternalUserDTO.class);
 	}
+	
+	@Override
+	public int addDesc(QywxExternalUserDescriptionDTO qywxExternalUserDescriptionDto) throws ServiceException {
+		if (qywxExternalUserDescriptionDto == null) {
+			ServiceException se = new ServiceException("qywxExternalUserDescriptionDto is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			QywxExternalUserDescriptionDO qywxExternalUserDescriptionDo = mapper.map(qywxExternalUserDescriptionDto,
+					QywxExternalUserDescriptionDO.class);
+			if (qywxExternalUserDao.addDesc(qywxExternalUserDescriptionDo) > 0)
+				return qywxExternalUserDescriptionDo.getId();
+			else
+				return 0;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
 
 	@Override
 	public int updateDesc(QywxExternalUserDescriptionDTO qywxExternalUserDescriptionDto) throws ServiceException {
@@ -122,11 +143,16 @@ public class QywxExternalUserServiceImpl extends BaseService implements QywxExte
 	}
 
 	@Override
-	public List<QywxExternalUserDescriptionDTO> listDesc(String externalUserid) throws ServiceException {
+	public List<QywxExternalUserDescriptionDTO> listDesc(int externalUserid, String key) throws ServiceException {
+		if (externalUserid == 0) {
+			ServiceException se = new ServiceException("externalUserid is 0 !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
 		List<QywxExternalUserDescriptionDTO> qywxExternalUserDescriptionDtoList = new ArrayList<>();
 		List<QywxExternalUserDescriptionDO> qywxExternalUserDescriptionDoList = null;
 		try {
-			qywxExternalUserDescriptionDoList = qywxExternalUserDao.listDesc(externalUserid);
+			qywxExternalUserDescriptionDoList = qywxExternalUserDao.listDesc(externalUserid, key);
 			if (ObjectUtil.isNull(qywxExternalUserDescriptionDoList))
 				return null;
 		} catch (Exception e) {

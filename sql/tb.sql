@@ -176,6 +176,8 @@ CREATE TABLE `b_qywx_external_user` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
+  `union_id` varchar(128) DEFAULT NULL COMMENT 'UnionId';
+  `create_time` int DEFAULT NULL COMMENT '客户创建时间(时间辍)',
   `adviser_id` int DEFAULT NULL COMMENT '所属顾问编号 (对应tb_adviser.id)',
   `name` varchar(32) NOT NULL COMMENT '外部联系人的名称',
   `gender` int NOT NULL COMMENT '外部联系人性别 0-未知 1-男性 2-女性。',

@@ -18,9 +18,11 @@ public interface QywxExternalUserService {
 			int pageSize) throws ServiceException;
 
 	QywxExternalUserDTO getByExternalUserid(String externalUserid) throws ServiceException;
+	
+	int addDesc(QywxExternalUserDescriptionDTO qywxExternalUserDescriptionDto) throws ServiceException;
 
 	int updateDesc(QywxExternalUserDescriptionDTO qywxExternalUserDescriptionDto) throws ServiceException;
 
-	List<QywxExternalUserDescriptionDTO> listDesc(String externalUserid) throws ServiceException;
+	List<QywxExternalUserDescriptionDTO> listDesc(int externalUserid, String key) throws ServiceException;
 
 }
