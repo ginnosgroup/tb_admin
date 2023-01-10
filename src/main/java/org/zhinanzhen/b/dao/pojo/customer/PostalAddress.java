@@ -11,7 +11,7 @@ public class PostalAddress {
 
     private String townOrCity;
 
-    private int postCode;
+    private String postCode;
 
     private String state;
 
