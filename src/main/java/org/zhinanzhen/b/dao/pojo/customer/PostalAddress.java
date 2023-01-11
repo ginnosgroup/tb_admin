@@ -11,11 +11,15 @@ public class PostalAddress {
 
     private String townOrCity;
 
+    private String postCode;
+
     private String state;
 
     private String country;
 
     private String names;
+
+    private String names2;
 
 
 }
