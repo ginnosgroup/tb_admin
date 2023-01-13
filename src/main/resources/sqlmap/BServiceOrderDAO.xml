@@ -192,6 +192,9 @@
         <if test='stateMark != null'>
             , state_mark = #{stateMark}
         </if>
+        <if test='stateMark2 != null'>
+            , state_mark2 = #{stateMark2}
+        </if>
         <if test='urgentState != null and urgentState != ""'>
             , urgent_state = #{urgentState}
         </if>

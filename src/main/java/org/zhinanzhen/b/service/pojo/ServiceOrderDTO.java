@@ -53,6 +53,8 @@ public class ServiceOrderDTO {
 	
 	private String stateMark;
 	
+	private String stateMark2;
+	
 	private String auditingState;
 	
 	private String urgentState;
