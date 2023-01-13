@@ -25,6 +25,6 @@ public interface QywxExternalUserDAO {
 
 	int updateDesc(QywxExternalUserDescriptionDO qywxExternalUserDescriptionDo); // 仅更新value
 
-	List<QywxExternalUserDescriptionDO> listDesc(@Param("externalUserid") int externalUserid, @Param("key") String key);
+	List<QywxExternalUserDescriptionDO> listDesc(@Param("qywxExternalUserId") String externalUserid, @Param("qywxKey") String key);
 
 }

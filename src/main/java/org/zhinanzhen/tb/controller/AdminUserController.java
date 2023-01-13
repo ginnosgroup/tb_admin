@@ -36,7 +36,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 import org.zhinanzhen.b.controller.WXWorkController.AccessTokenType;
-import org.zhinanzhen.b.dao.pojo.QywxExternalUserDescriptionDO;
 import org.zhinanzhen.b.service.QywxExternalUserService;
 import org.zhinanzhen.b.service.WXWorkService;
 import org.zhinanzhen.b.service.pojo.QywxExternalUserDTO;
@@ -221,12 +220,13 @@ public class AdminUserController extends BaseController {
 													JSONObject customField = customFields.getJSONObject(j);
 													if (customField.containsKey("key")) {
 														List<QywxExternalUserDescriptionDTO> descList = qywxExternalUserService
-																.listDesc(qywxExtId, customField.getString("name"));
+																.listDesc(qywxExternalUserDto.getExternalUserid(),
+																		customField.getString("name"));
 														if (descList.size() > 0) {
 															QywxExternalUserDescriptionDTO qywxExternalUserDescriptionDto = descList
 																	.get(0);
 															qywxExternalUserDescriptionDto
-																	.setValue(customField.getString("field_value"));
+																	.setQywxValue(customField.getString("field_value"));
 															if (qywxExternalUserService
 																	.updateDesc(qywxExternalUserDescriptionDto) > 0)
 																log.info(StringUtil.merge(
@@ -234,12 +234,12 @@ public class AdminUserController extends BaseController {
 																		qywxExternalUserDescriptionDto.toString()));
 														} else {
 															QywxExternalUserDescriptionDTO qywxExternalUserDescriptionDto = new QywxExternalUserDescriptionDTO();
+															qywxExternalUserDescriptionDto.setQywxExternalUserId(
+																	qywxExternalUserDto.getExternalUserid());
 															qywxExternalUserDescriptionDto
-																	.setQywxExternalUserId(qywxExtId);
+																	.setQywxKey(customField.getString("name"));
 															qywxExternalUserDescriptionDto
-																	.setKey(customField.getString("name"));
-															qywxExternalUserDescriptionDto
-																	.setValue(customField.getString("field_value"));
+																	.setQywxValue(customField.getString("field_value"));
 															if (qywxExternalUserService
 																	.addDesc(qywxExternalUserDescriptionDto) > 0)
 																log.info(StringUtil.merge(

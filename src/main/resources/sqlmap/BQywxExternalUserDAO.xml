@@ -90,6 +90,7 @@
     
     <select id="list" resultType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDO">
         SELECT
+            id,
             gmt_create AS gmtCreate,
             union_id AS unionId,
             create_time AS createTime,
@@ -124,6 +125,7 @@
     
     <select id="getByExternalUserid" parameterType="java.lang.String" resultType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDO">
         SELECT
+            id,
             gmt_create AS gmtCreate,
             union_id AS unionId,
             create_time AS createTime,
@@ -149,38 +151,39 @@
             INTO b_qywx_external_user (
                 gmt_create,
                 gmt_modify,
-                external_userid,
-                key,
-                value)
+                qywx_external_userid,
+                qywx_key,
+                qywx_value)
             VALUES (
                 now(),
                 now(),
-                #{externalUserid},
-                #{key},
-                #{value});
+                #{qywxExternalUserId},
+                #{qywxKey},
+                #{qywxValue});
     </insert>
     
     <update id="updateDesc" parameterType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDescriptionDO">
         UPDATE b_qywx_external_user_description 
         SET gmt_modify = now()
-        <if test='value != null and value != ""'>
-            , value = #{value}
+        <if test='qywxValue != null and qywxValue != ""'>
+            , qywx_value = #{qywxValue}
         </if>
         WHERE id = #{id};
     </update>
     
     <select id="listDesc" resultType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDescriptionDO">
         SELECT
-            external_userid AS externalUserid,
-            key,
-            value
+            id,
+            qywx_external_userid AS qywxExternalUserId,
+            qywx_key AS qywxKey,
+            qywx_value AS qywxValue
         FROM b_qywx_external_user_description
         WHERE 1 = 1
-        <if test='externalUserid != null and externalUserid > 0'>
-            AND external_userid = #{externalUserid}
+        <if test='qywxExternalUserId != null and qywxExternalUserId != ""'>
+            AND qywx_external_userid = #{qywxExternalUserId}
         </if>
-        <if test='key != null and key != ""'>
-            AND key = #{key}
+        <if test='qywxKey != null and qywxKey != ""'>
+            AND qywx_key = #{qywxKey}
         </if>
         ;
     </select>

@@ -7,10 +7,10 @@ public class QywxExternalUserDescriptionDO {
 	
 	private int id;
 	
-	private int qywxExternalUserId;
+	private String qywxExternalUserId;
 	
-	private String key;
+	private String qywxKey;
 	
-	private String value;
+	private String qywxValue;
 
 }

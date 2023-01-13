@@ -23,6 +23,6 @@ public interface QywxExternalUserService {
 
 	int updateDesc(QywxExternalUserDescriptionDTO qywxExternalUserDescriptionDto) throws ServiceException;
 
-	List<QywxExternalUserDescriptionDTO> listDesc(int externalUserid, String key) throws ServiceException;
+	List<QywxExternalUserDescriptionDTO> listDesc(String externalUserid, String key) throws ServiceException;
 
 }
