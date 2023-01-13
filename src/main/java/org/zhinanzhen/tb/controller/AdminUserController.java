@@ -152,7 +152,7 @@ public class AdminUserController extends BaseController {
 				paramMap.put("limit", 100);
 				paramMap.put("offset", 0);
 				paramMap.put("staff_id", loginInfo.getOperUserid());
-				paramMap.put("start_time", 0);
+				paramMap.put("start_time", 1);
 				paramMap.put("end_time", new Date().getTime());
 				JSONObject weibanUserListJsonObject = restTemplate.getForObject(url, JSONObject.class, paramMap);
 				if ((int) weibanUserListJsonObject.get("errcode") == 0)
