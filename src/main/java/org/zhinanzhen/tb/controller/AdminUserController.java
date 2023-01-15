@@ -158,13 +158,13 @@ public class AdminUserController extends BaseController {
 					log.warn("'weibanUserListJsonObject' not exist !");
 					return new Response<Boolean>(0, "调用微伴API异常!", true);
 				}
-				log.debug("weibanUserListJsonObject : " + weibanUserListJsonObject.toString());
+				log.info("weibanUserListJsonObject : " + weibanUserListJsonObject.toString());
 				if ((int) weibanUserListJsonObject.get("errcode") == 0) {
 					log.warn("调用微伴API异常!");
 					return new Response<Boolean>(0, "调用微伴API异常!", true);
 				}
 				if (!weibanUserListJsonObject.containsKey("external_user_list")) {
-					log.warn("'external_user_list' not exist by Json : " + weibanUserListJsonObject.toString());
+					log.warn("'external_user_list' not exist by Json !");
 					return new Response<Boolean>(0, "调用微伴API异常!", true);
 				}
 				JSONArray jsonArray = weibanUserListJsonObject.getJSONArray("external_user_list");
