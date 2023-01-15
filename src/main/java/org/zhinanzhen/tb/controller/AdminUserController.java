@@ -18,7 +18,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ikasoa.core.security.SymmetricKeyEncrypt;
 import com.ikasoa.core.security.impl.DESEncryptImpl;
-import com.ikasoa.core.utils.MapUtil;
 import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import com.ikasoa.web.utils.ImageCaptchaUtil;
@@ -35,7 +34,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
-import org.zhinanzhen.b.controller.WXWorkController.AccessTokenType;
 import org.zhinanzhen.b.service.QywxExternalUserService;
 import org.zhinanzhen.b.service.WXWorkService;
 import org.zhinanzhen.b.service.pojo.QywxExternalUserDTO;
@@ -43,7 +41,6 @@ import org.zhinanzhen.b.service.pojo.QywxExternalUserDescriptionDTO;
 import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
-import org.zhinanzhen.tb.utils.EmojiFilter;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
 
 @Controller
@@ -207,8 +204,10 @@ public class AdminUserController extends BaseController {
 								paramMap2.put("unionid", qywxExternalUserDto.getUnionId());
 								JSONObject weibanUserJsonObject = restTemplate.getForObject(url2, JSONObject.class,
 										paramMap2);
-								if ((int) weibanUserJsonObject.get("errcode") == 0)
-									return new Response<Boolean>(0, "调用微伴API异常!", false);
+								if ((int) weibanUserJsonObject.get("errcode") == 0) {
+									log.warn("调用微伴API异常!");
+									return new Response<Boolean>(0, "调用微伴API异常!", true);
+								}
 								if (weibanUserJsonObject.containsKey("external_user")) {
 									JSONObject externalUserJsonObject = weibanUserJsonObject
 											.getJSONObject("external_user");
@@ -273,7 +272,7 @@ public class AdminUserController extends BaseController {
 			}
 			return new Response<Boolean>(0, true);
 		}
-		return new Response<Boolean>(0, false);
+		return new Response<Boolean>(0, "Update SessionId Error !", false);
 	}
 
 	@RequestMapping(value = "/out", method = RequestMethod.GET)
