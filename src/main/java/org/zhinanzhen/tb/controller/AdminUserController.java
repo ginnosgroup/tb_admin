@@ -178,7 +178,11 @@ public class AdminUserController extends BaseController {
 						log.warn("'externalMap' is null : " + jsonArray.get(i));
 						continue;
 					}
-					String externalUserid = externalMap.get("external_userid").toString();
+					if (!externalMap.containsKey("id")) {
+						log.warn("'id' not exist : " + jsonArray.get(i));
+						continue;
+					}
+					String externalUserid = externalMap.get("id").toString();
 					QywxExternalUserDTO qywxExternalUserDto = qywxExternalUserService
 							.getByExternalUserid(externalUserid);
 					if (ObjectUtil.isNull(qywxExternalUserDto)) {
@@ -190,7 +194,7 @@ public class AdminUserController extends BaseController {
 					// adviserId
 					qywxExternalUserDto.setAdviserId(loginInfo.getAdviserId());
 					// externalUserid
-					qywxExternalUserDto.setExternalUserid(externalMap.get("id").toString());
+					qywxExternalUserDto.setExternalUserid(externalUserid);
 					// name
 					qywxExternalUserDto.setName(externalMap.get("name").toString());
 					// type
