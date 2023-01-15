@@ -152,11 +152,13 @@ public class AdminUserController extends BaseController {
 				paramMap.put("limit", 100);
 				paramMap.put("offset", 0);
 				paramMap.put("staff_id", loginInfo.getOperUserid());
-				paramMap.put("start_time", 1);
-				paramMap.put("end_time", new Date().getTime());
+				paramMap.put("startTime", 1);
+				paramMap.put("endTime", new Date().getTime());
 				JSONObject weibanUserListJsonObject = restTemplate.getForObject(url, JSONObject.class, paramMap);
-				if ((int) weibanUserListJsonObject.get("errcode") == 0)
-					return new Response<Boolean>(0, "调用微伴API异常!", false);
+				if ((int) weibanUserListJsonObject.get("errcode") == 0) {
+					log.warn("调用微伴API异常!");
+					return new Response<Boolean>(0, "调用微伴API异常!", true);
+				}
 				JSONArray jsonArray = weibanUserListJsonObject.getJSONArray("external_user_list");
 				for (int i = 0; i < jsonArray.size(); i++) {
 					Map<String, Object> externalMap = JSON.parseObject(JSON.toJSONString(jsonArray.get(i)), Map.class);
