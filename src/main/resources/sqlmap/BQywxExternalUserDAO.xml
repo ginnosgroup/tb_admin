@@ -10,7 +10,7 @@
                 gmt_modify,
                 union_id,
                 create_time,
-                adviser_id
+                adviser_id,
                 name,
                 gender,
                 type,
