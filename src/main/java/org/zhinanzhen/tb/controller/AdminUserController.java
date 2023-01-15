@@ -218,8 +218,7 @@ public class AdminUserController extends BaseController {
 						if (qywxExtId > 0) {
 							log.info(StringUtil.merge("New External User : ", qywxExternalUserDto.toString()));
 							// 详情
-							String url2 = StringUtil.merge(
-									" https://open.weibanzhushou.com/open-api/external_user/get?",
+							String url2 = StringUtil.merge("https://open.weibanzhushou.com/open-api/external_user/get?",
 									"access_token={access_token}", "&id={id}", "&unionid={unionid}");
 							HashMap<String, Object> paramMap2 = new HashMap<>();
 							paramMap2.put("access_token", getWeibanToken());
