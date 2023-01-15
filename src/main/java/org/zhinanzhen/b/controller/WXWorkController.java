@@ -173,7 +173,7 @@ public class WXWorkController extends  BaseController{
 				Map<String, Object> externalMap = JSON.parseObject(JSON.toJSONString(jsonArray.get(i)), Map.class);
 				QywxExternalUserDTO externalUserDto = new QywxExternalUserDTO();
 				// createtime
-				externalUserDto.setCreateTime((int) externalMap.get("created_at"));
+				externalUserDto.setCreateTime((int) externalMap.get("created_at") * 1000);
 				// adviserId
 				externalUserDto.setAdviserId(adviserId);
 				// externalUserid
