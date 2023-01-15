@@ -151,6 +151,8 @@ public class AdminUserController extends BaseController {
 				paramMap.put("staffId", loginInfo.getOperUserid());
 				paramMap.put("startTime", 1);
 				paramMap.put("endTime", new Date().getTime());
+				log.info("URL : " + url);
+				log.info("Params : " + paramMap);
 				JSONObject weibanUserListJsonObject = restTemplate.getForObject(url, JSONObject.class, paramMap);
 				if (ObjectUtil.isNull(weibanUserListJsonObject)) {
 					log.warn("'weibanUserListJsonObject' not exist !");
