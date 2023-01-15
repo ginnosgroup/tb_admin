@@ -174,6 +174,10 @@ public class AdminUserController extends BaseController {
 				}
 				for (int i = 0; i < jsonArray.size(); i++) {
 					Map<String, Object> externalMap = JSON.parseObject(JSON.toJSONString(jsonArray.get(i)), Map.class);
+					if (ObjectUtil.isNull(externalMap)) {
+						log.warn("'externalMap' is null : " + jsonArray.get(i));
+						continue;
+					}
 					String externalUserid = externalMap.get("external_userid").toString();
 					QywxExternalUserDTO qywxExternalUserDto = qywxExternalUserService
 							.getByExternalUserid(externalUserid);
