@@ -152,13 +152,22 @@ public class AdminUserController extends BaseController {
 				paramMap.put("startTime", 1);
 				paramMap.put("endTime", new Date().getTime());
 				JSONObject weibanUserListJsonObject = restTemplate.getForObject(url, JSONObject.class, paramMap);
+				if (ObjectUtil.isNull(weibanUserListJsonObject)) {
+					log.warn("'weibanUserListJsonObject' not exist !");
+					return new Response<Boolean>(0, "调用微伴API异常!", true);
+				}
+				log.debug("weibanUserListJsonObject : " + weibanUserListJsonObject.toString());
 				if ((int) weibanUserListJsonObject.get("errcode") == 0) {
 					log.warn("调用微伴API异常!");
 					return new Response<Boolean>(0, "调用微伴API异常!", true);
 				}
+				if (!weibanUserListJsonObject.containsKey("external_user_list")) {
+					log.warn("'external_user_list' not exist by Json : " + weibanUserListJsonObject.toString());
+					return new Response<Boolean>(0, "调用微伴API异常!", true);
+				}
 				JSONArray jsonArray = weibanUserListJsonObject.getJSONArray("external_user_list");
 				if (ObjectUtil.isNull(jsonArray)) {
-					log.warn("'external_user_list' not exist by Json : " + weibanUserListJsonObject.toString());
+					log.warn("'jsonArray' is null : " + weibanUserListJsonObject.toString());
 					return new Response<Boolean>(0, "调用微伴API异常!", true);
 				}
 				for (int i = 0; i < jsonArray.size(); i++) {
