@@ -159,7 +159,7 @@ public class AdminUserController extends BaseController {
 					return new Response<Boolean>(0, "调用微伴API异常!", true);
 				}
 				log.info("weibanUserListJsonObject : " + weibanUserListJsonObject.toString());
-				if ((int) weibanUserListJsonObject.get("errcode") == 0) {
+				if ((int) weibanUserListJsonObject.get("errcode") != 0) {
 					log.warn("调用微伴API异常!");
 					return new Response<Boolean>(0, "调用微伴API异常!", true);
 				}
@@ -219,7 +219,7 @@ public class AdminUserController extends BaseController {
 								paramMap2.put("unionid", qywxExternalUserDto.getUnionId());
 								JSONObject weibanUserJsonObject = restTemplate.getForObject(url2, JSONObject.class,
 										paramMap2);
-								if ((int) weibanUserJsonObject.get("errcode") == 0) {
+								if ((int) weibanUserJsonObject.get("errcode") != 0) {
 									log.warn("调用微伴API异常!");
 									return new Response<Boolean>(0, "调用微伴API异常!", true);
 								}
