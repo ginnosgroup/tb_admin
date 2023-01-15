@@ -279,7 +279,7 @@ public class AdminUserController extends BaseController {
 			}
 			return new Response<Boolean>(0, true);
 		}
-		return new Response<Boolean>(0, "Update SessionId Error !", false);
+		return new Response<Boolean>(0, "", false);
 	}
 
 	@RequestMapping(value = "/out", method = RequestMethod.GET)
