@@ -185,10 +185,8 @@ public class AdminUserController extends BaseController {
 					String externalUserid = externalMap.get("id").toString();
 					QywxExternalUserDTO qywxExternalUserDto = qywxExternalUserService
 							.getByExternalUserid(externalUserid);
-					if (ObjectUtil.isNull(qywxExternalUserDto)) {
+					if (ObjectUtil.isNull(qywxExternalUserDto))
 						qywxExternalUserDto = new QywxExternalUserDTO();
-						qywxExternalUserDto.setExternalUserid(externalUserid);
-					}
 					// createtime
 					if (externalMap.containsKey("created_at"))
 						qywxExternalUserDto.setCreateTime((int) externalMap.get("created_at") * 1000);
