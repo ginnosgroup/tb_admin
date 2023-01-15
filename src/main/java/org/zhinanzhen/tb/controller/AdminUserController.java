@@ -150,7 +150,7 @@ public class AdminUserController extends BaseController {
 				paramMap.put("offset", 0);
 				paramMap.put("staffId", loginInfo.getOperUserid());
 				paramMap.put("startTime", 1);
-				paramMap.put("endTime", new Date().getTime());
+				paramMap.put("endTime", new Date().getTime() / 1000);
 				log.info("URL : " + url);
 				log.info("Params : " + paramMap);
 				JSONObject weibanUserListJsonObject = restTemplate.getForObject(url, JSONObject.class, paramMap);
@@ -186,7 +186,7 @@ public class AdminUserController extends BaseController {
 							qywxExternalUserDto.setExternalUserid(externalUserid);
 						}
 						// createtime
-						qywxExternalUserDto.setCreateTime((int) externalMap.get("created_at"));
+						qywxExternalUserDto.setCreateTime((int) externalMap.get("created_at") * 1000);
 						// adviserId
 						qywxExternalUserDto.setAdviserId(loginInfo.getAdviserId());
 						// externalUserid
