@@ -157,6 +157,10 @@ public class AdminUserController extends BaseController {
 					return new Response<Boolean>(0, "调用微伴API异常!", true);
 				}
 				JSONArray jsonArray = weibanUserListJsonObject.getJSONArray("external_user_list");
+				if (ObjectUtil.isNull(jsonArray)) {
+					log.warn("'external_user_list' not exist by Json : " + weibanUserListJsonObject.toString());
+					return new Response<Boolean>(0, "调用微伴API异常!", true);
+				}
 				for (int i = 0; i < jsonArray.size(); i++) {
 					Map<String, Object> externalMap = JSON.parseObject(JSON.toJSONString(jsonArray.get(i)), Map.class);
 					if (externalMap.get("external_contact") != null) {
