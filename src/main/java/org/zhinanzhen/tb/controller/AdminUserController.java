@@ -145,13 +145,13 @@ public class AdminUserController extends BaseController {
 			if (loginInfo.getApList() != null && loginInfo.getApList().contains("GW")
 					&& StringUtil.isNotEmpty(loginInfo.getOperUserid()) && loginInfo.getAdviserId() != null) {
 				String url = StringUtil.merge("https://open.weibanzhushou.com/open-api/external_user/list?",
-						"access_token={access_token}", "&staff_id={staff_id}", "&limit={limit}&offset={offset}",
+						"access_token={accessToken}", "&staff_id={staffId}", "&limit={limit}&offset={offset}",
 						"&start_time={startTime}&end_time={endTime}");
 				HashMap<String, Object> paramMap = new HashMap<>();
-				paramMap.put("access_token", getWeibanToken());
+				paramMap.put("accessToken", getWeibanToken());
 				paramMap.put("limit", 100);
 				paramMap.put("offset", 0);
-				paramMap.put("staff_id", loginInfo.getOperUserid());
+				paramMap.put("staffId", loginInfo.getOperUserid());
 				paramMap.put("startTime", 1);
 				paramMap.put("endTime", new Date().getTime());
 				JSONObject weibanUserListJsonObject = restTemplate.getForObject(url, JSONObject.class, paramMap);
