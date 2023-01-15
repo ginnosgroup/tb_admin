@@ -138,8 +138,8 @@ public class AdminUserController extends BaseController {
 				if (adviserDto != null)
 					loginInfo.setCountry(isCN(adviserDto.getRegionId()) ? "CN" : "AU");
 			}
-			// 同步企业微信客户数据
-			if (loginInfo.getApList() != null && loginInfo.getApList().contains("GW")
+			// 同步企业微信客户数据 (暂时关闭)
+			if (false && loginInfo.getApList() != null && loginInfo.getApList().contains("GW")
 					&& StringUtil.isNotEmpty(loginInfo.getOperUserid()) && loginInfo.getAdviserId() != null) {
 				String url = StringUtil.merge("https://open.weibanzhushou.com/open-api/external_user/list?",
 						"access_token={accessToken}", "&staff_id={staffId}", "&limit={limit}&offset={offset}",
