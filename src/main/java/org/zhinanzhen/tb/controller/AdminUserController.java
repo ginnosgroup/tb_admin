@@ -190,21 +190,27 @@ public class AdminUserController extends BaseController {
 						qywxExternalUserDto.setExternalUserid(externalUserid);
 					}
 					// createtime
-					qywxExternalUserDto.setCreateTime((int) externalMap.get("created_at") * 1000);
+					if (externalMap.containsKey("created_at"))
+						qywxExternalUserDto.setCreateTime((int) externalMap.get("created_at") * 1000);
 					// adviserId
 					qywxExternalUserDto.setAdviserId(loginInfo.getAdviserId());
 					// externalUserid
 					qywxExternalUserDto.setExternalUserid(externalUserid);
 					// name
-					qywxExternalUserDto.setName(externalMap.get("name").toString());
+					if (externalMap.containsKey("name"))
+						qywxExternalUserDto.setName(externalMap.get("name").toString());
 					// type
-					qywxExternalUserDto.setType((int) externalMap.get("type"));
+					if (externalMap.containsKey("type"))
+						qywxExternalUserDto.setType((int) externalMap.get("type"));
 					// avatar
-					qywxExternalUserDto.setAvatar(externalMap.get("avatar").toString());
+					if (externalMap.containsKey("avatar"))
+						qywxExternalUserDto.setAvatar(externalMap.get("avatar").toString());
 					// gender
-					qywxExternalUserDto.setGender((int) externalMap.get("gender"));
+					if (externalMap.containsKey("gender"))
+						qywxExternalUserDto.setGender((int) externalMap.get("gender"));
 					// unionid
-					qywxExternalUserDto.setUnionId(externalMap.get("unionid").toString());
+					if (externalMap.containsKey("unionid"))
+						qywxExternalUserDto.setUnionId(externalMap.get("unionid").toString());
 					// state
 					qywxExternalUserDto.setState("WCZ");
 					QywxExternalUserDTO _qywxExternalUserDto = qywxExternalUserService
