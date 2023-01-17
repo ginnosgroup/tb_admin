@@ -427,80 +427,80 @@ public class BaseController {
 				qywxExternalUserDto.setState("WCZ");
 				QywxExternalUserDTO _qywxExternalUserDto = qywxExternalUserService
 						.getByExternalUserid(qywxExternalUserDto.getExternalUserid());
-				if (ObjectUtil.isNull(_qywxExternalUserDto)) {
-					int qywxExtId = qywxExternalUserService.add(qywxExternalUserDto);
-					if (qywxExtId > 0) {
-						LOG.info(StringUtil.merge("New External User : ", qywxExternalUserDto.toString()));
-						// 详情
-						String url2 = StringUtil.merge("https://open.weibanzhushou.com/open-api/external_user/get?",
-								"access_token={accessToken}", "&id={id}", "&unionid={unionid}");
-						HashMap<String, Object> paramMap2 = new HashMap<>();
-						paramMap2.put("accessToken", getWeibanToken());
-						paramMap2.put("id", qywxExternalUserDto.getExternalUserid());
-						paramMap2.put("unionid", qywxExternalUserDto.getUnionId());
-						LOG.info("URL2 : " + url2);
-						LOG.info("Params2 : " + paramMap2);
-						JSONObject weibanUserJsonObject = restTemplate.getForObject(url2, JSONObject.class, paramMap2);
-						if ((int) weibanUserJsonObject.get("errcode") != 0) {
-							LOG.warn("调用微伴API异常!");
-							return false;
-						}
-						LOG.info("weibanUserJsonObject : " + weibanUserJsonObject.toString());
-						if (weibanUserJsonObject.containsKey("external_user")) {
-							JSONObject externalUserJsonObject = weibanUserJsonObject.getJSONObject("external_user");
-							if (externalUserJsonObject.containsKey("follow_staffs")) {
-								JSONArray followStaffs = externalUserJsonObject.getJSONArray("follow_staffs");
-								LOG.info(StringUtil.merge("followStaffs : ", followStaffs));
-								for (int j = 0; j < followStaffs.size(); j++) {
-									JSONObject staffJsonObject = followStaffs.getJSONObject(j);
-									if (ObjectUtil.isNotNull(staffJsonObject)) {
-										JSONArray customFields = staffJsonObject.getJSONArray("custom_fields");
-										for (int k = 0; k < customFields.size(); k++) {
-											JSONObject customField = customFields.getJSONObject(k);
-											if (customField.containsKey("key")) {
-												List<QywxExternalUserDescriptionDTO> descList = qywxExternalUserService
-														.listDesc(qywxExternalUserDto.getExternalUserid(),
-																customField.getString("name"));
-												if (descList.size() > 0) {
-													QywxExternalUserDescriptionDTO qywxExternalUserDescriptionDto = descList
-															.get(0);
-													qywxExternalUserDescriptionDto
-															.setQywxValue(customField.getString("field_value"));
-													if (qywxExternalUserService
-															.updateDesc(qywxExternalUserDescriptionDto) > 0)
-														LOG.info(StringUtil.merge("Update External User Desception : ",
-																qywxExternalUserDescriptionDto.toString()));
-												} else {
-													QywxExternalUserDescriptionDTO qywxExternalUserDescriptionDto = new QywxExternalUserDescriptionDTO();
-													qywxExternalUserDescriptionDto.setQywxExternalUserId(
-															qywxExternalUserDto.getExternalUserid());
-													qywxExternalUserDescriptionDto
-															.setQywxKey(customField.getString("name"));
-													qywxExternalUserDescriptionDto
-															.setQywxValue(customField.getString("field_value"));
-													if (qywxExternalUserService
-															.addDesc(qywxExternalUserDescriptionDto) > 0)
-														LOG.info(StringUtil.merge("New External User Desception : ",
-																qywxExternalUserDescriptionDto.toString()));
-												}
-											} else
-												LOG.error(StringUtil.merge("Custom Field Error : ",
-														customField.toString()));
-										}
-									} else
-										LOG.error("Staff Json Object is null !");
-								}
-							} else
-								LOG.error("'follow_staffs' not exist !");
-						} else
-							LOG.error("'external_user' not exist !");
-					} else
-						LOG.error(
-								StringUtil.merge("'qywxExternalUserDto' add error : ", qywxExternalUserDto.toString()));
-				} else {
+				int qywxExtId = 0;
+				if (ObjectUtil.isNull(_qywxExternalUserDto))
+					qywxExtId = qywxExternalUserService.add(qywxExternalUserDto);
+				else {
 					qywxExternalUserDto.setId(_qywxExternalUserDto.getId());
 					qywxExternalUserService.update(qywxExternalUserDto);
+					qywxExtId = qywxExternalUserDto.getId();
 				}
+				if (qywxExtId > 0) {
+					LOG.info(StringUtil.merge("New External User : ", qywxExternalUserDto.toString()));
+					// 详情
+					String url2 = StringUtil.merge("https://open.weibanzhushou.com/open-api/external_user/get?",
+							"access_token={accessToken}", "&id={id}", "&unionid={unionid}");
+					HashMap<String, Object> paramMap2 = new HashMap<>();
+					paramMap2.put("accessToken", getWeibanToken());
+					paramMap2.put("id", qywxExternalUserDto.getExternalUserid());
+					paramMap2.put("unionid", qywxExternalUserDto.getUnionId());
+					LOG.info("URL2 : " + url2);
+					LOG.info("Params2 : " + paramMap2);
+					JSONObject weibanUserJsonObject = restTemplate.getForObject(url2, JSONObject.class, paramMap2);
+					if ((int) weibanUserJsonObject.get("errcode") != 0) {
+						LOG.warn("调用微伴API异常!");
+						return false;
+					}
+					LOG.info("weibanUserJsonObject : " + weibanUserJsonObject.toString());
+					if (weibanUserJsonObject.containsKey("external_user")) {
+						JSONObject externalUserJsonObject = weibanUserJsonObject.getJSONObject("external_user");
+						if (externalUserJsonObject.containsKey("follow_staffs")) {
+							JSONArray followStaffs = externalUserJsonObject.getJSONArray("follow_staffs");
+							LOG.info(StringUtil.merge("followStaffs : ", followStaffs));
+							for (int j = 0; j < followStaffs.size(); j++) {
+								JSONObject staffJsonObject = followStaffs.getJSONObject(j);
+								if (ObjectUtil.isNotNull(staffJsonObject)) {
+									JSONArray customFields = staffJsonObject.getJSONArray("custom_fields");
+									for (int k = 0; k < customFields.size(); k++) {
+										JSONObject customField = customFields.getJSONObject(k);
+										if (customField.containsKey("key")) {
+											List<QywxExternalUserDescriptionDTO> descList = qywxExternalUserService
+													.listDesc(qywxExternalUserDto.getExternalUserid(),
+															customField.getString("name"));
+											if (descList.size() > 0) {
+												QywxExternalUserDescriptionDTO qywxExternalUserDescriptionDto = descList
+														.get(0);
+												qywxExternalUserDescriptionDto
+														.setQywxValue(customField.getString("field_value"));
+												if (qywxExternalUserService
+														.updateDesc(qywxExternalUserDescriptionDto) > 0)
+													LOG.info(StringUtil.merge("Update External User Desception : ",
+															qywxExternalUserDescriptionDto.toString()));
+											} else {
+												QywxExternalUserDescriptionDTO qywxExternalUserDescriptionDto = new QywxExternalUserDescriptionDTO();
+												qywxExternalUserDescriptionDto
+														.setQywxExternalUserId(qywxExternalUserDto.getExternalUserid());
+												qywxExternalUserDescriptionDto
+														.setQywxKey(customField.getString("name"));
+												qywxExternalUserDescriptionDto
+														.setQywxValue(customField.getString("field_value"));
+												if (qywxExternalUserService.addDesc(qywxExternalUserDescriptionDto) > 0)
+													LOG.info(StringUtil.merge("New External User Desception : ",
+															qywxExternalUserDescriptionDto.toString()));
+											}
+										} else
+											LOG.error(
+													StringUtil.merge("Custom Field Error : ", customField.toString()));
+									}
+								} else
+									LOG.error("Staff Json Object is null !");
+							}
+						} else
+							LOG.error("'follow_staffs' not exist !");
+					} else
+						LOG.error("'external_user' not exist !");
+				} else
+					LOG.error(StringUtil.merge("'qywxExternalUserDto' add error : ", qywxExternalUserDto.toString()));
 			}
 		}
 		return true;
