@@ -135,8 +135,8 @@ public class AdminUserController extends BaseController {
 				if (adviserDto != null)
 					loginInfo.setCountry(isCN(adviserDto.getRegionId()) ? "CN" : "AU");
 			}
-			if (!syncWeibanData(loginInfo))
-				return new Response<Boolean>(0, "同步微伴数据异常!", true); // 就算同步异常也不能影响登录
+//			if (!syncWeibanData(loginInfo))
+//				return new Response<Boolean>(0, "同步微伴数据异常!", true); // 就算同步异常也不能影响登录
 			return new Response<Boolean>(0, true);
 		}
 		return new Response<Boolean>(0, "", false);
