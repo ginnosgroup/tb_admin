@@ -2,7 +2,10 @@ package org.zhinanzhen.tb.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -17,10 +20,16 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+import org.zhinanzhen.b.service.QywxExternalUserService;
+import org.zhinanzhen.b.service.pojo.QywxExternalUserDTO;
+import org.zhinanzhen.b.service.pojo.QywxExternalUserDescriptionDTO;
+import org.zhinanzhen.tb.controller.BaseController.AdminUserLoginInfo;
 import org.zhinanzhen.tb.service.AdminUserService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.ObjectUtil;
@@ -36,6 +45,9 @@ public class BaseController {
 
 	@Resource
 	protected AdminUserService adminUserService;
+	
+	@Resource
+	private QywxExternalUserService qywxExternalUserService;
 	
 	@Autowired
     private RestTemplate restTemplate;
@@ -338,6 +350,157 @@ public class BaseController {
 	protected boolean isCN(Integer regionId) {
 		return ObjectUtil.isNotNull(regionId)
 				&& (regionId == 52000 || regionId == 1000025 || regionId == 1000030 || regionId == 1000032);
+	}
+	
+	protected boolean syncWeibanData(AdminUserLoginInfo loginInfo) throws ServiceException {
+		// 同步企业微信客户数据
+		if (loginInfo.getApList() != null && loginInfo.getApList().contains("GW")
+				&& StringUtil.isNotEmpty(loginInfo.getOperUserid()) && loginInfo.getAdviserId() != null) {
+			String url = StringUtil.merge("https://open.weibanzhushou.com/open-api/external_user/list?",
+					"access_token={accessToken}", "&staff_id={staffId}", "&limit={limit}&offset={offset}",
+					"&start_time={startTime}&end_time={endTime}");
+			HashMap<String, Object> paramMap = new HashMap<>();
+			paramMap.put("accessToken", getWeibanToken());
+			paramMap.put("limit", 100);
+			paramMap.put("offset", 0);
+			paramMap.put("staffId", loginInfo.getOperUserid());
+			paramMap.put("startTime", 1);
+			paramMap.put("endTime", new Date().getTime() / 1000); // 毫秒转秒
+			LOG.info("URL : " + url);
+			LOG.info("Params : " + paramMap);
+			JSONObject weibanUserListJsonObject = restTemplate.getForObject(url, JSONObject.class, paramMap);
+			if (ObjectUtil.isNull(weibanUserListJsonObject)) {
+				LOG.warn("'weibanUserListJsonObject' not exist !");
+				return false;
+			}
+			LOG.info("weibanUserListJsonObject : " + weibanUserListJsonObject.toString());
+			if ((int) weibanUserListJsonObject.get("errcode") != 0) {
+				LOG.warn("调用微伴API异常!");
+				return false;
+			}
+			if (!weibanUserListJsonObject.containsKey("external_user_list")) {
+				LOG.warn("'external_user_list' not exist by Json !");
+				return false;
+			}
+			JSONArray jsonArray = weibanUserListJsonObject.getJSONArray("external_user_list");
+			if (ObjectUtil.isNull(jsonArray)) {
+				LOG.warn("'jsonArray' is null : " + weibanUserListJsonObject.toString());
+				return false;
+			}
+			for (int i = 0; i < jsonArray.size(); i++) {
+				Map<String, Object> externalMap = JSON.parseObject(JSON.toJSONString(jsonArray.get(i)), Map.class);
+				if (ObjectUtil.isNull(externalMap)) {
+					LOG.warn("'externalMap' is null : " + jsonArray.get(i));
+					continue;
+				}
+				if (!externalMap.containsKey("id")) {
+					LOG.warn("'id' not exist : " + jsonArray.get(i));
+					continue;
+				}
+				String externalUserid = externalMap.get("id").toString();
+				QywxExternalUserDTO qywxExternalUserDto = qywxExternalUserService.getByExternalUserid(externalUserid);
+				if (ObjectUtil.isNull(qywxExternalUserDto))
+					qywxExternalUserDto = new QywxExternalUserDTO();
+				// createtime
+				if (externalMap.containsKey("created_at"))
+					qywxExternalUserDto.setCreateTime((int) externalMap.get("created_at") * 1000);
+				// adviserId
+				qywxExternalUserDto.setAdviserId(loginInfo.getAdviserId());
+				// externalUserid
+				qywxExternalUserDto.setExternalUserid(externalUserid);
+				// name
+				if (externalMap.containsKey("name"))
+					qywxExternalUserDto.setName(externalMap.get("name").toString());
+				// type
+				if (externalMap.containsKey("type"))
+					qywxExternalUserDto.setType((int) externalMap.get("type"));
+				// avatar
+				if (externalMap.containsKey("avatar"))
+					qywxExternalUserDto.setAvatar(externalMap.get("avatar").toString());
+				// gender
+				if (externalMap.containsKey("gender"))
+					qywxExternalUserDto.setGender((int) externalMap.get("gender"));
+				// unionid
+				if (externalMap.containsKey("unionid"))
+					qywxExternalUserDto.setUnionId(externalMap.get("unionid").toString());
+				// state
+				qywxExternalUserDto.setState("WCZ");
+				QywxExternalUserDTO _qywxExternalUserDto = qywxExternalUserService
+						.getByExternalUserid(qywxExternalUserDto.getExternalUserid());
+				if (ObjectUtil.isNull(_qywxExternalUserDto)) {
+					int qywxExtId = qywxExternalUserService.add(qywxExternalUserDto);
+					if (qywxExtId > 0) {
+						LOG.info(StringUtil.merge("New External User : ", qywxExternalUserDto.toString()));
+						// 详情
+						String url2 = StringUtil.merge("https://open.weibanzhushou.com/open-api/external_user/get?",
+								"access_token={accessToken}", "&id={id}", "&unionid={unionid}");
+						HashMap<String, Object> paramMap2 = new HashMap<>();
+						paramMap2.put("accessToken", getWeibanToken());
+						paramMap2.put("id", qywxExternalUserDto.getExternalUserid());
+						paramMap2.put("unionid", qywxExternalUserDto.getUnionId());
+						JSONObject weibanUserJsonObject = restTemplate.getForObject(url2, JSONObject.class, paramMap2);
+						if ((int) weibanUserJsonObject.get("errcode") != 0) {
+							LOG.warn("调用微伴API异常!");
+							return false;
+						}
+						if (weibanUserJsonObject.containsKey("external_user")) {
+							JSONObject externalUserJsonObject = weibanUserJsonObject.getJSONObject("external_user");
+							if (externalUserJsonObject.containsKey("follow_staffs")) {
+								JSONArray followStaffs = externalUserJsonObject.getJSONArray("follow_staffs");
+								LOG.info(StringUtil.merge("followStaffs : ", followStaffs));
+								for (int j = 0; j < followStaffs.size(); j++) {
+									JSONObject staffJsonObject = followStaffs.getJSONObject(j);
+									if (ObjectUtil.isNotNull(staffJsonObject)) {
+										JSONArray customFields = staffJsonObject.getJSONArray("custom_fields");
+										for (int k = 0; k < customFields.size(); k++) {
+											JSONObject customField = customFields.getJSONObject(k);
+											if (customField.containsKey("key")) {
+												List<QywxExternalUserDescriptionDTO> descList = qywxExternalUserService
+														.listDesc(qywxExternalUserDto.getExternalUserid(),
+																customField.getString("name"));
+												if (descList.size() > 0) {
+													QywxExternalUserDescriptionDTO qywxExternalUserDescriptionDto = descList
+															.get(0);
+													qywxExternalUserDescriptionDto
+															.setQywxValue(customField.getString("field_value"));
+													if (qywxExternalUserService
+															.updateDesc(qywxExternalUserDescriptionDto) > 0)
+														LOG.info(StringUtil.merge("Update External User Desception : ",
+																qywxExternalUserDescriptionDto.toString()));
+												} else {
+													QywxExternalUserDescriptionDTO qywxExternalUserDescriptionDto = new QywxExternalUserDescriptionDTO();
+													qywxExternalUserDescriptionDto.setQywxExternalUserId(
+															qywxExternalUserDto.getExternalUserid());
+													qywxExternalUserDescriptionDto
+															.setQywxKey(customField.getString("name"));
+													qywxExternalUserDescriptionDto
+															.setQywxValue(customField.getString("field_value"));
+													if (qywxExternalUserService
+															.addDesc(qywxExternalUserDescriptionDto) > 0)
+														LOG.info(StringUtil.merge("New External User Desception : ",
+																qywxExternalUserDescriptionDto.toString()));
+												}
+											} else
+												LOG.error(StringUtil.merge("Custom Field Error : ",
+														customField.toString()));
+										}
+									} else
+										LOG.error("Staff Json Object is null !");
+								}
+							} else
+								LOG.error("'follow_staffs' not exist !");
+						} else
+							LOG.error("'external_user' not exist !");
+					} else
+						LOG.error(
+								StringUtil.merge("'qywxExternalUserDto' add error : ", qywxExternalUserDto.toString()));
+				} else {
+					qywxExternalUserDto.setId(_qywxExternalUserDto.getId());
+					qywxExternalUserService.update(qywxExternalUserDto);
+				}
+			}
+		}
+		return true;
 	}
 
 	@Data
