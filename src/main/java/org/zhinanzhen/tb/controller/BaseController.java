@@ -460,35 +460,23 @@ public class BaseController {
 							for (int j = 0; j < followStaffs.size(); j++) {
 								JSONObject staffJsonObject = followStaffs.getJSONObject(j);
 								if (ObjectUtil.isNotNull(staffJsonObject)) {
+									String staffId = staffJsonObject.getString("staff_id");
+									// 只获取当前顾问设置的客户画像
+									if (StringUtil.isEmpty(staffId)
+											|| !StringUtil.equals(loginInfo.getOperUserid(), staffId))
+										continue;
+									// 更新年龄
+									if (staffJsonObject.containsKey("age"))
+										updateQywxExternalUserDescription(qywxExternalUserDto.getExternalUserid(),
+												"age", staffJsonObject.getString("age"));
 									JSONArray customFields = staffJsonObject.getJSONArray("custom_fields");
 									for (int k = 0; k < customFields.size(); k++) {
 										JSONObject customField = customFields.getJSONObject(k);
-										if (customField.containsKey("name")) {
-											List<QywxExternalUserDescriptionDTO> descList = qywxExternalUserService
-													.listDesc(qywxExternalUserDto.getExternalUserid(),
-															customField.getString("name"));
-											if (descList.size() > 0) {
-												QywxExternalUserDescriptionDTO qywxExternalUserDescriptionDto = descList
-														.get(0);
-												qywxExternalUserDescriptionDto
-														.setQywxValue(customField.getString("field_value"));
-												if (qywxExternalUserService
-														.updateDesc(qywxExternalUserDescriptionDto) > 0)
-													LOG.info(StringUtil.merge("Update External User Desception : ",
-															qywxExternalUserDescriptionDto.toString()));
-											} else {
-												QywxExternalUserDescriptionDTO qywxExternalUserDescriptionDto = new QywxExternalUserDescriptionDTO();
-												qywxExternalUserDescriptionDto
-														.setQywxExternalUserId(qywxExternalUserDto.getExternalUserid());
-												qywxExternalUserDescriptionDto
-														.setQywxKey(customField.getString("name"));
-												qywxExternalUserDescriptionDto
-														.setQywxValue(customField.getString("field_value"));
-												if (qywxExternalUserService.addDesc(qywxExternalUserDescriptionDto) > 0)
-													LOG.info(StringUtil.merge("New External User Desception : ",
-															qywxExternalUserDescriptionDto.toString()));
-											}
-										} else
+										if (customField.containsKey("name"))
+											updateQywxExternalUserDescription(qywxExternalUserDto.getExternalUserid(),
+													customField.getString("name"),
+													customField.getString("field_value"));
+										else
 											LOG.error(
 													StringUtil.merge("Custom Field Error : ", customField.toString()));
 									}
@@ -504,6 +492,26 @@ public class BaseController {
 			}
 		}
 		return true;
+	}
+	
+	private void updateQywxExternalUserDescription(String externalUserid, String key, String value)
+			throws ServiceException {
+		List<QywxExternalUserDescriptionDTO> descList = qywxExternalUserService.listDesc(externalUserid, key);
+		if (descList.size() > 0) {
+			QywxExternalUserDescriptionDTO qywxExternalUserDescriptionDto = descList.get(0);
+			qywxExternalUserDescriptionDto.setQywxValue(value);
+			if (qywxExternalUserService.updateDesc(qywxExternalUserDescriptionDto) > 0)
+				LOG.info(StringUtil.merge("Update External User Desception : ",
+						qywxExternalUserDescriptionDto.toString()));
+		} else {
+			QywxExternalUserDescriptionDTO qywxExternalUserDescriptionDto = new QywxExternalUserDescriptionDTO();
+			qywxExternalUserDescriptionDto.setQywxExternalUserId(externalUserid);
+			qywxExternalUserDescriptionDto.setQywxKey(key);
+			qywxExternalUserDescriptionDto.setQywxValue(value);
+			if (qywxExternalUserService.addDesc(qywxExternalUserDescriptionDto) > 0)
+				LOG.info(
+						StringUtil.merge("New External User Desception : ", qywxExternalUserDescriptionDto.toString()));
+		}
 	}
 
 	@Data
