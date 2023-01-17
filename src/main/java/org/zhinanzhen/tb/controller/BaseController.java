@@ -438,11 +438,14 @@ public class BaseController {
 						paramMap2.put("accessToken", getWeibanToken());
 						paramMap2.put("id", qywxExternalUserDto.getExternalUserid());
 						paramMap2.put("unionid", qywxExternalUserDto.getUnionId());
+						LOG.info("URL2 : " + url2);
+						LOG.info("Params2 : " + paramMap2);
 						JSONObject weibanUserJsonObject = restTemplate.getForObject(url2, JSONObject.class, paramMap2);
 						if ((int) weibanUserJsonObject.get("errcode") != 0) {
 							LOG.warn("调用微伴API异常!");
 							return false;
 						}
+						LOG.info("weibanUserJsonObject : " + weibanUserJsonObject.toString());
 						if (weibanUserJsonObject.containsKey("external_user")) {
 							JSONObject externalUserJsonObject = weibanUserJsonObject.getJSONObject("external_user");
 							if (externalUserJsonObject.containsKey("follow_staffs")) {
