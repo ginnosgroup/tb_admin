@@ -138,8 +138,8 @@ public class AdminUserController extends BaseController {
 				if (adviserDto != null)
 					loginInfo.setCountry(isCN(adviserDto.getRegionId()) ? "CN" : "AU");
 			}
-			// 同步企业微信客户数据 (暂时关闭)
-			if (false && loginInfo.getApList() != null && loginInfo.getApList().contains("GW")
+			// 同步企业微信客户数据
+			if (loginInfo.getApList() != null && loginInfo.getApList().contains("GW")
 					&& StringUtil.isNotEmpty(loginInfo.getOperUserid()) && loginInfo.getAdviserId() != null) {
 				String url = StringUtil.merge("https://open.weibanzhushou.com/open-api/external_user/list?",
 						"access_token={accessToken}", "&staff_id={staffId}", "&limit={limit}&offset={offset}",
@@ -150,7 +150,7 @@ public class AdminUserController extends BaseController {
 				paramMap.put("offset", 0);
 				paramMap.put("staffId", loginInfo.getOperUserid());
 				paramMap.put("startTime", 1);
-				paramMap.put("endTime", new Date().getTime() / 1000);
+				paramMap.put("endTime", new Date().getTime() / 1000); // 毫秒转秒
 				log.info("URL : " + url);
 				log.info("Params : " + paramMap);
 				JSONObject weibanUserListJsonObject = restTemplate.getForObject(url, JSONObject.class, paramMap);
@@ -219,9 +219,9 @@ public class AdminUserController extends BaseController {
 							log.info(StringUtil.merge("New External User : ", qywxExternalUserDto.toString()));
 							// 详情
 							String url2 = StringUtil.merge("https://open.weibanzhushou.com/open-api/external_user/get?",
-									"access_token={access_token}", "&id={id}", "&unionid={unionid}");
+									"access_token={accessToken}", "&id={id}", "&unionid={unionid}");
 							HashMap<String, Object> paramMap2 = new HashMap<>();
-							paramMap2.put("access_token", getWeibanToken());
+							paramMap2.put("accessToken", getWeibanToken());
 							paramMap2.put("id", qywxExternalUserDto.getExternalUserid());
 							paramMap2.put("unionid", qywxExternalUserDto.getUnionId());
 							JSONObject weibanUserJsonObject = restTemplate.getForObject(url2, JSONObject.class,
@@ -234,12 +234,12 @@ public class AdminUserController extends BaseController {
 								JSONObject externalUserJsonObject = weibanUserJsonObject.getJSONObject("external_user");
 								if (externalUserJsonObject.containsKey("follow_staffs")) {
 									JSONArray followStaffs = externalUserJsonObject.getJSONArray("follow_staffs");
-									if (followStaffs.size() > 0) {
-										JSONObject staffJsonObject = followStaffs.getJSONObject(0);
+									for (int j = 0; j < followStaffs.size(); j++) {
+										JSONObject staffJsonObject = followStaffs.getJSONObject(j);
 										if (ObjectUtil.isNotNull(staffJsonObject)) {
 											JSONArray customFields = staffJsonObject.getJSONArray("custom_fields");
-											for (int j = 0; j < customFields.size(); j++) {
-												JSONObject customField = customFields.getJSONObject(j);
+											for (int k = 0; k < customFields.size(); k++) {
+												JSONObject customField = customFields.getJSONObject(k);
 												if (customField.containsKey("key")) {
 													List<QywxExternalUserDescriptionDTO> descList = qywxExternalUserService
 															.listDesc(qywxExternalUserDto.getExternalUserid(),
@@ -273,8 +273,7 @@ public class AdminUserController extends BaseController {
 											}
 										} else
 											log.error("Staff Json Object is null !");
-									} else
-										log.error("'followStaffs' size is 0 !");
+									}
 								} else
 									log.error("'follow_staffs' not exist !");
 							} else
