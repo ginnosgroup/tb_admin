@@ -463,7 +463,7 @@ public class BaseController {
 									JSONArray customFields = staffJsonObject.getJSONArray("custom_fields");
 									for (int k = 0; k < customFields.size(); k++) {
 										JSONObject customField = customFields.getJSONObject(k);
-										if (customField.containsKey("key")) {
+										if (customField.containsKey("name")) {
 											List<QywxExternalUserDescriptionDTO> descList = qywxExternalUserService
 													.listDesc(qywxExternalUserDto.getExternalUserid(),
 															customField.getString("name"));
