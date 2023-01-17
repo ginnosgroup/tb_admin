@@ -157,7 +157,7 @@
     
     <insert id="addDesc" parameterType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDescriptionDO" useGeneratedKeys="true" keyProperty="id">
         INSERT
-            INTO b_qywx_external_user (
+            INTO b_qywx_external_user_description (
                 gmt_create,
                 gmt_modify,
                 qywx_external_userid,
