@@ -465,10 +465,18 @@ public class BaseController {
 									if (StringUtil.isEmpty(staffId)
 											|| !StringUtil.equals(loginInfo.getOperUserid(), staffId))
 										continue;
-									// 更新年龄
+									// 年龄
 									if (staffJsonObject.containsKey("age"))
 										updateQywxExternalUserDescription(qywxExternalUserDto.getExternalUserid(),
-												"age", staffJsonObject.getString("age"));
+												"_age", staffJsonObject.getString("age"));
+									// 生日
+									if (staffJsonObject.containsKey("birthday"))
+										updateQywxExternalUserDescription(qywxExternalUserDto.getExternalUserid(),
+												"_birthday", staffJsonObject.getString("birthday"));
+									// 地址
+									if (staffJsonObject.containsKey("address"))
+										updateQywxExternalUserDescription(qywxExternalUserDto.getExternalUserid(),
+												"_address", staffJsonObject.getString("address"));
 									JSONArray customFields = staffJsonObject.getJSONArray("custom_fields");
 									for (int k = 0; k < customFields.size(); k++) {
 										JSONObject customField = customFields.getJSONObject(k);
