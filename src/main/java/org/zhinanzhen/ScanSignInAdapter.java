@@ -52,7 +52,11 @@ public class ScanSignInAdapter extends BaseController implements SignInAdapter {
 					// 同步企业微信数据
 					new Thread(new Runnable() {
 						public void run() {
-							syncWeibanData(loginInfo);
+							try {
+								syncWeibanData(loginInfo);
+							} catch (ServiceException e) {
+								e.printStackTrace();
+							}
 						}
 					}).start();
 					return StringUtil.merge(Application.DOMAIN, "/webroot_new/welcome");
