@@ -24,6 +24,7 @@
                 institution_trading_name,
                 state,
                 state_mark,
+                state_mark2,
                 urgent_state,
                 mara_approval_date,
                 official_approval_date,
@@ -94,6 +95,7 @@
                 #{institutionTradingName},
                 #{state},
                 #{stateMark},
+                #{stateMark2},
                 #{urgentState},
                 NULL,
                 NULL,
@@ -191,6 +193,9 @@
         </if>
         <if test='stateMark != null'>
             , state_mark = #{stateMark}
+        </if>
+        <if test='stateMark2 != null'>
+            , state_mark2 = #{stateMark2}
         </if>
         <if test='urgentState != null and urgentState != ""'>
             , urgent_state = #{urgentState}
@@ -496,6 +501,7 @@
             so.institution_trading_name AS institutionTradingName,
             so.state AS state,
             so.state_mark AS stateMark,
+            so.state_mark2 AS stateMark2,
             so.urgent_state AS urgentState,
             so.mara_approval_date AS maraApprovalDate,
             so.submit_mara_approval_date AS submitMaraApprovalDate,
@@ -684,6 +690,7 @@
             institution_trading_name AS institutionTradingName,
             state,
             state_mark AS stateMark,
+            state_mark2 AS stateMark2,
             urgent_state AS urgentState,
             mara_approval_date AS maraApprovalDate,
             submit_mara_approval_date AS submitMaraApprovalDate,
@@ -967,6 +974,7 @@
         so.institution_trading_name AS institutionTradingName,
         so.state AS state,
         so.state_mark AS stateMark,
+        so.state_mark2 AS state_mark2,
         so.urgent_state AS urgentState,
         so.mara_approval_date AS maraApprovalDate,
         so.submit_mara_approval_date AS submitMaraApprovalDate,

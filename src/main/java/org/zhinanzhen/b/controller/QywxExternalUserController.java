@@ -14,11 +14,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.zhinanzhen.b.service.QywxExternalUserService;
 import org.zhinanzhen.b.service.pojo.QywxExternalUserDTO;
+import org.zhinanzhen.b.service.pojo.QywxExternalUserDescriptionDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.service.ServiceException;
 
 import com.ikasoa.core.utils.ObjectUtil;
+import com.ikasoa.core.utils.StringUtil;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -49,4 +51,20 @@ public class QywxExternalUserController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/listDesc", method = RequestMethod.GET)
+	@ResponseBody
+	public ListResponse<List<QywxExternalUserDescriptionDTO>> listDesc(
+			@RequestParam(value = "externalUserid", required = false) String externalUserid, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			if (ObjectUtil.isNotNull(getAdviserId(request)) && StringUtil.isNotEmpty(externalUserid)) {
+				List<QywxExternalUserDescriptionDTO> list = qywxExternalUserService.listDesc(externalUserid, null);
+				return new ListResponse<List<QywxExternalUserDescriptionDTO>>(true, 100, list.size(), list, null);
+			} else
+				return new ListResponse<List<QywxExternalUserDescriptionDTO>>(false, 100, 0, null, "仅顾问才有权限查看!");
+		} catch (ServiceException e) {
+			return new ListResponse<List<QywxExternalUserDescriptionDTO>>(false, 100, 0, null, e.getMessage());
+		}
+	}
 }

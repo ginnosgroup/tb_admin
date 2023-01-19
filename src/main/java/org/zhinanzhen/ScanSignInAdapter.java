@@ -11,6 +11,7 @@ import org.springframework.social.wechat.api.Wecom;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.zhinanzhen.tb.controller.BaseController;
+import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
@@ -48,6 +49,16 @@ public class ScanSignInAdapter extends BaseController implements SignInAdapter {
 						if (adviserDto != null)
 							loginInfo.setCountry(isCN(adviserDto.getRegionId()) ? "CN" : "AU");
 					}
+					// 同步企业微信数据
+					new Thread(new Runnable() {
+						public void run() {
+							try {
+								syncWeibanData(loginInfo);
+							} catch (ServiceException e) {
+								e.printStackTrace();
+							}
+						}
+					}).start();
 					return StringUtil.merge(Application.DOMAIN, "/webroot_new/welcome");
 				} else
 					StringUtil.merge(Application.DOMAIN,

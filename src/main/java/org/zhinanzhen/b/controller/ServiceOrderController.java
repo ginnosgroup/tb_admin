@@ -164,7 +164,7 @@ public class ServiceOrderController extends BaseController {
 	public Response<String> uploadImage(@RequestParam MultipartFile file, HttpServletRequest request,
 			HttpServletResponse response) throws IllegalStateException, IOException {
 		super.setPostHeader(response);
-		return super.upload2(file, request.getSession(), "/uploads/payment_voucher_image_url_s/");
+		return super.upload2(file, request.getSession(), "/uploads/payment_voucher_image_url_s2/");
 	}
 
 	@RequestMapping(value = "/upload_visa_voucher_img", method = RequestMethod.POST)

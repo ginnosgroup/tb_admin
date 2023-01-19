@@ -18,7 +18,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ikasoa.core.security.SymmetricKeyEncrypt;
 import com.ikasoa.core.security.impl.DESEncryptImpl;
-import com.ikasoa.core.utils.MapUtil;
 import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import com.ikasoa.web.utils.ImageCaptchaUtil;
@@ -35,8 +34,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
-import org.zhinanzhen.b.controller.WXWorkController.AccessTokenType;
-import org.zhinanzhen.b.dao.pojo.QywxExternalUserDescriptionDO;
 import org.zhinanzhen.b.service.QywxExternalUserService;
 import org.zhinanzhen.b.service.WXWorkService;
 import org.zhinanzhen.b.service.pojo.QywxExternalUserDTO;
@@ -44,7 +41,6 @@ import org.zhinanzhen.b.service.pojo.QywxExternalUserDescriptionDTO;
 import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
-import org.zhinanzhen.tb.utils.EmojiFilter;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
 
 @Controller
@@ -64,9 +60,6 @@ public class AdminUserController extends BaseController {
 
 	@Resource
 	private WXWorkService wxWorkService;
-
-	@Resource
-	private QywxExternalUserService qywxExternalUserService;
 	
 	@Autowired
     private RestTemplate restTemplate;
@@ -142,136 +135,11 @@ public class AdminUserController extends BaseController {
 				if (adviserDto != null)
 					loginInfo.setCountry(isCN(adviserDto.getRegionId()) ? "CN" : "AU");
 			}
-			// 同步企业微信客户数据
-			if (loginInfo.getApList() != null && loginInfo.getApList().contains("GW")
-					&& StringUtil.isNotEmpty(loginInfo.getOperUserid()) && loginInfo.getAdviserId() != null) {
-				String url = StringUtil.merge("https://open.weibanzhushou.com/open-api/external_user/list?",
-						"access_token={access_token}", "&staff_id={staff_id}", "&limit={limit}&offset={offset}",
-						"&start_time={startTime}&end_time={endTime}");
-				HashMap<String, Object> paramMap = new HashMap<>();
-				paramMap.put("access_token", getWeibanToken());
-				paramMap.put("limit", 100);
-				paramMap.put("offset", 0);
-				paramMap.put("staff_id", loginInfo.getOperUserid());
-				paramMap.put("start_time", 0);
-				paramMap.put("end_time", new Date().getTime());
-				JSONObject weibanUserListJsonObject = restTemplate.getForObject(url, JSONObject.class, paramMap);
-				if ((int) weibanUserListJsonObject.get("errcode") == 0)
-					return new Response<Boolean>(0, "调用微伴API异常!", false);
-				JSONArray jsonArray = weibanUserListJsonObject.getJSONArray("external_user_list");
-				for (int i = 0; i < jsonArray.size(); i++) {
-					Map<String, Object> externalMap = JSON.parseObject(JSON.toJSONString(jsonArray.get(i)), Map.class);
-					if (externalMap.get("external_contact") != null) {
-						Map<String, Object> externalContactMap = JSON
-								.parseObject(JSON.toJSONString(externalMap.get("external_contact")), Map.class);
-						// externalUserid
-						String externalUserid = externalContactMap.get("external_userid").toString();
-						QywxExternalUserDTO qywxExternalUserDto = qywxExternalUserService
-								.getByExternalUserid(externalUserid);
-						if (ObjectUtil.isNull(qywxExternalUserDto)) {
-							qywxExternalUserDto = new QywxExternalUserDTO();
-							qywxExternalUserDto.setExternalUserid(externalUserid);
-						}
-						// createtime
-						qywxExternalUserDto.setCreateTime((int) externalMap.get("created_at"));
-						// adviserId
-						qywxExternalUserDto.setAdviserId(loginInfo.getAdviserId());
-						// externalUserid
-						qywxExternalUserDto.setExternalUserid(externalMap.get("id").toString());
-						// name
-						qywxExternalUserDto.setName(externalMap.get("name").toString());
-						// type
-						qywxExternalUserDto.setType((int) externalMap.get("type"));
-						// avatar
-						qywxExternalUserDto.setAvatar(externalMap.get("avatar").toString());
-						// gender
-						qywxExternalUserDto.setGender((int) externalMap.get("gender"));
-						// unionid
-						qywxExternalUserDto.setUnionId(externalMap.get("unionid").toString());
-						// state
-						qywxExternalUserDto.setState("WCZ");
-						QywxExternalUserDTO _qywxExternalUserDto = qywxExternalUserService
-								.getByExternalUserid(qywxExternalUserDto.getExternalUserid());
-						if (ObjectUtil.isNull(_qywxExternalUserDto)) {
-							int qywxExtId = qywxExternalUserService.add(qywxExternalUserDto);
-							if (qywxExtId > 0) {
-								log.info(StringUtil.merge("New External User : ", qywxExternalUserDto.toString()));
-								// 详情
-								String url2 = StringUtil.merge(
-										" https://open.weibanzhushou.com/open-api/external_user/get?",
-										"access_token={access_token}", "&id={id}", "&unionid={unionid}");
-								HashMap<String, Object> paramMap2 = new HashMap<>();
-								paramMap2.put("access_token", getWeibanToken());
-								paramMap2.put("id", qywxExternalUserDto.getExternalUserid());
-								paramMap2.put("unionid", qywxExternalUserDto.getUnionId());
-								JSONObject weibanUserJsonObject = restTemplate.getForObject(url2, JSONObject.class,
-										paramMap2);
-								if ((int) weibanUserJsonObject.get("errcode") == 0)
-									return new Response<Boolean>(0, "调用微伴API异常!", false);
-								if (weibanUserJsonObject.containsKey("external_user")) {
-									JSONObject externalUserJsonObject = weibanUserJsonObject
-											.getJSONObject("external_user");
-									if (externalUserJsonObject.containsKey("follow_staffs")) {
-										JSONArray followStaffs = externalUserJsonObject.getJSONArray("follow_staffs");
-										if (followStaffs.size() > 0) {
-											JSONObject staffJsonObject = followStaffs.getJSONObject(0);
-											if (ObjectUtil.isNotNull(staffJsonObject)) {
-												JSONArray customFields = staffJsonObject.getJSONArray("custom_fields");
-												for (int j = 0; j < customFields.size(); j++) {
-													JSONObject customField = customFields.getJSONObject(j);
-													if (customField.containsKey("key")) {
-														List<QywxExternalUserDescriptionDTO> descList = qywxExternalUserService
-																.listDesc(qywxExtId, customField.getString("name"));
-														if (descList.size() > 0) {
-															QywxExternalUserDescriptionDTO qywxExternalUserDescriptionDto = descList
-																	.get(0);
-															qywxExternalUserDescriptionDto
-																	.setValue(customField.getString("field_value"));
-															if (qywxExternalUserService
-																	.updateDesc(qywxExternalUserDescriptionDto) > 0)
-																log.info(StringUtil.merge(
-																		"Update External User Desception : ",
-																		qywxExternalUserDescriptionDto.toString()));
-														} else {
-															QywxExternalUserDescriptionDTO qywxExternalUserDescriptionDto = new QywxExternalUserDescriptionDTO();
-															qywxExternalUserDescriptionDto
-																	.setQywxExternalUserId(qywxExtId);
-															qywxExternalUserDescriptionDto
-																	.setKey(customField.getString("name"));
-															qywxExternalUserDescriptionDto
-																	.setValue(customField.getString("field_value"));
-															if (qywxExternalUserService
-																	.addDesc(qywxExternalUserDescriptionDto) > 0)
-																log.info(StringUtil.merge(
-																		"New External User Desception : ",
-																		qywxExternalUserDescriptionDto.toString()));
-														}
-													} else
-														log.error(StringUtil.merge("Custom Field Error : ",
-																customField.toString()));
-												}
-											} else
-												log.error("Staff Json Object is null !");
-										} else
-											log.error("'followStaffs' size is 0 !");
-									} else
-										log.error("'follow_staffs' not exist !");
-								} else
-									log.error("'external_user' not exist !");
-							} else
-								log.error(StringUtil.merge("'qywxExternalUserDto' add error : ",
-										qywxExternalUserDto.toString()));
-						} else {
-							qywxExternalUserDto.setId(_qywxExternalUserDto.getId());
-							qywxExternalUserService.update(qywxExternalUserDto);
-						}
-					} else
-						log.error("'external_contact' not exist !");
-				}
-			}
+//			if (!syncWeibanData(loginInfo))
+//				return new Response<Boolean>(0, "同步微伴数据异常!", true); // 就算同步异常也不能影响登录
 			return new Response<Boolean>(0, true);
 		}
-		return new Response<Boolean>(0, false);
+		return new Response<Boolean>(0, "", false);
 	}
 
 	@RequestMapping(value = "/out", method = RequestMethod.GET)

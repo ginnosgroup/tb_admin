@@ -17,6 +17,7 @@ import org.zhinanzhen.tb.service.impl.BaseService;
 
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.ObjectUtil;
+import com.ikasoa.core.utils.StringUtil;
 
 @Service("QywxExternalUserService")
 public class QywxExternalUserServiceImpl extends BaseService implements QywxExternalUserService {
@@ -143,9 +144,9 @@ public class QywxExternalUserServiceImpl extends BaseService implements QywxExte
 	}
 
 	@Override
-	public List<QywxExternalUserDescriptionDTO> listDesc(int externalUserid, String key) throws ServiceException {
-		if (externalUserid == 0) {
-			ServiceException se = new ServiceException("externalUserid is 0 !");
+	public List<QywxExternalUserDescriptionDTO> listDesc(String externalUserid, String key) throws ServiceException {
+		if (StringUtil.isEmpty(externalUserid)) {
+			ServiceException se = new ServiceException("externalUserid is null !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}

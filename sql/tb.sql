@@ -176,7 +176,7 @@ CREATE TABLE `b_qywx_external_user` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
-  `union_id` varchar(128) DEFAULT NULL COMMENT 'UnionId';
+  `union_id` varchar(128) DEFAULT NULL COMMENT 'UnionId',
   `create_time` int DEFAULT NULL COMMENT '客户创建时间(时间辍)',
   `adviser_id` int DEFAULT NULL COMMENT '所属顾问编号 (对应tb_adviser.id)',
   `name` varchar(32) NOT NULL COMMENT '外部联系人的名称',
@@ -199,9 +199,9 @@ CREATE TABLE `b_qywx_external_user_description` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
-  `qywx_external_user_id` int NOT NULL COMMENT '企业微信外部客户编号 (对应b_qywx_external_user.id)',
-  `key` varchar(32) NOT NULL COMMENT '外部联系人详情名称',
-  `value` varchar(255) DEFAULT NULL COMMENT '外部联系人详情值'
+  `qywx_external_userid` varchar(64) NOT NULL COMMENT '企业微信外部联系人的userid (对应b_qywx_external_user.external_userid)',
+  `qywx_key` varchar(32) NOT NULL COMMENT '外部联系人详情名称',
+  `qywx_value` varchar(255) DEFAULT NULL COMMENT '外部联系人详情值'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 
 /*
