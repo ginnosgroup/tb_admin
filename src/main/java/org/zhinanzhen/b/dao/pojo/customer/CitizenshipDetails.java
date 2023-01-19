@@ -14,22 +14,3 @@ public class CitizenshipDetails {
 
 }
 
-@Data
- class Citizenship {
-
-    private String countryOfCitizenship;
-
-    private String obtained;
-
-    private String obtainedDate;
-
-    private int isHold;
-
-    private String ceasedDate;
-
-    private String ceaseReason;
-
-    private int isHeldPassport;
-
-    private List<PassportsOrTravelDocuments> list;
-}

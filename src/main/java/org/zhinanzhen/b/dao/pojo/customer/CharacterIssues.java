@@ -2,7 +2,6 @@ package org.zhinanzhen.b.dao.pojo.customer;
 
 import lombok.Data;
 
-import java.util.Date;
 import java.util.List;
 
 @Data
@@ -37,76 +36,4 @@ public class CharacterIssues {
     private List<MilitaryForce> cl26;
     private List<Template> cl27;
 }
-@Data
-class PoliceClearance{
-    private String name;
 
-    private String country;
-
-    private Date applicationDate;
-
-    private Date dateOfIssue;
-
-    private String referenceNumber;
-}
-@Data
-class Detention{
-    private String name;
-
-    private Date dateForm;
-
-    private Date dateTo;
-
-    private String country;
-
-    private String details;
-}
-
-@Data
-class Template {
-    private String name;
-
-    private String country;
-
-    private Date date;
-
-    private String type;
-
-    private String details;
-}
-@Data
-class Military{
-    private String name;
-
-    private Date dateForm;
-
-    private Date dateTo;
-
-    private String country;
-
-    private String type;
-
-    private String details;
-
-
-}
-@Data
-class MilitaryForce{
-    private String name;
-
-    private Date dateForm;
-
-    private Date dateTo;
-
-    private String country;
-
-    private String type;
-
-    private String nameOfOrganisation;
-
-    private String position;
-
-    private String countryOfDeployment;
-
-    private String Duties;
-}
