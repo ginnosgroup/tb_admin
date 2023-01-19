@@ -20,7 +20,7 @@ import java.io.IOException;
 
 public class PdfGenerateUtil {
 
-    public static int manipulatePdf(String src,String xml,int id)
+    public static String manipulatePdf(String src,String xml,int id)
             throws IOException, DocumentException {
         String pdf =id+".pdf";
         String path = "data/PdfGenerate/pdfout/"+pdf;
@@ -32,7 +32,7 @@ public class PdfGenerateUtil {
         xfa.fillXfaForm(new FileInputStream(xml));
         stamper.close();
         reader.close();
-        return 1;
+        return path;
     }
     public void readXml(String src, String dest)
             throws IOException, DocumentException, TransformerException {

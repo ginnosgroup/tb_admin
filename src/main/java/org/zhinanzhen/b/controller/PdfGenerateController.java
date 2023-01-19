@@ -19,17 +19,17 @@ public class PdfGenerateController extends BaseController{
 
     @RequestMapping(value = "/generate", method = RequestMethod.POST)
     @ResponseBody
-    public Response<Integer> generate(@RequestParam(value = "id" ) Integer id,
+    public Response generate(@RequestParam(value = "id" ) Integer id,
      HttpServletResponse response){
         try {
             super.setPostHeader(response);
-            int generate = pdfGenerateService.generate(id);
-            if (generate>0)
-                return new Response<Integer>(0, "生成成功",generate);
+            String generate = pdfGenerateService.generate(id);
+            if (!generate.isEmpty())
+                return new Response(0, "生成成功",generate);
             else
-                return new Response<Integer>(1, "生成失败",0);
+                return new Response(1, "生成失败",0);
         }catch (ServiceException e){
-            return new Response<Integer>(1, e.getMessage(),0);
+            return new Response(1, e.getMessage(),0);
         }
     }
 }

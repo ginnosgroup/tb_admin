@@ -35,11 +35,11 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
 
 
     @Override
-    public int generate(int id) throws ServiceException {
+    public String generate(int id) throws ServiceException {
         try {
             CustomerInformationDO customerInformationDO = customerInformationDAO.getByServiceOrderId(id);
             fillxml(customerInformationDO);
-            return PdfGenerateUtil.manipulatePdf(SRC, XML2, id) > 0 ? id : 0;
+            return PdfGenerateUtil.manipulatePdf(SRC, XML2, id) ;
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
