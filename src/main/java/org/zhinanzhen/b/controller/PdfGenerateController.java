@@ -23,8 +23,9 @@ public class PdfGenerateController extends BaseController{
      HttpServletResponse response){
         try {
             super.setPostHeader(response);
-            String generate = pdfGenerateService.generate(id);
-            if (!generate.isEmpty())
+
+            int generate = pdfGenerateService.generate(id);
+            if (generate>0)
                 return new Response(0, "生成成功",generate);
             else
                 return new Response(1, "生成失败",0);

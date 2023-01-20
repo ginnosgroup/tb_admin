@@ -20,10 +20,10 @@ import java.io.IOException;
 
 public class PdfGenerateUtil {
 
-    public static String manipulatePdf(String src,String xml,int id)
+    public static int manipulatePdf(String src,String xml,int id)
             throws IOException, DocumentException {
         String pdf =id+".pdf";
-        String path = "data/PdfGenerate/pdfout/"+pdf;
+        String path = "data/uploads/PdfGenerate/pdfout/"+pdf;
         PdfReader reader = new PdfReader(src);
         PdfStamper stamper = new PdfStamper(reader,
                 new FileOutputStream(path));
@@ -32,7 +32,7 @@ public class PdfGenerateUtil {
         xfa.fillXfaForm(new FileInputStream(xml));
         stamper.close();
         reader.close();
-        return path;
+        return 1;
     }
     public void readXml(String src, String dest)
             throws IOException, DocumentException, TransformerException {

@@ -26,20 +26,20 @@ import java.util.List;
 
 @Service("PdfGenerateService")
 public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateService {
-    public static final String XML1 = "data/PdfGenerate/pdfxml/data.xml";
-    public static final String XML2 = "data/PdfGenerate/xmlout/data.xml";
-    public static final String SRC = "data/PdfGenerate/pdf/test.pdf";
+    public static final String XML1 = "data/uploads/PdfGenerate/pdfxml/data.xml";
+    public static final String XML2 = "data/uploads/PdfGenerate/xmlout/data.xml";
+    public static final String SRC = "data/uploads/PdfGenerate/pdf/test.pdf";
 
     @Resource
     private CustomerInformationDAO customerInformationDAO;
 
 
     @Override
-    public String generate(int id) throws ServiceException {
+    public int generate(int id) throws ServiceException {
         try {
             CustomerInformationDO customerInformationDO = customerInformationDAO.getByServiceOrderId(id);
             fillxml(customerInformationDO);
-            return PdfGenerateUtil.manipulatePdf(SRC, XML2, id) ;
+            return PdfGenerateUtil.manipulatePdf(SRC, XML2, id) > 0 ? id : 0;
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
