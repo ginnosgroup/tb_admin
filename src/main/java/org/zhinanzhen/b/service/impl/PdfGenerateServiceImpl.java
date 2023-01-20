@@ -26,9 +26,9 @@ import java.util.List;
 
 @Service("PdfGenerateService")
 public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateService {
-    public static final String XML1 = "data/uploads/PdfGenerate/pdfxml/data.xml";
-    public static final String XML2 = "data/uploads/PdfGenerate/xmlout/data.xml";
-    public static final String SRC = "data/uploads/PdfGenerate/pdf/test.pdf";
+    public static final String XML1 = "/data/uploads/PdfGenerate/pdfxml/data.xml";
+    public static final String XML2 = "/data/uploads/PdfGenerate/xmlout/data.xml";
+    public static final String SRC = "/data/uploads/PdfGenerate/pdf/test.pdf";
 
     @Resource
     private CustomerInformationDAO customerInformationDAO;

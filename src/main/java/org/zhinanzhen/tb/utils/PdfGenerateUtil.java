@@ -23,7 +23,7 @@ public class PdfGenerateUtil {
     public static int manipulatePdf(String src,String xml,int id)
             throws IOException, DocumentException {
         String pdf =id+".pdf";
-        String path = "data/uploads/PdfGenerate/pdfout/"+pdf;
+        String path = "/data/uploads/PdfGenerate/pdfout/"+pdf;
         PdfReader reader = new PdfReader(src);
         PdfStamper stamper = new PdfStamper(reader,
                 new FileOutputStream(path));
