@@ -2,7 +2,6 @@ package org.zhinanzhen.b.dao.pojo.customer;
 
 import lombok.Data;
 
-import java.util.Date;
 import java.util.List;
 
 @Data
@@ -33,24 +32,3 @@ public class HealthQuestions {
 
 }
 
-@Data
-class HealthExamination {
-
-    private String name;
-
-    private Date date;
-
-    private String country;
-
-    private int hapId;
-}
-
-@Data
-class HealthTemplate {
-
-    private String name;
-
-    private String reason;
-
-    private String details;
-}
