@@ -567,13 +567,17 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 //			commissionOrderListDto
 //					.setSureExpectAmountAUD(roundHalfUp2(commissionOrderListDto.getSureExpectAmount() / exchangeRate));
 //			commissionOrderListDto.setSureExpectAmountCNY(commissionOrderListDto.getSureExpectAmount());
-            // 人民币的预收业绩等于本次收款金额澳币
+//            commissionOrderListDto
+//			.setSureExpectAmountAUD(roundHalfUp2(commissionOrderListDto.getSureExpectAmount() / exchangeRate));
+//	commissionOrderListDto.setSureExpectAmountCNY(commissionOrderListDto.getSureExpectAmount());
+            // 人民币的预收业绩等于本次收款金额澳币 2023-1-27
 			commissionOrderListDto.setExpectAmountAUD(commissionOrderListDto.getAmountAUD());
 			commissionOrderListDto.setExpectAmountCNY(commissionOrderListDto.getAmount());
-			
+			// 留学确认预收业绩等于学校支付澳币金额? 2023-1-27
 			commissionOrderListDto
 					.setSureExpectAmountAUD(roundHalfUp2(commissionOrderListDto.getSureExpectAmount() / exchangeRate));
 			commissionOrderListDto.setSureExpectAmountCNY(commissionOrderListDto.getSureExpectAmount());
+			
             commissionOrderListDto.setDiscountAUD(roundHalfUp2(commissionOrderListDto.getDiscount() / exchangeRate));
             commissionOrderListDto.setGstAUD(roundHalfUp2(commissionOrderListDto.getGst() / exchangeRate));
             commissionOrderListDto.setDeductGstAUD(roundHalfUp2(commissionOrderListDto.getDeductGst() / exchangeRate));
