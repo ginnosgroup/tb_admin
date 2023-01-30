@@ -19,6 +19,12 @@ public class VisaReportDO implements Serializable {
 	
 	private String consultant;
 	
+	private String currency;
+	
+	private double exchangeRate;
+	
+	private double amount;
+	
 	private double commission;
 	
 	private double serviceFee;

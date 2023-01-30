@@ -522,6 +522,9 @@
             r.name AS area,
             a.id AS adviserId,
             a.name AS consultant,
+            v.currency,
+            v.exchange_rate AS exchangeRate,
+            v.amount,
             SUM(v.bonus) AS commission,
             SUM(CASE IFNULL(v.sure_expect_amount, 0) WHEN 0 THEN IFNULL(v.expect_amount, 0) END) AS serviceFee
         FROM b_visa v, tb_adviser a, tb_region r
