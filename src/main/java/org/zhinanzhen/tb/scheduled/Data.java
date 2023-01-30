@@ -54,11 +54,7 @@ public class Data extends BaseService {
                 VisaReportList.forEach(visaReport ->{
 					if (result.getDate() != null && result.getDate().equals(visaReport.getDate())
 							&& result.getAdviserId() == visaReport.getAdviserId()) {
-						if ("CNY".equalsIgnoreCase(visaReport.getCurrency()))
-							result.setServiceFee((roundHalfUp2(visaReport.getAmount() / visaReport.getExchangeRate()))
-									+ result.getServiceFee());
-						else
-							result.setServiceFee(visaReport.getServiceFee() + result.getServiceFee());
+						result.setServiceFee(visaReport.getServiceFee() + result.getServiceFee());
 					}
                 });
             });
