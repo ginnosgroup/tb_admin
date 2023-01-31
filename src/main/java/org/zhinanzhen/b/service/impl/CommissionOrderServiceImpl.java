@@ -192,10 +192,11 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
         List<CommissionOrderListDO> commissionOrderListDoList = new ArrayList<>();
         try {
             commissionOrderListDoList = commissionOrderDao.listCommissionOrder(id, regionIdList, maraId, adviserId,
-                    officialId, userId, name, applicantName, phone, wechatUsername, schoolId, isSettle, stateList,
-                    commissionStateList, theDateTo00_00_00(startKjApprovalDate), theDateTo23_59_59(endKjApprovalDate),
-                    startDate, endDate, startInvoiceCreate, theDateTo23_59_59(endInvoiceCreate), isYzyAndYjy,
-                    applyState, pageNum * pageSize, pageSize, orderBy);
+					officialId, userId, name, applicantName, phone, wechatUsername, schoolId, isSettle, stateList,
+					commissionStateList, theDateTo00_00_00(startKjApprovalDate), theDateTo23_59_59(endKjApprovalDate),
+					theDateTo00_00_00(startDate), theDateTo23_59_59(endDate), startInvoiceCreate,
+					theDateTo23_59_59(endInvoiceCreate), isYzyAndYjy, applyState, pageNum * pageSize, pageSize,
+					orderBy);
             if (commissionOrderListDoList == null)
                 return null;
         } catch (Exception e) {
@@ -561,12 +562,23 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
             commissionOrderListDto
                     .setTotalPerAmountAUD(roundHalfUp2(commissionOrderListDto.getTotalPerAmount() / exchangeRate));
             commissionOrderListDto.setTotalPerAmountCNY(commissionOrderListDto.getTotalPerAmount());
-            commissionOrderListDto
-                    .setExpectAmountAUD(roundHalfUp2(commissionOrderListDto.getExpectAmount() / exchangeRate));
-            commissionOrderListDto.setExpectAmountCNY(commissionOrderListDto.getExpectAmount());
-            commissionOrderListDto
-                    .setSureExpectAmountAUD(roundHalfUp2(commissionOrderListDto.getSureExpectAmount() / exchangeRate));
-            commissionOrderListDto.setSureExpectAmountCNY(commissionOrderListDto.getSureExpectAmount());
+//            commissionOrderListDto
+//                    .setExpectAmountAUD(roundHalfUp2(commissionOrderListDto.getExpectAmount() / exchangeRate));
+//            commissionOrderListDto.setExpectAmountCNY(commissionOrderListDto.getExpectAmount());
+//			commissionOrderListDto
+//					.setSureExpectAmountAUD(roundHalfUp2(commissionOrderListDto.getSureExpectAmount() / exchangeRate));
+//			commissionOrderListDto.setSureExpectAmountCNY(commissionOrderListDto.getSureExpectAmount());
+//            commissionOrderListDto
+//			.setSureExpectAmountAUD(roundHalfUp2(commissionOrderListDto.getSureExpectAmount() / exchangeRate));
+//	commissionOrderListDto.setSureExpectAmountCNY(commissionOrderListDto.getSureExpectAmount());
+            // 人民币的预收业绩等于本次收款金额澳币 2023-1-27
+			commissionOrderListDto.setExpectAmountAUD(commissionOrderListDto.getAmountAUD());
+			commissionOrderListDto.setExpectAmountCNY(commissionOrderListDto.getAmount());
+			// 留学确认预收业绩等于学校支付澳币金额? 2023-1-27
+			commissionOrderListDto
+					.setSureExpectAmountAUD(roundHalfUp2(commissionOrderListDto.getSureExpectAmount() / exchangeRate));
+			commissionOrderListDto.setSureExpectAmountCNY(commissionOrderListDto.getSureExpectAmount());
+			
             commissionOrderListDto.setDiscountAUD(roundHalfUp2(commissionOrderListDto.getDiscount() / exchangeRate));
             commissionOrderListDto.setGstAUD(roundHalfUp2(commissionOrderListDto.getGst() / exchangeRate));
             commissionOrderListDto.setDeductGstAUD(roundHalfUp2(commissionOrderListDto.getDeductGst() / exchangeRate));

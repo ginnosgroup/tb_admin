@@ -199,7 +199,6 @@ public class VerifyServiceImpl implements VerifyService {
                 }
                 //balance = financeCodeDO.getBalance()+balance;
                 //money = financeCodeDO.getMoney() + money;
-System.out.println("===financeCodeDO:" + financeCodeDO);
                 financeCodeDO.setCode(dateFormatyyyyMMdd.format(financeCodeDO.getBankDate()) + "_" + financeCodeDO.getMoney() + "_" +  financeCodeDO.getBalance());
                 financeCodeDOS.add(financeCodeDO);
             }

@@ -52,9 +52,10 @@ public class Data extends BaseService {
             //赋值ServiceFee
             _dataDTOList.forEach(result -> {
                 VisaReportList.forEach(visaReport ->{
-                    if(result.getDate() !=null && result.getDate().equals(visaReport.getDate()) && result.getAdviserId() == visaReport.getAdviserId()){
-                        result.setServiceFee(visaReport.getServiceFee()+result.getServiceFee());
-                    }
+					if (result.getDate() != null && result.getDate().equals(visaReport.getDate())
+							&& result.getAdviserId() == visaReport.getAdviserId()) {
+						result.setServiceFee(visaReport.getServiceFee() + result.getServiceFee());
+					}
                 });
             });
 

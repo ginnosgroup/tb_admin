@@ -1185,6 +1185,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					regionIdList, maraId, adviserId, officialId, userId, name, applicantName, phone, wechatUsername, schoolId,
 					isSettle, stateList, commissionStateList, startKjApprovalDate, endKjApprovalDate,startDate,endDate,
 					startInvoiceCreate, endInvoiceCreate, isYzyAndYjy, state, 0, 9999, null);
+			
+			if (commissionOrderList == null)
+				throw new Exception("查询佣金订单数据错误!");
+			System.out.println("导出佣金订单数据量:" + commissionOrderList.size());
 
 			if (isCN(regionId)) {
 				
@@ -1217,8 +1221,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					sheet.addCell(new Label(1, i, sdf.format(commissionOrderListDto.getGmtCreate()), cellFormat));
 					if (commissionOrderListDto.getReceiveDate() != null)
 						sheet.addCell(new Label(2, i, sdf.format(commissionOrderListDto.getReceiveDate()), cellFormat));
-					if (commissionOrderListDto.getUser() != null)
-						sheet.addCell(new Label(3, i, commissionOrderListDto.getUser().getName(), cellFormat));
+					if (commissionOrderListDto.getApplicant() != null)
+						sheet.addCell(new Label(3, i, commissionOrderListDto.getApplicant().getSurname() + " "
+								+ commissionOrderListDto.getApplicant().getFirstname(), cellFormat));
 					sheet.addCell(new Label(4, i, commissionOrderListDto.getStudentCode(), cellFormat));
 					if (commissionOrderListDto.getBirthday() != null)
 						sheet.addCell(new Label(5, i, sdf.format(commissionOrderListDto.getBirthday()), cellFormat));
@@ -1327,8 +1332,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					sheet.addCell(new Label(1, i, sdf.format(commissionOrderListDto.getGmtCreate()), cellFormat));
 					if (commissionOrderListDto.getReceiveDate() != null)
 						sheet.addCell(new Label(2, i, sdf.format(commissionOrderListDto.getReceiveDate()), cellFormat));
-					if (commissionOrderListDto.getUser() != null)
-						sheet.addCell(new Label(3, i, commissionOrderListDto.getUser().getName(), cellFormat));
+					if (commissionOrderListDto.getApplicant() != null)
+						sheet.addCell(new Label(3, i, commissionOrderListDto.getApplicant().getSurname() + " "
+								+ commissionOrderListDto.getApplicant().getFirstname(), cellFormat));
 					sheet.addCell(new Label(4, i, commissionOrderListDto.getStudentCode(), cellFormat));
 					if (commissionOrderListDto.getBirthday() != null)
 						sheet.addCell(new Label(5, i, sdf.format(commissionOrderListDto.getBirthday()), cellFormat));

@@ -977,7 +977,7 @@ CREATE TABLE `b_invoice_school` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
   `gmt_create` datetime NOT NULL COMMENT 'invoiceDate时间',
   `gmt_create_1` datetime NOT NULL COMMENT '创建时间',
-  `order_id` varchar(20) DEFAULT NULL COMMENT '对应订单id',
+  `order_id` varchar(512) DEFAULT NULL COMMENT '对应订单id',
   `email` varchar(128) NOT NULL COMMENT '公司邮箱',
   `company_id` int(11) DEFAULT NULL COMMENT '对应 invoice_company.id',
   `company` varchar(100) NOT NULL COMMENT '公司名称',
