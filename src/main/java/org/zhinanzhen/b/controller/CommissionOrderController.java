@@ -1185,6 +1185,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					regionIdList, maraId, adviserId, officialId, userId, name, applicantName, phone, wechatUsername, schoolId,
 					isSettle, stateList, commissionStateList, startKjApprovalDate, endKjApprovalDate,startDate,endDate,
 					startInvoiceCreate, endInvoiceCreate, isYzyAndYjy, state, 0, 9999, null);
+			
+			if (commissionOrderList == null)
+				throw new Exception("查询佣金订单数据错误!");
+			System.out.println("导出佣金订单数据量:" + commissionOrderList.size());
 
 			if (isCN(regionId)) {
 				
