@@ -350,6 +350,15 @@ public class DashboardController extends BaseController {
 		for (DataDTO data : areaDataList){
 			total = roundHalfUp(total + data.getTotal());
 		}
+		areaDataList.sort(new Comparator<DataDTO>() {
+			public int compare(DataDTO d1, DataDTO d2) {
+				if (d1.getTotal() > d2.getTotal())
+					return -1;
+				if (d1.getTotal() == d2.getTotal())
+					return 0;
+				return 1;
+			}
+		});
 		return new DashboardResponse(0,"全澳-本月业绩组成", areaDataList, startDate, endDate, total);
 	}
 
