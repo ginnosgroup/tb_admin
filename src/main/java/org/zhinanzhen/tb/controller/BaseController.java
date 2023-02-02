@@ -27,6 +27,7 @@ import org.zhinanzhen.tb.controller.BaseController.AdminUserLoginInfo;
 import org.zhinanzhen.tb.service.AdminUserService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
+import org.zhinanzhen.tb.utils.EmojiFilter;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -410,7 +411,7 @@ public class BaseController {
 				qywxExternalUserDto.setExternalUserid(externalUserid);
 				// name
 				if (externalMap.containsKey("name"))
-					qywxExternalUserDto.setName(externalMap.get("name").toString());
+					qywxExternalUserDto.setName(EmojiFilter.filterEmoji(externalMap.get("name").toString()));
 				// type
 				if (externalMap.containsKey("type"))
 					qywxExternalUserDto.setType((int) externalMap.get("type"));
