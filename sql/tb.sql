@@ -150,7 +150,7 @@ CREATE TABLE `b_applicant` (
   `firstname` varchar(32) NOT NULL COMMENT '名',
   `birthday` datetime NOT NULL COMMENT '生日',
   `type` varchar(4) NOT NULL COMMENT '与客户关系 (BR:客户本人,FM:父母,QY:亲友)',
-  `visa_code` varchar(8) DEFAULT NULL COMMENT '签证编号',
+  `visa_code` varchar(16) DEFAULT NULL COMMENT '签证编号',
   `visa_expiration_date` datetime DEFAULT NULL COMMENT '签证到期日期',
   `nut_cloud` varchar(255) DEFAULT NULL COMMENT '坚果云地址',
   `file_url` varchar(255) DEFAULT NULL COMMENT '申请人资料表格',
