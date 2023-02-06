@@ -29,10 +29,10 @@ public class CustomerInformationController extends BaseController {
     public Response<CustomerInformationDO> get(@RequestParam(value = "id") int id, HttpServletRequest request,
                                                HttpServletResponse response) {
 
-        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-        if (adminUserLoginInfo == null) {
-            return new Response(1, "No permission !");
-        }
+//        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+//        if (adminUserLoginInfo == null) {
+//            return new Response(1, "No permission !");
+//        }
 
         try {
             CustomerInformationDO customerInformationDO = customerInformationService.get(id);
