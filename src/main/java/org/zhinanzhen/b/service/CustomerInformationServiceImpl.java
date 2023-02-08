@@ -59,7 +59,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
     @Override
     public CustomerInformationDO get(int id) throws ServiceException {
         try {
-            return customerInformationDAO.get(id);
+            return customerInformationDAO.getByServiceOrderId(id);
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
