@@ -404,7 +404,7 @@ public class BaseController {
 					qywxExternalUserDto = new QywxExternalUserDTO();
 				// createtime
 				if (externalMap.containsKey("created_at"))
-					qywxExternalUserDto.setCreateTime((int) externalMap.get("created_at") * 1000);
+					qywxExternalUserDto.setCreateTime(new Date((long) externalMap.get("created_at") * 1000));
 				// adviserId
 				qywxExternalUserDto.setAdviserId(loginInfo.getAdviserId());
 				// externalUserid

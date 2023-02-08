@@ -126,7 +126,7 @@
             AND state = #{state}
         </if>
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
-            <![CDATA[ AND gmt_create > #{startDate} AND gmt_create < #{endDate} ]]>
+            <![CDATA[ AND create_time > #{startDate} AND create_time < #{endDate} ]]>
         </if>
         ORDER BY gmt_create DESC
         LIMIT #{offset}, #{rows};

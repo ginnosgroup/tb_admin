@@ -64,7 +64,7 @@ public class QywxExternalUserServiceImpl extends BaseService implements QywxExte
 
 	@Override
 	public int count(int adviserId, String state, String startDate, String endDate) throws ServiceException {
-		return qywxExternalUserDao.count(adviserId, state, startDate, endDate);
+		return qywxExternalUserDao.count(adviserId, state, theDateTo00_00_00(startDate), theDateTo23_59_59(endDate));
 	}
 
 	@Override
@@ -73,8 +73,8 @@ public class QywxExternalUserServiceImpl extends BaseService implements QywxExte
 		List<QywxExternalUserDTO> qywxExternalUserDtoList = new ArrayList<>();
 		List<QywxExternalUserDO> qywxExternalUserDoList = null;
 		try {
-			qywxExternalUserDoList = qywxExternalUserDao.list(adviserId, state, startDate, endDate, pageNum * pageSize,
-					pageSize);
+			qywxExternalUserDoList = qywxExternalUserDao.list(adviserId, state, theDateTo00_00_00(startDate),
+					theDateTo23_59_59(endDate), pageNum * pageSize, pageSize);
 			if (ObjectUtil.isNull(qywxExternalUserDoList))
 				return null;
 		} catch (Exception e) {
