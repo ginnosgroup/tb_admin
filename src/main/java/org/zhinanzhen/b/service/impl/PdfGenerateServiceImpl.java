@@ -13,6 +13,7 @@ import org.zhinanzhen.b.service.PdfGenerateService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 import org.zhinanzhen.tb.utils.PdfGenerateUtil;
+import org.zhinanzhen.tb.utils.WebDavUtils;
 
 import javax.annotation.Resource;
 import javax.xml.parsers.DocumentBuilder;
@@ -22,6 +23,8 @@ import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service("PdfGenerateService")
@@ -39,13 +42,31 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
         try {
             CustomerInformationDO customerInformationDO = customerInformationDAO.getByServiceOrderId(id);
             fillxml(customerInformationDO);
-            return PdfGenerateUtil.manipulatePdf(SRC, XML2, id) > 0 ? id : 0;
+            if (PdfGenerateUtil.manipulatePdf(SRC, XML2, id) > 0){
+                webdav(id);
+                return id;
+            }
+            else
+                return 0;
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
             throw se;
         }
     }
+
+    private void webdav(int id) throws IOException {
+        CustomerInformationDO customerInformationDO = customerInformationDAO.getByServiceOrderId(id);
+        String givenName = customerInformationDO.getMainInformation().getGivenName();
+        String familyName = customerInformationDO.getMainInformation().getFamilyName();
+        LocalDate date = LocalDate.now(); // get the current date
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        String formatdate = date.format(formatter);
+        String netDiskPath = "https://dav.jianguoyun.com/dav/MMpdf/"+givenName+"_"+familyName+formatdate+".pdf";
+        String filePath="/data/uploads/PdfGenerate/pdfout/"+id+".pdf";
+        WebDavUtils.upload(netDiskPath,filePath);
+    }
+
 
 
     private void fillxml(CustomerInformationDO customerInformationDO) throws ServiceException, ParserConfigurationException, IOException, SAXException, TransformerException {
