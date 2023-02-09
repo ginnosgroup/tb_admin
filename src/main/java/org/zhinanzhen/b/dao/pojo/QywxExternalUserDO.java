@@ -11,7 +11,7 @@ public class QywxExternalUserDO {
 	
 	private Date gmtCreate;
 	
-	private int createTime;
+	private Date createTime;
 	
 	private String unionId;
 	
