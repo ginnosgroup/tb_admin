@@ -32,6 +32,9 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
     public static final String XML1 = "/data/uploads/PdfGenerate/pdfxml/data.xml";
     public static final String XML2 = "/data/uploads/PdfGenerate/xmlout/data.xml";
     public static final String SRC = "/data/uploads/PdfGenerate/pdf/test.pdf";
+//    public static final String XML1 = "C:/Users/yjt/Desktop/pdfxml/data.xml";
+//    public static final String XML2 = "C:/Users/yjt/Desktop/xmlout/data.xml";
+//    public static final String SRC = "C:/Users/yjt/Desktop/pdf/test.pdf";
 
     @Resource
     private CustomerInformationDAO customerInformationDAO;
