@@ -138,7 +138,10 @@ System.out.println("[对账debug] 0CellStyle: " + row.getCell(0).getCellStyle().
 						|| "d/m/yyyy".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
 						|| "dd/mm/yyyy".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())) {
 					financeCodeDO.setBankDate(sdfParsedmyyyy.parse(dataFormatter.formatCellValue(row.getCell(0))));
-
+				}
+				if (row.getCell(0).getCellStyle().getDataFormatString().indexOf("YYYY\\-M\\-D") > -1
+						|| "yyyy/MM/dd;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())) {
+					financeCodeDO.setBankDate(dateFormatyyyyMMdd.parse(dataFormatter.formatCellValue(row.getCell(0))));
 				}
 				if ("d/m/yy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
 						|| "dd/mm/yy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
