@@ -130,6 +130,7 @@ public class VerifyServiceImpl implements VerifyService {
 				if (StringUtil.isEmpty(dataFormatter.formatCellValue(row.getCell(0))))
 					continue;
 System.out.println("[对账debug] 0: " + row.getCell(0));
+System.out.println("[对账debug] 0CellStyle: " + row.getCell(0).getCellStyle().getDataFormatString());
 				if ("d/mm/yyyy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
 						|| "d/m/yyyy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
 						|| "dd/mm/yyyy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
