@@ -118,7 +118,7 @@ CREATE TABLE `tb_user` (
   `visa_code` varchar(16) DEFAULT NULL COMMENT '签证编号',
   `visa_expiration_date` datetime DEFAULT NULL COMMENT '签证到期日期',
   `source` varchar(32) DEFAULT NULL COMMENT '客户来源',
-  `auth_type` varchar(16) NOT NULL COMMENT '登录授权分类 (WECHAT:微信,IOS_WECHAT:IOS微信,FACEBOOK:facebook,BROKERAGE:佣金系统用户,V:虚拟用户,WECHAT_WORK:企业微信)',
+  `auth_type` varchar(16) NOT NULL COMMENT '登录授权分类 (WECHAT:微信,IOS_WECHAT:IOS微信,QQ:QQ号,WEIBO:微博帐号,FACEBOOK:facebook,BROKERAGE:佣金系统用户,V:虚拟用户,WECHAT_WORK:企业微信)',
   `auth_openid` varchar(64) NOT NULL COMMENT '授权帐号编号',
   `auth_username` varchar(64) DEFAULT NULL COMMENT '授权帐号',
   `auth_nickname` varchar(128) DEFAULT NULL COMMENT '授权帐号用户昵称',

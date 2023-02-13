@@ -88,6 +88,26 @@ public class QywxExternalUserServiceImpl extends BaseService implements QywxExte
 		}
 		return qywxExternalUserDtoList;
 	}
+	
+	@Override
+	public QywxExternalUserDTO get(int id) throws ServiceException {
+		if (id <= 0) {
+			ServiceException se = new ServiceException("id error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		QywxExternalUserDO qywxExternalUserDo = null;
+		try {
+			qywxExternalUserDo = qywxExternalUserDao.get(id);
+			if (ObjectUtil.isNull(qywxExternalUserDo))
+				return null;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+		return mapper.map(qywxExternalUserDo, QywxExternalUserDTO.class);
+	}
 
 	@Override
 	public QywxExternalUserDTO getByExternalUserid(String externalUserid) throws ServiceException {
