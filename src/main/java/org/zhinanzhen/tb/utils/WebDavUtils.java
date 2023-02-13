@@ -13,10 +13,10 @@ import java.io.InputStream;
 import java.util.List;
 
 public class WebDavUtils {
-   public static String username = "23508311977@qq.com";
-    public static String password = "a382y2bychm9by5y";
-/*    public static String username = "jiaheng.xu@zhinanzhen.org";
-    public static String password = "ahv27r25qvyryfxb";*/
+//   public static String username = "23508311977@qq.com";
+//    public static String password = "a382y2bychm9by5y";
+    public static String username = "jiaheng.xu@zhinanzhen.org";
+    public static String password = "ahv27r25qvyryfxb";
     public static String serviceAddress = "https://dav.jianguoyun.com/dav";
 
     public static Sardine sardine;
@@ -120,14 +120,14 @@ public class WebDavUtils {
     }
 
 
-    public static void main(String[] args) {
-        try {
-
-            String netDiskPath = "https://dav.jianguoyun.com/dav/test/aa/test/1.jpg";
-            upload(netDiskPath,"C:\\Users\\Administrator\\Desktop\\1.jpg");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+//    public static void main(String[] args) {
+//        try {
+//
+//            String netDiskPath = "https://dav.jianguoyun.com/dav/MMpdf/test.pdf";
+//            upload(netDiskPath,"C:/Users/yjt/Desktop/pdf/test.pdf");
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 }

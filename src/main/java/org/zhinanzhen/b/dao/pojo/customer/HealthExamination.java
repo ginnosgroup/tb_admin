@@ -2,8 +2,6 @@ package org.zhinanzhen.b.dao.pojo.customer;
 
 import lombok.Data;
 
-import java.util.Date;
-
 @Data
 public class HealthExamination {
 

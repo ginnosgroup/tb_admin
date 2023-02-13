@@ -6,7 +6,6 @@ import java.util.List;
 
 @Data
 public class CharacterIssues {
-
     private int allFalse;
     private List<PoliceClearance> cl1;
     private List<Detention> cl2;
