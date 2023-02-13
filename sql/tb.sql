@@ -451,7 +451,7 @@ CREATE TABLE `b_service_order` (
   `school_id` int(11) DEFAULT NULL COMMENT '学校编号 (对应b_school.id,留学服务专用字段)',
   `course_id` int(11) DEFAULT NULL COMMENT 'b_school_course.id',
   `school_institution_location_id` int(11) DEFAULT NULL COMMENT '学校校区id',
-  `institution_trading_name` varchar(124) DEFAULT NULL COMMENT '培训机构名字',
+  `institution_trading_name` varchar(255) DEFAULT NULL COMMENT '培训机构名字',
   `state` varchar(20) NOT NULL COMMENT '(PENDING:,REVIEW:,APPLY:,COMPLETE:,PAID:-,CLOSE:)',
   `is_settle` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否提前扣佣 (留学服务专用字段)',
   `is_deposit_user` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否为保证金用户 (留学服务专用字段)',
