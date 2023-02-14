@@ -88,7 +88,7 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
         //Preferred Names
         root.getElementsByTagName("ApDetails").item(0).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(3).setTextContent(customerInformationDO.getMainInformation().getPreferredNames());
         //Date of Birth
-        root.getElementsByTagName("ApDetails").item(0).getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(1).setTextContent(String.valueOf(customerInformationDO.getMainInformation().getDateOfBirth()));
+        root.getElementsByTagName("ApDetails").item(0).getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(1).setTextContent(customerInformationDO.getMainInformation().getDateOfBirth());
         //Birth Country
         root.getElementsByTagName("ApDetails").item(0).getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(3).setTextContent(customerInformationDO.getMainInformation().getBirthCountry());
         //Birth Location
