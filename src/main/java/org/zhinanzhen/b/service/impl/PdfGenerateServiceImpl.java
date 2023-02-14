@@ -45,11 +45,10 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
         try {
             CustomerInformationDO customerInformationDO = customerInformationDAO.getByServiceOrderId(id);
             fillxml(customerInformationDO);
-            if (PdfGenerateUtil.manipulatePdf(SRC, XML2, id) > 0){
+            if (PdfGenerateUtil.manipulatePdf(SRC, XML2, id) > 0) {
                 webdav(id);
                 return id;
-            }
-            else
+            } else
                 return 0;
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
@@ -65,11 +64,10 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
         LocalDate date = LocalDate.now(); // get the current date
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         String formatdate = date.format(formatter);
-        String netDiskPath = "https://dav.jianguoyun.com/dav/MMpdf/"+givenName+"_"+familyName+"_"+formatdate+".pdf";
-        String filePath="/data/uploads/PdfGenerate/pdfout/"+id+".pdf";
-        WebDavUtils.upload(netDiskPath,filePath);
+        String netDiskPath = "https://dav.jianguoyun.com/dav/MMpdf/" + givenName + "_" + familyName + "_" + formatdate + ".pdf";
+        String filePath = "/data/uploads/PdfGenerate/pdfout/" + id + ".pdf";
+        WebDavUtils.upload(netDiskPath, filePath);
     }
-
 
 
     private void fillxml(CustomerInformationDO customerInformationDO) throws ServiceException, ParserConfigurationException, IOException, SAXException, TransformerException {
@@ -90,7 +88,7 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
         //Preferred Names
         root.getElementsByTagName("ApDetails").item(0).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(3).setTextContent(customerInformationDO.getMainInformation().getPreferredNames());
         //Date of Birth
-        root.getElementsByTagName("ApDetails").item(0).getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(1).setTextContent(customerInformationDO.getMainInformation().getDateOfBirth());
+        root.getElementsByTagName("ApDetails").item(0).getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(1).setTextContent(String.valueOf(customerInformationDO.getMainInformation().getDateOfBirth()));
         //Birth Country
         root.getElementsByTagName("ApDetails").item(0).getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(3).setTextContent(customerInformationDO.getMainInformation().getBirthCountry());
         //Birth Location
@@ -426,7 +424,7 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
                 //name
                 root.getElementsByTagName("Exam").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(lista.get(i).getName());
                 //date
-                root.getElementsByTagName("Exam").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(3).setTextContent(String.valueOf(lista.get(i).getDate()));
+                root.getElementsByTagName("Exam").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(3).setTextContent(lista.get(i).getDate());
                 //country
                 root.getElementsByTagName("Exam").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(5).setTextContent(lista.get(i).getCountry());
                 //hapId
@@ -793,9 +791,9 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
                 //country
                 root.getElementsByTagName("AFP").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(3).setTextContent(cl1.get(i).getCountry());
                 //applicationDate
-                root.getElementsByTagName("AFP").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(5).setTextContent(String.valueOf(cl1.get(i).getApplicationDate()));
+                root.getElementsByTagName("AFP").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(5).setTextContent(cl1.get(i).getApplicationDate());
                 //dateOfIssue
-                root.getElementsByTagName("AFP").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(7).setTextContent(String.valueOf(cl1.get(i).getDateOfIssue()));
+                root.getElementsByTagName("AFP").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(7).setTextContent(cl1.get(i).getDateOfIssue());
                 //referenceNumber
                 root.getElementsByTagName("AFP").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(9).setTextContent(cl1.get(i).getReferenceNumber());
             }
@@ -812,9 +810,9 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
                 //name
                 root.getElementsByTagName("Detention").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(cl2.get(i).getName());
                 //dateForm
-                root.getElementsByTagName("Detention").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(3).setTextContent(String.valueOf(cl2.get(i).getDateForm()));
+                root.getElementsByTagName("Detention").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(3).setTextContent(cl2.get(i).getDateForm());
                 //dateTo
-                root.getElementsByTagName("Detention").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(5).setTextContent(String.valueOf(cl2.get(i).getDateTo()));
+                root.getElementsByTagName("Detention").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(5).setTextContent(cl2.get(i).getDateTo());
 
                 //country
                 root.getElementsByTagName("Detention").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(7).setTextContent(cl2.get(i).getCountry());
@@ -839,7 +837,7 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
                 //country.
                 root.getElementsByTagName("ConvictDetail").item(0).getChildNodes().item(1).getChildNodes().item(5).getChildNodes().item(1).setTextContent(cl3.get(i).getCountry());
                 //date
-                root.getElementsByTagName("ConvictDetail").item(0).getChildNodes().item(1).getChildNodes().item(7).getChildNodes().item(1).setTextContent(String.valueOf(cl3.get(i).getDate()));
+                root.getElementsByTagName("ConvictDetail").item(0).getChildNodes().item(1).getChildNodes().item(7).getChildNodes().item(1).setTextContent(cl3.get(i).getDate());
                 //type
                 //todo 判断类型
                 root.getElementsByTagName("ConvictDetail").item(0).getChildNodes().item(1).getChildNodes().item(9).getChildNodes().item(1).setTextContent(type(cl3.get(i).getType()));
@@ -861,7 +859,7 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
                 //country
                 root.getElementsByTagName("ChargeDetail").item(0).getChildNodes().item(1).getChildNodes().item(5).getChildNodes().item(1).setTextContent(cl4.get(i).getCountry());
                 //date
-                root.getElementsByTagName("ChargeDetail").item(0).getChildNodes().item(1).getChildNodes().item(7).getChildNodes().item(1).setTextContent(String.valueOf(cl4.get(i).getDate()));
+                root.getElementsByTagName("ChargeDetail").item(0).getChildNodes().item(1).getChildNodes().item(7).getChildNodes().item(1).setTextContent(cl4.get(i).getDate());
                 //type
                 //todo 判断类型
                 root.getElementsByTagName("ChargeDetail").item(0).getChildNodes().item(1).getChildNodes().item(9).getChildNodes().item(1).setTextContent(type(cl4.get(i).getType()));
@@ -887,7 +885,7 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
                 //country
                 root.getElementsByTagName("OrderDetail").item(0).getChildNodes().item(1).getChildNodes().item(5).getChildNodes().item(1).setTextContent(cl5.get(i).getCountry());
                 //date
-                root.getElementsByTagName("OrderDetail").item(0).getChildNodes().item(1).getChildNodes().item(7).getChildNodes().item(1).setTextContent(String.valueOf(cl5.get(i).getDate()));
+                root.getElementsByTagName("OrderDetail").item(0).getChildNodes().item(1).getChildNodes().item(7).getChildNodes().item(1).setTextContent(cl5.get(i).getDate());
 
                 //type
                 //details
@@ -1313,7 +1311,7 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
                 //country.
                 root.getElementsByTagName("TrainingDetail").item(1).getChildNodes().item(1).getChildNodes().item(5).getChildNodes().item(1).setTextContent(cl25.get(i).getCountry());
                 //date
-                root.getElementsByTagName("TrainingDetail").item(1).getChildNodes().item(1).getChildNodes().item(7).getChildNodes().item(1).setTextContent(String.valueOf(cl25.get(i).getDateForm()));
+                root.getElementsByTagName("TrainingDetail").item(1).getChildNodes().item(1).getChildNodes().item(7).getChildNodes().item(1).setTextContent(cl25.get(i).getDateForm());
                 //type
                 //todo 判断类型
                 root.getElementsByTagName("TrainingDetail").item(1).getChildNodes().item(1).getChildNodes().item(9).getChildNodes().item(1).setTextContent(type25(cl25.get(i).getType()));
@@ -1338,11 +1336,11 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
                 root.getElementsByTagName("MilitaryDetail").item(1).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(cl26.get(i).getName());
 
                 // dateForm;
-                root.getElementsByTagName("MilitaryDetail").item(1).getChildNodes().item(1).getChildNodes().item(5).getChildNodes().item(1).setTextContent(String.valueOf(cl26.get(i).getDateForm()));
+                root.getElementsByTagName("MilitaryDetail").item(1).getChildNodes().item(1).getChildNodes().item(5).getChildNodes().item(1).setTextContent(cl26.get(i).getDateForm());
 
 
                 // dateTo;
-                root.getElementsByTagName("MilitaryDetail").item(1).getChildNodes().item(1).getChildNodes().item(7).getChildNodes().item(1).setTextContent(String.valueOf(cl26.get(i).getDateTo()));
+                root.getElementsByTagName("MilitaryDetail").item(1).getChildNodes().item(1).getChildNodes().item(7).getChildNodes().item(1).setTextContent(cl26.get(i).getDateTo());
 
                 // country;
                 root.getElementsByTagName("MilitaryDetail").item(1).getChildNodes().item(1).getChildNodes().item(9).getChildNodes().item(1).setTextContent(cl26.get(i).getCountry());

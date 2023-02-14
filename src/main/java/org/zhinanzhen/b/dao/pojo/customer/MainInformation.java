@@ -2,6 +2,8 @@ package org.zhinanzhen.b.dao.pojo.customer;
 
 import lombok.Data;
 
+import java.util.Date;
+
 @Data
 public class MainInformation {
 
@@ -15,7 +17,7 @@ public class MainInformation {
 
     private String preferredNames;//首选名称
 
-    private String dateOfBirth;//出生日期
+    private Date dateOfBirth;//出生日期
 
     private String birthLocation;//出生地点
 
