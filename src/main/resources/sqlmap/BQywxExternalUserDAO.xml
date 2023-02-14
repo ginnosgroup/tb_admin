@@ -132,6 +132,29 @@
         LIMIT #{offset}, #{rows};
     </select>
     
+    <select id="get" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            union_id AS unionId,
+            create_time AS createTime,
+            adviser_id AS adviserId,
+            name,
+            gender,
+            type,
+            avatar,
+            external_userid AS externalUserid,
+            state,
+            user_id AS userId,
+            applicant_id AS applicantId,
+            phone,
+            email,
+            wechat_username AS wechatUsername,
+            weibo_username AS weiboUsername,
+            qq
+        FROM b_qywx_external_user WHERE id = #{id};
+    </select>
+    
     <select id="getByExternalUserid" parameterType="java.lang.String" resultType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDO">
         SELECT
             id,

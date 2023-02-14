@@ -17,7 +17,11 @@ import org.zhinanzhen.b.service.pojo.QywxExternalUserDTO;
 import org.zhinanzhen.b.service.pojo.QywxExternalUserDescriptionDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.ListResponse;
+import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
+import org.zhinanzhen.tb.service.UserAuthTypeEnum;
+import org.zhinanzhen.tb.service.UserService;
+import org.zhinanzhen.tb.service.pojo.UserDTO;
 
 import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
@@ -29,6 +33,9 @@ public class QywxExternalUserController extends BaseController {
 
 	@Resource
 	QywxExternalUserService qywxExternalUserService;
+
+	@Resource
+	UserService userService;
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
@@ -48,6 +55,41 @@ public class QywxExternalUserController extends BaseController {
 				return new ListResponse<List<QywxExternalUserDTO>>(false, pageSize, 0, null, "仅顾问才有权限查看!");
 		} catch (ServiceException e) {
 			return new ListResponse<List<QywxExternalUserDTO>>(false, pageSize, 0, null, e.getMessage());
+		}
+	}
+
+	@RequestMapping(value = "/bind", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> bind(@RequestParam(value = "id") int id, @RequestParam(value = "userId") int userId,
+			@RequestParam(value = "applicantId") int applicantId, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo == null || (!"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+				return new Response<Integer>(1, "仅限顾问能修改.", 0);
+			UserDTO userDto = userService.getUserById(userId);
+			QywxExternalUserDTO qywxExternalUserDto = qywxExternalUserService.get(id);
+			qywxExternalUserDto.setApplicantId(applicantId);
+			if (StringUtil.isNotEmpty(userDto.getPhone()))
+				qywxExternalUserDto.setPhone(StringUtil.isNotEmpty(userDto.getAreaCode())
+						? StringUtil.merge(userDto.getAreaCode(), " ", userDto.getPhone())
+						: userDto.getPhone());
+			qywxExternalUserDto.setEmail(userDto.getEmail());
+			qywxExternalUserDto.setWechatUsername(userDto.getWechatUsername());
+			if (UserAuthTypeEnum.QQ.getValue().equalsIgnoreCase(userDto.getAuthType().getValue())
+					&& StringUtil.isNotEmpty(userDto.getAuthUsername()))
+				qywxExternalUserDto.setQq(userDto.getAuthUsername());
+			if (UserAuthTypeEnum.WEIBO.getValue().equalsIgnoreCase(userDto.getAuthType().getValue())
+					&& StringUtil.isNotEmpty(userDto.getAuthUsername()))
+				qywxExternalUserDto.setWeiboUsername(userDto.getAuthUsername());
+			if (qywxExternalUserService.update(qywxExternalUserDto) > 0) {
+				return new Response<Integer>(0, qywxExternalUserDto.getId());
+			} else {
+				return new Response<Integer>(1, "修改失败.", 0);
+			}
+		} catch (ServiceException e) {
+			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
 		}
 	}
 

@@ -122,6 +122,7 @@ public class VerifyServiceImpl implements VerifyService {
                 DecimalFormat df = new DecimalFormat("0.00");// 格式化 number
                 SimpleDateFormat sdfParsedmyy = new SimpleDateFormat("dd/MM/yy");// 格式化日期字符串
                 SimpleDateFormat sdfParsedmyyyy = new SimpleDateFormat("dd/MM/yyyy");// 格式化日期字符串
+                SimpleDateFormat dateFormatyyyy_MM_dd = new SimpleDateFormat("yyyy-MM-dd");// 格式化日期字符串
                 SimpleDateFormat dateFormatyyyyMMdd = new SimpleDateFormat("yyyy/MM/dd");// 格式化日期字符串
 
 				if (row.getCell(0) == null) {
@@ -129,6 +130,8 @@ public class VerifyServiceImpl implements VerifyService {
 				}
 				if (StringUtil.isEmpty(dataFormatter.formatCellValue(row.getCell(0))))
 					continue;
+System.out.println("[对账debug] 0: " + row.getCell(0));
+System.out.println("[对账debug] 0CellStyle: " + row.getCell(0).getCellStyle().getDataFormatString());
 				if ("d/mm/yyyy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
 						|| "d/m/yyyy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
 						|| "dd/mm/yyyy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
@@ -136,7 +139,9 @@ public class VerifyServiceImpl implements VerifyService {
 						|| "d/m/yyyy".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
 						|| "dd/mm/yyyy".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())) {
 					financeCodeDO.setBankDate(sdfParsedmyyyy.parse(dataFormatter.formatCellValue(row.getCell(0))));
-
+				}
+				if (row.getCell(0).getCellStyle().getDataFormatString().indexOf("YYYY\\-M\\-D") > -1) {
+					financeCodeDO.setBankDate(dateFormatyyyy_MM_dd.parse(dataFormatter.formatCellValue(row.getCell(0))));
 				}
 				if ("d/m/yy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
 						|| "dd/mm/yy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
@@ -151,12 +156,16 @@ public class VerifyServiceImpl implements VerifyService {
 					// 实际格式是dd/MM/yyyy但读取却是m/d/yy．这个问题比较奇怪，暂未找到原因
 					financeCodeDO.setBankDate(sdfParsedmyyyy.parse(dataFormatter.formatCellValue(row.getCell(0))));
 				}
+System.out.println("[对账debug] 1: " + row.getCell(1).getNumericCellValue());
 				financeCodeDO.setIncome(row.getCell(1).getNumericCellValue() > 0);
                 financeCodeDO.setMoney(Double.parseDouble(df.format(row.getCell(1).getNumericCellValue())));
+System.out.println("[对账debug] 2: " + row.getCell(2).getStringCellValue());
                 financeCodeDO.setComment(row.getCell(2).getStringCellValue());
+System.out.println("[对账debug] 3: " + df.format(row.getCell(3).getNumericCellValue()));
                 financeCodeDO.setBalance(Double.parseDouble(df.format(row.getCell(3).getNumericCellValue())));
 
                 if (row.getCell(4) != null && StringUtil.isNotEmpty(row.getCell(4).getStringCellValue())) {
+System.out.println("[对账debug] 4: " + row.getCell(4).getStringCellValue());
                     String orderId = row.getCell(4).getStringCellValue();
                     //if (id.substring(0,2).equalsIgnoreCase("CV")){
                     //   financeCodeDO.setVisaId(Integer.parseInt(id.substring(2)));

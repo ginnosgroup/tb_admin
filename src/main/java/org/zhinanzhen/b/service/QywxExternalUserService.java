@@ -17,8 +17,10 @@ public interface QywxExternalUserService {
 	List<QywxExternalUserDTO> list(int adviserId, String state, String startDate, String endDate, int pageNum,
 			int pageSize) throws ServiceException;
 
+	QywxExternalUserDTO get(int id) throws ServiceException;
+
 	QywxExternalUserDTO getByExternalUserid(String externalUserid) throws ServiceException;
-	
+
 	int addDesc(QywxExternalUserDescriptionDTO qywxExternalUserDescriptionDto) throws ServiceException;
 
 	int updateDesc(QywxExternalUserDescriptionDTO qywxExternalUserDescriptionDto) throws ServiceException;
