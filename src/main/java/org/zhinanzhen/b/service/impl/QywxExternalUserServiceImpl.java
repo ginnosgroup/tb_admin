@@ -88,7 +88,7 @@ public class QywxExternalUserServiceImpl extends BaseService implements QywxExte
 		}
 		return qywxExternalUserDtoList;
 	}
-	
+
 	@Override
 	public QywxExternalUserDTO get(int id) throws ServiceException {
 		if (id <= 0) {
@@ -123,7 +123,7 @@ public class QywxExternalUserServiceImpl extends BaseService implements QywxExte
 		}
 		return mapper.map(qywxExternalUserDo, QywxExternalUserDTO.class);
 	}
-	
+
 	@Override
 	public int addDesc(QywxExternalUserDescriptionDTO qywxExternalUserDescriptionDto) throws ServiceException {
 		if (qywxExternalUserDescriptionDto == null) {
@@ -164,7 +164,8 @@ public class QywxExternalUserServiceImpl extends BaseService implements QywxExte
 	}
 
 	@Override
-	public List<QywxExternalUserDescriptionDTO> listDesc(String externalUserid, String key) throws ServiceException {
+	public List<QywxExternalUserDescriptionDTO> listDescByExternalUserid(String externalUserid, String key)
+			throws ServiceException {
 		if (StringUtil.isEmpty(externalUserid)) {
 			ServiceException se = new ServiceException("externalUserid is null !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -173,7 +174,33 @@ public class QywxExternalUserServiceImpl extends BaseService implements QywxExte
 		List<QywxExternalUserDescriptionDTO> qywxExternalUserDescriptionDtoList = new ArrayList<>();
 		List<QywxExternalUserDescriptionDO> qywxExternalUserDescriptionDoList = null;
 		try {
-			qywxExternalUserDescriptionDoList = qywxExternalUserDao.listDesc(externalUserid, key);
+			qywxExternalUserDescriptionDoList = qywxExternalUserDao.listDescByExternalUserid(externalUserid, key);
+			if (ObjectUtil.isNull(qywxExternalUserDescriptionDoList))
+				return null;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+		for (QywxExternalUserDescriptionDO qywxExternalUserDescriptionDo : qywxExternalUserDescriptionDoList) {
+			QywxExternalUserDescriptionDTO qywxExternalUserDescriptionDto = mapper.map(qywxExternalUserDescriptionDo,
+					QywxExternalUserDescriptionDTO.class);
+			qywxExternalUserDescriptionDtoList.add(qywxExternalUserDescriptionDto);
+		}
+		return qywxExternalUserDescriptionDtoList;
+	}
+
+	@Override
+	public List<QywxExternalUserDescriptionDTO> listDescByApplicantId(int applicantId) throws ServiceException {
+		if (applicantId <= 0) {
+			ServiceException se = new ServiceException("applicantId error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		List<QywxExternalUserDescriptionDTO> qywxExternalUserDescriptionDtoList = new ArrayList<>();
+		List<QywxExternalUserDescriptionDO> qywxExternalUserDescriptionDoList = null;
+		try {
+			qywxExternalUserDescriptionDoList = qywxExternalUserDao.listDescByApplicantId(applicantId);
 			if (ObjectUtil.isNull(qywxExternalUserDescriptionDoList))
 				return null;
 		} catch (Exception e) {

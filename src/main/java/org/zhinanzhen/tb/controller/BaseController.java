@@ -502,10 +502,11 @@ public class BaseController {
 		}
 		return true;
 	}
-	
+
 	private void updateQywxExternalUserDescription(String externalUserid, String key, String value)
 			throws ServiceException {
-		List<QywxExternalUserDescriptionDTO> descList = qywxExternalUserService.listDesc(externalUserid, key);
+		List<QywxExternalUserDescriptionDTO> descList = qywxExternalUserService.listDescByExternalUserid(externalUserid,
+				key);
 		if (descList.size() > 0) {
 			QywxExternalUserDescriptionDTO qywxExternalUserDescriptionDto = descList.get(0);
 			qywxExternalUserDescriptionDto.setQywxValue(value);

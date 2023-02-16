@@ -18,7 +18,7 @@ public interface QywxExternalUserDAO {
 	List<QywxExternalUserDO> list(@Param("adviserId") Integer adviserId, @Param("state") String state,
 			@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("offset") int offset,
 			@Param("rows") int rows);
-	
+
 	QywxExternalUserDO get(@Param("id") Integer id);
 
 	QywxExternalUserDO getByExternalUserid(@Param("externalUserid") String externalUserid);
@@ -27,6 +27,9 @@ public interface QywxExternalUserDAO {
 
 	int updateDesc(QywxExternalUserDescriptionDO qywxExternalUserDescriptionDo); // 仅更新value
 
-	List<QywxExternalUserDescriptionDO> listDesc(@Param("qywxExternalUserId") String externalUserid, @Param("qywxKey") String key);
+	List<QywxExternalUserDescriptionDO> listDescByExternalUserid(@Param("qywxExternalUserId") String externalUserid,
+			@Param("qywxKey") String key);
+
+	List<QywxExternalUserDescriptionDO> listDescByApplicantId(@Param("applicantId") Integer applicantId);
 
 }

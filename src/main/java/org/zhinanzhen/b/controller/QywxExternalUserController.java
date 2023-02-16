@@ -101,7 +101,25 @@ public class QywxExternalUserController extends BaseController {
 		try {
 			super.setGetHeader(response);
 			if (ObjectUtil.isNotNull(getAdviserId(request)) && StringUtil.isNotEmpty(externalUserid)) {
-				List<QywxExternalUserDescriptionDTO> list = qywxExternalUserService.listDesc(externalUserid, null);
+				List<QywxExternalUserDescriptionDTO> list = qywxExternalUserService
+						.listDescByExternalUserid(externalUserid, null);
+				return new ListResponse<List<QywxExternalUserDescriptionDTO>>(true, 100, list.size(), list, null);
+			} else
+				return new ListResponse<List<QywxExternalUserDescriptionDTO>>(false, 100, 0, null, "仅顾问才有权限查看!");
+		} catch (ServiceException e) {
+			return new ListResponse<List<QywxExternalUserDescriptionDTO>>(false, 100, 0, null, e.getMessage());
+		}
+	}
+
+	@RequestMapping(value = "/listDescByApplicantId", method = RequestMethod.GET)
+	@ResponseBody
+	public ListResponse<List<QywxExternalUserDescriptionDTO>> listDescByApplicantId(
+			@RequestParam(value = "externalUserid") Integer applicantId, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			if (ObjectUtil.isNotNull(getAdviserId(request))) {
+				List<QywxExternalUserDescriptionDTO> list = qywxExternalUserService.listDescByApplicantId(applicantId);
 				return new ListResponse<List<QywxExternalUserDescriptionDTO>>(true, 100, list.size(), list, null);
 			} else
 				return new ListResponse<List<QywxExternalUserDescriptionDTO>>(false, 100, 0, null, "仅顾问才有权限查看!");
