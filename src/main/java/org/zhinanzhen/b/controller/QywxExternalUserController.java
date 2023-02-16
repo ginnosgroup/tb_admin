@@ -114,7 +114,7 @@ public class QywxExternalUserController extends BaseController {
 	@RequestMapping(value = "/listDescByApplicantId", method = RequestMethod.GET)
 	@ResponseBody
 	public ListResponse<List<QywxExternalUserDescriptionDTO>> listDescByApplicantId(
-			@RequestParam(value = "externalUserid") Integer applicantId, HttpServletRequest request,
+			@RequestParam(value = "applicantId") Integer applicantId, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
