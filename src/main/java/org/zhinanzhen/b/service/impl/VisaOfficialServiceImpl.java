@@ -222,7 +222,6 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                     this.add(9);
                 }
             };
-            //长期签证计算
             List<String> arrayList = new ArrayList<String>() {
                 {
                     this.add("103");
@@ -233,7 +232,23 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                     this.add("838");
                 }
             };
-            if (arrayList.contains(serviceDao.getServiceById(visaOfficialDTO.getServiceId()).getCode())) {
+            //无付费服务订单结算规则
+            if (!serviceOrderDO.isPay()&&servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId()).getRuler()==1){
+                ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId());
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                CommissionAmountDTO commissionAmountDTO = new CommissionAmountDTO();
+                commissionAmountDTO.setCommission(servicePackagePriceDO.getAmount());
+                commissionAmountDTO.setThirdPrince(servicePackagePriceDO.getThirdPrince());
+                String calculation = new String();
+                calculation = "1" + "|" + commissionAmountDTO.getThirdPrince() + "," + servicePackagePriceDO.getAmount() + "|" + dateFormat.format(servicePackagePriceDO.getGmtModify());
+                commissionAmountDTO.setCalculation(calculation);
+                visaOfficialDO.setPredictCommissionAmount(commissionAmountDTO.getPredictCommissionAmount());
+                visaOfficialDO.setCommissionAmount(commissionAmountDTO.getCommissionAmount());
+                visaOfficialDO.setPredictCommission(commissionAmountDTO.getCommission());
+                visaOfficialDO.setCalculation(commissionAmountDTO.getCalculation());
+            }
+            //长期签证计算
+            else if (arrayList.contains(serviceDao.getServiceById(visaOfficialDTO.getServiceId()).getCode())) {
                 VisaDO visaDO = new VisaDO();
                 CommissionAmountDTO commissionAmountDTO = new CommissionAmountDTO();
                 if (serviceOrderDO.getParentId() == 0) {
@@ -287,11 +302,8 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 visaOfficialDO.setPredictCommissionAmount(commissionAmountDTO.getPredictCommissionAmount());
                 visaOfficialDO.setCommissionAmount(commissionAmountDTO.getCommissionAmount());
                 visaOfficialDO.setPredictCommission(commissionAmountDTO.getCommission());
-
-
                 visaOfficialDO.setCalculation(commissionAmountDTO.getCalculation());
             }
-
             //常规计算
             else if (serviceOrderDO.getParentId() == 0 && list.size() == 0) {
                 CommissionAmountDTO commissionAmountDTO = calculationCommissionAmount(serviceOrderDO.getId());
