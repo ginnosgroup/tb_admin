@@ -222,14 +222,14 @@
     
     <select id="listDescByApplicantId" resultType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDescriptionDO">
         SELECT
-            id,
-            qywx_external_userid AS qywxExternalUserId,
-            qywx_key AS qywxKey,
-            qywx_value AS qywxValue
-        FROM b_qywx_external_user_description
-        WHERE 1 = 1
+            eud.id,
+            eud.qywx_external_userid AS qywxExternalUserId,
+            eud.qywx_key AS qywxKey,
+            eud.qywx_value AS qywxValue
+        FROM b_qywx_external_user eu, b_qywx_external_user_description eud
+        WHERE eu.id = eud.qywx_external_userid
         <if test='applicantId != null and applicantId != ""'>
-            AND applicant_id = #{applicantId}
+            AND eu.applicant_id = #{applicantId}
         </if>
         ;
     </select>
