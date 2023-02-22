@@ -247,4 +247,6 @@ public class ServiceOrderDTO {
 
 	private OfficialDO oldOfficial;
 
+	private boolean isCreateVisaOffice;
+
 }

@@ -39,8 +39,10 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
     @Resource
     private ServiceOrderDAO serviceOrderDao;
 
-//	@Resource
+    //	@Resource
 //	private ServiceOrderReviewDAO serviceOrderReviewDao;
+    @Resource
+    private ServicePackagePriceDAO servicePackagePriceDAO;
 
     @Resource
     private ServiceOrderApplicantDAO serviceOrderApplicantDao;
@@ -192,23 +194,23 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             }
         }
         try {
-			ServiceOrderDO _serviceOrderDo = serviceOrderDao.getServiceOrderById(serviceOrderDto.getId());
-			ServiceOrderDO serviceOrderDo = mapper.map(serviceOrderDto, ServiceOrderDO.class);
-			int i = serviceOrderDao.updateServiceOrder(serviceOrderDo);
-			if (i > 0
-					&& ((_serviceOrderDo.getMaraId() > 0 && serviceOrderDo.getMaraId() > 0
-							&& _serviceOrderDo.getMaraId() != serviceOrderDo.getMaraId())
-							|| (_serviceOrderDo.getOfficialId() > 0 && serviceOrderDo.getOfficialId() > 0
-									&& _serviceOrderDo.getOfficialId() != serviceOrderDo.getOfficialId()))
-					&& (!"PENDING".equalsIgnoreCase(serviceOrderDo.getState())
-							|| StringUtil.equals("Retracted", serviceOrderDo.getStateMark2())))
-				sendEmailOfUpdateOfficial(serviceOrderDo, _serviceOrderDo);
-			if (i > 0
-					&& ((_serviceOrderDo.getServiceId() > 0 && serviceOrderDo.getServiceId() > 0
-							&& _serviceOrderDo.getServiceId() != serviceOrderDo.getServiceId()))
-					&& (!"PENDING".equalsIgnoreCase(serviceOrderDo.getState())
-							|| StringUtil.equals("Retracted", serviceOrderDo.getStateMark2())))
-				sendEmailOfUpdateServiceId(serviceOrderDo, _serviceOrderDo);
+            ServiceOrderDO _serviceOrderDo = serviceOrderDao.getServiceOrderById(serviceOrderDto.getId());
+            ServiceOrderDO serviceOrderDo = mapper.map(serviceOrderDto, ServiceOrderDO.class);
+            int i = serviceOrderDao.updateServiceOrder(serviceOrderDo);
+            if (i > 0
+                    && ((_serviceOrderDo.getMaraId() > 0 && serviceOrderDo.getMaraId() > 0
+                    && _serviceOrderDo.getMaraId() != serviceOrderDo.getMaraId())
+                    || (_serviceOrderDo.getOfficialId() > 0 && serviceOrderDo.getOfficialId() > 0
+                    && _serviceOrderDo.getOfficialId() != serviceOrderDo.getOfficialId()))
+                    && (!"PENDING".equalsIgnoreCase(serviceOrderDo.getState())
+                    || StringUtil.equals("Retracted", serviceOrderDo.getStateMark2())))
+                sendEmailOfUpdateOfficial(serviceOrderDo, _serviceOrderDo);
+            if (i > 0
+                    && ((_serviceOrderDo.getServiceId() > 0 && serviceOrderDo.getServiceId() > 0
+                    && _serviceOrderDo.getServiceId() != serviceOrderDo.getServiceId()))
+                    && (!"PENDING".equalsIgnoreCase(serviceOrderDo.getState())
+                    || StringUtil.equals("Retracted", serviceOrderDo.getStateMark2())))
+                sendEmailOfUpdateServiceId(serviceOrderDo, _serviceOrderDo);
             return i;
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
@@ -217,72 +219,72 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         }
     }
 
-	private void sendEmailOfUpdateOfficial(ServiceOrderDO serviceOrderDo, ServiceOrderDO _serviceOrderDo) {
-		ServiceOrderMailDetail serviceOrderMailDetail = getServiceOrderMailDetail(serviceOrderDo, "任务提醒:");
-		AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderDo.getAdviserId());
-		OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
-		OfficialDO _officialDo = officialDao.getOfficialById(_serviceOrderDo.getOfficialId());
-		if (ObjectUtil.orIsNull(adviserDo, officialDo, _officialDo))
-			return;
-		ApplicantDTO applicantDto = null;
-		if (serviceOrderDo.getApplicantId() > 0)
-			applicantDto = mapper.map(applicantDao.getById(serviceOrderDo.getApplicantId()), ApplicantDTO.class);
-		applicantDto = buildApplicant(applicantDto, serviceOrderDo.getId(), serviceOrderDo.getNutCloud(),
-				serviceOrderDo.getInformation());
-		Date date = serviceOrderDo.getGmtCreate();
-		if (!"PENDING".equalsIgnoreCase(serviceOrderDo.getState()))
-			sendMail(adviserDo.getEmail(), "变更任务提醒:",
-					StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>", "您的订单已经变更。", "<br>订单号:",
-							serviceOrderDo.getId(), "<br/>申请人名称:", getApplicantName(applicantDto), "<br/>顾问:",
-							adviserDo.getName(), "<br/>文案:", officialDo.getName(), "<br/>属性:",
-							getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:", applicantDto.getUrl(),
-							"<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:", serviceOrderDo.getRemarks(),
-							"<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date, "<br/>",
-							serviceOrderMailDetail.getServiceOrderUrl()));
-		if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())
-				&& !"PENDING".equalsIgnoreCase(serviceOrderDo.getState())) {
-			if (_serviceOrderDo.getMaraId() > 0 && serviceOrderDo.getMaraId() > 0
-					&& _serviceOrderDo.getMaraId() != serviceOrderDo.getMaraId()) {
-				MaraDO maraDo = maraDao.getMaraById(serviceOrderDo.getMaraId());
-				MaraDO _maraDo = maraDao.getMaraById(_serviceOrderDo.getMaraId());
-				sendMail(maraDo.getEmail(), "新任务提醒:",
-						StringUtil.merge("亲爱的:", maraDo.getName(), "<br/>", "您有一条新的服务订单任务请及时处理。", "<br>订单号:",
-								serviceOrderDo.getId(), "<br/>服务类型:签证/申请人名称:", getApplicantName(applicantDto), "/顾问:",
-								adviserDo.getName(), "/文案:", officialDo.getName(), "/MARA:", maraDo.getName(),
-								"<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
-								applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
-								serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(),
-								"<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
-				sendMail(_maraDo.getEmail(), "变更任务提醒:", StringUtil.merge("亲爱的", _maraDo.getName(), ":<br/>", "您有的订单号:",
-						serviceOrderDo.getId(), "已从您这更改为Mara:", maraDo.getName()));
-			}
-		}
-		if (_serviceOrderDo.getOfficialId() > 0 && serviceOrderDo.getOfficialId() > 0
-				&& _serviceOrderDo.getOfficialId() != serviceOrderDo.getOfficialId()) {
-			if (!"PENDING".equalsIgnoreCase(serviceOrderDo.getState()))
-				sendMail(officialDo.getEmail() + ",maggie@zhinanzhen.org", "新任务提醒:",
-						StringUtil.merge("亲爱的", officialDo.getName(), ":<br/>", "您有一条新的服务订单任务请及时处理。", "<br/>订单号:",
-								serviceOrderDo.getId(), "<br/>服务类型:", serviceOrderMailDetail.getType(),
-								serviceOrderMailDetail.getDetail(), "/顾问:", adviserDo.getName(), "/文案:",
-								officialDo.getName(), "<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()),
-								"<br/>坚果云资料地址:", applicantDto.getUrl(), "<br/>申请人基本信息:", applicantDto.getContent(),
-								"<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(),
-								"<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
-			if (StringUtil.equals("Retracted", serviceOrderDo.getStateMark2())) // 顾问提交审核后又撤回，提醒文案不同
-				sendMail(_officialDo.getEmail() + ",maggie@zhinanzhen.org", "服务被撤回提醒:",
-						StringUtil.merge("亲爱的", _officialDo.getName(), ":<br/>您有一条服务订单已被撤回,如有服务相关问题请及时与顾问沟通<br/>订单号:",
-								serviceOrderDo.getId(), "<br/>服务类型:", serviceOrderMailDetail.getType(),
-								serviceOrderMailDetail.getDetail(), "<br/>顾问:", adviserDo.getName(), "<br/>申请人基本信息:",
-								applicantDto.getContent(), "<br/>坚果云资料地址:", applicantDto.getUrl(), "<br/>备注:",
-								serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(),
-								"<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
-			else if (!"PENDING".equalsIgnoreCase(serviceOrderDo.getState()))
-				sendMail(_officialDo.getEmail() + ",maggie@zhinanzhen.org", "变更任务提醒:",
-						StringUtil.merge("亲爱的", _officialDo.getName(), ":<br/>", "您有的订单号:", serviceOrderDo.getId(),
-								"已从您这更改为文案:", officialDo.getName()));
-		}
-	}
-    
+    private void sendEmailOfUpdateOfficial(ServiceOrderDO serviceOrderDo, ServiceOrderDO _serviceOrderDo) {
+        ServiceOrderMailDetail serviceOrderMailDetail = getServiceOrderMailDetail(serviceOrderDo, "任务提醒:");
+        AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderDo.getAdviserId());
+        OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
+        OfficialDO _officialDo = officialDao.getOfficialById(_serviceOrderDo.getOfficialId());
+        if (ObjectUtil.orIsNull(adviserDo, officialDo, _officialDo))
+            return;
+        ApplicantDTO applicantDto = null;
+        if (serviceOrderDo.getApplicantId() > 0)
+            applicantDto = mapper.map(applicantDao.getById(serviceOrderDo.getApplicantId()), ApplicantDTO.class);
+        applicantDto = buildApplicant(applicantDto, serviceOrderDo.getId(), serviceOrderDo.getNutCloud(),
+                serviceOrderDo.getInformation());
+        Date date = serviceOrderDo.getGmtCreate();
+        if (!"PENDING".equalsIgnoreCase(serviceOrderDo.getState()))
+            sendMail(adviserDo.getEmail(), "变更任务提醒:",
+                    StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>", "您的订单已经变更。", "<br>订单号:",
+                            serviceOrderDo.getId(), "<br/>申请人名称:", getApplicantName(applicantDto), "<br/>顾问:",
+                            adviserDo.getName(), "<br/>文案:", officialDo.getName(), "<br/>属性:",
+                            getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:", applicantDto.getUrl(),
+                            "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:", serviceOrderDo.getRemarks(),
+                            "<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date, "<br/>",
+                            serviceOrderMailDetail.getServiceOrderUrl()));
+        if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())
+                && !"PENDING".equalsIgnoreCase(serviceOrderDo.getState())) {
+            if (_serviceOrderDo.getMaraId() > 0 && serviceOrderDo.getMaraId() > 0
+                    && _serviceOrderDo.getMaraId() != serviceOrderDo.getMaraId()) {
+                MaraDO maraDo = maraDao.getMaraById(serviceOrderDo.getMaraId());
+                MaraDO _maraDo = maraDao.getMaraById(_serviceOrderDo.getMaraId());
+                sendMail(maraDo.getEmail(), "新任务提醒:",
+                        StringUtil.merge("亲爱的:", maraDo.getName(), "<br/>", "您有一条新的服务订单任务请及时处理。", "<br>订单号:",
+                                serviceOrderDo.getId(), "<br/>服务类型:签证/申请人名称:", getApplicantName(applicantDto), "/顾问:",
+                                adviserDo.getName(), "/文案:", officialDo.getName(), "/MARA:", maraDo.getName(),
+                                "<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
+                                applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
+                                serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(),
+                                "<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
+                sendMail(_maraDo.getEmail(), "变更任务提醒:", StringUtil.merge("亲爱的", _maraDo.getName(), ":<br/>", "您有的订单号:",
+                        serviceOrderDo.getId(), "已从您这更改为Mara:", maraDo.getName()));
+            }
+        }
+        if (_serviceOrderDo.getOfficialId() > 0 && serviceOrderDo.getOfficialId() > 0
+                && _serviceOrderDo.getOfficialId() != serviceOrderDo.getOfficialId()) {
+            if (!"PENDING".equalsIgnoreCase(serviceOrderDo.getState()))
+                sendMail(officialDo.getEmail() + ",maggie@zhinanzhen.org", "新任务提醒:",
+                        StringUtil.merge("亲爱的", officialDo.getName(), ":<br/>", "您有一条新的服务订单任务请及时处理。", "<br/>订单号:",
+                                serviceOrderDo.getId(), "<br/>服务类型:", serviceOrderMailDetail.getType(),
+                                serviceOrderMailDetail.getDetail(), "/顾问:", adviserDo.getName(), "/文案:",
+                                officialDo.getName(), "<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()),
+                                "<br/>坚果云资料地址:", applicantDto.getUrl(), "<br/>申请人基本信息:", applicantDto.getContent(),
+                                "<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(),
+                                "<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
+            if (StringUtil.equals("Retracted", serviceOrderDo.getStateMark2())) // 顾问提交审核后又撤回，提醒文案不同
+                sendMail(_officialDo.getEmail() + ",maggie@zhinanzhen.org", "服务被撤回提醒:",
+                        StringUtil.merge("亲爱的", _officialDo.getName(), ":<br/>您有一条服务订单已被撤回,如有服务相关问题请及时与顾问沟通<br/>订单号:",
+                                serviceOrderDo.getId(), "<br/>服务类型:", serviceOrderMailDetail.getType(),
+                                serviceOrderMailDetail.getDetail(), "<br/>顾问:", adviserDo.getName(), "<br/>申请人基本信息:",
+                                applicantDto.getContent(), "<br/>坚果云资料地址:", applicantDto.getUrl(), "<br/>备注:",
+                                serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(),
+                                "<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
+            else if (!"PENDING".equalsIgnoreCase(serviceOrderDo.getState()))
+                sendMail(_officialDo.getEmail() + ",maggie@zhinanzhen.org", "变更任务提醒:",
+                        StringUtil.merge("亲爱的", _officialDo.getName(), ":<br/>", "您有的订单号:", serviceOrderDo.getId(),
+                                "已从您这更改为文案:", officialDo.getName()));
+        }
+    }
+
     private void sendEmailOfUpdateServiceId(ServiceOrderDO serviceOrderDo, ServiceOrderDO _serviceOrderDo) {
         ServiceOrderMailDetail serviceOrderMailDetail = getServiceOrderMailDetail(serviceOrderDo, "任务提醒:");
         AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderDo.getAdviserId());
@@ -295,47 +297,47 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         Date date = serviceOrderDo.getGmtCreate();
         if (_serviceOrderDo.getServiceId() > 0 && serviceOrderDo.getServiceId() > 0
                 && _serviceOrderDo.getServiceId() != serviceOrderDo.getServiceId()) {
-        	if (StringUtil.equals("Retracted", serviceOrderDo.getStateMark2()) && serviceOrderDo.isSubmitted()) { // 给会计发邮件
-				int regionId = adviserDo.getRegionId();
-				if (regionId > 0) {
-					List<KjDO> kjList = kjDao.listKjByRegionId(regionId);
-					if (kjList != null && kjList.size() > 0) {
-						String kjEmails = "";
-						for (KjDO kjDo : kjList)
-							kjEmails += kjDo.getEmail() + ",";
-						if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())) {
-							List<VisaDO> visaList = visaDao.listVisaByServiceOrderId(serviceOrderDo.getId());
-							if (visaList != null && visaList.size() > 0) {
-								String visaIds = "";
-								for (VisaDO visaDo : visaList)
-									visaIds += visaDo.getId() + ",";
-								sendMail(kjEmails, "服务项目变更提醒:签证",
-										StringUtil.merge("亲爱的会计", ":<br/>", "佣金订单关联服务项目已发生变更，如有问题请与顾问联系．<br/>佣金订单编号:",
-												visaIds, "<br/>申请人基本信息:", applicantDto.getContent(), "<br/>顾问:",
-												adviserDo.getName(), "<br/>文案:", _officialDo.getName(), "<br/>坚果云资料地址:",
-												applicantDto.getUrl(), "<br/>备注:", serviceOrderDo.getRemarks(),
-												"<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date,
-												"<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
-							}
-						}
-						if ("OVST".equalsIgnoreCase(serviceOrderDo.getType())) {
-							List<CommissionOrderDO> commissionOrderlist = commissionOrderDao
-									.listCommissionOrderByServiceOrderId(serviceOrderDo.getId());
-							if (commissionOrderlist != null && commissionOrderlist.size() > 0) {
-								String commissionOrderIds = "";
-								for (CommissionOrderDO commissionOrderDo : commissionOrderlist)
-									commissionOrderIds += commissionOrderDo.getId() + ",";
-								sendMail(kjEmails, "服务项目变更提醒:留学", StringUtil.merge("亲爱的会计", ":<br/>",
-										"佣金订单关联服务项目已发生变更，如有问题请与顾问联系．<br/>佣金订单编号:", commissionOrderIds, "<br/>申请人基本信息:",
-										applicantDto.getContent(), "<br/>顾问:", adviserDo.getName(), "<br/>文案:",
-										_officialDo.getName(), "<br/>坚果云资料地址:", applicantDto.getUrl(), "<br/>备注:",
-										serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(),
-										"<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
-							}
-						}
-					}
-				}
-			}
+            if (StringUtil.equals("Retracted", serviceOrderDo.getStateMark2()) && serviceOrderDo.isSubmitted()) { // 给会计发邮件
+                int regionId = adviserDo.getRegionId();
+                if (regionId > 0) {
+                    List<KjDO> kjList = kjDao.listKjByRegionId(regionId);
+                    if (kjList != null && kjList.size() > 0) {
+                        String kjEmails = "";
+                        for (KjDO kjDo : kjList)
+                            kjEmails += kjDo.getEmail() + ",";
+                        if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())) {
+                            List<VisaDO> visaList = visaDao.listVisaByServiceOrderId(serviceOrderDo.getId());
+                            if (visaList != null && visaList.size() > 0) {
+                                String visaIds = "";
+                                for (VisaDO visaDo : visaList)
+                                    visaIds += visaDo.getId() + ",";
+                                sendMail(kjEmails, "服务项目变更提醒:签证",
+                                        StringUtil.merge("亲爱的会计", ":<br/>", "佣金订单关联服务项目已发生变更，如有问题请与顾问联系．<br/>佣金订单编号:",
+                                                visaIds, "<br/>申请人基本信息:", applicantDto.getContent(), "<br/>顾问:",
+                                                adviserDo.getName(), "<br/>文案:", _officialDo.getName(), "<br/>坚果云资料地址:",
+                                                applicantDto.getUrl(), "<br/>备注:", serviceOrderDo.getRemarks(),
+                                                "<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date,
+                                                "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
+                            }
+                        }
+                        if ("OVST".equalsIgnoreCase(serviceOrderDo.getType())) {
+                            List<CommissionOrderDO> commissionOrderlist = commissionOrderDao
+                                    .listCommissionOrderByServiceOrderId(serviceOrderDo.getId());
+                            if (commissionOrderlist != null && commissionOrderlist.size() > 0) {
+                                String commissionOrderIds = "";
+                                for (CommissionOrderDO commissionOrderDo : commissionOrderlist)
+                                    commissionOrderIds += commissionOrderDo.getId() + ",";
+                                sendMail(kjEmails, "服务项目变更提醒:留学", StringUtil.merge("亲爱的会计", ":<br/>",
+                                        "佣金订单关联服务项目已发生变更，如有问题请与顾问联系．<br/>佣金订单编号:", commissionOrderIds, "<br/>申请人基本信息:",
+                                        applicantDto.getContent(), "<br/>顾问:", adviserDo.getName(), "<br/>文案:",
+                                        _officialDo.getName(), "<br/>坚果云资料地址:", applicantDto.getUrl(), "<br/>备注:",
+                                        serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(),
+                                        "<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -810,7 +812,11 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             serviceOrderDto.setDeductGstAUD(roundHalfUp2(serviceOrderDto.getDeductGst() / exchangeRate));
             serviceOrderDto.setBonusAUD(roundHalfUp2(serviceOrderDto.getBonus() / exchangeRate));
         }
-
+        //判断是否生成文案佣金
+        if (!serviceOrderDO.isPay() && servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId()).getRuler() == 1 || serviceOrderDO.isPay()) {
+            serviceOrderDto.setCreateVisaOffice(true);
+        } else
+            serviceOrderDto.setCreateVisaOffice(false);
         return serviceOrderDto;
     }
 
@@ -897,26 +903,26 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 }
             }
             if ("VISA".equalsIgnoreCase(serviceOrderDo.getType()) && "WAIT".equals(state)) {
-				String _title = StringUtil.merge("已提交MARA申请提醒:", getApplicantName(applicantDto), "/签证");
-				sendMail(adviserDo.getEmail(), _title, StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>",
-						"您的服务订单已经提交mara申请，如有分期支付请及时联系客户进行补齐尾款。<br/>如订单未完成支付，文案无法提交移民局申请．请及时处理，避免造成延误！<br/>订单号:",
-						serviceOrderDo.getId(), "<br/>服务类型:签证/申请人名称:", getApplicantName(applicantDto), "/顾问:",
-						adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
-						getPeopleTypeStr(serviceOrderDo.getPeopleType()),
-						"<br/>坚果云资料地址:",
-						applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
-						serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date,
-						"<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
+                String _title = StringUtil.merge("已提交MARA申请提醒:", getApplicantName(applicantDto), "/签证");
+                sendMail(adviserDo.getEmail(), _title, StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>",
+                        "您的服务订单已经提交mara申请，如有分期支付请及时联系客户进行补齐尾款。<br/>如订单未完成支付，文案无法提交移民局申请．请及时处理，避免造成延误！<br/>订单号:",
+                        serviceOrderDo.getId(), "<br/>服务类型:签证/申请人名称:", getApplicantName(applicantDto), "/顾问:",
+                        adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
+                        getPeopleTypeStr(serviceOrderDo.getPeopleType()),
+                        "<br/>坚果云资料地址:",
+                        applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
+                        serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date,
+                        "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
             }
             if ("VISA".equalsIgnoreCase(serviceOrderDo.getType()) && "APPLY".equals(state)) {
                 String _title = StringUtil.merge("已提交移民局申请提醒:", getApplicantName(applicantDto), "/签证");
-				sendMail(adviserDo.getEmail(), _title, StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>",
-						"您的服务订单已经提交移民局申请。<br>订单号:", serviceOrderDo.getId(), "<br/>服务类型:签证/申请人名称:",
-						getApplicantName(applicantDto), "/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(),
-						"<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
-						applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
-						serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date,
-						"<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
+                sendMail(adviserDo.getEmail(), _title, StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>",
+                        "您的服务订单已经提交移民局申请。<br>订单号:", serviceOrderDo.getId(), "<br/>服务类型:签证/申请人名称:",
+                        getApplicantName(applicantDto), "/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(),
+                        "<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
+                        applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
+                        serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date,
+                        "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
             }
             if ("REVIEW".equals(state)) { // 给文案发邮件提醒，这时adviserState为REVIEW,officialState为NULL
                 String title = ("VISA".equalsIgnoreCase(serviceOrderDo.getType()) && assessDO != null) ? StringUtil.merge
@@ -1149,12 +1155,12 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 }
                 if ("VISA".equalsIgnoreCase(serviceOrderDo.getType()) && "FINISH".equals(maraState)) {
                     String _title = StringUtil.merge("MARA审核通过提醒:", getApplicantName(applicantDto), "/签证");
-					// 发送给顾问
-					sendMail(adviserDo.getEmail(), _title, StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>",
-							"您的订单已经审核完成请查看并进行下一步操作。<br/>如有尾款请联系客户立即支付，避免影响文案提交申请。<br/>订单号:", serviceOrderDo.getId(),
-							"<br/>服务类型:签证/申请人名称:", getApplicantName(applicantDto), "/顾问:", adviserDo.getName(), "/文案:",
-							officialDo.getName(), "<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()),
-							"<br/>坚果云资料地址:",
+                    // 发送给顾问
+                    sendMail(adviserDo.getEmail(), _title, StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>",
+                            "您的订单已经审核完成请查看并进行下一步操作。<br/>如有尾款请联系客户立即支付，避免影响文案提交申请。<br/>订单号:", serviceOrderDo.getId(),
+                            "<br/>服务类型:签证/申请人名称:", getApplicantName(applicantDto), "/顾问:", adviserDo.getName(), "/文案:",
+                            officialDo.getName(), "<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()),
+                            "<br/>坚果云资料地址:",
                             applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
                             serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>创建时间:",
                             date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
@@ -1360,33 +1366,33 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             if (service != null) {
                 detail += "/类型:" + service.getName() + "(" + service.getCode() + ")";
                 type += "(" + service.getCode() + ")";
-                
-				if (serviceOrderDo.getServicePackageId() > 0) {
-					ServicePackageDO servicePackageDo = servicePackageDao.getById(serviceOrderDo.getServicePackageId());
-					if (servicePackageDo != null) {
-						String _type = servicePackageDo.getType();
-						if ("CA".equals(_type))
-							detail += " - 职业评估";
-						if ("EOI".equals(_type))
-							detail += " - EOI";
-						if ("SA".equals(_type))
-							detail += " - 学校申请";
-						if ("VA".equals(_type))
-							detail += " - 签证申请";
-						if ("ZD".equals(_type))
-							detail += " - 州担";
-						if ("TM".equals(_type))
-							detail += " - 提名";
-						if ("DB".equals(_type))
-							detail += " - 担保";
-					}
-				}
-				if (StringUtil.isNotEmpty(serviceOrderDo.getServiceAssessId())) {
-					ServiceAssessDO serviceAssessDo = serviceAssessDao
-							.seleteAssessById(serviceOrderDo.getServiceAssessId());
-					if (serviceAssessDo != null)
-						detail = StringUtil.merge(detail, " - ", serviceAssessDo.getName());
-				}
+
+                if (serviceOrderDo.getServicePackageId() > 0) {
+                    ServicePackageDO servicePackageDo = servicePackageDao.getById(serviceOrderDo.getServicePackageId());
+                    if (servicePackageDo != null) {
+                        String _type = servicePackageDo.getType();
+                        if ("CA".equals(_type))
+                            detail += " - 职业评估";
+                        if ("EOI".equals(_type))
+                            detail += " - EOI";
+                        if ("SA".equals(_type))
+                            detail += " - 学校申请";
+                        if ("VA".equals(_type))
+                            detail += " - 签证申请";
+                        if ("ZD".equals(_type))
+                            detail += " - 州担";
+                        if ("TM".equals(_type))
+                            detail += " - 提名";
+                        if ("DB".equals(_type))
+                            detail += " - 担保";
+                    }
+                }
+                if (StringUtil.isNotEmpty(serviceOrderDo.getServiceAssessId())) {
+                    ServiceAssessDO serviceAssessDo = serviceAssessDao
+                            .seleteAssessById(serviceOrderDo.getServiceAssessId());
+                    if (serviceAssessDo != null)
+                        detail = StringUtil.merge(detail, " - ", serviceAssessDo.getName());
+                }
             }
             title += getApplicantName(applicantDto) + "/" + type;
             if (StringUtil.isNotEmpty(serviceOrderDo.getUrgentState()))
@@ -1717,31 +1723,31 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 		} */
         Map<String, EachRegionNumberDTO> map = MapUtil.newHashMap();
         eachRegionNumberDOS.forEach(eachRegionNumberDO -> {
-        	String name = StringUtil.isNotEmpty(eachRegionNumberDO.getCode()) ? eachRegionNumberDO.getCode()
+            String name = StringUtil.isNotEmpty(eachRegionNumberDO.getCode()) ? eachRegionNumberDO.getCode()
                     : eachRegionNumberDO.getInstitutionTradingName();
-        	if(eachRegionNumberDO.getServicePackageId() != null && eachRegionNumberDO.getServicePackageId() > 0) {
-        		ServicePackageDO servicePackageDo = servicePackageDao.getById(eachRegionNumberDO.getServicePackageId());
-				if (servicePackageDo != null) {
-					String _type = servicePackageDo.getType();
-					if ("CA".equals(_type))
-						name += " - 职业评估";
-					if ("EOI".equals(_type))
-						name += " - EOI";
-					if ("SA".equals(_type))
-						name += " - 学校申请";
-					if ("VA".equals(_type))
-						name += " - 签证申请";
-					if ("ZD".equals(_type))
-						name += " - 州担";
-					if ("TM".equals(_type))
-						name += " - 提名";
-					if ("DB".equals(_type))
-						name += " - 担保";
-				}
-        	}
+            if (eachRegionNumberDO.getServicePackageId() != null && eachRegionNumberDO.getServicePackageId() > 0) {
+                ServicePackageDO servicePackageDo = servicePackageDao.getById(eachRegionNumberDO.getServicePackageId());
+                if (servicePackageDo != null) {
+                    String _type = servicePackageDo.getType();
+                    if ("CA".equals(_type))
+                        name += " - 职业评估";
+                    if ("EOI".equals(_type))
+                        name += " - EOI";
+                    if ("SA".equals(_type))
+                        name += " - 学校申请";
+                    if ("VA".equals(_type))
+                        name += " - 签证申请";
+                    if ("ZD".equals(_type))
+                        name += " - 州担";
+                    if ("TM".equals(_type))
+                        name += " - 提名";
+                    if ("DB".equals(_type))
+                        name += " - 担保";
+                }
+            }
             EachRegionNumberDTO eachRegionNumberDTO = new EachRegionNumberDTO();
-            if(map.containsKey(name))
-            	eachRegionNumberDTO = map.get(name);
+            if (map.containsKey(name))
+                eachRegionNumberDTO = map.get(name);
             if (eachRegionNumberDO.getName().equalsIgnoreCase("sydney")) {
                 eachRegionNumberDTO.setSydney(eachRegionNumberDO.getCount() + eachRegionNumberDTO.getSydney());
             } else if (eachRegionNumberDO.getName().equalsIgnoreCase("melbourne")) {
