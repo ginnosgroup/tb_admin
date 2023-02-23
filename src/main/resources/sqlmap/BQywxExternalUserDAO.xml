@@ -227,7 +227,7 @@
             eud.qywx_key AS qywxKey,
             eud.qywx_value AS qywxValue
         FROM b_qywx_external_user eu, b_qywx_external_user_description eud
-        WHERE eu.id = eud.qywx_external_userid
+        WHERE eu.external_userid = eud.qywx_external_userid
         <if test='applicantId != null and applicantId != ""'>
             AND eu.applicant_id = #{applicantId}
         </if>
