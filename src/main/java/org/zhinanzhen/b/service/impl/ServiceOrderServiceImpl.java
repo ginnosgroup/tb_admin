@@ -813,7 +813,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             serviceOrderDto.setBonusAUD(roundHalfUp2(serviceOrderDto.getBonus() / exchangeRate));
         }
         //判断是否生成文案佣金
-        if (!serviceOrderDO.isPay() && servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId()).getRuler() == 1 || serviceOrderDO.isPay()) {
+        if (!serviceOrderDO.isPay() && (servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId())!=null&&servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId()).getRuler() == 1 )|| serviceOrderDO.isPay()) {
             serviceOrderDto.setCreateVisaOffice(true);
         } else
             serviceOrderDto.setCreateVisaOffice(false);
