@@ -83,6 +83,7 @@ public class QywxExternalUserController extends BaseController {
 			if (UserAuthTypeEnum.WEIBO.getValue().equalsIgnoreCase(userDto.getAuthType().getValue())
 					&& StringUtil.isNotEmpty(userDto.getAuthUsername()))
 				qywxExternalUserDto.setWeiboUsername(userDto.getAuthUsername());
+			qywxExternalUserDto.setState("YBD");
 			if (qywxExternalUserService.update(qywxExternalUserDto) > 0) {
 				return new Response<Integer>(0, qywxExternalUserDto.getId());
 			} else {
