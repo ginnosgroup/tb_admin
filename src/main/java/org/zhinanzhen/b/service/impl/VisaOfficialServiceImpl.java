@@ -84,6 +84,9 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
     @Resource
     private ServicePackageDAO servicePackageDAO;
 
+    @Resource
+    private ServiceAssessDao serviceAssessDao;
+
 
     public VisaOfficialDTO putVisaOfficialDTO(VisaOfficialListDO visaListDo) throws ServiceException {
         VisaOfficialDTO visaOfficialDto = putVisaOfficialDTO((VisaOfficialDO) visaListDo);
@@ -544,6 +547,10 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             if (serviceDo != null) {
                 serviceOrderDto.setService(mapper.map(serviceDo, ServiceDTO.class));
             }
+            // 查询职业名称
+            ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDto.getServiceAssessId());
+            if (serviceAssessDO != null)
+                serviceOrderDto.setServiceAssessDO(serviceAssessDO);
             // 查询服务包类型
             if (serviceOrderDto.getServicePackageId() > 0) {
                 ServicePackageDO servicePackageDo = servicePackageDAO.getById(serviceOrderDto.getServicePackageId());
