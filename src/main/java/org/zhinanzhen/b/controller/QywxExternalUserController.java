@@ -1,18 +1,25 @@
 package org.zhinanzhen.b.controller;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.poi.ss.usermodel.DateUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.zhinanzhen.b.service.ApplicantService;
 import org.zhinanzhen.b.service.QywxExternalUserService;
+import org.zhinanzhen.b.service.pojo.ApplicantDTO;
 import org.zhinanzhen.b.service.pojo.QywxExternalUserDTO;
 import org.zhinanzhen.b.service.pojo.QywxExternalUserDescriptionDTO;
 import org.zhinanzhen.tb.controller.BaseController;
@@ -23,6 +30,7 @@ import org.zhinanzhen.tb.service.UserAuthTypeEnum;
 import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 
+import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 
@@ -30,12 +38,17 @@ import com.ikasoa.core.utils.StringUtil;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/qywxExternalUser")
 public class QywxExternalUserController extends BaseController {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(QywxExternalUserController.class);
 
 	@Resource
 	QywxExternalUserService qywxExternalUserService;
 
 	@Resource
 	UserService userService;
+	
+	@Resource
+	ApplicantService applicantService;
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
@@ -58,16 +71,50 @@ public class QywxExternalUserController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/bind", method = RequestMethod.GET)
+	@RequestMapping(value = "/checkBOD", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<Integer> bind(@RequestParam(value = "id") int id, @RequestParam(value = "userId") int userId,
+	public Response<List<String>> checkBOD(@RequestParam(value = "id") int id,
 			@RequestParam(value = "applicantId") int applicantId, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			if (adminUserLoginInfo == null || (!"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
-				return new Response<Integer>(1, "仅限顾问能修改.", 0);
+				return new Response<List<String>>(1, "仅限顾问操作.", null);
+			ApplicantDTO applicant = applicantService.getById(applicantId);
+			if (ObjectUtil.isNull(applicant.getBirthday()))
+				return new Response<List<String>>(1, "申请人生日数据错误.", null);
+			QywxExternalUserDTO qywxExternalUserDto = qywxExternalUserService.get(id);
+			if (ObjectUtil.isNull(qywxExternalUserDto))
+				return new Response<List<String>>(1, "未查到企业微信数据,请检查参数是否正确.", null);
+			List<QywxExternalUserDescriptionDTO> list = qywxExternalUserService
+					.listDescByExternalUserid(qywxExternalUserDto.getExternalUserid(), "_birthday");
+			if (ObjectUtil.isNull(list))
+				return new Response<List<String>>(1, "未查到企业微信生日数据,请检查参数是否正确.", null);
+			QywxExternalUserDescriptionDTO desc = list.get(0);
+			String qywxUserBOD = desc.getQywxValue();
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+			String applicantBOD = sdf.format(applicant.getBirthday().getTime());
+			if (StringUtil.equals("_birthday", desc.getQywxKey())
+					&& !StringUtil.equals(desc.getQywxValue(), sdf.format(applicant.getBirthday().getTime())))
+				return new Response<List<String>>(1, null, ListUtil.buildArrayList(qywxUserBOD, applicantBOD));
+			return new Response<List<String>>(0, null, null);
+		} catch (ServiceException e) {
+			return new Response<List<String>>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/bind", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> bind(@RequestParam(value = "id") int id, @RequestParam(value = "userId") int userId,
+			@RequestParam(value = "applicantId") int applicantId,
+			@RequestParam(value = "birthday", required = false) String birthday, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo == null || (!"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+				return new Response<Integer>(1, "仅限顾问操作.", 0);
 			UserDTO userDto = userService.getUserById(userId);
 			QywxExternalUserDTO qywxExternalUserDto = qywxExternalUserService.get(id);
 			qywxExternalUserDto.setApplicantId(applicantId);
@@ -85,6 +132,14 @@ public class QywxExternalUserController extends BaseController {
 				qywxExternalUserDto.setWeiboUsername(userDto.getAuthUsername());
 			qywxExternalUserDto.setState("YBD");
 			if (qywxExternalUserService.update(qywxExternalUserDto) > 0) {
+				LOG.info(StringUtil.merge("修改企业微信数据成功:", qywxExternalUserDto.getId()));
+				if (StringUtil.isNotEmpty(birthday)) {
+					// 修改生日数据
+					ApplicantDTO applicantDto = applicantService.getById(applicantId);
+					applicantDto.setBirthday(DateUtil.parseYYYYMMDDDate(birthday));
+					if (applicantService.update(applicantDto) > 0)
+						LOG.info(StringUtil.merge("修改申请人生日数据成功:", applicantDto.getId()));
+				}
 				return new Response<Integer>(0, qywxExternalUserDto.getId());
 			} else {
 				return new Response<Integer>(1, "修改失败.", 0);
