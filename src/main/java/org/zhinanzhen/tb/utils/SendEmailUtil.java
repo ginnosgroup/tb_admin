@@ -22,7 +22,7 @@ public class SendEmailUtil {
 //			"Zhinanzhen630", SimpleSendEmailTool.SmtpServerEnum.GMAIL);
 
 	public static void send(String mail, String title, String content) {
-//		mail = "7311930@qq.com"; // 测试
+//		mail = "leisu@zhinanzhen.org"; // 测试
 		log.info("发送邮件:" + mail + " | " + title + "|" + content);
 		Thread thread = new Thread(new Runnable() {
 			@Override

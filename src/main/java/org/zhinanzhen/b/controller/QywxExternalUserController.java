@@ -89,16 +89,16 @@ public class QywxExternalUserController extends BaseController {
 				return new Response<List<String>>(1, "未查到企业微信数据,请检查参数是否正确.", null);
 			List<QywxExternalUserDescriptionDTO> list = qywxExternalUserService
 					.listDescByExternalUserid(qywxExternalUserDto.getExternalUserid(), "_birthday");
-			if (ObjectUtil.isNull(list))
-				return new Response<List<String>>(1, "未查到企业微信生日数据,请检查参数是否正确.", null);
+			if (ObjectUtil.isNull(list) || list.size() == 0)
+				return new Response<List<String>>(1, "未查到企业微信生日数据.", ListUtil.newArrayList());
 			QywxExternalUserDescriptionDTO desc = list.get(0);
 			String qywxUserBOD = desc.getQywxValue();
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 			String applicantBOD = sdf.format(applicant.getBirthday().getTime());
 			if (StringUtil.equals("_birthday", desc.getQywxKey())
 					&& !StringUtil.equals(desc.getQywxValue(), sdf.format(applicant.getBirthday().getTime())))
-				return new Response<List<String>>(1, null, ListUtil.buildArrayList(qywxUserBOD, applicantBOD));
-			return new Response<List<String>>(0, null, null);
+				return new Response<List<String>>(0, null, ListUtil.buildArrayList(qywxUserBOD, applicantBOD));
+			return new Response<List<String>>(1, "未查到企业微信生日数据.", ListUtil.newArrayList());
 		} catch (ServiceException e) {
 			return new Response<List<String>>(e.getCode(), e.getMessage(), null);
 		}

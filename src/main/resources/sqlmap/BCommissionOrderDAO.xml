@@ -1342,16 +1342,16 @@
         FROM b_commission_order WHERE verify_code = #{verifyCode};
     </select>
     <update id="setBankDateNull">
-        update b_commission_order set bank_check = null,  is_checked = false , bank_date = null
+        update b_commission_order set gmt_modify = now(), bank_check = null,  is_checked = false , bank_date = null
         where id = #{id};
     </update>
 
     <update id="setinstallmentById">
-        update b_commission_order set installment=#{installment}
+        update b_commission_order set gmt_modify = now(), installment=#{installment}
         where  service_order_id = #{id}
     </update>
     <update id="setinstallmentDueDateById">
-        update b_commission_order set installment_due_date=#{installmentDueDate}
+        update b_commission_order set gmt_modify = now(), installment_due_date=#{installmentDueDate}
         where  service_order_id = #{id} and installment_num=#{installmentNum}
     </update>
 
@@ -1642,7 +1642,7 @@
         ORDER BY co.gmt_create DESC;
     </select>
     <update id="updateState" parameterType="java.lang.Integer">
-        UPDATE b_commission_order SET state='PENDING' WHERE id=#{id, jdbcType=INTEGER}
+        UPDATE b_commission_order SET gmt_modify = now(),state='PENDING' WHERE id=#{id, jdbcType=INTEGER}
     </update>
     <select id="getCommissionStateById" parameterType="java.lang.Integer"
             resultType="org.zhinanzhen.b.dao.pojo.CommissionInfoDO">
