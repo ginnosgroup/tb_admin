@@ -50,7 +50,16 @@ public class ScanSignInAdapter extends BaseController implements SignInAdapter {
 							loginInfo.setCountry(isCN(adviserDto.getRegionId()) ? "CN" : "AU");
 					}
 					// 同步企业微信数据
-					syncWeibanData(loginInfo);
+					Thread thread = new Thread(new Runnable() {
+						@Override
+						public void run() {
+							try {
+								syncWeibanData(loginInfo);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+					});
 					return StringUtil.merge(Application.DOMAIN, "/webroot_new/welcome");
 				} else
 					StringUtil.merge(Application.DOMAIN,
