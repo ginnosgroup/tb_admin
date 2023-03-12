@@ -51,7 +51,7 @@ public class ScanSignInAdapter extends BaseController implements SignInAdapter {
 					}
 					// 同步企业微信数据
 //					Thread thread = new Thread(new Runnable() {
-						@Override
+//						@Override
 //						public void run() {
 //							try {
 								syncWeibanData(loginInfo);
