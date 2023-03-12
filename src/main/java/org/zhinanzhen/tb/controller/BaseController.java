@@ -510,10 +510,12 @@ public class BaseController {
 				key);
 		if (descList.size() > 0) {
 			QywxExternalUserDescriptionDTO qywxExternalUserDescriptionDto = descList.get(0);
-			qywxExternalUserDescriptionDto.setQywxValue(value);
-			if (qywxExternalUserService.updateDesc(qywxExternalUserDescriptionDto) > 0)
-				LOG.info(StringUtil.merge("Update External User Desception : ",
-						qywxExternalUserDescriptionDto.toString()));
+			if (!StringUtil.equals(qywxExternalUserDescriptionDto.getQywxValue(), value)) {
+				qywxExternalUserDescriptionDto.setQywxValue(value);
+				if (qywxExternalUserService.updateDesc(qywxExternalUserDescriptionDto) > 0)
+					LOG.info(StringUtil.merge("Update External User Desception : ",
+							qywxExternalUserDescriptionDto.toString()));
+			}
 		} else {
 			QywxExternalUserDescriptionDTO qywxExternalUserDescriptionDto = new QywxExternalUserDescriptionDTO();
 			qywxExternalUserDescriptionDto.setQywxExternalUserId(externalUserid);
