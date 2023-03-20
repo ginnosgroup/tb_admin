@@ -88,8 +88,8 @@ public abstract class BaseService {
 	}
 	
 	protected String getApplicantName(ApplicantDTO applicantDto) {
-        return ObjectUtil.isNotNull(applicantDto) ? applicantDto.getSurname() + " " + applicantDto.getFirstname()
-                : "unknown";
-    }
+		return ObjectUtil.isNotNull(applicantDto) ? applicantDto.getFirstname() + " " + applicantDto.getSurname()
+				: "unknown";
+	}
 
 }

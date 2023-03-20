@@ -1968,7 +1968,7 @@ public class ServiceOrderController extends BaseController {
 				if (so.getApplicant() != null) {
 					sheet.addCell(new Label(9, i, so.getApplicantId() + "", cellFormat));
 					sheet.addCell(new Label(10, i,
-							so.getApplicant().getSurname() + " " + so.getApplicant().getFirstname(), cellFormat));
+							so.getApplicant().getFirstname() + " " + so.getApplicant().getSurname(), cellFormat));
 				}
 				if (so.getAdviser() != null)
 					sheet.addCell(new Label(11, i, so.getAdviser().getName(), cellFormat));
