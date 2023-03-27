@@ -59,7 +59,7 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 			if (ObjectUtil.isNotNull(officialDto)
 					&& OfficialWorkStateEnum.BUSY.name().equalsIgnoreCase(officialDto.getWorkState())) {
 				context.putParameter("response",
-						new Response<ServiceOrderDTO>(1, "你选择的文案已经设置为忙碌状态,请重新勋章.", serviceOrderDto));
+						new Response<ServiceOrderDTO>(1, "你选择的文案已经设置为忙碌状态,请重新选择.", serviceOrderDto));
 				return null;
 			}
 			// 提交审核时更新汇率
