@@ -23,6 +23,8 @@ public interface AdminUserDAO {
 	
 	boolean updateState(@Param("id") int id, @Param("state") String state);
 	
+	boolean updateStateByAdviserId(@Param("adviserId") int adviserId, @Param("state") String state);
+	
 	boolean updateUsername(@Param("id") int id, @Param("username") String username);
 
 	public AdminUserDO getAdminUserById(int id);
