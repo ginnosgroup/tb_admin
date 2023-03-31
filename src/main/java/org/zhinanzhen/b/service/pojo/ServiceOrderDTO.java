@@ -1,8 +1,6 @@
 package org.zhinanzhen.b.service.pojo;
 
-import java.util.Date;
-import java.util.List;
-
+import lombok.Data;
 import org.zhinanzhen.b.dao.pojo.CommissionOrderDO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.ServiceAssessDO;
@@ -10,7 +8,8 @@ import org.zhinanzhen.b.dao.pojo.VisaDO;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 
-import lombok.Data;
+import java.util.Date;
+import java.util.List;
 
 @Data
 public class ServiceOrderDTO {
@@ -248,5 +247,7 @@ public class ServiceOrderDTO {
 	private OfficialDO oldOfficial;
 
 	private boolean isCreateVisaOffice;
+
+	private boolean isSubmitMM;
 
 }
