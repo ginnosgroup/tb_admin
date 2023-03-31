@@ -3,9 +3,11 @@ package org.zhinanzhen.b.controller.nodes;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
+import org.zhinanzhen.b.controller.OfficialController.OfficialWorkStateEnum;
 import org.zhinanzhen.b.service.ExchangeRateService;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.ExchangeRateDTO;
+import org.zhinanzhen.b.service.pojo.OfficialDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -50,6 +52,14 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 					|| "NSV".equalsIgnoreCase(serviceOrderDto.getType())
 					|| "MT".equalsIgnoreCase(serviceOrderDto.getType()))) {
 				context.putParameter("response", new Response<ServiceOrderDTO>(1, "该订单不支持审核.", serviceOrderDto));
+				return null;
+			}
+			// 判断文案状态
+			OfficialDTO officialDto = serviceOrderDto.getOfficial();
+			if (ObjectUtil.isNotNull(officialDto)
+					&& OfficialWorkStateEnum.BUSY.name().equalsIgnoreCase(officialDto.getWorkState())) {
+				context.putParameter("response",
+						new Response<ServiceOrderDTO>(1, "你选择的文案已经设置为忙碌状态,请重新选择.", serviceOrderDto));
 				return null;
 			}
 			// 提交审核时更新汇率

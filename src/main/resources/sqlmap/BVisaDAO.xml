@@ -526,7 +526,7 @@
             v.exchange_rate AS exchangeRate,
             v.amount,
             SUM(v.bonus) AS commission,
-            IF(v.currency='CNY',SUM(ROUND(v.amount/v.exchange_rate,2)),SUM(CASE IFNULL(v.sure_expect_amount, 0) WHEN 0 THEN IFNULL(v.expect_amount, 0) END)) AS serviceFee
+            SUM(CASE IFNULL(IF(v.currency='CNY',ROUND(v.sure_expect_amount/v.exchange_rate,2),ROUND(v.sure_expect_amount,2)), 0) WHEN 0 THEN IFNULL(IF(v.currency='CNY',ROUND(v.expect_amount/v.exchange_rate,2),ROUND(v.expect_amount,2)), 0) END) AS serviceFee
         FROM b_visa v, tb_adviser a, tb_region r
         WHERE a.region_id = r.id AND v.adviser_id = a.id AND v.state IN ('REVIEW', 'FINISH', 'COMPLETE', 'CLOSE')
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>

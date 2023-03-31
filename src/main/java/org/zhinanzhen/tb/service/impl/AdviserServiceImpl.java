@@ -62,7 +62,7 @@ public class AdviserServiceImpl extends BaseService implements AdviserService {
 		try {
 			AdviserDO adviserDo = mapper.map(adviserDto, AdviserDO.class);
 			if (adviserDto.getState() != null) {
-				adminUserDao.updateState(adviserDto.getId(), adviserDto.getState().toString());
+				adminUserDao.updateStateByAdviserId(adviserDto.getId(), adviserDto.getState().toString());
 				adviserDo.setState(adviserDto.getState().toString());
 			}
 			return adviserDao.updateAdviser(adviserDo);
