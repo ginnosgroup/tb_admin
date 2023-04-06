@@ -360,22 +360,25 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 
 	public VisaDTO putVisaDTO(VisaListDO visaListDo) throws ServiceException {
 		VisaDTO visaDto = putVisaDTO((VisaDO) visaListDo);
-		if (visaListDo.getApplicantId() > 0) {
-
-			ApplicantDTO applicantDto = mapper.map(applicantDao.getById(visaListDo.getApplicantId()),
-					ApplicantDTO.class);
-
-			List<ServiceOrderApplicantDO> serviceOrderApplicantDoList = serviceOrderApplicantDao
-					.list(visaListDo.getServiceOrderId(), visaListDo.getApplicantId());
-			if (serviceOrderApplicantDoList != null && serviceOrderApplicantDoList.size() > 0
-					&& serviceOrderApplicantDoList.get(0) != null) {
-				applicantDto.setUrl(serviceOrderApplicantDoList.get(0).getUrl());
-				applicantDto.setContent(serviceOrderApplicantDoList.get(0).getContent());
+		List<ApplicantListDO> applicantListDOS = serviceOrderDao.ApplicantListByServiceOrderId(visaListDo.getServiceOrderId());
+		List<ApplicantDTO> applicantDTOS = new ArrayList<>();
+		for (ApplicantListDO applicantListDO : applicantListDOS) {
+			if (applicantListDO.getApplicantId() > 0) {
+				ApplicantDTO applicantDto = mapper.map(applicantDao.getById(visaListDo.getApplicantId()),
+						ApplicantDTO.class);
+				List<ServiceOrderApplicantDO> serviceOrderApplicantDoList = serviceOrderApplicantDao
+						.list(visaListDo.getServiceOrderId(), visaListDo.getApplicantId());
+				if (serviceOrderApplicantDoList != null && serviceOrderApplicantDoList.size() > 0
+						&& serviceOrderApplicantDoList.get(0) != null) {
+					applicantDto.setUrl(serviceOrderApplicantDoList.get(0).getUrl());
+					applicantDto.setContent(serviceOrderApplicantDoList.get(0).getContent());
+				}
+				applicantDTOS.add(applicantDto);
 			}
-
-			visaDto.setApplicant(applicantDto);
-			visaDto.setApplicantId(visaListDo.getApplicantId());
 		}
+		visaDto.setApplicant(applicantDTOS);
+		visaDto.setApplicantId(visaListDo.getApplicantId());
+
 		return visaDto;
 	}
 

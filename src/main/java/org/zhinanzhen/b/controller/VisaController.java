@@ -712,13 +712,17 @@ public class VisaController extends BaseCommissionOrderController {
 								.getServiceOrderById(v.getServiceOrderId());
 						if (serviceOrderDto != null) {
 							v.setServiceOrder(serviceOrderDto);
-							ApplicantDTO applicantDto = v.getApplicant();
-							if (applicantDto != null) {
-								if (StringUtil.isEmpty(applicantDto.getUrl()))
-									applicantDto.setUrl(serviceOrderDto.getNutCloud());
-								if (StringUtil.isEmpty(applicantDto.getContent()))
-									applicantDto.setContent(serviceOrderDto.getInformation());
-								v.setApplicant(applicantDto);
+
+							List<ApplicantDTO> applicant = v.getApplicant();
+							for (ApplicantDTO applicantDto : applicant) {
+								if (applicantDto != null) {
+									if (StringUtil.isEmpty(applicantDto.getUrl()))
+										applicantDto.setUrl(serviceOrderDto.getNutCloud());
+									if (StringUtil.isEmpty(applicantDto.getContent()))
+										applicantDto.setContent(serviceOrderDto.getInformation());
+									applicant.add(applicantDto);
+							}
+								v.setApplicant(applicant);
 							}
 						}
 					} catch (ServiceException e) {
