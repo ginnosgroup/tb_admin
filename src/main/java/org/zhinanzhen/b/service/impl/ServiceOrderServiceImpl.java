@@ -1,12 +1,10 @@
 package org.zhinanzhen.b.service.impl;
 
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.stream.Collectors;
-import javax.annotation.Resource;
-
-import org.apache.ibatis.annotations.Param;
-import org.dozer.util.MappingUtils;
+import com.ikasoa.core.ErrorCodeEnum;
+import com.ikasoa.core.utils.MapUtil;
+import com.ikasoa.core.utils.ObjectUtil;
+import com.ikasoa.core.utils.StringUtil;
+import lombok.Data;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.*;
@@ -26,12 +24,10 @@ import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
-import com.ikasoa.core.ErrorCodeEnum;
-import com.ikasoa.core.utils.ListUtil;
-import com.ikasoa.core.utils.MapUtil;
-import com.ikasoa.core.utils.ObjectUtil;
-import com.ikasoa.core.utils.StringUtil;
-import lombok.Data;
+
+import javax.annotation.Resource;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service("ServiceOrderService")
 public class ServiceOrderServiceImpl extends BaseService implements ServiceOrderService {
@@ -124,6 +120,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
     @Resource
     private SchoolInstitutionLocationDAO schoolInstitutionLocationDAO;
+
+    @Resource
+    private CustomerInformationDAO customerInformationDAO;
 
 
     @Override
@@ -813,10 +812,15 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             serviceOrderDto.setBonusAUD(roundHalfUp2(serviceOrderDto.getBonus() / exchangeRate));
         }
         //判断是否生成文案佣金
-        if (!serviceOrderDO.isPay() && (servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId())!=null&&servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId()).getRuler() == 1 )|| serviceOrderDO.isPay()) {
+        if (!serviceOrderDO.isPay() && (servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId()) != null && servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId()).getRuler() == 1) || serviceOrderDO.isPay()) {
             serviceOrderDto.setCreateVisaOffice(true);
         } else
             serviceOrderDto.setCreateVisaOffice(false);
+        //判断是否提交mm资料
+        if (customerInformationDAO.getByServiceOrderId(serviceOrderDO.getId()) != null) {
+            serviceOrderDto.setSubmitMM(true);
+        } else
+            serviceOrderDto.setSubmitMM(false);
         return serviceOrderDto;
     }
 

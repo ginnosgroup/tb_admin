@@ -957,11 +957,11 @@
         r.name AS area,
         a.id AS adviserId,
         a.name AS consultant,
-        SUM(IF(co.is_settle = true, CASE IFNULL(co.sure_expect_amount, 0) WHEN 0 THEN IFNULL(co.expect_amount, 0) END,
+        SUM(IF(co.is_settle = true, CASE IFNULL(IF(co.currency='CNY',co.sure_expect_amount/co.exchange_rate,co.sure_expect_amount), 0) WHEN 0 THEN IFNULL(co.expect_amount, 0) END,
         0)) AS deductionCommission,
-        SUM(IF(co.is_settle = false, co.expect_amount, 0)) AS claimCommission,
-        SUM(IF(co.commission_state = 'YZY', co.expect_amount, 0)) AS claimedCommission,
-        SUM(IF(co.is_settle, 0 , IFNULL(co.school_payment_amount , 0) - IFNULL(co.expect_amount , 0))) AS adjustments
+        SUM(IF(co.is_settle = false, IF(co.currency='CNY',co.expect_amount/co.expect_amount,co.expect_amount), 0)) AS claimCommission,
+        SUM(IF(co.commission_state = 'YZY', IF(co.currency='CNY',co.expect_amount/co.exchange_rate,co.expect_amount), 0)) AS claimedCommission,
+        SUM(IF(co.is_settle, 0 , IFNULL(IF(co.currency='CNY',co.school_payment_amount/co.exchange_rate,co.school_payment_amount) , 0) - IFNULL(IF(co.currency='CNY',co.expect_amount/co.exchange_rate,co.expect_amount) , 0))) AS adjustments
         FROM b_commission_order co, tb_adviser a, tb_region r
         WHERE a.region_id = r.id AND co.adviser_id = a.id AND co.state IN ('REVIEW', 'FINISH', 'COMPLETE', 'CLOSE')
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
@@ -1123,7 +1123,13 @@
             co.is_close AS isClose,
             co.invoice_create AS invoiceCreate
         FROM b_commission_order co
-        WHERE co.service_order_id = #{id, jdbcType=INTEGER} and co.adviser_id=#{adviserId, jdbcType=INTEGER};
+        WHERE co.service_order_id = #{id, jdbcType=INTEGER}
+        <choose>
+        <when test="adviserId!=0">
+        and  co.adviser_id=#{adviserId, jdbcType=INTEGER};
+        </when>
+        </choose>
+
     </select>
 
     <select id="listCommissionOrderByInvoiceNumber" parameterType="java.lang.String"

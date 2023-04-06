@@ -1,40 +1,8 @@
 package org.zhinanzhen.b.controller;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.dozer.DozerBeanMapper;
-import org.dozer.Mapper;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.zhinanzhen.b.dao.OfficialDAO;
-import org.zhinanzhen.b.dao.pojo.CommissionOrderListDO;
-import org.zhinanzhen.b.service.*;
-import org.zhinanzhen.b.service.pojo.*;
-import org.zhinanzhen.b.service.pojo.ant.Sorter;
-import org.zhinanzhen.tb.controller.ListResponse;
-import org.zhinanzhen.tb.controller.Response;
-import org.zhinanzhen.tb.service.RegionService;
-import org.zhinanzhen.tb.service.ServiceException;
-
 import com.alibaba.fastjson.JSON;
 import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.core.utils.StringUtil;
-
 import jxl.Cell;
 import jxl.Sheet;
 import jxl.Workbook;
@@ -43,9 +11,32 @@ import jxl.read.biff.BiffException;
 import jxl.write.Label;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
+import org.dozer.DozerBeanMapper;
+import org.dozer.Mapper;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.zhinanzhen.b.dao.OfficialDAO;
+import org.zhinanzhen.b.service.*;
+import org.zhinanzhen.b.service.pojo.*;
+import org.zhinanzhen.b.service.pojo.ant.Sorter;
+import org.zhinanzhen.tb.controller.ListResponse;
+import org.zhinanzhen.tb.controller.Response;
+import org.zhinanzhen.tb.service.RegionService;
+import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserService;
-import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -1222,8 +1213,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					if (commissionOrderListDto.getReceiveDate() != null)
 						sheet.addCell(new Label(2, i, sdf.format(commissionOrderListDto.getReceiveDate()), cellFormat));
 					if (commissionOrderListDto.getApplicant() != null)
-						sheet.addCell(new Label(3, i, commissionOrderListDto.getApplicant().getSurname() + " "
-								+ commissionOrderListDto.getApplicant().getFirstname(), cellFormat));
+						sheet.addCell(new Label(3, i, commissionOrderListDto.getApplicant().getFirstname() + " "
+								+ commissionOrderListDto.getApplicant().getSurname(), cellFormat));
 					sheet.addCell(new Label(4, i, commissionOrderListDto.getStudentCode(), cellFormat));
 					if (commissionOrderListDto.getBirthday() != null)
 						sheet.addCell(new Label(5, i, sdf.format(commissionOrderListDto.getBirthday()), cellFormat));
@@ -1333,8 +1324,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					if (commissionOrderListDto.getReceiveDate() != null)
 						sheet.addCell(new Label(2, i, sdf.format(commissionOrderListDto.getReceiveDate()), cellFormat));
 					if (commissionOrderListDto.getApplicant() != null)
-						sheet.addCell(new Label(3, i, commissionOrderListDto.getApplicant().getSurname() + " "
-								+ commissionOrderListDto.getApplicant().getFirstname(), cellFormat));
+						sheet.addCell(new Label(3, i, commissionOrderListDto.getApplicant().getFirstname() + " "
+								+ commissionOrderListDto.getApplicant().getSurname(), cellFormat));
 					sheet.addCell(new Label(4, i, commissionOrderListDto.getStudentCode(), cellFormat));
 					if (commissionOrderListDto.getBirthday() != null)
 						sheet.addCell(new Label(5, i, sdf.format(commissionOrderListDto.getBirthday()), cellFormat));
@@ -1477,7 +1468,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		try {
 			super.setGetHeader(response);
 			Integer adviserId = getAdviserId(request);
-			return new Response<List<CommissionInfoDTO>>(0, commissionOrderService.getCommissionInfoById(id,adviserId));
+			if (adviserId==null)
+				adviserId=0;
+			List<CommissionInfoDTO> commissionInfoById = commissionOrderService.getCommissionInfoById(id, adviserId);
+			return new Response<List<CommissionInfoDTO>>(0, commissionInfoById);
 		}
 		catch (ServiceException e) {
 			return new Response<List<CommissionInfoDTO>>(1, e.getMessage(), null);
