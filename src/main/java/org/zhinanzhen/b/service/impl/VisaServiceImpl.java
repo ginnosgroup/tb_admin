@@ -364,8 +364,11 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 		List<ApplicantDTO> applicantDTOS = new ArrayList<>();
 		for (ApplicantListDO applicantListDO : applicantListDOS) {
 			if (applicantListDO.getApplicantId() > 0) {
-				ApplicantDTO applicantDto = mapper.map(applicantDao.getById(visaListDo.getApplicantId()),
-						ApplicantDTO.class);
+				ApplicantDO applicantDO = applicantDao.getById(applicantListDO.getApplicantId());
+				ApplicantDTO applicantDto = new ApplicantDTO();
+				if (applicantDO!=null){
+					applicantDto = mapper.map(applicantDO, ApplicantDTO.class);
+				}
 				List<ServiceOrderApplicantDO> serviceOrderApplicantDoList = serviceOrderApplicantDao
 						.list(visaListDo.getServiceOrderId(), visaListDo.getApplicantId());
 				if (serviceOrderApplicantDoList != null && serviceOrderApplicantDoList.size() > 0
