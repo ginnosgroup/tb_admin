@@ -5,16 +5,14 @@ import org.zhinanzhen.b.dao.pojo.ApplicantDO;
 @Data
 public class ApplicantDTO extends ApplicantDO {
 
+	private int serviceOrderId;
+
 	private String url;
 
-
 	private String content;
-	
 
 	private UserDTO userDto;
 
 	private boolean isSubmitMM;
-
-	private int serviceOrderId;
 
 }

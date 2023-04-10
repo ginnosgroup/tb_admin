@@ -373,7 +373,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 					applicantDto.setUrl(serviceOrderApplicantDoList.get(0).getUrl());
 					applicantDto.setContent(serviceOrderApplicantDoList.get(0).getContent());
 				}
-				applicantDto.setServiceOrderId(applicantDO.getId());
+				applicantDto.setServiceOrderId(applicantListDO.getId());
 				//判断是否提交mm资料
 				if (customerInformationDAO.getByServiceOrderId(applicantListDO.getId()) != null) {
 					applicantDto.setSubmitMM(true);
