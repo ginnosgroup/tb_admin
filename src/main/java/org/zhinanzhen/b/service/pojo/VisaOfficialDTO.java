@@ -2,7 +2,6 @@ package org.zhinanzhen.b.service.pojo;
 
 import lombok.Data;
 import org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO;
-import org.zhinanzhen.b.dao.pojo.VisaDO;
 
 import java.util.Date;
 import java.util.List;
@@ -30,7 +29,7 @@ public class VisaOfficialDTO {
 
     private int applicantId;
 
-    private ApplicantDTO applicant;
+    private List<ApplicantDTO> applicant;
 
     private String state;
 

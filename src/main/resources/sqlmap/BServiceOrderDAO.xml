@@ -1216,7 +1216,6 @@ FROM
 WHERE
 	applicant_parent_id = #{serviceOrderId}
 	OR id = #{serviceOrderId}
-	GROUP BY applicantId
     </select>
 
 </mapper>
