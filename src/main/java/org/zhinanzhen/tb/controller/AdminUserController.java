@@ -122,6 +122,10 @@ public class AdminUserController extends BaseController {
 			return new Response<Boolean>(0, "验证码异常:" + e.getMessage(), false);
 		}
 		int id = adminUserService.login(username, password);
+		if (id == 0)
+			return new Response<Boolean>(0, "", false);
+		if (id == -1)
+			return new Response<Boolean>(-1, "该帐号可能已被禁用！", false);
 		String uid = (String) session.getAttribute("uid");
 		if (StringUtil.isNotEmpty(uid) && adminUserService.getAdminUserByOpenUserId(uid) == null) {
 			adminUserService.updateOperUserId(id, uid); // 绑定企业微信号
