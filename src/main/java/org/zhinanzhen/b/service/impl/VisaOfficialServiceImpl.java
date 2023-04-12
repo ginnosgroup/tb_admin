@@ -87,25 +87,40 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
     @Resource
     private ServiceAssessDao serviceAssessDao;
 
+    @Resource
+    private CustomerInformationDAO customerInformationDAO;
 
     public VisaOfficialDTO putVisaOfficialDTO(VisaOfficialListDO visaListDo) throws ServiceException {
         VisaOfficialDTO visaOfficialDto = putVisaOfficialDTO((VisaOfficialDO) visaListDo);
-        if (visaListDo.getApplicantId() > 0) {
+        List<ApplicantListDO> applicantListDOS = serviceOrderDao.ApplicantListByServiceOrderId(visaListDo.getServiceOrderId());
+        List<ApplicantDTO> applicantDTOS = new ArrayList<>();
+        for (ApplicantListDO applicantListDO : applicantListDOS) {
+            if (applicantListDO.getApplicantId() > 0) {
+                ApplicantDO applicantDO = applicantDao.getById(applicantListDO.getApplicantId());
+                ApplicantDTO applicantDto = new ApplicantDTO();
+                if (applicantDO!=null){
+                    applicantDto = mapper.map(applicantDO, ApplicantDTO.class);
+                }
+                List<ServiceOrderApplicantDO> serviceOrderApplicantDoList = serviceOrderApplicantDao
+                        .list(visaListDo.getServiceOrderId(), visaListDo.getApplicantId());
+                if (serviceOrderApplicantDoList != null && serviceOrderApplicantDoList.size() > 0
+                        && serviceOrderApplicantDoList.get(0) != null) {
+                    applicantDto.setUrl(serviceOrderApplicantDoList.get(0).getUrl());
+                    applicantDto.setContent(serviceOrderApplicantDoList.get(0).getContent());
+                }
+                applicantDto.setServiceOrderId(applicantListDO.getId());
+                //判断是否提交mm资料
+                if (customerInformationDAO.getByServiceOrderId(applicantListDO.getId()) != null) {
+                    applicantDto.setSubmitMM(true);
+                } else
+                    applicantDto.setSubmitMM(false);
+                applicantDTOS.add(applicantDto);
 
-            ApplicantDTO applicantDto = mapper.map(applicantDao.getById(visaListDo.getApplicantId()),
-                    ApplicantDTO.class);
-
-            List<ServiceOrderApplicantDO> serviceOrderApplicantDoList = serviceOrderApplicantDao
-                    .list(visaListDo.getServiceOrderId(), visaListDo.getApplicantId());
-            if (serviceOrderApplicantDoList != null && serviceOrderApplicantDoList.size() > 0
-                    && serviceOrderApplicantDoList.get(0) != null) {
-                applicantDto.setUrl(serviceOrderApplicantDoList.get(0).getUrl());
-                applicantDto.setContent(serviceOrderApplicantDoList.get(0).getContent());
             }
 
-            visaOfficialDto.setApplicant(applicantDto);
-            visaOfficialDto.setApplicantId(visaListDo.getApplicantId());
         }
+        visaOfficialDto.setApplicant(applicantDTOS);
+        visaOfficialDto.setApplicantId(visaListDo.getApplicantId());
         return visaOfficialDto;
     }
 

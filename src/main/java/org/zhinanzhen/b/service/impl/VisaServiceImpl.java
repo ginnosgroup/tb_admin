@@ -1,22 +1,16 @@
 package org.zhinanzhen.b.service.impl;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.annotation.Resource;
-
+import com.ikasoa.core.ErrorCodeEnum;
+import com.ikasoa.core.utils.ObjectUtil;
+import com.ikasoa.core.utils.StringUtil;
+import lombok.Synchronized;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.AbleStateEnum;
-import org.zhinanzhen.b.service.MaraService;
-import org.zhinanzhen.b.service.ServicePackagePriceService;
 import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
-import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
@@ -26,11 +20,11 @@ import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
-import com.ikasoa.core.ErrorCodeEnum;
-import com.ikasoa.core.utils.ObjectUtil;
-import com.ikasoa.core.utils.StringUtil;
-
-import lombok.Synchronized;
+import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Service("VisaService")
 public class VisaServiceImpl extends BaseService implements VisaService {
@@ -91,6 +85,9 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 
 	@Resource
 	private MaraDAO maraDAO;
+
+	@Resource
+	private CustomerInformationDAO customerInformationDAO;
 
 	@Override
 	public int addVisa(VisaDTO visaDto) throws ServiceException {
@@ -360,22 +357,34 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 
 	public VisaDTO putVisaDTO(VisaListDO visaListDo) throws ServiceException {
 		VisaDTO visaDto = putVisaDTO((VisaDO) visaListDo);
-		if (visaListDo.getApplicantId() > 0) {
-
-			ApplicantDTO applicantDto = mapper.map(applicantDao.getById(visaListDo.getApplicantId()),
-					ApplicantDTO.class);
-
-			List<ServiceOrderApplicantDO> serviceOrderApplicantDoList = serviceOrderApplicantDao
-					.list(visaListDo.getServiceOrderId(), visaListDo.getApplicantId());
-			if (serviceOrderApplicantDoList != null && serviceOrderApplicantDoList.size() > 0
-					&& serviceOrderApplicantDoList.get(0) != null) {
-				applicantDto.setUrl(serviceOrderApplicantDoList.get(0).getUrl());
-				applicantDto.setContent(serviceOrderApplicantDoList.get(0).getContent());
+		List<ApplicantListDO> applicantListDOS = serviceOrderDao.ApplicantListByServiceOrderId(visaListDo.getServiceOrderId());
+		List<ApplicantDTO> applicantDTOS = new ArrayList<>();
+		for (ApplicantListDO applicantListDO : applicantListDOS) {
+			if (applicantListDO.getApplicantId() > 0) {
+				ApplicantDO applicantDO = applicantDao.getById(applicantListDO.getApplicantId());
+				ApplicantDTO applicantDto = new ApplicantDTO();
+				if (applicantDO!=null){
+					applicantDto = mapper.map(applicantDO, ApplicantDTO.class);
+				}
+				List<ServiceOrderApplicantDO> serviceOrderApplicantDoList = serviceOrderApplicantDao
+						.list(visaListDo.getServiceOrderId(), visaListDo.getApplicantId());
+				if (serviceOrderApplicantDoList != null && serviceOrderApplicantDoList.size() > 0
+						&& serviceOrderApplicantDoList.get(0) != null) {
+					applicantDto.setUrl(serviceOrderApplicantDoList.get(0).getUrl());
+					applicantDto.setContent(serviceOrderApplicantDoList.get(0).getContent());
+				}
+				applicantDto.setServiceOrderId(applicantListDO.getId());
+				//判断是否提交mm资料
+				if (customerInformationDAO.getByServiceOrderId(applicantListDO.getId()) != null) {
+					applicantDto.setSubmitMM(true);
+				} else
+					applicantDto.setSubmitMM(false);
+				applicantDTOS.add(applicantDto);
 			}
-
-			visaDto.setApplicant(applicantDto);
-			visaDto.setApplicantId(visaListDo.getApplicantId());
 		}
+		visaDto.setApplicant(applicantDTOS);
+		visaDto.setApplicantId(visaListDo.getApplicantId());
+
 		return visaDto;
 	}
 

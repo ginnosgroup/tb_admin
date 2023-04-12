@@ -24,7 +24,7 @@ public class VisaDTO {
 	
 	private int applicantId;
 
-	private ApplicantDTO applicant;
+	private List<ApplicantDTO> applicant;
 
 	private String state;
 

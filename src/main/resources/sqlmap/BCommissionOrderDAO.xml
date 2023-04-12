@@ -1123,7 +1123,13 @@
             co.is_close AS isClose,
             co.invoice_create AS invoiceCreate
         FROM b_commission_order co
-        WHERE co.service_order_id = #{id, jdbcType=INTEGER} and co.adviser_id=#{adviserId, jdbcType=INTEGER};
+        WHERE co.service_order_id = #{id, jdbcType=INTEGER}
+        <choose>
+        <when test="adviserId!=0">
+        and  co.adviser_id=#{adviserId, jdbcType=INTEGER};
+        </when>
+        </choose>
+
     </select>
 
     <select id="listCommissionOrderByInvoiceNumber" parameterType="java.lang.String"
