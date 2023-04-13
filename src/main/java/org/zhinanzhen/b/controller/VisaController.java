@@ -1,32 +1,20 @@
 package org.zhinanzhen.b.controller;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import com.alibaba.fastjson.JSON;
+import com.ikasoa.core.utils.ListUtil;
+import com.ikasoa.core.utils.StringUtil;
+import jxl.Cell;
+import jxl.Sheet;
+import jxl.Workbook;
+import jxl.WorkbookSettings;
+import jxl.read.biff.BiffException;
+import jxl.write.Label;
+import jxl.write.WritableCellFormat;
+import jxl.write.WritableSheet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO;
 import org.zhinanzhen.b.service.*;
@@ -39,637 +27,575 @@ import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
 
-import com.alibaba.fastjson.JSON;
-import com.ikasoa.core.utils.ListUtil;
-import com.ikasoa.core.utils.StringUtil;
-
-import jxl.Cell;
-import jxl.Sheet;
-import jxl.Workbook;
-import jxl.WorkbookSettings;
-import jxl.read.biff.BiffException;
-import jxl.write.Label;
-import jxl.write.WritableCellFormat;
-import jxl.write.WritableSheet;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/visa")
 public class VisaController extends BaseCommissionOrderController {
-	@Resource
-	MaraService maraService;
-	@Resource
-	VisaService visaService;
 
-	@Resource
-	ServiceOrderService serviceOrderService;
+    private static final Logger LOG = LoggerFactory.getLogger(ServiceOrderController.class);
 
-	@Resource
-	ApplicantService applicantService;
+    @Resource
+    MaraService maraService;
+    @Resource
+    VisaService visaService;
 
-	@Resource
-	RegionService regionService;
+    @Resource
+    ServiceOrderService serviceOrderService;
 
-	@Resource
-	UserService userService;
+    @Resource
+    ApplicantService applicantService;
 
-	@Resource
-	MailRemindService mailRemindService;
+    @Resource
+    RegionService regionService;
 
-	@Resource
-	ServicePackagePriceService servicePackagePriceService;
+    @Resource
+    UserService userService;
 
-	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    @Resource
+    MailRemindService mailRemindService;
 
-	@RequestMapping(value = "/upload_img", method = RequestMethod.POST)
-	@ResponseBody
-	public Response<String> uploadImage(@RequestParam MultipartFile file, HttpServletRequest request,
-										HttpServletResponse response) throws IllegalStateException, IOException {
-		super.setPostHeader(response);
-		return super.upload2(file, request.getSession(), "/uploads/payment_voucher_image_url_v/");
-	}
+    @Resource
+    ServicePackagePriceService servicePackagePriceService;
 
-	@RequestMapping(value = "/add", method = RequestMethod.POST)
-	@ResponseBody
-	public Response<List<VisaDTO>> addVisa(@RequestParam(value = "userId", required = false) String userId,
-										   @RequestParam(value = "applicantBirthday", required = false) String applicantBirthday,
-										   @RequestParam(value = "handlingDate") String handlingDate,
-										   @RequestParam(value = "receiveTypeId") String receiveTypeId,
-										   @RequestParam(value = "receiveDate") String receiveDate,
-										   @RequestParam(value = "serviceId") String serviceId,
-										   @RequestParam(value = "serviceOrderId") Integer serviceOrderId,
-										   @RequestParam(value = "installment") Integer installment,
-										   @RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
-										   @RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
-										   @RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
-										   @RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
-										   @RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
-										   @RequestParam(value = "visaVoucherImageUrl", required = false) String visaVoucherImageUrl,
-										   @RequestParam(value = "receivable") String receivable,
-										   @RequestParam(value = "received", required = false) String received,
-										   @RequestParam(value = "perAmount") String perAmount, @RequestParam(value = "amount") String amount,
-										   @RequestParam(value = "currency", required = false) String currency,
-										   @RequestParam(value = "exchangeRate", required = false) String exchangeRate,
-										   @RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
-										   @RequestParam(value = "adviserId") String adviserId, @RequestParam(value = "maraId") String maraId,
-										   @RequestParam(value = "officialId") String officialId,
-										   @RequestParam(value = "remarks", required = false) String remarks,
-										   @RequestParam(value = "verifyCode", required = false) String verifyCode, HttpServletRequest request,
-										   HttpServletResponse response) {
+    @Resource
+    WXWorkService wxWorkService;
 
-		// 更改当前顾问编号
-		Integer newAdviserId = getAdviserId(request);
-		if (newAdviserId != null)
-			adviserId = newAdviserId + "";
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-		try {
-			super.setPostHeader(response);
-			// AdminUserLoginInfo adminUserLoginInfo =
-			// getAdminUserLoginInfo(request);
-			// if (adminUserLoginInfo == null ||
-			// (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
-			// && !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
-			// return new Response<List<VisaDTO>>(1, "仅顾问和超级管理员能创建佣金订单.", null);
-			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(serviceOrderId);
-			if (serviceOrderDto == null)
-				return new Response<List<VisaDTO>>(1, "服务订单(ID:" + serviceOrderId + ")不存在!", null);
-			List<VisaDTO> visaDtoList = new ArrayList<>();
-			VisaDTO visaDto = new VisaDTO();
-			double _receivable = 0.00;
-			if (StringUtil.isNotEmpty(receivable))
-				_receivable = Double.parseDouble(receivable);
-			double _received = 0.00;
-			if (StringUtil.isNotEmpty(received))
-				_received = Double.parseDouble(received);
-			visaDto.setState(ReviewKjStateEnum.PENDING.toString());
-			if (StringUtil.isNotEmpty(userId))
-				visaDto.setUserId(Integer.parseInt(userId));
-			visaDto.setCode(UUID.randomUUID().toString());
-			if (StringUtil.isNotEmpty(handlingDate))
-				visaDto.setHandlingDate(new Date(Long.parseLong(handlingDate)));
-			if (StringUtil.isNotEmpty(receiveTypeId))
-				visaDto.setReceiveTypeId(Integer.parseInt(receiveTypeId));
-			if (StringUtil.isNotEmpty(receiveDate))
-				visaDto.setReceiveDate(new Date(Long.parseLong(receiveDate)));
-			if (StringUtil.isNotEmpty(serviceId))
-				visaDto.setServiceId(Integer.parseInt(serviceId));
-			if (serviceOrderId != null && serviceOrderId > 0)
-				visaDto.setServiceOrderId(serviceOrderId);
-			if (installment != null)
-				visaDto.setInstallment(installment);
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
-				visaDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
-			else
-				visaDto.setPaymentVoucherImageUrl1(serviceOrderDto.getPaymentVoucherImageUrl1());
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
-				visaDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
-			else
-				visaDto.setPaymentVoucherImageUrl2(serviceOrderDto.getPaymentVoucherImageUrl2());
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl3))
-				visaDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
-			else
-				visaDto.setPaymentVoucherImageUrl3(serviceOrderDto.getPaymentVoucherImageUrl3());
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl4))
-				visaDto.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
-			else
-				visaDto.setPaymentVoucherImageUrl4(serviceOrderDto.getPaymentVoucherImageUrl4());
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl5))
-				visaDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
-			else
-				visaDto.setPaymentVoucherImageUrl5(serviceOrderDto.getPaymentVoucherImageUrl5());
-			if (StringUtil.isNotEmpty(visaVoucherImageUrl))
-				visaDto.setVisaVoucherImageUrl(visaVoucherImageUrl);
-			else
-				visaDto.setVisaVoucherImageUrl(serviceOrderDto.getVisaVoucherImageUrl());
+    @RequestMapping(value = "/upload_img", method = RequestMethod.POST)
+    @ResponseBody
+    public Response<String> uploadImage(@RequestParam MultipartFile file, HttpServletRequest request,
+                                        HttpServletResponse response) throws IllegalStateException, IOException {
+        super.setPostHeader(response);
+        return super.upload2(file, request.getSession(), "/uploads/payment_voucher_image_url_v/");
+    }
+
+    @RequestMapping(value = "/add", method = RequestMethod.POST)
+    @ResponseBody
+    public Response<List<VisaDTO>> addVisa(@RequestParam(value = "userId", required = false) String userId,
+                                           @RequestParam(value = "applicantBirthday", required = false) String applicantBirthday,
+                                           @RequestParam(value = "handlingDate") String handlingDate,
+                                           @RequestParam(value = "receiveTypeId") String receiveTypeId,
+                                           @RequestParam(value = "receiveDate") String receiveDate,
+                                           @RequestParam(value = "serviceId") String serviceId,
+                                           @RequestParam(value = "serviceOrderId") Integer serviceOrderId,
+                                           @RequestParam(value = "installment") Integer installment,
+                                           @RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
+                                           @RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
+                                           @RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
+                                           @RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
+                                           @RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
+                                           @RequestParam(value = "visaVoucherImageUrl", required = false) String visaVoucherImageUrl,
+                                           @RequestParam(value = "receivable") String receivable,
+                                           @RequestParam(value = "received", required = false) String received,
+                                           @RequestParam(value = "perAmount") String perAmount, @RequestParam(value = "amount") String amount,
+                                           @RequestParam(value = "currency", required = false) String currency,
+                                           @RequestParam(value = "exchangeRate", required = false) String exchangeRate,
+                                           @RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
+                                           @RequestParam(value = "adviserId") String adviserId, @RequestParam(value = "maraId") String maraId,
+                                           @RequestParam(value = "officialId") String officialId,
+                                           @RequestParam(value = "remarks", required = false) String remarks,
+                                           @RequestParam(value = "verifyCode", required = false) String verifyCode, HttpServletRequest request,
+                                           HttpServletResponse response) {
+
+        // 更改当前顾问编号
+        Integer newAdviserId = getAdviserId(request);
+        if (newAdviserId != null)
+            adviserId = newAdviserId + "";
+
+        try {
+            super.setPostHeader(response);
+            AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+            // AdminUserLoginInfo adminUserLoginInfo =
+            // getAdminUserLoginInfo(request);
+            // if (adminUserLoginInfo == null ||
+            // (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+            // && !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+            // return new Response<List<VisaDTO>>(1, "仅顾问和超级管理员能创建佣金订单.", null);
+            ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(serviceOrderId);
+            if (serviceOrderDto == null)
+                return new Response<List<VisaDTO>>(1, "服务订单(ID:" + serviceOrderId + ")不存在!", null);
+            List<VisaDTO> visaDtoList = new ArrayList<>();
+            VisaDTO visaDto = new VisaDTO();
+            double _receivable = 0.00;
+            if (StringUtil.isNotEmpty(receivable))
+                _receivable = Double.parseDouble(receivable);
+            double _received = 0.00;
+            if (StringUtil.isNotEmpty(received))
+                _received = Double.parseDouble(received);
+            visaDto.setState(ReviewKjStateEnum.PENDING.toString());
+            if (StringUtil.isNotEmpty(userId))
+                visaDto.setUserId(Integer.parseInt(userId));
+            visaDto.setCode(UUID.randomUUID().toString());
+            if (StringUtil.isNotEmpty(handlingDate))
+                visaDto.setHandlingDate(new Date(Long.parseLong(handlingDate)));
+            if (StringUtil.isNotEmpty(receiveTypeId))
+                visaDto.setReceiveTypeId(Integer.parseInt(receiveTypeId));
+            if (StringUtil.isNotEmpty(receiveDate))
+                visaDto.setReceiveDate(new Date(Long.parseLong(receiveDate)));
+            if (StringUtil.isNotEmpty(serviceId))
+                visaDto.setServiceId(Integer.parseInt(serviceId));
+            if (serviceOrderId != null && serviceOrderId > 0)
+                visaDto.setServiceOrderId(serviceOrderId);
+            if (installment != null)
+                visaDto.setInstallment(installment);
+            if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
+                visaDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
+            else
+                visaDto.setPaymentVoucherImageUrl1(serviceOrderDto.getPaymentVoucherImageUrl1());
+            if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
+                visaDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
+            else
+                visaDto.setPaymentVoucherImageUrl2(serviceOrderDto.getPaymentVoucherImageUrl2());
+            if (StringUtil.isNotEmpty(paymentVoucherImageUrl3))
+                visaDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
+            else
+                visaDto.setPaymentVoucherImageUrl3(serviceOrderDto.getPaymentVoucherImageUrl3());
+            if (StringUtil.isNotEmpty(paymentVoucherImageUrl4))
+                visaDto.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
+            else
+                visaDto.setPaymentVoucherImageUrl4(serviceOrderDto.getPaymentVoucherImageUrl4());
+            if (StringUtil.isNotEmpty(paymentVoucherImageUrl5))
+                visaDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
+            else
+                visaDto.setPaymentVoucherImageUrl5(serviceOrderDto.getPaymentVoucherImageUrl5());
+            if (StringUtil.isNotEmpty(visaVoucherImageUrl))
+                visaDto.setVisaVoucherImageUrl(visaVoucherImageUrl);
+            else
+                visaDto.setVisaVoucherImageUrl(serviceOrderDto.getVisaVoucherImageUrl());
 //				visaDto.setReceivable(Double.parseDouble(receivable));
 //			if (StringUtil.isNotEmpty(received))
 //				visaDto.setReceived(Double.parseDouble(received));
-			if (StringUtil.isNotEmpty(perAmount))
-				visaDto.setPerAmount(Double.parseDouble(perAmount));
-			if (StringUtil.isNotEmpty(amount))
-				visaDto.setAmount(Double.parseDouble(amount));
-			if (visaDto.getPerAmount() < visaDto.getAmount())
-				return new Response<List<VisaDTO>>(1,
-						"本次应收款(" + visaDto.getPerAmount() + ")不能小于本次已收款(" + visaDto.getAmount() + ")!", null);
-			if (StringUtil.isNotEmpty(currency))
-				visaDto.setCurrency(currency);
-			if (StringUtil.isNotEmpty(exchangeRate))
-				visaDto.setExchangeRate(Double.parseDouble(exchangeRate));
-			visaDto.setDiscount(visaDto.getPerAmount() - visaDto.getAmount());
-			if (StringUtil.isNotEmpty(invoiceNumber))
-				visaDto.setInvoiceNumber(invoiceNumber);
-			if (StringUtil.isNotEmpty(adviserId)) {
-				visaDto.setAdviserId(StringUtil.toInt(adviserId));
-			}
-			if (StringUtil.isNotEmpty(maraId))
-				visaDto.setMaraId(StringUtil.toInt(maraId));
-			if (StringUtil.isNotEmpty(officialId)) {
-				visaDto.setOfficialId(StringUtil.toInt(officialId));
-			}
-			if (StringUtil.isNotEmpty(remarks))
-				visaDto.setRemarks(remarks);
-			double commission = visaDto.getAmount();
-			visaDto.setGst(commission / 11);
-			visaDto.setDeductGst(commission - visaDto.getGst());
-			visaDto.setBonus(visaDto.getDeductGst() * 0.1);
-			visaDto.setExpectAmount(commission);
+            if (StringUtil.isNotEmpty(perAmount))
+                visaDto.setPerAmount(Double.parseDouble(perAmount));
+            if (StringUtil.isNotEmpty(amount))
+                visaDto.setAmount(Double.parseDouble(amount));
+            if (visaDto.getPerAmount() < visaDto.getAmount())
+                return new Response<List<VisaDTO>>(1,
+                        "本次应收款(" + visaDto.getPerAmount() + ")不能小于本次已收款(" + visaDto.getAmount() + ")!", null);
+            if (StringUtil.isNotEmpty(currency))
+                visaDto.setCurrency(currency);
+            if (StringUtil.isNotEmpty(exchangeRate))
+                visaDto.setExchangeRate(Double.parseDouble(exchangeRate));
+            visaDto.setDiscount(visaDto.getPerAmount() - visaDto.getAmount());
+            if (StringUtil.isNotEmpty(invoiceNumber))
+                visaDto.setInvoiceNumber(invoiceNumber);
+            if (StringUtil.isNotEmpty(adviserId)) {
+                visaDto.setAdviserId(StringUtil.toInt(adviserId));
+            }
+            if (StringUtil.isNotEmpty(maraId))
+                visaDto.setMaraId(StringUtil.toInt(maraId));
+            if (StringUtil.isNotEmpty(officialId)) {
+                visaDto.setOfficialId(StringUtil.toInt(officialId));
+            }
+            if (StringUtil.isNotEmpty(remarks))
+                visaDto.setRemarks(remarks);
+            double commission = visaDto.getAmount();
+            visaDto.setGst(commission / 11);
+            visaDto.setDeductGst(commission - visaDto.getGst());
+            visaDto.setBonus(visaDto.getDeductGst() * 0.1);
+            visaDto.setExpectAmount(commission);
 
-			double _perAmount = 0.00;
-			double _amount = 0.00;
-			for (int installmentNum = 1; installmentNum <= installment; installmentNum++) {
-				visaDto.setInstallmentNum(installmentNum);
-				if (installmentNum > 1) { // 只给第一个添加支付凭证
-					visaDto.setPaymentVoucherImageUrl1(null);
-					visaDto.setPaymentVoucherImageUrl2(null);
-					visaDto.setPaymentVoucherImageUrl3(null);
-					visaDto.setPaymentVoucherImageUrl4(null);
-					visaDto.setPaymentVoucherImageUrl5(null);
-					visaDto.setState(ReviewKjStateEnum.PENDING.toString());
-					visaDto.setVerifyCode(null);// 只给第一笔对账verifyCode
-					visaDto.setKjApprovalDate(null);
-					visaDto.setReceiveDate(null);
-					visaDto.setPerAmount(_receivable > _perAmount ? _receivable - _perAmount : 0.00); // 第二笔单子修改本次应收款
+            double _perAmount = 0.00;
+            double _amount = 0.00;
+            for (int installmentNum = 1; installmentNum <= installment; installmentNum++) {
+                visaDto.setInstallmentNum(installmentNum);
+                if (installmentNum > 1) { // 只给第一个添加支付凭证
+                    visaDto.setPaymentVoucherImageUrl1(null);
+                    visaDto.setPaymentVoucherImageUrl2(null);
+                    visaDto.setPaymentVoucherImageUrl3(null);
+                    visaDto.setPaymentVoucherImageUrl4(null);
+                    visaDto.setPaymentVoucherImageUrl5(null);
+                    visaDto.setState(ReviewKjStateEnum.PENDING.toString());
+                    visaDto.setVerifyCode(null);// 只给第一笔对账verifyCode
+                    visaDto.setKjApprovalDate(null);
+                    visaDto.setReceiveDate(null);
+                    visaDto.setPerAmount(_receivable > _perAmount ? _receivable - _perAmount : 0.00); // 第二笔单子修改本次应收款
 //					if (_received > 0.00)
 //						visaDto.setAmount(_received > _amount ? _received - _amount : 0.00);
 //					else
-					visaDto.setAmount(visaDto.getPerAmount());
-					visaDto.setDiscount(0.00);
-				} else {
-					visaDto.setState(ReviewKjStateEnum.REVIEW.toString()); // 第一笔单子直接进入财务审核状态
-					if (StringUtil.isNotEmpty(verifyCode))// 只给第一笔赋值verifyCode
-						visaDto.setVerifyCode(verifyCode.replace("$", "").replace("#", "").replace(" ", ""));
-					visaDto.setKjApprovalDate(new Date());
-				}
-				if (visaService.addVisa(visaDto) > 0)
-					visaDtoList.add(visaDto);
-				_perAmount += visaDto.getPerAmount();
-				_amount += visaDto.getAmount();
-			}
-			serviceOrderDto.setOfficialApprovalDate(new Date());
-			serviceOrderDto.setSubmitted(true);
-			serviceOrderService.updateServiceOrder(serviceOrderDto);
-			if (serviceOrderDto.getParentId() > 0) {
-				ServiceOrderDTO _serviceOrderDto = serviceOrderService
-						.getServiceOrderById(serviceOrderDto.getParentId());
-				if (_serviceOrderDto != null && !_serviceOrderDto.isSubmitted()) {
-					_serviceOrderDto.setSubmitted(true);
-					serviceOrderService.updateServiceOrder(_serviceOrderDto);
-				}
-			}
-			ApplicantDTO applicantDto = serviceOrderDto.getApplicant();
-			String msg = "";
-			if (applicantDto != null && applicantBirthday != null) {
-				applicantDto.setBirthday(new Date(Long.parseLong(applicantBirthday)));
-				if (applicantService.update(applicantDto) <= 0)
-					msg += "申请人生日修改失败! (serviceOrderId:" + serviceOrderDto.getId() + ", applicantId:"
-							+ applicantDto.getId() + ", applicantBirthday:" + applicantDto.getBirthday() + ");";
-				else
-					msg += "申请人生日修改成功. (serviceOrderId:" + serviceOrderDto.getId() + ", applicantId:"
-							+ applicantDto.getId() + ", applicantBirthday:" + applicantDto.getBirthday() + ");";
-			}
-			return new Response<List<VisaDTO>>(0, msg, visaDtoList);
-		} catch (ServiceException e) {
-			return new Response<List<VisaDTO>>(e.getCode(), e.getMessage(), null);
-		}
-	}
+                    visaDto.setAmount(visaDto.getPerAmount());
+                    visaDto.setDiscount(0.00);
+                } else {
+                    visaDto.setState(ReviewKjStateEnum.REVIEW.toString()); // 第一笔单子直接进入财务审核状态
+                    if (StringUtil.isNotEmpty(verifyCode))// 只给第一笔赋值verifyCode
+                        visaDto.setVerifyCode(verifyCode.replace("$", "").replace("#", "").replace(" ", ""));
+                    visaDto.setKjApprovalDate(new Date());
+                }
+                if (visaService.addVisa(visaDto) > 0)
+                    visaDtoList.add(visaDto);
+                _perAmount += visaDto.getPerAmount();
+                _amount += visaDto.getAmount();
+            }
+            serviceOrderDto.setOfficialApprovalDate(new Date());
+            serviceOrderDto.setSubmitted(true);
+            serviceOrderService.updateServiceOrder(serviceOrderDto);
+            if (serviceOrderDto.getParentId() > 0) {
+                ServiceOrderDTO _serviceOrderDto = serviceOrderService
+                        .getServiceOrderById(serviceOrderDto.getParentId());
+                if (_serviceOrderDto != null && !_serviceOrderDto.isSubmitted()) {
+                    _serviceOrderDto.setSubmitted(true);
+                    serviceOrderService.updateServiceOrder(_serviceOrderDto);
+                }
+            }
+            ApplicantDTO applicantDto = serviceOrderDto.getApplicant();
+            String msg = "";
+            if (applicantDto != null && applicantBirthday != null) {
+                applicantDto.setBirthday(new Date(Long.parseLong(applicantBirthday)));
+                if (applicantService.update(applicantDto) <= 0)
+                    msg += "申请人生日修改失败! (serviceOrderId:" + serviceOrderDto.getId() + ", applicantId:"
+                            + applicantDto.getId() + ", applicantBirthday:" + applicantDto.getBirthday() + ");";
+                else
+                    msg += "申请人生日修改成功. (serviceOrderId:" + serviceOrderDto.getId() + ", applicantId:"
+                            + applicantDto.getId() + ", applicantBirthday:" + applicantDto.getBirthday() + ");";
+            }
+            //咨询服务未选择文案发送消息
+            if ("GW".equalsIgnoreCase(adminUserLoginInfo.getApList()) && "ZX".equals(serviceOrderDto.getType())
+                    && serviceOrderDto.getOfficialId() == 0) {
+                String token = token(request, "corp");
+                LOG.info("发送群聊订单:" + serviceOrderDto.getId() + " . ACCESS_TOKEN: " + token);
+                if (wxWorkService.sendMsg(serviceOrderDto.getId(), token)) {
+                    LOG.info(serviceOrderDto.getId() + " 订单群聊消息发送成功 . ACCESS_TOKEN:" + token);
+                }
+            }
+            return new Response<List<VisaDTO>>(0, msg, visaDtoList);
+        } catch (ServiceException e) {
+            return new Response<List<VisaDTO>>(e.getCode(), e.getMessage(), null);
+        }
+    }
 
-	@RequestMapping(value = "/update", method = RequestMethod.POST)
-	@ResponseBody
-	public Response<VisaDTO> update(@RequestParam(value = "id") int id,
-									@RequestParam(value = "state", required = false) String state,
-									@RequestParam(value = "userId", required = false) String userId,
-									@RequestParam(value = "applicantBirthday", required = false) String applicantBirthday,
-									@RequestParam(value = "commissionState", required = false) String commissionState,
-									@RequestParam(value = "handlingDate", required = false) String handlingDate,
-									@RequestParam(value = "receiveTypeId", required = false) String receiveTypeId,
-									@RequestParam(value = "receiveDate", required = false) String receiveDate,
-									@RequestParam(value = "serviceId", required = false) String serviceId,
-									@RequestParam(value = "serviceOrderId", required = false) Integer serviceOrderId,
-									@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
-									@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
-									@RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
-									@RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
-									@RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
-									@RequestParam(value = "visaVoucherImageUrl", required = false) String visaVoucherImageUrl,
-									@RequestParam(value = "receivable", required = false) String receivable,
-									@RequestParam(value = "received", required = false) String received,
-									@RequestParam(value = "perAmount", required = false) String perAmount,
-									@RequestParam(value = "amount", required = false) String amount,
-									@RequestParam(value = "sureExpectAmount", required = false) Double sureExpectAmount,
-									@RequestParam(value = "currency", required = false) String currency,
-									@RequestParam(value = "exchangeRate", required = false) String exchangeRate,
-									@RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
-									@RequestParam(value = "adviserId", required = false) String adviserId,
-									@RequestParam(value = "maraId", required = false) String maraId,
-									@RequestParam(value = "officialId", required = false) String officialId,
-									@RequestParam(value = "bankCheck", required = false) String bankCheck,
-									@RequestParam(value = "isChecked", required = false) String isChecked,
-									@RequestParam(value = "remarks", required = false) String remarks,
-									@RequestParam(value = "verifyCode", required = false) String verifyCode, HttpServletRequest request,
-									HttpServletResponse response) {
-		try {
-			super.setPostHeader(response);
-			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			VisaDTO _visaDto = visaService.getVisaById(id);
-			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(_visaDto.getServiceOrderId());
-			VisaDTO visaDto = new VisaDTO();
-			visaDto.setId(id);
-			if (adminUserLoginInfo != null && "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())
-					&& commissionState != null) // 只有会计能修改佣金状态
-				visaDto.setCommissionState(CommissionStateEnum.get(commissionState.toUpperCase()).toString());
-			if (StringUtil.isNotEmpty(state))
-				visaDto.setState(state);
-			else
-				visaDto.setState(ReviewKjStateEnum.REVIEW.toString()); // 修改后重新审核
-			if (StringUtil.isNotEmpty(handlingDate)) {
-				visaDto.setHandlingDate(new Date(Long.parseLong(handlingDate)));
-			}
-			if (StringUtil.isNotEmpty(userId)) {
-				visaDto.setUserId(Integer.parseInt(userId));
-			}
-			if (StringUtil.isNotEmpty(receiveTypeId)) {
-				visaDto.setReceiveTypeId(Integer.parseInt(receiveTypeId));
-				serviceOrderDto.setReceiveTypeId(Integer.parseInt(receiveTypeId));
-			}
-			if (StringUtil.isNotEmpty(receiveDate)) {
-				visaDto.setReceiveDate(new Date(Long.parseLong(receiveDate)));
-				serviceOrderDto.setReceiveDate(new Date(Long.parseLong(receiveDate)));
-			}
-			if (StringUtil.isNotEmpty(serviceId)) {
-				visaDto.setServiceId(Integer.parseInt(serviceId));
-			}
-			if (serviceOrderId != null && serviceOrderId > 0)
-				visaDto.setServiceOrderId(serviceOrderId);
+    @RequestMapping(value = "/update", method = RequestMethod.POST)
+    @ResponseBody
+    public Response<VisaDTO> update(@RequestParam(value = "id") int id,
+                                    @RequestParam(value = "state", required = false) String state,
+                                    @RequestParam(value = "userId", required = false) String userId,
+                                    @RequestParam(value = "applicantBirthday", required = false) String applicantBirthday,
+                                    @RequestParam(value = "commissionState", required = false) String commissionState,
+                                    @RequestParam(value = "handlingDate", required = false) String handlingDate,
+                                    @RequestParam(value = "receiveTypeId", required = false) String receiveTypeId,
+                                    @RequestParam(value = "receiveDate", required = false) String receiveDate,
+                                    @RequestParam(value = "serviceId", required = false) String serviceId,
+                                    @RequestParam(value = "serviceOrderId", required = false) Integer serviceOrderId,
+                                    @RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
+                                    @RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
+                                    @RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
+                                    @RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
+                                    @RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
+                                    @RequestParam(value = "visaVoucherImageUrl", required = false) String visaVoucherImageUrl,
+                                    @RequestParam(value = "receivable", required = false) String receivable,
+                                    @RequestParam(value = "received", required = false) String received,
+                                    @RequestParam(value = "perAmount", required = false) String perAmount,
+                                    @RequestParam(value = "amount", required = false) String amount,
+                                    @RequestParam(value = "sureExpectAmount", required = false) Double sureExpectAmount,
+                                    @RequestParam(value = "currency", required = false) String currency,
+                                    @RequestParam(value = "exchangeRate", required = false) String exchangeRate,
+                                    @RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
+                                    @RequestParam(value = "adviserId", required = false) String adviserId,
+                                    @RequestParam(value = "maraId", required = false) String maraId,
+                                    @RequestParam(value = "officialId", required = false) String officialId,
+                                    @RequestParam(value = "bankCheck", required = false) String bankCheck,
+                                    @RequestParam(value = "isChecked", required = false) String isChecked,
+                                    @RequestParam(value = "remarks", required = false) String remarks,
+                                    @RequestParam(value = "verifyCode", required = false) String verifyCode, HttpServletRequest request,
+                                    HttpServletResponse response) {
+        try {
+            super.setPostHeader(response);
+            AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+            VisaDTO _visaDto = visaService.getVisaById(id);
+            ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(_visaDto.getServiceOrderId());
+            VisaDTO visaDto = new VisaDTO();
+            visaDto.setId(id);
+            if (adminUserLoginInfo != null && "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())
+                    && commissionState != null) // 只有会计能修改佣金状态
+                visaDto.setCommissionState(CommissionStateEnum.get(commissionState.toUpperCase()).toString());
+            if (StringUtil.isNotEmpty(state))
+                visaDto.setState(state);
+            else
+                visaDto.setState(ReviewKjStateEnum.REVIEW.toString()); // 修改后重新审核
+            if (StringUtil.isNotEmpty(handlingDate)) {
+                visaDto.setHandlingDate(new Date(Long.parseLong(handlingDate)));
+            }
+            if (StringUtil.isNotEmpty(userId)) {
+                visaDto.setUserId(Integer.parseInt(userId));
+            }
+            if (StringUtil.isNotEmpty(receiveTypeId)) {
+                visaDto.setReceiveTypeId(Integer.parseInt(receiveTypeId));
+                serviceOrderDto.setReceiveTypeId(Integer.parseInt(receiveTypeId));
+            }
+            if (StringUtil.isNotEmpty(receiveDate)) {
+                visaDto.setReceiveDate(new Date(Long.parseLong(receiveDate)));
+                serviceOrderDto.setReceiveDate(new Date(Long.parseLong(receiveDate)));
+            }
+            if (StringUtil.isNotEmpty(serviceId)) {
+                visaDto.setServiceId(Integer.parseInt(serviceId));
+            }
+            if (serviceOrderId != null && serviceOrderId > 0)
+                visaDto.setServiceOrderId(serviceOrderId);
 //			if (StringUtil.isNotEmpty(receivable)) { // TODO: 准备废弃receivable
 //				visaDto.setReceivable(Double.parseDouble(receivable));
 //				serviceOrderDto.setReceivable(Double.parseDouble(receivable));
 //			}
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1)) {
-				visaDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
-				serviceOrderDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
-			}
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2)) {
-				visaDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
-				serviceOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
-			}
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl3)) {
-				visaDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
-				serviceOrderDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
-			}
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl4)) {
-				visaDto.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
-				serviceOrderDto.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
-			}
-			if (StringUtil.isNotEmpty(paymentVoucherImageUrl5)) {
-				visaDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
-				serviceOrderDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
-			}
-			if (StringUtil.isNotEmpty(visaVoucherImageUrl))
-				visaDto.setVisaVoucherImageUrl(visaVoucherImageUrl);
+            if (StringUtil.isNotEmpty(paymentVoucherImageUrl1)) {
+                visaDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
+                serviceOrderDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
+            }
+            if (StringUtil.isNotEmpty(paymentVoucherImageUrl2)) {
+                visaDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
+                serviceOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
+            }
+            if (StringUtil.isNotEmpty(paymentVoucherImageUrl3)) {
+                visaDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
+                serviceOrderDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
+            }
+            if (StringUtil.isNotEmpty(paymentVoucherImageUrl4)) {
+                visaDto.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
+                serviceOrderDto.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
+            }
+            if (StringUtil.isNotEmpty(paymentVoucherImageUrl5)) {
+                visaDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
+                serviceOrderDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
+            }
+            if (StringUtil.isNotEmpty(visaVoucherImageUrl))
+                visaDto.setVisaVoucherImageUrl(visaVoucherImageUrl);
 //			if (StringUtil.isNotEmpty(received)) { // TODO: 准备废弃received
 //				visaDto.setReceived(Double.parseDouble(received));
 //				serviceOrderDto.setReceived(Double.parseDouble(received));
 //			}
-			if (StringUtil.isNotEmpty(perAmount)) {
-				visaDto.setPerAmount(Double.parseDouble(perAmount));
-				serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
-			}
-			if (StringUtil.isNotEmpty(amount)) {
-				visaDto.setAmount(Double.parseDouble(amount));
-				serviceOrderDto.setAmount(Double.parseDouble(amount));
-			}
-			if (sureExpectAmount != null)
-				visaDto.setSureExpectAmount(sureExpectAmount);
-			Double rate = getRate();
-			if (rate != null && rate > 0)
-				visaDto.setExchangeRate(rate);
-			if (StringUtil.isNotEmpty(currency))
-				visaDto.setCurrency(currency);
-			if (StringUtil.isNotEmpty(exchangeRate))
-				visaDto.setExchangeRate(Double.parseDouble(exchangeRate));
-			double _perAmount = _visaDto.getPerAmount();
-			if (visaDto.getPerAmount() > 0)
-				_perAmount = visaDto.getPerAmount();
-			if (_perAmount < visaDto.getAmount())
-				return new Response<VisaDTO>(1, "本次应收款(" + _perAmount + ")不能小于本次已收款(" + visaDto.getAmount() + ")!",
-						null);
-			visaDto.setDiscount(_perAmount - visaDto.getAmount());
-			if (StringUtil.isNotEmpty(invoiceNumber))
-				visaDto.setInvoiceNumber(invoiceNumber);
-			if (StringUtil.isNotEmpty(adviserId)) {
-				visaDto.setAdviserId(StringUtil.toInt(adviserId));
-			}
-			if (StringUtil.isNotEmpty(maraId))
-				visaDto.setMaraId(StringUtil.toInt(maraId));
-			if (StringUtil.isNotEmpty(officialId)) {
-				visaDto.setOfficialId(StringUtil.toInt(officialId));
-			}
-			if (StringUtil.isNotEmpty(bankCheck))
-				visaDto.setBankCheck(bankCheck);
-			if (StringUtil.isNotEmpty(isChecked))
-				visaDto.setChecked("true".equalsIgnoreCase(isChecked));
-			else
-				visaDto.setChecked(_visaDto.isChecked());
-			if (StringUtil.isNotEmpty(remarks))
-				visaDto.setRemarks(remarks);
-			if (StringUtil.isNotEmpty(verifyCode))
-				visaDto.setVerifyCode(verifyCode.replace("$", "").replace("#", "").replace(" ", ""));
-			double commission = visaDto.getAmount();
-			visaDto.setGst(commission / 11);
-			visaDto.setDeductGst(commission - visaDto.getGst());
-			visaDto.setBonus(visaDto.getDeductGst() * 0.1);
-			visaDto.setExpectAmount(commission);
-			if (_visaDto.getKjApprovalDate() == null || _visaDto.getKjApprovalDate().getTime() == 0)
-				visaDto.setKjApprovalDate(new Date()); // debug
-			if (visaService.updateVisa(visaDto) > 0) {
-				VisaDTO _visaDTO = visaService.getVisaById(visaDto.getId());
-				serviceOrderDto.setReceivable(_visaDTO.getTotalPerAmount());
-				serviceOrderDto.setReceived(_visaDTO.getTotalAmount());
-				serviceOrderService.updateServiceOrder(serviceOrderDto); // 同步修改服务订单
-				ApplicantDTO applicantDto = serviceOrderDto.getApplicant();
-				String msg = "";
-				if (applicantDto != null && applicantBirthday != null) {
-					applicantDto.setBirthday(new Date(Long.parseLong(applicantBirthday)));
-					if (applicantService.update(applicantDto) <= 0)
-						msg += "申请人生日修改失败! (serviceOrderId:" + serviceOrderDto.getId() + ", applicantId:"
-								+ applicantDto.getId() + ", applicantBirthday:" + applicantDto.getBirthday() + ");";
-					else
-						msg += "申请人生日修改成功. (serviceOrderId:" + serviceOrderDto.getId() + ", applicantId:"
-								+ applicantDto.getId() + ", applicantBirthday:" + applicantDto.getBirthday() + ");";
-				}
-				return new Response<VisaDTO>(0, msg, visaDto);
-			} else {
-				return new Response<VisaDTO>(1, "修改失败.", null);
-			}
-		} catch (ServiceException e) {
-			return new Response<VisaDTO>(e.getCode(), e.getMessage(), null);
-		}
-	}
+            if (StringUtil.isNotEmpty(perAmount)) {
+                visaDto.setPerAmount(Double.parseDouble(perAmount));
+                serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
+            }
+            if (StringUtil.isNotEmpty(amount)) {
+                visaDto.setAmount(Double.parseDouble(amount));
+                serviceOrderDto.setAmount(Double.parseDouble(amount));
+            }
+            if (sureExpectAmount != null)
+                visaDto.setSureExpectAmount(sureExpectAmount);
+            Double rate = getRate();
+            if (rate != null && rate > 0)
+                visaDto.setExchangeRate(rate);
+            if (StringUtil.isNotEmpty(currency))
+                visaDto.setCurrency(currency);
+            if (StringUtil.isNotEmpty(exchangeRate))
+                visaDto.setExchangeRate(Double.parseDouble(exchangeRate));
+            double _perAmount = _visaDto.getPerAmount();
+            if (visaDto.getPerAmount() > 0)
+                _perAmount = visaDto.getPerAmount();
+            if (_perAmount < visaDto.getAmount())
+                return new Response<VisaDTO>(1, "本次应收款(" + _perAmount + ")不能小于本次已收款(" + visaDto.getAmount() + ")!",
+                        null);
+            visaDto.setDiscount(_perAmount - visaDto.getAmount());
+            if (StringUtil.isNotEmpty(invoiceNumber))
+                visaDto.setInvoiceNumber(invoiceNumber);
+            if (StringUtil.isNotEmpty(adviserId)) {
+                visaDto.setAdviserId(StringUtil.toInt(adviserId));
+            }
+            if (StringUtil.isNotEmpty(maraId))
+                visaDto.setMaraId(StringUtil.toInt(maraId));
+            if (StringUtil.isNotEmpty(officialId)) {
+                visaDto.setOfficialId(StringUtil.toInt(officialId));
+            }
+            if (StringUtil.isNotEmpty(bankCheck))
+                visaDto.setBankCheck(bankCheck);
+            if (StringUtil.isNotEmpty(isChecked))
+                visaDto.setChecked("true".equalsIgnoreCase(isChecked));
+            else
+                visaDto.setChecked(_visaDto.isChecked());
+            if (StringUtil.isNotEmpty(remarks))
+                visaDto.setRemarks(remarks);
+            if (StringUtil.isNotEmpty(verifyCode))
+                visaDto.setVerifyCode(verifyCode.replace("$", "").replace("#", "").replace(" ", ""));
+            double commission = visaDto.getAmount();
+            visaDto.setGst(commission / 11);
+            visaDto.setDeductGst(commission - visaDto.getGst());
+            visaDto.setBonus(visaDto.getDeductGst() * 0.1);
+            visaDto.setExpectAmount(commission);
+            if (_visaDto.getKjApprovalDate() == null || _visaDto.getKjApprovalDate().getTime() == 0)
+                visaDto.setKjApprovalDate(new Date()); // debug
+            if (visaService.updateVisa(visaDto) > 0) {
+                VisaDTO _visaDTO = visaService.getVisaById(visaDto.getId());
+                serviceOrderDto.setReceivable(_visaDTO.getTotalPerAmount());
+                serviceOrderDto.setReceived(_visaDTO.getTotalAmount());
+                serviceOrderService.updateServiceOrder(serviceOrderDto); // 同步修改服务订单
+                ApplicantDTO applicantDto = serviceOrderDto.getApplicant();
+                String msg = "";
+                if (applicantDto != null && applicantBirthday != null) {
+                    applicantDto.setBirthday(new Date(Long.parseLong(applicantBirthday)));
+                    if (applicantService.update(applicantDto) <= 0)
+                        msg += "申请人生日修改失败! (serviceOrderId:" + serviceOrderDto.getId() + ", applicantId:"
+                                + applicantDto.getId() + ", applicantBirthday:" + applicantDto.getBirthday() + ");";
+                    else
+                        msg += "申请人生日修改成功. (serviceOrderId:" + serviceOrderDto.getId() + ", applicantId:"
+                                + applicantDto.getId() + ", applicantBirthday:" + applicantDto.getBirthday() + ");";
+                }
+                return new Response<VisaDTO>(0, msg, visaDto);
+            } else {
+                return new Response<VisaDTO>(1, "修改失败.", null);
+            }
+        } catch (ServiceException e) {
+            return new Response<VisaDTO>(e.getCode(), e.getMessage(), null);
+        }
+    }
 
-	@RequestMapping(value = "/kjUpdate", method = RequestMethod.POST)
-	@ResponseBody
-	public Response<VisaDTO> kjUpdate(@RequestParam(value = "id") int id,
-									  @RequestParam(value = "sureExpectAmount", required = false) Double sureExpectAmount,
-									  @RequestParam(value = "bonus", required = false) Double bonus,
-									  @RequestParam(value = "bonusDate", required = false) String bonusDate, HttpServletRequest request,
-									  HttpServletResponse response) {
-		try {
-			super.setPostHeader(response);
-			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			if (adminUserLoginInfo != null)
-				if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
-						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
-					return new Response<VisaDTO>(1, "仅限会计修改.", null);
-			return updateOne(id, sureExpectAmount, bonus, bonusDate, true);
-		} catch (ServiceException e) {
-			return new Response<VisaDTO>(e.getCode(), e.getMessage(), null);
-		}
-	}
+    @RequestMapping(value = "/kjUpdate", method = RequestMethod.POST)
+    @ResponseBody
+    public Response<VisaDTO> kjUpdate(@RequestParam(value = "id") int id,
+                                      @RequestParam(value = "sureExpectAmount", required = false) Double sureExpectAmount,
+                                      @RequestParam(value = "bonus", required = false) Double bonus,
+                                      @RequestParam(value = "bonusDate", required = false) String bonusDate, HttpServletRequest request,
+                                      HttpServletResponse response) {
+        try {
+            super.setPostHeader(response);
+            AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+            if (adminUserLoginInfo != null)
+                if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+                        && !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+                    return new Response<VisaDTO>(1, "仅限会计修改.", null);
+            return updateOne(id, sureExpectAmount, bonus, bonusDate, true);
+        } catch (ServiceException e) {
+            return new Response<VisaDTO>(e.getCode(), e.getMessage(), null);
+        }
+    }
 
-	@RequestMapping(value = "/updateKjApprovalDate", method = RequestMethod.POST)
-	@ResponseBody
-	public Response<VisaDTO> updateKjApprovalDate(@RequestParam(value = "id") int id,
-												  @RequestParam(value = "kjApprovalDate") String kjApprovalDate, HttpServletRequest request,
-												  HttpServletResponse response) {
-		try {
-			super.setPostHeader(response);
-			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			VisaDTO visaDto = visaService.getVisaById(id);
-			if (visaDto == null)
-				return new Response<VisaDTO>(1, "签证佣金订单不存在,修改失败.", null);
-			if (adminUserLoginInfo != null && ("KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())
-					|| "SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())))
-				visaDto.setKjApprovalDate(new Date(Long.parseLong(kjApprovalDate)));
-			else
-				return new Response<VisaDTO>(1, "只有会计和超级管理员能修改会计审核时间.", null);
-			if (visaService.updateVisa(visaDto) > 0)
-				return new Response<VisaDTO>(0, visaDto);
-			else
-				return new Response<VisaDTO>(1, "修改失败.", null);
-		} catch (ServiceException e) {
-			return new Response<VisaDTO>(e.getCode(), e.getMessage(), null);
-		}
-	}
+    @RequestMapping(value = "/updateKjApprovalDate", method = RequestMethod.POST)
+    @ResponseBody
+    public Response<VisaDTO> updateKjApprovalDate(@RequestParam(value = "id") int id,
+                                                  @RequestParam(value = "kjApprovalDate") String kjApprovalDate, HttpServletRequest request,
+                                                  HttpServletResponse response) {
+        try {
+            super.setPostHeader(response);
+            AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+            VisaDTO visaDto = visaService.getVisaById(id);
+            if (visaDto == null)
+                return new Response<VisaDTO>(1, "签证佣金订单不存在,修改失败.", null);
+            if (adminUserLoginInfo != null && ("KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())
+                    || "SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+                visaDto.setKjApprovalDate(new Date(Long.parseLong(kjApprovalDate)));
+            else
+                return new Response<VisaDTO>(1, "只有会计和超级管理员能修改会计审核时间.", null);
+            if (visaService.updateVisa(visaDto) > 0)
+                return new Response<VisaDTO>(0, visaDto);
+            else
+                return new Response<VisaDTO>(1, "修改失败.", null);
+        } catch (ServiceException e) {
+            return new Response<VisaDTO>(e.getCode(), e.getMessage(), null);
+        }
+    }
 
-	@RequestMapping(value = "/update", method = RequestMethod.PUT)
-	@ResponseBody
-	public Response<Integer> update(@RequestBody List<BatchUpdateVisa> batchUpdateList, HttpServletRequest request,
-									HttpServletResponse response) {
-		try {
-			super.setPostHeader(response);
-			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			if (adminUserLoginInfo != null)
-				if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
-						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
-					return new Response<Integer>(1, "仅限会计修改.", 0);
-			return batchUpdate(batchUpdateList, false);
-		} catch (ServiceException e) {
-			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
-		}
-	}
+    @RequestMapping(value = "/update", method = RequestMethod.PUT)
+    @ResponseBody
+    public Response<Integer> update(@RequestBody List<BatchUpdateVisa> batchUpdateList, HttpServletRequest request,
+                                    HttpServletResponse response) {
+        try {
+            super.setPostHeader(response);
+            AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+            if (adminUserLoginInfo != null)
+                if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+                        && !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+                    return new Response<Integer>(1, "仅限会计修改.", 0);
+            return batchUpdate(batchUpdateList, false);
+        } catch (ServiceException e) {
+            return new Response<Integer>(e.getCode(), e.getMessage(), 0);
+        }
+    }
 
-	@RequestMapping(value = "/kjUpdate", method = RequestMethod.PUT)
-	@ResponseBody
-	public Response<Integer> kjUpdate(@RequestBody List<BatchUpdateVisa> batchUpdateList, HttpServletRequest request,
-									  HttpServletResponse response) {
-		try {
-			super.setPostHeader(response);
-			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			if (adminUserLoginInfo != null)
-				if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
-						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
-					return new Response<Integer>(1, "仅限会计修改.", 0);
-			return batchUpdate(batchUpdateList, true);
-		} catch (ServiceException e) {
-			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
-		}
-	}
+    @RequestMapping(value = "/kjUpdate", method = RequestMethod.PUT)
+    @ResponseBody
+    public Response<Integer> kjUpdate(@RequestBody List<BatchUpdateVisa> batchUpdateList, HttpServletRequest request,
+                                      HttpServletResponse response) {
+        try {
+            super.setPostHeader(response);
+            AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+            if (adminUserLoginInfo != null)
+                if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+                        && !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+                    return new Response<Integer>(1, "仅限会计修改.", 0);
+            return batchUpdate(batchUpdateList, true);
+        } catch (ServiceException e) {
+            return new Response<Integer>(e.getCode(), e.getMessage(), 0);
+        }
+    }
 
-	private Response<Integer> batchUpdate(List<BatchUpdateVisa> batchUpdateList, boolean isChangeState)
-			throws ServiceException {
-		int i = 0;
-		for (BatchUpdateVisa batchUpdateDto : batchUpdateList) {
-			updateOne(batchUpdateDto.getId(), batchUpdateDto.getSureExpectAmount(), batchUpdateDto.getBonus(),
-					batchUpdateDto.getBonusDate(), isChangeState);
-			i++;
-		}
-		return new Response<Integer>(0, i);
-	}
+    private Response<Integer> batchUpdate(List<BatchUpdateVisa> batchUpdateList, boolean isChangeState)
+            throws ServiceException {
+        int i = 0;
+        for (BatchUpdateVisa batchUpdateDto : batchUpdateList) {
+            updateOne(batchUpdateDto.getId(), batchUpdateDto.getSureExpectAmount(), batchUpdateDto.getBonus(),
+                    batchUpdateDto.getBonusDate(), isChangeState);
+            i++;
+        }
+        return new Response<Integer>(0, i);
+    }
 
-	private Response<VisaDTO> updateOne(int id, Double sureExpectAmount, Double bonus, String bonusDate,
-										boolean isChangeState) throws ServiceException {
-		VisaDTO visaDto = visaService.getVisaById(id);
-		if (visaDto == null)
-			return new Response<VisaDTO>(1, "签证佣金订单订单(ID:" + id + ")不存在!", null);
-		if (sureExpectAmount != null)
-			visaDto.setSureExpectAmount(sureExpectAmount);
-		if (bonus != null)
-			visaDto.setBonus(bonus);
-		if (bonusDate != null)
-			visaDto.setBonusDate(new Date(Long.parseLong(bonusDate)));
-		if (isChangeState) {
-			visaDto.setState(ReviewKjStateEnum.COMPLETE.toString());
-			visaDto.setCommissionState(CommissionStateEnum.YJY.toString());
-		}
-		return visaService.updateVisa(visaDto) > 0 ? new Response<VisaDTO>(0, visaDto)
-				: new Response<VisaDTO>(1, "修改失败.", null);
-	}
+    private Response<VisaDTO> updateOne(int id, Double sureExpectAmount, Double bonus, String bonusDate,
+                                        boolean isChangeState) throws ServiceException {
+        VisaDTO visaDto = visaService.getVisaById(id);
+        if (visaDto == null)
+            return new Response<VisaDTO>(1, "签证佣金订单订单(ID:" + id + ")不存在!", null);
+        if (sureExpectAmount != null)
+            visaDto.setSureExpectAmount(sureExpectAmount);
+        if (bonus != null)
+            visaDto.setBonus(bonus);
+        if (bonusDate != null)
+            visaDto.setBonusDate(new Date(Long.parseLong(bonusDate)));
+        if (isChangeState) {
+            visaDto.setState(ReviewKjStateEnum.COMPLETE.toString());
+            visaDto.setCommissionState(CommissionStateEnum.YJY.toString());
+        }
+        return visaService.updateVisa(visaDto) > 0 ? new Response<VisaDTO>(0, visaDto)
+                : new Response<VisaDTO>(1, "修改失败.", null);
+    }
 
-	@RequestMapping(value = "/count", method = RequestMethod.GET)
-	@ResponseBody
-	@Deprecated
-	public Response<Integer> countVisa(@RequestParam(value = "id", required = false) Integer id,
-									   @RequestParam(value = "keyword", required = false) String keyword,
-									   @RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
-									   @RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
-									   @RequestParam(value = "commissionState", required = false) String commissionState,
-									   @RequestParam(value = "startKjApprovalDate", required = false) String startKjApprovalDate,
-									   @RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
-									   @RequestParam(value = "startDate", required = false) String startDate,
-									   @RequestParam(value = "endDate", required = false) String endDate,
-									   @RequestParam(value = "startInvoiceCreate", required = false) String startInvoiceCreate,
-									   @RequestParam(value = "endInvoiceCreate", required = false) String endInvoiceCreate,
-									   @RequestParam(value = "regionId", required = false) Integer regionId,
-									   @RequestParam(value = "adviserId", required = false) Integer adviserId,
-									   @RequestParam(value = "userId", required = false) Integer userId,
-									   @RequestParam(value = "applicantName", required = false) String applicantName,
-									   @RequestParam(value = "state", required = false) String state, HttpServletRequest request,
-									   HttpServletResponse response) {
+    @RequestMapping(value = "/count", method = RequestMethod.GET)
+    @ResponseBody
+    @Deprecated
+    public Response<Integer> countVisa(@RequestParam(value = "id", required = false) Integer id,
+                                       @RequestParam(value = "keyword", required = false) String keyword,
+                                       @RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
+                                       @RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
+                                       @RequestParam(value = "commissionState", required = false) String commissionState,
+                                       @RequestParam(value = "startKjApprovalDate", required = false) String startKjApprovalDate,
+                                       @RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
+                                       @RequestParam(value = "startDate", required = false) String startDate,
+                                       @RequestParam(value = "endDate", required = false) String endDate,
+                                       @RequestParam(value = "startInvoiceCreate", required = false) String startInvoiceCreate,
+                                       @RequestParam(value = "endInvoiceCreate", required = false) String endInvoiceCreate,
+                                       @RequestParam(value = "regionId", required = false) Integer regionId,
+                                       @RequestParam(value = "adviserId", required = false) Integer adviserId,
+                                       @RequestParam(value = "userId", required = false) Integer userId,
+                                       @RequestParam(value = "applicantName", required = false) String applicantName,
+                                       @RequestParam(value = "state", required = false) String state, HttpServletRequest request,
+                                       HttpServletResponse response) {
 
-		// 会计角色过滤状态
-		List<String> stateList = null;
-		if (getKjId(request) != null) {
-			stateList = new ArrayList<>();
-			stateList.add(ReviewKjStateEnum.REVIEW.toString());
-			stateList.add(ReviewKjStateEnum.FINISH.toString());
-			stateList.add(ReviewKjStateEnum.COMPLETE.toString());
-			stateList.add(ReviewKjStateEnum.CLOSE.toString());
-		}
+        // 会计角色过滤状态
+        List<String> stateList = null;
+        if (getKjId(request) != null) {
+            stateList = new ArrayList<>();
+            stateList.add(ReviewKjStateEnum.REVIEW.toString());
+            stateList.add(ReviewKjStateEnum.FINISH.toString());
+            stateList.add(ReviewKjStateEnum.COMPLETE.toString());
+            stateList.add(ReviewKjStateEnum.CLOSE.toString());
+        }
 
-		List<String> commissionStateList = null;
-		if (StringUtil.isNotEmpty(commissionState))
-			commissionStateList = Arrays.asList(commissionState.split(","));
+        List<String> commissionStateList = null;
+        if (StringUtil.isNotEmpty(commissionState))
+            commissionStateList = Arrays.asList(commissionState.split(","));
 
-		List<Integer> regionIdList = null;
-		if (regionId != null && regionId > 0)
-			regionIdList = ListUtil.buildArrayList(regionId);
-
-//		Date _startKjApprovalDate = null;
-//		if (startKjApprovalDate != null)
-//			_startKjApprovalDate = new Date(Long.parseLong(startKjApprovalDate));
-//		Date _endKjApprovalDate = null;
-//		if (endKjApprovalDate != null)
-//			_endKjApprovalDate = new Date(Long.parseLong(endKjApprovalDate));
-
-		try {
-			super.setGetHeader(response);
-			// 处理顾问管理员
-			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
-					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
-				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
-				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
-				for (RegionDTO region : regionList)
-					regionIdList.add(region.getId());
-			} else {
-				// 更改当前顾问编号
-				Integer newAdviserId = getAdviserId(request);
-				if (newAdviserId != null)
-					adviserId = newAdviserId;
-			}
-
-			return new Response<Integer>(0, visaService.countVisa(id, keyword, startHandlingDate, endHandlingDate,
-					stateList, commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate,
-					startInvoiceCreate, endInvoiceCreate, regionIdList, adviserId, userId, applicantName, state));
-		} catch (ServiceException e) {
-			return new Response<Integer>(1, e.getMessage(), null);
-		}
-	}
-
-	@RequestMapping(value = "/list", method = RequestMethod.GET)
-	@ResponseBody
-	public ListResponse<List<VisaDTO>> listVisa(@RequestParam(value = "id", required = false) Integer id,
-												@RequestParam(value = "keyword", required = false) String keyword,
-												@RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
-												@RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
-												@RequestParam(value = "commissionState", required = false) String commissionState,
-												@RequestParam(value = "startKjApprovalDate", required = false) String startKjApprovalDate,
-												@RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
-												@RequestParam(value = "startDate", required = false) String startDate,
-												@RequestParam(value = "endDate", required = false) String endDate,
-												@RequestParam(value = "startInvoiceCreate", required = false) String startInvoiceCreate,
-												@RequestParam(value = "endInvoiceCreate", required = false) String endInvoiceCreate,
-												@RequestParam(value = "regionId", required = false) Integer regionId,
-												@RequestParam(value = "adviserId", required = false) Integer adviserId,
-												@RequestParam(value = "userId", required = false) Integer userId,
-												@RequestParam(value = "userName", required = false) String userName,
-												@RequestParam(value = "applicantName", required = false) String applicantName,
-												@RequestParam(value = "state", required = false) String state, @RequestParam(value = "pageNum") int pageNum,
-												@RequestParam(value = "pageSize") int pageSize,
-												@RequestParam(value = "sorter", required = false) String sorter, HttpServletRequest request,
-												HttpServletResponse response) {
-
-		// 会计角色过滤状态
-		List<String> stateList = null;
-		if (state == null && getKjId(request) != null) {
-			stateList = new ArrayList<>();
-			stateList.add(ReviewKjStateEnum.REVIEW.toString());
-			stateList.add(ReviewKjStateEnum.FINISH.toString());
-			stateList.add(ReviewKjStateEnum.COMPLETE.toString());
-			stateList.add(ReviewKjStateEnum.CLOSE.toString());
-		}
-
-		List<String> commissionStateList = null;
-		if (StringUtil.isNotEmpty(commissionState))
-			commissionStateList = Arrays.asList(commissionState.split(","));
-
-		List<Integer> regionIdList = null;
-		if (regionId != null && regionId > 0)
-			regionIdList = ListUtil.buildArrayList(regionId);
-
-		Sorter _sorter = null;
-		if (sorter != null)
-			_sorter = JSON.parseObject(sorter, Sorter.class);
+        List<Integer> regionIdList = null;
+        if (regionId != null && regionId > 0)
+            regionIdList = ListUtil.buildArrayList(regionId);
 
 //		Date _startKjApprovalDate = null;
 //		if (startKjApprovalDate != null)
@@ -678,190 +604,267 @@ public class VisaController extends BaseCommissionOrderController {
 //		if (endKjApprovalDate != null)
 //			_endKjApprovalDate = new Date(Long.parseLong(endKjApprovalDate));
 
-		try {
-			super.setGetHeader(response);
-			// 处理顾问管理员
-			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
-					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
-				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
-				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
-				for (RegionDTO region : regionList)
-					regionIdList.add(region.getId());
-			} else {
-				// 更改当前顾问编号
-				Integer newAdviserId = getAdviserId(request);
-				if (newAdviserId != null)
-					adviserId = newAdviserId;
-				if (adminUserLoginInfo == null)
-					return new ListResponse<List<VisaDTO>>(false, pageSize, 0, null, "No permission !");
-				if ("GW".equalsIgnoreCase(adminUserLoginInfo.getApList()) && adviserId == null)
-					return new ListResponse<List<VisaDTO>>(false, pageSize, 0, null, "无法获取顾问编号，请退出重新登录后再尝试．");
-			}
+        try {
+            super.setGetHeader(response);
+            // 处理顾问管理员
+            AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+            if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
+                    && adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
+                List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
+                regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
+                for (RegionDTO region : regionList)
+                    regionIdList.add(region.getId());
+            } else {
+                // 更改当前顾问编号
+                Integer newAdviserId = getAdviserId(request);
+                if (newAdviserId != null)
+                    adviserId = newAdviserId;
+            }
 
-			int total = visaService.countVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
-					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, startInvoiceCreate,
-					endInvoiceCreate, regionIdList, adviserId, userId, applicantName, state);
-			List<VisaDTO> list = visaService.listVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
-					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, startInvoiceCreate,
-					endInvoiceCreate, regionIdList, adviserId, userId, userName, applicantName, state, pageNum, pageSize, _sorter);
-			list.forEach(v -> {
-				if (v.getServiceOrderId() > 0)
-					try {
-						ServiceOrderDTO serviceOrderDto = serviceOrderService
-								.getServiceOrderById(v.getServiceOrderId());
-						List<ApplicantDTO> applicantDTOS=new ArrayList<>();
-						if (serviceOrderDto != null) {
-							v.setServiceOrder(serviceOrderDto);
-							List<ApplicantDTO> applicant = v.getApplicant();
-								for (ApplicantDTO applicantDto : applicant) {
-									if (applicantDto != null) {
-										if (StringUtil.isEmpty(applicantDto.getUrl()))
-											applicantDto.setUrl(serviceOrderDto.getNutCloud());
-										if (StringUtil.isEmpty(applicantDto.getContent()))
-											applicantDto.setContent(serviceOrderDto.getInformation());
-										applicantDTOS.add(applicantDto);
-									}
-								}
-							v.setApplicant(applicantDTOS);
-						}
+            return new Response<Integer>(0, visaService.countVisa(id, keyword, startHandlingDate, endHandlingDate,
+                    stateList, commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate,
+                    startInvoiceCreate, endInvoiceCreate, regionIdList, adviserId, userId, applicantName, state));
+        } catch (ServiceException e) {
+            return new Response<Integer>(1, e.getMessage(), null);
+        }
+    }
 
-					} catch (ServiceException e) {
-					}
-				try {
-					List<MailRemindDTO> mailRemindDTOS = mailRemindService.list(getAdviserId(request),
-							getOfficialId(request), getKjId(request), null, v.getId(), null, null, false, true);
-					v.setMailRemindDTOS(mailRemindDTOS);
-				} catch (ServiceException serviceException) {
-					serviceException.printStackTrace();
-				}
-				try{
-					ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceService.getServicePackagePriceByServiceId(v.getServiceId());
-					if(servicePackagePriceDO!=null) {
-						double thirdPrince =  servicePackagePriceDO.getThirdPrince();
-						BigDecimal third_prince = BigDecimal.valueOf(thirdPrince);
-						double expectAmountAUD = new BigDecimal(v.getAmountAUD()).subtract(third_prince).doubleValue();
-						v.setExpectAmount(expectAmountAUD > 0.0 ? expectAmountAUD : 0.0);
-					}
-				}catch (ServiceException serviceException){
-					serviceException.printStackTrace();
-				}
-			});
+    @RequestMapping(value = "/list", method = RequestMethod.GET)
+    @ResponseBody
+    public ListResponse<List<VisaDTO>> listVisa(@RequestParam(value = "id", required = false) Integer id,
+                                                @RequestParam(value = "keyword", required = false) String keyword,
+                                                @RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
+                                                @RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
+                                                @RequestParam(value = "commissionState", required = false) String commissionState,
+                                                @RequestParam(value = "startKjApprovalDate", required = false) String startKjApprovalDate,
+                                                @RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
+                                                @RequestParam(value = "startDate", required = false) String startDate,
+                                                @RequestParam(value = "endDate", required = false) String endDate,
+                                                @RequestParam(value = "startInvoiceCreate", required = false) String startInvoiceCreate,
+                                                @RequestParam(value = "endInvoiceCreate", required = false) String endInvoiceCreate,
+                                                @RequestParam(value = "regionId", required = false) Integer regionId,
+                                                @RequestParam(value = "adviserId", required = false) Integer adviserId,
+                                                @RequestParam(value = "userId", required = false) Integer userId,
+                                                @RequestParam(value = "userName", required = false) String userName,
+                                                @RequestParam(value = "applicantName", required = false) String applicantName,
+                                                @RequestParam(value = "state", required = false) String state, @RequestParam(value = "pageNum") int pageNum,
+                                                @RequestParam(value = "pageSize") int pageSize,
+                                                @RequestParam(value = "sorter", required = false) String sorter, HttpServletRequest request,
+                                                HttpServletResponse response) {
 
-			return new ListResponse<List<VisaDTO>>(true, pageSize, total, list, "");
-		} catch (ServiceException e) {
-			return new ListResponse<List<VisaDTO>>(false, pageSize, 0, null, e.getMessage());
-		}
-	}
+        // 会计角色过滤状态
+        List<String> stateList = null;
+        if (state == null && getKjId(request) != null) {
+            stateList = new ArrayList<>();
+            stateList.add(ReviewKjStateEnum.REVIEW.toString());
+            stateList.add(ReviewKjStateEnum.FINISH.toString());
+            stateList.add(ReviewKjStateEnum.COMPLETE.toString());
+            stateList.add(ReviewKjStateEnum.CLOSE.toString());
+        }
 
-	@RequestMapping(value = "/upload", method = RequestMethod.POST)
-	@ResponseBody
-	public Response<Integer> upload(@RequestParam MultipartFile file, HttpServletRequest request,
-									HttpServletResponse response) throws IllegalStateException, IOException {
-		super.setPostHeader(response);
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		String message = "";
-		int n = 0;
-		Response<String> r = super.upload2(file, request.getSession(), "/tmp/");
-		try (InputStream is = new FileInputStream("/data" + r.getData())) {
-			jxl.Workbook wb = jxl.Workbook.getWorkbook(is);
-			Sheet sheet = wb.getSheet(0);
-			for (int i = 1; i < sheet.getRows(); i++) {
-				Cell[] cells = sheet.getRow(i);
-				String _id = cells[0].getContents();
-				String _bonus = cells[11].getContents();
-				String _bonusDate = cells[12].getContents();
-				try {
-					VisaDTO visaDto = visaService.getVisaById(Integer.parseInt(_id));
-					if (visaDto == null) {
-						message += "[" + _id + "]佣金订单不存在;";
-						continue;
-					}
-					if (!CommissionStateEnum.DJY.toString().equals(visaDto.getCommissionState())) {
-						message += "[" + _id + "]佣金订单状态不是待结佣;";
-						continue;
-					}
-					Response<VisaDTO> _r = updateOne(Integer.parseInt(_id), null,
-							StringUtil.isEmpty(_bonus) ? null : Double.parseDouble(_bonus.trim()),
-							StringUtil.isEmpty(_bonusDate) ? null
-									: simpleDateFormat.parse(_bonusDate.trim()).getTime() + "",
-							true);
-					if (_r.getCode() > 0)
-						message += "[" + _id + "]" + _r.getMessage() + ";";
-					else
-						n++;
-				} catch (NumberFormatException | ServiceException e) {
-					message += "[" + _id + "]" + e.getMessage() + ";";
-				}
-			}
-		} catch (BiffException | IOException | ParseException e) {
-			return new Response<Integer>(1, "上传失败:" + e.getMessage(), 0);
-		}
-		return new Response<Integer>(0, message, n);
-	}
+        List<String> commissionStateList = null;
+        if (StringUtil.isNotEmpty(commissionState))
+            commissionStateList = Arrays.asList(commissionState.split(","));
 
-	@RequestMapping(value = "/down", method = RequestMethod.GET)
-	@ResponseBody
-	public void down(@RequestParam(value = "id", required = false) Integer id,
-					 @RequestParam(value = "keyword", required = false) String keyword,
-					 @RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
-					 @RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
-					 @RequestParam(value = "commissionState", required = false) String commissionState,
-					 @RequestParam(value = "startKjApprovalDate", required = false) String startKjApprovalDate,
-					 @RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
-					 @RequestParam(value = "startDate", required = false) String startDate,
-					 @RequestParam(value = "endDate", required = false) String endDate,
-					 @RequestParam(value = "startInvoiceCreate", required = false) String startInvoiceCreate,
-					 @RequestParam(value = "endInvoiceCreate", required = false) String endInvoiceCreate,
-					 @RequestParam(value = "regionId", required = false) Integer regionId,
-					 @RequestParam(value = "adviserId", required = false) Integer adviserId,
-					 @RequestParam(value = "userId", required = false) Integer userId,
-					 @RequestParam(value = "userName", required = false) String userName,
-					 @RequestParam(value = "applicantName", required = false) String applicantName,
-					 @RequestParam(value = "state", required = false) String state, HttpServletRequest request,
-					 HttpServletResponse response) {
+        List<Integer> regionIdList = null;
+        if (regionId != null && regionId > 0)
+            regionIdList = ListUtil.buildArrayList(regionId);
 
-		// 更改当前顾问编号
-		Integer newAdviserId = getAdviserId(request);
-		if (newAdviserId != null)
-			adviserId = newAdviserId;
+        Sorter _sorter = null;
+        if (sorter != null)
+            _sorter = JSON.parseObject(sorter, Sorter.class);
 
-		// 会计角色过滤状态
-		List<String> stateList = null;
-		if (getKjId(request) != null) {
-			stateList = new ArrayList<>();
-			stateList.add(ReviewKjStateEnum.REVIEW.toString());
-			stateList.add(ReviewKjStateEnum.FINISH.toString());
-			stateList.add(ReviewKjStateEnum.COMPLETE.toString());
-			stateList.add(ReviewKjStateEnum.CLOSE.toString());
-		}
+//		Date _startKjApprovalDate = null;
+//		if (startKjApprovalDate != null)
+//			_startKjApprovalDate = new Date(Long.parseLong(startKjApprovalDate));
+//		Date _endKjApprovalDate = null;
+//		if (endKjApprovalDate != null)
+//			_endKjApprovalDate = new Date(Long.parseLong(endKjApprovalDate));
 
-		List<String> commissionStateList = null;
-		if (StringUtil.isNotEmpty(commissionState))
-			commissionStateList = Arrays.asList(commissionState.split(","));
+        try {
+            super.setGetHeader(response);
+            // 处理顾问管理员
+            AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+            if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
+                    && adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
+                List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
+                regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
+                for (RegionDTO region : regionList)
+                    regionIdList.add(region.getId());
+            } else {
+                // 更改当前顾问编号
+                Integer newAdviserId = getAdviserId(request);
+                if (newAdviserId != null)
+                    adviserId = newAdviserId;
+                if (adminUserLoginInfo == null)
+                    return new ListResponse<List<VisaDTO>>(false, pageSize, 0, null, "No permission !");
+                if ("GW".equalsIgnoreCase(adminUserLoginInfo.getApList()) && adviserId == null)
+                    return new ListResponse<List<VisaDTO>>(false, pageSize, 0, null, "无法获取顾问编号，请退出重新登录后再尝试．");
+            }
 
-		List<Integer> regionIdList = null;
-		if (regionId != null && regionId > 0)
-			regionIdList = ListUtil.buildArrayList(regionId);
+            int total = visaService.countVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
+                    commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, startInvoiceCreate,
+                    endInvoiceCreate, regionIdList, adviserId, userId, applicantName, state);
+            List<VisaDTO> list = visaService.listVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
+                    commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, startInvoiceCreate,
+                    endInvoiceCreate, regionIdList, adviserId, userId, userName, applicantName, state, pageNum, pageSize, _sorter);
+            list.forEach(v -> {
+                if (v.getServiceOrderId() > 0)
+                    try {
+                        ServiceOrderDTO serviceOrderDto = serviceOrderService
+                                .getServiceOrderById(v.getServiceOrderId());
+                        List<ApplicantDTO> applicantDTOS = new ArrayList<>();
+                        if (serviceOrderDto != null) {
+                            v.setServiceOrder(serviceOrderDto);
+                            List<ApplicantDTO> applicant = v.getApplicant();
+                            for (ApplicantDTO applicantDto : applicant) {
+                                if (applicantDto != null) {
+                                    if (StringUtil.isEmpty(applicantDto.getUrl()))
+                                        applicantDto.setUrl(serviceOrderDto.getNutCloud());
+                                    if (StringUtil.isEmpty(applicantDto.getContent()))
+                                        applicantDto.setContent(serviceOrderDto.getInformation());
+                                    applicantDTOS.add(applicantDto);
+                                }
+                            }
+                            v.setApplicant(applicantDTOS);
+                        }
 
-		try {
+                    } catch (ServiceException e) {
+                    }
+                try {
+                    List<MailRemindDTO> mailRemindDTOS = mailRemindService.list(getAdviserId(request),
+                            getOfficialId(request), getKjId(request), null, v.getId(), null, null, false, true);
+                    v.setMailRemindDTOS(mailRemindDTOS);
+                } catch (ServiceException serviceException) {
+                    serviceException.printStackTrace();
+                }
+                try {
+                    ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceService.getServicePackagePriceByServiceId(v.getServiceId());
+                    if (servicePackagePriceDO != null) {
+                        double thirdPrince = servicePackagePriceDO.getThirdPrince();
+                        BigDecimal third_prince = BigDecimal.valueOf(thirdPrince);
+                        double expectAmountAUD = new BigDecimal(v.getAmountAUD()).subtract(third_prince).doubleValue();
+                        v.setExpectAmount(expectAmountAUD > 0.0 ? expectAmountAUD : 0.0);
+                    }
+                } catch (ServiceException serviceException) {
+                    serviceException.printStackTrace();
+                }
+            });
 
-			// 处理顾问管理员
-			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
-					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
-				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
-				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
-				for (RegionDTO region : regionList)
-					regionIdList.add(region.getId());
-				adviserId = null;
-			}
+            return new ListResponse<List<VisaDTO>>(true, pageSize, total, list, "");
+        } catch (ServiceException e) {
+            return new ListResponse<List<VisaDTO>>(false, pageSize, 0, null, e.getMessage());
+        }
+    }
 
-			response.reset();// 清空输出流
-			String tableName = "visa_information";
-			response.setHeader("Content-disposition",
-					"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
-			response.setContentType("application/msexcel");
+    @RequestMapping(value = "/upload", method = RequestMethod.POST)
+    @ResponseBody
+    public Response<Integer> upload(@RequestParam MultipartFile file, HttpServletRequest request,
+                                    HttpServletResponse response) throws IllegalStateException, IOException {
+        super.setPostHeader(response);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String message = "";
+        int n = 0;
+        Response<String> r = super.upload2(file, request.getSession(), "/tmp/");
+        try (InputStream is = new FileInputStream("/data" + r.getData())) {
+            jxl.Workbook wb = jxl.Workbook.getWorkbook(is);
+            Sheet sheet = wb.getSheet(0);
+            for (int i = 1; i < sheet.getRows(); i++) {
+                Cell[] cells = sheet.getRow(i);
+                String _id = cells[0].getContents();
+                String _bonus = cells[11].getContents();
+                String _bonusDate = cells[12].getContents();
+                try {
+                    VisaDTO visaDto = visaService.getVisaById(Integer.parseInt(_id));
+                    if (visaDto == null) {
+                        message += "[" + _id + "]佣金订单不存在;";
+                        continue;
+                    }
+                    if (!CommissionStateEnum.DJY.toString().equals(visaDto.getCommissionState())) {
+                        message += "[" + _id + "]佣金订单状态不是待结佣;";
+                        continue;
+                    }
+                    Response<VisaDTO> _r = updateOne(Integer.parseInt(_id), null,
+                            StringUtil.isEmpty(_bonus) ? null : Double.parseDouble(_bonus.trim()),
+                            StringUtil.isEmpty(_bonusDate) ? null
+                                    : simpleDateFormat.parse(_bonusDate.trim()).getTime() + "",
+                            true);
+                    if (_r.getCode() > 0)
+                        message += "[" + _id + "]" + _r.getMessage() + ";";
+                    else
+                        n++;
+                } catch (NumberFormatException | ServiceException e) {
+                    message += "[" + _id + "]" + e.getMessage() + ";";
+                }
+            }
+        } catch (BiffException | IOException | ParseException e) {
+            return new Response<Integer>(1, "上传失败:" + e.getMessage(), 0);
+        }
+        return new Response<Integer>(0, message, n);
+    }
+
+    @RequestMapping(value = "/down", method = RequestMethod.GET)
+    @ResponseBody
+    public void down(@RequestParam(value = "id", required = false) Integer id,
+                     @RequestParam(value = "keyword", required = false) String keyword,
+                     @RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
+                     @RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
+                     @RequestParam(value = "commissionState", required = false) String commissionState,
+                     @RequestParam(value = "startKjApprovalDate", required = false) String startKjApprovalDate,
+                     @RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
+                     @RequestParam(value = "startDate", required = false) String startDate,
+                     @RequestParam(value = "endDate", required = false) String endDate,
+                     @RequestParam(value = "startInvoiceCreate", required = false) String startInvoiceCreate,
+                     @RequestParam(value = "endInvoiceCreate", required = false) String endInvoiceCreate,
+                     @RequestParam(value = "regionId", required = false) Integer regionId,
+                     @RequestParam(value = "adviserId", required = false) Integer adviserId,
+                     @RequestParam(value = "userId", required = false) Integer userId,
+                     @RequestParam(value = "userName", required = false) String userName,
+                     @RequestParam(value = "applicantName", required = false) String applicantName,
+                     @RequestParam(value = "state", required = false) String state, HttpServletRequest request,
+                     HttpServletResponse response) {
+
+        // 更改当前顾问编号
+        Integer newAdviserId = getAdviserId(request);
+        if (newAdviserId != null)
+            adviserId = newAdviserId;
+
+        // 会计角色过滤状态
+        List<String> stateList = null;
+        if (getKjId(request) != null) {
+            stateList = new ArrayList<>();
+            stateList.add(ReviewKjStateEnum.REVIEW.toString());
+            stateList.add(ReviewKjStateEnum.FINISH.toString());
+            stateList.add(ReviewKjStateEnum.COMPLETE.toString());
+            stateList.add(ReviewKjStateEnum.CLOSE.toString());
+        }
+
+        List<String> commissionStateList = null;
+        if (StringUtil.isNotEmpty(commissionState))
+            commissionStateList = Arrays.asList(commissionState.split(","));
+
+        List<Integer> regionIdList = null;
+        if (regionId != null && regionId > 0)
+            regionIdList = ListUtil.buildArrayList(regionId);
+
+        try {
+
+            // 处理顾问管理员
+            AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+            if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
+                    && adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
+                List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
+                regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
+                for (RegionDTO region : regionList)
+                    regionIdList.add(region.getId());
+                adviserId = null;
+            }
+
+            response.reset();// 清空输出流
+            String tableName = "visa_information";
+            response.setHeader("Content-disposition",
+                    "attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
+            response.setContentType("application/msexcel");
 
 //			Date _startKjApprovalDate = null;
 //			if (startKjApprovalDate != null)
@@ -870,360 +873,360 @@ public class VisaController extends BaseCommissionOrderController {
 //			if (endKjApprovalDate != null)
 //				_endKjApprovalDate = new Date(Long.parseLong(endKjApprovalDate));
 
-			List<VisaDTO> list = visaService.listVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
-					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, startInvoiceCreate,
-					endInvoiceCreate, regionIdList, adviserId, userId, userName, applicantName, state, 0, 9999, null);
+            List<VisaDTO> list = visaService.listVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
+                    commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, startInvoiceCreate,
+                    endInvoiceCreate, regionIdList, adviserId, userId, userName, applicantName, state, 0, 9999, null);
 
-			list.forEach(v -> {
-				if (v.getServiceOrderId() > 0)
-					try {
-						ServiceOrderDTO serviceOrderDto = serviceOrderService
-								.getServiceOrderById(v.getServiceOrderId());
-						if (serviceOrderDto != null)
-							v.setServiceOrder(serviceOrderDto);
-					} catch (ServiceException e) {
-					}
-			});
+            list.forEach(v -> {
+                if (v.getServiceOrderId() > 0)
+                    try {
+                        ServiceOrderDTO serviceOrderDto = serviceOrderService
+                                .getServiceOrderById(v.getServiceOrderId());
+                        if (serviceOrderDto != null)
+                            v.setServiceOrder(serviceOrderDto);
+                    } catch (ServiceException e) {
+                    }
+            });
 
-			if (isCN(regionId)) {
+            if (isCN(regionId)) {
 
-				OutputStream os = response.getOutputStream();
-				jxl.Workbook wb;
-				InputStream is;
-				try {
-					is = this.getClass().getResourceAsStream("/VisaTemplateCNY.xls");
-				} catch (Exception e) {
-					throw new Exception("模版不存在");
-				}
-				try {
-					wb = Workbook.getWorkbook(is);
-				} catch (Exception e) {
-					throw new Exception("模版格式不支持");
-				}
-				WorkbookSettings settings = new WorkbookSettings();
-				settings.setWriteAccess(null);
-				jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
+                OutputStream os = response.getOutputStream();
+                jxl.Workbook wb;
+                InputStream is;
+                try {
+                    is = this.getClass().getResourceAsStream("/VisaTemplateCNY.xls");
+                } catch (Exception e) {
+                    throw new Exception("模版不存在");
+                }
+                try {
+                    wb = Workbook.getWorkbook(is);
+                } catch (Exception e) {
+                    throw new Exception("模版格式不支持");
+                }
+                WorkbookSettings settings = new WorkbookSettings();
+                settings.setWriteAccess(null);
+                jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
 
-				if (wbe == null) {
-					System.out.println("wbe is null !os=" + os + ",wb" + wb);
-				} else {
-					System.out.println("wbe not null !os=" + os + ",wb" + wb);
-				}
-				WritableSheet sheet = wbe.getSheet(0);
-				WritableCellFormat cellFormat = new WritableCellFormat();
+                if (wbe == null) {
+                    System.out.println("wbe is null !os=" + os + ",wb" + wb);
+                } else {
+                    System.out.println("wbe not null !os=" + os + ",wb" + wb);
+                }
+                WritableSheet sheet = wbe.getSheet(0);
+                WritableCellFormat cellFormat = new WritableCellFormat();
 
-				int i = 1;
-				for (VisaDTO visaDto : list) {
-					sheet.addCell(new Label(0, i, "CV" + visaDto.getId(), cellFormat));
-					sheet.addCell(new Label(1, i, sdf.format(visaDto.getGmtCreate()), cellFormat));
-					if (visaDto.getReceiveDate() != null)
-						sheet.addCell(new Label(2, i, sdf.format(visaDto.getReceiveDate()), cellFormat));
-					sheet.addCell(new Label(3, i, visaDto.getUserName(), cellFormat));
-					sheet.addCell(new Label(4, i, visaDto.getReceiveTypeName(), cellFormat));
-					sheet.addCell(new Label(5, i, visaDto.getServiceCode(), cellFormat));
-					sheet.addCell(new Label(6, i, visaDto.getTotalAmountCNY() + "", cellFormat));
-					sheet.addCell(new Label(7, i, visaDto.getTotalAmountCNY() + "", cellFormat));
-					sheet.addCell(new Label(8, i, visaDto.getCurrency(), cellFormat));
-					sheet.addCell(new Label(9, i, visaDto.getExchangeRate() + "", cellFormat));
-					sheet.addCell(new Label(10, i, visaDto.getAmountCNY() + "", cellFormat));
-					sheet.addCell(new Label(11, i, visaDto.getExpectAmount() + "", cellFormat));
-					sheet.addCell(new Label(12, i, visaDto.getExpectAmount() + "", cellFormat));
-					sheet.addCell(new Label(13, i, visaDto.getBonus() + "", cellFormat));
-					if (visaDto.getBonusDate() != null)
-						sheet.addCell(new Label(14, i, sdf.format(visaDto.getBonusDate()), cellFormat));
-					sheet.addCell(new Label(15, i, visaDto.getBankCheck(), cellFormat));
-					sheet.addCell(new Label(16, i, visaDto.isChecked() + "", cellFormat));
-					sheet.addCell(new Label(17, i, visaDto.getAdviserName(), cellFormat));
-					if (visaDto.getState() != null)
-						sheet.addCell(new Label(18, i, getStateStr(visaDto.getState()), cellFormat));
-					if (visaDto.getKjApprovalDate() != null)
-						sheet.addCell(new Label(19, i, sdf.format(visaDto.getKjApprovalDate()), cellFormat));
-					sheet.addCell(new Label(20, i, visaDto.getRemarks(), cellFormat));
-					i++;
-				}
-				wbe.write();
-				wbe.close();
-				if (is != null)
-					is.close();
-				if (os != null)
-					os.close();
+                int i = 1;
+                for (VisaDTO visaDto : list) {
+                    sheet.addCell(new Label(0, i, "CV" + visaDto.getId(), cellFormat));
+                    sheet.addCell(new Label(1, i, sdf.format(visaDto.getGmtCreate()), cellFormat));
+                    if (visaDto.getReceiveDate() != null)
+                        sheet.addCell(new Label(2, i, sdf.format(visaDto.getReceiveDate()), cellFormat));
+                    sheet.addCell(new Label(3, i, visaDto.getUserName(), cellFormat));
+                    sheet.addCell(new Label(4, i, visaDto.getReceiveTypeName(), cellFormat));
+                    sheet.addCell(new Label(5, i, visaDto.getServiceCode(), cellFormat));
+                    sheet.addCell(new Label(6, i, visaDto.getTotalAmountCNY() + "", cellFormat));
+                    sheet.addCell(new Label(7, i, visaDto.getTotalAmountCNY() + "", cellFormat));
+                    sheet.addCell(new Label(8, i, visaDto.getCurrency(), cellFormat));
+                    sheet.addCell(new Label(9, i, visaDto.getExchangeRate() + "", cellFormat));
+                    sheet.addCell(new Label(10, i, visaDto.getAmountCNY() + "", cellFormat));
+                    sheet.addCell(new Label(11, i, visaDto.getExpectAmount() + "", cellFormat));
+                    sheet.addCell(new Label(12, i, visaDto.getExpectAmount() + "", cellFormat));
+                    sheet.addCell(new Label(13, i, visaDto.getBonus() + "", cellFormat));
+                    if (visaDto.getBonusDate() != null)
+                        sheet.addCell(new Label(14, i, sdf.format(visaDto.getBonusDate()), cellFormat));
+                    sheet.addCell(new Label(15, i, visaDto.getBankCheck(), cellFormat));
+                    sheet.addCell(new Label(16, i, visaDto.isChecked() + "", cellFormat));
+                    sheet.addCell(new Label(17, i, visaDto.getAdviserName(), cellFormat));
+                    if (visaDto.getState() != null)
+                        sheet.addCell(new Label(18, i, getStateStr(visaDto.getState()), cellFormat));
+                    if (visaDto.getKjApprovalDate() != null)
+                        sheet.addCell(new Label(19, i, sdf.format(visaDto.getKjApprovalDate()), cellFormat));
+                    sheet.addCell(new Label(20, i, visaDto.getRemarks(), cellFormat));
+                    i++;
+                }
+                wbe.write();
+                wbe.close();
+                if (is != null)
+                    is.close();
+                if (os != null)
+                    os.close();
 
-			} else {
+            } else {
 
-				//AUD
+                //AUD
 
-				OutputStream os = response.getOutputStream();
-				jxl.Workbook wb;
-				InputStream is;
-				try {
-					is = this.getClass().getResourceAsStream("/VisaTemplate.xls");
-				} catch (Exception e) {
-					throw new Exception("模版不存在");
-				}
-				try {
-					wb = Workbook.getWorkbook(is);
-				} catch (Exception e) {
-					throw new Exception("模版格式不支持");
-				}
-				WorkbookSettings settings = new WorkbookSettings();
-				settings.setWriteAccess(null);
-				jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
+                OutputStream os = response.getOutputStream();
+                jxl.Workbook wb;
+                InputStream is;
+                try {
+                    is = this.getClass().getResourceAsStream("/VisaTemplate.xls");
+                } catch (Exception e) {
+                    throw new Exception("模版不存在");
+                }
+                try {
+                    wb = Workbook.getWorkbook(is);
+                } catch (Exception e) {
+                    throw new Exception("模版格式不支持");
+                }
+                WorkbookSettings settings = new WorkbookSettings();
+                settings.setWriteAccess(null);
+                jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
 
-				if (wbe == null) {
-					System.out.println("wbe is null !os=" + os + ",wb" + wb);
-				} else {
-					System.out.println("wbe not null !os=" + os + ",wb" + wb);
-				}
-				WritableSheet sheet = wbe.getSheet(0);
-				WritableCellFormat cellFormat = new WritableCellFormat();
+                if (wbe == null) {
+                    System.out.println("wbe is null !os=" + os + ",wb" + wb);
+                } else {
+                    System.out.println("wbe not null !os=" + os + ",wb" + wb);
+                }
+                WritableSheet sheet = wbe.getSheet(0);
+                WritableCellFormat cellFormat = new WritableCellFormat();
 
-				int i = 1;
-				for (VisaDTO visaDto : list) {
-					sheet.addCell(new Label(0, i, "CV" + visaDto.getId(), cellFormat));
-					sheet.addCell(new Label(1, i, sdf.format(visaDto.getGmtCreate()), cellFormat));
-					if (visaDto.getReceiveDate() != null)
-						sheet.addCell(new Label(2, i, sdf.format(visaDto.getReceiveDate()), cellFormat));
-					sheet.addCell(new Label(3, i, visaDto.getUserName(), cellFormat));
-					sheet.addCell(new Label(4, i, visaDto.getReceiveTypeName(), cellFormat));
-					sheet.addCell(new Label(5, i, visaDto.getServiceCode(), cellFormat));
-					sheet.addCell(new Label(6, i, visaDto.getTotalAmountAUD() + "", cellFormat));
-					sheet.addCell(new Label(7, i, visaDto.getTotalAmountAUD() + "", cellFormat));
-					sheet.addCell(new Label(8, i, visaDto.getCurrency(), cellFormat));
-					sheet.addCell(new Label(9, i, visaDto.getExchangeRate() + "", cellFormat));
-					sheet.addCell(new Label(10, i, visaDto.getAmountAUD() + "", cellFormat));
-					sheet.addCell(new Label(11, i, visaDto.getGstAUD() + "", cellFormat));
-					sheet.addCell(new Label(12, i, visaDto.getDeductGstAUD() + "", cellFormat));
-					sheet.addCell(new Label(13, i, visaDto.getExpectAmount() + "", cellFormat));
-					sheet.addCell(new Label(14, i, visaDto.getExpectAmount() + "", cellFormat));
-					sheet.addCell(new Label(15, i, visaDto.getBonus() + "", cellFormat));
-					if (visaDto.getBonusDate() != null)
-						sheet.addCell(new Label(16, i, sdf.format(visaDto.getBonusDate()), cellFormat));
-					sheet.addCell(new Label(17, i, visaDto.getBankCheck(), cellFormat));
-					sheet.addCell(new Label(18, i, visaDto.isChecked() + "", cellFormat));
-					sheet.addCell(new Label(19, i, visaDto.getAdviserName(), cellFormat));
-					if (visaDto.getState() != null)
-						sheet.addCell(new Label(20, i, getStateStr(visaDto.getState()), cellFormat));
-					if (visaDto.getKjApprovalDate() != null)
-						sheet.addCell(new Label(21, i, sdf.format(visaDto.getKjApprovalDate()), cellFormat));
-					sheet.addCell(new Label(22, i, visaDto.getRemarks(), cellFormat));
-					i++;
-				}
-				wbe.write();
-				wbe.close();
-				if (is != null)
-					is.close();
-				if (os != null)
-					os.close();
+                int i = 1;
+                for (VisaDTO visaDto : list) {
+                    sheet.addCell(new Label(0, i, "CV" + visaDto.getId(), cellFormat));
+                    sheet.addCell(new Label(1, i, sdf.format(visaDto.getGmtCreate()), cellFormat));
+                    if (visaDto.getReceiveDate() != null)
+                        sheet.addCell(new Label(2, i, sdf.format(visaDto.getReceiveDate()), cellFormat));
+                    sheet.addCell(new Label(3, i, visaDto.getUserName(), cellFormat));
+                    sheet.addCell(new Label(4, i, visaDto.getReceiveTypeName(), cellFormat));
+                    sheet.addCell(new Label(5, i, visaDto.getServiceCode(), cellFormat));
+                    sheet.addCell(new Label(6, i, visaDto.getTotalAmountAUD() + "", cellFormat));
+                    sheet.addCell(new Label(7, i, visaDto.getTotalAmountAUD() + "", cellFormat));
+                    sheet.addCell(new Label(8, i, visaDto.getCurrency(), cellFormat));
+                    sheet.addCell(new Label(9, i, visaDto.getExchangeRate() + "", cellFormat));
+                    sheet.addCell(new Label(10, i, visaDto.getAmountAUD() + "", cellFormat));
+                    sheet.addCell(new Label(11, i, visaDto.getGstAUD() + "", cellFormat));
+                    sheet.addCell(new Label(12, i, visaDto.getDeductGstAUD() + "", cellFormat));
+                    sheet.addCell(new Label(13, i, visaDto.getExpectAmount() + "", cellFormat));
+                    sheet.addCell(new Label(14, i, visaDto.getExpectAmount() + "", cellFormat));
+                    sheet.addCell(new Label(15, i, visaDto.getBonus() + "", cellFormat));
+                    if (visaDto.getBonusDate() != null)
+                        sheet.addCell(new Label(16, i, sdf.format(visaDto.getBonusDate()), cellFormat));
+                    sheet.addCell(new Label(17, i, visaDto.getBankCheck(), cellFormat));
+                    sheet.addCell(new Label(18, i, visaDto.isChecked() + "", cellFormat));
+                    sheet.addCell(new Label(19, i, visaDto.getAdviserName(), cellFormat));
+                    if (visaDto.getState() != null)
+                        sheet.addCell(new Label(20, i, getStateStr(visaDto.getState()), cellFormat));
+                    if (visaDto.getKjApprovalDate() != null)
+                        sheet.addCell(new Label(21, i, sdf.format(visaDto.getKjApprovalDate()), cellFormat));
+                    sheet.addCell(new Label(22, i, visaDto.getRemarks(), cellFormat));
+                    i++;
+                }
+                wbe.write();
+                wbe.close();
+                if (is != null)
+                    is.close();
+                if (os != null)
+                    os.close();
 
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			return;
-		}
-	}
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+    }
 
-	@RequestMapping(value = "/get", method = RequestMethod.GET)
-	@ResponseBody
-	public Response<VisaDTO> getVisa(@RequestParam(value = "id") int id, HttpServletResponse response) {
-		try {
-			super.setGetHeader(response);
-			return new Response<VisaDTO>(0, visaService.getVisaById(id));
-		} catch (ServiceException e) {
-			return new Response<VisaDTO>(1, e.getMessage(), null);
-		}
-	}
+    @RequestMapping(value = "/get", method = RequestMethod.GET)
+    @ResponseBody
+    public Response<VisaDTO> getVisa(@RequestParam(value = "id") int id, HttpServletResponse response) {
+        try {
+            super.setGetHeader(response);
+            return new Response<VisaDTO>(0, visaService.getVisaById(id));
+        } catch (ServiceException e) {
+            return new Response<VisaDTO>(1, e.getMessage(), null);
+        }
+    }
 
-	@RequestMapping(value = "/get2", method = RequestMethod.GET)
-	@ResponseBody
-	public Response<List<VisaDTO>> getVisa2(@RequestParam(value = "idList") String idList[],
-											HttpServletResponse response) {
-		try {
-			super.setGetHeader(response);
-			List<VisaDTO> visaList = new ArrayList<>();
-			for (String id : idList) {
-				VisaDTO visaDTO = visaService.getVisaById(StringUtil.toInt(id));
-				if (visaDTO == null)
-					return new Response<List<VisaDTO>>(1, "佣金订单不存在 id : " + id, null);
-				visaList.add(visaDTO);
-			}
-			return new Response<List<VisaDTO>>(0, visaList);
-		} catch (ServiceException e) {
-			return new Response<List<VisaDTO>>(1, e.getMessage(), null);
-		}
-	}
+    @RequestMapping(value = "/get2", method = RequestMethod.GET)
+    @ResponseBody
+    public Response<List<VisaDTO>> getVisa2(@RequestParam(value = "idList") String idList[],
+                                            HttpServletResponse response) {
+        try {
+            super.setGetHeader(response);
+            List<VisaDTO> visaList = new ArrayList<>();
+            for (String id : idList) {
+                VisaDTO visaDTO = visaService.getVisaById(StringUtil.toInt(id));
+                if (visaDTO == null)
+                    return new Response<List<VisaDTO>>(1, "佣金订单不存在 id : " + id, null);
+                visaList.add(visaDTO);
+            }
+            return new Response<List<VisaDTO>>(0, visaList);
+        } catch (ServiceException e) {
+            return new Response<List<VisaDTO>>(1, e.getMessage(), null);
+        }
+    }
 
-	@RequestMapping(value = "/close", method = RequestMethod.GET)
-	@ResponseBody
-	public Response<Integer> closeVisa(@RequestParam(value = "id") int id, HttpServletResponse response) {
-		try {
-			super.setGetHeader(response);
-			VisaDTO visaDto = visaService.getVisaById(id);
-			visaDto.setClose(true);
-			visaDto.setInvoiceNumber(null); // close后把invoice清空
-			return new Response<Integer>(0, visaService.updateVisa(visaDto));
-		} catch (ServiceException e) {
-			return new Response<Integer>(1, e.getMessage(), 0);
-		}
-	}
+    @RequestMapping(value = "/close", method = RequestMethod.GET)
+    @ResponseBody
+    public Response<Integer> closeVisa(@RequestParam(value = "id") int id, HttpServletResponse response) {
+        try {
+            super.setGetHeader(response);
+            VisaDTO visaDto = visaService.getVisaById(id);
+            visaDto.setClose(true);
+            visaDto.setInvoiceNumber(null); // close后把invoice清空
+            return new Response<Integer>(0, visaService.updateVisa(visaDto));
+        } catch (ServiceException e) {
+            return new Response<Integer>(1, e.getMessage(), 0);
+        }
+    }
 
-	@RequestMapping(value = "/reopen", method = RequestMethod.GET)
-	@ResponseBody
-	public Response<Integer> reopenVisa(@RequestParam(value = "id") int id, HttpServletResponse response) {
-		try {
-			super.setGetHeader(response);
-			VisaDTO visaDto = visaService.getVisaById(id);
-			visaDto.setClose(false);
-			return new Response<Integer>(0, visaService.updateVisa(visaDto));
-		} catch (ServiceException e) {
-			return new Response<Integer>(1, e.getMessage(), 0);
-		}
-	}
+    @RequestMapping(value = "/reopen", method = RequestMethod.GET)
+    @ResponseBody
+    public Response<Integer> reopenVisa(@RequestParam(value = "id") int id, HttpServletResponse response) {
+        try {
+            super.setGetHeader(response);
+            VisaDTO visaDto = visaService.getVisaById(id);
+            visaDto.setClose(false);
+            return new Response<Integer>(0, visaService.updateVisa(visaDto));
+        } catch (ServiceException e) {
+            return new Response<Integer>(1, e.getMessage(), 0);
+        }
+    }
 
-	@RequestMapping(value = "/delete", method = RequestMethod.GET)
-	@ResponseBody
-	public Response<Integer> deleteVisa(@RequestParam(value = "id") int id, HttpServletResponse response) {
-		try {
-			super.setGetHeader(response);
-			return new Response<Integer>(0, visaService.deleteVisaById(id));
-		} catch (ServiceException e) {
-			return new Response<Integer>(1, e.getMessage(), 0);
-		}
-	}
+    @RequestMapping(value = "/delete", method = RequestMethod.GET)
+    @ResponseBody
+    public Response<Integer> deleteVisa(@RequestParam(value = "id") int id, HttpServletResponse response) {
+        try {
+            super.setGetHeader(response);
+            return new Response<Integer>(0, visaService.deleteVisaById(id));
+        } catch (ServiceException e) {
+            return new Response<Integer>(1, e.getMessage(), 0);
+        }
+    }
 
-	@RequestMapping(value = "/approval", method = RequestMethod.POST)
-	@ResponseBody
-	public Response<VisaDTO> approval(@RequestParam(value = "id") int id, @RequestParam(value = "state") String state,
-									  HttpServletRequest request, HttpServletResponse response) {
-		try {
-			super.setPostHeader(response);
-			if (ReviewKjStateEnum.CLOSE.toString().equalsIgnoreCase(state))
-				return new Response<VisaDTO>(1, "关闭操作请调用'refuse'接口.", null);
-			// 审核
-			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			if (adminUserLoginInfo != null) {
-				if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
-						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
-					return new Response<VisaDTO>(1, "仅限会计审核佣金订单.", null);
-				if ("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
-						|| "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
-					if (ReviewKjStateEnum.get(state) != null) {
-						VisaDTO visaDto = visaService.getVisaById(id);
-						if (visaDto == null)
-							return new Response<VisaDTO>(1, "佣金订单不存在!", null);
-						serviceOrderService.approval(id, adminUserLoginInfo.getId(), null, null, null,
-								state.toUpperCase());
-						visaDto.setState(state);
-						if (visaService.updateVisa(visaDto) > 0)
-							return new Response<VisaDTO>(0, visaDto);
-						else
-							return new Response<VisaDTO>(1, "修改操作异常!", null);
-					} else
-						return new Response<VisaDTO>(1, "state错误!(" + state + ")", null);
-				} else
-					return new Response<VisaDTO>(1, "该用户无审核权限!", null);
-			} else
-				return new Response<VisaDTO>(1, "请登录!", null);
-		} catch (ServiceException e) {
-			return new Response<VisaDTO>(1, e.getMessage(), null);
-		}
-	}
+    @RequestMapping(value = "/approval", method = RequestMethod.POST)
+    @ResponseBody
+    public Response<VisaDTO> approval(@RequestParam(value = "id") int id, @RequestParam(value = "state") String state,
+                                      HttpServletRequest request, HttpServletResponse response) {
+        try {
+            super.setPostHeader(response);
+            if (ReviewKjStateEnum.CLOSE.toString().equalsIgnoreCase(state))
+                return new Response<VisaDTO>(1, "关闭操作请调用'refuse'接口.", null);
+            // 审核
+            AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+            if (adminUserLoginInfo != null) {
+                if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+                        && !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+                    return new Response<VisaDTO>(1, "仅限会计审核佣金订单.", null);
+                if ("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+                        || "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+                    if (ReviewKjStateEnum.get(state) != null) {
+                        VisaDTO visaDto = visaService.getVisaById(id);
+                        if (visaDto == null)
+                            return new Response<VisaDTO>(1, "佣金订单不存在!", null);
+                        serviceOrderService.approval(id, adminUserLoginInfo.getId(), null, null, null,
+                                state.toUpperCase());
+                        visaDto.setState(state);
+                        if (visaService.updateVisa(visaDto) > 0)
+                            return new Response<VisaDTO>(0, visaDto);
+                        else
+                            return new Response<VisaDTO>(1, "修改操作异常!", null);
+                    } else
+                        return new Response<VisaDTO>(1, "state错误!(" + state + ")", null);
+                } else
+                    return new Response<VisaDTO>(1, "该用户无审核权限!", null);
+            } else
+                return new Response<VisaDTO>(1, "请登录!", null);
+        } catch (ServiceException e) {
+            return new Response<VisaDTO>(1, e.getMessage(), null);
+        }
+    }
 
-	@RequestMapping(value = "/refuse", method = RequestMethod.POST)
-	@ResponseBody
-	public Response<VisaDTO> refuse(@RequestParam(value = "id") int id, @RequestParam(value = "state") String state,
-									@RequestParam(value = "refuseReason", required = false) String refuseReason, HttpServletRequest request,
-									HttpServletResponse response) {
-		try {
-			super.setPostHeader(response);
-			if (ReviewKjStateEnum.COMPLETE.toString().equalsIgnoreCase(state)
-					|| ReviewKjStateEnum.FINISH.toString().equalsIgnoreCase(state))
-				return new Response<VisaDTO>(1, "完成操作请调用'approval'接口.", null);
-			// 审核
-			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			if (adminUserLoginInfo != null) {
-				if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
-						&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
-					return new Response<VisaDTO>(1, "仅限会计审核佣金订单.", null);
-				if ("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
-						|| "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
-					if (ReviewKjStateEnum.get(state) != null) {
-						VisaDTO visaDto = visaService.getVisaById(id);
-						if (visaDto == null)
-							return new Response<VisaDTO>(1, "佣金订单不存在!", null);
-						// 更新驳回原因
-						if (StringUtil.isNotEmpty(refuseReason))
-							visaDto.setRefuseReason(refuseReason);
-						visaDto.setState(state);
-						if (visaService.updateVisa(visaDto) > 0) {
-							visaService.sendRefuseEmail(visaDto);
-							return new Response<VisaDTO>(0, visaDto);
-						} else
-							return new Response<VisaDTO>(1, "修改操作异常!", null);
-					} else
-						return new Response<VisaDTO>(1, "state错误!(" + state + ")", null);
-				} else
-					return new Response<VisaDTO>(1, "该用户无审核权限!", null);
-			} else
-				return new Response<VisaDTO>(1, "请登录!", null);
-		} catch (ServiceException e) {
-			return new Response<VisaDTO>(1, e.getMessage(), null);
-		}
-	}
+    @RequestMapping(value = "/refuse", method = RequestMethod.POST)
+    @ResponseBody
+    public Response<VisaDTO> refuse(@RequestParam(value = "id") int id, @RequestParam(value = "state") String state,
+                                    @RequestParam(value = "refuseReason", required = false) String refuseReason, HttpServletRequest request,
+                                    HttpServletResponse response) {
+        try {
+            super.setPostHeader(response);
+            if (ReviewKjStateEnum.COMPLETE.toString().equalsIgnoreCase(state)
+                    || ReviewKjStateEnum.FINISH.toString().equalsIgnoreCase(state))
+                return new Response<VisaDTO>(1, "完成操作请调用'approval'接口.", null);
+            // 审核
+            AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+            if (adminUserLoginInfo != null) {
+                if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+                        && !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+                    return new Response<VisaDTO>(1, "仅限会计审核佣金订单.", null);
+                if ("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+                        || "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+                    if (ReviewKjStateEnum.get(state) != null) {
+                        VisaDTO visaDto = visaService.getVisaById(id);
+                        if (visaDto == null)
+                            return new Response<VisaDTO>(1, "佣金订单不存在!", null);
+                        // 更新驳回原因
+                        if (StringUtil.isNotEmpty(refuseReason))
+                            visaDto.setRefuseReason(refuseReason);
+                        visaDto.setState(state);
+                        if (visaService.updateVisa(visaDto) > 0) {
+                            visaService.sendRefuseEmail(visaDto);
+                            return new Response<VisaDTO>(0, visaDto);
+                        } else
+                            return new Response<VisaDTO>(1, "修改操作异常!", null);
+                    } else
+                        return new Response<VisaDTO>(1, "state错误!(" + state + ")", null);
+                } else
+                    return new Response<VisaDTO>(1, "该用户无审核权限!", null);
+            } else
+                return new Response<VisaDTO>(1, "请登录!", null);
+        } catch (ServiceException e) {
+            return new Response<VisaDTO>(1, e.getMessage(), null);
+        }
+    }
 
-	@RequestMapping(value = "/addComment", method = RequestMethod.POST)
-	@ResponseBody
-	public Response<Integer> addComment(@RequestParam(value = "adminUserId", required = false) Integer adminUserId,
-										@RequestParam(value = "visaId", required = false) Integer visaId,
-										@RequestParam(value = "content") String content, HttpServletRequest request, HttpServletResponse response) {
-		try {
-			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-			super.setPostHeader(response);
-			VisaCommentDTO visaCommentDto = new VisaCommentDTO();
-			visaCommentDto.setAdminUserId(adminUserLoginInfo != null ? adminUserLoginInfo.getId() : adminUserId);
-			visaCommentDto.setVisaId(visaId);
-			visaCommentDto.setContent(content);
-			if (visaService.addComment(visaCommentDto) > 0)
-				return new Response<Integer>(0, visaCommentDto.getId());
-			else
-				return new Response<Integer>(1, "创建失败.", 0);
-		} catch (ServiceException e) {
-			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
-		}
-	}
+    @RequestMapping(value = "/addComment", method = RequestMethod.POST)
+    @ResponseBody
+    public Response<Integer> addComment(@RequestParam(value = "adminUserId", required = false) Integer adminUserId,
+                                        @RequestParam(value = "visaId", required = false) Integer visaId,
+                                        @RequestParam(value = "content") String content, HttpServletRequest request, HttpServletResponse response) {
+        try {
+            AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+            super.setPostHeader(response);
+            VisaCommentDTO visaCommentDto = new VisaCommentDTO();
+            visaCommentDto.setAdminUserId(adminUserLoginInfo != null ? adminUserLoginInfo.getId() : adminUserId);
+            visaCommentDto.setVisaId(visaId);
+            visaCommentDto.setContent(content);
+            if (visaService.addComment(visaCommentDto) > 0)
+                return new Response<Integer>(0, visaCommentDto.getId());
+            else
+                return new Response<Integer>(1, "创建失败.", 0);
+        } catch (ServiceException e) {
+            return new Response<Integer>(e.getCode(), e.getMessage(), 0);
+        }
+    }
 
-	@RequestMapping(value = "/countComment", method = RequestMethod.GET)
-	@ResponseBody
-	public Response<Integer> countComment(@RequestParam(value = "visaId") Integer visaId,
-										  HttpServletResponse response) {
-		try {
-			super.setGetHeader(response);
-			return new Response<Integer>(0, visaService.listComment(visaId).size());
-		} catch (ServiceException e) {
-			return new Response<Integer>(1, e.getMessage(), null);
-		}
-	}
+    @RequestMapping(value = "/countComment", method = RequestMethod.GET)
+    @ResponseBody
+    public Response<Integer> countComment(@RequestParam(value = "visaId") Integer visaId,
+                                          HttpServletResponse response) {
+        try {
+            super.setGetHeader(response);
+            return new Response<Integer>(0, visaService.listComment(visaId).size());
+        } catch (ServiceException e) {
+            return new Response<Integer>(1, e.getMessage(), null);
+        }
+    }
 
-	@RequestMapping(value = "/listComment", method = RequestMethod.GET)
-	@ResponseBody
-	public Response<List<VisaCommentDTO>> listComment(@RequestParam(value = "visaId") Integer visaId,
-													  HttpServletResponse response) {
-		try {
-			super.setGetHeader(response);
-			return new Response<List<VisaCommentDTO>>(0, visaService.listComment(visaId));
-		} catch (ServiceException e) {
-			return new Response<List<VisaCommentDTO>>(1, e.getMessage(), null);
-		}
-	}
+    @RequestMapping(value = "/listComment", method = RequestMethod.GET)
+    @ResponseBody
+    public Response<List<VisaCommentDTO>> listComment(@RequestParam(value = "visaId") Integer visaId,
+                                                      HttpServletResponse response) {
+        try {
+            super.setGetHeader(response);
+            return new Response<List<VisaCommentDTO>>(0, visaService.listComment(visaId));
+        } catch (ServiceException e) {
+            return new Response<List<VisaCommentDTO>>(1, e.getMessage(), null);
+        }
+    }
 
-	@RequestMapping(value = "/deleteComment", method = RequestMethod.GET)
-	@ResponseBody
-	public Response<Integer> deleteComment(@RequestParam(value = "id") int id, HttpServletResponse response) {
-		try {
-			super.setGetHeader(response);
-			return new Response<Integer>(0, visaService.deleteComment(id));
-		} catch (ServiceException e) {
-			return new Response<Integer>(1, e.getMessage(), 0);
-		}
-	}
+    @RequestMapping(value = "/deleteComment", method = RequestMethod.GET)
+    @ResponseBody
+    public Response<Integer> deleteComment(@RequestParam(value = "id") int id, HttpServletResponse response) {
+        try {
+            super.setGetHeader(response);
+            return new Response<Integer>(0, visaService.deleteComment(id));
+        } catch (ServiceException e) {
+            return new Response<Integer>(1, e.getMessage(), 0);
+        }
+    }
 
 }
