@@ -639,8 +639,8 @@ public class DownExcelController extends BaseController {
 					row.createCell(12).setCellValue(visaDto.getDeductGstAUD() + "");
 					j = 12;
 				}
-				row.createCell(j + 1).setCellValue(visaDto.getExpectAmount() + "");
-				row.createCell(j + 2).setCellValue(visaDto.getExpectAmount() + "");
+				row.createCell(j + 1).setCellValue(visaDto.getExpectAmountAUD() + "");
+				row.createCell(j + 2).setCellValue(visaDto.getExpectAmountAUD() + "");
 				row.createCell(j + 3).setCellValue(visaDto.getBonus() + "");
 				if (visaDto.getBonusDate() != null)
 					row.createCell(j + 4).setCellValue(sdf.format(visaDto.getBonusDate()));
@@ -767,13 +767,13 @@ public class DownExcelController extends BaseController {
 				row3.createCell(24).setCellValue( commissionOrderListDto.getAmountAUD() + "");
 			}
 
-			row3.createCell(25).setCellValue( commissionOrderListDto.getExpectAmount() + "");
+			row3.createCell(25).setCellValue( commissionOrderListDto.getExpectAmountAUD() + "");
 			if (commissionOrderListDto.isSettle()) {
-				row3.createCell(26).setCellValue( commissionOrderListDto.getExpectAmount() + "");
-				sureExpectAmountTotal = sureExpectAmountTotal.add(new BigDecimal(commissionOrderListDto.getExpectAmount()));
+				row3.createCell(26).setCellValue( commissionOrderListDto.getExpectAmountAUD() + "");
+				sureExpectAmountTotal = sureExpectAmountTotal.add(new BigDecimal(commissionOrderListDto.getExpectAmountAUD()));
 			} else {
 				row3.createCell(26).setCellValue( commissionOrderListDto.getSureExpectAmount() + "");
-				sureExpectAmountTotal = sureExpectAmountTotal.add(new BigDecimal(commissionOrderListDto.getSureExpectAmount()));
+				sureExpectAmountTotal = sureExpectAmountTotal.add(new BigDecimal(commissionOrderListDto.getSureExpectAmountAUD()));
 			}
 			row3.createCell(27).setCellValue( commissionOrderListDto.getGst() + "");
 			row3.createCell(28).setCellValue( commissionOrderListDto.getDeductGst() + "");
@@ -929,8 +929,8 @@ public class DownExcelController extends BaseController {
 				j = 12;
 			}
 
-			sheet.addCell(new Label(j + 1, i, visaDto.getExpectAmount() + "", cellFormat));
-			sheet.addCell(new Label(j + 2, i, visaDto.getExpectAmount() + "", cellFormat));
+			sheet.addCell(new Label(j + 1, i, visaDto.getExpectAmountAUD() + "", cellFormat));
+			sheet.addCell(new Label(j + 2, i, visaDto.getExpectAmountAUD() + "", cellFormat));
 			sheet.addCell(new Label(j + 3, i, visaDto.getBonus() + "", cellFormat));
 			if (visaDto.getBonusDate() != null)
 				sheet.addCell(new Label(j + 4, i, sdf.format(visaDto.getBonusDate()), cellFormat));
@@ -980,7 +980,7 @@ public class DownExcelController extends BaseController {
 		BigDecimal sureExpectAmountTotal = new BigDecimal("0.00");
 		BigDecimal commissionTotal = new BigDecimal("0.00");
 		for (CommissionOrderListDTO commissionOrderListDto : commissionOrderList) {
-			commissionTotal = commissionTotal.add(new BigDecimal(commissionOrderListDto.getExpectAmount()));
+			commissionTotal = commissionTotal.add(new BigDecimal(commissionOrderListDto.getExpectAmountAUD()));
 			sheet.addCell(new Label(0, i, "CS" + commissionOrderListDto.getId(), cellFormat));
 			sheet.addCell(new Label(1, i, sdf.format(commissionOrderListDto.getGmtCreate()), cellFormat));
 			if (commissionOrderListDto.getReceiveDate() != null)
@@ -1036,13 +1036,13 @@ public class DownExcelController extends BaseController {
 				sheet.addCell(new Label(24, i, commissionOrderListDto.getAmountAUD() + "", cellFormat));
 			}
 
-			sheet.addCell(new Label(25, i, commissionOrderListDto.getExpectAmount() + "", cellFormat));
+			sheet.addCell(new Label(25, i, commissionOrderListDto.getExpectAmountAUD() + "", cellFormat));
 			if (commissionOrderListDto.isSettle()){
-				sheet.addCell(new Label(26, i, commissionOrderListDto.getExpectAmount() + "", cellFormat));
-				sureExpectAmountTotal = sureExpectAmountTotal.add(new BigDecimal(commissionOrderListDto.getExpectAmount()));
+				sheet.addCell(new Label(26, i, commissionOrderListDto.getExpectAmountAUD() + "", cellFormat));
+				sureExpectAmountTotal = sureExpectAmountTotal.add(new BigDecimal(commissionOrderListDto.getExpectAmountAUD()));
 			}
 			else{
-				sheet.addCell(new Label(26, i, commissionOrderListDto.getSureExpectAmount() + "", cellFormat));
+				sheet.addCell(new Label(26, i, commissionOrderListDto.getSureExpectAmountAUD() + "", cellFormat));
 				sureExpectAmountTotal = sureExpectAmountTotal.add(new BigDecimal(commissionOrderListDto.getSureExpectAmount()));
 			}
 			sheet.addCell(new Label(27, i, commissionOrderListDto.getGst() + "", cellFormat));
