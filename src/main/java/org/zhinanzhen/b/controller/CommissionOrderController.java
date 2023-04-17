@@ -34,6 +34,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -498,6 +499,14 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			commissionOrderDto.setDiscount(_perAmount - commissionOrderDto.getAmount());
 			if (sureExpectAmount != null)
 				commissionOrderDto.setSureExpectAmount(sureExpectAmount);
+			if (sureExpectAmount != null) {
+				if ("CNY".equalsIgnoreCase(commissionOrderListDto.getCurrency()))
+					commissionOrderDto.setSureExpectAmount(
+							new BigDecimal(sureExpectAmount * commissionOrderListDto.getExchangeRate())
+									.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				else
+					commissionOrderDto.setSureExpectAmount(sureExpectAmount);
+			}
 			if (StringUtil.isNotEmpty(currency))
 				commissionOrderDto.setCurrency(currency);
 			if (StringUtil.isNotEmpty(exchangeRate))
@@ -703,8 +712,14 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			commissionOrderDto.setInvoiceNumber(invoiceNumber);
 		if (StringUtil.isNotEmpty(zyDate))
 			commissionOrderDto.setZyDate(new Date(Long.parseLong(zyDate)));
-		if (sureExpectAmount != null)
-			commissionOrderDto.setSureExpectAmount(sureExpectAmount);
+		if (sureExpectAmount != null) {
+			if ("CNY".equalsIgnoreCase(commissionOrderDto.getCurrency()))
+				commissionOrderDto
+						.setSureExpectAmount(new BigDecimal(sureExpectAmount * commissionOrderDto.getExchangeRate())
+								.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			else
+				commissionOrderDto.setSureExpectAmount(sureExpectAmount);
+		}
 		if (bonus != null)
 			commissionOrderDto.setBonus(bonus);
 		if (bonusDate != null)
