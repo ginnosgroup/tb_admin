@@ -1,11 +1,9 @@
 package org.zhinanzhen.b.dao;
 
-import java.util.List;
-
 import org.apache.ibatis.annotations.Param;
 import org.zhinanzhen.b.dao.pojo.*;
-import org.zhinanzhen.b.service.pojo.ReceiveTypeDTO;
-import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
+
+import java.util.List;
 
 public interface ServiceOrderDAO {
 
@@ -16,6 +14,8 @@ public interface ServiceOrderDAO {
     int setCommission(@Param("id") Integer id, @Param("commissionAmount") Double commissionAmount, @Param("predictCommission") Double predictCommission, @Param("predictCommission1") Double predictCommission1);
 
     int updateReviewState(@Param("id") Integer id, @Param("reviewState") String reviewState);
+
+    int updateService(@Param("id")Integer id,@Param("serviceId") Integer serviceId);
 
     int countServiceOrder(@Param("type") String type, @Param("excludeTypeList") List<String> excludeTypeList,
                           @Param("excludeState") String excludeState, @Param("stateList") List<String> stateList,

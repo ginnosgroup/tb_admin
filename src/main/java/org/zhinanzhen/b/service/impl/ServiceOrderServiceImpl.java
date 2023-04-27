@@ -7,6 +7,7 @@ import com.ikasoa.core.utils.StringUtil;
 import lombok.Data;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.zhinanzhen.b.controller.nodes.SONodeFactory;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.ServiceOrderService;
@@ -123,6 +124,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
     @Resource
     private CustomerInformationDAO customerInformationDAO;
+
+    @Resource
+    SONodeFactory soNodeFactory;
 
 
     @Override
@@ -355,6 +359,23 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             throw se;
         }
     }
+
+    @Override
+    public int updateServiceOrderService(int id, int serviceId) throws ServiceException {
+        if (id <= 0) {
+            ServiceException se = new ServiceException("id is null !");
+            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+            throw se;
+        }
+        try {
+            return serviceOrderDao.updateService(id, serviceId);
+        } catch (Exception e) {
+            ServiceException se = new ServiceException(e);
+            se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+            throw se;
+        }
+    }
+
 
     @Override
     public int countServiceOrder(String type, List<String> excludeTypeList, String excludeState, List<String> stateList,
