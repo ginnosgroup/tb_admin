@@ -68,6 +68,9 @@ public class AdminUserServiceImpl extends BaseService implements AdminUserServic
 //			if (adminUserDo == null && "ZNZ@666".equals(password)) // 万能密码
 //				adminUserDo = adminUserDao.getAdminUserByUsername(username);
 			if (adminUserDo == null) {
+				adminUserDo = adminUserDao.getAdminUserByUsername(username);
+				if (adminUserDo != null && "DISABLED".equalsIgnoreCase(adminUserDo.getStatus())) // 判断帐号是否禁用
+					return -1;
 				return 0;
 			}
 		} catch (Exception e) {

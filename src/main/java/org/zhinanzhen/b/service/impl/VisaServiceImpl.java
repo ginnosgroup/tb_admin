@@ -484,8 +484,8 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			visaDto.setTotalPerAmountCNY(visaDto.getTotalPerAmount());
 //			visaDto.setExpectAmountAUD(roundHalfUp2(visaDto.getExpectAmount() / exchangeRate));
 //			visaDto.setExpectAmountCNY(visaDto.getExpectAmount());
-//			visaDto.setSureExpectAmountAUD(roundHalfUp2(visaDto.getSureExpectAmount() / exchangeRate));
-//			visaDto.setSureExpectAmountCNY(visaDto.getSureExpectAmount());
+			visaDto.setSureExpectAmountAUD(roundHalfUp2(visaDto.getSureExpectAmount() / exchangeRate));
+			visaDto.setSureExpectAmountCNY(visaDto.getSureExpectAmount());
 			// 人民币的预收业绩等于本次收款金额澳币 2023-1-27
 			visaDto.setExpectAmountAUD(visaDto.getAmountAUD());
 			visaDto.setExpectAmountCNY(visaDto.getAmount());
