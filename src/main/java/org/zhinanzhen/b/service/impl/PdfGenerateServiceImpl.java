@@ -227,12 +227,13 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
         }
         //Education
         //StudentQuestion
-
-
+        List<Education> educationList = customerInformationDO.getEducationList();
+        List<Education> educationList1 = objectMapper.convertValue(educationList, new TypeReference<List<Education>>() {
+        });
         if (customerInformationDO.getEducationList() == null) {
             root.getElementsByTagName("StudentQuestion").item(0).getChildNodes().item(3).setTextContent("2");
         } else {
-            Education firstEducation = customerInformationDO.getEducationList().get(0);
+            Education firstEducation = educationList1.get(0);
             root.getElementsByTagName("StudentQuestion").item(0).getChildNodes().item(3).setTextContent("1");
             //datesFrom
             root.getElementsByTagName("DateFrom").item(1).setTextContent(firstEducation.getDatesFrom());
