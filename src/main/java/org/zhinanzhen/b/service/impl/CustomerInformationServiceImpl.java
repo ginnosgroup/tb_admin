@@ -19,7 +19,7 @@ import org.zhinanzhen.tb.service.impl.BaseService;
 import javax.annotation.Resource;
 import java.util.List;
 
-@Service
+@Service("CustomerInformationService")
 public class CustomerInformationServiceImpl extends BaseService implements CustomerInformationService {
     @Resource
     private CustomerInformationDAO customerInformationDAO;
