@@ -19,6 +19,8 @@ public class CustomerInformationDO {
 
     private Integer serviceOrderId;//服务订单编号
 
+    private Integer applicantId;//申请人id
+
     private MainInformation mainInformation;//基本信息
 
     private List<PastInformation> pastInformationList;//曾用信息列表
