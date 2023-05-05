@@ -43,6 +43,18 @@ public class CustomerInformationController extends BaseController {
         }
     }
 
+    @GetMapping("/getByApplicantId")
+    public Response<CustomerInformationDO> getByApplicantId(@RequestParam(value = "applicantId") int applicantId, HttpServletRequest request,
+                                               HttpServletResponse response) {
+        try {
+            CustomerInformationDO customerInformationDO = customerInformationService.getByApplicantId(applicantId);
+            return new Response(0, "获取成功", customerInformationDO);
+        } catch (ServiceException e) {
+            e.printStackTrace();
+            return new Response(1, e.getMessage());
+        }
+    }
+
     @PostMapping("/add")
     public Response<Integer> add(@RequestBody String json, HttpServletRequest request,
                                  HttpServletResponse response) {
@@ -59,6 +71,7 @@ public class CustomerInformationController extends BaseController {
                 return new Response<>(1, "服务订单不存在");
             if (customerInformationService.getByServiceOrderId(customerInformationDO.getServiceOrderId()) != null)
                 return new Response<>(1, "你已提交过相关信息，如需修改请联系你的顾问");
+            customerInformationDO.setApplicantId(order.getApplicantId());
             customerInformationService.add(customerInformationDO);
             return new Response<>(0, "success");
         } catch (ServiceException e) {

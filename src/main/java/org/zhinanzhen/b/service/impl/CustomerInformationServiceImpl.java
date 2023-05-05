@@ -1,4 +1,4 @@
-package org.zhinanzhen.b.service;
+package org.zhinanzhen.b.service.impl;
 
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.ObjectUtil;
@@ -10,6 +10,7 @@ import org.zhinanzhen.b.dao.pojo.ServiceDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderApplicantDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
 import org.zhinanzhen.b.dao.pojo.customer.CustomerInformationDO;
+import org.zhinanzhen.b.service.CustomerInformationService;
 import org.zhinanzhen.b.service.pojo.ApplicantDTO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -95,6 +96,17 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
     public CustomerInformationDO getByServiceOrderId(int serviceOrderId) throws ServiceException {
         try {
             return customerInformationDAO.getByServiceOrderId(serviceOrderId);
+        } catch (Exception e) {
+            ServiceException se = new ServiceException(e);
+            se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+            throw se;
+        }
+    }
+
+    @Override
+    public CustomerInformationDO getByApplicantId(int applicantId) throws ServiceException {
+        try {
+            return customerInformationDAO.getByApplicantId(applicantId);
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());

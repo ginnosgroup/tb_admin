@@ -14,4 +14,6 @@ public interface CustomerInformationDAO {
 
     CustomerInformationDO getByServiceOrderId(int serviceOrderId);
 
+    CustomerInformationDO getByApplicantId(int applicantId);
+
 }

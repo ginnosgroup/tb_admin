@@ -15,4 +15,6 @@ public interface CustomerInformationService {
 
     CustomerInformationDO getByServiceOrderId(int serviceOrderId)throws ServiceException;
 
+    CustomerInformationDO getByApplicantId(int applicantId)throws ServiceException;
+
 }

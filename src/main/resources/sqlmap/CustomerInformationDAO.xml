@@ -10,7 +10,7 @@
       citizenship_details,
       ident_ification_number_list, education_list,
       language_skills, addresses, postal_address_list,
-      health_questions, character_issues)
+      health_questions, character_issues,applicant_id)
     values (now(), now(),
       #{serviceOrderId,jdbcType=INTEGER,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
       #{mainInformation,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
@@ -24,7 +24,8 @@
       #{addresses,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
       #{postalAddressList,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
       #{healthQuestions,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
-      #{characterIssues,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler})
+      #{characterIssues,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
+      #{applicantId,jdbcType=INTEGER,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler})
   </insert>
     <update id="update">
       update b_customer_information
@@ -93,6 +94,7 @@
     <id column="postal_address_list" jdbcType="VARCHAR" property="postalAddressList" typeHandler="org.zhinanzhen.tb.utils.JsonTypeHandler" />
     <id column="health_questions" jdbcType="VARCHAR" property="healthQuestions" typeHandler="org.zhinanzhen.tb.utils.JsonTypeHandler" />
     <id column="character_issues" jdbcType="VARCHAR" property="characterIssues" typeHandler="org.zhinanzhen.tb.utils.JsonTypeHandler" />
+    <id column="applicant_id" jdbcType="INTEGER" property="applicantId" typeHandler="org.zhinanzhen.tb.utils.JsonTypeHandler" />
   </resultMap>
   <select id="get" resultType="org.zhinanzhen.b.dao.pojo.customer.CustomerInformationDO" resultMap="BaseResultMap">
     SELECT
@@ -102,12 +104,22 @@
           where id = #{id}
   </select>
 
+
   <select id="getByServiceOrderId" resultType="org.zhinanzhen.b.dao.pojo.customer.CustomerInformationDO" resultMap="BaseResultMap">
     SELECT
       *
     FROM
       b_customer_information
           where service_order_id = #{serviceOrderId}
+  </select>
+
+  <select id="getByApplicantId" resultType="org.zhinanzhen.b.dao.pojo.customer.CustomerInformationDO" resultMap="BaseResultMap">
+    SELECT
+      *
+    FROM
+      b_customer_information
+          where applicant_id = #{applicantId}
+          ORDER BY gmt_modify DESC LIMIT 1
   </select>
 
 </mapper>
