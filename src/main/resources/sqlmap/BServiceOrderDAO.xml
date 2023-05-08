@@ -387,6 +387,13 @@
         WHERE id = #{id};
     </update>
 
+    <update id="updateService">
+        UPDATE b_service_order
+        SET gmt_modify = now(), service_id = #{serviceId}
+        WHERE id = #{id};
+    </update>
+
+
     <select id="countServiceOrder" resultType="java.lang.Integer">
         SELECT count(*)
         FROM tb_user u, tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON

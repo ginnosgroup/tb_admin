@@ -378,8 +378,13 @@ public class VisaController extends BaseCommissionOrderController {
 				visaDto.setAmount(Double.parseDouble(amount));
 				serviceOrderDto.setAmount(Double.parseDouble(amount));
 			}
-			if (sureExpectAmount != null)
-				visaDto.setSureExpectAmount(sureExpectAmount);
+			if (sureExpectAmount != null) {
+				if ("CNY".equalsIgnoreCase(_visaDto.getCurrency()))
+					visaDto.setSureExpectAmount(new BigDecimal(sureExpectAmount * _visaDto.getExchangeRate())
+							.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				else
+					visaDto.setSureExpectAmount(sureExpectAmount);
+			}
 			Double rate = getRate();
 			if (rate != null && rate > 0)
 				visaDto.setExchangeRate(rate);
@@ -541,8 +546,13 @@ public class VisaController extends BaseCommissionOrderController {
 		VisaDTO visaDto = visaService.getVisaById(id);
 		if (visaDto == null)
 			return new Response<VisaDTO>(1, "签证佣金订单订单(ID:" + id + ")不存在!", null);
-		if (sureExpectAmount != null)
-			visaDto.setSureExpectAmount(sureExpectAmount);
+		if (sureExpectAmount != null) {
+			if ("CNY".equalsIgnoreCase(visaDto.getCurrency()))
+				visaDto.setSureExpectAmount(new BigDecimal(sureExpectAmount * visaDto.getExchangeRate())
+						.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			else
+				visaDto.setSureExpectAmount(sureExpectAmount);
+		}
 		if (bonus != null)
 			visaDto.setBonus(bonus);
 		if (bonusDate != null)
@@ -926,8 +936,8 @@ public class VisaController extends BaseCommissionOrderController {
 					sheet.addCell(new Label(8, i, visaDto.getCurrency(), cellFormat));
 					sheet.addCell(new Label(9, i, visaDto.getExchangeRate() + "", cellFormat));
 					sheet.addCell(new Label(10, i, visaDto.getAmountCNY() + "", cellFormat));
-					sheet.addCell(new Label(11, i, visaDto.getExpectAmount() + "", cellFormat));
-					sheet.addCell(new Label(12, i, visaDto.getExpectAmount() + "", cellFormat));
+					sheet.addCell(new Label(11, i, visaDto.getExpectAmountAUD() + "", cellFormat));
+					sheet.addCell(new Label(12, i, visaDto.getExpectAmountAUD() + "", cellFormat));
 					sheet.addCell(new Label(13, i, visaDto.getBonus() + "", cellFormat));
 					if (visaDto.getBonusDate() != null)
 						sheet.addCell(new Label(14, i, sdf.format(visaDto.getBonusDate()), cellFormat));
@@ -993,8 +1003,8 @@ public class VisaController extends BaseCommissionOrderController {
 					sheet.addCell(new Label(10, i, visaDto.getAmountAUD() + "", cellFormat));
 					sheet.addCell(new Label(11, i, visaDto.getGstAUD() + "", cellFormat));
 					sheet.addCell(new Label(12, i, visaDto.getDeductGstAUD() + "", cellFormat));
-					sheet.addCell(new Label(13, i, visaDto.getExpectAmount() + "", cellFormat));
-					sheet.addCell(new Label(14, i, visaDto.getExpectAmount() + "", cellFormat));
+					sheet.addCell(new Label(13, i, visaDto.getExpectAmountAUD() + "", cellFormat));
+					sheet.addCell(new Label(14, i, visaDto.getExpectAmountAUD() + "", cellFormat));
 					sheet.addCell(new Label(15, i, visaDto.getBonus() + "", cellFormat));
 					if (visaDto.getBonusDate() != null)
 						sheet.addCell(new Label(16, i, sdf.format(visaDto.getBonusDate()), cellFormat));

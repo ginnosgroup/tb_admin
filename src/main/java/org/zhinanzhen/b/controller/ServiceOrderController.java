@@ -1025,7 +1025,7 @@ public class ServiceOrderController extends BaseController {
 
 	/**
 	 * 更新服务订单已提交申请时间,readcommitted_date字段
-	 * 
+	 *
 	 * @param id
 	 * @param readcommittedDate
 	 * @param request
@@ -2038,7 +2038,7 @@ public class ServiceOrderController extends BaseController {
 				 * (StringUtil.isNotBlank(so.getReview().getMaraState()) &&
 				 * so.getReview().getMaraState().equalsIgnoreCase("FINISH")) sheet.addCell(new
 				 * Label(15, i, "资料审核完成", cellFormat)); }
-				 * 
+				 *
 				 * if (so.getReview().getOfficialState().equalsIgnoreCase("WAIT")) { if
 				 * (StringUtil.isNotBlank(so.getReview().getMaraState()) &&
 				 * so.getReview().getMaraState().equalsIgnoreCase("WAIT")) sheet.addCell(new
@@ -2062,7 +2062,7 @@ public class ServiceOrderController extends BaseController {
 				 * sheet.addCell(new Label(15, i, "资料审核中,已驳回", cellFormat)); if
 				 * (so.getReview().getOfficialState().equalsIgnoreCase("CLOSE"))
 				 * sheet.addCell(new Label(15, i, "已关闭", cellFormat)); } }
-				 * 
+				 *
 				 * }
 				 */
 				sheet.addCell(new Label(17, i, so.getRealPeopleNumber() + "", cellFormat));
@@ -2529,7 +2529,7 @@ public class ServiceOrderController extends BaseController {
 
 	/**
 	 * MARA 批量审核 暂且只能 MARA,SUPER
-	 * 
+	 *
 	 * @param idList
 	 * @param state
 	 * @param request
@@ -2600,6 +2600,86 @@ public class ServiceOrderController extends BaseController {
 		return new Response<ServiceOrderDTO>(0, "success", null);
 
 	}
+
+	@RequestMapping(value = "/updateStateByList", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<ServiceOrderDTO> updateStateByList(@RequestParam(value = "idList") int idList[],
+												@RequestParam(value = "state") String state,
+												// @RequestParam(value = "subagencyId", required = false) String subagencyId,
+												// @RequestParam(value = "closedReason", required = false) String closedReason,
+												// @RequestParam(value = "refuseReason", required = false) String refuseReason,
+												// @RequestParam(value = "remarks", required = false) String remarks,
+												// @RequestParam(value = "stateMark", required = false) String stateMark,
+												HttpServletRequest request, HttpServletResponse response) {
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+//		if (adminUserLoginInfo == null || !"MA,SUPER".contains(adminUserLoginInfo.getApList()))
+//			return new Response<ServiceOrderDTO>(1, "No permission !", null);
+			ServiceOrderDTO serviceOrderDto;
+		try {
+			for (int id : idList) {
+				serviceOrderDto = serviceOrderService.getServiceOrderById(id);
+				if (ObjectUtil.isNull(serviceOrderDto))
+					return new Response<ServiceOrderDTO>(1, "服务订单不存在:" + id, null);
+				Node node = soNodeFactory.getNode(serviceOrderDto.getState());
+
+				Context context = new Context();
+				context.putParameter("serviceOrderId", id);
+				context.putParameter("type", serviceOrderDto.getType());
+				context.putParameter("state", state);
+				context.putParameter("adminUserId", adminUserLoginInfo.getId());
+
+				LOG.info("Flow API Log : " + context.toString());
+
+				String[] nextNodeNames = node.nextNodeNames();
+				if (nextNodeNames != null)
+					if (Arrays.asList(nextNodeNames).contains(state))
+						node = soNodeFactory.getNode(state);
+					else
+						return new Response<ServiceOrderDTO>(1, StringUtil.merge( id, " ,状态:", state,
+								",不是合法状态. (", Arrays.toString(nextNodeNames), ")"), null);
+
+				Workflow workflow = new Workflow("Service Order Work Flow", node, soNodeFactory);
+				context = workflowStarter.process(workflow, context);
+			}
+		} catch (ServiceException e) {
+			return new Response<ServiceOrderDTO>(1, "异常:" + e.getMessage(), null);
+		}
+		return new Response<ServiceOrderDTO>(0, "success", null);
+
+	}
+
+
+
+
+//todo:
+//	@RequestMapping(value = "/updateService", method = RequestMethod.POST)
+//	@ResponseBody
+//	public Response<Integer> updateService(@RequestParam(value = "id") int id,
+//										   @RequestParam(value = "serviceId") int serviceId,
+//										   HttpServletRequest request, HttpServletResponse response) {
+//		try {
+//			super.setPostHeader(response);
+//			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+//			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+//					&& !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList()) && !"AD".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+//				return new Response<Integer>(1, "仅限顾问和超级管理员能修改", 0);
+//			ServiceOrderDTO orderDTO = serviceOrderService.getServiceOrderById(id);
+//			if ("GW".equalsIgnoreCase(adminUserLoginInfo.getApList())&&orderDTO.getState().equals("PENDING")){
+//				serviceOrderService.updateServiceOrderService(id,serviceId);
+//				return new Response<>(0,"修改成功",null);
+//			}
+//			if ("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())&&orderDTO.getState().equals("PENDING")){
+//				serviceOrderService.updateServiceOrderService(id,serviceId);
+//
+//			}
+//
+//		} catch (ServiceException e) {
+//			return new Response<Integer>(1, "异常:" + e.getMessage(), null);
+//		}
+//		return
+//	}
+
+
 
 	private String getTypeStrOfServicePackageDTO(String type) {
 		if ("EOI".equalsIgnoreCase(type))

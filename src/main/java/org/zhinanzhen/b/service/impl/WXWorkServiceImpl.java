@@ -189,6 +189,16 @@ public class WXWorkServiceImpl implements WXWorkService {
                     }
                 }
             }
+            if (serviceOrderDO.getType().equalsIgnoreCase("ZX")) {
+                ServiceDO serviceDO = serviceDAO.getServiceById(serviceOrderDO.getServiceId());
+                if (serviceDO != null)
+                    msg = msg
+                            + "[ " + serviceDO.getName() + "-" + serviceDO.getCode();
+                ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDO.getServiceAssessId());
+                if (serviceAssessDO != null)
+                    msg = msg + "-" + serviceAssessDO.getName();
+                msg = msg + " ] . \n";
+            }
             msg = msg + "各地区加油\n\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F";
         }
 

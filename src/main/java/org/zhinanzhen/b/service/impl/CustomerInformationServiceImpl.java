@@ -13,6 +13,7 @@ import org.zhinanzhen.b.dao.pojo.customer.CustomerInformationDO;
 import org.zhinanzhen.b.service.CustomerInformationService;
 import org.zhinanzhen.b.service.pojo.ApplicantDTO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
+import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
@@ -117,6 +118,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
 
     public void sendRemind(int id) {
         ServiceOrderDO serviceOrderDo = serviceOrderDAO.getServiceOrderById(id);
+        AdviserDO adviser = adviserDao.getAdviserById(serviceOrderDo.getAdviserId());
         OfficialDO official = officialDAO.getOfficialById(serviceOrderDo.getOfficialId());
         String t = serviceOrderDo.getType();
         String type = getType(t);
@@ -145,6 +147,21 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
 				"<br/><br/><a href='https://yongjinbiao.zhinanzhen.org/webroot_new/serviceorderdetail/id?" + id
 						+ "'>服务订单详情</a>")
         );
+		
+		if (ObjectUtil.isNotNull(applicantDto)) {
+			sendMail(adviser.getEmail(),
+					StringUtil.merge("申请人", applicantDto.getFirstname(), " ", applicantDto.getSurname(),
+							"完成资料postal提醒"),
+					StringUtil.merge("亲爱的", adviser.getName(), ":<br/>", "您的服务订单ID", id, ",申请人:",
+							applicantDto.getFirstname(), " ", applicantDto.getSurname(),
+							" 资料已经填写完毕,请在服务订单-查看-申请人Tab 内查看．"));
+			sendMail(official.getEmail(),
+					StringUtil.merge("申请人", applicantDto.getFirstname(), " ", applicantDto.getSurname(),
+							"完成资料postal提醒"),
+					StringUtil.merge("亲爱的", official.getName(), ":<br/>", "您的服务订单ID", id, ",申请人:",
+							applicantDto.getFirstname(), " ", applicantDto.getSurname(),
+							" 资料已经填写完毕,请在服务订单-查看-申请人Tab 内查看．"));
+		}
     }
 
     private String getPeopleTypeStr(String peopleType) {
