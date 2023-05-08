@@ -159,7 +159,7 @@ public class DashboardController extends BaseController {
 		super.setGetHeader(response);
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo == null || !("GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
-				|| "SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+				|| "SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList()) || "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 			return new DashboardResponse(1,"No permission");
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		List<Integer> regionIdList = new ArrayList<>();
@@ -346,7 +346,7 @@ public class DashboardController extends BaseController {
 	public DashboardResponse thisMonthPerformanceDiffRegion(HttpServletRequest request, HttpServletResponse response) throws ServiceException {
 		super.setGetHeader(response);
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-		if (adminUserLoginInfo == null || !"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList()))
+		if (adminUserLoginInfo == null || !"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList()) || !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList()))
 			return  new DashboardResponse(1,"没有权限",null);
 		String startDate = DateClass.thisMonthFirstDay(Calendar.getInstance());
 		String endDate = DateClass.today();
