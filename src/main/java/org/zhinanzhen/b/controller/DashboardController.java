@@ -1,11 +1,5 @@
 package org.zhinanzhen.b.controller;
 
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.core.utils.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.zhinanzhen.b.service.CommissionOrderService;
 import org.zhinanzhen.b.service.DashboardService;
 import org.zhinanzhen.b.service.ServiceOrderService;
-import org.zhinanzhen.b.service.pojo.CommissionOrderDTO;
-import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
-import org.zhinanzhen.b.service.pojo.DashboardAmountSummaryDTO;
-import org.zhinanzhen.b.service.pojo.DataDTO;
-import org.zhinanzhen.b.service.pojo.DataRankDTO;
-import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
+import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.DashboardResponse;
 import org.zhinanzhen.tb.controller.Response;
@@ -32,6 +21,13 @@ import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -131,7 +127,7 @@ public class DashboardController extends BaseController {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		//List<Integer> regionIdList = new ArrayList<>();
 		if (adminUserLoginInfo == null || !("GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
-				|| "SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+				|| "SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList()) || "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 			return new DashboardResponse(1,"No permission");
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		String startDate = DateClass.thisMonthFirstDay(Calendar.getInstance());
@@ -483,7 +479,7 @@ public class DashboardController extends BaseController {
 		String today = DateClass.today();
 		List<DataDTO> dataList = data.dataReport(thisYearFirstDay,today,"R","Y");
 		List<Integer> regionIdList = new ArrayList<>();
-		if ("SUPERAD".equalsIgnoreCase(loginInfo.getApList())){
+		if ("SUPERAD".equalsIgnoreCase(loginInfo.getApList()) || "KJ".equalsIgnoreCase(loginInfo.getApList())){
 			return new DashboardResponse(0,"success",RegionClassification.dataSplitByRegionId(dataList,regionIdList), thisYearFirstDay, today);
 		}else if ("GW".equalsIgnoreCase(loginInfo.getApList())){
 			if (loginInfo.getRegionId() != null && loginInfo.getRegionId() > 0){//顾问管理员
