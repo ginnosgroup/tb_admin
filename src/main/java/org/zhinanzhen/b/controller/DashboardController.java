@@ -166,7 +166,7 @@ public class DashboardController extends BaseController {
 		String startDate = DateClass.thisMonthFirstDay(Calendar.getInstance());
 		String endDate = sdf.format(Calendar.getInstance().getTime());
 		List<DataDTO> dataList = data.dataReport(startDate,endDate,"R",null); //  R 全area顾问倒序排名的数据  顾问
-		if ("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())){
+		if ("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())||"Kj".equalsIgnoreCase(adminUserLoginInfo.getApList())){
 			return new DashboardResponse(0, "success", RegionClassification.dataSplitByRegionId(dataList,regionIdList), startDate, endDate);
 		}else {
 			if (adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0){//顾问管理员显示管理区域
@@ -346,7 +346,7 @@ public class DashboardController extends BaseController {
 	public DashboardResponse thisMonthPerformanceDiffRegion(HttpServletRequest request, HttpServletResponse response) throws ServiceException {
 		super.setGetHeader(response);
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-		if (adminUserLoginInfo == null || !"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList()) || !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList()))
+		if (adminUserLoginInfo == null || !("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList()) || "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 			return  new DashboardResponse(1,"没有权限",null);
 		String startDate = DateClass.thisMonthFirstDay(Calendar.getInstance());
 		String endDate = DateClass.today();
