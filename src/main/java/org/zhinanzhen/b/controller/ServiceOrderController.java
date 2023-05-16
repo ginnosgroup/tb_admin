@@ -1293,8 +1293,29 @@ public class ServiceOrderController extends BaseController {
 			return new Response<ServiceOrderDTO>(1, e.getMessage(), null);
 		}
 	}
+	
+	@RequestMapping(value = "/adviserDelete", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> adviserDeleteServiceOrder(@RequestParam(value = "id") int id, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			Integer newAdviserId = getAdviserId(request);
+			if (newAdviserId != null) {
+				ServiceOrderDTO serviceOrder = serviceOrderService.getServiceOrderById(id);
+				if (ObjectUtil.isNotNull(serviceOrder) && "PENDING".equalsIgnoreCase(serviceOrder.getState()))
+					return new Response<Integer>(0, serviceOrderService.deleteServiceOrderById(id));
+				else
+					return new Response<Integer>(1,
+							StringUtil.merge("服务订单", id, "的状态为", serviceOrder.getState(), "，操作失败！"), 0);
+			} else
+				return new Response<Integer>(1, "当前帐号不是顾问帐号，请使用其它接口操作！", 0);
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), 0);
+		}
+	}
 
-	@RequestMapping(value = "/delete", method = RequestMethod.GET)
+	@RequestMapping(value = "/delete", method = RequestMethod.DELETE)
 	@ResponseBody
 	public Response<Integer> deleteServiceOrder(@RequestParam(value = "id") int id, HttpServletResponse response) {
 		try {
