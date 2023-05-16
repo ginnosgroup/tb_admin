@@ -1294,7 +1294,7 @@ public class ServiceOrderController extends BaseController {
 		}
 	}
 	
-	@RequestMapping(value = "/adviserDelete", method = RequestMethod.GET)
+	@RequestMapping(value = "/adviserDelete", method = RequestMethod.DELETE)
 	@ResponseBody
 	public Response<Integer> adviserDeleteServiceOrder(@RequestParam(value = "id") int id, HttpServletRequest request,
 			HttpServletResponse response) {
@@ -1315,7 +1315,7 @@ public class ServiceOrderController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/delete", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/delete", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<Integer> deleteServiceOrder(@RequestParam(value = "id") int id, HttpServletResponse response) {
 		try {
