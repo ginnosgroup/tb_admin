@@ -2612,8 +2612,8 @@ public class ServiceOrderController extends BaseController {
 												// @RequestParam(value = "stateMark", required = false) String stateMark,
 												HttpServletRequest request, HttpServletResponse response) {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-//		if (adminUserLoginInfo == null || !"MA,SUPER".contains(adminUserLoginInfo.getApList()))
-//			return new Response<ServiceOrderDTO>(1, "No permission !", null);
+		if (adminUserLoginInfo == null || !"WA,SUPER".contains(adminUserLoginInfo.getApList()))
+			return new Response<ServiceOrderDTO>(1, "No permission !", null);
 			ServiceOrderDTO serviceOrderDto;
 		try {
 			for (int id : idList) {
@@ -2627,6 +2627,7 @@ public class ServiceOrderController extends BaseController {
 				context.putParameter("type", serviceOrderDto.getType());
 				context.putParameter("state", state);
 				context.putParameter("adminUserId", adminUserLoginInfo.getId());
+				context.putParameter("ap",adminUserLoginInfo.getApList());
 
 				LOG.info("Flow API Log : " + context.toString());
 
