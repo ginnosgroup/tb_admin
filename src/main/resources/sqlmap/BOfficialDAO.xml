@@ -81,25 +81,76 @@
     
     <select id="listOfficial" resultType="org.zhinanzhen.b.dao.pojo.OfficialDO">
         SELECT
-            id,
-            name,
-            phone,
-            email,
-            state,
-            image_url AS imageUrl,
-            region_id AS regionId,
-            specialty AS specialty,
-            work_state AS workState,
-            grade_id AS gradeId
-        FROM b_official
-        WHERE 1 = 1
+        *
+        FROM
+        ((
+        SELECT
+        ( @i := @i + 1 ) AS 'sort',
+        t1.*
+        FROM
+        (
+        SELECT
+        id,
+        NAME,
+        phone,
+        email,
+        state,
+        image_url AS imageUrl,
+        region_id AS regionId,
+        specialty AS specialty,
+        work_state AS workState,
+        grade_id AS gradeId
+        FROM
+        b_official b
+        WHERE
+        1 = 1
+        AND b.id IN ( SELECT id FROM b_official WHERE work_state = "NORMAL" )
+        ORDER BY
+        b.`name`
+        ) t1,(
+        SELECT
+        @i := 0
+        ) t
+        ) UNION
+        (
+        SELECT
+        ( @i := @i + 1 ) AS 'sort',
+        t2.*
+        FROM
+        (
+        SELECT
+        id,
+        NAME,
+        phone,
+        email,
+        state,
+        image_url AS imageUrl,
+        region_id AS regionId,
+        specialty AS specialty,
+        work_state AS workState,
+        grade_id AS gradeId
+        FROM
+        b_official b
+        WHERE
+        1 = 1
+        AND b.id IN ( SELECT id FROM b_official WHERE work_state = "BUSY" )
+        ORDER BY
+        b.`name`
+        ) t2,(
+        SELECT
+        @i := 0
+        ) t
+        )) a
+        WHERE
+        1 = 1
         <if test='name != null and name != ""'>
             AND name = #{name}
         </if>
         <if test='regionId != null and regionId != ""'>
-            AND region_id = #{regionId}
+            AND regionId = #{regionId}
         </if>
-        ORDER BY name
+        ORDER BY
+        a.sort
         LIMIT #{offset}, #{rows};
     </select>
 
