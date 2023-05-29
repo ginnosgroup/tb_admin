@@ -2670,38 +2670,27 @@ public class ServiceOrderController extends BaseController {
 
 	}
 
-
-
-
-//todo:
-//	@RequestMapping(value = "/updateService", method = RequestMethod.POST)
-//	@ResponseBody
-//	public Response<Integer> updateService(@RequestParam(value = "id") int id,
-//										   @RequestParam(value = "serviceId") int serviceId,
-//										   HttpServletRequest request, HttpServletResponse response) {
-//		try {
-//			super.setPostHeader(response);
-//			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-//			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
-//					&& !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList()) && !"AD".equalsIgnoreCase(adminUserLoginInfo.getApList())))
-//				return new Response<Integer>(1, "仅限顾问和超级管理员能修改", 0);
-//			ServiceOrderDTO orderDTO = serviceOrderService.getServiceOrderById(id);
-//			if ("GW".equalsIgnoreCase(adminUserLoginInfo.getApList())&&orderDTO.getState().equals("PENDING")){
-//				serviceOrderService.updateServiceOrderService(id,serviceId);
-//				return new Response<>(0,"修改成功",null);
-//			}
-//			if ("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())&&orderDTO.getState().equals("PENDING")){
-//				serviceOrderService.updateServiceOrderService(id,serviceId);
-//
-//			}
-//
-//		} catch (ServiceException e) {
-//			return new Response<Integer>(1, "异常:" + e.getMessage(), null);
-//		}
-//		return
-//	}
-
-
+	@RequestMapping(value = "/updateService", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> updateService(@RequestParam(value = "id") int id,
+			@RequestParam(value = "serviceId") int serviceId, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& !"AD".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+				return new Response<Integer>(1, "仅限管理员修改.", 0);
+			ServiceOrderDTO orderDTO = serviceOrderService.getServiceOrderById(id);
+			if (orderDTO.getState().equals("REVIEW") || orderDTO.getState().equals("PENDING")) {
+				serviceOrderService.updateServiceOrderService(id, serviceId);
+				return new Response<>(0, "修改成功", null);
+			} else
+				return new Response<Integer>(1, "只允许修改未审核订单.", null);
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, "异常:" + e.getMessage(), null);
+		}
+	}
 
 	private String getTypeStrOfServicePackageDTO(String type) {
 		if ("EOI".equalsIgnoreCase(type))
