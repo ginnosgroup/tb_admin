@@ -26,6 +26,8 @@ public interface VisaService {
 			String endInvoiceCreate, List<Integer> regionIdList, Integer adviserId, Integer userId, String userName,
 			String applicantName, String state, int pageNum, int pageSize, Sorter sorter) throws ServiceException;
 
+	public List<VisaDTO> listVisaByServiceOrderId(Integer serviceOrderId) throws ServiceException;
+
 	public List<VisaReportDTO> listVisaReport(String startDate, String endDate, String dateType, String dateMethod,
 			Integer regionId, Integer adviserId, List<String> adviserIdList) throws ServiceException;
 	public VisaDTO getVisaById(int id) throws ServiceException;

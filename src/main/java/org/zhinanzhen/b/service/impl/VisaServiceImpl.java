@@ -286,6 +286,20 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 		return visaDtoList;
 	}
 	
+	public List<VisaDTO> listVisaByServiceOrderId(Integer serviceOrderId) throws ServiceException {
+		if (serviceOrderId == null) {
+			ServiceException se = new ServiceException("serviceOrderId is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		List<VisaDTO> visaDtoList = new ArrayList<>();
+		List<VisaDO> visaDoList = visaDao.listVisaByServiceOrderId(serviceOrderId);
+		if (visaDoList == null)
+			return null;
+		visaDoList.forEach(visaDo -> visaDtoList.add(mapper.map(visaDo, VisaDTO.class)));
+		return visaDtoList;
+	}
+	
 	@Override
 	public List<VisaReportDTO> listVisaReport(String startDate, String endDate, String dateType, String dateMethod,
 			Integer regionId, Integer adviserId, List<String> adviserIdList) throws ServiceException {

@@ -64,6 +64,9 @@ public class ServiceOrderController extends BaseController {
 	ServiceOrderService serviceOrderService;
 
 	@Resource
+	VisaService visaService;
+
+	@Resource
 	ApplicantService applicantService;
 
 	@Resource
@@ -2672,8 +2675,7 @@ public class ServiceOrderController extends BaseController {
 
 	@RequestMapping(value = "/updateService", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<Integer> updateService(@RequestParam(value = "id") int id,
-			@RequestParam(value = "serviceId") int serviceId, HttpServletRequest request,
+	public Response<Integer> updateService(@RequestBody ServiceOrderDTO serviceOrderDto, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -2681,9 +2683,24 @@ public class ServiceOrderController extends BaseController {
 			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& !"AD".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 				return new Response<Integer>(1, "仅限管理员修改.", 0);
-			ServiceOrderDTO orderDTO = serviceOrderService.getServiceOrderById(id);
-			if (orderDTO.getState().equals("REVIEW") || orderDTO.getState().equals("PENDING")) {
-				serviceOrderService.updateServiceOrderService(id, serviceId);
+			ServiceOrderDTO orderDto = serviceOrderService.getServiceOrderById(serviceOrderDto.getId());
+			if (orderDto.getState().equals("REVIEW") || orderDto.getState().equals("PENDING")) {
+				serviceOrderService.updateServiceOrderService(serviceOrderDto.getId(), serviceOrderDto.getServiceId());
+				if ("VISA".equalsIgnoreCase(serviceOrderDto.getState())) {
+					List<VisaDTO> visaList = visaService.listVisaByServiceOrderId(serviceOrderDto.getId());
+					visaList.forEach(visaDto -> {
+						if (visaDto.getState().equals("REVIEW") || visaDto.getState().equals("PENDING")) {
+							visaDto.setServiceId(serviceOrderDto.getServiceId());
+							try {
+								visaService.updateVisa(visaDto);
+							} catch (ServiceException e) {
+								LOG.error(StringUtil.merge("签证订单(", visaDto.getId(), ")服务项目修改失败:", e.getMessage()));
+							}
+						} else
+							LOG.error(StringUtil.merge("签证订单(", visaDto.getId(), ")服务项目修改失败:只允许修改未审核订单,而当前订单状态为",
+									visaDto.getState()));
+					});
+				}
 				return new Response<>(0, "修改成功", null);
 			} else
 				return new Response<Integer>(1, "只允许修改未审核订单.", null);
