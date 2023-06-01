@@ -2,6 +2,7 @@ package org.zhinanzhen.b.service.impl;
 
 
 import com.ikasoa.core.ErrorCodeEnum;
+import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.*;
@@ -251,7 +252,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 }
             };
             //无付费服务订单结算规则
-            if (!serviceOrderDO.isPay()&&servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId()).getRuler()==1){
+            if ((serviceOrderDO.getParentId()==0&&!serviceOrderDO.isPay())&&(ObjectUtil.isNotNull(servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId()))&&servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId()).getRuler()==1)){
                 ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId());
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 CommissionAmountDTO commissionAmountDTO = new CommissionAmountDTO();
