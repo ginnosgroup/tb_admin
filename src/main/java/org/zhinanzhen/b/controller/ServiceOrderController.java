@@ -2686,8 +2686,8 @@ public class ServiceOrderController extends BaseController {
 			ServiceOrderDTO orderDto = serviceOrderService.getServiceOrderById(serviceOrderDto.getId());
 			if (orderDto.getState().equals("REVIEW") || orderDto.getState().equals("PENDING")) {
 				serviceOrderService.updateServiceOrderService(serviceOrderDto.getId(), serviceOrderDto.getServiceId());
-				if ("VISA".equalsIgnoreCase(serviceOrderDto.getState())) {
-					List<VisaDTO> visaList = visaService.listVisaByServiceOrderId(serviceOrderDto.getId());
+				if ("VISA".equalsIgnoreCase(orderDto.getType())) {
+					List<VisaDTO> visaList = visaService.listVisaByServiceOrderId(orderDto.getId());
 					visaList.forEach(visaDto -> {
 						if (visaDto.getState().equals("REVIEW") || visaDto.getState().equals("PENDING")) {
 							visaDto.setServiceId(serviceOrderDto.getServiceId());
