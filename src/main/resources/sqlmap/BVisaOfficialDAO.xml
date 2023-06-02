@@ -133,7 +133,11 @@
         <if test='code != null'>
             AND code != #{code}
         </if>
-        ;
+    </select>
+    <select id="countVisaByServiceOrderId" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM b_visa_official
+        WHERE service_order_id = #{serviceOrderId}
     </select>
     <select id="get" resultType="org.zhinanzhen.b.dao.pojo.VisaOfficialListDO">
         SELECT
