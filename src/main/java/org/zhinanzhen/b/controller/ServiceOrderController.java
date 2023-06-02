@@ -2673,9 +2673,9 @@ public class ServiceOrderController extends BaseController {
 
 	}
 
-	@RequestMapping(value = "/updateService", method = RequestMethod.POST)
+	@RequestMapping(value = "/updateForAD", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<Integer> updateService(@RequestBody ServiceOrderDTO serviceOrderDto, HttpServletRequest request,
+	public Response<Integer> updateForAD(@RequestBody ServiceOrderDTO serviceOrderDto, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -2685,23 +2685,27 @@ public class ServiceOrderController extends BaseController {
 				return new Response<Integer>(1, "仅限管理员修改.", 0);
 			ServiceOrderDTO orderDto = serviceOrderService.getServiceOrderById(serviceOrderDto.getId());
 			if (orderDto.getState().equals("REVIEW") || orderDto.getState().equals("PENDING")) {
-				serviceOrderService.updateServiceOrderService(serviceOrderDto.getId(), serviceOrderDto.getServiceId());
-				if ("VISA".equalsIgnoreCase(orderDto.getType())) {
-					List<VisaDTO> visaList = visaService.listVisaByServiceOrderId(orderDto.getId());
-					visaList.forEach(visaDto -> {
-						if (visaDto.getState().equals("REVIEW") || visaDto.getState().equals("PENDING")) {
-							visaDto.setServiceId(serviceOrderDto.getServiceId());
-							try {
-								visaService.updateVisa(visaDto);
-							} catch (ServiceException e) {
-								LOG.error(StringUtil.merge("签证订单(", visaDto.getId(), ")服务项目修改失败:", e.getMessage()));
-							}
-						} else
-							LOG.error(StringUtil.merge("签证订单(", visaDto.getId(), ")服务项目修改失败:只允许修改未审核订单,而当前订单状态为",
-									visaDto.getState()));
-					});
-				}
-				return new Response<>(0, "修改成功", null);
+				if (serviceOrderDto.getServiceId() > 0) { // 修改服务项目
+					serviceOrderService.updateServiceOrderService(serviceOrderDto.getId(),
+							serviceOrderDto.getServiceId());
+					if ("VISA".equalsIgnoreCase(orderDto.getType())) {
+						List<VisaDTO> visaList = visaService.listVisaByServiceOrderId(orderDto.getId());
+						visaList.forEach(visaDto -> {
+							if (visaDto.getState().equals("REVIEW") || visaDto.getState().equals("PENDING")) {
+								visaDto.setServiceId(serviceOrderDto.getServiceId());
+								try {
+									visaService.updateVisa(visaDto);
+								} catch (ServiceException e) {
+									LOG.error(StringUtil.merge("签证订单(", visaDto.getId(), ")服务项目修改失败:", e.getMessage()));
+								}
+							} else
+								LOG.error(StringUtil.merge("签证订单(", visaDto.getId(), ")服务项目修改失败:只允许修改未审核订单,而当前订单状态为",
+										visaDto.getState()));
+						});
+					}
+					return new Response<>(0, "修改成功", null);
+				} else
+					return new Response<Integer>(1, "修改失败,请检查参数.", null);
 			} else
 				return new Response<Integer>(1, "只允许修改未审核订单.", null);
 		} catch (ServiceException e) {
