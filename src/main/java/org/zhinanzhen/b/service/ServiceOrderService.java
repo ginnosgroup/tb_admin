@@ -17,7 +17,6 @@ public interface ServiceOrderService {
 
 	int updateServiceOrderService(int id, int serviceId) throws ServiceException;
 
-
 	int countServiceOrder(String type, List<String> excludeTypeList, String excludeState, List<String> stateList,
 						  String auditingState, List<String> reviewStateList, String urgentState, String startMaraApprovalDate,
 						  String endMaraApprovalDate, String startOfficialApprovalDate, String endOfficialApprovalDate,
