@@ -224,6 +224,19 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
             throw se;
         }
+        int applicantParentId = serviceOrderDao.getServiceOrderById(visaOfficialDTO.getServiceOrderId()).getApplicantParentId();
+        List<ApplicantListDO> applicantListDOS = new ArrayList<ApplicantListDO>();
+        if (applicantParentId!=0)
+            applicantListDOS = serviceOrderDao.ApplicantListByServiceOrderId(serviceOrderDao.getServiceOrderById(visaOfficialDTO.getServiceOrderId()).getApplicantParentId());
+        else
+            applicantListDOS = serviceOrderDao.ApplicantListByServiceOrderId(visaOfficialDTO.getServiceOrderId());
+        int i=0;
+        for (ApplicantListDO applicantListDO : applicantListDOS) {
+             i =i+ visaOfficialDao.countVisaByServiceOrderId(applicantListDO.getId());
+        }
+        if (i > 0 ) {
+            return 0;
+        }
         try {
             Calendar calendar = Calendar.getInstance();
             Double rate = 0.00;
@@ -606,6 +619,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
     private CommissionAmountDTO calculationCommissionAmount(int serviceOrderId) throws ServiceException {
         ServiceOrderDO serviceOrderDO = serviceOrderDao.getServiceOrderById(serviceOrderId);
         VisaDO visaDO = new VisaDO();
+        VisaDO visaDO1 = new VisaDO();
         Calendar calendar = Calendar.getInstance();
         List<Integer> monthlist = new ArrayList<Integer>() {
             {
@@ -620,9 +634,9 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         CommissionAmountDTO commissionAmountDTO = new CommissionAmountDTO();
         double amount = 0.00;
         double rate = 0.00;
-        if (serviceOrderDO.getParentId() == 0) {
+        if (serviceOrderDO.getParentId() == 0 && serviceOrderDO.getApplicantParentId() == 0) {
             visaDO = visaDAO.getFirstVisaByServiceOrderId(serviceOrderDO.getId());
-            VisaDO visaDO1 = visaDAO.getSecondVisaByServiceOrderId(serviceOrderDO.getId());
+            visaDO1 = visaDAO.getSecondVisaByServiceOrderId(serviceOrderDO.getId());
             if (visaDO1 == null)
                 amount = visaDO.getAmount();
             else {
@@ -630,8 +644,13 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 amount += visaDO1.getAmount();
             }
         } else {
+            if (serviceOrderDO.getParentId() !=0){
             visaDO = visaDAO.getFirstVisaByServiceOrderId(serviceOrderDO.getParentId());
-            VisaDO visaDO1 = visaDAO.getSecondVisaByServiceOrderId(serviceOrderDO.getParentId());
+            visaDO1 = visaDAO.getSecondVisaByServiceOrderId(serviceOrderDO.getParentId());}
+            else {
+             visaDO = visaDAO.getFirstVisaByServiceOrderId(serviceOrderDO.getApplicantParentId());
+             visaDO1 = visaDAO.getSecondVisaByServiceOrderId(serviceOrderDO.getApplicantParentId());
+            }
             if (visaDO1 == null)
                 amount = visaDO.getAmount();
             else {
