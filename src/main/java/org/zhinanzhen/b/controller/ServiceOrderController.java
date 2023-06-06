@@ -2695,6 +2695,7 @@ public class ServiceOrderController extends BaseController {
 								null, null, null, null, null, null, null, null, null, null, null, null, null, null,
 								null, null, null, 0, serviceOrderDto.getId(), false, 0, 999, null, null, null, false,
 								false);
+System.out.println("orderList.size=====" + orderList.size());
 						if (!ListUtil.isEmpty(orderList)) {
 							orderList.forEach(co -> {
 								try {
