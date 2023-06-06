@@ -2086,4 +2086,5 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             applicantDto.setContent(information);
         return applicantDto;
     }
+
 }
