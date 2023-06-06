@@ -2695,7 +2695,7 @@ public class ServiceOrderController extends BaseController {
 								if (!_cso.getState().equals("REVIEW") && !_cso.getState().equals("OREVIEW")
 										&& !_cso.getState().equals("PENDING")) {
 									return new Response<Integer>(1,
-											StringUtil.merge("修改失败,子订单存在资料待审核或资料审核中状态.(ID:", _cso.getId(), ")"), null);
+											StringUtil.merge("修改失败,子订单不存在资料待审核或资料审核中状态.(ID:", _cso.getId(), ")"), null);
 								}
 							}
 							orderList.forEach(cso -> {
