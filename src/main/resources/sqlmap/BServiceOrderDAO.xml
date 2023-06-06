@@ -686,6 +686,19 @@
         </if>
         ORDER BY urgent_state DESC, gmt_create DESC;
     </select>
+    
+    <select id="listByApplicantParentId" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
+        SELECT
+        id,
+        type,
+        state
+        FROM b_service_order
+        WHERE is_delete = 0
+        <if test='applicantParentId != null and applicantParentId > 0'>
+            AND applicant_parent_id = #{applicantParentId}
+        </if>
+        ORDER BY urgent_state DESC, gmt_create DESC;
+    </select>
 
     <select id="getServiceOrderById" parameterType="java.lang.Integer"
             resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">

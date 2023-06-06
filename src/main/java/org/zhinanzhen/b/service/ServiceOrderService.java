@@ -81,6 +81,8 @@ public interface ServiceOrderService {
 	List<VisaDO> getCommissionOrderList(int id) throws ServiceException ;
 
 	List<ServiceOrderDTO> OfficialHandoverServiceOrder(Integer officialId)throws ServiceException;
+	
+	List<ServiceOrderDTO> listServiceOrderByApplicantParentId(Integer applicantParentId)throws ServiceException;
 
 	void updateOfficial(Integer serviceOrderId,  Integer officialId,Integer newOfficialId)throws ServiceException;
 }

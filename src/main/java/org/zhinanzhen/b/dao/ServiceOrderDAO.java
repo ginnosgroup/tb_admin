@@ -54,6 +54,8 @@ public interface ServiceOrderDAO {
                                           @Param("offset") int offset, @Param("rows") int rows, @Param("orderBy") String orderBy);
 
     List<ServiceOrderDO> listByParentId(@Param("parentId") Integer parentId);
+    
+    List<ServiceOrderDO> listByApplicantParentId(@Param("applicantParentId") Integer applicantParentId);
 
     ServiceOrderDO getServiceOrderById(int id);
 

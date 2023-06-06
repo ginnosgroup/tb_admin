@@ -2691,10 +2691,7 @@ public class ServiceOrderController extends BaseController {
 							serviceOrderDto.getServiceId());
 					updateVisaServiceForAD(orderDto, serviceOrderDto.getServiceId()); // 修改佣金订单
 					if (orderDto.getApplicantParentId() == 0) { // 修改子服务订单
-						List<ServiceOrderDTO> orderList = serviceOrderService.listServiceOrder(null, null, null, null,
-								null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-								null, null, null, 0, serviceOrderDto.getId(), false, 0, 999, null, null, null, false,
-								false);
+						List<ServiceOrderDTO> orderList = serviceOrderService.listServiceOrderByApplicantParentId(serviceOrderDto.getId());
 System.out.println("orderList.size=====" + orderList.size());
 						if (!ListUtil.isEmpty(orderList)) {
 							orderList.forEach(co -> {
