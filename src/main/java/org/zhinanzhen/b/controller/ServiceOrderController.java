@@ -2692,13 +2692,15 @@ public class ServiceOrderController extends BaseController {
 					updateVisaServiceForAD(orderDto, serviceOrderDto.getServiceId()); // 修改佣金订单
 					if (orderDto.getApplicantParentId() == 0) { // 修改子服务订单
 						List<ServiceOrderDTO> orderList = serviceOrderService.listServiceOrderByApplicantParentId(serviceOrderDto.getId());
-System.out.println("orderList.size=====" + orderList.size());
 						if (!ListUtil.isEmpty(orderList)) {
 							orderList.forEach(co -> {
 								try {
-									serviceOrderService.updateServiceOrderService(co.getId(),
-											serviceOrderDto.getServiceId());
-									updateVisaServiceForAD(co, serviceOrderDto.getServiceId());
+									if (co.getState().equals("REVIEW") || co.getState().equals("OREVIEW")
+											|| co.getState().equals("PENDING")) {
+										serviceOrderService.updateServiceOrderService(co.getId(),
+												serviceOrderDto.getServiceId());
+										updateVisaServiceForAD(co, serviceOrderDto.getServiceId());
+									}
 								} catch (ServiceException e) {
 									LOG.error(StringUtil.merge("子服务订单(", co.getId(), ")服务项目修改失败:", e.getMessage()));
 								}
