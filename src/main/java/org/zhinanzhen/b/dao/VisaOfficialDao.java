@@ -1,7 +1,6 @@
 package org.zhinanzhen.b.dao;
 
 import org.apache.ibatis.annotations.Param;
-import org.zhinanzhen.b.dao.pojo.VisaDO;
 import org.zhinanzhen.b.dao.pojo.VisaListDO;
 import org.zhinanzhen.b.dao.pojo.VisaOfficialDO;
 import org.zhinanzhen.b.dao.pojo.VisaOfficialListDO;
@@ -12,6 +11,8 @@ import java.util.List;
 public interface VisaOfficialDao {
     int countVisaByServiceOrderIdAndExcludeCode(@Param("serviceOrderId") Integer serviceOrderId,
                                                 @Param("code") String code);
+
+    int countVisaByServiceOrderId(@Param("serviceOrderId") Integer serviceOrderId);
 
     int addVisa(VisaOfficialDO visaOfficialDO);
 
