@@ -2684,32 +2684,65 @@ public class ServiceOrderController extends BaseController {
 					&& !"AD".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 				return new Response<Integer>(1, "仅限管理员修改.", 0);
 			ServiceOrderDTO orderDto = serviceOrderService.getServiceOrderById(serviceOrderDto.getId());
-			if (orderDto.getState().equals("REVIEW") || orderDto.getState().equals("PENDING")) {
+			if (orderDto.getState().equals("REVIEW") || orderDto.getState().equals("OREVIEW")
+					|| orderDto.getState().equals("PENDING")) {
 				if (serviceOrderDto.getServiceId() > 0) { // 修改服务项目
+					if (orderDto.getApplicantParentId() == 0) { // 修改子服务订单
+						List<ServiceOrderDTO> orderList = serviceOrderService
+								.listServiceOrderByApplicantParentId(serviceOrderDto.getId());
+						if (!ListUtil.isEmpty(orderList)) {
+							for (ServiceOrderDTO _cso : orderList) {
+								if (!_cso.getState().equals("REVIEW") && !_cso.getState().equals("OREVIEW")
+										&& !_cso.getState().equals("PENDING")) {
+									return new Response<Integer>(1,
+											StringUtil.merge("修改失败,子订单不存在资料待审核或资料审核中状态.(ID:", _cso.getId(), ")"), null);
+								}
+							}
+							orderList.forEach(cso -> {
+								try {
+									serviceOrderService.updateServiceOrderService(cso.getId(),
+											serviceOrderDto.getServiceId());
+									updateVisaServiceForAD(cso, serviceOrderDto.getServiceId());
+								} catch (ServiceException e) {
+									LOG.error(StringUtil.merge("子服务订单(", cso.getId(), ")服务项目修改失败:", e.getMessage()));
+								}
+							});
+						}
+					}
 					serviceOrderService.updateServiceOrderService(serviceOrderDto.getId(),
 							serviceOrderDto.getServiceId());
-					if ("VISA".equalsIgnoreCase(orderDto.getType())) {
-						List<VisaDTO> visaList = visaService.listVisaByServiceOrderId(orderDto.getId());
-						visaList.forEach(visaDto -> {
-							if (visaDto.getState().equals("REVIEW") || visaDto.getState().equals("PENDING")) {
-								visaDto.setServiceId(serviceOrderDto.getServiceId());
-								try {
-									visaService.updateVisa(visaDto);
-								} catch (ServiceException e) {
-									LOG.error(StringUtil.merge("签证订单(", visaDto.getId(), ")服务项目修改失败:", e.getMessage()));
-								}
-							} else
-								LOG.error(StringUtil.merge("签证订单(", visaDto.getId(), ")服务项目修改失败:只允许修改未审核订单,而当前订单状态为",
-										visaDto.getState()));
-						});
-					}
+					updateVisaServiceForAD(orderDto, serviceOrderDto.getServiceId()); // 修改佣金订单
 					return new Response<>(0, "修改成功", null);
+				} else if (serviceOrderDto.getSubagencyId() > 0) { // 修改Subagency
+					orderDto.setSubagencyId(serviceOrderDto.getSubagencyId());
+					if (serviceOrderService.updateServiceOrder(orderDto) > 0)
+						return new Response<>(0, "修改成功", null);
+					else
+						return new Response<Integer>(1, "修改失败.", null);
 				} else
 					return new Response<Integer>(1, "修改失败,请检查参数.", null);
 			} else
 				return new Response<Integer>(1, "只允许修改未审核订单.", null);
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, "异常:" + e.getMessage(), null);
+		}
+	}
+	
+	private void updateVisaServiceForAD(ServiceOrderDTO serviceOrderDto, int serviceId) throws ServiceException {
+		if ("VISA".equalsIgnoreCase(serviceOrderDto.getType())) {
+			List<VisaDTO> visaList = visaService.listVisaByServiceOrderId(serviceOrderDto.getId());
+			visaList.forEach(visaDto -> {
+				if (visaDto.getState().equals("REVIEW") || visaDto.getState().equals("PENDING")) {
+					visaDto.setServiceId(serviceId);
+					try {
+						visaService.updateVisa(visaDto);
+					} catch (ServiceException e) {
+						LOG.error(StringUtil.merge("签证订单(", visaDto.getId(), ")服务项目修改失败:", e.getMessage()));
+					}
+				} else
+					LOG.error(StringUtil.merge("签证订单(", visaDto.getId(), ")服务项目修改失败:只允许修改未审核订单,而当前订单状态为",
+							visaDto.getState()));
+			});
 		}
 	}
 

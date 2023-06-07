@@ -2026,6 +2026,25 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
         return servicePackageDTOArrayList;
     }
+    
+	@Override
+	public List<ServiceOrderDTO> listServiceOrderByApplicantParentId(Integer applicantParentId)
+			throws ServiceException {
+		List<ServiceOrderDTO> serviceOrderDtoList = new ArrayList<>();
+		List<ServiceOrderDO> serviceOrderDoList = new ArrayList<>();
+		try {
+			serviceOrderDoList = serviceOrderDao.listByApplicantParentId(applicantParentId);
+			if (serviceOrderDoList == null)
+				return null;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+		for (ServiceOrderDO serviceOrderDo : serviceOrderDoList)
+			serviceOrderDtoList.add(mapper.map(serviceOrderDo, ServiceOrderDTO.class));
+		return serviceOrderDtoList;
+    }
 
     @Override
     public void updateOfficial(Integer serviceOrderId, Integer officialId, Integer newOfficialId) {
@@ -2086,4 +2105,5 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             applicantDto.setContent(information);
         return applicantDto;
     }
+
 }

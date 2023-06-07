@@ -17,7 +17,6 @@ public interface ServiceOrderService {
 
 	int updateServiceOrderService(int id, int serviceId) throws ServiceException;
 
-
 	int countServiceOrder(String type, List<String> excludeTypeList, String excludeState, List<String> stateList,
 						  String auditingState, List<String> reviewStateList, String urgentState, String startMaraApprovalDate,
 						  String endMaraApprovalDate, String startOfficialApprovalDate, String endOfficialApprovalDate,
@@ -82,6 +81,8 @@ public interface ServiceOrderService {
 	List<VisaDO> getCommissionOrderList(int id) throws ServiceException ;
 
 	List<ServiceOrderDTO> OfficialHandoverServiceOrder(Integer officialId)throws ServiceException;
+	
+	List<ServiceOrderDTO> listServiceOrderByApplicantParentId(Integer applicantParentId)throws ServiceException;
 
 	void updateOfficial(Integer serviceOrderId,  Integer officialId,Integer newOfficialId)throws ServiceException;
 }
