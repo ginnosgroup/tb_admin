@@ -2641,7 +2641,7 @@ public class ServiceOrderController extends BaseController {
             return new Response<ServiceOrderDTO>(1, "No permission !", null);
         ServiceOrderDTO serviceOrderDto;
         try {
-            if (state == "APPLY") {
+            if (state.equals("APPLY")) {
                 List<Integer> list = new ArrayList<>();
                 List<VisaDTO> visaList = new ArrayList<>();
                 for (int id : idList) {
@@ -2669,7 +2669,7 @@ public class ServiceOrderController extends BaseController {
                 context.putParameter("type", serviceOrderDto.getType());
                 context.putParameter("state", state);
                 context.putParameter("adminUserId", adminUserLoginInfo.getId());
-                context.putParameter("ap", "WA");
+                context.putParameter("ap", adminUserLoginInfo.getApList());
 
                 LOG.info("Flow API Log : " + context.toString());
 
