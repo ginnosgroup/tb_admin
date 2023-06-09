@@ -2657,7 +2657,7 @@ public class ServiceOrderController extends BaseController {
                     }
                 }
                 if (list.size() > 0)
-                    return new Response<ServiceOrderDTO>(1, "尾款未支付:" + list, null);
+                    return new Response<ServiceOrderDTO>(1, "以下订单尾款未支付请联系顾问后再继续操作:" + list, null);
             }
             for (int id : idList) {
                 serviceOrderDto = serviceOrderService.getServiceOrderById(id);
