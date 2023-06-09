@@ -752,8 +752,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
         List<Integer> cIds = new ArrayList<>();
         List<VisaDO> visaList = new ArrayList<>();
-        if (serviceOrderDO.getParentId() != 0)
-            visaList = visaDao.listVisaByServiceOrderId(serviceOrderDO.getParentId());
+        if (serviceOrderDO.getParentId() != 0 || serviceOrderDO.getApplicantParentId() != 0)
+            visaList = visaDao.listVisaByServiceOrderId((serviceOrderDO.getParentId()==0?serviceOrderDO.getApplicantParentId():serviceOrderDO.getParentId()));
         else
             visaList = visaDao.listVisaByServiceOrderId(serviceOrderDO.getId());
         if (visaList != null && visaList.size() > 0) {
