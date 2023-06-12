@@ -4,7 +4,7 @@
 <mapper namespace="org.zhinanzhen.b.dao.SchoolInstitutionDAO">
     <cache eviction="LRU" flushInterval="60000" readOnly="false" size="1024"></cache>
     <select id="listSchoolInstitutionDO" resultType="org.zhinanzhen.b.dao.pojo.SchoolInstitutionDO">
-        SELECT  id,
+        SELECT id,
         gmt_create AS gmtCreate,
         gmt_modify AS gmtModify,
         code,
@@ -13,8 +13,9 @@
         institution_name AS institutionName,
         institution_type AS institutionType,
         institution_postal_address AS institutionPostalAddress,
-        website ,
-        is_freeze AS isFreeze ,
+        website,
+        is_cooperative AS isCooperative,
+        is_freeze AS isFreeze,
         summary
         from b_school_institution
         <where>
@@ -71,8 +72,9 @@
         institution_name AS institutionName,
         institution_type AS institutionType,
         institution_postal_address AS institutionPostalAddress,
-        website ,
-        is_freeze AS isFreeze ,
+        website,
+        is_cooperative AS isCooperative,
+        is_freeze AS isFreeze,
         summary
         from b_school_institution where id = #{id}
     </select>
@@ -105,6 +107,9 @@
             <if test="summary != null">
                 , bsi.summary = #{summary}
             </if>
+            <if test="isCooperative != null">
+                , bsi.is_cooperative = #{isCooperative}
+            </if>
             <if test="isFreeze != null">
                 , bsi.is_freeze = #{isFreeze}
             </if>
@@ -121,8 +126,9 @@
         institution_name AS institutionName,
         institution_type AS institutionType,
         institution_postal_address AS institutionPostalAddress,
-        website ,
-        is_freeze AS isFreeze ,
+        website,
+        is_cooperative AS isCooperative,
+        is_freeze AS isFreeze,
         summary
         from b_school_institution where code = #{code}
     </select>
@@ -130,15 +136,15 @@
     <insert id="add" parameterType="org.zhinanzhen.b.dao.pojo.SchoolInstitutionDO" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO b_school_institution (
         gmt_create,gmt_modify,code,name,institution_trading_name,institution_name,institution_type,institution_postal_address,
-        website,is_freeze,summary
+        website,is_cooperative,is_freeze,summary
         ) VALUES (
         NOW(),NOW(),#{code},#{name},#{institutionTradingName},#{institutionName},#{institutionType},#{institutionPostalAddress},
-        #{website},#{isFreeze},#{summary}
+        #{website},#{isCooperative},#{isFreeze},#{summary}
         );
     </insert>
 
     <delete id="delete">
-        DELETE b_school_institution  , b_school_institution_location  , b_school_course
+        DELETE b_school_institution, b_school_institution_location, b_school_course
         FROM b_school_institution
         LEFT JOIN b_school_institution_location ON b_school_institution.id = b_school_institution_location.provider_id
         LEFT JOIN b_school_course ON b_school_institution.id = b_school_course.provider_id
