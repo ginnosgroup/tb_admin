@@ -35,6 +35,8 @@ public class SchoolInstitutionDO implements Serializable {
     private String website;
 
     private String summary;
-
+    
+    private boolean isCooperative;
+    
     private boolean isFreeze;
 }
