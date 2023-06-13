@@ -324,7 +324,9 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
         }
         //currentAddressList
         //todo
-        List<CurrentAddress> currentAddressList = customerInformationDO.getAddresses().getCurrentAddressList();
+        List<CurrentAddress> currentAddress = customerInformationDO.getAddresses().getCurrentAddressList();
+        List<CurrentAddress> currentAddressList = objectMapper.convertValue(currentAddress, new TypeReference<List<CurrentAddress>>() {
+        });
         int addressSize = currentAddressList.size();
         for (int i = 0; i < addressSize; i++) {
             //country
@@ -355,7 +357,9 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
 
         }
         //isSamePostalAddress
-        List<PostalAddress> postalAddressList = customerInformationDO.getPostalAddressList();
+        List<PostalAddress> postalAddress = customerInformationDO.getPostalAddressList();
+        List<PostalAddress> postalAddressList = objectMapper.convertValue(postalAddress, new TypeReference<List<PostalAddress>>() {
+        });
         if (customerInformationDO.getAddresses().getIsSamePostalAddress() == 1) {
             root.getElementsByTagName("Postal").item(0).getChildNodes().item(1).getChildNodes().item(1).setTextContent("1");
             if (customerInformationDO.getAddresses().getIsSameResidential() == 1) {
