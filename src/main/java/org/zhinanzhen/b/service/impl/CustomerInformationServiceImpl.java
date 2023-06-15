@@ -276,11 +276,11 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
         LocalDate date = LocalDate.now(); // get the current date
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
         String formatdate = date.format(formatter);
-        String netDiskPath = "https://dav.jianguoyun.com/dav/MMfiledata/" + familyName  + givenName + "_" + formatdate + "/";
+        String netDiskPath = "https://dav.jianguoyun.com/dav/MMfiledata/" + familyName  + givenName + "_" + formatdate ;
         String filePath = "C:/Users/yjt/Desktop/data/uploads/customerInformation/" + familyName +"_"+ givenName  ;
         List<String> path = getFilePath(filePath);
         for (String s : path) {
-            WebDavUtils.upload(netDiskPath, s);
+            WebDavUtils.upload(netDiskPath+"/"+s.substring(s.lastIndexOf("\\")+1), s);
         }
     }
     /**
