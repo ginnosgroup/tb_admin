@@ -44,4 +44,18 @@ public class CustomerInformationDO {
     private HealthQuestions healthQuestions;//健康信息
 
     private CharacterIssues characterIssues;//性格信息
+
+    private String passportImageUrl1;
+
+    private String passportImageUrl2;
+
+    private String passportImageUrl3;
+
+    private String schoolCoeImageUrl;
+
+    private String afpImageUrl;
+
+    private String birthImageUrl;
+
+    private String idCardImageUrl;
 }

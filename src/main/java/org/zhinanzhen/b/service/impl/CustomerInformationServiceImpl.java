@@ -4,6 +4,7 @@ import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.ServiceDO;
@@ -16,8 +17,14 @@ import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
+import org.zhinanzhen.tb.utils.WebDavUtils;
 
 import javax.annotation.Resource;
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service("CustomerInformationService")
@@ -46,9 +53,8 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
     @Override
     public void add(CustomerInformationDO customerInformationDO) throws ServiceException {
         try {
-
-
             customerInformationDAO.insert(customerInformationDO);
+
             sendRemind(customerInformationDO.getServiceOrderId());
         } catch (Exception e) {
             e.printStackTrace();
@@ -97,6 +103,53 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
     public CustomerInformationDO getByServiceOrderId(int serviceOrderId) throws ServiceException {
         try {
             return customerInformationDAO.getByServiceOrderId(serviceOrderId);
+        } catch (Exception e) {
+            ServiceException se = new ServiceException(e);
+            se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+            throw se;
+        }
+    }
+
+    @Override
+    public String upload(int serviceOrderId, String name, MultipartFile file) throws IOException, ServiceException {
+        if (file == null) {
+            ServiceException se = new ServiceException("上传文件为空!");
+            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+            throw se;
+        }
+        CustomerInformationDO customerInformationDO = customerInformationDAO.getByServiceOrderId(serviceOrderId);
+        if (customerInformationDO==null){
+            ServiceException se = new ServiceException("客户信息未添加!");
+            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+            throw se;
+        }
+        try {
+            String givenName = customerInformationDO.getMainInformation().getGivenName();
+            String familyName = customerInformationDO.getMainInformation().getFamilyName();
+            LocalDate date = LocalDate.now(); // get the current date
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+            String formatdate = date.format(formatter);
+            String dir = "/uploads/customerInformation/"+familyName +"_"+ givenName + "/";
+            String fileName = file.getOriginalFilename().replace(" ", "_").replace("%20", "_");// 文件原名称
+            LOG.info("上传的文件原名称:" + fileName);
+            // 判断文件类型
+            String type = fileName.indexOf(".") != -1
+                    ? fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length())
+                    : null;
+            String realPath = StringUtil.merge("C:/Users/yjt/Desktop/data", dir);
+            // 创建目录
+            File folder = new File(realPath);
+            if (!folder.isDirectory())
+                folder.mkdirs();
+            // 自定义的文件名称
+			String newFileName =name + "_" + familyName + givenName.charAt(0) + "_" + formatdate ;
+            // 设置存放文件的路径
+            String path = StringUtil.merge(realPath, newFileName,".", type);
+            LOG.info("存放文件的路径:" + path);
+            // 转存文件到指定的路径
+            file.transferTo(new File(path));
+            webdav(serviceOrderId);
+            return StringUtil.merge(dir, newFileName,".", type);
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
@@ -215,5 +268,44 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             s = "咨询";
         }
         return s;
+    }
+    private void webdav(int id) throws IOException {
+        CustomerInformationDO customerInformationDO = customerInformationDAO.getByServiceOrderId(id);
+        String givenName = customerInformationDO.getMainInformation().getGivenName();
+        String familyName = customerInformationDO.getMainInformation().getFamilyName();
+        LocalDate date = LocalDate.now(); // get the current date
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+        String formatdate = date.format(formatter);
+        String netDiskPath = "https://dav.jianguoyun.com/dav/MMfiledata/" + familyName  + givenName + "_" + formatdate + "/";
+        String filePath = "C:/Users/yjt/Desktop/data/uploads/customerInformation/" + familyName +"_"+ givenName  ;
+        List<String> path = getFilePath(filePath);
+        for (String s : path) {
+            WebDavUtils.upload(netDiskPath, s);
+        }
+    }
+    /**
+     * 获取文件夹下所有文件的路径
+     *
+     * @param folderPath
+     * @return
+     */
+    public static List<String> getFilePath(String folderPath) {
+        File folder = new File(folderPath);
+        List<String> filePathList = new ArrayList<>();
+        String rootPath;
+        if (folder.exists()) {
+            String[] fileNameList = folder.list();
+            if (null != fileNameList && fileNameList.length > 0) {
+                if (folder.getPath().endsWith(File.separator)) {
+                    rootPath = folder.getPath();
+                } else {
+                    rootPath = folder.getPath() + File.separator;
+                }
+                for (String fileName : fileNameList) {
+                    filePathList.add(rootPath + fileName);
+                }
+            }
+        }
+        return filePathList;
     }
 }

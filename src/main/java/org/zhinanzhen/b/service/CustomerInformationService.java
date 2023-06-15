@@ -1,7 +1,10 @@
 package org.zhinanzhen.b.service;
 
+import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.dao.pojo.customer.CustomerInformationDO;
 import org.zhinanzhen.tb.service.ServiceException;
+
+import java.io.IOException;
 
 public interface CustomerInformationService {
 
@@ -16,5 +19,7 @@ public interface CustomerInformationService {
     CustomerInformationDO getByServiceOrderId(int serviceOrderId)throws ServiceException;
 
     CustomerInformationDO getByApplicantId(int applicantId)throws ServiceException;
+
+    String upload(int serviceOrderId,String name, MultipartFile file)throws ServiceException, IOException;
 
 }
