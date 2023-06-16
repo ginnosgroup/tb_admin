@@ -167,24 +167,24 @@ public class SchoolInstitutionController extends BaseController {
 
     @RequestMapping(value = "/add" ,method = RequestMethod.POST)
     @ResponseBody
-    public Response add(@RequestBody SchoolInstitutionDTO schoolInstitutionDTO,
+    public Response<Integer> add(@RequestBody SchoolInstitutionDTO schoolInstitutionDto,
                         HttpServletRequest request, HttpServletResponse response) throws ServiceException {
         super.setPostHeader(response);
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
         if (adminUserLoginInfo == null ||
                 (adminUserLoginInfo.getApList().equalsIgnoreCase("GW") && adminUserLoginInfo.getRegionId() == null))
-            return new Response(1,"No permission !");
-        List<SchoolInstitutionDTO> listSchoolInstitutionDTO = schoolInstitutionService.listSchoolInstitutionDTO(schoolInstitutionDTO.getName(),
+            return new Response<Integer>(1,"No permission !");
+        List<SchoolInstitutionDTO> listSchoolInstitutionDTO = schoolInstitutionService.listSchoolInstitutionDTO(schoolInstitutionDto.getName(),
                 null, null,null ,0,9999,null,null);
         if (listSchoolInstitutionDTO.size() > 0 )
-            return new Response(1,"学校名字已经存在");
-        if (schoolInstitutionService.getSchoolInstitutionByCode(schoolInstitutionDTO.getCode()) != null)
-            return new Response(1,"编码已经存在!");
-        if (schoolInstitutionService.add(schoolInstitutionDTO) > 0 ){
-            return  new Response(0,"成功",schoolInstitutionDTO.getId());
+            return new Response<Integer>(1,"学校名字已经存在");
+        if (schoolInstitutionService.getSchoolInstitutionByCode(schoolInstitutionDto.getCode()) != null)
+            return new Response<Integer>(1,"编码已经存在!");
+        if (schoolInstitutionService.add(schoolInstitutionDto) > 0 ){
+            return  new Response<Integer>(0,"成功",schoolInstitutionDto.getId());
         }
         else
-            return  new Response(1,"失败");
+            return  new Response<Integer>(1,"失败");
 
     }
 
