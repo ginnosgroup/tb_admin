@@ -142,7 +142,7 @@ public class SchoolInstitutionController extends BaseController {
 
     @RequestMapping(value = "/update" ,method =  RequestMethod.POST)
     @ResponseBody
-    public Response update(@RequestBody SchoolInstitutionDTO schoolInstitutionDTO ,
+    public Response update(@RequestBody SchoolInstitutionDTO schoolInstitutionDto ,
                            HttpServletRequest request,HttpServletResponse response) throws ServiceException {
         //TODO 需要设置权限，顾问只能查看不能修改
         super.setPostHeader(response);
@@ -150,16 +150,16 @@ public class SchoolInstitutionController extends BaseController {
         if (adminUserLoginInfo == null ||
                 (adminUserLoginInfo.getApList().equalsIgnoreCase("GW") && adminUserLoginInfo.getRegionId() == null))//除顾问的其他角色可以修改
             return new Response(1,"No permission !");
-        if (StringUtil.isNotEmpty(schoolInstitutionDTO.getName())){
-            List<SchoolInstitutionDTO> listSchoolInstitutionDTO = schoolInstitutionService.listSchoolInstitutionDTO(schoolInstitutionDTO.getName(),
+        if (StringUtil.isNotEmpty(schoolInstitutionDto.getName())){
+            List<SchoolInstitutionDTO> listSchoolInstitutionDTO = schoolInstitutionService.listSchoolInstitutionDTO(schoolInstitutionDto.getName(),
                     null,null,null,0,9999,null,null);
             for (SchoolInstitutionDTO si : listSchoolInstitutionDTO){
-                if (si.getId() != schoolInstitutionDTO.getId())
+                if (si.getId() != schoolInstitutionDto.getId())
                     return new Response(1,"名称重复!");
             }
         }
-        if (schoolInstitutionService.update(schoolInstitutionDTO))
-            return new Response(0,schoolInstitutionDTO);
+        if (schoolInstitutionService.update(schoolInstitutionDto))
+            return new Response(0,schoolInstitutionDto);
         else
             return new Response(1,"修改失败");
 
