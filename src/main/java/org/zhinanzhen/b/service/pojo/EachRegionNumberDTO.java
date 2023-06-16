@@ -36,5 +36,11 @@ public class EachRegionNumberDTO {
      */
     private int crucial;
 
+    private int Cis;
+
+    private int QD;
+
+    private int BJ;
+
     private int other;
 }

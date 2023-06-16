@@ -1792,12 +1792,25 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             } else if (eachRegionNumberDO.getName().equalsIgnoreCase("攻坚部")) {
                 eachRegionNumberDTO
                         .setCrucial(eachRegionNumberDO.getCount() + eachRegionNumberDTO.getCrucial());
-            } else
+            } else if (eachRegionNumberDO.getName().equalsIgnoreCase("cis")) {
+                eachRegionNumberDTO
+                        .setCis(eachRegionNumberDO.getCount() + eachRegionNumberDTO.getCis());
+            }
+            else if (eachRegionNumberDO.getName().equalsIgnoreCase("青岛")) {
+                eachRegionNumberDTO
+                        .setQD(eachRegionNumberDO.getCount() + eachRegionNumberDTO.getQD());
+            }
+            else if (eachRegionNumberDO.getName().equalsIgnoreCase("北京")) {
+                eachRegionNumberDTO
+                        .setBJ(eachRegionNumberDO.getCount() + eachRegionNumberDTO.getBJ());
+            }
+            else
                 eachRegionNumberDTO.setOther(eachRegionNumberDO.getCount() + eachRegionNumberDTO.getOther());
             eachRegionNumberDTO.setTotal(eachRegionNumberDTO.getAdelaide() + eachRegionNumberDTO.getSydney()
                     + eachRegionNumberDTO.getBrisbane() + eachRegionNumberDTO.getCanberra()
                     + eachRegionNumberDTO.getHobart() + eachRegionNumberDTO.getMelbourne()
-                    + eachRegionNumberDTO.getCrucial() + eachRegionNumberDTO.getOther());
+                    + eachRegionNumberDTO.getCrucial() + eachRegionNumberDTO.getOther()
+                    +eachRegionNumberDTO.getCis()+eachRegionNumberDTO.getQD()+eachRegionNumberDTO.getBJ());
             eachRegionNumberDTO.setName(name);
             eachRegionNumberDTO.setInstitutionName(eachRegionNumberDO.getInstitutionName());
             map.put(name, eachRegionNumberDTO);
