@@ -100,18 +100,23 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
         root.getElementsByTagName("MaritalStatus").item(0).setTextContent(customerInformationDO.getMainInformation().getMaritalStatus());
         //OtherNameTable
         //Question
-        if (customerInformationDO.getPastInformationList() == null)
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<PastInformation> pastInformation = customerInformationDO.getPastInformationList();
+        List<PastInformation> pastInformationList = objectMapper.convertValue(pastInformation, new TypeReference<List<PastInformation>>() {
+        });
+
+        if (pastInformationList == null)
             root.getElementsByTagName("OtherName").item(0).getChildNodes().item(1).getChildNodes().item(1).setTextContent("2");
         else {
             root.getElementsByTagName("OtherName").item(0).getChildNodes().item(1).getChildNodes().item(1).setTextContent("1");
             //Other Family Name
-            root.getElementsByTagName("OtherNameTable").item(0).getChildNodes().item(3).getChildNodes().item(1).setTextContent(customerInformationDO.getPastInformationList().get(0).getFamilyName());
+            root.getElementsByTagName("OtherNameTable").item(0).getChildNodes().item(3).getChildNodes().item(1).setTextContent(pastInformationList.get(0).getFamilyName());
             //Other Given Name
-            root.getElementsByTagName("OtherNameTable").item(0).getChildNodes().item(3).getChildNodes().item(3).setTextContent(customerInformationDO.getPastInformationList().get(0).getGivenNames());
+            root.getElementsByTagName("OtherNameTable").item(0).getChildNodes().item(3).getChildNodes().item(3).setTextContent(pastInformationList.get(0).getGivenNames());
             //dateOfBirth
-            root.getElementsByTagName("OtherNameTable").item(0).getChildNodes().item(3).getChildNodes().item(5).setTextContent(customerInformationDO.getPastInformationList().get(0).getDateOfBirth());
+            root.getElementsByTagName("OtherNameTable").item(0).getChildNodes().item(3).getChildNodes().item(5).setTextContent(pastInformationList.get(0).getDateOfBirth());
             //usedTypeOfName
-            root.getElementsByTagName("OtherNameTable").item(0).getChildNodes().item(3).getChildNodes().item(7).setTextContent(customerInformationDO.getPastInformationList().get(0).getUsedTypeOfName());
+            root.getElementsByTagName("OtherNameTable").item(0).getChildNodes().item(3).getChildNodes().item(7).setTextContent(pastInformationList.get(0).getUsedTypeOfName());
         }
 
         //Chinese Question yes2 no 1
@@ -199,7 +204,7 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
 
         }
         //IdentificationNumber
-        ObjectMapper objectMapper = new ObjectMapper();
+
         List<IdentificationNumber> identificationNumberList = customerInformationDO.getIdentificationNumberList();
         List<IdentificationNumber> identificationNumberList1 = objectMapper.convertValue(identificationNumberList, new TypeReference<List<IdentificationNumber>>() {
         });
@@ -324,7 +329,9 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
         }
         //currentAddressList
         //todo
-        List<CurrentAddress> currentAddressList = customerInformationDO.getAddresses().getCurrentAddressList();
+        List<CurrentAddress> currentAddress = customerInformationDO.getAddresses().getCurrentAddressList();
+        List<CurrentAddress> currentAddressList = objectMapper.convertValue(currentAddress, new TypeReference<List<CurrentAddress>>() {
+        });
         int addressSize = currentAddressList.size();
         for (int i = 0; i < addressSize; i++) {
             //country
@@ -355,7 +362,9 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
 
         }
         //isSamePostalAddress
-        List<PostalAddress> postalAddressList = customerInformationDO.getPostalAddressList();
+        List<PostalAddress> postalAddress = customerInformationDO.getPostalAddressList();
+        List<PostalAddress> postalAddressList = objectMapper.convertValue(postalAddress, new TypeReference<List<PostalAddress>>() {
+        });
         if (customerInformationDO.getAddresses().getIsSamePostalAddress() == 1) {
             root.getElementsByTagName("Postal").item(0).getChildNodes().item(1).getChildNodes().item(1).setTextContent("1");
             if (customerInformationDO.getAddresses().getIsSameResidential() == 1) {

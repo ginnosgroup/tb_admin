@@ -10,7 +10,15 @@
       citizenship_details,
       ident_ification_number_list, education_list,
       language_skills, addresses, postal_address_list,
-      health_questions, character_issues,applicant_id)
+      health_questions, character_issues,applicant_id,
+      passport_image_url_1,
+      passport_image_url_2,
+      passport_image_url_3,
+      schoolcoe_image_url,
+      afp_image_url_1,
+      afp_image_url_2,
+      birth_image_url,
+      idcard_image_url)
     values (now(), now(),
       #{serviceOrderId,jdbcType=INTEGER,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
       #{mainInformation,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
@@ -25,7 +33,15 @@
       #{postalAddressList,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
       #{healthQuestions,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
       #{characterIssues,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
-      #{applicantId,jdbcType=INTEGER,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler})
+      #{applicantId,jdbcType=INTEGER,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
+      #{passportImageUrl1,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
+      #{passportImageUrl2,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
+      #{passportImageUrl3,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
+      #{schoolCoeImageUrl,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
+      #{afpImageUrl1,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
+      #{afpImageUrl2,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
+      #{birthImageUrl,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
+      #{idCardImageUrl,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},)
   </insert>
     <update id="update">
       update b_customer_information
@@ -67,6 +83,30 @@
         <if test="characterIssues != null" >
           character_issues = #{characterIssues,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
         </if>
+        <if test="passportImageUrl1 != null" >
+          passport_image_url_1 = #{characterIssues,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
+        </if>
+        <if test="passportImageUrl2 != null" >
+          passport_image_url_2 = #{characterIssues,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
+        </if>
+        <if test="passportImageUrl3 != null" >
+          passport_image_url_3 = #{characterIssues,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
+        </if>
+        <if test="schoolCoeImageUrl != null" >
+          schoolcoe_image_url = #{characterIssues,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
+        </if>
+        <if test="afpImageUrl1 != null" >
+          afp_image_url_1 = #{characterIssues,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
+        </if>
+        <if test="afpImageUrl2 != null" >
+          afp_image_url_2 = #{characterIssues,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
+        </if>
+        <if test="birthImageUrl != null" >
+          birth_image_url = #{characterIssues,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
+        </if>
+        <if test="idCardImageUrl != null" >
+          idcard_image_url = #{characterIssues,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
+        </if>
       </set>
       where id = #{id,jdbcType=INTEGER}
 
@@ -95,6 +135,14 @@
     <id column="health_questions" jdbcType="VARCHAR" property="healthQuestions" typeHandler="org.zhinanzhen.tb.utils.JsonTypeHandler" />
     <id column="character_issues" jdbcType="VARCHAR" property="characterIssues" typeHandler="org.zhinanzhen.tb.utils.JsonTypeHandler" />
     <id column="applicant_id" jdbcType="INTEGER" property="applicantId" typeHandler="org.zhinanzhen.tb.utils.JsonTypeHandler" />
+    <id column="passport_image_url_1" jdbcType="VARCHAR" property="passportImageUrl1" typeHandler="org.zhinanzhen.tb.utils.JsonTypeHandler" />
+    <id column="passport_image_url_2" jdbcType="VARCHAR" property="passportImageUrl2" typeHandler="org.zhinanzhen.tb.utils.JsonTypeHandler" />
+    <id column="passport_image_url_3" jdbcType="VARCHAR" property="passportImageUrl3" typeHandler="org.zhinanzhen.tb.utils.JsonTypeHandler" />
+    <id column="schoolcoe_image_url" jdbcType="VARCHAR" property="schoolCoeImageUrl" typeHandler="org.zhinanzhen.tb.utils.JsonTypeHandler" />
+    <id column="afp_image_url_1" jdbcType="VARCHAR" property="afpImageUrl1" typeHandler="org.zhinanzhen.tb.utils.JsonTypeHandler" />
+    <id column="afp_image_url_2" jdbcType="VARCHAR" property="afpImageUrl2" typeHandler="org.zhinanzhen.tb.utils.JsonTypeHandler" />
+    <id column="birth_image_url" jdbcType="VARCHAR" property="birthImageUrl" typeHandler="org.zhinanzhen.tb.utils.JsonTypeHandler" />
+    <id column="idcard_image_url" jdbcType="VARCHAR" property="idCardImageUrl" typeHandler="org.zhinanzhen.tb.utils.JsonTypeHandler" />
   </resultMap>
   <select id="get" resultType="org.zhinanzhen.b.dao.pojo.customer.CustomerInformationDO" resultMap="BaseResultMap">
     SELECT

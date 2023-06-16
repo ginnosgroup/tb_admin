@@ -2,6 +2,7 @@ package org.zhinanzhen.b.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.dao.pojo.customer.CustomerInformationDO;
 import org.zhinanzhen.b.service.CustomerInformationService;
 import org.zhinanzhen.b.service.ServiceOrderService;
@@ -13,6 +14,7 @@ import org.zhinanzhen.tb.service.ServiceException;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -56,7 +58,8 @@ public class CustomerInformationController extends BaseController {
     }
 
     @PostMapping("/add")
-    public Response<Integer> add(@RequestBody String json, HttpServletRequest request,
+    public Response<Integer> add(@RequestBody String json,
+                                 HttpServletRequest request,
                                  HttpServletResponse response) {
 
 //    AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
@@ -108,6 +111,39 @@ public class CustomerInformationController extends BaseController {
         } catch (ServiceException e) {
             return new Response<>(1, e.getMessage());
         }
+    }
+
+    @RequestMapping(value = "/upload", method = RequestMethod.POST)
+    @ResponseBody
+    public Response<String> uploadImage(@RequestParam MultipartFile file, @RequestParam("id") int id,
+                                        @RequestParam ("name") String name,
+                                        HttpServletRequest request,
+                                        HttpServletResponse response) throws IOException {
+        super.setPostHeader(response);
+        try {
+            String upload = customerInformationService.upload(id, name, file);
+            return new Response<String>(0,"success",upload);
+        }
+        catch (ServiceException e) {
+            return new Response<String>(1, e.getMessage(),null);
+        }
+
+    }
+
+    @RequestMapping(value = "/deleteFile", method = RequestMethod.POST)
+    @ResponseBody
+    public Response<Integer> deleteFile(@RequestParam ("url") String url,
+                                        HttpServletRequest request,
+                                        HttpServletResponse response) throws IOException {
+        super.setPostHeader(response);
+        try {
+            customerInformationService.deleteFile(url);
+            return new Response<Integer>(0,"success");
+        }
+        catch (ServiceException e) {
+            return new Response<Integer>(1, e.getMessage(),null);
+        }
+
     }
 
 }
