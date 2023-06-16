@@ -130,4 +130,20 @@ public class CustomerInformationController extends BaseController {
 
     }
 
+    @RequestMapping(value = "/deleteFile", method = RequestMethod.POST)
+    @ResponseBody
+    public Response<Integer> deleteFile(@RequestParam ("url") String url,
+                                        HttpServletRequest request,
+                                        HttpServletResponse response) throws IOException {
+        super.setPostHeader(response);
+        try {
+            customerInformationService.deleteFile(url);
+            return new Response<Integer>(0,"success");
+        }
+        catch (ServiceException e) {
+            return new Response<Integer>(1, e.getMessage(),null);
+        }
+
+    }
+
 }

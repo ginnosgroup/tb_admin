@@ -53,7 +53,9 @@ public class CustomerInformationDO {
 
     private String schoolCoeImageUrl;
 
-    private String afpImageUrl;
+    private String afpImageUrl1;
+
+    private String afpImageUrl2;
 
     private String birthImageUrl;
 

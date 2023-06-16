@@ -22,6 +22,8 @@ import org.zhinanzhen.tb.utils.WebDavUtils;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -54,7 +56,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
     public void add(CustomerInformationDO customerInformationDO) throws ServiceException {
         try {
             customerInformationDAO.insert(customerInformationDO);
-
+            webdav(customerInformationDO.getServiceOrderId());
             sendRemind(customerInformationDO.getServiceOrderId());
         } catch (Exception e) {
             e.printStackTrace();
@@ -136,7 +138,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             String type = fileName.indexOf(".") != -1
                     ? fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length())
                     : null;
-            String realPath = StringUtil.merge("C:/Users/yjt/Desktop/data", dir);
+            String realPath = StringUtil.merge("/data", dir);
             // 创建目录
             File folder = new File(realPath);
             if (!folder.isDirectory())
@@ -148,8 +150,24 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             LOG.info("存放文件的路径:" + path);
             // 转存文件到指定的路径
             file.transferTo(new File(path));
-            webdav(serviceOrderId);
             return StringUtil.merge(dir, newFileName,".", type);
+        } catch (Exception e) {
+            ServiceException se = new ServiceException(e);
+            se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+            throw se;
+        }
+    }
+
+    @Override
+    public void deleteFile(String url) throws ServiceException {
+        if (url == null){
+            ServiceException se = new ServiceException("删除路径为空!");
+            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+            throw se;
+        }
+        try {
+            String realpath=StringUtil.merge("/data",url);
+            Files.delete(Paths.get(realpath));
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
@@ -277,7 +295,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
         String formatdate = date.format(formatter);
         String netDiskPath = "https://dav.jianguoyun.com/dav/MMfiledata/" + familyName  + givenName + "_" + formatdate ;
-        String filePath = "C:/Users/yjt/Desktop/data/uploads/customerInformation/" + familyName +"_"+ givenName  ;
+        String filePath = "/data/uploads/customerInformation/" + familyName +"_"+ givenName  ;
         List<String> path = getFilePath(filePath);
         for (String s : path) {
             WebDavUtils.upload(netDiskPath+"/"+s.substring(s.lastIndexOf("\\")+1), s);

@@ -22,4 +22,6 @@ public interface CustomerInformationService {
 
     String upload(int serviceOrderId,String name, MultipartFile file)throws ServiceException, IOException;
 
+    void deleteFile(String url) throws ServiceException;
+
 }
