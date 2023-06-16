@@ -178,31 +178,31 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int add(SchoolInstitutionDTO schoolInstitutionDTO) throws ServiceException {
-        if (schoolInstitutionDTO == null){
+    public int add(SchoolInstitutionDTO schoolInstitutionDto) throws ServiceException {
+        if (schoolInstitutionDto == null){
             ServiceException se = new ServiceException("SchoolInstitutionDTO is null !");
             se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
             throw se;
         }
         try {
-            SchoolInstitutionDO schoolInstitutionDO = mapper.map(schoolInstitutionDTO,SchoolInstitutionDO.class);
-            if (schoolInstitutionDAO.add(schoolInstitutionDO) > 0){
-                schoolInstitutionDTO.setId(schoolInstitutionDO.getId());
-                List<SchoolInstitutionLocationDTO> schoolInstitutionLocationDTOS =  schoolInstitutionDTO.getSchoolInstitutionLocationDTOS();
+            SchoolInstitutionDO schoolInstitutionDo = mapper.map(schoolInstitutionDto,SchoolInstitutionDO.class);
+            if (schoolInstitutionDAO.add(schoolInstitutionDo) > 0){
+            	schoolInstitutionDto.setId(schoolInstitutionDo.getId());
+                List<SchoolInstitutionLocationDTO> schoolInstitutionLocationDTOS =  schoolInstitutionDto.getSchoolInstitutionLocationDTOS();
                 SqlSession session = sqlSessionFactory.openSession(ExecutorType.BATCH,false);
                 SchoolInstitutionLocationDAO institutionLocationMapper = session.getMapper(SchoolInstitutionLocationDAO.class);
                 if (schoolInstitutionLocationDTOS == null)
-                    return schoolInstitutionDTO.getId();
+                    return schoolInstitutionDto.getId();
                 int size = schoolInstitutionLocationDTOS.size();
                 for (int i = 0 ; i < size ; i++) {
                     SchoolInstitutionLocationDO institutionLocation = mapper.map(schoolInstitutionLocationDTOS.get(i),SchoolInstitutionLocationDO.class);
-                    institutionLocation.setProviderCode(schoolInstitutionDO.getCode());
-                    institutionLocation.setProviderId(schoolInstitutionDO.getId());
+                    institutionLocation.setProviderCode(schoolInstitutionDo.getCode());
+                    institutionLocation.setProviderId(schoolInstitutionDo.getId());
                     institutionLocationMapper.add(institutionLocation);
                 }
                 session.commit();
                 session.clearCache();
-                return schoolInstitutionDTO.getId();
+                return schoolInstitutionDto.getId();
             }
             return 0;
         }catch (Exception e){
