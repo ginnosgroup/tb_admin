@@ -143,16 +143,16 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean update(SchoolInstitutionDTO schoolInstitutionDTO) throws ServiceException {
-        if (schoolInstitutionDTO == null){
+    public boolean update(SchoolInstitutionDTO schoolInstitutionDto) throws ServiceException {
+        if (schoolInstitutionDto == null){
             ServiceException se = new ServiceException("SchoolInstitutionDTO is null !");
             se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
             throw se;
         }
         try {
-            SchoolInstitutionDO schoolInstitutionDO = mapper.map(schoolInstitutionDTO,SchoolInstitutionDO.class);
-            if (schoolInstitutionDAO.update(schoolInstitutionDO)){
-                List<SchoolInstitutionLocationDTO> schoolInstitutionLocationDTOS =  schoolInstitutionDTO.getSchoolInstitutionLocationDTOS();
+            SchoolInstitutionDO schoolInstitutionDo = mapper.map(schoolInstitutionDto,SchoolInstitutionDO.class);
+            if (schoolInstitutionDAO.update(schoolInstitutionDo)){
+                List<SchoolInstitutionLocationDTO> schoolInstitutionLocationDTOS =  schoolInstitutionDto.getSchoolInstitutionLocationDTOS();
                 SqlSession session = sqlSessionFactory.openSession(ExecutorType.BATCH,false);
                 SchoolInstitutionLocationDAO institutionLocationMapper = session.getMapper(SchoolInstitutionLocationDAO.class);
                 if (schoolInstitutionLocationDTOS == null)
@@ -160,8 +160,8 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
                 int size = schoolInstitutionLocationDTOS.size();
                 for (int i = 0 ; i < size ; i++) {
                     SchoolInstitutionLocationDO institutionLocation = mapper.map(schoolInstitutionLocationDTOS.get(i),SchoolInstitutionLocationDO.class);
-                    institutionLocation.setProviderCode(schoolInstitutionDO.getCode());
-                    institutionLocation.setProviderId(schoolInstitutionDO.getId());
+                    institutionLocation.setProviderCode(schoolInstitutionDo.getCode());
+                    institutionLocation.setProviderId(schoolInstitutionDo.getId());
                     institutionLocationMapper.add(institutionLocation);
                 }
                 session.commit();

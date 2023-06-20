@@ -107,7 +107,7 @@
             <if test="summary != null">
                 , bsi.summary = #{summary}
             </if>
-            <if test='isCooperative != null and isCooperative != ""'>
+            <if test='isCooperative != null'>
                 , bsi.is_cooperative = #{isCooperative}
             </if>
             <if test="isFreeze != null">
