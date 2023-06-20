@@ -45,6 +45,10 @@ public class CustomerInformationDO {
 
     private CharacterIssues characterIssues;//性格信息
 
+    private Parents parents;//父母信息
+
+    private Siblings siblings;//兄弟姐妹信息
+
     private String passportImageUrl1;
 
     private String passportImageUrl2;

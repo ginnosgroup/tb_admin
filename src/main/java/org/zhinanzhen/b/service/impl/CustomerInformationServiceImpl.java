@@ -54,6 +54,16 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
 
     @Override
     public void add(CustomerInformationDO customerInformationDO) throws ServiceException {
+        if(customerInformationDO.getMainInformation().getGivenName().contains(" ")){
+            ServiceException se = new ServiceException("保存失败！客户名字有空格符，请修改后重新保存!");
+            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+            throw se;
+        }
+        if(customerInformationDO.getMainInformation().getFamilyName().contains(" ")){
+            ServiceException se = new ServiceException("保存失败！客户姓有空格符，请修改后重新保存!");
+            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+            throw se;
+        }
         try {
             customerInformationDAO.insert(customerInformationDO);
             webdav(customerInformationDO.getServiceOrderId());
@@ -287,19 +297,35 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
         }
         return s;
     }
-    private void webdav(int id) throws IOException {
+    private void webdav(int id) throws IOException, ServiceException {
         CustomerInformationDO customerInformationDO = customerInformationDAO.getByServiceOrderId(id);
-        String givenName = customerInformationDO.getMainInformation().getGivenName();
-        String familyName = customerInformationDO.getMainInformation().getFamilyName();
-        LocalDate date = LocalDate.now(); // get the current date
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
-        String formatdate = date.format(formatter);
-        String netDiskPath = "https://dav.jianguoyun.com/dav/MMfiledata/" + familyName  + givenName + "_" + formatdate ;
-        String filePath = "/data/uploads/customerInformation/" + familyName +"_"+ givenName  ;
-        List<String> path = getFilePath(filePath);
-        for (String s : path) {
-            WebDavUtils.upload(netDiskPath+"/"+s.substring(s.lastIndexOf("\\")+1), s);
+        if(customerInformationDO.getMainInformation().getGivenName().contains(" ")){
+            ServiceException se = new ServiceException("上传失败！客户名字有空格符，请修改后重新上传!");
+            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+            throw se;
         }
+        if(customerInformationDO.getMainInformation().getFamilyName().contains(" ")){
+            ServiceException se = new ServiceException("上传失败！客户姓有空格符，请修改后重新上传!");
+            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+            throw se;
+        }try {
+            String givenName = customerInformationDO.getMainInformation().getGivenName();
+            String familyName = customerInformationDO.getMainInformation().getFamilyName();
+            LocalDate date = LocalDate.now(); // get the current date
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+            String formatdate = date.format(formatter);
+            String netDiskPath = "https://dav.jianguoyun.com/dav/MMfiledata/" + familyName  + givenName + "_" + formatdate ;
+            String filePath = "/data/uploads/customerInformation/" + familyName +"_"+ givenName  ;
+            List<String> path = getFilePath(filePath);
+            for (String s : path) {
+                WebDavUtils.upload(netDiskPath+"/"+s.substring(s.lastIndexOf("\\")+1), s);
+            }
+        }catch (Exception e) {
+            ServiceException se = new ServiceException(e);
+            se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+            throw se;
+        }
+
     }
     /**
      * 获取文件夹下所有文件的路径
