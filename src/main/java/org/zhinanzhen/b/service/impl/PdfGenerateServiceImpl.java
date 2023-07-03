@@ -6,6 +6,7 @@ import com.ikasoa.core.ErrorCodeEnum;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 import org.zhinanzhen.b.dao.CustomerInformationDAO;
 import org.zhinanzhen.b.dao.pojo.customer.*;
@@ -42,8 +43,19 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
 
     @Override
     public int generate(int id) throws ServiceException {
+        CustomerInformationDO customerInformationDO = customerInformationDAO.getByServiceOrderId(id);
+        if(customerInformationDO.getMainInformation().getGivenName().contains(" ")){
+            ServiceException se = new ServiceException("生成失败！客户名字有空格符，请修改后重新保存后再生成pdf!");
+            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+            throw se;
+        }
+        if(customerInformationDO.getMainInformation().getFamilyName().contains(" ")){
+            ServiceException se = new ServiceException("生成失败！客户姓有空格符，请修改后重新保存后再生成pdf!");
+            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+            throw se;
+        }
         try {
-            CustomerInformationDO customerInformationDO = customerInformationDAO.getByServiceOrderId(id);
+
             fillxml(customerInformationDO);
             if (PdfGenerateUtil.manipulatePdf(SRC, XML2, id) > 0) {
                 webdav(id);
@@ -57,16 +69,34 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
         }
     }
 
-    private void webdav(int id) throws IOException {
+    private void webdav(int id) throws IOException, ServiceException {
         CustomerInformationDO customerInformationDO = customerInformationDAO.getByServiceOrderId(id);
         String givenName = customerInformationDO.getMainInformation().getGivenName();
         String familyName = customerInformationDO.getMainInformation().getFamilyName();
-        LocalDate date = LocalDate.now(); // get the current date
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        String formatdate = date.format(formatter);
-        String netDiskPath = "https://dav.jianguoyun.com/dav/MMfiledata/" + givenName + "_" + familyName + "_" + formatdate + ".pdf";
-        String filePath = "/data/uploads/PdfGenerate/pdfout/" + id + ".pdf";
-        WebDavUtils.upload(netDiskPath, filePath);
+        if(givenName.contains(" ")){
+            ServiceException se = new ServiceException("生成失败！客户名字有空格符，请修改后重新生成!");
+            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+            throw se;
+        }
+        if(familyName.contains(" ")){
+            ServiceException se = new ServiceException("生成失败！客户姓有空格符，请修改后重新生成!");
+            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+            throw se;
+        }try {
+            LocalDate date = LocalDate.now(); // get the current date
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+            String formatdate = date.format(formatter);
+            String netDiskPath = "https://dav.jianguoyun.com/dav/MMfiledata/" + givenName + "_" + familyName + "_" + formatdate + ".pdf";
+            String filePath = "/data/uploads/PdfGenerate/pdfout/" + id + ".pdf";
+            WebDavUtils.upload(netDiskPath, filePath);
+
+        }
+        catch (Exception e) {
+            ServiceException se = new ServiceException(e);
+            se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+            throw se;
+        }
+
     }
 
 
@@ -100,18 +130,23 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
         root.getElementsByTagName("MaritalStatus").item(0).setTextContent(customerInformationDO.getMainInformation().getMaritalStatus());
         //OtherNameTable
         //Question
-        if (customerInformationDO.getPastInformationList() == null)
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<PastInformation> pastInformation = customerInformationDO.getPastInformationList();
+        List<PastInformation> pastInformationList = objectMapper.convertValue(pastInformation, new TypeReference<List<PastInformation>>() {
+        });
+
+        if (pastInformationList == null)
             root.getElementsByTagName("OtherName").item(0).getChildNodes().item(1).getChildNodes().item(1).setTextContent("2");
         else {
             root.getElementsByTagName("OtherName").item(0).getChildNodes().item(1).getChildNodes().item(1).setTextContent("1");
             //Other Family Name
-            root.getElementsByTagName("OtherNameTable").item(0).getChildNodes().item(3).getChildNodes().item(1).setTextContent(customerInformationDO.getPastInformationList().get(0).getFamilyName());
+            root.getElementsByTagName("OtherNameTable").item(0).getChildNodes().item(3).getChildNodes().item(1).setTextContent(pastInformationList.get(0).getFamilyName());
             //Other Given Name
-            root.getElementsByTagName("OtherNameTable").item(0).getChildNodes().item(3).getChildNodes().item(3).setTextContent(customerInformationDO.getPastInformationList().get(0).getGivenNames());
+            root.getElementsByTagName("OtherNameTable").item(0).getChildNodes().item(3).getChildNodes().item(3).setTextContent(pastInformationList.get(0).getGivenNames());
             //dateOfBirth
-            root.getElementsByTagName("OtherNameTable").item(0).getChildNodes().item(3).getChildNodes().item(5).setTextContent(customerInformationDO.getPastInformationList().get(0).getDateOfBirth());
+            root.getElementsByTagName("OtherNameTable").item(0).getChildNodes().item(3).getChildNodes().item(5).setTextContent(pastInformationList.get(0).getDateOfBirth());
             //usedTypeOfName
-            root.getElementsByTagName("OtherNameTable").item(0).getChildNodes().item(3).getChildNodes().item(7).setTextContent(customerInformationDO.getPastInformationList().get(0).getUsedTypeOfName());
+            root.getElementsByTagName("OtherNameTable").item(0).getChildNodes().item(3).getChildNodes().item(7).setTextContent(pastInformationList.get(0).getUsedTypeOfName());
         }
 
         //Chinese Question yes2 no 1
@@ -199,7 +234,7 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
 
         }
         //IdentificationNumber
-        ObjectMapper objectMapper = new ObjectMapper();
+
         List<IdentificationNumber> identificationNumberList = customerInformationDO.getIdentificationNumberList();
         List<IdentificationNumber> identificationNumberList1 = objectMapper.convertValue(identificationNumberList, new TypeReference<List<IdentificationNumber>>() {
         });
@@ -262,9 +297,8 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
         }
 
         //LanguageSkills
-        ObjectMapper objectMapper1 = new ObjectMapper();
         List<LanguageSkills> languageSkills = customerInformationDO.getLanguageSkills();
-        List<LanguageSkills> languageSkills1 = objectMapper1.convertValue(languageSkills, new TypeReference<List<LanguageSkills>>() {
+        List<LanguageSkills> languageSkills1 = objectMapper.convertValue(languageSkills, new TypeReference<List<LanguageSkills>>() {
         });
         List<EnglishSkills> englishSkillsList = languageSkills1.get(0).getEnglishSkillsList();
 
@@ -315,6 +349,85 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
             root.getElementsByTagName("Main").item(0).setTextContent(allLanguagesList.get(i).getIsMainLanguages());
         }
 
+        //parents
+        //
+        Parents parents = customerInformationDO.getParents();
+        //
+        if (parents.getIsKnow()==2){
+            root.getElementsByTagName("Parents").item(0).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent("2");
+            root.getElementsByTagName("NoParentReasons").item(0).setTextContent(parents.getDetails());
+        }else {
+            root.getElementsByTagName("Parents").item(0).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent("1");
+            List<ParentsInformation> parentsInformationList = parents.getParentsInformationList();
+
+            int parentSize = parentsInformationList.size();
+            if (parentSize-2>0){
+                for (int i = 0; i < parentSize-2; i++) {
+                    Node paPaDetails = root.getElementsByTagName("PAPaDetails").item(0).cloneNode(true);
+                    root.getElementsByTagName("Parents").item(0).getChildNodes().item(3).appendChild(paPaDetails);
+                }
+            }
+            for (int i = 0; i < parentSize; i++) {
+                //familyname
+                root.getElementsByTagName("PAPaDetails").item(i).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(parentsInformationList.get(i).getFamilyName());
+                //given
+                root.getElementsByTagName("PAPaDetails").item(i).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(5).setTextContent(parentsInformationList.get(i).getGivenName());
+                //relationship
+                root.getElementsByTagName("PAPaDetails").item(i).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(5).getChildNodes().item(1).setTextContent(parentsInformationList.get(i).getRelationship());
+                //birthdate
+                root.getElementsByTagName("PAPaDetails").item(i).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).setTextContent(parentsInformationList.get(i).getDateOfBirth());
+                //Gender
+                root.getElementsByTagName("PAPaDetails").item(i).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).setTextContent(parentsInformationList.get(i).getGender());
+                //birthTown
+                root.getElementsByTagName("PAPaDetails").item(i).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).setTextContent(parentsInformationList.get(i).getBirthLocation());
+                //state
+                root.getElementsByTagName("PAPaDetails").item(i).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(1).setTextContent(parentsInformationList.get(i).getStateOrProvince());
+                //birthCountry
+                root.getElementsByTagName("PAPaDetails").item(i).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(3).setTextContent(parentsInformationList.get(i).getBirthCountry());
+
+            }
+
+        }
+
+        //Sibling
+        Siblings siblings = customerInformationDO.getSiblings();
+        if (siblings.getIsHave()==2){
+            root.getElementsByTagName("Sibling").item(0).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent("2");
+        }else {
+            root.getElementsByTagName("Sibling").item(0).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent("1");
+            List<SiblingsInformation> siblingsInformationList = siblings.getSiblingsInformationList();
+            int siblingSize = siblingsInformationList.size();
+            if (siblingSize-1>0){
+                for (int i = 0; i < siblingSize-1; i++) {
+                    Node paPaDetails = root.getElementsByTagName("PASibDetails").item(0).cloneNode(true);
+                    root.getElementsByTagName("Sibling").item(0).getChildNodes().item(3).appendChild(paPaDetails);
+                }
+            }
+            for (int i = 0; i < siblingSize; i++) {
+                //familyname
+                root.getElementsByTagName("PASibDetails").item(i).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(siblingsInformationList.get(i).getFamilyName());
+                //given
+                root.getElementsByTagName("PASibDetails").item(i).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(5).setTextContent(siblingsInformationList.get(i).getGivenName());
+                //relationship
+                root.getElementsByTagName("PASibDetails").item(i).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(5).getChildNodes().item(1).setTextContent(siblingsInformationList.get(i).getRelationship());
+                //birthdate
+                root.getElementsByTagName("PASibDetails").item(i).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).setTextContent(siblingsInformationList.get(i).getDateOfBirth());
+                //Gender
+                root.getElementsByTagName("PASibDetails").item(i).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).setTextContent(siblingsInformationList.get(i).getGender());
+                //birthTown
+                root.getElementsByTagName("PASibDetails").item(i).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).setTextContent(siblingsInformationList.get(i).getBirthLocation());
+                //state
+                root.getElementsByTagName("PASibDetails").item(i).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(1).setTextContent(siblingsInformationList.get(i).getStateOrProvince());
+                //birthCountry
+                root.getElementsByTagName("PASibDetails").item(i).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(3).setTextContent(siblingsInformationList.get(i).getBirthCountry());
+
+
+            }
+
+
+        }
+
+
         //Addresses
         //isAll
         if (customerInformationDO.getAddresses().getIsAll() == 1) {
@@ -324,7 +437,9 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
         }
         //currentAddressList
         //todo
-        List<CurrentAddress> currentAddressList = customerInformationDO.getAddresses().getCurrentAddressList();
+        List<CurrentAddress> currentAddress = customerInformationDO.getAddresses().getCurrentAddressList();
+        List<CurrentAddress> currentAddressList = objectMapper.convertValue(currentAddress, new TypeReference<List<CurrentAddress>>() {
+        });
         int addressSize = currentAddressList.size();
         for (int i = 0; i < addressSize; i++) {
             //country
@@ -355,7 +470,9 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
 
         }
         //isSamePostalAddress
-        List<PostalAddress> postalAddressList = customerInformationDO.getPostalAddressList();
+        List<PostalAddress> postalAddress = customerInformationDO.getPostalAddressList();
+        List<PostalAddress> postalAddressList = objectMapper.convertValue(postalAddress, new TypeReference<List<PostalAddress>>() {
+        });
         if (customerInformationDO.getAddresses().getIsSamePostalAddress() == 1) {
             root.getElementsByTagName("Postal").item(0).getChildNodes().item(1).getChildNodes().item(1).setTextContent("1");
             if (customerInformationDO.getAddresses().getIsSameResidential() == 1) {

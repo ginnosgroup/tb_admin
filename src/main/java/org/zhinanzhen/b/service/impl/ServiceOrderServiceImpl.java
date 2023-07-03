@@ -305,7 +305,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 if (regionId > 0) {
                     List<KjDO> kjList = kjDao.listKjByRegionId(regionId);
                     if (kjList != null && kjList.size() > 0) {
-                        String kjEmails = "";
+                        String kjEmails = "candice.huang@zhinanzhen.org,"; //　所有会计邮件都同时发给Candice
                         for (KjDO kjDo : kjList)
                             kjEmails += kjDo.getEmail() + ",";
                         if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())) {
@@ -1792,12 +1792,25 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             } else if (eachRegionNumberDO.getName().equalsIgnoreCase("攻坚部")) {
                 eachRegionNumberDTO
                         .setCrucial(eachRegionNumberDO.getCount() + eachRegionNumberDTO.getCrucial());
-            } else
+            } else if (eachRegionNumberDO.getName().equalsIgnoreCase("cis")) {
+                eachRegionNumberDTO
+                        .setCis(eachRegionNumberDO.getCount() + eachRegionNumberDTO.getCis());
+            }
+            else if (eachRegionNumberDO.getName().equalsIgnoreCase("青岛")) {
+                eachRegionNumberDTO
+                        .setQD(eachRegionNumberDO.getCount() + eachRegionNumberDTO.getQD());
+            }
+            else if (eachRegionNumberDO.getName().equalsIgnoreCase("北京")) {
+                eachRegionNumberDTO
+                        .setBJ(eachRegionNumberDO.getCount() + eachRegionNumberDTO.getBJ());
+            }
+            else
                 eachRegionNumberDTO.setOther(eachRegionNumberDO.getCount() + eachRegionNumberDTO.getOther());
             eachRegionNumberDTO.setTotal(eachRegionNumberDTO.getAdelaide() + eachRegionNumberDTO.getSydney()
                     + eachRegionNumberDTO.getBrisbane() + eachRegionNumberDTO.getCanberra()
                     + eachRegionNumberDTO.getHobart() + eachRegionNumberDTO.getMelbourne()
-                    + eachRegionNumberDTO.getCrucial() + eachRegionNumberDTO.getOther());
+                    + eachRegionNumberDTO.getCrucial() + eachRegionNumberDTO.getOther()
+                    +eachRegionNumberDTO.getCis()+eachRegionNumberDTO.getQD()+eachRegionNumberDTO.getBJ());
             eachRegionNumberDTO.setName(name);
             eachRegionNumberDTO.setInstitutionName(eachRegionNumberDO.getInstitutionName());
             map.put(name, eachRegionNumberDTO);

@@ -2205,6 +2205,10 @@ public class ServiceOrderController extends BaseController {
             for (EachRegionNumberDTO eo : eachRegionNumberDTOS) {
                 if (i == 0 && type.equalsIgnoreCase("VISA")) {
                     sheet.addCell(new Label(1, i, "签证项目", cellFormat));
+                    sheet.addCell(new Label(11, i, "CIS", cellFormat));
+                    sheet.addCell(new Label(12, i, "青岛", cellFormat));
+                    sheet.addCell(new Label(13, i, "北京", cellFormat));
+                    sheet.addCell(new Label(14, i, "other", cellFormat));
                     i++;
                 }
                 if (i == 0 && type.equalsIgnoreCase("OVST")) {
@@ -2218,7 +2222,10 @@ public class ServiceOrderController extends BaseController {
                     sheet.addCell(new Label(8, i, "Hobart", cellFormat));
                     sheet.addCell(new Label(9, i, "Canberra", cellFormat));
                     sheet.addCell(new Label(10, i, "攻坚部", cellFormat));
-                    sheet.addCell(new Label(11, i, "other", cellFormat));
+                    sheet.addCell(new Label(11, i, "CIS", cellFormat));
+                    sheet.addCell(new Label(12, i, "青岛", cellFormat));
+                    sheet.addCell(new Label(13, i, "北京", cellFormat));
+                    sheet.addCell(new Label(14, i, "other", cellFormat));
                     i++;
                 }
                 if (i == 0 && type.equalsIgnoreCase("ZX")) {
@@ -2236,7 +2243,10 @@ public class ServiceOrderController extends BaseController {
                 sheet.addCell(new Label(8, i, eo.getHobart() + "", cellFormat));
                 sheet.addCell(new Label(9, i, eo.getCanberra() + "", cellFormat));
                 sheet.addCell(new Label(10, i, eo.getCrucial() + "", cellFormat));
-                sheet.addCell(new Label(11, i, eo.getOther() + "", cellFormat));
+                sheet.addCell(new Label(11, i, eo.getCis() + "", cellFormat));
+                sheet.addCell(new Label(12, i, eo.getQD() + "", cellFormat));
+                sheet.addCell(new Label(13, i, eo.getBJ() + "", cellFormat));
+                sheet.addCell(new Label(14, i, eo.getOther() + "", cellFormat));
                 i++;
             }
             wbe.write();
