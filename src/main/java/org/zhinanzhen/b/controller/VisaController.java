@@ -20,6 +20,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -56,6 +58,9 @@ import jxl.write.WritableSheet;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/visa")
 public class VisaController extends BaseCommissionOrderController {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(VisaController.class);
+	
 	@Resource
 	MaraService maraService;
 	@Resource
@@ -486,10 +491,11 @@ public class VisaController extends BaseCommissionOrderController {
 					|| "SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 				visaDto.setKjApprovalDate(new Date(Long.parseLong(kjApprovalDate)));
 			else
-				return new Response<VisaDTO>(1, "只有会计和超级管理员能修改会计审核时间.", null);
-			if (visaService.updateVisa(visaDto) > 0)
+				return new Response<VisaDTO>(1, "只有会计和超级管理员能修改会计审核日期.", null);
+			if (visaService.updateVisa(visaDto) > 0) {
+				LOG.info("修改签证订单提交审核日期.(id=" + id + ",kjApprovalDate=" + kjApprovalDate);
 				return new Response<VisaDTO>(0, visaDto);
-			else
+			} else
 				return new Response<VisaDTO>(1, "修改失败.", null);
 		} catch (ServiceException e) {
 			return new Response<VisaDTO>(e.getCode(), e.getMessage(), null);
