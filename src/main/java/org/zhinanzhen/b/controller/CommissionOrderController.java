@@ -13,6 +13,8 @@ import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
 import org.dozer.DozerBeanMapper;
 import org.dozer.Mapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,6 +45,9 @@ import java.util.*;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/commissionOrder")
 public class CommissionOrderController extends BaseCommissionOrderController {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(CommissionOrderController.class);
+	
 	protected Mapper mapper = new DozerBeanMapper();
 
 	@Resource
@@ -637,10 +642,11 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					|| "SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 				commissionOrderDto.setKjApprovalDate(new Date(Long.parseLong(kjApprovalDate)));
 			else
-				return new Response<CommissionOrderDTO>(1, "只有会计和超级管理员能修改会计审核时间.", null);
-			if (commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0)
+				return new Response<CommissionOrderDTO>(1, "只有会计和超级管理员能修改会计审核日期.", null);
+			if (commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0) {
+				LOG.info("修改留学订单提交审核日期.(id=" + id + ",kjApprovalDate=" + kjApprovalDate);
 				return new Response<CommissionOrderDTO>(0, "", commissionOrderDto);
-			else
+			} else
 				return new Response<CommissionOrderDTO>(1, "修改失败.", null);
 		} catch (ServiceException e) {
 			return new Response<CommissionOrderDTO>(e.getCode(), e.getMessage(), null);
