@@ -36,6 +36,8 @@ public class SchoolInstitutionDTO {
     private String website;
 
     private String summary;
+    
+    private boolean isCooperative;
 
     private boolean isFreeze;
 

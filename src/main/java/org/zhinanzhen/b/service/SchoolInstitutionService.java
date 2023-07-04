@@ -28,17 +28,17 @@ public interface SchoolInstitutionService {
 
     int count(String name, String type, String code, Boolean isFreeze, String keyword);
 
-    boolean update(SchoolInstitutionDTO schoolInstitutionDTO) throws ServiceException;
+    boolean update(SchoolInstitutionDTO schoolInstitutionDto) throws ServiceException;
 
-    int add(SchoolInstitutionDTO schoolInstitutionDTO) throws ServiceException;
+    int add(SchoolInstitutionDTO schoolInstitutionDto) throws ServiceException;
 
     boolean delete(int id);
 
-    int addSetting(SchoolSettingNewDTO schoolSettingNewDTO);
+    int addSetting(SchoolSettingNewDTO schoolSettingNewDto);
 
     SchoolSettingNewDTO getByProviderIdAndLevel(int providerId, Integer level, String courseLevel, Integer courseId);
 
-    int updateSetting(SchoolSettingNewDTO schoolSettingNewDTO) throws ServiceException;
+    int updateSetting(SchoolSettingNewDTO schoolSettingNewDto) throws ServiceException;
 
     int deleteSetting(int id) throws ServiceException;
 

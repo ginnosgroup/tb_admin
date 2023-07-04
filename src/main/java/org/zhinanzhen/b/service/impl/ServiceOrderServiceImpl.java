@@ -305,7 +305,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 if (regionId > 0) {
                     List<KjDO> kjList = kjDao.listKjByRegionId(regionId);
                     if (kjList != null && kjList.size() > 0) {
-                        String kjEmails = "";
+                        String kjEmails = "candice.huang@zhinanzhen.org,"; //　所有会计邮件都同时发给Candice
                         for (KjDO kjDo : kjList)
                             kjEmails += kjDo.getEmail() + ",";
                         if ("VISA".equalsIgnoreCase(serviceOrderDo.getType())) {
