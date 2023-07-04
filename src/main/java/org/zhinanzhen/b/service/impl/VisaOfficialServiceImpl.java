@@ -274,7 +274,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 String calculation = new String();
                 calculation = "1" + "|" + commissionAmountDTO.getThirdPrince() + "," + servicePackagePriceDO.getAmount() + "|" + dateFormat.format(servicePackagePriceDO.getGmtModify());
                 commissionAmountDTO.setCalculation(calculation);
-                visaOfficialDO.setPredictCommissionAmount(commissionAmountDTO.getPredictCommissionAmount());
+                visaOfficialDO.setPredictCommissionAmount(commissionAmountDTO.getPredictCommissionAmount()/1.1);
                 visaOfficialDO.setCommissionAmount(commissionAmountDTO.getCommissionAmount());
                 visaOfficialDO.setPredictCommission(commissionAmountDTO.getCommission());
                 visaOfficialDO.setCalculation(commissionAmountDTO.getCalculation());
@@ -331,7 +331,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                     calculation = "1" + "|" + commissionAmountDTO.getThirdPrince() + "," + servicePackagePriceDO.getAmount() + "|" + dateFormat.format(servicePackagePriceDO.getGmtModify());
                     commissionAmountDTO.setCalculation(calculation);
                 }
-                visaOfficialDO.setPredictCommissionAmount(commissionAmountDTO.getPredictCommissionAmount());
+                visaOfficialDO.setPredictCommissionAmount(commissionAmountDTO.getPredictCommissionAmount()/1.1);
                 visaOfficialDO.setCommissionAmount(commissionAmountDTO.getCommissionAmount());
                 visaOfficialDO.setPredictCommission(commissionAmountDTO.getCommission());
                 visaOfficialDO.setCalculation(commissionAmountDTO.getCalculation());
@@ -339,7 +339,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             //常规计算
             else if (serviceOrderDO.getParentId() == 0 && list.size() == 0) {
                 CommissionAmountDTO commissionAmountDTO = calculationCommissionAmount(serviceOrderDO.getId());
-                visaOfficialDO.setPredictCommissionAmount(commissionAmountDTO.getPredictCommissionAmount());
+                visaOfficialDO.setPredictCommissionAmount(commissionAmountDTO.getPredictCommissionAmount()/1.1);
                 visaOfficialDO.setCommissionAmount(commissionAmountDTO.getCommissionAmount());
                 visaOfficialDO.setPredictCommission(commissionAmountDTO.getCommission());
                 visaOfficialDO.setCalculation(commissionAmountDTO.getCalculation());
@@ -395,7 +395,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                         calculation = "1" + "|" + commissionAmountDTO.getThirdPrince() + "," + servicePackagePriceDO.getAmount() + "|" + dateFormat.format(servicePackagePriceDO.getGmtModify());
                         commissionAmountDTO.setCalculation(calculation);
                     }
-                    visaOfficialDO.setPredictCommissionAmount(commissionAmountDTO.getPredictCommissionAmount());
+                    visaOfficialDO.setPredictCommissionAmount(commissionAmountDTO.getPredictCommissionAmount()/1.1);
                     visaOfficialDO.setCommissionAmount(commissionAmountDTO.getCommissionAmount());
                     visaOfficialDO.setPredictCommission(commissionAmountDTO.getCommission());
                     visaOfficialDO.setCalculation(commissionAmountDTO.getCalculation());
@@ -449,7 +449,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                             calculation = "1" + "|" + commissionAmountDTO.getThirdPrince() + "," + servicePackagePriceDO.getAmount() + "|" + dateFormat.format(servicePackagePriceDO.getGmtModify());
                             commissionAmountDTO.setCalculation(calculation);
                         }
-                        visaOfficialDO.setPredictCommissionAmount(commissionAmountDTO.getPredictCommissionAmount());
+                        visaOfficialDO.setPredictCommissionAmount(commissionAmountDTO.getPredictCommissionAmount()/1.1);
                         visaOfficialDO.setCommissionAmount(commissionAmountDTO.getCommissionAmount());
                         visaOfficialDO.setPredictCommission(commissionAmountDTO.getCommission());
                         visaOfficialDO.setCalculation(commissionAmountDTO.getCalculation());
@@ -505,7 +505,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                             calculation = "1" + "|" + commissionAmountDTO.getThirdPrince() + "," + servicePackagePriceDO.getAmount() + "|" + dateFormat.format(servicePackagePriceDO.getGmtModify());
                             commissionAmountDTO.setCalculation(calculation);
                         }
-                        visaOfficialDO.setPredictCommissionAmount(commissionAmountDTO.getPredictCommissionAmount());
+                        visaOfficialDO.setPredictCommissionAmount(commissionAmountDTO.getPredictCommissionAmount()/1.1);
                         visaOfficialDO.setCommissionAmount(commissionAmountDTO.getCommissionAmount());
                         visaOfficialDO.setPredictCommission(commissionAmountDTO.getCommission());
                         visaOfficialDO.setCalculation(commissionAmountDTO.getCalculation());
@@ -520,7 +520,6 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 visaOfficialDO.setCommissionAmount(visaOfficialDO.getCommissionAmount()/ exchangeRate);
                 visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission()/ exchangeRate);
             }
-
             if (visaOfficialDao.addVisa(visaOfficialDO) > 0) {
                 visaOfficialDTO.setId(visaOfficialDO.getId());
                 visaOfficialDTO.setCommissionAmount(visaOfficialDO.getCommissionAmount());
