@@ -20,7 +20,7 @@ public interface CustomerInformationService {
 
     CustomerInformationDO getByApplicantId(int applicantId)throws ServiceException;
 
-    String upload(int serviceOrderId,String name, MultipartFile file)throws ServiceException, IOException;
+    String upload(String familyName,String givenName,String name, MultipartFile file)throws ServiceException, IOException;
 
     void deleteFile(String url) throws ServiceException;
 

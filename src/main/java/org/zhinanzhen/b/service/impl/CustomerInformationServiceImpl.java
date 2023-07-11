@@ -123,21 +123,13 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
     }
 
     @Override
-    public String upload(int serviceOrderId, String name, MultipartFile file) throws IOException, ServiceException {
+    public String upload(String familyName,String givenName,String name, MultipartFile file) throws IOException, ServiceException {
         if (file == null) {
             ServiceException se = new ServiceException("上传文件为空!");
             se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
             throw se;
         }
-        CustomerInformationDO customerInformationDO = customerInformationDAO.getByServiceOrderId(serviceOrderId);
-        if (customerInformationDO==null){
-            ServiceException se = new ServiceException("客户信息未添加!");
-            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
-            throw se;
-        }
         try {
-            String givenName = customerInformationDO.getMainInformation().getGivenName();
-            String familyName = customerInformationDO.getMainInformation().getFamilyName();
             LocalDate date = LocalDate.now(); // get the current date
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
             String formatdate = date.format(formatter);

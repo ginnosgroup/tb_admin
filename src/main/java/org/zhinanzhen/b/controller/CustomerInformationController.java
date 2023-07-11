@@ -115,13 +115,14 @@ public class CustomerInformationController extends BaseController {
 
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     @ResponseBody
-    public Response<String> uploadImage(@RequestParam MultipartFile file, @RequestParam("id") int id,
+    public Response<String> uploadImage(@RequestParam MultipartFile file, @RequestParam("familyName") String familyName,
+                                        @RequestParam("givenName") String givenName,
                                         @RequestParam ("name") String name,
                                         HttpServletRequest request,
                                         HttpServletResponse response) throws IOException {
         super.setPostHeader(response);
         try {
-            String upload = customerInformationService.upload(id, name, file);
+            String upload = customerInformationService.upload( familyName,givenName,name, file);
             return new Response<String>(0,"success",upload);
         }
         catch (ServiceException e) {
