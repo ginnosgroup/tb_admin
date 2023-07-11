@@ -138,6 +138,8 @@ public class BaseController {
 			String type = fileName.indexOf(".") != -1
 					? fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length())
 					: null;
+			if (ObjectUtil.isNull(type))
+				return new Response<String>(3, "文件类型为空.", null);
 			String realPath = StringUtil.merge("/data", dir);
 			// 创建目录
 			File folder = new File(realPath);
