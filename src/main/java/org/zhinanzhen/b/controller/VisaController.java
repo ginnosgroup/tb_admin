@@ -567,7 +567,6 @@ public class VisaController extends BaseCommissionOrderController {
 			visaDto.setState(ReviewKjStateEnum.COMPLETE.toString());
 			visaDto.setCommissionState(CommissionStateEnum.YJY.toString());
 		}
-		LOG.info("签证订单更新:" + visaDto.toString());
 		return visaService.updateVisa(visaDto) > 0 ? new Response<VisaDTO>(0, visaDto)
 				: new Response<VisaDTO>(1, "修改失败.", null);
 	}
@@ -787,7 +786,9 @@ public class VisaController extends BaseCommissionOrderController {
 				Cell[] cells = sheet.getRow(i);
 				String _id = cells[0].getContents();
 				String _bonus = cells[15].getContents();
+				LOG.info("签证订单更新_bonus:" + _bonus);
 				String _bonusDate = cells[16].getContents();
+				LOG.info("签证订单更新_bonusDate:" + _bonusDate);
 				try {
 					VisaDTO visaDto = visaService.getVisaById(Integer.parseInt(_id));
 					if (visaDto == null) {
@@ -798,6 +799,7 @@ public class VisaController extends BaseCommissionOrderController {
 						message += "[" + _id + "]佣金订单状态不是待结佣;";
 						continue;
 					}
+					LOG.info("签证订单更新:" + _id);
 					Response<VisaDTO> _r = updateOne(Integer.parseInt(_id), null,
 							StringUtil.isEmpty(_bonus) ? null : Double.parseDouble(_bonus.trim()),
 							StringUtil.isEmpty(_bonusDate) ? null
