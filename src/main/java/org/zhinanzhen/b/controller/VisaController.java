@@ -567,6 +567,7 @@ public class VisaController extends BaseCommissionOrderController {
 			visaDto.setState(ReviewKjStateEnum.COMPLETE.toString());
 			visaDto.setCommissionState(CommissionStateEnum.YJY.toString());
 		}
+		LOG.info("签证订单更新:" + visaDto.toString());
 		return visaService.updateVisa(visaDto) > 0 ? new Response<VisaDTO>(0, visaDto)
 				: new Response<VisaDTO>(1, "修改失败.", null);
 	}
