@@ -153,7 +153,7 @@ public class SchoolInstitutionController extends BaseController {
             return new Response(1,"No permission !");
         if (StringUtil.isNotEmpty(schoolInstitutionDto.getName())){
             List<SchoolInstitutionDTO> listSchoolInstitutionDTO = schoolInstitutionService.listSchoolInstitutionDTO(schoolInstitutionDto.getName(),
-                    null,null,null,0,9999,null,null);
+                    null,null,null, null,0,9999,null,null);
             for (SchoolInstitutionDTO si : listSchoolInstitutionDTO){
                 if (si.getId() != schoolInstitutionDto.getId())
                     return new Response(1,"名称重复!");
@@ -176,7 +176,7 @@ public class SchoolInstitutionController extends BaseController {
                 (adminUserLoginInfo.getApList().equalsIgnoreCase("GW") && adminUserLoginInfo.getRegionId() == null))
             return new Response<Integer>(1,"No permission !");
         List<SchoolInstitutionDTO> listSchoolInstitutionDTO = schoolInstitutionService.listSchoolInstitutionDTO(schoolInstitutionDto.getName(),
-                null, null,null ,0,9999,null,null);
+                null, null,null,null,0,9999,null,null);
         if (listSchoolInstitutionDTO.size() > 0 )
             return new Response<Integer>(1,"学校名字已经存在");
         if (schoolInstitutionService.getSchoolInstitutionByCode(schoolInstitutionDto.getCode()) != null)
