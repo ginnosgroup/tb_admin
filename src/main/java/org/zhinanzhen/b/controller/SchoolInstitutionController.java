@@ -106,6 +106,7 @@ public class SchoolInstitutionController extends BaseController {
 			@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "type", required = false) String type,
 			@RequestParam(value = "code", required = false) String code,
+			@RequestParam(value = "isCooperative", required = false) Boolean isCooperative,
 			@RequestParam(value = "isFreeze", required = false) Boolean isFreeze,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
 			@RequestParam(value = "orderBy", required = false) String orderBy,
@@ -117,7 +118,7 @@ public class SchoolInstitutionController extends BaseController {
 					ListUtil.buildArrayList(schoolInstitutionService.getSchoolInstitutionById(id)), "ok");
 		int total = schoolInstitutionService.count(name, type, code, isFreeze, keyword);
 		return new ListResponse<List<SchoolInstitutionDTO>>(true, pageSize, total, schoolInstitutionService
-				.listSchoolInstitutionDTO(name, type, code, isFreeze, pageNum, pageSize, orderBy, keyword), "ok");
+				.listSchoolInstitutionDTO(name, type, code, isCooperative, isFreeze, pageNum, pageSize, orderBy, keyword), "ok");
 	}
 
     @RequestMapping(value = "/get",method = RequestMethod.GET)
