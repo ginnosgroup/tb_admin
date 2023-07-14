@@ -10,8 +10,9 @@ import java.util.List;
 public interface SchoolInstitutionDAO {
 
 	List<SchoolInstitutionDO> listSchoolInstitutionDO(@Param("name") String name, @Param("type") String type,
-			@Param("code") String code, @Param("isFreeze") Boolean isFreeze, @Param("offset") int offset,
-			@Param("rows") int rows, @Param("orderBy") String orderBy, @Param("keyword") String keyword);
+			@Param("code") String code, @Param("isCooperative") Boolean isCooperative,
+			@Param("isFreeze") Boolean isFreeze, @Param("offset") int offset, @Param("rows") int rows,
+			@Param("orderBy") String orderBy, @Param("keyword") String keyword);
 
 	SchoolInstitutionDO getSchoolInstitutionById(@Param("id") Integer id);
 

@@ -59,18 +59,20 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
     private SqlSessionFactory sqlSessionFactory;
 
     @Override
-    public List<SchoolInstitutionDTO> listSchoolInstitutionDTO(String name, String type, String code, Boolean isFreeze,
-            int pageNum, int pageSize, String orderBy, String keyword) {
+	public List<SchoolInstitutionDTO> listSchoolInstitutionDTO(String name, String type, String code,
+			Boolean isCooperative, Boolean isFreeze, int pageNum, int pageSize, String orderBy, String keyword) {
         if ( pageNum < 0 )
             pageNum = DEFAULT_PAGE_NUM;
         if ( pageSize < 0 )
             pageSize = DEFAULT_PAGE_SIZE;
-        if (StringUtil.isBlank(orderBy)){
+        if (StringUtil.isBlank(orderBy))
             orderBy = "ORDER BY gmt_create DESC";
-        }else
+        else if (StringUtil.equals(orderBy, "cooperative"))
+            orderBy = "ORDER BY is_cooperative DESC, gmt_create DESC";
+        else
             orderBy = "ORDER BY institution_trading_name ASC, institution_name ASC";
-        List<SchoolInstitutionDO> schoolInstitutionDOS = schoolInstitutionDAO.listSchoolInstitutionDO(name,type, code, isFreeze,
-                pageNum * pageSize, pageSize,orderBy,keyword);
+		List<SchoolInstitutionDO> schoolInstitutionDOS = schoolInstitutionDAO.listSchoolInstitutionDO(name, type, code,
+				isCooperative, isFreeze, pageNum * pageSize, pageSize, orderBy, keyword);
         List<SchoolInstitutionDTO> schoolInstitutionDTOS = new ArrayList<>();
         if (schoolInstitutionDOS == null)
             return null;
