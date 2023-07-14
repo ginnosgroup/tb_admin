@@ -17,8 +17,8 @@ import java.util.List;
  */
 public interface SchoolInstitutionService {
 
-    List<SchoolInstitutionDTO> listSchoolInstitutionDTO(String name, String type, String code, Boolean isFreeze, int pageNum, int pageSize,
-                                                        String orderBy, String keyword);
+	List<SchoolInstitutionDTO> listSchoolInstitutionDTO(String name, String type, String code, Boolean isCooperative,
+			Boolean isFreeze, int pageNum, int pageSize, String orderBy, String keyword);
 
     SchoolInstitutionDTO getSchoolInstitutionById(Integer id);
 

@@ -28,6 +28,9 @@
             <if test=' code != null and code != "" '>
                 and code = #{code}
             </if>
+            <if test="isCooperative != null">
+                AND is_cooperative = #{isCooperative}
+            </if>
             <if test="isFreeze != null">
                 AND is_freeze = #{isFreeze}
             </if>

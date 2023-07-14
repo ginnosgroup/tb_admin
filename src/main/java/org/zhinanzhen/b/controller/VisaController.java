@@ -785,8 +785,8 @@ public class VisaController extends BaseCommissionOrderController {
 			for (int i = 1; i < sheet.getRows(); i++) {
 				Cell[] cells = sheet.getRow(i);
 				String _id = cells[0].getContents();
-				String _bonus = cells[11].getContents();
-				String _bonusDate = cells[12].getContents();
+				String _bonus = cells[15].getContents();
+				String _bonusDate = cells[16].getContents();
 				try {
 					VisaDTO visaDto = visaService.getVisaById(Integer.parseInt(_id));
 					if (visaDto == null) {
