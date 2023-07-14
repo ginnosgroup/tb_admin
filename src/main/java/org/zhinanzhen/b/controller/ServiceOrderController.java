@@ -1324,7 +1324,12 @@ public class ServiceOrderController extends BaseController {
     public Response<Integer> deleteServiceOrder(@RequestParam(value = "id") int id, HttpServletResponse response) {
         try {
             super.setGetHeader(response);
-            return new Response<Integer>(0, serviceOrderService.deleteServiceOrderById(id));
+            List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrderByApplicantParentId(id);
+            if(!ListUtil.isEmpty(serviceOrderList))
+            	return new Response<Integer>(1, "该订单拥有关联的主订单，无法删除！", 0);
+            LOG.info("删除服务订单:" + id);
+//            return new Response<Integer>(0, serviceOrderService.deleteServiceOrderById(id));
+            return new Response<Integer>(1, "删除功能暂不可用！", 0);
         } catch (ServiceException e) {
             return new Response<Integer>(1, e.getMessage(), 0);
         }
