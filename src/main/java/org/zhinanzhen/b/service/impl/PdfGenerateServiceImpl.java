@@ -362,12 +362,29 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
 
             int parentSize = parentsInformationList.size();
             if (parentSize-2>0){
-                for (int i = 0; i < parentSize-2; i++) {
+                for (int i = 2; i < parentSize; i++) {
                     Node paPaDetails = root.getElementsByTagName("PAPaDetails").item(0).cloneNode(true);
+                    //familyname
+                    paPaDetails.getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(parentsInformationList.get(i).getFamilyName());
+                    //given
+                    paPaDetails.getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(5).setTextContent(parentsInformationList.get(i).getGivenName());
+                    //relationship
+                    paPaDetails.getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(5).getChildNodes().item(1).setTextContent(parentsInformationList.get(i).getRelationship());
+                    //birthdate
+                    paPaDetails.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).setTextContent(parentsInformationList.get(i).getDateOfBirth());
+                    //Gender
+                    paPaDetails.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).setTextContent(parentsInformationList.get(i).getGender());
+                    //birthTown
+                    paPaDetails.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).setTextContent(parentsInformationList.get(i).getBirthLocation());
+                    //state
+                    paPaDetails.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(1).setTextContent(parentsInformationList.get(i).getStateOrProvince());
+                    //birthCountry
+                    paPaDetails.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(3).setTextContent(parentsInformationList.get(i).getBirthCountry());
+
                     root.getElementsByTagName("Parents").item(0).getChildNodes().item(3).appendChild(paPaDetails);
                 }
             }
-            for (int i = 0; i < parentSize; i++) {
+            for (int i = 0; i < 2; i++) {
                 //familyname
                 root.getElementsByTagName("PAPaDetails").item(i).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(parentsInformationList.get(i).getFamilyName());
                 //given
@@ -385,7 +402,9 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
                 //birthCountry
                 root.getElementsByTagName("PAPaDetails").item(i).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(3).setTextContent(parentsInformationList.get(i).getBirthCountry());
 
+
             }
+
 
         }
 
@@ -398,32 +417,44 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
             List<SiblingsInformation> siblingsInformationList = siblings.getSiblingsInformationList();
             int siblingSize = siblingsInformationList.size();
             if (siblingSize-1>0){
-                for (int i = 0; i < siblingSize-1; i++) {
+                for (int i = 1; i < siblingSize; i++) {
                     Node paPaDetails = root.getElementsByTagName("PASibDetails").item(0).cloneNode(true);
+                    //familyname
+                    paPaDetails.getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(siblingsInformationList.get(i).getFamilyName());
+                    //given
+                    paPaDetails.getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(5).setTextContent(siblingsInformationList.get(i).getGivenName());
+                    //relationship
+                    paPaDetails.getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(5).getChildNodes().item(1).setTextContent(siblingsInformationList.get(i).getRelationship());
+                    //birthdate
+                    paPaDetails.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).setTextContent(siblingsInformationList.get(i).getDateOfBirth());
+                    //Gender
+                    paPaDetails.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).setTextContent(siblingsInformationList.get(i).getGender());
+                    //birthTown
+                    paPaDetails.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).setTextContent(siblingsInformationList.get(i).getBirthLocation());
+                    //state
+                    paPaDetails.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(1).setTextContent(siblingsInformationList.get(i).getStateOrProvince());
+                    //birthCountry
+                    paPaDetails.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(3).setTextContent(siblingsInformationList.get(i).getBirthCountry());
+                    //添加
                     root.getElementsByTagName("Sibling").item(0).getChildNodes().item(3).appendChild(paPaDetails);
                 }
             }
-            for (int i = 0; i < siblingSize; i++) {
                 //familyname
-                root.getElementsByTagName("PASibDetails").item(i).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(siblingsInformationList.get(i).getFamilyName());
+                root.getElementsByTagName("PASibDetails").item(0).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(siblingsInformationList.get(0).getFamilyName());
                 //given
-                root.getElementsByTagName("PASibDetails").item(i).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(5).setTextContent(siblingsInformationList.get(i).getGivenName());
+                root.getElementsByTagName("PASibDetails").item(0).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(5).setTextContent(siblingsInformationList.get(0).getGivenName());
                 //relationship
-                root.getElementsByTagName("PASibDetails").item(i).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(5).getChildNodes().item(1).setTextContent(siblingsInformationList.get(i).getRelationship());
+                root.getElementsByTagName("PASibDetails").item(0).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(5).getChildNodes().item(1).setTextContent(siblingsInformationList.get(0).getRelationship());
                 //birthdate
-                root.getElementsByTagName("PASibDetails").item(i).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).setTextContent(siblingsInformationList.get(i).getDateOfBirth());
+                root.getElementsByTagName("PASibDetails").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).setTextContent(siblingsInformationList.get(0).getDateOfBirth());
                 //Gender
-                root.getElementsByTagName("PASibDetails").item(i).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).setTextContent(siblingsInformationList.get(i).getGender());
+                root.getElementsByTagName("PASibDetails").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).setTextContent(siblingsInformationList.get(0).getGender());
                 //birthTown
-                root.getElementsByTagName("PASibDetails").item(i).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).setTextContent(siblingsInformationList.get(i).getBirthLocation());
+                root.getElementsByTagName("PASibDetails").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).setTextContent(siblingsInformationList.get(0).getBirthLocation());
                 //state
-                root.getElementsByTagName("PASibDetails").item(i).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(1).setTextContent(siblingsInformationList.get(i).getStateOrProvince());
+                root.getElementsByTagName("PASibDetails").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(1).setTextContent(siblingsInformationList.get(0).getStateOrProvince());
                 //birthCountry
-                root.getElementsByTagName("PASibDetails").item(i).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(3).setTextContent(siblingsInformationList.get(i).getBirthCountry());
-
-
-            }
-
+                root.getElementsByTagName("PASibDetails").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(3).setTextContent(siblingsInformationList.get(0).getBirthCountry());
 
         }
 
@@ -431,44 +462,90 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
         //Addresses
         //isAll
         if (customerInformationDO.getAddresses().getIsAll() == 1) {
-            root.getElementsByTagName("YesNoQ").item(40).setTextContent("1");
+            root.getElementsByTagName("Addresses").item(0).getChildNodes().item(1).getChildNodes().item(9).getChildNodes().item(1).setTextContent("1");
         } else {
-            root.getElementsByTagName("YesNoQ").item(40).setTextContent("2");
+            root.getElementsByTagName("Addresses").item(0).getChildNodes().item(1).getChildNodes().item(9).getChildNodes().item(1).setTextContent("2");
         }
         //currentAddressList
-        //todo
         List<CurrentAddress> currentAddress = customerInformationDO.getAddresses().getCurrentAddressList();
         List<CurrentAddress> currentAddressList = objectMapper.convertValue(currentAddress, new TypeReference<List<CurrentAddress>>() {
         });
         int addressSize = currentAddressList.size();
-        for (int i = 0; i < addressSize; i++) {
-            //country
-            root.getElementsByTagName("AddressInformation").item(0).getChildNodes().item(1).getChildNodes().item(1).setTextContent(currentAddressList.get(i).getCountry());
-            //addresses
-            root.getElementsByTagName("AddressInformation").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).setTextContent(currentAddressList.get(i).getAddresses());
-            //streetLine2
-            root.getElementsByTagName("AddressInformation").item(0).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(1).setTextContent(currentAddressList.get(i).getStreetLine2());
-            //suburb
-            root.getElementsByTagName("AddressInformation").item(0).getChildNodes().item(3).getChildNodes().item(7).getChildNodes().item(3).getChildNodes().item(1).setTextContent(currentAddressList.get(i).getSuburb());
-            //state
-            root.getElementsByTagName("AddressInformation").item(0).getChildNodes().item(3).getChildNodes().item(7).getChildNodes().item(5).getChildNodes().item(1).setTextContent(currentAddressList.get(i).getState());
-            //postCode
-            root.getElementsByTagName("AddressInformation").item(0).getChildNodes().item(3).getChildNodes().item(7).getChildNodes().item(7).getChildNodes().item(1).setTextContent(currentAddressList.get(i).getPostCode());
-            //applicantList
-            CurrentAddress address = currentAddressList.get(i);
-            int applicantListSize = address.getApplicantList().size();
-            for (int a = 0; a < applicantListSize; a++) {
+        if (addressSize>1){
+            //复制节点
+            for (int i = 1; i < addressSize; i++) {
+                Node newResAddr = root.getElementsByTagName("NewResAddr").item(0).cloneNode(true);
+                //country
+                newResAddr.getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(1).setTextContent(currentAddressList.get(i).getCountry());
+                //addresses
+                newResAddr.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).setTextContent(currentAddressList.get(i).getAddresses());
+                //streetLine2
+                newResAddr.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(1).setTextContent(currentAddressList.get(i).getStreetLine2());
+                //suburb
+                newResAddr.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(7).getChildNodes().item(3).getChildNodes().item(1).setTextContent(currentAddressList.get(i).getSuburb());
+                //state
+                newResAddr.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(7).getChildNodes().item(5).getChildNodes().item(1).setTextContent(currentAddressList.get(i).getState());
+                //postCode
+                newResAddr.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(7).getChildNodes().item(7).getChildNodes().item(1).setTextContent(currentAddressList.get(i).getPostCode());
+                //applicantList
+                CurrentAddress address = currentAddressList.get(i);
+                List<Applicant> applicantList = address.getApplicantList();
+                int applicantListSize = applicantList.size();
+                if (applicantListSize>1){
+                    Node row = root.getElementsByTagName("NewResAddr").item(0).getChildNodes().item(5).getChildNodes().item(1).getChildNodes().item(1).cloneNode(true);
+                    row.getChildNodes().item(1).getChildNodes().item(1).setTextContent(applicantList.get(1).getNames());
+                    row.getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(1).setTextContent(applicantList.get(1).getDataFrom());
+                    row.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).setTextContent(applicantList.get(1).getDataTo());
+                    row.getChildNodes().item(5).getChildNodes().item(1).setTextContent(applicantList.get(1).getLegalStatus());
+                    newResAddr.getChildNodes().item(5).getChildNodes().item(1).appendChild(row);
+                }
                 //names
-                root.getElementsByTagName("PersonName").item(2).setTextContent(address.getApplicantList().get(a).getNames());
+                newResAddr.getChildNodes().item(5).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(1).setTextContent(applicantList.get(0).getNames());
                 //dataFrom
-                root.getElementsByTagName("DateFr").item(0).getChildNodes().item(1).setTextContent(address.getApplicantList().get(a).getDataFrom());
+                newResAddr.getChildNodes().item(5).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(1).setTextContent(applicantList.get(0).getDataFrom());
                 //dataTo
-                root.getElementsByTagName("DateTo").item(18).setTextContent(address.getApplicantList().get(a).getDataTo());
+                newResAddr.getChildNodes().item(5).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).setTextContent(applicantList.get(0).getDataTo());
                 //legalStatus
-                root.getElementsByTagName("ResStatus").item(0).setTextContent(address.getApplicantList().get(a).getLegalStatus());
-            }
+                newResAddr.getChildNodes().item(5).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(5).getChildNodes().item(1).setTextContent(applicantList.get(0).getLegalStatus());
 
+                root.getElementsByTagName("Addresses").item(0).appendChild(newResAddr);
+            }
         }
+            //country
+            root.getElementsByTagName("NewResAddr").item(0).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(1).setTextContent(currentAddressList.get(0).getCountry());
+            //addresses
+            root.getElementsByTagName("NewResAddr").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).setTextContent(currentAddressList.get(0).getAddresses());
+            //streetLine2
+            root.getElementsByTagName("NewResAddr").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(1).setTextContent(currentAddressList.get(0).getStreetLine2());
+            //suburb
+            root.getElementsByTagName("NewResAddr").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(7).getChildNodes().item(3).getChildNodes().item(1).setTextContent(currentAddressList.get(0).getSuburb());
+            //state
+            root.getElementsByTagName("NewResAddr").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(7).getChildNodes().item(5).getChildNodes().item(1).setTextContent(currentAddressList.get(0).getState());
+            //postCode
+            root.getElementsByTagName("NewResAddr").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(7).getChildNodes().item(7).getChildNodes().item(1).setTextContent(currentAddressList.get(0).getPostCode());
+            //applicantList
+            CurrentAddress address = currentAddressList.get(0);
+            List<Applicant> applicantList = address.getApplicantList();
+            int applicantListSize = applicantList.size();
+            if (applicantListSize>1){
+                Node row = root.getElementsByTagName("NewResAddr").item(0).getChildNodes().item(5).getChildNodes().item(1).getChildNodes().item(1).cloneNode(true);
+                row.getChildNodes().item(1).getChildNodes().item(1).setTextContent(applicantList.get(1).getNames());
+                row.getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(1).setTextContent(applicantList.get(1).getDataFrom());
+                row.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).setTextContent(applicantList.get(1).getDataTo());
+                row.getChildNodes().item(5).getChildNodes().item(1).setTextContent(applicantList.get(1).getLegalStatus());
+                root.getElementsByTagName("NewResAddr").item(0).getChildNodes().item(5).getChildNodes().item(1).appendChild(row);
+            }
+            //names
+            root.getElementsByTagName("NewResAddr").item(0).getChildNodes().item(5).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(1).setTextContent(applicantList.get(0).getNames());
+            //dataFrom
+            root.getElementsByTagName("NewResAddr").item(0).getChildNodes().item(5).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(1).setTextContent(applicantList.get(0).getDataFrom());
+            //dataTo
+            root.getElementsByTagName("NewResAddr").item(0).getChildNodes().item(5).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).setTextContent(applicantList.get(0).getDataTo());
+            //legalStatus
+            root.getElementsByTagName("NewResAddr").item(0).getChildNodes().item(5).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(5).getChildNodes().item(1).setTextContent(applicantList.get(0).getLegalStatus());
+
+
+
         //isSamePostalAddress
         List<PostalAddress> postalAddress = customerInformationDO.getPostalAddressList();
         List<PostalAddress> postalAddressList = objectMapper.convertValue(postalAddress, new TypeReference<List<PostalAddress>>() {
@@ -625,18 +702,18 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
 
         //listf
         if (healthQuestions.getListf() == null) {
-            root.getElementsByTagName("TB").item(0).getChildNodes().item(1).getChildNodes().item(3).setTextContent("2");
+            root.getElementsByTagName("AllHealth").item(0).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(3).setTextContent("2");
 
         } else {
-            root.getElementsByTagName("TB").item(0).getChildNodes().item(1).getChildNodes().item(3).setTextContent("1");
+            root.getElementsByTagName("AllHealth").item(0).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(3).setTextContent("1");
 
             List<HealthTemplate> listf = healthQuestions.getListf();
             for (int i = 0; i < listf.size(); i++) {
                 //name
-                root.getElementsByTagName("TB").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(listf.get(i).getName());
+                root.getElementsByTagName("AllHealth").item(0).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(listf.get(i).getName());
                 //reason
                 //details
-                root.getElementsByTagName("TB").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(3).setTextContent(listf.get(i).getDetails());
+                root.getElementsByTagName("AllHealth").item(0).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(3).setTextContent(listf.get(i).getDetails());
 
             }
 
@@ -644,82 +721,82 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
 
         //listg
         if (healthQuestions.getListg() == null) {
-            root.getElementsByTagName("TBContact").item(0).getChildNodes().item(1).getChildNodes().item(3).setTextContent("2");
+            root.getElementsByTagName("AllHealth").item(0).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).setTextContent("2");
 
         } else {
-            root.getElementsByTagName("TBContact").item(0).getChildNodes().item(1).getChildNodes().item(3).setTextContent("1");
+            root.getElementsByTagName("AllHealth").item(0).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).setTextContent("1");
             List<HealthTemplate> listg = healthQuestions.getListg();
             for (int i = 0; i < listg.size(); i++) {
                 //name
-                root.getElementsByTagName("TBContact").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(listg.get(i).getName());
+                root.getElementsByTagName("AllHealth").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(listg.get(i).getName());
                 //reason
                 //details
-                root.getElementsByTagName("TBContact").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(3).setTextContent(listg.get(i).getDetails());
+                root.getElementsByTagName("AllHealth").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(3).setTextContent(listg.get(i).getDetails());
             }
         }
 
 
         //listh1
         if (healthQuestions.getListh1() == null) {
-            root.getElementsByTagName("Blood").item(0).getChildNodes().item(3).getChildNodes().item(1).setTextContent("2");
+            root.getElementsByTagName("AllHealth").item(0).getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(1).setTextContent("2");
         } else {
-            root.getElementsByTagName("Blood").item(0).getChildNodes().item(3).getChildNodes().item(1).setTextContent("1");
+            root.getElementsByTagName("AllHealth").item(0).getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(1).setTextContent("1");
             List<HealthTemplate> listh1 = healthQuestions.getListh1();
             for (int i = 0; i < listh1.size(); i++) {
                 //name
-                root.getElementsByTagName("Blood").item(0).getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(listh1.get(i).getName());
+                root.getElementsByTagName("AllHealth").item(0).getChildNodes().item(5).getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(listh1.get(i).getName());
                 //reason
                 //details
-                root.getElementsByTagName("Blood").item(0).getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(3).setTextContent(listh1.get(i).getDetails());
+                root.getElementsByTagName("AllHealth").item(0).getChildNodes().item(5).getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(3).setTextContent(listh1.get(i).getDetails());
             }
         }
 
         //listh2
         if (healthQuestions.getListh2() == null) {
-            root.getElementsByTagName("Cancer").item(0).getChildNodes().item(1).getChildNodes().item(1).setTextContent("2");
+            root.getElementsByTagName("AllHealth").item(0).getChildNodes().item(7).getChildNodes().item(1).getChildNodes().item(1).setTextContent("2");
 
         } else {
-            root.getElementsByTagName("Cancer").item(0).getChildNodes().item(1).getChildNodes().item(1).setTextContent("1");
+            root.getElementsByTagName("AllHealth").item(0).getChildNodes().item(7).getChildNodes().item(1).getChildNodes().item(1).setTextContent("1");
             List<HealthTemplate> listh2 = healthQuestions.getListh2();
             for (int i = 0; i < listh2.size(); i++) {
                 //name
-                root.getElementsByTagName("Cancer").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(listh2.get(i).getName());
+                root.getElementsByTagName("AllHealth").item(0).getChildNodes().item(7).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(listh2.get(i).getName());
                 //reason
                 //details
-                root.getElementsByTagName("Cancer").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(3).setTextContent(listh2.get(i).getDetails());
+                root.getElementsByTagName("AllHealth").item(0).getChildNodes().item(7).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(3).setTextContent(listh2.get(i).getDetails());
             }
         }
 
 
         //listh3
         if (healthQuestions.getListh3() == null) {
-            root.getElementsByTagName("Heart").item(0).getChildNodes().item(1).getChildNodes().item(1).setTextContent("2");
+            root.getElementsByTagName("AllHealth").item(0).getChildNodes().item(9).getChildNodes().item(1).getChildNodes().item(1).setTextContent("2");
 
         } else {
-            root.getElementsByTagName("Heart").item(0).getChildNodes().item(1).getChildNodes().item(1).setTextContent("1");
+            root.getElementsByTagName("AllHealth").item(0).getChildNodes().item(9).getChildNodes().item(1).getChildNodes().item(1).setTextContent("1");
             List<HealthTemplate> listh3 = healthQuestions.getListh3();
             for (int i = 0; i < listh3.size(); i++) {
                 //name
-                root.getElementsByTagName("Heart").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(listh3.get(i).getName());
+                root.getElementsByTagName("AllHealth").item(0).getChildNodes().item(9).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(listh3.get(i).getName());
                 //reason
                 //details
-                root.getElementsByTagName("Heart").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(3).setTextContent(listh3.get(i).getDetails());
+                root.getElementsByTagName("AllHealth").item(0).getChildNodes().item(9).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(3).setTextContent(listh3.get(i).getDetails());
             }
         }
 
         //listh4
         if (healthQuestions.getListh4() == null) {
-            root.getElementsByTagName("Hepatitis").item(0).getChildNodes().item(1).getChildNodes().item(1).setTextContent("2");
+            root.getElementsByTagName("AllHealth").item(0).getChildNodes().item(11).getChildNodes().item(1).getChildNodes().item(1).setTextContent("2");
         } else {
-            root.getElementsByTagName("Hepatitis").item(0).getChildNodes().item(1).getChildNodes().item(1).setTextContent("1");
+            root.getElementsByTagName("AllHealth").item(0).getChildNodes().item(11).getChildNodes().item(1).getChildNodes().item(1).setTextContent("1");
             List<HealthTemplate> listh4 = healthQuestions.getListh4();
             for (int i = 0; i < listh4.size(); i++) {
                 //name
-                root.getElementsByTagName("Hepatitis").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(listh4.get(i).getName());
+                root.getElementsByTagName("AllHealth").item(0).getChildNodes().item(11).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(listh4.get(i).getName());
 
                 //reason
                 //details
-                root.getElementsByTagName("Hepatitis").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(3).setTextContent(listh4.get(i).getDetails());
+                root.getElementsByTagName("AllHealth").item(0).getChildNodes().item(11).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(3).setTextContent(listh4.get(i).getDetails());
 
             }
 
@@ -862,18 +939,18 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
 
         //listh13
         if (healthQuestions.getListh13() == null) {
-            root.getElementsByTagName("Other").item(21).getChildNodes().item(1).getChildNodes().item(1).setTextContent("2");
+            root.getElementsByTagName("AllHealth").item(0).getChildNodes().item(29).getChildNodes().item(1).getChildNodes().item(1).setTextContent("2");
 
 
         } else {
-            root.getElementsByTagName("Other").item(21).getChildNodes().item(1).getChildNodes().item(1).setTextContent("1");
+            root.getElementsByTagName("AllHealth").item(0).getChildNodes().item(29).getChildNodes().item(1).getChildNodes().item(1).setTextContent("1");
             List<HealthTemplate> listh13 = healthQuestions.getListh13();
             for (int i = 0; i < listh13.size(); i++) {
                 //name
-                root.getElementsByTagName("Other").item(21).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(listh13.get(i).getName());
+                root.getElementsByTagName("AllHealth").item(0).getChildNodes().item(29).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(listh13.get(i).getName());
                 //reason
                 //details
-                root.getElementsByTagName("Other").item(21).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(3).setTextContent(listh13.get(i).getDetails());
+                root.getElementsByTagName("AllHealth").item(0).getChildNodes().item(29).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(3).setTextContent(listh13.get(i).getDetails());
             }
         }
 
