@@ -1307,9 +1307,10 @@ public class ServiceOrderController extends BaseController {
             Integer newAdviserId = getAdviserId(request);
             if (newAdviserId != null) {
                 ServiceOrderDTO serviceOrder = serviceOrderService.getServiceOrderById(id);
-                if (ObjectUtil.isNotNull(serviceOrder) && "PENDING".equalsIgnoreCase(serviceOrder.getState()))
-                    return new Response<Integer>(0, serviceOrderService.deleteServiceOrderById(id));
-                else
+                if (ObjectUtil.isNotNull(serviceOrder) && "PENDING".equalsIgnoreCase(serviceOrder.getState())) {
+//                    return new Response<Integer>(0, serviceOrderService.deleteServiceOrderById(id));
+                	return new Response<Integer>(1, "删除功能暂不可用！", 0);
+                } else
                     return new Response<Integer>(1,
                             StringUtil.merge("服务订单", id, "的状态为", serviceOrder.getState(), "，操作失败！"), 0);
             } else
@@ -1324,12 +1325,7 @@ public class ServiceOrderController extends BaseController {
     public Response<Integer> deleteServiceOrder(@RequestParam(value = "id") int id, HttpServletResponse response) {
         try {
             super.setGetHeader(response);
-            List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrderByApplicantParentId(id);
-            if(!ListUtil.isEmpty(serviceOrderList))
-            	return new Response<Integer>(1, "该订单拥有关联的主订单，无法删除！", 0);
-            LOG.info("删除服务订单:" + id);
-//            return new Response<Integer>(0, serviceOrderService.deleteServiceOrderById(id));
-            return new Response<Integer>(1, "删除功能暂不可用！", 0);
+            return new Response<Integer>(0, serviceOrderService.deleteServiceOrderById(id));
         } catch (ServiceException e) {
             return new Response<Integer>(1, e.getMessage(), 0);
         }
