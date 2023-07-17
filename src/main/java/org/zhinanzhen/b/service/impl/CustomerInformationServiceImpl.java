@@ -54,11 +54,6 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
 
     @Override
     public void add(CustomerInformationDO customerInformationDO) throws ServiceException {
-        if(customerInformationDO.getMainInformation().getGivenName().contains(" ")){
-            ServiceException se = new ServiceException("保存失败！客户名字有空格符，请修改后重新保存!");
-            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
-            throw se;
-        }
         if(customerInformationDO.getMainInformation().getFamilyName().contains(" ")){
             ServiceException se = new ServiceException("保存失败！客户姓有空格符，请修改后重新保存!");
             se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -130,23 +125,30 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             throw se;
         }
         try {
+            String rgivenName = givenName.replace(" ", "");
             LocalDate date = LocalDate.now(); // get the current date
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
             String formatdate = date.format(formatter);
-            String dir = "/uploads/customerInformation/"+familyName +"_"+ givenName + "/";
+            String dir = "/uploads/customerInformation/"+familyName +"_"+ rgivenName + "/";
             String fileName = file.getOriginalFilename().replace(" ", "_").replace("%20", "_");// 文件原名称
             LOG.info("上传的文件原名称:" + fileName);
             // 判断文件类型
             String type = fileName.indexOf(".") != -1
                     ? fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length())
                     : null;
-            String realPath = StringUtil.merge("/data", dir);
+            String realPath = StringUtil.merge("C:/Users/yjt/Desktop/data", dir);
             // 创建目录
             File folder = new File(realPath);
             if (!folder.isDirectory())
                 folder.mkdirs();
             // 自定义的文件名称
-			String newFileName =name + "_" + familyName + givenName.charAt(0) + "_" + formatdate ;
+            String[] split = givenName.split(" ");
+            StringBuffer mgivenName = new StringBuffer();
+            for (int i = 0; i < split.length; i++) {
+                char charAt = split[i].charAt(0);
+                mgivenName.append(charAt);
+            }
+            String newFileName =name + "_" + familyName + mgivenName + "_" + formatdate ;
             // 设置存放文件的路径
             String path = StringUtil.merge(realPath, newFileName,".", type);
             LOG.info("存放文件的路径:" + path);
@@ -291,11 +293,6 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
     }
     private void webdav(int id) throws IOException, ServiceException {
         CustomerInformationDO customerInformationDO = customerInformationDAO.getByServiceOrderId(id);
-        if(customerInformationDO.getMainInformation().getGivenName().contains(" ")){
-            ServiceException se = new ServiceException("上传失败！客户名字有空格符，请修改后重新上传!");
-            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
-            throw se;
-        }
         if(customerInformationDO.getMainInformation().getFamilyName().contains(" ")){
             ServiceException se = new ServiceException("上传失败！客户姓有空格符，请修改后重新上传!");
             se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -303,10 +300,11 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
         }try {
             String givenName = customerInformationDO.getMainInformation().getGivenName();
             String familyName = customerInformationDO.getMainInformation().getFamilyName();
+            String rgivenName = givenName.replace(" ", "");
             LocalDate date = LocalDate.now(); // get the current date
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
             String formatdate = date.format(formatter);
-            String netDiskPath = "https://dav.jianguoyun.com/dav/MMfiledata/" + familyName  + givenName + "_" + formatdate ;
+            String netDiskPath = "https://dav.jianguoyun.com/dav/MMfiledata/" + familyName  + rgivenName + "_" + formatdate ;
             String filePath = "/data/uploads/customerInformation/" + familyName +"_"+ givenName  ;
             List<String> path = getFilePath(filePath);
             for (String s : path) {
