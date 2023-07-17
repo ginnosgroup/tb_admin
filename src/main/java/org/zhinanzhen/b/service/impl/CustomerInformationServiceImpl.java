@@ -127,7 +127,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
         try {
             String rgivenName = givenName.replace(" ", "");
             LocalDate date = LocalDate.now(); // get the current date
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
             String formatdate = date.format(formatter);
             String dir = "/uploads/customerInformation/"+familyName +"_"+ rgivenName + "/";
             String fileName = file.getOriginalFilename().replace(" ", "_").replace("%20", "_");// 文件原名称
