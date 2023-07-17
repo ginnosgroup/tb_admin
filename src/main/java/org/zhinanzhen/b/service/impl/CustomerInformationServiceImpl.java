@@ -136,7 +136,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             String type = fileName.indexOf(".") != -1
                     ? fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length())
                     : null;
-            String realPath = StringUtil.merge("C:/Users/yjt/Desktop/data", dir);
+            String realPath = StringUtil.merge("/data", dir);
             // 创建目录
             File folder = new File(realPath);
             if (!folder.isDirectory())
