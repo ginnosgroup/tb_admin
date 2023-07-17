@@ -1307,9 +1307,10 @@ public class ServiceOrderController extends BaseController {
             Integer newAdviserId = getAdviserId(request);
             if (newAdviserId != null) {
                 ServiceOrderDTO serviceOrder = serviceOrderService.getServiceOrderById(id);
-                if (ObjectUtil.isNotNull(serviceOrder) && "PENDING".equalsIgnoreCase(serviceOrder.getState()))
-                    return new Response<Integer>(0, serviceOrderService.deleteServiceOrderById(id));
-                else
+                if (ObjectUtil.isNotNull(serviceOrder) && "PENDING".equalsIgnoreCase(serviceOrder.getState())) {
+//                    return new Response<Integer>(0, serviceOrderService.deleteServiceOrderById(id));
+                	return new Response<Integer>(1, "删除功能暂不可用！", 0);
+                } else
                     return new Response<Integer>(1,
                             StringUtil.merge("服务订单", id, "的状态为", serviceOrder.getState(), "，操作失败！"), 0);
             } else
