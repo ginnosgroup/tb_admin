@@ -127,7 +127,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
         try {
             String rgivenName = givenName.replace(" ", "");
             LocalDate date = LocalDate.now(); // get the current date
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
             String formatdate = date.format(formatter);
             String dir = "/uploads/customerInformation/"+familyName +"_"+ rgivenName + "/";
             String fileName = file.getOriginalFilename().replace(" ", "_").replace("%20", "_");// 文件原名称
@@ -300,10 +300,16 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             String givenName = customerInformationDO.getMainInformation().getGivenName();
             String familyName = customerInformationDO.getMainInformation().getFamilyName();
             String rgivenName = givenName.replace(" ", "");
+            String[] split = givenName.split(" ");
+            StringBuffer mgivenName = new StringBuffer();
+            for (int i = 0; i < split.length; i++) {
+                char charAt = split[i].charAt(0);
+                mgivenName.append(charAt);
+            }
             LocalDate date = LocalDate.now(); // get the current date
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
             String formatdate = date.format(formatter);
-            String netDiskPath = "https://dav.jianguoyun.com/dav/MMtest/" + familyName  + rgivenName + "_" + formatdate ;
+            String netDiskPath = "https://dav.jianguoyun.com/dav/MMtest/" + familyName  + mgivenName + "_" + formatdate ;
             String filePath = "/data/uploads/customerInformation/" + familyName +"_"+ rgivenName  ;
             List<String> path = getFilePath(filePath);
             for (String s : path) {
