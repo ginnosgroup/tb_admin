@@ -116,7 +116,7 @@ public class SchoolInstitutionController extends BaseController {
 		if (id != null && id > 0)
 			return new ListResponse(true, pageSize, 1,
 					ListUtil.buildArrayList(schoolInstitutionService.getSchoolInstitutionById(id)), "ok");
-		int total = schoolInstitutionService.count(name, type, code, isFreeze, keyword);
+		int total = schoolInstitutionService.count(name, type, code, isCooperative, isFreeze, keyword);
 		return new ListResponse<List<SchoolInstitutionDTO>>(true, pageSize, total, schoolInstitutionService
 				.listSchoolInstitutionDTO(name, type, code, isCooperative, isFreeze, pageNum, pageSize, orderBy, keyword), "ok");
 	}

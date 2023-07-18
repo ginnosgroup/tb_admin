@@ -6,7 +6,6 @@ import org.zhinanzhen.b.service.pojo.SchoolInstitutionDTO;
 import org.zhinanzhen.b.service.pojo.SchoolSettingNewDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -24,9 +23,9 @@ public interface SchoolInstitutionService {
 
     List<String> getTradingNamesById(Integer id);
 
-    SchoolInstitutionDTO getSchoolInstitutionByCode(String code);
+	SchoolInstitutionDTO getSchoolInstitutionByCode(String code);
 
-    int count(String name, String type, String code, Boolean isFreeze, String keyword);
+	int count(String name, String type, String code, Boolean isCooperative, Boolean isFreeze, String keyword);
 
     boolean update(SchoolInstitutionDTO schoolInstitutionDto) throws ServiceException;
 
