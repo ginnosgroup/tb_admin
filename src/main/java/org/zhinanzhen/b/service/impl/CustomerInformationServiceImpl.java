@@ -61,7 +61,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
         }
         try {
             customerInformationDAO.insert(customerInformationDO);
-            webdav(customerInformationDO.getServiceOrderId());
+            webdav(customerInformationDO);
             sendRemind(customerInformationDO.getServiceOrderId());
         } catch (Exception e) {
             e.printStackTrace();
@@ -291,8 +291,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
         }
         return s;
     }
-    private void webdav(int id) throws IOException, ServiceException {
-        CustomerInformationDO customerInformationDO = customerInformationDAO.getByServiceOrderId(id);
+    private void webdav(CustomerInformationDO customerInformationDO) throws IOException, ServiceException {
         if(customerInformationDO.getMainInformation().getFamilyName().contains(" ")){
             ServiceException se = new ServiceException("上传失败！客户姓有空格符，请修改后重新上传!");
             se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -304,8 +303,8 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             LocalDate date = LocalDate.now(); // get the current date
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
             String formatdate = date.format(formatter);
-            String netDiskPath = "https://dav.jianguoyun.com/dav/MMfiledata/" + familyName  + rgivenName + "_" + formatdate ;
-            String filePath = "/data/uploads/customerInformation/" + familyName +"_"+ givenName  ;
+            String netDiskPath = "https://dav.jianguoyun.com/dav/MMtest/" + familyName  + rgivenName + "_" + formatdate ;
+            String filePath = "/data/uploads/customerInformation/" + familyName +"_"+ rgivenName  ;
             List<String> path = getFilePath(filePath);
             for (String s : path) {
                 WebDavUtils.upload(netDiskPath+"/"+s.substring(s.lastIndexOf("\\")+1), s);
