@@ -125,11 +125,12 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             throw se;
         }
         try {
+            String rFamilyName = familyName.replace(" ", "");
             String rgivenName = givenName.replace(" ", "");
             LocalDate date = LocalDate.now(); // get the current date
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
             String formatdate = date.format(formatter);
-            String dir = "/uploads/customerInformation/"+familyName +"_"+ rgivenName + "/";
+            String dir = "/uploads/customerInformation/"+rFamilyName +"_"+ rgivenName + "/";
             String fileName = file.getOriginalFilename().replace(" ", "_").replace("%20", "_");// 文件原名称
             LOG.info("上传的文件原名称:" + fileName);
             // 判断文件类型
@@ -148,7 +149,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
                 char charAt = split[i].charAt(0);
                 mgivenName.append(charAt);
             }
-            String newFileName =name + "_" + familyName + mgivenName + "_" + formatdate ;
+            String newFileName =name + "_" + rFamilyName + mgivenName + "_" + formatdate ;
             // 设置存放文件的路径
             String path = StringUtil.merge(realPath, newFileName,".", type);
             LOG.info("存放文件的路径:" + path);
