@@ -37,7 +37,9 @@ public class WebDavUtils {
         mkdir(packagePath);
 
         // 执行文件上传操作
+        sardine = SardineFactory.begin(username, password);
         sardine.put(getPath(netDiskPath), new File(filePath),"application/x-www-form-urlencoded");
+
     }
 
     /**
