@@ -326,6 +326,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
         }catch (Exception e) {
             ServiceException se = new ServiceException(e);
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+            se.setStackTrace(e.getStackTrace());
             throw se;
         }
 
