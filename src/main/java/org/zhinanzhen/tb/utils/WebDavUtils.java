@@ -16,7 +16,7 @@ public class WebDavUtils {
 //   public static String username = "23508311977@qq.com";
 //    public static String password = "a382y2bychm9by5y";
     public static String username = "jiaheng.xu@zhinanzhen.org";
-    public static String password = "ahv27r25qvyryfxb";
+    public static String password = "anxjg8crwx8u7kpk";
     public static String serviceAddress = "https://dav.jianguoyun.com/dav";
 
     public static Sardine sardine;
