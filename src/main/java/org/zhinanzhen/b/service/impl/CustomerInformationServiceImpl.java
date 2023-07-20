@@ -315,7 +315,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
 
             List<String> path = getFilePath(filePath);
             if (path.size()==0){
-                ServiceException se = new ServiceException("文件未上传成功，请重新上传");
+                ServiceException se = new ServiceException("文件未上传成功，请重新上传"+filePath);
                 se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
                 throw se;
             }
