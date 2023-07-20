@@ -130,7 +130,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             LocalDate date = LocalDate.now(); // get the current date
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
             String formatdate = date.format(formatter);
-            String dir = "/uploads/customerInformation/"+rFamilyName +"_"+ rgivenName + "/";
+            String dir = "/uploads/customerInformation/"+rFamilyName.toUpperCase() +"_"+ rgivenName.toUpperCase() + "/";
             String fileName = file.getOriginalFilename().replace(" ", "_").replace("%20", "_");// 文件原名称
             LOG.info("上传的文件原名称:" + fileName);
             // 判断文件类型
