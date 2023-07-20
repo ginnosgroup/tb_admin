@@ -48,6 +48,7 @@ public class WebDavUtils {
 
         // 执行文件上传操作
         sardine = SardineFactory.begin(username, password);
+        sardine.enablePreemptiveAuthentication("zhinanzhen");
         sardine.put(netDiskPath, new File(filePath),"multipart/form-data");
 
     }
