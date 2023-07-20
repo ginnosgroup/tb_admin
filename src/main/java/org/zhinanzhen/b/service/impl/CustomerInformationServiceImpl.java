@@ -60,8 +60,8 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             throw se;
         }
         try {
-            customerInformationDAO.insert(customerInformationDO);
             webdav(customerInformationDO);
+            customerInformationDAO.insert(customerInformationDO);
             sendRemind(customerInformationDO.getServiceOrderId());
         } catch (Exception e) {
             e.printStackTrace();
@@ -312,7 +312,14 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             String formatdate = date.format(formatter);
             String netDiskPath = "https://dav.jianguoyun.com/dav/MMtest/" + familyName  + mgivenName + "_" + formatdate ;
             String filePath = "/data/uploads/customerInformation/" + familyName +"_"+ rgivenName  ;
+
             List<String> path = getFilePath(filePath);
+            if (path.size()==0){
+                ServiceException se = new ServiceException("文件未上传成功，请重新上传");
+                se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+                throw se;
+            }
+
             for (String s : path) {
                 WebDavUtils.upload(netDiskPath+"/"+s.substring(s.lastIndexOf("\\")+1), s);
             }
