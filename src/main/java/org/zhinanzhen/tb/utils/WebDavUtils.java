@@ -41,6 +41,16 @@ public class WebDavUtils {
         sardine.put(getPath(netDiskPath), new File(filePath),"application/x-www-form-urlencoded");
 
     }
+    public static void upload2(String netDiskPath, String filePath) throws IOException {
+        //判断是否存在目录 不存在则创建
+        String packagePath = netDiskPath.substring(0,getPath(netDiskPath).lastIndexOf("/"));
+        mkdir(packagePath);
+
+        // 执行文件上传操作
+        sardine = SardineFactory.begin(username, password);
+        sardine.put(netDiskPath, new File(filePath),"multipart/form-data");
+
+    }
 
     /**
      * 下载

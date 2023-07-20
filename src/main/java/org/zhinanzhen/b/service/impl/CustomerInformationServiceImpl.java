@@ -321,7 +321,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             }
 
             for (String s : path) {
-                WebDavUtils.upload(netDiskPath+"/"+s.substring(s.lastIndexOf("\\")+1), s);
+                WebDavUtils.upload2(netDiskPath+"/"+s.substring(s.lastIndexOf("\\")+1), s);
             }
         }catch (Exception e) {
             ServiceException se = new ServiceException(e);
