@@ -310,7 +310,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             LocalDate date = LocalDate.now(); // get the current date
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
             String formatdate = date.format(formatter);
-            String netDiskPath = "https://dav.jianguoyun.com/dav/MMtest/" + familyName  + mgivenName + "_" + formatdate ;
+            String netDiskPath = "https://dav.jianguoyun.com/dav/MMtest/" + familyName  + mgivenName + "_" + formatdate+"/" ;
             String filePath = "/data/uploads/customerInformation/" + familyName +"_"+ rgivenName  ;
 
             List<String> path = getFilePath(filePath);
@@ -319,10 +319,8 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
                 se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
                 throw se;
             }
-
-            for (String s : path) {
-                WebDavUtils.upload2(netDiskPath+"/"+s.substring(s.lastIndexOf("\\")+1), s);
-            }
+            //文件上传
+            WebDavUtils.upload2(netDiskPath, path);
         }catch (Exception e) {
             ServiceException se = new ServiceException(e);
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());

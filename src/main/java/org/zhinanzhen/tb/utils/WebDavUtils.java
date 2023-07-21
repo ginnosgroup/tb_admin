@@ -37,19 +37,19 @@ public class WebDavUtils {
         mkdir(packagePath);
 
         // 执行文件上传操作
-        sardine = SardineFactory.begin(username, password);
         sardine.put(getPath(netDiskPath), new File(filePath),"application/x-www-form-urlencoded");
 
     }
-    public static void upload2(String netDiskPath, String filePath) throws IOException {
+    public static void upload2(String netDiskPath,List<String> pathList) throws IOException {
         //判断是否存在目录 不存在则创建
         String packagePath = netDiskPath.substring(0,getPath(netDiskPath).lastIndexOf("/"));
         mkdir(packagePath);
 
         // 执行文件上传操作
-        sardine = SardineFactory.begin(username, password);
-        sardine.enablePreemptiveAuthentication("zhinanzhen");
-        sardine.put(netDiskPath, new File(filePath),"multipart/form-data");
+        for (String s : pathList) {
+            File file = new File(s);
+            sardine.put(netDiskPath + s.substring(s.lastIndexOf("\\")+1),file,"application/x-www-form-urlencoded");
+        }
 
     }
 
