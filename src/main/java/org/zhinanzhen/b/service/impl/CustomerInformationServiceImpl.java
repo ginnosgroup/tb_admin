@@ -3,6 +3,7 @@ package org.zhinanzhen.b.service.impl;
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.dao.*;
@@ -10,7 +11,7 @@ import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.ServiceDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderApplicantDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
-import org.zhinanzhen.b.dao.pojo.customer.CustomerInformationDO;
+import org.zhinanzhen.b.dao.pojo.customer.*;
 import org.zhinanzhen.b.service.CustomerInformationService;
 import org.zhinanzhen.b.service.pojo.ApplicantDTO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
@@ -22,6 +23,7 @@ import org.zhinanzhen.tb.utils.WebDavUtils;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -310,18 +312,29 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             LocalDate date = LocalDate.now(); // get the current date
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
             String formatdate = date.format(formatter);
-            //String netDiskPath = "https://dav.jianguoyun.com/dav/MMtest/" + familyName  + mgivenName + "_" + formatdate+"/" ;
+            String netDiskPath = "https://dav.jianguoyun.com/dav/MMtest/" + familyName  + mgivenName + "_" + formatdate+"/" ;
             //String filePath = "C:/Users/yjt/Desktop/data/uploads/customerInformation/" + familyName +"_"+ rgivenName  ;
-            String testnetDiskPath="https://dav.jianguoyun.com/dav/MMtest/MAK_21072023/afp01_MAK_21072023.jpg";
-            String testfilePath="/data/uploads/customerInformation/MA_KE/afp01_MAK_21072023.jpg";
+//            String testnetDiskPath="https://dav.jianguoyun.com/dav/MMtest/MAK_21072023/afp01_MAK_21072023.jpg";
+//            String testfilePath="/data/uploads/customerInformation/MA_KE/afp01_MAK_21072023.jpg";
 //            List<String> path = getFilePath(filePath);
 //            if (path.size()==0){
 //                ServiceException se = new ServiceException("文件未上传成功，请重新上传"+filePath);
 //                se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 //                throw se;
 //            }
+            List<Object> objectList = new ArrayList<>();
+            objectList.add(customerInformationDO.getUrl().getBirth());
+            objectList.add(customerInformationDO.getUrl().getTpassport());
+            objectList.add(customerInformationDO.getUrl().getOther());
+            objectList.add(customerInformationDO.getUrl().getPassport());
+            objectList.add(customerInformationDO.getUrl().getPhotoId());
+            List<String> list = checkObjAllFieldsIsNull(objectList);
+
+            WebDavUtils.upload2(netDiskPath,list);
+
+
             //文件上传
-            WebDavUtils.upload(testnetDiskPath,testfilePath);
+
             //WebDavUtils.upload2(netDiskPath, path);
         }catch (Exception e) {
             ServiceException se = new ServiceException(e);
@@ -356,4 +369,35 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
         }
         return filePathList;
     }
+
+    public List<String> checkObjAllFieldsIsNull(List<Object> objects) {
+        List<String > list = new ArrayList<>();
+        String dir ="C:/Users/yjt/Desktop/data";
+        for (Object object : objects) {
+            if (null == object) {
+                return null;
+            }
+            try {
+                // 挨个获取对象属性值
+
+                for (Field f : object.getClass().getDeclaredFields()) {
+                    f.setAccessible(true);
+                    // 如果有一个属性值不为null，且值不是空字符串，就返回false
+                    if (f.get(object) != null && StringUtils.isNotBlank(f.get(object).toString())) {
+                        String s = StringUtil.merge(dir, f.get(object).toString());
+                        list.add(s);
+                    }
+                }
+        } catch (Exception e) {
+                e.printStackTrace();
+            }
+            // 如果对象为null直接返回true
+
+        }
+        return list;
+    }
+
+
+
+
 }
