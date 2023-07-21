@@ -372,7 +372,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
 
     public List<String> checkObjAllFieldsIsNull(List<Object> objects) {
         List<String > list = new ArrayList<>();
-        String dir ="C:/Users/yjt/Desktop/data";
+        String dir ="/data";
         for (Object object : objects) {
             if (null == object) {
                 return null;
