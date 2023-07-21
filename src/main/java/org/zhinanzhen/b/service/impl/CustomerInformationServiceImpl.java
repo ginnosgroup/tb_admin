@@ -310,17 +310,19 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             LocalDate date = LocalDate.now(); // get the current date
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
             String formatdate = date.format(formatter);
-            String netDiskPath = "https://dav.jianguoyun.com/dav/MMtest/" + familyName  + mgivenName + "_" + formatdate+"/" ;
-            String filePath = "/data/uploads/customerInformation/" + familyName +"_"+ rgivenName  ;
-
-            List<String> path = getFilePath(filePath);
-            if (path.size()==0){
-                ServiceException se = new ServiceException("文件未上传成功，请重新上传"+filePath);
-                se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
-                throw se;
-            }
+            //String netDiskPath = "https://dav.jianguoyun.com/dav/MMtest/" + familyName  + mgivenName + "_" + formatdate+"/" ;
+            //String filePath = "C:/Users/yjt/Desktop/data/uploads/customerInformation/" + familyName +"_"+ rgivenName  ;
+            String testnetDiskPath="https://dav.jianguoyun.com/dav/MMtest/MAK_21072023/afp01_MAK_21072023.jpg";
+            String testfilePath="/data/uploads/customerInformation/MA_KE/afp01_MAK_21072023.jpg";
+//            List<String> path = getFilePath(filePath);
+//            if (path.size()==0){
+//                ServiceException se = new ServiceException("文件未上传成功，请重新上传"+filePath);
+//                se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+//                throw se;
+//            }
             //文件上传
-            WebDavUtils.upload2(netDiskPath, path);
+            WebDavUtils.upload(testnetDiskPath,testfilePath);
+            //WebDavUtils.upload2(netDiskPath, path);
         }catch (Exception e) {
             ServiceException se = new ServiceException(e);
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
