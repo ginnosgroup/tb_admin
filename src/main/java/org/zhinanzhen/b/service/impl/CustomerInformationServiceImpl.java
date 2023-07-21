@@ -60,8 +60,8 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             throw se;
         }
         try {
+            webdav(customerInformationDO);
             customerInformationDAO.insert(customerInformationDO);
-            webdav(customerInformationDO.getServiceOrderId());
             sendRemind(customerInformationDO.getServiceOrderId());
         } catch (Exception e) {
             e.printStackTrace();
@@ -125,11 +125,12 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             throw se;
         }
         try {
+            String rFamilyName = familyName.replace(" ", "");
             String rgivenName = givenName.replace(" ", "");
             LocalDate date = LocalDate.now(); // get the current date
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
             String formatdate = date.format(formatter);
-            String dir = "/uploads/customerInformation/"+familyName +"_"+ rgivenName + "/";
+            String dir = "/uploads/customerInformation/"+rFamilyName.toUpperCase() +"_"+ rgivenName.toUpperCase() + "/";
             String fileName = file.getOriginalFilename().replace(" ", "_").replace("%20", "_");// 文件原名称
             LOG.info("上传的文件原名称:" + fileName);
             // 判断文件类型
@@ -148,7 +149,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
                 char charAt = split[i].charAt(0);
                 mgivenName.append(charAt);
             }
-            String newFileName =name + "_" + familyName + mgivenName + "_" + formatdate ;
+            String newFileName =name + "_" + rFamilyName + mgivenName + "_" + formatdate ;
             // 设置存放文件的路径
             String path = StringUtil.merge(realPath, newFileName,".", type);
             LOG.info("存放文件的路径:" + path);
@@ -291,8 +292,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
         }
         return s;
     }
-    private void webdav(int id) throws IOException, ServiceException {
-        CustomerInformationDO customerInformationDO = customerInformationDAO.getByServiceOrderId(id);
+    private void webdav(CustomerInformationDO customerInformationDO) throws IOException, ServiceException {
         if(customerInformationDO.getMainInformation().getFamilyName().contains(" ")){
             ServiceException se = new ServiceException("上传失败！客户姓有空格符，请修改后重新上传!");
             se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -301,18 +301,32 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             String givenName = customerInformationDO.getMainInformation().getGivenName();
             String familyName = customerInformationDO.getMainInformation().getFamilyName();
             String rgivenName = givenName.replace(" ", "");
+            String[] split = givenName.split(" ");
+            StringBuffer mgivenName = new StringBuffer();
+            for (int i = 0; i < split.length; i++) {
+                char charAt = split[i].charAt(0);
+                mgivenName.append(charAt);
+            }
             LocalDate date = LocalDate.now(); // get the current date
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
             String formatdate = date.format(formatter);
-            String netDiskPath = "https://dav.jianguoyun.com/dav/MMfiledata/" + familyName  + rgivenName + "_" + formatdate ;
-            String filePath = "/data/uploads/customerInformation/" + familyName +"_"+ givenName  ;
-            List<String> path = getFilePath(filePath);
-            for (String s : path) {
-                WebDavUtils.upload(netDiskPath+"/"+s.substring(s.lastIndexOf("\\")+1), s);
-            }
+            //String netDiskPath = "https://dav.jianguoyun.com/dav/MMtest/" + familyName  + mgivenName + "_" + formatdate+"/" ;
+            //String filePath = "C:/Users/yjt/Desktop/data/uploads/customerInformation/" + familyName +"_"+ rgivenName  ;
+            String testnetDiskPath="https://dav.jianguoyun.com/dav/MMtest/MAK_21072023/afp01_MAK_21072023.jpg";
+            String testfilePath="/data/uploads/customerInformation/MA_KE/afp01_MAK_21072023.jpg";
+//            List<String> path = getFilePath(filePath);
+//            if (path.size()==0){
+//                ServiceException se = new ServiceException("文件未上传成功，请重新上传"+filePath);
+//                se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+//                throw se;
+//            }
+            //文件上传
+            WebDavUtils.upload(testnetDiskPath,testfilePath);
+            //WebDavUtils.upload2(netDiskPath, path);
         }catch (Exception e) {
             ServiceException se = new ServiceException(e);
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+            se.setStackTrace(e.getStackTrace());
             throw se;
         }
 

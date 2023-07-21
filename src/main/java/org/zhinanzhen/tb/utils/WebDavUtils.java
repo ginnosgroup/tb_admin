@@ -16,7 +16,7 @@ public class WebDavUtils {
 //   public static String username = "23508311977@qq.com";
 //    public static String password = "a382y2bychm9by5y";
     public static String username = "jiaheng.xu@zhinanzhen.org";
-    public static String password = "ahv27r25qvyryfxb";
+    public static String password = "anxjg8crwx8u7kpk";
     public static String serviceAddress = "https://dav.jianguoyun.com/dav";
 
     public static Sardine sardine;
@@ -38,6 +38,19 @@ public class WebDavUtils {
 
         // 执行文件上传操作
         sardine.put(getPath(netDiskPath), new File(filePath),"application/x-www-form-urlencoded");
+
+    }
+    public static void upload2(String netDiskPath,List<String> pathList) throws IOException {
+        //判断是否存在目录 不存在则创建
+        String packagePath = netDiskPath.substring(0,getPath(netDiskPath).lastIndexOf("/"));
+        mkdir(packagePath);
+
+        // 执行文件上传操作
+        for (String s : pathList) {
+            File file = new File(s);
+            sardine.put(netDiskPath + s.substring(s.lastIndexOf("\\")+1),file,"application/x-www-form-urlencoded");
+        }
+
     }
 
     /**
