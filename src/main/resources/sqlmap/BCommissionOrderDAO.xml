@@ -957,7 +957,7 @@
         r.name AS area,
         a.id AS adviserId,
         a.name AS consultant,
-        SUM(IF(co.is_settle = true, CASE IFNULL(IF(co.currency='CNY',co.sure_expect_amount/co.exchange_rate,co.sure_expect_amount), 0) WHEN 0 THEN IFNULL(co.expect_amount, 0) END,
+        SUM(IF(co.is_settle = true, CASE IFNULL(IF(co.currency='CNY',co.sure_expect_amount/co.exchange_rate,co.sure_expect_amount), 0) WHEN 0 THEN IFNULL(IF(co.currency='CNY',co.expect_amount/co.expect_amount,co.expect_amount), 0) END,
         0)) AS deductionCommission,
         SUM(IF(co.is_settle = false, IF(co.currency='CNY',co.expect_amount/co.expect_amount,co.expect_amount), 0)) AS claimCommission,
         SUM(IF(co.commission_state = 'YZY', IF(co.currency='CNY',co.expect_amount/co.exchange_rate,co.expect_amount), 0)) AS claimedCommission,
