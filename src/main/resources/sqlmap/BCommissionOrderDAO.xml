@@ -966,7 +966,7 @@
         FROM b_commission_order co, tb_adviser a, tb_region r
         WHERE a.region_id = r.id AND co.adviser_id = a.id AND co.state IN ('REVIEW', 'FINISH', 'COMPLETE', 'CLOSE')
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
-            <![CDATA[ AND co.kj_approval_date > #{startDate} AND co.kj_approval_date < #{endDate} ]]>
+            <![CDATA[ AND co.kj_approval_date > #{startDate} AND co.kj_approval_date <= #{endDate} ]]>
         </if>
         <if test='regionId != null and regionId != ""'>
             AND r.id = #{regionId}
