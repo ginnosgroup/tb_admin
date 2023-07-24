@@ -329,9 +329,11 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
 //            }
             List<Object> objectList = new ArrayList<>();
             objectList.add(customerInformationDO.getUrl().getBirth());
-            objectList.add(customerInformationDO.getUrl().getTpassport());
             objectList.add(customerInformationDO.getUrl().getPassport());
             objectList.add(customerInformationDO.getUrl().getPhotoId());
+            if(ObjectUtil.isNotNull(customerInformationDO.getUrl().getTpassport())){
+                objectList.add(customerInformationDO.getUrl().getTpassport());
+            }
             if(ObjectUtil.isNotNull(customerInformationDO.getUrl().getOther())){
                 objectList.add(customerInformationDO.getUrl().getOther());
             }
