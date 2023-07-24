@@ -48,7 +48,7 @@ public class WebDavUtils {
         // 执行文件上传操作
         for (String s : pathList) {
             File file = new File(s);
-            sardine.put(netDiskPath + s.substring(s.lastIndexOf("\\")+1),file,"application/x-www-form-urlencoded");
+            sardine.put(getPath(netDiskPath + s.substring(s.lastIndexOf("/")+1)),file,"application/x-www-form-urlencoded");
         }
 
     }
