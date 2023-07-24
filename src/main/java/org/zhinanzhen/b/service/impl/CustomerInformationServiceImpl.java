@@ -139,7 +139,12 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             String type = fileName.indexOf(".") != -1
                     ? fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length())
                     : null;
-            String realPath = StringUtil.merge("/data", dir);
+            String Path =File.separator+"data";
+            if (System.getProperties().getProperty("os.name").contains("Windows")){
+                String userHome = System.getProperties().getProperty("user.home");
+                Path=userHome+Path;
+            }
+            String realPath = StringUtil.merge(Path, dir.replace("/",File.separator));
             // 创建目录
             File folder = new File(realPath);
             if (!folder.isDirectory())
@@ -325,9 +330,11 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             List<Object> objectList = new ArrayList<>();
             objectList.add(customerInformationDO.getUrl().getBirth());
             objectList.add(customerInformationDO.getUrl().getTpassport());
-            objectList.add(customerInformationDO.getUrl().getOther());
             objectList.add(customerInformationDO.getUrl().getPassport());
             objectList.add(customerInformationDO.getUrl().getPhotoId());
+            if(ObjectUtil.isNotNull(customerInformationDO.getUrl().getOther())){
+                objectList.add(customerInformationDO.getUrl().getOther());
+            }
             List<String> list = checkObjAllFieldsIsNull(objectList);
 
             WebDavUtils.upload2(netDiskPath,list);
@@ -372,7 +379,12 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
 
     public List<String> checkObjAllFieldsIsNull(List<Object> objects) {
         List<String > list = new ArrayList<>();
-        String dir ="/data";
+        String dir =File.separator+"data";
+        if (System.getProperties().getProperty("os.name").contains("Windows")){
+            String userHome = System.getProperties().getProperty("user.home");
+            dir=userHome+dir;
+        }
+
         for (Object object : objects) {
             if (null == object) {
                 return null;
@@ -384,7 +396,8 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
                     f.setAccessible(true);
                     // 如果有一个属性值不为null，且值不是空字符串，就返回false
                     if (f.get(object) != null && StringUtils.isNotBlank(f.get(object).toString())) {
-                        String s = StringUtil.merge(dir, f.get(object).toString());
+                        String replace = f.get(object).toString().replace("/", File.separator);
+                        String s = StringUtil.merge(dir, replace);
                         list.add(s);
                     }
                 }
