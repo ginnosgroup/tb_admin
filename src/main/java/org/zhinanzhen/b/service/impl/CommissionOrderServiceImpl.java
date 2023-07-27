@@ -263,10 +263,12 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
                             || ReviewKjStateEnum.WAIT.toString().equalsIgnoreCase(_commissionOrderDo.getState()))) {
                         _commissionOrderDo.setAdviserId(commissionOrderDo.getAdviserId());
                         _commissionOrderDo.setOfficialId(commissionOrderDo.getOfficialId());
+                        LOG.info("修改留学佣金订单(_commissionOrderDo=" + _commissionOrderDo + ").");
                         commissionOrderDao.updateCommissionOrder(_commissionOrderDo);
                     }
                 }
             }
+            LOG.info("修改留学佣金订单(commissionOrderDo=" + commissionOrderDo + ").");
             return commissionOrderDao.updateCommissionOrder(commissionOrderDo);
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
