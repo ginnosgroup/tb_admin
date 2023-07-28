@@ -714,7 +714,7 @@ public class VisaController extends BaseCommissionOrderController {
 				if ("GW".equalsIgnoreCase(adminUserLoginInfo.getApList()) && adviserId == null)
 					return new ListResponse<List<VisaDTO>>(false, pageSize, 0, null, "无法获取顾问编号，请退出重新登录后再尝试．");
 			}
-
+// 这里的统计没有过滤掉了没有申请人的主订单，所以暂时去掉，使用list来统计
 //			int total = visaService.countVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
 //					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, startInvoiceCreate,
 //					endInvoiceCreate, regionIdList, adviserId, userId, applicantName, state);
