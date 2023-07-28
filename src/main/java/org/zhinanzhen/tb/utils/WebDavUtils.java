@@ -4,13 +4,15 @@ package org.zhinanzhen.tb.utils;
 import com.github.sardine.DavResource;
 import com.github.sardine.Sardine;
 import com.github.sardine.SardineFactory;
+import com.ikasoa.core.utils.StringUtil;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class WebDavUtils {
 //   public static String username = "23508311977@qq.com";
@@ -62,7 +64,6 @@ public class WebDavUtils {
     public static void down(String netDiskPath, String filePath ) throws IOException{
         InputStream fis = sardine.get(getPath(netDiskPath));
         FileOutputStream fos = new FileOutputStream(filePath);
-
         int len;
         byte[] buffer = new byte[1024];
 
@@ -71,6 +72,52 @@ public class WebDavUtils {
         }
         fis.close();
         fos.close();
+    }
+
+    /**
+     * 下载目录下所有文件
+     * @param name 客户姓名缩写
+     * @param filePath 文件地址
+     * @throws IOException
+     */
+    public static List<String> MMdown(String name, String filePath) throws IOException{
+        String Dir="https://dav.jianguoyun.com/dav/MMtest/";
+        List<DavResource> davResources = get(Dir);
+        List<DavResource> davResourceLists = new ArrayList<>();
+//        List<String> list = davResources.stream().map(davResource -> davResource.getDisplayName()).collect(Collectors.toList());
+        for (DavResource davResource : davResources) {
+            if (davResource.getDisplayName().contains(name))
+                davResourceLists.add(davResource);
+
+        }
+//        Arrays.sort(davResourceLists,new Comparator<DavResource>(){
+//            @Override
+//            public Long compare(DavResource d1, DavResource d2){
+//                return d2.getModified().getTime()-d1.getModified().getTime();
+//
+//            }
+//
+//        });
+        List<DavResource> collect = davResourceLists.stream().sorted(Comparator.comparing(DavResource::getModified).reversed()).collect(Collectors.toList());
+        List<DavResource> davResourceList = get(Dir+collect.get(0).getDisplayName());
+        List<String> urlList =new ArrayList<>();
+        File folder = new File(filePath);
+        if (!folder.isDirectory())
+            folder.mkdirs();
+        for (int i = 1; i < davResourceList.size(); i++) {
+            String path = davResourceList.get(i).getDisplayName();
+            String mmFilePath = StringUtil.merge(Dir,collect.get(0).getDisplayName()+"/"+path);
+            String outpath = StringUtil.merge(filePath, path);
+            String file = outpath.replace("/", File.separator);
+            down(mmFilePath,file);
+            urlList.add(file);
+
+        }
+        return urlList;
+    }
+
+    public static void main(String[] args) throws IOException {
+        List<String> strings = MMdown("LILS", "C:/Users/yjt/Desktop/data/uploads/customerInformation/LILS");
     }
 
     /**

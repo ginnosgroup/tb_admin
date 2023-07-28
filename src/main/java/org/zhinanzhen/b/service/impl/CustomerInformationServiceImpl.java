@@ -11,7 +11,7 @@ import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.ServiceDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderApplicantDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
-import org.zhinanzhen.b.dao.pojo.customer.*;
+import org.zhinanzhen.b.dao.pojo.customer.CustomerInformationDO;
 import org.zhinanzhen.b.service.CustomerInformationService;
 import org.zhinanzhen.b.service.pojo.ApplicantDTO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
@@ -65,6 +65,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             webdav(customerInformationDO);
             customerInformationDAO.insert(customerInformationDO);
             sendRemind(customerInformationDO.getServiceOrderId());
+            deleteAll(customerInformationDO);
         } catch (Exception e) {
             e.printStackTrace();
             ServiceException se = new ServiceException(e);
@@ -76,7 +77,20 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
     @Override
     public CustomerInformationDO get(int id) throws ServiceException {
         try {
-            return customerInformationDAO.getByServiceOrderId(id);
+            CustomerInformationDO customerInformationDO = customerInformationDAO.getByServiceOrderId(id);
+            String givenName = customerInformationDO.getMainInformation().getGivenName();
+            String familyName = customerInformationDO.getMainInformation().getFamilyName();
+            String[] split = givenName.split(" ");
+            StringBuffer mgivenName = new StringBuffer();
+            for (int i = 0; i < split.length; i++) {
+                char charAt = split[i].charAt(0);
+                mgivenName.append(charAt);
+            }
+            List<String> urlList = getUrlList(customerInformationDO);
+            String s = urlList.get(0);
+            String substring = s.substring(s.lastIndexOf("_") + 1, s.lastIndexOf("."));
+            customerInformationDO.setMMDiskPath(familyName+mgivenName+"_" + substring);
+            return customerInformationDO;
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
@@ -99,7 +113,6 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
     @Override
     public void delete(int id) throws ServiceException {
         try {
-
             customerInformationDAO.delete(id);
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
@@ -327,18 +340,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
 //                se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 //                throw se;
 //            }
-            List<Object> objectList = new ArrayList<>();
-            objectList.add(customerInformationDO.getUrl().getBirth());
-            objectList.add(customerInformationDO.getUrl().getPassport());
-            objectList.add(customerInformationDO.getUrl().getPhotoId());
-            if(ObjectUtil.isNotNull(customerInformationDO.getUrl().getTpassport())){
-                objectList.add(customerInformationDO.getUrl().getTpassport());
-            }
-            if(ObjectUtil.isNotNull(customerInformationDO.getUrl().getOther())){
-                objectList.add(customerInformationDO.getUrl().getOther());
-            }
-            List<String> list = checkObjAllFieldsIsNull(objectList);
-
+            List<String> list = getUrlList(customerInformationDO);
             WebDavUtils.upload2(netDiskPath,list);
 
 
@@ -348,7 +350,6 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
         }catch (Exception e) {
             ServiceException se = new ServiceException(e);
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
-            se.setStackTrace(e.getStackTrace());
             throw se;
         }
 
@@ -379,7 +380,49 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
         return filePathList;
     }
 
-    public List<String> checkObjAllFieldsIsNull(List<Object> objects) {
+    public  void deleteAll(CustomerInformationDO customerInformationDO) throws ServiceException {
+        String familyName = customerInformationDO.getMainInformation().getFamilyName();
+        String givenName = customerInformationDO.getMainInformation().getGivenName();
+        String rFamilyName = familyName.replace(" ", "");
+        String rgivenName = givenName.replace(" ", "");
+        LocalDate date = LocalDate.now(); // get the current date
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+        String formatdate = date.format(formatter);
+        String dir =File.separator+"data";
+        if (System.getProperties().getProperty("os.name").contains("Windows")){
+            String userHome = System.getProperties().getProperty("user.home");
+            dir=userHome+dir;
+        }
+        String fileDir = "/uploads/customerInformation/"+rFamilyName.toUpperCase() +"_"+ rgivenName.toUpperCase() + "/";
+        List<String> filePath = getFilePath(dir + fileDir);
+        for (String url : filePath) {
+            if (url == null){
+                ServiceException se = new ServiceException("删除路径为空!");
+                se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+                throw se;
+            }
+            try {
+                Files.delete(Paths.get(url));
+            } catch (Exception e) {
+                ServiceException se = new ServiceException(e);
+                se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+                throw se;
+            }
+        }
+
+    }
+
+    public List<String> getUrlList(CustomerInformationDO customerInformationDO) {
+        List<Object> objectList = new ArrayList<>();
+        objectList.add(customerInformationDO.getUrl().getBirth());
+        objectList.add(customerInformationDO.getUrl().getPassport());
+        objectList.add(customerInformationDO.getUrl().getPhotoId());
+        if(ObjectUtil.isNotNull(customerInformationDO.getUrl().getTpassport())){
+            objectList.add(customerInformationDO.getUrl().getTpassport());
+        }
+        if(ObjectUtil.isNotNull(customerInformationDO.getUrl().getOther())){
+            objectList.add(customerInformationDO.getUrl().getOther());
+        }
         List<String > list = new ArrayList<>();
         String dir =File.separator+"data";
         if (System.getProperties().getProperty("os.name").contains("Windows")){
@@ -387,7 +430,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             dir=userHome+dir;
         }
 
-        for (Object object : objects) {
+        for (Object object : objectList) {
             if (null == object) {
                 return null;
             }
@@ -406,11 +449,54 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
         } catch (Exception e) {
                 e.printStackTrace();
             }
-            // 如果对象为null直接返回true
-
         }
         return list;
     }
+
+
+//坚果云下载
+    @Override
+    public List<String> getFileByDav(int applicantId) throws ServiceException {
+
+        try{
+            String netDiskPath = "https://dav.jianguoyun.com/dav/MMtest/";
+            CustomerInformationDO customerInformationDO = customerInformationDAO.getByApplicantId(applicantId);
+            if (ObjectUtil.isNotNull(customerInformationDO)&&ObjectUtil.isNotNull(customerInformationDO.getUrl())){
+                String givenName = customerInformationDO.getMainInformation().getGivenName();
+                String familyName = customerInformationDO.getMainInformation().getFamilyName();
+                String rFamilyName = familyName.replace(" ", "");
+                String rgivenName = givenName.replace(" ", "");
+                String outpath = "/uploads/customerInformation/"+rFamilyName.toUpperCase() +"_"+ rgivenName.toUpperCase()+"/" ;
+                String dir =File.separator+"data";
+                if (System.getProperties().getProperty("os.name").contains("Windows")){
+                    String userHome = System.getProperties().getProperty("user.home");
+                    dir=userHome+dir;
+                }
+                outpath=dir+outpath;
+                String[] split = givenName.split(" ");
+                StringBuffer mgivenName = new StringBuffer();
+                for (int i = 0; i < split.length; i++) {
+                    char charAt = split[i].charAt(0);
+                    mgivenName.append(charAt);
+                }
+                List<String> list = getUrlList(customerInformationDO);
+                String s1 = list.get(0);
+                String s = s1.substring(s1.lastIndexOf("_") + 1,s1.lastIndexOf("."));
+                List<String> urlList = WebDavUtils.MMdown(familyName+mgivenName,outpath);
+                return urlList;
+            }
+            return null;
+        } catch (Exception e) {
+            ServiceException se = new ServiceException(e);
+            se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+            throw se;
+        }
+
+
+    }
+
+
+
 
 
 

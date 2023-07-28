@@ -50,4 +50,6 @@ public class CustomerInformationDO {
     private Siblings siblings;//兄弟姐妹信息
 
     private Url url;//资料列表
+
+    private String MMDiskPath;//MM存储目录
 }

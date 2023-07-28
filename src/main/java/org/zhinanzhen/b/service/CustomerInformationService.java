@@ -5,6 +5,7 @@ import org.zhinanzhen.b.dao.pojo.customer.CustomerInformationDO;
 import org.zhinanzhen.tb.service.ServiceException;
 
 import java.io.IOException;
+import java.util.List;
 
 public interface CustomerInformationService {
 
@@ -24,4 +25,6 @@ public interface CustomerInformationService {
 
     void deleteFile(String url) throws ServiceException;
 
+    //坚果云下载
+    List<String> getFileByDav(int applicantId) throws ServiceException;
 }
