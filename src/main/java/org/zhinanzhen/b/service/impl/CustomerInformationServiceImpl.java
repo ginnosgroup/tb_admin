@@ -457,6 +457,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
                 String familyName = customerInformationDO.getMainInformation().getFamilyName();
                 String rFamilyName = familyName.replace(" ", "");
                 String rgivenName = givenName.replace(" ", "");
+                String mmdiskPath = customerInformationDO.getMmdiskPath().replace("\"","");
                 String outpath = "/uploads/customerInformation/"+rFamilyName.toUpperCase() +"_"+ rgivenName.toUpperCase()+"/" ;
                 String dir =File.separator+"data";
                 if (System.getProperties().getProperty("os.name").contains("Windows")){
@@ -473,7 +474,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
                 List<String> list = getUrlList(customerInformationDO);
                 String s1 = list.get(0);
                 String s = s1.substring(s1.lastIndexOf("_") + 1,s1.lastIndexOf("."));
-                List<String> urlList = WebDavUtils.MMdown(familyName+mgivenName,outpath);
+                List<String> urlList = WebDavUtils.MMdown(mmdiskPath,outpath);
                 return urlList;
             }
             return null;
