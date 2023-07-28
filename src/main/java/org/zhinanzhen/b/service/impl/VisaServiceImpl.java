@@ -143,6 +143,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 		try {
 			putReviews(visaDto);
 			VisaDO visaDo = mapper.map(visaDto, VisaDO.class);
+			LOG.info("修改签证订单(visaDo=" + visaDo + ").");
 			int i = visaDao.updateVisa(visaDo);
 			if (i > 0) {
 				// 给文案发送尾款支付提醒邮件

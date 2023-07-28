@@ -420,6 +420,7 @@ public class RefundController extends BaseController {
 		context.putParameter("adminUserId", adminUserLoginInfo.getId());
 
 		LOG.info("Flow API Log : " + context.toString());
+		LOG.info("refundDto : " + refundDto);
 
 		String[] nextNodeNames = node.nextNodeNames();
 		if (nextNodeNames != null)
