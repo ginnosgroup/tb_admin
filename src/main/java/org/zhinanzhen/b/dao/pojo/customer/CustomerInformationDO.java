@@ -51,5 +51,5 @@ public class CustomerInformationDO {
 
     private Url url;//资料列表
 
-    private String MMDiskPath;//MM存储目录
+    private String mmdiskPath;//MM存储目录
 }

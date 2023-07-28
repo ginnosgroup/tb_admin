@@ -44,13 +44,14 @@ public class WebDavUtils {
     }
     public static void upload2(String netDiskPath,List<String> pathList) throws IOException {
         //判断是否存在目录 不存在则创建
-        String packagePath = netDiskPath.substring(0,getPath(netDiskPath).lastIndexOf("/"));
+        String s1 = netDiskPath+"/";
+        String packagePath = s1.substring(0,getPath(s1).lastIndexOf("/"));
         mkdir(packagePath);
 
         // 执行文件上传操作
         for (String s : pathList) {
             File file = new File(s);
-            sardine.put(getPath(netDiskPath + s.substring(s.lastIndexOf(File.separator)+1)),file,"application/x-www-form-urlencoded");
+            sardine.put(getPath(s1 + s.substring(s.lastIndexOf(File.separator)+1)),file,"application/x-www-form-urlencoded");
         }
 
     }

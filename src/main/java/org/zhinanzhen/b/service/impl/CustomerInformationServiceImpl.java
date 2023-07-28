@@ -62,7 +62,8 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             throw se;
         }
         try {
-            webdav(customerInformationDO);
+            String webdav = webdav(customerInformationDO);
+            customerInformationDO.setMmdiskPath(webdav);
             customerInformationDAO.insert(customerInformationDO);
             sendRemind(customerInformationDO.getServiceOrderId());
             deleteAll(customerInformationDO);
@@ -78,18 +79,8 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
     public CustomerInformationDO get(int id) throws ServiceException {
         try {
             CustomerInformationDO customerInformationDO = customerInformationDAO.getByServiceOrderId(id);
-            String givenName = customerInformationDO.getMainInformation().getGivenName();
-            String familyName = customerInformationDO.getMainInformation().getFamilyName();
-            String[] split = givenName.split(" ");
-            StringBuffer mgivenName = new StringBuffer();
-            for (int i = 0; i < split.length; i++) {
-                char charAt = split[i].charAt(0);
-                mgivenName.append(charAt);
-            }
-            List<String> urlList = getUrlList(customerInformationDO);
-            String s = urlList.get(0);
-            String substring = s.substring(s.lastIndexOf("_") + 1, s.lastIndexOf("."));
-            customerInformationDO.setMMDiskPath(familyName+mgivenName+"_" + substring);
+            String mmdiskPath = customerInformationDO.getMmdiskPath().replace("\"","");
+            customerInformationDO.setMmdiskPath(mmdiskPath);
             return customerInformationDO;
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
@@ -312,7 +303,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
         }
         return s;
     }
-    private void webdav(CustomerInformationDO customerInformationDO) throws IOException, ServiceException {
+    private String webdav(CustomerInformationDO customerInformationDO) throws IOException, ServiceException {
         if(customerInformationDO.getMainInformation().getFamilyName().contains(" ")){
             ServiceException se = new ServiceException("上传失败！客户姓有空格符，请修改后重新上传!");
             se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -330,7 +321,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             LocalDate date = LocalDate.now(); // get the current date
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
             String formatdate = date.format(formatter);
-            String netDiskPath = "https://dav.jianguoyun.com/dav/MMtest/" + familyName  + mgivenName + "_" + formatdate+"/" ;
+            String netDiskPath = "https://dav.jianguoyun.com/dav/MMtest/" + familyName  + mgivenName + "_" + formatdate ;
             //String filePath = "C:/Users/yjt/Desktop/data/uploads/customerInformation/" + familyName +"_"+ rgivenName  ;
 //            String testnetDiskPath="https://dav.jianguoyun.com/dav/MMtest/MAK_21072023/afp01_MAK_21072023.jpg";
 //            String testfilePath="/data/uploads/customerInformation/MA_KE/afp01_MAK_21072023.jpg";
@@ -342,8 +333,8 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
 //            }
             List<String> list = getUrlList(customerInformationDO);
             WebDavUtils.upload2(netDiskPath,list);
-
-
+            String mmdir = netDiskPath.substring(netDiskPath.lastIndexOf("/") + 1);
+            return mmdir;
             //文件上传
 
             //WebDavUtils.upload2(netDiskPath, path);
