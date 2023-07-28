@@ -471,9 +471,6 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
                     char charAt = split[i].charAt(0);
                     mgivenName.append(charAt);
                 }
-                List<String> list = getUrlList(customerInformationDO);
-                String s1 = list.get(0);
-                String s = s1.substring(s1.lastIndexOf("_") + 1,s1.lastIndexOf("."));
                 List<String> urlList = WebDavUtils.MMdown(mmdiskPath,outpath);
                 return urlList;
             }
