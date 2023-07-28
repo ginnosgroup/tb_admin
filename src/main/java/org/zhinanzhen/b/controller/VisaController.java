@@ -715,12 +715,18 @@ public class VisaController extends BaseCommissionOrderController {
 					return new ListResponse<List<VisaDTO>>(false, pageSize, 0, null, "无法获取顾问编号，请退出重新登录后再尝试．");
 			}
 
-			int total = visaService.countVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
+//			int total = visaService.countVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
+//					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, startInvoiceCreate,
+//					endInvoiceCreate, regionIdList, adviserId, userId, applicantName, state);
+			List<VisaDTO> allList = visaService.listVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, startInvoiceCreate,
-					endInvoiceCreate, regionIdList, adviserId, userId, applicantName, state);
+					endInvoiceCreate, regionIdList, adviserId, userId, userName, applicantName, state, 0, 99999,
+					_sorter);
+			int total = (!ListUtil.isEmpty(allList)) ? allList.size() : 0;
 			List<VisaDTO> list = visaService.listVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, startInvoiceCreate,
-					endInvoiceCreate, regionIdList, adviserId, userId, userName, applicantName, state, pageNum, pageSize, _sorter);
+					endInvoiceCreate, regionIdList, adviserId, userId, userName, applicantName, state, pageNum,
+					pageSize, _sorter);
 			list.forEach(v -> {
 				if (v.getServiceOrderId() > 0)
 					try {
