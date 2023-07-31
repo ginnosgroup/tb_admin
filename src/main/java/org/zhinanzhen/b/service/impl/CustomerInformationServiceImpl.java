@@ -453,7 +453,6 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
     public List<String> getFileByDav(int applicantId) throws ServiceException {
 
         try{
-            String netDiskPath = "https://dav.jianguoyun.com/dav/MMtest/";
             CustomerInformationDO customerInformationDO = customerInformationDAO.getByApplicantId(applicantId);
             if (ObjectUtil.isNotNull(customerInformationDO)&&ObjectUtil.isNotNull(customerInformationDO.getUrl())){
                 String givenName = customerInformationDO.getMainInformation().getGivenName();
@@ -468,12 +467,6 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
                     dir=userHome+dir;
                 }
                 outpath=dir+outpath;
-                String[] split = givenName.split(" ");
-                StringBuffer mgivenName = new StringBuffer();
-                for (int i = 0; i < split.length; i++) {
-                    char charAt = split[i].charAt(0);
-                    mgivenName.append(charAt);
-                }
                 List<String> urlList = WebDavUtils.MMdown(mmdiskPath,outpath);
                 return urlList;
             }
