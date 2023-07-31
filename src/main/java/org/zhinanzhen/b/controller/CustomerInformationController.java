@@ -38,10 +38,10 @@ public class CustomerInformationController extends BaseController {
 //        }
 
         try {
+            super.setGetHeader(response);
             CustomerInformationDO customerInformationDO = customerInformationService.get(id);
             return new Response(0, "获取成功", customerInformationDO);
         } catch (ServiceException e) {
-            e.printStackTrace();
             return new Response(1, e.getMessage());
         }
     }
