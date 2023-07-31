@@ -79,8 +79,10 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
     public CustomerInformationDO get(int id) throws ServiceException {
         try {
             CustomerInformationDO customerInformationDO = customerInformationDAO.getByServiceOrderId(id);
-            String mmdiskPath = customerInformationDO.getMmdiskPath().replace("\"","");
-            customerInformationDO.setMmdiskPath(mmdiskPath);
+            if (customerInformationDO.getMmdiskPath() != null) {
+                String mmdiskPath = customerInformationDO.getMmdiskPath().replace("\"", "");
+                customerInformationDO.setMmdiskPath(mmdiskPath);
+            }
             return customerInformationDO;
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
