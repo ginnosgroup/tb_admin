@@ -99,11 +99,7 @@ public class WebDavUtils {
         }
         return urlList;
     }
-
-    public static void main(String[] args) throws IOException {
-        List<String> strings = MMdown("LILS", "C:/Users/yjt/Desktop/data/uploads/customerInformation/LILS");
-    }
-
+    
     /**
      * 删除
      * @param netDiskPath 坚果云网盘目录地址
