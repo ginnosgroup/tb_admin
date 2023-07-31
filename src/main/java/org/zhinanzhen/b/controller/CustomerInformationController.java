@@ -148,7 +148,7 @@ public class CustomerInformationController extends BaseController {
 
     }
 
-    @RequestMapping(value = "/getMMFile", method = RequestMethod.POST)
+    @RequestMapping(value = "/getMMFile", method = RequestMethod.GET)
     @ResponseBody
     public Response<List<String>> deleteFile(@RequestParam ("applicantId") int applicantId,
                                         HttpServletRequest request,
