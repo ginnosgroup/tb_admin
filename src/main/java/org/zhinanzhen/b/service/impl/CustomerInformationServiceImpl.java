@@ -459,8 +459,6 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
                 customerInformationDO.setMmdiskPath(mmdiskPath);
                 return customerInformationDO;
             }
-
-
             return null;
             /*if (ObjectUtil.isNotNull(customerInformationDO)&&ObjectUtil.isNotNull(customerInformationDO.getUrl())){
                 String givenName = customerInformationDO.getMainInformation().getGivenName();
