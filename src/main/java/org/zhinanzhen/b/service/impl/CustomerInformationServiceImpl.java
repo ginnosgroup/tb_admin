@@ -475,6 +475,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
                 customerInformationDO.setMmdiskPath(mmdiskPath);
                 return customerInformationDO;
             }
+
             return null;
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
