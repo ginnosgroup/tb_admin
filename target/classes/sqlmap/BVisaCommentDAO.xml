@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.VisaCommentDAO">
+
+    <insert id="add" parameterType="org.zhinanzhen.b.dao.pojo.VisaCommentDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+            INTO b_visa_comment (
+                gmt_create,
+                gmt_modify,
+                admin_user_id,
+                visa_id,
+                content)
+            VALUES (
+                now(),
+                now(),
+                #{adminUserId},
+                #{visaId},
+                #{content});
+    </insert>
+    
+    <select id="list" resultType="org.zhinanzhen.b.dao.pojo.VisaCommentDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            admin_user_id AS adminUserId,
+            visa_id AS visaId,
+            content
+        FROM b_visa_comment
+        WHERE visa_id = #{visaId}
+        ORDER BY gmt_create DESC;
+    </select>
+    
+    <delete id="delete" parameterType="java.lang.Integer">
+		DELETE FROM b_visa_comment WHERE id = #{id, jdbcType=INTEGER}
+	</delete>
+
+</mapper>

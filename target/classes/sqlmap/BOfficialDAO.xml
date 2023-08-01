@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.OfficialDAO">
+    
+    <cache eviction="LRU" flushInterval="30000" readOnly="false" size="256"></cache>
+
+    <insert id="addOfficial" parameterType="org.zhinanzhen.b.dao.pojo.OfficialDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+            INTO b_official (
+                gmt_create,
+                gmt_modify,
+                name,
+                phone,
+                email,
+                state,
+                image_url,
+                region_id,
+                specialty,
+                work_state,
+                grade_id)
+            VALUES (
+                now(),
+                now(),
+                #{name},
+                #{phone},
+                #{email},
+                'ENABLED',
+                #{imageUrl},
+                #{regionId},
+                #{specialty},
+                #{workState},
+                #{gradeId});
+    </insert>
+
+    <update id="updateOfficial" parameterType="org.zhinanzhen.b.dao.pojo.OfficialDO">
+        UPDATE b_official 
+        SET gmt_modify = now()
+        <if test='name != null and name != ""'>
+            , name = #{name}
+        </if>
+        <if test='phone != null and phone != ""'>
+            , phone = #{phone}
+        </if>
+        <if test='email != null and email != ""'>
+            , email = #{email}
+        </if>
+        <if test='state != null and state != ""'>
+            , state = #{state}
+        </if>
+        <if test='imageUrl != null and imageUrl != ""'>
+            , image_url = #{imageUrl}
+        </if>
+        <if test='regionId != null and regionId != ""'>
+            , region_id = #{regionId}
+        </if>
+        <if test=' specialty != null and specialty != "" '>
+            , specialty = #{specialty}
+        </if>
+        <if test=' workState != null and workState != "" '>
+            , work_state = #{workState}
+        </if>
+        <if test='gradeId != null and gradeId != ""'>
+            , grade_id = #{gradeId}
+        </if>
+        WHERE id = #{id};
+    </update>
+
+    <select id="countOfficial" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM b_official
+        WHERE 1 = 1
+        <if test='name != null and name != ""'>
+            AND name = #{name}
+        </if>
+        <if test='regionId != null and regionId != ""'>
+            AND region_id = #{regionId}
+        </if>
+        ;
+    </select>
+    
+    <select id="listOfficial" resultType="org.zhinanzhen.b.dao.pojo.OfficialDO">
+        SELECT
+        *
+        FROM
+        ((
+        SELECT
+        ( @i := @i + 1 ) AS 'sort',
+        t1.*
+        FROM
+        (
+        SELECT
+        id,
+        NAME,
+        phone,
+        email,
+        state,
+        image_url AS imageUrl,
+        region_id AS regionId,
+        specialty AS specialty,
+        work_state AS workState,
+        grade_id AS gradeId
+        FROM
+        b_official b
+        WHERE
+        1 = 1
+        AND b.id IN ( SELECT id FROM b_official WHERE work_state = "NORMAL" )
+        ORDER BY
+        b.`name`
+        ) t1,(
+        SELECT
+        @i := 0
+        ) t
+        ) UNION
+        (
+        SELECT
+        ( @i := @i + 1 ) AS 'sort',
+        t2.*
+        FROM
+        (
+        SELECT
+        id,
+        NAME,
+        phone,
+        email,
+        state,
+        image_url AS imageUrl,
+        region_id AS regionId,
+        specialty AS specialty,
+        work_state AS workState,
+        grade_id AS gradeId
+        FROM
+        b_official b
+        WHERE
+        1 = 1
+        AND b.id IN ( SELECT id FROM b_official WHERE work_state = "BUSY" )
+        ORDER BY
+        b.`name`
+        ) t2,(
+        SELECT
+        @i := 0
+        ) t
+        )) a
+        WHERE
+        1 = 1
+        <if test='name != null and name != ""'>
+            AND name = #{name}
+        </if>
+        <if test='regionId != null and regionId != ""'>
+            AND regionId = #{regionId}
+        </if>
+        ORDER BY
+        a.sort
+        LIMIT #{offset}, #{rows};
+    </select>
+
+    <select id="getOfficialById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.OfficialDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            name,
+            phone,
+            email,
+            state,
+            image_url AS imageUrl,
+            region_id AS regionId,
+            specialty AS specialty,
+            work_state AS workState,
+            grade_id AS gradeId
+        FROM b_official WHERE id = #{id, jdbcType=INTEGER};
+    </select>
+
+    <select id="getOfficialByGradeId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.OfficialDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            name,
+            phone,
+            email,
+            state,
+            image_url AS imageUrl,
+            region_id AS regionId,
+            specialty AS specialty,
+            work_state AS workState,
+            grade_id AS gradeId
+        FROM b_official WHERE grade_id = #{gradeId, jdbcType=INTEGER};
+    </select>
+    <select id="getOfficialAdmin" resultType="java.lang.Integer">
+        SELECT
+            count(*)
+        FROM
+            tb_admin_user
+        WHERE
+            is_official_admin = 1
+          and official_id = #{id, jdbcType=INTEGER};
+
+    </select>
+
+
+</mapper>

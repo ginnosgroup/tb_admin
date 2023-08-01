@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.zhinanzhen.b.dao.CommissionOrderTempDAO">
+
+    <insert id="addCommissionOrderTemp" parameterType="org.zhinanzhen.b.dao.pojo.CommissionOrderTempDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO b_commission_order_temp (
+        gmt_create,
+        gmt_modify,
+        service_order_id,
+        student_code,
+        dob,
+        start_date,
+        end_date,
+        installment,
+        installment_due_date1,
+        installment_due_date2,
+        installment_due_date3,
+        installment_due_date4,
+        installment_due_date5,
+        installment_due_date6,
+        installment_due_date7,
+        installment_due_date8,
+        installment_due_date9,
+        installment_due_date10,
+        installment_due_date11,
+        installment_due_date12,
+        tuition_fee,
+        per_term_tuition_fee,
+        receive_date,
+        receive_type_id,
+        per_amount,
+        amount,
+        discount,
+        verify_code,
+        expect_amount,
+        currency,
+        exchange_rate,
+        remarks,
+        payment_voucher_image_url_1,
+        payment_voucher_image_url_2,
+        payment_voucher_image_url_3,
+        payment_voucher_image_url_4,
+        payment_voucher_image_url_5
+        )VALUES (
+        NOW(),
+        NOW(),
+        #{serviceOrderId},
+        #{studentCode},
+        #{dob},
+        #{startDate},
+        #{endDate},
+        #{installment},
+        #{installmentDueDate1},
+        #{installmentDueDate2},
+        #{installmentDueDate3},
+        #{installmentDueDate4},
+        #{installmentDueDate5},
+        #{installmentDueDate6},
+        #{installmentDueDate7},
+        #{installmentDueDate8},
+        #{installmentDueDate9},
+        #{installmentDueDate10},
+        #{installmentDueDate11},
+        #{installmentDueDate12},
+        #{tuitionFee},
+        #{perTermTuitionFee},
+        #{receiveDate},
+        #{receiveTypeId},
+        #{perAmount},
+        #{amount},
+        #{discount},
+        #{verifyCode},
+        #{expectAmount},
+        #{currency},
+        #{exchangeRate},
+        #{remarks},
+        #{paymentVoucherImageUrl1},
+        #{paymentVoucherImageUrl2},
+        #{paymentVoucherImageUrl3},
+        #{paymentVoucherImageUrl4},
+        #{paymentVoucherImageUrl5}
+        )
+    </insert>
+
+    <select id="getCommissionOrderTempByServiceOrderId" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderTempDO">
+        SELECT
+        id,
+        gmt_create AS gmtCreate,
+        gmt_modify AS gmtModify,
+        service_order_id AS serviceOrderId,
+        student_code AS studentCode,
+        dob,
+        start_date AS startDate,
+        end_date AS endDate,
+        installment,
+        installment_due_date1 AS installmentDueDate1,
+        installment_due_date2 AS installmentDueDate2,
+        installment_due_date3 AS installmentDueDate3,
+        installment_due_date4 AS installmentDueDate4,
+        installment_due_date5 AS installmentDueDate5,
+        installment_due_date6 AS installmentDueDate6,
+        installment_due_date7 AS installmentDueDate7,
+        installment_due_date8 AS installmentDueDate8,
+        installment_due_date9 AS installmentDueDate9,
+        installment_due_date10 AS installmentDueDate10,
+        installment_due_date11 AS installmentDueDate11,
+        installment_due_date12 AS installmentDueDate12,
+        tuition_fee AS tuitionFee,
+        per_term_tuition_fee AS perTermTuitionFee,
+        receive_date AS receiveDate,
+        receive_type_id AS receiveTypeId,
+        per_amount AS perAmount,
+        amount,
+        discount,
+        verify_code AS verifyCode,
+        expect_amount AS expectAmount,
+        currency,
+        exchange_rate AS exchangeRate,
+        remarks,
+        payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+        payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+        payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+        payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+        payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+        invoice_number AS invoiceNumber
+        FROM b_commission_order_temp
+        WHERE service_order_id = #{id};
+    </select>
+
+    <select id="getCommissionOrderTempByVerifyCode" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderTempDO">
+        SELECT
+        id,
+        gmt_create AS gmtCreate,
+        gmt_modify AS gmtModify,
+        service_order_id AS serviceOrderId,
+        student_code AS studentCode,
+        dob,
+        start_date AS startDate,
+        end_date AS endDate,
+        installment,
+        installment_due_date1 AS installmentDueDate1,
+        installment_due_date2 AS installmentDueDate2,
+        installment_due_date3 AS installmentDueDate3,
+        installment_due_date4 AS installmentDueDate4,
+        installment_due_date5 AS installmentDueDate5,
+        installment_due_date6 AS installmentDueDate6,
+        installment_due_date7 AS installmentDueDate7,
+        installment_due_date8 AS installmentDueDate8,
+        installment_due_date9 AS installmentDueDate9,
+        installment_due_date10 AS installmentDueDate10,
+        installment_due_date11 AS installmentDueDate11,
+        installment_due_date12 AS installmentDueDate12,
+        tuition_fee AS tuitionFee,
+        per_term_tuition_fee AS perTermTuitionFee,
+        receive_date AS receiveDate,
+        receive_type_id AS receiveTypeId,
+        per_amount AS perAmount,
+        amount,
+        discount,
+        verify_code AS verifyCode,
+        expect_amount AS expectAmount,
+        currency,
+        exchange_rate AS exchangeRate,
+        remarks,
+        payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+        payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+        payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+        payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+        payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+        invoice_number AS invoiceNumber
+        FROM b_commission_order_temp
+        WHERE verify_code = #{verifyCode};
+    </select>
+
+    <update id="update" parameterType="org.zhinanzhen.b.dao.pojo.CommissionOrderTempDO">
+        UPDATE b_commission_order_temp
+        SET gmt_modify = NOW()
+        <if test='studentCode != null and studentCode != ""'>
+            , student_code = #{studentCode}
+        </if>
+        <if test='startDate != null'>
+            , start_date = #{startDate}
+        </if>
+        <if test='endDate != null'>
+            , end_date = #{endDate}
+        </if>
+        <if test='installment != null and installment > 0'>
+            , installment = #{installment}
+        </if>
+
+            , installment_due_date1 = #{installmentDueDate1}
+
+
+            , installment_due_date2 = #{installmentDueDate2}
+
+
+            , installment_due_date3 = #{installmentDueDate3}
+
+
+            , installment_due_date4 = #{installmentDueDate4}
+
+
+            , installment_due_date5 = #{installmentDueDate5}
+
+
+            , installment_due_date6 = #{installmentDueDate6}
+
+
+            , installment_due_date7 = #{installmentDueDate7}
+
+
+            , installment_due_date8 = #{installmentDueDate8}
+
+
+            , installment_due_date9 = #{installmentDueDate9}
+
+
+            , installment_due_date10 = #{installmentDueDate10}
+
+
+            , installment_due_date11 = #{installmentDueDate11}
+
+
+            , installment_due_date12 = #{installmentDueDate12}
+
+        <if test='tuitionFee != null and tuitionFee != ""'>
+            , tuition_fee = #{tuitionFee}
+        </if>
+        <if test='perTermTuitionFee != null and perTermTuitionFee != ""'>
+            , per_term_tuition_fee = #{perTermTuitionFee}
+        </if>
+        <if test='receiveTypeId != null and receiveTypeId > 0'>
+            , receive_type_id = #{receiveTypeId}
+        </if>
+        <if test='receiveDate != null'>
+            , receive_date = #{receiveDate}
+        </if>
+        <if test='perAmount != null and perAmount > 0'>
+            , per_amount = #{perAmount}
+        </if>
+        <if test='amount != null and amount > 0'>
+            , amount = #{amount}
+        </if>
+        <if test='expectAmount != null and expectAmount > 0'>
+            , expect_amount = #{expectAmount}
+        </if>
+        <if test='currency != null'>
+            , currency = #{currency}
+        </if>
+        <if test='exchangeRate != null and exchangeRate > 0'>
+            , exchange_rate = #{exchangeRate}
+        </if>
+        <if test='discount != null and discount > 0'>
+            , discount = #{discount}
+        </if>
+        <if test='verifyCode != null and verifyCode != ""'>
+            , verify_code = #{verifyCode}
+        </if>
+        <if test='remarks != null and remarks != ""'>
+            , remarks = #{remarks}
+        </if>
+        <if test='paymentVoucherImageUrl1 != null'>
+            , payment_voucher_image_url_1 = #{paymentVoucherImageUrl1}
+        </if>
+        <if test='paymentVoucherImageUrl2 != null'>
+            , payment_voucher_image_url_2 = #{paymentVoucherImageUrl2}
+        </if>
+        <if test='paymentVoucherImageUrl3 != null'>
+            , payment_voucher_image_url_3 = #{paymentVoucherImageUrl3}
+        </if>
+        <if test='paymentVoucherImageUrl4 != null'>
+            , payment_voucher_image_url_4 = #{paymentVoucherImageUrl4}
+        </if>
+        <if test='paymentVoucherImageUrl5 != null'>
+            , payment_voucher_image_url_5 = #{paymentVoucherImageUrl5}
+        </if>
+        <if test='invoiceNumber != null and invoiceNumber != ""'>
+            , invoice_number = #{invoiceNumber}
+        </if>
+        WHERE id = #{id};
+    </update>
+
+    <select id="getCommissionOrderTempById" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderTempDO">
+        SELECT
+        id,
+        gmt_create AS gmtCreate,
+        gmt_modify AS gmtModify,
+        service_order_id AS serviceOrderId,
+        student_code AS studentCode,
+        dob,
+        start_date AS startDate,
+        end_date AS endDate,
+        installment,
+        installment_due_date1 AS installmentDueDate1,
+        installment_due_date2 AS installmentDueDate2,
+        installment_due_date3 AS installmentDueDate3,
+        installment_due_date4 AS installmentDueDate4,
+        installment_due_date5 AS installmentDueDate5,
+        installment_due_date6 AS installmentDueDate6,
+        installment_due_date7 AS installmentDueDate7,
+        installment_due_date8 AS installmentDueDate8,
+        installment_due_date9 AS installmentDueDate9,
+        installment_due_date10 AS installmentDueDate10,
+        installment_due_date11 AS installmentDueDate11,
+        installment_due_date12 AS installmentDueDate12,
+        tuition_fee AS tuitionFee,
+        per_term_tuition_fee AS perTermTuitionFee,
+        receive_date AS receiveDate,
+        receive_type_id AS receiveTypeId,
+        per_amount AS perAmount,
+        amount,
+        discount,
+        verify_code AS verifyCode,
+        expect_amount AS expectAmount,
+        currency,
+        exchange_rate AS exchangeRate,
+        remarks,
+        payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+        payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+        payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+        payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+        payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+        invoice_number AS invoiceNumber
+        FROM b_commission_order_temp
+        WHERE id = #{id};
+    </select>
+
+    <select id="getCommissionOrderTempByInvoiceNumber" resultType="org.zhinanzhen.b.dao.pojo.CommissionOrderTempDO">
+        SELECT
+        id,
+        gmt_create AS gmtCreate,
+        gmt_modify AS gmtModify,
+        service_order_id AS serviceOrderId,
+        student_code AS studentCode,
+        dob,
+        start_date AS startDate,
+        end_date AS endDate,
+        installment,
+        installment_due_date1 AS installmentDueDate1,
+        installment_due_date2 AS installmentDueDate2,
+        installment_due_date3 AS installmentDueDate3,
+        installment_due_date4 AS installmentDueDate4,
+        installment_due_date5 AS installmentDueDate5,
+        installment_due_date6 AS installmentDueDate6,
+        installment_due_date7 AS installmentDueDate7,
+        installment_due_date8 AS installmentDueDate8,
+        installment_due_date9 AS installmentDueDate9,
+        installment_due_date10 AS installmentDueDate10,
+        installment_due_date11 AS installmentDueDate11,
+        installment_due_date12 AS installmentDueDate12,
+        tuition_fee AS tuitionFee,
+        per_term_tuition_fee AS perTermTuitionFee,
+        receive_date AS receiveDate,
+        receive_type_id AS receiveTypeId,
+        per_amount AS perAmount,
+        amount,
+        discount,
+        verify_code AS verifyCode,
+        expect_amount AS expectAmount,
+        currency,
+        exchange_rate AS exchangeRate,
+        remarks,
+        payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+        payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+        payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+        payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+        payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+        invoice_number AS invoiceNumber
+        FROM b_commission_order_temp
+        WHERE invoice_number IS NOT NULL AND invoice_number = #{invoiceNumber};
+    </select>
+</mapper>

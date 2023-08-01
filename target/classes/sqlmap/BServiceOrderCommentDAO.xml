@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.ServiceOrderCommentDAO">
+
+    <insert id="add" parameterType="org.zhinanzhen.b.dao.pojo.ServiceOrderCommentDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+            INTO b_service_order_comment (
+                gmt_create,
+                gmt_modify,
+                admin_user_id,
+                service_order_id,
+                content)
+            VALUES (
+                now(),
+                now(),
+                #{adminUserId},
+                #{serviceOrderId},
+                #{content});
+    </insert>
+    
+    <select id="list" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderCommentDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            admin_user_id AS adminUserId,
+            service_order_id AS serviceOrderId,
+            content
+        FROM b_service_order_comment
+        WHERE service_order_id = #{serviceOrderId}
+        ORDER BY gmt_create DESC;
+    </select>
+    
+    <delete id="delete" parameterType="java.lang.Integer">
+		DELETE FROM b_service_order_comment WHERE id = #{id, jdbcType=INTEGER}
+	</delete>
+
+</mapper>

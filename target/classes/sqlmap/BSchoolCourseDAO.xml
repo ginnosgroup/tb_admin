@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.SchoolCourseDAO">
+    <select id="listSchoolCourse" resultType="org.zhinanzhen.b.dao.pojo.SchoolCourseDO">
+        SELECT id,
+        gmt_create AS gmtCreate,
+        gmt_modify AS gmtModify,
+        course_name AS courseName,
+        course_sector AS courseSector,
+        course_level AS courseLevel,
+        provider_id AS providerId,
+        provider_code AS providerCode,
+        course_code AS courseCode,
+        is_freeze AS isFreeze
+        from b_school_course
+        <where>
+            <if test="providerId != null and providerId > 0 ">
+                and provider_id = #{providerId}
+            </if>
+            <if test='providerCode != null and providerCode != ""'>
+                and provider_code = #{providerCode}
+            </if>
+            <if test='courseLevel != null and courseLevel != ""'>
+                AND course_level = #{courseLevel}
+            </if>
+            <if test='courseName != null and courseName != ""'>
+                AND course_name LIKE  "%"#{courseName}"%"
+            </if>
+            <if test='courseCode != null and courseCode != ""'>
+                AND course_code = #{courseCode}
+            </if>
+            <if test="isFreeze != null">
+                AND is_freeze = #{isFreeze}
+            </if>
+            <if test='keywords != null and keywords != ""'>
+                AND (course_code LIKE "%"#{keywords}"%" OR course_name LIKE  "%"#{keywords}"%")
+            </if>
+        </where>
+        <if test="offset != null  and rows != null ">
+            limit #{offset} ,#{rows}
+        </if>;
+    </select>
+
+    <select id="schoolCourseById" resultType="org.zhinanzhen.b.dao.pojo.SchoolCourseDO">
+        select
+        id,
+        gmt_create AS gmtCreate,
+        gmt_modify AS gmtModify,
+        course_name AS courseName,
+        course_sector AS courseSector,
+        course_level AS courseLevel,
+        provider_id AS providerId,
+        provider_code AS providerCode,
+        course_code AS courseCode,
+        is_freeze AS isFreeze
+        from b_school_course where id = #{id};
+    </select>
+
+    <select id="count" resultType="int">
+        SELECT COUNT(id)
+        from b_school_course
+        <where>
+            <if test="providerId != null and providerId > 0 ">
+                and provider_id = #{providerId}
+            </if>
+            <if test='providerCode != null and providerCode != ""'>
+                and provider_code = #{providerCode}
+            </if>
+            <if test="isFreeze != null">
+                AND is_freeze = #{isFreeze}
+            </if>
+        </where>;
+    </select>
+
+    <delete id="delete">
+        DELETE FROM b_school_course WHERE  id = #{id};
+    </delete>
+
+    <delete id="freeze">
+        UPDATE b_school_course SET is_freeze = IF(is_freeze = FALSE,TRUE,FALSE) WHERE id = #{id};
+    </delete>
+
+    <insert id="add" parameterType="org.zhinanzhen.b.dao.pojo.SchoolCourseDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO b_school_course (
+        id,
+        gmt_create,
+        gmt_modify,
+        course_name,
+        course_sector,
+        course_level,
+        provider_id,
+        provider_code,
+        course_code,
+        is_freeze
+        ) VALUES (
+        #{id},
+        NOW(),
+        NOW(),
+        #{courseName},
+        #{courseSector},
+        #{courseLevel},
+        #{providerId},
+        #{providerCode},
+        #{courseCode},
+        #{isFreeze}
+        )
+    </insert>
+
+    <update id="update" parameterType="org.zhinanzhen.b.dao.pojo.SchoolCourseDO">
+        UPDATE b_school_course
+        SET gmt_modify = NOW()
+        <if test=' courseName != null and courseName != ""'>
+            , course_name = #{courseName}
+        </if>
+        <if test=' courseSector != null and courseSector != ""'>
+            , course_sector = #{courseSector}
+        </if>
+        <if test=' courseLevel != null and courseLevel != ""'>
+            , course_level = #{courseLevel}
+        </if>
+        <if test=' courseCode != null and courseCode != ""'>
+            , course_code = #{courseCode}
+        </if>
+        WHERE id = #{id};
+    </update>
+
+    <select id="getCourseLevelList" resultType="java.lang.String">
+        SELECT
+        course_level
+        FROM
+        b_school_course WHERE provider_id = #{providerId} GROUP BY course_level;
+    </select>
+
+    <select id="getSchoolInstitutionInfoByCourseId" resultMap="SchoolInstitutionListDTO">
+        SELECT
+        bsc.id AS bscid,
+        bsc.gmt_create AS bscgmtCreate,
+        bsc.gmt_modify AS bscgmtModify,
+        bsc.course_name AS bsccourseName,
+        bsc.course_sector AS bsccourseSector,
+        bsc.course_level AS bsccourseLevel,
+        bsc.provider_id AS bscproviderId,
+        bsc.provider_code AS bscproviderCode,
+        bsc.course_code AS bsccourseCode,
+        bsi.id AS bsiid,
+        bsi.gmt_create AS bsigmtCreate,
+        bsi.gmt_modify AS bsigmtModify,
+        bsi.code AS bsicode,
+        bsi.name AS bsiname,
+        bsi.institution_trading_name AS bsiinstitutionTradingName,
+        bsi.institution_name AS bsiinstitutionName,
+        bsi.institution_type AS bsiinstitutionType,
+        bsi.institution_postal_address AS bsiinstitutionPostalAddress,
+        bsi.website AS bsiwebsite,
+        bsi.summary AS bsisummary
+        FROM b_school_course AS bsc , b_school_institution bsi
+        WHERE bsc.provider_id = bsi.id AND bsc.id = #{id}
+    </select>
+    <resultMap id="SchoolInstitutionListDTO" type="org.zhinanzhen.b.service.pojo.SchoolInstitutionListDTO">
+        <id column="bsiid" property="id"></id>
+        <result column="bsigmtCreate" property="gmtCreate"></result>
+        <result column="bsigmtModify" property="gmtModify"></result>
+        <result column="bsicode" property="code"></result>
+        <result column="bsiname" property="name"></result>
+        <result column="bsiinstitutionTradingName" property="institutionTradingName"></result>
+        <result column="bsiinstitutionName" property="institutionName"></result>
+        <result column="bsiinstitutionType" property="institutionType"></result>
+        <result column="bsiinstitutionPostalAddress" property="institutionPostalAddress"></result>
+        <result column="bsiwebsite" property="website"></result>
+        <result column="bsisummary" property="summary"></result>
+        <association property="schoolCourseDO" javaType="org.zhinanzhen.b.dao.pojo.SchoolCourseDO">
+            <id column="bscid" property="id"></id>
+            <result column="bscgmtCreate" property="gmtCreate"></result>
+            <result column="bscgmtModify" property="gmtModify"></result>
+            <result column="bsccourseName" property="courseName"></result>
+            <result column="bsccourseSector" property="courseSector"></result>
+            <result column="bsccourseLevel" property="courseLevel"></result>
+            <result column="bscproviderId" property="providerId"></result>
+            <result column="bscproviderCode" property="providerCode"></result>
+            <result column="bsccourseCode" property="courseCode"></result>
+        </association>
+    </resultMap>
+</mapper>

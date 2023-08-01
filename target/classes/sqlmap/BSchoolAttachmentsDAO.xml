@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.SchoolAttachmentsDAO">
+    
+    <cache eviction="LRU" flushInterval="60000" readOnly="false" size="1024"></cache>
+
+    <insert id="addSchoolAttachments" parameterType="org.zhinanzhen.b.dao.pojo.SchoolAttachmentsDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+            INTO b_school_attachments (
+                gmt_create,
+                gmt_modify,
+                school_name,
+                contract_file_1,
+                contract_file_2,
+                contract_file_3,
+                remarks,
+                provider_id)
+            VALUES (
+                now(),
+                now(),
+                #{schoolName},
+                #{contractFile1},
+                #{contractFile2},
+                #{contractFile3},
+                #{remarks},
+                #{providerId});
+    </insert>
+    
+    <update id="updateSchoolAttachments" parameterType="org.zhinanzhen.b.dao.pojo.SchoolAttachmentsDO">
+        UPDATE b_school_attachments 
+        SET gmt_modify = now()
+        <if test='contractFile1 != null and contractFile1 != ""'>
+            , contract_file_1 = #{contractFile1}
+        </if>
+        <if test='contractFile2 != null and contractFile2 != ""'>
+            , contract_file_2 = #{contractFile2}
+        </if>
+        <if test='contractFile3 != null and contractFile3 != ""'>
+            , contract_file_3 = #{contractFile3}
+        </if>
+        <if test='remarks != null and remarks != ""'>
+            , remarks = #{remarks}
+        </if>
+        WHERE id = #{id};
+    </update>
+    
+    <select id="listBySchoolName" parameterType="java.lang.String" resultType="org.zhinanzhen.b.dao.pojo.SchoolAttachmentsDO">
+        SELECT
+            id,
+            school_name AS schoolName,
+            contract_file_1 AS contractFile1,
+            contract_file_2 AS contractFile2,
+            contract_file_3 AS contractFile3,
+            remarks
+        FROM b_school_attachments WHERE school_name = #{schoolName};
+    </select>
+    
+    <update id="deleteBySchoolName" parameterType="java.lang.String">
+        DELETE FROM b_school_attachments
+        WHERE school_name = #{schoolName};
+    </update>
+
+    <select id="listByProviderId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.SchoolAttachmentsDO">
+        SELECT
+            id,
+            provider_id AS providerId,
+            contract_file_1 AS contractFile1,
+            contract_file_2 AS contractFile2,
+            contract_file_3 AS contractFile3,
+            remarks
+        FROM b_school_attachments WHERE provider_id = #{providerId};
+    </select>
+
+    <update id="deleteSchoolAttachments">
+        UPDATE b_school_attachments
+        SET gmt_modify = now()
+        <if test="isDeleteFile1 != null and isDeleteFile1 == true">
+            , contract_file_1 = NULL
+        </if>
+        <if test="isDeleteFile2 != null and isDeleteFile2 == true">
+            , contract_file_2 = NULL
+        </if>
+        <if test="isDeleteFile3 != null and isDeleteFile3 == true">
+            , contract_file_3 = NULL
+        </if>
+        WHERE provider_id = #{providerId};
+    </update>
+</mapper>

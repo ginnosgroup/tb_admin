@@ -15,7 +15,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -150,16 +149,17 @@ public class CustomerInformationController extends BaseController {
 
     @RequestMapping(value = "/getMMFile", method = RequestMethod.GET)
     @ResponseBody
-    public Response<List<String>> deleteFile(@RequestParam ("applicantId") int applicantId,
+    public Response<CustomerInformationDO> deleteFile(@RequestParam ("applicantId") int applicantId,
                                         HttpServletRequest request,
                                         HttpServletResponse response) throws IOException {
         super.setPostHeader(response);
         try {
-            List<String> urlList = customerInformationService.getFileByDav(applicantId);
-            return new Response<List<String>>(0,urlList);
+            CustomerInformationDO customerInformationDO = customerInformationService.getFileByDav(applicantId);
+            //List<String> urlList = customerInformationService.getFileByDav(applicantId);
+            return new Response<CustomerInformationDO>(0,customerInformationDO);
         }
         catch (ServiceException e) {
-            return new Response<List<String>>(1, e.getMessage(),null);
+            return new Response<CustomerInformationDO>(1, e.getMessage(),null);
         }
 
     }

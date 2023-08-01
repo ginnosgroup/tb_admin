@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.KjDAO">
+
+    <insert id="addKj" parameterType="org.zhinanzhen.b.dao.pojo.KjDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+            INTO b_kj (
+                gmt_create,
+                gmt_modify,
+                name,
+                phone,
+                email,
+                state,
+                image_url,
+                region_id)
+            VALUES (
+                now(),
+                now(),
+                #{name},
+                #{phone},
+                #{email},
+                'ENABLED',
+                #{imageUrl},
+                #{regionId});
+    </insert>
+
+    <update id="updateKj" parameterType="org.zhinanzhen.b.dao.pojo.KjDO">
+        UPDATE b_kj 
+        SET gmt_modify = now()
+        <if test='name != null and name != ""'>
+            , name = #{name}
+        </if>
+        <if test='phone != null and phone != ""'>
+            , phone = #{phone}
+        </if>
+        <if test='email != null and email != ""'>
+            , email = #{email}
+        </if>
+        <if test='state != null and state != ""'>
+            , state = #{state}
+        </if>
+        <if test='imageUrl != null and imageUrl != ""'>
+            , image_url = #{imageUrl}
+        </if>
+        <if test='regionId != null and regionId != ""'>
+            , region_id = #{regionId}
+        </if>
+        WHERE id = #{id};
+    </update>
+
+    <select id="countKj" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM b_kj
+        WHERE 1 = 1
+        <if test='name != null and name != ""'>
+            AND name = #{name}
+        </if>
+        <if test='regionId != null and regionId != ""'>
+            AND region_id = #{regionId}
+        </if>
+        ;
+    </select>
+    
+    <select id="listKj" resultType="org.zhinanzhen.b.dao.pojo.KjDO">
+        SELECT
+            id,
+            name,
+            phone,
+            email,
+            state,
+            image_url AS imageUrl,
+            region_id AS regionId
+        FROM b_kj
+        WHERE 1 = 1
+        <if test='name != null and name != ""'>
+            AND name = #{name}
+        </if>
+        <if test='regionId != null and regionId != ""'>
+            AND region_id = #{regionId}
+        </if>
+        ORDER BY name
+        LIMIT #{offset}, #{rows};
+    </select>
+    
+    <select id="listKjByRegionId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.KjDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            name,
+            phone,
+            email,
+            state,
+            image_url AS imageUrl,
+            region_id AS regionId
+        FROM b_kj WHERE region_id = #{regionId, jdbcType=INTEGER};
+    </select>
+
+    <select id="getKjById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.KjDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            name,
+            phone,
+            email,
+            state,
+            image_url AS imageUrl,
+            region_id AS regionId
+        FROM b_kj WHERE id = #{id, jdbcType=INTEGER};
+    </select>
+
+</mapper>

@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.QywxExternalUserDAO">
+
+    <insert id="add" parameterType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+            INTO b_qywx_external_user (
+                gmt_create,
+                gmt_modify,
+                union_id,
+                create_time,
+                adviser_id,
+                name,
+                gender,
+                type,
+                avatar,
+                external_userid,
+                state,
+                user_id,
+                applicant_id,
+                phone,
+                email,
+                wechat_username,
+                weibo_username,
+                qq)
+            VALUES (
+                now(),
+                now(),
+                #{unionId},
+                #{createTime},
+                #{adviserId},
+                #{name},
+                #{gender},
+                #{type},
+                #{avatar},
+                #{externalUserid},
+                #{state},
+                #{userId},
+                #{applicantId},
+                #{phone},
+                #{email},
+                #{wechatUsername},
+                #{weiboUsername},
+                #{qq});
+    </insert>
+    
+    <update id="update" parameterType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDO">
+        UPDATE b_qywx_external_user 
+        SET gmt_modify = now()
+        <if test='state != null and state != ""'>
+            , state = #{state}
+        </if>
+        <if test='userId != null and userId > 0'>
+            , user_id = #{userId}
+        </if>
+        <if test='applicantId != null and applicantId > 0'>
+            , applicant_id = #{applicantId}
+        </if>
+        <if test='gender != null and gender > 0'>
+            , gender = #{gender}
+        </if>
+        <if test='type != null and type > 0'>
+            , type = #{type}
+        </if>
+        <if test='phone != null and phone != ""'>
+            , phone = #{phone}
+        </if>
+        <if test='email != null and email != ""'>
+            , email = #{email}
+        </if>
+        <if test='wechatUsername != null and wechatUsername != ""'>
+            , wechat_username = #{wechatUsername}
+        </if>
+        <if test='weiboUsername != null and weiboUsername != ""'>
+            , weibo_username = #{weiboUsername}
+        </if>
+        <if test='qq != null and qq != ""'>
+            , qq = #{qq}
+        </if>
+        WHERE id = #{id};
+    </update>
+    
+    <select id="count" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM b_qywx_external_user
+        WHERE 1 = 1
+        <if test='adviserId != null and adviserId > 0'>
+            AND adviser_id = #{adviserId}
+        </if>
+        <if test='state != null and state != ""'>
+            AND state = #{state}
+        </if>
+        <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+            <![CDATA[ AND gmt_create > #{startDate} AND gmt_create < #{endDate} ]]>
+        </if>
+        ;
+    </select>
+    
+    <select id="list" resultType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            union_id AS unionId,
+            create_time AS createTime,
+            adviser_id AS adviserId,
+            name,
+            gender,
+            type,
+            avatar,
+            external_userid AS externalUserid,
+            state,
+            user_id AS userId,
+            applicant_id AS applicantId,
+            phone,
+            email,
+            wechat_username AS wechatUsername,
+            weibo_username AS weiboUsername,
+            qq
+        FROM b_qywx_external_user
+        WHERE 1 = 1
+        <if test='adviserId != null and adviserId > 0'>
+            AND adviser_id = #{adviserId}
+        </if>
+        <if test='state != null and state != ""'>
+            AND state = #{state}
+        </if>
+        <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+            <![CDATA[ AND create_time > #{startDate} AND create_time < #{endDate} ]]>
+        </if>
+        ORDER BY gmt_create DESC
+        LIMIT #{offset}, #{rows};
+    </select>
+    
+    <select id="get" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            union_id AS unionId,
+            create_time AS createTime,
+            adviser_id AS adviserId,
+            name,
+            gender,
+            type,
+            avatar,
+            external_userid AS externalUserid,
+            state,
+            user_id AS userId,
+            applicant_id AS applicantId,
+            phone,
+            email,
+            wechat_username AS wechatUsername,
+            weibo_username AS weiboUsername,
+            qq
+        FROM b_qywx_external_user WHERE id = #{id};
+    </select>
+    
+    <select id="getByExternalUserid" parameterType="java.lang.String" resultType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            union_id AS unionId,
+            create_time AS createTime,
+            adviser_id AS adviserId,
+            name,
+            gender,
+            type,
+            avatar,
+            external_userid AS externalUserid,
+            state,
+            user_id AS userId,
+            applicant_id AS applicantId,
+            phone,
+            email,
+            wechat_username AS wechatUsername,
+            weibo_username AS weiboUsername,
+            qq
+        FROM b_qywx_external_user WHERE external_userid = #{externalUserid};
+    </select>
+    
+    <insert id="addDesc" parameterType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDescriptionDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+            INTO b_qywx_external_user_description (
+                gmt_create,
+                gmt_modify,
+                qywx_external_userid,
+                qywx_key,
+                qywx_value)
+            VALUES (
+                now(),
+                now(),
+                #{qywxExternalUserId},
+                #{qywxKey},
+                #{qywxValue});
+    </insert>
+    
+    <update id="updateDesc" parameterType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDescriptionDO">
+        UPDATE b_qywx_external_user_description 
+        SET gmt_modify = now()
+        <if test='qywxValue != null and qywxValue != ""'>
+            , qywx_value = #{qywxValue}
+        </if>
+        WHERE id = #{id};
+    </update>
+    
+    <select id="listDescByExternalUserid" resultType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDescriptionDO">
+        SELECT
+            id,
+            qywx_external_userid AS qywxExternalUserId,
+            qywx_key AS qywxKey,
+            qywx_value AS qywxValue
+        FROM b_qywx_external_user_description
+        WHERE 1 = 1
+        <if test='qywxExternalUserId != null and qywxExternalUserId != ""'>
+            AND qywx_external_userid = #{qywxExternalUserId}
+        </if>
+        <if test='qywxKey != null and qywxKey != ""'>
+            AND qywx_key = #{qywxKey}
+        </if>
+        ;
+    </select>
+    
+    <select id="listDescByApplicantId" resultType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDescriptionDO">
+        SELECT
+            eud.id,
+            eud.qywx_external_userid AS qywxExternalUserId,
+            eud.qywx_key AS qywxKey,
+            eud.qywx_value AS qywxValue
+        FROM b_qywx_external_user eu, b_qywx_external_user_description eud
+        WHERE eu.external_userid = eud.qywx_external_userid
+        <if test='applicantId != null and applicantId != ""'>
+            AND eu.applicant_id = #{applicantId}
+        </if>
+        ;
+    </select>
+    
+</mapper>

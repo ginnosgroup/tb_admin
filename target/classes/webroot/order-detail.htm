@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="renderer" content="webkit">
+		<link rel="shortcut icon" href="img/favicon.ico">
+		<title>订单详情</title>
+		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<link href="css/bootstrap-reset.css" rel="stylesheet">
+		<link href="assets/font-awesome/css/font-awesome.css" rel="stylesheet">
+		<link href="css/style.css" rel="stylesheet">
+		<link href="css/style-responsive.css" rel="stylesheet">
+		<link href="css/index.css" rel="stylesheet">
+		<!--[if lt IE 9]>
+			<script src="js/html5shiv.js"></script>
+			<script src="js/respond.min.js"></script>
+		<![endif]-->
+	</head>
+
+	<body id="teamBuyer" v-cloak>
+		<section id="container">
+			<header class="header white-bg">
+				<div class="sidebar-toggle-box">
+					<div data-placement="right" class="fa fa-bars tooltips">
+					</div>
+				</div>
+				<a href="class-list.htm" class="logo">
+					指南针教育
+					<span>
+           	 ADMIN
+          </span>
+				</a>
+				<div class="top-nav ">
+					<ul class="nav pull-right top-menu">
+						<li class="dropdown">
+							<a data-toggle="dropdown" class="dropdown-toggle" href="#">
+								<span class="username">
+                  {{admin}}
+                </span>
+								<b class="caret">
+                </b>
+							</a>
+							<ul class="dropdown-menu extended logout">
+								<li class="log-arrow-up">
+								</li>
+								<li>
+									<a @click="out" href="javascript:;">
+										<i class="fa fa-key">
+                    </i> Log Out
+									</a>
+								</li>
+								<li></li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</header>
+			<aside>
+				<div id="sidebar" class="nav-collapse">
+					<ul class="sidebar-menu" id="nav-accordion">
+						<li class="sub-menu">
+							<a href="javascript:;">
+								<i class="fa fa-book">
+                </i>
+								<span>
+                 	 课程管理
+                </span>
+							</a>
+							<ul class="sub">
+								<li>
+									<a href="class-list.htm">
+										课程列表
+									</a>
+								</li>
+								<li>
+									<a href="add-class.htm">
+										新增课程
+									</a>
+								</li>
+							</ul>
+						</li>
+						<li class="sub-menu">
+							<a href="javascript:;" class="active">
+								<i class="fa fa-tasks">
+                </i>
+								<span>
+             		 订单管理
+                </span>
+							</a>
+							<ul class="sub">
+								<li>
+									<a href="order-list.htm">
+										订单列表
+									</a>
+								</li>
+							</ul>
+						</li>
+						<li class="sub-menu">
+							<a href="javascript:;">
+								<i class="fa fa-th">
+                </i>
+								<span>
+          				分类管理
+                </span>
+							</a>
+							<ul class="sub">
+								<li>
+									<a href="sort-list.htm">
+										分类列表
+									</a>
+								</li>
+							</ul>
+						</li>
+						<li class="sub-menu">
+							<a href="javascript:;">
+								<i class=" fa fa-user">
+                </i>
+								<span>
+                  	客户管理
+                </span>
+							</a>
+							<ul class="sub">
+								<li>
+									<a href="customer-list.htm">
+										客户列表
+									</a>
+								</li>
+								<li>
+									<a href="customer-list2.htm">
+										来源统计
+									</a>
+								</li>
+							</ul>
+						</li>
+						<li class="sub-menu">
+							<a href="javascript:;">
+								<i class="fa fa-laptop">
+                </i>
+								<span>
+              		顾问管理
+                </span>
+							</a>
+							<ul class="sub">
+								<li>
+									<a href="adviser-list.htm">
+										顾问列表
+									</a>
+								</li>
+								<li>
+									<a href="add-adviser.htm">
+										新增顾问
+									</a>
+								</li>
+							</ul>
+						</li>
+						<li class="sub-menu">
+							<a href="javascript:;">
+								<i class="fa fa-map-marker">
+                </i>
+								<span>
+              		区域管理
+                </span>
+							</a>
+							<ul class="sub">
+								<li>
+									<a href="area-list.htm">
+										区域列表
+									</a>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</aside>
+			<section id="main-content" class="content">
+				<section class="wrapper site-min-height">
+					<div class="row">
+						<div class="col-lg-12">
+							<section class="panel panel-primary">
+								<header class="panel-heading">
+									订单详情
+								</header>
+								<div class="panel-body">
+									<div class="adv-table">
+										<form class="form-horizontal">
+											<div class="form-group">
+												<label class="col-sm-2 control-label text-primary big-font">基本信息</label>
+											</div>
+											<div class="form-group">
+												<label class="col-sm-2 control-label">订单编号</label>
+												<div class="col-sm-10">
+													<p class="form-control-static">{{order.id}}</p>
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-sm-2 control-label">课程名称</label>
+												<div class="col-sm-10">
+													<p class="form-control-static">
+														<a @click="goClassDetail(order.subjectId)" class="text-primary" href="javascript:;">{{order.name}}</a>
+													</p>
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-sm-2 control-label">客户名称</label>
+												<div class="col-sm-10">
+													<p class="form-control-static">
+														<a @click="goUserDetail(order.userId)" class="text-primary" href="javascript:;">{{order.userDo.name}}</a>
+													</p>
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-sm-2 control-label">电话号码</label>
+												<div class="col-sm-10">
+													<p class="form-control-static">{{order.userDo.phone}}</p>
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-sm-2 control-label">支持预付款</label>
+												<div class="col-sm-10">
+													<p class="form-control-static">是</p>
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-sm-2 control-label">预付款金额</label>
+												<div class="col-sm-10">
+													<p class="form-control-static">{{order.subjectDto.preAmount}}</p>
+												</div>
+											</div>
+											<!--<div class="form-group">
+												<label class="col-sm-2 control-label">人数排位</label>
+												<div class="col-sm-10">
+													<p class="form-control-static"></p>
+												</div>
+											</div>-->
+											<div class="form-group">
+												<label class="col-sm-2 control-label">成团总数</label>
+												<div class="col-sm-10">
+													<p class="form-control-static">{{num}}</p>
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-sm-2 control-label">订单状态</label>
+												<div class="col-sm-10">
+													<p class="form-control-static">{{order.state | state}}</p>
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-sm-2 control-label">创建时间</label>
+												<div class="col-sm-10">
+													<p class="form-control-static">{{order.gmtCreate}}</p>
+												</div>
+											</div>
+											<div class="form-group border-top">
+											</div>
+											<div class="form-group">
+												<label class="col-sm-2 control-label text-primary big-font">订单信息</label>
+											</div>
+											<div class="form-group">
+												<label class="col-sm-2 control-label">下单团价</label>
+												<div class="col-sm-10">
+													<p class="form-control-static">{{order.createPrice}}</p>
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-sm-2 control-label">成团单价</label>
+												<div class="col-sm-10">
+													<p class="form-control-static">{{order.finishPrice}}</p>
+												</div>
+											</div>
+											<div class="form-group border-top">
+											</div>
+											<div class="form-group">
+												<label class="col-sm-2 control-label">购买数量</label>
+												<div class="col-sm-10">
+													<p class="form-control-static">{{order.num}}</p>
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-sm-2 control-label">待支付预付款</label>
+												<div class="col-sm-10">
+													<p class="form-control-static">{{order2.amount | minus order.payAmount}}</p>
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-sm-2 control-label">已支付预付款</label>
+												<div class="col-sm-10">
+													<p class="form-control-static">{{order.payAmount}}</p>
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-sm-2 control-label">余额抵扣预付款</label>
+												<div class="col-sm-10">
+													<p class="form-control-static">{{order2.amount | minus order.subjectDto.preAmount}}</p>
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-sm-2 control-label">支付方式</label>
+												<div class="col-sm-10">
+													<p class="form-control-static">{{order.payType | payType}}</p>
+												</div>
+											</div>
+											<div class="form-group border-top">
+											</div>
+											<div v-if="order.state=='SUCCESS'" class="form-group">
+												<label class="col-sm-2 control-label">尾款金额</label>
+												<div class="col-sm-10">
+													<p class="form-control-static">{{order.finalPayAmount}}</p>
+												</div>
+											</div>
+											<div v-if="order.state=='SUCCESS'" class="form-group">
+												<label class="col-sm-2 control-label">待支付尾款</label>
+												<div class="col-sm-10">
+													<p class="form-control-static">{{order.finalPayAmount | minus2 order.remainPayAmount order.remainPayBalance}}</p>
+												</div>
+											</div>
+											<div v-if="order.payDate" class="form-group">
+												<label class="col-sm-2 control-label">支付时间</label>
+												<div class="col-sm-10">
+													<p class="form-control-static">{{order.payDate | time}}</p>
+												</div>
+											</div>
+											<div v-if="order.adviserDo" class="form-group">
+												<label class="col-sm-2 control-label">分配顾问</label>
+												<div class="col-sm-10">
+													<p class="form-control-static">{{order.adviserDo.name}}</p>
+												</div>
+											</div>
+											<div v-if="order.adviserDo" class="form-group">
+												<label class="col-sm-2 control-label">分配状态</label>
+												<div class="col-sm-10">
+													<p class="form-control-static">已分配</p>
+												</div>
+											</div>
+											<div v-if="order.adviserDo" class="form-group">
+												<label class="col-sm-2 control-label">分配时间</label>
+												<div class="col-sm-10">
+													<p class="form-control-static">{{order.adviserDate}}</p>
+												</div>
+											</div>
+										</form>
+									</div>
+								</div>
+							</section>
+						</div>
+					</div>
+				</section>
+			</section>
+			<footer class="site-footer">
+				<div class="text-center">
+					2017 &copy; 指南针教育 ADMIN
+					<a href="#" class="go-top">
+						<i class="fa fa-angle-up">
+            </i>
+					</a>
+				</div>
+			</footer>
+		</section>
+		<script src="js/jquery-1.8.3.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		<script src="js/jquery.dcjqaccordion.2.7.js"></script>
+		<script src="js/jquery.scrollTo.min.js"></script>
+		<script src="js/jquery.nicescroll.js"></script>
+		<script src="js/common-scripts.js"></script>
+		<script src="js/vue.js"></script>
+		<script src="js/common.js?verson=1"></script>
+		<script>
+			tb.isLogin("order-detail.htm");
+			$("td,th").addClass("text-center");
+			var v = new Vue({
+				el: '#teamBuyer',
+				data: {
+					admin: sessionStorage.getItem("admin"),
+					order: {},
+					order2: {},
+					num: ''
+				},
+				created: function() {
+					this.getOrder();
+					this.getOrder2();
+				},
+				filters: {
+					state: function(str) {
+						if(str == "NEW") {
+							return "待付款";
+						} else if(str == "WAIT") {
+							return "待成团";
+						} else if(str == "SUCCESS") {
+							return "已成团";
+						} else if(str == "END") {
+							return "未成团";
+						}
+					},
+					payType: function(str) {
+						if(str == "PAYPAL") {
+							return "PayPal";
+						} else if(str == "WECHAT") {
+							return "微信支付";
+						} else if(str == "BALANCE") {
+							return "余额";
+						} else if(str == "OTHER") {
+							return "其它支付方式";
+						}
+					},
+					minus: function(num1, num2) {
+						return Number(num1) - Number(num2);
+					},
+					minus2: function(num1, num2, num3) {
+						return num1 - Number(num2)-Number(num3);
+					},
+					time: function(t) {
+						return this.getTime(t);
+					}
+				},
+				methods: {
+					getOrder: function() {
+						var that = this;
+						$.get(url + "order/get", {
+							id: sessionStorage.getItem("orderId")
+						}, function(result) {
+							console.log(result)
+							result.data.gmtCreate = that.getTime(result.data.gmtCreate);
+							//							result.data.payDate = that.getTime(result.data.payDate);
+							result.data.adviserDate = that.getTime(result.data.adviserDate);
+							that.order = result.data;
+							$.get(url3 + "subject /getBuyCount", {
+								id: result.data.subjectId
+							}, function(result2) {
+								console.log(result2)
+								that.num = result2.data;
+							});
+						});
+					},
+					getOrder2: function() {
+						var that = this;
+						$.get(url3 + "order/get", {
+							orderId: sessionStorage.getItem("orderId")
+						}, function(result) {
+							console.log(result)
+							that.order2 = result.data;
+						});
+					},
+					getTime: function(d) {
+						var date1 = new Date(d);
+						var y = date1.getFullYear();
+						var m = this.addZero(date1.getMonth() + 1);
+						var d = this.addZero(date1.getDate());
+						var h = this.addZero(date1.getHours());
+						var m2 = this.addZero(date1.getMinutes());
+						var s = this.addZero(date1.getSeconds());
+						var date2 = y + "-" + m + "-" + d + " " + h + ":" + m2 + ":" + s;
+						return date2;
+					},
+					addZero: function(obj) {
+						if(obj < 10) {
+							obj = '0' + obj;
+						};
+						return obj;
+					},
+					goClassDetail: function(id) {
+						sessionStorage.setItem("classId", id);
+						window.location.href = "class-detail.htm";
+					},
+					goUserDetail: function(id) {
+						sessionStorage.setItem("userId", id);
+						window.location.href = "customer-detail.htm";
+					},
+					out: function() {
+						tb.out();
+					}
+				}
+			});
+		</script>
+	</body>
+
+</html>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.zhinanzhen.b.dao.SchoolInstitutionLocationDAO">
+    <select id="listSchoolInstitutionLocation" resultType="org.zhinanzhen.b.dao.pojo.SchoolInstitutionLocationDO">
+        select
+        id,
+        gmt_create AS gmtCreate,
+        gmt_modify AS gmtModify,
+        name,
+        state,
+        number_of_courses AS numberOfCourses,
+        provider_id AS providerId,
+        provider_code AS providerCode,
+        phone,
+        address
+        from b_school_institution_location
+        <where>
+            <if test=" providerId !=null and providerId > 0">
+                and provider_id = #{providerId}
+            </if>
+            <if test='providerCode != null and providerCode != "" '>
+                and provider_code = #{providerCode}
+            </if>
+        </where>;
+    </select>
+
+    <select id="getById" resultType="org.zhinanzhen.b.dao.pojo.SchoolInstitutionLocationDO">
+        SELECT
+        id,
+        gmt_create AS gmtCreate,
+        gmt_modify AS gmtModify,
+        name,
+        state,
+        number_of_courses AS numberOfCourses,
+        provider_id AS providerId,
+        provider_code AS providerCode,
+        phone,
+        address
+        from b_school_institution_location
+        WHERE id = #{id};
+    </select>
+
+    <insert id="add" parameterType="org.zhinanzhen.b.dao.pojo.SchoolInstitutionLocationDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO b_school_institution_location(
+        gmt_create,
+        gmt_modify,
+        name,
+        state,
+        number_of_courses,
+        provider_id,
+        provider_code,
+        phone,
+        address
+        ) VALUES (
+        NOW(),
+        NOW(),
+        #{name},
+        #{state},
+        #{numberOfCourses},
+        #{providerId},
+        #{providerCode},
+        #{phone},
+        #{address}
+        )
+    </insert>
+
+    <delete id="delete">
+        DELETE FROM b_school_institution_location WHERE  id = #{id};
+    </delete>
+
+    <update id="update" parameterType="org.zhinanzhen.b.dao.pojo.SchoolInstitutionLocationDO">
+        UPDATE b_school_institution_location
+        SET gmt_modify = NOW()
+        <if test=' name != null and name != ""'>
+            , name = #{name}
+        </if>
+        <if test=' state != null and state != ""'>
+            , state = #{state}
+        </if>
+        <if test=" numberOfCourses != null and numberOfCourses > 0 ">
+            , number_of_courses = #{numberOfCourses}
+        </if>
+        <if test='phone != null and phone != ""'>
+            , phone = #{phone}
+        </if>
+        <if test='address != null and address != ""'>
+            , address = #{address}
+        </if>
+        WHERE id = #{id};
+    </update>
+
+    <select id="getState" resultType="string">
+        SELECT state
+        FROM b_school_institution_location
+        GROUP BY state;
+    </select>
+</mapper>

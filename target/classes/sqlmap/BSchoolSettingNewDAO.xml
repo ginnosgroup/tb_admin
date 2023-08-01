@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.zhinanzhen.b.dao.SchoolSettingNewDAO">
+
+    <cache eviction="LRU" flushInterval="30000" readOnly="false" size="1024"></cache>
+
+    <select id="list" resultType="org.zhinanzhen.b.dao.pojo.SchoolSettingNewDO">
+        SELECT id,
+        gmt_create AS gmtCreate,
+        gmt_modify AS gmtModify,
+        type,
+        start_date AS startDate,
+        end_date AS endDate,
+        parameters,
+        level,
+        first_register AS firstRegister,
+        register_fee AS registerFee,
+        book_fee AS bookFee,
+        first_book AS firstBook,
+        provider_id AS providerId,
+        course_level AS courseLevel,
+        course_id AS courseId,
+        is_delete AS isDelete
+        FROM b_school_setting_new
+        <where>
+            <if test="providerId != null and providerId > 0">
+                AND provider_id = #{providerId}
+            </if>
+            <if test=" isDelete != null ">
+                AND ( is_delete = #{isDelete}
+            </if>
+            <if test=" isDelete != null and isDelete == true ">
+                OR end_date &lt; NOW() )
+            </if>
+            <if test=" isDelete != null and isDelete == false ">
+                AND (end_date &gt;= NOW() AND start_date &lt;= NOW() ) )
+            </if>
+        </where>
+        ORDER BY gmt_create DESC;
+    </select>
+    <insert id="add" parameterType="org.zhinanzhen.b.dao.pojo.SchoolSettingNewDO">
+        INSERT INTO b_school_setting_new (
+        gmt_create ,
+        gmt_modify ,
+        type ,
+        start_date ,
+        end_date ,
+        parameters ,
+        level ,
+        first_register ,
+        register_fee ,
+        book_fee ,
+        first_book ,
+        provider_id ,
+        course_level ,
+        course_id
+        ) VALUES (
+        NOW(),
+        NOW(),
+        #{type},
+        #{startDate},
+        #{endDate},
+        #{parameters},
+        #{level},
+        #{firstRegister},
+        #{registerFee},
+        #{bookFee},
+        #{firstBook},
+        #{providerId},
+        #{courseLevel},
+        #{courseId}
+        );
+    </insert>
+
+    <insert id="add1" parameterType="org.zhinanzhen.b.dao.pojo.SchoolSettingNewDO">
+        INSERT INTO b_school_setting_new (
+        gmt_create ,
+        gmt_modify ,
+        type ,
+        start_date ,
+        end_date ,
+        parameters ,
+        level ,
+        first_register ,
+        register_fee ,
+        book_fee ,
+        first_book ,
+        provider_id ,
+        course_level ,
+        course_id
+        ) VALUES (
+        #{gmtCreate},
+        NOW(),
+        #{type},
+        #{startDate},
+        #{endDate},
+        #{parameters},
+        #{level},
+        #{firstRegister},
+        #{registerFee},
+        #{bookFee},
+        #{firstBook},
+        #{providerId},
+        #{courseLevel},
+        #{courseId}
+        );
+    </insert>
+
+    <select id="getByProviderIdAndLevel" resultType="org.zhinanzhen.b.dao.pojo.SchoolSettingNewDO">
+        SELECT id,
+        gmt_create AS gmtCreate,
+        gmt_modify AS gmtModify,
+        type,
+        start_date AS startDate,
+        end_date AS endDate,
+        parameters,
+        level,
+        first_register AS firstRegister,
+        register_fee AS registerFee,
+        book_fee AS bookFee,
+        first_book AS firstBook,
+        provider_id AS providerId,
+        course_level AS courseLevel,
+        course_id AS courseId,
+        is_delete AS isDelete
+        FROM b_school_setting_new
+        <where>
+            <if test=" providerId != null and providerId > 0">
+                AND provider_id = #{providerId}
+            </if>
+            <if test=" level != null and level > 0">
+                AND level = #{level}
+            </if>
+            <if test=' courseLevel != null and courseLevel != "" '>
+                AND course_level = #{courseLevel}
+            </if>
+            <if test=' courseId != null and courseId > 0 '>
+                AND course_id = #{courseId}
+            </if>
+            <if test=" isDelete != null ">
+                AND is_delete = #{isDelete}
+            </if>
+        </where>
+        ORDER BY gmt_create DESC;
+    </select>
+
+    <update id="delete">
+        UPDATE b_school_setting_new SET is_delete = true WHERE id = #{id};
+    </update>
+
+    <select id="getSchoolSettingNewById" resultType="org.zhinanzhen.b.dao.pojo.SchoolSettingNewDO">
+        SELECT id,
+        gmt_create AS gmtCreate,
+        gmt_modify AS gmtModify,
+        type,
+        start_date AS startDate,
+        end_date AS endDate,
+        parameters,
+        level,
+        first_register AS firstRegister,
+        register_fee AS registerFee,
+        book_fee AS bookFee,
+        first_book AS firstBook,
+        provider_id AS providerId,
+        course_level AS courseLevel,
+        course_id AS courseId,
+        is_delete AS isDelete
+        FROM b_school_setting_new
+        WHERE is_delete = false AND id = #{id};
+    </select>
+
+</mapper>

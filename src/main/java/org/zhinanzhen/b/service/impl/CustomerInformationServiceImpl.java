@@ -450,11 +450,17 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
 
 //坚果云下载
     @Override
-    public List<String> getFileByDav(int applicantId) throws ServiceException {
+    public CustomerInformationDO getFileByDav(int applicantId) throws ServiceException {
 
         try{
             CustomerInformationDO customerInformationDO = customerInformationDAO.getByApplicantId(applicantId);
-            if (ObjectUtil.isNotNull(customerInformationDO)&&ObjectUtil.isNotNull(customerInformationDO.getUrl())){
+            if (ObjectUtil.isNotNull(customerInformationDO)&&customerInformationDO.getMmdiskPath() != null) {
+                String mmdiskPath = customerInformationDO.getMmdiskPath().replace("\"", "");
+                customerInformationDO.setMmdiskPath(mmdiskPath);
+                return customerInformationDO;
+            }
+            return null;
+            /*if (ObjectUtil.isNotNull(customerInformationDO)&&ObjectUtil.isNotNull(customerInformationDO.getUrl())){
                 String givenName = customerInformationDO.getMainInformation().getGivenName();
                 String familyName = customerInformationDO.getMainInformation().getFamilyName();
                 String rFamilyName = familyName.replace(" ", "");
@@ -467,10 +473,14 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
                     dir=userHome+dir;
                 }
                 outpath=dir+outpath;
-                List<String> urlList = WebDavUtils.MMdown(mmdiskPath,outpath);
-                return urlList;
+                //List<String> urlList = WebDavUtils.MMdown(mmdiskPath,outpath);
+                String url =customerInformationDO.getUrl().toString();
+                System.out.println(url);
+                List<String> list = new ArrayList<>();
+                list.add(url);
+                return list;
             }
-            return null;
+            return null;*/
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());

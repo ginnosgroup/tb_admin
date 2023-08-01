@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.ServicePackagePriceDAO">
+
+    <insert id="add" parameterType="org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+            INTO b_service_package_price (
+                gmt_create,
+                gmt_modify,
+                min_price,
+                max_price,
+                service_id,
+                region_id,
+                cost_prince,
+                third_prince,
+                ruler,
+                amount)
+            VALUES (
+                now(),
+                now(),
+                #{minPrice},
+                #{maxPrice},
+                #{serviceId},
+                #{regionId},
+                #{costPrince},
+                #{thirdPrince},
+                #{ruler},
+                #{amount})
+                ;
+    </insert>
+    
+    <update id="update" parameterType="org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO">
+        UPDATE b_service_package_price 
+        SET gmt_modify = now()
+        <if test='minPrice != null and minPrice >= 0'>
+            , min_price = #{minPrice}
+        </if>
+        <if test='maxPrice != null and maxPrice > 0'>
+            , max_price = #{maxPrice}
+        </if>
+        <if test='serviceId != null and serviceId > 0'>
+            , service_id = #{serviceId}
+        </if>
+        <if test='regionId != null and regionId > 0'>
+            , region_id = #{regionId}
+        </if>
+        <if test='costPrince != null and costPrince >= 0'>
+            , cost_prince = #{costPrince}
+        </if>
+        <if test='thirdPrince != null and thirdPrince >= 0'>
+            , third_prince = #{thirdPrince}
+        </if>
+        <if test='ruler != null and ruler >= 0'>
+            , ruler = #{ruler}
+        </if>
+        <if test='amount != null and amount > 0'>
+            , amount = #{amount}
+        </if>
+        WHERE id = #{id};
+    </update>
+    
+    <select id="count" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM b_service_package_price WHERE service_id = #{serviceId, jdbcType=INTEGER}
+        <if test='regionId != null and regionId > 0'>
+            AND region_id = #{regionId}
+        </if>
+        ;
+    </select>
+    
+    <select id="list" resultType="org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO">
+        SELECT
+            spp.id AS id,
+            spp.min_price AS minPrice,
+            spp.max_price AS maxPrice,
+            spp.service_id AS serviceId,
+            spp.region_id AS regionId,
+            spp.cost_prince AS costPrince,
+            spp.third_prince AS thirdPrince,
+            spp.ruler AS ruler,
+            spp.amount AS amount,
+            r.name AS regionName
+        FROM b_service_package_price spp left join tb_region r on spp.region_id=r.id
+        WHERE spp.service_id = #{serviceId, jdbcType=INTEGER}
+        <if test='regionId != null and regionId > 0'>
+            AND spp.region_id = #{regionId}
+        </if>
+        ORDER BY spp.gmt_create ASC
+        LIMIT #{offset}, #{rows};
+    </select>
+    
+    <select id="getById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO">
+        SELECT
+            spp.id,
+            spp.gmt_create as gmtCreate,
+	        spp.gmt_modify as gmtModify,
+            spp.min_price AS minPrice,
+            spp.max_price AS maxPrice,
+            spp.service_id AS serviceId,
+            spp.region_id AS regionId,
+            spp.cost_prince AS costPrince,
+            spp.third_prince AS thirdPrince,
+            spp.ruler AS ruler,
+            spp.amount AS amount,
+            r.name AS regionName
+        FROM b_service_package_price spp left join tb_region r on spp.region_id=r.id WHERE spp.id = #{id, jdbcType=INTEGER};
+    </select>
+    
+    <select id="delete" parameterType="java.lang.Integer">
+        DELETE FROM b_service_package_price WHERE id = #{id, jdbcType=INTEGER};
+    </select>
+    
+    <select id="getByServiceId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO">
+        SELECT
+	        id,
+	        gmt_create as gmtCreate,
+	        gmt_modify as gmtModify,
+	        min_price as minPrice,
+	        max_price as maxPrice,
+	        service_id as serviceId,
+	        region_id as regionId,
+	        cost_prince as costPrince,
+	        third_prince as thirdPrince,
+	        ruler,
+	        amount
+        FROM
+	        b_service_package_price
+        WHERE
+	    service_id = #{serviceId, jdbcType=INTEGER}
+    </select>
+
+</mapper>

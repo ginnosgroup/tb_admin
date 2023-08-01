@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.zhinanzhen.b.dao.OfficialHandoverLogDao">
+
+    <insert id="add">
+        INSERT INTO b_official_handover_log
+        SET gmt_create = now(),
+            gmt_modify = now(),
+            official_id = #{officialId},
+            new_official_id =#{newOfficialId},
+            service_order_id=#{serviceOrderId}
+
+
+
+
+    </insert>
+    <select id="getOldOfficial" resultType="java.lang.Integer">
+        SELECT
+            official_id
+        FROM
+            b_official_handover_log
+        WHERE
+            service_order_id = #{serviceOrderId}
+        ORDER BY gmt_modify desc
+        limit 1
+
+    </select>
+
+</mapper>

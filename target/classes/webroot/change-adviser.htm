@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="renderer" content="webkit">
+		<link rel="shortcut icon" href="img/favicon.ico">
+		<title>编辑顾问</title>
+		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<link href="css/bootstrap-reset.css" rel="stylesheet">
+		<link href="assets/font-awesome/css/font-awesome.css" rel="stylesheet">
+		<link href="assets/advanced-datatable/media/css/demo_table.css" rel="stylesheet">
+		<link href="css/style.css" rel="stylesheet">
+		<link href="css/style-responsive.css" rel="stylesheet">
+		<link href="css/index.css" rel="stylesheet">
+		<!--[if lt IE 9]>
+			<script src="js/html5shiv.js"></script>
+			<script src="js/respond.min.js"></script>
+		<![endif]-->
+	</head>
+
+	<body id="teamBuyer" v-cloak>
+		<section id="container">
+			<header class="header white-bg">
+				<div class="sidebar-toggle-box">
+					<div data-placement="right" class="fa fa-bars tooltips">
+					</div>
+				</div>
+				<a href="class-list.htm" class="logo">
+					指南针教育
+					<span>
+           	 ADMIN
+          </span>
+				</a>
+				<div class="top-nav ">
+					<ul class="nav pull-right top-menu">
+						<li class="dropdown">
+							<a data-toggle="dropdown" class="dropdown-toggle" href="#">
+								<span class="username">
+                  {{admin}}
+                </span>
+								<b class="caret">
+                </b>
+							</a>
+							<ul class="dropdown-menu extended logout">
+								<li class="log-arrow-up">
+								</li>
+								<li>
+									<a @click="out" href="javascript:;">
+										<i class="fa fa-key">
+                    </i> Log Out
+									</a>
+								</li>
+								<li></li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</header>
+			<aside>
+				<div id="sidebar" class="nav-collapse">
+					<ul class="sidebar-menu" id="nav-accordion">
+						<li class="sub-menu">
+							<a href="javascript:;">
+								<i class="fa fa-book">
+                </i>
+								<span>
+                 	 课程管理
+                </span>
+							</a>
+							<ul class="sub">
+								<li>
+									<a href="class-list.htm">
+										课程列表
+									</a>
+								</li>
+								<li>
+									<a href="add-class.htm">
+										新增课程
+									</a>
+								</li>
+							</ul>
+						</li>
+						<li class="sub-menu">
+							<a href="javascript:;">
+								<i class="fa fa-tasks">
+                </i>
+								<span>
+             		 订单管理
+                </span>
+							</a>
+							<ul class="sub">
+								<li>
+									<a href="order-list.htm">
+										订单列表
+									</a>
+								</li>
+							</ul>
+						</li>
+						<li class="sub-menu">
+							<a href="javascript:;">
+								<i class="fa fa-th">
+                </i>
+								<span>
+          				分类管理
+                </span>
+							</a>
+							<ul class="sub">
+								<li>
+									<a href="sort-list.htm">
+										分类列表
+									</a>
+								</li>
+							</ul>
+						</li>
+						<li class="sub-menu">
+							<a href="javascript:;">
+								<i class=" fa fa-user">
+                </i>
+								<span>
+                  	客户管理
+                </span>
+							</a>
+							<ul class="sub">
+								<li>
+									<a href="customer-list.htm">
+										客户列表
+									</a>
+								</li>
+								<li>
+									<a href="customer-list2.htm">
+										来源统计
+									</a>
+								</li>
+							</ul>
+						</li>
+						<li class="sub-menu">
+							<a href="javascript:;" class="active">
+								<i class="fa fa-laptop">
+                </i>
+								<span>
+              		顾问管理
+                </span>
+							</a>
+							<ul class="sub">
+								<li>
+									<a href="adviser-list.htm">
+										顾问列表
+									</a>
+								</li>
+								<li>
+									<a href="area-list.htm">
+										新增顾问
+									</a>
+								</li>
+							</ul>
+						</li>
+						<li class="sub-menu">
+							<a href="javascript:;">
+								<i class="fa fa-map-marker">
+                </i>
+								<span>
+              		区域管理
+                </span>
+							</a>
+							<ul class="sub">
+								<li>
+									<a href="adviser-list.htm">
+										区域列表
+									</a>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</aside>
+			<section id="main-content" class="content">
+				<section class="wrapper site-min-height">
+					<div class="row">
+						<div class="col-lg-12">
+							<section class="panel">
+								<header class="panel-heading">
+									编辑顾问
+								</header>
+								<div class="panel-body">
+									<div class="adv-table">
+										<form class="form-horizontal">
+											<div class="form-group">
+												<label class="col-sm-2 control-label">基本信息</label>
+											</div>
+											<div class="form-group">
+												<label class="col-sm-2 control-label">顾问名称</label>
+												<div class="col-sm-8">
+													<input v-model.trim="adviserDetail.name" type="text" class="form-control" placeholder="请输入顾问名称">
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-sm-2 control-label">电话号码</label>
+												<div class="col-sm-8">
+													<input v-model.trim="adviserDetail.phone" type="text" class="form-control" placeholder="请输入电话号码">
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-sm-2 control-label">邮箱</label>
+												<div class="col-sm-8">
+													<input v-model.trim="adviserDetail.email" type="text" class="form-control" placeholder="请输入邮箱">
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-sm-2 control-label">二维码</label>
+												<div class="col-sm-8">
+													<input v-model="imageUrl" type="file" id="file1" name="file" />
+													<div class="imgtxt text-warning">图片需为jpg或png格式并且大小在200k内</div>
+													<img v-if="!imageUrl" class="adviser-img class-img" :src="adviserDetail.logo | addUrl"/>
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-sm-2 control-label">所属区域</label>
+												<div class="col-sm-8">
+													<select v-model="adviserDetail.regionId" class="form-control" size="1" name="example_length">
+														<option v-for="item in region" :value="item.id">{{item.name}}</option>
+													</select>
+												</div>
+											</div>
+											<div v-if="eror" class="form-group">
+												<div class="col-sm-8 text-danger">{{eror}}</div>
+											</div>
+											<div class="form-group buttons">
+												<div class="col-sm-8">
+													<button @click="changeAdviser" type="button" class="btn btn-primary">编辑顾问</button>
+												</div>
+											</div>
+										</form>
+									</div>
+								</div>
+							</section>
+						</div>
+					</div>
+				</section>
+			</section>
+			<footer class="site-footer">
+				<div class="text-center">
+					2017 &copy; 指南针教育 ADMIN
+					<a href="#" class="go-top">
+						<i class="fa fa-angle-up">
+            </i>
+					</a>
+				</div>
+			</footer>
+		</section>
+		<script src="js/jquery-1.8.3.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		<script src="js/jquery.dcjqaccordion.2.7.js"></script>
+		<script src="js/jquery.scrollTo.min.js"></script>
+		<script src="js/jquery.nicescroll.js"></script>
+		<script src="js/common-scripts.js"></script>
+		<script src="js/vue.js"></script>
+		<script src="js/common.js?verson=1"></script>
+		<script src="js/ajaxfileupload.js"></script>
+		<script>
+			tb.isLogin("change-adviser.htm");
+			$("td,th").addClass("text-center");
+			var v = new Vue({
+				el: '#teamBuyer',
+				data: {
+					admin: sessionStorage.getItem("admin"),
+					region: [],
+					adviserDetail: JSON.parse(sessionStorage.getItem("adviserDetail")),
+					imageUrl: '',
+					showTime: 2000,
+					eror: ''
+				},
+				created: function() {
+					this.getRegion();
+				},
+				filters:{
+					addUrl:function(u){
+						return url2+u;
+					}
+				},
+				methods: {
+					getRegion: function() {
+						var that = this;
+						$.get(url + "region/list_all", function(result) {
+							console.log(result)
+							for(var i = 0; i < result.data.length; i++) {
+								if(result.data[i].regionList.length != 0) {
+									for(var m = 0; m < result.data[i].regionList.length; m++) {
+										that.region.push(result.data[i].regionList[m]);
+									}
+								}
+							}
+						});
+					},
+					changeAdviser: function() {
+						var that = this;
+						if(!tb.checkEmpty(that.adviserDetail.name, "顾问名称不能为空")) return;
+						if(!tb.checkEmpty(that.adviserDetail.phone, "电话号码不能为空")) return;
+						if(!tb.checkEmpty(that.adviserDetail.email, "邮箱不能为空")) return;
+						var myreg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/;
+						if(!myreg.test(that.adviserDetail.email)) {
+							that.eror = "邮箱格式错误";
+							setTimeout(function() {
+								that.eror = "";
+							}, that.showTime);
+							return false;
+						};
+						if(that.imageUrl) {
+							$.ajaxFileUpload({
+								type: "POST",
+								url: url + 'adviser/upload_img', //用于文件上传的服务器端请求地址
+								secureuri: false, //一般设置为false
+								fileElementId: 'file1', //文件上传空间的id属性  <input type="file" id="file" name="file" />
+								dataType: 'text', //返回值类型 一般设置为json
+								success: function(data, status) //服务器成功响应处理函数
+								{
+									console.log(data)
+									var start = data.indexOf(">");
+									if(start != -1) {
+										var end = data.indexOf("<", start + 1);
+										if(end != -1) {
+											data = data.substring(start + 1, end);
+										}
+									}
+									data = JSON.parse(data);
+									var imageUrl = data.data;
+									console.log(data.data)
+									$.post(url + "adviser/update", {
+										id: that.adviserDetail.id,
+										name: that.adviserDetail.name,
+										phone: that.adviserDetail.phone,
+										email: that.adviserDetail.email,
+										imageUrl: imageUrl,
+										regionId: that.adviserDetail.regionId
+									}, function(result) {
+										console.log(result)
+										if(result.code == 0) {
+											window.location.href = "adviser-list.htm";
+										}
+									});
+								},
+								error: function(data, status, e) //服务器响应失败处理函数
+								{
+									alert(e);
+								}
+							})
+						} else {
+							$.post(url + "adviser/update", {
+								id: that.adviserDetail.id,
+								name: that.adviserDetail.name,
+								phone: that.adviserDetail.phone,
+								email: that.adviserDetail.email,
+								imageUrl: that.adviserDetail.imageUrl,
+								regionId: that.adviserDetail.regionId
+							}, function(result) {
+								console.log(result)
+								if(result.code == 0) {
+									window.location.href = "adviser-list.htm";
+								}
+							});
+						}
+					},
+					out: function() {
+						tb.out();
+					}
+				}
+			});
+		</script>
+	</body>
+
+</html>

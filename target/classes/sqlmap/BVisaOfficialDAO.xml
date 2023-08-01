@@ -1,0 +1,585 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.VisaOfficialDao">
+    <insert id="addVisa" parameterType="org.zhinanzhen.b.dao.pojo.VisaOfficialDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+        INTO b_visa_official (
+            gmt_create,
+            gmt_modify,
+            code,
+            handling_date,
+            user_id,
+            state,
+            commission_state,
+            kj_approval_date,
+            receive_type_id,
+            receive_date,
+            service_id,
+            service_order_id,
+            installment_num,
+            installment,
+            payment_voucher_image_url_1,
+            payment_voucher_image_url_2,
+            payment_voucher_image_url_3,
+            payment_voucher_image_url_4,
+            payment_voucher_image_url_5,
+            visa_voucher_image_url,
+            receivable,
+            received,
+            per_amount,
+            amount,
+            expect_amount,
+            sure_expect_amount,
+            currency,
+            exchange_rate,
+            discount,
+            invoice_number,
+            gst,
+            deduct_gst,
+            bonus,
+            bonus_date,
+            adviser_id,
+            mara_id,
+            official_id,
+            bank_check,
+            is_checked,
+            remarks,
+            refuse_reason,
+            is_close,
+            predict_commission,
+            commissionAmount,
+            calculation,
+            predict_commissionAmount,
+            verify_code)
+        VALUES (
+                   now(),
+                   now(),
+                   #{code},
+                   now(),
+                   #{userId},
+                   #{state},
+                   'DJY',
+                   #{kjApprovalDate},
+                   #{receiveTypeId},
+                   #{receiveDate,jdbcType=TIMESTAMP},
+                   #{serviceId},
+                   #{serviceOrderId},
+                   #{installmentNum},
+                   #{installment},
+                   #{paymentVoucherImageUrl1},
+                   #{paymentVoucherImageUrl2},
+                   #{paymentVoucherImageUrl3},
+                   #{paymentVoucherImageUrl4},
+                   #{paymentVoucherImageUrl5},
+                   #{visaVoucherImageUrl},
+                   #{receivable},
+                   #{received},
+                   #{perAmount},
+                   #{amount},
+                   #{expectAmount},
+                   #{sureExpectAmount},
+                   #{currency},
+                   #{exchangeRate},
+                   #{discount},
+                   #{invoiceNumber},
+                   #{gst},
+                   #{deductGst},
+                   #{bonus},
+                   #{bonusDate},
+                   #{adviserId},
+                   #{maraId},
+                   #{officialId},
+                   NULL,
+                   0,
+                   #{remarks},
+                   #{refuseReason},
+                   0,
+                   #{predictCommission},
+                   #{commissionAmount},
+                   #{calculation},
+                   #{predictCommissionAmount},
+                   #{verifyCode});
+    </insert>
+    <update id="update">
+        UPDATE b_visa_official
+        SET gmt_modify = now(),
+        kj_approval_date = now()
+        <if test='handling_date !=null and handling_date != ""'>
+            , handling_date = #{handling_date}
+        </if>
+        <if test='commissionAmount !=null and commissionAmount !="" or commissionAmount ==0.0'>
+            , commissionAmount = #{commissionAmount}
+        </if>
+        <if test='state!=null and state !=""'>
+            , state = #{state}
+        </if>
+        where id = #{id}
+
+    </update>
+    <update id="updateHandlingDate">
+        UPDATE b_visa_official
+        SET gmt_modify = now()
+        <if test='handlingDate !=null'>
+            , handling_date = #{handlingDate}
+        </if>
+        where id = #{id}
+    </update>
+
+    <select id="countVisaByServiceOrderIdAndExcludeCode" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM b_visa_official
+        WHERE service_order_id = #{serviceOrderId}
+        <if test='code != null'>
+            AND code != #{code}
+        </if>
+    </select>
+    <select id="countVisaByServiceOrderId" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM b_visa_official
+        WHERE service_order_id = #{serviceOrderId}
+    </select>
+    <select id="get" resultType="org.zhinanzhen.b.dao.pojo.VisaOfficialListDO">
+        SELECT
+        bv.id AS id,
+        bv.gmt_create AS gmtCreate,
+        bv.code AS code,
+        bv.handling_date AS handlingDate,
+        bv.user_id AS userId,
+        bv.state AS state,
+        bv.commission_state AS commissionState,
+        bv.kj_approval_date AS kjApprovalDate,
+        bv.receive_type_id AS receiveTypeId,
+        bv.receive_date AS receiveDate,
+        bv.service_id AS serviceId,
+        bv.service_order_id AS serviceOrderId,
+        bv.installment_num AS installmentNum,
+        bv.installment,
+        bv.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+        bv.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+        bv.payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+        bv.payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+        bv.payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+        bv.visa_voucher_image_url AS visaVoucherImageUrl,
+        bv.receivable AS receivable,
+        bv.received AS received,
+        bv.per_amount AS perAmount,
+        bv.amount AS amount,
+        bv.expect_amount AS expectAmount,
+        bv.sure_expect_amount AS sureExpectAmount,
+        bv.currency,
+        bv.exchange_rate AS exchangeRate,
+        bv.discount AS discount,
+        bv.invoice_number AS invoiceNumber,
+        bv.gst AS gst,
+        bv.deduct_gst AS deductGst,
+        bv.bonus AS bonus,
+        bv.bonus_date AS bonusDate,
+        bv.adviser_id AS adviserId,
+        bv.mara_id AS maraId,
+        bv.official_id AS officialId,
+        bv.bank_check AS bankCheck,
+        bv.is_checked AS isChecked,
+        bv.remarks AS remarks,
+        bv.refuse_reason AS refuseReason,
+        bv.verify_code AS verifyCode,
+        bv.bank_date AS bankDate,
+        bv.is_close AS isClose,
+        bv.invoice_create AS invoiceCreate,
+        tu.name AS userName,
+        tu.birthday AS birthday,
+        tu.phone AS phone,
+        so.applicant_id AS applicantId,
+        bv.commissionAmount,
+        bv.predict_commission predictCommission,
+        ifnull(br.amount,0.0) as refund,
+        bv.calculation,
+        bv.predict_commissionAmount  as predictCommissionAmount
+        from b_visa_official bv
+        JOIN b_service_order so ON bv.service_order_id = so.id
+        left JOIN tb_user tu ON bv.user_id = tu.id
+        left join b_refund br on br.visa_id= bv.id
+        left join b_official bo on bo.id = bv.official_id
+        join b_applicant ba on ba.id = so.applicant_id
+
+        WHERE 1=1
+        <if test='officialId !=null and  officialId !=""'>
+            and bv.official_id = #{officialId}
+        </if>
+        <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+            <![CDATA[ AND bv.gmt_create > #{startDate} AND bv.gmt_create < #{endDate} ]]>
+        </if>
+        <if test='state =="REVIEW"'>
+            and bv.state = "REVIEW"
+        </if>
+        <if test='state =="COMPLETE"'>
+            and bv.state = "COMPLETE"
+        </if>
+        <if test="id !=null">
+            and bv.id = #{id}
+        </if>
+        <if test='regionIdList != null'>
+            AND bo.region_id IN
+            <foreach collection="regionIdList" item="regionIdList" index="index" open="(" close=")" separator=",">
+                #{regionIdList}
+            </foreach>
+        </if>
+        <if test='userName!=null and userName!=""'>
+            and tu.name LIKE '%${userName}%'
+        </if>
+        <if test='applicantName!=null and applicantName!=""'>
+            AND (ba.surname LIKE '%${applicantName}%' OR ba.firstname LIKE '%${applicantName}%' OR CONCAT(ba.firstname, ' ', ba.surname) LIKE '%${applicantName}%')
+        </if>
+        <if test='startHandlingDate != null and startHandlingDate != "" and endHandlingDate != null and endHandlingDate != ""'>
+            <![CDATA[ AND bv.handling_date > #{startHandlingDate} AND bv.handling_date < #{endHandlingDate} ]]>
+        </if>
+        ${orderBy}
+        <if test="offset !=null and pageSize!=null">
+            limit #{offset} ,#{pageSize}
+        </if>
+
+
+    </select>
+    <select id="count" resultType="java.lang.Integer">
+        SELECT
+        count(*)
+        FROM
+        b_visa_official co
+        JOIN b_service_order so ON co.service_order_id = so.id
+        LEFT JOIN tb_user tu ON co.user_id = tu.id
+        LEFT JOIN b_applicant ba ON so.applicant_id = ba.id
+        LEFT JOIN b_official bo ON bo.id = co.official_id
+        WHERE 1=1
+        <if test='officialId !=null and  officialId !=""'>
+            and co.official_id = #{officialId}
+        </if>
+
+        <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+            <![CDATA[ AND co.gmt_create > #{startDate} AND co.gmt_create < #{endDate} ]]>
+        </if>
+
+        <if test="id !=null">
+            and co.id = #{id}
+        </if>
+        <if test='state =="REVIEW"'>
+            and co.state="REVIEW"
+        </if>
+        <if test='state =="COMPLETE"'>
+            and co.state="COMPLETE"
+        </if>
+
+        <if test='userName!=null and userName!=""'>
+            and tu.name = #{userName}
+        </if>
+        <if test='applicantName!=null and applicantName!=""'>
+            AND (ba.surname LIKE '%${applicantName}%' OR ba.firstname LIKE '%${applicantName}%' OR CONCAT(ba.firstname, ' ', ba.surname) LIKE '%${applicantName}%')
+        </if>
+
+        <if test='startHandlingDate != null and startHandlingDate != "" and endHandlingDate != null and endHandlingDate != ""'>
+            <![CDATA[ AND co.handling_date > #{startHandlingDate} AND co.handling_date < #{endHandlingDate} ]]>
+        </if>
+        <if test='regionIdList != null'>
+            AND bo.region_id IN
+            <foreach collection="regionIdList" item="regionIdList" index="index" open="(" close=")" separator=",">
+                #{regionIdList}
+            </foreach>
+        </if>
+
+    </select>
+    <select id="getOne" resultType="org.zhinanzhen.b.dao.pojo.VisaListDO">
+        SELECT
+            bv.id AS id,
+            bv.gmt_create AS gmtCreate,
+            bv.code AS code,
+            bv.handling_date AS handlingDate,
+            bv.user_id AS userId,
+            bv.state AS state,
+            bv.commission_state AS commissionState,
+            bv.kj_approval_date AS kjApprovalDate,
+            bv.receive_type_id AS receiveTypeId,
+            bv.receive_date AS receiveDate,
+            bv.service_id AS serviceId,
+            bv.service_order_id AS serviceOrderId,
+            bv.installment_num AS installmentNum,
+            bv.installment,
+            bv.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+            bv.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            bv.payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+            bv.payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+            bv.payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+            bv.visa_voucher_image_url AS visaVoucherImageUrl,
+            bv.receivable AS receivable,
+            bv.received AS received,
+            bv.per_amount AS perAmount,
+            bv.amount AS amount,
+            bv.expect_amount AS expectAmount,
+            bv.sure_expect_amount AS sureExpectAmount,
+            bv.currency,
+            bv.exchange_rate AS exchangeRate,
+            bv.discount AS discount,
+            bv.invoice_number AS invoiceNumber,
+            bv.gst AS gst,
+            bv.deduct_gst AS deductGst,
+            bv.bonus AS bonus,
+            bv.bonus_date AS bonusDate,
+            bv.adviser_id AS adviserId,
+            bv.mara_id AS maraId,
+            bv.official_id AS officialId,
+            bv.bank_check AS bankCheck,
+            bv.is_checked AS isChecked,
+            bv.remarks AS remarks,
+            bv.refuse_reason AS refuseReason,
+            bv.verify_code AS verifyCode,
+            bv.bank_date AS bankDate,
+            bv.is_close AS isClose,
+            bv.invoice_create AS invoiceCreate,
+            tu.name AS userName,
+            tu.birthday AS birthday,
+            tu.phone AS phone,
+            so.applicant_id AS applicantId,
+            so.commissionAmount,
+            so.predict_commission predictCommission,
+            ifnull(br.amount,0) as refund,
+            so.predict_commission as predictCommission,
+            bog.rate rate
+        from b_visa_official bv
+                 JOIN b_service_order so ON bv.service_order_id = so.id
+                 JOIN tb_user tu ON bv.user_id = tu.id
+                 JOIN b_applicant ba ON so.applicant_id = ba.id
+                 left JOIN b_receive_type brt ON brt.id = so.receive_type_id
+                 join tb_adviser ta on ta.id = bv.adviser_id
+                 left join b_refund br on br.commission_order_id = bv.id
+                 join b_official bo on bo.id = bv.official_id
+                 left join b_official_grade bog on bog.id = bo.grade_id
+                 left join b_service bs on bs.id = so.service_id
+        where bv.id = #{id}
+    </select>
+    <select id="listVisaByCode" resultType="org.zhinanzhen.b.dao.pojo.VisaOfficialDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            code,
+            handling_date AS handlingDate,
+            user_id AS userId,
+            state,
+            commission_state AS commissionState,
+            kj_approval_date AS kjApprovalDate,
+            receive_type_id AS receiveTypeId,
+            receive_date AS receiveDate,
+            service_id AS serviceId,
+            service_order_id AS serviceOrderId,
+            installment_num AS installmentNum,
+            installment,
+            payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+            payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+            payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+            payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+            visa_voucher_image_url AS visaVoucherImageUrl,
+            receivable,
+            received,
+            per_amount AS perAmount,
+            amount,
+            expect_amount AS expectAmount,
+            sure_expect_amount AS sureExpectAmount,
+            currency,
+            exchange_rate AS exchangeRate,
+            discount,
+            invoice_number AS invoiceNumber,
+            gst,
+            deduct_gst AS deductGst,
+            bonus,
+            bonus_date AS bonusDate,
+            adviser_id AS adviserId,
+            mara_id AS maraId,
+            official_id AS officialId,
+            bank_check AS bankCheck,
+            is_checked AS isChecked,
+            remarks,
+            refuse_reason AS refuseReason,
+            verify_code AS verifyCode,
+            bank_date AS bankDate,
+            is_close AS isClose,
+            invoice_create AS invoiceCreate
+        FROM b_visa_official
+        WHERE code = #{code};
+    </select>
+
+    <select id="listByServiceOrderId" resultType="org.zhinanzhen.b.dao.pojo.VisaOfficialDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            code,
+            handling_date AS handlingDate,
+            user_id AS userId,
+            state,
+            commission_state AS commissionState,
+            kj_approval_date AS kjApprovalDate,
+            receive_type_id AS receiveTypeId,
+            receive_date AS receiveDate,
+            service_id AS serviceId,
+            service_order_id AS serviceOrderId,
+            installment_num AS installmentNum,
+            installment,
+            payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+            payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+            payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+            payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+            visa_voucher_image_url AS visaVoucherImageUrl,
+            receivable,
+            received,
+            per_amount AS perAmount,
+            amount,
+            expect_amount AS expectAmount,
+            sure_expect_amount AS sureExpectAmount,
+            currency,
+            exchange_rate AS exchangeRate,
+            discount,
+            invoice_number AS invoiceNumber,
+            gst,
+            deduct_gst AS deductGst,
+            bonus,
+            bonus_date AS bonusDate,
+            adviser_id AS adviserId,
+            mara_id AS maraId,
+            official_id AS officialId,
+            bank_check AS bankCheck,
+            is_checked AS isChecked,
+            remarks,
+            refuse_reason AS refuseReason,
+            verify_code AS verifyCode,
+            bank_date AS bankDate,
+            is_close AS isClose,
+            invoice_create AS invoiceCreate,
+            predict_commission AS predictCommission,
+            commissionAmount,
+            calculation,
+            predict_commissionAmount AS predictCommissionAmount
+        FROM b_visa_official
+        WHERE service_order_id = #{serviceOrderId};
+    </select>
+
+    <update id="updateVisaOfficial" parameterType="org.zhinanzhen.b.dao.pojo.VisaOfficialDO">
+        UPDATE b_visa_official
+        SET gmt_modify = now()
+        <if test='userId != null and userId != ""'>
+            , user_id = #{userId}
+        </if>
+        <if test='state != null and state != ""'>
+            , state = #{state}
+        </if>
+        <if test='commissionState != null and commissionState != ""'>
+            , commission_state = #{commissionState}
+        </if>
+        <if test='kjApprovalDate != null'>
+            , kj_approval_date = #{kjApprovalDate}
+        </if>
+        <if test='receiveTypeId != null and receiveTypeId != ""'>
+            , receive_type_id = #{receiveTypeId}
+        </if>
+        <if test='receiveDate != null'>
+            , receive_date = #{receiveDate}
+        </if>
+        <if test='serviceId != null and serviceId != ""'>
+            , service_id = #{serviceId}
+        </if>
+        <if test='serviceOrderId != null and serviceOrderId != ""'>
+            , service_order_id = #{serviceOrderId}
+        </if>
+        <if test='paymentVoucherImageUrl1 != null'>
+            , payment_voucher_image_url_1 = #{paymentVoucherImageUrl1}
+        </if>
+        <if test='paymentVoucherImageUrl2 != null'>
+            , payment_voucher_image_url_2 = #{paymentVoucherImageUrl2}
+        </if>
+        <if test='paymentVoucherImageUrl3 != null'>
+            , payment_voucher_image_url_3 = #{paymentVoucherImageUrl3}
+        </if>
+        <if test='paymentVoucherImageUrl4 != null'>
+            , payment_voucher_image_url_4 = #{paymentVoucherImageUrl4}
+        </if>
+        <if test='paymentVoucherImageUrl5 != null'>
+            , payment_voucher_image_url_5 = #{paymentVoucherImageUrl5}
+        </if>
+        <if test='visaVoucherImageUrl != null'>
+            , visa_voucher_image_url = #{visaVoucherImageUrl}
+        </if>
+        <if test='receivable != null and receivable != ""'>
+            , receivable = #{receivable}
+        </if>
+        <if test='received != null and received != ""'>
+            , received = #{received}
+        </if>
+        <if test='perAmount != null and perAmount != ""'>
+            , per_amount = #{perAmount}
+        </if>
+        <if test='amount != null and amount != ""'>
+            , amount = #{amount}
+        </if>
+        <if test='expectAmount != null and expectAmount != ""'>
+            , expect_amount = #{expectAmount}
+        </if>
+        <if test='sureExpectAmount != null and sureExpectAmount != ""'>
+            , sure_expect_amount = #{sureExpectAmount}
+        </if>
+        <if test='currency != null and currency != ""'>
+            , currency = #{currency}
+        </if>
+        <if test='exchangeRate != null and exchangeRate != ""'>
+            , exchange_rate = #{exchangeRate}
+        </if>
+        <if test='invoiceNumber != null and invoiceNumber != ""'>
+            , invoice_number = #{invoiceNumber}
+        </if>
+        <if test='gst != null and gst != ""'>
+            , gst = #{gst}
+        </if>
+        <if test='deductGst != null and deductGst != ""'>
+            , deduct_gst = #{deductGst}
+        </if>
+        <if test='bonus != null and bonus != ""'>
+            , bonus = #{bonus}
+        </if>
+        <if test='bonusDate != null'>
+            , bonus_date = #{bonusDate}
+        </if>
+        <if test='adviserId != null and adviserId != ""'>
+            , adviser_id = #{adviserId}
+        </if>
+        <if test='maraId != null and maraId != ""'>
+            , mara_id = #{maraId}
+        </if>
+        <if test='officialId != null and officialId != ""'>
+            , official_id = #{officialId}
+        </if>
+        <if test='bankCheck != null and bankCheck != ""'>
+            , bank_check = #{bankCheck}
+        </if>
+        <if test='isChecked != null'>
+            , is_checked = #{isChecked}
+        </if>
+        <if test='remarks != null and remarks != ""'>
+            , remarks = #{remarks}
+        </if>
+        <if test='refuseReason != null'>
+            , refuse_reason = #{refuseReason}
+        </if>
+        <if test='verifyCode != null and verifyCode != ""'>
+            , verify_code = #{verifyCode}
+        </if>
+        <if test='bankDate != null'>
+            , bank_date = #{bankDate}
+        </if>
+        <if test='isClose != null'>
+            , is_close = #{isClose}
+        </if>
+        <if test='installment != null'>
+            , installment = #{installment}
+        </if>
+        <if test='installmentNum != null'>
+            , installment_num = #{installmentNum}
+        </if>
+        WHERE id = #{id};
+    </update>
+</mapper>

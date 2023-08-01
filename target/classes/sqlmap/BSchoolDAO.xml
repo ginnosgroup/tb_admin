@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.SchoolDAO">
+    
+    <cache eviction="LRU" flushInterval="60000" readOnly="false" size="1024"></cache>
+
+    <insert id="addSchool" parameterType="org.zhinanzhen.b.dao.pojo.SchoolDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+            INTO b_school (
+                gmt_create,
+                gmt_modify,
+                name,
+                subject,
+                country)
+            VALUES (
+                now(),
+                now(),
+                #{name},
+                #{subject},
+                #{country});
+    </insert>
+    
+    <update id="updateSchool" parameterType="org.zhinanzhen.b.dao.pojo.SchoolDO">
+        UPDATE b_school 
+        SET gmt_modify = now()
+        <if test='name != null and name != ""'>
+            , name = #{name}
+        </if>
+        <if test='subject != null and subject != ""'>
+            , subject = #{subject}
+        </if>
+        <if test='country != null and country != ""'>
+            , country = #{country}
+        </if>
+        WHERE is_delete = 0 AND id = #{id};
+    </update>
+    
+    <select id="list" resultType="org.zhinanzhen.b.dao.pojo.SchoolDO">
+        SELECT
+            id,
+            name,
+            subject,
+            country
+        FROM b_school
+        WHERE is_delete = 0
+        <if test='name != null and name != ""'>
+            AND name LIKE "%${name}%"
+        </if>
+        <if test='subject != null and subject != ""'>
+            AND subject LIKE '%${subject}%'
+        </if>
+        <if test='country != null and country != ""'>
+            AND country = #{country}
+        </if>
+        ORDER BY gmt_create DESC;
+    </select>
+    
+    <select id="list2" resultType="org.zhinanzhen.b.dao.pojo.SchoolDO">
+        SELECT
+            id,
+            name,
+            subject,
+            country
+        FROM b_school
+        WHERE is_delete = 0
+        <if test='name != null and name != ""'>
+            AND name = #{name}
+        </if>
+        <if test='subject != null and subject != ""'>
+            AND subject = #{subject}
+        </if>
+        ;
+    </select>
+    
+    <select id="listSchool" resultType="org.zhinanzhen.b.dao.pojo.SchoolDO">
+        SELECT
+            id,
+            name,
+            country
+        FROM b_school
+        WHERE is_delete = 0
+        <if test='name != null and name != ""'>
+            AND name LIKE "%${name}%"
+        </if>
+        <if test='country != null and country != ""'>
+            AND country = #{country}
+        </if>
+        GROUP BY name
+        ORDER BY name;
+    </select>
+    
+    <select id="getSchoolById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.SchoolDO">
+        SELECT
+            id,
+            name,
+            subject,
+            country
+        FROM b_school WHERE id = #{id, jdbcType=INTEGER};
+    </select>
+    
+    <update id="deleteSchoolById" parameterType="java.lang.Integer">
+        UPDATE b_school 
+        SET gmt_modify = now(), is_delete = 1
+        WHERE id = #{id, jdbcType=INTEGER};
+    </update>
+    
+    <update id="deleteSchoolByName" parameterType="java.lang.String">
+        UPDATE b_school 
+        SET gmt_modify = now(), is_delete = 1
+        WHERE name = #{name};
+    </update>
+
+</mapper>

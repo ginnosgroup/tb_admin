@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.ServiceAssessDao">
+    <select id="list" resultType="org.zhinanzhen.b.dao.pojo.ServiceAssessDO">
+        select id,name,service_id as serviceId from `b_service_assess` where  is_delete = 0
+        <if test=" serviceId != null ">
+            and service_id = #{serviceId}
+        </if>
+        ORDER BY LEFT(name,6) ;
+    </select>
+
+    <insert id="add">
+        insert into `b_service_assess` (name,gmt_create,gmt_modify,service_id,is_delete) values (#{name},now(),now(),#{serviceId},false)
+    </insert>
+
+    <update id="update">
+        update `b_service_assess` set name = #{name} , gmt_modify = now() where id = #{id};
+    </update>
+
+    <update id="delete">
+        update `b_service_assess` set is_delete =  true , gmt_modify = now() where id = #{id};
+    </update>
+
+    <select id="seleteAssessById" resultType="org.zhinanzhen.b.dao.pojo.ServiceAssessDO">
+        select  id,name,service_id as serviceId from `b_service_assess` where id = #{id} and is_delete = false;
+    </select>
+
+    <select id="seleteAssessByServiceId" resultType="org.zhinanzhen.b.dao.pojo.ServiceAssessDO">
+        select id,name,service_id AS serviceId from `b_service_assess` where service_id  = #{serviceId} and is_delete = false;
+    </select>
+</mapper>
