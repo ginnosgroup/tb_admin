@@ -65,6 +65,8 @@ public class VisaController extends BaseCommissionOrderController {
 	MaraService maraService;
 	@Resource
 	VisaService visaService;
+	@Resource
+	VisaOfficialService visaOfficialService;
 
 	@Resource
 	ServiceOrderService serviceOrderService;
@@ -566,6 +568,10 @@ public class VisaController extends BaseCommissionOrderController {
 		if (isChangeState) {
 			visaDto.setState(ReviewKjStateEnum.COMPLETE.toString());
 			visaDto.setCommissionState(CommissionStateEnum.YJY.toString());
+			// 修改文案佣金订单状态
+			VisaOfficialDTO visaOfficialDto = visaOfficialService.getByServiceOrderId(visaDto.getServiceOrderId());
+			if (visaOfficialDto != null && !visaOfficialDto.isMerged())
+				visaOfficialService.updateMerged(visaOfficialDto.getId(), Boolean.TRUE);
 		}
 		return visaService.updateVisa(visaDto) > 0 ? new Response<VisaDTO>(0, visaDto)
 				: new Response<VisaDTO>(1, "修改失败.", null);

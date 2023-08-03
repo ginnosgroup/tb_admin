@@ -1339,6 +1339,7 @@ CREATE TABLE `b_visa_official` (
   `payment_voucher_image_url_5` varchar(128) DEFAULT NULL COMMENT '支付凭证图片地址5',
   `bank_check` varchar(32) DEFAULT NULL COMMENT '银行对账',
   `is_checked` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否对账成功',
+`is_merged` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否合账成功',
   `sure_expect_amount` decimal(8,2) DEFAULT NULL COMMENT '确认预收业绩',
   `kj_approval_date` datetime DEFAULT NULL COMMENT '财务审核时间',
   `invoice_number` varchar(128) DEFAULT NULL COMMENT 'InvoiceNo.',

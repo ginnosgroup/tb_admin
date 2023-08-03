@@ -2759,7 +2759,7 @@ public class ServiceOrderController extends BaseController {
                 } else
                     return new Response<Integer>(1, "修改失败,请检查参数.", null);
             } else
-                return new Response<Integer>(1, "只允许修改未审核订单.", null);
+                return new Response<Integer>(1, "只允许修改未申请月奖订单.", null);
         } catch (ServiceException e) {
             return new Response<Integer>(1, "异常:" + e.getMessage(), null);
         }

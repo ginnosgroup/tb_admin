@@ -247,7 +247,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                     return new ListResponse<>(false, pageSize, 0, null, "无法获取文案编号，请退出重新登录后再尝试．");
             }
             int count = visaOfficialService.count(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, startDate, endDate, userName, applicantName);
-            List<VisaOfficialDTO> officialDTOList = visaOfficialService.getVisaOfficialOrder(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, startDate,
+            List<VisaOfficialDTO> officialDTOList = visaOfficialService.listVisaOfficialOrder(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, startDate,
                     endDate, userName, applicantName, pageNum, pageSize, _sorter);
 
 
@@ -308,7 +308,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 regionList = new ArrayList<>();
                 regionList.add(regionId);
             }
-            List<VisaOfficialDTO> officialList = visaOfficialService.getVisaOfficialOrder(officialId, regionList, id, startHandlingDate, endHandlingDate, state,
+            List<VisaOfficialDTO> officialList = visaOfficialService.listVisaOfficialOrder(officialId, regionList, id, startHandlingDate, endHandlingDate, state,
                     startDate, endDate, userName, applicantName, null, null, null);
             response.reset();// 清空输出流
             String tableName = "official_visa_commission";

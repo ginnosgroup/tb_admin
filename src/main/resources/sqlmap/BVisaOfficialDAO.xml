@@ -44,6 +44,7 @@
             official_id,
             bank_check,
             is_checked,
+            is_merged,
             remarks,
             refuse_reason,
             is_close,
@@ -92,6 +93,7 @@
                    #{officialId},
                    NULL,
                    0,
+                   #{isMerged},
                    #{remarks},
                    #{refuseReason},
                    0,
@@ -115,14 +117,20 @@
             , state = #{state}
         </if>
         where id = #{id}
-
     </update>
+    
     <update id="updateHandlingDate">
         UPDATE b_visa_official
         SET gmt_modify = now()
         <if test='handlingDate !=null'>
             , handling_date = #{handlingDate}
         </if>
+        where id = #{id}
+    </update>
+    
+    <update id="updateMerged">
+        UPDATE b_visa_official
+        SET gmt_modify = now(), is_merged = #{isMerged}
         where id = #{id}
     </update>
 
@@ -180,6 +188,7 @@
         bv.official_id AS officialId,
         bv.bank_check AS bankCheck,
         bv.is_checked AS isChecked,
+        bv.is_merged AS isMerged,
         bv.remarks AS remarks,
         bv.refuse_reason AS refuseReason,
         bv.verify_code AS verifyCode,
@@ -327,6 +336,7 @@
             bv.official_id AS officialId,
             bv.bank_check AS bankCheck,
             bv.is_checked AS isChecked,
+            bv.is_merged AS isMerged,
             bv.remarks AS remarks,
             bv.refuse_reason AS refuseReason,
             bv.verify_code AS verifyCode,
@@ -395,6 +405,7 @@
             official_id AS officialId,
             bank_check AS bankCheck,
             is_checked AS isChecked,
+            bv.is_merged AS isMerged,
             remarks,
             refuse_reason AS refuseReason,
             verify_code AS verifyCode,
@@ -405,7 +416,7 @@
         WHERE code = #{code};
     </select>
 
-    <select id="listByServiceOrderId" resultType="org.zhinanzhen.b.dao.pojo.VisaOfficialDO">
+    <select id="getByServiceOrderId" resultType="org.zhinanzhen.b.dao.pojo.VisaOfficialDO">
         SELECT
             id,
             gmt_create AS gmtCreate,
@@ -446,6 +457,7 @@
             official_id AS officialId,
             bank_check AS bankCheck,
             is_checked AS isChecked,
+            bv.is_merged AS isMerged,
             remarks,
             refuse_reason AS refuseReason,
             verify_code AS verifyCode,
@@ -558,6 +570,9 @@
         </if>
         <if test='isChecked != null'>
             , is_checked = #{isChecked}
+        </if>
+        <if test='isMerged != null'>
+            , is_merged = #{isMerged}
         </if>
         <if test='remarks != null and remarks != ""'>
             , remarks = #{remarks}

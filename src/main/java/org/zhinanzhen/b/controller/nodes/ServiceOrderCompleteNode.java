@@ -69,7 +69,7 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
                 if (arrayList.contains(serviceOrderDto.getService().getCode())) {
                     VisaOfficialDO visaOfficialDO = new VisaOfficialDO();
                     VisaOfficialDO visaOfficialDO1=new VisaOfficialDO();
-                    visaOfficialDO = serviceOrderCompleteNode.visaOfficialDao.listByServiceOrderId(serviceOrderDto.getId());
+                    visaOfficialDO = serviceOrderCompleteNode.visaOfficialDao.getByServiceOrderId(serviceOrderDto.getId());
                     visaOfficialDO.setInstallmentNum(2);
                     visaOfficialDO.setInstallment(2);
                     visaOfficialDO.setKjApprovalDate(null);
