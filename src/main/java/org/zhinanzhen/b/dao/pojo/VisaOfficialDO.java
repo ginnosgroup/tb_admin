@@ -92,6 +92,8 @@ public class VisaOfficialDO {
     private String bankCheck;
 
     private boolean isChecked;
+    
+    private boolean isMerged;
 
     private String remarks;
 
